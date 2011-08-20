@@ -16,6 +16,6 @@ Gem::Specification.new do |s|
   s.files        = Dir['pakyow-presenter/CHANGES', 'pakyow-presenter/README', 'pakyow-presenter/MIT-LICENSE', 'pakyow-presenter/lib/**/*']
   s.require_path = 'pakyow-presenter/lib'
   
-  s.add_dependency('pakyow-core', '0.6.0')
+  s.add_dependency('pakyow-core', "=#{version}")
   s.add_dependency('nokogiri', '>= 1.4')
 end
