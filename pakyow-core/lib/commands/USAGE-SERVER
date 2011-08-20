@@ -1,0 +1,12 @@
+Usage:
+  pakyow server [environment]
+  
+Description:
+    The 'pakyow server' command starts the application server. If environment
+    is not specified, the default_environment defined by your application
+    will be used.
+
+Example:
+    pakyow server development
+
+    This starts the application server with the 'development' configuration.

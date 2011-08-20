@@ -1,0 +1,8 @@
+Usage:
+  pakyow command
+
+There are two commands:
+  new       Create a new Pakyow application
+  server    Start the application server
+
+Run a command with -h for more information.

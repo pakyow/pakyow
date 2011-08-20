@@ -1,0 +1,5 @@
+env = ARGV[1] || 'development'
+env = env.split('=')[1] || env
+
+require 'config/application'
+PakyowApplication::Application.stage(env.to_sym)

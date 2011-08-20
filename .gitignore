@@ -1,0 +1,8 @@
+*.gem
+*.log
+coverage
+.DS_Store
+capfile
+.idea/
+doc
+.yardoc
