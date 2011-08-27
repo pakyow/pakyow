@@ -28,16 +28,16 @@ Presenter for those cases where an application doesn't need a presentation layer
 
 1. Install Pakyow:
 
-gem install pakyow
+    `gem install pakyow`
 
 2. Create a new Pakyow application from the command prompt:
 
-pakyow new webapp
+    `pakyow new webapp`
 
 3. Move to the "webapp" directory and start the application:
 
-cd webapp; pakyow server
-
+    `cd webapp; pakyow server`
+    
 4. You'll find the application running here: http://localhost:3000
 
 # Next Steps
