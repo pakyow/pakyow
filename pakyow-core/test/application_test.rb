@@ -1,8 +1,14 @@
 require 'test/helper'
 
-class ApplicationTest < Test::Unit::TestCase  
+class ApplicationTest < Test::Unit::TestCase
+  TEST_APP_PATH = './test/test_application.rb'
+  
   def test_application_path_is_set_when_inherited    
-    assert_equal('./test/test_application.rb', Pakyow::Configuration::App.application_path)
+    assert_equal(TEST_APP_PATH, Pakyow::Configuration::App.application_path)
+  end
+  
+  def test_application_path_is_accurate_on_windows
+    assert_equal(Pakyow::Application.parse_path_from_caller("C:/test/test_application.rb:5"), 'C:/test/test_application.rb')
   end
   
   def test_application_runs
