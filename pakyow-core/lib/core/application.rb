@@ -6,7 +6,11 @@ module Pakyow
       # Sets the path to the application file so it can be reloaded later.
       #
       def inherited(subclass)
-        Pakyow::Configuration::App.application_path = caller[0].match(/^(.+)(:?:\d+(:?:in `.+')?$)/)[1]
+        Pakyow::Configuration::App.application_path = parse_path_from_caller(caller[0])
+      end
+      
+      def parse_path_from_caller(caller)
+        caller.match(/^(.+)(:?:\d+(:?:in `.+')?$)/)[1]
       end
       
       # Runs the application. Accepts the environment(s) to run, for example:
