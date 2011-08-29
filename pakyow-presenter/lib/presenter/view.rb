@@ -94,11 +94,7 @@ module Pakyow
       def bind(object, type = nil)
         type = type || StringUtils.underscore(object.class.name)
         
-        # This works: .//*
-        # Not this:   .//*[@itemprop or @name]
-        # WTF!
-        #
-        @doc.xpath('.//*').each do |o|
+        @doc.traverse do |o|
           if attribute = o.get_attribute('itemprop')
             selector = attribute
           elsif name = o.get_attribute('name')            
