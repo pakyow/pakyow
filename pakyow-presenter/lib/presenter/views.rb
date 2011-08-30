@@ -95,11 +95,13 @@ module Pakyow
       end
       
       def repeat_for(objects, &block)
-        # Repeat for first match
-        self.first.repeat_for(objects, &block)
+        first_found = self.first
         
         # Remove other matches
-        self.each {|e| e.doc.remove}
+        self.drop(1).each {|found| found.remove}
+        
+        # Repeat for first match
+        first_found.repeat_for(objects, &block)
       end
       
       def bind(object)
