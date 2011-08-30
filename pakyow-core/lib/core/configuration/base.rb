@@ -21,9 +21,8 @@ module Pakyow
           klass.instance_variables.each do |var|
             # Assumes application_path shouldn't be reset, since it's only set
             # once when Pakyow::Application is inherited.
-            next if var == '@application_path'
-            
-            klass.send("#{var.gsub('@', '')}=", nil)
+            next if var.to_sym == :'@application_path'
+            klass.send("#{var.to_s.gsub('@', '')}=", nil)
           end
         end
       end

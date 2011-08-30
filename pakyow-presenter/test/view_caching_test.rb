@@ -1,4 +1,4 @@
-require 'test/helper'
+require 'helper'
 
 class ViewCachingTest < Test::Unit::TestCase
   context "a view cache" do

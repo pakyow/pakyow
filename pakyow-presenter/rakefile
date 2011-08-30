@@ -5,6 +5,7 @@ task :default => [:test_pakyow_presenter]
 
 desc "Run basic tests"
 Rake::TestTask.new("test_pakyow_presenter") do |t|
+  t.libs << 'test'
   t.pattern = 'test/*_test.rb'
   t.verbose = false
   t.warning = false

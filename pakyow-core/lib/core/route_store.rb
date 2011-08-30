@@ -88,7 +88,7 @@ module Pakyow
         if segment.include?(':')
           position_counter += 1
           vars << { :position => position_counter, :var => segment.gsub(':', '').to_sym }
-          regex_route = regex_route.gsub(segment, '([^new/]+)')
+          regex_route = regex_route.gsub(segment, '(((?!\bnew\b).)*)')
         end
       end
 
