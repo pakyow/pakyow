@@ -4,13 +4,13 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.name        = 'pakyow'
   s.version     = version
-  s.summary     = 'Pakyow web application framework.'
-  s.description = 'Pakyow web application framework.'
+  s.summary     = 'Punch packing application framework.'
+  s.description = ''
 
   s.required_ruby_version     = '>= 1.8.7'
   s.required_rubygems_version = ">= 1.3.6"
 
-  s.author            = 'Bryan Powell'
+  s.authors           = ['Bryan Powell', 'Bret Young']
   s.email             = 'bryan@metabahn.com'
   s.homepage          = 'http://pakyow.com'
   s.rubyforge_project = 'pakyow'

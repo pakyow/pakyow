@@ -1,4 +1,4 @@
-require 'test/helper'
+require 'helper'
 
 class RequestTest < Test::Unit::TestCase
   def test_extends_rack_request

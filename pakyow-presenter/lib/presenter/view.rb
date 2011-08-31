@@ -94,11 +94,7 @@ module Pakyow
       def bind(object, type = nil)
         type = type || StringUtils.underscore(object.class.name)
         
-        # This works: .//*
-        # Not this:   .//*[@itemprop or @name]
-        # WTF!
-        #
-        @doc.xpath('.//*').each do |o|
+        @doc.traverse do |o|
           if attribute = o.get_attribute('itemprop')
             selector = attribute
           elsif name = o.get_attribute('name')            
@@ -145,15 +141,17 @@ module Pakyow
       end
 
       def reset_container(container)
-        if @doc && o = @doc.css("*[id='#{container}']").first
-          o.inner_html = ''
-        end
+        return unless @doc
+        return unless o = @doc.css("*[id='#{container}']").first
+        return if o.blank?
+        
+        o.inner_html = ''
       end
 
       def title=(title)
         if @doc
           if o = @doc.css('title').first
-            o.inner_html = title
+            o.inner_html = Nokogiri::HTML::fragment(title)
           else
             if o = @doc.css('head').first
               o.add_child(Nokogiri::HTML::fragment("<title>#{title}</title>"))
@@ -215,6 +213,7 @@ module Pakyow
       end
       
       def clear
+        return if self.doc.blank?
         self.doc.inner_html = ''
       end
       
@@ -230,13 +229,13 @@ module Pakyow
       
       def content=(content)
         return unless content
-        self.doc.inner_html = content.to_s
+        self.doc.inner_html = Nokogiri::HTML.fragment(content.to_s)
       end
       
       alias :html= :content=
       
       def append(content)
-        self.doc.inner_html += content.to_s
+        self.doc.add_child(Nokogiri::HTML.fragment(content.to_s))
       end
       
       alias :render :append
@@ -372,7 +371,7 @@ module Pakyow
 
                 html << "</optgroup>" if is_group
 
-                binding[:element].inner_html = html
+                binding[:element].inner_html = Nokogiri::HTML::fragment(html)
               end
             end
 
@@ -380,7 +379,7 @@ module Pakyow
               opt['selected'] = 'selected'
             end
           else
-            binding[:element].inner_html = value.to_s
+            binding[:element].inner_html = Nokogiri::HTML.fragment(value.to_s)
           end
         elsif binding[:element].name == 'input' && binding[:element][:type] == 'checkbox'
           if value == true || binding[:element].attributes['value'].value == value.to_s

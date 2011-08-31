@@ -1,4 +1,4 @@
-require "test/helper"
+require "helper"
 
 class StringUtilsTest < Test::Unit::TestCase
 

@@ -6,7 +6,11 @@ module Pakyow
       # Sets the path to the application file so it can be reloaded later.
       #
       def inherited(subclass)
-        Pakyow::Configuration::App.application_path = caller[0].split(':')[0]
+        Pakyow::Configuration::App.application_path = parse_path_from_caller(caller[0])
+      end
+      
+      def parse_path_from_caller(caller)
+        caller.match(/^(.+)(:?:\d+(:?:in `.+')?$)/)[1]
       end
       
       # Runs the application. Accepts the environment(s) to run, for example:
@@ -210,10 +214,11 @@ module Pakyow
       Log.enter "[500] #{error}\n"
       Log.enter error.backtrace.join("\n") + "\n\n"
       
-      self.response = Rack::Response.new
+      # self.response = Rack::Response.new
       
       if Configuration::Base.app.errors_in_browser
         # Show errors in browser
+        self.response.body = []
         self.response.body << "<h4>#{CGI.escapeHTML(error.to_s)}</h4>"
         self.response.body << error.backtrace.join("<br />")
       end
@@ -400,11 +405,13 @@ module Pakyow
       return unless handler = self.class.error_handlers[code]
       
       if handler.is_a? Proc
-        handler.call
+        Pakyow.app.instance_eval(&handler)
       else
         c = eval(handler[:controller].to_s).new
         c.send(handler[:action])
       end
+      
+      self.response.body = [self.presenter.content]
     end
     
     def set_cookies

@@ -1,4 +1,4 @@
-require "test/helper"
+require 'helper'
 
 class ViewCompositionTest < Test::Unit::TestCase
 

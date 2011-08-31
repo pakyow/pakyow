@@ -1,8 +1,12 @@
-require 'test/helper'
+require 'helper'
 
-class ApplicationTest < Test::Unit::TestCase  
+class ApplicationTest < Test::Unit::TestCase
   def test_application_path_is_set_when_inherited    
-    assert_equal('./test/test_application.rb', Pakyow::Configuration::App.application_path)
+    assert(Pakyow::Configuration::App.application_path.include?(app_test_path))
+  end
+  
+  def test_application_path_is_accurate_on_windows
+    assert_equal(TestApplication.parse_path_from_caller("C:/test/test_application.rb:5"), 'C:/test/test_application.rb')
   end
   
   def test_application_runs
@@ -370,42 +374,8 @@ class ApplicationTest < Test::Unit::TestCase
     Pakyow.app.routes = nil
   end
   
-end
-
-class Pakyow::Application
-  attr_accessor :static_handler, :routes, :static
-  
-  # This keeps the app from actually being run.
-  def self.detect_handler
-    TestHandler
+  def app_test_path
+    File.join('test', 'test_application.rb')
   end
   
-  def self.reset(do_reset)
-    if do_reset
-      Pakyow.app = nil
-      Pakyow::Configuration::Base.reset!
-      
-      @running = nil
-      @staged = nil
-      @routes_proc = nil
-      @error_handlers = nil
-    end
-    
-    return self
-  end
-  
-  def register_route(route, block, method, controller = nil, action = nil, restful = false)
-    @routes ||= []
-    @routes << { :route => route, :block => block, :method => method, :controller => controller, :action => action }
-  end
-  
-  def restful_actions
-    @@restful_actions
-  end
-  
-  def restful_options_for_action(action)
-    restful_actions.each do |h|
-      return h if h[:action] == action
-    end
-  end
 end

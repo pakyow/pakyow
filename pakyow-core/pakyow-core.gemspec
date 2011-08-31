@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.description = 'pakyow-core'
   s.required_ruby_version = '>= 1.8.7'
 
-  s.author            = 'Bryan Powell'
+  s.authors           = ['Bryan Powell', 'Bret Young']
   s.email             = 'bryan@metabahn.com'
   s.homepage          = 'http://pakyow.com'
   s.rubyforge_project = 'pakyow-core'

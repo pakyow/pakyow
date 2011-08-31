@@ -1,4 +1,4 @@
-require 'test/helper'
+require 'helper'
 
 class LoaderTest < Test::Unit::TestCase
   def test_recursively_loads_files
@@ -30,7 +30,7 @@ class LoaderTest < Test::Unit::TestCase
   private
   
   def path
-    'test/loader'
+    File.join(Dir.pwd, 'test', 'loader')
   end
 end
 

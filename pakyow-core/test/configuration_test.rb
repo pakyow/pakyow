@@ -1,4 +1,4 @@
-require 'test/helper'
+require 'helper'
 
 class ConfigurationTest < Test::Unit::TestCase
   def test_server_configuration_is_returned
