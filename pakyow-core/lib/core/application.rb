@@ -333,13 +333,13 @@ module Pakyow
     end
     
     @@restful_actions = [
-      { :action => :index, :method => :get },
-      { :action => :show, :method => :get, :url_suffix => ':id' },
-      { :action => :new, :method => :get, :url_suffix => 'new' },
-      { :action => :create, :method => :post },
       { :action => :edit, :method => :get, :url_suffix => 'edit/:id' },
+      { :action => :new, :method => :get, :url_suffix => 'new' },
+      { :action => :show, :method => :get, :url_suffix => ':id' },
       { :action => :update, :method => :put, :url_suffix => ':id' },
-      { :action => :delete, :method => :delete, :url_suffix => ':id' }
+      { :action => :delete, :method => :delete, :url_suffix => ':id' },
+      { :action => :index, :method => :get },
+      { :action => :create, :method => :post }
     ]
     
     protected

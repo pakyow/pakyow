@@ -82,13 +82,13 @@ module Pakyow
       end
 
       vars = []
-      position_counter = 0
+      position_counter = 1
       regex_route = route_spec
       route_spec.split('/').each_with_index do |segment, i|
         if segment.include?(':')
-          position_counter += 1
           vars << { :position => position_counter, :var => segment.gsub(':', '').to_sym }
-          regex_route = regex_route.gsub(segment, '([^new/]+)')
+          position_counter += 2
+          regex_route = regex_route.gsub(segment, '(((?!\bnew\b).)*)')
         end
       end
 
