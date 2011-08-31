@@ -1,3 +1,14 @@
+= 0.6.2 / 2011-08-20
+
+  * Fixes issue running pakyow server on Windows
+  * Fixes several issues related to error handlers
+  * Fixes an issue when using alphanumeric ids in restful routes
+  * JRuby Support
+
+= 0.6.1 / 2011-08-20
+
+  * Fixes gemspec problem
+
 = 0.6.0 / 2011-08-20
 
  * Initial gem release of 0.6.0 codebase

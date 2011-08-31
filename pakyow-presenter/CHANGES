@@ -1,3 +1,12 @@
+= 0.6.2 / 2011-08-20
+
+  * Fixes issue binding object to root nodes
+  * JRuby Support
+
+= 0.6.1 / 2011-08-20
+
+  * Fixes gemspec problem
+
 = 0.6.0 / 2011-08-20
 
  * Initial gem release of 0.6.0 codebase
