@@ -1,4 +1,5 @@
 version = File.read(File.join(File.expand_path("../../VERSION", __FILE__))).strip
+core_path = File.exists?('pakyow-core') ? 'pakyow-core' : '.'
 
 Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
@@ -14,15 +15,15 @@ Gem::Specification.new do |s|
   s.rubyforge_project = 'pakyow-core'
 
   s.files        = Dir[
-                        'pakyow-core/CHANGES', 
-                        'pakyow-core/README', 
-                        'pakyow-core/MIT-LICENSE', 
-                        'pakyow-core/lib/**/*'
+                        File.join(core_path, 'CHANGES'), 
+                        File.join(core_path, 'README'), 
+                        File.join(core_path, 'MIT-LICENSE'), 
+                        File.join(core_path, 'lib','**','*')
                       ]
                       
-  s.require_path = 'pakyow-core/lib'
-  
-  s.bindir             = 'pakyow-core/bin'
+  s.require_path = File.join(core_path, 'lib')
+
+  s.bindir             = File.join(core_path, 'bin')
   s.executables        = ['pakyow']
   
   s.add_dependency('rack', '>= 1.2')
