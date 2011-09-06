@@ -97,8 +97,8 @@ module Pakyow
         @doc.traverse do |o|
           if attribute = o.get_attribute('itemprop')
             selector = attribute
-          elsif name = o.get_attribute('name')            
-            selector = name
+          elsif attribute = o.get_attribute('name')
+            selector = attribute
           else
             next
           end
