@@ -1,4 +1,5 @@
-version = File.read("VERSION").strip
+version = File.read(File.join(File.expand_path("../../VERSION", __FILE__))).strip
+presenter_path = File.exists?('pakyow-presenter') ? 'pakyow-presenter' : '.'
 
 Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
@@ -13,8 +14,14 @@ Gem::Specification.new do |s|
   s.homepage          = 'http://pakyow.com'
   s.rubyforge_project = 'pakyow-presenter'
 
-  s.files        = Dir['pakyow-presenter/CHANGES', 'pakyow-presenter/README', 'pakyow-presenter/MIT-LICENSE', 'pakyow-presenter/lib/**/*']
-  s.require_path = 'pakyow-presenter/lib'
+  s.files        = Dir[
+                        File.join(presenter_path, 'CHANGES'), 
+                        File.join(presenter_path, 'README'), 
+                        File.join(presenter_path, 'MIT-LICENSE'), 
+                        File.join(presenter_path, 'lib','**','*')
+                      ]
+
+  s.require_path = File.join(presenter_path, 'lib')
   
   s.add_dependency('pakyow-core', "=#{version}")
   s.add_dependency('nokogiri', '>= 1.4')
