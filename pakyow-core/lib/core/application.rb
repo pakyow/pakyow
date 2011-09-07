@@ -182,9 +182,8 @@ module Pakyow
         self.request.format = ((format && (format[format.length - 1, 1] == '/')) ? format[0, format.length - 1] : format)
         catch(:halt) do
           rhs, packet = @route_store.get_block(just_the_path, self.request.method)
-          packet[:vars].each_pair { |var, val|
-            request.params[var] = val
-          }
+          request.params.merge!(HashUtils.strhash(packet[:vars]))
+
           self.request.route_spec = packet[:data][:route_spec] if packet[:data]
           restful_info = packet[:data][:restful] if packet[:data]
           self.request.restful = restful_info
