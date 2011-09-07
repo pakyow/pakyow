@@ -1,4 +1,4 @@
-require 'config/application'
+require File.expand_path('../config/application', __FILE__)
 PakyowApplication::Application.stage(:development)
 
 app = Rack::Builder.new do

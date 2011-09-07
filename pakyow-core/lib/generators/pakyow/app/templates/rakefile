@@ -1,5 +1,5 @@
 env = ARGV[1] || 'development'
 env = env.split('=')[1] || env
 
-require 'config/application'
+require File.expand_path('../config/application', __FILE__)
 PakyowApplication::Application.stage(env.to_sym)
