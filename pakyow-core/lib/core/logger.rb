@@ -21,13 +21,11 @@ module Pakyow
         result = @app.response.finish
       end
       
-      unless @app.static?
-        ended_at = Time.now.to_f
-        difference = ((ended_at - began_at.to_f) * 1000).to_f
+      ended_at = Time.now.to_f
+      difference = ((ended_at - began_at.to_f) * 1000).to_f
 
-        Log.enter "Completed in #{difference}ms | #{app.response.status} | [#{app.request.url}]"
-        Log.enter
-      end
+      Log.enter "Completed in #{difference}ms | #{app.response.status} | [#{app.request.url}]"
+      Log.enter
       
       result
     end

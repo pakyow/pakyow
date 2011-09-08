@@ -25,6 +25,7 @@ module Pakyow
         
         builder = Rack::Builder.new
         builder.use(Rack::MethodOverride)
+        builder.use(Pakyow::Static) #TODO config option?
         builder.use(Pakyow::Logger) if Configuration::Base.app.log
         builder.instance_eval(&self.middleware_proc) if self.middleware_proc
         builder.run(self.new)
@@ -133,9 +134,6 @@ module Pakyow
     def initialize
       Pakyow.app = self
       
-      # Create static handler
-      @static_handler = Rack::File.new(Configuration::Base.app.public_dir)
-      
       # This configuration option will be set if a presenter is to be used
       if Configuration::Base.app.presenter
         # Create a new instance of the presenter
@@ -153,59 +151,49 @@ module Pakyow
       throw :halt, self.response
     end
     
-    def static?
-      @static
-    end
-    
     # Called on every request.
     #
     def call(env)
-      # Handle static files
-      if env['PATH_INFO'] =~ /\.(.*)$/ && File.exists?(File.join(Configuration::Base.app.public_dir, env['PATH_INFO']))
-        @static = true
-        @static_handler.call(env)
-      else
-        # The request object
-        self.request = Request.new(env)
-        
-        # Reload application files
-        load_app
-        
-        if Configuration::Base.app.presenter
-          # Handle presentation for this request
-          self.presenter.present_for_request(request)
-        end
-        
-        # The response object
-        self.response = Rack::Response.new
-        rhs = nil
-        just_the_path, format = StringUtils.split_at_last_dot(self.request.path)
-        self.request.format = ((format && (format[format.length - 1, 1] == '/')) ? format[0, format.length - 1] : format)
-        catch(:halt) do
-          rhs, packet = @route_store.get_block(just_the_path, self.request.method)
-          packet[:vars].each_pair { |var, val|
-            request.params[var] = val
-          }
-          self.request.route_spec = packet[:data][:route_spec] if packet[:data]
-          restful_info = packet[:data][:restful] if packet[:data]
-          self.request.restful = restful_info
-          rhs.call() if rhs && !Pakyow::Configuration::App.ignore_routes
-        end
-        
-        if !self.interrupted?
-          if Configuration::Base.app.presenter
-            self.response.body = [self.presenter.content]
-          end
-          
-          # 404 if no facts matched and no views were found
-          if !rhs && (!self.presenter || !self.presenter.presented?)
-            self.handle_error(404)
-            self.response.status = 404
-          end
-        end
-        
-        finish!
+      # The request object
+      self.request = Request.new(env)
+      
+      # Reload application files
+      load_app
+      
+      if Configuration::Base.app.presenter
+        # Handle presentation for this request
+        self.presenter.present_for_request(request)
       end
+      
+      # The response object
+      self.response = Rack::Response.new
+      rhs = nil
+      just_the_path, format = StringUtils.split_at_last_dot(self.request.path)
+      self.request.format = ((format && (format[format.length - 1, 1] == '/')) ? format[0, format.length - 1] : format)
+      catch(:halt) do
+        rhs, packet = @route_store.get_block(just_the_path, self.request.method)
+        packet[:vars].each_pair { |var, val|
+          request.params[var] = val
+        }
+        self.request.route_spec = packet[:data][:route_spec] if packet[:data]
+        restful_info = packet[:data][:restful] if packet[:data]
+        self.request.restful = restful_info
+        rhs.call() if rhs && !Pakyow::Configuration::App.ignore_routes
+      end
+      
+      if !self.interrupted?
+        if Configuration::Base.app.presenter
+          self.response.body = [self.presenter.content]
+        end
+        
+        # 404 if no facts matched and no views were found
+        if !rhs && (!self.presenter || !self.presenter.presented?)
+          self.handle_error(404)
+          self.response.status = 404
+        end
+      end
+      
+      finish!
     rescue StandardError => error
       self.request.error = error
       self.handle_error(500)
@@ -445,7 +433,6 @@ module Pakyow
     #
     def finish!
       @interrupted = false
-      @static = false
       
       # Set cookies
       set_cookies
