@@ -9,7 +9,12 @@ module Pakyow
       
       Log.enter "Processing #{env['PATH_INFO']} (#{env['REMOTE_ADDR']} at #{began_at}) [#{env['REQUEST_METHOD']}]"
       
-      if error = catch(:error) { result = @app.call(env) }
+      result = nil
+      
+      if error = catch(:error) { 
+                  result = @app.call(env)
+                  nil 
+                }
         Log.enter "[500] #{error}\n"
         Log.enter error.backtrace.join("\n") + "\n\n"
         
