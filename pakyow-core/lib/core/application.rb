@@ -218,8 +218,12 @@ module Pakyow
       
       self.response.status = 500
       
-      # caught by other middleware (e.g. logger)
-      throw :error, error if Configuration::Base.app.log
+      begin
+        # caught by other middleware (e.g. logger)
+        throw :error, error
+      rescue ArgumentError
+      end
+      
       finish!
     end
     
