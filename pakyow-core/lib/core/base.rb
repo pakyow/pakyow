@@ -6,7 +6,8 @@ module Pakyow
   autoload :Request,        'core/request'
   autoload :Loader,         'core/loader'
   autoload :Application,    'core/application'
-  autoload :RouteStore,    'core/route_store'
+  autoload :RouteStore,     'core/route_store'
+  autoload :Logger,         'core/logger'
 
   # utils
   autoload :StringUtils,    'utils/string'

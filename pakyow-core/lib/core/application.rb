@@ -25,6 +25,7 @@ module Pakyow
         
         builder = Rack::Builder.new
         builder.use(Rack::MethodOverride)
+        builder.use(Pakyow::Logger) if Configuration::Base.app.log
         builder.instance_eval(&self.middleware_proc) if self.middleware_proc
         builder.run(self.new)
         detect_handler.run(builder, :Host => Pakyow::Configuration::Base.server.host, :Port => Pakyow::Configuration::Base.server.port)
@@ -152,15 +153,17 @@ module Pakyow
       throw :halt, self.response
     end
     
+    def static?
+      @static
+    end
+    
     # Called on every request.
     #
     def call(env)
-      start_time = Time.now.to_f
-      
       # Handle static files
       if env['PATH_INFO'] =~ /\.(.*)$/ && File.exists?(File.join(Configuration::Base.app.public_dir, env['PATH_INFO']))
         @static = true
-        @static_handler.call(env)        
+        @static_handler.call(env)
       else
         # The request object
         self.request = Request.new(env)
@@ -172,8 +175,6 @@ module Pakyow
           # Handle presentation for this request
           self.presenter.present_for_request(request)
         end
-        
-        Log.enter "Processing #{env['PATH_INFO']} (#{env['REMOTE_ADDR']} at #{Time.now}) [#{env['REQUEST_METHOD']}]"
         
         # The response object
         self.response = Rack::Response.new
@@ -198,40 +199,31 @@ module Pakyow
           # 404 if no facts matched and no views were found
           if !rhs && (!self.presenter || !self.presenter.presented?)
             self.handle_error(404)
-            
-            Log.enter "[404] Not Found"
             self.response.status = 404
           end
         end
         
-        return finish!
+        finish!
       end
     rescue StandardError => error
       self.request.error = error
       self.handle_error(500)
       
-      Log.enter "[500] #{error}\n"
-      Log.enter error.backtrace.join("\n") + "\n\n"
-      
-      # self.response = Rack::Response.new
-      
       if Configuration::Base.app.errors_in_browser
-        # Show errors in browser
         self.response.body = []
         self.response.body << "<h4>#{CGI.escapeHTML(error.to_s)}</h4>"
         self.response.body << error.backtrace.join("<br />")
       end
       
       self.response.status = 500
-      return finish!
-    ensure
-      unless @static
-        end_time = Time.now.to_f
-        difference = ((end_time - start_time) * 1000).to_f
-
-        Log.enter "Completed in #{difference}ms | #{self.response.status} | [#{self.request.url}]"
-        Log.enter
+      
+      begin
+        # caught by other middleware (e.g. logger)
+        throw :error, error
+      rescue ArgumentError
       end
+      
+      finish!
     end
     
     # Sends a file in the response (immediately). Accepts a File object. Mime 
