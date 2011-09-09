@@ -8,6 +8,8 @@ module Pakyow
   autoload :Application,    'core/application'
   autoload :RouteStore,     'core/route_store'
   autoload :Logger,         'core/logger'
+  autoload :Static,         'core/static'
+  autoload :Reloader,       'core/reloader'
 
   # utils
   autoload :StringUtils,    'utils/string'
