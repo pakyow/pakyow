@@ -27,6 +27,7 @@ module Pakyow
         builder.use(Rack::MethodOverride)
         builder.use(Pakyow::Static) #TODO config option?
         builder.use(Pakyow::Logger) if Configuration::Base.app.log
+        builder.use(Pakyow::Reloader) if Configuration::Base.app.auto_reload
         builder.instance_eval(&self.middleware_proc) if self.middleware_proc
         builder.run(self.new)
         detect_handler.run(builder, :Host => Pakyow::Configuration::Base.server.host, :Port => Pakyow::Configuration::Base.server.port)
@@ -154,11 +155,7 @@ module Pakyow
     # Called on every request.
     #
     def call(env)
-      # The request object
       self.request = Request.new(env)
-      
-      # Reload application files
-      load_app
       
       if Configuration::Base.app.presenter
         # Handle presentation for this request
@@ -323,6 +320,11 @@ module Pakyow
       { :action => :create, :method => :post }
     ]
     
+    #TODO: don't like this...
+    def reload
+      load_app
+    end
+    
     protected
     
     def interrupted?
@@ -407,10 +409,6 @@ module Pakyow
     # Reloads all application files in application_path and presenter (if specified).
     #
     def load_app
-      return if @loaded && !Configuration::Base.app.auto_reload
-      @loaded = true
-      
-      # Reload Application
       load(Configuration::App.application_path)
       
       @loader = Loader.new unless @loader
