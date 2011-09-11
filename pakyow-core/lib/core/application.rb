@@ -183,17 +183,12 @@ module Pakyow
           self.response.body = [self.presenter.content]
         end
         
-        rhs = nil
-        just_the_path, format = StringUtils.split_at_last_dot(self.request.path)
-        self.request.format = ((format && (format[format.length - 1, 1] == '/')) ? format[0, format.length - 1] : format)
-        catch(:halt) do
-          rhs, packet = @route_store.get_block(just_the_path, self.request.method)
-          request.params.merge!(HashUtils.strhash(packet[:vars]))
-
-          self.request.route_spec = packet[:data][:route_spec] if packet[:data]
-          restful_info = packet[:data][:restful] if packet[:data]
-          self.request.restful = restful_info
-          rhs.call() if rhs && !Pakyow::Configuration::App.ignore_routes
+        # 404 if no facts matched and no views were found
+        if !rhs && (!self.presenter || !self.presenter.presented?)
+          self.handle_error(404)
+          
+          Log.enter "[404] Not Found"
+          self.response.status = 404
         end
       end
       
