@@ -1,5 +1,5 @@
 module Pakyow
-  class Reloaded
+  class Reloader
     def initialize(app)
       @app = app
     end
