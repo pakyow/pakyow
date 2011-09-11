@@ -18,18 +18,10 @@ module Pakyow
       # run([:development, :staging])
       #
       def run(*args)
-        self.load_config args.empty? || args.first.nil? ? [Configuration::Base.app.default_environment] : args
         return if running?
-        
         @running = true
         
-        builder = Rack::Builder.new
-        builder.use(Rack::MethodOverride)
-        builder.use(Pakyow::Static) #TODO config option?
-        builder.use(Pakyow::Logger) if Configuration::Base.app.log
-        builder.use(Pakyow::Reloader) if Configuration::Base.app.auto_reload
-        builder.instance_eval(&self.middleware_proc) if self.middleware_proc
-        builder.run(self.new)
+        self.builder.run(self.prepare(*args))
         detect_handler.run(builder, :Host => Pakyow::Configuration::Base.server.host, :Port => Pakyow::Configuration::Base.server.port)
       end
       
@@ -37,12 +29,18 @@ module Pakyow
       # not started. Accepts the same arguments as #run.
       #
       def stage(*args)
-        load_config args.empty? || args.first.nil? ? [Configuration::Base.app.default_environment] : args
         return if staged?
-        
-        app = self.new
-        
         @staged = true
+        
+        prepare(*args)
+      end
+      
+      def builder
+        @builder ||= Rack::Builder.new
+      end
+      
+      def prepared?
+        @prepared
       end
       
       # Returns true if the application is running.
@@ -106,6 +104,24 @@ module Pakyow
       end
       
       protected
+      
+      # Prepares the application for running or staging and returns an instance
+      # of the application.
+      def prepare(*args)
+        self.load_config args.empty? || args.first.nil? ? [Configuration::Base.app.default_environment] : args
+        return if prepared?
+        
+        self.builder.use(Rack::MethodOverride)
+        self.builder.use(Pakyow::Static) #TODO config option?
+        self.builder.use(Pakyow::Logger) if Configuration::Base.app.log
+        self.builder.use(Pakyow::Reloader) if Configuration::Base.app.auto_reload
+        self.builder.instance_eval(&self.middleware_proc) if self.middleware_proc
+        
+        @prepared = true
+        
+        $:.unshift(Dir.pwd) unless $:.include? Dir.pwd
+        return self.new
+      end
       
       def load_config(args)
         if self.configurations
