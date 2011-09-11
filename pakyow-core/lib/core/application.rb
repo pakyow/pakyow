@@ -183,8 +183,6 @@ module Pakyow
           self.response.body = [self.presenter.content]
         end
         
-        # The response object
-        self.response = Rack::Response.new
         rhs = nil
         just_the_path, format = StringUtils.split_at_last_dot(self.request.path)
         self.request.format = ((format && (format[format.length - 1, 1] == '/')) ? format[0, format.length - 1] : format)
