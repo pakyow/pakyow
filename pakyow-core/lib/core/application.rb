@@ -326,7 +326,7 @@ module Pakyow
           end
           
           # Create the route
-          register_route(action_url, nil, opts[:method], controller, opts[:action], true)
+          register_route(action_url, nil, opts[:method], controller, opts[:action], :restful)
           
           # Store url for later use (currently used by Binder#action)
           @restful_routes[model][opts[:action]] = action_url if model
@@ -338,8 +338,8 @@ module Pakyow
     
     @@restful_actions = [
       { :action => :edit, :method => :get, :url_suffix => 'edit/:id' },
-      { :action => :new, :method => :get, :url_suffix => 'new' },
       { :action => :show, :method => :get, :url_suffix => ':id' },
+      { :action => :new, :method => :get, :url_suffix => 'new' },
       { :action => :update, :method => :put, :url_suffix => ':id' },
       { :action => :delete, :method => :delete, :url_suffix => ':id' },
       { :action => :index, :method => :get },
@@ -354,7 +354,7 @@ module Pakyow
     
     # Handles route registration.
     #
-    def register_route(route, block, method, controller = nil, action = nil, restful = false)
+    def register_route(route, block, method, controller = nil, action = nil, type = :user)
       if controller
         controller = eval(controller.to_s)
         action ||= Configuration::Base.app.default_action
@@ -368,8 +368,8 @@ module Pakyow
         }
       end
 
-      data = {:route_spec=>route}
-      if restful
+      data = {:route_type=>type, :route_spec=>route}
+      if type == :restful
         data[:restful] = {:restful_action=>action}
       end
       @route_store.add_route(route, block, method, data)
