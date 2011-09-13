@@ -26,5 +26,5 @@ Gem::Specification.new do |s|
   s.bindir             = File.join(core_path, 'bin')
   s.executables        = ['pakyow']
   
-  s.add_dependency('rack', '>= 1.2')
+  s.add_dependency('rack', '~> 1.3')
 end
