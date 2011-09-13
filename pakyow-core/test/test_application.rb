@@ -40,6 +40,7 @@ class TestApplication < Pakyow::Application
       Pakyow.app = nil
       Pakyow::Configuration::Base.reset!
       
+      @prepared = nil
       @running = nil
       @staged = nil
       @routes_proc = nil
