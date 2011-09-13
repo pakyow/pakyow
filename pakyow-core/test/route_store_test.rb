@@ -37,8 +37,19 @@ class RouteStoreTest < Test::Unit::TestCase
       "found mdend"
     end
 
+    def m1end
+      "found m1end"
+    end
+
     def dopost
       "found dopost"
+    end
+
+    def x1
+      "found x1"
+    end
+    def x1x2
+      "found x1x2"
     end
   end
 
@@ -78,12 +89,24 @@ class RouteStoreTest < Test::Unit::TestCase
         RSTController.new.ts
       end
 
+      get '/m1/:mid/d1/end' do
+        RSTController.new.m1end
+      end
+
       get 'm1/:mid/d1/:did' do
         RSTController.new.md
       end
 
       get '/m1/:mid/d1/:did/end' do
         RSTController.new.mdend
+      end
+
+      get '/x1/:id/:id2' do
+        RSTController.new.x1
+      end
+
+      get '/x1/:id/:id2/x2' do
+        RSTController.new.x1x2
       end
 
       restful 'bret', 'RouteStoreTest::RSTController' do
@@ -176,13 +199,51 @@ class RouteStoreTest < Test::Unit::TestCase
 
   def test_route_with_vars_not_at_end
     proc,packet = @route_store.get_block('/m1/1138/d1/thx/end', :get)
-    #assert_equal("/m1/:mid/d1/:did/end", packet[:data][:route_spec], "wrong route_spec")
     assert_nil(packet[:data][:restful], "restful data was not nil")
     v = packet[:vars]
     assert(proc, "No block found for /m1/1138/d1/thx/end")
-    #assert_equal('found mdend', proc.call)
     assert_equal("1138", v['mid'])
-    #assert_equal("thx", v['did'])
+  end
+
+  def test_full_regex
+    proc,packet = @route_store.get_block('/m1/new/d1/new', :get)
+    assert_equal("m1/:mid/d1/:did", packet[:data][:route_spec], "wrong route_spec")
+    v = packet[:vars]
+    assert_equal('found md', proc.call)
+    assert_equal("new", v['mid'])
+    assert_equal("new", v['did'])
+
+    proc,packet = @route_store.get_block('/m1/1138/d1/thx/end', :get)
+    assert_equal("/m1/:mid/d1/:did/end", packet[:data][:route_spec], "wrong route_spec")
+    v = packet[:vars]
+    assert_equal('found mdend', proc.call)
+    assert_equal("thx", v['did'])
+
+    proc,packet = @route_store.get_block('/m1/11/d1/end', :get)
+    assert_equal("/m1/:mid/d1/end", packet[:data][:route_spec], "wrong route_spec")
+    v = packet[:vars]
+    assert_equal('found m1end', proc.call)
+    assert_equal("11", v['mid'])
+
+    assert_nil(@route_store.get_block('m1/thx/d1/1138/new', :get)[0], "Found a block for route m1/thx/d1/1138/xxx")
+    assert_nil(@route_store.get_block('m1/thx/d1/1138/xxx', :get)[0], "Found a block for route m1/thx/d1/1138/xxx")
+    assert_nil(@route_store.get_block('/m1/1138/d1/thx/xxx', :get)[0], "Found a block for route /m1/1138/d1/thx/xxx")
+
+    proc,packet = @route_store.get_block('/x1/one/two', :get)
+    assert_equal('/x1/:id/:id2', packet[:data][:route_spec], "wrong route_spec")
+    v = packet[:vars]
+    assert_equal('found x1', proc.call)
+    assert_equal("one", v['id'])
+    assert_equal("two", v['id2'])
+
+    proc,packet = @route_store.get_block('/x1/1/2/x2', :get)
+    assert_equal('/x1/:id/:id2/x2', packet[:data][:route_spec], "wrong route_spec")
+    v = packet[:vars]
+    assert_equal('found x1x2', proc.call)
+    assert_equal("1", v['id'])
+    assert_equal("2", v['id2'])
+
+    assert_nil(@route_store.get_block('/x1/1', :get)[0], "Found a block for route /x1/1")
   end
 
   def test_restful
@@ -199,6 +260,11 @@ class RouteStoreTest < Test::Unit::TestCase
     assert_equal("bret/:id", packet[:data][:route_spec], "wrong route_spec")
     assert_equal(:show, packet[:data][:restful][:restful_action], "wrong restful action")
     assert_equal("wen", packet[:vars]['id'], "wrong restful id value")
+
+    proc,packet = @route_store.get_block('/bret/xnewx', :get)
+    assert_equal("bret/:id", packet[:data][:route_spec], "wrong route_spec")
+    assert_equal(:show, packet[:data][:restful][:restful_action], "wrong restful action")
+    assert_equal("xnewx", packet[:vars]['id'], "wrong restful id value")
 
     proc,packet = @route_store.get_block('/bret/new', :get)
     assert_equal("bret/new", packet[:data][:route_spec], "wrong route_spec")
@@ -240,8 +306,6 @@ class RouteStoreTest < Test::Unit::TestCase
     assert_nil(@route_store.get_block('s123x', :get)[0], "Found a block for route s123x")
     assert_nil(@route_store.get_block('t123x', :get)[0], "Found a block for route t123x")
     assert_nil(@route_store.get_block('xxx', :get)[0], "Found a block for route xxx")
-    #assert_nil(@route_store.get_block('m1/thx/d1/1138/xxx', :get)[0], "Found a block for route m1/thx/d1/1138/xxx")
-    #assert_nil(@route_store.get_block('/m1/1138/d1/thx/xxx', :get)[0], "Found a block for route /m1/1138/d1/thx/xxx")
   end
 
 end

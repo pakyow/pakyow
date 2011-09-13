@@ -18,20 +18,29 @@ module Pakyow
 
     def add_route(route_spec, block, method, data)
       route_spec = normalize_route(route_spec)
-      route_to_match, vars = extract_route_vars(route_spec)
-      if route_to_match.class == String
+      route_to_match, vars = build_route_matcher(route_spec, data)
+      
+      if route_to_match.is_a?(String)
         @store[:string][method][route_to_match]={:block => block,
                                                  :order => @order,
                                                  :data => data}
         @order = @order + 1
-      elsif route_to_match.class == Regexp
+      elsif route_to_match.is_a?(Regexp)
         @store[:regex][method] << {:regex => route_to_match,
                                    :block => block,
                                    :order => @order,
                                    :vars => vars,
                                    :data => data}
         @order = @order + 1
+      else
+        if Configuration::Base.app.dev_mode == true
+          Log.warn("Unsupported route spec class. (#{route_spec.class})")
+        else
+          Log.warn("Unsupported route spec class. (#{route_spec.class})")
+          raise "Unsupported route spec class. (#{route_spec.class})"
+        end
       end
+
     end
 
     # returns block, {:vars=>{:var=>matched_value, ...}, :data=>data}
@@ -74,34 +83,80 @@ module Pakyow
     private
 
     # Returns a regex and an array of variable info
-    def extract_route_vars(route_spec)
+    def build_route_matcher(route_spec, data)
       return route_spec, [] if route_spec.is_a?(Regexp)
 
-      unless route_spec[0,1] == ':' || route_spec.index('/:')
-        return route_spec, []
-      end
-
-      vars = []
-      position_counter = 1
-      regex_route = route_spec
-      route_spec.split('/').each_with_index do |segment, i|
-        if segment.include?(':')
-          vars << { :position => position_counter, :var => segment.gsub(':', '') }
-          position_counter += 2
-          regex_route = regex_route.gsub(segment, '(((?!\bnew\b).)*)')
+      if route_spec.is_a?(String)
+        # check for vars
+        return route_spec, [] unless route_spec[0,1] == ':' || route_spec.index('/:')
+        # we have vars
+        if data[:route_type] == :user
+          return build_user_route_matcher(route_spec)
+        elsif data[:route_type] == :restful
+          return build_restful_route_matcher(route_spec, data)
+        else
+          raise "Unknown route type. (#{data[:route_type]})"
         end
       end
 
-      reg = Regexp.new("^#{regex_route}$")
+      return route_spec, []
+    end
 
+    def build_user_route_matcher(route_spec)
+      vars = []
+      position_counter = 1
+      regex_route = route_spec
+      route_segments = route_spec.split('/')
+      route_segments.each_with_index { |segment, i|
+        if segment.include?(':')
+          vars << { :position => position_counter, :var => segment.gsub(':', '') }
+          if i == route_segments.length-1 then
+            regex_route = regex_route.sub(segment, '((\w|[-.~:@!$\'\(\)\*\+,;])*)')
+            position_counter += 2
+          else
+            regex_route = regex_route.sub(segment, '((\w|[-.~:@!$\'\(\)\*\+,;])*)')
+            position_counter += 2
+          end
+        end
+      }
+      reg = Regexp.new("^#{regex_route}$")
+      return reg, vars
+    end
+
+    def build_restful_route_matcher(route_spec, data)
+      build_user_route_matcher(route_spec) unless data[:restful][:restful_action] == :show
+
+      #special case for restful show route, can't match 'new' on last var
+      vars = []
+      position_counter = 1
+      regex_route = route_spec
+      route_segments = route_spec.split('/')
+      route_segments.each_with_index { |segment, i|
+        if segment.include?(':')
+          vars << { :position => position_counter, :var => segment.gsub(':', '') }
+          if i == route_segments.length-1 then
+            regex_route = regex_route.sub(segment, '((?!(new\b|.*?\/))(\w|[-.~:@!$\'\(\)\*\+,;])*)')
+            position_counter += 1
+          else
+            regex_route = regex_route.sub(segment, '((\w|[-.~:@!$\'\(\)\*\+,;])*)')
+            position_counter += 2
+          end
+        end
+      }
+      reg = Regexp.new("^#{regex_route}$")
       return reg, vars
     end
 
     # remove leading/trailing forward slashes
     def normalize_route(route_spec)
       return route_spec if route_spec.is_a?(Regexp)
-      route_spec = route_spec[1, route_spec.length - 1] if route_spec[0, 1] == '/'
-      route_spec = route_spec[0, route_spec.length - 1] if route_spec[route_spec.length - 1, 1] == '/'
+
+      if route_spec.is_a?(String) then
+        route_spec = route_spec[1, route_spec.length - 1] if route_spec[0, 1] == '/'
+        route_spec = route_spec[0, route_spec.length - 1] if route_spec[route_spec.length - 1, 1] == '/'
+        route_spec
+      end
+
       route_spec
     end
 
