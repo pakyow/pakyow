@@ -3,5 +3,5 @@ require 'test/unit'
 require 'pp'
 require 'shoulda'
 
-require '../pakyow-core/lib/pakyow-core'
+require File.expand_path('../../../pakyow-core/lib/pakyow-core', __FILE__)
 require 'pakyow-presenter'
