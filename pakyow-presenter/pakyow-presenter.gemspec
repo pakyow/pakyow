@@ -25,4 +25,5 @@ Gem::Specification.new do |s|
   
   s.add_dependency('pakyow-core', version)
   s.add_dependency('nokogiri', '~> 1.5')
+  s.add_development_dependency('shoulda', '~> 2.11')
 end
