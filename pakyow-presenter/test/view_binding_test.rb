@@ -14,9 +14,8 @@ class ViewBindingTest < Test::Unit::TestCase
     data = {:full_name => "Jugyo Kohno", :email => "jugyo@example.com"}
     view.bind(data)
 
-    node = Nokogiri::HTML.fragment(view.to_html)
-    assert_equal data[:full_name], node.css('.contact span').first.content
-    assert_equal data[:email],     node.css('.contact a').first.content
+    assert_equal data[:full_name], view.doc.css('.contact span').first.content
+    assert_equal data[:email],     view.doc.css('.contact a').first.content
   end
 
   should "bind an object to view" do
@@ -29,9 +28,8 @@ class ViewBindingTest < Test::Unit::TestCase
     data = Contact.new("Jugyo Kohno", "jugyo@example.com")
     view.bind(data)
 
-    node = Nokogiri::HTML.fragment(view.to_html)
-    assert_equal data[:full_name], node.css('.contact span').first.content
-    assert_equal data[:email],     node.css('.contact a').first.content
+    assert_equal data[:full_name], view.doc.css('.contact span').first.content
+    assert_equal data[:email],     view.doc.css('.contact a').first.content
   end
 
   should "bind an object to view with type" do
@@ -44,9 +42,8 @@ class ViewBindingTest < Test::Unit::TestCase
     data = Contact.new("Jugyo Kohno", "jugyo@example.com")
     view.bind(data, "contact_info")
 
-    node = Nokogiri::HTML.fragment(view.to_html)
-    assert_equal data[:full_name], node.css('.contact_info span').first.content
-    assert_equal data[:email],     node.css('.contact_info a').first.content
+    assert_equal data[:full_name], view.doc.css('.contact_info span').first.content
+    assert_equal data[:email],     view.doc.css('.contact_info a').first.content
   end
 
   should "bind an object to view by using 'name' attributes" do
@@ -60,9 +57,8 @@ class ViewBindingTest < Test::Unit::TestCase
     data = Contact.new("Jugyo Kohno", "jugyo@example.com")
     view.bind(data)
 
-    node = Nokogiri::HTML.fragment(view.to_html)
-    assert_equal data[:full_name], node.css("input[name='contact[full_name]']").attr("value").value
-    assert_equal data[:email],     node.css("input[name='contact[email]']").attr("value").value
+    assert_equal data[:full_name], view.doc.css("input[name='contact[full_name]']").attr("value").value
+    assert_equal data[:email],     view.doc.css("input[name='contact[email]']").attr("value").value
   end
 
   private
