@@ -21,8 +21,8 @@ module Pakyow
       #                                      }
       #                    },
       #      :abstract_paths =>  {
-      #                            "/abstract/path/file.html" => "/abstract.root1/path/file.html",
-      #                            "/some/other/path" => "/some/other.root1/path.root2"
+      #                            "/abstract/path/file.html" => {:real_path => "/abstract.root1/path/file.html", :file_or_dir => :file},
+      #                            "/some/other/path" => {:real_path => "/some/other.root1/path.root2", :file_or_dir => :dir}
       #                          }
       #  }
       # This takes into account that a view directory may have a .root suffix.
@@ -89,9 +89,9 @@ module Pakyow
               else
                 r_p = vpath.sub(absolute_path_prefix, '')
               end
-              @view_store[:abstract_paths][route] = r_p
+              @view_store[:abstract_paths][route] = {:real_path => r_p, :file_or_dir => :dir}
               # duplicate real path under routes permuted with leading/trailing slash
-              permute_route(route).each { |r| @view_store[:abstract_paths][r] = r_p } unless route == '/'
+              permute_route(route).each { |r| @view_store[:abstract_paths][r] = {:real_path => r_p, :file_or_dir => :dir} } unless route == '/'
             else
               # files here are direct overrides of the route's views
               parent,route = pakyow_path_to_route_and_parent(vpath, view_dir, :file)
@@ -108,13 +108,13 @@ module Pakyow
               # duplicating real path under route without the leading slash
               r_p = vpath.sub(absolute_path_prefix, '')
               if route == '/'
-                @view_store[:abstract_paths]["/#{File.basename(vpath)}"] = r_p
-                @view_store[:abstract_paths][File.basename(vpath)] = r_p
+                @view_store[:abstract_paths]["/#{File.basename(vpath)}"] = {:real_path => r_p, :file_or_dir => :file}
+                @view_store[:abstract_paths][File.basename(vpath)] = {:real_path => r_p, :file_or_dir => :file}
               else
                 route_with_leading_slash = "#{route}/#{File.basename(vpath)}"
                 route_without_leading_slash = route_with_leading_slash.sub('/','')
-                @view_store[:abstract_paths][route_with_leading_slash] = r_p
-                @view_store[:abstract_paths][route_without_leading_slash] = r_p
+                @view_store[:abstract_paths][route_with_leading_slash] = {:real_path => r_p, :file_or_dir => :file}
+                @view_store[:abstract_paths][route_without_leading_slash] = {:real_path => r_p, :file_or_dir => :file}
               end
             end
           }
@@ -162,9 +162,17 @@ module Pakyow
           return @view_store[:view_dirs]
         end
       end
+      
+      def real_path_info(abstract_path = nil)
+        if abstract_path then
+          @view_store[:abstract_paths][abstract_path]
+        else
+          @view_store[:abstract_paths]
+        end
+      end
 
       def real_path(abstract_path)
-        @view_store[:abstract_paths][abstract_path]
+        @view_store[:abstract_paths][abstract_path][:real_path] if @view_store[:abstract_paths][abstract_path]
       end
       
       private
