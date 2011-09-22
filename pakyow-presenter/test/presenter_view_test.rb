@@ -32,6 +32,19 @@ class PresenterViewTest < Test::Unit::TestCase
       assert_equal("approot", v.title)
       assert_equal("/index/main", v.find('#main').content[0])
 
+      v = @presenter.view_for_full_view_path("/a/b",true)
+      assert_equal("a", v.title)
+      assert_equal("a/b/main", v.find('#main').content[0])
+      v = @presenter.view_for_full_view_path("/a/b")
+      assert_equal("a", v.title)
+      assert_equal("", v.find('#main').content[0])
+
+      v = @presenter.view_for_full_view_path("a/b/b",true)
+      assert_equal("a", v.title)
+      assert_equal("a/b/b/main", v.find('#main').content[0])
+      v = @presenter.view_for_full_view_path("a/b/b",false)
+      assert_equal("a", v.title)
+      assert_equal("", v.find('#main').content[0])
   end
 
 end
