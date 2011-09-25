@@ -163,6 +163,7 @@ module Pakyow
       end
 
       def build_root_view_cache(view_info)
+        Log.enter "Building the root view cache"
         r_v_c = {}
         view_info.each{|dir,info|
           r_v = View.new(info[:root_view], true)
