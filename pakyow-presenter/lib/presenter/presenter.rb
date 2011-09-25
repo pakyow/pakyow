@@ -138,13 +138,15 @@ module Pakyow
           v_p = @request.env['PATH_INFO']
         end
         return unless v_p
-        return unless view_info = @view_lookup_store.view_info(v_p)
 
+        #return unless view_info = @view_lookup_store.view_info(v_p)
         @presented = true
-        @root_path ||= view_info[:root_view]
-        @root_view = LazyView.new(@root_path, true)
-        views = view_info[:views]
-        populate_view(self.view, views)
+        #@root_path ||= view_info[:root_view]
+        #@root_view = LazyView.new(@root_path, true)
+        #views = view_info[:views]
+        #populate_view(self.view, views)
+
+        @root_view = @populated_root_view_cache[v_p].dup # TODO make sure this is a full copy
       end
       
       def restful_view_path(restful_info)
@@ -157,6 +159,17 @@ module Pakyow
 
       def load_views
         @view_lookup_store = ViewLookupStore.new("#{Configuration::Presenter.view_dir}")
+        @populated_root_view_cache = build_root_view_cache(@view_lookup_store.view_info)
+      end
+
+      def build_root_view_cache(view_info)
+        r_v_c = {}
+        view_info.each{|dir,info|
+          r_v = View.new(info[:root_view], true)
+          populate_view(r_v, info[:views])
+          r_v_c[dir] = r_v
+        }
+        r_v_c
       end
 
       # populates the top_view using view_store data by recursively building
