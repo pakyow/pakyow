@@ -146,7 +146,8 @@ module Pakyow
         #views = view_info[:views]
         #populate_view(self.view, views)
 
-        @root_view = @populated_root_view_cache[v_p].dup # TODO make sure this is a full copy
+        r_v = @populated_root_view_cache[v_p]
+        @root_view = r_v.dup if r_v # TODO make sure this is a full copy
       end
       
       def restful_view_path(restful_info)
