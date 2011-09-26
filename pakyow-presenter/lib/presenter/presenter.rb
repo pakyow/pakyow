@@ -130,7 +130,7 @@ module Pakyow
 
         if @view_path
           v_p = @view_path
-        elsif @request.restful
+        elsif @request && @request.restful
           v_p = restful_view_path(@request.restful)
         elsif @request.route_spec && @request.route_spec.index(':')
           v_p = StringUtils.remove_route_vars(@request.route_spec)
@@ -139,15 +139,20 @@ module Pakyow
         end
         return unless v_p
 
-        #return unless view_info = @view_lookup_store.view_info(v_p)
-        @presented = true
-        #@root_path ||= view_info[:root_view]
-        #@root_view = LazyView.new(@root_path, true)
-        #views = view_info[:views]
-        #populate_view(self.view, views)
-
-        r_v = @populated_root_view_cache[v_p]
-        @root_view = r_v.dup if r_v # TODO make sure this is a full copy
+        if Configuration::Base.presenter.view_caching
+          r_v = @populated_root_view_cache[v_p]
+          if r_v then
+            @root_view = r_v.dup
+            @presented = true
+          end
+        else
+          return unless view_info = @view_lookup_store.view_info(v_p)
+          @root_path ||= view_info[:root_view]
+          @root_view = LazyView.new(@root_path, true)
+          views = view_info[:views]
+          populate_view(self.view, views)
+          @presented = true
+        end
       end
       
       def restful_view_path(restful_info)
@@ -160,14 +165,16 @@ module Pakyow
 
       def load_views
         @view_lookup_store = ViewLookupStore.new("#{Configuration::Presenter.view_dir}")
-        @populated_root_view_cache = build_root_view_cache(@view_lookup_store.view_info)
+        if Configuration::Base.presenter.view_caching then
+          @populated_root_view_cache = build_root_view_cache(@view_lookup_store.view_info)
+        end
       end
 
       def build_root_view_cache(view_info)
         Log.enter "Building the root view cache"
         r_v_c = {}
         view_info.each{|dir,info|
-          r_v = View.new(info[:root_view], true)
+          r_v = LazyView.new(info[:root_view], true)
           populate_view(r_v, info[:views])
           r_v_c[dir] = r_v
         }
@@ -183,7 +190,7 @@ module Pakyow
           path = views[name]
           if path
             v = populate_view(View.new(path), views)
-            top_view.reset_container(name)
+            top_view.reset_container(name) # TODO revisit how this is implemented; assumes all LazyViews are root views
             top_view.add_content_to_container(v, name)
           end
         }
