@@ -46,11 +46,6 @@ module Pakyow
         default_views = {} # view_basename => path_to_view.html
         if File.exist?(view_dir) then
           default_root_view_file_path = "#{absolute_path_prefix}/#{Configuration::Presenter.default_view}"
-          # See if the top level index directory overrides the default root view
-          index_dirs = Dir.entries(view_dir).partition{|e| File.directory?("#{absolute_path_prefix}/#{e}") && e.start_with?('index.')}[0]
-          if index_dirs.length == 1
-            default_root_view_file_path = "#{absolute_path_prefix}/#{StringUtils.split_at_last_dot(index_dirs[0])[1]}.html"
-          end
           # The logic depends on this traversing top down
           DirUtils.walk_dir(view_dir) { |vpath|
             if File.directory?(vpath)
@@ -208,7 +203,7 @@ module Pakyow
       end
 
       # Takes a route with a leading slash and no trailing slash (/route) and
-      # returns the three other permutaions (/route/, route/, and route).
+      # returns the three other permutations (/route/, route/, and route).
       def permute_route(route0)
         route3 = route0.sub('/','')
         route2 = "#{route3}/"
