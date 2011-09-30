@@ -2,7 +2,17 @@ module Pakyow
   module Presenter
     class Presenter < PresenterBase
       attr_accessor :current_context
-      
+
+      def initialize
+        if Configuration::Base.presenter.view_caching then
+          present_for_request(nil)
+          # TODO this call is unfortunate, I think
+          Pakyow.app.presenter = self
+          @view_lookup_store = ViewLookupStore.new("#{Configuration::Presenter.view_dir}")
+          @populated_root_view_cache = build_root_view_cache(@view_lookup_store.view_info)
+        end
+      end
+
       #
       # Methods that are called by core. This is the interface that core expects a Presenter to have
       #
@@ -132,20 +142,22 @@ module Pakyow
           v_p = @view_path
         elsif @request && @request.restful
           v_p = restful_view_path(@request.restful)
-        elsif @request.route_spec && @request.route_spec.index(':')
+        elsif @request && @request.route_spec && @request.route_spec.index(':')
           v_p = StringUtils.remove_route_vars(@request.route_spec)
         else
-          v_p = @request.env['PATH_INFO']
+          v_p = @request && @request.env['PATH_INFO']
         end
         return unless v_p
 
         if Configuration::Base.presenter.view_caching
+          Log.enter "Getting a root view from cache"
           r_v = @populated_root_view_cache[v_p]
           if r_v then
             @root_view = r_v.dup
             @presented = true
           end
         else
+          Log.enter "Building a root view"
           return unless view_info = @view_lookup_store.view_info(v_p)
           @root_path ||= view_info[:root_view]
           @root_view = LazyView.new(@root_path, true)
@@ -164,6 +176,7 @@ module Pakyow
       end
 
       def load_views
+        Log.enter "Loading Views"
         @view_lookup_store = ViewLookupStore.new("#{Configuration::Presenter.view_dir}")
         if Configuration::Base.presenter.view_caching then
           @populated_root_view_cache = build_root_view_cache(@view_lookup_store.view_info)

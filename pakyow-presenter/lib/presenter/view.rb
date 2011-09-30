@@ -11,12 +11,16 @@ module Pakyow
       end
 
       attr_accessor :doc
-            
+
+      def dup
+        self.class.new(@doc.dup)
+      end
+
       def initialize(arg=nil, is_root_view=false)
         arg = self.class.default_view_path if arg.nil? && self.class.default_view_path
         is_root_view = self.class.default_is_root_view if arg.nil? && self.class.default_is_root_view
         
-        if arg.is_a?(Nokogiri::XML::Element)
+        if arg.is_a?(Nokogiri::XML::Element) || arg.is_a?(Nokogiri::XML::Document)
           @doc = arg
         elsif arg.is_a?(Pakyow::Presenter::Views)
           @doc = arg.first.doc.dup
