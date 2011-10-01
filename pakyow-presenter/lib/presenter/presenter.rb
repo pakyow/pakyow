@@ -4,13 +4,7 @@ module Pakyow
       attr_accessor :current_context
 
       def initialize
-        if Configuration::Base.presenter.view_caching then
-          present_for_request(nil)
-          # TODO this call is unfortunate, I think
-          Pakyow.app.presenter = self
-          @view_lookup_store = ViewLookupStore.new("#{Configuration::Presenter.view_dir}")
-          @populated_root_view_cache = build_root_view_cache(@view_lookup_store.view_info)
-        end
+        reset_state()
       end
 
       #
@@ -20,14 +14,9 @@ module Pakyow
       def reload!
         load_views
       end
-      
+
       def present_for_request(request)
-        @presented = false
-        @root_path = nil
-        @root_view_is_built = false
-        @root_view = nil
-        @view_path = nil
-        @container_name = nil
+        reset_state()
         @request = request
       end
       
@@ -134,7 +123,16 @@ module Pakyow
       #
       protected
       #
-      
+
+      def reset_state
+        @presented = false
+        @root_path = nil
+        @root_view_is_built = false
+        @root_view = nil
+        @view_path = nil
+        @container_name = nil
+      end
+
       def build_root_view
         @root_view_is_built = true
 
