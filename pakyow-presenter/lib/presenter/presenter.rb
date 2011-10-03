@@ -11,11 +11,11 @@ module Pakyow
       # Methods that are called by core. This is the interface that core expects a Presenter to have
       #
 
-      def reload!
+      def load
         load_views
       end
 
-      def present_for_request(request)
+      def prepare_for_request(request)
         reset_state()
         @request = request
       end

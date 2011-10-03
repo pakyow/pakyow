@@ -1,5 +1,5 @@
 class TestPresenter
-  def reload!
+  def load
   end
   
   def content

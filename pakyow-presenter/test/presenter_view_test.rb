@@ -5,7 +5,7 @@ class PresenterViewTest < Test::Unit::TestCase
   def setup
     Configuration::Presenter.view_dir = "test/views"
     @presenter = Pakyow::Presenter::Presenter.new
-    @presenter.reload!
+    @presenter.load
   end
 
   def teardown
