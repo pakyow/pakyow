@@ -112,6 +112,9 @@ module Pakyow
         return if prepared?
         
         self.builder.use(Rack::MethodOverride)
+        self.builder.use(Pakyow::Static) if Configuration::Base.app.static
+        self.builder.use(Pakyow::Logger) if Configuration::Base.app.log
+        self.builder.use(Pakyow::Reloader) if Configuration::Base.app.auto_reload
         self.builder.instance_eval(&self.middleware_proc) if self.middleware_proc
         
         @prepared = true
@@ -148,9 +151,6 @@ module Pakyow
     def initialize
       Pakyow.app = self
       
-      # Create static handler
-      @static_handler = Rack::File.new(Configuration::Base.app.public_dir)
-      
       # This configuration option will be set if a presenter is to be used
       if Configuration::Base.app.presenter
         # Create a new instance of the presenter
@@ -171,83 +171,62 @@ module Pakyow
     # Called on every request.
     #
     def call(env)
-      start_time = Time.now.to_f
+      self.request = Request.new(env)
       
-      # Handle static files
-      if env['PATH_INFO'] =~ /\.(.*)$/ && File.exists?(File.join(Configuration::Base.app.public_dir, env['PATH_INFO']))
-        @static = true
-        @static_handler.call(env)        
-      else
-        # The request object
-        self.request = Request.new(env)
-        
-        # Reload application files
-        load_app
-        
-        if Configuration::Base.app.presenter
-          # Handle presentation for this request
-          self.presenter.prepare_for_request(request)
-        end
-        
-        Log.enter "Processing #{env['PATH_INFO']} (#{env['REMOTE_ADDR']} at #{Time.now}) [#{env['REQUEST_METHOD']}]"
-        
-        # The response object
-        self.response = Rack::Response.new
-        rhs = nil
-        just_the_path, format = StringUtils.split_at_last_dot(self.request.path)
-        self.request.format = ((format && (format[format.length - 1, 1] == '/')) ? format[0, format.length - 1] : format)
-        catch(:halt) do
-          rhs, packet = @route_store.get_block(just_the_path, self.request.method)
-          request.params.merge!(HashUtils.strhash(packet[:vars]))
-
-          self.request.route_spec = packet[:data][:route_spec] if packet[:data]
-          restful_info = packet[:data][:restful] if packet[:data]
-          self.request.restful = restful_info
-          rhs.call() if rhs && !Pakyow::Configuration::App.ignore_routes
-        end
-        
-        if !self.interrupted?
-          if Configuration::Base.app.presenter
-            self.response.body = [self.presenter.content]
-          end
-          
-          # 404 if no facts matched and no views were found
-          if !rhs && (!self.presenter || !self.presenter.presented?)
-            self.handle_error(404)
-            
-            Log.enter "[404] Not Found"
-            self.response.status = 404
-          end
-        end
-        
-        return finish!
+      if Configuration::Base.app.presenter
+        # Handle presentation for this request
+        self.presenter.prepare_for_request(request)
       end
+      
+      # The response object
+      self.response = Rack::Response.new
+      rhs = nil
+      just_the_path, format = StringUtils.split_at_last_dot(self.request.path)
+      self.request.format = ((format && (format[format.length - 1, 1] == '/')) ? format[0, format.length - 1] : format)
+      catch(:halt) do
+        rhs, packet = @route_store.get_block(just_the_path, self.request.method)
+        request.params.merge!(HashUtils.strhash(packet[:vars]))
+
+        self.request.route_spec = packet[:data][:route_spec] if packet[:data]
+        restful_info = packet[:data][:restful] if packet[:data]
+        self.request.restful = restful_info
+        rhs.call() if rhs && !Pakyow::Configuration::App.ignore_routes
+      end
+      
+      if !self.interrupted?
+        if Configuration::Base.app.presenter
+          self.response.body = [self.presenter.content]
+        end
+        
+        # 404 if no facts matched and no views were found
+        if !rhs && (!self.presenter || !self.presenter.presented?)
+          self.handle_error(404)
+          
+          Log.enter "[404] Not Found"
+          self.response.status = 404
+        end
+      end
+      
+      finish!
     rescue StandardError => error
       self.request.error = error
       self.handle_error(500)
       
-      Log.enter "[500] #{error}\n"
-      Log.enter error.backtrace.join("\n") + "\n\n"
-      
-      # self.response = Rack::Response.new
-      
       if Configuration::Base.app.errors_in_browser
-        # Show errors in browser
         self.response.body = []
         self.response.body << "<h4>#{CGI.escapeHTML(error.to_s)}</h4>"
         self.response.body << error.backtrace.join("<br />")
       end
       
       self.response.status = 500
-      return finish!
-    ensure
-      unless @static
-        end_time = Time.now.to_f
-        difference = ((end_time - start_time) * 1000).to_f
-
-        Log.enter "Completed in #{difference}ms | #{self.response.status} | [#{self.request.url}]"
-        Log.enter
+      
+      begin
+        # caught by other middleware (e.g. logger)
+        throw :error, error
+      rescue ArgumentError
       end
+      
+      finish!
     end
     
     # Sends a file in the response (immediately). Accepts a File object. Mime 
@@ -362,6 +341,11 @@ module Pakyow
       { :action => :create, :method => :post }
     ]
     
+    #TODO: don't like this...
+    def reload
+      load_app
+    end
+    
     protected
     
     def interrupted?
@@ -426,7 +410,7 @@ module Pakyow
         c.send(handler[:action])
       end
       
-      self.response.body = [self.presenter.content]
+      self.response.body = [self.presenter.content] if Configuration::Base.app.presenter
     end
     
     def set_cookies
@@ -446,10 +430,6 @@ module Pakyow
     # Reloads all application files in application_path and presenter (if specified).
     #
     def load_app
-      return if @loaded && !Configuration::Base.app.auto_reload
-      @loaded = true
-      
-      # Reload Application
       load(Configuration::App.application_path)
       
       @loader = Loader.new unless @loader
@@ -472,7 +452,6 @@ module Pakyow
     #
     def finish!
       @interrupted = false
-      @static = false
       
       # Set cookies
       set_cookies
