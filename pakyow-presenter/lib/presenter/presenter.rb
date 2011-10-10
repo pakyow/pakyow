@@ -99,6 +99,25 @@ module Pakyow
         v
       end
 
+      # This is also for creating views from within a controller using the route based lookup mechanism.
+      # This method takes either a dir or file path and builds either a root_view or view, respectively.
+      def view_for_full_view_path(f_v_p, deep = false)
+        v = nil
+        real_path_info = @view_lookup_store.real_path_info(f_v_p)
+        if real_path_info
+          if real_path_info[:file_or_dir] == :file
+            v = View.new(real_path_info[:real_path])
+          elsif real_path_info[:file_or_dir] == :dir
+            root_view = @view_lookup_store.view_info(f_v_p)[:root_view]
+            v = View.new(root_view)
+            if v && deep
+              populate_view(v, @view_lookup_store.view_info(f_v_p)[:views])
+            end
+          end
+        end
+        v
+      end
+
       def populate_view_for_view_path(view, v_p)
         return view unless view_info = @view_lookup_store.view_info(v_p)
         views = view_info[:views]
