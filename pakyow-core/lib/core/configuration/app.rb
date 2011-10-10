@@ -5,7 +5,7 @@ module Pakyow
         attr_accessor :dev_mode, :log, :public_dir, :root, :log_dir, 
         :presenter, :default_action, :ignore_routes, :error_level, 
         :default_environment, :application_path, :log_name, :src_dir,
-        :auto_reload, :errors_in_browser
+        :auto_reload, :errors_in_browser, :static
         
         # Displays development-specific warnings.
         #
@@ -66,6 +66,15 @@ module Pakyow
         # The path to the application class
         def application_path
           @application_path
+        end
+        
+        # Handle static files?
+        #
+        # For best performance, should be set to false if static files are 
+        # handled by a web server (e.g. Nginx)
+        #
+        def static
+          @static || true
         end
       end
     end
