@@ -1,23 +1,22 @@
-#TODO attachments
-#TODO multipart
-
 module Pakyow
   class Mailer
-    attr_accessor :subject, :sender, :content_type, :delivery_method, :delivery_options, :view
+    attr_accessor :view, :mail, :delivery_method, :delivery_options
   
-    def initialize(*args)
-      @sender           = Configuration::Base.mailer.default_sender
-      @content_type     = Configuration::Base.mailer.default_content_type
+    def initialize(view_path)
       @delivery_method  = Configuration::Base.mailer.delivery_method
       @delivery_options = Configuration::Base.mailer.delivery_options
-      @files            = []
       
-      @view = Pakyow::Presenter::View.new(*args)
+      @view = Pakyow.app.presenter.view_for_full_view_path(view_path, true)
+      
+      @mail               = Mail.new
+      @mail.from          = Configuration::Base.mailer.default_sender
+      @mail.content_type  = Configuration::Base.mailer.default_content_type
     end
-  
+    
     def deliver_to(recipient, subject = nil)
-      @subject  = subject if subject
-      @body     = self.view.to_html
+      @mail.to      = recipient
+      @mail.body    = self.view.to_html
+      @mail.subject = subject if subject
       
       if recipient.is_a?(Array)
         recipient.each {|r| deliver(r)}
@@ -25,25 +24,10 @@ module Pakyow
         deliver(recipient)
       end
     end
-  
-    # def add_file(opts)
-    #   @files << opts
-    # end
     
     protected
   
     def deliver(recipient)
-      mail = Mail.new
-      mail.from = @sender
-      mail.to = recipient
-      mail.subject = @subject
-      mail.content_type = @content_type
-      mail.body = @body
-      
-      # @files.each do |file_opts|
-      #   mail.add_file file_opts
-      # end
-    
       mail.delivery_method(@delivery_method, @delivery_options)
       mail.deliver
     end
