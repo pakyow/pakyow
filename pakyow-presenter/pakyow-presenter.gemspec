@@ -23,6 +23,7 @@ Gem::Specification.new do |s|
 
   s.require_path = File.join(presenter_path, 'lib')
   
-  s.add_dependency('pakyow-core', "=#{version}")
-  s.add_dependency('nokogiri', '>= 1.4')
+  s.add_dependency('pakyow-core', version)
+  s.add_dependency('nokogiri', '~> 1.5')
+  s.add_development_dependency('shoulda', '~> 2.11')
 end

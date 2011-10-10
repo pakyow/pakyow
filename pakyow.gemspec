@@ -18,6 +18,6 @@ Gem::Specification.new do |s|
   s.files        = Dir['README', 'MIT-LICENSE', 'lib/**/*']
   s.require_path = 'lib'
   
-  s.add_dependency('pakyow-core', "=#{version}")
-  s.add_dependency('pakyow-presenter', "=#{version}")
+  s.add_dependency('pakyow-core',       version)
+  s.add_dependency('pakyow-presenter',  version)
 end

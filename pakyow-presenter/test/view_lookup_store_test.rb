@@ -10,14 +10,30 @@ class ViewLookupStoreTest < Test::Unit::TestCase
     # Do nothing
   end
 
-  def test_abb
-    assert_equal("/approot.html", @store.view_info("/a")[:root_view], "Wrong root view for /a")
-    assert_equal("/a/b.a/a.html", @store.view_info("/a/b")[:root_view], "Wrong root view for /a/b")
+  def test_a
+    assert_equal("/pakyow.html", @store.view_info("/a")[:root_view], "Wrong root view for /a")
+    assert_equal("/a/b.a/index.v1/v1.html", @store.view_info("/a/b")[:root_view], "Wrong root view for /a/b")
+    assert_equal("/a/b.a/index.v1/v1.html", @store.view_info("/a/b/index")[:root_view], "Wrong root view for /a/b/index")
+    assert_equal("/a/b.a/a.html", @store.view_info("/a/b/c")[:root_view], "Wrong root view for /a/b/c")
     assert_equal("/a/b.a/a.html", @store.view_info("/a/b/b")[:root_view], "Wrong root view for /a/b/b")
 
     assert_equal("/main.html", @store.view_info("/a")[:views]['main'], "Wrong main.html view path for /a")
     assert_equal("/a/b.a/main.html", @store.view_info("/a/b")[:views]['main'], "Wrong main.html view path for /a/b")
+    assert_equal("/a/b.a/main.html", @store.view_info("/a/b/index")[:views]['main'], "Wrong main.html view path for /a/b/index")
     assert_equal("/a/b.a/b/main.html", @store.view_info("/a/b/b")[:views]['main'], "Wrong main.html view path for /a/b/b")
+  end
+
+  def test_aa
+    assert_equal("/pakyow.html", @store.view_info("/aa")[:root_view], "Wrong root view for /aa")
+    assert_equal("/aa/b.a/v1.html", @store.view_info("/aa/b")[:root_view], "Wrong root view for /aa/b")
+    assert_equal("/aa/b.a/v1.html", @store.view_info("/aa/b/index")[:root_view], "Wrong root view for /aa/b/index")
+    assert_equal("/aa/b.a/a.html", @store.view_info("/aa/b/c")[:root_view], "Wrong root view for /aa/b/c")
+    assert_equal("/aa/b.a/a.html", @store.view_info("/aa/b/b")[:root_view], "Wrong root view for /aa/b/b")
+
+    assert_equal("/main.html", @store.view_info("/aa")[:views]['main'], "Wrong main.html view path for /aa")
+    assert_equal("/aa/b.a/index.v1/main.html", @store.view_info("/aa/b")[:views]['main'], "Wrong main.html view path for /aa/b")
+    assert_equal("/aa/b.a/index.v1/main.html", @store.view_info("/aa/b/index")[:views]['main'], "Wrong main.html view path for /aa/b/index")
+    assert_equal("/aa/b.a/b/main.html", @store.view_info("/aa/b/b")[:views]['main'], "Wrong main.html view path for /aa/b/b")
   end
 
   def test_abstract_to_real_path_lookup
@@ -135,8 +151,8 @@ class ViewLookupStoreTest < Test::Unit::TestCase
     assert(@store.view_info("/r2/index/"), "No route for /r2/index/")
     assert(@store.view_info("r2/index"), "No route for r2/index")
     assert(@store.view_info("r2/index/"), "No route for r2/index/")
-    assert_equal("/approot.html", @store.view_info("/r2")[:root_view], "Wrong root_view for /r2")
-    assert_equal("/approot.html", @store.view_info("/r2/index")[:root_view], "Wrong root_view for /r2/index")
+    assert_equal("/pakyow.html", @store.view_info("/r2")[:root_view], "Wrong root_view for /r2")
+    assert_equal("/pakyow.html", @store.view_info("/r2/index")[:root_view], "Wrong root_view for /r2/index")
 
     assert_equal("/main.html", @store.view_info("/r2")[:views]["main"], "Wrong main.html view path for /r2")
     assert_equal("/main.html", @store.view_info("/r2/index")[:views]["main"], "Wrong main.html view path for /r2/index")

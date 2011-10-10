@@ -175,7 +175,7 @@ module Pakyow
       
       if Configuration::Base.app.presenter
         # Handle presentation for this request
-        self.presenter.present_for_request(request)
+        self.presenter.prepare_for_request(request)
       end
       
       # The response object
@@ -185,9 +185,8 @@ module Pakyow
       self.request.format = ((format && (format[format.length - 1, 1] == '/')) ? format[0, format.length - 1] : format)
       catch(:halt) do
         rhs, packet = @route_store.get_block(just_the_path, self.request.method)
-        packet[:vars].each_pair { |var, val|
-          request.params[var] = val
-        }
+        request.params.merge!(HashUtils.strhash(packet[:vars]))
+
         self.request.route_spec = packet[:data][:route_spec] if packet[:data]
         restful_info = packet[:data][:restful] if packet[:data]
         self.request.restful = restful_info
@@ -322,7 +321,7 @@ module Pakyow
           end
           
           # Create the route
-          register_route(action_url, nil, opts[:method], controller, opts[:action], true)
+          register_route(action_url, nil, opts[:method], controller, opts[:action], :restful)
           
           # Store url for later use (currently used by Binder#action)
           @restful_routes[model][opts[:action]] = action_url if model
@@ -334,8 +333,8 @@ module Pakyow
     
     @@restful_actions = [
       { :action => :edit, :method => :get, :url_suffix => 'edit/:id' },
-      { :action => :new, :method => :get, :url_suffix => 'new' },
       { :action => :show, :method => :get, :url_suffix => ':id' },
+      { :action => :new, :method => :get, :url_suffix => 'new' },
       { :action => :update, :method => :put, :url_suffix => ':id' },
       { :action => :delete, :method => :delete, :url_suffix => ':id' },
       { :action => :index, :method => :get },
@@ -355,7 +354,7 @@ module Pakyow
     
     # Handles route registration.
     #
-    def register_route(route, block, method, controller = nil, action = nil, restful = false)
+    def register_route(route, block, method, controller = nil, action = nil, type = :user)
       if controller
         controller = eval(controller.to_s)
         action ||= Configuration::Base.app.default_action
@@ -369,8 +368,8 @@ module Pakyow
         }
       end
 
-      data = {:route_spec=>route}
-      if restful
+      data = {:route_type=>type, :route_spec=>route}
+      if type == :restful
         data[:restful] = {:restful_action=>action}
       end
       @route_store.add_route(route, block, method, data)
@@ -440,7 +439,7 @@ module Pakyow
       
       # Reload views
       if Configuration::Base.app.presenter
-        self.presenter.reload!
+        self.presenter.load
       end
     end
     

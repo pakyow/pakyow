@@ -1,3 +1,10 @@
+= 0.6.3 / 2011-09-13
+
+  * Fixes several load path issues
+  * Fixes gemspecs so gem can be built/used from anywhere
+  * Fixes inconsistency with with request.params having string and symbol keys
+  * Fixes loading of middleware when staging application (simplifies rackup)
+
 = 0.6.2 / 2011-08-20
 
   * Fixes issue running pakyow server on Windows
