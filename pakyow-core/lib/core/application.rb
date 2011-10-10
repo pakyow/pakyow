@@ -410,7 +410,7 @@ module Pakyow
         c.send(handler[:action])
       end
       
-      self.response.body = [self.presenter.content]
+      self.response.body = [self.presenter.content] if Configuration::Base.app.presenter
     end
     
     def set_cookies
