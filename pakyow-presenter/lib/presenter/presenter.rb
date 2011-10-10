@@ -2,22 +2,21 @@ module Pakyow
   module Presenter
     class Presenter < PresenterBase
       attr_accessor :current_context
-      
+
+      def initialize
+        reset_state()
+      end
+
       #
       # Methods that are called by core. This is the interface that core expects a Presenter to have
       #
 
-      def reload!
+      def load
         load_views
       end
-      
-      def present_for_request(request)
-        @presented = false
-        @root_path = nil
-        @root_view_is_built = false
-        @root_view = nil
-        @view_path = nil
-        @container_name = nil
+
+      def prepare_for_request(request)
+        reset_state()
         @request = request
       end
       
@@ -143,27 +142,46 @@ module Pakyow
       #
       protected
       #
-      
+
+      def reset_state
+        @presented = false
+        @root_path = nil
+        @root_view_is_built = false
+        @root_view = nil
+        @view_path = nil
+        @container_name = nil
+      end
+
       def build_root_view
         @root_view_is_built = true
 
         if @view_path
           v_p = @view_path
-        elsif @request.restful
+        elsif @request && @request.restful
           v_p = restful_view_path(@request.restful)
-        elsif @request.route_spec && @request.route_spec.index(':')
+        elsif @request && @request.route_spec && @request.route_spec.index(':')
           v_p = StringUtils.remove_route_vars(@request.route_spec)
         else
-          v_p = @request.env['PATH_INFO']
+          v_p = @request && @request.env['PATH_INFO']
         end
         return unless v_p
-        return unless view_info = @view_lookup_store.view_info(v_p)
 
-        @presented = true
-        @root_path ||= view_info[:root_view]
-        @root_view = LazyView.new(@root_path, true)
-        views = view_info[:views]
-        populate_view(self.view, views)
+        if Configuration::Base.presenter.view_caching
+          Log.enter "Getting a root view from cache"
+          r_v = @populated_root_view_cache[v_p]
+          if r_v then
+            @root_view = r_v.dup
+            @presented = true
+          end
+        else
+          Log.enter "Building a root view"
+          return unless view_info = @view_lookup_store.view_info(v_p)
+          @root_path ||= view_info[:root_view]
+          @root_view = LazyView.new(@root_path, true)
+          views = view_info[:views]
+          populate_view(self.view, views)
+          @presented = true
+        end
       end
       
       def restful_view_path(restful_info)
@@ -175,7 +193,22 @@ module Pakyow
       end
 
       def load_views
+        Log.enter "Loading Views"
         @view_lookup_store = ViewLookupStore.new("#{Configuration::Presenter.view_dir}")
+        if Configuration::Base.presenter.view_caching then
+          @populated_root_view_cache = build_root_view_cache(@view_lookup_store.view_info)
+        end
+      end
+
+      def build_root_view_cache(view_info)
+        Log.enter "Building the root view cache"
+        r_v_c = {}
+        view_info.each{|dir,info|
+          r_v = LazyView.new(info[:root_view], true)
+          populate_view(r_v, info[:views])
+          r_v_c[dir] = r_v
+        }
+        r_v_c
       end
 
       # populates the top_view using view_store data by recursively building
@@ -187,7 +220,7 @@ module Pakyow
           path = views[name]
           if path
             v = populate_view(View.new(path), views)
-            top_view.reset_container(name)
+            top_view.reset_container(name) # TODO revisit how this is implemented; assumes all LazyViews are root views
             top_view.add_content_to_container(v, name)
           end
         }

@@ -2,7 +2,7 @@ module Pakyow
   module Presenter
     class View
       class << self
-        attr_accessor :binders, :cache, :default_view_path, :default_is_root_view
+        attr_accessor :binders, :default_view_path, :default_is_root_view
 
         def view_path(dvp, dirv=false)
           self.default_view_path = dvp
@@ -11,12 +11,16 @@ module Pakyow
       end
 
       attr_accessor :doc
-            
+
+      def dup
+        self.class.new(@doc.dup)
+      end
+
       def initialize(arg=nil, is_root_view=false)
         arg = self.class.default_view_path if arg.nil? && self.class.default_view_path
         is_root_view = self.class.default_is_root_view if arg.nil? && self.class.default_is_root_view
         
-        if arg.is_a?(Nokogiri::XML::Element)
+        if arg.is_a?(Nokogiri::XML::Element) || arg.is_a?(Nokogiri::XML::Document)
           @doc = arg
         elsif arg.is_a?(Pakyow::Presenter::Views)
           @doc = arg.first.doc.dup
@@ -28,18 +32,11 @@ module Pakyow
           else
             view_path = "#{Configuration::Presenter.view_dir}/#{arg}"
           end
-          # Only load one time if view caching is enabled
-          self.class.cache ||= {}
-          
-          if !self.class.cache.has_key?(view_path) || !Configuration::Base.presenter.view_caching
-            if is_root_view then
-              self.class.cache[view_path] = Nokogiri::HTML::Document.parse(File.read(view_path))
-            else
-              self.class.cache[view_path] = Nokogiri::HTML.fragment(File.read(view_path))
-            end
+          if is_root_view then
+            @doc = Nokogiri::HTML::Document.parse(File.read(view_path))
+          else
+            @doc = Nokogiri::HTML.fragment(File.read(view_path))
           end
-          
-          @doc = self.class.cache[view_path].dup
         else
           raise ArgumentError, "No View for you! Come back, one year."
         end

@@ -186,7 +186,7 @@ module Pakyow
         
         if Configuration::Base.app.presenter
           # Handle presentation for this request
-          self.presenter.present_for_request(request)
+          self.presenter.prepare_for_request(request)
         end
         
         Log.enter "Processing #{env['PATH_INFO']} (#{env['REMOTE_ADDR']} at #{Time.now}) [#{env['REQUEST_METHOD']}]"
@@ -459,7 +459,7 @@ module Pakyow
       
       # Reload views
       if Configuration::Base.app.presenter
-        self.presenter.reload!
+        self.presenter.load
       end
     end
     
