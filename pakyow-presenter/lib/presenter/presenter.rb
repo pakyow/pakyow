@@ -167,14 +167,12 @@ module Pakyow
         return unless v_p
 
         if Configuration::Base.presenter.view_caching
-          Log.enter "Getting a root view from cache"
           r_v = @populated_root_view_cache[v_p]
           if r_v then
             @root_view = r_v.dup
             @presented = true
           end
         else
-          Log.enter "Building a root view"
           return unless view_info = @view_lookup_store.view_info(v_p)
           @root_path ||= view_info[:root_view]
           @root_view = LazyView.new(@root_path, true)
@@ -193,7 +191,6 @@ module Pakyow
       end
 
       def load_views
-        Log.enter "Loading Views"
         @view_lookup_store = ViewLookupStore.new("#{Configuration::Presenter.view_dir}")
         if Configuration::Base.presenter.view_caching then
           @populated_root_view_cache = build_root_view_cache(@view_lookup_store.view_info)
@@ -201,7 +198,6 @@ module Pakyow
       end
 
       def build_root_view_cache(view_info)
-        Log.enter "Building the root view cache"
         r_v_c = {}
         view_info.each{|dir,info|
           r_v = LazyView.new(info[:root_view], true)
