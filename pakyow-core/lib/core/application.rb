@@ -275,38 +275,38 @@ module Pakyow
     # Routes for namespaced controllers (e.g. Admin::ControllerClass) can be defined like this:
     # get('/', :Admin_ControllerClass, :action_method)
     #
-    def get(route, controller = nil, action = nil, &block)
-      register_route(route, block, :get, controller, action)
+    def get(route, *args, &block)
+      register_route(:user, route, block, :get, *args)
     end
     
     # Registers a route for POST requests (see #get).
     #
-    def post(route, controller = nil, action = nil, &block)
-      register_route(route, block, :post, controller, action)
+    def post(route, *args, &block)
+      register_route(:user, route, block, :post, *args)
     end
     
     # Registers a route for PUT requests (see #get).
     #
-    def put(route, controller = nil, action = nil, &block)
-      register_route(route, block, :put, controller, action)
+    def put(route, *args, &block)
+      register_route(:user, route, block, :put, *args)
     end
     
     # Registers a route for DELETE requests (see #get).
     #
-    def delete(route, controller = nil, action = nil, &block)
-      register_route(route, block, :delete, controller, action)
+    def delete(route, *args, &block)
+      register_route(:user, route, block, :delete, *args)
     end
     
     # Registers the default route (see #get).
     #
-    def default(controller = nil, action = nil, &block)
-      register_route('/', block, :get, controller, action)
+    def default(*args, &block)
+      register_route(:user, '/', block, :get, *args)
     end
-    
-    # Creates REST routes for a resource. Arguments: url, controller, model
+
+    # Creates REST routes for a resource. Arguments: url, controller, model, hooks
     #
-    def restful(*args, &block)
-      url, controller, model = args
+    def restful(url, controller, *args, &block)
+      model, hooks = parse_restful_args(args)
       
       with_scope(:url => url.gsub(/^[\/]+|[\/]+$/,""), :model => model) do
         nest_scope(&block) if block_given?
@@ -321,7 +321,7 @@ module Pakyow
           end
           
           # Create the route
-          register_route(action_url, nil, opts[:method], controller, opts[:action], :restful)
+          register_route(:restful, action_url, nil, opts[:method], controller, opts[:action], hooks)
           
           # Store url for later use (currently used by Binder#action)
           @restful_routes[model][opts[:action]] = action_url if model
@@ -340,6 +340,11 @@ module Pakyow
       { :action => :index, :method => :get },
       { :action => :create, :method => :post }
     ]
+
+    def hook(name, controller = nil, action = nil, &block)
+      block = build_controller_block(controller, action) if controller
+      @route_store.add_hook(name, block)
+    end
     
     #TODO: don't like this...
     def reload
@@ -351,28 +356,54 @@ module Pakyow
     def interrupted?
       @interrupted
     end
-    
+
+    def parse_route_args(args)
+      controller = args[0] if args[0] && (args[0].is_a?(Symbol) || args[0].is_a?(String))
+      action = args[1] if controller
+      hooks = args[2] if controller
+      unless controller
+        hooks = args[0] if args[0] && args[0].is_a?(Hash)
+      end
+      return controller, action, hooks
+    end
+
+    def parse_restful_args(args)
+      model = args[0] if args[0] && (args[0].is_a?(Symbol) || args[0].is_a?(String))
+      hooks = args[1] if model
+      unless model
+        hooks = args[1] if args[1] && args[1].is_a?(Hash)
+      end
+      return model, hooks
+    end
+
     # Handles route registration.
     #
-    def register_route(route, block, method, controller = nil, action = nil, type = :user)
+    def register_route(type, route, block, method, *args)
+      controller, action, hooks = parse_route_args(args)
       if controller
-        controller = eval(controller.to_s)
-        action ||= Configuration::Base.app.default_action
-        
-        block = lambda {
-          instance = controller.new
-          request.controller  = instance
-          request.action      = action
-          
-          instance.send(action)
-        }
+        block = build_controller_block(controller, action)
       end
 
       data = {:route_type=>type, :route_spec=>route}
       if type == :restful
         data[:restful] = {:restful_action=>action}
       end
-      @route_store.add_route(route, block, method, data)
+      @route_store.add_route(route, block, method, data, hooks)
+    end
+
+    def build_controller_block(controller, action)
+      controller = eval(controller.to_s)
+      action ||= Configuration::Base.app.default_action
+
+      block = lambda {
+        instance = controller.new
+        request.controller  = instance
+        request.action      = action
+
+        instance.send(action)
+      }
+      
+      block
     end
     
     def with_scope(opts)
