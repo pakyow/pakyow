@@ -171,6 +171,8 @@ module Pakyow
     # Called on every request.
     #
     def call(env)
+      @interrupted = false
+      
       self.request = Request.new(env)
       
       if Configuration::Base.app.presenter
@@ -482,12 +484,7 @@ module Pakyow
     # Send the response and cleanup.
     #
     def finish!
-      @interrupted = false
-      
-      # Set cookies
       set_cookies
-
-      # Finished
       self.response.finish
     end
 
