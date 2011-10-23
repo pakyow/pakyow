@@ -97,12 +97,12 @@ class ApplicationTest < Test::Unit::TestCase
     assert_equal(TestPresenter, Pakyow.app.presenter.class)
   end
   
-  def test_app_can_be_interrupted
+  def test_app_can_be_halted
     app(true).run(:testing)
     
     begin
-      # interrupt! will halt execution if working properly
-      Pakyow.app.interrupt!
+      # halt! will halt execution if working properly
+      Pakyow.app.halt!
     rescue
       @halted = true
     end

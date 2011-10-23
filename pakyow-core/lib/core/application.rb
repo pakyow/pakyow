@@ -163,15 +163,15 @@ module Pakyow
     
     # Interrupts the application and returns response immediately.
     #
-    def interrupt!
-      @interrupted = true
+    def halt!
+      @halted = true
       throw :halt, self.response
     end
     
     # Called on every request.
     #
     def call(env)
-      @interrupted = false
+      @halted = false
       
       self.request = Request.new(env)
       
@@ -195,7 +195,7 @@ module Pakyow
         rhs.call() if rhs && !Pakyow::Configuration::App.ignore_routes
       end
       
-      if !self.interrupted?
+      if !self.halted?
         if Configuration::Base.app.presenter
           self.response.body = [self.presenter.content]
         end
@@ -243,7 +243,7 @@ module Pakyow
       File.open(path, "r").each_line { |line| data << line }
       
       self.response = Rack::Response.new(data, self.response.status, self.response.header.merge({ "Content-Type" => type }))
-      interrupt!
+      halt!
     end
     
     # Sends data in the response (immediately). Accepts the data, mime type, 
@@ -257,7 +257,7 @@ module Pakyow
       headers = headers.merge({ "Content-disposition" => "attachment; filename=#{file_name}"}) if file_name
       
       self.response = Rack::Response.new(data, status, headers)
-      interrupt!
+      halt!
     end
     
     # Redirects to location (immediately).
@@ -267,7 +267,7 @@ module Pakyow
       headers = headers.merge({'Location' => location})
       
       self.response = Rack::Response.new('', status_code, headers)
-      interrupt!
+      halt!
     end
     
     # Registers a route for GET requests. Route can be defined one of two ways:
@@ -355,8 +355,8 @@ module Pakyow
     
     protected
     
-    def interrupted?
-      @interrupted
+    def halted?
+      @halted
     end
 
     def parse_route_args(args)
