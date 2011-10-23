@@ -371,7 +371,7 @@ module Pakyow
       model = args[0] if args[0] && (args[0].is_a?(Symbol) || args[0].is_a?(String))
       hooks = args[1] if model
       unless model
-        hooks = args[1] if args[1] && args[1].is_a?(Hash)
+        hooks = args[0] if args[0] && args[0].is_a?(Hash)
       end
       return model, hooks
     end
