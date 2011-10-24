@@ -363,13 +363,13 @@ module Pakyow
       block = build_controller_block(controller, action) if controller
       @route_store.add_hook(name, block)
     end
-
-    protected
     
     #TODO: don't like this...
     def reload
       load_app
     end
+    
+    protected
     
     def parse_route_args(args)
       controller = args[0] if args[0] && (args[0].is_a?(Symbol) || args[0].is_a?(String))
