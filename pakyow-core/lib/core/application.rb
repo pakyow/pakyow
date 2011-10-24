@@ -103,11 +103,6 @@ module Pakyow
         self.middleware_proc = block
       end
 
-      def invoke_route(route)
-        throw :halt, route
-      end
-
-      
       protected
       
       # Prepares the application for running or staging and returns an instance
@@ -247,6 +242,10 @@ module Pakyow
       finish!
     end
 
+    def invoke_route(route)
+      throw :halt, route
+    end
+
     # Sends a file in the response (immediately). Accepts a File object. Mime 
     # type is automatically detected.
     #
@@ -363,6 +362,8 @@ module Pakyow
       block = build_controller_block(controller, action) if controller
       @route_store.add_hook(name, block)
     end
+
+    protected
     
     #TODO: don't like this...
     def reload
