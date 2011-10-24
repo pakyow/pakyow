@@ -102,6 +102,11 @@ module Pakyow
       def middleware(&block)
         self.middleware_proc = block
       end
+
+      def invoke_route(route)
+        throw :halt, route
+      end
+
       
       protected
       
@@ -167,49 +172,60 @@ module Pakyow
       @halted = true
       throw :halt, self.response
     end
-    
+
+    def halted?
+      @halted
+    end
+
     # Called on every request.
     #
     def call(env)
       @halted = false
-      
       self.request = Request.new(env)
-      
-      if Configuration::Base.app.presenter
-        # Handle presentation for this request
-        self.presenter.prepare_for_request(request)
-      end
-      
-      # The response object
       self.response = Rack::Response.new
-      rhs = nil
-      just_the_path, format = StringUtils.split_at_last_dot(self.request.path)
-      self.request.format = ((format && (format[format.length - 1, 1] == '/')) ? format[0, format.length - 1] : format)
-      catch(:halt) do
-        rhs, packet = @route_store.get_block(just_the_path, self.request.method)
-        request.params.merge!(HashUtils.strhash(packet[:vars]))
 
-        self.request.route_spec = packet[:data][:route_spec] if packet[:data]
-        restful_info = packet[:data][:restful] if packet[:data]
-        self.request.restful = restful_info
-        rhs.call() if rhs && !Pakyow::Configuration::App.ignore_routes
-      end
-      
-      if !self.halted?
-        if Configuration::Base.app.presenter
-          self.response.body = [self.presenter.content]
+      working_request_path = self.request.path
+      while working_request_path do
+        controller_block = nil
+        working_request_path = catch(:halt) {
+          if Configuration::Base.app.presenter
+            self.presenter.prepare_for_request(request)
+          end
+
+          working_route, working_format = StringUtils.split_at_last_dot(working_request_path)
+          self.request.format = ((working_format && (working_format[working_format.length - 1, 1] == '/')) ? working_format[0, working_format.length - 1] : working_format)
+
+          controller_block, packet = @route_store.get_block(working_route, self.request.method)
+
+          request.params.merge!(HashUtils.strhash(packet[:vars]))
+          self.request.route_spec = packet[:data][:route_spec] if packet[:data]
+          restful_info = packet[:data][:restful] if packet[:data]
+          self.request.restful = restful_info
+
+          working_request_path = nil
+          controller_block.call() if controller_block && !Pakyow::Configuration::App.ignore_routes
+        }
+
+        if !halted? && working_request_path
+          next
+        end
+
+        if !halted? then
+          if Configuration::Base.app.presenter
+            self.response.body = [self.presenter.content]
+          end
+          # 404 if no facts matched and no views were found
+          if !controller_block && (!self.presenter || !self.presenter.presented?)
+            self.handle_error(404)
+            Log.enter "[404] Not Found"
+            self.response.status = 404
+          end
         end
         
-        # 404 if no facts matched and no views were found
-        if !rhs && (!self.presenter || !self.presenter.presented?)
-          self.handle_error(404)
-          
-          Log.enter "[404] Not Found"
-          self.response.status = 404
-        end
       end
-      
+
       finish!
+
     rescue StandardError => error
       self.request.error = error
       self.handle_error(500)
@@ -230,7 +246,7 @@ module Pakyow
       
       finish!
     end
-    
+
     # Sends a file in the response (immediately). Accepts a File object. Mime 
     # type is automatically detected.
     #
@@ -353,12 +369,6 @@ module Pakyow
       load_app
     end
     
-    protected
-    
-    def halted?
-      @halted
-    end
-
     def parse_route_args(args)
       controller = args[0] if args[0] && (args[0].is_a?(Symbol) || args[0].is_a?(String))
       action = args[1] if controller
