@@ -199,6 +199,7 @@ module Pakyow
 
           working_request_path = nil
           controller_block.call() if controller_block && !Pakyow::Configuration::App.ignore_routes
+          nil
         }
 
         if !halted? && working_request_path
