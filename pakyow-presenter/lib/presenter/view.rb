@@ -88,8 +88,12 @@ module Pakyow
         ViewContext.new(self).instance_eval(&block)
       end
       
-      def bind(object, type = nil)
-        type = type || StringUtils.underscore(object.class.name)
+      def bind(object, opts = {})
+        if opts[:as]
+          type = StringUtils.underscore(opts[:as].to_s)
+        else
+          type = StringUtils.underscore(object.class.name)
+        end
         
         @doc.traverse do |o|
           if attribute = o.get_attribute('itemprop')
@@ -102,16 +106,16 @@ module Pakyow
           
           next unless attribute
           
-          if selector.include?('[')
-            type_len    = type.length
-            object_type = selector[0,type_len]
-            attribute   = selector[type_len + 1, attribute.length - type_len - 2]
+          if selector[0, 1] == '*'
+            object_type = '*'
+            attribute = selector[2, selector.length - 3]
           else
-            object_type = nil
-            attribute = selector
+            type_len    = type.length
+            object_type = selector[0, type_len]
+            attribute   = selector[type_len + 1, attribute.length - type_len - 2]
           end
           
-          next if !object_type.nil? && object_type != type          
+          next if object_type != '*' && object_type != type
           
           binding = {
             :element => o,
@@ -119,7 +123,7 @@ module Pakyow
             :selector => selector
           }
           
-          bind_object_to_binding(object, binding, object_type.nil?)
+          bind_object_to_binding(object, binding, type, object_type == '*')
         end
       end
       
@@ -304,7 +308,7 @@ module Pakyow
         @previous_method = nil
       end
       
-      def bind_object_to_binding(object, binding, wild = false)
+      def bind_object_to_binding(object, binding, bind_as, wild = false)
         binder = nil
         
         # fetch value
@@ -312,7 +316,7 @@ module Pakyow
           value = object[binding[:attribute]]
         else
           if View.binders
-            b = View.binders[object.class.to_s.to_sym] and binder = b.new(object, binding[:element])
+            b = View.binders[bind_as.to_sym] and binder = b.new(object, binding[:element])
           end
           
           if binder && binder.class.method_defined?(binding[:attribute])
