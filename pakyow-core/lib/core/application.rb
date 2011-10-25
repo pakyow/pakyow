@@ -172,6 +172,10 @@ module Pakyow
       @halted
     end
 
+    def invoke_route(route, method=nil)
+      throw :halt, [route, method]
+    end
+
     # Called on every request.
     #
     def call(env)
@@ -180,9 +184,12 @@ module Pakyow
       self.response = Rack::Response.new
 
       working_request_path = self.request.path
+      working_request_method = self.request.method
+      new_route = nil
       while working_request_path do
+        working_request_method = self.request.method unless working_request_method
         controller_block = nil
-        working_request_path = catch(:halt) {
+        new_route = catch(:halt) {
           if Configuration::Base.app.presenter
             self.presenter.prepare_for_request(request)
           end
@@ -190,17 +197,20 @@ module Pakyow
           working_route, working_format = StringUtils.split_at_last_dot(working_request_path)
           self.request.format = ((working_format && (working_format[working_format.length - 1, 1] == '/')) ? working_format[0, working_format.length - 1] : working_format)
 
-          controller_block, packet = @route_store.get_block(working_route, self.request.method)
+          controller_block, packet = @route_store.get_block(working_route, working_request_method)
 
           request.params.merge!(HashUtils.strhash(packet[:vars]))
           self.request.route_spec = packet[:data][:route_spec] if packet[:data]
           restful_info = packet[:data][:restful] if packet[:data]
           self.request.restful = restful_info
 
+          new_route = nil
           working_request_path = nil
+          working_request_method = nil
           controller_block.call() if controller_block && !Pakyow::Configuration::App.ignore_routes
           nil
         }
+        working_request_path, working_request_method = new_route if new_route
 
         if !halted? && working_request_path
           next
@@ -243,11 +253,7 @@ module Pakyow
       finish!
     end
 
-    def invoke_route(route)
-      throw :halt, route
-    end
-
-    # Sends a file in the response (immediately). Accepts a File object. Mime 
+    # Sends a file in the response (immediately). Accepts a File object. Mime
     # type is automatically detected.
     #
     def send_file(source_file, send_as = nil, type = nil)
