@@ -308,16 +308,15 @@ module Pakyow
       def bind_object_to_binding(object, binding, bind_as, wild = false)
         binder = nil
         
-        # fetch value
-        if object.is_a? Hash
-          value = object[binding[:attribute]]
+        if View.binders
+          b = View.binders[bind_as.to_sym] and binder = b.new(object, binding[:element])
+        end
+        
+        if binder && binder.class.method_defined?(binding[:attribute])
+          value = binder.send(binding[:attribute])
         else
-          if View.binders
-            b = View.binders[bind_as.to_sym] and binder = b.new(object, binding[:element])
-          end
-          
-          if binder && binder.class.method_defined?(binding[:attribute])
-            value = binder.send(binding[:attribute])
+          if object.is_a? Hash
+            value = object[binding[:attribute]]
           else
             if wild && !object.class.method_defined?(binding[:attribute])
               return
