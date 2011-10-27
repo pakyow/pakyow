@@ -164,59 +164,58 @@ module Pakyow
     # Interrupts the application and returns response immediately.
     #
     def halt!
-      @halted = true
       throw :halt, self.response
     end
 
-    def halted?
-      @halted
-    end
-
     def invoke_route(route, method=nil)
-      throw :halt, [route, method]
+      throw :invoke_route, [route, method]
     end
 
     # Called on every request.
     #
     def call(env)
-      @halted = false
       self.request = Request.new(env)
       self.response = Rack::Response.new
 
-      working_request_path = self.request.path
-      working_request_method = self.request.method
-      new_route = nil
-      while working_request_path do
-        working_request_method = self.request.method unless working_request_method
-        controller_block = nil
-        new_route = catch(:halt) {
-          if Configuration::Base.app.presenter
-            self.presenter.prepare_for_request(request)
+      catch(:halt) {
+        working_request_path = self.request.path
+        working_request_method = self.request.method
+        while working_request_path do
+          new_route = nil
+          controller_block = nil
+          new_route = catch(:invoke_route) {
+            if Configuration::Base.app.presenter
+              self.presenter.prepare_for_request(request)
+            end
+
+            working_route, working_format = StringUtils.split_at_last_dot(working_request_path)
+            self.request.format = ((working_format && (working_format[working_format.length - 1, 1] == '/')) ? working_format[0, working_format.length - 1] : working_format)
+
+            controller_block, packet = @route_store.get_block(working_route, working_request_method)
+
+            request.params.merge!(HashUtils.strhash(packet[:vars]))
+            self.request.route_spec = packet[:data][:route_spec] if packet[:data]
+            restful_info = packet[:data][:restful] if packet[:data]
+            self.request.restful = restful_info
+
+            new_route = nil
+            working_request_path = nil
+            working_request_method = nil
+            controller_block.call() if controller_block && !Pakyow::Configuration::App.ignore_routes
+            nil
+          } # end :invoke_route catch block
+          # If invoke_route was called in the controller_block, new_route will have a value.
+          # If invoke_route was not called, new_route will be nil
+
+          # new_route will have a new path and (optionally) a method
+          working_request_path, new_request_method = new_route if new_route
+          # if no new method, use the current one
+          working_request_method = new_request_method if new_request_method
+
+          if working_request_path
+            next
           end
 
-          working_route, working_format = StringUtils.split_at_last_dot(working_request_path)
-          self.request.format = ((working_format && (working_format[working_format.length - 1, 1] == '/')) ? working_format[0, working_format.length - 1] : working_format)
-
-          controller_block, packet = @route_store.get_block(working_route, working_request_method)
-
-          request.params.merge!(HashUtils.strhash(packet[:vars]))
-          self.request.route_spec = packet[:data][:route_spec] if packet[:data]
-          restful_info = packet[:data][:restful] if packet[:data]
-          self.request.restful = restful_info
-
-          new_route = nil
-          working_request_path = nil
-          working_request_method = nil
-          controller_block.call() if controller_block && !Pakyow::Configuration::App.ignore_routes
-          nil
-        }
-        working_request_path, working_request_method = new_route if new_route
-
-        if !halted? && working_request_path
-          next
-        end
-
-        if !halted? then
           if Configuration::Base.app.presenter
             self.response.body = [self.presenter.content]
           end
@@ -226,9 +225,9 @@ module Pakyow
             Log.enter "[404] Not Found"
             self.response.status = 404
           end
+
         end
-        
-      end
+      } #end :halt catch block
 
       finish!
 
