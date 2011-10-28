@@ -89,8 +89,7 @@ module Pakyow
       end
       
       def bind(object, opts = {})
-        bind_as = opts[:as] ? opts[:as].to_s : object.class.name.split('::').last
-        type = StringUtils.underscore(bind_as)
+        bind_as = opts[:to] ? opts[:to].to_s : StringUtils.underscore(object.class.name.split('::').last)
         
         @doc.traverse do |o|
           if attribute = o.get_attribute('itemprop')
@@ -103,8 +102,8 @@ module Pakyow
           
           next unless attribute
           
-          type_len    = type.length
-          next if selector[0, type_len + 1] != "#{type}["
+          type_len    = bind_as.length
+          next if selector[0, type_len + 1] != "#{bind_as}["
           
           attribute   = selector[type_len + 1, attribute.length - type_len - 2]
           
