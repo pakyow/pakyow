@@ -103,16 +103,10 @@ module Pakyow
           
           next unless attribute
           
-          if selector[0, 1] == '*'
-            object_type = '*'
-            attribute = selector[2, selector.length - 3]
-          else
-            type_len    = type.length
-            object_type = selector[0, type_len]
-            attribute   = selector[type_len + 1, attribute.length - type_len - 2]
-          end
+          type_len    = type.length
+          next if selector[0, type_len + 1] != "#{type}["
           
-          next if object_type != '*' && object_type != type
+          attribute   = selector[type_len + 1, attribute.length - type_len - 2]
           
           binding = {
             :element => o,
@@ -120,7 +114,7 @@ module Pakyow
             :selector => selector
           }
           
-          bind_object_to_binding(object, binding, bind_as, object_type == '*')
+          bind_object_to_binding(object, binding, bind_as)
         end
       end
       
@@ -305,7 +299,7 @@ module Pakyow
         @previous_method = nil
       end
       
-      def bind_object_to_binding(object, binding, bind_as, wild = false)
+      def bind_object_to_binding(object, binding, bind_as)
         binder = nil
         
         if View.binders
@@ -318,9 +312,7 @@ module Pakyow
           if object.is_a? Hash
             value = object[binding[:attribute]]
           else
-            if wild && !object.class.method_defined?(binding[:attribute])
-              return
-            elsif Configuration::Base.app.dev_mode == true && !object.class.method_defined?(binding[:attribute])
+            if Configuration::Base.app.dev_mode == true && !object.class.method_defined?(binding[:attribute])
               Log.warn("Attempting to bind object to #{binding[:html_tag]}#{binding[:selector].gsub('*', '').gsub('\'', '')} but #{object.class.name}##{binding[:attribute]} is not defined.")
               return
             else
