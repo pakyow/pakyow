@@ -22,10 +22,12 @@ class TestApplication < Pakyow::Application
   
   routes do    
   end
-  
-  error(404, :ApplicationController, :handle_404)
-  error(500) {}
-  
+
+  status_handlers do
+    status(404, :ApplicationController, :handle_404)
+    status(500) {}
+  end
+
   # OVERRIDING
   
   attr_accessor :static_handler, :routes, :static
@@ -44,7 +46,7 @@ class TestApplication < Pakyow::Application
       @running = nil
       @staged = nil
       @routes_proc = nil
-      @error_handlers = nil
+      @status_proc = nil
     end
     
     return self

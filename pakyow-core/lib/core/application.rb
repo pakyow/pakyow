@@ -1,7 +1,7 @@
 module Pakyow
   class Application
     class << self
-      attr_accessor :routes_proc, :middleware_proc, :configurations, :error_handlers
+      attr_accessor :routes_proc, :status_proc, :middleware_proc, :configurations
       
       # Sets the path to the application file so it can be reloaded later.
       #
@@ -76,29 +76,22 @@ module Pakyow
         self.routes_proc = block
       end
       
-      # Creates an error handler (currently 404 and 500 errors are handled). 
+      # Creates a response status handler.
       # The handler can be created one of two ways:
       #
-      # Define a controller/action for a particular error:
-      # error(404, :ApplicationController, :handle_404)
+      # Define a controller/action for a particular status code:
+      # status(404, :ApplicationController, :handle_404)
       #
-      # Specify a block for a particular error:
-      # error(404) { # handle error }
+      # Specify a block for a particular status code:
+      # status(404) { # handle error }
       #
-      def error(*args, &block)
-        self.error_handlers ||= {}
-        code, controller, action = args
-        
-        if block
-          self.error_handlers[code] = block
-        else
-          self.error_handlers[code] = {
-            :controller => controller, 
-            :action => action
-          }
-        end
+      # If a controller calls #invoke_status(code) then the
+      # status code handler defined for that code will be invoked.
+      #
+      def status_handlers(&block)
+        self.status_proc = block
       end
-      
+
       def middleware(&block)
         self.middleware_proc = block
       end
@@ -145,9 +138,9 @@ module Pakyow
     end
 
     include Helpers
-    
-    attr_accessor :request, :response, :presenter, :route_store, :restful_routes
-    
+
+    attr_accessor :request, :response, :presenter, :route_store, :restful_routes, :status_store
+
     def initialize
       Pakyow.app = self
       
@@ -164,11 +157,34 @@ module Pakyow
     # Interrupts the application and returns response immediately.
     #
     def halt!
-      throw :halt, self.response
+      throw :halt, true
     end
 
-    def invoke_route(route, method=nil)
-      throw :invoke_route, [route, method]
+    def invoke_route!(route, method)
+      block = prepare_block(route, method)
+      throw :new_block, block if block
+      #TODO log warning/error if no block?
+    end
+
+    def invoke_status!(code)
+      self.response.status = code
+      block = @status_store[code]
+      throw :new_block, block if block
+      #TODO log warning/error if no block?
+    end
+
+    #TODO move to protected section
+    def prepare_block(route, method)
+      set_request_format_from_route(route)
+
+      controller_block, packet = @route_store.get_block(route, method)
+
+      request.params.merge!(HashUtils.strhash(packet[:vars]))
+      self.request.route_spec = packet[:data][:route_spec] if packet[:data]
+      restful_info = packet[:data][:restful] if packet[:data]
+      self.request.restful = restful_info
+
+      controller_block
     end
 
     # Called on every request.
@@ -177,62 +193,56 @@ module Pakyow
       self.request = Request.new(env)
       self.response = Rack::Response.new
 
-      catch(:halt) {
-        working_request_path = self.request.path
-        working_request_method = self.request.method
-        while working_request_path do
-          new_route = nil
-          controller_block = nil
-          new_route = catch(:invoke_route) {
+      halted = catch(:halt) {
+        first_matched = false
+        new_block = prepare_block(self.request.path, self.request.method)
+        while new_block do
+          new_block = catch(:new_block) {
+            #TODO this may move to prepare_block
             if Configuration::Base.app.presenter
               self.presenter.prepare_for_request(request)
             end
 
-            working_route, working_format = StringUtils.split_at_last_dot(working_request_path)
-            self.request.format = ((working_format && (working_format[working_format.length - 1, 1] == '/')) ? working_format[0, working_format.length - 1] : working_format)
-
-            controller_block, packet = @route_store.get_block(working_route, working_request_method)
-
-            request.params.merge!(HashUtils.strhash(packet[:vars]))
-            self.request.route_spec = packet[:data][:route_spec] if packet[:data]
-            restful_info = packet[:data][:restful] if packet[:data]
-            self.request.restful = restful_info
-
-            new_route = nil
-            working_request_path = nil
-            working_request_method = nil
-            controller_block.call() if controller_block && !Pakyow::Configuration::App.ignore_routes
+            first_matched = true
+            new_block.call() if new_block && !Pakyow::Configuration::App.ignore_routes
             nil
           } # end :invoke_route catch block
-          # If invoke_route was called in the controller_block, new_route will have a value.
-          # If invoke_route was not called, new_route will be nil
+          # If invoke_route or invoke_status was called in the controller_block, new_block will have a value.
+          # If neither was called, new_block will be nil
 
-          # new_route will have a new path and (optionally) a method
-          working_request_path, new_request_method = new_route if new_route
-          # if no new method, use the current one
-          working_request_method = new_request_method if new_request_method
-
-          if working_request_path
+          if new_block
             next
           end
 
           if Configuration::Base.app.presenter
             self.response.body = [self.presenter.content]
           end
+
           # 404 if no facts matched and no views were found
-          if !controller_block && (!self.presenter || !self.presenter.presented?)
+          if !first_matched && (!self.presenter || !self.presenter.presented?)
+            #TODO
             self.handle_error(404)
             Log.enter "[404] Not Found"
             self.response.status = 404
           end
 
+          #TODO Look at status code and call handler is we have one?? Or not??
+
         end
+        
+        false
       } #end :halt catch block
 
-      finish!
+      if halted
+        throw :halt, self.response
+      end
 
+      # This needs to be in the 'return' position (last statement)
+      finish!
+      
     rescue StandardError => error
       self.request.error = error
+      #TODO
       self.handle_error(500)
       
       if Configuration::Base.app.errors_in_browser
@@ -250,6 +260,11 @@ module Pakyow
       end
       
       finish!
+    end
+
+    #TODO TEMPORARY
+    def handle_error(code)
+      Log.enter "handle_error(#{code})"
     end
 
     # Sends a file in the response (immediately). Accepts a File object. Mime
@@ -368,7 +383,17 @@ module Pakyow
       block = build_controller_block(controller, action) if controller
       @route_store.add_hook(name, block)
     end
-    
+
+    def status(*args, &block)
+      code, controller, action = args
+
+      if block_given?
+        @status_store[code] = block
+      else
+        @status_store[code] = build_controller_block(controller, action)
+      end
+    end
+
     #TODO: don't like this...
     def reload
       load_app
@@ -424,6 +449,11 @@ module Pakyow
       
       block
     end
+
+    def set_request_format_from_route(route)
+      route, format = StringUtils.split_at_last_dot(route)
+      self.request.format = ((format && (format[format.length - 1, 1] == '/')) ? format[0, format.length - 1] : format)
+    end
     
     def with_scope(opts)
       @scope         ||= {}
@@ -449,20 +479,6 @@ module Pakyow
       @scope[:path].join('/')
     end
     
-    def handle_error(code)
-      return unless self.class.error_handlers
-      return unless handler = self.class.error_handlers[code]
-      
-      if handler.is_a? Proc
-        Pakyow.app.instance_eval(&handler)
-      else
-        c = eval(handler[:controller].to_s).new
-        c.send(handler[:action])
-      end
-      
-      self.response.body = [self.presenter.content] if Configuration::Base.app.presenter
-    end
-    
     def set_cookies
       if self.request.cookies && self.request.cookies != {}
         self.request.cookies.each do |key, value|
@@ -484,7 +500,8 @@ module Pakyow
       
       @loader = Loader.new unless @loader
       @loader.load!(Configuration::Base.app.src_dir)
-      
+
+      load_status
       load_routes
       
       # Reload views
@@ -493,6 +510,11 @@ module Pakyow
       end
     end
     
+    def load_status
+      @status_store = {}
+      self.instance_eval(&self.class.status_proc) if self.class.status_proc
+    end
+
     def load_routes
       @route_store = RouteStore.new
       self.instance_eval(&self.class.routes_proc) if self.class.routes_proc
