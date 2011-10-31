@@ -1,7 +1,7 @@
 module Pakyow
   class Application
     class << self
-      attr_accessor :routes_proc, :status_proc, :middleware_proc, :configurations
+      attr_accessor :routes_proc, :handlers_proc, :middleware_proc, :configurations
       
       # Sets the path to the application file so it can be reloaded later.
       #
@@ -76,20 +76,20 @@ module Pakyow
         self.routes_proc = block
       end
       
-      # Creates a response status handler.
+      # Creates handlers for later execution.
       # The handler can be created one of two ways:
       #
-      # Define a controller/action for a particular status code:
-      # status(404, :ApplicationController, :handle_404)
+      # Define a controller/action handler with an associate response status:
+      # handler(name, 404, :ApplicationController, :handle_404)
       #
-      # Specify a block for a particular status code:
-      # status(404) { # handle error }
+      # Specify a block as a handler:
+      # handler(name, 404) { # handle error }
       #
-      # If a controller calls #invoke_status(code) then the
-      # status code handler defined for that code will be invoked.
+      # If a controller calls #invoke_handler!(name) then the
+      # handler defined for that code will be invoked.
       #
-      def status_handlers(&block)
-        self.status_proc = block
+      def handlers(&block)
+        self.handlers_proc = block
       end
 
       def middleware(&block)
@@ -139,7 +139,7 @@ module Pakyow
 
     include Helpers
 
-    attr_accessor :request, :response, :presenter, :route_store, :restful_routes, :status_store
+    attr_accessor :request, :response, :presenter, :route_store, :restful_routes, :handler_store
 
     def initialize
       Pakyow.app = self
@@ -166,9 +166,9 @@ module Pakyow
       #TODO log warning/error if no block?
     end
 
-    def invoke_status!(code)
+    def invoke_handler!(code)
       self.response.status = code
-      block = @status_store[code]
+      block = @handler_store[code]
       throw :new_block, block if block
     end
 
@@ -200,7 +200,7 @@ module Pakyow
 
         while new_block do
           new_block = catch(:new_block) {
-            #TODO this may move to prepare_block; depends on whether status handlers can muck with a presenter
+            #TODO this may move to prepare_block
             if Configuration::Base.app.presenter
               self.presenter.prepare_for_request(request)
             end
@@ -210,12 +210,12 @@ module Pakyow
             # Getting here means that call() returned normally (not via a throw)
             # By definition, we do not have a 404 since we matched a route to get the block to call
 
-            #TODO Here's where we set the status code and call a status handler (if we chose to have this behavior)
-            #invoke_status!(self.response.status)
+            #TODO Here's where we call a handler for the status (if we chose to have this behavior)
+            #invoke_handler!(self.response.status)
 
             nil
           } # end :invoke_route catch block
-          # If invoke_route or invoke_status was called in the controller_block, new_block will have a value.
+          # If invoke_route! or invoke_handler! was called in the controller_block, new_block will have a value.
           # If neither was called, new_block will be nil
 
           if new_block
@@ -234,7 +234,7 @@ module Pakyow
         if !have_route && (!self.presenter || !self.presenter.presented?)
           Log.enter "[404] Not Found"
           # TODO how to we invoke the handler?
-          #invoke_status!(404)
+          #invoke_handler!(404)
           self.response.status = 404
         end        
 
@@ -392,13 +392,13 @@ module Pakyow
       @route_store.add_hook(name, block)
     end
 
-    def status(*args, &block)
+    def handler(*args, &block)
       code, controller, action = args
 
       if block_given?
-        @status_store[code] = block
+        @handler_store[code] = block
       else
-        @status_store[code] = build_controller_block(controller, action)
+        @handler_store[code] = build_controller_block(controller, action)
       end
     end
 
@@ -509,7 +509,7 @@ module Pakyow
       @loader = Loader.new unless @loader
       @loader.load!(Configuration::Base.app.src_dir)
 
-      load_status
+      load_handlers
       load_routes
       
       # Reload views
@@ -518,9 +518,9 @@ module Pakyow
       end
     end
     
-    def load_status
-      @status_store = {}
-      self.instance_eval(&self.class.status_proc) if self.class.status_proc
+    def load_handlers
+      @handler_store = {}
+      self.instance_eval(&self.class.handlers_proc) if self.class.handlers_proc
     end
 
     def load_routes
