@@ -183,7 +183,30 @@ module Pakyow
       restful_info = packet[:data][:restful] if packet[:data]
       self.request.restful = restful_info
 
+      if  controller_block && self.presenter
+        self.presenter.prepare_for_request(request)
+      end
+
       controller_block
+    end
+
+    #TODO move to protected section
+    def trampoline(block)
+      while block do
+        block = catch(:new_block) {
+          block.call() if !Pakyow::Configuration::App.ignore_routes
+          # Getting here means that call() returned normally (not via a throw)
+          # By definition, we do not have a 404 since we matched a route to get the block to call
+          nil
+        } # end :invoke_route catch block
+        # If invoke_route! or invoke_handler! was called in the block, block will have a new value.
+        # If neither was called, block will be nil
+
+        if block && self.presenter
+          self.presenter.prepare_for_request(request)
+        end
+      end
+      
     end
 
     # Called on every request.
@@ -192,48 +215,26 @@ module Pakyow
       self.request = Request.new(env)
       self.response = Rack::Response.new
 
+      if self.presenter
+        self.presenter.prepare_for_request(request)
+      end
+
       have_route = false
       halted = catch(:halt) {
-        new_block = prepare_block(self.request.path, self.request.method)
-        have_route = true if new_block
+        block = prepare_block(self.request.path, self.request.method)
+        have_route = true if block
 
+        trampoline(block)
 
-        while new_block do
-          new_block = catch(:new_block) {
-            #TODO this may move to prepare_block
-            if Configuration::Base.app.presenter
-              self.presenter.prepare_for_request(request)
-            end
-
-            new_block.call() if new_block && !Pakyow::Configuration::App.ignore_routes
-
-            # Getting here means that call() returned normally (not via a throw)
-            # By definition, we do not have a 404 since we matched a route to get the block to call
-
-            #TODO Here's where we call a handler for the status (if we chose to have this behavior)
-            #invoke_handler!(self.response.status)
-
-            nil
-          } # end :invoke_route catch block
-          # If invoke_route! or invoke_handler! was called in the controller_block, new_block will have a value.
-          # If neither was called, new_block will be nil
-
-          if new_block
-            next
-          end
-
-          if Configuration::Base.app.presenter
-            self.response.body = [self.presenter.content]
-          end
-
+        Log.enter "presenter: #{self.presenter ? "yes" : "no" }  presented?: #{self.presenter.presented?}"
+        if self.presenter && self.presenter.presented?
+          self.response.body = [self.presenter.content]
         end
-
-
 
         # 404 if no route matched and no views were found
         if !have_route && (!self.presenter || !self.presenter.presented?)
           Log.enter "[404] Not Found"
-          # TODO how to we invoke the handler?
+          # TODO invoke the handler
           #invoke_handler!(404)
           self.response.status = 404
         end        
@@ -250,7 +251,7 @@ module Pakyow
       
     rescue StandardError => error
       self.request.error = error
-      #TODO
+      #TODO invoke the handler
       self.handle_error(500)
       
       if Configuration::Base.app.errors_in_browser
@@ -513,7 +514,7 @@ module Pakyow
       load_routes
       
       # Reload views
-      if Configuration::Base.app.presenter
+      if self.presenter
         self.presenter.load
       end
     end
