@@ -170,7 +170,6 @@ module Pakyow
       self.response.status = code
       block = @status_store[code]
       throw :new_block, block if block
-      #TODO log warning/error if no block?
     end
 
     #TODO move to protected section
@@ -193,18 +192,27 @@ module Pakyow
       self.request = Request.new(env)
       self.response = Rack::Response.new
 
+      have_route = false
       halted = catch(:halt) {
-        first_matched = false
         new_block = prepare_block(self.request.path, self.request.method)
+        have_route = true if new_block
+
+
         while new_block do
           new_block = catch(:new_block) {
-            #TODO this may move to prepare_block
+            #TODO this may move to prepare_block; depends on whether status handlers can muck with a presenter
             if Configuration::Base.app.presenter
               self.presenter.prepare_for_request(request)
             end
 
-            first_matched = true
             new_block.call() if new_block && !Pakyow::Configuration::App.ignore_routes
+
+            # Getting here means that call() returned normally (not via a throw)
+            # By definition, we do not have a 404 since we matched a route to get the block to call
+
+            #TODO Here's where we set the status code and call a status handler (if we chose to have this behavior)
+            #invoke_status!(self.response.status)
+
             nil
           } # end :invoke_route catch block
           # If invoke_route or invoke_status was called in the controller_block, new_block will have a value.
@@ -218,18 +226,18 @@ module Pakyow
             self.response.body = [self.presenter.content]
           end
 
-          # 404 if no facts matched and no views were found
-          if !first_matched && (!self.presenter || !self.presenter.presented?)
-            #TODO
-            self.handle_error(404)
-            Log.enter "[404] Not Found"
-            self.response.status = 404
-          end
-
-          #TODO Look at status code and call handler is we have one?? Or not??
-
         end
-        
+
+
+
+        # 404 if no route matched and no views were found
+        if !have_route && (!self.presenter || !self.presenter.presented?)
+          Log.enter "[404] Not Found"
+          # TODO how to we invoke the handler?
+          #invoke_status!(404)
+          self.response.status = 404
+        end        
+
         false
       } #end :halt catch block
 
