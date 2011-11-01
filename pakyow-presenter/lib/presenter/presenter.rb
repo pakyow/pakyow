@@ -57,6 +57,7 @@ module Pakyow
       def set_view(view)
         @root_view = View.new(view)
         @root_view_is_built = true
+        Log.enter "Presenter.presented=true"
         @presented = true
         @view_path = nil
         @root_path = nil
@@ -144,6 +145,7 @@ module Pakyow
       #
 
       def reset_state
+        Log.enter "Presenter.reset_state"
         @presented = false
         @root_path = nil
         @root_view_is_built = false
@@ -153,6 +155,7 @@ module Pakyow
       end
 
       def build_root_view
+        Log.enter "Presenter.build_root_view"
         @root_view_is_built = true
 
         if @view_path
@@ -170,6 +173,7 @@ module Pakyow
           r_v = @populated_root_view_cache[v_p]
           if r_v then
             @root_view = r_v.dup
+            Log.enter "Presenter.presented=true"
             @presented = true
           end
         else
@@ -178,6 +182,7 @@ module Pakyow
           @root_view = LazyView.new(@root_path, true)
           views = view_info[:views]
           populate_view(self.view, views)
+          Log.enter "Presenter.presented=true"
           @presented = true
         end
       end

@@ -157,7 +157,7 @@ module Pakyow
     # Interrupts the application and returns response immediately.
     #
     def halt!
-      throw :halt, true
+      throw :halt, self.response
     end
 
     def invoke_route!(route, method)
@@ -198,6 +198,7 @@ module Pakyow
         # If neither was called, block will be nil
 
         if block && self.presenter
+          Log.enter "PPFR [block: #{block.inspect}]"
           self.presenter.prepare_for_request(self.request)
         end
 
@@ -212,7 +213,7 @@ module Pakyow
       self.response = Rack::Response.new
 
       have_route = false
-      halted = catch(:halt) {
+      halted_resp = catch(:halt) {
         route_block = prepare_route_block(self.request.path, self.request.method)
         have_route = true if route_block
 
@@ -239,7 +240,7 @@ module Pakyow
         false
       } #end :halt catch block
 
-      if halted
+      if halted_resp
         throw :halt, self.response
       end
 
