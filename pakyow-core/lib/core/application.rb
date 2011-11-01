@@ -144,6 +144,7 @@ module Pakyow
     def initialize
       Pakyow.app = self
       @handler_name_code_hash = {}
+      @handler_code_name_hash = {}
 
       # This configuration option will be set if a presenter is to be used
       if Configuration::Base.app.presenter
@@ -234,8 +235,8 @@ module Pakyow
         # 404 if no route matched and no views were found
         if !have_route && (!self.presenter || !self.presenter.presented?)
           Log.enter "[404] Not Found"
-          # TODO invoke the handler
-          #invoke_handler!(404)
+          handler404 = @handler_store[@handler_code_name_hash[404]] if @handler_code_name_hash[404]
+          trampoline(handler404) if handler404
           self.response.status = 404
         end        
 
@@ -251,9 +252,10 @@ module Pakyow
       
     rescue StandardError => error
       self.request.error = error
-      #TODO invoke the handler
-      self.handle_error(500)
-      
+      handler500 = @handler_store[@handler_code_name_hash[500]] if @handler_code_name_hash[500]
+      trampoline(handler500) if handler500
+      self.response.status = 500
+
       if Configuration::Base.app.errors_in_browser
         self.response.body = []
         self.response.body << "<h4>#{CGI.escapeHTML(error.to_s)}</h4>"
@@ -269,11 +271,6 @@ module Pakyow
       end
       
       finish!
-    end
-
-    #TODO TEMPORARY
-    def handle_error(code)
-      Log.enter "handle_error(#{code})"
     end
 
     # Sends a file in the response (immediately). Accepts a File object. Mime
@@ -404,6 +401,7 @@ module Pakyow
 
       if code
         @handler_name_code_hash[name] = code
+        @handler_code_name_hash[code] = name
       end
     end
 
