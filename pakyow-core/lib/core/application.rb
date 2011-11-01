@@ -143,7 +143,8 @@ module Pakyow
 
     def initialize
       Pakyow.app = self
-      
+      @handler_name_code_hash = {}
+
       # This configuration option will be set if a presenter is to be used
       if Configuration::Base.app.presenter
         # Create a new instance of the presenter
@@ -166,9 +167,10 @@ module Pakyow
       #TODO log warning/error if no block?
     end
 
-    def invoke_handler!(code)
-      self.response.status = code
-      block = @handler_store[code]
+    def invoke_handler!(name)
+      code = @handler_name_code_hash[name]
+      self.response.status = code if code
+      block = @handler_store[name]
       throw :new_block, block if block
     end
 
@@ -391,13 +393,17 @@ module Pakyow
       @route_store.add_hook(name, block)
     end
 
-    def handler(*args, &block)
-      code, controller, action = args
+    def handler(name, *args, &block)
+      code, controller, action = parse_handler_args(args)
 
       if block_given?
-        @handler_store[code] = block
+        @handler_store[name] = block
       else
-        @handler_store[code] = build_controller_block(controller, action)
+        @handler_store[name] = build_controller_block(controller, action)
+      end
+
+      if code
+        @handler_name_code_hash[name] = code
       end
     end
 
@@ -425,6 +431,17 @@ module Pakyow
         hooks = args[0] if args[0] && args[0].is_a?(Hash)
       end
       return model, hooks
+    end
+
+    def parse_handler_args(args)
+      code = args[0] if args.length == 1 || args.length == 3
+      controller = args[1] if code
+      action = args[2] if code && args[2]
+      unless code
+        controller = args[0]
+        action = args[1] if args[1]
+      end
+      return code, controller, action
     end
 
     # Handles route registration.
