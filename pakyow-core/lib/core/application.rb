@@ -161,7 +161,7 @@ module Pakyow
     end
 
     def invoke_route!(route, method)
-      block = prepare_block(route, method)
+      block = prepare_route_block(route, method)
       throw :new_block, block if block
       #TODO log warning/error if no block?
     end
@@ -173,19 +173,14 @@ module Pakyow
     end
 
     #TODO move to protected section
-    def prepare_block(route, method)
+    def prepare_route_block(route, method)
       set_request_format_from_route(route)
 
       controller_block, packet = @route_store.get_block(route, method)
 
-      request.params.merge!(HashUtils.strhash(packet[:vars]))
+      self.request.params.merge!(HashUtils.strhash(packet[:vars]))
       self.request.route_spec = packet[:data][:route_spec] if packet[:data]
-      restful_info = packet[:data][:restful] if packet[:data]
-      self.request.restful = restful_info
-
-      if  controller_block && self.presenter
-        self.presenter.prepare_for_request(request)
-      end
+      self.request.restful = packet[:data][:restful] if packet[:data]
 
       controller_block
     end
@@ -194,7 +189,7 @@ module Pakyow
     def trampoline(block)
       while block do
         block = catch(:new_block) {
-          block.call() if !Pakyow::Configuration::App.ignore_routes
+          block.call()
           # Getting here means that call() returned normally (not via a throw)
           # By definition, we do not have a 404 since we matched a route to get the block to call
           nil
@@ -203,8 +198,9 @@ module Pakyow
         # If neither was called, block will be nil
 
         if block && self.presenter
-          self.presenter.prepare_for_request(request)
+          self.presenter.prepare_for_request(self.request)
         end
+
       end
       
     end
@@ -215,18 +211,19 @@ module Pakyow
       self.request = Request.new(env)
       self.response = Rack::Response.new
 
-      if self.presenter
-        self.presenter.prepare_for_request(request)
-      end
-
       have_route = false
       halted = catch(:halt) {
-        block = prepare_block(self.request.path, self.request.method)
-        have_route = true if block
+        route_block = prepare_route_block(self.request.path, self.request.method)
+        have_route = true if route_block
 
-        trampoline(block)
+        if self.presenter
+          self.presenter.prepare_for_request(self.request)
+        end
+
+        trampoline(route_block) if !Pakyow::Configuration::App.ignore_routes
 
         Log.enter "presenter: #{self.presenter ? "yes" : "no" }  presented?: #{self.presenter.presented?}"
+        
         if self.presenter && self.presenter.presented?
           self.response.body = [self.presenter.content]
         end
