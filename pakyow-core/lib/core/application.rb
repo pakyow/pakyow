@@ -262,8 +262,6 @@ module Pakyow
         self.response.body << error.backtrace.join("<br />")
       end
       
-      self.response.status = 500
-      
       begin
         # caught by other middleware (e.g. logger)
         throw :error, error
