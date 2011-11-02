@@ -156,6 +156,9 @@ module Pakyow
 
       def build_root_view
         Log.enter "Presenter.in build_root_view"
+        Log.enter "   @view_path=#{@view_path}"
+        Log.enter "   @request.route_spec=#{@request.route_spec if @request}"
+        Log.enter "   @request.env['PATH_INFO']=#{@request.env['PATH_INFO'] if @request}"
         @root_view_is_built = true
 
         if @view_path
@@ -165,9 +168,10 @@ module Pakyow
         elsif @request && @request.route_spec && @request.route_spec.index(':')
           v_p = StringUtils.remove_route_vars(@request.route_spec)
         else
+          # TODO why is this not @request.route_spec
           v_p = @request && @request.env['PATH_INFO']
         end
-        Log.enter "view_path is #{v_p}"
+        Log.enter "v_p is #{v_p}"
         return unless v_p
 
         if Configuration::Base.presenter.view_caching

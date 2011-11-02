@@ -166,10 +166,11 @@ module Pakyow
       # TODO Think about all this
       block = prepare_route_block(route, method)
       Log.enter "invoke_route!(#{route} #{method}) #{block ? 'have' : 'NO'} block"
-      # TODO fix this
       # if there's no block we end up stopping but the request in in changed so content comes
       # back according to what the request was when this method was called and not the according
       # to the route arg passed in.
+      # TODO Is this the right way to deal with this?
+      self.request.route_spec = route unless block
       throw :new_block, block
     end
 
