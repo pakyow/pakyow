@@ -165,7 +165,7 @@ module Pakyow
     def invoke_route!(route, method)
       block = prepare_route_block(route, method)
       Log.enter "invoke_route!(#{route} #{method}) #{block ? 'have' : 'NO'} block"
-      throw :new_block, block if block
+      throw :new_block, block #if block
       #TODO log warning/error if no block?
     end
 

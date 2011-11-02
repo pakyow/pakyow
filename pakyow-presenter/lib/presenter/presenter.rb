@@ -155,7 +155,7 @@ module Pakyow
       end
 
       def build_root_view
-        Log.enter "Presenter.build_root_view"
+        Log.enter "Presenter.in build_root_view"
         @root_view_is_built = true
 
         if @view_path
@@ -167,6 +167,7 @@ module Pakyow
         else
           v_p = @request && @request.env['PATH_INFO']
         end
+        Log.enter "view_path is #{v_p}"
         return unless v_p
 
         if Configuration::Base.presenter.view_caching
