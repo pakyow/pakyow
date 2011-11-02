@@ -143,8 +143,8 @@ module Pakyow
 
     def initialize
       Pakyow.app = self
-      @handler_name_code_hash = {}
-      @handler_code_name_hash = {}
+      @handler_name_to_code = {}
+      @handler_code_to_name = {}
 
       # This configuration option will be set if a presenter is to be used
       if Configuration::Base.app.presenter
@@ -163,17 +163,35 @@ module Pakyow
     end
 
     def invoke_route!(route, method)
+      # TODO Think about all this
       block = prepare_route_block(route, method)
       Log.enter "invoke_route!(#{route} #{method}) #{block ? 'have' : 'NO'} block"
-      throw :new_block, block #if block
-      #TODO log warning/error if no block?
+      # TODO fix this
+      # if there's no block we end up stopping but the request in in changed so content comes
+      # back according to what the request was when this method was called and not the according
+      # to the route arg passed in.
+      throw :new_block, block
     end
 
-    def invoke_handler!(name)
-      code = @handler_name_code_hash[name]
-      self.response.status = code if code
-      block = @handler_store[name]
-      throw :new_block, block if block
+    def invoke_handler!(name_or_code)
+      # TODO Think about all this
+      if block = @handler_store[name_or_code]
+        # we are given a name
+        code = @handler_name_to_code[name]
+        self.response.status = code if code
+        throw :new_block, block
+      elsif name = @handler_code_to_name[name_or_code]
+        # we are given a code
+        block = @handler_store[name]
+        self.response.status = name_or_code
+        throw :new_block, block
+      else
+        # no block to be found
+        # do we assume code if a number and set status?
+        self.response.status = name_or_code if name_or_code.is_a?(Fixnum)
+        # still need to stop execution, I think? But do nothing.
+        throw :new_block, nil
+      end
     end
 
     #TODO move to protected section
@@ -237,7 +255,7 @@ module Pakyow
         # 404 if no route matched and no views were found
         if !have_route && (!self.presenter || !self.presenter.presented?)
           Log.enter "[404] Not Found"
-          handler404 = @handler_store[@handler_code_name_hash[404]] if @handler_code_name_hash[404]
+          handler404 = @handler_store[@handler_code_to_name[404]] if @handler_code_to_name[404]
           trampoline(handler404) if handler404
           self.response.status = 404
         end
@@ -254,7 +272,7 @@ module Pakyow
 
     rescue StandardError => error
       self.request.error = error
-      handler500 = @handler_store[@handler_code_name_hash[500]] if @handler_code_name_hash[500]
+      handler500 = @handler_store[@handler_code_to_name[500]] if @handler_code_to_name[500]
       trampoline(handler500) if handler500
       self.response.status = 500
 
@@ -400,8 +418,8 @@ module Pakyow
       end
 
       if code
-        @handler_name_code_hash[name] = code
-        @handler_code_name_hash[code] = name
+        @handler_name_to_code[name] = code
+        @handler_code_to_name[code] = name
       end
     end
 
