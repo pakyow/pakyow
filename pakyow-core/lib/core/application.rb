@@ -2,17 +2,17 @@ module Pakyow
   class Application
     class << self
       attr_accessor :routes_proc, :handlers_proc, :middleware_proc, :configurations
-      
+
       # Sets the path to the application file so it can be reloaded later.
       #
       def inherited(subclass)
         Pakyow::Configuration::App.application_path = parse_path_from_caller(caller[0])
       end
-      
+
       def parse_path_from_caller(caller)
         caller.match(/^(.+)(:?:\d+(:?:in `.+')?$)/)[1]
       end
-      
+
       # Runs the application. Accepts the environment(s) to run, for example:
       # run(:development)
       # run([:development, :staging])
@@ -20,47 +20,47 @@ module Pakyow
       def run(*args)
         return if running?
         @running = true
-        
+
         self.builder.run(self.prepare(*args))
         detect_handler.run(builder, :Host => Pakyow::Configuration::Base.server.host, :Port => Pakyow::Configuration::Base.server.port)
       end
-      
+
       # Stages the application. Everything is loaded but the application is
       # not started. Accepts the same arguments as #run.
       #
       def stage(*args)
         return if staged?
         @staged = true
-        
+
         prepare(*args)
       end
-      
+
       def builder
         @builder ||= Rack::Builder.new
       end
-      
+
       def prepared?
         @prepared
       end
-      
+
       # Returns true if the application is running.
       #
       def running?
         @running
       end
-      
+
       # Returns true if the application is staged.
       #
       def staged?
         @staged
       end
-      
+
       # Convenience method for base configuration class.
       #
       def config
         Pakyow::Configuration::Base
       end
-      
+
       # Creates configuration for a particular environment. Example:
       # configure(:development) { app.auto_reload = true }
       #
@@ -68,14 +68,14 @@ module Pakyow
         self.configurations ||= {}
         self.configurations[environment] = block
       end
-      
+
       # Creates routes. Example:
       # routes { get '/' { # do something } }
       #
       def routes(&block)
         self.routes_proc = block
       end
-      
+
       # Creates handlers for later execution.
       # The handler can be created one of two ways:
       #
@@ -97,25 +97,25 @@ module Pakyow
       end
 
       protected
-      
+
       # Prepares the application for running or staging and returns an instance
       # of the application.
       def prepare(*args)
         self.load_config args.empty? || args.first.nil? ? [Configuration::Base.app.default_environment] : args
         return if prepared?
-        
+
         self.builder.use(Rack::MethodOverride)
         self.builder.use(Pakyow::Static) if Configuration::Base.app.static
         self.builder.use(Pakyow::Logger) if Configuration::Base.app.log
         self.builder.use(Pakyow::Reloader) if Configuration::Base.app.auto_reload
         self.builder.instance_eval(&self.middleware_proc) if self.middleware_proc
-        
+
         @prepared = true
-        
+
         $:.unshift(Dir.pwd) unless $:.include? Dir.pwd
         return self.new
       end
-      
+
       def load_config(args)
         if self.configurations
           args << Configuration::Base.app.default_environment if args.empty?
@@ -125,7 +125,7 @@ module Pakyow
           end
         end
       end
-      
+
       def detect_handler
         ['thin', 'mongrel', 'webrick'].each do |server|
           begin
@@ -151,11 +151,11 @@ module Pakyow
         # Create a new instance of the presenter
         self.presenter = Configuration::Base.app.presenter.new
       end
-      
+
       # Load application files
       load_app
     end
-    
+
     # Interrupts the application and returns response immediately.
     #
     def halt!
@@ -208,7 +208,7 @@ module Pakyow
         end
 
       end
-      
+
     end
 
     # Called on every request.
@@ -229,8 +229,8 @@ module Pakyow
         trampoline(route_block) if !Pakyow::Configuration::App.ignore_routes
 
         Log.enter "presenter: #{self.presenter ? "yes" : "no" }  presented?: #{self.presenter.presented?}"
-        
-        if self.presenter && self.presenter.presented?
+
+        if self.presenter
           self.response.body = [self.presenter.content]
         end
 
@@ -240,7 +240,7 @@ module Pakyow
           handler404 = @handler_store[@handler_code_name_hash[404]] if @handler_code_name_hash[404]
           trampoline(handler404) if handler404
           self.response.status = 404
-        end        
+        end
 
         false
       } #end :halt catch block
@@ -251,7 +251,7 @@ module Pakyow
 
       # This needs to be in the 'return' position (last statement)
       finish!
-      
+
     rescue StandardError => error
       self.request.error = error
       handler500 = @handler_store[@handler_code_name_hash[500]] if @handler_code_name_hash[500]
@@ -263,13 +263,13 @@ module Pakyow
         self.response.body << "<h4>#{CGI.escapeHTML(error.to_s)}</h4>"
         self.response.body << error.backtrace.join("<br />")
       end
-      
+
       begin
         # caught by other middleware (e.g. logger)
         throw :error, error
       rescue ArgumentError
       end
-      
+
       finish!
     end
 
@@ -280,38 +280,38 @@ module Pakyow
       path = source_file.is_a?(File) ? source_file.path : source_file
       send_as ||= path
       type    ||= Rack::Mime.mime_type(".#{send_as.split('.')[-1]}")
-      
+
       data = ""
       File.open(path, "r").each_line { |line| data << line }
-      
+
       self.response = Rack::Response.new(data, self.response.status, self.response.header.merge({ "Content-Type" => type }))
       halt!
     end
-    
-    # Sends data in the response (immediately). Accepts the data, mime type, 
+
+    # Sends data in the response (immediately). Accepts the data, mime type,
     # and optional file name.
     #
     def send_data(data, type, file_name = nil)
       status = self.response ? self.response.status : 200
-      
+
       headers = self.response ? self.response.header : {}
       headers = headers.merge({ "Content-Type" => type })
       headers = headers.merge({ "Content-disposition" => "attachment; filename=#{file_name}"}) if file_name
-      
+
       self.response = Rack::Response.new(data, status, headers)
       halt!
     end
-    
+
     # Redirects to location (immediately).
     #
     def redirect_to(location, status_code = 302)
       headers = self.response ? self.response.header : {}
       headers = headers.merge({'Location' => location})
-      
+
       self.response = Rack::Response.new('', status_code, headers)
       halt!
     end
-    
+
     # Registers a route for GET requests. Route can be defined one of two ways:
     # get('/', :ControllerClass, :action_method)
     # get('/') { # do something }
@@ -322,25 +322,25 @@ module Pakyow
     def get(route, *args, &block)
       register_route(:user, route, block, :get, *args)
     end
-    
+
     # Registers a route for POST requests (see #get).
     #
     def post(route, *args, &block)
       register_route(:user, route, block, :post, *args)
     end
-    
+
     # Registers a route for PUT requests (see #get).
     #
     def put(route, *args, &block)
       register_route(:user, route, block, :put, *args)
     end
-    
+
     # Registers a route for DELETE requests (see #get).
     #
     def delete(route, *args, &block)
       register_route(:user, route, block, :delete, *args)
     end
-    
+
     # Registers the default route (see #get).
     #
     def default(*args, &block)
@@ -351,30 +351,30 @@ module Pakyow
     #
     def restful(url, controller, *args, &block)
       model, hooks = parse_restful_args(args)
-      
+
       with_scope(:url => url.gsub(/^[\/]+|[\/]+$/,""), :model => model) do
         nest_scope(&block) if block_given?
-        
+
         @restful_routes         ||= {}
         @restful_routes[model]  ||= {} if model
-        
+
         @@restful_actions.each do |opts|
-          action_url = current_path          
+          action_url = current_path
           if suffix = opts[:url_suffix]
             action_url = File.join(action_url, suffix)
           end
-          
+
           # Create the route
           register_route(:restful, action_url, nil, opts[:method], controller, opts[:action], hooks)
-          
+
           # Store url for later use (currently used by Binder#action)
           @restful_routes[model][opts[:action]] = action_url if model
         end
-        
+
         remove_scope
       end
     end
-    
+
     @@restful_actions = [
       { :action => :edit, :method => :get, :url_suffix => 'edit/:id' },
       { :action => :show, :method => :get, :url_suffix => ':id' },
@@ -409,9 +409,9 @@ module Pakyow
     def reload
       load_app
     end
-    
+
     protected
-    
+
     def parse_route_args(args)
       controller = args[0] if args[0] && (args[0].is_a?(Symbol) || args[0].is_a?(String))
       action = args[1] if controller
@@ -468,7 +468,7 @@ module Pakyow
 
         instance.send(action)
       }
-      
+
       block
     end
 
@@ -476,31 +476,31 @@ module Pakyow
       route, format = StringUtils.split_at_last_dot(route)
       self.request.format = ((format && (format[format.length - 1, 1] == '/')) ? format[0, format.length - 1] : format)
     end
-    
+
     def with_scope(opts)
       @scope         ||= {}
       @scope[:path]  ||= []
       @scope[:model] = opts[:model]
-      
+
       @scope[:path] << opts[:url]
-      
+
       yield
     end
-    
+
     def remove_scope
       @scope[:path].pop
     end
-    
+
     def nest_scope(&block)
       @scope[:path].insert(-1, ":#{StringUtils.underscore(@scope[:model].to_s)}_id")
       yield
       @scope[:path].pop
     end
-    
+
     def current_path
       @scope[:path].join('/')
     end
-    
+
     def set_cookies
       if self.request.cookies && self.request.cookies != {}
         self.request.cookies.each do |key, value|
@@ -514,24 +514,24 @@ module Pakyow
         end
       end
     end
-    
+
     # Reloads all application files in application_path and presenter (if specified).
     #
     def load_app
       load(Configuration::App.application_path)
-      
+
       @loader = Loader.new unless @loader
       @loader.load!(Configuration::Base.app.src_dir)
 
       load_handlers
       load_routes
-      
+
       # Reload views
       if self.presenter
         self.presenter.load
       end
     end
-    
+
     def load_handlers
       @handler_store = {}
       self.instance_eval(&self.class.handlers_proc) if self.class.handlers_proc
