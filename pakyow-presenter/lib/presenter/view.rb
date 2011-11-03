@@ -88,8 +88,8 @@ module Pakyow
         ViewContext.new(self).instance_eval(&block)
       end
       
-      def bind(object, type = nil)
-        type = type || StringUtils.underscore(object.class.name)
+      def bind(object, opts = {})
+        bind_as = opts[:to] ? opts[:to].to_s : StringUtils.underscore(object.class.name.split('::').last)
         
         @doc.traverse do |o|
           if attribute = o.get_attribute('itemprop')
@@ -102,16 +102,10 @@ module Pakyow
           
           next unless attribute
           
-          if selector.include?('[')
-            type_len    = type.length
-            object_type = selector[0,type_len]
-            attribute   = selector[type_len + 1, attribute.length - type_len - 2]
-          else
-            object_type = nil
-            attribute = selector
-          end
+          type_len    = bind_as.length
+          next if selector[0, type_len + 1] != "#{bind_as}["
           
-          next if !object_type.nil? && object_type != type          
+          attribute   = selector[type_len + 1, attribute.length - type_len - 2]
           
           binding = {
             :element => o,
@@ -119,7 +113,7 @@ module Pakyow
             :selector => selector
           }
           
-          bind_object_to_binding(object, binding, object_type.nil?)
+          bind_object_to_binding(object, binding, bind_as)
         end
       end
       
@@ -304,23 +298,20 @@ module Pakyow
         @previous_method = nil
       end
       
-      def bind_object_to_binding(object, binding, wild = false)
+      def bind_object_to_binding(object, binding, bind_as)
         binder = nil
         
-        # fetch value
-        if object.is_a? Hash
-          value = object[binding[:attribute]]
+        if View.binders
+          b = View.binders[bind_as.to_sym] and binder = b.new(object, binding[:element])
+        end
+        
+        if binder && binder.class.method_defined?(binding[:attribute])
+          value = binder.send(binding[:attribute])
         else
-          if View.binders
-            b = View.binders[object.class.to_s.to_sym] and binder = b.new(object, binding[:element])
-          end
-          
-          if binder && binder.class.method_defined?(binding[:attribute])
-            value = binder.send(binding[:attribute])
+          if object.is_a? Hash
+            value = object[binding[:attribute]]
           else
-            if wild && !object.class.method_defined?(binding[:attribute])
-              return
-            elsif Configuration::Base.app.dev_mode == true && !object.class.method_defined?(binding[:attribute])
+            if Configuration::Base.app.dev_mode == true && !object.class.method_defined?(binding[:attribute])
               Log.warn("Attempting to bind object to #{binding[:html_tag]}#{binding[:selector].gsub('*', '').gsub('\'', '')} but #{object.class.name}##{binding[:attribute]} is not defined.")
               return
             else

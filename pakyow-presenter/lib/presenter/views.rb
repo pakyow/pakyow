@@ -104,8 +104,8 @@ module Pakyow
         first_found.repeat_for(objects, &block)
       end
       
-      def bind(object)
-        self.each {|e| e.bind(object)}
+      def bind(object, opts = {})
+        self.each {|e| e.bind(object, opts)}
       end
       
       def find(element)
