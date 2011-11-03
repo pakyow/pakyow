@@ -112,10 +112,10 @@ module Pakyow
         return if prepared?
         
         self.builder.use(Rack::MethodOverride)
+        self.builder.instance_eval(&self.middleware_proc) if self.middleware_proc
         self.builder.use(Pakyow::Static) if Configuration::Base.app.static
         self.builder.use(Pakyow::Logger) if Configuration::Base.app.log
         self.builder.use(Pakyow::Reloader) if Configuration::Base.app.auto_reload
-        self.builder.instance_eval(&self.middleware_proc) if self.middleware_proc
         
         @prepared = true
         
