@@ -173,7 +173,7 @@ module Pakyow
       # TODO Think about all this
       if block = @handler_store[name_or_code]
         # we are given a name
-        code = @handler_name_to_code[name]
+        code = @handler_name_to_code[name_or_code]
         self.response.status = code if code
         throw :new_block, block
       elsif name = @handler_code_to_name[name_or_code]
@@ -231,10 +231,10 @@ module Pakyow
       self.request.working_path = self.request.path
       self.request.working_method = self.request.method
 
-      have_route = false
+      have_initial_route = false
       catch(:halt) {
         route_block = prepare_route_block(self.request.path, self.request.method)
-        have_route = true if route_block
+        have_initial_route = true if route_block
 
         if self.presenter
           self.presenter.prepare_for_request(self.request)
@@ -242,21 +242,27 @@ module Pakyow
 
         trampoline(route_block) if !Pakyow::Configuration::App.ignore_routes
 
-        Log.enter "presenter: #{self.presenter ? "yes" : "no" }  presented?: #{self.presenter.presented?}"
-
         if self.presenter
           self.response.body = [self.presenter.content]
         end
 
         # 404 if no route matched and no views were found
-        if !have_route && (!self.presenter || !self.presenter.presented?)
+        if !have_initial_route && (!self.presenter || !self.presenter.presented?)
           Log.enter "[404] Not Found"
           handler404 = @handler_store[@handler_code_to_name[404]] if @handler_code_to_name[404]
-          trampoline(handler404) if handler404
+          if handler404
+            catch(:halt) {
+              if self.presenter
+                self.presenter.prepare_for_request(self.request)
+              end
+              trampoline(handler404)
+              if self.presenter then
+                self.response.body = [self.presenter.content]
+              end
+            }
+          end
           self.response.status = 404
         end
-
-        false
       } #end :halt catch block
 
       # This needs to be in the 'return' position (last statement)
@@ -265,7 +271,19 @@ module Pakyow
     rescue StandardError => error
       self.request.error = error
       handler500 = @handler_store[@handler_code_to_name[500]] if @handler_code_to_name[500]
-      trampoline(handler500) if handler500
+      Log.enter "Checking for a 500 handler"
+        if handler500
+          Log.enter "Have a 500 handler"
+          catch(:halt) {
+            if self.presenter
+              self.presenter.prepare_for_request(self.request)
+            end
+            trampoline(handler500)
+            if self.presenter then
+              self.response.body = [self.presenter.content]
+            end
+          } #end :halt catch block
+        end
       self.response.status = 500
 
       if Configuration::Base.app.errors_in_browser
