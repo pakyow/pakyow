@@ -117,11 +117,11 @@ module Pakyow
         end
       end
       
-      def repeat_for(objects, &block)
+      def repeat_for(objects, opts = {}, &block)
         if o = @doc
           objects.each do |object|
             view = View.new(self)
-            view.bind(object)
+            view.bind(object, opts)
             ViewContext.new(view).instance_exec(object, &block) if block_given?
             
             o.add_previous_sibling(view.doc)

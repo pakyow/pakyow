@@ -94,14 +94,14 @@ module Pakyow
         method_missing(:id)
       end
       
-      def repeat_for(objects, &block)
+      def repeat_for(objects, opts = {}, &block)
         first_found = self.first
         
         # Remove other matches
         self.drop(1).each {|found| found.remove}
         
         # Repeat for first match
-        first_found.repeat_for(objects, &block)
+        first_found.repeat_for(objects, opts, &block)
       end
       
       def bind(object, opts = {})
