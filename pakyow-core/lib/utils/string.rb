@@ -23,7 +23,6 @@ module Pakyow
     end
 
     def self.remove_route_vars(route_spec)
-      Log.enter "WHY AM I HERE!!"
       return unless route_spec
       arr = route_spec.split('/')
       new_arr = []
