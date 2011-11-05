@@ -242,8 +242,12 @@ module Pakyow
           if value.is_a? Proc
             value = value.call(self.doc[attribute])
           end
-          
-          self.doc[attribute] = value
+
+          if value.nil?
+            self.doc.remove_attribute(attribute)
+          else
+            self.doc[attribute] = value
+          end
         else
           return self.doc[method.to_s]
         end
@@ -305,7 +309,9 @@ module Pakyow
               v = v.call(binding[:element][k.to_s])
             end
             
-            if k == :content
+            if v.nil?
+              binding[:element].remove_attribute(k.to_s)
+            elsif k == :content
               bind_value_to_binding(v, binding, binder)
             else
               binding[:element][k.to_s] = v.to_s
