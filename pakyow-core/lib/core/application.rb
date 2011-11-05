@@ -21,7 +21,7 @@ module Pakyow
         return if running?
         @running = true
         
-        self.builder.run(self.prepare(*args))
+        self.builder.run(self.prepare(args))
         detect_handler.run(builder, :Host => Pakyow::Configuration::Base.server.host, :Port => Pakyow::Configuration::Base.server.port)
       end
       
@@ -32,7 +32,7 @@ module Pakyow
         return if staged?
         @staged = true
         
-        prepare(*args)
+        prepare(args)
       end
       
       def builder
@@ -107,7 +107,7 @@ module Pakyow
       
       # Prepares the application for running or staging and returns an instance
       # of the application.
-      def prepare(*args)
+      def prepare(args)
         self.load_config args.empty? || args.first.nil? ? [Configuration::Base.app.default_environment] : args
         return if prepared?
         
@@ -127,7 +127,7 @@ module Pakyow
         if self.configurations
           args << Configuration::Base.app.default_environment if args.empty?
           args.each do |env|
-            next unless config = self.configurations[env]
+            next unless config = self.configurations[env.to_sym]
             Configuration::Base.instance_eval(&config)
           end
         end
