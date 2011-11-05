@@ -66,18 +66,6 @@ module Pakyow
       
       alias :render :append
       
-      def +(val)
-        self.each {|e| e + val}
-      end
-      
-      def <<(val)
-        if val.is_a? View
-          @views << val
-        else
-          self.each {|e| e << val}
-        end
-      end
-      
       def method_missing(method, *args)
         if method.to_s.include?('=')
           self.each {|e| e.send(method, *args)}
