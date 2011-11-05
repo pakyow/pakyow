@@ -271,9 +271,7 @@ module Pakyow
     rescue StandardError => error
       self.request.error = error
       handler500 = @handler_store[@handler_code_to_name[500]] if @handler_code_to_name[500]
-      Log.enter "Checking for a 500 handler"
         if handler500
-          Log.enter "Have a 500 handler"
           catch(:halt) {
             if self.presenter
               self.presenter.prepare_for_request(self.request)
@@ -460,12 +458,12 @@ module Pakyow
     end
 
     def parse_handler_args(args)
-      code = args[0] if args.length == 1 || args.length == 3
-      controller = args[1] if code
-      action = args[2] if code && args[2]
+      code = args[0] if args[0] && args[0].is_a?(Fixnum)
+      controller = args[1] if code && args[1]
+      action = args[2] if controller && args[2]
       unless code
-        controller = args[0]
-        action = args[1] if args[1]
+        controller = args[0] if args[0]
+        action = args[1] if controller && args[1]
       end
       return code, controller, action
     end
