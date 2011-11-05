@@ -65,6 +65,12 @@ module Pakyow
       end
       
       alias :render :append
+     
+      def <<(val)
+        if val.is_a? View
+          @views << val
+        end
+      end
       
       def method_missing(method, *args)
         if method.to_s.include?('=')
