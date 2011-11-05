@@ -231,21 +231,21 @@ module Pakyow
       
       alias :render :append
       
-      def +(value)
-        if @previous_method
-          append_value(val)
-        else
-          super
-        end
-      end
+      # def +(value)
+      #   if @previous_method
+      #     append_value(val)
+      #   else
+      #     super
+      #   end
+      # end
       
-      def <<(value)
-        if @previous_method
-          append_value(val)
-        else
-          super
-        end
-      end
+      # def <<(value)
+      #   if @previous_method
+      #     append_value(val)
+      #   else
+      #     super
+      #   end
+      # end
       
       def method_missing(method, *args)
         return unless @previous_method == :attributes
@@ -255,6 +255,10 @@ module Pakyow
           attribute = method.to_s.gsub('=', '')
           value = args[0]
 
+          if value.is_a? Proc
+            value = value.call(self.doc[attribute])
+          end
+          
           self.doc[attribute] = value
         else
           return self.doc[method.to_s]
@@ -289,14 +293,14 @@ module Pakyow
 
       protected
 
-      def append_value(value_to_append)
-        case @previous_method
-        when :content
-          append(value_to_append)
-        end
-        
-        @previous_method = nil
-      end
+      # def append_value(value_to_append)
+      #   case @previous_method
+      #   when :content
+      #     append(value_to_append)
+      #   end
+      #   
+      #   @previous_method = nil
+      # end
       
       def bind_object_to_binding(object, binding, bind_as)
         binder = nil
@@ -322,6 +326,10 @@ module Pakyow
         
         if value.is_a? Hash
           value.each do |k, v|
+            if v.is_a? Proc
+              v = v.call(binding[:element][k.to_s])
+            end
+            
             if k == :content
               bind_value_to_binding(v, binding, binder)
             else
