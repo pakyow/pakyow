@@ -230,23 +230,7 @@ module Pakyow
       end
       
       alias :render :append
-      
-      # def +(value)
-      #   if @previous_method
-      #     append_value(val)
-      #   else
-      #     super
-      #   end
-      # end
-      
-      # def <<(value)
-      #   if @previous_method
-      #     append_value(val)
-      #   else
-      #     super
-      #   end
-      # end
-      
+     
       def method_missing(method, *args)
         return unless @previous_method == :attributes
         @previous_method = nil
@@ -293,15 +277,6 @@ module Pakyow
 
       protected
 
-      # def append_value(value_to_append)
-      #   case @previous_method
-      #   when :content
-      #     append(value_to_append)
-      #   end
-      #   
-      #   @previous_method = nil
-      # end
-      
       def bind_object_to_binding(object, binding, bind_as)
         binder = nil
         
