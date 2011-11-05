@@ -2,7 +2,7 @@ module Pakyow
 
   # The Request object.
   class Request < Rack::Request
-    attr_accessor :restful, :route_spec, :controller, :action, :format, :error
+    attr_accessor :restful, :route_spec, :controller, :action, :format, :error, :working_path, :working_method
 
     # Easy access to path_info.
     def path

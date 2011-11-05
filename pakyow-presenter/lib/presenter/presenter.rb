@@ -162,7 +162,7 @@ module Pakyow
         elsif @request && @request.route_spec && @request.route_spec.index(':')
           v_p = StringUtils.remove_route_vars(@request.route_spec)
         else
-          v_p = @request && @request.route_spec
+          v_p = @request && @request.working_path
         end
         return unless v_p
 

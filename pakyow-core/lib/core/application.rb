@@ -162,9 +162,10 @@ module Pakyow
       throw :halt, self.response
     end
 
-    def invoke_route!(route, method)
-      block = prepare_route_block(route, method)
-      self.request.route_spec = route unless block
+    def invoke_route!(route, method=nil)
+      self.request.working_path = route
+      self.request.working_method = method if method
+      block = prepare_route_block(route, self.request.working_method)
       throw :new_block, block
     end
 
@@ -194,7 +195,6 @@ module Pakyow
       set_request_format_from_route(route)
 
       controller_block, packet = @route_store.get_block(route, method)
-      Log.enter "prepare_route_block(#{route} #{method}) #{controller_block ? 'have' : 'NO'} block"
 
       self.request.params.merge!(HashUtils.strhash(packet[:vars]))
       self.request.route_spec = packet[:data][:route_spec] if packet[:data]
@@ -216,7 +216,6 @@ module Pakyow
         # If neither was called, block will be nil
 
         if block && self.presenter
-          Log.enter "PPFR [block: #{block.inspect}]"
           self.presenter.prepare_for_request(self.request)
         end
 
@@ -229,6 +228,8 @@ module Pakyow
     def call(env)
       self.request = Request.new(env)
       self.response = Rack::Response.new
+      self.request.working_path = self.request.path
+      self.request.working_method = self.request.method
 
       have_route = false
       catch(:halt) {
