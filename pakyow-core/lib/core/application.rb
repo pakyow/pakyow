@@ -264,10 +264,6 @@ module Pakyow
         false
       } #end :halt catch block
 
-      if halted_resp
-        throw :halt, self.response
-      end
-
       # This needs to be in the 'return' position (last statement)
       finish!
 
