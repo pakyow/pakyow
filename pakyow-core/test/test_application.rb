@@ -23,9 +23,9 @@ class TestApplication < Pakyow::Application
   routes do    
   end
 
-  status_handlers do
-    status(404, :ApplicationController, :handle_404)
-    status(500) {}
+  handlers do
+    handler(:h404, 404, :ApplicationController, :handle_404)
+    handler(:h500, 500) {}
   end
 
   # OVERRIDING
