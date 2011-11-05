@@ -300,7 +300,7 @@ module Pakyow
     # Sends a file in the response (immediately). Accepts a File object. Mime
     # type is automatically detected.
     #
-    def send_file(source_file, send_as = nil, type = nil)
+    def send_file!(source_file, send_as = nil, type = nil)
       path = source_file.is_a?(File) ? source_file.path : source_file
       send_as ||= path
       type    ||= Rack::Mime.mime_type(".#{send_as.split('.')[-1]}")
@@ -315,7 +315,7 @@ module Pakyow
     # Sends data in the response (immediately). Accepts the data, mime type,
     # and optional file name.
     #
-    def send_data(data, type, file_name = nil)
+    def send_data!(data, type, file_name = nil)
       status = self.response ? self.response.status : 200
 
       headers = self.response ? self.response.header : {}
@@ -328,7 +328,7 @@ module Pakyow
 
     # Redirects to location (immediately).
     #
-    def redirect_to(location, status_code = 302)
+    def redirect_to!(location, status_code = 302)
       headers = self.response ? self.response.header : {}
       headers = headers.merge({'Location' => location})
 

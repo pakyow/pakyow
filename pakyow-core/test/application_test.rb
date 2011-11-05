@@ -161,7 +161,7 @@ class ApplicationTest < Test::Unit::TestCase
     file = 'foo.txt'
     
     begin
-      Pakyow.app.send_data(data, type)
+      Pakyow.app.send_data!(data, type)
     rescue
       @halted = true
     end
@@ -172,7 +172,7 @@ class ApplicationTest < Test::Unit::TestCase
     
     # send with file name
     begin
-      Pakyow.app.send_data(data, type, file)
+      Pakyow.app.send_data!(data, type, file)
     rescue
       @halted = true
     end
@@ -184,7 +184,7 @@ class ApplicationTest < Test::Unit::TestCase
     location = '/'
     
     begin
-      Pakyow.app.redirect_to(location)
+      Pakyow.app.redirect_to!(location)
     rescue
       @halted = true
     end
@@ -198,7 +198,7 @@ class ApplicationTest < Test::Unit::TestCase
     location = '/'
     
     begin
-      Pakyow.app.redirect_to(location, 301)
+      Pakyow.app.redirect_to!(location, 301)
     rescue
       @halted = true
     end
