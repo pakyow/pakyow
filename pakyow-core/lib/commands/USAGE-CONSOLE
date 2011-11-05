@@ -1,0 +1,12 @@
+Usage:
+  pakyow console [environment]
+  
+Description:
+    The 'pakyow console' command stages the application and starts an interactive
+    session. If environment is not specified, the default_environment defined by 
+    your application will be used.
+
+Example:
+    pakyow console development
+
+    This starts the console with the 'development' configuration.
