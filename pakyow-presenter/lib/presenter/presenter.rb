@@ -159,7 +159,7 @@ module Pakyow
           v_p = @view_path
         elsif @request && @request.restful
           v_p = restful_view_path(@request.restful)
-        elsif @request && @request.route_spec && @request.route_spec.index(':')
+        elsif @request && @request.route_spec && !@request.route_spec.is_a?(Regexp) && @request.route_spec.index(':')
           v_p = StringUtils.remove_route_vars(@request.route_spec)
         else
           v_p = @request && @request.working_path
