@@ -151,7 +151,7 @@ module Pakyow
       end
 
       # Load application files
-      load_app
+      load_app(false)
     end
 
     # Interrupts the application and returns response immediately.
@@ -541,8 +541,8 @@ module Pakyow
 
     # Reloads all application files in application_path and presenter (if specified).
     #
-    def load_app
-      load(Configuration::App.application_path)
+    def load_app(reload_app = true)
+      load(Configuration::App.application_path) if reload_app
 
       @loader = Loader.new unless @loader
       @loader.load!(Configuration::Base.app.src_dir)
