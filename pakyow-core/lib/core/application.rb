@@ -528,12 +528,12 @@ module Pakyow
     def set_cookies
       if self.request.cookies && self.request.cookies != {}
         self.request.cookies.each do |key, value|
-          if value.is_a?(Hash)
-            self.response.set_cookie(key, {:path => '/', :expires => Time.now + 604800}.merge(value))
-          elsif value.is_a?(String)
-            self.response.set_cookie(key, {:path => '/', :expires => Time.now + 604800}.merge({:value => value}))
-          else
+          if value.nil?
             self.response.set_cookie(key, {:path => '/', :expires => Time.now + 604800 * -1 }.merge({:value => value}))
+          elsif value.is_a?(Hash)
+            self.response.set_cookie(key, {:path => '/', :expires => Time.now + 604800}.merge(value))
+          else
+            self.response.set_cookie(key, {:path => '/', :expires => Time.now + 604800}.merge({:value => value}))
           end
         end
       end
