@@ -359,7 +359,7 @@ module Pakyow
             binding[:element].inner_html = Nokogiri::HTML.fragment(value.to_s)
           end
         elsif binding[:element].name == 'input' && binding[:element][:type] == 'checkbox'
-          if value == true || binding[:element].attributes['value'].value == value.to_s
+          if value == true || (binding[:element].attributes['value'] && binding[:element].attributes['value'].value == value.to_s)
             binding[:element]['checked'] = 'checked'
           else
             binding[:element].delete('checked')
