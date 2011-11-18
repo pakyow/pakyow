@@ -168,7 +168,6 @@ module Pakyow
     end
 
     def invoke_handler!(name_or_code)
-      # TODO Think about all this
       if block = @handler_store[name_or_code]
         # we are given a name
         code = @handler_name_to_code[name_or_code]
@@ -186,39 +185,6 @@ module Pakyow
         # still need to stop execution, I think? But do nothing.
         throw :new_block, nil
       end
-    end
-
-    #TODO move to protected section
-    def prepare_route_block(route, method)
-      set_request_format_from_route(route)
-
-      controller_block, packet = @route_store.get_block(route, method)
-
-      self.request.params.merge!(HashUtils.strhash(packet[:vars]))
-      self.request.route_spec = packet[:data][:route_spec] if packet[:data]
-      self.request.restful = packet[:data][:restful] if packet[:data]
-
-      controller_block
-    end
-
-    #TODO move to protected section
-    def trampoline(block)
-      while block do
-        block = catch(:new_block) {
-          block.call()
-          # Getting here means that call() returned normally (not via a throw)
-          # By definition, we do not have a 404 since we matched a route to get the block to call
-          nil
-        } # end :invoke_route catch block
-        # If invoke_route! or invoke_handler! was called in the block, block will have a new value.
-        # If neither was called, block will be nil
-
-        if block && self.presenter
-          self.presenter.prepare_for_request(self.request)
-        end
-
-      end
-
     end
 
     # Called on every request.
@@ -435,6 +401,35 @@ module Pakyow
     end
 
     protected
+
+    def prepare_route_block(route, method)
+      set_request_format_from_route(route)
+
+      controller_block, packet = @route_store.get_block(route, method)
+
+      self.request.params.merge!(HashUtils.strhash(packet[:vars]))
+      self.request.route_spec = packet[:data][:route_spec] if packet[:data]
+      self.request.restful = packet[:data][:restful] if packet[:data]
+
+      controller_block
+    end
+
+    def trampoline(block)
+      while block do
+        block = catch(:new_block) {
+          block.call()
+          # Getting here means that call() returned normally (not via a throw)
+          # By definition, we do not have a 404 since we matched a route to get the block to call
+          nil
+        } # end :invoke_route catch block
+        # If invoke_route! or invoke_handler! was called in the block, block will have a new value.
+        # If neither was called, block will be nil
+
+        if block && self.presenter
+          self.presenter.prepare_for_request(self.request)
+        end
+      end
+    end
 
     def parse_route_args(args)
       controller = args[0] if args[0] && (args[0].is_a?(Symbol) || args[0].is_a?(String))
