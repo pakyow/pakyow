@@ -51,6 +51,23 @@ class RouteStoreTest < Test::Unit::TestCase
     def x1x2
       "found x1x2"
     end
+
+    def hook1
+      "hook1"
+    end
+
+    def hook2
+      "hook2"
+    end
+
+    def test1_hooks
+      "test1_hooks"
+    end
+    
+    def test2_hooks
+      "test2_hooks"
+    end
+
   end
 
   def setup
@@ -112,11 +129,44 @@ class RouteStoreTest < Test::Unit::TestCase
       restful 'bret', 'RouteStoreTest::RSTController' do
         restful 'anita', 'RouteStoreTest::RSTController'
       end
+
+      hook :hook1 do
+        RSTController.new.hook1
+      end
+
+      hook :hook2 do
+        RSTController.new.hook2
+      end
+
+      get '/test1_hooks', :after => :hook1 do
+        RSTController.new.test1_hooks
+      end
+
+      get '/test2_hooks', :after => [:hook1, :hook2], :before => :hook1 do
+        RSTController.new.test2_hooks
+      end
+
     }
   end
 
   def teardown
     # Do nothing
+  end
+
+  def test1_hooks
+    proc,packet = @route_store.get_block('/test1_hooks', :get)
+    assert_equal("/test1_hooks", packet[:data][:route_spec], "wrong route_spec")
+    assert_nil(packet[:data][:restful], "restful data was not nil")
+    assert(proc, "No block found for /test1_hooks")
+    assert_equal(['hook1'], proc.call)
+  end
+
+  def test2_hooks
+    proc,packet = @route_store.get_block('/test2_hooks', :get)
+    assert_equal("/test2_hooks", packet[:data][:route_spec], "wrong route_spec")
+    assert_nil(packet[:data][:restful], "restful data was not nil")
+    assert(proc, "No block found for /test2_hooks")
+    assert_equal(['hook1', 'hook2'], proc.call)
   end
 
   def test_isapost

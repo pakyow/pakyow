@@ -65,16 +65,10 @@ module Pakyow
       end
       
       alias :render :append
-      
-      def +(val)
-        self.each {|e| e + val}
-      end
-      
+     
       def <<(val)
         if val.is_a? View
           @views << val
-        else
-          self.each {|e| e << val}
         end
       end
       
@@ -94,18 +88,18 @@ module Pakyow
         method_missing(:id)
       end
       
-      def repeat_for(objects, &block)
+      def repeat_for(objects, opts = {}, &block)
         first_found = self.first
         
         # Remove other matches
         self.drop(1).each {|found| found.remove}
         
         # Repeat for first match
-        first_found.repeat_for(objects, &block)
+        first_found.repeat_for(objects, opts, &block)
       end
       
-      def bind(object)
-        self.each {|e| e.bind(object)}
+      def bind(object, opts = {})
+        self.each {|e| e.bind(object, opts)}
       end
       
       def find(element)

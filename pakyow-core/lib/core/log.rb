@@ -7,15 +7,15 @@ module Pakyow
     def self.puts(text = "")
       return if !Configuration::Base.app.log
       
-      @@console ||= Logger.new($stdout)
+      @@console ||= $stdout
       @@console << "#{text}\r\n"
       
       dir = "#{Configuration::Base.app.log_dir}"
       
       if File.exists?(dir)
-        @@file ||= Logger.new("#{dir}/#{Configuration::Base.app.log_name}")
-        @@file    << "#{text}\r\n"
-      end    
+        @@file ||= File.open("#{dir}/#{Configuration::Base.app.log_name}", 'a')
+        @@file.write "#{text}\r\n"
+      end
     end
 
     class << self

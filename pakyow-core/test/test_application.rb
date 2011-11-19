@@ -20,15 +20,17 @@ class TestApplication < Pakyow::Application
     app.presenter = TestPresenter
   end
   
-  routes do    
+  routes do
   end
-  
-  error(404, :ApplicationController, :handle_404)
-  error(500) {}
-  
+
+  handlers do
+    handler(:h404, 404, :ApplicationController, :handle_404)
+    handler(:h500, 500) {}
+  end
+
   # OVERRIDING
   
-  attr_accessor :static_handler, :routes, :static
+  attr_accessor :static_handler, :static
   
   # This keeps the app from actually being run.
   def self.detect_handler
@@ -44,15 +46,10 @@ class TestApplication < Pakyow::Application
       @running = nil
       @staged = nil
       @routes_proc = nil
-      @error_handlers = nil
+      @status_proc = nil
     end
     
     return self
-  end
-  
-  def register_route(route, block, method, controller = nil, action = nil, restful = false)
-    @routes ||= []
-    @routes << { :route => route, :block => block, :method => method, :controller => controller, :action => action }
   end
   
   def restful_actions

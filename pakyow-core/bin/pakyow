@@ -9,6 +9,9 @@ if ARGV.first == 'new'
 elsif ARGV.first == 'server'
   ARGV.shift
   require 'commands/server'
+elsif ARGV.first == 'console'
+  ARGV.shift
+  require 'commands/console'
 elsif ARGV.first == '--help' || ARGV.first == '-h' || ARGV.empty?
   puts File.open(File.join(CORE_PATH, 'commands/USAGE')).read
 end

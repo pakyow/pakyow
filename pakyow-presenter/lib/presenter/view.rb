@@ -2,7 +2,7 @@ module Pakyow
   module Presenter
     class View
       class << self
-        attr_accessor :binders, :cache, :default_view_path, :default_is_root_view
+        attr_accessor :binders, :default_view_path, :default_is_root_view
 
         def view_path(dvp, dirv=false)
           self.default_view_path = dvp
@@ -11,12 +11,16 @@ module Pakyow
       end
 
       attr_accessor :doc
-            
+
+      def dup
+        self.class.new(@doc.dup)
+      end
+
       def initialize(arg=nil, is_root_view=false)
         arg = self.class.default_view_path if arg.nil? && self.class.default_view_path
         is_root_view = self.class.default_is_root_view if arg.nil? && self.class.default_is_root_view
         
-        if arg.is_a?(Nokogiri::XML::Element)
+        if arg.is_a?(Nokogiri::XML::Element) || arg.is_a?(Nokogiri::XML::Document)
           @doc = arg
         elsif arg.is_a?(Pakyow::Presenter::Views)
           @doc = arg.first.doc.dup
@@ -28,18 +32,11 @@ module Pakyow
           else
             view_path = "#{Configuration::Presenter.view_dir}/#{arg}"
           end
-          # Only load one time if view caching is enabled
-          self.class.cache ||= {}
-          
-          if !self.class.cache.has_key?(view_path) || !Configuration::Base.presenter.view_caching
-            if is_root_view then
-              self.class.cache[view_path] = Nokogiri::HTML::Document.parse(File.read(view_path))
-            else
-              self.class.cache[view_path] = Nokogiri::HTML.fragment(File.read(view_path))
-            end
+          if is_root_view then
+            @doc = Nokogiri::HTML::Document.parse(File.read(view_path))
+          else
+            @doc = Nokogiri::HTML.fragment(File.read(view_path))
           end
-          
-          @doc = self.class.cache[view_path].dup
         else
           raise ArgumentError, "No View for you! Come back, one year."
         end
@@ -91,8 +88,8 @@ module Pakyow
         ViewContext.new(self).instance_eval(&block)
       end
       
-      def bind(object, type = nil)
-        type = type || StringUtils.underscore(object.class.name)
+      def bind(object, opts = {})
+        bind_as = opts[:to] ? opts[:to].to_s : StringUtils.underscore(object.class.name.split('::').last)
         
         @doc.traverse do |o|
           if attribute = o.get_attribute('itemprop')
@@ -105,16 +102,10 @@ module Pakyow
           
           next unless attribute
           
-          if selector.include?('[')
-            type_len    = type.length
-            object_type = selector[0,type_len]
-            attribute   = selector[type_len + 1, attribute.length - type_len - 2]
-          else
-            object_type = nil
-            attribute = selector
-          end
+          type_len    = bind_as.length
+          next if selector[0, type_len + 1] != "#{bind_as}["
           
-          next if !object_type.nil? && object_type != type          
+          attribute   = selector[type_len + 1, attribute.length - type_len - 2]
           
           binding = {
             :element => o,
@@ -122,15 +113,15 @@ module Pakyow
             :selector => selector
           }
           
-          bind_object_to_binding(object, binding, object_type.nil?)
+          bind_object_to_binding(object, binding, bind_as)
         end
       end
       
-      def repeat_for(objects, &block)
+      def repeat_for(objects, opts = {}, &block)
         if o = @doc
           objects.each do |object|
             view = View.new(self)
-            view.bind(object)
+            view.bind(object, opts)
             ViewContext.new(view).instance_exec(object, &block) if block_given?
             
             o.add_previous_sibling(view.doc)
@@ -239,23 +230,7 @@ module Pakyow
       end
       
       alias :render :append
-      
-      def +(value)
-        if @previous_method
-          append_value(val)
-        else
-          super
-        end
-      end
-      
-      def <<(value)
-        if @previous_method
-          append_value(val)
-        else
-          super
-        end
-      end
-      
+     
       def method_missing(method, *args)
         return unless @previous_method == :attributes
         @previous_method = nil
@@ -264,7 +239,15 @@ module Pakyow
           attribute = method.to_s.gsub('=', '')
           value = args[0]
 
-          self.doc[attribute] = value
+          if value.is_a? Proc
+            value = value.call(self.doc[attribute])
+          end
+
+          if value.nil?
+            self.doc.remove_attribute(attribute)
+          else
+            self.doc[attribute] = value
+          end
         else
           return self.doc[method.to_s]
         end
@@ -298,32 +281,20 @@ module Pakyow
 
       protected
 
-      def append_value(value_to_append)
-        case @previous_method
-        when :content
-          append(value_to_append)
-        end
-        
-        @previous_method = nil
-      end
-      
-      def bind_object_to_binding(object, binding, wild = false)
+      def bind_object_to_binding(object, binding, bind_as)
         binder = nil
         
-        # fetch value
-        if object.is_a? Hash
-          value = object[binding[:attribute]]
+        if View.binders
+          b = View.binders[bind_as.to_sym] and binder = b.new(object, binding[:element])
+        end
+        
+        if binder && binder.class.method_defined?(binding[:attribute])
+          value = binder.send(binding[:attribute])
         else
-          if View.binders
-            b = View.binders[object.class.to_s.to_sym] and binder = b.new(object, binding[:element])
-          end
-          
-          if binder && binder.class.method_defined?(binding[:attribute])
-            value = binder.send(binding[:attribute])
+          if object.is_a? Hash
+            value = object[binding[:attribute]]
           else
-            if wild && !object.class.method_defined?(binding[:attribute])
-              return
-            elsif Configuration::Base.app.dev_mode == true && !object.class.method_defined?(binding[:attribute])
+            if Configuration::Base.app.dev_mode == true && !object.class.method_defined?(binding[:attribute])
               Log.warn("Attempting to bind object to #{binding[:html_tag]}#{binding[:selector].gsub('*', '').gsub('\'', '')} but #{object.class.name}##{binding[:attribute]} is not defined.")
               return
             else
@@ -334,7 +305,13 @@ module Pakyow
         
         if value.is_a? Hash
           value.each do |k, v|
-            if k == :content
+            if v.is_a? Proc
+              v = v.call(binding[:element][k.to_s])
+            end
+            
+            if v.nil?
+              binding[:element].remove_attribute(k.to_s)
+            elsif k == :content
               bind_value_to_binding(v, binding, binder)
             else
               binding[:element][k.to_s] = v.to_s
@@ -382,7 +359,7 @@ module Pakyow
             binding[:element].inner_html = Nokogiri::HTML.fragment(value.to_s)
           end
         elsif binding[:element].name == 'input' && binding[:element][:type] == 'checkbox'
-          if value == true || binding[:element].attributes['value'].value == value.to_s
+          if value == true || (binding[:element].attributes['value'] && binding[:element].attributes['value'].value == value.to_s)
             binding[:element]['checked'] = 'checked'
           else
             binding[:element].delete('checked')

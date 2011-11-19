@@ -27,4 +27,5 @@ Gem::Specification.new do |s|
   s.executables        = ['pakyow']
   
   s.add_dependency('rack', '~> 1.3')
+  s.add_development_dependency('shoulda', '~> 2.11')
 end
