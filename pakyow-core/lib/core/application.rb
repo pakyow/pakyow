@@ -195,23 +195,23 @@ module Pakyow
       self.request.working_path = self.request.path
       self.request.working_method = self.request.method
 
-      have_initial_route = false
+      has_route = false
       catch(:halt) {
         route_block = prepare_route_block(self.request.path, self.request.method)
-        have_initial_route = true if route_block
+        has_route = true if route_block
 
         if self.presenter
           self.presenter.prepare_for_request(self.request)
         end
 
-        trampoline(route_block) if !Pakyow::Configuration::App.ignore_routes
+        has_route = trampoline(route_block) if !Pakyow::Configuration::App.ignore_routes
 
         if self.presenter
           self.response.body = [self.presenter.content]
         end
 
         # 404 if no route matched and no views were found
-        if !have_initial_route && (!self.presenter || !self.presenter.presented?)
+        if !has_route && (!self.presenter || !self.presenter.presented?)
           Log.enter "[404] Not Found"
           handler404 = @handler_store[@handler_code_to_name[404]] if @handler_code_to_name[404]
           if handler404
@@ -415,20 +415,28 @@ module Pakyow
     end
 
     def trampoline(block)
+      last_call_has_block = (block == nil) ? false : true
       while block do
         block = catch(:new_block) {
           block.call()
           # Getting here means that call() returned normally (not via a throw)
-          # By definition, we do not have a 404 since we matched a route to get the block to call
-          nil
+          :fall_through
         } # end :invoke_route catch block
-        # If invoke_route! or invoke_handler! was called in the block, block will have a new value.
-        # If neither was called, block will be nil
+        # If invoke_route! or invoke_handler! was called in the block, block will have a new value (nil or block).
+        # If neither was called, block will be :fall_through
+
+        if block == nil
+          last_call_has_block = false
+        elsif block == :fall_through
+          last_call_has_block = true
+          block = nil
+        end
 
         if block && self.presenter
           self.presenter.prepare_for_request(self.request)
         end
       end
+      last_call_has_block
     end
 
     def parse_route_args(args)
