@@ -26,4 +26,5 @@ Gem::Specification.new do |s|
   s.add_dependency('pakyow-core', version)
   s.add_dependency('pakyow-presenter', version)
   s.add_dependency('mail', '~> 2.3')
+  s.add_development_dependency('shoulda', '~> 2.11')
 end
