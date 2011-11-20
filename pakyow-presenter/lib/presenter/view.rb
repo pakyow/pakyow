@@ -32,10 +32,17 @@ module Pakyow
           else
             view_path = "#{Configuration::Presenter.view_dir}/#{arg}"
           end
+          
+          file_ext = view_path.split('.')[-1]
+          content = File.read(view_path)
+          if parser = Pakyow.app.parser_store[file_ext.to_sym]
+            content = parser.call(content)
+          end
+          
           if is_root_view then
-            @doc = Nokogiri::HTML::Document.parse(File.read(view_path))
+            @doc = Nokogiri::HTML::Document.parse(content)
           else
-            @doc = Nokogiri::HTML.fragment(File.read(view_path))
+            @doc = Nokogiri::HTML.fragment(content)
           end
         else
           raise ArgumentError, "No View for you! Come back, one year."

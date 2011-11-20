@@ -1,7 +1,7 @@
 module Pakyow
   class Application
     class << self
-      attr_accessor :routes_proc, :handlers_proc, :middleware_proc, :configurations
+      attr_accessor :routes_proc, :handlers_proc, :middleware_proc, :parsers_proc, :configurations
 
       # Sets the path to the application file so it can be reloaded later.
       #
@@ -93,6 +93,10 @@ module Pakyow
       def middleware(&block)
         self.middleware_proc = block
       end
+      
+      def parsers(&block)
+        self.parsers_proc = block
+      end
 
       protected
 
@@ -137,7 +141,7 @@ module Pakyow
 
     include Helpers
 
-    attr_accessor :request, :response, :presenter, :route_store, :restful_routes, :handler_store
+    attr_accessor :request, :response, :presenter, :route_store, :restful_routes, :handler_store, :parser_store
 
     def initialize
       Pakyow.app = self
@@ -394,6 +398,14 @@ module Pakyow
         @handler_code_to_name[code] = name
       end
     end
+    
+    def parser(extensions, &block)
+      extensions = [extensions] unless extensions.is_a? Array
+      
+      extensions.each do |e|
+        @parser_store[e] = block
+      end
+    end
 
     #TODO: don't like this...
     def reload
@@ -552,6 +564,7 @@ module Pakyow
 
       load_handlers
       load_routes
+      load_parsers
 
       # Reload views
       if self.presenter
@@ -567,6 +580,11 @@ module Pakyow
     def load_routes
       @route_store = RouteStore.new
       self.instance_eval(&self.class.routes_proc) if self.class.routes_proc
+    end
+    
+    def load_parsers
+      @parser_store = {}
+      self.instance_eval(&self.class.parsers_proc) if self.class.parsers_proc
     end
     
     # Send the response and cleanup.
