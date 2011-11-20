@@ -1,28 +1,26 @@
 # Introduction
 
-Pakyow is a web framework for Ruby that knocks out projects with a serious
-punch. Pound for pound its the best way to build a web app. Get ready to rumble.
+Pakyow is an open-source framework for building web apps in Ruby. It enables 
+you to get straight to work by letting data be data, views be views, and 
+code be code.
 
-Pakyow brings a unique approach to development:
-
-## Views are views.
+## Designer-friendly Views
 Views are 100% HTML, no template language required. The view has finally been 
 freed from logic.
 
-## Views are data aware.
+## Sturdy Prototypes
 A view knows what it presents. Use this to create powerful connections between 
 business logic and views.
 
-## Keep you moving forward.
+## Intelligent Connections
 Prototype an app by building the views first. Then write the view logic 
 without changing a single view.
 
-There are two main components of Pakyow. The first is Pakyow Core, which 
-handles routing requests to business logic. The second component is Pakyow 
-Presenter, which gives an application the ability to have a presentation 
-layer and provides mechanisms for the controller to bind data to the 
-presentation layer. Pakyow Core can operate independently of Pakyow 
-Presenter for those cases where an application doesn't need a presentation layer.
+Pakyow consists of two gems: pakyow-core and pakyow-presenter. Core handles 
+routing requests to an app's business logic. Presenter gives an app the 
+ability to have a presentation layer and provides mechanisms for the view
+manipulation and data binding. Core can operate independently of Pakyow 
+Presenter for cases where an app doesn't need a presentation layer.
 
 # Getting Started
 
