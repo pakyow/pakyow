@@ -5,16 +5,23 @@ you to get straight to work by letting data be data, views be views, and
 code be code.
 
 ## Designer-friendly Views
-Views are 100% HTML, no template language required. The view has finally been 
-freed from logic.
+In Pakyow, views are purely structural and contain no logic, keeping the view 
+focused on it's job of presentation. No special markup is required in the 
+view. This means the designer can build the presentation layer for an app in 
+their own environment.
 
 ## Sturdy Prototypes
-A view knows what it presents. Use this to create powerful connections between 
-business logic and views.
+View construction happens automatically, which means a working, navigable 
+front-end can be created without any back-end code. Business logic is added 
+later without any changes to the front-end, eliminating resistance and 
+keeping development moving forward.
 
 ## Intelligent Connections
-Prototype an app by building the views first. Then write the view logic 
-without changing a single view.
+Data awareness is built into views, meaning a view knows what it presents. 
+Data is bound in from the back-end without requiring a single change to the 
+view. Roles and responsibilities remain clear throughout the development process.
+
+--
 
 Pakyow consists of two gems: pakyow-core and pakyow-presenter. Core handles 
 routing requests to an app's business logic. Presenter gives an app the 
