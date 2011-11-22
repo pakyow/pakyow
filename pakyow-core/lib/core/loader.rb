@@ -16,9 +16,7 @@ module Pakyow
       if File.exists?(dir)
         DirUtils.walk_dir(dir) do |path|
           next if FileTest.directory?(path)
-            
-          split = path.split('/')
-          next if split[split.length-1].start_with?('.')
+          next if path.split('.')[-1] != 'rb'
           
           if Configuration::Base.app.auto_reload
             if !@times[path] || (@times[path] && File.mtime(path) - @times[path] > 0)
