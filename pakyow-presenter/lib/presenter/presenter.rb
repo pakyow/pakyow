@@ -166,7 +166,14 @@ module Pakyow
         end
         return unless v_p
 
-        if Configuration::Base.presenter.view_caching
+        if @root_path
+          return unless view_info = @view_lookup_store.view_info(v_p)
+          @root_path ||= view_info[:root_view]
+          @root_view = LazyView.new(@root_path, true)
+          views = view_info[:views]
+          populate_view(self.view, views)
+          @presented = true
+        elsif Configuration::Base.presenter.view_caching
           r_v = @populated_root_view_cache[v_p]
           if r_v then
             @root_view = r_v.dup
