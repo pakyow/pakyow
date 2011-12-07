@@ -166,25 +166,30 @@ module Pakyow
         end
         return unless v_p
 
-        if @root_path
-          return unless view_info = @view_lookup_store.view_info(v_p)
-          @root_path ||= view_info[:root_view]
-          @root_view = LazyView.new(@root_path, true)
-          views = view_info[:views]
-          populate_view(self.view, views)
-          @presented = true
-        elsif Configuration::Base.presenter.view_caching
-          r_v = @populated_root_view_cache[v_p]
+        return unless view_info = @view_lookup_store.view_info(v_p)
+        @root_path ||= view_info[:root_view]
+
+        if Configuration::Base.presenter.view_caching
+          r_v = @populated_root_view_cache[v_p][@root_path] if @populated_root_view_cache[v_p]
           if r_v then
+            @root_view = r_v.dup
+            @presented = true
+          else
+            r_v = LazyView.new(@root_path, true)
+            views = view_info[:views]
+            populate_view(r_v, views)
+            if @populated_root_view_cache[v_p]
+              @populated_root_view_cache[v_p][@root_path] = r_v
+            else
+              @populated_root_view_cache[v_p] = {@root_path => r_v}
+            end
             @root_view = r_v.dup
             @presented = true
           end
         else
-          return unless view_info = @view_lookup_store.view_info(v_p)
-          @root_path ||= view_info[:root_view]
           @root_view = LazyView.new(@root_path, true)
           views = view_info[:views]
-          populate_view(self.view, views)
+          populate_view(@root_view, views)
           @presented = true
         end
       end
@@ -209,7 +214,7 @@ module Pakyow
         view_info.each{|dir,info|
           r_v = LazyView.new(info[:root_view], true)
           populate_view(r_v, info[:views])
-          r_v_c[dir] = r_v
+          r_v_c[dir] = {info[:root_view] => r_v};
         }
         r_v_c
       end
