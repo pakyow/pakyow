@@ -170,22 +170,13 @@ module Pakyow
         @root_path ||= view_info[:root_view]
 
         if Configuration::Base.presenter.view_caching
-          r_v = @populated_root_view_cache[[v_p, @root_path]]
-          if r_v then
+          r_v = @populated_root_view_cache.get([v_p, @root_path]) {
+            populate_view(LazyView.new(@root_path, true), view_info[:views])
+          }
             @root_view = r_v.dup
             @presented = true
-          else
-            r_v = LazyView.new(@root_path, true)
-            views = view_info[:views]
-            populate_view(r_v, views)
-            @populated_root_view_cache[[v_p, @root_path]] = r_v
-            @root_view = r_v.dup
-            @presented = true
-          end
         else
-          @root_view = LazyView.new(@root_path, true)
-          views = view_info[:views]
-          populate_view(@root_view, views)
+          @root_view = populate_view(LazyView.new(@root_path, true), view_info[:views])
           @presented = true
         end
       end
@@ -206,13 +197,14 @@ module Pakyow
       end
 
       def build_root_view_cache(view_info)
-        r_v_c = {}
+        cache = Pakyow::Cache.new
         view_info.each{|dir,info|
           r_v = LazyView.new(info[:root_view], true)
           populate_view(r_v, info[:views])
-          r_v_c[[dir, info[:root_view]]] = r_v
+          key = [dir, info[:root_view]]
+          cache.put(key, r_v)
         }
-        r_v_c
+        cache
       end
 
       # populates the top_view using view_store data by recursively building
