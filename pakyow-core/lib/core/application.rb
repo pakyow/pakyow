@@ -399,6 +399,10 @@ module Pakyow
     def reload
       load_app
     end
+    
+    def session
+      self.request.env['rack.session'] || {}
+    end
 
     protected
 
