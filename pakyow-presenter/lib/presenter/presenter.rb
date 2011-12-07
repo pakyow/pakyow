@@ -170,7 +170,7 @@ module Pakyow
         @root_path ||= view_info[:root_view]
 
         if Configuration::Base.presenter.view_caching
-          r_v = @populated_root_view_cache[v_p][@root_path] if @populated_root_view_cache[v_p]
+          r_v = @populated_root_view_cache[[v_p, @root_path]]
           if r_v then
             @root_view = r_v.dup
             @presented = true
@@ -178,11 +178,7 @@ module Pakyow
             r_v = LazyView.new(@root_path, true)
             views = view_info[:views]
             populate_view(r_v, views)
-            if @populated_root_view_cache[v_p]
-              @populated_root_view_cache[v_p][@root_path] = r_v
-            else
-              @populated_root_view_cache[v_p] = {@root_path => r_v}
-            end
+            @populated_root_view_cache[[v_p, @root_path]] = r_v
             @root_view = r_v.dup
             @presented = true
           end
@@ -214,7 +210,7 @@ module Pakyow
         view_info.each{|dir,info|
           r_v = LazyView.new(info[:root_view], true)
           populate_view(r_v, info[:views])
-          r_v_c[dir] = {info[:root_view] => r_v};
+          r_v_c[[dir, info[:root_view]]] = r_v
         }
         r_v_c
       end
