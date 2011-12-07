@@ -53,7 +53,7 @@ module Pakyow
           method = "post"
         end
         
-        return { :action => action, :method => method }
+        return { :action => File.join('/', action), :method => method }
       end
     end
   end
