@@ -412,7 +412,7 @@ module Pakyow
       controller_block, packet = @route_store.get_block(route, method)
 
       self.request.params.merge!(HashUtils.strhash(packet[:vars]))
-      self.request.route_spec = packet[:data][:route_spec] if packet[:data]
+      self.request.route_spec = packet[:data][:route_spec] if packet[:data] unless Pakyow::Configuration::App.ignore_routes
       self.request.restful = packet[:data][:restful] if packet[:data]
 
       controller_block
