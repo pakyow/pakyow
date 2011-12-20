@@ -1,21 +1,21 @@
+require 'core/configuration/base'
+require 'core/helpers'
+require 'core/log'
+require 'core/request'
+require 'core/loader'
+require 'core/application'
+require 'core/route_store'
+require 'core/logger'
+require 'core/static'
+require 'core/reloader'
+require 'core/cache'
+require 'core/presenter_base'
+
+# utils
+require 'utils/string'
+require 'utils/hash'
+require 'utils/dir'
+
 module Pakyow
-  autoload :Configuration,  'core/configuration/base'
-  autoload :Helpers,        'core/helpers'
-  autoload :GeneralHelpers, 'core/helpers'
-  autoload :Log,            'core/log'
-  autoload :Request,        'core/request'
-  autoload :Loader,         'core/loader'
-  autoload :Application,    'core/application'
-  autoload :RouteStore,     'core/route_store'
-  autoload :Logger,         'core/logger'
-  autoload :Static,         'core/static'
-  autoload :Reloader,       'core/reloader'
-  autoload :Cache,          'core/cache'
-
-  # utils
-  autoload :StringUtils,    'utils/string'
-  autoload :HashUtils,      'utils/hash'
-  autoload :DirUtils,       'utils/dir'
-
   attr_accessor :app
 end
