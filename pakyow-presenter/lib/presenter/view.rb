@@ -219,7 +219,6 @@ module Pakyow
       alias :html :content
       
       def content=(content)
-        return unless content
         self.doc.inner_html = Nokogiri::HTML.fragment(content.to_s)
       end
       
