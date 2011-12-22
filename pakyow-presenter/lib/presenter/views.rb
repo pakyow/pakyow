@@ -102,9 +102,10 @@ module Pakyow
         self.each {|e| e.bind(object, opts)}
       end
       
-      def find(element)
+      def find(element, &block)
         views = Views.new
         self.each {|e| e.find(element, &block).each { |v| views << v }}
+        views
       end
     end
   end
