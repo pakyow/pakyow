@@ -128,7 +128,8 @@ module Pakyow
       #
 
       def with_container(container, &block)
-        ViewContext.new(self.view.find("##{container}").first).instance_eval(&block)
+        v = self.view.find("##{container}").first
+        ViewContext.new(v).instance_exec(v, &block)
       end
 
       #

@@ -85,7 +85,7 @@ module Pakyow
       end
       
       def in_context(&block)
-        ViewContext.new(self).instance_eval(&block)
+        ViewContext.new(self).instance_exec(self, &block)
       end
       
       def bind(object, opts = {})
@@ -122,7 +122,7 @@ module Pakyow
           objects.each do |object|
             view = View.new(self)
             view.bind(object, opts)
-            ViewContext.new(view).instance_exec(object, &block) if block_given?
+            ViewContext.new(view).instance_exec(object, view, &block) if block_given?
             
             o.add_previous_sibling(view.doc)
           end
@@ -221,7 +221,7 @@ module Pakyow
       def content=(content)
         self.doc.inner_html = Nokogiri::HTML.fragment(content.to_s)
       end
-      
+
       alias :html= :content=
       
       def append(content)

@@ -12,7 +12,7 @@ module Pakyow
       end
       
       def in_context(&block)
-        ViewContext.new(self).instance_eval(&block)
+        ViewContext.new(self).instance_exec(self, &block)
       end
       
       def attributes(*args)
