@@ -1,2 +1,2 @@
 require File.expand_path('../config/application', __FILE__)
-PakyowApplication::Application.stage(ENV['ENV'] || nil)
+PakyowApplication::Application.stage(ENV['ENV'])
