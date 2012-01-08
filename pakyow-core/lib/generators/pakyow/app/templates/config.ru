@@ -1,4 +1,3 @@
-env = ENV['RACK_ENV'] || 'production'
-
 require File.expand_path('../config/application', __FILE__)
-run PakyowApplication::Application.stage(env)
+PakyowApplication::Application.builder.run(PakyowApplication::Application.stage(ENV['RACK_ENV'] || nil))
+run PakyowApplication::Application.builder.to_app
