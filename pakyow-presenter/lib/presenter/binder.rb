@@ -6,9 +6,9 @@ module Pakyow
       class << self
         attr_accessor :options
         
-        def binder_for(klass)
-          View.binders = {} unless View.binders
-          View.binders[klass.to_s.to_sym] = self
+        def binder_for(*args)
+          View.binders ||= {}
+          args.each { |klass| View.binders[klass.to_s.to_sym] = self }
         end
         
         def options_for(*args)
