@@ -1,3 +1,14 @@
+= 0.7.0 / 2011-11-19
+
+  * Added middleware for logging, static, and reloading
+  * Added invoke_route! and invoke_handler! methods
+  * Added before, after, and around hooks to routes
+  * Added pakyow console
+  * Changed methods that modify request/response life cycle to bang methods
+  * Fixed regex route error (was removing route vars)
+  * App file is no longer loaded twice upon initialization
+  * Fix cookie creation when cookie is a non-nil value but not a String
+
 = 0.6.3 / 2011-09-13
 
   * Fixes several load path issues

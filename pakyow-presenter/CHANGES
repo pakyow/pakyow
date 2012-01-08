@@ -1,3 +1,11 @@
+= 0.7.0 / 2011-11-19
+
+  * Cleaned up core/presenter interface
+  * Optimized view caching
+  * Binding occurs on the label an object is being bound to, not the object type
+  * Root view override in index directories no longer specify a root view for siblings
+  * Fixed problem binding to a checkbox who’s value attribute is not set
+
 = 0.6.3 / 2011-09-13
 
   * Fixes binding to bindings defined by HTML 'name' attribute
