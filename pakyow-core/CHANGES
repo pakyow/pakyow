@@ -1,3 +1,12 @@
+= 0.7.1 / 2012-01-08
+
+  * Changed loader to only load ruby files
+  * Moved session from app to request
+  * Replaced autoload with require
+  * Fixed generated rackup to use builder
+  * Fixed generated rakefile so it runs in a specific environment
+  * Fixed issue running with ignore_routes turned on
+
 = 0.7.0 / 2011-11-19
 
   * Added middleware for logging, static, and reloading

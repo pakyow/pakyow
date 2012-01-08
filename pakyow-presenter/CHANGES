@@ -1,3 +1,12 @@
+= 0.7.1 / 2012-01-08
+
+  * View caching fixes
+  * Changed binder to allow definition for multiple endpoints
+  * Changed in_context to accept context as block argument
+  * Changed action binder to add leading slash if needed
+  * Change to allow a view's content to be set to nil
+  * Fixed Views#find method
+
 = 0.7.0 / 2011-11-19
 
   * Cleaned up core/presenter interface
