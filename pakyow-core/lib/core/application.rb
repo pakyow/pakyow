@@ -409,10 +409,14 @@ module Pakyow
     def prepare_route_block(route, method)
       set_request_format_from_route(route)
 
-      controller_block, packet = @route_store.get_block(route, method)
+      if Pakyow::Configuration::App.ignore_routes
+        controller_block, packet = nil, {:vars=>{}, :data=>nil}
+      else
+        controller_block, packet = @route_store.get_block(route, method)
+      end
 
       self.request.params.merge!(HashUtils.strhash(packet[:vars]))
-      self.request.route_spec = packet[:data][:route_spec] if packet[:data] unless Pakyow::Configuration::App.ignore_routes
+      self.request.route_spec = packet[:data][:route_spec] if packet[:data]
       self.request.restful = packet[:data][:restful] if packet[:data]
 
       controller_block
