@@ -204,7 +204,7 @@ module Pakyow
           self.presenter.prepare_for_request(self.request)
         end
 
-        has_route = trampoline(route_block) if !Pakyow::Configuration::App.ignore_routes
+        has_route = trampoline(route_block)
 
         if self.presenter
           self.response.body = [self.presenter.content]
