@@ -21,7 +21,9 @@ module Pakyow
         return if running?
         @running = true
         self.builder.run(self.prepare(args))
-        detect_handler.run(builder, :Host => Pakyow::Configuration::Base.server.host, :Port => Pakyow::Configuration::Base.server.port)
+        detect_handler.run(builder, :Host => Pakyow::Configuration::Base.server.host, :Port => Pakyow::Configuration::Base.server.port) do |server|
+          trap(:INT) { stop(server) }
+        end
       end
 
       # Stages the application. Everything is loaded but the application is
@@ -131,6 +133,17 @@ module Pakyow
           rescue LoadError
           rescue NameError
           end
+        end
+      end
+
+      def stop(server)
+        if server.respond_to?('shutdown')
+          server.shutdown
+        elsif server.respond_to?('stop')
+          server.stop
+        else
+          # exit ungracefully if necessary...
+          Process.exit!
         end
       end
     end
