@@ -23,6 +23,7 @@ module Pakyow
         self.builder.run(self.prepare(args))
         detect_handler.run(builder, :Host => Pakyow::Configuration::Base.server.host, :Port => Pakyow::Configuration::Base.server.port) do |server|
           trap(:INT) { stop(server) }
+          trap(:TERM) { stop(server) }
         end
       end
 
@@ -137,8 +138,8 @@ module Pakyow
       end
 
       def stop(server)
-        if server.respond_to?('shutdown')
-          server.shutdown
+        if server.respond_to?('stop!')
+          server.stop!
         elsif server.respond_to?('stop')
           server.stop
         else
