@@ -161,7 +161,8 @@ module Pakyow
     end
 
     def invoke_route!(route, method=nil)
-      self.request.working_path = route
+      base_route, ignore_format = StringUtils.split_at_last_dot(route)
+      self.request.working_path = base_route
       self.request.working_method = method if method
       block = prepare_route_block(route, self.request.working_method)
       throw :new_block, block
@@ -192,7 +193,8 @@ module Pakyow
     def call(env)
       self.request = Request.new(env)
       self.response = Rack::Response.new
-      self.request.working_path = self.request.path
+      base_route, ignore_format = StringUtils.split_at_last_dot(self.request.path)
+      self.request.working_path = base_route
       self.request.working_method = self.request.method
 
       has_route = false
@@ -408,8 +410,9 @@ module Pakyow
 
     def prepare_route_block(route, method)
       set_request_format_from_route(route)
+      base_route, ignore_format = StringUtils.split_at_last_dot(route)
 
-      controller_block, packet = @route_store.get_block(route, method)
+      controller_block, packet = @route_store.get_block(base_route, method)
 
       self.request.params.merge!(HashUtils.strhash(packet[:vars]))
       self.request.route_spec = packet[:data][:route_spec] if packet[:data] unless Pakyow::Configuration::App.ignore_routes
