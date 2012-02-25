@@ -12,7 +12,12 @@ module Pakyow
     end
     
     def deliver_to(recipient, subject = nil)
-      @message.body    = self.view.to_html
+      html_content = self.view.to_html
+      @message.html_part do
+        content_type 'text/html; charset=UTF-8'
+        body html_content
+      end
+      
       @message.subject = subject if subject
       
       if recipient.is_a?(Array)
