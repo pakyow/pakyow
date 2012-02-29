@@ -1,3 +1,9 @@
+= 0.7.2 / 2012-02-29
+
+  * Application server shuts down gracefully
+  * Fix issue requesting route with format
+  * Fix issue surrounding ignore_routes -- now matches request path in all cases
+
 = 0.7.1 / 2012-01-08
 
   * Changed loader to only load ruby files
