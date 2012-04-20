@@ -128,9 +128,12 @@ module Pakyow
       end
 
       def detect_handler
-        ['thin', 'mongrel', 'webrick'].each do |server|
+        handlers = ['thin', 'mongrel', 'webrick']
+        handlers.unshift(Configuration::Base.server.handler) if Configuration::Base.server.handler
+        
+        handlers.each do |handler|
           begin
-            return Rack::Handler.get(server)
+            return Rack::Handler.get(handler)
           rescue LoadError
           rescue NameError
           end
