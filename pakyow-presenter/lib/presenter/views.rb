@@ -88,25 +88,35 @@ module Pakyow
         method_missing(:id)
       end
       
-      def repeat_for(objects, opts = {}, &block)
-        first_found = self.first
+      # def repeat_for(objects, opts = {}, &block)
+      #   first_found = self.first
         
-        # Remove other matches
-        self.drop(1).each {|found| found.remove}
+      #   # Remove other matches
+      #   self.drop(1).each {|found| found.remove}
         
-        # Repeat for first match
-        first_found.repeat_for(objects, opts, &block)
-      end
+      #   # Repeat for first match
+      #   first_found.repeat_for(objects, opts, &block)
+      # end
       
-      def bind(object, opts = {})
-        self.each {|e| e.bind(object, opts)}
-      end
+      # def bind(object, opts = {})
+      #   self.each {|e| e.bind(object, opts)}
+      # end
       
-      def find(element, &block)
-        views = Views.new
-        self.each {|e| e.find(element, &block).each { |v| views << v }}
-        views
+      # def find(element, &block)
+      #   views = Views.new
+      #   self.each {|e| e.find(element, &block).each { |v| views << v }}
+      #   views
+      # end
+
+      def [](i)
+        @views[i]
       end
+
+      def length
+        @views.length
+      end
+
+      #TODO implement scope, with, etc
     end
   end
 end
