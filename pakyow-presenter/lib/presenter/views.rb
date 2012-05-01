@@ -116,6 +116,10 @@ module Pakyow
         @views.length
       end
 
+      def with(&block)
+        block.call(self)
+      end
+
       #TODO implement scope, with, etc
     end
   end
