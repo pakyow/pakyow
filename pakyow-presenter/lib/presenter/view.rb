@@ -314,38 +314,6 @@ module Pakyow
         end
       end
 
-      def bind_data_to_scope(data, scope)
-        # create binder instance for this scope
-        b_c = View.binders[scope[:scope]] and b_i = b_c.new(data, scope[:doc])
-        
-        data.each_pair { |k,v|
-          # bind data to props
-          scope[:props].select{|p| p[:prop] == k}.each {|p|
-            # get value from binder if available
-            #TODO warnings
-            v = b_i.send(k) if b_i && b_i.class.method_defined?(k)
-
-            bind_value_to_doc(v, p[:doc])
-          }
-
-          # bind next scope
-          if nested = scope[:nested_scopes].select{|ns| ns[:scope] == k}[0]
-            bind_data_to_scope(v,nested)
-          end
-        }
-      end
-
-      #TODO checkboxes
-      #TODO radio buttons
-      #TODO select options
-      def bind_value_to_doc(value, doc)
-        if View.self_closing_tag?(doc.name) #TODO unit test
-          doc['value'] = value
-        else
-          doc.content = value
-        end
-      end
-
       # repeat a view n times
       def repeat(data, &block)
         data.each { |d|
@@ -421,6 +389,38 @@ module Pakyow
           node = queue.shift
           yield node
           queue.concat(node.children)
+        end
+      end
+
+      def bind_data_to_scope(data, scope)
+        # create binder instance for this scope
+        b_c = View.binders[scope[:scope]] and b_i = b_c.new(data, scope[:doc])
+        
+        data.each_pair { |k,v|
+          # bind data to props
+          scope[:props].select{|p| p[:prop] == k}.each {|p|
+            # get value from binder if available
+            #TODO warnings
+            v = b_i.send(k) if b_i && b_i.class.method_defined?(k)
+
+            bind_value_to_doc(v, p[:doc])
+          }
+
+          # bind next scope
+          if nested = scope[:nested_scopes].select{|ns| ns[:scope] == k}[0]
+            bind_data_to_scope(v,nested)
+          end
+        }
+      end
+
+      #TODO checkboxes
+      #TODO radio buttons
+      #TODO select options
+      def bind_value_to_doc(value, doc)
+        if View.self_closing_tag?(doc.name) #TODO unit test
+          doc['value'] = value
+        else
+          doc.content = value
         end
       end
 
