@@ -240,6 +240,10 @@ module Pakyow
       def after(view)
         self.doc.after(view.doc)
       end
+
+      def before(view)
+        self.doc.before(view.doc)
+      end
       
       alias :render :append
      
@@ -298,15 +302,36 @@ module Pakyow
 
       # binds a single object to view (little bind)
       #TODO make this work with more than hashes
-      def bind(datum)
-        self.find_bindings.each { |binding|
-          if (b_c = View.binders[self.scoped_as] and b_i = b_c.new(datum, binding[:doc])) && b_i.class.method_defined?(binding[:prop]) #TODO unit test
-            value = b_i.send(binding[:prop])
-          else
-            value = datum[binding[:prop]]
+      def bind(data)
+        unless entry_scope = self.scoped_as
+          entry_scope = data.keys[0]
+          data = data[entry_scope]
+        end
+
+        bindings = self.find_bindings
+        if scope = bindings.select{|b|b[:scope] == entry_scope}[0]
+          bind_data_to_scope(data, scope)
+        end
+      end
+
+      def bind_data_to_scope(data, scope)
+        # create binder instance for this scope
+        b_c = View.binders[scope[:scope]] and b_i = b_c.new(data, scope[:doc])
+        
+        data.each_pair { |k,v|
+          # bind data to props
+          scope[:props].select{|p| p[:prop] == k}.each {|p|
+            # get value from binder if available
+            #TODO warnings
+            v = b_i.send(k) if b_i && b_i.class.method_defined?(k)
+
+            bind_value_to_doc(v, p[:doc])
+          }
+
+          # bind next scope
+          if nested = scope[:nested_scopes].select{|ns| ns[:scope] == k}[0]
+            bind_data_to_scope(v,nested)
           end
-          
-          bind_value_to_doc(value, binding[:doc])
         }
       end
 
@@ -330,7 +355,7 @@ module Pakyow
 
       # molds a view to match a data structure (big bind)
       def mold(structure)
-
+        #TODO
       end
 
       def with(&block)
@@ -339,36 +364,64 @@ module Pakyow
 
       protected
 
+      # returns a hash where keys are scope names and values are view collections
+      # easy lookup by name
       def find_scopes
-        arr = {}
-        @doc.traverse {|o|
-          if scope_name = o['data-scope']
-            scope_name = scope_name.to_sym
-
+        scopes = {}
+        breadth_first(@doc) {|o|
+          if scope = o['data-scope']
+            scope = scope.to_sym
+            
             v = View.new(o)
-            v.scoped_as = scope_name
+            v.scoped_as = scope
 
-            (arr[scope_name] ||= Views.new) << v
+            (scopes[scope] ||= Views.new) << v
           end
         }
 
-        arr
+        return scopes
       end
 
+      # returns an array of hashes that describe each scope
+      #TODO find bindings based on name
       def find_bindings
         bindings = []
-        @doc.traverse {|o|
-          # don't go into a deeper scope
-          next if o.get_attribute('data-scope')
+        breadth_first(@doc) {|o|
+          next unless scope = o['data-scope']
 
-          if prop = o.get_attribute('data-prop')
-            bindings << { :doc => o, :prop => prop.to_sym }
-          end
+          # find props
+          props = []
+          breadth_first(o) {|so|
+            # don't go into deeper scopes
+            break if so!= o && so['data-scope']
 
-          #TODO handle form fields
+            next unless prop = so['data-prop']
+            props << {:prop => prop.to_sym, :doc => so}
+          }
+
+          bindings << {:scope => scope.to_sym, :doc => o, :props => props}
         }
 
-        bindings
+        # determine nestedness
+        bindings.each {|b|
+          nested = []
+          bindings.each {|b2|
+            nested << b2 if b2[:doc].ancestors.include? b[:doc]
+          }
+
+          b[:nested_scopes] = nested
+        }
+
+        return bindings
+      end
+
+      def breadth_first(doc)
+        queue = [doc]
+        until queue.empty?
+          node = queue.shift
+          yield node
+          queue.concat(node.children)
+        end
       end
 
       # def bind_object_to_binding(object, binding, bind_as)
