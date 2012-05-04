@@ -308,10 +308,7 @@ module Pakyow
           data = data[entry_scope]
         end
 
-        bindings = self.find_bindings
-        if scope = bindings.select{|b|b[:scope] == entry_scope}[0]
-          bind_data_to_scope(data, scope)
-        end
+        self.bind_data_to_many_scopes(data, self.find_bindings.select{|b|b[:scope] == entry_scope})
       end
 
       # repeat a view n times
@@ -392,7 +389,17 @@ module Pakyow
         end
       end
 
+      def bind_data_to_many_scopes(data, scopes)
+        data = data.is_a?(Array) ? data : [data]
+
+        scopes.each_with_index{|s,i|
+          bind_data_to_scope(data[i], s)
+        }
+      end
+
       def bind_data_to_scope(data, scope)
+        return unless data
+
         # create binder instance for this scope
         b_c = View.binders[scope[:scope]] and b_i = b_c.new(data, scope[:doc])
         
@@ -406,10 +413,7 @@ module Pakyow
             bind_value_to_doc(v, p[:doc])
           }
 
-          # bind next scope
-          if nested = scope[:nested_scopes].select{|ns| ns[:scope] == k}[0]
-            bind_data_to_scope(v,nested)
-          end
+          bind_data_to_many_scopes(v, scope[:nested_scopes].select{|ns| ns[:scope] == k})
         }
       end
 
