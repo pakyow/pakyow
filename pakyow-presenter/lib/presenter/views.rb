@@ -98,9 +98,10 @@ module Pakyow
       #   first_found.repeat_for(objects, opts, &block)
       # end
       
-      # def bind(object, opts = {})
-      #   self.each {|e| e.bind(object, opts)}
-      # end
+      def bind(data)
+        data = data.is_a?(Array) ? data : [data]
+        self.each_with_index {|e,i| e.bind(data[i])}
+      end
       
       # def find(element, &block)
       #   views = Views.new
