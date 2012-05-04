@@ -361,22 +361,24 @@ module Pakyow
             break if so!= o && so[Configuration::Presenter.scope_attribute]
 
             next unless prop = so[Configuration::Presenter.prop_attribute]
-            props << {:prop => prop.to_sym, :doc => so}
+            props << {:prop => prop.to_sym, :path => path_to(so)}
           }
 
-          bindings << {:scope => scope.to_sym, :doc => o, :props => props}
+          bindings << {:scope => scope.to_sym, :path => path_to(o), :props => props}
         }
 
         # determine nestedness
         bindings.each {|b|
           nested = []
           bindings.each {|b2|
-            nested << b2 if b2[:doc].ancestors.include? b[:doc]
+            b_doc = from_path(b[:path])
+            b2_doc = from_path(b2[:path])
+            nested << b2 if b2_doc.ancestors.include? b_doc
           }
 
           b[:nested_scopes] = nested
         }
-
+        
         return bindings
       end
 
@@ -387,6 +389,40 @@ module Pakyow
           yield node
           queue.concat(node.children)
         end
+      end
+
+      def path_to(child)
+        path = []
+
+        return path if child == @doc
+
+        child.ancestors.each {|a|
+          # since ancestors goes all the way to doc root, stop when we get to the level of @doc
+          break if a.children.include?(@doc)
+
+          path.unshift(a.children.index(child))
+          child = a
+        }
+        
+        return path
+      end
+
+      #TODO make this work
+      def from_path(path)
+        o = @doc
+
+        # if path is empty we're at self
+        return o if path.empty?
+
+        path.each {|i|
+          if child = o.children[i]
+            o = child
+          else
+            break
+          end
+        }
+
+        return o
       end
 
       def bind_data_to_many_scopes(data, scopes)
@@ -401,7 +437,7 @@ module Pakyow
         return unless data
 
         # create binder instance for this scope
-        b_c = View.binders[scope[:scope]] and b_i = b_c.new(data, scope[:doc])
+        b_c = View.binders[scope[:scope]] and b_i = b_c.new(data, from_path(scope[:path]))
         
         data.each_pair { |k,v|
           # bind data to props
@@ -409,8 +445,7 @@ module Pakyow
             # get value from binder if available
             #TODO warnings
             v = b_i.send(k) if b_i && b_i.class.method_defined?(k)
-
-            bind_value_to_doc(v, p[:doc])
+            bind_value_to_doc(v, from_path(p[:path]))
           }
 
           bind_data_to_many_scopes(v, scope[:nested_scopes].select{|ns| ns[:scope] == k})
