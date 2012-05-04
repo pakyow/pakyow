@@ -334,7 +334,7 @@ module Pakyow
       def find_scopes
         scopes = {}
         breadth_first(@doc) {|o|
-          if scope = o['data-scope']
+          if scope = o[Configuration::Presenter.scope_attribute]
             scope = scope.to_sym
             
             v = View.new(o)
@@ -352,15 +352,15 @@ module Pakyow
       def find_bindings
         bindings = []
         breadth_first(@doc) {|o|
-          next unless scope = o['data-scope']
+          next unless scope = o[Configuration::Presenter.scope_attribute]
 
           # find props
           props = []
           breadth_first(o) {|so|
             # don't go into deeper scopes
-            break if so!= o && so['data-scope']
+            break if so!= o && so[Configuration::Presenter.scope_attribute]
 
-            next unless prop = so['data-prop']
+            next unless prop = so[Configuration::Presenter.prop_attribute]
             props << {:prop => prop.to_sym, :doc => so}
           }
 
