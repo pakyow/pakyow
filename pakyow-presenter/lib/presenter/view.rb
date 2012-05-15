@@ -556,7 +556,19 @@ module Pakyow
       #     binding[:element]['value'] = value.to_s
       #   end
       # end
-      
+
+
+      # NOTE not entirely right but here to give the idea
+      # Duping the same view each time is correct but I think this adds each dup after the
+      # original and not after the last dup. Need to remove the original, too.
+      # Note 2: map may not be a good name in the end
+      def map(ds, &b)
+        ds = [ds] unless ds instance_of?(Array)
+        ds.each {|d|
+          yield self.doc.after(self.doc.dup), d if block_given?
+        }
+      end
+
     end
   end
 end

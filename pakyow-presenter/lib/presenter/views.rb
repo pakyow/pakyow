@@ -121,6 +121,21 @@ module Pakyow
         block.call(self)
       end
 
+
+
+      # NOTE not entirely right but here to give the idea
+      # Duping the same view each time is correct but I think this adds each dup after the
+      # original and not after the last dup. Need to remove the original, too.
+      # Note 2: map may not be a good name in the end
+      def map(ds, &b)
+        ds = [ds] unless ds instance_of?(Array)
+        ds.each { |d|
+          sibs = @views.collect { |v| v.doc.after(v.doc.dup) }
+          yield *sibs, d if block_given?
+        }
+      end
+
+
       #TODO implement scope, with, etc
     end
   end
