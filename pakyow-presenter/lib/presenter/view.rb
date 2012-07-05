@@ -48,6 +48,7 @@ module Pakyow
         end
       end
 
+      #TODO rewrite to use data-container
       def add_content_to_container(content, container)
         # TODO This .css call works but the equivalent .xpath call doesn't
         # Need to investigate why since the .css call is internally turned into a .xpath call
@@ -57,88 +58,8 @@ module Pakyow
         end
       end
 
-      #TODO consider removing (never used since this should happen on front-end)
-      # def add_resource(*args)
-      #   type, resource, options = args
-      #   options ||= {}
-        
-      #   content = case type
-      #     when :js  then '<script src="' + Pakyow::Configuration::Presenter.javascripts + '/' + resource.to_s + '.js"></script>'
-      #     when :css then '<link href="' + Pakyow::Configuration::Presenter.stylesheets + '/' + resource.to_s + '.css" rel="stylesheet" media="' + (options[:media] || 'screen, projection') + '" type="text/css">'
-      #   end
-        
-      #   if self.doc.fragment? || self.doc.element?
-      #     self.doc.add_previous_sibling(content)
-      #   else
-      #     self.doc.xpath("//head/*[1]").before(content)
-      #   end
-      # end
-      
-      #TODO consider removing (never used since this should happen on front-end)
-      # def remove_resource(*args)
-      #   type, resource, options = args
-      #   options ||= {}
-        
-      #   case type
-      #     when :js then self.doc.css("script[src='#{Pakyow::Configuration::Presenter.javascripts}/#{resource}.js']").remove
-      #     when :css then self.doc.css("link[href='#{Pakyow::Configuration::Presenter.stylesheets}/#{resource}.css']").remove
-      #   end
-      # end
-      
-      # def find(element)
-      #   group = Views.new
-      #   @doc.css(element).each {|e| group << View.new(e)}
-        
-      #   return group
-      # end
-      
-      # def in_context(&block)
-      #   ViewContext.new(self).instance_exec(self, &block)
-      # end
-      
-      # def bind(object, opts = {})
-      #   bind_as = opts[:to] ? opts[:to].to_s : StringUtils.underscore(object.class.name.split('::').last)
-        
-      #   @doc.traverse do |o|
-      #     if attribute = o.get_attribute('itemprop')
-      #       selector = attribute
-      #     elsif attribute = o.get_attribute('name')
-      #       selector = attribute
-      #     else
-      #       next
-      #     end
-          
-      #     next unless attribute
-          
-      #     type_len    = bind_as.length
-      #     next if selector[0, type_len + 1] != "#{bind_as}["
-          
-      #     attribute   = selector[type_len + 1, attribute.length - type_len - 2]
-          
-      #     binding = {
-      #       :element => o,
-      #       :attribute => attribute.to_sym,
-      #       :selector => selector
-      #     }
-          
-      #     bind_object_to_binding(object, binding, bind_as)
-      #   end
-      # end
-      
-      # def repeat_for(objects, opts = {}, &block)
-      #   if o = @doc
-      #     objects.each do |object|
-      #       view = View.new(self)
-      #       view.bind(object, opts)
-      #       ViewContext.new(view).instance_exec(object, view, &block) if block_given?
-            
-      #       o.add_previous_sibling(view.doc)
-      #     end
-          
-      #     o.remove
-      #   end
-      # end
-
+      #TODO rewrite to use data-container
+            # is this ever called, or only the one on LazyView?
       def reset_container(container)
         return unless @doc
         return unless o = @doc.css("*[id='#{container}']").first
@@ -230,23 +151,21 @@ module Pakyow
       def content=(content)
         self.doc.inner_html = Nokogiri::HTML.fragment(content.to_s)
       end
-
+      
       alias :html= :content=
       
       def append(view)
         self.doc.add_child(view.doc)
       end
-
+      
       def after(view)
         self.doc.after(view.doc)
       end
-
+      
       def before(view)
         self.doc.before(view.doc)
       end
       
-      alias :render :append
-     
       def method_missing(method, *args)
         return unless @previous_method == :attributes
         @previous_method = nil
@@ -284,8 +203,9 @@ module Pakyow
           super
         end
       end
-
+      
       #TODO replace with a method that finds data-containers
+      #  where is this used? needed?
       def elements_with_ids
         elements = []
         @doc.traverse {|e|
@@ -300,32 +220,91 @@ module Pakyow
         self.find_scopes[name.to_sym]
       end
 
-      # binds a single object to view (little bind)
-      #TODO make this work with more than hashes
-      def bind(data)
-        unless entry_scope = self.scoped_as
-          entry_scope = data.keys[0]
-          data = data[entry_scope]
-        end
-
-        self.bind_data_to_many_scopes(data, self.find_bindings.select{|b|b[:scope] == entry_scope})
+      # call-seq:
+      #   with {|view| block}
+      #
+      # Creates a context in which view manipulations can be performed.
+      #
+      # Unlike previous versions, the context can only be referenced by the
+      # block argument. No `context` method will be available.s
+      #
+      def with
+        yield(self)
       end
 
-      # repeat a view n times
-      def repeat(data, &block)
-        data.each { |d|
-          block.call(self.dup, d)
+      # call-seq:
+      #   for {|view, datum| block}
+      #
+      # Yields a view and its matching dataum. This is driven by the view,
+      # meaning datums are yielded until no more views are available. For
+      # the single View case, only one view/datum pair is yielded.
+      # 
+      # (this is basically Bret's `map` function)
+      #
+      def for(data, &block)
+        data = [data] unless data.instance_of?(Array)
+        block.call(self, data[0])
+      end
+
+      # call-seq:
+      #   mold(data) => Views
+      #
+      # Returns a Views object that has been manipulated to match the data.
+      # For the single View case, the Views collection will consist n copies
+      # of self, where n = data.length.
+      #
+      def mold(data)
+        data = [data] unless data.instance_of?(Array)
+
+        views = Views.new
+        data.each {|datum|
+          d_v = self.doc.dup
+          self.doc.before(d_v)
+          views << View.new(d_v)
         }
+
+        self.remove
+        views
       end
 
-      # molds a view to match a data structure (big bind)
-      def mold(structure)
-        #TODO
+      # call-seq:
+      #   repeat(data) {|view, datum| block}
+      #
+      # Molds self to match data and yields a view/datum pair using `mold` and `for`.
+      #
+      def repeat(data, &block)
+        self.mold(data).for(data, &block)
       end
 
-      def with(&block)
-        block.call(self)
+      # call-seq:
+      #   bind(data)
+      #
+      # Binds data across existing scopes.
+      #
+      def bind(data)
+        self.bind_data_to_scope(data, self.find_bindings.first)
       end
+
+      # call-seq:
+      #   apply(data)
+      #
+      # Molds then binds data to the view.
+      #
+      def apply(data)
+        self.mold(data).bind(data)
+      end
+
+      # recursive binding (follows data structure into nested scopes)
+      #  thinking this won't be part of 0.8
+      # def bind(data)
+      #   unless entry_scope = self.scoped_as
+      #     entry_scope = data.keys[0]
+      #     data = data[entry_scope]
+      #   end
+
+      #   #TODO instead, call bind on Views, which handles mapping data across scopes
+      #   self.bind_data_to_many_scopes(data, self.find_bindings.select{|b|b[:scope] == entry_scope})
+      # end
 
       protected
 
@@ -425,19 +404,21 @@ module Pakyow
         return o
       end
 
-      def bind_data_to_many_scopes(data, scopes)
-        data = data.is_a?(Array) ? data : [data]
+      # used for recursive binding (unsure if this will be supported)
+      # def bind_data_to_many_scopes(data, scopes)
+      #   data = data.is_a?(Array) ? data : [data]
 
-        scopes.each_with_index{|s,i|
-          bind_data_to_scope(data[i], s)
-        }
-      end
+      #   scopes.each_with_index{|s,i|
+      #     bind_data_to_scope(data[i], s)
+      #   }
+      # end
 
       def bind_data_to_scope(data, scope)
         return unless data
-
+        
+        #TODO consider accepting binder instance as part of the interface; finding it here ties binders too closely to binding
         # create binder instance for this scope
-        b_c = View.binders[scope[:scope]] and b_i = b_c.new(data, from_path(scope[:path]))
+        b_c = View.binders[scope[:scope]] and b_i = b_c.new(data, from_path(scope[:path])) if View.binders
         
         data.each_pair { |k,v|
           # bind data to props
@@ -448,7 +429,8 @@ module Pakyow
             bind_value_to_doc(v, from_path(p[:path]))
           }
 
-          bind_data_to_many_scopes(v, scope[:nested_scopes].select{|ns| ns[:scope] == k})
+          # needed for recursive binding
+          # bind_data_to_many_scopes(v, scope[:nested_scopes].select{|ns| ns[:scope] == k})
         }
       end
 
@@ -556,19 +538,6 @@ module Pakyow
       #     binding[:element]['value'] = value.to_s
       #   end
       # end
-
-
-      # NOTE not entirely right but here to give the idea
-      # Duping the same view each time is correct but I think this adds each dup after the
-      # original and not after the last dup. Need to remove the original, too.
-      # Note 2: map may not be a good name in the end
-      def map(ds, &b)
-        ds = [ds] unless ds instance_of?(Array)
-        ds.each {|d|
-          yield self.doc.after(self.doc.dup), d if block_given?
-        }
-      end
-
     end
   end
 end

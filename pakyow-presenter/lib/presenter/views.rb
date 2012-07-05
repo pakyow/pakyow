@@ -11,10 +11,6 @@ module Pakyow
         @views.each { |v| yield(v) }
       end
       
-      def in_context(&block)
-        ViewContext.new(self).instance_exec(self, &block)
-      end
-      
       def attributes(*args)
         self.each {|e| e.attributes(*args)}
         return self
@@ -26,13 +22,15 @@ module Pakyow
       
       alias :delete :remove
       
-      def add_class(val)
-        self.each {|e| e.add_class(val)}
-      end
+      # SEE COMMENT IN VIEW
+      # def add_class(val)
+      #   self.each {|e| e.add_class(val)}
+      # end
       
-      def remove_class(val)
-        self.each {|e| e.remove_class(val)}
-      end
+      # SEE COMMENT IN VIEW
+      # def remove_class(val)
+      #   self.each {|e| e.remove_class(val)}
+      # end
       
       def clear
         self.each {|e| e.clear}
@@ -88,27 +86,6 @@ module Pakyow
         method_missing(:id)
       end
       
-      # def repeat_for(objects, opts = {}, &block)
-      #   first_found = self.first
-        
-      #   # Remove other matches
-      #   self.drop(1).each {|found| found.remove}
-        
-      #   # Repeat for first match
-      #   first_found.repeat_for(objects, opts, &block)
-      # end
-      
-      def bind(data)
-        data = data.is_a?(Array) ? data : [data]
-        self.each_with_index {|e,i| e.bind(data[i])}
-      end
-      
-      # def find(element, &block)
-      #   views = Views.new
-      #   self.each {|e| e.find(element, &block).each { |v| views << v }}
-      #   views
-      # end
-
       def [](i)
         @views[i]
       end
@@ -117,26 +94,90 @@ module Pakyow
         @views.length
       end
 
-      def with(&block)
-        block.call(self)
+      # call-seq:
+      #   with {|view| block}
+      #
+      # Creates a context in which view manipulations can be performed.
+      # 
+      # Unlike previous versions, the context can only be referenced by the
+      # block argument. No `context` method will be available.s
+      #
+      def with
+        yield(self)
       end
 
-
-
-      # NOTE not entirely right but here to give the idea
-      # Duping the same view each time is correct but I think this adds each dup after the
-      # original and not after the last dup. Need to remove the original, too.
-      # Note 2: map may not be a good name in the end
-      def map(ds, &b)
-        ds = [ds] unless ds instance_of?(Array)
-        ds.each { |d|
-          sibs = @views.collect { |v| v.doc.after(v.doc.dup) }
-          yield *sibs, d if block_given?
+      # call-seq:
+      #   for {|view, datum| block}
+      #
+      # Yields a view and its matching dataum. Datums are yielded until 
+      # no more views or data is available. For the Views case, this 
+      # means the block will be yielded self.length times.
+      # 
+      # (this is basically Bret's `map` function)
+      #
+      def for(data, &block)
+        data = [data] unless data.instance_of?(Array)
+        self.each_with_index { |v,i|
+          break unless datum = data[i]
+          block.call(v, datum)
         }
       end
 
+      # call-seq:
+      #   mold(data) => Views
+      #
+      # Returns a Views object that has been manipulated to match the data.
+      # For the Views case, the returned Views collection will consist n copies
+      # of self[data index] || self[-1], where n = data.length.
+      #
+      def mold(data)
+        data = [data] unless data.instance_of?(Array)
 
-      #TODO implement scope, with, etc
+        views = Views.new
+        data.each_with_index {|datum,i|
+          unless v = self[i]
+
+            # we're out of views, so use the last one
+            v = self[-1]
+          end
+
+          d_v = v.doc.dup
+          v.doc.before(d_v)
+          views << View.new(d_v)
+        }
+
+        self.remove
+        views
+      end
+
+      # call-seq:
+      #   repeat(data) {|view, datum| block}
+      #
+      # Molds self to match data and yields a view/datum pair using `mold` and `for`.
+      #
+      def repeat(data, &block)
+        self.mold(data).for(data, &block)
+      end
+
+      # call-seq:
+      #   bind(data)
+      #
+      # Binds data across existing scopes.
+      #
+      def bind(data)
+        self.for(data) {|view, datum|
+          view.bind(datum)
+        }
+      end
+
+      # call-seq:
+      #   apply(data)
+      #
+      # Molds then binds data to the view using `mold` and `bind`.
+      #
+      def apply(data)
+        self.mold(data).bind(data)
+      end
     end
   end
 end
