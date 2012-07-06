@@ -14,7 +14,7 @@ module Pakyow
         end
       end
 
-      attr_accessor :doc, :scoped_as, :scopes
+      attr_accessor :doc, :scoped_as, :scopes, :bindings
 
       def dup
         v = self.class.new(@doc.dup)
@@ -260,7 +260,11 @@ module Pakyow
         data.each {|datum|
           d_v = self.doc.dup
           self.doc.before(d_v)
-          views << View.new(d_v)
+
+          v = View.new(d_v)
+          v.bindings = self.bindings
+
+          views << v
         }
 
         self.remove
@@ -282,7 +286,8 @@ module Pakyow
       # Binds data across existing scopes.
       #
       def bind(data)
-        self.bind_data_to_scope(data, self.find_bindings.first)
+        @bindings ||= self.find_bindings
+        self.bind_data_to_scope(data, @bindings.first)
       end
 
       # call-seq:
@@ -291,7 +296,7 @@ module Pakyow
       # Molds then binds data to the view.
       #
       def apply(data)
-        self.mold(data).bind(data)
+        views = self.mold(data).bind(data)
       end
 
       # recursive binding (follows data structure into nested scopes)
@@ -318,6 +323,9 @@ module Pakyow
             
             v = View.new(o)
             v.scoped_as = scope
+
+            # find bindings subset (keeps us from refinding for child views)
+            v.bindings = self.bindings_for_child_view(v)
 
             (scopes[scope] ||= Views.new) << v
           end
@@ -359,6 +367,27 @@ module Pakyow
         }
         
         return bindings
+      end
+
+      def bindings_for_child_view(child)
+        @bindings ||= self.find_bindings
+
+        child_path = self.path_to(child.doc)
+        @bindings.each {|binding|
+
+          # update paths relative to child
+          if binding[:path].eql?(child_path)
+            dup = binding.dup
+
+            len = child_path.length
+            dup[:path] = dup[:path][len..-1]
+            dup[:props].each {|p|
+              p[:path] = p[:path][len..-1]
+            }
+            
+            return [dup]
+          end
+        }
       end
 
       def breadth_first(doc)

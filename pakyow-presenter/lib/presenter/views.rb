@@ -143,7 +143,13 @@ module Pakyow
 
           d_v = v.doc.dup
           v.doc.before(d_v)
-          views << View.new(d_v)
+
+          new_v = View.new(d_v)
+
+          # find binding subset (keeps us from refinding)
+          new_v.bindings = v.bindings
+
+          views << new_v
         }
 
         self.remove
