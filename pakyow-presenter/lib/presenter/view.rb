@@ -219,6 +219,24 @@ module Pakyow
       def scope(name)
         self.find_scopes[name.to_sym]
       end
+      
+      def prop(name)
+        name = name.to_sym
+
+        views = Views.new
+        @bindings.each {|binding|
+          binding[:props].each {|prop|
+            if prop[:prop] == name
+              v = View.new(self.from_path(prop[:path]))
+              v.bindings = self.bindings_for_child_view(v)
+
+              views << v
+            end
+          }
+        }
+
+        views
+      end
 
       # call-seq:
       #   with {|view| block}
