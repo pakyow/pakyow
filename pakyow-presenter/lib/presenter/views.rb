@@ -170,9 +170,10 @@ module Pakyow
       #
       # Binds data across existing scopes.
       #
-      def bind(data)
+      def bind(data, &block)
         self.for(data) {|view, datum|
           view.bind(datum)
+          yield(view, datum) if block_given?
         }
       end
 
@@ -181,8 +182,8 @@ module Pakyow
       #
       # Molds then binds data to the view using `mold` and `bind`.
       #
-      def apply(data)
-        self.mold(data).bind(data)
+      def apply(data, &block)
+        self.mold(data).bind(data, &block)
       end
     end
   end

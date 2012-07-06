@@ -285,9 +285,10 @@ module Pakyow
       #
       # Binds data across existing scopes.
       #
-      def bind(data)
+      def bind(data, &block)
         @bindings ||= self.find_bindings
         self.bind_data_to_scope(data, @bindings.first)
+        yield(self, data) if block_given?
       end
 
       # call-seq:
@@ -295,8 +296,8 @@ module Pakyow
       #
       # Molds then binds data to the view.
       #
-      def apply(data)
-        views = self.mold(data).bind(data)
+      def apply(data, &block)
+        views = self.mold(data).bind(data, &block)
       end
 
       # recursive binding (follows data structure into nested scopes)
@@ -449,17 +450,33 @@ module Pakyow
         # create binder instance for this scope
         b_c = View.binders[scope[:scope]] and b_i = b_c.new(data, from_path(scope[:path])) if View.binders
         
-        data.each_pair { |k,v|
-          # bind data to props
-          scope[:props].select{|p| p[:prop] == k}.each {|p|
-            # get value from binder if available
-            #TODO warnings
-            v = b_i.send(k) if b_i && b_i.class.method_defined?(k)
-            bind_value_to_doc(v, from_path(p[:path]))
-          }
+        scope[:props].each {|p|
+          k = p[:prop]
+          v = data[k]
 
-          # needed for recursive binding
-          # bind_data_to_many_scopes(v, scope[:nested_scopes].select{|ns| ns[:scope] == k})
+          # get value from binder if available
+          #TODO warnings
+          v = b_i.send(k) if b_i && b_i.class.method_defined?(k)
+
+          doc = from_path(p[:path])
+
+          if v.is_a? Hash
+            v.each do |v_key, v_val|
+              if v_val.is_a? Proc
+                v_val = v_val.call(doc[v_key.to_s])
+              end
+              
+              if v_val.nil?
+                doc.remove_attribute(v_key.to_s)
+              elsif v_key == :content
+                bind_value_to_doc(v_val, doc)
+              else
+                doc[v_key.to_s] = v_val.to_s
+              end
+            end
+          else
+            bind_value_to_doc(v, doc)
+          end
         }
       end
 
@@ -470,7 +487,7 @@ module Pakyow
         if View.self_closing_tag?(doc.name) #TODO unit test
           doc['value'] = value
         else
-          doc.content = value
+          doc.inner_html = value
         end
       end
 
