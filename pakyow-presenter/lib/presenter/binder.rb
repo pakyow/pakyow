@@ -35,26 +35,6 @@ module Pakyow
           end
         end
       end
-      
-      def action
-        unless routes = Pakyow.app.restful_routes[bindable.class.name.to_sym]
-          Log.warn "Attempting to bind object to #{bindable.class.name.downcase}[action] but could not find restful routes for #{bindable.class.name}."
-          return {}
-        end
-        
-        if id = bindable.id
-          self.object.add_child('<input type="hidden" name="_method" value="put">')
-          
-
-          action = routes[:update].gsub(':id', id.to_s)
-          method = "post"
-        else
-          action = routes[:create]
-          method = "post"
-        end
-        
-        return { :action => File.join('/', action), :method => method }
-      end
     end
   end
 end

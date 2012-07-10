@@ -12,6 +12,35 @@ module Pakyow
         def self_closing_tag?(tag)
           %w[area base basefont br hr input img link meta].include? tag
         end
+
+        def form_field?(tag)
+          %w[input select textarea button].include? tag
+        end
+
+        def form_tag?(tag)
+          %w[form].include? tag
+        end
+
+        def action_for_scoped_object(scope, o, doc)
+          #TODO rewrite to handle restful routes defined for data types, not (just) model names
+          unless routes = Pakyow.app.restful_routes[o.class.name.to_sym]
+            Log.warn "Attempting to bind object to #{o.class.name.downcase}[action] but could not find restful routes for #{o.class.name}."
+            return ''
+          end
+          
+          if id = o[:id]
+            doc.add_child('<input type="hidden" name="_method" value="put">')
+            
+            action = routes[:update].gsub(':id', id.to_s)
+            method = "post"
+          else
+            action = routes[:create]
+            method = "post"
+          end
+          
+          doc['action'] = File.join('/', action)
+          doc['method'] = method
+        end
       end
 
       attr_accessor :doc, :scoped_as, :scopes, :bindings
@@ -332,6 +361,7 @@ module Pakyow
 
       protected
 
+      #TODO find subset when creating sub view
       # returns a hash where keys are scope names and values are view collections
       # easy lookup by name
       def find_scopes
@@ -354,7 +384,6 @@ module Pakyow
       end
 
       # returns an array of hashes that describe each scope
-      #TODO find bindings based on name
       def find_bindings
         bindings = []
         breadth_first(@doc) {|o|
@@ -434,7 +463,6 @@ module Pakyow
         return path
       end
 
-      #TODO make this work
       def from_path(path)
         o = @doc
 
@@ -464,19 +492,29 @@ module Pakyow
       def bind_data_to_scope(data, scope)
         return unless data
         
-        #TODO consider accepting binder instance as part of the interface; finding it here ties binders too closely to binding
         # create binder instance for this scope
         b_c = View.binders[scope[:scope]] and b_i = b_c.new(data, from_path(scope[:path])) if View.binders
+
+        scope_doc = from_path(scope[:path])
+        
+        if View.form_tag?(scope_doc.name)
+          # set action on scoped form
+          scope_doc['action'] = View.action_for_scoped_object(scope, data, scope_doc)
+        end
         
         scope[:props].each {|p|
           k = p[:prop]
           v = data[k]
 
           # get value from binder if available
-          #TODO warnings
           v = b_i.send(k) if b_i && b_i.class.method_defined?(k)
 
           doc = from_path(p[:path])
+
+          if View.form_field?(doc.name) && (!doc['name'] || doc['name'].empty?)
+            # set name on form element
+            doc['name'] = "#{scope[:scope]}[#{k}]"
+          end
 
           if v.is_a? Hash
             v.each do |v_key, v_val|
@@ -508,47 +546,6 @@ module Pakyow
           doc.inner_html = value
         end
       end
-
-      # def bind_object_to_binding(object, binding, bind_as)
-      #   binder = nil
-        
-      #   if View.binders
-      #     b = View.binders[bind_as.to_sym] and binder = b.new(object, binding[:element])
-      #   end
-        
-      #   if binder && binder.class.method_defined?(binding[:attribute])
-      #     value = binder.send(binding[:attribute])
-      #   else
-      #     if object.is_a? Hash
-      #       value = object[binding[:attribute]]
-      #     else
-      #       if Configuration::Base.app.dev_mode == true && !object.class.method_defined?(binding[:attribute])
-      #         Log.warn("Attempting to bind object to #{binding[:html_tag]}#{binding[:selector].gsub('*', '').gsub('\'', '')} but #{object.class.name}##{binding[:attribute]} is not defined.")
-      #         return
-      #       else
-      #         value = object.send(binding[:attribute])
-      #       end
-      #     end
-      #   end
-        
-      #   if value.is_a? Hash
-      #     value.each do |k, v|
-      #       if v.is_a? Proc
-      #         v = v.call(binding[:element][k.to_s])
-      #       end
-            
-      #       if v.nil?
-      #         binding[:element].remove_attribute(k.to_s)
-      #       elsif k == :content
-      #         bind_value_to_binding(v, binding, binder)
-      #       else
-      #         binding[:element][k.to_s] = v.to_s
-      #       end
-      #     end
-      #   else
-      #     bind_value_to_binding(value, binding, binder)
-      #   end
-      # end
 
       # def bind_value_to_binding(value, binding, binder)
       #   if !self.self_closing_tag?(binding[:element].name)
