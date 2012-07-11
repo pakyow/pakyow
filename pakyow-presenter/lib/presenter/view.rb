@@ -21,6 +21,10 @@ module Pakyow
           %w[form].include? tag
         end
 
+        def tag_without_value?(tag)
+          %w[select].include? tag
+        end
+
         def action_for_scoped_object(scope, o, doc)
           #TODO rewrite to handle restful routes defined for data types, not (just) model names
           unless routes = Pakyow.app.restful_routes[o.class.name.to_sym]
@@ -514,6 +518,61 @@ module Pakyow
           if View.form_field?(doc.name) && (!doc['name'] || doc['name'].empty?)
             # set name on form element
             doc['name'] = "#{scope[:scope]}[#{k}]"
+
+            # special binding for checkboxes and radio buttons
+            if doc.name == 'input' && (doc[:type] == 'checkbox' || doc[:type] == 'radio')
+              if v == true || (doc[:value] && doc[:value] == v.to_s)
+                doc[:checked] = 'checked'
+              else
+                doc.delete('checked')
+              end
+
+              # coerce to string since booleans are often used 
+              # and fail when binding to a view
+              v = v.to_s
+            # special binding for selects
+            elsif doc.name == 'select'
+              if b_i
+                if options = b_i.fetch_options_for(k)
+                  option_nodes = Nokogiri::HTML::DocumentFragment.parse ""
+                  Nokogiri::HTML::Builder.with(option_nodes) do |h|
+                    until options.length == 0
+                      catch :optgroup do
+                        options.each_with_index { |o,i|
+
+                          # an array containing value/content
+                          if o.is_a?(Array)
+                            h.option o[1], :value => o[0]
+                            options.delete_at(i)
+                          # likely an object (e.g. string); start a group
+                          else
+                            h.optgroup(:label => o) {
+                              options.delete_at(i)
+
+                              options[i..-1].each_with_index { |o2,i2|
+                                # starting a new group
+                                throw :optgroup if !o2.is_a?(Array)
+
+                                h.option o2[1], :value => o2[0]
+                                options.delete_at(i)
+                              }
+                            }
+                          end
+
+                        }
+                      end
+                    end                    
+                  end
+
+                  doc.add_child(option_nodes)
+                end
+              end
+
+              # select appropriate option
+              if o = doc.css('option[value="' + v.to_s + '"]').first
+                o[:selected] = 'selected'
+              end
+            end
           end
 
           if v.is_a? Hash
@@ -536,69 +595,12 @@ module Pakyow
         }
       end
 
-      #TODO checkboxes
-      #TODO radio buttons
-      #TODO select options
       def bind_value_to_doc(value, doc)
-        if View.self_closing_tag?(doc.name) #TODO unit test
-          doc['value'] = value
-        else
-          doc.inner_html = value
-        end
+        tag = doc.name
+        return if View.tag_without_value?(tag)
+        View.self_closing_tag?(tag) ? doc['value'] = value : doc.inner_html = value
       end
 
-      # def bind_value_to_binding(value, binding, binder)
-      #   if !self.self_closing_tag?(binding[:element].name)
-      #     if binding[:element].name == 'select'
-      #       if binder
-      #         if options = binder.fetch_options_for(binding[:attribute])
-      #           html = ''
-      #           is_group = false
-
-      #           options.each do |opt|
-      #             if opt.is_a?(Array)
-      #               if opt.first.is_a?(Array)
-      #                 opt.each do |opt2|
-      #                   html << '<option value="' + opt2[0].to_s + '">' + opt2[1].to_s + '</option>'
-      #                 end
-      #               else
-      #                 html << '<option value="' + opt[0].to_s + '">' + opt[1].to_s + '</option>'
-      #               end
-      #             else
-      #               html << "</optgroup>" if is_group
-      #               html << '<optgroup label="' + opt.to_s + '">'
-      #               is_group = true
-      #             end
-      #           end
-
-      #           html << "</optgroup>" if is_group
-
-      #           binding[:element].inner_html = Nokogiri::HTML::fragment(html)
-      #         end
-      #       end
-
-      #       if opt = binding[:element].css('option[value="' + value.to_s + '"]').first
-      #         opt['selected'] = 'selected'
-      #       end
-      #     else
-      #       binding[:element].inner_html = Nokogiri::HTML.fragment(value.to_s)
-      #     end
-      #   elsif binding[:element].name == 'input' && binding[:element][:type] == 'checkbox'
-      #     if value == true || (binding[:element].attributes['value'] && binding[:element].attributes['value'].value == value.to_s)
-      #       binding[:element]['checked'] = 'checked'
-      #     else
-      #       binding[:element].delete('checked')
-      #     end
-      #   elsif binding[:element].name == 'input' && binding[:element][:type] == 'radio'
-      #     if binding[:element].attributes['value'].value == value.to_s
-      #       binding[:element]['checked'] = 'checked'
-      #     else
-      #       binding[:element].delete('checked')
-      #     end
-      #   else
-      #     binding[:element]['value'] = value.to_s
-      #   end
-      # end
     end
   end
 end
