@@ -124,13 +124,13 @@ module Pakyow
       end
 
       # call-seq:
-      #   mold(data) => Views
+      #   match(data) => Views
       #
       # Returns a Views object that has been manipulated to match the data.
       # For the Views case, the returned Views collection will consist n copies
       # of self[data index] || self[-1], where n = data.length.
       #
-      def mold(data)
+      def match(data)
         data = [data] unless data.instance_of?(Array)
 
         views = Views.new
@@ -159,10 +159,10 @@ module Pakyow
       # call-seq:
       #   repeat(data) {|view, datum| block}
       #
-      # Molds self to match data and yields a view/datum pair using `mold` and `for`.
+      # Matches self to data and yields a view/datum pair.
       #
       def repeat(data, &block)
-        self.mold(data).for(data, &block)
+        self.match(data).for(data, &block)
       end
 
       # call-seq:
@@ -180,10 +180,10 @@ module Pakyow
       # call-seq:
       #   apply(data)
       #
-      # Molds then binds data to the view using `mold` and `bind`.
+      # Matches self to data then binds data to the view.
       #
       def apply(data, &block)
-        self.mold(data).bind(data, &block)
+        self.match(data).bind(data, &block)
       end
     end
   end
