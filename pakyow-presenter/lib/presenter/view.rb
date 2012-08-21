@@ -350,19 +350,7 @@ module Pakyow
       def apply(data, &block)
         views = self.match(data).bind(data, &block)
       end
-
-      # recursive binding (follows data structure into nested scopes)
-      #  thinking this won't be part of 0.8
-      # def bind(data)
-      #   unless entry_scope = self.scoped_as
-      #     entry_scope = data.keys[0]
-      #     data = data[entry_scope]
-      #   end
-
-      #   #TODO instead, call bind on Views, which handles mapping data across scopes
-      #   self.bind_data_to_many_scopes(data, self.find_bindings.select{|b|b[:scope] == entry_scope})
-      # end
-
+      
       protected
 
       #TODO find subset when creating sub view
@@ -406,6 +394,8 @@ module Pakyow
           bindings << {:scope => scope.to_sym, :path => path_to(o), :props => props}
         }
 
+        #TODO keep this here or provide a way to extend bindings from outside?
+        #  this is only used (currently) for bindr
         # determine nestedness
         bindings.each {|b|
           nested = []
@@ -483,15 +473,6 @@ module Pakyow
 
         return o
       end
-
-      # used for recursive binding (unsure if this will be supported)
-      # def bind_data_to_many_scopes(data, scopes)
-      #   data = data.is_a?(Array) ? data : [data]
-
-      #   scopes.each_with_index{|s,i|
-      #     bind_data_to_scope(data[i], s)
-      #   }
-      # end
 
       def bind_data_to_scope(data, scope)
         return unless data
