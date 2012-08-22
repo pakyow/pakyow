@@ -94,6 +94,16 @@ module Pakyow
         @views.length
       end
 
+      def scope(name)
+        views = Views.new
+        self.each{|v|
+          next unless svs = v.scope(name)
+          svs.each{|sv| views << sv}
+        }
+        
+        views
+      end
+
       # call-seq:
       #   with {|view| block}
       #

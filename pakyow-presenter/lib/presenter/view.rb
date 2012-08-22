@@ -4,6 +4,11 @@ module Pakyow
       class << self
         attr_accessor :binders, :default_view_path, :default_is_root_view
 
+        def binder_for_scope(scope, bindable)
+          return unless View.binders
+          b_c = View.binders[scope] and b_c.new(bindable)
+        end
+
         def view_path(dvp, dirv=false)
           self.default_view_path = dvp
           self.default_is_root_view = dirv
@@ -252,7 +257,19 @@ module Pakyow
       end
 
       def scope(name)
-        self.find_scopes[name.to_sym]
+        name = name.to_sym
+        @bindings ||= self.find_bindings
+
+        views = Views.new
+        @bindings.select{|b| b[:scope] == name}.each{|s| 
+          v = self.view_from_path(s[:path])
+          v.bindings = self.bindings_for_child_view(v)
+          v.scoped_as = s[:scope]
+
+          views << v
+        }
+
+        views
       end
       
       def prop(name)
@@ -262,7 +279,7 @@ module Pakyow
         @bindings.each {|binding|
           binding[:props].each {|prop|
             if prop[:prop] == name
-              v = View.new(self.from_path(prop[:path]))
+              v = self.view_from_path(prop[:path])
               v.bindings = self.bindings_for_child_view(v)
 
               views << v
@@ -316,6 +333,7 @@ module Pakyow
 
           v = View.new(d_v)
           v.bindings = self.bindings
+          #TODO set view scope
 
           views << v
         }
@@ -340,7 +358,11 @@ module Pakyow
       #
       def bind(data, &block)
         @bindings ||= self.find_bindings
-        self.bind_data_to_scope(data, @bindings.first)
+
+        scope = @bindings.first
+        binder = View.binder_for_scope(scope[:scope], data)
+
+        self.bind_data_to_scope(data, scope, binder)
         yield(self, data) if block_given?
       end
 
@@ -354,28 +376,6 @@ module Pakyow
       end
 
       protected
-
-      #TODO find subset when creating sub view
-      # returns a hash where keys are scope names and values are view collections
-      # easy lookup by name
-      def find_scopes
-        scopes = {}
-        breadth_first(@doc) {|o|
-          if scope = o[Configuration::Presenter.scope_attribute]
-            scope = scope.to_sym
-            
-            v = View.new(o)
-            v.scoped_as = scope
-
-            # find bindings subset (keeps us from refinding for child views)
-            v.bindings = self.bindings_for_child_view(v)
-
-            (scopes[scope] ||= Views.new) << v
-          end
-        }
-
-        return scopes
-      end
 
       # returns an array of hashes that describe each scope
       def find_bindings
@@ -400,8 +400,8 @@ module Pakyow
         # bindings.each {|b|
         #   nested = []
         #   bindings.each {|b2|
-        #     b_doc = from_path(b[:path])
-        #     b2_doc = from_path(b2[:path])
+        #     b_doc = doc_from_path(b[:path])
+        #     b2_doc = doc_from_path(b2[:path])
         #     nested << b2 if b2_doc.ancestors.include? b_doc
         #   }
 
@@ -413,23 +413,26 @@ module Pakyow
 
       def bindings_for_child_view(child)
         @bindings ||= self.find_bindings
-
+        
         child_path = self.path_to(child.doc)
-        @bindings.each {|binding|
+        child_path_len = child_path.length
+        child_bindings = []
 
-          # update paths relative to child
-          if binding[:path].eql?(child_path)
+        @bindings.each {|binding|
+          # we want paths within the child path
+          if (child_path - binding[:path]).empty?
+            # update paths relative to child
             dup = binding.dup
 
-            len = child_path.length
-            dup[:path] = dup[:path][len..-1]
-            dup[:props].each {|p|
-              p[:path] = p[:path][len..-1]
+            [dup].concat(dup[:props]).each{|p|
+              p[:path] = p[:path][child_path_len..-1]
             }
-            
-            return [dup]
+
+            child_bindings << dup
           end
         }
+
+        child_bindings
       end
 
       def breadth_first(doc)
@@ -457,7 +460,7 @@ module Pakyow
         return path
       end
 
-      def from_path(path)
+      def doc_from_path(path)
         o = @doc
 
         # if path is empty we're at self
@@ -474,14 +477,14 @@ module Pakyow
         return o
       end
 
-      def bind_data_to_scope(data, scope)
-        return unless data
-        
-        # create binder instance for this scope
-        #TODO pass the binder instance in?
-        b_c = View.binders[scope[:scope]] and b_i = b_c.new(data, from_path(scope[:path])) if View.binders
+      def view_from_path(path)
+        View.new(doc_from_path(path))
+      end
 
-        scope_doc = from_path(scope[:path])
+      def bind_data_to_scope(data, scope, binder = nil)
+        return unless data
+
+        scope_doc = doc_from_path(scope[:path])
         
         if View.form_tag?(scope_doc.name)
           # set action on scoped form
@@ -492,11 +495,10 @@ module Pakyow
           k = p[:prop]
           v = data[k]
 
-          # get value from binder if available
-          #TODO add/use Binder#value_for_prop
-          v = b_i.send(k) if b_i && b_i.class.method_defined?(k)
+          # get value from binder
+          v = binder.value_for_prop(k) if binder
 
-          doc = from_path(p[:path])
+          doc = doc_from_path(p[:path])
 
           if View.form_field?(doc.name) && (!doc['name'] || doc['name'].empty?)
             # set name on form element

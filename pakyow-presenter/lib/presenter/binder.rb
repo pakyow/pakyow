@@ -17,11 +17,14 @@ module Pakyow
         end
       end
       
-      attr_accessor :bindable, :object
+      attr_accessor :bindable
       
-      def initialize(bindable, object)
+      def initialize(bindable)
         self.bindable = bindable
-        self.object = object
+      end
+
+      def value_for_prop(prop)
+        self.class.method_defined?(prop) ? self.send(prop) : bindable[prop]
       end
       
       def fetch_options_for(attribute)
