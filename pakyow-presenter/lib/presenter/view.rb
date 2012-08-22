@@ -484,99 +484,20 @@ module Pakyow
       def bind_data_to_scope(data, scope, binder = nil)
         return unless data
 
-        scope_doc = doc_from_path(scope[:path])
-        
-        if View.form_tag?(scope_doc.name)
-          # set action on scoped form
-          scope_doc['action'] = View.action_for_scoped_object(scope, data, scope_doc)
-        end
-        
+        # set form action
+        self.set_form_action_for_scope_with_data(scope, data) 
+
         scope[:props].each {|p|
           k = p[:prop]
-          v = data[k]
-
-          # get value from binder
-          v = binder.value_for_prop(k) if binder
+          v = binder ? binder.value_for_prop(k) : data[k]
 
           doc = doc_from_path(p[:path])
 
-          if View.form_field?(doc.name) && (!doc['name'] || doc['name'].empty?)
-            # set name on form element
-            doc['name'] = "#{scope[:scope]}[#{k}]"
+          # handle form field
+          self.bind_to_form_field(doc, scope, k, v, binder) if View.form_field?(doc.name)
 
-            # special binding for checkboxes and radio buttons
-            if doc.name == 'input' && (doc[:type] == 'checkbox' || doc[:type] == 'radio')
-              if v == true || (doc[:value] && doc[:value] == v.to_s)
-                doc[:checked] = 'checked'
-              else
-                doc.delete('checked')
-              end
-
-              # coerce to string since booleans are often used 
-              # and fail when binding to a view
-              v = v.to_s
-            # special binding for selects
-            elsif doc.name == 'select'
-              if b_i
-                if options = b_i.fetch_options_for(k)
-                  option_nodes = Nokogiri::HTML::DocumentFragment.parse ""
-                  Nokogiri::HTML::Builder.with(option_nodes) do |h|
-                    until options.length == 0
-                      catch :optgroup do
-                        options.each_with_index { |o,i|
-
-                          # an array containing value/content
-                          if o.is_a?(Array)
-                            h.option o[1], :value => o[0]
-                            options.delete_at(i)
-                          # likely an object (e.g. string); start a group
-                          else
-                            h.optgroup(:label => o) {
-                              options.delete_at(i)
-
-                              options[i..-1].each_with_index { |o2,i2|
-                                # starting a new group
-                                throw :optgroup if !o2.is_a?(Array)
-
-                                h.option o2[1], :value => o2[0]
-                                options.delete_at(i)
-                              }
-                            }
-                          end
-
-                        }
-                      end
-                    end                    
-                  end
-
-                  doc.add_child(option_nodes)
-                end
-              end
-
-              # select appropriate option
-              if o = doc.css('option[value="' + v.to_s + '"]').first
-                o[:selected] = 'selected'
-              end
-            end
-          end
-
-          if v.is_a? Hash
-            v.each do |v_key, v_val|
-              if v_val.is_a? Proc
-                v_val = v_val.call(doc[v_key.to_s])
-              end
-              
-              if v_val.nil?
-                doc.remove_attribute(v_key.to_s)
-              elsif v_key == :content
-                bind_value_to_doc(v_val, doc)
-              else
-                doc[v_key.to_s] = v_val.to_s
-              end
-            end
-          else
-            bind_value_to_doc(v, doc)
-          end
+          # bind attributes or value
+          v.is_a?(Hash) ? self.bind_attributes_to_doc(v, doc) : self.bind_value_to_doc(v, doc)
         }
       end
 
@@ -586,6 +507,82 @@ module Pakyow
         tag = doc.name
         return if View.tag_without_value?(tag)
         View.self_closing_tag?(tag) ? doc['value'] = value : doc.inner_html = value
+      end
+
+      def bind_attributes_to_doc(attrs, doc)
+        attrs.each do |attr, v|
+          bind_value_to_doc(v, doc) and next if attr == :content
+
+          attr = attr.to_s
+          v = v.call(doc[attr]) if v.is_a?(Proc)
+          v.nil? ? doc.remove_attribute(attr) : doc[attr] = v.to_s
+        end
+      end
+
+      def set_form_action_for_scope_with_data(scope, data)
+        doc = self.doc_from_path(scope[:path])
+        return if !View.form_tag?(doc.name)
+
+        #TODO rewrite upon refactoring routing (so restful template works right)
+        doc['action'] = View.action_for_scoped_object(scope, data, doc)
+      end
+
+      def bind_to_form_field(doc, scope, prop, value, binder)
+        return unless !doc['name'] || doc['name'].empty?
+        
+        # set name on form element
+        doc['name'] = "#{scope[:scope]}[#{prop}]"
+
+        # special binding for checkboxes and radio buttons
+        if doc.name == 'input' && (doc[:type] == 'checkbox' || doc[:type] == 'radio')
+          if value == true || (doc[:value] && doc[:value] == value.to_s)
+            doc[:checked] = 'checked'
+          else
+            doc.delete('checked')
+          end
+
+          # coerce to string since booleans are often used 
+          # and fail when binding to a view
+          value = value.to_s
+        # special binding for selects
+        elsif doc.name == 'select' && binder && options = binder.fetch_options_for(prop)
+          option_nodes = Nokogiri::HTML::DocumentFragment.parse ""
+          Nokogiri::HTML::Builder.with(option_nodes) do |h|
+            until options.length == 0
+              catch :optgroup do
+                options.each_with_index { |o,i|
+
+                  # an array containing value/content
+                  if o.is_a?(Array)
+                    h.option o[1], :value => o[0]
+                    options.delete_at(i)
+                  # likely an object (e.g. string); start a group
+                  else
+                    h.optgroup(:label => o) {
+                      options.delete_at(i)
+
+                      options[i..-1].each_with_index { |o2,i2|
+                        # starting a new group
+                        throw :optgroup if !o2.is_a?(Array)
+
+                        h.option o2[1], :value => o2[0]
+                        options.delete_at(i)
+                      }
+                    }
+                  end
+
+                }
+              end
+            end                    
+          end
+
+          doc.add_child(option_nodes)
+        end
+
+        # select appropriate option
+        if o = doc.css('option[value="' + value.to_s + '"]').first
+          o[:selected] = 'selected'
+        end
       end
 
     end
