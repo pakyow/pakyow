@@ -1,7 +1,7 @@
 module Pakyow
   class Application
     class << self
-      attr_accessor :routes_proc, :handlers_proc, :middleware_proc, :configurations
+      attr_accessor :core_proc, :middleware_proc, :configurations
 
       # Sets the path to the application file so it can be reloaded later.
       #
@@ -70,27 +70,16 @@ module Pakyow
         self.configurations[environment] = block
       end
 
-      # Creates routes. Example:
-      # routes { get '/' { # do something } }
+      # The block that stores routes, handlers, and hooks.
       #
-      def routes(&block)
-        self.routes_proc = block
+      def core(&block)
+        self.core_proc = block
       end
 
-      # Creates handlers for later execution.
-      # The handler can be created one of two ways:
+      # The block that stores presenter related things.
       #
-      # Define a controller/action handler with an associate response status:
-      # handler(name, 404, :ApplicationController, :handle_404)
-      #
-      # Specify a block as a handler:
-      # handler(name, 404) { # handle error }
-      #
-      # If a controller calls #invoke_handler!(name) then the
-      # handler defined for that code will be invoked.
-      #
-      def handlers(&block)
-        self.handlers_proc = block
+      def presenter(&block)
+        Configuration::Base.app.presenter.proc = block
       end
 
       def middleware(&block)
@@ -578,8 +567,7 @@ module Pakyow
       @loader = Loader.new unless @loader
       @loader.load!(Configuration::Base.app.src_dir)
 
-      load_handlers
-      load_routes
+      self.load_core
 
       # Reload views
       if self.presenter
@@ -587,14 +575,13 @@ module Pakyow
       end
     end
 
-    def load_handlers
+    # Evaluates core_proc
+    #
+    def load_core
       @handler_store = {}
-      self.instance_eval(&self.class.handlers_proc) if self.class.handlers_proc
-    end
-
-    def load_routes
       @route_store = RouteStore.new
-      self.instance_eval(&self.class.routes_proc) if self.class.routes_proc
+
+      self.instance_eval(&self.class.core_proc) if self.class.core_proc
     end
     
     # Send the response and cleanup.
