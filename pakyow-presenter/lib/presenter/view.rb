@@ -4,6 +4,11 @@ module Pakyow
       class << self
         attr_accessor :binders, :default_view_path, :default_is_root_view
 
+        def binder_for_scope(scope, bindable)
+          return unless View.binders
+          b_c = View.binders[scope] and b_c.new(bindable)
+        end
+
         def view_path(dvp, dirv=false)
           self.default_view_path = dvp
           self.default_is_root_view = dirv
@@ -66,6 +71,7 @@ module Pakyow
         elsif arg.is_a?(Pakyow::Presenter::View)
           @doc = arg.doc.dup
         elsif arg.is_a?(String)
+          #TODO use File#join
           if arg[0, 1] == '/'
             view_path = "#{Configuration::Presenter.view_dir}#{arg}"
           else
@@ -118,6 +124,7 @@ module Pakyow
         o.inner_html if o
       end
       
+      #TODO use data-container
       def to_html(container = nil)
         if container
           if o = @doc.css('#' + container.to_s).first
@@ -250,7 +257,19 @@ module Pakyow
       end
 
       def scope(name)
-        self.find_scopes[name.to_sym]
+        name = name.to_sym
+        @bindings ||= self.find_bindings
+
+        views = Views.new
+        @bindings.select{|b| b[:scope] == name}.each{|s| 
+          v = self.view_from_path(s[:path])
+          v.bindings = self.bindings_for_child_view(v)
+          v.scoped_as = s[:scope]
+
+          views << v
+        }
+
+        views
       end
       
       def prop(name)
@@ -260,7 +279,7 @@ module Pakyow
         @bindings.each {|binding|
           binding[:props].each {|prop|
             if prop[:prop] == name
-              v = View.new(self.from_path(prop[:path]))
+              v = self.view_from_path(prop[:path])
               v.bindings = self.bindings_for_child_view(v)
 
               views << v
@@ -314,6 +333,7 @@ module Pakyow
 
           v = View.new(d_v)
           v.bindings = self.bindings
+          #TODO set view scope
 
           views << v
         }
@@ -338,7 +358,11 @@ module Pakyow
       #
       def bind(data, &block)
         @bindings ||= self.find_bindings
-        self.bind_data_to_scope(data, @bindings.first)
+
+        scope = @bindings.first
+        binder = View.binder_for_scope(scope[:scope], data)
+
+        self.bind_data_to_scope(data, scope, binder)
         yield(self, data) if block_given?
       end
 
@@ -351,41 +375,7 @@ module Pakyow
         views = self.match(data).bind(data, &block)
       end
 
-      # recursive binding (follows data structure into nested scopes)
-      #  thinking this won't be part of 0.8
-      # def bind(data)
-      #   unless entry_scope = self.scoped_as
-      #     entry_scope = data.keys[0]
-      #     data = data[entry_scope]
-      #   end
-
-      #   #TODO instead, call bind on Views, which handles mapping data across scopes
-      #   self.bind_data_to_many_scopes(data, self.find_bindings.select{|b|b[:scope] == entry_scope})
-      # end
-
       protected
-
-      #TODO find subset when creating sub view
-      # returns a hash where keys are scope names and values are view collections
-      # easy lookup by name
-      def find_scopes
-        scopes = {}
-        breadth_first(@doc) {|o|
-          if scope = o[Configuration::Presenter.scope_attribute]
-            scope = scope.to_sym
-            
-            v = View.new(o)
-            v.scoped_as = scope
-
-            # find bindings subset (keeps us from refinding for child views)
-            v.bindings = self.bindings_for_child_view(v)
-
-            (scopes[scope] ||= Views.new) << v
-          end
-        }
-
-        return scopes
-      end
 
       # returns an array of hashes that describe each scope
       def find_bindings
@@ -406,40 +396,43 @@ module Pakyow
           bindings << {:scope => scope.to_sym, :path => path_to(o), :props => props}
         }
 
-        # determine nestedness
-        bindings.each {|b|
-          nested = []
-          bindings.each {|b2|
-            b_doc = from_path(b[:path])
-            b2_doc = from_path(b2[:path])
-            nested << b2 if b2_doc.ancestors.include? b_doc
-          }
+        # determine nestedness (currently unused; leaving in case needed)
+        # bindings.each {|b|
+        #   nested = []
+        #   bindings.each {|b2|
+        #     b_doc = doc_from_path(b[:path])
+        #     b2_doc = doc_from_path(b2[:path])
+        #     nested << b2 if b2_doc.ancestors.include? b_doc
+        #   }
 
-          b[:nested_scopes] = nested
-        }
+        #   b[:nested_scopes] = nested
+        # }
         
         return bindings
       end
 
       def bindings_for_child_view(child)
         @bindings ||= self.find_bindings
-
+        
         child_path = self.path_to(child.doc)
-        @bindings.each {|binding|
+        child_path_len = child_path.length
+        child_bindings = []
 
-          # update paths relative to child
-          if binding[:path].eql?(child_path)
+        @bindings.each {|binding|
+          # we want paths within the child path
+          if (child_path - binding[:path]).empty?
+            # update paths relative to child
             dup = binding.dup
 
-            len = child_path.length
-            dup[:path] = dup[:path][len..-1]
-            dup[:props].each {|p|
-              p[:path] = p[:path][len..-1]
+            [dup].concat(dup[:props]).each{|p|
+              p[:path] = p[:path][child_path_len..-1]
             }
-            
-            return [dup]
+
+            child_bindings << dup
           end
         }
+
+        child_bindings
       end
 
       def breadth_first(doc)
@@ -467,7 +460,7 @@ module Pakyow
         return path
       end
 
-      def from_path(path)
+      def doc_from_path(path)
         o = @doc
 
         # if path is empty we're at self
@@ -484,121 +477,112 @@ module Pakyow
         return o
       end
 
-      # used for recursive binding (unsure if this will be supported)
-      # def bind_data_to_many_scopes(data, scopes)
-      #   data = data.is_a?(Array) ? data : [data]
+      def view_from_path(path)
+        View.new(doc_from_path(path))
+      end
 
-      #   scopes.each_with_index{|s,i|
-      #     bind_data_to_scope(data[i], s)
-      #   }
-      # end
-
-      def bind_data_to_scope(data, scope)
+      def bind_data_to_scope(data, scope, binder = nil)
         return unless data
-        
-        # create binder instance for this scope
-        b_c = View.binders[scope[:scope]] and b_i = b_c.new(data, from_path(scope[:path])) if View.binders
 
-        scope_doc = from_path(scope[:path])
-        
-        if View.form_tag?(scope_doc.name)
-          # set action on scoped form
-          scope_doc['action'] = View.action_for_scoped_object(scope, data, scope_doc)
-        end
-        
+        # set form action
+        self.set_form_action_for_scope_with_data(scope, data) 
+
         scope[:props].each {|p|
           k = p[:prop]
-          v = data[k]
+          v = binder ? binder.value_for_prop(k) : data[k]
 
-          # get value from binder if available
-          v = b_i.send(k) if b_i && b_i.class.method_defined?(k)
+          doc = doc_from_path(p[:path])
 
-          doc = from_path(p[:path])
+          # handle form field
+          self.bind_to_form_field(doc, scope, k, v, binder) if View.form_field?(doc.name)
 
-          if View.form_field?(doc.name) && (!doc['name'] || doc['name'].empty?)
-            # set name on form element
-            doc['name'] = "#{scope[:scope]}[#{k}]"
-
-            # special binding for checkboxes and radio buttons
-            if doc.name == 'input' && (doc[:type] == 'checkbox' || doc[:type] == 'radio')
-              if v == true || (doc[:value] && doc[:value] == v.to_s)
-                doc[:checked] = 'checked'
-              else
-                doc.delete('checked')
-              end
-
-              # coerce to string since booleans are often used 
-              # and fail when binding to a view
-              v = v.to_s
-            # special binding for selects
-            elsif doc.name == 'select'
-              if b_i
-                if options = b_i.fetch_options_for(k)
-                  option_nodes = Nokogiri::HTML::DocumentFragment.parse ""
-                  Nokogiri::HTML::Builder.with(option_nodes) do |h|
-                    until options.length == 0
-                      catch :optgroup do
-                        options.each_with_index { |o,i|
-
-                          # an array containing value/content
-                          if o.is_a?(Array)
-                            h.option o[1], :value => o[0]
-                            options.delete_at(i)
-                          # likely an object (e.g. string); start a group
-                          else
-                            h.optgroup(:label => o) {
-                              options.delete_at(i)
-
-                              options[i..-1].each_with_index { |o2,i2|
-                                # starting a new group
-                                throw :optgroup if !o2.is_a?(Array)
-
-                                h.option o2[1], :value => o2[0]
-                                options.delete_at(i)
-                              }
-                            }
-                          end
-
-                        }
-                      end
-                    end                    
-                  end
-
-                  doc.add_child(option_nodes)
-                end
-              end
-
-              # select appropriate option
-              if o = doc.css('option[value="' + v.to_s + '"]').first
-                o[:selected] = 'selected'
-              end
-            end
-          end
-
-          if v.is_a? Hash
-            v.each do |v_key, v_val|
-              if v_val.is_a? Proc
-                v_val = v_val.call(doc[v_key.to_s])
-              end
-              
-              if v_val.nil?
-                doc.remove_attribute(v_key.to_s)
-              elsif v_key == :content
-                bind_value_to_doc(v_val, doc)
-              else
-                doc[v_key.to_s] = v_val.to_s
-              end
-            end
-          else
-            bind_value_to_doc(v, doc)
-          end
+          # bind attributes or value
+          v.is_a?(Hash) ? self.bind_attributes_to_doc(v, doc) : self.bind_value_to_doc(v, doc)
         }
       end
 
       def bind_value_to_doc(value, doc)
+        return unless value
+
         tag = doc.name
         return if View.tag_without_value?(tag)
         View.self_closing_tag?(tag) ? doc['value'] = value : doc.inner_html = value
+      end
+
+      def bind_attributes_to_doc(attrs, doc)
+        attrs.each do |attr, v|
+          bind_value_to_doc(v, doc) and next if attr == :content
+
+          attr = attr.to_s
+          v = v.call(doc[attr]) if v.is_a?(Proc)
+          v.nil? ? doc.remove_attribute(attr) : doc[attr] = v.to_s
+        end
+      end
+
+      def set_form_action_for_scope_with_data(scope, data)
+        doc = self.doc_from_path(scope[:path])
+        return if !View.form_tag?(doc.name)
+
+        #TODO rewrite upon refactoring routing (so restful template works right)
+        doc['action'] = View.action_for_scoped_object(scope, data, doc)
+      end
+
+      def bind_to_form_field(doc, scope, prop, value, binder)
+        return unless !doc['name'] || doc['name'].empty?
+        
+        # set name on form element
+        doc['name'] = "#{scope[:scope]}[#{prop}]"
+
+        # special binding for checkboxes and radio buttons
+        if doc.name == 'input' && (doc[:type] == 'checkbox' || doc[:type] == 'radio')
+          if value == true || (doc[:value] && doc[:value] == value.to_s)
+            doc[:checked] = 'checked'
+          else
+            doc.delete('checked')
+          end
+
+          # coerce to string since booleans are often used 
+          # and fail when binding to a view
+          value = value.to_s
+        # special binding for selects
+        elsif doc.name == 'select' && binder && options = binder.fetch_options_for(prop)
+          option_nodes = Nokogiri::HTML::DocumentFragment.parse ""
+          Nokogiri::HTML::Builder.with(option_nodes) do |h|
+            until options.length == 0
+              catch :optgroup do
+                options.each_with_index { |o,i|
+
+                  # an array containing value/content
+                  if o.is_a?(Array)
+                    h.option o[1], :value => o[0]
+                    options.delete_at(i)
+                  # likely an object (e.g. string); start a group
+                  else
+                    h.optgroup(:label => o) {
+                      options.delete_at(i)
+
+                      options[i..-1].each_with_index { |o2,i2|
+                        # starting a new group
+                        throw :optgroup if !o2.is_a?(Array)
+
+                        h.option o2[1], :value => o2[0]
+                        options.delete_at(i)
+                      }
+                    }
+                  end
+
+                }
+              end
+            end                    
+          end
+
+          doc.add_child(option_nodes)
+        end
+
+        # select appropriate option
+        if o = doc.css('option[value="' + value.to_s + '"]').first
+          o[:selected] = 'selected'
+        end
       end
 
     end
