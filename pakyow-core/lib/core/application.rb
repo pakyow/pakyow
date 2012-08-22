@@ -97,6 +97,7 @@ module Pakyow
         self.builder.use(Rack::MethodOverride)
         self.builder.instance_eval(&self.middleware_proc) if self.middleware_proc
         self.builder.use(Pakyow::Static) if Configuration::Base.app.static
+        self.builder.use(PresenterMiddleware) if Configuration::Base.app.presenter
         self.builder.use(Pakyow::Logger) if Configuration::Base.app.log
         self.builder.use(Pakyow::Reloader) if Configuration::Base.app.auto_reload
         
@@ -207,16 +208,7 @@ module Pakyow
       catch(:halt) {
         route_block = prepare_route_block(self.request.path, self.request.method)
         has_route = true if route_block
-
-        if self.presenter
-          self.presenter.prepare_for_request(self.request)
-        end
-
         has_route = trampoline(route_block)
-
-        if self.presenter
-          self.response.body = [self.presenter.content]
-        end
 
         # 404 if no route matched and no views were found
         if !has_route && (!self.presenter || !self.presenter.presented?)
@@ -224,13 +216,7 @@ module Pakyow
           handler404 = @handler_store[@handler_code_to_name[404]] if @handler_code_to_name[404]
           if handler404
             catch(:halt) {
-              if self.presenter
-                self.presenter.prepare_for_request(self.request)
-              end
               trampoline(handler404)
-              if self.presenter then
-                self.response.body = [self.presenter.content]
-              end
             }
           end
           self.response.status = 404
@@ -564,10 +550,8 @@ module Pakyow
 
       self.load_core
 
-      # Reload views
-      if self.presenter
-        self.presenter.load
-      end
+      # Reload presenter
+      self.presenter.load if self.presenter
     end
 
     # Evaluates core_proc

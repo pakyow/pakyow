@@ -10,6 +10,7 @@ require 'core/static'
 require 'core/reloader'
 require 'core/cache'
 require 'core/presenter_base'
+require 'core/presenter_middleware'
 
 # utils
 require 'utils/string'
