@@ -396,19 +396,17 @@ module Pakyow
           bindings << {:scope => scope.to_sym, :path => path_to(o), :props => props}
         }
 
-        #TODO keep this here or provide a way to extend bindings from outside?
-        #  this is only used (currently) for bindr
-        # determine nestedness
-        bindings.each {|b|
-          nested = []
-          bindings.each {|b2|
-            b_doc = from_path(b[:path])
-            b2_doc = from_path(b2[:path])
-            nested << b2 if b2_doc.ancestors.include? b_doc
-          }
+        # determine nestedness (currently unused; leaving in case needed)
+        # bindings.each {|b|
+        #   nested = []
+        #   bindings.each {|b2|
+        #     b_doc = from_path(b[:path])
+        #     b2_doc = from_path(b2[:path])
+        #     nested << b2 if b2_doc.ancestors.include? b_doc
+        #   }
 
-          b[:nested_scopes] = nested
-        }
+        #   b[:nested_scopes] = nested
+        # }
         
         return bindings
       end
