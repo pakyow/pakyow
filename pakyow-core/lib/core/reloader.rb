@@ -5,7 +5,7 @@ module Pakyow
     end
     
     def call(env)
-      @app.reload
+      @app.load_app
       @app.call(env)
     end
   end
