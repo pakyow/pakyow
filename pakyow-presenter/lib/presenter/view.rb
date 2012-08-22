@@ -66,6 +66,7 @@ module Pakyow
         elsif arg.is_a?(Pakyow::Presenter::View)
           @doc = arg.doc.dup
         elsif arg.is_a?(String)
+          #TODO use File#join
           if arg[0, 1] == '/'
             view_path = "#{Configuration::Presenter.view_dir}#{arg}"
           else
@@ -118,6 +119,7 @@ module Pakyow
         o.inner_html if o
       end
       
+      #TODO use data-container
       def to_html(container = nil)
         if container
           if o = @doc.css('#' + container.to_s).first
@@ -350,7 +352,7 @@ module Pakyow
       def apply(data, &block)
         views = self.match(data).bind(data, &block)
       end
-      
+
       protected
 
       #TODO find subset when creating sub view
@@ -478,6 +480,7 @@ module Pakyow
         return unless data
         
         # create binder instance for this scope
+        #TODO pass the binder instance in?
         b_c = View.binders[scope[:scope]] and b_i = b_c.new(data, from_path(scope[:path])) if View.binders
 
         scope_doc = from_path(scope[:path])
@@ -492,6 +495,7 @@ module Pakyow
           v = data[k]
 
           # get value from binder if available
+          #TODO add/use Binder#value_for_prop
           v = b_i.send(k) if b_i && b_i.class.method_defined?(k)
 
           doc = from_path(p[:path])
@@ -577,6 +581,8 @@ module Pakyow
       end
 
       def bind_value_to_doc(value, doc)
+        return unless value
+
         tag = doc.name
         return if View.tag_without_value?(tag)
         View.self_closing_tag?(tag) ? doc['value'] = value : doc.inner_html = value
