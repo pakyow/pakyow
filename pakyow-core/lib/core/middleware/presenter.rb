@@ -16,15 +16,7 @@ module Pakyow
         Pakyow.app.presenter.prepare_for_request(request)        
         @app.call(env)
 
-        content = Pakyow.app.presenter.content
-
-        #TODO handle this with catch (like in logger)
-        if Pakyow.app.response.status == 404
-          Pakyow.app.presenter.prepare_for_request(Pakyow.app.request)
-          content = Pakyow.app.presenter.content
-        end
-
-        Pakyow.app.response.body = [content]
+        Pakyow.app.response.body = [Pakyow.app.presenter.content]        
         Pakyow.app.response.finish
       end
     end

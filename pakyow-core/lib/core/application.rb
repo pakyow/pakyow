@@ -96,6 +96,7 @@ module Pakyow
 
         self.builder.use(Rack::MethodOverride)
         self.builder.instance_eval(&self.middleware_proc) if self.middleware_proc
+        self.builder.use(Pakyow::Middleware::NotFound)
         self.builder.use(Pakyow::Middleware::Static) if Configuration::Base.app.static
         self.builder.use(Pakyow::Middleware::Presenter) if Configuration::Base.app.presenter
         self.builder.use(Pakyow::Middleware::Logger) if Configuration::Base.app.log
@@ -207,20 +208,8 @@ module Pakyow
       has_route = false
       catch(:halt) {
         route_block = prepare_route_block(self.request.path, self.request.method)
-        has_route = true if route_block
-        has_route = trampoline(route_block)
-
-        # 404 if no route matched and no views were found
-        if !has_route && (!self.presenter || !self.presenter.presented?)
-          Log.enter "[404] Not Found"
-          handler404 = @handler_store[@handler_code_to_name[404]] if @handler_code_to_name[404]
-          if handler404
-            catch(:halt) {
-              trampoline(handler404)
-            }
-          end
-          self.response.status = 404
-        end
+        @has_route = true if route_block
+        @has_route = trampoline(route_block)
       } #end :halt catch block
 
       # This needs to be in the 'return' position (last statement)
@@ -396,6 +385,20 @@ module Pakyow
     # This is NOT a useless method, it's a part of the external api
     def reload
       load_app
+    end
+
+    def routed?
+      @has_route
+    end
+
+    def handle_404
+      handler404 = @handler_store[@handler_code_to_name[404]] if @handler_code_to_name[404]
+      if handler404
+        catch(:halt) {
+          trampoline(handler404)
+        }
+      end
+      self.response.status = 404
     end
 
     protected
