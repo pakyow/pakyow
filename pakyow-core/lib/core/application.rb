@@ -393,6 +393,11 @@ module Pakyow
       self.request.env['rack.session'] || {}
     end
 
+    # This is NOT a useless method, it's a part of the external api
+    def reload
+      load_app
+    end
+
     protected
 
     def prepare_route_block(route, method)
