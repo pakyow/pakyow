@@ -87,9 +87,6 @@ module Pakyow
         self.middleware_proc = block
       end
       
-      def parsers(&block)
-        self.parsers_proc = block
-      end
 
       protected
 

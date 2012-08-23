@@ -77,13 +77,22 @@ module Pakyow
           else
             view_path = "#{Configuration::Presenter.view_dir}/#{arg}"
           end
-          
-          file_ext = view_path.split('.')[-1]
+
+          # run parsers
+          format = view_path.split('.')[-1].to_sym
           content = File.read(view_path)
-          if parser = Pakyow.app.parser_store[file_ext.to_sym]
-            content = parser.call(content)
+          catch(:parse_complete) do
+            while true do
+              begin
+                content = Pakyow.app.presenter.parser_store[format].call(content)
+                throw :parse_complete
+              rescue
+                Log.warn("No parser defined for extension #{format}") unless format.to_sym == :html
+                throw :parse_complete
+              end
+            end
           end
-          
+
           if is_root_view then
             @doc = Nokogiri::HTML::Document.parse(content)
           else
