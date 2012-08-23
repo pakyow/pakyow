@@ -9,6 +9,5 @@ require 'logger'
 require 'cgi'
 
 # Base
-autoload :Pakyow, 'core/base'
-
+require 'core/base'
 include Pakyow

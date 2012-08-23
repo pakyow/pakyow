@@ -1,10 +1,18 @@
 module Pakyow
   module Presenter
     class Presenter < PresenterBase
-      attr_accessor :current_context
+      class << self
+        #TODO deal with this when view parsers are in place
+        attr_accessor :proc
+      end
+
+      attr_accessor :current_context, :parser_store
 
       def initialize
+        @parser_store = {}
         reset_state()
+
+        self.instance_eval(&Presenter.proc) if Presenter.proc
       end
 
       #
@@ -128,7 +136,8 @@ module Pakyow
       #
 
       def with_container(container, &block)
-        ViewContext.new(self.view.find("##{container}").first).instance_eval(&block)
+        v = self.view.find("##{container}").first
+        ViewContext.new(v).instance_exec(v, &block)
       end
 
       #
@@ -166,18 +175,17 @@ module Pakyow
         end
         return unless v_p
 
+        return unless view_info = @view_lookup_store.view_info(v_p)
+        @root_path ||= view_info[:root_view]
+
         if Configuration::Base.presenter.view_caching
-          r_v = @populated_root_view_cache[v_p]
-          if r_v then
+          r_v = @populated_root_view_cache.get([v_p, @root_path]) {
+            populate_view(LazyView.new(@root_path, true), view_info[:views])
+          }
             @root_view = r_v.dup
             @presented = true
-          end
         else
-          return unless view_info = @view_lookup_store.view_info(v_p)
-          @root_path ||= view_info[:root_view]
-          @root_view = LazyView.new(@root_path, true)
-          views = view_info[:views]
-          populate_view(self.view, views)
+          @root_view = populate_view(LazyView.new(@root_path, true), view_info[:views])
           @presented = true
         end
       end
@@ -198,13 +206,14 @@ module Pakyow
       end
 
       def build_root_view_cache(view_info)
-        r_v_c = {}
+        cache = Pakyow::Cache.new
         view_info.each{|dir,info|
           r_v = LazyView.new(info[:root_view], true)
           populate_view(r_v, info[:views])
-          r_v_c[dir] = r_v
+          key = [dir, info[:root_view]]
+          cache.put(key, r_v)
         }
-        r_v_c
+        cache
       end
 
       # populates the top_view using view_store data by recursively building
@@ -221,6 +230,10 @@ module Pakyow
           end
         }
         top_view
+      end
+
+      def parser(format, &block)
+        @parser_store[format.to_sym] = block
       end
 
     end

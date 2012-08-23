@@ -1,3 +1,20 @@
+= 0.7.1 / 2012-01-08
+
+  * View caching fixes
+  * Changed binder to allow definition for multiple endpoints
+  * Changed in_context to accept context as block argument
+  * Changed action binder to add leading slash if needed
+  * Change to allow a view's content to be set to nil
+  * Fixed Views#find method
+
+= 0.7.0 / 2011-11-19
+
+  * Cleaned up core/presenter interface
+  * Optimized view caching
+  * Binding occurs on the label an object is being bound to, not the object type
+  * Root view override in index directories no longer specify a root view for siblings
+  * Fixed problem binding to a checkbox who’s value attribute is not set
+
 = 0.6.3 / 2011-09-13
 
   * Fixes binding to bindings defined by HTML 'name' attribute
