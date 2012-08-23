@@ -5,11 +5,14 @@ require 'core/request'
 require 'core/loader'
 require 'core/application'
 require 'core/route_store'
-require 'core/logger'
-require 'core/static'
-require 'core/reloader'
 require 'core/cache'
 require 'core/presenter_base'
+
+# middlewares
+require 'core/middleware/logger'
+require 'core/middleware/static'
+require 'core/middleware/reloader'
+require 'core/middleware/presenter'
 
 # utils
 require 'utils/string'

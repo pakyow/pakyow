@@ -1,7 +1,8 @@
 module Pakyow
   class Application
     class << self
-      attr_accessor :routes_proc, :handlers_proc, :middleware_proc, :configurations
+      attr_accessor :core_proc, :middleware_proc, :configurations
+
 
       # Sets the path to the application file so it can be reloaded later.
       #
@@ -70,32 +71,22 @@ module Pakyow
         self.configurations[environment] = block
       end
 
-      # Creates routes. Example:
-      # routes { get '/' { # do something } }
+      # The block that stores routes, handlers, and hooks.
       #
-      def routes(&block)
-        self.routes_proc = block
+      def core(&block)
+        self.core_proc = block
       end
 
-      # Creates handlers for later execution.
-      # The handler can be created one of two ways:
+      # The block that stores presenter related things.
       #
-      # Define a controller/action handler with an associate response status:
-      # handler(name, 404, :ApplicationController, :handle_404)
-      #
-      # Specify a block as a handler:
-      # handler(name, 404) { # handle error }
-      #
-      # If a controller calls #invoke_handler!(name) then the
-      # handler defined for that code will be invoked.
-      #
-      def handlers(&block)
-        self.handlers_proc = block
+      def presenter(&block)
+        Configuration::Base.app.presenter.proc = block
       end
 
       def middleware(&block)
         self.middleware_proc = block
       end
+      
 
       protected
 
@@ -107,9 +98,10 @@ module Pakyow
 
         self.builder.use(Rack::MethodOverride)
         self.builder.instance_eval(&self.middleware_proc) if self.middleware_proc
-        self.builder.use(Pakyow::Static) if Configuration::Base.app.static
-        self.builder.use(Pakyow::Logger) if Configuration::Base.app.log
-        self.builder.use(Pakyow::Reloader) if Configuration::Base.app.auto_reload
+        self.builder.use(Pakyow::Middleware::Static) if Configuration::Base.app.static
+        self.builder.use(Pakyow::Middleware::Presenter) if Configuration::Base.app.presenter
+        self.builder.use(Pakyow::Middleware::Logger) if Configuration::Base.app.log
+        self.builder.use(Pakyow::Middleware::Reloader) if Configuration::Base.app.auto_reload
         
         @prepared = true
 
@@ -128,9 +120,12 @@ module Pakyow
       end
 
       def detect_handler
-        ['thin', 'mongrel', 'webrick'].each do |server|
+        handlers = ['thin', 'mongrel', 'webrick']
+        handlers.unshift(Configuration::Base.server.handler) if Configuration::Base.server.handler
+        
+        handlers.each do |handler|
           begin
-            return Rack::Handler.get(server)
+            return Rack::Handler.get(handler)
           rescue LoadError
           rescue NameError
           end
@@ -151,7 +146,7 @@ module Pakyow
 
     include Helpers
 
-    attr_accessor :request, :response, :presenter, :route_store, :restful_routes, :handler_store
+    attr_accessor :request, :response, :presenter, :route_store, :restful_routes, :handler_store, :parser_store
 
     def initialize
       Pakyow.app = self
@@ -215,16 +210,7 @@ module Pakyow
       catch(:halt) {
         route_block = prepare_route_block(self.request.path, self.request.method)
         has_route = true if route_block
-
-        if self.presenter
-          self.presenter.prepare_for_request(self.request)
-        end
-
         has_route = trampoline(route_block)
-
-        if self.presenter
-          self.response.body = [self.presenter.content]
-        end
 
         # 404 if no route matched and no views were found
         if !has_route && (!self.presenter || !self.presenter.presented?)
@@ -232,13 +218,7 @@ module Pakyow
           handler404 = @handler_store[@handler_code_to_name[404]] if @handler_code_to_name[404]
           if handler404
             catch(:halt) {
-              if self.presenter
-                self.presenter.prepare_for_request(self.request)
-              end
               trampoline(handler404)
-              if self.presenter then
-                self.response.body = [self.presenter.content]
-              end
             }
           end
           self.response.status = 404
@@ -410,14 +390,22 @@ module Pakyow
         @handler_code_to_name[code] = name
       end
     end
-
-    #TODO: don't like this...
-    def reload
-      load_app
-    end
     
+    def parser(extensions, &block)
+      extensions = [extensions] unless extensions.is_a? Array
+      
+      extensions.each do |e|
+        @parser_store[e] = block
+      end
+    end
+
     def session
       self.request.env['rack.session'] || {}
+    end
+
+    # This is NOT a useless method, it's a part of the external api
+    def reload
+      load_app
     end
 
     protected
@@ -575,24 +563,21 @@ module Pakyow
       @loader = Loader.new unless @loader
       @loader.load!(Configuration::Base.app.src_dir)
 
-      load_handlers
-      load_routes
+      self.load_core
 
-      # Reload views
-      if self.presenter
-        self.presenter.load
-      end
+      # Reload presenter
+      self.presenter.load if self.presenter
     end
 
-    def load_handlers
+    # Evaluates core_proc
+    #
+    def load_core
       @handler_store = {}
-      self.instance_eval(&self.class.handlers_proc) if self.class.handlers_proc
-    end
-
-    def load_routes
       @route_store = RouteStore.new
-      self.instance_eval(&self.class.routes_proc) if self.class.routes_proc
+
+      self.instance_eval(&self.class.core_proc) if self.class.core_proc
     end
+    
     
     # Send the response and cleanup.
     #

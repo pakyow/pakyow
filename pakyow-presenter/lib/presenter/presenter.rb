@@ -1,10 +1,18 @@
 module Pakyow
   module Presenter
     class Presenter < PresenterBase
-      attr_accessor :current_context
+      class << self
+        #TODO deal with this when view parsers are in place
+        attr_accessor :proc
+      end
+
+      attr_accessor :current_context, :parser_store
 
       def initialize
+        @parser_store = {}
         reset_state()
+
+        self.instance_eval(&Presenter.proc) if Presenter.proc
       end
 
       #
@@ -222,6 +230,10 @@ module Pakyow
           end
         }
         top_view
+      end
+
+      def parser(format, &block)
+        @parser_store[format.to_sym] = block
       end
 
     end
