@@ -23,6 +23,14 @@ module Pakyow
           return @view.doc[method.to_s]
         end
       end
+
+      def class(*args)
+        method_missing(:class, *args)
+      end
+      
+      def id(*args)
+        method_missing(:id, *args)
+      end
     end
 
     class AttributesCollection

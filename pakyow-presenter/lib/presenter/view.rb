@@ -144,14 +144,21 @@ module Pakyow
       #
       def attributes(*args)
         if args.empty?
-          @previous_method = :attributes
-          return self
+          return Attributes.new(self)
         else
-          args[0].each_pair { |name, value|
-            @previous_method = :attributes
-            self.send(name.to_sym, value)            
-          }
+          #TODO mass assign attributes (if we still want to do this)
+          #TODO use this instead of (or combine with) bind_attributes_to_doc?
         end
+
+        # if args.empty?
+        #   @previous_method = :attributes
+        #   return self
+        # else
+        #   args[0].each_pair { |name, value|
+        #     @previous_method = :attributes
+        #     self.send(name.to_sym, value)            
+        #   }
+        # end
       end
       
       def remove
@@ -204,44 +211,6 @@ module Pakyow
       
       def before(view)
         self.doc.before(view.doc)
-      end
-      
-      def method_missing(method, *args)
-        return unless @previous_method == :attributes
-        @previous_method = nil
-        
-        if method.to_s.include?('=')
-          attribute = method.to_s.gsub('=', '')
-          value = args[0]
-
-          if value.is_a? Proc
-            value = value.call(self.doc[attribute])
-          end
-
-          if value.nil?
-            self.doc.remove_attribute(attribute)
-          else
-            self.doc[attribute] = value
-          end
-        else
-          return self.doc[method.to_s]
-        end
-      end
-      
-      def class(*args)
-        if @previous_method == :attributes
-          method_missing(:class, *args)
-        else
-          super
-        end
-      end
-      
-      def id
-        if @previous_method == :attributes
-          method_missing(:id)
-        else
-          super
-        end
       end
       
       #TODO replace with a method that finds data-containers

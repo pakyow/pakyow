@@ -12,8 +12,9 @@ module Pakyow
       end
       
       def attributes(*args)
-        self.each {|e| e.attributes(*args)}
-        return self
+        collection = AttributesCollection.new
+        self.each{|v| collection << v.attributes}
+        return collection
       end
       
       def remove
@@ -68,22 +69,6 @@ module Pakyow
         if val.is_a? View
           @views << val
         end
-      end
-      
-      def method_missing(method, *args)
-        if method.to_s.include?('=')
-          self.each {|e| e.send(method, *args)}
-        else
-          self.map {|e| e.send(method, *args)}
-        end
-      end
-      
-      def class(*args)
-        method_missing(:class, *args)
-      end
-      
-      def id
-        method_missing(:id)
       end
       
       def [](i)
