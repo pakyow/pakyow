@@ -13,10 +13,10 @@ module Pakyow
         request.working_path = base_route
         request.working_method = request.method
         
-        Pakyow.app.presenter.prepare_for_request(request)
-        content = Pakyow.app.presenter.content
-
+        Pakyow.app.presenter.prepare_for_request(request)        
         @app.call(env)
+
+        content = Pakyow.app.presenter.content
 
         #TODO handle this with catch (like in logger)
         if Pakyow.app.response.status == 404
