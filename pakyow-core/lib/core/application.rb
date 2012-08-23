@@ -3,6 +3,7 @@ module Pakyow
     class << self
       attr_accessor :core_proc, :middleware_proc, :configurations
 
+
       # Sets the path to the application file so it can be reloaded later.
       #
       def inherited(subclass)
@@ -85,6 +86,7 @@ module Pakyow
       def middleware(&block)
         self.middleware_proc = block
       end
+      
 
       protected
 
@@ -144,7 +146,7 @@ module Pakyow
 
     include Helpers
 
-    attr_accessor :request, :response, :presenter, :route_store, :restful_routes, :handler_store
+    attr_accessor :request, :response, :presenter, :route_store, :restful_routes, :handler_store, :parser_store
 
     def initialize
       Pakyow.app = self
@@ -388,6 +390,14 @@ module Pakyow
         @handler_code_to_name[code] = name
       end
     end
+    
+    def parser(extensions, &block)
+      extensions = [extensions] unless extensions.is_a? Array
+      
+      extensions.each do |e|
+        @parser_store[e] = block
+      end
+    end
 
     def session
       self.request.env['rack.session'] || {}
@@ -567,6 +577,7 @@ module Pakyow
 
       self.instance_eval(&self.class.core_proc) if self.class.core_proc
     end
+    
     
     # Send the response and cleanup.
     #
