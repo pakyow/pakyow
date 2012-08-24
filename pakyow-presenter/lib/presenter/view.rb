@@ -80,18 +80,8 @@ module Pakyow
 
           # run parsers
           format = view_path.split('.')[-1].to_sym
-          content = File.read(view_path)
-          catch(:parse_complete) do
-            while true do
-              begin
-                content = Pakyow.app.presenter.parser_store[format].call(content)
-                throw :parse_complete
-              rescue
-                Log.warn("No parser defined for extension #{format}") unless format.to_sym == :html
-                throw :parse_complete
-              end
-            end
-          end
+          content = parse_content(File.read(view_path), format)
+          
 
           if is_root_view then
             @doc = Nokogiri::HTML::Document.parse(content)
@@ -100,6 +90,15 @@ module Pakyow
           end
         else
           raise ArgumentError, "No View for you! Come back, one year."
+        end
+      end
+
+      def parse_content(content, format)
+        begin
+          Pakyow.app.presenter.parser_store[format].call(content)
+        rescue
+          Log.warn("No parser defined for extension #{format}") unless format.to_sym == :html
+          content
         end
       end
 
