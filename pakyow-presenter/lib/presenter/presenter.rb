@@ -6,10 +6,13 @@ module Pakyow
         attr_accessor :proc
       end
 
-      attr_accessor :current_context
+      attr_accessor :current_context, :parser_store
 
       def initialize
+        @parser_store = {}
         reset_state()
+
+        self.instance_eval(&Presenter.proc) if Presenter.proc
       end
 
       #
@@ -227,6 +230,10 @@ module Pakyow
           end
         }
         top_view
+      end
+
+      def parser(format, &block)
+        @parser_store[format.to_sym] = block
       end
 
     end
