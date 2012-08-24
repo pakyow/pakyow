@@ -6,9 +6,9 @@ module Pakyow
       class << self
         attr_accessor :options
         
-        def binder_for(klass)
-          View.binders = {} unless View.binders
-          View.binders[klass.to_s.to_sym] = self
+        def binder_for(*args)
+          View.binders ||= {}
+          args.each { |klass| View.binders[klass.to_s.to_sym] = self }
         end
         
         def options_for(*args)
@@ -17,11 +17,14 @@ module Pakyow
         end
       end
       
-      attr_accessor :bindable, :object
+      attr_accessor :bindable
       
-      def initialize(bindable, object)
+      def initialize(bindable)
         self.bindable = bindable
-        self.object = object
+      end
+
+      def value_for_prop(prop)
+        self.class.method_defined?(prop) ? self.send(prop) : bindable[prop]
       end
       
       def fetch_options_for(attribute)
@@ -34,26 +37,6 @@ module Pakyow
             return options
           end
         end
-      end
-      
-      def action
-        unless routes = Pakyow.app.restful_routes[bindable.class.name.to_sym]
-          Log.warn "Attempting to bind object to #{bindable.class.name.downcase}[action] but could not find restful routes for #{bindable.class.name}."
-          return {}
-        end
-        
-        if id = bindable.id
-          self.object.add_child('<input type="hidden" name="_method" value="put">')
-          
-
-          action = routes[:update].gsub(':id', id.to_s)
-          method = "post"
-        else
-          action = routes[:create]
-          method = "post"
-        end
-        
-        return { :action => action, :method => method }
       end
     end
   end
