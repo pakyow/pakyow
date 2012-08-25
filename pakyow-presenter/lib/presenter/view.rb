@@ -4,44 +4,105 @@ module Pakyow
       class << self
         attr_accessor :binders, :default_view_path, :default_is_root_view
 
+        def binder_for_scope(scope, bindable)
+          return unless View.binders
+          b_c = View.binders[scope] and b_c.new(bindable)
+        end
+
         def view_path(dvp, dirv=false)
           self.default_view_path = dvp
           self.default_is_root_view = dirv
         end
+
+        def self_closing_tag?(tag)
+          %w[area base basefont br hr input img link meta].include? tag
+        end
+
+        def form_field?(tag)
+          %w[input select textarea button].include? tag
+        end
+
+        def form_tag?(tag)
+          %w[form].include? tag
+        end
+
+        def tag_without_value?(tag)
+          %w[select].include? tag
+        end
+
+        def action_for_scoped_object(scope, o, doc)
+          #TODO rewrite to handle restful routes defined for data types, not (just) model names
+          unless routes = Pakyow.app.restful_routes[o.class.name.to_sym]
+            Log.warn "Attempting to bind object to #{o.class.name.downcase}[action] but could not find restful routes for #{o.class.name}."
+            return ''
+          end
+          
+          if id = o[:id]
+            doc.add_child('<input type="hidden" name="_method" value="put">')
+            
+            action = routes[:update].gsub(':id', id.to_s)
+            method = "post"
+          else
+            action = routes[:create]
+            method = "post"
+          end
+          
+          doc['action'] = File.join('/', action)
+          doc['method'] = method
+        end
       end
 
-      attr_accessor :doc
+      attr_accessor :doc, :scoped_as, :scopes, :bindings
 
       def dup
-        self.class.new(@doc.dup)
+        v = self.class.new(@doc.dup)
+        v.scoped_as = self.scoped_as
+        v
       end
 
       def initialize(arg=nil, is_root_view=false)
         arg = self.class.default_view_path if arg.nil? && self.class.default_view_path
         is_root_view = self.class.default_is_root_view if arg.nil? && self.class.default_is_root_view
-        
-        if arg.is_a?(Nokogiri::XML::Element) || arg.is_a?(Nokogiri::XML::Document)
+
+        if arg.is_a?(Nokogiri::XML::Element) || arg.is_a?(Nokogiri::XML::Document) || arg.is_a?(Nokogiri::HTML::DocumentFragment)
           @doc = arg
         elsif arg.is_a?(Pakyow::Presenter::Views)
           @doc = arg.first.doc.dup
         elsif arg.is_a?(Pakyow::Presenter::View)
           @doc = arg.doc.dup
         elsif arg.is_a?(String)
+          #TODO use File#join
           if arg[0, 1] == '/'
             view_path = "#{Configuration::Presenter.view_dir}#{arg}"
           else
             view_path = "#{Configuration::Presenter.view_dir}/#{arg}"
           end
+
+          # run parsers
+          format = view_path.split('.')[-1].to_sym
+          content = parse_content(File.read(view_path), format)
+          
+
           if is_root_view then
-            @doc = Nokogiri::HTML::Document.parse(File.read(view_path))
+            @doc = Nokogiri::HTML::Document.parse(content)
           else
-            @doc = Nokogiri::HTML.fragment(File.read(view_path))
+            @doc = Nokogiri::HTML.fragment(content)
           end
         else
           raise ArgumentError, "No View for you! Come back, one year."
         end
       end
 
+      def parse_content(content, format)
+        begin
+          Pakyow.app.presenter.parser_store[format].call(content)
+        rescue
+          Log.warn("No parser defined for extension #{format}") unless format.to_sym == :html
+          content
+        end
+      end
+
+      #TODO rewrite to use data-container
       def add_content_to_container(content, container)
         # TODO This .css call works but the equivalent .xpath call doesn't
         # Need to investigate why since the .css call is internally turned into a .xpath call
@@ -50,87 +111,9 @@ module Pakyow
           o.add_child(content)
         end
       end
-      
-      def add_resource(*args)
-        type, resource, options = args
-        options ||= {}
-        
-        content = case type
-          when :js  then '<script src="' + Pakyow::Configuration::Presenter.javascripts + '/' + resource.to_s + '.js"></script>'
-          when :css then '<link href="' + Pakyow::Configuration::Presenter.stylesheets + '/' + resource.to_s + '.css" rel="stylesheet" media="' + (options[:media] || 'screen, projection') + '" type="text/css">'
-        end
-        
-        if self.doc.fragment? || self.doc.element?
-          self.doc.add_previous_sibling(content)
-        else
-          self.doc.xpath("//head/*[1]").before(content)
-        end
-      end
-      
-      def remove_resource(*args)
-        type, resource, options = args
-        options ||= {}
-        
-        case type
-          when :js then self.doc.css("script[src='#{Pakyow::Configuration::Presenter.javascripts}/#{resource}.js']").remove
-          when :css then self.doc.css("link[href='#{Pakyow::Configuration::Presenter.stylesheets}/#{resource}.css']").remove
-        end
-      end
-      
-      def find(element)
-        group = Views.new
-        @doc.css(element).each {|e| group << View.new(e)}
-        
-        return group
-      end
-      
-      def in_context(&block)
-        ViewContext.new(self).instance_exec(self, &block)
-      end
-      
-      def bind(object, opts = {})
-        bind_as = opts[:to] ? opts[:to].to_s : StringUtils.underscore(object.class.name.split('::').last)
-        
-        @doc.traverse do |o|
-          if attribute = o.get_attribute('itemprop')
-            selector = attribute
-          elsif attribute = o.get_attribute('name')
-            selector = attribute
-          else
-            next
-          end
-          
-          next unless attribute
-          
-          type_len    = bind_as.length
-          next if selector[0, type_len + 1] != "#{bind_as}["
-          
-          attribute   = selector[type_len + 1, attribute.length - type_len - 2]
-          
-          binding = {
-            :element => o,
-            :attribute => attribute.to_sym,
-            :selector => selector
-          }
-          
-          bind_object_to_binding(object, binding, bind_as)
-        end
-      end
-      
-      def repeat_for(objects, opts = {}, &block)
-        if o = @doc
-          objects.each do |object|
-            view = View.new(self)
-            view.bind(object, opts)
-            ViewContext.new(view).instance_exec(object, view, &block) if block_given?
-            
-            o.add_previous_sibling(view.doc)
-          end
-          
-          o.remove
-        end
-      end
 
+      #TODO rewrite to use data-container
+            # is this ever called, or only the one on LazyView?
       def reset_container(container)
         return unless @doc
         return unless o = @doc.css("*[id='#{container}']").first
@@ -156,6 +139,7 @@ module Pakyow
         o.inner_html if o
       end
       
+      #TODO use data-container
       def to_html(container = nil)
         if container
           if o = @doc.css('#' + container.to_s).first
@@ -175,14 +159,21 @@ module Pakyow
       #
       def attributes(*args)
         if args.empty?
-          @previous_method = :attributes
-          return self
+          return Attributes.new(self)
         else
-          args[0].each_pair { |name, value|
-            @previous_method = :attributes
-            self.send(name.to_sym, value)            
-          }
+          #TODO mass assign attributes (if we still want to do this)
+          #TODO use this instead of (or combine with) bind_attributes_to_doc?
         end
+
+        # if args.empty?
+        #   @previous_method = :attributes
+        #   return self
+        # else
+        #   args[0].each_pair { |name, value|
+        #     @previous_method = :attributes
+        #     self.send(name.to_sym, value)            
+        #   }
+        # end
       end
       
       def remove
@@ -191,17 +182,18 @@ module Pakyow
       
       alias :delete :remove
       
-      def add_class(val)
-        self.doc['class'] = "#{self.doc['class']} #{val}".strip
-      end
+      #TODO replace this with a different syntax (?): view.attributes.class.add/remove/has?(:foo)
+      # def add_class(val)
+      #   self.doc['class'] = "#{self.doc['class']} #{val}".strip
+      # end
       
-      def remove_class(val)
-        self.doc['class'] = self.doc['class'].gsub(val.to_s, '').strip if self.doc['class']
-      end
+      # def remove_class(val)
+      #   self.doc['class'] = self.doc['class'].gsub(val.to_s, '').strip if self.doc['class']
+      # end
       
-      def has_class(val)
-        self.doc['class'].include? val
-      end
+      # def has_class(val)
+      #   self.doc['class'].include? val
+      # end
       
       def clear
         return if self.doc.blank?
@@ -221,53 +213,23 @@ module Pakyow
       def content=(content)
         self.doc.inner_html = Nokogiri::HTML.fragment(content.to_s)
       end
-
+      
       alias :html= :content=
       
-      def append(content)
-        self.doc.add_child(Nokogiri::HTML.fragment(content.to_s))
+      def append(view)
+        self.doc.add_child(view.doc)
       end
       
-      alias :render :append
-     
-      def method_missing(method, *args)
-        return unless @previous_method == :attributes
-        @previous_method = nil
-        
-        if method.to_s.include?('=')
-          attribute = method.to_s.gsub('=', '')
-          value = args[0]
-
-          if value.is_a? Proc
-            value = value.call(self.doc[attribute])
-          end
-
-          if value.nil?
-            self.doc.remove_attribute(attribute)
-          else
-            self.doc[attribute] = value
-          end
-        else
-          return self.doc[method.to_s]
-        end
+      def after(view)
+        self.doc.after(view.doc)
       end
       
-      def class(*args)
-        if @previous_method == :attributes
-          method_missing(:class, *args)
-        else
-          super
-        end
+      def before(view)
+        self.doc.before(view.doc)
       end
       
-      def id
-        if @previous_method == :attributes
-          method_missing(:id)
-        else
-          super
-        end
-      end
-
+      #TODO replace with a method that finds data-containers
+      #  where is this used? needed?
       def elements_with_ids
         elements = []
         @doc.traverse {|e|
@@ -278,106 +240,335 @@ module Pakyow
         elements
       end
 
+      def scope(name)
+        name = name.to_sym
+        @bindings ||= self.find_bindings
+
+        views = Views.new
+        @bindings.select{|b| b[:scope] == name}.each{|s| 
+          v = self.view_from_path(s[:path])
+          v.bindings = self.bindings_for_child_view(v)
+          v.scoped_as = s[:scope]
+
+          views << v
+        }
+
+        views
+      end
+      
+      def prop(name)
+        name = name.to_sym
+
+        views = Views.new
+        @bindings.each {|binding|
+          binding[:props].each {|prop|
+            if prop[:prop] == name
+              v = self.view_from_path(prop[:path])
+              v.bindings = self.bindings_for_child_view(v)
+
+              views << v
+            end
+          }
+        }
+
+        views
+      end
+
+      # call-seq:
+      #   with {|view| block}
+      #
+      # Creates a context in which view manipulations can be performed.
+      #
+      # Unlike previous versions, the context can only be referenced by the
+      # block argument. No `context` method will be available.s
+      #
+      def with
+        yield(self)
+      end
+
+      # call-seq:
+      #   for {|view, datum| block}
+      #
+      # Yields a view and its matching dataum. This is driven by the view,
+      # meaning datums are yielded until no more views are available. For
+      # the single View case, only one view/datum pair is yielded.
+      # 
+      # (this is basically Bret's `map` function)
+      #
+      def for(data, &block)
+        data = [data] unless data.instance_of?(Array)
+        block.call(self, data[0])
+      end
+
+      # call-seq:
+      #   match(data) => Views
+      #
+      # Returns a Views object that has been manipulated to match the data.
+      # For the single View case, the Views collection will consist n copies
+      # of self, where n = data.length.
+      #
+      def match(data)
+        data = [data] unless data.instance_of?(Array)
+
+        views = Views.new
+        data.each {|datum|
+          d_v = self.doc.dup
+          self.doc.before(d_v)
+
+          v = View.new(d_v)
+          v.bindings = self.bindings
+          #TODO set view scope
+
+          views << v
+        }
+
+        self.remove
+        views
+      end
+
+      # call-seq:
+      #   repeat(data) {|view, datum| block}
+      #
+      # Matches self with data and yields a view/datum pair.
+      #
+      def repeat(data, &block)
+        self.match(data).for(data, &block)
+      end
+
+      # call-seq:
+      #   bind(data)
+      #
+      # Binds data across existing scopes.
+      #
+      def bind(data, &block)
+        @bindings ||= self.find_bindings
+
+        scope = @bindings.first
+        binder = View.binder_for_scope(scope[:scope], data)
+
+        self.bind_data_to_scope(data, scope, binder)
+        yield(self, data) if block_given?
+      end
+
+      # call-seq:
+      #   apply(data)
+      #
+      # Matches self to data then binds data to the view.
+      #
+      def apply(data, &block)
+        views = self.match(data).bind(data, &block)
+      end
+
       protected
 
-      def bind_object_to_binding(object, binding, bind_as)
-        binder = nil
+      # returns an array of hashes that describe each scope
+      def find_bindings
+        bindings = []
+        breadth_first(@doc) {|o|
+          next unless scope = o[Configuration::Presenter.scope_attribute]
+
+          # find props
+          props = []
+          breadth_first(o) {|so|
+            # don't go into deeper scopes
+            break if so!= o && so[Configuration::Presenter.scope_attribute]
+
+            next unless prop = so[Configuration::Presenter.prop_attribute]
+            props << {:prop => prop.to_sym, :path => path_to(so)}
+          }
+
+          bindings << {:scope => scope.to_sym, :path => path_to(o), :props => props}
+        }
+
+        # determine nestedness (currently unused; leaving in case needed)
+        # bindings.each {|b|
+        #   nested = []
+        #   bindings.each {|b2|
+        #     b_doc = doc_from_path(b[:path])
+        #     b2_doc = doc_from_path(b2[:path])
+        #     nested << b2 if b2_doc.ancestors.include? b_doc
+        #   }
+
+        #   b[:nested_scopes] = nested
+        # }
         
-        if View.binders
-          b = View.binders[bind_as.to_sym] and binder = b.new(object, binding[:element])
-        end
+        return bindings
+      end
+
+      def bindings_for_child_view(child)
+        @bindings ||= self.find_bindings
         
-        if binder && binder.class.method_defined?(binding[:attribute])
-          value = binder.send(binding[:attribute])
-        else
-          if object.is_a? Hash
-            value = object[binding[:attribute]]
-          else
-            if Configuration::Base.app.dev_mode == true && !object.class.method_defined?(binding[:attribute])
-              Log.warn("Attempting to bind object to #{binding[:html_tag]}#{binding[:selector].gsub('*', '').gsub('\'', '')} but #{object.class.name}##{binding[:attribute]} is not defined.")
-              return
-            else
-              value = object.send(binding[:attribute])
-            end
+        child_path = self.path_to(child.doc)
+        child_path_len = child_path.length
+        child_bindings = []
+
+        @bindings.each {|binding|
+          # we want paths within the child path
+          if (child_path - binding[:path]).empty?
+            # update paths relative to child
+            dup = binding.dup
+
+            [dup].concat(dup[:props]).each{|p|
+              p[:path] = p[:path][child_path_len..-1]
+            }
+
+            child_bindings << dup
           end
-        end
-        
-        if value.is_a? Hash
-          value.each do |k, v|
-            if v.is_a? Proc
-              v = v.call(binding[:element][k.to_s])
-            end
-            
-            if v.nil?
-              binding[:element].remove_attribute(k.to_s)
-            elsif k == :content
-              bind_value_to_binding(v, binding, binder)
-            else
-              binding[:element][k.to_s] = v.to_s
-            end
-          end
-        else
-          bind_value_to_binding(value, binding, binder)
+        }
+
+        child_bindings
+      end
+
+      def breadth_first(doc)
+        queue = [doc]
+        until queue.empty?
+          node = queue.shift
+          yield node
+          queue.concat(node.children)
         end
       end
 
-      def bind_value_to_binding(value, binding, binder)
-        if !self.self_closing_tag?(binding[:element].name)
-          if binding[:element].name == 'select'
-            if binder
-              if options = binder.fetch_options_for(binding[:attribute])
-                html = ''
-                is_group = false
+      def path_to(child)
+        path = []
 
-                options.each do |opt|
-                  if opt.is_a?(Array)
-                    if opt.first.is_a?(Array)
-                      opt.each do |opt2|
-                        html << '<option value="' + opt2[0].to_s + '">' + opt2[1].to_s + '</option>'
-                      end
-                    else
-                      html << '<option value="' + opt[0].to_s + '">' + opt[1].to_s + '</option>'
-                    end
+        return path if child == @doc
+
+        child.ancestors.each {|a|
+          # since ancestors goes all the way to doc root, stop when we get to the level of @doc
+          break if a.children.include?(@doc)
+
+          path.unshift(a.children.index(child))
+          child = a
+        }
+        
+        return path
+      end
+
+      def doc_from_path(path)
+        o = @doc
+
+        # if path is empty we're at self
+        return o if path.empty?
+
+        path.each {|i|
+          if child = o.children[i]
+            o = child
+          else
+            break
+          end
+        }
+
+        return o
+      end
+
+      def view_from_path(path)
+        View.new(doc_from_path(path))
+      end
+
+      def bind_data_to_scope(data, scope, binder = nil)
+        return unless data
+
+        # set form action
+        self.set_form_action_for_scope_with_data(scope, data) 
+
+        scope[:props].each {|p|
+          k = p[:prop]
+          v = binder ? binder.value_for_prop(k) : data[k]
+
+          doc = doc_from_path(p[:path])
+
+          # handle form field
+          self.bind_to_form_field(doc, scope, k, v, binder) if View.form_field?(doc.name)
+
+          # bind attributes or value
+          v.is_a?(Hash) ? self.bind_attributes_to_doc(v, doc) : self.bind_value_to_doc(v, doc)
+        }
+      end
+
+      def bind_value_to_doc(value, doc)
+        return unless value
+
+        tag = doc.name
+        return if View.tag_without_value?(tag)
+        View.self_closing_tag?(tag) ? doc['value'] = value : doc.inner_html = value
+      end
+
+      def bind_attributes_to_doc(attrs, doc)
+        attrs.each do |attr, v|
+          bind_value_to_doc(v, doc) and next if attr == :content
+
+          attr = attr.to_s
+          v = v.call(doc[attr]) if v.is_a?(Proc)
+          v.nil? ? doc.remove_attribute(attr) : doc[attr] = v.to_s
+        end
+      end
+
+      def set_form_action_for_scope_with_data(scope, data)
+        doc = self.doc_from_path(scope[:path])
+        return if !View.form_tag?(doc.name)
+
+        #TODO rewrite upon refactoring routing (so restful template works right)
+        doc['action'] = View.action_for_scoped_object(scope, data, doc)
+      end
+
+      def bind_to_form_field(doc, scope, prop, value, binder)
+        return unless !doc['name'] || doc['name'].empty?
+        
+        # set name on form element
+        doc['name'] = "#{scope[:scope]}[#{prop}]"
+
+        # special binding for checkboxes and radio buttons
+        if doc.name == 'input' && (doc[:type] == 'checkbox' || doc[:type] == 'radio')
+          if value == true || (doc[:value] && doc[:value] == value.to_s)
+            doc[:checked] = 'checked'
+          else
+            doc.delete('checked')
+          end
+
+          # coerce to string since booleans are often used 
+          # and fail when binding to a view
+          value = value.to_s
+        # special binding for selects
+        elsif doc.name == 'select' && binder && options = binder.fetch_options_for(prop)
+          option_nodes = Nokogiri::HTML::DocumentFragment.parse ""
+          Nokogiri::HTML::Builder.with(option_nodes) do |h|
+            until options.length == 0
+              catch :optgroup do
+                options.each_with_index { |o,i|
+
+                  # an array containing value/content
+                  if o.is_a?(Array)
+                    h.option o[1], :value => o[0]
+                    options.delete_at(i)
+                  # likely an object (e.g. string); start a group
                   else
-                    html << "</optgroup>" if is_group
-                    html << '<optgroup label="' + opt.to_s + '">'
-                    is_group = true
+                    h.optgroup(:label => o) {
+                      options.delete_at(i)
+
+                      options[i..-1].each_with_index { |o2,i2|
+                        # starting a new group
+                        throw :optgroup if !o2.is_a?(Array)
+
+                        h.option o2[1], :value => o2[0]
+                        options.delete_at(i)
+                      }
+                    }
                   end
-                end
 
-                html << "</optgroup>" if is_group
-
-                binding[:element].inner_html = Nokogiri::HTML::fragment(html)
+                }
               end
-            end
+            end                    
+          end
 
-            if opt = binding[:element].css('option[value="' + value.to_s + '"]').first
-              opt['selected'] = 'selected'
-            end
-          else
-            binding[:element].inner_html = Nokogiri::HTML.fragment(value.to_s)
-          end
-        elsif binding[:element].name == 'input' && binding[:element][:type] == 'checkbox'
-          if value == true || (binding[:element].attributes['value'] && binding[:element].attributes['value'].value == value.to_s)
-            binding[:element]['checked'] = 'checked'
-          else
-            binding[:element].delete('checked')
-          end
-        elsif binding[:element].name == 'input' && binding[:element][:type] == 'radio'
-          if binding[:element].attributes['value'].value == value.to_s
-            binding[:element]['checked'] = 'checked'
-          else
-            binding[:element].delete('checked')
-          end
-        else
-          binding[:element]['value'] = value.to_s
+          doc.add_child(option_nodes)
+        end
+
+        # select appropriate option
+        if o = doc.css('option[value="' + value.to_s + '"]').first
+          o[:selected] = 'selected'
         end
       end
-      
-      def self_closing_tag?(tag)
-        %w[area base basefont br hr input img link meta].include? tag
-      end
-      
+
     end
   end
 end

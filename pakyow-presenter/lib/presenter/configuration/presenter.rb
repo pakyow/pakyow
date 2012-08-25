@@ -2,7 +2,8 @@ module Pakyow
   module Configuration
     class Presenter
       class << self
-        attr_accessor :view_caching, :javascripts, :stylesheets, :view_dir, :default_view
+        attr_accessor :view_caching, :javascripts, :stylesheets, :view_dir, :default_view,
+        :scope_attribute, :prop_attribute
         
         # Location of javascripts
         def javascripts
@@ -24,6 +25,14 @@ module Pakyow
 
         def default_view
           @default_view || "pakyow.html"
+        end
+
+        def scope_attribute
+          @scope_attribute || "data-scope"
+        end
+
+        def prop_attribute
+          @prop_attribute || "data-prop"
         end
 
       end
