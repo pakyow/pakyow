@@ -2,7 +2,6 @@ module Pakyow
   module Presenter
     class Presenter < PresenterBase
       class << self
-        #TODO deal with this when view parsers are in place
         attr_accessor :proc
       end
 

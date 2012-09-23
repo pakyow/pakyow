@@ -147,7 +147,7 @@ module Pakyow
 
     include Helpers
 
-    attr_accessor :request, :response, :presenter, :route_store, :restful_routes, :handler_store, :parser_store
+    attr_accessor :request, :response, :presenter, :route_store, :restful_routes, :handler_store
 
     def initialize
       Pakyow.app = self
@@ -380,14 +380,6 @@ module Pakyow
       end
     end
     
-    def parser(extensions, &block)
-      extensions = [extensions] unless extensions.is_a? Array
-      
-      extensions.each do |e|
-        @parser_store[e] = block
-      end
-    end
-
     def session
       self.request.env['rack.session'] || {}
     end
