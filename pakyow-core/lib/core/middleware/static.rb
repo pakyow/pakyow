@@ -7,7 +7,7 @@ module Pakyow
       
       def call(env)
         if is_static?(env)
-          Pakyow.app.response = Rack::Response.new
+          response = Rack::Response.new
           
           catch(:halt) do
             Pakyow.app.send_file!(File.join(Configuration::Base.app.public_dir, env['PATH_INFO']))

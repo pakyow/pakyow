@@ -6,17 +6,18 @@ module Pakyow
       end
 
       def call(env)
-        request = Request.new(env)
+        Pakyow.app.presenter.prepare_for_request(Pakyow.app.request)
 
-        #TODO dry up with application (move to Request#new?)
-        base_route, ignore_format = StringUtils.split_at_last_dot(request.path)
-        request.working_path = base_route
-        request.working_method = request.method
-        
-        Pakyow.app.presenter.prepare_for_request(request)        
-        @app.call(env)
+        if r = catch(:rerouted) {
+                 @app.call(env)
+                 nil
+               }
 
-        Pakyow.app.response.body = [Pakyow.app.presenter.content]        
+          Pakyow.app.presenter.prepare_for_request(r)
+        end
+
+
+        Pakyow.app.response.body = [Pakyow.app.presenter.content]
         Pakyow.app.response.finish
       end
     end

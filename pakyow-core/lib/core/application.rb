@@ -3,15 +3,10 @@ module Pakyow
     class << self
       attr_accessor :core_proc, :middleware_proc, :configurations
 
-
       # Sets the path to the application file so it can be reloaded later.
       #
       def inherited(subclass)
         Pakyow::Configuration::App.application_path = parse_path_from_caller(caller[0])
-      end
-
-      def parse_path_from_caller(caller)
-        caller.match(/^(.+)(:?:\d+(:?:in `.+')?$)/)[1]
       end
 
       # Runs the application. Accepts the environment(s) to run, for example:
@@ -20,10 +15,11 @@ module Pakyow
       #
       def run(*args)
         return if running?
+
         @running = true
         self.builder.run(self.prepare(args))
         detect_handler.run(builder, :Host => Pakyow::Configuration::Base.server.host, :Port => Pakyow::Configuration::Base.server.port) do |server|
-          trap(:INT) { stop(server) }
+          trap(:INT)  { stop(server) }
           trap(:TERM) { stop(server) }
         end
       end
@@ -97,12 +93,17 @@ module Pakyow
         return if prepared?
 
         self.builder.use(Rack::MethodOverride)
+
+        self.builder.use(Pakyow::Middleware::Setup)
+        
         self.builder.instance_eval(&self.middleware_proc) if self.middleware_proc
-        self.builder.use(Pakyow::Middleware::NotFound)
-        self.builder.use(Pakyow::Middleware::Static) if Configuration::Base.app.static
-        self.builder.use(Pakyow::Middleware::Presenter) if Configuration::Base.app.presenter
-        self.builder.use(Pakyow::Middleware::Logger) if Configuration::Base.app.log
-        self.builder.use(Pakyow::Middleware::Reloader) if Configuration::Base.app.auto_reload
+
+        self.builder.use(Pakyow::Middleware::Static)      if Configuration::Base.app.static
+        self.builder.use(Pakyow::Middleware::Logger)      if Configuration::Base.app.log
+        self.builder.use(Pakyow::Middleware::Reloader)    if Configuration::Base.app.auto_reload
+        self.builder.use(Pakyow::Middleware::Presenter)   if Configuration::Base.app.presenter
+        self.builder.use(Pakyow::Middleware::Router)      unless Configuration::Base.app.ignore_routes
+        self.builder.use(Pakyow::Middleware::NotFound)    # always
         
         @prepared = true
 
@@ -143,11 +144,15 @@ module Pakyow
           Process.exit!
         end
       end
+
+      def parse_path_from_caller(caller)
+        caller.match(/^(.+)(:?:\d+(:?:in `.+')?$)/)[1]
+      end
     end
 
     include Helpers
 
-    attr_accessor :request, :response, :presenter, :route_store, :restful_routes, :handler_store
+    attr_accessor :request, :response, :presenter, :router
 
     def initialize
       Pakyow.app = self
@@ -166,91 +171,40 @@ module Pakyow
 
     # Interrupts the application and returns response immediately.
     #
+    #TODO move out of app into helpers available to route logic context
     def halt!
       throw :halt, self.response
     end
 
-    def invoke_route!(route, method=nil)
-      base_route, ignore_format = StringUtils.split_at_last_dot(route)
-      self.request.working_path = base_route
-      self.request.working_method = method if method
-      block = prepare_route_block(route, self.request.working_method)
-      throw :new_block, block
+    #TODO need this, but should be different (also consider renaming to #route (maybe w/o exclamation point))
+    #  possible name: reroute
+    #TODO move out of app into helpers available to route logic context
+    def reroute!(path, method=nil)
+      self.request.setup(path, method)
+      @router.reroute!(self.request)
     end
 
+    #TODO consider renaming this to #handle (maybe w/o exclamation point)
+    #TODO move out of app into helpers available to route logic context
     def invoke_handler!(name_or_code)
-      if block = @handler_store[name_or_code]
-        # we are given a name
-        code = @handler_name_to_code[name_or_code]
-        self.response.status = code if code
-        throw :new_block, block
-      elsif name = @handler_code_to_name[name_or_code]
-        # we are given a code
-        block = @handler_store[name]
-        self.response.status = name_or_code
-        throw :new_block, block
-      else
-        # no block to be found
-        # do we assume code if a number and set status?
-        self.response.status = name_or_code if name_or_code.is_a?(Fixnum)
-        # still need to stop execution, I think? But do nothing.
-        throw :new_block, nil
-      end
+      @router.handle!(name_or_code)
+    end
+
+    def setup_rr(env)
+      self.request = Request.new(env)
+      self.response = Response.new
     end
 
     # Called on every request.
     #
     def call(env)
-      self.request = Request.new(env)
-      self.response = Rack::Response.new
-      base_route, ignore_format = StringUtils.split_at_last_dot(self.request.path)
-      self.request.working_path = base_route
-      self.request.working_method = self.request.method
-
-      has_route = false
-      catch(:halt) {
-        route_block = prepare_route_block(self.request.path, self.request.method)
-        @has_route = true if route_block
-        @has_route = trampoline(route_block)
-      } #end :halt catch block
-
-      # This needs to be in the 'return' position (last statement)
-      finish!
-
-    rescue StandardError => error
-      self.request.error = error
-      handler500 = @handler_store[@handler_code_to_name[500]] if @handler_code_to_name[500]
-        if handler500
-          catch(:halt) {
-            if self.presenter
-              self.presenter.prepare_for_request(self.request)
-            end
-            trampoline(handler500)
-            if self.presenter then
-              self.response.body = [self.presenter.content]
-            end
-          } #end :halt catch block
-        end
-      self.response.status = 500
-
-      if Configuration::Base.app.errors_in_browser
-        self.response.body = []
-        self.response.body << "<h4>#{CGI.escapeHTML(error.to_s)}</h4>"
-        self.response.body << error.backtrace.join("<br />")
-      end
-
-      begin
-        # caught by other middleware (e.g. logger)
-        throw :error, error
-      rescue ArgumentError
-      end
-
       finish!
     end
 
     # Sends a file in the response (immediately). Accepts a File object. Mime
     # type is automatically detected.
     #
+    #TODO move out of app into helpers available to route logic context
     def send_file!(source_file, send_as = nil, type = nil)
       path = source_file.is_a?(File) ? source_file.path : source_file
       send_as ||= path
@@ -266,6 +220,7 @@ module Pakyow
     # Sends data in the response (immediately). Accepts the data, mime type,
     # and optional file name.
     #
+    #TODO move out of app into helpers available to route logic context
     def send_data!(data, type, file_name = nil)
       status = self.response ? self.response.status : 200
 
@@ -279,6 +234,7 @@ module Pakyow
 
     # Redirects to location (immediately).
     #
+    #TODO move out of app into helpers available to route logic context
     def redirect_to!(location, status_code = 302)
       headers = self.response ? self.response.header : {}
       headers = headers.merge({'Location' => location})
@@ -286,100 +242,8 @@ module Pakyow
       self.response = Rack::Response.new('', status_code, headers)
       halt!
     end
-
-    # Registers a route for GET requests. Route can be defined one of two ways:
-    # get('/', :ControllerClass, :action_method)
-    # get('/') { # do something }
-    #
-    # Routes for namespaced controllers (e.g. Admin::ControllerClass) can be defined like this:
-    # get('/', :Admin_ControllerClass, :action_method)
-    #
-    def get(route, *args, &block)
-      register_route(:user, route, block, :get, *args)
-    end
-
-    # Registers a route for POST requests (see #get).
-    #
-    def post(route, *args, &block)
-      register_route(:user, route, block, :post, *args)
-    end
-
-    # Registers a route for PUT requests (see #get).
-    #
-    def put(route, *args, &block)
-      register_route(:user, route, block, :put, *args)
-    end
-
-    # Registers a route for DELETE requests (see #get).
-    #
-    def delete(route, *args, &block)
-      register_route(:user, route, block, :delete, *args)
-    end
-
-    # Registers the default route (see #get).
-    #
-    def default(*args, &block)
-      register_route(:user, '/', block, :get, *args)
-    end
-
-    # Creates REST routes for a resource. Arguments: url, controller, model, hooks
-    #
-    def restful(url, controller, *args, &block)
-      model, hooks = parse_restful_args(args)
-
-      with_scope(:url => url.gsub(/^[\/]+|[\/]+$/,""), :model => model) do
-        nest_scope(&block) if block_given?
-
-        @restful_routes         ||= {}
-        @restful_routes[model]  ||= {} if model
-
-        @@restful_actions.each do |opts|
-          action_url = current_path
-          if suffix = opts[:url_suffix]
-            action_url = File.join(action_url, suffix)
-          end
-
-          # Create the route
-          register_route(:restful, action_url, nil, opts[:method], controller, opts[:action], hooks)
-
-          # Store url for later use (currently used by Binder#action)
-          @restful_routes[model][opts[:action]] = action_url if model
-        end
-
-        remove_scope
-      end
-    end
-
-    @@restful_actions = [
-      { :action => :edit, :method => :get, :url_suffix => 'edit/:id' },
-      { :action => :show, :method => :get, :url_suffix => ':id' },
-      { :action => :new, :method => :get, :url_suffix => 'new' },
-      { :action => :update, :method => :put, :url_suffix => ':id' },
-      { :action => :delete, :method => :delete, :url_suffix => ':id' },
-      { :action => :index, :method => :get },
-      { :action => :create, :method => :post }
-    ]
-
-    def hook(name, controller = nil, action = nil, &block)
-      block = build_controller_block(controller, action) if controller
-      @route_store.add_hook(name, block)
-    end
-
-    def handler(name, *args, &block)
-      code, controller, action = parse_handler_args(args)
-
-      if block_given?
-        @handler_store[name] = block
-      else
-        @handler_store[name] = build_controller_block(controller, action)
-      end
-
-      if code
-        @handler_name_to_code[name] = code
-        @handler_code_to_name[code] = name
-      end
-    end
     
+    #TODO move out of app into helpers available to route logic context
     def session
       self.request.env['rack.session'] || {}
     end
@@ -389,153 +253,15 @@ module Pakyow
       load_app
     end
 
+    #TODO: handle this somewhere else since it's related to the request cycle,
+    # not the application cycle (won't allow for concurrency)
     def routed?
-      @has_route
-    end
-
-    def handle_404
-      handler404 = @handler_store[@handler_code_to_name[404]] if @handler_code_to_name[404]
-      if handler404
-        catch(:halt) {
-          trampoline(handler404)
-        }
-      end
-      self.response.status = 404
+      @router.routed?
     end
 
     protected
 
-    def prepare_route_block(route, method)
-      set_request_format_from_route(route)
-      base_route, ignore_format = StringUtils.split_at_last_dot(route)
-      
-      if Pakyow::Configuration::App.ignore_routes
-        controller_block, packet = nil, {:vars=>{}, :data=>nil}
-      else
-        controller_block, packet = @route_store.get_block(base_route, method)
-      end
-
-      self.request.params.merge!(HashUtils.strhash(packet[:vars]))
-      self.request.route_spec = packet[:data][:route_spec] if packet[:data]
-      self.request.restful = packet[:data][:restful] if packet[:data]
-
-      controller_block
-    end
-
-    def trampoline(block)
-      last_call_has_block = (block == nil) ? false : true
-      while block do
-        block = catch(:new_block) {
-          block.call()
-          # Getting here means that call() returned normally (not via a throw)
-          :fall_through
-        } # end :invoke_route catch block
-        # If invoke_route! or invoke_handler! was called in the block, block will have a new value (nil or block).
-        # If neither was called, block will be :fall_through
-
-        if block == nil
-          last_call_has_block = false
-        elsif block == :fall_through
-          last_call_has_block = true
-          block = nil
-        end
-
-        if block && self.presenter
-          self.presenter.prepare_for_request(self.request)
-        end
-      end
-      last_call_has_block
-    end
-
-    def parse_route_args(args)
-      controller = args[0] if args[0] && (args[0].is_a?(Symbol) || args[0].is_a?(String))
-      action = args[1] if controller
-      hooks = args[2] if controller
-      unless controller
-        hooks = args[0] if args[0] && args[0].is_a?(Hash)
-      end
-      return controller, action, hooks
-    end
-
-    def parse_restful_args(args)
-      model = args[0] if args[0] && (args[0].is_a?(Symbol) || args[0].is_a?(String))
-      hooks = args[1] if model
-      unless model
-        hooks = args[0] if args[0] && args[0].is_a?(Hash)
-      end
-      return model, hooks
-    end
-
-    def parse_handler_args(args)
-      code = args[0] if args[0] && args[0].is_a?(Fixnum)
-      controller = args[1] if code && args[1]
-      action = args[2] if controller && args[2]
-      unless code
-        controller = args[0] if args[0]
-        action = args[1] if controller && args[1]
-      end
-      return code, controller, action
-    end
-
-    # Handles route registration.
-    #
-    def register_route(type, route, block, method, *args)
-      controller, action, hooks = parse_route_args(args)
-      if controller
-        block = build_controller_block(controller, action)
-      end
-
-      data = {:route_type=>type, :route_spec=>route}
-      if type == :restful
-        data[:restful] = {:restful_action=>action}
-      end
-      @route_store.add_route(route, block, method, data, hooks)
-    end
-
-    def build_controller_block(controller, action)
-      controller = eval(controller.to_s)
-      action ||= Configuration::Base.app.default_action
-
-      block = lambda {
-        instance = controller.new
-        request.controller  = instance
-        request.action      = action
-
-        instance.send(action)
-      }
-
-      block
-    end
-
-    def set_request_format_from_route(route)
-      route, format = StringUtils.split_at_last_dot(route)
-      self.request.format = ((format && (format[format.length - 1, 1] == '/')) ? format[0, format.length - 1] : format)
-    end
-
-    def with_scope(opts)
-      @scope         ||= {}
-      @scope[:path]  ||= []
-      @scope[:model] = opts[:model]
-
-      @scope[:path] << opts[:url]
-
-      yield
-    end
-
-    def remove_scope
-      @scope[:path].pop
-    end
-
-    def nest_scope(&block)
-      @scope[:path].insert(-1, ":#{StringUtils.underscore(@scope[:model].to_s)}_id")
-      yield
-      @scope[:path].pop
-    end
-
-    def current_path
-      @scope[:path].join('/')
-    end
-
+    #TODO need configuration options for cookies (plus ability to override for each?)
     def set_cookies
       if self.request.cookies && self.request.cookies != {}
         self.request.cookies.each do |key, value|
@@ -567,15 +293,13 @@ module Pakyow
     # Evaluates core_proc
     #
     def load_core
-      @handler_store = {}
-      @route_store = RouteStore.new
-
-      self.instance_eval(&self.class.core_proc) if self.class.core_proc
+      @router = Router.new
+      @router.instance_eval(&self.class.core_proc) if self.class.core_proc
     end
-    
     
     # Send the response and cleanup.
     #
+    #TODO remove exclamation
     def finish!
       set_cookies
       self.response.finish
