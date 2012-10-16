@@ -83,26 +83,26 @@ module Pakyow
     end
 
     def default(*args, &block)
-      self.register_route(:get, '/', *args)
+      self.register_route(:get, '/', *args, &block)
     end
 
-    def get(*args)
-      self.register_route(:get, *args)
+    def get(*args, &block)
+      self.register_route(:get, *args, &block)
     end
 
-    def put(*args)
-      self.register_route(:put, *args)
+    def put(*args, &block)
+      self.register_route(:put, *args, &block)
     end
 
-    def post(*args)
-      self.register_route(:post, *args)
+    def post(*args, &block)
+      self.register_route(:post, *args, &block)
     end
 
-    def delete(*args)
-      self.register_route(:delete, *args)
+    def delete(*args, &block)
+      self.register_route(:delete, *args, &block)
     end
-
-    def register_route(method, path, *args)
+    
+    def register_route(method, path, *args, &block)
       name, main_fns = args
 
       # necessary because names are optional and func could be passed in its place
