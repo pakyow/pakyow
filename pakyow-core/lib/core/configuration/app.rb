@@ -5,7 +5,7 @@ module Pakyow
         attr_accessor :dev_mode, :log, :public_dir, :root, :log_dir, 
         :presenter, :default_action, :ignore_routes, :error_level, 
         :default_environment, :application_path, :log_name, :src_dir,
-        :auto_reload, :errors_in_browser, :static
+        :auto_reload, :errors_in_browser, :static, :all_views_visible
         
         # Displays development-specific warnings.
         #
@@ -57,6 +57,10 @@ module Pakyow
         # Mockup mode
         def ignore_routes
           @ignore_routes.nil? ? false : @ignore_routes
+        end
+
+        def all_views_visible
+          @all_views_visible.nil? ? true : @all_views_visible
         end
         
         def default_environment

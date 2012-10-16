@@ -17,8 +17,7 @@ module Pakyow
 
           Pakyow.app.presenter.prepare_for_request(r)
         end
-
-
+        
         Pakyow.app.response.body = [Pakyow.app.presenter.content]
         Pakyow.app.response.finish
       end

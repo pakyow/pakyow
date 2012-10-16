@@ -1,6 +1,5 @@
 
-#TODO handle no route but view matches (currently returns 404)
-#TODO handle issue 32 (or whatever it is)
+#TODO fix halt! (uncaught throw)
 #TODO handle index
 
 #TODO route path lookups
@@ -25,7 +24,7 @@ module Pakyow
 
       @scope  = {:name => nil, :path => '/', :hooks => {:before => [], :after => []}}
     end
-    
+
     # Finds route by path and calls each function in order
     def route!(request)
       path   = request.working_path

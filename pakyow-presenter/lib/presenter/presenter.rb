@@ -27,6 +27,9 @@ module Pakyow
       end
       
       def presented?
+        #TODO the right thing to do?
+        self.ensure_root_view_built
+        
         @presented
       end
       
