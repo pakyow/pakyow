@@ -3,6 +3,8 @@ module Pakyow
     class Presenter
       def initialize(app)
         @app = app
+
+        Pakyow.app.presenter = Configuration::Base.app.presenter.new
       end
 
       def call(env)
