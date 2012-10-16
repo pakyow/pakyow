@@ -1,7 +1,10 @@
 
-#TODO handle "index"
+#TODO handle no route but view matches (currently returns 404)
+#TODO handle issue 32 (or whatever it is)
+#TODO handle index
+
 #TODO route path lookups
-#TODO other methods (put, post, delete, head, default)
+#TODO other methods (head, default)
 #TODO confirm param order (e.g. namespace)
 #TODO around hooks
 #TODO route aliases
@@ -22,7 +25,7 @@ module Pakyow
 
       @scope  = {:name => nil, :path => '/', :hooks => {:before => [], :after => []}}
     end
-
+    
     # Finds route by path and calls each function in order
     def route!(request)
       path   = request.working_path
@@ -85,7 +88,39 @@ module Pakyow
       @handlers << [name, code, [fn]]
     end
 
-    def get(path, *args, &block)
+    # def get(path, *args, &block)
+    def get(*args)
+      self.register_route(:get, *args)
+      # return
+      # name, main_fns = args
+
+      # # necessary because names are optional and func could be passed in its place
+      # main_fns = name and name = nil if name.is_a?(Proc) || name.is_a?(Array)
+
+      # # handle function passed as block
+      # main_fns ||= block
+      # main_fns = [main_fns] unless main_fns.is_a?(Array)
+
+      # regex, vars = build_route_matcher(self.normalize_path(File.join(@scope[:path], path)))
+      # route = [regex, vars, name, self.build_fns(main_fns, @scope[:hooks]), path]
+      # @routes[:get] << route
+
+      # @groups[@scope[:name]] << route if @scope[:name]
+    end
+
+    def put(*args)
+      self.register_route(:put, *args)
+    end
+
+    def post(*args)
+      self.register_route(:post, *args)
+    end
+
+    def delete(*args)
+      self.register_route(:delete, *args)
+    end
+
+    def register_route(method, path, *args, &block)
       name, main_fns = args
 
       # necessary because names are optional and func could be passed in its place
@@ -93,11 +128,11 @@ module Pakyow
 
       # handle function passed as block
       main_fns ||= block
-      main_fns = [main_fns] unless main_fns.is_a?(Array)
-
+      main_fns = [main_fns] unless main_fns.is_a?(Array) || main_fns.nil?
+      
       regex, vars = build_route_matcher(self.normalize_path(File.join(@scope[:path], path)))
       route = [regex, vars, name, self.build_fns(main_fns, @scope[:hooks]), path]
-      @routes[:get] << route
+      @routes[method] << route
 
       @groups[@scope[:name]] << route if @scope[:name]
     end
@@ -199,9 +234,9 @@ module Pakyow
     def build_fns(main_fns, hooks)
       fns = []
 
-      fns.concat(hooks[:before])  if hooks
+      fns.concat(hooks[:before])  if hooks && hooks[:before]
       fns.concat(main_fns)        if main_fns
-      fns.concat(hooks[:after])   if hooks
+      fns.concat(hooks[:after])   if hooks && hooks[:after]
       
       #TODO add around hooks
 
