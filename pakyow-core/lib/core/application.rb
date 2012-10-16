@@ -156,10 +156,7 @@ module Pakyow
 
     def initialize
       Pakyow.app = self
-      
-      @handler_name_to_code = {}
-      @handler_code_to_name = {}
-      
+            
       # Load application files
       load_app(false)
     end
