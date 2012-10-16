@@ -1,6 +1,6 @@
 
 #TODO route path lookups
-#TODO other methods (head, default)
+#TODO other methods (head)
 #TODO confirm param order (e.g. namespace)
 #TODO around hooks
 #TODO route aliases
@@ -82,24 +82,12 @@ module Pakyow
       @handlers << [name, code, [fn]]
     end
 
-    # def get(path, *args, &block)
+    def default(*args, &block)
+      self.register_route(:get, '/', *args)
+    end
+
     def get(*args)
       self.register_route(:get, *args)
-      # return
-      # name, main_fns = args
-
-      # # necessary because names are optional and func could be passed in its place
-      # main_fns = name and name = nil if name.is_a?(Proc) || name.is_a?(Array)
-
-      # # handle function passed as block
-      # main_fns ||= block
-      # main_fns = [main_fns] unless main_fns.is_a?(Array)
-
-      # regex, vars = build_route_matcher(self.normalize_path(File.join(@scope[:path], path)))
-      # route = [regex, vars, name, self.build_fns(main_fns, @scope[:hooks]), path]
-      # @routes[:get] << route
-
-      # @groups[@scope[:name]] << route if @scope[:name]
     end
 
     def put(*args)
@@ -114,7 +102,7 @@ module Pakyow
       self.register_route(:delete, *args)
     end
 
-    def register_route(method, path, *args, &block)
+    def register_route(method, path, *args)
       name, main_fns = args
 
       # necessary because names are optional and func could be passed in its place
