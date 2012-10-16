@@ -1,6 +1,5 @@
 
 #TODO handle "index"
-#TODO rename this file
 #TODO route path lookups
 #TODO other methods (put, post, delete, head, default)
 #TODO confirm param order (e.g. namespace)
