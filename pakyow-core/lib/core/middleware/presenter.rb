@@ -17,8 +17,8 @@ module Pakyow
 
           Pakyow.app.presenter.prepare_for_request(r)
         end
-        
-        Pakyow.app.response.body = [Pakyow.app.presenter.content]
+                                                                  #TODO the right thing to do?
+        Pakyow.app.response.body = [Pakyow.app.presenter.content] if Pakyow.app.presenter.presented?
         Pakyow.app.response.finish
       end
     end

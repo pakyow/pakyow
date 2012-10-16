@@ -6,8 +6,10 @@ module Pakyow
       end
 
       def call(env)
-        Pakyow.app.router.route!(Pakyow.app.request)
-        @app.call(env)
+        catch(:halt) {
+          Pakyow.app.router.route!(Pakyow.app.request)
+          @app.call(env)
+        }
       rescue StandardError => error
         Pakyow.app.request.error = error
         Pakyow.app.router.handle!(500)

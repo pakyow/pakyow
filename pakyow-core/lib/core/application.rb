@@ -97,7 +97,7 @@ module Pakyow
         self.builder.use(Pakyow::Middleware::Setup)
         
         self.builder.instance_eval(&self.middleware_proc) if self.middleware_proc
-
+        
         self.builder.use(Pakyow::Middleware::Static)      if Configuration::Base.app.static
         self.builder.use(Pakyow::Middleware::Logger)      if Configuration::Base.app.log
         self.builder.use(Pakyow::Middleware::Reloader)    if Configuration::Base.app.auto_reload
@@ -294,6 +294,7 @@ module Pakyow
     #TODO remove exclamation
     def finish!
       set_cookies
+      pp self.response.body
       self.response.finish
     end
 

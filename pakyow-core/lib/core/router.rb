@@ -1,7 +1,4 @@
 
-#TODO fix halt! (uncaught throw)
-#TODO handle index
-
 #TODO route path lookups
 #TODO other methods (head, default)
 #TODO confirm param order (e.g. namespace)
@@ -40,9 +37,7 @@ module Pakyow
       #TODO where to do this?
       request.route_path = match[4]
 
-      catch(:halt) {
-        self.trampoline(match[3])
-      }
+      self.trampoline(match[3])
     end
 
     def reroute!(request)
