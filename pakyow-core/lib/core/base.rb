@@ -8,6 +8,8 @@ require 'core/router'
 require 'core/application'
 require 'core/cache'
 require 'core/presenter_base'
+require 'core/route_lookup'
+require 'core/fn_context'
 
 # middlewares
 require 'core/middleware/logger'

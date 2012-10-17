@@ -58,9 +58,8 @@ module Pakyow
       self.set_request_format_from_path(path)
       self.set_working_path_from_path(path, method)
     end
-    
-    protected
-    
+
+    #TODO move to util class
     def self.split_url(url)
       arr = []
       url.split('/').each { |r|
@@ -69,6 +68,8 @@ module Pakyow
       
       return arr
     end
+    
+    protected
 
     def set_working_path_from_path(path, method)
       base_route, ignore_format = StringUtils.split_at_last_dot(path)

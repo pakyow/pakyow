@@ -18,5 +18,9 @@ module Pakyow
     def app
       Pakyow.app
     end
+
+    def router
+      RouteLookup.new
+    end
   end
 end

@@ -1,5 +1,4 @@
 
-#TODO route path lookups
 #TODO other methods (head)
 #TODO confirm param order (e.g. namespace)
 #TODO around hooks
@@ -12,6 +11,10 @@ module Pakyow
     #TODO singleton
     def initialize
       @routes = {:get => [], :post => [], :put => [], :delete => []}
+      
+      @routes_by_name = {}
+      @grouped_routes_by_name = {}
+
       @funcs  = {}
       @groups = {}
 
@@ -65,6 +68,15 @@ module Pakyow
       }
     end
 
+    # Name based route lookup
+    def route(name, group = nil)
+      return @routes_by_name[name] unless group
+
+      if grouped_routes = @grouped_routes_by_name[group]
+        grouped_routes[name]
+      end
+    end
+
     # Creates vector of functions (hooks and main) to be called in order
     def func(name, hooks = nil, &block)
       @funcs[name] = block and return if block
@@ -102,6 +114,7 @@ module Pakyow
       self.register_route(:delete, *args, &block)
     end
     
+    #TODO protect
     def register_route(method, path, *args, &block)
       name, main_fns = args
 
@@ -115,8 +128,12 @@ module Pakyow
       regex, vars = build_route_matcher(self.normalize_path(File.join(@scope[:path], path)))
       route = [regex, vars, name, self.build_fns(main_fns, @scope[:hooks]), path]
       @routes[method] << route
+      @routes_by_name[name] = route
 
-      @groups[@scope[:name]] << route if @scope[:name]
+      if group = @scope[:name]
+        @groups[group] << route
+        @grouped_routes_by_name[group][name] = route
+      end
     end
 
     def call(controller, action)
@@ -134,11 +151,12 @@ module Pakyow
 
     def group(name, *args, &block)
       original_hooks = @scope[:hooks]
-      @scope[:hooks] = self.merge_hooks(@scope[:hooks], args[0])
+      @scope[:hooks] = self.merge_hooks(@scope[:hooks], args[0]) if @scope[:hooks] && args[0]
 
-      name = args[0]
+      # name = args[0]
       @scope[:name] = name
       @groups[name] = []
+      @grouped_routes_by_name[name] = {}
 
       self.instance_exec(&block)
       @scope[:name] = nil
@@ -175,7 +193,14 @@ module Pakyow
 
     #TODO why can't this be protected?
     def call_fns(fns)
-      fns.each {|fn| Pakyow.app.instance_exec(&fn)}
+      fns.each {|fn| self.context.instance_exec(&fn)}
+    end
+
+    #TODO this may be the thing that should be passed between
+    #  middlewares, consisting of current req/res and access
+    #  to helper methods.
+    def context
+      FnContext.new
     end
 
     protected
@@ -238,7 +263,7 @@ module Pakyow
       route_segments = path.split('/')
       route_segments.each_with_index { |segment, i|
         if segment.include?(':')
-          vars << { :position => position_counter, :var => segment.gsub(':', '') }
+          vars << { :position => position_counter, :var => segment.gsub(':', '').to_sym }
           if i == route_segments.length-1 then
             regex_route = regex_route.sub(segment, '((\w|[-.~:@!$\'\(\)\*\+,;])*)')
             position_counter += 2
