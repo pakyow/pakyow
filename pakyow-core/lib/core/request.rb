@@ -37,21 +37,17 @@ module Pakyow
     end
     
     # Returns array of url components.
-    def url_parts
-      unless @url
-        @url = self.class.split_url(self.env['PATH_INFO'])
-      end
-    
-      return @url
+    def path_parts
+      @url ||= self.path ? self.class.split_url(self.path) : []
+    end
+
+    def referer
+      @referer ||= self.env['HTTP_REFERER']
     end
     
     # Returns array of referer components.
     def referer_parts
-      unless @referer
-        @referer = self.class.split_url(self.env['HTTP_REFERER'])
-      end
-    
-      return @referer
+      @referer_parts ||= self.referer ? self.class.split_url(self.referer) : []
     end
 
     def setup(path, method = nil)
