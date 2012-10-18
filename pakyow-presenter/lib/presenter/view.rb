@@ -210,10 +210,6 @@ module Pakyow
         self.doc.before(view.doc)
       end
       
-      def containers
-        @containers ||= self.find_containers
-      end
-
       def scope(name)
         name = name.to_sym
 
@@ -330,6 +326,18 @@ module Pakyow
         views = self.match(data).bind(data, &block)
       end
 
+      def container(name)
+        matches = self.containers.select{|c| c[:name].to_sym == name.to_sym}
+
+        vs = ViewCollection.new
+        matches.each{|m| vs << view_from_path(m[:path])}
+        vs
+      end
+
+      def containers
+        @containers ||= self.find_containers
+      end
+
       def bindings
         @bindings ||= self.find_bindings
       end
@@ -341,7 +349,7 @@ module Pakyow
         elements = []
         @doc.traverse {|e|
           if name = e.attr(Configuration::Presenter.container_attribute)
-            elements << { :name => name, :doc => e}
+            elements << { :name => name, :doc => e, :path => path_to(e)}
           end
         }
         elements
