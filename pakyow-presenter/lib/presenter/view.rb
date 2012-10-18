@@ -52,7 +52,7 @@ module Pakyow
         end
       end
 
-      attr_accessor :doc, :scoped_as, :scopes, :bindings
+      attr_accessor :doc, :scoped_as, :scopes
 
       def dup
         v = self.class.new(@doc.dup)
@@ -242,10 +242,9 @@ module Pakyow
 
       def scope(name)
         name = name.to_sym
-        @bindings ||= self.find_bindings
 
         views = Views.new
-        @bindings.select{|b| b[:scope] == name}.each{|s| 
+        self.bindings.select{|b| b[:scope] == name}.each{|s| 
           v = self.view_from_path(s[:path])
           v.bindings = self.bindings_for_child_view(v)
           v.scoped_as = s[:scope]
@@ -260,7 +259,7 @@ module Pakyow
         name = name.to_sym
 
         views = Views.new
-        @bindings.each {|binding|
+        self.bindings.each {|binding|
           binding[:props].each {|prop|
             if prop[:prop] == name
               v = self.view_from_path(prop[:path])
@@ -341,9 +340,7 @@ module Pakyow
       # Binds data across existing scopes.
       #
       def bind(data, &block)
-        @bindings ||= self.find_bindings
-
-        scope = @bindings.first
+        scope = self.bindings.first
         binder = View.binder_for_scope(scope[:scope], data)
 
         self.bind_data_to_scope(data, scope, binder)
@@ -357,6 +354,10 @@ module Pakyow
       #
       def apply(data, &block)
         views = self.match(data).bind(data, &block)
+      end
+
+      def bindings
+        @bindings ||= self.find_bindings
       end
 
       protected
@@ -396,13 +397,11 @@ module Pakyow
       end
 
       def bindings_for_child_view(child)
-        @bindings ||= self.find_bindings
-        
         child_path = self.path_to(child.doc)
         child_path_len = child_path.length
         child_bindings = []
 
-        @bindings.each {|binding|
+        self.bindings.each {|binding|
           # we want paths within the child path
           if (child_path - binding[:path]).empty?
             # update paths relative to child
