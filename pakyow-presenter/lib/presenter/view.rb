@@ -53,6 +53,7 @@ module Pakyow
       end
 
       attr_accessor :doc, :scoped_as, :scopes
+      attr_writer   :bindings
 
       def dup
         v = self.class.new(@doc.dup)
