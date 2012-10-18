@@ -3,7 +3,7 @@ module Pakyow
     class Presenter
       class << self
         attr_accessor :view_caching, :javascripts, :stylesheets, :view_dir, :default_view,
-        :scope_attribute, :prop_attribute
+        :scope_attribute, :prop_attribute, :container_attribute
         
         # Location of javascripts
         def javascripts
@@ -33,6 +33,10 @@ module Pakyow
 
         def prop_attribute
           @prop_attribute || "data-prop"
+        end
+
+        def container_attribute
+          @container_attribute || "data-container"
         end
 
       end

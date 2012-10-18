@@ -220,15 +220,12 @@ module Pakyow
       # populates the top_view using view_store data by recursively building
       # and substituting in child views named in the structure
       def populate_view(top_view, views)
-        containers = top_view.elements_with_ids
-        containers.each {|e|
-          name = e.attr("id")
-          path = views[name]
-          if path
-            v = populate_view(View.new(path), views)
-            top_view.reset_container(name) # TODO revisit how this is implemented; assumes all LazyViews are root views
-            top_view.add_content_to_container(v, name)
-          end
+        top_view.containers.each {|e|
+          next unless path = views[e[:name]]
+
+          v = populate_view(View.new(path), views)
+          self.reset_container(e[:doc])
+          self.add_content_to_container(v, e[:doc])
         }
         top_view
       end
@@ -236,6 +233,15 @@ module Pakyow
       def parser(format, &block)
         @parser_store ||= {}
         @parser_store[format.to_sym] = block
+      end
+
+      def add_content_to_container(content, container)
+        content = content.doc unless content.class == String || content.class == Nokogiri::HTML::DocumentFragment || content.class == Nokogiri::XML::Element
+        container.add_child(content)
+      end
+
+      def reset_container(container)
+        container.inner_html = ''
       end
 
     end

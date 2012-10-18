@@ -101,27 +101,7 @@ module Pakyow
           content
         end
       end
-
-      #TODO rewrite to use data-container
-      def add_content_to_container(content, container)
-        # TODO This .css call works but the equivalent .xpath call doesn't
-        # Need to investigate why since the .css call is internally turned into a .xpath call
-        if @doc && o = @doc.css("##{container}").first
-          content = content.doc unless content.class == String || content.class == Nokogiri::HTML::DocumentFragment || content.class == Nokogiri::XML::Element
-          o.add_child(content)
-        end
-      end
-
-      #TODO rewrite to use data-container
-            # is this ever called, or only the one on LazyView?
-      def reset_container(container)
-        return unless @doc
-        return unless o = @doc.css("*[id='#{container}']").first
-        return if o.blank?
-        
-        o.inner_html = ''
-      end
-
+      
       def title=(title)
         if @doc
           if o = @doc.css('title').first
@@ -139,10 +119,9 @@ module Pakyow
         o.inner_html if o
       end
       
-      #TODO use data-container
       def to_html(container = nil)
         if container
-          if o = @doc.css('#' + container.to_s).first
+          if o = @doc.css("*[#{Configuration::Presenter.container_attribute}='#{container}']").first
             o.inner_html
           else
             ''
@@ -228,16 +207,8 @@ module Pakyow
         self.doc.before(view.doc)
       end
       
-      #TODO replace with a method that finds data-containers
-      #  where is this used? needed?
-      def elements_with_ids
-        elements = []
-        @doc.traverse {|e|
-          if e.has_attribute?("id")
-            elements << e
-          end
-        }
-        elements
+      def containers
+        @containers ||= self.find_containers
       end
 
       def scope(name)
@@ -361,6 +332,17 @@ module Pakyow
       end
 
       protected
+
+      # returns an array of hashes, each with the container name and doc
+      def find_containers
+        elements = []
+        @doc.traverse {|e|
+          if name = e.attr(Configuration::Presenter.container_attribute)
+            elements << { :name => name, :doc => e}
+          end
+        }
+        elements
+      end
 
       # returns an array of hashes that describe each scope
       def find_bindings
