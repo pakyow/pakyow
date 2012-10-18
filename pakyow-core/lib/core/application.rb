@@ -285,7 +285,7 @@ module Pakyow
     # Evaluates core_proc
     #
     def load_core
-      @router = Router.new
+      @router = Router.instance
       @router.instance_eval(&self.class.core_proc) if self.class.core_proc
     end
     

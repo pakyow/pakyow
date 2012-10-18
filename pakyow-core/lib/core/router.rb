@@ -8,7 +8,6 @@
 
 module Pakyow
   class Router
-    #TODO singleton
     def initialize
       @routes = {:get => [], :post => [], :put => [], :delete => []}
       
@@ -23,6 +22,11 @@ module Pakyow
       @handlers = []
 
       @scope  = {:name => nil, :path => '/', :hooks => {:before => [], :after => []}}
+    end
+
+    @@instance = self.new
+    def self.instance
+      @@instance
     end
 
     # Finds route by path and calls each function in order
