@@ -16,6 +16,8 @@ module Pakyow
         self.each{|v| collection << v.attributes}
         return collection
       end
+
+      alias :attrs :attributes
       
       def remove
         self.each {|e| e.remove}

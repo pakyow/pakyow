@@ -154,6 +154,8 @@ module Pakyow
         #   }
         # end
       end
+
+      alias :attrs :attributes
       
       def remove
         self.doc.remove
