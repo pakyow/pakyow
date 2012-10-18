@@ -1,9 +1,3 @@
-
-#TODO confirm param order (e.g. namespace)
-#TODO route aliases
-#TODO document
-#TODO check in!
-
 module Pakyow
   class Router
     def initialize
@@ -369,6 +363,18 @@ module Pakyow
 
     def get(path, *args, &block)
       @router.get(File.join(@path, path), *args, &block)
+    end
+
+    def put(path, *args, &block)
+      @router.put(File.join(@path, path), *args, &block)
+    end
+
+    def post(path, *args, &block)
+      @router.post(File.join(@path, path), *args, &block)
+    end
+
+    def delete(path, *args, &block)
+      @router.delete(File.join(@path, path), *args, &block)
     end
 
     #TODO best name?
