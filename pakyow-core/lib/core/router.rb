@@ -1,7 +1,5 @@
 
-#TODO other methods (head)
 #TODO confirm param order (e.g. namespace)
-#TODO around hooks
 #TODO route aliases
 #TODO document
 #TODO check in!
@@ -81,17 +79,16 @@ module Pakyow
       end
     end
 
-    # Creates vector of functions (hooks and main) to be called in order
-    def func(name, hooks = nil, &block)
+    # Creates or retreivs a named func
+    def func(name, &block)
       @funcs[name] = block and return if block
 
-      self.build_fns([@funcs[name]], hooks)
+      [@funcs[name]]
     end
 
     def handler(name, *args, &block)
       code, fn = args
 
-      #TODO need a better way of handling incoming params; this sucks
       fn = code and code = nil if code.is_a?(Proc)
       fn = block if block_given?
 
@@ -118,28 +115,6 @@ module Pakyow
       self.register_route(:delete, *args, &block)
     end
     
-    #TODO protect
-    def register_route(method, path, *args, &block)
-      name, main_fns = args
-
-      # necessary because names are optional and func could be passed in its place
-      main_fns = name and name = nil if name.is_a?(Proc) || name.is_a?(Array)
-
-      # handle function passed as block
-      main_fns ||= block
-      main_fns = [main_fns] unless main_fns.is_a?(Array) || main_fns.nil?
-      
-      regex, vars = build_route_matcher(self.normalize_path(File.join(@scope[:path], path)))
-      route = [regex, vars, name, self.build_fns(main_fns, @scope[:hooks]), path]
-      @routes[method] << route
-      @routes_by_name[name] = route
-
-      if group = @scope[:name]
-        @groups[group] << route
-        @grouped_routes_by_name[group][name] = route
-      end
-    end
-
     def call(controller, action)
       lambda {
         controller = Object.const_get(controller)
@@ -195,7 +170,6 @@ module Pakyow
       t.expand(@templates[name])
     end
 
-    #TODO why can't this be protected?
     def call_fns(fns)
       fns.each {|fn| self.context.instance_exec(&fn)}
     end
@@ -208,6 +182,53 @@ module Pakyow
     end
 
     protected
+
+    def register_route(method, path, *args, &block)
+      name, fns, hooks = self.parse_route_args(args)
+
+      fns ||= []
+      # add passed block to fns
+      fns << block if block_given?
+      
+      hooks = self.merge_hooks(hooks || {}, @scope[:hooks])
+
+      # build the final list of fns
+      fns = self.build_fns(fns, hooks)
+
+      # prepend scope path if we're in a scope
+      path = File.join(@scope[:path], path)
+      path = self.normalize_path(path)
+      
+      # get regex and vars for path
+      regex, vars = self.build_route_matcher(path)
+
+      # create the route tuple
+      route = [regex, vars, name, fns, path]
+
+      @routes[method] << route
+      @routes_by_name[name] =  route
+
+      # store group references if we're in a scope
+      return unless group = @scope[:name]
+      @groups[group] << route
+      @grouped_routes_by_name[group][name] = route
+    end
+
+    def parse_route_args(args)
+      ret = []
+      args.each { |arg|
+        if arg.is_a?(Hash) # we have hooks
+          ret[2] = arg
+        elsif arg.is_a?(Array) # we have fns
+          ret[1] = arg
+        elsif arg.is_a?(Proc) # we have a fn
+          ret[1] = [arg]
+        else # we have a name
+          ret[0] = arg
+        end
+      }
+      ret
+    end
 
     def find_match(path, method)
       path = self.normalize_path(path)
@@ -245,12 +266,12 @@ module Pakyow
     def build_fns(main_fns, hooks)
       fns = []
 
+      fns.concat(hooks[:around])  if hooks && hooks[:around]
       fns.concat(hooks[:before])  if hooks && hooks[:before]
       fns.concat(main_fns)        if main_fns
       fns.concat(hooks[:after])   if hooks && hooks[:after]
+      fns.concat(hooks[:around])  if hooks && hooks[:around]
       
-      #TODO add around hooks
-
       fns
     end
 
@@ -283,14 +304,17 @@ module Pakyow
 
     def merge_hooks(h1, h2)
       # normalize
-      h1[:before] ||= []
-      h1[:after]  ||= []
-      h2[:before] ||= []
-      h2[:after]  ||= []
+      h1[:before]  ||= []
+      h1[:after]   ||= []
+      h1[:around]  ||= []
+      h2[:before]  ||= []
+      h2[:after]   ||= []
+      h2[:around]  ||= []
 
       # merge
       h1[:before].concat(h2[:before])
       h1[:after].concat(h2[:after])
+      h1[:around].concat(h2[:around])
       h1
     end
 
