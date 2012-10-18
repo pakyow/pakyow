@@ -156,6 +156,8 @@ module Pakyow
 
     def initialize
       Pakyow.app = self
+
+      Pakyow.app.presenter = Configuration::Base.app.presenter.new if Configuration::Base.app.presenter
             
       # Load application files
       load_app(false)
@@ -277,8 +279,6 @@ module Pakyow
       @loader.load!(Configuration::Base.app.src_dir)
 
       self.load_core
-
-      # Reload presenter
       self.presenter.load if self.presenter
     end
 
@@ -294,7 +294,6 @@ module Pakyow
     #TODO remove exclamation
     def finish!
       set_cookies
-      pp self.response.body
       self.response.finish
     end
 
