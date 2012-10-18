@@ -1,6 +1,6 @@
 module Pakyow
   module Presenter
-    class Views
+    class ViewCollection
       include Enumerable
       
       def initialize
@@ -80,7 +80,7 @@ module Pakyow
       end
 
       def scope(name)
-        views = Views.new
+        views = ViewCollection.new
         self.each{|v|
           next unless svs = v.scope(name)
           svs.each{|sv| views << sv}
@@ -105,7 +105,7 @@ module Pakyow
       #   for {|view, datum| block}
       #
       # Yields a view and its matching dataum. Datums are yielded until 
-      # no more views or data is available. For the Views case, this 
+      # no more views or data is available. For the ViewCollection case, this 
       # means the block will be yielded self.length times.
       # 
       # (this is basically Bret's `map` function)
@@ -119,16 +119,16 @@ module Pakyow
       end
 
       # call-seq:
-      #   match(data) => Views
+      #   match(data) => ViewCollection
       #
-      # Returns a Views object that has been manipulated to match the data.
-      # For the Views case, the returned Views collection will consist n copies
+      # Returns a ViewCollection object that has been manipulated to match the data.
+      # For the ViewCollection case, the returned ViewCollection collection will consist n copies
       # of self[data index] || self[-1], where n = data.length.
       #
       def match(data)
         data = [data] unless data.instance_of?(Array)
 
-        views = Views.new
+        views = ViewCollection.new
         data.each_with_index {|datum,i|
           unless v = self[i]
 

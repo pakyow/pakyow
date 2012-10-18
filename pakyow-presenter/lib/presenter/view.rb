@@ -66,7 +66,7 @@ module Pakyow
 
         if arg.is_a?(Nokogiri::XML::Element) || arg.is_a?(Nokogiri::XML::Document) || arg.is_a?(Nokogiri::HTML::DocumentFragment)
           @doc = arg
-        elsif arg.is_a?(Pakyow::Presenter::Views)
+        elsif arg.is_a?(Pakyow::Presenter::ViewCollection)
           @doc = arg.first.doc.dup
         elsif arg.is_a?(Pakyow::Presenter::View)
           @doc = arg.doc.dup
@@ -214,7 +214,7 @@ module Pakyow
       def scope(name)
         name = name.to_sym
 
-        views = Views.new
+        views = ViewCollection.new
         self.bindings.select{|b| b[:scope] == name}.each{|s| 
           v = self.view_from_path(s[:path])
           v.bindings = self.bindings_for_child_view(v)
@@ -229,7 +229,7 @@ module Pakyow
       def prop(name)
         name = name.to_sym
 
-        views = Views.new
+        views = ViewCollection.new
         self.bindings.each {|binding|
           binding[:props].each {|prop|
             if prop[:prop] == name
@@ -271,16 +271,16 @@ module Pakyow
       end
 
       # call-seq:
-      #   match(data) => Views
+      #   match(data) => ViewCollection
       #
-      # Returns a Views object that has been manipulated to match the data.
-      # For the single View case, the Views collection will consist n copies
+      # Returns a ViewCollection object that has been manipulated to match the data.
+      # For the single View case, the ViewCollection collection will consist n copies
       # of self, where n = data.length.
       #
       def match(data)
         data = [data] unless data.instance_of?(Array)
 
-        views = Views.new
+        views = ViewCollection.new
         data.each {|datum|
           d_v = self.doc.dup
           self.doc.before(d_v)
