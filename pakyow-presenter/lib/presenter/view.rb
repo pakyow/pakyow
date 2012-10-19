@@ -72,7 +72,7 @@ module Pakyow
         elsif arg.is_a?(Pakyow::Presenter::View)
           @doc = arg.doc.dup
         elsif arg.is_a?(String)
-          view_path = Pakyow.app.presenter.current_view_store.real_path(arg)
+          view_path = self.view_store.real_path(arg)
 
           # run parsers
           format = view_path.split('.')[-1].to_sym
@@ -86,6 +86,11 @@ module Pakyow
         else
           raise ArgumentError, "No View for you! Come back, one year."
         end
+      end
+
+      def compile(view_path)
+        return unless view_info = self.view_store.view_info(view_path)
+        self.populate_view(self, view_info[:views])
       end
 
       def parse_content(content, format)
@@ -337,6 +342,32 @@ module Pakyow
       end
 
       protected
+
+      def add_content_to_container(content, container)
+        content = content.doc unless content.class == String || content.class == Nokogiri::HTML::DocumentFragment || content.class == Nokogiri::XML::Element
+        container.add_child(content)
+      end
+
+      def reset_container(container)
+        container.inner_html = ''
+      end
+
+      def view_store
+        Pakyow.app.presenter.current_view_store
+      end
+
+      # populates the root_view using view_store data by recursively building
+      # and substituting in child views named in the structure
+      def populate_view(root_view, view_info)
+        root_view.containers.each {|e|
+          next unless path = view_info[e[:name]]
+          
+          v = self.populate_view(View.new(path), view_info)
+          self.reset_container(e[:doc])
+          self.add_content_to_container(v, e[:doc])
+        }
+        root_view
+      end
 
       # returns an array of hashes, each with the container name and doc
       def find_containers
