@@ -72,18 +72,12 @@ module Pakyow
         elsif arg.is_a?(Pakyow::Presenter::View)
           @doc = arg.doc.dup
         elsif arg.is_a?(String)
-          #TODO use File#join
-          if arg[0, 1] == '/'
-            view_path = "#{Configuration::Presenter.view_dir}#{arg}"
-          else
-            view_path = "#{Configuration::Presenter.view_dir}/#{arg}"
-          end
+          view_path = Pakyow.app.presenter.current_view_store.real_path(arg)
 
           # run parsers
           format = view_path.split('.')[-1].to_sym
           content = parse_content(File.read(view_path), format)
           
-
           if is_root_view then
             @doc = Nokogiri::HTML::Document.parse(content)
           else

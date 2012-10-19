@@ -13,6 +13,10 @@ module Pakyow
         self.instance_eval(&Presenter.proc) if Presenter.proc
       end
 
+      def current_view_store
+        @view_lookup_store
+      end
+
       #
       # Methods that are called by core. This is the interface that core expects a Presenter to have
       #

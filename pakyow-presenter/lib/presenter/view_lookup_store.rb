@@ -82,7 +82,7 @@ module Pakyow
               if route == '/'
                 r_p = '/'
               else
-                r_p = vpath.sub(absolute_path_prefix, '')
+                r_p = File.join(@view_dir, vpath.sub(absolute_path_prefix, ''))
               end
               @view_store[:abstract_paths][route] = {:real_path => r_p, :file_or_dir => :dir}
               # duplicate real path under routes permuted with leading/trailing slash
@@ -101,7 +101,7 @@ module Pakyow
               end
               # set the abstract path for this file
               # duplicating real path under route without the leading slash
-              r_p = vpath.sub(absolute_path_prefix, '')
+              r_p = File.join(@view_dir, vpath.sub(absolute_path_prefix, ''))
               if route == '/'
                 @view_store[:abstract_paths]["/#{File.basename(vpath)}"] = {:real_path => r_p, :file_or_dir => :file}
                 @view_store[:abstract_paths][File.basename(vpath)] = {:real_path => r_p, :file_or_dir => :file}
