@@ -16,7 +16,7 @@ module Pakyow
         end
 
         def view_dir
-          @view_dir || "#{Configuration::Base.app.root}/app/views"
+          @view_dir || "#{Configuration::Base.app.root}/views"
         end
         
         def view_caching

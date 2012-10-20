@@ -3,7 +3,7 @@ if ARGV.first == '--help' || ARGV.first == '-h'
 else
   $:.unshift(Dir.pwd)
 
-  require File.join('config', 'application')
+  require 'app'
   PakyowApplication::Application.stage(ARGV.first)
   
   def reload
