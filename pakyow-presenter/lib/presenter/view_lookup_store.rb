@@ -169,6 +169,10 @@ module Pakyow
       def real_path(abstract_path)
         @view_store[:abstract_paths][abstract_path][:real_path] if @view_store[:abstract_paths][abstract_path]
       end
+
+      def root_path(abstract_path)
+        @view_store[:view_dirs][abstract_path][:root_view] if @view_store[:view_dirs][abstract_path]
+      end
       
       private
 

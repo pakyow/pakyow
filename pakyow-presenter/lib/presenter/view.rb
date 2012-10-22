@@ -4,6 +4,10 @@ module Pakyow
       class << self
         attr_accessor :binders, :default_view_path, :default_is_root_view
 
+        def view_store
+          Pakyow.app.presenter.current_view_store
+        end
+
         def binder_for_scope(scope, bindable)
           return unless View.binders
           b_c = View.binders[scope] and b_c.new(bindable)
@@ -50,6 +54,12 @@ module Pakyow
           doc['action'] = File.join('/', action)
           doc['method'] = method
         end
+
+        def at_path(view_path)
+          v = self.new(self.view_store.root_path(view_path), true)
+          v.compile(view_path)
+        end
+
       end
 
       attr_accessor :doc, :scoped_as, :scopes
@@ -72,7 +82,7 @@ module Pakyow
         elsif arg.is_a?(Pakyow::Presenter::View)
           @doc = arg.doc.dup
         elsif arg.is_a?(String)
-          view_path = self.view_store.real_path(arg)
+          view_path = self.class.view_store.real_path(arg)
 
           # run parsers
           format = view_path.split('.')[-1].to_sym
@@ -89,7 +99,7 @@ module Pakyow
       end
 
       def compile(view_path)
-        return unless view_info = self.view_store.view_info(view_path)
+        return unless view_info = self.class.view_store.view_info(view_path)
         self.populate_view(self, view_info[:views])
       end
 
@@ -352,9 +362,6 @@ module Pakyow
         container.inner_html = ''
       end
 
-      def view_store
-        Pakyow.app.presenter.current_view_store
-      end
 
       # populates the root_view using view_store data by recursively building
       # and substituting in child views named in the structure
