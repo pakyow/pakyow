@@ -83,7 +83,7 @@ module Pakyow
         self.middleware_proc = block
       end
       
-      def after(step, middlewares)
+      def before(step, middlewares)
         middlewares = [middlewares] unless middlewares.is_a?(Array)
         step = step.to_sym
 
