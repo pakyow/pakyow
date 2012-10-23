@@ -1,7 +1,7 @@
 module Pakyow
   class Application
     class << self
-      attr_accessor :core_proc, :middleware_proc, :configurations
+      attr_accessor :core_proc, :middleware_proc, :middlewares, :configurations
 
       # Sets the path to the application file so it can be reloaded later.
       #
@@ -83,6 +83,34 @@ module Pakyow
         self.middleware_proc = block
       end
       
+      def after(step, middlewares)
+        middlewares = [middlewares] unless middlewares.is_a?(Array)
+        step = step.to_sym
+
+        self.middlewares ||= {}
+        self.middlewares[step] ||= {}
+        (self.middlewares[step][:before] ||= []).concat(middlewares)
+      end
+      
+      def after(step, middlewares)
+        middlewares = [middlewares] unless middlewares.is_a?(Array)
+        step = step.to_sym
+
+        self.middlewares ||= {}
+        self.middlewares[step] ||= {}
+        (self.middlewares[step][:after] ||= []).concat(middlewares)
+      end
+
+      def use(step, type, builder)
+        return unless self.middlewares
+        return unless self.middlewares[step]
+        return unless self.middlewares[step][type]
+
+        self.middlewares[step][type].each { |m|
+          builder.use(m)
+        }
+      end
+      
 
       protected
 
@@ -95,14 +123,26 @@ module Pakyow
         self.builder.use(Rack::MethodOverride)
 
         self.builder.use(Pakyow::Middleware::Setup)
-        
+
+        #TODO possibly deprecate
         self.builder.instance_eval(&self.middleware_proc) if self.middleware_proc
         
         self.builder.use(Pakyow::Middleware::Static)      if Configuration::Base.app.static
         self.builder.use(Pakyow::Middleware::Logger)      if Configuration::Base.app.log
         self.builder.use(Pakyow::Middleware::Reloader)    if Configuration::Base.app.auto_reload
-        self.builder.use(Pakyow::Middleware::Presenter)   if Configuration::Base.app.presenter
-        self.builder.use(Pakyow::Middleware::Router)      unless Configuration::Base.app.ignore_routes
+        
+        if Configuration::Base.app.presenter
+          self.use(:presentation, :before, self.builder)
+          self.builder.use(Pakyow::Middleware::Presenter)   
+          self.use(:presentation, :after, self.builder)
+        end
+        
+        unless Configuration::Base.app.ignore_routes
+          self.use(:routing, :before, self.builder)
+          self.builder.use(Pakyow::Middleware::Router)
+          self.use(:routing, :after, self.builder)
+        end
+
         self.builder.use(Pakyow::Middleware::NotFound)    # always
         
         @prepared = true
