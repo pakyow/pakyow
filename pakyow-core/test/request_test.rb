@@ -14,8 +14,8 @@ class RequestTest < Test::Unit::TestCase
   end
   
   def test_url_is_split
-    assert_equal(1, request.url_parts.length)
-    assert_equal('foo', request.url_parts[0])
+    assert_equal(1, request.path_parts.length)
+    assert_equal('foo', request.path_parts[0])
   end
   
   def test_referer_is_split
