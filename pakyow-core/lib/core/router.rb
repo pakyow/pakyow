@@ -123,16 +123,18 @@ module Pakyow
     end
 
     def group(name, *args, &block)
-      original_hooks = @scope[:hooks]
+      # deep clone existing hooks to reset at the close of this group
+      original_hooks = Marshal.load(Marshal.dump(@scope[:hooks]))
+      
       @scope[:hooks] = self.merge_hooks(@scope[:hooks], args[0]) if @scope[:hooks] && args[0]
 
-      # name = args[0]
       @scope[:name] = name
       @groups[name] = []
       @grouped_routes_by_name[name] = {}
 
       self.instance_exec(&block)
       @scope[:name] = nil
+      
       @scope[:hooks] = original_hooks
     end
 
