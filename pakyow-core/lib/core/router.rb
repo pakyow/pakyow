@@ -324,7 +324,7 @@ module Pakyow
     def data_from_path(path, vars)
       data = {}
       vars.each {|v|
-        data[v[:var]] = Pakyow.app.request.url_parts[v[:position]]
+        data[v[:var]] = Pakyow.app.request.path_parts[v[:position]]
       }
 
       data
