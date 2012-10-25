@@ -9,8 +9,11 @@ module Pakyow
         @app.call(env)
         
         # 404 if no route matched and no views were found
-        if (!Pakyow.app.routed? && !Configuration::App.all_views_visible) || (!Pakyow.app.presenter || !Pakyow.app.presenter.presented?)
+        unless found?
           Log.enter "[404] Not Found"
+
+          Pakyow.app.response.body = [] 
+          Pakyow.app.presenter.reset if Pakyow.app.presenter
 
           Pakyow.app.response.status = 404
           Pakyow.app.invoke_handler!(404)
@@ -22,6 +25,16 @@ module Pakyow
           end
         end
       end
+
+      private
+
+      def found?
+        return true if Pakyow.app.routed?
+        return true if Pakyow.app.presenter && Pakyow.app.presenter.presented? && Configuration::App.all_views_visible
+
+        false
+      end
     end
   end
 end
+

@@ -26,6 +26,11 @@ module Pakyow
         @request = request
       end
       
+      def reset
+        @request = nil
+        reset_state
+      end
+      
       def presented?
         #TODO the right thing to do?
         self.ensure_root_view_built
@@ -35,7 +40,7 @@ module Pakyow
       
       def content
         return unless view
-        request_container = @request.params[:_container]
+        request_container = @request.params[:_container] if @request
         return view.to_html(request_container) if request_container
         view.to_html(@container_name)
       end
