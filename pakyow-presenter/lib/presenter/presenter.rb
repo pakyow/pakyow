@@ -13,6 +13,23 @@ module Pakyow
         self.instance_eval(&Presenter.proc) if Presenter.proc
       end
 
+      def scope(name, &block)
+        #TODO binding sets
+        # just like routes, we need the ability to define bindings externally (e.g. in the restful template)
+        # this may require sets of bindings like routes, where the default set (user defined) is the only
+        # set that is auto-reloaded. this may not be necessary though.
+        #TODO named fns (in scope only, for now)
+        #TODO route to binder class
+        # really only makes sense to route a scope to a class, not individual bindings
+
+        @bindings ||= {}
+        @bindings[name] = Bindings.for(block)
+      end
+
+      def bindings(scope)
+        @bindings[scope]
+      end
+
       #
       # Methods that are called by core. This is the interface that core expects a Presenter to have
       #

@@ -4,5 +4,9 @@ module Pakyow
       Pakyow.app.presenter.current_context = self
       Pakyow.app.presenter
     end
+
+    def bindings(name)
+      presenter.bindings(name).bindings
+    end
   end
 end

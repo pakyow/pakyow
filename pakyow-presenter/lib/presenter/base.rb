@@ -5,6 +5,7 @@ require 'presenter/view_collection'
 require 'presenter/binder'
 require 'presenter/view_context'
 require 'presenter/attributes'
+require 'presenter/bindings'
 
 module Pakyow
   module Presenter

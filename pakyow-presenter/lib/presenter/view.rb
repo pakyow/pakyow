@@ -5,8 +5,12 @@ module Pakyow
         attr_accessor :binders, :default_view_path, :default_is_root_view
 
         def binder_for_scope(scope, bindable)
-          return unless View.binders
-          b_c = View.binders[scope] and b_c.new(bindable)
+          bindings = Pakyow.app.presenter.bindings(scope)
+          bindings.bindable = bindable
+          return bindings
+
+          #return unless View.binders
+          #b_c = View.binders[scope] and b_c.new(bindable)
         end
 
         def view_path(dvp, dirv=false)
@@ -461,7 +465,8 @@ module Pakyow
         return unless data
 
         # set form action
-        self.set_form_action_for_scope_with_data(scope, data) 
+        #TODO refactor based on new rest implementation
+        #self.set_form_action_for_scope_with_data(scope, data) 
 
         scope[:props].each {|p|
           k = p[:prop]
@@ -503,6 +508,7 @@ module Pakyow
         doc['action'] = View.action_for_scoped_object(scope, data, doc)
       end
 
+      #TODO refactor to use new options_for
       def bind_to_form_field(doc, scope, prop, value, binder)
         return unless !doc['name'] || doc['name'].empty?
         
