@@ -13,7 +13,6 @@ module Pakyow
         self.instance_eval(&Presenter.proc) if Presenter.proc
       end
 
-<<<<<<< HEAD
       def scope(name, &block)
         #TODO binding sets
         # just like routes, we need the ability to define bindings externally (e.g. in the restful template)
@@ -29,10 +28,10 @@ module Pakyow
 
       def bindings(scope)
         @bindings[scope]
-=======
+      end
+
       def current_view_store
         @view_lookup_store
->>>>>>> presenter_api
       end
 
       #
