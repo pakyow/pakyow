@@ -18,7 +18,7 @@ module Pakyow
       end
 
       def value_for_prop(prop)
-        return unless binding = @bindings[prop]
+        return @bindable[prop] unless binding = @bindings[prop]
         self.instance_exec(&binding)
       end
     end
