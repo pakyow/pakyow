@@ -153,17 +153,17 @@ module Pakyow
       @templates[name] = block
     end
 
-    def expand(name, path, &block)
-      #TODO path shouldn't be required (creates a group if left out)
+    def expand(t_name, g_name, path = nil, data = nil, &block)
+      data = path and path = nil if path.is_a?(Hash)
 
       # evaluate block in context of some class that implements
       # method_missing to store map of functions 
       # (e.g. index, show)
-      t = RouteTemplate.new(block, path, self)
+      t = RouteTemplate.new(block, g_name, path, self)
 
       # evaluate template in same context, where func looks up funcs
       # from map and extends get (and others) to add proper names
-      t.expand(@templates[name])
+      t.expand(@templates[t_name], data)
     end
 
     def call_fns(fns)
@@ -337,8 +337,9 @@ module Pakyow
   class RouteTemplate
     attr_accessor :path
 
-    def initialize(block, path, router)
+    def initialize(block, g_name, path, router)
       @fns    = {}
+      @g_name = g_name
       @path   = path
       @router = router
 
@@ -350,9 +351,19 @@ module Pakyow
       @fns[method] = fns
     end
 
-    def expand(template)
+    def expand(template, data)
       @expanding = true
-      self.instance_exec(&template)
+
+      t = self
+      if @path
+        @router.namespace(@path, @g_name) {
+          t.instance_exec(data, &template)
+        }
+      else
+        @router.group(@g_name) {
+          t.instance_exec(data, &template)
+        }
+      end
     end
 
     def func(name)
@@ -363,20 +374,20 @@ module Pakyow
       @router.call(controller, action)
     end
 
-    def get(path, *args, &block)
-      @router.get(File.join(@path, path), *args, &block)
+    def get(*args, &block)
+      @router.get(*args, &block)
     end
 
-    def put(path, *args, &block)
-      @router.put(File.join(@path, path), *args, &block)
+    def put(*args, &block)
+      @router.put(*args, &block)
     end
 
-    def post(path, *args, &block)
-      @router.post(File.join(@path, path), *args, &block)
+    def post(*args, &block)
+      @router.post(*args, &block)
     end
 
-    def delete(path, *args, &block)
-      @router.delete(File.join(@path, path), *args, &block)
+    def delete(*args, &block)
+      @router.delete(*args, &block)
     end
 
     #TODO best name?
