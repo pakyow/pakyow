@@ -8,5 +8,9 @@ module Pakyow
     def bindings(name)
       presenter.bindings(name).bindings
     end
+    
+    def view
+      self.presenter.view
+    end
   end
 end

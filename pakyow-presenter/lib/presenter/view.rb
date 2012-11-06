@@ -4,6 +4,10 @@ module Pakyow
       class << self
         attr_accessor :binders, :default_view_path, :default_is_root_view
 
+        def view_store
+          Pakyow.app.presenter.current_view_store
+        end
+
         def binder_for_scope(scope, bindable)
           bindings = Pakyow.app.presenter.bindings(scope)
           bindings.bindable = bindable
@@ -54,6 +58,16 @@ module Pakyow
           doc['action'] = File.join('/', action)
           doc['method'] = method
         end
+
+        def at_path(view_path)
+          v = self.new(self.view_store.root_path(view_path), true)
+          v.compile(view_path)
+        end
+
+        def root_at_path(view_path)
+          self.new(self.view_store.root_path(view_path), true)
+        end
+
       end
 
       attr_accessor :doc, :scoped_as, :scopes
@@ -76,18 +90,12 @@ module Pakyow
         elsif arg.is_a?(Pakyow::Presenter::View)
           @doc = arg.doc.dup
         elsif arg.is_a?(String)
-          #TODO use File#join
-          if arg[0, 1] == '/'
-            view_path = "#{Configuration::Presenter.view_dir}#{arg}"
-          else
-            view_path = "#{Configuration::Presenter.view_dir}/#{arg}"
-          end
+          view_path = self.class.view_store.real_path(arg)
 
           # run parsers
           format = view_path.split('.')[-1].to_sym
           content = parse_content(File.read(view_path), format)
           
-
           if is_root_view then
             @doc = Nokogiri::HTML::Document.parse(content)
           else
@@ -96,6 +104,11 @@ module Pakyow
         else
           raise ArgumentError, "No View for you! Come back, one year."
         end
+      end
+
+      def compile(view_path)
+        return unless view_info = self.class.view_store.view_info(view_path)
+        self.populate_view(self, view_info[:views])
       end
 
       def parse_content(content, format)
@@ -347,6 +360,29 @@ module Pakyow
       end
 
       protected
+
+      def add_content_to_container(content, container)
+        content = content.doc unless content.class == String || content.class == Nokogiri::HTML::DocumentFragment || content.class == Nokogiri::XML::Element
+        container.add_child(content)
+      end
+
+      def reset_container(container)
+        container.inner_html = ''
+      end
+
+
+      # populates the root_view using view_store data by recursively building
+      # and substituting in child views named in the structure
+      def populate_view(root_view, view_info)
+        root_view.containers.each {|e|
+          next unless path = view_info[e[:name]]
+          
+          v = self.populate_view(View.new(path), view_info)
+          self.reset_container(e[:doc])
+          self.add_content_to_container(v, e[:doc])
+        }
+        root_view
+      end
 
       # returns an array of hashes, each with the container name and doc
       def find_containers

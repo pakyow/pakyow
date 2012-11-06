@@ -13,6 +13,7 @@ module Pakyow
         self.instance_eval(&Presenter.proc) if Presenter.proc
       end
 
+<<<<<<< HEAD
       def scope(name, &block)
         #TODO binding sets
         # just like routes, we need the ability to define bindings externally (e.g. in the restful template)
@@ -28,6 +29,10 @@ module Pakyow
 
       def bindings(scope)
         @bindings[scope]
+=======
+      def current_view_store
+        @view_lookup_store
+>>>>>>> presenter_api
       end
 
       #
@@ -41,6 +46,13 @@ module Pakyow
       def prepare_for_request(request)
         reset_state()
         @request = request
+
+        if @request && @request.route_path && !@request.route_path.is_a?(Regexp) && @request.route_path.index(':')
+          @view_path = StringUtils.remove_route_vars(@request.route_path)
+        else
+          @view_path = @request && @request.working_path
+        end
+        @root_path = @view_lookup_store.root_path(@view_path)
       end
       
       def reset
@@ -85,74 +97,44 @@ module Pakyow
         @root_view
       end
 
-      def set_view(view)
-        @root_view = View.new(view)
+      def view=(v)
+        # TODO: Why is it important to dup here?
+        @root_view = View.new(v)
         @root_view_is_built = true
         @presented = true
-        @view_path = nil
-        @root_path = nil
+      end
+
+      def root
+        @is_compiled = false
+        @root ||= View.root_at_path(@root_path) 
+      end
+
+      def root=(v)
+        @is_compiled = false
+        @root = v
       end
 
       def limit_to_container(id)
         @container_name = id
       end
 
-      def use_view_path(path)
-        @view_path = path
-        @root_view_is_built = false
-      end
-
       def view_path
         @view_path
       end
 
-      def use_root_view_file(abstract_view_file)
-        real_path = @view_lookup_store.real_path(abstract_view_file)
-        @root_path = real_path
-        @root_view_is_built = false
+      def view_path=(path)
+        @is_compiled = false
+        @view_path = path
       end
 
-      def use_root_view_at_view_path(abstract_view_dir)
-        @root_path = @view_lookup_store.view_info(abstract_view_dir)[:root_view]
-        @root_view_is_built = false
-      end
-      
-      # This is for creating views from within a controller using the route based lookup mechanism
-      def view_for_view_path(v_p, name, deep = false)
-        v = nil
-        view_info = @view_lookup_store.view_info(v_p)
-        vpath = view_info[:views][name] if view_info
-        v = View.new(vpath) if vpath
-        if v && deep
-          populate_view(v, view_info[:views])
-        end
-        v
+      def root_path
+        @root_path
       end
 
-      # This is also for creating views from within a controller using the route based lookup mechanism.
-      # This method takes either a dir or file path and builds either a root_view or view, respectively.
-      def view_for_full_view_path(f_v_p, deep = false)
-        v = nil
-        real_path_info = @view_lookup_store.real_path_info(f_v_p)
-        if real_path_info
-          if real_path_info[:file_or_dir] == :file
-            v = View.new(real_path_info[:real_path])
-          elsif real_path_info[:file_or_dir] == :dir
-            root_view = @view_lookup_store.view_info(f_v_p)[:root_view]
-            v = View.new(root_view)
-            if v && deep
-              populate_view(v, @view_lookup_store.view_info(f_v_p)[:views])
-            end
-          end
-        end
-        v
-      end
-
-      def populate_view_for_view_path(view, v_p)
-        return view unless view_info = @view_lookup_store.view_info(v_p)
-        views = view_info[:views]
-        populate_view(view, views)
-        view
+      def root_path=(abstract_path)
+        @is_compiled = false
+        @root = nil
+        @root_path = abstract_path
       end
 
       # Call as part of View DSL for DOM manipulation
@@ -187,16 +169,7 @@ module Pakyow
       def build_root_view
         @root_view_is_built = true
 
-        if @view_path
-          v_p = @view_path
-        elsif @request && @request.restful
-          v_p = restful_view_path(@request.restful)
-        elsif @request && @request.route_path && !@request.route_path.is_a?(Regexp) && @request.route_path.index(':')
-          v_p = StringUtils.remove_route_vars(@request.route_path)
-        else
-          v_p = @request && @request.working_path
-        end
-        return unless v_p
+        return unless v_p = @view_path
 
         return unless view_info = @view_lookup_store.view_info(v_p)
         @root_path ||= view_info[:root_view]
