@@ -28,6 +28,13 @@ module Pakyow
       def prepare_for_request(request)
         reset_state()
         @request = request
+
+        if @request && @request.route_path && !@request.route_path.is_a?(Regexp) && @request.route_path.index(':')
+          @view_path = StringUtils.remove_route_vars(@request.route_path)
+        else
+          @view_path = @request && @request.working_path
+        end
+        @root_path = @view_lookup_store.root_path(@view_path)
       end
       
       def presented?
@@ -72,9 +79,6 @@ module Pakyow
         @root_view = View.new(v)
         @root_view_is_built = true
         @presented = true
-        # TODO: These can probably be removed
-        @view_path = nil
-        @root_path = nil
       end
 
       def root
@@ -96,8 +100,8 @@ module Pakyow
       end
 
       def view_path=(path)
-        @view_path = path
         @is_compiled = false
+        @view_path = path
       end
 
       def root_path
@@ -105,9 +109,9 @@ module Pakyow
       end
 
       def root_path=(abstract_path)
-        @root_path = abstract_path
         @is_compiled = false
         @root = nil
+        @root_path = abstract_path
       end
 
       # Call as part of View DSL for DOM manipulation
@@ -142,16 +146,7 @@ module Pakyow
       def build_root_view
         @root_view_is_built = true
 
-        if @view_path
-          v_p = @view_path
-        elsif @request && @request.restful
-          v_p = restful_view_path(@request.restful)
-        elsif @request && @request.route_path && !@request.route_path.is_a?(Regexp) && @request.route_path.index(':')
-          v_p = StringUtils.remove_route_vars(@request.route_path)
-        else
-          v_p = @request && @request.working_path
-        end
-        return unless v_p
+        return unless v_p = @view_path
 
         return unless view_info = @view_lookup_store.view_info(v_p)
         @root_path ||= view_info[:root_view]
