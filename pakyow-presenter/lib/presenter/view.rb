@@ -60,6 +60,10 @@ module Pakyow
           v.compile(view_path)
         end
 
+        def root_at_path(view_path)
+          self.new(self.view_store.root_path(view_path), true)
+        end
+
       end
 
       attr_accessor :doc, :scoped_as, :scopes
