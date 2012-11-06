@@ -12,9 +12,6 @@ module Pakyow
           bindings = Pakyow.app.presenter.bindings(scope)
           bindings.bindable = bindable
           return bindings
-
-          #return unless View.binders
-          #b_c = View.binders[scope] and b_c.new(bindable)
         end
 
         def view_path(dvp, dirv=false)
@@ -30,33 +27,8 @@ module Pakyow
           %w[input select textarea button].include? tag
         end
 
-        def form_tag?(tag)
-          %w[form].include? tag
-        end
-
         def tag_without_value?(tag)
           %w[select].include? tag
-        end
-
-        def action_for_scoped_object(scope, o, doc)
-          #TODO rewrite to handle restful routes defined for data types, not (just) model names
-          unless routes = Pakyow.app.restful_routes[o.class.name.to_sym]
-            Log.warn "Attempting to bind object to #{o.class.name.downcase}[action] but could not find restful routes for #{o.class.name}."
-            return ''
-          end
-          
-          if id = o[:id]
-            doc.add_child('<input type="hidden" name="_method" value="put">')
-            
-            action = routes[:update].gsub(':id', id.to_s)
-            method = "post"
-          else
-            action = routes[:create]
-            method = "post"
-          end
-          
-          doc['action'] = File.join('/', action)
-          doc['method'] = method
         end
 
         def at_path(view_path)
@@ -500,10 +472,6 @@ module Pakyow
       def bind_data_to_scope(data, scope, binder = nil)
         return unless data
 
-        # set form action
-        #TODO refactor based on new rest implementation
-        #self.set_form_action_for_scope_with_data(scope, data) 
-
         scope[:props].each {|p|
           k = p[:prop]
           v = binder ? binder.value_for_prop(k) : data[k]
@@ -534,14 +502,6 @@ module Pakyow
           v = v.call(doc[attr]) if v.is_a?(Proc)
           v.nil? ? doc.remove_attribute(attr) : doc[attr] = v.to_s
         end
-      end
-
-      def set_form_action_for_scope_with_data(scope, data)
-        doc = self.doc_from_path(scope[:path])
-        return if !View.form_tag?(doc.name)
-
-        #TODO rewrite upon refactoring routing (so restful template works right)
-        doc['action'] = View.action_for_scoped_object(scope, data, doc)
       end
 
       #TODO refactor to use new options_for
