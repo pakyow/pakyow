@@ -16,7 +16,6 @@ module Pakyow
         # just like routes, we need the ability to define bindings externally (e.g. in the restful template)
         # this may require sets of bindings like routes, where the default set (user defined) is the only
         # set that is auto-reloaded. this may not be necessary though.
-        #TODO named fns (in scope only, for now)
         #TODO route to binder class
         # really only makes sense to route a scope to a class, not individual bindings
 

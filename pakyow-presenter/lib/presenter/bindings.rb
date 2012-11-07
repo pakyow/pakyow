@@ -4,17 +4,23 @@ module Pakyow
       attr_accessor :bindable
       attr_reader :bindings
 
+      def func(name, &block)
+        @funcs[name] = block and return if block
+        @funcs[name]
+      end
+
       def self.for(block)
         Bindings.new(block)
       end
 
       def initialize(block)
+        @funcs = {}
         @bindings = {}
         self.instance_exec(&block)
       end
 
-      def binding(name, &block)
-        @bindings[name] = block
+      def binding(name, func = nil, &block)
+        @bindings[name] = func || block
       end
 
       def value_for_prop(prop)
