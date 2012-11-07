@@ -8,9 +8,7 @@ module Pakyow
       attr_accessor :current_context, :parser_store
 
       def initialize
-        reset_state()
-
-        self.instance_eval(&Presenter.proc) if Presenter.proc
+        reset_state
       end
 
       def scope(name, &block)
@@ -194,6 +192,8 @@ module Pakyow
       end
 
       def load_views
+        self.instance_eval(&Presenter.proc) if Presenter.proc
+
         @view_lookup_store = ViewLookupStore.new("#{Configuration::Presenter.view_dir}")
         if Configuration::Base.presenter.view_caching then
           @populated_root_view_cache = build_root_view_cache(@view_lookup_store.view_info)
