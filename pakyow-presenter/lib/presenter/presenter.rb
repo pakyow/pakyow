@@ -11,20 +11,21 @@ module Pakyow
         reset_state
       end
 
-      def scope(name, &block)
-        #TODO binding sets
-        # just like routes, we need the ability to define bindings externally (e.g. in the restful template)
-        # this may require sets of bindings like routes, where the default set (user defined) is the only
-        # set that is auto-reloaded. this may not be necessary though.
+      def scope(name, set = :default, &block)
         #TODO route to binder class
         # really only makes sense to route a scope to a class, not individual bindings
 
-        @bindings ||= {}
-        @bindings[name] = Bindings.for(block)
+        @bindings[set] ||= {}
+        @bindings[set][name] = Bindings.for(block)
       end
 
       def bindings(scope)
-        @bindings[scope]
+        #TODO think about merging on launch instead
+        @bindings.inject(Bindings.new) { |bs, b| m.merge(e[1][scope]) }
+      end
+
+      def reset_bindings(set = :default)
+        @bindings[set] = {}
       end
 
       def current_view_store
@@ -37,6 +38,10 @@ module Pakyow
 
       def load
         load_views
+
+        @bindings ||= {}
+        self.reset_bindings
+        self.instance_eval(&Presenter.proc) if Presenter.proc
       end
 
       def prepare_for_request(request)
@@ -191,8 +196,6 @@ module Pakyow
       end
 
       def load_views
-        self.instance_eval(&Presenter.proc) if Presenter.proc
-
         @view_lookup_store = ViewLookupStore.new("#{Configuration::Presenter.view_dir}")
         if Configuration::Base.presenter.view_caching then
           @populated_root_view_cache = build_root_view_cache(@view_lookup_store.view_info)

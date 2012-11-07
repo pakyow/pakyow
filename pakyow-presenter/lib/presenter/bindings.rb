@@ -13,10 +13,10 @@ module Pakyow
         Bindings.new(block)
       end
 
-      def initialize(block)
+      def initialize(block = nil)
         @funcs = {}
         @bindings = {}
-        self.instance_exec(&block)
+        self.instance_exec(&block) if block
       end
 
       def binding(name, func = nil, &block)
@@ -26,6 +26,11 @@ module Pakyow
       def value_for_prop(prop)
         return @bindable[prop] unless binding = @bindings[prop]
         self.instance_exec(&binding)
+      end
+
+      def merge(bindings)
+        @bindings = bindings.bindings.merge(@bindings)
+        self
       end
     end
   end
