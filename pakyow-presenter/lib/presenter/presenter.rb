@@ -12,11 +12,11 @@ module Pakyow
       end
 
       def scope(name, set = :default, &block)
-        #TODO route to binder class
-        # really only makes sense to route a scope to a class, not individual bindings
-
         @bindings[set] ||= {}
-        @bindings[set][name] = Bindings.for(block)
+
+        bs = Bindings.for(block)
+        @bindings[set][name] = bs
+        bs
       end
 
       def bindings(scope)
