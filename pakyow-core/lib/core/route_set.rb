@@ -21,6 +21,12 @@ module Pakyow
       @routes[method.to_sym].select{|r| r[0].is_a?(Regexp) ? r[0].match(path) : r[0] == path}[0]
     end
 
+    def handle(name_or_code)
+      @handlers.each{ |h|
+        return h if h[0] == name_or_code || h[1] == name_or_code
+      }
+    end
+
     # Name based route lookup
     def route(name, group = nil)
       return @routes_by_name[name] unless group

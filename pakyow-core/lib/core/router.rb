@@ -59,9 +59,10 @@ module Pakyow
     end
 
     def handle!(name_or_code)
-      #TODO use sets
-      @handlers.each{ |h| 
-        self.trampoline(h[2]) and break if h[0] == name_or_code || h[1] == name_or_code
+      @sets.each { |set|
+        if h = set[1].handle(name_or_code)
+          self.trampoline(h[2]) and break
+        end
       }
     end
 
