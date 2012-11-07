@@ -21,7 +21,7 @@ module Pakyow
 
       def bindings(scope)
         #TODO think about merging on launch instead
-        @bindings.inject(Bindings.new) { |bs, b| m.merge(e[1][scope]) }
+        @bindings.inject(Bindings.new) { |bs, b| bs.merge(b[1][scope]) }
       end
 
       def reset_bindings(set = :default)
