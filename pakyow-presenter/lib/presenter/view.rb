@@ -298,9 +298,11 @@ module Pakyow
       #
       # Binds data across existing scopes.
       #
-      def bind(data, &block)
+      def bind(data, bindings = nil, &block)
         scope = self.bindings.first
+
         binder = View.binder_for_scope(scope[:scope], data)
+        binder.merge(bindings)
 
         self.bind_data_to_scope(data, scope, binder)
         yield(self, data) if block_given?
@@ -311,8 +313,8 @@ module Pakyow
       #
       # Matches self to data then binds data to the view.
       #
-      def apply(data, &block)
-        views = self.match(data).bind(data, &block)
+      def apply(data, bindings = nil, &block)
+        views = self.match(data).bind(data, bindings, &block)
       end
 
       def container(name)

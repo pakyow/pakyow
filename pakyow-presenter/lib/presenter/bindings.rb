@@ -30,16 +30,27 @@ module Pakyow
           binder = Kernel.const_get(@mapping).new(@bindable)
           binder.value_for_prop(prop)
         elsif binding = @bindings[prop]
-          self.instance_exec(&binding)
+          case binding.arity
+            when 0
+              self.instance_exec(&binding)
+            when 1
+              self.instance_exec(@bindable, &binding)
+          end
         else
           # default
           @bindable[prop]
         end
       end
 
+      # Merges a Bindings instance or Hash of bindings to self
       def merge(bindings)
-        @bindings = bindings.bindings.merge(@bindings)
-        @mapping = bindings.mapping if bindings.mapping
+        if bindings.is_a?(Hash)
+          @bindings = @bindings.merge(bindings)
+        elsif bindings
+          @bindings = bindings.bindings.merge(@bindings)
+          @mapping = bindings.mapping if bindings.mapping
+        end
+
         self
       end
 

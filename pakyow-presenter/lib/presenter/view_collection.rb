@@ -167,9 +167,9 @@ module Pakyow
       #
       # Binds data across existing scopes.
       #
-      def bind(data, &block)
+      def bind(data, bindings = nil, &block)
         self.for(data) {|view, datum|
-          view.bind(datum)
+          view.bind(datum, bindings)
           yield(view, datum) if block_given?
         }
       end
@@ -179,8 +179,8 @@ module Pakyow
       #
       # Matches self to data then binds data to the view.
       #
-      def apply(data, &block)
-        self.match(data).bind(data, &block)
+      def apply(data, bindings = nil, &block)
+        self.match(data).bind(data, bindings, &block)
       end
     end
   end
