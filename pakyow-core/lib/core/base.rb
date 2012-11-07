@@ -5,10 +5,12 @@ require 'core/request'
 require 'core/response'
 require 'core/loader'
 require 'core/router'
+require 'core/route_set'
+require 'core/route_template'
+require 'core/route_lookup'
 require 'core/application'
 require 'core/cache'
 require 'core/presenter_base'
-require 'core/route_lookup'
 require 'core/fn_context'
 
 # middlewares

@@ -326,7 +326,8 @@ module Pakyow
     #
     def load_core
       @router = Router.instance
-      @router.instance_eval(&self.class.core_proc) if self.class.core_proc
+
+      @router.set(:default, &self.class.core_proc) if self.class.core_proc
     end
     
     # Send the response and cleanup.
