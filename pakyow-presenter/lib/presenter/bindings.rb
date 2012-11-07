@@ -25,10 +25,9 @@ module Pakyow
 
       def value_for_prop(prop)
         # mapping always overrides fns for a scope
-        #TODO single binder instance for scope (bind call)
         if @mapping
-          binder = Kernel.const_get(@mapping).new(@bindable)
-          binder.value_for_prop(prop)
+          @binder ||= Kernel.const_get(@mapping).new(@bindable)
+          @binder.value_for_prop(prop)
         elsif binding = @bindings[prop]
           case binding.arity
             when 0
