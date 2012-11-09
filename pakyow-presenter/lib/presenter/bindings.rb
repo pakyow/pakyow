@@ -6,7 +6,7 @@ module Pakyow
 
       include GeneralHelpers
 
-      def func(name, &block)
+      def fn(name, &block)
         @funcs[name] = block and return if block
         @funcs[name]
       end

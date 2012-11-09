@@ -31,7 +31,7 @@ module Pakyow
       end
     end
 
-    def func(name)
+    def fn(name)
       @expanding ? @fns[name] : @router.func(name)
     end
 
