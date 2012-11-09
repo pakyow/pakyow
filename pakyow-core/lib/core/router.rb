@@ -16,6 +16,15 @@ module Pakyow
       @sets[name] = set
     end
 
+    # Name based route lookup
+    def route(name, group = nil)
+      @sets.each { |set|
+        if r = set[1].route(name, group)
+          return r
+        end
+      }
+    end
+
     # Finds route by path and calls each function in order
     def route!(request)
       path   = request.working_path

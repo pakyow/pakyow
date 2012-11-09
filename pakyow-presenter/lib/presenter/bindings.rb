@@ -4,6 +4,8 @@ module Pakyow
       attr_accessor :bindable
       attr_reader :bindings, :mapping
 
+      include GeneralHelpers
+
       def func(name, &block)
         @funcs[name] = block and return if block
         @funcs[name]

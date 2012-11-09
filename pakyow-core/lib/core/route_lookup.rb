@@ -25,7 +25,7 @@ module Pakyow
         split_path[v[:position]] = data[v[:var]]
       }
 
-      split_path.join('/')
+      File.join('/', split_path.join('/'))
     end
 
     protected

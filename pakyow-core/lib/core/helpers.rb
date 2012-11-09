@@ -9,6 +9,10 @@ module Pakyow
     def response
       Pakyow.app.response
     end
+    
+    def router
+      RouteLookup.new
+    end
   end
 
   # Helper methods specific to delegates and controllers.
@@ -17,10 +21,6 @@ module Pakyow
     
     def app
       Pakyow.app
-    end
-
-    def router
-      RouteLookup.new
     end
   end
 end
