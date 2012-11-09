@@ -25,6 +25,8 @@ module Pakyow
       @handlers.each{ |h|
         return h if h[0] == name_or_code || h[1] == name_or_code
       }
+
+      nil
     end
 
     # Name based route lookup
