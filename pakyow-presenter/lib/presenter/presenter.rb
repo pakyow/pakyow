@@ -103,6 +103,10 @@ module Pakyow
         @root_view = View.new(v)
         @root_view_is_built = true
         @presented = true
+
+        # reset paths
+        @view_path = nil
+        @root_path = nil
       end
 
       def root
