@@ -33,7 +33,7 @@ module Pakyow
             when 0
               self.instance_exec(&binding)
             when 1
-              self.instance_exec(@bindable, &binding)
+              self.instance_exec(@bindable[prop], &binding)
           end
         else
           # default
