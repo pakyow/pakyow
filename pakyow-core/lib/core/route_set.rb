@@ -27,7 +27,7 @@ module Pakyow
           end
         when String
           if r[0] == path
-            return r
+            return r, nil
           end
         end
       }
