@@ -9,6 +9,8 @@ module Pakyow
         r = Pakyow.app.request
 
         while(r) do
+          Pakyow.app.presenter.prepare_for_request(Pakyow.app.request)
+
           r = catch(:rerouted) {
                    @app.call(@env)
                    nil
