@@ -1,5 +1,16 @@
 module Pakyow
   class Router
+    class << self
+      # remove leading/trailing forward slashes
+      def normalize_path(path)
+        return path if path.is_a?(Regexp)
+
+        path = path[1, path.length - 1] if path[0, 1] == '/'
+        path = path[0, path.length - 1] if path[path.length - 1, 1] == '/'
+        path
+      end
+    end
+
     def initialize
       @sets = {}
     end
@@ -27,7 +38,7 @@ module Pakyow
 
     # Finds route by path and calls each function in order
     def route!(request)
-      path   = request.working_path
+      path   = Router.normalize_path(request.working_path)
       method = request.working_method
 
       @routed = false
@@ -40,7 +51,7 @@ module Pakyow
 
       # handle route params
       #TODO where to do this?
-      request.params.merge!(HashUtils.strhash(self.data_from_path(path, match[1])))
+      request.params.merge!(HashUtils.strhash(self.data_from_path(path, match[0], match[1])))
 
       #TODO where to do this?
       request.route_path = match[4]
@@ -55,7 +66,7 @@ module Pakyow
       fns = ((match = self.find_match(path, method)) ? match[3] : [] )
 
       #TODO where to do this?
-      request.params.merge!(HashUtils.strhash(self.data_from_path(path, match[1])))
+      request.params.merge!(HashUtils.strhash(self.data_from_path(path, match[0], match[1])))
       
       #TODO where to do this?
       request.route_path = match[4]
@@ -116,10 +127,12 @@ module Pakyow
       end
     end
 
-    def data_from_path(path, vars)
+    def data_from_path(path, regex, vars)
       data = {}
+      return data unless matches = regex.match(path)
+
       vars.each {|v|
-        data[v[:var]] = Pakyow.app.request.path_parts[v[:position]]
+        data[v[:var]] = matches[v[:position]]
       }
 
       data
