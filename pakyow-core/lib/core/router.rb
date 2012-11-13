@@ -48,31 +48,20 @@ module Pakyow
         match, data = set[1].match(path, method)
         break if match
       }
-      return unless match
 
-      # handle route params
-      #TODO where to do this?
-      request.params.merge!(HashUtils.strhash(self.data_from_path(path, data, match[1])))
+      fns = []
+      if match
+        fns = match[3]
 
-      #TODO where to do this?
-      request.route_path = match[4]
+        # handle route params
+        #TODO where to do this?
+        request.params.merge!(HashUtils.strhash(self.data_from_path(path, data, match[1])))
 
-      self.trampoline(match[3])
-    end
+        #TODO where to do this?
+        request.route_path = match[4]
+      end
 
-    def reroute!(request)
-      path   = request.working_path
-      method = request.working_method
-
-      fns = ((match = self.find_match(path, method)) ? match[3] : [] )
-
-      #TODO where to do this?
-      request.params.merge!(HashUtils.strhash(self.data_from_path(path, match[0], match[1])))
-      
-      #TODO where to do this?
-      request.route_path = match[4]
-
-      throw :reroute, fns
+      self.trampoline(fns)
     end
 
     def routed?
@@ -104,7 +93,7 @@ module Pakyow
       until fns.empty?
         fns = catch(:reroute) {
           self.call_fns(fns)
-          
+
           # Getting here means that call() returned normally (not via a throw)
           :fall_through
         } # end :reroute catch block
@@ -115,15 +104,6 @@ module Pakyow
         @routed = case fns
           when []             then false
           when :fall_through  then fns = [] and true
-        end
-
-        # we're done here
-        next if fns.empty?
-        
-        begin
-          # caught by other middleware (e.g. presenter)
-          throw :rerouted, Pakyow.app.request
-        rescue ArgumentError
         end
       end
     end

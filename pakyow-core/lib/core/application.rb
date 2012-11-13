@@ -215,7 +215,12 @@ module Pakyow
     #TODO move out of app into helpers available to route logic context
     def reroute!(path, method=nil)
       self.request.setup(path, method)
-      @router.reroute!(self.request)
+
+      begin
+        # caught by other middleware (e.g. presenter)
+        throw :rerouted, Pakyow.app.request
+      rescue ArgumentError
+      end
     end
 
     #TODO consider renaming this to #handle (maybe w/o exclamation point)
