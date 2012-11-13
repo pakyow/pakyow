@@ -31,6 +31,8 @@ module Pakyow
           end
         end
       }
+
+      nil
     end
 
     def handle(name_or_code)
