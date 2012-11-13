@@ -12,8 +12,9 @@ module Pakyow
         }
       rescue StandardError => error
         Pakyow.app.request.error = error
-        Pakyow.app.router.handle!(500)
+
         Pakyow.app.response.status = 500
+        Pakyow.app.router.handle!(500)
 
         if Configuration::Base.app.errors_in_browser
           Pakyow.app.response.body = []

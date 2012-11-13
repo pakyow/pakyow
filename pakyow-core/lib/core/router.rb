@@ -47,6 +47,41 @@ module Pakyow
 
     # Finds route by path and calls each function in order
     def route!(request)
+      self.trampoline(self.match(request))
+    end
+
+    def reroute!(request)
+      throw :fns, self.router.match(request)
+    end
+
+    def handle!(name_or_code, from_logic = false)
+      @sets.each { |set|
+        if h = set[1].handle(name_or_code)
+          Pakyow.app.response.status = h[0]
+          from_logic ? throw(:fns, h[2]) : self.trampoline(h[2])
+          break
+        end
+      }
+    end
+
+    def routed?
+      @routed
+    end
+
+    def call_fns(fns)
+      fns.each {|fn| self.context.instance_exec(&fn)}
+    end
+
+    #TODO this may be the thing that should be passed between
+    #  middlewares, consisting of current req/res and access
+    #  to helper methods.
+    def context
+      FnContext.new
+    end
+
+    protected
+
+    def match(request)
       path   = Router.normalize_path(request.working_path)
       method = request.working_method
 
@@ -70,42 +105,17 @@ module Pakyow
         request.route_path = match[4]
       end
 
-      self.trampoline(fns)
+      fns
     end
-
-    def routed?
-      @routed
-    end
-
-    def handle!(name_or_code)
-      @sets.each { |set|
-        if h = set[1].handle(name_or_code)
-          self.trampoline(h[2]) and break
-        end
-      }
-    end
-
-    def call_fns(fns)
-      fns.each {|fn| self.context.instance_exec(&fn)}
-    end
-
-    #TODO this may be the thing that should be passed between
-    #  middlewares, consisting of current req/res and access
-    #  to helper methods.
-    def context
-      FnContext.new
-    end
-
-    protected
 
     def trampoline(fns)
       until fns.empty?
-        fns = catch(:reroute) {
+        fns = catch(:fns) {
           self.call_fns(fns)
 
           # Getting here means that call() returned normally (not via a throw)
           :fall_through
-        } # end :reroute catch block
+        } # end :fns catch block
 
         # If reroute! or invoke_handler! was called in the block, block will have a new value (nil or block).
         # If neither was called, block will be :fall_through

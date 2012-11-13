@@ -16,7 +16,7 @@ module Pakyow
           Pakyow.app.presenter.reset if Pakyow.app.presenter
 
           Pakyow.app.response.status = 404
-          Pakyow.app.invoke_handler!(404)
+          Pakyow.app.router.handle!(404)
 
           if Pakyow.app.presenter
             # consider moving to presenter middleware

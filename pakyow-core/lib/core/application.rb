@@ -217,16 +217,19 @@ module Pakyow
       self.request.setup(path, method)
 
       begin
-        # caught by other middleware (e.g. presenter)
-        throw :rerouted, Pakyow.app.request
+        # caught by other middleware (e.g. presenter) that does something with the
+        # new request then hands it back down to the router
+        throw :rerouted, self.request
       rescue ArgumentError
+        # nobody caught it, so tell the router to reroute
+        self.router.reroute!(self.request)
       end
     end
 
     #TODO consider renaming this to #handle (maybe w/o exclamation point)
     #TODO move out of app into helpers available to route logic context
     def invoke_handler!(name_or_code)
-      @router.handle!(name_or_code)
+      self.router.handle!(name_or_code, true)
     end
 
     def setup_rr(env)
