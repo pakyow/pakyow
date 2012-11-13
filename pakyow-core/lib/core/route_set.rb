@@ -15,10 +15,22 @@ module Pakyow
 
       @scope  = {:name => nil, :path => '/', :hooks => {:before => [], :after => []}}
     end
-    
+
     def match(path, method)
       path = Router.normalize_path(path)
-      @routes[method.to_sym].select{|r| r[0].is_a?(Regexp) ? r[0].match(path) : r[0] == path}[0]
+
+      @routes[method.to_sym].each{|r| 
+        case r[0]
+        when Regexp
+          if data = r[0].match(path)
+            return r, data
+          end
+        when String
+          if r[0] == path
+            return r
+          end
+        end
+      }
     end
 
     def handle(name_or_code)

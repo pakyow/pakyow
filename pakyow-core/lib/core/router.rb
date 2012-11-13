@@ -43,15 +43,16 @@ module Pakyow
 
       @routed = false
 
-      match = nil
+      match, data = nil
       @sets.each { |set|
-        break if match = set[1].match(path, method)
+        match, data = set[1].match(path, method)
+        break if match
       }
       return unless match
 
       # handle route params
       #TODO where to do this?
-      request.params.merge!(HashUtils.strhash(self.data_from_path(path, match[0], match[1])))
+      request.params.merge!(HashUtils.strhash(self.data_from_path(path, data, match[1])))
 
       #TODO where to do this?
       request.route_path = match[4]
@@ -127,9 +128,9 @@ module Pakyow
       end
     end
 
-    def data_from_path(path, regex, vars)
+    def data_from_path(path, matches, vars)
       data = {}
-      return data unless matches = regex.match(path)
+      return data unless matches
 
       vars.each {|v|
         data[v[:var]] = matches[v[:position]]
