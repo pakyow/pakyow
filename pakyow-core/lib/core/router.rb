@@ -36,6 +36,15 @@ module Pakyow
       }
     end
 
+    # Name based function lookup
+    def fn(name)
+      @sets.each { |set|
+        if f = set[1].fn(name)
+          return f
+        end
+      }
+    end
+
     # Finds route by path and calls each function in order
     def route!(request)
       path   = Router.normalize_path(request.working_path)
