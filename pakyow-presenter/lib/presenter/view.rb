@@ -203,7 +203,7 @@ module Pakyow
         name = name.to_sym
 
         views = ViewCollection.new
-        self.bindings.select{|b| b[:scope] == name}.each{|s| 
+        self.bindings.select{|b| b[:scope] == name}.each{|s|
           v = self.view_from_path(s[:path])
           v.bindings = self.bindings_for_child_view(v)
           v.scoped_as = s[:scope]
@@ -412,8 +412,8 @@ module Pakyow
           # we want paths within the child path
           if (child_path - binding[:path]).empty?
             # update paths relative to child
-            dup = binding.dup
-
+            dup = Marshal.load(Marshal.dump(binding))
+            
             [dup].concat(dup[:props]).each{|p|
               p[:path] = p[:path][child_path_len..-1]
             }
@@ -446,7 +446,7 @@ module Pakyow
           path.unshift(a.children.index(child))
           child = a
         }
-        
+
         return path
       end
 
