@@ -2,16 +2,17 @@
 
 CORE_PATH = File.expand_path('../../lib', __FILE__)
 
-if ARGV.first == 'new'
+case ARGV.first
+when 'new'
   ARGV.shift
   require 'generators/pakyow/app/app_generator'
   Pakyow::Generators::AppGenerator.start
-elsif ARGV.first == 'server'
+when 'server'
   ARGV.shift
   require File.join(CORE_PATH, 'commands/server')
-elsif ARGV.first == 'console'
+when 'console'
   ARGV.shift
   require File.join(CORE_PATH, 'commands/console')
-elsif ARGV.first == '--help' || ARGV.first == '-h' || ARGV.empty?
+when '--help', '-h', nil
   puts File.open(File.join(CORE_PATH, 'commands/USAGE')).read
 end
