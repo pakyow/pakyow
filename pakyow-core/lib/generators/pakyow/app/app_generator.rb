@@ -6,7 +6,7 @@ module Pakyow
       class << self
         def start
           case ARGV.first
-          when '--help', '-h'
+          when '--help', '-h', nil
             puts File.open(File.join(CORE_PATH, 'commands/USAGE-NEW')).read
           else
             generator = self.new
