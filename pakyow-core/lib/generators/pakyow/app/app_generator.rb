@@ -5,7 +5,8 @@ module Pakyow
     class AppGenerator
       class << self
         def start
-          if ARGV.first == '--help' || ARGV.first == '-h'
+          case ARGV.first
+          when '--help', '-h'
             puts File.open(File.join(CORE_PATH, 'commands/USAGE-NEW')).read
           else
             generator = self.new
