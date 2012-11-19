@@ -20,7 +20,16 @@ module Pakyow
       end
       
       def build(dest)
-        FileUtils.cp_r(@src, dest)
+        if !File.directory?(dest) || (Dir.entries(dest) - ['.', '..']).empty?
+          FileUtils.cp_r(@src, dest)
+        else
+          ARGV.clear
+          print "The folder '#{dest}' is in use. Would you like to populate it anyway? [Yn] "
+
+          if gets.chomp! == 'Y'
+            FileUtils.cp_r(@src, dest)
+          end
+        end
       end
     end
   end
