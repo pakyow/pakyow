@@ -9,6 +9,7 @@ module Pakyow
 
       def initialize
         reset_state
+        reset_bindings
       end
 
       def scope(name, set = :default, &block)
@@ -25,6 +26,7 @@ module Pakyow
       end
 
       def reset_bindings(set = :default)
+        @bindings ||= {}
         @bindings[set] = {}
       end
 
@@ -39,7 +41,6 @@ module Pakyow
       def load
         load_views
 
-        @bindings ||= {}
         self.reset_bindings
         self.instance_eval(&Presenter.proc) if Presenter.proc
       end

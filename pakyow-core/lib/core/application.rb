@@ -197,7 +197,7 @@ module Pakyow
     def initialize
       Pakyow.app = self
 
-      Pakyow.app.presenter = Configuration::Base.app.presenter.new if Configuration::Base.app.presenter
+      Pakyow.app.presenter = Configuration::Base.app.presenter.instance if Configuration::Base.app.presenter
             
       # Load application files
       load_app(false)

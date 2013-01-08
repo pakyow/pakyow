@@ -3,5 +3,9 @@ module Pakyow
     def self.inherited(subclass)
       Configuration::Base.app.presenter = subclass
     end
+
+    def self.instance
+      @@instance ||= self.new
+    end
   end
 end
