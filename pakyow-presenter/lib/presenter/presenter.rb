@@ -204,7 +204,6 @@ module Pakyow
       def load_views
         @view_stores = {}
         Configuration::Presenter.view_stores.each_pair {|name, path|
-          pp name
           @view_stores[name] = ViewLookupStore.new(path)
         }
 
