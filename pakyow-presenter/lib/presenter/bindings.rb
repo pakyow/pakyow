@@ -64,6 +64,27 @@ module Pakyow
         # sets flag on self to indicate it's a mapping
         # value_for_prop checks flag, if set call Binder (just like 0.7)
       end
+
+      def restful(route_group)
+        self.binding(:action) {
+          routes = router.group(route_group)
+          return_data = {}
+
+          if id = bindable[:id]
+            return_data[:content] = lambda { |content|
+              '<input type="hidden" name="_method" value="put">' + content
+            }
+
+            action = routes.populate(:update, :id => id)
+          else
+            action = routes.populate(:create)
+          end
+
+          return_data[:action] = action
+          return_data[:method] = 'post' 
+          return_data
+        }
+      end
     end
   end
 end

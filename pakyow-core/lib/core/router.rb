@@ -32,6 +32,8 @@ module Pakyow
           return r
         end
       }
+
+      nil
     end
 
     # Name based function lookup

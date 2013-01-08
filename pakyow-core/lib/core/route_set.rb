@@ -203,7 +203,7 @@ module Pakyow
           ret[1] = arg
         elsif arg.is_a?(Proc) # we have a fn
           ret[1] = [arg]
-        else # we have a name
+        elsif !arg.nil? # we have a name
           ret[0] = arg
         end
       }

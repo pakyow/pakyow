@@ -15,10 +15,10 @@ module Pakyow
       self
     end
 
-    def populate(name, data)
+    def populate(name, data = {})
       route = self.get_named_route(name)
       vars  = route[1]
-
+      
       split_path = Request.split_url(route[4])
       
       vars.each {|v|

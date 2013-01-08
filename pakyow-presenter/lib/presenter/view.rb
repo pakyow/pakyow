@@ -503,7 +503,11 @@ module Pakyow
 
       def bind_attributes_to_doc(attrs, doc)
         attrs.each do |attr, v|
-          bind_value_to_doc(v, doc) and next if attr == :content
+          if attr == :content
+            v = v.call(doc.inner_html) if v.is_a?(Proc)
+            bind_value_to_doc(v, doc)
+            next
+          end
 
           attr = attr.to_s
           v = v.call(doc[attr]) if v.is_a?(Proc)
