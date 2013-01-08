@@ -2,7 +2,7 @@ module Pakyow
   module Presenter
     class Bindings
       attr_accessor :bindable
-      attr_reader :bindings, :mapping
+      attr_reader :bindings, :binding_options, :mapping
 
       include GeneralHelpers
 
@@ -18,11 +18,22 @@ module Pakyow
       def initialize(block = nil)
         @funcs = {}
         @bindings = {}
+        @binding_options = {}
         self.instance_exec(&block) if block
       end
 
       def binding(name, func = nil, &block)
         @bindings[name] = func || block
+      end
+
+      def options(name, func = nil, &block)
+        @binding_options[name] = func || block
+      end
+
+      def options_for_prop(prop)
+        if fn = @binding_options[prop]
+          fn.call
+        end
       end
 
       def value_for_prop(prop)
@@ -50,8 +61,9 @@ module Pakyow
         elsif bindings
           @bindings = bindings.bindings.merge(@bindings)
           @mapping = bindings.mapping if bindings.mapping
+          @binding_options = bindings.binding_options if bindings.binding_options && !bindings.binding_options.empty?
         end
-
+        
         self
       end
 

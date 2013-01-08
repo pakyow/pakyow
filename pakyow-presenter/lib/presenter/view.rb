@@ -303,7 +303,7 @@ module Pakyow
 
         binder = View.binder_for_scope(scope[:scope], data)
         binder.merge(bindings)
-
+        
         self.bind_data_to_scope(data, scope, binder)
         yield(self, data) if block_given?
       end
@@ -534,7 +534,7 @@ module Pakyow
           # and fail when binding to a view
           value = value.to_s
         # special binding for selects
-        elsif doc.name == 'select' && binder && options = binder.fetch_options_for(prop)
+        elsif doc.name == 'select' && binder && options = binder.options_for_prop(prop)
           option_nodes = Nokogiri::HTML::DocumentFragment.parse ""
           Nokogiri::HTML::Builder.with(option_nodes) do |h|
             until options.length == 0
