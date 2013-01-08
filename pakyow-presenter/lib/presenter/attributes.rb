@@ -59,9 +59,9 @@ module Pakyow
       end
 
       def deconstruct_attribute_value_of_type(value, type)
-        return value             if type == :single
-        return value.split(' ')  if type == :multiple
-        return !value.nil?       if type == :boolean
+        return value                          if type == :single
+        return value ? value.split(' ') : []  if type == :multiple
+        return !value.nil?                    if type == :boolean
       end
 
       def construct_attribute_value_of_type(value, type, attribute)
