@@ -5,7 +5,7 @@ module Pakyow
         attr_accessor :binders, :default_view_path, :default_is_root_view
 
         def view_store
-          Pakyow.app.presenter.current_view_store
+          Pakyow.app.presenter.current_view_lookup_store
         end
 
         def binder_for_scope(scope, bindable)

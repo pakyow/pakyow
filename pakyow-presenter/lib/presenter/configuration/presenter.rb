@@ -2,7 +2,7 @@ module Pakyow
   module Configuration
     class Presenter
       class << self
-        attr_accessor :view_caching, :javascripts, :stylesheets, :view_dir, :default_view,
+        attr_accessor :view_caching, :javascripts, :stylesheets, :view_stores, :default_view,
         :scope_attribute, :prop_attribute, :container_attribute
         
         # Location of javascripts
@@ -15,8 +15,8 @@ module Pakyow
           @stylesheets || '/stylesheets'
         end
 
-        def view_dir
-          @view_dir || "#{Configuration::Base.app.root}/views"
+        def view_stores
+          @view_stores ||= {:default => "#{Configuration::Base.app.root}/views"}
         end
         
         def view_caching

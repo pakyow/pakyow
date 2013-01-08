@@ -5,7 +5,7 @@ module Pakyow
         attr_accessor :proc
       end
 
-      attr_accessor :current_context, :parser_store
+      attr_accessor :current_context, :parser_store, :view_store
 
       def initialize
         reset_state
@@ -30,8 +30,8 @@ module Pakyow
         @bindings[set] = {}
       end
 
-      def current_view_store
-        @view_lookup_store
+      def current_view_lookup_store
+        @view_stores[self.view_store]
       end
 
       #
@@ -54,7 +54,7 @@ module Pakyow
         else
           @view_path = @request && @request.working_path
         end
-        @root_path = @view_lookup_store.root_path(@view_path)
+        @root_path = self.current_view_lookup_store.root_path(@view_path)
       end
       
       def reset
@@ -85,7 +85,7 @@ module Pakyow
       #
 
       def view_for_path(abstract_path, is_root_view=false, klass=View)
-        real_path = @view_lookup_store.real_path(abstract_path)
+        real_path = self.current_view_lookup_store.real_path(abstract_path)
         klass.new(real_path, is_root_view)
       end
 
@@ -164,6 +164,7 @@ module Pakyow
       #
 
       def reset_state
+        @view_store = :default
         @presented = false
         @root_path = nil
         @root_view_is_built = false
@@ -177,7 +178,7 @@ module Pakyow
 
         return unless v_p = @view_path
 
-        return unless view_info = @view_lookup_store.view_info(v_p)
+        return unless view_info = self.current_view_lookup_store.view_info(v_p)
         @root_path ||= view_info[:root_view]
 
         if Configuration::Base.presenter.view_caching
@@ -201,9 +202,14 @@ module Pakyow
       end
 
       def load_views
-        @view_lookup_store = ViewLookupStore.new("#{Configuration::Presenter.view_dir}")
+        @view_stores = {}
+        Configuration::Presenter.view_stores.each_pair {|name, path|
+          pp name
+          @view_stores[name] = ViewLookupStore.new(path)
+        }
+
         if Configuration::Base.presenter.view_caching then
-          @populated_root_view_cache = build_root_view_cache(@view_lookup_store.view_info)
+          @populated_root_view_cache = build_root_view_cache(self.current_view_lookup_store.view_info)
         end
       end
 
