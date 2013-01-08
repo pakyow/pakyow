@@ -21,10 +21,8 @@ module Pakyow
     end
 
     def set(name, &block)
-      set = RouteSet.new
-      set.instance_exec(&block)
-
-      @sets[name] = set
+      @sets[name] ||= RouteSet.new
+      @sets[name].instance_exec(&block)
     end
 
     # Name based route lookup
