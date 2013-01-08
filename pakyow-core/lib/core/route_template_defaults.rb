@@ -1,5 +1,5 @@
 Pakyow::Router.instance.set(:default) {
-  template(:restful) { |data|
+  template(:restful) {
     get '/', fn(:index)
 
     # special case for show (view path is overridden)
