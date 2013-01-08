@@ -474,6 +474,11 @@ module Pakyow
       def bind_data_to_scope(data, scope, binder = nil)
         return unless data
 
+        # handle root binding
+        if binder && v = binder.value_for_prop(:_root)
+          v.is_a?(Hash) ? self.bind_attributes_to_doc(v, self.doc) : self.bind_value_to_doc(v, self.doc)
+        end
+
         scope[:props].each {|p|
           k = p[:prop]
           v = binder ? binder.value_for_prop(k) : data[k]
