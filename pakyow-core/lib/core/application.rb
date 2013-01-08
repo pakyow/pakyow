@@ -324,7 +324,7 @@ module Pakyow
       load(Configuration::App.application_path) if reload_app
 
       @loader = Loader.new unless @loader
-      @loader.load!(Configuration::Base.app.src_dir)
+      @loader.load_from_path(Configuration::Base.app.src_dir)
 
       self.load_core
       self.presenter.load if self.presenter

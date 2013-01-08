@@ -4,7 +4,7 @@ module Pakyow
   class Loader
 
     # Loads files in the provided path, decending into child directories.
-    def load!(path)
+    def load_from_path(path)
       require_recursively(path)
     end
     
