@@ -144,7 +144,9 @@ module Pakyow
       # from map and extends get (and others) to add proper names
       t.expand(@templates[t_name], data)
     end
-    
+
+    protected
+
     def merge_hooks(h1, h2)
       # normalize
       h1[:before]  ||= []
@@ -160,8 +162,6 @@ module Pakyow
       h1[:around].concat(h2[:around])
       h1
     end
-
-    protected
 
     def register_route(method, path, *args, &block)
       name, fns, hooks = self.parse_route_args(args)

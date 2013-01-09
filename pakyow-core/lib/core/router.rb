@@ -68,18 +68,15 @@ module Pakyow
       @routed
     end
 
+    protected
+
     def call_fns(fns)
       fns.each {|fn| self.context.instance_exec(&fn)}
     end
 
-    #TODO this may be the thing that should be passed between
-    #  middlewares, consisting of current req/res and access
-    #  to helper methods.
     def context
       FnContext.new
     end
-
-    protected
 
     def match(request)
       path   = Router.normalize_path(request.working_path)
