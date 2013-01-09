@@ -3,16 +3,6 @@ module Pakyow
   # Utility methods for strings.
   class StringUtils
 
-    # Creates an underscored, lowercase version of a string.
-    # This was borrowed from another library, probably ActiveSupport.
-    def self.underscore(string)
-      string.gsub(/::/, '/').
-        gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
-        gsub(/([a-z\d])([A-Z])/,'\1_\2').
-        tr("-", "_").
-        downcase
-    end
-
     # split . seperated string at the last .
     def self.split_at_last_dot(s)
       split_index = s.rindex('.')
