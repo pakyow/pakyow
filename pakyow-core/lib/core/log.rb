@@ -10,6 +10,10 @@ module Pakyow
       @@file = File.exists?(d) ? File.open("#{d}/#{Configuration::Base.app.log_name}", 'a') : nil
     end
 
+    def self.close
+      @@file.close if @@file
+    end
+
     # Adds text to the log. 
     def self.puts(text = "")
       return if !Configuration::Base.app.log
