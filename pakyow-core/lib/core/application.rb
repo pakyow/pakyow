@@ -201,6 +201,9 @@ module Pakyow
             
       # Load application files
       load_app(false)
+
+      # Prepare for logging
+      Log.reopen
     end
 
     # Interrupts the application and returns response immediately.

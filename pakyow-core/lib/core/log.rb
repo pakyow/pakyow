@@ -2,20 +2,20 @@ module Pakyow
   
   # Provides an easy way to log text, warnings, etc.
   class Log
-    
+    # Opens stdout and the log file for writing.
+    def self.reopen
+      @@console = $stdout
+
+      d = Configuration::Base.app.log_dir
+      @@file = File.exists?(d) ? File.open("#{d}/#{Configuration::Base.app.log_name}", 'a') : nil
+    end
+
     # Adds text to the log. 
     def self.puts(text = "")
       return if !Configuration::Base.app.log
       
-      @@console ||= $stdout
       @@console << "#{text}\r\n"
-      
-      dir = "#{Configuration::Base.app.log_dir}"
-      
-      if File.exists?(dir)
-        @@file ||= File.open("#{dir}/#{Configuration::Base.app.log_name}", 'a')
-        @@file.write "#{text}\r\n"
-      end
+      @@file.write "#{text}\r\n" if @@file
     end
 
     class << self
