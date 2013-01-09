@@ -22,6 +22,10 @@ module Pakyow
       return ret
     end
 
+    def self.parse_path_from_caller(caller)
+      caller.match(/^(.+)(:?:\d+(:?:in `.+')?$)/)[1]
+    end
+
 
   end
 end
