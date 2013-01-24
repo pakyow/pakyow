@@ -28,7 +28,7 @@ module Pakyow
     end
 
     def session
-      request.env['rack.session'] || {}
+      self.env['rack.session'] || {}
     end
     
     def cookies
