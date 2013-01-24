@@ -26,6 +26,10 @@ module Pakyow
       # Set response type
       Pakyow.app.response["Content-Type"] = Rack::Mime.mime_type(".#{@format}")
     end
+
+    def session
+      request.env['rack.session'] || {}
+    end
     
     def cookies
       @cookies ||= HashUtils.strhash(super)

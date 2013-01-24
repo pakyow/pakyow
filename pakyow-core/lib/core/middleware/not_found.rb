@@ -29,7 +29,7 @@ module Pakyow
       private
 
       def found?
-        return true if Pakyow.app.routed?
+        return true if Pakyow.app.router.routed?
         return true if Pakyow.app.presenter && Pakyow.app.presenter.presented? && Configuration::App.all_views_visible
 
         false

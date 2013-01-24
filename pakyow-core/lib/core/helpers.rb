@@ -13,6 +13,18 @@ module Pakyow
     def router
       RouteLookup.new
     end
+
+    def params
+      request.params
+    end
+
+    def session
+      request.session
+    end
+
+    def cookies
+      request.cookies
+    end
   end
 
   # Helper methods specific to delegates and controllers.

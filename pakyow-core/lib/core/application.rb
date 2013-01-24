@@ -202,35 +202,6 @@ module Pakyow
       Log.reopen
     end
 
-    # Interrupts the application and returns response immediately.
-    #
-    #TODO move out of app into helpers available to route logic context
-    def halt!
-      throw :halt, self.response
-    end
-
-    #TODO need this, but should be different (also consider renaming to #route (maybe w/o exclamation point))
-    #  possible name: reroute
-    #TODO move out of app into helpers available to route logic context
-    def reroute!(path, method=nil)
-      self.request.setup(path, method)
-
-      begin
-        # caught by other middleware (e.g. presenter) that does something with the
-        # new request then hands it back down to the router
-        throw :rerouted, self.request
-      rescue ArgumentError
-        # nobody caught it, so tell the router to reroute
-        self.router.reroute!(self.request)
-      end
-    end
-
-    #TODO consider renaming this to #handle (maybe w/o exclamation point)
-    #TODO move out of app into helpers available to route logic context
-    def invoke_handler!(name_or_code)
-      self.router.handle!(name_or_code, true)
-    end
-
     def setup_rr(env)
       self.request = Request.new(env)
       self.response = Response.new
@@ -239,54 +210,7 @@ module Pakyow
     # Called on every request.
     #
     def call(env)
-      finish!
-    end
-
-    # Sends a file in the response (immediately). Accepts a File object. Mime
-    # type is automatically detected.
-    #
-    #TODO move out of app into helpers available to route logic context
-    def send_file!(source_file, send_as = nil, type = nil)
-      path = source_file.is_a?(File) ? source_file.path : source_file
-      send_as ||= path
-      type    ||= Rack::Mime.mime_type(".#{send_as.split('.')[-1]}")
-
-      data = ""
-      File.open(path, "r").each_line { |line| data << line }
-
-      self.response = Rack::Response.new(data, self.response.status, self.response.header.merge({ "Content-Type" => type }))
-      halt!
-    end
-
-    # Sends data in the response (immediately). Accepts the data, mime type,
-    # and optional file name.
-    #
-    #TODO move out of app into helpers available to route logic context
-    def send_data!(data, type, file_name = nil)
-      status = self.response ? self.response.status : 200
-
-      headers = self.response ? self.response.header : {}
-      headers = headers.merge({ "Content-Type" => type })
-      headers = headers.merge({ "Content-disposition" => "attachment; filename=#{file_name}"}) if file_name
-
-      self.response = Rack::Response.new(data, status, headers)
-      halt!
-    end
-
-    # Redirects to location (immediately).
-    #
-    #TODO move out of app into helpers available to route logic context
-    def redirect_to!(location, status_code = 302)
-      headers = self.response ? self.response.header : {}
-      headers = headers.merge({'Location' => location})
-
-      self.response = Rack::Response.new('', status_code, headers)
-      halt!
-    end
-    
-    #TODO move out of app into helpers available to route logic context
-    def session
-      self.request.env['rack.session'] || {}
+      finish
     end
 
     # This is NOT a useless method, it's a part of the external api
@@ -294,10 +218,67 @@ module Pakyow
       load_app
     end
 
-    #TODO: handle this somewhere else since it's related to the request cycle,
-    # not the application cycle (won't allow for concurrency)
-    def routed?
-      @router.routed?
+
+    # APP ACTIONS
+
+    # Interrupts the application and returns response immediately.
+    #
+    def halt
+      throw :halt, response
+    end
+
+    # Routes the request to different logic.
+    #
+    def reroute(path, method = nil)
+      self.request.setup(path, method)
+
+      begin
+        # caught by other middleware (e.g. presenter) that does something with the
+        # new request then hands it back down to the router
+        throw :rerouted, request
+      rescue ArgumentError
+        # nobody caught it, so tell the router to reroute
+        app.router.reroute!(request)
+      end
+    end
+
+    # Sends data in the response (immediately). Accepts a string of data or a File,
+    # mime-type (auto-detected; defaults to octet-stream), and optional file name.
+    #
+    # If a File, mime type will be guessed. Otherwise mime type and file name will
+    # default to whatever is set in the response.
+    #
+    def send(file_or_data, type = nil, send_as = nil)
+      case file_or_data.class
+      when File
+        data = File.open(path, "r").each_line { |line| data << line }
+
+        # auto set type based on file type
+        type = Rack::Mime.mime_type("." + StringUtils.split_at_last_dot(File.path))[1]
+      else
+        data = file_or_data
+      end
+
+      headers = {}
+      headers["Content-Type"]         = type if type
+      headers["Content-disposition"]  = "attachment; filename=#{send_as}" if send_as
+
+      app.response = Rack::Response.new(data, response.status, response.header.merge(headers))
+      halt
+    end
+
+    # Redirects to location (immediately).
+    #
+    def redirect(location, status_code = 302)
+      headers = response ? response.header : {}
+      headers = headers.merge({'Location' => location})
+
+      app.response = Rack::Response.new('', status_code, headers)
+      halt
+    end
+
+    def handle(name_or_code)
+      app.router.handle!(name_or_code, true)
     end
 
     protected
@@ -340,7 +321,7 @@ module Pakyow
     # Send the response and cleanup.
     #
     #TODO remove exclamation
-    def finish!
+    def finish
       set_cookies
       self.response.finish
     end
