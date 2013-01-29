@@ -17,7 +17,7 @@ module Pakyow
     end
 
     def match(path, method)
-      path = Router.normalize_path(path)
+      path = StringUtils.normalize_path(path)
 
       @routes[method.to_sym].each{|r| 
         case r[0]
@@ -177,7 +177,7 @@ module Pakyow
 
       # prepend scope path if we're in a scope
       path = File.join(@scope[:path], path)
-      path = Router.normalize_path(path)
+      path = StringUtils.normalize_path(path)
       
       # get regex and vars for path
       regex, vars = self.build_route_matcher(path)

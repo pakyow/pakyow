@@ -1,16 +1,5 @@
 module Pakyow
   class Router
-    class << self
-      # remove leading/trailing forward slashes
-      def normalize_path(path)
-        return path if path.is_a?(Regexp)
-
-        path = path[1, path.length - 1] if path[0, 1] == '/'
-        path = path[0, path.length - 1] if path[path.length - 1, 1] == '/'
-        path
-      end
-    end
-
     def initialize
       @sets = {}
     end
@@ -79,7 +68,7 @@ module Pakyow
     end
 
     def match(request)
-      path   = Router.normalize_path(request.working_path)
+      path   = StringUtils.normalize_path(request.working_path)
       method = request.working_method
 
       @routed = false
