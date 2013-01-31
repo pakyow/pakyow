@@ -6,8 +6,9 @@ module Pakyow
   class RouteLookup
     include Helpers
 
-    def path(name)
-      self.get_named_route(name)[4]
+    def path(name, data = nil)
+      route = self.get_named_route(name)
+      data ? self.populate(route, data) : File.join('/', route[4])
     end
 
     def group(name)
@@ -15,8 +16,13 @@ module Pakyow
       self
     end
 
-    def populate(name, data = {})
-      route = self.get_named_route(name)
+    protected
+
+    def get_named_route(name)
+      Pakyow.app.router.route(name, @group) || []
+    end
+
+    def populate(route, data = {})
       vars  = route[1]
       
       split_path = Request.split_url(route[4])
@@ -26,12 +32,6 @@ module Pakyow
       }
 
       File.join('/', split_path.join('/'))
-    end
-
-    protected
-
-    def get_named_route(name)
-      Pakyow.app.router.route(name, @group) || []
     end
   end
 end
