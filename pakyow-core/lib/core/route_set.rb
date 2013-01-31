@@ -6,7 +6,7 @@ module Pakyow
       @routes_by_name = {}
       @grouped_routes_by_name = {}
 
-      @funcs  = {}
+      @fns  = {}
       @groups = {}
 
       @templates = {}
@@ -16,56 +16,13 @@ module Pakyow
       @scope  = {:name => nil, :path => '/', :hooks => {:before => [], :after => []}}
     end
 
-    def match(path, method)
-      path = StringUtils.normalize_path(path)
-
-      @routes[method.to_sym].each{|r| 
-        case r[0]
-        when Regexp
-          if data = r[0].match(path)
-            return r, data
-          end
-        when String
-          if r[0] == path
-            return r, nil
-          end
-        end
-      }
-
-      nil
-    end
-
-    def handle(name_or_code)
-      @handlers.each{ |h|
-        return h if h[0] == name_or_code || h[1] == name_or_code
-      }
-
-      nil
-    end
-
-    # Name based route lookup
-    def route(name, group = nil)
-      return @routes_by_name[name] unless group
-
-      if grouped_routes = @grouped_routes_by_name[group]
-        grouped_routes[name]
-      end
-    end
-
-    # Creates or retreivs a named func
+    # Creates or retreives a named route function. When retrieving, 
+    #
     def fn(name, &block)
-      @funcs[name] = block and return if block
+      @fns[name] = block and return if block
 
-      [@funcs[name]]
-    end
-
-    def handler(name, *args, &block)
-      code, fn = args
-
-      fn = code and code = nil if code.is_a?(Proc)
-      fn = block if block_given?
-
-      @handlers << [name, code, [fn]]
+      #TODO rewrite to not return array
+      [@fns[name]]
     end
 
     def default(*args, &block)
@@ -88,6 +45,8 @@ module Pakyow
       self.register_route(:delete, *args, &block)
     end
     
+    # Returns a lambda that routes request to a controller/action.
+    #TODO move to RouteHelpers
     def call(controller, action)
       lambda {
         controller = Object.const_get(controller)
@@ -99,6 +58,17 @@ module Pakyow
 
         instance.send(action)
       }
+    end
+
+    # Creates a handler.
+    #
+    def handler(name, *args, &block)
+      code, fn = args
+
+      fn = code and code = nil if code.is_a?(Proc)
+      fn = block if block_given?
+
+      @handlers << [name, code, [fn]]
     end
 
     def group(name, *args, &block)
@@ -143,6 +113,45 @@ module Pakyow
       # evaluate template in same context, where func looks up funcs
       # from map and extends get (and others) to add proper names
       t.expand(@templates[t_name], data)
+    end
+
+    # Returns a route tuple:
+    # [regex, vars, name, fns, path]
+    #
+    def match(path, method)
+      path = StringUtils.normalize_path(path)
+
+      @routes[method.to_sym].each{|r| 
+        case r[0]
+        when Regexp
+          if data = r[0].match(path)
+            return r, data
+          end
+        when String
+          if r[0] == path
+            return r, nil
+          end
+        end
+      }
+
+      nil
+    end
+
+    def handle(name_or_code)
+      @handlers.each{ |h|
+        return h if h[0] == name_or_code || h[1] == name_or_code
+      }
+
+      nil
+    end
+
+    # Name based route lookup
+    def route(name, group = nil)
+      return @routes_by_name[name] unless group
+
+      if grouped_routes = @grouped_routes_by_name[group]
+        grouped_routes[name]
+      end
     end
 
     protected
@@ -212,13 +221,11 @@ module Pakyow
     
     def build_fns(main_fns, hooks)
       fns = []
-
       fns.concat(hooks[:around])  if hooks && hooks[:around]
       fns.concat(hooks[:before])  if hooks && hooks[:before]
       fns.concat(main_fns)        if main_fns
       fns.concat(hooks[:after])   if hooks && hooks[:after]
       fns.concat(hooks[:around])  if hooks && hooks[:around]
-      
       fns
     end
 

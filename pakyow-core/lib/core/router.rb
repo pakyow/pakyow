@@ -1,4 +1,6 @@
 module Pakyow
+  # A singleton that manages route sets.
+  #
   class Router
     def initialize
       self.reset
@@ -14,12 +16,15 @@ module Pakyow
       @@instance
     end
 
+    # Creates a new set (or appends to a set if it exists).
+    #
     def set(name, &block)
       @sets[name] ||= RouteSet.new
       @sets[name].instance_exec(&block)
     end
 
-    # Name based route lookup
+    # Iterates through route sets and returns the first matching route.
+    #
     def route(name, group = nil)
       @sets.each { |set|
         if r = set[1].route(name, group)
@@ -30,24 +35,20 @@ module Pakyow
       nil
     end
 
-    # Name based function lookup
-    def fn(name)
-      @sets.each { |set|
-        if f = set[1].fn(name)
-          return f
-        end
-      }
-    end
-
-    # Finds route by path and calls each function in order
+    # Performs the initial routing for a request.
+    #
     def route!(request)
       self.trampoline(self.match(request))
     end
 
+    # Reroutes a request.
+    #
     def reroute!(request)
-      throw :fns, self.router.match(request)
+      throw :fns, self.match(request)
     end
 
+    # Finds and invokes a handler by name or by status code.
+    #
     def handle!(name_or_code, from_logic = false)
       @sets.each { |set|
         if h = set[1].handle(name_or_code)
@@ -64,14 +65,21 @@ module Pakyow
 
     protected
 
+    # Calls a list of route functions in order (each in a separate context).
+    #
     def call_fns(fns)
       fns.each {|fn| self.context.instance_exec(&fn)}
     end
 
+    # Creates a context in which to evaluate a route function.
+    #
     def context
       FnContext.new
     end
 
+    # Finds the first matching route for the request path/method and
+    # returns the list of route functions for that route.
+    #
     def match(request)
       path   = StringUtils.normalize_path(request.working_path)
       method = request.working_method
@@ -99,6 +107,9 @@ module Pakyow
       fns
     end
 
+    # Calls route functions and catches new functions as
+    # they're thrown (e.g. by reroute).
+    #
     def trampoline(fns)
       until fns.empty?
         fns = catch(:fns) {
@@ -118,6 +129,8 @@ module Pakyow
       end
     end
 
+    # Extracts the data from a path.
+    #
     def data_from_path(path, matches, vars)
       data = {}
       return data unless matches
@@ -130,4 +143,3 @@ module Pakyow
     end
   end
 end
-

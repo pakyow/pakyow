@@ -1,3 +1,5 @@
+#TODO rename router to set and .func to .fn
+
 module Pakyow
   class RouteTemplate
     attr_accessor :path
