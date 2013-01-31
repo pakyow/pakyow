@@ -313,7 +313,7 @@ module Pakyow
     # Evaluates core_proc
     #
     def load_core
-      @router = Router.instance
+      @router = Router.instance.reset
 
       @router.set(:default, &self.class.core_proc) if self.class.core_proc
     end

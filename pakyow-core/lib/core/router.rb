@@ -1,7 +1,12 @@
 module Pakyow
   class Router
     def initialize
+      self.reset
+    end
+
+    def reset
       @sets = {}
+      self
     end
 
     @@instance = self.new
