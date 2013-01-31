@@ -63,6 +63,18 @@ module Pakyow
       @routed
     end
 
+    # Looks up and populates a path with data
+    #
+    def path(name, data = nil)
+      RouteLookup.new.path(name, data)
+    end
+
+    # Looks up a route grouping
+    #
+    def group(name)
+      RouteLookup.new.group(name)
+    end
+
     protected
 
     # Calls a list of route functions in order (each in a separate context).
