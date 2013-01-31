@@ -1,36 +1,29 @@
-require 'helper'
+require 'support/helper'
 
-class LoaderTest < Test::Unit::TestCase
+class LoaderTest < MiniTest::Unit::TestCase
+  def setup
+    @loader = Pakyow::Loader.new
+    @loader.load_from_path(path)
+  end
+
   def test_recursively_loads_files
-    assert_raise(NameError) {
-      Reloadable
-    }
-    
-    l = Pakyow::Loader.new
-    l.load!(path)
-    
-    assert_nothing_raised {
-      Reloadable
-    }
+    assert Object.const_defined?(:Reloadable)
   end
   
   def test_should_tell_time
     Configuration::Base.app.auto_reload = true
     
-    l = Pakyow::Loader.new
-    l.load!(path)
-    
-    times = l.times.dup
-    `touch #{path}/reloadable.rb`
-    l.load!(path)
-    
-    assert_not_equal(times.first[1].to_f, l.times.first[1].to_f)
+    times = @loader.times.dup
+    `touch #{File.join(path, 'reloadable.rb')}`
+    @loader.load_from_path(path)
+
+    assert times.first[1].to_f != @loader.times.first[1].to_f
   end
   
   private
   
   def path
-    File.join(Dir.pwd, 'test', 'loader')
+    File.join(Dir.pwd, 'test', 'support', 'loader')
   end
 end
 

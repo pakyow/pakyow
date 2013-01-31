@@ -1,26 +1,44 @@
-require 'helper'
+require 'support/helper'
 
 require 'stringio'
 
-class LogTest < Test::Unit::TestCase
+class LogTest < MiniTest::Unit::TestCase
+  def setup
+    @text = 'foo'
+  end
+
+  def teardown
+    FileUtils.rm(file) if File.exists?(file)
+  end
+
   def test_log_to_console
+    old = $stdout
     $stdout = StringIO.new
+    Pakyow::Log.reopen
+    Log.enter(@text)
     
-    Log.enter('foo')
-    
-    # This test doesn't pass after handler is called. TODO: Why?
-    # assert_equal('foo', $stdout.string.strip)
+    assert_equal @text, $stdout.string.strip
+
+    $stdout = old
   end
   
   def test_log_to_file
-    Configuration::Base.app.log_dir = 'test'
-    Log.enter('foo')
-    
-    assert(File.exists?('test/requests.log'))
-    
-    # This test only passes every other run. TODO: Why?
-    # assert_equal('foo', File.new('test/requests.log').read.split("\r\n")[1])
-    
-    FileUtils.rm('test/requests.log')
+    Configuration::Base.app.log_dir = path
+    Pakyow::Log.reopen
+    Log.enter(@text)
+    Log.close
+
+    assert       File.exists?(file)
+    assert_equal @text, File.new(file).read.strip
+  end
+
+  private
+
+  def file
+    File.join(path, 'requests.log')
+  end
+
+  def path
+    File.join(Dir.pwd, 'test')
   end
 end
