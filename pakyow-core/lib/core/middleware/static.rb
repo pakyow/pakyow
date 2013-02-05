@@ -10,7 +10,7 @@ module Pakyow
           response = Rack::Response.new
           
           catch(:halt) do
-            Pakyow.app.send_file!(File.join(Configuration::Base.app.public_dir, env['PATH_INFO']))
+            Pakyow.app.send(File.open(File.join(Configuration::Base.app.public_dir, env['PATH_INFO'])))
           end
         else
           @app.call(env)
