@@ -379,7 +379,8 @@ module Pakyow
           props = []
           breadth_first(o) {|so|
             # don't go into deeper scopes
-            break if so!= o && so[Configuration::Presenter.scope_attribute]
+            #TODO fix this so siblings that come after are still processed before breaking
+            # break if so != o && so[Configuration::Presenter.scope_attribute]
 
             next unless prop = so[Configuration::Presenter.prop_attribute]
             props << {:prop => prop.to_sym, :path => path_to(so)}
