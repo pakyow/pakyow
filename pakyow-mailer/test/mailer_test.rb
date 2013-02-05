@@ -1,8 +1,9 @@
-require 'helper'
+require 'support/helper'
 
-class MailerTest < Test::Unit::TestCase
+class MailerTest < MiniTest::Unit::TestCase
   def setup
-    TestApplication.stage(:testing)
+    TestApplication.stage(:test)
+    Pakyow.app.presenter.view_store = :mailer
   end
   
   def test_mailer_is_properly_initialized
@@ -13,9 +14,9 @@ class MailerTest < Test::Unit::TestCase
   end
   
   def test_setting_view_sets_message_body
-    m = self.mailer(true)
+    m = self.mailer
     
-    assert_equal(File.open("test/views/test_message.email/main.html", "rb").read, m.view.to_html)
+    assert_equal(File.open("test/views/test_message.email/main.html", "rb").read, m.view.container(:main)[0].content)
   end
   
   def test_subject_is_set
@@ -47,10 +48,7 @@ class MailerTest < Test::Unit::TestCase
     end
   end
   
-  def mailer(partial = false)
-    path = "test_message"
-    path = File.join(path, "main.html") if partial
-    
-    TestMailer.new(path)
+  def mailer
+    TestMailer.new("test_message")
   end
 end

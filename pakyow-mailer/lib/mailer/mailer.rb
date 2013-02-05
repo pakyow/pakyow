@@ -3,7 +3,7 @@ module Pakyow
     attr_accessor :view, :message
   
     def initialize(view_path)
-      @view = Pakyow.app.presenter.view_for_full_view_path(view_path, true)
+      @view = View.at_path(view_path)
       
       @message               = Mail.new
       @message.from          = Configuration::Base.mailer.default_sender

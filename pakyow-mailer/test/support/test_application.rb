@@ -1,6 +1,6 @@
 class TestApplication < Pakyow::Application
-  configure(:testing) do
-    presenter.view_dir = "test/views"
+  configure(:test) do
+    presenter.view_stores[:mailer] = "test/views"
   end
   
   # This keeps the app from actually being run.
