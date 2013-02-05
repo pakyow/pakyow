@@ -90,14 +90,16 @@ module Pakyow
             else
               # files here are direct overrides of the route's views
               parent,route = pakyow_path_to_route_and_parent(vpath, view_dir, :file)
+              route_with_leading_slash = "#{route}/#{File.basename(vpath)}"
+              route_without_leading_slash = route_with_leading_slash.sub('/','')
               view_key = File.basename(vpath,".*")
               unless @view_store[:view_dirs][route]
                 @view_store[:view_dirs][route] = deep_hash_clone(@view_store[:view_dirs][parent])
               end
-              @view_store[:view_dirs][route][:views][view_key] = vpath.sub(absolute_path_prefix, '')
+              @view_store[:view_dirs][route][:views][view_key] = route_without_leading_slash
               # see if view overrides the root view
               if File.basename(@view_store[:view_dirs][route][:root_view],".*") == view_key
-                @view_store[:view_dirs][route][:root_view] = vpath.sub(absolute_path_prefix, '')
+                @view_store[:view_dirs][route][:root_view] = route_without_leading_slash
               end
               # set the abstract path for this file
               # duplicating real path under route without the leading slash
@@ -106,8 +108,6 @@ module Pakyow
                 @view_store[:abstract_paths]["/#{File.basename(vpath)}"] = {:real_path => r_p, :file_or_dir => :file}
                 @view_store[:abstract_paths][File.basename(vpath)] = {:real_path => r_p, :file_or_dir => :file}
               else
-                route_with_leading_slash = "#{route}/#{File.basename(vpath)}"
-                route_without_leading_slash = route_with_leading_slash.sub('/','')
                 @view_store[:abstract_paths][route_with_leading_slash] = {:real_path => r_p, :file_or_dir => :file}
                 @view_store[:abstract_paths][route_without_leading_slash] = {:real_path => r_p, :file_or_dir => :file}
               end
