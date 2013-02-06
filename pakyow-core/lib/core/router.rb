@@ -1,19 +1,18 @@
+require 'singleton'
+
 module Pakyow
   # A singleton that manages route sets.
   #
   class Router
+    include Singleton
+
     def initialize
-      self.reset
     end
 
     def reset
       @sets = {}
+      RouteTemplateDefaults.register
       self
-    end
-
-    @@instance = self.new
-    def self.instance
-      @@instance
     end
 
     # Creates a new set (or appends to a set if it exists).
