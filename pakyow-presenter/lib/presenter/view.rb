@@ -65,7 +65,7 @@ module Pakyow
           view_path = self.class.view_store.real_path(arg)
 
           # run parsers
-          format = view_path.split('.')[-1].to_sym
+          format = StringUtils.split_at_last_dot(view_path)[1].to_sym
           content = parse_content(File.read(view_path), format)
           
           if is_root_view then
