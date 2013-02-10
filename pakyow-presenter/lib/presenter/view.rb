@@ -379,8 +379,7 @@ module Pakyow
           props = []
           breadth_first(o) {|so|
             # don't go into deeper scopes
-            #TODO fix this so siblings that come after are still processed before breaking
-            # break if so != o && so[Configuration::Presenter.scope_attribute]
+            throw :reject if so != o && so[Configuration::Presenter.scope_attribute]
 
             next unless prop = so[Configuration::Presenter.prop_attribute]
             props << {:prop => prop.to_sym, :path => path_to(so)}
@@ -400,7 +399,6 @@ module Pakyow
 
         #   b[:nested_scopes] = nested
         # }
-        
         return bindings
       end
 
@@ -430,8 +428,10 @@ module Pakyow
         queue = [doc]
         until queue.empty?
           node = queue.shift
-          yield node
-          queue.concat(node.children)
+          catch(:reject) {
+            yield node
+            queue.concat(node.children)
+          }
         end
       end
 
