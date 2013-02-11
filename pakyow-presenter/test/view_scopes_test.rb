@@ -1,6 +1,6 @@
-require 'helper'
+require 'support/helper'
 
-class ViewScopesTest < Test::Unit::TestCase
+class ViewScopesTest < MiniTest::Unit::TestCase
 
   def setup
     @view = create_view_from_string(<<-D)
@@ -29,7 +29,7 @@ class ViewScopesTest < Test::Unit::TestCase
   end
 
   def test_invalid_scopes_not_found
-    assert_nil @view.scope(:fail)
+    assert_equal 0, @view.scope(:fail).length
   end
 
   private
