@@ -128,7 +128,7 @@ module Pakyow
       #
       def attributes(*args)
         if args.empty?
-          return Attributes.new(self)
+          return Attributes.new(self.doc)
         else
           #TODO mass assign attributes (if we still want to do this)
           #TODO use this instead of (or combine with) bind_attributes_to_doc?
@@ -511,8 +511,9 @@ module Pakyow
           end
 
           attr = attr.to_s
-          v = v.call(doc[attr]) if v.is_a?(Proc)
-          v.nil? ? doc.remove_attribute(attr) : doc[attr] = v.to_s
+          attrs = Attributes.new(doc)
+          v = v.call(attrs.send(attr)) if v.is_a?(Proc)
+          v.nil? ? doc.remove_attribute(attr) : attrs.send(:"#{attr}=", v)
         end
       end
 

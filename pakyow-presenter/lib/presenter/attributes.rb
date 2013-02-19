@@ -6,8 +6,8 @@ module Pakyow
         :multiple => [:class]
       }
 
-      def initialize(view)
-        @view = view
+      def initialize(doc)
+        @doc = doc
       end
 
       def method_missing(method, *args)
@@ -36,18 +36,18 @@ module Pakyow
       def set_attribute(attribute, value)
         type = self.type_of_attribute(attribute)
 
-        value = value.call(self.deconstruct_attribute_value_of_type(@view.doc[attribute], type)) if value.is_a? Proc
+        value = value.call(self.deconstruct_attribute_value_of_type(@doc[attribute], type)) if value.is_a? Proc
         value = construct_attribute_value_of_type(value, type, attribute)
         
         if value.nil?
-          @view.doc.remove_attribute(attribute)
+          @doc.remove_attribute(attribute)
         else
-          @view.doc[attribute] = value
+          @doc[attribute] = value
         end
       end
 
       def get_attribute(attribute)
-        self.deconstruct_attribute_value_of_type(@view.doc[attribute], self.type_of_attribute(attribute))
+        self.deconstruct_attribute_value_of_type(@doc[attribute], self.type_of_attribute(attribute))
       end
 
       def type_of_attribute(attribute)
