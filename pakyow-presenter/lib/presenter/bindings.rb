@@ -87,9 +87,9 @@ module Pakyow
               '<input type="hidden" name="_method" value="put">' + content
             }
 
-            action = routes.populate(:update, :id => id)
+            action = routes.path(:update, :id => id)
           else
-            action = routes.populate(:create)
+            action = routes.path(:create)
           end
 
           return_data[:action] = action
