@@ -73,7 +73,7 @@ module Pakyow
 
     def group(name, *args, &block)
       # deep clone existing hooks to reset at the close of this group
-      original_hooks = Marshal.load(Marshal.dump(@scope[:hooks]))
+      original_hooks = self.copy_hooks(@scope[:hooks])
       
       @scope[:hooks] = self.merge_hooks(@scope[:hooks], args[0]) if @scope[:hooks] && args[0]
 
@@ -170,6 +170,14 @@ module Pakyow
       h1[:after].concat(h2[:after])
       h1[:around].concat(h2[:around])
       h1
+    end
+
+    def copy_hooks(hooks)
+      {
+        :before => hooks[:before],
+        :after => hooks[:after],
+        :around => hooks[:around],
+      }
     end
 
     def register_route(method, path, *args, &block)
