@@ -174,9 +174,9 @@ module Pakyow
 
     def copy_hooks(hooks)
       {
-        :before => hooks[:before],
-        :after => hooks[:after],
-        :around => hooks[:around],
+        :before => (hooks[:before] || []).dup,
+        :after => (hooks[:after] || []).dup,
+        :around => (hooks[:around] || []).dup,
       }
     end
 
