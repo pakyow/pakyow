@@ -409,12 +409,12 @@ module Pakyow
 
         self.bindings.each {|binding|
           # we want paths within the child path
-          if (child_path - binding[:path]).empty?
+          if self.path_within_path?(binding[:path], child_path)
             # update paths relative to child
             dup = Marshal.load(Marshal.dump(binding))
             
             [dup].concat(dup[:props]).each{|p|
-              p[:path] = (p[:path][child_path_len..-1] || [])
+              p[:path] = p[:path][child_path_len..-1]
             }
 
             child_bindings << dup
@@ -449,6 +449,14 @@ module Pakyow
         }
 
         return path
+      end
+
+      def path_within_path?(child_path, parent_path)
+        parent_path.each_with_index {|pp_step, i|
+          return false unless pp_step == child_path[i]
+        }
+
+        true
       end
 
       def doc_from_path(path)
