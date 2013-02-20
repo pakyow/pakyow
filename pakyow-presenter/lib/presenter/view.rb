@@ -414,7 +414,7 @@ module Pakyow
             dup = Marshal.load(Marshal.dump(binding))
             
             [dup].concat(dup[:props]).each{|p|
-              p[:path] = p[:path][child_path_len..-1]
+              p[:path] = (p[:path][child_path_len..-1] || [])
             }
 
             child_bindings << dup
