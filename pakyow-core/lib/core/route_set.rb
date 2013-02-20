@@ -250,7 +250,7 @@ module Pakyow
       route_segments = path.split('/')
       route_segments.each_with_index { |segment, i|
         if segment.include?(':')
-          vars << { :position => position_counter, :var => segment.gsub(':', '').to_sym }
+          vars << { :position => position_counter, :var => segment.gsub(':', '').to_sym, :url_position => i }
           if i == route_segments.length-1 then
             regex_route = regex_route.sub(segment, '((\w|[-.~:@!$\'\(\)\*\+,;])*)')
             position_counter += 2

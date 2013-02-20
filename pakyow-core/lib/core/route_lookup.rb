@@ -28,7 +28,7 @@ module Pakyow
       split_path = Request.split_url(route[4])
       
       vars.each {|v|
-        split_path[v[:position]] = data[v[:var]]
+        split_path[v[:url_position]] = data[v[:var]]
       }
 
       File.join('/', split_path.join('/'))
