@@ -549,28 +549,26 @@ module Pakyow
           Nokogiri::HTML::Builder.with(option_nodes) do |h|
             until options.length == 0
               catch :optgroup do
-                options.each_with_index { |o,i|
+                o = options.first
+                
+                # an array containing value/content
+                if o.is_a?(Array)
+                  h.option o[1], :value => o[0]
+                  options.shift
+                # likely an object (e.g. string); start a group
+                else
+                  h.optgroup(:label => o) {
+                    options.shift
 
-                  # an array containing value/content
-                  if o.is_a?(Array)
-                    h.option o[1], :value => o[0]
-                    options.delete_at(i)
-                  # likely an object (e.g. string); start a group
-                  else
-                    h.optgroup(:label => o) {
-                      options.delete_at(i)
+                    options[0..-1].each_with_index { |o2,i2|
+                      # starting a new group
+                      throw :optgroup if !o2.is_a?(Array)
 
-                      options[i..-1].each_with_index { |o2,i2|
-                        # starting a new group
-                        throw :optgroup if !o2.is_a?(Array)
-
-                        h.option o2[1], :value => o2[0]
-                        options.delete_at(i)
-                      }
+                      h.option o2[1], :value => o2[0]
+                      options.shift
                     }
-                  end
-
-                }
+                  }
+                end
               end
             end                    
           end
