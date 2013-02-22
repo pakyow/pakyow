@@ -17,9 +17,16 @@ module Pakyow
         Pakyow.app.router.handle!(500)
 
         if Configuration::Base.app.errors_in_browser
+          Pakyow.app.response["Content-Type"] = 'text/html'
           Pakyow.app.response.body = []
           Pakyow.app.response.body << "<h4>#{CGI.escapeHTML(error.to_s)}</h4>"
           Pakyow.app.response.body << error.backtrace.join("<br />")
+        else
+          if Pakyow.app.presenter
+            # consider moving to presenter middleware
+            # Pakyow.app.presenter.prepare_for_request(Pakyow.app.request)
+            Pakyow.app.response.body = [Pakyow.app.presenter.content] if Pakyow.app.presenter.presented?
+          end
         end
 
         begin
