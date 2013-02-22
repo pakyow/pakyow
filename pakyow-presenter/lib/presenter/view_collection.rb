@@ -91,6 +91,16 @@ module Pakyow
         views
       end
 
+      def prop(name)
+        views = ViewCollection.new
+        self.each{|v|
+          next unless svs = v.prop(name)
+          svs.each{|sv| views << sv}
+        }
+        
+        views
+      end
+
       # call-seq:
       #   with {|view| block}
       #
