@@ -281,6 +281,12 @@ module Pakyow
       app.router.handle!(name_or_code, true)
     end
 
+    # Convenience method for defining routes outside of core block.
+    #
+    def routes(set_name = :default, &block)
+      @router.set(set_name, &block)
+    end
+
     protected
 
     #TODO need configuration options for cookies (plus ability to override for each?)
@@ -303,6 +309,8 @@ module Pakyow
     def load_app(reload_app = true)
       load(Configuration::App.application_path) if reload_app
 
+      @router = Router.instance
+
       @loader = Loader.new unless @loader
       @loader.load_from_path(Configuration::Base.app.src_dir)
 
@@ -313,9 +321,8 @@ module Pakyow
     # Evaluates core_proc
     #
     def load_core
-      @router = Router.instance.reset
-
-      @router.set(:default, &self.class.core_proc) if self.class.core_proc
+      return unless self.class.core_proc
+      @router.set(:default, &self.class.core_proc)
     end
     
     # Send the response and cleanup.

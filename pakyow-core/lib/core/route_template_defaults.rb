@@ -1,7 +1,7 @@
 module Pakyow
   class RouteTemplateDefaults
-    def self.register
-      Pakyow::Router.instance.set(:default) {
+    def self.defaults
+      lambda {
         template(:restful) {
           get '/', :index, fn(:index)
 

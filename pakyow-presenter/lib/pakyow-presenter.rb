@@ -11,3 +11,4 @@ include Presenter
 require 'presenter/presenter'
 require 'presenter/configuration/base'
 require 'presenter/helpers'
+require 'presenter/ext/application'

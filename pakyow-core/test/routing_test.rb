@@ -88,7 +88,7 @@ class RoutingTest < MiniTest::Unit::TestCase
   end
 
   def test_route_vars_are_extracted_and_available_through_request
-    rtr = Router.instance.reset
+    rtr = Router.instance
     rtr.set(:test) {
       get(':id') { }
     }
@@ -232,7 +232,7 @@ class RoutingTest < MiniTest::Unit::TestCase
 
   def test_route_sets_are_registered
     test = self
-    Router.instance.reset.set(:test) {
+    Router.instance.set(:test) {
       test.set_registered = true
     }
 
@@ -240,7 +240,7 @@ class RoutingTest < MiniTest::Unit::TestCase
   end
 
   def test_routes_can_be_looked_up_by_name
-    Router.instance.reset.set(:test) {
+    Router.instance.set(:test) {
       get('foo', :foo) {}
     }
 
@@ -250,7 +250,7 @@ class RoutingTest < MiniTest::Unit::TestCase
 
   def test_route_fns_called_in_order
     test = self
-    Router.instance.reset.set(:test) {
+    Router.instance.set(:test) {
       fn(:one) {
         test.fn_calls << 1
       }
@@ -272,7 +272,7 @@ class RoutingTest < MiniTest::Unit::TestCase
 
   def test_request_can_be_rerouted
     test = self
-    Router.instance.reset.set(:test) {
+    Router.instance.set(:test) {
       default {
         app.reroute('foo')
       }
@@ -288,7 +288,7 @@ class RoutingTest < MiniTest::Unit::TestCase
 
   def test_request_can_be_rerouted_with_method
     test = self
-    Router.instance.reset.set(:test) {
+    Router.instance.set(:test) {
       default {
         app.reroute('foo', :put)
       }
@@ -304,7 +304,7 @@ class RoutingTest < MiniTest::Unit::TestCase
 
   def test_handler_called_from_router
     test = self
-    Router.instance.reset.set(:test) {
+    Router.instance.set(:test) {
       default {
         app.handle(500)
       }
@@ -330,7 +330,7 @@ class RoutingTest < MiniTest::Unit::TestCase
   # RouteLookup
 
   def test_get_path_for_named_route
-    rtr = Router.instance.reset
+    rtr = Router.instance
     rtr.set(:test) {
       get('foo', :foo)
     }
@@ -339,7 +339,7 @@ class RoutingTest < MiniTest::Unit::TestCase
   end
 
   def test_path_can_be_populated
-    rtr = Router.instance.reset
+    rtr = Router.instance
     rtr.set(:test) {
       get('foo/:id', :foo1)
       get('foo/bar/:id', :foo2)
@@ -350,7 +350,7 @@ class RoutingTest < MiniTest::Unit::TestCase
   end
 
   def test_grouped_routes_can_be_looked_up_by_name_and_group
-    rtr = Router.instance.reset
+    rtr = Router.instance
     rtr.set(:test) {
       group(:foo) {
         get('bar', :bar)
@@ -362,7 +362,7 @@ class RoutingTest < MiniTest::Unit::TestCase
   end
 
   def test_namespaced_routes_can_be_looked_up_by_name_and_group
-    rtr = Router.instance.reset
+    rtr = Router.instance
     rtr.set(:test) {
       namespace('foo', :foo) {
         get('bar', :bar)

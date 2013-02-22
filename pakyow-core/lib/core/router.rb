@@ -7,18 +7,14 @@ module Pakyow
     include Singleton
 
     def initialize
-    end
-
-    def reset
       @sets = {}
-      RouteTemplateDefaults.register
-      self
     end
-
-    # Creates a new set (or appends to a set if it exists).
+    
+    # Creates a new set.
     #
     def set(name, &block)
-      @sets[name] ||= RouteSet.new
+      @sets[name] = RouteSet.new
+      @sets[name].instance_exec(&RouteTemplateDefaults.defaults)
       @sets[name].instance_exec(&block)
     end
 

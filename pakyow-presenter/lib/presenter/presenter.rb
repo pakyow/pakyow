@@ -8,8 +8,8 @@ module Pakyow
       attr_accessor :current_context, :parser_store, :view_store
 
       def initialize
+        @bindings = {}
         reset_state
-        reset_bindings
       end
 
       def scope(name, set = :default, &block)
@@ -25,11 +25,6 @@ module Pakyow
         @bindings.inject(Bindings.new) { |bs, b| bs.merge(b[1][scope]) }
       end
 
-      def reset_bindings(set = :default)
-        @bindings ||= {}
-        @bindings[set] = {}
-      end
-
       def current_view_lookup_store
         @view_stores[self.view_store]
       end
@@ -40,13 +35,11 @@ module Pakyow
 
       def load
         load_views
-
-        self.reset_bindings
         self.instance_eval(&Presenter.proc) if Presenter.proc
       end
 
       def prepare_for_request(request)
-        reset_state()
+        reset_state
         @request = request
 
         if @request && @request.route_path && !@request.route_path.is_a?(Regexp) && @request.route_path.index(':')
