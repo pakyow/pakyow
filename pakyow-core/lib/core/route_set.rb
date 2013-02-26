@@ -192,12 +192,17 @@ module Pakyow
       # build the final list of fns
       fns = self.build_fns(fns, hooks)
 
-      # prepend scope path if we're in a scope
-      path = File.join(@scope[:path], path)
-      path = StringUtils.normalize_path(path)
-      
-      # get regex and vars for path
-      regex, vars = self.build_route_matcher(path)
+      if path.is_a?(Regexp)
+        regex = path
+        vars  = []
+      else
+        # prepend scope path if we're in a scope
+        path = File.join(@scope[:path], path)
+        path = StringUtils.normalize_path(path)
+        
+        # get regex and vars for path
+        regex, vars = self.build_route_matcher(path)
+      end
 
       # create the route tuple
       route = [regex, vars, name, fns, path]
@@ -261,19 +266,13 @@ module Pakyow
       
       # we have vars
       vars = []
-      position_counter = 1
       regex_route = path
       route_segments = path.split('/')
       route_segments.each_with_index { |segment, i|
         if segment.include?(':')
-          vars << { :position => position_counter, :var => segment.gsub(':', '').to_sym, :url_position => i }
-          if i == route_segments.length-1 then
-            regex_route = regex_route.sub(segment, '((\w|[-.~:@!$\'\(\)\*\+,;])*)')
-            position_counter += 2
-          else
-            regex_route = regex_route.sub(segment, '((\w|[-.~:@!$\'\(\)\*\+,;])*)')
-            position_counter += 2
-          end
+          var = segment.gsub(':', '')
+          vars << { :var => var.to_sym, :url_position => i }
+          regex_route = regex_route.sub(segment, '(?<' + var + '>(\w|[-.~:@!$\'\(\)\*\+,;])*)')
         end
       }
       reg = Regexp.new("^#{regex_route}$")

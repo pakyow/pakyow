@@ -105,6 +105,19 @@ class RoutingTest < MiniTest::Unit::TestCase
     }
   end
 
+  def test_regexp_name_captures_are_extracted_and_available_through_request
+    rtr = Router.instance
+    rtr.set(:test) {
+      get(/^foo\/(?<id>(\w|[-.~:@!$\'\(\)\*\+,;])*)$/) { }
+    }
+
+    %w(1 foo).each { |data|
+      req = mock_request("foo/#{data}")
+      Router.instance.route!(req)
+      assert_equal data, req.params[:id]
+    }
+  end
+
   def test_routes_can_be_referenced_by_name
     set = RouteSet.new
     set.get('foo', :foo) {}

@@ -142,8 +142,8 @@ module Pakyow
       data = {}
       return data unless matches
 
-      vars.each {|v|
-        data[v[:var]] = matches[v[:position]]
+      matches.names.each {|var|
+        data[var.to_sym] = matches[var]
       }
 
       data
