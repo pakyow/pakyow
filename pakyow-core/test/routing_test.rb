@@ -43,13 +43,13 @@ class RoutingTest < MiniTest::Unit::TestCase
     assert_route_tuple set.match('get', :get), ["get", [], nil, fn1, "get"]
 
     set.post('post', fn2)
-    assert_route_tuple set.match('post', :post), ["post", [], nil, fn1, "post"]
+    assert_route_tuple set.match('post', :post), ["post", [], nil, fn2, "post"]
 
     set.put('put', fn3)
-    assert_route_tuple set.match('put', :put), ["put", [], nil, fn1, "put"]
+    assert_route_tuple set.match('put', :put), ["put", [], nil, fn3, "put"]
 
     set.delete('delete', fn4)
-    assert_route_tuple set.match('delete', :delete), ["delete", [], nil, fn1, "delete"]
+    assert_route_tuple set.match('delete', :delete), ["delete", [], nil, fn4, "delete"]
   end
 
   def test_fn_list_can_be_passed_for_route
