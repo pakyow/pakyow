@@ -7,8 +7,8 @@ Gem::Specification.new do |s|
   s.summary     = 'Punch packing application framework.'
   s.description = ''
 
-  s.required_ruby_version     = '>= 1.8.7'
-  s.required_rubygems_version = ">= 1.3.6"
+  s.required_ruby_version     = '>= 1.9.3'
+  s.required_rubygems_version = ">= 1.8.11"
 
   s.authors           = ['Bryan Powell', 'Bret Young']
   s.email             = 'bryan@metabahn.com'

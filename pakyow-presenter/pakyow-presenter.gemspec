@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.version     = version
   s.summary     = 'pakyow-presenter'
   s.description = 'pakyow-presenter'
-  s.required_ruby_version = '>= 1.8.7'
+  s.required_ruby_version = '>= 1.9.3'
 
   s.authors           = ['Bryan Powell', 'Bret Young']
   s.email             = 'bryan@metabahn.com'
