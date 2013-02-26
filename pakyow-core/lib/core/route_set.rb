@@ -87,8 +87,8 @@ module Pakyow
       @scope[:hooks] = original_hooks
     end
 
-    def namespace(path, *args, &block)
-      name, hooks = args
+    def namespace(*args, &block)
+      path, name, hooks = self.parse_namespace_args(args)
       hooks = name if name.is_a?(Hash)
 
       original_path  = @scope[:path]
@@ -180,8 +180,8 @@ module Pakyow
       }
     end
 
-    def register_route(method, path, *args, &block)
-      name, fns, hooks = self.parse_route_args(args)
+    def register_route(method, *args, &block)
+      path, name, fns, hooks = self.parse_route_args(args)
 
       fns ||= []
       # add passed block to fns
@@ -215,12 +215,28 @@ module Pakyow
       ret = []
       args.each { |arg|
         if arg.is_a?(Hash) # we have hooks
-          ret[2] = arg
+          ret[3] = arg
         elsif arg.is_a?(Array) # we have fns
-          ret[1] = arg
+          ret[2] = arg
         elsif arg.is_a?(Proc) # we have a fn
-          ret[1] = [arg]
-        elsif !arg.nil? # we have a name
+          ret[2] = [arg]
+        elsif arg.is_a?(Symbol) # we have a name
+          ret[1] = arg
+        elsif !arg.nil? # we have a path
+          ret[0] = arg
+        end
+      }
+      ret
+    end
+
+    def parse_namespace_args(args)
+      ret = []
+      args.each { |arg|
+        if arg.is_a?(Hash) # we have hooks
+          ret[2] = arg
+        elsif arg.is_a?(Symbol) # we have a name
+          ret[1] = arg
+        elsif !arg.nil? # we have a path
           ret[0] = arg
         end
       }

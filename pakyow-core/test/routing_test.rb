@@ -108,6 +108,14 @@ class RoutingTest < MiniTest::Unit::TestCase
     assert set.route(:bar).nil?
   end
 
+  def test_route_name_can_be_first_arg
+    set = RouteSet.new
+    set.get(:foo, 'foo') {}
+
+    assert !set.route(:foo).nil?
+    assert set.route(:bar).nil?
+  end
+
   def test_handler_is_registered_and_matched
     set = RouteSet.new
 
@@ -180,6 +188,16 @@ class RoutingTest < MiniTest::Unit::TestCase
   def test_namespaced_routes_can_be_matched
     set = RouteSet.new
     set.namespace('foo', :test_ns) {
+      get('bar') {}
+    }
+
+    assert !set.match('/foo/bar', :get).nil?
+    assert set.match('/bar', :get).nil?
+  end
+
+  def test_namespaced_name_can_be_first_arg
+    set = RouteSet.new
+    set.namespace(:test_ns, 'foo') {
       get('bar') {}
     }
 
