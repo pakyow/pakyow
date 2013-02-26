@@ -28,7 +28,7 @@ class RoutingTest < MiniTest::Unit::TestCase
 
     fn1 = lambda {}
     set.default(fn1)
-    assert_route_tuple set.match('/', :get), ["", [], nil, fn1, ""]
+    assert_route_tuple set.match('/', :get), ["", [], :default, fn1, ""]
   end
 
   def test_all_routes_are_created_and_matched

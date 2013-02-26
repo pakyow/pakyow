@@ -26,7 +26,7 @@ module Pakyow
     end
 
     def default(*args, &block)
-      self.register_route(:get, '/', *args, &block)
+      self.register_route(:get, '/', :default, *args, &block)
     end
 
     def get(*args, &block)
