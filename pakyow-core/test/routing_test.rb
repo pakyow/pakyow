@@ -69,6 +69,11 @@ class RoutingTest < MiniTest::Unit::TestCase
     assert !set.match('foo', :get).nil?
   end
 
+  def test_single_fn_is_passable_to_route
+    set = RouteSet.new
+    set.get('foo', lambda {})
+  end
+
   def test_keyed_routes_are_matched
     set = RouteSet.new
     set.get(':id') {}
