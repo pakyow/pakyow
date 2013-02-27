@@ -205,6 +205,9 @@ module Pakyow
     def setup_rr(env)
       self.request = Request.new(env)
       self.response = Response.new
+
+      # response is needed before setting up request
+      self.request.setup
     end
 
     # Called on every request.

@@ -4,12 +4,6 @@ module Pakyow
   class Request < Rack::Request
     attr_accessor :restful, :route_path, :controller, :action, :format, :error, :working_path, :working_method
 
-    def initialize(*args)
-      super
-
-      self.setup(self.path)
-    end
-
     # Easy access to path_info.
     def path
       self.path_info
@@ -54,7 +48,7 @@ module Pakyow
       @referer_parts ||= self.referer ? self.class.split_url(self.referer) : []
     end
 
-    def setup(path, method = nil)
+    def setup(path = self.path, method = nil)
       self.set_request_format_from_path(path)
       self.set_working_path_from_path(path, method)
     end
@@ -80,10 +74,6 @@ module Pakyow
 
     def set_request_format_from_path(path)
       path, format = StringUtils.split_at_last_dot(path)
-
-      #TODO why it no work without this? was working fine in application
-      return unless format
-
       self.format = ((format && (format[format.length - 1, 1] == '/')) ? format[0, format.length - 1] : format)
     end
   end
