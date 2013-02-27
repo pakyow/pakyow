@@ -6,8 +6,6 @@ module Pakyow
       end
 
       def call(env)
-        @app.call(env)
-        
         # 404 if no route matched and no views were found
         unless found?
           Log.enter "[404] Not Found"
@@ -24,6 +22,8 @@ module Pakyow
             Pakyow.app.response.body = [Pakyow.app.presenter.content] if Pakyow.app.presenter.presented?
           end
         end
+
+        @app.call(env)
       end
 
       private
