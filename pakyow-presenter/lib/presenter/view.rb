@@ -574,11 +574,11 @@ module Pakyow
           end
 
           doc.add_child(option_nodes)
-        end
 
-        # select appropriate option
-        if o = doc.css('option[value="' + value.to_s + '"]').first
-          o[:selected] = 'selected'
+          # select appropriate option
+          if o = doc.css('option[value="' + value.to_s + '"]').first
+            o[:selected] = 'selected'
+          end
         end
       end
 
