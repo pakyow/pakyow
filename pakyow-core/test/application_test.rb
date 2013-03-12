@@ -33,6 +33,12 @@ class ApplicationTest < MiniTest::Unit::TestCase
     app(true).stage(:test)
     assert !app.configurations[:test].nil?
   end
+
+  def test_env_is_set_when_initialized
+    envs = [:test, :foo]
+    app(true).stage(*envs)
+    assert_equal(envs.first, Pakyow.app.env)
+  end
   
   def test_app_is_set_when_initialized
     app(true)

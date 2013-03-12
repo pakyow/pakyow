@@ -117,7 +117,8 @@ module Pakyow
       # Prepares the application for running or staging and returns an instance
       # of the application.
       def prepare(args)
-        self.load_config args.empty? || args.first.nil? ? [Configuration::Base.app.default_environment] : args
+        cfgs = args.empty? || args.first.nil? ? [Configuration::Base.app.default_environment] : args
+        self.load_config(cfgs)
         return if prepared?
 
         self.builder.use(Rack::MethodOverride)
@@ -148,7 +149,7 @@ module Pakyow
         @prepared = true
 
         $:.unshift(Dir.pwd) unless $:.include? Dir.pwd
-        return self.new
+        return self.new(cfgs.first)
       end
 
       def load_config(args)
@@ -188,9 +189,10 @@ module Pakyow
 
     include Helpers
 
-    attr_accessor :request, :response, :presenter, :router
+    attr_accessor :request, :response, :presenter, :router, :env
 
-    def initialize
+    def initialize(primary_env)
+      @env = primary_env
       Pakyow.app = self
 
       Pakyow.app.presenter = Configuration::Base.app.presenter.instance if Configuration::Base.app.presenter
