@@ -6,6 +6,7 @@ class RoutingTest < MiniTest::Unit::TestCase
 
   def setup
     @fn_calls = []
+    Pakyow.app.response = mock_response
   end
 
   # RouteSet

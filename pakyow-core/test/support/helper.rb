@@ -18,5 +18,12 @@ require 'support/mock_router'
 # require 'route_block_evaluator'
 
 def mock_request(path = '/foo/')
-  Pakyow::Request.new({ "PATH_INFO" => path, "REQUEST_METHOD" => 'GET', "HTTP_REFERER" => '/bar/', "rack.input" => {} })
+  r = Pakyow::Request.new({ "PATH_INFO" => path, "REQUEST_METHOD" => 'GET', "HTTP_REFERER" => '/bar/', "rack.input" => {} })
+  r.working_path = path
+  r.working_method = :get
+  r
+end
+
+def mock_response
+  Pakyow::Response.new
 end

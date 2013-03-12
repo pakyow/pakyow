@@ -1,6 +1,6 @@
 require 'support/helper'
 
-class ApplicationActions < MiniTest::Unit::TestCase
+class ApplicationActions < MiniTest::Unit::TestCase  
   def test_application_can_be_halted
     reset
 
@@ -55,6 +55,7 @@ class ApplicationActions < MiniTest::Unit::TestCase
     path = '/foo/'
     Pakyow.app.router = MockRouter.new
     Pakyow.app.request = mock_request
+    Pakyow.app.response = mock_response
     Pakyow.app.reroute(path)
 
     assert_equal :get, Pakyow.app.request.working_method
@@ -69,6 +70,7 @@ class ApplicationActions < MiniTest::Unit::TestCase
     method = :put
     Pakyow.app.router = MockRouter.new
     Pakyow.app.request = mock_request
+    Pakyow.app.response = mock_response
     Pakyow.app.reroute(path, method)
 
     assert_equal method, Pakyow.app.request.working_method
