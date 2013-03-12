@@ -294,21 +294,6 @@ module Pakyow
 
     protected
 
-    #TODO need configuration options for cookies (plus ability to override for each?)
-    def set_cookies
-      if self.request.cookies && self.request.cookies != {}
-        self.request.cookies.each do |key, value|
-          if value.nil?
-            self.response.set_cookie(key, {:path => '/', :expires => Time.now + 604800 * -1 }.merge({:value => value}))
-          elsif value.is_a?(Hash)
-            self.response.set_cookie(key, {:path => '/', :expires => Time.now + 604800}.merge(value))
-          else
-            self.response.set_cookie(key, {:path => '/', :expires => Time.now + 604800}.merge({:value => value}))
-          end
-        end
-      end
-    end
-
     # Reloads all application files in application_path and presenter (if specified).
     #
     def load_app(reload_app = true)
@@ -334,7 +319,7 @@ module Pakyow
     #
     #TODO remove exclamation
     def finish
-      set_cookies
+      self.response.set_cookies
       self.response.finish
     end
 

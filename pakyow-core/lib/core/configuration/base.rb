@@ -1,7 +1,8 @@
 module Pakyow
   module Configuration
     autoload :App, 'core/configuration/app'
-    autoload :Server, 'core/configuration/server'    
+    autoload :Server, 'core/configuration/server'
+    autoload :Cookies, 'core/configuration/cookies'
     
     class Base
       # Fetches the server configuration    
@@ -9,9 +10,14 @@ module Pakyow
         Configuration::Server
       end
       
-      # Fetches to application configuration
+      # Fetches the application configuration
       def self.app
         Configuration::App
+      end
+
+      # Fetches the cookies configuration
+      def self.cookies
+        Configuration::Cookies
       end
       
       # Resets all configuration

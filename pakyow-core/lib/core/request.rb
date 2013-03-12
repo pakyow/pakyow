@@ -2,7 +2,16 @@ module Pakyow
 
   # The Request object.
   class Request < Rack::Request
-    attr_accessor :restful, :route_path, :controller, :action, :format, :error, :working_path, :working_method
+    attr_accessor :restful, :route_path, :controller, :action, :format, :error, :working_path, :working_method, :initial_cookies
+
+    def initialize(*args)
+      super
+
+      @initial_cookies = []
+      self.cookies.each {|k|
+        @initial_cookies
+      }
+    end
 
     # Easy access to path_info.
     def path
@@ -62,7 +71,7 @@ module Pakyow
       
       return arr
     end
-    
+
     protected
 
     def set_working_path_from_path(path, method)
