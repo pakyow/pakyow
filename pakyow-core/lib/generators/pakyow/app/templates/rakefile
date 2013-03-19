@@ -1,2 +1,4 @@
 require File.expand_path('application', __FILE__)
 PakyowApplication::Application.stage(ENV['ENV'])
+
+require 'pakyow-rake'

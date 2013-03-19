@@ -21,4 +21,5 @@ Gem::Specification.new do |s|
   s.add_dependency('pakyow-core',       version)
   s.add_dependency('pakyow-presenter',  version)
   s.add_dependency('pakyow-mailer',  version)
+  s.add_dependency('pakyow-rake',  version)
 end
