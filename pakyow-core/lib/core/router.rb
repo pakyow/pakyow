@@ -6,6 +6,8 @@ module Pakyow
   class Router
     include Singleton
 
+    attr_reader :sets
+
     def initialize
       @sets = {}
     end

@@ -1,5 +1,41 @@
 module Pakyow
   class RouteSet
+    class << self
+      def parse_route_args(args)
+        ret = []
+        args.each { |arg|
+          if arg.is_a?(Hash) # we have hooks
+            ret[3] = arg
+          elsif arg.is_a?(Array) # we have fns
+            ret[2] = arg
+          elsif arg.is_a?(Proc) # we have a fn
+            ret[2] = [arg]
+          elsif arg.is_a?(Symbol) # we have a name
+            ret[1] = arg
+          elsif !arg.nil? # we have a path
+            ret[0] = arg
+          end
+        }
+        ret
+      end
+
+      def parse_namespace_args(args)
+        ret = []
+        args.each { |arg|
+          if arg.is_a?(Hash) # we have hooks
+            ret[2] = arg
+          elsif arg.is_a?(Symbol) # we have a name
+            ret[1] = arg
+          elsif !arg.nil? # we have a path
+            ret[0] = arg
+          end
+        }
+        ret
+      end
+    end
+
+    attr_reader :routes
+
     def initialize
       @routes = {:get => [], :post => [], :put => [], :delete => []}
 
@@ -88,7 +124,7 @@ module Pakyow
     end
 
     def namespace(*args, &block)
-      path, name, hooks = self.parse_namespace_args(args)
+      path, name, hooks = self.class.parse_namespace_args(args)
       hooks = name if name.is_a?(Hash)
 
       original_path  = @scope[:path]
@@ -102,7 +138,7 @@ module Pakyow
       @templates[name] = block
     end
 
-    def expand(t_name, g_name, path = nil, data = nil, &block)
+    def expand(t_name, g_name, path = nil, date = nil, &block)
       data = path and path = nil if path.is_a?(Hash)
 
       # evaluate block in context of some class that implements
@@ -112,7 +148,7 @@ module Pakyow
 
       # evaluate template in same context, where func looks up funcs
       # from map and extends get (and others) to add proper names
-      t.expand(@templates[t_name], data)
+      t.evaluate(@templates[t_name], data)
     end
 
     # Returns a route tuple:
@@ -181,7 +217,7 @@ module Pakyow
     end
 
     def register_route(method, *args, &block)
-      path, name, fns, hooks = self.parse_route_args(args)
+      path, name, fns, hooks = self.class.parse_route_args(args)
 
       fns ||= []
       # add passed block to fns
@@ -214,38 +250,6 @@ module Pakyow
       return unless group = @scope[:name]
       @groups[group] << route
       @grouped_routes_by_name[group][name] = route
-    end
-
-    def parse_route_args(args)
-      ret = []
-      args.each { |arg|
-        if arg.is_a?(Hash) # we have hooks
-          ret[3] = arg
-        elsif arg.is_a?(Array) # we have fns
-          ret[2] = arg
-        elsif arg.is_a?(Proc) # we have a fn
-          ret[2] = [arg]
-        elsif arg.is_a?(Symbol) # we have a name
-          ret[1] = arg
-        elsif !arg.nil? # we have a path
-          ret[0] = arg
-        end
-      }
-      ret
-    end
-
-    def parse_namespace_args(args)
-      ret = []
-      args.each { |arg|
-        if arg.is_a?(Hash) # we have hooks
-          ret[2] = arg
-        elsif arg.is_a?(Symbol) # we have a name
-          ret[1] = arg
-        elsif !arg.nil? # we have a path
-          ret[0] = arg
-        end
-      }
-      ret
     end
     
     def build_fns(main_fns, hooks)

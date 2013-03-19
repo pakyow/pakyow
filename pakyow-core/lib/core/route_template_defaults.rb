@@ -3,7 +3,11 @@ module Pakyow
     def self.defaults
       lambda {
         template(:restful) {
-          get '/', :index, fn(:index)
+          nested_path { |group, path|
+            File.join(path, ":#{group}_id")
+          }
+
+          get '/', :index, fn(:index) if fn(:index)
 
           # special case for show (view path is overridden)
           if show_fns = fn(:show)
@@ -15,13 +19,13 @@ module Pakyow
             )
           end
 
-          get '/new', :new, fn(:new)
-          post '/', :create, fn(:create)
+          get '/new', :new, fn(:new) if fn(:new)
+          post '/', :create, fn(:create) if fn(:create)
 
-          get '/:id/edit', :edit, fn(:edit)
-          put '/:id', :update, fn(:update)
+          get '/:id/edit', :edit, fn(:edit) if fn(:edit)
+          put '/:id', :update, fn(:update) if fn(:update)
 
-          delete '/:id', :delete, fn(:delete)
+          delete '/:id', :delete, fn(:delete) if fn(:delete)
         }
       }
     end
