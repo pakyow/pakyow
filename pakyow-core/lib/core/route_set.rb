@@ -70,6 +70,41 @@ module Pakyow
         }
         ret
       end
+
+      def parse_expansion_args(args)
+        ret = []
+        args.each { |arg|
+          if arg.is_a?(Hash) # we have hooks
+            ret[1] = arg
+          elsif !arg.nil? # we have a path
+            ret[0] = arg
+          end
+        }
+        ret
+      end
+
+      def build_fns(main_fns, hooks)
+        hooks = self.normalize_hooks(hooks)
+        fns = []
+        fns.concat(hooks[:around])  if hooks && hooks[:around]
+        fns.concat(hooks[:before])  if hooks && hooks[:before]
+        fns.concat(main_fns)        if main_fns
+        fns.concat(hooks[:after])   if hooks && hooks[:after]
+        fns.concat(hooks[:around])  if hooks && hooks[:around]
+        fns
+      end
+
+      def normalize_hooks(h)
+        h[:before]  ||= []
+        h[:after]   ||= []
+        h[:around]  ||= []
+
+        h[:before] = [h[:before]] unless h[:before].is_a?(Array)
+        h[:after] = [h[:after]] unless h[:after].is_a?(Array)
+        h[:around] = [h[:around]] unless h[:around].is_a?(Array)
+
+        h
+      end
     end
 
     attr_reader :routes
@@ -175,8 +210,11 @@ module Pakyow
       @templates[name] = [hooks, block]
     end
 
-    def expand(t_name, g_name, path = nil, date = nil, &block)
-      data = path and path = nil if path.is_a?(Hash)
+    def expand(t_name, g_name, *args, &block)
+      path, hooks = self.class.parse_expansion_args(args)
+
+      template_info = @templates[t_name]
+      template_info[0] = self.merge_hooks(template_info[0] || {}, hooks || {})
 
       # evaluate block in context of some class that implements
       # method_missing to store map of functions 
@@ -185,7 +223,7 @@ module Pakyow
 
       # evaluate template in same context, where func looks up funcs
       # from map and extends get (and others) to add proper names
-      t.evaluate(@templates[t_name], data)
+      t.evaluate(template_info)
     end
 
     # Returns a route tuple:
@@ -231,20 +269,8 @@ module Pakyow
 
     def merge_hooks(h1, h2)
       # normalize
-      h1[:before]  ||= []
-      h1[:after]   ||= []
-      h1[:around]  ||= []
-      h2[:before]  ||= []
-      h2[:after]   ||= []
-      h2[:around]  ||= []
-
-      h1[:before] = [h1[:before]] unless h1[:before].is_a?(Array)
-      h1[:after] = [h1[:after]] unless h1[:after].is_a?(Array)
-      h1[:around] = [h1[:around]] unless h1[:around].is_a?(Array)
-
-      h2[:before] = [h2[:before]] unless h2[:before].is_a?(Array)
-      h2[:after] = [h2[:after]] unless h2[:after].is_a?(Array)
-      h2[:around] = [h2[:around]] unless h2[:around].is_a?(Array)
+      self.class.normalize_hooks(h1)
+      self.class.normalize_hooks(h2)
 
       # merge
       h1[:before].concat(h2[:before])
@@ -271,7 +297,7 @@ module Pakyow
       hooks = self.merge_hooks(hooks || {}, @scope[:hooks])
 
       # build the final list of fns
-      fns = self.build_fns(fns, hooks)
+      fns = self.class.build_fns(fns, hooks)
 
       if path.is_a?(Regexp)
         regex = path
@@ -295,16 +321,6 @@ module Pakyow
       return unless group = @scope[:name]
       @groups[group] << route
       @grouped_routes_by_name[group][name] = route
-    end
-    
-    def build_fns(main_fns, hooks)
-      fns = []
-      fns.concat(hooks[:around])  if hooks && hooks[:around]
-      fns.concat(hooks[:before])  if hooks && hooks[:before]
-      fns.concat(main_fns)        if main_fns
-      fns.concat(hooks[:after])   if hooks && hooks[:after]
-      fns.concat(hooks[:around])  if hooks && hooks[:around]
-      fns
     end
 
     def build_route_matcher(path)

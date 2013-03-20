@@ -2,6 +2,20 @@
 
 module Pakyow
   class RouteTemplate
+    class << self
+      def parse_action_args(args)
+        ret = []
+        args.each { |arg|
+          if arg.is_a?(Hash) # we have hooks
+            ret[1] = arg
+          elsif arg.is_a?(Proc) # we have a fn
+            ret[0] = arg
+          end
+        }
+        ret
+      end
+    end
+
     attr_accessor :path
 
     def initialize(block, g_name, path, router)
@@ -16,22 +30,23 @@ module Pakyow
     end
 
     def action(method, *args, &block)
-      fns = block_given? ? [block] : args[0]
-      @fns[method] = fns
+      fn, hooks = self.class.parse_action_args(args)
+      fns = block_given? ? [block] : fn
+      @fns[method] = RouteSet.build_fns(fns, hooks)
     end
 
-    def evaluate(template, data)
+    def evaluate(template)
       @expanding = true
       hooks, block = template
 
       t = self
       if @path
         @router.namespace(@path, @g_name, hooks) {
-          t.instance_exec(data, &block)
+          t.instance_exec(&block)
         }
       else
         @router.group(@g_name, hooks) {
-          t.instance_exec(data, &block)
+          t.instance_exec(&block)
         }
       end
 
