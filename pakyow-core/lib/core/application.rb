@@ -288,7 +288,7 @@ module Pakyow
 
     # Convenience method for defining routes outside of core block.
     #
-    def routes(set_name = :default, &block)
+    def routes(set_name = :main, &block)
       @router.set(set_name, &block)
     end
 
@@ -312,12 +312,11 @@ module Pakyow
     #
     def load_core
       return unless self.class.core_proc
-      @router.set(:default, &self.class.core_proc)
+      @router.set(:main, &self.class.core_proc)
     end
     
     # Send the response and cleanup.
     #
-    #TODO remove exclamation
     def finish
       self.response.set_cookies
       self.response.finish
