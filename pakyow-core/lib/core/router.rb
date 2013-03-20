@@ -49,7 +49,7 @@ module Pakyow
     def handle!(name_or_code, from_logic = false)
       @sets.each { |set|
         if h = set[1].handle(name_or_code)
-          Pakyow.app.response.status = h[0]
+          Pakyow.app.response.status = h[1]
           from_logic ? throw(:fns, h[2]) : self.trampoline(h[2])
           break
         end

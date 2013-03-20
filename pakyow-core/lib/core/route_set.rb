@@ -44,6 +44,20 @@ module Pakyow
         }
         ret
       end
+
+      def parse_handler_args(args)
+        ret = []
+        args.each { |arg|
+          if arg.is_a?(Proc) # we have a fn
+            ret[2] = arg
+          elsif arg.is_a?(Integer) # we have a code
+            ret[1] = arg
+          elsif !arg.nil? # we have a name
+            ret[0] = arg
+          end
+        }
+        ret
+      end
     end
 
     attr_reader :routes
@@ -110,12 +124,10 @@ module Pakyow
 
     # Creates a handler.
     #
-    def handler(name, *args, &block)
-      code, fn = args
-
-      fn = code and code = nil if code.is_a?(Proc)
+    def handler(*args, &block)
+      name, code, fn = self.class.parse_handler_args(args)
       fn = block if block_given?
-
+      
       @handlers << [name, code, [fn]]
     end
 
