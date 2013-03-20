@@ -58,6 +58,18 @@ module Pakyow
         }
         ret
       end
+
+      def parse_template_args(args)
+        ret = []
+        args.each { |arg|
+          if arg.is_a?(Hash) # we have hooks
+            ret[1] = arg
+          elsif !arg.nil? # we have a name
+            ret[0] = arg
+          end
+        }
+        ret
+      end
     end
 
     attr_reader :routes
@@ -158,8 +170,9 @@ module Pakyow
       @scope[:path] = original_path
     end
 
-    def template(name, &block)
-      @templates[name] = block
+    def template(*args, &block)
+      name, hooks = self.class.parse_template_args(args)
+      @templates[name] = [hooks, block]
     end
 
     def expand(t_name, g_name, path = nil, date = nil, &block)

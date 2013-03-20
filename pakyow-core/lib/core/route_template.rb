@@ -22,15 +22,16 @@ module Pakyow
 
     def evaluate(template, data)
       @expanding = true
+      hooks, block = template
 
       t = self
       if @path
-        @router.namespace(@path, @g_name) {
-          t.instance_exec(data, &template)
+        @router.namespace(@path, @g_name, hooks) {
+          t.instance_exec(data, &block)
         }
       else
-        @router.group(@g_name) {
-          t.instance_exec(data, &template)
+        @router.group(@g_name, hooks) {
+          t.instance_exec(data, &block)
         }
       end
 
