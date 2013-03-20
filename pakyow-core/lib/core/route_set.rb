@@ -82,9 +82,7 @@ module Pakyow
     #
     def fn(name, &block)
       @fns[name] = block and return if block
-
-      #TODO rewrite to not return array
-      [@fns[name]]
+      @fns[name]
     end
 
     def default(*args, &block)
@@ -127,7 +125,7 @@ module Pakyow
     def handler(*args, &block)
       name, code, fn = self.class.parse_handler_args(args)
       fn = block if block_given?
-      
+
       @handlers << [name, code, [fn]]
     end
 
@@ -226,6 +224,14 @@ module Pakyow
       h2[:before]  ||= []
       h2[:after]   ||= []
       h2[:around]  ||= []
+
+      h1[:before] = [h1[:before]] unless h1[:before].is_a?(Array)
+      h1[:after] = [h1[:after]] unless h1[:after].is_a?(Array)
+      h1[:around] = [h1[:around]] unless h1[:around].is_a?(Array)
+
+      h2[:before] = [h2[:before]] unless h2[:before].is_a?(Array)
+      h2[:after] = [h2[:after]] unless h2[:after].is_a?(Array)
+      h2[:around] = [h2[:around]] unless h2[:around].is_a?(Array)
 
       # merge
       h1[:before].concat(h2[:before])
