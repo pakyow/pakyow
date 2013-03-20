@@ -7,7 +7,7 @@ module Pakyow
             File.join(path, ":#{group}_id")
           }
 
-          get '/', :index, fn(:index) if fn(:index)
+          default fn(:default) if fn(:default)
 
           # special case for show (view path is overridden)
           if show_fns = fn(:show)

@@ -51,6 +51,10 @@ module Pakyow
       @router.call(controller, action)
     end
 
+    def default(*args, &block)
+      @router.default(*args, &block)
+    end
+
     def get(*args, &block)
       @router.get(*args, &block)
     end
