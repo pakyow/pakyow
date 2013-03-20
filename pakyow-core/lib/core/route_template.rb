@@ -44,7 +44,11 @@ module Pakyow
     end
 
     def fn(name)
-      @expanding ? @fns[name] : @router.func(name)
+      if !@expanding || (@expanding && !fn = @fns[name])
+        fn = @router.fn(name)
+      end
+
+      fn
     end
 
     def call(controller, action)
