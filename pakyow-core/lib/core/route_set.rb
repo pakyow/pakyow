@@ -32,6 +32,18 @@ module Pakyow
         }
         ret
       end
+
+      def parse_group_args(args)
+        ret = []
+        args.each { |arg|
+          if arg.is_a?(Hash) # we have hooks
+            ret[1] = arg
+          elsif !arg.nil? # we have a name
+            ret[0] = arg
+          end
+        }
+        ret
+      end
     end
 
     attr_reader :routes
@@ -107,11 +119,13 @@ module Pakyow
       @handlers << [name, code, [fn]]
     end
 
-    def group(name, *args, &block)
+    def group(*args, &block)
+      name, hooks = self.class.parse_group_args(args)
+
       # deep clone existing hooks to reset at the close of this group
       original_hooks = self.copy_hooks(@scope[:hooks])
       
-      @scope[:hooks] = self.merge_hooks(@scope[:hooks], args[0]) if @scope[:hooks] && args[0]
+      @scope[:hooks] = self.merge_hooks(@scope[:hooks], hooks) if @scope[:hooks] && hooks
 
       @scope[:name] = name
       @groups[name] = []
