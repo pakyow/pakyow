@@ -256,7 +256,7 @@ module Pakyow
       #
       def for(data, &block)
         data = [data] unless data.instance_of?(Array)
-        block.call(self, data[0])
+        block.call(self, data[0], 0)
       end
 
       # call-seq:
@@ -306,7 +306,7 @@ module Pakyow
         binder.merge(bindings)
         
         self.bind_data_to_scope(data, scope, binder)
-        yield(self, data) if block_given?
+        yield(self, data, 0) if block_given?
       end
 
       # call-seq:

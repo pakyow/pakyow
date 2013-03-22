@@ -126,7 +126,7 @@ module Pakyow
         data = [data] unless data.instance_of?(Array)
         self.each_with_index { |v,i|
           break unless datum = data[i]
-          block.call(v, datum)
+          block.call(v, datum, i)
         }
       end
 
@@ -178,9 +178,9 @@ module Pakyow
       # Binds data across existing scopes.
       #
       def bind(data, bindings = nil, &block)
-        self.for(data) {|view, datum|
+        self.for(data) {|view, datum, i|
           view.bind(datum, bindings)
-          yield(view, datum) if block_given?
+          yield(view, datum, i) if block_given?
         }
       end
 
