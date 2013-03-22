@@ -490,16 +490,20 @@ module Pakyow
         end
 
         scope[:props].each {|p|
-          k = p[:prop]
-          v = binder ? binder.value_for_prop(k) : data[k]
+          catch(:unbound) {
+            k = p[:prop]
+            v = binder ? binder.value_for_prop(k) : data[k]
 
-          doc = doc_from_path(p[:path])
+            self.handle_unbound_data(scope, p) if v.nil?
 
-          # handle form field
-          self.bind_to_form_field(doc, scope, k, v, binder) if View.form_field?(doc.name)
+            doc = doc_from_path(p[:path])
 
-          # bind attributes or value
-          v.is_a?(Hash) ? self.bind_attributes_to_doc(v, doc) : self.bind_value_to_doc(v, doc)
+            # handle form field
+            self.bind_to_form_field(doc, scope, k, v, binder) if View.form_field?(doc.name)
+
+            # bind attributes or value
+            v.is_a?(Hash) ? self.bind_attributes_to_doc(v, doc) : self.bind_value_to_doc(v, doc)
+          }
         }
       end
 
@@ -581,6 +585,11 @@ module Pakyow
             o[:selected] = 'selected'
           end
         end
+      end
+
+      def handle_unbound_data(scope, prop)
+        Log.warn("Unbound data for #{scope[:scope]}[#{prop[:prop]}]") if Configuration::Base.app.dev_mode == true
+        throw :unbound
       end
 
     end
