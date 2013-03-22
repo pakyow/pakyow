@@ -182,6 +182,7 @@ module Pakyow
       alias :html :content
       
       def content=(content)
+        content = content.call(self.content) if content.is_a?(Proc)
         self.doc.inner_html = Nokogiri::HTML.fragment(content.to_s)
       end
       
