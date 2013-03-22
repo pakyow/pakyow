@@ -130,19 +130,8 @@ module Pakyow
         if args.empty?
           return Attributes.new(self.doc)
         else
-          #TODO mass assign attributes (if we still want to do this)
-          #TODO use this instead of (or combine with) bind_attributes_to_doc?
+          self.bind_attributes_to_doc(*args, doc)
         end
-
-        # if args.empty?
-        #   @previous_method = :attributes
-        #   return self
-        # else
-        #   args[0].each_pair { |name, value|
-        #     @previous_method = :attributes
-        #     self.send(name.to_sym, value)            
-        #   }
-        # end
       end
 
       alias :attrs :attributes
