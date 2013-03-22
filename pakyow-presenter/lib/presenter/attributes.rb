@@ -85,7 +85,9 @@ module Pakyow
       end
 
       def method_missing(method, *args)
-        @attributes.each{|a| a.send(method, *args)}
+        ret = []
+        @attributes.each{|a| ret << a.send(method, *args)}
+        ret
       end
     end
   end
