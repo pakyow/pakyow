@@ -74,10 +74,11 @@ module Pakyow
 
     protected
 
-    # Calls a list of route functions in order (each in a separate context).
+    # Calls a list of route functions in order (in a shared context).
     #
     def call_fns(fns)
-      fns.each {|fn| self.context.instance_exec(&fn)}
+      ctx = self.context
+      fns.each {|fn| ctx.instance_exec(&fn)}
     end
 
     # Creates a context in which to evaluate a route function.
