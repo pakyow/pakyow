@@ -107,7 +107,7 @@ module Pakyow
       end
     end
 
-    attr_reader :routes
+    attr_reader :routes, :groups
 
     def initialize
       @routes = {:get => [], :post => [], :put => [], :delete => []}
