@@ -95,6 +95,8 @@ module Pakyow
       end
 
       def normalize_hooks(h)
+        h ||= {}
+        
         h[:before]  ||= []
         h[:after]   ||= []
         h[:around]  ||= []
