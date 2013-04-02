@@ -482,7 +482,7 @@ module Pakyow
           catch(:unbound) {
             k = p[:prop]
 
-            if ((data.is_a?(Hash) && !data.key?(k)) || !data.class.method_defined?(k)) && (!binder || !binder.prop?(k))
+            if ((data.is_a?(Hash) && !data.key?(k)) || (!data.is_a?(Hash) && !data.class.method_defined?(k))) && (!binder || !binder.prop?(k))
               self.handle_unbound_data(scope, p)
             end
 
