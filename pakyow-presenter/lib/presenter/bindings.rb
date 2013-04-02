@@ -36,6 +36,10 @@ module Pakyow
         end
       end
 
+      def prop?(prop)
+        @bindings.key?(prop)
+      end
+
       def value_for_prop(prop)
         # mapping always overrides fns for a scope
         if @mapping

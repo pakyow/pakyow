@@ -481,9 +481,12 @@ module Pakyow
         scope[:props].each {|p|
           catch(:unbound) {
             k = p[:prop]
-            v = binder ? binder.value_for_prop(k) : data[k]
 
-            self.handle_unbound_data(scope, p) if v.nil?
+            if ((data.is_a?(Hash) && !data.key?(k)) || !data.class.method_defined?(k)) && (!binder || !binder.prop?(k))
+              self.handle_unbound_data(scope, p)
+            end
+
+            v = binder ? binder.value_for_prop(k) : data[k]
 
             doc = doc_from_path(p[:path])
 

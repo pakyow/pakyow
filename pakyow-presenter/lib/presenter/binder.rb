@@ -23,6 +23,10 @@ module Pakyow
         self.bindable = bindable
       end
 
+      def prop?(prop)
+        self.class.method_defined?(prop)
+      end
+
       def value_for_prop(prop)
         self.class.method_defined?(prop) ? self.send(prop) : bindable[prop]
       end
