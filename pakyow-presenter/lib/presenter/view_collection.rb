@@ -123,7 +123,8 @@ module Pakyow
       # (this is basically Bret's `map` function)
       #
       def for(data, &block)
-        data = [data] unless data.instance_of?(Array)
+        data = [data] unless data.respond_to? :each
+
         self.each_with_index { |v,i|
           break unless datum = data[i]
           block.call(v, datum, i)
@@ -138,7 +139,7 @@ module Pakyow
       # of self[data index] || self[-1], where n = data.length.
       #
       def match(data)
-        data = [data] unless data.instance_of?(Array)
+        data = [data] unless data.respond_to? :each
 
         views = ViewCollection.new
         data.each_with_index {|datum,i|

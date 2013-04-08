@@ -244,7 +244,7 @@ module Pakyow
       # (this is basically Bret's `map` function)
       #
       def for(data, &block)
-        data = [data] unless data.instance_of?(Array)
+        data = [data] unless data.respond_to? :each
         block.call(self, data[0], 0)
       end
 
@@ -256,7 +256,7 @@ module Pakyow
       # of self, where n = data.length.
       #
       def match(data)
-        data = [data] unless data.instance_of?(Array)
+        data = [data] unless data.respond_to? :each
 
         views = ViewCollection.new
         data.each {|datum|
