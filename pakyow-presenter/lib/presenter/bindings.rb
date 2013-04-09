@@ -32,7 +32,7 @@ module Pakyow
 
       def options_for_prop(prop)
         if fn = @binding_options[prop]
-          fn.call
+          self.instance_exec(&fn)
         end
       end
 
