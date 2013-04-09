@@ -123,7 +123,7 @@ module Pakyow
       # (this is basically Bret's `map` function)
       #
       def for(data, &block)
-        data = [data] unless data.respond_to? :each
+        data = [data] unless data.is_a? Enumerable
 
         self.each_with_index { |v,i|
           break unless datum = data[i]
@@ -139,7 +139,7 @@ module Pakyow
       # of self[data index] || self[-1], where n = data.length.
       #
       def match(data)
-        data = [data] unless data.respond_to? :each
+        data = [data] unless data.is_a? Enumerable
 
         views = ViewCollection.new
         data.each_with_index {|datum,i|
