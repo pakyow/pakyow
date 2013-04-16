@@ -87,8 +87,8 @@ module Pakyow
           return_data = {}
 
           if id = bindable[:id]
-            return_data[:content] = lambda { |content|
-              '<input type="hidden" name="_method" value="put">' + content
+            return_data[:view] = lambda { |view|
+              view.prepend(View.new(Nokogiri::HTML.fragment('<input type="hidden" name="_method" value="put">')))
             }
 
             action = routes.path(:update, :id => id)

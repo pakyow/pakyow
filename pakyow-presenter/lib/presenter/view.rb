@@ -42,7 +42,7 @@ module Pakyow
 
       end
 
-      attr_accessor :doc, :scoped_as, :scopes
+      attr_accessor :doc, :scoped_as, :scopes, :related_views
       attr_writer   :bindings
 
       def dup
@@ -52,6 +52,8 @@ module Pakyow
       end
 
       def initialize(arg=nil, is_root_view=false)
+        @related_views = []
+
         arg = self.class.default_view_path if arg.nil? && self.class.default_view_path
         is_root_view = self.class.default_is_root_view if arg.nil? && self.class.default_is_root_view
 
@@ -170,15 +172,47 @@ module Pakyow
       alias :html= :content=
       
       def append(view)
+        doc  = view.doc
+        num  = doc.children.count
+        path = self.path_to(doc)
+
         self.doc.add_child(view.doc)
+
+        self.update_binding_offset_at_path(num, path)
+        self.refind_significant_nodes
+      end
+
+      def prepend(view)
+        doc  = view.doc
+        num  = doc.children.count
+        path = self.path_to(doc)
+
+        self.doc.children.first.add_previous_sibling(doc)
+
+        self.update_binding_offset_at_path(num, path)
+        self.refind_significant_nodes
       end
       
       def after(view)
+        doc  = view.doc
+        num  = doc.children.count
+        path = self.path_to(doc)
+
         self.doc.after(view.doc)
+
+        self.update_binding_offset_at_path(num, path)
+        self.refind_significant_nodes
       end
       
       def before(view)
+        doc  = view.doc
+        num  = doc.children.count
+        path = self.path_to(doc)
+
         self.doc.before(view.doc)
+
+        self.update_binding_offset_at_path(num, path)
+        self.refind_significant_nodes
       end
       
       def scope(name)
@@ -307,8 +341,8 @@ module Pakyow
         vs
       end
 
-      def containers
-        @containers ||= self.find_containers
+      def containers(refind = false)
+        @containers = (!@containers || refind) ? self.find_containers : @containers
       end
 
       def bindings
@@ -459,7 +493,31 @@ module Pakyow
       end
 
       def view_from_path(path)
-        View.new(doc_from_path(path))
+        v = View.new(doc_from_path(path))
+        v.related_views << self
+        v
+      end
+
+      def update_binding_offset_at_path(offset, path)
+        # update binding paths for bindings we're iterating on
+        self.bindings.each {|binding|
+          next unless self.path_within_path?(binding[:path], path)
+
+          binding[:path][0] += offset if binding[:path][0]
+
+          binding[:props].each { |prop|
+            prop[:path][0] += offset if prop[:path][0]
+          }
+        }
+      end
+
+      def refind_significant_nodes
+        self.bindings(true)
+        self.containers(true)
+
+        @related_views.each {|v|
+          v.refind_significant_nodes
+        }
       end
 
       def bind_data_to_scope(data, scope, binder = nil)
@@ -501,9 +559,13 @@ module Pakyow
 
       def bind_attributes_to_doc(attrs, doc)
         attrs.each do |attr, v|
-          if attr == :content
+          case attr
+          when :content
             v = v.call(doc.inner_html) if v.is_a?(Proc)
             bind_value_to_doc(v, doc)
+            next
+          when :view
+            v.call(self)
             next
           end
 
