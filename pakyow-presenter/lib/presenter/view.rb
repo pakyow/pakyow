@@ -109,16 +109,8 @@ module Pakyow
         o.inner_html if o
       end
       
-      def to_html(container = nil)
-        if container
-          if o = @doc.css("*[#{Configuration::Presenter.container_attribute}='#{container}']").first
-            o.inner_html
-          else
-            ''
-          end
-        else
-          @doc.to_html
-        end
+      def to_html
+        @doc.to_html
       end
 
       alias :to_s :to_html

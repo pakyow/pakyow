@@ -64,9 +64,7 @@ module Pakyow
       
       def content
         return unless view
-        request_container = @request.params[:_container] if @request
-        return view.to_html(request_container) if request_container
-        view.to_html(@container_name)
+        view.to_html
       end
 
       #
@@ -113,10 +111,6 @@ module Pakyow
         @root = v
       end
 
-      def limit_to_container(id)
-        @container_name = id
-      end
-
       def view_path
         @view_path
       end
@@ -134,14 +128,6 @@ module Pakyow
         @is_compiled = false
         @root = nil
         @root_path = abstract_path
-      end
-
-      # Call as part of View DSL for DOM manipulation
-      #
-
-      def with_container(container, &block)
-        v = self.view.find("##{container}").first
-        ViewContext.new(v).instance_exec(v, &block)
       end
 
       #
@@ -163,7 +149,6 @@ module Pakyow
         @root_view_is_built = false
         @root_view = nil
         @view_path = nil
-        @container_name = nil
       end
 
       def build_root_view
