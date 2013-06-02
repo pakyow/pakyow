@@ -4,7 +4,10 @@ class BindingsTest < MiniTest::Unit::TestCase
   def setup
     TestApplication.stage(:test)
     Pakyow::Router.instance.set(:default) {
-      expand(:restful, :bar, 'bar') {}
+      expand(:restful, :bar, 'bar') {
+        action(:create) {}
+        action(:update) {}
+      }
     }
   end
 
