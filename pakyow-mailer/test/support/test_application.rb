@@ -1,4 +1,4 @@
-class TestApplication < Pakyow::Application
+Pakyow::App.define do
   configure(:test) do
     presenter.view_stores[:mailer] = "test/views"
   end

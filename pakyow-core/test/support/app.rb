@@ -1,10 +1,10 @@
-class TestApplication < Pakyow::Application
-  configure(:test) {
+Pakyow::App.define do
+  configure(:test) do
     app.src_dir = File.join(Dir.pwd, 'test', 'support', 'loader')
-  }
+  end
+end
 
-  # OVERRIDING
-  
+class Pakyow::App
   attr_accessor :static_handler, :static
   
   # This keeps the app from actually being run.
@@ -15,7 +15,7 @@ class TestApplication < Pakyow::Application
   def self.reset(do_reset)
     if do_reset
       Pakyow.app = nil
-      Pakyow::Configuration::Base.reset!
+      Pakyow::Config::Base.reset!
       
       @prepared = false
       @running = false

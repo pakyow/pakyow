@@ -1,5 +1,5 @@
 module Pakyow
-  module Configuration
+  module Config
     class Presenter
       class << self
         attr_accessor :view_caching, :javascripts, :stylesheets, :view_stores, :default_view,
@@ -16,7 +16,7 @@ module Pakyow
         end
 
         def view_stores
-          @view_stores ||= {:default => "#{Configuration::Base.app.root}/views"}
+          @view_stores ||= {:default => "#{Config::Base.app.root}/views"}
         end
         
         def view_caching

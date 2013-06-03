@@ -17,7 +17,7 @@ module Pakyow
             path = self.path
             get '/:id', :show, show_fns.unshift(
               lambda {
-                presenter.view_path = File.join(path, 'show') if Configuration::Base.app.presenter
+                presenter.view_path = File.join(path, 'show') if Config::Base.app.presenter
               }
             )
           end

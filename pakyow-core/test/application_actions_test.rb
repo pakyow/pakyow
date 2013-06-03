@@ -53,14 +53,15 @@ class ApplicationActions < MiniTest::Unit::TestCase
     reset
 
     path = '/foo/'
-    Pakyow.app.router = MockRouter.new
-    Pakyow.app.request = mock_request
+    router = MockRouter.new
+    Pakyow.app.router = router
     Pakyow.app.response = mock_response
+    Pakyow.app.request = mock_request
     Pakyow.app.reroute(path)
 
     assert_equal :get, Pakyow.app.request.working_method
     assert_equal path, Pakyow.app.request.working_path
-    assert Pakyow.app.router.rerouted
+    assert router.rerouted
   end
 
   def test_application_can_be_rerouted_to_new_path_with_method
@@ -68,29 +69,31 @@ class ApplicationActions < MiniTest::Unit::TestCase
 
     path = '/foo/'
     method = :put
-    Pakyow.app.router = MockRouter.new
-    Pakyow.app.request = mock_request
+    router = MockRouter.new
+    Pakyow.app.router = router
     Pakyow.app.response = mock_response
+    Pakyow.app.request = mock_request
     Pakyow.app.reroute(path, method)
 
     assert_equal method, Pakyow.app.request.working_method
     assert_equal path, Pakyow.app.request.working_path
-    assert Pakyow.app.router.rerouted
+    assert router.rerouted
   end
 
   def test_application_can_handle
     reset
 
-    Pakyow.app.router = MockRouter.new
+    router = MockRouter.new
+    Pakyow.app.router = router
     Pakyow.app.handle(500)
 
-    assert Pakyow.app.router.handled
+    assert router.handled
   end
 
   def test_data_can_be_sent_from_application
     reset
+    Pakyow.app.response = mock_response
     Pakyow.app.request = mock_request
-    Pakyow.app.response = Response.new
 
     data = 'foo'
     
@@ -104,8 +107,8 @@ class ApplicationActions < MiniTest::Unit::TestCase
 
   def test_data_can_be_sent_from_application_with_type
     reset
+    Pakyow.app.response = mock_response
     Pakyow.app.request = mock_request
-    Pakyow.app.response = Response.new
 
     data = 'foo'
     type = 'text'
@@ -120,8 +123,8 @@ class ApplicationActions < MiniTest::Unit::TestCase
 
   def test_file_can_be_sent_from_application
     reset
+    Pakyow.app.response = mock_response
     Pakyow.app.request = mock_request
-    Pakyow.app.response = Response.new
 
     path = File.join(File.dirname(__FILE__), 'support/foo.txt')
 
@@ -137,8 +140,8 @@ class ApplicationActions < MiniTest::Unit::TestCase
 
   def test_file_can_be_sent_from_application_with_type
     reset
+    Pakyow.app.response = mock_response
     Pakyow.app.request = mock_request
-    Pakyow.app.response = Response.new
 
     type = 'text/plain'
     path = File.join(File.dirname(__FILE__), 'support/foo.txt')
@@ -155,8 +158,8 @@ class ApplicationActions < MiniTest::Unit::TestCase
 
   def test_file_can_be_sent_from_application_with_type_as_attachment
     reset
+    Pakyow.app.response = mock_response
     Pakyow.app.request = mock_request
-    Pakyow.app.response = Response.new
 
     as = 'foo.txt'
     type = 'text/plain'
@@ -180,7 +183,7 @@ class ApplicationActions < MiniTest::Unit::TestCase
   end
 
   def app(do_reset = false)
-    TestApplication.reset(do_reset)
+    Pakyow::App.reset(do_reset)
   end
 
   def app_test_path

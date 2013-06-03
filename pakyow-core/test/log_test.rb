@@ -23,7 +23,7 @@ class LogTest < MiniTest::Unit::TestCase
   end
   
   def test_log_to_file
-    Configuration::Base.app.log_dir = path
+    Pakyow::Config::Base.app.log_dir = path
     Pakyow::Log.reopen
     Log.enter(@text)
     Log.close

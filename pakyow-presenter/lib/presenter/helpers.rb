@@ -1,8 +1,7 @@
 module Pakyow
   module Helpers
     def presenter
-      Pakyow.app.presenter.current_context = self
-      Pakyow.app.presenter
+      @presenter
     end
 
     def bindings(name)
@@ -10,7 +9,7 @@ module Pakyow
     end
     
     def view
-      self.presenter.view
+      presenter.view
     end
   end
 end

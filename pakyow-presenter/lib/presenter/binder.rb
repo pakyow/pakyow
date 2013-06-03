@@ -1,46 +1,58 @@
 module Pakyow
   module Presenter
+    # A singleton that manages route sets.
+    #
     class Binder
+      include Singleton
       include Pakyow::GeneralHelpers
 
-      class << self
-        attr_accessor :options
-        
-        def binder_for(*args)
-          View.binders ||= {}
-          args.each { |klass| View.binders[klass.to_s.to_sym] = self }
-        end
-        
-        def options_for(*args)
-          self.options = {} unless self.options
-          self.options[args[0]] = args[1]
-        end
-      end
-      
-      attr_accessor :bindable
-      
-      def initialize(bindable)
-        self.bindable = bindable
+      attr_reader :sets
+
+      def initialize
+        @sets = {}
       end
 
-      def prop?(prop)
-        self.class.method_defined?(prop)
-      end
-
-      def value_for_prop(prop)
-        self.class.method_defined?(prop) ? self.send(prop) : bindable[prop]
+      #TODO want to do this for all sets?
+      def reset
+        @sets = {}
+        self
       end
       
-      def fetch_options_for(attribute)
-        if self.class.options
-          if options = self.class.options[attribute]
-            unless options.is_a?(Array) || options.is_a?(Hash)
-              options = self.send(options)
-            end
-          
-            return options
-          end
-        end
+      # Creates a new set.
+      #
+      def set(name, &block)
+        @sets[name] = BinderSet.new
+        @sets[name].instance_exec(&block)
+      end
+
+      def value_for_prop(*args)
+        match = nil
+        @sets.each {|set|
+          match = set[1].value_for_prop(*args)
+          break if match
+        }
+
+        return match
+      end
+
+      def options_for_prop(*args)
+        match = nil
+        @sets.each {|set|
+          match = set[1].options_for_prop(*args)
+          break if match
+        }
+
+        return match
+      end
+
+      def has_prop?(*args)
+        has = nil
+        @sets.each {|set|
+          has = set[1].has_prop?(*args)
+          break if has
+        }
+
+        return has
       end
     end
   end

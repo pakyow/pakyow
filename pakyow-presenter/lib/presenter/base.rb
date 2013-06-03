@@ -3,9 +3,9 @@ require 'presenter/view'
 require 'presenter/lazy_view'
 require 'presenter/view_collection'
 require 'presenter/binder'
+require 'presenter/binder_set'
 require 'presenter/view_context'
 require 'presenter/attributes'
-require 'presenter/bindings'
 
 module Pakyow
   module Presenter

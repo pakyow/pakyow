@@ -1,5 +1,5 @@
 module Pakyow
-  module Configuration
+  module Config
     class Cookies
       class << self
         attr_accessor :path, :expiration

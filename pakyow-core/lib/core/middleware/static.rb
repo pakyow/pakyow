@@ -7,10 +7,11 @@ module Pakyow
       
       def call(env)
         if is_static?(env)
-          response = Rack::Response.new
-          
           catch(:halt) do
-            Pakyow.app.send(File.open(File.join(Configuration::Base.app.public_dir, env['PATH_INFO'])))
+            app = Pakyow.app.dup
+            app.response = Response.new
+            app.request = Request.new(env)
+            app.send(File.open(File.join(Config::Base.app.public_dir, env['PATH_INFO'])))
           end
         else
           @app.call(env)
@@ -20,7 +21,7 @@ module Pakyow
       private
       
       def is_static?(env)
-        env['PATH_INFO'] =~ /\.(.*)$/ && File.exists?(File.join(Configuration::Base.app.public_dir, env['PATH_INFO']))
+        env['PATH_INFO'] =~ /\.(.*)$/ && File.exists?(File.join(Config::Base.app.public_dir, env['PATH_INFO']))
       end
     end
   end

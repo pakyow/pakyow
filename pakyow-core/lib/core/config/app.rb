@@ -1,11 +1,21 @@
 module Pakyow
-  module Configuration
+  module Config
     class App
       class << self
         attr_accessor :dev_mode, :log, :public_dir, :root, :log_dir, 
-        :presenter, :default_action, :ignore_routes, :error_level, 
-        :default_environment, :application_path, :log_name, :src_dir,
-        :auto_reload, :errors_in_browser, :static, :all_views_visible
+        :default_action, :ignore_routes, :error_level, 
+        :default_environment, :path, :log_name, :src_dir,
+        :auto_reload, :errors_in_browser, :static, :all_views_visible, 
+        :loaded_envs
+
+        def method_missing(name, *args)
+          if name[-1,1] == '='
+            name = name[0..-2]
+            instance_variable_set("@#{name}", *args)
+          else
+            instance_variable_get("@#{name}")
+          end
+        end
         
         # Displays development-specific warnings.
         #
@@ -68,8 +78,8 @@ module Pakyow
         end
         
         # The path to the application class
-        def application_path
-          @application_path
+        def path
+          @path
         end
         
         # Handle static files?
@@ -79,6 +89,10 @@ module Pakyow
         #
         def static
           @static || true
+        end
+
+        def loaded_envs
+          @loaded_envs
         end
       end
     end

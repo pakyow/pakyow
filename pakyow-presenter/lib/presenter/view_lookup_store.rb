@@ -45,7 +45,7 @@ module Pakyow
 
         default_views = {} # view_basename => path_to_view.html
         if File.exist?(view_dir) then
-          default_root_view_file_path = "#{absolute_path_prefix}/#{Configuration::Presenter.default_view}"
+          default_root_view_file_path = "#{absolute_path_prefix}/#{Config::Presenter.default_view}"
           # The logic depends on this traversing top down
           DirUtils.walk_dir(view_dir) { |vpath|
             if File.directory?(vpath)
@@ -65,7 +65,7 @@ module Pakyow
                 elsif route_views[root_part]
                   route_root_path = route_views[root_part]
                 else
-                  if Configuration::Base.app.dev_mode == true
+                  if Config::Base.app.dev_mode == true
                     Log.warn("Root view #{root_part} referenced in #{vpath.sub(absolute_path_prefix, '')} was not found.")
                   else
                     Log.error("Root view #{root_part} referenced in #{vpath.sub(absolute_path_prefix, '')} was not found.")

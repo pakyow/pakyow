@@ -123,7 +123,7 @@ module Pakyow
       # (this is basically Bret's `map` function)
       #
       def for(data, &block)
-        data = [data] unless data.is_a? Enumerable
+        data = [data] unless (data.is_a?(Enumerable) && !data.is_a?(Hash))
 
         self.each_with_index { |v,i|
           break unless datum = data[i]
@@ -139,7 +139,7 @@ module Pakyow
       # of self[data index] || self[-1], where n = data.length.
       #
       def match(data)
-        data = [data] unless data.is_a? Enumerable
+        data = [data] unless (data.is_a?(Enumerable) && !data.is_a?(Hash))
 
         views = ViewCollection.new
         data.each_with_index {|datum,i|
@@ -155,7 +155,7 @@ module Pakyow
           new_v = View.new(d_v)
 
           # find binding subset (keeps us from refinding)
-          new_v.bindings = v.bindings
+          new_v.bindings = v.bindings.dup
 
           views << new_v
         }
@@ -178,7 +178,7 @@ module Pakyow
       #
       # Binds data across existing scopes.
       #
-      def bind(data, bindings = nil, &block)
+      def bind(data, bindings = {}, &block)
         self.for(data) {|view, datum, i|
           view.bind(datum, bindings)
           yield(view, datum, i) if block_given?
@@ -190,7 +190,7 @@ module Pakyow
       #
       # Matches self to data then binds data to the view.
       #
-      def apply(data, bindings = nil, &block)
+      def apply(data, bindings = {}, &block)
         self.match(data).bind(data, bindings, &block)
       end
     end

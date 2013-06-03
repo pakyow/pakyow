@@ -4,7 +4,7 @@ else
   $:.unshift(Dir.pwd)
 
   require 'app'
-  PakyowApplication::Application.stage(ARGV.first)
+  Pakyow::App.stage(ARGV.first)
   
   def reload
     puts "Reloading..."

@@ -1,5 +1,5 @@
 module Pakyow
-  module Configuration
+  module Config
     class Server
       class << self
         attr_accessor :port, :host, :handler

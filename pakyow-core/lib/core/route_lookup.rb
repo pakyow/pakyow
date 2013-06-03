@@ -7,8 +7,9 @@ module Pakyow
     include Helpers
 
     def path(name, data = nil)
-      route = self.get_named_route(name)
-      data ? self.populate(route, data) : File.join('/', route[4])
+      if route = self.get_named_route(name)
+        data ? self.populate(route, data) : File.join('/', route[4])
+      end
     end
 
     def group(name)
@@ -19,7 +20,11 @@ module Pakyow
     protected
 
     def get_named_route(name)
-      Pakyow.app.router.route(name, @group) || []
+      if defined? @group
+        Router.instance.route(name, @group)
+      else
+        Router.instance.route(name)
+      end
     end
 
     def populate(route, data = {})

@@ -33,7 +33,7 @@ class StringUtilsTest < MiniTest::Unit::TestCase
     assert_equal ['one.two', 'three'], StringUtils.split_at_last_dot('one.two.three'), "Failed to split one.two.three"
   end
 
-  def test_application_path_is_accurate_on_windows
+  def test_path_is_accurate_on_windows
     assert_equal(StringUtils.parse_path_from_caller("C:/test/test_application.rb:5"), 'C:/test/test_application.rb')
   end
 

@@ -2,11 +2,12 @@ module Pakyow
 
   # The Request object.
   class Request < Rack::Request
-    attr_accessor :restful, :route_path, :controller, :action, :format, :error, :working_path, :working_method, :initial_cookies
+    attr_accessor :restful, :route_path, :controller, :action, :format, :error, :working_path, :working_method, :initial_cookies, :app
 
     def initialize(*args)
       super
 
+      #TODO move to app
       @initial_cookies = []
       self.cookies.each {|k|
         @initial_cookies
@@ -27,7 +28,7 @@ module Pakyow
       @format = format ? format.to_sym : :html
       
       # Set response type
-      Pakyow.app.response["Content-Type"] = Rack::Mime.mime_type(".#{@format}")
+      @app.response["Content-Type"] = Rack::Mime.mime_type(".#{@format}")
     end
 
     def session

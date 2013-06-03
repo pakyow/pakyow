@@ -1,5 +1,3 @@
-#TODO rename router to set and .func to .fn
-
 module Pakyow
   class RouteTemplate
     class << self
@@ -18,11 +16,11 @@ module Pakyow
 
     attr_accessor :path
 
-    def initialize(block, g_name, path, router)
+    def initialize(block, g_name, path, route_set)
       @fns    = {}
       @g_name = g_name
       @path   = path
-      @router = router
+      @route_set = route_set
       @nested_path = path
       @expansions = []
 
@@ -31,7 +29,7 @@ module Pakyow
 
     def action(method, *args, &block)
       fn, hooks = self.class.parse_action_args(args)
-      fns = block_given? ? [block] : fn
+      fns = block_given? ? [block] : [fn]
       @fns[method] = RouteSet.build_fns(fns, hooks)
     end
 
@@ -41,11 +39,11 @@ module Pakyow
 
       t = self
       if @path
-        @router.namespace(@path, @g_name, hooks) {
+        @route_set.namespace(@path, @g_name, hooks) {
           t.instance_exec(&block)
         }
       else
-        @router.group(@g_name, hooks) {
+        @route_set.group(@g_name, hooks) {
           t.instance_exec(&block)
         }
       end
@@ -55,40 +53,40 @@ module Pakyow
       @expansions.each {|c|
         # append nested path to nested expansion path
         c[1][2] = File.join(@nested_path, c[1][2])
-        @router.send(c[0], *c[1], &c[2])
+        @route_set.send(c[0], *c[1], &c[2])
       }
     end
 
     def fn(name)
       if !@expanding || (@expanding && !fn = @fns[name])
-        fn = @router.fn(name)
+        fn = @route_set.fn(name)
       end
 
       fn
     end
 
     def call(controller, action)
-      @router.call(controller, action)
+      @route_set.call(controller, action)
     end
 
     def default(*args, &block)
-      @router.default(*args, &block)
+      @route_set.default(*args, &block)
     end
 
     def get(*args, &block)
-      @router.get(*args, &block)
+      @route_set.get(*args, &block)
     end
 
     def put(*args, &block)
-      @router.put(*args, &block)
+      @route_set.put(*args, &block)
     end
 
     def post(*args, &block)
-      @router.post(*args, &block)
+      @route_set.post(*args, &block)
     end
 
     def delete(*args, &block)
-      @router.delete(*args, &block)
+      @route_set.delete(*args, &block)
     end
 
     def expand(*args, &block)
@@ -97,29 +95,17 @@ module Pakyow
 
     def group(*args, &block)
       args = args.unshift(@path)
-      @router.namespace(*args, &block)
+      @route_set.namespace(*args, &block)
     end
 
     def namespace(*args, &block)
       path, name, hooks = RouteSet.parse_namespace_args(args)
       path = File.join(@path, path)
-      @router.namespace(*[path, name, hooks], &block)
+      @route_set.namespace(*[path, name, hooks], &block)
     end
 
     def nested_path
       @nested_path = yield(@g_name, @nested_path)
-    end
-
-    #TODO best name?
-    def map_actions(controller, actions)
-      actions.each { |a|
-        self.action(a, self.call(controller, a))
-      }
-    end
-
-    #TODO best name?
-    def map_restful_actions(controller)
-      self.map_actions(controller, self.restful_actions)
     end
 
     def restful_actions

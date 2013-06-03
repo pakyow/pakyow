@@ -2,7 +2,7 @@ require 'support/helper'
 
 class MailerTest < MiniTest::Unit::TestCase
   def setup
-    TestApplication.stage(:test)
+    Pakyow::App.stage(:test)
     Pakyow.app.presenter.view_store = :mailer
   end
   
@@ -49,6 +49,6 @@ class MailerTest < MiniTest::Unit::TestCase
   end
   
   def mailer
-    TestMailer.new("test_message")
+    TestMailer.new("test_message", :mailer)
   end
 end

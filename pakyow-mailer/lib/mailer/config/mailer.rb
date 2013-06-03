@@ -1,5 +1,5 @@
 module Pakyow
-  module Configuration
+  module Config
     class Mailer
       class << self
         attr_accessor :default_sender, :default_content_type, :delivery_method, :delivery_options

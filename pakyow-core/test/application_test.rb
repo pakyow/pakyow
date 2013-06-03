@@ -2,7 +2,7 @@ require 'support/helper'
 
 class ApplicationTest < MiniTest::Unit::TestCase
   def test_application_path_is_set_when_inherited    
-    assert(Pakyow::Configuration::App.application_path.include?(app_test_path))
+    assert(Pakyow::Config::App.path.include?(app_test_path))
   end
   
   def test_application_runs
@@ -26,14 +26,9 @@ class ApplicationTest < MiniTest::Unit::TestCase
   end
   
   def test_base_config_is_returned
-    assert_equal(Pakyow::Configuration::Base, app(true).config)
+    assert_equal(Pakyow::Config::Base, app(true).config)
   end
   
-  def test_configuration_is_stored
-    app(true).stage(:test)
-    assert !app.configurations[:test].nil?
-  end
-
   def test_env_is_set_when_initialized
     envs = [:test, :foo]
     app(true).stage(*envs)
@@ -44,7 +39,7 @@ class ApplicationTest < MiniTest::Unit::TestCase
     app(true)
     assert_nil(Pakyow.app)
     app(true).run(:test)
-    assert_equal(TestApplication, Pakyow.app.class)
+    assert_equal(Pakyow::App, Pakyow.app.class)
   end
   
   def test_app_is_loaded_for_each_request_in_dev_mode_only
@@ -54,7 +49,7 @@ class ApplicationTest < MiniTest::Unit::TestCase
   protected
   
   def app(do_reset = false)
-    TestApplication.reset(do_reset)
+    Pakyow::App.reset(do_reset)
   end
 
   def app_test_path

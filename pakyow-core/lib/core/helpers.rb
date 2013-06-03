@@ -2,16 +2,16 @@ module Pakyow
 
   # Helper methods that simply provide information (for use in binders)
   module GeneralHelpers
-    def request
-      Pakyow.app.request
-    end
-    
-    def response
-      Pakyow.app.response
-    end
-    
     def router
       RouteLookup.new
+    end
+
+    def request
+      @request
+    end
+
+    def response
+      @response
     end
 
     def params
@@ -25,14 +25,14 @@ module Pakyow
     def cookies
       request.cookies
     end
+
+    def config
+      Pakyow::Config::Base
+    end
   end
 
   # Helper methods specific to delegates and controllers.
   module Helpers
     include GeneralHelpers
-    
-    def app
-      Pakyow.app
-    end
   end
 end

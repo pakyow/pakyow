@@ -4,5 +4,5 @@ else
   $:.unshift(Dir.pwd)
 
   require 'app'
-  PakyowApplication::Application.run(ARGV.first)
+  Pakyow::App.run(ARGV.first)
 end

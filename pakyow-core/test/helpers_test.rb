@@ -2,12 +2,14 @@ require 'support/helper'
 
 class HelpersTest < MiniTest::Unit::TestCase
   def setup
-    TestApplication.stage(:test)
+    Pakyow::App.stage(:test)
+    Pakyow.app.response = mock_response
+    Pakyow.app.request = mock_request
     @h = TestHelpers.new
   end
 
   def test_app_returned
-    assert_same Pakyow.app, @h.app
+    assert_same Pakyow.app.class, Pakyow::App
   end
 
   def test_app_request_returned
@@ -48,4 +50,12 @@ end
 
 class TestHelpers
   include Helpers
+
+  def request
+    Pakyow.app.request
+  end
+
+  def response
+    Pakyow.app.response
+  end
 end

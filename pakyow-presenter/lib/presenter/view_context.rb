@@ -12,9 +12,10 @@ module Pakyow
         @context
       end
       
-      def method_missing(method, *args)
-        Pakyow.app.presenter.current_context.send(method, *args)
-      end
+      #TODO wha?
+      # def method_missing(method, *args)
+      #   Pakyow.app.presenter.current_context.send(method, *args)
+      # end
     end
   end
 end

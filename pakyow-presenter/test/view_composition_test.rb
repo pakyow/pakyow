@@ -3,8 +3,9 @@ require 'support/helper'
 class ViewCompositionTest < MiniTest::Unit::TestCase
 
   def setup
-    TestApplication.stage(:test)
-    Pakyow.app.presenter.view_store = :test
+    @view_store = :test
+    Pakyow::App.stage(:test)
+    Pakyow.app.presenter.view_store = @view_store
   end
 
   def teardown
@@ -12,22 +13,22 @@ class ViewCompositionTest < MiniTest::Unit::TestCase
   end
 
   def test_view_index_deep
-    v = View.at_path("/index")
+    v = View.at_path("/index", @view_store)
     assert_equal("/index/main", v.container(:main).first.content)
   end
 
   def test_view_r11
-    v = View.new("/r1/r11/foot.html").compile("/r1/r11")
+    v = View.new("/r1/r11/foot.html", @view_store).compile("/r1/r11", @view_store)
     assert_equal("r11 foot", v.content)
   end
 
   def test_view_abb
-    v = View.at_path("/a/b/b")
+    v = View.at_path("/a/b/b", @view_store)
     assert_equal("a/b/b/main", v.container(:main).first.content)
   end
 
   def test_view_ab
-    v = View.at_path("/a/b")
+    v = View.at_path("/a/b", @view_store)
     assert_equal("a/b/main", v.container(:main).first.content)
   end
 

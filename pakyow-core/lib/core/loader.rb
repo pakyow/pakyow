@@ -17,7 +17,7 @@ module Pakyow
           next if FileTest.directory?(path)
           next if path.split('.')[-1] != 'rb'
           
-          if Configuration::Base.app.auto_reload
+          if Config::Base.app.auto_reload
             if !@times[path] || (@times[path] && File.mtime(path) - @times[path] > 0)
               load(path)
               @times[path] = File.mtime(path)

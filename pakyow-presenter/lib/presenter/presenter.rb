@@ -1,32 +1,50 @@
 module Pakyow
   module Presenter
-    class Presenter < PresenterBase
-      class << self
-        attr_accessor :proc
-      end
+    class Presenter
+      Pakyow::App.before(:init) {
+        @presenter = Presenter.new
+      }
 
-      attr_accessor :current_context, :parser_store, :view_store
+      Pakyow::App.before(:route) {
+        @presenter = Pakyow.app.presenter.dup
+        @presenter.prepare_for_request(@request)
+      }
+
+      Pakyow::App.after(:route) {
+        if @presenter.presented?
+          @found = true
+          @response.body = [@presenter.content]
+        else
+          @found = false unless found?
+        end
+      }
+
+      Pakyow::App.after(:load) {
+        @presenter.load
+      }
+
+      Pakyow::App.after(:error) {
+        unless config.app.errors_in_browser
+          @response.body = [@presenter.content] if @presenter.presented?
+        end
+      }
+
+      attr_accessor :parser_store, :view_store, :binder
 
       def initialize
-        @bindings = {}
-        reset_state
-      end
-
-      def scope(name, set = :default, &block)
-        @bindings[set] ||= {}
-
-        bs = Bindings.for(block)
-        @bindings[set][name] = bs
-        bs
-      end
-
-      def bindings(scope)
-        #TODO think about merging on launch instead
-        @bindings.inject(Bindings.new) { |bs, b| bs.merge(b[1][scope]) }
+        reset
       end
 
       def current_view_lookup_store
-        @view_stores[self.view_store]
+        view_store(@view_store)
+      end
+
+      def view_store(name = nil)
+        if name
+          @view_stores[name]
+        else
+          @view_store
+        end
       end
 
       #
@@ -35,11 +53,16 @@ module Pakyow
 
       def load
         load_views
-        self.instance_eval(&Presenter.proc) if Presenter.proc
+
+        @binder = Binder.instance.reset
+        Pakyow::App.bindings.each_pair {|set_name, block|
+          @binder.set(set_name, &block)
+        }
       end
 
       def prepare_for_request(request)
-        reset_state
+        reset
+
         @request = request
 
         if @request && @request.route_path && !@request.route_path.is_a?(Regexp) && @request.route_path.index(':')
@@ -50,15 +73,8 @@ module Pakyow
         @root_path = self.current_view_lookup_store.root_path(@view_path)
       end
       
-      def reset
-        @request = nil
-        reset_state
-      end
-      
       def presented?
-        #TODO the right thing to do?
         self.ensure_root_view_built
-        
         @presented
       end
       
@@ -67,32 +83,14 @@ module Pakyow
         view.to_html
       end
 
-      #
-      # Methods that a controller can call to get and modify the root view.
-      # Some are meant to be called directly and some make up a dsl for dom modification
-      #
-
-      # Call these directly
-      #
-
-      def view_for_path(abstract_path, is_root_view=false, klass=View)
-        real_path = self.current_view_lookup_store.real_path(abstract_path)
-        klass.new(real_path, is_root_view)
-      end
-
-      def view_for_class(view_class, path_override=nil)
-        return view_for_path(path_override, view_class.default_is_root_view, view_class) if path_override
-        view_for_path(view_class.default_view_path, view_class.default_is_root_view, view_class)
-      end
-
+      #TODO rename to to use root_view, compiled_view naming convention
       def view
         ensure_root_view_built
         @root_view
       end
 
       def view=(v)
-        # TODO: Why is it important to dup here?
-        @root_view = View.new(v)
+        @root_view = View.new(v, @view_store)
         @root_view_is_built = true
         @presented = true
 
@@ -103,7 +101,7 @@ module Pakyow
 
       def root
         @is_compiled = false
-        @root ||= View.root_at_path(@root_path) 
+        @root ||= View.root_at_path(@root_path, @view_store) 
       end
 
       def root=(v)
@@ -138,18 +136,15 @@ module Pakyow
         build_root_view unless @root_view_is_built
       end
 
+      def reset
+        @view_store = :default
+        @presented = false
+        @root_view_is_built = false
+      end
+
       #
       protected
       #
-
-      def reset_state
-        @view_store = :default
-        @presented = false
-        @root_path = nil
-        @root_view_is_built = false
-        @root_view = nil
-        @view_path = nil
-      end
 
       def build_root_view
         @root_view_is_built = true
@@ -159,14 +154,14 @@ module Pakyow
         return unless view_info = self.current_view_lookup_store.view_info(v_p)
         @root_path ||= view_info[:root_view]
 
-        if Configuration::Base.presenter.view_caching
+        if Config::Base.presenter.view_caching
           r_v = @populated_root_view_cache.get([v_p, @root_path]) {
-            populate_view(LazyView.new(@root_path, true), view_info[:views])
+            populate_view(LazyView.new(@root_path, @view_store, true), view_info[:views])
           }
-            @root_view = r_v.dup
-            @presented = true
+          @root_view = r_v.dup
+          @presented = true
         else
-          @root_view = populate_view(LazyView.new(@root_path, true), view_info[:views])
+          @root_view = populate_view(LazyView.new(@root_path, @view_store, true), view_info[:views])
           @presented = true
         end
       end
@@ -181,11 +176,11 @@ module Pakyow
 
       def load_views
         @view_stores = {}
-        Configuration::Presenter.view_stores.each_pair {|name, path|
+        Config::Presenter.view_stores.each_pair {|name, path|
           @view_stores[name] = ViewLookupStore.new(path)
         }
 
-        if Configuration::Base.presenter.view_caching then
+        if Config::Base.presenter.view_caching then
           @populated_root_view_cache = build_root_view_cache(self.current_view_lookup_store.view_info)
         end
       end
@@ -193,7 +188,7 @@ module Pakyow
       def build_root_view_cache(view_info)
         cache = Pakyow::Cache.new
         view_info.each{|dir,info|
-          r_v = LazyView.new(info[:root_view], true)
+          r_v = LazyView.new(info[:root_view], @view_store, true)
           populate_view(r_v, info[:views])
           key = [dir, info[:root_view]]
           cache.put(key, r_v)
@@ -207,7 +202,7 @@ module Pakyow
         top_view.containers.each {|e|
           next unless path = views[e[:name]]
 
-          v = populate_view(View.new(path), views)
+          v = populate_view(View.new(path, @view_store), views)
           self.reset_container(e[:doc])
           self.add_content_to_container(v, e[:doc])
         }

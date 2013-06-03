@@ -2,22 +2,7 @@ module Pakyow
   module Presenter
     class View
       class << self
-        attr_accessor :binders, :default_view_path, :default_is_root_view
-
-        def view_store
-          Pakyow.app.presenter.current_view_lookup_store
-        end
-
-        def binder_for_scope(scope, bindable)
-          bindings = Pakyow.app.presenter.bindings(scope)
-          bindings.bindable = bindable
-          return bindings
-        end
-
-        def view_path(dvp, dirv=false)
-          self.default_view_path = dvp
-          self.default_is_root_view = dirv
-        end
+        attr_accessor :binders
 
         def self_closing_tag?(tag)
           %w[area base basefont br hr input img link meta].include? tag
@@ -31,13 +16,15 @@ module Pakyow
           %w[select].include? tag
         end
 
-        def at_path(view_path)
-          v = self.new(self.view_store.root_path(view_path), true)
-          v.compile(view_path)
+        #TODO default should be in config
+        def at_path(view_path, view_store = :default)
+          v = self.new(Pakyow.app.presenter.view_store(view_store).root_path(view_path), view_store, true)
+          v.compile(view_path, view_store)
         end
 
-        def root_at_path(view_path)
-          self.new(self.view_store.root_path(view_path), true)
+        #TODO default should be in config
+        def root_at_path(view_path, view_store = :default)
+          self.new(Pakyow.app.presenter.view_store(view_store).root_path(view_path), view_store, true)
         end
 
       end
@@ -51,11 +38,8 @@ module Pakyow
         v
       end
 
-      def initialize(arg=nil, is_root_view=false)
+      def initialize(arg = nil, view_store = :default, is_root_view = false)
         @related_views = []
-
-        arg = self.class.default_view_path if arg.nil? && self.class.default_view_path
-        is_root_view = self.class.default_is_root_view if arg.nil? && self.class.default_is_root_view
 
         if arg.is_a?(Nokogiri::XML::Element) || arg.is_a?(Nokogiri::XML::Document) || arg.is_a?(Nokogiri::HTML::DocumentFragment)
           @doc = arg
@@ -64,7 +48,7 @@ module Pakyow
         elsif arg.is_a?(Pakyow::Presenter::View)
           @doc = arg.doc.dup
         elsif arg.is_a?(String)
-          view_path = self.class.view_store.real_path(arg)
+          view_path = Pakyow.app.presenter.view_store(view_store).real_path(arg)
 
           # run parsers
           format = StringUtils.split_at_last_dot(view_path)[1].to_sym
@@ -80,9 +64,10 @@ module Pakyow
         end
       end
 
-      def compile(view_path)
-        return unless view_info = self.class.view_store.view_info(view_path)
-        self.populate_view(self, view_info[:views])
+      #TODO default should be in config
+      def compile(view_path, view_store = :default)
+        return unless view_info = Pakyow.app.presenter.view_store(view_store).view_info(view_path)
+        self.populate_view(self, view_store, view_info[:views])
       end
 
       def parse_content(content, format)
@@ -124,7 +109,8 @@ module Pakyow
         if args.empty?
           return Attributes.new(self.doc)
         else
-          self.bind_attributes_to_doc(*args, doc)
+          args << doc
+          self.bind_attributes_to_doc(*args)
         end
       end
 
@@ -187,7 +173,15 @@ module Pakyow
         num  = doc.children.count
         path = self.path_to(doc)
 
+<<<<<<< HEAD
         self.doc.children.first.add_previous_sibling(doc)
+=======
+        if first_child = self.doc.children.first
+          first_child.add_previous_sibling(doc)
+        else
+          self.doc = doc
+        end
+>>>>>>> febacf2... Giant Refactor
 
         self.update_binding_offset_at_path(num, path)
         self.refind_significant_nodes
@@ -270,7 +264,7 @@ module Pakyow
       # (this is basically Bret's `map` function)
       #
       def for(data, &block)
-        data = [data] unless data.is_a? Enumerable
+        data = [data] unless (data.is_a?(Enumerable) && !data.is_a?(Hash))
         block.call(self, data[0], 0)
       end
 
@@ -282,7 +276,7 @@ module Pakyow
       # of self, where n = data.length.
       #
       def match(data)
-        data = [data] unless data.is_a? Enumerable
+        data = [data] unless (data.is_a?(Enumerable) && !data.is_a?(Hash))
 
         views = ViewCollection.new
         data.each {|datum|
@@ -290,7 +284,7 @@ module Pakyow
           self.doc.before(d_v)
 
           v = View.new(d_v)
-          v.bindings = self.bindings
+          v.bindings = self.bindings.dup
           #TODO set view scope
 
           views << v
@@ -314,13 +308,10 @@ module Pakyow
       #
       # Binds data across existing scopes.
       #
-      def bind(data, bindings = nil, &block)
-        scope = self.bindings.first
+      def bind(data, bindings = {}, &block)
+        scope_info = self.bindings.first
 
-        binder = View.binder_for_scope(scope[:scope], data)
-        binder.merge(bindings)
-        
-        self.bind_data_to_scope(data, scope, binder)
+        self.bind_data_to_scope(data, scope_info, bindings)
         yield(self, data, 0) if block_given?
       end
 
@@ -329,7 +320,7 @@ module Pakyow
       #
       # Matches self to data then binds data to the view.
       #
-      def apply(data, bindings = nil, &block)
+      def apply(data, bindings = {}, &block)
         views = self.match(data).bind(data, bindings, &block)
       end
 
@@ -345,8 +336,8 @@ module Pakyow
         @containers = (!@containers || refind) ? self.find_containers : @containers
       end
 
-      def bindings
-        @bindings ||= self.find_bindings
+      def bindings(refind = false)
+        @bindings = (!@bindings || refind) ? self.find_bindings : @bindings
       end
 
       protected
@@ -363,11 +354,11 @@ module Pakyow
 
       # populates the root_view using view_store data by recursively building
       # and substituting in child views named in the structure
-      def populate_view(root_view, view_info)
+      def populate_view(root_view, view_store, view_info)
         root_view.containers.each {|e|
           next unless path = view_info[e[:name]]
           
-          v = self.populate_view(View.new(path), view_info)
+          v = self.populate_view(View.new(path, view_store), view_store, view_info)
           self.reset_container(e[:doc])
           self.add_content_to_container(v, e[:doc])
         }
@@ -378,7 +369,7 @@ module Pakyow
       def find_containers
         elements = []
         @doc.traverse {|e|
-          if name = e.attr(Configuration::Presenter.container_attribute)
+          if name = e.attr(Config::Presenter.container_attribute)
             elements << { :name => name, :doc => e, :path => path_to(e)}
           end
         }
@@ -389,15 +380,15 @@ module Pakyow
       def find_bindings
         bindings = []
         breadth_first(@doc) {|o|
-          next unless scope = o[Configuration::Presenter.scope_attribute]
+          next unless scope = o[Config::Presenter.scope_attribute]
 
           # find props
           props = []
           breadth_first(o) {|so|
             # don't go into deeper scopes
-            throw :reject if so != o && so[Configuration::Presenter.scope_attribute]
+            throw :reject if so != o && so[Config::Presenter.scope_attribute]
 
-            next unless prop = so[Configuration::Presenter.prop_attribute]
+            next unless prop = so[Config::Presenter.prop_attribute]
             props << {:prop => prop.to_sym, :path => path_to(so)}
           }
 
@@ -520,33 +511,36 @@ module Pakyow
         }
       end
 
-      def bind_data_to_scope(data, scope, binder = nil)
+      def bind_data_to_scope(data, scope_info, bindings = {})
         return unless data
 
+        scope = scope_info[:scope]
+
         # handle root binding
-        if binder && v = binder.value_for_prop(:_root)
-          v.is_a?(Hash) ? self.bind_attributes_to_doc(v, self.doc) : self.bind_value_to_doc(v, self.doc)
+        if value = Pakyow.app.presenter.binder.value_for_prop(:_root, scope, data, bindings)
+          value.is_a?(Hash) ? self.bind_attributes_to_doc(value, self.doc) : self.bind_value_to_doc(value, self.doc)
         end
 
-        scope[:props].each {|p|
+        scope_info[:props].each {|prop_info|
           catch(:unbound) {
-            k = p[:prop]
+            prop = prop_info[:prop]
 
-            if ((data.is_a?(Hash) && !data.key?(k)) || (!data.is_a?(Hash) && !data.class.method_defined?(k))) && (!binder || !binder.prop?(k))
-              self.handle_unbound_data(scope, p)
-            end
+            self.handle_unbound_data(scope, prop) unless data_has_prop?(data, prop) || Pakyow.app.presenter.binder.has_prop?(prop, scope, bindings)
+            value = Pakyow.app.presenter.binder.value_for_prop(prop, scope, data, bindings)
 
-            v = binder ? binder.value_for_prop(k) : data[k]
-
-            doc = doc_from_path(p[:path])
+            doc = doc_from_path(prop_info[:path])
 
             # handle form field
-            self.bind_to_form_field(doc, scope, k, v, binder) if View.form_field?(doc.name)
+            self.bind_to_form_field(doc, scope, prop, value, data) if View.form_field?(doc.name)
 
             # bind attributes or value
-            v.is_a?(Hash) ? self.bind_attributes_to_doc(v, doc) : self.bind_value_to_doc(v, doc)
+            value.is_a?(Hash) ? self.bind_attributes_to_doc(value, doc) : self.bind_value_to_doc(value, doc)
           }
         }
+      end
+
+      def data_has_prop?(data, prop)
+        (data.is_a?(Hash) && data.key?(prop)) || (!data.is_a?(Hash) && data.class.method_defined?(prop))
       end
 
       def bind_value_to_doc(value, doc)
@@ -576,12 +570,11 @@ module Pakyow
         end
       end
 
-      #TODO refactor to use new options_for
-      def bind_to_form_field(doc, scope, prop, value, binder)
+      def bind_to_form_field(doc, scope, prop, value, bindable)
         return unless !doc['name'] || doc['name'].empty?
         
         # set name on form element
-        doc['name'] = "#{scope[:scope]}[#{prop}]"
+        doc['name'] = "#{scope}[#{prop}]"
 
         # special binding for checkboxes and radio buttons
         if doc.name == 'input' && (doc[:type] == 'checkbox' || doc[:type] == 'radio')
@@ -595,7 +588,7 @@ module Pakyow
           # and fail when binding to a view
           value = value.to_s
         # special binding for selects
-        elsif doc.name == 'select' && binder && options = binder.options_for_prop(prop)
+        elsif doc.name == 'select' && options = Pakyow.app.presenter.binder.options_for_prop(prop, scope, bindable)
           option_nodes = Nokogiri::HTML::DocumentFragment.parse ""
           Nokogiri::HTML::Builder.with(option_nodes) do |h|
             until options.length == 0
@@ -634,7 +627,7 @@ module Pakyow
       end
 
       def handle_unbound_data(scope, prop)
-        Log.warn("Unbound data for #{scope[:scope]}[#{prop[:prop]}]") if Configuration::Base.app.dev_mode == true
+        Log.warn("Unbound data for #{scope}[#{prop}]") if Config::Base.app.dev_mode == true
         throw :unbound
       end
 

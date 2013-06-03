@@ -21,6 +21,8 @@ def mock_request(path = '/foo/')
   r = Pakyow::Request.new({ "PATH_INFO" => path, "REQUEST_METHOD" => 'GET', "HTTP_REFERER" => '/bar/', "rack.input" => {} })
   r.working_path = path
   r.working_method = :get
+  r.app = Pakyow.app
+  r.setup
   r
 end
 

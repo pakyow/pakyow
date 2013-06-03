@@ -2,13 +2,13 @@ module Pakyow
   class Mailer
     attr_accessor :view, :message
   
-    def initialize(view_path)
-      @view = View.at_path(view_path)
+    def initialize(view_path, view_store = :default)
+      @view = View.at_path(view_path, view_store)
       
       @message               = Mail.new
-      @message.from          = Configuration::Base.mailer.default_sender
-      @message.content_type  = Configuration::Base.mailer.default_content_type
-      @message.delivery_method(Configuration::Base.mailer.delivery_method, Configuration::Base.mailer.delivery_options)
+      @message.from          = Config::Base.mailer.default_sender
+      @message.content_type  = Config::Base.mailer.default_content_type
+      @message.delivery_method(Config::Base.mailer.delivery_method, Config::Base.mailer.delivery_options)
     end
     
     def deliver_to(recipient, subject = nil)

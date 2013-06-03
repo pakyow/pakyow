@@ -1,0 +1,111 @@
+module Pakyow
+  module Presenter
+    class BinderSet
+      attr_reader :scopes
+
+      def initialize
+        @scopes = {}
+        @options = {}
+      end
+
+      def scope(name, &block)
+        scope_eval = ScopeEval.new
+        bindings, options = scope_eval.eval(&block)
+
+        @scopes[name.to_sym] = bindings
+        @options[name.to_sym] = options
+      end
+
+      def value_for_prop(prop, scope, bindable, bindings = {})
+        if binding = bindings_for_scope(scope, bindings)[prop]
+          case binding.arity
+            when 0
+              binding_eval = BindingEval.new(bindable)
+              binding_eval.instance_exec(&binding)
+            when 1
+              self.instance_exec(bindable, &binding)
+          end
+        else
+          # default
+          prop_value_for_bindable(bindable, prop)
+        end
+      end
+
+      def options_for_prop(prop, scope, bindable)
+        if block = @options[scope][prop]
+          binding_eval = BindingEval.new(bindable)
+          binding_eval.instance_exec(&block)
+        end
+      end
+
+      def has_prop?(prop, scope, bindings)
+        bindings_for_scope(scope, bindings).key? prop
+      end
+
+      def bindings_for_scope(scope, bindings)
+        # merge passed bindings with bindings
+        (@scopes[scope] || {}).merge(bindings)
+      end
+
+      def prop_value_for_bindable(bindable, prop)
+        return bindable[prop] if bindable.is_a?(Hash)
+        return bindable.send(prop) if bindable.class.method_defined?(prop)
+      end
+    end
+
+    class ScopeEval
+      include GeneralHelpers
+
+      def initialize
+        @bindings = {}
+        @options = {}
+      end
+
+      def eval(&block)
+        self.instance_eval(&block)
+        return @bindings, @options
+      end
+
+      def binding(name, &block)
+        @bindings[name.to_sym] = block
+      end
+
+      def options(name, &block)
+        @options[name] = block
+      end
+
+      def restful(route_group)
+        binding(:action) {
+          routes = router.group(route_group)
+          return_data = {}
+
+          if id = bindable[:id]
+            return_data[:view] = lambda { |view|
+              view.prepend(View.new(Nokogiri::HTML.fragment('<input type="hidden" name="_method" value="put">')))
+            }
+
+            action = routes.path(:update, :id => id)
+          else
+            action = routes.path(:create)
+          end
+
+          return_data[:action] = action
+          return_data[:method] = 'post' 
+          return_data
+        }
+      end
+
+      #TODO options
+    end
+
+    class BindingEval
+      include GeneralHelpers
+
+      attr_reader :bindable
+
+      def initialize(bindable)
+        @bindable = bindable
+      end
+    end
+  end
+end

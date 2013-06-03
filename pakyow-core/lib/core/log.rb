@@ -6,8 +6,8 @@ module Pakyow
     def self.reopen
       @@console = $stdout
 
-      d = Configuration::Base.app.log_dir
-      @@file = File.exists?(d) ? File.open("#{d}/#{Configuration::Base.app.log_name}", 'a') : nil
+      d = Config::Base.app.log_dir
+      @@file = File.exists?(d) ? File.open("#{d}/#{Config::Base.app.log_name}", 'a') : nil
     end
 
     def self.close
@@ -16,7 +16,7 @@ module Pakyow
 
     # Adds text to the log. 
     def self.puts(text = "")
-      return if !Configuration::Base.app.log
+      return if !Config::Base.app.log
       
       @@console << "#{text}\r\n"
       @@file.write "#{text}\r\n" if @@file

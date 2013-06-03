@@ -1,11 +1,11 @@
 module Pakyow
-  module Configuration
-    autoload :Presenter, 'presenter/configuration/presenter'
+  module Config
+    autoload :Presenter, 'presenter/config/presenter'
     
     class Base
       # Fetches the server configuration    
       def self.presenter
-        Configuration::Presenter
+        Config::Presenter
       end
     end
   end

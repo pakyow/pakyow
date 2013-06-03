@@ -11,6 +11,12 @@ module Pakyow
     def initialize
       @sets = {}
     end
+
+    #TODO want to do this for all sets?
+    def reset
+      @sets = {}
+      self
+    end
     
     # Creates a new set.
     #
@@ -34,8 +40,8 @@ module Pakyow
 
     # Performs the initial routing for a request.
     #
-    def route!(request)
-      self.trampoline(self.match(request))
+    def route!(request, app = Pakyow.app)
+      self.trampoline(self.match(request), app)
     end
 
     # Reroutes a request.
@@ -46,18 +52,14 @@ module Pakyow
 
     # Finds and invokes a handler by name or by status code.
     #
-    def handle!(name_or_code, from_logic = false)
+    def handle!(name_or_code, app = Pakyow.app, from_logic = false)
       @sets.each { |set|
         if h = set[1].handle(name_or_code)
-          Pakyow.app.response.status = h[1]
-          from_logic ? throw(:fns, h[2]) : self.trampoline(h[2])
+          app.response.status = h[1]
+          from_logic ? throw(:fns, h[2]) : self.trampoline(h[2], app)
           break
         end
       }
-    end
-
-    def routed?
-      @routed
     end
 
     # Looks up and populates a path with data
@@ -76,15 +78,8 @@ module Pakyow
 
     # Calls a list of route functions in order (in a shared context).
     #
-    def call_fns(fns)
-      ctx = self.context
-      fns.each {|fn| ctx.instance_exec(&fn)}
-    end
-
-    # Creates a context in which to evaluate a route function.
-    #
-    def context
-      FnContext.new
+    def call_fns(fns, app)
+      fns.each {|fn| app.instance_exec(&fn)}
     end
 
     # Finds the first matching route for the request path/method and
@@ -93,8 +88,6 @@ module Pakyow
     def match(request)
       path   = StringUtils.normalize_path(request.working_path)
       method = request.working_method
-
-      @routed = false
 
       match, data = nil
       @sets.each { |set|
@@ -120,10 +113,11 @@ module Pakyow
     # Calls route functions and catches new functions as
     # they're thrown (e.g. by reroute).
     #
-    def trampoline(fns)
+    def trampoline(fns, app)
+      routed = false
       until fns.empty?
         fns = catch(:fns) {
-          self.call_fns(fns)
+          self.call_fns(fns, app)
 
           # Getting here means that call() returned normally (not via a throw)
           :fall_through
@@ -132,11 +126,13 @@ module Pakyow
         # If reroute! or invoke_handler! was called in the block, block will have a new value (nil or block).
         # If neither was called, block will be :fall_through
 
-        @routed = case fns
+        routed = case fns
           when []             then false
           when :fall_through  then fns = [] and true
         end
       end
+
+      return routed
     end
 
     # Extracts the data from a path.

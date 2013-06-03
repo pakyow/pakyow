@@ -159,7 +159,7 @@ module Pakyow
     def call(controller, action)
       lambda {
         controller = Object.const_get(controller)
-        action ||= Configuration::Base.app.default_action
+        action ||= Config::Base.app.default_action
 
         instance = controller.new
         request.controller  = instance
@@ -260,7 +260,7 @@ module Pakyow
 
     # Name based route lookup
     def route(name, group = nil)
-      return @routes_by_name[name] unless group
+      return @routes_by_name[name] if group.nil?
 
       if grouped_routes = @grouped_routes_by_name[group]
         grouped_routes[name]
@@ -317,12 +317,14 @@ module Pakyow
       route = [regex, vars, name, fns, path]
 
       @routes[method] << route
-      @routes_by_name[name] =  route
 
       # store group references if we're in a scope
-      return unless group = @scope[:name]
-      @groups[group] << route
-      @grouped_routes_by_name[group][name] = route
+      if group = @scope[:name]
+        @groups[group] << route
+        @grouped_routes_by_name[group][name] = route
+      else
+        @routes_by_name[name] =  route
+      end
     end
 
     def build_route_matcher(path)

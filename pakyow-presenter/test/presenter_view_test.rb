@@ -3,8 +3,9 @@ require 'support/helper'
 class PresenterViewTest < MiniTest::Unit::TestCase
 
   def setup
-    TestApplication.stage(:test)
-    Pakyow.app.presenter.view_store = :test
+    @view_store = :test
+    Pakyow::App.stage(:test)
+    Pakyow.app.presenter.view_store = @view_store
   end
 
   def teardown
@@ -12,45 +13,45 @@ class PresenterViewTest < MiniTest::Unit::TestCase
   end
 
   def test_view_index
-    v = View.new("/index/main.html")
+    v = View.new("/index/main.html", @view_store)
     assert_equal("/index/main", v.content)
   end
 
   def test_view_index_root
-    v = View.at_path("/index")
+    v = View.at_path("/index", @view_store)
     assert_equal("approot", v.title)
   end
 
   def test_full_view_index_root
-    v = View.new("/index/main.html")
+    v = View.new("/index/main.html", @view_store)
     assert_equal("/index/main", v.content)
-    v = View.at_path("/index")
+    v = View.at_path("/index", @view_store)
     assert_equal("approot", v.title)
     assert_equal("/index/main", v.container(:main).content[0])
 
     # a
-    v = View.at_path("/a/b")
+    v = View.at_path("/a/b", @view_store)
     assert_equal("v1", v.title)
     assert_equal("a/b/main", v.container(:main).content[0])
 
-    v = View.at_path("/a/b/index")
+    v = View.at_path("/a/b/index", @view_store)
     assert_equal("v1", v.title)
     assert_equal("a/b/main", v.container(:main).content[0])
 
-    v = View.at_path("a/b/b")
+    v = View.at_path("a/b/b", @view_store)
     assert_equal("a", v.title)
     assert_equal("a/b/b/main", v.container(:main).content[0])
 
     # aa
-    v = View.at_path("/aa/b")
+    v = View.at_path("/aa/b", @view_store)
     assert_equal("v1", v.title)
     assert_equal("aa/b.a/index.v1/main", v.container(:main).content[0])
 
-    v = View.at_path("/aa/b/index")
+    v = View.at_path("/aa/b/index", @view_store)
     assert_equal("v1", v.title)
     assert_equal("aa/b.a/index.v1/main", v.container(:main).content[0])
 
-    v = View.at_path("aa/b/b")
+    v = View.at_path("aa/b/b", @view_store)
     assert_equal("a", v.title)
     assert_equal("aa/b/b/main", v.container(:main).content[0])
   end

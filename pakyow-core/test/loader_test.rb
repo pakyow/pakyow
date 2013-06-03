@@ -11,7 +11,7 @@ class LoaderTest < MiniTest::Unit::TestCase
   end
   
   def test_should_tell_time
-    Configuration::Base.app.auto_reload = true
+    Pakyow::Config::Base.app.auto_reload = true
     
     times = @loader.times.dup
     `touch #{File.join(path, 'reloadable.rb')}`
