@@ -293,7 +293,7 @@ module Pakyow
       headers["Content-Type"]         = type if type
       headers["Content-disposition"]  = "attachment; filename=#{send_as}" if send_as
 
-      self.response = Response.new(data, response.status, response.header.merge(headers))
+      @response = Response.new(data, @response.status, @response.header.merge(headers))
       halt
     end
 
