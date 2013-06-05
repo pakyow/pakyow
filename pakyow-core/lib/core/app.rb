@@ -215,11 +215,10 @@ module Pakyow
       @found = false
       catch(:halt) {
         @found = @router.route!(@request, self)
+        @router.handle!(404, self) unless found?
       }
 
       call_stack(:after, :route)
-
-      @router.handle!(404, self) unless found?
 
       set_cookies
 
