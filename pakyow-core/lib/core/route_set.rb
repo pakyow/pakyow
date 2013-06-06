@@ -124,7 +124,7 @@ module Pakyow
 
       @handlers = []
 
-      @scope  = {:name => nil, :path => '/', :hooks => {:before => [], :after => []}}
+      @scope  = {:name => nil, :path => '/', :is_namespace => false, :hooks => {:before => [], :after => []}}
     end
 
     # Creates or retreives a named route function. When retrieving, 
@@ -201,10 +201,13 @@ module Pakyow
       hooks = name if name.is_a?(Hash)
 
       original_path  = @scope[:path]
+      original_is_namespace = @scope[:is_namespace]
       @scope[:path] = File.join(@scope[:path], path)
-      
+      @scope[:is_namespace] = true
+
       self.group(name, hooks || {}, &block)
       @scope[:path] = original_path
+      @scope[:is_namespace] = original_is_namespace
     end
 
     def template(*args, &block)
@@ -322,7 +325,9 @@ module Pakyow
       if group = @scope[:name]
         @groups[group] << route
         @grouped_routes_by_name[group][name] = route
-      else
+      end
+
+      if !@scope[:is_namespace]
         @routes_by_name[name] =  route
       end
     end

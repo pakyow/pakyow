@@ -401,7 +401,6 @@ class RoutingTest < MiniTest::Unit::TestCase
     }
 
     assert_equal '/bar', RouteLookup.new.group(:foo).path(:bar)
-    assert RouteLookup.new.path(:bar).nil?, "grouped route should only be available through group"
   end
 
   def test_namespaced_routes_can_be_looked_up_by_name_and_group
@@ -413,7 +412,7 @@ class RoutingTest < MiniTest::Unit::TestCase
     }
 
     assert_equal '/foo/bar', RouteLookup.new.group(:foo).path(:bar)
-    assert RouteLookup.new.path(:bar).nil?, "grouped route should only be available through group"
+    assert RouteLookup.new.path(:bar).nil?, "namespaced route should only be available through group"
   end
 
   private
