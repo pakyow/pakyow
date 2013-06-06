@@ -210,15 +210,14 @@ module Pakyow
       @request.app = self
       @request.setup
 
-      call_stack(:before, :route)
-
       @found = false
       catch(:halt) {
+        call_stack(:before, :route)
         @found = @router.route!(@request, self)
-        @router.handle!(404, self) unless found?
-      }
+        call_stack(:after, :route)
 
-      call_stack(:after, :route)
+        handle(404, false) unless found?
+      }
 
       set_cookies
 
@@ -230,7 +229,7 @@ module Pakyow
 
       @request.error = error
 
-      @router.handle!(500, self)
+      handle(500, false) unless found?
 
       if config.app.errors_in_browser
         @response["Content-Type"] = 'text/html'
@@ -267,6 +266,7 @@ module Pakyow
     #
     def reroute(path, method = nil)
       @request.setup(path, method)
+
       call_stack(:before, :route)
       @router.reroute!(@request)
       call_stack(:after, :route)
@@ -307,8 +307,10 @@ module Pakyow
       halt
     end
 
-    def handle(name_or_code)
-      @router.handle!(name_or_code, self, true)
+    def handle(name_or_code, from_logic = true)
+      call_stack(:before, :route)
+      @router.handle!(name_or_code, self, from_logic)
+      call_stack(:after, :route)
     end
 
     # Convenience method for defining routes on an app instance.
