@@ -17,11 +17,11 @@ module Pakyow
             path = self.path
             get '/:id', :show, show_fns.unshift(
               lambda {
-                presenter.view_path = File.join(path, 'show') if Config::Base.app.presenter
+                #TODO would like to move this reference out of core
+                presenter.view_path = File.join(path, 'show') if @presenter
               }
             )
           end
-
           
           post '/', :create, fn(:create) if fn(:create)
 
