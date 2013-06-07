@@ -22,8 +22,7 @@ module Pakyow
     #
     def set(name, &block)
       @sets[name] = RouteSet.new
-      @sets[name].instance_exec(&RouteTemplateDefaults.defaults)
-      @sets[name].instance_exec(&block)
+      @sets[name].eval(&block)
     end
 
     # Iterates through route sets and returns the first matching route.

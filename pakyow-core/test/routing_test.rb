@@ -18,23 +18,29 @@ class RoutingTest < MiniTest::Unit::TestCase
   # RouteSet
 
   def test_fn_is_registered_and_fetchable
-    set = RouteSet.new
+    set = RouteEval.new
 
     fn1 = lambda {}
     fn2 = lambda {}
 
-    set.fn(:foo, &fn1)
-    set.fn(:bar, &fn2)
+    set.eval {
+      fn(:foo, &fn1)
+      fn(:bar, &fn2)
+    }
 
-    # assert_same fn1, set.fn(:foo)[0]
-    # assert_same fn2, set.fn(:bar)[0]
+    assert_same fn1, set.fn(:foo)
+    assert_same fn2, set.fn(:bar)
   end
 
   def test_default_route_is_created_and_matched
     set = RouteSet.new
 
     fn1 = lambda {}
-    set.default(fn1)
+
+    set.eval {
+      default(fn1)
+    }
+
     assert_route_tuple set.match('/', :get), ["", [], :default, fn1, ""]
   end
 
@@ -46,16 +52,24 @@ class RoutingTest < MiniTest::Unit::TestCase
     fn3 = lambda {}
     fn4 = lambda {}
     
-    set.get('get', fn1)
+    set.eval {
+      get('get', fn1)
+    }
     assert_route_tuple set.match('get', :get), ["get", [], nil, fn1, "get"]
 
-    set.post('post', fn2)
+    set.eval {
+      post('post', fn2)
+    }
     assert_route_tuple set.match('post', :post), ["post", [], nil, fn2, "post"]
 
-    set.put('put', fn3)
+    set.eval {
+      put('put', fn3)
+    }
     assert_route_tuple set.match('put', :put), ["put", [], nil, fn3, "put"]
 
-    set.delete('delete', fn4)
+    set.eval {
+      delete('delete', fn4)
+    }
     assert_route_tuple set.match('delete', :delete), ["delete", [], nil, fn4, "delete"]
   end
 
@@ -63,27 +77,39 @@ class RoutingTest < MiniTest::Unit::TestCase
     set = RouteSet.new
 
     fn1 = lambda {}
-    set.fn(:foo, &fn1)
-    set.get('foo', set.fn(:foo))
+
+    set.eval {
+      fn(:foo, &fn1)
+      get('foo', fn(:foo))
+    }
 
     assert_same fn1, set.match('foo', :get)[0][3][0]
   end
 
   def test_route_can_be_defined_without_fn
     set = RouteSet.new
-    set.get('foo')
+
+    set.eval {
+      get('foo')
+    }
 
     assert !set.match('foo', :get).nil?
   end
 
   def test_single_fn_is_passable_to_route
     set = RouteSet.new
-    set.get('foo', lambda {})
+
+    set.eval {
+      get('foo', lambda {})
+    }
   end
 
   def test_keyed_routes_are_matched
     set = RouteSet.new
-    set.get(':id') {}
+
+    set.eval {
+      get(':id') {}
+    }
     
     assert set.match('f/1', :get).nil?
     assert set.match('1', :post).nil?
@@ -91,7 +117,10 @@ class RoutingTest < MiniTest::Unit::TestCase
     assert !set.match('foo', :get).nil?
 
     set = RouteSet.new
-    set.get('foo/:id') {}
+
+    set.eval {
+      get('foo/:id') {}
+    }
     
     assert set.match('1', :get).nil?
     assert set.match('1', :post).nil?
@@ -127,7 +156,10 @@ class RoutingTest < MiniTest::Unit::TestCase
 
   def test_routes_can_be_referenced_by_name
     set = RouteSet.new
-    set.get('foo', :foo) {}
+
+    set.eval {
+      get('foo', :foo) {}
+    }
 
     assert !set.route(:foo).nil?
     assert set.route(:bar).nil?
@@ -135,7 +167,10 @@ class RoutingTest < MiniTest::Unit::TestCase
 
   def test_route_name_can_be_first_arg
     set = RouteSet.new
-    set.get(:foo, 'foo') {}
+
+    set.eval {
+      get(:foo, 'foo') {}
+    }
 
     assert !set.route(:foo).nil?
     assert set.route(:bar).nil?
@@ -148,7 +183,9 @@ class RoutingTest < MiniTest::Unit::TestCase
     code = 500
     fn = lambda {}
 
-    set.handler(:err, 500, &fn)
+    set.eval {
+      handler(:err, 500, &fn)
+    }
 
     assert_handler_tuple set.handle(name), [name, code, fn]
     assert_handler_tuple set.handle(code), [name, code, fn]
@@ -163,17 +200,19 @@ class RoutingTest < MiniTest::Unit::TestCase
     fn2 = lambda {}
     fn3 = lambda {}
 
-    set.fn(:fn1, &fn1)
-    set.fn(:fn2, &fn2)
-    set.fn(:fn3, &fn3)
-
-    set.get('1', set.fn(:fn1), before: set.fn(:fn2), after: set.fn(:fn3))
+    set.eval {
+      fn(:fn1, &fn1)
+      fn(:fn2, &fn2)
+      fn(:fn3, &fn3)
+      get('1', fn(:fn1), before: fn(:fn2), after: fn(:fn3))
+      get('2', fn(:fn1), after: fn(:fn3), before: fn(:fn2))
+    }
+    
     fns = set.match('1', :get)[0][3]
     assert_same fn2, fns[0]
     assert_same fn1, fns[1]
     assert_same fn3, fns[2]
 
-    set.get('2', set.fn(:fn1), after: set.fn(:fn3), before: set.fn(:fn2))
     fns = set.match('2', :get)[0][3]
     assert_same fn2, fns[0]
     assert_same fn1, fns[1]
@@ -182,8 +221,10 @@ class RoutingTest < MiniTest::Unit::TestCase
 
   def test_grouped_routes_can_be_matched
     set = RouteSet.new
-    set.group(:test_group) {
-      default {}
+    set.eval {
+      group(:test_group) {
+        default {}
+      }
     }
 
     assert !set.match('/', :get).nil?
@@ -196,12 +237,14 @@ class RoutingTest < MiniTest::Unit::TestCase
     fn2 = lambda {}
     fn3 = lambda {}
 
-    set.fn(:fn1, &fn1)
-    set.fn(:fn2, &fn2)
-    set.fn(:fn3, &fn3)
+    set.eval {
+      fn(:fn1, &fn1)
+      fn(:fn2, &fn2)
+      fn(:fn3, &fn3)
 
-    set.group(:test_group, before: set.fn(:fn2), after: set.fn(:fn3)) {
-      default(set.fn(:fn1))
+      group(:test_group, before: fn(:fn2), after: fn(:fn3)) {
+        default(fn(:fn1))
+      }
     }
 
     fns = set.match('/', :get)[0][3]
@@ -212,8 +255,11 @@ class RoutingTest < MiniTest::Unit::TestCase
 
   def test_namespaced_routes_can_be_matched
     set = RouteSet.new
-    set.namespace('foo', :test_ns) {
-      get('bar') {}
+
+    set.eval {
+      namespace('foo', :test_ns) {
+        get('bar') {}
+      }
     }
 
     assert !set.match('/foo/bar', :get).nil?
@@ -222,8 +268,11 @@ class RoutingTest < MiniTest::Unit::TestCase
 
   def test_namespaced_name_can_be_first_arg
     set = RouteSet.new
-    set.namespace(:test_ns, 'foo') {
-      get('bar') {}
+
+    set.eval {
+      namespace(:test_ns, 'foo') {
+        get('bar') {}
+      }
     }
 
     assert !set.match('/foo/bar', :get).nil?
@@ -237,12 +286,14 @@ class RoutingTest < MiniTest::Unit::TestCase
     fn2 = lambda {}
     fn3 = lambda {}
 
-    set.fn(:fn1, &fn1)
-    set.fn(:fn2, &fn2)
-    set.fn(:fn3, &fn3)
+    set.eval {
+      fn(:fn1, &fn1)
+      fn(:fn2, &fn2)
+      fn(:fn3, &fn3)
 
-    set.namespace('foo', :test_ns, before: set.fn(:fn2), after: set.fn(:fn3)) {
-      default(set.fn(:fn1))
+      namespace('foo', :test_ns, before: fn(:fn2), after: fn(:fn3)) {
+        default(fn(:fn1))
+      }
     }
 
     fns = set.match('/foo', :get)[0][3]
@@ -253,15 +304,19 @@ class RoutingTest < MiniTest::Unit::TestCase
 
   def test_route_templates_can_be_defined_and_expanded
     set = RouteSet.new
-    set.template(:test_template) {
-      get '/', :root, fn(:root)
-    }
 
     fn1 = lambda {}
-    set.fn(:fn1, &fn1)
 
-    set.expand(:test_template, :test_expansion, 'foo') {
-      action(:root, set.fn(:fn1))
+    set.eval {
+      template(:test_template) {
+        get '/', :root, fn(:root)
+      }
+
+      fn(:fn1, &fn1)
+
+      expand(:test_template, :test_expansion, 'foo') {
+        action(:root, fn(:fn1))
+      }
     }
 
     assert_same fn1, set.match('/foo', :get)[0][3][0]
