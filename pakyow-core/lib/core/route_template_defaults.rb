@@ -3,6 +3,7 @@ module Pakyow
     def self.defaults
       lambda {
         template(:restful) {
+          unnested_path = path.dup
           nested_path { |group, path|
             File.join(path, ":#{group}_id")
           }
@@ -14,11 +15,10 @@ module Pakyow
           # special case for show (view path is overridden)
           if show_fns = fn(:show)
             show_fns = [show_fns] unless show_fns.is_a?(Array)
-            path = self.path
             get '/:id', :show, show_fns.unshift(
               lambda {
                 #TODO would like to move this reference out of core
-                presenter.view_path = File.join(path, 'show') if @presenter
+                presenter.view_path = File.join(unnested_path, 'show') if @presenter
               }
             )
           end

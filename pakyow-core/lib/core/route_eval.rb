@@ -1,6 +1,9 @@
 module Pakyow
   class RouteEval
+    attr_reader :path
+
     def initialize(path = '/', hooks = { :before => [], :after => []}, fns = {}, group_name = nil, namespace = false)
+      @path = path
       @scope  = {:path => path, :hooks => hooks, :group_name => group_name, :namespace => namespace}
       @routes = {:get => [], :post => [], :put => [], :delete => []}
       @lookup = {:routes => {}, :grouped => {}}
@@ -12,8 +15,20 @@ module Pakyow
       self.eval(&RouteTemplateDefaults.defaults)
     end
 
-    def eval(&block)
+    def eval(template = false, &block)
+      # if we're evaling a template, need to push
+      # member routes to the end (they're always
+      # created first, but need to be the last out)
+      if template
+        @member_routes = @routes
+        @routes = {:get => [], :post => [], :put => [], :delete => []}
+      end
+
       self.instance_exec(&block)
+
+      if template
+        merge_routes(@routes, @member_routes)
+      end
     end
 
     def merge(routes, handlers, lookup)
@@ -107,7 +122,7 @@ module Pakyow
 
       evaluator = RouteEval.new(File.join(@scope[:path], path), merge_hooks(merge_hooks(hooks, @scope[:hooks]), template[0]), @fns, g_name, true)
       evaluator.eval(&block)
-      evaluator.eval(&template[1])
+      evaluator.eval(true, &template[1])
 
       @routes, @handlers, @lookup = evaluator.merge(@routes, @handlers, @lookup)
     end
@@ -220,6 +235,25 @@ module Pakyow
 
     def namespace?
       @scope[:namespace]
+    end
+
+    # yields current path to the block for modification,
+    # then updates paths for member routes
+    def nested_path
+      new_path = yield(@scope[:group_name], @path)
+      
+      # update paths of member routes
+      @member_routes.each {|type,routes|
+        routes.each { |route|
+          path = StringUtils.normalize_path(File.join(new_path, route[4].gsub(/^#{StringUtils.normalize_path(@path)}/, '')))
+          regex, vars = self.build_route_matcher(path)
+          route[0] = regex
+          route[1] = vars
+          route[4] = path
+        }
+      }
+
+      @path = new_path
     end
 
     class << self
