@@ -173,15 +173,11 @@ module Pakyow
         num  = doc.children.count
         path = self.path_to(doc)
 
-<<<<<<< HEAD
-        self.doc.children.first.add_previous_sibling(doc)
-=======
         if first_child = self.doc.children.first
           first_child.add_previous_sibling(doc)
         else
           self.doc = doc
         end
->>>>>>> febacf2... Giant Refactor
 
         self.update_binding_offset_at_path(num, path)
         self.refind_significant_nodes
