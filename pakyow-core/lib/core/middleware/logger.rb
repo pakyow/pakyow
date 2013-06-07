@@ -10,9 +10,6 @@ module Pakyow
 
       def initialize(app)
         @app = app
-
-        # Prepare for logging
-        Log.reopen
       end
       
       def call(env)

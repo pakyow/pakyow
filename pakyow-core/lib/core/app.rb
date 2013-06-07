@@ -129,6 +129,9 @@ module Pakyow
         builder.use(Middleware::Logger)   if config.app.log
         builder.use(Middleware::Reloader) if config.app.auto_reload
 
+        # prepare for logging
+        Log.reopen
+
         @prepared = true
 
         $:.unshift(Dir.pwd) unless $:.include? Dir.pwd
