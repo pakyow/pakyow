@@ -16,19 +16,8 @@ module Pakyow
         @options[name.to_sym] = options
       end
 
-      def value_for_prop(prop, scope, bindable, bindings = {})
-        if binding = bindings_for_scope(scope, bindings)[prop]
-          case binding.arity
-            when 0
-              binding_eval = BindingEval.new(bindable)
-              binding_eval.instance_exec(&binding)
-            when 1
-              self.instance_exec(bindable, &binding)
-          end
-        else
-          # default
-          prop_value_for_bindable(bindable, prop)
-        end
+      def match_for_prop(prop, scope, bindable, bindings = {})
+        return bindings_for_scope(scope, bindings)[prop]
       end
 
       def options_for_prop(prop, scope, bindable)
@@ -45,11 +34,6 @@ module Pakyow
       def bindings_for_scope(scope, bindings)
         # merge passed bindings with bindings
         (@scopes[scope] || {}).merge(bindings)
-      end
-
-      def prop_value_for_bindable(bindable, prop)
-        return bindable[prop] if bindable.is_a?(Hash)
-        return bindable.send(prop) if bindable.class.method_defined?(prop)
       end
     end
 

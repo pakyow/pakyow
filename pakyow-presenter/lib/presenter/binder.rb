@@ -25,14 +25,30 @@ module Pakyow
         @sets[name].instance_exec(&block)
       end
 
-      def value_for_prop(*args)
-        match = nil
+      def value_for_prop(prop, scope, bindable, bindings = {})
+        binding = nil
         @sets.each {|set|
-          match = set[1].value_for_prop(*args)
-          break if match
+          binding = set[1].match_for_prop(prop, scope, bindable, bindings)
+          break if binding
         }
 
-        return match
+        if binding
+          case binding.arity
+            when 0
+              binding_eval = BindingEval.new(bindable)
+              binding_eval.instance_exec(&binding)
+            when 1
+              self.instance_exec(bindable, &binding)
+          end
+        else
+          # default
+          prop_value_for_bindable(bindable, prop)
+        end
+      end
+
+      def prop_value_for_bindable(bindable, prop)
+        return bindable[prop] if bindable.is_a?(Hash)
+        return bindable.send(prop) if bindable.class.method_defined?(prop)
       end
 
       def options_for_prop(*args)
