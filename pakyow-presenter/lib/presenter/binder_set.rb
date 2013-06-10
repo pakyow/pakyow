@@ -21,7 +21,7 @@ module Pakyow
       end
 
       def options_for_prop(prop, scope, bindable)
-        if block = @options[scope][prop]
+        if block = (@options[scope] || {})[prop]
           binding_eval = BindingEval.new(bindable)
           binding_eval.instance_exec(&block)
         end
