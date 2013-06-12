@@ -29,7 +29,7 @@ module Pakyow
         end
       }
 
-      attr_accessor :parser_store, :view_store, :binder
+      attr_accessor :processor_store, :view_store, :binder
 
       def initialize
         reset
@@ -209,9 +209,9 @@ module Pakyow
         top_view
       end
 
-      def parser(format, &block)
-        @parser_store ||= {}
-        @parser_store[format.to_sym] = block
+      def processor(format, &block)
+        @processor_store ||= {}
+        @processor_store[format.to_sym] = block
       end
 
       def add_content_to_container(content, container)

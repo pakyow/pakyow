@@ -72,9 +72,9 @@ module Pakyow
 
       def parse_content(content, format)
         begin
-          Pakyow.app.presenter.parser_store[format].call(content)
+          Pakyow.app.presenter.processor_store[format].call(content)
         rescue
-          Log.warn("No parser defined for extension #{format}") unless format.to_sym == :html
+          Log.warn("No processor defined for extension #{format}") unless format.to_sym == :html
           content
         end
       end
