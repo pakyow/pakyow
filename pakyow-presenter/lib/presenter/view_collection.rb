@@ -128,7 +128,7 @@ module Pakyow
 
         self.each_with_index { |v,i|
           break unless datum = data[i]
-          block.call(v, datum, i)
+          block.call(v, datum, i) if block_given?
         }
       end
 

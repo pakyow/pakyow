@@ -262,7 +262,7 @@ module Pakyow
       def for(data, &block)
         data = data.to_a if data.is_a?(Enumerator)
         data = [data] if (!data.is_a?(Enumerable) || data.is_a?(Hash))
-        block.call(self, data[0], 0)
+        block.call(self, data[0], 0) if block_given?
       end
 
       # call-seq:
