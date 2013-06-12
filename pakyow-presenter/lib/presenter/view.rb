@@ -260,7 +260,8 @@ module Pakyow
       # (this is basically Bret's `map` function)
       #
       def for(data, &block)
-        data = [data] unless (data.is_a?(Enumerable) && !data.is_a?(Hash))
+        data = data.to_a if data.is_a?(Enumerator)
+        data = [data] if (!data.is_a?(Enumerable) || data.is_a?(Hash))
         block.call(self, data[0], 0)
       end
 
@@ -272,7 +273,8 @@ module Pakyow
       # of self, where n = data.length.
       #
       def match(data)
-        data = [data] unless (data.is_a?(Enumerable) && !data.is_a?(Hash))
+        data = data.to_a if data.is_a?(Enumerator)
+        data = [data] if (!data.is_a?(Enumerable) || data.is_a?(Hash))
 
         views = ViewCollection.new
         data.each {|datum|
