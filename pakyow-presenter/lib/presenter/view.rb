@@ -72,9 +72,9 @@ module Pakyow
 
       def parse_content(content, format)
         begin
-          Pakyow.app.presenter.parser_store[format].call(content)
+          Pakyow.app.presenter.processor_store[format].call(content)
         rescue
-          Log.warn("No parser defined for extension #{format}") unless format.to_sym == :html
+          Log.warn("No processor defined for extension #{format}") unless format.to_sym == :html
           content
         end
       end
@@ -260,8 +260,9 @@ module Pakyow
       # (this is basically Bret's `map` function)
       #
       def for(data, &block)
-        data = [data] unless (data.is_a?(Enumerable) && !data.is_a?(Hash))
-        block.call(self, data[0], 0)
+        data = data.to_a if data.is_a?(Enumerator)
+        data = [data] if (!data.is_a?(Enumerable) || data.is_a?(Hash))
+        block.call(self, data[0], 0) if block_given?
       end
 
       # call-seq:
@@ -272,7 +273,8 @@ module Pakyow
       # of self, where n = data.length.
       #
       def match(data)
-        data = [data] unless (data.is_a?(Enumerable) && !data.is_a?(Hash))
+        data = data.to_a if data.is_a?(Enumerator)
+        data = [data] if (!data.is_a?(Enumerable) || data.is_a?(Hash))
 
         views = ViewCollection.new
         data.each {|datum|

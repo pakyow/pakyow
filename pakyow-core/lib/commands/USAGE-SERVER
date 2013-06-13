@@ -1,12 +1,16 @@
 Usage:
-  pakyow server [environment]
+  pakyow server [environment] [-p port]
   
 Description:
-    The 'pakyow server' command starts the application server. If environment
-    is not specified, the default_environment defined by your application
-    will be used.
+    The 'pakyow server' command starts the application server.
+
+    If environment is not specified, the default_environment defined
+    by your application will be used.
+
+    If port is not specified, the port defined
+    by your application will be used (defaults to 3000).
 
 Example:
-    pakyow server development
+    pakyow server development -p 3001
 
-    This starts the application server with the 'development' configuration.
+    This starts the application server on port 3001 with the 'development' configuration.
