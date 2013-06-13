@@ -53,11 +53,8 @@ module Pakyow
 
       def load
         load_views
-
-        @binder = Binder.instance.reset
-        Pakyow::App.bindings.each_pair {|set_name, block|
-          @binder.set(set_name, &block)
-        }
+        load_bindings
+        load_processors
       end
 
       def prepare_for_request(request)
@@ -185,6 +182,17 @@ module Pakyow
         end
       end
 
+      def load_bindings
+        @binder = Binder.instance.reset
+        Pakyow::App.bindings.each_pair {|set_name, block|
+          @binder.set(set_name, &block)
+        }
+      end
+
+      def load_processors
+        @processor_store = Pakyow::App.processors
+      end
+
       def build_root_view_cache(view_info)
         cache = Pakyow::Cache.new
         view_info.each{|dir,info|
@@ -207,11 +215,6 @@ module Pakyow
           self.add_content_to_container(v, e[:doc])
         }
         top_view
-      end
-
-      def processor(format, &block)
-        @processor_store ||= {}
-        @processor_store[format.to_sym] = block
       end
 
       def add_content_to_container(content, container)

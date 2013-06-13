@@ -2,6 +2,7 @@ module Pakyow
   class App
     class << self
       @@bindings = {}
+      @@processors = {}
       
       def bindings(set_name = :main, &block)
         if set_name && block
@@ -9,6 +10,14 @@ module Pakyow
         else
           @@bindings
         end
+      end
+
+      def processor(format, &block)
+        @@processors[format] = block
+      end
+
+      def processors
+        @@processors
       end
     end
 
