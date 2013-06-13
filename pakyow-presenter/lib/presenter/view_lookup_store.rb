@@ -31,7 +31,7 @@ module Pakyow
 
       attr_reader(:view_dir)
 
-      def initialize(view_dir)
+      def initialize(name, view_dir)
         @view_store = {:view_dirs => {}, :abstract_paths => {}}
         return unless File.exist?(view_dir)
 
@@ -45,7 +45,7 @@ module Pakyow
 
         default_views = {} # view_basename => path_to_view.html
         if File.exist?(view_dir) then
-          default_root_view_file_path = "#{absolute_path_prefix}/#{Config::Presenter.default_view}"
+          default_root_view_file_path = "#{absolute_path_prefix}/#{Config::Presenter.default_views[name] || Config::Presenter.default_views[:default]}"
           # The logic depends on this traversing top down
           DirUtils.walk_dir(view_dir) { |vpath|
             if File.directory?(vpath)

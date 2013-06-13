@@ -177,7 +177,7 @@ module Pakyow
       def load_views
         @view_stores = {}
         Config::Presenter.view_stores.each_pair {|name, path|
-          @view_stores[name] = ViewLookupStore.new(path)
+          @view_stores[name] = ViewLookupStore.new(name, path)
         }
 
         if Config::Base.presenter.view_caching then
