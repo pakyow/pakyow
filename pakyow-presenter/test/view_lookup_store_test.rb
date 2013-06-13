@@ -3,7 +3,7 @@ require 'support/helper'
 class ViewLookupStoreTest < MiniTest::Unit::TestCase
 
   def setup
-    @store = ViewLookupStore.new("test/support/views")
+    @store = ViewLookupStore.new(:test, "test/support/views")
   end
 
   def teardown

@@ -2,7 +2,7 @@ module Pakyow
   module Config
     class Presenter
       class << self
-        attr_accessor :view_caching, :javascripts, :stylesheets, :view_stores, :default_view,
+        attr_accessor :view_caching, :javascripts, :stylesheets, :view_stores, :default_views,
         :scope_attribute, :prop_attribute, :container_attribute
         
         # Location of javascripts
@@ -23,8 +23,8 @@ module Pakyow
           @view_caching || false
         end
 
-        def default_view
-          @default_view || "pakyow.html"
+        def default_views
+          @default_views ||= {:default => "pakyow.html"}
         end
 
         def scope_attribute
