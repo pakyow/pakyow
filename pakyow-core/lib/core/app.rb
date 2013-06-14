@@ -216,7 +216,7 @@ module Pakyow
       @found = false
       catch(:halt) {
         call_stack(:before, :route)
-        @found = @router.route!(@request, self)
+        @found = @router.route!(@request, self) unless config.app.ignore_routes
         call_stack(:after, :route)
 
         handle(404, false) unless found?
