@@ -1,4 +1,7 @@
 require 'core/config/base'
+require 'core/config/app'
+require 'core/config/server'
+require 'core/config/cookies'
 require 'core/helpers'
 require 'core/log'
 require 'core/request'

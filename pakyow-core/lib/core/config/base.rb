@@ -1,28 +1,18 @@
 module Pakyow
   module Config
-    autoload :App, 'core/config/app'
-    autoload :Server, 'core/config/server'
-    autoload :Cookies, 'core/config/cookies'
-    
     class Base
-      # Fetches the server config    
-      def self.server
-        Config::Server
-      end
-      
-      # Fetches the application config
-      def self.app
-        Config::App
+      @@configs = {}
+      def self.register_config(name, klass)
+        @@configs[name] = klass
+
+        define_singleton_method name do
+          @@configs[name]
+        end
       end
 
-      # Fetches the cookies config
-      def self.cookies
-        Config::Cookies
-      end
-      
       # Resets all config
       def self.reset!
-        %w[app server].each do |type|
+        @@configs.keys.each do |type|
           klass = self.send(type.to_sym)
           klass.instance_variables.each do |var|
             # Assumes path shouldn't be reset, since it's only set

@@ -1,6 +1,8 @@
 module Pakyow
   module Config
     class Presenter
+      Config::Base.register_config(:presenter, self)
+
       class << self
         attr_accessor :view_caching, :javascripts, :stylesheets, :view_stores, :default_views,
         :scope_attribute, :prop_attribute, :container_attribute

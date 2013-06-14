@@ -9,6 +9,6 @@ require 'presenter/base'
 include Presenter
 
 require 'presenter/presenter'
-require 'presenter/config/base'
+require 'presenter/config/presenter'
 require 'presenter/helpers'
 require 'presenter/ext/app'

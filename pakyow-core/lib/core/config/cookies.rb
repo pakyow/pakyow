@@ -1,6 +1,8 @@
 module Pakyow
   module Config
     class Cookies
+      Config::Base.register_config(:cookies, self)
+
       class << self
         attr_accessor :path, :expiration
         

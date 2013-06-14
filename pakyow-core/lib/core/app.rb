@@ -112,6 +112,15 @@ module Pakyow
         Pakyow::Config::Base
       end
 
+      def load_config(envs)
+        envs.each do |env|
+          next unless config_proc = @@config[env.to_sym]
+          config.instance_eval(&config_proc)
+        end
+
+        config.app.loaded_envs = envs
+      end
+
       protected
 
       # Prepares the application for running or staging and returns an instance
@@ -137,17 +146,6 @@ module Pakyow
         $:.unshift(Dir.pwd) unless $:.include? Dir.pwd
         
         return self.new
-      end
-
-      def load_config(envs)
-        if @@config
-          envs.each do |env|
-            next unless config_proc = @@config[env.to_sym]
-            config.instance_eval(&config_proc)
-          end
-
-          config.app.loaded_envs = envs
-        end
       end
 
       def detect_handler
@@ -254,6 +252,14 @@ module Pakyow
     def reload
       # reload the app file
       load(config.app.path)
+
+      # reset config
+      envs = config.app.loaded_envs
+      config.reset!
+
+      # reload config
+      self.class.load_config(envs)
+
       load_app
     end
 

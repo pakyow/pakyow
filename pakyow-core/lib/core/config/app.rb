@@ -1,6 +1,8 @@
 module Pakyow
   module Config
     class App
+      Config::Base.register_config(:app, self)
+
       class << self
         attr_accessor :dev_mode, :log, :public_dir, :root, :log_dir, 
         :default_action, :ignore_routes, :error_level, 

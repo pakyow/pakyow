@@ -1,6 +1,8 @@
 module Pakyow
   module Config
     class Server
+      Config::Base.register_config(:server, self)
+
       class << self
         attr_accessor :port, :host, :handler
         

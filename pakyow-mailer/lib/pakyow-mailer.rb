@@ -6,5 +6,5 @@ require 'mail'
 
 # Base
 require 'mailer/mailer'
-require 'mailer/config/base'
+require 'mailer/config/mailer'
 require 'mailer/helpers'
