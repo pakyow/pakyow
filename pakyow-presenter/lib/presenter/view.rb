@@ -248,6 +248,7 @@ module Pakyow
       #
       def with
         yield(self)
+        self
       end
 
       # call-seq:
