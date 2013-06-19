@@ -118,6 +118,7 @@ module Pakyow
       
       def remove
         self.doc.remove
+        self.refind_significant_nodes
       end
       
       alias :delete :remove
@@ -138,6 +139,7 @@ module Pakyow
       def clear
         return if self.doc.blank?
         self.doc.inner_html = ''
+        self.refind_significant_nodes
       end
       
       def text
@@ -153,6 +155,7 @@ module Pakyow
       def content=(content)
         content = content.call(self.content) if content.is_a?(Proc)
         self.doc.inner_html = Nokogiri::HTML.fragment(content.to_s)
+        self.refind_significant_nodes
       end
       
       alias :html= :content=
