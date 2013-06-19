@@ -1,5 +1,4 @@
 *.gem
-*.log
 coverage
 .DS_Store
 capfile

@@ -5,7 +5,7 @@ CORE_PATH = File.expand_path('../../lib', __FILE__)
 case ARGV.first
 when 'new'
   ARGV.shift
-  require 'generators/pakyow/app/app_generator'
+  require File.join(CORE_PATH, 'generators/pakyow/app/app_generator')
   Pakyow::Generators::AppGenerator.start
 when 'server', 's'
   ARGV.shift
