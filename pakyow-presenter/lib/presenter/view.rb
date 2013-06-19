@@ -538,7 +538,7 @@ module Pakyow
       end
 
       def data_has_prop?(data, prop)
-        (data.is_a?(Hash) && data.key?(prop)) || (!data.is_a?(Hash) && data.class.method_defined?(prop))
+        (data.is_a?(Hash) && (data.key?(prop) || data.key?(prop.to_s))) || (!data.is_a?(Hash) && data.class.method_defined?(prop))
       end
 
       def bind_value_to_doc(value, doc)
