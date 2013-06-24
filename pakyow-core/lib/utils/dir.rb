@@ -14,5 +14,21 @@ module Pakyow
         dirs.each{|d| walk_dir("#{dir}/#{d}", &block) unless d.start_with?(".")}
       end
 
+      def self.print_dir(dir)
+        puts "/#{dir}"
+        DirUtils.walk_dir(dir) {|full_path|
+          path = full_path.gsub(Regexp.new("#{dir}\/?"), '')
+          next if path.empty?
+
+          prefix = "|"
+          path.scan(/\//).size.times do
+            prefix += "  |"
+          end
+
+          path.gsub!(/^.*\//, '')
+          puts "#{prefix}-- #{path}"
+        }
+      end
+
   end
 end
