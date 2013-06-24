@@ -18,7 +18,10 @@ module Pakyow
             # Assumes path shouldn't be reset, since it's only set
             # once when Pakyow::Application is inherited.
             next if var.to_sym == :'@path'
-            klass.send("#{var.to_s.gsub('@', '')}=", nil)
+            begin
+              klass.send("#{var.to_s.gsub('@', '')}=", nil)
+            rescue
+            end
           end
         end
       end
