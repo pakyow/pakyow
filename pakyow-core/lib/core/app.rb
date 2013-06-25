@@ -113,6 +113,8 @@ module Pakyow
       end
 
       def load_config(envs)
+        envs = [:global, envs].flatten unless envs.include?(:global)
+
         envs.each do |env|
           next unless config_proc = @@config[env.to_sym]
           config.instance_eval(&config_proc)
