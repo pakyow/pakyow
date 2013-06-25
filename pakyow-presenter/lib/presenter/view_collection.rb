@@ -158,6 +158,7 @@ module Pakyow
 
           # find binding subset (keeps us from refinding)
           new_v.bindings = v.bindings.dup
+          new_v.scoped_as = v.scoped_as
 
           views << new_v
         }

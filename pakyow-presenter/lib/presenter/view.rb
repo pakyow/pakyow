@@ -211,7 +211,8 @@ module Pakyow
         views = ViewCollection.new
         self.bindings.select{|b| b[:scope] == name}.each{|s|
           v = self.view_from_path(s[:path])
-          v.bindings = self.bindings_for_child_view(v)
+
+          v.bindings = self.update_binding_paths_from_path([s].concat(s[:nested_bindings]), s[:path])
           v.scoped_as = s[:scope]
 
           views << v
@@ -224,16 +225,17 @@ module Pakyow
         name = name.to_sym
 
         views = ViewCollection.new
-        self.bindings.each {|binding|
+
+        if binding = self.bindings.select{|binding| binding[:scope] == self.scoped_as}[0]
           binding[:props].each {|prop|
             if prop[:prop] == name
               v = self.view_from_path(prop[:path])
-              v.bindings = self.bindings_for_child_view(v)
-
+              
+              v.scoped_as = self.scoped_as
               views << v
             end
           }
-        }
+        end
 
         views
       end
@@ -283,7 +285,7 @@ module Pakyow
 
           v = View.new(d_v)
           v.bindings = self.bindings.dup
-          #TODO set view scope
+          v.scoped_as = self.scoped_as
 
           views << v
         }
@@ -349,7 +351,6 @@ module Pakyow
         container.inner_html = ''
       end
 
-
       # populates the root_view using view_store data by recursively building
       # and substituting in child views named in the structure
       def populate_view(root_view, view_store, view_info)
@@ -393,40 +394,42 @@ module Pakyow
           bindings << {:scope => scope.to_sym, :path => path_to(o), :props => props}
         }
 
-        # determine nestedness (currently unused; leaving in case needed)
-        # bindings.each {|b|
-        #   nested = []
-        #   bindings.each {|b2|
-        #     b_doc = doc_from_path(b[:path])
-        #     b2_doc = doc_from_path(b2[:path])
-        #     nested << b2 if b2_doc.ancestors.include? b_doc
-        #   }
+        # determine nestedness of scopes
+        bindings.dup.each {|b_1|
+          nested = bindings.inject([]) {|arr, b_2|
+            # empty path for `b_1` means the `b_1` scope is the root node,
+            # so children shouldn't be nested under it
+            if !b_1[:path].empty? && b_1[:path] != b_2[:path] && path_within_path?(b_2[:path], b_1[:path])
+              b_2[:nested] = true
+              arr << b_2
+            end
 
-        #   b[:nested_scopes] = nested
-        # }
-        return bindings
-      end
+            arr
+          }
 
-      def bindings_for_child_view(child)
-        child_path = self.path_to(child.doc)
-        child_path_len = child_path.length
-        child_bindings = []
-
-        self.bindings.each {|binding|
-          # we want paths within the child path
-          if self.path_within_path?(binding[:path], child_path)
-            # update paths relative to child
-            dup = Marshal.load(Marshal.dump(binding))
-            
-            [dup].concat(dup[:props]).each{|p|
-              p[:path] = p[:path][child_path_len..-1]
-            }
-
-            child_bindings << dup
-          end
+          b_1[:nested_bindings] = nested
         }
 
-        child_bindings
+        # only return bindings that aren't nested; these are our starting points
+        return bindings.select{|binding| !binding[:nested]}
+      end
+
+      # returns a new binding set that takes into account the starting point of `path`
+      def update_binding_paths_from_path(bindings, path)
+        return bindings.collect { |binding|
+          dup_binding = binding.dup
+          dup_binding[:path] = dup_binding[:path][path.length..-1]
+
+          dup_binding[:props] = dup_binding[:props].collect {|prop|
+            dup_prop = prop.dup
+            dup_prop[:path] = dup_prop[:path][path.length..-1]
+            dup_prop
+          }
+
+          dup_binding[:nested_bindings] = update_binding_paths_from_path(dup_binding[:nested_bindings], path)
+
+          dup_binding
+        }
       end
 
       def breadth_first(doc)
