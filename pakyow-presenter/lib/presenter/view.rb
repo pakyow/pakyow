@@ -105,12 +105,11 @@ module Pakyow
       # Allows multiple attributes to be set at once.
       # root_view.find(selector).attributes(:class => my_class, :style => my_style)
       #
-      def attributes(*args)
-        if args.empty?
+      def attributes(attrs = {})
+        if attrs.empty?
           return Attributes.new(self.doc)
         else
-          args << doc
-          self.bind_attributes_to_doc(*args)
+          self.bind_attributes_to_doc(attrs, doc)
         end
       end
 

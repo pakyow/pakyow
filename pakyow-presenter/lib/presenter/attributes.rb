@@ -42,7 +42,11 @@ module Pakyow
         if value.nil?
           @doc.remove_attribute(attribute)
         else
-          @doc[attribute] = value
+          if !@doc.is_a?(Nokogiri::XML::Element) && @doc.children.count == 1
+            @doc.children.first[attribute] = value
+          else
+            @doc[attribute] = value
+          end
         end
       end
 

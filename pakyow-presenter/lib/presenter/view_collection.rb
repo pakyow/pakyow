@@ -11,9 +11,9 @@ module Pakyow
         @views.each { |v| yield(v) }
       end
       
-      def attributes(*args)
+      def attributes(attrs = {})
         collection = AttributesCollection.new
-        self.each{|v| collection << v.attributes}
+        self.each{|v| collection << v.attributes(attrs)}
         return collection
       end
 
