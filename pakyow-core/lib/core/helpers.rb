@@ -9,10 +9,12 @@ module Pakyow
     def request
       @request
     end
+    alias_method :req, :request
 
     def response
       @response
     end
+    alias_method :res, :response
 
     def params
       request.params
