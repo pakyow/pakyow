@@ -118,6 +118,7 @@ module Pakyow
       
       def remove
         self.doc.remove
+        self.refind_significant_nodes
       end
       
       alias :delete :remove
