@@ -224,7 +224,10 @@ module Pakyow
         @found = @router.route!(@request, self) unless config.app.ignore_routes
         call_stack(:after, :route)
 
-        handle(404, false) unless found?
+        unless found?
+          @response.status = 404
+          handle(404, false)
+        end
       }
 
       set_cookies
@@ -237,7 +240,10 @@ module Pakyow
 
       @request.error = error
 
-      handle(500, false) unless found?
+      unless found?
+        @response.status = 500
+        handle(500, false)
+      end
 
       if config.app.errors_in_browser
         @response["Content-Type"] = 'text/html'
