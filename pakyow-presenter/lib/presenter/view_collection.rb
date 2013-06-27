@@ -163,7 +163,8 @@ module Pakyow
           views << new_v
         }
 
-        self.remove
+        # do not use self.remove since that refinds bindings
+        self.each {|v| v.doc.remove}
         views
       end
 
