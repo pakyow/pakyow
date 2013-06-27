@@ -8,6 +8,7 @@ module Pakyow
 
       d = Config::Base.app.log_dir
       @@file = File.exists?(d) ? File.open("#{d}/#{Config::Base.app.log_name}", 'a') : nil
+      @@file.sync = true if @@file
     end
 
     def self.close
