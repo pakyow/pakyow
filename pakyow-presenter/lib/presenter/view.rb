@@ -377,11 +377,11 @@ module Pakyow
       end
 
       # returns an array of hashes that describe each scope
-      def find_bindings
+      def find_bindings(doc = @doc)
         bindings = []
-        breadth_first(@doc) {|o|
-          next unless scope = o[Config::Presenter.scope_attribute]
-
+        breadth_first(doc) {|o|
+          next if o == doc || !scope = o[Config::Presenter.scope_attribute]
+          
           # find props
           props = []
           breadth_first(o) {|so|
@@ -392,27 +392,18 @@ module Pakyow
             props << {:prop => prop.to_sym, :path => path_to(so)}
           }
 
-          bindings << {:scope => scope.to_sym, :path => path_to(o), :props => props}
-        }
-
-        # determine nestedness of scopes
-        bindings.dup.each {|b_1|
-          nested = bindings.inject([]) {|arr, b_2|
-            # empty path for `b_1` means the `b_1` scope is the root node,
-            # so children shouldn't be nested under it
-            if !b_1[:path].empty? && b_1[:path] != b_2[:path] && path_within_path?(b_2[:path], b_1[:path])
-              b_2[:nested] = true
-              arr << b_2
-            end
-
-            arr
+          bindings << {
+            :scope => scope.to_sym,
+            :path => path_to(o),
+            :props => props,
+            :nested_bindings => find_bindings(o)
           }
 
-          b_1[:nested_bindings] = nested
+          # reject so children aren't traversed
+          throw :reject
         }
 
-        # only return bindings that aren't nested; these are our starting points
-        return bindings.select{|binding| !binding[:nested]}
+        return bindings
       end
 
       # returns a new binding set that takes into account the starting point of `path`
