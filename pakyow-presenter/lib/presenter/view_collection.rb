@@ -42,18 +42,18 @@ module Pakyow
       def text
         self.map { |v| v.text }
       end
-      
-      def content
-        self.map { |v| v.content }
+
+      def text=(text)
+        self.each {|e| e.text = text}
       end
-      
-      alias :html :content
-      
-      def content=(content)
-        self.each {|e| e.content = content}
+
+      def html
+        self.map { |v| v.html }
       end
-      
-      alias :html= :content=
+
+      def html=(html)
+        self.each {|e| e.html = html}
+      end
 
       def to_html
         self.map { |v| v.to_html }.join('')

@@ -144,21 +144,23 @@ module Pakyow
       def text
         self.doc.inner_text
       end
-      
-      def content
-        self.doc.inner_html
-      end
-      
-      alias :html :content
-      
-      def content=(content)
-        content = content.call(self.content) if content.is_a?(Proc)
-        self.doc.inner_html = Nokogiri::HTML.fragment(content.to_s)
+
+      def text=(text)
+        text = text.call(self.text) if text.is_a?(Proc)
+        self.doc.content = text.to_s
         self.refind_significant_nodes
       end
-      
-      alias :html= :content=
-      
+
+      def html
+        self.doc.inner_html
+      end
+
+      def html=(html)
+        html = html.call(self.html) if html.is_a?(Proc)
+        self.doc.inner_html = Nokogiri::HTML.fragment(html.to_s)
+        self.refind_significant_nodes
+      end
+
       def append(view)
         doc  = view.doc
         num  = doc.children.count
