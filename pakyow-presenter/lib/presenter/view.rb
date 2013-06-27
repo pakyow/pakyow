@@ -71,12 +71,12 @@ module Pakyow
       end
 
       def parse_content(content, format)
-        begin
-          Pakyow.app.presenter.processor_store[format].call(content)
-        rescue
+        unless processor = Pakyow.app.presenter.processor_store[format]
           Log.warn("No processor defined for extension #{format}") unless format.to_sym == :html
-          content
+          return content
         end
+
+        processor.call(content)  
       end
       
       def title=(title)
