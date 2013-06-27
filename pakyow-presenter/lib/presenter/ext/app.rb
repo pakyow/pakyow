@@ -12,8 +12,10 @@ module Pakyow
         end
       end
 
-      def processor(format, &block)
-        @@processors[format] = block
+      def processor(*args, &block)
+        args.each {|format|
+          @@processors[format] = block
+        }
       end
 
       def processors

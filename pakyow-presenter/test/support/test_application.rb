@@ -4,7 +4,7 @@ Pakyow::App.define do
     presenter.view_stores[:test] = "test/support/views"
   end
 
-  processor(:foo) do |data|
+  processor(:foo, :bar) do |data|
     'foo' + data
   end
 end
