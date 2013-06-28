@@ -83,9 +83,8 @@ module Pakyow
     # Creates a handler.
     #
     def handler(*args, &block)
-      name, code, fn, hooks = self.class.parse_handler_args(args)
-
-      fns = []
+      name, code, fns, hooks = self.class.parse_handler_args(args)
+      fns ||= []
       # add passed block to fns
       fns << block if block_given?
 
@@ -313,7 +312,7 @@ module Pakyow
           if arg.is_a?(Hash) # we have hooks
             ret[3] = arg
           elsif arg.is_a?(Proc) # we have a fn
-            ret[2] = arg
+            ret[2] = [arg]
           elsif arg.is_a?(Integer) # we have a code
             ret[1] = arg
           elsif !arg.nil? # we have a name
