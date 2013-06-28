@@ -219,6 +219,32 @@ class RoutingTest < MiniTest::Unit::TestCase
     assert_same fn3, fns[2]
   end
 
+  def test_hooks_can_be_added_to_handler
+    set = RouteSet.new
+
+    fn1 = lambda {}
+    fn2 = lambda {}
+    fn3 = lambda {}
+
+    set.eval {
+      fn(:fn1, &fn1)
+      fn(:fn2, &fn2)
+      fn(:fn3, &fn3)
+      handler(404, fn(:fn1), before: fn(:fn2), after: fn(:fn3))
+      handler(401, fn(:fn1), after: fn(:fn3), before: fn(:fn2))
+    }
+
+    fns = set.handle(404)[2]
+    assert_same fn2, fns[0]
+    assert_same fn1, fns[1]
+    assert_same fn3, fns[2]
+
+    fns = set.handle(401)[2]
+    assert_same fn2, fns[0]
+    assert_same fn1, fns[1]
+    assert_same fn3, fns[2]
+  end
+
   def test_grouped_routes_can_be_matched
     set = RouteSet.new
     set.eval {
