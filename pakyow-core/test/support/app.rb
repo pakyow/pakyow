@@ -1,5 +1,11 @@
 Pakyow::App.define do
+  configure(:global) do
+    $global_config_was_executed = true
+    $env_overwrites_global_config = false
+  end
+
   configure(:test) do
+    $env_overwrites_global_config = true
     app.src_dir = File.join(Dir.pwd, 'test', 'support', 'loader')
   end
 end

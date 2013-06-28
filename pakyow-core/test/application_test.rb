@@ -45,6 +45,14 @@ class ApplicationTest < MiniTest::Unit::TestCase
   def test_app_is_loaded_for_each_request_in_dev_mode_only
     # TODO
   end
+
+  def test_global_configure_block_is_executed
+    assert_equal(true, $global_config_was_executed)
+  end
+
+  def test_env_config_supercedes_global_config
+    assert_equal(true, $env_overwrites_global_config)
+  end
   
   protected
   
