@@ -2,8 +2,9 @@ module Pakyow
   module Presenter
     class Attribute
       @@types = {
-        :boolean  => [:selected, :checked, :disabled, :readonly, :multiple],
-        :multiple => [:class]
+        :hash => [:style],
+        :bool => [:selected, :checked, :disabled, :readonly, :multiple],
+        :mult => [:class]
       }
 
       def initialize(name, raw_value, control)
@@ -14,7 +15,7 @@ module Pakyow
       end
 
       def set(value)
-        value = [value] if @type == :multiple && !value.is_a?(Array)
+        value = [value] if @type == :mult && !value.is_a?(Array)
         @value = value
         update_value
       end
@@ -22,12 +23,12 @@ module Pakyow
       # ensures that the value passed is contained in `value`
       def ensure(value)
         case @type
-        when :multiple
+        when :mult
           @value << value unless @value.include?(value)
-        when :boolean
+        when :bool
           @value = value
         else
-          @value << value unless @value.match(value)
+          @value << value if @value.nil? || !@value.match(value)
         end
 
         update_value
@@ -41,12 +42,23 @@ module Pakyow
         return ret
       end
 
+      # returns the full string value
+      def to_s
+        value = @value
+        value = value.call(deconstruct_attribute_value_of_type(@doc[@name], @type)) if value.is_a? Proc
+        value = construct_attribute_value_of_type(value, @type, @name)
+
+        return value
+      end
+
+      def value
+        @value
+      end
+
       private
 
       def update_value
-        updated_value = @value
-        updated_value = updated_value.call(deconstruct_attribute_value_of_type(@doc[@name], @type)) if updated_value.is_a? Proc
-        updated_value = construct_attribute_value_of_type(updated_value, @type, @name)
+        updated_value = to_s
 
         if updated_value.nil?
           @control.remove_attribute(@name)
@@ -58,21 +70,34 @@ module Pakyow
       def type_of_attribute(attribute)
         attribute = attribute.to_sym
 
-        return :boolean  if @@types[:boolean].include?(attribute)
-        return :multiple if @@types[:multiple].include?(attribute)
+        return :bool  if @@types[:bool].include?(attribute)
+        return :mult if @@types[:mult].include?(attribute)
+        return :hash     if @@types[:hash].include?(attribute)
         return :single
       end
 
       def deconstruct_attribute_value_of_type(value, type)
-        return value                          if type == :single
-        return value ? value.split(' ') : []  if type == :multiple
-        return !value.nil?                    if type == :boolean
+        return value ? value : ''             if type == :single
+        return value ? value.split(' ') : []  if type == :mult
+        return !value.nil?                    if type == :bool
+        return value_to_hash(value)           if type == :hash
       end
 
       def construct_attribute_value_of_type(value, type, attribute)
         return value if type == :single
-        return value.join(' ') if type == :multiple
-        return value ? attribute : nil if type == :boolean
+        return value.join(' ') if type == :mult
+        return value ? attribute : nil if type == :bool
+        return value.to_a.map {|a| a.join(':')}.join(';') if type == :hash
+      end
+
+      def value_to_hash(value)
+        return {} if value.nil?
+
+        value.split(';').inject({}) {|h, style|
+          k,v = style.split(':')
+          h[k.to_sym] = v
+          h
+        }
       end
     end
 
