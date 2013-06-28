@@ -377,10 +377,10 @@ module Pakyow
       end
 
       # returns an array of hashes that describe each scope
-      def find_bindings(doc = @doc, ignore_root = false)
+      def find_bindings(doc = @doc)
         bindings = []
         breadth_first(doc) {|o|
-          next if (ignore_root && o == doc) || !scope = o[Config::Presenter.scope_attribute]
+          next if !scope = o[Config::Presenter.scope_attribute]
           
           # find props
           props = []
@@ -395,12 +395,19 @@ module Pakyow
           bindings << {
             :scope => scope.to_sym,
             :path => path_to(o),
-            :props => props,
-            :nested_bindings => find_bindings(o, true)
+            :props => props
           }
 
-          # reject so children aren't traversed
-          throw :reject
+          if o == doc
+            # this is the root node, which we need as the first hash in the
+            # list of bindings, but we don't want to nest other scopes inside
+            # of it in this case
+            bindings.last[:nested_bindings] = {}
+          else
+            bindings.last[:nested_bindings] = find_bindings(o)
+            # reject so children aren't traversed
+            throw :reject
+          end
         }
 
         return bindings
