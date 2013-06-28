@@ -52,9 +52,9 @@ module Pakyow
       #
 
       def load
+        load_processors
         load_views
         load_bindings
-        load_processors
       end
 
       def prepare_for_request(request)
