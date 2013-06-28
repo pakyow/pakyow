@@ -20,11 +20,7 @@ module Pakyow
       
       @message.subject = subject if subject
       
-      if recipient.is_a?(Array)
-        recipient.each {|r| deliver(r)}
-      else
-        deliver(recipient)
-      end
+      Array(recipient).each {|r| deliver(r)}
     end
     
     protected

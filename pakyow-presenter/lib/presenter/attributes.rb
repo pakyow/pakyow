@@ -16,7 +16,7 @@ module Pakyow
       end
 
       def set(value)
-        value = [value] if @type == :mult && !value.is_a?(Array) && !value.is_a?(Proc)
+        value = Array(value) if @type == :mult && !value.is_a?(Proc)
         @value = value
         update_value
       end
