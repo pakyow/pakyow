@@ -52,6 +52,8 @@ module Pakyow
     # Finds and invokes a handler by name or by status code.
     #
     def handle!(name_or_code, app = Pakyow.app, from_logic = false)
+      app.response.status = name_or_code if name_or_code.is_a?(Integer)
+
       @sets.each { |set|
         if h = set[1].handle(name_or_code)
           app.response.status = h[1]
