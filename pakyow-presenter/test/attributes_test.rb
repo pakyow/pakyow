@@ -102,4 +102,14 @@ class AttributesTest < MiniTest::Unit::TestCase
     assert_equal hash[:title], @view.attrs.title.to_s
     assert_equal hash[:class], @view.attrs.class.to_s
   end
+
+  def test_attributes_are_modifiable_with_lambdas
+    @view.attrs.title = 'foo'
+    @view.attrs.title = lambda {|t| t + 'bar'}
+    assert_equal 'foobar', @view.attrs.title.to_s
+
+    @view.attrs.class = 'foo'
+    @view.attrs.class = lambda {|c| c.push('bar')}
+    assert_equal 'foo bar', @view.attrs.class.to_s
+  end
 end

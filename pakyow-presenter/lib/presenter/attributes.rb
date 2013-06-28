@@ -7,15 +7,16 @@ module Pakyow
         :mult => [:class]
       }
 
-      def initialize(name, raw_value, control)
+      def initialize(name, raw_value, control, doc)
         @type = type_of_attribute(name)
         @name = name
         @value = deconstruct_attribute_value_of_type(raw_value, @type)
         @control = control
+        @doc = doc
       end
 
       def set(value)
-        value = [value] if @type == :mult && !value.is_a?(Array)
+        value = [value] if @type == :mult && !value.is_a?(Array) && !value.is_a?(Proc)
         @value = value
         update_value
       end
@@ -144,7 +145,7 @@ module Pakyow
 
       def get_attribute(attribute)
         unless a = @attributes[attribute]
-          a = Attribute.new(attribute, @doc[attribute], self)
+          a = Attribute.new(attribute, @doc[attribute], self, @doc)
         end
 
         return a
