@@ -14,8 +14,7 @@ module Pakyow
           
           # special case for show (view path is overridden)
           if show_fns = fn(:show)
-            show_fns = [show_fns] unless show_fns.is_a?(Array)
-            get '/:id', :show, show_fns.unshift(
+            get '/:id', :show, Array(show_fns).unshift(
               lambda {
                 #TODO would like to move this reference out of core
                 presenter.view_path = File.join(unnested_path, 'show') if @presenter

@@ -376,9 +376,9 @@ module Pakyow
         h[:after]   ||= []
         h[:around]  ||= []
 
-        h[:before] = [h[:before]] unless h[:before].is_a?(Array)
-        h[:after] = [h[:after]] unless h[:after].is_a?(Array)
-        h[:around] = [h[:around]] unless h[:around].is_a?(Array)
+        h[:before] = Array(h[:before])
+        h[:after]  = Array(h[:after])
+        h[:around] = Array(h[:around])
 
         h
       end

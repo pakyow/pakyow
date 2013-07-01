@@ -135,7 +135,7 @@ class ApplicationActions < MiniTest::Unit::TestCase
     }
 
     assert_equal([data], Pakyow.app.response.body)
-    assert_equal('text/html', Pakyow.app.response.header['Content-Type'])
+    assert_equal('text/plain', Pakyow.app.response.header['Content-Type'])
   end
 
   def test_file_can_be_sent_from_application_with_type

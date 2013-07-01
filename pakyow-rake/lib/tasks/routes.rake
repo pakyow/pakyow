@@ -1,5 +1,5 @@
 namespace :pakyow do
-  desc "List all routes (method, path, group[name]"
+  desc "List all routes (method, path, group[name])"
   task :routes do
     Pakyow::Router.instance.sets.each {|set_data|
       set_name, set = set_data
@@ -13,8 +13,8 @@ namespace :pakyow do
 
         routes.each {|route|
           group = nil
-          set.groups.each_pair {|name,routes|
-            if routes.include?(route)
+          set.lookup[:grouped].each_pair {|name,routes|
+            if routes.values.include?(route)
               group = name
               break
             end

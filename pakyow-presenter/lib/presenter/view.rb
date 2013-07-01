@@ -71,12 +71,12 @@ module Pakyow
       end
 
       def parse_content(content, format)
-        begin
-          Pakyow.app.presenter.processor_store[format].call(content)
-        rescue
+        unless processor = Pakyow.app.presenter.processor_store[format]
           Log.warn("No processor defined for extension #{format}") unless format.to_sym == :html
-          content
+          return content
         end
+
+        processor.call(content)  
       end
       
       def title=(title)
@@ -215,7 +215,8 @@ module Pakyow
         views = ViewCollection.new
         self.bindings.select{|b| b[:scope] == name}.each{|s|
           v = self.view_from_path(s[:path])
-          v.bindings = self.bindings_for_child_view(v)
+
+          v.bindings = self.update_binding_paths_from_path([s].concat(s[:nested_bindings]), s[:path])
           v.scoped_as = s[:scope]
 
           views << v
@@ -228,16 +229,17 @@ module Pakyow
         name = name.to_sym
 
         views = ViewCollection.new
-        self.bindings.each {|binding|
+
+        if binding = self.bindings.select{|binding| binding[:scope] == self.scoped_as}[0]
           binding[:props].each {|prop|
             if prop[:prop] == name
               v = self.view_from_path(prop[:path])
-              v.bindings = self.bindings_for_child_view(v)
-
+              
+              v.scoped_as = self.scoped_as
               views << v
             end
           }
-        }
+        end
 
         views
       end
@@ -288,7 +290,7 @@ module Pakyow
 
           v = View.new(d_v)
           v.bindings = self.bindings.dup
-          #TODO set view scope
+          v.scoped_as = self.scoped_as
 
           views << v
         }
@@ -343,6 +345,12 @@ module Pakyow
         @bindings = (!@bindings || refind) ? self.find_bindings : @bindings
       end
 
+      def view_from_path(path)
+        v = View.new(doc_from_path(path))
+        v.related_views << self
+        v
+      end
+
       protected
 
       def add_content_to_container(content, container)
@@ -353,7 +361,6 @@ module Pakyow
       def reset_container(container)
         container.inner_html = ''
       end
-
 
       # populates the root_view using view_store data by recursively building
       # and substituting in child views named in the structure
@@ -380,11 +387,12 @@ module Pakyow
       end
 
       # returns an array of hashes that describe each scope
-      def find_bindings
+      def find_bindings(doc = @doc, ignore_root = false)
         bindings = []
-        breadth_first(@doc) {|o|
-          next unless scope = o[Config::Presenter.scope_attribute]
-
+        breadth_first(doc) {|o|
+          next if o == doc && ignore_root
+          next if !scope = o[Config::Presenter.scope_attribute]
+          
           # find props
           props = []
           breadth_first(o) {|so|
@@ -395,43 +403,43 @@ module Pakyow
             props << {:prop => prop.to_sym, :path => path_to(so)}
           }
 
-          bindings << {:scope => scope.to_sym, :path => path_to(o), :props => props}
-        }
+          bindings << {
+            :scope => scope.to_sym,
+            :path => path_to(o),
+            :props => props
+          }
 
-        # determine nestedness (currently unused; leaving in case needed)
-        # bindings.each {|b|
-        #   nested = []
-        #   bindings.each {|b2|
-        #     b_doc = doc_from_path(b[:path])
-        #     b2_doc = doc_from_path(b2[:path])
-        #     nested << b2 if b2_doc.ancestors.include? b_doc
-        #   }
-
-        #   b[:nested_scopes] = nested
-        # }
-        return bindings
-      end
-
-      def bindings_for_child_view(child)
-        child_path = self.path_to(child.doc)
-        child_path_len = child_path.length
-        child_bindings = []
-
-        self.bindings.each {|binding|
-          # we want paths within the child path
-          if self.path_within_path?(binding[:path], child_path)
-            # update paths relative to child
-            dup = Marshal.load(Marshal.dump(binding))
-            
-            [dup].concat(dup[:props]).each{|p|
-              p[:path] = p[:path][child_path_len..-1]
-            }
-
-            child_bindings << dup
+          if o == doc
+            # this is the root node, which we need as the first hash in the
+            # list of bindings, but we don't want to nest other scopes inside
+            # of it in this case
+            bindings.last[:nested_bindings] = {}
+          else
+            bindings.last[:nested_bindings] = find_bindings(o, true)
+            # reject so children aren't traversed
+            throw :reject
           end
         }
 
-        child_bindings
+        return bindings
+      end
+
+      # returns a new binding set that takes into account the starting point of `path`
+      def update_binding_paths_from_path(bindings, path)
+        return bindings.collect { |binding|
+          dup_binding = binding.dup
+          dup_binding[:path] = dup_binding[:path][path.length..-1]
+
+          dup_binding[:props] = dup_binding[:props].collect {|prop|
+            dup_prop = prop.dup
+            dup_prop[:path] = dup_prop[:path][path.length..-1]
+            dup_prop
+          }
+
+          dup_binding[:nested_bindings] = update_binding_paths_from_path(dup_binding[:nested_bindings], path)
+
+          dup_binding
+        }
       end
 
       def breadth_first(doc)
@@ -484,12 +492,6 @@ module Pakyow
         }
 
         return o
-      end
-
-      def view_from_path(path)
-        v = View.new(doc_from_path(path))
-        v.related_views << self
-        v
       end
 
       def update_binding_offset_at_path(offset, path)

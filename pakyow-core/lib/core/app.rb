@@ -295,12 +295,11 @@ module Pakyow
     # default to whatever is set in the response.
     #
     def send(file_or_data, type = nil, send_as = nil)
-      case file_or_data.class
-      when File
-        data = File.open(path, "r").each_line { |line| data << line }
+      if file_or_data.class == File
+        data = file_or_data.read
 
         # auto set type based on file type
-        type = Rack::Mime.mime_type("." + StringUtils.split_at_last_dot(File.path))[1]
+        type = Rack::Mime.mime_type("." + StringUtils.split_at_last_dot(file_or_data.path)[1])
       else
         data = file_or_data
       end
