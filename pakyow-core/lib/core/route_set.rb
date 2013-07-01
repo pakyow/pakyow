@@ -1,7 +1,6 @@
 module Pakyow
   class RouteSet
-                         #TODO need groups?
-    attr_reader :routes, :groups
+    attr_reader :routes, :lookup
 
     def initialize
       @routes = {:get => [], :post => [], :put => [], :delete => []}

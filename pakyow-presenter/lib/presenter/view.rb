@@ -341,6 +341,12 @@ module Pakyow
         @bindings = (!@bindings || refind) ? self.find_bindings : @bindings
       end
 
+      def view_from_path(path)
+        v = View.new(doc_from_path(path))
+        v.related_views << self
+        v
+      end
+
       protected
 
       def add_content_to_container(content, container)
@@ -482,12 +488,6 @@ module Pakyow
         }
 
         return o
-      end
-
-      def view_from_path(path)
-        v = View.new(doc_from_path(path))
-        v.related_views << self
-        v
       end
 
       def update_binding_offset_at_path(offset, path)
