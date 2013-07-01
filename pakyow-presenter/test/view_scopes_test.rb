@@ -42,6 +42,13 @@ class ViewScopesTest < MiniTest::Unit::TestCase
     assert_equal 'body', @view.scope(:post).prop(:body)[0].content
   end
 
+  def test_scope_not_nested_in_itself
+    post_binding = @view.bindings.first
+    post_binding[:nested_bindings].each {|nested|
+      refute_equal post_binding[:path], nested[:path], "Found scope in scope"
+    }
+  end
+
   private
 
   def create_view_from_string(string)

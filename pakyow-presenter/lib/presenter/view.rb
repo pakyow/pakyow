@@ -377,9 +377,10 @@ module Pakyow
       end
 
       # returns an array of hashes that describe each scope
-      def find_bindings(doc = @doc)
+      def find_bindings(doc = @doc, ignore_root = false)
         bindings = []
         breadth_first(doc) {|o|
+          next if o == doc && ignore_root
           next if !scope = o[Config::Presenter.scope_attribute]
           
           # find props
@@ -404,7 +405,7 @@ module Pakyow
             # of it in this case
             bindings.last[:nested_bindings] = {}
           else
-            bindings.last[:nested_bindings] = find_bindings(o)
+            bindings.last[:nested_bindings] = find_bindings(o, true)
             # reject so children aren't traversed
             throw :reject
           end
