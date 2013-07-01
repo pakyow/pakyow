@@ -38,8 +38,8 @@ class ViewScopesTest < MiniTest::Unit::TestCase
   end
 
   def test_props_are_found
-    assert_equal 'title', @view.scope(:post).prop(:title)[0].content
-    assert_equal 'body', @view.scope(:post).prop(:body)[0].content
+    assert_equal 'title', @view.scope(:post).prop(:title)[0].html
+    assert_equal 'body', @view.scope(:post).prop(:body)[0].html
   end
 
   def test_scope_not_nested_in_itself

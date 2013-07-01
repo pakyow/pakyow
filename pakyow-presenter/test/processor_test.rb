@@ -19,7 +19,7 @@ class ProcessorTest < MiniTest::Unit::TestCase
 
   def test_processor_processes_multiple_formats
     v = View.at_path("processor2", @view_store)
-    assert_equal v.container(:main)[0].content, 'foobar'
+    assert_equal v.container(:main)[0].html, 'foobar'
   end
 
 end
