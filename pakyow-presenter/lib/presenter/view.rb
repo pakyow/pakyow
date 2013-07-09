@@ -53,7 +53,7 @@ module Pakyow
           # run parsers
           format = StringUtils.split_at_last_dot(view_path)[1].to_sym
           content = parse_content(File.read(view_path), format)
-          
+
           if is_root_view then
             @doc = Nokogiri::HTML::Document.parse(content)
           else
@@ -76,9 +76,9 @@ module Pakyow
           return content
         end
 
-        processor.call(content)  
+        processor.call(content)
       end
-      
+
       def title=(title)
         if @doc
           if o = @doc.css('title').first
@@ -95,7 +95,7 @@ module Pakyow
         o = @doc.css('title').first
         o.inner_html if o
       end
-      
+
       def to_html
         @doc.to_html
       end
@@ -114,33 +114,33 @@ module Pakyow
       end
 
       alias :attrs :attributes
-      
+
       def remove
         self.doc.remove
         self.refind_significant_nodes
       end
-      
+
       alias :delete :remove
-      
+
       #TODO replace this with a different syntax (?): view.attributes.class.add/remove/has?(:foo)
       # def add_class(val)
       #   self.doc['class'] = "#{self.doc['class']} #{val}".strip
       # end
-      
+
       # def remove_class(val)
       #   self.doc['class'] = self.doc['class'].gsub(val.to_s, '').strip if self.doc['class']
       # end
-      
+
       # def has_class(val)
       #   self.doc['class'].include? val
       # end
-      
+
       def clear
         return if self.doc.blank?
         self.doc.inner_html = ''
         self.refind_significant_nodes
       end
-      
+
       def text
         self.doc.inner_text
       end
@@ -186,7 +186,7 @@ module Pakyow
         self.update_binding_offset_at_path(num, path)
         self.refind_significant_nodes
       end
-      
+
       def after(view)
         doc  = view.doc
         num  = doc.children.count
@@ -197,7 +197,7 @@ module Pakyow
         self.update_binding_offset_at_path(num, path)
         self.refind_significant_nodes
       end
-      
+
       def before(view)
         doc  = view.doc
         num  = doc.children.count
@@ -208,7 +208,7 @@ module Pakyow
         self.update_binding_offset_at_path(num, path)
         self.refind_significant_nodes
       end
-      
+
       def scope(name)
         name = name.to_sym
 
@@ -224,7 +224,7 @@ module Pakyow
 
         views
       end
-      
+
       def prop(name)
         name = name.to_sym
 
@@ -234,7 +234,7 @@ module Pakyow
           binding[:props].each {|prop|
             if prop[:prop] == name
               v = self.view_from_path(prop[:path])
-              
+
               v.scoped_as = self.scoped_as
               views << v
             end
@@ -263,7 +263,7 @@ module Pakyow
       # Yields a view and its matching dataum. This is driven by the view,
       # meaning datums are yielded until no more views are available. For
       # the single View case, only one view/datum pair is yielded.
-      # 
+      #
       # (this is basically Bret's `map` function)
       #
       def for(data, &block)
@@ -367,7 +367,7 @@ module Pakyow
       def populate_view(root_view, view_store, view_info)
         root_view.containers.each {|e|
           next unless path = view_info[e[:name]]
-          
+
           v = self.populate_view(View.new(path, view_store), view_store, view_info)
           self.reset_container(e[:doc])
           self.add_content_to_container(v, e[:doc])
@@ -392,7 +392,7 @@ module Pakyow
         breadth_first(doc) {|o|
           next if o == doc && ignore_root
           next if !scope = o[Config::Presenter.scope_attribute]
-          
+
           # find props
           props = []
           breadth_first(o) {|so|
@@ -576,10 +576,12 @@ module Pakyow
       end
 
       def bind_to_form_field(doc, scope, prop, value, bindable)
-        return unless !doc['name'] || doc['name'].empty?
-        
-        # set name on form element
-        doc['name'] = "#{scope}[#{prop}]"
+
+        # don't overwrite the name if already defined
+        if !doc['name'] || doc['name'].empty?
+          # set name on form element
+          doc['name'] = "#{scope}[#{prop}]"
+        end
 
         # special binding for checkboxes and radio buttons
         if doc.name == 'input' && (doc[:type] == 'checkbox' || doc[:type] == 'radio')
@@ -589,40 +591,46 @@ module Pakyow
             doc.delete('checked')
           end
 
-          # coerce to string since booleans are often used 
+          # coerce to string since booleans are often used
           # and fail when binding to a view
           value = value.to_s
         # special binding for selects
-        elsif doc.name == 'select' && options = Pakyow.app.presenter.binder.options_for_prop(prop, scope, bindable)
-          option_nodes = Nokogiri::HTML::DocumentFragment.parse ""
-          Nokogiri::HTML::Builder.with(option_nodes) do |h|
-            until options.length == 0
-              catch :optgroup do
-                o = options.first
-                
-                # an array containing value/content
-                if o.is_a?(Array)
-                  h.option o[1], :value => o[0]
-                  options.shift
-                # likely an object (e.g. string); start a group
-                else
-                  h.optgroup(:label => o) {
+        elsif doc.name == 'select'
+          if options = Pakyow.app.presenter.binder.options_for_prop(prop, scope, bindable)
+            option_nodes = Nokogiri::HTML::DocumentFragment.parse ""
+            Nokogiri::HTML::Builder.with(option_nodes) do |h|
+              until options.length == 0
+                catch :optgroup do
+                  o = options.first
+
+                  # an array containing value/content
+                  if o.is_a?(Array)
+                    h.option o[1], :value => o[0]
                     options.shift
-
-                    options[0..-1].each_with_index { |o2,i2|
-                      # starting a new group
-                      throw :optgroup if !o2.is_a?(Array)
-
-                      h.option o2[1], :value => o2[0]
+                  # likely an object (e.g. string); start a group
+                  else
+                    h.optgroup(:label => o) {
                       options.shift
+
+                      options[0..-1].each_with_index { |o2,i2|
+                        # starting a new group
+                        throw :optgroup if !o2.is_a?(Array)
+
+                        h.option o2[1], :value => o2[0]
+                        options.shift
+                      }
                     }
-                  }
+                  end
                 end
               end
-            end                    
-          end
+            end
 
-          doc.add_child(option_nodes)
+            # remove existing options
+            doc.children.remove
+
+            # add generated options
+            doc.add_child(option_nodes)
+          end
 
           # select appropriate option
           if o = doc.css('option[value="' + value.to_s + '"]').first
