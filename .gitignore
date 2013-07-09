@@ -6,3 +6,4 @@ capfile
 doc
 .yardoc
 .rbenv-version
+Gemfile.lock

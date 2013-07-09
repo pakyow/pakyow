@@ -15,17 +15,18 @@ Gem::Specification.new do |s|
   s.rubyforge_project = 'pakyow-core'
 
   s.files        = Dir[
-                        File.join(core_path, 'CHANGES'), 
-                        File.join(core_path, 'README'), 
-                        File.join(core_path, 'MIT-LICENSE'), 
+                        File.join(core_path, 'CHANGES'),
+                        File.join(core_path, 'README'),
+                        File.join(core_path, 'MIT-LICENSE'),
                         File.join(core_path, 'lib','**','*')
                       ]
-                      
+
   s.require_path = File.join(core_path, 'lib')
 
   s.bindir             = File.join(core_path, 'bin')
   s.executables        = ['pakyow']
-  
-  s.add_dependency('rack', '~> 1.3')
-  s.add_development_dependency('turn', '~> 0.9')
+
+  s.add_dependency('rack', '~> 1.5')
+
+  s.add_development_dependency('turn')
 end

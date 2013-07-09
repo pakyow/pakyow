@@ -15,16 +15,17 @@ Gem::Specification.new do |s|
   s.rubyforge_project = 'pakyow-mailer'
 
   s.files        = Dir[
-                        File.join(presenter_path, 'CHANGES'), 
-                        File.join(presenter_path, 'README'), 
-                        File.join(presenter_path, 'MIT-LICENSE'), 
+                        File.join(presenter_path, 'CHANGES'),
+                        File.join(presenter_path, 'README'),
+                        File.join(presenter_path, 'MIT-LICENSE'),
                         File.join(presenter_path, 'lib','**','*')
                       ]
 
   s.require_path = File.join(presenter_path, 'lib')
-  
+
   s.add_dependency('pakyow-core', version)
   s.add_dependency('pakyow-presenter', version)
-  s.add_dependency('mail', '~> 2.3')
-  s.add_development_dependency('shoulda', '~> 2.11')
+  s.add_dependency('mail', '~> 2.5')
+
+  s.add_development_dependency('turn')
 end
