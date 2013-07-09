@@ -4,7 +4,7 @@ module Pakyow
     #
     class Binder
       include Singleton
-      include Pakyow::GeneralHelpers
+      include Helpers
 
       attr_reader :sets
 
@@ -17,7 +17,7 @@ module Pakyow
         @sets = {}
         self
       end
-      
+
       # Creates a new set.
       #
       def set(name, &block)

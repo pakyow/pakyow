@@ -44,9 +44,9 @@ class HelpersTest < MiniTest::Unit::TestCase
   def test_cookies_returned
     Pakyow.app.request = mock_request
     assert_same Pakyow.app.cookies, Pakyow.app.cookies
-  end  
+  end
 
-  def test_general_helpers_are_included_in_helpers
-    assert Pakyow::Helpers.ancestors.include?(Pakyow::GeneralHelpers)
+  def test_app_helpers_are_included_in_app
+    assert Pakyow::App.ancestors.include?(Pakyow::AppHelpers)
   end
 end

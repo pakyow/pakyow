@@ -1,5 +1,5 @@
 module Pakyow
-  module Helpers
+  module AppHelpers
     def mailer(view_path)
       Mailer.new(view_path, @presenter.view_store)
     end

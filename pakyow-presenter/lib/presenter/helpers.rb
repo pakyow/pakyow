@@ -1,5 +1,5 @@
 module Pakyow
-  module Helpers
+  module AppHelpers
     def presenter
       @presenter
     end
@@ -7,7 +7,7 @@ module Pakyow
     def bindings(name)
       presenter.bindings(name).bindings
     end
-    
+
     def view
       presenter.view
     end

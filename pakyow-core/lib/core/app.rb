@@ -181,6 +181,7 @@ module Pakyow
     end
 
     include Helpers
+    include AppHelpers
 
     attr_accessor :request, :response
 

@@ -38,7 +38,7 @@ module Pakyow
     end
 
     class ScopeEval
-      include GeneralHelpers
+      include Helpers
 
       def initialize
         @bindings = {}
@@ -74,7 +74,7 @@ module Pakyow
           end
 
           return_data[:action] = action
-          return_data[:method] = 'post' 
+          return_data[:method] = 'post'
           return_data
         }
       end
@@ -83,7 +83,7 @@ module Pakyow
     end
 
     class BindingEval
-      include GeneralHelpers
+      include Helpers
 
       attr_reader :bindable
 

@@ -1,7 +1,7 @@
 module Pakyow
 
-  # Helper methods that simply provide information (for use in binders)
-  module GeneralHelpers
+  # For methods that should be accessible anywhere
+  module Helpers
     def router
       RouteLookup.new
     end
@@ -33,8 +33,6 @@ module Pakyow
     end
   end
 
-  # Helper methods specific to delegates and controllers.
-  module Helpers
-    include GeneralHelpers
-  end
+  # For methods that should only be accessible through App
+  module AppHelpers; end
 end
