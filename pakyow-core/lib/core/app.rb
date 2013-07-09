@@ -151,14 +151,14 @@ module Pakyow
         @prepared = true
 
         $:.unshift(Dir.pwd) unless $:.include? Dir.pwd
-        
+
         return self.new
       end
 
       def detect_handler
         handlers = ['puma', 'thin', 'mongrel', 'webrick']
         handlers.unshift(config.server.handler) if config.server.handler
-        
+
         handlers.each do |handler|
           begin
             return Rack::Handler.get(handler)
@@ -188,7 +188,7 @@ module Pakyow
       Pakyow.app = self
 
       call_stack(:before, :init)
-            
+
       load_app
 
       call_stack(:after, :init)
@@ -367,12 +367,12 @@ module Pakyow
 
     def set_cookies
       @request.cookies.each_pair {|k, v|
-        self.unset_cookie(k) if v.nil?
+        @response.unset_cookie(k) if v.nil?
         next if @request.initial_cookies.include?(k.to_s) # cookie is already set, ignore
 
         # set cookie with defaults
         @response.set_cookie(k, {
-          :path => config.cookies.path, 
+          :path => config.cookies.path,
           :expires => config.cookies.expiration,
           :value => v
         })
@@ -382,15 +382,6 @@ module Pakyow
       @request.initial_cookies.each {|k|
         @response.unset_cookie(k) unless @request.cookies.key?(k.to_s)
       }
-    end
-
-    def unset_cookie(key, data = {})
-      @response.set_cookie(key, {
-        :path => data[:path] || config.cookies.path, 
-        :expires => Time.now - 60 * 60 * 24
-      })
-
-      @request.cookies.delete(key.to_s)
     end
 
   end
