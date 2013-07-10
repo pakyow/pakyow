@@ -17,7 +17,7 @@ module Pakyow
       @sets = {}
       self
     end
-    
+
     # Creates a new set.
     #
     def set(name, &block)
@@ -39,19 +39,22 @@ module Pakyow
 
     # Performs the initial routing for a request.
     #
-    def route!(request, app = Pakyow.app)
-      self.trampoline(self.match(request), app)
+    def perform(request, ctx = Pakyow.app, &after_match)
+      fns = match(request)
+      after_match.call if block_given?
+
+      trampoline(fns, ctx)
     end
 
     # Reroutes a request.
     #
-    def reroute!(request)
+    def reroute(request)
       throw :fns, self.match(request)
     end
 
     # Finds and invokes a handler by name or by status code.
     #
-    def handle!(name_or_code, app = Pakyow.app, from_logic = false)
+    def handle(name_or_code, app = Pakyow.app, from_logic = false)
       app.response.status = name_or_code if name_or_code.is_a?(Integer)
 
       @sets.each { |set|
@@ -114,11 +117,11 @@ module Pakyow
     # Calls route functions and catches new functions as
     # they're thrown (e.g. by reroute).
     #
-    def trampoline(fns, app)
+    def trampoline(fns, ctx)
       routed = false
       until fns.empty?
         fns = catch(:fns) {
-          self.call_fns(fns, app)
+          self.call_fns(fns, ctx)
 
           # Getting here means that call() returned normally (not via a throw)
           :fall_through

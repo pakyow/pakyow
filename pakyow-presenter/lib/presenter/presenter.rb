@@ -5,7 +5,7 @@ module Pakyow
         @presenter = Presenter.new
       }
 
-      Pakyow::App.before(:route) {
+      Pakyow::App.after(:match) {
         @presenter = Pakyow.app.presenter.dup
         @presenter.prepare_for_request(@request)
       }
@@ -69,12 +69,12 @@ module Pakyow
         end
         @root_path = self.current_view_lookup_store.root_path(@view_path)
       end
-      
+
       def presented?
         self.ensure_root_view_built
         @presented
       end
-      
+
       def content
         return unless view
         view.to_html
@@ -98,7 +98,7 @@ module Pakyow
 
       def root
         @is_compiled = false
-        @root ||= View.root_at_path(@root_path, @view_store) 
+        @root ||= View.root_at_path(@root_path, @view_store)
       end
 
       def root=(v)
@@ -162,7 +162,7 @@ module Pakyow
           @presented = true
         end
       end
-      
+
       def restful_view_path(restful_info)
         if restful_info[:restful_action] == :show
           "#{StringUtils.remove_route_vars(@request.route_spec)}/show"

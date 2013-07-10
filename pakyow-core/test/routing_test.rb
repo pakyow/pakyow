@@ -136,7 +136,7 @@ class RoutingTest < Minitest::Test
 
     %w(1 foo).each { |data|
       req = mock_request("/#{data}")
-      Router.instance.route!(req)
+      Router.instance.perform(req)
       assert_equal data, req.params[:id]
     }
   end
@@ -149,7 +149,7 @@ class RoutingTest < Minitest::Test
 
     %w(1 foo).each { |data|
       req = mock_request("foo/#{data}")
-      Router.instance.route!(req)
+      Router.instance.perform(req)
       assert_equal data, req.params[:id]
     }
   end
@@ -430,7 +430,7 @@ class RoutingTest < Minitest::Test
       default [fn(:one), fn(:two), fn(:three)]
     }
 
-    Router.instance.route!(mock_request('/'))
+    Router.instance.perform(mock_request('/'))
     assert_equal [1, 2, 3], @fn_calls
   end
 
@@ -446,7 +446,7 @@ class RoutingTest < Minitest::Test
       }
     }
 
-    Router.instance.route!(mock_request('/'))
+    Router.instance.perform(mock_request('/'))
     assert_equal [:rerouted], @fn_calls
   end
 
@@ -462,7 +462,7 @@ class RoutingTest < Minitest::Test
       }
     }
 
-    Router.instance.route!(mock_request('/'))
+    Router.instance.perform(mock_request('/'))
     assert_equal [:rerouted], @fn_calls
   end
 
@@ -480,7 +480,7 @@ class RoutingTest < Minitest::Test
 
     res = Response.new
     Pakyow.app.response = res
-    Router.instance.route!(mock_request('/'))
+    Router.instance.perform(mock_request('/'))
 
     assert_equal [:handled], @fn_calls
     assert_equal 500, res.status

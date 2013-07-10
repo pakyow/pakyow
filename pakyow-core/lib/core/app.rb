@@ -6,7 +6,7 @@ module Pakyow
         @@config = {}
 
         @@stacks = {:before => {}, :after => {}}
-        %w(init load process route error).each {|name|
+        %w(init load process route match error).each {|name|
           @@stacks[:before][name.to_sym] = []
           @@stacks[:after][name.to_sym] = []
         }
@@ -221,9 +221,15 @@ module Pakyow
 
       @found = false
       catch(:halt) {
-        call_stack(:before, :route)
-        @found = @router.route!(@request, self) unless config.app.ignore_routes
-        call_stack(:after, :route)
+        unless config.app.ignore_routes
+          call_stack(:before, :route)
+
+          @found = @router.perform(@request, self) {
+            call_stack(:after, :match)
+          }
+
+          call_stack(:after, :route)
+        end
 
         handle(404, false) unless found?
       }
@@ -285,7 +291,7 @@ module Pakyow
       @request.setup(path, method)
 
       call_stack(:before, :route)
-      @router.reroute!(@request)
+      @router.reroute(@request)
       call_stack(:after, :route)
     end
 
@@ -325,7 +331,7 @@ module Pakyow
 
     def handle(name_or_code, from_logic = true)
       call_stack(:before, :route)
-      @router.handle!(name_or_code, self, from_logic)
+      @router.handle(name_or_code, self, from_logic)
       call_stack(:after, :route)
     end
 
