@@ -1,6 +1,6 @@
 require 'support/helper'
 
-class CacheTest < MiniTest::Unit::TestCase
+class CacheTest < Minitest::Test
   def setup
     @cache = Cache.new
   end

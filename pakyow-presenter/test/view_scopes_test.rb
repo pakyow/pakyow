@@ -1,6 +1,6 @@
 require 'support/helper'
 
-class ViewScopesTest < MiniTest::Unit::TestCase
+class ViewScopesTest < Minitest::Test
 
   def setup
     @view = create_view_from_string(<<-D)

@@ -1,0 +1,11 @@
+desc 'Run all tests by default'
+task :default => %w(test)
+
+task :test do
+  errors = []
+  %w(pakyow-core pakyow-presenter pakyow-mailer).each do |project|
+    system(%(cd #{project} && #{$0} test)) || errors << project
+  end
+
+  fail("Errors in #{errors.join(', ')}") unless errors.empty?
+end

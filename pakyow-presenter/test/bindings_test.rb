@@ -1,6 +1,6 @@
 require 'support/helper'
 
-class BindingsTest < MiniTest::Unit::TestCase
+class BindingsTest < Minitest::Test
   def setup
     Pakyow::App.stage(:test)
     Pakyow::Router.instance.set(:default) {
@@ -21,12 +21,12 @@ class BindingsTest < MiniTest::Unit::TestCase
     Pakyow.app.presenter.load
 
     data = Pakyow.app.presenter.binder.value_for_prop(:action, :foo, {})
-    
+
     assert_equal '/bar', data[:action]
     assert_equal 'post', data[:method]
 
     data = Pakyow.app.presenter.binder.value_for_prop(:action, :foo, {id:1})
-    
+
     assert_equal '/bar/1',  data[:action]
     assert_equal 'post',    data[:method]
 

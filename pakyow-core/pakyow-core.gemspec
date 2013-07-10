@@ -28,5 +28,5 @@ Gem::Specification.new do |s|
 
   s.add_dependency('rack', '~> 1.5')
 
-  s.add_development_dependency('turn')
+  s.add_development_dependency('minitest', '~> 5.0')
 end

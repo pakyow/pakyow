@@ -1,6 +1,6 @@
 require 'support/helper'
 
-class ViewCompositionTest < MiniTest::Unit::TestCase
+class ViewCompositionTest < Minitest::Test
 
   def setup
     @view_store = :test

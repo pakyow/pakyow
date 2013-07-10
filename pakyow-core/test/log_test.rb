@@ -2,7 +2,7 @@ require 'support/helper'
 
 require 'stringio'
 
-class LogTest < MiniTest::Unit::TestCase
+class LogTest < Minitest::Test
   def setup
     @text = 'foo'
   end
@@ -16,12 +16,12 @@ class LogTest < MiniTest::Unit::TestCase
     $stdout = StringIO.new
     Pakyow::Log.reopen
     Log.enter(@text)
-    
+
     assert_equal @text, $stdout.string.strip
 
     $stdout = old
   end
-  
+
   def test_log_to_file
     Pakyow::Config::Base.app.log_dir = path
     Pakyow::Log.reopen

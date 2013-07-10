@@ -26,5 +26,5 @@ Gem::Specification.new do |s|
   s.add_dependency('pakyow-core', version)
   s.add_dependency('nokogiri', '~> 1.6')
 
-  s.add_development_dependency('turn')
+  s.add_development_dependency('minitest', '~> 5.0')
 end

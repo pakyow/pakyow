@@ -1,6 +1,6 @@
 require 'support/helper'
 
-class PresenterViewTest < MiniTest::Unit::TestCase
+class PresenterViewTest < Minitest::Test
 
   def setup
     @view_store = :test

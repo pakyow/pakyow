@@ -1,6 +1,6 @@
 require 'support/helper'
 
-class HelpersTest < MiniTest::Unit::TestCase
+class HelpersTest < Minitest::Test
   include Pakyow::Helpers
 
   def setup

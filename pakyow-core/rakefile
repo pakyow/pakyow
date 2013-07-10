@@ -1,10 +1,10 @@
 require 'rake'
 require 'rake/testtask'
 
-task :default => [:test_pakyow_core]
+task :default => [:test]
 
 desc "Run basic tests"
-Rake::TestTask.new("test_pakyow_core") do |t|
+Rake::TestTask.new("test") do |t|
   t.libs << 'test'
   t.pattern = 'test/*_test.rb'
   t.verbose = false

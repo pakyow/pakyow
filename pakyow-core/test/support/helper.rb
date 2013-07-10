@@ -1,7 +1,7 @@
 require 'rubygems'
+require 'minitest'
 require 'minitest/unit'
 require 'minitest/autorun'
-require 'turn/autorun'
 require 'pp'
 
 require 'pakyow-core'

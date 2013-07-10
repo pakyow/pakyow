@@ -1,6 +1,6 @@
 require 'support/helper'
 
-class MailerTest < MiniTest::Unit::TestCase
+class MailerTest < Minitest::Test
   def setup
     Pakyow::App.stage(:test)
     Pakyow.app.presenter.view_store = :mailer

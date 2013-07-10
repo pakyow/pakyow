@@ -1,6 +1,6 @@
 require 'support/helper'
 
-class AttributesTest < MiniTest::Unit::TestCase
+class AttributesTest < Minitest::Test
   def setup
     Pakyow::App.stage(:test)
     @view_store = :test
@@ -75,7 +75,7 @@ class AttributesTest < MiniTest::Unit::TestCase
     value = 'foo'
     @view.attrs.class.push(value)
     assert_equal value, @view.attrs.class.to_s
-  end  
+  end
 
   def test_bool_attributes_are_settable
     @view.attrs.disabled = true
@@ -97,7 +97,7 @@ class AttributesTest < MiniTest::Unit::TestCase
 
   def test_attributes_are_mass_assignable
     hash = { title: 'foo', class: 'bar' }
-    
+
     @view.attrs(hash)
     assert_equal hash[:title], @view.attrs.title.to_s
     assert_equal hash[:class], @view.attrs.class.to_s

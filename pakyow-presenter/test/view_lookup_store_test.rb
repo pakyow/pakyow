@@ -1,6 +1,6 @@
 require 'support/helper'
 
-class ViewLookupStoreTest < MiniTest::Unit::TestCase
+class ViewLookupStoreTest < Minitest::Test
 
   def setup
     @store = ViewLookupStore.new(:test, "test/support/views")
@@ -83,7 +83,7 @@ class ViewLookupStoreTest < MiniTest::Unit::TestCase
   def test_slash
     assert(@store.view_info("/"), "No route for /")
     assert_equal("/approot.html", @store.view_info("/")[:root_view], "Wrong root_view for /")
-    
+
     assert_equal("index/main.html", @store.view_info("/")[:views]["main"], "Wrong main.html view path for /")
     assert_equal("/sidebar.html", @store.view_info("/")[:views]["sidebar"], "Wrong sidebar.html view path for /")
     assert_equal("/approot.html", @store.view_info("/")[:views]["approot"], "Wrong approot.html view path for /")

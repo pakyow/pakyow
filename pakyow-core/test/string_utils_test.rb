@@ -1,6 +1,6 @@
 require "support/helper"
 
-class StringUtilsTest < MiniTest::Unit::TestCase
+class StringUtilsTest < Minitest::Test
 
   def setup
   end

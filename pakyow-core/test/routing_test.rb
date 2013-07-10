@@ -4,7 +4,7 @@ class Pakyow::App
   attr_writer :router
 end
 
-class RoutingTest < MiniTest::Unit::TestCase
+class RoutingTest < Minitest::Test
   attr_accessor :set_registered
   attr_accessor :fn_calls
 
@@ -51,7 +51,7 @@ class RoutingTest < MiniTest::Unit::TestCase
     fn2 = lambda {}
     fn3 = lambda {}
     fn4 = lambda {}
-    
+
     set.eval {
       get('get', fn1)
     }
@@ -110,7 +110,7 @@ class RoutingTest < MiniTest::Unit::TestCase
     set.eval {
       get(':id') {}
     }
-    
+
     assert set.match('f/1', :get).nil?
     assert set.match('1', :post).nil?
     assert !set.match('1', :get).nil?
@@ -121,7 +121,7 @@ class RoutingTest < MiniTest::Unit::TestCase
     set.eval {
       get('foo/:id') {}
     }
-    
+
     assert set.match('1', :get).nil?
     assert set.match('1', :post).nil?
     assert !set.match('foo/1', :get).nil?
@@ -207,7 +207,7 @@ class RoutingTest < MiniTest::Unit::TestCase
       get('1', fn(:fn1), before: fn(:fn2), after: fn(:fn3))
       get('2', fn(:fn1), after: fn(:fn3), before: fn(:fn2))
     }
-    
+
     fns = set.match('1', :get)[0][3]
     assert_same fn2, fns[0]
     assert_same fn1, fns[1]
@@ -450,7 +450,7 @@ class RoutingTest < MiniTest::Unit::TestCase
   # RouteTemplate
   #TODO actions, namespaces are created, routes default/get/etc to set, map_actions, map_restful_actions
 
-  
+
   # RouteLookup
 
   def test_get_path_for_named_route

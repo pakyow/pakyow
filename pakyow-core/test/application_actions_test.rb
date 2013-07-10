@@ -1,6 +1,6 @@
 require 'support/helper'
 
-class ApplicationActions < MiniTest::Unit::TestCase  
+class ApplicationActions < Minitest::Test
   def test_application_can_be_halted
     reset
 
@@ -9,7 +9,7 @@ class ApplicationActions < MiniTest::Unit::TestCase
     rescue
       @halted = true
     end
-    
+
     assert_equal(true, @halted)
   end
 
@@ -45,7 +45,7 @@ class ApplicationActions < MiniTest::Unit::TestCase
     rescue
       @halted = true
     end
-    
+
     assert_equal(true, @halted)
   end
 
@@ -96,11 +96,11 @@ class ApplicationActions < MiniTest::Unit::TestCase
     Pakyow.app.request = mock_request
 
     data = 'foo'
-    
+
     catch(:halt) {
       Pakyow.app.send(data)
     }
-    
+
     assert_equal([data], Pakyow.app.response.body)
     assert_equal('text/html', Pakyow.app.response.header['Content-Type'])
   end
@@ -112,11 +112,11 @@ class ApplicationActions < MiniTest::Unit::TestCase
 
     data = 'foo'
     type = 'text'
-    
+
     catch(:halt) {
       Pakyow.app.send(data, type)
     }
-    
+
     assert_equal([data], Pakyow.app.response.body)
     assert_equal(type, Pakyow.app.response.header['Content-Type'])
   end
@@ -175,7 +175,7 @@ class ApplicationActions < MiniTest::Unit::TestCase
     assert_equal(type, Pakyow.app.response.header['Content-Type'])
     assert_equal("attachment; filename=#{as}", Pakyow.app.response.header['Content-disposition'])
   end
-  
+
   protected
 
   def reset

@@ -3,7 +3,7 @@
 # class Contact < Struct.new(:full_name, :email)
 # end
 
-# class ViewBindingTest < MiniTest::Unit::TestCase
+# class ViewBindingTest < Minitest::Test
 #   should "bind hash to view" do
 #     view = create_view_from_string(<<-D)
 #     <div class="contact">
