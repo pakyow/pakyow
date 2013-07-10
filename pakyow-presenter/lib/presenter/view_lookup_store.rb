@@ -65,12 +65,7 @@ module Pakyow
                 elsif route_views[root_part]
                   route_root_path = route_views[root_part]
                 else
-                  if Config::Base.app.dev_mode == true
-                    Log.warn("Root view #{root_part} referenced in #{vpath.sub(absolute_path_prefix, '')} was not found.")
-                  else
-                    Log.error("Root view #{root_part} referenced in #{vpath.sub(absolute_path_prefix, '')} was not found.")
-                    raise "Root view #{root_part} referenced in #{vpath.sub(absolute_path_prefix, '')} was not found."
-                  end
+                  Log.warn("Root view #{root_part} referenced in #{vpath.sub(absolute_path_prefix, '')} was not found.")
                 end
               end
               @view_store[:view_dirs][route] =
@@ -157,7 +152,7 @@ module Pakyow
           return @view_store[:view_dirs]
         end
       end
-      
+
       def real_path_info(abstract_path = nil)
         if abstract_path then
           @view_store[:abstract_paths][abstract_path]
@@ -173,7 +168,7 @@ module Pakyow
       def root_path(abstract_path)
         @view_store[:view_dirs][abstract_path][:root_view] if @view_store[:view_dirs][abstract_path]
       end
-      
+
       private
 
       # path can be of the form prefix_path/this/route.root1/overrides/some.root2/root

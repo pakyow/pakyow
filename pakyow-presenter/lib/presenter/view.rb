@@ -640,7 +640,7 @@ module Pakyow
       end
 
       def handle_unbound_data(scope, prop)
-        Log.warn("Unbound data for #{scope}[#{prop}]") if Config::Base.app.dev_mode == true
+        Log.warn("Unbound data for #{scope}[#{prop}]")
         throw :unbound
       end
 

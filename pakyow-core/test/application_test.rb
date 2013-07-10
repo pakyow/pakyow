@@ -42,10 +42,6 @@ class ApplicationTest < Minitest::Test
     assert_equal(Pakyow::App, Pakyow.app.class)
   end
 
-  def test_app_is_loaded_for_each_request_in_dev_mode_only
-    # TODO
-  end
-
   def test_global_configure_block_is_executed
     assert_equal(true, $global_config_was_executed)
   end
