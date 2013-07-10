@@ -219,6 +219,26 @@ class RoutingTest < Minitest::Test
     assert_same fn3, fns[2]
   end
 
+  def test_hooks_can_be_added_to_route_by_name
+    set = RouteSet.new
+
+    fn1 = lambda {}
+    fn2 = lambda {}
+    fn3 = lambda {}
+
+    set.eval {
+      fn(:fn1, &fn1)
+      fn(:fn2, &fn2)
+      fn(:fn3, &fn3)
+      get('1', fn(:fn1), before: [:fn2], after: [:fn3])
+    }
+
+    fns = set.match('1', :get)[0][3]
+    assert_same fn2, fns[0]
+    assert_same fn1, fns[1]
+    assert_same fn3, fns[2]
+  end
+
   def test_hooks_can_be_added_to_handler
     set = RouteSet.new
 
@@ -240,6 +260,26 @@ class RoutingTest < Minitest::Test
     assert_same fn3, fns[2]
 
     fns = set.handle(401)[2]
+    assert_same fn2, fns[0]
+    assert_same fn1, fns[1]
+    assert_same fn3, fns[2]
+  end
+
+  def test_hooks_can_be_added_to_handler_by_name
+    set = RouteSet.new
+
+    fn1 = lambda {}
+    fn2 = lambda {}
+    fn3 = lambda {}
+
+    set.eval {
+      fn(:fn1, &fn1)
+      fn(:fn2, &fn2)
+      fn(:fn3, &fn3)
+      handler(404, fn(:fn1), before: [:fn2], after: [:fn3])
+    }
+
+    fns = set.handle(404)[2]
     assert_same fn2, fns[0]
     assert_same fn1, fns[1]
     assert_same fn3, fns[2]
