@@ -5,3 +5,8 @@ rvm:
 notifications:
   email: false
   hipchat: dc38d765431b4f0b3119274f433524@Conference Room
+# whitelist
+branches:
+  only:
+    - master
+
