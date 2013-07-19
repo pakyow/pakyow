@@ -553,7 +553,14 @@ module Pakyow
 
         tag = doc.name
         return if View.tag_without_value?(tag)
-        View.self_closing_tag?(tag) ? doc['value'] = value : doc.inner_html = value
+        if View.self_closing_tag?(tag)
+          # don't override value if set
+          if !doc['value'] || doc['value'].empty?
+            doc['value'] = value
+          end
+        else
+          doc.inner_html = value
+        end
       end
 
       def bind_attributes_to_doc(attrs, doc)
