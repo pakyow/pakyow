@@ -67,7 +67,6 @@ module Pakyow
         else
           @view_path = @request && @request.working_path
         end
-        @root_path = self.current_view_lookup_store.root_path(@view_path)
       end
 
       def presented?
