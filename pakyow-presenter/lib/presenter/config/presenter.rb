@@ -4,8 +4,8 @@ module Pakyow
       Config::Base.register_config(:presenter, self)
 
       class << self
-        attr_accessor :view_caching, :javascripts, :stylesheets, :view_stores, :default_views,
-        :scope_attribute, :prop_attribute, :container_attribute
+        attr_accessor :javascripts, :stylesheets, :view_stores, :default_views,
+        :scope_attribute, :prop_attribute, :container_attribute, :template_dirs
         
         # Location of javascripts
         def javascripts
@@ -21,12 +21,26 @@ module Pakyow
           @view_stores ||= {:default => "#{Config::Base.app.root}/views"}
         end
         
-        def view_caching
-          @view_caching || false
+        def default_views(store_name = nil)
+          @default_views ||= {:default => "pakyow.html"}
         end
 
-        def default_views
-          @default_views ||= {:default => "pakyow.html"}
+        # Returns the default view for store, or default.
+        #
+        def default_view(store_name)
+          views = default_views
+          views.key?(store_name) ? views[store_name] : views[:default]
+        end
+
+        def template_dirs(store_name = nil)
+          @template_dirs ||= {:default => '_templates'}
+        end
+
+        # Returns the default template dir for store, or default.
+        #
+        def template_dir(store_name)
+          dirs = template_dirs
+          dirs.key?(store_name) ? dirs[store_name] : dirs[:default]
         end
 
         def scope_attribute

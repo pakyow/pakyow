@@ -1,6 +1,8 @@
 module Pakyow
   module Presenter
     class View
+      include DocHelpers
+
       class << self
         attr_accessor :binders
 
@@ -15,68 +17,40 @@ module Pakyow
         def tag_without_value?(tag)
           %w[select].include? tag
         end
-
-        #TODO default should be in config
-        def at_path(view_path, view_store = :default)
-          v = self.new(Pakyow.app.presenter.view_store(view_store).root_path(view_path), view_store, true)
-          v.compile(view_path, view_store)
-        end
-
-        #TODO default should be in config
-        def root_at_path(view_path, view_store = :default)
-          self.new(Pakyow.app.presenter.view_store(view_store).root_path(view_path), view_store, true)
-        end
-
       end
 
       attr_accessor :doc, :scoped_as, :scopes, :related_views
       attr_writer   :bindings
 
       def dup
-        v = self.class.new(@doc.dup)
-        v.scoped_as = self.scoped_as
-        v
+        view = self.class.from_doc(@doc.dup)
+        view.scoped_as = scoped_as
+        return view
       end
 
-      def initialize(arg = nil, view_store = :default, is_root_view = false)
+      def initialize(contents = '', format = :html)
         @related_views = []
 
-        if arg.is_a?(Nokogiri::XML::Element) || arg.is_a?(Nokogiri::XML::Document) || arg.is_a?(Nokogiri::HTML::DocumentFragment)
-          @doc = arg
-        elsif arg.is_a?(Pakyow::Presenter::ViewCollection)
-          @doc = arg.first.doc.dup
-        elsif arg.is_a?(Pakyow::Presenter::View)
-          @doc = arg.doc.dup
-        elsif arg.is_a?(String)
-          view_path = Pakyow.app.presenter.view_store(view_store).real_path(arg)
+        processed = Presenter.process(contents, format)
 
-          # run parsers
-          format = StringUtils.split_at_last_dot(view_path)[1].to_sym
-          content = parse_content(File.read(view_path), format)
-
-          if is_root_view then
-            @doc = Nokogiri::HTML::Document.parse(content)
-          else
-            @doc = Nokogiri::HTML.fragment(content)
-          end
+        if processed.match(/<html.*>/)
+          @doc = Nokogiri::HTML::Document.parse(processed)
         else
-          raise ArgumentError, "No View for you! Come back, one year."
+          @doc = Nokogiri::HTML.fragment(processed)
         end
       end
 
-      #TODO default should be in config
-      def compile(view_path, view_store = :default)
-        return unless view_info = Pakyow.app.presenter.view_store(view_store).view_info(view_path)
-        self.populate_view(self, view_store, view_info[:views])
+      def self.from_doc(doc)
+        view = self.new
+        view.doc = doc
+        return view
       end
 
-      def parse_content(content, format)
-        unless processor = Pakyow.app.presenter.processor_store[format]
-          Log.warn("No processor defined for extension #{format}") unless format.to_sym == :html
-          return content
-        end
+      def self.load(path)
+        format    = StringUtils.split_at_last_dot(path)[-1]
+        contents  = File.read(path)
 
-        processor.call(content)
+        return self.new(contents, format)
       end
 
       def title=(title)
@@ -95,12 +69,6 @@ module Pakyow
         o = @doc.css('title').first
         o.inner_html if o
       end
-
-      def to_html
-        @doc.to_html
-      end
-
-      alias :to_s :to_html
 
       # Allows multiple attributes to be set at once.
       # root_view.find(selector).attributes(:class => my_class, :style => my_style)
@@ -121,19 +89,6 @@ module Pakyow
       end
 
       alias :delete :remove
-
-      #TODO replace this with a different syntax (?): view.attributes.class.add/remove/has?(:foo)
-      # def add_class(val)
-      #   self.doc['class'] = "#{self.doc['class']} #{val}".strip
-      # end
-
-      # def remove_class(val)
-      #   self.doc['class'] = self.doc['class'].gsub(val.to_s, '').strip if self.doc['class']
-      # end
-
-      # def has_class(val)
-      #   self.doc['class'].include? val
-      # end
 
       def clear
         return if self.doc.blank?
@@ -207,6 +162,10 @@ module Pakyow
 
         self.update_binding_offset_at_path(num, path)
         self.refind_significant_nodes
+      end
+
+      def replace(view)
+        doc.replace(view)
       end
 
       def scope(name)
@@ -329,38 +288,11 @@ module Pakyow
         views = self.match(data).bind(data, bindings, &block)
       end
 
-      def container(name)
-        matches = self.containers.select{|c| c[:name].to_sym == name.to_sym}
-
-        vs = ViewCollection.new
-        matches.each{|m| vs << view_from_path(m[:path])}
-        vs
-      end
-
-      def containers(refind = false)
-        @containers = (!@containers || refind) ? self.find_containers : @containers
-      end
-
       def bindings(refind = false)
         @bindings = (!@bindings || refind) ? self.find_bindings : @bindings
       end
 
-      def view_from_path(path)
-        v = View.new(doc_from_path(path))
-        v.related_views << self
-        v
-      end
-
       protected
-
-      def add_content_to_container(content, container)
-        content = content.doc unless content.class == String || content.class == Nokogiri::HTML::DocumentFragment || content.class == Nokogiri::XML::Element
-        container.add_child(content)
-      end
-
-      def reset_container(container)
-        container.inner_html = ''
-      end
 
       # populates the root_view using view_store data by recursively building
       # and substituting in child views named in the structure
@@ -375,16 +307,6 @@ module Pakyow
         root_view
       end
 
-      # returns an array of hashes, each with the container name and doc
-      def find_containers
-        elements = []
-        @doc.traverse {|e|
-          if name = e.attr(Config::Presenter.container_attribute)
-            elements << { :name => name, :doc => e, :path => path_to(e)}
-          end
-        }
-        elements
-      end
 
       # returns an array of hashes that describe each scope
       def find_bindings(doc = @doc, ignore_root = false)
@@ -442,58 +364,6 @@ module Pakyow
         }
       end
 
-      def breadth_first(doc)
-        queue = [doc]
-        until queue.empty?
-          node = queue.shift
-          catch(:reject) {
-            yield node
-            queue.concat(node.children)
-          }
-        end
-      end
-
-      def path_to(child)
-        path = []
-
-        return path if child == @doc
-
-        child.ancestors.each {|a|
-          # since ancestors goes all the way to doc root, stop when we get to the level of @doc
-          break if a.children.include?(@doc)
-
-          path.unshift(a.children.index(child))
-          child = a
-        }
-
-        return path
-      end
-
-      def path_within_path?(child_path, parent_path)
-        parent_path.each_with_index {|pp_step, i|
-          return false unless pp_step == child_path[i]
-        }
-
-        true
-      end
-
-      def doc_from_path(path)
-        o = @doc
-
-        # if path is empty we're at self
-        return o if path.empty?
-
-        path.each {|i|
-          if child = o.children[i]
-            o = child
-          else
-            break
-          end
-        }
-
-        return o
-      end
-
       def update_binding_offset_at_path(offset, path)
         # update binding paths for bindings we're iterating on
         self.bindings.each {|binding|
@@ -509,7 +379,6 @@ module Pakyow
 
       def refind_significant_nodes
         self.bindings(true)
-        self.containers(true)
 
         @related_views.each {|v|
           v.refind_significant_nodes
@@ -650,7 +519,6 @@ module Pakyow
         Log.warn("Unbound data for #{scope}[#{prop}]")
         throw :unbound
       end
-
     end
   end
 end

@@ -2,13 +2,15 @@ require 'support/helper'
 
 class BindingsTest < Minitest::Test
   def setup
-    Pakyow::App.stage(:test)
-    Pakyow::Router.instance.set(:default) {
-      expand(:restful, :bar, 'bar') {
-        action(:create) {}
-        action(:update) {}
+    capture_stdout do
+      Pakyow::App.stage(:test)
+      Pakyow::Router.instance.set(:default) {
+        expand(:restful, :bar, 'bar') {
+          action(:create) {}
+          action(:update) {}
+        }
       }
-    }
+    end
   end
 
   def test_restful_bindings_are_defined
@@ -18,7 +20,9 @@ class BindingsTest < Minitest::Test
       }
     }
 
-    Pakyow.app.presenter.load
+    capture_stdout do
+      Pakyow.app.presenter.load
+    end
 
     data = Pakyow.app.presenter.binder.value_for_prop(:action, :foo, {})
 
@@ -30,7 +34,7 @@ class BindingsTest < Minitest::Test
     assert_equal '/bar/1',  data[:action]
     assert_equal 'post',    data[:method]
 
-    view = View.new(Nokogiri::HTML.fragment(''))
+    view = View.from_doc(Nokogiri::HTML.fragment(''))
     data[:view].call(view)
     doc = view.doc.children[0]
     assert_equal 'hidden',  doc[:type]

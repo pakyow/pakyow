@@ -18,7 +18,7 @@ module Pakyow
     def path
       self.path_info
     end
-    
+
     # Determines the request method.
     def method
       request_method.downcase.to_sym
@@ -26,7 +26,7 @@ module Pakyow
 
     def format=(format)
       @format = format ? format.to_sym : :html
-      
+
       # Set response type
       @app.response["Content-Type"] = Rack::Mime.mime_type(".#{@format}")
     end
@@ -34,16 +34,16 @@ module Pakyow
     def session
       self.env['rack.session'] || {}
     end
-    
+
     def cookies
       @cookies ||= HashUtils.strhash(super)
     end
-    
+
     # Returns indifferent params (see {HashUtils.strhash} for more info on indifferent hashes).
     def params
       @params ||= HashUtils.strhash(super)
     end
-    
+
     # Returns array of url components.
     def path_parts
       @url ||= self.path ? self.class.split_url(self.path) : []
@@ -52,7 +52,7 @@ module Pakyow
     def referer
       @referer ||= self.env['HTTP_REFERER']
     end
-    
+
     # Returns array of referer components.
     def referer_parts
       @referer_parts ||= self.referer ? self.class.split_url(self.referer) : []
@@ -69,8 +69,14 @@ module Pakyow
       url.split('/').each { |r|
         arr << r unless r.empty?
       }
-      
+
       return arr
+    end
+
+    def has_route_vars?
+      return false if @route_path.nil?
+      return false if @route_path.is_a?(Regexp)
+      return true  if @route_path.index(':')
     end
 
     protected

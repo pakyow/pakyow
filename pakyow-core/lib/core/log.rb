@@ -1,5 +1,5 @@
 module Pakyow
-  
+
   # Provides an easy way to log text, warnings, etc.
   class Log
     # Opens stdout and the log file for writing.
@@ -15,10 +15,10 @@ module Pakyow
       @@file.close if @@file
     end
 
-    # Adds text to the log. 
+    # Adds text to the log.
     def self.puts(text = "")
       return if !Config::Base.app.log
-      
+
       @@console << "#{text}\r\n"
       @@file.write "#{text}\r\n" if @@file
     end
@@ -26,7 +26,7 @@ module Pakyow
     class << self
       alias :enter :puts
     end
-    
+
     # Adds warning text to the log.
     def self.warn(text)
       Log.enter("WARNING: #{text}")
@@ -37,4 +37,6 @@ module Pakyow
       Log.enter("ERROR: #{text}")
     end
   end
+
+  Log.reopen
 end

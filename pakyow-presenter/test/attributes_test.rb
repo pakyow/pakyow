@@ -2,11 +2,11 @@ require 'support/helper'
 
 class AttributesTest < Minitest::Test
   def setup
-    Pakyow::App.stage(:test)
-    @view_store = :test
-
-    @coll = View.at_path("attributes", @view_store).scope(:attrs)
-    @view = @coll[0]
+    capture_stdout do
+      Pakyow::App.stage(:test)
+      @coll = Pakyow.app.presenter.store.view("attributes").scope(:attrs)
+      @view = @coll[0].dup
+    end
   end
 
   def test_text_attributes_are_settable

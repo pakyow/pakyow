@@ -1,11 +1,12 @@
-require 'support/helper'
+require_relative 'support/helper'
 
 class ProcessorTest < Minitest::Test
 
   def setup
-    @view_store = :test
-    Pakyow::App.stage(:test)
-    Pakyow.app.presenter.view_store = @view_store
+    capture_stdout do
+      Pakyow::App.stage(:test)
+      Pakyow.app.presenter.setup
+    end
   end
 
   def teardown
@@ -13,13 +14,13 @@ class ProcessorTest < Minitest::Test
   end
 
   def test_processor_processes
-    v = View.at_path("processor", @view_store)
-    assert_equal v.container(:main)[0].html, 'foobar'
+    v = Pakyow.app.presenter.store.view("processor")
+    assert_equal 'foobar', v.doc.css('body').inner_text.strip
   end
 
   def test_processor_processes_multiple_formats
-    v = View.at_path("processor2", @view_store)
-    assert_equal v.container(:main)[0].html, 'foobar'
+    v = Pakyow.app.presenter.store.view("processor2")
+    assert_equal 'foobar', v.doc.css('body').inner_text.strip
   end
 
 end

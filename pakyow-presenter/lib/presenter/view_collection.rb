@@ -2,15 +2,15 @@ module Pakyow
   module Presenter
     class ViewCollection
       include Enumerable
-      
+
       def initialize
         @views = []
       end
-      
+
       def each
         @views.each { |v| yield(v) }
       end
-      
+
       def attributes(attrs = {})
         collection = AttributesCollection.new
         self.each{|v| collection << v.attributes(attrs)}
@@ -18,27 +18,27 @@ module Pakyow
       end
 
       alias :attrs :attributes
-      
+
       def remove
         self.each {|e| e.remove}
       end
-      
+
       alias :delete :remove
-      
+
       # SEE COMMENT IN VIEW
       # def add_class(val)
       #   self.each {|e| e.add_class(val)}
       # end
-      
+
       # SEE COMMENT IN VIEW
       # def remove_class(val)
       #   self.each {|e| e.remove_class(val)}
       # end
-      
+
       def clear
         self.each {|e| e.clear}
       end
-      
+
       def text
         self.map { |v| v.text }
       end
@@ -64,15 +64,15 @@ module Pakyow
       def append(content)
         self.each {|e| e.append(content)}
       end
-      
+
       alias :render :append
-     
+
       def <<(val)
         if val.is_a? View
           @views << val
         end
       end
-      
+
       def [](i)
         @views[i]
       end
@@ -87,7 +87,7 @@ module Pakyow
           next unless svs = v.scope(name)
           svs.each{|sv| views << sv}
         }
-        
+
         views
       end
 
@@ -97,7 +97,7 @@ module Pakyow
           next unless svs = v.prop(name)
           svs.each{|sv| views << sv}
         }
-        
+
         views
       end
 
@@ -105,7 +105,7 @@ module Pakyow
       #   with {|view| block}
       #
       # Creates a context in which view manipulations can be performed.
-      # 
+      #
       # Unlike previous versions, the context can only be referenced by the
       # block argument. No `context` method will be available.s
       #
@@ -117,10 +117,10 @@ module Pakyow
       # call-seq:
       #   for {|view, datum| block}
       #
-      # Yields a view and its matching dataum. Datums are yielded until 
-      # no more views or data is available. For the ViewCollection case, this 
+      # Yields a view and its matching dataum. Datums are yielded until
+      # no more views or data is available. For the ViewCollection case, this
       # means the block will be yielded self.length times.
-      # 
+      #
       # (this is basically Bret's `map` function)
       #
       def for(data, &block)

@@ -1,6 +1,27 @@
 module Pakyow
   module Presenter
     class Presenter
+      class << self
+        def process(contents, format)
+          format = format.to_sym
+
+          unless app = Pakyow.app
+            return contents
+          end
+
+          unless presenter = app.presenter
+            return contents
+          end
+
+          unless processor = presenter.processor_store[format]
+            Log.warn("No processor defined for extension #{format}") unless format == :html
+            return contents
+          end
+
+          return processor.call(contents)
+        end
+      end
+
       Pakyow::App.before(:init) {
         @presenter = Presenter.new
       }
@@ -29,27 +50,37 @@ module Pakyow
         end
       }
 
-      attr_accessor :processor_store, :view_store, :binder
+      attr_accessor :processor_store, :binder, :path, :template, :page
 
       def initialize
-        reset
+        load
+        setup
       end
 
-      def current_view_lookup_store
-        view_store(@view_store)
+      def setup
+        @view, @template, @page = nil
+        @constructed = false
+        self.store   = :default
       end
 
-      def view_store(name = nil)
+      def store(name = nil)
         if name
           @view_stores[name]
         else
-          @view_store
+          @view_stores[@store]
         end
       end
 
-      #
-      # Methods that are called by core. This is the interface that core expects a Presenter to have
-      #
+      def store=(name)
+        @store = name
+
+        return unless @path
+        @template = store.template(@path)
+        @page     = store.page(@path)
+      rescue StandardError => e # catches no view path error
+        Log.warn e.message
+        @constructed = false
+      end
 
       def load
         load_processors
@@ -57,21 +88,21 @@ module Pakyow
         load_bindings
       end
 
-      def prepare_for_request(request)
-        reset
-
+      def prepare_for_request(request)        
         @request = request
 
-        if @request && @request.route_path && !@request.route_path.is_a?(Regexp) && @request.route_path.index(':')
-          @view_path = StringUtils.remove_route_vars(@request.route_path)
+        if @request.has_route_vars?
+          @path = StringUtils.remove_route_vars(@request.route_path)
         else
-          @view_path = @request && @request.working_path
+          @path = @request.working_path
         end
+
+        setup
       end
 
       def presented?
-        self.ensure_root_view_built
-        @presented
+        ensure_construction
+        @constructed
       end
 
       def content
@@ -79,110 +110,68 @@ module Pakyow
         view.to_html
       end
 
-      #TODO rename to to use root_view, compiled_view naming convention
       def view
-        ensure_root_view_built
-        @root_view
+        ensure_construction
+        @view
       end
 
-      def view=(v)
-        @root_view = View.new(v, @view_store)
-        @root_view_is_built = true
-        @presented = true
-
-        # reset paths
-        @view_path = nil
-        @root_path = nil
+      def partial(name)
+        store.partial(@path, name)
       end
 
-      def root
-        @is_compiled = false
-        @root ||= View.root_at_path(@root_path, @view_store)
+      def view=(view)
+        @view = view
+        @constructed = true
+
+        # reset view path
+        @path = nil
       end
 
-      def root=(v)
-        @is_compiled = false
-        @root = v
+      def template=(template)
+        unless template.is_a?(Template)
+          # get template by name
+          template = store.template(template)
+        end
+
+        @template = template
+        @constructed = false
       end
 
-      def view_path
-        @view_path
+      def page=(page)
+        @page = page
+        @constructed = false
       end
 
-      def view_path=(path)
-        @is_compiled = false
-        @view_path = path
+      def path=(path)
+        @path = path
+        @constructed = false
       end
 
-      def root_path
-        @root_path
+      def ensure_construction
+        # only construct once
+        return if @constructed
+
+        # if no template/page was found, we can't construct
+        return if @template.nil? || @page.nil?
+
+        # construct
+        @view = @template.build(@page)
+        @constructed = true
       end
 
-      def root_path=(abstract_path)
-        @is_compiled = false
-        @root = nil
-        @root_path = abstract_path
-      end
-
-      #
-      # Used by LazyView
-      #
-
-      def ensure_root_view_built
-        build_root_view unless @root_view_is_built
-      end
-
-      def reset
-        @view_store = :default
-        @presented = false
-        @root_view_is_built = false
-      end
-
-      #
       protected
-      #
-
-      def build_root_view
-        @root_view_is_built = true
-
-        return unless v_p = @view_path
-
-        return unless view_info = self.current_view_lookup_store.view_info(v_p)
-        @root_path ||= view_info[:root_view]
-
-        if Config::Base.presenter.view_caching
-          r_v = @populated_root_view_cache.get([v_p, @root_path]) {
-            populate_view(LazyView.new(@root_path, @view_store, true), view_info[:views])
-          }
-          @root_view = r_v.dup
-          @presented = true
-        else
-          @root_view = populate_view(LazyView.new(@root_path, @view_store, true), view_info[:views])
-          @presented = true
-        end
-      end
-
-      def restful_view_path(restful_info)
-        if restful_info[:restful_action] == :show
-          "#{StringUtils.remove_route_vars(@request.route_spec)}/show"
-        else
-          StringUtils.remove_route_vars(@request.route_spec)
-        end
-      end
 
       def load_views
         @view_stores = {}
-        Config::Presenter.view_stores.each_pair {|name, path|
-          @view_stores[name] = ViewLookupStore.new(name, path)
-        }
 
-        if Config::Base.presenter.view_caching then
-          @populated_root_view_cache = build_root_view_cache(self.current_view_lookup_store.view_info)
-        end
+        Config::Presenter.view_stores.each_pair {|name, path|
+          @view_stores[name] = ViewStore.new(path, name)
+        }
       end
 
       def load_bindings
         @binder = Binder.instance.reset
+
         Pakyow::App.bindings.each_pair {|set_name, block|
           @binder.set(set_name, &block)
         }
@@ -191,40 +180,6 @@ module Pakyow
       def load_processors
         @processor_store = Pakyow::App.processors
       end
-
-      def build_root_view_cache(view_info)
-        cache = Pakyow::Cache.new
-        view_info.each{|dir,info|
-          r_v = LazyView.new(info[:root_view], @view_store, true)
-          populate_view(r_v, info[:views])
-          key = [dir, info[:root_view]]
-          cache.put(key, r_v)
-        }
-        cache
-      end
-
-      # populates the top_view using view_store data by recursively building
-      # and substituting in child views named in the structure
-      def populate_view(top_view, views)
-        top_view.containers.each {|e|
-          next unless path = views[e[:name]]
-
-          v = populate_view(View.new(path, @view_store), views)
-          self.reset_container(e[:doc])
-          self.add_content_to_container(v, e[:doc])
-        }
-        top_view
-      end
-
-      def add_content_to_container(content, container)
-        content = content.doc unless content.class == String || content.class == Nokogiri::HTML::DocumentFragment || content.class == Nokogiri::XML::Element
-        container.add_child(content)
-      end
-
-      def reset_container(container)
-        container.inner_html = ''
-      end
-
     end
   end
 end

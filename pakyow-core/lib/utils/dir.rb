@@ -30,5 +30,8 @@ module Pakyow
         }
       end
 
+      def self.dir_within_dir?(dir1, dir2)
+        (dir1.split('/') - dir2.split('/')).empty?
+      end
   end
 end

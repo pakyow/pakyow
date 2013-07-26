@@ -52,7 +52,7 @@ class ViewScopesTest < Minitest::Test
   private
 
   def create_view_from_string(string)
-    View.new(Nokogiri::HTML.fragment(string))
+    View.from_doc(Nokogiri::HTML.fragment(string))
   end
 
 end
