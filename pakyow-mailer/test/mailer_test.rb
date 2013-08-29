@@ -3,7 +3,6 @@ require 'support/helper'
 class MailerTest < Minitest::Test
   def setup
     Pakyow::App.stage(:test)
-    Pakyow.app.presenter.view_store = :mailer
   end
 
   def test_mailer_is_properly_initialized
@@ -15,8 +14,7 @@ class MailerTest < Minitest::Test
 
   def test_setting_view_sets_message_body
     m = self.mailer
-
-    assert_equal(File.open("test/views/test_message.email/main.html", "rb").read, m.view.container(:main)[0].html)
+    assert_equal('Hello From Pakyow Mailer', m.view.doc.css('body').children[0].inner_html.strip)
   end
 
   def test_subject_is_set
@@ -49,6 +47,7 @@ class MailerTest < Minitest::Test
   end
 
   def mailer
-    TestMailer.new("test_message", :mailer)
+
+    TestMailer.new("test_message", Pakyow.app.presenter.store)
   end
 end

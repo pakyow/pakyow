@@ -2,8 +2,8 @@ module Pakyow
   class Mailer
     attr_accessor :view, :message
   
-    def initialize(view_path, view_store = :default)
-      @view = View.at_path(view_path, view_store)
+    def initialize(view_path, view_store)
+      @view = view_store.view(view_path)
       
       @message               = Mail.new
       @message.from          = Config::Base.mailer.default_sender

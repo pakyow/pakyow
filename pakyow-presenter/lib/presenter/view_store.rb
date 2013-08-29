@@ -81,6 +81,9 @@ module Pakyow
       @path_info = {}
 
       DirUtils.walk_dir(@store_path) do |path|
+        # skip root
+        next if path == @store_path
+
         # don't include templates
         next if path.include?(templates_path)
 
@@ -97,6 +100,7 @@ module Pakyow
         # partials to be overridden at a path while the same
         # page is used
         if File.directory?(path)
+          pp "foo #{path}"
           # gets the path for the previous page
           prev_path = normalized_path.split('/')[0..-2].join("")
           page = @path_info[prev_path][:page]
