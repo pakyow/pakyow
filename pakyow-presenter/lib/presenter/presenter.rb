@@ -53,7 +53,6 @@ module Pakyow
       attr_accessor :processor_store, :binder, :path, :template, :page
 
       def initialize
-        load
         setup
       end
 
@@ -75,8 +74,9 @@ module Pakyow
         @store = name
 
         return unless @path
-        @template = store.template(@path)
-        @page     = store.page(@path)
+        self.template = store.template(@path)
+        self.page     = store.page(@path)
+        self.view     = store.view(@path)
       rescue StandardError => e # catches no view path error
         Log.warn e.message
         @constructed = false
@@ -122,9 +122,6 @@ module Pakyow
       def view=(view)
         @view = view
         @constructed = true
-
-        # reset view path
-        @path = nil
       end
 
       def template=(template)
