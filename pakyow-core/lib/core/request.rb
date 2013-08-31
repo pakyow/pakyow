@@ -7,11 +7,6 @@ module Pakyow
     def initialize(*args)
       super
 
-      #TODO move to app
-      @initial_cookies = []
-      self.cookies.each {|k|
-        @initial_cookies
-      }
     end
 
     # Easy access to path_info.

@@ -224,6 +224,8 @@ module Pakyow
       @request.app = self
       @request.setup
 
+      set_initial_cookies
+
       @found = false
       catch(:halt) {
         unless config.app.ignore_routes
@@ -380,7 +382,9 @@ module Pakyow
     def set_cookies
       @request.cookies.each_pair {|k, v|
         @response.unset_cookie(k) if v.nil?
-        next if @request.initial_cookies.include?(k.to_s) # cookie is already set, ignore
+
+        # cookie is already set with value, ignore
+        next if @initial_cookies.include?(k.to_s) && @initial_cookies[k.to_s] == v
 
         # set cookie with defaults
         @response.set_cookie(k, {
@@ -391,8 +395,17 @@ module Pakyow
       }
 
       # delete cookies that are no longer present
-      @request.initial_cookies.each {|k|
-        @response.unset_cookie(k) unless @request.cookies.key?(k.to_s)
+      @initial_cookies.each {|k|
+        @response.delete_cookie(k) unless @request.cookies.key?(k.to_s)
+      }
+    end
+
+    # Stores set cookies at beginning of request cycle
+    # for comparison at the end of the cycle
+    def set_initial_cookies
+      @initial_cookies = {}
+      @request.cookies.each {|k,v|
+        @initial_cookies[k] = v
       }
     end
 
