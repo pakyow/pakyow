@@ -35,6 +35,11 @@ module Pakyow
       # Defines middleware to be loaded.
       #
       def middleware(&block)
+        # prevents middleware from being loaded on each
+        # request when auto_reload is enabled
+        return if prepared?
+
+        # tell builder about the middleware
         builder.instance_eval(&block)
       end
 
