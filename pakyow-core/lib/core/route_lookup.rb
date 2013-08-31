@@ -7,8 +7,8 @@ module Pakyow
     include Helpers
 
     def path(name, data = nil)
-      if route = self.get_named_route(name)
-        data ? self.populate(route, data) : File.join('/', route[4])
+      if route = get_named_route(name)
+        data ? populate(route, data) : File.join('/', route[4])
       end
     end
 
@@ -33,10 +33,17 @@ module Pakyow
       split_path = Request.split_url(route[4])
       
       vars.each {|v|
-        split_path[v[:url_position]] = data[v[:var]]
+        split_path[v[:url_position]] = data.delete(v[:var])
       }
 
-      File.join('/', split_path.join('/'))
+      populated = File.join('/', split_path.join('/'))
+
+      # add remaining data to query string
+      unless data.empty?
+        populated << '/?' + data.map { |k,v| "#{k}=#{v}" }.join('&')
+      end
+
+      return populated
     end
   end
 end
