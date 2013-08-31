@@ -59,8 +59,8 @@ class ApplicationActions < Minitest::Test
     Pakyow.app.request = mock_request
     Pakyow.app.reroute(path)
 
-    assert_equal :get, Pakyow.app.request.working_method
-    assert_equal path, Pakyow.app.request.working_path
+    assert_equal :get, Pakyow.app.request.method
+    assert_equal path, Pakyow.app.request.path
     assert router.rerouted
   end
 
@@ -75,8 +75,8 @@ class ApplicationActions < Minitest::Test
     Pakyow.app.request = mock_request
     Pakyow.app.reroute(path, method)
 
-    assert_equal method, Pakyow.app.request.working_method
-    assert_equal path, Pakyow.app.request.working_path
+    assert_equal method, Pakyow.app.request.method
+    assert_equal path, Pakyow.app.request.path
     assert router.rerouted
   end
 

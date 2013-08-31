@@ -90,8 +90,8 @@ module Pakyow
     # returns the list of route functions for that route.
     #
     def match(request)
-      path   = StringUtils.normalize_path(request.working_path)
-      method = request.working_method
+      path   = StringUtils.normalize_path(request.path)
+      method = request.method
 
       match, data = nil
       @sets.each { |set|

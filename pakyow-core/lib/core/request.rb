@@ -2,28 +2,49 @@ module Pakyow
 
   # The Request object.
   class Request < Rack::Request
-    attr_accessor :restful, :route_path, :controller, :action, :format, :error, :working_path, :working_method, :initial_cookies, :app
+    attr_accessor :restful, :route_path, :controller, :action, :format, 
+    :error, :app, :path, :method, :paths, :methods, :formats
 
     def initialize(*args)
       super
 
+      @paths = []
+      @methods = []
+      @formats = []
+
+      @path = path_info
+      @method = request_method.downcase.to_sym
     end
 
-    # Easy access to path_info.
-    def path
-      self.path_info
+    def path=(path)
+      @paths << path
+      @path = path
     end
 
-    # Determines the request method.
-    def method
-      request_method.downcase.to_sym
+    def method=(method)
+      @methods << method
+      @method = method
     end
 
     def format=(format)
-      @format = format ? format.to_sym : :html
+      format = format ? format.to_sym : :html
+      @formats << format
+      @format = format
 
       # Set response type
       @app.response["Content-Type"] = Rack::Mime.mime_type(".#{@format}")
+    end
+
+    def first_path
+      @paths[0]
+    end
+
+    def first_method
+      @methods[0]
+    end
+
+    def first_format
+      @formats[0]
     end
 
     def session
@@ -41,21 +62,21 @@ module Pakyow
 
     # Returns array of url components.
     def path_parts
-      @url ||= self.path ? self.class.split_url(self.path) : []
+      @url ||= path ? self.class.split_url(path) : []
     end
 
     def referer
-      @referer ||= self.env['HTTP_REFERER']
+      @referer ||= env['HTTP_REFERER']
     end
 
     # Returns array of referer components.
     def referer_parts
-      @referer_parts ||= self.referer ? self.class.split_url(self.referer) : []
+      @referer_parts ||= referer ? self.class.split_url(referer) : []
     end
 
     def setup(path = self.path, method = nil)
-      self.set_request_format_from_path(path)
-      self.set_working_path_from_path(path, method)
+      set_request_format_from_path(path)
+      set_working_path_from_path(path, method)
     end
 
     #TODO move to util class
@@ -79,8 +100,8 @@ module Pakyow
     def set_working_path_from_path(path, method)
       base_route, ignore_format = StringUtils.split_at_last_dot(path)
 
-      self.working_path = base_route
-      self.working_method = method || self.method
+      self.path = base_route
+      self.method = method || self.method
     end
 
     def set_request_format_from_path(path)

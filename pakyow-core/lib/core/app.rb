@@ -298,6 +298,7 @@ module Pakyow
       @request.setup(path, method)
 
       call_stack(:before, :route)
+      call_stack(:after, :match)
       @router.reroute(@request)
       call_stack(:after, :route)
     end

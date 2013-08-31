@@ -153,7 +153,7 @@ class PresenterTest < Minitest::Test
 
   def request(path = '/', method = 'GET')
     req = Pakyow::Request.new({ "PATH_INFO" => path, "REQUEST_METHOD" => method, "rack.input" => {} })
-    req.working_path = path
+    req.path = path
     req
   end
 

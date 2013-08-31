@@ -94,7 +94,7 @@ module Pakyow
         if @request.has_route_vars?
           @path = StringUtils.remove_route_vars(@request.route_path)
         else
-          @path = @request.working_path
+          @path = @request.path
         end
 
         setup
