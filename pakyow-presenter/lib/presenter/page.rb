@@ -85,7 +85,7 @@ module Pakyow
         @contents = Presenter.process(@contents, @format)
 
         # find content in named containers
-        within_regex = /<!--\s*@within\s*([a-zA-Z0-9]*)\s*-->(.*?)<!--\s*\/within\s*-->/m
+        within_regex = /<!--\s*@within\s*([a-zA-Z0-9\-_]*)\s*-->(.*?)<!--\s*\/within\s*-->/m
 
         @contents.scan(within_regex) do |m|
           container = m[0].to_sym
@@ -100,7 +100,7 @@ module Pakyow
       def find_partials
         partials = {}
 
-        partial_regex = /<!--\s*@include\s*([a-zA-Z0-9]*)\s*-->/
+        partial_regex = /<!--\s*@include\s*([a-zA-Z0-9\-_]*)\s*-->/
         @content.each do |name, content|
           content.scan(partial_regex) do |m|
             partials[name] ||= []

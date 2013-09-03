@@ -66,7 +66,7 @@ module Pakyow
 
         @doc.traverse {|e|
           next unless e.is_a?(Nokogiri::XML::Comment)
-          next unless match = e.text.strip.match(/@container( ([a-zA-Z0-9]*))*/)
+          next unless match = e.text.strip.match(/@container( ([a-zA-Z0-9\-_]*))*/)
           name = match[2] || :default
 
           containers[name.to_sym] = { doc: e, path: path_to(e) }
