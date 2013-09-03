@@ -1,6 +1,8 @@
 module Pakyow
   module Presenter
     class Page
+      MATTER_MATCHER = /^(---\s*\n.*?\n?)^(---\s*$\n?)/m
+
       class << self
         def load(path)
           format   = StringUtils.split_at_last_dot(path)[-1]
@@ -69,7 +71,7 @@ module Pakyow
       private
 
       def parse_info
-        info = YAML.load(@contents)
+        info = parse_front_matter(@contents)
         info = {} if !info || !info.is_a?(Hash)
 
         @info = HashUtils.symbolize(info)
@@ -107,6 +109,11 @@ module Pakyow
         end
 
         return partials
+      end
+
+      def parse_front_matter(contents)
+        matter = YAML.load(contents.match(MATTER_MATCHER).to_s)
+        return matter
       end
     end
   end
