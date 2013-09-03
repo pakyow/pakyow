@@ -39,6 +39,13 @@ module Pakyow
       return at_path(view_path, :partials)[name.to_sym]
     end
 
+    # iterations through known views, yielding each
+    def views
+      @path_info.each_pair do |path, info|
+        yield(info[:view], path)
+      end
+    end
+
     private
 
     def at_path(view_path, obj = nil)
@@ -102,7 +109,6 @@ module Pakyow
         # partials to be overridden at a path while the same
         # page is used
         if File.directory?(path)
-          pp "foo #{path}"
           # gets the path for the previous page
           prev_path = normalized_path.split('/')[0..-2].join("")
           page = @path_info[prev_path][:page]
