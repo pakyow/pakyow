@@ -4,7 +4,7 @@ module Pakyow
       Config::Base.register_config(:app, self)
 
       class << self
-        attr_accessor :log, :public_dir, :root, :log_dir,
+        attr_accessor :log, :resources, :root, :log_dir,
         :default_action, :ignore_routes, :error_level,
         :default_environment, :path, :log_name, :src_dir,
         :auto_reload, :errors_in_browser, :static, :all_views_visible,
@@ -37,9 +37,9 @@ module Pakyow
           @root || File.dirname('')
         end
 
-        # Public directory
-        def public_dir
-          @public_dir || "#{root}/public"
+        # Resources directory
+        def resources
+          @resources ||= { :default => "#{root}/public" }
         end
 
         # Log directory
