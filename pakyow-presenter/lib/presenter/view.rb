@@ -247,7 +247,7 @@ module Pakyow
           d_v = self.doc.dup
           self.doc.before(d_v)
 
-          v = View.new(d_v)
+          v = View.from_doc(d_v)
           v.bindings = self.bindings.dup
           v.scoped_as = self.scoped_as
 
