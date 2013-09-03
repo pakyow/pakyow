@@ -1,5 +1,7 @@
 module Pakyow
   class ViewStore
+    attr_reader :name
+
     def initialize(store_path, name = :default)
       @name = name
       @store_path = store_path
