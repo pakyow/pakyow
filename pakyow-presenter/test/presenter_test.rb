@@ -21,10 +21,11 @@ class PresenterTest < Minitest::Test
 
     page = @presenter.store.page(@path)
     template = @presenter.store.template(@path)
+    view = @presenter.store.view(@path)
 
     assert_equal page, @presenter.page
     assert_equal template, @presenter.template
-    assert_equal template.build(page).to_html, @presenter.view.to_html
+    assert_equal view.to_html, @presenter.view.to_html
   end
 
   def test_path_can_be_set_and_retrieved
