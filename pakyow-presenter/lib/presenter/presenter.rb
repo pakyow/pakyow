@@ -74,12 +74,7 @@ module Pakyow
         @store = name
 
         return unless @path
-        self.template = store.template(@path)
-        self.page     = store.page(@path)
-        self.view     = store.view(@path)
-      rescue StandardError => e # catches no view path error
-        Log.warn e.message
-        @constructed = false
+        setup_for_path
       end
 
       def load
@@ -141,7 +136,7 @@ module Pakyow
 
       def path=(path)
         @path = path
-        @constructed = false
+        setup_for_path
       end
 
       def ensure_construction
@@ -157,6 +152,17 @@ module Pakyow
       end
 
       protected
+
+      def setup_for_path
+        self.template = store.template(@path)
+        self.page     = store.page(@path)
+        self.view     = store.view(@path)
+
+        @constructed = true
+      rescue StandardError => e # catches no view path error
+        Log.warn e.message
+        @constructed = false
+      end
 
       def load_views
         @view_stores = {}
