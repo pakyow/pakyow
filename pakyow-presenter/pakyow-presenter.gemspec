@@ -27,4 +27,5 @@ Gem::Specification.new do |s|
   s.add_dependency('nokogiri', '~> 1.6')
 
   s.add_development_dependency('minitest', '~> 5.0')
+  s.add_development_dependency('pry', '~> 0.9')
 end

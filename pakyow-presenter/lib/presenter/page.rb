@@ -46,7 +46,15 @@ module Pakyow
           partial_list.each do |partial_name|
             regex = /<!--\s*@include\s*#{partial_name}\s*-->/
             @content[container].gsub!(regex, partial_map[partial_name].to_s)
+
+            partial_map.delete(partial_name)
           end
+        end
+
+        # we have more partials
+        if partial_map.count > 0
+          # initiate another build if content contains partials
+          build(partial_map) if partials(true).count > 0
         end
 
         return self

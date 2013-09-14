@@ -69,6 +69,10 @@ class ViewStoreTest < Minitest::Test
     assert_equal('partial1.1', @store.view('/partial/override').doc.css('body').children.to_html.strip)
   end
 
+  def test_partials_include_other_partials
+    assert_equal('partial2', @store.view('/partial/inception').doc.css('body').children.to_html.strip)
+  end
+
   def test_template_is_retrievable_by_name
     template = @store.template(:multi)
     assert_equal 'multi', template.doc.css('title').inner_html.strip

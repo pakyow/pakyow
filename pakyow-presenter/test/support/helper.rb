@@ -2,6 +2,7 @@ require 'rubygems'
 require 'minitest'
 require 'minitest/unit'
 require 'minitest/autorun'
+require 'pry'
 require 'pp'
 
 require File.expand_path('../../../../pakyow-core/lib/pakyow-core', __FILE__)
@@ -19,5 +20,5 @@ def capture_stdout(&block)
     $stdout = original_stdout
     Pakyow::Log.reopen
   end
- fake.string
+  fake.string
 end
