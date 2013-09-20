@@ -327,6 +327,8 @@ module Pakyow
     # Redirects to location (immediately).
     #
     def redirect(location, status_code = 302)
+      location = router.path(location) if location.is_a?(Symbol)
+      
       headers = response ? response.header : {}
       headers = headers.merge({'Location' => location})
 

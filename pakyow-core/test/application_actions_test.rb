@@ -25,6 +25,18 @@ class ApplicationActions < Minitest::Test
     assert_equal(location, Pakyow.app.response.header['Location'])
   end
 
+  def test_application_redirect_issues_route_lookup
+    reset
+    
+    begin
+      Pakyow.app.redirect(:redirect_route)
+    rescue
+    end
+
+    assert_equal(302, Pakyow.app.response.status)
+    assert_equal('/redirect', Pakyow.app.response.header['Location'])
+  end
+
   def test_application_redirect_respects_status
     reset
     location = '/'

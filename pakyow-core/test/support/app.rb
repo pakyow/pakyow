@@ -8,6 +8,11 @@ Pakyow::App.define do
     $env_overwrites_global_config = true
     app.src_dir = File.join(Dir.pwd, 'test', 'support', 'loader')
   end
+
+  routes(:redirect) do
+    get :redirect_route, '/redirect' do
+    end
+  end
 end
 
 class Pakyow::App
