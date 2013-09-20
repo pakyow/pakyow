@@ -7,4 +7,5 @@ gem 'nokogiri', '~> 1.6'
 
 group :test do
   gem 'minitest', '~> 5.0'
+  gem 'pry', '~> 0.9'
 end
