@@ -147,7 +147,7 @@ module Pakyow
         return if @template.nil? || @page.nil?
 
         # construct
-        @view = @template.build(@page)
+        @view = @template.dup.build(@page)
         @constructed = true
       end
 
