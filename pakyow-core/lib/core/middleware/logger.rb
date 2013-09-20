@@ -38,7 +38,7 @@ module Pakyow
       @mutex = Mutex.new
     end
 
-    def <<(msg = nil, severity = @level)
+    def <<(msg = nil, severity = :unknown)
       msg << "\n"
 
       msg = format(msg, severity) if @format
