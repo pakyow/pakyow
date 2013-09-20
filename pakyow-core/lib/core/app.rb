@@ -189,6 +189,7 @@ module Pakyow
 
     def initialize
       Pakyow.app = self
+      Pakyow.configure_logger
 
       call_stack(:before, :init)
 

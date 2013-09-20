@@ -105,8 +105,6 @@ module Pakyow
       }
 
       def initialize(app)
-        Pakyow.configure_logger
-
         @app = app
       end
 
