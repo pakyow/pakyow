@@ -33,8 +33,8 @@ module Pakyow
     COLOR_SEQ = "\033[%dm"
     BOLD_SEQ  = "\033[1m"
 
-    def initialize(log = $stdout, level = 0, format = false)
-      @log, @level, @format = log, level, format
+    def initialize(log = $stdout, level = 0, format = false, auto_flush = false)
+      @log, @level, @format, @auto_flush = log, level, format, auto_flush
       @mutex = Mutex.new
     end
 
@@ -44,7 +44,7 @@ module Pakyow
       msg = format(msg, severity) if @format
       @mutex.synchronize do
         @log.write msg
-        @log.flush
+        @log.flush if @auto_flush
       end
     end
 

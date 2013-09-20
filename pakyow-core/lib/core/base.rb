@@ -51,6 +51,6 @@ module Pakyow
 
     io = logs.count > 1 ? MultiLog.new(*logs) : logs[0]
 
-    Pakyow.logger = Logger.new(io, conf.logger.level, conf.logger.colorize)
+    Pakyow.logger = Logger.new(io, conf.logger.level, conf.logger.colorize, conf.logger.auto_flush)
   end
 end
