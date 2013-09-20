@@ -51,7 +51,7 @@ module Pakyow
           if content = page.content(name)
             container(name).replace(content)
           else
-            Pakyow.logger.warn "No content for '#{name}'"
+            Pakyow.logger.debug "No content for '#{name}' in page '#{page.path}'"
           end
         end
 

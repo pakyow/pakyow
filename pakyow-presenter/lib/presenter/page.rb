@@ -9,16 +9,14 @@ module Pakyow
           name     = File.basename(path, '.*').to_sym
           contents = FileTest.file?(path) ? File.read(path) : nil
 
-          return Page.new(name, contents, format)
+          return Page.new(name, contents, path, format)
         end
       end
 
-      attr_reader :contents
+      attr_reader :contents, :path
 
-      def initialize(name, contents, format = :html)
-        @name = name
-        @contents = contents
-        @format = format
+      def initialize(name, contents, path, format = :html)
+        @name, @contents, @path, @format = name, contents, path, format
 
         @info    = {}
         @content = {}
