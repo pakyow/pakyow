@@ -114,38 +114,41 @@ class PresenterTest < Minitest::Test
   end
 
   def test_views_are_cached
+    file = 'test/support/views/index.html'
+    new_content = 'reloaded'
+
+    original_content = File.open(file, 'r').read
+    File.open(file, 'w') { |f| f.write(new_content) }
+
     capture_stdout do
-      file = 'test/support/views/index.html'
-      new_content = 'reloaded'
+      assert_equal(original_content.strip, @presenter.view.doc.css('body').inner_text.strip)
+    end
+  ensure
+    File.open(file, 'w') { |f| f.write(original_content) }
 
-      original_content = File.open(file, 'r').read
-
-      File.open(file, 'w') { |f| f.write(new_content) }
-
-      setup
-
-      assert_equal(original_content.strip, @presenter.view.doc.css('body').children.to_html.strip)
-
-      File.open(file, 'w') { |f| f.write(original_content) }
+    capture_stdout do
       @presenter.load
     end
   end
 
   def test_views_are_reloaded
+    file = 'test/support/views/index.html'
+    new_content = 'reloaded'
+
+    original_content = File.open(file, 'r').read
+
+    File.open(file, 'w') { |f| f.write(new_content) }
+
     capture_stdout do
-      file = 'test/support/views/index.html'
-      new_content = 'reloaded'
-
-      original_content = File.open(file, 'r').read
-
-      File.open(file, 'w') { |f| f.write(new_content) }
-
       @presenter.load
       setup
 
       assert_equal(new_content, @presenter.view.doc.css('body').children.to_html.strip)
+    end
+  ensure
+    File.open(file, 'w') { |f| f.write(original_content) }
 
-      File.open(file, 'w') { |f| f.write(original_content) }
+    capture_stdout do
       @presenter.load
     end
   end
