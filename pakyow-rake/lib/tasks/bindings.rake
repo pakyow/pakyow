@@ -24,8 +24,7 @@ class BindingAnalyzer
     bindings.each {|set|
       next if set[:bindings].empty?
 
-      Log.enter
-      Log.enter set[:path]
+      Pakyow.logger << "\n" + set[:path]
 
       log_bindings(set[:bindings])
     }
@@ -38,15 +37,15 @@ class BindingAnalyzer
       scope_str = space.dup
       scope_str << "#{nested} > " unless nested.empty?
       scope_str << binding[:scope].to_s
-      Log.enter scope_str
+      Pakyow.logger << scope_str
 
       props = binding[:props]
       if props.count > 0
         binding[:props].each {|prop|
-          Log.enter space + "  #{prop[:prop]}"
+          Pakyow.logger << space + "  #{prop[:prop]}"
         }
       else
-        Log.enter space + "  (no props)"
+        Pakyow.logger << space + "  (no props)"
       end
 
 

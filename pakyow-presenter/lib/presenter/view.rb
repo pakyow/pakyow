@@ -516,7 +516,7 @@ module Pakyow
       end
 
       def handle_unbound_data(scope, prop)
-        Log.warn("Unbound data for #{scope}[#{prop}]")
+        Pakyow.logger.warn("Unbound data for #{scope}[#{prop}]")
         throw :unbound
       end
     end

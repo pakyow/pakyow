@@ -14,7 +14,7 @@ module Pakyow
           end
 
           unless processor = presenter.processor_store[format]
-            Log.warn("No processor defined for extension #{format}") unless format == :html
+            Pakyow.logger.warn("No processor defined for extension #{format}") unless format == :html
             return contents
           end
 
@@ -160,7 +160,7 @@ module Pakyow
 
         @constructed = true
       rescue StandardError => e # catches no view path error
-        Log.warn e.message
+        Pakyow.logger.warn e.message
         @constructed = false
       end
 

@@ -26,8 +26,7 @@ class ViewStructureAnalyzer
       views = info[:store][:views]
       containers = info[:containers]
 
-      Log.enter
-      Log.enter info[:path] + " (#{StringUtils.normalize_path(root).gsub(info[:path], '.')})"
+      Pakyow.logger << "\n" + info[:path] + " (#{StringUtils.normalize_path(root).gsub(info[:path], '.')})"
 
       maxlen = containers.map{|c| c.length}.sort.last
       containers.each {|container|
@@ -39,7 +38,7 @@ class ViewStructureAnalyzer
           file = '?'
         end
 
-        Log.enter "  #{space}#{container}: #{file}"
+        Pakyow.logger << "  #{space}#{container}: #{file}"
       }
     }
   end

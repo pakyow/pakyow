@@ -4,6 +4,7 @@ require 'stringio'
 
 class LogTest < Minitest::Test
   def setup
+    Pakyow::Config::Base.logger.colorize = false
     @text = 'foo'
   end
 
@@ -14,22 +15,22 @@ class LogTest < Minitest::Test
   def test_log_to_console
     old = $stdout
     $stdout = StringIO.new
-    Pakyow::Log.reopen
-    Log.enter(@text)
+    Pakyow.configure_logger
+    Pakyow.logger << @text
 
-    assert_equal @text, $stdout.string.strip
+    assert_equal @text.strip, $stdout.string.strip
 
     $stdout = old
   end
 
   def test_log_to_file
-    Pakyow::Config::Base.app.log_dir = path
-    Pakyow::Log.reopen
-    Log.enter(@text)
-    Log.close
+    Pakyow::Config::Base.logger.path = path
+    Pakyow::Config::Base.logger.auto_flush = true
+    Pakyow.configure_logger
+    Pakyow.logger << @text
 
     assert       File.exists?(file)
-    assert_equal @text, File.new(file).read.strip
+    assert_equal @text.strip, File.new(file).read.strip
   end
 
   private

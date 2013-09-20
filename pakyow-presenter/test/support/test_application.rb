@@ -12,3 +12,5 @@ Pakyow::App.define do
     'foo' + data
   end
 end
+
+Pakyow.configure_logger

@@ -4,11 +4,9 @@ module Pakyow
       Config::Base.register_config(:app, self)
 
       class << self
-        attr_accessor :log, :resources, :root, :log_dir,
-        :default_action, :ignore_routes, :error_level,
-        :default_environment, :path, :log_name, :src_dir,
-        :auto_reload, :errors_in_browser, :static, :all_views_visible,
-        :loaded_envs
+        attr_accessor :log, :resources, :root, :default_action, :ignore_routes,
+        :default_environment, :path, :src_dir, :auto_reload, :errors_in_browser, 
+        :static, :all_views_visible, :loaded_envs, :log_output
 
         def method_missing(name, *args)
           if name[-1,1] == '='
@@ -32,6 +30,10 @@ module Pakyow
           @log.nil? ? true : @log
         end
 
+        def log_output
+          @log_output || true
+        end
+
         # Root directory
         def root
           @root || File.dirname('')
@@ -40,15 +42,6 @@ module Pakyow
         # Resources directory
         def resources
           @resources ||= { :default => "#{root}/public" }
-        end
-
-        # Log directory
-        def log_dir
-          @log_dir || "#{root}/logs"
-        end
-
-        def log_name
-          @log_name || "requests.log"
         end
 
         def src_dir

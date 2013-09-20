@@ -2,6 +2,10 @@ module Pakyow
 
   # For methods that should be accessible anywhere
   module Helpers
+    def logger
+      request.logger
+    end
+
     def router
       RouteLookup.new
     end

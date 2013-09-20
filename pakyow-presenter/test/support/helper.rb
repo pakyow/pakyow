@@ -13,12 +13,12 @@ require_relative 'test_application'
 def capture_stdout(&block)
   original_stdout = $stdout
   $stdout = fake = StringIO.new
-  Pakyow::Log.reopen
+  Pakyow.configure_logger
   begin
     yield
   ensure
     $stdout = original_stdout
-    Pakyow::Log.reopen
+    Pakyow.configure_logger
   end
   fake.string
 end
