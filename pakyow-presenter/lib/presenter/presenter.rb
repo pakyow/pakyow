@@ -136,7 +136,7 @@ module Pakyow
 
       def path=(path)
         @path = path
-        setup_for_path
+        setup_for_path(true)
       end
 
       def ensure_construction
@@ -153,14 +153,14 @@ module Pakyow
 
       protected
 
-      def setup_for_path
+      def setup_for_path(explicit = false)
         self.template = store.template(@path)
         self.page     = store.page(@path)
         self.view     = store.view(@path)
 
         @constructed = true
       rescue MissingView => e # catches no view path error
-        Pakyow.logger.debug e.message
+        explicit ? raise e : Pakyow.logger.debug e.message
         @constructed = false
       end
 
