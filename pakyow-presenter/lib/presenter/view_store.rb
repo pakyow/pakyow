@@ -49,7 +49,7 @@ module Pakyow
     private
 
     def at_path(view_path, obj = nil)
-      normalized_path = StringUtils.normalize_path(view_path)
+      normalized_path = normalize_path(view_path)
       info = @path_info[normalized_path]
 
       if info.nil?
