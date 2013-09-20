@@ -18,6 +18,8 @@ class ViewBindingTest < Minitest::Test
       <span data-prop="full_name">John Doe</span>
       <a data-prop="email">john@example.com</a>
     </div>
+
+    <span class="foo" data-prop="foo"></span>
     D
   end
 
@@ -35,6 +37,13 @@ class ViewBindingTest < Minitest::Test
 
     assert_equal data[:full_name], @view.doc.css('.contact span').first.content
     assert_equal data[:email],     @view.doc.css('.contact a').first.content
+  end
+
+  def test_should_bind_unscoped_props
+    data = { :foo => 'bar' }
+    @view.bind(data)
+
+    assert_equal data[:foo], @view.doc.css('.foo').first.content
   end
 
   # def test_should_map_content_to_value

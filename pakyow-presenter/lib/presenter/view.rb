@@ -315,20 +315,10 @@ module Pakyow
           next if o == doc && ignore_root
           next if !scope = o[Config::Presenter.scope_attribute]
 
-          # find props
-          props = []
-          breadth_first(o) {|so|
-            # don't go into deeper scopes
-            throw :reject if so != o && so[Config::Presenter.scope_attribute]
-
-            next unless prop = so[Config::Presenter.prop_attribute]
-            props << {:prop => prop.to_sym, :path => path_to(so)}
-          }
-
           bindings << {
             :scope => scope.to_sym,
             :path => path_to(o),
-            :props => props
+            :props => find_props(o)
           }
 
           if o == doc
@@ -343,7 +333,28 @@ module Pakyow
           end
         }
 
+        # find unscoped props
+        bindings.unshift({
+          :scope => nil,
+          :path => [0],
+          :props => find_props(doc),
+          :nested_bindings => {}
+        })
+
         return bindings
+      end
+
+      def find_props(o)
+        props = []
+        breadth_first(o) {|so|
+          # don't go into deeper scopes
+          throw :reject if so != o && so[Config::Presenter.scope_attribute]
+
+          next unless prop = so[Config::Presenter.prop_attribute]
+          props << {:prop => prop.to_sym, :path => path_to(so)}
+        }
+
+        return props
       end
 
       # returns a new binding set that takes into account the starting point of `path`
