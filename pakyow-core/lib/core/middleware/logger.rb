@@ -115,12 +115,12 @@ module Pakyow
 
         result = nil
         difference = time { |began_at|
-          Pakyow.logger.info "#{env['REQUEST_METHOD']} #{env['REQUEST_URI']} for #{env['REMOTE_ADDR']} at #{began_at}"
+          Pakyow.logger << "#{env['REQUEST_METHOD']} #{env['REQUEST_URI']} for #{env['REMOTE_ADDR']} at #{began_at}"
           result = @app.call(env)
         }
 
         status = result[0]
-        Pakyow.logger.info "#{status} (#{nice_status(status)}) in #{difference}ms\n"
+        Pakyow.logger << "#{status} (#{nice_status(status)}) in #{difference}ms\n"
 
         result
       end
