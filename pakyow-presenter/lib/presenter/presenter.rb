@@ -160,7 +160,7 @@ module Pakyow
 
         @constructed = true
       rescue MissingView => e # catches no view path error
-        explicit ? raise e : Pakyow.logger.debug e.message
+        explicit ? raise(e) : Pakyow.logger.debug(e.message)
         @constructed = false
       end
 
