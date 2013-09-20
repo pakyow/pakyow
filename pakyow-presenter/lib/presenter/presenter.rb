@@ -159,8 +159,8 @@ module Pakyow
         self.view     = store.view(@path)
 
         @constructed = true
-      rescue StandardError => e # catches no view path error
-        Pakyow.logger.warn e.message
+      rescue MissingView => e # catches no view path error
+        Pakyow.logger.debug e.message
         @constructed = false
       end
 
