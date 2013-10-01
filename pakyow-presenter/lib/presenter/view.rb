@@ -336,7 +336,7 @@ module Pakyow
         # find unscoped props
         bindings.unshift({
           :scope => nil,
-          :path => [0],
+          :path => [],
           :props => find_props(doc),
           :nested_bindings => {}
         })
@@ -361,7 +361,7 @@ module Pakyow
       def update_binding_paths_from_path(bindings, path)
         return bindings.collect { |binding|
           dup_binding = binding.dup
-          dup_binding[:path] = dup_binding[:path][path.length..-1]
+          dup_binding[:path] = dup_binding[:path][path.length..-1] || []
 
           dup_binding[:props] = dup_binding[:props].collect {|prop|
             dup_prop = prop.dup
