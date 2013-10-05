@@ -36,7 +36,7 @@ module Pakyow
 
         # Root directory
         def root
-          @root || File.dirname('')
+          @root || File.join(File.dirname(''), 'app')
         end
 
         # Resources directory
