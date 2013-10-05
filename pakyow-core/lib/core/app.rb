@@ -236,7 +236,25 @@ module Pakyow
           call_stack(:after, :route)
         end
 
-        handle(404, false) unless found?
+        unless found?
+          handle(404, false) 
+
+          if config.app.errors_in_browser
+            @response["Content-Type"] = 'text/html'
+
+            view_file = File.join(File.expand_path('../../', __FILE__), 'views', 'errors', '404.html')
+            content = File.open(view_file).read
+
+            path = StringUtils.normalize_path(request.path)
+            path = '/' if path.empty?
+
+            content.gsub!('{view_path}', path == '/' ? 'index.html' : "#{path}.html")
+            content.gsub!('{route_path}', path)
+
+            @response.body = []
+            @response.body << content
+          end
+        end
       }
 
       set_cookies
@@ -253,9 +271,23 @@ module Pakyow
 
       if config.app.errors_in_browser
         @response["Content-Type"] = 'text/html'
+        
+        view_file = File.join(File.expand_path('../../', __FILE__), 'views', 'errors', '500.html')
+        content = File.open(view_file).read
+
+        path = StringUtils.normalize_path(request.path)
+        path = '/' if path.empty?
+
+        nice_source = error.backtrace[0].match(/^(.+?):(\d+)(|:in `(.+)')$/)
+
+        content.gsub!('{file}', nice_source[1].gsub(File.expand_path(Config::App.root) + '/', ''))
+        content.gsub!('{line}', nice_source[2])
+        
+        content.gsub!('{msg}', error.to_s)
+        content.gsub!('{trace}', error.backtrace.join('<br>'))
+
         @response.body = []
-        @response.body << "<h4>#{CGI.escapeHTML(error.to_s)}</h4>"
-        @response.body << error.backtrace.join("<br />")
+        @response.body << content
       end
 
       call_stack(:after, :error)
