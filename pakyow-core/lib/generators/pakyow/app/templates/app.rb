@@ -1,12 +1,11 @@
-require 'rubygems'
 require 'pakyow'
 
-module PakyowApplication
-  class Application < Pakyow::Application
-    core do
-      default {
-        puts 'Pakyow says hello!'
-      }
-    end
+Pakyow::App.define do
+  configure :development do
+    # All development-specific configuration goes here.
+  end
+
+  configure :production do
+    # Alternate environments can be configured, like this one.
   end
 end
