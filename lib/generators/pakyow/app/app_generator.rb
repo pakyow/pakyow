@@ -1,5 +1,4 @@
 require 'fileutils'
-require File.expand_path('../../../../utils/dir', __FILE__)
 
 module Pakyow
   module Generators
@@ -8,7 +7,7 @@ module Pakyow
         def start
           case ARGV.first
           when '--help', '-h', nil
-            puts File.open(File.join(CORE_PATH, 'commands/USAGE-NEW')).read
+            puts File.open(File.join(PAK_PATH, 'commands/USAGE-NEW')).read
           else
             generator = self.new(ARGV.first)
             generator.build
@@ -46,7 +45,6 @@ module Pakyow
       # copies src files to dest
       def copy
         FileUtils.cp_r(@src, @dest)
-        DirUtils.print_dir("#{@dest}")
       end
 
       # performs and other setup (e.g. bundle install)

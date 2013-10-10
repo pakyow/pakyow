@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+
+PAK_PATH = File.expand_path('../../lib', __FILE__)
+
+case ARGV.first
+when 'new'
+  ARGV.shift
+  require File.join(PAK_PATH, 'generators/pakyow/app/app_generator')
+  Pakyow::Generators::AppGenerator.start
+when 'server', 's'
+  ARGV.shift
+  require File.join(PAK_PATH, 'commands/server')
+when 'console', 'c'
+  ARGV.shift
+  require File.join(PAK_PATH, 'commands/console')
+when '--help', '-h', nil
+  puts File.open(File.join(PAK_PATH, 'commands/USAGE')).read
+end

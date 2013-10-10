@@ -1,5 +1,5 @@
 if ARGV.first == '--help' || ARGV.first == '-h'
-  puts File.open(File.join(CORE_PATH, 'commands/USAGE-SERVER')).read
+  puts File.open(File.join(PAK_PATH, 'commands/USAGE-SERVER')).read
 else
   $:.unshift(Dir.pwd)
 
@@ -22,6 +22,6 @@ else
   if valid_args
 	  Pakyow::App.run(ARGV.first)
 	else
-		puts File.open(File.join(CORE_PATH, 'commands/USAGE-SERVER')).read
+		puts File.open(File.join(PAK_PATH, 'commands/USAGE-SERVER')).read
 	end
 end

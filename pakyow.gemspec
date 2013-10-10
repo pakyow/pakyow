@@ -18,6 +18,9 @@ Gem::Specification.new do |s|
   s.files        = Dir['README', 'MIT-LICENSE', 'lib/**/*']
   s.require_path = 'lib'
 
+  s.bindir             = File.join(core_path, 'bin')
+  s.executables        = ['pakyow']
+
   s.add_dependency('pakyow-core',       version)
   s.add_dependency('pakyow-presenter',  version)
   s.add_dependency('pakyow-mailer',     version)

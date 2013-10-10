@@ -23,9 +23,6 @@ Gem::Specification.new do |s|
 
   s.require_path = File.join(core_path, 'lib')
 
-  s.bindir             = File.join(core_path, 'bin')
-  s.executables        = ['pakyow']
-
   s.add_dependency('rack', '~> 1.5')
 
   s.add_development_dependency('minitest', '~> 5.0')
