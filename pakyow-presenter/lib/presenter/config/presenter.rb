@@ -6,21 +6,21 @@ module Pakyow
       class << self
         attr_accessor :javascripts, :stylesheets, :view_stores, :default_views,
         :scope_attribute, :prop_attribute, :container_attribute, :template_dirs
-        
+
         # Location of javascripts
         def javascripts
           @javascripts || '/javascripts'
         end
-        
+
         # Location of stylesheets
         def stylesheets
           @stylesheets || '/stylesheets'
         end
 
         def view_stores
-          @view_stores ||= {:default => "#{Config::Base.app.root}/views"}
+          @view_stores ||= {:default => "#{Config::Base.app.root}/app/views"}
         end
-        
+
         def default_views(store_name = nil)
           @default_views ||= {:default => "pakyow.html"}
         end

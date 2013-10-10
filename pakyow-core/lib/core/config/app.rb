@@ -5,7 +5,7 @@ module Pakyow
 
       class << self
         attr_accessor :log, :resources, :root, :default_action, :ignore_routes,
-        :default_environment, :path, :src_dir, :auto_reload, :errors_in_browser, 
+        :default_environment, :path, :src_dir, :auto_reload, :errors_in_browser,
         :static, :all_views_visible, :loaded_envs, :log_output
 
         def method_missing(name, *args)
@@ -36,7 +36,7 @@ module Pakyow
 
         # Root directory
         def root
-          @root || File.join(File.dirname(''), 'app')
+          @root || File.dirname('')
         end
 
         # Resources directory
@@ -45,7 +45,7 @@ module Pakyow
         end
 
         def src_dir
-          @src_dir || "#{root}/lib"
+          @src_dir || "#{root}/lib/app"
         end
 
         # Default action
