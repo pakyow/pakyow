@@ -1,0 +1,255 @@
+@import url("reset.css");
+
+body {
+  background:#fff;
+
+  color:#333;
+  font:10px "Helvetica Neue", Helvetica, sans-serif;
+}
+
+code {
+  font:1.1em Menlo, monospace;
+}
+
+h1, h2, h3, h4 {
+  font-weight:bold;
+}
+
+h1 {
+  font-size:3.2em;
+  line-height:2em;
+}
+
+h2 {
+  font-size:2.4em;
+  line-height:2em;
+}
+
+h3 {
+  font-size:1.8em;
+  line-height:2em;
+}
+
+h4 {
+  font-size:1.4em;
+  line-height:2em;
+}
+
+h5 {
+  font-size:1.2em;
+  line-height:2em;
+}
+
+hr {
+  border:0;
+  height:1px;
+  background:#DEDEDE;
+  margin-top:30px;
+}
+
+p {
+  font-size:1.3em;
+  line-height:1.4em;
+  margin: 0 0 9px;
+}
+
+strong {
+  font-weight:bold;
+}
+
+em {
+  font-style:italic;
+}
+
+a {
+  color:#206cb1;
+  text-decoration:none;
+}
+
+a:hover {
+  text-decoration:underline;
+  color:#185286;
+}
+
+ul, ol {
+  font-size:1.3em;
+  margin: 0 0 9px 25px;
+}
+
+ul ul, ol ol {
+  font-size:1em;
+  margin-bottom:0;
+}
+
+ul {
+  list-style:disc;
+}
+
+ul li {
+}
+
+ol {
+  list-style:decimal;
+}
+
+li {
+  line-height:1.6em;
+}
+
+/*****************************
+    Utility Classes
+*****************************/
+
+.secondary {
+  font-size:1.1em;
+  color:#777;
+}
+
+.underline {
+  border-bottom:1px solid #ccc;
+  padding-bottom:5px;
+}
+
+/*****************************
+    Forms
+*****************************/
+
+label {
+  display:block;
+  font-weight:bold;
+  line-height:1em;
+}
+
+label.inline {
+  display:inline;
+}
+
+fieldset {
+  margin-bottom:20px;
+}
+
+fieldset > ul {
+  margin-left:0;
+  list-style:none;
+}
+
+fieldset > ul > li {
+  margin-bottom:10px;
+}
+
+fieldset > ul > li > label {
+  padding-bottom:5px;
+}
+
+input, textarea, select {
+  outline:none;
+}
+
+input, textarea {
+  padding:3px;
+  font-size:0.9em;
+}
+
+input[type='text'], input[type='password'], textarea {
+  border-radius: 2px;
+  border:1px solid #ccc;
+  padding:5px;
+}
+
+input[type='text']:focus, input[type='password']:focus, textarea:focus {
+  border-color:#8dabd4;
+}
+
+input[type='submit'], input[type='button'], button, .button {
+  font:0.9em "Helvetica Neue", Helvetica, sans-serif;
+  color:#000;
+
+  cursor:pointer;
+
+  border-radius:2px;
+  border:1px solid #adadad;
+  padding:6px 5px 5px;
+
+  background: #ffffff; /* Old browsers */
+  background: -moz-linear-gradient(top,  #ffffff 0%, #f3f3f3 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(100%,#f3f3f3)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top,  #ffffff 0%,#f3f3f3 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top,  #ffffff 0%,#f3f3f3 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top,  #ffffff 0%,#f3f3f3 100%); /* IE10+ */
+  background: linear-gradient(top,  #ffffff 0%,#f3f3f3 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#f3f3f3',GradientType=0 ); /* IE6-9 */
+}
+
+input[type='submit']:hover, input[type='button']:hover, button:hover, .button:hover {
+  text-decoration:none;
+  background: -webkit-linear-gradient(top,  #ffffff 0%,#f6f6f6 100%); /* Chrome10+,Safari5.1+ */
+  border-color:#ccc;
+  color:#777;
+}
+
+input.error {
+  background:#FEFBFB;
+  border-color:#FBA8A4;
+}
+
+input.error:focus {
+  border-color:#F4635D;
+}
+
+/*****************************
+    Composable Styles 
+*****************************/
+
+ul.horizontal, ol.horizontal {
+  margin: 0;
+  display: inline;
+}
+
+ul.horizontal li, ol.horizontal li {
+  display: inline;
+}
+
+ul.plain, ol.plain {
+  margin: 5px;
+  padding: 0;
+}
+
+ul.plain li, ol.plain li {
+  list-style: none;
+}
+
+.float-right {
+  float: right;
+}
+
+.float-left {
+  float: left;
+}
+
+.align-right {
+  text-align: right;
+}
+
+.align-left {
+  text-align: left;
+}
+
+.align-center {
+  text-align:center;
+}
+
+.hidden {
+  display: none;
+}
+
+.clear {
+  clear: both;
+}
+
+.clear-left {
+  clear: left;
+}
+
+.clear-right {
+  clear: right;
+}

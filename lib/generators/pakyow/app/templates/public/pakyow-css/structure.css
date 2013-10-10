@@ -1,0 +1,199 @@
+/*****************************
+    Structure
+*****************************/
+
+*[class*="container"] {
+  width:940px;
+  margin:auto;
+}
+
+*[class*="container"]:before, *[class*="container"]:after {
+  display: table;
+  content: "";
+}
+
+*[class*="container"]:after {
+  clear: both;
+}
+
+*[class*="container"] .col, .container-1 .col {
+  width:940px;
+}
+
+.container-2 [class*="col"] {
+  width:460px;
+}
+
+.container-3 .col {
+  width:300px;
+}
+
+.container-4 .col {
+  width:220px;
+}
+
+.container-5 .col {
+  width:172px;
+}
+
+*[class*="col"] {
+  float:left;
+  margin-left:20px;
+}
+
+*[class*="col"]:first-child {
+  margin-left:0;
+}
+
+/* Resized Columns */
+
+.col.r-3-1 {
+  width:300px;
+}
+
+.col.r-3-2 {
+  width:620px;
+}
+
+.col.r-4-1 {
+  width:220px;
+}
+
+.col.r-4-2 {
+  width:460px;
+}
+
+.col.r-4-3 {
+  width:700px;
+}
+
+.col.r-5-1 {
+  width:172px;
+}
+
+.col.r-5-2 {
+  width:364px;
+}
+
+.col.r-5-3 {
+  width:556px;
+}
+
+.col.r-5-4 {
+  width:748px;
+}
+
+/*****************************
+    Fluid Structure
+*****************************/
+
+*[class*="container"].fluid, .fluid *[class*="container"] {
+  width:auto;
+}
+
+*[class*="container"].fluid {
+  padding:0 20px;
+}
+
+*[class*="container"].fluid *[class*="col"] {
+  margin-left:1.94%;
+}
+
+*[class*="container"].fluid *[class*="col"]:first-child {
+  margin-left:0;
+  float:left !important;
+}
+
+/* 
+  Since percentage calculations aren't pixel-accurate, widths are always a little
+  shy of correct. Aligning the last column to the right makes everything line up.
+*/
+.fluid *[class*="col"]:last-child {
+  float:right;
+}
+
+.container.fluid .col, .fluid .container .col {
+  width:100%;
+}
+
+.container-1.fluid .col, .fluid .container-1 .col {
+  width:100%;
+}
+
+.container-2.fluid .col, .fluid .container-2 .col {  
+  width:49.03%;
+}
+
+.container-3.fluid .col, .fluid .container-3 .col {
+  width:32.02%;
+}
+
+.container-4.fluid .col, .fluid .container-4 .col {
+  width:23.52%;
+}
+
+.container-5.fluid .col, .fluid .container-5 .col {
+  width:18.43%;
+}
+
+/* Resized Columns */
+
+.fluid .col.r-3-1 {
+  width:32.02%;
+}
+
+.fluid .col.r-3-2 {
+  width:65.98%;
+}
+
+.fluid .col.r-4-1 {
+  width:23.52%;
+}
+
+.fluid .col.r-4-2 {
+  width:48.98%;
+}
+
+.fluid .col.r-4-3 {
+  width:74.45%;
+}
+
+.fluid .col.r-5-1 {
+  width:18.43%;
+}
+
+.fluid .col.r-5-2 {
+  width:38.80%;
+}
+
+.fluid .col.r-5-3 {
+  width:59.17%;
+}
+
+.fluid .col.r-5-4 {
+  width:79.54%;
+}
+
+/*****************************
+    Flows
+*****************************/
+
+.container.flow .col {
+  width:auto;
+}
+
+/*****************************
+    Fixed Structure
+*****************************/
+
+.container.fixed {
+  position:fixed;
+}
+
+.container.fixed.fluid {
+  width:100%;
+  
+  -webkit-box-sizing:border-box;
+  -moz-box-sizing:border-box;
+  box-sizing:border-box;
+}
