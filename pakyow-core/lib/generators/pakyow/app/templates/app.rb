@@ -1,4 +1,4 @@
-require 'pakyow'
+require 'bundler/setup'
 
 Pakyow::App.define do
   configure :development do

@@ -14,12 +14,14 @@ Gem::Specification.new do |s|
   s.email             = 'bryan@metabahn.com'
   s.homepage          = 'http://pakyow.com'
   s.rubyforge_project = 'pakyow'
-  
+
   s.files        = Dir['README', 'MIT-LICENSE', 'lib/**/*']
   s.require_path = 'lib'
-  
+
   s.add_dependency('pakyow-core',       version)
   s.add_dependency('pakyow-presenter',  version)
-  s.add_dependency('pakyow-mailer',  version)
-  s.add_dependency('pakyow-rake',  version)
+  s.add_dependency('pakyow-mailer',     version)
+  s.add_dependency('pakyow-rake',       version)
+
+  s.add_dependency('bundler',           '>= 1.3.0')
 end
