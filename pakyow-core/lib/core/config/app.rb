@@ -45,7 +45,7 @@ module Pakyow
         end
 
         def src_dir
-          @src_dir || "#{root}/lib/app"
+          @src_dir || "#{root}/app/lib"
         end
 
         # Default action
