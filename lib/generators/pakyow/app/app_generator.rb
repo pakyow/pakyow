@@ -21,7 +21,7 @@ module Pakyow
       end
 
       def build
-        puts "Generating \"#{@dest}\" project..."
+        puts "Generating project: #{@dest}"
 
         if !File.directory?(@dest) || (Dir.entries(@dest) - ['.', '..']).empty?
           copy
@@ -38,6 +38,7 @@ module Pakyow
         end
 
         exec
+        puts "Done!"
       end
 
       protected
@@ -49,7 +50,7 @@ module Pakyow
 
       # performs and other setup (e.g. bundle install)
       def exec
-        puts "Running bundle install"
+        puts "Running `bundle install`"
         `cd #{@dest} && bundle install`
       end
     end
