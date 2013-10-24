@@ -78,17 +78,6 @@ module Pakyow
       RouteLookup.new.group(name)
     end
 
-    # Calls a defined fn
-    #
-    def fn(name)
-      @sets.each { |set|
-        if fn = set[1].fn(name)
-          fn.call
-          break
-        end
-      }
-    end
-
     protected
 
     # Calls a list of route functions in order (in a shared context).

@@ -6,14 +6,13 @@ module Pakyow
       @routes = {:get => [], :post => [], :put => [], :delete => []}
       @lookup = { :routes => {}, :grouped => {}}
       @handlers = []
-      @fns = {}
     end
 
     def eval(&block)
       evaluator = RouteEval.new
       evaluator.eval(&block)
 
-      @fns, @routes, @handlers, @lookup = evaluator.merge(@fns, @routes, @handlers, @lookup)
+      @routes, @handlers, @lookup = evaluator.merge(@routes, @handlers, @lookup)
     end
 
     # Returns a route tuple:
@@ -22,7 +21,7 @@ module Pakyow
     def match(path, method)
       path = StringUtils.normalize_path(path)
 
-      @routes[method.to_sym].each{|r|
+      @routes[method.to_sym].each{|r| 
         case r[0]
         when Regexp
           if data = r[0].match(path)
@@ -56,10 +55,6 @@ module Pakyow
         #TODO error
       end
     end
-
-    # Name based fn lookup
-    def fn(name)
-      return @fns[name]
-    end
   end
 end
+

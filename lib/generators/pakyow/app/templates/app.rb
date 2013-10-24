@@ -1,28 +1,16 @@
 require 'bundler/setup'
 
-require 'pakyow'
-# require your gems here
-
 Pakyow::App.define do
-  configure :global do
-    # put global config here and they'll be available across environments
-  end
-
   configure :development do
-    # put development config here
+    # All development-specific configuration goes here.
   end
 
   configure :prototype do
-    # an environment for running the front-end prototype with no backend
+    # An environment for running just the front-end prototype.
     app.ignore_routes = true
   end
 
   configure :production do
-    # suggested production configuration
-    app.auto_reload = false
-    app.errors_in_browser = false
-    presenter.view_caching = true
-
-    # put your production config here
+    # Alternate environments can be configured, like this one.
   end
 end
