@@ -1,3 +1,3 @@
 Pakyow::App.bindings do
-  # Bindings for your app go here.
+  # define bindings here
 end

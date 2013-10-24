@@ -1,7 +1,7 @@
 Pakyow::App.routes do
-  # Routes for your app go here. Uncomment the line 
-  # below to see something working.
+  # define your routes here
 
+  # see something working by uncommenting the line below
   # default do
   #   puts 'hello'
   # end
