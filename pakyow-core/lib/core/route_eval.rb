@@ -31,15 +31,15 @@ module Pakyow
       end
     end
 
-    def merge(routes, handlers, lookup)
+    def merge(fns, routes, handlers, lookup)
       # routes.merge!(@routes)
       merge_routes(routes, @routes)
       handlers.concat(@handlers)
-      # lookup.merge!(@lookup)
+      fns.merge!(@fns)
 
       merge_lookup(lookup, @lookup)
 
-      return routes, handlers, lookup
+      return fns, routes, handlers, lookup
     end
 
     # Creates or retreives a named route function. When retrieving,
@@ -100,7 +100,7 @@ module Pakyow
       evaluator = RouteEval.new(@scope[:path], merge_hooks(hooks, @scope[:hooks]), @fns, name)
       evaluator.eval(&block)
 
-      @routes, @handlers, @lookup = evaluator.merge(@routes, @handlers, @lookup)
+      @fns, @routes, @handlers, @lookup = evaluator.merge(@fns, @routes, @handlers, @lookup)
     end
 
     def namespace(*args, &block)

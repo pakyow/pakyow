@@ -237,7 +237,7 @@ module Pakyow
         end
 
         unless found?
-          handle(404, false) 
+          handle(404, false)
 
           if config.app.errors_in_browser
             @response["Content-Type"] = 'text/html'
@@ -271,7 +271,7 @@ module Pakyow
 
       if config.app.errors_in_browser
         @response["Content-Type"] = 'text/html'
-        
+
         view_file = File.join(File.expand_path('../../', __FILE__), 'views', 'errors', '500.html')
         content = File.open(view_file).read
 
@@ -282,7 +282,7 @@ module Pakyow
 
         content.gsub!('{file}', nice_source[1].gsub(File.expand_path(Config::App.root) + '/', ''))
         content.gsub!('{line}', nice_source[2])
-        
+
         content.gsub!('{msg}', error.to_s)
         content.gsub!('{trace}', error.backtrace.join('<br>'))
 
@@ -361,7 +361,7 @@ module Pakyow
     #
     def redirect(location, status_code = 302)
       location = router.path(location) if location.is_a?(Symbol)
-      
+
       headers = response ? response.header : {}
       headers = headers.merge({'Location' => location})
 
