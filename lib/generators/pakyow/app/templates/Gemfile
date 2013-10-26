@@ -1,4 +1,4 @@
 source "https://rubygems.org"
 
-gem "pakyow"
+gem "pakyow", "0.8.rc2"
 gem "puma"
