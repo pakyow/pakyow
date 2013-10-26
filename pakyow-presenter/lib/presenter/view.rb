@@ -429,7 +429,7 @@ module Pakyow
       end
 
       def bind_value_to_doc(value, doc)
-        return unless value
+        value = String(value)
 
         tag = doc.name
         return if View.tag_without_value?(tag)
