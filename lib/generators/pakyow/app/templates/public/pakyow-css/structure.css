@@ -1,10 +1,75 @@
 /*****************************
+    Positioning
+*****************************/
+
+.float-right, .float-r {
+  float: right;
+}
+
+.float-left, .float-l {
+  float: left;
+}
+
+.align-right, .align-r {
+  text-align: right;
+}
+
+.align-left, .align-l {
+  text-align: left;
+}
+
+.align-center, .align-c {
+  text-align:center;
+}
+
+.hidden {
+  display: none;
+}
+
+.clear {
+  clear: both;
+}
+
+.clear-left, .clear-l {
+  clear: left;
+}
+
+.clear-right, .clear-r {
+  clear: right;
+}
+
+/*****************************
+    Relational
+*****************************/
+
+.margin {
+  margin:20px;
+}
+
+.margin-t {
+  margin-top:20px;
+}
+
+.margin-b {
+  margin-bottom:20px;
+}
+
+.margin-r {
+  margin-right:20px;
+}
+
+.margin-l {
+  margin-left:20px;
+}
+
+/*****************************
     Structure
 *****************************/
 
 *[class*="container"] {
   width:940px;
-  margin:auto;
+  margin-left:auto;
+  margin-right:auto;
 }
 
 *[class*="container"]:before, *[class*="container"]:after {
@@ -104,7 +169,7 @@
   float:left !important;
 }
 
-/* 
+/*
   Since percentage calculations aren't pixel-accurate, widths are always a little
   shy of correct. Aligning the last column to the right makes everything line up.
 */
@@ -120,7 +185,7 @@
   width:100%;
 }
 
-.container-2.fluid .col, .fluid .container-2 .col {  
+.container-2.fluid .col, .fluid .container-2 .col {
   width:49.03%;
 }
 
@@ -192,7 +257,7 @@
 
 .container.fixed.fluid {
   width:100%;
-  
+
   -webkit-box-sizing:border-box;
   -moz-box-sizing:border-box;
   box-sizing:border-box;
