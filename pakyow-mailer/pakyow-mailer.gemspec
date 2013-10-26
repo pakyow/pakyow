@@ -5,9 +5,10 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.name        = 'pakyow-mailer'
   s.version     = version
-  s.summary     = 'pakyow-mailer'
-  s.description = 'pakyow-mailer'
+  s.summary     = 'A library for delivering Pakyow views as mail.'
+  s.description = 'A library for delivering Pakyow views as mail.'
   s.required_ruby_version = '>= 1.9.3'
+  s.license     = 'MIT'
 
   s.authors           = ['Bryan Powell', 'Bret Young']
   s.email             = 'bryan@metabahn.com'

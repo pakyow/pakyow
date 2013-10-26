@@ -5,9 +5,10 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.name        = 'pakyow-core'
   s.version     = version
-  s.summary     = 'pakyow-core'
-  s.description = 'pakyow-core'
+  s.summary     = 'Core functionality for Pakyow applications.'
+  s.description = 'Core functionality for Pakyow applications, including routing and middleware.'
   s.required_ruby_version = '>= 1.9.3'
+  s.license     = 'MIT'
 
   s.authors           = ['Bryan Powell', 'Bret Young']
   s.email             = 'bryan@metabahn.com'

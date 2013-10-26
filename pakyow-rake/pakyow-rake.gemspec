@@ -8,6 +8,7 @@ Gem::Specification.new do |s|
   s.summary     = 'pakyow-rake'
   s.description = 'pakyow-rake'
   s.required_ruby_version = '>= 1.9.3'
+  s.license     = 'MIT'
 
   s.authors           = ['Bryan Powell']
   s.email             = 'bryan@metabahn.com'
@@ -15,13 +16,13 @@ Gem::Specification.new do |s|
   s.rubyforge_project = 'pakyow-rake'
 
   s.files        = Dir[
-                        File.join(path, 'CHANGES'), 
-                        File.join(path, 'README'), 
-                        File.join(path, 'MIT-LICENSE'), 
+                        File.join(path, 'CHANGES'),
+                        File.join(path, 'README'),
+                        File.join(path, 'MIT-LICENSE'),
                         File.join(path, 'lib','**','*')
                       ]
 
   s.require_path = File.join(path, 'lib')
-  
+
   s.add_dependency('pakyow-core', version)
 end

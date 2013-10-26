@@ -5,9 +5,10 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.name        = 'pakyow-presenter'
   s.version     = version
-  s.summary     = 'pakyow-presenter'
-  s.description = 'pakyow-presenter'
+  s.summary     = 'A library for building a frontend for Pakyow applications.'
+  s.description = 'A library for building a frontend for Pakyow applications, including templating and data binding.'
   s.required_ruby_version = '>= 1.9.3'
+  s.license     = 'MIT'
 
   s.authors           = ['Bryan Powell', 'Bret Young']
   s.email             = 'bryan@metabahn.com'
