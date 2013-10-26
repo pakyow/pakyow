@@ -1,4 +1,8 @@
 source "https://rubygems.org"
 
-gem "pakyow", "0.8.rc2"
+gem "pakyow", "0.8.rc4"
+
+# application server
 gem "puma"
+
+# your gems here

@@ -20,7 +20,6 @@ Pakyow::App.define do
     # suggested production configuration
     app.auto_reload = false
     app.errors_in_browser = false
-    presenter.view_caching = true
 
     # put your production config here
   end
