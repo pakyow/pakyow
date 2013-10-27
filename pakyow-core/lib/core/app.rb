@@ -226,15 +226,13 @@ module Pakyow
 
       @found = false
       catch(:halt) {
-        unless config.app.ignore_routes
-          call_stack(:before, :route)
+        call_stack(:before, :route)
 
-          @found = @router.perform(@request, self) {
-            call_stack(:after, :match)
-          }
+        @found = @router.perform(@request, self) {
+          call_stack(:after, :match)
+        }
 
-          call_stack(:after, :route)
-        end
+        call_stack(:after, :route)
 
         unless found?
           handle(404, false) 
@@ -409,7 +407,7 @@ module Pakyow
       @router = Router.instance.reset
       self.class.routes.each_pair {|set_name, block|
         @router.set(set_name, &block)
-      }
+      } unless config.app.ignore_routes
     end
 
     def set_cookies
