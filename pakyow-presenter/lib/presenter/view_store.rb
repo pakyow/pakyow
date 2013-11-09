@@ -95,6 +95,9 @@ module Pakyow
     def load_path_info
       @path_info = {}
 
+      # for keeping up with pages for previous paths
+      pages = {}
+
       DirUtils.walk_dir(@store_path) do |path|
         # skip root
         next if path == @store_path
@@ -116,10 +119,14 @@ module Pakyow
         # page is used
         if File.directory?(path)
           # gets the path for the previous page
-          prev_path = normalized_path.split('/')[0..-2].join("")
-          page = @path_info[prev_path][:page]
+          prev_path = normalized_path
+          until page = pages[prev_path]
+            prev_path = prev_path.split('/')[0..-2].join("/")
+          end
+          page = page.dup
         else
           page = Page.load(path)
+          pages[normalized_path] = page.dup
         end
 
         template = template_with_name(page.template).dup
@@ -128,8 +135,10 @@ module Pakyow
         # of redundant calls here
         partials = partials_at_path(path)
 
+        page.build(partials)
+
         # construct view
-        view = template.build(page.dup.build(partials))
+        view = template.build(page)
 
         info = {
           view: view,
