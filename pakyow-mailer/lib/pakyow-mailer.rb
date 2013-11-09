@@ -3,6 +3,7 @@ $LOAD_PATH.unshift(libdir) unless $LOAD_PATH.include?(libdir)
 
 # Gems 
 require 'mail'
+require 'premailer'
 
 # Base
 require 'mailer/mailer'

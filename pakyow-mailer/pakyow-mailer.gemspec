@@ -27,6 +27,7 @@ Gem::Specification.new do |s|
   s.add_dependency('pakyow-core', version)
   s.add_dependency('pakyow-presenter', version)
   s.add_dependency('mail', '~> 2.5')
+  s.add_dependency('premailer', '~> 1.7')
 
   s.add_development_dependency('minitest', '~> 5.0')
 end
