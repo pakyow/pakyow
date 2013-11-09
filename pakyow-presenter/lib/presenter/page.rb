@@ -74,6 +74,10 @@ module Pakyow
         @partials = (!@partials || refind) ? find_partials : @partials
       end
 
+      def to_view(container = :default)
+        View.new(@content[container])
+      end
+
       private
 
       def parse_info
