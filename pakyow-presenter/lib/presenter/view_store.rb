@@ -46,6 +46,12 @@ module Pakyow
       end
     end
 
+    def infos
+      @path_info.each_pair do |path, info|
+        yield(info, path)
+      end
+    end
+
     private
 
     def at_path(view_path, obj = nil)
