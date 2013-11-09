@@ -1,6 +1,7 @@
 require 'yaml'
 require 'presenter/view_store'
 require 'presenter/doc_helpers'
+require 'presenter/partial_helpers'
 require 'presenter/view'
 require 'presenter/template'
 require 'presenter/page'

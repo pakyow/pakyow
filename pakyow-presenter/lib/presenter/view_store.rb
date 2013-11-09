@@ -135,10 +135,17 @@ module Pakyow
         # of redundant calls here
         partials = partials_at_path(path)
 
-        page.build(partials)
+        # compose page/partials
+        page.include_partials(partials)
 
-        # construct view
+        # compose template/partials
+        template.include_partials(partials)
+
+        # compose template/page
         view = template.build(page)
+
+        # build partials
+        #view.build(partials)
 
         # set title
         title = page.info(:title)

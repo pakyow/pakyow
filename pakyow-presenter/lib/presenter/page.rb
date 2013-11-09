@@ -1,6 +1,8 @@
 module Pakyow
   module Presenter
     class Page
+      include PartialHelpers
+
       MATTER_MATCHER = /^(---\s*\n.*?\n?)^(---\s*$\n?)/m
 
       class << self
@@ -25,8 +27,6 @@ module Pakyow
           parse_info
           parse_content
         end
-
-        partials
       end
 
       def initialize_copy(original_page)
@@ -39,20 +39,18 @@ module Pakyow
         end
       end
 
-      def build(partial_map)
+      def include_partials(partial_map)
         partials.each do |container, partial_list|
           partial_list.each do |partial_name|
-            regex = /<!--\s*@include\s*#{partial_name}\s*-->/
-            @content[container].gsub!(regex, partial_map[partial_name].to_s)
-
+            @content[container].gsub!(PARTIAL_REGEX, partial_map[partial_name].to_s)
             partial_map.delete(partial_name)
           end
-        end
 
-        # we have more partials
-        if partial_map.count > 0
-          # initiate another build if content contains partials
-          build(partial_map) if partials(true).count > 0
+          # we have more partials
+          if partial_map.count > 0
+            # initiate another build if content contains partials
+            include_partials(partial_map) if partials(true)[container].count > 0
+          end
         end
 
         return self
@@ -69,10 +67,6 @@ module Pakyow
 
       def ==(page)
         @contents == page.contents
-      end
-
-      def partials(refind = false)
-        @partials = (!@partials || refind) ? find_partials : @partials
       end
 
       def to_view(container = :default)
@@ -107,16 +101,11 @@ module Pakyow
         @content[:default] = @contents.gsub(within_regex, '')
       end
 
-      # returns an array of hashes, each with the partial name and doc
       def find_partials
         partials = {}
 
-        partial_regex = /<!--\s*@include\s*([a-zA-Z0-9\-_]*)\s*-->/
         @content.each do |name, content|
-          content.scan(partial_regex) do |m|
-            partials[name] ||= []
-            partials[name] << m[0].to_sym
-          end
+          partials[name] = partials_in(content)
         end
 
         return partials
