@@ -6,4 +6,5 @@ capfile
 doc
 .yardoc
 .rbenv-version
+.ruby-version
 Gemfile.lock
