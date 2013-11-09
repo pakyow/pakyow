@@ -56,7 +56,7 @@ module Pakyow
       def title=(title)
         if @doc
           if o = @doc.css('title').first
-            o.inner_html = Nokogiri::HTML::fragment(title)
+            o.inner_html = Nokogiri::HTML::fragment(title.to_s)
           else
             if o = @doc.css('head').first
               o.add_child(Nokogiri::HTML::fragment("<title>#{title}</title>"))

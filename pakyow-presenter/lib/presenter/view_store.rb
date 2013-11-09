@@ -129,7 +129,7 @@ module Pakyow
           pages[normalized_path] = page.dup
         end
 
-        template = template_with_name(page.template).dup
+        template = template_with_name(page.info(:template)).dup
 
         #TODO more efficient way of doing this? lot
         # of redundant calls here
@@ -139,6 +139,10 @@ module Pakyow
 
         # construct view
         view = template.build(page)
+
+        # set title
+        title = page.info(:title)
+        view.title = title unless title.nil?
 
         info = {
           view: view,

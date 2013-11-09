@@ -18,7 +18,7 @@ module Pakyow
       def initialize(name, contents, path, format = :html)
         @name, @contents, @path, @format = name, contents, path, format
 
-        @info    = {}
+        @info    = { template: :pakyow }
         @content = {}
 
         unless @contents.nil?
@@ -62,8 +62,9 @@ module Pakyow
         return container.nil? ? @content : @content[container.to_sym]
       end
 
-      def template
-        @info[:template] || :pakyow
+      def info(key = nil)
+        return @info if key.nil?
+        return @info[key]
       end
 
       def ==(page)
@@ -84,7 +85,7 @@ module Pakyow
         info = parse_front_matter(@contents)
         info = {} if !info || !info.is_a?(Hash)
 
-        @info = HashUtils.symbolize(info)
+        @info.merge!(HashUtils.symbolize(info))
       end
 
       def parse_content

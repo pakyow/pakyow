@@ -42,6 +42,14 @@ class ViewStoreTest < Minitest::Test
     assert_equal(:sub, @store.template('sub').name)
   end
 
+  def test_uses_page_specified_title
+    assert_equal('custom title', @store.view('title').title)
+  end
+
+  def test_template_title_not_reset_when_no_title_specified
+    assert_equal('pakyow', @store.view('no_title').title)
+  end
+
   def test_fails_when_no_template
     #TODO rewrite since loading views fails when no template
     # assert_raises(StandardError) {
