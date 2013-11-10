@@ -54,20 +54,18 @@ module Pakyow
       end
 
       def title=(title)
-        if @doc
-          if o = @doc.css('title').first
-            o.inner_html = Nokogiri::HTML::fragment(title.to_s)
-          else
-            if o = @doc.css('head').first
-              o.add_child(Nokogiri::HTML::fragment("<title>#{title}</title>"))
-            end
-          end
+        return if @doc.nil?
+
+        if o = @doc.css('title').first
+          o.inner_html = Nokogiri::HTML::fragment(title.to_s)
+        elsif o = @doc.css('head').first
+          o.add_child(Nokogiri::HTML::fragment("<title>#{title}</title>"))
         end
       end
 
       def title
-        o = @doc.css('title').first
-        o.inner_html if o
+        return unless o = @doc.css('title').first
+        o.inner_text
       end
 
       # Allows multiple attributes to be set at once.
@@ -401,27 +399,35 @@ module Pakyow
 
         scope = scope_info[:scope]
 
-        # handle root binding
-        if value = Pakyow.app.presenter.binder.value_for_prop(:_root, scope, data, bindings)
-          value.is_a?(Hash) ? self.bind_attributes_to_doc(value, self.doc) : self.bind_value_to_doc(value, self.doc)
-        end
+        bind_data_to_root(data, scope, bindings)
 
-        scope_info[:props].each {|prop_info|
+        scope_info[:props].each { |prop_info|
           catch(:unbound) {
             prop = prop_info[:prop]
 
-            self.handle_unbound_data(scope, prop) unless data_has_prop?(data, prop) || Pakyow.app.presenter.binder.has_prop?(prop, scope, bindings)
-            value = Pakyow.app.presenter.binder.value_for_prop(prop, scope, data, bindings)
+            if data_has_prop?(data, prop) || Pakyow.app.presenter.binder.has_prop?(prop, scope, bindings)
+              value = Pakyow.app.presenter.binder.value_for_prop(prop, scope, data, bindings)
+              doc = doc_from_path(prop_info[:path])
 
-            doc = doc_from_path(prop_info[:path])
+              if View.form_field?(doc.name)
+                bind_to_form_field(doc, scope, prop, value, data)
+              end
 
-            # handle form field
-            self.bind_to_form_field(doc, scope, prop, value, data) if View.form_field?(doc.name)
-
-            # bind attributes or value
-            value.is_a?(Hash) ? self.bind_attributes_to_doc(value, doc) : self.bind_value_to_doc(value, doc)
+              bind_data_to_doc(doc, value)
+            else
+              handle_unbound_data(scope, prop)
+            end
           }
         }
+      end
+
+      def bind_data_to_root(data, scope, bindings)
+        return unless value = Pakyow.app.presenter.binder.value_for_prop(:_root, scope, data, bindings)
+        value.is_a?(Hash) ? self.bind_attributes_to_doc(value, self.doc) : self.bind_value_to_doc(value, self.doc)
+      end
+
+      def bind_data_to_doc(doc, data)
+        data.is_a?(Hash) ? self.bind_attributes_to_doc(data, doc) : self.bind_value_to_doc(data, doc)
       end
 
       def data_has_prop?(data, prop)
@@ -433,6 +439,7 @@ module Pakyow
 
         tag = doc.name
         return if View.tag_without_value?(tag)
+
         if View.self_closing_tag?(tag)
           # don't override value if set
           if !doc['value'] || doc['value'].empty?
@@ -458,72 +465,89 @@ module Pakyow
           attr = attr.to_s
           attrs = Attributes.new(doc)
           v = v.call(attrs.send(attr)) if v.is_a?(Proc)
-          v.nil? ? doc.remove_attribute(attr) : attrs.send(:"#{attr}=", v)
+
+          if v.nil?
+            doc.remove_attribute(attr)
+          else
+            attrs.send(:"#{attr}=", v)
+          end
         end
       end
 
       def bind_to_form_field(doc, scope, prop, value, bindable)
-
-        # don't overwrite the name if already defined
-        if !doc['name'] || doc['name'].empty?
-          # set name on form element
-          doc['name'] = "#{scope}[#{prop}]"
-        end
+        set_form_field_name(doc, scope, prop)
 
         # special binding for checkboxes and radio buttons
         if doc.name == 'input' && (doc[:type] == 'checkbox' || doc[:type] == 'radio')
-          if value == true || (doc[:value] && doc[:value] == value.to_s)
-            doc[:checked] = 'checked'
-          else
-            doc.delete('checked')
-          end
-
-          # coerce to string since booleans are often used
-          # and fail when binding to a view
-          value = value.to_s
+          bind_to_checked_field(doc, value)
         # special binding for selects
         elsif doc.name == 'select'
-          if options = Pakyow.app.presenter.binder.options_for_prop(prop, scope, bindable)
-            option_nodes = Nokogiri::HTML::DocumentFragment.parse ""
-            Nokogiri::HTML::Builder.with(option_nodes) do |h|
-              until options.length == 0
-                catch :optgroup do
-                  o = options.first
+          bind_to_select_field(doc, scope, prop, value, bindable)
+        end
+      end
 
-                  # an array containing value/content
-                  if o.is_a?(Array)
-                    h.option o[1], :value => o[0]
+      def bind_to_checked_field(doc, value)
+        if value == true || (doc[:value] && doc[:value] == value.to_s)
+          doc[:checked] = 'checked'
+        else
+          doc.delete('checked')
+        end
+
+        # coerce to string since booleans are often used and fail when binding to a view
+        value = value.to_s
+      end
+
+      def bind_to_select_field(doc, scope, prop, value, bindable)
+        create_select_options(doc, scope, prop, value, bindable)
+        select_option_with_value(doc, value)
+      end
+
+      def set_form_field_name(doc, scope, prop)
+        return if doc['name'] && !doc['name'].empty? # don't overwrite the name if already defined
+        doc['name'] = "#{scope}[#{prop}]"
+      end
+
+      def create_select_options(doc, scope, prop, value, bindable)
+        return unless options = Pakyow.app.presenter.binder.options_for_prop(prop, scope, bindable)
+
+        option_nodes = Nokogiri::HTML::DocumentFragment.parse ""
+        Nokogiri::HTML::Builder.with(option_nodes) do |h|
+          until options.length == 0
+            catch :optgroup do
+              o = options.first
+
+              # an array containing value/content
+              if o.is_a?(Array)
+                h.option o[1], :value => o[0]
+                options.shift
+                # likely an object (e.g. string); start a group
+              else
+                h.optgroup(:label => o) {
+                  options.shift
+
+                  options[0..-1].each_with_index { |o2,i2|
+                    # starting a new group
+                    throw :optgroup if !o2.is_a?(Array)
+
+                    h.option o2[1], :value => o2[0]
                     options.shift
-                  # likely an object (e.g. string); start a group
-                  else
-                    h.optgroup(:label => o) {
-                      options.shift
-
-                      options[0..-1].each_with_index { |o2,i2|
-                        # starting a new group
-                        throw :optgroup if !o2.is_a?(Array)
-
-                        h.option o2[1], :value => o2[0]
-                        options.shift
-                      }
-                    }
-                  end
-                end
+                  }
+                }
               end
             end
-
-            # remove existing options
-            doc.children.remove
-
-            # add generated options
-            doc.add_child(option_nodes)
-          end
-
-          # select appropriate option
-          if o = doc.css('option[value="' + value.to_s + '"]').first
-            o[:selected] = 'selected'
           end
         end
+
+        # remove existing options
+        doc.children.remove
+
+        # add generated options
+        doc.add_child(option_nodes)
+      end
+
+      def select_option_with_value(doc, value)
+        return unless o = doc.css('option[value="' + value.to_s + '"]').first
+        o[:selected] = 'selected'
       end
 
       def handle_unbound_data(scope, prop)
