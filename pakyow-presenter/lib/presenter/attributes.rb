@@ -168,9 +168,11 @@ module Pakyow
       end
 
       def method_missing(method, *args)
-        ret = []
-        @attributes.each{|a| ret << a.send(method, *args)}
-        ret
+        @attributes.inject(AttributesCollection.new) { |coll, a| coll<< a.send(method, *args) }
+      end
+
+      def to_s
+        @attributes.inject([]) { |arr, a| arr << a.to_s }
       end
 
       def class(*args)
