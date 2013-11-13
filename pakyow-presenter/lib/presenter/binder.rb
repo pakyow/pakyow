@@ -6,6 +6,7 @@ module Pakyow
       include Singleton
       include Helpers
 
+      attr_accessor :context
       attr_reader :sets
 
       def initialize
@@ -25,7 +26,8 @@ module Pakyow
         @sets[name].instance_exec(&block)
       end
 
-      def value_for_prop(prop, scope, bindable, bindings = {})
+      def value_for_prop(prop, scope, bindable, bindings = {}, context)
+        @context = context
         binding = nil
         @sets.each {|set|
           binding = set[1].match_for_prop(prop, scope, bindable, bindings)
@@ -35,7 +37,7 @@ module Pakyow
         if binding
           case binding.arity
             when 0
-              binding_eval = BindingEval.new(bindable)
+              binding_eval = BindingEval.new(bindable, context)
               binding_eval.instance_exec(&binding)
             when 1
               self.instance_exec(bindable, &binding)

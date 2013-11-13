@@ -19,12 +19,13 @@ module Pakyow
         end
       end
 
-      attr_accessor :doc, :scoped_as, :scopes, :related_views
+      attr_accessor :doc, :scoped_as, :scopes, :related_views, :context
       attr_writer   :bindings
 
       def dup
         view = self.class.from_doc(@doc.dup)
         view.scoped_as = scoped_as
+        view.context = @context
         return view
       end
 
@@ -170,11 +171,13 @@ module Pakyow
         name = name.to_sym
 
         views = ViewCollection.new
+        views.context = @context
         self.bindings.select{|b| b[:scope] == name}.each{|s|
           v = self.view_from_path(s[:path])
 
           v.bindings = self.update_binding_paths_from_path([s].concat(s[:nested_bindings]), s[:path])
           v.scoped_as = s[:scope]
+          v.context = @context
 
           views << v
         }
@@ -186,6 +189,7 @@ module Pakyow
         name = name.to_sym
 
         views = ViewCollection.new
+        views.context = @context
 
         if binding = self.bindings.select{|binding| binding[:scope] == self.scoped_as}[0]
           binding[:props].each {|prop|
@@ -193,6 +197,7 @@ module Pakyow
               v = self.view_from_path(prop[:path])
 
               v.scoped_as = self.scoped_as
+              v.context = @context
               views << v
             end
           }
@@ -241,6 +246,7 @@ module Pakyow
         data = [data] if (!data.is_a?(Enumerable) || data.is_a?(Hash))
 
         views = ViewCollection.new
+        views.context = @context
         data.each {|datum|
           d_v = self.doc.dup
           self.doc.before(d_v)
@@ -248,6 +254,7 @@ module Pakyow
           v = View.from_doc(d_v)
           v.bindings = self.bindings.dup
           v.scoped_as = self.scoped_as
+          v.context = @context
 
           views << v
         }
@@ -299,6 +306,7 @@ module Pakyow
           next unless path = view_info[e[:name]]
 
           v = self.populate_view(View.new(path, view_store), view_store, view_info)
+          v.context = @context
           self.reset_container(e[:doc])
           self.add_content_to_container(v, e[:doc])
         }
@@ -406,7 +414,7 @@ module Pakyow
             prop = prop_info[:prop]
 
             if data_has_prop?(data, prop) || Pakyow.app.presenter.binder.has_prop?(prop, scope, bindings)
-              value = Pakyow.app.presenter.binder.value_for_prop(prop, scope, data, bindings)
+              value = Pakyow.app.presenter.binder.value_for_prop(prop, scope, data, bindings, context)
               doc = doc_from_path(prop_info[:path])
 
               if View.form_field?(doc.name)
@@ -422,7 +430,7 @@ module Pakyow
       end
 
       def bind_data_to_root(data, scope, bindings)
-        return unless value = Pakyow.app.presenter.binder.value_for_prop(:_root, scope, data, bindings)
+        return unless value = Pakyow.app.presenter.binder.value_for_prop(:_root, scope, data, bindings, context)
         value.is_a?(Hash) ? self.bind_attributes_to_doc(value, self.doc) : self.bind_value_to_doc(value, self.doc)
       end
 

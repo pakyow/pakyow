@@ -28,13 +28,13 @@ module Pakyow
 
       Pakyow::App.after(:match) {
         @presenter = Pakyow.app.presenter.dup
-        @presenter.prepare_for_request(@request)
+        @presenter.prepare_for_request(@context)
       }
 
       Pakyow::App.after(:route) {
         if @presenter.presented?
           @found = true
-          @response.body = [@presenter.content]
+          @context.response.body = [@presenter.content]
         else
           @found = false unless found?
         end
@@ -46,11 +46,11 @@ module Pakyow
 
       Pakyow::App.after(:error) {
         unless config.app.errors_in_browser
-          @response.body = [@presenter.content] if @presenter.presented?
+          @context.response.body = [@presenter.content] if @presenter.presented?
         end
       }
 
-      attr_accessor :processor_store, :binder, :path, :template, :page
+      attr_accessor :processor_store, :binder, :path, :template, :page, :context
 
       def initialize
         setup
@@ -83,13 +83,13 @@ module Pakyow
         load_bindings
       end
 
-      def prepare_for_request(request)        
-        @request = request
+      def prepare_for_request(context)
+        @context = context
 
-        if @request.has_route_vars?
-          @path = StringUtils.remove_route_vars(@request.route_path)
+        if @context.request.has_route_vars?
+          @path = StringUtils.remove_route_vars(@context.request.route_path)
         else
-          @path = @request.path
+          @path = @context.request.path
         end
 
         setup
@@ -116,6 +116,7 @@ module Pakyow
 
       def view=(view)
         @view = view
+        @view.context = @context
         @constructed = true
       end
 
@@ -148,6 +149,7 @@ module Pakyow
 
         # construct
         @view = @template.dup.build(@page)
+        @view.context = @context
         @constructed = true
       end
 

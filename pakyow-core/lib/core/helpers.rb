@@ -11,12 +11,12 @@ module Pakyow
     end
 
     def request
-      @request
+      @context.request
     end
     alias_method :req, :request
 
     def response
-      @response
+      @context.response
     end
     alias_method :res, :response
 

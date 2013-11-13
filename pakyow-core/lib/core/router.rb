@@ -39,11 +39,11 @@ module Pakyow
 
     # Performs the initial routing for a request.
     #
-    def perform(request, ctx = Pakyow.app, &after_match)
-      fns = match(request)
+    def perform(context, app = Pakyow.app, &after_match)
+      fns = match(context.request)
       after_match.call if block_given?
 
-      trampoline(fns, ctx)
+      trampoline(fns, app)
     end
 
     # Reroutes a request.
@@ -128,11 +128,11 @@ module Pakyow
     # Calls route functions and catches new functions as
     # they're thrown (e.g. by reroute).
     #
-    def trampoline(fns, ctx)
+    def trampoline(fns, app)
       routed = false
       until fns.empty?
         fns = catch(:fns) {
-          self.call_fns(fns, ctx)
+          self.call_fns(fns, app)
 
           # Getting here means that call() returned normally (not via a throw)
           :fall_through

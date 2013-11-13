@@ -1,6 +1,7 @@
 module Pakyow
   module Presenter
     class BinderSet
+      attr_accessor :context
       attr_reader :scopes
 
       def initialize
@@ -85,10 +86,12 @@ module Pakyow
     class BindingEval
       include Helpers
 
+      attr_accessor :context
       attr_reader :bindable
 
-      def initialize(bindable)
+      def initialize(bindable, context)
         @bindable = bindable
+        @context = context
       end
     end
   end
