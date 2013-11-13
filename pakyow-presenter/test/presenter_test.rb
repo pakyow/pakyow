@@ -8,7 +8,7 @@ class PresenterTest < Minitest::Test
       Pakyow::App.stage(:test)
       @presenter = Pakyow.app.presenter
       @path = '/'
-      @presenter.prepare_for_request(request(@path))
+      @presenter.prepare_for_request(Context.new(request(@path)))
     end
   end
 
@@ -101,7 +101,7 @@ class PresenterTest < Minitest::Test
     assert @presenter.presented?
 
     capture_stdout do
-      @presenter.prepare_for_request(request('/fail'))
+      @presenter.prepare_for_request(Context.new(request('/fail')))
     end
 
     refute @presenter.presented?
