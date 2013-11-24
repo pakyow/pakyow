@@ -1,5 +1,7 @@
 module Pakyow
   class RouteSet
+    include RouteMerger
+
     attr_reader :routes, :lookup
 
     def initialize
@@ -7,13 +9,17 @@ module Pakyow
       @lookup = { :routes => {}, :grouped => {}}
       @handlers = []
       @fns = {}
+      @templates = {}
     end
 
     def eval(&block)
       evaluator = RouteEval.new
-      evaluator.eval(&block)
 
-      @fns, @routes, @handlers, @lookup = evaluator.merge(@fns, @routes, @handlers, @lookup)
+      # default mixins
+      evaluator.include(Pakyow::Routes::Restful)
+
+      evaluator.eval(&block)
+      merge(evaluator)
     end
 
     # Returns a route tuple:
@@ -56,7 +62,6 @@ module Pakyow
         #TODO error
       end
     end
-
 
     # Name based fn lookup
     def fn(name)

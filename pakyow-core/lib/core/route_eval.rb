@@ -1,6 +1,8 @@
 module Pakyow
   class RouteEval
-    attr_reader :path
+    include RouteMerger
+
+    attr_reader :path, :fns, :routes, :handlers, :lookup, :templates
 
     def initialize(path = '/', hooks = { :before => [], :after => []}, fns = {}, group_name = nil, namespace = false)
       @path = path
@@ -11,8 +13,10 @@ module Pakyow
       @groups = {}
       @templates = {}
       @handlers = []
+    end
 
-      eval(&RouteTemplateDefaults.defaults)
+    def include(route_module)
+      merge(route_module.route_eval)
     end
 
     def eval(template = false, &block)
@@ -27,20 +31,8 @@ module Pakyow
       instance_exec(&block)
 
       if template
-        merge_routes(@routes, @member_routes)
+        merge_routes(@member_routes)
       end
-    end
-
-    def merge(fns, routes, handlers, lookup)
-      # routes.merge!(@routes)
-      merge_routes(routes, @routes)
-      handlers.concat(@handlers)
-      # lookup.merge!(@lookup)
-      fns.merge!(@fns)
-
-      merge_lookup(lookup, @lookup)
-
-      return fns, routes, handlers, lookup
     end
 
     # Creates or retreives a named route function. When retrieving,
@@ -100,8 +92,7 @@ module Pakyow
 
       evaluator = RouteEval.new(@scope[:path], merge_hooks(hooks, @scope[:hooks]), @fns, name)
       evaluator.eval(&block)
-
-      @fns, @routes, @handlers, @lookup = evaluator.merge(@fns, @routes, @handlers, @lookup)
+      merge(evaluator)
     end
 
     def namespace(*args, &block)
@@ -112,8 +103,7 @@ module Pakyow
 
       evaluator = RouteEval.new(File.join(@scope[:path], path), merge_hooks(hooks, @scope[:hooks]), @fns, name, true)
       evaluator.eval(&block)
-
-      @fns, @routes, @handlers, @lookup = evaluator.merge(@fns, @routes, @handlers, @lookup)
+      merge(evaluator)
     end
 
     def template(*args, &block)
@@ -129,48 +119,10 @@ module Pakyow
       evaluator = RouteEval.new(File.join(@scope[:path], path), merge_hooks(merge_hooks(hooks, @scope[:hooks]), template[0]), @fns, g_name, true)
       evaluator.eval(&block)
       evaluator.eval(true, &template[1])
-
-      @fns, @routes, @handlers, @lookup = evaluator.merge(@fns, @routes, @handlers, @lookup)
+      merge(evaluator)
     end
 
     protected
-
-    def merge_hooks(h1, h2)
-      # normalize
-      h1 = normalize_hooks(h1)
-      h2 = normalize_hooks(h2)
-
-      # merge
-      h1[:before].concat(h2[:before])
-      h1[:after].concat(h2[:after])
-      h1[:around].concat(h2[:around])
-
-      return h1
-    end
-
-    def merge_routes(r1, r2)
-      r1[:get].concat(r2[:get])
-      r1[:put].concat(r2[:put])
-      r1[:post].concat(r2[:post])
-      r1[:delete].concat(r2[:delete])
-
-      return r1
-    end
-
-    def merge_lookup(l1, l2)
-      l1[:routes].merge!(l2[:routes])
-      l1[:grouped].merge!(l2[:grouped])
-
-      return l1
-    end
-
-    def copy_hooks(hooks)
-      {
-        :before => (hooks[:before] || []).dup,
-        :after => (hooks[:after] || []).dup,
-        :around => (hooks[:around] || []).dup,
-      }
-    end
 
     def register_route(method, *args, &block)
       path, name, fns, hooks = self.class.parse_route_args(args)
@@ -271,22 +223,6 @@ module Pakyow
       fns.concat(hooks[:after])   if hooks && hooks[:after]
       fns.concat(hooks[:around])  if hooks && hooks[:around]
       fns
-    end
-
-    def normalize_hooks(hooks)
-      hooks ||= {}
-
-      [:before, :after, :around].each do |type|
-        # force array
-        hooks[type] = Array(hooks[type])
-
-        # lookup hook fns if not already a Proc
-        hooks[type] = hooks[type].map do |hook|
-          hook.is_a?(Symbol) ? fn(hook) : hook
-        end
-      end
-
-      return hooks
     end
 
     class << self

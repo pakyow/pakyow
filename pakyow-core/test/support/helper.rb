@@ -4,7 +4,7 @@ require 'minitest/unit'
 require 'minitest/autorun'
 require 'pp'
 
-require 'pakyow-core'
+require File.join(File.dirname(__FILE__), '../../lib/pakyow-core')
 
 require 'support/app'
 require 'support/mock_router'
