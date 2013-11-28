@@ -7,7 +7,7 @@ module Pakyow
     include Helpers
 
     def path(name, data = nil)
-      raise MissingRoute, "Could not find route '#{name}'" unless route = get_named_route(name)
+      route = get_named_route(name)
       data ? populate(route, data) : File.join('/', route[4])
     end
 

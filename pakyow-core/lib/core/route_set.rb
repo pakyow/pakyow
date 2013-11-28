@@ -5,7 +5,7 @@ module Pakyow
     attr_reader :routes, :lookup
 
     def initialize
-      @routes = {:get => [], :post => [], :put => [], :delete => []}
+      @routes = {:get => [], :post => [], :put => [], :patch => [], :delete => []}
       @lookup = { :routes => {}, :grouped => {}}
       @handlers = []
       @fns = {}
@@ -13,11 +13,7 @@ module Pakyow
     end
 
     def eval(&block)
-      evaluator = RouteEval.new
-
-      # default mixins
-      evaluator.include(Pakyow::Routes::Restful)
-
+      evaluator = RouteEval.with_defaults
       evaluator.eval(&block)
       merge(evaluator)
     end
@@ -29,6 +25,7 @@ module Pakyow
       path = Utils::String.normalize_path(path)
 
       @routes[method.to_sym].each{|r|
+        #TODO can we do this without conditionals? fall-through?
         case r[0]
         when Regexp
           if data = r[0].match(path)
@@ -49,6 +46,7 @@ module Pakyow
         return h if h[0] == name_or_code || h[1] == name_or_code
       }
 
+      #TODO raise error
       nil
     end
 
@@ -59,7 +57,7 @@ module Pakyow
       if grouped_routes = @lookup[:grouped][group]
         return grouped_routes[name]
       else
-        #TODO error
+        #TODO error (perhaps a set-specific exception rescued by router)
       end
     end
 

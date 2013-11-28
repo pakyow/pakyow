@@ -17,6 +17,7 @@ module Pakyow
     def merge_routes(routes)
       @routes[:get].concat(routes[:get])
       @routes[:put].concat(routes[:put])
+      @routes[:patch].concat(routes[:patch])
       @routes[:post].concat(routes[:post])
       @routes[:delete].concat(routes[:delete])
     end

@@ -1,7 +1,7 @@
 require 'forwardable'
 
 module Pakyow
-  # Include in a module to define route mixins 
+  # Include in a module to define route mixins
   # that can be included into route sets.
   module Routes
     def self.included(base)

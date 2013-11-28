@@ -5,6 +5,9 @@ module Pakyow
   # Raised when route is looked up that doesn't exist
   class MissingRoute < StandardError; end
 
+  # Raised when template part doesn't exist
+  class UnknownTemplatePart < StandardError; end
+
   class Error < StandardError; end
 end
 

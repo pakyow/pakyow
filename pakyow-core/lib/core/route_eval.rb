@@ -2,75 +2,64 @@ module Pakyow
   class RouteEval
     include RouteMerger
 
-    attr_reader :path, :fns, :routes, :handlers, :lookup, :templates
+    attr_reader :path, :fns, :hooks, :group, :routes, :handlers, :lookup, :templates
 
-    def initialize(path = '/', hooks = { :before => [], :after => []}, fns = {}, group_name = nil, namespace = false)
-      @path = path
-      @scope  = {:path => path, :hooks => hooks, :group_name => group_name, :namespace => namespace}
-      @routes = {:get => [], :post => [], :put => [], :delete => []}
-      @lookup = {:routes => {}, :grouped => {}}
-      @fns  = fns
-      @groups = {}
-      @templates = {}
-      @handlers = []
+    HTTP_METHODS   = [:get, :post, :put, :patch, :delete]
+    DEFAULT_MIXINS = ['Pakyow::Routes::Restful']
+
+    class << self
+      def with_defaults(*args)
+        instance = self.new(*args)
+
+        # Mixin defaults
+        DEFAULT_MIXINS.each { |mixin| instance.include(Kernel.const_get(mixin)) }
+
+        return instance
+      end
+
+      def from_scope(route_eval, overrides = {})
+				args = [:path, :fns, :hooks, :templates, :group].inject([]) do |acc, arg|
+					acc << (overrides[arg] || route_eval.send(arg))
+				end
+
+        instance = self.new(*args)
+      end
+    end
+
+    def initialize(path = '/', fns = nil, hooks = nil, templates = nil, group = nil)
+      @path      = path
+      @fns       = fns || {}
+      @routes    = HTTP_METHODS.inject({}) { |acc, m| acc[m] = []; acc }
+      @hooks     = hooks || { before: [], after: [] }
+      @templates = templates || {}
+      @group     = group
+
+      @lookup    = { routes: {}, grouped: {} }
+      @handlers  = []
+    end
+
+    # Path for evals within this eval
+    #
+    def descendent_path
+      @descendent_path || @path
     end
 
     def include(route_module)
       merge(route_module.route_eval)
     end
 
-    def eval(template = false, &block)
-      # if we're evaling a template, need to push
-      # member routes to the end (they're always
-      # created first, but need to be the last out)
-      if template
-        @member_routes = @routes
-        @routes = {:get => [], :post => [], :put => [], :delete => []}
-      end
-
+    def eval(&block)
       instance_exec(&block)
-
-      if template
-        merge_routes(@member_routes)
-      end
     end
 
     # Creates or retreives a named route function. When retrieving,
     #
     def fn(name, &block)
-      @fns[name] = block and return if block
-      @fns[name]
-    end
-
-    # def action(name, &block)
-    #   @fns[name] = block and return if block
-    #   @fns[name]
-    # end
-
-    def action(method, *args, &block)
-      fn, hooks = self.class.parse_action_args(args)
-      fns = block_given? ? [block] : [fn]
-      @fns[method] = build_fns(fns, hooks)
-    end
-
-    def default(*args, &block)
-      register_route(:get, '/', :default, *args, &block)
-    end
-
-    def get(*args, &block)
-      register_route(:get, *args, &block)
-    end
-
-    def put(*args, &block)
-      register_route(:put, *args, &block)
-    end
-
-    def post(*args, &block)
-      register_route(:post, *args, &block)
-    end
-
-    def delete(*args, &block)
-      register_route(:delete, *args, &block)
+      if block_given?
+        @fns[name] = block
+      else
+        @fns[name]
+      end
     end
 
     # Creates a handler.
@@ -90,24 +79,24 @@ module Pakyow
     def group(*args, &block)
       name, hooks = self.class.parse_group_args(args)
 
-      evaluator = RouteEval.new(@scope[:path], merge_hooks(hooks, @scope[:hooks]), @fns, name)
+      evaluator = RouteEval.from_scope(self, path: descendent_path, group: name, hooks: hooks)
       evaluator.eval(&block)
+
       merge(evaluator)
     end
 
     def namespace(*args, &block)
       path, name, hooks = self.class.parse_namespace_args(args)
 
-      #TODO shouldn't this be in parse_namespace_args?
-      hooks = name if name.is_a?(Hash)
-
-      evaluator = RouteEval.new(File.join(@scope[:path], path), merge_hooks(hooks, @scope[:hooks]), @fns, name, true)
+      evaluator = RouteEval.from_scope(self, path: File.join(descendent_path, path), group: name, hooks: hooks)
       evaluator.eval(&block)
+
       merge(evaluator)
     end
 
     def template(*args, &block)
       name, hooks = self.class.parse_template_args(args)
+
       @templates[name] = [hooks, block]
     end
 
@@ -116,15 +105,41 @@ module Pakyow
 
       template = @templates[t_name]
 
-      evaluator = RouteEval.new(File.join(@scope[:path], path), merge_hooks(merge_hooks(hooks, @scope[:hooks]), template[0]), @fns, g_name, true)
+      evaluator = RouteExpansionEval.from_scope(self, path: File.join(descendent_path, path), group: g_name, hooks: hooks)
+			evaluator.direct_path = path
+      evaluator.template = template[1]
       evaluator.eval(&block)
-      evaluator.eval(true, &template[1])
+
       merge(evaluator)
+    end
+
+    def default(*args, &block)
+      build_route(:get, '/', :default, *args, &block)
+    end
+
+    HTTP_METHODS.each do |method|
+      define_method method do |*args, &block|
+        build_route(method, *args, &block)
+      end
+    end
+
+    # For the expansion of templates
+    def method_missing(method, *args, &block)
+      if template_defined?(method)
+        expand(method, *args, &block)
+      else
+        super
+        # action(method, *args, &block)
+      end
+    end
+
+    def template_defined?(template)
+      !@templates[template].nil?
     end
 
     protected
 
-    def register_route(method, *args, &block)
+		def build_route(method, *args, &block)
       path, name, fns, hooks = self.class.parse_route_args(args)
 
       fns ||= []
@@ -132,7 +147,7 @@ module Pakyow
       fns << block if block_given?
 
       # merge route hooks with scoped hooks
-      hooks = merge_hooks(hooks || {}, @scope[:hooks])
+      hooks = merge_hooks(hooks || {}, @hooks)
 
       # build the final list of fns
       fns = build_fns(fns, hooks)
@@ -142,28 +157,26 @@ module Pakyow
         vars  = []
       else
         # prepend scope path if we're in a scope
-        path = File.join(@scope[:path], path)
+        path = File.join(@path, path)
         path = Utils::String.normalize_path(path)
 
         # get regex and vars for path
         regex, vars = build_route_matcher(path)
       end
 
-      # create the route tuple
-      route = [regex, vars, name, fns, path]
+			register_route([regex, vars, name, fns, path, method])
+		end
 
-      @routes[method] << route
+    def register_route(route)
+      @routes[route[5]] << route
 
-      # add route to lookup, unless it's namespaced (because
-      # then it can only be accessed through the grouping)
-      unless namespace?
-        @lookup[:routes][name] = route
-      end
-
-      # add to grouped lookup, if we're in a group
       if group?
-        (@lookup[:grouped][@scope[:group_name]] ||= {})[name] = route
+        bucket = (@lookup[:grouped][@group] ||= {})
+      else
+        bucket = @lookup[:routes]
       end
+
+			bucket[route[2]] = route
     end
 
     def build_route_matcher(path)
@@ -188,30 +201,7 @@ module Pakyow
     end
 
     def group?
-      !@scope[:group_name].nil?
-    end
-
-    def namespace?
-      @scope[:namespace]
-    end
-
-    # yields current path to the block for modification,
-    # then updates paths for member routes
-    def nested_path
-      new_path = yield(@scope[:group_name], @path)
-
-      # update paths of member routes
-      @member_routes.each {|type,routes|
-        routes.each { |route|
-          path = Utils::String.normalize_path(File.join(new_path, route[4].gsub(/^#{Utils::String.normalize_path(@path)}/, '')))
-          regex, vars = build_route_matcher(path)
-          route[0] = regex
-          route[1] = vars
-          route[4] = path
-        }
-      }
-
-      @path = new_path
+      !@group.nil?
     end
 
     def build_fns(main_fns, hooks)
@@ -309,7 +299,76 @@ module Pakyow
         }
         ret
       end
+    end
+  end
 
+  class RouteExpansionEval < RouteEval
+    attr_writer :template, :direct_path
+
+    def eval(&block)
+      @template_eval = RouteTemplateEval.from_scope(self, path: path, group: @group, hooks: {})
+			@template_eval.direct_path = @direct_path
+			@template_eval.eval(&@template)
+
+			@path = @template_eval.routes_path
+
+      super
+    end
+
+    def action(method, *args, &block)
+      fn, hooks = self.class.parse_action_args(args)
+			fn = block if block_given?
+
+			# get route info from template
+			route = @template_eval.route_for_action(method)
+
+			all_fns = route[3]
+			all_fns[:fns].unshift(fn) if fn
+
+			hooks = merge_hooks(hooks, all_fns[:hooks])
+			route[3] = build_fns(all_fns[:fns], hooks)
+
+			register_route(route)
+    end
+
+		def action_group(*args, &block)
+      name, hooks = self.class.parse_action_group_args(args)
+			group = @template_eval.group_named(name)
+
+			hooks = merge_hooks(hooks, group[0])
+			group(name, hooks, &block)
+		end
+
+		def action_namespace(*args, &block)
+      name, hooks = self.class.parse_action_namespace_args(args)
+			namespace = @template_eval.namespace_named(name)
+
+			hooks = merge_hooks(hooks, namespace[1])
+			namespace(name, namespace[0], hooks, &block)
+		end
+
+    def method_missing(method, *args, &block)
+			if @template_eval.has_action?(method)
+				action(method, *args, &block)
+			elsif @template_eval.has_namespace?(method)
+				action_namespace(method, *args, &block)
+			elsif @template_eval.has_group?(method)
+				action_group(method, *args, &block)
+			else
+				super
+			end
+		rescue NoMethodError
+			raise UnknownTemplatePart, "No action, namespace, or group named '#{method}'"
+    end
+
+		def expand(*args, &block)
+			args[2] = File.join(@template_eval.nested_path.gsub(@path, ''), args[2])
+			super(*args, &block)
+		end
+
+		private
+
+		class << self
       def parse_action_args(args)
         ret = []
         args.each { |arg|
@@ -321,6 +380,97 @@ module Pakyow
         }
         ret
       end
-    end
+
+      def parse_action_namespace_args(args)
+        ret = []
+        args.each { |arg|
+          if arg.is_a?(Hash) # we have hooks
+            ret[1] = arg
+          elsif arg.is_a?(Symbol) # we have a name
+            ret[0] = arg
+          end
+        }
+        ret
+      end
+
+      def parse_action_group_args(args)
+        ret = []
+        args.each { |arg|
+          if arg.is_a?(Hash) # we have hooks
+            ret[1] = arg
+          elsif !arg.nil? # we have a name
+            ret[0] = arg
+          end
+        }
+        ret
+      end
+		end
+  end
+
+  class RouteTemplateEval < RouteEval
+		attr_accessor :direct_path
+
+		def initialize(*args)
+			super
+
+			@groups = {}
+			@namespaces = {}
+
+			@routes_path = path
+			@nested_path = path
+		end
+
+		def has_action?(name)
+		 	!route_for_action(name).nil?
+		end
+
+		def has_group?(name)
+			!group_named(name).nil?
+		end
+
+		def has_namespace?(name)
+			!namespace_named(name).nil?
+		end
+
+		def route_for_action(name)
+			lookup.fetch(:grouped, {}).fetch(@group, {})[name]
+		end
+
+		def namespace_named(name)
+			@namespaces[name]
+		end
+
+		def group_named(name)
+			@groups[name]
+		end
+
+		def build_fns(fns, hooks)
+			{
+				fns: fns,
+				hooks: hooks,
+			}
+		end
+
+		def namespace(*args)
+      path, name, hooks = self.class.parse_namespace_args(args)
+			@namespaces[name] = [path, hooks]
+		end
+
+		def group(*args)
+      name, hooks = self.class.parse_group_args(args)
+			@groups[name] = [hooks]
+		end
+
+		def routes_path(&block)
+			return @routes_path unless block_given?
+			@routes_path = yield(@routes_path)
+			@path = @routes_path
+		end
+
+		def nested_path(&block)
+			return @nested_path unless block_given?
+			@nested_path = yield(@nested_path)
+		end
   end
 end
+

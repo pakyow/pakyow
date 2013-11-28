@@ -34,7 +34,7 @@ module Pakyow
         end
       }
 
-      nil
+      raise MissingRoute, "Could not find route '#{name}'"
     end
 
     # Performs the initial routing for a request.
