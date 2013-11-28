@@ -2,8 +2,8 @@ module Pakyow
 
   # The Request object.
   class Request < Rack::Request
-    attr_accessor :restful, :route_path, :controller, :action, :format, 
-    :error, :app, :path, :method, :paths, :methods, :formats
+    attr_accessor :restful, :route_path, :controller, :action, :format,
+    :error, :path, :method, :paths, :methods, :formats
 
     def initialize(*args)
       super
@@ -14,6 +14,8 @@ module Pakyow
 
       @path = path_info
       @method = request_method.downcase.to_sym
+
+      setup
     end
 
     def path=(path)
@@ -30,11 +32,6 @@ module Pakyow
       format = format ? format.to_sym : :html
       @formats << format
       @format = format
-
-      # Set response type
-      @app.context.response["Content-Type"] = Rack::Mime.mime_type(".#{@format}")
-    rescue NoContextError, NoMethodError
-      # context or response was nil
     end
 
     def first_path

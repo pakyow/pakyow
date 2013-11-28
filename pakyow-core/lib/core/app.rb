@@ -217,10 +217,11 @@ module Pakyow
     def process(env)
       call_stack(:before, :process)
 
-      res = Response.new
       req = Request.new(env)
-      req.app = self
-      req.setup
+      res = Response.new
+
+      # set response format based on request
+      res.format = req.format
 
       @context = Context.new(req, res)
 
