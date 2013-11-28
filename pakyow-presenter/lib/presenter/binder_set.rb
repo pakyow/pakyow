@@ -20,9 +20,9 @@ module Pakyow
         return bindings_for_scope(scope, bindings)[prop]
       end
 
-      def options_for_prop(prop, scope, bindable)
+      def options_for_prop(prop, scope, bindable, context)
         if block = (@options[scope] || {})[prop]
-          binding_eval = BindingEval.new(bindable)
+          binding_eval = BindingEval.new(bindable, prop, context)
           binding_eval.instance_exec(&block)
         end
       end

@@ -516,7 +516,7 @@ module Pakyow
       end
 
       def create_select_options(doc, scope, prop, value, bindable)
-        return unless options = Pakyow.app.presenter.binder.options_for_prop(prop, scope, bindable)
+        return unless options = Pakyow.app.presenter.binder.options_for_prop(prop, scope, bindable, context)
 
         option_nodes = Nokogiri::HTML::DocumentFragment.parse ""
         Nokogiri::HTML::Builder.with(option_nodes) do |h|
