@@ -7,21 +7,21 @@ module Pakyow
     def load_from_path(path)
       require_recursively(path)
     end
-    
+
     protected
-    
+
     def require_recursively(dir)
       @times ||= {}
       if File.exists?(dir)
-        DirUtils.walk_dir(dir) do |path|
+        Utils::Dir.walk_dir(dir) do |path|
           next if FileTest.directory?(path)
           next if path.split('.')[-1] != 'rb'
-          
+
           if Config::Base.app.auto_reload
             if !@times[path] || (@times[path] && File.mtime(path) - @times[path] > 0)
               load(path)
               @times[path] = File.mtime(path)
-            end              
+            end
           else
             require path
           end

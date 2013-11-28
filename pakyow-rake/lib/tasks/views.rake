@@ -12,8 +12,8 @@ class ViewStructureAnalyzer
     Pakyow::Config::Base.presenter.view_stores.each_pair {|view_store, store_path|
       Pakyow.app.presenter.view_store(view_store).view_info.each {|path, store|
         next unless Pakyow.app.presenter.view_store(view_store).real_path(path)
-        path = StringUtils.normalize_path(path) unless path == "/"
-        next if view_path && path != StringUtils.normalize_path(view_path)
+        path = Utils::String.normalize_path(path) unless path == "/"
+        next if view_path && path != Utils::String.normalize_path(view_path)
         next if views.select{|v| v[:path] == path}.length > 0
 
         view = View.at_path(path)
@@ -26,7 +26,7 @@ class ViewStructureAnalyzer
       views = info[:store][:views]
       containers = info[:containers]
 
-      Pakyow.logger << "\n" + info[:path] + " (#{StringUtils.normalize_path(root).gsub(info[:path], '.')})"
+      Pakyow.logger << "\n" + info[:path] + " (#{Utils::String.normalize_path(root).gsub(info[:path], '.')})"
 
       maxlen = containers.map{|c| c.length}.sort.last
       containers.each {|container|

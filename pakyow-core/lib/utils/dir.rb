@@ -1,12 +1,13 @@
 module Pakyow
+  module Utils
 
   # Utility methods for directories and files.
-  class DirUtils
+    class Dir
 
       # visit dir, then all files in dir, then walk_dir each directory in dir
       def self.walk_dir(dir, &block)
         yield dir
-        all = Dir.entries(dir)
+        all = ::Dir.entries(dir)
         partition = all.partition{|e| File.file?("#{dir}/#{e}")}
         files = partition[0]
         dirs = partition[1]
@@ -16,7 +17,7 @@ module Pakyow
 
       def self.print_dir(dir)
         puts "/#{dir}"
-        DirUtils.walk_dir(dir) {|full_path|
+        Utils::Dir.walk_dir(dir) {|full_path|
           path = full_path.gsub(Regexp.new("#{dir}\/?"), '')
           next if path.empty?
 
@@ -33,5 +34,7 @@ module Pakyow
       def self.dir_within_dir?(dir1, dir2)
         (dir1.split('/') - dir2.split('/')).empty?
       end
+    end
+
   end
 end

@@ -51,12 +51,12 @@ module Pakyow
     end
 
     def cookies
-      @cookies ||= HashUtils.strhash(super)
+      @cookies ||= Utils::Hash.strhash(super)
     end
 
     # Returns indifferent params (see {HashUtils.strhash} for more info on indifferent hashes).
     def params
-      @params ||= HashUtils.strhash(super)
+      @params ||= Utils::Hash.strhash(super)
     end
 
     # Returns array of url components.
@@ -97,14 +97,14 @@ module Pakyow
     protected
 
     def set_working_path_from_path(path, method)
-      base_route, ignore_format = StringUtils.split_at_last_dot(path)
+      base_route, ignore_format = Utils::String.split_at_last_dot(path)
 
       self.path = base_route
       self.method = method || self.method
     end
 
     def set_request_format_from_path(path)
-      path, format = StringUtils.split_at_last_dot(path)
+      path, format = Utils::String.split_at_last_dot(path)
       self.format = ((format && (format[format.length - 1, 1] == '/')) ? format[0, format.length - 1] : format)
     end
   end

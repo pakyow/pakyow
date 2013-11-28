@@ -12,8 +12,8 @@ class BindingAnalyzer
     Pakyow::Config::Base.presenter.view_stores.each_pair {|view_store, store_path|
       Pakyow.app.presenter.view_store(view_store).view_info.each {|path, store|
         next unless Pakyow.app.presenter.view_store(view_store).real_path(path)
-        path = StringUtils.normalize_path(path) unless path == "/"
-        next if view_path && path != StringUtils.normalize_path(view_path)
+        path = Utils::String.normalize_path(path) unless path == "/"
+        next if view_path && path != Utils::String.normalize_path(view_path)
         next if bindings.select{|b| b[:path] == path}.length > 0
 
         view = View.at_path(path)

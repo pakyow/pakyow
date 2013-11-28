@@ -26,7 +26,7 @@ module Pakyow
     # [regex, vars, name, fns, path]
     #
     def match(path, method)
-      path = StringUtils.normalize_path(path)
+      path = Utils::String.normalize_path(path)
 
       @routes[method.to_sym].each{|r|
         case r[0]

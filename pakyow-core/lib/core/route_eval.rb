@@ -143,7 +143,7 @@ module Pakyow
       else
         # prepend scope path if we're in a scope
         path = File.join(@scope[:path], path)
-        path = StringUtils.normalize_path(path)
+        path = Utils::String.normalize_path(path)
 
         # get regex and vars for path
         regex, vars = build_route_matcher(path)
@@ -203,7 +203,7 @@ module Pakyow
       # update paths of member routes
       @member_routes.each {|type,routes|
         routes.each { |route|
-          path = StringUtils.normalize_path(File.join(new_path, route[4].gsub(/^#{StringUtils.normalize_path(@path)}/, '')))
+          path = Utils::String.normalize_path(File.join(new_path, route[4].gsub(/^#{Utils::String.normalize_path(@path)}/, '')))
           regex, vars = build_route_matcher(path)
           route[0] = regex
           route[1] = vars

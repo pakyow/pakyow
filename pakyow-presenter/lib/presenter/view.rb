@@ -48,7 +48,7 @@ module Pakyow
       end
 
       def self.load(path)
-        format    = StringUtils.split_at_last_dot(path)[-1]
+        format    = Utils::String.split_at_last_dot(path)[-1]
         contents  = File.read(path)
 
         return self.new(contents, format)
