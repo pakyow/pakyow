@@ -7,9 +7,8 @@ module Pakyow
     include Helpers
 
     def path(name, data = nil)
-      if route = get_named_route(name)
-        data ? populate(route, data) : File.join('/', route[4])
-      end
+      raise MissingRoute, "Could not find route '#{name}'" unless route = get_named_route(name)
+      data ? populate(route, data) : File.join('/', route[4])
     end
 
     def group(name)
@@ -29,9 +28,9 @@ module Pakyow
 
     def populate(route, data = {})
       vars  = route[1]
-      
+
       split_path = Request.split_url(route[4])
-      
+
       vars.each {|v|
         split_path[v[:url_position]] = data.delete(v[:var])
       }

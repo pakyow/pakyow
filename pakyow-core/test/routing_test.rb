@@ -543,7 +543,17 @@ class RoutingTest < Minitest::Test
     }
 
     assert_equal '/foo/bar', RouteLookup.new.group(:foo).path(:bar)
-    assert RouteLookup.new.path(:bar).nil?, "namespaced route should only be available through group"
+
+    # namespaced route should only be available through group
+    assert_raises(MissingRoute) {
+      RouteLookup.new.path(:bar)
+    }
+  end
+
+  def test_errors_when_looking_up_invalid_path
+    assert_raises(MissingRoute) {
+      RouteLookup.new.path(:missing)
+    }
   end
 
   private
