@@ -72,12 +72,10 @@ a:hover {
 }
 
 ul, ol {
-  font-size:1.3em;
   margin: 0 0 9px 25px;
 }
 
 ul ul, ol ol {
-  font-size:1em;
   margin-bottom:0;
 }
 
