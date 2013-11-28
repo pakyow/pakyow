@@ -7,6 +7,7 @@ require 'pp'
 
 require File.expand_path('../../../../pakyow-core/lib/pakyow-core', __FILE__)
 require File.expand_path('../../../lib/pakyow-presenter', __FILE__)
+require File.expand_path('../../../../pakyow-core/test/support/helper', __FILE__)
 
 require_relative 'test_application'
 

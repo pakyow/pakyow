@@ -3,6 +3,8 @@ module Pakyow
     class ViewCollection
       include Enumerable
 
+      attr_accessor :context
+
       def initialize
         @views = []
       end
@@ -83,6 +85,7 @@ module Pakyow
 
       def scope(name)
         views = ViewCollection.new
+        views.context = @context
         self.each{|v|
           next unless svs = v.scope(name)
           svs.each{|sv| views << sv}
@@ -93,6 +96,7 @@ module Pakyow
 
       def prop(name)
         views = ViewCollection.new
+        views.context = @context
         self.each{|v|
           next unless svs = v.prop(name)
           svs.each{|sv| views << sv}
@@ -145,6 +149,7 @@ module Pakyow
         data = [data] if (!data.is_a?(Enumerable) || data.is_a?(Hash))
 
         views = ViewCollection.new
+        views.context = @context
         data.each_with_index {|datum,i|
           unless v = self[i]
 
@@ -160,6 +165,7 @@ module Pakyow
           # find binding subset (keeps us from refinding)
           new_v.bindings = v.bindings.dup
           new_v.scoped_as = v.scoped_as
+          new_v.context = @context
 
           views << new_v
         }

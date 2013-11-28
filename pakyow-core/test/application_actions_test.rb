@@ -1,6 +1,8 @@
 require 'support/helper'
 
 class ApplicationActions < Minitest::Test
+  include Pakyow::Helpers
+
   def test_application_can_be_halted
     reset
 
@@ -27,7 +29,7 @@ class ApplicationActions < Minitest::Test
 
   def test_application_redirect_issues_route_lookup
     reset
-    
+
     begin
       Pakyow.app.redirect(:redirect_route)
     rescue
@@ -67,8 +69,7 @@ class ApplicationActions < Minitest::Test
     path = '/foo/'
     router = MockRouter.new
     Pakyow.app.router = router
-    Pakyow.app.response = mock_response
-    Pakyow.app.request = mock_request
+    Pakyow.app.context = Context.new(mock_request, mock_response)
     Pakyow.app.reroute(path)
 
     assert_equal :get, Pakyow.app.request.method
@@ -83,8 +84,7 @@ class ApplicationActions < Minitest::Test
     method = :put
     router = MockRouter.new
     Pakyow.app.router = router
-    Pakyow.app.response = mock_response
-    Pakyow.app.request = mock_request
+    Pakyow.app.context = Context.new(mock_request, mock_response)
     Pakyow.app.reroute(path, method)
 
     assert_equal method, Pakyow.app.request.method
@@ -104,8 +104,6 @@ class ApplicationActions < Minitest::Test
 
   def test_data_can_be_sent_from_application
     reset
-    Pakyow.app.response = mock_response
-    Pakyow.app.request = mock_request
 
     data = 'foo'
 
@@ -119,8 +117,6 @@ class ApplicationActions < Minitest::Test
 
   def test_data_can_be_sent_from_application_with_type
     reset
-    Pakyow.app.response = mock_response
-    Pakyow.app.request = mock_request
 
     data = 'foo'
     type = 'text'
@@ -135,8 +131,6 @@ class ApplicationActions < Minitest::Test
 
   def test_file_can_be_sent_from_application
     reset
-    Pakyow.app.response = mock_response
-    Pakyow.app.request = mock_request
 
     path = File.join(File.dirname(__FILE__), 'support/foo.txt')
 
@@ -152,8 +146,7 @@ class ApplicationActions < Minitest::Test
 
   def test_file_can_be_sent_from_application_with_type
     reset
-    Pakyow.app.response = mock_response
-    Pakyow.app.request = mock_request
+    Pakyow.app.context = Context.new(mock_request, mock_response)
 
     type = 'text/plain'
     path = File.join(File.dirname(__FILE__), 'support/foo.txt')
@@ -170,8 +163,7 @@ class ApplicationActions < Minitest::Test
 
   def test_file_can_be_sent_from_application_with_type_as_attachment
     reset
-    Pakyow.app.response = mock_response
-    Pakyow.app.request = mock_request
+    Pakyow.app.context = Context.new(mock_request, mock_response)
 
     as = 'foo.txt'
     type = 'text/plain'
@@ -191,7 +183,10 @@ class ApplicationActions < Minitest::Test
   protected
 
   def reset
-    app(true).run(:test)
+    app = app(true)
+    Pakyow::App.stage(:test)
+    Pakyow.app.context = Context.new(mock_request, mock_response)
+    app.run(:test)
   end
 
   def app(do_reset = false)

@@ -11,8 +11,9 @@ module Pakyow
         if static
           catch(:halt) do
             app = Pakyow.app.dup
-            app.response = Response.new
-            app.request = Request.new(env)
+            res = Response.new
+            req = Request.new(env)
+            app.context = Context.new(req, res)
             app.send(File.open(resource_path))
           end
         else

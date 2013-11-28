@@ -185,7 +185,7 @@ module Pakyow
     include Helpers
     include AppHelpers
 
-    attr_accessor :request, :response
+    attr_writer :context
 
     def initialize
       Pakyow.app = self
@@ -217,10 +217,12 @@ module Pakyow
     def process(env)
       call_stack(:before, :process)
 
-      @response = Response.new
-      @request  = Request.new(env)
-      @request.app = self
-      @request.setup
+      res = Response.new
+      req = Request.new(env)
+      req.app = self
+      req.setup
+
+      @context = Context.new(req, res)
 
       set_initial_cookies
 
@@ -228,17 +230,17 @@ module Pakyow
       catch(:halt) {
         call_stack(:before, :route)
 
-        @found = @router.perform(@request, self) {
+        @found = @router.perform(context, self) {
           call_stack(:after, :match)
         }
 
         call_stack(:after, :route)
 
         unless found?
-          handle(404, false) 
+          handle(404, false)
 
           if config.app.errors_in_browser
-            @response["Content-Type"] = 'text/html'
+            response["Content-Type"] = 'text/html'
 
             view_file = File.join(File.expand_path('../../', __FILE__), 'views', 'errors', '404.html')
             content = File.open(view_file).read
@@ -249,8 +251,8 @@ module Pakyow
             content.gsub!('{view_path}', path == '/' ? 'index.html' : "#{path}.html")
             content.gsub!('{route_path}', path)
 
-            @response.body = []
-            @response.body << content
+            response.body = []
+            response.body << content
           end
         end
       }
@@ -259,17 +261,17 @@ module Pakyow
 
       call_stack(:after, :process)
 
-      @response.finish
+      response.finish
     rescue StandardError => error
       call_stack(:before, :error)
 
-      @request.error = error
+      request.error = error
 
       handle(500, false) unless found?
 
       if config.app.errors_in_browser
-        @response["Content-Type"] = 'text/html'
-        
+        response["Content-Type"] = 'text/html'
+
         view_file = File.join(File.expand_path('../../', __FILE__), 'views', 'errors', '500.html')
         content = File.open(view_file).read
 
@@ -280,17 +282,17 @@ module Pakyow
 
         content.gsub!('{file}', nice_source[1].gsub(File.expand_path(Config::App.root) + '/', ''))
         content.gsub!('{line}', nice_source[2])
-        
+
         content.gsub!('{msg}', error.to_s)
         content.gsub!('{trace}', error.backtrace.join('<br>'))
 
-        @response.body = []
-        @response.body << content
+        response.body = []
+        response.body << content
       end
 
       call_stack(:after, :error)
 
-      @response.finish
+      response.finish
     end
 
     def found?
@@ -317,17 +319,17 @@ module Pakyow
     # Interrupts the application and returns response immediately.
     #
     def halt
-      throw :halt, @response
+      throw :halt, response
     end
 
     # Routes the request to different logic.
     #
     def reroute(path, method = nil)
-      @request.setup(path, method)
+      request.setup(path, method)
 
       call_stack(:before, :route)
       call_stack(:after, :match)
-      @router.reroute(@request)
+      @router.reroute(request)
       call_stack(:after, :route)
     end
 
@@ -351,7 +353,7 @@ module Pakyow
       headers["Content-Type"]         = type if type
       headers["Content-disposition"]  = "attachment; filename=#{send_as}" if send_as
 
-      @response = Response.new(data, @response.status, @response.header.merge(headers))
+      self.context = Context.new(request, Response.new(data, response.status, response.header.merge(headers)))
       halt
     end
 
@@ -359,11 +361,11 @@ module Pakyow
     #
     def redirect(location, status_code = 302)
       location = router.path(location) if location.is_a?(Symbol)
-      
+
       headers = response ? response.header : {}
       headers = headers.merge({'Location' => location})
 
-      app.response = Response.new('', status_code, headers)
+      self.context = Context.new(request, Response.new('', status_code, headers))
       halt
     end
 
@@ -411,14 +413,14 @@ module Pakyow
     end
 
     def set_cookies
-      @request.cookies.each_pair {|k, v|
-        @response.unset_cookie(k) if v.nil?
+      request.cookies.each_pair {|k, v|
+        response.unset_cookie(k) if v.nil?
 
         # cookie is already set with value, ignore
         next if @initial_cookies.include?(k.to_s) && @initial_cookies[k.to_s] == v
 
         # set cookie with defaults
-        @response.set_cookie(k, {
+        response.set_cookie(k, {
           :path => config.cookies.path,
           :expires => config.cookies.expiration,
           :value => v
@@ -427,7 +429,7 @@ module Pakyow
 
       # delete cookies that are no longer present
       @initial_cookies.each {|k|
-        @response.delete_cookie(k) unless @request.cookies.key?(k.to_s)
+        response.delete_cookie(k) unless request.cookies.key?(k.to_s)
       }
     end
 
@@ -435,7 +437,7 @@ module Pakyow
     # for comparison at the end of the cycle
     def set_initial_cookies
       @initial_cookies = {}
-      @request.cookies.each {|k,v|
+      request.cookies.each {|k,v|
         @initial_cookies[k] = v
       }
     end

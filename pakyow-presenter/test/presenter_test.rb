@@ -8,7 +8,7 @@ class PresenterTest < Minitest::Test
       Pakyow::App.stage(:test)
       @presenter = Pakyow.app.presenter
       @path = '/'
-      @presenter.prepare_for_request(request(@path))
+      @presenter.prepare_with_context(Context.new(request(@path)))
     end
   end
 
@@ -40,7 +40,7 @@ class PresenterTest < Minitest::Test
     capture_stdout do
       original_view = @presenter.view
       assert_same original_view, @presenter.view
-      
+
       @presenter.path = 'multi'
       refute_same original_view, @presenter.view
       assert_equal Pakyow::Presenter::View, @presenter.view.class
@@ -101,7 +101,7 @@ class PresenterTest < Minitest::Test
     assert @presenter.presented?
 
     capture_stdout do
-      @presenter.prepare_for_request(request('/fail'))
+      @presenter.prepare_with_context(Context.new(request('/fail')))
     end
 
     refute @presenter.presented?

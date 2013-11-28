@@ -11,8 +11,7 @@ class RoutingTest < Minitest::Test
   def setup
     @fn_calls = []
     Pakyow::App.stage(:test)
-    Pakyow.app.response = mock_response
-    Pakyow.app.request = mock_request
+    Pakyow.app.context = Context.new(mock_request, mock_response)
   end
 
   # RouteSet
@@ -135,9 +134,9 @@ class RoutingTest < Minitest::Test
     }
 
     %w(1 foo).each { |data|
-      req = mock_request("/#{data}")
-      Router.instance.perform(req)
-      assert_equal data, req.params[:id]
+      context = Context.new(mock_request("/#{data}"))
+      Router.instance.perform(context)
+      assert_equal data, context.request.params[:id]
     }
   end
 
@@ -148,9 +147,9 @@ class RoutingTest < Minitest::Test
     }
 
     %w(1 foo).each { |data|
-      req = mock_request("foo/#{data}")
-      Router.instance.perform(req)
-      assert_equal data, req.params[:id]
+      context = Context.new(mock_request("foo/#{data}"))
+      Router.instance.perform(context)
+      assert_equal data, context.request.params[:id]
     }
   end
 
@@ -430,7 +429,7 @@ class RoutingTest < Minitest::Test
       default [fn(:one), fn(:two), fn(:three)]
     }
 
-    Router.instance.perform(mock_request('/'))
+    Router.instance.perform(Context.new(mock_request('/')))
     assert_equal [1, 2, 3], @fn_calls
   end
 
@@ -446,7 +445,7 @@ class RoutingTest < Minitest::Test
       }
     }
 
-    Router.instance.perform(mock_request('/'))
+    Router.instance.perform(Context.new(mock_request('/')))
     assert_equal [:rerouted], @fn_calls
   end
 
@@ -462,7 +461,7 @@ class RoutingTest < Minitest::Test
       }
     }
 
-    Router.instance.perform(mock_request('/'))
+    Router.instance.perform(Context.new(mock_request('/')))
     assert_equal [:rerouted], @fn_calls
   end
 
@@ -479,8 +478,8 @@ class RoutingTest < Minitest::Test
     }
 
     res = Response.new
-    Pakyow.app.response = res
-    Router.instance.perform(mock_request('/'))
+    Pakyow.app.context = Context.new(nil, res)
+    Router.instance.perform(Context.new(mock_request('/')))
 
     assert_equal [:handled], @fn_calls
     assert_equal 500, res.status

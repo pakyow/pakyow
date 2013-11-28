@@ -10,6 +10,8 @@ class BindingsTest < Minitest::Test
           action(:update) {}
         }
       }
+
+      Pakyow.app.context = Context.new(mock_request, mock_response)
     end
   end
 
@@ -24,12 +26,12 @@ class BindingsTest < Minitest::Test
       Pakyow.app.presenter.load
     end
 
-    data = Pakyow.app.presenter.binder.value_for_prop(:action, :foo, {})
+    data = Pakyow.app.presenter.binder.value_for_prop(:action, :foo, {}, Pakyow.app.context)
 
     assert_equal '/bar', data[:action]
     assert_equal 'post', data[:method]
 
-    data = Pakyow.app.presenter.binder.value_for_prop(:action, :foo, {id:1})
+    data = Pakyow.app.presenter.binder.value_for_prop(:action, :foo, {id:1}, Pakyow.app.context)
 
     assert_equal '/bar/1',  data[:action]
     assert_equal 'post',    data[:method]
