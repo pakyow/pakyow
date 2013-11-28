@@ -88,9 +88,14 @@ module Pakyow
       attr_accessor :context
       attr_reader :bindable
 
-      def initialize(bindable, context)
+      def initialize(prop, bindable, context)
+        @prop = prop
         @bindable = bindable
         @context = context
+      end
+
+      def value
+        bindable[@prop]
       end
     end
   end

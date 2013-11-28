@@ -34,12 +34,15 @@ module Pakyow
         }
 
         if binding
+          binding_eval = BindingEval.new(prop, bindable, context)
+
           case binding.arity
-            when 0
-              binding_eval = BindingEval.new(bindable, context)
-              binding_eval.instance_exec(&binding)
-            when 1
-              self.instance_exec(bindable, &binding)
+          when 0
+            binding_eval.instance_exec(&binding)
+          when 1
+            self.instance_exec(bindable, &binding)
+          when 2
+            self.instance_exec(bindable, binding_eval.value, &binding)
           end
         else
           # default
