@@ -15,7 +15,7 @@ require 'core/route_eval'
 require 'core/route_template_defaults'
 require 'core/route_lookup'
 require 'core/app'
-require 'core/exceptions'
+require 'core/errors'
 
 # middlewares
 require 'core/middleware/logger'

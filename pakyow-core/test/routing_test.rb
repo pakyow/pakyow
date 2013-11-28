@@ -11,7 +11,7 @@ class RoutingTest < Minitest::Test
   def setup
     @fn_calls = []
     Pakyow::App.stage(:test)
-    @context = Context.new(mock_request, mock_response)
+    Pakyow.app.context = Context.new(mock_request, mock_response)
   end
 
   # RouteSet
@@ -478,7 +478,7 @@ class RoutingTest < Minitest::Test
     }
 
     res = Response.new
-    Pakyow.app.response = res
+    Pakyow.app.context = Context.new(nil, res)
     Router.instance.perform(Context.new(mock_request('/')))
 
     assert_equal [:handled], @fn_calls

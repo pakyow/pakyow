@@ -1,7 +1,10 @@
 module Pakyow
-
   # For methods that should be accessible anywhere
   module Helpers
+    def context
+      @context or raise NoContextError
+    end
+
     def logger
       request.logger
     end
@@ -11,12 +14,12 @@ module Pakyow
     end
 
     def request
-      @context.request
+      context.request
     end
     alias_method :req, :request
 
     def response
-      @context.response
+      context.response
     end
     alias_method :res, :response
 

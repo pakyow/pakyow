@@ -1,7 +1,6 @@
 module Pakyow
   module Presenter
     class BinderSet
-      attr_accessor :context
       attr_reader :scopes
 
       def initialize

@@ -5,8 +5,7 @@ class HelpersTest < Minitest::Test
 
   def setup
     Pakyow::App.stage(:test)
-    Pakyow.app.response = mock_response
-    Pakyow.app.request = mock_request
+    Pakyow.app.context = Context.new(mock_request, mock_response)
   end
 
   def test_app_returned
@@ -15,14 +14,14 @@ class HelpersTest < Minitest::Test
 
   def test_app_request_returned
     r = :test
-    Pakyow.app.request = r
+    Pakyow.app.context = Context.new(r)
     assert_same r, Pakyow.app.request
     assert_same r, Pakyow.app.req
   end
 
   def test_app_response_returned
     r = :test
-    Pakyow.app.response = r
+    Pakyow.app.context = Context.new(nil, r)
     assert_same r, Pakyow.app.response
     assert_same r, Pakyow.app.res
   end
@@ -32,17 +31,17 @@ class HelpersTest < Minitest::Test
   end
 
   def test_params_returned
-    Pakyow.app.request = mock_request
+    Pakyow.app.context = Context.new(mock_request)
     assert_same Pakyow.app.params, Pakyow.app.params
   end
 
   def test_session_returned
-    Pakyow.app.request = mock_request
+    Pakyow.app.context = Context.new(mock_request)
     assert_equal Pakyow.app.session, Pakyow.app.request.session
   end
 
   def test_cookies_returned
-    Pakyow.app.request = mock_request
+    Pakyow.app.context = Context.new(mock_request)
     assert_same Pakyow.app.cookies, Pakyow.app.cookies
   end
 

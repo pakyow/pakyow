@@ -33,6 +33,8 @@ module Pakyow
 
       # Set response type
       @app.context.response["Content-Type"] = Rack::Mime.mime_type(".#{@format}")
+    rescue NoContextError, NoMethodError
+      # context or response was nil
     end
 
     def first_path

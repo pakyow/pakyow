@@ -28,7 +28,7 @@ module Pakyow
 
       Pakyow::App.after(:match) {
         @presenter = Pakyow.app.presenter.dup
-        @presenter.prepare_for_request(@context)
+        @presenter.prepare_with_context(context)
       }
 
       Pakyow::App.after(:route) {
@@ -83,7 +83,7 @@ module Pakyow
         load_bindings
       end
 
-      def prepare_for_request(context)
+      def prepare_with_context(context)
         @context = context
 
         if @context.request.has_route_vars?

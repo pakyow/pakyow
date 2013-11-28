@@ -185,13 +185,11 @@ module Pakyow
     include Helpers
     include AppHelpers
 
-    attr_accessor :context
+    attr_writer :context
 
     def initialize
       Pakyow.app = self
       Pakyow.configure_logger
-
-      @context = Context.new
 
       call_stack(:before, :init)
 
@@ -219,10 +217,12 @@ module Pakyow
     def process(env)
       call_stack(:before, :process)
 
-      @context.response = Response.new
-      @context.request  = Request.new(env)
-      @context.request.app = self
-      @context.request.setup
+      res = Response.new
+      req = Request.new(env)
+      req.app = self
+      req.setup
+
+      @context = Context.new(req, res)
 
       set_initial_cookies
 
@@ -230,14 +230,14 @@ module Pakyow
       catch(:halt) {
         call_stack(:before, :route)
 
-        @found = @router.perform(@context, self) {
+        @found = @router.perform(context, self) {
           call_stack(:after, :match)
         }
 
         call_stack(:after, :route)
 
         unless found?
-          handle(404, false) 
+          handle(404, false)
 
           if config.app.errors_in_browser
             response["Content-Type"] = 'text/html'
@@ -282,7 +282,7 @@ module Pakyow
 
         content.gsub!('{file}', nice_source[1].gsub(File.expand_path(Config::App.root) + '/', ''))
         content.gsub!('{line}', nice_source[2])
-        
+
         content.gsub!('{msg}', error.to_s)
         content.gsub!('{trace}', error.backtrace.join('<br>'))
 
@@ -293,14 +293,6 @@ module Pakyow
       call_stack(:after, :error)
 
       response.finish
-    end
-
-    def request=(arg)
-      @context.request = arg
-    end
-
-    def response=(arg)
-      @context.response = arg
     end
 
     def found?
@@ -361,7 +353,7 @@ module Pakyow
       headers["Content-Type"]         = type if type
       headers["Content-disposition"]  = "attachment; filename=#{send_as}" if send_as
 
-      context.response = Response.new(data, response.status, response.header.merge(headers))
+      self.context = Context.new(request, Response.new(data, response.status, response.header.merge(headers)))
       halt
     end
 
@@ -369,11 +361,11 @@ module Pakyow
     #
     def redirect(location, status_code = 302)
       location = router.path(location) if location.is_a?(Symbol)
-      
+
       headers = response ? response.header : {}
       headers = headers.merge({'Location' => location})
 
-      context.response = Response.new('', status_code, headers)
+      self.context = Context.new(request, Response.new('', status_code, headers))
       halt
     end
 

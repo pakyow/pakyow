@@ -6,8 +6,8 @@ require 'pp'
 
 require 'pakyow-core'
 
-require 'support/app'
-require 'support/mock_router'
+require_relative 'app'
+require_relative 'mock_router'
 # require 'test_handler'
 # require 'test_model'
 # require 'test_presenter'

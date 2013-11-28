@@ -6,7 +6,6 @@ module Pakyow
       include Singleton
       include Helpers
 
-      attr_accessor :context
       attr_reader :sets
 
       def initialize
