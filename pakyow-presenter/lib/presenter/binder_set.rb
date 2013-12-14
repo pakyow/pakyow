@@ -68,7 +68,7 @@ module Pakyow
               view.prepend(View.from_doc(Nokogiri::HTML.fragment('<input type="hidden" name="_method" value="put">')))
             }
 
-            action = routes.path(:update, :id => id)
+            action = routes.path(:update, :"#{route_group}_id" => id)
           else
             action = routes.path(:create)
           end
