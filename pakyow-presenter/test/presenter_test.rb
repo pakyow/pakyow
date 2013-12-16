@@ -25,7 +25,7 @@ class PresenterTest < Minitest::Test
 
     assert_equal page, @presenter.page
     assert_equal template, @presenter.template
-    assert_equal view.to_html, @presenter.view.to_html
+    assert_equal view, @presenter.view
   end
 
   def test_path_can_be_set_and_retrieved
@@ -54,7 +54,7 @@ class PresenterTest < Minitest::Test
   end
 
   def test_template_for_route_is_accessible
-    assert_same @presenter.store.template(@path), @presenter.template
+    assert_equal @presenter.store.template(@path), @presenter.template
   end
 
   def test_template_instance_can_be_set_and_retrieved
@@ -70,7 +70,7 @@ class PresenterTest < Minitest::Test
       name = :multi
       template = @presenter.store.template(name)
       @presenter.template = name
-      assert_same template, @presenter.template
+      assert_equal template, @presenter.template
     end
   end
 
@@ -151,6 +151,23 @@ class PresenterTest < Minitest::Test
     capture_stdout do
       @presenter.load
     end
+  end
+
+  def test_composes_from_current_context
+    path = 'composer'
+    @presenter.prepare_with_context(Context.new(request(path)))
+    assert_equal @presenter.store.view(path), @presenter.compose.view
+  end
+
+  def test_sets_view_from_view_composer
+    path = 'composer'
+    comparison_view = @presenter.store.view(path)
+
+    @presenter.compose {
+      at(path)
+    }
+
+    assert_equal comparison_view, @presenter.view
   end
 
   private

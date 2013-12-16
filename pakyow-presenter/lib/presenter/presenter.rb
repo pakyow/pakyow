@@ -153,6 +153,13 @@ module Pakyow
         @constructed = true
       end
 
+      def compose(&block)
+        composer = ViewComposer.new(store, context, &block)
+        return composer unless block_given?
+        
+        self.view = composer.view
+      end
+
       protected
 
       def setup_for_path(explicit = false)

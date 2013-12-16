@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'minitest'
 require 'minitest/unit'
+require 'minitest/spec'
 require 'minitest/autorun'
 require 'pry'
 require 'pp'

@@ -3,7 +3,7 @@ module Pakyow
     extend Forwardable
 
     def_delegators :@presenter, :store, :store=, :content, :view, :view=, 
-    :partial, :template, :template=, :page, :page=, :path, :path=
+    :partial, :template, :template=, :page, :page=, :path, :path=, :compose
 
     def presenter
       @presenter

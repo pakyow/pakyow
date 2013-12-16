@@ -3,6 +3,8 @@ module Pakyow
     class View
       include DocHelpers
 
+      PARTIAL_REGEX = /<!--\s*@include\s*([a-zA-Z0-9\-_]*)\s*-->/
+
       class << self
         attr_accessor :binders
 
@@ -297,7 +299,52 @@ module Pakyow
         @bindings = (!@bindings || refind) ? self.find_bindings : @bindings
       end
 
+      def includes(partial_map)
+        partial_map = partial_map.dup
+
+        partials.each_pair do |partial_name, doc|
+          doc.replace(partial_map[partial_name].to_s)
+          partial_map.delete(partial_name)
+        end
+
+        # we have more partials
+        if partial_map.count > 0
+          # initiate another build if content contains partials
+          includes(partial_map) if partials(true).count > 0
+        end
+
+        return self
+      end
+
       protected
+
+      def partials(refind = false)
+        @partials = (!@partials || refind) ? find_partials : @partials
+      end
+
+      def partials_in(content)
+        partials = []
+
+        content.scan(PARTIAL_REGEX) do |m|
+          partials << m[0].to_sym
+        end
+
+        return partials
+      end
+
+      def find_partials
+        partials = {}
+
+        @doc.traverse { |e|
+          next unless e.is_a?(Nokogiri::XML::Comment)
+          next unless match = e.to_html.strip.match(PARTIAL_REGEX)
+
+          name = match[1]
+          partials[name.to_sym] = e
+        }
+
+        return partials
+      end
 
       # populates the root_view using view_store data by recursively building
       # and substituting in child views named in the structure

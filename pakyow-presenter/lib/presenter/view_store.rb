@@ -28,6 +28,7 @@ module Pakyow
     end
 
     def page(view_path)
+      raise ArgumentError, "Cannot build page for nil path" if view_path.nil?
       return at_path(view_path, :page).dup
     end
 
@@ -35,8 +36,12 @@ module Pakyow
       return at_path(view_path, :view).dup
     end
 
+    def partials(view_path)
+      return at_path(view_path, :partials) || {}
+    end
+
     def partial(view_path, name)
-      return at_path(view_path, :partials)[name.to_sym]
+      return partials(view_path)[name.to_sym]
     end
 
     # iterations through known views, yielding each
@@ -52,6 +57,27 @@ module Pakyow
       end
     end
 
+    def expand_path(view_path)
+      File.join(@store_path, view_path)
+    end
+
+    # Builds the full path to a partial.
+    #
+    #   expand_partial_path('path/to/partial')
+    #   # => '{store_path}/path/to/_partial.html'
+    def expand_partial_path(path)
+      parts = path.split('/')
+
+      # add underscore
+      expanded_path = expand_path((parts[0..-2] << "_#{parts[-1]}").join('/'))
+
+      # attempt to find extension
+      matches = Dir.glob(expanded_path + '.*')
+      raise MissingPartial, "Could not find partial with any extension at #{expanded_path}" if matches.empty?
+
+      return expanded_path + File.extname(matches[0])
+    end
+
     private
 
     def at_path(view_path, obj = nil)
@@ -61,7 +87,7 @@ module Pakyow
       if info.nil?
         raise MissingView, "No view at path '#{view_path}'"
       else
-        return obj ? info[obj.to_sym] : info
+        return (obj ? info[obj.to_sym] : info).dup
       end
     end
 
@@ -70,7 +96,7 @@ module Pakyow
         raise MissingTemplate, "No template named '#{name}'"
       end
 
-      return template
+      return template.dup
     end
 
     def load_templates
@@ -123,29 +149,19 @@ module Pakyow
           until page = pages[prev_path]
             prev_path = prev_path.split('/')[0..-2].join("/")
           end
-          page = page.dup
+          page = page
         else
           page = Page.load(path)
-          pages[normalized_path] = page.dup
+          pages[normalized_path] = page
         end
 
-        template = template_with_name(page.info(:template)).dup
+        template = template_with_name(page.info(:template))
 
-        #TODO more efficient way of doing this? lot
-        # of redundant calls here
+        #TODO more efficient way of doing this? lot of redundant calls here
         partials = partials_at_path(path)
 
-        # compose page/partials
-        page.include_partials(partials)
-
-        # compose template/partials
-        template.include_partials(partials)
-
-        # compose template/page
-        view = template.build(page)
-
-        # build partials
-        #view.build(partials)
+        # compose template/page/partials
+        view = template.build(page).includes(partials)
 
         # set title
         title = page.info(:title)

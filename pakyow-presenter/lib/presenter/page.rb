@@ -1,8 +1,6 @@
 module Pakyow
   module Presenter
     class Page
-      include PartialHelpers
-
       MATTER_MATCHER = /^(---\s*\n.*?\n?)^(---\s*$\n?)/m
 
       class << self
@@ -39,23 +37,6 @@ module Pakyow
         end
       end
 
-      def include_partials(partial_map)
-        partials.each do |container, partial_list|
-          partial_list.each do |partial_name|
-            @content[container].gsub!(PARTIAL_REGEX, partial_map[partial_name].to_s)
-            partial_map.delete(partial_name)
-          end
-
-          # we have more partials
-          if partial_map.count > 0
-            # initiate another build if content contains partials
-            include_partials(partial_map) if partials(true)[container].count > 0
-          end
-        end
-
-        return self
-      end
-
       def content(container = nil)
         return container.nil? ? @content : @content[container.to_sym]
       end
@@ -72,6 +53,11 @@ module Pakyow
       def to_view(container = :default)
         View.new(@content[container])
       end
+
+      def to_html(container = :default)
+        @content[container]
+      end
+      alias :to_s :to_html
 
       private
 
@@ -99,16 +85,6 @@ module Pakyow
 
         # find default content
         @content[:default] = @contents.gsub(within_regex, '')
-      end
-
-      def find_partials
-        partials = {}
-
-        @content.each do |name, content|
-          partials[name] = partials_in(content)
-        end
-
-        return partials
       end
 
       def parse_front_matter(contents)

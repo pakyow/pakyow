@@ -1,7 +1,6 @@
 module Pakyow
   module Presenter
     class Template
-      include PartialHelpers
       include DocHelpers
 
       attr_accessor :name, :doc
@@ -43,21 +42,6 @@ module Pakyow
         @containers = (!@containers || refind) ? find_containers : @containers
       end
 
-      def include_partials(partial_map)
-        partials.each_pair do |partial_name, doc|
-          doc.replace(partial_map[partial_name].to_s)
-          partial_map.delete(partial_name)
-        end
-
-        # we have more partials
-        if partial_map.count > 0
-          # initiate another build if content contains partials
-          include_partials(partial_map) if partials(true).count > 0
-        end
-
-        return self
-      end
-
       def build(page)
         # add content to each container
         containers.each do |container|
@@ -88,20 +72,6 @@ module Pakyow
         }
 
         return containers
-      end
-
-      def find_partials
-        partials = {}
-
-        @doc.traverse { |e|
-          next unless e.is_a?(Nokogiri::XML::Comment)
-          next unless match = e.to_html.strip.match(PARTIAL_REGEX)
-
-          name = match[1]
-          partials[name.to_sym] = e
-        }
-
-        return partials
       end
     end
   end
