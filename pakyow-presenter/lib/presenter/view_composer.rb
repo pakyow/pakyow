@@ -1,11 +1,32 @@
 module Pakyow
   module Presenter
     class ViewComposer
-      def initialize(store, context = nil, &block)
-        @store = store
-        @context = context
+      class << self
+        def from_path(store, path, opts = {}, &block)
+          ViewComposer.new(store, path, opts, &block)
+        end
+      end
 
-        set_defaults
+      def initialize(store, path = nil, opts = {}, &block)
+        @store = store
+        @path = path
+
+        @page = store.page(opts.fetch(:page) {
+          path
+        })
+
+        @template = store.template(opts.fetch(:template) {
+          (@page && @page.info(:template)) || path
+        })
+
+        @partials = {}
+
+        begin
+          @partials = includes(opts.fetch(:includes))
+        rescue
+          @partials = store.partials(path) unless path.nil?
+        end
+
         instance_exec(&block) if block_given?
       end
 
@@ -21,10 +42,8 @@ module Pakyow
         return self
       end
 
-      def at(path)
-        @page = @store.page(path)
-        template(@page.info(:template))
-        @partials = @store.partials(path)
+      def page=(name)
+        @page = @store.page(name)
         return self
       end
 
@@ -33,15 +52,6 @@ module Pakyow
       end
 
       private
-
-      def set_defaults
-        template(:pakyow)
-        @partials = {}
-
-        return if @context.nil?
-
-        at(@context.request.path)
-      end
 
       def remap_partials(partials)
         Hash[partials.map { |name, path|

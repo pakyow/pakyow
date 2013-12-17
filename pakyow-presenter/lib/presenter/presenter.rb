@@ -153,10 +153,14 @@ module Pakyow
         @constructed = true
       end
 
-      def compose(&block)
-        composer = ViewComposer.new(store, context, &block)
-        return composer unless block_given?
-        
+      def compose(opts = {}, &block)
+        compose_at(context.request.path, opts, &block)
+      end
+
+      def compose_at(path, opts = {}, &block)
+        composer = ViewComposer.from_path(store, path, opts, &block)
+        return composer unless opts.empty? || block_given?
+
         self.view = composer.view
       end
 

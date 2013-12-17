@@ -20,6 +20,8 @@ module Pakyow
     end
 
     def template(name_or_path)
+      return name_or_path if name_or_path.is_a?(Template)
+
       if name_or_path.is_a?(Symbol)
         return template_with_name(name_or_path)
       else
@@ -28,6 +30,8 @@ module Pakyow
     end
 
     def page(view_path)
+      return view_path if view_path.is_a?(Page)
+
       raise ArgumentError, "Cannot build page for nil path" if view_path.nil?
       return at_path(view_path, :page).dup
     end

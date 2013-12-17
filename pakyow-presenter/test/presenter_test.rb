@@ -156,16 +156,14 @@ class PresenterTest < Minitest::Test
   def test_composes_from_current_context
     path = 'composer'
     @presenter.prepare_with_context(Context.new(request(path)))
-    assert_equal @presenter.store.view(path), @presenter.compose.view
+    assert_equal @presenter.store.view(path), @presenter.compose
   end
 
   def test_sets_view_from_view_composer
     path = 'composer'
     comparison_view = @presenter.store.view(path)
 
-    @presenter.compose {
-      at(path)
-    }
+    @presenter.compose_at(path)
 
     assert_equal comparison_view, @presenter.view
   end
