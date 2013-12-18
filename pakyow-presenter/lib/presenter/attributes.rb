@@ -35,6 +35,20 @@ module Pakyow
         update_value
       end
 
+      # opposite of `ensure`
+      def deny(value)
+        case @type
+        when :mult
+          @value.delete(value.to_s)
+        when :bool
+          @value = !value
+        else
+          @value.gsub!(value.to_s, '')
+        end
+
+        update_value
+      end
+
       # passes method call to `value`
       def method_missing(method, *args)
         ret = @value.send(method, *args)

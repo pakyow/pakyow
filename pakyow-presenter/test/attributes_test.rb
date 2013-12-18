@@ -36,6 +36,13 @@ class AttributesTest < Minitest::Test
     assert_equal value, @view.attrs.title.to_s
   end
 
+  def test_text_attributes_are_denyable
+    value = 'foo'
+    @view.attrs.title = value
+    @view.attrs.title.deny(value)
+    assert_equal '', @view.attrs.title.to_s
+  end
+
   def test_text_attributes_are_deletable
     value = 'foobar'
     @view.attrs.title = value
@@ -71,6 +78,13 @@ class AttributesTest < Minitest::Test
     assert_equal value, @view.attrs.class.to_s
   end
 
+  def test_mult_attributes_are_denyable
+    value = 'foo'
+    @view.attrs.class << value
+    @view.attrs.class.deny(value)
+    assert_equal '', @view.attrs.class.to_s
+  end
+
   def test_mult_attributes_handle_array_methods
     value = 'foo'
     @view.attrs.class.push(value)
@@ -85,6 +99,12 @@ class AttributesTest < Minitest::Test
   def test_bool_attributes_are_ensurable
     @view.attrs.disabled.ensure(true)
     assert_equal true, @view.attrs.disabled.value
+  end
+
+  def test_bool_attributes_are_denyable
+    @view.attrs.disabled = true
+    @view.attrs.disabled.deny(true)
+    assert_equal false, @view.attrs.disabled.value
   end
 
   def test_hash_attributes_are_settable
