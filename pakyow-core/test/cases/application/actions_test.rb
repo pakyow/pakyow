@@ -75,7 +75,7 @@ module Pakyow
         path = '/foo/'
         router = MockRouter.new
         Pakyow.app.router = router
-        Pakyow.app.context = Context.new(mock_request, mock_response)
+        Pakyow.app.context = AppContext.new(mock_request, mock_response)
         Pakyow.app.reroute(path)
 
         assert_equal :get, Pakyow.app.request.method
@@ -90,7 +90,7 @@ module Pakyow
         method = :put
         router = MockRouter.new
         Pakyow.app.router = router
-        Pakyow.app.context = Context.new(mock_request, mock_response)
+        Pakyow.app.context = AppContext.new(mock_request, mock_response)
         Pakyow.app.reroute(path, method)
 
         assert_equal method, Pakyow.app.request.method
@@ -152,7 +152,7 @@ module Pakyow
 
       def test_file_can_be_sent_from_application_with_type
         reset
-        Pakyow.app.context = Context.new(mock_request, mock_response)
+        Pakyow.app.context = AppContext.new(mock_request, mock_response)
 
         type = 'text/plain'
         path = File.join(File.dirname(__FILE__), '../../support/foo.txt')
@@ -169,7 +169,7 @@ module Pakyow
 
       def test_file_can_be_sent_from_application_with_type_as_attachment
         reset
-        Pakyow.app.context = Context.new(mock_request, mock_response)
+        Pakyow.app.context = AppContext.new(mock_request, mock_response)
 
         as = 'foo.txt'
         type = 'text/plain'
@@ -191,7 +191,7 @@ module Pakyow
       def reset
         app = app(true)
         Pakyow::App.stage(:test)
-        Pakyow.app.context = Context.new(mock_request, mock_response)
+        Pakyow.app.context = AppContext.new(mock_request, mock_response)
         app.run(:test)
       end
 

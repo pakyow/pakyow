@@ -1,5 +1,5 @@
 module Pakyow
-	class Context
+	class AppContext
 		attr_reader :request, :response
 
 		def initialize(request = nil, response = nil)

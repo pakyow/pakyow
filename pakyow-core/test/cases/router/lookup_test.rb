@@ -6,7 +6,7 @@ module Pakyow
 
       def setup
         Pakyow::App.stage(:test)
-        Pakyow.app.context = Context.new(mock_request, mock_response)
+        Pakyow.app.context = AppContext.new(mock_request, mock_response)
       end
 
       def test_get_path_for_named_route

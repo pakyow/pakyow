@@ -13,7 +13,7 @@ module Pakyow
             app = Pakyow.app.dup
             res = Response.new
             req = Request.new(env)
-            app.context = Context.new(req, res)
+            app.context = AppContext.new(req, res)
             app.send(File.open(resource_path))
           end
         else

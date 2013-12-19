@@ -7,7 +7,7 @@ module Pakyow
 
       def setup
         Pakyow::App.stage(:test)
-        Pakyow.app.context = Context.new(mock_request, mock_response)
+        Pakyow.app.context = AppContext.new(mock_request, mock_response)
       end
 
       def test_app_returned
@@ -16,14 +16,14 @@ module Pakyow
 
       def test_app_request_returned
         r = :test
-        Pakyow.app.context = Context.new(r)
+        Pakyow.app.context = AppContext.new(r)
         assert_same r, Pakyow.app.request
         assert_same r, Pakyow.app.req
       end
 
       def test_app_response_returned
         r = :test
-        Pakyow.app.context = Context.new(nil, r)
+        Pakyow.app.context = AppContext.new(nil, r)
         assert_same r, Pakyow.app.response
         assert_same r, Pakyow.app.res
       end
@@ -33,17 +33,17 @@ module Pakyow
       end
 
       def test_params_returned
-        Pakyow.app.context = Context.new(mock_request)
+        Pakyow.app.context = AppContext.new(mock_request)
         assert_same Pakyow.app.params, Pakyow.app.params
       end
 
       def test_session_returned
-        Pakyow.app.context = Context.new(mock_request)
+        Pakyow.app.context = AppContext.new(mock_request)
         assert_equal Pakyow.app.session, Pakyow.app.request.session
       end
 
       def test_cookies_returned
-        Pakyow.app.context = Context.new(mock_request)
+        Pakyow.app.context = AppContext.new(mock_request)
         assert_same Pakyow.app.cookies, Pakyow.app.cookies
       end
 

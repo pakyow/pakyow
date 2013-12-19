@@ -8,7 +8,7 @@ class PresenterTest < Minitest::Test
       Pakyow::App.stage(:test)
       @presenter = Pakyow.app.presenter
       @path = '/'
-      @presenter.prepare_with_context(Context.new(request(@path)))
+      @presenter.prepare_with_context(AppContext.new(request(@path)))
     end
   end
 
@@ -101,7 +101,7 @@ class PresenterTest < Minitest::Test
     assert @presenter.presented?
 
     capture_stdout do
-      @presenter.prepare_with_context(Context.new(request('/fail')))
+      @presenter.prepare_with_context(AppContext.new(request('/fail')))
     end
 
     refute @presenter.presented?
@@ -155,7 +155,7 @@ class PresenterTest < Minitest::Test
 
   def test_composes_from_current_context
     path = 'composer'
-    @presenter.prepare_with_context(Context.new(request(path)))
+    @presenter.prepare_with_context(AppContext.new(request(path)))
     assert_equal @presenter.store.view(path), @presenter.compose
   end
 

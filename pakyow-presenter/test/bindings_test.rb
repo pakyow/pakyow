@@ -11,7 +11,7 @@ class BindingsTest < Minitest::Test
         }
       }
 
-      Pakyow.app.context = Context.new(mock_request, mock_response)
+      Pakyow.app.context = AppContext.new(mock_request, mock_response)
     end
   end
 

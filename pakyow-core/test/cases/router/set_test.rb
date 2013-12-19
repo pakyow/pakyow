@@ -6,7 +6,7 @@ module Pakyow
 
       def setup
         Pakyow::App.stage(:test)
-        Pakyow.app.context = Context.new(mock_request, mock_response)
+        Pakyow.app.context = AppContext.new(mock_request, mock_response)
       end
 
       def test_fn_is_registered_and_fetchable
@@ -127,7 +127,7 @@ module Pakyow
         }
 
         %w(1 foo).each { |data|
-          context = Context.new(mock_request("/#{data}"))
+          context = AppContext.new(mock_request("/#{data}"))
           Router.instance.perform(context)
           assert_equal data, context.request.params[:id]
         }
@@ -140,7 +140,7 @@ module Pakyow
         }
 
         %w(1 foo).each { |data|
-          context = Context.new(mock_request("foo/#{data}"))
+          context = AppContext.new(mock_request("foo/#{data}"))
           Router.instance.perform(context)
           assert_equal data, context.request.params[:id]
         }

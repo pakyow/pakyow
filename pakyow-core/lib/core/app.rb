@@ -223,7 +223,7 @@ module Pakyow
       # set response format based on request
       res.format = req.format
 
-      @context = Context.new(req, res)
+      @context = AppContext.new(req, res)
 
       set_initial_cookies
 
@@ -354,7 +354,7 @@ module Pakyow
       headers["Content-Type"]         = type if type
       headers["Content-disposition"]  = "attachment; filename=#{send_as}" if send_as
 
-      self.context = Context.new(request, Response.new(data, response.status, response.header.merge(headers)))
+      self.context = AppContext.new(request, Response.new(data, response.status, response.header.merge(headers)))
       halt
     end
 
@@ -366,7 +366,7 @@ module Pakyow
       headers = response ? response.header : {}
       headers = headers.merge({'Location' => location})
 
-      self.context = Context.new(request, Response.new('', status_code, headers))
+      self.context = AppContext.new(request, Response.new('', status_code, headers))
       halt
     end
 
