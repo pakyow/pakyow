@@ -285,7 +285,7 @@ module Pakyow
         content.gsub!('{line}', nice_source[2])
 
         content.gsub!('{msg}', CGI.escapeHTML(error.to_s))
-        content.gsub!('{trace}', error.backtrace.join('<br>'))
+        content.gsub!('{trace}', error.backtrace.map { |bt| CGI.escapeHTML(bt) }.join('<br>'))
 
         response.body = []
         response.body << content
