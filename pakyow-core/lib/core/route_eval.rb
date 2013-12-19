@@ -5,14 +5,14 @@ module Pakyow
     attr_reader :path, :fns, :hooks, :group, :routes, :handlers, :lookup, :templates
 
     HTTP_METHODS   = [:get, :post, :put, :patch, :delete]
-    DEFAULT_MIXINS = ['Pakyow::Routes::Restful']
+    DEFAULT_MIXINS = ['Restful']
 
     class << self
       def with_defaults(*args)
         instance = self.new(*args)
 
         # Mixin defaults
-        DEFAULT_MIXINS.each { |mixin| instance.include(Kernel.const_get(mixin)) }
+        DEFAULT_MIXINS.each { |mixin| instance.include(Pakyow::Routes.const_get(mixin)) }
 
         return instance
       end

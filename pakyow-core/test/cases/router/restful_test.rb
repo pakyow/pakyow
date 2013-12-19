@@ -97,16 +97,18 @@ module Pakyow
       private
 
       #TODO move to helpers (duped in set_test)
-      def assert_route_tuple(match: nil, regex: nil, vars:nil, name: nil, fns: nil, path: nil)
+      def assert_route_tuple(opts)
+        match = opts[:match]
+        
         assert !match.nil?, "Route not found"
         return if match.nil?
 
         match = match[0]
-        assert_equal regex, match[0],    "mismatched regex"   unless regex.nil?
-        assert_equal vars,  match[1],    "mismatched vars"    unless vars.nil?
-        assert_equal name,  match[2],    "mismatched name"    unless name.nil?
-        assert_equal fns,   match[3][0], "mismatched fn list" unless fns.nil?
-        assert_equal path,  match[4],    "mismatched path"    unless path.nil?
+        assert_equal opts[:regex], match[0],    "mismatched regex"   unless opts[:regex].nil?
+        assert_equal opts[:vars],  match[1],    "mismatched vars"    unless opts[:vars].nil?
+        assert_equal opts[:name],  match[2],    "mismatched name"    unless opts[:name].nil?
+        assert_equal opts[:fns],   match[3][0], "mismatched fn list" unless opts[:fns].nil?
+        assert_equal opts[:path],  match[4],    "mismatched path"    unless opts[:path].nil?
       end
 
     end
