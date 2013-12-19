@@ -284,7 +284,7 @@ module Pakyow
         content.gsub!('{file}', nice_source[1].gsub(File.expand_path(Config::App.root) + '/', ''))
         content.gsub!('{line}', nice_source[2])
 
-        content.gsub!('{msg}', error.to_s)
+        content.gsub!('{msg}', CGI.escapeHTML(error.to_s))
         content.gsub!('{trace}', error.backtrace.join('<br>'))
 
         response.body = []
