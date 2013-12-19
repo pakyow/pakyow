@@ -110,11 +110,13 @@ module Pakyow
       #
       # Creates a context in which view manipulations can be performed.
       #
-      # Unlike previous versions, the context can only be referenced by the
-      # block argument. No `context` method will be available.s
-      #
-      def with
-        yield(self)
+      def with(&block)
+        if block.arity == 0
+          self.instance_exec(&block)
+        else
+          yield(self)
+        end
+
         self
       end
 
