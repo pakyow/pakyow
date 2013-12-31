@@ -52,6 +52,32 @@ module Pakyow
         assert_equal(true, $env_overwrites_global_config)
       end
 
+      def test_config_loaded_before_middleware
+        app = app(true)
+        
+        value = nil
+        app.middleware do
+          value = config.app.foo
+        end
+
+        app.stage(:test)
+
+        assert_equal :bar, value
+      end
+
+      def test_builder_is_yielded_to_middleware
+        app = app(true)
+
+        builder = nil
+        app.middleware do |o|
+          builder = o
+        end
+
+        app.stage(:test)
+
+        assert_instance_of Rack::Builder, builder
+      end
+
       protected
 
       def app(do_reset = false)

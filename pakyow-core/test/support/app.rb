@@ -7,6 +7,7 @@ Pakyow::App.define do
   configure(:test) do
     $env_overwrites_global_config = true
     app.src_dir = File.join(Dir.pwd, 'test', 'support', 'loader')
+    app.foo = :bar
   end
 
   routes(:redirect) do

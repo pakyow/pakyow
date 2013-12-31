@@ -4,6 +4,7 @@ module Pakyow
       def reset
         @@routes = {}
         @@config = {}
+        @@middleware = nil
 
         @@stacks = {:before => {}, :after => {}}
         %w(init load process route match error).each {|name|
@@ -35,12 +36,7 @@ module Pakyow
       # Defines middleware to be loaded.
       #
       def middleware(&block)
-        # prevents middleware from being loaded on each
-        # request when auto_reload is enabled
-        return if prepared?
-
-        # tell builder about the middleware
-        builder.instance_eval(&block)
+        @@middleware = block
       end
 
       # Creates an environment.
@@ -145,6 +141,8 @@ module Pakyow
         load_config(envs)
 
         # load middleware
+        self.instance_exec(builder, &@@middleware) unless @@middleware.nil?
+
         builder.use(Rack::MethodOverride)
         builder.use(Middleware::Static)   if config.app.static
         builder.use(Middleware::Logger)   if config.app.log
