@@ -65,6 +65,25 @@ module Pakyow
         assert_equal :bar, value
       end
 
+      def test_multiple_middleware_loaded
+        app = app(true)
+
+        value1 = nil
+        app.middleware do
+          value1 = config.app.foo
+        end
+
+        value2 = nil
+        app.middleware do
+          value2 = config.app.foo
+        end
+
+        app.stage(:test)
+
+        assert_equal :bar, value1
+        assert_equal :bar, value2
+      end
+
       def test_builder_is_yielded_to_middleware
         app = app(true)
 
