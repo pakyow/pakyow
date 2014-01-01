@@ -80,10 +80,15 @@ module Pakyow
 
     # Calls a defined fn
     #
-    def fn(name)
+    def fn(name, app = nil)
       @sets.each { |set|
         if fn = set[1].fn(name)
-          fn.call
+          if app.nil?
+            fn.call
+          else
+            app.instance_exec(&fn)
+          end
+          
           break
         end
       }
