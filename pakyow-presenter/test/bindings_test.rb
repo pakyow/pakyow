@@ -41,6 +41,6 @@ class BindingsTest < Minitest::Test
     doc = view.doc.children[0]
     assert_equal 'hidden',  doc[:type]
     assert_equal '_method', doc[:name]
-    assert_equal 'put',     doc[:value]
+    assert_equal 'patch',     doc[:value]
   end
 end
