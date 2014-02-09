@@ -57,6 +57,21 @@ describe ViewComposer do
     end
   end
 
+  it "exposes template" do
+    composer = compose_at('/')
+    assert_instance_of Template, composer.template
+  end
+
+  it "exposes page" do
+    composer = compose_at('/')
+    assert_instance_of Page, composer.page
+  end
+
+  it "exposes partials" do
+    composer = compose_at('/partial')
+    assert_instance_of Partial, composer.partial(:partial1)
+  end
+
   def compose(opts, &block)
     ViewComposer.from_path(@store, nil, opts, &block)
   end

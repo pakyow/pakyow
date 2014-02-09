@@ -47,9 +47,9 @@ module Pakyow
         containers.each do |container|
           name = container[0]
 
-          if content = page.content(name)
-            container(name).replace(content)
-          else
+          begin
+            container(name).replace(page.content(name))
+          rescue MissingContainer
             Pakyow.logger.debug "No content for '#{name}' in page '#{page.path}'"
           end
         end

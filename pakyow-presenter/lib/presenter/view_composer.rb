@@ -85,6 +85,10 @@ module Pakyow
         @partials.merge!(remap_partials(partial_map))
       end
 
+      def partial(name)
+        @partials[name]
+      end
+
       def dirty?
         @dirty
       end

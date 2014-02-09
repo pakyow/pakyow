@@ -107,7 +107,7 @@ module Pakyow
       end
 
       def view=(view)
-        @view = view
+        @view = view.to_view
         @view.context = @context
 
         # setting a view means we no longer use/need the composer

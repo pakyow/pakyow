@@ -117,6 +117,10 @@ module Pakyow
         self.refind_significant_nodes
       end
 
+      def to_view
+        self
+      end
+
       def append(view)
         doc  = view.doc
         num  = doc.children.count

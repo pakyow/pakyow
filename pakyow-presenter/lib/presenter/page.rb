@@ -13,13 +13,13 @@ module Pakyow
         end
       end
 
-      attr_reader :contents, :path
+      attr_reader :path, :contents
 
       def initialize(name, contents, path, format = :html)
         @name, @contents, @path, @format = name, contents, path, format
 
         @info    = { template: :pakyow }
-        @content = {}
+        @containers = {}
 
         unless @contents.nil?
           parse_info
@@ -31,14 +31,20 @@ module Pakyow
         super
 
         # copy content
-        @content = {}
-        original_page.content.each_pair do |k, v|
-          @content[k] = v.dup
+        @containers = {}
+        original_page.instance_variable_get(:'@containers').each_pair do |k, v|
+          @containers[k] = v.dup
         end
       end
 
       def content(container = nil)
-        return container.nil? ? @content : @content[container.to_sym]
+        return @contents if container.nil?
+
+        container = @containers.fetch(container.to_sym) {
+          raise MissingContainer, "No container named #{container} in #{@path}"
+        }
+
+        return container.to_html
       end
 
       def info(key = nil)
@@ -50,14 +56,9 @@ module Pakyow
         @contents == page.contents
       end
 
-      def to_view(container = :default)
-        View.new(@content[container])
+      def container(name)
+        @containers[name.to_sym]
       end
-
-      def to_html(container = :default)
-        @content[container]
-      end
-      alias :to_s :to_html
 
       private
 
@@ -80,11 +81,11 @@ module Pakyow
 
         @contents.scan(within_regex) do |m|
           container = m[0].to_sym
-          @content[container] = m[1]
+          @containers[container] = Container.new(m[1], @format)
         end
 
         # find default content
-        @content[:default] = @contents.gsub(within_regex, '')
+        @containers[:default] = Container.new(@contents.gsub(within_regex, ''), @format)
       end
 
       def parse_front_matter(contents)
