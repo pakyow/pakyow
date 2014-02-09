@@ -5,7 +5,6 @@ class ProcessorTest < Minitest::Test
   def setup
     capture_stdout do
       Pakyow::App.stage(:test)
-      Pakyow.app.presenter.setup
     end
   end
 

@@ -37,7 +37,7 @@ module Pakyow
     end
 
     def view(view_path)
-      return at_path(view_path, :view).dup
+      return at_path(view_path, :composer).view.dup
     end
 
     def partials(view_path)
@@ -46,6 +46,10 @@ module Pakyow
 
     def partial(view_path, name)
       return partials(view_path)[name.to_sym]
+    end
+
+    def composer(view_path)
+      return at_path(view_path, :composer).dup
     end
 
     # iterations through known views, yielding each
@@ -165,17 +169,14 @@ module Pakyow
         partials = partials_at_path(path)
 
         # compose template/page/partials
-        view = template.build(page).includes(partials)
-
-        # set title
-        title = page.info(:title)
-        view.title = title unless title.nil?
+        composer = ViewComposer.from_path(self, normalized_path, template: template, page: page, includes: partials)
+        composer.precompose!
 
         info = {
-          view: view,
           page: page,
           template: template,
           partials: partials,
+          composer: composer,
         }
 
         @path_info[normalized_path] = info

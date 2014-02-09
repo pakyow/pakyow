@@ -5,5 +5,6 @@ module Pakyow
     class MissingTemplate < Error; end
     class MissingPage < Error; end
     class MissingPartial < Error; end
+    class MissingComposer < Error; end
   end
 end

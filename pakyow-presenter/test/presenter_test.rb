@@ -23,8 +23,8 @@ class PresenterTest < Minitest::Test
     template = @presenter.store.template(@path)
     view = @presenter.store.view(@path)
 
-    assert_equal page, @presenter.page
-    assert_equal template, @presenter.template
+    assert_equal page, @presenter.composer.page
+    assert_equal template, @presenter.composer.template
     assert_equal view, @presenter.view
   end
 
@@ -54,14 +54,14 @@ class PresenterTest < Minitest::Test
   end
 
   def test_template_for_route_is_accessible
-    assert_equal @presenter.store.template(@path), @presenter.template
+    assert_equal @presenter.store.template(@path), @presenter.composer.template
   end
 
   def test_template_instance_can_be_set_and_retrieved
     capture_stdout do
       template = @presenter.store.template(:multi)
       @presenter.template = template
-      assert_same template, @presenter.template
+      assert_same template, @presenter.composer.template
     end
   end
 
@@ -70,7 +70,7 @@ class PresenterTest < Minitest::Test
       name = :multi
       template = @presenter.store.template(name)
       @presenter.template = name
-      assert_equal template, @presenter.template
+      assert_equal template, @presenter.composer.template
     end
   end
 
@@ -82,13 +82,13 @@ class PresenterTest < Minitest::Test
   end
 
   def test_default_page_for_route_is_accessible
-    assert_equal @presenter.store.page(@path), @presenter.page
+    assert_equal @presenter.store.page(@path), @presenter.composer.page
   end
 
   def test_page_can_by_set_and_retrieved
     page = @presenter.store.page('sub')
     @presenter.page = page
-    assert_equal page, @presenter.page
+    assert_equal page, @presenter.composer.page
   end
 
   def test_current_page_is_used
@@ -105,12 +105,6 @@ class PresenterTest < Minitest::Test
     end
 
     refute @presenter.presented?
-  end
-
-  def test_partial_can_be_retrieved_for_path
-    name = :partial1
-    partial = @presenter.store.partial(@presenter.path, name)
-    assert_same partial, @presenter.partial(name)
   end
 
   def test_views_are_cached
@@ -156,7 +150,7 @@ class PresenterTest < Minitest::Test
   def test_composes_from_current_context
     path = 'composer'
     @presenter.prepare_with_context(AppContext.new(request(path)))
-    assert_equal @presenter.store.view(path), @presenter.compose
+    assert_equal @presenter.store.view(path), @presenter.compose.view
   end
 
   def test_sets_view_from_view_composer

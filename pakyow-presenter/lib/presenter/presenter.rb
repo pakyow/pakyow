@@ -50,16 +50,10 @@ module Pakyow
         end
       }
 
-      attr_accessor :processor_store, :binder, :path, :template, :page, :context
+      attr_accessor :processor_store, :binder, :path, :context, :composer
 
       def initialize
         setup
-      end
-
-      def setup
-        @view, @template, @page = nil
-        @constructed = false
-        self.store   = :default
       end
 
       def store(name = nil)
@@ -73,8 +67,8 @@ module Pakyow
       def store=(name)
         @store = name
 
-        return unless @path
-        setup_for_path
+        return unless has_path?
+        setup_for_path(@path)
       end
 
       def load
@@ -96,85 +90,71 @@ module Pakyow
       end
 
       def presented?
-        ensure_construction
-        @constructed
+        !view.nil?
+      rescue MissingView
+        false
       end
 
       def content
-        return unless view
         view.to_html
       end
 
       def view
-        ensure_construction
-        @view
-      end
+        view = @composer ? @composer.view : @view
+        raise MissingView if view.nil?
 
-      def partial(name)
-        store.partial(@path, name)
+        return view
       end
 
       def view=(view)
         @view = view
         @view.context = @context
-        @constructed = true
+
+        # setting a view means we no longer use/need the composer
+        @composer = nil
       end
 
       def template=(template)
-        unless template.is_a?(Template)
-          # get template by name
-          template = store.template(template)
-        end
-
-        @template = template
-        @constructed = false
+        raise MissingComposer 'Cannot set template without a composer' if @composer.nil?
+        @composer.template = template
       end
 
       def page=(page)
-        @page = page
-        @constructed = false
+        raise MissingComposer, 'Cannot set page without a composer' if @composer.nil?
+        @composer.page = page
       end
 
       def path=(path)
-        @path = path
-        setup_for_path(true)
-      end
-
-      def ensure_construction
-        # only construct once
-        return if @constructed
-
-        # if no template/page was found, we can't construct
-        return if @template.nil? || @page.nil?
-
-        # construct
-        @view = @template.dup.build(@page)
-        @view.context = @context
-        @constructed = true
+        setup_for_path(path, true)
       end
 
       def compose(opts = {}, &block)
-        compose_at(context.request.path, opts, &block)
+        compose_at(@path, opts, &block)
       end
 
       def compose_at(path, opts = {}, &block)
         composer = ViewComposer.from_path(store, path, opts, &block)
         return composer unless opts.empty? || block_given?
 
-        self.view = composer.view
+        @composer = composer
+      end
+
+      def has_path?
+        !@path.nil?
       end
 
       protected
 
-      def setup_for_path(explicit = false)
-        self.template = store.template(@path)
-        self.page     = store.page(@path)
-        self.view     = store.view(@path)
+      def setup
+        @view, @composer = nil
+        self.store = :default
+      end
 
-        @constructed = true
+      def setup_for_path(path, explicit = false)
+        @composer = store.composer(path)
+        @path = path
       rescue MissingView => e # catches no view path error
         explicit ? raise(e) : Pakyow.logger.debug(e.message)
-        @constructed = false
       end
 
       def load_views
