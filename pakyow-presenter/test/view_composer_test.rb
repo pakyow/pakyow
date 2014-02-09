@@ -72,6 +72,12 @@ describe ViewComposer do
     assert_instance_of Partial, composer.partial(:partial1)
   end
 
+  it "handles container modification" do
+    composer = compose_at('/')
+    composer.page.container(:default).remove
+    assert_equal '', composer.view.doc.css('body').children.to_html.strip
+  end
+
   def compose(opts, &block)
     ViewComposer.from_path(@store, nil, opts, &block)
   end

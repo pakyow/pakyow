@@ -14,6 +14,10 @@ module Pakyow
       def to_view
         View.new(@contents, @format)
       end
+
+      def remove
+        @contents = ''
+      end
     end
   end
 end
