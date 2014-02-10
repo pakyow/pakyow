@@ -86,7 +86,7 @@ module Pakyow
 
       def remove
         self.doc.remove
-        self.refind_significant_nodes
+        self.invalidate!
       end
 
       alias :delete :remove
@@ -94,7 +94,7 @@ module Pakyow
       def clear
         return if self.doc.blank?
         self.doc.inner_html = ''
-        self.refind_significant_nodes
+        self.invalidate!
       end
 
       def text
@@ -104,7 +104,7 @@ module Pakyow
       def text=(text)
         text = text.call(self.text) if text.is_a?(Proc)
         self.doc.content = text.to_s
-        self.refind_significant_nodes
+        self.invalidate!
       end
 
       def html
@@ -114,7 +114,7 @@ module Pakyow
       def html=(html)
         html = html.call(self.html) if html.is_a?(Proc)
         self.doc.inner_html = Nokogiri::HTML.fragment(html.to_s)
-        self.refind_significant_nodes
+        self.invalidate!
       end
 
       def to_view
@@ -129,7 +129,7 @@ module Pakyow
         self.doc.add_child(view.doc)
 
         self.update_binding_offset_at_path(num, path)
-        self.refind_significant_nodes
+        self.invalidate!
       end
 
       def prepend(view)
@@ -144,7 +144,7 @@ module Pakyow
         end
 
         self.update_binding_offset_at_path(num, path)
-        self.refind_significant_nodes
+        self.invalidate!
       end
 
       def after(view)
@@ -155,7 +155,7 @@ module Pakyow
         self.doc.after(view.doc)
 
         self.update_binding_offset_at_path(num, path)
-        self.refind_significant_nodes
+        self.invalidate!
       end
 
       def before(view)
@@ -166,7 +166,7 @@ module Pakyow
         self.doc.before(view.doc)
 
         self.update_binding_offset_at_path(num, path)
-        self.refind_significant_nodes
+        self.invalidate!
       end
 
       def replace(view)
@@ -447,11 +447,11 @@ module Pakyow
         }
       end
 
-      def refind_significant_nodes
+      def invalidate!
         self.bindings(true)
 
         @related_views.each {|v|
-          v.refind_significant_nodes
+          v.invalidate!
         }
       end
 
