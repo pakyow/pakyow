@@ -117,9 +117,10 @@ module Pakyow
     end
 
     class Attributes
-      def initialize(doc)
+      def initialize(doc, composer = nil)
         @doc = doc
         @attributes = {}
+        @composer = composer
       end
 
       def method_missing(method, *args)
@@ -153,12 +154,14 @@ module Pakyow
 
       def remove_attribute(attribute)
         @doc.remove_attribute(attribute)
+        @composer.dirty! unless @composer.nil?
       end
 
       protected
 
       def set_attribute(attribute, value)
         get_attribute(attribute).set(value)
+        @composer.dirty! unless @composer.nil?
       end
 
       def get_attribute(attribute)

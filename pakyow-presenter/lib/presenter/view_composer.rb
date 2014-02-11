@@ -30,7 +30,28 @@ module Pakyow
           @partials = store.partials(path) unless path.nil?
         end
 
+        @partials.each do |name, partial|
+          partial.composer = self
+        end
+
         instance_exec(&block) if block_given?
+      end
+
+      def initialize_copy(original)
+        super
+
+        %w[store path page template partials view].each do |ivar|
+          value = original.instance_variable_get("@#{ivar}").dup
+          self.instance_variable_set("@#{ivar}", value)
+        end
+
+        # update composer reference for partials
+        @partials.each do |name, partial|
+          partial.composer = self
+        end
+
+        # update composer reference for page
+        @page.composer = self
       end
 
       def precompose!
@@ -39,8 +60,12 @@ module Pakyow
       end
 
       def view
-        return @view unless dirty?
-        build_view
+        if dirty?
+          @view = build_view
+          clean!
+        end
+
+        return @view
       end
 
       def template(template = nil)
@@ -68,6 +93,7 @@ module Pakyow
           page = @store.page(page)
         end
 
+        page.composer = self
         @page = page
         dirty!
 
@@ -89,20 +115,16 @@ module Pakyow
         @partials[name]
       end
 
+      def container(name)
+        @page.container(name)
+      end
+
       def dirty?
         @dirty
       end
 
-      def dup
-        composer = self.class.allocate
-
-        %w[store path page template partials view dirty].each do |ivar|
-          value = self.instance_variable_get("@#{ivar}")
-          value = value.dup unless value.is_a?(FalseClass) || value.is_a?(TrueClass)
-          composer.instance_variable_set("@#{ivar}", value)
-        end
-
-        return composer
+      def dirty!
+        @dirty = true
       end
 
       private
@@ -111,15 +133,11 @@ module Pakyow
         @dirty = false
       end
 
-      def dirty!
-        @dirty = true
-      end
-
       def build_view
         raise MissingTemplate, "No template provided to view composer" if @template.nil?
         raise MissingPage, "No page provided to view composer" if @page.nil?
 
-        view = @template.build(@page).includes(@partials)
+        view = @template.dup.build(@page).includes(@partials)
 
         # set title
         title = @page.info(:title)

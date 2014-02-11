@@ -167,11 +167,6 @@ class PresenterTest < Minitest::Test
     assert_equal 'foo', @presenter.view.to_html
   end
 
-  def test_typecasts_view_when_overriding
-    @presenter.view = @presenter.composer.page.container(:default)
-    assert_equal 'index', @presenter.view.to_html.strip
-  end
-
   private
 
   def request(path = '/', method = 'GET')

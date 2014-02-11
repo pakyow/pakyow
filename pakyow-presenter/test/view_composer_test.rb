@@ -74,8 +74,33 @@ describe ViewComposer do
 
   it "handles container modification" do
     composer = compose_at('/')
-    composer.page.container(:default).remove
+    composer.precompose!
+
+    composer.container(:default).remove
+
+    assert composer.dirty?, "Composer wasn't invalidated"
     assert_equal '', composer.view.doc.css('body').children.to_html.strip
+  end
+
+  it "handles partial modification" do
+    composer = compose_at('/partial')
+    composer.precompose!
+
+    partial = composer.partial(:partial1)
+    partial.remove
+
+    assert composer.dirty?, "Composer wasn't invalidated"
+    assert_equal '', composer.view.doc.css('body').children.to_html.strip
+  end
+
+  it "handles attribute modification" do
+    composer = compose_at('/attributes')
+    composer.precompose!
+
+    composer.container(:default).scope(:attrs).attrs.style = {background:'red'}
+
+    assert composer.dirty?, "Composer wasn't invalidated"
+    assert_equal 'background:red', composer.view.doc.css('body div')[0][:style]
   end
 
   def compose(opts, &block)

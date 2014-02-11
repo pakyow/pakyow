@@ -107,7 +107,7 @@ module Pakyow
       end
 
       def view=(view)
-        @view = view.to_view
+        @view = view
         @view.context = @context
 
         # setting a view means we no longer use/need the composer
@@ -119,9 +119,29 @@ module Pakyow
         @composer.template = template
       end
 
+      def template
+        raise MissingComposer 'Cannot get template without a composer' if @composer.nil?
+        @composer.template
+      end
+
       def page=(page)
         raise MissingComposer, 'Cannot set page without a composer' if @composer.nil?
         @composer.page = page
+      end
+
+      def page
+        raise MissingComposer 'Cannot get page without a composer' if @composer.nil?
+        @composer.page
+      end
+
+      def container(name)
+        raise MissingComposer 'Cannot get container without a composer' if @composer.nil?
+        @composer.container(name)
+      end
+
+      def partial(name)
+        raise MissingComposer 'Cannot get partial without a composer' if @composer.nil?
+        @composer.partial(name)
       end
 
       def path=(path)

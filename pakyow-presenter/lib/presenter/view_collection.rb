@@ -3,7 +3,7 @@ module Pakyow
     class ViewCollection
       include Enumerable
 
-      attr_accessor :context
+      attr_accessor :context, :composer
 
       def initialize
         @views = []
@@ -86,6 +86,7 @@ module Pakyow
       def scope(name)
         views = ViewCollection.new
         views.context = @context
+        views.composer = @composer
         self.each{|v|
           next unless svs = v.scope(name)
           svs.each{|sv| views << sv}
@@ -97,6 +98,7 @@ module Pakyow
       def prop(name)
         views = ViewCollection.new
         views.context = @context
+        views.composer = @composer
         self.each{|v|
           next unless svs = v.prop(name)
           svs.each{|sv| views << sv}
@@ -152,6 +154,7 @@ module Pakyow
 
         views = ViewCollection.new
         views.context = @context
+        views.composer = @composer
         data.each_with_index {|datum,i|
           unless v = self[i]
 
@@ -168,6 +171,7 @@ module Pakyow
           new_v.bindings = v.bindings.dup
           new_v.scoped_as = v.scoped_as
           new_v.context = @context
+          new_v.composer = @composer
 
           views << new_v
         }

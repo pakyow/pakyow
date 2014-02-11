@@ -21,13 +21,14 @@ module Pakyow
         end
       end
 
-      attr_accessor :doc, :scoped_as, :scopes, :related_views, :context
+      attr_accessor :doc, :scoped_as, :scopes, :related_views, :context, :composer
       attr_writer   :bindings
 
       def dup
         view = self.class.from_doc(@doc.dup)
         view.scoped_as = scoped_as
         view.context = @context
+        view.composer = @composer
         return view
       end
 
@@ -75,8 +76,10 @@ module Pakyow
       # root_view.find(selector).attributes(:class => my_class, :style => my_style)
       #
       def attributes(attrs = {})
+        #TODO this is not invalidating composer
+
         if attrs.empty?
-          return Attributes.new(self.doc)
+          return Attributes.new(self.doc, @composer)
         else
           self.bind_attributes_to_doc(attrs, doc)
         end
@@ -85,8 +88,14 @@ module Pakyow
       alias :attrs :attributes
 
       def remove
-        self.doc.remove
-        self.invalidate!
+        if doc.parent.nil?
+          # best we can do is to remove the children
+          doc.children.remove
+        else
+          doc.remove
+        end
+
+        invalidate!
       end
 
       alias :delete :remove
@@ -115,10 +124,6 @@ module Pakyow
         html = html.call(self.html) if html.is_a?(Proc)
         self.doc.inner_html = Nokogiri::HTML.fragment(html.to_s)
         self.invalidate!
-      end
-
-      def to_view
-        self
       end
 
       def append(view)
@@ -178,12 +183,14 @@ module Pakyow
 
         views = ViewCollection.new
         views.context = @context
+        views.composer = @composer
         self.bindings.select{|b| b[:scope] == name}.each{|s|
           v = self.view_from_path(s[:path])
 
           v.bindings = self.update_binding_paths_from_path([s].concat(s[:nested_bindings]), s[:path])
           v.scoped_as = s[:scope]
           v.context = @context
+          v.composer = @composer
 
           views << v
         }
@@ -196,6 +203,7 @@ module Pakyow
 
         views = ViewCollection.new
         views.context = @context
+        views.composer = @composer
 
         if binding = self.bindings.select{|binding| binding[:scope] == self.scoped_as}[0]
           binding[:props].each {|prop|
@@ -204,6 +212,7 @@ module Pakyow
 
               v.scoped_as = self.scoped_as
               v.context = @context
+              v.composer = @composer
               views << v
             end
           }
@@ -255,6 +264,7 @@ module Pakyow
 
         views = ViewCollection.new
         views.context = @context
+        views.composer = @composer
         data.each {|datum|
           d_v = self.doc.dup
           self.doc.before(d_v)
@@ -263,6 +273,7 @@ module Pakyow
           v.bindings = self.bindings.dup
           v.scoped_as = self.scoped_as
           v.context = @context
+          v.composer = @composer
 
           views << v
         }
@@ -360,6 +371,7 @@ module Pakyow
 
           v = self.populate_view(View.new(path, view_store), view_store, view_info)
           v.context = @context
+          v.composer = @composer
           self.reset_container(e[:doc])
           self.add_content_to_container(v, e[:doc])
         }
@@ -449,6 +461,7 @@ module Pakyow
 
       def invalidate!
         self.bindings(true)
+        @composer.dirty! unless @composer.nil?
 
         @related_views.each {|v|
           v.invalidate!

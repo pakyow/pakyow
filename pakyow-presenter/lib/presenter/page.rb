@@ -14,6 +14,7 @@ module Pakyow
       end
 
       attr_reader :path, :contents
+      attr_accessor :composer
 
       def initialize(name, contents, path, format = :html)
         @name, @contents, @path, @format = name, contents, path, format
@@ -57,7 +58,17 @@ module Pakyow
       end
 
       def container(name)
-        @containers[name.to_sym]
+        @containers.fetch(name.to_sym) {
+          raise MissingContainer, "No container named #{name} in #{@path}"
+        }
+      end
+
+      def composer=(composer)
+        @composer = composer
+
+        @containers.each do |name, container|
+          container.composer = composer
+        end
       end
 
       private
@@ -80,8 +91,8 @@ module Pakyow
         within_regex = /<!--\s*@within\s*([a-zA-Z0-9\-_]*)\s*-->(.*?)<!--\s*\/within\s*-->/m
 
         @contents.scan(within_regex) do |m|
-          container = m[0].to_sym
-          @containers[container] = Container.new(m[1], @format)
+          container_name = m[0].to_sym
+          @containers[container_name] = Container.new(m[1], @format)
         end
 
         # find default content

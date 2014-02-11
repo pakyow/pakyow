@@ -1,22 +1,11 @@
 module Pakyow
   module Presenter
-    class Container
-      def initialize(contents = '', format = :html)
-        @contents = contents
-        @format = format
-      end
+    class Container < View
+      attr_accessor :composer
 
-      def to_html
-        @contents
-      end
-      alias_method :to_s, :to_html
-
-      def to_view
-        View.new(@contents, @format)
-      end
-
-      def remove
-        @contents = ''
+      def invalidate!
+        @composer.dirty! unless @composer.nil?
+        super
       end
     end
   end

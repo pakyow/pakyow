@@ -9,7 +9,7 @@ Pakyow::App.define do
   end
 
   processor(:foo, :bar) do |data|
-    'foo' + data
+    data.gsub('bar', 'foo')
   end
 end
 
