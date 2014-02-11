@@ -55,7 +55,7 @@ module Pakyow
     # iterations through known views, yielding each
     def views
       @path_info.each_pair do |path, info|
-        yield(info[:view], path)
+        yield(info[:composer].view, path)
       end
     end
 

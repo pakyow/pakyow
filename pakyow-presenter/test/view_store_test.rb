@@ -102,4 +102,10 @@ class ViewStoreTest < Minitest::Test
 
     assert_equal html, @store.template('/').to_html
   end
+
+  def test_iterates_over_views
+    @store.views do |view, path|
+      assert_instance_of Pakyow::Presenter::View, view
+    end
+  end
 end
