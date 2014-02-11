@@ -103,6 +103,8 @@ module Pakyow
         view = @composer ? @composer.view : @view
         raise MissingView if view.nil?
 
+        view.context = @context
+
         return view
       end
 

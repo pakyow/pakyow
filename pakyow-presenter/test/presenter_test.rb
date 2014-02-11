@@ -167,4 +167,9 @@ class PresenterTest < Minitest::Test
     @presenter.view = View.new('foo')
     assert_equal 'foo', @presenter.view.to_html
   end
+
+  def test_sets_context
+    assert_instance_of Pakyow::AppContext, @presenter.view.context
+    assert_same @presenter.context, @presenter.view.context
+  end
 end
