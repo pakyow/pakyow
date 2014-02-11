@@ -175,7 +175,16 @@ module Pakyow
       end
 
       def replace(view)
-        doc.replace(view)
+        view = view.doc if view.is_a?(View)
+
+        if doc.parent.nil?
+          doc.children.remove
+          doc.inner_html = view
+        else
+          doc.replace(view)
+        end
+
+        invalidate!
       end
 
       def scope(name)

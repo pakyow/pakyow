@@ -57,6 +57,8 @@ module Pakyow
         return View.from_doc(doc)
       end
 
+      def invalidate!; end
+
       private
 
       # returns an array of hashes, each with the container name and doc

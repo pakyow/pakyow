@@ -103,6 +103,16 @@ describe ViewComposer do
     assert_equal 'background:red', composer.view.doc.css('body div')[0][:style]
   end
 
+  it "handles replacements" do
+    composer = compose_at('/')
+    composer.precompose!
+
+    composer.container(:default).replace('foo')
+
+    assert composer.dirty?, "Composer wasn't invalidated"
+    assert_equal 'foo', composer.view.doc.css('body').children.to_html.strip
+  end
+
   def compose(opts, &block)
     ViewComposer.from_path(@store, nil, opts, &block)
   end
