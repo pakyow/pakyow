@@ -15,15 +15,25 @@ require_relative 'mock_router'
 # require 'string_utils_test'
 # require 'route_block_evaluator'
 
-def mock_request(path = '/foo/')
-  r = Pakyow::Request.new({ "PATH_INFO" => path, "REQUEST_METHOD" => 'GET', "HTTP_REFERER" => '/bar/', "rack.input" => {} })
-  r.path = path
-  r.method = :get
-  r.app = Pakyow.app
-  r.setup
-  r
-end
+module ReqResHelpers
+  def mock_request(path = '/', method = :get, headers = {})
+    opts = { 
+      "PATH_INFO" => path, 
+      "REQUEST_METHOD" => method.to_s.upcase, 
+      "rack.input" => {}, 
+    }.merge(headers)
 
-def mock_response
-  Pakyow::Response.new
+    Pakyow::Request.new(opts)
+    
+    # r = Pakyow::Request.new({ "PATH_INFO" => path, "REQUEST_METHOD" => 'GET', "HTTP_REFERER" => '/bar/', "rack.input" => {} })
+    # r.path = path
+    # r.method = :get
+    # r.app = Pakyow.app
+    # r.setup
+    # r
+  end
+
+  def mock_response
+    Pakyow::Response.new
+  end
 end

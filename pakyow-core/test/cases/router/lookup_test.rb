@@ -3,6 +3,7 @@ require 'support/helper'
 module Pakyow
   module Test
     class RouteLookupTest < Minitest::Test
+      include ReqResHelpers
 
       def setup
         Pakyow::App.stage(:test)

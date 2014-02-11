@@ -4,6 +4,7 @@ module Pakyow
   module Test
     class HelpersTest < Minitest::Test
       include Pakyow::Helpers
+      include ReqResHelpers
 
       def setup
         Pakyow::App.stage(:test)

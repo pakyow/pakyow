@@ -8,6 +8,7 @@ module Pakyow
   module Test
     class AppActions < Minitest::Test
       include Pakyow::Helpers
+      include ReqResHelpers
 
       def test_application_can_be_halted
         reset
@@ -75,7 +76,7 @@ module Pakyow
         path = '/foo/'
         router = MockRouter.new
         Pakyow.app.router = router
-        Pakyow.app.context = AppContext.new(mock_request, mock_response)
+        Pakyow.app.context = AppContext.new(mock_request(path), mock_response)
         Pakyow.app.reroute(path)
 
         assert_equal :get, Pakyow.app.request.method
@@ -90,7 +91,7 @@ module Pakyow
         method = :put
         router = MockRouter.new
         Pakyow.app.router = router
-        Pakyow.app.context = AppContext.new(mock_request, mock_response)
+        Pakyow.app.context = AppContext.new(mock_request(path), mock_response)
         Pakyow.app.reroute(path, method)
 
         assert_equal method, Pakyow.app.request.method

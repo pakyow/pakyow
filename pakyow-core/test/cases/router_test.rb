@@ -6,6 +6,8 @@ module Pakyow
       attr_accessor :set_registered
       attr_accessor :fn_calls
 
+      include ReqResHelpers
+
       def setup
         @fn_calls = []
         Pakyow::App.stage(:test)
@@ -52,7 +54,7 @@ module Pakyow
           default [fn(:one), fn(:two), fn(:three)]
         }
 
-        Router.instance.perform(AppContext.new(mock_request('/')))
+        Router.instance.perform(AppContext.new(mock_request))
         assert_equal [1, 2, 3], @fn_calls
       end
 
@@ -68,7 +70,7 @@ module Pakyow
           }
         }
 
-        Router.instance.perform(AppContext.new(mock_request('/')))
+        Router.instance.perform(AppContext.new(mock_request))
         assert_equal [:rerouted], @fn_calls
       end
 
@@ -84,7 +86,7 @@ module Pakyow
           }
         }
 
-        Router.instance.perform(AppContext.new(mock_request('/')))
+        Router.instance.perform(AppContext.new(mock_request))
         assert_equal [:rerouted], @fn_calls
       end
 
@@ -102,7 +104,7 @@ module Pakyow
 
         res = Response.new
         Pakyow.app.context = AppContext.new(nil, res)
-        Router.instance.perform(AppContext.new(mock_request('/')))
+        Router.instance.perform(AppContext.new(mock_request))
 
         assert_equal [:handled], @fn_calls
         assert_equal 500, res.status

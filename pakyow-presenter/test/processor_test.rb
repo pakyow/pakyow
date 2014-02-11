@@ -1,10 +1,12 @@
 require_relative 'support/helper'
 
 class ProcessorTest < Minitest::Test
+  include ReqResHelpers
 
   def setup
     capture_stdout do
       Pakyow::App.stage(:test)
+      Pakyow.app.presenter.prepare_with_context(AppContext.new(mock_request('/')))
     end
   end
 

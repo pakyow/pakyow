@@ -1,6 +1,8 @@
 require 'support/helper'
 
 class BindingsTest < Minitest::Test
+  include ReqResHelpers
+  
   def setup
     capture_stdout do
       Pakyow::App.stage(:test)

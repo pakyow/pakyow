@@ -1,6 +1,7 @@
 require_relative 'support/helper'
 
 class PresenterTest < Minitest::Test
+  include ReqResHelpers
 
   def setup
     capture_stdout do
@@ -8,7 +9,7 @@ class PresenterTest < Minitest::Test
       Pakyow::App.stage(:test)
       @presenter = Pakyow.app.presenter
       @path = '/'
-      @presenter.prepare_with_context(AppContext.new(request(@path)))
+      @presenter.prepare_with_context(AppContext.new(mock_request(@path)))
     end
   end
 
@@ -101,7 +102,7 @@ class PresenterTest < Minitest::Test
     assert @presenter.presented?
 
     capture_stdout do
-      @presenter.prepare_with_context(AppContext.new(request('/fail')))
+      @presenter.prepare_with_context(AppContext.new(mock_request('/fail')))
     end
 
     refute @presenter.presented?
@@ -149,7 +150,7 @@ class PresenterTest < Minitest::Test
 
   def test_composes_from_current_context
     path = 'composer'
-    @presenter.prepare_with_context(AppContext.new(request(path)))
+    @presenter.prepare_with_context(AppContext.new(mock_request(path)))
     assert_equal @presenter.store.view(path), @presenter.compose.view
   end
 
@@ -166,13 +167,4 @@ class PresenterTest < Minitest::Test
     @presenter.view = View.new('foo')
     assert_equal 'foo', @presenter.view.to_html
   end
-
-  private
-
-  def request(path = '/', method = 'GET')
-    req = Pakyow::Request.new({ "PATH_INFO" => path, "REQUEST_METHOD" => method, "rack.input" => {} })
-    req.path = path
-    req
-  end
-
 end
