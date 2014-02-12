@@ -595,6 +595,44 @@ module Pakyow
         assert_same fn1, set.match('/foo/nested/bar', :get)[0][3][0]
       end
 
+      def test_templates_can_expand_without_name
+        set = RouteSet.new
+
+        fn1 = lambda {}
+
+        set.eval {
+          template(:test_template) {
+          }
+
+          expand(:test_template) {
+            get '/', &fn1
+          }
+        }
+
+        assert_same fn1, set.match('/', :get)[0][3][0]
+      end
+
+      def test_hooks_defined_with_templates_are_used
+        set = RouteSet.new
+
+        fn1 = lambda {}
+        fn2 = lambda {}
+
+        set.eval {
+          template(:test_template, before: fn1) {
+          }
+
+          expand(:test_template) {
+            get '/', &fn2
+          }
+        }
+
+        fns = set.match('/', :get)[0][3]
+
+        assert_same fn1, fns[0]
+        assert_same fn2, fns[1]
+      end
+
       private
 
       def assert_route_tuple(match, data)

@@ -19,7 +19,7 @@ module Pakyow
 
       def from_scope(route_eval, overrides = {})
 				args = [:path, :fns, :hooks, :templates, :group].inject([]) do |acc, arg|
-					acc << (overrides[arg] || route_eval.send(arg))
+					acc << (overrides.fetch(arg) { route_eval.send(arg) })
 				end
 
         instance = self.new(*args)
@@ -100,14 +100,15 @@ module Pakyow
       @templates[name] = [hooks, block]
     end
 
-    def expand(t_name, g_name, *args, &block)
+    def expand(t_name, g_name = nil, *args, &block)
       path, hooks = self.class.parse_expansion_args(args)
+      path ||= ''
 
       template = @templates[t_name]
 
       evaluator = RouteExpansionEval.from_scope(self, path: File.join(descendent_path, path), group: g_name, hooks: hooks)
 			evaluator.direct_path = path
-      evaluator.template = template[1]
+      evaluator.template = template
       evaluator.eval(&block)
 
       merge(evaluator)
@@ -303,16 +304,22 @@ module Pakyow
   end
 
   class RouteExpansionEval < RouteEval
-    attr_writer :template, :direct_path
+    attr_writer :direct_path
 
     def eval(&block)
-      @template_eval = RouteTemplateEval.from_scope(self, path: path, group: @group, hooks: {})
+      @template_eval = RouteTemplateEval.from_scope(self, path: path, group: @group, hooks: @hooks)
 			@template_eval.direct_path = @direct_path
-			@template_eval.eval(&@template)
+			@template_eval.eval(&@template_block)
 
 			@path = @template_eval.routes_path
 
       super
+    end
+
+    def template=(template)
+      @template_block = template[1]
+
+      @hooks = merge_hooks(@hooks, template[0])
     end
 
     def action(method, *args, &block)
