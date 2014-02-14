@@ -328,9 +328,14 @@ module Pakyow
       def includes(partial_map)
         partial_map = partial_map.dup
 
-        partials.each_pair do |partial_name, doc|
-          doc.replace(partial_map[partial_name].to_s)
-          partial_map.delete(partial_name)
+        # mixin all the partials
+        partials.each do |partial|
+          partial[1].replace(partial_map[partial[0]].to_s)
+        end
+
+        # now delete them from the map
+        partials.each do |partial|
+          partial_map.delete(partial[0])
         end
 
         # we have more partials
@@ -359,14 +364,14 @@ module Pakyow
       end
 
       def find_partials
-        partials = {}
+        partials = []
 
         @doc.traverse { |e|
           next unless e.is_a?(Nokogiri::XML::Comment)
           next unless match = e.to_html.strip.match(PARTIAL_REGEX)
 
           name = match[1]
-          partials[name.to_sym] = e
+          partials << [name.to_sym, e]
         }
 
         return partials

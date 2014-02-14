@@ -96,6 +96,10 @@ class ViewStoreTest < Minitest::Test
     assert_equal 'partial1', partial.to_html.strip
   end
 
+  def test_partials_can_be_included_multiple_times
+    assert_equal("partial1partial1", @store.view('/partial/multiple').doc.css('body').inner_text.strip.gsub("\n", ''))
+  end
+
   def test_view_building_does_not_modify_template
     html = @store.template('/').to_html
     @store.view('/')
