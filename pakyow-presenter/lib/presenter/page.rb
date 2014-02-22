@@ -63,6 +63,10 @@ module Pakyow
         }
       end
 
+      def each_container
+        @containers.each_pair { |name, container| yield(name, container) }
+      end
+
       def composer=(composer)
         @composer = composer
 

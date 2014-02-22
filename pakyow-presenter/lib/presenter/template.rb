@@ -1,7 +1,8 @@
 module Pakyow
   module Presenter
-    class Template
+    class Template < View
       include DocHelpers
+      include TitleHelpers
 
       attr_accessor :name, :doc
 
@@ -15,15 +16,9 @@ module Pakyow
         end
       end
 
-      def initialize(name, contents, format = :html)
+      def initialize(name, contents = '', format = :html)
         @name = name
-
-        if contents.is_a?(Nokogiri::HTML::Document)
-          @doc = contents
-        else
-          processed = Presenter.process(contents, format)
-          @doc = Nokogiri::HTML::Document.parse(processed)
-        end
+        super(contents, format)
       end
 
       def initialize_copy(original_template)
@@ -31,6 +26,8 @@ module Pakyow
 
         # copy doc
         @doc = original_template.doc.dup
+        @context = original_template.context
+        @composer = original_template.composer
       end
 
       def container(name = :default)
@@ -56,8 +53,6 @@ module Pakyow
 
         return View.from_doc(doc)
       end
-
-      def invalidate!; end
 
       private
 

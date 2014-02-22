@@ -2,6 +2,7 @@ module Pakyow
   module Presenter
     class View
       include DocHelpers
+      include TitleHelpers
 
       PARTIAL_REGEX = /<!--\s*@include\s*([a-zA-Z0-9\-_]*)\s*-->/
 
@@ -24,14 +25,6 @@ module Pakyow
       attr_accessor :doc, :scoped_as, :scopes, :related_views, :context, :composer
       attr_writer   :bindings
 
-      def dup
-        view = self.class.from_doc(@doc.dup)
-        view.scoped_as = scoped_as
-        view.context = @context
-        view.composer = @composer
-        return view
-      end
-
       def initialize(contents = '', format = :html)
         @related_views = []
 
@@ -42,6 +35,15 @@ module Pakyow
         else
           @doc = Nokogiri::HTML.fragment(processed)
         end
+      end
+
+      def initialize_copy(original_view)
+        super
+
+        @doc = original_view.doc.dup
+        @scoped_as = original_view.scoped_as
+        @context = @context
+        @composer = @composer
       end
 
       def self.from_doc(doc)
@@ -55,21 +57,6 @@ module Pakyow
         contents  = File.read(path)
 
         return self.new(contents, format)
-      end
-
-      def title=(title)
-        return if @doc.nil?
-
-        if o = @doc.css('title').first
-          o.inner_html = Nokogiri::HTML::fragment(title.to_s)
-        elsif o = @doc.css('head').first
-          o.add_child(Nokogiri::HTML::fragment("<title>#{title}</title>"))
-        end
-      end
-
-      def title
-        return unless o = @doc.css('title').first
-        o.inner_text
       end
 
       # Allows multiple attributes to be set at once.

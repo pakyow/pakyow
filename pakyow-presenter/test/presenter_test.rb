@@ -18,7 +18,8 @@ class PresenterTest < Minitest::Test
   end
 
   def test_view_is_built_for_request
-    assert_instance_of Pakyow::Presenter::View, @presenter.view
+    assert_instance_of Pakyow::Presenter::ViewComposer, @presenter.view
+    assert_instance_of Pakyow::Presenter::View, @presenter.view.composed
 
     page = @presenter.store.page(@path)
     template = @presenter.store.template(@path)
@@ -26,7 +27,13 @@ class PresenterTest < Minitest::Test
 
     assert_equal page, @presenter.composer.page
     assert_equal template, @presenter.composer.template
-    assert_equal view, @presenter.view
+    assert_equal view, @presenter.view.composed
+  end
+
+
+  def test_view_content_is_returned
+    view = @presenter.store.view(@path)
+    assert_equal view.to_html, @presenter.content
   end
 
   def test_path_can_be_set_and_retrieved
@@ -44,14 +51,14 @@ class PresenterTest < Minitest::Test
 
       @presenter.path = 'multi'
       refute_same original_view, @presenter.view
-      assert_equal Pakyow::Presenter::View, @presenter.view.class
+      assert_equal Pakyow::Presenter::ViewComposer, @presenter.view.class
     end
   end
 
   def test_store_can_be_changed
     @presenter.store = :test
-    assert_equal 'switch', @presenter.view.title, 'Template not updated for new store'
-    assert_equal 'switch', @presenter.view.doc.css('body').inner_text.strip, 'Page not updated for new store'
+    assert_equal 'switch', @presenter.view.composed.title, 'Template not updated for new store'
+    assert_equal 'switch', @presenter.view.composed.doc.css('body').inner_text.strip, 'Page not updated for new store'
   end
 
   def test_template_for_route_is_accessible
@@ -78,7 +85,7 @@ class PresenterTest < Minitest::Test
   def test_current_template_is_used
     capture_stdout do
       @presenter.template = :multi
-      assert_equal 'multi', @presenter.view.title
+      assert_equal 'multi', @presenter.view.composed.title
     end
   end
 
@@ -95,7 +102,7 @@ class PresenterTest < Minitest::Test
   def test_current_page_is_used
     page = @presenter.store.page('sub')
     @presenter.page = page
-    assert_equal page.content(:default).strip, @presenter.view.doc.css('body').inner_text.strip
+    assert_equal page.content(:default).strip, @presenter.view.composed.doc.css('body').inner_text.strip
   end
 
   def test_presented_is_correct_value
@@ -116,7 +123,7 @@ class PresenterTest < Minitest::Test
     File.open(file, 'w') { |f| f.write(new_content) }
 
     capture_stdout do
-      assert_equal(original_content.strip, @presenter.view.doc.css('body').inner_text.strip)
+      assert_equal(original_content.strip, @presenter.view.composed.doc.css('body').inner_text.strip)
     end
   ensure
     File.open(file, 'w') { |f| f.write(original_content) }
@@ -138,7 +145,7 @@ class PresenterTest < Minitest::Test
       @presenter.load
       setup
 
-      assert_equal(new_content, @presenter.view.doc.css('body').children.to_html.strip)
+      assert_equal(new_content, @presenter.view.composed.doc.css('body').children.to_html.strip)
     end
   ensure
     File.open(file, 'w') { |f| f.write(original_content) }
@@ -160,7 +167,7 @@ class PresenterTest < Minitest::Test
 
     @presenter.compose_at(path)
 
-    assert_equal comparison_view, @presenter.view
+    assert_equal comparison_view, @presenter.view.composed
   end
 
   def test_can_override_view

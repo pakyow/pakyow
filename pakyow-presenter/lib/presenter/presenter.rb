@@ -96,11 +96,11 @@ module Pakyow
       end
 
       def content
-        view.to_html
+        view.composed.to_html
       end
 
       def view
-        view = @composer ? @composer.view : @view
+        view = @composer || @view
         raise MissingView if view.nil?
 
         view.context = @context

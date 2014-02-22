@@ -33,8 +33,8 @@ describe ViewComposer do
 
   it "composes at a path with overridden template, page, and includes" do
     capture_stdout do
-      compose_at('/', 
-        template: :sub, 
+      compose_at('/',
+        template: :sub,
         page: 'composer',
         includes: {
           one: 'composer/partials/one'
@@ -113,6 +113,37 @@ describe ViewComposer do
     assert_equal 'foo', composer.view.doc.css('body').children.to_html.strip
   end
 
+  it "sets template title" do
+    composer = compose_at('/')
+    composer.title = 'foo'
+    assert_equal 'foo', composer.view.title
+  end
+
+  it "gets template title" do
+    composer = compose_at('/')
+    composer.title = 'foo'
+    assert_equal 'foo', composer.title
+  end
+
+  it "gets scopes from parts" do
+    composer = compose_at('scopes')
+    assert_equal 3, composer.scope(:scope).length
+  end
+
+  it "gets props from parts" do
+    composer = compose_at('scopes')
+    assert_equal 3, composer.prop(:prop).length
+  end
+
+  it "is invalidated when part is modified" do
+    composer = compose_at('scopes')
+    composer.precompose!
+
+    composer.scope(:scope)[0].remove
+
+    assert composer.dirty?, "Composer wasn't invalidated"
+  end
+
   def compose(opts, &block)
     ViewComposer.from_path(@store, nil, opts, &block)
   end
@@ -132,7 +163,7 @@ describe ViewComposer do
     partials = Hash[partials.map { |name, path|
       [name, Partial.load(@store.expand_path(path))]
     }]
-    
+
     return template.build(page).includes(partials)
   end
 

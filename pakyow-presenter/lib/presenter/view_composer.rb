@@ -7,6 +7,11 @@ module Pakyow
         end
       end
 
+      extend Forwardable
+
+      def_delegators :template, :title, :title=
+      def_delegators :parts, :scope, :prop
+
       attr_accessor :context
       attr_reader :store, :path, :page, :partials
 
@@ -67,6 +72,7 @@ module Pakyow
 
         return @view
       end
+      alias_method :composed, :view
 
       def template(template = nil)
         return @template if template.nil?
@@ -125,6 +131,16 @@ module Pakyow
 
       def dirty!
         @dirty = true
+      end
+
+      def parts
+        parts = ViewCollection.new
+        parts.context = @context
+        parts.composer = self
+        parts << @template
+        @page.each_container do |name, container| parts << container end
+        partials.each_pair do |name, partial| parts << partial end
+        return parts
       end
 
       private

@@ -75,8 +75,15 @@ module Pakyow
         end
       end
 
+      def concat(views)
+        @views.concat(views)
+      end
+
       def [](i)
-        @views[i]
+        view = @views[i]
+        view.context = @context
+        view.composer = @composer
+        return view
       end
 
       def length
