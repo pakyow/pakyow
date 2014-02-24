@@ -124,12 +124,17 @@ module Pakyow
       end
 
       def method_missing(method, *args)
-        attribute = method.to_s
+        method_str = method.to_s
 
-        if method.to_s.include?('=')
-          attribute = attribute.gsub('=', '')
+        if method_str[0..1] == '[]'
+          attribute = args[0]
+          value = args[1]
+        else
+          attribute = method_str.gsub('=', '')
           value = args[0]
+        end
 
+        if method_str.include?('=')
           self.set_attribute(attribute, value)
         else
           self.get_attribute(attribute)

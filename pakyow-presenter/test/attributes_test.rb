@@ -18,6 +18,15 @@ class AttributesTest < Minitest::Test
     assert_equal [value], @coll.attrs.title.map {|a| a.to_s}
   end
 
+  def test_text_attributes_are_settable_with_hash_syntax
+    value = 'hfoo'
+    @view.attrs[:title] = value
+    assert_equal value, @view.attrs.title.to_s
+
+    @coll.attrs[:title] = value
+    assert_equal [value], @coll.attrs.title.map {|a| a.to_s}
+  end
+
   def test_text_attributes_are_appendable
     value = 'foo'
     appended_value = 'bar'
