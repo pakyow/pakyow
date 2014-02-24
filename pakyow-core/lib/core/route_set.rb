@@ -24,7 +24,11 @@ module Pakyow
     def match(path, method)
       path = Utils::String.normalize_path(path)
 
-      @routes[method.to_sym].each{|r|
+      # want the request to still knows it's a head, but match as get
+      method = method.to_sym
+      method = :get if method == :head
+
+      @routes[method].each{|r|
         #TODO can we do this without conditionals? fall-through?
         case r[0]
         when Regexp

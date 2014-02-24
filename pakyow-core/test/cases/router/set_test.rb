@@ -66,6 +66,17 @@ module Pakyow
         assert_route_tuple set.match('delete', :delete), ["delete", [], nil, fn4, "delete"]
       end
 
+      def test_head_is_matched_as_get
+        set = RouteSet.new
+
+        fn1 = lambda {}
+
+        set.eval {
+          get('get', fn1)
+        }
+        assert_route_tuple set.match('get', :head), ["get", [], nil, fn1, "get"]
+      end
+
       def test_fn_list_can_be_passed_for_route
         set = RouteSet.new
 
