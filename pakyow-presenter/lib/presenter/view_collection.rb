@@ -102,7 +102,11 @@ module Pakyow
         views.composer = @composer
         self.each{|v|
           next unless svs = v.scope(name)
-          svs.each{|sv| views << sv}
+          svs.each{ |sv| 
+            sv.context = @context
+            sv.composer = @composer
+            views << sv
+          }
         }
 
         views
@@ -114,7 +118,11 @@ module Pakyow
         views.composer = @composer
         self.each{|v|
           next unless svs = v.prop(name)
-          svs.each{|sv| views << sv}
+          svs.each{ |sv| 
+            sv.context = @context
+            sv.composer = @composer
+            views << sv
+          }
         }
 
         views
