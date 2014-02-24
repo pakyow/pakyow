@@ -69,6 +69,10 @@ module Pakyow
 
       alias :render :append
 
+      def prepend(content)
+        self.each {|e| e.prepend(content)}
+      end
+
       def <<(val)
         if val.is_a? View
           @views << val
