@@ -81,6 +81,8 @@ module Pakyow
 
       def [](i)
         view = @views[i]
+        return if view.nil?
+        
         view.context = @context
         view.composer = @composer
         return view
