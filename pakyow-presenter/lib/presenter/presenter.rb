@@ -96,7 +96,8 @@ module Pakyow
       end
 
       def content
-        view.composed.to_html
+        to_present = view
+        view.is_a?(ViewComposer) ? view.composed.to_html : view.to_html
       end
 
       def view
