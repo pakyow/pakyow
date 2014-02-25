@@ -135,13 +135,26 @@ describe ViewComposer do
     assert_equal 3, composer.prop(:prop).length
   end
 
-  it "is invalidated when part is modified" do
-    composer = compose_at('scopes')
-    composer.precompose!
+  describe "invalidation" do
+    before do
+      @composer = compose_at('scopes')
+      @composer.precompose!
+    end
 
-    composer.scope(:scope)[0].remove
+    it "is invalidated when part is modified" do
+      @composer.scope(:scope)[0].remove
+      assert @composer.dirty?, "Composer wasn't invalidated"
+    end
 
-    assert composer.dirty?, "Composer wasn't invalidated"
+    it "is invalidated when matching part" do
+      @composer.scope(:scope)[0].match([{}, {}, {}])
+      assert @composer.dirty?, "Composer wasn't invalidated"
+    end
+
+    it "is invalidated when binding to part" do
+      @composer.scope(:scope)[0].bind({})
+      assert @composer.dirty?, "Composer wasn't invalidated"
+    end
   end
 
   describe 'context' do

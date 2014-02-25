@@ -297,6 +297,8 @@ module Pakyow
 
         self.bind_data_to_scope(data, scope_info, bindings)
         yield(self, data, 0) if block_given?
+
+        invalidate!(true)
       end
 
       # call-seq:
@@ -334,12 +336,12 @@ module Pakyow
         return self
       end
 
-      def invalidate!
-        self.bindings(true)
+      def invalidate!(composer_only = false)
+        self.bindings(true) unless composer_only
         @composer.dirty! unless @composer.nil?
 
         @related_views.each {|v|
-          v.invalidate!
+          v.invalidate!(composer_only)
         }
       end
 
