@@ -46,8 +46,16 @@ module Pakyow
         super
 
         %w[store path page template partials view].each do |ivar|
-          value = original.instance_variable_get("@#{ivar}").dup
-          self.instance_variable_set("@#{ivar}", value)
+          value = original.instance_variable_get("@#{ivar}")
+
+          if value.is_a?(Hash)
+            dup_value = {}
+            value.each_pair { |key, value| dup_value[key] = value.dup }
+          else
+            dup_value = value.dup
+          end
+
+          self.instance_variable_set("@#{ivar}", dup_value)
         end
 
         # update composer reference for partials
