@@ -244,7 +244,27 @@ module Pakyow
       def for(data, &block)
         data = data.to_a if data.is_a?(Enumerator)
         data = [data] if (!data.is_a?(Enumerable) || data.is_a?(Hash))
-        block.call(self, data[0], 0) if block_given?
+
+        if block.arity == 1
+          self.instance_exec(data[0], &block)
+        else
+          block.call(self, data[0])
+        end
+      end
+
+      # call-seq:
+      #   for_with_index {|view, datum, i| block}
+      #
+      # Yields a view, its matching dataum, and the index. See #for.
+      #
+      def for_with_index(data, &block)
+        self.for(data) do |ctx, datum|
+          if block.arity == 2
+            ctx.instance_exec(datum, 0, &block)
+          else
+            block.call(ctx, datum, 0)
+          end
+        end
       end
 
       # call-seq:
@@ -288,6 +308,15 @@ module Pakyow
       end
 
       # call-seq:
+      #   repeat_with_index(data) {|view, datum, i| block}
+      #
+      # Matches self with data and yields a view/datum pair with index.
+      #
+      def repeat_with_index(data, &block)
+        self.match(data).for_with_index(data, &block)
+      end
+
+      # call-seq:
       #   bind(data)
       #
       # Binds data across existing scopes.
@@ -307,7 +336,7 @@ module Pakyow
       # Matches self to data then binds data to the view.
       #
       def apply(data, bindings = {}, &block)
-        views = self.match(data).bind(data, bindings, &block)
+        self.match(data).bind(data, bindings, &block)
       end
 
       def bindings(refind = false)
@@ -408,7 +437,7 @@ module Pakyow
             # this is the root node, which we need as the first hash in the
             # list of bindings, but we don't want to nest other scopes inside
             # of it in this case
-            bindings.last[:nested_bindings] = {}
+            bindings.last[:nested_bindings] = []
           else
             bindings.last[:nested_bindings] = find_bindings(o, true)
             # reject so children aren't traversed
@@ -422,7 +451,7 @@ module Pakyow
             :scope => nil,
             :path => [],
             :props => find_props(doc),
-            :nested_bindings => {}
+            :nested_bindings => []
           })
         end
 
