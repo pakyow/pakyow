@@ -75,7 +75,10 @@ module Pakyow
       alias_method :composed, :view
 
       def template(template = nil)
-        return @template if template.nil?
+        if template.nil?
+          @template.context = context
+          return @template
+        end
 
         self.template = template
         return self
@@ -118,11 +121,15 @@ module Pakyow
       end
 
       def partial(name)
-        @partials[name]
+        partial = @partials[name]
+        partial.context = context
+        return partial
       end
 
       def container(name)
-        @page.container(name)
+        container = @page.container(name)
+        container.context = context
+        return container
       end
 
       def dirty?
