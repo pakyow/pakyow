@@ -185,7 +185,7 @@ module Pakyow
 
           d_v = v.doc.dup
           v.doc.before(d_v)
-          v.invalidate!
+          v.invalidate!(true)
 
           new_v = View.from_doc(d_v)
 
