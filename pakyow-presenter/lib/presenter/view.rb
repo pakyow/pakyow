@@ -334,6 +334,15 @@ module Pakyow
         return self
       end
 
+      def invalidate!
+        self.bindings(true)
+        @composer.dirty! unless @composer.nil?
+
+        @related_views.each {|v|
+          v.invalidate!
+        }
+      end
+
       protected
 
       def partials(refind = false)
@@ -457,15 +466,6 @@ module Pakyow
           binding[:props].each { |prop|
             prop[:path][0] += offset if prop[:path][0]
           }
-        }
-      end
-
-      def invalidate!
-        self.bindings(true)
-        @composer.dirty! unless @composer.nil?
-
-        @related_views.each {|v|
-          v.invalidate!
         }
       end
 
