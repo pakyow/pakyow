@@ -221,16 +221,167 @@ describe "binding data to" do
   end
 
   describe ViewCollection do
+    before do
+      @coll = ViewCollection.new
+      @coll << View.new
+      @coll << View.new
+    end
+
     describe '#with' do
+      it "yields context" do
+        @coll.with { |ctx|
+          assert_same @coll, ctx
+        }
+      end
+
+      it "calls block in context of view" do
+        ctx = nil
+        @coll.with {
+          ctx = self
+        }
+
+        assert_same @coll, ctx
+      end
     end
 
     describe '#for' do
+      before do
+        @data = [{}, {}]
+      end
+
+      it "yields each view/datum pair" do
+        i = 0
+        @coll.for(@data) do |ctx, datum|
+          assert_same @coll[i], ctx
+          assert_same @data[i], datum
+
+          i += 1
+        end
+      end
+
+      it "calls block in context of view, yielding datum" do
+        ctx_views = []
+        ctx_data = []
+        @coll.for(@data) do |datum|
+          ctx_views << self
+          ctx_data << datum
+        end
+
+        @data.count.times do |i|
+          assert_same @coll[i], ctx_views[i]
+          assert_same @data[i], ctx_data[i]
+        end
+      end
+
+      it "stops when no more views" do
+        count = 0
+        @coll.for((@coll.count + 1).times.to_a) do |datum|
+          count += 1
+        end
+
+        assert count == @coll.count
+      end
+
+      it "stops when no more data" do
+        count = 0
+        @coll.for(@data) do |datum|
+          count += 1
+        end
+
+        assert count == @data.count
+      end
+
+      it "handles non-array data" do
+        data = {}
+        @coll.for(data) do |ctx, datum|
+          assert_same data, datum
+        end
+      end
+    end
+
+    describe '#for_with_index' do
+      before do
+        @data = [{}, {}]
+      end
+
+      it "yields each view/datum pair" do
+        count = 0
+        @coll.for_with_index(@data) do |ctx, datum, i|
+          assert_same @coll[i], ctx
+          assert_same @data[i], datum
+          assert i == count
+
+          count += 1
+        end
+      end
+
+      it "calls block in context of view, yielding datum" do
+        ctx_views = []
+        ctx_data = []
+        ctx_is = []
+        @coll.for_with_index(@data) do |datum, i|
+          ctx_views << self
+          ctx_data << datum
+          ctx_is << i
+        end
+
+        @data.count.times do |i|
+          assert_same @coll[i], ctx_views[i]
+          assert_same @data[i], ctx_data[i]
+          assert_equal i, ctx_is[i]
+        end
+      end
     end
 
     describe '#match' do
+      before do
+        @data = [{}, {}, {}]
+        @view = view(:single)
+        @view_to_match = @view.scope(:contact)
+        @views = @view_to_match.match(@data)
+      end
+
+      it "creates a collection of views" do
+        assert @views.length == @data.length
+      end
+
+      it "sets up each created view" do
+        @views.each do |view|
+          assert_equal @view_to_match[0].bindings, view.bindings
+          assert_same @view_to_match[0].scoped_as, view.scoped_as
+          assert_same @view_to_match[0].context, view.context
+          assert_same @view_to_match[0].composer, view.composer
+        end
+      end
+
+      it "removes the original views" do
+        @view.bindings(true)
+        assert @view.scope(:contact).length == @data.length
+      end
     end
 
     describe '#repeat' do
+      it "matches, then calls for" do
+        view = RepeatingTestViewCollection.new
+        view << view(:single)
+
+        view.repeat([{}, {}, {}]) {}
+
+        assert view.calls.include?(:match)
+        assert view.calls.include?(:for)
+      end
+    end
+
+    describe '#repeat_with_index' do
+      it "matches, then calls for_with_index" do
+        view = RepeatingTestViewCollection.new
+        view << view(:single)
+
+        view.repeat_with_index([{}, {}, {}]) {}
+
+        assert view.calls.include?(:match)
+        assert view.calls.include?(:for_with_index)
+      end
     end
 
     describe '#bind' do
@@ -253,19 +404,60 @@ describe "binding data to" do
       end
 
       it "binds data across views" do
-        skip
+        data = [
+          { full_name: 'Bob Dylan', email: 'bob@dylan.com' },
+          { full_name: 'Jack White', email: 'jack@white.com' },
+          { full_name: 'Charles Mingus', email: 'charles@mingus.com' }
+        ]
+
+        view = view(:many).scope(:contact)
+        view.bind(data)
+
+        data.each_with_index do |datum, i|
+          assert_equal datum[:full_name], view[i].doc.css('span').first.content
+          assert_equal datum[:email], view[i].doc.css('a').first.content
+        end
       end
 
       it "stops binding when no more data" do
-        skip
+        view = view(:many).scope(:contact)
+        count = 0
+        data = [{}]
+
+        capture_stdout do
+          view.bind(data) { |view, datum|
+            count += 1
+          }
+        end
+
+        assert count == data.length
       end
 
       it "stops binding when no more views" do
-        skip
+        view = view(:many).scope(:contact)
+        count = 0
+        data = [{}, {}, {}, {}]
+
+        capture_stdout do
+          view.bind(data) { |view, datum|
+            count += 1
+          }
+        end
+
+        assert count == view.length
       end
     end
 
     describe '#apply' do
+      it "matches, then binds" do
+        view = RepeatingTestViewCollection.new
+        view << view(:single)
+
+        view.apply([{}, {}, {}]) {}
+
+        assert view.calls.include?(:match)
+        assert view.calls.include?(:bind)
+      end
     end
   end
 
@@ -277,11 +469,51 @@ describe "binding data to" do
   end
 
   def view(type)
-    @views.fetch(type)
+    @views.fetch(type).dup
   end
 end
 
 class RepeatingTestView < Pakyow::Presenter::View
+  attr_reader :calls
+
+  def initialize(*args)
+    @calls = []
+    super
+  end
+
+  def repeat(*args, &block)
+    @calls << :repeat
+    super
+  end
+
+  def repeat_with_index(*args, &block)
+    @calls << :repeat_with_index
+    super
+  end
+
+  def match(*args, &block)
+    @calls << :match
+    super
+    self
+  end
+
+  def for(*args, &block)
+    @calls << :for
+    super
+  end
+
+  def for_with_index(*args, &block)
+    @calls << :for_with_index
+    super
+  end
+
+  def bind(*args, &block)
+    @calls << :bind
+    super
+  end
+end
+
+class RepeatingTestViewCollection < Pakyow::Presenter::ViewCollection
   attr_reader :calls
 
   def initialize(*args)

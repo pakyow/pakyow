@@ -86,7 +86,7 @@ module Pakyow
       def [](i)
         view = @views[i]
         return if view.nil?
-        
+
         view.context = @context
         view.composer = @composer
         return view
@@ -102,7 +102,7 @@ module Pakyow
         views.composer = @composer
         self.each{|v|
           next unless svs = v.scope(name)
-          svs.each{ |sv| 
+          svs.each{ |sv|
             sv.context = @context
             sv.composer = @composer
             views << sv
@@ -118,7 +118,7 @@ module Pakyow
         views.composer = @composer
         self.each{|v|
           next unless svs = v.prop(name)
-          svs.each{ |sv| 
+          svs.each{ |sv|
             sv.context = @context
             sv.composer = @composer
             views << sv
@@ -158,8 +158,33 @@ module Pakyow
 
         self.each_with_index { |v,i|
           break unless datum = data[i]
-          block.call(v, datum, i) if block_given?
+
+          if block.arity == 1
+            v.instance_exec(data[i], &block)
+          else
+            block.call(v, data[i])
+          end
         }
+      end
+
+      # call-seq:
+      #   for_with_index {|view, datum, i| block}
+      #
+      # Yields a view, its matching datum, and index. Datums are yielded until
+      # no more views or data is available. For the ViewCollection case, this
+      # means the block will be yielded self.length times.
+      #
+      def for_with_index(data, &block)
+        i = 0
+        self.for(data) do |ctx, datum|
+          if block.arity == 2
+            ctx.instance_exec(datum, i, &block)
+          else
+            block.call(ctx, datum, i)
+          end
+
+          i += 1
+        end
       end
 
       # call-seq:
@@ -210,6 +235,15 @@ module Pakyow
       #
       def repeat(data, &block)
         self.match(data).for(data, &block)
+      end
+
+      # call-seq:
+      #   repeat_with_index(data) {|view, datum, i| block}
+      #
+      # Matches self with data and yields a view/datum pair with index.
+      #
+      def repeat_with_index(data, &block)
+        self.match(data).for_with_index(data, &block)
       end
 
       # call-seq:
