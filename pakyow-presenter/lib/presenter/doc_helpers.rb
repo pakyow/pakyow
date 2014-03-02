@@ -57,6 +57,9 @@ module Pakyow
         view = View.from_doc(doc_from_path(path))
         view.related_views << self
 
+        # workaround for nokogiri in jruby (see https://github.com/sparklemotion/nokogiri/issues/1060)
+        view.doc.document.errors = []
+
         return view
       end
 

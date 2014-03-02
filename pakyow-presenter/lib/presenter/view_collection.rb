@@ -224,7 +224,11 @@ module Pakyow
         }
 
         # do not use self.remove since that refinds bindings
-        self.each {|v| v.doc.remove}
+        self.each {|v|
+          next if v.doc.parent.nil?
+          v.doc.remove
+        }
+        
         views
       end
 

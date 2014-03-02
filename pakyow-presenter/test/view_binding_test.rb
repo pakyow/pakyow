@@ -464,8 +464,8 @@ describe "binding data to" do
   private
 
   def create_view_from_string(string)
-    doc = Nokogiri::HTML::Document.parse(string)
-    View.from_doc(doc.root)
+    doc = Nokogiri::HTML.fragment(string)
+    View.from_doc(doc)
   end
 
   def view(type)
