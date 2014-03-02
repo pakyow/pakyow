@@ -7,7 +7,6 @@ rvm:
   - jruby-19mode
   - ruby-head
   - jruby-head
-  - ree
 notifications:
   email: false
   hipchat: dc38d765431b4f0b3119274f433524@Conference Room
