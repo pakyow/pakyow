@@ -16,7 +16,7 @@ module Pakyow
       text = content(:text)
 
       @message.html_part do
-        content_type 'text/html; charset=UTF-8'
+        content_type 'text/html; charset=' + Config::Base.mailer.encoding
         body html
       end
 
@@ -37,7 +37,7 @@ module Pakyow
 
     def process
       unless @processed
-        @premailer = Premailer.new(view.to_html, with_html_string: true)
+        @premailer = Premailer.new(view.to_html, with_html_string: true, input_encoding: Config::Base.mailer.encoding)
 
         @premailer.warnings.each do |w|
           Pakyow.logger.warn "#{w[:message]} (#{w[:level]}) may not render properly in #{w[:clients]}"
