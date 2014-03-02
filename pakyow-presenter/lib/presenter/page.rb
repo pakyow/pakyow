@@ -104,8 +104,15 @@ module Pakyow
       end
 
       def parse_front_matter(contents)
-        matter = YAML.load(contents.match(MATTER_MATCHER).to_s)
-        return matter
+        # match the matter
+        matter = contents.match(MATTER_MATCHER).to_s
+
+        # remove the opening/closing '---'
+        matter = matter.split("\n")[1..-2]
+        # return if no matter
+        return {} if matter.nil?
+
+        YAML.load(matter.join("\n"))
       end
     end
   end
