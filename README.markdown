@@ -2,34 +2,25 @@
 
 # Introduction
 
-Pakyow is an open-source framework for building web apps in Ruby. It enables
-you to get straight to work by letting data be data, views be views, and
-code be code.
+Pakyow is an open-source framework for building modern web-apps in Ruby. It
+helps you build working software faster with a development process that remains 
+friendly to both designers and developers. It's built for getting along.
 
-## Designer-friendly Views
-In Pakyow, views are purely structural and contain no logic, keeping the view
-focused on it's job of presentation. No special markup is required in the
-view. This means the designer can build the presentation layer for an app in
-their own environment.
+*Pakyow empowers the designer with a view-first development process.*
 
-## Sturdy Prototypes
-View construction happens automatically, which means a working, navigable
-front-end can be created without any back-end code. Business logic is added
-later without any changes to the front-end, eliminating resistance and
-keeping development moving forward.
+## Own the front-end
+The views are created in isolation from the back-end app, giving the designer 
+complete control over the front-end through the entire development process.
 
-## Intelligent Connections
-Data awareness is built into views, meaning a view knows what it presents.
-Data is bound in from the back-end without requiring a single change to the
-view. Roles and responsibilities remain clear throughout the development process.
+## Prototypes made easy
+Create a working, navigable prototype of your app without writing a line of back-end 
+code. Later, add the back-end as a layer on top of the view, leaving the prototype intact.
+
+## Logicless views
+Views describe what the UI is, not how it's built. Write views in HTML or the 
+template language of your choice; no view logic and nothing new to learn.
 
 --
-
-Pakyow consists of two gems: pakyow-core and pakyow-presenter. Core handles
-routing requests to an app's business logic. Presenter gives an app the
-ability to have a presentation layer and provides mechanisms for the view
-manipulation and data binding. Core can operate independently of Pakyow
-Presenter for cases where an app doesn't need a presentation layer.
 
 # Getting Started
 
@@ -45,17 +36,23 @@ Presenter for cases where an app doesn't need a presentation layer.
 
     `cd webapp; pakyow server`
 
-4. You'll find the application running here: http://localhost:3000
+4. You'll find the application at http://localhost:3000
 
 # Next Steps
 
 The following resources might be handy:
 
-Website:
+Website:  
 http://pakyow.com
 
-Manual:
-http://pakyow.com/manual
+Manual:  
+http://pakyow.com/docs
 
-Code:
+Code:  
 http://github.com/metabahn/pakyow
+
+Mailing List:  
+http://groups.google.com/group/pakyow
+
+Twitter:  
+http://twitter.com/pakyow
