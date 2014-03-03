@@ -256,10 +256,34 @@ module Pakyow
       # Binds data across existing scopes.
       #
       def bind(data, bindings = {}, &block)
-        self.for(data) {|view, datum, i|
+        self.for(data) {|view, datum|
           view.bind(datum, bindings)
-          yield(view, datum, i) if block_given?
+          next if block.nil?
+
+          if block.arity == 1
+            view.instance_exec(datum, &block)
+          else
+            block.call(view, datum)
+          end
         }
+      end
+
+      # call-seq:
+      #   bind_with_index(data)
+      #
+      # Binds data across existing scopes, yielding a view/datum pair with index.
+      #
+      def bind_with_index(data, bindings = {}, &block)
+        i = 0
+        self.bind(data) do |ctx, datum|
+          if block.arity == 2
+            ctx.instance_exec(datum, i, &block)
+          else
+            block.call(ctx, datum, i)
+          end
+
+          i += 1
+        end
       end
 
       # call-seq:

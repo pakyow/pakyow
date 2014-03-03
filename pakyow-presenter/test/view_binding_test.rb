@@ -182,6 +182,30 @@ describe "binding data to" do
     end
 
     describe '#bind' do
+      it "yields each view/datum pair" do
+        data = {}
+        view = view(:single)
+        view.bind(data) do |ctx, datum|
+          assert_same view, ctx
+          assert_same data, datum
+        end
+      end
+
+      it "calls block in context of view, yielding datum" do
+        data = {}
+        view = view(:single)
+        ctx = nil
+        ctx_datum = nil
+        ctx_i = nil
+        view.bind(data) do |datum|
+          ctx = self
+          ctx_datum = datum
+        end
+
+        assert_same view, ctx
+        assert_same data, ctx_datum
+      end
+
       it "binds to unscoped props" do
         data = { :foo => 'bar' }
         view = view(:unscoped)
@@ -206,6 +230,35 @@ describe "binding data to" do
 
         assert_equal data[:full_name], view.doc.css('.contact span').first.content
         assert_equal data[:email],     view.doc.css('.contact a').first.content
+      end
+    end
+
+    describe '#bind_with_index' do
+      it "yields each view/datum pair" do
+        data = {}
+        view = view(:single)
+        view.bind_with_index(data) do |ctx, datum, i|
+          assert_same view, ctx
+          assert_same data, datum
+          assert_equal 0, i
+        end
+      end
+
+      it "calls block in context of view, yielding datum" do
+        data = {}
+        view = view(:single)
+        ctx = nil
+        ctx_datum = nil
+        ctx_i = nil
+        view.bind_with_index(data) do |datum, i|
+          ctx = self
+          ctx_datum = datum
+          ctx_i = i
+        end
+
+        assert_same view, ctx
+        assert_same data, ctx_datum
+        assert_equal 0, ctx_i
       end
     end
 
@@ -385,6 +438,38 @@ describe "binding data to" do
     end
 
     describe '#bind' do
+      before do
+        @data = [{}, {}]
+
+        @coll = ViewCollection.new
+        @coll << view(:single)
+        @coll << view(:single)
+      end
+
+      it "yields each view/datum pair" do
+        i = 0
+        @coll.bind(@data) do |ctx, datum|
+          assert_same @coll[i], ctx
+          assert_same @data[i], datum
+
+          i += 1
+        end
+      end
+
+      it "calls block in context of view, yielding datum" do
+        ctx_views = []
+        ctx_data = []
+        @coll.bind(@data) do |datum|
+          ctx_views << self
+          ctx_data << datum
+        end
+
+        @data.count.times do |i|
+          assert_same @coll[i], ctx_views[i]
+          assert_same @data[i], ctx_data[i]
+        end
+      end
+
       it "binds a hash" do
         data = {:full_name => "Jugyo Kohno", :email => "jugyo@example.com"}
         view = view(:single)
@@ -445,6 +530,44 @@ describe "binding data to" do
         end
 
         assert count == view.length
+      end
+    end
+
+    describe '#bind_with_index' do
+      before do
+        @data = [{}, {}]
+
+        @coll = ViewCollection.new
+        @coll << view(:single)
+        @coll << view(:single)
+      end
+
+      it "yields each view/datum pair" do
+        i = 0
+        @coll.bind_with_index(@data) do |ctx, datum, index|
+          assert_same @coll[i], ctx
+          assert_same @data[i], datum
+          assert_equal i, index
+
+          i += 1
+        end
+      end
+
+      it "calls block in context of view, yielding datum" do
+        ctx_views = []
+        ctx_data = []
+        ctx_is = []
+        @coll.bind_with_index(@data) do |datum, i|
+          ctx_views << self
+          ctx_data << datum
+          ctx_is << i
+        end
+
+        @data.count.times do |i|
+          assert_same @coll[i], ctx_views[i]
+          assert_same @data[i], ctx_data[i]
+          assert_same i, ctx_is[i]
+        end
       end
     end
 

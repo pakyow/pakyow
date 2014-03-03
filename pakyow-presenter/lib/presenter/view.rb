@@ -322,12 +322,36 @@ module Pakyow
       # Binds data across existing scopes.
       #
       def bind(data, bindings = {}, &block)
+        data = data.to_a if data.is_a?(Enumerator)
+        data = [data] if (!data.is_a?(Enumerable) || data.is_a?(Hash))
+
         scope_info = self.bindings.first
 
-        self.bind_data_to_scope(data, scope_info, bindings)
-        yield(self, data, 0) if block_given?
-
+        self.bind_data_to_scope(data[0], scope_info, bindings)
         invalidate!(true)
+
+        return if block.nil?
+
+        if block.arity == 1
+          self.instance_exec(data[0], &block)
+        else
+          block.call(self, data[0])
+        end
+      end
+
+      # call-seq:
+      #   bind_with_index(data)
+      #
+      # Binds data across existing scopes, yielding a view/datum pair with index.
+      #
+      def bind_with_index(data, bindings = {}, &block)
+        self.bind(data) do |ctx, datum|
+          if block.arity == 2
+            ctx.instance_exec(datum, 0, &block)
+          else
+            block.call(ctx, datum, 0)
+          end
+        end
       end
 
       # call-seq:
