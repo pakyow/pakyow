@@ -40,7 +40,17 @@ module Pakyow
       def initialize_copy(original_view)
         super
 
-        @doc = original_view.doc.dup
+        #TODO this solves a memory leak that I believe is being
+        # caused by Nokogiri; don't like this approach much
+        # since it negatively affects performance
+        #
+        # https://gist.github.com/bryanp/2048ae4a38f94c9d97ef
+        if original_view.doc.is_a?(Nokogiri::HTML::DocumentFragment)
+          @doc = Nokogiri::HTML.fragment(original_view.doc.to_html)
+        else
+          @doc = original_view.doc.dup
+        end
+
         @scoped_as = original_view.scoped_as
         @context = original_view.context
         @composer = original_view.composer
