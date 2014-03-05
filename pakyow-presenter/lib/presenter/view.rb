@@ -42,8 +42,8 @@ module Pakyow
 
         @doc = original_view.doc.dup
         @scoped_as = original_view.scoped_as
-        @context = @context
-        @composer = @composer
+        @context = original_view.context
+        @composer = original_view.composer
       end
 
       def self.from_doc(doc)
