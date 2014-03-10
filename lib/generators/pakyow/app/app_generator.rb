@@ -38,7 +38,7 @@ module Pakyow
         end
 
         exec
-        puts "Done!"
+        puts "Done! Run `cd #{@dest}; pakyow server` to get started!"
       end
 
       protected
@@ -50,8 +50,10 @@ module Pakyow
 
       # performs and other setup (e.g. bundle install)
       def exec
-        puts "Running `bundle install`"
-        `cd #{@dest} && bundle install`
+        FileUtils.cd(@dest) do
+          puts "Running `bundle install` in #{Dir.pwd}"
+          system("bundle install")
+        end
       end
     end
   end
