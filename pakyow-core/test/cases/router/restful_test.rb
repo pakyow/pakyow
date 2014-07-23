@@ -16,8 +16,8 @@ module Pakyow
 
         set.eval {
           restful :test, 'tests' do
-            [:list, :new, :create, :edit, :update, :replace, :show, :delete].each { |a|
-              action(a, &fn)
+            [:list, :new, :create, :edit, :update, :replace, :show, :remove].each { |a|
+              self.send(a, &fn)
             }
           end
         }
@@ -29,7 +29,7 @@ module Pakyow
         assert_route_tuple(match: set.match('tests/1', :patch), path: 'tests/:test_id', name: :update)
         assert_route_tuple(match: set.match('tests/1', :put), path: 'tests/:test_id', name: :replace)
         assert_route_tuple(match: set.match('tests/1', :get), path: 'tests/:test_id', name: :show)
-        assert_route_tuple(match: set.match('tests/1', :delete), path: 'tests/:test_id', name: :delete)
+        assert_route_tuple(match: set.match('tests/1', :delete), path: 'tests/:test_id', name: :remove)
       end
 
       def test_routes_defined_for_passed_actions_only
@@ -100,7 +100,7 @@ module Pakyow
       #TODO move to helpers (duped in set_test)
       def assert_route_tuple(opts)
         match = opts[:match]
-        
+
         assert !match.nil?, "Route not found"
         return if match.nil?
 
