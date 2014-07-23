@@ -33,11 +33,7 @@ module Pakyow
       return view_path if view_path.is_a?(Page)
 
       raise ArgumentError, "Cannot build page for nil path" if view_path.nil?
-      return at_path(view_path, :page).dup
-    end
-
-    def view(view_path)
-      return at_path(view_path, :composer).view.dup
+      return at_path(view_path, :page)
     end
 
     def partials(view_path)
@@ -49,7 +45,11 @@ module Pakyow
     end
 
     def composer(view_path)
-      return at_path(view_path, :composer).dup
+      return at_path(view_path, :composer)
+    end
+
+    def view(view_path)
+      return composer(view_path).view
     end
 
     # iterations through known views, yielding each
