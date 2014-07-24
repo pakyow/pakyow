@@ -133,30 +133,6 @@ describe ViewComposer do
     assert_equal 3, composer.prop(:prop).length
   end
 
-  describe 'context' do
-    before do
-      @ctx = AppContext.new
-      @composer = compose_at('scopes')
-      @composer.context = @ctx
-      @composer.precompose!
-    end
-    it "adds context to parts" do
-      assert_same @ctx, @composer.scope(:scope)[0].context
-    end
-
-    it "adds context to template" do
-      assert_same @ctx, @composer.template.context
-    end
-
-    it "adds context to containers" do
-      assert_same @ctx, @composer.container(:default).context
-    end
-
-    it "adds context to partials" do
-      assert_same @ctx, @composer.partial(:props).context
-    end
-  end
-
   def compose(opts, &block)
     ViewComposer.from_path(@store, nil, opts, &block)
   end

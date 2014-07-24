@@ -149,7 +149,6 @@ describe "binding data to" do
       it "sets up each created view" do
         @views.each do |view|
           assert_same @view_to_match.scoped_as, view.scoped_as
-          assert_same @view_to_match.context, view.context
         end
       end
 
@@ -399,7 +398,6 @@ describe "binding data to" do
       it "sets up each created view" do
         @views.each do |view|
           assert_same @view_to_match[0].scoped_as, view.scoped_as
-          assert_same @view_to_match[0].context, view.context
         end
       end
 

@@ -3,8 +3,6 @@ module Pakyow
     class ViewCollection
       include Enumerable
 
-      attr_accessor :context
-
       def initialize
         @views = []
       end
@@ -87,7 +85,6 @@ module Pakyow
         view = @views[i]
         return if view.nil?
 
-        view.context = @context
         return view
       end
 
@@ -97,11 +94,9 @@ module Pakyow
 
       def scope(name)
         views = ViewCollection.new
-        views.context = @context
         self.each{|v|
           next unless svs = v.scope(name)
           svs.each{ |sv|
-            sv.context = @context
             views << sv
           }
         }
@@ -111,11 +106,9 @@ module Pakyow
 
       def prop(name)
         views = ViewCollection.new
-        views.context = @context
         self.each{|v|
           next unless svs = v.prop(name)
           svs.each{ |sv|
-            sv.context = @context
             views << sv
           }
         }
@@ -194,7 +187,6 @@ module Pakyow
         data = [data] if (!data.is_a?(Enumerable) || data.is_a?(Hash))
 
         views = ViewCollection.new
-        views.context = @context
         data.each_with_index {|datum,i|
           unless v = self[i]
 
@@ -208,7 +200,6 @@ module Pakyow
           new_v = View.from_doc(d_v)
 
           new_v.scoped_as = v.scoped_as
-          new_v.context = @context
 
           views << new_v
         }

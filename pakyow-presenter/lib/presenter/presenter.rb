@@ -104,14 +104,11 @@ module Pakyow
         view = @composer || @view
         raise MissingView if view.nil?
 
-        view.context = @context
-
         return view
       end
 
       def view=(view)
         @view = view
-        @view.context = @context
 
         # setting a view means we no longer use/need the composer
         @composer = nil

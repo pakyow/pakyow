@@ -23,7 +23,6 @@ module Pakyow
 
         # copy doc
         @doc = original_template.doc.dup
-        @context = original_template.context
       end
 
       def container(name = :default)

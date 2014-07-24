@@ -60,7 +60,7 @@ module Pakyow
 
       def restful(route_group)
         binding(:action) {
-          routes = router.group(route_group)
+          routes = Router.instance.group(route_group)
           return_data = {}
 
           if id = bindable[:id]
@@ -80,23 +80,6 @@ module Pakyow
       end
 
       #TODO options
-    end
-
-    class BindingEval
-      include Helpers
-
-      attr_accessor :context
-      attr_reader :bindable
-
-      def initialize(prop, bindable, context)
-        @prop = prop
-        @bindable = bindable
-        @context = context
-      end
-
-      def value
-        bindable[@prop]
-      end
     end
   end
 end

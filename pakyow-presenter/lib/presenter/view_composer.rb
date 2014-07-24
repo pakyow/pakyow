@@ -12,7 +12,6 @@ module Pakyow
       def_delegators :template, :title, :title=
       def_delegators :parts, :scope, :prop
 
-      attr_accessor :context
       attr_reader :store, :path, :page, :partials
 
       def initialize(store, path = nil, opts = {}, &block)
@@ -67,7 +66,6 @@ module Pakyow
 
       def template(template = nil)
         if template.nil?
-          @template.context = context
           return @template
         end
 
@@ -107,19 +105,16 @@ module Pakyow
 
       def partial(name)
         partial = @partials[name]
-        partial.context = context
         return partial
       end
 
       def container(name)
         container = @page.container(name)
-        container.context = context
         return container
       end
 
       def parts
         parts = ViewCollection.new
-        parts.context = @context
         parts << @template
         @page.each_container do |name, container| parts << container end
         partials.each_pair do |name, partial| parts << partial end
