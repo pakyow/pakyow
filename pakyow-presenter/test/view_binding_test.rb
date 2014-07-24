@@ -148,15 +148,13 @@ describe "binding data to" do
 
       it "sets up each created view" do
         @views.each do |view|
-          assert_equal @view_to_match.bindings, view.bindings
           assert_same @view_to_match.scoped_as, view.scoped_as
           assert_same @view_to_match.context, view.context
-          assert_same @view_to_match.composer, view.composer
         end
       end
 
       it "removes the original view" do
-        @view.bindings(true)
+        @view.doc.bindings(true)
         assert @view.scope(:contact).length == @data.length
       end
     end
@@ -211,7 +209,7 @@ describe "binding data to" do
         view = view(:unscoped)
         view.bind(data)
 
-        assert_equal data[:foo], view.doc.css('.foo').first.content
+        assert_equal data[:foo], view.doc.doc.css('.foo').first.content
       end
 
       it "binds a hash" do
@@ -219,8 +217,8 @@ describe "binding data to" do
         view = view(:single)
         view.scope(:contact)[0].bind(data)
 
-        assert_equal data[:full_name], view.doc.css('.contact span').first.content
-        assert_equal data[:email],     view.doc.css('.contact a').first.content
+        assert_equal data[:full_name], view.doc.doc.css('.contact span').first.content
+        assert_equal data[:email],     view.doc.doc.css('.contact a').first.content
       end
 
       it "binds an object" do
@@ -228,8 +226,8 @@ describe "binding data to" do
         view = view(:single)
         view.scope(:contact)[0].bind(data)
 
-        assert_equal data[:full_name], view.doc.css('.contact span').first.content
-        assert_equal data[:email],     view.doc.css('.contact a').first.content
+        assert_equal data[:full_name], view.doc.doc.css('.contact span').first.content
+        assert_equal data[:email],     view.doc.doc.css('.contact a').first.content
       end
     end
 
@@ -400,15 +398,13 @@ describe "binding data to" do
 
       it "sets up each created view" do
         @views.each do |view|
-          assert_equal @view_to_match[0].bindings, view.bindings
           assert_same @view_to_match[0].scoped_as, view.scoped_as
           assert_same @view_to_match[0].context, view.context
-          assert_same @view_to_match[0].composer, view.composer
         end
       end
 
       it "removes the original views" do
-        @view.bindings(true)
+        @view.doc.bindings(true)
         assert @view.scope(:contact).length == @data.length
       end
     end
@@ -475,8 +471,8 @@ describe "binding data to" do
         view = view(:single)
         view.scope(:contact).bind(data)
 
-        assert_equal data[:full_name], view.doc.css('.contact span').first.content
-        assert_equal data[:email],     view.doc.css('.contact a').first.content
+        assert_equal data[:full_name], view.doc.doc.css('.contact span').first.content
+        assert_equal data[:email],     view.doc.doc.css('.contact a').first.content
       end
 
       it "binds an object" do
@@ -484,8 +480,8 @@ describe "binding data to" do
         view = view(:single)
         view.scope(:contact).bind(data)
 
-        assert_equal data[:full_name], view.doc.css('.contact span').first.content
-        assert_equal data[:email],     view.doc.css('.contact a').first.content
+        assert_equal data[:full_name], view.doc.doc.css('.contact span').first.content
+        assert_equal data[:email],     view.doc.doc.css('.contact a').first.content
       end
 
       it "binds data across views" do
@@ -499,8 +495,8 @@ describe "binding data to" do
         view.bind(data)
 
         data.each_with_index do |datum, i|
-          assert_equal datum[:full_name], view[i].doc.css('span').first.content
-          assert_equal datum[:email], view[i].doc.css('a').first.content
+          assert_equal datum[:full_name], view[i].doc.doc.css('span').first.content
+          assert_equal datum[:email], view[i].doc.doc.css('a').first.content
         end
       end
 
@@ -587,7 +583,7 @@ describe "binding data to" do
   private
 
   def create_view_from_string(string)
-    doc = Nokogiri::HTML.fragment(string)
+    doc = NokogiriDoc.from_doc(Nokogiri::HTML.fragment(string))
     View.from_doc(doc)
   end
 

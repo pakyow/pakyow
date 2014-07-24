@@ -9,8 +9,6 @@ module Pakyow
         elsif o = @doc.css('head').first
           o.add_child(Nokogiri::HTML::fragment("<title>#{title}</title>"))
         end
-
-        invalidate!(true)
       end
 
       def title

@@ -13,6 +13,7 @@ require 'presenter/binder_set'
 require 'presenter/attributes'
 require 'presenter/exceptions'
 require 'presenter/view_composer'
+require 'presenter/nokogiri_doc'
 
 module Pakyow
   module Presenter

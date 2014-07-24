@@ -2,7 +2,7 @@ require 'support/helper'
 
 class BindingsTest < Minitest::Test
   include ReqResHelpers
-  
+
   def setup
     capture_stdout do
       Pakyow::App.stage(:test)
@@ -38,9 +38,9 @@ class BindingsTest < Minitest::Test
     assert_equal '/bar/1',  data[:action]
     assert_equal 'post',    data[:method]
 
-    view = View.from_doc(Nokogiri::HTML.fragment(''))
+    view = View.from_doc(NokogiriDoc.from_doc(Nokogiri::HTML.fragment('')))
     data[:view].call(view)
-    doc = view.doc.children[0]
+    doc = view.doc.doc.children[0]
     assert_equal 'hidden',  doc[:type]
     assert_equal '_method', doc[:name]
     assert_equal 'patch',     doc[:value]

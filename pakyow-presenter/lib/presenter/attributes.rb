@@ -60,7 +60,7 @@ module Pakyow
       # returns the full string value
       def to_s
         value = @value
-        value = value.call(deconstruct_attribute_value_of_type(@doc[@name], @type)) if value.is_a? Proc
+        value = value.call(deconstruct_attribute_value_of_type(@doc.get_attribute(@name), @type)) if value.is_a? Proc
         value = construct_attribute_value_of_type(value, @type, @name)
 
         return value
@@ -117,10 +117,9 @@ module Pakyow
     end
 
     class Attributes
-      def initialize(doc, composer = nil)
+      def initialize(doc)
         @doc = doc
         @attributes = {}
-        @composer = composer
       end
 
       def method_missing(method, *args)
@@ -144,34 +143,28 @@ module Pakyow
       def class(*args)
         method_missing(:class, *args)
       end
-      
+
       def id(*args)
         method_missing(:id, *args)
       end
 
       def update_value_for_attribute(attribute, value)
-        if !@doc.is_a?(Nokogiri::XML::Element) && @doc.children.count == 1
-          @doc.children.first[attribute] = value
-        else
-          @doc[attribute] = value
-        end
+        @doc.update_attribute(attribute, value)
       end
 
       def remove_attribute(attribute)
         @doc.remove_attribute(attribute)
-        @composer.dirty! unless @composer.nil?
       end
 
       protected
 
       def set_attribute(attribute, value)
         get_attribute(attribute).set(value)
-        @composer.dirty! unless @composer.nil?
       end
 
       def get_attribute(attribute)
         unless a = @attributes[attribute]
-          a = Attribute.new(attribute, @doc[attribute], self, @doc)
+          a = Attribute.new(attribute, @doc.get_attribute(attribute), self, @doc)
         end
 
         return a
@@ -200,7 +193,7 @@ module Pakyow
       def class(*args)
         method_missing(:class, *args)
       end
-      
+
       def id(*args)
         method_missing(:id, *args)
       end

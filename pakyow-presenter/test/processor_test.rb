@@ -16,12 +16,12 @@ class ProcessorTest < Minitest::Test
 
   def test_processor_processes
     v = Pakyow.app.presenter.store.view("processor")
-    assert_equal 'foo', v.doc.css('body').inner_text.strip
+    assert_equal 'foo', v.doc.doc.css('body').inner_text.strip
   end
 
   def test_processor_processes_multiple_formats
     v = Pakyow.app.presenter.store.view("processor2")
-    assert_equal 'foo', v.doc.css('body').inner_text.strip
+    assert_equal 'foo', v.doc.doc.css('body').inner_text.strip
   end
 
 end

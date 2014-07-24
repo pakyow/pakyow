@@ -68,10 +68,6 @@ module Pakyow
       end
 
       alias :to_s :to_html
-
-      def ==(o)
-        self.class == o.class && self.to_html == o.to_html
-      end
     end
   end
 end

@@ -3,7 +3,7 @@ module Pakyow
     class ViewCollection
       include Enumerable
 
-      attr_accessor :context, :composer
+      attr_accessor :context
 
       def initialize
         @views = []
@@ -88,7 +88,6 @@ module Pakyow
         return if view.nil?
 
         view.context = @context
-        view.composer = @composer
         return view
       end
 
@@ -99,12 +98,10 @@ module Pakyow
       def scope(name)
         views = ViewCollection.new
         views.context = @context
-        views.composer = @composer
         self.each{|v|
           next unless svs = v.scope(name)
           svs.each{ |sv|
             sv.context = @context
-            sv.composer = @composer
             views << sv
           }
         }
@@ -115,12 +112,10 @@ module Pakyow
       def prop(name)
         views = ViewCollection.new
         views.context = @context
-        views.composer = @composer
         self.each{|v|
           next unless svs = v.prop(name)
           svs.each{ |sv|
             sv.context = @context
-            sv.composer = @composer
             views << sv
           }
         }
@@ -200,7 +195,6 @@ module Pakyow
 
         views = ViewCollection.new
         views.context = @context
-        views.composer = @composer
         data.each_with_index {|datum,i|
           unless v = self[i]
 
@@ -210,26 +204,17 @@ module Pakyow
 
           d_v = v.doc.dup
           v.doc.before(d_v)
-          v.invalidate!(true)
 
           new_v = View.from_doc(d_v)
 
-          # find binding subset (keeps us from refinding)
-          new_v.bindings = v.bindings.dup
           new_v.scoped_as = v.scoped_as
           new_v.context = @context
-          new_v.composer = @composer
 
           views << new_v
         }
 
-        # do not use self.remove since that refinds bindings
-        self.each {|v|
-          next if v.doc.parent.nil?
-          v.doc.remove
-        }
-        
-        views
+        remove
+        return views
       end
 
       # call-seq:

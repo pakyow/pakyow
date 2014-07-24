@@ -65,7 +65,7 @@ module Pakyow
 
           if id = bindable[:id]
             return_data[:view] = lambda { |view|
-              view.prepend(View.from_doc(Nokogiri::HTML.fragment('<input type="hidden" name="_method" value="patch">')))
+              view.prepend(View.from_doc(NokogiriDoc.from_doc(Nokogiri::HTML.fragment('<input type="hidden" name="_method" value="patch">'))))
             }
 
             action = routes.path(:update, :"#{route_group}_id" => id)

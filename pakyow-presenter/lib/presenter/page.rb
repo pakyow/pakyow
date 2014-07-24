@@ -14,7 +14,6 @@ module Pakyow
       end
 
       attr_reader :path, :contents
-      attr_accessor :composer
 
       def initialize(name, contents, path, format = :html)
         @name, @contents, @path, @format = name, contents, path, format
@@ -65,14 +64,6 @@ module Pakyow
 
       def each_container
         @containers.each_pair { |name, container| yield(name, container) }
-      end
-
-      def composer=(composer)
-        @composer = composer
-
-        @containers.each do |name, container|
-          container.composer = composer
-        end
       end
 
       private

@@ -1,4 +1,4 @@
-require 'support/helper'
+require_relative 'support/helper'
 
 class ViewScopesTest < Minitest::Test
 
@@ -43,7 +43,7 @@ class ViewScopesTest < Minitest::Test
   end
 
   def test_scope_not_nested_in_itself
-    post_binding = @view.bindings.first
+    post_binding = @view.doc.bindings.first
     post_binding[:nested_bindings].each {|nested|
       refute_equal post_binding[:path], nested[:path], "Found scope in scope"
     }
@@ -52,7 +52,7 @@ class ViewScopesTest < Minitest::Test
   private
 
   def create_view_from_string(string)
-    View.from_doc(Nokogiri::HTML.fragment(string))
+    View.from_doc(NokogiriDoc.from_doc(Nokogiri::HTML.fragment(string)))
   end
 
 end

@@ -35,10 +35,6 @@ module Pakyow
           @partials = store.partials(path) unless path.nil?
         end
 
-        @partials.each do |name, partial|
-          partial.composer = self
-        end
-
         instance_exec(&block) if block_given?
       end
 
@@ -57,27 +53,14 @@ module Pakyow
 
           self.instance_variable_set("@#{ivar}", dup_value)
         end
-
-        # update composer reference for partials
-        @partials.each do |name, partial|
-          partial.composer = self
-        end
-
-        # update composer reference for page
-        @page.composer = self
       end
 
       def precompose!
         @view = build_view
-        clean!
       end
 
       def view
-        if dirty?
-          @view = build_view
-          clean!
-        end
-
+        @view = build_view
         return @view
       end
       alias_method :composed, :view
@@ -99,7 +82,6 @@ module Pakyow
         end
 
         @template = template
-        dirty!
 
         return self
       end
@@ -110,21 +92,16 @@ module Pakyow
           page = @store.page(page)
         end
 
-        page.composer = self
         @page = page
-        dirty!
 
         return self
       end
 
       def includes(partial_map)
-        dirty!
-
         @partials.merge!(remap_partials(partial_map))
       end
 
       def partials=(partial_map)
-        dirty!
         @partials.merge!(remap_partials(partial_map))
       end
 
@@ -140,18 +117,9 @@ module Pakyow
         return container
       end
 
-      def dirty?
-        @dirty
-      end
-
-      def dirty!
-        @dirty = true
-      end
-
       def parts
         parts = ViewCollection.new
         parts.context = @context
-        parts.composer = self
         parts << @template
         @page.each_container do |name, container| parts << container end
         partials.each_pair do |name, partial| parts << partial end
@@ -159,10 +127,6 @@ module Pakyow
       end
 
       private
-
-      def clean!
-        @dirty = false
-      end
 
       def build_view
         raise MissingTemplate, "No template provided to view composer" if @template.nil?

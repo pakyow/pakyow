@@ -78,8 +78,7 @@ describe ViewComposer do
 
     composer.container(:default).remove
 
-    assert composer.dirty?, "Composer wasn't invalidated"
-    assert_equal '', composer.view.doc.css('body').children.to_html.strip
+    assert_equal '', composer.view.doc.doc.css('body').children.to_html.strip
   end
 
   it "handles partial modification" do
@@ -89,18 +88,18 @@ describe ViewComposer do
     partial = composer.partial(:partial1)
     partial.remove
 
-    assert composer.dirty?, "Composer wasn't invalidated"
-    assert_equal '', composer.view.doc.css('body').children.to_html.strip
+    assert_equal '', composer.view.doc.doc.css('body').children.to_html.strip
   end
 
   it "handles attribute modification" do
     composer = compose_at('/attributes')
     composer.precompose!
 
-    composer.container(:default).scope(:attrs).attrs.style = {background:'red'}
+    composer.container(:default).scope(:attrs).attrs.style = {
+      background: 'red'
+    }
 
-    assert composer.dirty?, "Composer wasn't invalidated"
-    assert_equal 'background:red', composer.view.doc.css('body div')[0][:style]
+    assert_equal 'background:red', composer.view.doc.doc.css('body div')[0][:style]
   end
 
   it "handles replacements" do
@@ -109,8 +108,7 @@ describe ViewComposer do
 
     composer.container(:default).replace('foo')
 
-    assert composer.dirty?, "Composer wasn't invalidated"
-    assert_equal 'foo', composer.view.doc.css('body').children.to_html.strip
+    assert_equal 'foo', composer.view.doc.doc.css('body').children.to_html.strip
   end
 
   it "sets template title" do
@@ -135,28 +133,6 @@ describe ViewComposer do
     assert_equal 3, composer.prop(:prop).length
   end
 
-  describe "invalidation" do
-    before do
-      @composer = compose_at('scopes')
-      @composer.precompose!
-    end
-
-    it "is invalidated when part is modified" do
-      @composer.scope(:scope)[0].remove
-      assert @composer.dirty?, "Composer wasn't invalidated"
-    end
-
-    it "is invalidated when matching part" do
-      @composer.scope(:scope)[0].match([{}, {}, {}])
-      assert @composer.dirty?, "Composer wasn't invalidated"
-    end
-
-    it "is invalidated when binding to part" do
-      @composer.scope(:scope)[0].bind({})
-      assert @composer.dirty?, "Composer wasn't invalidated"
-    end
-  end
-
   describe 'context' do
     before do
       @ctx = AppContext.new
@@ -170,7 +146,7 @@ describe ViewComposer do
 
     it "adds context to template" do
       assert_same @ctx, @composer.template.context
-    end  
+    end
 
     it "adds context to containers" do
       assert_same @ctx, @composer.container(:default).context

@@ -1,11 +1,7 @@
 module Pakyow
   module Presenter
+
     class View
-      include DocHelpers
-      include TitleHelpers
-
-      PARTIAL_REGEX = /<!--\s*@include\s*([a-zA-Z0-9\-_]*)\s*-->/
-
       class << self
         attr_accessor :binders
 
@@ -22,38 +18,20 @@ module Pakyow
         end
       end
 
-      attr_accessor :doc, :scoped_as, :scopes, :related_views, :context, :composer
+      attr_accessor :doc, :scoped_as, :context
       attr_writer   :bindings
 
       def initialize(contents = '', format = :html)
-        @related_views = []
-
-        processed = Presenter.process(contents, format)
-
-        if processed.match(/<html.*>/)
-          @doc = Nokogiri::HTML::Document.parse(processed)
-        else
-          @doc = Nokogiri::HTML.fragment(processed)
-        end
+        #TODO make a config option for what doc to use
+        @doc = NokogiriDoc.new(Presenter.process(contents, format))
       end
 
       def initialize_copy(original_view)
         super
 
-        #TODO this solves a memory leak that I believe is being
-        # caused by Nokogiri; don't like this approach much
-        # since it negatively affects performance
-        #
-        # https://gist.github.com/bryanp/2048ae4a38f94c9d97ef
-        if original_view.doc.is_a?(Nokogiri::HTML::DocumentFragment)
-          @doc = Nokogiri::HTML.fragment(original_view.doc.to_html)
-        else
-          @doc = original_view.doc.dup
-        end
-
+        @doc = original_view.doc.dup
         @scoped_as = original_view.scoped_as
         @context = original_view.context
-        @composer = original_view.composer
       end
 
       def self.from_doc(doc)
@@ -69,119 +47,87 @@ module Pakyow
         return self.new(contents, format)
       end
 
+      def ==(o)
+        self.class == o.class && to_html == o.to_html
+      end
+
+			def title=(title)
+				@doc.title = title
+			end
+
+			#TODO delegate
+			def title
+				@doc.title
+			end
+
       # Allows multiple attributes to be set at once.
       # root_view.find(selector).attributes(:class => my_class, :style => my_style)
       #
       def attributes(attrs = {})
-        #TODO this is not invalidating composer
-
         if attrs.empty?
-          return Attributes.new(self.doc, @composer)
+          return Attributes.new(@doc)
         else
-          self.bind_attributes_to_doc(attrs, doc)
+          bind_attributes_to_doc(attrs, @doc)
         end
       end
 
       alias :attrs :attributes
 
       def remove
-        if doc.parent.nil?
-          # best we can do is to remove the children
-          doc.children.remove
-        else
-          doc.remove
-        end
-
-        invalidate!
+        @doc.remove
       end
 
       alias :delete :remove
 
       def clear
-        return if self.doc.blank?
-        self.doc.inner_html = ''
-        self.invalidate!
+        @doc.clear
       end
 
+      #TODO delegate
       def text
-        self.doc.inner_text
+        @doc.text
       end
 
       def text=(text)
+        #TODO make this a helper of some sort
         text = text.call(self.text) if text.is_a?(Proc)
-        self.doc.content = text.to_s
-        self.invalidate!
+        @doc.text = text
       end
 
+      #TODO delegate
       def html
-        self.doc.inner_html
+        @doc.html
       end
 
       def html=(html)
+        #TODO make this a helper of some sort
         html = html.call(self.html) if html.is_a?(Proc)
-        self.doc.inner_html = Nokogiri::HTML.fragment(html.to_s)
-        self.invalidate!
+        @doc.html = html
       end
 
       def append(view)
-        doc  = view.doc
-        num  = doc.children.count
-        path = self.path_to(doc)
-
-        self.doc.add_child(view.doc)
-
-        self.update_binding_offset_at_path(num, path)
-        self.invalidate!
+        @doc.append(view.doc)
       end
 
       def prepend(view)
-        doc  = view.doc
-        num  = doc.children.count
-        path = self.path_to(doc)
-
-        if first_child = self.doc.children.first
-          first_child.add_previous_sibling(doc)
-        else
-          self.doc = doc
-        end
-
-        self.update_binding_offset_at_path(num, path)
-        self.invalidate!
+        @doc.prepend(view.doc)
       end
 
       def after(view)
-        doc  = view.doc
-        num  = doc.children.count
-        path = self.path_to(doc)
-
-        self.doc.after(view.doc)
-
-        self.update_binding_offset_at_path(num, path)
-        self.invalidate!
+        @doc.after(view.doc)
       end
 
       def before(view)
-        doc  = view.doc
-        num  = doc.children.count
-        path = self.path_to(doc)
-
-        self.doc.before(view.doc)
-
-        self.update_binding_offset_at_path(num, path)
-        self.invalidate!
+        @doc.before(view.doc)
       end
 
       def replace(view)
-        view = view.doc if view.is_a?(View)
+        replacement = case view.class
+                      when View then view.doc
+                      else view
+                      end
 
-        if doc.parent.nil?
-          doc.children.remove
-          doc.inner_html = view
-        else
-          doc.replace(view)
-        end
-
-        invalidate!
+        @doc.replace(replacement)
       end
 
       def scope(name)
@@ -189,19 +135,15 @@ module Pakyow
 
         views = ViewCollection.new
         views.context = @context
-        views.composer = @composer
-        self.bindings.select{|b| b[:scope] == name}.each{|s|
-          v = self.view_from_path(s[:path])
 
-          v.bindings = self.update_binding_paths_from_path([s].concat(s[:nested_bindings]), s[:path])
-          v.scoped_as = s[:scope]
-          v.context = @context
-          v.composer = @composer
+        @doc.scope(name).each do |scope_doc|
+          view = View.from_doc(scope_doc)
+          view.scoped_as = name
+          view.context = @context
+          views << view
+        end
 
-          views << v
-        }
-
-        views
+        return views
       end
 
       def prop(name)
@@ -209,22 +151,15 @@ module Pakyow
 
         views = ViewCollection.new
         views.context = @context
-        views.composer = @composer
 
-        if binding = self.bindings.select{|binding| binding[:scope] == self.scoped_as}[0]
-          binding[:props].each {|prop|
-            if prop[:prop] == name
-              v = self.view_from_path(prop[:path])
-
-              v.scoped_as = self.scoped_as
-              v.context = @context
-              v.composer = @composer
-              views << v
-            end
-          }
+        @doc.prop(scoped_as, name).each do |prop_doc|
+          view = View.from_doc(prop_doc)
+          view.scoped_as = scoped_as
+          view.context = @context
+          views << view
         end
 
-        views
+        return views
       end
 
       # call-seq:
@@ -285,21 +220,19 @@ module Pakyow
       # of self, where n = data.length.
       #
       def match(data)
+				#TODO port this to NokogiriDoc
         data = data.to_a if data.is_a?(Enumerator)
         data = [data] if (!data.is_a?(Enumerable) || data.is_a?(Hash))
 
         views = ViewCollection.new
         views.context = @context
-        views.composer = @composer
         data.each {|datum|
           d_v = self.doc.dup
           self.doc.before(d_v)
 
           v = View.from_doc(d_v)
-          v.bindings = self.bindings.dup
           v.scoped_as = self.scoped_as
           v.context = @context
-          v.composer = @composer
 
           views << v
         }
@@ -335,15 +268,14 @@ module Pakyow
         data = data.to_a if data.is_a?(Enumerator)
         data = [data] if (!data.is_a?(Enumerable) || data.is_a?(Hash))
 
-        scope_info = self.bindings.first
+        scope_info = @doc.bindings.first
 
-        self.bind_data_to_scope(data[0], scope_info, bindings)
-        invalidate!(true)
+        bind_data_to_scope(data[0], scope_info, bindings)
 
         return if block.nil?
 
         if block.arity == 1
-          self.instance_exec(data[0], &block)
+          instance_exec(data[0], &block)
         else
           block.call(self, data[0])
         end
@@ -373,47 +305,37 @@ module Pakyow
         self.match(data).bind(data, bindings, &block)
       end
 
-      def bindings(refind = false)
-        @bindings = (!@bindings || refind) ? self.find_bindings : @bindings
-      end
-
       def includes(partial_map)
         partial_map = partial_map.dup
 
         # mixin all the partials
-        partials.each do |partial|
+        @doc.partials.each do |partial|
           partial[1].replace(partial_map[partial[0]].to_s)
         end
 
         # now delete them from the map
-        partials.each do |partial|
+        @doc.partials.each do |partial|
           partial_map.delete(partial[0])
         end
 
         # we have more partials
         if partial_map.count > 0
           # initiate another build if content contains partials
-          includes(partial_map) if partials(true).count > 0
+          includes(partial_map) if @doc.partials(true).count > 0
         end
 
         return self
       end
 
-      def invalidate!(composer_only = false)
-        self.bindings(true) unless composer_only
-        @composer.dirty! unless @composer.nil?
+			def to_html
+				@doc.to_html
+			end
 
-        @related_views.each {|v|
-          v.invalidate!(composer_only)
-        }
-      end
+      alias :to_s :to_html
 
       protected
 
-      def partials(refind = false)
-        @partials = (!@partials || refind) ? find_partials : @partials
-      end
-
+			#TODO port this to NokogiriDoc
       def partials_in(content)
         partials = []
 
@@ -424,116 +346,19 @@ module Pakyow
         return partials
       end
 
-      def find_partials
-        partials = []
-
-        @doc.traverse { |e|
-          next unless e.is_a?(Nokogiri::XML::Comment)
-          next unless match = e.to_html.strip.match(PARTIAL_REGEX)
-
-          name = match[1]
-          partials << [name.to_sym, e]
-        }
-
-        return partials
-      end
-
       # populates the root_view using view_store data by recursively building
       # and substituting in child views named in the structure
+			#TODO port this to NokogiriDoc
       def populate_view(root_view, view_store, view_info)
         root_view.containers.each {|e|
           next unless path = view_info[e[:name]]
 
           v = self.populate_view(View.new(path, view_store), view_store, view_info)
           v.context = @context
-          v.composer = @composer
           self.reset_container(e[:doc])
           self.add_content_to_container(v, e[:doc])
         }
         root_view
-      end
-
-
-      # returns an array of hashes that describe each scope
-      def find_bindings(doc = @doc, ignore_root = false)
-        bindings = []
-        breadth_first(doc) {|o|
-          next if o == doc && ignore_root
-          next if !scope = o[Config::Presenter.scope_attribute]
-
-          bindings << {
-            :scope => scope.to_sym,
-            :path => path_to(o),
-            :props => find_props(o)
-          }
-
-          if o == doc
-            # this is the root node, which we need as the first hash in the
-            # list of bindings, but we don't want to nest other scopes inside
-            # of it in this case
-            bindings.last[:nested_bindings] = []
-          else
-            bindings.last[:nested_bindings] = find_bindings(o, true)
-            # reject so children aren't traversed
-            throw :reject
-          end
-        }
-
-        # find unscoped props
-        unless doc[Config::Presenter.scope_attribute]
-          bindings.unshift({
-            :scope => nil,
-            :path => [],
-            :props => find_props(doc),
-            :nested_bindings => []
-          })
-        end
-
-        return bindings
-      end
-
-      def find_props(o)
-        props = []
-        breadth_first(o) {|so|
-          # don't go into deeper scopes
-          throw :reject if so != o && so[Config::Presenter.scope_attribute]
-
-          next unless prop = so[Config::Presenter.prop_attribute]
-          props << {:prop => prop.to_sym, :path => path_to(so)}
-        }
-
-        return props
-      end
-
-      # returns a new binding set that takes into account the starting point of `path`
-      def update_binding_paths_from_path(bindings, path)
-        return bindings.collect { |binding|
-          dup_binding = binding.dup
-          dup_binding[:path] = dup_binding[:path][path.length..-1] || []
-
-          dup_binding[:props] = dup_binding[:props].collect {|prop|
-            dup_prop = prop.dup
-            dup_prop[:path] = dup_prop[:path][path.length..-1]
-            dup_prop
-          }
-
-          dup_binding[:nested_bindings] = update_binding_paths_from_path(dup_binding[:nested_bindings], path)
-
-          dup_binding
-        }
-      end
-
-      def update_binding_offset_at_path(offset, path)
-        # update binding paths for bindings we're iterating on
-        self.bindings.each {|binding|
-          next unless self.path_within_path?(binding[:path], path)
-
-          binding[:path][0] += offset if binding[:path][0]
-
-          binding[:props].each { |prop|
-            prop[:path][0] += offset if prop[:path][0]
-          }
-        }
       end
 
       def bind_data_to_scope(data, scope_info, bindings = {})
@@ -549,7 +374,7 @@ module Pakyow
 
             if data_has_prop?(data, prop) || Pakyow.app.presenter.binder.has_prop?(prop, scope, bindings)
               value = Pakyow.app.presenter.binder.value_for_prop(prop, scope, data, bindings, context)
-              doc = doc_from_path(prop_info[:path])
+              doc = prop_info[:doc]
 
               if View.form_field?(doc.name)
                 bind_to_form_field(doc, scope, prop, value, data)
@@ -576,6 +401,7 @@ module Pakyow
         (data.is_a?(Hash) && (data.key?(prop) || data.key?(prop.to_s))) || (!data.is_a?(Hash) && data.class.method_defined?(prop))
       end
 
+			#TODO port to NokogiriDoc
       def bind_value_to_doc(value, doc)
         value = String(value)
 
@@ -592,6 +418,7 @@ module Pakyow
         end
       end
 
+			#TODO port to NokogiriDoc
       def bind_attributes_to_doc(attrs, doc)
         attrs.each do |attr, v|
           case attr
@@ -616,6 +443,7 @@ module Pakyow
         end
       end
 
+			#TODO port to NokogiriDoc
       def bind_to_form_field(doc, scope, prop, value, bindable)
         set_form_field_name(doc, scope, prop)
 
@@ -628,6 +456,7 @@ module Pakyow
         end
       end
 
+			#TODO port to NokogiriDoc
       def bind_to_checked_field(doc, value)
         if value == true || (doc[:value] && doc[:value] == value.to_s)
           doc[:checked] = 'checked'
@@ -644,11 +473,13 @@ module Pakyow
         select_option_with_value(doc, value)
       end
 
+			#TODO port to NokogiriDoc
       def set_form_field_name(doc, scope, prop)
         return if doc['name'] && !doc['name'].empty? # don't overwrite the name if already defined
         doc['name'] = "#{scope}[#{prop}]"
       end
 
+			#TODO port to NokogiriDoc
       def create_select_options(doc, scope, prop, value, bindable)
         return unless options = Pakyow.app.presenter.binder.options_for_prop(prop, scope, bindable, context)
 
@@ -687,6 +518,7 @@ module Pakyow
         doc.add_child(option_nodes)
       end
 
+			#TODO port to NokogiriDoc
       def select_option_with_value(doc, value)
         return unless o = doc.css('option[value="' + value.to_s + '"]').first
         o[:selected] = 'selected'

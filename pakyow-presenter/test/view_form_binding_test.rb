@@ -41,6 +41,7 @@ class ViewFormBindingTest < Minitest::Test
 
   def create_view_from_string(string)
     doc = Nokogiri::HTML::Document.parse(string)
-    View.from_doc(doc.root)
+    ndoc = NokogiriDoc.from_doc(doc.root)
+    View.from_doc(ndoc)
   end
 end
