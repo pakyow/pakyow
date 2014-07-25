@@ -10,6 +10,7 @@ module Pakyow
 
       def setup
         @fn_calls = []
+        Pakyow::App.reset(true)
         Pakyow::App.stage(:test)
         Pakyow.app.context = AppContext.new(mock_request, mock_response)
       end
