@@ -14,6 +14,7 @@ require 'presenter/attributes'
 require 'presenter/exceptions'
 require 'presenter/view_composer'
 require 'presenter/nokogiri_doc'
+require 'presenter/string_doc'
 require 'presenter/binding_eval'
 
 module Pakyow
