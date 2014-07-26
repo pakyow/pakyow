@@ -8,3 +8,6 @@ doc
 .rbenv-version
 .ruby-version
 Gemfile.lock
+
+# Test artifacts
+pakyow-core/test/requests.log
