@@ -198,7 +198,7 @@ module Pakyow
       # Yields a view, its matching dataum, and the index. See #for.
       #
       def for_with_index(data, &block)
-        self.for(data) do |ctx, datum|
+       self.for(data) do |ctx, datum|
           if block.arity == 2
             ctx.instance_exec(datum, 0, &block)
           else
@@ -215,22 +215,21 @@ module Pakyow
       # of self, where n = data.length.
       #
       def match(data)
-				#TODO port this to NokogiriDoc
         data = data.to_a if data.is_a?(Enumerator)
         data = [data] if (!data.is_a?(Enumerable) || data.is_a?(Hash))
 
         views = ViewCollection.new
         data.each {|datum|
-          d_v = self.doc.dup
-          self.doc.before(d_v)
+          d_v = @doc.dup
+          @doc.before(d_v)
 
           v = View.from_doc(d_v)
-          v.scoped_as = self.scoped_as
+          v.scoped_as = @scoped_as
 
           views << v
         }
 
-        self.remove
+        remove
         views
       end
 
@@ -240,7 +239,7 @@ module Pakyow
       # Matches self with data and yields a view/datum pair.
       #
       def repeat(data, &block)
-        self.match(data).for(data, &block)
+        match(data).for(data, &block)
       end
 
       # call-seq:
@@ -249,7 +248,7 @@ module Pakyow
       # Matches self with data and yields a view/datum pair with index.
       #
       def repeat_with_index(data, &block)
-        self.match(data).for_with_index(data, &block)
+        match(data).for_with_index(data, &block)
       end
 
       # call-seq:
@@ -279,7 +278,7 @@ module Pakyow
       # Binds data across existing scopes, yielding a view/datum pair with index.
       #
       def bind_with_index(*a, **k, &block)
-        self.bind(*a, **k) do |ctx, datum|
+        bind(*a, **k) do |ctx, datum|
           #TODO move to a helper or something
           if block.arity == 2
             ctx.instance_exec(datum, 0, &block)
@@ -295,7 +294,7 @@ module Pakyow
       # Matches self to data then binds data to the view.
       #
       def apply(data, bindings = {}, &block)
-        self.match(data).bind(data, bindings, &block)
+        match(data).bind(data, bindings, &block)
       end
 
       def includes(partial_map)
@@ -323,8 +322,8 @@ module Pakyow
 			def to_html
 				@doc.to_html
 			end
-
       alias :to_s :to_html
     end
   end
 end
+

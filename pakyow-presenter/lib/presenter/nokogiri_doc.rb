@@ -25,7 +25,7 @@ module Pakyow
       def initialize_copy(original_doc)
         super
 
-        #TODO this solves a memory leak that I believe is being
+        # this solves a memory leak that I believe is being
         # caused by Nokogiri; don't like this approach much
         # since it negatively affects performance
         #
@@ -144,6 +144,10 @@ module Pakyow
 
       def partials(refind = false)
         @partials = (!@partials || refind) ? find_partials : @partials
+      end
+
+      def ==(o)
+        to_html == o.to_html
       end
 
       private
