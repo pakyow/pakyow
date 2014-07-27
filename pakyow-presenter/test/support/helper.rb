@@ -24,3 +24,12 @@ def capture_stdout(&block)
   end
   fake.string
 end
+
+def str_to_doc(str)
+  if str.match(/<html.*>/)
+    Nokogiri::HTML::Document.parse(str)
+  else
+    Nokogiri::HTML.fragment(str)
+  end
+end
+

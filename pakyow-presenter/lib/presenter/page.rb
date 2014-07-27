@@ -44,7 +44,7 @@ module Pakyow
           raise MissingContainer, "No container named #{container} in #{@path}"
         }
 
-        return container.to_html
+        return container.doc
       end
 
       def info(key = nil)

@@ -78,7 +78,7 @@ describe ViewComposer do
 
     composer.container(:default).remove
 
-    assert_equal '', composer.view.doc.doc.css('body').children.to_html.strip
+    assert_equal '', str_to_doc(composer.view.to_html).css('body').children.to_html.strip
   end
 
   it "handles partial modification" do
@@ -88,7 +88,7 @@ describe ViewComposer do
     partial = composer.partial(:partial1)
     partial.remove
 
-    assert_equal '', composer.view.doc.doc.css('body').children.to_html.strip
+    assert_equal '', str_to_doc(composer.view.to_html).css('body').children.to_html.strip
   end
 
   it "handles attribute modification" do
@@ -99,7 +99,7 @@ describe ViewComposer do
       background: 'red'
     }
 
-    assert_equal 'background:red', composer.view.doc.doc.css('body div')[0][:style]
+    assert_equal 'background:red', str_to_doc(composer.view.to_html).css('body div')[0][:style]
   end
 
   it "handles replacements" do
@@ -108,7 +108,7 @@ describe ViewComposer do
 
     composer.container(:default).replace('foo')
 
-    assert_equal 'foo', composer.view.doc.doc.css('body').children.to_html.strip
+    assert_equal 'foo', str_to_doc(composer.view.to_html).css('body').children.to_html.strip
   end
 
   it "sets template title" do
@@ -129,8 +129,9 @@ describe ViewComposer do
   end
 
   it "gets props from parts" do
-    composer = compose_at('scopes')
-    assert_equal 3, composer.prop(:prop).length
+    skip 'this relies on unscoped props, which are not currently supported'
+    # composer = compose_at('scopes')
+    # assert_equal 3, composer.prop(:prop).length
   end
 
   def compose(opts, &block)

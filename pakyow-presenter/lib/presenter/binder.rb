@@ -32,9 +32,9 @@ module Pakyow
 
       def bind_data_to_scope(data, scope_info, bindings, ctx)
         return unless data
+        return unless scope_info
 
         scope = scope_info[:scope]
-
         bind_data_to_root(data, scope, bindings)
 
         scope_info[:props].each { |prop_info|

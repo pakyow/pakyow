@@ -1,10 +1,8 @@
 module Pakyow
   module Presenter
-
     class View
+      #TODO move these methods to some sort of DocHelper module or something
       class << self
-        attr_accessor :binders
-
         def self_closing_tag?(tag)
           %w[area base basefont br hr input img link meta].include? tag
         end
@@ -18,28 +16,37 @@ module Pakyow
         end
       end
 
-      attr_accessor :doc, :scoped_as
-      attr_writer   :bindings
+      # The object responsible for parsing, manipulating, and rendering
+      # the underlying HTML document.
+      # TODO revisit the name
+      #
+      attr_reader :doc
 
+      # The scope, if any, that the view belongs to.
+      # TODO thinking this should be on `doc`
+      # TODO revisit the name
+      #
+      attr_accessor :scoped_as
+
+      #TODO use keyword argument for format
       def initialize(contents = '', format = :html)
-        #TODO make a config option for what doc to use
-        @doc = NokogiriDoc.new(Presenter.process(contents, format))
+        @doc = Config::Base.presenter.view_doc_class.new(Presenter.process(contents, format))
       end
 
       def initialize_copy(original_view)
         super
-
         @doc = original_view.doc.dup
         @scoped_as = original_view.scoped_as
       end
 
       def self.from_doc(doc)
         view = self.new
-        view.doc = doc
+        view.instance_variable_set(:@doc, doc)
         return view
       end
 
       def self.load(path)
+        #TODO use pathname#extname
         format    = Utils::String.split_at_last_dot(path)[-1]
         contents  = File.read(path)
 
@@ -47,9 +54,10 @@ module Pakyow
       end
 
       def ==(o)
-        self.class == o.class && to_html == o.to_html
+        self.class == o.class && @doc == o.doc
       end
 
+      #TODO delegate
 			def title=(title)
 				@doc.title = title
 			end
@@ -60,24 +68,22 @@ module Pakyow
 			end
 
       # Allows multiple attributes to be set at once.
-      # root_view.find(selector).attributes(:class => my_class, :style => my_style)
       #
-      def attributes(attrs = {})
-        if attrs.empty?
-          return Attributes.new(@doc)
-        else
-          Binder.instance.bind_attributes_to_doc(attrs, @doc)
-        end
+      #   view.attrs(class: '...', style: '...')
+      #
+      def attrs(attrs = {})
+        return Attributes.new(@doc) if attrs.empty?
+        Binder.instance.bind_attributes_to_doc(attrs, @doc)
       end
+      alias :attributes :attrs
 
-      alias :attrs :attributes
-
+      #TODO delegate
       def remove
         @doc.remove
       end
-
       alias :delete :remove
 
+      #TODO delegate
       def clear
         @doc.clear
       end
@@ -300,21 +306,18 @@ module Pakyow
       def includes(partial_map)
         partial_map = partial_map.dup
 
+        partials = @doc.partials
+
         # mixin all the partials
-        @doc.partials.each do |partial|
-          partial[1].replace(partial_map[partial[0]].to_s)
+        partials.each do |partial_info|
+					next unless partial = partial_map[partial_info[0]]
+          partial_info[1].replace(partial.doc)
         end
 
-        # now delete them from the map
-        @doc.partials.each do |partial|
-          partial_map.delete(partial[0])
-        end
-
-        # we have more partials
-        if partial_map.count > 0
-          # initiate another build if content contains partials
-          includes(partial_map) if @doc.partials(true).count > 0
-        end
+				partials = @doc.partials
+				if partials.count > 0 && (partial_map.keys - partials.keys).count < partial_map.keys.count
+					includes(partial_map)
+				end
 
         return self
       end

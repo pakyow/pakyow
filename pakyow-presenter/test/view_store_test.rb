@@ -58,36 +58,36 @@ class ViewStoreTest < Minitest::Test
   end
 
   def test_uses_default_page_content
-    assert_equal('index', @store.view('/').doc.doc.css('body').children.to_html.strip)
+    assert_equal('index', str_to_doc(@store.view('/').to_html).css('body').children.to_html.strip)
   end
 
   def test_uses_named_page_content
-    assert_equal('multi side', @store.view('multi').doc.doc.css('body').children.to_html.strip)
+    assert_equal('multi side', str_to_doc(@store.view('multi').to_html).css('body').children.to_html.strip)
   end
 
   def test_falls_back_when_no_page
-    assert_equal 'index', @store.view("no_page").doc.doc.css('body').inner_text.strip
+    assert_equal 'index', str_to_doc(@store.view("no_page").to_html).css('body').inner_text.strip
   end
 
   def test_includes_partial_at_current_path
-    assert_equal('partial1', @store.view('/partial').doc.doc.css('body').children.to_html.strip)
+    assert_equal('partial1', str_to_doc(@store.view('/partial').to_html).css('body').children.to_html.strip)
   end
 
   def test_partials_can_be_overridden
-    assert_equal('partial1.1', @store.view('/partial/override').doc.doc.css('body').children.to_html.strip)
+    assert_equal('partial1.1', str_to_doc(@store.view('/partial/override').to_html).css('body').children.to_html.strip)
   end
 
   def test_partials_include_other_partials
-    assert_equal('partial2', @store.view('/partial/inception').doc.doc.css('body').children.to_html.strip)
+    assert_equal('partial2', str_to_doc(@store.view('/partial/inception').to_html).css('body').children.to_html.strip)
   end
 
   def test_template_includes_partials
-    assert_equal('partial1', @store.view('/partial/template').doc.doc.css('body').children.to_html.strip)
+    assert_equal('partial1', str_to_doc(@store.view('/partial/template').to_html).css('body').children.to_html.strip)
   end
 
   def test_template_is_retrievable_by_name
     template = @store.template(:multi)
-    assert_equal 'multi', template.doc.doc.css('title').inner_html.strip
+    assert_equal 'multi', str_to_doc(template.to_html).css('title').inner_html.strip
   end
 
   def test_partial_can_be_retrieved_for_path
@@ -97,7 +97,7 @@ class ViewStoreTest < Minitest::Test
   end
 
   def test_partials_can_be_included_multiple_times
-    assert_equal("partial1partial1", @store.view('/partial/multiple').doc.doc.css('body').inner_text.strip.gsub("\n", ''))
+    assert_equal("partial1partial1", str_to_doc(@store.view('/partial/multiple').to_html).css('body').inner_text.strip.gsub("\n", ''))
   end
 
   def test_view_building_does_not_modify_template

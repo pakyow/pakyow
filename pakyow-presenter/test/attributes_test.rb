@@ -1,4 +1,4 @@
-require 'support/helper'
+require_relative 'support/helper'
 
 class AttributesTest < Minitest::Test
   def setup
@@ -32,7 +32,7 @@ class AttributesTest < Minitest::Test
     appended_value = 'bar'
     @view.attrs.title = value
     @view.attrs.title << appended_value
-    assert_equal value + appended_value, @view.attrs.title.to_s
+    assert_equal 'foobar', @view.attrs.title.to_s
   end
 
   def test_text_attributes_are_ensurable

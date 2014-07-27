@@ -5,7 +5,8 @@ module Pakyow
 
       class << self
         attr_accessor :javascripts, :stylesheets, :view_stores, :default_views,
-        :scope_attribute, :prop_attribute, :container_attribute, :template_dirs
+        :scope_attribute, :prop_attribute, :container_attribute, :template_dirs,
+        :view_doc_class
 
         # Location of javascripts
         def javascripts
@@ -53,6 +54,10 @@ module Pakyow
 
         def container_attribute
           @container_attribute || "data-container"
+        end
+
+        def view_doc_class
+          @view_doc_class || StringDoc
         end
 
       end

@@ -1,3 +1,5 @@
+require_relative 'support/helper'
+
 class Contact
   attr_accessor :full_name, :email
 

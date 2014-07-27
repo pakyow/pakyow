@@ -9,7 +9,7 @@ gem 'rubysl', :platforms => :rbx
 gem 'racc', :platforms => :rbx
 
 group :test do
-  gem 'minitest', '~> 5.0'
-  gem 'pry', '~> 0.9'
-  gem 'rspec', '~> 3.0'
+  gem 'minitest'
+  gem 'pry'
+  gem 'rspec'
 end
