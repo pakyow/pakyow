@@ -51,7 +51,7 @@ module Pakyow
       end
 
       def clear
-        node[2][0][2].clear
+        children.clear
       end
 
       def text
@@ -60,32 +60,31 @@ module Pakyow
 
       def text=(text)
         clear
-        node[2][0][2] << [text, {}, []]
+        children << [text, {}, []]
       end
 
       def html
-        StringDocRenderer.render(node[2][0][2])
+        StringDocRenderer.render(children)
       end
 
       def html=(html)
         clear
-        node[2][0][2] << [html, {}, []]
+        children << [html, {}, []]
       end
 
       def append(appendable_doc)
-        #TODO make a helper that handles string or stringdoc
         if appendable_doc.is_a?(StringDoc)
-          node[2][0][2].concat(appendable_doc.structure)
+          children.concat(appendable_doc.structure)
         else
-          node[2][0][2] << appendable_doc.to_s
+          children << appendable_doc.to_s
         end
       end
 
       def prepend(prependable_doc)
         if prependable_doc.is_a?(StringDoc)
-          node[2][0][2].unshift(*prependable_doc.structure)
+          children.unshift(*prependable_doc.structure)
         else
-          node[2][0][2].unshift(prependable_doc.to_s)
+          children.unshift(prependable_doc.to_s)
         end
       end
 
@@ -145,8 +144,8 @@ module Pakyow
       alias :to_s :to_html
 
       def ==(o)
-        #TODO do this without rendering
-        # (in the case of comparing StringDoc to String Doc
+        #TODO do this without rendering?
+        # (at least in the case of comparing StringDoc to StringDoc)
         to_s == o.to_s
       end
 
@@ -170,6 +169,10 @@ module Pakyow
       #
       def attributes
         node[1]
+      end
+
+      def children
+        node[2][0][2]
       end
 
       def usable_doc(doc)
