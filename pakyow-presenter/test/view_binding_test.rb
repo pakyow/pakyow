@@ -205,14 +205,6 @@ describe "binding data to" do
         assert_same data, ctx_datum
       end
 
-      it "binds to unscoped props" do
-        data = { :foo => 'bar' }
-        view = view(:unscoped)
-        view.bind(data)
-
-        assert_equal data[:foo], view.doc.doc.css('.foo').first.content
-      end
-
       it "binds a hash" do
         data = {:full_name => "Jugyo Kohno", :email => "jugyo@example.com"}
         view = view(:single)

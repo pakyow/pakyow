@@ -257,15 +257,6 @@ module Pakyow
           end
         }
 
-        # find unscoped props
-        unless doc[Config::Presenter.scope_attribute]
-          bindings.unshift({
-            :scope => nil,
-            :props => find_props(doc),
-            :nested_bindings => []
-          })
-        end
-
         return bindings
       end
 

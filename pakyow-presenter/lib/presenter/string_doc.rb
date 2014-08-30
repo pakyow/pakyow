@@ -211,16 +211,6 @@ module Pakyow
           s
         } || []
 
-        #TODO is this something we still want to support?
-        # # find unscoped props
-        # if !structure.empty? && !structure[0][1].has_key?(:'data-scope')
-        #   ret_scopes.unshift({
-        #     scope: nil,
-        #     props: find_props(structure),
-        #     nested: [],
-        #   })
-        # end
-
         ret_scopes
       end
 

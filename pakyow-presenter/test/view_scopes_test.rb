@@ -45,7 +45,7 @@ class ViewScopesTest < Minitest::Test
   def test_scope_not_nested_in_itself
     post_binding = @view.doc.bindings.first
     post_binding[:nested_bindings].each {|nested|
-      refute_equal post_binding[:path], nested[:path], "Found scope in scope"
+      refute_equal post_binding[:doc], nested[:doc], "Found scope in scope"
     }
   end
 
