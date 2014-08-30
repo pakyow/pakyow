@@ -82,8 +82,6 @@ module Pakyow
                 name = match[1].to_sym
                 structure << [node.to_html, { partial: name }, []]
               end
-
-              # throw :reject
             else
               attr_s = attributes.inject('') { |s, a|
                 s << " #{a[1].name}=\"#{a[1].value}\""
@@ -98,54 +96,8 @@ module Pakyow
               closing = [['>', {}, parse(node)]]
               closing << ["</#{node.name}>", {}, []] unless self_closing?(node.name)
               structure << ["<#{node.name} ", attr_structure, closing]
-              # throw :reject
             end
           end
-
-          # children = node.children.reject {|n| n.is_a?(Nokogiri::XML::Text)}
-          # attributes = node.attributes
-          # if children.empty? && !significant?(node)
-          #   structure << [node.to_html, {}, []]
-          #   # throw :reject
-          # else
-          #   if significant?(node)
-          #     if scope?(node) || prop?(node)
-          #       attr_structure = attributes.inject({}) do |attrs, attr|
-          #         attrs[attr[1].name.to_sym] = attr[1].value
-          #         attrs
-          #       end
-
-          #       closing = [['>', {}, parse(node.inner_html)]]
-          #       closing << ["</#{node.name}>", {}, []] unless self_closing?(node.name)
-          #       structure << ["<#{node.name} ", attr_structure, closing]
-          #     elsif container?(node)
-          #       match = node.text.strip.match(CONTAINER_REGEX)
-          #       name = (match[2] || :default).to_sym
-          #       structure << [node.to_html, { container: name }, []]
-          #     elsif partial?(node)
-          #       next unless match = node.to_html.strip.match(PARTIAL_REGEX)
-          #       name = match[1].to_sym
-          #       structure << [node.to_html, { partial: name }, []]
-          #     end
-
-          #     throw :reject
-          #   else
-          #     attr_s = attributes.inject('') { |s, a|
-          #       s << " #{a[1].name}=\"#{a[1].value}\""
-          #       s
-          #     }
-
-          #     attr_structure = attributes.inject({}) do |attrs, attr|
-          #       attrs[attr[1].name.to_sym] = attr[1].value
-          #       attrs
-          #     end
-
-          #     closing = [['>', {}, parse(node.inner_html)]]
-          #     closing << ["</#{node.name}>", {}, []] unless self_closing?(node.name)
-          #     structure << ["<#{node.name} ", attr_structure, closing]
-          #     throw :reject
-          #   end
-          # end
         end
 
         return structure
@@ -183,7 +135,6 @@ module Pakyow
           catch(:reject) do
             node = queue.shift
             yield node, queue
-            # queue.concat(node.children)
           end
         end
       end
@@ -216,9 +167,10 @@ module Pakyow
 
       def self.contentify(content)
         content.map { |p|
-          if p.is_a?(Hash)
+          case p
+          when Hash
             attrify(p)
-          elsif p.is_a?(Array)
+          when Array
             flatten(p)
           else
             p
@@ -229,8 +181,7 @@ module Pakyow
       IGNORED_ATTRS = %i[container partial]
       def self.attrify(attrs)
         attrs.delete_if { |a| a.nil? || IGNORED_ATTRS.include?(a) }.map { |attr|
-          #TODO do this without interpolation?
-          "#{attr[0]}=\"#{attr[1]}\""
+          attr[0].to_s + '="' + attr[1] + '"'
         }.join(' ')
       end
     end
@@ -476,4 +427,3 @@ module Pakyow
     end
   end
 end
-
