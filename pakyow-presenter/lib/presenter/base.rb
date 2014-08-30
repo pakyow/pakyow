@@ -1,7 +1,5 @@
 require 'yaml'
 require 'presenter/view_store'
-require 'presenter/doc_helpers'
-require 'presenter/title_helpers'
 require 'presenter/view'
 require 'presenter/template'
 require 'presenter/page'
@@ -15,6 +13,7 @@ require 'presenter/exceptions'
 require 'presenter/view_composer'
 require 'presenter/nokogiri_doc'
 require 'presenter/string_doc'
+require 'presenter/string_doc_parser'
 require 'presenter/binding_eval'
 
 module Pakyow
