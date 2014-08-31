@@ -135,8 +135,6 @@ module Pakyow
       def scopes
         find_scopes(@structure)
       end
-      #TODO deprecate `bindings` throughout presenter
-      alias :bindings :scopes
 
       def to_html
         StringDocRenderer.render(@structure)
@@ -210,7 +208,8 @@ module Pakyow
               nested: find_scopes(e[2]),
             }
           end
-          find_scopes(e[2], s)
+          # only find scopes if `e` is the root node or we're not decending into a nested scope
+          find_scopes(e[2], s) if e == node || !e[1].has_key?(:'data-scope')
           s
         } || []
 
@@ -221,7 +220,7 @@ module Pakyow
         structure.inject(props) { |s, e|
           if e[1].has_key?(:'data-prop')
             s << {
-              doc: StringDoc.from_structure(structure),
+              doc: StringDoc.from_structure(structure, node: e),
               prop: e[1][:'data-prop'].to_sym,
             }
           end

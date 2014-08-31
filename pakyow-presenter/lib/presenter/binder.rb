@@ -26,7 +26,7 @@ module Pakyow
       end
 
       def bind(datum, view, bindings, ctx)
-        scope_info = view.doc.bindings.first
+        scope_info = view.doc.scopes.first
         bind_data_to_scope(datum, scope_info, bindings, ctx)
       end
 

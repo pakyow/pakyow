@@ -155,7 +155,7 @@ describe "binding data to" do
       end
 
       it "removes the original view" do
-        @view.doc.bindings(true)
+        @view.doc.scopes(true)
         assert @view.scope(:contact).length == @data.length
       end
     end
@@ -396,7 +396,7 @@ describe "binding data to" do
       end
 
       it "removes the original views" do
-        @view.doc.bindings(true)
+        @view.doc.scopes(true)
         assert @view.scope(:contact).length == @data.length
       end
     end
