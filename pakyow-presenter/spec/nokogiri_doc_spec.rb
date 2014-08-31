@@ -13,4 +13,5 @@ describe NokogiriDoc do
 
   include_examples :doc_specs
   include_examples :scope_specs
+  include_examples :attr_specs
 end

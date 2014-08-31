@@ -8,6 +8,7 @@ require File.expand_path('../../../lib/pakyow-presenter', __FILE__)
 
 require 'support/mixins/doc_specs'
 require 'support/mixins/view_scope_specs'
+require 'support/mixins/attr_specs'
 
 def capture_stdout(&block)
   original_stdout = $stdout
