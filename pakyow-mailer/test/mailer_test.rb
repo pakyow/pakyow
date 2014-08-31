@@ -14,7 +14,7 @@ class MailerTest < Minitest::Test
 
   def test_setting_view_sets_message_body
     m = self.mailer
-    assert_equal('Hello From Pakyow Mailer', m.view.doc.doc.inner_text.strip)
+    assert_equal('Hello From Pakyow Mailer', m.view.doc.text.strip)
   end
 
   def test_subject_is_set
