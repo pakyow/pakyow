@@ -87,11 +87,11 @@ module Pakyow
 
         @contents.scan(within_regex) do |m|
           container_name = m[0].to_sym
-          @containers[container_name] = Container.new(m[1], @format)
+          @containers[container_name] = Container.new(m[1])
         end
 
         # find default content
-        @containers[:default] = Container.new(@contents.gsub(within_regex, ''), @format)
+        @containers[:default] = Container.new(@contents.gsub(within_regex, ''))
       end
 
       def parse_front_matter(contents)
