@@ -15,6 +15,7 @@ end
 
 describe "binding data to" do
   before do
+    Pakyow::App.stage(:test)
     @views = {}
 
     @views[:many] = create_view_from_string(<<-D)

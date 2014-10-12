@@ -45,6 +45,7 @@ module Pakyow
       end
 
       def test_global_configure_block_is_executed
+        Pakyow::App.stage(:test)
         assert_equal(true, $global_config_was_executed)
       end
 
