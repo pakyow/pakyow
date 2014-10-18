@@ -108,16 +108,12 @@ module Pakyow
       end
 
       def scope(scope_name)
-        scopes.select { |b| b[:scope] == scope_name }.map { |scope|
-          scope[:doc]
-        }
+        scopes.select { |b| b[:scope] == scope_name }
       end
 
       def prop(scope_name, prop_name)
         return [] unless scope = scopes.select { |s| s[:scope] == scope_name }[0]
-        scope[:props].select { |p| p[:prop] == prop_name }.map { |prop|
-          prop[:doc]
-        }
+        scope[:props].select { |p| p[:prop] == prop_name }
       end
 
       def container(name)

@@ -203,21 +203,17 @@ module Pakyow
       end
 
       def scope(name)
-        scopes.select { |b| b[:scope] == name }.map { |scope_doc|
-          NokogiriDoc.from_doc(scope_doc[:doc])
-        }
+        scopes.select { |b| b[:scope] == name }
       end
 
       def prop(scope_name, prop_name)
         return [] unless scope = scopes.select { |b| b[:scope] == scope_name }[0]
-        scope[:props].select { |b| b[:prop] == prop_name }.map { |prop_doc|
-          NokogiriDoc.from_doc(prop_doc[:doc])
-        }
+        scope[:props].select { |b| b[:prop] == prop_name }
       end
 
       def container(name)
         container = @containers[name.to_sym]
-        return NokogiriDoc.from_doc(container[:doc])
+        return container[:doc]
       end
 
       def scopes(refind = false)
@@ -236,6 +232,10 @@ module Pakyow
         to_html == o.to_html
       end
 
+      def method_missing(method, *args)
+        doc.send(method, *args)
+      end
+
       private
 
       # returns an array of hashes that describe each scope
@@ -246,7 +246,7 @@ module Pakyow
           next if !scope = o[Config::Presenter.scope_attribute]
 
           scopes << {
-            :doc => o,
+            :doc => NokogiriDoc.from_doc(o),
             :scope => scope.to_sym,
             :props => find_props(o)
           }
@@ -288,7 +288,7 @@ module Pakyow
           throw :reject if so != o && so[Config::Presenter.scope_attribute]
 
           next unless prop = so[Config::Presenter.prop_attribute]
-          props << { :prop => prop.to_sym, :doc => so }
+          props << { :prop => prop.to_sym, :doc => NokogiriDoc.from_doc(so) }
         }
 
         return props

@@ -140,8 +140,8 @@ module Pakyow
 
         views = ViewCollection.new
 
-        @doc.scope(name).each do |scope_doc|
-          view = View.from_doc(scope_doc)
+        @doc.scope(name).each do |scope|
+          view = View.from_doc(scope[:doc])
           view.scoped_as = name
           views << view
         end
@@ -154,8 +154,8 @@ module Pakyow
 
         views = ViewCollection.new
 
-        @doc.prop(scoped_as, name).each do |prop_doc|
-          view = View.from_doc(prop_doc)
+        @doc.prop(scoped_as, name).each do |prop|
+          view = View.from_doc(prop[:doc])
           view.scoped_as = scoped_as
           views << view
         end
