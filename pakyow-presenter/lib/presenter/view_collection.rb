@@ -141,8 +141,7 @@ module Pakyow
       # (this is basically Bret's `map` function)
       #
       def for(data, &block)
-        data = data.to_a if data.is_a?(Enumerator)
-        data = [data] if (!data.is_a?(Enumerable) || data.is_a?(Hash))
+        data = Array.ensure(data)
 
         self.each_with_index { |v,i|
           break unless datum = data[i]
@@ -183,8 +182,7 @@ module Pakyow
       # of self[data index] || self[-1], where n = data.length.
       #
       def match(data)
-        data = data.to_a if data.is_a?(Enumerator)
-        data = [data] if (!data.is_a?(Enumerable) || data.is_a?(Hash))
+        data = Array.ensure(data)
 
         views = ViewCollection.new
         data.each_with_index {|datum,i|

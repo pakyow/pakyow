@@ -188,13 +188,12 @@ module Pakyow
       # (this is basically Bret's `map` function)
       #
       def for(data, &block)
-        data = data.to_a if data.is_a?(Enumerator)
-        data = [data] if (!data.is_a?(Enumerable) || data.is_a?(Hash))
+        datum = Array.ensure(data).first
 
         if block.arity == 1
-          self.instance_exec(data[0], &block)
+          self.instance_exec(datum, &block)
         else
-          block.call(self, data[0])
+          block.call(self, datum)
         end
       end
 
@@ -221,11 +220,8 @@ module Pakyow
       # of self, where n = data.length.
       #
       def match(data)
-        data = data.to_a if data.is_a?(Enumerator)
-        data = [data] if (!data.is_a?(Enumerable) || data.is_a?(Hash))
-
         views = ViewCollection.new
-        data.each {|datum|
+        Array.ensure(data).each {|datum|
           d_v = @doc.dup
           @doc.before(d_v)
 
@@ -260,21 +256,19 @@ module Pakyow
       # call-seq:
       #   bind(data)
       #
-      # Binds data across existing scopes.
+      # Binds a single datum across existing scopes.
       #
       def bind(data, bindings: {}, ctx: nil, &block)
-        #TODO move to a helper or something
-        data = data.to_a if data.is_a?(Enumerator)
-        data = [data] if (!data.is_a?(Enumerable) || data.is_a?(Hash))
-        Binder.instance.bind(data[0], self, bindings, ctx)
+        datum = Array.ensure(data).first
+        Binder.instance.bind(datum, self, bindings, ctx)
 
         #TODO move to a helper or something
         # `exec_or_call`
         return if block.nil?
         if block.arity == 1
-          instance_exec(data[0], &block)
+          instance_exec(datum, &block)
         else
-          block.call(self, data[0])
+          block.call(self, datum)
         end
       end
 
