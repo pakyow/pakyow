@@ -1,71 +1,57 @@
+require 'forwardable'
+
 module Pakyow
   module Presenter
     class View
-      #TODO move these methods to some sort of DocHelper module or something
-      class << self
-        def self_closing_tag?(tag)
-          %w[area base basefont br hr input img link meta].include? tag
-        end
+      extend Forwardable
 
-        def form_field?(tag)
-          %w[input select textarea button].include? tag
-        end
-
-        def tag_without_value?(tag)
-          %w[select].include? tag
-        end
-      end
+      def_delegators :@doc, :title=, :title, :remove, :clear, :text, :html
 
       # The object responsible for parsing, manipulating, and rendering
-      # the underlying HTML document.
-      # TODO revisit the name
+      # the underlying HTML document for the view.
       #
       attr_reader :doc
 
       # The scope, if any, that the view belongs to.
-      # TODO thinking this should be on `doc`
-      # TODO revisit the name
       #
       attr_accessor :scoped_as
 
-      #TODO use keyword argument for format
-      def initialize(contents = '', format = :html)
+      # Creates a view, running `contents` through any registered view processors for `format`.
+      #
+      # @param contents [String] the contents of the view
+      # @param format [Symbol] the format of contents
+      #
+      def initialize(contents = '', format: :html)
         @doc = Config::Base.presenter.view_doc_class.new(Presenter.process(contents, format))
       end
 
       def initialize_copy(original_view)
         super
+
         @doc = original_view.doc.dup
         @scoped_as = original_view.scoped_as
       end
 
+      # Creates a view from a doc.
+      #
+      # @see StringDoc
+      # @see NokogiriDoc
+      #
       def self.from_doc(doc)
-        view = self.new
+        view = new
         view.instance_variable_set(:@doc, doc)
-        return view
+        view
       end
 
+      # Creates a view from a file.
+      #
       def self.load(path)
-        #TODO use pathname#extname
-        format    = Utils::String.split_at_last_dot(path)[-1]
-        contents  = File.read(path)
-
-        return self.new(contents, format)
+        new(File.read(path), format: File.format(path))
       end
 
-      def ==(o)
-        self.class == o.class && @doc == o.doc
+      def ==(other)
+        self.class == other.class && @doc == other.doc
       end
-
-      #TODO delegate
-			def title=(title)
-				@doc.title = title
-			end
-
-			#TODO delegate
-			def title
-				@doc.title
-			end
 
       # Allows multiple attributes to be set at once.
       #
@@ -73,39 +59,15 @@ module Pakyow
       #
       def attrs(attrs = {})
         return Attributes.new(@doc) if attrs.empty?
-        Binder.instance.bind_attributes_to_doc(attrs, @doc)
-      end
-      alias :attributes :attrs
-
-      #TODO delegate
-      def remove
-        @doc.remove
-      end
-      alias :delete :remove
-
-      #TODO delegate
-      def clear
-        @doc.clear
-      end
-
-      #TODO delegate
-      def text
-        @doc.text
+        bind_attributes_to_doc(attrs, @doc)
       end
 
       def text=(text)
-        #TODO make this a helper of some sort
         text = text.call(self.text) if text.is_a?(Proc)
         @doc.text = text
       end
 
-      #TODO delegate
-      def html
-        @doc.html
-      end
-
       def html=(html)
-        #TODO make this a helper of some sort
         html = html.call(self.html) if html.is_a?(Proc)
         @doc.html = html
       end
@@ -127,40 +89,26 @@ module Pakyow
       end
 
       def replace(view)
-        replacement = case view.class
-                      when View then view.doc
-                      else view
-                      end
-
+        replacement = view.is_a?(View) ? view.doc : view
         @doc.replace(replacement)
       end
 
       def scope(name)
         name = name.to_sym
-
-        views = ViewCollection.new
-
-        @doc.scope(name).each do |scope|
+        @doc.scope(name).inject(ViewCollection.new) do |coll, scope|
           view = View.from_doc(scope[:doc])
           view.scoped_as = name
-          views << view
+          coll << view
         end
-
-        return views
       end
 
       def prop(name)
         name = name.to_sym
-
-        views = ViewCollection.new
-
-        @doc.prop(scoped_as, name).each do |prop|
+        @doc.prop(scoped_as, name).inject(ViewCollection.new) do |coll, prop|
           view = View.from_doc(prop[:doc])
           view.scoped_as = scoped_as
-          views << view
+          coll << view
         end
-
-        return views
       end
 
       # call-seq:
@@ -170,7 +118,7 @@ module Pakyow
       #
       def with(&block)
         if block.arity == 0
-          self.instance_exec(&block)
+          instance_exec(&block)
         else
           yield(self)
         end
@@ -189,9 +137,8 @@ module Pakyow
       #
       def for(data, &block)
         datum = Array.ensure(data).first
-
         if block.arity == 1
-          self.instance_exec(datum, &block)
+          instance_exec(datum, &block)
         else
           block.call(self, datum)
         end
@@ -220,18 +167,16 @@ module Pakyow
       # of self, where n = data.length.
       #
       def match(data)
-        views = ViewCollection.new
-        Array.ensure(data).each {|datum|
-          d_v = @doc.dup
-          @doc.before(d_v)
-
-          v = View.from_doc(d_v)
-          v.scoped_as = @scoped_as
-
-          views << v
+        views = Array.ensure(data).inject(ViewCollection.new) { |coll|
+          duped_view = dup
+          before(duped_view)
+          coll << duped_view
         }
 
+        # remove the original view that was matched
         remove
+
+        # return the new collection
         views
       end
 
@@ -260,11 +205,9 @@ module Pakyow
       #
       def bind(data, bindings: {}, ctx: nil, &block)
         datum = Array.ensure(data).first
-        Binder.instance.bind(datum, self, bindings, ctx)
-
-        #TODO move to a helper or something
-        # `exec_or_call`
+        bind_data_to_scope(datum, doc.scopes.first, bindings, ctx)
         return if block.nil?
+
         if block.arity == 1
           instance_exec(datum, &block)
         else
@@ -279,7 +222,6 @@ module Pakyow
       #
       def bind_with_index(*a, **k, &block)
         bind(*a, **k) do |ctx, datum|
-          #TODO move to a helper or something
           if block.arity == 2
             ctx.instance_exec(datum, 0, &block)
           else
@@ -293,34 +235,204 @@ module Pakyow
       #
       # Matches self to data then binds data to the view.
       #
-      def apply(data, bindings = {}, &block)
-        match(data).bind(data, bindings, &block)
+      def apply(data, bindings: {}, &block)
+        match(data).bind(data, bindings: bindings, &block)
       end
 
       def includes(partial_map)
-        partial_map = partial_map.dup
-
         partials = @doc.partials
+        partial_map = partial_map.dup
 
         # mixin all the partials
         partials.each do |partial_info|
-					next unless partial = partial_map[partial_info[0]]
+          partial = partial_map[partial_info[0]]
+					next if partial.nil?
           partial_info[1].replace(partial.doc)
         end
 
+        # refind the partials
 				partials = @doc.partials
+
+        # if mixed in partials included partials, we want to run includes again with a new map
 				if partials.count > 0 && (partial_map.keys - partials.keys).count < partial_map.keys.count
 					includes(partial_map)
 				end
 
-        return self
+        self
       end
 
 			def to_html
 				@doc.to_html
 			end
       alias :to_s :to_html
+
+      private
+
+      def bind_data_to_scope(data, scope_info, bindings, ctx)
+        return unless data
+        return unless scope_info
+
+        scope = scope_info[:scope]
+        bind_data_to_root(data, scope, bindings, ctx)
+
+        scope_info[:props].each do |prop_info|
+          catch(:unbound) do
+            prop = prop_info[:prop]
+
+            if data_has_prop?(data, prop) || Binder.instance.has_scoped_prop?(scope, prop, bindings)
+              value = Binder.instance.value_for_scoped_prop(scope, prop, data, bindings, ctx)
+              doc = prop_info[:doc]
+
+              if DocHelpers.form_field?(doc.tagname)
+                bind_to_form_field(doc, scope, prop, value, data, ctx)
+              end
+
+              bind_data_to_doc(doc, value)
+            else
+              handle_unbound_data(scope, prop)
+            end
+          end
+        end
+      end
+
+      def bind_data_to_root(data, scope, bindings, ctx)
+        value = Binder.instance.value_for_scoped_prop(scope, :_root, data, bindings, ctx)
+        return if value.nil?
+
+        value.is_a?(Hash) ? bind_attributes_to_doc(value, doc) : bind_value_to_doc(value, doc)
+      end
+
+      def bind_data_to_doc(doc, data)
+        data.is_a?(Hash) ? bind_attributes_to_doc(data, doc) : bind_value_to_doc(data, doc)
+      end
+
+      def data_has_prop?(data, prop)
+        (data.is_a?(Hash) && (data.key?(prop) || data.key?(prop.to_s))) || (!data.is_a?(Hash) && data.class.method_defined?(prop))
+      end
+
+      def bind_value_to_doc(value, doc)
+        value = String(value)
+
+        tag = doc.tagname
+        return if DocHelpers.tag_without_value?(tag)
+
+        if DocHelpers.self_closing_tag?(tag)
+          # don't override value if set
+          if !doc.get_attribute(:value) || doc.get_attribute(:value).empty?
+            doc.set_attribute(:value, value)
+          end
+        else
+          doc.html = value
+        end
+      end
+
+      def bind_to_form_field(doc, scope, prop, value, bindable, ctx)
+        set_form_field_name(doc, scope, prop)
+
+        # special binding for checkboxes and radio buttons
+        if doc.tagname == 'input' && (doc.get_attribute(:type) == 'checkbox' || doc.get_attribute(:type) == 'radio')
+          bind_to_checked_field(doc, value)
+          # special binding for selects
+        elsif doc.tagname == 'select'
+          bind_to_select_field(doc, scope, prop, value, bindable, ctx)
+        end
+      end
+
+      def bind_to_checked_field(doc, value)
+        if value == true || (doc.get_attribute(:value) && doc.get_attribute(:value) == value.to_s)
+          doc.set_attribute(:checked, 'checked')
+        else
+          doc.remove_attribute(:checked)
+        end
+
+        # coerce to string since booleans are often used and fail when binding to a view
+        value.to_s
+      end
+
+      def bind_to_select_field(doc, scope, prop, value, bindable, ctx)
+        create_select_options(doc, scope, prop, value, bindable, ctx)
+        select_option_with_value(doc, value)
+      end
+
+      def set_form_field_name(doc, scope, prop)
+        return if doc.get_attribute(:name) && !doc.get_attribute(:name).empty? # don't overwrite the name if already defined
+        doc.set_attribute(:name, "#{scope}[#{prop}]")
+      end
+
+      def create_select_options(doc, scope, prop, value, bindable, ctx)
+        options = Binder.instance.options_for_scoped_prop(scope, prop, bindable, ctx)
+        return if options.nil?
+
+        option_nodes = Nokogiri::HTML::DocumentFragment.parse('')
+        Nokogiri::HTML::Builder.with(option_nodes) do |h|
+          until options.length == 0
+            catch :optgroup do
+              o = options.first
+
+              # an array containing value/content
+              if o.is_a?(Array)
+                h.option o[1], value: o[0]
+                options.shift
+                # likely an object (e.g. string); start a group
+              else
+                h.optgroup(label: o) {
+                  options.shift
+
+                  options[0..-1].each_with_index { |o2,i2|
+                    # starting a new group
+                    throw :optgroup unless o2.is_a?(Array)
+
+                    h.option o2[1], value: o2[0]
+                    options.shift
+                  }
+                }
+              end
+            end
+          end
+        end
+
+        # remove existing options
+        doc.clear
+
+        # add generated options
+        doc.append(option_nodes.to_html)
+      end
+
+      def select_option_with_value(doc, value)
+        option = doc.option(value: value)
+        return if option.nil?
+
+        option.set_attribute(:selected, 'selected')
+      end
+
+      def handle_unbound_data(scope, prop)
+        Pakyow.logger.warn("Unbound data for #{scope}[#{prop}]") if Pakyow.logger
+        throw :unbound
+      end
+
+      def bind_attributes_to_doc(attrs, doc)
+        attrs.each do |attr, v|
+          case attr
+          when :content
+            v = v.call(doc.inner_html) if v.is_a?(Proc)
+            bind_value_to_doc(v, doc)
+            next
+          when :view
+            v.call(self)
+            next
+          else
+            attr = attr.to_s
+            attrs = Attributes.new(doc)
+            v = v.call(attrs.send(attr)) if v.is_a?(Proc)
+
+            if v.nil?
+              doc.remove_attribute(attr)
+            else
+              attrs.send(:"#{attr}=", v)
+            end
+          end
+        end
+      end
     end
   end
 end
-

@@ -3,9 +3,11 @@ module Pakyow
     class BinderSet
       attr_reader :scopes
 
-      def initialize
+      def initialize(&block)
         @scopes = {}
         @options = {}
+
+        instance_exec(&block)
       end
 
       def scope(name, &block)
@@ -20,14 +22,14 @@ module Pakyow
         return bindings_for_scope(scope, bindings)[prop]
       end
 
-      def options_for_prop(prop, scope, bindable, context)
+      def options_for_prop(scope, prop, bindable, context)
         if block = (@options[scope] || {})[prop]
           binding_eval = BindingEval.new(bindable, prop, context)
           binding_eval.instance_exec(&block)
         end
       end
 
-      def has_prop?(prop, scope, bindings)
+      def has_prop?(scope, prop, bindings)
         bindings_for_scope(scope, bindings).key? prop
       end
 

@@ -28,12 +28,12 @@ class BindingsTest < Minitest::Test
       Pakyow.app.presenter.load
     end
 
-    data = Pakyow.app.presenter.binder.value_for_prop(:action, :foo, {}, Pakyow.app.context)
+    data = Pakyow.app.presenter.binder.value_for_scoped_prop(:foo, :action, {}, {}, Pakyow.app.context)
 
     assert_equal '/bar', data[:action]
     assert_equal 'post', data[:method]
 
-    data = Pakyow.app.presenter.binder.value_for_prop(:action, :foo, {id:1}, Pakyow.app.context)
+    data = Pakyow.app.presenter.binder.value_for_scoped_prop(:foo, :action, { id: 1 }, {}, Pakyow.app.context)
 
     assert_equal '/bar/1',  data[:action]
     assert_equal 'post',    data[:method]

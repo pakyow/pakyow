@@ -16,6 +16,11 @@ module Pakyow
         return instance
       end
 
+      def self.ensure(object)
+        return object if object.is_a?(StringDoc)
+        StringDoc.new(object)
+      end
+
       def initialize_copy(original_doc)
         super
         @structure = Utils::Dup.deep(original_doc.structure)
@@ -34,6 +39,7 @@ module Pakyow
       end
 
       def set_attribute(name, value)
+        return if attributes.nil?
         attributes[name.to_sym] = value
       end
       alias :update_attribute :set_attribute
@@ -73,27 +79,15 @@ module Pakyow
       end
 
       def append(appendable_doc)
-        if appendable_doc.is_a?(StringDoc)
-          children.concat(appendable_doc.structure)
-        else
-          children << appendable_doc.to_s
-        end
+        children.concat(StringDoc.ensure(appendable_doc).structure)
       end
 
       def prepend(prependable_doc)
-        if prependable_doc.is_a?(StringDoc)
-          children.unshift(*prependable_doc.structure)
-        else
-          children.unshift(prependable_doc.to_s)
-        end
+        children.unshift(*StringDoc.ensure(prependable_doc).structure)
       end
 
       def after(insertable_doc)
-        if insertable_doc.is_a?(StringDoc)
-          node << insertable_doc.structure
-        else
-          node << insertable_doc.to_s
-        end
+        node << StringDoc.ensure(insertable_doc).structure
       end
 
       def before(insertable_doc)
@@ -146,6 +140,16 @@ module Pakyow
       def node
         return @structure if @structure.empty?
         return @node || @structure[0]
+      end
+
+      def tagname
+        node[0].gsub(/[^a-zA-Z]/, '')
+      end
+
+      def option(value: nil)
+        StringDoc.from_structure(node[2][0][2].select { |option|
+          option[1][:value] == value
+        })
       end
 
       private

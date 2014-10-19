@@ -9,13 +9,13 @@ module Pakyow
           contents  = File.read(path)
           name      = File.basename(path, '.*').to_sym
 
-          return self.new(name, contents, format)
+          self.new(name, contents, format: format)
         end
       end
 
-      def initialize(name, contents = '', format = :html)
+      def initialize(name, contents = '', format: :html)
         @name = name
-        super(contents, format)
+        super(contents, format: format)
       end
 
       def initialize_copy(original_template)
@@ -30,8 +30,6 @@ module Pakyow
       end
 
       def build(page)
-        # add content to each container
-        #TODO this is going to have to change some; need access to container's nokogiridoc
         @doc.containers.each do |container|
           name = container[0]
 
@@ -42,7 +40,7 @@ module Pakyow
           end
         end
 
-        return View.from_doc(doc)
+        View.from_doc(doc)
       end
     end
   end

@@ -11,70 +11,60 @@ module Pakyow
         @views.each { |v| yield(v) }
       end
 
-      def attributes(attrs = {})
-        collection = AttributesCollection.new
-        self.each{|v| collection << v.attributes(attrs)}
-        return collection
+      def attrs(attrs = {})
+        inject(AttributesCollection.new) { |coll, view|
+          coll << view.attrs(attrs)
+        }
       end
-
-      alias :attrs :attributes
 
       def remove
-        self.each {|e| e.remove}
+        each {|e| e.remove}
       end
 
-      alias :delete :remove
-
-      # SEE COMMENT IN VIEW
-      # def add_class(val)
-      #   self.each {|e| e.add_class(val)}
-      # end
-
-      # SEE COMMENT IN VIEW
-      # def remove_class(val)
-      #   self.each {|e| e.remove_class(val)}
-      # end
-
       def clear
-        self.each {|e| e.clear}
+        each {|e| e.clear}
       end
 
       def text
-        self.map { |v| v.text }
+        map { |v| v.text }
       end
 
       def text=(text)
-        self.each {|e| e.text = text}
+        each {|e| e.text = text}
       end
 
       def html
-        self.map { |v| v.html }
+        map { |v| v.html }
       end
 
       def html=(html)
-        self.each {|e| e.html = html}
+        each {|e| e.html = html}
       end
 
       def to_html
-        self.map { |v| v.to_html }.join('')
+        map { |v| v.to_html }.join('')
       end
 
       alias :to_s :to_html
 
       def append(content)
-        self.each {|e| e.append(content)}
+        each do |view|
+          view.append(content)
+        end
       end
 
-      alias :render :append
-
       def prepend(content)
-        self.each {|e| e.prepend(content)}
+        each do |view|
+          view.prepend(content)
+        end
       end
 
       def <<(val)
         if val.is_a? View
           @views << val
         end
+
+        self
       end
 
       def concat(views)
@@ -82,10 +72,7 @@ module Pakyow
       end
 
       def [](i)
-        view = @views[i]
-        return if view.nil?
-
-        return view
+        @views[i]
       end
 
       def length
@@ -93,27 +80,25 @@ module Pakyow
       end
 
       def scope(name)
-        views = ViewCollection.new
-        self.each{|v|
-          next unless svs = v.scope(name)
-          svs.each{ |sv|
-            views << sv
+        inject(ViewCollection.new) { |coll, view|
+          scopes = view.scope(name)
+          next if scopes.nil?
+
+          scopes.inject(coll) { |coll, scoped_view|
+            coll << scoped_view
           }
         }
-
-        views
       end
 
       def prop(name)
-        views = ViewCollection.new
-        self.each{|v|
-          next unless svs = v.prop(name)
-          svs.each{ |sv|
-            views << sv
+        inject(ViewCollection.new) { |coll, view|
+          scopes = view.prop(name)
+          next if scopes.nil?
+
+          scopes.inject(coll) { |coll, scoped_view|
+            coll << scoped_view
           }
         }
-
-        views
       end
 
       # call-seq:
@@ -123,7 +108,7 @@ module Pakyow
       #
       def with(&block)
         if block.arity == 0
-          self.instance_exec(&block)
+          instance_exec(&block)
         else
           yield(self)
         end
@@ -142,16 +127,16 @@ module Pakyow
       #
       def for(data, &block)
         data = Array.ensure(data)
-
-        self.each_with_index { |v,i|
-          break unless datum = data[i]
+        each_with_index do |view, i|
+          datum = data[i]
+          break if datum.nil?
 
           if block.arity == 1
-            v.instance_exec(data[i], &block)
+            view.instance_exec(data[i], &block)
           else
-            block.call(v, data[i])
+            block.call(view, data[i])
           end
-        }
+        end
       end
 
       # call-seq:
@@ -182,28 +167,19 @@ module Pakyow
       # of self[data index] || self[-1], where n = data.length.
       #
       def match(data)
-        data = Array.ensure(data)
-
-        views = ViewCollection.new
-        data.each_with_index {|datum,i|
-          unless v = self[i]
-
-            # we're out of views, so use the last one
-            v = self[-1]
-          end
-
-          d_v = v.doc.dup
-          v.doc.before(d_v)
-
-          new_v = View.from_doc(d_v)
-
-          new_v.scoped_as = v.scoped_as
-
-          views << new_v
+        views = Array.ensure(data).each_with_index.inject(ViewCollection.new) { |coll, (_, i)|
+                            # if we're out of views, use the last one
+          view = self[i] || self[-1]
+          duped_view = view.dup
+          view.before(duped_view)
+          coll << duped_view
         }
 
+        # remove the original collection that was matched
         remove
-        return views
+
+        # return the new collection
+        views
       end
 
       # call-seq:
@@ -212,7 +188,7 @@ module Pakyow
       # Matches self to data and yields a view/datum pair.
       #
       def repeat(data, &block)
-        self.match(data).for(data, &block)
+        match(data).for(data, &block)
       end
 
       # call-seq:
@@ -221,7 +197,7 @@ module Pakyow
       # Matches self with data and yields a view/datum pair with index.
       #
       def repeat_with_index(data, &block)
-        self.match(data).for_with_index(data, &block)
+        match(data).for_with_index(data, &block)
       end
 
       # call-seq:
@@ -229,9 +205,9 @@ module Pakyow
       #
       # Binds data across existing scopes.
       #
-      def bind(data, bindings = {}, &block)
-        self.for(data) {|view, datum|
-          view.bind(datum, bindings)
+      def bind(data, bindings: {}, &block)
+        self.for(data) do |view, datum|
+          view.bind(datum, bindings: bindings)
           next if block.nil?
 
           if block.arity == 1
@@ -239,7 +215,7 @@ module Pakyow
           else
             block.call(view, datum)
           end
-        }
+        end
       end
 
       # call-seq:
@@ -247,9 +223,9 @@ module Pakyow
       #
       # Binds data across existing scopes, yielding a view/datum pair with index.
       #
-      def bind_with_index(data, bindings = {}, &block)
+      def bind_with_index(*a, **k, &block)
         i = 0
-        self.bind(data) do |ctx, datum|
+        bind(*a, **k) do |ctx, datum|
           if block.arity == 2
             ctx.instance_exec(datum, i, &block)
           else
@@ -265,8 +241,8 @@ module Pakyow
       #
       # Matches self to data then binds data to the view.
       #
-      def apply(data, bindings = {}, &block)
-        self.match(data).bind(data, bindings, &block)
+      def apply(data, bindings: {}, &block)
+        match(data).bind(data, bindings: bindings, &block)
       end
     end
   end

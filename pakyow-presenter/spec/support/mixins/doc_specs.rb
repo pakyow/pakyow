@@ -136,6 +136,18 @@ shared_examples :doc_specs do
       end
     end
 
+    describe '#tagname' do
+      it 'returns tagname of the node' do
+        skip
+      end
+    end
+
+    describe '#option' do
+      it 'finds option by value' do
+        skip
+      end
+    end
+
     describe '#containers' do
       shared_examples :containers do
         describe 'unnamed container' do

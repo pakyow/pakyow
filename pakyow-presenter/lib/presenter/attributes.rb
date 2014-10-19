@@ -53,7 +53,6 @@ module Pakyow
       def method_missing(method, *args)
         ret = @value.send(method, *args)
         update_value
-
         return ret
       end
 
@@ -180,10 +179,17 @@ module Pakyow
 
       def <<(attributes)
         @attributes << attributes
+        self
+      end
+
+      def each
+        @attributes.each { |a| yield(a) }
       end
 
       def method_missing(method, *args)
-        @attributes.inject(AttributesCollection.new) { |coll, a| coll<< a.send(method, *args) }
+        @attributes.inject(AttributesCollection.new) { |coll, a|
+          coll << a.send(method, *args)
+        }
       end
 
       def to_s

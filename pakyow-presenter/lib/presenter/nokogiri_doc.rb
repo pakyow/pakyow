@@ -232,8 +232,12 @@ module Pakyow
         to_html == o.to_html
       end
 
-      def method_missing(method, *args)
-        doc.send(method, *args)
+      def tagname
+        @doc.name
+      end
+
+      def option(value: nil)
+        @doc.css('option[value="' + value.to_s + '"]').first
       end
 
       private

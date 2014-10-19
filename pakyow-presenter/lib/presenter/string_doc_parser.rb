@@ -36,7 +36,7 @@ module Pakyow
             structure << [node.to_html, {}, []]
           else
             if significant?(node)
-              if scope?(node) || prop?(node)
+              if scope?(node) || prop?(node) || option?(node)
                 attr_structure = attributes.inject({}) do |attrs, attr|
                   attrs[attr[1].name.to_sym] = attr[1].value
                   attrs
@@ -76,7 +76,7 @@ module Pakyow
       end
 
       def significant?(node)
-        scope?(node) || prop?(node) || container?(node) || partial?(node)
+        scope?(node) || prop?(node) || container?(node) || partial?(node) || option?(node)
       end
 
       def scope?(node)
@@ -99,6 +99,10 @@ module Pakyow
         return false unless node.is_a?(Nokogiri::XML::Comment)
         return false unless node.to_html.strip.match(PARTIAL_REGEX)
         return true
+      end
+
+      def option?(node)
+        node.name == 'option'
       end
 
       def breadth_first(doc)
