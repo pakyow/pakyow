@@ -216,16 +216,16 @@ module Pakyow
         return container[:doc]
       end
 
-      def scopes(refind = false)
-        @scopes = (!@scopes || refind) ? find_scopes : @scopes
+      def scopes
+        find_scopes
       end
 
-      def containers(refind = false)
-        @containers = (!@containers || refind) ? find_containers : @containers
+      def containers
+        find_containers
       end
 
-      def partials(refind = false)
-        @partials = (!@partials || refind) ? find_partials : @partials
+      def partials
+        find_partials
       end
 
       def ==(o)
