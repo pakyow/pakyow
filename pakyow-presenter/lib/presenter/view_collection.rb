@@ -162,13 +162,11 @@ module Pakyow
       # call-seq:
       #   match(data) => ViewCollection
       #
-      # Returns a ViewCollection object that has been manipulated to match the data.
-      # For the ViewCollection case, the returned ViewCollection collection will consist n copies
-      # of self[data index] || self[-1], where n = data.length.
+      # Manipulates the current collection to match the data. The final ViewCollection object
+      # will consist n copies of self[data index] || self[-1], where n = data.length.
       #
       def match(data)
         data = Array.ensure(data)
-        coll = ViewCollection.new
 
         # an empty set always means an empty view
         if data.empty?
@@ -176,25 +174,20 @@ module Pakyow
         else
           original_view = self[-1].dup if data.length > length
 
-          data.each_with_index.inject(coll) { |coll, (_, i)|
-            if i < length
-              coll << self[i]
-            else
+          if length > data.length
+            self[data.length..-1].each do |view|
+              view.remove
+            end
+          else
+            data[length..-1].each do
               duped_view = original_view.dup
               self[-1].after(duped_view)
-              coll << duped_view
-            end
-          }
-
-          if length > data.length
-            self[(data.length)..-1].each do |view|
-              view.remove
+              self << duped_view
             end
           end
         end
 
-        # return the new collection
-        coll
+        self
       end
 
       # call-seq:

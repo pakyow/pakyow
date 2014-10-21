@@ -397,10 +397,6 @@ describe "binding data to" do
           assert_same @view_to_match[0].scoped_as, view.scoped_as
         end
       end
-
-      it "removes the original views" do
-        assert @view.scope(:contact).length == @data.length
-      end
     end
 
     describe '#repeat' do
