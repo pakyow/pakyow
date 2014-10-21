@@ -10,6 +10,8 @@ require 'support/mixins/doc_specs'
 require 'support/mixins/view_scope_specs'
 require 'support/mixins/attr_specs'
 require 'support/mixins/form_binding_specs'
+require 'support/mixins/view_repeating_specs'
+require 'support/mixins/view_matching_specs'
 
 def capture_stdout(&block)
   original_stdout = $stdout
