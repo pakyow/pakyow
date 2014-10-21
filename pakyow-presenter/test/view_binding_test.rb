@@ -155,7 +155,6 @@ describe "binding data to" do
       end
 
       it "removes the original view" do
-        @view.doc.scopes(true)
         assert @view.scope(:contact).length == @data.length
       end
     end
@@ -210,8 +209,10 @@ describe "binding data to" do
         view = view(:single)
         view.scope(:contact)[0].bind(data)
 
-        assert_equal data[:full_name], view.doc.doc.css('.contact span').first.content
-        assert_equal data[:email],     view.doc.doc.css('.contact a').first.content
+        doc = ndoc_from_view(view)
+
+        assert_equal data[:full_name], doc.css('.contact span').first.content
+        assert_equal data[:email],     doc.css('.contact a').first.content
       end
 
       it "binds an object" do
@@ -219,8 +220,10 @@ describe "binding data to" do
         view = view(:single)
         view.scope(:contact)[0].bind(data)
 
-        assert_equal data[:full_name], view.doc.doc.css('.contact span').first.content
-        assert_equal data[:email],     view.doc.doc.css('.contact a').first.content
+        doc = ndoc_from_view(view)
+
+        assert_equal data[:full_name], doc.css('.contact span').first.content
+        assert_equal data[:email],     doc.css('.contact a').first.content
       end
     end
 
@@ -396,7 +399,6 @@ describe "binding data to" do
       end
 
       it "removes the original views" do
-        @view.doc.scopes(true)
         assert @view.scope(:contact).length == @data.length
       end
     end
@@ -463,8 +465,10 @@ describe "binding data to" do
         view = view(:single)
         view.scope(:contact).bind(data)
 
-        assert_equal data[:full_name], view.doc.doc.css('.contact span').first.content
-        assert_equal data[:email],     view.doc.doc.css('.contact a').first.content
+        doc = ndoc_from_view(view)
+
+        assert_equal data[:full_name], doc.css('.contact span').first.content
+        assert_equal data[:email],     doc.css('.contact a').first.content
       end
 
       it "binds an object" do
@@ -472,8 +476,10 @@ describe "binding data to" do
         view = view(:single)
         view.scope(:contact).bind(data)
 
-        assert_equal data[:full_name], view.doc.doc.css('.contact span').first.content
-        assert_equal data[:email],     view.doc.doc.css('.contact a').first.content
+        doc = ndoc_from_view(view)
+
+        assert_equal data[:full_name], doc.css('.contact span').first.content
+        assert_equal data[:email],     doc.css('.contact a').first.content
       end
 
       it "binds data across views" do
@@ -487,8 +493,9 @@ describe "binding data to" do
         view.bind(data)
 
         data.each_with_index do |datum, i|
-          assert_equal datum[:full_name], view[i].doc.doc.css('span').first.content
-          assert_equal datum[:email], view[i].doc.doc.css('a').first.content
+          doc = ndoc_from_view(view[i])
+          assert_equal datum[:full_name], doc.css('span').first.content
+          assert_equal datum[:email], doc.css('a').first.content
         end
       end
 
@@ -575,12 +582,15 @@ describe "binding data to" do
   private
 
   def create_view_from_string(string)
-    doc = NokogiriDoc.from_doc(Nokogiri::HTML.fragment(string))
-    View.from_doc(doc)
+    View.new(string)
   end
 
   def view(type)
     @views.fetch(type).dup
+  end
+
+  def ndoc_from_view(view)
+    Nokogiri::HTML.fragment(view.to_s)
   end
 end
 

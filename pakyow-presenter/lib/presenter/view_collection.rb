@@ -167,19 +167,34 @@ module Pakyow
       # of self[data index] || self[-1], where n = data.length.
       #
       def match(data)
-        views = Array.ensure(data).each_with_index.inject(ViewCollection.new) { |coll, (_, i)|
-                            # if we're out of views, use the last one
-          view = self[i] || self[-1]
-          duped_view = view.dup
-          view.before(duped_view)
-          coll << duped_view
-        }
+        data = Array.ensure(data)
+        coll = ViewCollection.new
 
-        # remove the original collection that was matched
-        remove
+        # an empty set always means an empty view
+        if data.empty?
+          remove
+        else
+          original_view = self[-1].dup if data.length > length
+
+          data.each_with_index.inject(coll) { |coll, (_, i)|
+            if i < length
+              coll << self[i]
+            else
+              duped_view = original_view.dup
+              self[-1].after(duped_view)
+              coll << duped_view
+            end
+          }
+
+          if length > data.length
+            self[(data.length)..-1].each do |view|
+              view.remove
+            end
+          end
+        end
 
         # return the new collection
-        views
+        coll
       end
 
       # call-seq:

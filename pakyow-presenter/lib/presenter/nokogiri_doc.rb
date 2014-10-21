@@ -306,7 +306,7 @@ module Pakyow
           next unless match = e.to_html.strip.match(PARTIAL_REGEX)
 
           name = match[1]
-          partials[name.to_sym] = e
+          partials[name.to_sym] = NokogiriDoc.from_doc(e)
         }
 
         return partials

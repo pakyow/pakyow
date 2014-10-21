@@ -167,17 +167,29 @@ module Pakyow
       # of self, where n = data.length.
       #
       def match(data)
-        views = Array.ensure(data).inject(ViewCollection.new) { |coll|
-          duped_view = dup
-          before(duped_view)
-          coll << duped_view
-        }
+        data = Array.ensure(data)
+        coll = ViewCollection.new
 
-        # remove the original view that was matched
-        remove
+        # an empty set always means an empty view
+        if data.empty?
+          remove
+        else
+          # dup for later
+          original_view = dup if data.length > 1
+
+          # the original view match the first datum
+          coll << self
+
+          # create views for the other datums
+          data[1..-1].inject(coll) { |coll|
+            duped_view = original_view.dup
+            after(duped_view)
+            coll << duped_view
+          }
+        end
 
         # return the new collection
-        views
+        coll
       end
 
       # call-seq:

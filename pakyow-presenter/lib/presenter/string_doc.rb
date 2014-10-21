@@ -23,7 +23,15 @@ module Pakyow
 
       def initialize_copy(original_doc)
         super
-        @structure = Utils::Dup.deep(original_doc.structure)
+
+        original_structure = original_doc.instance_variable_get(:@structure)
+        @structure = Utils::Dup.deep(original_structure) if original_structure
+
+        original_node = original_doc.instance_variable_get(:@node)
+        if original_node
+          node_index = original_structure.index(original_node)
+          @node = @structure[node_index]
+        end
       end
 
       def title
@@ -53,7 +61,7 @@ module Pakyow
       end
 
       def remove
-        @structure.delete_if { |n| n == node }
+        @structure.delete_if { |n| n.equal?(node) }
       end
 
       def clear
@@ -78,26 +86,56 @@ module Pakyow
         children << [html, {}, []]
       end
 
-      def append(appendable_doc)
-        children.concat(StringDoc.ensure(appendable_doc).structure)
+      def append(doc)
+        doc = StringDoc.ensure(doc)
+
+        if doc.node?
+          children.push(doc.node)
+        else
+          children.concat(doc.structure)
+        end
       end
 
-      def prepend(prependable_doc)
-        children.unshift(*StringDoc.ensure(prependable_doc).structure)
+      def prepend(doc)
+        doc = StringDoc.ensure(doc)
+
+        if doc.node?
+          children.unshift(doc.node)
+        else
+          children.unshift(*doc.structure)
+        end
       end
 
-      def after(insertable_doc)
-        node << StringDoc.ensure(insertable_doc).structure
+      def after(doc)
+        doc = StringDoc.ensure(doc)
+
+        if doc.node?
+          @structure.push(doc.node)
+        else
+          @structure.concat(doc.structure)
+        end
       end
 
-      def before(insertable_doc)
-        node.unshift(usable_doc(insertable_doc))
+      def before(doc)
+        doc = StringDoc.ensure(doc)
+
+        if doc.node?
+          @structure.unshift(doc.node)
+        else
+          @structure.unshift(*doc.structure)
+        end
       end
 
-      def replace(replacement_doc)
-        doc = usable_doc(replacement_doc)
+      def replace(doc)
+        doc = StringDoc.ensure(doc)
         index = @structure.index(node) || 0
-        @structure.insert(index + 1, *doc)
+
+        if doc.node?
+          @structure.insert(index + 1, node)
+        else
+          @structure.insert(index + 1, *doc.structure)
+        end
+
         @structure.delete_at(index)
       end
 
@@ -115,19 +153,19 @@ module Pakyow
       end
 
       def containers
-        find_containers(@structure)
+        find_containers(@node ? [@node] : @structure)
       end
 
       def partials
-        find_partials(@structure)
+        find_partials(@node ? [@node] : @structure)
       end
 
       def scopes
-        find_scopes(@structure)
+        find_scopes(@node ? [@node] : @structure)
       end
 
       def to_html
-        StringDocRenderer.render(@structure)
+        StringDocRenderer.render(@node ? [@node] : @structure)
       end
       alias :to_s :to_html
 
@@ -140,6 +178,10 @@ module Pakyow
       def node
         return @structure if @structure.empty?
         return @node || @structure[0]
+      end
+
+      def node?
+        !@node.nil?
       end
 
       def tagname
@@ -173,59 +215,55 @@ module Pakyow
         node[2][0][2]
       end
 
-      def usable_doc(doc)
-        doc.is_a?(StringDoc) ? doc.structure : [[doc.to_s, {}, []]]
-      end
-
-      def find_containers(structure, containers = {})
+      def find_containers(structure, primary_structure = @structure, containers = {})
         return {} if structure.empty?
         structure.inject(containers) { |s, e|
           if e[1].has_key?(:container)
-            s[e[1][:container]] = { doc: StringDoc.from_structure(structure, node: e) }
+            s[e[1][:container]] = { doc: StringDoc.from_structure(primary_structure, node: e) }
           end
-          find_containers(e[2], s)
+          find_containers(e[2], e[2], s)
           s
         } || {}
       end
 
-      def find_partials(structure, partials = {})
+      def find_partials(structure, primary_structure = @structure, partials = {})
         structure.inject(partials) { |s, e|
           if e[1].has_key?(:partial)
-            s[e[1][:partial]] = StringDoc.from_structure(structure, node: e)
+            s[e[1][:partial]] = StringDoc.from_structure(primary_structure, node: e)
           end
-          find_partials(e[2], s)
+          find_partials(e[2], e[2], s)
           s
         } || {}
       end
 
-      def find_scopes(structure, scopes = [])
+      def find_scopes(structure, primary_structure = @structure, scopes = [])
         ret_scopes = structure.inject(scopes) { |s, e|
           if e[1].has_key?(:'data-scope')
             s << {
-              doc: StringDoc.from_structure(structure, node: e),
+              doc: StringDoc.from_structure(primary_structure, node: e),
               scope: e[1][:'data-scope'].to_sym,
               props: find_props(e[2]),
               nested: find_scopes(e[2]),
             }
           end
           # only find scopes if `e` is the root node or we're not decending into a nested scope
-          find_scopes(e[2], s) if e == node || !e[1].has_key?(:'data-scope')
+          find_scopes(e[2], e[2], s) if e == node || !e[1].has_key?(:'data-scope')
           s
         } || []
 
         ret_scopes
       end
 
-      def find_props(structure, props = [])
+      def find_props(structure, primary_structure = @structure, props = [])
         structure.inject(props) { |s, e|
           if e[1].has_key?(:'data-prop')
             s << {
-              doc: StringDoc.from_structure(structure, node: e),
+              doc: StringDoc.from_structure(primary_structure, node: e),
               prop: e[1][:'data-prop'].to_sym,
             }
           end
           unless e[1].has_key?(:'data-scope')
-            find_props(e[2], s)
+            find_props(e[2], e[2], s)
           end
           s
         } || []
