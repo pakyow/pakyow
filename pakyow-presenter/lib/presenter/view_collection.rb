@@ -213,9 +213,9 @@ module Pakyow
       #
       # Binds data across existing scopes.
       #
-      def bind(data, bindings: {}, &block)
+      def bind(data, bindings: {}, ctx: nil, &block)
         self.for(data) do |view, datum|
-          view.bind(datum, bindings: bindings)
+          view.bind(datum, bindings: bindings, ctx: ctx)
           next if block.nil?
 
           if block.arity == 1
