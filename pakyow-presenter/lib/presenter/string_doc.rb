@@ -34,6 +34,12 @@ module Pakyow
         end
       end
 
+      # Creates a StringDoc instance with the same structure, but a duped node.
+      #
+      def soft_copy
+        StringDoc.from_structure(@structure, node: @node ? Utils::Dup.deep(@node) : nil)
+      end
+
       def title
         title_search do |n, match|
           return match[1]

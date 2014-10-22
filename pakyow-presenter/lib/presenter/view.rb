@@ -32,6 +32,14 @@ module Pakyow
         @scoped_as = original_view.scoped_as
       end
 
+      # Creates a new view with a soft copy of doc.
+      #
+      def soft_copy
+        copy = View.from_doc(@doc.soft_copy)
+        copy.scoped_as = scoped_as
+        copy
+      end
+
       # Creates a view from a doc.
       #
       # @see StringDoc

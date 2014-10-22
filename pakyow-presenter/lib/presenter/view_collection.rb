@@ -172,7 +172,7 @@ module Pakyow
         if data.empty?
           remove
         else
-          original_view = self[-1].dup if data.length > length
+          original_view = self[-1].soft_copy if data.length > length
 
           if length > data.length
             self[data.length..-1].each do |view|
@@ -180,7 +180,7 @@ module Pakyow
             end
           else
             data[length..-1].each do
-              duped_view = original_view.dup
+              duped_view = original_view.soft_copy
               self[-1].after(duped_view)
               self << duped_view
             end

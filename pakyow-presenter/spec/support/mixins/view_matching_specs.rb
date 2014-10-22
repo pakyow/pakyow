@@ -64,7 +64,7 @@ shared_examples :matching_specs do
     end
 
     context 'when more data than views' do
-      let(:data) { [0, 1, 2, 3] }
+      let(:data) { [0, 1, 2, 3, 4] }
 
       it 'results in one view per datum' do
         view.scope(:foo).match(data)

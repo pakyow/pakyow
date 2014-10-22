@@ -117,6 +117,10 @@ module Pakyow
         end
       end
 
+      def soft_copy
+        dup
+      end
+
       def set_attribute(name, value)
         @doc[name.to_s] = value
       end
