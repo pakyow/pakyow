@@ -61,9 +61,9 @@ module Pakyow
           when 0
             binding_eval.instance_exec(&binding_fn)
           when 1
-            instance_exec(bindable, &binding_fn)
+            instance_exec(binding_eval.value, &binding_fn)
           when 2
-            instance_exec(bindable, binding_eval.value, &binding_fn)
+            instance_exec(binding_eval.value, bindable, &binding_fn)
           end
         else # default value
           if bindable.is_a?(Hash)
