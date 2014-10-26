@@ -1,4 +1,3 @@
-require File.expand_path('../app', __FILE__)
-Pakyow::App.stage(ENV['ENV'])
+require 'pakyow-rake'
 
 # put your rake task here

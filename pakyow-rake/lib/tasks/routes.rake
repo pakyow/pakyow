@@ -1,7 +1,7 @@
 namespace :pakyow do
-  desc "List all routes (method, path, group[name])"
-  task :routes do
-    Pakyow::Router.instance.sets.each {|set_data|
+  desc 'List all routes (method, path, group[name])'
+  task :routes => [:stage] do
+    Pakyow::Router.instance.sets.each do |set_data|
       set_name, set = set_data
 
       Pakyow.logger << "\n#{set_name} routes"
@@ -37,6 +37,6 @@ namespace :pakyow do
       }
 
       Pakyow.logger << ''
-    }
+    end
   end
 end
