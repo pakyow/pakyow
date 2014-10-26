@@ -8,8 +8,7 @@ Gem::Specification.new do |s|
   s.description = 'Pakyow is an open-source framework for building apps that embrace the web and encourages a development process that\'s friendly to both designers and developers. It\'s built for getting along.'
   s.license     = 'MIT'
 
-  s.required_ruby_version     = '>= 1.9.3'
-  s.required_rubygems_version = ">= 1.8.11"
+  s.required_ruby_version     = '>= 2.0.0'
 
   s.authors           = ['Bryan Powell', 'Bret Young']
   s.email             = 'bryan@metabahn.com'

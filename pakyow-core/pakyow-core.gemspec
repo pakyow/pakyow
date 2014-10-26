@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.version     = version
   s.summary     = 'Core functionality for Pakyow applications.'
   s.description = 'Core functionality for Pakyow applications, including routing and middleware.'
-  s.required_ruby_version = '>= 1.9.3'
+  s.required_ruby_version = '>= 2.0.0'
   s.license     = 'MIT'
 
   s.authors           = ['Bryan Powell', 'Bret Young']
