@@ -38,7 +38,7 @@ module Pakyow
       private
 
       def file
-        File.join(path, 'requests.log')
+        File.join(path, 'pakyow.log')
       end
 
       def path

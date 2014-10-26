@@ -4,10 +4,10 @@ Pakyow::Config.register(:logger) { |config|
   config.opt :level, :debug
 
   # where the log file should be placed
-  config.opt :path, lambda { File.join(Pakyow::Config.app.root, 'logs') }
+  config.opt :path, lambda { File.join(Pakyow::Config.app.root, 'log') }
 
   # the name of the log file
-  config.opt :filename, 'requests.log'
+  config.opt :filename, 'pakyow.log'
 
   # whether or not the log file should be synced
   config.opt :sync
