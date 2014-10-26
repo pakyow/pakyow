@@ -1,66 +1,42 @@
-module Pakyow
-  module Config
-    class Presenter
-      Config::Base.register_config(:presenter, self)
+Pakyow::Config.register(:presenter) { |config|
 
-      class << self
-        attr_accessor :javascripts, :stylesheets, :view_stores, :default_views,
-        :scope_attribute, :prop_attribute, :container_attribute, :template_dirs,
-        :view_doc_class
+  # the location of javascripts within `Config.app.resources`
+  config.opt :javascripts, '/javascripts'
 
-        # Location of javascripts
-        def javascripts
-          @javascripts || '/javascripts'
-        end
+  # the location of stylesheets within `Config.app.resources`
+  config.opt :stylesheets, '/stylesheets'
 
-        # Location of stylesheets
-        def stylesheets
-          @stylesheets || '/stylesheets'
-        end
+  # registered view stores
+  config.opt :view_stores, lambda {
+    @stores ||= {
+      default: File.join(Pakyow::Config.app.root, 'app', 'views')
+    }
+  }
 
-        def view_stores
-          @view_stores ||= {:default => "#{Config::Base.app.root}/app/views"}
-        end
+  # the default view for each view store
+  config.opt :default_views, { default: 'pakyow.html' }
 
-        def default_views(store_name = nil)
-          @default_views ||= {:default => "pakyow.html"}
-        end
+  # a convenience option to lookup the default_view for a view store by name
+  config.opt :default_view, lambda { |store_name|
+    views = Pakyow::Config.presenter.default_views
+    views.fetch(store_name) { views[:default] }
+  }
 
-        # Returns the default view for store, or default.
-        #
-        def default_view(store_name)
-          views = default_views
-          views.key?(store_name) ? views[store_name] : views[:default]
-        end
+  # the default template dir for each view store
+  config.opt :template_dirs, { default: '_templates' }
 
-        def template_dirs(store_name = nil)
-          @template_dirs ||= {:default => '_templates'}
-        end
+  # a convenience option to lookup the template_dir for a view store by name
+  config.opt :template_dir, lambda { |store_name|
+    dirs = Pakyow::Config.presenter.template_dirs
+    dirs.fetch(store_name) { dirs[:default] }
+  }
 
-        # Returns the default template dir for store, or default.
-        #
-        def template_dir(store_name)
-          dirs = template_dirs
-          dirs.key?(store_name) ? dirs[store_name] : dirs[:default]
-        end
+  # the attribute expected for scope definitions
+  config.opt :scope_attribute, 'data-scope'
 
-        def scope_attribute
-          @scope_attribute || "data-scope"
-        end
+  # the attribute expected for prop definitions
+  config.opt :prop_attribute, 'data-prop'
 
-        def prop_attribute
-          @prop_attribute || "data-prop"
-        end
-
-        def container_attribute
-          @container_attribute || "data-container"
-        end
-
-        def view_doc_class
-          @view_doc_class || StringDoc
-        end
-
-      end
-    end
-  end
-end
+  # the document class used to parse and render views
+  config.opt :view_doc_class, StringDoc
+}

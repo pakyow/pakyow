@@ -1,89 +1,62 @@
-module Pakyow
-  module Config
-    class App
-      Config::Base.register_config(:app, self)
+Pakyow::Config.register(:app) { |config|
 
-      class << self
-        attr_accessor :log, :resources, :root, :default_action, :ignore_routes,
-        :default_environment, :path, :src_dir, :auto_reload, :errors_in_browser,
-        :static, :all_views_visible, :loaded_envs, :log_output
+  # if true, the app will be reloaded on every request
+  config.opt :auto_reload
 
-        def method_missing(name, *args)
-          if name[-1,1] == '='
-            name = name[0..-2]
-            instance_variable_set("@#{name}", *args)
-          else
-            instance_variable_get("@#{name}")
-          end
-        end
+  # if true, errors are displayed in the browser
+  config.opt :errors_in_browser
 
-        def auto_reload
-          @auto_reload.nil? ? true : @auto_reload
-        end
+  # the location of the app's root directory
+  config.opt :root, File.dirname('')
 
-        def errors_in_browser
-          @errors_in_browser.nil? ? true : @errors_in_browser
-        end
+  # the location of the app's resources
+  config.opt :resources, lambda { { default: File.join(root, 'public') } }
 
-        # Log requests?
-        def log
-          @log.nil? ? true : @log
-        end
+  # the location of the app's source code
+  config.opt :src_dir, lambda { File.join(root, 'app', 'lib') }
 
-        def log_output
-          @log_output || true
-        end
+  # the environment to run in, if one isn't provided
+  config.opt :default_environment, :development
 
-        # Root directory
-        def root
-          @root || File.dirname('')
-        end
+  # the default action to use for routing
+  config.opt :default_action, :index
 
-        # Resources directory
-        def resources
-          @resources ||= { :default => "#{root}/public" }
-        end
+  # if true, all routes are ignored
+  config.opt :ignore_routes, false
 
-        def src_dir
-          @src_dir || "#{root}/app/lib"
-        end
+  # if true, views are visible without a route defined
+  config.opt :all_views_visible, true
 
-        # Default action
-        def default_action
-          @default_action || :index
-        end
+  # whether or not pakyow should log to stdout
+  config.opt :log_output, true
 
-        # Mockup mode
-        def ignore_routes
-          @ignore_routes.nil? ? false : @ignore_routes
-        end
+  # whether or not pakyow should write to a log
+  config.opt :log, true
 
-        def all_views_visible
-          @all_views_visible.nil? ? true : @all_views_visible
-        end
+  # whether or not pakyow should serve static files
+  config.opt :static, true
 
-        def default_environment
-          @default_environment || :development
-        end
+  # stores the path to the app definition
+  config.opt :path, lambda { Pakyow::App.path }
 
-        # The path to the application class
-        def path
-          @path
-        end
+  # stores the envs an app is run in
+  config.opt :loaded_envs
 
-        # Handle static files?
-        #
-        # For best performance, should be set to false if static files are
-        # handled by a web server (e.g. Nginx)
-        #
-        def static
-          @static || true
-        end
+}.env(:development) { |opts|
 
-        def loaded_envs
-          @loaded_envs
-        end
-      end
-    end
-  end
-end
+  opts.auto_reload = true
+  opts.errors_in_browser = true
+
+}.env(:staging) { |opts|
+
+  opts.auto_reload = false
+  opts.errors_in_browser = true
+  opts.log_output = false
+
+}.env(:production) { |opts|
+
+  opts.auto_reload = false
+  opts.errors_in_browser = false
+  opts.log_output = false
+
+}

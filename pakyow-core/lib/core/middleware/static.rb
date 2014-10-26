@@ -26,7 +26,7 @@ module Pakyow
       def is_static?(env)
         return false unless env['PATH_INFO'] =~ /\.(.*)$/
 
-        Config::App.resources.each_pair do |name, path|
+        Config.app.resources.each_pair do |name, path|
           resource_path = File.join(path, env['PATH_INFO'])
           next unless File.exists?(resource_path)
           return true, resource_path

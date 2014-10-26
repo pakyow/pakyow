@@ -124,7 +124,7 @@ module Pakyow
     end
 
     def templates_path
-      return File.join(@store_path, Config::Base.presenter.template_dir(@name))
+      return File.join(@store_path, Config.presenter.template_dir(@name))
     end
 
     def load_path_info

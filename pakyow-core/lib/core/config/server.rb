@@ -1,26 +1,12 @@
-module Pakyow
-  module Config
-    class Server
-      Config::Base.register_config(:server, self)
+Pakyow::Config.register(:server) { |config|
 
-      class << self
-        attr_accessor :port, :host, :handler
-        
-        # On what port does the application run?
-        def port
-          @port || 3000
-        end
-        
-        # On what host does the application run?
-        def host
-          @host || '0.0.0.0'
-        end
-        
-        # If set, adds a handler to try (e.g. puma)
-        def handler
-          @handler || nil
-        end
-      end
-    end
-  end
-end
+  # the port to start `pakyow server`
+  config.opt :port, 3000
+
+  # the host to start `pakyow server`
+  config.opt :host, '0.0.0.0'
+
+  # explicitly set a handler to try (e.g. puma)
+  config.opt :handler
+
+}

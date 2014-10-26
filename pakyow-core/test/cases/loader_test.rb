@@ -13,13 +13,14 @@ module Pakyow
       end
 
       def test_should_tell_time
-        Pakyow::Config::Base.app.auto_reload = true
+        Pakyow::Config.app.auto_reload = true
 
         times = @loader.times.dup
         `touch #{File.join(path, 'reloadable.rb')}`
         @loader.load_from_path(path)
 
-        assert times.first[1].to_f != @loader.times.first[1].to_f
+        assert times.first.nil?
+        assert !@loader.times.first.nil?
       end
 
       private

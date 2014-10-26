@@ -251,7 +251,7 @@ module Pakyow
         scopes = []
         breadth_first(doc) {|o|
           next if o == doc && ignore_root
-          next if !scope = o[Config::Presenter.scope_attribute]
+          next if !scope = o[Config.presenter.scope_attribute]
 
           scopes << {
             :doc => NokogiriDoc.from_doc(o),
@@ -293,9 +293,9 @@ module Pakyow
         props = []
         breadth_first(o) {|so|
           # don't go into deeper scopes
-          throw :reject if so != o && so[Config::Presenter.scope_attribute]
+          throw :reject if so != o && so[Config.presenter.scope_attribute]
 
-          next unless prop = so[Config::Presenter.prop_attribute]
+          next unless prop = so[Config.presenter.prop_attribute]
           props << { :prop => prop.to_sym, :doc => NokogiriDoc.from_doc(so) }
         }
 

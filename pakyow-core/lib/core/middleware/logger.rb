@@ -34,6 +34,7 @@ module Pakyow
     BOLD_SEQ  = "\033[1m"
 
     def initialize(log = $stdout, level = 0, format = false, auto_flush = false)
+      level = LEVELS[level] if level.is_a?(Symbol)
       @log, @level, @format, @auto_flush = log, level, format, auto_flush
       @mutex = Mutex.new
     end

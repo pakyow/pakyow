@@ -26,7 +26,7 @@ class Pakyow::App
 
   def self.reset
     Pakyow.app = nil
-    Pakyow::Config::Base.reset!
+    Pakyow::Config.reset
 
     @prepared = false
     @running = false

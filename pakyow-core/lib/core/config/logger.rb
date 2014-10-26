@@ -1,37 +1,39 @@
-module Pakyow
-  module Config
-    class Logger
-      Config::Base.register_config(:logger, self)
+Pakyow::Config.register(:logger) { |config|
 
-      class << self
-        attr_accessor :path, :name, :sync, :colorize, :auto_flush, :level
+  # the default level to log at
+  config.opt :level, :debug
 
-        # Path to logs
-        def path
-          @path || "#{Config::Base.app.root}/logs"
-        end
+  # where the log file should be placed
+  config.opt :path, lambda { File.join(Pakyow::Config.app.root, 'logs') }
 
-        def name
-          @name || "requests.log"
-        end
+  # the name of the log file
+  config.opt :filename, 'requests.log'
 
-        def sync
-          instance_variable_defined?(:@sync) ? @sync : true
-        end
+  # whether or not the log file should be synced
+  config.opt :sync
 
-        def auto_flush
-          instance_variable_defined?(:@auto_flush) ? @auto_flush : true
-        end
+  # whether or not the log file should be flushed automatically
+  config.opt :auto_flush
 
-        def colorize
-          instance_variable_defined?(:@colorize) ? @colorize : true
-        end
+  # whether or not the log file should be colorized
+  config.opt :colorize
 
-        def level
-          @level || Pakyow::Logger::LEVELS[:debug]
-        end
+}.env(:development) { |opts|
 
-      end
-    end
-  end
-end
+  opts.sync = true
+  opts.auto_flush = true
+  opts.colorize = true
+
+}.env(:staging) { |opts|
+
+  opts.sync = false
+  opts.auto_flush = false
+  opts.colorize = false
+
+}.env(:production) { |opts|
+
+  opts.sync = false
+  opts.auto_flush = false
+  opts.colorize = false
+
+}

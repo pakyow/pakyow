@@ -180,7 +180,7 @@ module Pakyow
       def load_views
         @view_stores = {}
 
-        Config::Presenter.view_stores.each_pair {|name, path|
+        Pakyow::Config.presenter.view_stores.each_pair {|name, path|
           @view_stores[name] = ViewStore.new(path, name)
         }
       end

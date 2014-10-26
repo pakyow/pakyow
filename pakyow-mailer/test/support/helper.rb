@@ -4,6 +4,7 @@ require 'minitest/unit'
 require 'minitest/autorun'
 require 'pp'
 
+require '../pakyow-support/lib/pakyow-support'
 require '../pakyow-core/lib/pakyow-core'
 require '../pakyow-presenter/lib/pakyow-presenter'
 require '../pakyow-mailer/lib/pakyow-mailer'

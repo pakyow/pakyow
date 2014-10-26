@@ -1,31 +1,16 @@
-module Pakyow
-  module Config
-    class Mailer
-      Config::Base.register_config(:mailer, self)
+Pakyow::Config.register(:mailer) { |config|
+  # the default sender name
+  config.opt :default_sender, 'Pakyow'
 
-      class << self
-        attr_accessor :default_sender, :default_content_type, :delivery_method, :delivery_options, :encoding
-        
-        def default_sender
-          @default_sender || "Pakyow"
-        end
-        
-        def default_content_type
-          @default_content_type || 'text/html; charset=' + encoding
-        end
-        
-        def delivery_method
-          @delivery_method || :sendmail
-        end
-        
-        def delivery_options
-          @delivery_options || {:enable_starttls_auto => false}
-        end
+  # the default mimetype to use
+  config.opt :default_content_type, lambda { 'text/html; charset=' + Pakyow::Config.mailer.encoding }
 
-        def encoding
-          @encoding || 'UTF-8'
-        end
-      end
-    end
-  end
-end
+  # the delivery method to use for sending mail
+  config.opt :delivery_method, :sendmail
+
+  # any delivery options necessary for `delivery_method`
+  config.opt :delivery_options, { enable_starttls_auto: false }
+
+  # the default encoding to use
+  config.opt :encoding, 'UTF-8'
+}

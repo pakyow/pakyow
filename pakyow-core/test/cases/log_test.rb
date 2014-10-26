@@ -6,7 +6,7 @@ module Pakyow
   module Test
     class LogTest < Minitest::Test
       def setup
-        Pakyow::Config::Base.logger.colorize = false
+        Pakyow::Config.logger.colorize = false
         @text = 'foo'
       end
 
@@ -26,8 +26,8 @@ module Pakyow
       end
 
       def test_log_to_file
-        Pakyow::Config::Base.logger.path = path
-        Pakyow::Config::Base.logger.auto_flush = true
+        Pakyow::Config.logger.path = path
+        Pakyow::Config.logger.auto_flush = true
         Pakyow.configure_logger
         Pakyow.logger << @text
 

@@ -4,7 +4,7 @@ module Pakyow
   module Test
     class ApplicationTest < Minitest::Test
       def test_application_path_is_set_when_inherited
-        assert(Pakyow::Config::App.path.include?(app_test_path))
+        assert(Pakyow::Config.app.path.include?(app_test_path))
       end
 
       def test_application_runs
@@ -28,7 +28,7 @@ module Pakyow
       end
 
       def test_base_config_is_returned
-        assert_equal(Pakyow::Config::Base, app(true).config)
+        assert_equal(Pakyow::Config, app(true).config)
       end
 
       def test_env_is_set_when_initialized

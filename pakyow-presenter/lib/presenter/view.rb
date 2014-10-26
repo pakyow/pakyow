@@ -22,7 +22,7 @@ module Pakyow
       # @param format [Symbol] the format of contents
       #
       def initialize(contents = '', format: :html)
-        @doc = Config::Base.presenter.view_doc_class.new(Presenter.process(contents, format))
+        @doc = Config.presenter.view_doc_class.new(Presenter.process(contents, format))
       end
 
       def initialize_copy(original_view)

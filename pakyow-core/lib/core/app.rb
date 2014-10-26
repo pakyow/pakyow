@@ -1,6 +1,8 @@
 module Pakyow
   class App
     class << self
+      attr_reader :path
+
       # Prepares the app for being staged in one or more environments by
       # loading config(s), middleware, and setting the load path.
       #
@@ -48,8 +50,7 @@ module Pakyow
       #
       def define(&block)
         # sets the path to the app file so it can be reloaded later
-        config.app.path = Utils::String.parse_path_from_caller(caller[0])
-
+        @path = Utils::String.parse_path_from_caller(caller[0])
         self.instance_eval(&block)
       end
 
@@ -116,7 +117,7 @@ module Pakyow
       # Convenience method for base configuration class.
       #
       def config
-        Pakyow::Config::Base
+        Pakyow::Config
       end
 
       def reset
@@ -141,19 +142,19 @@ module Pakyow
         envs = Array.ensure(env_or_envs)
         envs = envs.empty? || envs.first.nil? ? [config.app.default_environment] : envs
 
+        config.app.loaded_envs = envs
+        config.env = envs.first
+
         # run global config first
         if global_proc = @@config[:global]
-          config.instance_eval(&global_proc)
+          config.app_config(&global_proc)
         end
 
         # then run other envs
-
         envs.each do |env|
           next unless config_proc = @@config[env.to_sym]
-          config.instance_eval(&config_proc)
+          config.app_config(&config_proc)
         end
-
-        config.app.loaded_envs = envs
       end
 
       def load_middleware
@@ -211,7 +212,7 @@ module Pakyow
     # Returns the primary (first) loaded env.
     #
     def env
-      config.app.loaded_envs[0]
+      config.env
     end
 
     def app
@@ -317,7 +318,7 @@ module Pakyow
 
       # reset config
       envs = config.app.loaded_envs
-      config.reset!
+      config.reset
 
       # reload config
       self.class.prepare(envs)

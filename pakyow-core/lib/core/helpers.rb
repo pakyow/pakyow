@@ -36,7 +36,7 @@ module Pakyow
     end
 
     def config
-      Pakyow::Config::Base
+      Pakyow::Config
     end
   end
 
