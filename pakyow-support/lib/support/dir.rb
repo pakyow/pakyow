@@ -26,7 +26,7 @@ class Dir
     }
   end
 
-  def self.dir_within_dir?(dir1, dir2)
+  def self.within_dir?(dir1, dir2)
     (dir1.split('/') - dir2.split('/')).empty?
   end
 end

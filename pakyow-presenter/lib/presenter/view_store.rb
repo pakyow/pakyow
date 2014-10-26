@@ -205,7 +205,7 @@ module Pakyow
         next if File.directory?(path)
 
         # skip files not within `view_path`
-        next unless Dir.dir_within_dir?(File.dirname(path), view_path)
+        next unless Dir.within_dir?(File.dirname(path), view_path)
 
         name = File.basename(path.split('/')[-1], '.*')[1..-1]
         partials[name.to_sym] = path

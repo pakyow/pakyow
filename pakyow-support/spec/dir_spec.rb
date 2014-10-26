@@ -9,7 +9,7 @@ describe Dir do
     skip
   end
 
-  describe 'dir_within_dir?' do
+  describe 'within_dir?' do
     skip
   end
 end
