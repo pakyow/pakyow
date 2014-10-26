@@ -1,16 +1,47 @@
 module Pakyow
   class App
     class << self
-      def reset
-        @@routes = {}
-        @@config = {}
-        @@middleware = []
+      # Prepares the app for being staged in one or more environments by
+      # loading config(s), middleware, and setting the load path.
+      #
+      def prepare(*env_or_envs)
+        return if prepared?
 
-        @@stacks = {:before => {}, :after => {}}
-        %w(init load process route match error).each {|name|
-          @@stacks[:before][name.to_sym] = []
-          @@stacks[:after][name.to_sym] = []
-        }
+        # load config for one or more environments
+        load_config(*env_or_envs)
+
+        # load each block from middleware stack
+        load_middleware
+
+        # include pwd in load path
+        $:.unshift(Dir.pwd) unless $:.include? Dir.pwd
+
+        @prepared = true
+      end
+
+      # Stages the app by preparing and returning an instance. This is
+      # essentially everything short of running it.
+      #
+      def stage(*env_or_envs)
+        unless staged?
+          prepare(*env_or_envs)
+          @staged = true
+        end
+
+        self.new
+      end
+
+      # Runs the staged app.
+      #
+      def run(*env_or_envs)
+        return if running?
+
+        @running = true
+        builder.run(stage(*env_or_envs))
+        detect_handler.run(builder, Host: config.server.host, Port: config.server.port) do |server|
+          trap(:INT)  { stop(server) }
+          trap(:TERM) { stop(server) }
+        end
       end
 
       # Defines an app
@@ -24,7 +55,6 @@ module Pakyow
 
       # Defines a route set.
       #
-      #TODO default route set should be config option (also for bindings)
       def routes(set_name = :main, &block)
         if set_name && block
           @@routes[set_name] = block
@@ -63,30 +93,6 @@ module Pakyow
         @@stacks[:after][stack_name.to_sym] << block
       end
 
-      # Runs the application. Accepts the environment(s) to run, for example:
-      # run(:development)
-      # run([:development, :staging])
-      #
-      def run(*args)
-        return if running?
-
-        @running = true
-        builder.run(prepare(args))
-        detect_handler.run(builder, :Host => config.server.host, :Port => config.server.port) do |server|
-          trap(:INT)  { stop(server) }
-          trap(:TERM) { stop(server) }
-        end
-      end
-
-      # Stages the application. Everything is loaded but the application is
-      # not started. Accepts the same arguments as #run.
-      #
-      def stage(*args)
-        return if staged?
-        @staged = true
-        prepare(args)
-      end
-
       def builder
         @builder ||= Rack::Builder.new
       end
@@ -113,7 +119,28 @@ module Pakyow
         Pakyow::Config::Base
       end
 
-      def load_config(envs)
+      def reset
+        @prepared = false
+        @staged = false
+        @running = false
+
+        @@routes = {}
+        @@config = {}
+        @@middleware = []
+
+        @@stacks = {:before => {}, :after => {}}
+        %w(init load process route match error).each {|name|
+          @@stacks[:before][name.to_sym] = []
+          @@stacks[:after][name.to_sym] = []
+        }
+      end
+
+      protected
+
+      def load_config(*env_or_envs)
+        envs = Array.ensure(env_or_envs)
+        envs = envs.empty? || envs.first.nil? ? [config.app.default_environment] : envs
+
         # run global config first
         if global_proc = @@config[:global]
           config.instance_eval(&global_proc)
@@ -129,32 +156,15 @@ module Pakyow
         config.app.loaded_envs = envs
       end
 
-      protected
-
-      # Prepares the application for running or staging and returns an instance
-      # of the application.
-      def prepare(envs)
-        return if prepared?
-
-        # configure
-        envs = envs.empty? || envs.first.nil? ? [config.app.default_environment] : envs
-        load_config(envs)
-
-        # load each block from middleware stack
-        @@middleware.each {|mw|
+      def load_middleware
+        @@middleware.each do |mw|
           self.instance_exec(builder, &mw)
-        }
+        end
 
         builder.use(Rack::MethodOverride)
         builder.use(Middleware::Static)   if config.app.static
         builder.use(Middleware::Logger)   if config.app.log
         builder.use(Middleware::Reloader) if config.app.auto_reload
-
-        @prepared = true
-
-        $:.unshift(Dir.pwd) unless $:.include? Dir.pwd
-
-        return self.new
       end
 
       def detect_handler
@@ -310,7 +320,7 @@ module Pakyow
       config.reset!
 
       # reload config
-      self.class.load_config(envs)
+      self.class.prepare(envs)
 
       load_app
     end

@@ -18,26 +18,24 @@ end
 
 class Pakyow::App
   attr_accessor :static_handler, :static
-  
+
   # This keeps the app from actually being run.
   def self.detect_handler
     TestHandler
   end
-  
-  def self.reset(do_reset)
-    if do_reset
-      Pakyow.app = nil
-      Pakyow::Config::Base.reset!
-      
-      @prepared = false
-      @running = false
-      @staged = false
-      
-      @routes_proc = nil
-      @status_proc = nil
-    end
-    
-    return self
+
+  def self.reset
+    Pakyow.app = nil
+    Pakyow::Config::Base.reset!
+
+    @prepared = false
+    @running = false
+    @staged = false
+
+    @routes_proc = nil
+    @status_proc = nil
+
+    self
   end
 end
 

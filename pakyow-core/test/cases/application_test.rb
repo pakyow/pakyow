@@ -12,9 +12,9 @@ module Pakyow
         assert_equal(true, app.running?)
       end
 
-      def test_is_not_staged_when_running
+      def test_is_staged_when_running
         app(true).run(:test)
-        assert_same(false, app.staged?)
+        assert_same(true, app.staged?)
       end
 
       def test_application_does_not_run_when_staged
@@ -54,7 +54,7 @@ module Pakyow
 
       def test_config_loaded_before_middleware
         app = app(true)
-        
+
         value = nil
         app.middleware do
           value = config.app.foo
@@ -99,8 +99,12 @@ module Pakyow
 
       protected
 
-      def app(do_reset = false)
-        Pakyow::App.reset(do_reset)
+      def app(reset = false)
+        if reset
+          Pakyow::App.reset
+        end
+
+        Pakyow::App
       end
 
       def app_test_path

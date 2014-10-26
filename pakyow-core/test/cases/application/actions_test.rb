@@ -191,13 +191,16 @@ module Pakyow
 
       def reset
         app = app(true)
-        Pakyow::App.stage(:test)
-        Pakyow.app.context = AppContext.new(mock_request, mock_response)
         app.run(:test)
+        Pakyow.app.context = AppContext.new(mock_request, mock_response)
       end
 
-      def app(do_reset = false)
-        Pakyow::App.reset(do_reset)
+      def app(reset = false)
+        if reset
+          Pakyow::App.reset
+        end
+
+        Pakyow::App
       end
 
       def app_test_path
