@@ -24,12 +24,6 @@ require 'core/middleware/logger'
 require 'core/middleware/static'
 require 'core/middleware/reloader'
 
-# utils
-require 'utils/string'
-require 'utils/hash'
-require 'utils/dir'
-require 'utils/dup'
-
 module Pakyow
   attr_accessor :app, :logger
 

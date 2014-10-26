@@ -81,7 +81,7 @@ module Pakyow
         @context = context
 
         if @context.request.has_route_vars?
-          @path = Utils::String.remove_route_vars(@context.request.route_path)
+          @path = String.remove_route_vars(@context.request.route_path)
         else
           @path = @context.request.path
         end

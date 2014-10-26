@@ -133,7 +133,7 @@ module Pakyow
       # for keeping up with pages for previous paths
       pages = {}
 
-      Utils::Dir.walk_dir(@store_path) do |path|
+      Dir.walk(@store_path) do |path|
         # skip root
         next if path == @store_path
 
@@ -188,7 +188,7 @@ module Pakyow
       relative_path = path.gsub(@store_path, '')
       relative_path = relative_path.gsub(File.extname(relative_path), '')
       relative_path = relative_path.gsub('index', '')
-      relative_path = Utils::String.normalize_path(relative_path)
+      relative_path = String.normalize_path(relative_path)
 
       return relative_path
     end
@@ -197,7 +197,7 @@ module Pakyow
       view_path = File.dirname(view_path) unless File.directory?(view_path)
 
       partials = {}
-      Utils::Dir.walk_dir(@store_path) do |path|
+      Dir.walk(@store_path) do |path|
         # skip non-partials
         next unless File.basename(path)[0,1] == '_'
 
@@ -205,7 +205,7 @@ module Pakyow
         next if File.directory?(path)
 
         # skip files not within `view_path`
-        next unless Utils::Dir.dir_within_dir?(File.dirname(path), view_path)
+        next unless Dir.dir_within_dir?(File.dirname(path), view_path)
 
         name = File.basename(path.split('/')[-1], '.*')[1..-1]
         partials[name.to_sym] = path

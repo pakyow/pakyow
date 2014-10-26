@@ -5,7 +5,7 @@ module Pakyow
 
       class << self
         def load(path)
-          format   = Utils::String.split_at_last_dot(path)[-1]
+          format   = String.split_at_last_dot(path)[-1]
           name     = File.basename(path, '.*').to_sym
           contents = FileTest.file?(path) ? File.read(path) : nil
 
@@ -72,7 +72,7 @@ module Pakyow
         info = parse_front_matter(@contents)
         info = {} if !info || !info.is_a?(Hash)
 
-        @info.merge!(Utils::Hash.symbolize(info))
+        @info.merge!(Hash.symbolize(info))
       end
 
       def parse_content

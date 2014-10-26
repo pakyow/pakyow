@@ -159,7 +159,7 @@ module Pakyow
       else
         # prepend scope path if we're in a scope
         path = File.join(@path, path)
-        path = Utils::String.normalize_path(path)
+        path = String.normalize_path(path)
 
         # get regex and vars for path
         regex, vars = build_route_matcher(path)

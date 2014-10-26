@@ -5,7 +5,7 @@ module Pakyow
 
       class << self
         def load(path)
-          format    = Utils::String.split_at_last_dot(path)[-1]
+          format    = String.split_at_last_dot(path)[-1]
           contents  = File.read(path)
           name      = File.basename(path, '.*').to_sym
 

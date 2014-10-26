@@ -1,7 +1,8 @@
 module Pakyow
   module Utils
-    class Dup
+    module Dup
       def self.deep(value)
+        return value if value.is_a?(Symbol)
         if value.is_a?(Hash)
           result = value.clone
           value.each { |k, v| result[deep(k)] = deep(v) }

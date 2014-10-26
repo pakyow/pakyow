@@ -88,7 +88,7 @@ module Pakyow
           else
             app.instance_exec(&fn)
           end
-          
+
           break
         end
       }
@@ -106,7 +106,7 @@ module Pakyow
     # returns the list of route functions for that route.
     #
     def match(request)
-      path   = Utils::String.normalize_path(request.path)
+      path   = String.normalize_path(request.path)
       method = request.method
 
       match, data = nil
@@ -121,7 +121,7 @@ module Pakyow
 
         # handle route params
         #TODO where to do this?
-        request.params.merge!(Utils::Hash.strhash(self.data_from_path(path, data, match[1])))
+        request.params.merge!(Hash.strhash(self.data_from_path(path, data, match[1])))
 
         #TODO where to do this?
         request.route_path = match[4]

@@ -22,7 +22,7 @@ module Pakyow
     # [regex, vars, name, fns, path]
     #
     def match(path, method)
-      path = Utils::String.normalize_path(path)
+      path = String.normalize_path(path)
 
       # want the request to still knows it's a head, but match as get
       method = method.to_sym

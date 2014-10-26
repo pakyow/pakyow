@@ -50,7 +50,7 @@ module Pakyow
       #
       def define(&block)
         # sets the path to the app file so it can be reloaded later
-        @path = Utils::String.parse_path_from_caller(caller[0])
+        @path = String.parse_path_from_caller(caller[0])
         self.instance_eval(&block)
       end
 
@@ -257,7 +257,7 @@ module Pakyow
             view_file = File.join(File.expand_path('../../', __FILE__), 'views', 'errors', '404.html')
             content = File.open(view_file).read
 
-            path = Utils::String.normalize_path(request.path)
+            path = String.normalize_path(request.path)
             path = '/' if path.empty?
 
             content.gsub!('{view_path}', path == '/' ? 'index.html' : "#{path}.html")
@@ -287,7 +287,7 @@ module Pakyow
         view_file = File.join(File.expand_path('../../', __FILE__), 'views', 'errors', '500.html')
         content = File.open(view_file).read
 
-        path = Utils::String.normalize_path(request.path)
+        path = String.normalize_path(request.path)
         path = '/' if path.empty?
 
         nice_source = error.backtrace[0].match(/^(.+?):(\d+)(|:in `(.+)')$/)
@@ -356,7 +356,7 @@ module Pakyow
         data = file_or_data.read
 
         # auto set type based on file type
-        type = Rack::Mime.mime_type("." + Utils::String.split_at_last_dot(file_or_data.path)[1])
+        type = Rack::Mime.mime_type("." + String.split_at_last_dot(file_or_data.path)[1])
       else
         data = file_or_data
       end
