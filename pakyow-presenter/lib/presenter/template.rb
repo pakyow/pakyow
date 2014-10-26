@@ -37,11 +37,10 @@ module Pakyow
             container[1][:doc].replace(page.content(name))
           rescue MissingContainer
             # This hasn't proven to be useful in dev (or prd for that matter)
-            # so decided to move it from debug to info. It'll save us from
-            # filling console / log with information that will most likely
-            # just be ignored.
+            # so decided to remove it. It'll save us from filling console / log
+            # with information that will most likely just be ignored.
             #
-            Pakyow.logger.info "No content for '#{name}' in page '#{page.path}'"
+            # Pakyow.logger.info "No content for '#{name}' in page '#{page.path}'"
           end
         end
 
