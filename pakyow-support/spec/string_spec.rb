@@ -1,43 +1,37 @@
-#TODO port this to rspec
-# module Pakyow
-#   module Test
-#     class StringUtilsTest < Minitest::Test
-#
-#       def setup
-#       end
-#
-#       def teardown
-#       end
-#
-#       def test_remove_route_vars
-#         assert_equal '/', String.remove_route_vars('/:id'), "Failed to remove route vars"
-#         assert_equal '/bret', String.remove_route_vars('/bret'), "Failed to remove route vars"
-#         assert_equal '/bret', String.remove_route_vars('/bret/'), "Failed to remove route vars"
-#         assert_equal '/bret', String.remove_route_vars('/bret/:id'), "Failed to remove route vars"
-#         assert_equal 'bret', String.remove_route_vars(':id0/bret/:id'), "Failed to remove route vars"
-#         assert_equal 'bret', String.remove_route_vars(':id0/:id1/bret/:id'), "Failed to remove route vars"
-#         assert_equal '/bret', String.remove_route_vars('/bret/:id/:id'), "Failed to remove route vars"
-#         assert_equal '/fred/barney', String.remove_route_vars('/fred/:id/barney'), "Failed to remove route vars"
-#         assert_equal '/fred/barney', String.remove_route_vars('/fred/:fred_id/barney/:barney_id'), "Failed to remove route vars"
-#         assert_equal '/fred/barney', String.remove_route_vars('/fred/:_id/barney/:id'), "Failed to remove route vars"
-#         assert_equal '/fred/barney', String.remove_route_vars('/fred/:id/:id2/barney'), "Failed to remove route vars"
-#         assert_equal '/fred//barney', String.remove_route_vars('/fred//barney'), "Failed to remove route vars"
-#       end
-#
-#       def test_split_at_last_dot
-#         assert_equal ['one', nil], String.split_at_last_dot('one'), "Failed to split one"
-#         assert_equal ['one', ''], String.split_at_last_dot('one.'), "Failed to split one."
-#         assert_equal ['', 'one'], String.split_at_last_dot('.one'), "Failed to split .one"
-#         assert_equal ['', '/one'], String.split_at_last_dot('./one'), "Failed to split ./one"
-#         assert_equal ['one/two.x/three', 'four'], String.split_at_last_dot('one/two.x/three.four'), "Failed to split one/two.x/three.four"
-#         assert_equal ['one/two', 'x/three'], String.split_at_last_dot('one/two.x/three'), "Failed to split one/two.x/three"
-#         assert_equal ['one.two', 'three'], String.split_at_last_dot('one.two.three'), "Failed to split one.two.three"
-#       end
-#
-#       def test_path_is_accurate_on_windows
-#         assert_equal(String.parse_path_from_caller("C:/test/test_application.rb:5"), 'C:/test/test_application.rb')
-#       end
-#
-#     end
-#   end
-# end
+require_relative '../lib/support/string'
+
+describe String do
+  describe 'remove_route_vars' do
+    it 'removes route vars' do
+      expect(String.remove_route_vars('/:id')).to eq('/')
+      expect(String.remove_route_vars('/bret')).to eq('/bret')
+      expect(String.remove_route_vars('/bret/')).to eq('/bret')
+      expect(String.remove_route_vars('/bret/:id')).to eq('/bret')
+      expect(String.remove_route_vars(':id0/bret/:id')).to eq('bret')
+      expect(String.remove_route_vars(':id0/:id1/bret/:id')).to eq('bret')
+      expect(String.remove_route_vars('/bret/:id/:id')).to eq('/bret')
+      expect(String.remove_route_vars('/fred/:id/barney')).to eq('/fred/barney')
+      expect(String.remove_route_vars('/fred/:fred_id/barney/:barney_id')).to eq('/fred/barney')
+      expect(String.remove_route_vars('/fred/:_id/barney/:id')).to eq('/fred/barney')
+      expect(String.remove_route_vars('/fred/:id/:id2/barney')).to eq('/fred/barney')
+      expect(String.remove_route_vars('/fred//barney')).to eq('/fred//barney')
+    end
+  end
+
+  describe 'split_at_last_dot' do
+    it 'splits at last dot' do
+      expect(String.split_at_last_dot('one')).to eq(['one', nil])
+      expect(String.split_at_last_dot('one.')).to eq(['one', ''])
+      expect(String.split_at_last_dot('.one')).to eq(['', 'one'])
+      expect(String.split_at_last_dot('./one')).to eq(['', '/one'])
+      expect(String.split_at_last_dot('one/two.x/three.four')).to eq(['one/two.x/three', 'four'])
+      expect(String.split_at_last_dot('one/two.x/three')).to eq(['one/two', 'x/three'])
+      expect(String.split_at_last_dot('one.two.three')).to eq(['one.two', 'three'])
+    end
+
+    it 'is accurate on windows' do
+      expect(String.parse_path_from_caller("C:/test/test_application.rb:5")).to eq('C:/test/test_application.rb')
+    end
+  end
+end
+
