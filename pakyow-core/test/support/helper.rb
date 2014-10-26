@@ -4,6 +4,7 @@ require 'minitest/unit'
 require 'minitest/autorun'
 require 'pp'
 
+require File.join(File.dirname(__FILE__), '../../../pakyow-support/lib/pakyow-support')
 require File.join(File.dirname(__FILE__), '../../lib/pakyow-core')
 
 require_relative 'app'
@@ -17,14 +18,14 @@ require_relative 'mock_router'
 
 module ReqResHelpers
   def mock_request(path = '/', method = :get, headers = {})
-    opts = { 
-      "PATH_INFO" => path, 
-      "REQUEST_METHOD" => method.to_s.upcase, 
-      "rack.input" => {}, 
+    opts = {
+      "PATH_INFO" => path,
+      "REQUEST_METHOD" => method.to_s.upcase,
+      "rack.input" => {},
     }.merge(headers)
 
     Pakyow::Request.new(opts)
-    
+
     # r = Pakyow::Request.new({ "PATH_INFO" => path, "REQUEST_METHOD" => 'GET', "HTTP_REFERER" => '/bar/', "rack.input" => {} })
     # r.path = path
     # r.method = :get

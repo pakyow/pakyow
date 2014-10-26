@@ -22,10 +22,11 @@ Gem::Specification.new do |s|
   s.bindir             = 'bin'
   s.executables        = ['pakyow']
 
+  s.add_dependency('pakyow-support',       version)
   s.add_dependency('pakyow-core',       version)
   s.add_dependency('pakyow-presenter',  version)
   s.add_dependency('pakyow-mailer',     version)
-  # s.add_dependency('pakyow-rake',       version)
+  s.add_dependency('pakyow-rake',       version)
 
   s.add_dependency('bundler',           '~> 1.5')
 end

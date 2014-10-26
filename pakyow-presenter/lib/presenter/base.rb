@@ -19,9 +19,6 @@ require 'presenter/string_doc_renderer'
 require 'presenter/binding_eval'
 require 'presenter/doc_helpers'
 
-require 'support/array'
-require 'support/file'
-
 module Pakyow
   module Presenter
   end
