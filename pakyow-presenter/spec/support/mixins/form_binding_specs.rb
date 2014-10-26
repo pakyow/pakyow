@@ -107,6 +107,42 @@ shared_examples :form_binding_specs do
         expect(opt_1.inner_text).to eq('one')
         expect(opt_2.inner_text).to eq('two')
       end
+
+      context 'with default option' do
+        before do
+          Binder.instance.set(:default) do
+            scope :foo do
+              options :select, empty: true do
+                [[:one, 'one'], [:two, 'two']]
+              end
+            end
+          end
+        end
+
+        after do
+          Binder.instance.reset
+        end
+
+        it 'sets default option' do
+          view.scope(:foo).bind(select: 'one')
+          doc = Nokogiri::HTML::fragment(view.to_s)
+
+          opts = doc.css('option')
+          expect(opts.length).to eq(3)
+
+          opt_1 = opts[0]
+          opt_2 = opts[1]
+          opt_3 = opts[2]
+
+          expect(opt_1['value']).to eq('')
+          expect(opt_2['value']).to eq('one')
+          expect(opt_3['value']).to eq('two')
+
+          expect(opt_1.inner_text).to eq('')
+          expect(opt_2.inner_text).to eq('one')
+          expect(opt_3.inner_text).to eq('two')
+        end
+      end
     end
   end
 end

@@ -6,16 +6,18 @@ module Pakyow
       def initialize(&block)
         @scopes = {}
         @options = {}
+        @config = {}
 
         instance_exec(&block)
       end
 
       def scope(name, &block)
         scope_eval = ScopeEval.new
-        bindings, options = scope_eval.eval(&block)
+        bindings, options, config = scope_eval.eval(&block)
 
         @scopes[name.to_sym] = bindings
         @options[name.to_sym] = options
+        @config[name.to_sym] = config
       end
 
       def match_for_prop(prop, scope, bindable, bindings = {})
@@ -25,7 +27,9 @@ module Pakyow
       def options_for_prop(scope, prop, bindable, context)
         if block = (@options[scope] || {})[prop]
           binding_eval = BindingEval.new(bindable, prop, context)
-          binding_eval.instance_exec(&block)
+          values = binding_eval.instance_exec(&block)
+          values.unshift(['', '']) if @config[scope][prop][:empty]
+          values
         end
       end
 
@@ -45,19 +49,21 @@ module Pakyow
       def initialize
         @bindings = {}
         @options = {}
+        @config = {}
       end
 
       def eval(&block)
         self.instance_eval(&block)
-        return @bindings, @options
+        return @bindings, @options, @config
       end
 
       def binding(name, &block)
         @bindings[name.to_sym] = block
       end
 
-      def options(name, &block)
+      def options(name, empty: false, &block)
         @options[name] = block
+        @config[name] = { empty: empty }
       end
 
       def restful(route_group)
