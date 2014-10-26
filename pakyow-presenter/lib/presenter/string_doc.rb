@@ -248,7 +248,7 @@ module Pakyow
             s << {
               doc: StringDoc.from_structure(primary_structure, node: e),
               scope: e[1][:'data-scope'].to_sym,
-              props: find_props(e[2]),
+              props: find_node_props(e).concat(find_props(e[2])),
               nested: find_scopes(e[2]),
             }
           end
@@ -261,18 +261,26 @@ module Pakyow
       end
 
       def find_props(structure, primary_structure = @structure, props = [])
-        structure.inject(props) { |s, e|
-          if e[1].has_key?(:'data-prop')
-            s << {
-              doc: StringDoc.from_structure(primary_structure, node: e),
-              prop: e[1][:'data-prop'].to_sym,
-            }
-          end
-          unless e[1].has_key?(:'data-scope')
-            find_props(e[2], e[2], s)
-          end
-          s
-        } || []
+        structure.each do |e|
+          find_node_props(e, primary_structure, props)
+        end
+
+        props || []
+      end
+
+      def find_node_props(node, primary_structure = @structure, props = [])
+        if node[1].has_key?(:'data-prop')
+          props << {
+              doc: StringDoc.from_structure(primary_structure, node: node),
+              prop: node[1][:'data-prop'].to_sym,
+          }
+        end
+
+        unless node[1].has_key?(:'data-scope')
+          find_props(node[2], node[2], props)
+        end
+
+        props
       end
     end
   end

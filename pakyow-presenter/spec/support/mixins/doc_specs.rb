@@ -273,7 +273,11 @@ shared_examples :doc_specs do
       end
 
       context 'when props are inline with scope' do
-        #TODO is this something we still want to / can support?
+        let(:html) { '<div data-scope="foo" data-prop="bar"></div>' }
+
+        it 'finds the prop' do
+          expect(doc.scopes[0][:props].count).to eq(1)
+        end
       end
 
       context 'when props are in a nested scope' do
