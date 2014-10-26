@@ -74,6 +74,28 @@ module Pakyow
         }
       end
 
+
+      def test_template_routes_available_via_expansion_name
+        rtr = Router.instance
+        rtr.set(:test) {
+          restful :test, 'tests' do
+            get 'bar', :bar
+
+            member do
+              get 'foo', :foo
+            end
+
+            collection do
+              get 'meh', :meh
+            end
+          end
+        }
+
+        assert_equal '/tests/bar', RouteLookup.new.group(:test).path(:bar)
+        assert_equal '/tests/1/foo', RouteLookup.new.group(:test).path(:foo, { test_id: 1 })
+        assert_equal '/tests/meh', RouteLookup.new.group(:test).path(:meh)
+      end
+
     end
   end
 end

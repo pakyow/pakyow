@@ -1,6 +1,6 @@
 module Pakyow
   module RouteMerger
-    private 
+    private
 
     def merge(route_eval)
       merge_fns(route_eval.fns)
@@ -28,7 +28,7 @@ module Pakyow
 
     def merge_lookup(lookup)
       @lookup[:routes].merge!(lookup[:routes])
-      @lookup[:grouped].merge!(lookup[:grouped])
+      @lookup[:grouped].deep_merge!(lookup[:grouped])
     end
 
     def merge_templates(templates)

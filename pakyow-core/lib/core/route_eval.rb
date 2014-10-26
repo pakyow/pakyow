@@ -108,7 +108,7 @@ module Pakyow
 
       evaluator = RouteExpansionEval.from_scope(self, path: File.join(descendent_path, path), group: g_name, hooks: hooks)
 			evaluator.direct_path = path
-      evaluator.template = template
+      evaluator.set_template(g_name, template)
       evaluator.eval(&block)
 
       merge(evaluator)
@@ -316,7 +316,8 @@ module Pakyow
       super
     end
 
-    def template=(template)
+    def set_template(expansion_name, template)
+      @expansion_name = expansion_name
       @template_block = template[1]
 
       @hooks = merge_hooks(@hooks, template[0])
@@ -343,7 +344,7 @@ module Pakyow
 			group = @template_eval.group_named(name)
 
 			hooks = merge_hooks(hooks, group[0])
-			group(name, hooks, &block)
+			group(@expansion_name, hooks, &block)
 		end
 
 		def action_namespace(*args, &block)
@@ -351,7 +352,7 @@ module Pakyow
 			namespace = @template_eval.namespace_named(name)
 
 			hooks = merge_hooks(hooks, namespace[1])
-			namespace(name, namespace[0], hooks, &block)
+			namespace(@expansion_name, namespace[0], hooks, &block)
 		end
 
     def method_missing(method, *args, &block)
