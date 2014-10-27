@@ -8,7 +8,7 @@ process that's friendly to everyone -- whether you're a designer or a developer.
 Pakyow lets you start with a view and build the app on top. Here's how it works:
 
 - Generate your app and immediately create views using HTML or your favorite template language.
-- Without adding any back-end code, start the app and view it locally in your browser.
+- Start the app and see the views in your local browser without adding any back-end code.
 - Add back-end code without changing any of the previously created views.
 
 This process gets you right to work, reducing friction to keep the project moving forward.
