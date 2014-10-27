@@ -1,3 +1,11 @@
+= 0.9.0
+
+  * Introduces StringDoc, replacing Nokogiri for view rendering with a performant alternative
+  * Adds the ability to set an empty first option in bindings
+  * Remove the annoying "no content" for container log message
+  * Misc bug fixes and performance improvements
+  * Removes support for Ruby versions < 2.0.0
+
 = 0.8.0 / 2014-03-02
 
   * Major rewrite, including new view syntax, composer, and transformation api
