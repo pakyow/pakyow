@@ -229,17 +229,17 @@ describe "binding data to" do
 
     describe '#bind_with_index' do
       it "yields each view/datum pair" do
-        data = {}
+        data = [{}]
         view = view(:single)
         view.bind_with_index(data) do |ctx, datum, i|
           assert_same view, ctx
-          assert_same data, datum
+          assert_same data[0], datum
           assert_equal 0, i
         end
       end
 
       it "calls block in context of view, yielding datum" do
-        data = {}
+        data = [{}]
         view = view(:single)
         ctx = nil
         ctx_datum = nil
@@ -251,7 +251,7 @@ describe "binding data to" do
         end
 
         assert_same view, ctx
-        assert_same data, ctx_datum
+        assert_same data[0], ctx_datum
         assert_equal 0, ctx_i
       end
     end
