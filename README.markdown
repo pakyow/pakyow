@@ -1,26 +1,19 @@
-[![Build Status](https://travis-ci.org/metabahn/pakyow.png)](https://travis-ci.org/metabahn/pakyow)
+# Pakyow v0.9
 
-# Introduction
+Pakyow is an open-source framework for the modern web. Build web-based apps faster with a view-first development
+process that's friendly to everyone -- whether you're a designer or a developer. It's for getting along.
 
-Pakyow is an open-source framework for building modern web-apps in Ruby. It
-helps you build working software faster with a development process that remains 
-friendly to both designers and developers. It's built for getting along.
+## View-First Development
 
-*Pakyow empowers the designer with a view-first development process.*
+Pakyow lets you start with a view and build the app on top. Here's how it works:
 
-## Own the front-end
-The views are created in isolation from the back-end app, giving the designer 
-complete control over the front-end through the entire development process.
+- Generate your app and immediately create a view, using HTML, HAML, or your favorite template language.
+- Without adding any back-end code, start the app and view it locally in your browser.
+- Add back-end code without changing any of the previously created views.
 
-## Prototypes made easy
-Create a working, navigable prototype of your app without writing a line of back-end 
-code. Later, add the back-end as a layer on top of the view, leaving the prototype intact.
+This process gets you right to work, reducing friction to keep the project moving forward.
 
-## Logicless views
-Views describe what the UI is, not how it's built. Write views in HTML or the 
-template language of your choice; no view logic and nothing new to learn.
-
---
+---
 
 # Getting Started
 
@@ -28,31 +21,35 @@ template language of your choice; no view logic and nothing new to learn.
 
     `gem install pakyow`
 
-2. Create a new Pakyow application from the command prompt:
+2. Create a new Pakyow app from the command line:
 
     `pakyow new webapp`
 
-3. Move to the "webapp" directory and start the application:
+3. Move to the new directory and start the application:
 
     `cd webapp; pakyow server`
 
-4. You'll find the application at http://localhost:3000
+4. You'll find your app running at [http://localhost:3000](http://localhost:3000)!
 
 # Next Steps
 
 The following resources might be handy:
 
-Website:  
-http://pakyow.com
+- [Website](http://pakyow.com)
+- [Warmup](http://pakyow.com/warmup)
+- [Docs](http://pakyow.com/docs)
+- [Code](http://github.com/metabahn/pakyow)
 
-Manual:  
-http://pakyow.com/docs
+Want to keep up with the latest development? Follow along:
 
-Code:  
-http://github.com/metabahn/pakyow
+- [Blog](http://pakyow.com/blog)
+- [Mailing List](http://groups.google.com/group/pakyow)
+- [Twitter](http://twitter.com/pakyow)
 
-Mailing List:  
-http://groups.google.com/group/pakyow
+# Status
 
-Twitter:  
-http://twitter.com/pakyow
+[![Build Status](https://travis-ci.org/metabahn/pakyow.png)](https://travis-ci.org/metabahn/pakyow)
+
+# License
+
+Pakyow is released under the [MIT License](http://opensource.org/licenses/MIT).
