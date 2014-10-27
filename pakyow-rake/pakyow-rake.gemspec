@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.version     = version
   s.summary     = 'pakyow-rake'
   s.description = 'pakyow-rake'
-  s.required_ruby_version = '>= 1.9.3'
+  s.required_ruby_version = '>= 2.0.0'
   s.license     = 'MIT'
 
   s.authors           = ['Bryan Powell']
@@ -25,4 +25,5 @@ Gem::Specification.new do |s|
   s.require_path = File.join(path, 'lib')
 
   s.add_dependency('pakyow-core', version)
+  s.add_dependency('pakyow-presenter', version)
 end
