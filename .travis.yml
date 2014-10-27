@@ -2,10 +2,7 @@ language: ruby
 rvm:
   - 2.0.0
   - 2.1.0
-  - rbx
-  - jruby-19mode
   - ruby-head
-  - jruby-head
 notifications:
   email: false
   hipchat: dc38d765431b4f0b3119274f433524@Conference Room
