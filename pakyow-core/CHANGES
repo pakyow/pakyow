@@ -1,5 +1,6 @@
 = 0.9.0
 
+  * Renames restful "remove" action to "delete"
   * Improves app generator bundle install by showing progress
   * Complete refactor of config handling with a shiny DSL
   * Includes pakyow-rake as a dependency, and updates the generated Rakefile

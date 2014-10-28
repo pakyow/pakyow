@@ -3,7 +3,9 @@
   * Introduces StringDoc, replacing Nokogiri for view rendering with a performant alternative
   * Adds the ability to set an empty first option in bindings
   * Remove the annoying "no content" for container log message
-  * Misc bug fixes and performance improvements
+  * Binding context must now be explicitly passed when binding
+  * Yield bindable value before bindable in view binding fns
+  * Fixes bug causing non-html view contents to be processed twice
   * Removes support for Ruby versions < 2.0.0
 
 = 0.8.0 / 2014-03-02
