@@ -292,7 +292,7 @@ module Pakyow
 
         nice_source = error.backtrace[0].match(/^(.+?):(\d+)(|:in `(.+)')$/)
 
-        content.gsub!('{file}', nice_source[1].gsub(File.expand_path(Config::App.root) + '/', ''))
+        content.gsub!('{file}', nice_source[1].gsub(File.expand_path(Config.app.root) + '/', ''))
         content.gsub!('{line}', nice_source[2])
 
         content.gsub!('{msg}', CGI.escapeHTML(error.to_s))
