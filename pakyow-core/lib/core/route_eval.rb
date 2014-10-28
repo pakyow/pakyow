@@ -73,7 +73,7 @@ module Pakyow
       # build the final list of fns
       fns = build_fns(fns, hooks)
 
-      @handlers << [name, code, fns]
+      @handlers.unshift([name, code, fns])
     end
 
     def group(*args, &block)
