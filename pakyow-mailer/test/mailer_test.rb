@@ -47,7 +47,6 @@ class MailerTest < Minitest::Test
   end
 
   def mailer
-
-    TestMailer.new("test_message", Pakyow.app.presenter.store)
+    TestMailer.from_store("test_message", Pakyow.app.presenter.store)
   end
 end
