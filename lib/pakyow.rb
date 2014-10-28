@@ -1,4 +1,5 @@
 DEPENDENCIES = %w[
+  pakyow-support
   pakyow-core
   pakyow-presenter
   pakyow-mailer
