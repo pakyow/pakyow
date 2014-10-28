@@ -143,7 +143,7 @@ module Pakyow
         envs = envs.empty? || envs.first.nil? ? [config.app.default_environment] : envs
 
         config.app.loaded_envs = envs
-        config.env = envs.first
+        config.env = envs.first.to_sym
 
         # run global config first
         if global_proc = @@config[:global]
