@@ -5,6 +5,7 @@ require 'pakyow'
 Pakyow::App.define do
   configure :global do
     # put global config here and they'll be available across environments
+    app.name = 'Pakyow'
   end
 
   configure :development do

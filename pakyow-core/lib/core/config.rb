@@ -30,20 +30,20 @@ module Pakyow
       instance_eval(&block)
     end
 
-    attr_reader :name
+    attr_reader :config_name
 
     def initialize(name)
-      @name = name
+      @config_name = name
       @opts = {}
       @envs = {}
     end
 
     def defaults
-      @defaults ||= Pakyow::Config.new("#{@name}.defaults")
+      @defaults ||= Pakyow::Config.new("#{@config_name}.defaults")
     end
 
     def env(name)
-      config = Pakyow::Config.new("#{@name}.#{name}")
+      config = Pakyow::Config.new("#{@config_name}.#{name}")
       yield(config)
 
       @envs[name] = config
@@ -55,7 +55,7 @@ module Pakyow
     end
 
     def value(name, *args)
-      value = @opts.fetch(name) { raise(ConfigError.new("No config option available for `#{@name}.#{name}`")) }
+      value = @opts.fetch(name) { raise(ConfigError.new("No config option available for `#{@config_name}.#{name}`")) }
       value = instance_exec(*args, &value) if value.is_a?(Proc)
       value
     end
@@ -83,7 +83,7 @@ module Pakyow
           end
         end
 
-        raise(ConfigError.new("No config option available for `#{@name}.#{method}`"))
+        raise(ConfigError.new("No config option available for `#{@config_name}.#{method}`"))
       end
     end
   end
