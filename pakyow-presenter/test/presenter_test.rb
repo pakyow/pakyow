@@ -56,9 +56,9 @@ class PresenterTest < Minitest::Test
   end
 
   def test_store_can_be_changed
-    original_store = @presenter.store
     @presenter.store = :test
-    refute_same original_store, @presenter.store
+    assert_equal 'switch', @presenter.view.composed.title, 'Template not updated for new store'
+    assert_equal 'switch', str_to_doc(@presenter.view.composed.to_html).css('body').inner_text.strip, 'Page not updated for new store'
   end
 
   def test_template_for_route_is_accessible
