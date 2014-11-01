@@ -8,7 +8,6 @@ module Pakyow
     #
     class Binder
       include Singleton
-      include Pakyow::Helpers
 
       # Access to the registered binder sets for an app.
       #
@@ -56,15 +55,7 @@ module Pakyow
 
         if binding_fn
           binding_eval = BindingEval.new(prop, bindable, context)
-
-          case binding_fn.arity
-          when 0
-            binding_eval.instance_exec(&binding_fn)
-          when 1
-            instance_exec(binding_eval.value, &binding_fn)
-          when 2
-            instance_exec(binding_eval.value, bindable, &binding_fn)
-          end
+          binding_eval.instance_exec(binding_eval.value, bindable, context, &binding_fn)
         else # default value
           if bindable.is_a?(Hash)
             bindable[prop]
