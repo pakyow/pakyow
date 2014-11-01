@@ -6,11 +6,15 @@ class PresenterHelpersTest < Minitest::Test
   end
 
   def test_delegates_to_presenter
-    %w[store store= content view view= partial template template= page page= path path= compose].each do |delegated|
+    %w[store store= content view= partial template template= page page= path path= compose].each do |delegated|
       delegated = delegated.to_sym
       @context.send(delegated)
       assert @context.presenter.called?(delegated)
     end
+  end
+
+  def test_returns_view_context
+    assert @context.view.is_a?(ViewContext)
   end
 end
 
@@ -30,9 +34,10 @@ end
 
 class MockPresenterContext
   include Pakyow::AppHelpers
-  attr_reader :presenter
+  attr_reader :presenter, :context
 
   def initialize
     @presenter = MockPresenter.new
+    @context = AppContext.new
   end
 end
