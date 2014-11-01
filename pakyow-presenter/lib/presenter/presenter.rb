@@ -97,14 +97,11 @@ module Pakyow
 
       def content
         to_present = view
-        view.is_a?(ViewComposer) ? view.composed.to_html : view.to_html
+        to_present.is_a?(ViewComposer) ? to_present.composed.to_html : to_present.to_html
       end
 
       def view
-        view = @composer || @view
-        raise MissingView if view.nil?
-
-        return view
+        @composer || @view || raise(MissingView)
       end
 
       def view=(view)
