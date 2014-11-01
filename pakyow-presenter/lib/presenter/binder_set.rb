@@ -26,7 +26,7 @@ module Pakyow
 
       def options_for_prop(scope, prop, bindable, context)
         if block = (@options[scope] || {})[prop]
-          binding_eval = BindingEval.new(bindable, prop, context)
+          binding_eval = BindingEval.new(prop, bindable, context)
           values = binding_eval.instance_exec(binding_eval.value, bindable, context, &block)
           values.unshift(['', '']) if @config[scope][prop][:empty]
           values
