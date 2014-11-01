@@ -171,9 +171,16 @@ module Pakyow
       end
 
       def setup_for_path(path, explicit = false)
-        @composer = store.composer(path)
-        @path = path
-      rescue MissingView => e # catches no view path error
+        @view_stores.each do |name, store|
+          begin
+            @composer = store.composer(path)
+            @path = path
+            return
+          rescue MissingView
+          end
+        end
+
+        e = MissingView.new("No view at path '#{path}'")
         explicit ? raise(e) : Pakyow.logger.debug(e.message)
       end
 
