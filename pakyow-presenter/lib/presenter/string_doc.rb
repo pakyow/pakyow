@@ -3,7 +3,7 @@ module Pakyow
     class StringDoc
       attr_reader :structure
 
-      TITLE_REGEX = /<title>(.*?)<\/title>/
+      TITLE_REGEX = /<title>(.*?)<\/title>/m
 
       def initialize(html)
         @structure = StringDocParser.new(html).structure
