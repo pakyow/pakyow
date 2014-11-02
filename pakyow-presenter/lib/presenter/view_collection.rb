@@ -250,7 +250,7 @@ module Pakyow
       # Matches self to data then binds data to the view.
       #
       def apply(data, bindings: {}, ctx: nil, &block)
-        match(data).bind(data, bindings: bindings, ctx: nil, &block)
+        match(data).bind(data, bindings: bindings, ctx: ctx, &block)
       end
     end
   end
