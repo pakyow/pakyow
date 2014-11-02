@@ -46,40 +46,40 @@ module Pakyow
 
       private
 
+      def view?(obj)
+        VIEW_CLASSES.include?(obj.class)
+      end
+
       # Returns a new context for returned views, or the return value.
       #
       def handle_return_value(value)
-        if value.class.ancestors.any? { |a| VIEW_CLASSES.include?(a) }
+        if view?(value)
           return ViewContext.new(value, @context)
         end
 
         value
       end
 
-      # Wrap the block, effectively substituting the view with the current
-      # view context.
+      # Wrap the block, substituting the view with the current view context.
       #
       def wrap(method, &block)
-        Proc.new do |*args|
-          ctx = nil
-          args.map! { |arg|
-            if VIEW_CLASSES.include?(arg.class)
-              ctx = ViewContext.new(arg, @context)
-            else
-              arg
-            end
-          }
+        return if block.nil?
 
-          next if block.nil?
+        Proc.new do |*args|
+          ctx = args.map! { |arg|
+            view?(arg) ? ViewContext.new(arg, @context) : arg
+          }.find { |arg| arg.is_a?(ViewContext) }
+
           case block.arity
-            when EXEC_ARITIES[method]
-              # Rejecting ViewContext handles the edge cases around the order of
-              # arguments from view methods (since view is not present in some
-              # situations and when it is present, is always the first arg).
-              #
-              ctx.instance_exec(*args.reject { |arg| arg.is_a?(ViewContext) }, &block)
-            else
-              block.call(*args)
+          when EXEC_ARITIES[method]
+            # Rejecting ViewContext handles the edge cases around the order of
+            # arguments from view methods (since view is not present in some
+            # situations and when it is present, is always the first arg).
+            ctx.instance_exec(*args.reject { |arg|
+              arg.is_a?(ViewContext)
+            }, &block)
+          else
+            block.call(*args)
           end
         end
       end
