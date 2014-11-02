@@ -69,6 +69,10 @@ module Pakyow
         @value
       end
 
+      def ancestors
+        self.class.ancestors
+      end
+
       private
 
       def update_value

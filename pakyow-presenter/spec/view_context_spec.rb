@@ -10,7 +10,7 @@ describe Pakyow::Presenter::ViewContext do
   end
 
   let :view_context do
-    Pakyow::Presenter::ViewContext.new(view, app_context)
+    ViewContext.new(view, app_context)
   end
 
   it 'sets view on initialization' do
@@ -21,15 +21,8 @@ describe Pakyow::Presenter::ViewContext do
     expect(view_context.instance_variable_get(:@context)).to eq(app_context)
   end
 
-  %i(bind bind_with_index apply).each do |method|
-    it "passes context to #{method}" do
-      expect(view).to receive(method).with({}, hash_including(ctx: app_context))
-      view_context.send(method, {}) {}
-    end
-  end
-
   it 'returns the working view' do
-    expect(view_context.working).to eq(view)
+    expect(view_context.instance_variable_get(:@view)).to eq(view)
   end
 
   it 'passes calls through to view' do
@@ -38,28 +31,143 @@ describe Pakyow::Presenter::ViewContext do
   end
 
   context 'when called method returns a view' do
-    it 'updates the working view' do
-      original_working = view_context.working
-      view_context.bind({})
-
-      expect(view_context.working).not_to eq(original_working)
-      expect(view_context.working).to be_a(Pakyow::Presenter::View)
-    end
-
-    it 'returns self' do
-      expect(view_context.bind({})).to eq(view_context)
+    it 'returns a new view context' do
+      ret = view_context.bind({})
+      expect(ret).to be_a(ViewContext)
+      expect(ret).not_to eq(view_context)
     end
   end
 
   context 'when called method returns a non-view' do
-    it 'does not update the working view' do
-      original_working = view_context.working
-      view_context.foo
-      expect(view_context.working).to eq(original_working)
-    end
-
     it 'returns the value' do
       expect(view_context.foo).not_to eq(view_context)
+    end
+  end
+
+  context 'when calling view methods that expect context' do
+    %i(bind bind_with_index apply).each do |method|
+      it "passes context to #{method}" do
+        expect(view).to receive(method).with({}, hash_including(ctx: app_context))
+        view_context.send(method, {}) {}
+      end
+    end
+  end
+
+  context 'when calling view methods that yield or exec views' do
+    let :view_context do
+      ViewContext.new(View.new, app_context)
+    end
+
+    describe '#with' do
+      it 'yields context' do
+        view_context.with do |ctx|
+          expect(ctx).to be_a(ViewContext)
+        end
+      end
+
+      it 'execs in context' do
+        ctx = nil
+        view_context.with { ctx = self }
+        expect(ctx).to be_a(ViewContext)
+      end
+    end
+
+    describe '#for' do
+      it 'yields context' do
+        view_context.for({}) do |ctx, _|
+          expect(ctx).to be_a(ViewContext)
+        end
+      end
+
+      it 'execs in context' do
+        ctx = nil
+        view_context.for({}) { |_| ctx = self }
+        expect(ctx).to be_a(ViewContext)
+      end
+    end
+
+    describe '#for_with_index' do
+      it 'yields context' do
+        view_context.for_with_index({}) do |ctx, _, _|
+          expect(ctx).to be_a(ViewContext)
+        end
+      end
+
+      it 'execs in context' do
+        ctx = nil
+        view_context.for_with_index({}) { |_, _| ctx = self }
+        expect(ctx).to be_a(ViewContext)
+      end
+    end
+
+    describe '#repeat' do
+      it 'yields context' do
+        view_context.repeat({}) do |ctx, _|
+          expect(ctx).to be_a(ViewContext)
+        end
+      end
+
+      it 'execs in context' do
+        ctx = nil
+        view_context.repeat({}) { |_| ctx = self }
+        expect(ctx).to be_a(ViewContext)
+      end
+    end
+
+    describe '#repeat_with_index' do
+      it 'yields context' do
+        view_context.repeat_with_index({}) do |ctx, _, _|
+          expect(ctx).to be_a(ViewContext)
+        end
+      end
+
+      it 'execs in context' do
+        ctx = nil
+        view_context.repeat_with_index({}) { |_, _| ctx = self }
+        expect(ctx).to be_a(ViewContext)
+      end
+    end
+
+    describe '#bind' do
+      it 'yields context' do
+        view_context.bind({}) do |ctx, _|
+          expect(ctx).to be_a(ViewContext)
+        end
+      end
+
+      it 'execs in context' do
+        ctx = nil
+        view_context.bind({}) { |_| ctx = self }
+        expect(ctx).to be_a(ViewContext)
+      end
+    end
+
+    describe '#bind_with_index' do
+      it 'yields context' do
+        view_context.bind_with_index({}) do |ctx, _, _|
+          expect(ctx).to be_a(ViewContext)
+        end
+      end
+
+      it 'execs in context' do
+        ctx = nil
+        view_context.bind_with_index({}) { |_, _| ctx = self }
+        expect(ctx).to be_a(ViewContext)
+      end
+    end
+
+    describe '#apply' do
+      it 'yields context' do
+        view_context.apply({}) do |ctx, _|
+          expect(ctx).to be_a(ViewContext)
+        end
+      end
+
+      it 'execs in context' do
+        ctx = nil
+        view_context.apply({}) { |_| ctx = self }
+        expect(ctx).to be_a(ViewContext)
+      end
     end
   end
 end
