@@ -27,7 +27,7 @@ module Pakyow
       IGNORED_ATTRS = %i[container partial]
       def self.attrify(attrs)
         attrs.delete_if { |a| a.nil? || IGNORED_ATTRS.include?(a) }.map { |attr|
-          attr[0].to_s + '="' + attr[1] + '"'
+          attr[0].to_s + '="' + attr[1].to_s + '"'
         }.join(' ')
       end
     end
