@@ -6,7 +6,7 @@ module Pakyow
     #
     class ViewContext
       include Helpers
-      VIEW_CLASSES = [View, ViewCollection]
+      VIEW_CLASSES = [View, ViewCollection, Partial, Template, Container]
 
       # The arities of misc view methods that switch the behavior from
       # instance_exec to yield.
