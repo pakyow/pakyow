@@ -13,8 +13,24 @@ class PresenterHelpersTest < Minitest::Test
     end
   end
 
-  def test_returns_view_context
+  def test_view_returns_view_context
     assert @context.view.is_a?(ViewContext)
+  end
+
+  def test_partial_returns_view_context
+    assert @context.partial(:foo).is_a?(ViewContext)
+  end
+
+  def test_template_returns_view_context
+    assert @context.template.is_a?(ViewContext)
+  end
+
+  def test_page_returns_view_context
+    assert @context.page.is_a?(ViewContext)
+  end
+
+  def test_container_returns_view_context
+    assert @context.container(:foo).is_a?(ViewContext)
   end
 end
 
