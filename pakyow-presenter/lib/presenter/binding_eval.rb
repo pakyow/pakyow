@@ -12,7 +12,11 @@ module Pakyow
       end
 
       def value
-        bindable[@prop]
+        if bindable.is_a?(Hash)
+          bindable[@prop]
+        elsif bindable.respond_to?(@prop)
+          bindable.send(@prop)
+        end
       end
     end
   end

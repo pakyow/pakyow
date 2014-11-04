@@ -7,10 +7,6 @@ class Contact
     @full_name = full_name
     @email = email
   end
-
-  def [](key)
-    send(key)
-  end
 end
 
 describe "binding data to" do
@@ -215,15 +211,15 @@ describe "binding data to" do
         assert_equal data[:email],     doc.css('.contact a').first.content
       end
 
-      it "binds an object" do
+      it "binds an object without hash lookup syntax" do
         data = Contact.new("Jugyo Kohno", "jugyo@example.com")
         view = view(:single)
         view.scope(:contact)[0].bind(data)
 
         doc = ndoc_from_view(view)
 
-        assert_equal data[:full_name], doc.css('.contact span').first.content
-        assert_equal data[:email],     doc.css('.contact a').first.content
+        assert_equal data.full_name, doc.css('.contact span').first.content
+        assert_equal data.email,     doc.css('.contact a').first.content
       end
     end
 
@@ -474,8 +470,8 @@ describe "binding data to" do
 
         doc = ndoc_from_view(view)
 
-        assert_equal data[:full_name], doc.css('.contact span').first.content
-        assert_equal data[:email],     doc.css('.contact a').first.content
+        assert_equal data.full_name, doc.css('.contact span').first.content
+        assert_equal data.email,     doc.css('.contact a').first.content
       end
 
       it "binds data across views" do
