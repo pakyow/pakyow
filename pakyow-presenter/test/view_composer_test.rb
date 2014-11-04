@@ -74,8 +74,6 @@ describe ViewComposer do
 
   it "handles container modification" do
     composer = compose_at('/')
-    composer.precompose!
-
     composer.container(:default).remove
 
     assert_equal '', str_to_doc(composer.view.to_html).css('body').children.to_html.strip
@@ -83,8 +81,6 @@ describe ViewComposer do
 
   it "handles partial modification" do
     composer = compose_at('/partial')
-    composer.precompose!
-
     partial = composer.partial(:partial1)
     partial.remove
 
@@ -93,8 +89,6 @@ describe ViewComposer do
 
   it "handles attribute modification" do
     composer = compose_at('/attributes')
-    composer.precompose!
-
     composer.container(:default).scope(:attrs).attrs.style = {
       background: 'red'
     }
@@ -104,8 +98,6 @@ describe ViewComposer do
 
   it "handles replacements" do
     composer = compose_at('/')
-    composer.precompose!
-
     composer.container(:default).replace('foo')
 
     assert_equal 'foo', str_to_doc(composer.view.to_html).css('body').children.to_html.strip

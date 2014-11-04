@@ -42,6 +42,7 @@ module Pakyow
 
         %w[store path page template partials view].each do |ivar|
           value = original.instance_variable_get("@#{ivar}")
+          next if value.nil?
 
           if value.is_a?(Hash)
             dup_value = {}
@@ -54,13 +55,8 @@ module Pakyow
         end
       end
 
-      def precompose!
-        @view = build_view
-      end
-
       def view
-        @view = build_view
-        return @view
+        build_view
       end
       alias_method :composed, :view
 

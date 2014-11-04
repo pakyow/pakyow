@@ -171,7 +171,6 @@ module Pakyow
 
         # compose template/page/partials
         composer = ViewComposer.from_path(self, normalized_path, template: template, page: page, includes: partials)
-        composer.precompose!
 
         info = {
           page: page,
