@@ -5,6 +5,7 @@ module Pakyow
     # be used from the app, not internally.
     #
     class ViewContext
+      include Helpers
       VIEW_CLASSES = [View, ViewCollection]
 
       # The arities of misc view methods that switch the behavior from

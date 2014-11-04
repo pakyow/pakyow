@@ -30,6 +30,10 @@ describe Pakyow::Presenter::ViewContext do
     view_context.foo
   end
 
+  it 'includes helpers' do
+    expect(ViewContext.ancestors).to include(Pakyow::Helpers)
+  end
+
   context 'when called method returns a view' do
     it 'returns a new view context' do
       ret = view_context.bind({})
