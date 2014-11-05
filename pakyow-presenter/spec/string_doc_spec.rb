@@ -23,4 +23,5 @@ describe StringDoc do
   include_examples :attr_specs
   include_examples :repeating_specs
   include_examples :matching_specs
+  include_examples :building_specs
 end

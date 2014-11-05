@@ -267,7 +267,7 @@ module Pakyow
         partials.each do |partial_info|
           partial = partial_map[partial_info[0]]
 					next if partial.nil?
-          partial_info[1].replace(partial.doc)
+          partial_info[1].replace(partial.doc.dup)
         end
 
         # refind the partials
