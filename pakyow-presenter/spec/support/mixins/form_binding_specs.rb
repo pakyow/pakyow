@@ -9,7 +9,7 @@ shared_examples :form_binding_specs do
       <input type="checkbox" data-prop="checked" value="value">
       <input type="radio" data-prop="checked_radio" value="value">
       <textarea data-prop="textarea"></textarea>
-      <select data-prop="select"><option value="foo">foo</option><option value="bar">bar</option></select>
+      <select data-prop="select"><option value="foo">foo</option><option value="bar">bar</option><option value="2">2</option></select>
     </form>
     D
   }
@@ -73,6 +73,14 @@ shared_examples :form_binding_specs do
         view.scope(:foo).bind(select: 'foo')
         doc = Nokogiri::HTML::fragment(view.to_s)
         expect(doc.css('option')[0]['selected']).to eq('selected')
+      end
+
+      context 'and the value is not a string' do
+        it 'selects the option' do
+          view.scope(:foo).bind(select: 2)
+          doc = Nokogiri::HTML::fragment(view.to_s)
+          expect(doc.css('option')[2]['selected']).to eq('selected')
+        end
       end
     end
 
