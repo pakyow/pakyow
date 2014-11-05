@@ -223,9 +223,9 @@ module Pakyow
       #
       # Binds a single datum across existing scopes.
       #
-      def bind(data, bindings: {}, ctx: nil, &block)
+      def bind(data, bindings: {}, context: nil, &block)
         datum = Array.ensure(data).first
-        bind_data_to_scope(datum, doc.scopes.first, bindings, ctx)
+        bind_data_to_scope(datum, doc.scopes.first, bindings, context)
         return if block.nil?
 
         if block.arity == 1
@@ -255,8 +255,8 @@ module Pakyow
       #
       # Matches self to data then binds data to the view.
       #
-      def apply(data, bindings: {}, ctx: nil, &block)
-        match(data).bind(data, bindings: bindings, ctx: ctx, &block)
+      def apply(data, bindings: {}, context: nil, &block)
+        match(data).bind(data, bindings: bindings, context: context, &block)
       end
 
       def includes(partial_map)

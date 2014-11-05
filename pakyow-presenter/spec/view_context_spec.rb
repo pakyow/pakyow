@@ -51,7 +51,7 @@ describe Pakyow::Presenter::ViewContext do
   context 'when calling view methods that expect context' do
     %i(bind bind_with_index apply).each do |method|
       it "passes context to #{method}" do
-        expect(view).to receive(method).with({}, hash_including(ctx: app_context))
+        expect(view).to receive(method).with({}, hash_including(context: app_context))
         view_context.send(method, {}) {}
       end
     end

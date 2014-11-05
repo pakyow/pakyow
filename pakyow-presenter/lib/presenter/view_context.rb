@@ -23,7 +23,7 @@ module Pakyow
       #
       %i[bind bind_with_index apply].each do |method|
         define_method(method) do |data, **kargs, &block|
-          kargs[:ctx] ||= @context
+          kargs[:context] ||= @context
           ret = @view.send(method, data, **kargs, &wrap(method, &block))
           handle_return_value(ret)
         end

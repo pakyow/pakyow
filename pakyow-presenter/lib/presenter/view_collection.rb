@@ -213,9 +213,9 @@ module Pakyow
       #
       # Binds data across existing scopes.
       #
-      def bind(data, bindings: {}, ctx: nil, &block)
+      def bind(data, bindings: {}, context: nil, &block)
         self.for(data) do |view, datum|
-          view.bind(datum, bindings: bindings, ctx: ctx)
+          view.bind(datum, bindings: bindings, context: context)
           next if block.nil?
 
           if block.arity == 1
@@ -249,8 +249,8 @@ module Pakyow
       #
       # Matches self to data then binds data to the view.
       #
-      def apply(data, bindings: {}, ctx: nil, &block)
-        match(data).bind(data, bindings: bindings, ctx: ctx, &block)
+      def apply(data, bindings: {}, context: nil, &block)
+        match(data).bind(data, bindings: bindings, context: context, &block)
       end
     end
   end
