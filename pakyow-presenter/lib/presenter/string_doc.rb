@@ -196,7 +196,7 @@ module Pakyow
 
       def option(value: nil)
         StringDoc.from_structure(node[2][0][2].select { |option|
-          option[1][:value] == value
+          option[1][:value] == value.to_s
         })
       end
 
