@@ -17,7 +17,7 @@ module Pakyow
 
       # Parses HTML and returns a nested structure representing the document.
       #
-      def parse(doc, writer = '')
+      def parse(doc)
         structure = []
 
         if doc.is_a?(Nokogiri::HTML::Document)
@@ -55,19 +55,10 @@ module Pakyow
                 structure << [node.to_html, { partial: name }, []]
               end
             else
-              attr_s = attributes.inject('') { |s, a|
-                s << " #{a[1].name}=\"#{a[1].value}\""
-                s
-              }
-
-              attr_structure = attributes.inject({}) do |attrs, attr|
-                attrs[attr[1].name.to_sym] = attr[1].value
-                attrs
-              end
-
+              attr_s = attributes.inject('') { |s, a| s << " #{a[1].name}=\"#{a[1].value}\""; s }
               closing = [['>', {}, parse(node)]]
-              closing << ["</#{node.name}>", {}, []] unless self_closing?(node.name)
-              structure << ["<#{node.name} ", attr_structure, closing]
+              closing << ['</' + node.name + '>', {}, []] unless self_closing?(node.name)
+              structure << ['<' + node.name + attr_s, {}, closing]
             end
           end
         end
