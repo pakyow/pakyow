@@ -1,11 +1,5 @@
 Pakyow::Config.register(:presenter) { |config|
 
-  # the location of javascripts within `Config.app.resources`
-  config.opt :javascripts, '/javascripts'
-
-  # the location of stylesheets within `Config.app.resources`
-  config.opt :stylesheets, '/stylesheets'
-
   # registered view stores
   config.opt :view_stores, lambda {
     @stores ||= {

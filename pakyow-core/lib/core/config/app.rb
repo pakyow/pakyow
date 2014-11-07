@@ -34,7 +34,7 @@ Pakyow::Config.register(:app) { |config|
   config.opt :log, true
 
   # whether or not pakyow should serve static files
-  config.opt :static, true
+  config.opt :static
 
   # stores the path to the app definition
   config.opt :path, lambda { Pakyow::App.path }
@@ -46,17 +46,20 @@ Pakyow::Config.register(:app) { |config|
 
   opts.auto_reload = true
   opts.errors_in_browser = true
+  opts.static = true
 
 }.env(:staging) { |opts|
 
   opts.auto_reload = false
   opts.errors_in_browser = true
   opts.log_output = false
+  opts.static = false
 
 }.env(:production) { |opts|
 
   opts.auto_reload = false
   opts.errors_in_browser = false
   opts.log_output = false
+  opts.static = false
 
 }
