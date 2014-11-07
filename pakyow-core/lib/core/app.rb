@@ -136,8 +136,6 @@ module Pakyow
         }
       end
 
-      protected
-
       def load_config(*env_or_envs)
         envs = Array.ensure(env_or_envs)
         envs = envs.empty? || envs.first.nil? ? [config.app.default_environment] : envs
@@ -156,6 +154,8 @@ module Pakyow
           config.app_config(&config_proc)
         end
       end
+
+      protected
 
       def load_middleware
         @@middleware.each do |mw|
@@ -321,7 +321,7 @@ module Pakyow
       config.reset
 
       # reload config
-      self.class.prepare(envs)
+      self.class.load_config(*envs)
 
       load_app
     end
