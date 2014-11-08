@@ -1,11 +1,57 @@
+version = File.read(File.expand_path("../VERSION", __FILE__)).strip
+libs = %i[pakyow-support pakyow-core pakyow-presenter pakyow-mailer pakyow-rake]
+
 desc 'Run all tests by default'
 task :default => %w(test)
 
 task :test do
   errors = []
-  %w(pakyow-core pakyow-presenter pakyow-mailer).each do |project|
-    system(%(cd #{project} && #{$0} test)) || errors << project
+  libs.each do |lib|
+    system(%(cd #{lib} && #{$0} test)) || errors << lib
   end
 
   fail("Errors in #{errors.join(', ')}") unless errors.empty?
+end
+
+namespace :gem do
+  task :clean do
+    system "rm *.gem"
+  end
+
+  task :build => [:clean] do
+    system 'gem build pakyow.gemspec'
+
+    libs.each do |lib|
+      puts
+      system "gem build #{lib}/#{lib}.gemspec"
+    end
+  end
+
+  task :install => [:build] do
+    system "gem install pakyow-#{version}.gem"
+  end
+
+  task :publish => [:build] do
+    puts
+    puts "\033[31mAre you sure you want to publish ze gems? There's no going back!"
+    puts "Enter the current version number to continue...\033[0m"
+    puts
+    input = STDIN.gets.chomp
+    puts
+
+    if input == version
+      gems = libs.map { |lib| "#{lib}-#{version}.gem"}
+
+      # add pakyow last
+      gems << "pakyow-#{version}.gem"
+
+      # push!
+      gems.each do |file|
+        puts "Pushing #{file}"
+        system "gem push #{file}"
+      end
+    else
+      puts "Aborting"
+    end
+  end
 end
