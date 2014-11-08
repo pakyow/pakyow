@@ -5,8 +5,8 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.name        = 'pakyow-core'
   s.version     = version
-  s.summary     = 'Core functionality for Pakyow applications.'
-  s.description = 'Core functionality for Pakyow applications, including routing and middleware.'
+  s.summary     = 'Core functionality for Pakyow apps.'
+  s.description = 'Core functionality for Pakyow apps, including routing and middleware.'
   s.required_ruby_version = '>= 2.0.0'
   s.license     = 'MIT'
 
