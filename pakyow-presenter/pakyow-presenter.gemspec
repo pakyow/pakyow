@@ -5,8 +5,8 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.name        = 'pakyow-presenter'
   s.version     = version
-  s.summary     = 'A library for building a frontend for Pakyow applications.'
-  s.description = 'A library for building a frontend for Pakyow applications, including templating and data binding.'
+  s.summary     = 'Presenter functionality for Pakyow apps.'
+  s.description = 'A library for building frontends for Pakyow apps, including templating and data binding.'
   s.required_ruby_version = '>= 2.0.0'
   s.license     = 'MIT'
 

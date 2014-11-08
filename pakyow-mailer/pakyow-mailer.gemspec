@@ -5,8 +5,8 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.name        = 'pakyow-mailer'
   s.version     = version
-  s.summary     = 'A library for delivering Pakyow views as mail.'
-  s.description = 'A library for delivering Pakyow views as mail.'
+  s.summary     = 'Mail functionality for Pakyow apps.'
+  s.description = 'A library for delivering Pakyow views via email.'
   s.required_ruby_version = '>= 2.0.0'
   s.license     = 'MIT'
 

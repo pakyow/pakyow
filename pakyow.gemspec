@@ -4,8 +4,8 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.name        = 'pakyow'
   s.version     = version
-  s.summary     = 'Web application framework.'
-  s.description = 'Pakyow is an open-source framework for building apps that embrace the web and encourages a development process that\'s friendly to both designers and developers. It\'s built for getting along.'
+  s.summary     = 'Web app platform.'
+  s.description = "Pakyow is an open-source platform for the modern web. Build web-based apps faster with a view-first development process that's friendly to everyone – whether you're a designer or a developer. It's for getting along."
   s.license     = 'MIT'
 
   s.required_ruby_version     = '>= 2.0.0'

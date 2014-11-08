@@ -5,8 +5,8 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.name        = 'pakyow-support'
   s.version     = version
-  s.summary     = 'Supporting code used throughout the pakyow libraries.'
-  s.description = 'Supporting code used throughout the pakyow libraries.'
+  s.summary     = 'Support code for Pakyow apps.'
+  s.description = 'Supporting code used throughout Pakyow libraries.'
   s.required_ruby_version = '>= 2.0.0'
   s.license     = 'MIT'
 
@@ -23,5 +23,5 @@ Gem::Specification.new do |s|
 
   s.require_path = File.join(gem_path, 'lib')
 
-  s.add_development_dependency('rspec', '~> 3.1.0')
+  s.add_development_dependency('rspec', '~> 3.1')
 end
