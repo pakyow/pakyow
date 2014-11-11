@@ -112,4 +112,10 @@ class ViewStoreTest < Minitest::Test
       assert_instance_of Pakyow::Presenter::View, view
     end
   end
+
+  def test_dotfiles_are_ignored
+    assert_raises(Pakyow::Presenter::MissingView) {
+      file = @store.template('.vimswap.swp')
+    }
+  end
 end

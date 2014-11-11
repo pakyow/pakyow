@@ -113,7 +113,7 @@ module Pakyow
 
       if File.exists?(templates_path)
         Dir.entries(templates_path).each do |file|
-          next if file == '.' || file == '..'
+          next if file =~ /^\./
 
           template = Template.load(File.join(templates_path, file))
           @templates[template.name] = template
