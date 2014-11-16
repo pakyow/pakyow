@@ -112,8 +112,12 @@ module Pakyow
       def parts
         parts = ViewCollection.new
         parts << @template
-        @page.each_container do |name, container| parts << container end
-        partials.each_pair do |name, partial| parts << partial end
+        @page.each_container { |name, container| parts << container }
+
+        # only include available partials as parts
+        available_partials = parts.inject([]) { |sum, part| sum.concat(part.doc.partials.keys) }
+        partials.select { |name, partial| available_partials.include?(name) }.each_pair { |name, partial| parts << partial }
+        
         return parts
       end
 
