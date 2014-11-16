@@ -40,7 +40,7 @@ class BindingsTest < Minitest::Test
 
     view = View.from_doc(NokogiriDoc.from_doc(Nokogiri::HTML.fragment('')))
     data[:view].call(view)
-    doc = view.doc.doc.children[0]
+    doc = Nokogiri::HTML.fragment(view.to_html).css('input')[0]
     assert_equal 'hidden',  doc[:type]
     assert_equal '_method', doc[:name]
     assert_equal 'patch',     doc[:value]
