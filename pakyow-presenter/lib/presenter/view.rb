@@ -298,10 +298,14 @@ module Pakyow
         scope_info[:props].each do |prop_info|
           catch(:unbound) do
             prop = prop_info[:prop]
+            doc  = prop_info[:doc]
+
+            if DocHelpers.form_field?(doc.tagname)
+              set_form_field_name(doc, scope, prop)
+            end
 
             if data_has_prop?(data, prop) || Binder.instance.has_scoped_prop?(scope, prop, bindings)
-              value = Binder.instance.value_for_scoped_prop(scope, prop, data, bindings, ctx)
-              doc = prop_info[:doc]
+              value = Binder.instance.value_for_scoped_prop(scope, prop, data, bindings, ctx)              
 
               if DocHelpers.form_field?(doc.tagname)
                 bind_to_form_field(doc, scope, prop, value, data, ctx)
@@ -347,8 +351,6 @@ module Pakyow
       end
 
       def bind_to_form_field(doc, scope, prop, value, bindable, ctx)
-        set_form_field_name(doc, scope, prop)
-
         # special binding for checkboxes and radio buttons
         if doc.tagname == 'input' && (doc.get_attribute(:type) == 'checkbox' || doc.get_attribute(:type) == 'radio')
           bind_to_checked_field(doc, value)
