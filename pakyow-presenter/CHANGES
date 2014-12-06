@@ -1,4 +1,10 @@
-= 0.9.0
+= 0.9.1 / 2014-12-06
+
+  * Fixes bug where name attribute wasn't set on form fields when binding without a value
+  * Fixes bug causing all partials (not just available ones) to be defined as view parts
+  * Fixes bug causing form action binding to break
+
+= 0.9.0 / 2014-11-09
 
   * Introduces StringDoc, replacing Nokogiri for view rendering with a performant alternative
   * Adds the ability to set an empty first option in bindings
