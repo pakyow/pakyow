@@ -4,6 +4,7 @@ libs = %i[pakyow-support pakyow-core pakyow-presenter pakyow-mailer pakyow-rake]
 desc 'Run all tests by default'
 task :default => %w(test)
 
+desc 'Run the tests'
 task :test do
   errors = []
   libs.each do |lib|
@@ -13,11 +14,13 @@ task :test do
   fail("Errors in #{errors.join(', ')}") unless errors.empty?
 end
 
-namespace :gem do
+namespace :release do
+  desc 'Remove the gems'
   task :clean do
     system "rm *.gem"
   end
 
+  desc 'Create the gems'
   task :build => [:clean] do
     system 'gem build pakyow.gemspec'
 
@@ -27,10 +30,12 @@ namespace :gem do
     end
   end
 
+  desc 'Create and install the gems'
   task :install => [:build] do
     system "gem install pakyow-#{version}.gem"
   end
 
+  desc 'Create and publish the gems'
   task :publish => [:build] do
     puts
     puts "\033[31mAre you sure you want to publish ze gems? There's no going back!"
@@ -53,5 +58,10 @@ namespace :gem do
     else
       puts "Aborting"
     end
+  end
+
+  desc 'Create a tag for the current version'
+  task :tag do
+    `git tag -a v#{version} -m 'Pakyow #{version}'`
   end
 end
