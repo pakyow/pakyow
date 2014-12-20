@@ -1,4 +1,4 @@
-require 'support/helper'
+require_relative '../../support/helper'
 
 module Pakyow
   module Test
@@ -635,6 +635,26 @@ module Pakyow
 
           expand(:test_template) {
             get '/', &fn2
+          }
+        }
+
+        fns = set.match('/', :get)[0][3]
+
+        assert_same fn1, fns[0]
+        assert_same fn2, fns[1]
+      end
+
+      def test_nested_group_inherits_hooks
+        set = RouteSet.new
+
+        fn1 = lambda {}
+        fn2 = lambda {}
+
+        set.eval {
+          group(:first_group, before: fn1) {
+            group(:second_group) {
+              get '/', &fn2
+            }
           }
         }
 

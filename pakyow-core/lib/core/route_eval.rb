@@ -18,8 +18,9 @@ module Pakyow
       end
 
       def from_scope(route_eval, overrides = {})
+        overrides.delete_if { |k, v| v.nil? }
 				args = [:path, :fns, :hooks, :templates, :group].inject([]) do |acc, arg|
-					acc << (overrides.fetch(arg) { route_eval.send(arg) })
+					acc << (overrides.fetch(arg) { route_eval.instance_variable_get(:"@#{arg}") })
 				end
 
         instance = self.new(*args)
