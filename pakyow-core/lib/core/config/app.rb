@@ -34,7 +34,7 @@ Pakyow::Config.register(:app) { |config|
   config.opt :log, true
 
   # whether or not pakyow should serve static files
-  config.opt :static
+  config.opt :static, true
 
   # stores the path to the app definition
   config.opt :path, lambda { Pakyow::App.path }
