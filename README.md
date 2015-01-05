@@ -38,7 +38,7 @@ The following resources might be handy:
 - [Website](http://pakyow.com)
 - [Warmup](http://pakyow.com/warmup)
 - [Docs](http://pakyow.com/docs)
-- [Code](http://github.com/metabahn/pakyow)
+- [Code](http://github.com/pakyow/pakyow)
 
 Want to keep up with the latest development? Follow along:
 
@@ -48,7 +48,8 @@ Want to keep up with the latest development? Follow along:
 
 # Status
 
-[![Build Status](https://travis-ci.org/metabahn/pakyow.png)](https://travis-ci.org/metabahn/pakyow)
+[![Build
+Status](https://travis-ci.org/pakyow/pakyow.png)](https://travis-ci.org/pakyow/pakyow)
 
 # License
 
