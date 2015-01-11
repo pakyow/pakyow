@@ -26,6 +26,13 @@ module Pakyow
 
         group :collection
         namespace :member, resource_id
+        
+        post_process do
+          # the show route is weird; move it to the end of get routes to avoid conflicts
+          if show_index = @routes[:get].find_index { |route| route[2] == :show }
+            @routes[:get] << @routes[:get].delete_at(show_index)
+          end
+        end
       end
 
     end

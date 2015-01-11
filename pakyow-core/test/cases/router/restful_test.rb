@@ -1,4 +1,4 @@
-require 'support/helper'
+require_relative '../../support/helper'
 
 module Pakyow
   module Test
@@ -75,6 +75,40 @@ module Pakyow
 
         assert_route_tuple(match: set.match('tests/foo', :get), path: 'tests/foo')
       end
+      
+      def test_collection_routes_with_show_first
+        set = RouteSet.new
+        fn = lambda {}
+
+        set.eval {
+          restful :test, 'tests' do
+            show do; end
+            
+            collection do
+              get 'foo', &fn
+            end
+          end
+        }
+
+        assert_route_tuple(match: set.match('tests/foo', :get), path: 'tests/foo')
+      end
+      
+      def test_collection_routes_with_show_last
+        set = RouteSet.new
+        fn = lambda {}
+
+        set.eval {
+          restful :test, 'tests' do
+            collection do
+              get 'foo', &fn
+            end
+            
+            show do; end
+          end
+        }
+
+        assert_route_tuple(match: set.match('tests/foo', :get), path: 'tests/foo')
+      end
 
       def test_nested_resources
         set = RouteSet.new
@@ -93,6 +127,20 @@ module Pakyow
 
       def test_show_view_path
         skip
+      end
+      
+      def test_show_and_new_do_not_conflict
+        set = RouteSet.new
+        fn = lambda {}
+
+        set.eval {
+          restful :test, 'tests' do
+            action :show do; end
+            action :new do; end
+          end
+        }
+
+        assert_route_tuple(match: set.match('tests/new', :get), path: 'tests/new')
       end
 
       private

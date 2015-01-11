@@ -17,24 +17,24 @@ module Pakyow
         return instance
       end
 
-      def from_scope(route_eval, overrides = {})
-        overrides.delete_if { |k, v| v.nil? }
-				args = [:path, :fns, :hooks, :templates, :group].inject([]) do |acc, arg|
-					acc << (overrides.fetch(arg) { route_eval.instance_variable_get(:"@#{arg}") })
+      def from_scope(route_eval, args = {})
+				[:path, :fns, :hooks, :templates, :group].each do |arg|
+          next unless value = route_eval.instance_variable_get(:"@#{arg}")
+          args[arg] ||= value.dup
 				end
 
-        instance = self.new(*args)
+        self.new(args)
       end
     end
 
-    def initialize(path = '/', fns = nil, hooks = nil, templates = nil, group = nil)
+    def initialize(path: '/', fns: {}, hooks: { before: [], after: [] }, templates: {}, group: nil)
       @path      = path
-      @fns       = fns || {}
-      @routes    = HTTP_METHODS.inject({}) { |acc, m| acc[m] = []; acc }
-      @hooks     = hooks || { before: [], after: [] }
-      @templates = templates || {}
+      @fns       = fns
+      @hooks     = hooks
+      @templates = templates
       @group     = group
 
+      @routes    = HTTP_METHODS.inject({}) { |acc, m| acc[m] = []; acc }
       @lookup    = { routes: {}, grouped: {} }
       @handlers  = []
     end
@@ -53,7 +53,7 @@ module Pakyow
       instance_exec(&block)
     end
 
-    # Creates or retreives a named route function. When retrieving,
+    # Creates or retreives a named route function.
     #
     def fn(name, &block)
       if block_given?
@@ -66,15 +66,18 @@ module Pakyow
     # Creates a handler.
     #
     def handler(*args, &block)
-      name, code, fns, hooks = self.class.parse_handler_args(args)
-      fns ||= []
+      args = Aargv.normalize(args, name: Symbol, code: Integer, fn: Proc, hooks: Hash)
+      
+      fns = []
+      # add the passed proc
+      fns << args[:fn] unless args[:fn].nil?
       # add passed block to fns
       fns << block if block_given?
 
       # build the final list of fns
-      fns = build_fns(fns, hooks)
+      fns = build_fns(fns, args[:hooks])
 
-      @handlers.unshift([name, code, fns])
+      @handlers.unshift([args[:name], args[:code], fns])
     end
 
     def group(*args, &block)
@@ -96,22 +99,21 @@ module Pakyow
     end
 
     def template(*args, &block)
-      name, hooks = self.class.parse_template_args(args)
-
-      @templates[name] = [hooks, block]
+      args = Aargv.normalize(args, name: Symbol, hooks: Hash)
+      @templates[args[:name]] = [args[:hooks], block]
     end
 
     def expand(t_name, g_name = nil, *args, &block)
-      path, hooks = self.class.parse_expansion_args(args)
-      path ||= ''
-
+      args = Aargv.normalize(args, path: [String, ''], hooks: Hash)
+      path = args[:path]
+      hooks = args[:hooks]
       template = @templates[t_name]
 
       evaluator = RouteExpansionEval.from_scope(self, path: File.join(descendent_path, path), group: g_name, hooks: hooks)
 			evaluator.direct_path = path
       evaluator.set_template(g_name, template)
       evaluator.eval(&block)
-
+            
       merge(evaluator)
     end
 
@@ -131,7 +133,6 @@ module Pakyow
         expand(method, *args, &block)
       else
         super
-        # action(method, *args, &block)
       end
     end
 
@@ -142,14 +143,19 @@ module Pakyow
     protected
 
 		def build_route(method, *args, &block)
-      path, name, fns, hooks = self.class.parse_route_args(args)
-
-      fns ||= []
+      args = Aargv.normalize(args, path: String, regex_path: Regexp, name: Symbol, fn: Proc, fns: Array, hooks: Hash)
+      
+      path = args[:path] || args[:regex_path]
+      name = args[:name]
+      
+      fns = args[:fns] || []
+      # add passed fn
+      fns << args[:fn] unless args[:fn].nil?
       # add passed block to fns
       fns << block if block_given?
 
       # merge route hooks with scoped hooks
-      hooks = merge_hooks(hooks || {}, @hooks)
+      hooks = merge_hooks(args[:hooks] || {}, @hooks)
 
       # build the final list of fns
       fns = build_fns(fns, hooks)
@@ -218,24 +224,6 @@ module Pakyow
     end
 
     class << self
-      def parse_route_args(args)
-        ret = []
-        args.each { |arg|
-          if arg.is_a?(Hash) # we have hooks
-            ret[3] = arg
-          elsif arg.is_a?(Array) # we have fns
-            ret[2] = arg
-          elsif arg.is_a?(Proc) # we have a fn
-            ret[2] = [arg]
-          elsif arg.is_a?(Symbol) # we have a name
-            ret[1] = arg
-          elsif !arg.nil? # we have a path
-            ret[0] = arg
-          end
-        }
-        ret
-      end
-
       def parse_namespace_args(args)
         ret = []
         args.each { |arg|
@@ -261,225 +249,6 @@ module Pakyow
         }
         ret
       end
-
-      def parse_handler_args(args)
-        ret = []
-        args.each { |arg|
-          if arg.is_a?(Hash) # we have hooks
-            ret[3] = arg
-          elsif arg.is_a?(Proc) # we have a fn
-            ret[2] = [arg]
-          elsif arg.is_a?(Integer) # we have a code
-            ret[1] = arg
-          elsif !arg.nil? # we have a name
-            ret[0] = arg
-          end
-        }
-        ret
-      end
-
-      def parse_template_args(args)
-        ret = []
-        args.each { |arg|
-          if arg.is_a?(Hash) # we have hooks
-            ret[1] = arg
-          elsif !arg.nil? # we have a name
-            ret[0] = arg
-          end
-        }
-        ret
-      end
-
-      def parse_expansion_args(args)
-        ret = []
-        args.each { |arg|
-          if arg.is_a?(Hash) # we have hooks
-            ret[1] = arg
-          elsif !arg.nil? # we have a path
-            ret[0] = arg
-          end
-        }
-        ret
-      end
     end
-  end
-
-  class RouteExpansionEval < RouteEval
-    attr_writer :direct_path
-
-    def eval(&block)
-      @template_eval = RouteTemplateEval.from_scope(self, path: path, group: @group, hooks: @hooks)
-			@template_eval.direct_path = @direct_path
-			@template_eval.eval(&@template_block)
-
-			@path = @template_eval.routes_path
-
-      super
-    end
-
-    def set_template(expansion_name, template)
-      @expansion_name = expansion_name
-      @template_block = template[1]
-
-      @hooks = merge_hooks(@hooks, template[0])
-    end
-
-    def action(method, *args, &block)
-      fn, hooks = self.class.parse_action_args(args)
-			fn = block if block_given?
-
-			# get route info from template
-			route = @template_eval.route_for_action(method)
-
-			all_fns = route[3]
-			all_fns[:fns].unshift(fn) if fn
-
-			hooks = merge_hooks(hooks, all_fns[:hooks])
-			route[3] = build_fns(all_fns[:fns], hooks)
-
-			register_route(route)
-    end
-
-		def action_group(*args, &block)
-      name, hooks = self.class.parse_action_group_args(args)
-			group = @template_eval.group_named(name)
-
-			hooks = merge_hooks(hooks, group[0])
-			group(@expansion_name, hooks, &block)
-		end
-
-		def action_namespace(*args, &block)
-      name, hooks = self.class.parse_action_namespace_args(args)
-			namespace = @template_eval.namespace_named(name)
-
-			hooks = merge_hooks(hooks, namespace[1])
-			namespace(@expansion_name, namespace[0], hooks, &block)
-		end
-
-    def method_missing(method, *args, &block)
-			if @template_eval.has_action?(method)
-				action(method, *args, &block)
-			elsif @template_eval.has_namespace?(method)
-				action_namespace(method, *args, &block)
-			elsif @template_eval.has_group?(method)
-				action_group(method, *args, &block)
-			else
-				super
-			end
-		rescue NoMethodError
-			raise UnknownTemplatePart, "No action, namespace, or group named '#{method}'"
-    end
-
-		def expand(*args, &block)
-			args[2] = File.join(@template_eval.nested_path.gsub(@path, ''), args[2])
-			super(*args, &block)
-		end
-
-		private
-
-		class << self
-      def parse_action_args(args)
-        ret = []
-        args.each { |arg|
-          if arg.is_a?(Hash) # we have hooks
-            ret[1] = arg
-          elsif arg.is_a?(Proc) # we have a fn
-            ret[0] = arg
-          end
-        }
-        ret
-      end
-
-      def parse_action_namespace_args(args)
-        ret = []
-        args.each { |arg|
-          if arg.is_a?(Hash) # we have hooks
-            ret[1] = arg
-          elsif arg.is_a?(Symbol) # we have a name
-            ret[0] = arg
-          end
-        }
-        ret
-      end
-
-      def parse_action_group_args(args)
-        ret = []
-        args.each { |arg|
-          if arg.is_a?(Hash) # we have hooks
-            ret[1] = arg
-          elsif !arg.nil? # we have a name
-            ret[0] = arg
-          end
-        }
-        ret
-      end
-		end
-  end
-
-  class RouteTemplateEval < RouteEval
-		attr_accessor :direct_path
-
-		def initialize(*args)
-			super
-
-			@groups = {}
-			@namespaces = {}
-
-			@routes_path = path
-			@nested_path = path
-		end
-
-		def has_action?(name)
-		 	!route_for_action(name).nil?
-		end
-
-		def has_group?(name)
-			!group_named(name).nil?
-		end
-
-		def has_namespace?(name)
-			!namespace_named(name).nil?
-		end
-
-		def route_for_action(name)
-			lookup.fetch(:grouped, {}).fetch(@group, {})[name]
-		end
-
-		def namespace_named(name)
-			@namespaces[name]
-		end
-
-		def group_named(name)
-			@groups[name]
-		end
-
-		def build_fns(fns, hooks)
-			{
-				fns: fns,
-				hooks: hooks,
-			}
-		end
-
-		def namespace(*args)
-      path, name, hooks = self.class.parse_namespace_args(args)
-			@namespaces[name] = [path, hooks]
-		end
-
-		def group(*args)
-      name, hooks = self.class.parse_group_args(args)
-			@groups[name] = [hooks]
-		end
-
-		def routes_path(&block)
-			return @routes_path unless block_given?
-			@routes_path = yield(@routes_path)
-			@path = @routes_path
-		end
-
-		def nested_path(&block)
-			return @nested_path unless block_given?
-			@nested_path = yield(@nested_path)
-		end
   end
 end
-
