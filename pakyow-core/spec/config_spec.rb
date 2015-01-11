@@ -79,4 +79,24 @@ describe Pakyow::Config do
       expect(Pakyow::Config.test.foo).to eq(:bar)
     end
   end
+  
+  describe 'config option added after registration' do
+    before do
+      Pakyow::Config.test.opt(:external, :value)
+    end
+    
+    it 'sets the config option' do
+      expect(Pakyow::Config.test.external).to eq(:value)
+    end
+    
+    it 'protects the default value from reset' do
+      Pakyow::Config.reset
+      expect(Pakyow::Config.test.external).to eq(:value)
+    end
+    
+    it 'allows the default value to be overridden' do
+      Pakyow::Config.test.external = :value2
+      expect(Pakyow::Config.test.external).to eq(:value2)
+    end
+  end
 end

@@ -32,14 +32,16 @@ module Pakyow
 
     attr_reader :config_name
 
-    def initialize(name)
+    def initialize(name, default_config: false)
       @config_name = name
       @opts = {}
       @envs = {}
+      @default_config = default_config
     end
 
     def defaults
-      @defaults ||= Pakyow::Config.new("#{@config_name}.defaults")
+      return if @default_config # don't define defaults for defaults
+      @defaults ||= Pakyow::Config.new("#{@config_name}.defaults", default_config: true)
     end
 
     def env(name)
@@ -55,13 +57,14 @@ module Pakyow
     end
 
     def value(name, *args)
-      value = @opts.fetch(name) { raise(ConfigError.new("No config option available for `#{@config_name}.#{name}`")) }
+      value = @opts.fetch(name) { raise(ConfigError.new("No config value available for `#{@config_name}.#{name}`")) }
       value = instance_exec(*args, &value) if value.is_a?(Proc)
       value
     end
 
     def opt(name, default = nil)
-      @opts[name] = default
+      context = defaults ? defaults : self
+      context.instance_variable_get(:@opts)[name] = default
     end
 
     def reset
@@ -83,7 +86,7 @@ module Pakyow
           end
         end
 
-        raise(ConfigError.new("No config option available for `#{@config_name}.#{method}`"))
+        raise(ConfigError.new("No config value available for `#{@config_name}.#{method}`"))
       end
     end
   end
