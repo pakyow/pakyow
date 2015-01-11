@@ -174,4 +174,12 @@ class PresenterTest < Minitest::Test
     @presenter.view = View.new('foo')
     assert_equal 'foo', @presenter.view.to_html
   end
+  
+  def test_precomposition
+    @presenter.prepare_with_context(AppContext.new(mock_request('composer')))
+    composer = @presenter.composer
+    
+    @presenter.precompose!
+    assert_equal composer.view, @presenter.view
+  end
 end

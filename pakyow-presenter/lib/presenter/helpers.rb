@@ -7,7 +7,7 @@ module Pakyow
     extend Forwardable
 
     def_delegators :@presenter, :store, :store=, :content, :view=,
-    :template=, :page=, :path, :path=, :compose, :composer
+    :template=, :page=, :path, :path=, :compose, :composer, :precompose!
 
     def view
       ViewContext.new(@presenter.view, context)

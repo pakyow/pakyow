@@ -103,6 +103,10 @@ module Pakyow
       def view
         @composer || @view || raise(MissingView)
       end
+      
+      def precompose!
+        self.view = @composer.view
+      end
 
       def view=(view)
         @view = view

@@ -6,7 +6,7 @@ class PresenterHelpersTest < Minitest::Test
   end
 
   def test_delegates_to_presenter
-    %w[store store= content view= partial template template= page page= path path= compose].each do |delegated|
+    %w[store store= content view= partial template template= page page= path path= compose precompose!].each do |delegated|
       delegated = delegated.to_sym
       @context.send(delegated)
       assert @context.presenter.called?(delegated)
