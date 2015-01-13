@@ -6,6 +6,9 @@ rvm:
 notifications:
   email: false
   hipchat: dc38d765431b4f0b3119274f433524@Conference Room
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/9d2966f0802fa60b226f
 # whitelist
 branches:
   only:
