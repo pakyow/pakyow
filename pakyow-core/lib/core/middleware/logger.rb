@@ -40,6 +40,7 @@ module Pakyow
     end
 
     def <<(msg = nil, severity = :unknown)
+      return if @log.nil?
       msg << "\n"
 
       msg = format(msg, severity) if @format
