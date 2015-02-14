@@ -71,17 +71,20 @@ module Pakyow
           routes = Router.instance.group(route_group)
           return_data = {}
 
+          route_params = params.dup
+
           if id = bindable[:id]
             return_data[:view] = lambda { |view|
               view.prepend(View.new('<input type="hidden" name="_method" value="patch">'))
             }
 
-            action = routes.path(:update, :"#{route_group}_id" => id)
+            route_params[:"#{route_group}_id"] = id
+            action = :update
           else
-            action = routes.path(:create)
+            action = :create
           end
 
-          return_data[:action] = action
+          return_data[:action] = routes.path(action, route_params)
           return_data[:method] = 'post'
           return_data
         }
