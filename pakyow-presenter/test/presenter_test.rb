@@ -182,4 +182,10 @@ class PresenterTest < Minitest::Test
     @presenter.precompose!
     assert_equal composer.view, @presenter.view
   end
+
+  def test_partials_can_be_set
+    @presenter.view.partials = { partial: 'partial1' }
+    partial = Partial.load('test/support/views/_partial1.html')
+    assert_equal partial, @presenter.view.partial(:partial)
+  end
 end

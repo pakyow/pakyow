@@ -141,7 +141,7 @@ module Pakyow
           if partial_or_path.is_a?(Partial)
             partial = partial_or_path
           else
-            partial = Partial.load(@store.expand_partial_path(path))
+            partial = Partial.load(@store.expand_partial_path(partial_or_path))
           end
 
           [name, partial]
