@@ -156,6 +156,7 @@ module Pakyow
           # gets the path for the previous page
           prev_path = normalized_path
           until page = pages[prev_path]
+            break if prev_path.empty?
             prev_path = prev_path.split('/')[0..-2].join("/")
           end
           page = page
@@ -164,6 +165,7 @@ module Pakyow
           pages[normalized_path] = page
         end
 
+        next if page.nil?
         template = template_with_name(page.info(:template))
 
         #TODO more efficient way of doing this? lot of redundant calls here
