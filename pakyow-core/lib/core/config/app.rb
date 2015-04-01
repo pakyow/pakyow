@@ -10,7 +10,11 @@ Pakyow::Config.register(:app) { |config|
   config.opt :root, File.dirname('')
 
   # the location of the app's resources
-  config.opt :resources, lambda { { default: File.join(root, 'public') } }
+  config.opt :resources, lambda {
+    @resources ||= {
+      default: File.join(root, 'public')
+    }
+  }
 
   # the location of the app's source code
   config.opt :src_dir, lambda { File.join(root, 'app', 'lib') }
