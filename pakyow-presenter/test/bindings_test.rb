@@ -33,22 +33,23 @@ class BindingsTest < Minitest::Test
       Pakyow.app.presenter.load
     end
 
-    data = Pakyow.app.presenter.binder.value_for_scoped_prop(:foo, :action, {}, {}, Pakyow.app.context)
-
-    assert_equal '/bar', data[:action]
-    assert_equal 'post', data[:method]
-
-    data = Pakyow.app.presenter.binder.value_for_scoped_prop(:foo, :action, { id: 1 }, {}, Pakyow.app.context)
-
-    assert_equal '/bar/1',  data[:action]
-    assert_equal 'post',    data[:method]
-
-    view = View.from_doc(NokogiriDoc.from_doc(Nokogiri::HTML.fragment('')))
+    data = Pakyow.app.presenter.binder.value_for_scoped_prop(:foo, :_root, {}, {}, Pakyow.app.context)
+    view = View.from_doc(StringDoc.new('<form data-scope="foo"></form>'))
     data[:view].call(view)
-    doc = Nokogiri::HTML.fragment(view.to_html).css('input')[0]
-    assert_equal 'hidden',  doc[:type]
-    assert_equal '_method', doc[:name]
-    assert_equal 'patch',     doc[:value]
+    doc = Nokogiri::HTML.fragment(view.to_html).css('form')[0]
+    assert_equal '/bar',  doc[:action]
+    assert_equal 'post', doc[:method]
+
+    data = Pakyow.app.presenter.binder.value_for_scoped_prop(:foo, :_root, { id: 1 }, {}, Pakyow.app.context)
+    view = View.from_doc(StringDoc.new('<form data-scope="foo"></form>'))
+    data[:view].call(view)
+    form_doc = Nokogiri::HTML.fragment(view.to_html).css('form')[0]
+    input_doc = Nokogiri::HTML.fragment(view.to_html).css('input')[0]
+    assert_equal '/bar/1',  form_doc[:action]
+    assert_equal 'post', form_doc[:method]
+    assert_equal 'hidden',  input_doc[:type]
+    assert_equal '_method', input_doc[:name]
+    assert_equal 'patch',     input_doc[:value]
   end
 
   def test_nested_restful_bindings_are_defined
@@ -64,14 +65,18 @@ class BindingsTest < Minitest::Test
 
     bar_id = 123
     Pakyow.app.context.request.params[:bar_id] = bar_id
-    data = Pakyow.app.presenter.binder.value_for_scoped_prop(:foo, :action, {}, {}, Pakyow.app.context)
+    data = Pakyow.app.presenter.binder.value_for_scoped_prop(:foo, :_root, {}, {}, Pakyow.app.context)
+    view = View.from_doc(StringDoc.new('<form data-scope="foo"></form>'))
+    data[:view].call(view)
+    doc = Nokogiri::HTML.fragment(view.to_html).css('form')[0]
+    assert_equal "/bar/#{bar_id}/baz", doc[:action]
+    assert_equal 'post', doc[:method]
 
-    assert_equal "/bar/#{bar_id}/baz", data[:action]
-    assert_equal 'post', data[:method]
-
-    data = Pakyow.app.presenter.binder.value_for_scoped_prop(:foo, :action, { id: 1 }, {}, Pakyow.app.context)
-
-    assert_equal "/bar/#{bar_id}/baz/1",  data[:action]
-    assert_equal 'post',    data[:method]
+    data = Pakyow.app.presenter.binder.value_for_scoped_prop(:foo, :_root, { id: 1 }, {}, Pakyow.app.context)
+    view = View.from_doc(StringDoc.new('<form data-scope="foo"></form>'))
+    data[:view].call(view)
+    doc = Nokogiri::HTML.fragment(view.to_html).css('form')[0]
+    assert_equal "/bar/#{bar_id}/baz/1",  doc[:action]
+    assert_equal 'post',    doc[:method]
   end
 end
