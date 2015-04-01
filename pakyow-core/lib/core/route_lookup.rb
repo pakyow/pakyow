@@ -35,14 +35,7 @@ module Pakyow
         split_path[v[:url_position]] = data.delete(v[:var])
       }
 
-      populated = File.join('/', split_path.join('/'))
-
-      # add remaining data to query string
-      unless data.empty?
-        populated << '/?' + data.map { |k,v| "#{k}=#{v}" }.join('&')
-      end
-
-      return populated
+      File.join('/', split_path.join('/'))
     end
   end
 end

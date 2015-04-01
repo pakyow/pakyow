@@ -30,17 +30,6 @@ module Pakyow
         assert_equal '/foo/bar/1', RouteLookup.new.path(:foo2, id: 1)
       end
 
-      def test_extra_route_data_added_as_query_string
-        rtr = Router.instance
-        rtr.set(:test) {
-          get('foo/:id', :foo1)
-          get('foo/bar/:id', :foo2)
-        }
-
-        assert_equal '/foo/1/?test=success', RouteLookup.new.path(:foo1, id: 1, test: 'success')
-        assert_equal '/foo/bar/1/?test=success', RouteLookup.new.path(:foo2, id: 1, test: 'success')
-      end
-
       def test_grouped_routes_can_be_looked_up_by_name_and_group
         rtr = Router.instance
         rtr.set(:test) {
