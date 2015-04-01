@@ -7,7 +7,7 @@ module Pakyow
         resource_id = ":#{@group}_id"
 
         nested_path { |path| File.join(path, resource_id) }
-        view_path = direct_path.gsub(/:[^\/]+/, '').split('/').reject { |p| p.empty? }.join('/')
+        view_path = nested_path.gsub(/:[^\/]+/, '').split('/').reject { |p| p.empty? }.join('/')
 
         fn :reset_view_path do
           presenter.path = File.join(view_path, 'show') if @presenter
