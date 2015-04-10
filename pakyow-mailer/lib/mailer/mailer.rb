@@ -55,8 +55,8 @@ module Pakyow
             Pakyow.logger.warn "#{w[:message]} (#{w[:level]}) may not render properly in #{w[:clients]}"
           end
 
-          @processed_content[:html] = @premailer.to_inline_css
           @processed_content[:text] = @content || @premailer.to_plain_text
+          @processed_content[:html] = @premailer.to_inline_css
         else
           @processed_content[:text] = @content
         end
