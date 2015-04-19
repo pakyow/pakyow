@@ -125,5 +125,9 @@ module Pakyow
       @format = format
       self["Content-Type"] = Rack::Mime.mime_type(".#{format}")
     end
+
+    def type
+      self["Content-Type"]
+    end
   end
 end
