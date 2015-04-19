@@ -118,6 +118,7 @@ module Pakyow
       super
 
       self["Content-Type"] ||= 'text/html'
+      @format = Rack::Mime::MIME_TYPES.key(type)
     end
 
     def format=(format)
