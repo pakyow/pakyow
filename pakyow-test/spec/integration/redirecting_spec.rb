@@ -15,7 +15,7 @@ context 'when testing a route that redirects' do
 
   it 'exposes the type of redirect' do
     get :redirect do |sim|
-      expect(sim.redirected?(as: :redirect)).to eq(true)
+      expect(sim.redirected?(as: :found)).to eq(true)
     end
   end
 end
