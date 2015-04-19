@@ -68,8 +68,14 @@ module Pakyow
 
     # Looks up and populates a path with data
     #
-    def path(name, data = nil)
-      RouteLookup.new.path(name, data)
+    def path(name_or_path, data = nil)
+      if name_or_path.is_a?(String)
+        return name_or_path
+      elsif name_or_path.is_a?(Hash)
+        RouteLookup.new.group(name_or_path.keys[0]).path(name_or_path.values[0], data)
+      else
+        RouteLookup.new.path(name_or_path, data)
+      end
     end
 
     # Looks up a route grouping

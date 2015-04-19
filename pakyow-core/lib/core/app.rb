@@ -336,8 +336,9 @@ module Pakyow
 
     # Routes the request to different logic.
     #
-    def reroute(path, method = nil)
-      request.setup(path, method)
+    def reroute(location, method = nil)
+      location = Router.instance.path(location)
+      request.setup(location, method)
 
       call_stack(:before, :route)
       call_stack(:after, :match)
@@ -372,7 +373,7 @@ module Pakyow
     # Redirects to location (immediately).
     #
     def redirect(location, status_code = 302)
-      location = router.path(location) if location.is_a?(Symbol)
+      location = Router.instance.path(location)
 
       headers = response ? response.header : {}
       headers = headers.merge({'Location' => location})
