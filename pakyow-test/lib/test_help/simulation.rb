@@ -8,8 +8,9 @@ module Pakyow
       REDIRECT_STATUSES = [301, 302, 307]
 
       attr_reader :app
-      def_delegators :app, :request, :response, :req, :res
+      def_delegators :app, :request, :response, :req, :res, :presenter
       def_delegators :response, :status, :type, :format
+      def_delegators :presenter, :view
 
       def initialize(app)
         @app = app

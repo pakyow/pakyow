@@ -24,5 +24,20 @@ Pakyow::App.define do
     group :foo do
       get :bar, '/bar' do; end
     end
+
+    get :present, '/present/:path' do
+      presenter.path = params[:path]
+    end
+
+    get :title, '/title/:title' do
+      presenter.path = '/'
+      view.title = params[:title]
+    end
+
+    get :scoped, '/scoped' do
+      if name = params[:name]
+        view.scope(:post).apply([{ name: name }])
+      end
+    end
   end
 end

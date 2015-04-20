@@ -6,8 +6,9 @@ module Pakyow
       attr_reader :env, :path, :method, :params
 
       def initialize(name_or_path, method: :get, params: {}, session: {}, cookies: {})
-        @path   = router.path(name_or_path)
+        @path   = router.path(name_or_path, params)
         @method = method
+        #TODO handle complex params as form data
         @params = params
         @env    = {
           'REQUEST_METHOD'            => @method.to_s.upcase,
@@ -21,8 +22,10 @@ module Pakyow
       end
 
       def run(&block)
-        Pakyow.app.process(env)
-        sim = Simulation.new(Pakyow.app)
+        app = Pakyow.app.dup
+        app.process(env)
+
+        sim = Simulation.new(app)
 
         return sim unless block_given?
         yield sim

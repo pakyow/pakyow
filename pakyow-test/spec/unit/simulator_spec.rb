@@ -80,13 +80,8 @@ describe Pakyow::TestHelp::Simulator do
   end
 
   describe 'run' do
-    it 'calls process on app with env' do
-      expect(Pakyow.app).to receive(:process).with(simulator.env)
-      simulator.run
-    end
-
     it 'creates a simulation with app' do
-      expect(Pakyow::TestHelp::Simulation).to receive(:new).with(Pakyow.app)
+      expect(Pakyow::TestHelp::Simulation).to receive(:new).with(Pakyow::App)
       simulator.run
     end
 
