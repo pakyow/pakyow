@@ -16,20 +16,22 @@ module Pakyow
       end
 
       #TODO likely need to handle nested observations
-      def observing(scope, action, values)
+      def observing(scope, action, traversal, values)
         @observations ||= []
         @observations << {
           scope: scope,
           action: action,
+          traversal: traversal,
           values: values
         }
       end
 
-      def observed?(scope, action, values)
+      def observed?(scope, action, traversal, values)
         return false if @observations.nil?
         @observations.each do |observation|
           next if observation[:scope] != scope
           next if observation[:action] != action
+          next if observation[:traversal] != traversal
 
           values.each_pair do |k, v|
             next if observation[:values][k] != v
@@ -45,7 +47,18 @@ module Pakyow
 
       def handle_value(value)
         if VIEW_CLASSES.include?(value.class)
-          return ObservableView.new(value, self.is_a?(ObservableView) ? presenter : self)
+          traversal = []
+          if self.is_a?(ObservableView)
+            parent = presenter
+            if view.is_a?(Pakyow::Presenter::View) || view.is_a?(Pakyow::Presenter::ViewCollection)
+              traversal = @traversal.dup
+              traversal << value.scoped_as
+            end
+          else
+            parent = self
+          end
+
+          return ObservableView.new(value, parent, traversal)
         end
 
         value

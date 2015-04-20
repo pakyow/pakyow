@@ -66,6 +66,39 @@ context 'when testing a route that presents' do
     end
   end
 
+  context 'and the route applies data to nested scopes' do
+    let :data do
+      [
+        {
+          name: 'post one',
+          comments: [
+            { name: 'comment one' }
+          ]
+        }
+      ]
+    end
+
+    it 'appears to have bound data to the nested scope' do
+      get :nested, with: { data: data } do |sim|
+        sim.view.scope(:post).with do |view|
+          expect(view.applied?(data)).to eq(true)
+
+          # checking for a specific value
+          view.for(data) do |view, datum|
+            expect(view.prop(:name).bound?(datum[:name])).to eq(true)
+            expect(view.scope(:comment).applied?(datum[:comments])).to eq(true)
+          end
+        end
+      end
+    end
+
+    it 'does not appear to have bound data to a non-nested scope of the same name' do
+      get :nested, with: { data: data } do |sim|
+        expect(sim.view.scope(:comment).applied?).to eq(false)
+      end
+    end
+  end
+
   #TODO test these: with, for, match, repeat, bind
 
   context 'and the route manipulates the view' do

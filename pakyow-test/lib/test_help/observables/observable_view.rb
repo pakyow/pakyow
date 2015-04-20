@@ -4,11 +4,12 @@ module Pakyow
   module TestHelp
     class ObservableView
       include Observable
-      attr_reader :view, :presenter
+      attr_reader :view, :presenter, :traversal
 
-      def initialize(view, presenter)
+      def initialize(view, presenter, traversal)
         @view = view
         @presenter = presenter
+        @traversal = traversal
       end
 
       def observable
@@ -33,8 +34,10 @@ module Pakyow
         view.prop(name).length > 0
       end
 
-      def applied?(data)
-        presenter.observed?(view.scoped_as, :apply, data: data)
+      def applied?(data = nil)
+        values = {}
+        values[:data] = data if data
+        presenter.observed?(view.scoped_as, :apply, traversal, values)
       end
 
       def bound?(value)
@@ -43,8 +46,13 @@ module Pakyow
       end
 
       def apply(data, bindings: {}, context: nil, &block)
-        presenter.observing(view.scoped_as, :apply, data: data, bindings: bindings, context: context, block: block)
-        handle_value(view.apply(data, bindings: bindings, context: context, &block))
+        presenter.observing(view.scoped_as, :apply, traversal, data: data, bindings: bindings, context: context, block: block)
+
+        result = view.apply(data, bindings: bindings, context: context) do |view, datum|
+          block.call(handle_value(view), datum)
+        end
+
+        handle_value(result)
       end
     end
   end

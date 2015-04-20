@@ -39,5 +39,13 @@ Pakyow::App.define do
         view.scope(:post).apply(data)
       end
     end
+
+    get :nested, '/nested' do
+      if data = params[:data]
+        view.scope(:post).apply(data) do |view, datum|
+          view.scope(:comment).apply(datum[:comments])
+        end
+      end
+    end
   end
 end
