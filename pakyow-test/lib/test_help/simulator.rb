@@ -8,7 +8,6 @@ module Pakyow
       def initialize(name_or_path, method: :get, params: {}, session: {}, cookies: {})
         @path   = router.path(name_or_path, params)
         @method = method
-        #TODO handle complex params as form data
         @params = params
         @env    = {
           'REQUEST_METHOD'            => @method.to_s.upcase,
@@ -17,7 +16,8 @@ module Pakyow
           'QUERY_STRING'              => @params.to_a.map { |p| p.join('=') }.join('&'),
           'rack.session'              => session,
           'rack.request.cookie_hash'  => cookies,
-          'rack.input'                => StringIO.new
+          'rack.input'                => StringIO.new,
+          'pakyow.params'             => @params
         }
       end
 

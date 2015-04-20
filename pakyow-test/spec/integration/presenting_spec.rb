@@ -47,7 +47,7 @@ context 'when testing a route that presents' do
     end
 
     it 'appears to have bound data to the applied scope' do
-      get :scoped, with: { name: 'one' } do |sim|
+      get :scoped, with: { data: data } do |sim|
         sim.view.scope(:post).with do |view|
           expect(view.applied?(data)).to eq(true)
 
@@ -60,7 +60,7 @@ context 'when testing a route that presents' do
     end
 
     it 'does not appear to have bound data to a non-applied scope' do
-      get :scoped, with: { name: 'one' } do |sim|
+      get :scoped, with: { data: data } do |sim|
         expect(sim.view.scope(:other).applied?(data)).to eq(false)
       end
     end

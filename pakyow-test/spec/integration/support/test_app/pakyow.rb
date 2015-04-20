@@ -35,8 +35,8 @@ Pakyow::App.define do
     end
 
     get :scoped, '/scoped' do
-      if name = params[:name]
-        view.scope(:post).apply([{ name: name }])
+      if data = params[:data]
+        view.scope(:post).apply(data)
       end
     end
   end

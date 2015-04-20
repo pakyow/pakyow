@@ -4,6 +4,7 @@ require '/users/bryanp/code/pakyow/libs/pakyow/pakyow-core/lib/pakyow-core'
 require '/users/bryanp/code/pakyow/libs/pakyow/pakyow-presenter/lib/pakyow-presenter'
 require '/users/bryanp/code/pakyow/libs/pakyow/pakyow-mailer/lib/pakyow-mailer'
 
+require_relative 'test_help/ext/request'
 require_relative 'test_help/ext/response'
 
 require_relative 'test_help/mocks/presenter_mock'
