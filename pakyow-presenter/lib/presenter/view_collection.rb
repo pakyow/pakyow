@@ -79,6 +79,10 @@ module Pakyow
         @views.length
       end
 
+      def scoped_as
+        @views.first.scoped_as
+      end
+
       def scope(name)
         inject(ViewCollection.new) { |coll, view|
           scopes = view.scope(name)
