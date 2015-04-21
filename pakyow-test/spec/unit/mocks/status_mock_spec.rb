@@ -1,3 +1,4 @@
+require_relative '../support/unit_helper'
 require_relative '../../../lib/test_help/mocks/status_mock'
 
 describe Pakyow::TestHelp::MockStatus do

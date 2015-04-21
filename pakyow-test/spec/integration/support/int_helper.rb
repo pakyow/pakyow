@@ -1,4 +1,4 @@
-require_relative '../../../lib/pakyow-test'
+require_relative '../../spec_helper'
 
 require_relative 'test_app/pakyow'
 

@@ -1,4 +1,4 @@
-require_relative 'support/spec_helper'
+require_relative 'support/int_helper'
 
 context 'when testing a route that reroutes' do
   it 'appears to have rerouted' do

@@ -1,3 +1,4 @@
+require_relative 'support/unit_helper'
 require_relative '../../lib/test_help/simulator'
 
 describe Pakyow::TestHelp::Simulator do
@@ -80,8 +81,12 @@ describe Pakyow::TestHelp::Simulator do
   end
 
   describe 'run' do
+    before do
+      Pakyow.app = instance_double('Pakyow::App').as_null_object
+    end
+
     it 'creates a simulation with app' do
-      expect(Pakyow::TestHelp::Simulation).to receive(:new).with(Pakyow::App)
+      expect(Pakyow::TestHelp::Simulation).to receive(:new).with(Pakyow.app.class)
       simulator.run
     end
 

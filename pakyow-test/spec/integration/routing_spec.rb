@@ -1,4 +1,4 @@
-require_relative 'support/spec_helper'
+require_relative 'support/int_helper'
 
 context 'when testing a route' do
   it 'routes to route by path' do

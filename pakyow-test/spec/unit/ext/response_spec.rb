@@ -1,3 +1,4 @@
+require_relative '../support/unit_helper'
 require_relative '../../../lib/test_help/ext/response'
 
 describe Pakyow::Response do

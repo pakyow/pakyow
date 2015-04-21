@@ -14,4 +14,7 @@ group :test do
   gem 'minitest'
   gem 'rspec'
   gem 'pry'
+
+  gem 'simplecov', require: false, group: :test
+  gem 'simplecov-console'
 end
