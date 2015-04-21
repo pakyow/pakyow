@@ -1,8 +1,7 @@
-#TODO replace w/ require 'pakyow'
-require '/users/bryanp/code/pakyow/libs/pakyow/pakyow-support/lib/pakyow-support'
-require '/users/bryanp/code/pakyow/libs/pakyow/pakyow-core/lib/pakyow-core'
-require '/users/bryanp/code/pakyow/libs/pakyow/pakyow-presenter/lib/pakyow-presenter'
-require '/users/bryanp/code/pakyow/libs/pakyow/pakyow-mailer/lib/pakyow-mailer'
+require 'pakyow-support'
+require 'pakyow-core'
+require 'pakyow-presenter'
+require 'pakyow-mailer'
 
 require_relative 'test_help/ext/request'
 require_relative 'test_help/ext/response'
