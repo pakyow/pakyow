@@ -47,5 +47,15 @@ Pakyow::App.define do
         end
       end
     end
+
+    get :attribute, '/attribute' do
+      presenter.path = 'scoped'
+      view.scope(:post).attrs[params[:name].to_sym] = params[:value]
+    end
+
+    get :remove, '/remove' do
+      presenter.path = 'scoped'
+      view.scope(:post).remove
+    end
   end
 end

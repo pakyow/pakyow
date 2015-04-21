@@ -34,6 +34,10 @@ module Pakyow
         view.prop(name).length > 0
       end
 
+      def exists?
+        view.length > 0
+      end
+
       def applied?(data = nil)
         values = {}
         values[:data] = data if data

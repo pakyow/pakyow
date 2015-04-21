@@ -103,11 +103,21 @@ context 'when testing a route that presents' do
 
   context 'and the route manipulates the view' do
     context 'by changing an attribute' do
-      it 'appears that the attribute was changed'
+      it 'appears that the attribute was changed' do
+        get :attribute, with: { name: 'class', value: 'foo' } do |sim|
+          expect(sim.view.scope(:post)[0].attrs.class.value).to eq(['foo'])
+        end
+      end
     end
 
     context 'by removing a node' do
-      it 'appears that the node was removed'
+      it 'appears that the node was removed' do
+        get :remove do |sim|
+          expect(sim.view.scope(:post).exists?).to eq(false)
+        end
+      end
     end
+
+    #TODO other view manipulations
   end
 end
