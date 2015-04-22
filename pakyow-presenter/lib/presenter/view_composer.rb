@@ -72,7 +72,7 @@ module Pakyow
       def template=(template)
         unless template.is_a?(Template)
           # get template by name
-          template = @store.template(template)
+          template = @store.template(template.to_sym)
         end
 
         @template = template

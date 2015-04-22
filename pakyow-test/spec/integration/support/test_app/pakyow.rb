@@ -48,6 +48,8 @@ Pakyow::App.define do
       end
     end
 
+    ### view manipulation
+
     get :attribute, '/attribute' do
       presenter.path = 'scoped'
       view.scope(:post).attrs[params[:name].to_sym] = params[:value]
@@ -56,6 +58,48 @@ Pakyow::App.define do
     get :remove, '/remove' do
       presenter.path = 'scoped'
       view.scope(:post).remove
+    end
+
+    get :text, '/text' do
+      presenter.path = 'scoped'
+      view.scope(:post).text = params[:text]
+    end
+
+    get :html, '/html' do
+      presenter.path = 'scoped'
+      view.scope(:post).html = params[:html]
+    end
+
+    get :append, '/append' do
+      presenter.path = 'scoped'
+      view.scope(:post).append(View.new(params[:text]))
+    end
+
+    get :prepend, '/prepend' do
+      presenter.path = 'scoped'
+      view.scope(:post).prepend(View.new(params[:text]))
+    end
+
+    get :after, '/after' do
+      presenter.path = 'scoped'
+      view.scope(:post).after(View.new(params[:text]))
+    end
+
+    get :before, '/before' do
+      presenter.path = 'scoped'
+      view.scope(:post).before(View.new(params[:text]))
+    end
+
+    get :replace, '/replace' do
+      presenter.path = 'scoped'
+      view.scope(:post).replace(View.new(params[:text]))
+    end
+
+    ### view composition
+
+    get :compose_template, '/template' do
+      presenter.path = '/'
+      view.template = params[:template]
     end
   end
 end

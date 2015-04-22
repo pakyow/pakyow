@@ -26,6 +26,41 @@ module Pakyow
         end
       end
 
+      def apply(data, bindings: {}, context: nil, &block)
+        presenter.observing(view.scoped_as, :apply, traversal, data: data, bindings: bindings, context: context, block: block)
+
+        result = view.apply(data, bindings: bindings, context: context) do |view, datum|
+          block.call(handle_value(view), datum)
+        end
+
+        handle_value(result)
+      end
+
+      def append(appendable_view)
+        presenter.observing(view.scoped_as, :append, traversal, view: appendable_view)
+        handle_value(view.append(appendable_view))
+      end
+
+      def prepend(prependable_view)
+        presenter.observing(view.scoped_as, :prepend, traversal, view: prependable_view)
+        handle_value(view.prepend(prependable_view))
+      end
+
+      def after(after_view)
+        presenter.observing(view.scoped_as, :after, traversal, view: after_view)
+        handle_value(view.after(after_view))
+      end
+
+      def before(before_view)
+        presenter.observing(view.scoped_as, :before, traversal, view: before_view)
+        handle_value(view.before(before_view))
+      end
+
+      def replace(replace_view)
+        presenter.observing(view.scoped_as, :replace, traversal, view: replace_view)
+        handle_value(view.replace(replace_view))
+      end
+
       def scope?(name)
         view.scope(name).length > 0
       end
@@ -45,18 +80,37 @@ module Pakyow
       end
 
       def bound?(value)
-        #TODO handle checking bound values of form fields
         view[0].text == value
       end
 
-      def apply(data, bindings: {}, context: nil, &block)
-        presenter.observing(view.scoped_as, :apply, traversal, data: data, bindings: bindings, context: context, block: block)
+      def appended?(appended_view = nil)
+        values = {}
+        values[:view] = appended_view if appended_view
+        presenter.observed?(view.scoped_as, :append, traversal, values)
+      end
 
-        result = view.apply(data, bindings: bindings, context: context) do |view, datum|
-          block.call(handle_value(view), datum)
-        end
+      def prepended?(prepended_view = nil)
+        values = {}
+        values[:view] = prepended_view if prepended_view
+        presenter.observed?(view.scoped_as, :prepend, traversal, values)
+      end
 
-        handle_value(result)
+      def after?(after_view = nil)
+        values = {}
+        values[:view] = after_view if after_view
+        presenter.observed?(view.scoped_as, :after, traversal, values)
+      end
+
+      def before?(before_view = nil)
+        values = {}
+        values[:view] = before_view if before_view
+        presenter.observed?(view.scoped_as, :before, traversal, values)
+      end
+
+      def replaced?(replace_view = nil)
+        values = {}
+        values[:view] = replace_view if replace_view
+        presenter.observed?(view.scoped_as, :replace, traversal, values)
       end
     end
   end

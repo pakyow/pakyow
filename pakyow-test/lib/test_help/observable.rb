@@ -58,6 +58,12 @@ module Pakyow
             parent = self
           end
 
+          if value.is_a?(Pakyow::Presenter::ViewCollection)
+            value.instance_variable_get(:@views).map! { |collected_view|
+              ObservableView.new(collected_view, parent, traversal)
+            }
+          end
+
           return ObservableView.new(value, parent, traversal)
         end
 
