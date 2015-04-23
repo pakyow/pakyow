@@ -82,7 +82,12 @@ describe Pakyow::TestHelp::Simulator do
 
   describe 'run' do
     before do
+      @original_app = Pakyow.app
       Pakyow.app = instance_double('Pakyow::App').as_null_object
+    end
+
+    after do
+      Pakyow.app = @original_app
     end
 
     it 'creates a simulation with app' do
