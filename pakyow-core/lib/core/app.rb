@@ -143,15 +143,15 @@ module Pakyow
         config.app.loaded_envs = envs
         config.env = envs.first.to_sym
 
-        # run global config first
-        if global_proc = @@config[:global]
-          config.app_config(&global_proc)
-        end
-
-        # then run other envs
+        # run specific config first
         envs.each do |env|
           next unless config_proc = @@config[env.to_sym]
           config.app_config(&config_proc)
+        end
+
+        # then run global config
+        if global_proc = @@config[:global]
+          config.app_config(&global_proc)
         end
       end
 

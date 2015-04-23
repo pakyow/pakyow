@@ -48,8 +48,8 @@ module Pakyow
         assert_equal(true, $global_config_was_executed)
       end
 
-      def test_env_config_supercedes_global_config
-        assert_equal(true, $env_overwrites_global_config)
+      def test_global_config_supercedes_env
+        assert_equal(false, $env_overwrites_global_config)
       end
 
       def test_config_loaded_before_middleware
