@@ -188,4 +188,9 @@ class PresenterTest < Minitest::Test
     partial = Partial.load('test/support/views/_partial1.html')
     assert_equal partial, @presenter.view.partial(:partial)
   end
+
+  def test_can_check_for_existence_of_view
+    assert @presenter.view?('/')
+    refute @presenter.view?('/fail')
+  end
 end

@@ -103,7 +103,15 @@ module Pakyow
       def view
         @composer || @view || raise(MissingView)
       end
-      
+
+      def view?(path)
+        if composer_for_path(path)
+          true
+        else
+          false
+        end
+      end
+
       def precompose!
         self.view = @composer.view
       end
@@ -172,13 +180,10 @@ module Pakyow
       end
 
       def setup_for_path(path, explicit = false)
-        @view_stores.each do |name, store|
-          begin
-            @composer = store.composer(path)
-            @path = path
-            return
-          rescue MissingView
-          end
+        if composer = composer_for_path(path)
+          @composer = composer
+          @path = path
+          return
         end
 
         e = MissingView.new("No view at path '#{path}'")
@@ -203,6 +208,17 @@ module Pakyow
 
       def load_processors
         @processor_store = Pakyow::App.processors
+      end
+
+      def composer_for_path(path)
+        @view_stores.each do |name, store|
+          begin
+            return store.composer(path)
+          rescue MissingView
+          end
+        end
+
+        return nil
       end
     end
   end
