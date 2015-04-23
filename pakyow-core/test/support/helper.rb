@@ -21,7 +21,7 @@ module ReqResHelpers
     opts = {
       "PATH_INFO" => path,
       "REQUEST_METHOD" => method.to_s.upcase,
-      "rack.input" => {},
+      "rack.input" => StringIO.new,
     }.merge(headers)
 
     Pakyow::Request.new(opts)

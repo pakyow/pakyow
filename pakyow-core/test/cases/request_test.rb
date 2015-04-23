@@ -30,6 +30,20 @@ module Pakyow
         assert_equal 1, @request.referer_parts.length
         assert_equal 'bar', @request.referer_parts[0]
       end
+
+      def test_parses_json_body
+        env = @request.instance_variable_get(:@env)
+        env['rack.input'] = StringIO.new('{"hello": "goodbye"}')
+        @request.instance_variable_set(:@env, env)
+        assert_equal 'goodbye', @request.params[:hello]
+      end
+
+      def test_handles_bad_json
+        env = @request.instance_variable_get(:@env)
+        env['rack.input'] = StringIO.new('{"hello": "goodbye"')
+        @request.instance_variable_set(:@env, env)
+        assert_equal nil, @request.params[:hello]
+      end
     end
   end
 end

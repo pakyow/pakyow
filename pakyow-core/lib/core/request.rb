@@ -1,3 +1,5 @@
+require 'json'
+
 module Pakyow
 
   # The Request object.
@@ -56,7 +58,9 @@ module Pakyow
 
     # Returns indifferent params (see {HashUtils.strhash} for more info on indifferent hashes).
     def params
-      @params ||= Hash.strhash(super)
+      @params ||= Hash.strhash(super.merge(JSON.parse(body.read.to_s)))
+    rescue JSON::JSONError
+      @params = Hash.strhash(super)
     end
 
     # Returns array of url components.
