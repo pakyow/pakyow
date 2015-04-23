@@ -64,6 +64,6 @@ end
 
 Now create files within the `spec` directory that follow the `*_spec.rb` naming convention and use `spec` to run the specs.
 
-## Simulator Usage
+## Usage
 
-TODO
+This is a work in progress and not all test cases are passing. Documentation is also unfinished. We recommend getting started by taking a look at the [integration tests](https://github.com/pakyow/pakyow/tree/master/pakyow-test/spec/integration).
