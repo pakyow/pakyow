@@ -200,7 +200,7 @@ describe "binding data to" do
         assert_same data, ctx_datum
       end
 
-      it "binds a hash" do
+      it "binds a hash with symbol keys" do
         data = {:full_name => "Jugyo Kohno", :email => "jugyo@example.com"}
         view = view(:single)
         view.scope(:contact)[0].bind(data)
@@ -209,6 +209,17 @@ describe "binding data to" do
 
         assert_equal data[:full_name], doc.css('.contact span').first.content
         assert_equal data[:email],     doc.css('.contact a').first.content
+      end
+
+      it "binds a hash with string keys" do
+        data = {'full_name' => "Jugyo Kohno", 'email' => "jugyo@example.com"}
+        view = view(:single)
+        view.scope(:contact)[0].bind(data)
+
+        doc = ndoc_from_view(view)
+
+        assert_equal data['full_name'], doc.css('.contact span').first.content
+        assert_equal data['email'],     doc.css('.contact a').first.content
       end
 
       it "binds an object without hash lookup syntax" do
