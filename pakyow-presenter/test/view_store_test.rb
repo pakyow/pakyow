@@ -29,13 +29,13 @@ class ViewStoreTest < Minitest::Test
   end
 
   def test_uses_default_template
-    assert_equal(:pakyow, @store.template('/').name)
-    assert_equal(:pakyow, @store.template('').name)
+    assert_equal(:default, @store.template('/').name)
+    assert_equal(:default, @store.template('').name)
 
-    assert_equal(:pakyow, @store.template('pageless').name)
-    assert_equal(:pakyow, @store.template('/pageless').name)
-    assert_equal(:pakyow, @store.template('pageless/').name)
-    assert_equal(:pakyow, @store.template('/pageless/').name)
+    assert_equal(:default, @store.template('pageless').name)
+    assert_equal(:default, @store.template('/pageless').name)
+    assert_equal(:default, @store.template('pageless/').name)
+    assert_equal(:default, @store.template('/pageless/').name)
   end
 
   def test_uses_page_specified_template

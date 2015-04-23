@@ -4,21 +4,21 @@ module Pakyow
       MATTER_MATCHER = /^(---\s*\n.*?\n?)^(---\s*$\n?)/m
 
       class << self
-        def load(path)
+        def load(path, view_store_name = :default)
           format   = String.split_at_last_dot(path)[-1]
           name     = File.basename(path, '.*').to_sym
           contents = FileTest.file?(path) ? File.read(path) : nil
 
-          return Page.new(name, contents, path, format)
+          return Page.new(name, contents, path, format, view_store_name)
         end
       end
 
       attr_reader :path, :contents
 
-      def initialize(name, contents, path, format = :html)
+      def initialize(name, contents, path, format = :html, view_store_name = :default)
         @name, @contents, @path, @format = name, contents, path, format
 
-        @info    = { template: :pakyow }
+        @info    = { template: Pakyow::App.config.presenter.default_view(view_store_name) }
         @containers = {}
 
         unless @contents.nil?

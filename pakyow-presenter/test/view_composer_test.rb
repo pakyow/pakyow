@@ -8,7 +8,7 @@ describe ViewComposer do
   end
 
   it "composes at a path" do
-    compose_at('/').view.must_equal view_for(:pakyow, 'index.html')
+    compose_at('/').view.must_equal view_for(:default, 'index.html')
   end
 
   it "composes with a page" do

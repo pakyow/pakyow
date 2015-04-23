@@ -8,7 +8,7 @@ Pakyow::Config.register(:presenter) { |config|
   }
 
   # the default view for each view store
-  config.opt :default_views, { default: 'pakyow.html' }
+  config.opt :default_views, { default: :default }
 
   # a convenience option to lookup the default_view for a view store by name
   config.opt :default_view, lambda { |store_name|
