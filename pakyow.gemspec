@@ -26,6 +26,7 @@ Gem::Specification.new do |s|
   s.add_dependency('pakyow-presenter',  version)
   s.add_dependency('pakyow-mailer',     version)
   s.add_dependency('pakyow-rake',       version)
+  s.add_dependency('pakyow-test',       version)
 
   s.add_dependency('bundler',           '~> 1.5')
 end
