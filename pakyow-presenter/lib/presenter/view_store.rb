@@ -144,7 +144,7 @@ module Pakyow
         next if File.basename(path)[0,1] == '_'
 
         # skip non-empty folders (these files will be picked up)
-        next if !Dir.glob(File.join(path, 'index.*')).empty?
+        next if Dir.glob(File.join(path, 'index.*')).empty?
 
         normalized_path = normalize_path(path)
 
