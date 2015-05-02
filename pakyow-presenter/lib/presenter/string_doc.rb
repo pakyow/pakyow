@@ -24,13 +24,12 @@ module Pakyow
       def initialize_copy(original_doc)
         super
 
-        original_structure = original_doc.instance_variable_get(:@structure)
-        @structure = Utils::Dup.deep(original_structure) if original_structure
+        if original_structure = original_doc.instance_variable_get(:@structure)
+          @structure = Utils::Dup.deep(original_structure)
+        end
 
-        original_node = original_doc.instance_variable_get(:@node)
-        if original_node
-          node_index = original_structure.index(original_node)
-          @node = @structure[node_index]
+        if original_doc.node?
+          @node = @structure[original_doc.node_index]
         end
       end
 
@@ -116,7 +115,7 @@ module Pakyow
         doc = StringDoc.ensure(doc)
 
         if doc.node?
-          @structure.push(doc.node)
+          @structure.insert(node_index + 1, doc.node)
         else
           @structure.concat(doc.structure)
         end
@@ -134,7 +133,7 @@ module Pakyow
 
       def replace(doc)
         doc = StringDoc.ensure(doc)
-        index = @structure.index(node) || 0
+        index = node_index || 0
 
         if doc.node?
           @structure.insert(index + 1, node)
@@ -184,6 +183,11 @@ module Pakyow
       def node
         return @structure if @structure.empty?
         return @node || @structure[0]
+      end
+
+      def node_index
+        return nil unless node?
+        @structure.index { |n| n.equal?(@node) }
       end
 
       def node?

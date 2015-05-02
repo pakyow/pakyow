@@ -34,6 +34,21 @@ shared_examples :matching_specs do
         expect(view.scope(:foo).length).to eq(data.length)
       end
     end
+
+    context 'when the view has a sibling' do
+      let(:view) {
+        Pakyow::Presenter::View.new(<<-D)
+          <div data-scope="foo"></div><span>bar</span>
+        D
+      }
+
+      let(:data) { [0, 1, 2] }
+
+      it 'respects the original order of nodes' do
+        view.scope(:foo)[0].match(data)
+        expect(view.to_html.strip).to eq('<div data-scope="foo"></div><div data-scope="foo"></div><div data-scope="foo"></div><span>bar</span>')
+      end
+    end
   end
 
   describe 'matching a view collection with data' do

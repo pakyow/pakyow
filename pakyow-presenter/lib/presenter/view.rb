@@ -182,16 +182,16 @@ module Pakyow
         if data.empty?
           remove
         else
-          # dup for later
-          original_view = dup if data.length > 1
-
           # the original view match the first datum
           coll << self
 
+          working = self
+
           # create views for the other datums
           data[1..-1].inject(coll) { |coll|
-            duped_view = original_view.dup
-            after(duped_view)
+            duped_view = working.soft_copy
+            working.after(duped_view)
+            working = duped_view
             coll << duped_view
           }
         end
