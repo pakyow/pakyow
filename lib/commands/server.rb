@@ -3,7 +3,7 @@ if ARGV.first == '--help' || ARGV.first == '-h'
 else
   $:.unshift(Dir.pwd)
 
-  require 'pakyow'
+  require 'app/setup'
 
   valid_args = true
   if port_arg = ARGV.index("-p")

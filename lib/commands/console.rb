@@ -3,7 +3,7 @@ if ARGV.first == '--help' || ARGV.first == '-h'
 else
   $:.unshift(Dir.pwd)
 
-  require 'pakyow'
+  require 'app/setup'
   Pakyow::App.stage(ARGV.first)
 
   def reload
