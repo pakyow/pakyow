@@ -10,7 +10,7 @@ module Pakyow
       extend Forwardable
 
       def_delegators :template, :title, :title=
-      def_delegators :parts, :scope, :prop
+      def_delegators :parts, :prop
 
       attr_reader :store, :path, :page, :partials
 
@@ -110,15 +110,41 @@ module Pakyow
       end
 
       def parts
-        parts = ViewCollection.new
-        parts << @template
-        @page.each_container { |name, container| parts << container }
+        # create an array to hold the parts
+        parts = ViewCollection.new #ViewParts.new(partials: partials)
 
-        # only include available partials as parts
-        available_partials = parts.inject([]) { |sum, part| sum.concat(part.doc.partials.keys) }
-        partials.select { |name, partial| available_partials.include?(name) }.each_pair { |name, partial| parts << partial }
-        
+        # add the current template
+        parts << @template
+
+        # add each page container
+        @page.each_container do |_, container|
+          parts << container
+        end
+
+        # determine the partials to be included
+        available_partials = parts.inject([]) { |sum, part|
+          sum.concat(part.doc.partials.keys)
+        }
+
+        # add available partials as parts
+        partials.select { |name|
+          available_partials.include?(name)
+        }.each_pair { |_, partial|
+          parts << partial
+        }
+
         return parts
+      end
+
+      def scope(name)
+        collection = parts.scope(name)
+
+        # include partials so nested scopes/props can be bound to
+        collection.each do |view|
+          view.includes(partials)
+        end
+
+        return collection
       end
 
       private

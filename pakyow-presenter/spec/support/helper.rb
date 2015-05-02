@@ -14,6 +14,7 @@ require 'support/mixins/form_binding_specs'
 require 'support/mixins/view_repeating_specs'
 require 'support/mixins/view_matching_specs'
 require 'support/mixins/view_building_specs'
+require 'support/mixins/view_binding_specs'
 
 def capture_stdout(&block)
   original_stdout = $stdout
