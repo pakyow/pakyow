@@ -1,4 +1,4 @@
-# pakyow-library
+# pakyow-realtime
 
 This library brings realtime capabilities to Pakyow apps by creating a pub/sub connection between client and server using websockets.
 
