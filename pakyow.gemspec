@@ -28,5 +28,6 @@ Gem::Specification.new do |s|
   s.add_dependency('pakyow-realtime',   version)
   s.add_dependency('pakyow-rake',       version)
   s.add_dependency('pakyow-test',       version)
-  s.add_dependency('bundler',           '~> 1.9')
+
+  s.add_dependency('bundler',           '>= 1.3.0', '< 2.0')
 end
