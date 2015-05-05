@@ -27,6 +27,6 @@ Pakyow::App.define do
 
   middleware do |builder|
     #TODO you will most definitely want to change this secret
-    builder.use Rack::Session::Cookie, key: "#{Config.app.name}.session", secret: 'sekret'
+    builder.use Rack::Session::Cookie, key: "#{Pakyow::Config.app.name}.session", secret: 'sekret'
   end
 end
