@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.homepage          = 'http://pakyow.com'
   s.rubyforge_project = 'pakyow'
 
-  s.files        = Dir['README', 'MIT-LICENSE', 'lib/**/*']
+  s.files        = Dir['README', 'LICENSE', 'lib/**/*']
   s.require_path = 'lib'
 
   s.bindir             = 'bin'
