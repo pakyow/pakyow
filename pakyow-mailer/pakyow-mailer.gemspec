@@ -24,10 +24,11 @@ Gem::Specification.new do |s|
 
   s.require_path = File.join(presenter_path, 'lib')
 
+  s.add_dependency('pakyow-support', version)
   s.add_dependency('pakyow-core', version)
   s.add_dependency('pakyow-presenter', version)
   s.add_dependency('mail', '~> 2.6')
   s.add_dependency('premailer', '~> 1.8')
 
-  s.add_development_dependency('minitest', '~> 5.0')
+  s.add_development_dependency('minitest', '~> 5.6')
 end

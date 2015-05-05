@@ -24,6 +24,8 @@ Gem::Specification.new do |s|
 
   s.require_path = File.join(path, 'lib')
 
+  s.add_dependency('pakyow-support', version)
   s.add_dependency('pakyow-core', version)
   s.add_dependency('pakyow-presenter', version)
+  s.add_dependency('rake', '~> 10.4')
 end

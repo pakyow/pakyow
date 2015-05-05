@@ -23,5 +23,5 @@ Gem::Specification.new do |s|
 
   s.require_path = File.join(gem_path, 'lib')
 
-  s.add_development_dependency('rspec', '~> 3.1')
+  s.add_development_dependency('rspec', '~> 3.2')
 end
