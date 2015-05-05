@@ -24,4 +24,9 @@ Pakyow::App.define do
   configure :production do
     # put your production config here
   end
+
+  middleware do |builder|
+    #TODO you will most definitely want to change this secret
+    builder.use Rack::Session::Cookie, key: "#{Config.app.name}.session", secret: 'sekret'
+  end
 end
