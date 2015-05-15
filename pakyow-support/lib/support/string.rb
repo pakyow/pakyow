@@ -29,4 +29,8 @@ class String
     path = path[0, path.length - 1] if path[path.length - 1, 1] == '/'
     path
   end
+
+  def self.capitalize(string)
+    string.slice(0,1).capitalize + string.slice(1..-1)
+  end
 end
