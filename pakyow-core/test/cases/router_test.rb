@@ -12,6 +12,7 @@ module Pakyow
         @fn_calls = []
         Pakyow::App.stage(:test)
         Pakyow.app.context = AppContext.new(mock_request, mock_response)
+        Pakyow.app.reload
       end
 
       def test_router_is_singleton
