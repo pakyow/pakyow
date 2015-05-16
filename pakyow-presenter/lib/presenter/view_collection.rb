@@ -3,6 +3,8 @@ module Pakyow
     class ViewCollection
       include Enumerable
 
+      attr_reader :views
+
       def initialize
         @views = []
       end
@@ -103,6 +105,14 @@ module Pakyow
             coll << scoped_view
           }
         }
+      end
+
+      def versioned?
+        each do |view|
+          return true if view.versioned?
+        end
+
+        false
       end
 
       # call-seq:

@@ -119,6 +119,15 @@ module Pakyow
         end
       end
 
+      def version
+        return unless versioned?
+        @doc.get_attribute(:'data-version').to_sym
+      end
+
+      def versioned?
+        !@doc.get_attribute(:'data-version').nil?
+      end
+
       # call-seq:
       #   with {|view| block}
       #

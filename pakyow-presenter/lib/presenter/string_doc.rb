@@ -249,12 +249,18 @@ module Pakyow
       def find_scopes(structure, primary_structure = @structure, scopes = [])
         ret_scopes = structure.inject(scopes) { |s, e|
           if e[1].has_key?(:'data-scope')
-            s << {
+            scope = {
               doc: StringDoc.from_structure(primary_structure, node: e),
               scope: e[1][:'data-scope'].to_sym,
               props: find_node_props(e).concat(find_props(e[2])),
               nested: find_scopes(e[2]),
             }
+
+            if version = e[1][:'data-version']
+              scope[:version] = version.to_sym
+            end
+
+            s << scope
           end
           # only find scopes if `e` is the root node or we're not decending into a nested scope
           find_scopes(e[2], e[2], s) if e == node || !e[1].has_key?(:'data-scope')

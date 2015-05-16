@@ -144,7 +144,11 @@ module Pakyow
           view.includes(partials)
         end
 
-        return collection
+        if collection.versioned?
+          ViewVersion.new(collection.views)
+        else
+          collection
+        end
       end
 
       private
