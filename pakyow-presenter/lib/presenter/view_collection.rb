@@ -3,10 +3,11 @@ module Pakyow
     class ViewCollection
       include Enumerable
 
-      attr_reader :views
+      attr_reader :views, :scoped_as
 
-      def initialize
+      def initialize(scope = nil)
         @views = []
+        @scoped_as = scope
       end
 
       def each
@@ -81,12 +82,8 @@ module Pakyow
         @views.length
       end
 
-      def scoped_as
-        @views.first.scoped_as
-      end
-
       def scope(name)
-        inject(ViewCollection.new) { |coll, view|
+        inject(ViewCollection.new(name)) { |coll, view|
           scopes = view.scope(name)
           next if scopes.nil?
 
@@ -97,7 +94,7 @@ module Pakyow
       end
 
       def prop(name)
-        inject(ViewCollection.new) { |coll, view|
+        inject(ViewCollection.new(scoped_as)) { |coll, view|
           scopes = view.prop(name)
           next if scopes.nil?
 

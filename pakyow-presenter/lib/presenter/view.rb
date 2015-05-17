@@ -103,7 +103,7 @@ module Pakyow
 
       def scope(name)
         name = name.to_sym
-        @doc.scope(name).inject(ViewCollection.new) do |coll, scope|
+        @doc.scope(name).inject(ViewCollection.new(name)) do |coll, scope|
           view = View.from_doc(scope[:doc])
           view.scoped_as = name
           coll << view
@@ -112,7 +112,7 @@ module Pakyow
 
       def prop(name)
         name = name.to_sym
-        @doc.prop(scoped_as, name).inject(ViewCollection.new) do |coll, prop|
+        @doc.prop(scoped_as, name).inject(ViewCollection.new(scoped_as)) do |coll, prop|
           view = View.from_doc(prop[:doc])
           view.scoped_as = scoped_as
           coll << view
@@ -185,7 +185,7 @@ module Pakyow
       #
       def match(data)
         data = Array.ensure(data)
-        coll = ViewCollection.new
+        coll = ViewCollection.new(scoped_as)
 
         # an empty set always means an empty view
         if data.empty?
