@@ -191,9 +191,9 @@ module Pakyow
       end
 
       def load_views
-        @view_stores = {}
+        @view_stores ||= {}
 
-        Pakyow::Config.presenter.view_stores.each_pair {|name, path|
+        Pakyow::Config.presenter.view_stores.each_pair { |name, path|
           @view_stores[name] = ViewStore.new(path, name)
         }
       end
