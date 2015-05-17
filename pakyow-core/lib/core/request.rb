@@ -58,7 +58,7 @@ module Pakyow
 
     # Returns indifferent params (see {HashUtils.strhash} for more info on indifferent hashes).
     def params
-      @params ||= Hash.strhash(super.merge(JSON.parse(body.read.to_s)))
+      @params ||= Hash.strhash(super.merge!(env['pakyow.data'] || {}).merge!(JSON.parse(body.read.to_s)))
     rescue JSON::JSONError
       @params = Hash.strhash(super)
     end
