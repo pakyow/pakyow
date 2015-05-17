@@ -244,6 +244,15 @@ module Pakyow
       def bind(data, bindings: {}, context: nil, &block)
         datum = Array.ensure(data).first
         bind_data_to_scope(datum, doc.scopes.first, bindings, context)
+
+        id = nil
+        if data.is_a?(Hash)
+          id = data[:id]
+        elsif data.respond_to?(:id)
+          id = data.id
+        end
+
+        attrs.send(:'data-id=', data[:id]) unless id.nil?
         return if block.nil?
 
         if block.arity == 1
