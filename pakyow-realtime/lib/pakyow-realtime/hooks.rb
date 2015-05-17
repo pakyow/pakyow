@@ -21,7 +21,9 @@ Pakyow::App.before :route do
 end
 
 Pakyow::App.after :process do
-  if body = response.body[0]
-    body.gsub!(/<body/, '<body data-socket-connection-id="' + socket_connection_id + '"')
+  if response.header['Content-Type'] == 'text/html'
+    if body = response.body[0]
+      body.gsub!(/<body/, '<body data-socket-connection-id="' + socket_connection_id + '"')
+    end
   end
 end
