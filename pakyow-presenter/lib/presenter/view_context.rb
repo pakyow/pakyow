@@ -41,7 +41,7 @@ module Pakyow
       def scope(name)
         collection = @view.scope(name)
 
-        if collection.versioned?
+        if !collection.is_a?(ViewVersion) && collection.versioned?
           ret = ViewVersion.new(collection.views)
         else
           ret = collection

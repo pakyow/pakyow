@@ -17,6 +17,10 @@ describe ViewVersion do
     ViewContext.new(ViewComposer.from_path(store, 'versioned/default'), {})
   end
 
+  let :view do
+    context.view.instance_variable_get(:@view)
+  end
+
   context 'when applying an empty dataset' do
     before do
       context.scope(:post).apply(data)
@@ -42,7 +46,7 @@ describe ViewVersion do
       end
 
       it 'renders the empty version' do
-        expect(context.view.scope(:post).first.version).to eq(:empty)
+        expect(view.scope(:post).first.version).to eq(:empty)
       end
     end
   end
@@ -71,9 +75,9 @@ describe ViewVersion do
         end
 
         it 'renders the first non-empty version for each datum' do
-          expect(context.view.scope(:post)[0].version).to eq(:one)
-          expect(context.view.scope(:post)[1].version).to eq(:one)
-          expect(context.view.scope(:post)[2].version).to eq(:one)
+          expect(view.scope(:post)[0].version).to eq(:one)
+          expect(view.scope(:post)[1].version).to eq(:one)
+          expect(view.scope(:post)[2].version).to eq(:one)
         end
       end
 
@@ -83,9 +87,9 @@ describe ViewVersion do
         end
 
         it 'renders the default version for each datum' do
-          expect(context.view.scope(:post)[0].version).to eq(:two)
-          expect(context.view.scope(:post)[1].version).to eq(:two)
-          expect(context.view.scope(:post)[2].version).to eq(:two)
+          expect(view.scope(:post)[0].version).to eq(:two)
+          expect(view.scope(:post)[1].version).to eq(:two)
+          expect(view.scope(:post)[2].version).to eq(:two)
         end
       end
     end
@@ -102,9 +106,9 @@ describe ViewVersion do
       end
 
       it 'renders the specified version for each datum' do
-        expect(context.view.scope(:post)[0].version).to eq(:two)
-        expect(context.view.scope(:post)[1].version).to eq(:one)
-        expect(context.view.scope(:post)[2].version).to eq(:one)
+        expect(view.scope(:post)[0].version).to eq(:two)
+        expect(view.scope(:post)[1].version).to eq(:one)
+        expect(view.scope(:post)[2].version).to eq(:one)
       end
     end
   end
