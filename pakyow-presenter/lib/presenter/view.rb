@@ -128,6 +128,15 @@ module Pakyow
         !@doc.get_attribute(:'data-version').nil?
       end
 
+      def component(name)
+        name = name.to_sym
+        @doc.component(name).inject(ViewCollection.new(scoped_as)) do |coll, component|
+          view = View.from_doc(component[:doc])
+          view.scoped_as = scoped_as
+          coll << view
+        end
+      end
+
       # call-seq:
       #   with {|view| block}
       #
@@ -294,6 +303,15 @@ module Pakyow
 				@doc.to_html
 			end
       alias :to_s :to_html
+
+      def component?
+        !attrs.send(:'data-ui').value.empty?
+      end
+
+      def component_name
+        return unless component?
+        attrs.send(:'data-ui').value
+      end
 
       private
 

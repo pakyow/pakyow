@@ -157,6 +157,14 @@ module Pakyow
         containers.fetch(name, {})[:doc]
       end
 
+      def component(name)
+        components.select { |c| c[:component] == name }
+      end
+
+      def channel(name)
+        find_channel(scopes, name)
+      end
+
       def containers
         find_containers(@node ? [@node] : @structure)
       end
@@ -167,6 +175,10 @@ module Pakyow
 
       def scopes
         find_scopes(@node ? [@node] : @structure)
+      end
+
+      def components
+        find_components(@node ? [@node] : @structure)
       end
 
       def to_html
@@ -295,6 +307,31 @@ module Pakyow
         end
 
         props
+      end
+
+      def find_channel(scopes, name)
+        scopes.each do |scope|
+          if scope[:doc].get_attribute(:'data-channel') == name
+            return scope[:doc]
+          end
+
+          find_channel(scope[:nested], name)
+        end
+      end
+
+      def find_components(structure, primary_structure = @structure, components = [])
+        ret_components = structure.inject(components) { |s, e|
+          if e[1].has_key?(:'data-ui')
+            s << {
+              doc: StringDoc.from_structure(primary_structure, node: e),
+              component: e[1][:'data-ui'].to_sym,
+            }
+          end
+          find_scopes(e[2], e[2], s)
+          s
+        } || []
+
+        ret_components
       end
     end
   end

@@ -112,6 +112,17 @@ module Pakyow
         false
       end
 
+      def component(name)
+        inject(ViewCollection.new(scoped_as)) { |coll, view|
+          scopes = view.component(name)
+          next if scopes.nil?
+
+          scopes.inject(coll) { |coll, scoped_view|
+            coll << scoped_view
+          }
+        }
+      end
+
       # call-seq:
       #   with {|view| block}
       #

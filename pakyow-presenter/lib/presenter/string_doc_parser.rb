@@ -36,7 +36,7 @@ module Pakyow
             structure << [node.to_html, {}, []]
           else
             if significant?(node)
-              if scope?(node) || prop?(node) || option?(node)
+              if scope?(node) || prop?(node) || option?(node) || component?(node)
                 attr_structure = attributes.inject({}) do |attrs, attr|
                   attrs[attr[1].name.to_sym] = attr[1].value
                   attrs
@@ -67,7 +67,7 @@ module Pakyow
       end
 
       def significant?(node)
-        scope?(node) || prop?(node) || container?(node) || partial?(node) || option?(node)
+        scope?(node) || prop?(node) || container?(node) || partial?(node) || option?(node) || component?(node)
       end
 
       def scope?(node)
@@ -94,6 +94,11 @@ module Pakyow
 
       def option?(node)
         node.name == 'option'
+      end
+
+      def component?(node)
+        return false unless node['data-ui']
+        return true
       end
 
       def breadth_first(doc)

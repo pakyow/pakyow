@@ -10,7 +10,7 @@ module Pakyow
       extend Forwardable
 
       def_delegators :template, :title, :title=
-      def_delegators :parts, :prop
+      def_delegators :parts, :prop, :component
 
       attr_reader :store, :path, :page, :partials
 
