@@ -6,7 +6,7 @@ module Pakyow
     #
     class ViewContext
       include Helpers
-      VIEW_CLASSES = [View, ViewCollection, Partial, Template, Container]
+      VIEW_CLASSES = [View, ViewCollection, Partial, Template, Container, ViewVersion]
 
       # The arities of misc view methods that switch the behavior from
       # instance_exec to yield.
@@ -36,6 +36,18 @@ module Pakyow
           ret = @view.send(method, *args, &wrap(method, &block))
           handle_return_value(ret)
         end
+      end
+
+      def scope(name)
+        collection = @view.scope(name)
+
+        if collection.versioned?
+          ret = ViewVersion.new(collection.views)
+        else
+          ret = collection
+        end
+
+        handle_return_value(ret)
       end
 
       # Pass these through, handling the return value.
