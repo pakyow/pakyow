@@ -11,6 +11,7 @@ module Pakyow
       finalizer :shutdown
 
       def initialize(req, key)
+        @req = req
         @key = key
 
         @handshake = handshake!(req)
@@ -64,7 +65,7 @@ module Pakyow
         @parser.on_message do |ws_message|
           begin
             logger.debug "(#{@key}): received message #{ws_message}"
-            push(MessageHandler.handle(JSON.parse(ws_message)))
+            push(MessageHandler.handle(JSON.parse(ws_message), @req.env['rack.session']))
           rescue Exception => e
             logger.error 'Websocket encountered an error:'
             logger.error e.message

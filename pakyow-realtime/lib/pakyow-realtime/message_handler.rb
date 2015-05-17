@@ -16,14 +16,14 @@ module Pakyow
       # Calls a handler for a received websocket message.
       #
       # @api private
-      def self.handle(message)
+      def self.handle(message, session)
         action = message['action']
 
         handler = @handlers.fetch(action.to_sym) {
           raise MissingMessageHandler.new("Could not find message handler named #{action}")
         }
 
-        handler.call(message, {
+        handler.call(message, session, {
           id: message['id']
         })
       end

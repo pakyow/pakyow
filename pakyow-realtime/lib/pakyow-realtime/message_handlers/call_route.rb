@@ -1,4 +1,4 @@
-Pakyow::Realtime::MessageHandler.register :call_route do |message, response|
+Pakyow::Realtime::MessageHandler.register :call_route do |message, session, response|
   path, qs = message['uri'].split('?')
   path_parts = path.split('/')
   path_parts[-1] += '.json'
@@ -7,6 +7,7 @@ Pakyow::Realtime::MessageHandler.register :call_route do |message, response|
   env = Rack::MockRequest.env_for(uri, method: message['method'])
   env['pakyow.socket'] = true
   env['pakyow.data'] = message['input']
+  env['rack.session'] = session
 
   #TODO in production we want to push the message to a queue and
   # let the next available app instance pick it up, rather than
