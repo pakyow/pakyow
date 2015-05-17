@@ -34,7 +34,6 @@ module Pakyow
       def shutdown
         @timer.cancel if @timer
         @socket.close if @socket && !@socket.closed?
-        delegate.unregister(@key)
       end
 
       def push(msg)
@@ -82,6 +81,7 @@ module Pakyow
 
         @parser.on_close do |status, message|
           @socket << WebSocket::Message.close.to_data
+          delegate.unregister(@key)
           shutdown
 
           logger.info "Client closed connection. Status: #{status}. Reason: #{message}"
