@@ -221,6 +221,10 @@ module Pakyow
         node[1]
       end
 
+      def has_attribute?(name)
+        attributes.key?(name)
+      end
+
       def children
         node[2][0][2]
       end

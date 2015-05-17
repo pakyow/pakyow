@@ -49,6 +49,10 @@ module Pakyow
         update_value
       end
 
+      def include?(attribute)
+        @doc.has_attribute?(attribute)
+      end
+
       # passes method call to `value`
       def method_missing(method, *args)
         ret = @value.send(method, *args)
