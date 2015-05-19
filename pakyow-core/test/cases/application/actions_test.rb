@@ -1,4 +1,4 @@
-require 'support/helper'
+require_relative '../../support/helper'
 
 class Pakyow::App
   attr_writer :router
