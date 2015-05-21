@@ -39,6 +39,7 @@ module Pakyow
         return if running?
 
         @running = true
+
         builder.run(stage(*env_or_envs))
         detect_handler.run(builder, Host: config.server.host, Port: config.server.port) do |server|
           trap(:INT)  { stop(server) }

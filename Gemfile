@@ -28,3 +28,7 @@ group :test do
 
   gem 'rack-test', '~> 0.6', require: 'rack/test'
 end
+
+group :development do
+  gem 'guard-rspec'
+end
