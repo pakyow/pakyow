@@ -1,4 +1,7 @@
 require 'support/helper'
+class Pakyow::App
+  attr_writer :router
+end
 
 describe Router do
   include ReqResHelpers

@@ -39,10 +39,6 @@ class Pakyow::App
   end
 end
 
-class Pakyow::App
-  attr_writer :router
-end
-
 class TestHandler
   def self.run(*args)
   end
