@@ -16,8 +16,14 @@ module Pakyow
         view
       end
 
-      def with
-        yield self
+      def with(&block)
+        if block.arity == 0
+          instance_exec(&block)
+        else
+          yield(self)
+        end
+
+        self
       end
 
       def for(data, &block)
