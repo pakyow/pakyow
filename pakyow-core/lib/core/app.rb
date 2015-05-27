@@ -411,7 +411,7 @@ module Pakyow
       call_stack(:before, :load)
 
       # load src files
-      @loader = Loader.new
+      @loader ||= Loader.new
       @loader.load_from_path(config.app.src_dir)
 
       # load the routes
