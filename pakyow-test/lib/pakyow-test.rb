@@ -27,3 +27,5 @@ module Pakyow
     end
   end
 end
+
+Pakyow::Presenter::ViewContext::VIEW_CLASSES << Pakyow::TestHelp::ObservableView
