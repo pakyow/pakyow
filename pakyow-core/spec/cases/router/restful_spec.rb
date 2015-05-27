@@ -2,7 +2,7 @@ require_relative '../../support/helper'
 
 describe 'restful route'do
   include ReqResHelpers
-  include RestfulHelpers
+  include RouteTestHelpers
 
   before do
     Pakyow::App.stage(:test)
