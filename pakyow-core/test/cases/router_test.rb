@@ -38,6 +38,7 @@ module Pakyow
       end
 
       def test_route_fns_called_in_order
+        binding.pry
         test = self
         Router.instance.set(:test) {
           fn(:one) {
