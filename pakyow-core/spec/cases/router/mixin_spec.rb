@@ -1,8 +1,8 @@
 require 'support/helper'
-include TestFns
-
 
 describe 'Route Mixin' do
+  include TestFns
+
   before do
     Pakyow::App.stage(:test)
   end
