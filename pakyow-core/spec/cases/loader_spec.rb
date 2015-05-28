@@ -27,4 +27,3 @@ describe 'Loader' do
     expect(@loader.times.first).to_not be_nil
   end
 end
-
