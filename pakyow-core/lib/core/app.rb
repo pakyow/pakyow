@@ -204,9 +204,7 @@ module Pakyow
 
       call_stack(:before, :init)
 
-      # we don't want to load on boot if we'll just
-      # auto reload on every request
-      load_app unless config.app.auto_reload
+      load_app
 
       call_stack(:after, :init)
     end
