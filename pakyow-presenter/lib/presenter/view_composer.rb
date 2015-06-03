@@ -111,7 +111,7 @@ module Pakyow
 
       def parts
         # create an array to hold the parts
-        parts = ViewCollection.new #ViewParts.new(partials: partials)
+        parts = ViewCollection.new
 
         # add the current template
         parts << @template
@@ -122,9 +122,7 @@ module Pakyow
         end
 
         # determine the partials to be included
-        available_partials = parts.inject([]) { |sum, part|
-          sum.concat(part.doc.partials.keys)
-        }
+        available_partials = partials.keys
 
         # add available partials as parts
         partials.select { |name|
