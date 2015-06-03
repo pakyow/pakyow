@@ -2,7 +2,7 @@ require_relative 'support/helper'
 
 describe ViewVersion do
   let :store do
-    ViewStore.new('spec/support/views')
+    ViewStore.new(VIEW_PATH)
   end
 
   let :versioned do

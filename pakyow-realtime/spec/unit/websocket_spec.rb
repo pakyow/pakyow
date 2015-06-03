@@ -1,4 +1,4 @@
-require 'spec_helper'
+require_relative '../spec_helper'
 require 'pakyow-realtime/websocket'
 
 describe Pakyow::Realtime::Websocket do

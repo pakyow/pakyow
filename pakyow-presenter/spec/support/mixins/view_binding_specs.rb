@@ -1,6 +1,6 @@
 shared_examples :binding_specs do
   let :store do
-    ViewStore.new('spec/support/views')
+    ViewStore.new(VIEW_PATH)
   end
 
   describe 'binding data to a view' do

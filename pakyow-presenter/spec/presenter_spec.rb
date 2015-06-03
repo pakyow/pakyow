@@ -50,7 +50,7 @@ describe Presenter do
     end
 
     it 'is cached' do
-      file = 'spec/support/views/index.html'
+      file = File.join(VIEW_PATH, 'index.html')
       new_content = 'reloaded'
       original_content = File.open(file, 'r').read
       File.open(file, 'w') { |f| f.write(new_content) }
@@ -60,9 +60,8 @@ describe Presenter do
     end
 
     it 'is reloaded' do
-      file = 'spec/support/views/index.html'
+      file = File.join(VIEW_PATH, 'index.html')
       new_content = 'reloaded'
-      original_content = File.open(file, 'r').read
       File.open(file, 'w') { |f| f.write(new_content) }
       @presenter.load
       setup
@@ -179,7 +178,7 @@ describe Presenter do
   context 'test partial' do
     it 'can be set' do
       @presenter.view.partials = { partial: 'partial1' }
-      partial = Partial.load('spec/support/views/_partial1.html')
+      partial = Partial.load(File.join(VIEW_PATH, '_partial1.html'))
       expect(partial).to eq @presenter.view.partial(:partial)
     end
   end

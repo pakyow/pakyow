@@ -1,5 +1,5 @@
 require 'pakyow-realtime'
-require 'spec_helper'
+require_relative '../../spec_helper'
 
 require_relative 'mixins/pubsub_specs'
 

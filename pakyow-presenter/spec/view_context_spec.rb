@@ -1,4 +1,4 @@
-require 'support/helper'
+require_relative 'support/helper'
 
 describe Pakyow::Presenter::ViewContext do
   let :view do

@@ -2,7 +2,7 @@ require_relative 'support/helper'
 
 describe ViewStore do
   before do
-    @store = ViewStore.new('spec/support/views')
+    @store = ViewStore.new(VIEW_PATH)
   end
 
   it 'finds path at file' do

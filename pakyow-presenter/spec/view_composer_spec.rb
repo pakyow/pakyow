@@ -3,7 +3,7 @@ include ViewComposerHelpers
 
 describe ViewComposer do
   before do
-    @store = ViewStore.new('spec/support/views')
+    @store = ViewStore.new(VIEW_PATH)
   end
 
   it "composes at a path" do

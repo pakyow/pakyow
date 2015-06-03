@@ -1,8 +1,10 @@
+VIEW_PATH = File.join(File.expand_path('../', __FILE__), 'views')
+
 Pakyow::App.define do
   configure(:test) do
     presenter.view_stores = {
-      default: "spec/support/views/",
-      test: "spec/support/views/"
+      default: VIEW_PATH,
+      test: VIEW_PATH
     }
   end
 

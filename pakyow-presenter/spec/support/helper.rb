@@ -21,7 +21,7 @@ def str_to_doc(str)
 end
 
 def reset_index_contents
-  file = 'spec/support/views/index.html'
+  file = File.join(VIEW_PATH, 'index.html')
   contents = File.read(file)
   File.open(file, 'w') { |file| file.write('index') } unless contents == 'index'
 end

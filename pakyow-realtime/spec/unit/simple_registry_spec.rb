@@ -1,4 +1,4 @@
-require 'spec_helper'
+require_relative '../spec_helper'
 require 'pakyow-realtime/registries/simple_registry'
 
 describe Pakyow::Realtime::SimpleRegistry do

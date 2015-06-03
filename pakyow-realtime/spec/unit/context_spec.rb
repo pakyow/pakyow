@@ -1,4 +1,4 @@
-require 'spec_helper'
+require_relative '../spec_helper'
 require 'pakyow-realtime/context'
 require 'pakyow-realtime/helpers'
 

@@ -1,14 +1,18 @@
 version = File.read(File.expand_path("../VERSION", __FILE__)).strip
-libs = %i[pakyow-support pakyow-core pakyow-presenter pakyow-mailer pakyow-rake]
+libs = %i[pakyow-support pakyow-core pakyow-presenter pakyow-mailer pakyow-rake pakyow-test pakyow-realtime]
 
-desc 'Run all tests by default'
-task :default => %w(test)
+rspec_libs = %i[pakyow-support pakyow-core pakyow-presenter pakyow-test pakyow-realtime]
+minitest_libs = %i[pakyow-core pakyow-mailer]
 
-desc 'Run the tests'
-task :test do
+task :ci do
   errors = []
-  libs.each do |lib|
-    system(%(cd #{lib} && #{$0} test)) || errors << lib
+
+  rspec_libs.each do |lib|
+    system(%(cd #{lib} && bundle exec rspec)) || errors << lib
+  end
+
+  minitest_libs.each do |lib|
+    system(%(cd #{lib} && bundle exec rake test)) || errors << lib
   end
 
   fail("Errors in #{errors.join(', ')}") unless errors.empty?

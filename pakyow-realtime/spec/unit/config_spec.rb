@@ -1,4 +1,4 @@
-require 'spec_helper'
+require_relative '../spec_helper'
 require 'pakyow-realtime/config'
 
 describe 'configuration' do
