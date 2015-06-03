@@ -11,6 +11,7 @@ module Pakyow
     #
     # @api private
     def socket_key
+      return params[:socket_key] if params[:socket_key]
       session[:socket_key] ||= SecureRandom.hex(32)
     end
 
