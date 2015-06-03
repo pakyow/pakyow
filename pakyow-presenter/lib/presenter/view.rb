@@ -341,7 +341,7 @@ module Pakyow
             end
 
             if data_has_prop?(data, prop) || Binder.instance.has_scoped_prop?(scope, prop, bindings)
-              value = Binder.instance.value_for_scoped_prop(scope, prop, data, bindings, ctx)              
+              value = Binder.instance.value_for_scoped_prop(scope, prop, data, bindings, ctx)
 
               if DocHelpers.form_field?(doc.tagname)
                 bind_to_form_field(doc, scope, prop, value, data, ctx)

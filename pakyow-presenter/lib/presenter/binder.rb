@@ -84,6 +84,14 @@ module Pakyow
           !options.nil?
         }
       end
+
+      def bindings_for_scope(scope)
+        @sets.map { |set|
+          set[1].bindings_for_scope(scope, {})
+        }.inject({}) { |acc, bindings|
+          acc.merge(bindings)
+        }
+      end
     end
   end
 end
