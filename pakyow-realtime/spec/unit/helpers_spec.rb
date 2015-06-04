@@ -5,6 +5,13 @@ require 'pakyow-realtime/context'
 class HelperIncluder
   include Pakyow::Helpers
 
+  def initialize
+    @context = AppContext.new(
+      Pakyow::Request.new(Rack::MockRequest.env_for('/', method: :get)),
+      Pakyow::Response.new
+    )
+  end
+
   def session
     @session ||= {}
   end
