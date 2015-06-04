@@ -1,7 +1,7 @@
 require 'support/helper'
 
-describe 'ResponseTest' do
+describe 'Response' do
   it 'extends rack response' do
-    expect(Rack::Response).to eq Pakyow::Response.superclass
+    expect(Pakyow::Response.superclass).to eq Rack::Response
   end
 end

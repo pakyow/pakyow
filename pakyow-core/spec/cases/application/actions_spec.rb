@@ -24,8 +24,8 @@ describe  'App Actions' do
     rescue
     end
 
-    expect(302).to eq Pakyow.app.response.status
-    expect(location).to eq Pakyow.app.response.header['Location']
+    expect(Pakyow.app.response.status).to eq 302
+    expect(Pakyow.app.response.header['Location']).to eq location
   end
 
   it 'issues route lookup on redirect' do
@@ -36,8 +36,8 @@ describe  'App Actions' do
     rescue
     end
 
-    expect(302).to eq Pakyow.app.response.status
-    expect('/redirect').to eq Pakyow.app.response.header['Location']
+    expect(Pakyow.app.response.status).to eq 302
+    expect(Pakyow.app.response.header['Location']).to eq '/redirect'
   end
 
   it 'respects status on redirect' do
@@ -48,8 +48,8 @@ describe  'App Actions' do
     rescue
     end
 
-    expect(301).to eq Pakyow.app.response.status
-    expect(location).to eq Pakyow.app.response.header['Location']
+    expect(Pakyow.app.response.status).to eq 301
+    expect(Pakyow.app.response.header['Location']).to eq location
   end
 
   it 'halts on redirect' do
@@ -73,8 +73,8 @@ describe  'App Actions' do
     Pakyow.app.context = AppContext.new(mock_request(path), mock_response)
     Pakyow.app.reroute(path)
 
-    expect(:get).to eq Pakyow.app.request.method
-    expect(path).to eq Pakyow.app.request.path
+    expect(Pakyow.app.request.method).to eq :get
+    expect(Pakyow.app.request.path).to eq path
     expect(router.reroute).to eq true
   end
 
@@ -158,8 +158,8 @@ describe  'App Actions' do
       Pakyow.app.send(File.open(path, 'r'), type)
     }
 
-    expect([data]).to eq Pakyow.app.response.body
-    expect(type).to eq Pakyow.app.response.header['Content-Type']
+    expect(Pakyow.app.response.body).to eq [data]
+    expect(Pakyow.app.response.header['Content-Type']).to eq type
   end
 
   it 'can send a file with type as attachment' do
@@ -176,8 +176,8 @@ describe  'App Actions' do
       Pakyow.app.send(File.open(path, 'r'), type, as)
     }
 
-    expect([data]).to eq Pakyow.app.response.body
-    expect(type).to eq Pakyow.app.response.header['Content-Type']
-    expect("attachment; filename=#{as}").to eq Pakyow.app.response.header['Content-disposition']
+    expect(Pakyow.app.response.body).to eq [data]
+    expect(Pakyow.app.response.header['Content-Type']).to eq type
+    expect(Pakyow.app.response.header['Content-disposition']).to eq "attachment; filename=#{as}"
   end
 end

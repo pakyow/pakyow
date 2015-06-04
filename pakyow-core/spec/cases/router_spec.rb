@@ -50,7 +50,7 @@ describe 'Router' do
     }
 
     Router.instance.perform(AppContext.new(mock_request))
-    expect([1, 2, 3]).to eq fn_calls
+    expect(fn_calls).to eq [1, 2, 3]
   end
 
   it 'requests can be rerouted' do
@@ -66,7 +66,7 @@ describe 'Router' do
     }
 
     Router.instance.perform(AppContext.new(mock_request))
-    expect([:rerouted]).to eq fn_calls
+    expect(fn_calls).to eq [:rerouted]
   end
 
   it 'requests can be rerouted with method' do
@@ -82,7 +82,7 @@ describe 'Router' do
     }
 
     Router.instance.perform(AppContext.new(mock_request))
-    expect([:rerouted]).to eq fn_calls
+    expect(fn_calls).to eq [:rerouted]
   end
 
   it 'handler can be called' do
@@ -101,7 +101,7 @@ describe 'Router' do
     Pakyow.app.context = AppContext.new(nil, res)
     Router.instance.perform(AppContext.new(mock_request))
 
-    expect([:handled]).to eq fn_calls
-    expect(500).to eq res.status
+    expect(fn_calls).to eq [:handled]
+    expect(res.status).to eq 500
   end
 end

@@ -13,7 +13,7 @@ describe 'Log' do
     FileUtils.rm(file) if File.exists?(file)
   end
 
-  it 'test log to console' do
+  it 'prints to console' do
     old = $stdout
     $stdout = StringIO.new
     Pakyow.configure_logger
@@ -22,7 +22,7 @@ describe 'Log' do
     expect(@text.strip).to eq $stdout.string.strip
   end
 
-  it 'test log to file' do
+  it 'prints to file' do
     Pakyow::Config.logger.path = path
     Pakyow::Config.logger.auto_flush = true
     Pakyow.configure_logger

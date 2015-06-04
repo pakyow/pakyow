@@ -34,9 +34,7 @@ describe 'Route Mixin' do
       include TestFns
       include Pakyow::Routes::Restful
     end
-
     Pakyow.app.reload
-
-    expect(@fns[:foo]).to eq Pakyow::Router.instance.sets[:test].fn(:foo)
+    expect(Pakyow::Router.instance.sets[:test].fn(:foo)).to eq @fns[:foo]
   end
 end

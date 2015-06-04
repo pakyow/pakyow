@@ -8,7 +8,7 @@ describe 'Request' do
   end
 
   it 'extends rack request' do
-    expect(Rack::Request).to eq Pakyow::Request.superclass
+    expect(Pakyow::Request.superclass).to eq Rack::Request
   end
 
   it 'path calls path info' do
@@ -16,30 +16,30 @@ describe 'Request' do
   end
 
   it 'method is proper format' do
-    expect(:get).to eq @request.method
+    expect(@request.method).to eq :get
   end
 
   it 'url is split' do
-    expect(1).to eq @request.path_parts.length
-    expect('foo').to eq @request.path_parts[0]
+    expect(@request.path_parts.length).to eq 1
+    expect(@request.path_parts[0]).to eq 'foo'
   end
 
   it 'referer is split' do
-    expect(1).to eq @request.referer_parts.length
-    expect('bar').to eq @request.referer_parts[0]
+    expect(@request.referer_parts.length).to eq 1
+    expect(@request.referer_parts[0]).to eq 'bar'
   end
 
   it 'parses json body' do
     env = @request.instance_variable_get(:@env)
     env['rack.input'] = StringIO.new('{"hello": "goodbye"}')
     @request.instance_variable_set(:@env, env)
-    expect('goodbye').to eq @request.params[:hello]
+    expect(@request.params[:hello]).to eq 'goodbye'
   end
 
   it 'handles bad json' do
     env = @request.instance_variable_get(:@env)
     env['rack.input'] = StringIO.new('{"hello": "goodbye"')
     @request.instance_variable_set(:@env, env)
-    expect(nil).to eq @request.params[:hello]
+    expect(@request.params[:hello]).to eq nil
   end
 end

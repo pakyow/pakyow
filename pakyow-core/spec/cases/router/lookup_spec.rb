@@ -1,8 +1,4 @@
 require 'support/helper'
-class Pakyow::App
-  attr_writer :router
-end
-
 describe Router do
   include ReqResHelpers
 
@@ -18,7 +14,7 @@ describe Router do
         get('foo', :foo)
       }
 
-      expect('/foo').to eq RouteLookup.new.path(:foo)
+      expect(RouteLookup.new.path(:foo)).to eq '/foo'
     end
 
     it 'can populate a path' do
@@ -28,8 +24,8 @@ describe Router do
         get('foo/bar/:id', :foo2)
       }
 
-      expect('/foo/1').to eq RouteLookup.new.path(:foo1, id: 1)
-      expect('/foo/bar/1').to eq RouteLookup.new.path(:foo2, id: 1)
+      expect(RouteLookup.new.path(:foo1, id: 1)).to eq '/foo/1'
+      expect(RouteLookup.new.path(:foo2, id: 1)).to eq '/foo/bar/1'
     end
 
     it 'grouped routes can be looked up by name and group' do
@@ -40,7 +36,7 @@ describe Router do
         }
       }
 
-      expect('/bar').to eq RouteLookup.new.group(:foo).path(:bar)
+      expect(RouteLookup.new.group(:foo).path(:bar)).to eq '/bar'
     end
 
     it 'namespaced routes can be looked up by name and group' do
@@ -51,7 +47,7 @@ describe Router do
         }
       }
 
-      expect('/foo/bar').to eq RouteLookup.new.group(:foo).path(:bar)
+      expect(RouteLookup.new.group(:foo).path(:bar)).to eq '/foo/bar'
       # namespaced route should only be available through group
       expect{ RouteLookup.new.path(:bar) }.to raise_error MissingRoute
     end
@@ -77,9 +73,9 @@ describe Router do
         end
       }
 
-      expect('/tests/bar').to eq RouteLookup.new.group(:test).path(:bar)
-      expect('/tests/1/foo').to eq RouteLookup.new.group(:test).path(:foo, { test_id: 1 })
-      expect('/tests/meh').to eq RouteLookup.new.group(:test).path(:meh)
+      expect(RouteLookup.new.group(:test).path(:bar)).to eq '/tests/bar'
+      expect(RouteLookup.new.group(:test).path(:foo, { test_id: 1 })).to eq '/tests/1/foo'
+      expect(RouteLookup.new.group(:test).path(:meh)).to eq '/tests/meh'
     end
   end
 end

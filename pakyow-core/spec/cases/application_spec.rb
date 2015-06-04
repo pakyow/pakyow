@@ -9,47 +9,47 @@ describe 'Application' do
 
   it 'runs' do
     app(true).run(:test)
-    expect(true).to eq app.running?
+    expect(app.running?).to eq true
   end
 
   it 'is staged when running' do
     app(true).run(:test)
-    expect(true).to eq app.staged?
+    expect(app.staged?).to eq true
   end
 
   it 'does not run when staged' do
     app(true).stage(:test)
-    expect(false).to eq app.running?
+    expect(app.running?).to eq false
   end
 
   it 'when staged can be detected' do
     app(true).stage(:test)
-    expect(true).to eq app.staged?
+    expect(app.staged?).to eq true
   end
 
   it 'base config can be accessed' do
-    expect(Pakyow::Config).to eq app(true).config
+    expect(app(true).config).to eq Pakyow::Config
   end
 
   it 'env is set when initialized' do
     envs = [:test, :foo]
     app(true).stage(*envs)
-    expect(envs.first).to eq Pakyow.app.env
+    expect(Pakyow.app.env).to eq envs.first
   end
 
   it 'app helper is set when initialized' do
     app(true)
     expect(Pakyow.app).to be_nil
     app(true).run(:test)
-    expect(Pakyow::App).to eq Pakyow.app.class
+    expect(Pakyow.app.class).to eq Pakyow::App
   end
 
   it 'global configuration block is executed' do
-    expect(true).to eq $global_config_was_executed
+    expect($global_config_was_executed).to eq true
   end
 
   it 'global configuration supercedes env' do
-    expect(false).to eq $env_overwrites_global_config
+    expect($env_overwrites_global_config).to eq false
   end
 
   it 'configuration loaded before middleware' do
@@ -62,7 +62,7 @@ describe 'Application' do
 
     app.stage(:test)
 
-    expect(:bar).to eq value
+    expect(value).to eq :bar
   end
 
   it 'can load multiple multiple middleware' do
@@ -80,8 +80,8 @@ describe 'Application' do
 
     app.stage(:test)
 
-    expect(:bar).to eq value1
-    expect(:bar).to eq value2
+    expect(value1).to eq :bar
+    expect(value2).to eq :bar
   end
 
   it 'builder is yielded to middleware' do

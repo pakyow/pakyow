@@ -1,6 +1,6 @@
 require 'support/helper'
 
-describe 'Helpers' do
+describe 'Pakyow Helper' do
   include Pakyow::Helpers
   include ReqResHelpers
 
@@ -9,44 +9,44 @@ describe 'Helpers' do
     Pakyow.app.context = AppContext.new(mock_request, mock_response)
   end
 
-  it 'test app returned' do
+  it 'returns app' do
     expect(Pakyow.app.class).to eq Pakyow::App
   end
 
-  it 'test app request returned' do
+  it 'returns app request' do
     r = :test
     Pakyow.app.context = AppContext.new(r)
-    expect(r).to eq Pakyow.app.request
-    expect(r).to eq Pakyow.app.req
+    expect(Pakyow.app.request).to eq r
+    expect(Pakyow.app.req).to eq r
   end
 
-  it 'test app response returned' do
+  it 'returns app response' do
     r = :test
     Pakyow.app.context = AppContext.new(nil, r)
-    expect(r).to eq Pakyow.app.response
-    expect(r).to eq Pakyow.app.res
+    expect(Pakyow.app.response).to eq r
+    expect(Pakyow.app.res).to eq r
   end
 
-  it 'test router lookup returned' do
+  it 'returns router lookup' do
     expect(Pakyow.app.router).to be_a Pakyow::RouteLookup
   end
 
-  it 'test params returned' do
+  it 'returns params' do
     Pakyow.app.context = AppContext.new(mock_request)
     expect(Pakyow.app.params).to eq Pakyow.app.params
   end
 
-  it 'test session returned' do
+  it 'returns session' do
     Pakyow.app.context = AppContext.new(mock_request)
     expect(Pakyow.app.session).to eq Pakyow.app.request.session
   end
 
-  it 'test cookies returned' do
+  it 'returns cookies' do
     Pakyow.app.context = AppContext.new(mock_request)
     expect(Pakyow.app.cookies).to eq Pakyow.app.cookies
   end
 
-  it 'test app helpers are included in app' do
+  it 'are included in app' do
     expect(Pakyow::App.ancestors).to include(Pakyow::AppHelpers)
   end
 end

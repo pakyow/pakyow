@@ -20,8 +20,8 @@ describe 'route set' do
       fn(:bar, &fn2)
     }
 
-    expect(fn1).to eq set.fn(:foo)
-    expect(fn2).to eq set.fn(:bar)
+    expect(set.fn(:foo)).to eq fn1
+    expect(set.fn(:bar)).to eq fn2
   end
 
   it 'is created and matched' do
@@ -236,14 +236,14 @@ describe 'route set' do
     }
 
     fns = set.match('1', :get)[0][3]
-    expect(fn2).to eq fns[0]
-    expect(fn1).to eq fns[1]
-    expect(fn3).to eq fns[2]
+    expect(fns[0]).to eq fn2
+    expect(fns[1]).to eq fn1
+    expect(fns[2]).to eq fn3
 
     fns = set.match('2', :get)[0][3]
-    expect(fn2).to eq fns[0]
-    expect(fn1).to eq fns[1]
-    expect(fn3).to eq fns[2]
+    expect(fns[0]).to eq fn2
+    expect(fns[1]).to eq fn1
+    expect(fns[2]).to eq fn3
   end
 
   it 'can add hooks to route by name' do
@@ -261,9 +261,9 @@ describe 'route set' do
     }
 
     fns = set.match('1', :get)[0][3]
-    expect(fn2).to eq fns[0]
-    expect(fn1).to eq fns[1]
-    expect(fn3).to eq fns[2]
+    expect(fns[0]).to eq fn2
+    expect(fns[1]).to eq fn1
+    expect(fns[2]).to eq fn3
   end
 
   it 'hooks can be added to handler' do
@@ -282,14 +282,14 @@ describe 'route set' do
     }
 
     fns = set.handle(404)[2]
-    expect(fn2).to eq fns[0]
-    expect(fn1).to eq fns[1]
-    expect(fn3).to eq fns[2]
+    expect(fns[0]).to eq fn2
+    expect(fns[1]).to eq fn1
+    expect(fns[2]).to eq fn3
 
     fns = set.handle(401)[2]
-    expect(fn2).to eq fns[0]
-    expect(fn1).to eq fns[1]
-    expect(fn3).to eq fns[2]
+    expect(fns[0]).to eq fn2
+    expect(fns[1]).to eq fn1
+    expect(fns[2]).to eq fn3
   end
 
   it 'hooks can be added to handler by name' do
@@ -307,9 +307,9 @@ describe 'route set' do
     }
 
     fns = set.handle(404)[2]
-    expect(fn2).to eq fns[0]
-    expect(fn1).to eq fns[1]
-    expect(fn3).to eq fns[2]
+    expect(fns[0]).to eq fn2
+    expect(fns[1]).to eq fn1
+    expect(fns[2]).to eq fn3
   end
 
   it 'can match grouped routes' do
@@ -341,9 +341,9 @@ describe 'route set' do
     }
 
     fns = set.match('/', :get)[0][3]
-    expect(fn2).to eq fns[0]
-    expect(fn1).to eq fns[1]
-    expect(fn3).to eq fns[2]
+    expect(fns[0]).to eq fn2
+    expect(fns[1]).to eq fn1
+    expect(fns[2]).to eq fn3
   end
 
   it 'can be matched by namespace' do
@@ -390,9 +390,9 @@ describe 'route set' do
     }
 
     fns = set.match('/foo', :get)[0][3]
-    expect(fn2).to eq fns[0]
-    expect(fn1).to eq fns[1]
-    expect(fn3).to eq fns[2]
+    expect(fns[0]).to eq fn2
+    expect(fns[1]).to eq fn1
+    expect(fns[2]).to eq fn3
   end
 
   it 'route templates can be defined and expanded' do
@@ -410,7 +410,7 @@ describe 'route set' do
       }
     }
 
-    expect(fn1).to eq set.match('/foo', :get)[0][3][0]
+    expect(set.match('/foo', :get)[0][3][0]).to eq fn1
   end
 
   it 'templates can be expanded dynamically' do
@@ -428,7 +428,7 @@ describe 'route set' do
       }
     }
 
-    expect(fn1).to eq set.match('/foo', :get)[0][3][0]
+    expect(set.match('/foo', :get)[0][3][0]).to eq fn1
   end
 
   it 'route templates can define hooks for actions' do
@@ -450,9 +450,9 @@ describe 'route set' do
 
     fns = set.match('/foo', :get)[0][3]
 
-    expect(fn1).to eq fns[1]
-    expect(fn2).to eq fns[0] # hooks defined in expansion have priority
-    expect(fn3).to eq fns[2]
+    expect(fns[1]).to eq fn1
+    expect(fns[0]).to eq fn2 # hooks defined in expansion have priority
+    expect(fns[2]).to eq fn3
   end
 
   it 'route templates can define groups' do
@@ -494,9 +494,9 @@ describe 'route set' do
 
     fns = set.match('/foo/grouped', :get)[0][3]
 
-    expect(fn1).to eq fns[1]
-    expect(fn2).to eq fns[0] # hooks defined in expansion have priority
-    expect(fn3).to eq fns[2]
+    expect(fns[1]).to eq fn1
+    expect(fns[0]).to eq fn2 # hooks defined in expansion have priority
+    expect(fns[2]).to eq fn3
   end
 
   it 'route templates can define namespaces' do
@@ -538,9 +538,9 @@ describe 'route set' do
 
     fns = set.match('/foo/ns/namespaced', :get)[0][3]
 
-    expect(fn1).to eq fns[1]
-    expect(fn2).to eq fns[0] # hooks defined in expansion have priority
-    expect(fn3).to eq fns[2]
+    expect(fns[1]).to eq fn1
+    expect(fns[0]).to eq fn2 # hooks defined in expansion have priority
+    expect(fns[2]).to eq fn3
   end
 
   it 'routes can be defined in template expansion' do
@@ -580,8 +580,8 @@ describe 'route set' do
       }
     }
 
-    expect(fn1).to eq set.match('/foo', :get)[0][3][0]
-    expect(fn2).to eq set.match('/foo/bar', :get)[0][3][0]
+    expect(set.match('/foo', :get)[0][3][0]).to eq fn1
+    expect(set.match('/foo/bar', :get)[0][3][0]).to eq fn2
   end
 
   it 'route paths can be overridden' do
@@ -603,8 +603,8 @@ describe 'route set' do
       }
     }
 
-    expect(fn1).to eq set.match('/foo/bar/foo', :get)[0][3][0]
-    expect(fn2).to eq set.match('/foo/bar', :get)[0][3][0]
+    expect(set.match('/foo/bar/foo', :get)[0][3][0]).to eq fn1
+    expect(set.match('/foo/bar', :get)[0][3][0]).to eq fn2
   end
 
   it 'nested path can be overridden' do
@@ -626,7 +626,7 @@ describe 'route set' do
       }
     }
 
-    expect(fn1).to eq set.match('/foo/nested/bar', :get)[0][3][0]
+    expect(set.match('/foo/nested/bar', :get)[0][3][0]).to eq fn1
   end
 
   it 'templates can expand without name' do
@@ -643,7 +643,7 @@ describe 'route set' do
       }
     }
 
-    expect(fn1).to eq set.match('/', :get)[0][3][0]
+    expect(set.match('/', :get)[0][3][0]).to eq fn1
   end
 
   it 'hooks defined with templates are used' do
@@ -663,8 +663,8 @@ describe 'route set' do
 
     fns = set.match('/', :get)[0][3]
 
-    expect(fn1).to eq fns[0]
-    expect(fn2).to eq fns[1]
+    expect(fns[0]).to eq fn1
+    expect(fns[1]).to eq fn2
   end
 
   it 'nested group will inherits hooks' do
@@ -683,7 +683,7 @@ describe 'route set' do
 
     fns = set.match('/', :get)[0][3]
 
-    expect(fn1).to eq fns[0]
-    expect(fn2).to eq fns[1]
+    expect(fns[0]).to eq fn1
+    expect(fns[1]).to eq fn2
   end
 end
