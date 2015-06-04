@@ -19,3 +19,10 @@ if ENV['COVERAGE']
   SimpleCov.formatter = SimpleCov::Formatter::Console
   SimpleCov.start
 end
+
+def redis_available?
+  Redis.new.get('test')
+  true
+rescue Redis::CannotConnectError
+  false
+end

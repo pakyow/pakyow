@@ -20,11 +20,12 @@ describe 'pub/sub with SimpleRegistry' do
   include_examples :pubsub
 end
 
-describe 'pub/sub with RedisRegistry' do
-  let :registry do
-    Pakyow::Realtime::RedisRegistry.instance
+if redis_available?
+  describe 'pub/sub with RedisRegistry' do
+    let :registry do
+      Pakyow::Realtime::RedisRegistry.instance
+    end
+
+    include_examples :pubsub
   end
-
-  include_examples :pubsub
 end
-
