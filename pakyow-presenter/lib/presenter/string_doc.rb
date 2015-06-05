@@ -315,8 +315,12 @@ module Pakyow
             return scope[:doc]
           end
 
-          find_channel(scope[:nested], name)
+          if doc = find_channel(scope[:nested], name)
+            return doc
+          end
         end
+
+        nil
       end
 
       def find_components(structure, primary_structure = @structure, components = [])
