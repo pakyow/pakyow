@@ -35,14 +35,14 @@ This process gets you right to work, reducing friction to keep the project movin
 
 The following resources might be handy:
 
-- [Website](http://pakyow.com)
-- [Warmup](http://pakyow.com/warmup)
-- [Docs](http://pakyow.com/docs)
+- [Website](http://pakyow.org)
+- [Warmup](http://pakyow.org/warmup)
+- [Docs](http://pakyow.org/docs)
 - [Code](http://github.com/pakyow/pakyow)
 
 Want to keep up with the latest development? Follow along:
 
-- [Blog](http://pakyow.com/blog)
+- [Blog](http://pakyow.org/blog)
 - [Mailing List](http://groups.google.com/group/pakyow)
 - [Twitter](http://twitter.com/pakyow)
 

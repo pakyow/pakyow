@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
 
   s.authors           = ['Bryan Powell', 'Bret Young']
   s.email             = 'bryan@metabahn.com'
-  s.homepage          = 'http://pakyow.com'
+  s.homepage          = 'http://pakyow.org'
   s.rubyforge_project = 'pakyow'
 
   s.files        = Dir['README', 'LICENSE', 'lib/**/*']
