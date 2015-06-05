@@ -45,5 +45,20 @@ shared_examples :scope_specs do
         expect(nested[:doc]).not_to eq(post_binding[:doc])
       }
     end
+
+    context 'when there is an unused partial in the path' do
+      let :view do
+        ViewContext.new(ViewComposer.from_path(store, 'scope_with_unused_partial'), {})
+      end
+
+      let :data do
+        { name: 'foo' }
+      end
+
+      it 'binds data to the scope' do
+        view = ViewContext.new(ViewComposer.from_path(ViewStore.new(VIEW_PATH), 'scope_with_unused_partial'), {})
+        expect(view.scope(:article).instance_variable_get(:@view).views.count).to eq(1)
+      end
+    end
   end
 end

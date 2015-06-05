@@ -121,15 +121,7 @@ module Pakyow
           parts << container
         end
 
-        # determine the partials to be included
-        available_partials = partials.keys
-
-        # add available partials as parts
-        partials.select { |name|
-          available_partials.include?(name)
-        }.each_pair { |_, partial|
-          parts << partial
-        }
+        parts.concat(partials_for_parts(parts))
 
         return parts
       end
@@ -174,6 +166,23 @@ module Pakyow
 
           [name, partial]
         }]
+      end
+
+      def partials_for_parts(parts, acc = [])
+        # determine the partials to be included
+        available_partials = parts.inject([]) { |sum, part|
+          sum.concat(part.doc.partials.keys)
+        }
+
+        # add available partials as parts
+        partials.select { |name|
+          available_partials.include?(name)
+        }.each_pair { |_, partial|
+          acc << partial
+          partials_for_parts([partial], acc)
+        }
+
+        return acc
       end
 
     end
