@@ -1,6 +1,6 @@
 Pakyow::App.define do
   configure(:test) do
-    presenter.view_stores[:default] = "test/views"
+    presenter.view_stores[:default] = "spec/views"
   end
 
   # This keeps the app from actually being run.
