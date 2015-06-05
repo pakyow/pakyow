@@ -4,6 +4,6 @@ module LogTestHelpers
   end
 
   def path
-    File.join(Dir.pwd, 'test')
+    File.join(Dir.pwd, 'spec')
   end
 end
