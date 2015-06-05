@@ -3,7 +3,6 @@ require 'minitest'
 require 'minitest/unit'
 require 'minitest/autorun'
 require 'pp'
-require 'pry'
 
 require File.join(File.dirname(__FILE__), '../../../pakyow-support/lib/pakyow-support')
 require File.join(File.dirname(__FILE__), '../../lib/pakyow-core')
