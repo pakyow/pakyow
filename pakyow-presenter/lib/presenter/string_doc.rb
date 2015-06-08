@@ -242,7 +242,11 @@ module Pakyow
       end
 
       def children
-        node[2][0][2]
+        if @structure.empty?
+          @structure
+        else
+          node[2][0][2]
+        end
       end
 
       def find_containers(structure, primary_structure = @structure, containers = {})
