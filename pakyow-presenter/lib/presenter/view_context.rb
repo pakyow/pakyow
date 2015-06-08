@@ -14,6 +14,8 @@ module Pakyow
       EXEC_ARITIES = { with: 0, for: 1, for_with_index: 2, repeat: 1,
         repeat_with_index: 2, bind: 1, bind_with_index: 2, apply: 1 }
 
+      attr_reader :context
+
       def initialize(view, context)
         @view = view
         @context = context
