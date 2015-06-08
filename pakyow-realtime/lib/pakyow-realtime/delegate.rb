@@ -20,7 +20,10 @@ module Pakyow
         @connections[key] = connection
 
         registry.channels_for_key(key).each do |channel|
+          next if connection.nil?
           @channels[channel] ||= []
+          
+          next if @channels[channel].include?(connection)
           @channels[channel] << connection
         end
       end
@@ -38,6 +41,9 @@ module Pakyow
       # Subscribes a websocket identified by its key to one or more channels.
       def subscribe(key, channels)
         registry.subscribe_to_channels_for_key(channels, key)
+
+        # register the connection again since we've added channels
+        register(key, @connections[key])
       end
 
       # Unsubscribes a websocket identified by its key to one or more channels.

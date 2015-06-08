@@ -90,6 +90,10 @@ describe Pakyow::Realtime::Delegate do
         delegate.subscribe(key, channels)
       end
 
+      after do
+        delegate.unsubscribe(key, channels)
+      end
+
       it 'subscribes the registry to channels for key' do
         expect(registry).to have_received(:subscribe_to_channels_for_key).with(channels, key)
       end
