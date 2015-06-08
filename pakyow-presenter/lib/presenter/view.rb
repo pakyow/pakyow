@@ -5,7 +5,7 @@ module Pakyow
     class View
       extend Forwardable
 
-      def_delegators :@doc, :title=, :title, :remove, :clear, :text, :html
+      def_delegators :@doc, :title=, :title, :remove, :clear, :text, :html, :exists?
 
       # The object responsible for parsing, manipulating, and rendering
       # the underlying HTML document for the view.

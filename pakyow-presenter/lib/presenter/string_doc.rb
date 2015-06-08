@@ -216,6 +216,10 @@ module Pakyow
         })
       end
 
+      def exists?
+        !@structure.empty?
+      end
+
       private
 
       def title_search

@@ -112,6 +112,14 @@ module Pakyow
         false
       end
 
+      def exists?
+        each do |view|
+          return true if view.exists?
+        end
+
+        false
+      end
+
       def component(name)
         inject(ViewCollection.new(scoped_as)) { |coll, view|
           scopes = view.component(name)
