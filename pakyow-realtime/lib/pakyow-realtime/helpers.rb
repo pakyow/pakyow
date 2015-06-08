@@ -19,6 +19,7 @@ module Pakyow
     #
     # @api private
     def socket_connection_id
+      return params[:socket_connection_id] if params[:socket_connection_id]
       @socket_connection_id ||= SecureRandom.hex(32)
     end
 
