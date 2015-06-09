@@ -1,7 +1,25 @@
 version = File.read(File.expand_path("../VERSION", __FILE__)).strip
-libs = %i[pakyow-support pakyow-core pakyow-presenter pakyow-mailer pakyow-rake pakyow-test pakyow-realtime]
 
-rspec_libs = %i[pakyow-support pakyow-core pakyow-presenter pakyow-mailer pakyow-test pakyow-realtime]
+libs = %i[
+  pakyow-support
+  pakyow-core
+  pakyow-presenter
+  pakyow-mailer
+  pakyow-rake
+  pakyow-test
+  pakyow-realtime
+  pakyow-ui
+]
+
+rspec_libs = %i[
+  pakyow-support
+  pakyow-core
+  pakyow-presenter
+  pakyow-mailer
+  pakyow-test
+  pakyow-realtime
+  pakyow-ui
+]
 
 task :ci do
   errors = []
