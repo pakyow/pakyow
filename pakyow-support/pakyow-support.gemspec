@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
 
   s.files        = Dir[
                         File.join(gem_path, 'CHANGES'),
-                        File.join(gem_path, 'README'),
+                        File.join(gem_path, 'README.md'),
                         File.join(gem_path, 'LICENSE'),
                         File.join(gem_path, 'lib','**','*')
                       ]
