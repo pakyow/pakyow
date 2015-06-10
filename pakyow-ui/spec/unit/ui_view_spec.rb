@@ -27,7 +27,14 @@ describe Pakyow::UI::UIView do
   end
 
   describe '#finalize' do
-    #TODO
+    it 'returns the full instruction set'
+  end
+
+  describe '#bind' do
+    it 'mixes in the bindings' do
+      view.bind({ one: 'one' }, bindings: { two: Proc.new { 'two' } })
+      expect(view.finalize[0][1][0][:two]).to eq('two')
+    end
   end
 
   #TODO test all ze view methods

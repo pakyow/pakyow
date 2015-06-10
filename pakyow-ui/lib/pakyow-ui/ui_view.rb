@@ -161,13 +161,11 @@ module Pakyow
       def bind(data, bindings: {}, context: nil, &block)
         #TODO handle context?
 
-        data = Array.ensure(data)
+        data = mixin_bindings(Array.ensure(data), bindings)
         nested = nested_instruct(:bind, data)
         return self unless block_given?
 
         data.each do |datum|
-          datum = mixin_bindings(datum)
-
           if block.arity == 1
             nested.instance_exec(datum, &block)
           else
@@ -192,13 +190,11 @@ module Pakyow
       def apply(data, bindings: {}, context: nil, &block)
         #TODO handle context?
 
-        data = Array.ensure(data)
+        data = mixin_bindings(Array.ensure(data), bindings)
         nested = nested_instruct(:apply, data)
         return self unless block_given?
 
         data.each do |datum|
-          datum = mixin_bindings(datum)
-
           if block.arity == 1
             nested.instance_exec(datum, &block)
           else
@@ -209,13 +205,19 @@ module Pakyow
 
       private
 
-      #TODO make this work
-      def mixin_bindings(data)
-        data
+      def mixin_bindings(data, bindings = {})
+        data.map { |datum|
+          Binder.instance.bindings_for_scope(scoped_as, bindings).keys.each do |key|
+            datum[key] = Binder.instance.value_for_scoped_prop(scoped_as, key, datum, bindings, self)
+          end
+
+          datum
+        }
       end
 
       def hashify(data)
         return data unless data.is_a?(Array)
+
         data.map { |datum|
           if datum.respond_to?(:to_hash)
             datum.to_hash
