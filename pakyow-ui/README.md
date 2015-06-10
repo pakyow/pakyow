@@ -1,21 +1,23 @@
 # PakyowUI
 
-Modern, realtime UIs for Pakyow apps, without moving to the client.
+Modern, live-updating UIs for Pakyow apps, without moving to the client.
 
 ## Rationale
 
 We wanted a way to build modern apps in a traditional backend-driven manner
-while still reaping the benefits of realtime UIs. Current approaches to realtime
-UIs *replace* backend-driven architecture rather than *extend* it.
+while still reaping the benefits of modern, live updating UIs. The existing
+approaches to building these modern UIs replace backend-driven architecture
+rather than extending it.
 
-PakyowUI is a layer on top of a traditional architecture rather than a new
-architecture unto itself. This means that Pakyow apps are still accessible and
-fully usable in cases where realtime isn't supported (e.g. in the absence of
-websockets, Javascript, etc).
+Instead of replacing traditional architecture, PakyowUI provides a layer on top
+of it. This allows Pakyow apps to remain accessible and fully usable in
+scenarios where real-time isn't supported (e.g. in the absence of WebSockets,
+JavaScript, etc).
 
-PakyowUI stays true to the fundamental nature of the web. It offers **realtime
-as progressive enhancement**. It allows for any aspect of a website or web app
-realtime, without any additional work by the developer.
+In doing so, PakyowUI stays true to the fundamental nature of the web. It aims
+to be the real-time web expressed as progressive enhancement. It allows for any
+aspect of a website or web app to be updated in real-time, without any
+additional work by the developer.
 
 ## Overview
 
@@ -59,19 +61,20 @@ Predictably, the updated view reflects the new state:
 By expressing view transformations as data, they can be applied to any view by
 any interpreter; be it on the server or the client.
 
-PakyowUI builds on the realtime library, so all of the communication between
-client and server occurs over websockets. If websockets aren't supported by the
+PakyowUI builds on the real-time library, so all of the communication between
+client and server occurs over a WebSocket. If WebSockets aren't supported by the
 client (or for some reason aren't working) the app will continue to work, just
-without realtime updates. You get this for free.
+without live updates. You get this for free without developing with progressive
+enhancement in mind.
 
 ---
 
-To accomplish this, view rendering needs to be expressed as a function
-of some data. The rendering itself is expressed independently of how to fetch
+To accomplish this, view rendering must be expressed as a function of some
+specific data.  The rendering itself is expressed independently of how to fetch
 the data necessary to perform the render, giving PakyowUI the ability to
 automatically perform the rendering again at some point in the future.
 
-This will make more sense after the next two sections
+This will make more sense after the next two sections.
 
 ## Data - Mutables
 
@@ -103,7 +106,7 @@ Pakyow::App.mutable :user do
 end
 ```
 
-From a route, we can use this to query data:
+From a route, we can use the mutable to query for data:
 
 ```ruby
 # get all the users
@@ -170,12 +173,12 @@ data(:user).create(params[:user])
 Pakyow knows that we've mutated our user state; it also knows what clients are
 currently rendering user state that would be affected by this mutation. It
 automatically builds up a set of instructions on how to update the rendered
-state and pushes it down to those clients over a websocket.
+state and pushes it down to those clients over a WebSocket.
 
 Our rendered views can now keep themselves up to date with the current state of
 the application; and we don't have to do anything but render the views! We don't
 have to move any part of our app to the client. Our app retains a backend-driven
-architecture while still behaving like a modern, realtime app.
+architecture while still behaving like a modern, live updating app.
 
 ## Client Library
 
@@ -186,7 +189,7 @@ transformations, Pakyow.js also ships with several components, including:
 - Mutation Detection: Watches user-interaction with the rendered view and can
 		interpret which interactions cause a mutation in state (e.g. submitting a
 		form). Once detected, the mutation is sent to the server by calling the REST
-		endpoint through the open websocket. The mutation is then validated by the
+		endpoint through the open WebSocket. The mutation is then validated by the
 		server, persisted (if necessary), and broadcast to all other clients.
 
 You can use Pakyow.js to build custom front-end components that emit their own
