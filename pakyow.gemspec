@@ -26,6 +26,7 @@ Gem::Specification.new do |s|
   s.add_dependency('pakyow-presenter',  version)
   s.add_dependency('pakyow-mailer',     version)
   s.add_dependency('pakyow-realtime',   version)
+  s.add_dependency('pakyow-ui',   version)
   s.add_dependency('pakyow-rake',       version)
   s.add_dependency('pakyow-test',       version)
 

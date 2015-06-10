@@ -4,6 +4,7 @@ DEPENDENCIES = %w[
   pakyow-presenter
   pakyow-mailer
   pakyow-realtime
+  pakyow-ui
 ]
 
 DEPENDENCIES.each do |lib|
