@@ -167,6 +167,8 @@ module Pakyow
             block.call(view, data[i])
           end
         end
+
+        self
       end
 
       # call-seq:

@@ -260,6 +260,8 @@ module Pakyow
         else
           block.call(self, datum)
         end
+
+        self
       end
 
       # call-seq:
