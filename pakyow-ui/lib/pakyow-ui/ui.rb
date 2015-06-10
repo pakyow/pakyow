@@ -20,7 +20,7 @@ module Pakyow
         end
       end
 
-      def mutated(scope, data: data, qualify: {})
+      def mutated(scope)
         MutationStore.instance.mutations(scope).each do |mutation|
           view = UIView.new(scope)
 
