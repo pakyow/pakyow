@@ -1,7 +1,7 @@
-require '/users/bryanp/code/pakyow/libs/pakyow/pakyow-support/lib/pakyow-support'
-require '/users/bryanp/code/pakyow/libs/pakyow/pakyow-core/lib/pakyow-core'
-require '/users/bryanp/code/pakyow/libs/pakyow/pakyow-presenter/lib/pakyow-presenter'
-require '/users/bryanp/code/pakyow/libs/pakyow/pakyow-realtime/lib/pakyow-realtime'
+require_relative '../../pakyow-support/lib/pakyow-support'
+require_relative '../../pakyow-core/lib/pakyow-core'
+require_relative '../../pakyow-presenter/lib/pakyow-presenter'
+require_relative '../../pakyow-realtime/lib/pakyow-realtime'
 
 require 'rack/test'
 
