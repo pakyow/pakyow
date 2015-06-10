@@ -13,7 +13,7 @@ gem 'mail', '~> 2.6'
 gem 'premailer', '~> 1.8'
 
 # realtime
-gem 'websocket_parser', '~> 0.1'
+gem 'websocket_parser', '~> 1.0'
 gem 'celluloid', '~> 0.16'
 gem 'redis', '~> 3.2'
 gem 'celluloid-redis', '>= 0'
