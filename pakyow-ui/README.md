@@ -32,9 +32,9 @@ Say we have a rendered view that presents a user's name:
 
 ```html
 <div data-scope="user" data-id="1">
-	<h3 data-prop="name">
-		Bob Dylan
-	</h3>
+  <h3 data-prop="name">
+    Bob Dylan
+  </h3>
 </div>
 ```
 
@@ -50,9 +50,9 @@ Predictably, the updated view reflects the new state:
 
 ```html
 <div data-scope="user" data-id="1">
-	<h3 data-prop="name">
-		Thelonius Monk
-	</h3>
+  <h3 data-prop="name">
+    Thelonius Monk
+  </h3>
 </div>
 ```
 
@@ -87,19 +87,19 @@ Here's how a mutable is defined:
 class User < Sequel::Model; end
 
 Pakyow::App.mutable :user do
-	model User
+  model User
 
-	action :create do |object|
-		User.create(object)
-	end
+  action :create do |object|
+    User.create(object)
+  end
 
-	query :all do
-		User.all
-	end
+  query :all do
+    User.all
+  end
 
-	query :find do |id|
-		User[id]
-	end
+  query :find do |id|
+    User[id]
+  end
 end
 ```
 
@@ -132,9 +132,9 @@ Here's a mutator for rendering a list of users:
 
 ```ruby
 Pakyow::Mutators :user do
-	mutator :list do |view, users|
-		view.apply(users)
-	end
+  mutator :list do |view, users|
+    view.apply(users)
+  end
 end
 ```
 
@@ -200,11 +200,11 @@ available [here](https://github.com/pakyow/pakyow/blob/master/pakyow-ui/pakyow.m
 Pakyow keeps track of what clients receive what mutations with channels. Here's
 how a channel is structured:
 
-	scope:{name};mutation{name}::{qualifiers}
+  scope:{name};mutation{name}::{qualifiers}
 
 In the example from the Mutators section, the subscribed channel name is:
 
-	scope:user;mutation:list
+  scope:user;mutation:list
 
 This means that any client who rendered any user data with the `list` mutation
 will receive future updates in user state. Read the next section to understand
@@ -219,7 +219,7 @@ For example, if you only wanted a particular user to be subscribed:
 
 ```ruby
 view.scope(:user).mutate(:list, with: data(:user).all).subscribe({
-	user_id: current_user.id
+  user_id: current_user.id
 })
 ```
 
@@ -227,16 +227,16 @@ The `user_id` qualifier is added to the channel name, so when mutations occur in
 the future the result will only be pushed down to that particular client. Here's
 the subscribed channel name:
 
-	scope:user;mutation:present::user_id:1
+  scope:user;mutation:present::user_id:1
 
 You can also qualify mutators. Here's how you would express that you want a
 particular user's mutations to be sent only to clients that render that state:
 
 ```ruby
 Pakyow::Mutators :user do
-	mutator :present, qualify: [:id] do |view, user|
-		view.bind(user)
-	end
+  mutator :present, qualify: [:id] do |view, user|
+    view.bind(user)
+  end
 end
 
 view.scope(:user).mutate(:present, with: data(:user).find(1)).subscribe
@@ -247,4 +247,4 @@ channel name. Now only client's who currently render the user with id of 1 will
 receive future state changes about that user. Here's the subscribed channel
 name:
 
-	scope:user;mutation:present::id:1
+  scope:user;mutation:present::id:1
