@@ -217,8 +217,8 @@ module Pakyow
       def hashify(data)
         return data unless data.is_a?(Array)
         data.map { |datum|
-          if datum.respond_to?(:to_h)
-            datum.to_h
+          if datum.respond_to?(:to_hash)
+            datum.to_hash
           else
             datum
           end
