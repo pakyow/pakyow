@@ -203,11 +203,11 @@ available [here](https://github.com/pakyow/pakyow/blob/master/pakyow-ui/pakyow.m
 Pakyow keeps track of what clients receive what mutations with channels. Here's
 how a channel is structured:
 
-  scope:{name};mutation{name}::{qualifiers}
+    scope:{name};mutation{name}::{qualifiers}
 
 In the example from the Mutators section, the subscribed channel name is:
 
-  scope:user;mutation:list
+    scope:user;mutation:list
 
 This means that any client who rendered any user data with the `list` mutation
 will receive future updates in user state. Read the next section to understand
@@ -230,7 +230,7 @@ The `user_id` qualifier is added to the channel name, so when mutations occur in
 the future the result will only be pushed down to that particular client. Here's
 the subscribed channel name:
 
-  scope:user;mutation:present::user_id:1
+    scope:user;mutation:present::user_id:1
 
 You can also qualify mutators. Here's how you would express that you want a
 particular user's mutations to be sent only to clients that render that state:
@@ -250,4 +250,4 @@ channel name. Now only client's who currently render the user with id of 1 will
 receive future state changes about that user. Here's the subscribed channel
 name:
 
-  scope:user;mutation:present::id:1
+    scope:user;mutation:present::id:1
