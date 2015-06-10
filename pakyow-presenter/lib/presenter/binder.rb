@@ -47,11 +47,15 @@ module Pakyow
       # @param context [Symbol] context passed through to the defined bindings
       #
       def value_for_scoped_prop(scope, prop, bindable, bindings, context)
-        binding_fn = @sets.lazy.map { |set|
-          set[1].match_for_prop(prop, scope, bindable, bindings)
-        }.find { |match|
-          !match.nil?
-        }
+        if @sets.empty?
+          binding_fn = bindings[prop]
+        else
+          binding_fn = @sets.lazy.map { |set|
+            set[1].match_for_prop(prop, scope, bindable, bindings)
+          }.find { |match|
+            !match.nil?
+          }
+        end
 
         if binding_fn
           binding_eval = BindingEval.new(prop, bindable, context)
@@ -85,9 +89,11 @@ module Pakyow
         }
       end
 
-      def bindings_for_scope(scope)
+      def bindings_for_scope(scope, bindings = {})
+        return bindings if @sets.empty?
+
         @sets.map { |set|
-          set[1].bindings_for_scope(scope, {})
+          set[1].bindings_for_scope(scope, bindings)
         }.inject({}) { |acc, bindings|
           acc.merge(bindings)
         }
