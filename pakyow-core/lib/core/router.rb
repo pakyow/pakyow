@@ -116,8 +116,8 @@ module Pakyow
       method = request.method
 
       match, data = nil
-      @sets.values.each { |set|
-        match, data = set.match(path, method)
+      @sets.each { |set|
+        match, data = set[1].match(path, method)
         break if match
       }
 
