@@ -206,9 +206,10 @@ module Pakyow
       private
 
       def mixin_bindings(data, bindings = {})
-        data.map { |datum|
+        data.map { |bindable|
+          datum = bindable.to_hash
           Binder.instance.bindings_for_scope(scoped_as, bindings).keys.each do |key|
-            datum[key] = Binder.instance.value_for_scoped_prop(scoped_as, key, datum, bindings, self)
+            datum[key] = Binder.instance.value_for_scoped_prop(scoped_as, key, bindable, bindings, self)
           end
 
           datum

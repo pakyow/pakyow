@@ -34,10 +34,11 @@ module Pakyow
 
       def method_missing(method, *args)
         if action = @actions[method]
-          action[:block].call(*args)
+          result = action[:block].call(*args)
           if action[:mutation]
             @context.ui.mutated(@scope)
           end
+          result
         elsif query = @queries[method]
           MutableData.new(query, method, args, @scope)
         else
