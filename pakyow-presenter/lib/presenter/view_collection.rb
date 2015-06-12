@@ -131,6 +131,20 @@ module Pakyow
         }
       end
 
+      def component?
+        each do |view|
+          return true if view.component?
+        end
+
+        false
+      end
+
+      def component_name
+        each do |view|
+          return view.component_name if view.component?
+        end
+      end
+
       # call-seq:
       #   with {|view| block}
       #
