@@ -1,10 +1,11 @@
 module Pakyow
   module UI
     module ChannelBuilder
-      def self.build(scope: nil, mutation: nil, qualifiers: [], data: [], qualifications: {})
+      def self.build(scope: nil, mutation: nil, component: nil, qualifiers: [], data: [], qualifications: {})
         channel = []
         channel << "scope:#{scope}" unless scope.nil?
         channel << "mutation:#{mutation}" unless mutation.nil?
+        channel << "component:#{component}" unless component.nil?
 
         channel_qualifiers = []
         qualifiers = Array.ensure(qualifiers)

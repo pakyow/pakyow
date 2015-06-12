@@ -19,7 +19,7 @@ module Pakyow
       end
 
       def mutations(scope)
-        @registry.mutations(scope)
+        @registry.mutations(scope) || []
       end
     end
   end

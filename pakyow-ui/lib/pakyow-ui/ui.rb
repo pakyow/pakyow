@@ -40,6 +40,10 @@ module Pakyow
           )
         end
       end
+
+      def component(name)
+        UIComponent.new(name)
+      end
     end
   end
 end

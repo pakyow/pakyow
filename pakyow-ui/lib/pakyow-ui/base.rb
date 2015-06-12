@@ -11,6 +11,7 @@ require_relative 'mutation_store'
 require_relative 'registries/simple_mutation_registry'
 require_relative 'registries/redis_mutation_registry'
 require_relative 'config'
+require_relative 'ui_component'
 
 require_relative 'ext/app'
 require_relative 'ext/app_context'

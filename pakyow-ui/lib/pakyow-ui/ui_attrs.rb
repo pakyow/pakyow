@@ -7,13 +7,13 @@ module Pakyow
       end
 
       def instruct(method, value)
-        @instructions << [method, value]
+        @instructions << [clean_method(method), value]
         self
       end
 
       def nested_instruct(method, value)
         attrs = UIAttrs.new
-        @instructions << [method, value, attrs]
+        @instructions << [clean_method(method), value, attrs]
         attrs
       end
 
@@ -37,6 +37,12 @@ module Pakyow
 
       def id
         method_missing(:id, nil)
+      end
+
+      private
+
+      def clean_method(method)
+        method.to_s.gsub('=', '').to_sym
       end
     end
   end
