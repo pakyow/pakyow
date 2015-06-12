@@ -151,6 +151,16 @@ Notice that we're mutating with the data from our mutable user. Pakyow will
 fetch the data using the `all` query and pass it to the `list` mutation where
 the view is rendered.
 
+***NOTE:*** One important cavaeat here is that the individual data passed to the mutate method needs to respond to the `to_hash` method, which should return a hash of all relevant attributes. E.g. For ActiveRecord models could define `to_hash` like this:
+
+```
+class User < ActiveRecord::Base
+  def to_hash
+    attributes
+  end
+end
+```
+
 At this point we've effectively turned view rendering into a declarative thing
 from the route's point of view. We only have to describe what happens and Pakyow
 takes care of the rest.
