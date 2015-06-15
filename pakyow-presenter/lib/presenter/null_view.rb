@@ -1,5 +1,5 @@
 module Pakyow
-  module UI
+  module Presenter 
     class NullView
       def initialize(message)
         @message = message
@@ -10,7 +10,7 @@ module Pakyow
       end
     end
 
-    class NoViewError < Exception
+    class NoViewError < StandardError
     end
   end
 end

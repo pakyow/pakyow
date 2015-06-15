@@ -103,15 +103,11 @@ module Pakyow
 
       def scope(name)
         name = name.to_sym
-        coll = @doc.scope(name).inject(ViewCollection.new(name)) do |coll, scope|
+        @doc.scope(name).inject(ViewCollection.new(name)) do |coll, scope|
           view = View.from_doc(scope[:doc])
           view.scoped_as = name
           coll << view
         end
-        if coll.empty?
-          coll << NullView.new("No scope found with name #{name}")
-        end
-        coll
       end
 
       def prop(name)

@@ -3,15 +3,20 @@ module Pakyow
     class ViewCollection
       include Enumerable
 
-      attr_reader :views, :scoped_as
+      attr_reader :scoped_as
 
       def initialize(scope = nil)
         @views = []
         @scoped_as = scope
       end
 
+      def views
+        return @views unless @views.empty?
+        [NullView.new("No scope found with name #{@scoped_as}")]
+      end
+
       def each
-        @views.each { |v| yield(v) }
+        views.each { |v| yield(v) }
       end
 
       def attrs(attrs = {})
@@ -83,7 +88,7 @@ module Pakyow
       end
 
       def scope(name)
-        coll = inject(ViewCollection.new(name)) { |coll, view|
+        inject(ViewCollection.new(name)) { |coll, view|
           scopes = view.scope(name)
           next if scopes.nil?
 
@@ -91,13 +96,8 @@ module Pakyow
             coll << scoped_view
           }
         }
-        if coll.empty?
-          coll << NullView.new("No scope found with name #{name}")
-        end
-        coll
+        
       end
-
-
 
       def prop(name)
         inject(ViewCollection.new(scoped_as)) { |coll, view|
