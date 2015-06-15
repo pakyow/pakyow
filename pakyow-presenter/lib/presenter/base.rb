@@ -1,7 +1,6 @@
 require 'yaml'
 
 require 'presenter/view_store'
-require 'presenter/null_view'
 require 'presenter/view'
 require 'presenter/template'
 require 'presenter/page'

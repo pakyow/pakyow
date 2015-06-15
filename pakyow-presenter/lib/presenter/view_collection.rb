@@ -83,7 +83,7 @@ module Pakyow
       end
 
       def scope(name)
-        coll = inject(ViewCollection.new(name)) { |coll, view|
+        inject(ViewCollection.new(name)) { |coll, view|
           scopes = view.scope(name)
           next if scopes.nil?
 
@@ -91,13 +91,7 @@ module Pakyow
             coll << scoped_view
           }
         }
-        if coll.empty?
-          coll << NullView.new("No scope found with name #{name}")
-        end
-        coll
       end
-
-
 
       def prop(name)
         inject(ViewCollection.new(scoped_as)) { |coll, view|
@@ -115,6 +109,7 @@ module Pakyow
           return true if view.versioned?
         end
 
+        false
       end
 
       def exists?
