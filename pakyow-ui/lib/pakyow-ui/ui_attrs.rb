@@ -31,12 +31,47 @@ module Pakyow
         nested_instruct(method, value)
       end
 
-      def class
-        method_missing(:class, nil)
+      def class(value)
+        if value.respond_to?(:to_proc)
+          value = value.to_proc
+          value.call(ClassTranslator.new(self)).translate
+        else
+          instruct(:class, value)
+        end
       end
 
       def id
         method_missing(:id, nil)
+      end
+
+      class ClassTranslator
+        def initialize(context)
+          @context = context
+          @attrs = @context.nested_instruct(:class, nil)
+          @includes = []
+          @removes = []
+        end
+
+        def <<(other)
+          @includes << other
+          self
+        end
+        alias_method :push, :<<
+
+        def delete(other)
+          @removes << other
+          other
+        end
+
+        def translate
+          @includes.flatten.uniq.each do |klass|
+            @attrs.instruct(:insert, klass)
+          end
+          @removes.flatten.uniq.each do |klass|
+            @attrs.instruct(:remove, klass)
+          end
+          @context
+        end
       end
     end
   end

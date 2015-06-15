@@ -212,7 +212,10 @@ module Pakyow
             datum[key] = Binder.instance.value_for_scoped_prop(scoped_as, key, bindable, bindings, self)
           end
 
-          datum
+          attrs = attrs_instruct
+          datum.each do |method, value|
+            attrs.__send__(method, value)
+          end 
         }
       end
 
