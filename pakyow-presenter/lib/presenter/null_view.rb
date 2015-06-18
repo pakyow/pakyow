@@ -5,6 +5,18 @@ module Pakyow
         @message = message
       end
 
+      def includes(*)
+        self
+      end
+
+      def scope(*)
+        self
+      end
+
+      def versioned?
+        false
+      end
+
       def method_missing(method, *args, &block)
         raise NoViewError.new(@message)
       end
