@@ -31,12 +31,12 @@ module Pakyow
         nested_instruct(method, value)
       end
 
-      def class(value)
+      def class(value = nil)
         if value.respond_to?(:to_proc)
           value = value.to_proc
           value.call(ClassTranslator.new(self)).translate
-        else
-          instruct(:class, value)
+        else value
+          method_missing(:class, value)
         end
       end
 
