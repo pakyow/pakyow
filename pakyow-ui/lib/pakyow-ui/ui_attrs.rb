@@ -40,7 +40,7 @@ module Pakyow
         end
       end
 
-      def id
+      def id(*)
         method_missing(:id, nil)
       end
 
