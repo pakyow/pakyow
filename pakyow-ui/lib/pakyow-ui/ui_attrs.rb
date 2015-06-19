@@ -65,10 +65,10 @@ module Pakyow
 
         def translate
           @includes.flatten.uniq.each do |klass|
-            @attrs.instruct(:insert, klass)
+            @attrs.nested_instruct(:insert, klass)
           end
           @removes.flatten.uniq.each do |klass|
-            @attrs.instruct(:remove, klass)
+            @attrs.nested_instruct(:remove, klass)
           end
           @context
         end
