@@ -209,9 +209,21 @@ module Pakyow
         data.map { |bindable|
           datum = bindable.to_hash
           Binder.instance.bindings_for_scope(scoped_as, bindings).keys.each do |key|
-            datum[key] = Binder.instance.value_for_scoped_prop(scoped_as, key, bindable, bindings, self)
+            value = Binder.instance.value_for_scoped_prop(
+              scoped_as, key, bindable, bindings, self
+            )
+            if value.respond_to?(:to_hash)
+              value = value.to_hash
+              value.each do |attr, attr_val|
+                if attr_val.respond_to?(:to_proc)
+                  view = UIView.new(scoped_as)
+                  attrs = view.attrs
+                  value[attr] = attrs.send(attr, attr_val).finalize
+                end
+              end
+            end
+            datum[key] = value
           end
-
           datum
         }
       end
