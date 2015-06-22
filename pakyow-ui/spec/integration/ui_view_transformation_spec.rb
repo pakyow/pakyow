@@ -36,7 +36,7 @@ describe 'transforming a ui view' do
         view.text = datum[:text]
       end
 
-      expect(view.finalize).to eq([[:bind, [{ text: 'foo' }, { text: 'bar' }], [[:text, 'foo'], [:text, 'bar']]]])
+      expect(view.finalize).to eq([[:bind, [{:text=>"foo"}, {:text=>"bar"}], [[[:text, "foo"]], [[:text, "bar"]]]]])
     end
   end
 

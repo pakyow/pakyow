@@ -113,49 +113,39 @@ module Pakyow
       def for(data, &block)
         nested = nested_instruct(:for, data)
         Array.ensure(data).each do |datum|
+          sub = UIView.new(@scope)
+
           if block.arity == 1
-            nested.instance_exec(datum, &block)
+            sub.instance_exec(datum, &block)
           else
-            block.call(nested, datum)
+            block.call(sub, datum)
           end
+
+          nested.instructions << sub.finalize
         end
       end
 
-      def for_with_index(data, &block)
-        i = 0
-        self.for(data) do |view, datum|
-          if block.arity == 2
-            view.instance_exec(datum, i, &block)
-          else
-            block.call(view, datum, i)
-          end
-
-          i += 1
-        end
+      def for_with_index(*args, &block)
+        self.for(*args, &block)
       end
 
       def repeat(data, &block)
         nested = nested_instruct(:repeat, data)
         Array.ensure(data).each do |datum|
+          sub = UIView.new(@scope)
+
           if block.arity == 1
-            nested.instance_exec(datum, &block)
+            sub.instance_exec(datum, &block)
           else
-            block.call(nested, datum)
+            block.call(sub, datum)
           end
+
+          nested.instructions << sub.finalize
         end
       end
 
-      def repeat_with_index(data, &block)
-        i = 0
-        repeat(data) do |view, datum|
-          if block.arity == 2
-            view.instance_exec(datum, i, &block)
-          else
-            block.call(view, datum, i)
-          end
-
-          i += 1
-        end
+      def repeat_with_index(*args, &block)
+        repeat(*args, &block)
       end
 
       def bind(data, bindings: {}, context: nil, &block)
@@ -166,25 +156,20 @@ module Pakyow
         return self unless block_given?
 
         data.each do |datum|
+          sub = UIView.new(@scope)
+
           if block.arity == 1
-            nested.instance_exec(datum, &block)
+            sub.instance_exec(datum, &block)
           else
-            block.call(nested, datum)
+            block.call(sub, datum)
           end
+
+          nested.instructions << sub.finalize
         end
       end
 
-      def bind_with_index(data, bindings: {}, context: nil, &block)
-        i = 0
-        bind(data, bindings: bindings, context: context) do |view, datum|
-          if block.arity == 2
-            view.instance_exec(datum, i, &block)
-          else
-            block.call(view, datum, i)
-          end
-
-          i += 1
-        end
+      def bind_with_index(*args, &block)
+        bind(*args, &block)
       end
 
       def apply(data, bindings: {}, context: nil, &block)
@@ -195,11 +180,15 @@ module Pakyow
         return self unless block_given?
 
         data.each do |datum|
+          sub = UIView.new(@scope)
+
           if block.arity == 1
-            nested.instance_exec(datum, &block)
+            sub.instance_exec(datum, &block)
           else
-            block.call(nested, datum)
+            block.call(sub, datum)
           end
+
+          nested.instructions << sub.finalize
         end
       end
 
@@ -208,8 +197,8 @@ module Pakyow
       def mixin_bindings(data, bindings = {})
         data.map { |bindable|
           datum = bindable.to_hash
-          Binder.instance.bindings_for_scope(scoped_as, bindings).keys.each do |key|
-            datum[key] = Binder.instance.value_for_scoped_prop(scoped_as, key, bindable, bindings, self)
+          Pakyow::Presenter::Binder.instance.bindings_for_scope(scoped_as, bindings).keys.each do |key|
+            datum[key] = Pakyow::Presenter::Binder.instance.value_for_scoped_prop(scoped_as, key, bindable, bindings, self)
           end
 
           datum
