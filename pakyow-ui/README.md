@@ -205,8 +205,7 @@ transformations, Pakyow.js also ships with several components, including:
 You can use Pakyow.js to build custom front-end components that emit their own
 mutations or otherwise communicate with the server through the built-in APIs.
 
-The Pakyow.js project will be made available soon. For now, the latest build is
-available [here](https://github.com/pakyow/pakyow/blob/master/pakyow-ui/pakyow.min.js).
+The Pakyow.js project is [available here](http://github.com/pakyow/pakyow-js).
 
 ## Channels
 
