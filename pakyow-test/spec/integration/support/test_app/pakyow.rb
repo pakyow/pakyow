@@ -72,27 +72,27 @@ Pakyow::App.define do
 
     get :append, '/append' do
       presenter.path = 'scoped'
-      view.scope(:post).append(View.new(params[:text]))
+      view.scope(:post).append(Pakyow::Presenter::View.new(params[:text]))
     end
 
     get :prepend, '/prepend' do
       presenter.path = 'scoped'
-      view.scope(:post).prepend(View.new(params[:text]))
+      view.scope(:post).prepend(Pakyow::Presenter::View.new(params[:text]))
     end
 
     get :after, '/after' do
       presenter.path = 'scoped'
-      view.scope(:post).after(View.new(params[:text]))
+      view.scope(:post).after(Pakyow::Presenter::View.new(params[:text]))
     end
 
     get :before, '/before' do
       presenter.path = 'scoped'
-      view.scope(:post).before(View.new(params[:text]))
+      view.scope(:post).before(Pakyow::Presenter::View.new(params[:text]))
     end
 
     get :replace, '/replace' do
       presenter.path = 'scoped'
-      view.scope(:post).replace(View.new(params[:text]))
+      view.scope(:post).replace(Pakyow::Presenter::View.new(params[:text]))
     end
 
     ### view composition
