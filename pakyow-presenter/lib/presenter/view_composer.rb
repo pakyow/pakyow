@@ -134,7 +134,10 @@ module Pakyow
           view.includes(partials)
         end
 
-        if collection.versioned?
+        #TODO make sure anytime we return a collection it tries to version
+        # make this a class level helper method on ViewVersion
+        if !collection.is_a?(ViewVersion) && collection.versioned?
+          puts collection.class.inspect
           ViewVersion.new(collection.views)
         else
           collection

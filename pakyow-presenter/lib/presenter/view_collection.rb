@@ -83,7 +83,7 @@ module Pakyow
       end
 
       def scope(name)
-        inject(ViewCollection.new(name)) { |coll, view|
+        collection = inject(ViewCollection.new(name)) { |coll, view|
           scopes = view.scope(name)
           next if scopes.nil?
 
@@ -91,6 +91,12 @@ module Pakyow
             coll << scoped_view
           }
         }
+
+        if collection.versioned?
+          ViewVersion.new(collection.views)
+        else
+          collection
+        end
       end
 
       def prop(name)
@@ -121,7 +127,7 @@ module Pakyow
       end
 
       def component(name)
-        inject(ViewCollection.new(scoped_as)) { |coll, view|
+        collection = inject(ViewCollection.new(scoped_as)) { |coll, view|
           scopes = view.component(name)
           next if scopes.nil?
 
@@ -129,6 +135,12 @@ module Pakyow
             coll << scoped_view
           }
         }
+
+        if collection.versioned?
+          ViewVersion.new(collection.views)
+        else
+          collection
+        end
       end
 
       def component?
