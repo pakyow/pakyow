@@ -10,9 +10,7 @@ module Pakyow
         @instructions = []
       end
 
-      def push(&block)
-        instance_exec(&block)
-
+      def push
         #TODO make it work with qualifiers
         Pakyow.app.socket.push(
           { instruct: finalize },
@@ -44,6 +42,7 @@ module Pakyow
 
       def prepend(data)
         instruct(:prepend, data)
+        push
       end
 
       def finalize
