@@ -3,6 +3,10 @@
 module Pakyow
   module UI
     class Mutable
+      include Helpers
+
+      attr_reader :context
+
       def initialize(context, scope, &block)
         @context = context
         @scope   = scope

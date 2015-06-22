@@ -5,7 +5,7 @@ module Pakyow
     end
 
     def data(scope)
-      ui.mutator.mutable(scope, context)
+      ui.mutator.mutable(scope, self)
     end
   end
 end
