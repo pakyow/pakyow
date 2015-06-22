@@ -280,27 +280,29 @@ module Pakyow
 
       request.error = error
 
-      handle(500, false) unless found?
+      catch :halt do
+        handle(500, false) unless found?
 
-      if config.app.errors_in_browser
-        response["Content-Type"] = 'text/html'
+        if config.app.errors_in_browser
+          response["Content-Type"] = 'text/html'
 
-        view_file = File.join(File.expand_path('../../', __FILE__), 'views', 'errors', '500.html')
-        content = File.open(view_file).read
+          view_file = File.join(File.expand_path('../../', __FILE__), 'views', 'errors', '500.html')
+          content = File.open(view_file).read
 
-        path = String.normalize_path(request.path)
-        path = '/' if path.empty?
+          path = String.normalize_path(request.path)
+          path = '/' if path.empty?
 
-        nice_source = error.backtrace[0].match(/^(.+?):(\d+)(|:in `(.+)')$/)
+          nice_source = error.backtrace[0].match(/^(.+?):(\d+)(|:in `(.+)')$/)
 
-        content.gsub!('{file}', nice_source[1].gsub(File.expand_path(Config.app.root) + '/', ''))
-        content.gsub!('{line}', nice_source[2])
+          content.gsub!('{file}', nice_source[1].gsub(File.expand_path(Config.app.root) + '/', ''))
+          content.gsub!('{line}', nice_source[2])
 
-        content.gsub!('{msg}', CGI.escapeHTML(error.to_s))
-        content.gsub!('{trace}', error.backtrace.map { |bt| CGI.escapeHTML(bt) }.join('<br>'))
+          content.gsub!('{msg}', CGI.escapeHTML(error.to_s))
+          content.gsub!('{trace}', error.backtrace.map { |bt| CGI.escapeHTML(bt) }.join('<br>'))
 
-        response.body = []
-        response.body << content
+          response.body = []
+          response.body << content
+        end
       end
 
       call_stack(:after, :error)
