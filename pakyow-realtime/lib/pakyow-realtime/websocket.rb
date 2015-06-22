@@ -99,6 +99,9 @@ module Pakyow
         begin
           @parser << @socket.read_nonblock(16384)
         rescue ::IO::WaitReadable
+        rescue EOFError
+          delegate.unregister(@key)
+          shutdown
         end
       end
     end
