@@ -1,8 +1,8 @@
 require_relative 'support/helper'
 
-describe ViewStore do
+describe Pakyow::Presenter::ViewStore do
   before do
-    @store = ViewStore.new(VIEW_PATH)
+    @store = Pakyow::Presenter::ViewStore.new(VIEW_PATH)
   end
 
   it 'finds path at file' do

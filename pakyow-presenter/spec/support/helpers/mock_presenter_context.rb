@@ -4,6 +4,6 @@ class MockPresenterContext
 
   def initialize
     @presenter = MockPresenter.new
-    @context = AppContext.new
+    @context = Pakyow::AppContext.new
   end
 end

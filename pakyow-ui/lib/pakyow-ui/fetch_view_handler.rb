@@ -5,7 +5,7 @@ Pakyow::Realtime::MessageHandler.register :'fetch-view' do |message, session, re
   app = Pakyow.app.dup
 
   def app.view
-    Pakyow::Presenter::NoOpView.new(ViewContext.new(@presenter.view, self), self)
+    Pakyow::Presenter::NoOpView.new(Pakyow::Presenter::ViewContext.new(@presenter.view, self), self)
   end
 
   app_response = app.process(env)

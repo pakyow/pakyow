@@ -27,9 +27,11 @@ require 'core/middleware/static'
 require 'core/middleware/reloader'
 
 module Pakyow
-  attr_accessor :app, :logger
+  class << self
+    attr_accessor :app, :logger
+  end
 
-  def configure_logger
+  def self.configure_logger
     logs = []
 
     if File.directory?(Config.logger.path)

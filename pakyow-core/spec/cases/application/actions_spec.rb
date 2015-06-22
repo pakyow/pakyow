@@ -70,7 +70,7 @@ describe  'App Actions' do
     path = '/foo/'
     router = MockRouter.new
     Pakyow.app.router = router
-    Pakyow.app.context = AppContext.new(mock_request(path), mock_response)
+    Pakyow.app.context = Pakyow::AppContext.new(mock_request(path), mock_response)
     Pakyow.app.reroute(path)
 
     expect(Pakyow.app.request.method).to eq :get
@@ -85,7 +85,7 @@ describe  'App Actions' do
     method = :put
     router = MockRouter.new
     Pakyow.app.router = router
-    Pakyow.app.context = AppContext.new(mock_request(path), mock_response)
+    Pakyow.app.context = Pakyow::AppContext.new(mock_request(path), mock_response)
     Pakyow.app.reroute(path, method)
 
     expect(Pakyow.app.request.method).to eq method
@@ -147,7 +147,7 @@ describe  'App Actions' do
 
   it 'can send a file with type' do
     reset
-    Pakyow.app.context = AppContext.new(mock_request, mock_response)
+    Pakyow.app.context = Pakyow::AppContext.new(mock_request, mock_response)
 
     type = 'text/plain'
     path = File.join(File.dirname(__FILE__), '../../support/helpers/foo.txt')
@@ -164,7 +164,7 @@ describe  'App Actions' do
 
   it 'can send a file with type as attachment' do
     reset
-    Pakyow.app.context = AppContext.new(mock_request, mock_response)
+    Pakyow.app.context = Pakyow::AppContext.new(mock_request, mock_response)
 
     as = 'foo.txt'
     type = 'text/plain'

@@ -1,9 +1,9 @@
 require_relative 'support/helper'
 include ViewBindingHelpers
 
-describe View do
+describe Pakyow::Presenter::View do
   before do
-    @view = View.new
+    @view = Pakyow::Presenter::View.new
   end
 
   describe '#with' do

@@ -6,11 +6,11 @@ describe 'restful route'do
 
   before do
     Pakyow::App.stage(:test)
-    Pakyow.app.context = AppContext.new(mock_request, mock_response)
+    Pakyow.app.context = Pakyow::AppContext.new(mock_request, mock_response)
   end
 
   context 'action' do
-    let(:set) { RouteSet.new }
+    let(:set) { Pakyow::RouteSet.new }
 
     before do
       fn = lambda {}
@@ -66,7 +66,7 @@ describe 'restful route'do
 
 
   it 'routes defined for passed actions only' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     fn = lambda {}
     set.eval {
@@ -81,7 +81,7 @@ describe 'restful route'do
   end
 
   it 'supports member routes' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
     fn = lambda {}
 
     set.eval {
@@ -96,7 +96,7 @@ describe 'restful route'do
   end
 
   it 'supports collection routes' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
     fn = lambda {}
 
     set.eval {
@@ -111,7 +111,7 @@ describe 'restful route'do
   end
 
   it 'supports collection routes with show action first' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
     fn = lambda {}
 
     set.eval {
@@ -128,7 +128,7 @@ describe 'restful route'do
   end
 
   it 'supports show action route last' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
     fn = lambda {}
 
     set.eval {
@@ -144,7 +144,7 @@ describe 'restful route'do
   end
 
   it 'supports nested resources' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
     fn = lambda {}
 
     set.eval {
@@ -163,7 +163,7 @@ describe 'restful route'do
   end
 
   it 'show and new do not conflict' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
     fn = lambda {}
 
     set.eval {

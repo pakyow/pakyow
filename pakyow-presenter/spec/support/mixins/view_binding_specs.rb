@@ -1,12 +1,12 @@
 shared_examples :binding_specs do
   let :store do
-    ViewStore.new(VIEW_PATH)
+    Pakyow::Presenter::ViewStore.new(VIEW_PATH)
   end
 
   describe 'binding data to a view' do
     context 'when scope is defined in a view and prop in a partial' do
       let :view do
-        ViewContext.new(ViewComposer.from_path(store, 'prop_in_partial'), {})
+        Pakyow::Presenter::ViewContext.new(Pakyow::Presenter::ViewComposer.from_path(store, 'prop_in_partial'), {})
       end
 
       let :data do
@@ -26,7 +26,7 @@ shared_examples :binding_specs do
 
     context 'when the scope is nested within multiple partials' do
       let :view do
-        ViewContext.new(ViewComposer.from_path(store, 'scope_in_multiple_partials'), {})
+        Pakyow::Presenter::ViewContext.new(Pakyow::Presenter::ViewComposer.from_path(store, 'scope_in_multiple_partials'), {})
       end
 
       let :data do

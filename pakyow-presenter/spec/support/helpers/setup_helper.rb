@@ -14,7 +14,7 @@ module SetupHelper
       }
     }
 
-    Pakyow.app.context = AppContext.new(mock_request, mock_response)
+    Pakyow.app.context = Pakyow::AppContext.new(mock_request, mock_response)
 
     Pakyow.app.bindings {
       scope(:foo) {
@@ -26,6 +26,6 @@ module SetupHelper
   end
 
   def teardown
-    Binder.instance.reset
+    Pakyow::Presenter::Binder.instance.reset
   end
 end

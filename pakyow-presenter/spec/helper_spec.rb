@@ -1,6 +1,6 @@
 require_relative 'support/helper'
 
-describe Helpers do
+describe Pakyow::Helpers do
   before(:each) do
     @context = MockPresenterContext.new
   end
@@ -14,22 +14,22 @@ describe Helpers do
   end
 
   it 'returns a context from a view' do
-    expect(@context.view.is_a?(ViewContext)).to eq true
+    expect(@context.view.is_a?(Pakyow::Presenter::ViewContext)).to eq true
   end
 
   it 'returns a context from a partial' do
-    expect(@context.partial(:foo).is_a?(ViewContext)).to eq true
+    expect(@context.partial(:foo).is_a?(Pakyow::Presenter::ViewContext)).to eq true
   end
 
   it 'returns a context from a template' do
-    expect(@context.template.is_a?(ViewContext)).to eq true
+    expect(@context.template.is_a?(Pakyow::Presenter::ViewContext)).to eq true
   end
 
   it 'returns a context from a page' do
-    expect(@context.page.is_a?(ViewContext)).to eq true
+    expect(@context.page.is_a?(Pakyow::Presenter::ViewContext)).to eq true
   end
 
   it 'returns a context from a container' do
-    expect(@context.container(:foo).is_a?(ViewContext)).to eq true
+    expect(@context.container(:foo).is_a?(Pakyow::Presenter::ViewContext)).to eq true
   end
 end

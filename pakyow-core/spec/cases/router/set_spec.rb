@@ -6,11 +6,11 @@ describe 'route set' do
 
   before do
     Pakyow::App.stage(:test)
-    Pakyow.app.context = AppContext.new(mock_request, mock_response)
+    Pakyow.app.context = Pakyow::AppContext.new(mock_request, mock_response)
   end
 
  it 'is registered and fetchable' do
-    set = RouteEval.new
+    set = Pakyow::RouteEval.new
 
     fn1 = lambda {}
     fn2 = lambda {}
@@ -25,7 +25,7 @@ describe 'route set' do
   end
 
   it 'is created and matched' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     fn1 = lambda {}
 
@@ -38,7 +38,7 @@ describe 'route set' do
   end
 
   it 'creates and matches all routes' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     fn1 = lambda {}
     fn2 = lambda {}
@@ -83,7 +83,7 @@ describe 'route set' do
   end
 
   it 'matches head as get' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     fn1 = lambda {}
 
@@ -98,7 +98,7 @@ describe 'route set' do
   end
 
   it 'accepts fn list for route' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     fn1 = lambda {}
 
@@ -111,7 +111,7 @@ describe 'route set' do
   end
 
   it 'can be defined without fn' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     set.eval {
       get('foo')
@@ -121,7 +121,7 @@ describe 'route set' do
   end
 
   it 'can accept single fn' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
     fn1 = lambda {}
 
     set.eval {
@@ -132,7 +132,7 @@ describe 'route set' do
   end
 
   it 'matches keyed routes' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     set.eval {
       get(':id') {}
@@ -143,7 +143,7 @@ describe 'route set' do
     expect(set.match('1', :get)).to_not be_nil
     expect(set.match('foo', :get)).to_not be_nil
 
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     set.eval {
       get('foo/:id') {}
@@ -156,33 +156,33 @@ describe 'route set' do
   end
 
   it 'has vars that are extracted and available through request' do
-    rtr = Router.instance
+    rtr = Pakyow::Router.instance
     rtr.set(:test) {
       get(':id') { }
     }
 
     %w(1 foo).each { |data|
-      context = AppContext.new(mock_request("/#{data}"))
-      Router.instance.perform(context)
+      context = Pakyow::AppContext.new(mock_request("/#{data}"))
+      Pakyow::Router.instance.perform(context)
       expect(context.request.params[:id]).to eq data
     }
   end
 
   it 'has regexp name captures that are extracted and available through request' do
-    rtr = Router.instance
+    rtr = Pakyow::Router.instance
     rtr.set(:test) {
       get(/^foo\/(?<id>(\w|[-.~:@!$\'\(\)\*\+,;])*)$/) { }
     }
 
     %w(1 foo).each { |data|
-      context = AppContext.new(mock_request("foo/#{data}"))
-      Router.instance.perform(context)
+      context = Pakyow::AppContext.new(mock_request("foo/#{data}"))
+      Pakyow::Router.instance.perform(context)
       expect(context.request.params[:id]).to eq data
     }
   end
 
   it 'can be referenced by name' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     set.eval {
       get('foo', :foo) {}
@@ -193,7 +193,7 @@ describe 'route set' do
   end
 
   it 'can have name as first argument' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     set.eval {
       get(:foo, 'foo') {}
@@ -204,7 +204,7 @@ describe 'route set' do
   end
 
   it 'registers and matches handler' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     name = :err
     code = 500
@@ -221,7 +221,7 @@ describe 'route set' do
   end
 
   it 'can add hooks to route' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     fn1 = lambda {}
     fn2 = lambda {}
@@ -247,7 +247,7 @@ describe 'route set' do
   end
 
   it 'can add hooks to route by name' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     fn1 = lambda {}
     fn2 = lambda {}
@@ -267,7 +267,7 @@ describe 'route set' do
   end
 
   it 'hooks can be added to handler' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     fn1 = lambda {}
     fn2 = lambda {}
@@ -293,7 +293,7 @@ describe 'route set' do
   end
 
   it 'hooks can be added to handler by name' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     fn1 = lambda {}
     fn2 = lambda {}
@@ -313,7 +313,7 @@ describe 'route set' do
   end
 
   it 'can match grouped routes' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
     set.eval {
       group(:test_group) {
         default {}
@@ -324,7 +324,7 @@ describe 'route set' do
   end
 
   it 'has grouped routes than can inherit hooks' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     fn1 = lambda {}
     fn2 = lambda {}
@@ -347,7 +347,7 @@ describe 'route set' do
   end
 
   it 'can be matched by namespace' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     set.eval {
       namespace('foo', :test_ns) {
@@ -360,7 +360,7 @@ describe 'route set' do
   end
 
   it 'have namespaced names as first argument' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     set.eval {
       namespace(:test_ns, 'foo') {
@@ -373,7 +373,7 @@ describe 'route set' do
   end
 
   it 'with namespaced routes can inherit hooks' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     fn1 = lambda {}
     fn2 = lambda {}
@@ -396,7 +396,7 @@ describe 'route set' do
   end
 
   it 'route templates can be defined and expanded' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     fn1 = lambda {}
 
@@ -414,7 +414,7 @@ describe 'route set' do
   end
 
   it 'templates can be expanded dynamically' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     fn1 = lambda {}
 
@@ -432,7 +432,7 @@ describe 'route set' do
   end
 
   it 'route templates can define hooks for actions' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     fn1 = lambda {}
     fn2 = lambda {}
@@ -456,7 +456,7 @@ describe 'route set' do
   end
 
   it 'route templates can define groups' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     set.eval {
       template(:test_template) {
@@ -474,7 +474,7 @@ describe 'route set' do
   end
 
   it 'route template groups handle hooks' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     fn1 = lambda {}
     fn2 = lambda {}
@@ -500,7 +500,7 @@ describe 'route set' do
   end
 
   it 'route templates can define namespaces' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     set.eval {
       template(:test_template) {
@@ -518,7 +518,7 @@ describe 'route set' do
   end
 
   it 'route template namespaces handle hooks' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     fn1 = lambda {}
     fn2 = lambda {}
@@ -544,7 +544,7 @@ describe 'route set' do
   end
 
   it 'routes can be defined in template expansion' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     fn1 = lambda {}
 
@@ -561,7 +561,7 @@ describe 'route set' do
   end
 
   it 'can expand nested templates' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     fn1 = lambda {}
     fn2 = lambda {}
@@ -585,7 +585,7 @@ describe 'route set' do
   end
 
   it 'route paths can be overridden' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     fn1 = lambda {}
     fn2 = lambda {}
@@ -608,7 +608,7 @@ describe 'route set' do
   end
 
   it 'nested path can be overridden' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     fn1 = lambda {}
 
@@ -630,7 +630,7 @@ describe 'route set' do
   end
 
   it 'templates can expand without name' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     fn1 = lambda {}
 
@@ -647,7 +647,7 @@ describe 'route set' do
   end
 
   it 'hooks defined with templates are used' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     fn1 = lambda {}
     fn2 = lambda {}
@@ -668,7 +668,7 @@ describe 'route set' do
   end
 
   it 'nested group will inherits hooks' do
-    set = RouteSet.new
+    set = Pakyow::RouteSet.new
 
     fn1 = lambda {}
     fn2 = lambda {}

@@ -12,7 +12,7 @@ shared_examples :scope_specs do
       </div>
       D
 
-      View.from_doc(doctype.new(string))
+      Pakyow::Presenter::View.from_doc(doctype.new(string))
     }
 
     it 'finds single scope' do
@@ -48,7 +48,7 @@ shared_examples :scope_specs do
 
     context 'when there is an unused partial in the path' do
       let :view do
-        ViewContext.new(ViewComposer.from_path(store, 'scope_with_unused_partial'), {})
+        Pakyow::Presenter::ViewContext.new(Pakyow::Presenter::ViewComposer.from_path(store, 'scope_with_unused_partial'), {})
       end
 
       let :data do
@@ -56,7 +56,7 @@ shared_examples :scope_specs do
       end
 
       it 'binds data to the scope' do
-        view = ViewContext.new(ViewComposer.from_path(ViewStore.new(VIEW_PATH), 'scope_with_unused_partial'), {})
+        view = Pakyow::Presenter::ViewContext.new(Pakyow::Presenter::ViewComposer.from_path(Pakyow::Presenter::ViewStore.new(VIEW_PATH), 'scope_with_unused_partial'), {})
         expect(view.scope(:article).instance_variable_get(:@view).views.count).to eq(1)
       end
     end

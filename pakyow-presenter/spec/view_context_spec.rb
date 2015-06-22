@@ -2,7 +2,7 @@ require_relative 'support/helper'
 
 describe Pakyow::Presenter::ViewContext do
   let :view do
-    double('view', bind: View.new, foo: :bar)
+    double('view', bind: Pakyow::Presenter::View.new, foo: :bar)
   end
 
   let :app_context do
@@ -10,7 +10,7 @@ describe Pakyow::Presenter::ViewContext do
   end
 
   let :view_context do
-    ViewContext.new(view, app_context)
+    Pakyow::Presenter::ViewContext.new(view, app_context)
   end
 
   it 'sets view on initialization' do
@@ -31,13 +31,13 @@ describe Pakyow::Presenter::ViewContext do
   end
 
   it 'includes helpers' do
-    expect(ViewContext.ancestors).to include(Pakyow::Helpers)
+    expect(Pakyow::Presenter::ViewContext.ancestors).to include(Pakyow::Helpers)
   end
 
   context 'when called method returns a view' do
     it 'returns a new view context' do
       ret = view_context.bind({})
-      expect(ret).to be_a(ViewContext)
+      expect(ret).to be_a(Pakyow::Presenter::ViewContext)
       expect(ret).not_to eq(view_context)
     end
   end
@@ -59,118 +59,118 @@ describe Pakyow::Presenter::ViewContext do
 
   context 'when calling view methods that yield or exec views' do
     let :view_context do
-      ViewContext.new(View.new, app_context)
+      Pakyow::Presenter::ViewContext.new(Pakyow::Presenter::View.new, app_context)
     end
 
     describe '#with' do
       it 'yields context' do
         view_context.with do |ctx|
-          expect(ctx).to be_a(ViewContext)
+          expect(ctx).to be_a(Pakyow::Presenter::ViewContext)
         end
       end
 
       it 'execs in context' do
         ctx = nil
         view_context.with { ctx = self }
-        expect(ctx).to be_a(ViewContext)
+        expect(ctx).to be_a(Pakyow::Presenter::ViewContext)
       end
     end
 
     describe '#for' do
       it 'yields context' do
         view_context.for({}) do |ctx, _|
-          expect(ctx).to be_a(ViewContext)
+          expect(ctx).to be_a(Pakyow::Presenter::ViewContext)
         end
       end
 
       it 'execs in context' do
         ctx = nil
         view_context.for({}) { |_| ctx = self }
-        expect(ctx).to be_a(ViewContext)
+        expect(ctx).to be_a(Pakyow::Presenter::ViewContext)
       end
     end
 
     describe '#for_with_index' do
       it 'yields context' do
         view_context.for_with_index({}) do |ctx, _, _|
-          expect(ctx).to be_a(ViewContext)
+          expect(ctx).to be_a(Pakyow::Presenter::ViewContext)
         end
       end
 
       it 'execs in context' do
         ctx = nil
         view_context.for_with_index({}) { |_, _| ctx = self }
-        expect(ctx).to be_a(ViewContext)
+        expect(ctx).to be_a(Pakyow::Presenter::ViewContext)
       end
     end
 
     describe '#repeat' do
       it 'yields context' do
         view_context.repeat({}) do |ctx, _|
-          expect(ctx).to be_a(ViewContext)
+          expect(ctx).to be_a(Pakyow::Presenter::ViewContext)
         end
       end
 
       it 'execs in context' do
         ctx = nil
         view_context.repeat({}) { |_| ctx = self }
-        expect(ctx).to be_a(ViewContext)
+        expect(ctx).to be_a(Pakyow::Presenter::ViewContext)
       end
     end
 
     describe '#repeat_with_index' do
       it 'yields context' do
         view_context.repeat_with_index({}) do |ctx, _, _|
-          expect(ctx).to be_a(ViewContext)
+          expect(ctx).to be_a(Pakyow::Presenter::ViewContext)
         end
       end
 
       it 'execs in context' do
         ctx = nil
         view_context.repeat_with_index({}) { |_, _| ctx = self }
-        expect(ctx).to be_a(ViewContext)
+        expect(ctx).to be_a(Pakyow::Presenter::ViewContext)
       end
     end
 
     describe '#bind' do
       it 'yields context' do
         view_context.bind({}) do |ctx, _|
-          expect(ctx).to be_a(ViewContext)
+          expect(ctx).to be_a(Pakyow::Presenter::ViewContext)
         end
       end
 
       it 'execs in context' do
         ctx = nil
         view_context.bind({}) { |_| ctx = self }
-        expect(ctx).to be_a(ViewContext)
+        expect(ctx).to be_a(Pakyow::Presenter::ViewContext)
       end
     end
 
     describe '#bind_with_index' do
       it 'yields context' do
         view_context.bind_with_index({}) do |ctx, _, _|
-          expect(ctx).to be_a(ViewContext)
+          expect(ctx).to be_a(Pakyow::Presenter::ViewContext)
         end
       end
 
       it 'execs in context' do
         ctx = nil
         view_context.bind_with_index({}) { |_, _| ctx = self }
-        expect(ctx).to be_a(ViewContext)
+        expect(ctx).to be_a(Pakyow::Presenter::ViewContext)
       end
     end
 
     describe '#apply' do
       it 'yields context' do
         view_context.apply({}) do |ctx, _|
-          expect(ctx).to be_a(ViewContext)
+          expect(ctx).to be_a(Pakyow::Presenter::ViewContext)
         end
       end
 
       it 'execs in context' do
         ctx = nil
         view_context.apply({}) { |_| ctx = self }
-        expect(ctx).to be_a(ViewContext)
+        expect(ctx).to be_a(Pakyow::Presenter::ViewContext)
       end
     end
   end

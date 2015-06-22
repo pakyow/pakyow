@@ -86,7 +86,7 @@ shared_examples :form_binding_specs do
 
     context 'and binding options are defined' do
       before do
-        Binder.instance.set(:default) do
+        Pakyow::Presenter::Binder.instance.set(:default) do
           scope :foo do
             options :select do
               [[:one, 'one'], [:two, 'two']]
@@ -96,7 +96,7 @@ shared_examples :form_binding_specs do
       end
 
       after do
-        Binder.instance.reset
+        Pakyow::Presenter::Binder.instance.reset
       end
 
       it 'creates options' do
@@ -118,7 +118,7 @@ shared_examples :form_binding_specs do
 
       context 'with default option' do
         before do
-          Binder.instance.set(:default) do
+          Pakyow::Presenter::Binder.instance.set(:default) do
             scope :foo do
               options :select, empty: true do
                 [[:one, 'one'], [:two, 'two']]
@@ -128,7 +128,7 @@ shared_examples :form_binding_specs do
         end
 
         after do
-          Binder.instance.reset
+          Pakyow::Presenter::Binder.instance.reset
         end
 
         it 'sets default option' do

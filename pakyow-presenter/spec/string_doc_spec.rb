@@ -3,10 +3,10 @@ require_relative 'support/helper'
 #TODO test that containers, partials, scopes reference same nodes? so that when
 # one is modified it modifies the other?
 
-describe StringDoc do
+describe Pakyow::Presenter::StringDoc do
   let(:doc) { doctype.new(html) }
   let(:node) { doc }
-  let(:doctype) { StringDoc }
+  let(:doctype) { Pakyow::Presenter::StringDoc }
 
   describe '#initialize' do
     it 'parses html with StringDocParser' do

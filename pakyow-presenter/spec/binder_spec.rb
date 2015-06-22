@@ -2,7 +2,7 @@ require_relative 'support/helper'
 include ReqResHelpers
 include SetupHelper
 
-describe Binder do
+describe Pakyow::Presenter::Binder do
   before(:each) do
     setup
   end
@@ -20,14 +20,14 @@ describe Binder do
     Pakyow.app.presenter.load
 
     data = Pakyow.app.presenter.binder.value_for_scoped_prop(:foo, :_root, {}, {}, Pakyow.app.context)
-    view = View.from_doc(StringDoc.new('<form data-scope="foo"></form>'))
+    view = Pakyow::Presenter::View.from_doc(Pakyow::Presenter::StringDoc.new('<form data-scope="foo"></form>'))
     data[:view].call(view)
     doc = Nokogiri::HTML.fragment(view.to_html).css('form')[0]
     expect('/bar').to eq doc[:action]
     expect('post').to eq doc[:method]
 
     data = Pakyow.app.presenter.binder.value_for_scoped_prop(:foo, :_root, { id: 1 }, {}, Pakyow.app.context)
-    view = View.from_doc(StringDoc.new('<form data-scope="foo"></form>'))
+    view = Pakyow::Presenter::View.from_doc(Pakyow::Presenter::StringDoc.new('<form data-scope="foo"></form>'))
     data[:view].call(view)
     form_doc = Nokogiri::HTML.fragment(view.to_html).css('form')[0]
     input_doc = Nokogiri::HTML.fragment(view.to_html).css('input')[0]
@@ -49,14 +49,14 @@ describe Binder do
     bar_id = 123
     Pakyow.app.context.request.params[:bar_id] = bar_id
     data = Pakyow.app.presenter.binder.value_for_scoped_prop(:foo, :_root, {}, {}, Pakyow.app.context)
-    view = View.from_doc(StringDoc.new('<form data-scope="foo"></form>'))
+    view = Pakyow::Presenter::View.from_doc(Pakyow::Presenter::StringDoc.new('<form data-scope="foo"></form>'))
     data[:view].call(view)
     doc = Nokogiri::HTML.fragment(view.to_html).css('form')[0]
     expect("/bar/#{bar_id}/baz").to eq doc[:action]
     expect('post').to eq doc[:method]
 
     data = Pakyow.app.presenter.binder.value_for_scoped_prop(:foo, :_root, { id: 1 }, {}, Pakyow.app.context)
-    view = View.from_doc(StringDoc.new('<form data-scope="foo"></form>'))
+    view = Pakyow::Presenter::View.from_doc(Pakyow::Presenter::StringDoc.new('<form data-scope="foo"></form>'))
     data[:view].call(view)
     doc = Nokogiri::HTML.fragment(view.to_html).css('form')[0]
     expect("/bar/#{bar_id}/baz/1").to eq doc[:action]

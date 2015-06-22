@@ -10,19 +10,19 @@ shared_examples :insignificant do
   end
 end
 
-describe StringDocParser do
+describe Pakyow::Presenter::StringDocParser do
   describe '#structure' do
     context 'parsing insignificant html' do
       context 'with no attributes' do
         let(:html) { '<div>foo</div>' }
-        let(:structure) { StringDocParser.new(html).structure }
+        let(:structure) { Pakyow::Presenter::StringDocParser.new(html).structure }
 
         include_examples :insignificant
       end
 
       context 'with attributes' do
         let(:html) { '<div class="fooclass">foo</div>' }
-        let(:structure) { StringDocParser.new(html).structure }
+        let(:structure) { Pakyow::Presenter::StringDocParser.new(html).structure }
 
         include_examples :insignificant
       end
@@ -30,7 +30,7 @@ describe StringDocParser do
 
     context 'parsing significant html' do
       let(:html) { '<div data-scope="foo" class="fooclass">foo</div><div data-scope="bar">bar</div>' }
-      let(:structure) { StringDocParser.new(html).structure }
+      let(:structure) { Pakyow::Presenter::StringDocParser.new(html).structure }
 
       it 'returns a structure with one item per significant node' do
         expect(structure.length).to eq(2)

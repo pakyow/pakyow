@@ -178,7 +178,7 @@ context 'when testing a route that presents' do
       end
 
       let :view do
-        View.new(text)
+        Pakyow::Presenter::View.new(text)
       end
 
       it 'appears that the node was appended to' do
@@ -200,7 +200,7 @@ context 'when testing a route that presents' do
       end
 
       let :view do
-        View.new(text)
+        Pakyow::Presenter::View.new(text)
       end
 
       it 'appears that the node was prepended to' do
@@ -222,7 +222,7 @@ context 'when testing a route that presents' do
       end
 
       let :view do
-        View.new(text)
+        Pakyow::Presenter::View.new(text)
       end
 
       it 'appears that the node was added after' do
@@ -244,7 +244,7 @@ context 'when testing a route that presents' do
       end
 
       let :view do
-        View.new(text)
+        Pakyow::Presenter::View.new(text)
       end
 
       it 'appears that the node was added before' do
@@ -266,7 +266,7 @@ context 'when testing a route that presents' do
       end
 
       let :view do
-        View.new(text)
+        Pakyow::Presenter::View.new(text)
       end
 
       it 'appears that the node was replaced' do

@@ -1,7 +1,7 @@
 require_relative 'support/helper'
 include SetupHelper
 
-describe Presenter do
+describe Pakyow::Presenter::Presenter do
   include ReqResHelpers
 
   before do
@@ -10,7 +10,7 @@ describe Presenter do
     Pakyow::App.stage(:test)
     @presenter = Pakyow.app.presenter
     @path = '/'
-    @presenter.prepare_with_context(AppContext.new(mock_request(@path)))
+    @presenter.prepare_with_context(Pakyow::AppContext.new(mock_request(@path)))
   end
 
   after do
@@ -24,7 +24,7 @@ describe Presenter do
 
     it 'is built for request' do
       expect(@presenter.view).to be_a Pakyow::Presenter::ViewComposer
-      expect(@presenter.view.composed).to be_a View
+      expect(@presenter.view.composed).to be_a Pakyow::Presenter::View
 
       page = @presenter.store.page(@path)
       template = @presenter.store.template(@path)
@@ -79,7 +79,7 @@ describe Presenter do
     end
 
     it 'can be overidden' do
-      @presenter.view = View.new('foo')
+      @presenter.view = Pakyow::Presenter::View.new('foo')
       expect('foo').to eq @presenter.view.to_html
     end
 
@@ -153,7 +153,7 @@ describe Presenter do
     it 'has correct value' do
       expect(@presenter.presented?).to be true
 
-      @presenter.prepare_with_context(AppContext.new(mock_request('/fail')))
+      @presenter.prepare_with_context(Pakyow::AppContext.new(mock_request('/fail')))
 
       expect(@presenter.presented?).to be false
     end
@@ -162,12 +162,12 @@ describe Presenter do
   context 'test composer' do
     it 'composes from current context' do
       path = 'composer'
-      @presenter.prepare_with_context(AppContext.new(mock_request(path)))
+      @presenter.prepare_with_context(Pakyow::AppContext.new(mock_request(path)))
       expect(@presenter.store.view(path)).to eq @presenter.compose.view
     end
 
     it 'can precompose' do
-      @presenter.prepare_with_context(AppContext.new(mock_request('composer')))
+      @presenter.prepare_with_context(Pakyow::AppContext.new(mock_request('composer')))
       composer = @presenter.composer
 
       @presenter.precompose!
@@ -178,7 +178,7 @@ describe Presenter do
   context 'test partial' do
     it 'can be set' do
       @presenter.view.partials = { partial: 'partial1' }
-      partial = Partial.load(File.join(VIEW_PATH, '_partial1.html'))
+      partial = Pakyow::Presenter::Partial.load(File.join(VIEW_PATH, '_partial1.html'))
       expect(partial).to eq @presenter.view.partial(:partial)
     end
   end

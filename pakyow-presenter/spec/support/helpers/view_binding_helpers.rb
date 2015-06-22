@@ -1,6 +1,6 @@
 module ViewBindingHelpers
   def create_view_from_string(string)
-    View.new(string)
+    Pakyow::Presenter::View.new(string)
   end
 
   def view_helper(type)

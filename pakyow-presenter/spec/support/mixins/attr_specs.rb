@@ -2,7 +2,7 @@ shared_examples :attr_specs do
   describe 'attributes' do
     let(:view) {
       string = '<html><body><div data-scope="attrs"></div></body></html>'
-      View.from_doc(doctype.new(string))
+      Pakyow::Presenter::View.from_doc(doctype.new(string))
     }
 
     let(:coll) {

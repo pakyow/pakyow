@@ -1,10 +1,10 @@
 require_relative 'support/helper'
 
-  describe ViewCollection do
+  describe Pakyow::Presenter::ViewCollection do
     before do
-      @coll = ViewCollection.new
-      @coll << View.new
-      @coll << View.new
+      @coll = Pakyow::Presenter::ViewCollection.new
+      @coll << Pakyow::Presenter::View.new
+      @coll << Pakyow::Presenter::View.new
     end
 
     describe '#with' do
@@ -160,7 +160,7 @@ require_relative 'support/helper'
       before do
         @data = [{}, {}]
 
-        @coll = ViewCollection.new
+        @coll = Pakyow::Presenter::ViewCollection.new
         @coll << view_helper(:single)
         @coll << view_helper(:single)
       end
@@ -257,7 +257,7 @@ require_relative 'support/helper'
       before do
         @data = [{}, {}]
 
-        @coll = ViewCollection.new
+        @coll = Pakyow::Presenter::ViewCollection.new
         @coll << view_helper(:single)
         @coll << view_helper(:single)
       end

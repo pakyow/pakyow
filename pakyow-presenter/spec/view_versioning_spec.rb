@@ -1,20 +1,20 @@
 require_relative 'support/helper'
 
-describe ViewVersion do
+describe Pakyow::Presenter::ViewVersion do
   let :store do
-    ViewStore.new(VIEW_PATH)
+    Pakyow::Presenter::ViewStore.new(VIEW_PATH)
   end
 
   let :versioned do
-    ViewContext.new(ViewComposer.from_path(store, 'versioned'), {})
+    Pakyow::Presenter::ViewContext.new(Pakyow::Presenter::ViewComposer.from_path(store, 'versioned'), {})
   end
 
   let :empty do
-    ViewContext.new(ViewComposer.from_path(store, 'versioned/empty'), {})
+    Pakyow::Presenter::ViewContext.new(Pakyow::Presenter::ViewComposer.from_path(store, 'versioned/empty'), {})
   end
 
   let :default do
-    ViewContext.new(ViewComposer.from_path(store, 'versioned/default'), {})
+    Pakyow::Presenter::ViewContext.new(Pakyow::Presenter::ViewComposer.from_path(store, 'versioned/default'), {})
   end
 
   let :view do

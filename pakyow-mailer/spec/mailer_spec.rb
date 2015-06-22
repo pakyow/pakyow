@@ -9,7 +9,7 @@ describe 'Mailer' do
     m = TestMailer.mailer
 
     expect(m.message).to be_a Mail::Message
-    expect(m.view).to be_a View
+    expect(m.view).to be_a Pakyow::Presenter::View
   end
 
   it 'view sets message body' do

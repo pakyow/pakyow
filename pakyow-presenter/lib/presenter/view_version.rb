@@ -31,7 +31,7 @@ class Pakyow::Presenter::ViewVersion
 
   def version(data, &block)
     data = Array.ensure(data)
-    coll = ViewCollection.new
+    coll = Pakyow::Presenter::ViewCollection.new
 
     if data.empty?
       @versions.each(&:remove)
@@ -78,7 +78,7 @@ class Pakyow::Presenter::ViewVersion
   end
 
   def method_missing(method, *args, &block)
-    @default.send(method, *args, &block)
+    @default.send(method, *args, &block) if @default.respond_to?(method)
   end
 
   private

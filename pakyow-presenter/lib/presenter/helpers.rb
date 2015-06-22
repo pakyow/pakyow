@@ -10,23 +10,23 @@ module Pakyow
     :template=, :page=, :path, :path=, :compose, :composer, :precompose!
 
     def view
-      ViewContext.new(@presenter.view, self)
+      Presenter::ViewContext.new(@presenter.view, self)
     end
 
     def partial(*args)
-      ViewContext.new(@presenter.partial(*args), self)
+      Presenter::ViewContext.new(@presenter.partial(*args), self)
     end
 
     def template
-      ViewContext.new(@presenter.template, self)
+      Presenter::ViewContext.new(@presenter.template, self)
     end
 
     def page
-      ViewContext.new(@presenter.page, self)
+      Presenter::ViewContext.new(@presenter.page, self)
     end
 
     def container(*args)
-      ViewContext.new(@presenter.container(*args), self)
+      Presenter::ViewContext.new(@presenter.container(*args), self)
     end
 
     def presenter

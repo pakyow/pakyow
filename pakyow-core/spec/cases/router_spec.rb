@@ -5,17 +5,17 @@ describe 'Router' do
 
   before do
     Pakyow::App.stage(:test)
-    Pakyow.app.context = AppContext.new(mock_request, mock_response)
+    Pakyow.app.context = Pakyow::AppContext.new(mock_request, mock_response)
     Pakyow.app.reload
   end
 
   it 'is a singleton' do
-    expect(Router.instance).to eq Router.instance
+    expect(Pakyow::Router.instance).to eq Pakyow::Router.instance
   end
 
   it 'sets are registered' do
     test = {}
-    Router.instance.set(:test) {
+    Pakyow::Router.instance.set(:test) {
       test[:set_registered] = true
     }
 
@@ -23,17 +23,17 @@ describe 'Router' do
   end
 
   it 'has routes that can be accessed by name' do
-    Router.instance.set(:test) {
+    Pakyow::Router.instance.set(:test) {
       get('foo', :foo) {}
     }
 
-    expect(Router.instance.route(:foo)).to_not be_nil
-    expect{ Router.instance.route(:bar) }.to raise_error MissingRoute
+    expect(Pakyow::Router.instance.route(:foo)).to_not be_nil
+    expect{ Pakyow::Router.instance.route(:bar) }.to raise_error Pakyow::MissingRoute
   end
 
   it 'fns are called in order' do
     fn_calls = []
-    Router.instance.set(:test) {
+    Pakyow::Router.instance.set(:test) {
       fn(:one) {
         fn_calls << 1
       }
@@ -49,13 +49,13 @@ describe 'Router' do
       default [fn(:one), fn(:two), fn(:three)]
     }
 
-    Router.instance.perform(AppContext.new(mock_request))
+    Pakyow::Router.instance.perform(Pakyow::AppContext.new(mock_request))
     expect(fn_calls).to eq [1, 2, 3]
   end
 
   it 'requests can be rerouted' do
     fn_calls = []
-    Router.instance.set(:test) {
+    Pakyow::Router.instance.set(:test) {
       default {
         app.reroute('foo')
       }
@@ -65,13 +65,13 @@ describe 'Router' do
       }
     }
 
-    Router.instance.perform(AppContext.new(mock_request))
+    Pakyow::Router.instance.perform(Pakyow::AppContext.new(mock_request))
     expect(fn_calls).to eq [:rerouted]
   end
 
   it 'requests can be rerouted with method' do
     fn_calls = []
-    Router.instance.set(:test) {
+    Pakyow::Router.instance.set(:test) {
       default {
         app.reroute('foo', :put)
       }
@@ -81,13 +81,13 @@ describe 'Router' do
       }
     }
 
-    Router.instance.perform(AppContext.new(mock_request))
+    Pakyow::Router.instance.perform(Pakyow::AppContext.new(mock_request))
     expect(fn_calls).to eq [:rerouted]
   end
 
   it 'handler can be called' do
     fn_calls = []
-    Router.instance.set(:test) {
+    Pakyow::Router.instance.set(:test) {
       default {
         app.handle(500)
       }
@@ -97,9 +97,9 @@ describe 'Router' do
       }
     }
 
-    res = Response.new
-    Pakyow.app.context = AppContext.new(nil, res)
-    Router.instance.perform(AppContext.new(mock_request))
+    res = Pakyow::Response.new
+    Pakyow.app.context = Pakyow::AppContext.new(nil, res)
+    Pakyow::Router.instance.perform(Pakyow::AppContext.new(mock_request))
 
     expect(fn_calls).to eq [:handled]
     expect(res.status).to eq 500

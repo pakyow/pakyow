@@ -1,6 +1,6 @@
 require_relative 'support/helper'
 
-describe NokogiriDoc do
+describe Pakyow::Presenter::NokogiriDoc do
   let(:doc) { doctype.new(html) }
 
   let(:node) {
@@ -9,7 +9,7 @@ describe NokogiriDoc do
     i2
   }
 
-  let(:doctype) { NokogiriDoc }
+  let(:doctype) { Pakyow::Presenter::NokogiriDoc }
 
   include_examples :doc_specs
   include_examples :scope_specs

@@ -1,9 +1,9 @@
 require_relative 'support/helper'
 include ViewComposerHelpers
 
-describe ViewComposer do
+describe Pakyow::Presenter::ViewComposer do
   before do
-    @store = ViewStore.new(VIEW_PATH)
+    @store = Pakyow::Presenter::ViewStore.new(VIEW_PATH)
   end
 
   it "composes at a path" do
@@ -49,17 +49,17 @@ describe ViewComposer do
 
   it "exposes template" do
     composer = compose_at('/')
-    expect(composer.template).to be_a Template
+    expect(composer.template).to be_a Pakyow::Presenter::Template
   end
 
   it "exposes page" do
     composer = compose_at('/')
-    expect(composer.page).to be_a Page
+    expect(composer.page).to be_a Pakyow::Presenter::Page
   end
 
   it "exposes partials" do
     composer = compose_at('/partial')
-    expect(composer.partial(:partial1)).to be_a Partial
+    expect(composer.partial(:partial1)).to be_a Pakyow::Presenter::Partial
   end
 
   it "handles container modification" do

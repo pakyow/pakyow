@@ -28,13 +28,13 @@ module Pakyow
         view.context.socket.subscribe(channel)
 
         # handle setting the channel on the view
-        if view.is_a?(ViewContext)
+        if view.is_a?(Presenter::ViewContext)
           working_view = view.instance_variable_get(:@view)
         else
           working_view = view
         end
 
-        if working_view.is_a?(ViewCollection)
+        if working_view.is_a?(Presenter::ViewCollection)
           #NOTE there's a special case here where if the collection is
           # empty we insert an empty element in its place; this makes
           # it possible to know what the data should be applied to when

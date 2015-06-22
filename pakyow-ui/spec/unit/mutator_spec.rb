@@ -128,7 +128,7 @@ describe Pakyow::UI::Mutator do
     end
 
     let :view do
-      view = View.new
+      view = Pakyow::Presenter::View.new
       view.scoped_as = scope
       view
     end

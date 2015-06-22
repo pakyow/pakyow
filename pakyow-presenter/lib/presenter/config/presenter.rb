@@ -32,5 +32,5 @@ Pakyow::Config.register(:presenter) { |config|
   config.opt :prop_attribute, 'data-prop'
 
   # the document class used to parse and render views
-  config.opt :view_doc_class, StringDoc
+  config.opt :view_doc_class, Pakyow::Presenter::StringDoc
 }

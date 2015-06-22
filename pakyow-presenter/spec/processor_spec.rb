@@ -5,7 +5,7 @@ describe 'processor' do
 
   before do
     Pakyow::App.stage(:test)
-    Pakyow.app.presenter.prepare_with_context(AppContext.new(mock_request('/')))
+    Pakyow.app.presenter.prepare_with_context(Pakyow::AppContext.new(mock_request('/')))
   end
 
   after do

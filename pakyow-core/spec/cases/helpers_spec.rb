@@ -6,7 +6,7 @@ describe 'Pakyow Helper' do
 
   before do
     Pakyow::App.stage(:test)
-    Pakyow.app.context = AppContext.new(mock_request, mock_response)
+    Pakyow.app.context = Pakyow::AppContext.new(mock_request, mock_response)
   end
 
   it 'returns app' do
@@ -15,14 +15,14 @@ describe 'Pakyow Helper' do
 
   it 'returns app request' do
     r = :test
-    Pakyow.app.context = AppContext.new(r)
+    Pakyow.app.context = Pakyow::AppContext.new(r)
     expect(Pakyow.app.request).to eq r
     expect(Pakyow.app.req).to eq r
   end
 
   it 'returns app response' do
     r = :test
-    Pakyow.app.context = AppContext.new(nil, r)
+    Pakyow.app.context = Pakyow::AppContext.new(nil, r)
     expect(Pakyow.app.response).to eq r
     expect(Pakyow.app.res).to eq r
   end
@@ -32,17 +32,17 @@ describe 'Pakyow Helper' do
   end
 
   it 'returns params' do
-    Pakyow.app.context = AppContext.new(mock_request)
+    Pakyow.app.context = Pakyow::AppContext.new(mock_request)
     expect(Pakyow.app.params).to eq Pakyow.app.params
   end
 
   it 'returns session' do
-    Pakyow.app.context = AppContext.new(mock_request)
+    Pakyow.app.context = Pakyow::AppContext.new(mock_request)
     expect(Pakyow.app.session).to eq Pakyow.app.request.session
   end
 
   it 'returns cookies' do
-    Pakyow.app.context = AppContext.new(mock_request)
+    Pakyow.app.context = Pakyow::AppContext.new(mock_request)
     expect(Pakyow.app.cookies).to eq Pakyow.app.cookies
   end
 
