@@ -339,7 +339,7 @@ module Pakyow
               component: e[1][:'data-ui'].to_sym,
             }
           end
-          find_scopes(e[2], e[2], s)
+          find_components(e[2], e[2], s)
           s
         } || []
 
