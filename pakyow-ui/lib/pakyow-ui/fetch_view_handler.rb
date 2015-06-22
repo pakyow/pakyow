@@ -10,15 +10,29 @@ Pakyow::Realtime::MessageHandler.register :'fetch-view' do |message, session, re
 
   app_response = app.process(env)
 
-  original_channel = message['channel']
-  unqualified_channel = original_channel.split('::')[0]
+  body = ''
+  lookup = message['lookup']
+  view = app.presenter.view
 
-  view_for_channel = app.presenter.view.composed.doc.channel(unqualified_channel)
-  view_for_channel.set_attribute(:'data-channel', original_channel)
+  if channel = lookup['channel']
+    unqualified_channel = channel.split('::')[0]
+
+    view_for_channel = view.composed.doc.channel(unqualified_channel)
+    view_for_channel.set_attribute(:'data-channel', channel)
+
+    body = view_for_channel.to_html
+  else
+    lookup.each_pair do |key, value|
+      next if key == 'version'
+      view = view.send(key.to_sym, value.to_sym)
+    end
+
+    body = view.use(lookup['version'] || :default).to_html
+  end
 
   response[:status]  = app_response[0]
   response[:headers] = app_response[1]
-  response[:body] = view_for_channel.to_html
+  response[:body] = body
   response
 end
 
