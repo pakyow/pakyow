@@ -40,7 +40,7 @@ module Pakyow
         if action = @actions[method]
           result = action[:block].call(*args)
           if action[:mutation]
-            @context.ui.mutated(@scope)
+            @context.ui.mutated(@scope, @context)
           end
           result
         elsif query = @queries[method]

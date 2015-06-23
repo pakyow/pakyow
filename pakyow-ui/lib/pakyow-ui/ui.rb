@@ -20,11 +20,11 @@ module Pakyow
         end
       end
 
-      def mutated(scope)
+      def mutated(scope, context = nil)
         MutationStore.instance.mutations(scope).each do |mutation|
           view = UIView.new(scope)
 
-          data = Mutator.instance.mutable(scope).send(mutation[:query_name], *mutation[:query_args]).data
+          data = Mutator.instance.mutable(scope, context).send(mutation[:query_name], *mutation[:query_args]).data
           Mutator.instance.mutate(mutation[:mutation].to_sym, view, data)
 
           Pakyow.app.socket.push(
