@@ -17,5 +17,6 @@ require_relative 'pakyow-realtime/config'
 require_relative 'pakyow-realtime/exceptions'
 require_relative 'pakyow-realtime/message_handler'
 require_relative 'pakyow-realtime/message_handlers/call_route'
+require_relative 'pakyow-realtime/message_handlers/ping'
 
 require_relative 'pakyow-realtime/ext/request'
