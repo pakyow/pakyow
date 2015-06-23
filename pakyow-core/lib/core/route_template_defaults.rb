@@ -10,7 +10,10 @@ module Pakyow
         view_path = nested_path.gsub(/:[^\/]+/, '').split('/').reject { |p| p.empty? }.join('/')
 
         fn :reset_view_path do
-          presenter.path = File.join(view_path, 'show') if @presenter
+          begin
+            presenter.path = File.join(view_path, 'show') if @presenter
+          rescue Presenter::MissingView
+          end
         end
 
         get :list, '/'
@@ -26,7 +29,7 @@ module Pakyow
 
         group :collection
         namespace :member, resource_id
-        
+
         post_process do
           # the show route is weird; move it to the end of get routes to avoid conflicts
           if show_index = @routes[:get].find_index { |route| route[2] == :show }
