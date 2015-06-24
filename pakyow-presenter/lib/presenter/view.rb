@@ -474,18 +474,18 @@ module Pakyow
         attrs.each do |attr, v|
           case attr
           when :content
-            v = v.call(doc.inner_html) if v.is_a?(Proc)
+            v = v.to_proc.call(doc.inner_html) if v.respond_to?(:to_proc)
             bind_value_to_doc(v, doc)
-            next
           when :view
             v.call(self)
-            next
           else
-            attr = attr.to_s
+            attr  = attr.to_s
             attrs = Attributes.new(doc)
-            v = v.call(attrs.send(attr)) if v.is_a?(Proc)
 
-            if v.nil?
+            if v.respond_to?(:to_proc)
+              # Evaluating the proc will set the value in the doc
+              v.to_proc.call(attrs.send(attr)) 
+            elsif v.nil?
               doc.remove_attribute(attr)
             else
               attrs.send(:"#{attr}=", v)
