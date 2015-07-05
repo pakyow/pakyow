@@ -57,7 +57,24 @@ module Pakyow
         data.map { |bindable|
           datum = bindable.to_hash
           Pakyow::Presenter::Binder.instance.bindings_for_scope(scoped_as, bindings).keys.each do |key|
-            datum[key] = Pakyow::Presenter::Binder.instance.value_for_scoped_prop(scoped_as, key, bindable, bindings, self)
+            result = Pakyow::Presenter::Binder.instance.value_for_scoped_prop(scoped_as, key, bindable, bindings, self)
+
+            if result.is_a?(Hash)
+              datum[key] = {
+                __content: result.delete(:content),
+                __attrs: result.map { |k, v|
+                  if v.respond_to?(:to_proc)
+                    attrs = UIAttrs.new
+                    v.call(attrs)
+                    [k, attrs.finalize]
+                  else
+                    [k, v]
+                  end
+                }.to_h,
+              }
+            else
+              datum[key] = result
+            end
           end
 
           datum
