@@ -1,54 +1,28 @@
 require_relative 'ui_attrs'
+require_relative 'ui_instructable'
 
 module Pakyow
   module UI
     class UIView
-      attr_reader :instructions
+      include Instructable
 
       def initialize(scope)
+        super()
         @scope = scope
-        @instructions = []
+      end
+
+      def nested_instruct_object(method, data, scope)
+        UIView.new(scope || @scope)
       end
 
       def scoped_as
         @scope
       end
 
-      def instruct(method, data)
-        @instructions << [clean_method(method), hashify(data)]
-        self
-      end
-
-      def nested_instruct(method, data, scope = nil)
-        view = UIView.new(scope || @scope)
-        @instructions << [clean_method(method), hashify(data), view]
-        view
-      end
-
       def attrs_instruct
         attrs = UIAttrs.new
         @instructions << [:attrs, nil, attrs]
         attrs
-      end
-
-      # Returns an instruction set for all view transformations.
-      #
-      # e.g. a value-less transformation:
-      # [[:remove, nil]]
-      #
-      # e.g. a transformation with a value:
-      # [[:text=, 'foo']]
-      #
-      # e.g. a nested transformation
-      # [[:scope, :post, [[:remove, nil]]]]
-      def finalize
-        @instructions.map { |instruction|
-          if instruction[2].is_a?(UIView) || instruction[2].is_a?(UIAttrs)
-            instruction[2] = instruction[2].finalize
-          end
-
-          instruction
-        }
       end
 
       ### view methods w/o args
@@ -190,35 +164,6 @@ module Pakyow
 
           nested.instructions << sub.finalize
         end
-      end
-
-      private
-
-      def mixin_bindings(data, bindings = {})
-        data.map { |bindable|
-          datum = bindable.to_hash
-          Pakyow::Presenter::Binder.instance.bindings_for_scope(scoped_as, bindings).keys.each do |key|
-            datum[key] = Pakyow::Presenter::Binder.instance.value_for_scoped_prop(scoped_as, key, bindable, bindings, self)
-          end
-
-          datum
-        }
-      end
-
-      def hashify(data)
-        return data unless data.is_a?(Array)
-
-        data.map { |datum|
-          if datum.respond_to?(:to_hash)
-            datum.to_hash
-          else
-            datum
-          end
-        }
-      end
-
-      def clean_method(method)
-        method.to_s.gsub('=', '').to_sym
       end
     end
   end
