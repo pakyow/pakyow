@@ -12,6 +12,7 @@ module Pakyow
       end
 
       attr_reader :instructions
+      attr_accessor :root
 
       def initialize
         @instructions = []
@@ -24,6 +25,8 @@ module Pakyow
 
       def nested_instruct(method, data, scope = nil)
         view = nested_instruct_object(method, data, scope)
+        view.root = self
+
         @instructions << [clean_method(method), hashify(data), view]
         view
       end

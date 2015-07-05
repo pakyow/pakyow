@@ -5,24 +5,27 @@ module Pakyow
     class UIComponent
       include Instructable
 
-      attr_reader :name, :view
+      attr_reader :name, :view, :qualifications
 
-      def initialize(name)
+      def initialize(name, qualifications = {})
         super()
         @name = name
+        @qualifications = qualifications
       end
 
       def nested_instruct_object(method, data, scope)
-        UIComponent.new(@name)
+        UIComponent.new(name, qualifications)
       end
 
-      def push
-        #TODO make it work with qualifiers
+      def push(payload = nil)
+        payload ||= { instruct: root.finalize }
+
         Pakyow.app.socket.push(
-          { instruct: finalize },
+          payload,
 
           ChannelBuilder.build(
             component: name,
+            qualifications: qualifications,
           )
         )
       end
@@ -31,13 +34,11 @@ module Pakyow
         nested_instruct(:scope, name.to_s, name)
       end
 
-      def append(data)
-        instruct(:append, data)
-      end
-
-      def prepend(data)
-        instruct(:prepend, data)
-        push
+      %i[append prepend].each do |method|
+        define_method method do |value|
+          instruct(method, value)
+          push
+        end
       end
     end
   end

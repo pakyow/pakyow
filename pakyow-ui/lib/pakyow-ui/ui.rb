@@ -41,8 +41,8 @@ module Pakyow
         end
       end
 
-      def component(name)
-        UIComponent.new(name)
+      def component(name, qualifications = {})
+        UIComponent.new(name, qualifications)
       end
     end
   end
