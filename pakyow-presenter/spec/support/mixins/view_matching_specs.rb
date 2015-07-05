@@ -95,5 +95,13 @@ shared_examples :matching_specs do
         expect(view.scope(:foo).length).to eq(data.length)
       end
     end
+
+    context 'when the collection is empty' do
+      it 'does not fail' do
+        expect {
+          view.scope(:missing).match([0])
+        }.to_not raise_error
+      end
+    end
   end
 end

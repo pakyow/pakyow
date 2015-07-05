@@ -224,6 +224,7 @@ module Pakyow
       # will consist n copies of self[data index] || self[-1], where n = data.length.
       #
       def match(data)
+        return if length == 0
         data = Array.ensure(data)
 
         # an empty set always means an empty view
