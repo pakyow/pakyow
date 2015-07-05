@@ -60,6 +60,10 @@ module Pakyow
             result = Pakyow::Presenter::Binder.instance.value_for_scoped_prop(scoped_as, key, bindable, bindings, self)
 
             if result.is_a?(Hash)
+              # we don't currently support view manipulations that occur in bindings
+              #TODO look into what it would take to support this
+              result.delete(:view)
+
               datum[key] = {
                 __content: result.delete(:content),
                 __attrs: result.map { |k, v|
