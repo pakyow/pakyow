@@ -20,6 +20,10 @@ module Pakyow
       def id
         method_missing(:id, nil)
       end
+
+      def <<(value)
+        method_missing(:insert, value)
+      end
     end
   end
 end

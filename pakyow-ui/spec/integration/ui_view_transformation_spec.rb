@@ -46,4 +46,44 @@ describe 'transforming a ui view' do
       expect(view.finalize).to eq([[:attrs, nil, [[:class, nil, [[:ensure, :foo, []]]]]]])
     end
   end
+
+  describe 'with a transformation that invokes bindings' do
+    describe 'and the binding returns a plain value' do
+      it 'uses the new value' do
+        view.bind({ text: 'foo' }, bindings: { text: lambda { |value, bindable, context|
+          'bar'
+        }})
+
+        expect(view.finalize).to eq([[:bind, [{:text=>"bar"}], []]])
+      end
+    end
+
+    describe 'and the binding returns a hash' do
+      it 'uses the content key for the value' do
+        view.bind({ text: 'foo' }, bindings: { text: lambda { |value, bindable, context|
+          { content: 'bar' }
+        }})
+
+        expect(view.finalize).to eq([[:bind, [{:text=>{:__content=>"bar", :__attrs=>{}}}], []]])
+      end
+
+      it 'uses the other keys as attributes' do
+        view.bind({ text: 'foo' }, bindings: { text: lambda { |value, bindable, context|
+          { content: 'bar', class: 'foo' }
+        }})
+
+        expect(view.finalize).to eq([[:bind, [{:text=>{:__content=>"bar",:__attrs=>{:class=>"foo"}}}], []]])
+      end
+
+      describe 'and an attribute value is set in a block' do
+        it 'properly evaluates the value' do
+          view.bind({ text: 'foo' }, bindings: { text: lambda { |value, bindable, context|
+            { content: 'bar', class: lambda { |c| c.ensure('foo') } }
+          }})
+
+          expect(view.finalize).to eq([[:bind, [{:text=>{:__content=>"bar", :__attrs=>{:class=>[[:ensure, "foo", []]]}}}], []]])
+        end
+      end
+    end
+  end
 end
