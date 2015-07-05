@@ -66,7 +66,7 @@ module Pakyow
 
               datum[key] = {
                 __content: result.delete(:content),
-                __attrs: result.map { |k, v|
+                __attrs: Hash[*result.map { |k, v|
                   if v.respond_to?(:to_proc)
                     attrs = UIAttrs.new
                     v.call(attrs)
@@ -74,7 +74,7 @@ module Pakyow
                   else
                     [k, v]
                   end
-                }.to_h,
+                }.flatten(1)],
               }
             else
               datum[key] = result
