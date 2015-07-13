@@ -3,13 +3,14 @@ require_relative 'simulator'
 module Pakyow
   module TestHelp
     module Helpers
-      def simulate(name_or_path, method: :get, with: {}, session: {}, cookies: {}, &block)
+      def simulate(name_or_path, method: :get, with: {}, session: {}, cookies: {}, env: {}, &block)
         sim = Pakyow::TestHelp::Simulator.new(
           name_or_path,
           method: method,
           params: with,
           session: session,
-          cookies: cookies
+          cookies: cookies,
+          env: env
         )
 
         sim.run(&block)

@@ -5,7 +5,7 @@ module Pakyow
     class Simulator
       attr_reader :env, :path, :method, :params
 
-      def initialize(name_or_path, method: :get, params: {}, session: {}, cookies: {})
+      def initialize(name_or_path, method: :get, params: {}, session: {}, cookies: {}, env: {})
         @path   = router.path(name_or_path, params)
         @method = method
         @params = params
@@ -18,7 +18,7 @@ module Pakyow
           'rack.request.cookie_hash'  => cookies,
           'rack.input'                => StringIO.new,
           'pakyow.params'             => @params
-        }
+        }.merge(Hash[env.map{ |k,v| [k.to_s, v] }])
       end
 
       def run(&block)
