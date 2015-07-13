@@ -8,7 +8,8 @@ describe Pakyow::TestHelp::Simulator do
       method: method,
       params: params,
       session: session,
-      cookies: cookies
+      cookies: cookies,
+      env: env
     )
   end
 
@@ -30,6 +31,10 @@ describe Pakyow::TestHelp::Simulator do
 
   let :cookies do
     { user: 2 }
+  end
+
+  let :env do
+    { bar: 'foo' }
   end
 
   describe 'initialization' do
@@ -60,6 +65,10 @@ describe Pakyow::TestHelp::Simulator do
 
       it 'contains rack.request.cookie_hash' do
         expect(simulator.env['rack.request.cookie_hash']).to eq(cookies)
+      end
+
+      it 'contains rack.request.env' do
+        expect(simulator.env['bar']).to eq('foo')
       end
 
       it 'contains rack.input' do
