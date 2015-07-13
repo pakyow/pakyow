@@ -108,4 +108,12 @@ context 'when testing a route' do
       end
     end
   end
+
+  context 'with env params', :env do
+    it 'recognizes the env params' do
+      get :default, env: { foo: 'bar' } do |sim|
+        expect(sim.req.env['foo']).to eq('bar')
+      end
+    end
+  end
 end

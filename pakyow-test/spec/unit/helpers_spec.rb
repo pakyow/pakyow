@@ -35,7 +35,11 @@ describe Pakyow::TestHelp::Helpers do
       { user: 2 }
     end
 
-    it 'creates and runs the simulator with name, method, params, session, and cookies' do
+    let :env do
+      { bar: 'foo' }
+    end
+
+    it 'creates and runs the simulator with name, method, params, session, cookies, and env' do
       expect(simulation).to receive(:run)
 
       expect(Pakyow::TestHelp::Simulator).to receive(:new).with(
@@ -43,7 +47,8 @@ describe Pakyow::TestHelp::Helpers do
         method: method,
         params: with,
         session: session,
-        cookies: cookies
+        cookies: cookies,
+        env: env
       ).and_return(simulation)
 
       instance.simulate(
@@ -51,7 +56,8 @@ describe Pakyow::TestHelp::Helpers do
         method: method,
         with: with,
         session: session,
-        cookies: cookies
+        cookies: cookies,
+        env: env
       )
     end
   end
