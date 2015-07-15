@@ -276,11 +276,11 @@ module Pakyow
 
       response.finish
     rescue StandardError => error
-      call_stack(:before, :error)
-
       request.error = error
 
       catch :halt do
+        call_stack(:before, :error)
+
         handle(500, false) unless found?
 
         if config.app.errors_in_browser
