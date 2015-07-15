@@ -474,7 +474,7 @@ module Pakyow
         attrs.each do |attr, v|
           case attr
           when :content
-            v = v.to_proc.call(doc.inner_html) if v.respond_to?(:to_proc)
+            v = v.to_proc.call(doc.html) if v.respond_to?(:to_proc)
             bind_value_to_doc(v, doc)
           when :view
             v.call(self)
