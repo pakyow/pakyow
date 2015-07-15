@@ -7,6 +7,8 @@ gem 'rack', '~> 1.6'
 
 # presenter
 gem 'nokogiri', '~> 1.6'
+gem 'nokogiri', '~> 1.6'
+gem 'pry', '~> 0.10'
 
 # mail
 gem 'mail', '~> 2.6'
