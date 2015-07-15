@@ -24,6 +24,7 @@ module Pakyow
 
       Pakyow::App.before(:init) {
         @presenter = Presenter.new
+        ViewStoreLoader.instance.reset
       }
 
       Pakyow::App.after(:match) {
@@ -194,6 +195,7 @@ module Pakyow
         @view_stores ||= {}
 
         Pakyow::Config.presenter.view_stores.each_pair { |name, path|
+          next unless ViewStoreLoader.instance.modified?(name, path)
           @view_stores[name] = ViewStore.new(path, name)
         }
       end

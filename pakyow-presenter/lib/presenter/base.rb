@@ -20,6 +20,7 @@ require 'presenter/binding_eval'
 require 'presenter/doc_helpers'
 require 'presenter/view_version'
 require 'presenter/view_context'
+require 'presenter/view_store_loader'
 
 module Pakyow
   module Presenter
