@@ -78,7 +78,9 @@ class Pakyow::Presenter::ViewVersion
   end
 
   def method_missing(method, *args, &block)
-    @default.send(method, *args, &block) if @default.respond_to?(method)
+    if @default.respond_to?(method)
+      @default.send(method, *args, &block)   
+    end
   end
 
   private

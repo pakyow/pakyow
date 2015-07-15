@@ -129,6 +129,10 @@ module Pakyow
       def scope(name)
         collection = parts.scope(name)
 
+        if collection.is_a?(ViewVersion)
+          collection = collection.versions.inject(ViewCollection.new) { |c, v| c << v; c }
+        end
+
         # include partials so nested scopes/props can be bound to
         collection.each do |view|
           view.includes(partials)
@@ -137,7 +141,6 @@ module Pakyow
         #TODO make sure anytime we return a collection it tries to version
         # make this a class level helper method on ViewVersion
         if !collection.is_a?(ViewVersion) && collection.versioned?
-          puts collection.class.inspect
           ViewVersion.new(collection.views)
         else
           collection
