@@ -18,7 +18,7 @@ module Pakyow
       end
 
       def push(payload = nil)
-        payload ||= { instruct: root.finalize }
+        payload ||= { instruct: (root || self).finalize }
 
         Pakyow.app.socket.push(
           payload,
