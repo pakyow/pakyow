@@ -15,19 +15,20 @@ module Pakyow
         @key = key
 
         @handshake = handshake!(req)
-        @socket = hijack!(req)
 
-        if @handshake.valid?
-          response = @handshake.accept_response
-          response.render(@socket)
-          setup
-        else
-          error = @handshake.errors.first
+        if @socket = hijack!(req)
+          if @handshake.valid?
+            response = @handshake.accept_response
+            response.render(@socket)
+            setup
+          else
+            error = @handshake.errors.first
 
-          response = Rack::Response.new(400)
-          response.render(@socket)
+            response = Rack::Response.new(400)
+            response.render(@socket)
 
-          raise HandshakeError, "error during handshake: #{error}"
+            raise HandshakeError, "error during handshake: #{error}"
+          end
         end
       end
 
@@ -54,8 +55,14 @@ module Pakyow
       end
 
       def hijack!(req)
-        req.env['rack.hijack'].call
-        req.env['rack.hijack_io']
+        if req.env['rack.hijack']
+          req.env['rack.hijack'].call
+          return req.env['rack.hijack_io']
+        else
+          logger.info "tried to hijack the socket, but there's no socket to hijack :("
+          terminate
+          return nil
+        end
       end
 
       def setup
