@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   s.require_path = File.join(gem_path, 'lib')
 
   s.add_dependency('websocket_parser', '~> 1.0')
-  s.add_dependency('celluloid', '~> 0.16')
+  s.add_dependency('celluloid', '~> 0.17')
   s.add_dependency('redis', '~> 3.2')
   s.add_dependency('celluloid-redis', '>=0')
 end

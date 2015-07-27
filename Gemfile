@@ -7,8 +7,6 @@ gem 'rack', '~> 1.6'
 
 # presenter
 gem 'nokogiri', '~> 1.6'
-gem 'nokogiri', '~> 1.6'
-gem 'pry', '~> 0.10'
 
 # mail
 gem 'mail', '~> 2.6'
@@ -16,7 +14,7 @@ gem 'premailer', '~> 1.8'
 
 # realtime
 gem 'websocket_parser', '~> 1.0'
-gem 'celluloid', '~> 0.16'
+gem 'celluloid', '~> 0.17'
 gem 'redis', '~> 3.2'
 gem 'celluloid-redis', '>= 0'
 
@@ -32,5 +30,5 @@ group :test do
 end
 
 group :development do
-  gem 'guard-rspec'
+  gem 'guard-rspec', '~> 4.6'
 end
