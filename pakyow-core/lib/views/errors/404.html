@@ -1,77 +1,13 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>
-    Pakyow: 404
-  </title>
+<h1>
+  Pakyow couldn't find anything to do :(
+</h1>
 
-  <style>
-    body {
-      font:13px Helvetica Neue, Helvetica, sans-serif;
-      line-height:1.35em;
-      color:#333;
-    }
+<p class="lead">
+  If you want back-end code to execute for this request, create a route in <code>app/lib/routes.rb</code>:
+</p>
 
-    h1 {
-      font-size:20px;
-      color:#333;
-    }
-
-    h2 {
-      font-weight:normal;
-      font-size:13px;
-      color:#FF0000;
-    }
-
-    code {
-      font-size:13px;
-      display:block;
-      margin:20px;
-      color:#333;
-    }
-
-    hr {
-      height:1px;
-      background:#ccc;
-      border:0;
-    }
-
-    .wrapper {
-      width:700px;
-      margin:60px auto 0;
-    }
-
-    .instruct {
-      font-size:15px;
-      margin:30px 0;
-      color:#777;
-    }
-  </style>
-</head>
-<body>
-  <div class="wrapper">
-    <h1>
-      Pakyow couldn't find a route or view for this request path.
-    </h1>
-
-    <p class="instruct">
-      For Pakyow to fulfill this request, create a view at '{view_path}'.
-    </p>
-
-    <hr>
-
-    <p class="instruct">
-      If you want back-end code to execute for this path, create 
-      a route; maybe something like this:
-
-      <code>
-        get '{route_path}' do
-        <br>
-        &nbsp;&nbsp;# your code goes here
-        <br>
-        end
-      </code>
-    </p>
-  </div>
-</body>
-</html>
+<pre>
+  <code><span class="n">get</span> <span class="s1">'{route_path}'</span> <span class="k">do</span>
+  <span class="c1"># your code goes here</span>
+<span class="k">end</span></code>
+</pre>

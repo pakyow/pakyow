@@ -103,7 +103,7 @@ module Pakyow
       # handles logging after an error occurs
       Pakyow::App.after(:error) {
         error = request.error
-        Pakyow.logger.error "[500] #{error}\n" + error.backtrace.join("\n") + "\n\n"
+        Pakyow.logger.error "[500] #{error.class}: #{error}\n" + error.backtrace.join("\n") + "\n\n"
       }
 
       def initialize(app)

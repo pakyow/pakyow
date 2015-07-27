@@ -1,56 +1,15 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>
-    Pakyow: 500
-  </title>
+<h1>
+  Pakyow found something wrong :(
+</h1>
 
-  <style>
-    body {
-      font:13px Helvetica Neue, Helvetica, sans-serif;
-      line-height:1.35em;
-      color:#333;
-    }
+<p class="lead">
+  The error originated on line {line} of <code>{file}</code>.
+</p>
 
-    h1 {
-      font-size:20px;
-      color:#333;
-    }
+<h5 class="error">
+  {msg}
+</h5>
 
-    h2 {
-      font-weight:normal;
-      font-size:13px;
-      color:#FF0000;
-    }
-
-    .wrapper {
-      width:900px;
-      margin:60px auto 0;
-    }
-
-    .instruct {
-      font-size:15px;
-      margin:30px 0;
-      color:#777;
-    }
-  </style>
-</head>
-<body>
-  <div class="wrapper">
-    <h1>
-      Pakyow found something wrong.
-    </h1>
-
-    <p class="instruct">
-      The error originated on line {line} of '{file}'
-      and generated the following stack trace:
-    </p>
-
-    <h2>
-      {msg}
-    </h2>
-
-    {trace}
-  </div>
-</body>
-</html>
+<pre>
+  <code>{trace}</code>
+</pre>
