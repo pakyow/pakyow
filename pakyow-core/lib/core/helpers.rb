@@ -14,25 +14,25 @@ module Pakyow
     end
 
     def request
-      context.request
+      context ? context.request : nil
     end
     alias_method :req, :request
 
     def response
-      context.response
+      context ? context.response : nil
     end
     alias_method :res, :response
 
     def params
-      request.params
+      request ? request.params : {}
     end
 
     def session
-      request.session
+      request ? request.session : {}
     end
 
     def cookies
-      request.cookies
+      request ? request.cookies : {}
     end
 
     def config
