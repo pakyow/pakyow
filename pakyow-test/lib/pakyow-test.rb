@@ -19,7 +19,7 @@ require_relative 'test_help/simulation'
 module Pakyow
   module TestHelp
     def self.setup
-      Pakyow::App.stage :test
+      Pakyow::App.stage(ENV['TEST_ENV'] || :test)
 
       Pakyow::App.after :match do
         @presenter = Pakyow::TestHelp::ObservablePresenter.new(@presenter)
