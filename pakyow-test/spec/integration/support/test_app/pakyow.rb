@@ -101,5 +101,19 @@ Pakyow::App.define do
       presenter.path = '/'
       view.template = params[:template]
     end
+
+    ### realtime
+
+    get :subscribe, '/subscribe/:channel' do
+      socket.subscribe(params[:channel].to_sym)
+    end
+
+    get :unsubscribe, '/unsubscribe/:channel' do
+      socket.unsubscribe(params[:channel].to_sym)
+    end
+
+    get :push, '/push/:channel/:message' do
+      socket.push(params[:message], params[:channel].to_sym)
+    end
   end
 end

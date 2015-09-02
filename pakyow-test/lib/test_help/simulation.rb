@@ -8,7 +8,7 @@ module Pakyow
       REDIRECT_STATUSES = [301, 302, 307]
 
       attr_reader :app
-      def_delegators :app, :request, :response, :req, :res, :presenter
+      def_delegators :app, :request, :response, :req, :res, :presenter, :socket, :socket_digest, :socket_connection_id
       def_delegators :response, :status, :type, :format
       def_delegators :presenter, :view
 
@@ -42,10 +42,30 @@ module Pakyow
         return true
       end
 
+      def subscribed?(to: nil)
+        if to.nil?
+          !channels.empty?
+        else
+          channels.include?(to.to_sym)
+        end
+      end
+
+      def unsubscribed?(to: nil)
+        !subscribed?(to: to)
+      end
+
+      def pushed?(message = nil, to: nil)
+        socket.pushed?(message, to: to)
+      end
+
       private
 
       def router
         Pakyow::Router.instance
+      end
+
+      def channels
+        socket.delegate.registry.channels_for_key(socket_digest(socket_connection_id))
       end
     end
   end
