@@ -1,4 +1,4 @@
-require_relative 'support/helper'
+require_relative 'support/int_helper'
 
 #TODO test that containers, partials, scopes reference same nodes? so that when
 # one is modified it modifies the other?

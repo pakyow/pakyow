@@ -1,4 +1,4 @@
-require_relative 'support/helper'
+require_relative 'support/int_helper'
 include ViewComposerHelpers
 
 describe Pakyow::Presenter::ViewComposer do

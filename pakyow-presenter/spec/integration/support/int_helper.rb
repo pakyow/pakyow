@@ -1,10 +1,4 @@
-require 'rspec'
-require 'pry'
-require 'pp'
-
-require File.expand_path('../../../../pakyow-support/lib/pakyow-support', __FILE__)
-require File.expand_path('../../../../pakyow-core/lib/pakyow-core', __FILE__)
-require File.expand_path('../../../lib/pakyow-presenter', __FILE__)
+require_relative '../../spec_helper'
 
 Dir[File.join(File.dirname(__FILE__), 'helpers', '*.rb')].each {|file| require file }
 Dir[File.join(File.dirname(__FILE__), 'mixins', '*.rb')].each {|file| require file }

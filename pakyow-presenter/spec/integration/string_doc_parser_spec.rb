@@ -1,4 +1,4 @@
-require_relative 'support/helper'
+require_relative 'support/int_helper'
 
 shared_examples :insignificant do
   it 'returns a structure with a single item' do

@@ -1,9 +1,9 @@
-require_relative 'support/helper'
+require_relative 'support/int_helper'
 include ReqResHelpers
 include SetupHelper
 
 describe Pakyow::Presenter::Binder do
-  before(:each) do
+  before :each do
     setup
   end
 
@@ -17,6 +17,7 @@ describe Pakyow::Presenter::Binder do
         restful(:bar)
       }
     }
+
     Pakyow.app.presenter.load
 
     data = Pakyow.app.presenter.binder.value_for_scoped_prop(:foo, :_root, {}, {}, Pakyow.app.context)
