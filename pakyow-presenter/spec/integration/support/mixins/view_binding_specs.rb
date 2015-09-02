@@ -38,5 +38,32 @@ shared_examples :binding_specs do
         expect(view.scope(:article).prop(:name)[0].attrs.value.value).to eq(data[:name])
       end
     end
+
+    context 'and the data contains a `view` key' do
+      let :view do
+        Pakyow::Presenter::ViewContext.new(Pakyow::Presenter::ViewComposer.from_path(store, 'binding'), {})
+      end
+
+      let :data do
+        {
+          bar: {
+            view: ->(view) do
+              @view = view
+            end
+          }
+        }
+      end
+
+      let :text do
+        'called'
+      end
+
+      it 'calls the block with the prop node' do
+        view.scope(:foo).bind(data)
+
+        expect(@view.class).to eq(Pakyow::Presenter::View)
+        expect(@view.to_html).to eq(view.scope(:foo).prop(:bar)[0].to_html)
+      end
+    end
   end
 end

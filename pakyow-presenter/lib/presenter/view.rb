@@ -477,7 +477,7 @@ module Pakyow
             v = v.to_proc.call(doc.html) if v.respond_to?(:to_proc)
             bind_value_to_doc(v, doc)
           when :view
-            v.call(self)
+            v.call(View.from_doc(doc))
           else
             attr  = attr.to_s
             attrs = Attributes.new(doc)
