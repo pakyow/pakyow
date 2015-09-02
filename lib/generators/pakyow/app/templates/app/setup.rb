@@ -1,9 +1,10 @@
 require 'bundler/setup'
-
 require 'pakyow'
 
 Pakyow::App.define do
   configure :global do
+    Bundler.require(:default, Pakyow::Config.env)
+
     # put global config here and they'll be available across environments
     app.name = 'Pakyow'
   end
