@@ -1,17 +1,20 @@
 shared_examples :attr_specs do
   describe 'attributes' do
-    let(:view) {
-      string = '<html><body><div data-scope="attrs"></div></body></html>'
-      Pakyow::Presenter::View.from_doc(doctype.new(string))
-    }
+    let :html do
+      '<html><body><div data-scope="attrs"></div></body></html>'
+    end
 
-    let(:coll) {
+    let :view do
+      Pakyow::Presenter::View.from_doc(doctype.new(html))
+    end
+
+    let :coll do
       view.scope(:attrs)
-    }
+    end
 
-    let(:node) {
+    let :node do
       coll[0].dup
-    }
+    end
 
     describe 'text attrs' do
       it 'sets a value' do
@@ -84,6 +87,10 @@ shared_examples :attr_specs do
         node.attrs.class = value
         node.attrs.class << appended_value
         expect(node.attrs.class.to_s).to eq("#{value} #{appended_value}")
+
+        coll.attrs.class = value
+        coll.attrs.class << appended_value
+        expect(coll.attrs.class.map(&:to_s)).to eq([[value, appended_value].join(' ')])
       end
 
       it 'ensures a value' do

@@ -186,7 +186,12 @@ module Pakyow
       end
 
       def <<(attributes)
-        @attributes << attributes
+        if attributes.is_a?(Attribute) || attributes.is_a?(Attributes)
+          @attributes << attributes
+        else
+          method_missing(:<<, *attributes)
+        end
+
         self
       end
 
