@@ -21,6 +21,10 @@ module Pakyow
         @context = context
       end
 
+      def subject
+        @view
+      end
+
       # View methods that expect context, so it can be mixed in.
       #
       %i[bind bind_with_index apply].each do |method|

@@ -10,6 +10,14 @@ module Pakyow
         @scoped_as = scope
       end
 
+      def ==(other)
+        @views.each_with_index do |view, i|
+          return false if view != other.views[i]
+        end
+
+        return true
+      end
+
       def each
         @views.each { |v| yield(v) }
       end

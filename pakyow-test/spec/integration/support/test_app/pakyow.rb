@@ -115,5 +115,17 @@ Pakyow::App.define do
     get :push, '/push/:channel/:message' do
       socket.push(params[:message], params[:channel].to_sym)
     end
+
+    ### ui
+
+    get :mutate, '/mutate' do
+      presenter.path = 'scoped'
+      view.scope(:post).mutate(:list, with: [:foo])
+    end
+
+    get :mutate_subscribe, '/mutate/subscribe' do
+      presenter.path = 'scoped'
+      view.scope(:post).mutate(:list, with: [:foo]).subscribe
+    end
   end
 end

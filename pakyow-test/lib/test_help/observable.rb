@@ -34,7 +34,7 @@ module Pakyow
           next if observation[:traversal] != traversal
 
           values.each_pair do |k, v|
-            next if observation[:values][k] != v
+            return false if observation[:values][k] != v
           end
 
           return true

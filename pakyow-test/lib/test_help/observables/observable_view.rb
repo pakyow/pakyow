@@ -12,6 +12,10 @@ module Pakyow
         @traversal = traversal
       end
 
+      def ==(other)
+        doc == other.doc
+      end
+
       def observable
         view
       end
@@ -117,6 +121,14 @@ module Pakyow
         values = {}
         values[:view] = replace_view if replace_view
         presenter.observed?(view.scoped_as, :replace, traversal, values)
+      end
+
+      def mutated?(mutation = nil, data: nil)
+        Pakyow::TestHelp::Realtime::ObservableMutator.instance.mutated?(self, mutation, data: data)
+      end
+
+      def subscribed?
+        Pakyow::TestHelp::Realtime::ObservableMutator.instance.subscribed?(self)
       end
     end
   end
