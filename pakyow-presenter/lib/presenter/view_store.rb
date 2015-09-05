@@ -107,7 +107,9 @@ module Pakyow
           raise MissingView, "No view at path '#{view_path}'"
         else
           #TODO need to consider whose responsibility it is to make the dups
-          return (obj ? info[obj.to_sym] : info).dup
+          view = obj ? info[obj.to_sym] : info
+          raise MissingView, "No #{obj} at path '#{view_path}'" if view.nil?
+          return view.dup
         end
       end
 
