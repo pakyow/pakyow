@@ -23,8 +23,8 @@ require_relative 'test_help/simulation'
 
 module Pakyow
   module TestHelp
-    def self.setup
-      Pakyow::App.stage(ENV['TEST_ENV'] || :test)
+    def self.setup(path = './app/setup')
+      require path
 
       Pakyow::App.after :match do
         @presenter = Pakyow::TestHelp::ObservablePresenter.new(@presenter)
@@ -33,6 +33,12 @@ module Pakyow
       Pakyow::App.before :process do
         Pakyow::TestHelp::Realtime::ObservableMutator.instance.reset
       end
+
+      Pakyow::App.after :init do
+        Celluloid.logger = Pakyow.logger
+      end
+
+      Pakyow::App.stage(ENV['TEST_ENV'] || :test)
     end
   end
 end
