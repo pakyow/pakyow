@@ -9,8 +9,14 @@ module Pakyow
 
         channel_qualifiers = []
         qualifiers = Array.ensure(qualifiers)
+
+        if data.is_a?(Pakyow::UI::MutableData)
+          data = data.data
+        end
+
         unless qualifiers.empty? || data.empty?
           datum = Array.ensure(data).first
+
           qualifiers.inject(channel) do |channel, qualifier|
             channel_qualifiers << "#{qualifier}:#{datum[qualifier]}"
           end
