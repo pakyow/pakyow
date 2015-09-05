@@ -137,7 +137,6 @@ module Pakyow
           end
         end
 
-        raise MissingTemplatesDir, 'No templates found' if @templates.empty?
         @templates_loaded = true
       end
 
