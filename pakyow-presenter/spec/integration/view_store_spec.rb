@@ -112,4 +112,12 @@ describe Pakyow::Presenter::ViewStore do
   it 'ignores dotfiles' do
     expect { @store.template('.vimswap.swp') }.to raise_error Pakyow::Presenter::MissingView
   end
+
+  context 'when finding a partial in an otherwise empty directory' do
+    it 'finds the partial' do
+      store = Pakyow::Presenter::ViewStore.new(File.join(VIEW_PATH, 'partial/only'))
+      html = store.partial('/', :partial).to_html.strip
+      expect(html).to eq('partial')
+    end
+  end
 end

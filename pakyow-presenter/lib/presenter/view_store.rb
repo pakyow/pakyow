@@ -156,9 +156,6 @@ module Pakyow
 
         @store_paths.each do |store_path|
           Dir.walk(store_path) do |path|
-            # skip root
-            next if path == store_path
-
             # don't include templates
             next if path.include?(templates_path(store_path))
 
@@ -166,7 +163,7 @@ module Pakyow
             next if File.basename(path)[0,1] == '_'
 
             # skip non-empty folders (these files will be picked up)
-            next if !Dir.glob(File.join(path, 'index.*')).empty?
+            next unless Dir.glob(File.join(path, 'index.*')).empty?
 
             normalized_path = normalize_path(path, store_path)
 
@@ -187,14 +184,17 @@ module Pakyow
               pages[normalized_path] = page
             end
 
-            next if page.nil?
-            template = template_with_name(page.info(:template))
+            unless page.nil?
+              template = template_with_name(page.info(:template))
+            end
 
             #TODO more efficient way of doing this? lot of redundant calls here
             partials = partials_at_path(path)
 
-            # compose template/page/partials
-            composer = ViewComposer.from_path(self, normalized_path, template: template, page: page, includes: partials)
+            unless page.nil?
+              # compose template/page/partials
+              composer = ViewComposer.from_path(self, normalized_path, template: template, page: page, includes: partials)
+            end
 
             info = {
               page: page,
