@@ -12,10 +12,20 @@ Pakyow::Realtime::MessageHandler.register :call_route do |message, session, resp
   #TODO in production we want to push the message to a queue and
   # let the next available app instance pick it up, rather than
   # the current instance to handle all traffic on this socket
-  app_response = Pakyow.app.call(env)
+  app = Pakyow.app.dup
+  res = app.process(env)
 
-  response[:status] = app_response[0]
-  response[:headers] = app_response[1]
-  response[:body] = app_response[2].body
+  container = message['container']
+
+  if container
+    composer = app.presenter.composer
+    body = composer.container(container.to_sym).includes(composer.partials).to_s
+  else
+    body = res[2].body
+  end
+
+  response[:status]  = res[0]
+  response[:headers] = res[1]
+  response[:body]    = body
   response
 end
