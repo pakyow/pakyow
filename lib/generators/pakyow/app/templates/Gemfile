@@ -10,4 +10,8 @@ gem 'pakyow', '0.9.1'
 gem 'puma', platforms: :ruby
 gem 'thin', platforms: :mswin
 
+group :test do
+  gem 'rspec'
+end
+
 # your gems here

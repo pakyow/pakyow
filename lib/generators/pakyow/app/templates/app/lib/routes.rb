@@ -1,8 +1,7 @@
 Pakyow::App.routes do
-  # define your routes here
+  default do
+    log.info 'hello'
+  end
 
-  # see something working by uncommenting the line below
-  # default do
-  #   puts 'hello'
-  # end
+  # define application routes here
 end
