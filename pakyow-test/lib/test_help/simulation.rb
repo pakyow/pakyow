@@ -58,6 +58,10 @@ module Pakyow
         socket.pushed?(message, to: to)
       end
 
+      def log
+        app.request.env['rack.logger']
+      end
+
       private
 
       def router

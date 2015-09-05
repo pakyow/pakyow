@@ -13,6 +13,7 @@ require_relative 'test_help/mocks/status_mock'
 
 require_relative 'test_help/observables/observable_presenter'
 require_relative 'test_help/observables/observable_view'
+require_relative 'test_help/observables/observable_logger'
 require_relative 'test_help/observables/realtime/observable_context'
 require_relative 'test_help/observables/realtime/observable_mutator'
 

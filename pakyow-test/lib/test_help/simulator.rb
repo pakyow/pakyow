@@ -17,7 +17,8 @@ module Pakyow
           'rack.session'              => session,
           'rack.request.cookie_hash'  => cookies,
           'rack.input'                => StringIO.new,
-          'pakyow.params'             => @params
+          'pakyow.params'             => @params,
+          'rack.logger'               => Pakyow::TestHelp::ObservableLogger.new
         }.merge(Hash[env.map{ |k,v| [k.to_s, v] }])
       end
 

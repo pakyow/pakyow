@@ -48,6 +48,12 @@ Pakyow::App.define do
       end
     end
 
+    ## logging
+
+    get :log, '/log/:message' do
+      logger.info params[:message]
+    end
+
     ### view manipulation
 
     get :attribute, '/attribute' do
