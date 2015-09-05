@@ -27,7 +27,11 @@ Pakyow::Realtime::MessageHandler.register :'fetch-view' do |message, session, re
       view = view.send(key.to_sym, value.to_sym)
     end
 
-    body = view.use(lookup['version'] || :default).to_html
+    if view.is_a?(Pakyow::Presenter::ViewVersion)
+      body = view.use(lookup['version'] || :default).to_html
+    else
+      body = view.to_html
+    end
   end
 
   response[:status]  = app_response[0]
