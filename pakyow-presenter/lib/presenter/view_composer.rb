@@ -11,6 +11,7 @@ module Pakyow
 
       def_delegators :template, :title, :title=
       def_delegators :parts, :prop, :component
+      def_delegators :view, :to_html
 
       attr_reader :store, :path, :page, :partials
 
