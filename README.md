@@ -1,7 +1,15 @@
-# Pakyow v0.9
+[gem]: https://rubygems.org/gems/pakyow
+[travis]: https://travis-ci.org/pakyow/pakyow
+[gemnasium]: https://gemnasium.com/pakyow/pakyow
+
+# Pakyow Framework [![Gitter chat](https://badges.gitter.im/pakyow/chat.svg)](https://gitter.im/pakyow/chat)
 
 Pakyow is an open-source framework for the modern web. Build web-based apps faster with a view-first development
 process that's friendly to everyone -- whether you're a designer or a developer. It's for getting along.
+
+[![Gem Version](https://badge.fury.io/rb/pakyow.svg)][gem]
+[![Build Status](https://travis-ci.org/pakyow/pakyow.svg?branch=master)][travis]
+[![Dependency Status](https://gemnasium.com/pakyow/pakyow.svg)][gemnasium]
 
 ## View-First Development
 
@@ -45,11 +53,6 @@ Want to keep up with the latest development? Follow along:
 - [Blog](http://pakyow.org/blog)
 - [Mailing List](http://groups.google.com/group/pakyow)
 - [Twitter](http://twitter.com/pakyow)
-
-# Status
-
-[![Build
-Status](https://travis-ci.org/pakyow/pakyow.png)](https://travis-ci.org/pakyow/pakyow)
 
 # License
 
