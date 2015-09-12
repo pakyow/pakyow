@@ -38,7 +38,7 @@ module Pakyow
       end
 
       def push(msg)
-        logger.debug "(#{@key}): sending message #{msg}"
+        logger.debug "(#{@key}): sending message"
         WebSocket::Message.new(msg.to_json).write(@socket)
       end
 
@@ -70,7 +70,7 @@ module Pakyow
 
         @parser.on_message do |ws_message|
           begin
-            logger.debug "(#{@key}): received message #{ws_message}"
+            logger.debug "(#{@key}): received message"
             push(MessageHandler.handle(JSON.parse(ws_message), @req.env['rack.session']))
           rescue Exception => e
             logger.error 'Websocket encountered an error:'
