@@ -175,4 +175,78 @@ describe 'restful route'do
 
     expect(match: set.match('tests/new', :get)).to have_same_path path: 'tests/new'
   end
+
+  describe 'member routes' do
+    let :set do
+      Pakyow::RouteSet.new
+    end
+
+    let :fn1 do
+      lambda {}
+    end
+
+    let :fn2 do
+      lambda {}
+    end
+
+    before do
+      fn1 = self.fn1
+      fn2 = self.fn2
+
+      set.eval do
+        fn :fn1, &fn1
+        fn :fn2, &fn2
+
+        restful :test, 'tests' do
+          member before: [:fn1] do
+            get :foo, 'foo', before: [:fn2] do; end
+          end
+        end
+      end
+    end
+
+    it 'executes functions in order' do
+      fns = set.match('/tests/1/foo', :get)[0][3]
+
+      expect(fns[0]).to eq fn1
+      expect(fns[1]).to eq fn2
+    end
+  end
+
+  describe 'collection routes' do
+    let :set do
+      Pakyow::RouteSet.new
+    end
+
+    let :fn1 do
+      lambda {}
+    end
+
+    let :fn2 do
+      lambda {}
+    end
+
+    before do
+      fn1 = self.fn1
+      fn2 = self.fn2
+
+      set.eval do
+        fn :fn1, &fn1
+        fn :fn2, &fn2
+
+        restful :test, 'tests' do
+          collection before: [:fn1] do
+            get :foo, 'foo', before: [:fn2] do; end
+          end
+        end
+      end
+    end
+
+    it 'executes functions in order' do
+      fns = set.match('/tests/foo', :get)[0][3]
+
+      expect(fns[0]).to eq fn1
+      expect(fns[1]).to eq fn2
+    end
+  end
 end

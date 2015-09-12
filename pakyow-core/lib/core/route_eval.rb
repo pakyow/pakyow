@@ -155,7 +155,7 @@ module Pakyow
       fns << block if block_given?
 
       # merge route hooks with scoped hooks
-      hooks = merge_hooks(args[:hooks] || {}, @hooks)
+      hooks = merge_hooks(@hooks, args[:hooks] || {})
 
       # build the final list of fns
       fns = build_fns(fns, hooks)

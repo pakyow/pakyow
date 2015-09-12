@@ -232,13 +232,27 @@ describe 'route set' do
       fn(:fn2, &fn2)
       fn(:fn3, &fn3)
       get('1', fn(:fn1), before: fn(:fn2), after: fn(:fn3))
-      get('2', fn(:fn1), after: fn(:fn3), before: fn(:fn2))
     }
 
     fns = set.match('1', :get)[0][3]
     expect(fns[0]).to eq fn2
     expect(fns[1]).to eq fn1
     expect(fns[2]).to eq fn3
+  end
+
+  it 'can add hooks to route in any order' do
+    set = Pakyow::RouteSet.new
+
+    fn1 = lambda {}
+    fn2 = lambda {}
+    fn3 = lambda {}
+
+    set.eval {
+      fn(:fn1, &fn1)
+      fn(:fn2, &fn2)
+      fn(:fn3, &fn3)
+      get('2', fn(:fn1), after: fn(:fn3), before: fn(:fn2))
+    }
 
     fns = set.match('2', :get)[0][3]
     expect(fns[0]).to eq fn2
