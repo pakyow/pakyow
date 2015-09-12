@@ -7,7 +7,31 @@
 #
 shared_examples :doc_specs do
   describe 'doc' do
-    let(:html) { '<div data-scope="foo" class="fooclass">foocontent <strong>strongtext</strong></div>' }
+    let :html do
+      '<div data-scope="foo" class="fooclass">foocontent <strong>strongtext</strong></div>'
+    end
+
+    let :doc do
+      doctype.new(html)
+    end
+
+    let :node do
+      node_from_doc(doc)
+    end
+
+    # insignificant doc
+
+    let :insig_html do
+      '<div></div>'
+    end
+
+    let :insig_doc do
+      doctype.new(insig_html)
+    end
+
+    let :insig_node do
+      node_from_doc(insig_doc)
+    end
 
     describe '#set_attribute' do
       it 'changes the attribute value' do
@@ -71,14 +95,28 @@ shared_examples :doc_specs do
     end
 
     describe '#append' do
-      it 'appends content' do
-        node.append(' appended')
-        expect(doc.text).to eq('foocontent strongtext appended')
+      context 'appending to a significant doc' do
+        it 'appends content' do
+          node.append(' appended')
+          expect(doc.text).to eq('foocontent strongtext appended')
+        end
+
+        it 'appends a doc' do
+          doc.append(doctype.new(' appended'))
+          expect(doc.text).to eq('foocontent strongtext appended')
+        end
       end
 
-      it 'appends a doc' do
-        doc.append(doctype.new(' appended'))
-        expect(doc.text).to eq('foocontent strongtext appended')
+      context 'appending to an insignificant doc' do
+        it 'appends content' do
+          insig_node.append(' appended')
+          expect(insig_doc.text).to eq(' appended')
+        end
+
+        it 'appends a doc' do
+          insig_doc.append(doctype.new(' appended'))
+          expect(insig_doc.text).to eq(' appended')
+        end
       end
     end
 

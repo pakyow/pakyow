@@ -32,7 +32,7 @@ module Pakyow
 
           children = node.children.reject {|n| n.is_a?(Nokogiri::XML::Text)}
           attributes = node.attributes
-          if children.empty? && !significant?(node)
+          if !structure.empty? && children.empty? && !significant?(node)
             structure << [node.to_html, {}, []]
           else
             if significant?(node)
@@ -55,10 +55,14 @@ module Pakyow
                 structure << [node.to_html, { partial: name }, []]
               end
             else
-              attr_s = attributes.inject('') { |s, a| s << " #{a[1].name}=\"#{a[1].value}\""; s }
-              closing = [['>', {}, parse(node)]]
-              closing << ['</' + node.name + '>', {}, []] unless self_closing?(node.name)
-              structure << ['<' + node.name + attr_s, {}, closing]
+              if node.is_a?(Nokogiri::XML::Text)
+                structure << [node.text, {}, []]
+              else
+                attr_s = attributes.inject('') { |s, a| s << " #{a[1].name}=\"#{a[1].value}\""; s }
+                closing = [['>', {}, parse(node)]]
+                closing << ['</' + node.name + '>', {}, []] unless self_closing?(node.name)
+                structure << ['<' + node.name + attr_s, {}, closing]
+              end
             end
           end
         end

@@ -5,8 +5,8 @@ shared_examples :insignificant do
     expect(structure.length).to eq(1)
   end
 
-  it 'returns a structure containing the entire document' do
-    expect(structure[0][0]).to eq(html)
+  it 'returns an appendable structure' do
+    expect(structure[0][2].length).to eq(2)
   end
 end
 

@@ -4,9 +4,13 @@ require_relative 'support/int_helper'
 # one is modified it modifies the other?
 
 describe Pakyow::Presenter::StringDoc do
-  let(:doc) { doctype.new(html) }
-  let(:node) { doc }
-  let(:doctype) { Pakyow::Presenter::StringDoc }
+  def node_from_doc(doc)
+    doc
+  end
+
+  let :doctype do
+    Pakyow::Presenter::StringDoc
+  end
 
   describe '#initialize' do
     it 'parses html with StringDocParser' do

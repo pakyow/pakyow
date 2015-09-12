@@ -1,15 +1,15 @@
 require_relative 'support/int_helper'
 
 describe Pakyow::Presenter::NokogiriDoc do
-  let(:doc) { doctype.new(html) }
-
-  let(:node) {
+  def node_from_doc(doc)
     i2 = doctype.allocate
     i2.instance_variable_set(:@doc, doc.doc.children[0])
     i2
-  }
+  end
 
-  let(:doctype) { Pakyow::Presenter::NokogiriDoc }
+  let :doctype do
+    Pakyow::Presenter::NokogiriDoc
+  end
 
   include_examples :doc_specs
   include_examples :scope_specs
