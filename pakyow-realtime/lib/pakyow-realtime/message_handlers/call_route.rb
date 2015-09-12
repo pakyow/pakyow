@@ -1,4 +1,4 @@
-Pakyow::Realtime::MessageHandler.register :call_route do |message, session, response|
+Pakyow::Realtime::MessageHandler.register :'call-route' do |message, session, response|
   path, qs = message['uri'].split('?')
   path_parts = path.split('/')
   path_parts[-1] += '.json'
