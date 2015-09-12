@@ -10,7 +10,7 @@ Pakyow::Config.register(:realtime) { |config|
   config.opt :redis, { url: 'redis://localhost:6379' }
 
   # The key used to keep track of channels in Redis.
-  config.opt :redis_key, 'channels'
+  config.opt :redis_key, 'pw:channels'
 
 }.env(:development) { |opts|
 
