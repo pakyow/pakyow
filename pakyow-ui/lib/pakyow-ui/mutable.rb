@@ -28,7 +28,7 @@ module Pakyow
       def action(name, mutation: true, &block)
         @actions[name] = {
           block: block,
-          mutation: true,
+          mutation: mutation,
         }
       end
 
@@ -40,7 +40,7 @@ module Pakyow
         if action = @actions[method]
           result = action[:block].call(*args)
           if action[:mutation]
-            @context.ui.mutated(@scope, @context)
+            @context.ui.mutated(@scope, result, @context)
           end
           result
         elsif query = @queries[method]

@@ -141,7 +141,7 @@ describe Pakyow::UI::Mutator do
       mutator.mutate(:list, view, data)
       expect(PerformedMutations.performed.keys).to include :list
 
-      performed = PerformedMutations.performed[:list]
+      performed = PerformedMutations.performed[:list][0]
       expect(performed[:view]).to be view
       expect(performed[:data]).to be data
     end

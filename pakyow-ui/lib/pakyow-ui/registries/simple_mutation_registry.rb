@@ -4,6 +4,10 @@ module Pakyow
       include Singleton
 
       def initialize
+        reset
+      end
+
+      def reset
         @mutations = {}
       end
 

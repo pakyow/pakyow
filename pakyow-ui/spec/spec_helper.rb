@@ -31,7 +31,7 @@ end
 
 module PerformedMutations
   def self.perform(name, view = nil, data = nil)
-    performed[name] = {
+    performed(name) << {
       view: view,
       data: data,
     }
@@ -39,8 +39,11 @@ module PerformedMutations
     view
   end
 
-  def self.performed
+  def self.performed(name = nil)
     @performed ||= {}
+
+    return @performed if name.nil?
+    @performed[name] ||= []
   end
 
   def self.reset

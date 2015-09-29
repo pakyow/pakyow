@@ -23,9 +23,11 @@ Pakyow::App.before :init do
 end
 
 Pakyow::App.after :load do
-  ui.load(mutators, mutables)
+  @ui.load(mutators, mutables)
 end
 
 Pakyow::App.before :route do
-  @context.ui = ui.dup
+  ui_dup = @ui.dup
+  ui_dup.context = self
+  @context.ui = ui_dup
 end

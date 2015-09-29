@@ -5,8 +5,12 @@ context 'after the app is initialized' do
     Pakyow::App.stage(:test)
   end
 
+  let :app_ui do
+    Pakyow.app.instance_variable_get(:@ui)
+  end
+
   it 'inits ui and makes it available on the app' do
-    expect(Pakyow.app.ui.class).to eq Pakyow::UI::UI
+    expect(app_ui.class).to eq Pakyow::UI::UI
   end
 
   context 'after the app is loaded' do
@@ -15,7 +19,7 @@ context 'after the app is initialized' do
     end
 
     it 'loads ui' do
-      expect(Pakyow.app.ui).to receive(:load).with(Pakyow.app.mutators, Pakyow.app.mutables)
+      expect(app_ui).to receive(:load).with(Pakyow.app.mutators, Pakyow.app.mutables)
     end
   end
 
@@ -33,7 +37,7 @@ context 'after the app is initialized' do
     end
 
     it 'duplicates the ui' do
-      expect(context.ui.object_id).not_to eq(Pakyow.app.ui.object_id)
+      expect(context.ui.object_id).not_to eq(app_ui.object_id)
     end
   end
 end

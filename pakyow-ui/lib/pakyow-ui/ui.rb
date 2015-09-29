@@ -5,6 +5,7 @@ require_relative 'ui_view'
 module Pakyow
   module UI
     class UI
+      attr_accessor :context
       attr_reader :mutator
 
       def load(mutators, mutables)
@@ -20,12 +21,34 @@ module Pakyow
         end
       end
 
-      def mutated(scope, context = nil)
+      def mutated(scope, data = nil, context = nil)
+        context ||= @context
+
         MutationStore.instance.mutations(scope).each do |mutation|
           view = UIView.new(scope)
 
-          data = Mutator.instance.mutable(scope, context).send(mutation[:query_name], *mutation[:query_args]).data
-          Mutator.instance.mutate(mutation[:mutation].to_sym, view, data)
+          qualified = true
+
+          # qualifiers are defined with the mutation
+          unless mutation[:qualifiers].empty?
+            mutation[:qualifiers].each_with_index do |qualifier, i|
+              qualified = false unless data[qualifier] == mutation[:query_args][i]
+            end
+          end
+
+          qualified = false if data.nil? && !mutation[:qualifications].empty?
+
+          # qualifications are set on the subscription
+          unless !qualified || mutation[:qualifications].empty?
+            mutation[:qualifications].each_pair do |key, value|
+              qualified = false unless data[key] == value
+            end
+          end
+
+          next unless qualified
+
+          mutable_data = Mutator.instance.mutable(scope, context).send(mutation[:query_name], *mutation[:query_args]).data
+          Mutator.instance.mutate(mutation[:mutation].to_sym, view, mutable_data)
 
           Pakyow.app.socket.push(
             view.finalize,
@@ -34,7 +57,7 @@ module Pakyow
               scope: scope,
               mutation: mutation[:mutation].to_sym,
               qualifiers: mutation[:qualifiers],
-              data: data,
+              data: mutable_data,
               qualifications: mutation[:qualifications],
             )
           )

@@ -1,7 +1,5 @@
 module Pakyow
   class App
-    attr_reader :ui
-
     #TODO I'd like this abstracted out into a registry type model
     # in pakyow-core; there's a ton of repitition currently
     class << self
