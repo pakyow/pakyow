@@ -17,10 +17,10 @@ Pakyow::Realtime::MessageHandler.register :'fetch-view' do |message, session, re
   if channel = lookup['channel']
     unqualified_channel = channel.split('::')[0]
 
-    view_for_channel = view.composed.doc.channel(unqualified_channel)
-    view_for_channel.set_attribute(:'data-channel', channel)
-
-    body = view_for_channel.to_html
+    if view_for_channel = view.composed.doc.channel(unqualified_channel)
+      view_for_channel.set_attribute(:'data-channel', channel)
+      body = view_for_channel.to_html
+    end
   else
     lookup.each_pair do |key, value|
       next if key == 'version'
