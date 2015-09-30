@@ -30,7 +30,7 @@ module Pakyow
           qualified = true
 
           # qualifiers are defined with the mutation
-          unless mutation[:qualifiers].empty?
+          unless mutation[:qualifiers].empty? || data.nil?
             mutation[:qualifiers].each_with_index do |qualifier, i|
               qualified = false unless data[qualifier] == mutation[:query_args][i]
             end
@@ -39,7 +39,7 @@ module Pakyow
           qualified = false if data.nil? && !mutation[:qualifications].empty?
 
           # qualifications are set on the subscription
-          unless !qualified || mutation[:qualifications].empty?
+          unless !qualified || mutation[:qualifications].empty? || data.nil?
             mutation[:qualifications].each_pair do |key, value|
               qualified = false unless data[key] == value
             end
