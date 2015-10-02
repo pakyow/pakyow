@@ -1,3 +1,13 @@
 --readme README.md
 --protected
 --no-private
+/lib/**/*.rb
+pakyow-support/lib/**/*.rb
+pakyow-core/lib/**/*.rb
+pakyow-presenter/lib/**/*.rb
+pakyow-mailer/lib/**/*.rb
+pakyow-realtime/lib/**/*.rb
+pakyow-ui/lib/**/*.rb
+pakyow-test/lib/**/*.rb
+pakyow-rake/lib/**/*.rb -
+LICENSE
