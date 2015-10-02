@@ -343,7 +343,7 @@ module Pakyow
         data = file_or_data.read
 
         # auto set type based on file type
-        type = Rack::Mime.mime_type("." + String.split_at_last_dot(file_or_data.path)[1])
+        type ||= Rack::Mime.mime_type("." + String.split_at_last_dot(file_or_data.path)[1])
       else
         data = file_or_data
       end

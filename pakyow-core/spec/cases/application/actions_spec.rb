@@ -167,7 +167,7 @@ describe  'App Actions' do
     Pakyow.app.context = Pakyow::AppContext.new(mock_request, mock_response)
 
     as = 'foo.txt'
-    type = 'text/plain'
+    type = 'application/force-download'
     path = File.join(File.dirname(__FILE__), '../../support/helpers/foo.txt')
 
     data = File.open(path, 'r').read
