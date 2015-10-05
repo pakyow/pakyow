@@ -1,0 +1,11 @@
+AllCops:
+  DisplayCopNames: true
+
+BlockDelimiters:
+  EnforcedStyle: semantic
+
+Style/MultilineBlockChain:
+  Enabled: false
+
+Style/PredicateName:
+  Enabled: false

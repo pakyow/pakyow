@@ -31,4 +31,5 @@ end
 
 group :development do
   gem 'guard-rspec', '~> 4.6'
+  gem 'rubocop', '~> 0.34'
 end
