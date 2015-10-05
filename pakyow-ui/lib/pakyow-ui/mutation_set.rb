@@ -1,5 +1,8 @@
 module Pakyow
   module UI
+    # Stores mutations.
+    #
+    # @api private
     class MutationSet
       attr_reader :mutations
 
@@ -8,7 +11,7 @@ module Pakyow
         instance_exec(&block)
       end
 
-      #NOTE I do have some concerns about defining qualifiers in this way;
+      # NOTE I do have some concerns about defining qualifiers in this way;
       # mainly because it will lead to having lots of versions of the same
       # mutator just so the proper channels will be created.
       #
@@ -19,7 +22,7 @@ module Pakyow
         @mutations[name] = {
           fn: block,
           qualifiers: Array.ensure(qualify),
-          name: name,
+          name: name
         }
       end
 

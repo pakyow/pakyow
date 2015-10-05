@@ -36,7 +36,7 @@ describe 'transforming a ui view' do
         view.text = datum[:text]
       end
 
-      expect(view.finalize).to eq([[:bind, [{:text=>"foo"}, {:text=>"bar"}], [[[:text, "foo"]], [[:text, "bar"]]]]])
+      expect(view.finalize).to eq([[:bind, [{ text: 'foo' }, { text: 'bar' }], [[[:text, 'foo']], [[:text, 'bar']]]]])
     end
   end
 
@@ -50,38 +50,38 @@ describe 'transforming a ui view' do
   describe 'with a transformation that invokes bindings' do
     describe 'and the binding returns a plain value' do
       it 'uses the new value' do
-        view.bind({ text: 'foo' }, bindings: { text: lambda { |value, bindable, context|
+        view.bind({ text: 'foo' }, bindings: { text: lambda { |_value, _bindable, _context|
           'bar'
-        }})
+        } })
 
-        expect(view.finalize).to eq([[:bind, [{:text=>"bar"}], []]])
+        expect(view.finalize).to eq([[:bind, [{ text: 'bar' }], []]])
       end
     end
 
     describe 'and the binding returns a hash' do
       it 'uses the content key for the value' do
-        view.bind({ text: 'foo' }, bindings: { text: lambda { |value, bindable, context|
+        view.bind({ text: 'foo' }, bindings: { text: lambda { |_value, _bindable, _context|
           { content: 'bar' }
-        }})
+        } })
 
-        expect(view.finalize).to eq([[:bind, [{:text=>{:__content=>"bar", :__attrs=>{}}}], []]])
+        expect(view.finalize).to eq([[:bind, [{ text: { __content: 'bar', __attrs: {} } }], []]])
       end
 
       it 'uses the other keys as attributes' do
-        view.bind({ text: 'foo' }, bindings: { text: lambda { |value, bindable, context|
+        view.bind({ text: 'foo' }, bindings: { text: lambda { |_value, _bindable, _context|
           { content: 'bar', class: 'foo' }
-        }})
+        } })
 
-        expect(view.finalize).to eq([[:bind, [{:text=>{:__content=>"bar",:__attrs=>{:class=>"foo"}}}], []]])
+        expect(view.finalize).to eq([[:bind, [{ text: { __content: 'bar', __attrs: { class: 'foo' } } }], []]])
       end
 
       describe 'and an attribute value is set in a block' do
         it 'properly evaluates the value' do
-          view.bind({ text: 'foo' }, bindings: { text: lambda { |value, bindable, context|
-            { content: 'bar', class: lambda { |c| c.ensure('foo') } }
-          }})
+          view.bind({ text: 'foo' }, bindings: { text: lambda { |_value, _bindable, _context|
+            { content: 'bar', class: ->(c) { c.ensure('foo') } }
+          } })
 
-          expect(view.finalize).to eq([[:bind, [{:text=>{:__content=>"bar", :__attrs=>{:class=>[[:ensure, "foo", []]]}}}], []]])
+          expect(view.finalize).to eq([[:bind, [{ text: { __content: 'bar', __attrs: { class: [[:ensure, 'foo', []]] } } }], []]])
         end
       end
     end

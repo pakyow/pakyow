@@ -1,5 +1,10 @@
 module Pakyow
   module UI
+    # Manages mutations.
+    #
+    # Intended only for use in development or single app-instance deployments.
+    #
+    # @api private
     class SimpleMutationRegistry
       include Singleton
 

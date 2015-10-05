@@ -1,8 +1,9 @@
 module Pakyow
   class App
-    #TODO I'd like this abstracted out into a registry type model
-    # in pakyow-core; there's a ton of repitition currently
     class << self
+      # Defines mutators for a scope.
+      #
+      # @api public
       def mutators(scope = nil, &block)
         @mutators ||= {}
 
@@ -13,26 +14,35 @@ module Pakyow
         end
       end
 
+      # Defines a mutable object.
+      #
+      # @api public
       def mutable(scope, &block)
         @mutables ||= {}
         @mutables[scope] = block
       end
 
+      # @api private
       def mutables
         @mutables || {}
       end
     end
 
-    # Convenience method for defining bindings on an app instance.
+    # Convenience method for defining mutators on an app instance.
     #
+    # @api public
     def mutators(scope = nil, &block)
       self.class.mutators(scope, &block)
     end
 
+    # Convenience method for defining a mutable on an app instance.
+    #
+    # @api public
     def mutable(scope, &block)
       self.class.mutable(scope, &block)
     end
 
+    # @api private
     def mutables
       self.class.mutables
     end

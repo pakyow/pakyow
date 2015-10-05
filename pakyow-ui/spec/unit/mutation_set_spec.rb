@@ -11,7 +11,7 @@ describe Pakyow::UI::MutationSet do
   end
 
   let :block do
-    Proc.new {}
+    proc {}
   end
 
   let :name do

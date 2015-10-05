@@ -59,11 +59,11 @@ describe 'performing mutations' do
       end
 
       get '/posts/create' do
-        data(:post).create({ id: 2 })
+        data(:post).create(id: 2)
       end
 
       get '/posts/update/:id' do
-        data(:post).update({ id: params[:id], updating: true })
+        data(:post).update(id: params[:id], updating: true)
       end
 
       get '/posts/:post_id' do
@@ -154,7 +154,7 @@ describe 'performing mutations' do
 
         it 'calls the qualified mutation again' do
           data = performed[:present][0][:data]
-          expect(data).to eq({ id: post_id })
+          expect(data).to eq(id: post_id)
         end
 
         it 'does not call an unqualified mutation again' do

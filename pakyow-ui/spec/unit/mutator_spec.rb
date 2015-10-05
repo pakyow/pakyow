@@ -15,7 +15,7 @@ describe Pakyow::UI::Mutator do
   end
 
   let :block do
-    Proc.new {}
+    proc {}
   end
 
   let :scope do
@@ -39,7 +39,7 @@ describe Pakyow::UI::Mutator do
 
   describe '#reset' do
     before do
-      mutator.instance_variable_set(:@sets, { foo: :bar })
+      mutator.instance_variable_set(:@sets, foo: :bar)
     end
 
     it 'resets @sets' do

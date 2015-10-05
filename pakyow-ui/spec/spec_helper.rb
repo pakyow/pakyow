@@ -16,7 +16,7 @@ Pakyow::App.after :error do
   # puts request.error.message
   # puts request.error.backtrace
 
-  raise request.error
+  fail request.error
 end
 
 # for when we don't stage the app
@@ -33,7 +33,7 @@ module PerformedMutations
   def self.perform(name, view = nil, data = nil)
     performed(name) << {
       view: view,
-      data: data,
+      data: data
     }
 
     view

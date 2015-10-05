@@ -32,10 +32,10 @@ describe Pakyow::UI::UIView do
 
   describe '#bind' do
     it 'mixes in the bindings' do
-      view.bind({ one: 'one' }, bindings: { two: Proc.new { 'two' } })
+      view.bind({ one: 'one' }, bindings: { two: proc { 'two' } })
       expect(view.finalize[0][1][0][:two]).to eq('two')
     end
   end
 
-  #TODO test all ze view methods
+  # TODO: test all ze view methods
 end

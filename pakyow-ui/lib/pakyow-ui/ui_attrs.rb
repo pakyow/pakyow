@@ -2,10 +2,13 @@ require_relative 'ui_instructable'
 
 module Pakyow
   module UI
+    # Builds up instructions for changing view attributes.
+    #
+    # @api private
     class UIAttrs
       include Instructable
 
-      def nested_instruct_object(method, data, scope)
+      def nested_instruct_object(_method, _data, _scope)
         UIAttrs.new
       end
 

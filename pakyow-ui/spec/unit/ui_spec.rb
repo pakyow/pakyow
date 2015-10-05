@@ -8,8 +8,8 @@ describe Pakyow::UI::UI do
 
   let :mutators do
     {
-      post: Proc.new {},
-      user: Proc.new {},
+      post: proc {},
+      user: proc {}
     }
   end
 

@@ -2,6 +2,12 @@ require 'json'
 
 module Pakyow
   module UI
+    # Manages mutations.
+    #
+    # This is the default registry in production systems and is required in
+    # deployments with more than one app instance.
+    #
+    # @api private
     class RedisMutationRegistry
       include Singleton
 

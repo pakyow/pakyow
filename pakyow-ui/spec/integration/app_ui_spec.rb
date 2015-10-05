@@ -41,4 +41,3 @@ context 'after the app is initialized' do
     end
   end
 end
-

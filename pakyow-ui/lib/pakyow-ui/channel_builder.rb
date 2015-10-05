@@ -1,39 +1,53 @@
 module Pakyow
   module UI
+    # Helpers for building channel names.
+    #
+    # @api private
     module ChannelBuilder
-      def self.build(scope: nil, mutation: nil, component: nil, qualifiers: [], data: [], qualifications: {})
+      PARTS = [:scope, :mutation, :component]
+
+      def self.build(qualifiers: [], data: [], qualifications: {}, **args)
         channel = []
-        channel << "scope:#{scope}" unless scope.nil?
-        channel << "mutation:#{mutation}" unless mutation.nil?
-        channel << "component:#{component}" unless component.nil?
+        channel_extras = []
 
-        channel_qualifiers = []
-        qualifiers = Array.ensure(qualifiers)
-
-        if data.is_a?(Pakyow::UI::MutableData)
-          data = data.data
+        PARTS.each do |part|
+          add_part(part, args[part], channel)
         end
 
-        unless qualifiers.empty? || data.empty?
-          datum = Array.ensure(data).first
-
-          qualifiers.inject(channel) do |channel, qualifier|
-            channel_qualifiers << "#{qualifier}:#{datum[qualifier]}"
-          end
-        end
-
-        qualifications.each do |name, value|
-          next if value.nil?
-          channel_qualifiers << "#{name}:#{value}"
-        end
+        add_qualifiers(qualifiers, data, channel_extras)
+        add_qualifications(qualifications, channel_extras)
 
         channel = channel.join(';')
 
-        if !channel_qualifiers.empty?
-          channel << "::#{channel_qualifiers.join(';')}"
-        end
+        return channel if channel_extras.empty?
+        channel << "::#{channel_extras.join(';')}"
+      end
 
-        channel
+      private
+
+      def self.add_part(part, value, channel)
+        return if value.nil?
+        channel << "#{part}:#{value}"
+      end
+
+      def self.add_qualifiers(qualifiers, data, channel_extras)
+        qualifiers = Array.ensure(qualifiers)
+
+        data = data.data if data.is_a?(Pakyow::UI::MutableData)
+        return if qualifiers.empty? || data.empty?
+
+        datum = Array.ensure(data).first
+
+        qualifiers.each do |qualifier|
+          channel_extras << "#{qualifier}:#{datum[qualifier]}"
+        end
+      end
+
+      def self.add_qualifications(qualifications, channel_extras)
+        qualifications.each do |name, value|
+          next if value.nil?
+          channel_extras << "#{name}:#{value}"
+        end
       end
     end
   end

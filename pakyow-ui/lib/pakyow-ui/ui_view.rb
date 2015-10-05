@@ -3,6 +3,9 @@ require_relative 'ui_instructable'
 
 module Pakyow
   module UI
+    # Translates view transformations to instructions.
+    #
+    # @api private
     class UIView
       include Instructable
 
@@ -11,7 +14,7 @@ module Pakyow
         @scope = scope
       end
 
-      def nested_instruct_object(method, data, scope)
+      def nested_instruct_object(_method, _data, scope)
         UIView.new(scope || @scope)
       end
 
@@ -27,10 +30,10 @@ module Pakyow
 
       ### view methods w/o args
 
-      %i[
+      %i(
         remove
         clear
-      ].each do |method|
+      ).each do |method|
         define_method method do
           instruct(method, nil)
         end
@@ -38,7 +41,7 @@ module Pakyow
 
       ### view methods w/ args
 
-      %i[
+      %i(
         title=
         text=
         html=
@@ -47,7 +50,7 @@ module Pakyow
         after
         before
         replace
-      ].each do |method|
+      ).each do |method|
         define_method method do |value|
           instruct(method, value.to_s)
         end
@@ -73,10 +76,10 @@ module Pakyow
 
       ### view methods that change context
 
-      %i[
+      %i(
         prop
         component
-      ].each do |method|
+      ).each do |method|
         define_method method do |value|
           nested_instruct(method, value.to_s)
         end
@@ -123,7 +126,7 @@ module Pakyow
       end
 
       def bind(data, bindings: {}, context: nil, &block)
-        #TODO handle context?
+        # TODO: handle context?
 
         data = mixin_bindings(Array.ensure(data), bindings)
         nested = nested_instruct(:bind, data)
@@ -147,7 +150,7 @@ module Pakyow
       end
 
       def apply(data, bindings: {}, context: nil, &block)
-        #TODO handle context?
+        # TODO: handle context?
 
         data = mixin_bindings(Array.ensure(data), bindings)
         nested = nested_instruct(:apply, data)

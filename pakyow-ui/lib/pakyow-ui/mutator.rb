@@ -1,15 +1,17 @@
-#TODO consider moving this to presenter
-
 require_relative 'mutation_set'
 require_relative 'mutate_context'
 
 module Pakyow
   module UI
+    # Performs mutations on views.
+    #
+    # @api private
     class Mutator
       include Singleton
 
       attr_reader :sets
 
+      # @api private
       def initialize
         reset
       end
@@ -28,7 +30,7 @@ module Pakyow
         if block_given?
           @mutables[scope] = block
         else
-          #TODO inefficient to have to execute the block each time
+          # TODO: inefficient to have to execute the block each time
           Mutable.new(context, scope, &@mutables[scope])
         end
       end
@@ -39,7 +41,7 @@ module Pakyow
         end
       end
 
-      #TODO rename to mutation_set_for_scope
+      # TODO: rename to mutation_set_for_scope
       def mutations_by_scope(scope)
         @sets[scope]
       end
