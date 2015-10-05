@@ -1,6 +1,6 @@
 module Pakyow
   module Realtime
-    # A singleton for delegating socket traffic, using the configured registry.
+    # A singleton for delegating socket traffic using the configured registry.
     #
     # @api private
     class Delegate
@@ -22,7 +22,7 @@ module Pakyow
         registry.channels_for_key(key).each do |channel|
           next if connection.nil?
           @channels[channel] ||= []
-          
+
           next if @channels[channel].include?(connection)
           @channels[channel] << connection
         end
@@ -33,7 +33,7 @@ module Pakyow
         registry.unregister_key(key)
 
         connection = @connections.delete(key)
-        @channels.each do |channel, connections|
+        @channels.each do |_channel, connections|
           connections.delete(connection)
         end
       end
@@ -53,13 +53,10 @@ module Pakyow
 
       # Pushes a message down channels from server to client.
       def push(message, channels)
-        channels.each do |channel|
-          connections_for_channel(channel).each_pair do |channel, connections|
-            connections.each do |connection|
-              connection.push({
-                payload: message,
-                channel: channel
-              })
+        channels.each do |channel_query|
+          connections_for_channel(channel_query).each_pair do |channel, conns|
+            conns.each do |connection|
+              connection.push(payload: message, channel: channel)
             end
           end
         end
@@ -67,9 +64,10 @@ module Pakyow
 
       private
 
-      def connections_for_channel(channel)
-        regexp = Regexp.new("^#{channel.to_s.gsub('*', '([^;]*)')}$")
-        @channels.select { |channel, conns|
+      def connections_for_channel(channel_query)
+        regexp = Regexp.new("^#{channel_query.to_s.gsub('*', '([^;]*)')}$")
+
+        @channels.select { |channel, _conns|
           channel.match(regexp)
         }
       end

@@ -1,29 +1,37 @@
 Pakyow::App.after :init do
+  # celluloid should log to the same place as our app
+  #
   Celluloid.logger = Pakyow.logger
 end
 
 Pakyow::App.before :route do
+  # we want to hijack websocket requests
+  #
   if req.env['HTTP_UPGRADE'] == 'websocket'
-		logger.info 'upgrading to websocket'
+    logger.info 'upgrading to websocket'
 
     socket_connection_id = params[:socket_connection_id]
     socket_digest = socket_digest(socket_connection_id)
 
-    # create our websocket connection
     conn = Pakyow::Realtime::Websocket.new(req, socket_digest)
 
-    # register the connection with a key
+    # register the connection with a unique key
     Pakyow::Realtime::Delegate.instance.register(socket_digest, conn)
 
-    # halt, so pakyow does nothing more
+    # and we're done
     halt
   end
 end
 
 Pakyow::App.after :process do
+  # mixin the socket connection id into the body tag
+  # this id is used by pakyow.js to idenfity itself with the server
+  #
   if response.header['Content-Type'] == 'text/html'
-    if body = response.body[0]
-      body.gsub!(/<body/, '<body data-socket-connection-id="' + socket_connection_id + '"')
-    end
+    body = response.body[0]
+    next if body.nil?
+
+    mixin = '<body data-socket-connection-id="' + socket_connection_id + '"'
+    body.gsub!(/<body/, mixin)
   end
 end

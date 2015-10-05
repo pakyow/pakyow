@@ -2,9 +2,9 @@ require 'singleton'
 
 module Pakyow
   module Realtime
-    # A singleton for managing connections of some type (e.g. websockets).
+    # Manages WebSocket connections and their subscriptions in memory.
     #
-    # Not intended to be used in production.
+    # Intended only for use in development or single app-instance deployments.
     #
     # @api private
     class SimpleRegistry
@@ -24,12 +24,12 @@ module Pakyow
 
       def subscribe_to_channels_for_key(channels, key)
         @channels[key] ||= []
-        @channels[key].concat(Array.ensure(channels.map { |channel| channel.to_sym })).uniq!
+        @channels[key].concat(Array.ensure(channels.map(&:to_sym))).uniq!
       end
 
       def unsubscribe_to_channels_for_key(channels, key)
         @channels[key] ||= []
-        @channels[key] = @channels[key] - Array.ensure(channels.map { |channel| channel.to_sym })
+        @channels[key] = @channels[key] - Array.ensure(channels.map(&:to_sym))
       end
     end
   end

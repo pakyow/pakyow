@@ -6,9 +6,10 @@ require_relative '../redis_subscription'
 
 module Pakyow
   module Realtime
-    # A singleton for managing connections of some type (e.g. websockets) in redis.
+    # Manages WebSocket connections and their subscriptions in Redis.
     #
-    # This is intended to be the default registry in production systems.
+    # This is the default registry in production systems and is required in
+    # deployments with more than one app instance.
     #
     # @api private
     class RedisRegistry
@@ -56,7 +57,7 @@ module Pakyow
       # Returns the channels for a specific key, or all channels.
       def channels(key)
         value = @redis.hget(channel_key, key)
-        (value ? JSON.parse(value) : []).map { |channel| channel.to_sym }
+        (value ? JSON.parse(value) : []).map(&:to_sym)
       end
     end
   end

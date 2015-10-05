@@ -4,8 +4,7 @@ require 'celluloid/io'
 
 module Pakyow
   module Realtime
-    # Manages subscriptions to channels that this instance's
-    # connections belong to.
+    # Manages channel subscriptions for this application instance's WebSockets.
     #
     # @api private
     class RedisSubscription
@@ -31,7 +30,7 @@ module Pakyow
       private
 
       def run
-        @redis.subscribe *@channels do |on|
+        @redis.subscribe(*@channels) do |on|
           on.message do |channel, msg|
             RedisRegistry.instance.push(JSON.parse(msg), [channel])
           end

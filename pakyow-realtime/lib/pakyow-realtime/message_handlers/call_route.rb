@@ -1,4 +1,6 @@
-Pakyow::Realtime::MessageHandler.register :'call-route' do |message, session, response|
+# Calls an app route and returns a response, just like an HTTP request!
+#
+Pakyow::Realtime.handler :'call-route' do |message, session, response|
   path, qs = message['uri'].split('?')
   path_parts = path.split('/')
   path_parts[-1] += '.json'
@@ -9,7 +11,7 @@ Pakyow::Realtime::MessageHandler.register :'call-route' do |message, session, re
   env['pakyow.data'] = message['input']
   env['rack.session'] = session
 
-  #TODO in production we want to push the message to a queue and
+  # TODO: in production we want to push the message to a queue and
   # let the next available app instance pick it up, rather than
   # the current instance to handle all traffic on this socket
   app = Pakyow.app.dup

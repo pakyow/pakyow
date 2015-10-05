@@ -53,7 +53,7 @@ shared_examples :websocket_helpers do
   end
 
   let :hijack do
-    lambda {}
+    -> {}
   end
 
   let :hijack_io do
@@ -72,4 +72,3 @@ shared_examples :websocket_helpers do
     socket_key + socket_connection_id
   end
 end
-

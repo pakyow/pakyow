@@ -25,7 +25,7 @@ describe Pakyow::Realtime::Websocket do
     it 'calls shutdown' do
       skip 'not proving to be easy'
 
-      #TODO revisit this
+      # TODO: revisit this
       # expect(websocket).to receive(:shutdown)
       # websocket.terminate
     end
@@ -40,7 +40,7 @@ describe Pakyow::Realtime::Websocket do
       headers = {
         'Upgrade' => header_upgrade,
         'Sec-WebSocket-Version' => header_version,
-        'Sec-Websocket-Key' => header_key,
+        'Sec-Websocket-Key' => header_key
       }
 
       expect(WebSocket::ClientHandshake).to receive(:new).with(:get, "http://example.org#{url}", headers).and_return(valid_handshake)

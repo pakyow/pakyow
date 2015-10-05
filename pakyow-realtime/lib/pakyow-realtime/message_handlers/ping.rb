@@ -1,4 +1,6 @@
-Pakyow::Realtime::MessageHandler.register :ping do |message, session, response|
+# Handles pings to keep the WebSocket alive.
+#
+Pakyow::Realtime.handler :ping do |_message, _session, response|
   response[:status] = 200
   response[:headers] = {}
   response[:body] = 'pong'

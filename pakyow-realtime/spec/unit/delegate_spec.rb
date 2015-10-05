@@ -133,10 +133,8 @@ describe Pakyow::Realtime::Delegate do
 
       it 'pushes the message down each connection registered to channels' do
         delegate.push(message, channels)
-        expect(connection).to have_received(:push).with({
-          payload: message,
-          channel: channels[0]
-        })
+        expect(connection).to have_received(:push).with(payload: message,
+                                                        channel: channels[0])
       end
 
       it 'does not push the message down to connections not registered to channels' do
