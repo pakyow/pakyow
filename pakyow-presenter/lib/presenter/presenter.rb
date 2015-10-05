@@ -188,7 +188,7 @@ module Pakyow
         end
 
         e = MissingView.new("No view at path '#{path}'")
-        explicit ? raise(e) : Pakyow.logger.debug(e.message)
+        explicit ? raise(e) : Pakyow.logger.info(e.message)
       end
 
       def load_views
