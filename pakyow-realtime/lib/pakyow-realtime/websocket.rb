@@ -109,7 +109,6 @@ module Pakyow
       def read
         @parser << @socket.read_nonblock(16_384)
       rescue ::IO::WaitReadable
-        logger.debug '.'
       rescue EOFError
         delegate.unregister(@key)
         shutdown
