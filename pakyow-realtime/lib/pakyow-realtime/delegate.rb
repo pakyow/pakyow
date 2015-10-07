@@ -53,6 +53,13 @@ module Pakyow
 
       # Pushes a message down channels from server to client.
       def push(message, channels)
+        if registry.propagates? && !propagated?(message)
+          return propagate(message, channels)
+        elsif propagated?(message)
+          message.delete(:__propagated)
+        end
+        
+        # push to this instances connections
         channels.each do |channel_query|
           connections_for_channel(channel_query).each_pair do |channel, conns|
             conns.each do |connection|
@@ -63,6 +70,14 @@ module Pakyow
       end
 
       private
+      
+      def propagate(message, channels)
+        registry.propagate(message, channels)
+      end
+      
+      def propagated?(message)
+        message.include?(:__propagated)
+      end
 
       def connections_for_channel(channel_query)
         regexp = Regexp.new("^#{channel_query.to_s.gsub('*', '([^;]*)')}$")

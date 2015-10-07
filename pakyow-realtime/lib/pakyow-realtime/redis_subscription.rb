@@ -32,7 +32,10 @@ module Pakyow
       def run
         @redis.subscribe(*@channels) do |on|
           on.message do |channel, msg|
-            RedisRegistry.instance.push(JSON.parse(msg), [channel])
+            msg = JSON.parse(msg)
+            msg[:__propagated] = true
+            context = Pakyow::Realtime::Context.new(Pakyow.app)
+            context.push(msg, channel)
           end
         end
       end

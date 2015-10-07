@@ -17,6 +17,7 @@ module Pakyow
 
       def initialize
         @redis = Redis.new(Config.realtime.redis)
+        @channels = []
       end
 
       def channels_for_key(key)
@@ -30,23 +31,39 @@ module Pakyow
       def subscribe_to_channels_for_key(channels, key)
         new_channels = channels(key).concat(Array.ensure(channels)).uniq
         @redis.hset(channel_key, key, new_channels.to_json)
-        resubscribe(new_channels)
+        
+        @channels.concat(channels).uniq!
+        resubscribe
       end
 
       def unsubscribe_to_channels_for_key(channels, key)
         new_channels = channels(key) - Array.ensure(channels)
         @redis.hset(channel_key, key, new_channels.to_json)
-        resubscribe(new_channels)
+        
+        channels.each { |channel| @channels.delete(channel) }
+        resubscribe
+      end
+      
+      def propagates?
+        true
+      end
+      
+      def propagate(message, channels)
+        message_json = message.to_json
+        
+        channels.each do |channel|
+          @redis.publish(channel, message_json)
+        end
       end
 
       private
 
       # Terminates the current subscriber and creates a new
       # subscriper with the current channels.
-      def resubscribe(channels)
+      def resubscribe
         @subscriber.terminate if @subscriber
         @subscriber = RedisSubscription.new
-        @subscriber.subscribe(channels)
+        @subscriber.subscribe(@channels)
       end
 
       # Returns the key used to store channels.

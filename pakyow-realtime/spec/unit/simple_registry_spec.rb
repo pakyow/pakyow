@@ -17,6 +17,10 @@ describe Pakyow::Realtime::SimpleRegistry do
   it 'is a singleton' do
     expect(registry.instance).to eq(registry.instance)
   end
+  
+  it 'does not propagate' do
+    expect(registry.instance.propagates?).to eq(false)
+  end
 
   describe '#channels_for_key' do
     context 'when there are channels for key' do

@@ -31,6 +31,10 @@ module Pakyow
         @channels[key] ||= []
         @channels[key] = @channels[key] - Array.ensure(channels.map(&:to_sym))
       end
+      
+      def propagates?
+        false
+      end
     end
   end
 end

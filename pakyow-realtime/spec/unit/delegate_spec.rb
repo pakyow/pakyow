@@ -11,7 +11,8 @@ describe Pakyow::Realtime::Delegate do
                                              channels_for_key: channels,
                                              unregister_key: nil,
                                              subscribe_to_channels_for_key: nil,
-                                             unsubscribe_to_channels_for_key: nil)
+                                             unsubscribe_to_channels_for_key: nil,
+                                             propagates?: false)
   end
 
   let :registry_instance do
