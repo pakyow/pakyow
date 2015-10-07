@@ -55,6 +55,11 @@ module Pakyow
           @redis.publish(channel, message_json)
         end
       end
+      
+      def subscribe_for_propagation(channels)
+        @channels.concat(channels).uniq!
+        resubscribe
+      end
 
       private
 

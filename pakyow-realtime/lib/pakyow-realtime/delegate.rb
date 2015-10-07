@@ -19,13 +19,17 @@ module Pakyow
       def register(key, connection)
         @connections[key] = connection
 
-        registry.channels_for_key(key).each do |channel|
+        channels = registry.channels_for_key(key)
+
+        channels.each do |channel|
           next if connection.nil?
           @channels[channel] ||= []
 
           next if @channels[channel].include?(connection)
           @channels[channel] << connection
         end
+        
+        registry.subscribe_for_propagation(channels) if registry.propagates?
       end
 
       # Unregisters a connection by its key.
