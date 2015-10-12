@@ -1,3 +1,5 @@
+require_relative 'exceptions'
+
 module Pakyow
   module Realtime
     # Convenience method for registering a new message handler.
@@ -16,21 +18,39 @@ module Pakyow
       #
       # @api private
       def self.register(name, &block)
-        @handlers ||= {}
-        @handlers[name.to_sym] = block
+        handlers[name.to_sym] = block
       end
 
       # Calls a handler for a received websocket message.
       #
       # @api private
       def self.handle(message, session)
-        action = message['action']
-
-        handler = @handlers.fetch(action.to_sym) {
-          fail MissingMessageHandler "No message handler named #{action}"
+        id = message.fetch('id') {
+          fail ArgumentError, "Expected message to contain key 'id'"
         }
 
-        handler.call(message, session, id: message['id'])
+        action = message.fetch('action') {
+          fail ArgumentError, "Expected message to contain key 'action'"
+        }
+
+        handler = handlers.fetch(action.to_sym) {
+          fail MissingMessageHandler, "No message handler named #{action}"
+        }
+
+        handler.call(message, session, id: id)
+      end
+
+      # Resets the message handlers.
+      #
+      # @api private
+      def self.reset
+        @handlers = nil
+      end
+
+      private
+
+      def self.handlers
+        @handlers ||= {}
       end
     end
   end
