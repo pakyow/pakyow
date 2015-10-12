@@ -1,6 +1,6 @@
 Pakyow::App.routes do
   default do
-    log.info 'hello'
+    logger.info 'hello'
   end
 
   # define application routes here
