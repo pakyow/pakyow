@@ -28,7 +28,7 @@ module Pakyow
           next if @channels[channel].include?(connection)
           @channels[channel] << connection
         end
-        
+
         registry.subscribe_for_propagation(channels) if registry.propagates?
       end
 
@@ -62,7 +62,7 @@ module Pakyow
         elsif propagated?(message)
           message.delete(:__propagated)
         end
-        
+
         # push to this instances connections
         channels.each do |channel_query|
           connections_for_channel(channel_query).each_pair do |channel, conns|
@@ -74,11 +74,11 @@ module Pakyow
       end
 
       private
-      
+
       def propagate(message, channels)
         registry.propagate(message, channels)
       end
-      
+
       def propagated?(message)
         message.include?(:__propagated)
       end

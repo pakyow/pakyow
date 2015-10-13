@@ -1,12 +1,20 @@
 # pakyow-realtime
 
-This library brings realtime capabilities to Pakyow apps by creating a pub/sub connection between client and server using websockets.
+This library brings realtime capabilities to Pakyow apps by creating a pub/sub
+connection between client and server using websockets.
 
 ## Overview
 
-Clients can be subscribed to channels. Realtime keeps track of what channels a client has been subscribed to and tracks subscriptions across requests. Routes can push messages down channels to one or more subscribed clients through an established websocket.
+Clients can be subscribed to channels. Realtime keeps track of what channels a
+client has been subscribed to and tracks subscriptions across requests. Routes
+can push messages down channels to one or more subscribed clients through an
+established websocket.
 
-Websockets are established by hijacking an HTTP request. Once hijacked, the websocket is forked into a seperate thread via the wonderful [Celluloid](https://github.com/celluloid/celluloid) library. This approach allows each app instance to manage its own websockets while still serving normal requests.
+Websockets are established by hijacking an HTTP request. Once hijacked, the
+websocket is forked into an async object via the highly performant [Concurrent
+Ruby](https://github.com/ruby-concurrency/concurrent-ruby) library. This
+approach allows each app instance to manage its own websockets while still
+serving normal requests.
 
 In addition to pushing messages from the client to the server, the client can send messages to the server. For example, out of the box Realtime supports calling routes over a websocket, with the response being pushed down once processing is complete.
 

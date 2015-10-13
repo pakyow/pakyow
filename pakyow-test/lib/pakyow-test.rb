@@ -34,10 +34,6 @@ module Pakyow
         Pakyow::TestHelp::Realtime::ObservableMutator.instance.reset
       end
 
-      Pakyow::App.after :init do
-        Celluloid.logger = Pakyow.logger
-      end
-
       Pakyow::App.stage(ENV['TEST_ENV'] || :test)
     end
   end

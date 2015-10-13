@@ -1,6 +1,5 @@
 require 'redis'
-require 'celluloid/redis'
-require 'celluloid/io'
+require 'concurrent'
 
 module Pakyow
   module Realtime
@@ -8,23 +7,29 @@ module Pakyow
     #
     # @api private
     class RedisSubscription
-      include Celluloid
-      include Celluloid::IO
-
-      finalizer :shutdown
+      include Concurrent::Async
 
       def initialize
-        config = Config.realtime.redis
-        config[:driver] = :celluloid
-
-        @redis = ::Redis.new(config)
+        @redis = ::Redis.new(Config.realtime.redis)
         @channels = []
+
+        ObjectSpace.define_finalizer(self, self.class.finalize)
+      end
+
+      def self.finalize
+        -> { unsubscribe }
       end
 
       def subscribe(channels)
         return if channels.empty?
         @channels = channels
-        async.run
+
+        run
+      end
+
+      def unsubscribe
+        return if @channels.empty?
+        @redis.unsubscribe(*@channels)
       end
 
       private
@@ -33,16 +38,17 @@ module Pakyow
         @redis.subscribe(*@channels) do |on|
           on.message do |channel, msg|
             msg = JSON.parse(msg)
-            msg[:__propagated] = true
+
+            if msg.is_a?(Hash)
+              msg[:__propagated] = true
+            elsif msg.is_a?(Array)
+              msg << :__propagated
+            end
+
             context = Pakyow::Realtime::Context.new(Pakyow.app)
             context.push(msg, channel)
           end
         end
-      end
-
-      def shutdown
-        return if @channels.empty?
-        @redis.unsubscribe(*@channels)
       end
     end
   end

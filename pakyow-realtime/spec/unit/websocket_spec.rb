@@ -17,10 +17,6 @@ describe Pakyow::Realtime::Websocket do
     expect(Pakyow::Realtime::Websocket.ancestors).to include(Pakyow::Realtime::Connection)
   end
 
-  it 'is a Celluloid actor' do
-    expect(Pakyow::Realtime::Websocket.ancestors).to include(Celluloid)
-  end
-
   context 'when terminating the actor' do
     it 'calls shutdown' do
       skip 'not proving to be easy'

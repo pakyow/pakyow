@@ -23,7 +23,7 @@ if redis_available?
     it 'is a singleton' do
       expect(registry.instance).to eq(registry.instance)
     end
-    
+
     it 'propagates' do
       expect(registry.instance.propagates?).to eq(true)
     end
@@ -36,6 +36,7 @@ if redis_available?
 
         after do
           registry.instance.unregister_key(key)
+          registry.instance.instance_variable_set(:@subscriber, nil)
         end
 
         it 'returns the channels' do
@@ -61,6 +62,7 @@ if redis_available?
       after do
         registry.instance.instance_variable_set(:@redis, @original_redis)
         registry.instance.unregister_key(key)
+        registry.instance.instance_variable_set(:@subscriber, nil)
       end
 
       it 'deletes the key' do

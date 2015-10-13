@@ -1,9 +1,8 @@
 require 'securerandom'
 require 'json'
+
 require 'pakyow-support'
 require 'pakyow-core'
-require 'websocket_parser'
-require 'celluloid/current'
 
 require_relative 'pakyow-realtime/helpers'
 require_relative 'pakyow-realtime/hooks'

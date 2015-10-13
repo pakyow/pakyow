@@ -1,15 +1,39 @@
+require 'concurrent'
 require 'websocket_parser'
+
 require_relative 'connection'
 
 module Pakyow
   module Realtime
-    # Hijacks a request, performs the handshake, and creates a Celluloid actor
+    class WebSocketReader
+      include Concurrent::Async
+
+      def initialize(parent)
+        @key    = parent.key
+        @parser = parent.parser
+        @socket = parent.socket
+        @parent = parent
+      end
+
+      def read
+        loop do
+          @parser << @socket.read_nonblock(16_384)
+        end
+      rescue ::IO::WaitReadable
+        IO.select([@socket])
+        retry
+      rescue EOFError
+        @parent.delegate.unregister(@key)
+        @parent.shutdown
+      end
+    end
+
+    # Hijacks a request, performs the handshake, and creates an async object
     # for handling incoming and outgoing messages in an asynchronous manner.
     #
     # @api private
     class Websocket < Connection
-      include Celluloid
-      finalizer :shutdown
+      attr_reader :parser, :socket, :key
 
       def initialize(req, key)
         @req = req
@@ -22,8 +46,8 @@ module Pakyow
       end
 
       def shutdown
-        @timer.cancel if @timer
         @socket.close if @socket && !@socket.closed?
+        @reader = nil
       end
 
       def push(msg)
@@ -44,11 +68,9 @@ module Pakyow
           return req.env['rack.hijack_io']
         else
           logger.info "there's no socket to hijack :("
-          terminate
-          return nil
         end
       end
-      
+
       def handshake_headers(req)
         {
           'Upgrade' => req.env['HTTP_UPGRADE'],
@@ -103,15 +125,8 @@ module Pakyow
           handle_ws_ping(payload)
         end
 
-        @timer = Celluloid.every(0.1) { read }
-      end
-
-      def read
-        @parser << @socket.read_nonblock(16_384)
-      rescue ::IO::WaitReadable
-      rescue EOFError
-        delegate.unregister(@key)
-        shutdown
+        @reader = WebSocketReader.new(self)
+        @reader.async.read
       end
 
       def handle_ws_message(message)
@@ -136,7 +151,6 @@ module Pakyow
         delegate.unregister(@key)
 
         shutdown
-        terminate
       end
 
       def handle_ws_ping(payload)

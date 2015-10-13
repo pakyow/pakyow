@@ -1,9 +1,3 @@
-Pakyow::App.after :init do
-  # celluloid should log to the same place as our app
-  #
-  Celluloid.logger = Pakyow.logger
-end
-
 Pakyow::App.before :route do
   # we want to hijack websocket requests
   #

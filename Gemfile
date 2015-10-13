@@ -14,9 +14,8 @@ gem 'premailer', '~> 1.8'
 
 # realtime
 gem 'websocket_parser', '~> 1.0'
-gem 'celluloid', '~> 0.17'
 gem 'redis', '~> 3.2'
-gem 'celluloid-redis', '>= 0'
+gem 'concurrent-ruby', '~> 0.9'
 
 group :test do
   gem 'minitest', '~> 5.6'

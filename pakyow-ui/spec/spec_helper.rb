@@ -8,7 +8,6 @@ require 'rack/test'
 # disable the logger when staging
 Pakyow::App.after :init do
   Pakyow.logger = Rack::NullLogger.new(app)
-  Celluloid.logger = Pakyow.logger
 end
 
 # handle errors that occur
@@ -18,9 +17,6 @@ Pakyow::App.after :error do
 
   fail request.error
 end
-
-# for when we don't stage the app
-Celluloid.logger = Rack::NullLogger.new({})
 
 if ENV['COVERAGE']
   require 'simplecov'

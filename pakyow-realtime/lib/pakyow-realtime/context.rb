@@ -48,7 +48,7 @@ module Pakyow
 
         delegate.push(msg, channels)
       end
-      
+
       # Returns an instance of the connection delegate.
       #
       # @api private
