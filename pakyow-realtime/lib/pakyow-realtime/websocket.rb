@@ -35,6 +35,8 @@ module Pakyow
     class Websocket < Connection
       attr_reader :parser, :socket, :key
 
+      @event_handlers = {}
+
       def initialize(req, key)
         @req = req
         @key = key
@@ -54,6 +56,10 @@ module Pakyow
         json = JSON.pretty_generate(msg)
         logger.debug "(ws.#{@key}) sending message: #{json}\n"
         WebSocket::Message.new(json).write(@socket)
+      end
+
+      def self.on(event, &block)
+        (@event_handlers[event.to_sym] ||= []) << block
       end
 
       private
@@ -105,6 +111,9 @@ module Pakyow
       end
 
       def setup
+        logger.info "(ws.#{@key}) client established connection"
+        handle_ws_join
+
         @parser = WebSocket::Parser.new
 
         @parser.on_message do |message|
@@ -146,15 +155,33 @@ module Pakyow
         shutdown
       end
 
+      def handle_ws_join
+        self.class.handle_event(:join, @req)
+      end
+
       def handle_ws_close(_status, _message)
         @socket << WebSocket::Message.close.to_data
         delegate.unregister(@key)
-
+        self.class.handle_event(:leave, @req)
         shutdown
       end
 
       def handle_ws_ping(payload)
         @socket << WebSocket::Message.pong(payload).to_data
+      end
+
+      def self.handle_event(event, req)
+        ui_dup = Pakyow.app.instance_variable_get(:@ui).dup
+        app = Pakyow.app.dup
+        app.context = AppContext.new(req)
+        app.context.ui = ui_dup
+        event_handlers(event).each do |block|
+          app.instance_exec(&block)
+        end
+      end
+
+      def self.event_handlers(event = nil)
+        @event_handlers.fetch(event, [])
       end
     end
   end

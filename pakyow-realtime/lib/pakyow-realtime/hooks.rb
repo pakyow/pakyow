@@ -2,8 +2,6 @@ Pakyow::App.before :route do
   # we want to hijack websocket requests
   #
   if req.env['HTTP_UPGRADE'] == 'websocket'
-    logger.info 'upgrading to websocket'
-
     socket_connection_id = params[:socket_connection_id]
     socket_digest = socket_digest(socket_connection_id)
 
