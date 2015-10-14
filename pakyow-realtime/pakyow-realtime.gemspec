@@ -32,5 +32,5 @@ Gem::Specification.new do |s|
 
   s.add_dependency('websocket_parser', '~> 1.0')
   s.add_dependency('redis', '~> 3.2')
-  s.add_dependency('concurrent-ruby', '~> 0.9')
+  s.add_dependency('concurrent-ruby')
 end
