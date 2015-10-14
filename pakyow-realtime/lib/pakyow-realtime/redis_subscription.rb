@@ -17,7 +17,10 @@ module Pakyow
       end
 
       def self.finalize
-        -> { unsubscribe }
+        -> {
+          unsubscribe
+          @redis.quit
+        }
       end
 
       def subscribe(channels)
