@@ -5,29 +5,6 @@ require_relative 'connection'
 
 module Pakyow
   module Realtime
-    class WebSocketReader
-      include Concurrent::Async
-
-      def initialize(parent)
-        @key    = parent.key
-        @parser = parent.parser
-        @socket = parent.socket
-        @parent = parent
-      end
-
-      def read
-        loop do
-          @parser << @socket.read_nonblock(16_384)
-        end
-      rescue ::IO::WaitReadable
-        IO.select([@socket])
-        retry
-      rescue EOFError
-        @parent.delegate.unregister(@key)
-        @parent.shutdown
-      end
-    end
-
     # Hijacks a request, performs the handshake, and creates an async object
     # for handling incoming and outgoing messages in an asynchronous manner.
     #
@@ -52,7 +29,13 @@ module Pakyow
         self.class.handle_event(:leave, @req)
 
         @socket.close if @socket && !@socket.closed?
+        @shutdown = true
+
         @reader = nil
+      end
+
+      def shutdown?
+        @shutdown == true
       end
 
       def push(msg)
@@ -137,8 +120,20 @@ module Pakyow
           handle_ws_ping(payload)
         end
 
-        @reader = WebSocketReader.new(self)
-        @reader.async.read
+        @reader = Concurrent::Future.execute {
+          begin
+            loop do
+              break if shutdown?
+              @parser << @socket.read_nonblock(16_384)
+            end
+          rescue ::IO::WaitReadable
+            IO.select([@socket])
+            retry
+          rescue EOFError
+            @parent.delegate.unregister(@key)
+            @parent.shutdown
+          end
+        }
       end
 
       def handle_ws_message(message)
