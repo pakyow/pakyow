@@ -6,7 +6,7 @@ Pakyow::Config.register(:realtime) { |config|
   config.opt :registry, Pakyow::Realtime::SimpleRegistry
 
   # The Redis config hash.
-  config.opt :redis, url: 'redis://localhost:6379'
+  config.opt :redis, url: 'redis://127.0.0.1:6379'
 
   # The key used to keep track of channels in Redis.
   config.opt :redis_key, 'pw:channels'
