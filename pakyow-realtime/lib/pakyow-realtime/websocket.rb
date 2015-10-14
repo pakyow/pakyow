@@ -48,7 +48,6 @@ module Pakyow
       end
 
       def shutdown
-        @socket << WebSocket::Message.close.to_data
         delegate.unregister(@key)
         self.class.handle_event(:leave, @req)
 
@@ -164,6 +163,7 @@ module Pakyow
       end
 
       def handle_ws_close(_status, _message)
+        @socket << WebSocket::Message.close.to_data
         shutdown
       end
 
