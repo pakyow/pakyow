@@ -10,6 +10,9 @@ Pakyow::Config.register(:realtime) { |config|
 
   # The key used to keep track of channels in Redis.
   config.opt :redis_key, 'pw:channels'
+
+  # Whether or not realtime should be enabled.
+  config.opt :enabled, true
 }.env(:development) { |opts|
   opts.registry = Pakyow::Realtime::SimpleRegistry
 }.env(:staging) { |opts|
