@@ -67,6 +67,8 @@ module Pakyow
 
       def remove
         @structure.delete_if { |n| n.equal?(node) }
+        @node = ['', {}, [['', {}, []]]]
+        @removed = true
       end
 
       def clear
@@ -203,7 +205,9 @@ module Pakyow
       end
 
       def node?
-        !@node.nil?
+        return false if @node.nil?
+        return false if @removed
+        return true
       end
 
       def tagname
@@ -217,7 +221,7 @@ module Pakyow
       end
 
       def exists?
-        !@structure.empty?
+        @structure.include?(node)
       end
 
       private

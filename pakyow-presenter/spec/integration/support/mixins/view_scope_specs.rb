@@ -60,5 +60,48 @@ shared_examples :scope_specs do
         expect(view.scope(:article).instance_variable_get(:@view).views.count).to eq(1)
       end
     end
+
+    context 'when there is insignificant html after the scope' do
+      let(:view) {
+        string = <<-D
+        <div data-scope="post">
+          foo
+        </div>
+        <span>
+          bar
+        </span>
+        D
+
+        Pakyow::Presenter::View.from_doc(doctype.new(string))
+      }
+
+      context 'and the scope is removed' do
+        let :scope do
+          view.scope(:post)[0]
+        end
+
+        before do
+          scope.remove
+        end
+
+        it 'appears to not exist' do
+          expect(scope.exists?).to be(false)
+        end
+
+        it 'is empty' do
+          expect(scope.to_html).to eq('')
+        end
+
+        context 'and a node is appended' do
+          before do
+            scope.doc.append('bar')
+          end
+
+          it 'appends the node' do
+            expect(scope.doc.to_html).to eq('bar')
+          end
+        end
+      end
+    end
   end
 end
