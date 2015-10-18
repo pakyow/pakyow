@@ -58,7 +58,13 @@ module Pakyow
 
       ### misc view methods
 
-      def with
+      def with(&block)
+        if block.arity == 0
+          instance_exec(&block)
+        else
+          yield(self)
+        end
+
         self
       end
 

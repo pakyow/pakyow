@@ -37,5 +37,27 @@ describe Pakyow::UI::UIView do
     end
   end
 
+  describe '#with' do
+    context 'when block arity equals 0' do
+      it 'builds up the instructions' do
+        view.with do
+          bind(one: 'one')
+        end
+
+        expect(view.finalize[0][1][0][:one]).to eq('one')
+      end
+    end
+
+    context 'when block arity equals 1' do
+      it 'builds up the instructions' do
+        view.with do |view|
+          view.bind(one: 'one')
+        end
+
+        expect(view.finalize[0][1][0][:one]).to eq('one')
+      end
+    end
+  end
+
   # TODO: test all ze view methods
 end
