@@ -47,6 +47,20 @@ describe 'transforming a ui view' do
     end
   end
 
+  describe 'with a transformation that sets attributes with hash syntax' do
+    it 'builds the proper instructions' do
+      view.attrs[:class] = :foo
+      expect(view.finalize).to eq([[:attrs, nil, [[:class, :foo, []]]]])
+    end
+  end
+
+  describe 'with a transformation that sets attributes with hash syntax and method' do
+    it 'builds the proper instructions' do
+      view.attrs[:class].ensure :foo
+      expect(view.finalize).to eq([[:attrs, nil, [[:class, nil, [[:ensure, :foo, []]]]]]])
+    end
+  end
+
   describe 'with a transformation that invokes bindings' do
     describe 'and the binding returns a plain value' do
       it 'uses the new value' do

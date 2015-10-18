@@ -27,6 +27,14 @@ module Pakyow
       def <<(value)
         method_missing(:insert, value)
       end
+
+      def []=(method, value)
+        method_missing(method, value)
+      end
+
+      def [](method)
+        method_missing(method, nil)
+      end
     end
   end
 end
