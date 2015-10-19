@@ -1,4 +1,4 @@
-version = File.read(File.expand_path("../VERSION", __FILE__)).strip
+require File.expand_path('../lib/version', __FILE__)
 
 libs = %i[
   pakyow-support
@@ -49,7 +49,13 @@ namespace :release do
 
   desc 'Create and install the gems'
   task :install => [:build] do
-    system "gem install pakyow-#{version}.gem"
+    libs.each do |lib|
+      puts
+      system "gem install #{lib}-#{Pakyow::VERSION}.gem"
+    end
+
+    puts
+    system "gem install pakyow-#{Pakyow::VERSION}.gem"
   end
 
   desc 'Create and publish the gems'
@@ -62,10 +68,10 @@ namespace :release do
     puts
 
     if input == version
-      gems = libs.map { |lib| "#{lib}-#{version}.gem"}
+      gems = libs.map { |lib| "#{lib}-#{Pakyow::VERSION}.gem"}
 
       # add pakyow last
-      gems << "pakyow-#{version}.gem"
+      gems << "pakyow-#{Pakyow::VERSION}.gem"
 
       # push!
       gems.each do |file|
@@ -79,6 +85,6 @@ namespace :release do
 
   desc 'Create a tag for the current version'
   task :tag do
-    `git tag -a v#{version} -m 'Pakyow #{version}'`
+    `git tag -a v#{Pakyow::VERSION} -m 'Pakyow #{Pakyow::VERSION}'`
   end
 end

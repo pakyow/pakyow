@@ -1,27 +1,23 @@
-version = File.read(File.join(File.expand_path("../../VERSION", __FILE__))).strip
-gem_path = File.exists?('pakyow-support') ? 'pakyow-support' : '.'
+require File.expand_path('../../lib/version', __FILE__)
+lib_path = File.exists?('pakyow-rake') ? 'pakyow-rake' : '.'
 
-Gem::Specification.new do |s|
-  s.platform    = Gem::Platform::RUBY
-  s.name        = 'pakyow-support'
-  s.version     = version
-  s.summary     = 'Support code for Pakyow apps.'
-  s.description = 'Supporting code used throughout Pakyow libraries.'
-  s.required_ruby_version = '>= 2.0.0'
-  s.license     = 'MIT'
+Gem::Specification.new do |spec|
+  spec.name                   = 'pakyow-support'
+  spec.summary                = 'Pakyow Support'
+  spec.description            = 'Supporting code for Pakyow'
+  spec.author                 = 'Bryan Powell'
+  spec.email                  = 'bryan@metabahn.com'
+  spec.homepage               = 'http://pakyow.org'
+  spec.version                = Pakyow::VERSION
+  spec.require_path           = File.join(lib_path, 'lib')
+  spec.files                  = Dir[
+                                  File.join(lib_path, 'CHANGELOG.md'),
+                                  File.join(lib_path, 'README.md'),
+                                  File.join(lib_path, 'LICENSE'),
+                                  File.join(lib_path, 'lib/**/*')
+                                ]
+  spec.license                = 'MIT'
+  spec.required_ruby_version  = '>= 2.0.0'
 
-  s.authors           = ['Bryan Powell']
-  s.email             = 'bryan@metabahn.com'
-  s.homepage          = 'http://pakyow.com'
-
-  s.files        = Dir[
-                        File.join(gem_path, 'CHANGES'),
-                        File.join(gem_path, 'README.md'),
-                        File.join(gem_path, 'LICENSE'),
-                        File.join(gem_path, 'lib','**','*')
-                      ]
-
-  s.require_path = File.join(gem_path, 'lib')
-
-  s.add_development_dependency('rspec', '~> 3.2')
+  spec.add_development_dependency('rspec', '~> 3.2')
 end

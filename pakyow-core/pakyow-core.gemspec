@@ -1,32 +1,27 @@
-version = File.read(File.join(File.expand_path("../../VERSION", __FILE__))).strip
-core_path = File.exists?('pakyow-core') ? 'pakyow-core' : '.'
+require File.expand_path('../../lib/version', __FILE__)
+lib_path = File.exists?('pakyow-core') ? 'pakyow-core' : '.'
 
-Gem::Specification.new do |s|
-  s.platform    = Gem::Platform::RUBY
-  s.name        = 'pakyow-core'
-  s.version     = version
-  s.summary     = 'Core functionality for Pakyow apps.'
-  s.description = 'Core functionality for Pakyow apps, including routing and middleware.'
-  s.required_ruby_version = '>= 2.0.0'
-  s.license     = 'MIT'
+Gem::Specification.new do |spec|
+  spec.name                   = 'pakyow-core'
+  spec.summary                = 'Pakyow Core'
+  spec.description            = 'Core routing functionality for Pakyow'
+  spec.authors                = ['Bryan Powell', 'Bret Young']
+  spec.email                  = 'bryan@metabahn.com'
+  spec.homepage               = 'http://pakyow.org'
+  spec.version                = Pakyow::VERSION
+  spec.require_path           = File.join(lib_path, 'lib')
+  spec.files                  = Dir[
+                                  File.join(lib_path, 'CHANGELOG.md'),
+                                  File.join(lib_path, 'README.md'),
+                                  File.join(lib_path, 'LICENSE'),
+                                  File.join(lib_path, 'lib/**/*')
+                                ]
+  spec.license                = 'MIT'
+  spec.required_ruby_version  = '>= 2.0.0'
 
-  s.authors           = ['Bryan Powell', 'Bret Young']
-  s.email             = 'bryan@metabahn.com'
-  s.homepage          = 'http://pakyow.com'
-  s.rubyforge_project = 'pakyow-core'
+  spec.add_dependency('pakyow-support', Pakyow::VERSION)
+  spec.add_dependency('rack', '~> 1.6')
 
-  s.files        = Dir[
-                        File.join(core_path, 'CHANGES'),
-                        File.join(core_path, 'README.md'),
-                        File.join(core_path, 'LICENSE'),
-                        File.join(core_path, 'lib','**','*')
-                      ]
-
-  s.require_path = File.join(core_path, 'lib')
-
-  s.add_dependency('pakyow-support', version)
-  s.add_dependency('rack', '~> 1.6')
-
-  s.add_development_dependency('minitest', '~> 5.6')
-  s.add_development_dependency('rspec', '~> 3.2')
+  spec.add_development_dependency('minitest', '~> 5.6')
+  spec.add_development_dependency('rspec', '~> 3.2')
 end

@@ -1,34 +1,27 @@
-version = File.read(File.expand_path("../VERSION", __FILE__)).strip
+require File.expand_path('../lib/version', __FILE__)
 
-Gem::Specification.new do |s|
-  s.platform    = Gem::Platform::RUBY
-  s.name        = 'pakyow'
-  s.version     = version
-  s.summary     = 'Web app platform.'
-  s.description = "Pakyow is an open-source platform for the modern web. Build web-based apps faster with a view-first development process that's friendly to everyone – whether you're a designer or a developer. It's for getting along."
-  s.license     = 'MIT'
+Gem::Specification.new do |spec|
+  spec.name                   = 'pakyow'
+  spec.summary                = 'Pakyow'
+  spec.description            = 'Modern web framework for Ruby'
+  spec.authors                = ['Bryan Powell', 'Bret Young']
+  spec.email                  = 'bryan@metabahn.com'
+  spec.homepage               = 'http://pakyow.org'
+  spec.version                = Pakyow::VERSION
+  spec.require_path           = 'lib'
+  spec.files                  = Dir['CHANGELOG.md', 'README.md', 'LICENSE', 'lib/**/*']
+  spec.bindir                 = 'bin'
+  spec.executables            = ['pakyow']
+  spec.license                = 'MIT'
+  spec.required_ruby_version  = '>= 2.0.0'
 
-  s.required_ruby_version     = '>= 2.0.0'
-
-  s.authors           = ['Bryan Powell', 'Bret Young']
-  s.email             = 'bryan@metabahn.com'
-  s.homepage          = 'http://pakyow.org'
-  s.rubyforge_project = 'pakyow'
-
-  s.files        = Dir['README', 'LICENSE', 'lib/**/*']
-  s.require_path = 'lib'
-
-  s.bindir             = 'bin'
-  s.executables        = ['pakyow']
-
-  s.add_dependency('pakyow-support',    version)
-  s.add_dependency('pakyow-core',       version)
-  s.add_dependency('pakyow-presenter',  version)
-  s.add_dependency('pakyow-mailer',     version)
-  s.add_dependency('pakyow-realtime',   version)
-  s.add_dependency('pakyow-ui',   version)
-  s.add_dependency('pakyow-rake',       version)
-  s.add_dependency('pakyow-test',       version)
-
-  s.add_dependency('bundler',           '>= 1.3.0', '< 2.0')
+  spec.add_dependency('pakyow-support',   Pakyow::VERSION)
+  spec.add_dependency('pakyow-core',      Pakyow::VERSION)
+  spec.add_dependency('pakyow-presenter', Pakyow::VERSION)
+  spec.add_dependency('pakyow-mailer',    Pakyow::VERSION)
+  spec.add_dependency('pakyow-realtime',  Pakyow::VERSION)
+  spec.add_dependency('pakyow-ui',        Pakyow::VERSION)
+  spec.add_dependency('pakyow-rake',      Pakyow::VERSION)
+  spec.add_dependency('pakyow-test',      Pakyow::VERSION)
+  spec.add_dependency('bundler',          '~> 1.10')
 end

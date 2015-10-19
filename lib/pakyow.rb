@@ -1,12 +1,12 @@
-DEPENDENCIES = %w[
+require 'version'
+
+%w[
   pakyow-support
   pakyow-core
   pakyow-presenter
   pakyow-mailer
   pakyow-realtime
   pakyow-ui
-]
-
-DEPENDENCIES.each do |lib|
+].each do |lib|
   require lib
 end

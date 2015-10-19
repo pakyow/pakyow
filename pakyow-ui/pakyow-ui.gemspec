@@ -1,38 +1,29 @@
-version = File.read(
-  File.join(
-    File.expand_path('../../VERSION', __FILE__)
-  )
-).strip
+require File.expand_path('../../lib/version', __FILE__)
+lib_path = File.exists?('pakyow-ui') ? 'pakyow-ui' : '.'
 
-core_path = File.exist?('pakyow-ui') ? 'pakyow-ui' : '.'
+Gem::Specification.new do |spec|
+  spec.name                   = 'pakyow-ui'
+  spec.summary                = 'Pakyow UI'
+  spec.description            = 'Auto-Updating UIs for Pakyow'
+  spec.author                 = 'Bryan Powell'
+  spec.email                  = 'bryan@metabahn.com'
+  spec.homepage               = 'http://pakyow.org'
+  spec.version                = Pakyow::VERSION
+  spec.require_path           = File.join(lib_path, 'lib')
+  spec.files                  = Dir[
+                                  File.join(lib_path, 'CHANGELOG.md'),
+                                  File.join(lib_path, 'README.md'),
+                                  File.join(lib_path, 'LICENSE'),
+                                  File.join(lib_path, 'lib/**/*')
+                                ]
+  spec.license                = 'MIT'
+  spec.required_ruby_version  = '>= 2.0.0'
 
-Gem::Specification.new do |s|
-  s.platform    = Gem::Platform::RUBY
-  s.name        = 'pakyow-ui'
-  s.version     = version
-  s.summary     = 'Realtime UI for Pakyow apps.'
-  s.description = 'Brings modern, realtime UIs to Pakyow apps.'
-  s.required_ruby_version = '>= 2.0.0'
-  s.license = 'MIT'
+  spec.add_dependency('pakyow-support', Pakyow::VERSION)
+  spec.add_dependency('pakyow-core', Pakyow::VERSION)
+  spec.add_dependency('pakyow-presenter', Pakyow::VERSION)
+  spec.add_dependency('pakyow-realtime', Pakyow::VERSION)
 
-  s.authors           = ['Bryan Powell']
-  s.email             = 'bryan@metabahn.com'
-  s.homepage          = 'http://pakyow.com'
-
-  s.files        = Dir[
-                        File.join(core_path, 'CHANGES'),
-                        File.join(core_path, 'README.md'),
-                        File.join(core_path, 'LICENSE'),
-                        File.join(core_path, 'lib', '**', '*')
-                      ]
-
-  s.require_path = File.join(core_path, 'lib')
-
-  s.add_dependency('pakyow-support', version)
-  s.add_dependency('pakyow-core', version)
-  s.add_dependency('pakyow-presenter', version)
-  s.add_dependency('pakyow-realtime', version)
-
-  s.add_development_dependency('minitest', '~> 5.6')
-  s.add_development_dependency('rspec', '~> 3.2')
+  spec.add_development_dependency('minitest', '~> 5.6')
+  spec.add_development_dependency('rspec', '~> 3.2')
 end
