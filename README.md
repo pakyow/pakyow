@@ -17,15 +17,31 @@ There are three core concepts you should be familiar with:
 
 1. View-First Development
 
-TODO: summary and link
+View-First Development is a process that enables the presentation layer of a
+website or web app to be built completely separate from the backend code. Read
+more:
+
+- http://pakyow.org/docs/presentation
 
 2. Simple State Propagation
 
-TODO: summary and link
+Simple State Propagation is the mechanism through which Pakyow propagates
+changes in state from one client to another. It prioritizes user trust and makes
+it easier to reason about your program. This is best explained with an example.
+Read more:
+
+- http://pakyow.org/docs/concepts/simple-state-propagation
 
 3. View Transformation Protocol
 
-TODO: summary and link
+The View Transformation Protocol is a way to represent view rendering as a set
+of instructions that can later be applied to the view template. Pakyow
+implements this protocol on the backend for initial rendering and in
+[Ring](https://github.com/pakyow/ring) for client-side rendering. Read more:
+
+- http://pakyow.org/docs/concepts/view-transformation-protocol
+
+---
 
 [![Gem Version](https://badge.fury.io/rb/pakyow.svg)][gem]
 [![Build Status](https://travis-ci.org/pakyow/pakyow.svg?branch=master)][travis]
