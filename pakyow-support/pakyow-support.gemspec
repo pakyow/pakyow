@@ -1,5 +1,5 @@
 require File.expand_path('../../lib/version', __FILE__)
-lib_path = File.exists?('pakyow-rake') ? 'pakyow-rake' : '.'
+lib_path = File.exists?('pakyow-support') ? 'pakyow-support' : '.'
 
 Gem::Specification.new do |spec|
   spec.name                   = 'pakyow-support'
