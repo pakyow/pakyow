@@ -1,4 +1,4 @@
-# 0.10.0 (to be released)
+# 0.10.0 / 2015-10-19
 
   * Prevent styles from being mixed into plaintext emails
   * Ported all tests to rspec

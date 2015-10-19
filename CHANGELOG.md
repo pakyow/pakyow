@@ -1,4 +1,8 @@
-# 0.10.0 (to be released)
+# 0.10.01 / 2015-10-19
+
+  * Use semantic versioning for Pakyow in generated Gemfile
+
+# 0.10.0 / 2015-10-19
 
   * Rename `app.rb` to `setup/app.rb`
   * Adds Pakyow icons to generated app

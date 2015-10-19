@@ -1,3 +1,3 @@
-# 0.10.0 (to be released)
+# 0.10.0 / 2015-10-19
 
   * Initial release

@@ -1,4 +1,8 @@
-# 0.10.0 (to be released)
+# 0.10.1  / 2015-10-19
+
+  * Fixes require path in gemspec
+
+# 0.10.0 / 2015-10-19
 
   * Adds helper method for capitalizing a string
   * Ported all tests to rspec
