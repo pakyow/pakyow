@@ -6,12 +6,13 @@
 
 Pakyow is a framework for building modern websites and web apps. Views update in
 realtime to stay in sync with backend state. This is done using a traditional,
-backend-driven architecture. Business logic is written once and stays on the
-server, which means you write no JavaScript.
+backend-driven architecture, which means business logic is written once and
+stays on the server (write no JavaScript).
 
-Pakyow is designed with progressive enhancement in mind. Because views are
-rendered on the server, they remain accessible to users who are using
-unsupported browsers. The realtime layers is simply turned off.
+Pakyow is also designed with progressive enhancement in mind. Because views are
+rendered on the server, they remain accessible to users who happen to be using
+unsupported browsers. The realtime layer is simply disabled, while all content
+continues to remain accessible.
 
 There are three core concepts you should be familiar with:
 
@@ -27,8 +28,7 @@ more:
 
 Simple State Propagation is the mechanism through which Pakyow propagates
 changes in state from one client to another. It prioritizes user trust and makes
-it easier to reason about your program. This is best explained with an example.
-Read more:
+it easier to reason about your program. Read more:
 
 - http://pakyow.org/docs/concepts/simple-state-propagation
 
