@@ -3,7 +3,7 @@ require 'pakyow'
 
 Pakyow::App.define do
   configure :global do
-    Bundler.require(:default, Pakyow::Config.env)
+    Bundler.require :default, Pakyow::Config.env
 
     # put global config here and they'll be available across environments
     app.name = 'Pakyow'
@@ -27,7 +27,7 @@ Pakyow::App.define do
   end
 
   middleware do |builder|
-    #TODO you will most definitely want to change this secret
+    # TODO: you will most definitely want to change this secret
     builder.use Rack::Session::Cookie, key: "#{Pakyow::Config.app.name}.session", secret: 'sekret'
   end
 end
