@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 # gem 'pakyow', github: 'pakyow/pakyow'
 
 # use the latest released version
-gem 'pakyow', '0.9.1'
+gem 'pakyow', '0.10'
 
 # app server
 gem 'puma', platforms: :ruby
