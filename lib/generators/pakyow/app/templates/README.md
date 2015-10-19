@@ -1,14 +1,14 @@
-This is a Pakyow v0.9 app.
+This is a Pakyow v0.10 project.
 
 # Getting Started
 
-Start the app server:
+Start the server:
 
   `pakyow server`
 
 You'll find your app running at [http://localhost:3000](http://localhost:3000)!
 
-Need to interact with your app? Fire up a console:
+Need to interact with your code? Fire up a console:
 
   `pakyow console`
 
@@ -16,13 +16,13 @@ Need to interact with your app? Fire up a console:
 
 The following resources might be handy:
 
-- [Website](http://pakyow.com)
-- [Warmup](http://pakyow.com/warmup)
-- [Docs](http://pakyow.com/docs)
-- [Code](http://github.com/metabahn/pakyow)
+- [Website](http://pakyow.org)
+- [Docs](http://pakyow.org/docs)
+- [Code](http://github.com/pakyow/pakyow)
 
 Want to keep up with the latest development? Follow along:
 
-- [Blog](http://pakyow.com/blog)
-- [Mailing List](http://groups.google.com/group/pakyow)
+- [Blog](http://pakyow.org/blog)
+- [Forums](http://forums.pakyow.org)
+- [Gitter](https://gitter.im/pakyow/chat)
 - [Twitter](http://twitter.com/pakyow)
