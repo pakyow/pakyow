@@ -1,6 +1,6 @@
 # PakyowUI
 
-Modern, live-updating UIs for Pakyow apps, without moving to the client.
+Auto-Updating UIs for Pakyow, without moving to the client.
 
 ## Rationale
 
@@ -208,9 +208,9 @@ but write the initial rendering code! We don't have to move any part of
 our app to the client. Our app retains a backend-driven architecture
 while still behaving like a modern app with live updates.
 
-## Client Library
+## Ring - Client Library
 
-PakyowUI ships with a client library called Pakyow.js, effectively
+PakyowUI ships with a client library called Ring, effectively
 bringing Pakyow's view transformation API to the client. In addition
 to applying view transformations, Pakyow.js also ships with several
 components, including:
@@ -221,22 +221,28 @@ components, including:
 		endpoint through the open WebSocket. The mutation is then validated by the
 		server, persisted (if necessary), and broadcast to all other clients.
 
-You can use Pakyow.js to build custom front-end components that emit
+You can use Ring to build custom front-end components that emit
 their own mutations or otherwise communicate with your app's HTTP routes
 over a WebSocket.
 
-The Pakyow.js project is [available here](http://github.com/pakyow/pakyow-js).
+Ring is available here:
+
+- http://github.com/pakyow/ring).
 
 ## Channels
 
 Pakyow keeps track of what clients should receive what state mutations
 with channels. Here's how a channel is structured:
 
-    scope:{name};mutation{name}::{qualifiers}
+```
+scope:{name};mutation{name}::{qualifiers}
+```
 
 In the example from the Mutators section, the subscribed channel name is:
 
-    scope:user;mutation:list
+```
+scope:user;mutation:list
+```
 
 This means that any client who rendered any user data with the `list`
 mutation will receive future updates in user state. Read the next
@@ -252,7 +258,7 @@ For example, you can subscribe a view to only update with the current
 user's data:
 
 ```ruby
-view.scope(:user).mutate(:list, with: 
+view.scope(:user).mutate(:list, with:
 	data(:user).for_user(current_user)).subscribe({
   user_id: current_user.id
 })
@@ -283,4 +289,37 @@ channel name. Now only client's who currently render the user with id of 1 will
 receive future state changes about that user. Here's the subscribed channel
 name:
 
-    scope:user;mutation:present::id:1
+```
+scope:user;mutation:present::id:1
+```
+
+# Download
+
+The latest version of Pakyow UI can be installed with RubyGems:
+
+```
+gem install pakyow-ui
+```
+
+Source code can be downloaded as part of the Pakyow project on Github:
+
+- https://github.com/pakyow/pakyow/tree/master/pakyow-ui
+
+# License
+
+Pakyow UI is released free and open-source under the [MIT
+License](http://opensource.org/licenses/MIT).
+
+# Support
+
+Documentation is available here:
+
+- http://pakyow.org/docs/live-views
+
+Found a bug? Tell us about it here:
+
+- https://github.com/pakyow/pakyow/issues
+
+We'd love to have you in the community:
+
+- http://pakyow.org/get-involved

@@ -1,10 +1,11 @@
 # pakyow-test
 
-This gem consists of helpers that you can use to write tests for Pakyow apps.
+Helpers for testing in Pakyow.
 
 ## Getting Started w/ TestUnit and/or Minitest
 
-Create a `test` folder in the root app folder. In it, create a file named `test_helper.rb` with the following code:
+Create a `test` folder in the root app folder. In it, create a file named
+`test_helper.rb` with the following code:
 
 ```ruby
 require 'pakyow-test'
@@ -47,11 +48,13 @@ Rake::TestTask.new("test") do |t|
 end
 ```
 
-Now create files within the `test` directory that follow the `*_test.rb` naming convention and use `rake test` to run the test suite.
+Now create files within the `test` directory that follow the `*_test.rb` naming
+convention and use `rake test` to run the test suite.
 
 ## Getting Started w/ Rspec
 
-Create a `spec` folder in the root app folder. In it, create a file named `spec_helper.rb` with the following code:
+Create a `spec` folder in the root app folder. In it, create a file named
+`spec_helper.rb` with the following code:
 
 ```ruby
 require 'pakyow-test'
@@ -62,8 +65,43 @@ RSpec.configure do |config|
 end
 ```
 
-Now create files within the `spec` directory that follow the `*_spec.rb` naming convention and use `spec` to run the specs.
+Now create files within the `spec` directory that follow the `*_spec.rb` naming
+convention and use `spec` to run the specs.
 
 ## Usage
 
-This is a work in progress and not all test cases are passing. Documentation is also unfinished. We recommend getting started by taking a look at the [integration tests](https://github.com/pakyow/pakyow/tree/master/pakyow-test/spec/integration).
+Check out the testing docs. It also might be helpful to take a look at the
+integration tests for pakyow-test itself:
+
+- https://github.com/pakyow/pakyow/tree/master/pakyow-test/spec/integration
+
+# Download
+
+The latest version of Pakyow Test can be installed with RubyGems:
+
+```
+gem install pakyow-test
+```
+
+Source code can be downloaded as part of the Pakyow project on Github:
+
+- https://github.com/pakyow/pakyow/tree/master/pakyow-test
+
+# License
+
+Pakyow Test is released free and open-source under the [MIT
+License](http://opensource.org/licenses/MIT).
+
+# Support
+
+Documentation is available here:
+
+- http://pakyow.org/docs/testing
+
+Found a bug? Tell us about it here:
+
+- https://github.com/pakyow/pakyow/issues
+
+We'd love to have you in the community:
+
+- http://pakyow.org/get-involved
