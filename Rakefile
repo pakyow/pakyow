@@ -67,7 +67,7 @@ namespace :release do
     input = STDIN.gets.chomp
     puts
 
-    if input == version
+    if input == Pakyow::VERSION
       gems = libs.map { |lib| "#{lib}-#{Pakyow::VERSION}.gem"}
 
       # add pakyow last
