@@ -1,3 +1,7 @@
+# 0.10.2 / TBR
+
+  * Fixes issues presenting error views from gem
+
 # 0.10.0 / 2015-10-19
 
   * Adds nested route groups / namespaces inherit hooks

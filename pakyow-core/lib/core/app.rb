@@ -456,12 +456,10 @@ module Pakyow
     def content_for_code(code)
       File.open(
         File.join(
-          File.expand_path(
-            '../../', __FILE__),
-            'views',
-            'errors',
-            code.to_s + '.html'
-          )
+          'views',
+          'errors',
+          code.to_s + '.html'
+        )
       ).read
     end
 
