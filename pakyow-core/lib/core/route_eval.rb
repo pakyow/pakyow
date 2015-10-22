@@ -67,7 +67,7 @@ module Pakyow
     #
     def handler(*args, &block)
       args = Aargv.normalize(args, name: Symbol, code: Integer, fn: Proc, hooks: Hash)
-      
+
       fns = []
       # add the passed proc
       fns << args[:fn] unless args[:fn].nil?
@@ -113,7 +113,7 @@ module Pakyow
 			evaluator.direct_path = path
       evaluator.set_template(g_name, template)
       evaluator.eval(&block)
-            
+
       merge(evaluator)
     end
 
@@ -144,10 +144,10 @@ module Pakyow
 
 		def build_route(method, *args, &block)
       args = Aargv.normalize(args, path: String, regex_path: Regexp, name: Symbol, fn: Proc, fns: Array, hooks: Hash)
-      
+
       path = args[:path] || args[:regex_path]
       name = args[:name]
-      
+
       fns = args[:fns] || []
       # add passed fn
       fns << args[:fn] unless args[:fn].nil?
@@ -155,7 +155,7 @@ module Pakyow
       fns << block if block_given?
 
       # merge route hooks with scoped hooks
-      hooks = merge_hooks(@hooks, args[:hooks] || {})
+      hooks = merge_hooks(@hooks.dup, args[:hooks] || {})
 
       # build the final list of fns
       fns = build_fns(fns, hooks)

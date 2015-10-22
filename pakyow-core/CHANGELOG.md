@@ -1,6 +1,7 @@
 # 0.10.2 / TBR
 
   * Fixes issues presenting error views from gem
+  * Fixes a bug causing routes to inherit hooks from previously defined routes
 
 # 0.10.0 / 2015-10-19
 
