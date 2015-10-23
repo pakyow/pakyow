@@ -18,10 +18,14 @@ Pakyow::Realtime.handler :'call-route' do |message, session, response|
   res = app.process(env)
 
   container = message['container']
+  partial = message['partial']
+
+  composer = app.presenter.composer
 
   if container
-    composer = app.presenter.composer
     body = composer.container(container.to_sym).includes(composer.partials).to_s
+  elsif partial
+    body = composer.partial(partial.to_sym).includes(composer.partials).to_s
   else
     body = res[2].body
   end
