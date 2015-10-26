@@ -55,12 +55,12 @@ if redis_available?
       before do
         registry.instance.subscribe_to_channels_for_key(channels, key)
 
-        @original_redis = registry.instance.instance_variable_get(:@redis)
-        registry.instance.instance_variable_set(:@redis, redis)
+        @original_redis = $redis #registry.instance.instance_variable_get(:@redis)
+        $redis = redis
       end
 
       after do
-        registry.instance.instance_variable_set(:@redis, @original_redis)
+        $redis = @original_redis
         registry.instance.unregister_key(key)
         registry.instance.instance_variable_set(:@subscriber, nil)
       end

@@ -7,7 +7,7 @@ Pakyow::App.define do
     end
 
     post 'pub' do
-      socket.push(params[:msg], params[:channel])
+      socket.push({ msg: params[:msg] }, params[:channel])
     end
   end
 end
