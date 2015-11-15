@@ -413,7 +413,7 @@ module Pakyow
 
     def set_cookies
       request.cookies.each_pair {|k, v|
-        response.unset_cookie(k) if v.nil?
+        response.delete_cookie(k) if v.nil?
 
         # cookie is already set with value, ignore
         next if @initial_cookies.include?(k.to_s) && @initial_cookies[k.to_s] == v
