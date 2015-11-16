@@ -42,6 +42,13 @@ module Pakyow
         json = JSON.pretty_generate(msg)
         logger.debug "(ws.#{@key}) sending message: #{json}\n"
         WebSocket::Message.new(json).write(@socket)
+      rescue StandardError => e
+        logger.error "(#{@key}): WebSocket encountered a fatal error:"
+        logger.error e.message
+
+        # something went wrong (like a broken pipe); shutdown
+        # and let the socket reconnect if it's still around
+        shutdown
       end
 
       def self.on(event, &block)
