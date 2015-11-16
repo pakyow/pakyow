@@ -23,5 +23,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency('pakyow-core', Pakyow::VERSION)
   spec.add_dependency('websocket_parser', '~> 1.0')
   spec.add_dependency('redis', '~> 3.2')
-  spec.add_dependency('concurrent-ruby', '~> 0')
+  spec.add_dependency('concurrent-ruby', '~> 1.0')
 end

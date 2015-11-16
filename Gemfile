@@ -15,7 +15,7 @@ gem 'premailer', '~> 1.8'
 # realtime
 gem 'websocket_parser', '~> 1.0'
 gem 'redis', '~> 3.2'
-gem 'concurrent-ruby', '~> 0.9'
+gem 'concurrent-ruby', '~> 1.0'
 
 group :test do
   gem 'minitest', '~> 5.6'
