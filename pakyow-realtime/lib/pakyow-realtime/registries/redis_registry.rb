@@ -71,12 +71,12 @@ module Pakyow
       # subscriber with the current channels.
       def resubscribe
         if @subscriber
-          @subscriber.async.unsubscribe
+          Pakyow::Realtime.redis.publish(@subscriber.signal_channel, RedisSubscription::SIGNAL_UNSUBSCRIBE)
         else
           @subscriber = RedisSubscription.new
         end
 
-        @subscriber.async.subscribe(@channels)
+        @subscriber.subscribe(@channels)
       end
 
       # Returns the key used to store channels.

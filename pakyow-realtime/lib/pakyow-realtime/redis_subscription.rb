@@ -7,51 +7,42 @@ module Pakyow
     #
     # @api private
     class RedisSubscription
-      include Concurrent::Async
+      SIGNAL_UNSUBSCRIBE = :unsubscribe
 
       def initialize
         @redis = ::Redis.new(Config.realtime.redis)
-        @channels = []
-
-        ObjectSpace.define_finalizer(self, self.class.finalize)
       end
 
-      def self.finalize
-        -> {
-          unsubscribe
-          @redis.quit
+      def subscribe(channels = [])
+        channels << signal_channel
+
+        Concurrent::Future.execute {
+          @redis.subscribe(*channels) do |on|
+            on.message do |channel, msg|
+              if channel == signal_channel
+                if msg == SIGNAL_UNSUBSCRIBE
+                  @redis.unsubscribe
+                  return
+                end
+              end
+
+              msg = JSON.parse(msg)
+
+              if msg.is_a?(Hash)
+                msg[:__propagated] = true
+              elsif msg.is_a?(Array)
+                msg << :__propagated
+              end
+
+              context = Pakyow::Realtime::Context.new(Pakyow.app)
+              context.push(msg, channel)
+            end
+          end
         }
       end
 
-      def subscribe(channels)
-        return if channels.empty?
-        @channels = channels
-
-        run
-      end
-
-      def unsubscribe
-        return if @channels.empty?
-        @redis.unsubscribe(*@channels)
-      end
-
-      private
-
-      def run
-        @redis.subscribe(*@channels) do |on|
-          on.message do |channel, msg|
-            msg = JSON.parse(msg)
-
-            if msg.is_a?(Hash)
-              msg[:__propagated] = true
-            elsif msg.is_a?(Array)
-              msg << :__propagated
-            end
-
-            context = Pakyow::Realtime::Context.new(Pakyow.app)
-            context.push(msg, channel)
-          end
-        end
+      def signal_channel
+        "pw:#{object_id}:signal"
       end
     end
   end
