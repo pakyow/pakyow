@@ -1,3 +1,7 @@
+# 0.10.2 / 2015-11-15
+
+  * Updates Ring to latest in generator
+
 # 0.10.01 / 2015-10-19
 
   * Use semantic versioning for Pakyow in generated Gemfile

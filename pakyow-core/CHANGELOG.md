@@ -1,7 +1,9 @@
-# 0.10.2 / TBR
+# 0.10.2 / 2015-11-15
 
   * Fixes issues presenting error views from gem
   * Fixes a bug causing routes to inherit hooks from previously defined routes
+  * No longer resets the working context when redirecting or sending a file
+  * Uses Rack's delete_cookie method rather than unset_cookie
 
 # 0.10.0 / 2015-10-19
 
