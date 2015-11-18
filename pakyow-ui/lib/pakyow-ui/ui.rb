@@ -19,7 +19,7 @@ module Pakyow
         context ||= @context
 
         MutationStore.instance.mutations(scope).each do |mutation|
-          view = UIView.new(scope)
+          view = UIView.new(scope, mutation[:session])
 
           qualified = true
 

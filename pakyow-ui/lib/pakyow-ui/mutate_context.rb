@@ -36,7 +36,7 @@ module Pakyow
       # @api public
       def subscribe(qualifications = {})
         if data.is_a?(MutableData)
-          MutationStore.instance.register(self, data, qualifications)
+          MutationStore.instance.register(self, data, qualifications, view.context.request.session)
         end
 
         channel = ChannelBuilder.build(

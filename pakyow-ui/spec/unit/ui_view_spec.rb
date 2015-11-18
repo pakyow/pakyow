@@ -10,6 +10,8 @@ describe Pakyow::UI::UIView do
     Pakyow::UI::UIView.new(scope)
   end
 
+  it 'includes helpers'
+
   describe '#initialize' do
     it 'sets the scope' do
       expect(view.scoped_as).to eq(scope)
@@ -17,6 +19,11 @@ describe Pakyow::UI::UIView do
 
     it 'sets instructions' do
       expect(view.instructions).to eq([])
+    end
+
+    describe 'context' do
+      it 'is created'
+      it 'includes the session'
     end
   end
 

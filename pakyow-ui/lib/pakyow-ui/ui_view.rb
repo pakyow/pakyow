@@ -1,5 +1,7 @@
 require_relative 'ui_attrs'
 require_relative 'ui_instructable'
+require_relative 'ui_context'
+require_relative 'ui_request'
 
 module Pakyow
   module UI
@@ -8,14 +10,17 @@ module Pakyow
     # @api private
     class UIView
       include Instructable
+      include Pakyow::Helpers
 
-      def initialize(scope)
+      def initialize(scope, session = {})
         super()
         @scope = scope
+        @session = session
+        @context = UIContext.new(session)
       end
 
       def nested_instruct_object(_method, _data, scope)
-        UIView.new(scope || @scope)
+        UIView.new(scope || @scope, @session)
       end
 
       def scoped_as
@@ -134,8 +139,7 @@ module Pakyow
       def bind(data, bindings: {}, context: nil, &block)
         # TODO: handle context?
 
-        data = mixin_bindings(Array.ensure(data), bindings)
-        nested = nested_instruct(:bind, data)
+        nested = nested_instruct(:bind, mixin_bindings(Array.ensure(data), bindings))
         return self unless block_given?
 
         data.each do |datum|
@@ -158,12 +162,11 @@ module Pakyow
       def apply(data, bindings: {}, context: nil, &block)
         # TODO: handle context?
 
-        data = mixin_bindings(Array.ensure(data), bindings)
-        nested = nested_instruct(:apply, data)
+        nested = nested_instruct(:apply, mixin_bindings(Array.ensure(data), bindings))
         return self unless block_given?
 
         data.each do |datum|
-          sub = UIView.new(@scope)
+          sub = UIView.new(@scope, @session)
 
           if block.arity == 1
             sub.instance_exec(datum, &block)
