@@ -73,7 +73,7 @@ module Pakyow
         self
       end
 
-      def match(data, context: nil)
+      def match(data)
         instruct(:match, Array.ensure(data))
       end
 

@@ -192,21 +192,7 @@ module Pakyow
       # For the single View case, the ViewCollection collection will consist n copies
       # of self, where n = data.length.
       #
-      def match(data, context: nil)
-        # FIXME: It would be far better if View was aware of the parts it contains
-        # rather than having to include the partials here. This would allow us to
-        # traverse partials (e.g. partial.partial) and would bring some consistency.
-        #
-        # Currently, only the ViewComposer can find parts of a View. Since any View
-        # can potentially contain a partial, it probably makes sense to make partials
-        # a responsibility of View rather than ViewComposer. The catch here is that
-        # the current context is needed when dealing with partials (to look them up)
-        # and View doesn't always have access to this context like ViewComposer does.
-        #
-        # Perhaps ViewContext has a role to play here.
-        partials = context.is_a?(Pakyow::App) ? Pakyow.app.presenter.store.partials(context.composer.path) : {}
-        includes(partials)
-
+      def match(data)
         data = Array.ensure(data)
         coll = ViewCollection.new(scoped_as)
 
@@ -299,7 +285,7 @@ module Pakyow
       # Matches self to data then binds data to the view.
       #
       def apply(data, bindings: {}, context: nil, &block)
-        match(data, context: context).bind(data, bindings: bindings, context: context, &block)
+        match(data).bind(data, bindings: bindings, context: context, &block)
       end
 
       def includes(partial_map)

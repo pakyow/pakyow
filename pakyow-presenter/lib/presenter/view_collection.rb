@@ -231,7 +231,7 @@ module Pakyow
       # Manipulates the current collection to match the data. The final ViewCollection object
       # will consist n copies of self[data index] || self[-1], where n = data.length.
       #
-      def match(data, context: nil)
+      def match(data)
         return self if length == 0
         data = Array.ensure(data)
 
