@@ -25,7 +25,7 @@ class Pakyow::Presenter::ViewVersion
     else
       cleanup
 
-      match(data).bind(data, bindings: bindings, context: context, &block)
+      match(data, context: context).bind(data, bindings: bindings, context: context, &block)
     end
   end
 
@@ -73,13 +73,13 @@ class Pakyow::Presenter::ViewVersion
   end
 
   def cleanup
-    @versions.reject { |view| view == @default }.each(&:remove)
+    @versions.reject { |view| view.object_id == @default.object_id }.each(&:remove)
     @versions = [@default]
   end
 
   def method_missing(method, *args, &block)
     if @default.respond_to?(method)
-      @default.send(method, *args, &block)   
+      @default.send(method, *args, &block)
     end
   end
 

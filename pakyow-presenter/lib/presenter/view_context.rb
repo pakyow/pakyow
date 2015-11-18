@@ -27,7 +27,7 @@ module Pakyow
 
       # View methods that expect context, so it can be mixed in.
       #
-      %i[bind bind_with_index apply].each do |method|
+      %i[bind bind_with_index match apply].each do |method|
         define_method(method) do |data, **kargs, &block|
           kargs[:context] ||= @context
           ret = @view.send(method, data, **kargs, &wrap(method, &block))
