@@ -18,7 +18,11 @@ module Pakyow
             return contents
           end
 
-          return processor.call(contents)
+          processed = processor.call(contents)
+
+          # reprocess html content unless we just did that
+          return processed if format == :html
+          process(processed, :html)
         end
       end
 
