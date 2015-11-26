@@ -1,0 +1,1 @@
+builder.use Rack::MethodOverride

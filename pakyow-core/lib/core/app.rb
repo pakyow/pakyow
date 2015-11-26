@@ -162,11 +162,6 @@ module Pakyow
         @@middleware.each do |mw|
           self.instance_exec(builder, &mw)
         end
-
-        builder.use(Rack::MethodOverride)
-        builder.use(Middleware::Static)   if config.app.static
-        builder.use(Middleware::Logger)   if config.app.log
-        builder.use(Middleware::Reloader) if config.app.auto_reload
       end
 
       def detect_handler

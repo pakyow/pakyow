@@ -5,8 +5,14 @@ Pakyow::App.define do
   configure :global do
     Bundler.require :default, Pakyow::Config.env
 
+    if defined?(Dotenv)
+      env_path = ".env.#{Pakyow::Config.env}"
+      Dotenv.load env_path if File.exist?(env_path)
+      Dotenv.load
+    end
+
     # put global config here and they'll be available across environments
-    app.name = 'Pakyow'
+    app.name = '<%= app_name %>'
   end
 
   configure :development do
@@ -27,7 +33,6 @@ Pakyow::App.define do
   end
 
   middleware do |builder|
-    # TODO: you will most definitely want to change this secret
-    builder.use Rack::Session::Cookie, key: "#{Pakyow::Config.app.name}.session", secret: 'sekret'
+    Dir.glob('middleware/*.rb').each { |r| require r }
   end
 end
