@@ -1,1 +1,1 @@
-builder.use Middleware::Static if config.app.static
+Pakyow::App.builder.use Pakyow::Middleware::Static if Pakyow::Config.app.static

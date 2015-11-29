@@ -1,1 +1,1 @@
-builder.use Rack::MethodOverride
+Pakyow::App.builder.use Rack::MethodOverride

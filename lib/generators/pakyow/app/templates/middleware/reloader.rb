@@ -1,1 +1,1 @@
-builder.use Middleware::Reloader if config.app.auto_reload
+Pakyow::App.builder.use Pakyow::Middleware::Reloader if Pakyow::Config.app.auto_reload
