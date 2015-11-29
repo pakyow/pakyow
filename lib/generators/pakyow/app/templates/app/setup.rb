@@ -33,6 +33,6 @@ Pakyow::App.define do
   end
 
   middleware do |builder|
-    Dir.glob('middleware/*.rb').each { |r| require r }
+    Dir.glob('middleware/*.rb').each { |r| require File.join('.', r) }
   end
 end
