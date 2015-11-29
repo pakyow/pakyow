@@ -131,13 +131,15 @@ module Pakyow
         @@middleware = []
 
         @@stacks = {:before => {}, :after => {}}
-        %w(init load process route match error).each {|name|
+        %w(init load process route match error configure).each {|name|
           @@stacks[:before][name.to_sym] = []
           @@stacks[:after][name.to_sym] = []
         }
       end
 
       def load_config(*env_or_envs)
+        call_stack(:before, :configure)
+
         envs = Array.ensure(env_or_envs)
         envs = envs.empty? || envs.first.nil? ? [config.app.default_environment] : envs
 
@@ -154,9 +156,20 @@ module Pakyow
         if global_proc = @@config[:global]
           config.app_config(&global_proc)
         end
+
+        # configure the logger
+        Pakyow.configure_logger
+
+        call_stack(:after, :configure)
       end
 
       protected
+
+      def call_stack(which, stack)
+        stack(which, stack).each do |block|
+          self.instance_exec(&block)
+        end
+      end
 
       def load_middleware
         @@middleware.each do |mw|
@@ -196,7 +209,6 @@ module Pakyow
 
     def initialize
       Pakyow.app = self
-      Pakyow.configure_logger
 
       call_stack(:before, :init)
 
@@ -379,9 +391,9 @@ module Pakyow
     protected
 
     def call_stack(which, stack)
-      self.class.stack(which, stack).each {|block|
+      self.class.stack(which, stack).each do |block|
         self.instance_exec(&block)
-      }
+      end
     end
 
     # Reloads all application files in path and presenter (if specified).
