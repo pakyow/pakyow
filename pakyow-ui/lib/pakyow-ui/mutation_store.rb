@@ -11,8 +11,6 @@ module Pakyow
       end
 
       def register(mutate_context, mutable_data, qualifications, session)
-        # TODO: decide how we'll clean these up as clients disconnect
-
         @registry.register(
           mutable_data.scope,
 
@@ -21,8 +19,13 @@ module Pakyow
           qualifications: qualifications,
           query_name: mutable_data.query_name,
           query_args: mutable_data.query_args,
-          session: session
+          session: session,
+          socket_key: mutate_context.view.context.socket_digest(mutate_context.view.context.socket_connection_id)
         )
+      end
+
+      def unregister(socket_key)
+        @registry.unregister(socket_key)
       end
 
       def mutations(scope)
@@ -30,4 +33,8 @@ module Pakyow
       end
     end
   end
+end
+
+Pakyow::Realtime::Websocket.on :leave do
+  Pakyow::UI::MutationStore.instance.unregister(socket_digest(socket_connection_id))
 end

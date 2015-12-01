@@ -73,6 +73,21 @@ module Pakyow
         end
       end
 
+      # Pushes a message down a channel to a specific client (identified by key).
+      def push_message_to_socket_with_key(message, channel, key)
+        return if key.nil? || key.empty?
+
+        connection = @connections.find { |_, connection|
+          connection and connection.key == key
+        }
+
+        if connection.nil? && registry.propagates? && !propagated?(message)
+          return registry.push_message_to_socket_with_key(message, channel, key)
+        elsif !connection.nil?
+          connection[1].push(payload: message, channel: channel)
+        end
+      end
+
       private
 
       def propagate(message, channels)
@@ -80,7 +95,7 @@ module Pakyow
       end
 
       def propagated?(message)
-        message.include?(:__propagated)
+        message.include?(:__propagated) || message.include?('__propagated')
       end
 
       def connections_for_channel(channel_query)

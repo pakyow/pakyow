@@ -30,6 +30,7 @@ module Pakyow
 
       def unregister_key(key)
         Pakyow::Realtime.redis.hdel(channel_key, key)
+        @channels.delete("pw:socket:#{key}")
       end
 
       def subscribe_to_channels_for_key(channels, key)
@@ -38,6 +39,8 @@ module Pakyow
 
         @channels.concat(channels).uniq!
         resubscribe
+
+        @channels << "pw:socket:#{key}"
       end
 
       def unsubscribe_to_channels_for_key(channels, key)
@@ -63,6 +66,16 @@ module Pakyow
       def subscribe_for_propagation(channels)
         @channels.concat(channels).uniq!
         resubscribe
+      end
+
+      def push_message_to_socket_with_key(message, channel, key)
+        propagate({
+          key: key,
+          channel: channel,
+          message: message
+        },
+
+        ["pw:socket:#{key}"])
       end
 
       private

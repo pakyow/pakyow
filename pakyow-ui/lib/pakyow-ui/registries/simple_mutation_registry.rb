@@ -18,9 +18,15 @@ module Pakyow
 
       def register(scope, mutation)
         @mutations[scope] ||= []
-
-        return if @mutations[scope].include?(mutation)
         @mutations[scope] << mutation
+      end
+
+      def unregister(socket_key)
+        @mutations.each do |_, mutations|
+          mutations.delete_if { |mutation|
+            mutation[:socket_key] == socket_key
+          }
+        end
       end
 
       def mutations(scope)

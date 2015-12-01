@@ -44,17 +44,15 @@ module Pakyow
           mutable_data = Mutator.instance.mutable(scope, context).send(mutation[:query_name], *mutation[:query_args]).data
           Mutator.instance.mutate(mutation[:mutation].to_sym, view, mutable_data)
 
-          Pakyow.app.socket.push(
-            view.finalize,
-
-            ChannelBuilder.build(
-              scope: scope,
-              mutation: mutation[:mutation].to_sym,
-              qualifiers: mutation[:qualifiers],
-              data: mutable_data,
-              qualifications: mutation[:qualifications]
-            )
+          channel = ChannelBuilder.build(
+            scope: scope,
+            mutation: mutation[:mutation].to_sym,
+            qualifiers: mutation[:qualifiers],
+            data: mutable_data,
+            qualifications: mutation[:qualifications]
           )
+
+          Pakyow.app.socket.push_message_to_socket_with_key(view.finalize, channel, mutation[:socket_key])
         end
       end
 

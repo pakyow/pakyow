@@ -49,6 +49,14 @@ module Pakyow
         delegate.push(msg, channels)
       end
 
+      # Push a message down a channel directed at a specific client,
+      # identified by key.
+      #
+      # @api public
+      def push_message_to_socket_with_key(msg, channel, key)
+        delegate.push_message_to_socket_with_key(msg, channel, key)
+      end
+
       # Returns an instance of the connection delegate.
       #
       # @api private

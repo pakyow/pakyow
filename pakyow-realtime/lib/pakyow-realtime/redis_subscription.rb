@@ -35,7 +35,12 @@ module Pakyow
               end
 
               context = Pakyow::Realtime::Context.new(Pakyow.app)
-              context.push(msg, channel)
+
+              if msg.key?('key')
+                context.push_message_to_socket_with_key(msg['message'], msg['channel'], msg['key'])
+              else
+                context.push(msg, channel)
+              end
             end
           end
         }
