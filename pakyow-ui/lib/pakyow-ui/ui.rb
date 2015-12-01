@@ -35,7 +35,7 @@ module Pakyow
           # qualifications are set on the subscription
           unless !qualified || mutation[:qualifications].empty? || data.nil?
             mutation[:qualifications].each_pair do |key, value|
-              qualified = false unless data[key.to_sym] == value
+              qualified = false if data[key.to_sym].to_s != value.to_s
             end
           end
 
