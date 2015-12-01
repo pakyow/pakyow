@@ -39,7 +39,7 @@ module Pakyow
         datum = Array.ensure(data).first
 
         qualifiers.each do |qualifier|
-          channel_extras << "#{qualifier}:#{datum[qualifier]}"
+          channel_extras << "#{qualifier}:#{datum[qualifier.to_sym]}"
         end
       end
 

@@ -26,7 +26,7 @@ module Pakyow
           # qualifiers are defined with the mutation
           unless mutation[:qualifiers].empty? || data.nil?
             mutation[:qualifiers].each_with_index do |qualifier, i|
-              qualified = false unless data[qualifier] == mutation[:query_args][i]
+              qualified = false unless data[qualifier.to_sym].to_s == mutation[:query_args][i].to_s
             end
           end
 
