@@ -102,6 +102,7 @@ module Pakyow
 
       def partial(name)
         partial = @partials[name]
+        partial.includes(partials)
         return partial
       end
 
