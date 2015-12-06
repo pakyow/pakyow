@@ -3,6 +3,7 @@
 Pakyow::Realtime.handler :'call-route' do |message, session, response|
   path, qs = message['uri'].split('?')
   path_parts = path.split('/')
+  path_parts << 'index' if path_parts.count == 3
   path_parts[-1] += '.json'
   uri = [path_parts.join('/'), qs].join('?')
 
