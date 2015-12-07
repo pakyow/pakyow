@@ -24,4 +24,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency('pakyow-rake',      Pakyow::VERSION)
   spec.add_dependency('pakyow-test',      Pakyow::VERSION)
   spec.add_dependency('bundler',          '~> 1.10')
+
+  spec.add_development_dependency("rspec", "~>3.0")
 end
