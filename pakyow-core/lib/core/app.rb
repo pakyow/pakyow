@@ -55,38 +55,38 @@ module Pakyow
       # Defines a route set.
       #
       def routes(set_name = :main, &block)
-        return @@routes unless block_given?
-        @@routes[set_name] = block
+        return @routes unless block_given?
+        @routes[set_name] = block
       end
 
       # Accepts block to be added to middleware stack.
       #
       def middleware(&block)
-        @@middleware << block
+        @middleware << block
       end
 
       # Creates an environment.
       #
       def configure(env, &block)
-        @@config[env] = block
+        @config[env] = block
       end
 
       # Fetches a stack (before | after) by name.
       #
       def stack(which, name)
-        @@stacks[which][name]
+        @stacks[which][name]
       end
 
       # Adds a block to the before stack for `stack_name`.
       #
       def before(stack_name, &block)
-        @@stacks[:before][stack_name.to_sym] << block
+        @stacks[:before][stack_name.to_sym] << block
       end
 
       # Adds a block to the after stack for `stack_name`.
       #
       def after(stack_name, &block)
-        @@stacks[:after][stack_name.to_sym] << block
+        @stacks[:after][stack_name.to_sym] << block
       end
 
       def builder
@@ -120,14 +120,14 @@ module Pakyow
         @staged = false
         @running = false
 
-        @@routes = {}
-        @@config = {}
-        @@middleware = []
+        @routes = {}
+        @config = {}
+        @middleware = []
 
-        @@stacks = {:before => {}, :after => {}}
+        @stacks = {:before => {}, :after => {}}
         %w(init load process route match error configure).each {|name|
-          @@stacks[:before][name.to_sym] = []
-          @@stacks[:after][name.to_sym] = []
+          @stacks[:before][name.to_sym] = []
+          @stacks[:after][name.to_sym] = []
         }
       end
 
@@ -142,12 +142,12 @@ module Pakyow
 
         # run specific config first
         envs.each do |env|
-          next unless config_proc = @@config[env.to_sym]
+          next unless config_proc = @config[env.to_sym]
           config.app_config(&config_proc)
         end
 
         # then run global config
-        if global_proc = @@config[:global]
+        if global_proc = @config[:global]
           config.app_config(&global_proc)
         end
 
@@ -166,7 +166,7 @@ module Pakyow
       end
 
       def load_middleware
-        @@middleware.each do |mw|
+        @middleware.each do |mw|
           self.instance_exec(builder, &mw)
         end
       end
