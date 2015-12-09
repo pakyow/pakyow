@@ -25,12 +25,14 @@ module Pakyow
       # essentially everything short of running it.
       #
       def stage(*env_or_envs)
-        unless staged?
-          prepare(*env_or_envs)
-          @staged = true
-        end
+        return if staged?
 
-        self.new
+        prepare(*env_or_envs)
+
+        app = self.new
+        @staged = true
+
+        app
       end
 
       # Runs the staged app.
@@ -59,11 +61,8 @@ module Pakyow
       # Defines a route set.
       #
       def routes(set_name = :main, &block)
-        if set_name && block
-          @@routes[set_name] = block
-        else
-          @@routes
-        end
+        return @@routes unless block_given?
+        @@routes[set_name] = block
       end
 
       # Accepts block to be added to middleware stack.
