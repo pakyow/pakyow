@@ -8,4 +8,6 @@ require 'rack/file'
 require 'logger'
 require 'cgi'
 
+require 'pakyow-support'
+
 require 'core/base'
