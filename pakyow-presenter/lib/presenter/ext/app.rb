@@ -1,25 +1,22 @@
 module Pakyow
   class App
     class << self
-      @@bindings = {}
-      @@processors = {}
-
       def bindings(set_name = :main, &block)
         if set_name && block
-          @@bindings[set_name] = block
+          bindings[set_name] = block
         else
-          @@bindings
+          @bindings ||= {}
         end
       end
 
       def processor(*args, &block)
         args.each {|format|
-          @@processors[format] = block
+          processors[format] = block
         }
       end
 
       def processors
-        @@processors
+        @processors ||= {}
       end
     end
 

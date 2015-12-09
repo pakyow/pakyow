@@ -1,12 +1,6 @@
 module Pakyow
   module Presenter
     class Attribute
-      @@types = {
-        :hash => [:style],
-        :bool => [:selected, :checked, :disabled, :readonly, :multiple],
-        :mult => [:class]
-      }
-
       def initialize(name, raw_value, control, doc)
         @type = type_of_attribute(name)
         @name = name
@@ -77,6 +71,14 @@ module Pakyow
         self.class.ancestors
       end
 
+      def types
+        @types ||= {
+          :hash => [:style],
+          :bool => [:selected, :checked, :disabled, :readonly, :multiple],
+          :mult => [:class]
+        }
+      end
+
       private
 
       def update_value
@@ -92,9 +94,9 @@ module Pakyow
       def type_of_attribute(attribute)
         attribute = attribute.to_sym
 
-        return :bool  if @@types[:bool].include?(attribute)
-        return :mult if @@types[:mult].include?(attribute)
-        return :hash     if @@types[:hash].include?(attribute)
+        return :bool if types[:bool].include?(attribute)
+        return :mult if types[:mult].include?(attribute)
+        return :hash if types[:hash].include?(attribute)
         return :single
       end
 
