@@ -25,14 +25,8 @@ module Pakyow
       # essentially everything short of running it.
       #
       def stage(*env_or_envs)
-        return if staged?
-
         prepare(*env_or_envs)
-
-        app = self.new
-        @staged = true
-
-        app
+        Pakyow.app = self.new
       end
 
       # Runs the staged app.
@@ -112,7 +106,7 @@ module Pakyow
       # Returns true if the application is staged.
       #
       def staged?
-        @staged
+        !Pakyow.app.nil?
       end
 
       # Convenience method for base configuration class.
@@ -208,8 +202,6 @@ module Pakyow
     attr_writer :context
 
     def initialize
-      Pakyow.app = self
-
       call_stack(:before, :init)
 
       load_app
