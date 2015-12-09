@@ -26,7 +26,7 @@ module Pakyow
       #
       def stage(*env_or_envs)
         prepare(*env_or_envs)
-        Pakyow.app = self.new
+        self.new
       end
 
       # Runs the staged app.
@@ -202,6 +202,8 @@ module Pakyow
     attr_writer :context
 
     def initialize
+      Pakyow.app = self
+
       call_stack(:before, :init)
 
       load_app
