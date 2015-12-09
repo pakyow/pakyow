@@ -115,4 +115,28 @@ describe Pakyow::Presenter::ViewComposer do
     composer = compose_at('scopes')
     expect(composer.prop(:prop).length).to eq 3
   end
+
+  context 'when the composed view is altered' do
+    let :path do
+      'binding'
+    end
+
+    let :view do
+      compose_at(path, template: :default)
+    end
+
+    let :datum do
+      { bar: 'one' }
+    end
+
+    before do
+      view.scope(:foo).bind(datum)
+    end
+
+    describe 'a future composition' do
+      it 'is not affected by the alteration' do
+        expect(compose_at(path).scope(:foo)[0].text.strip).to eq('')
+      end
+    end
+  end
 end

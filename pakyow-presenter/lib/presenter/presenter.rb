@@ -167,10 +167,7 @@ module Pakyow
       end
 
       def compose_at(path, opts = {}, &block)
-        composer = ViewComposer.from_path(store, path, opts, &block)
-        return composer unless opts.empty? || block_given?
-
-        @composer = composer
+        @composer = ViewComposer.from_path(store, path, opts, &block)
       end
 
       def has_path?
