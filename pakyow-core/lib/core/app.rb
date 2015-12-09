@@ -52,7 +52,8 @@ module Pakyow
       def define(&block)
         # sets the path to the app file so it can be reloaded later
         @path = String.parse_path_from_caller(caller[0])
-        self.instance_eval(&block)
+        instance_eval(&block)
+        self
       end
 
       # Defines a route set.
