@@ -382,6 +382,13 @@ module Pakyow
       load_routes
     end
 
+    # Convenience method for writing restful resource routes
+    #
+    def resource(set_name, path, &block)
+      return routes(set_name) unless block_given?
+      routes(set_name) { restful(set_name, path, &block) }
+    end
+
     protected
 
     def call_stack(which, stack)
