@@ -1,4 +1,11 @@
+require_relative 'helpers/configuring'
+require_relative 'helpers/running'
+require_relative 'helpers/hooks'
+
 module Pakyow
+  # The main app object.
+  #
+  # @api public
   class App
     RESOURCE_ACTIONS = {
       core: Proc.new { |app, set_name, path, &block|
@@ -6,198 +13,24 @@ module Pakyow
       }
     }
 
+    extend Helpers::Configuring
+    extend Helpers::Running
+    extend Helpers::Hooks
+
     class << self
-      attr_reader :path
-
-      # Prepares the app for being staged in one or more environments by
-      # loading config(s), middleware, and setting the load path.
+      # Convenience method for accessing app configuration.
       #
-      def prepare(*env_or_envs)
-        return if prepared?
-
-        # load config for one or more environments
-        load_config(*env_or_envs)
-
-        # load each block from middleware stack
-        load_middleware
-
-        # include pwd in load path
-        $:.unshift(Dir.pwd) unless $:.include? Dir.pwd
-
-        @prepared = true
-      end
-
-      # Stages the app by preparing and returning an instance. This is
-      # essentially everything short of running it.
-      #
-      def stage(*env_or_envs)
-        prepare(*env_or_envs)
-        self.new
-      end
-
-      # Runs the staged app.
-      #
-      def run(*env_or_envs)
-        return if running?
-
-        @running = true
-
-        builder.run(stage(*env_or_envs))
-        detect_handler.run(builder, Host: config.server.host, Port: config.server.port) do |server|
-          trap(:INT)  { stop(server) }
-          trap(:TERM) { stop(server) }
-        end
-      end
-
-      # Defines an app
-      #
-      def define(&block)
-        # sets the path to the app file so it can be reloaded later
-        @path = String.parse_path_from_caller(caller[0])
-        instance_eval(&block)
-        self
-      end
-
-      # Defines a route set.
-      #
-      def routes(set_name = :main, &block)
-        return @routes unless block_given?
-        @routes[set_name] = block
-      end
-
-      # Accepts block to be added to middleware stack.
-      #
-      def middleware(&block)
-        @middleware << block
-      end
-
-      # Creates an environment.
-      #
-      def configure(env, &block)
-        @config[env] = block
-      end
-
-      # Fetches a stack (before | after) by name.
-      #
-      def stack(which, name)
-        @stacks[which][name]
-      end
-
-      # Adds a block to the before stack for `stack_name`.
-      #
-      def before(stack_name, &block)
-        @stacks[:before][stack_name.to_sym] << block
-      end
-
-      # Adds a block to the after stack for `stack_name`.
-      #
-      def after(stack_name, &block)
-        @stacks[:after][stack_name.to_sym] << block
-      end
-
-      def builder
-        @builder ||= Rack::Builder.new
-      end
-
-      def prepared?
-        @prepared
-      end
-
-      # Returns true if the application is running.
-      #
-      def running?
-        @running
-      end
-
-      # Returns true if the application is staged.
-      #
-      def staged?
-        !Pakyow.app.nil?
-      end
-
-      # Convenience method for base configuration class.
-      #
+      # @api public
       def config
         Pakyow::Config
       end
 
+      # Resets all the app state.
+      #
+      # @api private
       def reset
-        @prepared = false
-        @staged = false
-        @running = false
-
-        @routes = {}
-        @config = {}
-        @middleware = []
-
-        @stacks = {:before => {}, :after => {}}
-        %w(init load process route match error configure).each {|name|
-          @stacks[:before][name.to_sym] = []
-          @stacks[:after][name.to_sym] = []
-        }
-      end
-
-      def load_config(*env_or_envs)
-        call_stack(:before, :configure)
-
-        envs = Array.ensure(env_or_envs)
-        envs = envs.empty? || envs.first.nil? ? [config.app.default_environment] : envs
-
-        config.app.loaded_envs = envs
-        config.env = envs.first.to_sym
-
-        # run specific config first
-        envs.each do |env|
-          next unless config_proc = @config[env.to_sym]
-          config.app_config(&config_proc)
-        end
-
-        # then run global config
-        if global_proc = @config[:global]
-          config.app_config(&global_proc)
-        end
-
-        # configure the logger
-        Pakyow.configure_logger
-
-        call_stack(:after, :configure)
-      end
-
-      protected
-
-      def call_stack(which, stack)
-        stack(which, stack).each do |block|
-          self.instance_exec(&block)
-        end
-      end
-
-      def load_middleware
-        @middleware.each do |mw|
-          self.instance_exec(builder, &mw)
-        end
-      end
-
-      def detect_handler
-        handlers = ['puma', 'thin', 'mongrel', 'webrick']
-        handlers.unshift(config.server.handler) if config.server.handler
-
-        handlers.each do |handler|
-          begin
-            return Rack::Handler.get(handler)
-          rescue LoadError
-          rescue NameError
-          end
-        end
-      end
-
-      def stop(server)
-        if server.respond_to?('stop!')
-          server.stop!
-        elsif server.respond_to?('stop')
-          server.stop
-        else
-          # exit ungracefully if necessary...
-          Process.exit!
+        instance_variables.each do |ivar|
+          remove_instance_variable(ivar)
         end
       end
     end
@@ -210,11 +43,9 @@ module Pakyow
     def initialize
       Pakyow.app = self
 
-      call_stack(:before, :init)
-
-      load_app
-
-      call_stack(:after, :init)
+      hook_around :init do
+        load_app
+      end
     end
 
     # Returns the primary (first) loaded env.
@@ -234,68 +65,62 @@ module Pakyow
     # Called on every request.
     #
     def process(env)
-      call_stack(:before, :process)
+      hook_around :process do
+        req = Request.new(env)
+        res = Response.new
 
-      req = Request.new(env)
-      res = Response.new
+        # set response format based on request
+        res.format = req.format
 
-      # set response format based on request
-      res.format = req.format
+        @context = AppContext.new(req, res)
 
-      @context = AppContext.new(req, res)
+        set_initial_cookies
 
-      set_initial_cookies
+        @found = false
+        catch(:halt) {
+          hook_around :route do
+            @found = @router.perform(context, self) {
+              call_hooks :after, :match
+            }
+          end
 
-      @found = false
-      catch(:halt) {
-        call_stack(:before, :route)
+          unless found?
+            handle(404, false)
 
-        @found = @router.perform(context, self) {
-          call_stack(:after, :match)
+            present_error 404 do |content|
+              path = String.normalize_path(request.path)
+              path = '/' if path.empty?
+
+              content.gsub!('{route_path}', path)
+              content
+            end
+          end
         }
 
-        call_stack(:after, :route)
-
-        unless found?
-          handle(404, false)
-
-          present_error 404 do |content|
-            path = String.normalize_path(request.path)
-            path = '/' if path.empty?
-
-            content.gsub!('{route_path}', path)
-            content
-          end
-        end
-      }
-
-      set_cookies
-
-      call_stack(:after, :process)
+        set_cookies
+      end
 
       response.finish
     rescue StandardError => error
       request.error = error
 
-      catch :halt do
-        call_stack(:before, :error)
+      hook_around :error do
+        catch :halt do
+          handle(500, false) unless found?
 
-        handle(500, false) unless found?
+          present_error 500 do |content|
+            nice_source = error.backtrace[0].match(/^(.+?):(\d+)(|:in `(.+)')$/)
 
-        present_error 500 do |content|
-          nice_source = error.backtrace[0].match(/^(.+?):(\d+)(|:in `(.+)')$/)
+            content.gsub!('{file}', nice_source[1].gsub(File.expand_path(Config.app.root) + '/', ''))
+            content.gsub!('{line}', nice_source[2])
 
-          content.gsub!('{file}', nice_source[1].gsub(File.expand_path(Config.app.root) + '/', ''))
-          content.gsub!('{line}', nice_source[2])
+            content.gsub!('{msg}', CGI.escapeHTML("#{error.class}: #{error}"))
+            content.gsub!('{trace}', error.backtrace.map { |bt| CGI.escapeHTML(bt) }.join('<br>'))
 
-          content.gsub!('{msg}', CGI.escapeHTML("#{error.class}: #{error}"))
-          content.gsub!('{trace}', error.backtrace.map { |bt| CGI.escapeHTML(bt) }.join('<br>'))
-
-          content
+            content
+          end
         end
       end
-
-      call_stack(:after, :error)
 
       response.finish
     end
@@ -333,10 +158,10 @@ module Pakyow
       location = Router.instance.path(location)
       request.setup(location, method)
 
-      call_stack(:before, :route)
-      call_stack(:after, :match)
+      call_hooks :before, :route
+      call_hooks :after, :match
       @router.reroute(request)
-      call_stack(:after, :route)
+      call_hooks :after, :route
     end
 
     # Sends data in the response (immediately). Accepts a string of data or a File,
@@ -376,9 +201,9 @@ module Pakyow
     end
 
     def handle(name_or_code, from_logic = true)
-      call_stack(:before, :route)
-      @router.handle(name_or_code, self, from_logic)
-      call_stack(:after, :route)
+      hook_around :route do
+        @router.handle(name_or_code, self, from_logic)
+      end
     end
 
     # Convenience method for defining routes on an app instance.
@@ -403,25 +228,29 @@ module Pakyow
 
     protected
 
-    def call_stack(which, stack)
-      self.class.stack(which, stack).each do |block|
-        self.instance_exec(&block)
+    def hook_around(trigger)
+      call_hooks :before, trigger
+      yield
+      call_hooks :after, trigger
+    end
+
+    def call_hooks(type, trigger)
+      self.class.hook(type, trigger).each do |block|
+        instance_exec(&block)
       end
     end
 
     # Reloads all application files in path and presenter (if specified).
     #
     def load_app
-      call_stack(:before, :load)
+      hook_around :load do
+        # load src files
+        @loader ||= Loader.new
+        @loader.load_from_path(config.app.src_dir)
 
-      # load src files
-      @loader ||= Loader.new
-      @loader.load_from_path(config.app.src_dir)
-
-      # load the routes
-      load_routes
-
-      call_stack(:after, :load)
+        # load the routes
+        load_routes
+      end
     end
 
     def load_routes
@@ -482,8 +311,5 @@ module Pakyow
         )
       ).read
     end
-
   end
-
-  App.reset
 end
