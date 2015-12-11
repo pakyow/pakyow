@@ -384,9 +384,13 @@ module Pakyow
 
     # Convenience method for writing restful resource routes
     #
-    def resource(set_name, path, &block)
-      return routes(set_name) unless block_given?
-      routes(set_name) { restful(set_name, path, &block) }
+    def resource(set_name, path = nil, &block)
+      return routes[set_name] unless block_given?
+      if path && set_name
+        routes(set_name) { restful(set_name, path, &block) }
+      else
+        raise ArgumentError, "Both route set name and path required" 
+      end
     end
 
     protected
