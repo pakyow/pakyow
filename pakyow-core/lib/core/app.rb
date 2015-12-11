@@ -1,5 +1,11 @@
 module Pakyow
   class App
+    RESOURCE_ACTIONS = {
+      core: Proc.new { |app, set_name, path, &block|
+        app.routes(set_name) { restful(set_name, path, &block) }
+      }
+    }
+
     class << self
       attr_reader :path
 
@@ -387,7 +393,9 @@ module Pakyow
     def resource(set_name, path = nil, &block)
       return routes[set_name] unless block_given?
       if path && set_name
-        routes(set_name) { restful(set_name, path, &block) }
+        RESOURCE_ACTIONS.each do |plugin, action|
+          action.call(self, set_name, path, &block)
+        end
       else
         raise ArgumentError, "Both route set name and path required" 
       end
