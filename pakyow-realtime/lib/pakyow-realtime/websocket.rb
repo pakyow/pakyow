@@ -24,6 +24,10 @@ module Pakyow
         handle_handshake
       end
 
+      def registered
+        handle_ws_join
+      end
+
       def shutdown
         delegate.unregister(@key)
         self.class.handle_event(:leave, @req)
@@ -105,7 +109,6 @@ module Pakyow
 
       def setup
         logger.info "(ws.#{@key}) client established connection"
-        handle_ws_join
 
         @parser = WebSocket::Parser.new
 

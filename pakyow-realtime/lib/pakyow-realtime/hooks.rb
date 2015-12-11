@@ -10,6 +10,9 @@ Pakyow::App.before :route do
 
       # register the connection with a unique key
       Pakyow::Realtime::Delegate.instance.register(socket_digest, conn)
+
+      # tell the connection that it's registered
+      conn.registered
     end
 
     halt
