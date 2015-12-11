@@ -65,6 +65,46 @@ describe 'restful route'do
   end
 
 
+  it 'restful routes can be defined using resources' do
+    restful_set = Pakyow::RouteSet.new
+    app = Pakyow.app
+    routes = { get: %w{ tests tests/new tests/1/edit }, post: %w{ tests }, delete: %w{ tests/1 }, put: %w{ tests/1 } }
+    # get: "tests/1" (:show) is a tricky route to compare with eq because
+    # there is a proc there
+
+    fn = lambda {}
+    routes_fn = lambda {
+      [:list, :new, :create, :edit, :update, :replace, :show, :remove].each { |a|
+        self.send(a, &fn(:list))
+      }
+    }
+
+    restful_set.eval { restful(:test, 'tests', &routes_fn) }
+
+    app.resource(:test, 'tests', &routes_fn)
+    resources_set = Pakyow::Router.instance.sets[:test]
+
+    routes.each do |method, paths|
+      paths.each do |path|
+        restful_match = restful_set.match(path, method)
+        resources_match = resources_set.match(path, method)
+        expect(resources_match).to eq restful_match
+      end
+    end
+
+    path = "tests/1"
+    method = :get
+    restful_match = restful_set.match(path, method)
+    resources_match = resources_set.match(path, method)
+    expect(resources_match[1..-1]).to eq restful_match[1..-1]
+    restful_procs = restful_match[0].delete_at(3)
+    resources_procs = resources_match[0].delete_at(3)
+    expect(resources_match[0]).to eq restful_match[0]
+    restful_procs.each_with_index do |restful_proc, i|
+      expect(resources_procs[i].source_location).to eq restful_proc.source_location
+    end
+  end
+
   it 'routes defined for passed actions only' do
     set = Pakyow::RouteSet.new
 
