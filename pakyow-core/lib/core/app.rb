@@ -15,6 +15,9 @@ module Pakyow
         # load each block from middleware stack
         load_middleware
 
+        # include pwd in load path
+        $:.unshift(Dir.pwd) unless $:.include? Dir.pwd
+
         @prepared = true
       end
 
