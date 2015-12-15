@@ -27,13 +27,46 @@ module Pakyow
           (@page.is_a?(Page) && @page.info(:template)) || path
         }
 
-        @partials = {}
-
+        # Setting up partials is a bit complicated, but here's how it works.
+        #
+        # First we set `@partials` to the ones passed or the partials from the
+        # store for the path that we're composing at. We do this so that
+        # partials are included in `parts` after this (important since we
+        # want partials defined in partials to be found properly).
         begin
+          @partials = {}
           @partials = includes(opts.fetch(:includes))
         rescue
           @partials = store.partials(path) unless path.nil?
         end
+
+        # Now we need to build the actual set of partials used by parts of the
+        # view that we're composing. This bit of code counts the number of each
+        # partial present; if it's greater than one we represent them as a view
+        # collection, otherwise it's just a partial.
+        #
+        # FIXME: It's possible there's a more straight-forward way to write this
+        # code; it should be explored at some poitn in the future.
+        partials  = {}
+        @partials.each do |name, view|
+          count = parts.select { |part|
+            part.doc.partials.key?(name)
+          }.map { |part|
+            part.doc.partials[name].count
+          }.inject(&:+) || 0
+
+          partials[name] = view; next if count < 2
+
+          collection = ViewCollection.new
+
+          count.times do
+            collection << view.dup
+          end
+
+          partials[name] = collection
+        end
+
+        @partials = partials
 
         instance_exec(&block) if block_given?
       end
@@ -179,7 +212,13 @@ module Pakyow
       def partials_for_parts(parts, acc = [])
         # determine the partials to be included
         available_partials = parts.inject([]) { |sum, part|
-          sum.concat(part.doc.partials.keys)
+          if part.is_a?(ViewCollection)
+            part.each do |view|
+              sum.concat(view.doc.partials.keys)
+            end
+          else
+            sum.concat(part.doc.partials.keys)
+          end
         }
 
         # add available partials as parts

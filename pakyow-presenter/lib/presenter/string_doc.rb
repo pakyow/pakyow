@@ -267,7 +267,7 @@ module Pakyow
       def find_partials(structure, primary_structure = @structure, partials = {})
         structure.inject(partials) { |s, e|
           if e[1].has_key?(:partial)
-            s[e[1][:partial]] = StringDoc.from_structure(primary_structure, node: e)
+            (s[e[1][:partial]] ||= []) << StringDoc.from_structure(primary_structure, node: e)
           end
           find_partials(e[2], e[2], s)
           s

@@ -289,21 +289,31 @@ module Pakyow
       end
 
       def includes(partial_map)
-        partials = @doc.partials
+        doc_partials = @doc.partials
         partial_map = partial_map.dup
 
         # mixin all the partials
-        partials.each do |partial_info|
-          partial = partial_map[partial_info[0]]
-					next if partial.nil?
-          partial_info[1].replace(partial.doc.dup)
+        doc_partials.each do |partial_name, partial_docs|
+          partials = Array.ensure(partial_map[partial_name])
+
+          partial_docs.each_with_index do |partial_doc, i|
+            replacement = partials[i]
+            next if replacement.nil?
+
+            if replacement.is_a?(ViewCollection)
+              partial_doc.replace(replacement.views.first.doc)
+              partials = replacement.views
+            else
+              partial_doc.replace(replacement.doc)
+            end
+          end
         end
 
         # refind the partials
-				partials = @doc.partials
+				doc_partials = @doc.partials
 
         # if mixed in partials included partials, we want to run includes again with a new map
-				if partials.count > 0 && (partial_map.keys - partials.keys).count < partial_map.keys.count
+				if doc_partials.count > 0 && (partial_map.keys - doc_partials.keys).count < partial_map.keys.count
 					includes(partial_map)
 				end
 

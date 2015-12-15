@@ -244,7 +244,7 @@ shared_examples :doc_specs do
       end
 
       it 'includes the partial node' do
-        expect(doc.partials[partial_name].to_html).to eq("<!-- @include #{partial_name} -->")
+        expect(doc.partials[partial_name].first.to_html).to eq("<!-- @include #{partial_name} -->")
       end
     end
 
