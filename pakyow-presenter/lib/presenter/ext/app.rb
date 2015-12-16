@@ -1,6 +1,10 @@
 module Pakyow
   class App
     class << self
+      RESOURCE_ACTIONS[:presenter] = Proc.new { |app, set_name, path, &block|
+        app.bindings { scope(set_name) { restful(set_name) } }
+      }
+
       def bindings(set_name = :main, &block)
         if set_name && block
           bindings[set_name] = block
