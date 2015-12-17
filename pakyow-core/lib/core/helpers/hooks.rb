@@ -4,26 +4,30 @@ module Pakyow
     #
     # @api public
     module Hooks
+      TYPES = %i(before after)
       TRIGGERS = %i(init load process route match error configure)
 
       # Registers a before hook for a particular trigger.
       #
       # @api public
       def before(trigger, &block)
-        hooks[:before][trigger.to_sym] << block
+        register_hook(:before, trigger, block)
       end
 
       # Registers an after hook for a particular trigger.
       #
       # @api public
       def after(trigger, &block)
-        hooks[:after][trigger.to_sym] << block
+        register_hook(:after, trigger, block)
       end
 
       # Fetches a hook by type (before | after) and trigger.
       #
       # @api private
       def hook(type, trigger)
+        check_hook_type(type)
+        check_trigger(trigger)
+
         hooks[type.to_sym][trigger.to_sym]
       end
 
@@ -45,6 +49,17 @@ module Pakyow
         @hooks
       end
 
+      def register_hook(type, trigger, block)
+        raise ArgumentError, 'Expected a block' if block.nil?
+
+        trigger = trigger.to_sym
+
+        check_trigger(trigger)
+        check_hook_type(type)
+
+        hooks[type][trigger] << block
+      end
+
       def hook_around(trigger)
         call_hooks :before, trigger
         yield
@@ -55,6 +70,16 @@ module Pakyow
         hook(type, trigger).each do |block|
           instance_exec(&block)
         end
+      end
+
+      def check_trigger(trigger)
+        return true if TRIGGERS.include?(trigger)
+        raise ArgumentError, "Hook trigger #{trigger} doesn't exist"
+      end
+
+      def check_hook_type(type)
+        return true if TYPES.include?(type)
+        raise ArgumentError, "Hook type #{type} doesn't exist"
       end
     end
   end
