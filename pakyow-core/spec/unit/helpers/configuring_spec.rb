@@ -18,7 +18,7 @@ describe Pakyow::Helpers::Configuring do
     end
   end
 
-  describe '#define' do
+  describe '::define' do
     context 'called with a block' do
       before do
         @result = mock.define do
@@ -46,7 +46,7 @@ describe Pakyow::Helpers::Configuring do
     end
   end
 
-  describe '#routes' do
+  describe '::routes' do
     let :block do
       -> {}
     end
@@ -92,7 +92,7 @@ describe Pakyow::Helpers::Configuring do
     end
   end
 
-  describe '#middleware' do
+  describe '::middleware' do
     let :block do
       -> {}
     end
@@ -119,7 +119,7 @@ describe Pakyow::Helpers::Configuring do
     end
   end
 
-  describe '#configure' do
+  describe '::configure' do
     let :config do
       mock.instance_variable_get(:@config)
     end
@@ -155,7 +155,7 @@ describe Pakyow::Helpers::Configuring do
     end
   end
 
-  describe '#load_config' do
+  describe '::load_config' do
     # TODO: test this once that part of Pakyow::App is refactored
   end
 end
