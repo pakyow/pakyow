@@ -318,13 +318,21 @@ describe Pakyow::Helpers::Running do
   describe '::detect_handler' do
     context 'when there\'s a configured handler' do
       it 'prepends the configured handler to the list' do
-        mock.detect_handler
+        begin
+          mock.detect_handler
+        rescue
+        end
+
         expect(Pakyow::Helpers::Running::HANDLERS).to include(mock.handler)
       end
 
       it 'only adds the configured handler once' do
-        mock.detect_handler
-        mock.detect_handler
+        begin
+          mock.detect_handler
+          mock.detect_handler
+        rescue
+        end
+
         expect(Pakyow::Helpers::Running::HANDLERS.count(mock.handler)).to eq(1)
       end
     end
