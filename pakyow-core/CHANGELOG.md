@@ -1,3 +1,10 @@
+# 0.10.3
+
+  * Adds a `configure` hook for evaluating code before/after configuring app
+  * The `Pakyow::App.define` method now returns the defined app
+  * Explicitly requires `pakyow-support` so core works on its own
+  * Adds a convenience method for defining a restful resource
+
 # 0.10.2 / 2015-11-15
 
   * Fixes issues presenting error views from gem

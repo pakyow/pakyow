@@ -1,3 +1,9 @@
+# 0.10.3
+
+  * Fixes several bugs related to nested partials
+  * Reprocess view contents with html processor
+  * Fixes a bug causing partials not to be duped
+
 # 0.10.0 / 2015-10-19
 
   * Adds precomposition to composer

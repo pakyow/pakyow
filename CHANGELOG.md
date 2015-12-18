@@ -1,3 +1,12 @@
+# 0.10.3
+
+  * Generated app updates:
+    * Uses dotenv for config management
+    * Breaks middleware into pluggable pieces
+    * Dynamically sets app name in config
+    * Creates a random session secret
+  * Evaluates app template as erb
+
 # 0.10.2 / 2015-11-15
 
   * Updates Ring to latest in generator
