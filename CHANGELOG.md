@@ -5,6 +5,7 @@
     * Breaks middleware into pluggable pieces
     * Dynamically sets app name in config
     * Creates a random session secret
+    * Updates Ring to 0.2.1
   * Evaluates app template as erb
 
 # 0.10.2 / 2015-11-15
