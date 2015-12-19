@@ -23,5 +23,16 @@ require 'presenter/view_store_loader'
 
 module Pakyow
   module Presenter
+    Pakyow::App.after :load do
+      routes :__presenter do
+        handler 404 do
+          presenter_handle_error(404)
+        end
+
+        handler 500 do
+          presenter_handle_error(500)
+        end
+      end
+    end
   end
 end

@@ -1,0 +1,26 @@
+<%
+  path = String.normalize_path(request.path)
+  path = '/' if path.empty?
+
+  view_path = path == '/' ? 'index.html' : "#{path}.html"
+%>
+
+<h1>
+  Pakyow couldn't find anything to do :(
+</h1>
+
+<p class="lead">
+  If you want back-end code to execute for this request, create a route in <code>app/lib/routes.rb</code>:
+</p>
+
+<pre>
+  <code><span class="n">get</span> <span class="s1">'<%=path%>'</span> <span class="k">do</span>
+  <span class="c1"># your code goes here</span>
+<span class="k">end</span></code>
+</pre>
+
+<p class="lead">
+  But, we recommend you start by creating a view at <code>app/views/<%=view_path%></code>.
+  The view will be served up automatically without writing any back-end code! This pattern
+  is called view-first development (you could also call it <em>awesome</em>).
+</p>

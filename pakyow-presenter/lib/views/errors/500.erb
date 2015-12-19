@@ -1,0 +1,23 @@
+<%
+  nice_source = req.error.backtrace[0].match(/^(.+?):(\d+)(|:in `(.+)')$/)
+  file = nice_source[1].gsub(File.expand_path(Config.app.root) + '/', '')
+  line = nice_source[2]
+  msg = CGI.escapeHTML("#{req.error.class}: #{req.error}")
+  trace = req.error.backtrace.map { |bt| CGI.escapeHTML(bt) }.join('<br>')
+%>
+
+<h1>
+  Pakyow found something wrong :(
+</h1>
+
+<p class="lead">
+  The error originated on line <%=line%> of <code><%=file%></code>.
+</p>
+
+<h5 class="error">
+  <%=msg%>
+</h5>
+
+<pre>
+  <code><%=trace%></code>
+</pre>

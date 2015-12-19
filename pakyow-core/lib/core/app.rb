@@ -19,7 +19,7 @@ module Pakyow
         Pakyow::Config
       end
 
-      # Resets all the app state.
+      # Resets app state.
       #
       # @api private
       def reset
@@ -71,25 +71,15 @@ module Pakyow
         set_initial_cookies
 
         @found = false
-        catch(:halt) {
+        catch :halt do
           hook_around :route do
             @found = @router.perform(context, self) {
               call_hooks :after, :match
             }
           end
 
-          unless found?
-            handle(404, false)
-
-            present_error 404 do |content|
-              path = String.normalize_path(request.path)
-              path = '/' if path.empty?
-
-              content.gsub!('{route_path}', path)
-              content
-            end
-          end
-        }
+          handle(404, false) unless found?
+        end
 
         set_cookies
       end
@@ -101,18 +91,6 @@ module Pakyow
       hook_around :error do
         catch :halt do
           handle(500, false) unless found?
-
-          present_error 500 do |content|
-            nice_source = error.backtrace[0].match(/^(.+?):(\d+)(|:in `(.+)')$/)
-
-            content.gsub!('{file}', nice_source[1].gsub(File.expand_path(Config.app.root) + '/', ''))
-            content.gsub!('{line}', nice_source[2])
-
-            content.gsub!('{msg}', CGI.escapeHTML("#{error.class}: #{error}"))
-            content.gsub!('{trace}', error.backtrace.map { |bt| CGI.escapeHTML(bt) }.join('<br>'))
-
-            content
-          end
         end
       end
 
@@ -267,28 +245,6 @@ module Pakyow
       request.cookies.each {|k,v|
         @initial_cookies[k] = v
       }
-    end
-
-    def present_error(code)
-      return unless config.app.errors_in_browser
-
-      response["Content-Type"] = 'text/html'
-
-      if block_given?
-        content = yield(content_for_code(code))
-      end
-
-      response.body = [content]
-    end
-
-    def content_for_code(code)
-      File.open(
-        File.join(
-          'views',
-          'errors',
-          code.to_s + '.html'
-        )
-      ).read
     end
   end
 end
