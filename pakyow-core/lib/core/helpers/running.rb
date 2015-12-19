@@ -19,7 +19,7 @@ module Pakyow
         return true if prepared?
 
         # load config for one or more environments
-        load_config(*env_or_envs)
+        load_env_config(*env_or_envs)
 
         # load each block from middleware stack
         load_middleware

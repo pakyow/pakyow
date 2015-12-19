@@ -4,6 +4,7 @@
   * The `Pakyow::App.define` method now returns the defined app
   * Explicitly requires `pakyow-support` so core works on its own
   * Adds a convenience method for defining a restful resource
+  * Adds a `reload` hook for evaluating code before/after reloading app
 
 # 0.10.2 / 2015-11-15
 

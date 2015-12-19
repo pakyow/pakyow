@@ -30,7 +30,7 @@ module Spec
     end
 
     # FIXME: revisit this after refactoring `load_config`
-    def self.load_config(*); end
+    def self.load_env_config(*); end
 
     def self.middleware(*)
       MIDDLEWARE
@@ -111,8 +111,8 @@ describe Pakyow::Helpers::Running do
   end
 
   describe '::prepare' do
-    it 'calls `load_config` with envs' do
-      expect(mock).to receive(:load_config).with(*envs)
+    it 'calls `load_env_config` with envs' do
+      expect(mock).to receive(:load_env_config).with(*envs)
       mock.prepare(*envs)
     end
 

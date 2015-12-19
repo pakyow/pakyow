@@ -3,6 +3,8 @@ require 'core/helpers/configuring'
 
 module Spec
   class ConfiguringAppMock
+    def self.before(*); end
+
     extend Pakyow::Helpers::Configuring
   end
 end
@@ -259,9 +261,5 @@ describe Pakyow::Helpers::Configuring do
         expect { mock.configure(env) }.to raise_error(ArgumentError)
       end
     end
-  end
-
-  describe '::load_config' do
-    # TODO: test this once that part of Pakyow::App is refactored
   end
 end

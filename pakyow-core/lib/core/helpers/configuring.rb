@@ -10,6 +10,12 @@ module Pakyow
         }
       }
 
+      def self.extended(object)
+        object.before :reload do
+          self.class.send(:load_config)
+        end
+      end
+
       # Absolute path to the file containing the app definition.
       #
       # @api private
@@ -63,10 +69,21 @@ module Pakyow
         env_config[env] = block
       end
 
-      # Configures the app for one or more environment.
-      #
-      # @api private
-      def load_config(*env_or_envs)
+      protected
+
+      def load_config
+        # reload the app file
+        load(config.app.path)
+
+        # reset config
+        envs = config.app.loaded_envs
+        config.reset
+
+        # reload config
+        load_env_config(*envs)
+      end
+
+      def load_env_config(*env_or_envs)
         hook_around :configure do
           envs = build_envs(env_or_envs)
 
@@ -82,8 +99,6 @@ module Pakyow
           Pakyow.configure_logger
         end
       end
-
-      protected
 
       def env_config
         @config ||= {}

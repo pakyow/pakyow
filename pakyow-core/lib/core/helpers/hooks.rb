@@ -5,7 +5,7 @@ module Pakyow
     # @api public
     module Hooks
       TYPES = %i(before after)
-      TRIGGERS = %i(init load process route match error configure)
+      TRIGGERS = %i(init load process route match error configure reload)
 
       # Registers a before hook for a particular trigger.
       #

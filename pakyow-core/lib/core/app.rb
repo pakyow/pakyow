@@ -7,9 +7,9 @@ module Pakyow
   #
   # @api public
   class App
+    extend Helpers::Hooks
     extend Helpers::Configuring
     extend Helpers::Running
-    extend Helpers::Hooks
 
     class << self
       # Convenience method for accessing app configuration.
@@ -125,17 +125,9 @@ module Pakyow
 
     # This is NOT a useless method, it's a part of the external api
     def reload
-      # reload the app file
-      load(config.app.path)
-
-      # reset config
-      envs = config.app.loaded_envs
-      config.reset
-
-      # reload config
-      self.class.load_config(*envs)
-
-      load_app
+      hook_around :reload do
+        load_app
+      end
     end
 
     # APP ACTIONS
