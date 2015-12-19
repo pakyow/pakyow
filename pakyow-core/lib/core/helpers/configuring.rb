@@ -4,6 +4,12 @@ module Pakyow
     #
     # @api public
     module Configuring
+      RESOURCE_ACTIONS = {
+        core: Proc.new { |app, set_name, path, block|
+          app.routes(set_name) { restful(set_name, path, &block) }
+        }
+      }
+
       # Absolute path to the file containing the app definition.
       #
       # @api private
@@ -28,6 +34,17 @@ module Pakyow
       def routes(set_name = :main, &block)
         return @routes ||= {} unless block_given?
         routes[set_name] = block
+      end
+
+      # Defines a resource.
+      #
+      # @api public
+      def resource(set_name, path, &block)
+        raise ArgumentError, 'Expected a block' unless block_given?
+
+        RESOURCE_ACTIONS.each do |plugin, action|
+          action.call(self, set_name, path, block)
+        end
       end
 
       # Accepts block to be added to middleware stack.

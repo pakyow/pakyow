@@ -7,12 +7,6 @@ module Pakyow
   #
   # @api public
   class App
-    RESOURCE_ACTIONS = {
-      core: Proc.new { |app, set_name, path, &block|
-        app.routes(set_name) { restful(set_name, path, &block) }
-      }
-    }
-
     extend Helpers::Configuring
     extend Helpers::Running
     extend Helpers::Hooks
@@ -213,17 +207,10 @@ module Pakyow
       load_routes
     end
 
-    # Convenience method for writing restful resource routes
+    # Convenience method for defining resources on an app instance.
     #
-    def resource(set_name, path = nil, &block)
-      return routes[set_name] unless block_given?
-      if path && set_name
-        RESOURCE_ACTIONS.each do |plugin, action|
-          action.call(self, set_name, path, &block)
-        end
-      else
-        raise ArgumentError, "Both route set name and path required" 
-      end
+    def resource(set_name, path, &block)
+      self.class.resource(set_name, path, &block)
     end
 
     protected

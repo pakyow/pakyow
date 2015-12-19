@@ -92,6 +92,112 @@ describe Pakyow::Helpers::Configuring do
     end
   end
 
+  describe '::resource' do
+    let :set_name do
+      :mock
+    end
+
+    let :path do
+      '/mock'
+    end
+
+    let :block do
+      -> {}
+    end
+
+    context 'called with a block' do
+      context 'and a set name' do
+        context 'and a path' do
+          before do
+            @original_resource_actions = Pakyow::Helpers::Configuring::RESOURCE_ACTIONS
+            Pakyow::Helpers::Configuring.send(:remove_const, 'RESOURCE_ACTIONS')
+            Pakyow::Helpers::Configuring::RESOURCE_ACTIONS = {
+              mock: -> (app, set_name, path, block) {
+                @resource_action_app = app
+                @resource_action_set_name = set_name
+                @resource_action_path = path
+                @resource_action_block = block
+              }
+            }
+          end
+
+          after do
+            Pakyow::Helpers::Configuring.send(:remove_const, 'RESOURCE_ACTIONS')
+            Pakyow::Helpers::Configuring::RESOURCE_ACTIONS = @original_resource_actions
+          end
+
+          it 'calls each resource action block with app, set name, path, and block' do
+            mock.resource(set_name, path, &block)
+
+            expect(@resource_action_app).to eq(mock)
+            expect(@resource_action_set_name).to eq(set_name)
+            expect(@resource_action_path).to eq(path)
+            expect(@resource_action_block).to eq(block)
+          end
+        end
+
+        context 'and without a path' do
+          it 'raises an ArgumentError' do
+            expect { mock.resource(set_name, &block) }.to raise_error(ArgumentError)
+          end
+        end
+      end
+
+      context 'and without a set name' do
+        it 'raises an ArgumentError' do
+          expect { mock.resource(&block) }.to raise_error(ArgumentError)
+        end
+      end
+    end
+
+    context 'called without a block' do
+      context 'and with a set name' do
+        it 'raises an ArgumentError' do
+          expect { mock.resource(set_name) }.to raise_error(ArgumentError)
+        end
+      end
+
+      context 'and without a set name' do
+        it 'raises an ArgumentError' do
+          expect { mock.resource }.to raise_error(ArgumentError)
+        end
+      end
+    end
+  end
+
+  describe '::RESOURCE_ACTIONS' do
+    let :set_name do
+      :mock
+    end
+
+    let :path do
+      '/mock'
+    end
+
+    let :block do
+      -> {}
+    end
+
+    let :actions do
+      Pakyow::Helpers::Configuring::RESOURCE_ACTIONS
+    end
+
+    it 'contains a proc for `core`' do
+      expect(actions.keys).to include(:core)
+    end
+
+    describe '`core` proc' do
+      it 'accepts four arguments' do
+        expect(actions[:core].arity).to eq(4)
+      end
+
+      it 'registers a route set with set name' do
+        expect(mock).to receive(:routes).with(set_name)
+        actions[:core].call(mock, set_name, path, block)
+      end
+    end
+  end
+
   describe '::middleware' do
     let :block do
       -> {}
