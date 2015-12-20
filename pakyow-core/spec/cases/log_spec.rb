@@ -7,15 +7,17 @@ describe 'Log' do
   before do
     Pakyow::Config.logger.colorize = false
     @text = 'foo'
+
+    @old = $stdout
+    $stdout = StringIO.new
   end
 
   after do
     FileUtils.rm(file) if File.exists?(file)
+    $stdout = @old
   end
 
   it 'prints to console' do
-    old = $stdout
-    $stdout = StringIO.new
     Pakyow.configure_logger
     Pakyow.logger << @text
 
