@@ -24,10 +24,6 @@ Pakyow::App.define do
     app.ignore_routes = true
   end
 
-  configure :staging do
-    # put your staging config here
-  end
-
   configure :production do
     # put your production config here
   end

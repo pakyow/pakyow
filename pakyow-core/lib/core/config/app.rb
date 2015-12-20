@@ -52,13 +52,6 @@ Pakyow::Config.register(:app) { |config|
   opts.errors_in_browser = true
   opts.static = true
 
-}.env(:staging) { |opts|
-
-  opts.auto_reload = false
-  opts.errors_in_browser = true
-  opts.log_output = false
-  opts.static = true
-
 }.env(:production) { |opts|
 
   opts.auto_reload = false

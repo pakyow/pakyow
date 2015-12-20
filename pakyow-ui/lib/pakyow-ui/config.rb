@@ -6,8 +6,6 @@ Pakyow::Config.register(:ui) { |config|
   config.opt :registry, Pakyow::UI::SimpleMutationRegistry
 }.env(:development) { |opts|
   opts.registry = Pakyow::UI::SimpleMutationRegistry
-}.env(:staging) { |opts|
-  opts.registry = Pakyow::UI::RedisMutationRegistry
 }.env(:production) { |opts|
   opts.registry = Pakyow::UI::RedisMutationRegistry
 }

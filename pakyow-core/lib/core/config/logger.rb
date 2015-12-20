@@ -24,12 +24,6 @@ Pakyow::Config.register(:logger) { |config|
   opts.auto_flush = true
   opts.colorize = true
 
-}.env(:staging) { |opts|
-
-  opts.sync = false
-  opts.auto_flush = false
-  opts.colorize = false
-
 }.env(:production) { |opts|
 
   opts.sync = false

@@ -15,8 +15,6 @@ Pakyow::Config.register(:realtime) { |config|
   config.opt :enabled, true
 }.env(:development) { |opts|
   opts.registry = Pakyow::Realtime::SimpleRegistry
-}.env(:staging) { |opts|
-  opts.registry = Pakyow::Realtime::RedisRegistry
 }.env(:production) { |opts|
   opts.registry = Pakyow::Realtime::RedisRegistry
 }
