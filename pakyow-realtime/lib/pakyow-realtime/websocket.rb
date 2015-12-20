@@ -177,16 +177,9 @@ module Pakyow
       end
 
       def self.handle_event(event, req)
-        if Pakyow.app
-          app = Pakyow.app.dup
-          app.context = AppContext.new(req)
-
-          ui = Pakyow.app.instance_variable_get(:@ui)
-          app.context.ui = ui.dup if ui
-        end
-
+        context = CallContext.new(req.env)
         event_handlers(event).each do |block|
-          app.instance_exec(&block)
+          context.instance_exec(&block)
         end
       end
 

@@ -10,10 +10,29 @@ module Pakyow
         }
       }
 
+      module InstanceMethods
+        # Convenience method for defining routes on an app instance.
+        #
+        # @api public
+        def routes(set_name = :main, &block)
+          self.class.routes(set_name, &block)
+          load_routes
+        end
+
+        # Convenience method for defining resources on an app instance.
+        #
+        # @api public
+        def resource(set_name, path, &block)
+          self.class.resource(set_name, path, &block)
+        end
+      end
+
       def self.extended(object)
         object.before :reload do
           self.class.send(:load_config)
         end
+
+        object.include(InstanceMethods)
       end
 
       # Absolute path to the file containing the app definition.

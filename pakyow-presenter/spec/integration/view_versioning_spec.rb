@@ -18,7 +18,7 @@ describe Pakyow::Presenter::ViewVersion do
   end
 
   let :view do
-    context.view.instance_variable_get(:@view)
+    context.subject.composed
   end
 
   context 'when applying an empty dataset' do
@@ -36,7 +36,7 @@ describe Pakyow::Presenter::ViewVersion do
       end
 
       it 'renders nothing' do
-        expect(context.view.scope(:post).length).to eq(0)
+        expect(context.subject.scope(:post).length).to eq(0)
       end
     end
 

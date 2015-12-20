@@ -7,7 +7,8 @@ describe 'route namespaces' do
 
   before do
     Pakyow::App.stage(:test)
-    Pakyow.app.context = Pakyow::AppContext.new(mock_request, mock_response)
+    @context = Pakyow::CallContext.new(mock_request.env)
+    @context.instance_variable_set(:@context, Pakyow::AppContext.new(mock_request, mock_response))
   end
 
   let :set do

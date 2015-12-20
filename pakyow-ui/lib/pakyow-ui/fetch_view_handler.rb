@@ -22,20 +22,20 @@ Pakyow::Realtime.handler :'fetch-view' do |message, session, response|
   env = Rack::MockRequest.env_for(message['uri'])
   env['rack.session'] = session
 
-  app = Pakyow.app.dup
+  context = Pakyow::CallContext.new(env)
 
-  def app.view
+  def context.view
     Pakyow::Presenter::NoOpView.new(
       Pakyow::Presenter::ViewContext.new(@presenter.view, self),
       self
     )
   end
 
-  app_response = app.process(env)
+  app_response = context.process.finish
 
   body = ''
   lookup = message['lookup']
-  view = app.presenter.view
+  view = context.presenter.view
 
   channel = lookup['channel']
 

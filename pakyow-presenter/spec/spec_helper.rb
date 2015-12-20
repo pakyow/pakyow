@@ -8,5 +8,5 @@ require File.expand_path('../../lib/pakyow-presenter', __FILE__)
 
 # disable the logger when staging
 Pakyow::App.after :init do
-  Pakyow.logger = Rack::NullLogger.new(app)
+  Pakyow.logger = Rack::NullLogger.new(self)
 end

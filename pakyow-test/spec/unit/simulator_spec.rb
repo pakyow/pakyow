@@ -90,17 +90,8 @@ describe Pakyow::TestHelp::Simulator do
   end
 
   describe 'run' do
-    before do
-      @original_app = Pakyow.app
-      Pakyow.app = instance_double('Pakyow::App').as_null_object
-    end
-
-    after do
-      Pakyow.app = @original_app
-    end
-
-    it 'creates a simulation with app' do
-      expect(Pakyow::TestHelp::Simulation).to receive(:new).with(Pakyow.app.class)
+    it 'creates a simulation with call context' do
+      expect(Pakyow::TestHelp::Simulation).to receive(:new).with(instance_of(Pakyow::CallContext))
       simulator.run
     end
 

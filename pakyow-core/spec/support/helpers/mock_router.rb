@@ -8,4 +8,8 @@ class MockRouter
   def handle(*args)
     @handled = true
   end
+
+  def path(*args)
+    Pakyow::Router.instance.path(*args)
+  end
 end

@@ -104,7 +104,7 @@ describe 'performing mutations' do
   context 'and the mutation exists' do
     context 'and mutating a collection' do
       it 'calls the mutation for scope with name' do
-        Pakyow.app.process(Rack::MockRequest.env_for('/posts'))
+        Pakyow.app.call(Rack::MockRequest.env_for('/posts'))
         expect(performed.keys).to include :list
 
         data = performed[:list][0][:data]
@@ -114,7 +114,7 @@ describe 'performing mutations' do
 
     context 'and mutating a view' do
       it 'calls the mutation for scope with name' do
-        Pakyow.app.process(Rack::MockRequest.env_for("/posts/#{post_id}"))
+        Pakyow.app.call(Rack::MockRequest.env_for("/posts/#{post_id}"))
         expect(performed.keys).to include :present
 
         data = performed[:present][0][:data]
@@ -126,12 +126,12 @@ describe 'performing mutations' do
   context 'and the mutation is subscribed' do
     context 'and the mutations are unqualified' do
       before do
-        Pakyow.app.process(Rack::MockRequest.env_for('/posts/subscribe'))
+        Pakyow.app.call(Rack::MockRequest.env_for('/posts/subscribe'))
         PerformedMutations.reset
       end
 
       it 'calls the mutation again when a mutation occurs for the same scope' do
-        Pakyow.app.process(Rack::MockRequest.env_for('/posts/create'))
+        Pakyow.app.call(Rack::MockRequest.env_for('/posts/create'))
 
         data = performed[:list][0][:data]
         expect(data).to eq(Post.all)
@@ -142,14 +142,14 @@ describe 'performing mutations' do
 
     context 'and the mutations have qualifiers' do
       before do
-        Pakyow.app.process(Rack::MockRequest.env_for("/posts/#{post_id}"))
-        Pakyow.app.process(Rack::MockRequest.env_for("/posts/#{other_post_id}"))
+        Pakyow.app.call(Rack::MockRequest.env_for("/posts/#{post_id}"))
+        Pakyow.app.call(Rack::MockRequest.env_for("/posts/#{other_post_id}"))
         PerformedMutations.reset
       end
 
       context 'and the mutation occurs on data matching the qualification' do
         before do
-          Pakyow.app.process(Rack::MockRequest.env_for("/posts/update/#{post_id}"))
+          Pakyow.app.call(Rack::MockRequest.env_for("/posts/update/#{post_id}"))
         end
 
         it 'calls the qualified mutation again' do
@@ -178,10 +178,10 @@ describe 'performing mutations' do
 
       context 'and the mutation occurs in the same qualified manner' do
         before do
-          Pakyow.app.process(Rack::MockRequest.env_for("/users/#{user_id}/posts"))
+          Pakyow.app.call(Rack::MockRequest.env_for("/users/#{user_id}/posts"))
           PerformedMutations.reset
 
-          Pakyow.app.process(Rack::MockRequest.env_for("/users/#{user_id}/posts/update/#{post_id}"))
+          Pakyow.app.call(Rack::MockRequest.env_for("/users/#{user_id}/posts/update/#{post_id}"))
         end
 
         it 'calls the mutation once' do
@@ -191,10 +191,10 @@ describe 'performing mutations' do
 
       context 'and the mutation occurs in an unqualified manner' do
         before do
-          Pakyow.app.process(Rack::MockRequest.env_for("/users/#{user_id}/posts"))
+          Pakyow.app.call(Rack::MockRequest.env_for("/users/#{user_id}/posts"))
           PerformedMutations.reset
 
-          Pakyow.app.process(Rack::MockRequest.env_for("/users/#{other_user_id}/posts/update/#{post_id}"))
+          Pakyow.app.call(Rack::MockRequest.env_for("/users/#{other_user_id}/posts/update/#{post_id}"))
         end
 
         it 'does not send the mutation' do

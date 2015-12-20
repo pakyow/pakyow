@@ -20,14 +20,14 @@ describe Pakyow::Presenter::Binder do
 
     Pakyow.app.presenter.load
 
-    data = Pakyow.app.presenter.binder.value_for_scoped_prop(:foo, :_root, {}, {}, Pakyow.app.context)
+    data = Pakyow.app.presenter.binder.value_for_scoped_prop(:foo, :_root, {}, {}, @context)
     view = Pakyow::Presenter::View.from_doc(Pakyow::Presenter::StringDoc.new('<form data-scope="foo"></form>'))
     data[:view].call(view)
     doc = Nokogiri::HTML.fragment(view.to_html).css('form')[0]
     expect('/bar').to eq doc[:action]
     expect('post').to eq doc[:method]
 
-    data = Pakyow.app.presenter.binder.value_for_scoped_prop(:foo, :_root, { id: 1 }, {}, Pakyow.app.context)
+    data = Pakyow.app.presenter.binder.value_for_scoped_prop(:foo, :_root, { id: 1 }, {}, @context)
     view = Pakyow::Presenter::View.from_doc(Pakyow::Presenter::StringDoc.new('<form data-scope="foo"></form>'))
     data[:view].call(view)
     form_doc = Nokogiri::HTML.fragment(view.to_html).css('form')[0]
@@ -48,15 +48,15 @@ describe Pakyow::Presenter::Binder do
     Pakyow.app.presenter.load
 
     bar_id = 123
-    Pakyow.app.context.request.params[:bar_id] = bar_id
-    data = Pakyow.app.presenter.binder.value_for_scoped_prop(:foo, :_root, {}, {}, Pakyow.app.context)
+    @context.request.params[:bar_id] = bar_id
+    data = Pakyow.app.presenter.binder.value_for_scoped_prop(:foo, :_root, {}, {}, @context)
     view = Pakyow::Presenter::View.from_doc(Pakyow::Presenter::StringDoc.new('<form data-scope="foo"></form>'))
     data[:view].call(view)
     doc = Nokogiri::HTML.fragment(view.to_html).css('form')[0]
     expect("/bar/#{bar_id}/baz").to eq doc[:action]
     expect('post').to eq doc[:method]
 
-    data = Pakyow.app.presenter.binder.value_for_scoped_prop(:foo, :_root, { id: 1 }, {}, Pakyow.app.context)
+    data = Pakyow.app.presenter.binder.value_for_scoped_prop(:foo, :_root, { id: 1 }, {}, @context)
     view = Pakyow::Presenter::View.from_doc(Pakyow::Presenter::StringDoc.new('<form data-scope="foo"></form>'))
     data[:view].call(view)
     doc = Nokogiri::HTML.fragment(view.to_html).css('form')[0]

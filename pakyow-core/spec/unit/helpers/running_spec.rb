@@ -1,3 +1,4 @@
+require_relative '../../spec_helper'
 require 'core/helpers/running'
 
 module Spec

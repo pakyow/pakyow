@@ -1,3 +1,5 @@
+require_relative 'errors'
+
 module Pakyow
   class Config
     class << self

@@ -23,10 +23,7 @@ module Pakyow
       end
 
       def run(&block)
-        app = Pakyow.app.dup
-        app.process(env)
-
-        sim = Simulation.new(app)
+        sim = Simulation.new(CallContext.new(env).process)
 
         return sim unless block_given?
         yield sim

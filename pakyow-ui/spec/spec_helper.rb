@@ -7,7 +7,7 @@ require 'rack/test'
 
 # disable the logger when staging
 Pakyow::App.after :init do
-  Pakyow.logger = Rack::NullLogger.new(app)
+  Pakyow.logger = Rack::NullLogger.new(self)
 end
 
 # handle errors that occur

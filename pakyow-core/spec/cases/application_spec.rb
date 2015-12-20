@@ -34,7 +34,7 @@ describe 'Application' do
   it 'env is set when initialized' do
     envs = [:test, :foo]
     app(true).stage(*envs)
-    expect(Pakyow.app.env).to eq envs.first
+    expect(Pakyow::Config.env).to eq envs.first
   end
 
   it 'app helper is set when initialized' do

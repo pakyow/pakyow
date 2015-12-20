@@ -1,3 +1,5 @@
+require_relative '../../spec_helper'
+
 require 'pakyow-support'
 require 'core/helpers/configuring'
 

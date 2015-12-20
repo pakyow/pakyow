@@ -5,7 +5,8 @@ describe 'Router' do
 
   before do
     Pakyow::App.stage(:test)
-    Pakyow.app.context = Pakyow::AppContext.new(mock_request, mock_response)
+    @context = Pakyow::CallContext.new(mock_request.env)
+    @context.instance_variable_set(:@context, Pakyow::AppContext.new(mock_request, mock_response))
     Pakyow.app.reload
   end
 
@@ -49,7 +50,7 @@ describe 'Router' do
       default [fn(:one), fn(:two), fn(:three)]
     }
 
-    Pakyow::Router.instance.perform(Pakyow::AppContext.new(mock_request))
+    Pakyow::Router.instance.perform(Pakyow::AppContext.new(mock_request), @context)
     expect(fn_calls).to eq [1, 2, 3]
   end
 
@@ -57,7 +58,7 @@ describe 'Router' do
     fn_calls = []
     Pakyow::Router.instance.set(:test) {
       default {
-        app.reroute('foo')
+        reroute('foo')
       }
 
       get('foo') {
@@ -65,7 +66,7 @@ describe 'Router' do
       }
     }
 
-    Pakyow::Router.instance.perform(Pakyow::AppContext.new(mock_request))
+    Pakyow::Router.instance.perform(Pakyow::AppContext.new(mock_request), @context)
     expect(fn_calls).to eq [:rerouted]
   end
 
@@ -73,7 +74,7 @@ describe 'Router' do
     fn_calls = []
     Pakyow::Router.instance.set(:test) {
       default {
-        app.reroute('foo', :put)
+        reroute('foo', :put)
       }
 
       put('foo') {
@@ -81,7 +82,7 @@ describe 'Router' do
       }
     }
 
-    Pakyow::Router.instance.perform(Pakyow::AppContext.new(mock_request))
+    Pakyow::Router.instance.perform(Pakyow::AppContext.new(mock_request), @context)
     expect(fn_calls).to eq [:rerouted]
   end
 
@@ -89,7 +90,7 @@ describe 'Router' do
     fn_calls = []
     Pakyow::Router.instance.set(:test) {
       default {
-        app.handle(500)
+        handle(500)
       }
 
       handler(500) {
@@ -98,8 +99,8 @@ describe 'Router' do
     }
 
     res = Pakyow::Response.new
-    Pakyow.app.context = Pakyow::AppContext.new(nil, res)
-    Pakyow::Router.instance.perform(Pakyow::AppContext.new(mock_request))
+    @context.instance_variable_set(:@context, Pakyow::AppContext.new(nil, res))
+    Pakyow::Router.instance.perform(Pakyow::AppContext.new(mock_request), @context)
 
     expect(fn_calls).to eq [:handled]
     expect(res.status).to eq 500

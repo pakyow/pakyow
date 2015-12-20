@@ -5,7 +5,8 @@ describe 'defining a resource' do
 
   before do
     Pakyow::App.stage(:test)
-    Pakyow.app.context = Pakyow::AppContext.new(mock_request, mock_response)
+    @context = Pakyow::CallContext.new(mock_request.env)
+    @context.instance_variable_set(:@context, Pakyow::AppContext.new(mock_request, mock_response))
 
     Pakyow.app.resource :test, "tests" do
       list do; end

@@ -3,7 +3,7 @@ module ActionHelpers
   def reset
     app = app(true)
     app.run(:test)
-    Pakyow.app.context = Pakyow::AppContext.new(mock_request, mock_response)
+    @context = Pakyow::CallContext.new(mock_request.env)
   end
 
   def app(reset = false)

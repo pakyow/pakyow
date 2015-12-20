@@ -7,6 +7,26 @@ module Pakyow
       TYPES = %i(before after)
       TRIGGERS = %i(init load process route match error configure reload)
 
+      module InstanceMethods
+        protected
+
+        def hook_around(trigger)
+          call_hooks :before, trigger
+          yield
+          call_hooks :after, trigger
+        end
+
+        def call_hooks(type, trigger)
+          self.class.hook(type, trigger).each do |block|
+            instance_exec(&block)
+          end
+        end
+      end
+
+      def self.extended(object)
+        object.include InstanceMethods
+      end
+
       # Registers a before hook for a particular trigger.
       #
       # @api public

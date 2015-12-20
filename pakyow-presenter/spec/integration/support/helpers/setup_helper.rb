@@ -14,7 +14,7 @@ module SetupHelper
       }
     }
 
-    Pakyow.app.context = Pakyow::AppContext.new(mock_request, mock_response)
+    @context = Pakyow::CallContext.new(mock_request.env)
 
     Pakyow.app.bindings {
       scope(:foo) {

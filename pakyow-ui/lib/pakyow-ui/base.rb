@@ -29,7 +29,7 @@ end
 Pakyow::App.before :route do
   # setup a new ui context to work in
   #
-  ui_dup = @ui.dup
+  ui_dup = Pakyow.app.ui.dup
   ui_dup.context = self
   @context.ui = ui_dup
 end

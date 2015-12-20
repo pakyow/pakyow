@@ -44,7 +44,7 @@ Pakyow::Presenter::ViewContext::VIEW_CLASSES << Pakyow::TestHelp::ObservableView
 module Pakyow
   module Helpers
     def socket
-      @socket ||= Pakyow::TestHelp::Realtime::ObservableContext.new(app)
+      @socket ||= Pakyow::TestHelp::Realtime::ObservableContext.new(self)
     end
   end
 end

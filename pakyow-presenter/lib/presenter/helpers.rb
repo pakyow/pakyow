@@ -1,40 +1,46 @@
 require 'forwardable'
 
 module Pakyow
-  module Helpers; end
+  module Helpers
+    module Context
+      extend Forwardable
 
-  module AppHelpers
-    extend Forwardable
+      def_delegators :@presenter, :store, :store=, :content, :view=,
+      :template=, :page=, :path, :path=, :compose, :composer, :precompose!
 
-    def_delegators :@presenter, :store, :store=, :content, :view=,
-    :template=, :page=, :path, :path=, :compose, :composer, :precompose!
+      def view
+        Presenter::ViewContext.new(presenter.view, self)
+      end
 
-    def view
-      Presenter::ViewContext.new(@presenter.view, self)
+      def partial(*args)
+        Presenter::ViewContext.new(presenter.partial(*args), self)
+      end
+
+      def template
+        Presenter::ViewContext.new(presenter.template, self)
+      end
+
+      def page
+        Presenter::ViewContext.new(presenter.page, self)
+      end
+
+      def container(*args)
+        Presenter::ViewContext.new(presenter.container(*args), self)
+      end
+
+      def bindings(name)
+        presenter.bindings(name).bindings
+      end
+
+      def presenter
+        @presenter
+      end
     end
 
-    def partial(*args)
-      Presenter::ViewContext.new(@presenter.partial(*args), self)
-    end
-
-    def template
-      Presenter::ViewContext.new(@presenter.template, self)
-    end
-
-    def page
-      Presenter::ViewContext.new(@presenter.page, self)
-    end
-
-    def container(*args)
-      Presenter::ViewContext.new(@presenter.container(*args), self)
-    end
-
-    def presenter
-      @presenter
-    end
-
-    def bindings(name)
-      presenter.bindings(name).bindings
+    module App
+      def presenter
+        @presenter
+      end
     end
   end
 end

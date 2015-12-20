@@ -6,7 +6,7 @@ context 'after the app is initialized' do
   end
 
   let :app_ui do
-    Pakyow.app.instance_variable_get(:@ui)
+    Pakyow.app.ui
   end
 
   it 'inits ui and makes it available on the app' do
@@ -25,11 +25,15 @@ context 'after the app is initialized' do
 
   context 'before routing' do
     before do
-      Pakyow.app.process(Rack::MockRequest.env_for('/'))
+      Pakyow.app.call(env)
+    end
+
+    let :env do
+      Rack::MockRequest.env_for('/')
     end
 
     let :context do
-      Pakyow.app.context
+      Pakyow::CallContext.new(env).process
     end
 
     it 'sets ui on the context' do

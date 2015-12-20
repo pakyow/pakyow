@@ -1,5 +1,7 @@
 module Pakyow
-  # For methods that should be accessible anywhere
+  # Helpers available anywhere
+  #
+  # @api public
   module Helpers
     def context
       @context or raise NoContextError
@@ -38,8 +40,22 @@ module Pakyow
     def config
       Pakyow::Config
     end
-  end
 
-  # For methods that should only be accessible through App
-  module AppHelpers; end
+    # Returns the primary app environment.
+    #
+    # @api public
+    def env
+      config.env
+    end
+
+    # Helpers for Pakyow::App
+    #
+    # @api public
+    module App; end
+
+    # Helpers for Pakyow::CallContext
+    #
+    # @api public
+    module Context; end
+  end
 end

@@ -16,7 +16,7 @@ shared_examples :pubsub do
 
     allow(response).to receive(:render)
     allow(WebSocket::ClientHandshake).to receive(:new).and_return(valid_handshake)
-    allow_any_instance_of(Pakyow::App).to receive(:socket_digest).and_return(socket_digest)
+    allow_any_instance_of(Pakyow::CallContext).to receive(:socket_digest).and_return(socket_digest)
 
     Pakyow::App.stage
     get('/', {}, rack_env)

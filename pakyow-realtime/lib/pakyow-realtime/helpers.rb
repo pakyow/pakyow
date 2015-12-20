@@ -29,5 +29,12 @@ module Pakyow
     def socket_digest(socket_connection_id)
       Digest::SHA1.hexdigest("--#{socket_key}--#{socket_connection_id}--")
     end
+
+    module App
+      # @api private
+      def socket
+        Realtime::Context.new(self)
+      end
+    end
   end
 end
