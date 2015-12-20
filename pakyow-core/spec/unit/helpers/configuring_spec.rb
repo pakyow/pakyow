@@ -6,6 +6,7 @@ require 'core/helpers/configuring'
 module Spec
   class ConfiguringAppMock
     def self.before(*); end
+    def load_routes; end
 
     extend Pakyow::Helpers::Configuring
   end
@@ -96,6 +97,30 @@ describe Pakyow::Helpers::Configuring do
     end
   end
 
+  describe '#routes' do
+    let :mock_instance do
+      mock.new
+    end
+
+    let :set_name do
+      :mock
+    end
+
+    let :block do
+      -> (*) {}
+    end
+
+    it 'calls `::routes` with set name and block' do
+      expect(mock).to receive(:routes).with(set_name, &block)
+      mock_instance.routes(set_name, &block)
+    end
+
+    it 'loads the routes' do
+      expect(mock_instance).to receive(:load_routes)
+      mock_instance.routes(set_name, &block)
+    end
+  end
+
   describe '::resource' do
     let :set_name do
       :mock
@@ -166,6 +191,29 @@ describe Pakyow::Helpers::Configuring do
           expect { mock.resource }.to raise_error(ArgumentError)
         end
       end
+    end
+  end
+
+  describe '#resource' do
+    let :mock_instance do
+      mock.new
+    end
+
+    let :set_name do
+      :mock
+    end
+
+    let :path do
+      '/mock'
+    end
+
+    let :block do
+      -> (*) {}
+    end
+
+    it 'calls `::resource` with set name, path, and block' do
+      expect(mock).to receive(:resource).with(set_name, path, &block)
+      mock_instance.resource(set_name, path, &block)
     end
   end
 
@@ -262,6 +310,20 @@ describe Pakyow::Helpers::Configuring do
       it 'raises an argument error' do
         expect { mock.configure(env) }.to raise_error(ArgumentError)
       end
+    end
+  end
+
+  describe '::extended' do
+    after do
+      mock.extend(Pakyow::Helpers::Configuring)
+    end
+
+    it 'registers a before reload hook' do
+      expect(mock).to receive(:before).with(:reload)
+    end
+
+    it 'includes instance methods' do
+      expect(mock).to receive(:include).with(Pakyow::Helpers::Configuring::InstanceMethods)
     end
   end
 end
