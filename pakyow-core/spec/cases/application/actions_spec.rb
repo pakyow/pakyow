@@ -22,7 +22,7 @@ describe  'App Actions' do
 
     begin
       @context.redirect(location)
-    rescue UncaughtThrowError
+    rescue ArgumentError
     end
 
     expect(@context.response.status).to eq 302
@@ -34,7 +34,7 @@ describe  'App Actions' do
 
     begin
       @context.redirect(:redirect_route)
-    rescue UncaughtThrowError
+    rescue ArgumentError
     end
 
     expect(@context.response.status).to eq 302
@@ -47,7 +47,7 @@ describe  'App Actions' do
 
     begin
       @context.redirect(location, 301)
-    rescue UncaughtThrowError
+    rescue ArgumentError
     end
 
     expect(@context.response.status).to eq 301
@@ -59,7 +59,7 @@ describe  'App Actions' do
 
     begin
       @context.redirect('/')
-    rescue UncaughtThrowError
+    rescue ArgumentError
       @halted = true
     end
 
