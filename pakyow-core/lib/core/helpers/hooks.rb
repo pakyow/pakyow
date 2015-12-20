@@ -24,7 +24,7 @@ module Pakyow
       end
 
       def self.extended(object)
-        object.include InstanceMethods
+        object.send(:include, InstanceMethods)
       end
 
       # Registers a before hook for a particular trigger.

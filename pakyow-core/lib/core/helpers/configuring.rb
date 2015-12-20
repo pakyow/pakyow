@@ -32,7 +32,7 @@ module Pakyow
           self.class.send(:load_config)
         end
 
-        object.include(InstanceMethods)
+        object.send(:include, InstanceMethods)
       end
 
       # Absolute path to the file containing the app definition.
