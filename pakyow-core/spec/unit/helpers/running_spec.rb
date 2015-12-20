@@ -328,10 +328,11 @@ describe Pakyow::Helpers::Running do
       end
 
       it 'only adds the configured handler once' do
-        begin
-          mock.detect_handler
-          mock.detect_handler
-        rescue
+        2.times do
+          begin
+            mock.detect_handler
+          rescue
+          end
         end
 
         expect(Pakyow::Helpers::Running::HANDLERS.count(mock.handler)).to eq(1)
