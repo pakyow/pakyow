@@ -49,7 +49,6 @@ implements this protocol on the backend for initial rendering and in
 [![Build Status](https://travis-ci.org/pakyow/pakyow.svg?branch=master)][travis]
 [![Dependency Status](https://gemnasium.com/pakyow/pakyow.svg)][gemnasium]
 [![Inline docs](http://inch-ci.org/github/pakyow/pakyow.svg?branch=master&style=flat)][inchpages]
-[![Test Coverage](https://codeclimate.com/github/pakyow/pakyow/badges/coverage.svg)][codeclimate]
 
 ---
 
