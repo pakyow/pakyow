@@ -1,9 +1,9 @@
-Pakyow::Config.register(:mailer) { |config|
+Pakyow::Config.register :mailer do |config|
   # the default sender name
   config.opt :default_sender, 'Pakyow'
 
   # the default mimetype to use
-  config.opt :default_content_type, lambda { 'text/html; charset=' + Pakyow::Config.mailer.encoding }
+  config.opt :default_content_type, -> { 'text/html; charset=' + Pakyow::Config.mailer.encoding }
 
   # the delivery method to use for sending mail
   config.opt :delivery_method, :sendmail
@@ -13,4 +13,4 @@ Pakyow::Config.register(:mailer) { |config|
 
   # the default encoding to use
   config.opt :encoding, 'UTF-8'
-}
+end

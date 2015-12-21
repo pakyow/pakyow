@@ -1,5 +1,4 @@
-Pakyow::Config.register(:app) { |config|
-
+Pakyow::Config.register :app do |config|
   # if true, the app will be reloaded on every request
   config.opt :auto_reload
 
@@ -10,14 +9,14 @@ Pakyow::Config.register(:app) { |config|
   config.opt :root, File.dirname('')
 
   # the location of the app's resources
-  config.opt :resources, lambda {
+  config.opt :resources, -> {
     @resources ||= {
       default: File.join(root, 'public')
     }
   }
 
   # the location of the app's source code
-  config.opt :src_dir, lambda { File.join(root, 'app', 'lib') }
+  config.opt :src_dir, -> { File.join(root, 'app', 'lib') }
 
   # the environment to run in, if one isn't provided
   config.opt :default_environment, :development
@@ -41,22 +40,17 @@ Pakyow::Config.register(:app) { |config|
   config.opt :static, true
 
   # stores the path to the app definition
-  config.opt :path, lambda { Pakyow::App.path }
+  config.opt :path, -> { Pakyow::App.path }
 
   # stores the envs an app is run in
   config.opt :loaded_envs
-
-}.env(:development) { |opts|
-
+end.env :development do |opts|
   opts.auto_reload = true
   opts.errors_in_browser = true
   opts.static = true
-
-}.env(:production) { |opts|
-
+end.env :production do |opts|
   opts.auto_reload = false
   opts.errors_in_browser = false
   opts.log_output = false
   opts.static = true
-
-}
+end

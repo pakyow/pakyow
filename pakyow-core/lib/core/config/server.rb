@@ -1,5 +1,4 @@
-Pakyow::Config.register(:server) { |config|
-
+Pakyow::Config.register :server do |config|
   # the port to start `pakyow server`
   config.opt :port, 3000
 
@@ -8,5 +7,4 @@ Pakyow::Config.register(:server) { |config|
 
   # explicitly set a handler to try (e.g. puma)
   config.opt :handler
-
-}
+end

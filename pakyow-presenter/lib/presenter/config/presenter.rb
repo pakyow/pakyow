@@ -1,7 +1,6 @@
-Pakyow::Config.register(:presenter) { |config|
-
+Pakyow::Config.register :presenter do |config|
   # registered view stores
-  config.opt :view_stores, lambda {
+  config.opt :view_stores, -> {
     @stores ||= {
       default: File.join(Pakyow::Config.app.root, 'app', 'views')
     }
@@ -11,7 +10,7 @@ Pakyow::Config.register(:presenter) { |config|
   config.opt :default_views, { default: :default }
 
   # a convenience option to lookup the default_view for a view store by name
-  config.opt :default_view, lambda { |store_name|
+  config.opt :default_view, -> (store_name) {
     views = Pakyow::Config.presenter.default_views
     views.fetch(store_name) { views[:default] }
   }
@@ -20,7 +19,7 @@ Pakyow::Config.register(:presenter) { |config|
   config.opt :template_dirs, { default: '_templates' }
 
   # a convenience option to lookup the template_dir for a view store by name
-  config.opt :template_dir, lambda { |store_name|
+  config.opt :template_dir, -> (store_name) {
     dirs = Pakyow::Config.presenter.template_dirs
     dirs.fetch(store_name) { dirs[:default] }
   }
@@ -33,4 +32,4 @@ Pakyow::Config.register(:presenter) { |config|
 
   # the document class used to parse and render views
   config.opt :view_doc_class, Pakyow::Presenter::StringDoc
-}
+end

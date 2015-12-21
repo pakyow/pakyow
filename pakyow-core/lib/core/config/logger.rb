@@ -1,10 +1,9 @@
-Pakyow::Config.register(:logger) { |config|
-
+Pakyow::Config.register :logger do |config|
   # the default level to log at
   config.opt :level, :debug
 
   # where the log file should be placed
-  config.opt :path, lambda { File.join(Pakyow::Config.app.root, 'log') }
+  config.opt :path, -> { File.join(Pakyow::Config.app.root, 'log') }
 
   # the name of the log file
   config.opt :filename, 'pakyow.log'
@@ -17,17 +16,12 @@ Pakyow::Config.register(:logger) { |config|
 
   # whether or not the log file should be colorized
   config.opt :colorize
-
-}.env(:development) { |opts|
-
+end.env :development do |opts|
   opts.sync = true
   opts.auto_flush = true
   opts.colorize = true
-
-}.env(:production) { |opts|
-
+end.env :production do |opts|
   opts.sync = false
   opts.auto_flush = false
   opts.colorize = false
-
-}
+end
