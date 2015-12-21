@@ -1,40 +1,70 @@
+require 'core/config'
+require 'core/call_context'
+
 module Pakyow
   module Middleware
+    # Rack compatible middleware that serves static files from one or more configured resource stores.
+    #
+    # @example
+    #   Pakyow::Config.app.resources = {
+    #     default: './public'
+    #   }
+    #
+    #   Pakyow::App.builder.use Pakyow::Middleware::Static
+    #
+    #   # Assuming './public/foo.png' exists, a GET request to '/foo.png' will
+    #   # result in this middleware responding with the static file.
+    #
+    # @api public
     class Static
       def initialize(app)
         @app = app
       end
 
       def call(env)
-        static, resource_path = is_static?(env)
+        static, resource_path = self.class.static?(env)
+        return @app.call(env) unless static
 
-        if static
-          catch(:halt) do
-            app = Pakyow.app.dup
-            res = Response.new
-            req = Request.new(env)
-            app.context = AppContext.new(req, res)
-            app.send(File.open(resource_path))
-          end
-        else
-          @app.call(env)
+        catch :halt do
+          CallContext.new(env).send(File.open(resource_path))
         end
       end
 
-      private
+      class << self
+        STATIC_REGEX = /\.(.*)$/
+        STATIC_HTTP_METHODS = %w(GET)
 
-      def is_static?(env)
-        return false unless env['PATH_INFO'] =~ /\.(.*)$/
+        # Checks if `path` can be found in any configured resource store.
+        #
+        # @api public
+        def static?(env)
+          path, method = env.values_at('PATH_INFO', 'REQUEST_METHOD')
 
-        Config.app.resources.each_pair do |name, path|
-          resource_path = File.join(path, env['PATH_INFO'])
-          next unless File.exists?(resource_path)
-          return true, resource_path
+          return false unless STATIC_HTTP_METHODS.include?(method)
+          return false unless static_path?(path)
+
+          resources_contain?(path)
         end
 
-        return false
+        protected
+
+        def static_path?(path)
+           path =~ STATIC_REGEX
+        end
+
+        def resources_contain?(path)
+          resources.each_pair do |_, resource_path|
+            full_path = File.join(resource_path, path)
+            return true, full_path if File.exists?(full_path)
+          end
+
+          false
+        end
+
+        def resources
+          Config.app.resources
+        end
       end
     end
   end
 end
-
