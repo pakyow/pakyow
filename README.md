@@ -46,6 +46,7 @@ implements this protocol on the backend for initial rendering and in
 [![Gem Version](https://badge.fury.io/rb/pakyow.svg)][gem]
 [![Build Status](https://travis-ci.org/pakyow/pakyow.svg?branch=master)][travis]
 [![Dependency Status](https://gemnasium.com/pakyow/pakyow.svg)][gemnasium]
+[![Inline docs](http://inch-ci.org/github/pakyow/pakyow.svg?branch=master&style=flat)][inchpages]
 
 ---
 
