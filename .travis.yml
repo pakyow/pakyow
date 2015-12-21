@@ -15,3 +15,6 @@ branches:
     - master
 script: "bundle exec rake ci"
 before_install: gem install bundler
+addons:
+    code_climate:
+        repo_token: 5cbfd85e621316c736d7bb2ae9e1dc93689e0321095f21dfc2cf23a5335d71a1
