@@ -1,3 +1,6 @@
+require 'core/helpers'
+require 'core/helpers/hooks'
+
 module Pakyow
   class CallContext
     include Helpers
@@ -74,20 +77,26 @@ module Pakyow
     # default to whatever is set in the response.
     #
     def send(file_or_data, type = nil, send_as = nil)
-      if file_or_data.class == File
-        data = file_or_data.read
-
-        # auto set type based on file type
-        type ||= Rack::Mime.mime_type("." + String.split_at_last_dot(file_or_data.path)[1])
-      else
+      if file_or_data.is_a?(IO)
         data = file_or_data
+
+        if file_or_data.is_a?(File)
+          # auto set type based on file type
+          type ||= Rack::Mime.mime_type("." + String.split_at_last_dot(file_or_data.path)[1])
+        end
+      elsif file_or_data.is_a?(String)
+        data = StringIO.new(file_or_data)
+      else
+        raise ArgumentError, 'Expected an IO or String object'
       end
 
       headers = {}
       headers["Content-Type"]         = type if type
       headers["Content-disposition"]  = "attachment; filename=#{send_as}" if send_as
 
-      self.context.response = Response.new(data, response.status, response.header.merge(headers))
+      res.body = data
+      res.header.merge!(headers)
+
       halt
     end
 
