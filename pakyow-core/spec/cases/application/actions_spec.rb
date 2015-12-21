@@ -119,7 +119,7 @@ describe  'App Actions' do
       @context.send(data)
     }
 
-    expect(@context.response.body).to eq [data]
+    expect(@context.response.body.read).to eq data
     expect(@context.response.header['Content-Type']).to eq 'text/html'
   end
 
@@ -133,7 +133,7 @@ describe  'App Actions' do
       @context.send(data, type)
     }
 
-    expect(@context.response.body).to eq [data]
+    expect(@context.response.body.read).to eq data
     expect(@context.response.header['Content-Type']).to eq type
   end
 
@@ -148,7 +148,7 @@ describe  'App Actions' do
       @context.send(File.open(path, 'r'))
     }
 
-    expect(@context.response.body).to eq [data]
+    expect(@context.response.body.read).to eq data
     expect(@context.response.header['Content-Type']).to eq 'text/plain'
   end
 
@@ -166,7 +166,7 @@ describe  'App Actions' do
       @context.send(File.open(path, 'r'), type)
     }
 
-    expect(@context.response.body).to eq [data]
+    expect(@context.response.body.read).to eq data
     expect(@context.response.header['Content-Type']).to eq type
   end
 
@@ -185,7 +185,7 @@ describe  'App Actions' do
       @context.send(File.open(path, 'r'), type, as)
     }
 
-    expect(@context.response.body).to eq [data]
+    expect(@context.response.body.read).to eq data
     expect(@context.response.header['Content-Type']).to eq type
     expect(@context.response.header['Content-disposition']).to eq "attachment; filename=#{as}"
   end
