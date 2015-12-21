@@ -59,6 +59,7 @@ module Pakyow
       def routes(set_name = :main, &block)
         return @routes ||= {} unless block_given?
         routes[set_name] = block
+        self
       end
 
       # Defines a resource.

@@ -68,6 +68,10 @@ describe Pakyow::Helpers::Configuring do
       it 'registers the routes' do
         expect(mock.routes[name]).to eq(block)
       end
+
+      it 'returns the app' do
+        expect(mock.routes(name, &block)).to eq(mock)
+      end
     end
 
     context 'called without a name' do
