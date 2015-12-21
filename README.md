@@ -1,6 +1,7 @@
 [gem]: https://rubygems.org/gems/pakyow
 [travis]: https://travis-ci.org/pakyow/pakyow
 [gemnasium]: https://gemnasium.com/pakyow/pakyow
+[inchpages]: http://inch-ci.org/github/pakyow/pakyow
 
 # Pakyow Framework [![Gitter chat](https://badges.gitter.im/pakyow/chat.svg)](https://gitter.im/pakyow/chat)
 
