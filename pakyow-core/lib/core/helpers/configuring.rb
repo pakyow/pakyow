@@ -84,7 +84,7 @@ module Pakyow
       # Creates an environment.
       #
       # @api public
-      def configure(env, &block)
+      def configure(env = :global, &block)
         raise ArgumentError, 'Expected a block' unless block_given?
         env_config[env] = block
       end

@@ -305,8 +305,9 @@ describe Pakyow::Helpers::Configuring do
     end
 
     context 'called without an env name' do
-      it 'raises an argument error' do
-        expect { mock.configure(&block) }.to raise_error(ArgumentError)
+      it 'assumes global to be the env name' do
+        mock.configure(&block)
+        expect(config[:global]).to eq(block)
       end
     end
 
