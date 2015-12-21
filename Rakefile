@@ -22,6 +22,9 @@ rspec_libs = %i[
 ]
 
 task :ci do
+  # require 'codeclimate-test-reporter'
+  # CodeClimate::TestReporter.start
+
   errors = []
 
   rspec_libs.each do |lib|

@@ -26,6 +26,8 @@ group :test do
   gem 'simplecov-console', '~> 0.2'
 
   gem 'rack-test', '~> 0.6', require: 'rack/test'
+
+  gem 'codeclimate-test-reporter', require: false
 end
 
 group :development do
