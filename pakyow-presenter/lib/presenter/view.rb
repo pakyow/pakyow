@@ -492,13 +492,22 @@ module Pakyow
             attr  = attr.to_s
             attrs = Attributes.new(doc)
 
+            # TODO With the introduction of parts, values should only be
+            # procs (?)
             if v.respond_to?(:to_proc)
+              # TODO Explain
               # Evaluating the proc will set the value in the doc
-              v.to_proc.call(attrs.send(attr)) 
+              #
+              # Only if the proc calls methods on the attribute given???  
+              attribute = attrs.send(attr)
+              ret = v.to_proc.call(attribute)
+              value = ret.respond_to?(:value) ? ret.value : ret
+
+              attrs.send("#{attr}=", value)
             elsif v.nil?
               doc.remove_attribute(attr)
             else
-              attrs.send(:"#{attr}=", v)
+              attrs.send("#{attr}=", v)
             end
           end
         end
