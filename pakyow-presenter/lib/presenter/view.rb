@@ -336,6 +336,15 @@ module Pakyow
 
       private
 
+      def adjust_value_parts(value, parts)
+        return value unless value.respond_to?(:to_hash)
+
+        parts_to_keep = parts.fetch(:include) { value.keys } 
+        parts_to_keep -= parts.fetch(:exclude) { [] }
+
+        value.keep_if { |part, _| parts_to_keep.include?(part) }
+      end
+
       def bind_data_to_scope(data, scope_info, bindings, ctx)
         return unless data
         return unless scope_info
@@ -345,8 +354,9 @@ module Pakyow
 
         scope_info[:props].each do |prop_info|
           catch(:unbound) do
-            prop = prop_info[:prop]
-            doc  = prop_info[:doc]
+            prop  = prop_info[:prop]
+            doc   = prop_info[:doc]
+            parts = prop_info[:parts]
 
             if DocHelpers.form_field?(doc.tagname)
               set_form_field_name(doc, scope, prop)
@@ -354,6 +364,7 @@ module Pakyow
 
             if data_has_prop?(data, prop) || Binder.instance.has_scoped_prop?(scope, prop, bindings)
               value = Binder.instance.value_for_scoped_prop(scope, prop, data, bindings, ctx)
+              value = adjust_value_parts(value, parts)
 
               if DocHelpers.form_field?(doc.tagname)
                 bind_to_form_field(doc, scope, prop, value, data, ctx)
