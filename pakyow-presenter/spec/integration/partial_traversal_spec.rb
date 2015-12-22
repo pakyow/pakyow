@@ -36,6 +36,18 @@ describe 'traversing through a partial' do
             end
           end
         end
+
+        context 'and the scope is removed' do
+          before do
+            partial.scope(:foo).remove
+          end
+
+          describe 'the composed view' do
+            it 'does not contain the scope' do
+              expect(view.scope(:foo)[0]).to be_nil
+            end
+          end
+        end
       end
     end
 
@@ -61,6 +73,34 @@ describe 'traversing through a partial' do
           describe 'the composed view' do
             it 'contains the bound value' do
               expect(view.to_html.match('<div data-prop="bar">one</div>')).not_to be_nil
+            end
+          end
+        end
+
+        context 'and the most child scope is removed' do
+          before do
+            collection.remove
+          end
+
+          let :collection do
+            view.partial(:partial_three).scope(:foo)
+          end
+
+          describe 'the composed view' do
+            it 'does not contain the scope' do
+              expect(view.scope(:foo)[0]).to be_nil
+            end
+          end
+
+          context 'and appended to' do
+            before do
+              collection.first.doc.append('foofewfaewfeffew')
+            end
+
+            describe 'the composed view' do
+              it 'contains the appended view' do
+                expect(view.scope(:foo)[0]).to be_nil
+              end
             end
           end
         end
