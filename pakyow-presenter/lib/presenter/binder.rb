@@ -59,15 +59,28 @@ module Pakyow
 
         if binding_fn
           binding_eval = BindingEval.new(prop, bindable, context)
-          binding_eval.eval(&binding_fn)
-        else # default value
-          if bindable.is_a?(Hash)
-            bindable.fetch(prop) { bindable[prop.to_s] }
-          elsif bindable.class.method_defined?(prop)
-            bindable.send(prop)
+          result = binding_eval.eval(&binding_fn)
+
+          # TODO Decide if bindings given as arguments should also only use
+          # parts
+          if result.nil?
+            value = value_from_data(prop, bindable)
+            result = bindings[prop].call(value, bindable, context)
           end
+          result
+        else # default value
+          value_from_data(prop, bindable)
         end
       end
+
+      def value_from_data(prop, bindable)
+        if bindable.is_a?(Hash)
+          bindable.fetch(prop) { bindable[prop.to_s] }
+        elsif bindable.class.method_defined?(prop)
+          bindable.send(prop)
+        end
+      end
+
 
       # Returns true if a binding is defined for the scope->prop.
       #

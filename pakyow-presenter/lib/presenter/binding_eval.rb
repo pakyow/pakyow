@@ -21,8 +21,8 @@ module Pakyow
       end
 
       def eval(&block)
-        self.instance_exec(value, bindable, context, &block)
-        return @parts
+        instance_exec(value, bindable, context, &block)
+        @parts.empty? ? nil : @parts
       end
 
       def part(name, &block)
