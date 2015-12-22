@@ -58,7 +58,8 @@ module Pakyow
       end
 
       def binding(name, &block)
-        @bindings[name.to_sym] = block
+        parts_eval = PartsEval.new
+        @bindings[name.to_sym] = parts_eval.eval(&block)
       end
 
       def options(name, empty: false, &block)
@@ -70,27 +71,42 @@ module Pakyow
         binding :_root do
           routes = Router.instance.group(route_group)
 
-          {
-            view: lambda { |view|
-              action = view.attrs.action.value
-              return if (action && !action.empty?)
+          part :view do |view|
+            action = view.attrs.action.value
+            return if (action && !action.empty?)
 
-              route_params = params.dup
-              if view.doc.tagname == 'form'
-                if id = bindable[:id]
-                  view.prepend(View.new('<input type="hidden" name="_method" value="patch">'))
-                  route_params[:"#{route_group}_id"] = id
-                  action = :update
-                else
-                  action = :create
-                end
-
-                view.attrs.action = routes.path(action, route_params)
-                view.attrs.method = 'post'
+            route_params = params.dup
+            if view.doc.tagname == 'form'
+              if id = bindable[:id]
+                view.prepend(View.new('<input type="hidden" name="_method" value="patch">'))
+                route_params[:"#{route_group}_id"] = id
+                action = :update
+              else
+                action = :create
               end
-            }
-          }
+
+              view.attrs.action = routes.path(action, route_params)
+              view.attrs.method = 'post'
+            end
+          end
         end
+      end
+    end
+
+    class PartsEval
+      include Helpers 
+
+      def initialize
+        @parts = {}
+      end
+
+      def eval(&block)
+        self.instance_exec(&block)
+        return Proc.new { @parts }
+      end
+
+      def part(name, &block)
+        @parts[name.to_sym] = block
       end
     end
   end
