@@ -67,7 +67,18 @@ module Pakyow
 
       def remove
         @structure.delete_if { |n| n.equal?(node) }
-        @node = ['', {}, [['', {}, []]]]
+
+        if @node.nil?
+          @node = ['', {}, [['', {}, []]]]
+        else
+          @node[0] = ''
+          @node[1] = {}
+          @node[2][0][0] = ''
+          @node[2][0][1] = {}
+          @node[2][0][2] = []
+          @node[2].slice!(1..-1)
+        end
+
         @removed = true
       end
 
@@ -184,6 +195,7 @@ module Pakyow
       end
 
       def to_html
+        StringDocRenderer.render((@node && !@removed) ? [@node] : @structure)
         StringDocRenderer.render(@node ? [@node] : @structure)
       end
       alias :to_s :to_html
@@ -195,7 +207,7 @@ module Pakyow
       end
 
       def node
-        return @structure if @structure.empty?
+        return @structure if @structure.empty? && !@removed
         return @node || @structure[0]
       end
 
@@ -246,7 +258,7 @@ module Pakyow
       end
 
       def children
-        if @structure.empty?
+        if @structure.empty? && !@removed
           @structure
         else
           node[2][0][2]
