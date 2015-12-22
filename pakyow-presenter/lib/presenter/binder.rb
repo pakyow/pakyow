@@ -59,7 +59,7 @@ module Pakyow
 
         if binding_fn
           binding_eval = BindingEval.new(prop, bindable, context)
-          binding_eval.instance_exec(binding_eval.value, bindable, context, &binding_fn)
+          binding_eval.eval(&binding_fn)
         else # default value
           if bindable.is_a?(Hash)
             bindable.fetch(prop) { bindable[prop.to_s] }

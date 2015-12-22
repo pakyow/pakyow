@@ -58,8 +58,7 @@ module Pakyow
       end
 
       def binding(name, &block)
-        parts_eval = PartsEval.new
-        @bindings[name.to_sym] = parts_eval.eval(&block)
+        @bindings[name.to_sym] = block
       end
 
       def options(name, empty: false, &block)
@@ -69,9 +68,8 @@ module Pakyow
 
       def restful(route_group)
         binding :_root do
-          routes = Router.instance.group(route_group)
-
           part :view do |view|
+            routes = Router.instance.group(route_group)
             action = view.attrs.action.value
             return if (action && !action.empty?)
 
@@ -90,23 +88,6 @@ module Pakyow
             end
           end
         end
-      end
-    end
-
-    class PartsEval
-      include Helpers 
-
-      def initialize
-        @parts = {}
-      end
-
-      def eval(&block)
-        self.instance_exec(&block)
-        return Proc.new { @parts }
-      end
-
-      def part(name, &block)
-        @parts[name.to_sym] = block
       end
     end
   end

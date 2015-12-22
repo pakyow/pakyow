@@ -6,6 +6,7 @@ module Pakyow
       attr_reader :context, :bindable
 
       def initialize(prop, bindable, context)
+        @parts = {}
         @prop = prop
         @bindable = bindable
         @context = context
@@ -17,6 +18,15 @@ module Pakyow
         elsif bindable.respond_to?(@prop)
           bindable.send(@prop)
         end
+      end
+
+      def eval(&block)
+        self.instance_exec(value, bindable, context, &block)
+        return @parts
+      end
+
+      def part(name, &block)
+        @parts[name.to_sym] = block
       end
     end
   end
