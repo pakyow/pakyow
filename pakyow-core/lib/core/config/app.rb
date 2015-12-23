@@ -1,6 +1,4 @@
 Pakyow::Config.register :app do |config|
-  # if true, the app will be reloaded on every request
-  config.opt :auto_reload
 
   # if true, errors are displayed in the browser
   config.opt :errors_in_browser
@@ -45,11 +43,9 @@ Pakyow::Config.register :app do |config|
   # stores the envs an app is run in
   config.opt :loaded_envs
 end.env :development do |opts|
-  opts.auto_reload = true
   opts.errors_in_browser = true
   opts.static = true
 end.env :production do |opts|
-  opts.auto_reload = false
   opts.errors_in_browser = false
   opts.log_output = false
   opts.static = true
