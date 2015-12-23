@@ -37,11 +37,15 @@ module Pakyow
       }
 
       Pakyow::App.after(:route) {
-        if @presenter.presented?
-          @found = true
-          @context.response.body = [@presenter.content]
+        if Config.presenter.require_route && !found?
+          @found 
         else
-          @found = false unless found?
+          if @presenter.presented?
+            @found = true
+            @context.response.body = [@presenter.content]
+          else
+            @found = false unless found?
+          end
         end
       }
 
