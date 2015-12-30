@@ -339,8 +339,8 @@ module Pakyow
       def adjust_value_parts(value, parts)
         return value unless value.respond_to?(:to_hash)
 
-        parts_to_keep = parts.fetch(:include) { value.keys } 
-        parts_to_keep -= parts.fetch(:exclude) { [] }
+        parts_to_keep = parts.fetch(:include, value.keys) 
+        parts_to_keep -= parts.fetch(:exclude, [])
 
         value.keep_if { |part, _| parts_to_keep.include?(part) }
       end
