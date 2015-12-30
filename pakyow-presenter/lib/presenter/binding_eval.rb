@@ -21,7 +21,10 @@ module Pakyow
       end
 
       def eval(&block)
-        instance_exec(value, bindable, context, &block)
+        ret = instance_exec(value, bindable, context, &block)
+        if ret.respond_to?(:to_hash)
+          @parts.merge!(ret.to_hash)
+        end
         @parts.empty? ? nil : @parts
       end
 

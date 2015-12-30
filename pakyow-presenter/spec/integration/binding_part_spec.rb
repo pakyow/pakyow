@@ -122,7 +122,7 @@ describe 'defining a binding part' do
     end
   end
 
-  describe 'hashes are ignored in bindings' do
+  describe 'hash return value in bindings' do
     before do
       app.bindings do 
         scope :foo do
@@ -130,21 +130,21 @@ describe 'defining a binding part' do
             part :href do
               "/path/to/foo/bar"
             end
-            { href: "/another/path", content: "Something else" }
+            { href: "/some/path", content: "Something", class: "baz" }
             part :content do
-              "Link to foo bar"
+              "Something else"
             end
-            { href: "/another/path", content: "Something else" }
+            { href: "/another/path" } 
           end
         end
       end
       presenter.load
     end
 
-    it "ignores hashes in bindings" do
-      expect(data[:href].call()).to eq "/path/to/foo/bar"
-      expect(data[:content].call()).to eq "Link to foo bar"
-      expect(data.keys).to eq [:href, :content]
+    it "does not ignore a returned hash in bindings" do
+      expect(data[:href]).to eq "/another/path"
+      expect(data[:content].call()).to eq "Something else"
+      expect(data.keys).to eq [:href, :content] # No class key
     end
   end
 end
