@@ -24,10 +24,8 @@ module Pakyow
         ret = instance_exec(value, bindable, context, &block)
         if ret.respond_to?(:to_hash)
           @parts.merge!(ret.to_hash)
-        elsif ret
-          @parts.merge!(content: ret)
         end
-        @parts.empty? ? nil : @parts
+        @parts.empty? ? ret : @parts
       end
 
       def part(name, &block)
