@@ -1,3 +1,5 @@
+require 'erb'
+
 module Pakyow
   class CallContext
     protected
