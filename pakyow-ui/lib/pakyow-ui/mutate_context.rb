@@ -57,21 +57,6 @@ module Pakyow
           working_view = view
         end
 
-        if working_view.is_a?(Presenter::ViewCollection)
-          # NOTE there's a special case here where if the collection is
-          # empty we insert an empty element in its place; this makes
-          # it possible to know what the data should be applied to when
-          # a mutation occurs in the future
-
-          unless working_view.exists?
-            # TODO: would rather this be an html comment, but they aren't
-            # supported by query selectors; need to finalize how we will
-            # handle this particular edge case
-            working_view.first.doc.append('<span data-channel="' + channel + '" data-version="empty"></span>')
-            return
-          end
-        end
-
         working_view.attrs.send(:'data-channel=', channel)
       end
     end
