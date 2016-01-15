@@ -13,6 +13,7 @@ Pakyow::App.define do
 
     # put global config here and they'll be available across environments
     app.name = '<%= app_name %>'
+    logger.enabled = true
   end
 
   configure :development do

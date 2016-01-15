@@ -30,12 +30,6 @@ Pakyow::Config.register :app do |config|
   # if true, views are visible without a route defined
   config.opt :all_views_visible, true
 
-  # whether or not pakyow should log to stdout
-  config.opt :log_output, true
-
-  # whether or not pakyow should write to a log
-  config.opt :log, true
-
   # whether or not pakyow should serve static files
   config.opt :static, true
 
@@ -51,6 +45,5 @@ end.env :development do |opts|
 end.env :production do |opts|
   opts.auto_reload = false
   opts.errors_in_browser = false
-  opts.log_output = false
   opts.static = true
 end
