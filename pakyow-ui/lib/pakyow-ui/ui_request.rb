@@ -7,7 +7,7 @@ module Pakyow
       attr_reader :session
 
       def initialize(session)
-        @session = session
+        @session = Hash.strhash(session)
       end
     end
   end
