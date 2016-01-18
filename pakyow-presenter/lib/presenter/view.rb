@@ -304,7 +304,7 @@ module Pakyow
               partial_doc.replace(replacement.views.first.doc.dup)
               partials = replacement.views
             else
-              partial_doc.replace(replacement.doc.dup)
+              partial_doc.replace(replacement.doc)
             end
           end
         end
