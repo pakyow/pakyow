@@ -301,10 +301,10 @@ module Pakyow
             next if replacement.nil?
 
             if replacement.is_a?(ViewCollection)
-              partial_doc.replace(replacement.views.first.doc)
+              partial_doc.replace(replacement.views.first.doc.dup)
               partials = replacement.views
             else
-              partial_doc.replace(replacement.doc)
+              partial_doc.replace(replacement.doc.dup)
             end
           end
         end
