@@ -1,8 +1,0 @@
-Description:
-    The 'pakyow new' command creates a new Pakyow application at the path
-    specified.
-
-Example:
-    pakyow new path/to/application
-
-    This generates a new Pakyow application in path/to/application.
