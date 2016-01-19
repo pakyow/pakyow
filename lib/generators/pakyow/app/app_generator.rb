@@ -30,6 +30,7 @@ module Pakyow
         if !File.directory?(@dest) || (Dir.entries(@dest) - ['.', '..']).empty?
           copy
         else
+          ARGV.clear
           print "The folder '#{@dest}' is in use. Would you like to populate it anyway? [Yn] "
 
           if gets.chomp! == 'Y'
