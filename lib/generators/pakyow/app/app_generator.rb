@@ -6,14 +6,9 @@ module Pakyow
   module Generators
     class AppGenerator
       class << self
-        def start
-          case ARGV.first
-          when '--help', '-h', nil
-            puts File.open(File.join(PAK_PATH, 'commands/USAGE-NEW')).read
-          else
-            generator = self.new(ARGV.first)
-            generator.build
-          end
+        def start(destination)
+          generator = self.new(destination)
+          generator.build
         end
       end
 
@@ -35,7 +30,6 @@ module Pakyow
         if !File.directory?(@dest) || (Dir.entries(@dest) - ['.', '..']).empty?
           copy
         else
-          ARGV.clear
           print "The folder '#{@dest}' is in use. Would you like to populate it anyway? [Yn] "
 
           if gets.chomp! == 'Y'

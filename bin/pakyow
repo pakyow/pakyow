@@ -11,8 +11,7 @@ module Pakyow
   class CommandLineInterface < Thor
     desc "new DESTINATION", File.read(File.join(PAK_PATH, "commands/USAGE-NEW"))
     def new(destination)
-      ARGV.shift
-      Pakyow::Generators::AppGenerator.start
+      Pakyow::Generators::AppGenerator.start(destination)
     end
 
     desc "console ENVIRONMENT", File.read(File.join(PAK_PATH, "commands/USAGE-CONSOLE"))
