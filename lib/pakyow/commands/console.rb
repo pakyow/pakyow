@@ -1,3 +1,5 @@
+require "pakyow/commands/console_methods.rb"
+
 module Pakyow
   module Commands
     class Console
@@ -12,6 +14,7 @@ module Pakyow
         Pakyow::App.stage(environment)
         require 'irb'
         ARGV.clear
+        IRB::ExtendCommandBundle.include(ConsoleMethods)
         IRB.start
       end
 
