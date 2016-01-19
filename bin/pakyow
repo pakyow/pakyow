@@ -3,19 +3,18 @@
 PAK_PATH = File.expand_path('../../lib', __FILE__)
 
 require "thor"
-require "pakyow/commands/console"
-require "pakyow/commands/server"
-require "generators/pakyow/app/app_generator"
 
 module Pakyow
   class CommandLineInterface < Thor
     desc "new DESTINATION", File.read(File.join(PAK_PATH, "commands/USAGE-NEW"))
     def new(destination)
+      require "generators/pakyow/app/app_generator"
       Pakyow::Generators::AppGenerator.start(destination)
     end
 
     desc "console ENVIRONMENT", File.read(File.join(PAK_PATH, "commands/USAGE-CONSOLE"))
     def console(environment = :development)
+      require "pakyow/commands/console"
       Pakyow::Commands::Console
         .new(environment: environment)
         .run
@@ -24,6 +23,7 @@ module Pakyow
     desc "server ENVIRONMENT", File.read(File.join(PAK_PATH, "commands/USAGE-SERVER"))
     option :port, type: :numeric, aliases: :p, default: 3000
     def server(environment = :development)
+      require "pakyow/commands/server"
       Pakyow::Commands::Server
         .new(environment: environment, port: options[:port])
         .run
