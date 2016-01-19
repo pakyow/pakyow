@@ -2,17 +2,34 @@
 
 PAK_PATH = File.expand_path('../../lib', __FILE__)
 
-case ARGV.first
-when 'new'
-  ARGV.shift
-  require File.join(PAK_PATH, 'generators/pakyow/app/app_generator')
-  Pakyow::Generators::AppGenerator.start
-when 'server', 's'
-  ARGV.shift
-  require File.join(PAK_PATH, 'commands/server')
-when 'console', 'c'
-  ARGV.shift
-  require File.join(PAK_PATH, 'commands/console')
-when '--help', '-h', nil
-  puts File.open(File.join(PAK_PATH, 'commands/USAGE')).read
+require "thor"
+require "pakyow/commands/console"
+require "pakyow/commands/server"
+require "generators/pakyow/app/app_generator"
+
+module Pakyow
+  class CommandLineInterface < Thor
+    desc "new DESTINATION", File.read(File.join(PAK_PATH, "commands/USAGE-NEW"))
+    def new(destination)
+      ARGV.shift
+      Pakyow::Generators::AppGenerator.start
+    end
+
+    desc "console ENVIRONMENT", File.read(File.join(PAK_PATH, "commands/USAGE-CONSOLE"))
+    def console(environment = :development)
+      Pakyow::Commands::Console
+        .new(environment: environment)
+        .run
+    end
+
+    desc "server ENVIRONMENT", File.read(File.join(PAK_PATH, "commands/USAGE-SERVER"))
+    option :port, type: :numeric, aliases: :p, default: 3000
+    def server(environment = :development)
+      Pakyow::Commands::Server
+        .new(environment: environment, port: options[:port])
+        .run
+    end
+  end
 end
+
+Pakyow::CommandLineInterface.start

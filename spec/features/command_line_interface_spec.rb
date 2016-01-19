@@ -4,7 +4,7 @@ RSpec.shared_examples "help information" do |command:|
   it "prints help information" do
     output = `#{command}`
 
-    expect(output).to include("Usage")
+    expect(output).to match(/Usage|Commands/)
   end
 end
 
@@ -15,7 +15,7 @@ RSpec.describe "command line interface" do
 
     %w(console new server).each do |command|
       describe "#{command} help" do
-        it_behaves_like "help information", command: "bin/pakyow #{command} --help"
+        it_behaves_like "help information", command: "bin/pakyow help #{command}"
       end
     end
   end

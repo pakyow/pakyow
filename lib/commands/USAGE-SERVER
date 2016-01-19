@@ -1,6 +1,3 @@
-Usage:
-  pakyow server [environment] [-p port]
-  
 Description:
     The 'pakyow server' command starts the application server.
 
