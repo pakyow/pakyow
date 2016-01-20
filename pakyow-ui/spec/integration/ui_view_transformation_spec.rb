@@ -81,6 +81,14 @@ describe 'transforming a ui view' do
         expect(view.finalize).to eq([[:bind, [{ text: { __content: 'bar', __attrs: {} } }], []]])
       end
 
+      it 'accepts a proc at content value' do
+        view.bind({ text: 'foo' }, bindings: { text: lambda { |_value, _bindable, _context|
+          { content: -> { 'bar' } }
+        } })
+
+        expect(view.finalize).to eq([[:bind, [{ text: { __content: 'bar', __attrs: {} } }], []]])
+      end
+
       it 'uses the other keys as attributes' do
         view.bind({ text: 'foo' }, bindings: { text: lambda { |_value, _bindable, _context|
           { content: 'bar', class: 'foo' }

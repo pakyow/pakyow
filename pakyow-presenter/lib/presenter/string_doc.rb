@@ -320,10 +320,20 @@ module Pakyow
 
       def find_node_props(node, primary_structure = @structure, props = [])
         if node[1].has_key?(:'data-prop')
-          props << {
+          prop = {
               doc: StringDoc.from_structure(primary_structure, node: node),
               prop: node[1][:'data-prop'].to_sym,
+              parts: {},
           }
+
+          if node[1].has_key?(:'data-parts')
+            prop[:parts][:include] = node[1][:'data-parts'].split(/\s+/).map(&:to_sym)
+          end
+
+          if node[1].has_key?(:'data-parts-exclude')
+            prop[:parts][:exclude] = node[1][:'data-parts-exclude'].split(/\s+/).map(&:to_sym)
+          end
+          props << prop
         end
 
         unless node[1].has_key?(:'data-scope')
