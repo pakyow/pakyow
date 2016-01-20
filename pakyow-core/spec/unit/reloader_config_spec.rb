@@ -3,7 +3,7 @@ require 'core/config'
 require 'core/config/reloader'
 
 describe 'configuration' do
-  it 'registers realtime config' do
+  it 'registers reloader config' do
     expect(Pakyow::Config.reloader).to be_a(Pakyow::Config)
   end
 
