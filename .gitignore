@@ -10,3 +10,4 @@ doc
 .ruby-version
 Gemfile.lock
 .bundle
+spec/examples.txt

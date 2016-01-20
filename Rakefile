@@ -12,6 +12,7 @@ libs = %i[
 ]
 
 rspec_libs = %i[
+  .
   pakyow-support
   pakyow-core
   pakyow-presenter
