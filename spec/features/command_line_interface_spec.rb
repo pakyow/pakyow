@@ -20,6 +20,26 @@ RSpec.describe "command line interface" do
     end
   end
 
+  describe "console" do
+    context "current directly is not a pakyow app" do
+      it "kindly notifies the user" do
+        output = `bin/pakyow server 2>&1`.chomp
+
+        expect(output).to match("must run.*server")
+      end
+    end
+  end
+
+  describe "server" do
+    context "current directly is not a pakyow app" do
+      it "kindly notifies the user" do
+        output = `bin/pakyow console 2>&1`.chomp
+
+        expect(output).to match("must run.*console")
+      end
+    end
+  end
+
   describe "version" do
     it "outputs current Pakyow version" do
       output = `bin/pakyow version`.chomp

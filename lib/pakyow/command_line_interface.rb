@@ -35,6 +35,11 @@ DESC
       Pakyow::Commands::Console
         .new(environment: environment)
         .run
+    rescue LoadError => e
+      raise Thor::Error, <<ERR
+Error: #{e.message}
+You must run the `pakyow console` command in a Pakyow application's root directory.
+ERR
     end
 
     desc "server ENVIRONMENT", <<DESC
@@ -58,6 +63,11 @@ DESC
       Pakyow::Commands::Server
         .new(environment: environment, port: options[:port])
         .run
+    rescue LoadError => e
+      raise Thor::Error, <<ERR
+Error: #{e.message}
+You must run the `pakyow server` command in a Pakyow application's root directory.
+ERR
     end
 
     desc "version", "Display the installed Pakyow version"
