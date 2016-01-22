@@ -57,5 +57,10 @@ DESC
         .new(environment: environment, port: options[:port])
         .run
     end
+
+    desc "version", "Display the installed Pakyow version"
+    def version
+      puts "Pakyow #{Pakyow::VERSION}"
+    end
   end
 end
