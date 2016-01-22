@@ -2,6 +2,8 @@ require "thor"
 
 module Pakyow
   class CommandLineInterface < Thor
+    map ["--version", "-v"] => :version
+
     desc "new DESTINATION", <<DESC
 Description:
     The 'pakyow new' command creates a new Pakyow application at the path

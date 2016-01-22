@@ -26,5 +26,10 @@ RSpec.describe "command line interface" do
 
       expect(output).to eq("Pakyow #{Pakyow::VERSION}")
     end
+
+    it "is aliased as --version and -v" do
+      expect(`bin/pakyow --version`.chomp).to eq("Pakyow #{Pakyow::VERSION}")
+      expect(`bin/pakyow -v`.chomp).to eq("Pakyow #{Pakyow::VERSION}")
+    end
   end
 end
