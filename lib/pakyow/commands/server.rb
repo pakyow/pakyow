@@ -3,7 +3,7 @@ module Pakyow
     class Server
       attr_reader :environment, :port
 
-      def initialize(environment: :development, port:)
+      def initialize(environment: :development, port: 3000)
         @environment = environment
         @port = port
       end
