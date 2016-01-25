@@ -1,11 +1,10 @@
 source 'https://rubygems.org'
-
-# live on the edge and uncomment this line
-# gem 'pakyow', github: 'pakyow/pakyow'
-
-# use the latest released version
+<% local_pakyow = Gem::Specification.sort_by{ |g| [g.name.downcase, g.version] }.group_by{ |g| g.name }.detect{|k,v| k == 'pakyow'} %>
+<% if local_pakyow && local_pakyow.last.last.version < Gem::Version.new(Pakyow::VERSION) %>
+gem 'pakyow', github: 'pakyow/pakyow'
+<% else %>
 gem 'pakyow', '~> 0.10'
-
+<% end %>
 # app server
 gem 'puma', platforms: :ruby
 gem 'thin', platforms: :mswin
