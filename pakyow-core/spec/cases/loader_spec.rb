@@ -17,7 +17,7 @@ describe 'Loader' do
   end
 
   it 'should tell time' do
-    Pakyow::Config.app.auto_reload = true
+    Pakyow::Config.reloader.enabled = true
 
     times = @loader.times.dup
     `touch #{File.join(path, 'reloadable.rb')}`

@@ -68,28 +68,25 @@ module Pakyow
 
       def restful(route_group)
         binding :_root do
-          routes = Router.instance.group(route_group)
+          part :view do |view|
+            routes = Router.instance.group(route_group)
+            action = view.attrs.action.value
+            return if (action && !action.empty?)
 
-          {
-            view: lambda { |view|
-              action = view.attrs.action.value
-              return if (action && !action.empty?)
-
-              route_params = params.dup
-              if view.doc.tagname == 'form'
-                if id = bindable[:id]
-                  view.prepend(View.new('<input type="hidden" name="_method" value="patch">'))
-                  route_params[:"#{route_group}_id"] = id
-                  action = :update
-                else
-                  action = :create
-                end
-
-                view.attrs.action = routes.path(action, route_params)
-                view.attrs.method = 'post'
+            route_params = params.dup
+            if view.doc.tagname == 'form'
+              if id = bindable[:id]
+                view.prepend(View.new('<input type="hidden" name="_method" value="patch">'))
+                route_params[:"#{route_group}_id"] = id
+                action = :update
+              else
+                action = :create
               end
-            }
-          }
+
+              view.attrs.action = routes.path(action, route_params)
+              view.attrs.method = 'post'
+            end
+          end
         end
       end
     end

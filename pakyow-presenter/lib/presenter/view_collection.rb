@@ -10,6 +10,13 @@ module Pakyow
         @scoped_as = scope
       end
 
+      def initialize_copy(original_view)
+        super
+
+        @views = Pakyow::Utils::Dup.deep(original_view.views)
+        @scoped_as = original_view.scoped_as
+      end
+
       def ==(other)
         @views.each_with_index do |view, i|
           return false if view != other.views[i]

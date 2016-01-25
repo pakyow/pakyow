@@ -172,11 +172,8 @@ module Pakyow
       end
 
       def get_attribute(attribute)
-        unless a = @attributes[attribute]
-          a = Attribute.new(attribute, @doc.get_attribute(attribute), self, @doc)
-        end
-
-        return a
+        @attributes[attribute] ||
+          Attribute.new(attribute, @doc.get_attribute(attribute), self, @doc)
       end
     end
 

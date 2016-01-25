@@ -67,8 +67,13 @@ module Pakyow
               # TODO: look into what it would take to support this
               result.delete(:view)
 
+              content = result.delete(:content)
+              if content.respond_to?(:to_proc)
+                content = content.to_proc.call()
+              end
+
               datum[key] = {
-                __content: result.delete(:content),
+                __content: content,
                 __attrs: Hash[*result.flat_map { |k, v|
                   if v.respond_to?(:to_proc)
                     attrs = UIAttrs.new

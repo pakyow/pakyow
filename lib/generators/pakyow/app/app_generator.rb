@@ -7,14 +7,9 @@ module Pakyow
   module Generators
     class AppGenerator
       class << self
-        def start
-          case ARGV.first
-          when '--help', '-h', nil
-            puts File.open(File.join(PAK_PATH, 'commands/USAGE-NEW')).read
-          else
-            generator = self.new(ARGV.first)
-            generator.build
-          end
+        def start(destination)
+          generator = self.new(destination)
+          generator.build
         end
       end
 
