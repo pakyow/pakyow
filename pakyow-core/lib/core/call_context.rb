@@ -1,5 +1,9 @@
 require 'core/helpers'
 require 'core/helpers/hooks'
+require 'core/router'
+require 'core/request'
+require 'core/response'
+require 'core/app_context'
 
 module Pakyow
   class CallContext

@@ -1,6 +1,7 @@
 require 'rspec'
 require 'pry'
 require 'pp'
+require 'pakyow-support'
 
 if ENV['COVERAGE']
   require 'simplecov'
