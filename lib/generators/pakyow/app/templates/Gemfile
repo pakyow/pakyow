@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 <% if generating_locally? %>
 gem 'pakyow', github: 'pakyow/pakyow'
 <% else %>
-gem 'pakyow', '<%= Pakyow::VERSION %>'
+gem 'pakyow', '~> <%= Pakyow::VERSION %>'
 <% end %>
 # app server
 gem 'puma', platforms: :ruby
