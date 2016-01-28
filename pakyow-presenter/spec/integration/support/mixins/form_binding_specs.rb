@@ -71,15 +71,15 @@ shared_examples :form_binding_specs do
     context 'and the value matches an option value' do
       it 'selects the option' do
         view.scope(:foo).bind(select: 'foo')
-        doc = Nokogiri::HTML::fragment(view.to_s)
-        expect(doc.css('option')[0]['selected']).to eq('selected')
+        doc = Oga.parse_html(view.to_s)
+        expect(doc.css('option')[0].attribute('selected').value).to eq('selected')
       end
 
       context 'and the value is not a string' do
         it 'selects the option' do
           view.scope(:foo).bind(select: 2)
-          doc = Nokogiri::HTML::fragment(view.to_s)
-          expect(doc.css('option')[2]['selected']).to eq('selected')
+          doc = Oga.parse_html(view.to_s)
+          expect(doc.css('option')[2].attribute('selected').value).to eq('selected')
         end
       end
     end
@@ -101,7 +101,7 @@ shared_examples :form_binding_specs do
 
       it 'creates options' do
         view.scope(:foo).bind(select: 'one')
-        doc = Nokogiri::HTML::fragment(view.to_s)
+        doc = Oga.parse_html(view.to_s)
 
         opts = doc.css('option')
         expect(opts.length).to eq(2)
@@ -109,8 +109,8 @@ shared_examples :form_binding_specs do
         opt_1 = opts[0]
         opt_2 = opts[1]
 
-        expect(opt_1['value']).to eq('one')
-        expect(opt_2['value']).to eq('two')
+        expect(opt_1.attribute('value').value).to eq('one')
+        expect(opt_2.attribute('value').value).to eq('two')
 
         expect(opt_1.inner_text).to eq('one')
         expect(opt_2.inner_text).to eq('two')
@@ -133,7 +133,7 @@ shared_examples :form_binding_specs do
 
         it 'sets default option' do
           view.scope(:foo).bind(select: 'one')
-          doc = Nokogiri::HTML::fragment(view.to_s)
+          doc = Oga.parse_html(view.to_s)
 
           opts = doc.css('option')
           expect(opts.length).to eq(3)
@@ -142,9 +142,9 @@ shared_examples :form_binding_specs do
           opt_2 = opts[1]
           opt_3 = opts[2]
 
-          expect(opt_1['value']).to eq('')
-          expect(opt_2['value']).to eq('one')
-          expect(opt_3['value']).to eq('two')
+          expect(opt_1.attribute('value').value).to eq('')
+          expect(opt_2.attribute('value').value).to eq('one')
+          expect(opt_3.attribute('value').value).to eq('two')
 
           expect(opt_1.inner_text).to eq('')
           expect(opt_2.inner_text).to eq('one')

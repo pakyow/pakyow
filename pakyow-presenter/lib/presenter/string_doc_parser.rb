@@ -21,33 +21,39 @@ module Pakyow
       def parse(doc)
         structure = []
 
-        if doc.is_a?(Nokogiri::HTML::Document)
+        unless doc.is_a?(Oga::XML::Element) || !doc.respond_to?(:doctype) || doc.doctype.nil?
           structure << ['<!DOCTYPE html>', {}, []]
         end
 
         breadth_first(doc) do |node, queue|
           if node == doc
-            queue.concat(node.children)
+            queue.concat(node.children.to_a)
             next
           end
 
-          children = node.children.reject {|n| n.is_a?(Nokogiri::XML::Text)}
-          attributes = node.attributes
+          children = node.children.reject {|n| n.is_a?(Oga::XML::Text)}
+
+          if node.is_a?(Oga::XML::Element)
+            attributes = node.attributes
+          else
+            attributes = []
+          end
+
           if !structure.empty? && children.empty? && !significant?(node)
-            structure << [node.to_html, {}, []]
+            structure << [node.to_xml, {}, []]
           else
             if significant?(node)
               if container?(node)
                 match = node.text.strip.match(CONTAINER_REGEX)
                 name = (match[2] || :default).to_sym
-                structure << [node.to_html, { container: name }, []]
+                structure << [node.to_xml, { container: name }, []]
               elsif partial?(node)
-                next unless match = node.to_html.strip.match(PARTIAL_REGEX)
+                next unless match = node.to_xml.strip.match(PARTIAL_REGEX)
                 name = match[1].to_sym
-                structure << [node.to_html, { partial: name }, []]
+                structure << [node.to_xml, { partial: name }, []]
               else
                 attr_structure = attributes.inject({}) do |attrs, attr|
-                  attrs[attr[1].name.to_sym] = attr[1].value
+                  attrs[attr.name.to_sym] = attr.value
                   attrs
                 end
 
@@ -56,10 +62,10 @@ module Pakyow
                 structure << ["<#{node.name} ", attr_structure, closing]
               end
             else
-              if node.is_a?(Nokogiri::XML::Text)
-                structure << [node.text, {}, []]
+              if node.is_a?(Oga::XML::Text) || node.is_a?(Oga::XML::Comment)
+                structure << [node.to_xml, {}, []]
               else
-                attr_s = attributes.inject('') { |s, a| s << " #{a[1].name}=\"#{a[1].value}\""; s }
+                attr_s = attributes.inject('') { |s, a| s << " #{a.name}=\"#{a.value}\""; s }
                 closing = [['>', {}, parse(node)]]
                 closing << ['</' + node.name + '>', {}, []] unless self_closing?(node.name)
                 structure << ['<' + node.name + attr_s, {}, closing]
@@ -80,33 +86,37 @@ module Pakyow
       end
 
       def scope?(node)
-        return false unless node['data-scope']
+        return false unless node.is_a?(Oga::XML::Element)
+        return false unless node.attribute('data-scope')
         return true
       end
 
       def prop?(node)
-        return false unless node['data-prop']
+        return false unless node.is_a?(Oga::XML::Element)
+        return false unless node.attribute('data-prop')
         return true
       end
 
       def container?(node)
-        return false unless node.is_a?(Nokogiri::XML::Comment)
+        return false unless node.is_a?(Oga::XML::Comment)
         return false unless node.text.strip.match(CONTAINER_REGEX)
         return true
       end
 
       def partial?(node)
-        return false unless node.is_a?(Nokogiri::XML::Comment)
-        return false unless node.to_html.strip.match(PARTIAL_REGEX)
+        return false unless node.is_a?(Oga::XML::Comment)
+        return false unless node.to_xml.strip.match(PARTIAL_REGEX)
         return true
       end
 
       def option?(node)
+        return false unless node.is_a?(Oga::XML::Element)
         node.name == 'option'
       end
 
       def component?(node)
-        return false unless node['data-ui']
+        return false unless node.is_a?(Oga::XML::Element)
+        return false unless node.attribute('data-ui')
         return true
       end
 
@@ -121,11 +131,7 @@ module Pakyow
       end
 
       def doc_from_string(string)
-        if string.match(/<html.*>/)
-          Nokogiri::HTML::Document.parse(string)
-        else
-          Nokogiri::HTML.fragment(string)
-        end
+        Oga.parse_html(string)
       end
 
       SELF_CLOSING = %w[area base basefont br hr input img link meta]

@@ -8,6 +8,6 @@ module ViewBindingHelpers
   end
 
   def ndoc_from_view(view)
-    Nokogiri::HTML.fragment(view.to_s)
+    Oga.parse_html(view.to_s)
   end
 end

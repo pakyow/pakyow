@@ -196,8 +196,8 @@ require_relative 'support/int_helper'
 
         doc = ndoc_from_view(view)
 
-        expect(data[:full_name]).to eq doc.css('.contact span').first.content
-        expect(data[:email]).to eq doc.css('.contact a').first.content
+        expect(data[:full_name]).to eq doc.css('.contact span').first.text
+        expect(data[:email]).to eq doc.css('.contact a').first.text
       end
 
       it "binds an object" do
@@ -207,8 +207,8 @@ require_relative 'support/int_helper'
 
         doc = ndoc_from_view(view)
 
-        expect(data.full_name).to eq doc.css('.contact span').first.content
-        expect(data.email).to eq doc.css('.contact a').first.content
+        expect(data.full_name).to eq doc.css('.contact span').first.text
+        expect(data.email).to eq doc.css('.contact a').first.text
       end
 
       it "binds data across views" do
@@ -223,8 +223,8 @@ require_relative 'support/int_helper'
 
         data.each_with_index do |datum, i|
           doc = ndoc_from_view(view[i])
-          expect(datum[:full_name]).to eq doc.css('span').first.content
-          expect(datum[:email]).to eq doc.css('a').first.content
+          expect(datum[:full_name]).to eq doc.css('span').first.text
+          expect(datum[:email]).to eq doc.css('a').first.text
         end
       end
 

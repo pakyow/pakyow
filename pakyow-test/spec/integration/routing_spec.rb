@@ -60,7 +60,7 @@ context 'when testing a route' do
   describe 'the response type' do
     it 'exposes the raw response type' do
       get :default do |sim|
-        expect(sim.type).to eq('text/html')
+        expect(sim.type).to eq('text/html;charset=utf-8')
       end
     end
 

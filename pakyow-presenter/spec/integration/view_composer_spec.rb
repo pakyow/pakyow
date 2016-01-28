@@ -66,7 +66,7 @@ describe Pakyow::Presenter::ViewComposer do
     composer = compose_at('/')
     composer.container(:default).remove
 
-    expect(str_to_doc(composer.view.to_html).css('body').children.to_html.strip).to eq ''
+    expect(str_to_doc(composer.view.to_html).css('body').first.inner_text.strip).to eq ''
   end
 
   it "handles partial modification" do
@@ -74,7 +74,7 @@ describe Pakyow::Presenter::ViewComposer do
     partial = composer.partial(:partial1)
     partial.remove
 
-    expect(str_to_doc(composer.view.to_html).css('body').children.to_html.strip).to eq ''
+    expect(str_to_doc(composer.view.to_html).css('body').first.inner_text.strip).to eq ''
   end
 
   it "handles attribute modification" do
@@ -83,14 +83,14 @@ describe Pakyow::Presenter::ViewComposer do
       background: 'red'
     }
 
-    expect(str_to_doc(composer.view.to_html).css('body div')[0][:style]).to eq 'background:red'
+    expect(str_to_doc(composer.view.to_html).css('body div')[0].attribute(:style).value).to eq 'background:red'
   end
 
   it "handles replacements" do
     composer = compose_at('/')
     composer.container(:default).replace('foo')
 
-    expect(str_to_doc(composer.view.to_html).css('body').children.to_html.strip).to eq 'foo'
+    expect(str_to_doc(composer.view.to_html).css('body').first.inner_text.strip).to eq 'foo'
   end
 
   it "sets template title" do

@@ -23,20 +23,20 @@ describe Pakyow::Presenter::Binder do
     data = Pakyow.app.presenter.binder.value_for_scoped_prop(:foo, :_root, {}, {}, @context)
     view = Pakyow::Presenter::View.from_doc(Pakyow::Presenter::StringDoc.new('<form data-scope="foo"></form>'))
     data[:view].call(view)
-    doc = Nokogiri::HTML.fragment(view.to_html).css('form')[0]
-    expect('/bar').to eq doc[:action]
-    expect('post').to eq doc[:method]
+    doc = Oga.parse_xml(view.to_html).css('form')[0]
+    expect('/bar').to eq doc.attribute(:action).value
+    expect('post').to eq doc.attribute(:method).value
 
     data = Pakyow.app.presenter.binder.value_for_scoped_prop(:foo, :_root, { id: 1 }, {}, @context)
     view = Pakyow::Presenter::View.from_doc(Pakyow::Presenter::StringDoc.new('<form data-scope="foo"></form>'))
     data[:view].call(view)
-    form_doc = Nokogiri::HTML.fragment(view.to_html).css('form')[0]
-    input_doc = Nokogiri::HTML.fragment(view.to_html).css('input')[0]
-    expect('/bar/1').to eq form_doc[:action]
-    expect('post').to eq form_doc[:method]
-    expect('hidden').to eq input_doc[:type]
-    expect('_method').to eq input_doc[:name]
-    expect('patch').to eq input_doc[:value]
+    form_doc = Oga.parse_xml(view.to_html).css('form')[0]
+    input_doc = Oga.parse_xml(view.to_html).css('input')[0]
+    expect('/bar/1').to eq form_doc.attribute(:action).value
+    expect('post').to eq form_doc.attribute(:method).value
+    expect('hidden').to eq input_doc.attribute(:type).value
+    expect('_method').to eq input_doc.attribute(:name).value
+    expect('patch').to eq input_doc.attribute(:value).value
   end
 
   it 'defines nested restful bindings' do
@@ -52,15 +52,15 @@ describe Pakyow::Presenter::Binder do
     data = Pakyow.app.presenter.binder.value_for_scoped_prop(:foo, :_root, {}, {}, @context)
     view = Pakyow::Presenter::View.from_doc(Pakyow::Presenter::StringDoc.new('<form data-scope="foo"></form>'))
     data[:view].call(view)
-    doc = Nokogiri::HTML.fragment(view.to_html).css('form')[0]
-    expect("/bar/#{bar_id}/baz").to eq doc[:action]
-    expect('post').to eq doc[:method]
+    doc = Oga.parse_xml(view.to_html).css('form')[0]
+    expect("/bar/#{bar_id}/baz").to eq doc.attribute(:action).value
+    expect('post').to eq doc.attribute(:method).value
 
     data = Pakyow.app.presenter.binder.value_for_scoped_prop(:foo, :_root, { id: 1 }, {}, @context)
     view = Pakyow::Presenter::View.from_doc(Pakyow::Presenter::StringDoc.new('<form data-scope="foo"></form>'))
     data[:view].call(view)
-    doc = Nokogiri::HTML.fragment(view.to_html).css('form')[0]
-    expect("/bar/#{bar_id}/baz/1").to eq doc[:action]
-    expect('post').to eq doc[:method]
+    doc = Oga.parse_xml(view.to_html).css('form')[0]
+    expect("/bar/#{bar_id}/baz/1").to eq doc.attribute(:action).value
+    expect('post').to eq doc.attribute(:method).value
   end
 end

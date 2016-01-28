@@ -6,7 +6,7 @@ gem 'rake', '~> 10.4'
 gem 'rack', '~> 1.6'
 
 # presenter
-gem 'nokogiri', '~> 1.6'
+gem 'oga', '~> 2.0'
 
 # mail
 gem 'mail', '~> 2.6'
