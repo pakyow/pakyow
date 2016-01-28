@@ -26,36 +26,40 @@ module Pakyow
         end
       end
 
-      Pakyow::App.before(:init) {
-        @presenter = Presenter.new
-        ViewStoreLoader.instance.reset
-      }
+      Pakyow::App.after(:configure) {
+        if config.presenter.enabled
+          Pakyow::App.before(:init) {
+            @presenter = Presenter.new
+            ViewStoreLoader.instance.reset
+          }
 
-      Pakyow::App.after(:match) {
-        @presenter = Pakyow.app.presenter.dup
-        @presenter.prepare_with_context(context)
-      }
+          Pakyow::App.after(:match) {
+            @presenter = Pakyow.app.presenter.dup
+            @presenter.prepare_with_context(context)
+          }
 
-      Pakyow::App.after(:route) {
-        if Config.presenter.require_route && !found?
-          @found 
-        else
-          if @presenter.presented?
-            @found = true
-            @context.response.body = [@presenter.content]
-          else
-            @found = false unless found?
-          end
-        end
-      }
+          Pakyow::App.after(:route) {
+            if Config.presenter.require_route && !found?
+              @found 
+            else
+              if @presenter.presented?
+                @found = true
+                @context.response.body = [@presenter.content]
+              else
+                @found = false unless found?
+              end
+            end
+          }
 
-      Pakyow::App.after(:load) {
-        @presenter.load
-      }
+          Pakyow::App.after(:load) {
+            @presenter.load
+          }
 
-      Pakyow::App.after(:error) {
-        unless config.app.errors_in_browser
-          @context.response.body = [@presenter.content] if @presenter.presented?
+          Pakyow::App.after(:error) {
+            unless config.app.errors_in_browser
+              @context.response.body = [@presenter.content] if @presenter.presented?
+            end
+          }
         end
       }
 
