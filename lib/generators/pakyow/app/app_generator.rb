@@ -72,6 +72,11 @@ module Pakyow
         end
       end
 
+      def generating_locally?
+        local_pakyow = Gem::Specification.sort_by{ |g| [g.name.downcase, g.version] }.group_by{ |g| g.name }.detect{|k,v| k == 'pakyow'}
+        !local_pakyow || local_pakyow.last.last.version < Gem::Version.new(Pakyow::VERSION)
+      end
+
       def translated_filename(filename)
         FILENAME_TRANSLATIONS.fetch(filename, filename)
       end

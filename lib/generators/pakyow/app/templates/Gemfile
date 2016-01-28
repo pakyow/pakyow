@@ -1,9 +1,8 @@
 source 'https://rubygems.org'
-<% local_pakyow = Gem::Specification.sort_by{ |g| [g.name.downcase, g.version] }.group_by{ |g| g.name }.detect{|k,v| k == 'pakyow'} %>
-<% if !local_pakyow || local_pakyow.last.last.version < Gem::Version.new(Pakyow::VERSION) %>
+<% if generating_locally? %>
 gem 'pakyow', github: 'pakyow/pakyow'
 <% else %>
-gem 'pakyow', '~> 0.10'
+gem 'pakyow', '<%= Pakyow::VERSION %>'
 <% end %>
 # app server
 gem 'puma', platforms: :ruby
