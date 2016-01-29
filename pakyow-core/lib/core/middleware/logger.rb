@@ -41,7 +41,7 @@ module Pakyow
 
     def <<(msg = nil, severity = :unknown)
       return if @log.nil?
-      msg << "\n"
+      (msg || "") << "\n"
 
       msg = format(msg, severity) if @format
       @mutex.synchronize do
@@ -83,7 +83,7 @@ module Pakyow
 
     def format(msg, level)
       return msg unless color = level_color(level)
-      return COLOR_SEQ % (30 + COLOR_TABLE.index(color)) + msg + RESET_SEQ
+      return COLOR_SEQ % (30 + COLOR_TABLE.index(color)) + (msg || "") + RESET_SEQ
     end
 
     def level_color(level)
