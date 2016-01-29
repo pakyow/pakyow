@@ -8,7 +8,7 @@ module Pakyow
     end
 
     def logger
-      request.logger
+      request.logger || Pakyow.logger
     end
 
     def router

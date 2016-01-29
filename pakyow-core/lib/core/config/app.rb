@@ -25,11 +25,8 @@ Pakyow::Config.register :app do |config|
   # if true, all routes are ignored
   config.opt :ignore_routes, false
 
-  # whether or not pakyow should log to stdout
-  config.opt :log_output, true
-
-  # whether or not pakyow should write to a log
-  config.opt :log, true
+  # if true, views are visible without a route defined
+  config.opt :all_views_visible, true
 
   # whether or not pakyow should serve static files
   config.opt :static, true
@@ -44,6 +41,7 @@ end.env :development do |opts|
   opts.static = true
 end.env :production do |opts|
   opts.errors_in_browser = false
-  opts.log_output = false
   opts.static = true
+end.env :prototype do |opts|
+  opts.ignore_routes = false
 end
