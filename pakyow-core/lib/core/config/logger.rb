@@ -1,6 +1,12 @@
 Pakyow::Config.register :logger do |config|
+  # whether or not pakyow should write to a log
+  config.opt :enabled, true
+
   # the default level to log at
   config.opt :level, :debug
+
+  # whether or not pakyow should log to stdout
+  config.opt :stdout, true
 
   # where the log file should be placed
   config.opt :path, -> { File.join(Pakyow::Config.app.root, 'log') }
@@ -23,5 +29,6 @@ end.env :development do |opts|
 end.env :production do |opts|
   opts.sync = false
   opts.auto_flush = false
+  opts.stdout = false
   opts.colorize = false
 end

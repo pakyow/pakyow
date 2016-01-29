@@ -48,7 +48,7 @@ module Pakyow
       end
     end
 
-    logs << $stdout if Config.app.log_output
+    logs << $stdout if Config.logger.stdout
 
     io = logs.count > 1 ? MultiLog.new(*logs) : logs[0]
 

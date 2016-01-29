@@ -1,7 +1,7 @@
 Pakyow::App.define do
   configure :test do
-    app.log = false
-    app.log_output = false
+    logger.enabled = false
+    logger.stdout = false
 
     presenter.view_stores[:default] = File.join(File.dirname(__FILE__), 'views')
   end
