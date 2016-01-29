@@ -99,6 +99,12 @@ end
 
 module Pakyow
   module Middleware
+    Pakyow::App.middleware do |builder|
+      if Pakyow::Config.logger.enabled
+        builder.use Pakyow::Middleware::Logger
+      end
+    end
+
     class Logger
       # handles logging after an error occurs
       Pakyow::App.after(:error) {

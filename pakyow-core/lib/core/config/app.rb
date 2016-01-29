@@ -1,5 +1,7 @@
 Pakyow::Config.register :app do |config|
 
+  config.opt :name, 'pakyow'
+
   # if true, errors are displayed in the browser
   config.opt :errors_in_browser
 
