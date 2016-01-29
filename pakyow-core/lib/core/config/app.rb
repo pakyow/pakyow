@@ -42,4 +42,6 @@ end.env :development do |opts|
 end.env :production do |opts|
   opts.errors_in_browser = false
   opts.static = true
+end.env :prototype do |opts|
+  opts.ignore_routes = false
 end
