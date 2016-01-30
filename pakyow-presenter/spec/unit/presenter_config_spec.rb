@@ -31,7 +31,10 @@ describe 'configuration' do
       end
 
       it 'does not set up the presenter callback if set to false' do
-        skip # TODO Hmm...how to test..?
+        Pakyow::Config.presenter.enabled = false
+        Pakyow::App.stage(:test)
+        expect(Pakyow.app.instance_variable_get(:@presenter)).to be_nil
+        Pakyow::Config.presenter.enabled = true
       end
     end
 
