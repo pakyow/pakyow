@@ -1,17 +1,17 @@
 module Pakyow
   module Commands
     class Server
-      attr_reader :environment, :port
+      attr_reader :port
 
-      def initialize(environment: :development, port: 3000)
-        @environment = environment
+      def initialize(environment: ENV['RACK_ENV'] || :development, port: 3000)
+        ENV['RACK_ENV'] = environment.to_s
         @port = port
       end
 
       def run
         load_app
         Pakyow::Config.server.port = port
-        Pakyow::App.run(environment)
+        Pakyow::App.run(ENV['RACK_ENV'])
       end
 
       private
