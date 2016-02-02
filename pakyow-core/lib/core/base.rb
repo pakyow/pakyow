@@ -15,17 +15,21 @@ require 'core/route_template_defaults'
 require 'core/route_lookup'
 require 'core/app'
 require 'core/errors'
+
 require 'core/config'
 require 'core/config/reloader'
 require 'core/config/app'
 require 'core/config/server'
 require 'core/config/cookies'
 require 'core/config/logger'
+require 'core/config/session'
 
-# middlewares
-require 'core/middleware/logger'
-require 'core/middleware/static'
+require 'core/middleware/override'
 require 'core/middleware/reloader'
+require 'core/middleware/req_path_normalizer'
+require 'core/middleware/session'
+require 'core/middleware/static'
+require 'core/middleware/logger'
 
 module Pakyow
   class << self
