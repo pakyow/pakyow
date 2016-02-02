@@ -337,9 +337,9 @@ module Pakyow
       private
 
       def adjust_value_parts(value, parts)
-        return value unless value.respond_to?(:to_hash)
+        return value unless value.is_a?(Hash)
 
-        parts_to_keep = parts.fetch(:include, value.keys) 
+        parts_to_keep = parts.fetch(:include, value.keys)
         parts_to_keep -= parts.fetch(:exclude, [])
 
         value.keep_if { |part, _| parts_to_keep.include?(part) }
@@ -503,13 +503,7 @@ module Pakyow
             attr  = attr.to_s
             attrs = Attributes.new(doc)
 
-            # TODO With the introduction of parts, values should only be
-            # procs (?)
             if v.respond_to?(:to_proc)
-              # TODO Explain
-              # Evaluating the proc will set the value in the doc
-              #
-              # Only if the proc calls methods on the attribute given???  
               attribute = attrs.send(attr)
               ret = v.to_proc.call(attribute)
               value = ret.respond_to?(:value) ? ret.value : ret

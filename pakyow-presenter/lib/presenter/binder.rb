@@ -61,11 +61,11 @@ module Pakyow
           binding_eval = BindingEval.new(prop, bindable, context)
           result = binding_eval.eval(&binding_fn)
 
-          # TODO Decide if bindings given as arguments should also only use
-          # parts
           if result.nil?
             value = value_from_data(prop, bindable)
-            result = bindings[prop].call(value, bindable, context)
+
+            fn = bindings[prop]
+            result = fn.call(value, bindable, context) if fn
           end
           result
         else # default value
