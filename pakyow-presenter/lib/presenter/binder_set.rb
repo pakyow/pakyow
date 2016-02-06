@@ -71,7 +71,7 @@ module Pakyow
           part :view do |view|
             routes = Router.instance.group(route_group)
             action = view.attrs.action.value
-            return if (action && !action.empty?)
+            next if (action && !action.empty?)
 
             route_params = params.dup
             if view.doc.tagname == 'form'
