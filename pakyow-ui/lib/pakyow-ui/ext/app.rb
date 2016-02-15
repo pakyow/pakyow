@@ -1,5 +1,7 @@
 module Pakyow
   class App
+    attr_reader :ui
+
     class << self
       # Defines mutators for a scope.
       #
