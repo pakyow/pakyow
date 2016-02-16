@@ -15,7 +15,6 @@ require_relative 'ui_component'
 require_relative 'ui_instructable'
 
 require_relative 'ext/app'
-require_relative 'ext/app_context'
 require_relative 'ext/view_context'
 
 Pakyow::App.before :init do
