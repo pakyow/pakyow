@@ -7,7 +7,7 @@ module Pakyow
     #
     # @api private
     class RedisSubscription
-      SIGNAL_UNSUBSCRIBE = :unsubscribe
+      SIGNAL_UNSUBSCRIBE = 'unsubscribe'
 
       def initialize
         @redis = ::Redis.new(Config.realtime.redis)
