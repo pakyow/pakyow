@@ -22,6 +22,7 @@ module Pakyow
               if channel == signal_channel
                 if msg == SIGNAL_UNSUBSCRIBE
                   @redis.unsubscribe
+                  @redis.disconnect
                   return
                 end
               end
