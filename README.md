@@ -64,7 +64,7 @@ implements this protocol on the backend for initial rendering and in
 
 3. Move to the new directory and start the server:
 
-    `cd webapp; pakyow server`
+    `cd webapp; bundle exec pakyow server`
 
 4. You'll find your project running at [http://localhost:3000](http://localhost:3000)!
 
