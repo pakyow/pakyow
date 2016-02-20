@@ -43,7 +43,7 @@ module Pakyow
         end
 
         exec
-        puts "Done! Run `cd #{@dest}; pakyow server` to get started!"
+        puts "Done! Run `cd #{@dest}; bundle exec pakyow server` to get started!"
       end
 
       protected
