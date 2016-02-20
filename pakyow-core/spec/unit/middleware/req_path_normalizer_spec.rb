@@ -66,5 +66,15 @@ describe Pakyow::Middleware::ReqPathNormalizer do
     it 'replaces // with /' do
       expect(instance.normalize_path(env['PATH_INFO'])).to eq('/test_page')
     end
+
+    it 'removes trailing /' do
+      env['PATH_INFO'] = '/test_page/'
+      expect(instance.normalize_path(env['PATH_INFO'])).to eq('/test_page')
+    end
+
+    it 'replaces // with / and removes trailing /' do
+      env['PATH_INFO'] = '//test_page/'
+      expect(instance.normalize_path(env['PATH_INFO'])).to eq('/test_page')
+    end
   end
 end
