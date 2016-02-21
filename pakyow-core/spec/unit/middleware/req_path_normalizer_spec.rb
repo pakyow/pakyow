@@ -77,4 +77,12 @@ describe Pakyow::Middleware::ReqPathNormalizer do
       expect(instance.normalize_path(env['PATH_INFO'])).to eq('/test_page')
     end
   end
+
+  describe '#tail_slash?' do
+    context 'when path contains only a trailing /' do
+      it 'does not remove the trailing /' do
+        expect(instance.tail_slash?('/')).to eq(false)
+      end
+    end
+  end
 end

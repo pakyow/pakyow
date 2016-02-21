@@ -12,6 +12,9 @@ module Pakyow
     #
     # @api public
     class ReqPathNormalizer
+      TAIL_SLASH_REPLACE_REGEX = /(\/)+$/
+      TAIL_SLASH_REGEX = /(.)+(\/)+$/
+
       def initialize(app)
         @app = app
       end
@@ -27,9 +30,9 @@ module Pakyow
       end
 
       def normalize_path(path)
-        path
+        normalized = path
           .gsub('//', '/')
-          .gsub(/(\/)+$/, '')
+          .gsub(TAIL_SLASH_REPLACE_REGEX, '')
       end
 
       def double_slash?(path)
@@ -37,7 +40,7 @@ module Pakyow
       end
 
       def tail_slash?(path)
-        (/(\/)+$/ =~ path).nil? ? false : true
+        (TAIL_SLASH_REGEX =~ path).nil? ? false : true
       end
     end
   end
