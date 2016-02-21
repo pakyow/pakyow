@@ -149,5 +149,27 @@ describe Pakyow::UI::Mutator do
     it 'returns a mutate context' do
       expect(mutator.mutate(:list, view, data)).to be_instance_of(Pakyow::UI::MutateContext)
     end
+
+    context 'when the mutation returns something other than the view' do
+      before do
+        mutator.set(scope) do
+          mutator :list do |view, data|
+            PerformedMutations.perform :list, view, data
+            :foo
+          end
+        end
+      end
+
+      after do
+        mutator.reset
+      end
+
+      describe 'mutate context' do
+        it 'is initialized with the view, not the result' do
+          context = mutator.mutate(:list, view, data)
+          expect(context.view).to be(view)
+        end
+      end
+    end
   end
 end

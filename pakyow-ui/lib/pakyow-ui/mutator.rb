@@ -54,8 +54,8 @@ module Pakyow
             working_data = data
           end
 
-          result = view.instance_exec(view, working_data, &mutation[:fn])
-          MutateContext.new(mutation, result, data)
+          view.instance_exec(view, working_data, &mutation[:fn])
+          MutateContext.new(mutation, view, data)
         end
       end
     end
