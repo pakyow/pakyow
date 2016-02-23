@@ -55,6 +55,7 @@ module Pakyow
         after
         before
         replace
+        use
       ).each do |method|
         define_method method do |value|
           instruct(method, value.to_s)
@@ -97,6 +98,23 @@ module Pakyow
       end
 
       ### view methods that continue into a new context
+
+      def version(data, &block)
+        nested = nested_instruct(:version, data)
+        Array.ensure(data).each do |datum|
+          sub = UIView.new(@scope)
+
+          if block.arity == 1
+            sub.instance_exec(datum, &block)
+          else
+            block.call(sub, datum)
+          end
+
+          nested.instructions << sub.finalize
+        end
+
+        self
+      end
 
       def for(data, &block)
         nested = nested_instruct(:for, data)
