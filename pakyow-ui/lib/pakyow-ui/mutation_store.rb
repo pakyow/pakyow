@@ -10,10 +10,11 @@ module Pakyow
         @registry = Config.ui.registry.instance
       end
 
-      def register(mutate_context, mutable_data, qualifications, session)
+      def register(mutate_context, view, mutable_data, qualifications, session)
         @registry.register(
           mutable_data.scope,
 
+          view_scope: view.scoped_as,
           mutation: mutate_context.mutation[:name],
           qualifiers: mutate_context.mutation[:qualifiers],
           qualifications: qualifications,

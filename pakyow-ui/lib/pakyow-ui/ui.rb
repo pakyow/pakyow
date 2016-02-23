@@ -19,7 +19,7 @@ module Pakyow
         context ||= @context
 
         MutationStore.instance.mutations(scope).each do |mutation|
-          view = UIView.new(scope, mutation[:session])
+          view = UIView.new(mutation[:view_scope], mutation[:session])
 
           qualified = true
 
@@ -45,7 +45,7 @@ module Pakyow
           Mutator.instance.mutate(mutation[:mutation].to_sym, view, mutable_data)
 
           channel = ChannelBuilder.build(
-            scope: scope,
+            scope: mutation[:view_scope],
             mutation: mutation[:mutation].to_sym,
             qualifiers: mutation[:qualifiers],
             data: mutable_data,
