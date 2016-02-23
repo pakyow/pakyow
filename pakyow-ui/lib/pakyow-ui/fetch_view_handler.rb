@@ -54,7 +54,7 @@ Pakyow::Realtime.handler :'fetch-view' do |message, session, response|
     end
 
     if view.is_a?(Pakyow::Presenter::ViewVersion)
-      body = view.use(lookup['version'] || :default).to_html
+      body = view.use((lookup['version'] || :default).to_sym).to_html
     else
       body = view.to_html
     end
