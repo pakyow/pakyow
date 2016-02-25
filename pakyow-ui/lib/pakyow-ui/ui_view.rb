@@ -14,7 +14,7 @@ module Pakyow
 
       def initialize(scope, session = {})
         super()
-        @scope = scope
+        @scope = scope.to_sym
         @session = session
         @context = UIContext.new(session)
       end
