@@ -58,7 +58,7 @@ module Pakyow
 
       def mixin_bindings(data, bindings = {})
         data.map { |bindable|
-          datum = bindable.to_hash
+          datum = bindable.to_hash.dup
           Pakyow::Presenter::Binder.instance.bindings_for_scope(scoped_as, bindings).keys.each do |key|
             result = Pakyow::Presenter::Binder.instance.value_for_scoped_prop(scoped_as, key, bindable, bindings, self)
 
