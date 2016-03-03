@@ -3,6 +3,7 @@ module Pakyow
     class StringDocParser
       PARTIAL_REGEX = /<!--\s*@include\s*([a-zA-Z0-9\-_]*)\s*-->/
       CONTAINER_REGEX = /@container( ([a-zA-Z0-9\-_]*))*/
+      SIGNIFICANT = [:scope?, :prop?, :container?, :partial?, :option?, :component?]
 
       def initialize(html)
         @html = html
@@ -36,7 +37,15 @@ module Pakyow
             structure << [node.to_html, {}, []]
           else
             if significant?(node)
-              if scope?(node) || prop?(node) || option?(node) || component?(node)
+              if container?(node)
+                match = node.text.strip.match(CONTAINER_REGEX)
+                name = (match[2] || :default).to_sym
+                structure << [node.to_html, { container: name }, []]
+              elsif partial?(node)
+                next unless match = node.to_html.strip.match(PARTIAL_REGEX)
+                name = match[1].to_sym
+                structure << [node.to_html, { partial: name }, []]
+              else
                 attr_structure = attributes.inject({}) do |attrs, attr|
                   attrs[attr[1].name.to_sym] = attr[1].value
                   attrs
@@ -45,14 +54,6 @@ module Pakyow
                 closing = [['>', {}, parse(node)]]
                 closing << ["</#{node.name}>", {}, []] unless self_closing?(node.name)
                 structure << ["<#{node.name} ", attr_structure, closing]
-              elsif container?(node)
-                match = node.text.strip.match(CONTAINER_REGEX)
-                name = (match[2] || :default).to_sym
-                structure << [node.to_html, { container: name }, []]
-              elsif partial?(node)
-                next unless match = node.to_html.strip.match(PARTIAL_REGEX)
-                name = match[1].to_sym
-                structure << [node.to_html, { partial: name }, []]
               end
             else
               if node.is_a?(Nokogiri::XML::Text)
@@ -71,7 +72,11 @@ module Pakyow
       end
 
       def significant?(node)
-        scope?(node) || prop?(node) || container?(node) || partial?(node) || option?(node) || component?(node)
+        SIGNIFICANT.each do |method|
+          return true if send(method, node)
+        end
+
+        false
       end
 
       def scope?(node)
