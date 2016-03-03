@@ -97,6 +97,25 @@ context 'when testing a route that presents' do
       end
     end
 
+    context 'and the data length is > 1' do
+      let :data do
+        [{ name: 'one' }, { name: 'two' }]
+      end
+
+      it 'appears to have bound data to the applied scope' do
+        get :scoped, with: { data: data } do |sim|
+          sim.view.scope(:post).with do |view|
+            expect(view.applied?(data)).to eq(true)
+
+            # checking for a specific value
+            view.for(data) do |view, datum|
+              expect(view.prop(:name).bound?(datum[:name])).to eq(true)
+            end
+          end
+        end
+      end
+    end
+
     context 'and the applied scope is nested' do
       let :data do
         [

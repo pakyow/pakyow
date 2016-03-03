@@ -77,11 +77,10 @@ module Pakyow
         end
       end
 
+      # TODO: decide if we care to check the type of
+      # objects being added to the collection
       def <<(val)
-        if val.is_a? View
-          @views << val
-        end
-
+        @views << val
         self
       end
 

@@ -40,7 +40,7 @@ module Pakyow
         presenter.observing(view.scoped_as, :apply, traversal, data: data, bindings: bindings, context: context, block: block)
 
         result = view.apply(data, bindings: bindings, context: context) do |view, datum|
-          block.call(handle_value(view), datum)
+          block.call(handle_value(view), datum) unless block.nil?
         end
 
         handle_value(result)
