@@ -1,12 +1,13 @@
-require_relative '../../spec_helper'
+# require_relative '../../spec_helper'
 require 'core/helpers/running'
 
 module Spec
   class RunningAppMock
     extend Pakyow::Helpers::Running
 
-    Struct.new('Config', :server)
+    Struct.new('Config', :server, :app)
     Struct.new('ServerConfig', :handler, :host, :port)
+    Struct.new('AppConfig', :src_dir)
 
     MIDDLEWARE = []
 
@@ -24,6 +25,10 @@ module Spec
       def port
         4242
       end
+
+      def src_dir
+        'app/lib'
+      end
     end
 
     def initialize
@@ -38,7 +43,10 @@ module Spec
     end
 
     def self.config
-      Struct::Config.new(Struct::ServerConfig.new(handler, host, port))
+      Struct::Config.new(
+        Struct::ServerConfig.new(handler, host, port),
+        Struct::AppConfig.new(src_dir)
+      )
     end
   end
 
@@ -128,6 +136,11 @@ describe Pakyow::Helpers::Running do
 
       expect(mock).to receive(:instance_exec).with(mock.builder, &block)
       mock.prepare(*envs)
+    end
+
+    it 'adds src_dir to load path' do
+      mock.prepare(*envs)
+      expect($:).to include(mock.src_dir)
     end
 
     context 'called when already prepared' do
