@@ -48,8 +48,8 @@ describe 'Application' do
     expect($global_config_was_executed).to eq true
   end
 
-  it 'global configuration supercedes env' do
-    expect($env_overwrites_global_config).to eq false
+  it 'loads global configuration first' do
+    expect($env_overwrites_global_config).to eq true
   end
 
   it 'configuration loaded before middleware' do
