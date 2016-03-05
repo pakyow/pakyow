@@ -105,7 +105,7 @@ module Pakyow
           values[:data] = data if data
           presenter.observed?(view.scoped_as, :bind, traversal, values)
         else
-          data && view[0].text == data
+          data && (view.first.text == data || view.first.attrs.value.to_s == data)
         end
       end
 
