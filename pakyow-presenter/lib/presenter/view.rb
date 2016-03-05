@@ -334,6 +334,18 @@ module Pakyow
         attrs.send(:'data-ui').value
       end
 
+      # Convenience method for parity with Presenter::ViewCollection.
+      #
+      def length
+        1
+      end
+
+      # Convenience method for parity with Presenter::ViewCollection.
+      #
+      def first
+        self
+      end
+
       private
 
       def adjust_value_parts(value, parts)
