@@ -169,6 +169,10 @@ module Pakyow
         @doc.remove_attribute(attribute)
       end
 
+      def include?(attribute)
+        @attributes.key?(attribute)
+      end
+
       protected
 
       def set_attribute(attribute, value)
