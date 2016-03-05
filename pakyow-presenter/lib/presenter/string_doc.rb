@@ -65,6 +65,10 @@ module Pakyow
         attributes.delete(name.to_sym)
       end
 
+      def has_attribute?(name)
+        attributes.key?(name)
+      end
+
       def remove
         @structure.delete_if { |n| n.equal?(node) }
 
@@ -251,10 +255,6 @@ module Pakyow
       #
       def attributes
         node[1]
-      end
-
-      def has_attribute?(name)
-        attributes.key?(name)
       end
 
       def children

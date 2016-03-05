@@ -36,6 +36,16 @@ module Pakyow
         end
       end
 
+      def bind(data, bindings: {}, context: nil, &block)
+        presenter.observing(view.scoped_as, :bind, traversal, data: data, bindings: bindings, context: context, block: block)
+
+        result = view.bind(data, bindings: bindings, context: context) do |view, datum|
+          block.call(handle_value(view), datum) unless block.nil?
+        end
+
+        handle_value(result)
+      end
+
       def apply(data, bindings: {}, context: nil, &block)
         presenter.observing(view.scoped_as, :apply, traversal, data: data, bindings: bindings, context: context, block: block)
 
@@ -89,8 +99,14 @@ module Pakyow
         presenter.observed?(view.scoped_as, :apply, traversal, values)
       end
 
-      def bound?(value)
-        view[0].text == value
+      def bound?(data = nil)
+        if view.first.doc.has_attribute?(:'data-scope')
+          values = {}
+          values[:data] = data if data
+          presenter.observed?(view.scoped_as, :bind, traversal, values)
+        else
+          data && view[0].text == data
+        end
       end
 
       def appended?(appended_view = nil)
