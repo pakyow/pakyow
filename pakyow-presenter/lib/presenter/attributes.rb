@@ -170,7 +170,7 @@ module Pakyow
       end
 
       def include?(attribute)
-        @attributes.key?(attribute)
+        @doc.has_attribute?(attribute)
       end
 
       protected
