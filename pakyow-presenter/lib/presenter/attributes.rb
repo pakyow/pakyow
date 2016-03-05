@@ -158,7 +158,7 @@ module Pakyow
       end
 
       def method(*args)
-        method_missing(:id, *args)
+        method_missing(:method, *args)
       end
 
       def update_value_for_attribute(attribute, value)
