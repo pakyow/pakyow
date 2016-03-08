@@ -6,9 +6,9 @@ require 'mail'
 require 'premailer'
 
 # Base
-require 'mailer/mailer'
-require 'mailer/config/mailer'
-require 'mailer/helpers'
-require 'mailer/ext/premailer/adapter/oga'
+require 'pakyow/mailer/mailer'
+require 'pakyow/mailer/config/mailer'
+require 'pakyow/mailer/helpers'
+require 'pakyow/mailer/ext/premailer/adapter/oga'
 
 Premailer::Adapter.use = :oga
