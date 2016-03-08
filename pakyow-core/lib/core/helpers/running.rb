@@ -44,15 +44,13 @@ module Pakyow
       # @api public
       def run(*env_or_envs)
         return true if running?
-
+        @running = true
         builder.run(stage(*env_or_envs))
         detect_handler.run(builder, Host: config.server.host, Port: config.server.port) do |server|
           SIGNALS.each do |signal|
             trap(signal) { stop(server) }
           end
         end
-
-        @running = true
       end
 
       # Returns true if the application is prepared.
