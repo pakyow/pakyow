@@ -1,6 +1,6 @@
 require_relative '../spec_helper'
 require 'core/config'
-require 'presenter/config/presenter'
+require 'pakyow/presenter/config/presenter'
 
 describe 'configuration' do
   it 'registers presenter config' do

@@ -4,9 +4,9 @@ $LOAD_PATH.unshift(libdir) unless $LOAD_PATH.include?(libdir)
 # Gems
 require 'oga'
 
-require 'presenter/base'
-require 'presenter/presenter'
-require 'presenter/config/presenter'
-require 'presenter/helpers'
-require 'presenter/ext/app'
-require 'presenter/ext/call_context'
+require 'pakyow/presenter/base'
+require 'pakyow/presenter/presenter'
+require 'pakyow/presenter/config/presenter'
+require 'pakyow/presenter/helpers'
+require 'pakyow/presenter/ext/app'
+require 'pakyow/presenter/ext/call_context'
