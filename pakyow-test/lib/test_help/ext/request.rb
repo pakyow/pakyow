@@ -1,9 +1,11 @@
 module Pakyow
-  class Request
-    old_params = instance_method(:params)
-
-    define_method :params do
-      env.fetch('pakyow.params', old_params.bind(self).())
+  module ParamsOverride
+    def params
+      env.fetch('pakyow.params') { super }
     end
+  end
+
+  class Request
+    prepend ParamsOverride
   end
 end
