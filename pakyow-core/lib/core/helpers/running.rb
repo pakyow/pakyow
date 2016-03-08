@@ -24,6 +24,9 @@ module Pakyow
         # load each block from middleware stack
         load_middleware
 
+        # add app/lib to load path
+        $LOAD_PATH.unshift config.app.src_dir
+
         @prepared = true
       end
 
