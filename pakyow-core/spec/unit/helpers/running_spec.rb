@@ -140,7 +140,7 @@ describe Pakyow::Helpers::Running do
 
     it 'adds src_dir to load path' do
       mock.prepare(*envs)
-      expect($:).to include(mock.src_dir)
+      expect($LOAD_PATH).to include(mock.src_dir)
     end
 
     context 'called when already prepared' do
