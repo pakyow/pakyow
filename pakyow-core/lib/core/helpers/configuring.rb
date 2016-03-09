@@ -110,11 +110,11 @@ module Pakyow
           config.app.loaded_envs = envs
           config.env = envs.first
 
+          load_env(:global)
+
           envs.each do |env|
             load_env(env)
           end
-
-          load_env(:global)
 
           Pakyow.configure_logger
         end
