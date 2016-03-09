@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'core/middleware/reloader'
+require 'pakyow/core/middleware/reloader'
 
 describe Pakyow::Middleware::Reloader do
   let :app do

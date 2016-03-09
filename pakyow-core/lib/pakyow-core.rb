@@ -10,4 +10,4 @@ require 'cgi'
 
 require 'pakyow-support'
 
-require 'core/base'
+require 'pakyow/core/base'

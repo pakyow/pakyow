@@ -1,5 +1,5 @@
 require_relative '../spec_helper'
-require 'core/config'
+require 'pakyow/core/config'
 
 describe Pakyow::Config do
   before do
