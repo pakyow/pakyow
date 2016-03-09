@@ -1,4 +1,4 @@
-require File.expand_path('../lib/version', __FILE__)
+require "pakyow/version"
 
 libs = %i[
   pakyow-support
