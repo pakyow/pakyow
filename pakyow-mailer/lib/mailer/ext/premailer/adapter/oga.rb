@@ -20,27 +20,27 @@ class Premailer
   # we just pulled this method in and made it work w/ Oga.
   def load_css_from_html! # :nodoc:
     tags = @doc.css("link[rel='stylesheet']").reject { |tag|
-      tag.attributes['data-premailer'] == 'ignore'
+      tag.attribute('data-premailer') == 'ignore'
     }
 
     if tags
       tags.each do |tag|
-        if tag.to_s.strip =~ /^\<link/i && tag.attributes['href'] && media_type_ok?(tag.attributes['media']) && @options[:include_link_tags]
+        if tag.to_s.strip =~ /^\<link/i && tag.attribute('href') && media_type_ok?(tag.attribute('media')) && @options[:include_link_tags]
           # A user might want to <link /> to a local css file that is also mirrored on the site
           # but the local one is different (e.g. newer) than the live file, premailer will now choose the local file
 
-          if tag.attributes['href'].to_s.include? @base_url.to_s and @html_file.kind_of?(String)
+          if tag.attribute('href').to_s.include? @base_url.to_s and @html_file.kind_of?(String)
             if @options[:with_html_string]
-              link_uri = tag.attributes['href'].to_s.sub(@base_url.to_s, '')
+              link_uri = tag.attribute('href').to_s.sub(@base_url.to_s, '')
             else
-              link_uri = File.join(File.dirname(@html_file), tag.attributes['href'].to_s.sub!(@base_url.to_s, ''))
+              link_uri = File.join(File.dirname(@html_file), tag.attribute('href').to_s.sub!(@base_url.to_s, ''))
               # if the file does not exist locally, try to grab the remote reference
               unless File.exists?(link_uri)
-                link_uri = Premailer.resolve_link(tag.attributes['href'].to_s, @html_file)
+                link_uri = Premailer.resolve_link(tag.attribute('href').to_s, @html_file)
               end
             end
           else
-            link_uri = tag.attributes['href'].to_s
+            link_uri = tag.attribute('href').to_s
           end
 
           if Premailer.local_data?(link_uri)
@@ -77,7 +77,7 @@ class Premailer
         # Give all styles already in style attributes a specificity of 1000
         # per http://www.w3.org/TR/CSS21/cascade.html#specificity
         doc.css("*[style]").each do |el|
-          el['style'] = '[SPEC=1000[' + el.attributes['style'] + ']]'
+          el['style'] = '[SPEC=1000[' + el.attribute('style') + ']]'
         end
         # Iterate through the rules and merge them into the HTML
         @css_parser.each_selector(:all) do |selector, declaration, specificity, media_types|
@@ -105,7 +105,7 @@ class Premailer
                 if el.elem? and (el.name != 'head' and el.parent.name != 'head')
                   # Add a style attribute or append to the existing one
                   block = "[SPEC=#{specificity}[#{declaration}]]"
-                  el['style'] = (el.attributes['style'].to_s ||= '') + ' ' + block
+                  el['style'] = (el.attribute('style').to_s ||= '') + ' ' + block
                 end
               end
             rescue RuntimeError, ArgumentError
@@ -122,7 +122,7 @@ class Premailer
 
         # Read STYLE attributes and perform folding
         doc.css("*[style]").each do |el|
-          style = el.attributes['style'].to_s
+          style = el.attribute('style').to_s
 
           declarations = []
           style.scan(/\[SPEC\=([\d]+)\[(.[^\]\]]*)\]\]/).each do |declaration|
@@ -159,7 +159,7 @@ class Premailer
             if el.comment? and @options[:remove_comments]
               el.remove
             elsif el.element?
-              el.remove_attribute('class') if @options[:remove_classes]
+              el.unset('class') if @options[:remove_classes]
             end
           end
         end
@@ -170,22 +170,22 @@ class Premailer
           doc.css("a[@href^='#']").each do |el|
             target = el.get_attribute('href')[1..-1]
             targets << target
-            el.set_attribute('href', "#" + Digest::MD5.hexdigest(target))
+            el.set('href', "#" + Digest::MD5.hexdigest(target))
           end
           # hash ids that are links target, delete others
           doc.css("*[@id]").each do |el|
             id = el.get_attribute('id')
             if targets.include?(id)
-              el.set_attribute('id', Digest::MD5.hexdigest(id))
+              el.set('id', Digest::MD5.hexdigest(id))
             else
-              el.remove_attribute('id')
+              el.unset('id')
             end
           end
         end
 
         if @options[:reset_contenteditable]
           doc.css('*[contenteditable]').each do |el|
-            el.remove_attribute('contenteditable')
+            el.unset('contenteditable')
           end
         end
 
