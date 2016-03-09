@@ -2,8 +2,9 @@ module Pakyow
   class Mailer
     attr_accessor :view, :message, :processed
 
-    def self.from_store(view_path, view_store)
-      new(view: view_store.view(view_path))
+    def self.from_store(view_path, view_store, context = nil)
+      view = view_store.view(view_path)
+      new(view: Pakyow::Presenter::ViewContext.new(view, context))
     end
 
     def initialize(view: nil, content: nil)

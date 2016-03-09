@@ -8,3 +8,9 @@ Pakyow::App.define do
   #   TestHandler
   # end
 end
+
+Pakyow::App.mutators :foo do
+  mutator :bar do |view, data|
+    view.apply(data)
+  end
+end
