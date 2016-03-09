@@ -41,6 +41,6 @@ Pakyow::Realtime.handler :'call-route' do |message, session, response|
 
   response[:status]  = res[0]
   response[:headers] = res[1]
-  response[:body]    = body
+  response[:body]    = body.is_a?(StringIO) ? body.read : body
   response
 end
