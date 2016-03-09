@@ -1,4 +1,4 @@
-require_relative '../lib/pakyow-test'
+require 'pakyow-test'
 
 if ENV['COVERAGE']
   require 'simplecov'

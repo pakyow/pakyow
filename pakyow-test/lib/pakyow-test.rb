@@ -5,21 +5,21 @@ require 'pakyow-mailer'
 require 'pakyow-realtime'
 require 'pakyow-ui'
 
-require_relative 'test_help/ext/request'
-require_relative 'test_help/ext/response'
+require_relative 'pakyow/test_help/ext/request'
+require_relative 'pakyow/test_help/ext/response'
 
-require_relative 'test_help/mocks/presenter_mock'
-require_relative 'test_help/mocks/status_mock'
+require_relative 'pakyow/test_help/mocks/presenter_mock'
+require_relative 'pakyow/test_help/mocks/status_mock'
 
-require_relative 'test_help/observables/observable_presenter'
-require_relative 'test_help/observables/observable_view'
-require_relative 'test_help/observables/observable_logger'
-require_relative 'test_help/observables/realtime/observable_context'
-require_relative 'test_help/observables/realtime/observable_mutator'
+require_relative 'pakyow/test_help/observables/observable_presenter'
+require_relative 'pakyow/test_help/observables/observable_view'
+require_relative 'pakyow/test_help/observables/observable_logger'
+require_relative 'pakyow/test_help/observables/realtime/observable_context'
+require_relative 'pakyow/test_help/observables/realtime/observable_mutator'
 
-require_relative 'test_help/helpers'
-require_relative 'test_help/simulator'
-require_relative 'test_help/simulation'
+require_relative 'pakyow/test_help/helpers'
+require_relative 'pakyow/test_help/simulator'
+require_relative 'pakyow/test_help/simulation'
 
 module Pakyow
   module TestHelp
