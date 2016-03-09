@@ -2,7 +2,7 @@ libdir = File.dirname(__FILE__)
 $LOAD_PATH.unshift(libdir) unless $LOAD_PATH.include?(libdir)
 
 # Gems
-require 'nokogiri'
+require 'oga'
 
 require 'presenter/base'
 require 'presenter/presenter'

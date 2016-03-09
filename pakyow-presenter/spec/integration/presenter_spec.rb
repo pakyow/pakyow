@@ -54,7 +54,7 @@ describe Pakyow::Presenter::Presenter do
       new_content = 'reloaded'
       original_content = File.open(file, 'r').read
       File.open(file, 'w') { |f| f.write(new_content) }
-      composed = str_to_doc(@presenter.view.composed.to_html).css('body').inner_text.strip
+      composed = str_to_doc(@presenter.view.composed.to_html).css('body').text.strip
 
       expect(original_content.strip).to eq composed
     end
@@ -65,7 +65,7 @@ describe Pakyow::Presenter::Presenter do
       File.open(file, 'w') { |f| f.write(new_content) }
       @presenter.load
       setup
-      composed = str_to_doc(@presenter.view.composed.to_html).css('body').children.to_html.strip
+      composed = str_to_doc(@presenter.view.composed.to_html).css('body').first.text.strip
 
       expect(new_content).to eq composed
     end
@@ -143,7 +143,7 @@ describe Pakyow::Presenter::Presenter do
     it 'uses current page' do
       page = @presenter.store.page('sub')
       @presenter.page = page
-      composed = str_to_doc(@presenter.view.composed.to_html).css('body').inner_text.strip
+      composed = str_to_doc(@presenter.view.composed.to_html).css('body').text.strip
 
       expect(page.content(:default).to_s.strip).to eq composed
     end

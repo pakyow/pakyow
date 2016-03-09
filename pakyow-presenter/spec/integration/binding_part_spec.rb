@@ -19,7 +19,7 @@ describe 'defining a binding part' do
 
   let(:data) do
     binder.value_for_scoped_prop(:foo, :bar, {}, {}, @context)
-  end 
+  end
 
   before :each do
     setup
@@ -31,7 +31,7 @@ describe 'defining a binding part' do
 
   describe "defining a single binding part" do
     before do
-      app.bindings do 
+      app.bindings do
         scope :foo do
           binding :bar do
             part :href do
@@ -44,13 +44,13 @@ describe 'defining a binding part' do
     end
 
     it "defines a part of a binding" do
-      expect(data).to have_key :href 
+      expect(data).to have_key :href
     end
   end
 
   describe 'defining multiple parts' do
     before do
-      app.bindings do 
+      app.bindings do
         scope :foo do
           binding :bar do
             part :href do
@@ -87,8 +87,8 @@ describe 'defining a binding part' do
     end
 
     it "defines multiple parts" do
-      expect(data).to have_key :href 
-      expect(data).to have_key :content 
+      expect(data).to have_key :href
+      expect(data).to have_key :content
       expect(data[:href].call()).to eq "/path/to/foo/bar"
       expect(data[:content].call()).to eq "Link to foo bar"
 
@@ -124,7 +124,7 @@ describe 'defining a binding part' do
 
   describe 'hash return value in bindings' do
     before do
-      app.bindings do 
+      app.bindings do
         scope :foo do
           binding :bar do
             part :href do
@@ -134,7 +134,7 @@ describe 'defining a binding part' do
             part :content do
               "Something else"
             end
-            { href: "/another/path" } 
+            { href: "/another/path" }
           end
         end
       end

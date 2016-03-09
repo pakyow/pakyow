@@ -43,7 +43,6 @@ module Pakyow
       # Creates a view from a doc.
       #
       # @see StringDoc
-      # @see NokogiriDoc
       #
       def self.from_doc(doc)
         view = new
@@ -456,30 +455,38 @@ module Pakyow
         options = Binder.instance.options_for_scoped_prop(scope, prop, bindable, ctx)
         return if options.nil?
 
-        option_nodes = Nokogiri::HTML::DocumentFragment.parse('')
-        Nokogiri::HTML::Builder.with(option_nodes) do |h|
-          until options.length == 0
-            catch :optgroup do
-              o = options.first
+        nodes = Oga::XML::Document.new
 
-              # an array containing value/content
-              if o.is_a?(Array)
-                h.option o[1], value: o[0]
+        until options.length == 0
+          catch :optgroup do
+            o = options.first
+
+            # an array containing value/content
+            if o.is_a?(Array)
+              node = Oga::XML::Element.new(name: 'option')
+              node.inner_text = o[1].to_s
+              node.set('value', o[0].to_s)
+              nodes.children << node
+              options.shift
+            else # likely an object (e.g. string); start a group
+              node_group = Oga::XML::Element.new(name: 'optgroup')
+              node_group.set('label', o.to_s)
+              nodes.children << node_group
+
+              options.shift
+
+              options[0..-1].each_with_index { |o2,i2|
+                # starting a new group
+                throw :optgroup unless o2.is_a?(Array)
+
+                h.option o2[1].to_s, value: o2[0].to_s
+
+                node = Oga::XML::Element.new(name: 'option')
+                node.inner_text = o2[1].to_s
+                node.set('value', o2[0].to_s)
+                node_group.children << node
                 options.shift
-                # likely an object (e.g. string); start a group
-              else
-                h.optgroup(label: o) {
-                  options.shift
-
-                  options[0..-1].each_with_index { |o2,i2|
-                    # starting a new group
-                    throw :optgroup unless o2.is_a?(Array)
-
-                    h.option o2[1], value: o2[0]
-                    options.shift
-                  }
-                }
-              end
+              }
             end
           end
         end
@@ -488,7 +495,7 @@ module Pakyow
         doc.clear
 
         # add generated options
-        doc.append(option_nodes.to_html)
+        doc.append(nodes.to_xml)
       end
 
       def select_option_with_value(doc, value)

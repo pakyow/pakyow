@@ -54,36 +54,36 @@ describe Pakyow::Presenter::ViewStore do
   end
 
   it 'uses default page content' do
-    expect('index').to eq str_to_doc(@store.view('/').to_html).css('body').children.to_html.strip
+    expect('index').to eq str_to_doc(@store.view('/').to_html).css('body').first.inner_text.strip
   end
 
   it 'uses named page content' do
-    expect('multi side').to eq str_to_doc(@store.view('multi').to_html).css('body').children.to_html.strip
+    expect('multi side').to eq str_to_doc(@store.view('multi').to_html).css('body').first.inner_text.strip
   end
 
   it 'falls back when no page' do
-    expect('index').to eq str_to_doc(@store.view("no_page").to_html).css('body').inner_text.strip
+    expect('index').to eq str_to_doc(@store.view("no_page").to_html).css('body').first.inner_text.strip
   end
 
   it 'includes partial at current path' do
-    expect('partial1').to eq str_to_doc(@store.view('/partial').to_html).css('body').children.to_html.strip
+    expect('partial1').to eq str_to_doc(@store.view('/partial').to_html).css('body').first.inner_text.strip
   end
 
   it 'test partials can be overridden' do
-    expect('partial1.1').to eq str_to_doc(@store.view('/partial/override').to_html).css('body').children.to_html.strip
+    expect('partial1.1').to eq str_to_doc(@store.view('/partial/override').to_html).css('body').first.inner_text.strip
   end
 
   it 'partials include other partials' do
-    expect('partial2').to eq str_to_doc(@store.view('/partial/inception').to_html).css('body').children.to_html.strip
+    expect('partial2').to eq str_to_doc(@store.view('/partial/inception').to_html).css('body').first.inner_text.strip
   end
 
   it 'template includes partials' do
-    expect('partial1').to eq str_to_doc(@store.view('/partial/template').to_html).css('body').children.to_html.strip
+    expect('partial1').to eq str_to_doc(@store.view('/partial/template').to_html).css('body').first.inner_text.strip
   end
 
   it 'template_is_retrievable_by_name' do
     template = @store.template(:multi)
-    expect('multi').to eq str_to_doc(template.to_html).css('title').inner_html.strip
+    expect('multi').to eq str_to_doc(template.to_html).css('title').first.inner_text.strip
   end
 
   it 'partial can be retrieved for path' do
@@ -93,7 +93,7 @@ describe Pakyow::Presenter::ViewStore do
   end
 
   it  'partials can be included multiple times' do
-    expect("partial1partial1").to eq str_to_doc(@store.view('/partial/multiple').to_html).css('body').inner_text.strip.gsub("\n", '')
+    expect("partial1partial1").to eq str_to_doc(@store.view('/partial/multiple').to_html).css('body').first.inner_text.strip.gsub("\n", '')
   end
 
   it 'view building does not modify template' do

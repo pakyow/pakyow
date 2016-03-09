@@ -4,6 +4,8 @@ module Pakyow
   class Response < Rack::Response
     attr_reader :format
 
+    DEFAULT_CONTENT_TYPE = 'text/html;charset=utf-8'.freeze
+
     STATUS_CODE_NAMES = {
       100 => 'Continue',
       101 => 'Switching Protocols',
@@ -117,13 +119,13 @@ module Pakyow
     def initialize(*args)
       super
 
-      self["Content-Type"] ||= 'text/html'
+      self["Content-Type"] ||= DEFAULT_CONTENT_TYPE
       @format = Rack::Mime::MIME_TYPES.key(type)
     end
 
     def format=(format)
       @format = format
-      self["Content-Type"] = Rack::Mime.mime_type(".#{format}")
+      self["Content-Type"] = format == :html ? DEFAULT_CONTENT_TYPE : Rack::Mime.mime_type(".#{format}")
     end
 
     def type

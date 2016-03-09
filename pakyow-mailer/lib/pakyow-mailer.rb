@@ -1,7 +1,7 @@
 libdir = File.dirname(__FILE__)
 $LOAD_PATH.unshift(libdir) unless $LOAD_PATH.include?(libdir)
 
-# Gems 
+# Gems
 require 'mail'
 require 'premailer'
 
@@ -9,3 +9,6 @@ require 'premailer'
 require 'mailer/mailer'
 require 'mailer/config/mailer'
 require 'mailer/helpers'
+require 'mailer/ext/premailer/adapter/oga'
+
+Premailer::Adapter.use = :oga

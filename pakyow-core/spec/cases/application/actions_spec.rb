@@ -120,7 +120,7 @@ describe  'App Actions' do
     }
 
     expect(@context.response.body.read).to eq data
-    expect(@context.response.header['Content-Type']).to eq 'text/html'
+    expect(@context.response.header['Content-Type']).to eq 'text/html;charset=utf-8'
   end
 
   it 'can send data with type' do

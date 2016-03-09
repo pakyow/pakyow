@@ -51,6 +51,10 @@ module Pakyow
         end
       end
 
+      def attribute?(name)
+        attributes.key?(name.to_sym)
+      end
+
       def set_attribute(name, value)
         return if attributes.nil?
         attributes[name.to_sym] = value
