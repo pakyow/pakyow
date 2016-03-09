@@ -1,4 +1,4 @@
-require_relative '../lib/support/file'
+require 'pakyow/support/file'
 
 describe File do
   describe 'format' do

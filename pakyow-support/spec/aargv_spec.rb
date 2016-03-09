@@ -1,4 +1,4 @@
-require_relative '../lib/support/aargv'
+require 'pakyow/support/aargv'
 
 describe Aargv do
 
