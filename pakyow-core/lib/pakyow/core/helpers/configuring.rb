@@ -131,8 +131,11 @@ module Pakyow
       end
 
       def load_env(env)
-        config.app_config(&env_config.fetch(env))
-      rescue KeyError
+        config.app_config(&config_for(env))
+      end
+
+      def config_for(env)
+        env_config.fetch(env) { proc{} }
       end
     end
   end
