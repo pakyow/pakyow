@@ -1,7 +1,11 @@
 module Pakyow
-  class Request
+  module ParamsOverride
     def params
-      env['pakyow.params']
+      env.fetch('pakyow.params') { super }
     end
+  end
+
+  class Request
+    prepend ParamsOverride
   end
 end
