@@ -27,17 +27,20 @@ module Pakyow
       end
 
       Pakyow::App.before(:init) {
+        next unless Config.presenter.enabled
         @presenter = Presenter.new
         ViewStoreLoader.instance.reset
       }
 
       Pakyow::App.after(:match) {
+        next unless config.presenter.enabled
         @presenter = Pakyow.app.presenter.dup
         @presenter.prepare_with_context(context)
       }
 
       Pakyow::App.after(:route) {
-        if Config.presenter.require_route && !found?
+        next unless config.presenter.enabled
+        if config.presenter.require_route && !found?
           @found 
         else
           if @presenter.presented?
@@ -50,13 +53,13 @@ module Pakyow
       }
 
       Pakyow::App.after(:load) {
+        next unless Config.presenter.enabled
         @presenter.load
       }
 
       Pakyow::App.after(:error) {
-        unless config.app.errors_in_browser
-          @context.response.body = [@presenter.content] if @presenter.presented?
-        end
+        next unless Config.presenter.enabled || Config.app.errors_in_browser
+        @context.response.body = [@presenter.content] if @presenter.presented?
       }
 
       attr_accessor :processor_store, :binder, :path, :context, :composer

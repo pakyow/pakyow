@@ -15,6 +15,29 @@ describe 'configuration' do
         .keys
     end
 
+    describe 'enabled' do
+      it 'is defined' do
+        expect(opts).to include(:enabled)
+      end
+
+
+      it 'sets the default value to true' do
+        Pakyow::Config.env = :development
+        expect(Pakyow::Config.presenter.enabled).to eq(true)
+        Pakyow::Config.env = :production
+        expect(Pakyow::Config.presenter.enabled).to eq(true)
+        Pakyow::Config.env = :test
+        expect(Pakyow::Config.presenter.enabled).to eq(true)
+      end
+
+      it 'does not set up the presenter callback if set to false' do
+        Pakyow::Config.presenter.enabled = false
+        Pakyow::App.stage(:test)
+        expect(Pakyow.app.instance_variable_get(:@presenter)).to be_nil
+        Pakyow::Config.presenter.enabled = true
+      end
+    end
+
     describe 'require_route' do
       it 'is defined' do
         expect(opts).to include(:require_route)

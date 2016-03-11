@@ -1,4 +1,7 @@
 Pakyow::Config.register :presenter do |config|
+  # enable/disable presenter
+  config.opt :enabled, true
+
   # registered view stores
   config.opt :view_stores, -> {
     @stores ||= {
