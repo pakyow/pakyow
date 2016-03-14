@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gemspec
 
-gem 'rake', '~> 10.4'
+gem 'rake', '~> 11.1'
 gem 'rack', '~> 1.6'
 
 # presenter
