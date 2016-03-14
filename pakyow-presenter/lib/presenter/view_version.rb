@@ -15,6 +15,16 @@ class Pakyow::Presenter::ViewVersion
     @default = versions.first
   end
 
+  def with(&block)
+    if block.arity == 0
+      instance_exec(&block)
+    else
+      yield(self)
+    end
+
+    self
+  end
+
   def apply(data, bindings: {}, context: nil, &block)
     data = Array.ensure(data)
 
@@ -79,7 +89,7 @@ class Pakyow::Presenter::ViewVersion
 
   def method_missing(method, *args, &block)
     if @default.respond_to?(method)
-      @default.send(method, *args, &block)   
+      @default.send(method, *args, &block)
     end
   end
 
