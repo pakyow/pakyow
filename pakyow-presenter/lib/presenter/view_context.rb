@@ -44,16 +44,20 @@ module Pakyow
         end
       end
 
-      def scope(name)
-        collection = @view.scope(name)
+      # View methods that support versioning.
+      #
+      %i[scope prop].each do |method|
+        define_method(method) do |*args|
+          collection = @view.send(method, *args)
 
-        if !collection.is_a?(ViewVersion) && collection.versioned?
-          ret = ViewVersion.new(collection.views)
-        else
-          ret = collection
+          if collection.views && collection.versioned?
+            ret = ViewVersion.new(collection.views)
+          else
+            ret = collection
+          end
+
+          handle_return_value(ret)
         end
-
-        handle_return_value(ret)
       end
 
       # Pass these through, handling the return value.
