@@ -1,6 +1,6 @@
-require_relative '../lib/support/aargv'
+require 'pakyow/support/aargv'
 
-describe Aargv do
+describe Pakyow::Aargv do
 
   it "names args" do
     v1 = 'foo'
@@ -11,8 +11,8 @@ describe Aargv do
       sym: v2,
     }
 
-    expect(Aargv.normalize([v1, v2], str: String, sym: Symbol)).to eq(expected_ret)
-    expect(Aargv.normalize([v2, v1], str: String, sym: Symbol)).to eq(expected_ret)
+    expect(described_class.normalize([v1, v2], str: String, sym: Symbol)).to eq(expected_ret)
+    expect(described_class.normalize([v2, v1], str: String, sym: Symbol)).to eq(expected_ret)
   end
 
   it "mixes in default values" do
@@ -24,7 +24,7 @@ describe Aargv do
       sym: v2,
     }
 
-    expect(Aargv.normalize([v1], str: String, sym: [Symbol, v2])).to eq(expected_ret)
+    expect(described_class.normalize([v1], str: String, sym: [Symbol, v2])).to eq(expected_ret)
   end
 
   it "respects real values when default" do
@@ -36,7 +36,7 @@ describe Aargv do
       sym: v2,
     }
 
-    expect(Aargv.normalize([v1, v2], str: String, sym: [Symbol, :def])).to eq(expected_ret)
+    expect(described_class.normalize([v1, v2], str: String, sym: [Symbol, :def])).to eq(expected_ret)
   end
 
   it "ignores values when no default" do
@@ -46,7 +46,7 @@ describe Aargv do
       str: v1
     }
 
-    expect(Aargv.normalize([v1], str: String, sym: Symbol)).to eq(expected_ret)
+    expect(described_class.normalize([v1], str: String, sym: Symbol)).to eq(expected_ret)
   end
 
 end

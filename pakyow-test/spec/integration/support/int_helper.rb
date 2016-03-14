@@ -1,4 +1,4 @@
-require_relative '../../spec_helper'
+require 'spec_helper'
 
 Pakyow::TestHelp.setup('./spec/integration/support/test_app/pakyow')
 

@@ -1,5 +1,5 @@
 require_relative 'support/unit_helper'
-require_relative '../../lib/test_help/helpers'
+require 'pakyow/test_help/helpers'
 
 class HelperIncluder
   include Pakyow::TestHelp::Helpers

@@ -1,4 +1,4 @@
-require 'version'
+require 'pakyow/version'
 
 %w[
   pakyow-support

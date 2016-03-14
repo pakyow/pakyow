@@ -1,6 +1,6 @@
 require_relative '../../spec_helper'
 
-require 'core/helpers/hooks'
+require 'pakyow/core/helpers/hooks'
 
 module Spec
   class HooksAppMock

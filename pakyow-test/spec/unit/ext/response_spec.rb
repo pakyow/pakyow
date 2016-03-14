@@ -1,5 +1,5 @@
 require_relative '../support/unit_helper'
-require_relative '../../../lib/test_help/ext/response'
+require 'pakyow/test_help/ext/response'
 
 describe Pakyow::Response do
   describe 'status' do

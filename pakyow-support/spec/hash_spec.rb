@@ -1,4 +1,4 @@
-require_relative '../lib/support/hash'
+require 'pakyow/support/hash'
 
 describe Hash do
   describe 'deep_merge' do

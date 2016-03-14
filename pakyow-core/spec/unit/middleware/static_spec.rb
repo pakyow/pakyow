@@ -1,6 +1,6 @@
 require 'fileutils'
 require 'spec_helper'
-require 'core/middleware/static'
+require 'pakyow/core/middleware/static'
 
 RSpec::Matchers.define :a_file_like do |file|
   match { |actual| actual.path == file.path }

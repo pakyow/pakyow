@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'core/middleware/req_path_normalizer'
+require 'pakyow/core/middleware/req_path_normalizer'
 
 describe Pakyow::Middleware::ReqPathNormalizer do
   let :app do

@@ -1,4 +1,4 @@
-require File.expand_path('../../lib/version', __FILE__)
+require File.expand_path('../../lib/pakyow/version', __FILE__)
 lib_path = File.exists?('pakyow-test') ? 'pakyow-test' : '.'
 
 Gem::Specification.new do |spec|
