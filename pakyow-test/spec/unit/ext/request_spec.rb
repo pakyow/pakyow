@@ -1,5 +1,5 @@
 require_relative '../support/unit_helper'
-require_relative '../../../lib/test_help/ext/request'
+require_relative '../../../lib/pakyow/test_help/ext/request'
 
 describe Pakyow::Request do
   describe 'params' do

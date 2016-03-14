@@ -1,7 +1,7 @@
 require_relative '../../spec_helper'
 
 require 'pakyow-support'
-require 'core/helpers/configuring'
+require 'pakyow/core/helpers/configuring'
 
 module Spec
   class ConfiguringAppMock

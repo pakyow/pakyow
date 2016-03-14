@@ -1,4 +1,4 @@
-require 'core/call_context'
+require 'pakyow/core/call_context'
 
 module Pakyow
   module Middleware

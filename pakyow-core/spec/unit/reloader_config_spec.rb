@@ -1,6 +1,6 @@
 require_relative '../spec_helper'
-require 'core/config'
-require 'core/config/reloader'
+require 'pakyow/core/config'
+require 'pakyow/core/config/reloader'
 
 describe 'configuration' do
   it 'registers reloader config' do

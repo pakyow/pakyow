@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'core/helpers/running'
+require 'pakyow/core/helpers/running'
 
 module Spec
   class RunningAppMock

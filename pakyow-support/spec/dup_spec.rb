@@ -1,4 +1,4 @@
-require_relative '../lib/support/dup'
+require 'pakyow/support/dup'
 
 describe Pakyow::Utils::Dup do
   describe 'deep' do

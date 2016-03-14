@@ -1,4 +1,4 @@
-require_relative '../lib/support/string'
+require 'pakyow/support/string'
 
 describe String do
   describe 'remove_route_vars' do

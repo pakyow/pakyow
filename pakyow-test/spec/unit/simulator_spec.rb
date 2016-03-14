@@ -1,5 +1,5 @@
 require_relative 'support/unit_helper'
-require_relative '../../lib/test_help/simulator'
+require 'pakyow/test_help/simulator'
 
 describe Pakyow::TestHelp::Simulator do
   let :simulator do

@@ -1,4 +1,4 @@
-require_relative '../lib/support/dir'
+require 'pakyow/support/dir'
 
 describe Dir do
   describe 'walk' do
