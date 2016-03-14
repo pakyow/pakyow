@@ -1,10 +1,21 @@
-# 0.10.3
+# 0.11.0
 
   * Adds a `configure` hook for evaluating code before/after configuring app
   * The `Pakyow::App.define` method now returns the defined app
   * Explicitly requires `pakyow-support` so core works on its own
   * Adds a convenience method for defining a restful resource
   * Adds a `reload` hook for evaluating code before/after reloading app
+  * Better support for sending any IO object or String data
+  * Defaults to `global` when defining app configuration
+  * Adds a new `reloader` config namespace
+  * Redirects requests with `//` to single-slash path
+  * Adds the ability to easily disable middleware
+  * Bundles and configures middleware for session handling
+  * Automatically removes the trailing `/` in request path
+  * Now loads the global config options before env-specific options
+  * Adds the source directory to the load path
+  * Sets default Content-Type to utf-8
+  * Moves everything into the Pakyow namespace
 
 # 0.10.2 / 2015-11-15
 

@@ -1,3 +1,7 @@
+# 0.11.0
+
+  * Moves everything into the Pakyow namespace
+
 # 0.10.1  / 2015-10-19
 
   * Fixes require path in gemspec

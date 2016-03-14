@@ -1,8 +1,16 @@
-# 0.10.3
+# 0.11.0
 
   * Fixes several bugs related to nested partials
-  * Reprocess view contents with html processor
+  * Reprocesses view contents with html processor
   * Fixes a bug causing partials not to be duped
+  * Automatically defines bindings as restful
+  * Introduces binding parts
+  * Fixes a bug removing a node from StringDoc
+  * Renames `app.all_views_visible` config option to `presenter.require_route`
+  * Fixes some bugs caused by not properly duping view objects
+  * Replaces Nokogiri with Oga
+  * Moves everything into the Pakyow namespace
+  * Adds support for versioned props
 
 # 0.10.0 / 2015-10-19
 

@@ -1,3 +1,8 @@
+# 0.11.0
+
+  * Adds support to use mutators on a mailer view
+  * Moves everything into the Pakyow namespace
+
 # 0.10.0 / 2015-10-19
 
   * Prevent styles from being mixed into plaintext emails

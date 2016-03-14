@@ -1,12 +1,14 @@
-# 0.10.3
+# 0.11.0
 
   * Generated app updates:
     * Uses dotenv for config management
     * Breaks middleware into pluggable pieces
     * Dynamically sets app name in config
     * Creates a random session secret
-    * Updates Ring to 0.2.1
+    * Updates Ring to 0.2.4
   * Evaluates app template as erb
+  * Improves CLI, including new `version` command
+  * Moves everything into the Pakyow namespace
 
 # 0.10.2 / 2015-11-15
 

@@ -1,7 +1,11 @@
-# 0.10.3
+# 0.11.0
 
-  * Gracefully shutdown WebSocket when something bad happens
-  * Fix a bug calling the root route over a WebSocket
+  * Gracefully shuts down WebSocket when something bad happens
+  * Fixes a bug calling the root route over a WebSocket
+  * Fixes a bug causing join events to be fired before the connection is registered
+  * Fixes a bug causing session to not be serialized in redis
+  * Fixes a bug causing redis subscriptions to never unsubscribe
+  * Properly disconnects from redis as necessary to avoid eating up connections
 
 # 0.10.2 / 2015-11-15
 
