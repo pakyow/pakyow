@@ -1,6 +1,6 @@
 require_relative '../spec_helper'
-require 'pakyow-realtime/helpers'
-require 'pakyow-realtime/context'
+require 'pakyow/realtime/helpers'
+require 'pakyow/realtime/context'
 
 class HelperIncluder
   include Pakyow::Helpers

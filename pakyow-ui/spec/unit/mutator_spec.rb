@@ -1,5 +1,5 @@
 require_relative '../spec_helper'
-require_relative '../../lib/pakyow-ui/mutator'
+require 'pakyow/ui/mutator'
 
 describe Pakyow::UI::Mutator do
   let :mutator_class do

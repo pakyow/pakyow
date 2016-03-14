@@ -1,5 +1,5 @@
 require_relative '../spec_helper'
-require_relative '../../lib/pakyow-ui/ui'
+require 'pakyow/ui/ui'
 
 describe Pakyow::UI::UI do
   let :ui do

@@ -1,5 +1,5 @@
 require_relative '../spec_helper'
-require_relative '../../lib/pakyow-ui/ui_view'
+require 'pakyow/ui/ui_view'
 
 describe Pakyow::UI::UIView do
   let :scope do

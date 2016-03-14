@@ -1,6 +1,6 @@
 require_relative '../spec_helper'
-require 'pakyow-realtime/config'
-require 'pakyow-realtime/registries/redis_registry'
+require 'pakyow/realtime/config'
+require 'pakyow/realtime/registries/redis_registry'
 
 if redis_available?
   describe Pakyow::Realtime::RedisRegistry do

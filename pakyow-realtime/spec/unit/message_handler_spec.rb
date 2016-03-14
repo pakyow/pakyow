@@ -1,5 +1,5 @@
 require_relative '../spec_helper'
-require 'pakyow-realtime/message_handler'
+require 'pakyow/realtime/message_handler'
 
 describe Pakyow::Realtime do
   describe '::handler' do

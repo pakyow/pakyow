@@ -1,5 +1,5 @@
 require_relative '../spec_helper'
-require 'pakyow-realtime/config'
+require 'pakyow/realtime/config'
 
 describe 'configuration' do
   it 'registers realtime config' do

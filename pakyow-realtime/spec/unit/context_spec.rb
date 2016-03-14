@@ -1,6 +1,6 @@
 require_relative '../spec_helper'
-require 'pakyow-realtime/context'
-require 'pakyow-realtime/helpers'
+require 'pakyow/realtime/context'
+require 'pakyow/realtime/helpers'
 
 describe Pakyow::Realtime::Context do
   let :app do

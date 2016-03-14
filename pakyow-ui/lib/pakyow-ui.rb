@@ -1,1 +1,1 @@
-require_relative 'pakyow-ui/base'
+require 'pakyow/ui'

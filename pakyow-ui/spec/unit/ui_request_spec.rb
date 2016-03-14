@@ -1,5 +1,5 @@
 require_relative '../spec_helper'
-require_relative '../../lib/pakyow-ui/ui_request'
+require 'pakyow/ui/ui_request'
 
 describe Pakyow::UI::UIRequest do
   describe '#initialize' do

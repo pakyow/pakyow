@@ -1,5 +1,5 @@
 require_relative '../spec_helper'
-require 'pakyow-realtime/delegate'
+require 'pakyow/realtime/delegate'
 
 describe Pakyow::Realtime::Delegate do
   let :delegate do

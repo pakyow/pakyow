@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.email                  = 'bryan@metabahn.com'
   spec.homepage               = 'http://pakyow.org'
   spec.version                = Pakyow::VERSION
-  spec.require_path           = File.join(lib_path, 'lib')
+  spec.require_path           = 'lib'
   spec.files                  = Dir[
                                   File.join(lib_path, 'CHANGELOG.md'),
                                   File.join(lib_path, 'README.md'),

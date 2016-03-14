@@ -1,5 +1,5 @@
 require_relative '../spec_helper'
-require_relative '../../lib/pakyow-ui/mutate_context'
+require 'pakyow/ui/mutate_context'
 
 describe Pakyow::UI::MutateContext do
   describe '#initialize' do

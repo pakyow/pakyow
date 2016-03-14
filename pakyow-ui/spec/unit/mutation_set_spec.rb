@@ -1,5 +1,5 @@
 require_relative '../spec_helper'
-require_relative '../../lib/pakyow-ui/mutation_set'
+require 'pakyow/ui/mutation_set'
 
 describe Pakyow::UI::MutationSet do
   let :set_class do

@@ -1,0 +1,8 @@
+require 'pakyow/support/array'
+require 'pakyow/support/dir'
+require 'pakyow/support/dup'
+require 'pakyow/support/file'
+require 'pakyow/support/hash'
+require 'pakyow/support/string'
+require 'pakyow/support/aargv'
+require 'pakyow/support/kernel'

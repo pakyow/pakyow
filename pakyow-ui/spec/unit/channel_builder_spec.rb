@@ -1,5 +1,5 @@
 require_relative '../spec_helper'
-require_relative '../../lib/pakyow-ui/channel_builder'
+require 'pakyow/ui/channel_builder'
 
 describe Pakyow::UI::ChannelBuilder do
   describe '#build' do
