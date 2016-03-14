@@ -23,7 +23,7 @@ Pakyow::App.after :process do
   # mixin the socket connection id into the body tag
   # this id is used by pakyow.js to idenfity itself with the server
   #
-  if response.header['Content-Type'] == 'text/html' && Pakyow::Config.realtime.enabled
+  if response.header['Content-Type'].include?('text/html') && Pakyow::Config.realtime.enabled
     next if !response.body.is_a?(Array)
 
     body = response.body.first
