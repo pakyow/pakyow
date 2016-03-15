@@ -11,6 +11,17 @@ module Pakyow
       def run
         load_app
         Pakyow::Config.server.port = port
+        v = 'v' + Pakyow::VERSION
+
+        msg = '                 __                      ' + "\n"\
+              '    ____  ____ _/ /____  ______ _      __' + "\n"\
+              '   / __ \/ __ `/ //_/ / / / __ \ | /| / /' + "\n"\
+              '  / /_/ / /_/ / ,< / /_/ / /_/ / |/ |/ / ' + "\n"\
+              ' / .___/\__,_/_/|_|\__, /\____/|__/|__/  ' + v + "\n"\
+              '/_/               /____/                 ' + "\n"
+
+        puts Pakyow::Logger::COLOR_SEQ % (30 + Pakyow::Logger::COLOR_TABLE.index(:red)) + msg + Pakyow::Logger::RESET_SEQ
+
         Pakyow::App.run(ENV['RACK_ENV'])
       end
 
