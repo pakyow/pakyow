@@ -1,3 +1,5 @@
+require 'pakyow/version'
+
 module Pakyow
   module Commands
     class Server
