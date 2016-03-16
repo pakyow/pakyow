@@ -47,8 +47,8 @@ module Pakyow
     rescue StandardError => error
       request.error = error
 
-      hook_around :error do
-        catch :halt do
+      catch :halt do
+        hook_around :error do
           handle(500, false) unless found?
         end
       end
