@@ -37,6 +37,10 @@ module Pakyow
       raise MissingRoute, "Could not find route '#{name}'"
     end
 
+    def exists?(context)
+      !match(context.request).empty?
+    end
+
     # Performs the initial routing for a request.
     #
     def perform(context, app = Pakyow.app, &after_match)
