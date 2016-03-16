@@ -208,6 +208,8 @@ module Pakyow
             @path_info[normalized_path] = info
           end
         end
+
+        @path_info = Hash[@path_info.sort { |a, b| a <=> b }]
       end
 
       def normalize_path(path, store_path = nil)
