@@ -24,7 +24,7 @@ namespace :pakyow do
 
           all_routes << {
             method: method,
-            path: File.join('/', route[4]),
+            path: File.join('/', route[4].to_s),
             name: name
           }
         }
