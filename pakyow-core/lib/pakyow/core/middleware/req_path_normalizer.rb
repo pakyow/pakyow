@@ -23,7 +23,9 @@ module Pakyow
         path = env['PATH_INFO']
 
         if double_slash?(path) || tail_slash?(path)
-          CallContext.new(env).redirect(normalize_path(path), 301)
+          catch :halt do
+            CallContext.new(env).redirect(normalize_path(path), 301)
+          end
         else
           @app.call(env)
         end
