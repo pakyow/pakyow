@@ -70,12 +70,12 @@ module Pakyow
 
       def push_message_to_socket_with_key(message, channel, key)
         propagate({
-          key: key,
-          channel: channel,
-          message: message
-        },
+            key: key,
+            channel: channel,
+            message: message
+          },
 
-        ["pw:socket:#{key}"])
+          ["pw:socket:#{key}"])
       end
 
       private
@@ -85,10 +85,9 @@ module Pakyow
       def resubscribe
         if @subscriber
           Pakyow::Realtime.redis.publish(@subscriber.signal_channel, RedisSubscription::SIGNAL_UNSUBSCRIBE)
-        else
-          @subscriber = RedisSubscription.new
         end
 
+        @subscriber = RedisSubscription.new
         @subscriber.subscribe(@channels)
       end
 
