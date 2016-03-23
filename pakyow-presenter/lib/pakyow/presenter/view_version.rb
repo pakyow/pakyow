@@ -89,7 +89,13 @@ class Pakyow::Presenter::ViewVersion
 
   def method_missing(method, *args, &block)
     if @default.respond_to?(method)
-      @default.send(method, *args, &block)
+      ret = @default.send(method, *args, &block)
+
+      # because `match` mutates the default view (turning it into a collection), we
+      # need to set default to this new collection so that things continue to work
+      @default = ret if method == :match
+
+      ret
     end
   end
 
