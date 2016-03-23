@@ -1,5 +1,25 @@
 require 'oga'
 
+module Pakyow
+  class OgaAttributes
+    def initialize(attributes)
+      @attributes = attributes
+    end
+
+    def [](key)
+      if key.is_a?(Integer)
+        super
+      else
+        @attributes.find { |a| a.name.to_sym == key.to_sym }
+      end
+    end
+
+    def method_missing(*args, &block)
+      @attributes.send(*args, &block)
+    end
+  end
+end
+
 module Oga
   module XML
     class Document
@@ -9,6 +29,26 @@ module Oga
       # Oga's build-in #css method.
       def search(query)
         css(query.gsub('@', ''))
+      end
+    end
+
+    class Element
+      def attributes
+        Pakyow::OgaAttributes.new(@attributes)
+      end
+
+      def []=(name, value)
+        set(name, value)
+      end
+
+      def [](name)
+        get(name)
+      end
+    end
+
+    class Attribute
+      def to_str
+        value
       end
     end
   end
