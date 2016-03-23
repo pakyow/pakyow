@@ -20,6 +20,7 @@ require_relative 'no_op_view'
 #
 Pakyow::Realtime.handler :'fetch-view' do |message, session, response|
   env = Rack::MockRequest.env_for(message['uri'])
+  env['pakyow.socket'] = true
   env['rack.session'] = session
 
   context = Pakyow::CallContext.new(env)
