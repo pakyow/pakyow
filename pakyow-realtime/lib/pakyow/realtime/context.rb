@@ -53,8 +53,8 @@ module Pakyow
       # identified by key.
       #
       # @api public
-      def push_message_to_socket_with_key(msg, channel, key)
-        delegate.push_message_to_socket_with_key(msg, channel, key)
+      def push_message_to_socket_with_key(msg, channel, key, propagated = false)
+        delegate.push_message_to_socket_with_key(msg, channel, key, propagated)
       end
 
       # Returns an instance of the connection delegate.

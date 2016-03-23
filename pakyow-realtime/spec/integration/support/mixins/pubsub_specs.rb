@@ -35,14 +35,13 @@ shared_examples :pubsub do
       channels.each_with_index do |channel, i|
         post '/sub', { channel: channel }, rack_env_with_session
         expect(registry.channels_for_key(key)).to include(channel)
-        expect(registry.channels_for_key(key).length).to eq(i + 1)
       end
     end
   end
 
   context 'when subscribing the websocket to a single channel' do
     let :channels do
-      [:foo]
+      ['foo']
     end
 
     include_examples :subscribe
@@ -50,7 +49,7 @@ shared_examples :pubsub do
 
   context 'when subscribing the websocket to multiple channels' do
     let :channels do
-      [:foo, :bar]
+      ['foo', 'bar']
     end
 
     include_examples :subscribe

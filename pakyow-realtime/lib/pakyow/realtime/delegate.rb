@@ -29,7 +29,7 @@ module Pakyow
           @channels[channel] << connection
         end
 
-        registry.subscribe_for_propagation(channels) if registry.propagates?
+        registry.subscribe_for_propagation(channels, key) if registry.propagates?
       end
 
       # Unregisters a connection by its key.
@@ -74,17 +74,19 @@ module Pakyow
       end
 
       # Pushes a message down a channel to a specific client (identified by key).
-      def push_message_to_socket_with_key(message, channel, key)
+      def push_message_to_socket_with_key(message, channel, key, propagated = false)
         return if key.nil? || key.empty?
 
-        connection = @connections.find { |_, connection|
-          connection and connection.key == key
-        }
-
-        if connection.nil? && registry.propagates? && !propagated?(message)
+        if registry.propagates? && !propagated
           return registry.push_message_to_socket_with_key(message, channel, key)
-        elsif !connection.nil?
-          connection[1].push(payload: message, channel: channel)
+        else
+          connection = @connections.find { |_, connection|
+            connection and connection.key == key
+          }
+
+          if connection
+            connection[1].push(payload: message, channel: channel)
+          end
         end
       end
 

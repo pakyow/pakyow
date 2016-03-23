@@ -19,31 +19,37 @@ module Pakyow
         Concurrent::Future.execute {
           @redis.subscribe(*channels) do |on|
             on.message do |channel, msg|
-              if channel == signal_channel
-                if msg == SIGNAL_UNSUBSCRIBE
-                  @redis.unsubscribe
-                  @redis.disconnect
-                  return
+              begin
+                msg = JSON.parse(msg)
+
+                if channel == signal_channel
+                  if msg['signal'] == SIGNAL_UNSUBSCRIBE
+                    @resubscribe_channels = msg['resubscribe_channels']
+                    @redis.unsubscribe
+                  end
                 end
-              end
 
-              msg = JSON.parse(msg)
+                if msg.is_a?(Hash)
+                  msg[:__propagated] = true
+                elsif msg.is_a?(Array)
+                  msg << :__propagated
+                end
 
-              if msg.is_a?(Hash)
-                msg[:__propagated] = true
-              elsif msg.is_a?(Array)
-                msg << :__propagated
-              end
+                context = Pakyow::Realtime::Context.new(Pakyow.app)
 
-              context = Pakyow::Realtime::Context.new(Pakyow.app)
-
-              if msg.key?('key')
-                context.push_message_to_socket_with_key(msg['message'], msg['channel'], msg['key'])
-              else
-                context.push(msg, channel)
+                if msg.key?('key')
+                  context.push_message_to_socket_with_key(msg['message'], msg['channel'], msg['key'], true)
+                else
+                  context.push(msg, channel)
+                end
+              rescue StandardError => e
+                Pakyow.logger.error "RedisSubscription encountered a fatal error:"
+                Pakyow.logger.error e.message
               end
             end
           end
+
+          subscribe(@resubscribe_channels) if @resubscribe_channels
         }
       end
 

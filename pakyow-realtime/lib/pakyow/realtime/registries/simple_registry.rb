@@ -24,14 +24,14 @@ module Pakyow
 
       def subscribe_to_channels_for_key(channels, key)
         @channels[key] ||= []
-        @channels[key].concat(Array.ensure(channels.map(&:to_sym))).uniq!
+        @channels[key].concat(Array.ensure(channels)).uniq!
       end
 
       def unsubscribe_to_channels_for_key(channels, key)
         @channels[key] ||= []
-        @channels[key] = @channels[key] - Array.ensure(channels.map(&:to_sym))
+        @channels[key] = @channels[key] - Array.ensure(channels)
       end
-      
+
       def propagates?
         false
       end

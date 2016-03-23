@@ -9,7 +9,7 @@ if redis_available?
     end
 
     let :channels do
-      [:chan1, :chan2, :chan3]
+      ['chan1', 'chan2', 'chan3']
     end
 
     let :key do
@@ -57,6 +57,8 @@ if redis_available?
 
         @original_redis = $redis #registry.instance.instance_variable_get(:@redis)
         $redis = redis
+
+        allow(redis).to receive(:publish)
       end
 
       after do
