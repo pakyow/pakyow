@@ -1,19 +1,7 @@
 # Calls an app route and returns a response, just like an HTTP request!
 #
 Pakyow::Realtime.handler :'call-route' do |message, session, response|
-  path, qs = message['uri'].split('?')
-  path_parts = path.split('/')
-
-  if path =~ /^https?:\/\//
-    path_parts << 'index' if path_parts.count == 3
-  else
-    path_parts << 'index' if path_parts.empty?
-  end
-
-  path_parts[-1] += '.json'
-  uri = [path_parts.join('/'), qs].join('?')
-
-  env = Rack::MockRequest.env_for(uri, method: message['method'])
+  env = Rack::MockRequest.env_for(message['uri'], method: message['method'])
   env['pakyow.socket'] = true
   env['pakyow.data'] = message['input']
   env['rack.session'] = session
