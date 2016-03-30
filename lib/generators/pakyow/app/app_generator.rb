@@ -1,7 +1,7 @@
 require 'erb'
 require 'fileutils'
 require 'securerandom'
-require_relative '../../../version.rb'
+require 'pakyow/version.rb'
 
 module Pakyow
   module Generators
