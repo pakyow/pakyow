@@ -13,7 +13,7 @@ gem 'mail', '~> 2.6'
 gem 'premailer', '~> 1.8'
 
 # realtime
-gem 'websocket_parser', '~> 1.0'
+gem 'websocket', '~> 1.2'
 gem 'redis', '~> 3.2'
 gem 'concurrent-ruby', '~> 1.0'
 

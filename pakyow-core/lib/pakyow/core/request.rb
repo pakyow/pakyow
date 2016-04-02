@@ -59,9 +59,12 @@ module Pakyow
 
     # Returns indifferent params (see {HashUtils.strhash} for more info on indifferent hashes).
     def params
-      @params ||= Hash.strhash(super.merge!(env['pakyow.data'] || {}).merge!(JSON.parse(body.read.to_s)))
-    rescue JSON::JSONError
-      @params = Hash.strhash(super)
+      return @params unless @params.nil?
+
+      @params = super
+      @params.merge!(env['pakyow.data']) if env['pakyow.data'].is_a?(Hash)
+      @params.merge!(JSON.parse(body.read.to_s)) if format == :json
+      @params = Hash.strhash(@params)
     end
 
     # Returns array of url components.

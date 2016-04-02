@@ -15,7 +15,7 @@ shared_examples :pubsub do
     Pakyow::Realtime::Delegate.instance.instance_variable_set(:@registry, registry)
 
     allow(response).to receive(:render)
-    allow(WebSocket::ClientHandshake).to receive(:new).and_return(valid_handshake)
+    # allow(WebSocket::ClientHandshake).to receive(:new).and_return(valid_handshake)
     allow_any_instance_of(Pakyow::CallContext).to receive(:socket_digest).and_return(socket_digest)
 
     Pakyow::App.stage

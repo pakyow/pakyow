@@ -1,5 +1,5 @@
 require 'concurrent'
-require 'websocket_parser'
+require 'websocket'
 
 require_relative 'connection'
 
@@ -18,10 +18,9 @@ module Pakyow
         @req = req
         @key = key
 
-        @handshake = handshake!(req)
-        @socket = hijack!(req)
-
-        handle_handshake
+        @socket = hijack(req)
+        @server = handshake(req)
+        setup
       end
 
       def registered
@@ -45,7 +44,12 @@ module Pakyow
       def push(msg)
         json = JSON.pretty_generate(msg)
         logger.debug "(ws.#{@key}) sending message: #{json}\n"
-        WebSocket::Message.new(json).write(@socket)
+
+        frame = WebSocket::Frame::Outgoing::Server.new(
+          version: @server.version,
+          data: json,
+          type: :text)
+        @socket.write(frame.to_s)
       rescue StandardError => e
         logger.error "(#{@key}): WebSocket encountered a fatal error:"
         logger.error e.message
@@ -61,11 +65,7 @@ module Pakyow
 
       private
 
-      def handshake!(req)
-        WebSocket::ClientHandshake.new(:get, req.url, handshake_headers(req))
-      end
-
-      def hijack!(req)
+      def hijack(req)
         if req.env['rack.hijack']
           req.env['rack.hijack'].call
           return req.env['rack.hijack_io']
@@ -74,74 +74,62 @@ module Pakyow
         end
       end
 
-      def handshake_headers(req)
-        {
-          'Upgrade' => req.env['HTTP_UPGRADE'],
-          'Sec-WebSocket-Version' => req.env['HTTP_SEC_WEBSOCKET_VERSION'],
-          'Sec-Websocket-Key' => req.env['HTTP_SEC_WEBSOCKET_KEY']
-        }
-      end
-
-      def handle_handshake
-        return if @socket.nil?
-
-        if @handshake.valid?
-          accept_handshake
-          setup
-        else
-          fail_handshake
+      def handshake(req)
+        data = "#{req.env['REQUEST_METHOD']} #{req.env['REQUEST_URI']} #{req.env['SERVER_PROTOCOL']}\r\n"
+        req.env.each_pair do |key, val|
+          if key =~ /^HTTP_(.*)/
+            name = rack_env_key_to_http_header_name($1)
+            data << "#{name}: #{val}\r\n"
+          end
         end
+        data << "\r\n"
+
+        server = WebSocket::Handshake::Server.new
+        server << data
+
+        fail HandshakeError, "(ws.#{@key}) error during handshake" unless server.valid?
+        @socket.write(server.to_s)
+
+        server
       end
 
-      def accept_handshake
-        response = @handshake.accept_response
-        response.render(@socket)
-      end
-
-      def fail_handshake
-        error = @handshake.errors.first
-
-        response = Rack::Response.new(400)
-        response.render(@socket)
-
-        fail HandshakeError, "(ws.#{@key}) error during handshake: #{error}"
+      def rack_env_key_to_http_header_name(key)
+        name = key.downcase.gsub('_', '-')
+        name[0] = name[0].upcase
+        name.gsub!(/-(.)/) do |chr|
+          chr.upcase
+        end
+        name
       end
 
       def setup
         logger.info "(ws.#{@key}) client established connection"
 
-        @parser = WebSocket::Parser.new
+        @parser = Parser.new(version: @server.version)
 
-        @parser.on_message do |message|
+        @parser.on :message do |message|
           handle_ws_message(message)
         end
 
-        @parser.on_error do |error|
+        @parser.on :error do |error|
           logger.error "(ws.#{@key}) encountered error #{error}"
           handle_ws_error(error)
         end
 
-        @parser.on_close do |status, message|
+        @parser.on :close do |status, message|
           logger.info "(ws.#{@key}) client closed connection"
           handle_ws_close(status, message)
         end
 
-        @parser.on_ping do |payload|
-          handle_ws_ping(payload)
-        end
-
-        @reader = Concurrent::Future.execute {
+        Concurrent::Future.execute {
           begin
             loop do
               break if shutdown?
-              @parser << @socket.read_nonblock(16_384)
+              @parser << @socket.read_nonblock(1024)
             end
           rescue ::IO::WaitReadable
             IO.select([@socket])
             retry
-          rescue EOFError
-            @parent.delegate.unregister(@key)
-            @parent.shutdown
           end
         }
       end
@@ -168,16 +156,12 @@ module Pakyow
       end
 
       def handle_ws_close(_status, _message)
-        @socket << WebSocket::Message.close.to_data
         shutdown
-      end
-
-      def handle_ws_ping(payload)
-        @socket << WebSocket::Message.pong(payload).to_data
       end
 
       def self.handle_event(event, req)
         context = CallContext.new(req.env)
+
         event_handlers(event).each do |block|
           context.instance_exec(&block)
         end
@@ -185,6 +169,40 @@ module Pakyow
 
       def self.event_handlers(event = nil)
         @event_handlers.fetch(event, [])
+      end
+    end
+
+    class Parser
+      def initialize(version: nil)
+        @parser = WebSocket::Frame::Incoming::Server.new(version: version)
+        @handlers = {}
+      end
+
+      def on(event, &block)
+        @handlers[event] = block
+      end
+
+      def <<(data)
+        @parser << data
+        process
+      end
+
+      private
+
+      def process
+        while (frame = @parser.next)
+          case frame.type
+          when :text
+            handle :message, frame
+          when :close
+            handle :close, frame
+          end
+        end
+      end
+
+      def handle(event, frame)
+        return unless @handlers.keys.include?(event)
+        @handlers[event].call(frame.data)
       end
     end
   end

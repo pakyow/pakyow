@@ -33,13 +33,7 @@ describe 'Request' do
     env = @request.instance_variable_get(:@env)
     env['rack.input'] = StringIO.new('{"hello": "goodbye"}')
     @request.instance_variable_set(:@env, env)
+    @request.instance_variable_set(:@format, :json)
     expect(@request.params[:hello]).to eq 'goodbye'
-  end
-
-  it 'handles bad json' do
-    env = @request.instance_variable_get(:@env)
-    env['rack.input'] = StringIO.new('{"hello": "goodbye"')
-    @request.instance_variable_set(:@env, env)
-    expect(@request.params[:hello]).to eq nil
   end
 end

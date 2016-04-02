@@ -6,7 +6,13 @@ Pakyow::App.before :route do
       socket_connection_id = params[:socket_connection_id]
       socket_digest = socket_digest(socket_connection_id)
 
-      conn = Pakyow::Realtime::Websocket.new(req, socket_digest)
+      begin
+        conn = Pakyow::Realtime::Websocket.new(req, socket_digest)
+      rescue Pakyow::Realtime::HandshakeError => e
+        logger.error e.message
+        res.status = 400
+        halt
+      end
 
       # register the connection with a unique key
       Pakyow::Realtime::Delegate.instance.register(socket_digest, conn)
