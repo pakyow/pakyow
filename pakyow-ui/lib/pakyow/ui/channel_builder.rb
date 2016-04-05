@@ -34,9 +34,10 @@ module Pakyow
         qualifiers = Array.ensure(qualifiers)
 
         data = data.data if data.is_a?(Pakyow::UI::MutableData)
+        data = Array.ensure(data)
         return if qualifiers.empty? || data.empty?
 
-        datum = Array.ensure(data).first
+        datum = data.first
 
         qualifiers.each do |qualifier|
           channel_extras << "#{qualifier}:#{datum[qualifier.to_sym]}"
