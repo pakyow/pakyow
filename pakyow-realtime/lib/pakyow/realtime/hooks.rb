@@ -1,7 +1,7 @@
 Pakyow::App.before :route do
   # we want to hijack websocket requests
   #
-  if req.env['HTTP_UPGRADE'] == 'websocket'
+  if req.env['HTTP_UPGRADE'].to_s.downcase == 'websocket'
     if Pakyow::Config.realtime.enabled
       socket_connection_id = params[:socket_connection_id]
       socket_digest = socket_digest(socket_connection_id)
