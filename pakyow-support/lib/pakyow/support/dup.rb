@@ -1,7 +1,7 @@
 module Pakyow
   module Utils
     module Dup
-      UNCLONEABLE = [Symbol, Fixnum, NilClass]
+      UNCLONEABLE = [Symbol, Fixnum, NilClass, TrueClass, FalseClass]
       def self.deep(value)
         return value if UNCLONEABLE.include?(value.class)
 
