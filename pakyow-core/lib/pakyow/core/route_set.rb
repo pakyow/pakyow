@@ -28,7 +28,7 @@ module Pakyow
       method = method.to_sym
       method = :get if method == :head
 
-      @routes[method].each{|r|
+      (@routes[method] || []).each do |r|
         #TODO can we do this without conditionals? fall-through?
         case r[0]
         when Regexp
@@ -40,7 +40,7 @@ module Pakyow
             return r, nil
           end
         end
-      }
+      end
 
       nil
     end

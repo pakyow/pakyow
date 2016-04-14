@@ -98,6 +98,11 @@ describe 'route set' do
     expect(match: set.match('get', :head)).to have_same_path path: 'get'
   end
 
+  it 'handles unavailable req methods' do
+    set = Pakyow::RouteSet.new
+    expect { set.match('/', :foo) }.to_not raise_error
+  end
+
   it 'accepts fn list for route' do
     set = Pakyow::RouteSet.new
 
