@@ -31,7 +31,7 @@ module Pakyow
   		all_fns = route[3]
   		all_fns[:fns].unshift(fn) if fn
 
-  		hooks = merge_hooks(hooks, all_fns[:hooks])
+  		hooks = merge_hooks(all_fns[:hooks], hooks)
   		route[3] = build_fns(all_fns[:fns], hooks)
 
   		register_route(route)

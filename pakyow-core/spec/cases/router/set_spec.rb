@@ -470,8 +470,8 @@ describe 'route set' do
 
     fns = set.match('/foo', :get)[0][3]
 
-    expect(fns[1]).to eq fn1
-    expect(fns[0]).to eq fn2 # hooks defined in expansion have priority
+    expect(fns[0]).to eq fn1 # hooks defined in template have priority
+    expect(fns[1]).to eq fn2
     expect(fns[2]).to eq fn3
   end
 

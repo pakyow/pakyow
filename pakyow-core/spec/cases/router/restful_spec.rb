@@ -177,6 +177,61 @@ describe 'restful route'do
     expect(match: set.match('tests/new', :get)).to have_same_path path: 'tests/new'
   end
 
+  describe 'action hook order' do
+    let :set do
+      Pakyow::RouteSet.new
+    end
+
+    let :fn1 do
+      lambda {}
+    end
+
+    let :fn2 do
+      lambda {}
+    end
+
+    let :fn3 do
+      lambda {}
+    end
+
+    let :fn4 do
+      lambda {}
+    end
+
+    let :fns do
+      set.match('/tests', :get)[0][3]
+    end
+
+    before do
+      fn1 = self.fn1
+      fn2 = self.fn2
+      fn3 = self.fn3
+      fn4 = self.fn4
+
+      set.eval do
+        fn :fn1, &fn1
+        fn :fn2, &fn2
+        fn :fn3, &fn3
+        fn :fn4, &fn4
+
+        restful :test, 'tests', before: [:fn1], after: [:fn4] do
+          list before: [:fn2], after: [:fn3] do; end
+        end
+      end
+    end
+
+    it 'calls restful before hooks first' do
+      expect(fns[0]).to eq fn1
+    end
+
+    it 'calls action before hooks after restful before hooks' do
+      expect(fns[1]).to eq fn2
+    end
+
+    it 'calls action after hooks before restful after hooks'
+    it 'calls restful after hooks last'
+  end
+
   describe 'member routes' do
     let :set do
       Pakyow::RouteSet.new
