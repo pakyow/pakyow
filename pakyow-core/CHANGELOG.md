@@ -16,6 +16,10 @@
   * Adds the source directory to the load path
   * Sets default Content-Type to utf-8
   * Moves everything into the Pakyow namespace
+  * Changes to allow error hooks to halt execution
+  * Adds a convenience method for checking the existence of a route
+  * Protects against internal failures when calling a route with an unknown method
+  * Fixes route hook execution order, prioritizing hooks defined in outer scopes
 
 # 0.10.2 / 2015-11-15
 

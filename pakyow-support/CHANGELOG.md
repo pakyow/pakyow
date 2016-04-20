@@ -1,6 +1,7 @@
 # 0.11.0
 
   * Moves everything into the Pakyow namespace
+  * Adds `FalseClass` and `TrueClass` as uncloneable types
 
 # 0.10.1  / 2015-10-19
 

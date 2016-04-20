@@ -9,6 +9,10 @@
   * Automatically returns the mutated view from the mutation
   * Adds support for view versioning
   * Allows mutables and mutations to have different scopes
+  * Moves everything into the Pakyow namespace
+  * Now sets `pakyow.socket` on request env when fetching view
+  * Fixes a bug determining qualifiers with non-array data
+  * No longer registers mutations registered on a socket request
 
 # 0.10.0 / 2015-10-19
 

@@ -9,6 +9,7 @@
   * Evaluates app template as erb
   * Improves CLI, including new `version` command
   * Moves everything into the Pakyow namespace
+  * Adds ASCII art to `server` command \o/
 
 # 0.10.2 / 2015-11-15
 

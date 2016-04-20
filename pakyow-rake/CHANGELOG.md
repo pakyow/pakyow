@@ -2,6 +2,7 @@
 
   * Moves everything into the Pakyow namespace
   * Updates rake dependency to ~11.1
+  * Fixes bug displaying regex routes
 
 # 0.9.1 / 2014-12-06
 

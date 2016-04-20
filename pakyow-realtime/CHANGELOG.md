@@ -6,6 +6,11 @@
   * Fixes a bug causing session to not be serialized in redis
   * Fixes a bug causing redis subscriptions to never unsubscribe
   * Properly disconnects from redis as necessary to avoid eating up connections
+  * Moves everything into the Pakyow namespace
+  * Improves subscriber management in production environments
+  * Fixes a memory leak caused by converting channel names to symbols
+  * Replaces `websocket_parser` gem with `websocket`
+  * Fixes a bug causing websocket failures in Internet Explorer
 
 # 0.10.2 / 2015-11-15
 

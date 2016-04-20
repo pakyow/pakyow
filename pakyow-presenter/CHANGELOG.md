@@ -11,6 +11,8 @@
   * Replaces Nokogiri with Oga
   * Moves everything into the Pakyow namespace
   * Adds support for versioned props
+  * Prioritize root view paths over child paths
+  * ViewVersion state is now properly updated when matching
 
 # 0.10.0 / 2015-10-19
 
