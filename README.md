@@ -4,44 +4,25 @@
 [inchpages]: http://inch-ci.org/github/pakyow/pakyow
 [codeclimate]: https://codeclimate.com/github/pakyow/pakyow
 
-# Pakyow Framework [![Gitter chat](https://badges.gitter.im/pakyow/chat.svg)](https://gitter.im/pakyow/chat)
+# Pakyow Web Framework [![Gitter chat](https://badges.gitter.im/pakyow/chat.svg)](https://gitter.im/pakyow/chat)
 
-Pakyow is a framework for building modern websites and web apps. Views update in
-realtime to stay in sync with backend state. This is done using a traditional,
-backend-driven architecture, which means business logic is written once and
-stays on the server (write no JavaScript).
+Pakyow lets you build modern apps that don't break the web.
 
-Pakyow is also designed with progressive enhancement in mind. Because views are
-rendered on the server, they remain accessible to users who happen to be using
-unsupported browsers. The realtime layer is simply disabled, while all content
-continues to remain accessible.
+It provides features such as auto-updating views while embracing traditional
+concepts like progressive enhancement. Designed to be as simple as possible, it
+helps you quickly create momentum and maintain it throughout a project.
 
-There are three core concepts you should be familiar with:
+**Embraces the new web (without breaking it).**  
+Views automatically stay in sync with the server, with no extra code. Pakyow
+brings progressive enhancement to the modern web.
 
-**View-First Development**
+**Removes friction from development.**  
+Quickly build a prototype with only HTML and CSS. Later on, build right on top
+of the prototype without throwing out previous work.
 
-View-First Development is a process that enables the presentation layer of a
-website or web app to be built completely separate from the backend code. Read
-more:
-
-- http://pakyow.org/docs/presentation
-
-**Simple State Propagation**
-
-Simple State Propagation is the mechanism through which Pakyow propagates
-changes in state from one client to another. It prioritizes user trust and makes
-it easier to reason about your program. Read more:
-
-- http://pakyow.org/docs/concepts/simple-state-propagation
-
-**View Transformation Protocol**
-
-The View Transformation Protocol is a way to represent view rendering as a set
-of instructions that can later be applied to the view template. Pakyow
-implements this protocol on the backend for initial rendering and in
-[Ring](https://github.com/pakyow/ring) for client-side rendering. Read more:
-
-- http://pakyow.org/docs/concepts/view-transformation-protocol
+**Accessible to everyone.**  
+Pakyow makes it a little bit easier to get started. We believe that a simpler
+web empowers more contribution, leading towards a more democratic web.
 
 ---
 
@@ -70,20 +51,20 @@ implements this protocol on the backend for initial rendering and in
 
 # Next Steps
 
-The following resources might be handy:
+- Read the [overview](https://pakyow.org/docs/overview) to better understand the goals and architecture of Pakyow.
+- Go through the [warmup](https://pakyow.org/docs/warmup) to build &amp; deploy your first project.
+- Browse the [docs](https://pakyow.org/docs) to learn more about presentation, routing, realtime channels, and more.
+- Check out the [code](https://github.com/pakyow/pakyow) on GitHub.
 
-- [Website](http://pakyow.org)
-- [Docs](http://pakyow.org/docs)
-- [Code](http://github.com/pakyow/pakyow)
+We'd love to have you involved. Here are a few places to start:
 
-Want to keep up with the latest development? Follow along:
-
-- [Blog](http://pakyow.org/blog)
-- [Forums](http://forums.pakyow.org)
-- [Gitter](https://gitter.im/pakyow/chat)
-- [Twitter](http://twitter.com/pakyow)
+- [Give us a star](https://github.com/pakyow/pakyow)
+- [Participate in chat](https://gitter.im/pakyow/chat)
+- [Join the forums](http://forums.pakyow.org/)
+- [Work on a starter issue](https://github.com/pakyow/pakyow/labels/Starter)
+- [Report problems](https://github.com/pakyow/pakyow/issues)
+- [Tell your friends](https://twitter.com/share?text=Pakyow,%20build%20modern%20apps%20that%20don%27t%20break%20the%20web&hashtags=pakyow&url=https://pakyow.org)
 
 # License
 
-Pakyow is released free and open-source under the [MIT
-License](http://opensource.org/licenses/MIT).
+Pakyow is released free and open-source under the [MIT License](http://opensource.org/licenses/MIT).
