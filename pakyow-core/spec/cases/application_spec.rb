@@ -96,4 +96,8 @@ describe 'Application' do
 
     expect(builder).to be_a Rack::Builder
   end
+
+  it 'includes Pakyow::Helpers' do
+    expect(Pakyow::App.ancestors).to include Pakyow::Helpers
+  end
 end

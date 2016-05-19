@@ -35,6 +35,7 @@ module Pakyow
       end
     end
 
+    include Helpers
     include Helpers::App
 
     def initialize
