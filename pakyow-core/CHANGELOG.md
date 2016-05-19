@@ -1,3 +1,7 @@
+# 0.11.1
+
+  * Includes `Pakyow::Helpers` into `Pakyow::App`
+
 # 0.11.0
 
   * Adds a `configure` hook for evaluating code before/after configuring app
