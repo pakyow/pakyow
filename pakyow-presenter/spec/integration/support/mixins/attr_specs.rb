@@ -60,6 +60,23 @@ shared_examples :attr_specs do
         expect(node.attrs.title.to_s).to eq('')
       end
 
+      it 'ensures when block returns truthy' do
+        value = 'foo'
+        node.attrs.title.ensure_or_deny(value) { true }
+        expect(node.attrs.title.to_s).to eq(value)
+
+        # do it again
+        node.attrs.title.ensure_or_deny(value) { true }
+        expect(node.attrs.title.to_s).to eq(value)
+      end
+
+      it 'denies when block returns falsey' do
+        value = 'foo'
+        node.attrs.title = value
+        node.attrs.title.ensure_or_deny(value) { false }
+        expect(node.attrs.title.to_s).to eq('')
+      end
+
       it 'deletes the value' do
         value = 'foobar'
         node.attrs.title = value

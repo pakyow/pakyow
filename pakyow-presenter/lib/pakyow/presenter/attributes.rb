@@ -43,6 +43,17 @@ module Pakyow
         update_value
       end
 
+      # calls `ensure` or `deny` based on result of block
+      def ensure_or_deny(value, &block)
+        raise ArgumentError, 'Expected a block' unless block_given?
+
+        if block.call
+          self.ensure(value)
+        else
+          self.deny(value)
+        end
+     end
+
       def include?(attribute)
         @doc.has_attribute?(attribute)
       end
