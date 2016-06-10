@@ -33,24 +33,6 @@ Linux users:
 Windows users:
 - Use [RubyInstaller](http://rubyinstaller.org/)
 
-
-## Install RubyGems
-
-
-Mac users:
-  - [Homebrew](http://brew.sh/) installs RubyGems when installing Ruby
-
-Linux users:
-  - For Debian/Ubuntu/Mint:
-
-  `sudo apt-get install rubygems`
-  - For CentOS/Red Hat/Fedora:
-
-  `sudo yum install rubygems`
-
-Windows users:
-- [RubyInstaller](http://rubyinstaller.org/) also installs RubyGems
-
 ## Install Pakyow
 
 Once everything checks out, install Pakyow via RubyGems:
