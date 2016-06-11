@@ -1,0 +1,18 @@
+version: "2"
+
+volumes:
+  gems:
+    driver: local
+services:
+  pakyow:
+    image: ruby:2.3.0
+    entrypoint: /usr/src/pakyow/development-entrypoint.sh  
+    command: bash
+    volumes:
+      - .:/usr/src/pakyow
+      - gems:/usr/local/bundle
+    working_dir: /usr/src/pakyow
+    tty: true
+    stdin_open: true
+    env_file:
+      - development.env
