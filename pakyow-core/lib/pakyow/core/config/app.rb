@@ -36,6 +36,9 @@ Pakyow::Config.register :app do |config|
   # stores the path to the app definition
   config.opt :path, -> { Pakyow::App.path }
 
+  # if true, issues a 301 redirect to the www version
+  config.opt :enforce_www, true
+
   # stores the envs an app is run in
   config.opt :loaded_envs
 end.env :development do |opts|
