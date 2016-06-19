@@ -24,13 +24,13 @@ describe 'defining a resource' do
   end
 
   it 'creates a binding set for the resource name' do
-    scope = Pakyow::Presenter::Binder.instance.sets[:main].scopes[:test]
+    scope = Pakyow::Presenter::Binder.instance.sets[:test].scopes[:test]
     expect(scope).not_to be_nil
   end
 
   describe 'the binding set block' do
     let :binding_set_block do
-      app.bindings[:main]
+      app.bindings[:test]
     end
 
     it 'exists' do
