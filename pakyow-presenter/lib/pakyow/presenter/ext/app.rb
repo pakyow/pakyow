@@ -2,7 +2,7 @@ module Pakyow
   class App
     class << self
       RESOURCE_ACTIONS[:presenter] = Proc.new { |app, set_name, _, _|
-        app.bindings { scope(set_name) { restful(set_name) } }
+        app.bindings(set_name) { scope(set_name) { restful(set_name) } }
       }
 
       def bindings(set_name = :main, &block)
