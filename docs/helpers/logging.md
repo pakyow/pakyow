@@ -1,18 +1,47 @@
 ---
 name: Logging
-desc: Writing to a log file.
+desc: Writing to the logs.
 ---
 
-Write to the log using the static Logger class:
+Writing to the logs during the request / response lifecylcle can
+be done through the `logger` helper:
 
 ```ruby
-Pakyow.logger.write 'hello log'
+logger.info 'hello'
 ```
 
-You can also specify a severity:
+The log message will be decorated with several additional values:
+
+- elapsed time
+- request type (e.g. `http`, `sock`)
+- unique request id
+
+This is how the above log message would be displayed in development:
+
+```
+1.97ms http.c730cb72 | hello
+```
+
+The following methods are available on the logger:
+
+- debug
+- info
+- warn
+- error
+- fatal
+- <<
+- add
+- log
+- unknown
+
+Several [configuration options](/docs/config) are available within the logger context.
+
+### Global Logger
+
+A global logger object is available through `Pakyow.logger` for logging
+outside of the normal request / response lifecycle.
 
 ```ruby
-Pakyow.logger.write 'this is just a warning', :warn
+Pakyow.logger
+=> #<Logger:0x007ff8257b0f78>
 ```
-
-The logger can be [configured](/docs/config) to ignore statements below a particular severity.

@@ -78,23 +78,17 @@ The handler to use (e.g. puma).
 
 ## Logger Config
 
-*logger.level*  
-What level of severity the logs care about (default: 'debug').
+*logger.enabled*  
+Whether or not the logger should be enabled.
 
-*logger.path ({root}/log)*  
-The path to the logs.
+*logger.level (debug)*  
+The level of severity to include in the logs.
 
-*logger.filename (pakyow.log)*  
-The name of the logfile.
+*logger.formatter (development: DevFormatter, production: LogfmtFormatter*  
+The formatter object used to format log messages.
 
-*logger.sync (development: true, staging: false, production: false)*  
-Whether or not the logs should be synced.
-
-*logger.auto_flush (development: true, staging: false, production: false)*  
-Whether or not the logs should be auto flushed.
-
-*logger.colorize (development: true, staging: false, production: false)*  
-Whether or not the logs should be colorized.
+*logger.destinations ([$stdout])*  
+Where to write the logs to.
 
 ## Cookies Config
 
