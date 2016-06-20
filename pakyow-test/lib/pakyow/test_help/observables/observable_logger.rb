@@ -3,7 +3,7 @@ module Pakyow
     class ObservableLogger
       def initialize
         @io = StringIO.new
-        @logger = Pakyow::Logger.new(@io)
+        @logger = Logger::RequestLogger.new(:test, logger: ::Logger.new(@io))
         @logs = {}
       end
 

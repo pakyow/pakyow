@@ -1,3 +1,5 @@
+require 'logger'
+
 module Pakyow
   module Helpers
     # Methods for configuring an app.
@@ -116,8 +118,15 @@ module Pakyow
             load_env(env)
           end
 
-          Pakyow.configure_logger
+          configure_logger
         end
+      end
+
+      def configure_logger
+        logs = Config.logger.destinations
+        Pakyow.logger = ::Logger.new(logs.count > 1 ? MultiLog.new(*logs) : logs.first)
+        Pakyow.logger.level = ::Logger.const_get(Config.logger.level.to_s.upcase)
+        Pakyow.logger.formatter = Pakyow::Config.logger.formatter.new
       end
 
       def env_config
