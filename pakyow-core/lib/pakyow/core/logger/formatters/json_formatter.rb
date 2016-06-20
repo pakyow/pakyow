@@ -7,7 +7,7 @@ module Pakyow
     # Used by {Pakyow::Logger::RequestLogger} to format request / response lifecycle messages as JSON.
     #
     # @example
-    #   {"severity":"INFO","timestamp":"2016-06-20 10:07:30 -0500","id":"c8af6a8b","type":"http","elapsed":"0.01ms","time":"2016-06-20 10:07:30 -0500","method":"GET","path":"/","ip":"127.0.0.1"}
+    #   {"severity":"INFO","timestamp":"2016-06-20 10:07:30 -0500","id":"c8af6a8b","type":"http","elapsed":"0.01ms","method":"GET","path":"/","ip":"127.0.0.1"}
     #   {"severity":"INFO","timestamp":"2016-06-20 10:07:30 -0500","id":"c8af6a8b","type":"http","elapsed":"1.24ms","message":"hello 2016-06-20 10:07:30 -0500"}
     #   {"severity":"INFO","timestamp":"2016-06-20 10:07:30 -0500","id":"c8af6a8b","type":"http","elapsed":"3.08ms","status":200}
     #

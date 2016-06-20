@@ -5,7 +5,7 @@ module Pakyow
     # Used by {Pakyow::Logger::RequestLogger} to format request / response lifecycle messages in logfmt.
     #
     # @example
-    #   severity=INFO timestamp="2016-06-20 10:08:29 -0500" id=678cf582 type=http elapsed=0.01ms time="2016-06-20 10:08:29 -0500" method=GET path=/ ip=127.0.0.1
+    #   severity=INFO timestamp="2016-06-20 10:08:29 -0500" id=678cf582 type=http elapsed=0.01ms method=GET path=/ ip=127.0.0.1
     #   severity=INFO timestamp="2016-06-20 10:08:29 -0500" id=678cf582 type=http elapsed=1.56ms message="hello 2016-06-20 10:08:29 -0500"
     #   severity=INFO timestamp="2016-06-20 10:08:29 -0500" id=678cf582 type=http elapsed=3.37ms status=200
     #
