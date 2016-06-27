@@ -1,3 +1,8 @@
+# 0.11.2
+
+  * Fixes bug causing resource bindings to be incorrect in some cases
+  * Fixes bug creating unscoped view collection from composer
+
 # 0.11.0
 
   * Fixes several bugs related to nested partials
