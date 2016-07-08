@@ -164,7 +164,7 @@ instructions and pushes them to each client over the open WebSocket.
 
 Once the instructions are received, a lightweight JavaScript library,
 [Ring](https://github.com/pakyow/ring), processes and applies the instructions
-to the view. No re-rendering occurs as only the changes and applied. This keeps
+to the view. No re-rendering occurs as only the changes are applied. This keeps
 the UI fast and responsive for the user.
 
 You can read more about [Pakyow Realtime](/docs/realtime) and [Pakyow
