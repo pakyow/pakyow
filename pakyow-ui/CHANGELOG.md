@@ -1,3 +1,8 @@
+# 0.11.3
+
+  * Fixes a bug serializing Rack::Session as a hash
+  * Prevent nils from being returned in mutable data
+
 # 0.11.0
 
   * Mutators are now evaluated in a proper app context

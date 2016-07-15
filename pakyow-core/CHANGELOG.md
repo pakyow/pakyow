@@ -1,3 +1,7 @@
+# 0.11.3
+
+  * Adds the ability to `send` StringIO objects
+
 # 0.11.1
 
   * Includes `Pakyow::Helpers` into `Pakyow::App`
