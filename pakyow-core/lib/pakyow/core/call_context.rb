@@ -81,7 +81,7 @@ module Pakyow
     # default to whatever is set in the response.
     #
     def send(file_or_data, type = nil, send_as = nil)
-      if file_or_data.is_a?(IO)
+      if file_or_data.is_a?(IO) || file_or_data.is_a?(StringIO)
         data = file_or_data
 
         if file_or_data.is_a?(File)
