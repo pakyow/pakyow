@@ -34,7 +34,7 @@ module Pakyow
         qualifiers = Array.ensure(qualifiers)
 
         data = data.data if data.is_a?(Pakyow::UI::MutableData)
-        data = Array.ensure(data)
+        data = Array.ensure(data).compact
         return if qualifiers.empty? || data.empty?
 
         datum = data.first
