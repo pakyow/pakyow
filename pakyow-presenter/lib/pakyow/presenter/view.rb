@@ -514,7 +514,7 @@ module Pakyow
         attrs.each do |attr, v|
           case attr
           when :content
-            v = v.to_proc.call(doc.html) if v.respond_to?(:to_proc)
+            v = v.call(doc.html) if v.is_a?(Proc)
             bind_value_to_doc(v, doc)
           when :view
             v.call(View.from_doc(doc))
@@ -522,9 +522,9 @@ module Pakyow
             attr  = attr.to_s
             attrs = Attributes.new(doc)
 
-            if v.respond_to?(:to_proc)
+            if v.is_a?(Proc)
               attribute = attrs.send(attr)
-              ret = v.to_proc.call(attribute)
+              ret = v.call(attribute)
               value = ret.respond_to?(:value) ? ret.value : ret
 
               attrs.send("#{attr}=", value)
