@@ -68,14 +68,14 @@ module Pakyow
               result.delete(:view)
 
               content = result.delete(:content)
-              if content.respond_to?(:to_proc)
-                content = content.to_proc.call()
+              if content.is_a?(Proc)
+                content = content.call
               end
 
               datum[key] = {
                 __content: content,
                 __attrs: Hash[*result.flat_map { |k, v|
-                  if v.respond_to?(:to_proc)
+                  if v.is_a?(Proc)
                     attrs = UIAttrs.new
                     v.call(attrs)
                     [k, attrs.finalize]
