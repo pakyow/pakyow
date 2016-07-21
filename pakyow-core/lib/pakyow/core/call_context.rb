@@ -117,6 +117,8 @@ module Pakyow
     end
 
     def handle(name_or_code, from_logic = true)
+      @handling = true
+
       hook_around :route do
         @router.handle(name_or_code, self, from_logic)
       end
@@ -130,6 +132,10 @@ module Pakyow
 
     def found?
       @found
+    end
+
+    def handling?
+      @handling
     end
 
     def call_hooks(type, trigger)
