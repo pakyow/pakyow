@@ -37,8 +37,8 @@ module Pakyow
       }
 
       Pakyow::App.after(:route) {
-        if Config.presenter.require_route && !found?
-          @found 
+        if Config.presenter.require_route && !found? && !handling?
+          @found
         else
           if @presenter.presented?
             @found = true
@@ -51,12 +51,6 @@ module Pakyow
 
       Pakyow::App.after(:load) {
         @presenter.load
-      }
-
-      Pakyow::App.after(:error) {
-        unless config.app.errors_in_browser
-          @context.response.body = [@presenter.content] if @presenter.presented?
-        end
       }
 
       attr_accessor :processor_store, :binder, :path, :context, :composer
