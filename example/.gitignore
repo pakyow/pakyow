@@ -1,0 +1,8 @@
+# ignore bundler config
+.bundle
+
+# ignore environment files
+.env*
+
+# ignore binstubs
+bin

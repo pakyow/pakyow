@@ -22,7 +22,7 @@ module Pakyow
               ' / .___/\__,_/_/|_|\__, /\____/|__/|__/  ' + v + "\n"\
               '/_/               /____/                 ' + "\n"
 
-        puts Pakyow::Logger::COLOR_SEQ % (30 + Pakyow::Logger::COLOR_TABLE.index(:red)) + msg + Pakyow::Logger::RESET_SEQ
+        puts Pakyow::Logger::Colorizer.colorize(msg, :error)
 
         Pakyow::App.run(ENV['RACK_ENV'])
       end

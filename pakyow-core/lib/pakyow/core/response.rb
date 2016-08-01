@@ -1,3 +1,5 @@
+require 'rack'
+
 module Pakyow
 
   # The Response object.
@@ -115,6 +117,10 @@ module Pakyow
       not_extended: 510,
       network_authentication_required: 511
     }
+
+    def self.nice_status(status)
+      STATUS_CODE_NAMES[status] || '?'
+    end
 
     def initialize(*args)
       super

@@ -10,7 +10,7 @@ module Pakyow
     #
     # @api private
     class Websocket < Connection
-      attr_reader :parser, :socket, :key
+      attr_reader :parser, :socket, :key, :logger
 
       @event_handlers = {}
 
@@ -20,6 +20,8 @@ module Pakyow
 
         @socket = hijack(req)
         @server = handshake(req)
+        @logger = Logger::RequestLogger.new(:sock, id: @key[0..7])
+
         setup
       end
 
@@ -43,7 +45,7 @@ module Pakyow
 
       def push(msg)
         json = JSON.pretty_generate(msg)
-        logger.debug "(ws.#{@key}) sending message: #{json}\n"
+        logger.debug "sending message: #{json}\n"
 
         frame = WebSocket::Frame::Outgoing::Server.new(
           version: @server.version,
@@ -51,7 +53,7 @@ module Pakyow
           type: :text)
         @socket.write(frame.to_s)
       rescue StandardError => e
-        logger.error "(#{@key}): WebSocket encountered a fatal error:"
+        logger.error "encountered a fatal error:"
         logger.error e.message
 
         # something went wrong (like a broken pipe); shutdown
@@ -87,7 +89,7 @@ module Pakyow
         server = WebSocket::Handshake::Server.new
         server << data
 
-        fail HandshakeError, "(ws.#{@key}) error during handshake" unless server.valid?
+        fail HandshakeError, "error during handshake" unless server.valid?
         @socket.write(server.to_s)
 
         server
@@ -103,7 +105,7 @@ module Pakyow
       end
 
       def setup
-        logger.info "(ws.#{@key}) client established connection"
+        logger.info "client established connection"
 
         @parser = Parser.new(version: @server.version)
 
@@ -112,12 +114,12 @@ module Pakyow
         end
 
         @parser.on :error do |error|
-          logger.error "(ws.#{@key}) encountered error #{error}"
+          logger.error "encountered error #{error}"
           handle_ws_error(error)
         end
 
         @parser.on :close do |status, message|
-          logger.info "(ws.#{@key}) client closed connection"
+          logger.info "client closed connection"
           handle_ws_close(status, message)
         end
 
@@ -139,7 +141,7 @@ module Pakyow
         logger.debug "(ws.#{@key}) received message: #{JSON.pretty_generate(parsed)}\n"
         push(MessageHandler.handle(parsed, @req.env['rack.session']))
       rescue StandardError => e
-        logger.error "(#{@key}): WebSocket encountered an error:"
+        logger.error "encountered an error:"
         logger.error e.message
 
         e.backtrace.each do |line|

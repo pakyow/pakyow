@@ -44,6 +44,8 @@ describe Pakyow::Config do
       Pakyow::Config.test.env :test do |opts|
         opts.foo = :foo
       end
+
+      Pakyow::Config.env = :test
     end
 
     after do
