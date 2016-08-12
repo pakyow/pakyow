@@ -29,5 +29,9 @@ module Pakyow
     def bindings(set_name = :main, &block)
       self.class.bindings(set_name, &block)
     end
+    
+    def presenter
+      @presenter
+    end
   end
 end

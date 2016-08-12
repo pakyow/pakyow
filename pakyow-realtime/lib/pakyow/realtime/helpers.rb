@@ -1,4 +1,13 @@
 module Pakyow
+  class App
+    # @api private
+    def socket
+      Realtime::Context.new(self)
+    end
+  end
+end
+
+module Pakyow
   module Helpers
     # Returns a working realtime context for the current app context.
     #
@@ -28,13 +37,6 @@ module Pakyow
     # @api private
     def socket_digest(socket_connection_id)
       Digest::SHA1.hexdigest("--#{socket_key}--#{socket_connection_id}--")
-    end
-
-    module App
-      # @api private
-      def socket
-        Realtime::Context.new(self)
-      end
     end
   end
 end

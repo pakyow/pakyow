@@ -1,4 +1,4 @@
-Pakyow::App.before :route do
+Pakyow::CallContext.before :route do
   # we want to hijack websocket requests
   #
   if req.env['HTTP_UPGRADE'] && req.env['HTTP_UPGRADE'].casecmp('websocket') == 0
