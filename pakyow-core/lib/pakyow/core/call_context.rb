@@ -8,10 +8,8 @@ require 'pakyow/core/app_context'
 module Pakyow
   class CallContext
     include Helpers
-    include Helpers::Context
     include Helpers::Hooks::InstanceMethods
 
-    attr_writer :context
 
     def initialize(env)
       @router = Pakyow::Router.instance
