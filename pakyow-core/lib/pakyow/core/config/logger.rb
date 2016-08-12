@@ -12,7 +12,13 @@ Pakyow::Config.register :logger do |config|
   config.opt :formatter, Pakyow::Logger::DevFormatter
 
   # where we should log to
-  config.opt :destinations, [$stdout]
+  config.opt :destinations, -> do
+    if Pakyow::Config.logger.enabled
+      [$stdout]
+    else
+      ["/dev/null"]
+    end
+  end
 end.env :test do |opts|
   opts.destinations = []
 end.env :production do |opts|
