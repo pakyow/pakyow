@@ -34,7 +34,7 @@ describe 'Logging for the app' do
 
   describe 'the after error hook' do
     let :hook do
-      Pakyow::App.instance_variable_get(:@hooks)[:after][:error][0]
+      Pakyow::CallContext.instance_variable_get(:@hook_hash)[:after][:error][0][1]
     end
 
     let :logger do

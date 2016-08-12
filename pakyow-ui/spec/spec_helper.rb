@@ -11,7 +11,7 @@ Pakyow::App.after :init do
 end
 
 # handle errors that occur
-Pakyow::App.after :error do
+Pakyow::CallContext.after :error do
   # puts request.error.message
   # puts request.error.backtrace
 

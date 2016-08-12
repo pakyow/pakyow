@@ -3,6 +3,7 @@
   * IMPROVED helpers by removing `Helpers::App` and `Helpers::Context`. Instead,
     `Helpers` is included only into `CallContext`. Extensions to `App` is now
     considered an edge-case and should be done through other normal means.
+  * IMPROVED hooks by removing `Helpers::Hooks` in favor of `Support::Hookable`.
 
 # 0.11.3
 

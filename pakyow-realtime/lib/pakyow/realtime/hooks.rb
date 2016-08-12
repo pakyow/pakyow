@@ -25,7 +25,7 @@ Pakyow::App.before :route do
   end
 end
 
-Pakyow::App.after :process do
+Pakyow::CallContext.after :process do
   # mixin the socket connection id into the body tag
   # this id is used by pakyow.js to idenfity itself with the server
   #

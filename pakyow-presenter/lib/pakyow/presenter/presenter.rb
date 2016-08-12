@@ -30,13 +30,17 @@ module Pakyow
         @presenter = Presenter.new
         ViewStoreLoader.instance.reset
       }
+      
+      Pakyow::App.after(:load) {
+        @presenter.load
+      }
 
-      Pakyow::App.after(:match) {
+      Pakyow::CallContext.after(:match) {
         @presenter = Pakyow.app.presenter.dup
         @presenter.prepare_with_context(context)
       }
 
-      Pakyow::App.after(:route) {
+      Pakyow::CallContext.after(:route) {
         if Config.presenter.require_route && !found? && !handling?
           @found
         else
@@ -47,10 +51,6 @@ module Pakyow
             @found = false unless found?
           end
         end
-      }
-
-      Pakyow::App.after(:load) {
-        @presenter.load
       }
 
       attr_accessor :processor_store, :binder, :path, :context, :composer

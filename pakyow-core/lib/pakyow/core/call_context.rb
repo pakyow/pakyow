@@ -1,25 +1,31 @@
 require 'pakyow/core/helpers'
-require 'pakyow/core/helpers/hooks'
 require 'pakyow/core/router'
 require 'pakyow/core/request'
 require 'pakyow/core/response'
 require 'pakyow/core/app_context'
 
+require "pakyow/support/hookable"
+
 module Pakyow
   class CallContext
     include Helpers
-    include Helpers::Hooks::InstanceMethods
+    include Support::Hookable
 
+    known_events :process, :route, :match, :error
 
     def initialize(env)
-      @router = Pakyow::Router.instance
-
       req = Request.new(env)
       res = Response.new
 
       # set response format based on request
       res.format = req.format
 
+      # create a reference to the router
+      @router = Pakyow::Router.instance
+      
+      # setup a context object; used to provide access to the request / response
+      # objects without exposing functionality that should only be accessible
+      # from within the app call
       @context = AppContext.new(req, res)
     end
 
@@ -134,12 +140,6 @@ module Pakyow
 
     def handling?
       @handling
-    end
-
-    def call_hooks(type, trigger)
-      Pakyow::App.hook(type, trigger).each do |block|
-        instance_exec(&block)
-      end
     end
 
     def set_cookies

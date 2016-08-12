@@ -13,7 +13,7 @@ module Pakyow
         end
       end
 
-      Pakyow::App.after :error do
+      Pakyow::CallContext.after :error do
         logger.houston(req.error)
       end
 

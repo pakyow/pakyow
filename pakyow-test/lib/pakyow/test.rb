@@ -30,7 +30,7 @@ module Pakyow
         @presenter = Pakyow::TestHelp::ObservablePresenter.new(@presenter)
       end
 
-      Pakyow::App.before :process do
+      Pakyow::CallContext.before :process do
         Pakyow::TestHelp::Realtime::ObservableMutator.instance.reset
       end
 

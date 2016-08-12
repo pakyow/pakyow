@@ -1,6 +1,5 @@
 require_relative 'helpers/configuring'
 require_relative 'helpers/running'
-require_relative 'helpers/hooks'
 
 require_relative 'call_context'
 require_relative 'helpers'
@@ -8,12 +7,17 @@ require_relative 'config'
 require_relative 'loader'
 require_relative 'router'
 
+require "pakyow/support/hookable"
+
 module Pakyow
   # The main app object.
   #
   # @api public
   class App
-    extend Helpers::Hooks
+    include Support::Hookable
+    
+    known_events :init, :configure, :load, :reload, :fork
+
     extend Helpers::Configuring
     extend Helpers::Running
 
@@ -57,6 +61,22 @@ module Pakyow
       hook_around :reload do
         load_app
       end
+    end
+
+    # When running the app with a forking server (e.g. Passenger) call this before
+    # the process is forked. All defined "before fork" hooks will be called.
+    #
+    # @api private
+    def forking
+      call_hooks :before, :fork
+    end
+
+    # When running the app with a forking server (e.g. Passenger) call this after
+    # the process is forked. All defined "after fork" hooks will be called.
+    #
+    # @api private
+    def forked
+      call_hooks :after, :fork
     end
 
     protected
