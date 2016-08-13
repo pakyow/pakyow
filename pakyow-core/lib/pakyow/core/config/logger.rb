@@ -23,4 +23,5 @@ end.env :test do |opts|
   opts.destinations = []
 end.env :production do |opts|
   opts.formatter = Pakyow::Logger::LogfmtFormatter
+  opts.level = :info
 end

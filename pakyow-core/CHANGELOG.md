@@ -5,6 +5,7 @@
     considered an edge-case and should be done through other normal means.
   * IMPROVED hooks by removing `Helpers::Hooks` in favor of `Support::Hookable`.
   * ADDED verbose log level.
+  * CHANGED default production log level to `info`.
 
 # 0.11.3
 
