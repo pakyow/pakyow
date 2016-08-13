@@ -7,6 +7,13 @@ require 'pakyow/core/app_context'
 require "pakyow/support/hookable"
 
 module Pakyow
+  # Each request / response lifecycle is processed within its own instance.
+  #
+  # Processing a request here instead of App lets us separate the concerns of
+  # running an app (where state is shared across requests) from those of
+  # processing a request (where state is unique to the request).
+  #
+  # @api private
   class CallContext
     include Helpers
     include Support::Hookable
