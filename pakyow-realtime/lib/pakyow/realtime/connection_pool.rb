@@ -20,7 +20,8 @@ module Pakyow
       #
       def <<(conn)
         @tasks << -> do
-          @selector.register(conn, :r)
+          monitor = @selector.register(conn.to_io, :r)
+          monitor.value = conn
         end
 
         start
@@ -30,7 +31,7 @@ module Pakyow
       #
       def rm(conn)
         @tasks << -> do
-          @selector.deregister(conn)
+          @selector.deregister(conn.to_io)
         end
 
         start
@@ -63,17 +64,17 @@ module Pakyow
           next unless monitors = @selector.select
           
           monitors.each do |monitor|
-            conn = monitor.io
+            conn = monitor.value
 
             begin
-              conn.receive conn.to_io.read_nonblock(4096)
+              conn.receive monitor.io.read_nonblock(4096)
             rescue IO::WaitReadable
               next
             rescue
               begin
                 conn.shutdown
               rescue
-                @selector.deregister(conn)
+                @selector.deregister(conn.to_io)
               end
             end
           end
