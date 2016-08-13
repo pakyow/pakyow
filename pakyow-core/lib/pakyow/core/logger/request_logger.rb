@@ -50,6 +50,11 @@ module Pakyow
           logger.send(method, decorate(message))
         end
       end
+      
+      ::Logger::VERBOSE = -1
+      def verbose(message)
+        logger.add(-1, decorate(message))
+      end
 
       # Logs the beginning of a request, including the time, request method,
       # request path, and ip address of the requester.
