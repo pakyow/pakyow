@@ -26,7 +26,7 @@ module Pakyow
     def self.setup(path = './app/setup')
       require path
 
-      Pakyow::App.after :match do
+      Pakyow::CallContext.after :match do
         @presenter = Pakyow::TestHelp::ObservablePresenter.new(@presenter)
       end
 
