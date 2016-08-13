@@ -1,6 +1,3 @@
-require_relative 'websocket'
-require_relative 'config'
-
 module Pakyow
   module Realtime
     # Deals with realtime connections in context of an app. Instances are

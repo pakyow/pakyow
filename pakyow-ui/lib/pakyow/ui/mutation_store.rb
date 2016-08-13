@@ -36,6 +36,6 @@ module Pakyow
   end
 end
 
-Pakyow::Realtime::Websocket.on :leave do
+Pakyow::Realtime::Connection.on :leave do
   Pakyow::UI::MutationStore.instance.unregister(socket_digest(socket_connection_id))
 end

@@ -1,5 +1,4 @@
 require 'redis'
-require 'concurrent'
 
 module Pakyow
   module Realtime
@@ -16,7 +15,7 @@ module Pakyow
       def subscribe(channels = [])
         channels << signal_channel
 
-        Concurrent::Future.execute {
+        Thread.new {
           @redis.subscribe(*channels) do |on|
             on.message do |channel, msg|
               begin

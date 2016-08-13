@@ -1,3 +1,5 @@
+require "singleton"
+
 module Pakyow
   module Realtime
     # A singleton for delegating socket traffic using the configured registry.
@@ -85,7 +87,7 @@ module Pakyow
           }
 
           if connection
-            connection[1].push(payload: message, channel: channel)
+            connection[1].write(payload: message, channel: channel)
           end
         end
       end
