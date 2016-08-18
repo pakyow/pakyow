@@ -52,7 +52,7 @@ module Pakyow
             qualifications: mutation[:qualifications]
           )
 
-          Pakyow.app.socket.push_message_to_socket_with_key(view.finalize, channel, mutation[:socket_key])
+          Pakyow.app.socket.push_to_key(view.finalize, channel, mutation[:socket_key])
         end
       end
 

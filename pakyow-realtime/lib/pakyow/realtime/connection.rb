@@ -1,3 +1,11 @@
+require "websocket"
+
+require "pakyow/core/logger/request_logger"
+
+require "pakyow/realtime/stream"
+require "pakyow/realtime/delegate"
+require "pakyow/realtime/connection_pool"
+
 module Pakyow
   module Realtime
     # Realtime WebSocket.
@@ -29,9 +37,9 @@ module Pakyow
         (@event_handlers[event.to_sym] ||= []) << block
       end
       
-      attr_reader :key
+      attr_reader :key, :logger, :stream
 
-      def initialize(io, version: nil, env: {}, key: nil)
+      def initialize(io, version: nil, env: {}, key: "")
         @io = io
         @env = env
         @key = key
@@ -61,9 +69,8 @@ module Pakyow
       # Write to the io object.
       #
       def write(msg)
-        json = msg.to_json
-        @logger.verbose ">> #{json}"
-        @stream.write(json)
+        @logger.verbose ">> #{msg}"
+        @stream.write(msg)
       rescue StandardError => e
         @logger.error "fatal error:"
         @logger.error e.message
@@ -85,7 +92,7 @@ module Pakyow
         ConnectionPool.instance.rm(self)
         @delegate.unregister(@key)
         self.class.handle_event(:leave, @env)
-        @io.close
+        @io.close if @io
         @io = nil
       end
 
@@ -98,7 +105,7 @@ module Pakyow
       def handle_message(message)
         parsed = JSON.parse(message)
         @logger.verbose "<< #{message}"
-        write(MessageHandler.handle(parsed, @env['rack.session']))
+        write(MessageHandler.handle(parsed, @env['rack.session']).to_json)
       end
 
       def handle_error(_error)

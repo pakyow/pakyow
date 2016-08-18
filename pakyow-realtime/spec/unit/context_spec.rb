@@ -1,4 +1,4 @@
-require_relative '../spec_helper'
+require 'spec_helper'
 require 'pakyow/realtime/context'
 require 'pakyow/realtime/helpers'
 
@@ -28,16 +28,10 @@ describe Pakyow::Realtime::Context do
       it 'subscribes the websocket to the channels with socket_digest' do
         expect(Pakyow::Realtime::Delegate.instance).to receive(:subscribe).with(
           app.socket_digest(app.socket_connection_id),
-          passed_arg
+          *passed_arg
         )
 
         context.subscribe(*channel_arg)
-      end
-    end
-
-    context 'when called with no channels' do
-      it 'raises an error' do
-        expect { context.subscribe }.to raise_error(ArgumentError)
       end
     end
 
@@ -47,7 +41,7 @@ describe Pakyow::Realtime::Context do
       end
 
       let :passed_arg do
-        [:foo_channel]
+        channel_arg
       end
 
       include_examples :subscribe
@@ -60,18 +54,6 @@ describe Pakyow::Realtime::Context do
 
       let :passed_arg do
         channel_arg
-      end
-
-      include_examples :subscribe
-    end
-
-    context 'when called with an array of channels' do
-      let :channel_arg do
-        [[:foo_channel, :bar_channel]]
-      end
-
-      let :passed_arg do
-        channel_arg.flatten
       end
 
       include_examples :subscribe
@@ -83,16 +65,10 @@ describe Pakyow::Realtime::Context do
       it 'unsubscribes the websocket to the channels with socket_digest' do
         expect(Pakyow::Realtime::Delegate.instance).to receive(:unsubscribe).with(
           app.socket_digest(app.socket_connection_id),
-          passed_arg
+          *passed_arg
         )
 
         context.unsubscribe(*channel_arg)
-      end
-    end
-
-    context 'when called with no channels' do
-      it 'raises an error' do
-        expect { context.unsubscribe }.to raise_error(ArgumentError)
       end
     end
 
@@ -102,7 +78,7 @@ describe Pakyow::Realtime::Context do
       end
 
       let :passed_arg do
-        [:foo_channel]
+        channel_arg
       end
 
       include_examples :unsubscribe
@@ -115,18 +91,6 @@ describe Pakyow::Realtime::Context do
 
       let :passed_arg do
         channel_arg
-      end
-
-      include_examples :unsubscribe
-    end
-
-    context 'when called with an array of channels' do
-      let :channel_arg do
-        [[:foo_channel, :bar_channel]]
-      end
-
-      let :passed_arg do
-        channel_arg.flatten
       end
 
       include_examples :unsubscribe
@@ -142,16 +106,10 @@ describe Pakyow::Realtime::Context do
       it 'pushes the message down the channels' do
         expect(Pakyow::Realtime::Delegate.instance).to receive(:push).with(
           msg,
-          passed_arg
+          *passed_arg
         )
 
         context.push(msg, *channel_arg)
-      end
-    end
-
-    context 'when called with no channels' do
-      it 'raises an error' do
-        expect { context.push(msg) }.to raise_error(ArgumentError)
       end
     end
 
@@ -161,7 +119,7 @@ describe Pakyow::Realtime::Context do
       end
 
       let :passed_arg do
-        [:foo_channel]
+        channel_arg
       end
 
       include_examples :push
@@ -174,18 +132,6 @@ describe Pakyow::Realtime::Context do
 
       let :passed_arg do
         channel_arg
-      end
-
-      include_examples :push
-    end
-
-    context 'when called with an array of channels' do
-      let :channel_arg do
-        [[:foo_channel, :bar_channel]]
-      end
-
-      let :passed_arg do
-        channel_arg.flatten
       end
 
       include_examples :push

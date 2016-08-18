@@ -1,4 +1,4 @@
-require_relative '../spec_helper'
+require 'spec_helper'
 require 'pakyow/realtime/registries/simple_registry'
 
 describe Pakyow::Realtime::SimpleRegistry do
@@ -17,10 +17,6 @@ describe Pakyow::Realtime::SimpleRegistry do
   it 'is a singleton' do
     expect(registry.instance).to eq(registry.instance)
   end
-  
-  it 'does not propagate' do
-    expect(registry.instance.propagates?).to eq(false)
-  end
 
   describe '#channels_for_key' do
     context 'when there are channels for key' do
@@ -33,7 +29,7 @@ describe Pakyow::Realtime::SimpleRegistry do
       end
 
       it 'returns the channels' do
-        expect(registry.instance.channels_for_key(key)).to eq(channels)
+        expect(*registry.instance.channels_for_key(key)).to eq(channels)
       end
     end
 
@@ -50,7 +46,7 @@ describe Pakyow::Realtime::SimpleRegistry do
     end
 
     it 'deletes the key from channels' do
-      expect(registry.instance.channels_for_key(key)).to eq(channels)
+      expect(*registry.instance.channels_for_key(key)).to eq(channels)
       registry.instance.unregister_key(key)
       expect(registry.instance.channels_for_key(key)).to eq([])
     end
@@ -60,18 +56,18 @@ describe Pakyow::Realtime::SimpleRegistry do
     it 'subscribes the key to the channels' do
       expect(registry.instance.channels_for_key(key)).to eq([])
       registry.instance.subscribe_to_channels_for_key(channels, key)
-      expect(registry.instance.channels_for_key(key)).to eq(channels)
+      expect(*registry.instance.channels_for_key(key)).to eq(channels)
     end
   end
 
-  describe '#unsubscribe_to_channels_for_key' do
+  describe '#unsubscribe_from_channels_for_key' do
     before do
       registry.instance.subscribe_to_channels_for_key(channels, key)
     end
 
     it 'unsubscribes the channels for the key' do
-      expect(registry.instance.channels_for_key(key)).to eq(channels)
-      registry.instance.unsubscribe_to_channels_for_key(channels, key)
+      expect(*registry.instance.channels_for_key(key)).to eq(channels)
+      registry.instance.unsubscribe_from_channels_for_key(channels, key)
       expect(registry.instance.channels_for_key(key)).to eq([])
     end
   end

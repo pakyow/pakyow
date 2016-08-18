@@ -35,14 +35,13 @@ module Pakyow
 
         def call(env)
           if websocket?(env)
-            hijack_io = hijack(env)
-
-            handshake = Handshake.new(env, hijack_io)
+            handshake = Handshake.new(env)
             handshake.perform
 
             if handshake.valid?
+              handshake.finalize(hijack(env))
               req = Rack::Request.new(env)
-
+              
               ConnectionPool.instance << Connection.new(
                 handshake.io,
                 version: handshake.server.version,

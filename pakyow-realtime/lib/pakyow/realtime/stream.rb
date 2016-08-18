@@ -3,10 +3,12 @@ module Pakyow
     # Handles incoming / outgoing data for a WebSocket connection.
     #
     class Stream
+      attr_reader :io, :version
+
       def initialize(io, version: nil)
         @io = io
         @version = version
-        @incoming = ::WebSocket::Frame::Incoming::Server.new(version: version)
+        @incoming = WebSocket::Frame::Incoming::Server.new(version: version)
         @handlers = {}
 
         yield self if block_given?
@@ -14,7 +16,7 @@ module Pakyow
 
       def write(data)
         @io.write(
-          ::WebSocket::Frame::Outgoing::Server.new(
+          WebSocket::Frame::Outgoing::Server.new(
             version: @version,
             data: data,
             type: :text

@@ -6,20 +6,21 @@ module Pakyow
       DELIMINATOR = "\r\n"
       HTTP_HEADER_REGEXP = /^HTTP_(.*)/
 
-      attr_reader :server, :io, :env
+      attr_reader :server, :env, :io
 
-      def initialize(env, io)
+      def initialize(env)
         @env = env
-        @io  = io
       end
 
       def perform
-        @server = ::WebSocket::Handshake::Server.new
+        @server = WebSocket::Handshake::Server.new
         @server << handshake_data_from_env(@env)
-
-        if @server.valid?
-          @io.write(server.to_s)
-        end
+      end
+      
+      def finalize(io)
+        return unless @server.valid?
+        @io = io
+        @io.write(server.to_s)
       end
 
       def valid?

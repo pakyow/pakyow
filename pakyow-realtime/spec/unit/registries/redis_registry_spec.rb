@@ -1,4 +1,4 @@
-require_relative '../spec_helper'
+require 'spec_helper'
 require 'pakyow/realtime/config'
 require 'pakyow/realtime/registries/redis_registry'
 
@@ -16,18 +16,10 @@ if redis_available?
       :ws_key
     end
 
-    let :redis do
-      double(Redis, hdel: nil)
-    end
-
     it 'is a singleton' do
       expect(registry.instance).to eq(registry.instance)
     end
-
-    it 'propagates' do
-      expect(registry.instance.propagates?).to eq(true)
-    end
-
+    
     describe '#channels_for_key' do
       context 'when there are channels for key' do
         before do
@@ -40,7 +32,7 @@ if redis_available?
         end
 
         it 'returns the channels' do
-          expect(registry.instance.channels_for_key(key)).to eq(channels)
+          expect(registry.instance.channels_for_key(key).sort).to eq(channels.sort)
         end
       end
 
@@ -54,22 +46,15 @@ if redis_available?
     describe '#unregister_key' do
       before do
         registry.instance.subscribe_to_channels_for_key(channels, key)
-
-        @original_redis = $redis #registry.instance.instance_variable_get(:@redis)
-        $redis = redis
-
-        allow(redis).to receive(:publish)
       end
 
       after do
-        $redis = @original_redis
-        registry.instance.unregister_key(key)
-        registry.instance.instance_variable_set(:@subscriber, nil)
+        registry.instance_variable_set(:@subscriber, nil)
       end
 
       it 'deletes the key' do
+        expect(Pakyow::Realtime.redis).to receive(:del).with("#{Pakyow::Config.realtime.redis_key}:#{key}")
         registry.instance.unregister_key(key)
-        expect(redis).to have_received(:hdel).with(Pakyow::Config.realtime.redis_key, key)
       end
     end
 
@@ -81,18 +66,18 @@ if redis_available?
       it 'subscribes the key to the channels' do
         expect(registry.instance.channels_for_key(key)).to eq([])
         registry.instance.subscribe_to_channels_for_key(channels, key)
-        expect(registry.instance.channels_for_key(key)).to eq(channels)
+        expect(registry.instance.channels_for_key(key).sort).to eq(channels.sort)
       end
     end
 
-    describe '#unsubscribe_to_channels_for_key' do
+    describe '#unsubscribe_from_channels_for_key' do
       before do
         registry.instance.subscribe_to_channels_for_key(channels, key)
       end
 
       it 'unsubscribes the channels for the key' do
-        expect(registry.instance.channels_for_key(key)).to eq(channels)
-        registry.instance.unsubscribe_to_channels_for_key(channels, key)
+        expect(registry.instance.channels_for_key(key).sort).to eq(channels.sort)
+        registry.instance.unsubscribe_from_channels_for_key(channels, key)
         expect(registry.instance.channels_for_key(key)).to eq([])
       end
     end

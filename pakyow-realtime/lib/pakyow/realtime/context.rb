@@ -14,12 +14,9 @@ module Pakyow
       #
       # @api public
       def subscribe(*channels)
-        channels = Array.ensure(channels).flatten
-        fail ArgumentError if channels.empty?
-
         delegate.subscribe(
           @app.socket_digest(@app.socket_connection_id),
-          channels
+          *channels
         )
       end
 
@@ -27,12 +24,9 @@ module Pakyow
       #
       # @api public
       def unsubscribe(*channels)
-        channels = Array.ensure(channels).flatten
-        fail ArgumentError if channels.empty?
-
         delegate.unsubscribe(
           @app.socket_digest(@app.socket_connection_id),
-          channels
+          *channels
         )
       end
 
@@ -40,18 +34,15 @@ module Pakyow
       #
       # @api public
       def push(msg, *channels)
-        channels = Array.ensure(channels).flatten
-        fail ArgumentError if channels.empty?
-
-        delegate.push(msg, channels)
+        delegate.push(msg, *channels)
       end
 
       # Push a message down a channel directed at a specific client,
       # identified by key.
       #
       # @api public
-      def push_message_to_socket_with_key(msg, channel, key, propagated = false)
-        delegate.push_message_to_socket_with_key(msg, channel, key, propagated)
+      def push_to_key(msg, channel, key, propagated: false)
+        delegate.push_to_key(msg, channel, key, propagated: propagated)
       end
 
       # Returns an instance of the connection delegate.

@@ -1,13 +1,4 @@
 module Pakyow
-  class App
-    # @api private
-    def socket
-      Realtime::Context.new(self)
-    end
-  end
-end
-
-module Pakyow
   module Helpers
     # Returns a working realtime context for the current app context.
     #

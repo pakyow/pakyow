@@ -1,0 +1,7 @@
+source "https://rubygems.org"
+
+gem "pakyow", path: "../../"
+
+gem "puma"
+gem "websocket-client-simple"
+gem "httparty"
