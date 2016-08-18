@@ -16,7 +16,10 @@ module Pakyow
       @formats = []
 
       @path = path_info
-      @method = request_method.downcase.to_sym
+      
+      if method = request_method
+        @method = method.downcase.to_sym
+      end
 
       setup
     end
