@@ -22,6 +22,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency('pakyow-support', Pakyow::VERSION)
   spec.add_dependency('rack', '~> 1.6')
 
-  spec.add_development_dependency('minitest', '~> 5.6')
   spec.add_development_dependency('rspec', '~> 3.2')
 end
