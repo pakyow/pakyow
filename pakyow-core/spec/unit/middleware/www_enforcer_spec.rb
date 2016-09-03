@@ -37,6 +37,7 @@ describe Pakyow::Middleware::WWWEnforcer do
     allow(app).to receive(:enforce_www) { true }
     allow(Pakyow).to receive(:app).and_return(app)
     allow(app).to receive(:call)
+    Pakyow::App.instance_variable_set(:@builder, double(Rack::Builder).as_null_object)
   end
 
   describe 'when enforce_www is false' do
