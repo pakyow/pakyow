@@ -1,3 +1,7 @@
+# 1.0.0
+
+  * ADDED `Hookable` module
+
 # 0.11.0
 
   * Moves everything into the Pakyow namespace

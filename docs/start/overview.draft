@@ -1,0 +1,8 @@
+---
+name: Overview
+---
+
+- dev process: the idea of developing local, then deploy to a server
+- prereqs: what you should know first (html, ruby); with direction
+- view-first development
+- parts: the different parts of an app

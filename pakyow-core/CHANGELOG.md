@@ -1,3 +1,16 @@
+# 1.0.0
+
+  * IMPROVED helpers by removing `Helpers::App` and `Helpers::Context`. Instead,
+    `Helpers` is included only into `CallContext`. Extensions to `App` is now
+    considered an edge-case and should be done through other normal means.
+  * IMPROVED hooks by removing `Helpers::Hooks` in favor of `Support::Hookable`.
+  * ADDED verbose log level.
+  * CHANGED default production log level to `info`.
+
+# 0.11.3
+
+  * Adds the ability to `send` StringIO objects
+
 # 0.11.1
 
   * Includes `Pakyow::Helpers` into `Pakyow::App`

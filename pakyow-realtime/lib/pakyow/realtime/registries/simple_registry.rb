@@ -22,18 +22,26 @@ module Pakyow
         @channels.delete(key)
       end
 
-      def subscribe_to_channels_for_key(channels, key)
+      def subscribe_to_channels_for_key(*channels, key)
         @channels[key] ||= []
-        @channels[key].concat(Array.ensure(channels)).uniq!
+        @channels[key].concat(channels).uniq!
       end
 
-      def unsubscribe_to_channels_for_key(channels, key)
+      def unsubscribe_from_channels_for_key(*channels, key)
         @channels[key] ||= []
-        @channels[key] = @channels[key] - Array.ensure(channels)
+        @channels[key] = @channels[key] - channels
       end
 
-      def propagates?
-        false
+      def propagate(message, *channels)
+        channels.each do |channel|
+          pmessage = { payload: message, channel: channel }
+          Delegate.instance.push(pmessage.to_json, *channels, propagated: true)
+        end
+      end
+      
+      def push_to_key(message, channel, key)
+        pmessage = { payload: message, channel: channel }
+        Delegate.instance.push_to_key(pmessage.to_json, channel, key, propagated: true)
       end
     end
   end

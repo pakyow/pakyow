@@ -1,3 +1,8 @@
+# 1.0.0
+
+  * IMPROVED WebSocket reliability and performance.
+  * CHANGED WebSocket log level to verbose.
+
 # 0.11.0
 
   * Gracefully shuts down WebSocket when something bad happens

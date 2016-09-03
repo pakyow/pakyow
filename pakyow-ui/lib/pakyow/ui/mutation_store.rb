@@ -20,7 +20,7 @@ module Pakyow
           qualifications: qualifications,
           query_name: mutable_data.query_name,
           query_args: mutable_data.query_args,
-          session: session.to_h,
+          session: session.to_hash,
           socket_key: mutate_context.view.context.socket_digest(mutate_context.view.context.socket_connection_id)
         )
       end
@@ -36,6 +36,6 @@ module Pakyow
   end
 end
 
-Pakyow::Realtime::Websocket.on :leave do
+Pakyow::Realtime::Connection.on :leave do
   Pakyow::UI::MutationStore.instance.unregister(socket_digest(socket_connection_id))
 end

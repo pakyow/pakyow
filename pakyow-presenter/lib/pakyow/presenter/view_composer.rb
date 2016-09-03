@@ -165,7 +165,7 @@ module Pakyow
         collection = parts.scope(name)
 
         if collection.is_a?(ViewVersion)
-          collection = collection.versions.inject(ViewCollection.new) { |c, v| c << v; c }
+          collection = collection.versions.inject(ViewCollection.new(name)) { |c, v| c << v; c }
         end
 
         # include partials so nested scopes/props can be bound to

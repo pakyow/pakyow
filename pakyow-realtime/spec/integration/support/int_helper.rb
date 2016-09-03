@@ -1,74 +1,116 @@
-require 'pakyow-realtime'
-require_relative '../../spec_helper'
+require "pakyow/realtime"
+require "spec_helper"
 
-require_relative 'mixins/pubsub_specs'
+PORT = 2001
+HOST = "localhost"
 
-shared_examples :websocket_helpers do
-  let :response do
-    double(:response)
+Pakyow::App.define do
+  configure do
+    server.port = PORT
+    server.host = HOST
+    logger.level = :error
+    logger.formatter = Pakyow::Logger::DevFormatter
+    session.secret = "sekret"
   end
 
-  let :request do
-    Rack::Request.new(rack_env)
+  routes do
+    default do
+      res.body = ["<body></body>"]
+    end
+
+    get '/sub/:channel' do
+      socket.subscribe(params[:channel])
+      send socket_connection_id
+    end
+    
+    namespace '/push' do
+      post '/' do
+        socket.push(params[:message], params[:channel])
+      end
+      
+      post '/:socket' do
+        socket.push_to_key(params[:message], params[:channel], params[:socket])
+      end
+    end
+    
+    get '/ws' do
+      send socket_connection_id
+    end
+  end
+end
+
+require "websocket-client-simple"
+require "httparty"
+
+def start_server(host: HOST, port: PORT)
+  return if $server && check_for_server
+  original_stdout = $stdout.clone
+  $stdout.reopen(File.new('/dev/null', 'w'))
+  $server = Thread.new { Pakyow::App.run(:production) }
+  check_for_server
+  $stdout.reopen(original_stdout)
+end
+
+def restart_server(host: HOST, port: PORT)
+  $server.terminate if $server
+  start_server(host: host, port: port)
+end
+
+def check_for_server(host: HOST, port: PORT)
+  attempts = 0
+  until attempts == 10
+    begin
+      HTTParty.get("http://#{host}:#{port}")
+      return true
+    rescue Errno::ECONNREFUSED
+      attempts += 1
+      sleep 0.1
+    end
+  end
+  
+  fail "could not connect"
+end
+
+class WebSocketClient
+  def self.create(host: HOST, port: PORT, path: "ws")
+    check_for_server
+
+    return WebSocketClient.new(
+      host: host,
+      port: port,
+      path: path
+    )
   end
 
-  let :valid_handshake do
-    double(WebSocket::ClientHandshake, valid?: true, accept_response: response)
+  attr_reader :socket, :socket_digest, :messages
+
+  def initialize(host: HOST, port: PORT, path: "ws")
+    res = HTTParty.get(File.join("http://#{host}:#{port}", path))
+    
+    socket_id = res.body
+    cookie = res.headers["set-cookie"]
+    
+    @messages = []
+    
+    @socket = WebSocket::Client::Simple.connect(
+      "ws://#{host}:#{port}/?socket_connection_id=#{socket_id}",
+      headers: { 'COOKIE' => cookie }
+    )
+    
+    received = -> (message) {
+      @messages << message.data.to_s
+    }
+
+    @socket.on :message do |message|
+      received.call(message)
+    end
+
+    @socket.on :open do; end
+    @socket.on :close do; end
+    @socket.on :error do; end
   end
 
-  let :invalid_handshake do
-    double(WebSocket::ClientHandshake, valid?: false, accept_response: response, errors: [:err])
-  end
-
-  let :rack_env do
-    env = Rack::MockRequest.env_for(url, socket_connection_id: socket_connection_id)
-    env['HTTP_UPGRADE'] = header_upgrade
-    env['HTTP_SEC_WEBSOCKET_VERSION'] = header_version
-    env['HTTP_SEC_WEBSOCKET_KEY'] = header_key
-    env['rack.logger'] = Rack::NullLogger.new({})
-    env['rack.hijack'] = hijack
-    env['rack.hijack_io'] = hijack_io
-    env['rack.session'] = { socket_key: socket_key }
-    env
-  end
-
-  let :rack_env_with_session do
-    { 'rack.session' => { socket_key: socket_key } }
-  end
-
-  let :url do
-    '/'
-  end
-
-  let :header_upgrade do
-    'websocket'
-  end
-
-  let :header_version do
-    '1.0'
-  end
-
-  let :header_key do
-    'foo'
-  end
-
-  let :hijack do
-    -> {}
-  end
-
-  let :hijack_io do
-    StringIO.new
-  end
-
-  let :socket_key do
-    '123'
-  end
-
-  let :socket_connection_id do
-    '321'
-  end
-
-  let :socket_digest do
-    socket_key + socket_connection_id
+  def shutdown
+    @socket.close
   end
 end
