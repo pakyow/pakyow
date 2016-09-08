@@ -315,6 +315,8 @@ module Pakyow
         end
       end
 
+      # call-seq:
+      #   bind_with_index(data)
       #
       # Binds data across existing scopes, yielding a view/datum pair with index.
       #
