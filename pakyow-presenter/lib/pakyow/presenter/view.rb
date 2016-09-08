@@ -108,6 +108,7 @@ module Pakyow
           coll << view
         end
       end
+      alias form scope
 
       def prop(name)
         name = name.to_sym
@@ -263,8 +264,57 @@ module Pakyow
         self
       end
 
-      # call-seq:
-      #   bind_with_index(data)
+      def create(data, bindings: {}, context: nil, &block)
+        bind(data, bindings: {}, context: nil) do |view, data|
+          # TODO: How to access request params here
+          # TODO: Is it enough to allow user to use the block to override
+          #       default form setup?
+          scope = view.scoped_as
+          routes = Router.instance.group(scope)
+
+          if routes
+            view.attrs.action = routes.path(:create)
+          end
+
+          return if block.nil?
+
+          if block.arity == 1
+            view.instance_exec(&block)
+          else
+            block.call(view, data)
+          end
+        end
+      end
+
+      def update(data, bindings: {}, context: nil, &block)
+        bind(data, bindings: {}, context: nil) do |view, data|
+          # TODO: How to access request params here
+          # TODO: Is it enough to allow user to use the block to override
+          #       default form setup?
+          scope = view.scoped_as
+          routes = Router.instance.group(scope)
+          route_params = {
+            :"#{scope}_id" => view.attrs.__send__('data-id').value
+          }
+
+          if routes
+            view.attrs.action = routes.path(:update, route_params)
+          end
+
+          view.prepend(
+            View.new('<input type="hidden" name="_method" value="patch">')
+          )
+
+          return if block.nil?
+
+          if block.arity == 1
+            view.instance_exec(&block)
+          else
+            block.call(view, data)
+          end
+        end
+      end
+
       #
       # Binds data across existing scopes, yielding a view/datum pair with index.
       #

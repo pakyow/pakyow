@@ -14,6 +14,31 @@ shared_examples :form_binding_specs do
     D
   }
 
+  let(:router) { Pakyow::Router.instance }
+  let(:group) { Pakyow::Router.instance.group(:foo) }
+
+  context 'when creating a form' do
+    it 'sets the action' do
+      expect(group).to receive(:path) { '/foo' }.with(:create)
+      expect(router).to receive(:group) { group }.with(:foo)
+
+      view.form(:foo).create({})
+      expect(view.scope(:foo).first.instance_variable_get(:@doc).to_s).to include %(action="/foo")
+    end
+  end
+
+  context 'when updating a form' do
+    it 'sets the _method' do
+      expect(group).to receive(:path) { '/foo/1' }.with(:update, foo_id: 1)
+      expect(router).to receive(:group) { group }.with(:foo)
+
+      view.form(:foo).update(id: 1)
+      html = view.scope(:foo).first.instance_variable_get(:@doc).to_s
+      expect(html).to include %(name="_method" value="patch")
+      expect(html).to include %(action="/foo/1")
+    end
+  end
+
   context 'when binding to unnamed field' do
     it 'sets name attr' do
       view.scope(:foo).bind(unnamed: 'test')

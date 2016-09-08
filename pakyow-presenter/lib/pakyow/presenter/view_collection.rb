@@ -286,17 +286,16 @@ module Pakyow
       #
       # Binds data across existing scopes.
       #
-      def bind(data, bindings: {}, context: nil, &block)
-        self.for(data) do |view, datum|
-          view.bind(datum, bindings: bindings, context: context)
-          next if block.nil?
+      def bind(*bind_method_args, &block)
+        send_bind_method(:bind, *bind_method_args, &block)
+      end
 
-          if block.arity == 1
-            view.instance_exec(datum, &block)
-          else
-            block.call(view, datum)
-          end
-        end
+      def create(*bind_method_args, &block)
+        send_bind_method(:create, *bind_method_args, &block)
+      end
+
+      def update(*bind_method_args, &block)
+        send_bind_method(:update, *bind_method_args, &block)
       end
 
       # call-seq:
@@ -325,6 +324,22 @@ module Pakyow
       def apply(data, bindings: {}, context: nil, &block)
         match(data).bind(data, bindings: bindings, context: context, &block)
       end
+
+      private
+
+      def send_bind_method(method, data, bindings: {}, context: nil, &block)
+        self.for(data) do |view, datum|
+          view.__send__(method, datum, bindings: bindings, context: context)
+          next if block.nil?
+
+          if block.arity == 1
+            view.instance_exec(datum, &block)
+          else
+            block.call(view, datum)
+          end
+        end
+      end
+
     end
   end
 end
