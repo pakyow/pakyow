@@ -6,7 +6,7 @@ gem 'rake', '~> 11.1'
 gem 'rack', '~> 1.6'
 
 # presenter
-gem 'oga', '~> 2.0'
+gem 'oga', '~> 2.3.0'
 
 # mail
 gem 'mail', '~> 2.6'
