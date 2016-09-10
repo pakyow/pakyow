@@ -87,7 +87,7 @@ describe Pakyow::Middleware::WWWEnforcer do
   end
 
   describe '#add_www' do
-    it 'removes "www." from host name' do
+    it 'adds "www." to host name' do
       expect(instance.add_www(host)).to eq(host_www)
     end
   end

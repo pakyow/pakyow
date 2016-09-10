@@ -34,11 +34,7 @@ module Pakyow
       end
 
       def add_www(host)
-        # "www.#{host}"
-        host
-          .split('.')
-          .unshift('www')
-          .join('.')
+        "www.#{host}"
       end
 
       def catch_and_redirect(env, host)
