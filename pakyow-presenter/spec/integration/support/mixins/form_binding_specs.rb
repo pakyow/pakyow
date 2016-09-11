@@ -16,23 +16,28 @@ shared_examples :form_binding_specs do
 
   let(:router) { Pakyow::Router.instance }
   let(:group) { Pakyow::Router.instance.group(:foo) }
+  let(:request) { mock_request }
+  let(:app_context) { Pakyow::AppContext.new(request, nil) }
+  let(:view_context) { Pakyow::Presenter::ViewContext.new(view, app_context) }
 
   context 'when creating a form' do
     it 'sets the action' do
-      expect(group).to receive(:path) { '/foo' }.with(:create)
+      expect(request).to receive(:params) { {} }
+      expect(group).to receive(:path) { '/foo' }.with(:create, {})
       expect(router).to receive(:group) { group }.with(:foo)
 
-      view.form(:foo).create({})
+      view_context.form(:foo).create({})
       expect(view.scope(:foo).first.instance_variable_get(:@doc).to_s).to include %(action="/foo")
     end
   end
 
   context 'when updating a form' do
-    it 'sets the _method' do
-      expect(group).to receive(:path) { '/foo/1' }.with(:update, foo_id: 1)
+    it 'sets the _method and action' do
+      expect(request).to receive(:params) { { other: 'param' } }
+      expect(group).to receive(:path) { '/foo/1' }.with(:update, foo_id: 1, other: 'param')
       expect(router).to receive(:group) { group }.with(:foo)
 
-      view.form(:foo).update(id: 1)
+      view_context.form(:foo).update(id: 1)
       html = view.scope(:foo).first.instance_variable_get(:@doc).to_s
       expect(html).to include %(name="_method" value="patch")
       expect(html).to include %(action="/foo/1")
