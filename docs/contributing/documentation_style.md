@@ -12,7 +12,7 @@ writing content:
 [online](http://www.englishgrammar.org/) [resources](http://www.quickanddirtytips.com/education/grammar).
 Keep in mind that Pakyow, Ruby, GitHub, etc. are proper nouns and should be
 capitalized. This is also true for the "Web", when referring to the Internet
--- itself a proper noun.)
+-- itself a proper noun.
 
 **Keep the narrative consistent.** Refer to the reader in second-person and
 Pakyow (framework or team) in third-person.
@@ -35,8 +35,6 @@ or new to programming in general. These blocks should be formatted as follows
 > ![Programming Icon](/img/programming.png)
 >> Concepts for new programmers...
 ```
-> ![Ruby Logo](/img/ruby.png)
->> Details for those new to Ruby...
 
 **Include examples as necessary** Like a picture, a good example can be worth a
 thousand words. We use [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/#GitHub-flavored-markdown)
