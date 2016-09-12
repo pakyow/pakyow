@@ -54,7 +54,7 @@ describe Pakyow::Middleware::NonWWWEnforcer do
         env['SERVER_NAME'] = host_www
       end
 
-      it 'issues a 301 redirect and add "www." to host name' do
+      it 'issues a 301 redirect and add www to host name' do
         expect_any_instance_of(Pakyow::CallContext).to receive(:redirect).with(host, 301)
         instance.call(env)
       end
@@ -73,11 +73,11 @@ describe Pakyow::Middleware::NonWWWEnforcer do
   end
 
   describe '#www?' do
-    it 'return true if host starts with "www."' do
+    it 'return true if host starts with www' do
       expect(instance.www?(host_www)).to eq(true)
     end
 
-    it 'return false if host doesn\'t start with "www.' do
+    it 'return false if host doesn\'t start with www' do
       expect(instance.www?([host, host_subdomain].sample)).to eq(false)
     end
   end

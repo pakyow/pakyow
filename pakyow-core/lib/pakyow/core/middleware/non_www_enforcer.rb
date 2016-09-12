@@ -14,17 +14,12 @@ module Pakyow
     class NonWWWEnforcer
       def initialize(app)
         @app = app
-        @enforce_www = app.enforce_www
       end
 
       def call(env)
         host = env['SERVER_NAME']
-        return catch_and_redirect(env, remove_www(host)) if non_enforce_www_and_www?(host)
+        return catch_and_redirect(env, remove_www(host)) if www?(host)
         @app.call(env)
-      end
-
-      def non_enforce_www_and_www?(host)
-        @enforce_www false true && www?(host)
       end
 
       def www?(host)
