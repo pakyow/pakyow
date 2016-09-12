@@ -1,5 +1,4 @@
 require 'redis'
-require 'concurrent'
 
 module Pakyow
   module Realtime
@@ -7,54 +6,45 @@ module Pakyow
     #
     # @api private
     class RedisSubscription
-      SIGNAL_UNSUBSCRIBE = 'unsubscribe'
-
       def initialize
-        @redis = ::Redis.new(Config.realtime.redis)
+        @s_redis = ::Redis.new(Config.realtime.redis)
+        @c_redis = ::Redis.new(Config.realtime.redis)
       end
-
-      def subscribe(channels = [])
-        channels << signal_channel
-
-        Concurrent::Future.execute {
-          @redis.subscribe(*channels) do |on|
-            on.message do |channel, msg|
+      
+      def subscribe
+        Thread.new {
+          @s_redis.psubscribe(pubsub_channel("socket", "*", "channel", "*")) do |on|
+            on.pmessage do |_pattern, channel, message|
               begin
-                msg = JSON.parse(msg)
-
-                if channel == signal_channel
-                  if msg['signal'] == SIGNAL_UNSUBSCRIBE
-                    @resubscribe_channels = msg['resubscribe_channels']
-                    @redis.unsubscribe
-                  end
-                end
-
-                if msg.is_a?(Hash)
-                  msg[:__propagated] = true
-                elsif msg.is_a?(Array)
-                  msg << :__propagated
-                end
-
-                context = Pakyow::Realtime::Context.new(Pakyow.app)
-
-                if msg.key?('key')
-                  context.push_message_to_socket_with_key(msg['message'], msg['channel'], msg['key'], true)
-                else
-                  context.push(msg, channel)
-                end
+                _, _, socket_key, _, channel = channel.split(RedisRegistry::PUBSUB_DELIMITER)
+                Delegate.instance.push_to_key(message, channel, socket_key, propagated: true)
               rescue StandardError => e
                 Pakyow.logger.error "RedisSubscription encountered a fatal error:"
                 Pakyow.logger.error e.message
               end
             end
           end
+        }
 
-          subscribe(@resubscribe_channels) if @resubscribe_channels
+        Thread.new {
+          @c_redis.psubscribe(pubsub_channel("channel", "*")) do |on|
+            on.pmessage do |_pattern, channel, message|
+              begin
+                _, _, channel = channel.split(RedisRegistry::PUBSUB_DELIMITER)
+                Delegate.instance.push(message, channel, propagated: true)
+              rescue StandardError => e
+                Pakyow.logger.error "RedisSubscription encountered a fatal error:"
+                Pakyow.logger.error e.message
+              end
+            end
+          end
         }
       end
-
-      def signal_channel
-        "pw:#{object_id}:signal"
+      
+      private
+      
+      def pubsub_channel(*values)
+        [RedisRegistry::PUBSUB_PREFIX].concat(values).flatten.join(RedisRegistry::PUBSUB_DELIMITER)
       end
     end
   end

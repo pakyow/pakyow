@@ -16,6 +16,13 @@ require 'pakyow/core/route_lookup'
 require 'pakyow/core/app'
 require 'pakyow/core/errors'
 
+require 'pakyow/core/logger/request_logger'
+require 'pakyow/core/logger/colorizer'
+require 'pakyow/core/logger/timekeeper'
+require 'pakyow/core/logger/formatters/dev_formatter'
+require 'pakyow/core/logger/formatters/json_formatter'
+require 'pakyow/core/logger/formatters/logfmt_formatter'
+
 require 'pakyow/core/config'
 require 'pakyow/core/config/reloader'
 require 'pakyow/core/config/app'
@@ -34,28 +41,5 @@ require 'pakyow/core/middleware/logger'
 module Pakyow
   class << self
     attr_accessor :app, :logger
-  end
-
-  def self.configure_logger
-    logs = []
-
-    if File.directory?(Config.logger.path)
-      log_path = File.join(Config.logger.path, Config.logger.filename)
-
-      begin
-        log = File.open(log_path, 'a')
-        log.sync if Config.logger.sync
-
-        logs << log
-      rescue StandardError => e
-        warn "Error opening '#{log_path}' for writing"
-      end
-    end
-
-    logs << $stdout if Config.logger.stdout
-
-    io = logs.count > 1 ? MultiLog.new(*logs) : logs[0]
-
-    Pakyow.logger = Logger.new(io, Config.logger.level, Config.logger.colorize, Config.logger.auto_flush)
   end
 end

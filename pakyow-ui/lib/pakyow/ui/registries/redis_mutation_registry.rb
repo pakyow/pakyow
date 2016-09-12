@@ -53,17 +53,7 @@ module Pakyow
       end
 
       def keys(match)
-        cursor = 0
-
-        loop do
-          cursor, keys = Pakyow::Realtime.redis.scan(cursor, match: match)
-
-          keys.each do |key|
-            yield key
-          end
-
-          break if cursor == '0'
-        end
+        Pakyow::Realtime.redis.sscan_each(match).to_a
       end
     end
   end

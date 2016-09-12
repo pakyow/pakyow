@@ -35,7 +35,7 @@ module Pakyow
       #
       # @api public
       def subscribe(qualifications = {})
-        if data.is_a?(MutableData) && !view.context.request.env['pakyow.socket']
+        if data.is_a?(MutableData)
           MutationStore.instance.register(self, view, data, qualifications, view.context.request.session)
         end
 

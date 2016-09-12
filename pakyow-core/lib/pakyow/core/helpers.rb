@@ -47,15 +47,5 @@ module Pakyow
     def env
       config.env
     end
-
-    # Helpers for Pakyow::App
-    #
-    # @api public
-    module App; end
-
-    # Helpers for Pakyow::CallContext
-    #
-    # @api public
-    module Context; end
   end
 end

@@ -1,4 +1,4 @@
-require_relative '../spec_helper'
+require 'spec_helper'
 require 'pakyow/realtime/delegate'
 
 describe Pakyow::Realtime::Delegate do
@@ -11,7 +11,7 @@ describe Pakyow::Realtime::Delegate do
                                              channels_for_key: channels,
                                              unregister_key: nil,
                                              subscribe_to_channels_for_key: nil,
-                                             unsubscribe_to_channels_for_key: nil,
+                                             unsubscribe_from_channels_for_key: nil,
                                              propagates?: false)
   end
 
@@ -28,7 +28,7 @@ describe Pakyow::Realtime::Delegate do
   end
 
   let :connection do
-    double(Pakyow::Realtime::Connection, push: nil)
+    double(Pakyow::Realtime::Connection, write: nil)
   end
 
   describe '#initialize' do
@@ -88,32 +88,32 @@ describe Pakyow::Realtime::Delegate do
 
     describe '#subscribe' do
       before do
-        delegate.subscribe(key, channels)
+        delegate.subscribe(key, *channels)
       end
 
       after do
-        delegate.unsubscribe(key, channels)
+        delegate.unsubscribe(key, *channels)
       end
 
       it 'subscribes the registry to channels for key' do
-        expect(registry).to have_received(:subscribe_to_channels_for_key).with(channels, key)
+        expect(registry).to have_received(:subscribe_to_channels_for_key).with(*channels, key)
       end
     end
 
     describe '#unsubscribe' do
       before do
-        delegate.unsubscribe(key, channels)
+        delegate.unsubscribe(key, *channels)
       end
 
       it 'unsubscribes the registry to channels for key' do
-        expect(registry).to have_received(:unsubscribe_to_channels_for_key).with(channels, key)
+        expect(registry).to have_received(:unsubscribe_from_channels_for_key).with(*channels, key)
       end
     end
 
     describe '#push' do
       before do
         delegate.register(key, connection)
-        delegate.subscribe(key, channels)
+        delegate.subscribe(key, *channels)
       end
 
       after do
@@ -133,14 +133,13 @@ describe Pakyow::Realtime::Delegate do
       end
 
       it 'pushes the message down each connection registered to channels' do
-        delegate.push(message, channels)
-        expect(connection).to have_received(:push).with(payload: message,
-                                                        channel: channels[0])
+        delegate.push(message, *channels, propagated: true)
+        expect(connection).to have_received(:write).with(message)
       end
 
       it 'does not push the message down to connections not registered to channels' do
-        delegate.push(message, unsubscribed_channels)
-        expect(connection).to_not have_received(:push)
+        delegate.push(message, *unsubscribed_channels, propagated: true)
+        expect(connection).to_not have_received(:write)
       end
     end
   end

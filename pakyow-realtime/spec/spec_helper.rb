@@ -1,13 +1,6 @@
 require 'pakyow-support'
 require 'pakyow-core'
-require 'concurrent'
-
 require 'rack/test'
-
-# disable the logger when staging
-Pakyow::App.after :init do
-  Pakyow.logger = Rack::NullLogger.new(self)
-end
 
 if ENV['COVERAGE']
   require 'simplecov'

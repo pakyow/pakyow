@@ -6,7 +6,7 @@ gem 'rake', '~> 11.1'
 gem 'rack', '~> 1.6'
 
 # presenter
-gem 'oga', '~> 2.0'
+gem 'oga', '~> 2.6'
 
 # mail
 gem 'mail', '~> 2.6'
@@ -15,7 +15,6 @@ gem 'premailer', '~> 1.8'
 # realtime
 gem 'websocket', '~> 1.2'
 gem 'redis', '~> 3.2'
-gem 'concurrent-ruby', '~> 1.0'
 
 group :test do
   gem 'minitest', '~> 5.6'
@@ -28,6 +27,10 @@ group :test do
   gem 'rack-test', '~> 0.6', require: 'rack/test'
 
   gem 'codeclimate-test-reporter', require: false
+  
+  gem 'websocket-client-simple', '~> 0.3'
+  gem 'httparty', '~> 0.14'
+  gem 'puma', '~> 3.6'
 end
 
 group :development do

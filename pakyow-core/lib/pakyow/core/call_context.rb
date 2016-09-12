@@ -1,27 +1,38 @@
 require 'pakyow/core/helpers'
-require 'pakyow/core/helpers/hooks'
 require 'pakyow/core/router'
 require 'pakyow/core/request'
 require 'pakyow/core/response'
 require 'pakyow/core/app_context'
 
+require "pakyow/support/hookable"
+
 module Pakyow
+  # Each request / response lifecycle is processed within its own instance.
+  #
+  # Processing a request here instead of App lets us separate the concerns of
+  # running an app (where state is shared across requests) from those of
+  # processing a request (where state is unique to the request).
+  #
+  # @api private
   class CallContext
     include Helpers
-    include Helpers::Context
-    include Helpers::Hooks::InstanceMethods
+    include Support::Hookable
 
-    attr_writer :context
+    known_events :process, :route, :match, :error
 
     def initialize(env)
-      @router = Pakyow::Router.instance
-
       req = Request.new(env)
       res = Response.new
 
       # set response format based on request
       res.format = req.format
 
+      # create a reference to the router
+      @router = Pakyow::Router.instance
+      
+      # setup a context object; used to provide access to the request / response
+      # objects without exposing functionality that should only be accessible
+      # from within the app call
       @context = AppContext.new(req, res)
     end
 
@@ -81,7 +92,7 @@ module Pakyow
     # default to whatever is set in the response.
     #
     def send(file_or_data, type = nil, send_as = nil)
-      if file_or_data.is_a?(IO)
+      if file_or_data.is_a?(IO) || file_or_data.is_a?(StringIO)
         data = file_or_data
 
         if file_or_data.is_a?(File)
@@ -117,6 +128,8 @@ module Pakyow
     end
 
     def handle(name_or_code, from_logic = true)
+      @handling = true
+
       hook_around :route do
         @router.handle(name_or_code, self, from_logic)
       end
@@ -132,10 +145,8 @@ module Pakyow
       @found
     end
 
-    def call_hooks(type, trigger)
-      Pakyow::App.hook(type, trigger).each do |block|
-        instance_exec(&block)
-      end
+    def handling?
+      @handling
     end
 
     def set_cookies
