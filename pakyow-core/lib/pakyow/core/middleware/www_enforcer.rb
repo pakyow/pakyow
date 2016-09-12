@@ -14,17 +14,12 @@ module Pakyow
     class WWWEnforcer
       def initialize(app)
         @app = app
-        @enforce_www = app.enforce_www
       end
 
       def call(env)
         host = env['SERVER_NAME']
-        return catch_and_redirect(env, add_www(host)) if enforce_www_and_not_subdomain?(host)
+        return catch_and_redirect(env, add_www(host)) unless subdomain?(host)
         @app.call(env)
-      end
-
-      def enforce_www_and_not_subdomain?(host)
-        @enforce_www == true && !subdomain?(host)
       end
 
       def subdomain?(host)
