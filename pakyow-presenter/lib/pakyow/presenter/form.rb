@@ -12,14 +12,14 @@ module Pakyow
         @context = context
       end
 
-      def create(*binding_args)
-        view.bind(*binding_args) do |view, _|
+      def create(*binding_args, &block)
+        bind_form_action(binding_args, block) do |view|
           view.attrs.action = routes.path(:create, request_params) if routes
         end
       end
 
-      def update(*binding_args)
-        view.bind(*binding_args) do |view, _|
+      def update(*binding_args, &block)
+        bind_form_action(binding_args, block) do |view|
           if routes
             route_params = request_params.merge(
               :"#{scoped_as}_id" => view.attrs.__send__('data-id').value
@@ -33,6 +33,14 @@ module Pakyow
       end
 
       private
+
+      def bind_form_action(binding_args, block)
+        view.bind(*binding_args) do |view, _|
+          yield(view)
+
+          block.call(view) if block
+        end
+      end
 
       def routes
         @routes ||= Router.instance.group(scoped_as)

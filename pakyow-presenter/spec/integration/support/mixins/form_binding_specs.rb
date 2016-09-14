@@ -29,6 +29,18 @@ shared_examples :form_binding_specs do
       view_context.form(:foo).create({})
       expect(view.scope(:foo).first.instance_variable_get(:@doc).to_s).to include %(action="/foo")
     end
+
+    context 'with a block' do
+      it 'calls the block with the view' do
+        expect(group).to receive(:path) { '/foo' }.with(:create, {})
+        expect(router).to receive(:group) { group }.with(:foo)
+
+        block = lambda { |view| @view = view }
+        view_context.form(:foo).create({}, &block)
+
+        expect(@view).to be_kind_of Pakyow::Presenter::View
+      end
+    end
   end
 
   context 'when updating a form' do
