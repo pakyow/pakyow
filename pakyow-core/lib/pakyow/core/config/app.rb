@@ -27,9 +27,6 @@ Pakyow::Config.register :app do |config|
   # if true, all routes are ignored
   config.opt :ignore_routes, false
 
-  # if true, views are visible without a route defined
-  config.opt :all_views_visible, true
-
   # whether or not pakyow should serve static files
   config.opt :static, true
 
