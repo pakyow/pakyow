@@ -12,10 +12,12 @@ you, along with any stakeholders, can use within a web browser.
 For reference, here's the front-end that we'll be creating:
 <br>
 <br>
+<blockquote>
 <br>
 <img src="//pakyow.org/images/warmup-screenshot__1baf0d0ba1f747b87a4f0f5de669b10e.png" width="700" alt="Pakyow Warmup Result">
 <br>
 <br>
+</blockquote>
 
 The "active viewers" and "all time" counters will tell us how many people are
 currently on the page and the number of total views, respectively. These values,
