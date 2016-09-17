@@ -35,10 +35,16 @@ module Pakyow
       private
 
       def bind_form_action(binding_args, block)
-        view.bind(*binding_args) do |view, _|
-          yield(view)
+        data = binding_args.first
 
-          block.call(view) if block
+        view.bind(binding_args) { |view, _| yield(view) }
+
+        return if block.nil?
+
+        if block.arity == 1
+          view.instance_exec(data, &block)
+        else
+          block.call(view, data)
         end
       end
 

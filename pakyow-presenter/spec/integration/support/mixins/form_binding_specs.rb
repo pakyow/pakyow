@@ -31,14 +31,30 @@ shared_examples :form_binding_specs do
     end
 
     context 'with a block' do
-      it 'calls the block with the view' do
+      before :each do
         expect(group).to receive(:path) { '/foo' }.with(:create, {})
         expect(router).to receive(:group) { group }.with(:foo)
+      end
 
-        block = lambda { |view| @view = view }
-        view_context.form(:foo).create({}, &block)
+      context 'with one argument' do
+        it 'evaluates the block in the view context and passes the data' do
+          block = lambda { |data| prop(:named) }
+          form = view_context.form(:foo)
 
-        expect(@view).to be_kind_of Pakyow::Presenter::View
+          expect(form.view).to receive(:prop)
+          form.create({}, &block)
+        end
+      end
+
+      context 'with more than one argument' do
+        it 'calls the block with the view and data' do
+          block = lambda { |view, data| @view, @data = view, data }
+          form = view_context.form(:foo)
+          form.create({}, &block)
+
+          expect(@view).to eq form.view
+          expect(@data).to eq({})
+        end
       end
     end
   end
