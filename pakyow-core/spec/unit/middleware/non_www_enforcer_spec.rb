@@ -37,6 +37,15 @@ describe Pakyow::Middleware::NonWWWEnforcer do
     allow(app).to receive(:enforce_www)
     allow(Pakyow).to receive(:app).and_return(app)
     allow(app).to receive(:call)
+    Pakyow::App.instance_variable_set(:@builder, double(Rack::Builder).as_null_object)
+  end
+
+  describe 'www is enforced' do
+    before { allow(app).to receive(:enforce_www) { true } }
+
+    it 'does not use the non_www_enforcer middleware' do
+      expect(Pakyow::App.builder).not_to receive(:use).with(Pakyow::Middleware::NonWWWEnforcer)
+    end
   end
 
   describe '#call' do
