@@ -2,6 +2,7 @@ require 'yaml'
 
 require 'pakyow/presenter/view_store'
 require 'pakyow/presenter/view'
+require 'pakyow/presenter/form'
 require 'pakyow/presenter/template'
 require 'pakyow/presenter/page'
 require 'pakyow/presenter/container'

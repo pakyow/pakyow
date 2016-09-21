@@ -59,6 +59,11 @@ module Pakyow
         end
       end
 
+      def form(*scope_args)
+        view = scope(*scope_args).subject
+        Form.new(view, context)
+      end
+
       # Pass these through, handling the return value.
       #
       def method_missing(method, *args, &block)
