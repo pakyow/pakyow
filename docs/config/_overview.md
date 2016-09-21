@@ -47,9 +47,6 @@ The default action to use for routing.
 *app.ignore_routes (false)*  
 When true, all routes are ignored.
 
-*app.all_views_visible (true)*  
-When true, all views are visible without a defined route.
-
 *app.log_output (true)*  
 Whether or not `$stdout` should write to the log.
 
@@ -117,6 +114,9 @@ The attribute used for prop definitions.
 
 *presenter.view_doc_class (StringDoc)*  
 The doc class used to parse and render views.
+
+*presenter.require_route (development: false, production: true)*
+When false, all views are visible without a defined route.
 
 ## Mailer Config
 

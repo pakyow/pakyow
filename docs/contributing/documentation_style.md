@@ -60,3 +60,8 @@ method) wrap in tildes so it is formatted as `code`. If a particular
 class/method is being referenced format as `ClassName#method_name`. If
 the context is implied (e.g. the method for defining a GET route), do
 not include the class name.
+
+**Keep things tidy.** When providing an example, indent your code, and
+generally keep it [nicely styled](https://github.com/bbatsov/ruby-style-guide).
+Also, try to limit all line lengths (not just code examples) to a maximum of 80
+characters.

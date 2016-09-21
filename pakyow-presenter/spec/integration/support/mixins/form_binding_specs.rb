@@ -14,6 +14,64 @@ shared_examples :form_binding_specs do
     D
   }
 
+  let(:router) { Pakyow::Router.instance }
+  let(:group) { Pakyow::Router.instance.group(:foo) }
+  let(:request) { mock_request }
+  let(:app_context) { Pakyow::AppContext.new(request, nil) }
+  let(:view_context) { Pakyow::Presenter::ViewContext.new(view, app_context) }
+
+  context 'when creating a form' do
+    it 'sets the action' do
+      expect(request).to receive(:params) { {} }
+      expect(group).to receive(:path) { '/foo' }.with(:create, {})
+      expect(router).to receive(:group) { group }.with(:foo)
+
+      view_context.form(:foo).create({})
+      expect(view.scope(:foo).first.instance_variable_get(:@doc).to_s).to include %(action="/foo")
+    end
+
+    context 'with a block' do
+      before :each do
+        expect(group).to receive(:path) { '/foo' }.with(:create, {})
+        expect(router).to receive(:group) { group }.with(:foo)
+      end
+
+      context 'with one argument' do
+        it 'evaluates the block in the view context and passes the data' do
+          block = lambda { |data| prop(:named) }
+          form = view_context.form(:foo)
+
+          expect(form.view).to receive(:prop)
+          form.create({}, &block)
+        end
+      end
+
+      context 'with more than one argument' do
+        it 'calls the block with the view and data' do
+          block = lambda { |view, data| @view, @data = view, data }
+          form = view_context.form(:foo)
+          form.create({}, &block)
+
+          expect(@view).to eq form.view
+          expect(@data).to eq({})
+        end
+      end
+    end
+  end
+
+  context 'when updating a form' do
+    it 'sets the _method and action' do
+      expect(request).to receive(:params) { { other: 'param' } }
+      expect(group).to receive(:path) { '/foo/1' }.with(:update, foo_id: 1, other: 'param')
+      expect(router).to receive(:group) { group }.with(:foo)
+
+      view_context.form(:foo).update(id: 1)
+      html = view.scope(:foo).first.instance_variable_get(:@doc).to_s
+      expect(html).to include %(name="_method" value="patch")
+      expect(html).to include %(action="/foo/1")
+    end
+  end
+
   context 'when binding to unnamed field' do
     it 'sets name attr' do
       view.scope(:foo).bind(unnamed: 'test')
