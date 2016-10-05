@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'rake', '~> 11.1'
-gem 'rack', '~> 1.6'
+gem 'rack', '~> 2.0'
 
 # presenter
 gem 'oga', '~> 2.6'
