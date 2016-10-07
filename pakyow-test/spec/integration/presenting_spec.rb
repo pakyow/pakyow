@@ -281,7 +281,7 @@ context 'when testing a route that presents' do
 
     context 'by replacing with another view' do
       let :text do
-        'to replace'
+        '<div data-scope="post">to replace</div>'
       end
 
       let :view do
