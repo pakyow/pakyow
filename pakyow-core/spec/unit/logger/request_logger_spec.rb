@@ -93,7 +93,7 @@ describe Pakyow::Logger::RequestLogger do
           {
             time: instance.start,
             method: env['REQUEST_METHOD'],
-            path: env['REQUEST_PATH'],
+            uri: env['REQUEST_URI'],
             ip: env['REMOTE_ADDR'],
           }
         )

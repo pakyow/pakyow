@@ -10,7 +10,7 @@ describe Pakyow::Logger::JSONFormatter do
   end
 
   it 'formats the prologue' do
-    expect(formatter.call(severity, datetime, progname, prologue)).to eq("{\"severity\":\"DEBUG\",\"timestamp\":\"#{datetime}\",\"id\":\"123\",\"type\":\"http\",\"elapsed\":\"10.00ms\",\"message\":\"foo\",\"method\":\"GET\",\"path\":\"/\",\"ip\":\"0.0.0.0\"}\n")
+    expect(formatter.call(severity, datetime, progname, prologue)).to eq("{\"severity\":\"DEBUG\",\"timestamp\":\"#{datetime}\",\"id\":\"123\",\"type\":\"http\",\"elapsed\":\"10.00ms\",\"message\":\"foo\",\"method\":\"GET\",\"uri\":\"/\",\"ip\":\"0.0.0.0\"}\n")
   end
 
   it 'formats the epilogue' do

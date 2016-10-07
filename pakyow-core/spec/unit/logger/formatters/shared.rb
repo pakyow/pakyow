@@ -15,7 +15,7 @@ shared_examples :log_formatter do
     {
       prologue: {
         method: 'GET',
-        path: '/',
+        uri: '/',
         ip: '0.0.0.0',
         time: datetime,
       }

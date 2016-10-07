@@ -28,7 +28,7 @@ module Pakyow
           message: sprintf(
             "%s %s (for %s at %s)",
             prologue[:method],
-            prologue[:path],
+            prologue[:uri],
             prologue[:ip],
             prologue[:time],
           )
