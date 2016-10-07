@@ -20,16 +20,6 @@ describe 'Logging for the app' do
         expect(Pakyow::App.builder).to receive(:use).with(Pakyow::Middleware::Logger)
       end
     end
-
-    context 'when logger is disabled' do
-      before do
-        Pakyow::App.config.logger.enabled = false
-      end
-
-      it 'does not use the logger middleware' do
-        expect(Pakyow::App.builder).not_to receive(:use).with(Pakyow::Middleware::Logger)
-      end
-    end
   end
 
   describe 'the after error hook' do
