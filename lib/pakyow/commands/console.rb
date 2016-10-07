@@ -1,4 +1,5 @@
-require "pakyow/commands/console_methods.rb"
+require "irb"
+require "pakyow/commands/console_methods"
 
 module Pakyow
   module Commands
@@ -10,10 +11,10 @@ module Pakyow
       def run
         load_app
         Pakyow::App.stage(ENV['RACK_ENV'])
-        require 'irb'
         ARGV.clear
-        IRB::ExtendCommandBundle.include(ConsoleMethods)
-        IRB.start
+
+        Pakyow::Config.app.console_object::ExtendCommandBundle.include(ConsoleMethods)
+        Pakyow::Config.app.console_object.start
       end
 
       private

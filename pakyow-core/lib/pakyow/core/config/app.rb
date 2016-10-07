@@ -38,6 +38,9 @@ Pakyow::Config.register :app do |config|
 
   # stores the envs an app is run in
   config.opt :loaded_envs
+
+  # the console object to use in `pakyow console`
+  config.opt :console_object, -> { IRB }
 end.env :prototype do |opts|
   opts.ignore_routes = true
 end.env :production do |opts|
