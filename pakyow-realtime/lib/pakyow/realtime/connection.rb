@@ -28,7 +28,7 @@ module Pakyow
       def self.socket_digest(socket_key, socket_connection_id)
         Digest::SHA1.hexdigest("--#{socket_key}--#{socket_connection_id}--")
       end
-      
+
       @event_handlers = {}
 
       # Register a callback for an event.
@@ -36,14 +36,14 @@ module Pakyow
       def self.on(event, &block)
         (@event_handlers[event.to_sym] ||= []) << block
       end
-      
+
       attr_reader :key, :logger, :stream
 
       def initialize(io, version: nil, env: {}, key: "")
         @io = io
         @env = env
         @key = key
-        
+
         @delegate = Delegate.instance
         @logger = Logger::RequestLogger.new(:sock, id: @key[0..7])
 
@@ -65,7 +65,7 @@ module Pakyow
         @delegate.register(@key, self)
         handle_ws_join
       end
-  
+
       # Write to the io object.
       #
       def write(msg)
@@ -79,7 +79,7 @@ module Pakyow
         # and let the socket reconnect if it's still around
         shutdown
       end
-      
+
       # Send incoming data to the stream for processing.
       #
       def receive(data)
@@ -115,7 +115,7 @@ module Pakyow
       def handle_close(_status, _message)
         shutdown
       end
-      
+
       def handle_ws_join
         self.class.handle_event(:join, @env)
       end

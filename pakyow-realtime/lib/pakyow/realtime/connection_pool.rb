@@ -42,9 +42,9 @@ module Pakyow
       def wakeup
         @selector.wakeup
       end
-      
+
       private
-      
+
       def start
         @mutex.synchronize do
           if @thread && @thread.alive?
@@ -62,7 +62,7 @@ module Pakyow
           end
 
           next unless monitors = @selector.select
-          
+
           monitors.each do |monitor|
             conn = monitor.value
 

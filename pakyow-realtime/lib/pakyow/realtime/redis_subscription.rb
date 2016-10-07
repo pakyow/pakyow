@@ -10,7 +10,7 @@ module Pakyow
         @s_redis = ::Redis.new(Config.realtime.redis)
         @c_redis = ::Redis.new(Config.realtime.redis)
       end
-      
+
       def subscribe
         Thread.new {
           @s_redis.psubscribe(pubsub_channel("socket", "*", "channel", "*")) do |on|
@@ -40,9 +40,9 @@ module Pakyow
           end
         }
       end
-      
+
       private
-      
+
       def pubsub_channel(*values)
         [RedisRegistry::PUBSUB_PREFIX].concat(values).flatten.join(RedisRegistry::PUBSUB_DELIMITER)
       end
