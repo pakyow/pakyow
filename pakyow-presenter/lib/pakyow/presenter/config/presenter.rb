@@ -31,12 +31,10 @@ Pakyow::Config.register :presenter do |config|
   config.opt :prop_attribute, 'data-prop'
 
   # if true, views are visible without a route defined
-  config.opt :require_route, true
+  config.opt :require_route, false
 
   # the document class used to parse and render views
   config.opt :view_doc_class, Pakyow::Presenter::StringDoc
-end.env :development do |opts|
-  opts.require_route = false
 end.env :production do |opts|
   opts.require_route = true
 end
