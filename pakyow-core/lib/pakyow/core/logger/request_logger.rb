@@ -67,7 +67,7 @@ module Pakyow
             time: start,
             method: env['REQUEST_METHOD'],
             uri: env['REQUEST_URI'],
-            ip: env['REMOTE_ADDR'],
+            ip: Request.new(env).ip,
           }
         })
       end
