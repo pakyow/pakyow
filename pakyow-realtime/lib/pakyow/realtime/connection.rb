@@ -37,7 +37,7 @@ module Pakyow
         (@event_handlers[event.to_sym] ||= []) << block
       end
 
-      attr_reader :key, :logger, :stream
+      attr_reader :env, :key, :logger, :stream
 
       def initialize(io, version: nil, env: {}, key: "")
         @io = io
@@ -105,7 +105,7 @@ module Pakyow
       def handle_message(message)
         parsed = JSON.parse(message)
         @logger.verbose "<< #{message}"
-        write(MessageHandler.handle(parsed, @env['rack.session']).to_json)
+        write(MessageHandler.handle(parsed, self).to_json)
       end
 
       def handle_error(_error)

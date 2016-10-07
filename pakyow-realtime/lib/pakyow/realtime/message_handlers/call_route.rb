@@ -1,18 +1,30 @@
-# Calls an app route and returns a response, just like an HTTP request!
+# Calls a route and returns a response, just like an HTTP request!
 #
-Pakyow::Realtime.handler :'call-route' do |message, session, response|
-  env = Rack::MockRequest.env_for(message['uri'], method: message['method'])
+Pakyow::Realtime.handler :'call-route' do |message, connection, response|
+  logger = Pakyow::Logger::RequestLogger.new(:sock, id: connection.key[0..7])
+
+  uri = URI.parse(message['uri'])
+  env = Rack::MockRequest::DEFAULT_ENV.dup
+
+  env[Rack::RACK_URL_SCHEME] = uri.scheme
+  env[Rack::PATH_INFO] = uri.path
+  env[Rack::QUERY_STRING] = uri.query
+  env[Rack::REQUEST_METHOD] = message['method'].upcase
+
+  env['REQUEST_URI'] = message['uri']
+  env['REMOTE_ADDR'] = connection.env['REMOTE_ADDR']
+  env['HTTP_X_FORWARDED_FOR'] = connection.env['HTTP_X_FORWARDED_FOR']
+
+  env['rack.logger'] = logger
+  env['rack.session'] = connection.env['rack.session']
   env['pakyow.socket'] = true
   env['pakyow.data'] = message['input']
-  env['rack.session'] = session
 
-  # TODO: in production we want to push the message to a queue and
-  # let the next available app instance pick it up, rather than
-  # the current instance to handle all traffic on this socket
-
+  logger.prologue(env)
   context = Pakyow::CallContext.new(env)
   context.process
   res = context.finish
+  logger.epilogue(res)
 
   container = message['container']
   partial = message['partial']
