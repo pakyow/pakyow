@@ -8,9 +8,7 @@ module Pakyow
     # @api private
     class Logger
       Pakyow::App.middleware do |builder|
-        if Pakyow::Config.logger.enabled
-          builder.use Pakyow::Middleware::Logger
-        end
+        builder.use Pakyow::Middleware::Logger
       end
 
       Pakyow::CallContext.after :error do
