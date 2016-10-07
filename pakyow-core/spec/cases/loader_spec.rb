@@ -17,13 +17,15 @@ describe 'Loader' do
   end
 
   it 'should tell time' do
-    Pakyow::Config.reloader.enabled = true
-
     times = @loader.times.dup
+    @loader.instance_variable_set(:@times, {})
     `touch #{File.join(path, 'reloadable.rb')}`
     @loader.load_from_path(path)
 
-    expect(times.first).to be_nil
+    # Won't be nil because reloader.enabled is true by default
+    expect(times.first).not_to be_nil
+
+    # Won't be nil because reloader picks up the updated file
     expect(@loader.times.first).to_not be_nil
   end
 end
