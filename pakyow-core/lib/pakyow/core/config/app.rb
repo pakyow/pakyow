@@ -39,7 +39,7 @@ Pakyow::Config.register :app do |config|
   # stores the envs an app is run in
   config.opt :loaded_envs
 end.env :prototype do |opts|
-  opts.ignore_routes = false
+  opts.ignore_routes = true
 end.env :production do |opts|
   opts.errors_in_browser = false
 end
