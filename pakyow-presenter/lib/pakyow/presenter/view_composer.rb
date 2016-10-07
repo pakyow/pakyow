@@ -1,3 +1,5 @@
+require "pakyow/support/inspectable"
+
 module Pakyow
   module Presenter
     class ViewComposer
@@ -14,6 +16,9 @@ module Pakyow
       def_delegators :view, :to_html
 
       attr_reader :store, :path, :page, :partials
+
+      include Support::Inspectable
+      inspectable :path, :page, :template, :partials
 
       def initialize(store, path = nil, opts = {}, &block)
         @store = store

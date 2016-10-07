@@ -1,6 +1,10 @@
+require "pakyow/support/inspectable"
+
 module Pakyow
   module Presenter
     class StringDoc
+      include Support::Inspectable
+
       attr_reader :structure
 
       TITLE_REGEX = /<title>(.*?)<\/title>/m
