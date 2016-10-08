@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'pakyow/core/logger/timekeeper'
 
-describe Pakyow::Logger::Timekeeper do
+RSpec.describe Pakyow::Logger::Timekeeper do
   let :timekeeper do
     Pakyow::Logger::Timekeeper
   end

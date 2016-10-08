@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'pakyow/core/middleware/req_path_normalizer'
 
-describe Pakyow::Middleware::ReqPathNormalizer do
+RSpec.describe Pakyow::Middleware::ReqPathNormalizer do
   let :app do
     double
   end

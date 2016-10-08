@@ -1,7 +1,7 @@
 require "spec_helper"
 require "pakyow/core/app"
 
-describe Pakyow::App do
+RSpec.describe Pakyow::App do
   let :app do
     Pakyow::App.new
   end

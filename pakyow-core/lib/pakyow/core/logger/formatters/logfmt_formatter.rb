@@ -12,7 +12,7 @@ module Pakyow
     class LogfmtFormatter < Pakyow::Logger::JSONFormatter
       private
 
-      UNESCAPED_STRING = /\A[\w\.\-\+\%\_\,\:\;\/]*\z/i
+      UNESCAPED_STRING = /\A[\w\.\-\+\%\,\:\;\/]*\z/i
 
       def format(message)
         message.delete(:time)

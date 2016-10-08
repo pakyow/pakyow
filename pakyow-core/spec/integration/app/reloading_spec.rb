@@ -1,6 +1,6 @@
 require 'support/helper'
 
-describe 'Reloading the app' do
+RSpec.describe 'Reloading the app' do
   before do
     @original_builder = Pakyow::App.builder
     Pakyow::App.instance_variable_set(:@builder, double(Rack::Builder).as_null_object)

@@ -4,7 +4,7 @@ class Pakyow::Loader
   attr_accessor :times
 end
 
-describe 'Loader' do
+RSpec.describe 'Loader' do
   include LoaderTestHelpers
 
   before do

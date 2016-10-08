@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'unit/logger/formatters/shared'
 require 'pakyow/core/logger/formatters/json_formatter'
 
-describe Pakyow::Logger::JSONFormatter do
+RSpec.describe Pakyow::Logger::JSONFormatter do
   include_examples :log_formatter
 
   let :formatter do

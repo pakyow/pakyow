@@ -1,6 +1,6 @@
 require 'support/helper'
 
-describe 'Router' do
+RSpec.describe 'Router' do
   include ReqResHelpers
 
   before do

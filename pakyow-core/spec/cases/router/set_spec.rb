@@ -1,6 +1,6 @@
 require 'support/helper'
 
-describe 'route set' do
+RSpec.describe 'route set' do
   include ReqResHelpers
   include RouteTestHelpers
 

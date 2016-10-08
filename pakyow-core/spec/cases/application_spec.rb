@@ -1,6 +1,6 @@
 require 'support/helper'
 
-describe 'Application' do
+RSpec.describe 'Application' do
   include ApplicationTestHelpers
 
   it 'path is set when inherited' do

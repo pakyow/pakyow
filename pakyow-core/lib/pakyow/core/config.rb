@@ -4,6 +4,7 @@ module Pakyow
   class Config
     class << self
       attr_accessor :env
+      attr_reader :config
     end
 
     def self.register(name)
@@ -13,8 +14,10 @@ module Pakyow
       @config ||= {}
       @config[name] = config
 
-      self.class.instance_eval do
-        define_method(name) { @config[name] }
+      unless self.class.instance_methods(false).include?(name)
+        self.class.instance_eval do
+          define_method(name) { @config[name] }
+        end
       end
 
       config
@@ -39,6 +42,7 @@ module Pakyow
       @opts = {}
       @envs = {}
       @default_config = default_config
+      @defaults = nil
     end
 
     def defaults

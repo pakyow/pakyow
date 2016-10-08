@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'unit/logger/formatters/shared'
 require 'pakyow/core/logger/formatters/dev_formatter'
 
-describe Pakyow::Logger::DevFormatter do
+RSpec.describe Pakyow::Logger::DevFormatter do
   include_examples :log_formatter
 
   let :formatter do

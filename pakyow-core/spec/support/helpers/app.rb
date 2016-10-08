@@ -5,6 +5,7 @@ Pakyow::App.define do
   configure :global do
     $global_config_was_executed = true
     $env_overwrites_global_config = false
+    server.handler = Class.new { def self.run(*args); end }
   end
 
   configure :test do
@@ -18,5 +19,3 @@ Pakyow::App.define do
     end
   end
 end
-
-Pakyow::Config.server.handler = Class.new { def self.run(*args); end }

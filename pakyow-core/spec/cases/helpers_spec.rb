@@ -1,6 +1,6 @@
 require 'support/helper'
 
-describe 'Pakyow Helper' do
+RSpec.describe 'Pakyow Helper' do
   include Pakyow::Helpers
   include ReqResHelpers
 

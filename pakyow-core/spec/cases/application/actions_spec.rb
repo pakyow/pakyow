@@ -1,6 +1,6 @@
 require 'support/helper'
 
-describe  'App Actions' do
+RSpec.describe  'App Actions' do
   include ReqResHelpers
   include ActionHelpers
 

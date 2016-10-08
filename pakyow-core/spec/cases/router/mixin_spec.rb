@@ -1,6 +1,6 @@
 require 'support/helper'
 
-describe 'Route Mixin' do
+RSpec.describe 'Route Mixin' do
   include TestFns
 
   before do

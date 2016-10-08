@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'pakyow/core/middleware/www_enforcer'
 
-describe Pakyow::Middleware::WWWEnforcer do
+RSpec.describe Pakyow::Middleware::WWWEnforcer do
   let :app do
     double
   end
@@ -37,7 +37,13 @@ describe Pakyow::Middleware::WWWEnforcer do
     allow(app).to receive(:enforce_www) { true }
     allow(Pakyow).to receive(:app).and_return(app)
     allow(app).to receive(:call)
+
+    @original_builder = Pakyow::App.builder
     Pakyow::App.instance_variable_set(:@builder, double(Rack::Builder).as_null_object)
+  end
+
+  after do
+    Pakyow::App.instance_variable_set(:@builder, @original_builder)
   end
 
   describe 'when enforce_www is false' do

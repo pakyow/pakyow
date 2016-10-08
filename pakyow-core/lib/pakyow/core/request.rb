@@ -5,8 +5,8 @@ module Pakyow
 
   # The Request object.
   class Request < Rack::Request
-    attr_accessor :restful, :route_path, :controller, :action, :format,
-    :error, :path, :method, :paths, :methods, :formats
+    attr_accessor :restful, :route_path, :controller, :action, :error, :paths, :methods, :formats
+    attr_reader :path, :method, :format
 
     def initialize(*args)
       super
@@ -16,7 +16,7 @@ module Pakyow
       @formats = []
 
       @path = path_info
-      
+
       if method = request_method
         @method = method.downcase.to_sym
       end
@@ -108,7 +108,7 @@ module Pakyow
     protected
 
     def set_working_path_from_path(path, method)
-      base_route, ignore_format = String.split_at_last_dot(path)
+      base_route, _ = String.split_at_last_dot(path)
 
       self.path = base_route
       self.method = method || self.method

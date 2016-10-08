@@ -59,7 +59,7 @@ module Spec
   end
 end
 
-describe Pakyow::Helpers::Running do
+RSpec.describe Pakyow::Helpers::Running do
   let :mock do
     Spec::RunningAppMock
   end

@@ -1,7 +1,7 @@
 require_relative '../../spec_helper'
 require 'pakyow/core/config/session'
 
-describe 'config.session' do
+RSpec.describe 'config.session' do
   it 'registers session config' do
     expect(Pakyow::Config.session).to be_a(Pakyow::Config)
   end

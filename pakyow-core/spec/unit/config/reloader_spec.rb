@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'pakyow/core/config'
 require 'pakyow/core/config/reloader'
 
-describe 'reloader config' do
+RSpec.describe 'reloader config' do
   before do
     Pakyow::Config.reloader.reset
   end

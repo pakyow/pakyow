@@ -6,7 +6,7 @@ RSpec::Matchers.define :a_file_like do |file|
   match { |actual| actual.path == file.path }
 end
 
-describe Pakyow::Middleware::Static do
+RSpec.describe Pakyow::Middleware::Static do
   let :app do
     double
   end

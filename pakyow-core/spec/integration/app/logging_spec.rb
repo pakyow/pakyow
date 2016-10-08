@@ -1,6 +1,6 @@
 require 'support/helper'
 
-describe 'Logging for the app' do
+RSpec.describe 'Logging for the app' do
   before do
     @original_builder = Pakyow::App.builder
     Pakyow::App.instance_variable_set(:@builder, double(Rack::Builder).as_null_object)

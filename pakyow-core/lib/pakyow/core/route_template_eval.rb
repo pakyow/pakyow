@@ -10,6 +10,8 @@ module Pakyow
 
 			@routes_path = path
 			@nested_path = path
+
+			@post_process = nil
 		end
 
 		def has_action?(name)
@@ -63,7 +65,7 @@ module Pakyow
 			return @nested_path unless block_given?
 			@nested_path = yield(@nested_path)
 		end
-    
+
     def post_process(&block)
       return @post_process unless block_given?
       @post_process = block

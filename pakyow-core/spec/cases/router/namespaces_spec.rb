@@ -1,7 +1,7 @@
 require 'support/helper'
 
 # TODO: finish moving over namespace specs from `set_spec`
-describe 'route namespaces' do
+RSpec.describe 'route namespaces' do
   include ReqResHelpers
   include RouteTestHelpers
 

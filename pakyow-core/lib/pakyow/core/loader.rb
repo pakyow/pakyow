@@ -12,7 +12,7 @@ module Pakyow
 
     def require_recursively(dir)
       @times ||= {}
-      if File.exists?(dir)
+      if File.exist?(dir)
         Dir.walk(dir) do |path|
           next if FileTest.directory?(path)
           next if path.split('.')[-1] != 'rb'

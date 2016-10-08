@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'pakyow/core/logger/request_logger'
 
-describe Pakyow::Logger::RequestLogger do
+RSpec.describe Pakyow::Logger::RequestLogger do
   let :klass do
     Pakyow::Logger::RequestLogger
   end

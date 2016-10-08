@@ -1,4 +1,4 @@
-shared_examples :log_formatter do
+RSpec.shared_examples :log_formatter do
   let :severity do
     'DEBUG'
   end
