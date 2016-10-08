@@ -72,7 +72,6 @@ ERR
 
     desc "version", "Display the installed Pakyow version"
     def version
-      require "pakyow/version"
       puts "Pakyow v#{VERSION}"
     end
   end
