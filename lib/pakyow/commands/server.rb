@@ -1,37 +1,29 @@
-require 'pakyow/version'
+require "pakyow/version"
 
 module Pakyow
   module Commands
     class Server
-      attr_reader :port
+      RACK_ENV = "RACK_ENV".freeze
 
-      def initialize(environment: ENV['RACK_ENV'] || :development, port: 3000)
-        ENV['RACK_ENV'] = environment.to_s
+      def initialize(environment: ENV[RACK_ENV] || Config.app.default_environment, port: Config.server.port)
+        ENV[RACK_ENV] = environment.to_s
         @port = port
       end
 
       def run
-        load_app
-        Pakyow::Config.server.port = port
-        v = 'v' + Pakyow::VERSION
+        require "./app/setup"
+        Config.server.port = @port
+        v = "v" + VERSION
 
-        msg = '                 __                      ' + "\n"\
-              '    ____  ____ _/ /____  ______ _      __' + "\n"\
-              '   / __ \/ __ `/ //_/ / / / __ \ | /| / /' + "\n"\
-              '  / /_/ / /_/ / ,< / /_/ / /_/ / |/ |/ / ' + "\n"\
-              ' / .___/\__,_/_/|_|\__, /\____/|__/|__/  ' + v + "\n"\
+        msg = '                 __                      ' + "\n" \
+              '    ____  ____ _/ /____  ______ _      __' + "\n" \
+              '   / __ \/ __ `/ //_/ / / / __ \ | /| / /' + "\n" \
+              '  / /_/ / /_/ / ,< / /_/ / /_/ / |/ |/ / ' + "\n" \
+              ' / .___/\__,_/_/|_|\__, /\____/|__/|__/  ' + v + "\n" \
               '/_/               /____/                 ' + "\n"
+        puts Logger::Colorizer.colorize(msg, :error)
 
-        puts Pakyow::Logger::Colorizer.colorize(msg, :error)
-
-        Pakyow::App.run(ENV['RACK_ENV'])
-      end
-
-      private
-
-      def load_app
-        $LOAD_PATH.unshift(Dir.pwd)
-        require 'app/setup'
+        App.run(ENV[RACK_ENV])
       end
     end
   end

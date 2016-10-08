@@ -1,12 +1,10 @@
-require 'pakyow/version'
+require "pakyow/version"
 
-%w[
+%w(
   pakyow-support
   pakyow-core
   pakyow-presenter
   pakyow-mailer
   pakyow-realtime
   pakyow-ui
-].each do |lib|
-  require lib
-end
+).each { |lib| require lib }
