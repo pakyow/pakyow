@@ -1,6 +1,6 @@
 require "pakyow/version"
 
-libs = %i[
+GEMS = %i(
   pakyow-support
   pakyow-core
   pakyow-presenter
@@ -9,27 +9,16 @@ libs = %i[
   pakyow-test
   pakyow-realtime
   pakyow-ui
-]
+).freeze
 
-rspec_libs = %i[
-  .
-  pakyow-support
-  pakyow-core
-  pakyow-presenter
-  pakyow-mailer
-  pakyow-test
-  pakyow-realtime
-  pakyow-ui
-]
+task default: %w(test)
 
-task :ci do
-  # require 'codeclimate-test-reporter'
-  # CodeClimate::TestReporter.start
-
+desc "Run tests for all gems"
+task :test do
   errors = []
 
-  rspec_libs.each do |lib|
-    system(%(cd #{lib} && bundle exec rspec)) || errors << lib
+  GEMS.each do |gem|
+    system(%(cd #{gem} && bundle exec rspec)) || errors << gem
   end
 
   fail("Errors in #{errors.join(', ')}") unless errors.empty?
@@ -45,17 +34,17 @@ namespace :release do
   task :build => [:clean] do
     system 'gem build pakyow.gemspec'
 
-    libs.each do |lib|
+    GEMS.each do |gem|
       puts
-      system "gem build #{lib}/#{lib}.gemspec"
+      system "gem build #{gem}/#{gem}.gemspec"
     end
   end
 
   desc 'Create and install the gems'
   task :install => [:build] do
-    libs.each do |lib|
+    GEMS.each do |gem|
       puts
-      system "gem install #{lib}-#{Pakyow::VERSION}.gem"
+      system "gem install #{gem}-#{Pakyow::VERSION}.gem"
     end
 
     puts
@@ -72,7 +61,7 @@ namespace :release do
     puts
 
     if input == Pakyow::VERSION
-      gems = libs.map { |lib| "#{lib}-#{Pakyow::VERSION}.gem"}
+      gems = GEMS.map { |gem| "#{gem}-#{Pakyow::VERSION}.gem"}
 
       # add pakyow last
       gems << "pakyow-#{Pakyow::VERSION}.gem"
