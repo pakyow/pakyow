@@ -1,6 +1,6 @@
 require 'pakyow/support/array'
 
-describe Array do
+RSpec.describe Array do
   describe 'ensure' do
     skip
   end

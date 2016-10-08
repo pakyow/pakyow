@@ -1,16 +1,14 @@
 require "pakyow/support/inspectable"
 
-describe Pakyow::Support::Inspectable do
+RSpec.describe Pakyow::Support::Inspectable do
   let :ivars do
     [:ivar_one]
   end
 
   let :inspectable do
-    local_ivars = ivars
-
     Class.new {
       include Pakyow::Support::Inspectable
-      inspectable *local_ivars
+      inspectable :ivar_one
 
       def initialize
         @ivar_one = :one

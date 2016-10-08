@@ -1,6 +1,6 @@
 require 'pakyow/support/dup'
 
-describe Pakyow::Utils::Dup do
+RSpec.describe Pakyow::Utils::Dup do
   describe 'deep' do
     skip
   end

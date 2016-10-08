@@ -1,6 +1,6 @@
 require 'pakyow/support/file'
 
-describe File do
+RSpec.describe File do
   describe 'format' do
     skip
   end

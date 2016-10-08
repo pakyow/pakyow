@@ -1,6 +1,6 @@
 require 'pakyow/support/dir'
 
-describe Dir do
+RSpec.describe Dir do
   describe 'walk' do
     skip
   end

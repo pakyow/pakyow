@@ -1,16 +1,14 @@
 require "pakyow/support/hookable"
 
-describe Pakyow::Support::Hookable do
+RSpec.describe Pakyow::Support::Hookable do
   let :events do
     [:event_one, :event_two, :event_three]
   end
 
   let :hookable do
-    local_events = events
-
     Class.new {
       include Pakyow::Support::Hookable
-      known_events *local_events
+      known_events :event_one, :event_two, :event_three
     }
   end
 
@@ -128,13 +126,7 @@ describe Pakyow::Support::Hookable do
 
     it "calls the class hooks first, regardless of the order of definition" do
       calls = []
-
       hook_1 = -> { calls << 1 }
-      hook_2 = -> { calls << 2 }
-      hook_3 = -> { calls << 3 }
-
-      instance = hookable.new
-
       hookable.before event, &hook_1
     end
   end
