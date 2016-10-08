@@ -35,6 +35,8 @@ Pakyow::Config.register :presenter do |config|
 
   # the document class used to parse and render views
   config.opt :view_doc_class, Pakyow::Presenter::StringDoc
+end.env :test do |opts|
+  opts.require_route = true
 end.env :production do |opts|
   opts.require_route = true
 end

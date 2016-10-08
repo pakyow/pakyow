@@ -43,6 +43,8 @@ Pakyow::Config.register :app do |config|
   config.opt :console_object, -> { IRB }
 end.env :prototype do |opts|
   opts.ignore_routes = true
+end.env :test do |opts|
+  opts.errors_in_browser = false
 end.env :production do |opts|
   opts.errors_in_browser = false
 end
