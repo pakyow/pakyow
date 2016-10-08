@@ -2,12 +2,13 @@ require 'support/helper'
 
 describe 'Logging for the app' do
   before do
-    Pakyow::App.reset
+    @original_builder = Pakyow::App.builder
     Pakyow::App.instance_variable_set(:@builder, double(Rack::Builder).as_null_object)
   end
 
   after do
     Pakyow::App.stage :test
+    Pakyow::App.instance_variable_set(:@builder, @original_builder)
   end
 
   describe 'using the middleware' do

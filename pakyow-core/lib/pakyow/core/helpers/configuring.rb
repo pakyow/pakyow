@@ -98,25 +98,19 @@ module Pakyow
         load(config.app.path)
 
         # reset config
-        envs = config.app.loaded_envs
+        env = config.env
         config.reset
 
         # reload config
-        load_env_config(*envs)
+        load_env_config(env)
       end
 
-      def load_env_config(*env_or_envs)
+      def load_env_config(env)
         hook_around :configure do
-          envs = build_envs(env_or_envs)
-
-          config.app.loaded_envs = envs
-          config.env = envs.first
+          config.env = (env || config.app.default_environment).to_sym
 
           load_env(:global)
-
-          envs.each do |env|
-            load_env(env)
-          end
+          load_env(config.env)
 
           configure_logger
         end
@@ -133,18 +127,12 @@ module Pakyow
         @config ||= {}
       end
 
-      def build_envs(env_or_envs)
-        envs = Array.ensure(env_or_envs)
-        envs = (envs.empty? || envs.first.nil?) ? [config.app.default_environment] : envs
-        envs.map!(&:to_sym)
-      end
-
       def load_env(env)
         config.app_config(&config_for(env))
       end
 
       def config_for(env)
-        env_config.fetch(env) { proc{} }
+        env_config.fetch(env) { proc {} }
       end
     end
   end
