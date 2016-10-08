@@ -187,7 +187,7 @@ module Pakyow
         end
 
         e = MissingView.new("No view at path '#{path}'")
-        explicit ? raise(e) : Pakyow.logger.info(e.message)
+        explicit ? raise(e) : logger.info(e.message)
       end
 
       def load_views
@@ -220,6 +220,10 @@ module Pakyow
         end
 
         return nil
+      end
+
+      def logger
+        context.request.env['rack.logger']
       end
     end
   end
