@@ -1,6 +1,6 @@
 require_relative 'support/int_helper'
 
-shared_examples :insignificant do
+RSpec.shared_examples :insignificant do
   it 'returns a structure with a single item' do
     expect(structure.length).to eq(1)
   end
@@ -10,7 +10,7 @@ shared_examples :insignificant do
   end
 end
 
-describe Pakyow::Presenter::StringDocParser do
+RSpec.describe Pakyow::Presenter::StringDocParser do
   describe '#structure' do
     context 'parsing insignificant html' do
       context 'with no attributes' do

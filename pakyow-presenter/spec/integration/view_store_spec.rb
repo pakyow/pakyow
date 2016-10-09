@@ -1,6 +1,6 @@
 require_relative 'support/int_helper'
 
-describe Pakyow::Presenter::ViewStore do
+RSpec.describe Pakyow::Presenter::ViewStore do
   before do
     @store = Pakyow::Presenter::ViewStore.new(VIEW_PATH)
   end

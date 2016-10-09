@@ -2,7 +2,7 @@ require_relative '../spec_helper'
 require 'pakyow/core/config'
 require 'pakyow/presenter/config/presenter'
 
-describe 'configuration' do
+RSpec.describe 'configuration' do
   it 'registers presenter config' do
     expect(Pakyow::Config.presenter).to be_a(Pakyow::Config)
   end

@@ -1,6 +1,6 @@
 require_relative 'support/int_helper'
 
-describe Pakyow::Presenter::ViewContext do
+RSpec.describe Pakyow::Presenter::ViewContext do
   let :view do
     double('view', bind: Pakyow::Presenter::View.new, foo: :bar)
   end

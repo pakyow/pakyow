@@ -8,6 +8,8 @@ module ViewBindingHelpers
   end
 
   def ndoc_from_view(view)
-    Oga.parse_html(view.to_s)
+    Pakyow::Support::Silenceable.silence_warnings do
+      Oga.parse_html(view.to_s)
+    end
   end
 end

@@ -1,17 +1,20 @@
+require "pakyow/support/silenceable"
+
 module Pakyow
   module Presenter
     class StringDocParser
+      include Support::Silenceable
+
       PARTIAL_REGEX = /<!--\s*@include\s*([a-zA-Z0-9\-_]*)\s*-->/
       CONTAINER_REGEX = /@container( ([a-zA-Z0-9\-_]*))*/
       SIGNIFICANT = [:scope?, :prop?, :container?, :partial?, :option?, :component?]
 
-      def initialize(html)
-        @html = html
-        structure
-      end
+      attr_reader :structure
 
-      def structure
-        @structure ||= parse(doc_from_string(@html))
+      def initialize(html)
+        silence_warnings do
+          @structure = parse(doc_from_string(html))
+        end
       end
 
       private

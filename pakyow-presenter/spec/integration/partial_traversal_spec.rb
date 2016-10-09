@@ -1,7 +1,7 @@
 require_relative 'support/int_helper'
 include ViewComposerHelpers
 
-describe 'traversing through a partial' do
+RSpec.describe 'traversing through a partial' do
   before do
     @store = Pakyow::Presenter::ViewStore.new(VIEW_PATH)
   end

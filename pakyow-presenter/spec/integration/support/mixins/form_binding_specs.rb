@@ -1,4 +1,6 @@
-shared_examples :form_binding_specs do
+RSpec.shared_examples :form_binding_specs do
+  include Pakyow::Support::Silenceable
+
   let(:view) {
     Pakyow::Presenter::View.new(<<-D)
     <form data-scope="foo">
@@ -128,16 +130,22 @@ shared_examples :form_binding_specs do
   context 'when binding to select' do
     context 'and the value matches an option value' do
       it 'selects the option' do
-        view.scope(:foo).bind(select: 'foo')
-        doc = Oga.parse_html(view.to_s)
-        expect(doc.css('option')[0].attribute('selected').value).to eq('selected')
+        silence_warnings do
+          view.scope(:foo).bind(select: 'foo')
+
+          doc = Oga.parse_html(view.to_s)
+          expect(doc.css('option')[0].attribute('selected').value).to eq('selected')
+        end
       end
 
       context 'and the value is not a string' do
         it 'selects the option' do
-          view.scope(:foo).bind(select: 2)
-          doc = Oga.parse_html(view.to_s)
-          expect(doc.css('option')[2].attribute('selected').value).to eq('selected')
+          silence_warnings do
+            view.scope(:foo).bind(select: 2)
+
+            doc = Oga.parse_html(view.to_s)
+            expect(doc.css('option')[2].attribute('selected').value).to eq('selected')
+          end
         end
       end
     end
@@ -158,20 +166,22 @@ shared_examples :form_binding_specs do
       end
 
       it 'creates options' do
-        view.scope(:foo).bind(select: 'one')
-        doc = Oga.parse_html(view.to_s)
+        silence_warnings do
+          view.scope(:foo).bind(select: 'one')
+          doc = Oga.parse_html(view.to_s)
 
-        opts = doc.css('option')
-        expect(opts.length).to eq(2)
+          opts = doc.css('option')
+          expect(opts.length).to eq(2)
 
-        opt_1 = opts[0]
-        opt_2 = opts[1]
+          opt_1 = opts[0]
+          opt_2 = opts[1]
 
-        expect(opt_1.attribute('value').value).to eq('one')
-        expect(opt_2.attribute('value').value).to eq('two')
+          expect(opt_1.attribute('value').value).to eq('one')
+          expect(opt_2.attribute('value').value).to eq('two')
 
-        expect(opt_1.inner_text).to eq('one')
-        expect(opt_2.inner_text).to eq('two')
+          expect(opt_1.inner_text).to eq('one')
+          expect(opt_2.inner_text).to eq('two')
+        end
       end
 
       context 'with default option' do
@@ -190,23 +200,26 @@ shared_examples :form_binding_specs do
         end
 
         it 'sets default option' do
-          view.scope(:foo).bind(select: 'one')
-          doc = Oga.parse_html(view.to_s)
+          silence_warnings do
+            view.scope(:foo).bind(select: 'one')
 
-          opts = doc.css('option')
-          expect(opts.length).to eq(3)
+            doc = Oga.parse_html(view.to_s)
 
-          opt_1 = opts[0]
-          opt_2 = opts[1]
-          opt_3 = opts[2]
+            opts = doc.css('option')
+            expect(opts.length).to eq(3)
 
-          expect(opt_1.attribute('value').value).to eq('')
-          expect(opt_2.attribute('value').value).to eq('one')
-          expect(opt_3.attribute('value').value).to eq('two')
+            opt_1 = opts[0]
+            opt_2 = opts[1]
+            opt_3 = opts[2]
 
-          expect(opt_1.inner_text).to eq('')
-          expect(opt_2.inner_text).to eq('one')
-          expect(opt_3.inner_text).to eq('two')
+            expect(opt_1.attribute('value').value).to eq('')
+            expect(opt_2.attribute('value').value).to eq('one')
+            expect(opt_3.attribute('value').value).to eq('two')
+
+            expect(opt_1.inner_text).to eq('')
+            expect(opt_2.inner_text).to eq('one')
+            expect(opt_3.inner_text).to eq('two')
+          end
         end
       end
     end

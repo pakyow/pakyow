@@ -52,7 +52,7 @@ module Pakyow
         else
           self.deny(value)
         end
-     end
+      end
 
       def include?(attribute)
         @doc.has_attribute?(attribute)

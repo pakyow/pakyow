@@ -1,7 +1,7 @@
 require_relative 'support/int_helper'
 include SetupHelper
 
-describe Pakyow::Presenter::Presenter do
+RSpec.describe Pakyow::Presenter::Presenter do
   include ReqResHelpers
 
   before do

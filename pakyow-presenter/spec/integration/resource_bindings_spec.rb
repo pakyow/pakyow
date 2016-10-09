@@ -1,7 +1,7 @@
 require_relative 'support/int_helper'
 require_relative 'support/helpers/req_res_helpers'
 
-describe 'defining a resource' do
+RSpec.describe 'defining a resource' do
   include ReqResHelpers
   include SetupHelper
 

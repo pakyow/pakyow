@@ -23,6 +23,7 @@ module Pakyow
       def initialize(store, path = nil, opts = {}, &block)
         @store = store
         @path = path
+        @view = nil
 
         self.page = opts.fetch(:page) {
           path
@@ -85,7 +86,9 @@ module Pakyow
 
           if value.is_a?(Hash)
             dup_value = {}
-            value.each_pair { |key, value| dup_value[key] = value.dup }
+            value.each_pair do |k, v|
+              dup_value[k] = v.dup
+            end
           else
             dup_value = value.dup
           end

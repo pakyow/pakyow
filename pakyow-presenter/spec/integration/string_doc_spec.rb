@@ -3,7 +3,7 @@ require_relative 'support/int_helper'
 #TODO test that containers, partials, scopes reference same nodes? so that when
 # one is modified it modifies the other?
 
-describe Pakyow::Presenter::StringDoc do
+RSpec.describe Pakyow::Presenter::StringDoc do
   def node_from_doc(doc)
     doc
   end

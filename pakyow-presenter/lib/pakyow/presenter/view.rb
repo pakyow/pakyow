@@ -205,11 +205,11 @@ module Pakyow
           working = self
 
           # create views for the other datums
-          data[1..-1].inject(coll) { |coll|
+          data[1..-1].inject(coll) { |set|
             duped_view = working.soft_copy
             working.after(duped_view)
             working = duped_view
-            coll << duped_view
+            set << duped_view
           }
         end
 

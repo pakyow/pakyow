@@ -1,6 +1,6 @@
 require_relative 'support/int_helper'
 
-describe Pakyow::Helpers do
+RSpec.describe Pakyow::Helpers do
   before(:each) do
     @context = MockPresenterContext.new
   end

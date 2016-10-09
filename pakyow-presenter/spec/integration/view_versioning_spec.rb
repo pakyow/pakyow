@@ -1,6 +1,6 @@
 require_relative 'support/int_helper'
 
-describe Pakyow::Presenter::ViewVersion do
+RSpec.describe Pakyow::Presenter::ViewVersion do
   let :store do
     Pakyow::Presenter::ViewStore.new(VIEW_PATH)
   end

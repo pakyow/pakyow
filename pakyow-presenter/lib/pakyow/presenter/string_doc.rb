@@ -11,12 +11,15 @@ module Pakyow
 
       def initialize(html)
         @structure = StringDocParser.new(html).structure
+        @node = nil
+        @removed = false
       end
 
       def self.from_structure(structure, node: nil)
         instance = allocate
         instance.instance_variable_set(:@structure, structure)
         instance.instance_variable_set(:@node, node)
+        instance.instance_variable_set(:@removed, false)
         return instance
       end
 

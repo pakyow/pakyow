@@ -30,7 +30,7 @@ module Pakyow
         @presenter = Presenter.new
         ViewStoreLoader.instance.reset
       }
-      
+
       Pakyow::App.after(:load) {
         @presenter.load
       }
@@ -53,9 +53,12 @@ module Pakyow
         end
       }
 
-      attr_accessor :processor_store, :binder, :path, :context, :composer
+      attr_accessor :processor_store, :binder, :context, :composer
+      attr_reader :path
 
       def initialize
+        @path = nil
+
         setup
       end
 
@@ -223,7 +226,7 @@ module Pakyow
       end
 
       def logger
-        context.request.env['rack.logger']
+        context.request.env['rack.logger'] || Pakyow.logger
       end
     end
   end
