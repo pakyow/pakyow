@@ -1,5 +1,9 @@
 require 'mail'
-require 'premailer'
+
+require "pakyow/support/silenceable"
+Pakyow::Support::Silenceable.silence_warnings do
+  require "premailer"
+end
 
 require 'pakyow/mailer/mailer'
 require 'pakyow/mailer/config/mailer'

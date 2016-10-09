@@ -33,6 +33,7 @@ module Oga
     end
 
     class Element
+      undef :attributes
       def attributes
         Pakyow::OgaAttributes.new(@attributes)
       end
@@ -58,6 +59,7 @@ class Premailer
   # This method was tied to a specific type of document rather than being
   # adapter-agnostic (honestly it's a stretch to call them adapters). So,
   # we just pulled this method in and made it work w/ Oga.
+  undef :load_css_from_html!
   def load_css_from_html! # :nodoc:
     tags = @doc.css("link[rel='stylesheet']").reject { |tag|
       tag.attribute('data-premailer') == 'ignore'
@@ -139,7 +141,7 @@ class Premailer
 
               # Change single ID CSS selectors into xpath so that we can match more
               # than one element.  Added to work around dodgy generated code.
-              selector.gsub!(/\A\#([\w_\-]+)\Z/, '*[@id=\1]')
+              selector.gsub!(/\A\#([\w\-]+)\Z/, '*[@id=\1]')
 
               doc.css(selector).each do |el|
                 if el.elem? and (el.name != 'head' and el.parent.name != 'head')
@@ -165,7 +167,7 @@ class Premailer
           style = el.attribute('style').to_s
 
           declarations = []
-          style.scan(/\[SPEC\=([\d]+)\[(.[^\]\]]*)\]\]/).each do |declaration|
+          style.scan(/\[SPEC\=([\d]+)\[(.[^\]]*)\]\]/).each do |declaration|
             rs = CssParser::RuleSet.new(nil, declaration[1].to_s, declaration[0].to_i)
             declarations << rs
           end
@@ -178,8 +180,8 @@ class Premailer
           if Premailer::RELATED_ATTRIBUTES.has_key?(el.name) && @options[:css_to_attributes]
             Premailer::RELATED_ATTRIBUTES[el.name].each do |css_att, html_att|
               el[html_att] = merged[css_att].gsub(/url\(['|"](.*)['|"]\)/, '\1').gsub(/;$|\s*!important/, '').strip if el[html_att].nil? and not merged[css_att].empty?
-              merged.instance_variable_get("@declarations").tap do |declarations|
-                declarations.delete(css_att)
+              merged.instance_variable_get("@declarations").tap do |ideclarations|
+                ideclarations.delete(css_att)
               end
             end
           end
@@ -244,7 +246,7 @@ class Premailer
 
         unless styles.empty?
           style_tag = "<style type=\"text/css\">\n#{styles}</style>"
-          unless (body = doc.css('body')).empty?
+          unless doc.css('body').empty?
             if doc.at_css('body').children && !doc.at_css('body').children.empty?
               doc.at_css('body').children.before(::Oga.parse_html(style_tag))
             else
@@ -271,7 +273,8 @@ class Premailer
         end
 
         html_src = @doc.to_xml unless html_src and not html_src.empty?
-        convert_to_text(html_src, @options[:line_length], @html_encoding)
+        encoding = defined? @html_encoding ? @html_encoding : nil
+        convert_to_text(html_src, @options[:line_length], encoding)
       end
 
       # Gets the original HTML as a string.
