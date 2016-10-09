@@ -43,6 +43,7 @@ Pakyow::Presenter::ViewContext::VIEW_CLASSES << Pakyow::TestHelp::ObservableView
 
 module Pakyow
   module Helpers
+    undef socket
     def socket
       @socket ||= Pakyow::TestHelp::Realtime::ObservableContext.new(self)
     end
@@ -52,6 +53,7 @@ end
 module Pakyow
   module Presenter
     class ViewContext
+      undef mutate
       def mutate(mutator, data: nil, with: nil)
         Pakyow::TestHelp::Realtime::ObservableMutator.instance.mutate(mutator, self, data || with || [])
       end

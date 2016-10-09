@@ -1,6 +1,6 @@
 require_relative 'support/int_helper'
 
-context 'when testing a route that reroutes' do
+RSpec.context 'when testing a route that reroutes' do
   it 'appears to have rerouted' do
     get :reroute do |sim|
       expect(sim.rerouted?).to eq(true)

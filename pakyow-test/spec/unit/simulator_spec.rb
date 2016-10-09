@@ -1,7 +1,7 @@
 require_relative 'support/unit_helper'
 require 'pakyow/test_help/simulator'
 
-describe Pakyow::TestHelp::Simulator do
+RSpec.describe Pakyow::TestHelp::Simulator do
   let :simulator do
     Pakyow::TestHelp::Simulator.new(
       name_or_path,

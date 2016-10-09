@@ -5,7 +5,7 @@ class HelperIncluder
   include Pakyow::TestHelp::Helpers
 end
 
-describe Pakyow::TestHelp::Helpers do
+RSpec.describe Pakyow::TestHelp::Helpers do
   let :instance do
     HelperIncluder.new
   end

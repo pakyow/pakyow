@@ -1,7 +1,7 @@
 require_relative 'support/unit_helper'
 require 'pakyow/test_help/simulation'
 
-describe Pakyow::TestHelp::Simulation do
+RSpec.describe Pakyow::TestHelp::Simulation do
   let :app do
     instance_double('App', request: request, response: response, req: request, res: response)
   end

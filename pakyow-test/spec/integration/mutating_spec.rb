@@ -1,6 +1,6 @@
 require_relative 'support/int_helper'
 
-context 'when testing a route that mutates a view' do
+RSpec.context 'when testing a route that mutates a view' do
   it 'appears to have mutated' do
     get :mutate do |sim|
       expect(sim.view.scope(:post).mutated?).to eq(true)
@@ -32,7 +32,7 @@ context 'when testing a route that mutates a view' do
   end
 end
 
-context 'when testing a route that mutates and subscribes a view' do
+RSpec.context 'when testing a route that mutates and subscribes a view' do
   it 'appears to have been subscribed' do
     get :mutate_subscribe do |sim|
       expect(sim.view.scope(:post).subscribed?).to eq(true)

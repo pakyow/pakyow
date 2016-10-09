@@ -1,6 +1,6 @@
 require_relative 'support/int_helper'
 
-context 'when testing a route' do
+RSpec.context 'when testing a route' do
   it 'routes to route by path' do
     get '/' do |sim|
       expect(sim.status).to eq(200)
