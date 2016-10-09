@@ -31,7 +31,9 @@ Pakyow::App.define do
 
     namespace '/push' do
       post '/' do
-        socket.push(params[:message], params[:channel])
+        silence_warnings do
+          socket.push(params[:message], params[:channel])
+        end
       end
 
       post '/:socket' do
@@ -96,10 +98,11 @@ class WebSocketClient
     @client
   end
 
+  include Pakyow::Support::Silenceable
   attr_reader :socket, :socket_digest, :messages
 
   def initialize(host: HOST, port: PORT, path: "ws")
-    Pakyow::Support::Silenceable.silence_warnings do
+    silence_warnings do
       res = HTTParty.get(File.join("http://#{host}:#{port}", path))
 
       socket_id = res.body
@@ -127,7 +130,7 @@ class WebSocketClient
   end
 
   def shutdown
-    Pakyow::Support::Silenceable.silence_warnings do
+    silence_warnings do
       @socket.close
     end
   end
@@ -171,7 +174,7 @@ module WebSocket
           @handshake = ::WebSocket::Handshake::Client.new :url => url, :headers => options[:headers]
           @handshaked = false
           @pipe_broken = false
-          frame = ::WebSocket::Frame::Incoming::Client.new
+          @frame = ::WebSocket::Frame::Incoming::Client.new
           @closed = false
           once :__close do |err|
             close
@@ -179,26 +182,28 @@ module WebSocket
           end
 
           @thread = Thread.new do
-            while !@closed do
-              begin
-                unless recv_data = @socket.getc
-                  sleep 1
-                  next
-                end
-                unless @handshaked
-                  @handshake << recv_data
-                  if @handshake.finished?
-                    @handshaked = true
-                    emit :open
+            silence_warnings do
+              while !@closed do
+                begin
+                  unless recv_data = @socket.getc
+                    sleep 1
+                    next
                   end
-                else
-                  frame << recv_data
-                  while msg = frame.next
-                    emit :message, msg
+                  unless @handshaked
+                    @handshake << recv_data
+                    if @handshake.finished?
+                      @handshaked = true
+                      emit :open
+                    end
+                  else
+                    @frame << recv_data
+                    while msg = @frame.next
+                      emit :message, msg
+                    end
                   end
+                rescue => e
+                  emit :error, e
                 end
-              rescue => e
-                emit :error, e
               end
             end
           end
@@ -225,14 +230,17 @@ module WebSocket
 
         def close
           return if @closed
-          if !@pipe_broken
-            send nil, :type => :close
+
+          silence_warnings do
+            if !@pipe_broken
+              send nil, :type => :close
+            end
+            @closed = true
+            @socket.close if @socket
+            @socket = nil
+            emit :__close
+            Thread.kill @thread if @thread
           end
-          @closed = true
-          @socket.close if @socket
-          @socket = nil
-          emit :__close
-          Thread.kill @thread if @thread
         end
 
         def open?
