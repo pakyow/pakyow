@@ -1,7 +1,7 @@
 require_relative '../spec_helper'
 require 'pakyow/ui/mutation_set'
 
-describe Pakyow::UI::MutationSet do
+RSpec.describe Pakyow::UI::MutationSet do
   let :set_class do
     Pakyow::UI::MutationSet
   end

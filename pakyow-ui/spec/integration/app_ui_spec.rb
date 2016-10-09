@@ -1,6 +1,6 @@
 require_relative 'support/int_helper'
 
-context 'after the app is initialized' do
+RSpec.context 'after the app is initialized' do
   before do
     Pakyow::App.stage(:test)
   end

@@ -1,7 +1,7 @@
 require_relative '../spec_helper'
 require 'pakyow/ui/ui'
 
-describe Pakyow::UI::UI do
+RSpec.describe Pakyow::UI::UI do
   let :ui do
     Pakyow::UI::UI.new
   end

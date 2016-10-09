@@ -1,7 +1,7 @@
 module Pakyow
   module Helpers
     def ui
-      return @ui unless @ui.nil?
+      return @ui unless !defined?(@ui) || @ui.nil?
 
       ui_dup = Pakyow.app.ui.dup
       ui_dup.context = self

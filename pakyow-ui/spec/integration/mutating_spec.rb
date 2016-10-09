@@ -1,22 +1,22 @@
 require_relative 'support/int_helper'
 
-describe 'performing mutations' do
+class Post
+  def self.create(params)
+    params[:created] = true
+    params
+  end
+
+  def self.all
+    []
+  end
+
+  def self.find(id)
+    { id: id }
+  end
+end
+
+RSpec.describe 'performing mutations' do
   before do
-    class Post
-      def self.create(params)
-        params[:created] = true
-        params
-      end
-
-      def self.all
-        []
-      end
-
-      def self.find(id)
-        { id: id }
-      end
-    end
-
     Pakyow::App.mutable :post do
       model Post
 
