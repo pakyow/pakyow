@@ -16,6 +16,7 @@ module Pakyow
       @formats = []
 
       @path = path_info
+      @route_path = nil
 
       if method = request_method
         @method = method.downcase.to_sym

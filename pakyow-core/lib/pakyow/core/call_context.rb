@@ -29,11 +29,13 @@ module Pakyow
 
       # create a reference to the router
       @router = Pakyow::Router.instance
-      
+
       # setup a context object; used to provide access to the request / response
       # objects without exposing functionality that should only be accessible
       # from within the app call
       @context = AppContext.new(req, res)
+
+      @handling = false
     end
 
     def process
