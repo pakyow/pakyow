@@ -4,6 +4,7 @@ module Pakyow
   module Presenter
     class StringDoc
       include Support::Inspectable
+      using Support::DeepDup
 
       attr_reader :structure
 
@@ -32,7 +33,7 @@ module Pakyow
         super
 
         if original_structure = original_doc.instance_variable_get(:@structure)
-          @structure = Utils::Dup.deep(original_structure)
+          @structure = original_structure.deep_dup
         end
 
         if original_doc.node?
@@ -43,7 +44,7 @@ module Pakyow
       # Creates a StringDoc instance with the same structure, but a duped node.
       #
       def soft_copy
-        StringDoc.from_structure(@structure, node: @node ? Utils::Dup.deep(@node) : nil)
+        StringDoc.from_structure(@structure, node: @node ? @node.deep_dup : nil)
       end
 
       def title

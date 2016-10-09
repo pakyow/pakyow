@@ -1,6 +1,8 @@
 module Pakyow
   module Presenter
     class ViewStore
+      using Support::DeepDup
+
       attr_reader :store_name, :store_paths, :templates
 
       def initialize(store_path_or_paths, store_name = :default)
@@ -111,7 +113,7 @@ module Pakyow
           #TODO need to consider whose responsibility it is to make the dups
           view = obj ? info[obj.to_sym] : info
           raise MissingView, "No #{obj} at path '#{view_path}'" if view.nil?
-          return Pakyow::Utils::Dup.deep(view)
+          return view.deep_dup
         end
       end
 

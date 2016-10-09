@@ -2,6 +2,7 @@ module Pakyow
   module Presenter
     class ViewCollection
       include Enumerable
+      using Support::DeepDup
 
       attr_reader :views, :scoped_as
 
@@ -13,7 +14,7 @@ module Pakyow
       def initialize_copy(original_view)
         super
 
-        @views = Pakyow::Utils::Dup.deep(original_view.views)
+        @views = original_view.views.deep_dup
         @scoped_as = original_view.scoped_as
       end
 
