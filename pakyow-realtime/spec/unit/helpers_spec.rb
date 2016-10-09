@@ -17,7 +17,7 @@ class HelperIncluder
   end
 end
 
-describe 'realtime helpers' do
+RSpec.describe 'realtime helpers' do
   let :includer do
     HelperIncluder.new
   end

@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'pakyow/realtime/registries/simple_registry'
 
-describe Pakyow::Realtime::SimpleRegistry do
+RSpec.describe Pakyow::Realtime::SimpleRegistry do
   let :registry do
     Pakyow::Realtime::SimpleRegistry
   end

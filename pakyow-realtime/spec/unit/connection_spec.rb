@@ -1,23 +1,23 @@
 require "spec_helper"
 require "pakyow/realtime/connection"
 
-describe Pakyow::Realtime::Connection do
+RSpec.describe Pakyow::Realtime::Connection do
   let :io do
     StringIO.new
   end
-  
+
   let :version do
     1.0
   end
-  
+
   let :key do
     Pakyow::Realtime::Connection.socket_key
   end
-  
+
   let :connection do
     Pakyow::Realtime::Connection.new(io, version: version, key: key)
   end
-  
+
   describe "::socket_key" do
     it "return a random value" do
       key1 = Pakyow::Realtime::Connection.socket_key
@@ -25,7 +25,7 @@ describe Pakyow::Realtime::Connection do
       expect(key1).not_to eq(key2)
     end
   end
-  
+
   describe "::socket_connection_id" do
     it "return a random value" do
       id1 = Pakyow::Realtime::Connection.socket_connection_id
@@ -33,7 +33,7 @@ describe Pakyow::Realtime::Connection do
       expect(id1).not_to eq(id2)
     end
   end
-  
+
   describe "::socket_digest" do
     it "returns a unique value for a different key" do
       digest1 = Pakyow::Realtime::Connection.socket_digest("key1", "id")
@@ -59,11 +59,11 @@ describe Pakyow::Realtime::Connection do
       expect(digest).not_to include("id")
     end
   end
-  
+
   before do
     Pakyow.logger = Rack::NullLogger.new(self)
   end
-  
+
   describe "#initialize" do
     it "creates a stream with `io` and `version`" do
       expect(connection.stream.io).to be(io)
@@ -84,7 +84,7 @@ describe Pakyow::Realtime::Connection do
       skip "write once Pakyow::Support::Eventable is ready"
     end
   end
-  
+
   describe "#write" do
     let :message do
       { foo: 'bar' }
@@ -99,7 +99,7 @@ describe Pakyow::Realtime::Connection do
       expect(connection.logger).to receive(:verbose).with(">> #{message}")
       connection.write(message)
     end
-    
+
     context "and an error is raised during writing" do
       it "shuts down the connection" do
         expect(connection.stream).to receive(:write).and_raise(StandardError)
@@ -108,7 +108,7 @@ describe Pakyow::Realtime::Connection do
       end
     end
   end
-  
+
   describe "#receive" do
     let :data do
       :foo
@@ -119,7 +119,7 @@ describe Pakyow::Realtime::Connection do
       connection.receive(data)
     end
   end
-  
+
   describe "#shutdown" do
     it "removes itself from the connection pool" do
       expect(Pakyow::Realtime::ConnectionPool.instance).to receive(:rm).with(connection)
@@ -134,14 +134,14 @@ describe Pakyow::Realtime::Connection do
     it "invokes any defined `leave` callbacks" do
       skip "write once Pakyow::Support::Eventable is ready"
     end
-    
+
     context "and the `io` object is a non-nil value" do
       it "closes the `io` object" do
         expect(io).to receive(:close)
         connection.shutdown
       end
     end
-    
+
     context "and the `io` object is nil" do
       let :connection do
         Pakyow::Realtime::Connection.new(nil)
@@ -152,7 +152,7 @@ describe Pakyow::Realtime::Connection do
       end
     end
   end
-  
+
   describe "#to_io" do
     it "returns the connection's `io` object" do
       expect(connection.to_io).to be(io)

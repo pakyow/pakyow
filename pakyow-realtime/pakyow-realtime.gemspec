@@ -24,9 +24,9 @@ Gem::Specification.new do |spec|
   spec.add_dependency('websocket', '~> 1.2')
   spec.add_dependency('redis', '~> 3.2')
   spec.add_dependency('nio4r', '~> 1.2')
-  
+
   spec.add_development_dependency("rspec", "~> 3.2")
-  spec.add_development_dependency("websocket-client-simple", "~> 0.3")
+  spec.add_development_dependency("event_emitter", "~> 0.2")
   spec.add_development_dependency("httparty", "~> 0.14")
   spec.add_development_dependency("puma", "~> 3.6")
 end

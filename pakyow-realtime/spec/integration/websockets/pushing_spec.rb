@@ -1,40 +1,40 @@
 require "integration/support/int_helper"
 
-shared_examples :pushing do
+RSpec.shared_examples :pushing do
   let :client do
     client = WebSocketClient.create(path: socket_connect_path)
     sleep 0.05
     client
   end
-  
+
   let :host do
     HOST
   end
-  
+
   let :port do
     PORT
   end
-  
+
   let :path do
     "/push"
   end
-  
+
   let :socket_connect_path do
     "sub/#{channel}"
   end
-  
+
   let :params do
     { message: message, channel: channel }
   end
-  
+
   let :channel do
     "foo_channel"
   end
-  
+
   let :message do
     "foo_message"
   end
-  
+
   before do
     start_server
   end
@@ -72,7 +72,7 @@ shared_examples :pushing do
           @client1 = WebSocketClient.create(path: socket_connect_path)
           @client2 = WebSocketClient.create(path: socket_connect_path)
           sleep 0.05
-          
+
           res = HTTParty.post(File.join("http://#{host}:#{port}", path), body: params)
           expect(res.code).to be(200)
           sleep 0.05
@@ -84,7 +84,7 @@ shared_examples :pushing do
           ws_message_json = JSON.parse(ws_message)
           expect(ws_message_json["payload"]).to eq(message)
           expect(ws_message_json["channel"]).to eq(channel)
-          
+
           ws_message = @client2.messages.last
           expect(ws_message).to be_instance_of(String)
           ws_message_json = JSON.parse(ws_message)
@@ -98,7 +98,7 @@ shared_examples :pushing do
           @client1 = WebSocketClient.create(path: socket_connect_path)
           @client2 = WebSocketClient.create(path: socket_connect_path + "f")
           sleep 0.05
-          
+
           res = HTTParty.post(File.join("http://#{host}:#{port}", path), body: params)
           expect(res.code).to be(200)
           sleep 0.05
@@ -119,7 +119,7 @@ shared_examples :pushing do
       end
     end
   end
-  
+
   describe "pushing a message to a socket" do
     context "and the socket exists" do
       before do
@@ -138,7 +138,7 @@ shared_examples :pushing do
         expect(ws_message_json["channel"]).to eq(channel)
       end
     end
-    
+
     context "and two sockets exist" do
       before do
         @client1 = WebSocketClient.create(path: socket_connect_path)
@@ -157,7 +157,7 @@ shared_examples :pushing do
         ws_message_json = JSON.parse(ws_message)
         expect(ws_message_json["payload"]).to eq(message)
         expect(ws_message_json["channel"]).to eq(channel)
-        
+
         ws_message = @client1.messages.last
         expect(ws_message).to be_nil
       end
@@ -165,22 +165,22 @@ shared_examples :pushing do
   end
 end
 
-describe "pushing with SimpleRegistry" do
+RSpec.describe "pushing with SimpleRegistry" do
   before do
     Pakyow::App.config.realtime.registry = Pakyow::Realtime::SimpleRegistry
     restart_server
   end
-  
+
   include_examples :pushing
 end
 
 if redis_available?
-  describe "pushing with RedisRegistry" do
+  RSpec.describe "pushing with RedisRegistry" do
     before do
       Pakyow::App.config.realtime.registry = Pakyow::Realtime::RedisRegistry
       restart_server
     end
-    
+
     include_examples :pushing
   end
 end

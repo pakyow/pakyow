@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'pakyow/realtime/message_handler'
 
-describe Pakyow::Realtime do
+RSpec.describe Pakyow::Realtime do
   describe '::handler' do
     let :name do
       :handler
@@ -18,7 +18,7 @@ describe Pakyow::Realtime do
   end
 end
 
-describe Pakyow::Realtime::MessageHandler do
+RSpec.describe Pakyow::Realtime::MessageHandler do
   describe '::handle' do
     let :id do
       (rand * 100).to_i

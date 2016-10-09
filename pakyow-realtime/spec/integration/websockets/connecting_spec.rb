@@ -1,16 +1,21 @@
 require "integration/support/int_helper"
+require "pakyow/support/silenceable"
 
-describe "connecting a websocket" do
+RSpec.describe "connecting a websocket" do
+  include Pakyow::Support::Silenceable
+
   before do
     start_server
   end
 
   let :client do
-    client = WebSocketClient.create
-    
-    # wait for it to connect
-    sleep 0.05
-    client
+    silence_warnings do
+      @client = WebSocketClient.create
+      # wait for it to connect
+      sleep 0.05
+    end
+
+    @client
   end
 
   context "and the connection is a websocket" do
@@ -30,14 +35,14 @@ describe "connecting a websocket" do
           Pakyow::Realtime::Connection.on :join do
             joined.call(self)
           end
-          
+
           client
         end
 
         it "invokes the callback" do
           expect(@context).not_to be_nil
         end
-        
+
         describe "the callback context" do
           it "is a `Pakyow::CallContext` instance" do
             expect(@context).to be_instance_of(Pakyow::CallContext)
@@ -45,7 +50,7 @@ describe "connecting a websocket" do
         end
       end
     end
-    
+
     context "and the handshake is invalid" do
       it "responds as a bad request" do
         skip 'figure out how to create an invalid handshake'

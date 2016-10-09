@@ -1,6 +1,5 @@
 require "singleton"
 require "pakyow/realtime/config"
-require "pakyow/realtime/connection"
 
 module Pakyow
   module Realtime
@@ -85,8 +84,8 @@ module Pakyow
           return registry.push_to_key(message, channel, key)
         end
 
-        return unless connection = @connections.find { |_, connection|
-          connection.key == key
+        return unless connection = @connections.find { |_, c|
+          c.key == key
         }
 
         # NOTE: Propagated message should be a pushable object (e.g. json).
