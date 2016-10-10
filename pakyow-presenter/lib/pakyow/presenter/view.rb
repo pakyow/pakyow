@@ -479,8 +479,6 @@ module Pakyow
                 # starting a new group
                 throw :optgroup unless o2.is_a?(Array)
 
-                h.option o2[1].to_s, value: o2[0].to_s
-
                 node = Oga::XML::Element.new(name: 'option')
                 node.inner_text = o2[1].to_s
                 node.set('value', o2[0].to_s)
