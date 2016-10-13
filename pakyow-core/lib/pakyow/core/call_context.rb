@@ -20,7 +20,7 @@ module Pakyow
 
     known_events :process, :route, :match, :error
 
-    def initialize(env)
+    def initialize(app, env)
       req = Request.new(env)
       res = Response.new
 
@@ -29,6 +29,10 @@ module Pakyow
 
       # create a reference to the router
       @router = Pakyow::Router.instance
+
+      # TODO: part of the new experimental routing
+      # @app = app
+      # @env = env
 
       # setup a context object; used to provide access to the request / response
       # objects without exposing functionality that should only be accessible
@@ -48,6 +52,14 @@ module Pakyow
             @found = @router.perform(context, self) {
               call_hooks :after, :match
             }
+
+            # TODO: part of the new experimental routing
+            # @app.routes.each do |router|
+            #   @found = router.call(self, @env)
+
+            #   # TODO: we used to do this, but unsure how useful that is today
+            #   # call_hooks :after, :match
+            # end
           end
 
           handle(404, false) unless found?
@@ -133,6 +145,9 @@ module Pakyow
       @handling = true
 
       hook_around :route do
+        # TODO: we need handlers at the router and app level
+        # the ones in the router would handle errors originating from one of the contained routes
+        # and the ones in the app would be the fallback for when nothing was matched, or no handlers were defined in the route
         @router.handle(name_or_code, self, from_logic)
       end
     end

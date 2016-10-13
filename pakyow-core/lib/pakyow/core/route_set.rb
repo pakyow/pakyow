@@ -4,15 +4,17 @@ module Pakyow
 
     attr_reader :routes, :lookup
 
-    def initialize
+    def initialize(name = nil)
       @routes = {:get => [], :post => [], :put => [], :patch => [], :delete => []}
       @lookup = { :routes => {}, :grouped => {}}
       @handlers = []
       @fns = {}
       @templates = {}
+
+      Router.instance.sets[name] = self
     end
 
-    def eval(&block)
+    def instance_eval(&block)
       evaluator = RouteEval.with_defaults
       evaluator.eval(&block)
       merge(evaluator)

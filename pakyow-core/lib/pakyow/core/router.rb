@@ -18,13 +18,6 @@ module Pakyow
       self
     end
 
-    # Creates a new set.
-    #
-    def set(name, &block)
-      @sets[name] = RouteSet.new
-      @sets[name].eval(&block)
-    end
-
     # Iterates through route sets and returns the first matching route.
     #
     def route(name, group = nil)
