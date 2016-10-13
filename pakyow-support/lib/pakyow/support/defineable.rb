@@ -33,7 +33,7 @@ module Pakyow
       def method_missing(name)
         @state.fetch(name) {
           raise ArgumentError, "Unknown state '#{name}'"
-        }
+        }.instances
       end
 
       module ClassAPI
