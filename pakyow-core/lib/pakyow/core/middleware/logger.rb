@@ -7,14 +7,6 @@ module Pakyow
     #
     # @api private
     class Logger
-      Pakyow::App.middleware do |builder|
-        builder.use Pakyow::Middleware::Logger
-      end
-
-      Pakyow::CallContext.after :error do
-        logger.houston(req.error)
-      end
-
       def initialize(app)
         @app = app
       end

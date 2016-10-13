@@ -17,12 +17,6 @@ module Pakyow
     #
     # @api public
     class Static
-      Pakyow::App.middleware do |builder|
-        if Pakyow::Config.app.static
-          builder.use Pakyow::Middleware::Static
-        end
-      end
-
       def initialize(app)
         @app = app
       end

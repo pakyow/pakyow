@@ -23,34 +23,6 @@ RSpec.describe Pakyow::Helpers::Configuring do
     end
   end
 
-  describe '::define' do
-    context 'called with a block' do
-      before do
-        @result = mock.define do
-          @foo = :bar
-        end
-      end
-
-      it 'sets the path to the file defining the app' do
-        expect(mock.path).to eq(__FILE__)
-      end
-
-      it 'evals the block' do
-        expect(mock.instance_variable_get(:@foo)).to eq(:bar)
-      end
-
-      it 'returns the app' do
-        expect(@result).to eq(mock)
-      end
-    end
-
-    context 'called without a block' do
-      it 'raises an argument error' do
-        expect { mock.define }.to raise_error(ArgumentError)
-      end
-    end
-  end
-
   describe '::routes' do
     let :block do
       -> {}

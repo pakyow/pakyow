@@ -21,13 +21,12 @@ module Pakyow
       The `pakyow console` command starts a console session for the current Pakyow project,
       providing access to an application instance that you can interact with.
 
-      If environment is unspecified, the application's default environment will be used.
-
-      $ pakyow console development
+      If environment is unspecified, the default environment (#{Pakyow::DEFAULT_ENV}) will be used.
     DESC
 
     def console(environment = :development)
       require "pakyow/commands/console"
+      # TODO: no need to create an instance here; just call run
       Commands::Console.new(environment: environment).run
     rescue LoadError => e
       raise Thor::Error, "Error: #{e.message}\n" \
@@ -38,15 +37,21 @@ module Pakyow
     long_desc <<-DESC
       The `pakyow server` command starts the server for the current Pakyow project.
 
-      If environment is unspecified, the application's default environment will be used.
-
-      $ pakyow server development -p 3001
+      If environment is unspecified, the default environment (#{Pakyow::DEFAULT_ENV}) will be used.
     DESC
-    option :port, type: :numeric, aliases: :p, default: 3000
+    option :port, type: :string, aliases: :p, default: Pakyow::DEFAULT_PORT
+    option :host, type: :string, aliases: :h, default: Pakyow::DEFAULT_HOST
+    option :server, type: :string, aliases: :s, default: Pakyow::DEFAULT_SERVER
 
-    def server(environment = :development)
+    def server(env = Pakyow::DEFAULT_ENV)
       require "pakyow/commands/server"
-      Commands::Server.new(environment: environment, port: options[:port]).run
+      # TODO: no need to create an instance here; just call run
+      Commands::Server.new(
+        env: env,
+        port: options[:port],
+        host: options[:host],
+        server: options[:server]
+      ).run
     rescue LoadError => e
       raise Thor::Error, "Error: #{e.message}\n" \
         "You must run the `pakyow server` command in the root directory of a Pakyow project."

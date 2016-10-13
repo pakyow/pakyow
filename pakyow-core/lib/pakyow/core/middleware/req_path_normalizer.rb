@@ -2,10 +2,6 @@ require 'pakyow/core/call_context'
 
 module Pakyow
   module Middleware
-    Pakyow::App.middleware do |builder|
-      builder.use Pakyow::Middleware::ReqPathNormalizer
-    end
-
     # Rack compatible middleware that normalize the path if contains '//'
     # or has a trailing '/', it replace '//' with '/', remove trailing `/`
     # and issue a 301 redirect to the normalized path.

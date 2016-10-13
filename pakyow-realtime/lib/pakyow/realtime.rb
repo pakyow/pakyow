@@ -13,7 +13,6 @@ require "pakyow/realtime/delegate"
 require "pakyow/realtime/exceptions"
 require "pakyow/realtime/handshake"
 require "pakyow/realtime/helpers"
-require "pakyow/realtime/hooks"
 require "pakyow/realtime/redis_subscription"
 require "pakyow/realtime/stream"
 
@@ -28,3 +27,5 @@ require "pakyow/realtime/middleware/web_socket_upgrader"
 
 require "pakyow/realtime/registries/simple_registry"
 require "pakyow/realtime/registries/redis_registry"
+
+require "pakyow/realtime/hooks"

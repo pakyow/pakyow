@@ -1,4 +1,5 @@
 require 'securerandom'
+require "logger"
 
 module Pakyow
   module Logger
