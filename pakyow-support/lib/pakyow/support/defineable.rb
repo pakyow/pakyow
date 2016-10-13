@@ -57,7 +57,9 @@ module Pakyow
 
           (@state ||= {})[name] = State.new(name, object)
           define_singleton_method name do |*args, &state|
-            @state[name] << object.new(*args).instance_eval(&state)
+            instance = object.new(*args)
+            instance.instance_eval(&state)
+            @state[name] << instance
           end
         end
 
