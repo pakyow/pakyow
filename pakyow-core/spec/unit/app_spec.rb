@@ -3,7 +3,7 @@ require "pakyow/core/app"
 
 RSpec.describe Pakyow::App do
   let :app do
-    Pakyow::App.new
+    Pakyow::App.new :test
   end
 
   it "is hookable" do
@@ -35,24 +35,27 @@ RSpec.describe Pakyow::App do
       end
     end
 
-    describe "fork" do
-      it "is known" do
-        expect(Pakyow::App.is_known_event?(:fork)).to be true
-      end
-    end
+    # TODO: move to test pakyow/environment
+    # describe "fork" do
+    #   it "is known" do
+    #     expect(Pakyow::App.is_known_event?(:fork)).to be true
+    #   end
+    # end
   end
 
-  describe "#forking" do
-    it "calls before: :fork hooks" do
-      expect(app).to receive(:call_hooks).with(:before, :fork)
-      app.forking
-    end
-  end
+  # TODO: move to test pakyow/environment
+  # describe "#forking" do
+  #   it "calls before: :fork hooks" do
+  #     expect(app).to receive(:call_hooks).with(:before, :fork)
+  #     app.forking
+  #   end
+  # end
 
-  describe "#forked" do
-    it "calls after: :fork hooks" do
-      expect(app).to receive(:call_hooks).with(:after, :fork)
-      app.forked
-    end
-  end
+  # TODO: move to test pakyow/environment
+  # describe "#forked" do
+  #   it "calls after: :fork hooks" do
+  #     expect(app).to receive(:call_hooks).with(:after, :fork)
+  #     app.forked
+  #   end
+  # end
 end

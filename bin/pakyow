@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
 
+require "pakyow"
 require "pakyow/command_line_interface"
 Pakyow::CommandLineInterface.start

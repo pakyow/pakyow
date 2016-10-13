@@ -1,29 +1,26 @@
 require "pakyow/version"
+require "pakyow/core/logger/colorizer"
 
 module Pakyow
   module Commands
     class Server
       RACK_ENV = "RACK_ENV".freeze
 
-      def initialize(environment: ENV[RACK_ENV] || Config.app.default_environment, port: Config.server.port)
-        ENV[RACK_ENV] = environment.to_s
-        @port = port
+      def initialize(env: nil, port: nil, host: nil, server: nil)
+        @env    = env.to_s
+        @port   = port
+        @host   = host
+        @server = server
       end
 
       def run
-        require "./app/setup"
-        Config.server.port = @port
-        v = "v" + VERSION
+        puts Logger::Colorizer.colorize(
+          File.read(
+            File.expand_path("../output/splash.txt", __FILE__)
+          ).gsub!("{v}", "v#{VERSION}"), :error)
 
-        msg = '                 __                      ' + "\n" \
-              '    ____  ____ _/ /____  ______ _      __' + "\n" \
-              '   / __ \/ __ `/ //_/ / / / __ \ | /| / /' + "\n" \
-              '  / /_/ / /_/ / ,< / /_/ / /_/ / |/ |/ / ' + "\n" \
-              ' / .___/\__,_/_/|_|\__, /\____/|__/|__/  ' + v + "\n" \
-              '/_/               /____/                 ' + "\n"
-        puts Logger::Colorizer.colorize(msg, :error)
-
-        App.run(ENV[RACK_ENV])
+        require "./config/environment"
+        Pakyow.setup(env: @env).run(port: @port, host: @host, server: @server)
       end
     end
   end

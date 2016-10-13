@@ -1,12 +1,6 @@
 module Pakyow
   module Realtime
     module Middleware
-      Pakyow::App.middleware do |builder|
-        if Pakyow::Config.realtime.enabled
-          builder.use Pakyow::Realtime::Middleware::WebSocketUpgrader
-        end
-      end
-      
       # Upgrades a WebSocket request and establishes the connection.
       #
       # When a connection is established it's added to the `ConnectionPool`
@@ -41,7 +35,7 @@ module Pakyow
             if handshake.valid?
               handshake.finalize(hijack(env))
               req = Rack::Request.new(env)
-              
+
               ConnectionPool.instance << Connection.new(
                 handshake.io,
                 version: handshake.server.version,

@@ -38,21 +38,22 @@ RSpec.describe Pakyow::Middleware::WWWEnforcer do
     allow(Pakyow).to receive(:app).and_return(app)
     allow(app).to receive(:call)
 
-    @original_builder = Pakyow::App.builder
-    Pakyow::App.instance_variable_set(:@builder, double(Rack::Builder).as_null_object)
+    # @original_builder = Pakyow::App.builder
+    # Pakyow::App.instance_variable_set(:@builder, double(Rack::Builder).as_null_object)
   end
 
   after do
-    Pakyow::App.instance_variable_set(:@builder, @original_builder)
+    # Pakyow::App.instance_variable_set(:@builder, @original_builder)
   end
 
-  describe 'when enforce_www is false' do
-    before { allow(app).to receive(:enforce_www) { false } }
+  # TODO: move to test pakyow/core/hooks (integration test)
+  # describe 'when enforce_www is false' do
+  #   before { allow(app).to receive(:enforce_www) { false } }
 
-   it 'does not use the www_enforcer middleware' do
-      expect(Pakyow::App.builder).not_to receive(:use).with(Pakyow::Middleware::WWWEnforcer)
-    end
-  end
+  #  it 'does not use the www_enforcer middleware' do
+  #     expect(Pakyow::App.builder).not_to receive(:use).with(Pakyow::Middleware::WWWEnforcer)
+  #   end
+  # end
 
   describe '#call' do
     it 'exists' do

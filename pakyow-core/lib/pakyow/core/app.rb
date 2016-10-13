@@ -1,12 +1,12 @@
-require_relative 'helpers/configuring'
-require_relative 'helpers/running'
+require "pakyow/core/helpers/configuring"
+require "pakyow/core/call_context"
+require "pakyow/core/helpers"
+require "pakyow/core/config"
+require "pakyow/core/config/app"
+require "pakyow/core/loader"
+require "pakyow/core/router"
 
-require_relative 'call_context'
-require_relative 'helpers'
-require_relative 'config'
-require_relative 'loader'
-require_relative 'router'
-
+require "pakyow/support/defineable"
 require "pakyow/support/hookable"
 
 module Pakyow
@@ -14,12 +14,12 @@ module Pakyow
   #
   # @api public
   class App
+    include Support::Defineable
     include Support::Hookable
-    
+
     known_events :init, :configure, :load, :reload, :fork
 
     extend Helpers::Configuring
-    extend Helpers::Running
 
     class << self
       # Convenience method for accessing app configuration object.
@@ -28,18 +28,9 @@ module Pakyow
       def config
         Pakyow::Config
       end
-
-      # Resets app state.
-      #
-      # @api private
-      def reset
-        instance_variables.each do |ivar|
-          remove_instance_variable(ivar)
-        end
-      end
     end
 
-    def initialize
+    def initialize(env)
       Pakyow.app = self
 
       @loader = Loader.new
@@ -51,32 +42,8 @@ module Pakyow
 
     # @api private
     def call(env)
+      # TODO: I think I like duping self more than I do this
       CallContext.new(env).process.finish
-    end
-
-    # Reloads the app.
-    #
-    # @api private
-    def reload
-      hook_around :reload do
-        load_app
-      end
-    end
-
-    # When running the app with a forking server (e.g. Passenger) call this before
-    # the process is forked. All defined "before fork" hooks will be called.
-    #
-    # @api private
-    def forking
-      call_hooks :before, :fork
-    end
-
-    # When running the app with a forking server (e.g. Passenger) call this after
-    # the process is forked. All defined "after fork" hooks will be called.
-    #
-    # @api private
-    def forked
-      call_hooks :after, :fork
     end
 
     protected

@@ -1,3 +1,5 @@
+# TODO: just move this to pakyow.rb for crying out loud
+
 require 'pakyow/core/helpers'
 require 'pakyow/core/multilog'
 require 'pakyow/core/app_context'
@@ -31,15 +33,11 @@ require 'pakyow/core/config/cookies'
 require 'pakyow/core/config/logger'
 require 'pakyow/core/config/session'
 
-require 'pakyow/core/middleware/override'
-require 'pakyow/core/middleware/reloader'
-require 'pakyow/core/middleware/req_path_normalizer'
-require 'pakyow/core/middleware/session'
-require 'pakyow/core/middleware/static'
-require 'pakyow/core/middleware/logger'
+require "pakyow/core/middleware/reloader"
+require "pakyow/core/middleware/req_path_normalizer"
+require "pakyow/core/middleware/non_www_enforcer"
+require "pakyow/core/middleware/www_enforcer"
+require "pakyow/core/middleware/static"
+require "pakyow/core/middleware/logger"
 
-module Pakyow
-  class << self
-    attr_accessor :app, :logger
-  end
-end
+require "pakyow/core/hooks"

@@ -1,6 +1,6 @@
 module ActionHelpers
   def reset
-    app.run(:test)
+    Pakyow.setup(env: :test).run
     @context = Pakyow::CallContext.new(mock_request.env)
   end
 
