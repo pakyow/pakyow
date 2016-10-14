@@ -45,8 +45,4 @@ module Pakyow
       setting :formatter, Logger::LogfmtFormatter
     end
   end
-
-  settings_for :middleware do
-    setting :default, [Rack::ContentLength, Rack::Head, Rack::MethodOverride]
-  end
 end
