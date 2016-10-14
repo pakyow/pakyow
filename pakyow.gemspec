@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.version                = Pakyow::VERSION
   spec.require_path           = 'lib'
   spec.files                  = Dir['CHANGELOG.md', 'README.md', 'LICENSE', 'lib/**/*']
-  spec.bindir                 = 'bin'
+  spec.bindir                 = 'commands'
   spec.executables            = ['pakyow']
   spec.license                = 'MIT'
   spec.required_ruby_version  = '>= 2.0.0'
