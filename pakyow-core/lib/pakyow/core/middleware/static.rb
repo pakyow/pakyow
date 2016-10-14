@@ -1,4 +1,4 @@
-require 'pakyow/core/config'
+
 require 'pakyow/core/call_context'
 
 module Pakyow

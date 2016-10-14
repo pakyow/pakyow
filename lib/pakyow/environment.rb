@@ -1,14 +1,10 @@
 require "logger"
 
 require "pakyow/support/hookable"
+require "pakyow/config/environment"
 
 module Pakyow
   include Support::Hookable
-
-  DEFAULT_ENV    = :development
-  DEFAULT_PORT   = 3000
-  DEFAULT_HOST   = "localhost".freeze
-  DEFAULT_SERVER = :puma
 
   STOP_METHODS = %i(stop! stop).freeze
   STOP_SIGNALS = %i(INT TERM).freeze
@@ -23,34 +19,29 @@ module Pakyow
 
     attr_reader :env, :port, :host, :server, :logger
 
-    def configure(env = :global, &block)
-      config[env] = block
-    end
-
     def mount(app, at: nil)
       raise ArgumentError, "Mount path is required" if at.nil?
       mounts[at] = app
     end
 
     def setup(env: nil)
+      @env = env ||= DEFAULT_ENV
+
       hook_around :configure do
-        @env = env || DEFAULT_ENV
-        load_config(env)
+        use_config(env)
       end
 
       hook_around :setup do
         init_global_logger
 
         mounts.each do |path, app|
-          app.load_config(@env)
-
           builder.map path do
-            # TODO: define middleware in the configure block instead
+            # TODO: decide how a developer will define middleware
             app.middleware.each do |block|
-              instance_exec(self, &block)
+              block.call(self)
             end
 
-            run app.new(@env)
+            run app.new(env)
           end
         end
       end
@@ -80,10 +71,6 @@ module Pakyow
 
     protected
 
-    def config
-      @config ||= {}
-    end
-
     def mounts
       @mounts ||= {}
     end
@@ -92,18 +79,11 @@ module Pakyow
       @builder ||= Rack::Builder.new
     end
 
-    def load_config(env)
-      [:global, env].each do |env_to_load|
-        next unless config_for_env = config[env_to_load]
-        instance_eval(&config_for_env)
-      end
-    end
-
     def init_global_logger
-      logs = Config.logger.destinations
+      logs = config.logger.destinations
       @logger = ::Logger.new(logs.count > 1 ? MultiLog.new(*logs) : logs.first)
-      @logger.level = ::Logger.const_get(Config.logger.level.to_s.upcase)
-      @logger.formatter = Config.logger.formatter.new
+      @logger.level = ::Logger.const_get(config.logger.level.to_s.upcase)
+      @logger.formatter = config.logger.formatter.new
     end
 
     def handler(preferred)

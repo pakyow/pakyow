@@ -1,13 +1,13 @@
-require "pakyow/core/helpers/configuring"
 require "pakyow/core/call_context"
 require "pakyow/core/helpers"
-require "pakyow/core/config"
-require "pakyow/core/config/app"
 require "pakyow/core/loader"
 require "pakyow/core/router"
 
+require "pakyow/support/configurable"
 require "pakyow/support/defineable"
 require "pakyow/support/hookable"
+
+require "pakyow/core/config/app"
 
 # some playing around with a simpler routing approach
 # class NewRouter
@@ -90,17 +90,7 @@ module Pakyow
 
     stateful :routes, RouteSet
 
-    # TODO: this can be removed once we rely on defineable / configurable for everything
-    extend Helpers::Configuring
-
     class << self
-      # Convenience method for accessing app configuration object.
-      #
-      # @api public
-      def config
-        Pakyow::Config
-      end
-
       # Defines a resource.
       #
       # @api public
@@ -123,6 +113,9 @@ module Pakyow
     end
 
     def initialize(env)
+      use_config(env)
+
+      # TODO: this will go away
       Pakyow.app = self
 
       @loader = Loader.new
@@ -140,11 +133,24 @@ module Pakyow
       CallContext.new(self, env).process.finish
     end
 
+    # TODO: this is pretty temporary, but it works for now
+    def self.middleware
+      [-> (builder) {
+        if config.session.enabled
+          builder.use config.session.object, config.session.options
+        end
+
+        if config.app.static
+          builder.use Middleware::Static
+        end
+      }]
+    end
+
     protected
 
     def load_app
       hook_around :load do
-        @loader.load_from_path(Pakyow::Config.app.src_dir)
+        @loader.load_from_path(config.app.src)
       end
     end
   end

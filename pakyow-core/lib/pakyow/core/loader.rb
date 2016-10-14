@@ -16,15 +16,7 @@ module Pakyow
         Dir.walk(dir) do |path|
           next if FileTest.directory?(path)
           next if path.split('.')[-1] != 'rb'
-
-          if Config.reloader.enabled
-            if !@times[path] || (@times[path] && File.mtime(path) - @times[path] > 0)
-              load(path)
-              @times[path] = File.mtime(path)
-            end
-          else
-            require path
-          end
+          require path
         end
       end
     end

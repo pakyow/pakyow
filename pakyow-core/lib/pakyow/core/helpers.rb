@@ -36,16 +36,5 @@ module Pakyow
     def cookies
       request ? request.cookies : {}
     end
-
-    def config
-      Pakyow::Config
-    end
-
-    # Returns the primary app environment.
-    #
-    # @api public
-    def env
-      config.env
-    end
   end
 end

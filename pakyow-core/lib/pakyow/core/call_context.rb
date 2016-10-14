@@ -31,7 +31,7 @@ module Pakyow
       @router = Pakyow::Router.instance
 
       # TODO: part of the new experimental routing
-      # @app = app
+      @app = app
       # @env = env
 
       # setup a context object; used to provide access to the request / response
@@ -194,6 +194,10 @@ module Pakyow
       request.cookies.each {|k,v|
         @initial_cookies[k] = v
       }
+    end
+
+    def config
+      @app.config
     end
   end
 end
