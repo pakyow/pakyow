@@ -8,7 +8,7 @@ require "pakyow/logger/formatters/dev"
 require "pakyow/logger/formatters/logfmt"
 
 require "pakyow/middleware/json_body"
-require "pakyow/middleware/req_path_normalizer"
+require "pakyow/middleware/normalizer"
 require "pakyow/middleware/logger"
 
 # An environment for running one or more rack apps.
@@ -141,6 +141,12 @@ module Pakyow
     end
   end
 
+  settings_for :normalizer do
+    setting :strict_path, true
+    setting :strict_www, false
+    setting :require_www, true
+  end
+
   # Loads the default middleware stack.
   #
   before :setup do
@@ -148,19 +154,8 @@ module Pakyow
     use Rack::ContentLength
     use Rack::Head
     use Rack::MethodOverride
-
-    # TODO: make this opt-in
-    # if Config.app.enforce_www
-    #   use Middleware::WWWEnforcer
-    # else
-    #   use Middleware::NonWWWEnforcer
-    # end
-
-    # TODO: I'd like a normalizer enabled option
-    # that controls this and www / non; maybe
-    # even combine them into a single normalizer
     use Middleware::JSONBody
-    use Middleware::ReqPathNormalizer
+    use Middleware::Normalizer
     use Middleware::Logger
   end
 
