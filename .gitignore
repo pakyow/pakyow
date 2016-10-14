@@ -11,3 +11,4 @@ doc
 Gemfile.lock
 .bundle
 examples.txt
+bin
