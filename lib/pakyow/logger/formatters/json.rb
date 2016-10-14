@@ -19,7 +19,7 @@ module Pakyow
         message = format_message(message)
 
         if message.key?(:elapsed)
-          message[:elapsed] = Pakyow::Logger::Timekeeper.format_in_milliseconds(message[:elapsed])
+          message[:elapsed] = Timekeeper.format_in_milliseconds(message[:elapsed])
         end
 
         request = message.delete(:request)

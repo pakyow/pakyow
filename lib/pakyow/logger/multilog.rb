@@ -1,4 +1,5 @@
 module Pakyow
+  # @api private
   class MultiLog
     def initialize(*targets)
       @targets = targets

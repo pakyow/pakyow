@@ -29,7 +29,7 @@ module Pakyow
         message.each_pair do |key, value|
           case value
           when Array
-            value = value.join(',')
+            value = value.join(",")
           else
             value = value.to_s
           end

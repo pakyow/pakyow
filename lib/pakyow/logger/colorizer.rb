@@ -13,12 +13,12 @@ module Pakyow
       private
 
       LEVEL_COLORS = {
-        'DEBUG'   => :cyan,
-        'INFO'    => :green,
-        'WARN'    => :yellow,
-        'ERROR'   => :red,
-        'FATAL'   => :red,
-      }
+        "DEBUG" => :cyan,
+        "INFO"  => :green,
+        "WARN"  => :yellow,
+        "ERROR" => :red,
+        "FATAL" => :red,
+      }.freeze
 
       COLOR_TABLE = [
         :black,
@@ -29,10 +29,10 @@ module Pakyow
         :magenta,
         :cyan,
         :white,
-      ]
+      ].freeze
 
-      RESET_SEQ = "\033[0m"
-      COLOR_SEQ = "\033[%dm"
+      RESET_SEQ = "\033[0m".freeze
+      COLOR_SEQ = "\033[%dm".freeze
 
       # Returns a color for a level of severity.
       #
