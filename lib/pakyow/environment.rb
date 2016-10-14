@@ -58,6 +58,7 @@ require "pakyow/middleware/logger"
 #
 # - configure
 # - setup
+# - fork
 #
 # @example Run code after the environment is setup:
 #   Pakyow.after :setup do
@@ -98,8 +99,7 @@ module Pakyow
   DEFAULT_SERVER = :puma
 
   include Support::Hookable
-  # TODO: need a fork event
-  known_events :configure, :setup
+  known_events :configure, :setup, :fork
 
   include Support::Configurable
 
@@ -218,6 +218,20 @@ module Pakyow
           trap(signal) { stop(app_server) }
         end
       end
+    end
+
+    # When running the app with a forking server (e.g. Passenger), call this before
+    # the process is forked. All defined "before fork" hooks will be called.
+    #
+    def forking
+      call_hooks :before, :fork
+    end
+
+    # When running the app with a forking server (e.g. Passenger), call this after
+    # the process is forked. All defined "after fork" hooks will be called.
+    #
+    def forked
+      call_hooks :after, :fork
     end
 
     # @api private
