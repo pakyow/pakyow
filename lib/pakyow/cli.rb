@@ -1,6 +1,7 @@
 require "thor"
 
 module Pakyow
+  # @api private
   class CLI < Thor
     map ["--version", "-v"] => :version
 
