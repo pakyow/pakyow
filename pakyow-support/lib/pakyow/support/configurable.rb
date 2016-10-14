@@ -1,92 +1,10 @@
+require "pakyow/support/configurable/config"
+require "pakyow/support/configurable/config_group"
+require "pakyow/support/configurable/config_option"
+
 module Pakyow
   module Support
     module Configurable
-      class Config
-        def initialize
-          @groups = {}
-        end
-
-        def add_group(name, options, parent, &block)
-          settings = ConfigGroup.new(name, options, parent, &block)
-          @groups[name.to_sym] = settings
-        end
-
-        def method_missing(name)
-          @groups[name]
-        end
-
-        def freeze
-          super
-
-          # TODO: freeze all the other things
-        end
-      end
-
-      class ConfigGroup
-        def initialize(name, options, parent, &block)
-          @name = name
-          @options = options
-          @parent = parent
-          @settings = {}
-          @defaults = {}
-
-          instance_eval(&block)
-        end
-
-        def setting(name, default = nil, &block)
-          @settings[name.to_sym] = ConfigOption.new(name, default || block)
-        end
-
-        def defaults(env, &block)
-          # TODO: do something with these (creating another SettingsGroup)
-        end
-
-        def method_missing(name, value = nil)
-          if value && name[-1] == "="
-            name = name[0..-2].to_sym
-            @settings.fetch(name) {
-              if extendable?
-                setting(name)
-              else
-                raise NameError, "No config setting named #{name}"
-              end
-            }.value = value
-          else
-            @settings.fetch(name) {
-              return nil
-            }.value(@parent)
-          end
-        end
-
-        def extendable?
-          @options[:extendable] == true
-        end
-      end
-
-      # TODO: rename to ConfigOption
-      class ConfigOption
-        attr_reader :name
-        attr_writer :value
-
-        def initialize(name, default)
-          @name = name
-          @default = default
-        end
-
-        # TODO: would this work if `parent` was part of initialization or would that not be thread-safe?
-        def value(parent)
-          @value || default(parent)
-        end
-
-        def default(parent)
-          if @default.is_a?(Proc)
-            parent.instance_eval(&@default)
-          else
-            @default
-          end
-        end
-      end
-
       def self.included(base)
         base.extend ClassAPI
       end
