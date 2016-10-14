@@ -3,9 +3,8 @@ require "pakyow/logger/colorizer"
 
 module Pakyow
   module Commands
+    # @api private
     class Server
-      RACK_ENV = "RACK_ENV".freeze
-
       def initialize(env: nil, port: nil, host: nil, server: nil)
         @env    = env.to_s
         @port   = port
