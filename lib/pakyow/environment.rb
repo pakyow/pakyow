@@ -14,9 +14,6 @@ module Pakyow
   known_events :configure, :setup
 
   class << self
-    # TODO: remove this once app is no longer a global concept
-    attr_accessor :app
-
     attr_reader :env, :port, :host, :server, :logger
 
     def mount(app, at: nil)
