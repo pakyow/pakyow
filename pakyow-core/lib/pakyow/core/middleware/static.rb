@@ -1,6 +1,4 @@
 
-require 'pakyow/core/call_context'
-
 module Pakyow
   module Middleware
     # Rack compatible middleware that serves static files from one or more configured resource stores.
