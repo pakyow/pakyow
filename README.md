@@ -12,15 +12,20 @@ It provides features such as auto-updating views while embracing traditional
 concepts like progressive enhancement. Designed to be as simple as possible, it
 helps you quickly create momentum and maintain it throughout a project.
 
-**Realtime UIs.** Pakyow automatically keeps your presentation layer in sync with
-state of the server. Works out of the box.
+## Realtime UIs
 
-**Quick & Easy Prototypes.** Create a working prototype of your project with plain
-HTML. Later, build right on top of the prototype without throwing it out.
+Pakyow automatically keeps your presentation layer in sync with state of the server.
+Works out of the box.
 
-**Building a Friendlier Web.** We think that a simpler web leads to a democratic
-web. Pakyow optimizes for simplicity, making it easier to start and leading to
-long-term productivity.
+## Quick & Easy Prototypes
+
+Create a working prototype of your project with plain HTML. Later, build right on
+top of the prototype without throwing it out.
+
+## Building a Friendlier Web
+
+We think that a simpler web leads to a democratic web. Pakyow optimizes for
+simplicity, making it easier to start and leading to long-term productivity.
 
 ---
 
