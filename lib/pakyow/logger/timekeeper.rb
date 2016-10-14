@@ -41,23 +41,23 @@ module Pakyow
       private
 
       def self.format_in_minutes(time)
-        round(time / 60).to_s + 'm '
+        round(time / 60).to_s + "m "
       end
 
       def self.format_in_seconds(time)
-        round(time).to_s + 's '
+        round(time).to_s + "s "
       end
 
       def self.format_in_milliseconds(time)
-        round(time * 1_000).to_s + 'ms'
+        round(time * 1_000).to_s + "ms"
       end
 
       def self.format_in_microseconds(time)
-        round(time * 1_000_000).to_s + 'μs'
+        round(time * 1_000_000).to_s + "μs"
       end
 
       def self.round(time)
-        '%.2f' % time
+        "%.2f" % time
       end
     end
   end

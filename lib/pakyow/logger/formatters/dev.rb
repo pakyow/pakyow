@@ -15,9 +15,8 @@ module Pakyow
     class DevFormatter < BaseFormatter
       # @api private
       def call(severity, datetime, progname, message)
-        message = super
-        message = format_message(message)
-        Pakyow::Logger::Colorizer.colorize(format(message), severity)
+        message = format_message(super)
+        Colorizer.colorize(format(message), severity)
       end
 
       private
@@ -41,7 +40,7 @@ module Pakyow
           message: sprintf(
             "%s (%s)",
             epilogue[:status],
-            Pakyow::Response.nice_status(epilogue[:status]),
+            Response.nice_status(epilogue[:status]),
           )
         })
       end
@@ -63,7 +62,7 @@ module Pakyow
 
         sprintf(
           "%s %s.%s | %s\n",
-          Pakyow::Logger::Timekeeper.format(message[:elapsed]).rjust(8, ' '),
+          Timekeeper.format(message[:elapsed]).rjust(8, ' '),
           message[:request][:type],
           message[:request][:id],
           message[:message],

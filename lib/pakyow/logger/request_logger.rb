@@ -1,4 +1,4 @@
-require 'securerandom'
+require "securerandom"
 require "logger"
 
 module Pakyow
@@ -36,6 +36,9 @@ module Pakyow
       #   @return [Symbol] the type of request being logged
       attr_reader :type
 
+      # @api private
+      REQUEST_URI = "REQUEST_URI".freeze
+
       # @param type [Symbol] the type of request being logged (e.g. :http, :sock)
       # @param logger [Object] the object that will perform the logging
       # @param id [String] a unique id used to identify the request
@@ -66,8 +69,8 @@ module Pakyow
         info({
           prologue: {
             time: start,
-            method: env['REQUEST_METHOD'],
-            uri: env['REQUEST_URI'],
+            method: env[Rack::REQUEST_METHOD],
+            uri: env[REQUEST_URI],
             ip: Request.new(env).ip,
           }
         })
