@@ -1,50 +1,90 @@
-Pakyow::Config.register :app do |config|
+require "pakyow/support/configurable"
 
-  config.opt :name, 'pakyow'
+module Pakyow
+  class App
+    include Support::Configurable
 
-  # if true, errors are displayed in the browser
-  config.opt :errors_in_browser, true
+    settings_for :app, extendable: true do
+      setting :name, "pakyow"
 
-  # the location of the app's root directory
-  config.opt :root, File.dirname('')
+      setting :resources do
+        @resources ||= {
+          default: File.join(config.app.root, "public")
+        }
+      end
 
-  # the location of the app's resources
-  config.opt :resources, -> {
-    @resources ||= {
-      default: File.join(root, 'public')
-    }
-  }
+      setting :src do
+        File.join(config.app.root, "app", "lib")
+      end
 
-  # the location of the app's source code
-  config.opt :src_dir, -> { File.join(root, 'app', 'lib') }
+      setting :root, File.dirname("")
+    end
 
-  # the environment to run in, if one isn't provided
-  config.opt :default_environment, :development
+    settings_for :router do
+      setting :enabled, true
 
-  # the default action to use for routing
-  config.opt :default_action, :index
+      defaults :prototype do
+        setting :enabled, false
+      end
+    end
 
-  # if true, all routes are ignored
-  config.opt :ignore_routes, false
+    settings_for :errors do
+      setting :enabled, true
 
-  # whether or not pakyow should serve static files
-  config.opt :static, true
+      defaults :production do
+        setting :enabled, false
+      end
+    end
 
-  # stores the path to the app definition
-  config.opt :path, -> { Pakyow::App.path }
+    settings_for :static do
+      setting :enabled, true
+    end
 
-  # if true, issues a 301 redirect to the www version
-  config.opt :enforce_www, true
+    settings_for :normalizer do
+      setting :enabled, true
 
-  # stores the envs an app is run in
-  config.opt :loaded_envs
+      setting :www
+      setting :path, true
+    end
 
-  # the console object to use in `pakyow console`
-  config.opt :console_object, -> { IRB }
-end.env :prototype do |opts|
-  opts.ignore_routes = true
-end.env :test do |opts|
-  opts.errors_in_browser = false
-end.env :production do |opts|
-  opts.errors_in_browser = false
+    settings_for :cookies do
+      setting :path, "/"
+
+      setting :expiry do
+        Time.now + 60 * 60 * 24 * 7
+      end
+    end
+
+    settings_for :session do
+      setting :enabled, true
+      setting :object, Rack::Session::Cookie
+      setting :old_secret
+      setting :expiry
+      setting :path
+      setting :domain
+
+      setting :options do
+        opts = {
+          key: config.session.key,
+          secret: config.session.secret
+        }
+
+        # set optional options if available
+        %i(domain path expire_after old_secret).each do |opt|
+          value = config.session.send(opt)
+          opts[opt] = value if value
+        end
+
+        opts
+      end
+
+      setting :key do
+        "#{config.app.name}.session"
+      end
+
+      setting :secret do
+        ENV['SESSION_SECRET']
+      end
+    end
+  end
 end

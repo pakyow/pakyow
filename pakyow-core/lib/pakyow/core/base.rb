@@ -25,14 +25,6 @@ require 'pakyow/core/logger/formatters/dev_formatter'
 require 'pakyow/core/logger/formatters/json_formatter'
 require 'pakyow/core/logger/formatters/logfmt_formatter'
 
-require 'pakyow/core/config'
-require 'pakyow/core/config/reloader'
-require 'pakyow/core/config/app'
-require 'pakyow/core/config/server'
-require 'pakyow/core/config/cookies'
-require 'pakyow/core/config/logger'
-require 'pakyow/core/config/session'
-
 require "pakyow/core/middleware/reloader"
 require "pakyow/core/middleware/req_path_normalizer"
 require "pakyow/core/middleware/non_www_enforcer"
