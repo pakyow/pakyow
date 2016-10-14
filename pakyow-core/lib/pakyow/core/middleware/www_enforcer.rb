@@ -1,5 +1,3 @@
-require 'pakyow/core/call_context'
-
 module Pakyow
   module Middleware
     # Rack compatible middleware that checks if www is enforced and the host

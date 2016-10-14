@@ -6,8 +6,10 @@ module Pakyow
   class Response < Rack::Response
     attr_reader :format
 
+    # TODO: use the ContentType middleware and set this as a config option
     DEFAULT_CONTENT_TYPE = 'text/html;charset=utf-8'.freeze
 
+    # TODO: use Rack::Utils.status_code instead of all this :/
     STATUS_CODE_NAMES = {
       100 => 'Continue',
       101 => 'Switching Protocols',

@@ -11,6 +11,7 @@ module Pakyow
 
   SERVERS = %i(puma thin webrick).freeze
 
+  # TODO: need a fork event
   known_events :configure, :setup
 
   class << self
@@ -33,7 +34,7 @@ module Pakyow
 
         mounts.each do |path, app|
           builder.map path do
-            run app.new(env: env, builder: self)
+            run app.new(env, builder: self)
           end
         end
       end
