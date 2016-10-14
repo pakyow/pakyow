@@ -36,12 +36,7 @@ module Pakyow
 
         mounts.each do |path, app|
           builder.map path do
-            # TODO: decide how a developer will define middleware
-            app.middleware.each do |block|
-              block.call(self)
-            end
-
-            run app.new(env)
+            run app.new(env: env, builder: self)
           end
         end
       end

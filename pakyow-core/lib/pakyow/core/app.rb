@@ -90,6 +90,8 @@ module Pakyow
 
     stateful :routes, RouteSet
 
+    attr_reader :env, :builder
+
     class << self
       # Defines a resource.
       #
@@ -112,8 +114,13 @@ module Pakyow
       }
     end
 
-    def initialize(env)
-      use_config(env)
+    def initialize(env: nil, builder: nil)
+      @env = env
+      @builder = builder
+
+      hook_around :configure do
+        use_config(env)
+      end
 
       # TODO: this will go away
       Pakyow.app = self
@@ -127,23 +134,14 @@ module Pakyow
       super()
     end
 
+    def use(middleware, *args)
+      builder.use(middleware, *args)
+    end
+
     # @api private
     def call(env)
       # TODO: I think I like duping self more than I do this
       CallContext.new(self, env).process.finish
-    end
-
-    # TODO: this is pretty temporary, but it works for now
-    def self.middleware
-      [-> (builder) {
-        if config.session.enabled
-          builder.use config.session.object, config.session.options
-        end
-
-        if config.app.static
-          builder.use Middleware::Static
-        end
-      }]
     end
 
     protected
