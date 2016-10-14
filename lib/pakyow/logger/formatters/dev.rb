@@ -1,4 +1,4 @@
-require "pakyow/logger/formatters/base_formatter"
+require "pakyow/logger/formatters/base"
 require "pakyow/logger/colorizer"
 require "pakyow/logger/timekeeper"
 require "pakyow/core/response"
