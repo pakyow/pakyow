@@ -1,4 +1,4 @@
-This is a Pakyow v0.10 project.
+This is a Pakyow v1.0 project.
 
 # Getting Started
 
@@ -14,15 +14,16 @@ Need to interact with your code? Fire up a console:
 
 # Next Steps
 
-The following resources might be handy:
+- Read the [overview](https://pakyow.org/docs/overview) to better understand the goals and architecture of Pakyow.
+- Do the [warmup](https://pakyow.org/docs/warmup) to build &amp; deploy your first project.
+- Browse the [docs](https://pakyow.org/docs) to learn more about presentation, routing, realtime channels, and more.
+- Check out the [code](https://github.com/pakyow/pakyow) on Github.
 
-- [Website](http://pakyow.org)
-- [Docs](http://pakyow.org/docs)
-- [Code](http://github.com/pakyow/pakyow)
+We'd love to have you involved. Here are a few places to start:
 
-Want to keep up with the latest development? Follow along:
-
-- [Blog](http://pakyow.org/blog)
-- [Forums](http://forums.pakyow.org)
-- [Gitter](https://gitter.im/pakyow/chat)
-- [Twitter](http://twitter.com/pakyow)
+- [Give us a star](https://github.com/pakyow/pakyow)
+- [Participate in chat](https://gitter.im/pakyow/chat)
+- [Join the forums](http://forums.pakyow.org/)
+- [Work on a starter issue](https://github.com/pakyow/pakyow/labels/Starter)
+- [Report problems](https://github.com/pakyow/pakyow/issues)
+- [Tell your friends](https://twitter.com/share?text=Pakyow,%20build%20modern%20apps%20that%20don%27t%20break%20the%20web&hashtags=pakyow&url=https://pakyow.org)
