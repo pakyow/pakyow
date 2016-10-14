@@ -122,9 +122,6 @@ module Pakyow
         use_config(env)
       end
 
-      # TODO: this will go away
-      Pakyow.app = self
-
       @loader = Loader.new
 
       hook_around :init do
