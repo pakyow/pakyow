@@ -1,8 +1,27 @@
-require 'find'
-require 'rack'
-require 'rack/file'
-require 'cgi'
+require "find"
+require "rack"
+require "rack/file"
+require "cgi"
 
 require "pakyow"
-require 'pakyow/support'
-require 'pakyow/core/base'
+require "pakyow/support"
+
+require "pakyow/core/helpers"
+require "pakyow/core/app_context"
+require "pakyow/core/request"
+require "pakyow/core/response"
+require "pakyow/core/loader"
+require "pakyow/core/router"
+require "pakyow/core/route_merger"
+require "pakyow/core/route_module"
+require "pakyow/core/route_set"
+require "pakyow/core/route_eval"
+require "pakyow/core/route_expansion_eval"
+require "pakyow/core/route_template_eval"
+require "pakyow/core/route_template_defaults"
+require "pakyow/core/route_lookup"
+require "pakyow/core/app"
+require "pakyow/core/errors"
+
+require "pakyow/core/hooks"
+

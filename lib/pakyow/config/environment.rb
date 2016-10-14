@@ -1,10 +1,8 @@
 require "logger"
 
 require "pakyow/support/configurable"
-
-# TODO: move formatters, logger, etc out of core into pakyow since it's an environment concern
-require "pakyow/core/logger/formatters/dev_formatter"
-require "pakyow/core/logger/formatters/logfmt_formatter"
+require "pakyow/logger/formatters/dev_formatter"
+require "pakyow/logger/formatters/logfmt_formatter"
 
 module Pakyow
   DEFAULT_ENV    = :development

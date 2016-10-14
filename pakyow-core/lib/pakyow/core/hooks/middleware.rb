@@ -1,3 +1,5 @@
+require "pakyow/core/middleware/static"
+
 module Pakyow
   App.after :configure do
     if config.session.enabled

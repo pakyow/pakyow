@@ -1,5 +1,4 @@
-require 'pakyow/core/app'
-require 'pakyow/core/logger/request_logger'
+require "pakyow/logger/request_logger"
 
 module Pakyow
   module Middleware
