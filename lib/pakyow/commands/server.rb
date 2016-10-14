@@ -1,5 +1,5 @@
 require "pakyow/version"
-require "pakyow/core/logger/colorizer"
+require "pakyow/logger/colorizer"
 
 module Pakyow
   module Commands

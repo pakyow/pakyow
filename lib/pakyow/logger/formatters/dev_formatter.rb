@@ -1,7 +1,7 @@
-require 'pakyow/core/logger/formatters/base_formatter'
-require 'pakyow/core/logger/colorizer'
-require 'pakyow/core/logger/timekeeper'
-require 'pakyow/core/response'
+require "pakyow/logger/formatters/base_formatter"
+require "pakyow/logger/colorizer"
+require "pakyow/logger/timekeeper"
+require "pakyow/core/response"
 
 module Pakyow
   module Logger

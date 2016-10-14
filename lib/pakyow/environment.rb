@@ -1,3 +1,4 @@
+require "rack"
 require "logger"
 
 require "pakyow/support/hookable"

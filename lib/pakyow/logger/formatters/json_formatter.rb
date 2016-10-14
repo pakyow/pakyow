@@ -1,6 +1,7 @@
-require 'pakyow/core/logger/formatters/base_formatter'
-require 'pakyow/core/logger/timekeeper'
-require 'json'
+require "json"
+
+require "pakyow/logger/formatters/base_formatter"
+require "pakyow/logger/timekeeper"
 
 module Pakyow
   module Logger

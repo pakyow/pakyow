@@ -1,3 +1,7 @@
+require "pakyow/middleware/json_body"
+require "pakyow/middleware/req_path_normalizer"
+require "pakyow/middleware/logger"
+
 module Pakyow
   before :setup do
     use Rack::ContentType, "text/html;charset=utf-8"
