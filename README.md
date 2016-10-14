@@ -6,11 +6,11 @@
 
 # Pakyow Web Framework [![Gitter chat](https://badges.gitter.im/pakyow/chat.svg)](https://gitter.im/pakyow/chat)
 
-Pakyow lets you build modern websites and web applications that don't break the web.
+*Build modern web applications that don't break the web.*
 
-It provides features such as auto-updating views while embracing traditional
-concepts like progressive enhancement. Designed to be as simple as possible, it
-helps you quickly create momentum and maintain it throughout a project.
+Pakyow is a Ruby web framework that lets you create fantastic experiences for your users
+without writing any client-side code. Build modern server-driven applications that don't
+compromise on speed or usability.
 
 ## Realtime UIs
 
