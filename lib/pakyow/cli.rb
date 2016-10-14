@@ -25,10 +25,9 @@ module Pakyow
       If environment is unspecified, the default environment (#{Pakyow::DEFAULT_ENV}) will be used.
     DESC
 
-    def console(environment = :development)
+    def console(env = Pakyow::DEFAULT_ENV)
       require "pakyow/commands/console"
-      # TODO: no need to create an instance here; just call run
-      Commands::Console.new(environment: environment).run
+      Commands::Console.new(env: env).run
     rescue LoadError => e
       raise Thor::Error, "Error: #{e.message}\n" \
         "You must run the `pakyow console` command in the root directory of a Pakyow project."
@@ -46,7 +45,6 @@ module Pakyow
 
     def server(env = Pakyow::DEFAULT_ENV)
       require "pakyow/commands/server"
-      # TODO: no need to create an instance here; just call run
       Commands::Server.new(
         env: env,
         port: options[:port],
