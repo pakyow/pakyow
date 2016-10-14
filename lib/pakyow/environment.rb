@@ -4,8 +4,8 @@ require "logger"
 require "pakyow/support/hookable"
 require "pakyow/support/configurable"
 
-require "pakyow/logger/formatters/dev_formatter"
-require "pakyow/logger/formatters/logfmt_formatter"
+require "pakyow/logger/formatters/dev"
+require "pakyow/logger/formatters/logfmt"
 
 require "pakyow/middleware/json_body"
 require "pakyow/middleware/req_path_normalizer"
@@ -90,6 +90,8 @@ require "pakyow/middleware/logger"
 #   Pakyow.run
 #
 module Pakyow
+  class Error < StandardError; end
+
   DEFAULT_ENV    = :development
   DEFAULT_PORT   = 3000
   DEFAULT_HOST   = "localhost".freeze
@@ -218,8 +220,7 @@ module Pakyow
       end
     end
 
-    # Called by rack.
-    #
+    # @api private
     def call(env)
       builder.call(env)
     end

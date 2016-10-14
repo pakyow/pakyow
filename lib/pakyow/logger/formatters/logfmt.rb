@@ -1,4 +1,4 @@
-require "pakyow/logger/formatters/json_formatter"
+require "pakyow/logger/formatters/json"
 
 module Pakyow
   module Logger
