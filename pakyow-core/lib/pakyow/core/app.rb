@@ -85,8 +85,7 @@ module Pakyow
 
     include Support::Hookable
 
-    # TODO: audit the other events to make sure they make sense
-    known_events :init, :configure, :load, :reload, :process, :route, :match, :error
+    known_events :initialize, :configure, :load, :process, :route, :error
 
     attr_reader :environment, :builder
 
@@ -118,12 +117,14 @@ module Pakyow
       @environment = environment
       @builder = builder
 
-      hook_around :configure do
-        use_config(environment)
-      end
+      hook_around :initialize do
+        hook_around :configure do
+          use_config(environment)
+        end
 
-      hook_around :init do
-        load_app
+        hook_around :load do
+          load_app
+        end
       end
 
       super()
@@ -156,9 +157,7 @@ module Pakyow
 
         catch :halt do
           hook_around :route do
-            @found = router.perform(context, self) {
-              call_hooks :after, :match
-            }
+            @found = router.perform(context, self)
 
             # TODO: part of the new experimental routing
             # @app.routes.each do |router|
@@ -172,6 +171,7 @@ module Pakyow
           handle(404, false) unless found?
         end
       end
+    # TODO: make sure we can handle framework errors that occur outside of the request / response lifecycle
     rescue StandardError => error
       request.error = error
 
@@ -185,10 +185,7 @@ module Pakyow
     end
 
     def load_app
-      @loader = Loader.new
-      hook_around :load do
-        @loader.load_from_path(config.app.src)
-      end
+      Loader.new.load_from_path(config.app.src)
     end
 
     def router
@@ -208,10 +205,10 @@ module Pakyow
     # TODO: change this to reroute(location, method: request.method)
     def reroute(location, method = nil)
       request.setup(router.path(location), method)
-      call_hooks :before, :route
-      call_hooks :after, :match
-      router.reroute(request)
-      call_hooks :after, :route
+
+      hook_around :route do
+        router.reroute(request)
+      end
     end
 
     # Sends data in the response (immediately). Accepts a string of data or a File,
