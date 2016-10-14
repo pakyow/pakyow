@@ -26,6 +26,7 @@ require 'pakyow/core/logger/formatters/json_formatter'
 require 'pakyow/core/logger/formatters/logfmt_formatter'
 
 require "pakyow/core/middleware/reloader"
+require "pakyow/core/middleware/json_body"
 require "pakyow/core/middleware/req_path_normalizer"
 require "pakyow/core/middleware/non_www_enforcer"
 require "pakyow/core/middleware/www_enforcer"
