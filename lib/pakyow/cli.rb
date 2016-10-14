@@ -1,7 +1,7 @@
 require "thor"
 
 module Pakyow
-  class CommandLineInterface < Thor
+  class CLI < Thor
     map ["--version", "-v"] => :version
 
     desc "new [PROJECT_PATH]", "Create a new Pakyow project"

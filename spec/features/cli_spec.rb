@@ -1,5 +1,3 @@
-require "spec_helper"
-
 RSpec.shared_examples "help information" do |command|
   it "prints help information" do
     output = `#{command}`

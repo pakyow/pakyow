@@ -17,7 +17,6 @@ RSpec.configure do |config|
   config.warnings = true
   config.color = true
 
-  # TODO: some suites are order dependent; enable this once that is fixed
-  # config.order = :random
-  # Kernel.srand config.seed
+  config.order = :random
+  Kernel.srand config.seed
 end
