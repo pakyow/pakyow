@@ -6,23 +6,21 @@
 
 # Pakyow Web Framework [![Gitter chat](https://badges.gitter.im/pakyow/chat.svg)](https://gitter.im/pakyow/chat)
 
-Pakyow lets you build modern apps that don't break the web.
+Pakyow lets you build modern websites and web applications that don't break the web.
 
 It provides features such as auto-updating views while embracing traditional
 concepts like progressive enhancement. Designed to be as simple as possible, it
 helps you quickly create momentum and maintain it throughout a project.
 
-**Embraces the new web (without breaking it).**  
-Views automatically stay in sync with the server, with no extra code. Pakyow
-brings progressive enhancement to the modern web.
+**Realtime UIs.** Pakyow automatically keeps your presentation layer in sync with
+state of the server. Works out of the box.
 
-**Removes friction from development.**  
-Quickly build a prototype with only HTML and CSS. Later on, build right on top
-of the prototype without throwing out previous work.
+**Quick & Easy Prototypes.** Create a working prototype of your project with plain
+HTML. Later, build right on top of the prototype without throwing it out.
 
-**Accessible to everyone.**  
-Pakyow makes it a little bit easier to get started. We believe that a simpler
-web empowers more contribution, leading towards a more democratic web.
+**Building a Friendlier Web.** We think that a simpler web leads to a democratic
+web. Pakyow optimizes for simplicity, making it easier to start and leading to
+long-term productivity.
 
 ---
 
@@ -52,9 +50,9 @@ web empowers more contribution, leading towards a more democratic web.
 # Next Steps
 
 - Read the [overview](https://pakyow.org/docs/overview) to better understand the goals and architecture of Pakyow.
-- Go through the [warmup](https://pakyow.org/docs/warmup) to build &amp; deploy your first project.
+- Do the [warmup](https://pakyow.org/docs/warmup) to build &amp; deploy your first project.
 - Browse the [docs](https://pakyow.org/docs) to learn more about presentation, routing, realtime channels, and more.
-- Check out the [code](https://github.com/pakyow/pakyow) on GitHub.
+- Check out the [code](https://github.com/pakyow/pakyow) on Github.
 
 We'd love to have you involved. Here are a few places to start:
 
@@ -68,3 +66,9 @@ We'd love to have you involved. Here are a few places to start:
 # License
 
 Pakyow is released free and open-source under the [MIT License](http://opensource.org/licenses/MIT).
+
+# Overview
+
+TODO: Explain the overall architecture of pakyow with summaries of all the libs. Then
+dive into details about the main lib, including: environment, cli, logger, middleware,
+canonical example / template, and integrations.
