@@ -17,7 +17,6 @@ module Pakyow
         end
 
         config.freeze
-        self.class.config.freeze
       end
 
       def config
