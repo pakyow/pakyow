@@ -177,7 +177,7 @@ Building this knowledge of state into the view is a fundamental concept in
 Pakyow. We'll see why this is so important in the next few sections as we add
 the back-end code to power our presentation layer.
 
-## Front-End Wrapup
+## Front-End Wrap-up
 
 That's all there is to building a front-end prototype in Pakyow! It only took a
 few minutes, and we only had to write a bit of HTML and Markdown. Next, we'll
