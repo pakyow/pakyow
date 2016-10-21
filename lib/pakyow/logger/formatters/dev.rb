@@ -1,7 +1,7 @@
 require "pakyow/logger/formatters/base"
 require "pakyow/logger/colorizer"
 require "pakyow/logger/timekeeper"
-require "pakyow/core/response"
+require "pakyow/response"
 
 module Pakyow
   module Logger

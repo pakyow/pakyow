@@ -32,37 +32,9 @@ module Pakyow
     end
 
     def params
-      # # TODO: any reason not to just use rack.input?
+      # TODO: any reason not to just use rack.input?
       # @params.merge!(env['pakyow.data']) if env['pakyow.data'].is_a?(Hash)
       @params = super.indifferentize
-    end
-
-    # TODO: also decide whether or not to keep these around
-    # # Returns array of url components.
-    # def path_parts
-    #   @url ||= path ? self.class.split_url(path) : []
-    # end
-
-    # # Returns array of referer components.
-    # def referer_parts
-    #   @referer_parts ||= referer ? self.class.split_url(referer) : []
-    # end
-
-    # #TODO move to util class
-    # def self.split_url(url)
-    #   arr = []
-    #   url.split('/').each { |r|
-    #     arr << r unless r.empty?
-    #   }
-
-    #   return arr
-    # end
-
-    # TODO: omg what is this
-    def has_route_vars?
-      return false if @route_path.nil?
-      return false if @route_path.is_a?(Regexp)
-      return true  if @route_path.index(':')
     end
   end
 end

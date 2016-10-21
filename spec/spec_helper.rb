@@ -3,3 +3,6 @@ start_simplecov do
 end
 
 require "pakyow"
+
+require "helpers/mock_request"
+require "helpers/mock_response"

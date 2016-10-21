@@ -1,6 +1,8 @@
 require "securerandom"
 require "logger"
 
+require "pakyow/request"
+
 module Pakyow
   module Logger
     # Logs messages throughout a request / response lifecycle.
