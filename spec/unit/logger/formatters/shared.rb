@@ -1,6 +1,6 @@
 RSpec.shared_examples :log_formatter do
   let :severity do
-    'DEBUG'
+    "DEBUG"
   end
 
   let :datetime do
@@ -14,9 +14,9 @@ RSpec.shared_examples :log_formatter do
   let :prologue do
     {
       prologue: {
-        method: 'GET',
-        uri: '/',
-        ip: '0.0.0.0',
+        method: "GET",
+        uri: "/",
+        ip: "0.0.0.0",
         time: datetime,
       }
     }.merge(message)
@@ -33,12 +33,12 @@ RSpec.shared_examples :log_formatter do
   let :error do
     {
       error: {
-        exception: 'ArgumentError',
+        exception: "ArgumentError",
         backtrace: [
-          'one',
-          'two',
+          "one",
+          "two",
         ],
-        message: 'foo',
+        message: "foo",
       },
     }.merge(message)
   end
@@ -47,10 +47,10 @@ RSpec.shared_examples :log_formatter do
     {
       elapsed: 0.01,
       request: {
-        id: '123',
-        type: 'http',
+        id: "123",
+        type: "http",
       },
-      message: 'foo',
+      message: "foo",
     }
   end
 end
