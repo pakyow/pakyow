@@ -21,8 +21,6 @@ module Pakyow
       attr_reader :state
 
       def initialize
-        # global state is now immutable
-        self.class.freeze
 
         # mutable state for this instance
         @state = self.class.state.dup
