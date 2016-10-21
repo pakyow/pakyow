@@ -21,11 +21,11 @@ module Pakyow
         host = env[Rack::SERVER_NAME]
 
         if strict_www? && require_www? && !www?(host) && !subdomain?(host)
-          [301, { "Location" => File.join(add_www(host), normalize_path(path)) }, []]
+          [301, { "Location" => File.join(add_www(host), String.normalize_path(path)) }, []]
         elsif strict_www? && !require_www? && www?(path)
-          [301, { "Location" => File.join(remove_www(host), normalize_path(path)) }, []]
+          [301, { "Location" => File.join(remove_www(host), String.normalize_path(path)) }, []]
         elsif strict_path? && slash?(path)
-          [301, { "Location" => normalize_path(path) }, []]
+          [301, { "Location" => String.normalize_path(path) }, []]
         else
           @app.call(env)
         end
@@ -33,12 +33,7 @@ module Pakyow
 
       protected
 
-      TAIL_SLASH_REPLACE_REGEX = /(\/)+$/
       TAIL_SLASH_REGEX = /(.)+(\/)+$/
-
-      def normalize_path(path)
-        path.gsub("//", "/").gsub(TAIL_SLASH_REPLACE_REGEX, "")
-      end
 
       def add_www(host)
         "www.#{host}"
