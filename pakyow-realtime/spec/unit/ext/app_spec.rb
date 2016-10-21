@@ -1,7 +1,7 @@
 require "spec_helper"
 require "pakyow/realtime/ext/app"
 
-describe Pakyow::App do
+RSpec.describe Pakyow::App do
   describe "#socket" do
     it "creates a context with app instance" do
       expect(Pakyow::Realtime::Context).to receive(:new).with(instance_of(Pakyow::App))

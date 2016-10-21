@@ -1,6 +1,6 @@
 require_relative '../spec_helper'
 
-describe Pakyow::Presenter::View do
+RSpec.describe Pakyow::Presenter::View do
   let :view do
     Pakyow::Presenter::View.new
   end

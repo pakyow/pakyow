@@ -1,6 +1,6 @@
 require_relative 'support/int_helper'
 
-context 'when testing a route that presents' do
+RSpec.context 'when testing a route that presents' do
   it 'appears to have presented the default view path' do
     get :default do |sim|
       expect(sim.presenter.path).to eq('/')
@@ -84,8 +84,8 @@ context 'when testing a route that presents' do
           expect(view.applied?(data)).to eq(true)
 
           # checking for a specific value
-          view.for(data) do |view, datum|
-            expect(view.prop(:name).bound?(datum[:name])).to eq(true)
+          view.for(data) do |ctx, datum|
+            expect(ctx.prop(:name).bound?(datum[:name])).to eq(true)
           end
         end
       end
@@ -108,8 +108,8 @@ context 'when testing a route that presents' do
             expect(view.applied?(data)).to eq(true)
 
             # checking for a specific value
-            view.for(data) do |view, datum|
-              expect(view.prop(:name).bound?(datum[:name])).to eq(true)
+            view.for(data) do |ctx, datum|
+              expect(ctx.prop(:name).bound?(datum[:name])).to eq(true)
             end
           end
         end
@@ -134,9 +134,9 @@ context 'when testing a route that presents' do
             expect(view.applied?(data)).to eq(true)
 
             # checking for a specific value
-            view.for(data) do |view, datum|
-              expect(view.prop(:name).bound?(datum[:name])).to eq(true)
-              expect(view.scope(:comment).applied?(datum[:comments])).to eq(true)
+            view.for(data) do |ctx, datum|
+              expect(ctx.prop(:name).bound?(datum[:name])).to eq(true)
+              expect(ctx.scope(:comment).applied?(datum[:comments])).to eq(true)
             end
           end
         end
@@ -281,7 +281,7 @@ context 'when testing a route that presents' do
 
     context 'by replacing with another view' do
       let :text do
-        'to replace'
+        '<div data-scope="post">to replace</div>'
       end
 
       let :view do

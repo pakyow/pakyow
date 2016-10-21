@@ -1,6 +1,6 @@
 require_relative 'support/int_helper'
 
-context 'when testing a route that subscribes to a channel' do
+RSpec.context 'when testing a route that subscribes to a channel' do
   let :channel do
     'foo'
   end
@@ -18,7 +18,7 @@ context 'when testing a route that subscribes to a channel' do
   end
 end
 
-context 'when testing a route that unsubscribes to a channel' do
+RSpec.context 'when testing a route that unsubscribes to a channel' do
   let :channel do
     'foo'
   end
@@ -36,7 +36,7 @@ context 'when testing a route that unsubscribes to a channel' do
   end
 end
 
-context 'when testing a route that pushes to a channel' do
+RSpec.context 'when testing a route that pushes to a channel' do
   let :channel do
     'foo'
   end

@@ -1,4 +1,4 @@
-shared_examples :binding_specs do
+RSpec.shared_examples :binding_specs do
   let :store do
     Pakyow::Presenter::ViewStore.new(VIEW_PATH)
   end

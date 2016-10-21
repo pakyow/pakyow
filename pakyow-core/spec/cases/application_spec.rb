@@ -1,60 +1,49 @@
 require 'support/helper'
 
-describe 'Application' do
+RSpec.describe 'Application' do
   include ApplicationTestHelpers
 
   it 'path is set when inherited' do
     expect(Pakyow::Config.app.path.include?(app_test_path)).to eq true
   end
 
-  it 'runs' do
-    app(true).run(:test)
-    expect(app.running?).to eq true
-  end
-
   it 'is staged when running' do
-    app(true).run(:test)
-    expect(app.staged?).to eq true
+    expect(app).to receive(:stage).with(:test)
+    app.run(:test)
   end
 
   it 'does not run when staged' do
-    app(true).stage(:test)
-    expect(app.running?).to eq false
-  end
-
-  it 'when staged can be detected' do
-    app(true).stage(:test)
-    expect(app.staged?).to eq true
+    expect(app).not_to receive(:run)
+    app.stage(:test)
   end
 
   it 'base config can be accessed' do
-    expect(app(true).config).to eq Pakyow::Config
+    expect(app.config).to eq Pakyow::Config
   end
 
   it 'env is set when initialized' do
-    envs = [:test, :foo]
-    app(true).stage(*envs)
-    expect(Pakyow::Config.env).to eq envs.first
+    env = :test
+    app.stage(env)
+    expect(Pakyow::Config.env).to eq env
   end
 
   it 'app helper is set when initialized' do
-    app(true)
-    expect(Pakyow.app).to be_nil
-    app(true).run(:test)
+    Pakyow.app = nil
+    app.run(:test)
     expect(Pakyow.app.class).to eq Pakyow::App
   end
 
   it 'global configuration block is executed' do
+    app.run(:test)
     expect($global_config_was_executed).to eq true
   end
 
   it 'loads global configuration first' do
+    app.run(:test)
     expect($env_overwrites_global_config).to eq true
   end
 
   it 'configuration loaded before middleware' do
-    app = app(true)
-
     value = nil
     app.middleware do
       value = config.app.foo
@@ -66,8 +55,6 @@ describe 'Application' do
   end
 
   it 'can load multiple multiple middleware' do
-    app = app(true)
-
     value1 = nil
     app.middleware do
       value1 = config.app.foo
@@ -85,8 +72,6 @@ describe 'Application' do
   end
 
   it 'builder is yielded to middleware' do
-    app = app(true)
-
     builder = nil
     app.middleware do |o|
       builder = o

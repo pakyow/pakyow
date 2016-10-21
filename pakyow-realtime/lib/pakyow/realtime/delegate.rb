@@ -1,6 +1,5 @@
 require "singleton"
 require "pakyow/realtime/config"
-require "pakyow/realtime/connection"
 
 module Pakyow
   module Realtime
@@ -11,7 +10,7 @@ module Pakyow
       include Singleton
 
       attr_reader :registry, :connections, :channels
-      
+
       def initialize
         @registry = Config.realtime.registry.instance
 
@@ -37,7 +36,7 @@ module Pakyow
       #
       def unregister(key)
         registry.unregister_key(key)
-        
+
         connection = @connections.delete(key)
         @channels.each do |_channel, connections|
           connections.delete(connection)
@@ -67,7 +66,7 @@ module Pakyow
         if !propagated
           return registry.propagate(message, *channels)
         end
-        
+
         # NOTE: Propagated message should be a pushable object (e.g. json).
         channels.each do |channel_query|
           connections_for_channel(channel_query).each_pair do |channel, conns|
@@ -85,8 +84,8 @@ module Pakyow
           return registry.push_to_key(message, channel, key)
         end
 
-        return unless connection = @connections.find { |_, connection|
-          connection.key == key
+        return unless connection = @connections.find { |_, c|
+          c.key == key
         }
 
         # NOTE: Propagated message should be a pushable object (e.g. json).

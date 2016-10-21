@@ -1,4 +1,4 @@
-shared_examples :log_formatter do
+RSpec.shared_examples :log_formatter do
   let :severity do
     'DEBUG'
   end
@@ -15,7 +15,7 @@ shared_examples :log_formatter do
     {
       prologue: {
         method: 'GET',
-        path: '/',
+        uri: '/',
         ip: '0.0.0.0',
         time: datetime,
       }

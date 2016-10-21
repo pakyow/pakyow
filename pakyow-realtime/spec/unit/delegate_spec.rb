@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'pakyow/realtime/delegate'
 
-describe Pakyow::Realtime::Delegate do
+RSpec.describe Pakyow::Realtime::Delegate do
   let :delegate do
     Pakyow::Realtime::Delegate.instance
   end

@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'rake', '~> 11.1'
-gem 'rack', '~> 1.6'
+gem 'rack', '~> 2.0'
 
 # presenter
 gem 'oga', '~> 2.6'
@@ -27,8 +27,8 @@ group :test do
   gem 'rack-test', '~> 0.6', require: 'rack/test'
 
   gem 'codeclimate-test-reporter', require: false
-  
-  gem 'websocket-client-simple', '~> 0.3'
+
+  gem 'event_emitter', '~> 0.2'
   gem 'httparty', '~> 0.14'
   gem 'puma', '~> 3.6'
 end

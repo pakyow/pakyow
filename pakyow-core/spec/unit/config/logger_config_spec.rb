@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'pakyow/core/config'
 require 'pakyow/core/config/logger'
 
-describe 'logger config' do
+RSpec.describe 'logger config' do
   before do
     Pakyow::Config.reloader.reset
   end

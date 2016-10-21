@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'pakyow/realtime/config'
 
-describe 'configuration' do
+RSpec.describe 'configuration' do
   before do
     Pakyow::Config.reset
   end

@@ -1,6 +1,6 @@
 require_relative 'support/int_helper'
 
-describe Pakyow::Presenter::View do
+RSpec.describe Pakyow::Presenter::View do
   describe 'with StringDoc' do
     before do
       Pakyow::Config.presenter.view_doc_class = Pakyow::Presenter::StringDoc

@@ -1,6 +1,6 @@
 require 'pakyow/support/hash'
 
-describe Hash do
+RSpec.describe Hash do
   describe 'deep_merge' do
     skip
   end

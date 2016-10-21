@@ -13,8 +13,6 @@ Pakyow::Config.register :realtime do |config|
 
   # Whether or not realtime should be enabled.
   config.opt :enabled, true
-end.env :development do |opts|
-  opts.registry = Pakyow::Realtime::SimpleRegistry
 end.env :production do |opts|
   opts.registry = Pakyow::Realtime::RedisRegistry
 end

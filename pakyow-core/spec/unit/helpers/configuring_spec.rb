@@ -12,7 +12,7 @@ module Spec
   end
 end
 
-describe Pakyow::Helpers::Configuring do
+RSpec.describe Pakyow::Helpers::Configuring do
   let :mock do
     Spec::ConfiguringAppMock
   end

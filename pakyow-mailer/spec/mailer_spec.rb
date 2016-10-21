@@ -1,6 +1,6 @@
 require 'support/helper'
 
-describe 'Mailer' do
+RSpec.describe 'Mailer' do
   before do
     Pakyow::App.stage(:test)
   end

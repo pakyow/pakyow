@@ -1,6 +1,6 @@
 require_relative 'support/int_helper'
 
-describe 'transforming a ui view' do
+RSpec.describe 'transforming a ui view' do
   let :view do
     Pakyow::UI::UIView.new(scope)
   end

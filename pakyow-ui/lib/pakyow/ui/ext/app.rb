@@ -26,7 +26,7 @@ module Pakyow
 
       # @api private
       def mutables
-        @mutables || {}
+        @mutables ||= {}
       end
     end
 

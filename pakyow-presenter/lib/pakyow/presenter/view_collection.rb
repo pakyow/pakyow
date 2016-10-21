@@ -2,6 +2,7 @@ module Pakyow
   module Presenter
     class ViewCollection
       include Enumerable
+      using Support::DeepDup
 
       attr_reader :views, :scoped_as
 
@@ -13,7 +14,7 @@ module Pakyow
       def initialize_copy(original_view)
         super
 
-        @views = Pakyow::Utils::Dup.deep(original_view.views)
+        @views = original_view.views.deep_dup
         @scoped_as = original_view.scoped_as
       end
 
@@ -101,8 +102,8 @@ module Pakyow
           scopes = view.scope(name)
           next if scopes.nil?
 
-          scopes.inject(coll) { |coll, scoped_view|
-            coll << scoped_view
+          scopes.inject(coll) { |set, scoped_view|
+            set << scoped_view
           }
         }
 
@@ -118,8 +119,8 @@ module Pakyow
           scopes = view.prop(name)
           next if scopes.nil?
 
-          scopes.inject(coll) { |coll, scoped_view|
-            coll << scoped_view
+          scopes.inject(coll) { |set, scoped_view|
+            set << scoped_view
           }
         }
       end
@@ -145,8 +146,8 @@ module Pakyow
           scopes = view.component(name)
           next if scopes.nil?
 
-          scopes.inject(coll) { |coll, scoped_view|
-            coll << scoped_view
+          scopes.inject(coll) { |set, scoped_view|
+            set << scoped_view
           }
         }
 

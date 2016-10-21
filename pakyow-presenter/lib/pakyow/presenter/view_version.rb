@@ -53,13 +53,13 @@ class Pakyow::Presenter::ViewVersion
       working = view
       coll << view
 
-      data[1..-1].inject(coll) { |coll, datum|
+      data[1..-1].inject(coll) { |set, datum|
         duped = self_dup.dup
         view = process_version(duped, datum, &block)
 
         working.after(view)
         working = view
-        coll << view
+        set << view
       }
 
       coll

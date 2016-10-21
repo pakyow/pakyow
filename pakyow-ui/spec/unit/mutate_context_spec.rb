@@ -1,7 +1,7 @@
 require_relative '../spec_helper'
 require 'pakyow/ui/mutate_context'
 
-describe Pakyow::UI::MutateContext do
+RSpec.describe Pakyow::UI::MutateContext do
   describe '#initialize' do
     it 'sets mutation, view, and data'
   end

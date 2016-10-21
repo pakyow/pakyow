@@ -20,27 +20,29 @@ module Pakyow
     class RedisRegistry
       include Singleton
       attr_reader :subscriber
-      
+
       # The number of publish commands to pipeline to redis.
       #
       PUBLISH_BUFFER_SIZE = 1_000
-      
+
       # How often the publish buffer should be flushed.
       #
       PUBLISH_BUFFER_FLUSH_MS = 150
-      
+
       PUBSUB_DELIMITER = "."
       PUBSUB_PREFIX = "pw"
       PUBSUB_CHANNEL = "channel"
       PUBSUB_SOCKET = "socket"
-      
+
       def initialize
         @subscriber = RedisSubscription.new
         @subscriber.subscribe
         @mutex = Mutex.new
-        
+
         # Contains tuples values e.g. [channel, message]
         @messages = []
+
+        @timer = nil
       end
 
       def channels_for_key(key)
@@ -78,21 +80,21 @@ module Pakyow
       def channel_for_socket(key)
         "#{Config.realtime.redis_key}:#{key}"
       end
-      
+
       def pubsub_channel(values)
         [PUBSUB_PREFIX].concat(values.to_a).flatten.join(PUBSUB_DELIMITER)
       end
-      
+
       def publish_message_on_channel(message, channel)
         @messages << [channel, message.to_json]
         publish_messages
       end
-      
+
       def publish_messages
         if @messages.count > PUBLISH_BUFFER_SIZE
           flush
         end
-        
+
         return if @timer && @timer.alive?
         @timer = Thread.new do
           loop do
@@ -101,7 +103,7 @@ module Pakyow
           end
         end
       end
-      
+
       def flush
         return if @messages.empty?
 

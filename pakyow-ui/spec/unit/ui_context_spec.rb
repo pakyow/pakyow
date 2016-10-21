@@ -1,7 +1,7 @@
 require_relative '../spec_helper'
 require 'pakyow/ui/ui_context'
 
-describe Pakyow::UI::UIContext do
+RSpec.describe Pakyow::UI::UIContext do
   describe '#initialize' do
     it 'initializes with session info'
   end

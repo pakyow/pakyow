@@ -1,6 +1,6 @@
 require_relative 'support/int_helper'
 
-describe 'processor' do
+RSpec.describe 'processor' do
   include ReqResHelpers
 
   before do

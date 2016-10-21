@@ -24,7 +24,7 @@ module Pakyow
       # Calls a handler for a received websocket message.
       #
       # @api private
-      def self.handle(message, session)
+      def self.handle(message, connection)
         id = message.fetch('id') {
           fail ArgumentError, "Expected message to contain key 'id'"
         }
@@ -37,7 +37,7 @@ module Pakyow
           fail MissingMessageHandler, "No message handler named #{action}"
         }
 
-        handler.call(message, session, id: id)
+        handler.call(message, connection, id: id)
       end
 
       # Resets the message handlers.

@@ -4,76 +4,57 @@ module Pakyow
   class CommandLineInterface < Thor
     map ["--version", "-v"] => :version
 
-    desc "new DESTINATION", <<DESC
-Description:
-    The 'pakyow new' command creates a new Pakyow application at the path
-    specified.
+    desc "new [PROJECT_PATH]", "Create a new Pakyow project"
+    long_desc <<-DESC
+      The `pakyow new` command creates a new Pakyow project at the path you specify.
 
-Example:
-    pakyow new path/to/application
+      $ pakyow new path/to/project
+    DESC
 
-    This generates a new Pakyow application in path/to/application.
-DESC
     def new(destination)
       require "generators/pakyow/app/app_generator"
-      Pakyow::Generators::AppGenerator.start(destination)
+      Generators::AppGenerator.start(destination)
     end
 
-    desc "console ENVIRONMENT", <<DESC
-Description:
-    The 'pakyow console' command stages the application and starts an interactive
-    session. If environment is not specified, the default_environment defined by
-    your application will be used.
+    desc "console [ENVIRONMENT]", "Start an interactive Pakyow console"
+    long_desc <<-DESC
+      The `pakyow console` command starts a console session for the current Pakyow project,
+      providing access to an application instance that you can interact with.
 
-Example:
-    pakyow console development
+      If environment is unspecified, the application's default environment will be used.
 
-    This starts the console with the 'development' configuration.
-DESC
+      $ pakyow console development
+    DESC
+
     def console(environment = :development)
       require "pakyow/commands/console"
-      Pakyow::Commands::Console
-        .new(environment: environment)
-        .run
+      Commands::Console.new(environment: environment).run
     rescue LoadError => e
-      raise Thor::Error, <<ERR
-Error: #{e.message}
-You must run the `pakyow console` command in a Pakyow application's root directory.
-ERR
+      raise Thor::Error, "Error: #{e.message}\n" \
+        "You must run the `pakyow console` command in the root directory of a Pakyow project."
     end
 
-    desc "server ENVIRONMENT", <<DESC
-Description:
-    The 'pakyow server' command starts the application server.
+    desc "server [ENVIRONMENT]", "Start a Pakyow application"
+    long_desc <<-DESC
+      The `pakyow server` command starts the server for the current Pakyow project.
 
-    If environment is not specified, the default_environment defined
-    by your application will be used.
+      If environment is unspecified, the application's default environment will be used.
 
-    If port is not specified, the port defined
-    by your application will be used (defaults to 3000).
-
-Example:
-    pakyow server development -p 3001
-
-    This starts the application server on port 3001 with the 'development' configuration.
-DESC
+      $ pakyow server development -p 3001
+    DESC
     option :port, type: :numeric, aliases: :p, default: 3000
+
     def server(environment = :development)
       require "pakyow/commands/server"
-      Pakyow::Commands::Server
-        .new(environment: environment, port: options[:port])
-        .run
+      Commands::Server.new(environment: environment, port: options[:port]).run
     rescue LoadError => e
-      raise Thor::Error, <<ERR
-Error: #{e.message}
-You must run the `pakyow server` command in a Pakyow application's root directory.
-ERR
+      raise Thor::Error, "Error: #{e.message}\n" \
+        "You must run the `pakyow server` command in the root directory of a Pakyow project."
     end
 
     desc "version", "Display the installed Pakyow version"
     def version
-      require "pakyow/version"
-      puts "Pakyow #{Pakyow::VERSION}"
+      puts "Pakyow v#{VERSION}"
     end
   end
 end

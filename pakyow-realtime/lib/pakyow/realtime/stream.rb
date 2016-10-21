@@ -1,8 +1,12 @@
+require "pakyow/support/silenceable"
+
 module Pakyow
   module Realtime
     # Handles incoming / outgoing data for a WebSocket connection.
     #
     class Stream
+      include Support::Silenceable
+
       attr_reader :io, :version
 
       def initialize(io, version: nil)
@@ -23,7 +27,7 @@ module Pakyow
           ).to_s
         )
       end
-      
+
       def receive(data)
         @incoming << data
         process
@@ -47,8 +51,10 @@ module Pakyow
       end
 
       def handle(event, frame)
-        return unless @handlers.keys.include?(event)
-        @handlers[event].call(frame.data)
+        silence_warnings do
+          return unless @handlers.keys.include?(event)
+          @handlers[event].call(frame.data)
+        end
       end
     end
   end

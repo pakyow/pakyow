@@ -18,10 +18,20 @@ require_relative 'no_op_view'
 # - scope
 # - prop
 #
-Pakyow::Realtime.handler :'fetch-view' do |message, session, response|
-  env = Rack::MockRequest.env_for(message['uri'])
-  env['pakyow.socket'] = true
-  env['rack.session'] = session
+Pakyow::Realtime.handler :'fetch-view' do |message, connection, response|
+  uri = URI.parse(message['uri'])
+  env = Rack::MockRequest::DEFAULT_ENV.dup
+
+  env[Rack::RACK_URL_SCHEME] = uri.scheme
+  env[Rack::PATH_INFO] = uri.path
+  env[Rack::QUERY_STRING] = uri.query
+  env[Rack::REQUEST_METHOD] = Rack::GET
+
+  env['REQUEST_URI'] = message['uri']
+  env['REMOTE_ADDR'] = connection.env['REMOTE_ADDR']
+  env['HTTP_X_FORWARDED_FOR'] = connection.env['HTTP_X_FORWARDED_FOR']
+
+  env['rack.session'] = connection.env['rack.session']
 
   context = Pakyow::CallContext.new(env)
 

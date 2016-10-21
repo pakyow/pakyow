@@ -1,7 +1,7 @@
 require_relative '../support/unit_helper'
 require 'pakyow/test_help/mocks/status_mock'
 
-describe Pakyow::TestHelp::MockStatus do
+RSpec.describe Pakyow::TestHelp::MockStatus do
   let :code do
     200
   end

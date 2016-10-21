@@ -1,7 +1,7 @@
 require_relative 'support/int_helper'
 require 'securerandom'
 
-context 'when testing a route that writes to the log' do
+RSpec.context 'when testing a route that writes to the log' do
   describe 'the log' do
     let :message do
       SecureRandom.hex

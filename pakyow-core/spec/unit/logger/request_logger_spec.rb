@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'pakyow/core/logger/request_logger'
 
-describe Pakyow::Logger::RequestLogger do
+RSpec.describe Pakyow::Logger::RequestLogger do
   let :klass do
     Pakyow::Logger::RequestLogger
   end
@@ -93,7 +93,7 @@ describe Pakyow::Logger::RequestLogger do
           {
             time: instance.start,
             method: env['REQUEST_METHOD'],
-            path: env['REQUEST_PATH'],
+            uri: env['REQUEST_URI'],
             ip: env['REMOTE_ADDR'],
           }
         )

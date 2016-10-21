@@ -1,6 +1,6 @@
 require_relative 'support/int_helper'
 
-describe 'registering a collection of mutators' do
+RSpec.describe 'registering a collection of mutators' do
   before do
     Pakyow::App.mutators :post do
     end

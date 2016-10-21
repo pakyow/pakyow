@@ -7,13 +7,15 @@ require_relative 'test_app'
 include ViewBindingHelpers
 
 def str_to_doc(str)
-  Oga.parse_xml(str)
+  Pakyow::Support::Silenceable.silence_warnings do
+    Oga.parse_xml(str)
+  end
 end
 
 def reset_index_contents
   file = File.join(VIEW_PATH, 'index.html')
   contents = File.read(file)
-  File.open(file, 'w') { |file| file.write('index') } unless contents == 'index'
+  File.open(file, 'w') { |fp| fp.write('index') } unless contents == 'index'
 end
 
 $views = {}
@@ -43,4 +45,3 @@ D
 $views[:unscoped] = create_view_from_string(<<-D)
   <span class="foo" data-prop="foo"></span>
 D
-

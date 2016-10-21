@@ -1,7 +1,7 @@
 require_relative '../spec_helper'
 require 'pakyow/ui/channel_builder'
 
-describe Pakyow::UI::ChannelBuilder do
+RSpec.describe Pakyow::UI::ChannelBuilder do
   describe '#build' do
     let :scope do
       :post

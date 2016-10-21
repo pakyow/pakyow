@@ -15,6 +15,8 @@ module Pakyow
       @message.from          = Config.mailer.default_sender
       @message.content_type  = Config.mailer.default_content_type
       @message.delivery_method(Config.mailer.delivery_method, Config.mailer.delivery_options)
+
+      @processed = false
     end
 
     def deliver_to(recipient, subject = nil)

@@ -1,7 +1,7 @@
 require_relative 'support/int_helper'
 require_relative 'support/helpers/req_res_helpers'
 
-describe 'defining a binding part' do
+RSpec.describe 'defining a binding part' do
   include ReqResHelpers
   include SetupHelper
 

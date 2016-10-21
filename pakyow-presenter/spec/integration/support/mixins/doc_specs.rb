@@ -5,7 +5,7 @@
 # - node: Doc representing the first node of the full document
 # - doctype: class name for Doc
 #
-shared_examples :doc_specs do
+RSpec.shared_examples :doc_specs do
   describe 'doc' do
     let :html do
       '<div data-scope="foo" class="fooclass">foocontent <strong>strongtext</strong></div>'
@@ -153,7 +153,7 @@ shared_examples :doc_specs do
         expect(doc.to_html.gsub("\n", "")).to eq(before + html)
       end
 
-      it 'adds doc before node', focus: true do
+      it 'adds doc before node' do
         before = 'before'
         node.before(doctype.new(before))
         expect(doc.to_html.gsub("\n", "")).to eq(before + html)

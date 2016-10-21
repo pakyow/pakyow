@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'pakyow/realtime/context'
 require 'pakyow/realtime/helpers'
 
-describe Pakyow::Realtime::Context do
+RSpec.describe Pakyow::Realtime::Context do
   let :app do
     instance_double(Pakyow::CallContext, socket_key: '123', socket_connection_id: '321', socket_digest: '123321')
   end

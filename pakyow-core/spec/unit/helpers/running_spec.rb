@@ -15,7 +15,7 @@ module Spec
       attr_accessor :app
 
       def handler
-        'mock'
+        HandlerMock
       end
 
       def host
@@ -28,6 +28,9 @@ module Spec
 
       def src_dir
         'app/lib'
+      end
+
+      def load_config
       end
     end
 
@@ -54,21 +57,15 @@ module Spec
     def self.run(*)
     end
   end
-
-  Rack::Handler.register('mock', HandlerMock)
 end
 
-describe Pakyow::Helpers::Running do
+RSpec.describe Pakyow::Helpers::Running do
   let :mock do
     Spec::RunningAppMock
   end
 
   let :env do
     :mock
-  end
-
-  let :envs do
-    [env, env]
   end
 
   before do
@@ -83,51 +80,42 @@ describe Pakyow::Helpers::Running do
 
   describe '::STOP_METHODS' do
     it 'includes `stop!`' do
-      expect(Pakyow::Helpers::Running::STOP_METHODS).to include('stop!')
+      expect(Pakyow::Helpers::Running::STOP_METHODS).to include(:stop!)
     end
 
     it 'includes `stop`' do
-      expect(Pakyow::Helpers::Running::STOP_METHODS).to include('stop')
+      expect(Pakyow::Helpers::Running::STOP_METHODS).to include(:stop)
     end
   end
 
   describe '::SIGNALS' do
     it 'includes `INT`' do
-      expect(Pakyow::Helpers::Running::SIGNALS).to include(:INT)
+      expect(Pakyow::Helpers::Running::STOP_SIGNALS).to include(:INT)
     end
 
     it 'includes `TERM`' do
-      expect(Pakyow::Helpers::Running::SIGNALS).to include(:TERM)
+      expect(Pakyow::Helpers::Running::STOP_SIGNALS).to include(:TERM)
     end
   end
 
   describe '::HANDLERS' do
     it 'includes `puma`' do
-      expect(Pakyow::Helpers::Running::HANDLERS).to include('puma')
+      expect(Pakyow::Helpers::Running::HANDLERS).to include(:puma)
     end
 
     it 'includes `thin`' do
-      expect(Pakyow::Helpers::Running::HANDLERS).to include('thin')
-    end
-
-    it 'includes `mongrel`' do
-      expect(Pakyow::Helpers::Running::HANDLERS).to include('mongrel')
+      expect(Pakyow::Helpers::Running::HANDLERS).to include(:thin)
     end
 
     it 'includes `webrick`' do
-      expect(Pakyow::Helpers::Running::HANDLERS).to include('webrick')
+      expect(Pakyow::Helpers::Running::HANDLERS).to include(:webrick)
     end
   end
 
   describe '::prepare' do
-    it 'calls `load_env_config` with envs' do
-      expect(mock).to receive(:load_env_config).with(*envs)
-      mock.prepare(*envs)
-    end
-
-    it 'appears to be prepared' do
-      mock.prepare(*envs)
-      expect(mock.prepared?).to be(true)
+    it 'calls `load_env_config` with env' do
+      expect(mock).to receive(:load_env_config).with(env)
+      mock.prepare(env)
     end
 
     it 'calls each middleware block in context of `builder`' do
@@ -135,32 +123,12 @@ describe Pakyow::Helpers::Running do
       mock::MIDDLEWARE << block
 
       expect(mock).to receive(:instance_exec).with(mock.builder, &block)
-      mock.prepare(*envs)
+      mock.prepare(env)
     end
 
     it 'adds src_dir to load path' do
-      mock.prepare(*envs)
+      mock.prepare(env)
       expect($LOAD_PATH).to include(mock.src_dir)
-    end
-
-    context 'called when already prepared' do
-      before do
-        allow(mock).to receive(:prepared?).and_return(true)
-      end
-
-      it 'does not call `load_config`' do
-        expect(mock).not_to receive(:load_config)
-        mock.prepare(*envs)
-      end
-
-      it 'does not load middleware' do
-        expect(mock).not_to receive(:load_middleware)
-        mock.prepare(*envs)
-      end
-
-      it 'returns true' do
-        expect(mock.prepare(*envs)).to eq(true)
-      end
     end
   end
 
@@ -172,36 +140,31 @@ describe Pakyow::Helpers::Running do
       end
     end
 
-    context 'passed multiple envs' do
+    context 'passed multiple env' do
       let :args do
-        [env, env]
+        [env]
       end
 
-      it 'prepares with envs' do
+      it 'prepares with env' do
         expect(mock).to receive(:prepare).with(*args)
         mock.stage(*args)
       end
     end
 
     it 'returns instance' do
-      expect(mock.stage).to be_instance_of(mock)
+      expect(mock.stage(env)).to be_instance_of(mock)
     end
   end
 
   describe '::run' do
-    it 'stages with envs' do
-      expect(mock).to receive(:stage).with(*envs)
-      mock.run(*envs)
+    it 'stages with env' do
+      expect(mock).to receive(:stage).with(env)
+      mock.run(env)
     end
 
     it 'runs the builder with staged instance' do
       expect(mock.builder).to receive(:run).with(instance_of(mock))
-      mock.run(*envs)
-    end
-
-    it 'appears to be running' do
-      mock.run(*envs)
-      expect(mock.running?).to be(true)
+      mock.run(env)
     end
 
     describe 'running the detected handler' do
@@ -209,106 +172,28 @@ describe Pakyow::Helpers::Running do
         double(Rack::Handler)
       end
 
-      before do
-        allow(mock).to receive(:detect_handler).and_return(handler)
-      end
-
       after do
-        mock.run(*envs)
+        mock.run(env)
       end
 
       it 'uses the builder' do
-        expect(handler).to receive(:run).with(mock.builder, anything)
+        expect(mock.handler).to receive(:run).with(mock.builder, anything)
       end
 
       it 'sets the Host and Port' do
-        expect(handler).to receive(:run).with(anything, {
+        expect(mock.handler).to receive(:run).with(anything, {
           Host: mock.host,
           Port: mock.port
         })
       end
 
       it 'traps each signal' do
-        expect(handler).to receive(:run) { |&block|
+        expect(mock.handler).to receive(:run) { |&block|
           block.call
         }
 
-        expect(mock).to receive(:trap).with(Pakyow::Helpers::Running::SIGNALS[0])
-        expect(mock).to receive(:trap).with(Pakyow::Helpers::Running::SIGNALS[1])
-      end
-    end
-
-    context 'called when already running' do
-      before do
-        allow(mock).to receive(:running?).and_return(true)
-      end
-
-      it 'does not run builder' do
-        expect(mock.builder).not_to receive(:run)
-        mock.run(*envs)
-      end
-
-      it 'does not try to detect handler' do
-        expect(mock).not_to receive(:detect_handler)
-        mock.run(*envs)
-      end
-
-      it 'returns true' do
-        expect(mock.run(*envs)).to be(true)
-      end
-    end
-  end
-
-  describe '::prepared?' do
-    context 'before `prepare` is called' do
-      it 'returns false' do
-        expect(mock.prepared?).to eq(false)
-      end
-    end
-
-    context 'after `prepare` is called' do
-      before do
-        mock.prepare(env)
-      end
-
-      it 'returns true' do
-        expect(mock.prepared?).to eq(true)
-      end
-    end
-  end
-
-  describe '::running?' do
-    context 'before `run` is called' do
-      it 'returns false' do
-        expect(mock.running?).to eq(false)
-      end
-    end
-
-    context 'after `run` is called' do
-      before do
-        mock.run(env)
-      end
-
-      it 'returns true' do
-        expect(mock.running?).to eq(true)
-      end
-    end
-  end
-
-  describe '::staged?' do
-    context 'before `stage` is called' do
-      it 'returns false' do
-        expect(mock.staged?).to eq(false)
-      end
-    end
-
-    context 'after `stage` is called' do
-      before do
-        mock.stage(env)
-      end
-
-      it 'returns true' do
-        expect(mock.staged?).to eq(true)
+        expect(mock).to receive(:trap).with(Pakyow::Helpers::Running::STOP_SIGNALS[0])
+        expect(mock).to receive(:trap).with(Pakyow::Helpers::Running::STOP_SIGNALS[1])
       end
     end
   end
@@ -325,65 +210,6 @@ describe Pakyow::Helpers::Running do
 
       it 'returns the same builder' do
         expect(mock.builder).to be(@builder)
-      end
-    end
-  end
-
-  describe '::detect_handler' do
-    context 'when there\'s a configured handler' do
-      it 'prepends the configured handler to the list' do
-        begin
-          mock.detect_handler
-        rescue
-        end
-
-        expect(Pakyow::Helpers::Running::HANDLERS).to include(mock.handler)
-      end
-
-      it 'only adds the configured handler once' do
-        2.times do
-          begin
-            mock.detect_handler
-          rescue
-          end
-        end
-
-        expect(Pakyow::Helpers::Running::HANDLERS.count(mock.handler)).to eq(1)
-      end
-    end
-
-    it 'tries to get each handler' do
-      Pakyow::Helpers::Running::HANDLERS.each do |handler|
-        expect(Rack::Handler).to receive(:get).with(handler)
-      end
-
-      # we want to clear out all registered handlers
-      Rack::Handler.instance_variable_set(:@handlers, {})
-
-      begin
-        mock.detect_handler
-        # rescue the no handler exception
-      rescue
-      end
-    end
-
-    context 'when a handler exists' do
-      before do
-        Rack::Handler.register('mock', Spec::HandlerMock)
-      end
-
-      it 'returns the handler' do
-        expect(mock.detect_handler).to be(Spec::HandlerMock)
-      end
-    end
-
-    context 'when no handler exists' do
-      before do
-        Rack::Handler.instance_variable_set(:@handlers, {})
-      end
-
-      it 'raises an exception' do
-        expect { mock.detect_handler }.to raise_exception(RuntimeError)
       end
     end
   end

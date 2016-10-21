@@ -1,18 +1,26 @@
+require "pakyow/support/inspectable"
+
 module Pakyow
   module Presenter
     class StringDoc
+      include Support::Inspectable
+      using Support::DeepDup
+
       attr_reader :structure
 
       TITLE_REGEX = /<title>(.*?)<\/title>/m
 
       def initialize(html)
         @structure = StringDocParser.new(html).structure
+        @node = nil
+        @removed = false
       end
 
       def self.from_structure(structure, node: nil)
         instance = allocate
         instance.instance_variable_set(:@structure, structure)
         instance.instance_variable_set(:@node, node)
+        instance.instance_variable_set(:@removed, false)
         return instance
       end
 
@@ -25,7 +33,7 @@ module Pakyow
         super
 
         if original_structure = original_doc.instance_variable_get(:@structure)
-          @structure = Utils::Dup.deep(original_structure)
+          @structure = original_structure.deep_dup
         end
 
         if original_doc.node?
@@ -36,7 +44,7 @@ module Pakyow
       # Creates a StringDoc instance with the same structure, but a duped node.
       #
       def soft_copy
-        StringDoc.from_structure(@structure, node: @node ? Utils::Dup.deep(@node) : nil)
+        StringDoc.from_structure(@structure, node: @node ? @node.deep_dup : nil)
       end
 
       def title

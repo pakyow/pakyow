@@ -1,6 +1,6 @@
 # Functional tests for view matching.
 
-shared_examples :matching_specs do
+RSpec.shared_examples :matching_specs do
   before do
     @original_doctype = Pakyow::Config.presenter.view_doc_class
     Pakyow::Config.presenter.view_doc_class = doctype

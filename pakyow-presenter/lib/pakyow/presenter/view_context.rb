@@ -1,3 +1,5 @@
+require "pakyow/support/inspectable"
+
 module Pakyow
   module Presenter
     # This is a wrapper for View / ViewCollection that passes the current
@@ -14,6 +16,9 @@ module Pakyow
         repeat_with_index: 2, bind: 1, bind_with_index: 2, apply: 1 }
 
       attr_reader :context
+
+      include Support::Inspectable
+      inspectable :view
 
       def initialize(view, context)
         @view = view

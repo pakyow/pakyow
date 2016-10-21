@@ -1,6 +1,6 @@
 require_relative 'support/int_helper'
 
-context 'when testing a route that redirects' do
+RSpec.context 'when testing a route that redirects' do
   it 'appears to have redirected' do
     get :redirect do |sim|
       expect(sim.redirected?).to eq(true)

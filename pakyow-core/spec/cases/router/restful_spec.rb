@@ -1,6 +1,6 @@
 require_relative '../../support/helper'
 
-describe 'restful route'do
+RSpec.describe 'restful route'do
   include ReqResHelpers
   include RouteTestHelpers
 
@@ -14,7 +14,6 @@ describe 'restful route'do
     let(:set) { Pakyow::RouteSet.new }
 
     before do
-      fn = lambda {}
       set.eval {
         restful :test, 'tests' do
           [:list, :new, :create, :edit, :update, :replace, :show, :remove].each { |a|
@@ -165,7 +164,6 @@ describe 'restful route'do
 
   it 'show and new do not conflict' do
     set = Pakyow::RouteSet.new
-    fn = lambda {}
 
     set.eval {
       restful :test, 'tests' do

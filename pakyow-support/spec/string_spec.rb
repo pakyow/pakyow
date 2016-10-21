@@ -1,6 +1,6 @@
 require 'pakyow/support/string'
 
-describe String do
+RSpec.describe String do
   describe 'remove_route_vars' do
     it 'removes route vars' do
       expect(String.remove_route_vars('/:id')).to eq('/')

@@ -61,7 +61,7 @@ module Pakyow
         def resources_contain?(path)
           resources.each_pair do |_, resource_path|
             full_path = File.join(resource_path, path)
-            return true, full_path if File.exists?(full_path)
+            return true, full_path if File.exist?(full_path)
           end
 
           false

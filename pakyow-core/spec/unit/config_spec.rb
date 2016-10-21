@@ -1,7 +1,7 @@
 require_relative '../spec_helper'
 require 'pakyow/core/config'
 
-describe Pakyow::Config do
+RSpec.describe Pakyow::Config do
   before do
     Pakyow::Config.register :test do |config|
       config.opt :foo, :bar

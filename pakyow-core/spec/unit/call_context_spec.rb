@@ -1,7 +1,7 @@
 require "spec_helper"
 require "pakyow/core/call_context"
 
-describe Pakyow::CallContext do
+RSpec.describe Pakyow::CallContext do
   it "is hookable" do
     expect(Pakyow::CallContext.ancestors).to include(Pakyow::Support::Hookable)
   end

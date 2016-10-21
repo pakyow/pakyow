@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'pakyow/core/logger/colorizer'
 
-describe Pakyow::Logger::Colorizer do
+RSpec.describe Pakyow::Logger::Colorizer do
   let :colorizer do
     Pakyow::Logger::Colorizer
   end

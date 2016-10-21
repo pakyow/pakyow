@@ -32,7 +32,7 @@ module Pakyow
       end
 
       def normalize_path(path)
-        normalized = path
+        path
           .gsub('//', '/')
           .gsub(TAIL_SLASH_REPLACE_REGEX, '')
       end

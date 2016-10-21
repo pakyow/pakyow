@@ -88,17 +88,17 @@ Pakyow::App.define do
 
     get :after, '/after' do
       presenter.path = 'scoped'
-      view.scope(:post).after(Pakyow::Presenter::View.new(params[:text]))
+      view.scope(:post)[0].after(Pakyow::Presenter::View.new(params[:text]))
     end
 
     get :before, '/before' do
       presenter.path = 'scoped'
-      view.scope(:post).before(Pakyow::Presenter::View.new(params[:text]))
+      view.scope(:post)[0].before(Pakyow::Presenter::View.new(params[:text]))
     end
 
     get :replace, '/replace' do
       presenter.path = 'scoped'
-      view.scope(:post).replace(Pakyow::Presenter::View.new(params[:text]))
+      view.scope(:post)[0].replace(Pakyow::Presenter::View.new(params[:text]))
     end
 
     ### view composition

@@ -15,11 +15,9 @@ RSpec.configure do |config|
   config.example_status_persistence_file_path = "spec/examples.txt"
   config.disable_monkey_patching!
   config.warnings = true
+  config.color = true
 
-  if config.files_to_run.one?
-    config.default_formatter = 'doc'
-  end
-
-  config.order = :random
-  Kernel.srand config.seed
+  # TODO: some suites are order dependent; enable this once that is fixed
+  # config.order = :random
+  # Kernel.srand config.seed
 end

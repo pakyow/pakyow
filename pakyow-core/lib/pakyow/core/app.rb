@@ -84,13 +84,14 @@ module Pakyow
     def load_app
       hook_around :load do
         @loader.load_from_path(Pakyow::Config.app.src_dir)
-        load_routes unless Pakyow::Config.app.ignore_routes
+        load_routes
       end
     end
 
     def load_routes
-      Router.instance.reset
+      return if Pakyow::Config.app.ignore_routes
 
+      Router.instance.reset
       self.class.routes.each_pair do |set_name, block|
         Router.instance.set(set_name, &block)
       end

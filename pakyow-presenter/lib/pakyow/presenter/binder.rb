@@ -107,8 +107,8 @@ module Pakyow
 
         @sets.map { |set|
           set[1].bindings_for_scope(scope, bindings)
-        }.inject({}) { |acc, bindings|
-          acc.merge(bindings)
+        }.inject({}) { |acc, set_bindings|
+          acc.merge(set_bindings)
         }
       end
     end

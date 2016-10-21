@@ -50,14 +50,14 @@ module Pakyow
           logger.send(method, decorate(message))
         end
       end
-      
+
       ::Logger::VERBOSE = -1
       def verbose(message)
         logger.add(-1, decorate(message))
       end
 
       # Logs the beginning of a request, including the time, request method,
-      # request path, and ip address of the requester.
+      # request uri, and ip address of the requester.
       #
       # @param env [Hash] the rack env for the request
       #
@@ -66,8 +66,8 @@ module Pakyow
           prologue: {
             time: start,
             method: env['REQUEST_METHOD'],
-            path: env['REQUEST_PATH'],
-            ip: env['REMOTE_ADDR'],
+            uri: env['REQUEST_URI'],
+            ip: Request.new(env).ip,
           }
         })
       end

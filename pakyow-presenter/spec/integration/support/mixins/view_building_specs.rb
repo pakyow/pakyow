@@ -1,7 +1,7 @@
 # Functional tests for view building.
 include ViewComposerHelpers
 
-shared_examples :building_specs do
+RSpec.shared_examples :building_specs do
   before do
     @store = Pakyow::Presenter::ViewStore.new(VIEW_PATH)
     @original_doctype = Pakyow::Config.presenter.view_doc_class

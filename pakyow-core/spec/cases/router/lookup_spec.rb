@@ -1,5 +1,6 @@
 require 'support/helper'
-describe Pakyow::Router do
+
+RSpec.describe Pakyow::Router do
   include ReqResHelpers
 
   context 'lookup' do

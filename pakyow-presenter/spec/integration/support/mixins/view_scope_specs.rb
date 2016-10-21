@@ -1,4 +1,4 @@
-shared_examples :scope_specs do
+RSpec.shared_examples :scope_specs do
   describe 'scope' do
     let(:view) {
       string = <<-D

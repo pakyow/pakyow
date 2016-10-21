@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'pakyow/core/middleware/reloader'
 
-describe Pakyow::Middleware::Reloader do
+RSpec.describe Pakyow::Middleware::Reloader do
   let :app do
     double
   end

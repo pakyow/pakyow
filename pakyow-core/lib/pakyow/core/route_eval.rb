@@ -2,7 +2,7 @@ module Pakyow
   class RouteEval
     include RouteMerger
 
-    attr_reader :path, :fns, :hooks, :group, :routes, :handlers, :lookup, :templates
+    attr_reader :path, :fns, :hooks, :routes, :handlers, :lookup, :templates
 
     HTTP_METHODS   = [:get, :post, :put, :patch, :delete]
     DEFAULT_MIXINS = ['Restful']
@@ -37,6 +37,8 @@ module Pakyow
       @routes    = HTTP_METHODS.inject({}) { |acc, m| acc[m] = []; acc }
       @lookup    = { routes: {}, grouped: {} }
       @handlers  = []
+
+      @descendent_path = nil
     end
 
     # Path for evals within this eval

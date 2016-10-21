@@ -1,7 +1,9 @@
 require_relative 'support/int_helper'
 include ViewComposerHelpers
 
-describe Pakyow::Presenter::ViewComposer do
+RSpec.describe Pakyow::Presenter::ViewComposer do
+  include Pakyow::Support::Silenceable
+
   before do
     @store = Pakyow::Presenter::ViewStore.new(VIEW_PATH)
   end
@@ -83,14 +85,18 @@ describe Pakyow::Presenter::ViewComposer do
       background: 'red'
     }
 
-    expect(str_to_doc(composer.view.to_html).css('body div')[0].attribute(:style).value).to eq 'background:red'
+    silence_warnings do
+      expect(str_to_doc(composer.view.to_html).css('body div')[0].attribute(:style).value).to eq 'background:red'
+    end
   end
 
   it "handles replacements" do
     composer = compose_at('/')
     composer.container(:default).replace('foo')
 
-    expect(str_to_doc(composer.view.to_html).css('body').first.inner_text.strip).to eq 'foo'
+    silence_warnings do
+      expect(str_to_doc(composer.view.to_html).css('body').first.inner_text.strip).to eq 'foo'
+    end
   end
 
   it "sets template title" do

@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'pakyow/core/middleware/logger'
 
-describe Pakyow::Middleware::Logger do
+RSpec.describe Pakyow::Middleware::Logger do
   before do
     allow(Pakyow).to receive(:logger).and_return(double.as_null_object)
   end

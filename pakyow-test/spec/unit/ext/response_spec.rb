@@ -1,7 +1,7 @@
 require_relative '../support/unit_helper'
 require 'pakyow/test_help/ext/response'
 
-describe Pakyow::Response do
+RSpec.describe Pakyow::Response do
   describe 'status' do
     it 'returns a mock status with value' do
       r = Pakyow::Response.new({})

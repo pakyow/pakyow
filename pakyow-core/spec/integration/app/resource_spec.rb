@@ -1,6 +1,6 @@
 require 'support/helper'
 
-describe 'defining a resource' do
+RSpec.describe 'defining a resource' do
   include ReqResHelpers
 
   before do

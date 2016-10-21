@@ -1,11 +1,15 @@
 module Pakyow
   module Presenter
     class ViewStore
+      using Support::DeepDup
+
       attr_reader :store_name, :store_paths, :templates
 
       def initialize(store_path_or_paths, store_name = :default)
         @store_name = store_name
         @store_paths = Array.ensure(store_path_or_paths)
+        @templates = {}
+        @templates_loaded = false
 
         load_templates
         load_path_info
@@ -109,7 +113,7 @@ module Pakyow
           #TODO need to consider whose responsibility it is to make the dups
           view = obj ? info[obj.to_sym] : info
           raise MissingView, "No #{obj} at path '#{view_path}'" if view.nil?
-          return Pakyow::Utils::Dup.deep(view)
+          return view.deep_dup
         end
       end
 
@@ -126,10 +130,9 @@ module Pakyow
       def load_templates
         return if templates_loaded?
 
-        @templates = {}
         @store_paths.each do |store_path|
           t_path = templates_path(store_path)
-          next unless File.exists?(t_path)
+          next unless File.exist?(t_path)
 
           Dir.entries(t_path).each do |file|
             next if file =~ /^\./
@@ -212,9 +215,9 @@ module Pakyow
         @path_info = Hash[@path_info.sort { |a, b| a <=> b }]
       end
 
-      def normalize_path(path, store_path = nil)
-        if store_path
-          relative_path = path.gsub(store_path, '')
+      def normalize_path(path, full_path = nil)
+        if full_path
+          relative_path = path.gsub(full_path, '')
         else
           relative_path = path
           @store_paths.each do |store_path|

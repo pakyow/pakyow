@@ -1,7 +1,7 @@
 require_relative '../spec_helper'
 require 'pakyow/ui/mutator'
 
-describe Pakyow::UI::Mutator do
+RSpec.describe Pakyow::UI::Mutator do
   let :mutator_class do
     Pakyow::UI::Mutator
   end

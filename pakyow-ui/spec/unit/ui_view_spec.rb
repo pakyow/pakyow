@@ -1,7 +1,7 @@
 require_relative '../spec_helper'
 require 'pakyow/ui/ui_view'
 
-describe Pakyow::UI::UIView do
+RSpec.describe Pakyow::UI::UIView do
   let :scope do
     :post
   end

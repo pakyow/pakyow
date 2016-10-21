@@ -1,6 +1,6 @@
 # Functional tests for view repetition.
 
-shared_examples :repeating_specs do
+RSpec.shared_examples :repeating_specs do
   before do
     @original_doctype = Pakyow::Config.presenter.view_doc_class
     Pakyow::Config.presenter.view_doc_class = doctype

@@ -1,4 +1,4 @@
-shared_examples :attr_specs do
+RSpec.shared_examples :attr_specs do
   describe 'attributes' do
     let :html do
       '<html><body><div data-scope="attrs"></div></body></html>'
