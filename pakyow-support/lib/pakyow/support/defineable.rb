@@ -13,6 +13,8 @@ module Pakyow
     # Once an instance has been created, global state for that object is frozen.
     #
     module Defineable
+      using DeepDup
+
       def self.included(base)
         base.extend ClassAPI
       end
@@ -20,51 +22,76 @@ module Pakyow
       # @api private
       attr_reader :state
 
-      def initialize
+      def initialize(&block)
+        # create mutable state for this instance based on global
+        @state = self.class.state.each_with_object({}) { |(name, global_state), state|
+          state[name] = State.new(name, global_state.object)
+        }
 
-        # mutable state for this instance
-        @state = self.class.state.dup
+        # set instance level state
+        self.instance_eval(&block) if block_given?
+
+        # merge global state
+        @state.each do |name, state|
+          state.instances.concat(self.class.state[name].instances)
+        end
+
+        # merge inherited state
+        if inherited = self.class.inherited_state
+          @state.each do |name, state|
+            state.instances.concat(inherited[name].instances)
+          end
+        end
+
+        # instance state is now immutable
+        freeze
+      end
+
+      # Returns register instances for state.
+      #
+      def state_for(type)
+        return [] unless @state.key?(type)
+        @state[type].instances
       end
 
       # @api private
-      # TODO: don't use method missing and just define the methods instead
-      def method_missing(name)
-        @state.fetch(name) {
-          raise ArgumentError, "Unknown state '#{name}'"
-        }.instances
+      def freeze
+        @state.each { |_, state| state.freeze }
+        @state.freeze
+        super
       end
 
       module ClassAPI
-        attr_reader :state
+        attr_reader :state, :inherited_state
 
         def inherited(subclass)
-          subclass.instance_variable_set(:@state, Utils::Dup.deep(state))
-        end
-
-        # @api private
-        def freeze
-          @state.each { |_, state| state.freeze }
-          @state.freeze
           super
+
+          subclass.instance_variable_set(:@inherited_state, state.deep_dup)
+          subclass.instance_variable_set(:@state, state.each_with_object({}) { |(name, state_instance), state|
+            state[name] = State.new(name, state_instance.object)
+          })
         end
 
         # Register a type of state that can be defined.
         #
         def stateful(name, object)
           name = name.to_sym
-
           (@state ||= {})[name] = State.new(name, object)
-          define_singleton_method name do |*args, &state|
+          method_body = Proc.new do |*args, &block|
+            return @state[name] if block.nil?
             instance = object.new(*args)
-            instance.instance_eval(&state)
+            instance.instance_eval(&block)
             @state[name] << instance
           end
+
+          define_method name, &method_body
+          define_singleton_method name, &method_body
         end
 
         # Define state for the object.
         #
         def define(&block)
-          # instead of this evaling now, what if it deferred?
           instance_eval(&block)
         end
       end
@@ -74,6 +101,8 @@ module Pakyow
     #
     # @api private
     class State
+      using DeepDup
+
       attr_reader :name, :object, :instances
 
       def initialize(name, object)
@@ -84,7 +113,7 @@ module Pakyow
 
       def initialize_copy(original)
         super
-        @instances = Utils::Dup.deep(original.instances)
+        @instances = original.instances.deep_dup
       end
 
       def <<(instance)
