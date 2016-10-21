@@ -139,6 +139,10 @@ module Pakyow
       setting :level, :info
       setting :formatter, Logger::LogfmtFormatter
     end
+
+    defaults :ludicrous do
+      setting :enabled, false
+    end
   end
 
   settings_for :normalizer do
