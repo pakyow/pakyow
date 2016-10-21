@@ -204,8 +204,8 @@ module Pakyow
     # @param server [Symbol] name of the rack handler to use
     #
     def run(port: nil, host: nil, server: nil)
-      @port   = port   || DEFAULT_PORT
-      @host   = host   || DEFAULT_HOST
+      @port   = port   || config.server.port
+      @host   = host   || config.server.host
       @server = server || DEFAULT_SERVER
 
       handler(server).run(builder.to_app, Host: @host, Port: @port) do |app_server|

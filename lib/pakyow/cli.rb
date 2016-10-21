@@ -39,9 +39,9 @@ module Pakyow
 
       If environment is unspecified, the default environment (#{Pakyow::DEFAULT_ENV}) will be used.
     DESC
-    option :port, type: :string, aliases: :p, default: Pakyow::DEFAULT_PORT
-    option :host, type: :string, aliases: :h, default: Pakyow::DEFAULT_HOST
-    option :server, type: :string, aliases: :s, default: Pakyow::DEFAULT_SERVER
+    option :port, type: :string, aliases: :p
+    option :host, type: :string, aliases: :h
+    option :server, type: :string, aliases: :s
 
     def server(env = Pakyow::DEFAULT_ENV)
       require "pakyow/commands/server"
