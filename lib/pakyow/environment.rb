@@ -168,9 +168,9 @@ module Pakyow
     # @param app the rack endpoint to mount
     # @param at [String] where the endpoint should be mounted
     #
-    def mount(app, at: nil)
+    def mount(app, at: nil, &block)
       raise ArgumentError, "Mount path is required" if at.nil?
-      mounts[at] = app
+      mounts[at] = { app: app, block: block }
     end
 
     # Prepares the Pakow Environment for running.
@@ -187,9 +187,15 @@ module Pakyow
       hook_around :setup do
         init_global_logger
 
-        mounts.each do |path, app|
+        mounts.each do |path, mount|
           builder.map path do
-            run app.new(env, builder: self)
+            app_instance = if mount[:app].ancestors.include?(Pakyow::App)
+              mount[:app].new(env, builder: self, &mount[:block])
+            else
+              mount[:app].new
+            end
+
+            run app_instance
           end
         end
       end
