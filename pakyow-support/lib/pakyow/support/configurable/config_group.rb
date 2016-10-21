@@ -4,6 +4,8 @@ module Pakyow
   module Support
     module Configurable
       class ConfigGroup
+        attr_reader :name, :options, :parent, :settings, :defaults
+
         def initialize(name, options, parent, &block)
           @name = name
           @options = options
@@ -15,11 +17,17 @@ module Pakyow
         end
 
         def setting(name, default = nil, &block)
-          @settings[name.to_sym] = ConfigOption.new(name, default || block)
+          name = name.to_sym
+          @settings[name] = ConfigOption.new(name, default.nil? ? block : default)
         end
 
         def defaults(env, &block)
-          # TODO: do something with these (creating another SettingsGroup)
+          env = env.to_sym
+          if block_given?
+            @defaults[env] = block
+          else
+            @defaults[env]
+          end
         end
 
         def method_missing(name, value = nil)

@@ -11,6 +11,8 @@ module Pakyow
 
       def use_config(env)
         @config = self.class.config.dup
+
+        config.load_defaults(env)
         [:__global, env.to_sym].each do |config_env|
           next unless config_block = self.class.config_envs[config_env]
           instance_eval(&config_block)
@@ -24,6 +26,11 @@ module Pakyow
       end
 
       module ClassAPI
+        def inherited(subclass)
+          super
+          subclass.instance_variable_set(:@config, config.dup)
+        end
+
         def config
           @config ||= Config.new
         end
@@ -39,6 +46,7 @@ module Pakyow
         end
 
         def use_config(env)
+          config.load_defaults(env)
           [:__global, env.to_sym].each do |config_env|
             next unless config_block = config_envs[config_env]
             instance_eval(&config_block)

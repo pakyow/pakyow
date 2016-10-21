@@ -10,7 +10,6 @@ module Pakyow
           @default = default
         end
 
-        # TODO: would this work if `parent` was part of initialization or would that not be thread-safe?
         def value(parent)
           @value || default(parent)
         end
