@@ -20,3 +20,19 @@ RSpec.configure do |config|
   config.order = :random
   Kernel.srand config.seed
 end
+
+def start_simplecov(&block)
+  if ENV["COVERAGE"]
+    require "simplecov"
+    require "simplecov-console"
+    SimpleCov.formatter = SimpleCov::Formatter::Console
+    SimpleCov.start do
+      add_filter "spec/"
+      add_filter ".bundle/"
+      self.instance_eval(&block) if block_given?
+    end
+  end
+end
+
+require "pry"
+require "spec_helper"
