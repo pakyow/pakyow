@@ -8,8 +8,6 @@ require "pakyow/support"
 
 require "pakyow/core/helpers"
 require "pakyow/core/app_context"
-require "pakyow/core/request"
-require "pakyow/core/response"
 require "pakyow/core/loader"
 require "pakyow/core/router"
 require "pakyow/core/route_merger"

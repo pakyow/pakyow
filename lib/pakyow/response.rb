@@ -15,6 +15,6 @@ module Pakyow
     def content_type
       self["Content-Type"]
     end
-    alias_method :type, :content_type
+    alias :type :content_type
   end
 end
