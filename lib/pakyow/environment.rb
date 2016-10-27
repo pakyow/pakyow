@@ -4,12 +4,8 @@ require "logger"
 require "pakyow/support/hookable"
 require "pakyow/support/configurable"
 
-require "pakyow/logger/formatters/dev"
-require "pakyow/logger/formatters/logfmt"
-
-require "pakyow/middleware/json_body"
-require "pakyow/middleware/normalizer"
-require "pakyow/middleware/logger"
+require "pakyow/logger"
+require "pakyow/middleware"
 
 # An environment for running one or more rack apps.
 #
@@ -91,25 +87,19 @@ require "pakyow/middleware/logger"
 #   Pakyow.run
 #
 module Pakyow
-  class Error < StandardError; end
-
-  DEFAULT_ENV    = :development
-  DEFAULT_PORT   = 3000
-  DEFAULT_HOST   = "localhost".freeze
-  DEFAULT_SERVER = :puma
-
   include Support::Hookable
   known_events :configure, :setup, :fork
 
   include Support::Configurable
 
   settings_for :env do
-    setting :default, DEFAULT_ENV
+    setting :default, :development
   end
 
   settings_for :server do
-    setting :port, DEFAULT_PORT
-    setting :host, DEFAULT_HOST
+    setting :default, :puma
+    setting :port, 3000
+    setting :host, "localhost"
   end
 
   settings_for :console do
@@ -164,14 +154,40 @@ module Pakyow
   end
 
   class << self
-    attr_reader :env, :port, :host, :server, :logger
+    # Name of the environment
+    #
+    # @api public
+    attr_reader :env
 
-    # Mounts an app at a path. The app can be any rack endpoint,
-    # but must implement an initializer like {App#initialize}.
+    # Port that the environment is running on
+    #
+    # @api public
+    attr_reader :port
+
+    # Host that the environment is running on
+    #
+    # @api public
+    attr_reader :host
+
+    # Name of the app server running in the environment
+    #
+    # @api public
+    attr_reader :server
+
+    # Logger instance for the environment
+    #
+    # @api public
+    attr_reader :logger
+
+    # Mounts an app at a path.
+    #
+    # The app can be any rack endpoint, but must implement an
+    # initializer like {App#initialize}.
     #
     # @param app the rack endpoint to mount
     # @param at [String] where the endpoint should be mounted
     #
+    # @api public
     def mount(app, at: nil, &block)
       raise ArgumentError, "Mount path is required" if at.nil?
       mounts[at] = { app: app, block: block }
@@ -181,6 +197,7 @@ module Pakyow
     #
     # @param env [Symbol] the environment that Pakyow will be started in
     #
+    # @api public
     def setup(env: nil)
       @env = env ||= DEFAULT_ENV
 
@@ -213,10 +230,11 @@ module Pakyow
     # @param host [String] what ip address to bind Pakyow to
     # @param server [Symbol] name of the rack handler to use
     #
+    # @api public
     def run(port: nil, host: nil, server: nil)
       @port   = port   || config.server.port
       @host   = host   || config.server.host
-      @server = server || DEFAULT_SERVER
+      @server = server || config.server.default
 
       handler(server).run(builder.to_app, Host: @host, Port: @port) do |app_server|
         STOP_SIGNALS.each do |signal|
@@ -228,6 +246,7 @@ module Pakyow
     # When running the app with a forking server (e.g. Passenger), call this before
     # the process is forked. All defined "before fork" hooks will be called.
     #
+    # @api public
     def forking
       call_hooks :before, :fork
     end
@@ -235,6 +254,7 @@ module Pakyow
     # When running the app with a forking server (e.g. Passenger), call this after
     # the process is forked. All defined "after fork" hooks will be called.
     #
+    # @api public
     def forked
       call_hooks :after, :fork
     end

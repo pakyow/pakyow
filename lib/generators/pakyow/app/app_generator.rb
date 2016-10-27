@@ -4,6 +4,7 @@ require 'securerandom'
 require 'pakyow/version.rb'
 
 module Pakyow
+  # @api private
   module Generators
     class AppGenerator
       class << self

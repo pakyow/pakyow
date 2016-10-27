@@ -12,8 +12,8 @@ module Pakyow
     #    1.97ms http.c730cb72 | hello 2016-06-20 10:00:49 -0500
     #    3.78ms http.c730cb72 | 200 (OK)
     #
+    # @api private
     class DevFormatter < BaseFormatter
-      # @api private
       def call(severity, datetime, progname, message)
         message = format_message(super)
         Colorizer.colorize(format(message), severity)
