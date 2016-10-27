@@ -13,6 +13,7 @@ module Pakyow
       end
 
       def method_missing(method, value)
+        value = Array(value)
         nested_instruct(method, value)
       end
 
