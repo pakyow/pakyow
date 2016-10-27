@@ -2,7 +2,12 @@ require "json"
 
 module Pakyow
   module Middleware
+    # Parses incoming json requests and makes
+    # the data available in the request object.
+    #
+    # @api private
     class JSONBody
+      # Mime type used to identify json requests
       JSON_TYPE = "application/json".freeze
 
       def initialize(app)

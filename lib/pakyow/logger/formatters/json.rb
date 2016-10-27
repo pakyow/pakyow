@@ -12,8 +12,8 @@ module Pakyow
     #   {"severity":"INFO","timestamp":"2016-06-20 10:07:30 -0500","id":"c8af6a8b","type":"http","elapsed":"1.24ms","message":"hello 2016-06-20 10:07:30 -0500"}
     #   {"severity":"INFO","timestamp":"2016-06-20 10:07:30 -0500","id":"c8af6a8b","type":"http","elapsed":"3.08ms","status":200}
     #
+    # @api private
     class JSONFormatter < BaseFormatter
-      # @api private
       def call(severity, datetime, progname, message)
         message = super
         message = format_message(message)

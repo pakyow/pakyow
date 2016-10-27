@@ -9,6 +9,7 @@ module Pakyow
     #   severity=INFO timestamp="2016-06-20 10:08:29 -0500" id=678cf582 type=http elapsed=1.56ms message="hello 2016-06-20 10:08:29 -0500"
     #   severity=INFO timestamp="2016-06-20 10:08:29 -0500" id=678cf582 type=http elapsed=3.37ms status=200
     #
+    # @api private
     class LogfmtFormatter < Pakyow::Logger::JSONFormatter
       private
 

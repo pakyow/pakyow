@@ -2,8 +2,8 @@ require "pakyow/version"
 require "pakyow/logger/colorizer"
 
 module Pakyow
+  # @api private
   module Commands
-    # @api private
     class Server
       def initialize(env: nil, port: nil, host: nil, server: nil)
         @env    = env.to_s

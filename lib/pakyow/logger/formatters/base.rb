@@ -1,5 +1,6 @@
 module Pakyow
   module Logger
+    # @abstract
     # @api private
     class BaseFormatter
       def call(severity, datetime, progname, message)
