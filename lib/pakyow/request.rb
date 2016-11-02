@@ -14,12 +14,8 @@ module Pakyow
     # @api public
     attr_accessor :error
 
-    # TODO: a lot of the complexity in this object is due to rerouting
-    # perhaps we can simplify things by creating a new request object
-    # and providing access to the previous request via `parent`
     def initialize(*)
       super
-
       @env["CONTENT_TYPE"] = "text/html"
     end
 
@@ -30,10 +26,24 @@ module Pakyow
       request_method.downcase.to_sym
     end
 
-    # TODO: decide whether or not to keep this
-    # if we do, should we do the rails thing and return mime type?
-    # def format
-    # end
+    # Returns the symbolized format of the request.
+    #
+    # @example
+    #   request.format
+    #   => :html
+    #
+    # @api public
+    def format
+      type = Rack::Mime::MIME_TYPES.select { |key, value|
+        value == @env["CONTENT_TYPE"]
+      }
+
+      return if type.empty?
+      extension = type.keys.first
+      # works around a dumb thing in Rack::Mime
+      return :html if extension == ".htm"
+      extension[1..-1].to_sym
+    end
 
     # Returns an indifferentized params hash.
     #
