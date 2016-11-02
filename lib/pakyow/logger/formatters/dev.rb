@@ -23,38 +23,32 @@ module Pakyow
 
       def format_prologue(message)
         prologue = message.delete(:prologue)
-        message.merge({
-          message: sprintf(
-            "%s %s (for %s at %s)",
-            prologue[:method],
-            prologue[:uri],
-            prologue[:ip],
-            prologue[:time],
-          )
-        })
+        message.merge(message: sprintf(
+          "%s %s (for %s at %s)",
+          prologue[:method],
+          prologue[:uri],
+          prologue[:ip],
+          prologue[:time]
+        ))
       end
 
       def format_epilogue(message)
         epilogue = message.delete(:epilogue)
-        message.merge({
-          message: sprintf(
-            "%s (%s)",
-            epilogue[:status],
-            Response.nice_status(epilogue[:status]),
-          )
-        })
+        message.merge(message: sprintf(
+          "%s (%s)",
+          epilogue[:status],
+          Response.nice_status(epilogue[:status])
+        ))
       end
 
       def format_error(message)
         error = message.delete(:error)
-        message.merge({
-          message: sprintf(
-            "%s: %s\n%s",
-            error[:exception],
-            error[:message],
-            error[:backtrace].join("\n"),
-          )
-        })
+        message.merge(message: sprintf(
+          "%s: %s\n%s",
+          error[:exception],
+          error[:message],
+          error[:backtrace].join("\n")
+        ))
       end
 
       def format(message)
@@ -62,10 +56,10 @@ module Pakyow
 
         sprintf(
           "%s %s.%s | %s\n",
-          Timekeeper.format(message[:elapsed]).rjust(8, ' '),
+          Timekeeper.format(message[:elapsed]).rjust(8, " "),
           message[:request][:type],
           message[:request][:id],
-          message[:message],
+          message[:message]
         )
       end
     end

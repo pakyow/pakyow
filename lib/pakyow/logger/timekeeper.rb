@@ -38,7 +38,7 @@ module Pakyow
         end
       end
 
-      private
+      private_class_method
 
       def self.format_in_minutes(time)
         round(time / 60).to_s + "m "

@@ -5,4 +5,6 @@
   pakyow-mailer
   pakyow-realtime
   pakyow-ui
-).each { |lib| require lib }
+).each do |lib|
+  require lib
+end

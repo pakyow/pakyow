@@ -12,7 +12,7 @@ module Pakyow
 
       def call(env)
         logger = Pakyow::Logger::RequestLogger.new(:http)
-        env['rack.logger'] = logger
+        env["rack.logger"] = logger
 
         logger.prologue(env)
         result = @app.call(env)

@@ -1,6 +1,7 @@
 module Pakyow
   # @api private
   module Commands
+    # @api private
     class Console
       def initialize(env: nil)
         @env = env.to_s

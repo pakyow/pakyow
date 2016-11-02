@@ -21,7 +21,6 @@ module Pakyow
     #
     # @api private
     class RequestLogger
-
       # @!attribute [r] logger
       #   @return [Object] the object actually performing the logging
       attr_reader :logger
@@ -68,14 +67,12 @@ module Pakyow
       # @param env [Hash] the rack env for the request
       #
       def prologue(env)
-        info({
-          prologue: {
+        info(prologue: {
             time: start,
             method: env[Rack::REQUEST_METHOD],
             uri: env[REQUEST_URI],
-            ip: Request.new(env).ip,
-          }
-        })
+            ip: Request.new(env).ip
+          })
       end
 
       # Logs the conclusion of a request, including the response status.
@@ -83,11 +80,9 @@ module Pakyow
       # @param res [Array] the rack response array
       #
       def epilogue(res)
-        info({
-          epilogue: {
-            status: res[0],
-          }
-        })
+        info(epilogue: {
+            status: res[0]
+          })
       end
 
       # Logs a problem encountered during the request, including the error
@@ -96,13 +91,11 @@ module Pakyow
       # @param error [Object] the error object
       #
       def houston(error)
-        error({
-          error: {
+        error(error: {
             exception: error.class,
             message: error.to_s,
-            backtrace: error.backtrace,
-          }
-        })
+            backtrace: error.backtrace
+          })
       end
 
       private
@@ -116,8 +109,8 @@ module Pakyow
           elapsed: elapsed,
           request: {
             id: id,
-            type: type,
-          },
+            type: type
+          }
         }.merge(message.is_a?(Hash) ? message : { message: message })
       end
     end

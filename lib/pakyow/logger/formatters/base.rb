@@ -3,7 +3,7 @@ module Pakyow
     # @abstract
     # @api private
     class BaseFormatter
-      def call(severity, datetime, progname, message)
+      def call(_severity, _datetime, _progname, message)
         message.is_a?(Hash) ? message : { message: message }
       end
 
