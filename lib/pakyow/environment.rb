@@ -22,21 +22,21 @@ require "pakyow/middleware"
 #
 # The following config settings are available within the environment:
 #
-# - *env.default*: named environment to start when one is not explicitly provided  
+# - *env.default*: named environment to start when one is not explicitly provided
 #   _default_: development
 #
-# - *server.port*: the port Pakyow should run on  
+# - *server.port*: the port Pakyow should run on
 #   _default_: 3000
-# - *server.host*: the host Pakyow should run on  
+# - *server.host*: the host Pakyow should run on
 #   _default_: localhost
 #
-# - *logger.enabled*: whether or not logging should be active  
+# - *logger.enabled*: whether or not logging should be active
 #   _default_: true
-# - *logger.level*: what level to log at  
+# - *logger.level*: what level to log at
 #   _default_: :debug, :info (production)
-# - *logger.formatter*: the formatter used when logging  
+# - *logger.formatter*: the formatter used when logging
 #   _default_: {Logger::DevFormatter}, {Logger::LogfmtFormatter} (production)
-# - *logger.destinations*: where logs should be sent  
+# - *logger.destinations*: where logs should be sent
 #   _default_: $stdout (when logger.enabled), /dev/null (for test environment or when logger is disabled)
 #
 # Configuration support is added via {Support::Configurable}.
@@ -239,7 +239,9 @@ module Pakyow
 
       handler(@server).run(builder.to_app, Host: @host, Port: @port) do |app_server|
         STOP_SIGNALS.each do |signal|
-          trap(signal) { stop(app_server) }
+          trap(signal) {
+            stop(app_server)
+          }
         end
       end
     end
