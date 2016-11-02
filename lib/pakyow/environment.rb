@@ -122,7 +122,7 @@ module Pakyow
     end
 
     defaults :test do
-      setting :destinations, ["/dev/null"]
+      setting :enabled, false
     end
 
     defaults :production do
