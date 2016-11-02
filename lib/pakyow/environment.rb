@@ -210,7 +210,7 @@ module Pakyow
 
         mounts.each do |path, mount|
           builder.map path do
-            app_instance = if mount[:app].ancestors.include?(Pakyow::App)
+            app_instance = if defined?(Pakyow::App) && mount[:app].ancestors.include?(Pakyow::App)
               mount[:app].new(env, builder: self, &mount[:block])
             else
               mount[:app].new
