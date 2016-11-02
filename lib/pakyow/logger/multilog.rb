@@ -1,20 +1,24 @@
 module Pakyow
-  # @api private
-  class MultiLog
-    def initialize(*targets)
-      @targets = targets
-    end
+  module Logger
+    # @api private
+    class MultiLog
+      attr_reader :targets
 
-    def write(*args)
-      @targets.each { |t| t.write(*args) }
-    end
+      def initialize(*targets)
+        @targets = targets
+      end
 
-    def close
-      @targets.each(&:close)
-    end
+      def write(*args)
+        @targets.each { |t| t.write(*args) }
+      end
 
-    def flush
-      @targets.each(&:flush)
+      def close
+        @targets.each(&:close)
+      end
+
+      def flush
+        @targets.each(&:flush)
+      end
     end
   end
 end
