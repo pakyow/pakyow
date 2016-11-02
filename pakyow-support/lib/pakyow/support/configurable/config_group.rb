@@ -31,7 +31,7 @@ module Pakyow
         end
 
         def method_missing(name, value = nil)
-          if value && name[-1] == "="
+          if name[-1] == "="
             name = name[0..-2].to_sym
             @settings.fetch(name) {
               if extendable?
