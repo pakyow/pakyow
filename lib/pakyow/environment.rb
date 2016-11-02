@@ -243,6 +243,20 @@ module Pakyow
       end
     end
 
+    # Tells Pakyow that the environment is being forked.
+    #
+    # When running the environment with a forking server (e.g. Passenger) call
+    # this to tell Pakyow that the environment is being forked. Expects a block
+    # to be passed. Any before :fork hooks will be called, then the block will
+    # be yielded to, then any after :fork hooks will be called.
+    #
+    # @api public
+    def fork
+      forking
+      yield
+      forked
+    end
+
     # When running the app with a forking server (e.g. Passenger), call this before
     # the process is forked. All defined "before fork" hooks will be called.
     #
