@@ -71,6 +71,7 @@ module Pakyow
         #
         def known_events(*events)
           (@known_events ||= []).concat(events.map(&:to_sym)).uniq!
+          @known_events
         end
 
         # @api private
