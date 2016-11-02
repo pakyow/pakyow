@@ -1,3 +1,4 @@
+require "irb"
 require "rack"
 require "logger"
 
