@@ -1,5 +1,4 @@
 require "unit/logger/formatters/shared"
-require "pakyow/logger/formatters/dev"
 
 RSpec.describe Pakyow::Logger::DevFormatter do
   include_examples :log_formatter
