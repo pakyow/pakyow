@@ -236,7 +236,7 @@ module Pakyow
       @host   = host   || config.server.host
       @server = server || config.server.default
 
-      handler(server).run(builder.to_app, Host: @host, Port: @port) do |app_server|
+      handler(@server).run(builder.to_app, Host: @host, Port: @port) do |app_server|
         STOP_SIGNALS.each do |signal|
           trap(signal) { stop(app_server) }
         end
