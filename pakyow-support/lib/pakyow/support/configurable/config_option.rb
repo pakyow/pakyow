@@ -11,7 +11,11 @@ module Pakyow
         end
 
         def value(parent)
-          @value || default(parent)
+          if instance_variable_defined?(:@value)
+            @value
+          else
+            default(parent)
+          end
         end
 
         def default(parent)
