@@ -25,6 +25,12 @@ module Pakyow
             @default
           end
         end
+
+        def reset
+          if instance_variable_defined?(:@value)
+            remove_instance_variable(:@value)
+          end
+        end
       end
     end
   end

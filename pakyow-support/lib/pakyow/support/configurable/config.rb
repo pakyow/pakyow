@@ -39,6 +39,12 @@ module Pakyow
 
           # TODO: freeze all the other things
         end
+
+        def reset
+          @groups.each do |_, group|
+            group.reset
+          end
+        end
       end
     end
   end
