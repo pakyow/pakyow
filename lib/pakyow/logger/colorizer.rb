@@ -7,17 +7,17 @@ module Pakyow
       #
       def self.colorize(message, severity)
         return message unless color = color(severity)
-        return COLOR_SEQ % (30 + COLOR_TABLE.index(color)) + (message || "") + RESET_SEQ
+        COLOR_SEQ % (30 + COLOR_TABLE.index(color)) + (message || "") + RESET_SEQ
       end
 
-      private
+      private_class_method
 
       LEVEL_COLORS = {
         "DEBUG" => :cyan,
         "INFO"  => :green,
         "WARN"  => :yellow,
         "ERROR" => :red,
-        "FATAL" => :red,
+        "FATAL" => :red
       }.freeze
 
       COLOR_TABLE = [
@@ -28,7 +28,7 @@ module Pakyow
         :blue,
         :magenta,
         :cyan,
-        :white,
+        :white
       ].freeze
 
       RESET_SEQ = "\033[0m".freeze

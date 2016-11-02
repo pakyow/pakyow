@@ -4,6 +4,7 @@ require "pakyow/logger/colorizer"
 module Pakyow
   # @api private
   module Commands
+    # @api private
     class Server
       def initialize(env: nil, port: nil, host: nil, server: nil)
         @env    = env.to_s
@@ -16,7 +17,8 @@ module Pakyow
         puts Logger::Colorizer.colorize(
           File.read(
             File.expand_path("../output/splash.txt", __FILE__)
-          ).gsub!("{v}", "v#{VERSION}"), :error)
+          ).gsub!("{v}", "v#{VERSION}"), :error
+        )
 
         require "./config/environment"
         Pakyow.setup(env: @env).run(port: @port, host: @host, server: @server)

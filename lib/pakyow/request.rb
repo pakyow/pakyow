@@ -34,7 +34,7 @@ module Pakyow
     #
     # @api public
     def format
-      type = Rack::Mime::MIME_TYPES.select { |key, value|
+      type = Rack::Mime::MIME_TYPES.select { |_key, value|
         value == @env["CONTENT_TYPE"]
       }
 

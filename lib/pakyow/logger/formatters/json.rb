@@ -27,7 +27,7 @@ module Pakyow
 
         format({
           severity: severity,
-          timestamp: datetime,
+          timestamp: datetime
         }.merge(message))
       end
 

@@ -28,12 +28,13 @@ module Pakyow
         return to_enum :escape, message unless block_given?
 
         message.each_pair do |key, value|
-          case value
-          when Array
-            value = value.join(",")
-          else
-            value = value.to_s
-          end
+          value = case value
+                  when Array
+                    value.join(",")
+                  else
+                    value.to_s
+                  end
+
           value = value.dump unless value =~ UNESCAPED_STRING
           yield key.to_s, value
         end

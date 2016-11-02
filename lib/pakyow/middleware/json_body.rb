@@ -15,7 +15,7 @@ module Pakyow
       end
 
       def call(env)
-        if Rack::Request.new(env).media_type == JSON_TYPE && (body = env[Rack::RACK_INPUT].read).length != 0
+        if Rack::Request.new(env).media_type == JSON_TYPE && (body = env[Rack::RACK_INPUT].read).length.nonzero?
           env.update(Rack::RACK_REQUEST_FORM_HASH => JSON.parse(body), Rack::RACK_REQUEST_FORM_INPUT => env[Rack::RACK_INPUT])
         end
 

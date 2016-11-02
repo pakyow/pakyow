@@ -212,10 +212,10 @@ module Pakyow
         mounts.each do |path, mount|
           builder.map path do
             app_instance = if defined?(Pakyow::App) && mount[:app].ancestors.include?(Pakyow::App)
-              mount[:app].new(env, builder: self, &mount[:block])
-            else
-              mount[:app].new
-            end
+                             mount[:app].new(env, builder: self, &mount[:block])
+                           else
+                             mount[:app].new
+                           end
 
             run app_instance
           end
@@ -328,9 +328,7 @@ module Pakyow
 
     def stop(server)
       STOP_METHODS.each do |method|
-        if server.respond_to?(method)
-          return server.send(method)
-        end
+        return server.send(method) if server.respond_to?(method)
       end
 
       # exit ungracefully
