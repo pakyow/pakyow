@@ -199,7 +199,7 @@ module Pakyow
     #
     # @api public
     def setup(env: nil)
-      @env = env ||= DEFAULT_ENV
+      @env = env ||= config.env.default
 
       hook_around :configure do
         use_config(env)
