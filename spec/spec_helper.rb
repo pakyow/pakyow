@@ -6,3 +6,4 @@ require "pakyow"
 
 require "helpers/mock_request"
 require "helpers/mock_response"
+require "helpers/mock_handler"

@@ -59,20 +59,30 @@ RSpec.describe Pakyow::Logger::RequestLogger do
     end
   end
 
-  %i(<< add debug error fatal info log unknown warn).each do |method|
-    describe "##{method}" do
-      let :message do
-        "foo"
-      end
+  describe "logging methods" do
+    let :message do
+      "foo"
+    end
 
-      let :decorated do
-        double
-      end
+    let :decorated do
+      double
+    end
 
-      it "calls #{method} on logger with decorated message" do
+    %i(<< add debug error fatal info log unknown warn).each do |method|
+      describe "##{method}" do
+        it "calls #{method} on logger with decorated message" do
+          expect(instance).to receive(:decorate).with(message).and_return(decorated)
+          expect(logger).to receive(method).with(decorated)
+          instance.send(method, message)
+        end
+      end
+    end
+
+    describe "#verbose" do
+      it "logs the message as verbose" do
         expect(instance).to receive(:decorate).with(message).and_return(decorated)
-        expect(logger).to receive(method).with(decorated)
-        instance.send(method, message)
+        expect(logger).to receive(:add).with(-1, decorated)
+        instance.verbose(message)
       end
     end
   end
