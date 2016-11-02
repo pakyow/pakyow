@@ -34,6 +34,6 @@ group :test do
 end
 
 group :development do
-  gem "guard-rspec", "~> 4.6"
+  gem "guard-rspec", "~> 4.6", require: false
   gem "rubocop", "~> 0.34"
 end
