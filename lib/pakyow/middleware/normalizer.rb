@@ -1,8 +1,10 @@
+require "pakyow/support/string"
+
 module Pakyow
   module Middleware
     # Rack compatible middleware that normalizes requests by:
     #
-    # - setting or removing trailing "/" from request paths
+    # - removing trailing "/" from request paths
     # - adding or removing the "www" subdomain
     #
     # When conditions are met, a 301 redirect will be issued to
@@ -21,9 +23,9 @@ module Pakyow
         host = env[Rack::SERVER_NAME]
 
         if strict_www? && require_www? && !www?(host) && !subdomain?(host)
-          [301, { "Location" => File.join(add_www(host), String.normalize_path(path)) }, []]
-        elsif strict_www? && !require_www? && www?(path)
-          [301, { "Location" => File.join(remove_www(host), String.normalize_path(path)) }, []]
+          [301, { "Location" => File.join(add_www(host), path) }, []]
+        elsif strict_www? && !require_www? && www?(host)
+          [301, { "Location" => File.join(remove_www(host), path) }, []]
         elsif strict_path? && slash?(path)
           [301, { "Location" => String.normalize_path(path) }, []]
         else
@@ -63,20 +65,16 @@ module Pakyow
         host.split(".").first == "www"
       end
 
-      def normalize_path?
-        Pakyow.config.normalizer.normalize_path
-      end
-
       def strict_path?
-        Pakyow.config.normalizer.strict_path
+        Pakyow.config.normalizer.strict_path == true
       end
 
       def strict_www?
-        Pakyow.config.normalizer.strict_www
+        Pakyow.config.normalizer.strict_www == true
       end
 
       def require_www?
-        Pakyow.config.normalizer.require_www
+        Pakyow.config.normalizer.require_www == true
       end
     end
   end
