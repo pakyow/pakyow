@@ -22,7 +22,7 @@ Works out of the box.
 Create a working prototype of your project with plain HTML. Later, build right on
 top of the prototype without throwing it out.
 
-## Building a Friendlier Web
+## Build a Friendlier Web
 
 We think that a simpler web leads to a democratic web. Pakyow optimizes for
 simplicity, making it easier to start and leading to long-term productivity.
@@ -54,10 +54,10 @@ simplicity, making it easier to start and leading to long-term productivity.
 
 # Next Steps
 
-- Read the [overview](https://pakyow.org/docs/overview) to better understand the goals and architecture of Pakyow.
-- Do the [warmup](https://pakyow.org/docs/warmup) to build &amp; deploy your first project.
-- Browse the [docs](https://pakyow.org/docs) to learn more about presentation, routing, realtime channels, and more.
-- Check out the [code](https://github.com/pakyow/pakyow) on Github.
+- [Read the overview](https://pakyow.org/docs/overview) to better understand the goals and architecture of Pakyow.
+- [Follow the warmup](https://pakyow.org/docs/warmup) to build and deploy your first project.
+- [Browse the docs](https://pakyow.org/docs) to learn more about presentation, routing, realtime channels, and more.
+- [Check out the code](https://github.com/pakyow/pakyow) on Github.
 
 We'd love to have you involved. Here are a few places to start:
 
