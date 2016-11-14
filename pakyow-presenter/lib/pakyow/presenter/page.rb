@@ -1,7 +1,7 @@
 module Pakyow
   module Presenter
     class Page
-      MATTER_MATCHER = /^(---\s*\n.*?\n?)^(---\s*$\n?)/m
+      MATTER_MATCHER = /\A(---\s*\n.*?\n?)^(---\s*$\n?)/m
 
       class << self
         def load(path, view_store_name = :default)
