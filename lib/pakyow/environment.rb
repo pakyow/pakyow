@@ -39,6 +39,13 @@ require "pakyow/middleware"
 # - *logger.destinations*: where logs should be sent
 #   _default_: $stdout (when logger.enabled), /dev/null (for test environment or when logger is disabled)
 #
+# - *normalizer.strict_path*: whether or not request paths should be normalized
+#   _default_: true
+# - *normalizer.strict_www*: whether or not the www subdomain should be normalized
+#   _default_: false
+# - normalizer.require_www*: whether or not www should be present or not in the hostname
+#   _default_: true
+#
 # Configuration support is added via {Support::Configurable}.
 #
 # @example Configure the environment:
