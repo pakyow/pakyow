@@ -74,6 +74,75 @@ Pakyow is released free and open-source under the [MIT License](http://opensourc
 
 # Overview
 
-TODO: Explain the overall architecture of pakyow with summaries of all the libs. Then
-dive into details about the main lib, including: environment, cli, logger, middleware,
-canonical example / template, and integrations.
+*[Read the docs](https://www.pakyow.org/docs) if you want the full skinny.*
+
+Pakyow is designed to be modular, with each library handling one aspect of the
+framework. Here's a list of the libraries that Pakyow ships with by default:
+
+- Core: Introduces the app object. Routes requests to endpoints within an app.
+- Presenter: Handles logicless view presentation, including data binding.
+- Mailer: Delivers logicless views over email, rather than http.
+- Realtime: Adds WebSocket support and realtime channels.
+- UI: Automatically keeps rendered views in sync with server-side state.
+- Test: Provides helpers that make it easy to test various aspects of an app.
+- Support: Provides helpers used throughout the framework.
+- Rake: Adds several tasks that are useful alongside an app.
+
+There are many secondary libraries that add additional functionality, including:
+
+- Markdown: Adds support for writing view templates in Markdown.
+- Slim: Adds support for writing view templates in Slim.
+- Haml: Adds support for writing view templates in Haml.
+- Bindr: Introduces the concept of recursive data binding.
+
+It's standard that every Pakyow-related library is prefixed with `pakyow-*`.
+
+---
+
+The primary library (named simply `pakyow`) handles concerns shared across the
+Pakyow ecosystem. It glues everything together. Read below for a summary.
+
+## Environment
+
+Makes it possible to run multiple Rack-compatible endpoints (including Pakyow
+apps) with the consistency of a single environment.
+
+[Browse the source &raquo;](https://github.com/pakyow/pakyow/blob/environment/lib/pakyow/environment.rb)
+
+## Request Logger
+
+Adds request-level logging, with a human-friendly formatter for development and
+a logfmt formatter for production environments.
+
+[Browse the source &raquo;](https://github.com/pakyow/pakyow/blob/environment/lib/pakyow/logger/request_logger.rb)
+
+## Default Middleware
+
+Introduces a default middleware stack for all apps within the environment,
+including request path normalization and json body parsing.
+
+[Browse the source &raquo;](https://github.com/pakyow/pakyow/blob/environment/lib/pakyow/environment.rb#L145)
+
+## App Template
+
+Ships with the default template for generated Pakyow apps.
+
+[Browse the source &raquo;](https://github.com/pakyow/pakyow/tree/environment/lib/generators/pakyow/app/templates)
+
+## Command Line Interface (CLI)
+
+Adds a CLI for creating Pakyow apps and running the environment.
+
+[Browse the source &raquo;](https://github.com/pakyow/pakyow/blob/environment/lib/pakyow/cli.r://github.com/pakyow/pakyow/blob/environment/lib/pakyow/cli.rb)
+
+# Official Documentation
+
+The official documentation can be found
+[here](https://github.com/pakyow/pakyow/tree/environment/docs). We bundle the
+docs with the code so that they evolve together.
+
+# Canonical Example
+
+The canonical example for Pakyow can be found
+[here](https://github.com/pakyow/pakyow/tree/environment/example). We try and
+keep it current to reflect the entire feature-set across the framework.
