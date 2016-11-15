@@ -22,28 +22,30 @@ require "pakyow/middleware"
 #
 # The following config settings are available within the environment:
 #
-# - *env.default*: named environment to start when one is not explicitly provided
+# - *env.default*: named environment to start when one is not explicitly provided  
 #   _default_: development
 #
-# - *server.port*: the port Pakyow should run on
+# - *server.default*: the application server to use by default  
+#   _default_: puma
+# - *server.port*: the port that the environment runs on  
 #   _default_: 3000
-# - *server.host*: the host Pakyow should run on
+# - *server.host*: the host that the environment runs on  
 #   _default_: localhost
 #
-# - *logger.enabled*: whether or not logging should be active
+# - *logger.enabled*: whether or not logging is enabled  
 #   _default_: true
-# - *logger.level*: what level to log at
+# - *logger.level*: what level to log at  
 #   _default_: :debug, :info (production)
-# - *logger.formatter*: the formatter used when logging
+# - *logger.formatter*: the formatter to use when logging  
 #   _default_: {Logger::DevFormatter}, {Logger::LogfmtFormatter} (production)
-# - *logger.destinations*: where logs should be sent
+# - *logger.destinations*: where logs are output to  
 #   _default_: $stdout (when logger.enabled), /dev/null (for test environment or when logger is disabled)
 #
-# - *normalizer.strict_path*: whether or not request paths should be normalized
+# - *normalizer.strict_path*: whether or not request paths are normalized  
 #   _default_: true
-# - *normalizer.strict_www*: whether or not the www subdomain should be normalized
+# - *normalizer.strict_www*: whether or not the www subdomain are normalized  
 #   _default_: false
-# - normalizer.require_www*: whether or not www should be present or not in the hostname
+# - *normalizer.require_www*: whether or not to require www in the hostname  
 #   _default_: true
 #
 # Configuration support is added via {Support::Configurable}.
