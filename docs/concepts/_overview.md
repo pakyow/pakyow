@@ -3,13 +3,14 @@ name: Concepts
 desc: Learn about Pakyow concepts.
 ---
 
-Pakyow introduces several new concepts to the web development space.
+Pakyow introduces several concepts to web development that you may not be
+familiar with. These concepts include:
 
 **View-First Development**
 
 Pakyow enforces total separation between the presentation layer and logic of an
 application. This makes the codebase clearer, improves performance, and enables
-features such as auto-updating views.
+features like auto-updating views.
 
 - [Read more about view-first development](/docs/concepts/view-first-development)
 
@@ -22,8 +23,8 @@ client to the server, then distribute the change among other connected clients.
 
 **View Transformation Protocol**
 
-Pakyow implements the view transformation protocol to perform initial rendering
-on the server and in Ring.js for client-side updates without a refresh.
+Pakyow implements a view transformation protocol to perform initial rendering on
+the server and view updates on the client without a page refresh.
 
 - [Read more the view transformation protocol](/docs/concepts/view-transformation-protocol)
 
