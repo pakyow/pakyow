@@ -4,9 +4,9 @@ desc: Learn about the view transformation protocol.
 ---
 
 The View Transformation Protocol is a way to represent view rendering as a set
-of instructions that can later be applied to the view template. Pakyow
-implements this protocol on the backend for initial rendering and in [Ring](https://github.com/pakyow/ring) for
-client-side rendering.
+of procedural instructions that can be applied to the view template. Pakyow
+implements this protocol on the backend for initial rendering and in
+[Ring.js](https://github.com/pakyow/ring) for client-side updates.
 
 Let's look at an example. Here's the view template:
 
