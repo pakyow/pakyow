@@ -1,14 +1,12 @@
 ---
-name: Mounting Endpoints
-desc: Mounting Endpoints in Pakyow.
+name: Mounting Apps
+desc: Mounting apps as endpoints in Pakyow.
 ---
 
+Apps can be mounted at various paths within the Pakyow environment. Incoming
+requests that match the mount path are routed to the endpoint.
 
-
-Multiple endpoints can be mounted in the Pakyow environment. Incoming requests
-are handed to the mounted endpoints.
-
-Here's a Pakyow App mounted at the root.
+Here's an example:
 
 ``` ruby
 Pakyow.configure do
@@ -16,13 +14,12 @@ Pakyow.configure do
 end
 ```
 
-Any `GET` requests to `/*` is passed to an instance of `Pakyow::App`
+Any `GET` request to `/*` is routed to an instance of `Pakyow::App`.
 
-Let's create an other app and mount it.
+Let's create another app and mount it at a different path:
 
 ``` ruby
 class FooApp < Pakyow::App
-  #empty App
 end
 
 Pakyow.configure do
@@ -31,25 +28,22 @@ Pakyow.configure do
 end
 ```
 
+## Mode-Specific Mounting
 
-## Mount to different environments
-
-The Pakyow object can be configured so that endpoints can be mounted in specific
-environment configurations. For example, we might want to run an application
-only when the environment boots in production mode. Here's an example to
-illustrate how this is done.
+The Pakyow environment can be configured so that endpoints are only used when
+the environment is started in a specific mode. For example, we might want to
+run an application in development mode, but ignore it in production. Here's
+an example that illustrates this feature:
 
 ``` ruby
-Pakyow.configure :production do
+Pakyow.configure :development do
   mount Pakyow::FooApp, at: "/foo"
 end
 ```
 
-In this example, FooApp is only mounted when the environment boots in 
-production mode.
-
-If we wanted FooApp to be mounted regardless of the environment, we 
-can simply remove `:production` from the configure block.
+In the above example, `FooApp` is only mounted when the environment boots in 
+`development` mode. If we want `FooApp` to be mounted regardless of the mode,
+we can simply remove the mode from the `configure` block:
 
 ```ruby
 Pakyow.configure do
@@ -58,9 +52,9 @@ end
 ```
 
 ## Mounting Other Endpoints
-Since mounting is implemented as a layer on top of `Rack::Builder`, it is possible to
-mount any rack compatible endpoint. Here's an example where we mount a Sinatra
-application.
+
+Since mounting is implemented as a layer on top of `Rack::Builder`, it's possible to
+mount any Rack-compatible endpoint. Here's an example where we mount a Sinatra app:
 
 ```ruby 
 require "sinatra/base"
@@ -76,11 +70,8 @@ Pakyow.configure do
 end
 ```
 
-One benefit of mounting other rack compatible endpoints such as Sinatra onto the
-Pakyow environment is that it gives us consistency across all endpoints. For
-example, all mounted endpoints use Pakyow's logger, and this ensures that the
-logs are consistent across the board. An added benefit is that it gives all
-endpoints a global way to deal with certain incoming requests such as incoming
-JSON data. JSON data is parsed by the rack middleware before it is passed on to
-the endpoint. Thus taking away from the responsibility from the App, because
-parsing such a request should be the job of the environment.
+The benefit to this is that we can run all our Ruby apps in a consistent way. Every
+app in the environment runs on the same host and port and inherits a common request
+logger. Pakyow also loads a default middleware stack for every app running within
+the environment. Without explicit configuration, all apps support common things like 
+HEAD requests and JSON request bodies.
