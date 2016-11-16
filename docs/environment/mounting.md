@@ -8,8 +8,7 @@ desc: Mounting Endpoints in Pakyow.
 Multiple endpoints can be mounted in the Pakyow environment. Incoming requests
 are handed to the mounted endpoints.
 
-Here's a Pakyow App mounted at the
-root.
+Here's a Pakyow App mounted at the root.
 
 ``` ruby
 Pakyow.configure do
@@ -46,12 +45,11 @@ Pakyow.configure :production do
 end
 ```
 
-In this example, FooApp is only
-mounted when the environment boots in production mode.
+In this example, FooApp is only mounted when the environment boots in 
+production mode.
 
-If we wanted FooApp to
-be mounted regardless of the environment, we can simply remove `:production`
-from the configure block.
+If we wanted FooApp to be mounted regardless of the environment, we 
+can simply remove `:production` from the configure block.
 
 ```ruby
 Pakyow.configure do
