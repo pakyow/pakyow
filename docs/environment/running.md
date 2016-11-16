@@ -14,11 +14,11 @@ configuring the environment and mounting each registered endpoint within it.
 Here's how you would setup the environment to run in development mode:
 
 ```ruby
-Pakyow.setup(env: :development)
+Pakyow.setup(mode: :development)
 ```
 
-Note that if the `env` argument is unspecified, Pakyow will default to the
-`env.default` [config option](/docs/environment/configuration).
+Note that if the `mode` argument is unspecified, Pakyow will default to the
+`mode.default` [config option](/docs/environment/configuration).
 
 ## Running
 

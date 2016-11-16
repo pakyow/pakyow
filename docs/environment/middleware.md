@@ -6,7 +6,7 @@ desc: Using Rack middleware in Pakyow.
 Rack middleware can be mounted at the environment level so that it's used by all
 apps mounted within the environment. Pakyow loads a default stack for you:
 
-- Rack::ContentType: Sets the `Content-Type` header on the response to 
+- Rack::ContentType: Sets the `Content-Type` header on the response to
 `text/html;charset=utf-8` when not explicitly set by the app.
 - Rack::ContentLength: Sets the `Content-Length` header on the response.
 - Rack::Head: Returns an empty body for `HEAD` requests.

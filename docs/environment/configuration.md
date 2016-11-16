@@ -11,7 +11,7 @@ Pakyow.configure do
 end
 ```
 
-You can also set config values only when running in a particular environment:
+You can also set config values for particular modes:
 
 ```ruby
 Pakyow.configure do
@@ -24,8 +24,8 @@ end
 ```
 
 In this case, running `pakyow server production` would start the environment on
-port 2002. Starting Pakyow in an environment other than production would start
-the environment on port 2001.
+port 2002. Starting Pakyow in a mode other than production would start the
+environment on port 2001.
 
 ## Config Settings
 
@@ -33,7 +33,7 @@ Here's a comprehensive list of environment-level config options.
 
 ---
 
-env.default: the environment name to start when not explicitly provided  
+mode.default: the mode to start when not otherwise provided  
 _default_: development
 
 ---
