@@ -41,7 +41,7 @@ module Pakyow
 
     def <<(msg = nil, severity = :unknown)
       return if @log.nil?
-      (msg || "") << "\n"
+      msg = (msg || "").dup << "\n"
 
       msg = format(msg, severity) if @format
       @mutex.synchronize do
