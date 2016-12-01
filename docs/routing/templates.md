@@ -25,7 +25,7 @@ template :restful do
   get :edit, "/#{resource_id}/edit"
   patch :update, "/#{resource_id}"
   put :replace, "/#{resource_id}"
-  delete :delete, "/#{resource_id}"
+  delete :remove, "/#{resource_id}"
 
   group :collection
   namespace :member, resource_id
