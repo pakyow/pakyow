@@ -93,7 +93,7 @@ Where to write the logs to.
 The path cookies should be created at.
 
 *cookies.expiration (7 days)*  
-When cookes should expire. The value should be Ruby's `Time` object which is set to the expiration date.
+When cookes should expire. The value should be an instance of Ruby's `Time` object, set to the expiration date.
 
 ## Presenter Config
 
