@@ -94,8 +94,9 @@ The path cookies should be created at.
 
 *cookies.expiration (7 days)*  
 When cookes should expire. The value should be an instance of Ruby's `Time` 
-object, set to the expiration date.
-Here's an example that sets the expiration to 14 days.
+object, set to the expiration date. Here's an example that sets the cookie
+expiration to 14 days:
+
 ```ruby
 cookies.expiration = Time.now + 60 * 60 * 24 * 14
 ```
