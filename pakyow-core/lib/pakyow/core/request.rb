@@ -68,6 +68,8 @@ module Pakyow
       @params = super
       @params.merge!(env['pakyow.data']) if env['pakyow.data'].is_a?(Hash)
       @params.merge!(JSON.parse(body.read.to_s)) if format == :json
+    rescue JSON::ParserError
+    ensure
       @params = Hash.strhash(@params)
     end
 
