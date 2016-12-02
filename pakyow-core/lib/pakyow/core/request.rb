@@ -70,7 +70,7 @@ module Pakyow
       @params.merge!(JSON.parse(body.read.to_s)) if format == :json
     rescue JSON::ParserError
     ensure
-      @params = Hash.strhash(@params)
+      return @params = Hash.strhash(@params)
     end
 
     # Returns array of url components.
