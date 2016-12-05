@@ -3,27 +3,19 @@ module Pakyow
   #
   # @api public
   module Helpers
-    def context
-      @context or raise NoContextError
-    end
-
     def logger
       request.logger || Pakyow.logger
     end
 
-    def router
-      RouteLookup.new
-    end
-
     def request
-      context ? context.request : nil
+      @request
     end
-    alias_method :req, :request
+    alias :req :request
 
     def response
-      context ? context.response : nil
+      @response
     end
-    alias_method :res, :response
+    alias :res :response
 
     def params
       request ? request.params : {}
