@@ -7,7 +7,6 @@ module Pakyow
     #
     # @api private
     class NoOpView
-      include Helpers
       VIEW_CLASSES = [ViewContext]
 
       # The arities of misc view methods that switch the behavior from
