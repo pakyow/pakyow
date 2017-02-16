@@ -1,8 +1,8 @@
-require "pakyow/all"
+require "pakyow/core"
 
 Pakyow::App.define do
   configure do
-    app.name = "example"
+    config.app.name = "example"
   end
 
   configure :development do
