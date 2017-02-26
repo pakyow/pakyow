@@ -312,10 +312,10 @@ RSpec.describe Pakyow do
   end
 
   describe ".run" do
-    before do
+    def run(opts = { port: port, host: host, server: server })
       allow(Pakyow).to receive(:handler).and_return(handler_double)
       Pakyow.instance_variable_set(:@builder, builder_double)
-      Pakyow.run(port: port, host: host, server: server)
+      Pakyow.run(**opts)
     end
 
     after do
@@ -343,6 +343,10 @@ RSpec.describe Pakyow do
     end
 
     context "called with a port" do
+      before do
+        run
+      end
+
       it "uses the passed port" do
         expect(Pakyow.port).to be(port)
       end
@@ -353,12 +357,20 @@ RSpec.describe Pakyow do
         nil
       end
 
+      before do
+        run
+      end
+
       it "uses the default port" do
         expect(Pakyow.port).to be(Pakyow.config.server.port)
       end
     end
 
     context "called with a host" do
+      before do
+        run
+      end
+
       it "uses the passed host" do
         expect(Pakyow.host).to be(host)
       end
@@ -369,12 +381,20 @@ RSpec.describe Pakyow do
         nil
       end
 
+      before do
+        run
+      end
+
       it "uses the default host" do
         expect(Pakyow.host).to be(Pakyow.config.server.host)
       end
     end
 
     context "called with a server" do
+      before do
+        run
+      end
+
       it "uses the passed server" do
         expect(Pakyow.server).to be(server)
       end
@@ -385,16 +405,32 @@ RSpec.describe Pakyow do
         nil
       end
 
+      before do
+        run
+      end
+
       it "uses the default server" do
         expect(Pakyow.server).to be(Pakyow.config.server.default)
       end
     end
 
+    context "called with extra opts" do
+      before do
+        run(port: port, host: host, foo: :bar)
+      end
+
+      it "passes on the default opts" do
+        expect(handler_double).to have_received(:run).with(builder_double, Host: host, Port: port, foo: :bar)
+      end
+    end
+
     it "looks up the handler for the server" do
+      run
       expect(Pakyow).to have_received(:handler).with(server)
     end
 
     it "runs the handler with the builder on the right host / port" do
+      run
       expect(handler_double).to have_received(:run).with(builder_double, Host: host, Port: port)
     end
   end

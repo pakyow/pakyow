@@ -240,13 +240,15 @@ module Pakyow
     # @param host [String] what ip address to bind Pakyow to
     # @param server [Symbol] name of the rack handler to use
     #
+    # This method also accepts arbitrary options, which are passed directly to the handler.
+    #
     # @api public
-    def run(port: nil, host: nil, server: nil)
+    def run(port: nil, host: nil, server: nil, **opts)
       @port   = port   || config.server.port
       @host   = host   || config.server.host
       @server = server || config.server.default
 
-      handler(@server).run(builder.to_app, Host: @host, Port: @port) do |app_server|
+      handler(@server).run(builder.to_app, Host: @host, Port: @port, **opts) do |app_server|
         STOP_SIGNALS.each do |signal|
           trap(signal) {
             stop(app_server)
