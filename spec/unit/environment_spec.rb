@@ -141,6 +141,10 @@ RSpec.describe Pakyow do
   end
 
   describe ".mount" do
+    after do
+      Pakyow.reset
+    end
+
     let :app do
       Class.new
     end
