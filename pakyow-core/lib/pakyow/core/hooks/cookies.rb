@@ -1,9 +1,9 @@
 module Pakyow
-  App.before :process do
+  Controller.before :process do
     @cookies = request.cookies.dup
   end
 
-  App.after :process do
+  Controller.after :process do
     request.cookies.each_pair do |name, value|
       name = name.to_s
 

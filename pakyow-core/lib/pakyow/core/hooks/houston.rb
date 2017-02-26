@@ -1,5 +1,5 @@
 module Pakyow
-  App.after :error do
+  Controller.before :error do
     logger.houston(req.error)
   end
 end

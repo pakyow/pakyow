@@ -7,16 +7,8 @@ module Pakyow
       request.logger || Pakyow.logger
     end
 
-    def request
-      @request
-    end
-    alias :req :request
-
-    def response
-      @response
-    end
-    alias :res :response
-
+    # TODO: I'd really like these to just be delegators
+    # and not handle the missing request object
     def params
       request ? request.params : {}
     end
