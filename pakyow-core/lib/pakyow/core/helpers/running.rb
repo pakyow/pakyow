@@ -34,9 +34,9 @@ module Pakyow
       # Runs the staged app.
       #
       # @api public
-      def run(env)
+      def run(env, **opts)
         builder.run(stage(env))
-        handler.run(builder, Host: config.server.host, Port: config.server.port) do |server|
+        handler.run(builder, Host: config.server.host, Port: config.server.port, **opts) do |server|
           STOP_SIGNALS.each do |signal|
             trap(signal) { stop(server) }
           end
