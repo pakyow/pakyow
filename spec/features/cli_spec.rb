@@ -8,12 +8,12 @@ end
 
 RSpec.describe "command line interface" do
   describe "help" do
-    it_behaves_like "help information", "bin/pakyow --help"
-    it_behaves_like "help information", "bin/pakyow -h"
+    it_behaves_like "help information", "commands/pakyow --help"
+    it_behaves_like "help information", "commands/pakyow -h"
 
     %w(console new server version).each do |command|
       describe "#{command} help" do
-        it_behaves_like "help information", "bin/pakyow help #{command}"
+        it_behaves_like "help information", "commands/pakyow help #{command}"
       end
     end
   end
@@ -21,7 +21,7 @@ RSpec.describe "command line interface" do
   describe "console" do
     context "current directory is not a pakyow app" do
       it "kindly notifies the user" do
-        output = `bin/pakyow console 2>&1`.chomp
+        output = `commands/pakyow console 2>&1`.chomp
 
         expect(output).to match("must run.*console")
       end
@@ -31,7 +31,7 @@ RSpec.describe "command line interface" do
   describe "server" do
     context "current directory is not a pakyow app" do
       it "kindly notifies the user" do
-        output = `bin/pakyow server 2>&1`.chomp
+        output = `commands/pakyow server 2>&1`.chomp
 
         expect(output).to match("must run.*server")
       end
@@ -40,14 +40,14 @@ RSpec.describe "command line interface" do
 
   describe "version" do
     it "outputs current Pakyow version" do
-      output = `bin/pakyow version`.chomp
+      output = `commands/pakyow version`.chomp
 
       expect(output).to eq("Pakyow v#{Pakyow::VERSION}")
     end
 
     it "is aliased as --version and -v" do
-      expect(`bin/pakyow --version`.chomp).to eq("Pakyow v#{Pakyow::VERSION}")
-      expect(`bin/pakyow -v`.chomp).to eq("Pakyow v#{Pakyow::VERSION}")
+      expect(`commands/pakyow --version`.chomp).to eq("Pakyow v#{Pakyow::VERSION}")
+      expect(`commands/pakyow -v`.chomp).to eq("Pakyow v#{Pakyow::VERSION}")
     end
   end
 end
