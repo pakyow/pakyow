@@ -16,11 +16,11 @@ module Pakyow
         end
       end
 
-      def match?(path_to_match, request)
+      def match?(path_to_match, params)
         case path
         when Regexp
           if data = path.match(path_to_match)
-            request.params.merge!(Hash[data.names.zip(data.captures)])
+            params.merge!(Hash[data.names.zip(data.captures)])
             true
           end
         when String
@@ -35,7 +35,11 @@ module Pakyow
           @pipeline.each(&:call)
         else
           @pipeline.each do |route|
-            context.instance_exec(&route)
+            if context
+              context.instance_exec(&route)
+            else
+              route.call
+            end
           end
         end
       end

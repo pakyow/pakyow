@@ -45,7 +45,7 @@ module Pakyow
     attr_accessor :nested_path
 
     # @api private
-    attr_reader :name, :path, :funcs, :hooks, :routes, :children, :templates
+    attr_reader :name, :path, :funcs, :hooks, :routes, :children, :templates, :handlers, :exceptions
 
     # TODO: describe all the ways it can be initialized
     def initialize(name_or_path = nil, path_or_name = nil, before: [], after: [], around: [], &block)
@@ -65,6 +65,8 @@ module Pakyow
       @funcs = {}
       @children = []
       @templates = {}
+      @handlers = {}
+      @exceptions = {}
 
       @routes = SUPPORTED_METHODS.each_with_object({}) do |method, routes_hash|
         routes_hash[method] = []
@@ -263,6 +265,41 @@ module Pakyow
     # TODO: flesh this out
     def expand
     end
+    
+    def handle(name_exception_or_code, as: nil, &block)
+      if !name_exception_or_code.is_a?(Integer) && name_exception_or_code.ancestors.include?(Exception)
+        raise ArgumentError, "status code is required" if as.nil?
+        exceptions[name_exception_or_code] = [Rack::Utils.status_code(as), block]
+      else
+        handlers[Rack::Utils.status_code(name_exception_or_code)] = block
+      end
+    end
+    
+    def exception(klass, context: nil, handlers: {}, exceptions: {})
+      exceptions = self.exceptions.merge(exceptions)
+      return unless exception = exceptions[klass]
+
+      code = exception[0]
+
+      if handler = exception[1]
+        handlers[code] = handler
+      end
+        
+      trigger(code, context: context, handlers: handlers)
+
+      code
+    end
+    
+    def trigger(code, context: nil, handlers: {})
+      handlers = self.handlers.merge(handlers)
+      return unless handler = handlers[code]
+
+      if context
+        context.instance_exec(&handler)
+      else
+        handler.call
+      end
+    end
 
     # TODO: call the `expand` method
     def method_missing(method, *args, **hooks, &block)
@@ -275,19 +312,19 @@ module Pakyow
       end
     end
 
-    def call(path, method, request: nil, context: nil)
+    def call(path, method, params, context: nil)
       path = String.normalize_path(path)
 
       routes[method].each do |route|
         catch :reject do
-          next unless route.match?(path, request)
+          next unless route.match?(path, params)
           route.call(context: context)
           return true
         end
       end
 
       children.each do |child_router|
-        return true if child_router.call(path, method, request: request, context: context) === true
+        return true if child_router.call(path, method, params, context: context) === true
       end
     end
 
