@@ -291,6 +291,10 @@ module Pakyow
     end
     
     def trigger(code, context: nil, handlers: {})
+      children.each do |child_router|
+        return true if child_router.trigger(code, context: context, handlers: handlers) === true
+      end
+
       handlers = self.handlers.merge(handlers)
       return unless handler = handlers[code]
 
