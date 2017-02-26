@@ -1,5 +1,3 @@
-# TODO: nested handlers
-
 module Pakyow
   class Controller
     def self.process(env, app)
