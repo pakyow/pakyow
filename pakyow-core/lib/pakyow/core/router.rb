@@ -320,6 +320,10 @@ module Pakyow
 
     def call(path, method, params, context: nil)
       path = String.normalize_path(path)
+      
+      children.each do |child_router|
+        return true if child_router.call(path, method, params, context: context) === true
+      end
 
       routes[method].each do |route|
         catch :reject do
@@ -327,10 +331,6 @@ module Pakyow
           route.call(context: context)
           return true
         end
-      end
-
-      children.each do |child_router|
-        return true if child_router.call(path, method, params, context: context) === true
       end
     end
 
