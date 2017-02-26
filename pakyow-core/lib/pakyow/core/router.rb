@@ -299,6 +299,8 @@ module Pakyow
       else
         handler.call
       end
+      
+      true
     end
 
     # TODO: call the `expand` method

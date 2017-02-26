@@ -122,7 +122,7 @@ module Pakyow
 
       hook_around :trigger do
         app.state_for(:router).each do |router|
-          router.trigger(code, context: self, handlers: handlers)
+          break if router.trigger(code, context: self, handlers: handlers)
         end
       end
     end
