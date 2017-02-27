@@ -1,8 +1,10 @@
 module Pakyow
   class Controller
-    def self.process(env, app)
-      instance = self.new(env, app)
-      instance.process
+    class << self
+      def process(env, app)
+        instance = self.new(env, app)
+        instance.process
+      end
     end
     
     include Helpers
@@ -14,6 +16,9 @@ module Pakyow
 
     alias :req :request
     alias :res :response
+    
+    extend Forwardable
+    def_delegators :@request, :logger, :params, :session, :cookies
     
     def initialize(env, app)
       @request = Request.new(env)
@@ -60,6 +65,15 @@ module Pakyow
       end
     ensure
       return response.finish
+    end
+    
+    def handle(name_exception_or_code, as: nil, &block)
+      if !name_exception_or_code.is_a?(Integer) && name_exception_or_code.ancestors.include?(Exception)
+        raise ArgumentError, "status code is required" if as.nil?
+        exceptions[name_exception_or_code] = [Rack::Utils.status_code(as), block]
+      else
+        handlers[Rack::Utils.status_code(name_or_code)] = block
+      end
     end
 
     protected
@@ -122,15 +136,6 @@ module Pakyow
         app.state_for(:router).each do |router|
           break if router.trigger(code, context: self, handlers: handlers)
         end
-      end
-    end
-    
-    def handle(name_exception_or_code, as: nil, &block)
-      if !name_exception_or_code.is_a?(Integer) && name_exception_or_code.ancestors.include?(Exception)
-        raise ArgumentError, "status code is required" if as.nil?
-        exceptions[name_exception_or_code] = [Rack::Utils.status_code(as), block]
-      else
-        handlers[Rack::Utils.status_code(name_or_code)] = block
       end
     end
     
