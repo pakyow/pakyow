@@ -1,8 +1,9 @@
 module Pakyow
   module Routing
     class Route
-      attr_reader :name, :path, :parameterized_path, :block, :hooks, :pipeline
-
+      attr_reader :method, :name, :path, :parameterized_path, :block, :hooks, :pipeline
+      attr_accessor :callable_method
+      
       def initialize(name: nil, path: nil, hooks: nil, &block)
         @name     = name
         @path     = path
@@ -35,10 +36,10 @@ module Pakyow
           @pipeline.each(&:call)
         else
           @pipeline.each do |route|
-            if context
+            if route.is_a?(Proc)
               context.instance_exec(&route)
             else
-              route.call
+              context.send(route)
             end
           end
         end

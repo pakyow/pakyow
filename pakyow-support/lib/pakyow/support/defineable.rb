@@ -80,8 +80,14 @@ module Pakyow
           (@state ||= {})[name] = State.new(name, object)
           method_body = Proc.new do |*args, &block|
             return @state[name] if block.nil?
-            instance = object.new(*args)
-            instance.instance_eval(&block)
+            
+            if object.respond_to?(:new)
+              instance = object.make(*args, &block)
+            else
+              instance = object.new(*args)
+              instance.instance_eval(&block)
+            end
+
             @state[name] << instance
           end
 
@@ -115,9 +121,16 @@ module Pakyow
         super
         @instances = original.instances.deep_dup
       end
-
+      
+      # TODO: we handle both instances and classes, so reconsider the variable naming
       def <<(instance)
-        unless instance.class.ancestors.include?(object)
+        ancestors = if instance.respond_to?(:new)
+          instance.ancestors
+        else
+          instance.class.ancestors
+        end
+
+        unless ancestors.include?(object)
           raise ArgumentError, "Expected instance of '#{object}'"
         end
 
