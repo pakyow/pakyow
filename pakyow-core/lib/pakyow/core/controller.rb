@@ -1,4 +1,5 @@
 module Pakyow
+  # TODO: document
   class Controller
     class << self
       def process(env, app)

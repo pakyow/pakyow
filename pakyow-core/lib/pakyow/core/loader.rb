@@ -1,4 +1,6 @@
 module Pakyow
+  # TODO: better docs
+  #
   # Handles the loading and reloading of a Pakyow application. If in development
   # mode, files are automatically reloaded if modified.
   class Loader
