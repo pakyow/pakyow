@@ -7,7 +7,7 @@ require "pakyow/support/array"
 # TODO: within
 
 module Pakyow
-  # TODO:
+  # TODO: document
   #   - the route being defined in context with logic
   #   - how to use routers (direct vs through an app)
   #   - how routes are defined at particular paths

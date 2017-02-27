@@ -7,6 +7,8 @@ require "pakyow/core/loader"
 require "pakyow/core/router"
 
 module Pakyow
+  # TODO: better docs
+  #
   # The main app object.
   #
   # Can be defined once, mounted multiple times.
@@ -157,7 +159,7 @@ module Pakyow
     def call(env)
       Controller.process(env, self)
     end
-
+    
     protected
 
     def load_app
