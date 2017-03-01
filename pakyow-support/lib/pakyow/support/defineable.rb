@@ -12,6 +12,27 @@ module Pakyow
     #
     # Once an instance has been created, global state for that object is frozen.
     #
+    # Defineable objects' `initialize` method should always call super with
+    # the block to ensure that state is inherited correctly.
+    #
+    # @example
+    #   class SomeDefineableObject
+    #     include Support::Defineable
+    #
+    #     def initialize(some_arg, &block)
+    #       # Do something with some_arg, etc.
+    #
+    #       super(&block)
+    #     end
+    #   end
+    #
+    # Defineable objects define class and instance `make` methods that
+    # return an instance of the class.
+    #
+    # @example
+    #   defineable = SomeDefineableObject.make(*args, &block)
+    #   defineable.make(*args, &block)
+    #
     module Defineable
       using DeepDup
 
@@ -61,6 +82,12 @@ module Pakyow
         super
       end
 
+      # Provide default make method
+      #
+      def make(*args, &block)
+        self.class.make(*args, &block)
+      end
+
       module ClassAPI
         attr_reader :state, :inherited_state
 
@@ -80,13 +107,8 @@ module Pakyow
           (@state ||= {})[name] = State.new(name, object)
           method_body = Proc.new do |*args, &block|
             return @state[name] if block.nil?
-            
-            if object.respond_to?(:new)
-              instance = object.make(*args, &block)
-            else
-              instance = object.new(*args)
-              instance.instance_eval(&block)
-            end
+
+            instance = object.make(*args, &block)
 
             @state[name] << instance
           end
@@ -99,6 +121,12 @@ module Pakyow
         #
         def define(&block)
           instance_eval(&block)
+        end
+
+        # Provide a default make method
+        #
+        def make(*args, &block)
+          new(*args, &block)
         end
       end
     end
@@ -121,7 +149,7 @@ module Pakyow
         super
         @instances = original.instances.deep_dup
       end
-      
+
       # TODO: we handle both instances and classes, so reconsider the variable naming
       def <<(instance)
         ancestors = if instance.respond_to?(:new)
