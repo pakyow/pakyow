@@ -125,7 +125,7 @@ module Pakyow
 
       response.body = data
       response["Content-Type"] = type if type
-      response["Content-disposition"] = "attachment; filename=#{send_as}" if send_as
+      response["Content-disposition"] = "attachment; filename=#{as}" if as
       halt
     end
 
