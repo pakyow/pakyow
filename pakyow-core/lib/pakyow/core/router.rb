@@ -49,7 +49,7 @@ module Pakyow
     # this feels kind of wrong, in that it's used as the path when building
     attr_accessor :nested_path
     
-    attr_accessor :context
+    attr_accessor :context, :parent
 
     extend Forwardable
     def_delegators :@context, :logger, :handle
@@ -176,6 +176,7 @@ module Pakyow
       def group(name = nil, **hooks, &block)
         router = Router.new(name, **compile_hooks(hooks))
         router.instance_eval(&block)
+        router.parent = self
         children << router
       end
 
@@ -208,6 +209,7 @@ module Pakyow
 
         router = Router.new(name, full_path(path), **compile_hooks(hooks))
         router.instance_eval(&block)
+        router.parent = self
         children << router
       end
 
@@ -300,7 +302,13 @@ module Pakyow
     
       def exception(klass, context: nil, handlers: {}, exceptions: {})
         exceptions = self.exceptions.merge(exceptions)
-        return unless exception = exceptions[klass]
+        unless exception = exceptions[klass]
+          return unless parent
+
+          parent.exception(
+            klass, context: context, handlers: handlers, exceptions: exceptions
+          )
+        end
 
         code = exception[0]
 
@@ -335,6 +343,7 @@ module Pakyow
         if template = templates[method]
           args[1] = full_path(args[1] || "")
           expansion = Routing::Expansion.new(template, *args, **hooks, &block)
+          router.parent = self
           children << expansion.router
         else
           raise NameError, "Unknown template `#{method}'"
