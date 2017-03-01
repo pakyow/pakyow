@@ -26,13 +26,6 @@ module Pakyow
     #     end
     #   end
     #
-    # Defineable objects define class and instance `make` methods that
-    # return an instance of the class.
-    #
-    # @example
-    #   defineable = SomeDefineableObject.make(*args, &block)
-    #   defineable.make(*args, &block)
-    #
     module Defineable
       using DeepDup
 
@@ -82,12 +75,6 @@ module Pakyow
         super
       end
 
-      # Provide default make method
-      #
-      def make(*args, &block)
-        self.class.make(*args, &block)
-      end
-
       module ClassAPI
         attr_reader :state, :inherited_state
 
@@ -102,6 +89,40 @@ module Pakyow
 
         # Register a type of state that can be defined.
         #
+        # @param object
+        #   Can be a class or instance, but must respond to :make. The `make`
+        #   method should return the object to be "made" accept a block that
+        #   should be evaluated in the context of the object.
+        #
+        #   @example
+        #
+        #     class Person
+        #       # ...
+        #
+        #       def make(name, dob, &block)
+        #         person = self.class.new(name, dob)
+        #         
+        #         person.instance_eval(&block)
+        #         person
+        #       end
+        #
+        #       def befriend(person)
+        #         friends << person
+        #       end
+        #     end
+        #
+        #     class App
+        #       include Pakyow::Support::Defineable
+        #
+        #       stateful :person, Person
+        #     end
+        #
+        #     john = App.person 'John', Date.new(1988, 8, 13) do
+        #     end
+        #
+        #     App.person 'Sofie', Date.new(2015, 9, 6) do
+        #       befriend(john)
+        #     end
         def stateful(name, object)
           name = name.to_sym
           (@state ||= {})[name] = State.new(name, object)
@@ -121,12 +142,6 @@ module Pakyow
         #
         def define(&block)
           instance_eval(&block)
-        end
-
-        # Provide a default make method
-        #
-        def make(*args, &block)
-          new(*args, &block)
         end
       end
     end
