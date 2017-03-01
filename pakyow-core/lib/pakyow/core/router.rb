@@ -176,6 +176,9 @@ module Pakyow
     attr_accessor :context
 
     # @api private
+    attr_accessor :parent
+
+    # @api private
     def initialize(context)
       @context = context
     end
@@ -314,6 +317,7 @@ module Pakyow
       def group(name = nil, **hooks, &block)
         router = Router.new(name, **compile_hooks(hooks))
         router.instance_eval(&block)
+        router.parent = self
         children << router
       end
 
@@ -346,6 +350,7 @@ module Pakyow
 
         router = Router.new(name, full_path(path), **compile_hooks(hooks))
         router.instance_eval(&block)
+        router.parent = self
         children << router
       end
 
@@ -412,6 +417,7 @@ module Pakyow
         if template = templates[name]
           args[1] = full_path(args[1] || "")
           expansion = Routing::Expansion.new(template, *args, **hooks, &block)
+          expansion.router.parent = self
           children << expansion.router
         else
           raise NameError, "Unknown template `#{name}'"
@@ -517,7 +523,13 @@ module Pakyow
       # @api private
       def exception(klass, context: nil, handlers: {}, exceptions: {})
         exceptions = self.exceptions.merge(exceptions)
-        return unless exception = exceptions[klass]
+        unless exception = exceptions[klass]
+          return unless parent
+
+          parent.exception(
+            klass, context: context, handlers: handlers, exceptions: exceptions
+          )
+        end
 
         code = exception[0]
 

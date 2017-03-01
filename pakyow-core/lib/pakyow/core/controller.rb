@@ -101,12 +101,14 @@ module Pakyow
           if app.config.routing.enabled
             hook_around :route do
               app.state_for(:router).each do |router|
+                @processing = router
                 @found = router.call(
                   request.env[Rack::PATH_INFO],
                   request.env[Rack::REQUEST_METHOD],
                   request.params,
                   context: self
                 )
+                @processing = nil
 
                 break if found?
               end
@@ -120,8 +122,8 @@ module Pakyow
       request.error = error
 
       catch :halt do
-        app.state_for(:router).each do |router|
-          if status = router.exception(error.class, context: self, handlers: handlers, exceptions: exceptions)
+        if failed_router
+          if status = failed_router.exception(error.class, context: self, handlers: handlers, exceptions: exceptions)
             response.status = status
             return
           end
@@ -345,6 +347,11 @@ module Pakyow
     # @api private
     def found?
       @found == true
+    end
+
+    # @api private
+    def failed_router
+      @processing
     end
   end
 end
