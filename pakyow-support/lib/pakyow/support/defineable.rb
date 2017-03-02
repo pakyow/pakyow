@@ -91,8 +91,8 @@ module Pakyow
         #
         # @param object
         #   Can be a class or instance, but must respond to :make. The `make`
-        #   method should return the object to be "made" accept a block that
-        #   should be evaluated in the context of the object.
+        #   method should return the object to be "made" and accept a block
+        #   that should be evaluated in the context of the object.
         #
         #     class Person
         #       # ...
