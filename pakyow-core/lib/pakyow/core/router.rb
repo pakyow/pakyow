@@ -49,7 +49,7 @@ module Pakyow
     # this feels kind of wrong, in that it's used as the path when building
     attr_accessor :nested_path
     
-    attr_accessor :context, :parent
+    attr_accessor :context
 
     extend Forwardable
     def_delegators :@context, :logger, :handle
@@ -61,6 +61,7 @@ module Pakyow
     class << self
       # @api private
       attr_reader :name, :path, :hooks, :children, :templates, :handlers, :exceptions
+      attr_accessor :parent
       
       def Router(path, before: [], after: [], around: [])
         Class.new(self) do
@@ -207,8 +208,7 @@ module Pakyow
         args  = Aargv.normalize([name_or_path, path_or_name], name: Symbol, path: String)
         name, path = args.values_at(:name, :path)
 
-        router = Router.new(name, full_path(path), **compile_hooks(hooks))
-        router.instance_eval(&block)
+        router = make(name, full_path(path), **compile_hooks(hooks), &block)
         router.parent = self
         children << router
       end
