@@ -94,8 +94,6 @@ module Pakyow
         #   method should return the object to be "made" accept a block that
         #   should be evaluated in the context of the object.
         #
-        #   @example
-        #
         #     class Person
         #       # ...
         #
