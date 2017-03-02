@@ -348,8 +348,7 @@ module Pakyow
         args  = Aargv.normalize([name_or_path, path_or_name], name: Symbol, path: String)
         name, path = args.values_at(:name, :path)
 
-        router = Router.new(name, full_path(path), **compile_hooks(hooks))
-        router.instance_eval(&block)
+        router = make(name, full_path(path), **compile_hooks(hooks), &block)
         router.parent = self
         children << router
       end
@@ -489,6 +488,9 @@ module Pakyow
       # this feels kind of wrong, in that it's used as the path when building
       # @api private
       attr_accessor :nested_path
+
+      # @api private
+      attr_accessor :parent
 
       # @api private
       attr_reader :name, :path
