@@ -13,7 +13,7 @@ module Pakyow
     include Support::Hookable
     known_events :process, :route, :error, :trigger
     
-    attr_reader :request, :response, :app, :handlers, :exceptions
+    attr_reader :request, :response, :app, :handlers, :exceptions, :current_router
 
     alias :req :request
     alias :res :response
@@ -35,14 +35,13 @@ module Pakyow
         catch :halt do
           hook_around :route do
             app.state_for(:router).each do |router|
-              @processing = router
+              @current_router = router
               @found = router.call(
                 request.env[Rack::PATH_INFO],
                 request.env[Rack::REQUEST_METHOD],
                 request.params,
                 context: self
               )
-              @processing = nil
 
               break if found?
             end
@@ -174,7 +173,7 @@ module Pakyow
 
     # @api private
     def failed_router
-      @processing
+      !found? && current_router
     end
   end
 end
