@@ -522,14 +522,7 @@ module Pakyow
 
       # @api private
       def exception(klass, context: nil, handlers: {}, exceptions: {})
-        exceptions = self.exceptions.merge(exceptions)
-        unless exception = exceptions[klass]
-          return unless parent
-
-          parent.exception(
-            klass, context: context, handlers: handlers, exceptions: exceptions
-          )
-        end
+        return unless exception = exception_for_class(klass, exceptions: exceptions)
 
         code = exception[0]
 
@@ -745,6 +738,16 @@ module Pakyow
 
       def merge_templates(templates_to_merge)
         templates.merge!(templates_to_merge)
+      end
+
+      def exception_for_class(klass, exceptions: {})
+        exceptions = self.exceptions.merge(exceptions)
+
+        if exception = exceptions[klass]
+          return exception
+        end
+
+        parent.exception_for_class(klass) if parent
       end
     end
   end
