@@ -42,7 +42,7 @@ module Pakyow
     # Routing extensions that are automatically available in each router.
     #
     DEFAULT_EXTENSIONS = [
-      "Pakyow::Routing::Extensions::Restful"
+      "Pakyow::Routing::Extension::Restful"
     ].freeze
 
     # TODO: rethink this a bit once we can define groups / namespaces in a template

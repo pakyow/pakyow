@@ -2,7 +2,7 @@ require "pakyow/core/routing/extension"
 
 module Pakyow
   module Routing
-    module Extensions
+    module Extension
       module Restful
         include Extension
 
