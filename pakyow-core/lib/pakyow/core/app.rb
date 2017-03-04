@@ -7,11 +7,97 @@ require "pakyow/core/helpers"
 require "pakyow/core/router"
 
 module Pakyow
-  # TODO: better docs
+  # Pakyow's main app object. Can be defined directly or subclassed to create
+  # multiple apps, each containing its own state. Each app can be defined and
+  # mounted as an endpoint within the environment.
   #
-  # The main app object.
+  # @example Defining and mounting an app:
+  #   Pakyow::App.define do
+  #     # define state here
+  #   end
   #
-  # Can be defined once, mounted multiple times.
+  #   Pakyow.configure do
+  #     mount Pakyow::App, at: "/"
+  #   end
+  #
+  # @example Creating a subclass:
+  #   class SuperDuperApp < Pakyow::App
+  #     # define app state here
+  #   end
+  #
+  # Routers can be registered to process incoming requests.
+  #
+  # @example Defining a router:
+  #   Pakyow::App.router do
+  #     default do
+  #       logger.info "hello world"
+  #     end
+  #   end
+  #
+  # Each request is processed in an instance of {Controller}.
+  #
+  # The following config settings are available to the app:
+  #
+  # - *app.name*: the name of the app  
+  #   _default_: pakyow
+  # - *app.root*: the root app directory  
+  #   _default_: ./
+  # - *app.src*: the app source location  
+  #   _default_: ./app/lib
+  #
+  # - *router.enabled*: whether or not the router is enabled  
+  #   _default_: true, false (prototype)
+  #
+  # - *cookies.path*: the cookies path  
+  #   _default_: /
+  # - *cookies.expiry*: when cookies should expire  
+  #   _default_: 7 days from now
+  #
+  # - *session.enabled*: whether or not the app should use sessions  
+  #   _default_: true
+  # - *session.key*: the key to store the session under  
+  #   _default_: {app.name}.session
+  # - *session.secret*: the session secret  
+  #   _default_: ENV["SESSION_SECRET"]
+  # - *session.object*: the session class  
+  #   _default_: Rack::Session::Cookie
+  # - *session.old_secret*: the old session secret (set when rotating keys)
+  # - *session.expiry*: when to expire the session
+  # - *session.path*: the path for the session cookie
+  # - *session.domain*: the domain for the session cookie
+  # - *session.options*: options passed to {session.object}
+  #
+  # Configuration support is added via {Support::Configurable}.
+  #
+  # @example Configure the app:
+  #   Pakyow::App.configure do
+  #     config.app.name = "my-app"
+  #   end
+  #
+  # @example Configure the app for a specific environment:
+  #   Pakyow::App.configure :development do
+  #     config.app.name = "my-app"
+  #   end
+  #
+  # The `app` config namespace can be extended with your own options.
+  #
+  # @example Creating a config option:
+  #   Pakyow::App.configure do
+  #     config.app.foo = "bar"
+  #   end
+  #
+  # Hooks are available to extend the app with custom behavior:
+  #
+  # - initialize
+  # - configure
+  # - load
+  #
+  # @example Run code after the app is initialized:
+  #   Pakyow.after :initialize do
+  #     # do something here
+  #   end
+  #
+  # Hook support is added via {Support::Hookable}.
   #
   # @api public
   class App
@@ -23,34 +109,19 @@ module Pakyow
 
     include Support::Configurable
 
-    using Pakyow::Support::RecursiveRequire
-
     settings_for :app, extendable: true do
       setting :name, "pakyow"
+      setting :root, File.dirname("")
 
       setting :src do
         File.join(config.app.root, "app", "lib")
       end
-
-      setting :root, File.dirname("")
     end
 
     settings_for :router do
       setting :enabled, true
 
       defaults :prototype do
-        setting :enabled, false
-      end
-    end
-
-    settings_for :errors do
-      setting :enabled, true
-
-      defaults :production do
-        setting :enabled, false
-      end
-
-      defaults :ludicrous do
         setting :enabled, false
       end
     end
@@ -65,6 +136,15 @@ module Pakyow
 
     settings_for :session do
       setting :enabled, true
+
+      setting :key do
+        "#{config.app.name}.session"
+      end
+
+      setting :secret do
+        ENV["SESSION_SECRET"]
+      end
+
       setting :object, Rack::Session::Cookie
       setting :old_secret
       setting :expiry
@@ -85,14 +165,6 @@ module Pakyow
 
         opts
       end
-
-      setting :key do
-        "#{config.app.name}.session"
-      end
-
-      setting :secret do
-        ENV['SESSION_SECRET']
-      end
     end
 
     # Loads and configures the session middleware.
@@ -103,10 +175,29 @@ module Pakyow
       end
     end
 
-    attr_reader :environment, :builder
+    # The environment the app is defined in.
+    #
+    # @api public
+    attr_reader :environment
+    
+    # The rack builder.
+    #
+    # @api public
+    attr_reader :builder
 
     class << self
-      # Defines a resource.
+      # Defines a resource (see {Routing::Extension::Restful}).
+      #
+      # @example
+      #   Pakyow::App.resource :post, "/posts" do
+      #     list do
+      #     end
+      #
+      #     create do
+      #     end
+      #
+      #     # etc
+      #   end
       #
       # @api public
       def resource(name, path, &block)
@@ -127,6 +218,7 @@ module Pakyow
       }
     end
 
+    # @api private
     def initialize(environment, builder: nil, &block)
       @environment = environment
       @builder = builder
@@ -142,6 +234,7 @@ module Pakyow
       end
 
       # Call the Pakyow::Defineable initializer.
+      #
       # This ensures that any state registered in the passed block
       # has the proper priority against instance and global state.
       super(&block)
@@ -157,6 +250,8 @@ module Pakyow
     end
 
     protected
+
+    using Support::RecursiveRequire
 
     def load_app
       require_recursive(config.app.src)
