@@ -12,6 +12,20 @@ module Pakyow
     #
     # Once an instance has been created, global state for that object is frozen.
     #
+    # Defineable objects' `initialize` method should always call super with
+    # the block to ensure that state is inherited correctly.
+    #
+    # @example
+    #   class SomeDefineableObject
+    #     include Support::Defineable
+    #
+    #     def initialize(some_arg, &block)
+    #       # Do something with some_arg, etc.
+    #
+    #       super(&block)
+    #     end
+    #   end
+    #
     module Defineable
       using DeepDup
 
@@ -75,18 +89,45 @@ module Pakyow
 
         # Register a type of state that can be defined.
         #
+        # @param object
+        #   Can be a class or instance, but must respond to :make. The `make`
+        #   method should return the object to be "made" and accept a block
+        #   that should be evaluated in the context of the object.
+        #
+        #     class Person
+        #       # ...
+        #
+        #       def make(name, dob, &block)
+        #         person = self.class.new(name, dob)
+        #         
+        #         person.instance_eval(&block)
+        #         person
+        #       end
+        #
+        #       def befriend(person)
+        #         friends << person
+        #       end
+        #     end
+        #
+        #     class App
+        #       include Pakyow::Support::Defineable
+        #
+        #       stateful :person, Person
+        #     end
+        #
+        #     john = App.person 'John', Date.new(1988, 8, 13) do
+        #     end
+        #
+        #     App.person 'Sofie', Date.new(2015, 9, 6) do
+        #       befriend(john)
+        #     end
         def stateful(name, object)
           name = name.to_sym
           (@state ||= {})[name] = State.new(name, object)
           method_body = Proc.new do |*args, &block|
             return @state[name] if block.nil?
-            
-            if object.respond_to?(:new)
-              instance = object.make(*args, &block)
-            else
-              instance = object.new(*args)
-              instance.instance_eval(&block)
-            end
+
+            instance = object.make(*args, &block)
 
             @state[name] << instance
           end
@@ -121,7 +162,7 @@ module Pakyow
         super
         @instances = original.instances.deep_dup
       end
-      
+
       # TODO: we handle both instances and classes, so reconsider the variable naming
       def <<(instance)
         ancestors = if instance.respond_to?(:new)
