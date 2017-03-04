@@ -24,7 +24,7 @@ module Pakyow
     (class << Pakyow; self; end).send(:define_method, :Router) do |path, **hooks|
       router.Router(path, **hooks)
     end
-    
+
     METHOD_GET    = "GET".freeze
     METHOD_POST   = "POST".freeze
     METHOD_PUT    = "PUT".freeze
@@ -48,7 +48,7 @@ module Pakyow
     # TODO: rethink this a bit once we can define groups / namespaces in a template
     # this feels kind of wrong, in that it's used as the path when building
     attr_accessor :nested_path
-    
+
     attr_accessor :context
 
     extend Forwardable
@@ -61,11 +61,11 @@ module Pakyow
     class << self
       # @api private
       attr_reader :name, :path, :hooks, :children, :templates, :handlers, :exceptions
-      
+
       def Router(path, before: [], after: [], around: [])
         Class.new(self) do
           @path = path
-        
+
           @hooks = {
             before: before, after: after, around: around
           }
@@ -89,11 +89,11 @@ module Pakyow
         # TODO: support regex path
         args  = Aargv.normalize([name_or_path, path_or_name], name: Symbol, path: String)
         name, path = args.values_at(:name, :path)
-      
-        klass = Class.new(self) 
+
+        klass = Class.new(self)
         # TODO: snakecase to camelcase
         klass = Object.const_set("#{name.to_s.capitalize}Router", klass) if name
-      
+
         klass.class_eval do
           @name = name
           @path = path
@@ -105,10 +105,10 @@ module Pakyow
 
           class_eval(&block)
         end
-      
+
         klass
       end
-      
+
       def routes
         @routes ||= SUPPORTED_METHODS.each_with_object({}) do |method, routes_hash|
           routes_hash[method] = []
@@ -214,11 +214,11 @@ module Pakyow
       # TODO: rename to endpoint
       def path_to(*names, **params)
         first_name = names.first
-        if route = routes.values.flatten.find { |route| route.name == first_name }
-          if route.parameterized?
-            return route.populated_path(**params)
+        if found_route = routes.values.flatten.find { |route| route.name == first_name }
+          if found_route.parameterized?
+            return found_route.populated_path(**params)
           else
-            return route.path
+            return found_route.path
           end
         end
 
@@ -288,7 +288,7 @@ module Pakyow
       # TODO: flesh this out
       def expand
       end
-    
+
       def handle(name_exception_or_code, as: nil, &block)
         if !name_exception_or_code.is_a?(Integer) && name_exception_or_code.ancestors.include?(Exception)
           raise ArgumentError, "status code is required" if as.nil?
@@ -297,7 +297,7 @@ module Pakyow
           handlers[Rack::Utils.status_code(name_exception_or_code)] = block
         end
       end
-    
+
       def exception(klass, context: nil, handlers: {}, exceptions: {})
         exceptions = self.exceptions.merge(exceptions)
         return unless exception = exceptions[klass]
@@ -307,12 +307,12 @@ module Pakyow
         if handler = exception[1]
           handlers[code] = handler
         end
-        
+
         trigger(code, context: context, handlers: handlers)
 
         code
       end
-    
+
       def trigger(code, context: nil, handlers: {})
         children.each do |child_router|
           return true if child_router.trigger(code, context: context, handlers: handlers) === true
@@ -326,7 +326,7 @@ module Pakyow
         else
           handler.call
         end
-      
+
         true
       end
 
@@ -343,7 +343,7 @@ module Pakyow
 
       def call(path, method, params, context: nil)
         path = String.normalize_path(path)
-      
+
         children.each do |child_router|
           return true if child_router.call(path, method, params, context: context) === true
         end
@@ -399,7 +399,7 @@ module Pakyow
           hooks: compile_hooks(hooks || {}),
           &block
         )
-        
+
         routes[method] << route
         route
       end
