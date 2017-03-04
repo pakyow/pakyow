@@ -6,6 +6,8 @@ require "pakyow/support/recursive_require"
 require "pakyow/core/helpers"
 require "pakyow/core/router"
 
+require "forwardable"
+
 module Pakyow
   # Pakyow's main app object. Can be defined directly or subclassed to create
   # multiple apps, each containing its own state. Each app can be defined and
@@ -108,6 +110,9 @@ module Pakyow
     known_events :initialize, :configure, :load
 
     include Support::Configurable
+    
+    extend Forwardable
+    def_delegators :@builder, :use
 
     settings_for :app, extendable: true do
       setting :name, "pakyow"
@@ -238,10 +243,6 @@ module Pakyow
       # This ensures that any state registered in the passed block
       # has the proper priority against instance and global state.
       super(&block)
-    end
-
-    def use(middleware, *args)
-      builder.use(middleware, *args)
     end
 
     # @api private
