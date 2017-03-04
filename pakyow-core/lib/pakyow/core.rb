@@ -1,9 +1,3 @@
-# TODO: which of these are still necessary?
-require "find"
-require "rack"
-require "rack/file"
-require "cgi"
-
 require "pakyow"
 require "pakyow/support"
 
