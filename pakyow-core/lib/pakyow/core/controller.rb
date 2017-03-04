@@ -20,6 +20,44 @@ module Pakyow
     
     extend Forwardable
     def_delegators :@request, :logger, :params, :session, :cookies
+
+    # Tells the logger that an error occurred when processing a request.
+    #
+    before :error do
+      logger.houston(req.error)
+    end
+    
+    # Dups the cookies for comparison at the end of the request/response lifecycle.
+    #
+    before :process do
+      @cookies = request.cookies.dup
+    end
+    
+    # Handles setting and deleting cookies after a request is processed.
+    #
+    after :process do
+      request.cookies.each_pair do |name, value|
+        name = name.to_s
+
+        # delete the cookie if the value has been set to nil
+        response.delete_cookie(name) if value.nil?
+
+        # cookie is already set with value, ignore
+        next if @cookies.include?(name) && @cookies[name] == value
+
+        # set cookie with defaults
+        response.set_cookie(name, {
+          path: config.cookies.path,
+          expires: config.cookies.expiration,
+          value: value
+        })
+      end
+
+      # delete cookies that were deleted from the request
+      (@cookies.keys - request.cookies.keys).each do |name|
+        response.delete_cookie(name)
+      end
+    end
     
     def initialize(env, app)
       @request = Request.new(env)

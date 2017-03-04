@@ -95,6 +95,14 @@ module Pakyow
       end
     end
 
+    # Loads and configures the session middleware.
+    #
+    after :configure do
+      if config.session.enabled
+        builder.use config.session.object, config.session.options
+      end
+    end
+
     attr_reader :environment, :builder
 
     class << self

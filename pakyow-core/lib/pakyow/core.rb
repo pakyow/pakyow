@@ -12,5 +12,3 @@ require "pakyow/core/routing/extension"
 require "pakyow/core/routing/route"
 require "pakyow/core/routing/expansion"
 require "pakyow/core/routing/extensions/resource"
-
-require "pakyow/core/hooks"
