@@ -20,6 +20,8 @@ module Pakyow
   #     - point them to other docs inline
   #   - routing mixins and how they can be used
   class Router
+    include Helpers
+
     router = self
     (class << Pakyow; self; end).send(:define_method, :Router) do |path, **hooks|
       router.Router(path, **hooks)

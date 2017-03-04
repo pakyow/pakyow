@@ -1,7 +1,18 @@
 module Pakyow
-  # TODO: better docs
+  # Methods defined here are available within all {Router} instances.
   #
-  # Helpers available anywhere
+  # @example
+  #   module Pakyow::Helpers
+  #     def require_user!
+  #       handle :unauthorized unless session[:user]
+  #     end
+  #   end
+  #
+  #   Pakyow::App.router do
+  #     default do
+  #       require_user!
+  #     end
+  #   end
   #
   # @api public
   module Helpers

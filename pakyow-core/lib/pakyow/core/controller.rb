@@ -8,8 +8,6 @@ module Pakyow
       end
     end
     
-    include Helpers
-
     include Support::Hookable
     known_events :process, :route, :error, :trigger
     
