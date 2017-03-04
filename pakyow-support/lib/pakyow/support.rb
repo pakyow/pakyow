@@ -1,5 +1,4 @@
 require 'pakyow/support/array'
-require 'pakyow/support/dir'
 require 'pakyow/support/deep_dup'
 require 'pakyow/support/file'
 require 'pakyow/support/hash'

@@ -1,9 +1,13 @@
+require "pakyow/support/dir_walk"
+
 module Pakyow
   module Support
     module RecursiveRequire
       DOT_RB = ".rb".freeze
 
       refine Kernel do
+        using WalkDir
+
         # Recursively requires all *.rb files at path.
         #
         def require_recursive(require_path)
