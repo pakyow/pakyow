@@ -1,9 +1,9 @@
 require "pakyow/support/configurable"
 require "pakyow/support/defineable"
 require "pakyow/support/hookable"
+require "pakyow/support/recursive_require"
 
 require "pakyow/core/helpers"
-require "pakyow/core/loader"
 require "pakyow/core/router"
 
 module Pakyow
@@ -22,6 +22,8 @@ module Pakyow
     known_events :initialize, :configure, :load
 
     include Support::Configurable
+
+    using Pakyow::Support::RecursiveRequire
 
     settings_for :app, extendable: true do
       setting :name, "pakyow"
@@ -159,12 +161,11 @@ module Pakyow
     def call(env)
       Controller.process(env, self)
     end
-    
+
     protected
 
     def load_app
-      return unless config.app
-      Loader.new.load_from_path(config.app.src)
+      require_recursive(config.app.src)
     end
   end
 end
