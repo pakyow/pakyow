@@ -28,12 +28,6 @@ module Pakyow
     settings_for :app, extendable: true do
       setting :name, "pakyow"
 
-      setting :resources do
-        @resources ||= {
-          default: File.join(config.app.root, "public")
-        }
-      end
-
       setting :src do
         File.join(config.app.root, "app", "lib")
       end
@@ -55,14 +49,6 @@ module Pakyow
       defaults :production do
         setting :enabled, false
       end
-
-      defaults :ludicrous do
-        setting :enabled, false
-      end
-    end
-
-    settings_for :static do
-      setting :enabled, true
 
       defaults :ludicrous do
         setting :enabled, false
