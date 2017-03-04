@@ -13,7 +13,7 @@ module Pakyow
     include Support::Hookable
     known_events :process, :route, :error, :trigger
     
-    attr_reader :request, :response, :app, :handlers, :exceptions
+    attr_reader :request, :response, :app, :handlers, :exceptions, :current_router
 
     alias :req :request
     alias :res :response
@@ -35,6 +35,7 @@ module Pakyow
         catch :halt do
           hook_around :route do
             app.state_for(:router).each do |router|
+              @current_router = router
               @found = router.call(
                 request.env[Rack::PATH_INFO],
                 request.env[Rack::REQUEST_METHOD],
@@ -53,8 +54,8 @@ module Pakyow
       request.error = error
 
       catch :halt do
-        app.state_for(:router).each do |router|
-          if status = router.exception(error.class, context: self, handlers: handlers, exceptions: exceptions)
+        if failed_router
+          if status = failed_router.exception(error.class, context: self, handlers: handlers, exceptions: exceptions)
             response.status = status
             return
           end
@@ -168,6 +169,11 @@ module Pakyow
     # @api private
     def found?
       @found == true
+    end
+
+    # @api private
+    def failed_router
+      !found? && current_router
     end
   end
 end

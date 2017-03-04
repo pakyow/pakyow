@@ -61,6 +61,7 @@ module Pakyow
     class << self
       # @api private
       attr_reader :name, :path, :hooks, :children, :templates, :handlers, :exceptions
+      attr_accessor :parent
       
       def Router(path, before: [], after: [], around: [])
         Class.new(self) do
@@ -176,6 +177,7 @@ module Pakyow
       def group(name = nil, **hooks, &block)
         router = Router.new(name, **compile_hooks(hooks))
         router.instance_eval(&block)
+        router.parent = self
         children << router
       end
 
@@ -208,6 +210,7 @@ module Pakyow
 
         router = Router.new(name, full_path(path), **compile_hooks(hooks))
         router.instance_eval(&block)
+        router.parent = self
         children << router
       end
 
@@ -297,10 +300,9 @@ module Pakyow
           handlers[Rack::Utils.status_code(name_exception_or_code)] = block
         end
       end
-    
+
       def exception(klass, context: nil, handlers: {}, exceptions: {})
-        exceptions = self.exceptions.merge(exceptions)
-        return unless exception = exceptions[klass]
+        return unless exception = exception_for_class(klass, exceptions: exceptions)
 
         code = exception[0]
 
@@ -335,6 +337,7 @@ module Pakyow
         if template = templates[method]
           args[1] = full_path(args[1] || "")
           expansion = Routing::Expansion.new(template, *args, **hooks, &block)
+          router.parent = self
           children << expansion.router
         else
           raise NameError, "Unknown template `#{method}'"
@@ -454,6 +457,18 @@ module Pakyow
 
       def merge_templates(templates_to_merge)
         templates.merge!(templates_to_merge)
+      end
+
+      protected
+
+      def exception_for_class(klass, exceptions: {})
+        exceptions = self.exceptions.merge(exceptions)
+
+        if exception = exceptions[klass]
+          return exception
+        end
+
+        parent.exception_for_class(klass) if parent
       end
     end
   end
