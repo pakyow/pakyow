@@ -1,5 +1,6 @@
 require "irb"
 require "rack"
+require "rack-protection"
 require "logger"
 
 require "pakyow/support/hookable"
@@ -83,6 +84,7 @@ require "pakyow/middleware"
 # - Rack::ContentLength
 # - Rack::Head
 # - Rack::MethodOverride
+# - Rack::Protection
 # - {Middleware::JSONBody}
 # - {Middleware::ReqPathNormalizer}
 # - {Middleware::Logger}
@@ -158,6 +160,15 @@ module Pakyow
     use Rack::ContentLength
     use Rack::Head
     use Rack::MethodOverride
+
+    app = Pakyow::App.config
+    if app.session.enabled
+      use app.session.object, app.session.opts
+      use Rack::Protection
+    else
+      use Rack::Protection, without_session: true
+    end
+
     use Middleware::JSONBody
     use Middleware::Normalizer
     use Middleware::Logger
