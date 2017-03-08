@@ -8,6 +8,8 @@ require "pakyow/core/router"
 
 require "forwardable"
 
+require "rack-protection"
+
 module Pakyow
   # Pakyow's main app object. Can be defined directly or subclassed to create
   # multiple apps, each containing its own state. Each app can be defined and
@@ -177,6 +179,9 @@ module Pakyow
     after :configure do
       if config.session.enabled
         builder.use config.session.object, config.session.options
+        builder.use Rack::Protection
+      else
+        builder.use Rack::Protection, without_session: true
       end
     end
 
