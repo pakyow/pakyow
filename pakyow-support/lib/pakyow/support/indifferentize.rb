@@ -4,8 +4,9 @@ module Pakyow
     #   string keys.
     #
     # The original hash is converted to symbol keys, which means that a hash
-    #   that originally contains a symbol and string key with the same to_sym
-    #   value will conflict. It is not guaranteed which value will be saved.
+    #   that originally contains a symbol and string key with the same frozen
+    #   string value will conflict. It is not guaranteed which value will
+    #   be saved.
     #
     # @example
     #   { test: 'test1', 'test' => 'test2' } => { test: 'test2' }
@@ -26,7 +27,7 @@ module Pakyow
         def indifferent_key_method(*methods)
           methods.each do |name|
             define_method(name) do |key = nil, *args, &block|
-              key = key.to_sym if key.respond_to?(:to_sym)
+              key = convert_key(key)
               internal_hash.public_send(name, key, *args, &block)
             end
           end
@@ -36,7 +37,7 @@ module Pakyow
           methods.each do |name|
             define_method(name) do |*keys, &block|
               keys = keys.map do |key|
-                key.to_sym if key.respond_to?(:to_sym)
+                convert_key(key)
               end
               internal_hash.public_send(name, *keys, &block)
             end
@@ -83,8 +84,19 @@ module Pakyow
 
       def symbolize_keys(hash)
         hash.each_with_object({}) do |(key, value), converted|
-          key = key.to_sym if key.respond_to?(:to_sym)
+          key = convert_key(key)
           converted[key] = value
+        end
+      end
+
+      def convert_key(key)
+        case key
+        when Symbol, String
+          key.to_s.freeze 
+        when -> (key) { key.respond_to?(:to_indifferent_hash_key) }
+          key.to_indifferent_hash_key.to_s.freeze
+        else
+          key 
         end
       end
     end
