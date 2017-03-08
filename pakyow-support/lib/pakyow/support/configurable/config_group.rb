@@ -35,9 +35,9 @@ module Pakyow
         def defaults(env, &block)
           env = env.to_sym
           if block_given?
-            @defaults[env] = block
+            @_defaults[env] = block
           else
-            @defaults[env]
+            @_defaults[env]
           end
         end
 
