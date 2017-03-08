@@ -93,8 +93,6 @@ module Pakyow
         case key
         when Symbol, String
           key.to_s.freeze 
-        when -> (key) { key.respond_to?(:to_indifferent_hash_key) }
-          key.to_indifferent_hash_key.to_s.freeze
         else
           key 
         end
