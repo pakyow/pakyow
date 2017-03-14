@@ -20,9 +20,12 @@ module Pakyow
     class IndifferentHash < SimpleDelegator
       class << self
         def deep(hash)
-          pairs = hash.each_pair.map do |key, value|
-            if value.is_a? Hash
+          pairs = hash.to_h.each_pair.map do |key, value|
+            case value
+            when Hash
               value = deep(value)
+            when Array
+              value = value.map { |value_item| deep(value_item) }
             end
             [key, value]
           end
@@ -52,20 +55,30 @@ module Pakyow
           end
         end
 
-        def indifferentize_method(*methods)
+        def indifferentize_return_method(*methods)
           methods.each do |name|
             define_method(name) do |*args, &block|
               hash = internal_hash.public_send(name, *args, &block)
-              self.class.new(hash)
+              self.class.new(hash) if hash
             end
           end
         end
 
         def indifferentize_update_method(*methods)
           methods.each do |name|
-            define_method(name) do |hash, &block|
-              hash = symbolize_keys(hash)
-              internal_hash.public_send(name, hash, &block)
+            define_method(name) do |*args, &block|
+              args = args.map { |arg| stringify_keys(arg) }
+              hash = internal_hash.public_send(name, *args, &block)
+              self if hash
+            end
+          end
+        end
+
+        def indifferentize_argument_method(*methods)
+          methods.each do |name|
+            define_method(name) do |*args, &block|
+              args = args.map { |arg| stringify_keys(arg) }
+              internal_hash.public_send(name, *args, &block)
             end
           end
         end
@@ -75,23 +88,31 @@ module Pakyow
         self.internal_hash = hash
       end
 
-      indifferent_key_method :[], :[]=, :default, :delete, :dig, :fetch, :has_key?, :key?, :include?, :member?, :store
-      indifferent_multi_key_method :fetch_values, :values_at
-      indifferentize_method :merge, :invert
-      indifferentize_update_method :merge!, :update, :replace
-      
-      private
+      indifferent_key_method :[], :[]=, :default, :delete, :fetch, :has_key?, :key?, :include?, :member?, :store
+      indifferent_multi_key_method :fetch_values, :values_at, :dig
+      indifferentize_return_method :merge, :invert, :compact, :reject, :select, :transform_values, :deep_merge
+      indifferentize_update_method :merge!, :update, :replace, :clear, :keep_if, :delete_if, :compact!, :reject!, :select!, :transform_values, :deep_merge!
+      indifferentize_argument_method :>, :>=, :<=>, :<, :<=, :==
 
       def internal_hash
         __getobj__
       end
 
+      def to_h
+        self
+      end
+      alias to_hash to_h
+
+      private
+
       def internal_hash=(other)
-        __setobj__(symbolize_keys(other))
+        __setobj__(stringify_keys(other))
       end
 
-      def symbolize_keys(hash)
-        hash.each_with_object({}) do |(key, value), converted|
+      def stringify_keys(hash)
+        return hash unless hash.respond_to?(:to_h)
+
+        hash.to_h.each_with_object({}) do |(key, value), converted|
           key = convert_key(key)
           converted[key] = value
         end
