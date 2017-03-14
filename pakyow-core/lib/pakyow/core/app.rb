@@ -167,7 +167,7 @@ module Pakyow
       setting :path, "/"
 
       setting :expiry do
-        Time.now + 60 * 60 * 24 * 7
+        60 * 60 * 24 * 7
       end
     end
 

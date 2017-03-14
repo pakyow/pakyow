@@ -46,7 +46,7 @@ module Pakyow
         # set cookie with defaults
         response.set_cookie(name, {
           path: config.cookies.path,
-          expires: config.cookies.expiration,
+          expires: Time.now + config.cookies.expiry,
           value: value
         })
       end
