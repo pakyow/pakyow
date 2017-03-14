@@ -29,7 +29,6 @@ module Pakyow
   #     mount APIApp, at: "/api"
   #   end
   #
-  #
   # One or more routers can be registered to process incoming requests.
   # For example:
   #
@@ -110,8 +109,10 @@ module Pakyow
   # - +config.session.object+ defines the object used to store sessions. Default
   #   is +Rack::Session::Cookie+.
   #
-  # Configuration support is added via {Support::Configurable}.
+  # - +config.protection.enabled+ determines whether or not to use
+  #   +Rack::Protection+ for the applicaton. Default is +true+.
   #
+  # See {Support::Configurable} for more information.
   #
   # = Application Hooks
   #
