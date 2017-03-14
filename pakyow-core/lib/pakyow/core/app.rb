@@ -9,27 +9,28 @@ require "pakyow/core/router"
 require "forwardable"
 
 module Pakyow
-  # Pakyow's main app object. Can be defined directly or subclassed to create
-  # multiple apps, each containing its own state. Each app can be defined and
-  # mounted as an endpoint within the environment.
+  # Pakyow's main application object. Can be defined directly or subclassed to
+  # create multiple application objects, each containing its own state. These
+  # applications can then be mounted as an endpoint within the environment.
+  # For example:
   #
-  # @example Defining and mounting an app:
   #   Pakyow::App.define do
+  #     # define shared state here
+  #   end
+  #
+  #   class APIApp < Pakyow::App
   #     # define state here
   #   end
   #
   #   Pakyow.configure do
   #     mount Pakyow::App, at: "/"
+  #     mount APIApp, at: "/api"
   #   end
   #
-  # @example Creating a subclass:
-  #   class SuperDuperApp < Pakyow::App
-  #     # define app state here
-  #   end
   #
-  # Routers can be registered to process incoming requests.
+  # One or more routers can be registered to process incoming requests.
+  # For example:
   #
-  # @example Defining a router:
   #   Pakyow::App.router do
   #     default do
   #       logger.info "hello world"
@@ -38,68 +39,93 @@ module Pakyow
   #
   # Each request is processed in an instance of {Controller}.
   #
-  # The following config settings are available to the app:
+  # = Application Configuration
   #
-  # - *app.name*: the name of the app  
-  #   _default_: pakyow
-  # - *app.root*: the root app directory  
-  #   _default_: ./
-  # - *app.src*: the app source location  
-  #   _default_: ./app/lib
+  # Application objects can be configured. For example:
   #
-  # - *router.enabled*: whether or not the router is enabled  
-  #   _default_: true, false (prototype)
-  #
-  # - *cookies.path*: the cookies path  
-  #   _default_: /
-  # - *cookies.expiry*: when cookies should expire  
-  #   _default_: 7 days from now
-  #
-  # - *session.enabled*: whether or not the app should use sessions  
-  #   _default_: true
-  # - *session.key*: the key to store the session under  
-  #   _default_: {app.name}.session
-  # - *session.secret*: the session secret  
-  #   _default_: ENV["SESSION_SECRET"]
-  # - *session.object*: the session class  
-  #   _default_: Rack::Session::Cookie
-  # - *session.old_secret*: the old session secret (set when rotating keys)
-  # - *session.expiry*: when to expire the session
-  # - *session.path*: the path for the session cookie
-  # - *session.domain*: the domain for the session cookie
-  # - *session.options*: options passed to {session.object}
-  #
-  # Configuration support is added via {Support::Configurable}.
-  #
-  # @example Configure the app:
   #   Pakyow::App.configure do
   #     config.app.name = "my-app"
   #   end
   #
-  # @example Configure the app for a specific environment:
+  # It's possible to configure for specific environments. For example, here's
+  # how to override +app.name+ in the +development+ environment:
+  #
   #   Pakyow::App.configure :development do
-  #     config.app.name = "my-app"
+  #     config.app.name = "my-dev-app"
   #   end
   #
-  # The `app` config namespace can be extended with your own options.
+  # The +app+ config namespace can be extended with custom options. For example:
   #
-  # @example Creating a config option:
   #   Pakyow::App.configure do
   #     config.app.foo = "bar"
   #   end
   #
-  # Hooks are available to extend the app with custom behavior:
+  # == Configuration Options
+  #
+  # These config options are available:
+  #
+  # - +config.app.name+ defines the name of the application, used when a human
+  #   readable unique identifier is necessary. Default is "pakyow".
+  #
+  # - +config.app.root+ defines the root directory of the application, relative
+  #   to where the environment is started from. Default is +./+.
+  #
+  # - +config.app.src+ defines where the application code lives, relative to
+  #   where the environment is started from. Default is +{app.root}/app/lib+.
+  #
+  # - +config.router.enabled+ determines whether or not the router is enabled
+  #   for the application. Default is +true+, except when running the in
+  #   +prototype+ mode.
+  #
+  # - +config.cookies.path+ sets the URL path that must exist in the requested
+  #   resource before sending the Cookie header. Default is +/+.
+  #
+  # - +config.cookies.expiry+ sets when cookies should expire, specified in
+  #   seconds. Default is +60 * 60 * 24 * 7+ seconds, or 7 days.
+  #
+  # - +config.session.enabled+ determines whether sessions are enabled for the
+  #   application. Default is +true+.
+  #
+  # - +config.session.key+ defines the name of the key that holds the session
+  #   object. Default is +{app.name}.session+.
+  #
+  # - +config.session.secret+ defines the value used to verify that the session
+  #   has not been tampered with. Default is the value of the +SESSION_SECRET+
+  #   environment variable.
+  #
+  # - +config.session.old_secret+ defines the old session secret, which is
+  #   used to rotate session secrets in a graceful manner.
+  #
+  # - +config.session.expiry+ sets when sessions should expire, specified in
+  #   seconds.
+  #
+  # - +config.session.path+ defines the path for the session cookie.
+  #
+  # - +config.session.domain+ defines the domain for the session cookie.
+  #
+  # - +config.session.options+ contains options passed to the session store.
+  #
+  # - +config.session.object+ defines the object used to store sessions. Default
+  #   is +Rack::Session::Cookie+.
+  #
+  # Configuration support is added via {Support::Configurable}.
+  #
+  #
+  # = Application Hooks
+  #
+  # Hooks can be defined for these events:
   #
   # - initialize
   # - configure
   # - load
   #
-  # @example Run code after the app is initialized:
+  # For example, here's how to write to the log after initialization:
+  #
   #   Pakyow.after :initialize do
-  #     # do something here
+  #     logger.info "application initialized"
   #   end
   #
-  # Hook support is added via {Support::Hookable}.
+  # See {Support::Hookable} for more information.
   #
   # @api public
   class App
@@ -110,9 +136,12 @@ module Pakyow
     known_events :initialize, :configure, :load
 
     include Support::Configurable
-    
+
     extend Forwardable
-    def_delegators :@builder, :use
+
+    # @!method use
+    # Delegates to {builder}.
+    def_delegators :builder, :use
 
     settings_for :app, extendable: true do
       setting :name, "pakyow"
@@ -184,16 +213,15 @@ module Pakyow
     #
     # @api public
     attr_reader :environment
-    
+
     # The rack builder.
     #
     # @api public
     attr_reader :builder
 
     class << self
-      # Defines a resource (see {Routing::Extension::Restful}).
+      # Defines a resource (see {Routing::Extension::Restful}). For example:
       #
-      # @example
       #   Pakyow::App.resource :post, "/posts" do
       #     list do
       #     end
@@ -214,6 +242,7 @@ module Pakyow
         end
       end
 
+      # @api private
       RESOURCE_ACTIONS = {
         core: Proc.new do |app, name, path, block|
           app.router do
