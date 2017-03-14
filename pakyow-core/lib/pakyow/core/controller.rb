@@ -98,16 +98,18 @@ module Pakyow
     def process
       hook_around :process do
         catch :halt do
-          hook_around :route do
-            app.state_for(:router).each do |router|
-              @found = router.call(
-                request.env[Rack::PATH_INFO],
-                request.env[Rack::REQUEST_METHOD],
-                request.params,
-                context: self
-              )
+          if app.config.routing.enabled
+            hook_around :route do
+              app.state_for(:router).each do |router|
+                @found = router.call(
+                  request.env[Rack::PATH_INFO],
+                  request.env[Rack::REQUEST_METHOD],
+                  request.params,
+                  context: self
+                )
 
-              break if found?
+                break if found?
+              end
             end
           end
 
