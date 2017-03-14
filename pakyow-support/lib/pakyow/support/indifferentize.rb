@@ -1,12 +1,18 @@
 module Pakyow
   module Support
     # Creates a Hash-like object can access stored data with symbol or
-    #   string keys.
+    #   string keys. 
     #
-    # The original hash is converted to symbol keys, which means that a hash
-    #   that originally contains a symbol and string key with the same frozen
-    #   string value will conflict. It is not guaranteed which value will
-    #   be saved.
+    # The original hash is converted to frozen string keys, which means
+    #   that a hash that originally contains a symbol and string key
+    #   with the same frozen string value will conflict. It is not
+    #   guaranteed which value will be saved.
+    #
+    # IndifferntHash instances have the same api as Hash, but any method 
+    #   that would return a Hash, will return an IndifferentHash. 
+    # 
+    # NOTE: Please lookup Ruby's docuementation for Hash to learn what
+    #   methods are available.
     #
     # @example
     #   { test: 'test1', 'test' => 'test2' } => { test: 'test2' }
@@ -23,6 +29,8 @@ module Pakyow
 
           self.new(Hash[pairs])
         end
+
+        private
 
         def indifferent_key_method(*methods)
           methods.each do |name|
