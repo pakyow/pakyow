@@ -198,8 +198,13 @@ module Pakyow
           secret: config.session.secret
         }
 
+        # set expiry if set
+        if expiry = config.session.expiry
+          opts[:expire_after] = config.session.expiry
+        end
+
         # set optional options if available
-        %i(domain path expire_after old_secret).each do |opt|
+        %i(domain path old_secret).each do |opt|
           value = config.session.send(opt)
           opts[opt] = value if value
         end
