@@ -145,7 +145,7 @@ module Pakyow
     # If a File, mime type will be guessed. Otherwise mime type and file name will
     # default to whatever is set in the response.
     #
-    def send(file_or_data, type: nil, as: nil)
+    def send(file_or_data, type: nil, name: nil)
       if file_or_data.is_a?(IO) || file_or_data.is_a?(StringIO)
         data = file_or_data
 
@@ -161,7 +161,7 @@ module Pakyow
 
       response.body = data
       response["Content-Type"] = type if type
-      response["Content-disposition"] = "attachment; filename=#{as}" if as
+      response["Content-disposition"] = "attachment; filename=#{name}" if name
       halt
     end
 
