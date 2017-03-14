@@ -141,6 +141,10 @@ module Pakyow
       end
     end
 
+    settings_for :protection do
+      setting :enabled, true
+    end
+
     settings_for :session do
       setting :enabled, true
 
@@ -179,9 +183,10 @@ module Pakyow
     after :configure do
       if config.session.enabled
         builder.use config.session.object, config.session.options
-        builder.use Rack::Protection
-      else
-        builder.use Rack::Protection, without_session: true
+      end
+
+      if config.protection.enabled
+        builder.use Rack::Protection, without_session: config.session.enabled
       end
     end
 
