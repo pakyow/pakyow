@@ -1,36 +1,55 @@
 module Pakyow
-  # TODO: document
+  # Processes a request received by an application.
+  #
+  # @api public
   class Controller
-    class << self
-      def process(env, app)
-        instance = self.new(env, app)
-        instance.process
-      end
-    end
-    
     include Support::Hookable
     known_events :process, :route, :error, :trigger
-    
-    attr_reader :request, :response, :app, :handlers, :exceptions
+
+    # The current request (see {Request}).
+    #
+    # @api public
+    attr_reader :request
+
+    # The current response (see {Response}).
+    #
+    # @api public
+    attr_reader :response
+
+    # The app fulfilling the current request (see {App}).
+    #
+    # @api public
+    attr_reader :app
+
+    # @api private
+    attr_reader :handlers, :exceptions
 
     alias :req :request
     alias :res :response
-    
+
     extend Forwardable
-    def_delegators :@request, :logger, :params, :session, :cookies
+    # @!method logger
+    #   @return the request's logger
+    # @!method params
+    #   @return the request's params (see {Request#params})
+    # @!method session
+    #   @return the request's session
+    # @!method cookies
+    #   @return the request's cookies (see {Request#cookies})
+    def_delegators :request, :logger, :params, :session, :cookies
 
     # Tells the logger that an error occurred when processing a request.
     #
     before :error do
       logger.houston(req.error)
     end
-    
+
     # Dups the cookies for comparison at the end of the request/response lifecycle.
     #
     before :process do
       @cookies = request.cookies.dup
     end
-    
+
     # Handles setting and deleting cookies after a request is processed.
     #
     after :process do
@@ -56,16 +75,26 @@ module Pakyow
         response.delete_cookie(name)
       end
     end
-    
+
+    class << self
+      # @api private
+      def process(env, app)
+        instance = self.new(env, app)
+        instance.process
+      end
+    end
+
+    # @api private
     def initialize(env, app)
       @request = Request.new(env)
       @response = Response.new
       @app = app
-      
+
       @handlers = {}
       @exceptions = {}
     end
-    
+
+    # @api private
     def process
       hook_around :process do
         catch :halt do
@@ -95,7 +124,7 @@ module Pakyow
             return
           end
         end
-        
+
         hook_around :error do
           trigger(500)
         end
@@ -103,7 +132,37 @@ module Pakyow
     ensure
       return response.finish
     end
-    
+
+    # Registers an error handler used for the lifecycle of the current request.
+    #
+    # @example Handling a status code:
+    #   Pakyow::App.router do
+    #     default do
+    #       handle 500 do
+    #         # handle 500 responses for this route
+    #       end
+    #     end
+    #   end
+    #
+    # @example Handling a status code by name:
+    #   Pakyow::App.router do
+    #     default do
+    #       handle :forbidden do
+    #         # handle 403 responses for this route
+    #       end
+    #     end
+    #   end
+    #
+    # @example Handling an exception:
+    #   Pakyow::App.router do
+    #     default do
+    #       handle Sequel::NoMatchingRow as: 404 do
+    #         # handle missing records for this route
+    #       end
+    #     end
+    #   end
+    #
+    # @api public
     def handle(name_exception_or_code, as: nil, &block)
       if !name_exception_or_code.is_a?(Integer) && name_exception_or_code.ancestors.include?(Exception)
         raise ArgumentError, "status code is required" if as.nil?
@@ -113,18 +172,55 @@ module Pakyow
       end
     end
 
-    protected
-
-    # Redirects to location (immediately).
+    # Redirects to +location+ and immediately halts request processing.
     #
+    # @param location [String] what url the request should be redirected to
+    # @param as [Integer, Symbol] the status to redirect with
+    #
+    # @example Redirecting:
+    #   Pakyow::App.router do
+    #     default do
+    #       redirect "/foo"
+    #     end
+    #   end
+    #
+    # @example Redirecting with a status code:
+    #   Pakyow::App.router do
+    #     default do
+    #       redirect "/foo", as: 301
+    #     end
+    #   end
+    #
+    # @api public
     def redirect(location, as: 302)
       response.status = Rack::Utils.status_code(as)
       response["Location"] = app.router.path(location)
       halt
     end
 
-    # Routes the request to different logic.
+    # Reroutes the request to a different location. Instead of an http redirect,
+    # the request will continued to be handled in the current request lifecycle.
     #
+    # @param location [String] what url the request should be rerouted to
+    # @param method [Symbol] the http method to reroute as
+    #
+    # @example
+    #   Pakyow::App.resource :post, "/posts" do
+    #     edit do
+    #       @post ||= find_post_by_id(params[:post_id])
+    #
+    #       # render the form for @post
+    #     end
+    #
+    #     update do
+    #       if post_fails_to_create
+    #         @post = failed_post_object
+    #         reroute path(:post_edit, post_id: @post.id), method: :get
+    #       end
+    #     end
+    #   end
+    #
+    # @api public
     def reroute(location, method: request.method)
       # TODO: a lot of the complexity in this object is due to rerouting
       # perhaps we can simplify things by creating a new request object
@@ -139,12 +235,27 @@ module Pakyow
       end
     end
 
-    # Sends data in the response (immediately). Accepts a string of data or a File,
-    # mime-type (auto-detected; defaults to octet-stream), and optional file name.
+    # Sends a file or other data in the response.
     #
-    # If a File, mime type will be guessed. Otherwise mime type and file name will
-    # default to whatever is set in the response.
+    # Accepts data as a +String+ or  +IO+ object. When passed a +File+ object,
+    # the mime type will be determined automatically.
     #
+    # @example Sending data:
+    #   Pakyow::App.router do
+    #     default do
+    #       send "foo", type: "text/plain"
+    #     end
+    #   end
+    #
+    # @example Sending a file:
+    #   Pakyow::App.router do
+    #     default do
+    #       filename = "foo.txt"
+    #       send File.open(filename), name: filename
+    #     end
+    #   end
+    #
+    # @api public
     def send(file_or_data, type: nil, name: nil)
       if file_or_data.is_a?(IO) || file_or_data.is_a?(StringIO)
         data = file_or_data
@@ -165,6 +276,9 @@ module Pakyow
       halt
     end
 
+    # Calls the handler for a particular http status code.
+    #
+    # @api public
     def trigger(name_or_code)
       code = Rack::Utils.status_code(name_or_code)
       response.status = code
@@ -175,11 +289,33 @@ module Pakyow
         end
       end
     end
-    
+
+    # Conveniently builds and returns the path to a particular route.
+    #
+    # @example Build the path to the +new+ route within the +post+ group:
+    #   path(:post_new)
+    #   # => "/posts/new"
+    #
+    # @example Build the path providing a value for +post_id+:
+    #   path(:post_edit, post_id: 1)
+    #   # => "/posts/1/edit"
+    #
+    # @api public
     def path(name, **params)
       path_to(*name.to_s.split("_").map(&:to_sym), **params)
     end
 
+    # Builds and returns the path to a particular route.
+    #
+    # @example Build the path to the +new+ route within the +post+ group:
+    #   path_to(:post, :new)
+    #   # => "/posts/new"
+    #
+    # @example Build the path providing a value for +post_id+:
+    #   path_to(:post, :edit, post_id: 1)
+    #   # => "/posts/1/edit"
+    #
+    # @api public
     def path_to(*names, **params)
       app.router.reject { |router_to_match|
         router_to_match.name.nil? || router_to_match.name != names.first
@@ -189,18 +325,21 @@ module Pakyow
         end
       end
     end
-    
-    # Interrupts the application and returns response immediately.
+
+    # Halts request processing, immediately returning the response.
     #
+    # @api public
     def halt
       throw :halt, response
     end
-    
+
+    protected
+
     # @api private
     def reject
       throw :reject
     end
-    
+
     # @api private
     def found?
       @found == true
