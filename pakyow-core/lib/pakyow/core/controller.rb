@@ -109,7 +109,7 @@ module Pakyow
         raise ArgumentError, "status code is required" if as.nil?
         exceptions[name_exception_or_code] = [Rack::Utils.status_code(as), block]
       else
-        handlers[Rack::Utils.status_code(name_or_code)] = block
+        handlers[Rack::Utils.status_code(name_exception_or_code)] = block
       end
     end
 
