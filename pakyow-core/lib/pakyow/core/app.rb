@@ -74,9 +74,9 @@ module Pakyow
   # - +config.app.src+ defines where the application code lives, relative to
   #   where the environment is started from. Default is +{app.root}/app/lib+.
   #
-  # - +config.router.enabled+ determines whether or not the router is enabled
-  #   for the application. Default is +true+, except when running the in
-  #   +prototype+ mode.
+  # - +config.routing.enabled+ determines whether or not routing is enabled for
+  #   the application. Default is +true+, except when running in the
+  #   +prototype+ environment.
   #
   # - +config.cookies.path+ sets the URL path that must exist in the requested
   #   resource before sending the Cookie header. Default is +/+.
@@ -155,7 +155,7 @@ module Pakyow
       end
     end
 
-    settings_for :router do
+    settings_for :routing do
       setting :enabled, true
 
       defaults :prototype do
