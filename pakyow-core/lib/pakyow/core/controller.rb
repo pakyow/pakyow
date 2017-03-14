@@ -117,8 +117,8 @@ module Pakyow
 
     # Redirects to location (immediately).
     #
-    def redirect(location, name_or_code: 302)
-      response.status = Rack::Utils.status_code(name_or_code)
+    def redirect(location, as: 302)
+      response.status = Rack::Utils.status_code(as)
       response["Location"] = app.router.path(location)
       halt
     end
