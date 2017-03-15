@@ -158,7 +158,7 @@ module Pakyow
     # @example Handling an exception:
     #   Pakyow::App.router do
     #     default do
-    #       handle Sequel::NoMatchingRow as: 404 do
+    #       handle Sequel::NoMatchingRow, as: 404 do
     #         # handle missing records for this route
     #       end
     #     end
