@@ -133,6 +133,42 @@ module Pakyow
   # @api public
   class App
     include Support::Defineable
+
+    # @!scope class
+    # @!method router(name_or_path = nil, path_or_name = nil, before: [], after: [], around: [], &block)
+    #   Defines a router for the application. For example:
+    #
+    #     Pakyow::App.router do
+    #     end
+    #
+    #   The router can be defined with a name, which creates a group
+    #   (see {Router#group}). For example:
+    #
+    #     Pakyow::App.router :post do
+    #     end
+    #
+    #   The router can also be created with both a name and path, which creates
+    #   a namespace (see {Router#namespace}). For example:
+    #
+    #     Pakyow::App.router :post, "/posts" do
+    #     end
+    #
+    #   It's possible to create an anonymous namespace by passing just a path.
+    #   For example:
+    #
+    #     Pakyow::App.router "/posts" do
+    #     end
+    #
+    #   Routes defined in the above router would be prefixed, but would be
+    #   unavailable in path building (see {path} and {path_to}).
+    #
+    #   @param name_or_path [Symbol, String] the name or path for the router
+    #   @param path_or_name [String, Symbol] the path or name for the router
+    #   @param before [Array<Symbol, Proc>] an array of before hooks
+    #   @param after [Array<Symbol, Proc>] an array of after hooks
+    #   @param around [Array<Symbol, Proc>] an array of around hooks
+    #
+    #   @api public
     stateful :router, Router
 
     include Support::Hookable
@@ -236,7 +272,7 @@ module Pakyow
     attr_reader :builder
 
     class << self
-      # Defines a resource (see {Routing::Extension::Resource}). For example:
+      # Defines a RESTful resource. For example:
       #
       #   Pakyow::App.resource :post, "/posts" do
       #     list do
@@ -247,6 +283,8 @@ module Pakyow
       #
       #     # etc
       #   end
+      #
+      # @see Routing::Extension::Resource
       #
       # @api public
       def resource(name, path, &block)
