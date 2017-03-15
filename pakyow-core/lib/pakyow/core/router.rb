@@ -62,7 +62,29 @@ module Pakyow
       attr_accessor :nested_path
 
       # @api private
-      attr_reader :name, :path, :hooks, :children, :templates, :handlers, :exceptions
+      attr_reader :name, :path
+      
+      def hooks
+        @hooks ||= {
+          before: [], after: [], around: []
+        }
+      end
+      
+      def children
+        @children ||= []
+      end
+      
+      def templates
+        @templates ||= {}
+      end
+      
+      def handlers
+        @templates ||= {}
+      end
+      
+      def exceptions
+        @templates ||= {}
+      end
 
       def Router(path, before: [], after: [], around: [])
         Class.new(self) do
