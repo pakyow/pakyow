@@ -47,10 +47,6 @@ module Pakyow
       "Pakyow::Routing::Extension::Resource".freeze
     ].freeze
 
-    # TODO: rethink this a bit once we can define groups / namespaces in a template
-    # this feels kind of wrong, in that it's used as the path when building
-    attr_accessor :nested_path
-
     attr_accessor :context
 
     extend Forwardable
@@ -61,6 +57,10 @@ module Pakyow
     end
 
     class << self
+      # TODO: rethink this a bit once we can define groups / namespaces in a template
+      # this feels kind of wrong, in that it's used as the path when building
+      attr_accessor :nested_path
+
       # @api private
       attr_reader :name, :path, :hooks, :children, :templates, :handlers, :exceptions
 
