@@ -236,7 +236,7 @@ module Pakyow
     attr_reader :builder
 
     class << self
-      # Defines a resource (see {Routing::Extension::Restful}). For example:
+      # Defines a resource (see {Routing::Extension::Resource}). For example:
       #
       #   Pakyow::App.resource :post, "/posts" do
       #     list do

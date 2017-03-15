@@ -3,7 +3,7 @@ require "pakyow/core/routing/extension"
 module Pakyow
   module Routing
     module Extension
-      module Restful
+      module Resource
         include Extension
 
         template :resource do

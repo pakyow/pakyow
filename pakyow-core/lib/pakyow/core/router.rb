@@ -44,7 +44,7 @@ module Pakyow
     # Routing extensions that are automatically available in each router.
     #
     DEFAULT_EXTENSIONS = [
-      "Pakyow::Routing::Extension::Restful"
+      "Pakyow::Routing::Extension::Resource"
     ].freeze
 
     # TODO: rethink this a bit once we can define groups / namespaces in a template
@@ -244,7 +244,7 @@ module Pakyow
       # Because routes can be referenced by name during expansion, route
       # templates provide a way to create a domain-specific-language, or
       # DSL, around a routing concern. This is used within Pakyow itself
-      # to define the resource template ({Routing::Extension::Restful}).
+      # to define the resource template ({Routing::Extension::Resource}).
       #
       # @example Defining a template:
       #   Pakyow::App.router do
