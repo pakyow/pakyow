@@ -1,9 +1,14 @@
 module Pakyow
   module Routing
+    # A route, consisting of a name, path, and pipeline. The pipeline is a list
+    # of procs and/or method names that are called in order when the route is
+    # matched and executed. Pipelines are constructed at runtime.
+    #
+    # @api private
     class Route
       attr_reader :method, :name, :path, :parameterized_path, :block, :hooks, :pipeline
       attr_accessor :callable_method
-      
+
       def initialize(name: nil, path: nil, hooks: nil, &block)
         @name     = name
         @path     = path
