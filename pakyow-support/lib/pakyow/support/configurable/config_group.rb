@@ -19,6 +19,10 @@ module Pakyow
           instance_eval(&block)
           @initialized = true
         end
+        
+        def initialize_copy(original)
+          @_settings = original._settings.deep_dup
+        end
 
         def setting(name, default = nil, &block)
           name = name.to_sym
