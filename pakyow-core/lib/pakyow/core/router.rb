@@ -106,6 +106,10 @@ module Pakyow
           @templates = {}
           @handlers = {}
           @exceptions = {}
+          
+          DEFAULT_EXTENSIONS.each do |extension|
+            extend(Kernel.const_get(extension))
+          end
         end
       end
 
