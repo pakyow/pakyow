@@ -131,7 +131,7 @@ module Pakyow
             around: Array.ensure(around)
           }
 
-          class_eval(&block)
+          class_eval(&block) if block
         end
 
         klass
