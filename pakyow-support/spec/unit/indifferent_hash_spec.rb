@@ -247,33 +247,6 @@ module Pakyow::Support
         expect(hash[Class]).to eq('Changed Class')
         expect(hash[simple_object]).to eq('Changed object')
       end
-
-=begin
-      it "should clear the hash, returning self" do
-        expect(indifferent.keys.length).to be > 0
-        expect(indifferent.clear.object_id).to eq indifferent.object_id
-        expect(indifferent.keys.length).to eq 0
-      end
-
-      it "should compact the hash, returning new indifferent hash" do
-        simple_hash = { a: nil, b: 'Something' }
-        indifferent = IndifferentHash.new(simple_hash)
-        expect(indifferent.keys.length).to eq 2
-        return_value = indifferent.compact
-        expect(return_value).to be_kind_of IndifferentHash
-        expect(indifferent.keys.length).to eq 2
-        expect(return_value.keys.length).to eq 1
-      end
-
-      it "returns keys" do
-        expect(indifferent.keys).to be_kind_of(Array)
-      end
-
-      it "should dig with indifferent access for deeply indifferntized hash" do
-        expect(deep.dig(:nested, :nested, :a)).to eq :a
-        expect(deep.dig('nested', 'nested', 'a')).to eq :a
-      end
-=end
     end
   end
 end
