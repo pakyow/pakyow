@@ -202,9 +202,7 @@ module Pakyow
     settings_for :cookies do
       setting :path, "/"
 
-      setting :expiry do
-        60 * 60 * 24 * 7
-      end
+      setting :expiry, 60 * 60 * 24 * 7
     end
 
     settings_for :protection do
@@ -236,7 +234,7 @@ module Pakyow
 
         # set expiry if set
         if expiry = config.session.expiry
-          opts[:expire_after] = config.session.expiry
+          opts[:expire_after] = expiry
         end
 
         # set optional options if available
