@@ -608,6 +608,7 @@ module Pakyow
         klass.class_eval do
           @name = name
           @path = path
+          @nested_path = nil
           @hooks = {
             before: Array.ensure(before),
             after: Array.ensure(after),
