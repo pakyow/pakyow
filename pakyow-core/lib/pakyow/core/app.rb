@@ -255,7 +255,7 @@ module Pakyow
       end
 
       if config.protection.enabled
-        builder.use Rack::Protection, without_session: config.session.enabled
+        builder.use(Rack::Protection, except: config.session.enabled ? [] : [:session_hijacking, :remote_token])
       end
     end
 
