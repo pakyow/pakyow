@@ -1,24 +1,101 @@
 require "pakyow/support/aargv"
 require "pakyow/support/array"
 
-# TODO: group / namespace in templates
-
-# TODO: formats
-# TODO: within
-
 module Pakyow
-  # TODO: document
-  #   - the route being defined in context with logic
-  #   - how to use routers (direct vs through an app)
-  #   - how routes are defined at particular paths
-  #     - and what types are supported
-  #     - note that HEAD is not handled here
-  #   - named routes and how they work with lookups
-  #   - defined functions and how the can be used
-  #   - using named functions as hooks
-  #   - mention namespaces, groups, templates
-  #     - point them to other docs inline
-  #   - routing mixins and how they can be used
+  # Executes code for particular requests. For example:
+  #
+  #   Pakyow::App.router do
+  #     get "/" do
+  #       # called for GET / requests
+  #     end
+  #   end
+  #
+  # A dynamic +Class+ is created for each defined router. When matched, a route
+  # is called in context of its router. This means that any method defined in a
+  # router is available to be called from within a route. For example:
+  #
+  #   Pakyow::App.router do
+  #     def foo
+  #     end
+  #
+  #     get :foo, "/foo" do
+  #       foo
+  #     end
+  #   end
+  #
+  # Including modules work as expected:
+  #
+  #   module AuthHelpers
+  #     def current_user
+  #     end
+  #   end
+  #
+  #   Pakyow::App.router do
+  #     include AuthHelpers
+  #
+  #     get :foo, "/foo" do
+  #       current_user
+  #     end
+  #   end
+  #
+  # See {App.router} for more details on defining routers.
+  #
+  # = Supported HTTP methods
+  #
+  # - +GET+
+  # - +POST+
+  # - +PUT+
+  # - +PATCH+
+  # - +DELETE+
+  #
+  # See {get}, {post}, {put}, {patch}, and {delete}.
+  #
+  # +HEAD+ requests are handled automatically via {Rack::Head}.
+  #
+  # = Building paths for named routes
+  #
+  # Path building is supported via {Controller#path} and {Controller#path_to}.
+  #
+  # = Reusing logic with hooks
+  #
+  # Methods can be defined and used as hooks for a route. For example:
+  #
+  #   Pakyow::App.router do
+  #     def foo
+  #     end
+  #
+  #     get :foo, "/foo", before: [:foo] do
+  #     end
+  #   end
+  #
+  # Before, after, and around hooks are supported in this way.
+  #
+  # = Extending routers
+  #
+  # Extensions can be defined and used to add shared routes to one or more
+  # routers. See {Routing::Extension}.
+  #
+  # = Other routing features
+  #
+  # More advanced route features are available, including groups, namespaces,
+  # and templates. See {group}, {namespace}, and {template}.
+  #
+  # = Router subclasses
+  #
+  # It's possible to work with routers outside of Pakyow's DSL. For example:
+  #
+  #   class FooRouter < Pakyow::Router("/foo", after: [:bar])
+  #     def bar
+  #     end
+  #
+  #     default do
+  #       # available at GET /foo
+  #     end
+  #   end
+  #
+  #   Pakyow::App.router << FooRouter
+  #
+  # @api public
   class Router
     include Helpers
 
@@ -41,51 +118,77 @@ module Pakyow
       METHOD_DELETE
     ].freeze
 
-    # Routing extensions that are automatically available in each router.
-    #
     DEFAULT_EXTENSIONS = [
       "Pakyow::Routing::Extension::Resource".freeze
     ].freeze
 
-    attr_accessor :context
-
     extend Forwardable
+
+    # @!method logger
+    #   Delegates to {context}.
+    #
+    #   @see Controller#logger
+    #
+    # @!method handle
+    #   Delegates to {context}.
+    #
+    #   @see Controller#handle
+    #
+    # @!method redirect
+    #   Delegates to {context}.
+    #
+    #   @see Controller#redirect
+    #
+    # @!method reroute
+    #   Delegates to {context}.
+    #
+    #   @see Controller#reroute
+    #
+    # @!method send
+    #   Delegates to {context}.
+    #
+    #   @see Controller#send
+    #
+    # @!method trigger
+    #   Delegates to {context}.
+    #
+    #   @see Controller#trigger
+    #
+    # @!method path
+    #   Delegates to {context}.
+    #
+    #   @see Controller#path
+    #
+    # @!method path_to
+    #   Delegates to {context}.
+    #
+    #   @see Controller#path_to
+    #
+    # @!method halt
+    #   Delegates to {context}.
+    #
+    #   @see Controller#halt
     def_delegators :@context, :logger, :handle, :redirect, :reroute, :send, :trigger, :path, :path_to, :halt
 
+    # The context of the current request lifecycle.
+    # Expected to be an instance of {Controller}.
+    #
+    attr_accessor :context
+
+    # @api private
     def initialize(context)
       @context = context
     end
 
     class << self
-      # TODO: rethink this a bit once we can define groups / namespaces in a template
-      # this feels kind of wrong, in that it's used as the path when building
-      attr_accessor :nested_path
-
-      # @api private
-      attr_reader :name, :path
-      
-      def hooks
-        @hooks ||= {
-          before: [], after: [], around: []
-        }
-      end
-      
-      def children
-        @children ||= []
-      end
-      
-      def templates
-        @templates ||= {}
-      end
-      
-      def handlers
-        @templates ||= {}
-      end
-      
-      def exceptions
-        @templates ||= {}
-      end
-
+      # Conveniently define defaults when subclassing +Pakyow::Router+.
+      # For example:
+      #
+      #   class MyRouter < Pakyow::Router("/foo", before: [:foo])
+      #     # more routes here
+      #   end
+      #
+      # @api public
       def Router(path, before: [], after: [], around: [])
         Class.new(self) do
           @path = path
@@ -96,59 +199,65 @@ module Pakyow
         end
       end
 
-      def inherited(klass)
-        path = self.path
-        hooks = self.hooks
-        klass.class_eval do
-          @path = path
-          @hooks = hooks
-          @children = []
-          @templates = {}
-          @handlers = {}
-          @exceptions = {}
-          
-          DEFAULT_EXTENSIONS.each do |extension|
-            extend(Kernel.const_get(extension))
-          end
-        end
-      end
-
-      def make(name_or_path = nil, path_or_name = nil, before: [], after: [], around: [], &block)
-        # TODO: support regex path
-        args  = Aargv.normalize([name_or_path, path_or_name], name: Symbol, path: String)
-        name, path = args.values_at(:name, :path)
-
-        klass = Class.new(self)
-        # TODO: snakecase to camelcase
-        klass = Object.const_set("#{name.to_s.capitalize}Router", klass) if name
-
-        klass.class_eval do
-          @name = name
-          @path = path
-          @hooks = {
-            before: Array.ensure(before),
-            after: Array.ensure(after),
-            around: Array.ensure(around)
-          }
-
-          class_eval(&block) if block
-        end
-
-        klass
-      end
-
-      def routes
-        @routes ||= SUPPORTED_METHODS.each_with_object({}) do |method, routes_hash|
-          routes_hash[method] = []
-        end
-      end
-
-      # Creates a default route (synonmous with `get "/"`).
+      # Create a default route. Shorthand for +get "/"+.
       #
+      # @see get
+      #
+      # @api public
       def default(**hooks, &block)
         get :default, "/", **hooks, &block
       end
 
+      # @!method get
+      #   Create a route that matches +GET+ requests at +path+. For example:
+      #
+      #     Pakyow::App.router do
+      #       get "/foo" do
+      #         # do something
+      #       end
+      #     end
+      #
+      #   Routes can be named, making them available for path building via
+      #   {Controller#path}. For example:
+      #
+      #     Pakyow::App.router do
+      #       get :foo, "/foo" do
+      #         # do something
+      #       end
+      #     end
+      #
+      #   Routes can be defined with +before+, +after+, or +around+ hooks.
+      #   For example:
+      #
+      #     Pakyow::App.router do
+      #       def bar
+      #       end
+      #
+      #       get :foo, "/foo", before: [:bar] do
+      #         # do something
+      #       end
+      #     end
+      #
+      # @!method post
+      #   Create a route that matches +POST+ requests at +path+, with +hooks+.
+      #
+      #   @see get
+      #
+      # @!method put
+      #   Create a route that matches +PUT+ requests at +path+, with +hooks+.
+      #
+      #   @see get
+      #
+      # @!method patch
+      #   Create a route that matches +PATCH+ requests at +path+, with +hooks+.
+      #
+      #   @see get
+      #
+      # @!method delete
+      #   Create a route that matches +DELETE+ requests at +path+, with +hooks+.
+      #
+      #   @see get
+      #
       SUPPORTED_METHODS.each do |method|
         nice_method = method.downcase.to_sym
         define_method nice_method do |name_or_path = nil, path_or_name = nil, **hooks, &block|
@@ -167,12 +276,12 @@ module Pakyow
       #
       # @example Defining a group:
       #   Pakyow::App.router do
-      #     def foo do
+      #     def foo
       #       logger.info "foo"
       #     end
       #
       #     group :foo, before: [:foo] do
-      #       def bar do
+      #       def bar
       #         logger.info "bar"
       #       end
       #
@@ -192,15 +301,16 @@ module Pakyow
       #
       # @example Building a path to a route within a named group:
       #   path :foo_bar
-      #   => "/foo/bar"
+      #   # => "/foo/bar"
       #
       # @example Building a path to a route within an unnamed group:
       #   path :foo_baz
-      #   => nil
+      #   # => nil
       #
       #   path :baz
-      #   => "/baz"
+      #   # => "/baz"
       #
+      # @api public
       def group(name = nil, **hooks, &block)
         router = Router.new(name, **compile_hooks(hooks))
         router.instance_eval(&block)
@@ -214,7 +324,7 @@ module Pakyow
       # @example Defining a namespace:
       #   Pakyow::App.router do
       #     namespace :api, "/api" do
-      #       def auth do
+      #       def auth
       #         handle 401 unless authed?
       #       end
       #
@@ -237,26 +347,6 @@ module Pakyow
         router = Router.new(name, full_path(path), **compile_hooks(hooks))
         router.instance_eval(&block)
         children << router
-      end
-
-      # TODO: rename to endpoint
-      def path_to(*names, **params)
-        first_name = names.first
-        if found_route = routes.values.flatten.find { |route| route.name == first_name }
-          if found_route.parameterized?
-            return found_route.populated_path(**params)
-          else
-            return found_route.path
-          end
-        end
-
-        children.reject { |router_to_match|
-          router_to_match.name.nil? || router_to_match.name != first_name
-        }.each do |matched_router|
-          if path = matched_router.path_to(*names[1..-1], **params)
-            return path
-          end
-        end
       end
 
       # Creates a route template with a name and block. The block is
@@ -313,10 +403,57 @@ module Pakyow
         templates[name] = block
       end
 
-      # TODO: flesh this out
-      def expand
+      # Expands a defined route template, or raises +NameError+.
+      #
+      # @see template
+      #
+      # @api public
+      def expand(name, *args, **hooks, &block)
+        if template = templates[name]
+          args[1] = full_path(args[1] || "")
+          expansion = Routing::Expansion.new(template, *args, **hooks, &block)
+          children << expansion.router
+        else
+          raise NameError, "Unknown template `#{name}'"
+        end
       end
 
+      # Registers an error handler used within this router.
+      #
+      # @example Handling a status code:
+      #   Pakyow::App.router do
+      #     handle 500 do
+      #       # handle 500 responses
+      #     end
+      #
+      #     default do
+      #       trigger 500
+      #     end
+      #   end
+      #
+      # @example Handling a status code by name:
+      #   Pakyow::App.router do
+      #     handle :forbidden do
+      #       # handle 403 responses
+      #     end
+      #
+      #     default do
+      #       trigger 403 # or, `trigger :forbidden`
+      #     end
+      #   end
+      #
+      # @example Handling an exception:
+      #   handle Sequel::NoMatchingRow, as: 404 do
+      #     # handle missing records
+      #   end
+      #
+      #   Pakyow::App.router do
+      #     default do
+      #       raise Sequel::NoMatchingRow
+      #     end
+      #   end
+      #
+      # @api public
       def handle(name_exception_or_code, as: nil, &block)
         if !name_exception_or_code.is_a?(Integer) && name_exception_or_code.ancestors.include?(Exception)
           raise ArgumentError, "status code is required" if as.nil?
@@ -326,6 +463,58 @@ module Pakyow
         end
       end
 
+      # Attempts to find and expand a template, avoiding the need to call
+      # {expand} explicitly. For example, these calls are identical:
+      #
+      #   Pakyow::App.router do
+      #     resource :post, "/posts" do
+      #     end
+      #
+      #     expand :resource, :post, "/posts" do
+      #     end
+      #   end
+      #
+      # @api public
+      def method_missing(method, *args, **hooks, &block)
+        expand(method, *args, **hooks, &block)
+      end
+
+      # TODO: rethink this a bit once we can define groups / namespaces in a template
+      # this feels kind of wrong, in that it's used as the path when building
+      # @api private
+      attr_accessor :nested_path
+
+      # @api private
+      attr_reader :name, :path
+
+      # @api private
+      def hooks
+        @hooks ||= {
+          before: [], after: [], around: []
+        }
+      end
+
+      # @api private
+      def children
+        @children ||= []
+      end
+
+      # @api private
+      def templates
+        @templates ||= {}
+      end
+
+      # @api private
+      def handlers
+        @templates ||= {}
+      end
+
+      # @api private
+      def exceptions
+        @templates ||= {}
+      end
+
+      # @api private
       def exception(klass, context: nil, handlers: {}, exceptions: {})
         exceptions = self.exceptions.merge(exceptions)
         return unless exception = exceptions[klass]
@@ -341,6 +530,7 @@ module Pakyow
         code
       end
 
+      # @api private
       def trigger(code, context: nil, handlers: {})
         children.each do |child_router|
           return true if child_router.trigger(code, context: context, handlers: handlers) === true
@@ -358,17 +548,78 @@ module Pakyow
         true
       end
 
-      # TODO: call the `expand` method instead of inlining
-      def method_missing(method, *args, **hooks, &block)
-        if template = templates[method]
-          args[1] = full_path(args[1] || "")
-          expansion = Routing::Expansion.new(template, *args, **hooks, &block)
-          children << expansion.router
-        else
-          raise NameError, "Unknown template `#{method}'"
+      # @api private
+      def inherited(klass)
+        path = self.path
+        hooks = self.hooks
+
+        klass.class_eval do
+          @path = path
+          @hooks = hooks
+          @children = []
+          @templates = {}
+          @handlers = {}
+          @exceptions = {}
+
+          DEFAULT_EXTENSIONS.each do |extension|
+            extend(Kernel.const_get(extension))
+          end
         end
       end
 
+      # @api private
+      def path_to(*names, **params)
+        first_name = names.first
+        if found_route = routes.values.flatten.find { |route| route.name == first_name }
+          if found_route.parameterized?
+            return found_route.populated_path(**params)
+          else
+            return found_route.path
+          end
+        end
+
+        children.reject { |router_to_match|
+          router_to_match.name.nil? || router_to_match.name != first_name
+        }.each do |matched_router|
+          if path = matched_router.path_to(*names[1..-1], **params)
+            return path
+          end
+        end
+      end
+
+      # @api private
+      def make(name_or_path = nil, path_or_name = nil, before: [], after: [], around: [], &block)
+        # TODO: support regex path
+        args  = Aargv.normalize([name_or_path, path_or_name], name: Symbol, path: String)
+        name, path = args.values_at(:name, :path)
+
+        klass = Class.new(self)
+        # TODO: snakecase to camelcase
+        klass = Object.const_set("#{name.to_s.capitalize}Router", klass) if name
+
+        klass.class_eval do
+          @name = name
+          @path = path
+          @hooks = {
+            before: Array.ensure(before),
+            after: Array.ensure(after),
+            around: Array.ensure(around)
+          }
+
+          class_eval(&block) if block
+        end
+
+        klass
+      end
+
+      # @api private
+      def routes
+        @routes ||= SUPPORTED_METHODS.each_with_object({}) do |method, routes_hash|
+          routes_hash[method] = []
+        end
+      end
+
+      # @api private
       def call(path, method, params, context: nil)
         path = String.normalize_path(path)
 
@@ -392,7 +643,7 @@ module Pakyow
         merge_templates(router.templates)
       end
 
-      # api private
+      # @api private
       def freeze
         hooks.each do |_, hooks_arr|
           hooks_arr.freeze
