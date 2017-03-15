@@ -64,7 +64,6 @@ module Pakyow
         # @api private
         def extended(base)
           if base.ancestors.include?(Router)
-            puts "merging on #{base.inspect} #{self.inspect}"
             base.merge(@__extension)
           else
             raise StandardError, "Expected `#{base}' to be an instance of `Pakyow::Router'"
