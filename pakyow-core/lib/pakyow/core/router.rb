@@ -54,7 +54,7 @@ module Pakyow
     attr_accessor :context
 
     extend Forwardable
-    def_delegators :@context, :logger, :handle
+    def_delegators :@context, :logger, :handle, :redirect, :reroute, :send, :trigger, :path, :path_to, :halt
 
     def initialize(context)
       @context = context
