@@ -28,6 +28,7 @@ module Pakyow
     alias :res :response
 
     extend Forwardable
+
     # @!method logger
     #   @return the request's logger
     # @!method params
@@ -37,6 +38,10 @@ module Pakyow
     # @!method cookies
     #   @return the request's cookies (see {Request#cookies})
     def_delegators :request, :logger, :params, :session, :cookies
+
+    # @!method config
+    #   @return the config object
+    def_delegators :app, :config
 
     # Tells the logger that an error occurred when processing a request.
     #
