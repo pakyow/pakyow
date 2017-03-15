@@ -2,6 +2,9 @@ require "forwardable"
 
 module Pakyow
   module Routing
+    # Expands a route template.
+    #
+    # @api private
     class Expansion
       using Support::DeepDup
       attr_reader :router
