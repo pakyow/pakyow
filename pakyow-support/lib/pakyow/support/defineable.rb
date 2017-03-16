@@ -141,6 +141,14 @@ module Pakyow
         def define(&block)
           instance_eval(&block)
         end
+        
+        # @api private
+        def reset
+          super if defined? super
+          @state.values.each do |state|
+            state.reset
+          end
+        end
       end
     end
 
@@ -182,6 +190,10 @@ module Pakyow
         instances.each(&:freeze)
         instances.freeze
         super
+      end
+      
+      def reset
+        @instances = []
       end
     end
   end
