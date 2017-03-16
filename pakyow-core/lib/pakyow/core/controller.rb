@@ -89,6 +89,8 @@ module Pakyow
       end
     end
 
+    CONTENT_DISPOSITION = "Content-Disposition".freeze
+
     # @api private
     def initialize(env, app)
       @request = Request.new(env)
@@ -245,10 +247,16 @@ module Pakyow
       end
     end
 
+    DEFAULT_SEND_TYPE = "application/octet-stream".freeze
+
     # Sends a file or other data in the response.
     #
-    # Accepts data as a +String+ or  +IO+ object. When passed a +File+ object,
-    # the mime type will be determined automatically.
+    # Accepts data as a +String+ or +IO+ object. When passed a +File+ object,
+    # the mime type will be determined automatically. The type can be set
+    # explicitly with the +type+ option.
+    #
+    # Passing +name+ sets the +Content-Disposition+ header to "attachment".
+    # Otherwise, the disposition will be set to "inline".
     #
     # @example Sending data:
     #   Pakyow::App.router do
@@ -271,7 +279,6 @@ module Pakyow
         data = file_or_data
 
         if file_or_data.is_a?(File)
-          # auto set type based on file type
           type ||= Rack::Mime.mime_type(File.extname(file_or_data.path))
         end
       elsif file_or_data.is_a?(String)
@@ -281,8 +288,13 @@ module Pakyow
       end
 
       response.body = data
-      response["Content-Type"] = type if type
-      response["Content-disposition"] = "attachment; filename=#{name}" if name
+      response[Rack::CONTENT_TYPE] = type || DEFAULT_SEND_TYPE
+      response[CONTENT_DISPOSITION] = if name
+        "attachment; filename=#{name}"
+      else
+        "inline"
+      end
+
       halt
     end
 
