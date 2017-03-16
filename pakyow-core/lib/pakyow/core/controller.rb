@@ -97,6 +97,8 @@ module Pakyow
 
       @handlers = {}
       @exceptions = {}
+
+      @found = false
     end
 
     # @api private
