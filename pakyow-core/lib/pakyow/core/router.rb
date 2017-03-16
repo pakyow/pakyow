@@ -325,8 +325,8 @@ module Pakyow
       #
       # @api public
       def group(name = nil, **hooks, &block)
-        router = Router.new(name, **compile_hooks(hooks))
-        router.instance_eval(&block)
+        router = Router.make(name, **compile_hooks(hooks))
+        router.class_eval(&block)
         router.parent = self
         children << router
       end
@@ -358,8 +358,8 @@ module Pakyow
         args  = Aargv.normalize([name_or_path, path_or_name], name: Symbol, path: String)
         name, path = args.values_at(:name, :path)
 
-        router = Router.new(name, full_path(path), **compile_hooks(hooks))
-        router.instance_eval(&block)
+        router = Router.make(name, full_path(path), **compile_hooks(hooks))
+        router.class_eval(&block)
         router.parent = self
         children << router
       end
