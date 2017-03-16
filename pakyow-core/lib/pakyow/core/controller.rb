@@ -339,13 +339,15 @@ module Pakyow
     #
     # @api public
     def path_to(*names, **params)
-      app.router.reject { |router_to_match|
+      app.router.instances.reject { |router_to_match|
         router_to_match.name.nil? || router_to_match.name != names.first
       }.each do |matched_router|
         if path = matched_router.path_to(*names[1..-1], **params)
           return path
         end
       end
+      
+      nil
     end
 
     # Halts request processing, immediately returning the response.
