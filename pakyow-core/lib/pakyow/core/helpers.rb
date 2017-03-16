@@ -4,7 +4,7 @@ module Pakyow
   # @example
   #   module Pakyow::Helpers
   #     def require_user!
-  #       handle :unauthorized unless session[:user]
+  #       trigger :unauthorized unless session[:user]
   #     end
   #   end
   #
