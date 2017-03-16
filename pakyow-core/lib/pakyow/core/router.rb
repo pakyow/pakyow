@@ -426,9 +426,18 @@ module Pakyow
       def expand(name, *args, **hooks, &block)
         if template = templates[name]
           args[1] = full_path(args[1] || "")
-          expansion = Routing::Expansion.new(template, *args, **hooks, &block)
+          router = Router.make(*args, **hooks)
+          expansion = Routing::Expansion.new(template, router, &block)
           expansion.router.parent = self
           children << expansion.router
+        else
+          raise NameError, "Unknown template `#{name}'"
+        end
+      end
+      
+      def expand_within(name, &block)
+        if template = templates[name]
+          Routing::Expansion.new(template, self, &block)
         else
           raise NameError, "Unknown template `#{name}'"
         end

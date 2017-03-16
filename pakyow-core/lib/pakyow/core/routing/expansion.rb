@@ -16,9 +16,10 @@ module Pakyow
         }
       )
 
-      def initialize(template, *args, &block)
+      def initialize(template, router, &block)
         @template = template
-        @router = Router.make(*args)
+        @router = router
+
         instance_eval(&template)
         instance_eval(&block)
       end

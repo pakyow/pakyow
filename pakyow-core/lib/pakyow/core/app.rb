@@ -297,8 +297,8 @@ module Pakyow
       # @api private
       RESOURCE_ACTIONS = {
         core: Proc.new do |app, name, path, block|
-          app.router do
-            resource name, path, &block
+          app.router(name, path) do
+            expand_within(:resource, &block)
           end
         end
       }
