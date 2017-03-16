@@ -612,8 +612,12 @@ module Pakyow
         name, path = args.values_at(:name, :path)
 
         klass = Class.new(self)
-        # TODO: snakecase to camelcase
-        klass = Object.const_set("#{name.to_s.capitalize}Router", klass) if name
+
+        if name
+          # TODO: snakecase to camelcase
+          klass_name = "#{name.to_s.capitalize}Router"
+          klass = Object.const_set(klass_name, klass) unless defined?(klass_name)
+        end
 
         klass.class_eval do
           @name = name
