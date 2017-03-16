@@ -15,6 +15,7 @@ module Pakyow
         @block    = block
         @hooks    = hooks
         @pipeline = compile_pipeline(block, hooks)
+        @parameterized_path = nil
 
         if @path.is_a?(String)
           @path = String.normalize_path(path)
