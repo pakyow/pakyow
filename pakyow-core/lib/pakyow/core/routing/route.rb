@@ -44,7 +44,7 @@ module Pakyow
             if route.is_a?(Proc)
               context.instance_exec(&route)
             else
-              context.send(route)
+              context.__send__(route)
             end
           end
         end
