@@ -632,7 +632,9 @@ module Pakyow
         if name
           # TODO: snakecase to camelcase
           klass_name = "#{name.to_s.capitalize}Router"
-          klass = Object.const_set(klass_name, klass) unless defined?(klass_name)
+          unless Object.const_defined?(klass_name)
+            klass = Object.const_set(klass_name, klass)
+          end
         end
 
         klass.class_eval do
