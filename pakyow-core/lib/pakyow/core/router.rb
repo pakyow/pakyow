@@ -98,6 +98,7 @@ module Pakyow
   # @api public
   class Router
     include Helpers
+    using Support::DeepDup
 
     router = self
     (class << Pakyow; self; end).send(:define_method, :Router) do |path, **hooks|
@@ -581,7 +582,7 @@ module Pakyow
       # @api private
       def inherited(klass)
         path = self.path
-        hooks = self.hooks
+        hooks = self.hooks.deep_dup
 
         klass.class_eval do
           @path = path
