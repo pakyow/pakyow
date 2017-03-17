@@ -109,17 +109,7 @@ module Pakyow
         catch :halt do
           if app.config.routing.enabled
             hook_around :route do
-              app.state_for(:router).each do |router|
-                @current_router = router
-                @found = router.call(
-                  request.env[Rack::PATH_INFO],
-                  request.env[Rack::REQUEST_METHOD],
-                  request.params,
-                  context: self
-                )
-
-                break if found?
-              end
+              route_to(request.env[Rack::PATH_INFO], request.env[Rack::REQUEST_METHOD])
             end
           end
 
@@ -233,18 +223,19 @@ module Pakyow
     #   end
     #
     # @api public
-    def reroute(location, method: request.method)
+    def reroute(location, method: request.method, **params)
       # TODO: a lot of the complexity in this object is due to rerouting
       # perhaps we can simplify things by creating a new request object
       # and providing access to the previous request via `parent`
+      # request.setup(path(location, **params), method)
 
-      request.setup(app.router.path(location), method)
-
-      hook_around :route do
-        app.state_for(:router).each do |router|
-          router.reroute(request)
-        end
+      location = if location.is_a?(Symbol)
+        path(location, **params)
+      else
+        location
       end
+
+      route_to(location, method.to_s.upcase)
     end
 
     DEFAULT_SEND_TYPE = "application/octet-stream".freeze
@@ -372,6 +363,20 @@ module Pakyow
     # @api private
     def failed_router
       !found? && current_router
+    end
+    
+    def route_to(path, method)
+      app.state_for(:router).each do |router|
+        @current_router = router
+        @found = router.call(
+          path,
+          method,
+          request.params,
+          context: self
+        )
+
+        break if found?
+      end
     end
   end
 end
