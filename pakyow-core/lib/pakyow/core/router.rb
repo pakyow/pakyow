@@ -739,11 +739,6 @@ module Pakyow
         combined = combined_hooks(hooks_to_compile)
 
         combined.each do |type, hooks|
-          # validate that the hooks exist
-          hooks.each do |hook|
-            raise NameError, "undefined method `#{hook}' for #{self}:Class" unless instance_methods.include?(hook)
-          end
-
           combined[type] = hooks
         end
       end
