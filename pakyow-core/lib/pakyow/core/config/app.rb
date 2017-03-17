@@ -63,7 +63,7 @@ module Pakyow
       setting :path
       setting :domain
 
-      setting :options do
+      setting :opts do
         opts = {
           key: config.session.key,
           secret: config.session.secret
