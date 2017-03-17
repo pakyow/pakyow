@@ -582,10 +582,12 @@ module Pakyow
       # @api private
       def inherited(klass)
         path = self.path
+        nested_path = self.nested_path
         hooks = self.hooks.deep_dup
 
         klass.class_eval do
           @path = path
+          @nested_path = nested_path
           @hooks = hooks
           @children = []
           @templates = {}
