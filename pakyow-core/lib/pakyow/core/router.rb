@@ -612,6 +612,8 @@ module Pakyow
             return path
           end
         end
+        
+        nil
       end
 
       # @api private
