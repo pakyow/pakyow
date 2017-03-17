@@ -120,15 +120,14 @@ module Pakyow
       request.error = error
 
       catch :halt do
-        if failed_router
-          if status = failed_router.exception(error.class, context: self, handlers: handlers, exceptions: exceptions)
-            response.status = status
-            return
+        # see if a defined handler will handle the exception
+        if failed_router && failed_router.exception(error.class, context: self, handlers: handlers, exceptions: exceptions)
+          return
+        else
+          # otherwise, handle as a 500
+          hook_around :error do
+            trigger(500)
           end
-        end
-
-        hook_around :error do
-          trigger(500)
         end
       end
     ensure
@@ -296,10 +295,9 @@ module Pakyow
       code = Rack::Utils.status_code(name_or_code)
       response.status = code
 
+      return unless failed_router
       hook_around :trigger do
-        app.state_for(:router).each do |router|
-          break if router.trigger(code, context: self, handlers: handlers)
-        end
+        failed_router.trigger(code, context: self, handlers: handlers)
       end
     end
 

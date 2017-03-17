@@ -485,7 +485,7 @@ module Pakyow
       #
       # @api public
       def handle(name_exception_or_code, as: nil, &block)
-        if !name_exception_or_code.is_a?(Integer) && name_exception_or_code.ancestors.include?(Exception)
+        if name_exception_or_code.is_a?(Class) && name_exception_or_code.ancestors.include?(Exception)
           raise ArgumentError, "status code is required" if as.nil?
           exceptions[name_exception_or_code] = [Rack::Utils.status_code(as), block]
         else
@@ -552,14 +552,12 @@ module Pakyow
         return unless exception = exception_for_class(klass, exceptions: exceptions)
 
         code = exception[0]
-
         if handler = exception[1]
           handlers[code] = handler
         end
 
+        context.response.status = code
         trigger(code, context: context, handlers: handlers)
-
-        code
       end
 
       # @api private
