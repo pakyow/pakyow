@@ -345,13 +345,15 @@ module Pakyow
     def halt
       throw :halt, response
     end
-
-    protected
-
-    # @api private
+    
+    # Rejects the request, calling the next matching route.
+    #
+    # @api public
     def reject
       throw :reject
     end
+
+    protected
 
     # @api private
     def found?
