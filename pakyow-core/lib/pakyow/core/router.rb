@@ -595,7 +595,7 @@ module Pakyow
           @exceptions = {}
 
           DEFAULT_EXTENSIONS.each do |extension|
-            extend(Kernel.const_get(extension))
+            include(Kernel.const_get(extension))
           end
         end
       end

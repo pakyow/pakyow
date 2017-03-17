@@ -21,7 +21,7 @@ module Pakyow
     # @api public
     module Extension
       # @api private
-      def self.included(base)
+      def self.extended(base)
         if base.is_a?(Class)
           # FIXME: I don't think this works
           raise StandardError, "Expected `#{base}' to be a module"
@@ -62,7 +62,7 @@ module Pakyow
         )
 
         # @api private
-        def extended(base)
+        def included(base)
           if base.ancestors.include?(Router)
             base.merge(@__extension)
           else

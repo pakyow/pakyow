@@ -72,7 +72,7 @@ module Pakyow
       #
       # @api public
       module Resource
-        include Extension
+        extend Extension
 
         template :resource do
           resource_id = ":#{@router.name}_id"
