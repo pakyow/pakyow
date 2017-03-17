@@ -596,8 +596,8 @@ module Pakyow
 
       # @api private
       def path_to(*names, **params)
-        first_name = names.first
-        if found_route = routes.values.flatten.find { |route| route.name == first_name }
+        combined_name = names.join("_").to_sym
+        if found_route = routes.values.flatten.find { |route| route.name == combined_name }
           if found_route.parameterized?
             return found_route.populated_path(**params)
           else
@@ -606,7 +606,7 @@ module Pakyow
         end
 
         children.reject { |router_to_match|
-          router_to_match.name.nil? || router_to_match.name != first_name
+          router_to_match.name.nil? || router_to_match.name != names.first
         }.each do |matched_router|
           if path = matched_router.path_to(*names[1..-1], **params)
             return path
