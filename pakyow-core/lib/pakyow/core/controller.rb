@@ -204,9 +204,9 @@ module Pakyow
     #   end
     #
     # @api public
-    def redirect(location, as: 302)
+    def redirect(location, as: 302, **params)
       response.status = Rack::Utils.status_code(as)
-      response["Location"] = app.router.path(location)
+      response["Location"] = location.is_a?(Symbol) ? path(location, **params) : location
       halt
     end
 
