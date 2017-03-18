@@ -205,7 +205,7 @@ RSpec.describe "routing requests" do
     end
   end
 
-  describe "routes defined without a block" do
+  context "when route is defined without a block" do
     def define
       Pakyow::App.define do
         router do
@@ -216,6 +216,22 @@ RSpec.describe "routing requests" do
 
     it "still matches the route" do
       expect(call("/")[0]).to eq(200)
+    end
+  end
+
+  context "when route is a regex" do
+    def define
+      Pakyow::App.define do
+        router do
+          get /.*/ do
+            send "regex"
+          end
+        end
+      end
+    end
+
+    it "still matches the route" do
+      expect(call("/foo")[2].body.read).to eq("regex")
     end
   end
 end

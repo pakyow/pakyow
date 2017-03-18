@@ -20,7 +20,19 @@ RSpec.describe "route params" do
   end
 
   context "when set as a named capture on a regex route" do
-    it "is available"
+    def define
+      Pakyow::App.define do
+        router do
+          get(/(?<input>.*)/) do
+            send params[:input]
+          end
+        end
+      end
+    end
+
+    it "is available" do
+      expect(call("/foo")[2].body.read).to eq("foo")
+    end
   end
 
   context "when passed as a request param" do
