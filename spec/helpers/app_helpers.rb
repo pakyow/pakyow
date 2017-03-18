@@ -4,7 +4,7 @@ module AppHelpers
     Pakyow.setup(env: env).run
   end
 
-  def call(path = "/", **opts)
-    Pakyow.call(Rack::MockRequest.env_for(path, **opts))
+  def call(path = "/", opts = {})
+    Pakyow.call(Rack::MockRequest.env_for(path, opts))
   end
 end
