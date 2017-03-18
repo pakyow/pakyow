@@ -39,10 +39,12 @@ require "spec_helper"
 
 ENV["SESSION_SECRET"] = "sekret"
 
-Pakyow::Controller.before :error do
-  $stderr.puts req.error
+if defined?(Pakyow::Controller)
+  Pakyow::Controller.before :error do
+    $stderr.puts req.error
 
-  req.error.backtrace.each do |line|
-    $stderr.puts line
+    req.error.backtrace.each do |line|
+      $stderr.puts line
+    end
   end
 end
