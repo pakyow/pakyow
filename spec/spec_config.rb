@@ -36,3 +36,13 @@ end
 
 require "pry"
 require "spec_helper"
+
+ENV["SESSION_SECRET"] = "sekret"
+
+Pakyow::Controller.before :error do
+  $stderr.puts req.error
+
+  req.error.backtrace.each do |line|
+    $stderr.puts line
+  end
+end
