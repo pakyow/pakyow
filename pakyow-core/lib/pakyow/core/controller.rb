@@ -124,10 +124,8 @@ module Pakyow
 
       catch :halt do
         # see if a defined handler will handle the exception
-        if failed_router && failed_router.exception(error.class, context: self, handlers: handlers, exceptions: exceptions)
-          return
-        else
-          # otherwise, handle as a 500
+        unless failed_router.nil? || failed_router.exception(error.class, context: self, handlers: handlers, exceptions: exceptions)
+          # nope, so handle as a 500
           hook_around :error do
             trigger(500)
           end
