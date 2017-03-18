@@ -7,14 +7,14 @@ RSpec.describe "application helpers" do
     end
   end
 
-  def define
-    Pakyow::App.define do
+  let :app_definition do
+    -> {
       router do
         default do
           send foo
         end
       end
-    end
+    }
   end
 
   it "makes helpers callable from a route" do

@@ -3,14 +3,14 @@ RSpec.describe "using cookies" do
 
   describe "creating a cookie" do
     context "using the pakyow helper" do
-      def define
-        Pakyow::App.define do
+      let :app_definition do
+        -> {
           router do
             get "/set/:value" do
               cookies[:foo] = params[:value]
             end
           end
-        end
+        }
       end
 
       it "creates the cookie" do
@@ -31,8 +31,8 @@ RSpec.describe "using cookies" do
     end
 
     context "using request.set_cookie" do
-      def define
-        Pakyow::App.define do
+      let :app_definition do
+        -> {
           router do
             get "/set/:value" do
               response.set_cookie(
@@ -43,7 +43,7 @@ RSpec.describe "using cookies" do
               )
             end
           end
-        end
+        }
       end
 
       it "creates the cookie with the provided value" do
@@ -70,14 +70,14 @@ RSpec.describe "using cookies" do
     end
 
     context "using the pakyow helper" do
-      def define
-        Pakyow::App.define do
+      let :app_definition do
+        -> {
           router do
             get "/" do
               send cookies[:foo] || ""
             end
           end
-        end
+        }
       end
 
       it "is accessible" do
@@ -86,14 +86,14 @@ RSpec.describe "using cookies" do
     end
 
     context "using request.cookies" do
-      def define
-        Pakyow::App.define do
+      let :app_definition do
+        -> {
           router do
             get "/" do
               send request.cookies[:foo] || ""
             end
           end
-        end
+        }
       end
 
       it "is accessible" do
@@ -108,14 +108,14 @@ RSpec.describe "using cookies" do
     end
 
     context "using the pakyow helper" do
-      def define
-        Pakyow::App.define do
+      let :app_definition do
+        -> {
           router do
             get "/" do
               cookies[:foo] = nil
             end
           end
-        end
+        }
       end
 
       it "deletes the cookie" do
@@ -125,14 +125,14 @@ RSpec.describe "using cookies" do
     end
 
     context "using request.delete_cookie" do
-      def define
-        Pakyow::App.define do
+      let :app_definition do
+        -> {
           router do
             get "/" do
               response.delete_cookie(:foo)
             end
           end
-        end
+        }
       end
 
       it "deletes the cookie" do

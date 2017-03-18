@@ -1,8 +1,8 @@
 RSpec.describe "rerouting requests" do
   include_context "testable app"
 
-  def define
-    Pakyow::App.define do
+  let :app_definition do
+    -> {
       router :reroute do
         get "/reroute" do
           reroute "/destination"
@@ -28,7 +28,7 @@ RSpec.describe "rerouting requests" do
           send "destination/#{params[:id]}"
         end
       end
-    end
+    }
   end
 
   it "reroutes to a path" do

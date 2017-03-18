@@ -1,14 +1,14 @@
 RSpec.describe "disabling the router" do
   include_context "testable app"
 
-  def define
-    Pakyow::App.define do
+  let :app_definition do
+    -> {
       router do
         default do
           send "called"
         end
       end
-    end
+    }
   end
 
   context "when the router disabled" do

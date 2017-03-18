@@ -9,8 +9,11 @@ RSpec.shared_context "testable app" do
 
   before do
     Pakyow.config.server.default = :mock
-    define
-    run
+
+    if app_definition
+      app.define(&app_definition)
+      run
+    end
   end
 
   after do

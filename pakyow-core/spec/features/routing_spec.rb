@@ -1,8 +1,8 @@
 RSpec.describe "routing requests" do
   include_context "testable app"
 
-  def define
-    Pakyow::App.define do
+  let :app_definition do
+    -> {
       router do
         get "/" do
           send "GET /"
@@ -24,7 +24,7 @@ RSpec.describe "routing requests" do
           send "DELETE /"
         end
       end
-    end
+    }
   end
 
   it "routes GET requests" do
@@ -48,14 +48,14 @@ RSpec.describe "routing requests" do
   end
 
   context "when a default route is specified" do
-    def define
-      Pakyow::App.define do
+    let :app_definition do
+      -> {
         router do
           default do
             send "default"
           end
         end
-      end
+      }
     end
 
     it "is called for GET /" do
@@ -64,8 +64,8 @@ RSpec.describe "routing requests" do
   end
 
   context "when a route is defined in a group" do
-    def define
-      Pakyow::App.define do
+    let :app_definition do
+      -> {
         router do
           group :g, before: [:foo], after: [:foo], around: [:meh] do
             def foo
@@ -89,7 +89,7 @@ RSpec.describe "routing requests" do
             end
           end
         end
-      end
+      }
     end
 
     before do
@@ -114,8 +114,8 @@ RSpec.describe "routing requests" do
   end
 
   context "when a route is defined in a namespace" do
-    def define
-      Pakyow::App.define do
+    let :app_definition do
+      -> {
         router do
           namespace :ns, "/ns", before: [:foo], after: [:foo], around: [:meh] do
             def foo
@@ -139,7 +139,7 @@ RSpec.describe "routing requests" do
             end
           end
         end
-      end
+      }
     end
 
     before do
@@ -164,8 +164,8 @@ RSpec.describe "routing requests" do
   end
 
   describe "the routing context" do
-    def define
-      Pakyow::App.define do
+    let :app_definition do
+      -> {
         router do
           def foo
             @state ||= "foo"
@@ -186,7 +186,7 @@ RSpec.describe "routing requests" do
             send @state
           end
         end
-      end
+      }
     end
 
     it "shares state across hooks and routes" do
@@ -206,12 +206,12 @@ RSpec.describe "routing requests" do
   end
 
   context "when route is defined without a block" do
-    def define
-      Pakyow::App.define do
+    let :app_definition do
+      -> {
         router do
           default
         end
-      end
+      }
     end
 
     it "still matches the route" do
@@ -220,14 +220,14 @@ RSpec.describe "routing requests" do
   end
 
   context "when route is a regex" do
-    def define
-      Pakyow::App.define do
+    let :app_definition do
+      -> {
         router do
-          get /.*/ do
+          get(/.*/) do
             send "regex"
           end
         end
-      end
+      }
     end
 
     it "still matches the route" do

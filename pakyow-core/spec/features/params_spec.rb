@@ -4,14 +4,14 @@ RSpec.describe "route params" do
   include_context "testable app"
 
   context "when set on the route" do
-    def define
-      Pakyow::App.define do
+    let :app_definition do
+      -> {
         router do
           get "/:input" do
             send params[:input]
           end
         end
-      end
+      }
     end
 
     it "is available" do
@@ -20,14 +20,14 @@ RSpec.describe "route params" do
   end
 
   context "when set as a named capture on a regex route" do
-    def define
-      Pakyow::App.define do
+    let :app_definition do
+      -> {
         router do
           get(/(?<input>.*)/) do
             send params[:input]
           end
         end
-      end
+      }
     end
 
     it "is available" do
@@ -36,14 +36,14 @@ RSpec.describe "route params" do
   end
 
   context "when passed as a request param" do
-    def define
-      Pakyow::App.define do
+    let :app_definition do
+      -> {
         router do
           default do
             send params[:input]
           end
         end
-      end
+      }
     end
 
     it "is available" do
@@ -52,14 +52,14 @@ RSpec.describe "route params" do
   end
 
   context "when the request is a json request" do
-    def define
-      Pakyow::App.define do
+    let :app_definition do
+      -> {
         router do
           default do
             send params[:foo] || ""
           end
         end
-      end
+      }
     end
 
     before do

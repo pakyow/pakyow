@@ -2,8 +2,8 @@ RSpec.describe "rejecting requests" do
   include_context "testable app"
 
   context "when rejecting from a route" do
-    def define
-      Pakyow::App.define do
+    let :app_definition do
+      -> {
         router do
           default do
             reject
@@ -16,7 +16,7 @@ RSpec.describe "rejecting requests" do
             $two = true
           end
         end
-      end
+      }
     end
 
     before do

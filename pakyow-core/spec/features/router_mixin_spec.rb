@@ -7,8 +7,8 @@ RSpec.describe "including mixins into a router" do
     end
   end
 
-  def define
-    Pakyow::App.define do
+  let :app_definition do
+    -> {
       router do
         include RouteMixins
 
@@ -16,7 +16,7 @@ RSpec.describe "including mixins into a router" do
           foo
         end
       end
-    end
+    }
   end
 
   it "makes the methods available" do

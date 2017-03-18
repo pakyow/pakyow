@@ -2,14 +2,14 @@ RSpec.describe "sending data" do
   include_context "testable app"
 
   context "when sending a file" do
-    def define
-      Pakyow::App.define do
+    let :app_definition do
+      -> {
         router do
           default do
             send File.open("foo.txt")
           end
         end
-      end
+      }
     end
 
     before do
@@ -33,14 +33,14 @@ RSpec.describe "sending data" do
     end
 
     context "with a type" do
-      def define
-        Pakyow::App.define do
+      let :app_definition do
+        -> {
           router do
             default do
               send File.open("foo.txt"), type: "application/force-download"
             end
           end
-        end
+        }
       end
 
       it "sends with the passed type" do
@@ -53,14 +53,14 @@ RSpec.describe "sending data" do
     end
 
     context "with a name" do
-      def define
-        Pakyow::App.define do
+      let :app_definition do
+        -> {
           router do
             default do
               send File.open("foo.txt"), name: "bar.txt"
             end
           end
-        end
+        }
       end
 
       it "sends as an attachment, with the file's name" do
@@ -73,14 +73,14 @@ RSpec.describe "sending data" do
     end
 
     context "with a type and a name" do
-      def define
-        Pakyow::App.define do
+      let :app_definition do
+        -> {
           router do
             default do
               send File.open("foo.txt"), type: "application/force-download", name: "bar.txt"
             end
           end
-        end
+        }
       end
 
       it "sends with the passed type" do
@@ -94,14 +94,14 @@ RSpec.describe "sending data" do
   end
 
   context "when sending an io object" do
-    def define
-      Pakyow::App.define do
+    let :app_definition do
+      -> {
         router do
           default do
             send StringIO.new("foo")
           end
         end
-      end
+      }
     end
 
     it "sends the data" do
@@ -118,14 +118,14 @@ RSpec.describe "sending data" do
   end
 
   context "when sending a string" do
-    def define
-      Pakyow::App.define do
+    let :app_definition do
+      -> {
         router do
           default do
             send "foo"
           end
         end
-      end
+      }
     end
 
     it "sends the string" do

@@ -1,8 +1,8 @@
 RSpec.describe "defining an app" do
   include_context "testable app"
 
-  def define
-    Pakyow::App.define do
+  let :app_definition do
+    -> {
       config.app.name = "define-test"
 
       router do
@@ -10,7 +10,7 @@ RSpec.describe "defining an app" do
           send config.app.name
         end
       end
-    end
+    }
   end
 
   it "defines the app" do
@@ -19,8 +19,17 @@ RSpec.describe "defining an app" do
     expect(res[2].body.read).to eq("define-test")
   end
 
-  context "when app is a subclass" do
+  xcontext "when app is a subclass" do
+    let :app_definition do
+      false
+    end
+
     let :app do
+      class ChildApp < Pakyow::App; end
+      ChildApp
+    end
+    
+    before do
       Pakyow::App.define do
         config.app.name = "define-test"
 
@@ -30,11 +39,8 @@ RSpec.describe "defining an app" do
           end
         end
       end
-
-      class ChildApp < Pakyow::App
-      end
-
-      ChildApp
+      
+      run
     end
 
     it "inherits parent state" do
@@ -44,10 +50,10 @@ RSpec.describe "defining an app" do
     end
 
     context "and the subclassed app defines new state" do
-      def define
-        ChildApp.define do
+      let :app_definition do
+        -> {
           config.app.name = "child-test"
-        end
+        }
       end
 
       it "uses the child's defined state" do

@@ -1,10 +1,12 @@
 RSpec.describe "defining a router" do
   include_context "testable app"
 
-  def define
-    Pakyow::App.router do
-      default
-    end
+  let :app_definition do
+    -> {
+      router do
+        default
+      end
+    }
   end
 
   it "defines the router" do
@@ -16,7 +18,7 @@ RSpec.describe "defining a router" do
       default
     end
 
-    def define
+    before do
       Pakyow::App.router << ChildRouter
     end
 
@@ -30,7 +32,7 @@ RSpec.describe "defining a router" do
         default
       end
 
-      def define
+      before do
         Pakyow::App.router << ChildRouterWithOptions
       end
 

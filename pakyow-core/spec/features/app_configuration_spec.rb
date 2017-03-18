@@ -2,10 +2,10 @@ RSpec.describe "configuring an app" do
   include_context "testable app"
 
   context "when configured globally" do
-    def define
-      Pakyow::App.define do
+    let :app_definition do
+      -> {
         config.app.name = "config-test"
-      end
+      }
     end
 
     it "is configured properly" do
@@ -14,8 +14,8 @@ RSpec.describe "configuring an app" do
   end
 
   context "when configured for an environment" do
-    def define
-      Pakyow::App.define do
+    let :app_definition do
+      -> {
         configure :test do
           config.app.name = "config-env-test"
         end
@@ -25,7 +25,7 @@ RSpec.describe "configuring an app" do
             send config.app.name
           end
         end
-      end
+      }
     end
 
     it "is configured properly" do
@@ -40,8 +40,8 @@ RSpec.describe "accessing the app's config" do
   include_context "testable app"
 
   context "when accessed internally" do
-    def define
-      Pakyow::App.define do
+    let :app_definition do
+      -> {
         config.app.name = "config-test"
 
         router do
@@ -49,7 +49,7 @@ RSpec.describe "accessing the app's config" do
             send config.app.name
           end
         end
-      end
+      }
     end
 
     it "is accessible" do
@@ -60,10 +60,10 @@ RSpec.describe "accessing the app's config" do
   end
 
   context "when accessed externally" do
-    def define
-      Pakyow::App.define do
+    let :app_definition do
+      -> {
         config.app.name = "config-test"
-      end
+      }
     end
 
     it "can be accessed externally" do

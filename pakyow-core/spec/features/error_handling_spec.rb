@@ -3,8 +3,8 @@ RSpec.describe "error handling" do
 
   context "when an error is triggered" do
     context "and a handler is defined by name" do
-      def define
-        Pakyow::App.define do
+      let :app_definition do
+        -> {
           router do
             handle :not_found do
               send "not found"
@@ -14,7 +14,7 @@ RSpec.describe "error handling" do
               trigger 404
             end
           end
-        end
+        }
       end
 
       it "handles the error" do
@@ -27,8 +27,8 @@ RSpec.describe "error handling" do
     end
 
     context "and a handler is defined by code" do
-      def define
-        Pakyow::App.define do
+      let :app_definition do
+        -> {
           router do
             handle 404 do
               send "not found"
@@ -38,7 +38,7 @@ RSpec.describe "error handling" do
               trigger :not_found
             end
           end
-        end
+        }
       end
 
       it "handles the error" do
@@ -51,8 +51,8 @@ RSpec.describe "error handling" do
     end
 
     context "and a handler is defined on a route as well as the router" do
-      def define
-        Pakyow::App.define do
+      let :app_definition do
+        -> {
           router do
             handle 404 do
               send "not found"
@@ -66,7 +66,7 @@ RSpec.describe "error handling" do
               trigger 404
             end
           end
-        end
+        }
       end
 
       it "handles the error" do
@@ -79,8 +79,8 @@ RSpec.describe "error handling" do
     end
 
     context "and a handler is defined in a parent router" do
-      def define
-        Pakyow::App.define do
+      let :app_definition do
+        -> {
           router do
             handle 404 do
               send "not found from parent"
@@ -92,7 +92,7 @@ RSpec.describe "error handling" do
               end
             end
           end
-        end
+        }
       end
 
       it "handles the error" do
@@ -105,8 +105,8 @@ RSpec.describe "error handling" do
     end
 
     context "and a handler is defined in a sibling router" do
-      def define
-        Pakyow::App.define do
+      let :app_definition do
+        -> {
           router do
             handle 404 do
               send "not found from sibling"
@@ -118,7 +118,7 @@ RSpec.describe "error handling" do
               trigger 404
             end
           end
-        end
+        }
       end
 
       it "does not handle the error" do
@@ -133,8 +133,8 @@ RSpec.describe "error handling" do
 
   context "when an exception occurs" do
     context "and a handler is defined for the exception" do
-      def define
-        Pakyow::App.define do
+      let :app_definition do
+        -> {
           router do
             handle StandardError, as: 401 do
               send "handled exception"
@@ -144,7 +144,7 @@ RSpec.describe "error handling" do
               raise StandardError
             end
           end
-        end
+        }
       end
 
       it "handles the error" do
@@ -156,8 +156,8 @@ RSpec.describe "error handling" do
       end
 
       context "and another error of the same type occurs" do
-        def define
-          Pakyow::App.define do
+        let :app_definition do
+          -> {
             router do
               handle StandardError, as: 401 do
                 send "handled exception"
@@ -173,7 +173,7 @@ RSpec.describe "error handling" do
                 raise StandardError
               end
             end
-          end
+          }
         end
 
         include_context "suppressed output"
@@ -188,14 +188,14 @@ RSpec.describe "error handling" do
 
   context "when the framework triggers a 404" do
     context "and a handler is defined" do
-      def define
-        Pakyow::App.define do
+      let :app_definition do
+        -> {
           router do
             handle 404 do
               send "not found"
             end
           end
-        end
+        }
       end
 
       it "handles the error" do
@@ -208,9 +208,9 @@ RSpec.describe "error handling" do
     end
 
     context "and a handler is not defined" do
-      def define
-        Pakyow::App.define do
-        end
+      let :app_definition do
+        -> {
+        }
       end
 
       it "sets the response code" do
@@ -221,8 +221,8 @@ RSpec.describe "error handling" do
 
   context "when the framework triggers a 500" do
     context "and a handler is defined" do
-      def define
-        Pakyow::App.define do
+      let :app_definition do
+        -> {
           router do
             handle 500 do
               send "boom"
@@ -232,7 +232,7 @@ RSpec.describe "error handling" do
               fail
             end
           end
-        end
+        }
       end
 
       include_context "suppressed output"
@@ -247,14 +247,14 @@ RSpec.describe "error handling" do
     end
 
     context "and a handler is not defined" do
-      def define
-        Pakyow::App.define do
+      let :app_definition do
+        -> {
           router do
             default do
               fail
             end
           end
-        end
+        }
       end
 
       include_context "suppressed output"

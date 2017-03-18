@@ -2,8 +2,8 @@ RSpec.describe "path building" do
   include_context "testable app"
   using Pakyow::Support::DeepDup
 
-  def define
-    Pakyow::App.define do
+  let :app_definition do
+    -> {
       router do
         def other_params
           Hash[params.map { |k, v|
@@ -42,7 +42,7 @@ RSpec.describe "path building" do
           list
         end
       end
-    end
+    }
   end
 
   it "builds path to a default route" do

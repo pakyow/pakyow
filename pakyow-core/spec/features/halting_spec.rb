@@ -2,8 +2,8 @@ RSpec.describe "halting a request" do
   include_context "testable app"
 
   context "when halting from a route" do
-    def define
-      Pakyow::App.define do
+    let :app_definition do
+      -> {
         router do
           default do
             $called = true
@@ -11,7 +11,7 @@ RSpec.describe "halting a request" do
             $halted = false
           end
         end
-      end
+      }
     end
 
     before do
@@ -27,8 +27,8 @@ RSpec.describe "halting a request" do
   end
 
   context "when halting from a hook" do
-    def define
-      Pakyow::App.define do
+    let :app_definition do
+      -> {
         router do
           def hook
             $hooked = true
@@ -39,7 +39,7 @@ RSpec.describe "halting a request" do
             $halted = false
           end
         end
-      end
+      }
     end
 
     before do

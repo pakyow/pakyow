@@ -1,8 +1,8 @@
 RSpec.describe "redirecting requests" do
   include_context "testable app"
 
-  def define
-    Pakyow::App.define do
+  let :app_definition do
+    -> {
       router :redirect do
         get "/redirect" do
           redirect "/destination"
@@ -23,7 +23,7 @@ RSpec.describe "redirecting requests" do
         get :destination, "/destination"
         get :destination_with_params, "/destination/:id"
       end
-    end
+    }
   end
 
   it "redirects to a path" do

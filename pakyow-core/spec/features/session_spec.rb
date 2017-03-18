@@ -1,8 +1,8 @@
 RSpec.describe "using sessions" do
   include_context "testable app"
 
-  def define
-    Pakyow::App.define do
+  let :app_definition do
+    -> {
       config.protection.enabled = false
 
       router do
@@ -14,7 +14,7 @@ RSpec.describe "using sessions" do
           session[:foo] = params[:value]
         end
       end
-    end
+    }
   end
 
   describe "setting a session value" do

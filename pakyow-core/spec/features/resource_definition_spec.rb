@@ -2,14 +2,14 @@ RSpec.describe "defining resources" do
   include_context "testable app"
 
   context "when the resource is defined at the top level" do
-    def define
-      Pakyow::App.define do
+    let :app_definition do
+      -> {
         resource :post, "/posts" do
           list do
             send "post list"
           end
         end
-      end
+      }
     end
 
     it "defines the resource" do
@@ -20,8 +20,8 @@ RSpec.describe "defining resources" do
   end
 
   context "when the resource is nested within another resource" do
-    def define
-      Pakyow::App.define do
+    let :app_definition do
+      -> {
         resource :post, "/posts" do
           resource :comment, "/comments" do
             list do
@@ -29,7 +29,7 @@ RSpec.describe "defining resources" do
             end
           end
         end
-      end
+      }
     end
 
     it "defines the resource" do
@@ -40,8 +40,8 @@ RSpec.describe "defining resources" do
   end
 
   describe "the defined resource" do
-    def define
-      Pakyow::App.define do
+    let :app_definition do
+      -> {
         resource :post, "/posts" do
           list do
             send "post list"
@@ -75,7 +75,7 @@ RSpec.describe "defining resources" do
             send "post #{params[:post_id]} show"
           end
         end
-      end
+      }
     end
 
     it "can have a list action" do

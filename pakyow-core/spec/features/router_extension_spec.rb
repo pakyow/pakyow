@@ -9,12 +9,12 @@ RSpec.describe "extending a router" do
     end
   end
 
-  def define
-    Pakyow::App.define do
+  let :app_definition do
+    -> {
       router do
         include RouteExtensions
       end
-    end
+    }
   end
 
   it "makes the extensions available to the router" do
