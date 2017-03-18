@@ -22,7 +22,10 @@ module Pakyow
     attr_reader :app
 
     # @api private
-    attr_reader :handlers, :exceptions, :current_router
+    attr_reader :handlers, :exceptions, :current_router, :previous_router_instance
+    
+    # @api private
+    attr_accessor :current_router_instance
 
     alias :req :request
     alias :res :response
@@ -234,6 +237,7 @@ module Pakyow
         location
       end
 
+      @previous_router_instance = @current_router_instance
       route_to(location, method.to_s.upcase)
     end
 
@@ -368,6 +372,7 @@ module Pakyow
     def route_to(path, method)
       app.state_for(:router).each do |router|
         @current_router = router
+
         @found = router.call(
           path,
           method,

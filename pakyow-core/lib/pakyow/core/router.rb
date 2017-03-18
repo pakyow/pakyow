@@ -196,6 +196,15 @@ module Pakyow
 
     # @api private
     def initialize(context)
+      if router = context.previous_router_instance
+        # copy state from previous router to the new one
+        # this is so that state is shared when rerouting from one router to another one
+        router.instance_variables.each do |ivar|
+          next if instance_variable_defined?(ivar)
+          instance_variable_set(ivar, router.instance_variable_get(ivar))
+        end
+      end
+
       @context = context
     end
 
@@ -672,7 +681,10 @@ module Pakyow
         routes[method].each do |route|
           catch :reject do
             next unless route.match?(path, params)
-            route.call(context: self.new(context))
+
+            instance = self.new(context)
+            context.current_router_instance = instance
+            route.call(context: instance)
             return true
           end
         end
