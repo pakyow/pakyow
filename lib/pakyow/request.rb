@@ -34,15 +34,13 @@ module Pakyow
     #
     # @api public
     def format
-      type = Rack::Mime::MIME_TYPES.select { |_key, value|
-        value == @env["CONTENT_TYPE"]
-      }
+      return @format if defined?(@format)
 
-      return if type.empty?
-      extension = type.keys.first
-      # works around a dumb thing in Rack::Mime
-      return :html if extension == ".htm"
-      extension[1..-1].to_sym
+      if path.include?(".")
+        @format = path.split(".").last.to_sym
+      else
+        @format = :html
+      end
     end
 
     # Returns an indifferentized params hash.
