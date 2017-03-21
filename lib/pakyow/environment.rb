@@ -154,7 +154,7 @@ module Pakyow
   # Loads the default middleware stack.
   #
   before :setup do
-    use Rack::ContentType, "text/html;charset=utf-8"
+    use Rack::ContentType, "text/html"
     use Rack::ContentLength
     use Rack::Head
     use Rack::MethodOverride
