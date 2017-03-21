@@ -38,24 +38,27 @@ module Pakyow
         end
       end
 
-      private_class_method
-
+      # @api private
       def self.format_in_minutes(time)
         round(time / 60).to_s + "m "
       end
 
+      # @api private
       def self.format_in_seconds(time)
         round(time).to_s + "s "
       end
 
+      # @api private
       def self.format_in_milliseconds(time)
         round(time * 1_000).to_s + "ms"
       end
 
+      # @api private
       def self.format_in_microseconds(time)
         round(time * 1_000_000).to_s + "μs"
       end
 
+      # @api private
       def self.round(time)
         "%.2f" % time
       end

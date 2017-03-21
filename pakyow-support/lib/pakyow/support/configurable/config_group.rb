@@ -6,7 +6,7 @@ module Pakyow
     module Configurable
       class ConfigGroup
         using DeepDup
-        attr_reader :name, :options, :parent, :settings, :defaults
+        attr_reader :name, :options, :parent, :settings
 
         def initialize(name, options, parent, &block)
           @name = name

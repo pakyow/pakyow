@@ -10,8 +10,6 @@ module Pakyow
         COLOR_SEQ % (30 + COLOR_TABLE.index(color)) + (message || "") + RESET_SEQ
       end
 
-      private_class_method
-
       LEVEL_COLORS = {
         "DEBUG" => :cyan,
         "INFO"  => :green,
