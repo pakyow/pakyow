@@ -374,6 +374,7 @@ module Pakyow
           path,
           method,
           request.params,
+          request.format,
           context: self
         )
 

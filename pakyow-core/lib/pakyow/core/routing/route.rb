@@ -6,7 +6,7 @@ module Pakyow
     #
     # @api private
     class Route
-      attr_reader :method, :name, :path, :parameterized_path, :block, :hooks, :pipeline
+      attr_reader :method, :name, :path, :parameterized_path, :block, :hooks, :pipeline, :formats
       attr_accessor :callable_method
 
       def initialize(name: nil, path: nil, hooks: nil, &block)
@@ -14,16 +14,19 @@ module Pakyow
         @path     = path
         @block    = block
         @hooks    = hooks
+        @formats  = []
         @pipeline = compile_pipeline(block, hooks)
         @parameterized_path = nil
 
         if @path.is_a?(String)
           @path = String.normalize_path(path)
+
+          find_path_formats
           parameterize_path
         end
       end
 
-      def match?(path_to_match, params)
+      def match?(path_to_match, params, format)
         case path
         when Regexp
           if data = path.match(path_to_match)
@@ -31,7 +34,7 @@ module Pakyow
             true
           end
         when String
-          path == path_to_match
+          formats.include?(format) && path == path_to_match
         else
           false
         end
@@ -74,6 +77,7 @@ module Pakyow
       def freeze
         path.freeze
         pipeline.freeze
+        formats.freeze
         # TODO: freeze hooks
         super
       end
@@ -113,6 +117,16 @@ module Pakyow
 
           # perform the actual matching via regex
           @path = Regexp.new("^#{reqex_path}$")
+        end
+      end
+      
+      def find_path_formats
+        if @path.include?(".")
+          path, formats = @path.split(".")
+          @formats.concat(formats.split("|").map(&:to_sym))
+          @path = path
+        else
+          @formats << :html
         end
       end
     end

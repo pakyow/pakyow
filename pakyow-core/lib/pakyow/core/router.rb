@@ -667,16 +667,18 @@ module Pakyow
       end
 
       # @api private
-      def call(path, method, params, context: nil)
-        path = String.normalize_path(path)
+      def call(path, method, params, type, context: nil)
+        # normalize and strip the format off the end
+        # TODO: we need some path helpers for these things
+        path = String.normalize_path(path).split(".")[0]
 
         children.each do |child_router|
-          return true if child_router.call(path, method, params, context: context) === true
+          return true if child_router.call(path, method, params, type, context: context) === true
         end
 
         routes[method].each do |route|
           catch :reject do
-            next unless route.match?(path, params)
+            next unless route.match?(path, params, type)
 
             instance = self.new(context)
             context.current_router = instance
