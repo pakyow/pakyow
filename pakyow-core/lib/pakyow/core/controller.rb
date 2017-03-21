@@ -22,10 +22,10 @@ module Pakyow
     attr_reader :app
 
     # @api private
-    attr_reader :handlers, :exceptions, :current_router, :previous_router_instance
-    
+    attr_reader :handlers, :exceptions
+
     # @api private
-    attr_accessor :current_router_instance
+    attr_accessor :current_router, :previous_router
 
     alias :req :request
     alias :res :response
@@ -124,7 +124,7 @@ module Pakyow
 
       catch :halt do
         # see if a defined handler will handle the exception
-        unless failed_router.nil? || failed_router.exception(error.class, context: self, handlers: handlers, exceptions: exceptions)
+        unless failed_router.nil? || failed_router.trigger_for_exception(error.class, context: self, handlers: handlers, exceptions: exceptions)
           # nope, so handle as a 500
           hook_around :error do
             trigger(500)
@@ -235,7 +235,7 @@ module Pakyow
         location
       end
 
-      @previous_router_instance = @current_router_instance
+      @previous_router = @current_router
       route_to(location, method.to_s.upcase)
     end
 
@@ -298,8 +298,9 @@ module Pakyow
       response.status = code
 
       return unless failed_router
+
       hook_around :trigger do
-        failed_router.trigger(code, context: self, handlers: handlers)
+        failed_router.trigger_for_code(code, context: self, handlers: handlers)
       end
     end
 
@@ -369,8 +370,6 @@ module Pakyow
     
     def route_to(path, method)
       app.state_for(:router).each do |router|
-        @current_router = router
-
         @found = router.call(
           path,
           method,

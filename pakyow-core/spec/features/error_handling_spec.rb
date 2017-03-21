@@ -104,6 +104,34 @@ RSpec.describe "error handling" do
       end
     end
 
+    context "and a handler is defined in a nested parent router" do
+      let :app_definition do
+        -> {
+          router :top do
+            group :foo do
+              handle 403 do
+                send "forbidden from parent"
+              end
+
+              group :bar do
+                default do
+                  trigger 403
+                end
+              end
+            end
+          end
+        }
+      end
+
+      it "handles the error" do
+        expect(call[2].body.read).to eq("forbidden from parent")
+      end
+
+      it "sets the response code" do
+        expect(call[0]).to eq(403)
+      end
+    end
+
     context "and a handler is defined in a sibling router" do
       let :app_definition do
         -> {
@@ -148,7 +176,7 @@ RSpec.describe "error handling" do
       end
 
       it "handles the error" do
-        expect(call[2].body.read).to eq("handled exception")
+        expect(call[2].body.first).to eq("handled exception")
       end
 
       it "sets the response code" do
@@ -198,8 +226,8 @@ RSpec.describe "error handling" do
         }
       end
 
-      it "handles the error" do
-        expect(call[2].body.read).to eq("not found")
+      it "does not handle the error" do
+        expect(call[2].body.first).to be(nil)
       end
 
       it "sets the response code" do

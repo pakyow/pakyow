@@ -197,7 +197,7 @@ module Pakyow
 
     # @api private
     def initialize(context)
-      if router = context.previous_router_instance
+      if router = context.previous_router
         # copy state from previous router to the new one
         # this is so that state is shared when rerouting from one router to another one
         router.instance_variables.each do |ivar|
@@ -207,6 +207,32 @@ module Pakyow
       end
 
       @context = context
+    end
+    
+    # @api private
+    def trigger_for_code(code, context: nil, handlers: {})
+      return unless handler = self.class.handler_for_code(code, handlers: handlers)
+
+      if context
+        context.instance_exec(&handler)
+      else
+        handler.call
+      end
+
+      true
+    end
+    
+    # @api private
+    def trigger_for_exception(klass, context: nil, handlers: {}, exceptions: {})
+      return unless exception = self.class.exception_for_class(klass, exceptions: exceptions)
+
+      code = exception[0]
+      if handler = exception[1]
+        handlers[code] = handler
+      end
+
+      context.response.status = code
+      trigger_for_code(code, context: context, handlers: handlers)
     end
 
     class << self
@@ -550,43 +576,12 @@ module Pakyow
 
       # @api private
       def handlers
-        @templates ||= {}
+        @handlers ||= {}
       end
 
       # @api private
       def exceptions
-        @templates ||= {}
-      end
-
-      # @api private
-      def exception(klass, context: nil, handlers: {}, exceptions: {})
-        return unless exception = exception_for_class(klass, exceptions: exceptions)
-
-        code = exception[0]
-        if handler = exception[1]
-          handlers[code] = handler
-        end
-
-        context.response.status = code
-        trigger(code, context: context, handlers: handlers)
-      end
-
-      # @api private
-      def trigger(code, context: nil, handlers: {})
-        children.each do |child_router|
-          return true if child_router.trigger(code, context: context, handlers: handlers) === true
-        end
-
-        handlers = self.handlers.merge(handlers)
-        return unless handler = handlers[code]
-
-        if context
-          context.instance_exec(&handler)
-        else
-          handler.call
-        end
-
-        true
+        @exceptions ||= {}
       end
 
       # @api private
@@ -684,7 +679,7 @@ module Pakyow
             next unless route.match?(path, params)
 
             instance = self.new(context)
-            context.current_router_instance = instance
+            context.current_router = instance
             route.call(context: instance)
             return true
           end
@@ -720,6 +715,28 @@ module Pakyow
         templates.freeze
 
         super
+      end
+
+      # @api private
+      def exception_for_class(klass, exceptions: {})
+        exceptions = self.exceptions.merge(exceptions)
+
+        if exception = exceptions[klass]
+          return exception
+        end
+
+        parent.exception_for_class(klass) if parent
+      end
+
+      # @api private
+      def handler_for_code(code, handlers: {})
+        handlers = self.handlers.merge(handlers)
+
+        if handler = handlers[code]
+          return handler
+        end
+
+        parent.handler_for_code(code) if parent
       end
 
       protected
@@ -783,16 +800,6 @@ module Pakyow
 
       def merge_templates(templates_to_merge)
         templates.merge!(templates_to_merge)
-      end
-
-      def exception_for_class(klass, exceptions: {})
-        exceptions = self.exceptions.merge(exceptions)
-
-        if exception = exceptions[klass]
-          return exception
-        end
-
-        parent.exception_for_class(klass) if parent
       end
     end
   end
