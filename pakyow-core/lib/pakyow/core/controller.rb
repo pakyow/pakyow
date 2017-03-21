@@ -273,14 +273,16 @@ module Pakyow
         if file_or_data.is_a?(File)
           type ||= Rack::Mime.mime_type(File.extname(file_or_data.path))
         end
+
+        response[Rack::CONTENT_TYPE] = type || DEFAULT_SEND_TYPE
       elsif file_or_data.is_a?(String)
+        response[Rack::CONTENT_TYPE] = type if type
         data = StringIO.new(file_or_data)
       else
         raise ArgumentError, "Expected an IO or String object"
       end
 
       response.body = data
-      response[Rack::CONTENT_TYPE] = type || DEFAULT_SEND_TYPE
       response[CONTENT_DISPOSITION] = if name
         "attachment; filename=#{name}"
       else

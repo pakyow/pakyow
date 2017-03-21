@@ -132,12 +132,28 @@ RSpec.describe "sending data" do
       expect(call[2].body.read).to eq("foo")
     end
 
-    it "sends with a default type" do
-      expect(call[1]["Content-Type"]).to eq("application/octet-stream")
+    it "sends with the response's type" do
+      expect(call[1]["Content-Type"]).to eq("text/html")
     end
 
     it "sends inline" do
       expect(call[1]["Content-Disposition"]).to eq("inline")
+    end
+    
+    context "and a type is specified" do
+      let :app_definition do
+        -> {
+          router do
+            default do
+              send "foo", type: "application/json"
+            end
+          end
+        }
+      end
+
+      it "sends with the specified type" do
+        expect(call[1]["Content-Type"]).to eq("application/json")
+      end
     end
   end
 end
