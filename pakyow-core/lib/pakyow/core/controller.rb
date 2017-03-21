@@ -239,6 +239,32 @@ module Pakyow
       route_to(location, method.to_s.upcase)
     end
 
+    # Responds to a specific request format.
+    #
+    # The +Content-Type+ header will be set on the response based
+    # on the format that is being responded to.
+    #
+    # After yielding, request processing will be halted.
+    #
+    # @example
+    #   Pakyow::App.router do
+    #     get "/foo.txt|html" do
+    #       respond_to :txt do
+    #         send "foo"
+    #       end
+    #
+    #       # do something for html format
+    #     end
+    #   end
+    #
+    # @api public
+    def respond_to(format)
+      return unless request.format == format.to_sym
+      response.format = format
+      yield
+      halt
+    end
+
     DEFAULT_SEND_TYPE = "application/octet-stream".freeze
 
     # Sends a file or other data in the response.

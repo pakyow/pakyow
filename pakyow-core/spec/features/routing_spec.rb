@@ -144,12 +144,12 @@ RSpec.describe "routing requests" do
       end
     end
 
-    xcontext "and the route responds to a specific format" do
+    context "and the route responds to a specific format" do
       let :app_definition do
         -> {
           router do
             get "foo.txt|html" do
-              req.format :txt do
+              respond_to :txt do
                 send "foo"
               end
               
@@ -163,18 +163,23 @@ RSpec.describe "routing requests" do
         expect(call("/foo.txt")[2].body.first).to eq("foo")
         expect(call("/foo.html")[2].body.first).to eq("<foo>")
       end
+      
+      it "sets the appropriate content type" do
+        expect(call("/foo.txt")[1]['Content-Type']).to eq("text/plain")
+        expect(call("/foo.html")[1]['Content-Type']).to eq("text/html")
+      end
     end
 
-    xcontext "and the route responds to both formats" do
+    context "and the route responds to both formats" do
       let :app_definition do
         -> {
           router do
             get "foo.txt|html" do
-              req.format :txt do
+              respond_to :txt do
                 send "foo"
               end
 
-              req.format :html do
+              respond_to :html do
                 send "<foo>"
               end
             end
@@ -185,6 +190,11 @@ RSpec.describe "routing requests" do
       it "receives the expected response" do
         expect(call("/foo.txt")[2].body.first).to eq("foo")
         expect(call("/foo.html")[2].body.first).to eq("<foo>")
+      end
+
+      it "sets the appropriate content type" do
+        expect(call("/foo.txt")[1]['Content-Type']).to eq("text/plain")
+        expect(call("/foo.html")[1]['Content-Type']).to eq("text/html")
       end
     end
   end

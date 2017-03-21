@@ -184,8 +184,14 @@ module Pakyow
     #   Delegates to {context}.
     #
     #   @see Controller#params
+    #
+    # @!method respond_to
+    #   Delegates to {context}.
+    #
+    #   @see Controller#respond_to
     def_delegators :@context, :logger, :handle, :redirect, :reroute, :send, :reject, :trigger, :path, :path_to, 
-                              :halt, :config, :params, :session, :cookies, :request, :response, :req, :res
+                              :halt, :config, :params, :session, :cookies, :request, :response, :req, :res,
+                              :respond_to
 
     # The context of the current request lifecycle.
     # Expected to be an instance of {Controller}.
