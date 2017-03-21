@@ -9,12 +9,6 @@ RSpec.describe Pakyow::Request do
     expect(Pakyow::Request.superclass).to eq Rack::Request
   end
 
-  describe "#initialization" do
-    it "sets the default content type" do
-      expect(request.env["CONTENT_TYPE"]).to eq("text/html")
-    end
-  end
-
   describe "#path" do
     it "returns path info" do
       expect(request.path).to eq request.path_info

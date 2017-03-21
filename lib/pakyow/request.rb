@@ -14,11 +14,6 @@ module Pakyow
     # @api public
     attr_accessor :error
 
-    def initialize(*)
-      super
-      @env["CONTENT_TYPE"] = "text/html"
-    end
-
     # Returns the request method (e.g. `:get`).
     #
     # @api public
