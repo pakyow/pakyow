@@ -211,6 +211,32 @@ RSpec.describe "error handling" do
           expect(call("/foo")[0]).to eq(500)
         end
       end
+
+      context "and a handler is defined for the exception in a parent router" do
+        let :app_definition do
+          -> {
+            router do
+              handle StandardError, as: 401 do
+                send "handled exception from parent"
+              end
+
+              group :foo do
+                default do
+                  raise StandardError
+                end
+              end
+            end
+          }
+        end
+
+        it "handles the error" do
+          expect(call[2].body.read).to eq("handled exception from parent")
+        end
+
+        it "sets the response code" do
+          expect(call[0]).to eq(401)
+        end
+      end
     end
   end
 

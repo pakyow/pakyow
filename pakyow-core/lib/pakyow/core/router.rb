@@ -198,8 +198,6 @@ module Pakyow
     #
     attr_accessor :context
 
-    # @api private
-    attr_accessor :parent
 
     # @api private
     def initialize(context)
@@ -577,9 +575,6 @@ module Pakyow
       attr_accessor :nested_path
 
       # @api private
-      attr_accessor :parent
-
-      # @api private
       attr_reader :name, :path, :definable
 
       # @api private
@@ -614,15 +609,17 @@ module Pakyow
         path = self.path
         nested_path = self.nested_path
         hooks = self.hooks.deep_dup
+        templates = self.templates.deep_dup
+        handlers = self.handlers.deep_dup
+        exceptions = self.exceptions.deep_dup
 
         klass.class_eval do
           @path = path
           @nested_path = nested_path
           @hooks = hooks
-          @children = []
-          @templates = {}
-          @handlers = {}
-          @exceptions = {}
+          @templates = templates
+          @handlers = handlers
+          @exceptions = exceptions
 
           DEFAULT_EXTENSIONS.each do |extension|
             include(Kernel.const_get(extension))
@@ -687,8 +684,7 @@ module Pakyow
 
       # @api private
       def make_child(name = nil, path = nil, **hooks, &block)
-        router = Router.make(name, full_path(path), definable: definable, **compile_hooks(hooks), &block)
-        router.parent = self
+        router = make(name, full_path(path), definable: definable, **compile_hooks(hooks), &block)
         children << router
         router
       end
@@ -760,8 +756,6 @@ module Pakyow
         if exception = exceptions[klass]
           return exception
         end
-
-        parent.exception_for_class(klass) if parent
       end
 
       # @api private
@@ -771,8 +765,6 @@ module Pakyow
         if handler = handlers[code]
           return handler
         end
-
-        parent.handler_for_code(code) if parent
       end
 
       # @api private
