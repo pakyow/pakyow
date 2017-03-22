@@ -466,16 +466,6 @@ module Pakyow
         make_child(*args, definable: definable, **hooks).expand_within(name, &block)
       end
 
-      def expand_within(name, &block)
-        if template = templates[name]
-          @expansion = Routing::Expansion.new(name, template, self, &block)
-          class_eval(&block)
-          @expansion = nil
-        else
-          raise NameError, "Unknown template `#{name}'"
-        end
-      end
-
       # Registers an error handler used within this router.
       #
       # @example Handling a status code:
@@ -809,6 +799,17 @@ module Pakyow
         routers.concat(children)
         routers.concat(definable.state[:router].instances)
         routers
+      end
+
+      # @api private
+      def expand_within(name, &block)
+        if template = templates[name]
+          @expansion = Routing::Expansion.new(name, template, self, &block)
+          class_eval(&block)
+          @expansion = nil
+        else
+          raise NameError, "Unknown template `#{name}'"
+        end
       end
 
       protected
