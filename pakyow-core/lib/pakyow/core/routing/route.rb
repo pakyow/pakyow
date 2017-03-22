@@ -11,7 +11,6 @@ module Pakyow
       include HookMerger
 
       attr_reader :method, :name, :path, :parameterized_path, :block, :hooks, :pipeline, :formats
-      attr_accessor :callable_method
 
       def initialize(name: nil, path: nil, hooks: nil, &block)
         @name     = name
