@@ -236,7 +236,7 @@ module Pakyow
       end
 
       @previous_router = @current_router
-      route_to(location, method.to_s.upcase)
+      route_to(location, method)
     end
 
     # Responds to a specific request format.
