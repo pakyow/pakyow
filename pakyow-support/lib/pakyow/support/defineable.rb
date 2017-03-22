@@ -99,7 +99,7 @@ module Pakyow
         #
         #       def make(name, dob, &block)
         #         person = self.class.new(name, dob)
-        #         
+        #
         #         person.instance_eval(&block)
         #         person
         #       end
@@ -124,12 +124,10 @@ module Pakyow
         def stateful(name, object)
           name = name.to_sym
           (@state ||= {})[name] = State.new(name, object)
-          method_body = Proc.new do |*args, &block|
+          method_body = Proc.new do |*args, priority: :default, &block|
             return @state[name] if block.nil?
-
             instance = object.make(*args, definable: self, &block)
-
-            @state[name] << instance
+            @state[name].register(instance, priority: priority)
           end
 
           define_method name, &method_body
@@ -141,7 +139,7 @@ module Pakyow
         def define(&block)
           instance_eval(&block)
         end
-        
+
         # @api private
         def reset
           super if defined? super
@@ -158,12 +156,15 @@ module Pakyow
     class State
       using DeepDup
 
-      attr_reader :name, :object, :instances
+      attr_reader :name, :object, :instances, :priorities
+
+      PRIORITIES = { default: 0, high: 1, low: -1 }.freeze
 
       def initialize(name, object)
         @name = name.to_sym
         @object = object
         @instances = []
+        @priorities = {}
       end
 
       def initialize_copy(original)
@@ -173,6 +174,17 @@ module Pakyow
 
       # TODO: we handle both instances and classes, so reconsider the variable naming
       def <<(instance)
+        register(instance)
+      end
+
+      # TODO: we handle both instances and classes, so reconsider the variable naming
+      def register(instance, priority: :default)
+        unless priority.is_a?(Integer)
+          priority = PRIORITIES.fetch(priority) {
+            raise ArgumentError, "Unknown priority `#{priority}'"
+          }
+        end
+
         ancestors = if instance.respond_to?(:new)
           instance.ancestors
         else
@@ -184,6 +196,9 @@ module Pakyow
         end
 
         instances << instance
+
+        priorities[instance] = priority
+        reprioritize!
       end
 
       def freeze
@@ -191,9 +206,15 @@ module Pakyow
         instances.freeze
         super
       end
-      
+
       def reset
         @instances = []
+      end
+
+      def reprioritize!
+        @instances.sort! { |a, b|
+          priorities[b] <=> priorities[a]
+        }
       end
     end
   end
