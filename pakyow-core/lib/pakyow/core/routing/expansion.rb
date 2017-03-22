@@ -19,13 +19,9 @@ module Pakyow
       end
 
       def find_route(name)
-        expander.routes.each do |method, routes|
-          routes.each do |route|
-            return method, route if route.name == name
-          end
-        end
-
-        nil
+        expander.routes.values.flatten.find { | route|
+          route.name == name
+        }
       end
 
       def find_child(name)

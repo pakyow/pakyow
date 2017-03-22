@@ -589,8 +589,8 @@ module Pakyow
       #
       # @api public
       def method_missing(name, *args, **hooks, &block)
-        if expanding? && (method, route = @expansion.find_route(name))
-          build_route(method, route.name, route.path, **hooks, &block)
+        if expanding? && route = @expansion.find_route(name)
+          build_route(route.method, route.name, route.path, **hooks, &block)
         elsif expanding? && child = @expansion.find_child(name)
           child.class_eval(&block)
           merge_routes(child.routes)
@@ -858,6 +858,7 @@ module Pakyow
         args  = Aargv.normalize([name_or_path, path_or_name], name: Symbol, path: String, regex: Regexp)
 
         route = Routing::Route.new(
+          method: method,
           name: args[:name],
           path: full_path(args[:path] || args[:regex]),
           hooks: compile_hooks(hooks || {}),

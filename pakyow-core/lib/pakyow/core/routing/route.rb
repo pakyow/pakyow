@@ -12,7 +12,8 @@ module Pakyow
 
       attr_reader :method, :name, :path, :parameterized_path, :block, :hooks, :pipeline, :formats
 
-      def initialize(name: nil, path: nil, hooks: nil, &block)
+      def initialize(method: nil, name: nil, path: nil, hooks: nil, &block)
+        @method   = method
         @name     = name
         @path     = path
         @block    = block
