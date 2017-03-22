@@ -707,7 +707,6 @@ module Pakyow
         klass.class_eval do
           @name = name
           @path = path
-          @nested_path = nil
           @definable = definable
           @hooks = compile_hooks(
             before: before,
@@ -723,7 +722,13 @@ module Pakyow
 
       # @api private
       def make_child(name = nil, path = nil, **hooks, &block)
-        router = make(name, full_path(path, prefix: @nested_path || self.path), definable: definable, **hooks, &block)
+        prefix = if defined?(@nested_path) && !@nested_path.nil?
+          @nested_path
+        else
+          self.path
+        end
+
+        router = make(name, full_path(path, prefix: prefix), definable: definable, **hooks, &block)
         children << router
         router
       end
