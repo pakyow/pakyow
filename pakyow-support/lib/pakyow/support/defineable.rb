@@ -127,7 +127,7 @@ module Pakyow
           method_body = Proc.new do |*args, &block|
             return @state[name] if block.nil?
 
-            instance = object.make(*args, &block)
+            instance = object.make(*args, definable: self, &block)
 
             @state[name] << instance
           end

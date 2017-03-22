@@ -62,7 +62,79 @@ RSpec.describe "routing requests" do
       expect(call("/")[2].body.read).to eq("default")
     end
   end
-  
+
+  describe "the routing context" do
+    let :app_definition do
+      -> {
+        router do
+          def foo
+            @state ||= "foo"
+          end
+
+          default before: [:foo] do
+            @state << "bar"
+            send @state
+          end
+
+          get "/rr" do
+            @state = "one"
+            reroute "/two"
+          end
+
+          get "/two" do
+            @state << "two"
+            send @state
+          end
+        end
+      }
+    end
+
+    it "shares state across hooks and routes" do
+      expect(call[2].body.read).to eq("foobar")
+    end
+
+    it "shares state across reroutes" do
+      expect(call("/rr")[2].body.read).to eq("onetwo")
+    end
+
+    it "does not share state across requests" do
+      call
+
+      # if the ivar is kept around we'd see "foobarbar"
+      expect(call[2].body.read).to eq("foobar")
+    end
+  end
+
+  context "when route is defined without a block" do
+    let :app_definition do
+      -> {
+        router do
+          default
+        end
+      }
+    end
+
+    it "still matches the route" do
+      expect(call("/")[0]).to eq(200)
+    end
+  end
+
+  context "when route is a regex" do
+    let :app_definition do
+      -> {
+        router do
+          get(/.*/) do
+            send "regex"
+          end
+        end
+      }
+    end
+
+    it "still matches the route" do
+      expect(call("/foo")[2].body.read).to eq("regex")
+    end
+  end
+
   context "when a route is defined for a specific format" do
     let :app_definition do
       -> {
@@ -84,7 +156,7 @@ RSpec.describe "routing requests" do
       end
     end
   end
-  
+
   context "when multiple routes are defined, each for a specific format" do
     let :app_definition do
       -> {
@@ -105,7 +177,7 @@ RSpec.describe "routing requests" do
       expect(call("/foo.html")[2].body.first).to eq("<foo>")
     end
   end
-  
+
   context "when a route is defined for html format" do
     let :app_definition do
       -> {
@@ -122,7 +194,7 @@ RSpec.describe "routing requests" do
       expect(call("/foo.html")[2].body.first).to eq("<foo>")
     end
   end
-  
+
   context "when a route is defined for multiple formats" do
     let :app_definition do
       -> {
@@ -152,7 +224,7 @@ RSpec.describe "routing requests" do
               respond_to :txt do
                 send "foo"
               end
-              
+
               send "<foo>"
             end
           end
@@ -163,7 +235,7 @@ RSpec.describe "routing requests" do
         expect(call("/foo.txt")[2].body.first).to eq("foo")
         expect(call("/foo.html")[2].body.first).to eq("<foo>")
       end
-      
+
       it "sets the appropriate content type" do
         expect(call("/foo.txt")[1]['Content-Type']).to eq("text/plain")
         expect(call("/foo.html")[1]['Content-Type']).to eq("text/html")
@@ -299,75 +371,123 @@ RSpec.describe "routing requests" do
     end
   end
 
-  describe "the routing context" do
+  context "when a route is defined within another router" do
     let :app_definition do
       -> {
+        router :api, "/api" do
+        end
+
         router do
-          def foo
-            @state ||= "foo"
+          get "/foo" do
+            send "foo"
           end
 
-          default before: [:foo] do
-            @state << "bar"
-            send @state
-          end
-
-          get "/rr" do
-            @state = "one"
-            reroute "/two"
-          end
-
-          get "/two" do
-            @state << "two"
-            send @state
+          within :api do
+            get "/foo" do
+              send "api/foo"
+            end
           end
         end
       }
     end
 
-    it "shares state across hooks and routes" do
-      expect(call[2].body.read).to eq("foobar")
+    it "calls the route defined within the current router" do
+      expect(call("/foo")[2].body.first).to eq("foo")
     end
 
-    it "shares state across reroutes" do
-      expect(call("/rr")[2].body.read).to eq("onetwo")
-    end
-
-    it "does not share state across requests" do
-      call
-
-      # if the ivar is kept around we'd see "foobarbar"
-      expect(call[2].body.read).to eq("foobar")
+    it "calls the route defined within the other router" do
+      expect(call("/api/foo")[2].body.first).to eq("api/foo")
     end
   end
 
-  context "when route is defined without a block" do
+  context "when a route is defined within another router that's deeply nested" do
     let :app_definition do
       -> {
-        router do
-          default
+        router :api, "/api" do
+          namespace :v1, "/v1" do
+          end
         end
-      }
-    end
 
-    it "still matches the route" do
-      expect(call("/")[0]).to eq(200)
-    end
-  end
-
-  context "when route is a regex" do
-    let :app_definition do
-      -> {
         router do
-          get(/.*/) do
-            send "regex"
+          get "/foo" do
+            send "foo"
+          end
+
+          within :api, :v1 do
+            get "/foo" do
+              send "api/v1/foo"
+            end
           end
         end
       }
     end
 
-    it "still matches the route" do
-      expect(call("/foo")[2].body.read).to eq("regex")
+    it "calls the route defined within the current router" do
+      expect(call("/foo")[2].body.first).to eq("foo")
+    end
+
+    it "calls the route defined within the other router" do
+      expect(call("/api/v1/foo")[2].body.first).to eq("api/v1/foo")
+    end
+  end
+
+  context "when part of a namespace is defined within another router" do
+    let :app_definition do
+      -> {
+        router :api, "/api" do
+        end
+
+        router do
+          namespace :foo, "/foo" do
+            get "/bar" do
+              send "foo/bar"
+            end
+
+            within :api do
+              get "/bar" do
+                send "api/foo/bar"
+              end
+            end
+          end
+        end
+      }
+    end
+
+    it "calls the route defined within the current router" do
+      expect(call("/foo/bar")[2].body.first).to eq("foo/bar")
+    end
+
+    it "calls the route defined within the other router" do
+      expect(call("/api/foo/bar")[2].body.first).to eq("api/foo/bar")
+    end
+  end
+
+  context "when part of a resource is defined within another router" do
+    let :app_definition do
+      -> {
+        router :api, "/api" do
+        end
+
+        resource :project, "/projects" do
+          list do
+            send "project list"
+          end
+
+          within :api do
+            list do
+              send "project api list"
+            end
+          end
+        end
+      }
+    end
+
+    it "calls the route defined in the resource" do
+      expect(call("/projects")[2].body.first).to eq("project list")
+    end
+
+    it "calls the route defined within the other router" do
+      expect(call("/api/projects")[2].body.first).to eq("project api list")
     end
   end
 end

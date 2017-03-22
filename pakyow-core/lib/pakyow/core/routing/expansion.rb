@@ -24,6 +24,15 @@ module Pakyow
         instance_eval(&block)
       end
 
+      def within(*names, &block)
+        if found = router.find_router(names)
+          created = found.make_child(router.name, router.path, **router.hooks)
+          Expansion.new(@template, created, &block)
+        else
+          raise NameError, "Unknown router `#{names.first}'"
+        end
+      end
+
       def method_missing(name, *args, **hooks, &block)
         route = find_route(name)
         route.recompile(block: block, hooks: hooks)

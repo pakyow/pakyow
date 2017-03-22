@@ -189,7 +189,7 @@ module Pakyow
     #   Delegates to {context}.
     #
     #   @see Controller#respond_to
-    def_delegators :@context, :logger, :handle, :redirect, :reroute, :send, :reject, :trigger, :path, :path_to, 
+    def_delegators :@context, :logger, :handle, :redirect, :reroute, :send, :reject, :trigger, :path, :path_to,
                               :halt, :config, :params, :session, :cookies, :request, :response, :req, :res,
                               :respond_to
 
@@ -214,7 +214,7 @@ module Pakyow
 
       @context = context
     end
-    
+
     # @api private
     def trigger_for_code(code, context: nil, handlers: {})
       return unless handler = self.class.handler_for_code(code, handlers: handlers)
@@ -227,7 +227,7 @@ module Pakyow
 
       true
     end
-    
+
     # @api private
     def trigger_for_exception(klass, context: nil, handlers: {}, exceptions: {})
       return unless exception = self.class.exception_for_class(klass, exceptions: exceptions)
@@ -373,10 +373,7 @@ module Pakyow
       #
       # @api public
       def group(name = nil, **hooks, &block)
-        router = Router.make(name, **compile_hooks(hooks))
-        router.class_eval(&block)
-        router.parent = self
-        children << router
+        make_child(name, nil, definable: definable, **compile_hooks(hooks), &block)
       end
 
       # Creates a group of routes and mounts them at a path, with an optional
@@ -405,11 +402,7 @@ module Pakyow
         # TODO: support regex path
         args  = Aargv.normalize([name_or_path, path_or_name], name: Symbol, path: String)
         name, path = args.values_at(:name, :path)
-
-        router = Router.make(name, full_path(path), **compile_hooks(hooks))
-        router.class_eval(&block)
-        router.parent = self
-        children << router
+        make_child(name, path, definable: definable, **compile_hooks(hooks), &block)
       end
 
       # Creates a route template with a name and block. The block is
@@ -473,16 +466,13 @@ module Pakyow
       # @api public
       def expand(name, *args, **hooks, &block)
         if template = templates[name]
-          args[1] = full_path(args[1] || "")
-          router = Router.make(*args, **hooks)
-          expansion = Routing::Expansion.new(template, router, &block)
-          expansion.router.parent = self
-          children << expansion.router
+          router = make_child(*args, definable: definable, **hooks)
+          Routing::Expansion.new(template, router, &block)
         else
           raise NameError, "Unknown template `#{name}'"
         end
       end
-      
+
       def expand_within(name, &block)
         if template = templates[name]
           Routing::Expansion.new(template, self, &block)
@@ -536,6 +526,35 @@ module Pakyow
         end
       end
 
+      # Defines routes within another router.
+      #
+      # @example
+      #   Pakyow::App.define do
+      #     router :api do
+      #     end
+      #
+      #     resource :project, "/projects" do
+      #       list do
+      #         # GET /projects
+      #       end
+      #
+      #       within :api do
+      #         list do
+      #           # GET /api/projects
+      #         end
+      #       end
+      #     end
+      #   end
+      #
+      # @api public
+      def within(*names, &block)
+        if router = find_router(names)
+          router.make_child(self.name, self.path, **self.hooks, &block)
+        else
+          raise NameError, "Unknown router `#{names.first}'"
+        end
+      end
+
       # Attempts to find and expand a template, avoiding the need to call
       # {expand} explicitly. For example, these calls are identical:
       #
@@ -561,7 +580,7 @@ module Pakyow
       attr_accessor :parent
 
       # @api private
-      attr_reader :name, :path
+      attr_reader :name, :path, :definable
 
       # @api private
       def hooks
@@ -629,12 +648,12 @@ module Pakyow
             return path
           end
         end
-        
+
         nil
       end
 
       # @api private
-      def make(name_or_path = nil, path_or_name = nil, before: [], after: [], around: [], &block)
+      def make(name_or_path = nil, path_or_name = nil, before: [], after: [], around: [], definable: nil, &block)
         # TODO: support regex path
         args  = Aargv.normalize([name_or_path, path_or_name], name: Symbol, path: String)
         name, path = args.values_at(:name, :path)
@@ -653,6 +672,7 @@ module Pakyow
           @name = name
           @path = path
           @nested_path = nil
+          @definable = definable
           @hooks = {
             before: Array.ensure(before),
             after: Array.ensure(after),
@@ -663,6 +683,14 @@ module Pakyow
         end
 
         klass
+      end
+
+      # @api private
+      def make_child(name = nil, path = nil, **hooks, &block)
+        router = Router.make(name, full_path(path), definable: definable, **compile_hooks(hooks), &block)
+        router.parent = self
+        children << router
+        router
       end
 
       # @api private
@@ -745,6 +773,33 @@ module Pakyow
         end
 
         parent.handler_for_code(code) if parent
+      end
+
+      # @api private
+      def find_router(names, routers = known_routers)
+        first_name = names.first.to_sym
+
+        routers.each do |router|
+          if router.name == first_name
+            if names.length == 1
+              return router
+            else
+              return find_router(names[1..-1], router.children)
+            end
+          else
+            return find_router(names, router.children)
+          end
+        end
+
+        nil
+      end
+
+      # @api private
+      def known_routers
+        routers = []
+        routers.concat(children)
+        routers.concat(definable.state[:router].instances)
+        routers
       end
 
       protected
