@@ -55,6 +55,7 @@ module Pakyow
       end
 
       def populated_path(**params)
+        return path unless parameterized?
         parameterized_path.split("/").map { |path_segment|
           if path_segment[0] == ":"
             params[path_segment[1..-1].to_sym]
@@ -62,22 +63,6 @@ module Pakyow
             path_segment
           end
         }.join("/")
-      end
-
-      def recompile(block: nil, hooks: nil)
-        if block
-          @block = block
-        end
-
-        if hooks
-          @hooks = merge_hooks(hooks)
-        end
-
-        @pipeline = compile_pipeline
-      end
-
-      def parameterized?
-        !@parameterized_path.nil?
       end
 
       def freeze
@@ -126,6 +111,10 @@ module Pakyow
         else
           @formats << :html
         end
+      end
+
+      def parameterized?
+        !@parameterized_path.nil?
       end
     end
   end

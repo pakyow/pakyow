@@ -670,11 +670,7 @@ module Pakyow
       def path_to(*names, **params)
         combined_name = names.join("_").to_sym
         if found_route = routes.values.flatten.find { |route| route.name == combined_name }
-          if found_route.parameterized?
-            return found_route.populated_path(**params)
-          else
-            return found_route.path
-          end
+          return found_route.populated_path(**params)
         end
 
         children.reject { |router_to_match|
