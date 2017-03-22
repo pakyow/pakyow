@@ -185,6 +185,36 @@ module Pakyow
     #
     #   @see Controller#params
     #
+    # @!method session
+    #   Delegates to {context}.
+    #
+    #   @see Controller#session
+    #
+    # @!method :cookies
+    #   Delegates to {context}.
+    #
+    #   @see Controller#:cookies
+    #
+    # @!method request
+    #   Delegates to {context}.
+    #
+    #   @see Controller#request
+    #
+    # @!method response
+    #   Delegates to {context}.
+    #
+    #   @see Controller#response
+    #
+    # @!method req
+    #   Delegates to {context}.
+    #
+    #   @see Controller#req
+    #
+    # @!method res
+    #   Delegates to {context}.
+    #
+    #   @see Controller#res
+    #
     # @!method respond_to
     #   Delegates to {context}.
     #
