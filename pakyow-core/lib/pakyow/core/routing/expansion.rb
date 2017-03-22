@@ -6,7 +6,6 @@ module Pakyow
     #
     # @api private
     class Expansion
-      using Support::DeepDup
       attr_reader :expander, :router, :name
 
       extend Forwardable

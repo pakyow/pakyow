@@ -298,7 +298,6 @@ module Pakyow
       def resource(name, path, **hooks, &block)
         raise ArgumentError, "Expected a block" unless block_given?
 
-        # TODO: move this to a define_resource hook
         RESOURCE_ACTIONS.each do |plugin, action|
           action.call(self, name, path, hooks, block)
         end

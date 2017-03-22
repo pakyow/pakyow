@@ -228,7 +228,6 @@ module Pakyow
 
     # The context of the current request lifecycle.
     # Expected to be an instance of {Controller}.
-    #
     attr_accessor :context
 
     # @api private
@@ -280,8 +279,8 @@ module Pakyow
 
     class << self
       # Conveniently define defaults when subclassing +Pakyow::Router+.
-      # For example:
       #
+      # @example
       #   class MyRouter < Pakyow::Router("/foo", before: [:foo])
       #     # more routes here
       #   end
@@ -618,8 +617,6 @@ module Pakyow
         end
       end
 
-      # TODO: rethink this a bit once we can define groups / namespaces in a template
-      # this feels kind of wrong, in that it's used as the path when building
       # @api private
       attr_accessor :nested_path
 
