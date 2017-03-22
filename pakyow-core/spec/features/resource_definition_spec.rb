@@ -54,10 +54,57 @@ RSpec.describe "defining resources" do
       }
     end
 
-    it "applies the hooks to the resource's routes" do
+    it "calls the resource's hooks" do
       res = call("/posts")
       expect(res[0]).to eq(200)
       expect(res[2].body.read).to eq("validate")
+    end
+
+    context "and the resource route defines its own hooks" do
+      let :app_definition do
+        -> {
+          resource :post, "/posts", before: [:validate] do
+            def validate
+              $calls << :validate
+            end
+
+            def foo
+              $calls << :foo
+            end
+
+            list before: [:foo] do
+              send "list"
+            end
+          end
+        }
+      end
+
+      before do
+        $calls = []
+      end
+
+      it "calls all the hooks" do
+        res = call("/posts")
+        expect(res[0]).to eq(200)
+        expect(res[2].body.read).to eq("list")
+        expect($calls[0]).to eq(:validate)
+        expect($calls[1]).to eq(:foo)
+      end
+    end
+  end
+
+  context "when the resource is defined partially" do
+    let :app_definition do
+      -> {
+        resource :post, "/posts" do
+          list do
+          end
+        end
+      }
+    end
+
+    it "does not respond to undefined routes" do
+      expect(call("/posts/new")[0]).to eq(404)
     end
   end
 

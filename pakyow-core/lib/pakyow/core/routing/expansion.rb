@@ -7,10 +7,10 @@ module Pakyow
     # @api private
     class Expansion
       using Support::DeepDup
-      attr_reader :router, :name
+      attr_reader :expander, :router, :name
 
       extend Forwardable
-      def_delegators :@router, *[:func, :default, :group, :namespace, :template].concat(
+      def_delegators :expander, *[:func, :default, :group, :namespace, :template].concat(
         Router::SUPPORTED_METHODS.map { |method|
           method.downcase.to_sym
         }
@@ -19,31 +19,18 @@ module Pakyow
       def initialize(name, template, router)
         @name = name
         @router = router
+        @expander = Router.make(router.name, nil, **router.hooks)
         instance_eval(&template)
-      end
-      
-      def route_exists?(name)
-        return true if find_route(name)
-      rescue NameError
-        return false
-      end
-
-      def method_missing(name, *args, **hooks, &block)
-        find_route(name).recompile(block: block, hooks: hooks)
       end
 
       def find_route(name)
-        @router.routes.each do |method, routes|
+        expander.routes.each do |method, routes|
           routes.each do |route|
-            return route if route.name == name
+            return method, route if route.name == name
           end
         end
-
-        raise NameError, "Unknown template part `#{name}'"
-      end
-
-      def set_nested_path(nested_path)
-        router.nested_path = nested_path
+        
+        nil
       end
     end
   end

@@ -596,11 +596,11 @@ module Pakyow
       #   end
       #
       # @api public
-      def method_missing(method, *args, **hooks, &block)
-        if expanding? && @expansion.route_exists?(method)
-          @expansion.send(method, *args, **hooks, &block)
+      def method_missing(name, *args, **hooks, &block)
+        if expanding? && (method, route = @expansion.find_route(name))
+          build_route(method, route.name, route.path, **hooks, &block)
         else
-          expand(method, *args, **hooks, &block)
+          expand(name, *args, **hooks, &block)
         end
       end
 
@@ -730,7 +730,7 @@ module Pakyow
 
       # @api private
       def make_child(name = nil, path = nil, **hooks, &block)
-        router = make(name, full_path(path), definable: definable, **hooks, &block)
+        router = make(name, full_path(path, prefix: @nested_path || self.path), definable: definable, **hooks, &block)
         children << router
         router
       end
@@ -867,12 +867,13 @@ module Pakyow
         route
       end
 
-      def full_path(path_part)
-        path = @nested_path || @path
-        if path.is_a?(Regexp) || path_part.is_a?(Regexp)
-          Regexp.new("^#{File.join(path.to_s, path_part.to_s)}$")
+      def full_path(path_part, prefix: path)
+        if prefix.is_a?(Regexp) || path_part.is_a?(Regexp)
+          prefix = prefix.source if prefix.is_a?(Regexp)
+          path_part = path_part.source if path_part.is_a?(Regexp)
+          Regexp.new("^#{File.join(prefix.to_s, path_part.to_s)}$")
         else
-          File.join(path.to_s, path_part.to_s)
+          File.join(prefix.to_s, path_part.to_s)
         end
       end
 

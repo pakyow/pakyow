@@ -106,7 +106,7 @@ module Pakyow
       def parameterize_path
         if @path.include?(":")
           # replace named parameters with a named capture
-          reqex_path = @path.split("/").map { |segment|
+          regex_path = @path.split("/").map { |segment|
             if segment.include?(":")
               '(?<' + segment[1..-1] + '>(\w|[-.~:@!$\'\(\)\*\+,;])*)'
             else
@@ -117,7 +117,7 @@ module Pakyow
           @parameterized_path = @path
 
           # perform the actual matching via regex
-          @path = Regexp.new("^#{reqex_path}$")
+          @path = Regexp.new(regex_path)
         end
       end
       

@@ -75,7 +75,7 @@ module Pakyow
         extend Extension
 
         template :resource do
-          resource_id = ":#{@router.name}_id"
+          resource_id = ":#{router.name}_id"
 
           # TODO: hook this back up for #show
           # view_path = nested_path.gsub(/:[^\/]+/, '').split('/').reject { |p| p.empty? }.join('/')
@@ -99,7 +99,7 @@ module Pakyow
           # group :collection
           # namespace :member, resource_id
 
-          set_nested_path File.join(router.path, resource_id)
+          router.nested_path = File.join(router.path, resource_id)
         end
       end
     end
