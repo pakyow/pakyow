@@ -228,19 +228,25 @@ module Pakyow
     #
     attr_accessor :context
 
-
     # @api private
     def initialize(context)
       if router = context.previous_router
-        # copy state from previous router to the new one
-        # this is so that state is shared when rerouting from one router to another one
-        router.instance_variables.each do |ivar|
-          next if instance_variable_defined?(ivar)
-          instance_variable_set(ivar, router.instance_variable_get(ivar))
-        end
+        router.handoff_to(self)
       end
 
       @context = context
+    end
+
+    # Copies state from self to +router+.
+    #
+    # @api private
+    def handoff_to(router)
+      self.instance_variables.each do |ivar|
+        next if router.instance_variable_defined?(ivar)
+        router.instance_variable_set(ivar, instance_variable_get(ivar))
+      end
+      
+      router
     end
 
     # @api private
