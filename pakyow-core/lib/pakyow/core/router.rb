@@ -108,11 +108,11 @@ module Pakyow
       router.Router(path, **hooks)
     end
 
-    METHOD_GET    = "GET".freeze
-    METHOD_POST   = "POST".freeze
-    METHOD_PUT    = "PUT".freeze
-    METHOD_PATCH  = "PATCH".freeze
-    METHOD_DELETE = "DELETE".freeze
+    METHOD_GET    = :get
+    METHOD_POST   = :post
+    METHOD_PUT    = :put
+    METHOD_PATCH  = :patch
+    METHOD_DELETE = :delete
 
     SUPPORTED_METHODS = [
       METHOD_GET,
@@ -356,8 +356,7 @@ module Pakyow
       #   @see get
       #
       SUPPORTED_METHODS.each do |method|
-        nice_method = method.downcase.to_sym
-        define_method nice_method do |name_or_path = nil, path_or_name = nil, **hooks, &block|
+        define_method method do |name_or_path = nil, path_or_name = nil, **hooks, &block|
           build_route(method, name_or_path, path_or_name, **hooks, &block)
         end
       end
@@ -747,6 +746,9 @@ module Pakyow
         # normalize and strip the format off the end
         # TODO: we need some path helpers for these things
         path = String.normalize_path(path).split(".")[0]
+        
+        # make sure the method is a symbol
+        method = method.downcase.to_sym
 
         children.each do |child_router|
           return true if child_router.call(path, method, params, type, context: context) === true

@@ -9,11 +9,7 @@ module Pakyow
       attr_reader :expander, :router, :name
 
       extend Forwardable
-      def_delegators :expander, *[:func, :default, :group, :namespace, :template].concat(
-        Router::SUPPORTED_METHODS.map { |method|
-          method.downcase.to_sym
-        }
-      )
+      def_delegators :expander, *[:func, :default, :group, :namespace, :template].concat(Router::SUPPORTED_METHODS)
 
       def initialize(name, template, router)
         @name = name

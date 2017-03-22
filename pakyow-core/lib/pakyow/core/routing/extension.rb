@@ -55,11 +55,7 @@ module Pakyow
         #   @see Router.namespace
         # @!method template
         #   @see Router.template
-        def_delegators :@__extension, *[:default, :group, :namespace, :template].concat(
-          Router::SUPPORTED_METHODS.map { |method|
-            method.downcase.to_sym
-          }
-        )
+        def_delegators :@__extension, *[:default, :group, :namespace, :template].concat(Router::SUPPORTED_METHODS)
 
         # @api private
         def included(base)
