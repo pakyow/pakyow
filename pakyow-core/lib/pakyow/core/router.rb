@@ -1,6 +1,8 @@
 require "pakyow/support/aargv"
 require "pakyow/support/array"
 
+require "pakyow/core/routing/hook_merger"
+
 module Pakyow
   # Executes code for particular requests. For example:
   #
@@ -99,6 +101,7 @@ module Pakyow
   class Router
     include Helpers
     using Support::DeepDup
+    extend Pakyow::Routing::HookMerger
 
     router = self
     (class << Pakyow; self; end).send(:define_method, :Router) do |path, **hooks|
@@ -878,13 +881,6 @@ module Pakyow
           combined[type] = hooks.dup.concat(
             Array.ensure(hooks_to_compile[type] || [])
           ).uniq
-        end
-      end
-
-      # TODO: move these merge methods somewhere else
-      def merge_hooks(hooks_to_merge)
-        hooks.each_pair do |type, hooks_of_type|
-          hooks_of_type.concat(hooks_to_merge[type] || [])
         end
       end
 

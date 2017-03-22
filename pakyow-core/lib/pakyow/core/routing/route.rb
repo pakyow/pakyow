@@ -1,3 +1,5 @@
+require "pakyow/core/routing/hook_merger"
+
 module Pakyow
   module Routing
     # A route, consisting of a name, path, and pipeline. The pipeline is a list
@@ -6,6 +8,8 @@ module Pakyow
     #
     # @api private
     class Route
+      include HookMerger
+
       attr_reader :method, :name, :path, :parameterized_path, :block, :hooks, :pipeline, :formats
       attr_accessor :callable_method
 
@@ -66,8 +70,8 @@ module Pakyow
 
       def recompile(block: nil, hooks: nil)
         @block = block if block
-        @hooks = merge_hooks(@hooks, hooks) if hooks
         @pipeline = compile_pipeline(@block, @hooks)
+          @hooks = merge_hooks(hooks)
       end
 
       def parameterized?
@@ -93,13 +97,6 @@ module Pakyow
           hooks[:after],
           hooks[:around]
         ].flatten.compact
-      end
-
-      # TODO: move into Routing::Helpers
-      def merge_hooks(hooks, hooks_to_merge)
-        hooks.each_pair do |type, hooks_of_type|
-          hooks_of_type.concat(hooks_to_merge[type] || [])
-        end
       end
 
       def parameterize_path
