@@ -512,4 +512,38 @@ RSpec.describe "routing requests" do
       expect(call("/ns")[2].body.first).to eq("foo")
     end
   end
+
+  context "when hooks are defined on a parent router" do
+    let :app_definition do
+      -> {
+        router before: [:foo] do
+          def foo
+            $calls << :foo
+          end
+
+          group :group, before: [:bar] do
+            def bar
+              $calls << :bar
+            end
+
+            default do
+              $calls << :route
+            end
+          end
+        end
+      }
+    end
+
+    before do
+      $calls = []
+    end
+
+    it "calls the hooks" do
+      call
+
+      expect($calls[0]).to eq(:foo)
+      expect($calls[1]).to eq(:bar)
+      expect($calls[2]).to eq(:route)
+    end
+  end
 end

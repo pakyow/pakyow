@@ -407,7 +407,7 @@ module Pakyow
       #
       # @api public
       def group(name = nil, **hooks, &block)
-        make_child(name, nil, definable: definable, **compile_hooks(hooks), &block)
+        make_child(name, nil, definable: definable, **hooks, &block)
       end
 
       # Creates a group of routes and mounts them at a path, with an optional
@@ -436,7 +436,7 @@ module Pakyow
         # TODO: support regex path
         args  = Aargv.normalize([name_or_path, path_or_name], name: Symbol, path: String)
         name, path = args.values_at(:name, :path)
-        make_child(name, path, definable: definable, **compile_hooks(hooks), &block)
+        make_child(name, path, definable: definable, **hooks, &block)
       end
 
       # Creates a route template with a name and block. The block is
@@ -713,11 +713,11 @@ module Pakyow
           @path = path
           @nested_path = nil
           @definable = definable
-          @hooks = {
-            before: Array.ensure(before),
-            after: Array.ensure(after),
-            around: Array.ensure(around)
-          }
+          @hooks = compile_hooks(
+            before: before,
+            after: after,
+            around: around
+          )
 
           class_eval(&block) if block
         end
@@ -727,7 +727,7 @@ module Pakyow
 
       # @api private
       def make_child(name = nil, path = nil, **hooks, &block)
-        router = make(name, full_path(path), definable: definable, **compile_hooks(hooks), &block)
+        router = make(name, full_path(path), definable: definable, **hooks, &block)
         children << router
         router
       end
