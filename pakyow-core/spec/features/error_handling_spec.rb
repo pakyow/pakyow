@@ -241,13 +241,11 @@ RSpec.describe "error handling" do
   end
 
   context "when the framework triggers a 404" do
-    context "and a handler is defined" do
+    context "and a global handler is defined" do
       let :app_definition do
         -> {
-          router do
-            handle 404 do
-              send "not found"
-            end
+          handle 404 do
+            send "not found"
           end
         }
       end
@@ -261,7 +259,7 @@ RSpec.describe "error handling" do
       end
     end
 
-    context "and a handler is not defined" do
+    context "and a global handler is not defined" do
       let :app_definition do
         -> {
         }
@@ -274,14 +272,14 @@ RSpec.describe "error handling" do
   end
 
   context "when the framework triggers a 500" do
-    context "and a handler is defined" do
+    context "and a global handler is defined" do
       let :app_definition do
         -> {
-          router do
-            handle 500 do
-              send "boom"
-            end
+          handle 500 do
+            send "boom"
+          end
 
+          router do
             default do
               fail
             end
@@ -300,7 +298,7 @@ RSpec.describe "error handling" do
       end
     end
 
-    context "and a handler is not defined" do
+    context "and a global handler is not defined" do
       let :app_definition do
         -> {
           router do

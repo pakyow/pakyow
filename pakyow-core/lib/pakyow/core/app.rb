@@ -270,6 +270,16 @@ module Pakyow
     attr_reader :builder
 
     class << self
+      extend Forwardable
+      
+      # @!method handle
+      # Defines a global error handler.
+      #
+      # @see Router.handle
+      # 
+      # @api public
+      def_delegators Router, :handle
+
       # Defines a RESTful resource. For example:
       #
       #   Pakyow::App.resource :post, "/posts" do
