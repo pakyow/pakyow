@@ -66,10 +66,15 @@ module Pakyow
       end
 
       def freeze
+        hooks.each do |_, hooks_arr|
+          hooks_arr.freeze
+        end
+
         path.freeze
         pipeline.freeze
         formats.freeze
-        # TODO: freeze hooks
+        hooks.freeze
+
         super
       end
 
