@@ -250,8 +250,8 @@ RSpec.describe "error handling" do
         }
       end
 
-      it "does not handle the error" do
-        expect(call[2].body.first).to be(nil)
+      it "handles the error" do
+        expect(call[2].body.first).to eq("not found")
       end
 
       it "sets the response code" do

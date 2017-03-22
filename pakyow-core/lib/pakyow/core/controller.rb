@@ -325,10 +325,12 @@ module Pakyow
       code = Rack::Utils.status_code(name_or_code)
       response.status = code
 
-      return unless failed_router
-
       hook_around :trigger do
-        failed_router.trigger_for_code(code, current_router, handlers: handlers)
+        unless router = failed_router
+          router = Pakyow::Router.new(self)
+        end
+
+        router.trigger_for_code(code, router, handlers: handlers)
       end
     end
 
