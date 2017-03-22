@@ -316,4 +316,26 @@ RSpec.describe "error handling" do
       end
     end
   end
+
+  describe "the handling context" do
+    let :app_definition do
+      -> {
+        router do
+          handle 500 do
+            @state << "handler"
+            send @state
+          end
+
+          default do
+            @state = "route"
+            trigger 500
+          end
+        end
+      }
+    end
+
+    it "has access to route state" do
+      expect(call[2].body.read).to eq("routehandler")
+    end
+  end
 end
