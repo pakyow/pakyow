@@ -874,18 +874,9 @@ module Pakyow
       end
 
       def compile_hooks(hooks_to_compile)
-        # TODO: seems weird that we'd call `combined_hooks` here
-        combined = combined_hooks(hooks_to_compile)
-
-        combined.each do |type, hooks|
-          combined[type] = hooks
-        end
-      end
-
-      def combined_hooks(hooks_to_combine)
         hooks.each_with_object({}) do |(type, hooks), combined|
           combined[type] = hooks.dup.concat(
-            Array.ensure(hooks_to_combine[type] || [])
+            Array.ensure(hooks_to_compile[type] || [])
           ).uniq
         end
       end
