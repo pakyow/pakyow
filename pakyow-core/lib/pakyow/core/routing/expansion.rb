@@ -29,8 +29,14 @@ module Pakyow
             return method, route if route.name == name
           end
         end
-        
+
         nil
+      end
+
+      def find_child(name)
+        expander.children.find { |child|
+          child.name == name
+        }
       end
     end
   end

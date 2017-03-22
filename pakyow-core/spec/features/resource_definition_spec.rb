@@ -108,6 +108,38 @@ RSpec.describe "defining resources" do
     end
   end
 
+  context "when the resource is extended with member routes" do
+    let :app_definition do
+      -> {
+        resource :post, "/posts" do
+          member do
+            get "/member"
+          end
+        end
+      }
+    end
+
+    it "properly defines the member routes" do
+      expect(call("/posts/123/member")[0]).to eq(200)
+    end
+  end
+
+  context "when the resource is extended with collection routes" do
+    let :app_definition do
+      -> {
+        resource :post, "/posts" do
+          collection do
+            get "/collection"
+          end
+        end
+      }
+    end
+
+    it "properly defines the collection routes" do
+      expect(call("/posts/collection")[0]).to eq(200)
+    end
+  end
+
   describe "the defined resource" do
     let :app_definition do
       -> {
@@ -194,8 +226,5 @@ RSpec.describe "defining resources" do
       expect(res[0]).to eq(200)
       expect(res[2].body.read).to eq("post 1 show")
     end
-
-    it "can be extended with collection routes"
-    it "can be extended with member routes"
   end
 end

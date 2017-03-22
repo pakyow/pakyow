@@ -599,6 +599,9 @@ module Pakyow
       def method_missing(name, *args, **hooks, &block)
         if expanding? && (method, route = @expansion.find_route(name))
           build_route(method, route.name, route.path, **hooks, &block)
+        elsif expanding? && child = @expansion.find_child(name)
+          child.class_eval(&block)
+          merge_routes(child.routes)
         else
           expand(name, *args, **hooks, &block)
         end
@@ -889,7 +892,7 @@ module Pakyow
         routes.each_pair do |type, routes_of_type|
           routes_of_type.concat(routes_to_merge[type].map { |route_to_merge|
             route = route_to_merge.dup
-            route.instance_variable_set(:@path, String.normalize_path(full_path(route_to_merge.path)))
+            route.instance_variable_set(:@path, full_path(route_to_merge.path))
             route
           })
         end

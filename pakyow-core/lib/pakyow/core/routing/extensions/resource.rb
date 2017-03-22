@@ -95,9 +95,8 @@ module Pakyow
           delete :remove, "/#{resource_id}"
           get :show, "/#{resource_id}"
 
-          # TODO: do these
-          # group :collection
-          # namespace :member, resource_id
+          group :collection
+          namespace :member, resource_id
 
           router.nested_path = File.join(router.path, resource_id)
         end
