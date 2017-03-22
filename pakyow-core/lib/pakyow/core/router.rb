@@ -463,17 +463,14 @@ module Pakyow
       #
       # @api public
       def expand(name, *args, **hooks, &block)
-        if template = templates[name]
-          router = make_child(*args, definable: definable, **hooks)
-          Routing::Expansion.new(template, router, &block)
-        else
-          raise NameError, "Unknown template `#{name}'"
-        end
+        make_child(*args, definable: definable, **hooks).expand_within(name, &block)
       end
 
       def expand_within(name, &block)
         if template = templates[name]
-          Routing::Expansion.new(template, self, &block)
+          @expansion = Routing::Expansion.new(name, template, self, &block)
+          class_eval(&block)
+          @expansion = nil
         else
           raise NameError, "Unknown template `#{name}'"
         end
@@ -547,7 +544,12 @@ module Pakyow
       # @api public
       def within(*names, &block)
         if router = find_router(names)
-          router.make_child(self.name, self.path, **self.hooks, &block)
+          if expanding?
+            router = router.make_child(self.name, self.path, **self.hooks)
+            router.expand_within(@expansion.name, &block)
+          else
+            router.make_child(self.name, self.path, **self.hooks, &block)
+          end
         else
           raise NameError, "Unknown router `#{names.first}'"
         end
@@ -566,7 +568,22 @@ module Pakyow
       #
       # @api public
       def method_missing(method, *args, **hooks, &block)
-        expand(method, *args, **hooks, &block)
+        if expanding? && @expansion.route_exists?(method)
+          @expansion.send(method, *args, **hooks, &block)
+        else
+          expand(method, *args, **hooks, &block)
+        end
+      end
+
+      # Redefine new so that we can have template parts named new.
+      #
+      # @api private
+      def new(*args, &block)
+        if expanding?
+          method_missing(:new, *args, &block)
+        else
+          super
+        end
       end
 
       # TODO: rethink this a bit once we can define groups / namespaces in a template
@@ -855,6 +872,10 @@ module Pakyow
 
       def merge_templates(templates_to_merge)
         templates.merge!(templates_to_merge)
+      end
+
+      def expanding?
+        defined?(@expansion) && !@expansion.nil?
       end
     end
   end

@@ -39,6 +39,28 @@ RSpec.describe "defining resources" do
     end
   end
 
+  context "when the resource is defined with hooks" do
+    let :app_definition do
+      -> {
+        resource :post, "/posts", before: [:validate] do
+          def validate
+            send "validate"
+          end
+
+          list do
+            send "list"
+          end
+        end
+      }
+    end
+
+    it "applies the hooks to the resource's routes" do
+      res = call("/posts")
+      expect(res[0]).to eq(200)
+      expect(res[2].body.read).to eq("validate")
+    end
+  end
+
   describe "the defined resource" do
     let :app_definition do
       -> {

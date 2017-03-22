@@ -295,19 +295,19 @@ module Pakyow
       # @see Routing::Extension::Resource
       #
       # @api public
-      def resource(name, path, &block)
+      def resource(name, path, **hooks, &block)
         raise ArgumentError, "Expected a block" unless block_given?
 
         # TODO: move this to a define_resource hook
         RESOURCE_ACTIONS.each do |plugin, action|
-          action.call(self, name, path, block)
+          action.call(self, name, path, hooks, block)
         end
       end
 
       # @api private
       RESOURCE_ACTIONS = {
-        core: Proc.new do |app, name, path, block|
-          app.router(name, path) do
+        core: Proc.new do |app, name, path, hooks, block|
+          app.router(name, path, **hooks) do
             expand_within(:resource, &block)
           end
         end

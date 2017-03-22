@@ -490,4 +490,26 @@ RSpec.describe "routing requests" do
       expect(call("/api/projects")[2].body.first).to eq("project api list")
     end
   end
+
+  context "when a hook is defined in a parent router" do
+    let :app_definition do
+      -> {
+        router do
+          def foo
+            send "foo"
+          end
+
+          namespace :ns, "/ns", before: [:foo] do
+            default do
+              send "ns"
+            end
+          end
+        end
+      }
+    end
+
+    it "calls the hook" do
+      expect(call("/ns")[2].body.first).to eq("foo")
+    end
+  end
 end

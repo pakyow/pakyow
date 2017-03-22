@@ -124,9 +124,9 @@ module Pakyow
         def stateful(name, object)
           name = name.to_sym
           (@state ||= {})[name] = State.new(name, object)
-          method_body = Proc.new do |*args, priority: :default, &block|
+          method_body = Proc.new do |*args, priority: :default, **opts, &block|
             return @state[name] if block.nil?
-            instance = object.make(*args, definable: self, &block)
+            instance = object.make(*args, definable: self, **opts, &block)
             @state[name].register(instance, priority: priority)
           end
 

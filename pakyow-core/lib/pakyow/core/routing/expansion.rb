@@ -7,7 +7,7 @@ module Pakyow
     # @api private
     class Expansion
       using Support::DeepDup
-      attr_reader :router
+      attr_reader :router, :name
 
       extend Forwardable
       def_delegators :@router, *[:func, :default, :group, :namespace, :template].concat(
@@ -16,30 +16,20 @@ module Pakyow
         }
       )
 
-      def initialize(template, router, &block)
-        @template = template
+      def initialize(name, template, router)
+        @name = name
         @router = router
-
         instance_eval(&template)
-        instance_eval(&block)
       end
-
-      def within(*names, &block)
-        if found = router.find_router(names)
-          created = found.make_child(router.name, router.path, **router.hooks)
-          Expansion.new(@template, created, &block)
-        else
-          raise NameError, "Unknown router `#{names.first}'"
-        end
+      
+      def route_exists?(name)
+        return true if find_route(name)
+      rescue NameError
+        return false
       end
 
       def method_missing(name, *args, **hooks, &block)
-        route = find_route(name)
-        route.recompile(block: block, hooks: hooks)
-        # TODO: use a custom Routing::ExpansionError
-      rescue NameError
-        router.send(name, *args, **hooks, &block)
-        # TODO: rescue again and reraise with a message about no template or part
+        find_route(name).recompile(block: block, hooks: hooks)
       end
 
       def find_route(name)

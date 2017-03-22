@@ -150,7 +150,7 @@ RSpec.describe "error handling" do
       end
 
       it "does not handle the error" do
-        expect(call[2].body).to be_empty
+        expect(call[2].body.first).not_to eq("not found from sibling")
       end
 
       it "still sets the response code" do
