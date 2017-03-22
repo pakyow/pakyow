@@ -19,7 +19,7 @@ module Pakyow
         @block    = block
         @hooks    = hooks
         @formats  = []
-        @pipeline = compile_pipeline(block, hooks)
+        @pipeline = compile_pipeline
         @parameterized_path = nil
 
         if @path.is_a?(String)
@@ -69,9 +69,15 @@ module Pakyow
       end
 
       def recompile(block: nil, hooks: nil)
-        @block = block if block
-        @pipeline = compile_pipeline(@block, @hooks)
+        if block
+          @block = block
+        end
+
+        if hooks
           @hooks = merge_hooks(hooks)
+        end
+
+        @pipeline = compile_pipeline
       end
 
       def parameterized?
@@ -88,8 +94,7 @@ module Pakyow
 
       protected
 
-      # TODO: move into Routing::Helpers
-      def compile_pipeline(block, hooks)
+      def compile_pipeline
         [
           hooks[:around],
           hooks[:before],
