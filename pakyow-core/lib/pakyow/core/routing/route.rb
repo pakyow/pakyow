@@ -43,16 +43,12 @@ module Pakyow
         end
       end
 
-      def call(context: nil)
-        if context.nil?
-          @pipeline.each(&:call)
-        else
-          @pipeline.each do |route|
-            if route.is_a?(Proc)
-              context.instance_exec(&route)
-            else
-              context.__send__(route)
-            end
+      def call(context)
+        @pipeline.each do |route|
+          if route.is_a?(Proc)
+            context.instance_exec(&route)
+          else
+            context.__send__(route)
           end
         end
       end

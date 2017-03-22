@@ -252,20 +252,14 @@ module Pakyow
     end
 
     # @api private
-    def trigger_for_code(code, context: nil, handlers: {})
+    def trigger_for_code(code, context, handlers: {})
       return unless handler = self.class.handler_for_code(code, handlers: handlers)
-
-      if context
-        context.instance_exec(&handler)
-      else
-        handler.call
-      end
-
+      context.instance_exec(&handler)
       true
     end
 
     # @api private
-    def trigger_for_exception(klass, context: nil, handlers: {}, exceptions: {})
+    def trigger_for_exception(klass, context, handlers: {}, exceptions: {})
       return unless exception = self.class.exception_for_class(klass, exceptions: exceptions)
 
       code = exception[0]
@@ -274,7 +268,7 @@ module Pakyow
       end
 
       context.response.status = code
-      trigger_for_code(code, context: context, handlers: handlers)
+      trigger_for_code(code, context, handlers: handlers)
     end
 
     class << self
@@ -742,7 +736,7 @@ module Pakyow
       end
 
       # @api private
-      def call(path, method, params, type, context: nil)
+      def call(path, method, params, type, context)
         # normalize and strip the format off the end
         # TODO: we need some path helpers for these things
         path = String.normalize_path(path).split(".")[0]
@@ -751,7 +745,7 @@ module Pakyow
         method = method.downcase.to_sym
 
         children.each do |child_router|
-          return true if child_router.call(path, method, params, type, context: context) === true
+          return true if child_router.call(path, method, params, type, context) === true
         end
 
         routes[method].each do |route|
@@ -760,7 +754,7 @@ module Pakyow
 
             instance = self.new(context)
             context.current_router = instance
-            route.call(context: instance)
+            route.call(instance)
             return true
           end
         end
