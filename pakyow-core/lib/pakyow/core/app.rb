@@ -271,12 +271,12 @@ module Pakyow
 
     class << self
       extend Forwardable
-      
+
       # @!method handle
       # Defines a global error handler.
       #
       # @see Router.handle
-      # 
+      #
       # @api public
       def_delegators Router, :handle
 
@@ -298,20 +298,20 @@ module Pakyow
       def resource(name, path, **hooks, &block)
         raise ArgumentError, "Expected a block" unless block_given?
 
-        RESOURCE_ACTIONS.each do |plugin, action|
+        RESOURCE_ACTIONS.each do |_, action|
           action.call(self, name, path, hooks, block)
         end
       end
 
       # @api private
       RESOURCE_ACTIONS = {
-        core: Proc.new do |app, name, path, hooks, block|
+        core: proc do |app, name, path, hooks, block|
           app.router(name, path, **hooks) do
             expand_within(:resource, &block)
           end
         end
       }
-      
+
       # @api private
       def reset
         super

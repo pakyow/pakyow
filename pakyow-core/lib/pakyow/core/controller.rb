@@ -27,8 +27,8 @@ module Pakyow
     # @api private
     attr_accessor :current_router, :previous_router
 
-    alias :req :request
-    alias :res :response
+    alias req request
+    alias res response
 
     extend Forwardable
 
@@ -71,11 +71,7 @@ module Pakyow
         next if @cookies.include?(name) && @cookies[name] == value
 
         # set cookie with defaults
-        response.set_cookie(name, {
-          path: config.cookies.path,
-          expires: Time.now + config.cookies.expiry,
-          value: value
-        })
+        response.set_cookie(name, path: config.cookies.path, expires: Time.now + config.cookies.expiry, value: value)
       end
 
       # delete cookies that were deleted from the request
@@ -87,7 +83,7 @@ module Pakyow
     class << self
       # @api private
       def process(env, app)
-        instance = self.new(env, app)
+        instance = new(env, app)
         instance.process
       end
     end
@@ -119,6 +115,8 @@ module Pakyow
           trigger(404) unless found?
         end
       end
+
+      response.finish
     rescue StandardError => error
       request.error = error
 
@@ -131,8 +129,8 @@ module Pakyow
           end
         end
       end
-    ensure
-      return response.finish
+
+      response.finish
     end
 
     # Registers an error handler used for the lifecycle of the current request.
@@ -229,14 +227,8 @@ module Pakyow
       # and providing access to the previous request via `parent`
       # request.setup(path(location, **params), method)
 
-      location = if location.is_a?(Symbol)
-        path(location, **params)
-      else
-        location
-      end
-
       @previous_router = @current_router
-      route_to(location, method)
+      route_to(location.is_a?(Symbol) ? path(location, **params) : location, method)
     end
 
     # Responds to a specific request format.
@@ -309,11 +301,7 @@ module Pakyow
       end
 
       response.body = data
-      response[CONTENT_DISPOSITION] = if name
-        "attachment; filename=#{name}"
-      else
-        "inline"
-      end
+      response[CONTENT_DISPOSITION] = name ? "attachment; filename=#{name}" : "inline"
 
       halt
     end
@@ -361,14 +349,16 @@ module Pakyow
     #
     # @api public
     def path_to(*names, **params)
-      app.router.instances.reject { |router_to_match|
+      matched_routers = app.router.instances.reject { |router_to_match|
         router_to_match.name.nil? || router_to_match.name != names.first
-      }.each do |matched_router|
+      }
+
+      matched_routers.each do |matched_router|
         if path = matched_router.path_to(*names[1..-1], **params)
           return path
         end
       end
-      
+
       nil
     end
 
@@ -378,7 +368,7 @@ module Pakyow
     def halt
       throw :halt, response
     end
-    
+
     # Rejects the request, calling the next matching route.
     #
     # @api public
@@ -397,7 +387,7 @@ module Pakyow
     def failed_router
       !found? && current_router
     end
-    
+
     def route_to(path, method)
       app.state_for(:router).each do |router|
         @found = router.call(

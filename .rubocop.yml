@@ -1,7 +1,17 @@
+inherit_from: .rubocop_todo.yml
+
 AllCops:
   Exclude:
     - 'bin/**/*'
     - 'vendor/**/*'
+    - '**/spec/**/*'
+    - 'pakyow-mailer/**/*'
+    - 'pakyow-presenter/**/*'
+    - 'pakyow-rake/**/*'
+    - 'pakyow-realtime/**/*'
+    - 'pakyow-support/**/*'
+    - 'pakyow-test/**/*'
+    - 'pakyow-ui/**/*'
   DisplayCopNames: true
 
 BlockDelimiters:
@@ -32,4 +42,7 @@ Style/FormatString:
   Enabled: false
 
 Style/RegexpLiteral:
+  Enabled: false
+
+Style/MethodName:
   Enabled: false

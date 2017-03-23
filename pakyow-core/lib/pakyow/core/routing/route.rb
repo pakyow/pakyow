@@ -15,19 +15,15 @@ module Pakyow
       def initialize(method: nil, name: nil, path: nil, hooks: nil, &block)
         @method   = method
         @name     = name
-        @path     = path
+        @path     = configure_path(path)
         @block    = block
         @hooks    = hooks
         @formats  = []
         @pipeline = compile_pipeline
         @parameterized_path = nil
 
-        if @path.is_a?(String)
-          @path = String.normalize_path(path)
-
-          find_path_formats
-          parameterize_path
-        end
+        find_path_formats
+        parameterize_path
       end
 
       def match?(path_to_match, params, format)
@@ -67,6 +63,7 @@ module Pakyow
 
       def freeze
         hooks.each do |_, hooks_arr|
+          hooks_arr.each(&:freeze)
           hooks_arr.freeze
         end
 
@@ -90,25 +87,32 @@ module Pakyow
         ].flatten.compact
       end
 
-      def parameterize_path
-        if @path.include?(":")
-          # replace named parameters with a named capture
-          regex_path = @path.split("/").map { |segment|
-            if segment.include?(":")
-              '(?<' + segment[1..-1] + '>(\w|[-.~:@!$\'\(\)\*\+,;])*)'
-            else
-              segment
-            end
-          }.join("/")
-
-          @parameterized_path = @path
-
-          # perform the actual matching via regex
-          @path = Regexp.new(regex_path)
-        end
+      def configure_path(path)
+        return path unless path.is_a?(String)
+        String.normalize_path(path)
       end
-      
+
+      def parameterize_path
+        return unless @path.is_a?(String) && @path.include?(":")
+
+        # replace named parameters with a named capture
+        regex_path = @path.split("/").map { |segment|
+          if segment.include?(":")
+            "(?<#{segment[1..-1]}>(\\w|[-.~:@!$\\'\\(\\)\\*\\+,;])*)"
+          else
+            segment
+          end
+        }.join("/")
+
+        @parameterized_path = @path
+
+        # perform the actual matching via regex
+        @path = Regexp.new(regex_path)
+      end
+
       def find_path_formats
+        return unless @path.is_a?(String)
+
         if @path.include?(".")
           path, formats = @path.split(".")
           @formats.concat(formats.split("|").map(&:to_sym))

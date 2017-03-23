@@ -22,13 +22,8 @@ module Pakyow
     module Extension
       # @api private
       def self.extended(base)
-        if base.is_a?(Class)
-          # FIXME: I don't think this works
-          raise StandardError, "Expected `#{base}' to be a module"
-        else
-          base.instance_variable_set(:@__extension, Pakyow::Router(nil))
-          base.extend(ClassMethods)
-        end
+        base.instance_variable_set(:@__extension, Pakyow::Router(nil))
+        base.extend(ClassMethods)
       end
 
       # Methods available to the extension.
@@ -62,7 +57,7 @@ module Pakyow
           if base.ancestors.include?(Router)
             base.merge(@__extension)
           else
-            raise StandardError, "Expected `#{base}' to be an instance of `Pakyow::Router'"
+            raise StandardError, "Expected `#{base}' to be a subclass of `Pakyow::Router'"
           end
         end
       end

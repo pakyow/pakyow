@@ -19,7 +19,7 @@ module Pakyow
       end
 
       def find_route(name)
-        expander.routes.values.flatten.find { | route|
+        expander.routes.values.flatten.find { |route|
           route.name == name
         }
       end
