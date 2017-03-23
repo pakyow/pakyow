@@ -24,4 +24,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency("rack-protection", "~> 1.5")
 
   spec.add_development_dependency("rspec", "~> 3.2")
+  spec.add_development_dependency("rspec-benchmark", "~> 0.3")
 end

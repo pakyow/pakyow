@@ -19,6 +19,8 @@ RSpec.configure do |config|
 
   config.order = :random
   Kernel.srand config.seed
+
+  config.filter_run_excluding benchmark: true
 end
 
 def start_simplecov(&block)
