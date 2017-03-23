@@ -33,15 +33,15 @@ module Pakyow
         "You must run the `pakyow console` command in the root directory of a Pakyow project."
     end
 
-    desc "server [ENVIRONMENT]", "Start a Pakyow application"
+    desc "server [ENVIRONMENT] [options]", "Start a Pakyow application"
     long_desc <<-DESC
       The `pakyow server` command starts the server for the current Pakyow project.
 
       If environment is unspecified, the default environment (#{Pakyow.config.env.default}) will be used.
     DESC
-    option :port, type: :string, aliases: :p
-    option :host, type: :string, aliases: :h
-    option :server, type: :string, aliases: :s
+    option :port, type: :string, aliases: :"-p"
+    option :host, type: :string, aliases: :"-h"
+    option :server, type: :string, aliases: :"-s"
 
     def server(env = nil)
       require "pakyow/commands/server"
