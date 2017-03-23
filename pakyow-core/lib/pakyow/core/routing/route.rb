@@ -29,7 +29,8 @@ module Pakyow
       def match?(path_to_match, params, format)
         case path
         when Regexp
-          if data = path.match(path_to_match)
+          if path.match?(path_to_match)
+            data = path.match(path_to_match)
             params.merge!(Hash[data.names.zip(data.captures)])
             true
           end

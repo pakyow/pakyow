@@ -754,9 +754,9 @@ module Pakyow
         end
 
         routes[method].each do |route|
-          catch :reject do
-            next unless route.match?(path, params, type)
+          next unless route.match?(path, params, type)
 
+          catch :reject do
             instance = new(context)
             context.current_router = instance
             route.call(instance)
