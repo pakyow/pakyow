@@ -287,6 +287,7 @@ module Pakyow
       call_hooks :after, :fork
     end
 
+    # TODO: this is only ever used by tests and should be removed
     # @api private
     def call(env)
       builder.call(env)

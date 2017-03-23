@@ -7,12 +7,16 @@ RSpec.shared_context "testable app" do
     -> {}
   end
 
+  let :autorun do
+    true
+  end
+
   before do
     Pakyow.config.server.default = :mock
 
     if app_definition
       app.define(&app_definition)
-      run
+      run if autorun
     end
   end
 

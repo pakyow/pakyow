@@ -12,8 +12,13 @@ RSpec.describe "disabling the router" do
   end
 
   context "when the router disabled" do
+    let :autorun do
+      false
+    end
+
     before do
       Pakyow::App.config.routing.enabled = false
+      run
     end
 
     it "does not call routes" do
@@ -23,8 +28,13 @@ RSpec.describe "disabling the router" do
   end
 
   context "when the router is not disabled" do
+    let :autorun do
+      false
+    end
+
     before do
       Pakyow::App.config.routing.enabled = true
+      run
     end
 
     it "does call routes" do

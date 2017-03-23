@@ -28,7 +28,7 @@ RSpec.describe "defining an app" do
       class ChildApp < Pakyow::App; end
       ChildApp
     end
-    
+
     before do
       Pakyow::App.define do
         config.app.name = "define-test"
@@ -39,7 +39,7 @@ RSpec.describe "defining an app" do
           end
         end
       end
-      
+
       run
     end
 

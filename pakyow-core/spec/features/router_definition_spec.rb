@@ -18,8 +18,13 @@ RSpec.describe "defining a router" do
       default
     end
 
+    let :autorun do
+      false
+    end
+
     before do
       Pakyow::App.router << ChildRouter
+      run
     end
 
     it "defines the router" do
@@ -34,6 +39,7 @@ RSpec.describe "defining a router" do
 
       before do
         Pakyow::App.router << ChildRouterWithOptions
+        run
       end
 
       it "defines the router" do
