@@ -652,6 +652,10 @@ module Pakyow
       end
 
       # @api private
+      def reset
+        @hooks, @children, @templates, @handlers, @exceptions = nil
+      end
+
       def inherited(klass)
         path = self.path
         nested_path = self.nested_path

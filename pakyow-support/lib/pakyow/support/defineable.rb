@@ -208,6 +208,7 @@ module Pakyow
       end
 
       def reset
+        object.reset
         @instances = []
       end
 

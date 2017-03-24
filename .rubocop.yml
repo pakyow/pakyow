@@ -46,3 +46,6 @@ Style/RegexpLiteral:
 
 Style/MethodName:
   Enabled: false
+
+Style/ParallelAssignment:
+  Enabled: false
