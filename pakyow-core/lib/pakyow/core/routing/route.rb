@@ -39,12 +39,6 @@ module Pakyow
         end
       end
 
-      def prefix_with(matcher)
-        return self if matcher.nil?
-        @matcher = Regexp.new("^#{File.join(matcher.source, @matcher.source[1..-2])}$")
-        self
-      end
-
       def call(context)
         @pipeline.each do |route|
           if route.is_a?(Proc)
