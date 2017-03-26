@@ -858,9 +858,7 @@ module Pakyow
 
       def merge_routes(routes_to_merge)
         routes.each_pair do |type, routes_of_type|
-          routes_of_type.concat(routes_to_merge[type].map { |route_to_merge|
-            route_to_merge.dup
-          })
+          routes_of_type.concat(routes_to_merge[type].map(&:dup))
         end
       end
 
