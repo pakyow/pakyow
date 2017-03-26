@@ -813,7 +813,7 @@ module Pakyow
       end
 
       def parse_name_and_matcher_from_args(name_or_matcher = nil, matcher_or_name = nil)
-        Aargv.normalize([name_or_matcher, matcher_or_name], name: Symbol, matcher: Object).values_at(:name, :matcher)
+        Aargv.normalize([name_or_matcher, matcher_or_name].compact, name: Symbol, matcher: Object).values_at(:name, :matcher)
       end
 
       def finalize_matcher_and_set_path(matcher)
