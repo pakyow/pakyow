@@ -189,9 +189,16 @@ RSpec.describe "routing requests" do
       }
     end
 
-    it "calls the route with or without mentioning it in the request path" do
-      expect(call("/foo")[2].body.first).to eq("<foo>")
-      expect(call("/foo.html")[2].body.first).to eq("<foo>")
+    context "and the request path includes the format" do
+      it "is called" do
+        expect(call("/foo.html")[2].body.first).to eq("<foo>")
+      end
+    end
+
+    context "and the request path includes the format" do
+      it "is not called" do
+        expect(call("/foo")[2].body.first).to eq(nil)
+      end
     end
   end
 
@@ -371,6 +378,28 @@ RSpec.describe "routing requests" do
     end
   end
 
+  context "when a route is defined in a parameterized namespace" do
+    let :app_definition do
+      -> {
+        router do
+          namespace :ns, "/ns/:id" do
+            default do
+              send params[:id] || ""
+            end
+          end
+        end
+      }
+    end
+
+    it "is called" do
+      expect(call("/ns/123")[0]).to eq(200)
+    end
+
+    it "makes the parameters available to the route" do
+      expect(call("/ns/123")[2].body.first).to eq("123")
+    end
+  end
+
   context "when a route is defined within another router" do
     let :app_definition do
       -> {
@@ -546,4 +575,159 @@ RSpec.describe "routing requests" do
       expect($calls[2]).to eq(:route)
     end
   end
+
+  context "when route is defined with a custom matcher" do
+    class CustomMatcher
+      def match?(path)
+        path == "/custom"
+      end
+    end
+
+    let :app_definition do
+      -> {
+        router do
+          get CustomMatcher.new do
+            send "custom"
+          end
+        end
+      }
+    end
+
+    it "is matched" do
+      expect(call("/custom")[0]).to eq(200)
+      expect(call("/custom")[2].body.first).to eq("custom")
+    end
+
+    it "is not matched" do
+      expect(call("/foo")[0]).to eq(404)
+    end
+
+    context "and the custom matcher provides a match" do
+      class CustomMatcherWithMatch
+        def match?(path)
+          true
+        end
+
+        def match(path)
+          self
+        end
+
+        def named_captures
+          { "foo" => "bar" }
+        end
+      end
+
+      let :app_definition do
+        -> {
+          router do
+            get CustomMatcherWithMatch.new do
+              send params[:foo] || ""
+            end
+          end
+        }
+      end
+
+      it "makes the match's named captures available as params" do
+        expect(call("/anything")[2].body.first).to eq("bar")
+      end
+    end
+  end
+
+  context "when route is defined with a custom matcher within a namespace" do
+    class NestedCustomMatcher
+      def match?(path)
+        path == "/custom"
+      end
+    end
+
+    let :app_definition do
+      -> {
+        router "/ns" do
+          get NestedCustomMatcher.new do
+            send "custom"
+          end
+        end
+      }
+    end
+
+    it "is matched" do
+      expect(call("/ns/custom")[2].body.first).to eq("custom")
+    end
+
+    it "is not matched" do
+      expect(call("/foo")[2].body.first).to eq(nil)
+    end
+  end
+
+  context "when route is defined with a custom matcher within a parameterized namespace" do
+    class ParameterizedCustomMatcher
+      def match?(path)
+        path == "/"
+      end
+    end
+
+    let :app_definition do
+      -> {
+        router "/:id" do
+          get ParameterizedCustomMatcher.new do
+            send params[:id] || ""
+          end
+        end
+      }
+    end
+
+    it "is matched" do
+      expect(call("/123")[0]).to eq(200)
+      expect(call("/123")[2].body.first).to eq("123")
+    end
+
+    it "is not matched" do
+      expect(call("/123/foo")[0]).to eq(404)
+    end
+  end
+
+  context "when a router is defined with a regexp" do
+    let :app_definition do
+      -> {
+        router(/foo/) do
+          default do
+            send "foo"
+          end
+        end
+      }
+    end
+
+    it "is matched" do
+      expect(call("/foo")[2].body.first).to eq("foo")
+    end
+  end
+
+  context "when a router is defined with a custom matcher" do
+    class CustomRouterMatcher
+      def match?(path)
+        true
+      end
+
+      def sub(match, with)
+      end
+    end
+
+    let :app_definition do
+      -> {
+        router CustomRouterMatcher.new do
+          get "/foo" do
+            send "foo"
+          end
+        end
+      }
+    end
+
+    it "is matched" do
+      expect(call("/foo")[0]).to eq(200)
+      expect(call("/foo")[2].body.first).to eq("foo")
+    end
+  end
+
+  context "when a namespace is defined with a regexp"
+  context "when a namespace is defined with a custom matcher"
 end

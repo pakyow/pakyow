@@ -77,6 +77,11 @@ module Pakyow
         template :resource do
           resource_id = ":#{router.name}_id"
 
+          # Nest resources as members of the current resource
+          router.define_singleton_method :resource do |name, matcher, **hooks, &block|
+            expand(:resource, name, File.join(resource_id, matcher), **hooks, &block)
+          end
+
           # TODO: hook this back up for #show
           # view_path = nested_path.gsub(/:[^\/]+/, '').split('/').reject { |p| p.empty? }.join('/')
           # fn :reset_view_path do
@@ -97,8 +102,6 @@ module Pakyow
 
           group :collection
           namespace :member, resource_id
-
-          router.nested_path = File.join(router.path, resource_id)
         end
       end
     end

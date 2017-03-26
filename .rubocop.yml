@@ -1,6 +1,8 @@
 inherit_from: .rubocop_todo.yml
 
 AllCops:
+  TargetRubyVersion: 2.4
+
   Exclude:
     - 'bin/**/*'
     - 'vendor/**/*'
@@ -48,4 +50,7 @@ Style/MethodName:
   Enabled: false
 
 Style/ParallelAssignment:
+  Enabled: false
+
+Style/Semicolon:
   Enabled: false

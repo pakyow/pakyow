@@ -50,7 +50,7 @@ module Pakyow
         #   @see Router.namespace
         # @!method template
         #   @see Router.template
-        def_delegators :@__extension, *[:default, :group, :namespace, :template].concat(Router::SUPPORTED_METHODS)
+        def_delegators :@__extension, *[:default, :group, :namespace, :template].concat(Router::SUPPORTED_HTTP_METHODS)
 
         # @api private
         def included(base)

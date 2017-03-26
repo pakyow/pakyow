@@ -9,7 +9,11 @@ module Pakyow
     end
 
     def self.value_of_type(values, type)
-      values.find { |value| value.is_a?(type) }
+      if match = values.find { |value| value.is_a?(type) }
+        values.delete(match)
+      else
+        nil
+      end
     end
   end
 end

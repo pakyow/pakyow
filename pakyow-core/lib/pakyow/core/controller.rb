@@ -25,7 +25,7 @@ module Pakyow
     attr_reader :handlers, :exceptions
 
     # @api private
-    attr_accessor :current_router, :previous_router
+    attr_accessor :current_router
 
     alias req request
     alias res response
@@ -49,7 +49,7 @@ module Pakyow
     # Tells the logger that an error occurred when processing a request.
     #
     before :error do
-      logger.houston(req.error)
+      logger.houston(request.error)
     end
 
     # Dups the cookies for comparison at the end of the request/response lifecycle.
@@ -108,7 +108,7 @@ module Pakyow
         catch :halt do
           if app.config.routing.enabled
             hook_around :route do
-              route_to(request.env[Rack::PATH_INFO], request.env[Rack::REQUEST_METHOD])
+              route_with_path_and_method(request.env[Rack::PATH_INFO], request.env[Rack::REQUEST_METHOD])
             end
           end
 
@@ -121,9 +121,12 @@ module Pakyow
       request.error = error
 
       catch :halt do
-        # see if a defined handler will handle the exception
-        unless failed_router.nil? || failed_router.trigger_for_exception(error.class, current_router, handlers: handlers, exceptions: exceptions)
-          # nope, so handle as a 500
+        if code_and_handler = current_router&.class&.exception_for_class(error.class, exceptions: exceptions)
+          code, handler = code_and_handler
+          response.status = code
+          handlers[code] = handler
+          current_router.trigger_for_code(code, handlers: handlers)
+        else
           hook_around :error do
             trigger(500)
           end
@@ -227,8 +230,7 @@ module Pakyow
       # and providing access to the previous request via `parent`
       # request.setup(path(location, **params), method)
 
-      @previous_router = @current_router
-      route_to(location.is_a?(Symbol) ? path(location, **params) : location, method)
+      route_with_path_and_method(location.is_a?(Symbol) ? path(location, **params) : location, method)
     end
 
     # Responds to a specific request format.
@@ -314,11 +316,11 @@ module Pakyow
       response.status = code
 
       hook_around :trigger do
-        unless router = failed_router
+        unless router = current_router
           router = Pakyow::Router.new(self)
         end
 
-        router.trigger_for_code(code, router, handlers: handlers)
+        router.trigger_for_code(code, handlers: handlers)
       end
     end
 
@@ -384,21 +386,34 @@ module Pakyow
     end
 
     # @api private
-    def failed_router
-      !found? && current_router
+    def found!
+      @found = true
     end
 
-    def route_to(path, method)
-      app.state_for(:router).each do |router|
-        @found = router.call(
-          path,
-          method,
-          request.params,
-          request.format,
-          self
-        )
+    # @api private
+    def route_with_path_and_method(path, method)
+      path   = String.normalize_path(path)
+      method = method.downcase.to_sym
 
-        break if found?
+      app.state_for(:router).each do |router|
+        router.match_router_and_route(path, method, request.params) do |matched_router, matched_route, match_data|
+          found!
+
+          # make parameterized route data available in request params
+          request.params.merge!(match_data)
+
+          catch :reject do
+            instance = matched_router.new(self)
+            current_router&.handoff_to(instance)
+            @current_router = instance
+
+            # let's actually call the route
+            matched_route.call(@current_router)
+
+            # and we're done
+            break
+          end
+        end
       end
     end
   end

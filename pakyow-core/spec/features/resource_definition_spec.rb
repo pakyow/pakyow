@@ -140,6 +140,9 @@ RSpec.describe "defining resources" do
     end
   end
 
+  context "when the resource is defined with a regexp"
+  context "when the resource is defined with a custom matcher"
+
   describe "the defined resource" do
     let :app_definition do
       -> {

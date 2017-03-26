@@ -114,7 +114,7 @@ module Pakyow
     METHOD_PATCH  = :patch
     METHOD_DELETE = :delete
 
-    SUPPORTED_METHODS = [
+    SUPPORTED_HTTP_METHODS = [
       METHOD_GET,
       METHOD_POST,
       METHOD_PUT,
@@ -222,20 +222,16 @@ module Pakyow
     #   Delegates to {context}.
     #
     #   @see Controller#respond_to
-    def_delegators :@context, :logger, :handle, :redirect, :reroute, :send, :reject, :trigger, :path, :path_to,
+    def_delegators :@controller, :logger, :handle, :redirect, :reroute, :send, :reject, :trigger, :path, :path_to,
                    :halt, :config, :params, :session, :cookies, :request, :response, :req, :res, :respond_to
 
     # The context of the current request lifecycle.
     # Expected to be an instance of {Controller}.
-    attr_accessor :context
+    attr_accessor :controller
 
     # @api private
-    def initialize(context)
-      if router = context.previous_router
-        router.handoff_to(self)
-      end
-
-      @context = context
+    def initialize(controller)
+      @controller = controller
     end
 
     # Copies state from self to +router+.
@@ -246,28 +242,12 @@ module Pakyow
         next if router.instance_variable_defined?(ivar)
         router.instance_variable_set(ivar, instance_variable_get(ivar))
       end
-
-      router
     end
 
     # @api private
-    def trigger_for_code(code, context, handlers: {})
+    def trigger_for_code(code, handlers: {})
       return unless handler = self.class.handler_for_code(code, handlers: handlers)
-      context.instance_exec(&handler)
-      true
-    end
-
-    # @api private
-    def trigger_for_exception(klass, context, handlers: {}, exceptions: {})
-      return unless exception = self.class.exception_for_class(klass, exceptions: exceptions)
-
-      code = exception[0]
-      if handler = exception[1]
-        handlers[code] = handler
-      end
-
-      context.response.status = code
-      trigger_for_code(code, context, handlers: handlers)
+      instance_exec(&handler); true
     end
 
     class << self
@@ -279,13 +259,10 @@ module Pakyow
       #   end
       #
       # @api public
-      def Router(path, before: [], after: [], around: [])
+      def Router(matcher, before: [], after: [], around: [])
         Class.new(self) do
-          @path = path
-
-          @hooks = {
-            before: before, after: after, around: around
-          }
+          @matcher = finalize_matcher_and_set_path(matcher)
+          @hooks = { before: before, after: after, around: around }
         end
       end
 
@@ -348,9 +325,9 @@ module Pakyow
       #
       #   @see get
       #
-      SUPPORTED_METHODS.each do |method|
-        define_method method do |name_or_path = nil, path_or_name = nil, **hooks, &block|
-          build_route(method, name_or_path, path_or_name, **hooks, &block)
+      SUPPORTED_HTTP_METHODS.each do |http_method|
+        define_method http_method do |name_or_matcher = nil, matcher_or_name = nil, **hooks, &block|
+          build_route(http_method, name_or_matcher, matcher_or_name, **hooks, &block)
         end
       end
 
@@ -401,7 +378,7 @@ module Pakyow
       #
       # @api public
       def group(name = nil, **hooks, &block)
-        make_child(name, nil, definable: definable, **hooks, &block)
+        make_child(name, nil, **hooks, &block)
       end
 
       # Creates a group of routes and mounts them at a path, with an optional
@@ -426,11 +403,9 @@ module Pakyow
       #     end
       #   end
       #
-      def namespace(name_or_path, path_or_name = nil, **hooks, &block)
-        # TODO: support regex path
-        args = Aargv.normalize([name_or_path, path_or_name], name: Symbol, path: String)
-        name, path = args.values_at(:name, :path)
-        make_child(name, path, definable: definable, **hooks, &block)
+      def namespace(*args, **hooks, &block)
+        name, matcher = parse_name_and_matcher_from_args(*args)
+        make_child(name, matcher, **hooks, &block)
       end
 
       # Creates a route template with a name and block. The block is
@@ -483,8 +458,8 @@ module Pakyow
       #     end
       #   end
       #
-      def template(name, &block)
-        templates[name] = block
+      def template(name, &template_block)
+        templates[name] = template_block
       end
 
       # Expands a defined route template, or raises +NameError+.
@@ -493,7 +468,7 @@ module Pakyow
       #
       # @api public
       def expand(name, *args, **hooks, &block)
-        make_child(*args, definable: definable, **hooks).expand_within(name, &block)
+        make_child(*args, **hooks).expand_within(name, &block)
       end
 
       # Registers an error handler used within this router.
@@ -563,14 +538,8 @@ module Pakyow
       #
       # @api public
       def within(*names, &block)
-        raise NameError, "Unknown router `#{names.first}'" unless router = find_router(names)
-
-        if expanding?
-          router = router.make_child(name, path, **hooks)
-          router.expand_within(@expansion.name, &block)
-        else
-          router.make_child(name, path, **hooks, &block)
-        end
+        raise NameError, "Unknown router `#{names.first}'" unless router = find_router_by_name(names)
+        router.make_child(name, matcher, **hooks, &block)
       end
 
       # Attempts to find and expand a template, avoiding the need to call
@@ -586,12 +555,7 @@ module Pakyow
       #
       # @api public
       def method_missing(name, *args, **hooks, &block)
-        if expanding? && route = @expansion.find_route(name)
-          build_route(route.method, route.name, route.path, **hooks, &block)
-        elsif expanding? && child = @expansion.find_child(name)
-          child.class_eval(&block)
-          merge_routes(child.routes)
-        elsif templates.include?(name)
+        if templates.include?(name)
           expand(name, *args, **hooks, &block)
         else
           super
@@ -599,36 +563,18 @@ module Pakyow
       end
 
       def respond_to_missing?(method_name, include_private = false)
-        if expanding?
-          return true if @expansion.find_route(method_name)
-          return true if @expansion.find_child(method_name)
-        end
-
         templates.include?(method_name) || super
       end
 
-      # Redefine new so that we can have template parts named new.
-      #
       # @api private
-      def new(*args, &block)
-        if expanding?
-          method_missing(:new, *args, &block)
-        else
-          super
-        end
-      end
+      attr_reader :name, :path, :matcher, :state
 
       # @api private
-      attr_accessor :nested_path
-
-      # @api private
-      attr_reader :name, :path, :definable
+      attr_accessor :parent
 
       # @api private
       def hooks
-        @hooks ||= {
-          before: [], after: [], around: []
-        }
+        @hooks ||= { before: [], after: [], around: [] }
       end
 
       # @api private
@@ -656,17 +602,16 @@ module Pakyow
         @hooks, @children, @templates, @handlers, @exceptions = nil
       end
 
+      # @api private
       def inherited(klass)
-        path = self.path
-        nested_path = self.nested_path
+        matcher = self.matcher
         hooks = self.hooks.deep_dup
         templates = self.templates.deep_dup
         handlers = self.handlers.deep_dup
         exceptions = self.exceptions.deep_dup
 
         klass.class_eval do
-          @path = path
-          @nested_path = nested_path
+          @matcher = matcher
           @hooks = hooks
           @templates = templates
           @handlers = handlers
@@ -678,14 +623,21 @@ module Pakyow
         end
       end
 
+      def path_to_self
+        return path unless parent
+        File.join(parent.path_to_self.to_s, path.to_s)
+      end
+
       # @api private
       def path_to(*names, **params)
+        # look for a matching route before descending into child routers
         combined_name = names.join("_").to_sym
         if found_route = routes.values.flatten.find { |route| route.name == combined_name }
-          return found_route.populated_path(**params)
+          return found_route.populated_path(path_to_self, **params)
         end
 
         matched_routers = children.reject { |router_to_match|
+          # TODO: make this a method on router to call from here and controller
           router_to_match.name.nil? || router_to_match.name != names.first
         }
 
@@ -694,18 +646,14 @@ module Pakyow
             return path
           end
         end
-
-        nil
       end
 
       # @api private
-      def make(name_or_path = nil, path_or_name = nil, before: [], after: [], around: [], definable: nil, &block)
-        # TODO: support regex path
-        args = Aargv.normalize([name_or_path, path_or_name], name: Symbol, path: String)
-        name, path = args.values_at(:name, :path)
-
+      def make(*args, before: [], after: [], around: [], state: nil, parent: nil, &block)
+        name, matcher = parse_name_and_matcher_from_args(*args)
         klass = Class.new(self)
 
+        # TODO: move this to another method
         if name
           # TODO: snakecase to camelcase
           klass_name = "#{name.to_s.capitalize}Router"
@@ -716,14 +664,10 @@ module Pakyow
 
         klass.class_eval do
           @name = name
-          @path = path
-          @definable = definable
-          @hooks = compile_hooks(
-            before: before,
-            after: after,
-            around: around
-          )
-
+          @matcher = finalize_matcher_and_set_path(matcher)
+          @state = state
+          @parent = parent
+          @hooks = compile_hooks(before: before, after: after, around: around)
           class_eval(&block) if block
         end
 
@@ -731,44 +675,41 @@ module Pakyow
       end
 
       # @api private
-      def make_child(name = nil, path = nil, **hooks, &block)
-        router = make(name, full_path(path, prefix: nested_prefix), definable: definable, **hooks, &block)
+      def make_child(name = nil, matcher = nil, **hooks, &block)
+        router = make(name, matcher, parent: self, **hooks, &block)
         children << router
         router
       end
 
       # @api private
       def routes
-        @routes ||= SUPPORTED_METHODS.each_with_object({}) do |method, routes_hash|
+        @routes ||= SUPPORTED_HTTP_METHODS.each_with_object({}) do |method, routes_hash|
           routes_hash[method] = []
         end
       end
 
       # @api private
-      def call(path, method, params, type, context)
-        # normalize and strip the format off the end
-        # TODO: we need some path helpers for these things
-        path = String.normalize_path(path).split(".")[0]
+      def match_router_and_route(path, method, match_data = {}, &block)
+        return if matcher && !matcher.match?(path)
 
-        # make sure the method is a symbol
-        method = method.downcase.to_sym
+        if matcher.respond_to?(:match)
+          # TODO: need this all to be in a helper and shared with Route
+          match_data.merge!(matcher.match(path).named_captures)
+        end
+
+        if matcher.is_a?(Regexp)
+          path = String.normalize_path(path.sub(matcher, ""))
+        end
 
         children.each do |child_router|
-          return true if child_router.call(path, method, params, type, context)
+          child_router.match_router_and_route(path, method, match_data, &block)
         end
 
         routes[method].each do |route|
-          next unless route.match?(path, params, type)
-
-          catch :reject do
-            instance = new(context)
-            context.current_router = instance
-            route.call(instance)
-            return true
-          end
+          next unless route_match_data = route.match(path)
+          match_data.merge!(route_match_data) if route_match_data.is_a?(Hash)
+          yield self, route, match_data
         end
-
-        false
       end
 
       # @api private
@@ -780,6 +721,7 @@ module Pakyow
 
       # @api private
       def freeze
+        # TODO: let's instead have a deep freeze method that freezes the object and its ivars, recursively
         hooks.each do |_, hooks_arr|
           hooks_arr.each(&:freeze)
           hooks_arr.freeze
@@ -792,7 +734,7 @@ module Pakyow
           routes_arr.freeze
         end
 
-        path.freeze
+        matcher.freeze
         hooks.freeze
         children.freeze
         routes.freeze
@@ -812,65 +754,66 @@ module Pakyow
       end
 
       # @api private
-      def find_router(names, routers = known_routers)
-        first_name = names.first.to_sym
-
-        routers.each do |router|
-          if router.name == first_name
-            if names.length == 1
-              return router
-            else
-              return find_router(names[1..-1], router.children)
-            end
-          else
-            return find_router(names, router.children)
-          end
-        end
-
-        nil
-      end
-
-      # @api private
-      def known_routers
-        routers = []
-        routers.concat(children)
-        routers.concat(definable.state[:router].instances)
-        routers
-      end
-
-      # @api private
       def expand_within(name, &block)
         raise NameError, "Unknown template `#{name}'" unless template = templates[name]
-        @expansion = Routing::Expansion.new(name, template, self, &block)
+        Routing::Expansion.new(name, self, &template)
         class_eval(&block)
-        @expansion = nil
       end
 
       protected
 
-      def build_route(method, name_or_path, path_or_name, **hooks, &block)
-        args  = Aargv.normalize([name_or_path, path_or_name], name: Symbol, path: String, regex: Regexp)
+      # Finds a router via +names+, starting with a top-level router.
+      #
+      # @api private
+      def find_router_by_name(names, routers = nil)
+        return parent.find_router_by_name(names) if parent
+
+        first_name = names.shift
+        (routers || [self].concat(state.instances)).each do |router|
+          next unless router.name == first_name
+
+          if names.empty?
+            return router
+          else
+            return router.find_router_by_name(names, router.children)
+          end
+        end
+      end
+
+      def parse_name_and_matcher_from_args(name_or_matcher = nil, matcher_or_name = nil)
+        Aargv.normalize([name_or_matcher, matcher_or_name], name: Symbol, matcher: Object).values_at(:name, :matcher)
+      end
+
+      def finalize_matcher_and_set_path(matcher)
+        if matcher.is_a?(String)
+          @path = matcher
+
+          converted_matcher = String.normalize_path(matcher.split("/").map { |segment|
+            if segment.include?(":")
+              "(?<#{segment[1..-1]}>(\\w|[-.~:@!$\\'\\(\\)\\*\\+,;])*)"
+            else
+              segment
+            end
+          }.join("/"))
+
+          Regexp.new("^#{String.normalize_path(converted_matcher)}")
+        else
+          matcher
+        end
+      end
+
+      def build_route(method, *args, **hooks, &block)
+        name, matcher = parse_name_and_matcher_from_args(*args)
 
         route = Routing::Route.new(
+          matcher,
           method: method,
-          name: args[:name],
-          path: full_path(args[:path] || args[:regex]),
+          name: name,
           hooks: compile_hooks(hooks || {}),
           &block
         )
 
-        routes[method] << route
-        route
-      end
-
-      def full_path(path_part, prefix: path)
-        if prefix.is_a?(Regexp) || path_part.is_a?(Regexp)
-          prefix = prefix.source if prefix.is_a?(Regexp)
-          path_part = path_part.source if path_part.is_a?(Regexp)
-          Regexp.new("^#{File.join(prefix.to_s, path_part.to_s)}$")
-        else
-          File.join(prefix.to_s, path_part.to_s)
-        end
+        routes[method] << route; route
       end
 
       def compile_hooks(hooks_to_compile)
@@ -881,30 +824,16 @@ module Pakyow
         end
       end
 
-      def merge_routes(routes_to_merge)
+      def merge_routes(routes_to_merge, prefix: nil)
         routes.each_pair do |type, routes_of_type|
           routes_of_type.concat(routes_to_merge[type].map { |route_to_merge|
-            route = route_to_merge.dup
-            route.instance_variable_set(:@path, full_path(route_to_merge.path))
-            route
+            route_to_merge.dup.prefix_with(prefix)
           })
         end
       end
 
       def merge_templates(templates_to_merge)
         templates.merge!(templates_to_merge)
-      end
-
-      def expanding?
-        defined?(@expansion) && !@expansion.nil?
-      end
-
-      def nested_prefix
-        if defined?(@nested_path) && !@nested_path.nil?
-          @nested_path
-        else
-          path
-        end
       end
     end
   end

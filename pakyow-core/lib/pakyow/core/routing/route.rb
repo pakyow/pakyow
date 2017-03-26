@@ -1,3 +1,4 @@
+require "pakyow/support/aargv"
 require "pakyow/core/routing/hook_merger"
 
 module Pakyow
@@ -10,35 +11,38 @@ module Pakyow
     class Route
       include HookMerger
 
-      attr_reader :method, :name, :path, :parameterized_path, :block, :hooks, :pipeline, :formats
+      attr_reader :matcher, :path, :method, :name, :block, :hooks, :pipeline
 
-      def initialize(method: nil, name: nil, path: nil, hooks: nil, &block)
-        @method   = method
-        @name     = name
-        @path     = configure_path(path)
-        @block    = block
-        @hooks    = hooks
-        @formats  = []
+      def initialize(path_or_matcher, name: nil, method: nil, hooks: {}, &block)
+        @name, @method, @hooks, @block = name, method, hooks, block
+
+        if path_or_matcher.is_a?(String)
+          @path    = path_or_matcher
+          @matcher = create_matcher_from_path(@path)
+        else
+          @path    = ""
+          @matcher = path_or_matcher
+        end
+
+        # TODO: pass input
         @pipeline = compile_pipeline
-        @parameterized_path = nil
-
-        find_path_formats
-        parameterize_path
       end
 
-      def match?(path_to_match, params, format)
-        case path
-        when Regexp
-          if path.match?(path_to_match)
-            data = path.match(path_to_match)
-            params.merge!(Hash[data.names.zip(data.captures)])
-            true
-          end
-        when String
-          formats.include?(format) && path == path_to_match
+      # TODO: this logic can be shared with router
+      def match(path_to_match)
+        return false unless matcher.match?(path_to_match)
+
+        if matcher.respond_to?(:match)
+          matcher.match(path_to_match).named_captures
         else
-          false
+          true
         end
+      end
+
+      def prefix_with(matcher)
+        return self if matcher.nil?
+        @matcher = Regexp.new("^#{File.join(matcher.source, @matcher.source[1..-2])}$")
+        self
       end
 
       def call(context)
@@ -51,15 +55,14 @@ module Pakyow
         end
       end
 
-      def populated_path(**params)
-        return path unless parameterized?
-        parameterized_path.split("/").map { |path_segment|
+      def populated_path(path_to_self, **params)
+        String.normalize_path(File.join(path_to_self.to_s, path.to_s).split("/").map { |path_segment|
           if path_segment[0] == ":"
             params[path_segment[1..-1].to_sym]
           else
             path_segment
           end
-        }.join("/")
+        }.join("/"))
       end
 
       def freeze
@@ -70,13 +73,24 @@ module Pakyow
 
         path.freeze
         pipeline.freeze
-        formats.freeze
         hooks.freeze
 
         super
       end
 
       protected
+
+      def create_matcher_from_path(path)
+        converted_path = String.normalize_path(path.split("/").map { |segment|
+          if segment.include?(":")
+            "(?<#{segment[1..-1]}>(\\w|[-.~:@!$\\'\\(\\)\\*\\+,;])*)"
+          else
+            segment
+          end
+        }.join("/"))
+
+        Regexp.new("^#{converted_path}$")
+      end
 
       def compile_pipeline
         [
@@ -86,45 +100,6 @@ module Pakyow
           hooks[:after],
           hooks[:around]
         ].flatten.compact
-      end
-
-      def configure_path(path)
-        return path unless path.is_a?(String)
-        String.normalize_path(path)
-      end
-
-      def parameterize_path
-        return unless @path.is_a?(String) && @path.include?(":")
-
-        # replace named parameters with a named capture
-        regex_path = @path.split("/").map { |segment|
-          if segment.include?(":")
-            "(?<#{segment[1..-1]}>(\\w|[-.~:@!$\\'\\(\\)\\*\\+,;])*)"
-          else
-            segment
-          end
-        }.join("/")
-
-        @parameterized_path = @path
-
-        # perform the actual matching via regex
-        @path = Regexp.new(regex_path)
-      end
-
-      def find_path_formats
-        return unless @path.is_a?(String)
-
-        if @path.include?(".")
-          path, formats = @path.split(".")
-          @formats.concat(formats.split("|").map(&:to_sym))
-          @path = path
-        else
-          @formats << :html
-        end
-      end
-
-      def parameterized?
-        !@parameterized_path.nil?
       end
     end
   end

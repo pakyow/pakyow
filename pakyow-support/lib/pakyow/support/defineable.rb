@@ -126,7 +126,7 @@ module Pakyow
           (@state ||= {})[name] = State.new(name, object)
           method_body = Proc.new do |*args, priority: :default, **opts, &block|
             return @state[name] if block.nil?
-            instance = object.make(*args, definable: self, **opts, &block)
+            instance = object.make(*args, state: @state[name], **opts, &block)
             @state[name].register(instance, priority: priority)
           end
 

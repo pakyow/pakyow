@@ -23,7 +23,7 @@ RSpec.describe "route params" do
     let :app_definition do
       -> {
         router do
-          get(/(?<input>.*)/) do
+          get(/\/(?<input>.*)/) do
             send params[:input]
           end
         end
