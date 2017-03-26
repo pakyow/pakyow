@@ -651,16 +651,7 @@ module Pakyow
       # @api private
       def make(*args, before: [], after: [], around: [], state: nil, parent: nil, &block)
         name, matcher = parse_name_and_matcher_from_args(*args)
-        klass = Class.new(self)
-
-        # TODO: move this to another method
-        if name
-          # TODO: snakecase to camelcase
-          klass_name = "#{name.to_s.capitalize}Router"
-          unless Object.const_defined?(klass_name)
-            klass = Object.const_set(klass_name, klass)
-          end
-        end
+        klass = const_for_router_named(Class.new(self), name)
 
         klass.class_eval do
           @name = name
@@ -834,6 +825,19 @@ module Pakyow
 
       def merge_templates(templates_to_merge)
         templates.merge!(templates_to_merge)
+      end
+
+      def const_for_router_named(router_class, name)
+        return router_class if name.nil?
+
+        # convert snake case to camel case
+        class_name = "#{name.to_s.split('_').map(&:capitalize).join}Router"
+
+        if Object.const_defined?(class_name)
+          router_class
+        else
+          Object.const_set(class_name, router_class)
+        end
       end
     end
   end
