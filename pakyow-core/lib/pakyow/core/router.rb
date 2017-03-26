@@ -132,6 +132,10 @@ module Pakyow
   #   Pakyow::App.router CustomMatcher.new do
   #   end
   #
+  # When defined on a Router, custom matchers should also implement +sub+,
+  # which returns the unmatched part of the path. This value will be used
+  # when matching nested routers and routes.
+  #
   # @api public
   class Router
     include Helpers
