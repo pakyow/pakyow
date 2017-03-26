@@ -12,7 +12,7 @@ module Pakyow
   #     end
   #   end
   #
-  # A dynamic +Class+ is created for each defined router. When matched, a route
+  # A +Class+ is created dynamically for each defined router. When matched, a route
   # is called in context of its router. This means that any method defined in a
   # router is available to be called from within a route. For example:
   #
@@ -25,7 +25,7 @@ module Pakyow
   #     end
   #   end
   #
-  # Including modules work as expected:
+  # Including modules works as expected:
   #
   #   module AuthHelpers
   #     def current_user
@@ -96,6 +96,41 @@ module Pakyow
   #   end
   #
   #   Pakyow::App.router << FooRouter
+  #
+  # = Custom matchers
+  #
+  # Routers and routes can be defined with a matcher, which could be a +Regexp+ or
+  # any custom object that implements +match?+. For example:
+  #
+  #   class CustomMatcher
+  #     def match?(path)
+  #       path == "/custom"
+  #     end
+  #   end
+  #
+  #   Pakyow::App.router CustomMatcher.new do
+  #   end
+  #
+  # Custom matchers can also make data available in +params+ by implementing
+  # +match+ and returning an object that implements +named_captures+.
+  # For example:
+  #
+  #   class CustomMatcher
+  #     def match?(path)
+  #       path == "/custom"
+  #     end
+  #
+  #     def match(path)
+  #       return self if match?(path)
+  #     end
+  #
+  #     def named_captures
+  #       { foo: "bar" }
+  #     end
+  #   end
+  #
+  #   Pakyow::App.router CustomMatcher.new do
+  #   end
   #
   # @api public
   class Router
