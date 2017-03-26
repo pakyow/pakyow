@@ -13,7 +13,15 @@ RSpec.describe "defining a router" do
     expect(call[0]).to eq(200)
   end
 
-  context "when router is a subclass" do
+  context "when the router is defined with a path" do
+    it "defines the router"
+  end
+
+  context "when the router is defined with a custom matcher" do
+    it "defines the router"
+  end
+
+  context "when the router is a subclass" do
     class ChildRouter < Pakyow::Router
       default
     end

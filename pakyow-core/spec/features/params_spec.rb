@@ -3,6 +3,18 @@ require "json"
 RSpec.describe "route params" do
   include_context "testable app"
 
+  context "when set on the router" do
+    it "is available"
+  end
+
+  context "when set as a named capture on a regex router matcher" do
+    it "is available"
+  end
+
+  context "when set as a named capture on a custom router matcher" do
+    it "is available"
+  end
+
   context "when set on the route" do
     let :app_definition do
       -> {
@@ -19,7 +31,7 @@ RSpec.describe "route params" do
     end
   end
 
-  context "when set as a named capture on a regex route" do
+  context "when set as a named capture on a regex route matcher" do
     let :app_definition do
       -> {
         router do
@@ -33,6 +45,10 @@ RSpec.describe "route params" do
     it "is available" do
       expect(call("/foo")[2].body.read).to eq("foo")
     end
+  end
+
+  context "when set as a named capture on a custom route matcher" do
+    it "is available"
   end
 
   context "when passed as a request param" do

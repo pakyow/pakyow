@@ -76,4 +76,6 @@ RSpec.describe "path building" do
   it "builds path to a nested resource route" do
     expect(call("/path/post_comment_list", params: { post_id: "123" })[2].body.read).to eq("/posts/123/comments")
   end
+
+  it "builds path to a route defined within another router"
 end
