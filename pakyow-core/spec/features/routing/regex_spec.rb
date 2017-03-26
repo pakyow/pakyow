@@ -17,12 +17,38 @@ RSpec.describe "routing with regex matchers" do
     end
 
     context "when regex contains named captures" do
-      it "makes the captures available as params"
+      let :app_definition do
+        -> {
+          router do
+            get(/\/(?<input>.*)/) do
+              send params[:input] || ""
+            end
+          end
+        }
+      end
+
+      it "makes the captures available as params" do
+        expect(call("/foo")[2].body.read).to eq("foo")
+      end
     end
   end
 
   context "when a namespace is defined with a regex" do
-    it "is matched"
+    let :app_definition do
+      -> {
+        router do
+          namespace(/foo/) do
+            default do
+              send "foo"
+            end
+          end
+        end
+      }
+    end
+
+    it "is matched" do
+      expect(call("/foo")[2].body.first).to eq("foo")
+    end
   end
 
   context "when a router is defined with a regex" do

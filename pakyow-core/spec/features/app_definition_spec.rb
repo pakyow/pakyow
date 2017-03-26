@@ -19,7 +19,7 @@ RSpec.describe "defining an app" do
     expect(res[2].body.read).to eq("define-test")
   end
 
-  xcontext "when app is a subclass" do
+  context "when app is a subclass" do
     let :app_definition do
       false
     end

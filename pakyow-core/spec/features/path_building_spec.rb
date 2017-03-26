@@ -42,7 +42,17 @@ RSpec.describe "path building" do
           list
         end
       end
+
+      router :foo do
+        within :main, :namespaced do
+          get :within, "/within"
+        end
+      end
     }
+  end
+
+  it "returns nil when no path found" do
+    expect(call("/path/missing")[2].body.read).to eq("")
   end
 
   it "builds path to a default route" do
@@ -77,5 +87,7 @@ RSpec.describe "path building" do
     expect(call("/path/post_comment_list", params: { post_id: "123" })[2].body.read).to eq("/posts/123/comments")
   end
 
-  it "builds path to a route defined within another router"
+  it "builds path to a route defined within another router" do
+    expect(call("/path/main_namespaced_foo_within")[2].body.read).to eq("/ns/within")
+  end
 end

@@ -70,4 +70,22 @@ RSpec.describe "namespaced routes" do
       expect(call("/ns/123")[2].body.first).to eq("123")
     end
   end
+
+  context "when a namespace is defined without a name" do
+    let :app_definition do
+      -> {
+        router do
+          namespace "/ns" do
+            default do
+              send "ns"
+            end
+          end
+        end
+      }
+    end
+
+    it "is called" do
+      expect(call("/ns")[0]).to eq(200)
+    end
+  end
 end

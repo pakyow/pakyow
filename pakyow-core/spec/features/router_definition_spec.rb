@@ -14,11 +14,37 @@ RSpec.describe "defining a router" do
   end
 
   context "when the router is defined with a path" do
-    it "defines the router"
+    let :app_definition do
+      -> {
+        router "/foo" do
+          default
+        end
+      }
+    end
+
+    it "defines the router" do
+      expect(call("/foo")[0]).to eq(200)
+    end
   end
 
   context "when the router is defined with a custom matcher" do
-    it "defines the router"
+    let :app_definition do
+      -> {
+        klass = Class.new do
+          def match?(path)
+            true
+          end
+        end
+
+        router klass.new do
+          default
+        end
+      }
+    end
+
+    it "defines the router" do
+      expect(call("/")[0]).to eq(200)
+    end
   end
 
   context "when the router is a subclass" do
