@@ -707,8 +707,8 @@ module Pakyow
       end
 
       # @api private
-      def make_child(name = nil, matcher = nil, **hooks, &block)
-        router = make(name, matcher, parent: self, **hooks, &block)
+      def make_child(*args, **hooks, &block)
+        router = make(*args, parent: self, **hooks, &block)
         children << router
         router
       end
