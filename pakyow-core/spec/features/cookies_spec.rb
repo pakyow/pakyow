@@ -112,7 +112,7 @@ RSpec.describe "using cookies" do
         -> {
           router do
             get "/" do
-              cookies[:foo] = nil
+              cookies.delete(:foo)
             end
           end
         }
@@ -139,6 +139,27 @@ RSpec.describe "using cookies" do
         res_cookie = call("/", "HTTP_COOKIE" => cookie)[1].fetch("Set-Cookie").split("\n")[0]
         expect(cookie).not_to include(res_cookie)
       end
+    end
+  end
+
+  describe "setting a cookie to nil" do
+    let :cookie do
+      "foo=bar"
+    end
+
+    let :app_definition do
+      -> {
+        router do
+          get "/" do
+            cookies[:foo] = nil
+          end
+        end
+      }
+    end
+
+    it "deletes the cookie" do
+      res_cookie = call("/", "HTTP_COOKIE" => cookie)[1].fetch("Set-Cookie").split("\n")[0]
+      expect(cookie).not_to include(res_cookie)
     end
   end
 end

@@ -139,7 +139,7 @@ RSpec.describe "sending data" do
     it "sends inline" do
       expect(call[1]["Content-Disposition"]).to eq("inline")
     end
-    
+
     context "and a type is specified" do
       let :app_definition do
         -> {
@@ -154,6 +154,37 @@ RSpec.describe "sending data" do
       it "sends with the specified type" do
         expect(call[1]["Content-Type"]).to eq("application/json")
       end
+    end
+  end
+
+  context "when sending an unsupported type" do
+    let :app_definition do
+      -> {
+        router do
+          default do
+            send TrueClass
+          end
+        end
+      }
+    end
+
+    before do
+      @stderr = $stderr.dup
+      $stderr.reopen("/dev/null")
+
+      Pakyow::Controller.after :error do
+        $error = req.error
+      end
+
+      call
+    end
+
+    after do
+      $stderr = @stderr
+    end
+
+    it "raises an ArgumentError" do
+      expect($error).to be_instance_of(ArgumentError)
     end
   end
 end
