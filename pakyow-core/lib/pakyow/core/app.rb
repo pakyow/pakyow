@@ -251,11 +251,11 @@ module Pakyow
     #
     after :configure do
       if config.session.enabled
-        builder.use config.session.object, config.session.options
+        builder&.use config.session.object, config.session.options
       end
 
       if config.protection.enabled
-        builder.use(Rack::Protection, except: config.session.enabled ? [] : [:session_hijacking, :remote_token])
+        builder&.use(Rack::Protection, except: config.session.enabled ? [] : [:session_hijacking, :remote_token])
       end
     end
 
