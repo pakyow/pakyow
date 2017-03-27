@@ -43,6 +43,10 @@ RSpec.describe "defining an app" do
       run
     end
 
+    after do
+      Pakyow::App.reset
+    end
+
     it "inherits parent state" do
       res = call
       expect(res[0]).to eq(200)
