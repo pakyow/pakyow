@@ -26,7 +26,7 @@ RSpec.describe Pakyow::Controller do
   end
 
   let :app do
-    Pakyow::App.new(:test)
+    Pakyow::App.new(:test, builder: Rack::Builder.new)
   end
 
   describe "#initialize" do

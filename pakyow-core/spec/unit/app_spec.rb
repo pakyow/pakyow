@@ -227,7 +227,7 @@ RSpec.describe Pakyow::App do
 
   describe "#initialize" do
     let :app do
-      Pakyow::App.new(:test)
+      Pakyow::App.new(:test, builder: Rack::Builder.new)
     end
 
     it "sets the environment" do
@@ -259,7 +259,7 @@ RSpec.describe Pakyow::App do
     end
 
     let :app do
-      Pakyow::App.new(:test)
+      Pakyow::App.new(:test, builder: Rack::Builder.new)
     end
 
     it "calls Pakyow::Controller.process" do

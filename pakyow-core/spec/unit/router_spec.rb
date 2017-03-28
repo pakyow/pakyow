@@ -4,7 +4,7 @@ RSpec.describe Pakyow::Router do
   end
 
   let :controller do
-    Pakyow::Controller.new({}, Pakyow::App.new(:test))
+    Pakyow::Controller.new({}, Pakyow::App.new(:test, builder: Rack::Builder.new))
   end
 
   describe "#initialize" do
