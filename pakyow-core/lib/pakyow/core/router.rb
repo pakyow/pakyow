@@ -132,10 +132,6 @@ module Pakyow
   #   Pakyow::App.router CustomMatcher.new do
   #   end
   #
-  # When defined on a Router, custom matchers should also implement +sub+,
-  # which returns the unmatched part of the path. This value will be used
-  # when matching nested routers and routes.
-  #
   # @api public
   class Router
     include Helpers
@@ -143,8 +139,10 @@ module Pakyow
     extend Pakyow::Routing::HookMerger
 
     router = self
-    (class << Pakyow; self; end).send(:define_method, :Router) do |path, **hooks|
-      router.Router(path, **hooks)
+    Pakyow.singleton_class.class_eval do
+      define_method :Router do |path, **hooks|
+        router.Router(path, **hooks)
+      end
     end
 
     METHOD_GET    = :get
@@ -431,12 +429,10 @@ module Pakyow
       #         handle 401 unless authed?
       #       end
       #
-      #       group before: [:auth] do
-      #         namespace :project, "/projects" do
-      #           get :list, "/" do
-      #             # route is accessible via 'GET /api/projects'
-      #             send projects.to_json
-      #           end
+      #       namespace :project, "/projects", before: [:auth] do
+      #         get :list, "/" do
+      #           # route is accessible via 'GET /api/projects'
+      #           send projects.to_json
       #         end
       #       end
       #     end
@@ -592,7 +588,7 @@ module Pakyow
       #     end
       #   end
       #
-      # @api public
+      # @api private
       def method_missing(name, *args, **hooks, &block)
         if templates.include?(name)
           expand(name, *args, **hooks, &block)
@@ -601,6 +597,7 @@ module Pakyow
         end
       end
 
+      # @api private
       def respond_to_missing?(method_name, include_private = false)
         templates.include?(method_name) || super
       end
