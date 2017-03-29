@@ -1,7 +1,19 @@
+inherit_from: .rubocop_todo.yml
+
 AllCops:
+  TargetRubyVersion: 2.4
+
   Exclude:
     - 'bin/**/*'
     - 'vendor/**/*'
+    - '**/spec/**/*'
+    - 'pakyow-mailer/**/*'
+    - 'pakyow-presenter/**/*'
+    - 'pakyow-rake/**/*'
+    - 'pakyow-realtime/**/*'
+    - 'pakyow-support/**/*'
+    - 'pakyow-test/**/*'
+    - 'pakyow-ui/**/*'
   DisplayCopNames: true
 
 BlockDelimiters:
@@ -32,4 +44,13 @@ Style/FormatString:
   Enabled: false
 
 Style/RegexpLiteral:
+  Enabled: false
+
+Style/MethodName:
+  Enabled: false
+
+Style/ParallelAssignment:
+  Enabled: false
+
+Style/Semicolon:
   Enabled: false

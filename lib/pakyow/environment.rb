@@ -154,7 +154,7 @@ module Pakyow
   # Loads the default middleware stack.
   #
   before :setup do
-    use Rack::ContentType, "text/html;charset=utf-8"
+    use Rack::ContentType, "text/html"
     use Rack::ContentLength
     use Rack::Head
     use Rack::MethodOverride
@@ -287,6 +287,7 @@ module Pakyow
       call_hooks :after, :fork
     end
 
+    # TODO: this is only ever used by tests and should be removed
     # @api private
     def call(env)
       builder.call(env)

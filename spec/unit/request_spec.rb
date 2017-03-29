@@ -9,12 +9,6 @@ RSpec.describe Pakyow::Request do
     expect(Pakyow::Request.superclass).to eq Rack::Request
   end
 
-  describe "#initialization" do
-    it "sets the default content type" do
-      expect(request.env["CONTENT_TYPE"]).to eq("text/html")
-    end
-  end
-
   describe "#path" do
     it "returns path info" do
       expect(request.path).to eq request.path_info
@@ -58,9 +52,9 @@ RSpec.describe Pakyow::Request do
   end
 
   describe "#format" do
-    context "when content type is text/html" do
+    context "when request format is unspecified" do
       before do
-        request.env["CONTENT_TYPE"] = "text/html"
+        request.env["PATH_INFO"] = "foo"
       end
 
       it "returns the symbolized format" do
@@ -68,9 +62,9 @@ RSpec.describe Pakyow::Request do
       end
     end
 
-    context "when content type is application/json" do
+    context "when request format is json" do
       before do
-        request.env["CONTENT_TYPE"] = "application/json"
+        request.env["PATH_INFO"] = "foo.json"
       end
 
       it "returns the symbolized format" do
@@ -80,11 +74,11 @@ RSpec.describe Pakyow::Request do
 
     context "when content type is unknown" do
       before do
-        request.env["CONTENT_TYPE"] = "foo/bar"
+        request.env["PATH_INFO"] = "foo.foobar"
       end
 
       it "returns the symbolized format" do
-        expect(request.format).to eq(nil)
+        expect(request.format).to eq(:foobar)
       end
     end
   end

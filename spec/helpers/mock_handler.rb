@@ -3,8 +3,8 @@ module Pakyow
     class MockHandler
       Rack::Handler.register :mock, self
 
-      def self.run(*args)
-        return args
+      def self.run(app, *args)
+        app
       end
     end
   end

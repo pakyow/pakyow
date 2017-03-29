@@ -19,6 +19,8 @@ RSpec.configure do |config|
 
   config.order = :random
   Kernel.srand config.seed
+
+  config.filter_run_excluding benchmark: true
 end
 
 def start_simplecov(&block)
@@ -36,3 +38,15 @@ end
 
 require "pry"
 require "spec_helper"
+
+ENV["SESSION_SECRET"] = "sekret"
+
+if defined?(Pakyow::Controller)
+  Pakyow::Controller.before :error do
+    $stderr.puts req.error
+
+    req.error.backtrace.each do |line|
+      $stderr.puts line
+    end
+  end
+end

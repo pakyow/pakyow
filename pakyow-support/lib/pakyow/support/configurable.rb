@@ -58,6 +58,12 @@ module Pakyow
         def config_envs
           @config_envs ||= {}
         end
+        
+        def reset
+          super if defined? super
+          @config_envs = nil
+          config.reset
+        end
       end
     end
   end

@@ -15,7 +15,7 @@ RSpec.describe "default middleware stack" do
 
   it "uses Rack::ContentType" do
     expect(builder).to have_received(:use).with(
-      Rack::ContentType, "text/html;charset=utf-8"
+      Rack::ContentType, "text/html"
     )
   end
 

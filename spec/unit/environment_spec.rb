@@ -1,12 +1,7 @@
+require "./spec/helpers/config_helpers"
+
 RSpec.describe Pakyow do
-  def config_defaults(config, env)
-    Pakyow::Support::Configurable::ConfigGroup.new(
-      config.name,
-      config.options,
-      config.parent,
-      &config.defaults(env)
-    )
-  end
+  include ConfigHelpers
 
   describe "known events" do
     it "includes `configure`" do
