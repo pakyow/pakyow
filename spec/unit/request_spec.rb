@@ -30,8 +30,7 @@ RSpec.describe Pakyow::Request do
       it "is created with params from Rack::Request" do
         params = { foo: :bar }
         allow_any_instance_of(Rack::Request).to receive(:params).and_return(params)
-        expect(Pakyow::Support::IndifferentHash).to receive(:[]).with(params)
-        request.params
+        expect(request.params).to be_instance_of(Pakyow::Support::IndifferentHash)
       end
     end
   end
@@ -45,8 +44,7 @@ RSpec.describe Pakyow::Request do
       it "is created with cookies from Rack::Request" do
         cookies = { foo: :bar }
         allow_any_instance_of(Rack::Request).to receive(:cookies).and_return(cookies)
-        expect(Pakyow::Support::IndifferentHash).to receive(:[]).with(cookies)
-        request.cookies
+        expect(request.cookies).to be_instance_of(Pakyow::Support::IndifferentHash)
       end
     end
   end
