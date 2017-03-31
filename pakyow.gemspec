@@ -27,9 +27,9 @@ Gem::Specification.new do |spec|
   spec.add_dependency("pakyow-test",      Pakyow::VERSION)
   spec.add_dependency("bundler",          "~> 1.13")
   spec.add_dependency("thor",             "~> 0.19")
+  spec.add_dependency("listen",           "~> 3.1")
 
   spec.add_development_dependency("rspec", "~> 3.5")
   spec.add_development_dependency("pry", "~> 0.10")
-  spec.add_development_dependency("guard-rspec", "~> 4.6")
   spec.add_development_dependency("rubocop", "~> 0.34")
 end

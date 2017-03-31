@@ -166,6 +166,13 @@ module Pakyow
     use Middleware::Logger
   end
 
+  # @api private
+  SERVERS = %w(puma thin webrick).freeze
+  # @api private
+  STOP_METHODS = %w(stop! stop).freeze
+  # @api private
+  STOP_SIGNALS = %w(INT TERM).freeze
+
   class << self
     # Name of the environment
     #
@@ -317,17 +324,9 @@ module Pakyow
       @logger.formatter = config.logger.formatter.new
     end
 
-    # @api private
-    SERVERS = %w(puma thin webrick).freeze
-
     def handler(preferred)
       Rack::Handler.get(preferred) || Rack::Handler.pick(SERVERS)
     end
-
-    # @api private
-    STOP_METHODS = %w(stop! stop).freeze
-    # @api private
-    STOP_SIGNALS = %w(INT TERM).freeze
 
     def stop(server)
       STOP_METHODS.each do |method|
