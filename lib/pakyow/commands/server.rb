@@ -8,26 +8,31 @@ module Pakyow
   module Commands
     # @api private
     class Server
-      def initialize(env: nil, port: nil, host: nil, server: nil)
+      def initialize(env: nil, port: nil, host: nil, server: nil, reload: true)
         @env    = env
         @port   = port
         @host   = host
         @server = server
+        @reload = reload
       end
 
       def run
-        puts Logger::Colorizer.colorize(
-          File.read(
-            File.expand_path("../output/splash.txt", __FILE__)
-          ).gsub!("{v}", "v#{VERSION}"), :error
-        )
+        if @reload
+          puts Logger::Colorizer.colorize(
+            File.read(
+              File.expand_path("../output/splash.txt", __FILE__)
+            ).gsub!("{v}", "v#{VERSION}"), :error
+          )
 
-        puts "Running with #{@server} at http://#{@host}:#{@port}"
+          puts "Running with #{@server} at http://#{@host}:#{@port}"
 
-        preload
-        start_process
-        trap_interrupts
-        watch_for_changes
+          preload
+          start_process
+          trap_interrupts
+          watch_for_changes
+        else
+          start_server
+        end
       end
 
       protected
@@ -42,7 +47,7 @@ module Pakyow
             start_server
           end
         else
-          start_server
+          @pid = Process.spawn("bundle exec pakyow server --no-reload")
         end
       end
 
