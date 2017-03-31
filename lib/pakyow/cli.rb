@@ -43,6 +43,7 @@ module Pakyow
     option :port, type: :string, aliases: :"-p"
     option :host, type: :string, aliases: :"-h"
     option :server, type: :string, aliases: :"-s"
+    option :reload, type: :boolean, default: true
 
     def server(env = nil)
       require "pakyow/commands/server"
@@ -50,7 +51,8 @@ module Pakyow
         env: env,
         port: options[:port],
         host: options[:host],
-        server: options[:server]
+        server: options[:server],
+        reload: options[:reload]
       ).run
     rescue LoadError => e
       raise Thor::Error, "Error: #{e.message}\n" \
