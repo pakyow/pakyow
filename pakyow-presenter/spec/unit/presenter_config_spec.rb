@@ -1,37 +1,38 @@
-require_relative '../spec_helper'
-require 'pakyow/core/config'
-require 'pakyow/presenter/config/presenter'
+require "../spec/helpers/config_helpers"
 
-RSpec.describe 'configuration' do
-  it 'registers presenter config' do
-    expect(Pakyow::Config.presenter).to be_a(Pakyow::Config)
+RSpec.describe "presenter configuration options" do
+  include ConfigHelpers
+
+  after do
+    Pakyow::App.reset
   end
 
-  describe 'options' do
-    let :opts do
-      Pakyow::Config.presenter
-        .instance_variable_get(:@defaults)
-        .instance_variable_get(:@opts)
-        .keys
+  describe "presenter.view_stores" do
+    it "has a default value" do
+      expect(Pakyow::App.config.presenter.view_stores).to eq({ default: "./app/views" })
     end
 
-    describe 'require_route' do
-      it 'is defined' do
-        expect(opts).to include(:require_route)
-      end
+    it "is dependent on `app.root`" do
+      Pakyow::App.config.app.root = "ROOT"
+      expect(Pakyow::App.config.presenter.view_stores).to eq({ default: "ROOT/app/views" })
+    end
+  end
 
-      it 'sets a default require_route value for development' do
-        Pakyow::Config.env = :development
-        expect(Pakyow::Config.presenter.require_route).to eq(false)
-        Pakyow::Config.env = :test
-      end
+  describe "presenter.require_route" do
+    it "has a default value" do
+      expect(Pakyow::App.config.presenter.require_route).to eq(false)
+    end
 
-      it 'sets a default require_route value for production' do
-        Pakyow::Config.env = :production
-        expect(Pakyow::Config.presenter.require_route).to eq(true)
-        Pakyow::Config.env = :test
+    context "in test" do
+      it "defaults to true" do
+        expect(config_defaults(Pakyow::App.config.presenter, :test).require_route).to eq(true)
+      end
+    end
+
+    context "in production" do
+      it "defaults to true" do
+        expect(config_defaults(Pakyow::App.config.presenter, :production).require_route).to eq(true)
       end
     end
   end
 end
-

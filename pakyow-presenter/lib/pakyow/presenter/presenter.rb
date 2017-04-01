@@ -1,52 +1,20 @@
 module Pakyow
   module Presenter
     class Presenter
-      class << self
-        def process(contents, format)
-          format = format.to_sym
-
-          unless app = Pakyow.app
-            return contents
-          end
-
-          unless presenter = app.presenter
-            return contents
-          end
-
-          unless processor = presenter.processor_store[format]
-            Pakyow.logger.warn("No processor defined for extension #{format}") unless format == :html
-            return contents
-          end
-
-          processed = processor.call(contents)
-
-          # reprocess html content unless we just did that
-          return processed if format == :html
-          process(processed, :html)
-        end
-      end
-
-      Pakyow::App.before(:init) {
-        @presenter = Presenter.new
-        ViewStoreLoader.instance.reset
+      Pakyow::Controller.before(:route) {
+        # TODO: check for presenter
+        @presenter = app.presenter.dup
+        @presenter.prepare_with_context(self)
       }
 
-      Pakyow::App.after(:load) {
-        @presenter.load
-      }
-
-      Pakyow::CallContext.after(:match) {
-        @presenter = Pakyow.app.presenter.dup
-        @presenter.prepare_with_context(context)
-      }
-
-      Pakyow::CallContext.after(:route) {
-        if Config.presenter.require_route && !found? && !handling?
+      Pakyow::Controller.after(:route) {
+        # TODO: check for presenter
+        if app.config.presenter.require_route && !found? && !handling?
           @found
         else
           if @presenter.presented?
             @found = true
-            @context.response.body = [@presenter.content]
+            response.body = [@presenter.content]
           else
             @found = false unless found?
           end
@@ -56,7 +24,8 @@ module Pakyow
       attr_accessor :processor_store, :binder, :context, :composer
       attr_reader :path
 
-      def initialize
+      def initialize(app = nil)
+        @app = app
         @path = nil
 
         setup
@@ -86,11 +55,12 @@ module Pakyow
       def prepare_with_context(context)
         @context = context
 
-        if @context.request.has_route_vars?
-          @path = String.remove_route_vars(@context.request.route_path)
-        else
+        # TODO: this collapses the path
+        # if @context.request.has_route_vars?
+        #   @path = String.remove_route_vars(@context.request.route_path)
+        # else
           @path = @context.request.path
-        end
+        # end
 
         setup
       end
@@ -175,6 +145,29 @@ module Pakyow
         !@path.nil?
       end
 
+      def process(contents, format)
+        format = format.to_sym
+
+        unless @app
+          return contents
+        end
+
+        unless presenter = @app.presenter
+          return contents
+        end
+
+        unless processor = presenter.processor_store[format]
+          Pakyow.logger.warn("No processor defined for extension #{format}") unless format == :html
+          return contents
+        end
+
+        processed = processor.call(contents)
+
+        # reprocess html content unless we just did that
+        return processed if format == :html
+        process(processed, :html)
+      end
+
       protected
 
       def setup
@@ -196,7 +189,7 @@ module Pakyow
       def load_views
         @view_stores ||= {}
 
-        Pakyow::Config.presenter.view_stores.each_pair { |name, path|
+        @app.config.presenter.view_stores.each_pair { |name, path|
           next unless ViewStoreLoader.instance.modified?(name, path)
           @view_stores[name] = ViewStore.new(path, name)
         }
@@ -205,13 +198,13 @@ module Pakyow
       def load_bindings
         @binder = Binder.instance.reset
 
-        Pakyow::App.bindings.each_pair {|set_name, block|
+        @app.bindings.each_pair {|set_name, block|
           @binder.set(set_name, &block)
         }
       end
 
       def load_processors
-        @processor_store = Pakyow::App.processors
+        @processor_store = @app.processors
       end
 
       def composer_for_path(path)

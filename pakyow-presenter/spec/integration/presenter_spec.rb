@@ -5,7 +5,7 @@ RSpec.describe Pakyow::Presenter::Presenter do
   include ReqResHelpers
 
   before do
-    Pakyow::Config.presenter.view_doc_class = Pakyow::Presenter::StringDoc
+    Pakyow::App.config.presenter.view_doc_class = Pakyow::Presenter::StringDoc
     @store = :test
     Pakyow::App.stage(:test)
     @presenter = Pakyow.app.presenter

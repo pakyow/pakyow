@@ -5,17 +5,16 @@ module Pakyow
 
       class << self
         def load(path)
-          format    = String.split_at_last_dot(path)[-1]
-          contents  = File.read(path)
-          name      = File.basename(path, '.*').to_sym
+          html  = File.read(path)
+          name  = File.basename(path, '.*').to_sym
 
-          self.new(name, contents, format: format)
+          self.new(name, html)
         end
       end
 
-      def initialize(name, contents = '', format: :html)
+      def initialize(name, html = '')
         @name = name
-        super(contents, format: format)
+        super(html)
       end
 
       def initialize_copy(original_template)

@@ -16,13 +16,10 @@ module Pakyow
       #
       attr_accessor :scoped_as
 
-      # Creates a view, running `contents` through any registered view processors for `format`.
+      # Creates a view with +html+.
       #
-      # @param contents [String] the contents of the view
-      # @param format [Symbol] the format of contents
-      #
-      def initialize(contents = '', format: :html)
-        @doc = Config.presenter.view_doc_class.new(Presenter.process(contents, format))
+      def initialize(html = "")
+        @doc = StringDoc.new(html)
       end
 
       def initialize_copy(original_view)

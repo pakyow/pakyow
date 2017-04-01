@@ -1,6 +1,9 @@
 require "pakyow/core"
+require "pakyow/presenter"
 
 Pakyow::App.define do
+  include Pakyow::Presenter
+
   configure do
     config.app.name = "example"
   end

@@ -1,7 +1,10 @@
+require "pakyow/support/dir_walk"
+
 module Pakyow
   module Presenter
     class ViewStore
       using Support::DeepDup
+      using Support::WalkDir
 
       attr_reader :store_name, :store_paths, :templates
 
@@ -150,7 +153,8 @@ module Pakyow
       end
 
       def templates_path(store_path)
-        return File.join(store_path, Config.presenter.template_dir(@store_name))
+        # TODO: hardcoded app
+        return File.join(store_path, App.config.presenter.template_dir(@store_name))
       end
 
       def load_path_info

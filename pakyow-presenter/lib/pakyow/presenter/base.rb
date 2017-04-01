@@ -24,16 +24,52 @@ require 'pakyow/presenter/view_store_loader'
 
 module Pakyow
   module Presenter
-    Pakyow::App.after :load do
-      routes :__presenter do
-        handler 404 do
+    def self.included(base)
+      load_presenter(base)
+    end
+
+    def self.load_presenter(app_class)
+      app_class.router :__presenter do
+        handle 404 do
           presenter_handle_error(404)
         end
 
-        handler 500 do
+        handle 500 do
           presenter_handle_error(500)
         end
       end
+
+      app_class.before :initialize do
+        @presenter = Presenter.new(self)
+        ViewStoreLoader.instance.reset
+      end
+
+      app_class.after :load do
+        @presenter.load
+      end
+    end
+
+    protected
+
+    def presenter_handle_error(code)
+      return if !config.app.errors_in_browser || req.format != :html
+      response.body = [content_for_code(code)]
+    end
+
+    def content_for_code(code)
+      content = ERB.new(File.read(path_for_code(code))).result(binding)
+      page = Presenter::Page.new(:presenter, content, '/')
+      composer = presenter.compose_at('/', page: page)
+      composer.to_html
+    end
+
+    def path_for_code(code)
+      File.join(
+        File.expand_path('../../../', __FILE__),
+        'views',
+        'errors',
+        code.to_s + '.erb'
+      )
     end
   end
 end

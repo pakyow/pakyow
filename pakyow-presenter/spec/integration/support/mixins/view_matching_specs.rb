@@ -3,11 +3,11 @@
 RSpec.shared_examples :matching_specs do
   before do
     @original_doctype = Pakyow::Config.presenter.view_doc_class
-    Pakyow::Config.presenter.view_doc_class = doctype
+    Pakyow::App.config.presenter.view_doc_class = doctype
   end
 
   after do
-    Pakyow::Config.presenter.view_doc_class = @original_doctype
+    Pakyow::App.config.presenter.view_doc_class = @original_doctype
   end
 
   describe 'matching a view with data' do

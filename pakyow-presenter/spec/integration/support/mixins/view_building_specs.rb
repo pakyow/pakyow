@@ -4,12 +4,12 @@ include ViewComposerHelpers
 RSpec.shared_examples :building_specs do
   before do
     @store = Pakyow::Presenter::ViewStore.new(VIEW_PATH)
-    @original_doctype = Pakyow::Config.presenter.view_doc_class
-    Pakyow::Config.presenter.view_doc_class = doctype
+    @original_doctype = Pakyow::App.config.presenter.view_doc_class
+    Pakyow::App.config.presenter.view_doc_class = doctype
   end
 
   after do
-    Pakyow::Config.presenter.view_doc_class = @original_doctype
+    Pakyow::App.config.presenter.view_doc_class = @original_doctype
   end
 
   describe 'building a view with multiple instances of a partial' do

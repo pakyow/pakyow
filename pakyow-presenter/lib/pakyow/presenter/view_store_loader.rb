@@ -1,5 +1,6 @@
 module Pakyow
   module Presenter
+    # TODO: refactor this to one instance per app instead of singleton
     class ViewStoreLoader
       include Singleton
 

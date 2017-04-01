@@ -4,21 +4,20 @@ module Pakyow
       MATTER_MATCHER = /\A(---\s*\n.*?\n?)^(---\s*$\n?)/m
 
       class << self
-        def load(path, view_store_name = :default)
-          format   = String.split_at_last_dot(path)[-1]
+        def load(path)
           name     = File.basename(path, '.*').to_sym
-          contents = FileTest.file?(path) ? File.read(path) : nil
+          html = FileTest.file?(path) ? File.read(path) : nil
 
-          return Page.new(name, contents, path, format, view_store_name)
+          return Page.new(name, html, path)
         end
       end
 
       attr_reader :path, :contents
 
-      def initialize(name, contents, path, format = :html, view_store_name = :default)
-        @name, @contents, @path, @format = name, contents, path, format
+      def initialize(name, html, path)
+        @name, @contents, @path = name, html, path
 
-        @info    = { template: Pakyow::App.config.presenter.default_view(view_store_name) }
+        @info    = { template: :default }
         @containers = {}
 
         unless @contents.nil?
@@ -80,7 +79,7 @@ module Pakyow
         @contents.gsub!(/---(.|\n)*---/, '')
 
         # process contents
-        @contents = Presenter.process(@contents, @format)
+        # @contents = Presenter.process(@contents, @format)
 
         # find content in named containers
         within_regex = /<!--\s*@within\s*([a-zA-Z0-9\-_]*)\s*-->(.*?)<!--\s*\/within\s*-->/m
