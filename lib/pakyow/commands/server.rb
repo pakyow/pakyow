@@ -74,11 +74,24 @@ module Pakyow
 
       def watch_for_changes
         listener = Listen.to(".") do |modified, added, removed|
+          if modified.map { |path| File.basename(path) }.include?("Gemfile")
+            bundle_and_restart
+          end
+
           restart_process
         end
 
         listener.start
         sleep
+      end
+
+      def bundle_and_restart
+        puts "Gemfile changed; running bundle install..."
+        Process.waitpid(Process.spawn("bundle install"))
+        puts "...done; restarting"
+
+        stop_process
+        exec "bundle exec pakyow server"
       end
     end
   end
