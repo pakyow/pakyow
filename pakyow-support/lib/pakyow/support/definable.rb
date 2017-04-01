@@ -12,12 +12,12 @@ module Pakyow
     #
     # Once an instance has been created, global state for that object is frozen.
     #
-    # Defineable objects' `initialize` method should always call super with
+    # Definable objects' `initialize` method should always call super with
     # the block to ensure that state is inherited correctly.
     #
     # @example
-    #   class SomeDefineableObject
-    #     include Support::Defineable
+    #   class SomeDefinableObject
+    #     include Support::Definable
     #
     #     def initialize(some_arg, &block)
     #       # Do something with some_arg, etc.
@@ -26,7 +26,7 @@ module Pakyow
     #     end
     #   end
     #
-    module Defineable
+    module Definable
       using DeepDup
 
       def self.included(base)
@@ -110,7 +110,7 @@ module Pakyow
         #     end
         #
         #     class App
-        #       include Pakyow::Support::Defineable
+        #       include Pakyow::Support::Definable
         #
         #       stateful :person, Person
         #     end

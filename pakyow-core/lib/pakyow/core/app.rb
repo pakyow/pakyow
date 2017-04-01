@@ -1,5 +1,5 @@
 require "pakyow/support/configurable"
-require "pakyow/support/defineable"
+require "pakyow/support/definable"
 require "pakyow/support/hookable"
 require "pakyow/support/recursive_require"
 
@@ -132,7 +132,7 @@ module Pakyow
   #
   # @api public
   class App
-    include Support::Defineable
+    include Support::Definable
 
     # @!scope class
     # @!method router(name_or_path = nil, path_or_name = nil, before: [], after: [], around: [], &block)
@@ -333,7 +333,7 @@ module Pakyow
         end
       end
 
-      # Call the Pakyow::Defineable initializer.
+      # Call the Pakyow::Definable initializer.
       #
       # This ensures that any state registered in the passed block
       # has the proper priority against instance and global state.
