@@ -1,14 +1,107 @@
 module Pakyow
+  class App
+    class << self
+      RESOURCE_ACTIONS[:presenter] = proc do |app, name, _, _|
+        app.bindings(name) { scope(name) { restful(name) } }
+      end
+
+      # TODO: definable
+      def bindings(set_name = :main, &block)
+        if set_name && block
+          bindings[set_name] = block
+        else
+          @bindings ||= {}
+        end
+      end
+
+      # TODO: definable
+      def processor(*args, &block)
+        args.each {|format|
+          processors[format] = block
+        }
+      end
+
+      # TODO: definable
+      def processors
+        @processors ||= {}
+      end
+    end
+
+    # Convenience method for defining bindings on an app instance.
+    #
+    # TODO: definable
+    def bindings(set_name = :main, &block)
+      self.class.bindings(set_name, &block)
+    end
+
+    def processors
+      self.class.processors
+    end
+
+    # TODO: do we need this?
+    def presenter
+      @presenter
+    end
+  end
+end
+
+module Pakyow
   module Presenter
+    def self.included(base)
+      load_presenter_into(base)
+    end
+
+    def self.load_presenter_into(app_class)
+      app_class.router :__presenter do
+        handle 404 do
+          presenter_handle_error(404)
+        end
+
+        handle 500 do
+          presenter_handle_error(500)
+        end
+      end
+
+      app_class.before :initialize do
+        @presenter = Presenter.new(self)
+        ViewStoreLoader.instance.reset
+      end
+
+      app_class.after :load do
+        @presenter.load
+      end
+    end
+
+    protected
+
+    def presenter_handle_error(code)
+      return if !config.app.errors_in_browser || req.format != :html
+      response.body = [content_for_code(code)]
+    end
+
+    def content_for_code(code)
+      content = ERB.new(File.read(path_for_code(code))).result(binding)
+      page = Presenter::Page.new(:presenter, content, "/")
+      composer = presenter.compose_at("/", page: page)
+      composer.to_html
+    end
+
+    def path_for_code(code)
+      File.join(
+        File.expand_path("../../../", __FILE__),
+        "views",
+        "errors",
+        code.to_s + ".erb"
+      )
+    end
+
     class Presenter
-      Pakyow::Controller.before(:route) {
-        # TODO: check for presenter
+      Controller.before :route do
         @presenter = app.presenter.dup
         @presenter.prepare_with_context(self)
-      }
+      end
 
-      Pakyow::Controller.after(:route) {
-        # TODO: check for presenter
+      Controller.after :route do
         if app.config.presenter.require_route && !found? && !handling?
           @found
         else
@@ -19,7 +112,7 @@ module Pakyow
             @found = false unless found?
           end
         end
-      }
+      end
 
       attr_accessor :processor_store, :binder, :context, :composer
       attr_reader :path
