@@ -24,39 +24,44 @@ module Pakyow
       }
 
       def initialize(dest)
-        @src = "#{File.expand_path('../', __FILE__)}/templates"
+        @src = "templates"
         @dest = dest
-        @destination_root = "/"
-        #TODO: remove puts before committing
-        puts @destination_root
+        # if any of the below is not set, an error will result
+        self.options ||= {}
+        self.destination_root = "/"
+        Pakyow::Generators::AppGenerator.source_root(File.expand_path('../', __FILE__))
       end
 
-      def build
-        puts "Generating project: #{@dest}"
-        dest_path = File.expand_path @dest
 
-        if !File.directory?(@dest) || (Dir.entries(@dest) - ['.', '..']).empty?
-          #TODO: remove puts before committing
-          puts @src
-          puts dest_path
-          directory @src, dest_path
-          # copy
-        else
-          ARGV.clear
-          print "The folder '#{@dest}' is in use. Would you like to populate it anyway? [Yn] "
+      no_commands {
+        def build
+          puts "Generating project: #{@dest}"
+          dest_path = File.expand_path @dest
 
-          if gets.chomp! == 'Y'
-            directory @src, dest_path
+          if !File.directory?(@dest) || (Dir.entries(@dest) - ['.', '..']).empty?
             # copy
+            directory @src, dest_path
           else
-            puts "Aborted!"
-            exit
+            ARGV.clear
+            print "The folder '#{@dest}' is in use. Would you like to populate it anyway? [Yn] "
+
+            if gets.chomp! == 'Y'
+              # copy
+              directory @src, dest_path
+            else
+              puts "Aborted!"
+              exit
+            end
           end
+
+          exec
+          puts "Done! Run `cd #{@dest}; bundle exec pakyow server` to get started!"
         end
 
-        exec
-        puts "Done! Run `cd #{@dest}; bundle exec pakyow server` to get started!"
-      end
+        def dot
+          "."
+        end
+      }
 
       protected
 
