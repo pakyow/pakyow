@@ -5,16 +5,17 @@ module Pakyow
   class CLI < Thor
     map ["--version", "-v"] => :version
 
-    desc "new [PROJECT_PATH]", "Create a new Pakyow project"
+    desc "new PROJECT_PATH", "Create a new Pakyow project"
     long_desc <<-DESC
       The `pakyow new` command creates a new Pakyow project at the path you specify.
 
       $ pakyow new path/to/project
     DESC
 
-    def new(destination)
+    def new(name = nil)
       require "generators/pakyow/app/app_generator"
-      Generators::AppGenerator.start(destination)
+      Generators::AppGenerator.start([name])
+      puts "Done! Run `cd #{name}; bundle exec pakyow server` to get started!"
     end
 
     desc "console [ENVIRONMENT]", "Start an interactive Pakyow console"
