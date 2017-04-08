@@ -394,7 +394,7 @@ RSpec.describe Pakyow do
       end
 
       it "passes on the default opts" do
-        expect(handler_double).to have_received(:run).with(builder_double, Host: host, Port: port, foo: :bar)
+        expect(handler_double).to have_received(:run).with(builder_double, Host: host, Port: port, Silent: true, foo: :bar)
       end
     end
 

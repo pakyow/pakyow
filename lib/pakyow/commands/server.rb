@@ -61,7 +61,7 @@ module Pakyow
 
       def start_server
         require "./config/environment"
-        Pakyow.setup(env: @env).run(port: @port, host: @host, server: @server, Silent: true)
+        Pakyow.setup(env: @env).run(port: @port, host: @host, server: @server)
       end
 
       def trap_interrupts

@@ -172,6 +172,10 @@ module Pakyow
   STOP_METHODS = %w(stop! stop).freeze
   # @api private
   STOP_SIGNALS = %w(INT TERM).freeze
+  # @api private
+  DEFAULT_HANDLER_OPTIONS = {
+    puma: { Silent: true }.freeze
+  }.freeze
 
   class << self
     # Name of the environment
@@ -257,6 +261,8 @@ module Pakyow
       @port   = port   || config.server.port
       @host   = host   || config.server.host
       @server = server || config.server.default
+
+      opts.merge!(DEFAULT_HANDLER_OPTIONS.fetch(@server, {}))
 
       handler(@server).run(builder.to_app, Host: @host, Port: @port, **opts) do |app_server|
         STOP_SIGNALS.each do |signal|
