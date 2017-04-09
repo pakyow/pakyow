@@ -121,11 +121,17 @@ module Pakyow
       request.error = error
 
       catch :halt do
-        if code_and_handler = current_router&.class&.exception_for_class(error.class, exceptions: exceptions)
-          code, handler = code_and_handler
+        unless router = current_router
+          # error occurred somewhere in the framework, not in a route
+          # so create an anonymous router to use any global handlers
+          router = anonymous_router
+        end
+
+        if code_and_handler = router.class.exception_for_class(error.class, exceptions: exceptions)
+          code, handler   = code_and_handler
           response.status = code
-          handlers[code] = handler
-          current_router.trigger_for_code(code, handlers: handlers)
+          handlers[code]  = handler
+          router.trigger_for_code(code, handlers: handlers)
         else
           hook_around :error do
             trigger(500)
@@ -317,7 +323,9 @@ module Pakyow
 
       hook_around :trigger do
         unless router = current_router
-          router = Pakyow::Router.new(self)
+          # error occurred somewhere in the framework, not in a route
+          # so create an anonymous router to use any global handlers
+          router = anonymous_router
         end
 
         router.trigger_for_code(code, handlers: handlers)
@@ -421,6 +429,11 @@ module Pakyow
           end
         end
       end
+    end
+
+    # @api private
+    def anonymous_router
+      Pakyow::Router.new(self)
     end
   end
 end
