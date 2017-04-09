@@ -1,5 +1,7 @@
 Pakyow::App.router do
   default do
-    logger.info 'hello ' + Time.now.to_s
+    render "/" do |view|
+      view.title = "hello world"
+    end
   end
 end

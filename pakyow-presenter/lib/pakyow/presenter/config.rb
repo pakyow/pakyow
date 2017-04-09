@@ -1,19 +1,7 @@
 Pakyow::App.settings_for :presenter do
-  # registered view stores
-  setting :view_stores do
-    {
-      default: File.join(config.app.root, "app", "views")
-    }
+  setting :path do
+    File.join(config.app.root, "app", "views")
   end
-
-  # the default template dir for each view store
-  setting :template_dirs, { default: "_templates" }
-
-  # a convenience option to lookup the template_dir for a view store by name
-  setting :template_dir, -> (store_name) {
-    dirs = config.presenter.template_dirs
-    dirs.fetch(store_name) { dirs[:default] }
-  }
 
   # the attribute expected for scope definitions
   # TODO: this shouldn't be configurable

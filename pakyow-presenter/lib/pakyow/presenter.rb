@@ -5,7 +5,6 @@ end
 
 require "yaml"
 
-require "pakyow/presenter/view_store"
 require "pakyow/presenter/view"
 require "pakyow/presenter/form"
 require "pakyow/presenter/template"
@@ -25,8 +24,9 @@ require "pakyow/presenter/binding_eval"
 require "pakyow/presenter/doc_helpers"
 require "pakyow/presenter/view_version"
 require "pakyow/presenter/view_context"
-require "pakyow/presenter/view_store_loader"
+require "pakyow/presenter/template_store"
+require "pakyow/presenter/state"
+require "pakyow/presenter/hooks"
 
 require "pakyow/presenter/presenter"
 require "pakyow/presenter/config"
-require "pakyow/presenter/helpers"

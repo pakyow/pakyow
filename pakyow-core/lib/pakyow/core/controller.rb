@@ -405,6 +405,9 @@ module Pakyow
           # make parameterized route data available in request params
           request.params.merge!(match_data)
 
+          # store the path to the matched route
+          request.route_path = File.join(matched_router.path_to_self.to_s, matched_route.path.to_s)
+
           catch :reject do
             instance = matched_router.new(self)
             current_router&.handoff_to(instance)

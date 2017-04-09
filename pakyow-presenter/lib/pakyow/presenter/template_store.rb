@@ -1,16 +1,18 @@
+require "pakyow/support/deep_dup"
 require "pakyow/support/dir_walk"
 
 module Pakyow
   module Presenter
-    class ViewStore
+    class TemplateStore
       using Support::DeepDup
       using Support::WalkDir
 
-      attr_reader :store_name, :store_paths, :templates
+      attr_reader :name, :path
 
-      def initialize(store_path_or_paths, store_name = :default)
-        @store_name = store_name
-        @store_paths = Array.ensure(store_path_or_paths)
+      def initialize(name, path)
+        @name, @path = name, path
+
+        @store_paths = Array.ensure(path)
         @templates = {}
         @templates_loaded = false
 
@@ -153,8 +155,7 @@ module Pakyow
       end
 
       def templates_path(store_path)
-        # TODO: hardcoded app
-        return File.join(store_path, App.config.presenter.template_dir(@store_name))
+        return File.join(store_path, "_templates")
       end
 
       def load_path_info
