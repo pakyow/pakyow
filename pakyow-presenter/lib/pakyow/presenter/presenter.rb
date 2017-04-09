@@ -5,44 +5,34 @@ module Pakyow
     end
 
     def self.load_presenter_into(app_class)
-      # TODO: automatically present 404/500
-      # app_class.router :__presenter do
-      #   handle 404 do
-      #     presenter_handle_error(404)
-      #   end
-
-      #   handle 500 do
-      #     presenter_handle_error(500)
-      #   end
-      # end
-
       app_class.after :configure do
         app_class.template_store << TemplateStore.new(:default, config.presenter.path)
+
+        if environment == :development
+          app_class.handle Pakyow::Presenter::MissingView, as: 500 do
+            respond_to :html do
+              render "/missing_view"
+            end
+          end
+
+          app_class.template_store << TemplateStore.new(:errors, File.join(File.expand_path("../../", __FILE__), "views", "errors"))
+
+          # TODO: define view objects to render built-in errors
+        end
+
+        app_class.handle 404 do
+          respond_to :html do
+            render "/404"
+          end
+        end
+
+        app_class.handle 500 do
+          respond_to :html do
+            render "/500"
+          end
+        end
       end
     end
-
-    # protected
-
-    # def presenter_handle_error(code)
-    #   return if !config.app.errors_in_browser || req.format != :html
-    #   response.body = [content_for_code(code)]
-    # end
-
-    # def content_for_code(code)
-    #   content = ERB.new(File.read(path_for_code(code))).result(binding)
-    #   page = Presenter::Page.new(:presenter, content, "/")
-    #   composer = presenter.compose_at("/", page: page)
-    #   composer.to_html
-    # end
-
-    # def path_for_code(code)
-    #   File.join(
-    #     File.expand_path("../../../", __FILE__),
-    #     "views",
-    #     "errors",
-    #     code.to_s + ".erb"
-    #   )
-    # end
   end
 
   class Router
@@ -54,7 +44,7 @@ module Pakyow
       if composer = find_composer_for(path)
         yield composer if block_given?
         halt StringIO.new(composer.to_html)
-      else
+      elsif found?
         raise Presenter::MissingView.new("No view at path `#{path}'")
       end
     end
