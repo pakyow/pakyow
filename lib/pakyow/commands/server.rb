@@ -7,7 +7,7 @@ module Pakyow
     # @api private
     class Server
       def initialize(env: nil, port: nil, host: nil, server: nil)
-        @env    = env.to_s
+        @env    = env
         @port   = port
         @host   = host
         @server = server
