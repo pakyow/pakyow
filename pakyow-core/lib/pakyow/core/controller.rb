@@ -366,8 +366,11 @@ module Pakyow
 
     # Halts request processing, immediately returning the response.
     #
+    # The response body will be set to +body+ prior to halting (if it's a non-nil value).
+    #
     # @api public
-    def halt
+    def halt(body = nil)
+      response.body = body if body
       throw :halt, response
     end
 
