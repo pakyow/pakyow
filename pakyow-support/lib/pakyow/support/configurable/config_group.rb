@@ -6,22 +6,22 @@ module Pakyow
     module Configurable
       class ConfigGroup
         using DeepDup
-        attr_reader :_name, :_options, :_parent, :_settings
+        attr_reader :__name, :__options, :__parent, :__settings
 
         def initialize(name, options, parent, &block)
-          @_name = name
-          @_options = options
-          @_parent = parent
-          @_settings = {}
-          @_initial_settings = {}
-          @_defaults = {}
+          @__name = name
+          @__options = options
+          @__parent = parent
+          @__settings = {}
+          @__initial_settings = {}
+          @__defaults = {}
 
           instance_eval(&block)
           @initialized = true
         end
         
         def initialize_copy(original)
-          @_settings = original._settings.deep_dup
+          @__settings = original.__settings.deep_dup
         end
 
         def setting(name, default = nil, &block)
@@ -30,25 +30,25 @@ module Pakyow
 
           unless instance_variable_defined?(:@initialized)
             # keep up with the initial values so we can reset
-            @_initial_settings[name] = option
+            @__initial_settings[name] = option
           end
 
-          @_settings[name] = option
+          @__settings[name] = option
         end
 
         def defaults(env, &block)
           env = env.to_sym
           if block_given?
-            @_defaults[env] = block
+            @__defaults[env] = block
           else
-            @_defaults[env]
+            @__defaults[env]
           end
         end
 
         def method_missing(name, value = nil)
           if name[-1] == "="
             name = name[0..-2].to_sym
-            @_settings.fetch(name) {
+            @__settings.fetch(name) {
               if extendable?
                 setting(name)
               else
@@ -56,20 +56,20 @@ module Pakyow
               end
             }.value = value
           else
-            @_settings.fetch(name) {
+            @__settings.fetch(name) {
               return nil
-            }.value(@_parent)
+            }.value(@__parent)
           end
         end
 
         def extendable?
-          @_options[:extendable] == true
+          @__options[:extendable] == true
         end
 
         def reset
-          @_settings = @_initial_settings.deep_dup
+          @__settings = @__initial_settings.deep_dup
 
-          @_settings.each do |_, settings|
+          @__settings.each do |_, settings|
             settings.reset
           end
         end
