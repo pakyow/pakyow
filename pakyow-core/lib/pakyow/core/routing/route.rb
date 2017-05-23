@@ -59,19 +59,6 @@ module Pakyow
         }.join("/"))
       end
 
-      def freeze
-        hooks.each do |_, hooks_arr|
-          hooks_arr.each(&:freeze)
-          hooks_arr.freeze
-        end
-
-        path.freeze
-        pipeline.freeze
-        hooks.freeze
-
-        super
-      end
-
       protected
 
       def create_matcher_from_path(path)

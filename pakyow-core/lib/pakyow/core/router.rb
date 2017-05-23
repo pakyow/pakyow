@@ -749,30 +749,6 @@ module Pakyow
       end
 
       # @api private
-      def freeze
-        # TODO: let's instead have a deep freeze method that freezes the object and its ivars, recursively
-        hooks.each do |_, hooks_arr|
-          hooks_arr.each(&:freeze)
-          hooks_arr.freeze
-        end
-
-        children.each(&:freeze)
-
-        routes.each do |_, routes_arr|
-          routes_arr.each(&:freeze)
-          routes_arr.freeze
-        end
-
-        matcher.freeze
-        hooks.freeze
-        children.freeze
-        routes.freeze
-        templates.freeze
-
-        super
-      end
-
-      # @api private
       def exception_for_class(klass, exceptions: {})
         self.exceptions.merge(exceptions)[klass]
       end
