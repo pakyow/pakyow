@@ -1,15 +1,27 @@
 module Pakyow
   module Support
     module DeepFreeze
-      UNFREEZABLE = %w(Rack::Builder).freeze
+      refine Object.singleton_class do
+        def unfreezable_variables
+          @unfreezable_variables ||= []
+        end
+
+        private
+
+        def unfreezable(*ivars)
+          ivars = ivars.map { |ivar| "@#{ivar}".to_sym }
+          unfreezable_variables.concat(ivars)
+          unfreezable_variables.uniq!
+        end
+      end
 
       refine Object do
         def deep_freeze
-          return self if unfreezable?
+          return self if frozen?
 
           self.freeze
 
-          instance_variables.each do |name|
+          freezable_variables.each do |name|
             instance_variable_get(name).deep_freeze
           end
 
@@ -18,14 +30,14 @@ module Pakyow
 
         private
 
-        def unfreezable?
-          frozen? || UNFREEZABLE.include?(self.class.name)
+        def freezable_variables
+          instance_variables - self.class.unfreezable_variables
         end
       end
 
       refine Array do
         def deep_freeze
-          return self if unfreezable?
+          return self if frozen?
 
           self.freeze
 

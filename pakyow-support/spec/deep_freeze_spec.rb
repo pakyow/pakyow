@@ -1,18 +1,24 @@
 require "pakyow/support/deep_freeze"
 
-module Rack
-  class Builder
+using Pakyow::Support::DeepFreeze
+
+class MyObject
+  unfreezable :fire
+
+  attr_reader :fire, :water
+
+  def initialize
+    @fire = 'fire'
+    @water = 'water'
   end
 end
 
 RSpec.describe Pakyow::Support::DeepFreeze do
-  let :builder { 
-    Rack::Builder.new
+  let :obj_with_unfreezable { 
+    MyObject.new
   }
 
   describe "deep_freeze" do
-    using Pakyow::Support::DeepFreeze
-
     it "returns the object" do
       obj = Object.new
 
@@ -76,9 +82,17 @@ RSpec.describe Pakyow::Support::DeepFreeze do
     end
 
     it "doesn't freeze unfreezeable" do
-      builder.deep_freeze
+      obj_with_unfreezable.deep_freeze
 
-      expect(builder).not_to be_frozen
+      expect(obj_with_unfreezable).to be_frozen
+      expect(obj_with_unfreezable.water).to be_frozen
+      expect(obj_with_unfreezable.fire).not_to be_frozen
+    end
+
+    it "returns an array of unfreezeable ivars" do
+      vars = MyObject.unfreezable_variables
+
+      expect(vars).to be_instance_of(Array)
     end
   end
 end
