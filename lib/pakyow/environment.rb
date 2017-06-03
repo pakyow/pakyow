@@ -29,17 +29,17 @@ require "pakyow/middleware"
 #
 # - +server.default+ defines the application server to use by default.
 #   Default is +:puma+.
-# - +server.port+ defines the port that the environment runs on. Default is
-#   +3000+.
-# - +server.host+ defines the host that the environment runs on. Default is
-#   "localhost".
+# - +server.port+ defines the port that the environment runs on.
+#   Default is +3000+.
+# - +server.host+ defines the host that the environment runs on.
+#   Default is "localhost".
 #
-# - +logger.enabled+ defines whether or not logging is enabled. Default is
-#   +true+.
-# - +logger.level+ defines what level to log at.  Default is +:debug+, or
+# - +logger.enabled+ defines whether or not logging is enabled.
+#   Default is +true+.
+# - +logger.level+ defines what level to log at. Default is +:debug+, or
 #   +:info+ in the +production+ environment.
 # - +logger.formatter+ defines the formatter to use when logging. Default is
-#   {Logger::DevFormatter}, or {Logger::LogfmtFormatter} in the +production+    environment.
+#   {Logger::DevFormatter}, or {Logger::LogfmtFormatter} in production.
 # - +logger.destinations+ defines where logs are output to. Default is
 #   +$stdout+ (when +logger.enabled+), or +/dev/null+ in the +test+
 #   environment or when logger is disabled).
