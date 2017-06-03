@@ -20,33 +20,36 @@ require "pakyow/middleware"
 #     mount Pakyow::App, at: "/"
 #   end
 #
-# The following config settings are available within the environment:
+# == Configuration Options
 #
-# - *env.default*: named environment to start when one is not explicitly provided  
-#   _default_: development
+# These config options are available:
 #
-# - *server.default*: the application server to use by default  
-#   _default_: puma
-# - *server.port*: the port that the environment runs on  
-#   _default_: 3000
-# - *server.host*: the host that the environment runs on  
-#   _default_: localhost
+# - +env.default+ defines the named environment to start when one is not
+#   explicitly provided. Default is +:development+.
 #
-# - *logger.enabled*: whether or not logging is enabled  
-#   _default_: true
-# - *logger.level*: what level to log at  
-#   _default_: :debug, :info (production)
-# - *logger.formatter*: the formatter to use when logging  
-#   _default_: {Logger::DevFormatter}, {Logger::LogfmtFormatter} (production)
-# - *logger.destinations*: where logs are output to  
-#   _default_: $stdout (when logger.enabled), /dev/null (for test environment or when logger is disabled)
+# - +server.default+ defines the application server to use by default.
+#   Default is +:puma+.
+# - +server.port+ defines the port that the environment runs on.
+#   Default is +3000+.
+# - +server.host+ defines the host that the environment runs on.
+#   Default is "localhost".
 #
-# - *normalizer.strict_path*: whether or not request paths are normalized  
-#   _default_: true
-# - *normalizer.strict_www*: whether or not the www subdomain are normalized  
-#   _default_: false
-# - *normalizer.require_www*: whether or not to require www in the hostname  
-#   _default_: true
+# - +logger.enabled+ defines whether or not logging is enabled.
+#   Default is +true+.
+# - +logger.level+ defines what level to log at. Default is +:debug+, or
+#   +:info+ in the +production+ environment.
+# - +logger.formatter+ defines the formatter to use when logging. Default is
+#   {Logger::DevFormatter}, or {Logger::LogfmtFormatter} in production.
+# - +logger.destinations+ defines where logs are output to. Default is
+#   +$stdout+ (when +logger.enabled+), or +/dev/null+ in the +test+
+#   environment or when logger is disabled).
+#
+# - +normalizer.strict_path+ defines whether or not request paths are
+#   normalized. Default is +true+.
+# - +normalizer.strict_www+ defines whether or not the www subdomain are
+#   normalized. Default is +false+.
+# - +normalizer.require_www+ defines whether or not to require www in the
+#   hostname. Default is +true+.
 #
 # Configuration support is added via {Support::Configurable}.
 #
