@@ -81,6 +81,19 @@ RSpec.describe Pakyow::Support::DeepFreeze do
       expect(objects).to be_frozen
     end
 
+    it "deep freezes hash keys values" do
+      object = { one: Object.new, 'two': Object.new, Object.new => Object.new }
+
+      object.deep_freeze
+
+      object.each_pair do |key, value|
+        expect(key).to be_frozen
+        expect(value).to be_frozen
+      end
+
+      expect(object).to be_frozen
+    end
+
     it "doesn't freeze unfreezeable" do
       obj_with_unfreezable.deep_freeze
 

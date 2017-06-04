@@ -46,6 +46,22 @@ module Pakyow
           self
         end
       end
+
+      refine Hash do
+        def deep_freeze
+          return self if frozen?
+
+          frozen_hash = {}
+
+          each_pair do |key, value|
+            frozen_hash[key.deep_freeze] = value.deep_freeze
+          end
+
+          self.replace(frozen_hash)
+
+          self.freeze
+        end
+      end
     end
   end
 end
