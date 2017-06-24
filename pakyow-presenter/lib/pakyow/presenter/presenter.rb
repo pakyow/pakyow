@@ -85,7 +85,7 @@ module Pakyow
           klass = const_for_presenter_named(Class.new(self), name_from_path(path))
 
           klass.class_eval do
-            @path = path
+            @path = String.normalize_path(path)
             @name = name
             @block = block
           end
