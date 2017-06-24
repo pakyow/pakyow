@@ -20,6 +20,11 @@ module Pakyow
           # TODO: define view objects to render built-in errors
         end
 
+        # TODO: the following handlers override the ones defined on the app
+        # ideally global handlers could coexist (e.g. handle bugsnag, then present error page)
+        # perhaps by executing all of 'em at once until halted or all called; feels consistent with
+        # how multiple handlers are called in non-global cases; though load order would be important
+
         app_class.handle 404 do
           respond_to :html do
             render "/404"
@@ -33,6 +38,70 @@ module Pakyow
         end
       end
     end
+
+    # Presents data in the view. Performs queries for view data. Understands binders / formatters.
+    # Does not have access to the session, request, etc; only what is exposed to it from the route.
+    # State is passed explicitly to the presenter, exposed by calling the `presentable` helper.
+    #
+    class Presenter
+      class << self
+        attr_reader :name, :path, :block
+
+        def make(path, state: nil, &block)
+          klass = const_for_presenter_named(Class.new(self), name_from_path(path))
+
+          klass.class_eval do
+            @path = path
+            @name = name
+            @block = block
+          end
+
+          klass
+        end
+
+        # / => Root
+        # /posts => Posts
+        # /posts/show => PostsShow
+        def name_from_path(path)
+          return :root if path == "/"
+        end
+
+        def const_for_presenter_named(presenter_class, name)
+          return presenter_class if name.nil?
+
+          # convert snake case to camel case
+          class_name = "#{name.to_s.split('_').map(&:capitalize).join}Presenter"
+
+          if Object.const_defined?(class_name)
+            presenter_class
+          else
+            Object.const_set(class_name, presenter_class)
+          end
+        end
+      end
+
+      attr_reader :template, :page, :partials
+
+      def initialize(presenters: [], template: nil, page: nil, partials: {})
+        @template, @page, @partials = template, page, partials
+
+        if block = self.class.block
+          instance_exec(&block)
+        end
+      end
+
+      def to_html
+        view = template.dup.build(page).includes(partials)
+
+        if title = page.info(:title)
+          view.title = title
+        end
+
+        return view.to_html
+      end
+
+      alias :to_str :to_html
+    end
   end
 
   class Router
@@ -40,45 +109,61 @@ module Pakyow
   end
 
   class Controller
-    def render(path = request.route_path || request.path)
-      if composer = find_composer_for(path)
-        yield composer if block_given?
-        halt StringIO.new(composer.to_html)
-      elsif found?
+    def render(path = request.route_path || request.path, as: nil)
+      if info = find_info_for(path)
+        unless presenter = find_presenter_for(as || path)
+          presenter = Presenter::Presenter
+        end
+
+        halt StringIO.new(presenter.new(presenters: app.state_for(:presenter), **info))
+      elsif found? # matched a route, but couldn't find a view to present
         raise Presenter::MissingView.new("No view at path `#{path}'")
       end
     end
 
     protected
 
-    def find_composer_for(path)
+    def find_info_for(path)
       collapse_path(path) do |collapsed_path|
-        if composer = composer_for_path(collapsed_path)
-          return composer
+        if info = info_for_path(collapsed_path)
+          return info
         end
       end
 
       nil
     end
 
-    def composer_for_path(path)
-      app.state_for(:template_store).each do |store|
-        begin
-          return store.composer(path)
-        # TODO: consider simply returning nil and only letting `render` raise this error
-        rescue Presenter::MissingView
+    def find_presenter_for(path)
+      collapse_path(path) do |collapsed_path|
+        if presenter = presenter_for_path(collapsed_path)
+          return presenter
         end
       end
 
       nil
+    end
+
+    def info_for_path(path)
+      app.state_for(:template_store).lazy.map { |store|
+        store.at_path(path)
+      }.find(&:itself)
+    end
+
+    def presenter_for_path(path)
+      app.state_for(:view).lazy.find { |presenter|
+        presenter.path == path
+      }
     end
 
     def collapse_path(path)
-      yield path
-      parts = path.split("/")
-      parts.reverse.each do |part|
-        next unless part[0] == ":"
-        yield parts[0...parts.index(part)].join("/")
+      yield path; return if path == "/"
+
+      parts = path.split("/").keep_if { |part|
+        part[0] != ":"
+      }
+
+      parts.count.downto(1) do |count|
+        yield parts.take(count).join("/")
       end
     end
   end

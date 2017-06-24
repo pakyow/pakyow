@@ -1,6 +1,7 @@
 module Pakyow
   class App
     stateful :template_store, Presenter::TemplateStore
+    stateful :view, Presenter::Presenter
 
     class << self
       RESOURCE_ACTIONS[:presenter] = proc do |app, name, _, _|

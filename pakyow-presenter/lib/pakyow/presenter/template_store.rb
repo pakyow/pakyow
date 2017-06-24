@@ -12,54 +12,34 @@ module Pakyow
       def initialize(name, path)
         @name, @path = name, path
 
-        @store_paths = Array.ensure(path)
-        @templates = {}
-        @templates_loaded = false
-
         load_templates
         load_path_info
       end
 
-      def at?(view_path)
-        begin
-          at_path(view_path)
-          return true
-        rescue MissingView
-          return false
-        end
+      # TODO: rename to: view_for_path?
+      def at?(path)
+        @path_info.key?(normalize_path(path))
       end
 
+      # TODO: rename to: layout
       def template(name_or_path)
-        return name_or_path if name_or_path.is_a?(Template)
-
         if name_or_path.is_a?(Symbol)
-          return template_with_name(name_or_path)
+          template_with_name(name_or_path)
         else
-          return at_path(name_or_path, :template)
+          at_path(name_or_path, :template)
         end
       end
 
       def page(view_path)
-        return view_path if view_path.is_a?(Page)
-
-        raise ArgumentError, "Cannot build page for nil path" if view_path.nil?
-        return at_path(view_path, :page)
+        at_path(view_path, :page)
       end
 
       def partials(view_path)
-        return at_path(view_path, :partials) || {}
+        at_path(view_path, :partials) || {}
       end
 
       def partial(view_path, name)
-        return partials(view_path)[name.to_sym]
-      end
-
-      def composer(view_path)
-        return at_path(view_path, :composer)
-      end
-
-      def view(view_path)
-        return composer(view_path).view
+        partials(view_path)[name.to_sym]
       end
 
       # iterations through known views, yielding each
@@ -76,17 +56,7 @@ module Pakyow
       end
 
       def expand_path(view_path)
-        @store_paths.each do |store_path|
-          path = File.join(store_path, view_path)
-
-          if File.extname(path).empty?
-            return path if !Dir.glob(path + '.*').empty?
-          else
-            return path if File.exist?(path)
-          end
-        end
-
-        nil
+        File.join(@path, view_path)
       end
 
       # Builds the full path to a partial.
@@ -101,26 +71,33 @@ module Pakyow
 
         # attempt to find extension
         matches = Dir.glob(expanded_path + '.*')
-        raise MissingPartial, "Could not find partial with any extension at #{expanded_path}" if matches.empty?
 
-        return expanded_path + File.extname(matches[0])
+        if matches.empty?
+          nil
+        else
+          expanded_path + File.extname(matches[0])
+        end
       end
-
-      private
 
       def at_path(view_path, obj = nil)
         normalized_path = normalize_path(view_path)
         info = @path_info[normalized_path]
 
         if info.nil?
-          raise MissingView, "No view at path '#{view_path}'"
+          # raise MissingView, "No view at path '#{view_path}'"
         else
           #TODO need to consider whose responsibility it is to make the dups
           view = obj ? info[obj.to_sym] : info
-          raise MissingView, "No #{obj} at path '#{view_path}'" if view.nil?
-          return view.deep_dup
+          # raise MissingView, "No #{obj} at path '#{view_path}'" if view.nil?
+          if view
+            view.deep_dup
+          else
+            nil
+          end
         end
       end
+
+      private
 
       def template_with_name(name)
         load_templates
@@ -132,26 +109,18 @@ module Pakyow
         return template.dup
       end
 
+      # really this is load_layouts
       def load_templates
-        return if templates_loaded?
+        @templates = {}
+        t_path = templates_path(@path)
+        return unless File.exist?(t_path)
 
-        @store_paths.each do |store_path|
-          t_path = templates_path(store_path)
-          next unless File.exist?(t_path)
+        Dir.entries(t_path).each do |file|
+          next if file =~ /^\./
 
-          Dir.entries(t_path).each do |file|
-            next if file =~ /^\./
-
-            template = Template.load(File.join(t_path, file))
-            @templates[template.name] = template
-          end
+          template = Template.load(File.join(t_path, file))
+          @templates[template.name] = template
         end
-
-        @templates_loaded = true
-      end
-
-      def templates_loaded?
-        @templates_loaded == true
       end
 
       def templates_path(store_path)
@@ -164,77 +133,71 @@ module Pakyow
         # for keeping up with pages for previous paths
         pages = {}
 
-        @store_paths.each do |store_path|
-          Dir.walk(store_path) do |path|
-            # don't include templates
-            next if path.include?(templates_path(store_path))
+        Dir.walk(@path) do |path|
+          # don't include templates
+          next if path.include?(templates_path(@path))
 
-            # skip partial files
-            next if File.basename(path)[0,1] == '_'
+          # skip partial files
+          next if File.basename(path)[0,1] == '_'
 
-            # skip non-empty folders (these files will be picked up)
-            next unless Dir.glob(File.join(path, 'index.*')).empty?
+          # skip non-empty folders (these files will be picked up)
+          next unless Dir.glob(File.join(path, 'index.*')).empty?
 
-            normalized_path = normalize_path(path, store_path)
+          normalized_path = normalize_path(path)
 
-            # if path is a directory we know there's no index page
-            # so use the previous index page instead. this allows
-            # partials to be overridden at a path while the same
-            # page is used
-            if File.directory?(path)
-              # gets the path for the previous page
-              prev_path = normalized_path
-              until page = pages[prev_path]
-                break if prev_path.empty?
-                prev_path = prev_path.split('/')[0..-2].join("/")
-              end
-              page = page
-            else
-              page = Page.load(path)
-              pages[normalized_path] = page
+          # if path is a directory we know there's no index page
+          # so use the previous index page instead. this allows
+          # partials to be overridden at a path while the same
+          # page is used
+          if File.directory?(path)
+            # gets the path for the previous page
+            prev_path = normalized_path
+            until page = pages[prev_path]
+              break if prev_path.empty?
+              prev_path = prev_path.split('/')[0..-2].join("/")
             end
-
-            unless page.nil?
-              template = template_with_name(page.info(:template))
-            end
-
-            #TODO more efficient way of doing this? lot of redundant calls here
-            partials = partials_at_path(path)
-
-            unless page.nil?
-              # compose template/page/partials
-              composer = ViewComposer.from_path(self, normalized_path, template: template, page: page, includes: partials)
-            end
-
-            info = {
-              page: page,
-              template: template,
-              partials: partials,
-              composer: composer,
-            }
-
-            @path_info[normalized_path] = info
+            page = page
+          else
+            page = Page.load(path)
+            pages[normalized_path] = page
           end
+
+          unless page.nil?
+            template = template_with_name(page.info(:template))
+          end
+
+          #TODO more efficient way of doing this? lot of redundant calls here
+          partials = partials_at_path(path)
+
+          # unless page.nil?
+          #   # compose template/page/partials
+          #   composer = ViewComposer.from_path(self, normalized_path, template: template, page: page, includes: partials)
+          # end
+
+          info = {
+            page: page,
+            template: template,
+            partials: partials,
+            # composer: composer,
+          }
+
+          @path_info[normalized_path] = info
         end
 
         @path_info = Hash[@path_info.sort { |a, b| a <=> b }]
       end
 
-      def normalize_path(path, full_path = nil)
-        if full_path
-          relative_path = path.gsub(full_path, '')
-        else
-          relative_path = path
-          @store_paths.each do |store_path|
-            relative_path = relative_path.gsub(store_path, '')
-          end
-        end
-
+      # TODO: might be some improvements to this with Pathname
+      def normalize_path(path)
+        # make it a relative path
+        relative_path = path.gsub(@path, '')
+        # remove the extension
         relative_path = relative_path.gsub(File.extname(relative_path), '')
+        # remove index from the end
         relative_path = relative_path.gsub('index', '')
+        # actually normalize it
         relative_path = String.normalize_path(relative_path)
-
-        return relative_path
+        relative_path
       end
 
       def partials_at_path(view_path)
@@ -242,20 +205,18 @@ module Pakyow
         view_path = normalize_path(view_path)
 
         partials = {}
-        @store_paths.each do |store_path|
-          Dir.walk(store_path) do |path|
-            # skip non-partials
-            next unless File.basename(path)[0,1] == '_'
+        Dir.walk(@path) do |path|
+          # skip non-partials
+          next unless File.basename(path)[0,1] == '_'
 
-            # skip directories
-            next if File.directory?(path)
+          # skip directories
+          next if File.directory?(path)
 
-            # skip files not within `view_path`
-            next unless Dir.within_dir?(normalize_path(File.dirname(path), store_path), view_path)
+          # skip files not within `view_path`
+          next unless Dir.within_dir?(normalize_path(File.dirname(path), @path), view_path)
 
-            name = File.basename(path.split('/')[-1], '.*')[1..-1]
-            partials[name.to_sym] = path
-          end
+          name = File.basename(path.split('/')[-1], '.*')[1..-1]
+          partials[name.to_sym] = path
         end
 
         # create instances
