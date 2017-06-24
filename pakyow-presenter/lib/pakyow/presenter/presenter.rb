@@ -1,5 +1,39 @@
 module Pakyow
   module Presenter
+    module Presentable
+      attr_reader :presentables
+
+      def initialize(*args)
+        @presentables = self.class.presentables.dup
+        super
+      end
+
+      def presentable(*args)
+        presentables.concat(args).uniq!
+      end
+
+      module ClassMethods
+        def presentable(*args)
+          presentables.concat(args).uniq!
+        end
+
+        def presentables
+          @presentables ||= []
+        end
+      end
+    end
+  end
+end
+
+module Pakyow
+  class Router
+    prepend Presenter::Presentable
+    extend Presenter::Presentable::ClassMethods
+  end
+end
+
+module Pakyow
+  module Presenter
     def self.included(base)
       load_presenter_into(base)
     end
@@ -59,11 +93,12 @@ module Pakyow
           klass
         end
 
-        # / => Root
-        # /posts => Posts
-        # /posts/show => PostsShow
         def name_from_path(path)
           return :root if path == "/"
+          # TODO: fill in the rest of this
+          # / => Root
+          # /posts => Posts
+          # /posts/show => PostsShow
         end
 
         def const_for_presenter_named(presenter_class, name)
@@ -84,13 +119,13 @@ module Pakyow
 
       def initialize(presenters: [], template: nil, page: nil, partials: {})
         @template, @page, @partials = template, page, partials
-
-        if block = self.class.block
-          instance_exec(&block)
-        end
       end
 
       def to_html
+        if block = self.class.block
+          instance_exec(&block)
+        end
+
         view = template.dup.build(page).includes(partials)
 
         if title = page.info(:title)
@@ -115,7 +150,20 @@ module Pakyow
           presenter = Presenter::Presenter
         end
 
-        halt StringIO.new(presenter.new(presenters: app.state_for(:presenter), **info))
+        presenter_instance = presenter.new(presenters: app.state_for(:presenter), **info)
+        current_router.presentables.each do |presentable|
+          begin
+            value = current_router.__send__(presentable)
+          rescue NoMethodError
+            fail "could not find presentable state for `#{presentable}' on #{current_router}"
+          end
+
+          presenter_instance.define_singleton_method presentable do
+            value
+          end
+        end
+
+        halt StringIO.new(presenter_instance)
       elsif found? # matched a route, but couldn't find a view to present
         raise Presenter::MissingView.new("No view at path `#{path}'")
       end
