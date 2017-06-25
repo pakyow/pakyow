@@ -20,6 +20,7 @@ require "pakyow/presenter/string_doc_renderer"
 require "pakyow/presenter/doc_helpers"
 require "pakyow/presenter/template_store"
 require "pakyow/presenter/hooks"
+require "pakyow/presenter/binder"
 
 require "pakyow/presenter/presenter"
 require "pakyow/presenter/config"

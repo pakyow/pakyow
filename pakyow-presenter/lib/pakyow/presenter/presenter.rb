@@ -79,11 +79,66 @@ module Pakyow
       end
     end
 
+    class Presenter
+      attr_reader :view, :binders
+
+      def initialize(view, binders: [])
+        @view, @binders = view, binders
+      end
+
+      def find(scope)
+        presenter_for(view.scope(scope))
+      end
+
+      def present(data)
+        data = Array.ensure(data)
+
+        if binder = binder_for_current_scope
+          view.repeat(data.map { |object| binder.new(object) }) do |view, binder|
+            bindable = binder.object
+            # TODO: there needs to be a better designed api for getting at this
+            view.doc.scopes.first[:props].map { |prop| prop[:prop] }.each do |prop_name|
+              value = binder[prop_name]
+
+              if value.is_a?(BinderParts)
+                bindable[prop_name] = value.content if value.content?
+                view.attrs(value.non_content_parts)
+              else
+                bindable[prop_name] = value
+              end
+            end
+
+            view.bind(bindable)
+          end
+        else
+          view.apply(data)
+        end
+      end
+
+      def to_html
+        view.to_html
+      end
+
+      alias :to_str :to_html
+
+      private
+
+      def presenter_for(view)
+        Presenter.new(view, binders: binders)
+      end
+
+      def binder_for_current_scope
+        binders.find { |binder|
+          binder.scope == view.scoped_as
+        }
+      end
+    end
+
     # Presents data in the view. Performs queries for view data. Understands binders / formatters.
     # Does not have access to the session, request, etc; only what is exposed to it from the route.
     # State is passed explicitly to the presenter, exposed by calling the `presentable` helper.
     #
-    class Presenter
+    class ViewPresenter < Presenter
       class << self
         attr_reader :name, :path, :block
 
@@ -111,7 +166,7 @@ module Pakyow
           return presenter_class if name.nil?
 
           # convert snake case to camel case
-          class_name = "#{name.to_s.split('_').map(&:capitalize).join}Presenter"
+          class_name = "#{name.to_s.split('_').map(&:capitalize).join}ViewPresenter"
 
           if Object.const_defined?(class_name)
             presenter_class
@@ -123,8 +178,10 @@ module Pakyow
 
       attr_reader :template, :page, :partials
 
-      def initialize(presenters: [], template: nil, page: nil, partials: {})
+      def initialize(template: nil, page: nil, partials: {}, **args)
         @template, @page, @partials = template, page, partials
+        @view = template.dup.build(page).includes(partials)
+        super(@view, **args)
       end
 
       def to_html
@@ -132,13 +189,11 @@ module Pakyow
           instance_exec(&block)
         end
 
-        view = template.dup.build(page).includes(partials)
-
         if title = page.info(:title)
           view.title = title
         end
 
-        return view.to_html
+        super
       end
 
       alias :to_str :to_html
@@ -153,10 +208,15 @@ module Pakyow
     def render(path = request.route_path || request.path, as: nil)
       if info = find_info_for(path)
         unless presenter = find_presenter_for(as || path)
-          presenter = Presenter::Presenter
+          presenter = Presenter::ViewPresenter
         end
 
-        presenter_instance = presenter.new(presenters: app.state_for(:presenter), **info)
+        presenter_instance = presenter.new(
+          # presenters: app.state_for(:presenter),
+          binders: app.state_for(:binder),
+          **info
+        )
+
         current_router.presentables.each do |presentable|
           begin
             value = current_router.__send__(presentable)

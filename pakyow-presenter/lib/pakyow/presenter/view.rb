@@ -237,9 +237,9 @@ module Pakyow
       #
       # Binds a single datum across existing scopes.
       #
-      def bind(data, bindings: {}, context: nil, &block)
+      def bind(data, &block)
         datum = Array.ensure(data).first
-        bind_data_to_scope(datum, doc.scopes.first, bindings, context)
+        bind_data_to_scope(datum, doc.scopes.first)
 
         id = nil
         if data.is_a?(Hash)
@@ -280,8 +280,8 @@ module Pakyow
       #
       # Matches self to data then binds data to the view.
       #
-      def apply(data, bindings: {}, context: nil, &block)
-        match(data).bind(data, bindings: bindings, context: context, &block)
+      def apply(data, &block)
+        match(data).bind(data, &block)
       end
 
       def includes(partial_map)
@@ -344,6 +344,7 @@ module Pakyow
 
       private
 
+      # TODO: probably a concern of presenter
       def adjust_value_parts(value, parts)
         return value unless value.is_a?(Hash)
 
@@ -353,12 +354,12 @@ module Pakyow
         value.keep_if { |part, _| parts_to_keep.include?(part) }
       end
 
-      def bind_data_to_scope(data, scope_info, bindings, ctx)
+      def bind_data_to_scope(data, scope_info)
         return unless data
         return unless scope_info
 
         scope = scope_info[:scope]
-        bind_data_to_root(data, scope, bindings, ctx)
+        bind_data_to_root(data, scope)
 
         scope_info[:props].each do |prop_info|
           catch(:unbound) do
@@ -370,12 +371,11 @@ module Pakyow
               set_form_field_name(doc, scope, prop)
             end
 
-            if data_has_prop?(data, prop) || Binder.instance.has_scoped_prop?(scope, prop, bindings)
-              value = Binder.instance.value_for_scoped_prop(scope, prop, data, bindings, ctx)
-              value = adjust_value_parts(value, parts)
+            if data_has_prop?(data, prop)
+              value = data[prop]
 
               if DocHelpers.form_field?(doc.tagname)
-                bind_to_form_field(doc, scope, prop, value, data, ctx)
+                bind_to_form_field(doc, scope, prop, value, data)
               end
 
               bind_data_to_doc(doc, value)
@@ -386,10 +386,9 @@ module Pakyow
         end
       end
 
-      def bind_data_to_root(data, scope, bindings, ctx)
-        value = Binder.instance.value_for_scoped_prop(scope, :_root, data, bindings, ctx)
-        return if value.nil?
-
+      ROOT = :_root # TODO: reconsider if this should have an underscore
+      def bind_data_to_root(data, scope)
+        return unless data.is_a?(Binder) && data.include?(ROOT) && value = data[ROOT]
         value.is_a?(Hash) ? bind_attributes_to_doc(value, doc) : bind_value_to_doc(value, doc)
       end
 
@@ -398,7 +397,7 @@ module Pakyow
       end
 
       def data_has_prop?(data, prop)
-        (data.is_a?(Hash) && (data.key?(prop) || data.key?(prop.to_s))) || (!data.is_a?(Hash) && data.class.method_defined?(prop))
+        data.include?(prop)
       end
 
       def bind_value_to_doc(value, doc)
@@ -417,13 +416,13 @@ module Pakyow
         end
       end
 
-      def bind_to_form_field(doc, scope, prop, value, bindable, ctx)
+      def bind_to_form_field(doc, scope, prop, value, bindable)
         # special binding for checkboxes and radio buttons
         if doc.tagname == 'input' && (doc.get_attribute(:type) == 'checkbox' || doc.get_attribute(:type) == 'radio')
           bind_to_checked_field(doc, value)
           # special binding for selects
         elsif doc.tagname == 'select'
-          bind_to_select_field(doc, scope, prop, value, bindable, ctx)
+          bind_to_select_field(doc, scope, prop, value, bindable)
         end
       end
 
@@ -438,8 +437,8 @@ module Pakyow
         value.to_s
       end
 
-      def bind_to_select_field(doc, scope, prop, value, bindable, ctx)
-        create_select_options(doc, scope, prop, value, bindable, ctx)
+      def bind_to_select_field(doc, scope, prop, value, bindable)
+        create_select_options(doc, scope, prop, value, bindable)
         select_option_with_value(doc, value)
       end
 
@@ -448,8 +447,9 @@ module Pakyow
         doc.set_attribute(:name, "#{scope}[#{prop}]")
       end
 
-      def create_select_options(doc, scope, prop, value, bindable, ctx)
-        options = Binder.instance.options_for_scoped_prop(scope, prop, bindable, ctx)
+      # TODO: probably a concern of presenter
+      def create_select_options(doc, scope, prop, value, bindable)
+        options = Binder.options_for_scoped_prop(scope, prop, bindable)
         return if options.nil?
 
         nodes = Oga::XML::Document.new
@@ -505,6 +505,7 @@ module Pakyow
         throw :unbound
       end
 
+      # TODO: this shouldn't handle content; probably can be simplified
       def bind_attributes_to_doc(attrs, doc)
         attrs.each do |attr, v|
           case attr

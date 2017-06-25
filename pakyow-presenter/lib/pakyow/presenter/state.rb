@@ -1,20 +1,12 @@
 module Pakyow
   class App
     stateful :template_store, Presenter::TemplateStore
-    stateful :view, Presenter::Presenter
+    stateful :view, Presenter::ViewPresenter
+    stateful :binder, Presenter::Binder
 
     class << self
       RESOURCE_ACTIONS[:presenter] = proc do |app, name, _, _|
         app.bindings(name) { scope(name) { restful(name) } }
-      end
-
-      # TODO: definable
-      def bindings(set_name = :main, &block)
-        if set_name && block
-          bindings[set_name] = block
-        else
-          @bindings ||= {}
-        end
       end
 
       # TODO: definable
@@ -28,13 +20,6 @@ module Pakyow
       def processors
         @processors ||= {}
       end
-    end
-
-    # Convenience method for defining bindings on an app instance.
-    #
-    # TODO: definable
-    def bindings(set_name = :main, &block)
-      self.class.bindings(set_name, &block)
     end
 
     def processors
