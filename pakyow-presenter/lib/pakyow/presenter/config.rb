@@ -1,3 +1,4 @@
+# TODO: refactor to be on the Presenter object
 Pakyow::App.settings_for :presenter do
   setting :path do
     File.join(config.app.root, "app", "views")

@@ -1,5 +1,7 @@
 module Pakyow
   module Presenter
+    # TODO: this should be refactored to PagePresenter
+    # the front matter parsing should be part of view and exposed as `info` so that it works everywhere
     class Page
       MATTER_MATCHER = /\A(---\s*\n.*?\n?)^(---\s*$\n?)/m
 

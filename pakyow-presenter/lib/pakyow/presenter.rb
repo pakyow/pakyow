@@ -25,3 +25,6 @@ require "pakyow/presenter/binder"
 require "pakyow/presenter/presenter"
 require "pakyow/presenter/config"
 require "pakyow/presenter/state"
+
+require "pakyow/extensions/controller"
+require "pakyow/extensions/router"

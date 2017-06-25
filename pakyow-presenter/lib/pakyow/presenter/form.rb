@@ -1,5 +1,6 @@
 module Pakyow
   module Presenter
+    # TODO: refactor, maybe to FormPresenter
     class Form
       attr_reader :view, :context
 

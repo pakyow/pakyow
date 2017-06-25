@@ -1,3 +1,4 @@
+# TODO: refactor to be part of presenters
 class Pakyow::Presenter::ViewVersion
   attr_reader :default, :empty, :versions
 
