@@ -18,7 +18,13 @@ module Pakyow
         end
 
         def presentables
-          @presentables ||= []
+          return @presentables if @presentables
+
+          if frozen?
+            []
+          else
+            @presentables = []
+          end
         end
       end
     end
