@@ -50,7 +50,7 @@ module Pakyow
       # Creates a view from a file.
       #
       def self.load(path)
-        new(File.read(path), format: File.format(path))
+        new(File.read(path))
       end
 
       def ==(other)
