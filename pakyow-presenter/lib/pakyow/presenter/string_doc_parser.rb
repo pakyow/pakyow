@@ -3,44 +3,106 @@ require "pakyow/support/silenceable"
 module Pakyow
   module Presenter
     class StringDocParser
+      class << self
+        def significant(name, &block)
+          significant_types << name
+        end
+
+        def significant_types
+          @significant_types ||= []
+        end
+
+        def breadth_first(doc)
+          queue = [doc]
+          until queue.empty?
+            yield queue.shift, queue
+          end
+        end
+
+        def significant?(node)
+          significant_types.each do |name|
+            return true if __send__("#{name}?", node)
+          end
+
+          false
+        end
+
+        def significance(node)
+          significant_types.each do |name, block|
+            return name if __send__("#{name}?", node)
+          end
+
+          nil
+        end
+
+        def scope?(node)
+         if node.is_a?(Oga::XML::Element)
+           if attribute = node.attributes.first
+             if attribute.name && !attribute.value
+               breadth_first(node) do |child, queue|
+                 if child == node
+                   queue.concat(child.children.to_a); next
+                 end
+
+                 if significant?(child)
+                   return true
+                 end
+               end
+             end
+           end
+         end
+
+         false
+       end
+
+       def prop?(node)
+          if node.is_a?(Oga::XML::Element)
+            if attribute = node.attributes.first
+              if attribute.name && !attribute.value
+                breadth_first(node) do |child, queue|
+                  if child == node
+                    queue.concat(child.children.to_a); next
+                  end
+
+                  return false if significant?(child)
+                end
+
+                true
+              end
+            end
+          end
+        end
+
+        def container?(node)
+          node.is_a?(Oga::XML::Comment) && node.text.strip.match(CONTAINER_REGEX)
+        end
+
+        def partial?(node)
+          node.is_a?(Oga::XML::Comment) && node.to_xml.strip.match(PARTIAL_REGEX)
+        end
+
+        def option?(node)
+          node.is_a?(Oga::XML::Element) && node.name == 'option'
+        end
+
+        def component?(node)
+          node.is_a?(Oga::XML::Element) && node.attribute('data-ui')
+        end
+      end
+
       include Support::Silenceable
 
       PARTIAL_REGEX = /@include\s*([a-zA-Z0-9\-_]*)/.freeze
       CONTAINER_REGEX = /@container\s*([a-zA-Z0-9\-_]*)/.freeze
 
-      def self.significant(name, &block)
-        significant_types[name] = block
-      end
-
-      def self.significant_types
-        @significant_types ||= {}
-      end
-
-      significant :scope do |node|
-        node.is_a?(Oga::XML::Element) && node.attribute('data-scope')
-      end
-
-      significant :prop do |node|
-        node.is_a?(Oga::XML::Element) && node.attribute('data-prop')
-      end
-
-      significant :container do |node|
-        node.is_a?(Oga::XML::Comment) && node.text.strip.match(CONTAINER_REGEX)
-      end
-
-      significant :partial do |node|
-        node.is_a?(Oga::XML::Comment) && node.to_xml.strip.match(PARTIAL_REGEX)
-      end
-
-      significant :option do |node|
-        node.is_a?(Oga::XML::Element) && node.name == 'option'
-      end
-
-      significant :component do |node|
-        node.is_a?(Oga::XML::Element) && node.attribute('data-ui')
-      end
-
       attr_reader :structure
+
+      significant :scope
+      significant :prop
+      significant :container
+      significant :partial
+      significant :option
+      significant :component
 
       def initialize(html)
         silence_warnings do
@@ -59,7 +121,7 @@ module Pakyow
           structure << ["<!DOCTYPE html>", {}, []]
         end
 
-        breadth_first(doc) do |node, queue|
+        self.class.breadth_first(doc) do |node, queue|
           if node == doc
             queue.concat(node.children.to_a); next
           end
@@ -69,16 +131,30 @@ module Pakyow
 
           # this is an optimization we can make because we don't care about this node and
           # we know that nothing inside of it is significant, so we can just collapse it
-          if !structure.empty? && children.empty? && !significant?(node)
+          if !structure.empty? && children.empty? && !self.class.significant?(node)
             structure << [node.to_xml, {}, []]; next
           end
 
-          if significant?(node)
-            case significance(node)
+          if self.class.significant?(node)
+            case self.class.significance(node)
             when :container
               structure << [node.to_xml, { container: container_name(node) }, []]
             when :partial
               structure << [node.to_xml, { partial: partial_name(node) }, []]
+            when :scope
+              attributes = attributes_hash(node)
+              scope = attributes.keys.first
+              attributes[:"data-scope"] = scope
+              attributes.delete(scope)
+
+              structure << ["<#{node.name} ", attributes, close(node)]
+            when :prop
+              attributes = attributes_hash(node)
+              prop = attributes.keys.first
+              attributes[:"data-prop"] = prop
+              attributes.delete(prop)
+
+              structure << ["<#{node.name} ", attributes, close(node)]
             else
               structure << ["<#{node.name} ", attributes_hash(node), close(node)]
             end
@@ -96,32 +172,6 @@ module Pakyow
 
       def doc_from_string(string)
         Oga.parse_html(string)
-      end
-
-      def breadth_first(doc)
-        queue = [doc]
-        until queue.empty?
-          catch :reject do
-            node = queue.shift
-            yield node, queue
-          end
-        end
-      end
-
-      def significant?(node)
-        self.class.significant_types.each do |name, block|
-          return true if block.call(node)
-        end
-
-        false
-      end
-
-      def significance(node)
-        self.class.significant_types.each do |name, block|
-          return name if block.call(node)
-        end
-
-        nil
       end
 
       def container_name(node)
