@@ -1,5 +1,6 @@
 module Pakyow
   module Presenter
+    # TODO: rename to ViewSet
     class ViewCollection
       include Enumerable
 
@@ -11,9 +12,11 @@ module Pakyow
 
       def initialize_copy(original_view)
         super
+
         @views = original_view.views.map(&:dup)
       end
 
+      # TODO: revisit
       def ==(other)
         @views.each_with_index do |view, i|
           return false if view != other.views[i]
@@ -22,14 +25,13 @@ module Pakyow
         return true
       end
 
-      def scoped_as
-        @views.first.scoped_as
-      end
-
       def each
-        @views.each { |v| yield(v) }
+        @views.each do |view|
+          yield(view)
+        end
       end
 
+      # TODO: should we manipulate attrs on a collection?
       def attrs(attrs = {})
         inject(AttributesCollection.new) { |coll, view|
           coll << view.attrs(attrs)
@@ -37,66 +39,55 @@ module Pakyow
       end
 
       def remove
-        each {|e| e.remove}
+        each(&:remove)
+        @views = []
       end
 
-      def clear
-        each {|e| e.clear}
-      end
-
-      def text
-        map { |v| v.text }
-      end
-
-      def text=(text)
-        each {|e| e.text = text}
-      end
-
-      def html
-        map { |v| v.html }
-      end
-
-      def html=(html)
-        each {|e| e.html = html}
+      def to_a
+        @views
       end
 
       def to_html
-        map { |v| v.to_html }.join('')
+        map(&:to_html).join
       end
 
       alias :to_s :to_html
 
-      def append(content)
-        each do |view|
-          view.append(content)
-        end
+      def <<(view)
+        @views << view; self
       end
 
-      def prepend(content)
-        each do |view|
-          view.prepend(content)
-        end
+      def append(view)
+        last.after(view)
+        self << view
       end
 
-      # TODO: decide if we care to check the type of
-      # objects being added to the collection
-      def <<(val)
-        @views << val
-        self
+      # TODO: delegator
+      def last
+        @views.last
       end
 
+      def delete(view)
+        view.remove
+        @views.delete(view)
+      end
+
+      # TODO: delegator
       def concat(views)
         @views.concat(views)
       end
 
+      # TODO: delegator
       def [](i)
         @views[i]
       end
 
+      # TODO: delegator
       def length
         @views.length
       end
 
+      # TODO: replace with `find`
       def scope(name)
         collection = inject(ViewCollection.new(name)) { |coll, view|
           scopes = view.scope(name)
@@ -114,6 +105,7 @@ module Pakyow
         # end
       end
 
+      # TODO: replace with `find`
       def prop(name)
         inject(ViewCollection.new) { |coll, view|
           scopes = view.prop(name)
@@ -132,45 +124,6 @@ module Pakyow
       #
       #   false
       # end
-
-      def exists?
-        each do |view|
-          return true if view.exists?
-        end
-
-        false
-      end
-
-      def component(name)
-        collection = inject(ViewCollection.new) { |coll, view|
-          scopes = view.component(name)
-          next if scopes.nil?
-
-          scopes.inject(coll) { |set, scoped_view|
-            set << scoped_view
-          }
-        }
-
-        # if collection.versioned?
-        #   ViewVersion.new(collection.views)
-        # else
-          collection
-        # end
-      end
-
-      def component?
-        each do |view|
-          return true if view.component?
-        end
-
-        false
-      end
-
-      def component_name
-        each do |view|
-          return view.component_name if view.component?
-        end
-      end
 
       # call-seq:
       #   with {|view| block}
@@ -248,15 +201,11 @@ module Pakyow
         else
           if length > data.length
             self[data.length..-1].each do |view|
-              view.remove
+              delete(view)
             end
           else
-            working = self[-1]
             data[length..-1].each do
-              duped_view = working.dup
-              working.after(duped_view)
-              working = duped_view
-              self << duped_view
+              append(last.dup)
             end
           end
         end

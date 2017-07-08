@@ -29,6 +29,10 @@ module Pakyow
         new(File.read(path))
       end
 
+      def container(name)
+        doc.container(name)
+      end
+
       def ==(other)
         # TODO: revisit this
         self.class == other.class && @doc == other.doc
@@ -80,26 +84,19 @@ module Pakyow
         @doc.replace(replacement)
       end
 
+      # TODO: replace with `find`
       def scope(name)
         @doc.scope(name.to_sym).inject(ViewCollection.new) do |coll, scope|
           coll << View.new(doc: scope)
         end
       end
 
+      # TODO: replace with `find`
       def prop(name)
         @doc.prop(name.to_sym).inject(ViewCollection.new) do |coll, prop|
           coll << View.new(doc: prop[:doc])
         end
       end
-
-      # def version
-      #   return unless versioned?
-      #   @doc.get_attribute(:'data-version').to_sym
-      # end
-      #
-      # def versioned?
-      #   !@doc.get_attribute(:'data-version').nil?
-      # end
 
       def component(name)
         @doc.component(name.to_sym).inject(ViewCollection.new) do |coll, component|
@@ -442,7 +439,7 @@ module Pakyow
         option.set_attribute(:selected, 'selected')
       end
 
-      def handle_unbound_data(scope, prop)
+      def handle_unbound_data(scope, prop = nil)
         Pakyow.logger.warn("Unbound data for #{scope}[#{prop}]") if Pakyow.logger
         throw :unbound
       end

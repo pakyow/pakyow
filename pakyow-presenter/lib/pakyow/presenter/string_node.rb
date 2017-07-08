@@ -2,10 +2,10 @@ module Pakyow
   module Presenter
     # @api private
     class StringNode
-      attr_reader :node, :type, :name
+      attr_reader :node, :type, :name, :parent
 
-      def initialize(node, type: nil, name: nil)
-        @node, @type, @name = node, type, name
+      def initialize(node, type: nil, name: nil, parent: nil)
+        @node, @type, @name, @parent = node, type, name, parent
       end
 
       def initialize_copy(original)
@@ -13,12 +13,12 @@ module Pakyow
 
         @node = node.dup
         @node[1] = attributes.dup
-        @node[3] = doc.dup
+        @node[3] = children.dup
       end
 
       def close(tag, child)
         node << (tag ? ">" : "")
-        node << StringDoc.from_structure(child)
+        node << StringDoc.from_nodes(child)
         node << ((tag && !DocHelpers.self_closing_tag?(tag)) ? "</#{tag}>" : "")
       end
 
@@ -26,23 +26,23 @@ module Pakyow
         node[1]
       end
 
-      def doc
+      def children
         node[3]
       end
 
       # TODO: delegator
       def props
-        doc.props
+        children.props
       end
 
       # TODO: delegator
       def scopes
-        doc.scopes
+        children.scopes
       end
 
       def with_children
-        return [self] unless doc
-        [self].concat(doc.structure.map(&:with_children))
+        return [self] unless children
+        [self].concat(children.nodes.map(&:with_children))
       end
 
       def empty?
@@ -58,6 +58,7 @@ module Pakyow
       end
 
       def remove
+        # TODO: consider also removing from `parent`
         @node = []
       end
 
@@ -82,7 +83,7 @@ module Pakyow
       end
 
       def html=(html)
-        doc.replace(html)
+        children.replace(html)
       end
 
       def tagname
@@ -95,6 +96,10 @@ module Pakyow
       #     option[1][:value] == value.to_s
       #   })
       # end
+
+      def after(node)
+        parent.insert_after(node, self)
+      end
     end
   end
 end
