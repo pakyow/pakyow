@@ -22,7 +22,6 @@ require "pakyow/presenter/template_store"
 require "pakyow/presenter/binder"
 
 require "pakyow/presenter/presenter"
-require "pakyow/presenter/config"
 
 require "pakyow/extensions/app"
 require "pakyow/extensions/controller"
