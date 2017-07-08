@@ -2,7 +2,6 @@ module Pakyow
   module Presenter
     class ViewCollection
       include Enumerable
-      using Support::DeepDup
 
       attr_reader :views
 
@@ -12,8 +11,7 @@ module Pakyow
 
       def initialize_copy(original_view)
         super
-
-        @views = original_view.views.deep_dup
+        @views = original_view.views.map(&:dup)
       end
 
       def ==(other)
