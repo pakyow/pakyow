@@ -102,8 +102,7 @@ module Pakyow
       # end
 
       def component(name)
-        name = name.to_sym
-        @doc.component(name).inject(ViewCollection.new) do |coll, component|
+        @doc.component(name.to_sym).inject(ViewCollection.new) do |coll, component|
           coll << View.new(doc: component[:doc])
         end
       end
