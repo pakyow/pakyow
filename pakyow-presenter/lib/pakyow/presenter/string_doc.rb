@@ -334,6 +334,19 @@ module Pakyow
         to_s == o.to_s
       end
 
+      def mixin(partial_map)
+        partials.each do |partial_name, partial_docs|
+          next unless partial = partial_map[partial_name]
+
+          partial_docs.each do |partial_doc|
+            replacement = partial.doc.dup
+            replacement.mixin(partial_map)
+
+            partial_doc.replace(replacement)
+          end
+        end
+      end
+
       private
 
       def render(structure = @structure)

@@ -139,7 +139,7 @@ module Pakyow
 
       def initialize(template: nil, page: nil, partials: {}, **args)
         @template, @page, @partials = template, page, partials
-        @view = template.build(page).includes(partials)
+        @view = template.build(page).mixin(partials)
         super(@view, **args)
       end
 

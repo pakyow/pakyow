@@ -284,37 +284,8 @@ module Pakyow
         match(data).bind(data, &block)
       end
 
-      def includes(partial_map)
-        doc_partials = @doc.partials
-        partial_map = partial_map.dup
-
-        # mixin all the partials
-        doc_partials.each do |partial_name, partial_docs|
-          partials = Array.ensure(partial_map[partial_name])
-
-          partial_docs.each_with_index do |partial_doc, i|
-            replacement = partials[i]
-            next if replacement.nil?
-
-            if replacement.is_a?(ViewCollection)
-              partial_doc.replace(replacement.views.first.doc.dup)
-              partials = replacement.views
-            else
-              partial_doc.replace(replacement.doc)
-            end
-          end
-        end
-
-        # refind the partials
-				doc_partials = @doc.partials
-
-        # TODO: hook this back up
-        # # if mixed in partials included partials, we want to run includes again with a new map
-				# if doc_partials.count > 0 && (partial_map.keys - doc_partials.keys).count < partial_map.keys.count
-				# 	includes(partial_map)
-				# end
-
-        self
+      def mixin(partial_map)
+        doc.mixin(partial_map); self
       end
 
 			def to_html
