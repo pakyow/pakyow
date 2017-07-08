@@ -18,13 +18,6 @@ module Pakyow
         super(html)
       end
 
-      def initialize_copy(original_template)
-        super
-
-        # copy doc
-        @doc = original_template.doc.dup
-      end
-
       def container(name = :default)
         doc.container(name.to_sym)
       end
