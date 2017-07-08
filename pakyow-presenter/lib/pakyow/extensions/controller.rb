@@ -44,8 +44,6 @@ module Pakyow
           return info
         end
       end
-
-      nil
     end
 
     def find_presenter_for(path)
@@ -54,8 +52,6 @@ module Pakyow
           return presenter
         end
       end
-
-      nil
     end
 
     def info_for_path(path)
@@ -73,13 +69,11 @@ module Pakyow
     def collapse_path(path)
       yield path; return if path == "/"
 
-      parts = path.split("/").keep_if { |part|
+      yield path.split("/").keep_if { |part|
         part[0] != ":"
-      }
+      }.join("/")
 
-      parts.count.downto(1) do |count|
-        yield parts.take(count).join("/")
-      end
+      nil
     end
   end
 end
