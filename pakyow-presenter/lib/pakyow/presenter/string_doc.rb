@@ -166,11 +166,12 @@ module Pakyow
       end
 
       def mixin(partial_map)
+        # TODO: pass partial docs in, not views
         partials.each do |partial_name, partial_docs|
           next unless partial = partial_map[partial_name]
 
           partial_docs.each do |partial_doc|
-            replacement = partial.doc.dup
+            replacement = partial.object.dup
             replacement.mixin(partial_map)
 
             partial_doc.replace(replacement)

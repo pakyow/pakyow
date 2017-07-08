@@ -33,7 +33,7 @@ module Pakyow
       end
 
       def content(container)
-        container(container)&.doc
+        container(container)&.object
       end
 
       # TODO: frontmatter should be supported in View

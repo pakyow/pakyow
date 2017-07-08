@@ -5,22 +5,22 @@ module Pakyow
     class View
       extend Forwardable
 
-      def_delegators :@doc, :title=, :title, :remove, :clear, :text, :html, :exists?
+      def_delegators :@object, :title=, :title, :remove, :clear, :text, :html
 
       # The object responsible for parsing, manipulating, and rendering
       # the underlying HTML document for the view.
       #
-      attr_reader :doc
+      attr_reader :object
 
       # Creates a view with +html+.
       #
-      def initialize(html = "", doc: nil)
-        @doc = doc ? doc : StringDoc.new(html)
+      def initialize(html = "", object: nil)
+        @object = object ? object : StringDoc.new(html)
       end
 
       def initialize_copy(original)
         super
-        @doc = doc.dup
+        @object = object.dup
       end
 
       # Creates a view from a file.
@@ -30,16 +30,16 @@ module Pakyow
       end
 
       def container(name)
-        doc.container(name)
+        object.container(name)
       end
 
       def ==(other)
         # TODO: revisit this
-        self.class == other.class && @doc == other.doc
+        self.class == other.class && @object == other.object
       end
 
       def scoped_as
-        @doc.name
+        @object.name
       end
 
       # Allows multiple attributes to be set at once.
@@ -47,60 +47,60 @@ module Pakyow
       #   view.attrs(class: '...', style: '...')
       #
       def attrs(attrs = {})
-        return Attributes.new(@doc) if attrs.empty?
-        bind_attributes_to_doc(attrs, @doc)
+        return Attributes.new(@object) if attrs.empty?
+        bind_attributes_to_object(attrs, @object)
       end
 
       def text=(text)
         # FIXME: IIRC we support this for bindings; seems like a weird thing to do here
         text = text.call(self.text) if text.is_a?(Proc)
-        @doc.text = text
+        @object.text = text
       end
 
       def html=(html)
         # FIXME: IIRC we support this for bindings; seems like a weird thing to do here
         html = html.call(self.html) if html.is_a?(Proc)
-        @doc.html = html
+        @object.html = html
       end
 
       def append(view)
-        @doc.append(view.doc)
+        @object.append(view.object)
       end
 
       def prepend(view)
-        @doc.prepend(view.doc)
+        @object.prepend(view.object)
       end
 
       def after(view)
-        @doc.after(view.doc)
+        @object.after(view.object)
       end
 
       def before(view)
-        @doc.before(view.doc)
+        @object.before(view.object)
       end
 
       def replace(view)
-        replacement = view.is_a?(View) ? view.doc : view
-        @doc.replace(replacement)
+        replacement = view.is_a?(View) ? view.object : view
+        @object.replace(replacement)
       end
 
       # TODO: replace with `find`
       def scope(name)
-        @doc.scope(name.to_sym).inject(ViewCollection.new) do |coll, scope|
-          coll << View.new(doc: scope)
+        @object.scope(name.to_sym).inject(ViewCollection.new) do |coll, scope|
+          coll << View.new(object: scope)
         end
       end
 
       # TODO: replace with `find`
       def prop(name)
-        @doc.prop(name.to_sym).inject(ViewCollection.new) do |coll, prop|
-          coll << View.new(doc: prop[:doc])
+        @object.prop(name.to_sym).inject(ViewCollection.new) do |coll, prop|
+          coll << View.new(object: prop[:object])
         end
       end
 
       def component(name)
-        @doc.component(name.to_sym).inject(ViewCollection.new) do |coll, component|
-          coll << View.new(doc: component[:doc])
+        @object.component(name.to_sym).inject(ViewCollection.new) do |coll, component|
+          coll << View.new(object: component[:object])
         end
       end
 
@@ -256,11 +256,11 @@ module Pakyow
       end
 
       def mixin(partial_map)
-        doc.mixin(partial_map); self
+        object.mixin(partial_map); self
       end
 
 			def to_html
-				@doc.to_html
+				@object.to_html
 			end
       alias :to_s :to_html
 
@@ -302,21 +302,21 @@ module Pakyow
 
         bind_data_to_root(data)
 
-        doc.props.each do |name, props|
+        object.props.each do |name, props|
           props.each do |prop|
             catch :unbound do
-              if DocHelpers.form_field?(doc.tagname)
+              if DocHelpers.form_field?(object.tagname)
                 set_form_field_name(prop, prop.name)
               end
 
               if data_has_prop?(data, prop.name)
                 value = data[prop.name]
 
-                if DocHelpers.form_field?(doc.tagname)
+                if DocHelpers.form_field?(object.tagname)
                   bind_to_form_field(prop, prop.name, value, data)
                 end
 
-                bind_data_to_doc(prop, value)
+                bind_data_to_object(prop, value)
               else
                 handle_unbound_data(prop.name)
               end
@@ -328,66 +328,66 @@ module Pakyow
       ROOT = :_root # TODO: reconsider if this should have an underscore
       def bind_data_to_root(data)
         return unless data.is_a?(Binder) && data.include?(ROOT) && value = data[ROOT]
-        value.is_a?(Hash) ? bind_attributes_to_doc(value, doc) : bind_value_to_doc(value, doc)
+        value.is_a?(Hash) ? bind_attributes_to_object(value, object) : bind_value_to_object(value, object)
       end
 
-      def bind_data_to_doc(doc, data)
-        data.is_a?(Hash) ? bind_attributes_to_doc(data, doc) : bind_value_to_doc(data, doc)
+      def bind_data_to_object(object, data)
+        data.is_a?(Hash) ? bind_attributes_to_object(data, object) : bind_value_to_object(data, object)
       end
 
       def data_has_prop?(data, prop)
         data.include?(prop)
       end
 
-      def bind_value_to_doc(value, doc)
+      def bind_value_to_object(value, object)
         value = String(value)
 
-        tag = doc.tagname
+        tag = object.tagname
         return if DocHelpers.tag_without_value?(tag)
 
         if DocHelpers.self_closing_tag?(tag)
           # don't override value if set
-          if !doc.get_attribute(:value) || doc.get_attribute(:value).empty?
-            doc.set_attribute(:value, value)
+          if !object.get_attribute(:value) || object.get_attribute(:value).empty?
+            object.set_attribute(:value, value)
           end
         else
-          doc.html = value
+          object.html = value
         end
       end
 
-      def bind_to_form_field(doc, scope, prop, value, bindable)
+      def bind_to_form_field(object, scope, prop, value, bindable)
         # special binding for checkboxes and radio buttons
-        if doc.tagname == 'input' && (doc.get_attribute(:type) == 'checkbox' || doc.get_attribute(:type) == 'radio')
-          bind_to_checked_field(doc, value)
+        if object.tagname == 'input' && (object.get_attribute(:type) == 'checkbox' || object.get_attribute(:type) == 'radio')
+          bind_to_checked_field(object, value)
           # special binding for selects
-        elsif doc.tagname == 'select'
-          bind_to_select_field(doc, scope, prop, value, bindable)
+        elsif object.tagname == 'select'
+          bind_to_select_field(object, scope, prop, value, bindable)
         end
       end
 
-      def bind_to_checked_field(doc, value)
-        if value == true || (doc.get_attribute(:value) && doc.get_attribute(:value) == value.to_s)
-          doc.set_attribute(:checked, 'checked')
+      def bind_to_checked_field(object, value)
+        if value == true || (object.get_attribute(:value) && object.get_attribute(:value) == value.to_s)
+          object.set_attribute(:checked, 'checked')
         else
-          doc.remove_attribute(:checked)
+          object.remove_attribute(:checked)
         end
 
         # coerce to string since booleans are often used and fail when binding to a view
         value.to_s
       end
 
-      def bind_to_select_field(doc, scope, prop, value, bindable)
-        create_select_options(doc, scope, prop, value, bindable)
-        select_option_with_value(doc, value)
+      def bind_to_select_field(object, scope, prop, value, bindable)
+        create_select_options(object, scope, prop, value, bindable)
+        select_option_with_value(object, value)
       end
 
-      def set_form_field_name(doc, scope, prop)
-        return if doc.get_attribute(:name) && !doc.get_attribute(:name).empty? # don't overwrite the name if already defined
-        doc.set_attribute(:name, "#{scope}[#{prop}]")
+      def set_form_field_name(object, scope, prop)
+        return if object.get_attribute(:name) && !object.get_attribute(:name).empty? # don't overwrite the name if already defined
+        object.set_attribute(:name, "#{scope}[#{prop}]")
       end
 
       # TODO: probably a concern of presenter
-      def create_select_options(doc, scope, prop, value, bindable)
+      def create_select_options(object, scope, prop, value, bindable)
         options = Binder.options_for_scoped_prop(scope, prop, bindable)
         return if options.nil?
 
@@ -426,14 +426,14 @@ module Pakyow
         end
 
         # remove existing options
-        doc.clear
+        object.clear
 
         # add generated options
-        doc.append(nodes.to_xml)
+        object.append(nodes.to_xml)
       end
 
-      def select_option_with_value(doc, value)
-        option = doc.option(value: value)
+      def select_option_with_value(object, value)
+        option = object.option(value: value)
         return if option.nil?
 
         option.set_attribute(:selected, 'selected')
@@ -445,17 +445,17 @@ module Pakyow
       end
 
       # TODO: this shouldn't handle content; probably can be simplified
-      def bind_attributes_to_doc(attrs, doc)
+      def bind_attributes_to_object(attrs, object)
         attrs.each do |attr, v|
           case attr
           when :content
-            v = v.call(doc.html) if v.is_a?(Proc)
-            bind_value_to_doc(v, doc)
+            v = v.call(object.html) if v.is_a?(Proc)
+            bind_value_to_object(v, object)
           when :view
-            v.call(View.new(doc: doc))
+            v.call(View.new(object: object))
           else
             attr  = attr.to_s
-            attrs = Attributes.new(doc)
+            attrs = Attributes.new(object)
 
             if v.is_a?(Proc)
               attribute = attrs.send(attr)
@@ -464,7 +464,7 @@ module Pakyow
 
               attrs.send("#{attr}=", value)
             elsif v.nil?
-              doc.remove_attribute(attr)
+              object.remove_attribute(attr)
             else
               attrs.send("#{attr}=", v)
             end

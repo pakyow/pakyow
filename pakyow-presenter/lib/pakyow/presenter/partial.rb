@@ -2,7 +2,7 @@ module Pakyow
   module Presenter
     # TODO: refactor to PartialPresenter
     class Partial < View
-      attr_accessor :name, :doc
+      attr_accessor :name
 
       class << self
         def load(path)
