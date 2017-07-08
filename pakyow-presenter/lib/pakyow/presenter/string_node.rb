@@ -51,7 +51,7 @@ module Pakyow
 
       def replace(replacement)
         if replacement.is_a?(StringDoc)
-          @node = ["", StringAttributes.new, "", replacement, ""]
+          @node = ["", "", "", replacement, ""]
         else
           # TODO: ?
         end

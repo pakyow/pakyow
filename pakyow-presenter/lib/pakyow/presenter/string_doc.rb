@@ -20,7 +20,7 @@ module Pakyow
           structure = []
 
           unless doc.is_a?(Oga::XML::Element) || !doc.respond_to?(:doctype) || doc.doctype.nil?
-            structure << StringNode.new(["<!DOCTYPE html>", StringAttributes.new, []])
+            structure << StringNode.new(["<!DOCTYPE html>", "", []])
           end
 
           breadth_first(doc) do |node, queue|
@@ -34,7 +34,7 @@ module Pakyow
             # this is an optimization we can make because we don't care about this node and
             # we know that nothing inside of it is significant, so we can just collapse it
             if !structure.empty? && children.empty? && !significant?(node)
-              structure << StringNode.new([node.to_xml, StringAttributes.new, []]); next
+              structure << StringNode.new([node.to_xml, "", []]); next
             end
 
             if significant?(node)
@@ -42,9 +42,9 @@ module Pakyow
 
               element = case significant_type
               when :container
-                StringNode.new([node.to_xml, StringAttributes.new], type: :container, name: container_name(node))
+                StringNode.new([node.to_xml, ""], type: :container, name: container_name(node))
               when :partial
-                StringNode.new([node.to_xml, StringAttributes.new], type: :partial, name: partial_name(node))
+                StringNode.new([node.to_xml, ""], type: :partial, name: partial_name(node))
               when :scope
                 attributes = attributes_instance(node)
                 scope = attributes.keys.first
@@ -74,9 +74,9 @@ module Pakyow
               structure << element
             else # insignificant
               if node.is_a?(Oga::XML::Text) || node.is_a?(Oga::XML::Comment)
-                structure << StringNode.new([node.to_xml, StringAttributes.new, []])
+                structure << StringNode.new([node.to_xml, "", []])
               else
-                element = StringNode.new(["<#{node.name}#{attributes_string(node)}", StringAttributes.new])
+                element = StringNode.new(["<#{node.name}#{attributes_string(node)}", ""])
                 element.close(node.name, parse(node)) if node.is_a?(Oga::XML::Element)
                 structure << element
               end
