@@ -34,7 +34,7 @@ module Pakyow
           container.replace(page.content(container.name))
         end
 
-        View.from_doc(doc)
+        View.new(doc: doc)
       end
     end
   end

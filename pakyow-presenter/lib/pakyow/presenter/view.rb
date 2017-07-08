@@ -18,8 +18,8 @@ module Pakyow
 
       # Creates a view with +html+.
       #
-      def initialize(html = "")
-        @doc = StringDoc.new(html)
+      def initialize(html = "", doc: nil)
+        @doc = doc ? doc : StringDoc.new(html)
       end
 
       def initialize_copy(original_view)
@@ -35,16 +35,6 @@ module Pakyow
         copy = View.from_doc(@doc.soft_copy)
         copy.scoped_as = scoped_as
         copy
-      end
-
-      # Creates a view from a doc.
-      #
-      # @see StringDoc
-      #
-      def self.from_doc(doc)
-        view = new
-        view.instance_variable_set(:@doc, doc)
-        view
       end
 
       # Creates a view from a file.
