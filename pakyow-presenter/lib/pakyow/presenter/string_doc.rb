@@ -1,4 +1,5 @@
 require "pakyow/support/silenceable"
+require "pakyow/support/inspectable"
 
 module Pakyow
   module Presenter
@@ -26,8 +27,11 @@ module Pakyow
       end
 
       include Support::Silenceable
+      include Support::Inspectable
 
       attr_reader :nodes, :significant_nodes
+
+      inspectable :nodes
 
       TITLE_REGEX = /<title>(.*?)<\/title>/m.freeze
       PARTIAL_REGEX = /@include\s*([a-zA-Z0-9\-_]*)/.freeze

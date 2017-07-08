@@ -100,6 +100,17 @@ module Pakyow
       def after(node)
         parent.insert_after(node, self)
       end
+
+      # TODO: it would be nice if Inspectable could handle this
+      def inspect
+        inspection = [:type, :name, :attributes, :children].map { |attr|
+          value = send(attr)
+          next if value.nil? || (value.respond_to?(:empty?) && value.empty?)
+          "#{attr}: #{value.inspect}"
+        }.compact.join(" ")
+
+        "#<#{self.class.name}:#{self.object_id}#{inspection}>"
+      end
     end
   end
 end
