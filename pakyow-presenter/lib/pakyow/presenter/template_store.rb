@@ -4,6 +4,7 @@ module Pakyow
       attr_reader :name, :path
 
       LAYOUTS_PATH = "layouts".freeze
+      PARTIALS_PATH = "partials".freeze
       TEMPLATES_PATH = "templates".freeze
 
       def initialize(name, path)
@@ -12,13 +13,13 @@ module Pakyow
       end
 
       def view?(path)
-        @path_info.key?(path)
+        @info.key?(path)
       end
 
       def info(path)
         return unless view?(path)
 
-        @path_info[path].each_with_object({}) { |path, info|
+        @info[path].each_with_object({}) { |path, info|
           info[path[0]] = path[1].dup
         }
       end
@@ -49,6 +50,10 @@ module Pakyow
         path.join(LAYOUTS_PATH)
       end
 
+      def partials_path
+        path.join(PARTIALS_PATH)
+      end
+
       def templates_path
         path.join(TEMPLATES_PATH)
       end
@@ -65,29 +70,42 @@ module Pakyow
 
       def load
         load_layouts
+        load_partials
         load_path_info
       end
 
       def load_layouts
+        @layouts = {}
         return unless File.exist?(layouts_path)
-        @layouts ||= layouts_path.children.each_with_object({}) { |file, layouts|
+
+        @layouts = layouts_path.children.each_with_object({}) { |file, layouts|
           layout = Template.load(file)
           layouts[layout.name] = layout
         }
       end
 
+      def load_partials
+        @partials = {}
+        return unless File.exist?(partials_path)
+
+        @partials = partials_path.children.each_with_object({}) { |file, partials|
+          partial = Partial.load(file)
+          partials[partial.name] = partial
+        }
+      end
+
       def load_path_info
-        @path_info = {}
+        @info = {}
 
         Pathname.glob(File.join(templates_path, "**/*")) do |path|
           # TODO: better way to skip this?
           next if path.basename.to_s.start_with?("_")
 
           if page = page_at_path(path)
-            @path_info[normalize_path(path, templates_path)] = {
+            @info[normalize_path(path, templates_path)] = {
               page: page,
               template: layout_with_name(page.info(:template)),
-              partials: partials_at_path(path)
+              partials: @partials.merge(partials_at_path(path))
             }
           end
         end
@@ -136,7 +154,8 @@ module Pakyow
           parent_path.children.select { |child|
             child.basename.to_s.start_with?("_")
           }.each_with_object(partials) { |child, partials|
-            partials[child.basename.sub_ext("").to_s[1..-1].to_sym] ||= Partial.load(child)
+            partial = Partial.load(child)
+            partials[partial.name] ||= partial
           }
         }
       end
