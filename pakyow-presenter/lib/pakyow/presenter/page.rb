@@ -33,7 +33,7 @@ module Pakyow
       end
 
       def content(container)
-        container(container).doc
+        container(container)&.doc
       end
 
       # TODO: frontmatter should be supported in View
@@ -47,10 +47,7 @@ module Pakyow
       end
 
       def container(name)
-        @containers.fetch(name.to_sym) {
-          # TODO: how do we really want to handle this?
-          raise MissingContainer, "No container named #{name} in #{@path}"
-        }
+        @containers[name.to_sym]
       end
 
       def each_container
