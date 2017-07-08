@@ -22,10 +22,9 @@ module Pakyow
         @doc = doc ? doc : StringDoc.new(html)
       end
 
-      def initialize_copy(original_view)
+      def initialize_copy(original)
         super
-
-        @doc = original_view.doc.dup
+        @doc = doc.dup
         @scoped_as = original_view.scoped_as
       end
 
