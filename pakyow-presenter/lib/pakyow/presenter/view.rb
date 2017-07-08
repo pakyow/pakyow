@@ -12,6 +12,7 @@ module Pakyow
       #
       attr_reader :doc
 
+      # TODO: it would be nice to not have to keep up with this state
       # The scope, if any, that the view belongs to.
       #
       attr_accessor :scoped_as
@@ -28,6 +29,7 @@ module Pakyow
         @scoped_as = original_view.scoped_as
       end
 
+      # TODO: I'd like to get rid of this
       # Creates a new view with a soft copy of doc.
       #
       def soft_copy
@@ -43,6 +45,7 @@ module Pakyow
       end
 
       def ==(other)
+        # TODO: revisit this
         self.class == other.class && @doc == other.doc
       end
 
