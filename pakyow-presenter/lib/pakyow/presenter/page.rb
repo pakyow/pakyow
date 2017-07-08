@@ -7,10 +7,9 @@ module Pakyow
 
       class << self
         def load(path)
-          name     = File.basename(path, '.*').to_sym
+          name = File.basename(path, '.*').to_sym
           html = FileTest.file?(path) ? File.read(path) : nil
-
-          return Page.new(name, html, path)
+          Page.new(name, html, path)
         end
       end
 
@@ -19,35 +18,25 @@ module Pakyow
       def initialize(name, html, path)
         @name, @contents, @path = name, html, path
 
-        @info    = { template: :default }
+        @info = { template: :default }
         @containers = {}
 
-        unless @contents.nil?
-          parse_info
-          parse_content
-        end
+        parse
       end
 
-      def initialize_copy(original_page)
+      def initialize_copy(_)
         super
 
-        # copy content
-        @containers = {}
-        original_page.instance_variable_get(:'@containers').each_pair do |k, v|
-          @containers[k] = v.dup
-        end
+        @containers = Hash[@containers.map { |key, value|
+          [key, value.dup]
+        }]
       end
 
-      def content(container = nil)
-        return @contents if container.nil?
-
-        container = @containers.fetch(container.to_sym) {
-          raise MissingContainer, "No container named #{container} in #{@path}"
-        }
-
-        return container.doc
+      def content(container)
+        container(container).doc
       end
 
+      # TODO: frontmatter should be supported in View
       def info(key = nil)
         return @info if key.nil?
         return @info[key]
@@ -59,6 +48,7 @@ module Pakyow
 
       def container(name)
         @containers.fetch(name.to_sym) {
+          # TODO: how do we really want to handle this?
           raise MissingContainer, "No container named #{name} in #{@path}"
         }
       end
@@ -68,6 +58,11 @@ module Pakyow
       end
 
       private
+
+      def parse
+        parse_info
+        parse_content
+      end
 
       def parse_info
         info = parse_front_matter(@contents)

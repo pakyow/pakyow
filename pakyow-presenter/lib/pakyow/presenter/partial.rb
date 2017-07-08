@@ -8,7 +8,6 @@ module Pakyow
         def load(path)
           html  = File.read(path)
           name  = File.basename(path, ".*")[1..-1].to_sym
-
           self.new(name, html)
         end
       end
