@@ -173,15 +173,15 @@ module Pakyow
       end
 
       def update_value_for_attribute(attribute, value)
-        @doc.update_attribute(attribute, value)
+        @doc.attributes[attribute] = value
       end
 
       def remove_attribute(attribute)
-        @doc.remove_attribute(attribute)
+        @doc.attribute.delete(attribute)
       end
 
       def include?(attribute)
-        @doc.has_attribute?(attribute)
+        @doc.attributes.key?(attribute)
       end
 
       protected
@@ -192,7 +192,7 @@ module Pakyow
 
       def get_attribute(attribute)
         @attributes[attribute] ||
-          Attribute.new(attribute, @doc.get_attribute(attribute), self, @doc)
+          Attribute.new(attribute, @doc.attributes[attribute], self, @doc)
       end
     end
 

@@ -60,8 +60,7 @@ module Pakyow
         if binder = binder_for_current_scope
           view.repeat(data.map { |object| binder.new(object) }) do |view, binder|
             bindable = binder.object
-            # TODO: there needs to be a better designed api for getting at this
-            view.doc.scopes.first[:props].map { |prop| prop[:prop] }.each do |prop_name|
+            view.doc.props.keys.each do |prop_name|
               value = binder[prop_name]
 
               if value.is_a?(BinderParts)
@@ -140,7 +139,7 @@ module Pakyow
 
       def initialize(template: nil, page: nil, partials: {}, **args)
         @template, @page, @partials = template, page, partials
-        @view = template.dup.build(page).includes(partials)
+        @view = template.build(page).includes(partials)
         super(@view, **args)
       end
 

@@ -79,21 +79,16 @@ module Pakyow
         end
       end
 
-      def at_path(view_path, obj = nil)
+      def at_path(view_path)
         normalized_path = normalize_path(view_path)
-        info = @path_info[normalized_path]
 
-        if info.nil?
-          # raise MissingView, "No view at path '#{view_path}'"
-        else
-          #TODO need to consider whose responsibility it is to make the dups
-          view = obj ? info[obj.to_sym] : info
-          # raise MissingView, "No #{obj} at path '#{view_path}'" if view.nil?
-          if view
-            view.deep_dup
-          else
-            nil
+        if info = @path_info[normalized_path]
+          duped_info = info.dup
+          duped_info.each_pair do |key, value|
+            duped_info[key] = value.dup
           end
+        else
+          nil
         end
       end
 
@@ -106,7 +101,7 @@ module Pakyow
           raise MissingTemplate, "No template named '#{name}'"
         end
 
-        return template.dup
+        return template
       end
 
       # really this is load_layouts

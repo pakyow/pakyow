@@ -100,7 +100,7 @@ module Pakyow
       def scope(name)
         name = name.to_sym
         @doc.scope(name).inject(ViewCollection.new(name)) do |coll, scope|
-          view = View.from_doc(scope[:doc])
+          view = View.from_doc(scope)
           view.scoped_as = name
           coll << view
         end
@@ -239,7 +239,7 @@ module Pakyow
       #
       def bind(data, &block)
         datum = Array.ensure(data).first
-        bind_data_to_scope(datum, doc.scopes.first)
+        bind_data_to_scope(datum)
 
         id = nil
         if data.is_a?(Hash)
@@ -308,10 +308,11 @@ module Pakyow
         # refind the partials
 				doc_partials = @doc.partials
 
-        # if mixed in partials included partials, we want to run includes again with a new map
-				if doc_partials.count > 0 && (partial_map.keys - doc_partials.keys).count < partial_map.keys.count
-					includes(partial_map)
-				end
+        # TODO: hook this back up
+        # # if mixed in partials included partials, we want to run includes again with a new map
+				# if doc_partials.count > 0 && (partial_map.keys - doc_partials.keys).count < partial_map.keys.count
+				# 	includes(partial_map)
+				# end
 
         self
       end
@@ -354,40 +355,36 @@ module Pakyow
         value.keep_if { |part, _| parts_to_keep.include?(part) }
       end
 
-      def bind_data_to_scope(data, scope_info)
+      def bind_data_to_scope(data)
         return unless data
-        return unless scope_info
 
-        scope = scope_info[:scope]
-        bind_data_to_root(data, scope)
+        bind_data_to_root(data)
 
-        scope_info[:props].each do |prop_info|
-          catch(:unbound) do
-            prop  = prop_info[:prop]
-            doc   = prop_info[:doc]
-            parts = prop_info[:parts]
-
-            if DocHelpers.form_field?(doc.tagname)
-              set_form_field_name(doc, scope, prop)
-            end
-
-            if data_has_prop?(data, prop)
-              value = data[prop]
-
+        doc.props.each do |name, props|
+          props.each do |prop|
+            catch :unbound do
               if DocHelpers.form_field?(doc.tagname)
-                bind_to_form_field(doc, scope, prop, value, data)
+                set_form_field_name(prop, prop.name)
               end
 
-              bind_data_to_doc(doc, value)
-            else
-              handle_unbound_data(scope, prop)
+              if data_has_prop?(data, prop.name)
+                value = data[prop.name]
+
+                if DocHelpers.form_field?(doc.tagname)
+                  bind_to_form_field(prop, prop.name, value, data)
+                end
+
+                bind_data_to_doc(prop, value)
+              else
+                handle_unbound_data(prop.name)
+              end
             end
           end
         end
       end
 
       ROOT = :_root # TODO: reconsider if this should have an underscore
-      def bind_data_to_root(data, scope)
+      def bind_data_to_root(data)
         return unless data.is_a?(Binder) && data.include?(ROOT) && value = data[ROOT]
         value.is_a?(Hash) ? bind_attributes_to_doc(value, doc) : bind_value_to_doc(value, doc)
       end

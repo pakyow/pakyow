@@ -1,5 +1,10 @@
 module Pakyow
   class Controller
+    after :route do
+      next if app.config.presenter.require_route && !found?
+      render
+    end
+
     def render(path = request.route_path || request.path, as: nil)
       if info = find_info_for(path)
         unless presenter = find_presenter_for(as || path)
@@ -7,7 +12,6 @@ module Pakyow
         end
 
         presenter_instance = presenter.new(
-          # presenters: app.state_for(:presenter),
           binders: app.state_for(:binder),
           **info
         )
