@@ -109,11 +109,11 @@ module Pakyow
           }
         }
 
-        if collection.versioned?
-          ViewVersion.new(collection.views)
-        else
+        # if collection.versioned?
+        #   ViewVersion.new(collection.views)
+        # else
           collection
-        end
+        # end
       end
 
       def prop(name)
@@ -127,13 +127,13 @@ module Pakyow
         }
       end
 
-      def versioned?
-        each do |view|
-          return true if view.versioned?
-        end
-
-        false
-      end
+      # def versioned?
+      #   each do |view|
+      #     return true if view.versioned?
+      #   end
+      #
+      #   false
+      # end
 
       def exists?
         each do |view|
@@ -153,11 +153,11 @@ module Pakyow
           }
         }
 
-        if collection.versioned?
-          ViewVersion.new(collection.views)
-        else
+        # if collection.versioned?
+        #   ViewVersion.new(collection.views)
+        # else
           collection
-        end
+        # end
       end
 
       def component?

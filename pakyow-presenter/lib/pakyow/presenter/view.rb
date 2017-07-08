@@ -90,14 +90,14 @@ module Pakyow
         end
       end
 
-      def version
-        return unless versioned?
-        @doc.get_attribute(:'data-version').to_sym
-      end
-
-      def versioned?
-        !@doc.get_attribute(:'data-version').nil?
-      end
+      # def version
+      #   return unless versioned?
+      #   @doc.get_attribute(:'data-version').to_sym
+      # end
+      #
+      # def versioned?
+      #   !@doc.get_attribute(:'data-version').nil?
+      # end
 
       def component(name)
         name = name.to_sym
