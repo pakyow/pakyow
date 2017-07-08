@@ -48,11 +48,13 @@ module Pakyow
       end
 
       def text=(text)
+        # FIXME: IIRC we support this for bindings; seems like a weird thing to do here
         text = text.call(self.text) if text.is_a?(Proc)
         @doc.text = text
       end
 
       def html=(html)
+        # FIXME: IIRC we support this for bindings; seems like a weird thing to do here
         html = html.call(self.html) if html.is_a?(Proc)
         @doc.html = html
       end
