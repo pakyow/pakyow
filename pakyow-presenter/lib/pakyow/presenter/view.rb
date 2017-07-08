@@ -12,11 +12,6 @@ module Pakyow
       #
       attr_reader :doc
 
-      # TODO: it would be nice to not have to keep up with this state
-      # The scope, if any, that the view belongs to.
-      #
-      attr_accessor :scoped_as
-
       # Creates a view with +html+.
       #
       def initialize(html = "", doc: nil)
@@ -26,15 +21,13 @@ module Pakyow
       def initialize_copy(original)
         super
         @doc = doc.dup
-        @scoped_as = original_view.scoped_as
       end
 
       # TODO: I'd like to get rid of this
       # Creates a new view with a soft copy of doc.
       #
       def soft_copy
-        copy = View.from_doc(@doc.soft_copy)
-        copy.scoped_as = scoped_as
+        copy = View.new(doc: @doc.soft_copy)
         copy
       end
 
@@ -47,6 +40,10 @@ module Pakyow
       def ==(other)
         # TODO: revisit this
         self.class == other.class && @doc == other.doc
+      end
+
+      def scoped_as
+        @doc.name
       end
 
       # Allows multiple attributes to be set at once.
@@ -90,20 +87,14 @@ module Pakyow
       end
 
       def scope(name)
-        name = name.to_sym
-        @doc.scope(name).inject(ViewCollection.new(name)) do |coll, scope|
-          view = View.from_doc(scope)
-          view.scoped_as = name
-          coll << view
+        @doc.scope(name.to_sym).inject(ViewCollection.new) do |coll, scope|
+          coll << View.new(doc: scope)
         end
       end
 
       def prop(name)
-        name = name.to_sym
-        @doc.prop(scoped_as, name).inject(ViewCollection.new(scoped_as)) do |coll, prop|
-          view = View.from_doc(prop[:doc])
-          view.scoped_as = scoped_as
-          coll << view
+        @doc.prop(name.to_sym).inject(ViewCollection.new) do |coll, prop|
+          coll << View.new(doc: prop[:doc])
         end
       end
 
@@ -118,10 +109,8 @@ module Pakyow
 
       def component(name)
         name = name.to_sym
-        @doc.component(name).inject(ViewCollection.new(scoped_as)) do |coll, component|
-          view = View.from_doc(component[:doc])
-          view.scoped_as = scoped_as
-          coll << view
+        @doc.component(name).inject(ViewCollection.new) do |coll, component|
+          coll << View.new(doc: component[:doc])
         end
       end
 
@@ -182,7 +171,7 @@ module Pakyow
       #
       def match(data)
         data = Array.ensure(data)
-        coll = ViewCollection.new(scoped_as)
+        coll = ViewCollection.new
 
         # an empty set always means an empty view
         if data.empty?
@@ -473,7 +462,7 @@ module Pakyow
             v = v.call(doc.html) if v.is_a?(Proc)
             bind_value_to_doc(v, doc)
           when :view
-            v.call(View.from_doc(doc))
+            v.call(View.new(doc: doc))
           else
             attr  = attr.to_s
             attrs = Attributes.new(doc)

@@ -4,18 +4,16 @@ module Pakyow
       include Enumerable
       using Support::DeepDup
 
-      attr_reader :views, :scoped_as
+      attr_reader :views
 
-      def initialize(scope = nil)
+      def initialize
         @views = []
-        @scoped_as = scope
       end
 
       def initialize_copy(original_view)
         super
 
         @views = original_view.views.deep_dup
-        @scoped_as = original_view.scoped_as
       end
 
       def ==(other)
@@ -24,6 +22,10 @@ module Pakyow
         end
 
         return true
+      end
+
+      def scoped_as
+        @views.first.scoped_as
       end
 
       def each
@@ -115,7 +117,7 @@ module Pakyow
       end
 
       def prop(name)
-        inject(ViewCollection.new(scoped_as)) { |coll, view|
+        inject(ViewCollection.new) { |coll, view|
           scopes = view.prop(name)
           next if scopes.nil?
 
@@ -142,7 +144,7 @@ module Pakyow
       end
 
       def component(name)
-        collection = inject(ViewCollection.new(scoped_as)) { |coll, view|
+        collection = inject(ViewCollection.new) { |coll, view|
           scopes = view.component(name)
           next if scopes.nil?
 
