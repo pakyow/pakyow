@@ -172,7 +172,13 @@ module Pakyow
         end
 
         def container_name(node)
-          (node.text.strip.match(CONTAINER_REGEX)[2] || :default).to_sym
+          match = node.text.strip.match(CONTAINER_REGEX)[1]
+
+          if match.empty?
+            :default
+          else
+            match.to_sym
+          end
         end
 
         def partial_name(node)
