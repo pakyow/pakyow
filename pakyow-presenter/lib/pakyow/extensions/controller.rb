@@ -16,15 +16,17 @@ module Pakyow
           **info
         )
 
-        current_router.presentables.each do |presentable|
-          begin
-            value = current_router.__send__(presentable)
-          rescue NoMethodError
-            fail "could not find presentable state for `#{presentable}' on #{current_router}"
-          end
+        if current_router
+          current_router.presentables.each do |presentable|
+            begin
+              value = current_router.__send__(presentable)
+            rescue NoMethodError
+              fail "could not find presentable state for `#{presentable}' on #{current_router}"
+            end
 
-          presenter_instance.define_singleton_method presentable do
-            value
+            presenter_instance.define_singleton_method presentable do
+              value
+            end
           end
         end
 
@@ -58,7 +60,7 @@ module Pakyow
 
     def info_for_path(path)
       app.state_for(:template_store).lazy.map { |store|
-        store.at_path(path)
+        store.info(path)
       }.find(&:itself)
     end
 
