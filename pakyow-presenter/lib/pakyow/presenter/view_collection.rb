@@ -255,7 +255,7 @@ module Pakyow
           else
             working = self[-1]
             data[length..-1].each do
-              duped_view = working.soft_copy
+              duped_view = working.dup
               working.after(duped_view)
               working = duped_view
               self << duped_view

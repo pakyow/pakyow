@@ -11,8 +11,8 @@ class Pakyow::Presenter::ViewVersion
   def initialize_copy(original_view)
     super
 
-    @empty = original_view.empty.soft_copy if original_view.empty
-    @versions = original_view.versions.map { |view| view.soft_copy }
+    @empty = original_view.empty.dup if original_view.empty
+    @versions = original_view.versions.map { |view| view.dup }
     @default = versions.first
   end
 

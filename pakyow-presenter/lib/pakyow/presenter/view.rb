@@ -23,14 +23,6 @@ module Pakyow
         @doc = doc.dup
       end
 
-      # TODO: I'd like to get rid of this
-      # Creates a new view with a soft copy of doc.
-      #
-      def soft_copy
-        copy = View.new(doc: @doc.soft_copy)
-        copy
-      end
-
       # Creates a view from a file.
       #
       def self.load(path)
@@ -184,7 +176,7 @@ module Pakyow
 
           # create views for the other datums
           data[1..-1].inject(coll) { |set|
-            duped_view = working.soft_copy
+            duped_view = working.dup
             working.after(duped_view)
             working = duped_view
             set << duped_view
