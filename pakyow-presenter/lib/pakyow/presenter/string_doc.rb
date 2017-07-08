@@ -76,7 +76,7 @@ module Pakyow
               if node.is_a?(Oga::XML::Text) || node.is_a?(Oga::XML::Comment)
                 structure << StringNode.new([node.to_xml, StringAttributes.new, []])
               else
-                element = StringNode.new(["<#{node.name}#{attributes_string(node)}", {}])
+                element = StringNode.new(["<#{node.name}#{attributes_string(node)}", StringAttributes.new])
                 element.close(node.name, parse(node)) if node.is_a?(Oga::XML::Element)
                 structure << element
               end
