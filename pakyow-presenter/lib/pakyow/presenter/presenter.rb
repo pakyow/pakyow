@@ -60,7 +60,7 @@ module Pakyow
         if binder = binder_for_current_scope
           view.repeat(data.map { |object| binder.new(object) }) do |view, binder|
             bindable = binder.object
-            view.doc.props.keys.each do |prop_name|
+            view.object.props.keys.each do |prop_name|
               value = binder[prop_name]
 
               if value.is_a?(BinderParts)
