@@ -177,7 +177,7 @@ module Pakyow
       end
 
       def remove_attribute(attribute)
-        @doc.attribute.delete(attribute)
+        @doc.attributes.delete(attribute)
       end
 
       def include?(attribute)
