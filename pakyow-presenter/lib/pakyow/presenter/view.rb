@@ -86,7 +86,7 @@ module Pakyow
 
       # TODO: replace with `find`
       def scope(name)
-        @object.scope(name.to_sym).inject(ViewCollection.new) do |coll, scope|
+        @object.scope(name.to_sym).inject(ViewCollection.new(scoped_as: name)) do |coll, scope|
           coll << View.new(object: scope)
         end
       end

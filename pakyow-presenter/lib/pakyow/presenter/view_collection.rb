@@ -4,10 +4,11 @@ module Pakyow
     class ViewCollection
       include Enumerable
 
-      attr_reader :views
+      attr_reader :views, :scoped_as
 
-      def initialize
+      def initialize(scoped_as: nil)
         @views = []
+        @scoped_as = scoped_as
       end
 
       def initialize_copy(original_view)
