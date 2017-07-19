@@ -17,7 +17,6 @@ require "pakyow/presenter/exceptions"
 require "pakyow/presenter/string_doc"
 require "pakyow/presenter/string_node"
 require "pakyow/presenter/string_attributes"
-require "pakyow/presenter/doc_helpers"
 require "pakyow/presenter/template_store"
 require "pakyow/presenter/binder"
 
