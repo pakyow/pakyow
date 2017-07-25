@@ -6,12 +6,11 @@ end
 Pakyow::App.router :default do
   presentable :current_user
 
-  def post
-    [{ body: "foo" }, { body: "bar" }]
-  end
-
   default do
-    presentable :post
+    presentable :post, [{ body: "foo" }, { body: "bar" }]
+    presentable :show_posts do
+      true
+    end
 
     # render "/"
   end
@@ -19,7 +18,11 @@ end
 
 Pakyow::App.view "/" do
   # view.scope(:post).apply([{ body: rand.to_s }, { body: rand.to_s }, { body: rand.to_s }])
-  find(:post).present(post)
+  if show_posts
+    find(:post).present(post)
+  else
+    find(:post).view.remove
+  end
 end
 
 Pakyow::App.binder :post do

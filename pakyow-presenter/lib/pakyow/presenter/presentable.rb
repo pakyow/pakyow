@@ -8,13 +8,27 @@ module Pakyow
         super
       end
 
-      def presentable(*args)
-        presentables.concat(args).uniq!
+      def presentable(name, value = nil)
+        args = {
+          name: name,
+          value: value
+        }
+
+        args[:block] = Proc.new if block_given?
+
+        presentables.push(args).uniq!
       end
 
       module ClassMethods
-        def presentable(*args)
-          presentables.concat(args).uniq!
+        def presentable(name, value = nil)
+          args = {
+            name: name,
+            value: value
+          }
+
+          args[:block] = Proc.new if block_given?
+
+          presentables.push(args).uniq!
         end
 
         def presentables

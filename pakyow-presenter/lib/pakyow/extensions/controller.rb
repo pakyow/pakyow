@@ -18,13 +18,18 @@ module Pakyow
 
         if current_router
           current_router.presentables.each do |presentable|
-            begin
-              value = current_router.__send__(presentable)
-            rescue NoMethodError
-              fail "could not find presentable state for `#{presentable}' on #{current_router}"
+            if presentable[:value].nil? && presentable[:block].nil?
+              begin
+                value = current_router.__send__(presentable[:name])
+              rescue NoMethodError
+                fail "could not find presentable state for `#{presentable[:name]}' on #{current_router}"
+              end
+            else
+              value = presentable[:block].call if presentable[:block]
+              value = presentable[:value] if value.nil?
             end
 
-            presenter_instance.define_singleton_method presentable do
+            presenter_instance.define_singleton_method presentable[:name] do
               value
             end
           end
