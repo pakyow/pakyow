@@ -2,6 +2,12 @@ module Pakyow
   module Support
     module DeepFreeze
       refine Object.singleton_class do
+        def inherited(subclass)
+          super
+
+          subclass.instance_variable_set(:@unfreezable_variables, @unfreezable_variables)
+        end
+
         def unfreezable_variables
           @unfreezable_variables ||= []
         end
@@ -65,4 +71,3 @@ module Pakyow
     end
   end
 end
-
