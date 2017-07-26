@@ -287,6 +287,12 @@ module Pakyow
       instance_exec(&handler); true
     end
 
+    @hooks = { before: [], after: [], around: [] }
+    @children = []
+    @templates = {}
+    @handlers = {}
+    @exceptions = {}
+
     class << self
       # Conveniently define defaults when subclassing +Pakyow::Router+.
       #
@@ -603,35 +609,10 @@ module Pakyow
       end
 
       # @api private
-      attr_reader :name, :path, :matcher, :state
+      attr_reader :name, :path, :matcher, :state, :hooks, :children, :templates, :handlers, :exceptions
 
       # @api private
       attr_accessor :parent
-
-      # @api private
-      def hooks
-        @hooks ||= { before: [], after: [], around: [] }
-      end
-
-      # @api private
-      def children
-        @children ||= []
-      end
-
-      # @api private
-      def templates
-        @templates ||= {}
-      end
-
-      # @api private
-      def handlers
-        @handlers ||= {}
-      end
-
-      # @api private
-      def exceptions
-        @exceptions ||= {}
-      end
 
       # @api private
       def inherited(klass)
@@ -647,6 +628,7 @@ module Pakyow
           @templates = templates
           @handlers = handlers
           @exceptions = exceptions
+          @children = []
 
           DEFAULT_EXTENSIONS.each do |extension|
             include(Kernel.const_get(extension))
