@@ -25,3 +25,10 @@ RSpec.shared_context "testable app" do
     app.reset
   end
 end
+
+module Pakyow::Support::Definable
+  def deep_freeze
+    # noop; we don't want to freeze in our own specs because we want we want each group of tests
+    # to register new state; this can't happen if definables are frozen
+  end
+end
