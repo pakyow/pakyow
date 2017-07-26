@@ -8,7 +8,7 @@ RSpec.describe "presentable definitions" do
   end
 
   let :app_definition do
-    -> {
+    Proc.new {
       router :presentables do
         presentable :global_method
         presentable :global_value, "global_value"
