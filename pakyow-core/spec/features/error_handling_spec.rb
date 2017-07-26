@@ -4,7 +4,7 @@ RSpec.describe "error handling" do
   context "when an error is triggered" do
     context "and a handler is defined by name" do
       let :app_definition do
-        -> {
+        Proc.new {
           router do
             handle :not_found do
               send "not found"
@@ -28,7 +28,7 @@ RSpec.describe "error handling" do
 
     context "and a handler is defined by code" do
       let :app_definition do
-        -> {
+        Proc.new {
           router do
             handle 404 do
               send "not found"
@@ -52,7 +52,7 @@ RSpec.describe "error handling" do
 
     context "and a handler is defined on a route as well as the router" do
       let :app_definition do
-        -> {
+        Proc.new {
           router do
             handle 404 do
               send "not found"
@@ -80,7 +80,7 @@ RSpec.describe "error handling" do
 
     context "and a handler is defined in a parent router" do
       let :app_definition do
-        -> {
+        Proc.new {
           router do
             handle 404 do
               send "not found from parent"
@@ -106,7 +106,7 @@ RSpec.describe "error handling" do
 
     context "and a handler is defined in a nested parent router" do
       let :app_definition do
-        -> {
+        Proc.new {
           router :top do
             group :foo do
               handle 403 do
@@ -134,7 +134,7 @@ RSpec.describe "error handling" do
 
     context "and a handler is defined in a sibling router" do
       let :app_definition do
-        -> {
+        Proc.new {
           router do
             handle 404 do
               send "not found from sibling"
@@ -162,7 +162,7 @@ RSpec.describe "error handling" do
   context "when an exception occurs" do
     context "and a handler is defined for the exception" do
       let :app_definition do
-        -> {
+        Proc.new {
           router do
             handle StandardError, as: 401 do
               send "handled exception"
@@ -185,7 +185,7 @@ RSpec.describe "error handling" do
 
       context "and another error of the same type occurs" do
         let :app_definition do
-          -> {
+          Proc.new {
             router do
               handle StandardError, as: 401 do
                 send "handled exception"
@@ -214,7 +214,7 @@ RSpec.describe "error handling" do
 
       context "and a handler is defined for the exception in a parent router" do
         let :app_definition do
-          -> {
+          Proc.new {
             router do
               handle StandardError, as: 401 do
                 send "handled exception from parent"
@@ -243,7 +243,7 @@ RSpec.describe "error handling" do
   context "when the framework triggers a 404" do
     context "and a global handler is defined" do
       let :app_definition do
-        -> {
+        Proc.new {
           handle 404 do
             send "not found"
           end
@@ -261,7 +261,7 @@ RSpec.describe "error handling" do
 
     context "and a global handler is not defined" do
       let :app_definition do
-        -> {
+        Proc.new {
         }
       end
 
@@ -274,7 +274,7 @@ RSpec.describe "error handling" do
   context "when the framework triggers a 500" do
     context "and a global handler is defined" do
       let :app_definition do
-        -> {
+        Proc.new {
           handle 500 do
             send "boom"
           end
@@ -300,7 +300,7 @@ RSpec.describe "error handling" do
 
     context "and a global handler is defined for the error class" do
       let :app_definition do
-        -> {
+        Proc.new {
           handle ArgumentError, as: 406 do
             send "boom"
           end
@@ -326,7 +326,7 @@ RSpec.describe "error handling" do
 
     context "and a global handler is not defined" do
       let :app_definition do
-        -> {
+        Proc.new {
           router do
             default do
               fail
@@ -345,7 +345,7 @@ RSpec.describe "error handling" do
 
   describe "the handling context" do
     let :app_definition do
-      -> {
+      Proc.new {
         router do
           handle 500 do
             @state << "handler"

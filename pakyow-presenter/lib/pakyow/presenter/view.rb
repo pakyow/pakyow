@@ -305,14 +305,14 @@ module Pakyow
         object.props.each do |name, props|
           props.each do |prop|
             catch :unbound do
-              if DocHelpers.form_field?(object.tagname)
+              if StringNode.form_input?(object.tagname)
                 set_form_field_name(prop, prop.name)
               end
 
               if data_has_prop?(data, prop.name)
                 value = data[prop.name]
 
-                if DocHelpers.form_field?(object.tagname)
+                if StringNode.form_input?(object.tagname)
                   bind_to_form_field(prop, prop.name, value, data)
                 end
 
@@ -343,9 +343,9 @@ module Pakyow
         value = String(value)
 
         tag = object.tagname
-        return if DocHelpers.tag_without_value?(tag)
+        return if StringNode.without_value?(tag)
 
-        if DocHelpers.self_closing_tag?(tag)
+        if StringNode.self_closing?(tag)
           # don't override value if set
           if !object.get_attribute(:value) || object.get_attribute(:value).empty?
             object.set_attribute(:value, value)

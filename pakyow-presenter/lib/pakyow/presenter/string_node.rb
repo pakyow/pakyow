@@ -2,6 +2,20 @@ module Pakyow
   module Presenter
     # @api private
     class StringNode
+      class << self
+        def self_closing?(tag)
+          %w[area base basefont br hr input img link meta].include? tag
+        end
+
+        def form_input?(tag)
+          %w[input select textarea button].include? tag
+        end
+
+        def without_value?(tag)
+          %w[select].include? tag
+        end
+      end
+
       attr_reader :node, :type, :name, :parent
 
       def initialize(node, type: nil, name: nil, parent: nil)
@@ -19,7 +33,7 @@ module Pakyow
       def close(tag, child)
         node << (tag ? ">" : "")
         node << StringDoc.from_nodes(child)
-        node << ((tag && !DocHelpers.self_closing_tag?(tag)) ? "</#{tag}>" : "")
+        node << ((tag && !self.class.self_closing?(tag)) ? "</#{tag}>" : "")
       end
 
       def attributes

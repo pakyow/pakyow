@@ -2,7 +2,7 @@ RSpec.describe "rerouting requests" do
   include_context "testable app"
 
   let :app_definition do
-    -> {
+    Proc.new {
       router :reroute do
         get "/reroute" do
           reroute "/destination"

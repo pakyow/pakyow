@@ -2,7 +2,7 @@ RSpec.describe "defining a router" do
   include_context "testable app"
 
   let :app_definition do
-    -> {
+    Proc.new {
       router do
         default
       end
@@ -15,7 +15,7 @@ RSpec.describe "defining a router" do
 
   context "when the router is defined with a path" do
     let :app_definition do
-      -> {
+      Proc.new {
         router "/foo" do
           default
         end
@@ -29,7 +29,7 @@ RSpec.describe "defining a router" do
 
   context "when the router is defined with a custom matcher" do
     let :app_definition do
-      -> {
+      Proc.new {
         klass = Class.new do
           def match?(path)
             true

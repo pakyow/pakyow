@@ -3,7 +3,7 @@ RSpec.describe "halting a request" do
 
   context "when halting from a route" do
     let :app_definition do
-      -> {
+      Proc.new {
         router do
           default do
             $called = true
@@ -28,7 +28,7 @@ RSpec.describe "halting a request" do
 
   context "when halting from a hook" do
     let :app_definition do
-      -> {
+      Proc.new {
         router do
           def hook
             $hooked = true
@@ -56,7 +56,7 @@ RSpec.describe "halting a request" do
 
   context "when halting with a body" do
     let :app_definition do
-      -> {
+      Proc.new {
         router do
           default do
             halt "foo"

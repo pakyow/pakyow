@@ -2,7 +2,7 @@ RSpec.describe "disabling the router" do
   include_context "testable app"
 
   let :app_definition do
-    -> {
+    Proc.new {
       router do
         default do
           send "called"

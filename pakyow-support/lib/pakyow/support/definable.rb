@@ -1,4 +1,5 @@
 require "pakyow/support/deep_dup"
+require "pakyow/support/deep_freeze"
 
 module Pakyow
   module Support
@@ -28,6 +29,7 @@ module Pakyow
     #
     module Definable
       using DeepDup
+      using DeepFreeze
 
       def self.included(base)
         base.extend ClassAPI
@@ -58,7 +60,7 @@ module Pakyow
         end
 
         # instance state is now immutable
-        freeze
+        deep_freeze
       end
 
       # Returns register instances for state.
@@ -66,13 +68,6 @@ module Pakyow
       def state_for(type)
         return [] unless @state.key?(type)
         @state[type].instances
-      end
-
-      # @api private
-      def freeze
-        @state.each { |_, state| state.freeze }
-        @state.freeze
-        super
       end
 
       module ClassAPI
@@ -139,14 +134,6 @@ module Pakyow
         def define(&block)
           instance_eval(&block)
         end
-
-        # @api private
-        def reset
-          super if defined? super
-          @state.values.each do |state|
-            state.reset
-          end
-        end
       end
     end
 
@@ -199,17 +186,6 @@ module Pakyow
 
         priorities[instance] = priority
         reprioritize!
-      end
-
-      def freeze
-        instances.each(&:freeze)
-        instances.freeze
-        super
-      end
-
-      def reset
-        object.reset
-        @instances = []
       end
 
       def reprioritize!
