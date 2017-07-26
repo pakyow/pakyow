@@ -634,11 +634,6 @@ module Pakyow
       end
 
       # @api private
-      def reset
-        @hooks, @children, @templates, @handlers, @exceptions = nil
-      end
-
-      # @api private
       def inherited(klass)
         matcher = self.matcher
         hooks = self.hooks.deep_dup

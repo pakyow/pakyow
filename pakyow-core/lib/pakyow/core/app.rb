@@ -312,11 +312,6 @@ module Pakyow
           end
         end
       }
-
-      # @api private
-      def reset
-        super
-      end
     end
 
     using Support::DeepFreeze

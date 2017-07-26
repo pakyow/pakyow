@@ -296,18 +296,6 @@ module Pakyow
       builder.call(env)
     end
 
-    # @api private
-    def reset
-      @env = nil
-      @port = nil
-      @host = nil
-      @server = nil
-      @mounts = nil
-      @builder = nil
-      @logger = nil
-      config.reset
-    end
-
     protected
 
     def use(middleware, *args)

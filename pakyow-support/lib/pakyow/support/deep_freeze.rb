@@ -52,7 +52,7 @@ module Pakyow
           self
         end
       end
-
+      
       refine Hash do
         def deep_freeze
           return self if frozen?

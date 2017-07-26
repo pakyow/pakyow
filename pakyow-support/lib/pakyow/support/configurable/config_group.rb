@@ -19,7 +19,7 @@ module Pakyow
           instance_eval(&block)
           @initialized = true
         end
-        
+
         def initialize_copy(original)
           @__settings = original.__settings.deep_dup
         end
@@ -64,14 +64,6 @@ module Pakyow
 
         def extendable?
           @__options[:extendable] == true
-        end
-
-        def reset
-          @__settings = @__initial_settings.deep_dup
-
-          @__settings.each do |_, settings|
-            settings.reset
-          end
         end
       end
     end
