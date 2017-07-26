@@ -3,7 +3,7 @@ RSpec.describe "sending data" do
 
   context "when sending a file" do
     let :app_definition do
-      -> {
+      Proc.new {
         router do
           default do
             send File.open("foo.txt")
@@ -34,7 +34,7 @@ RSpec.describe "sending data" do
 
     context "with a type" do
       let :app_definition do
-        -> {
+        Proc.new {
           router do
             default do
               send File.open("foo.txt"), type: "application/force-download"
@@ -54,7 +54,7 @@ RSpec.describe "sending data" do
 
     context "with a name" do
       let :app_definition do
-        -> {
+        Proc.new {
           router do
             default do
               send File.open("foo.txt"), name: "bar.txt"
@@ -74,7 +74,7 @@ RSpec.describe "sending data" do
 
     context "with a type and a name" do
       let :app_definition do
-        -> {
+        Proc.new {
           router do
             default do
               send File.open("foo.txt"), type: "application/force-download", name: "bar.txt"
@@ -95,7 +95,7 @@ RSpec.describe "sending data" do
 
   context "when sending an io object" do
     let :app_definition do
-      -> {
+      Proc.new {
         router do
           default do
             send StringIO.new("foo")
@@ -119,7 +119,7 @@ RSpec.describe "sending data" do
 
   context "when sending a string" do
     let :app_definition do
-      -> {
+      Proc.new {
         router do
           default do
             send "foo"
@@ -142,7 +142,7 @@ RSpec.describe "sending data" do
 
     context "and a type is specified" do
       let :app_definition do
-        -> {
+        Proc.new {
           router do
             default do
               send "foo", type: "application/json"
@@ -159,7 +159,7 @@ RSpec.describe "sending data" do
 
   context "when sending an unsupported type" do
     let :app_definition do
-      -> {
+      Proc.new {
         router do
           default do
             send TrueClass

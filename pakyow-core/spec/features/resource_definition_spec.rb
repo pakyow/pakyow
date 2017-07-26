@@ -3,7 +3,7 @@ RSpec.describe "defining resources" do
 
   context "when the resource is defined at the top level" do
     let :app_definition do
-      -> {
+      Proc.new {
         resource :post, "/posts" do
           list do
             send "post list"
@@ -21,7 +21,7 @@ RSpec.describe "defining resources" do
 
   context "when the resource is nested within another resource" do
     let :app_definition do
-      -> {
+      Proc.new {
         resource :post, "/posts" do
           resource :comment, "/comments" do
             list do
@@ -41,7 +41,7 @@ RSpec.describe "defining resources" do
 
   context "when the resource is defined with hooks" do
     let :app_definition do
-      -> {
+      Proc.new {
         resource :post, "/posts", before: [:validate] do
           def validate
             send "validate"
@@ -62,7 +62,7 @@ RSpec.describe "defining resources" do
 
     context "and the resource route defines its own hooks" do
       let :app_definition do
-        -> {
+        Proc.new {
           resource :post, "/posts", before: [:validate] do
             def validate
               $calls << :validate
@@ -95,7 +95,7 @@ RSpec.describe "defining resources" do
 
   context "when the resource is defined partially" do
     let :app_definition do
-      -> {
+      Proc.new {
         resource :post, "/posts" do
           list do
           end
@@ -110,7 +110,7 @@ RSpec.describe "defining resources" do
 
   context "when the resource is extended with member routes" do
     let :app_definition do
-      -> {
+      Proc.new {
         resource :post, "/posts" do
           member do
             get "/member"
@@ -126,7 +126,7 @@ RSpec.describe "defining resources" do
 
   context "when the resource is extended with collection routes" do
     let :app_definition do
-      -> {
+      Proc.new {
         resource :post, "/posts" do
           collection do
             get "/collection"
@@ -145,7 +145,7 @@ RSpec.describe "defining resources" do
 
   describe "the defined resource" do
     let :app_definition do
-      -> {
+      Proc.new {
         resource :post, "/posts" do
           list do
             send "post list"

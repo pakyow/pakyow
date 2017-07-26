@@ -8,7 +8,7 @@ RSpec.describe "application helpers" do
   end
 
   let :app_definition do
-    -> {
+    Proc.new {
       router do
         default do
           send foo

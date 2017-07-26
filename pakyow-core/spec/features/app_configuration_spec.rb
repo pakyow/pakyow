@@ -3,7 +3,7 @@ RSpec.describe "configuring an app" do
 
   context "when configured globally" do
     let :app_definition do
-      -> {
+      Proc.new {
         config.app.name = "config-test"
       }
     end
@@ -15,7 +15,7 @@ RSpec.describe "configuring an app" do
 
   context "when configured for an environment" do
     let :app_definition do
-      -> {
+      Proc.new {
         configure :test do
           config.app.name = "config-env-test"
         end
@@ -41,7 +41,7 @@ RSpec.describe "accessing the app's config" do
 
   context "when accessed internally" do
     let :app_definition do
-      -> {
+      Proc.new {
         config.app.name = "config-test"
 
         router do
@@ -61,7 +61,7 @@ RSpec.describe "accessing the app's config" do
 
   context "when accessed externally" do
     let :app_definition do
-      -> {
+      Proc.new {
         config.app.name = "config-test"
       }
     end

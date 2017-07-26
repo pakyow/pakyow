@@ -2,7 +2,7 @@ RSpec.describe "namespaced routes" do
   include_context "testable app"
 
   let :app_definition do
-    -> {
+    Proc.new {
       router do
         namespace :ns, "/ns", before: [:foo], after: [:foo], around: [:meh] do
           def foo
@@ -51,7 +51,7 @@ RSpec.describe "namespaced routes" do
 
   context "when a route is defined in a parameterized namespace" do
     let :app_definition do
-      -> {
+      Proc.new {
         router do
           namespace :ns, "/ns/:id" do
             default do
@@ -73,7 +73,7 @@ RSpec.describe "namespaced routes" do
 
   context "when a namespace is defined without a name" do
     let :app_definition do
-      -> {
+      Proc.new {
         router do
           namespace "/ns" do
             default do

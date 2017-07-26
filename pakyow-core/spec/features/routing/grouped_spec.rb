@@ -2,7 +2,7 @@ RSpec.describe "grouped routes" do
   include_context "testable app"
 
   let :app_definition do
-    -> {
+    Proc.new {
       router do
         group :g, before: [:foo], after: [:foo], around: [:meh] do
           def foo

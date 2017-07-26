@@ -235,31 +235,6 @@ RSpec.describe Pakyow do
     end
   end
 
-  describe ".reset" do
-    before do
-      allow(Pakyow).to receive(:handler).and_return(double.as_null_object)
-      Pakyow.instance_variable_set(:@builder, double.as_null_object)
-      Pakyow.config.server.default = :mock
-      Pakyow.setup(env: :test).run
-    end
-
-    %i(@env @port @host @server @mounts @builder @logger).each do |var|
-      it "resets #{var}" do
-        expect(Pakyow.instance_variable_get(var)).to_not be_nil
-        Pakyow.reset
-
-        expect(Pakyow.instance_variable_get(var)).to be_nil
-      end
-    end
-
-    it "resets the config" do
-      config_double = double
-      allow(Pakyow).to receive(:config).and_return(config_double)
-      expect(config_double).to receive(:reset)
-      Pakyow.reset
-    end
-  end
-
   describe ".setup" do
     context "called with an environment name" do
       let :name do

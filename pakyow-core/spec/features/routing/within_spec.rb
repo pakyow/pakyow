@@ -2,7 +2,7 @@ RSpec.describe "routes defined within other routes" do
   include_context "testable app"
   context "when part of a namespace is defined within another router" do
     let :app_definition do
-      -> {
+      Proc.new {
         router :api, "/api" do
         end
 
@@ -33,7 +33,7 @@ RSpec.describe "routes defined within other routes" do
 
   context "when part of a resource is defined within another router" do
     let :app_definition do
-      -> {
+      Proc.new {
         router :api, "/api" do
         end
 

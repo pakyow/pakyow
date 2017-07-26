@@ -2,6 +2,7 @@ require "pakyow/support/configurable"
 require "pakyow/support/definable"
 require "pakyow/support/hookable"
 require "pakyow/support/recursive_require"
+require "pakyow/support/deep_freeze"
 
 require "pakyow/core/helpers"
 require "pakyow/core/router"
@@ -311,12 +312,11 @@ module Pakyow
           end
         end
       }
-
-      # @api private
-      def reset
-        super
-      end
     end
+
+    using Support::DeepFreeze
+
+    unfreezable :builder
 
     # @api private
     def initialize(environment, builder: nil, &block)

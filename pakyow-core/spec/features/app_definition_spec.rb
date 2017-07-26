@@ -2,7 +2,7 @@ RSpec.describe "defining an app" do
   include_context "testable app"
 
   let :app_definition do
-    -> {
+    Proc.new {
       config.app.name = "define-test"
 
       router do
@@ -55,7 +55,7 @@ RSpec.describe "defining an app" do
 
     context "and the subclassed app defines new state" do
       let :app_definition do
-        -> {
+        Proc.new {
           config.app.name = "child-test"
         }
       end
@@ -74,7 +74,7 @@ RSpec.describe "defining an app" do
 
   context "when app is extended at runtime" do
     let :app_runtime_block do
-      -> {
+      Proc.new {
         config.app.name = "runtime-test"
       }
     end
