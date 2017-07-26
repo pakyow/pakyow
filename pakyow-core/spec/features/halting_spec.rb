@@ -56,7 +56,7 @@ RSpec.describe "halting a request" do
 
   context "when halting with a body" do
     let :app_definition do
-      -> {
+      Proc.new {
         router do
           default do
             halt "foo"

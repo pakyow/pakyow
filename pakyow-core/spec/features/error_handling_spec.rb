@@ -300,7 +300,7 @@ RSpec.describe "error handling" do
 
     context "and a global handler is defined for the error class" do
       let :app_definition do
-        -> {
+        Proc.new {
           handle ArgumentError, as: 406 do
             send "boom"
           end
