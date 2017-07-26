@@ -1,6 +1,11 @@
+require "pakyow/support/deep_freeze"
+
 module Pakyow
   module Presenter
     class TemplateStore
+      using Support::DeepFreeze
+      unfreezable :info
+
       attr_reader :name, :path
 
       LAYOUTS_PATH = "layouts".freeze
