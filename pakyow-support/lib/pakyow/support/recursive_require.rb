@@ -5,7 +5,7 @@ module Pakyow
     module RecursiveRequire
       DOT_RB = ".rb".freeze
 
-      refine Kernel do
+      refine Object do
         using WalkDir
 
         # Recursively requires all *.rb files at path.
