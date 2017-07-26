@@ -4,7 +4,7 @@ RSpec.shared_context "testable app" do
   end
 
   let :app_runtime_block do
-    -> {}
+    Proc.new {}
   end
 
   let :autorun do

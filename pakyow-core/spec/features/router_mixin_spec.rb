@@ -8,7 +8,7 @@ RSpec.describe "including mixins into a router" do
   end
 
   let :app_definition do
-    -> {
+    Proc.new {
       router do
         include RouteMixins
 

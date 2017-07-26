@@ -2,7 +2,7 @@ RSpec.describe "using sessions" do
   include_context "testable app"
 
   let :app_definition do
-    -> {
+    Proc.new {
       config.protection.enabled = false
 
       router do

@@ -2,7 +2,7 @@ RSpec.describe "responding to request format" do
   include_context "testable app"
 
   let :app_definition do
-    -> {
+    Proc.new {
       router do
         get "foo.txt|html" do
           respond_to :txt do

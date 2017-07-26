@@ -3,7 +3,7 @@ RSpec.describe "router priority" do
 
   context "when no priority is set" do
     let :app_definition do
-      -> {
+      Proc.new {
         router do
           default do
             send "one"
@@ -25,7 +25,7 @@ RSpec.describe "router priority" do
 
   context "when a router is defined as high priority" do
     let :app_definition do
-      -> {
+      Proc.new {
         router do
           default do
             send "one"
@@ -47,7 +47,7 @@ RSpec.describe "router priority" do
 
   context "when a router is defined as low priority" do
     let :app_definition do
-      -> {
+      Proc.new {
         router priority: :low do
           default do
             send "one"
@@ -69,7 +69,7 @@ RSpec.describe "router priority" do
 
   context "when a router is defined with a custom priority" do
     let :app_definition do
-      -> {
+      Proc.new {
         router priority: :high do
           default do
             send "one"

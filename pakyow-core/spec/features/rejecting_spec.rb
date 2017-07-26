@@ -3,7 +3,7 @@ RSpec.describe "rejecting requests" do
 
   context "when rejecting from a route" do
     let :app_definition do
-      -> {
+      Proc.new {
         router do
           default do
             reject

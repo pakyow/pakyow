@@ -2,7 +2,7 @@ RSpec.describe "routing requests" do
   include_context "testable app"
 
   let :app_definition do
-    -> {
+    Proc.new {
       router do
         get "/" do
           send "GET /"
@@ -49,7 +49,7 @@ RSpec.describe "routing requests" do
 
   context "when a default route is specified" do
     let :app_definition do
-      -> {
+      Proc.new {
         router do
           default do
             send "default"
@@ -65,7 +65,7 @@ RSpec.describe "routing requests" do
 
   describe "the routing context" do
     let :app_definition do
-      -> {
+      Proc.new {
         router do
           def foo
             @state ||= "foo"
@@ -107,7 +107,7 @@ RSpec.describe "routing requests" do
 
   context "when route is defined without a block" do
     let :app_definition do
-      -> {
+      Proc.new {
         router do
           default
         end
@@ -121,7 +121,7 @@ RSpec.describe "routing requests" do
 
   context "when a route is defined within another router" do
     let :app_definition do
-      -> {
+      Proc.new {
         router :api, "/api" do
         end
 
@@ -150,7 +150,7 @@ RSpec.describe "routing requests" do
 
   context "when a route is defined within another router that's deeply nested" do
     let :app_definition do
-      -> {
+      Proc.new {
         router :api, "/api" do
           namespace :v1, "/v1" do
           end
@@ -181,7 +181,7 @@ RSpec.describe "routing requests" do
 
   context "when a hook is defined in a parent router" do
     let :app_definition do
-      -> {
+      Proc.new {
         router do
           def foo
             send "foo"
@@ -203,7 +203,7 @@ RSpec.describe "routing requests" do
 
   context "when hooks are defined on a parent router" do
     let :app_definition do
-      -> {
+      Proc.new {
         router before: [:foo] do
           def foo
             $calls << :foo

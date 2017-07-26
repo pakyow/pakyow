@@ -3,7 +3,7 @@ RSpec.describe "path building" do
   using Pakyow::Support::DeepDup
 
   let :app_definition do
-    -> {
+    Proc.new {
       router do
         def other_params
           Hash[params.map { |k, v|

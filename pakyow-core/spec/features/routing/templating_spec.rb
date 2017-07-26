@@ -2,7 +2,7 @@ RSpec.describe "route templating" do
   include_context "testable app"
 
   let :app_definition do
-    -> {
+    Proc.new {
       router do
         template :talkback do
           get :hello, "/hello"
