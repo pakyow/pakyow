@@ -6,8 +6,6 @@ module Pakyow
 
     def self.load_presenter_into(app_class)
       app_class.after :configure do
-        puts '!!! in load_presenter_into'
-        puts config.presenter.path
         app_class.template_store << TemplateStore.new(:default, config.presenter.path)
 
         if environment == :development
