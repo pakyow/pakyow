@@ -11,18 +11,16 @@ module Pakyow
       def presentable(name, default_value = default_omitted = true)
         raise ArgumentError, "name must a symbol" unless name.is_a?(Symbol)
 
+        args = {}
+
         if default_omitted && !block_given?
-          begin
-            value = self.__send__(name)
-          rescue NoMethodError
-            fail "could not find presentable state for `#{name}' on #{self}"
-          end
+          args[:method_name] = name
         else
-          value = default_value unless default_omitted
-          value = yield if value.nil? && block_given?
+          args[:value] = default_value unless default_omitted
+          args[:value] = yield if args[:value].nil? && block_given?
         end
 
-        presentables[name] = { value: value }
+        presentables[name] = args
       end
 
       module ClassMethods
