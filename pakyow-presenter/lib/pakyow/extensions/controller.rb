@@ -6,6 +6,8 @@ module Pakyow
     end
 
     def render(path = request.route_path || request.path, as: nil)
+      path = String.normalize_path(path)
+
       if info = find_info_for(path)
         unless presenter = find_presenter_for(as || path)
           presenter = Presenter::ViewPresenter
