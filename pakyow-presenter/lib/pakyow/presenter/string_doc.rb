@@ -27,8 +27,15 @@ module Pakyow
 
         def breadth_first(doc)
           queue = [doc]
+
           until queue.empty?
-            yield queue.shift, queue
+            element = queue.shift
+
+            if element == doc
+              queue.concat(element.children.to_a); next
+            end
+
+            yield element
           end
         end
 
@@ -134,11 +141,7 @@ module Pakyow
           nodes << StringNode.new(["<!DOCTYPE html>", "", []])
         end
 
-        self.class.breadth_first(doc) do |element, queue|
-          if element == doc
-            queue.concat(element.children.to_a); next
-          end
-
+        self.class.breadth_first(doc) do |element|
           # TODO: why do we do this? optimization?
           children = element.children.reject {|n| n.is_a?(Oga::XML::Text)}
 

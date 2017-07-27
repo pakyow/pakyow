@@ -69,12 +69,7 @@ module Pakyow
       def self.significant?(node)
         return false unless node_with_valueless_attribute?(node)
 
-        # TODO: would be sweet if `breadth_first` could just handle this...
-        StringDoc.breadth_first(node) do |child, queue|
-          if child == node
-            queue.concat(child.children.to_a); next
-          end
-
+        StringDoc.breadth_first(node) do |child|
           return true if PropNode.significant?(child)
         end
       end
@@ -95,11 +90,7 @@ module Pakyow
       def self.significant?(node)
         return false unless node_with_valueless_attribute?(node)
 
-        StringDoc.breadth_first(node) do |child, queue|
-          if child == node
-            queue.concat(child.children.to_a); next
-          end
-
+        StringDoc.breadth_first(node) do |child|
           return false if significant?(child) || ScopeNode.significant?(child)
         end
 
