@@ -3,6 +3,7 @@ start_simplecov do
 end
 
 require "pakyow/core"
+require "pakyow/presenter"
 
 require "../spec/helpers/app_helpers"
 require "../spec/helpers/mock_request"
