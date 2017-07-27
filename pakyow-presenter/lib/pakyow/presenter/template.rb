@@ -22,8 +22,8 @@ module Pakyow
       end
 
       def build(page)
-        object.containers.each do |container|
-          container.replace(page.content(container.name))
+        object.find_significant_nodes(:container).each do |container_node|
+          container_node.replace(page.content(container_node.name))
         end
 
         View.new(object: object)

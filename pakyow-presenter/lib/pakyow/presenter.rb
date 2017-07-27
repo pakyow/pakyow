@@ -19,6 +19,7 @@ require "pakyow/presenter/string_node"
 require "pakyow/presenter/string_attributes"
 require "pakyow/presenter/template_store"
 require "pakyow/presenter/binder"
+require "pakyow/presenter/significant"
 
 require "pakyow/presenter/presenter"
 

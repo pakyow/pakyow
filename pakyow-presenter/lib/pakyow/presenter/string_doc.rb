@@ -6,68 +6,81 @@ module Pakyow
     # @api private
     class StringDoc
       class << self
-        def significant(name, &block)
-          significant_types << name
+        def significant(name, object)
+          significant_types[name] = object
         end
 
         def significant_types
-          @significant_types ||= []
+          @significant_types ||= {}
         end
 
         def from_nodes(nodes)
           instance = allocate
           instance.instance_variable_set(:@nodes, nodes)
-          return instance
+          instance
         end
 
         def ensure(object)
           return object if object.is_a?(StringDoc)
           StringDoc.new(object)
         end
+
+        def breadth_first(doc)
+          queue = [doc]
+          until queue.empty?
+            yield queue.shift, queue
+          end
+        end
+
+        def attributes(node)
+          if node.is_a?(Oga::XML::Element)
+            node.attributes
+          else
+            []
+          end
+        end
+
+        def attributes_string(node)
+          attributes(node).each_with_object("") do |attribute, string|
+            string << " #{attribute.name}=\"#{attribute.value}\""
+          end
+        end
       end
 
       include Support::Silenceable
       include Support::Inspectable
 
-      attr_reader :nodes, :significant_nodes
-
       inspectable :nodes
 
-      TITLE_REGEX = /<title>(.*?)<\/title>/m.freeze
-      PARTIAL_REGEX = /@include\s*([a-zA-Z0-9\-_]*)/.freeze
-      CONTAINER_REGEX = /@container\s*([a-zA-Z0-9\-_]*)/.freeze
-
-      significant :scope
-      significant :prop
-      significant :container
-      significant :partial
-      significant :option
-      significant :component
+      attr_reader :nodes, :significant_nodes
 
       def initialize(html)
         @nodes = parse(Oga.parse_html(html))
+        @significant = {}
       end
 
       def initialize_copy(original)
         super
 
-        @nodes = @nodes.map { |node|
-          dup = node.dup
-          dup.instance_variable_set(:@parent, self)
-          dup
+        @nodes = @nodes.map(&:dup).each do |node|
+          node.instance_variable_set(:@parent, self)
+        end
+
+        @significant = {}
+      end
+
+      def find_significant_nodes(type)
+        type = type.to_sym
+        @significant[type] ||= nodes.map(&:with_children).flatten.select { |node|
+          node.type == type
         }
       end
 
-      def title
-        title_search do |n, match|
-          return match[1]
-        end
-      end
-
-      def title=(title)
-        title_search do |n, match|
-          n.gsub!(TITLE_REGEX, "<title>#{title}</title>")
-        end
+      def find_significant_nodes_with_name(type, name)
+        name = name.to_sym
+        find_significant_nodes(type).select { |node|
+          node.name == name
+        }
       end
 
       def clear
@@ -98,100 +111,20 @@ module Pakyow
         @nodes.insert(@nodes.index(after_node) + 1, node_to_insert)
       end
 
-      def scope(name)
-        scopes[name] || []
-      end
-
-      def prop(name)
-        props[name] || []
-      end
-
-      def container(name)
-        containers.find { |container| container.name == name }
-      end
-
-      # TODO: hook this up
-      def component(name)
-        # components.select { |c| c[:component] == name }
-      end
-
-      # TODO: hook this up
-      def channel(name)
-        # find_channel(scopes, name)
-      end
-
-      def containers
-        @containers ||= nodes.map(&:with_children).flatten.select { |element| element.type == :container }
-      end
-
-      def partials
-        @partials ||= nodes.map(&:with_children).flatten.select { |element|
-          element.type == :partial
-        }.each_with_object({}) do |partial, partials|
-          (partials[partial.name] ||= []) << partial
-        end
-      end
-
-      def scopes
-        @scopes ||= nodes.map(&:with_children).flatten.select { |element|
-          element.type == :scope
-        }.each_with_object({}) do |scope, scopes|
-          (scopes[scope.name] ||= []) << scope
-        end
-      end
-
-      def props
-        @props ||= nodes.map(&:with_children).flatten.select { |element|
-          element.type == :prop
-        }.each_with_object({}) do |prop, props|
-          (props[prop.name] ||= []) << prop
-        end
-      end
-
-      # TODO: hook this up
-      def components
-        {}
-        # find_components(@node ? [@node] : @nodes)
-      end
-
       def to_html
         render
       end
+
       alias :to_s :to_html
 
-      def ==(o)
-        #TODO do this without rendering?
-        # (at least in the case of comparing StringDoc to StringDoc)
-        to_s == o.to_s
-      end
-
-      def mixin(partial_map)
-        # TODO: pass partial docs in, not views
-        partials.each do |partial_name, partial_docs|
-          next unless partial = partial_map[partial_name]
-
-          partial_docs.each do |partial_doc|
-            replacement = partial.object.dup
-            replacement.mixin(partial_map)
-
-            partial_doc.replace(replacement)
-          end
-        end
+      def ==(comparison)
+        comparison.is_a?(StringDoc) && nodes == comparison.nodes
       end
 
       private
 
       def render(nodes = @nodes)
         nodes.flatten.reject(&:empty?).map(&:to_s).join
-      end
-
-      def title_search
-        @nodes.flatten.each do |n|
-          next unless n.is_a?(String)
-          if match = n.match(TITLE_REGEX)
-            yield n, match
-          end
-        end
       end
 
       def parse(doc)
@@ -201,182 +134,52 @@ module Pakyow
           nodes << StringNode.new(["<!DOCTYPE html>", "", []])
         end
 
-        breadth_first(doc) do |node, queue|
-          if node == doc
-            queue.concat(node.children.to_a); next
+        self.class.breadth_first(doc) do |element, queue|
+          if element == doc
+            queue.concat(element.children.to_a); next
           end
 
           # TODO: why do we do this? optimization?
-          children = node.children.reject {|n| n.is_a?(Oga::XML::Text)}
+          children = element.children.reject {|n| n.is_a?(Oga::XML::Text)}
 
-          # this is an optimization we can make because we don't care about this node and
+          significant_object = significant(element)
+
+          # this is an optimization we can make because we don't care about this element and
           # we know that nothing inside of it is significant, so we can just collapse it
-          if !nodes.empty? && children.empty? && !significant?(node)
-            nodes << StringNode.new([node.to_xml, "", []]); next
+          if !nodes.empty? && children.empty? && !significant_object
+            nodes << StringNode.new([element.to_xml, "", []]); next
           end
 
-          if significant?(node)
-            significant_type = significance(node)
+          node = if significant_object
+                   build_significant_node(element, significant_object)
+                 elsif element.is_a?(Oga::XML::Text) || element.is_a?(Oga::XML::Comment)
+                   StringNode.new([element.to_xml, "", []])
+                 else
+                   StringNode.new(["<#{element.name}#{self.class.attributes_string(element)}", ""])
+                 end
 
-            element = case significant_type
-            when :container
-              StringNode.new([node.to_xml, ""], type: :container, name: container_name(node), parent: self)
-            when :partial
-              StringNode.new([node.to_xml, ""], type: :partial, name: partial_name(node), parent: self)
-            when :scope
-              attributes = attributes_instance(node)
-              scope = attributes.keys.first
-              attributes[:"data-scope"] = scope
-              attributes.delete(scope)
-
-              StringNode.new(["<#{node.name} ", attributes], type: :scope, name: scope, parent: self)
-            when :prop
-              attributes = attributes_instance(node)
-              prop = attributes.keys.first
-              attributes[:"data-prop"] = prop
-              attributes.delete(prop)
-
-              StringNode.new(["<#{node.name} ", attributes], type: :prop, name: prop, parent: self)
-            else
-              StringNode.new(["<#{node.name} ", attributes_instance(node)], type: significant_type, parent: self)
-            end
-
-            tag = if node.is_a?(Oga::XML::Element)
-              node.name
-            else
-              nil
-            end
-
-            element.close(tag, parse(node))
-
-            nodes << element
-          else # insignificant
-            if node.is_a?(Oga::XML::Text) || node.is_a?(Oga::XML::Comment)
-              nodes << StringNode.new([node.to_xml, "", []])
-            else
-              element = StringNode.new(["<#{node.name}#{attributes_string(node)}", ""])
-              element.close(node.name, parse(node)) if node.is_a?(Oga::XML::Element)
-              nodes << element
-            end
+          if element.is_a?(Oga::XML::Element)
+            node.close(element.name, parse(element))
           end
+
+          nodes << node
         end
 
         nodes
       end
 
-      def breadth_first(doc)
-        queue = [doc]
-        until queue.empty?
-          yield queue.shift, queue
-        end
-      end
-
-      def significant?(node)
-        self.class.significant_types.each do |name|
-          return true if __send__(:"#{name}?", node)
+      def significant(node)
+        self.class.significant_types.values.each do |object|
+          return object if object.significant?(node)
         end
 
         false
       end
 
-      def significance(node)
-        self.class.significant_types.each do |name, block|
-          return name if __send__(:"#{name}?", node)
-        end
-
-        nil
-      end
-
-      def scope?(node)
-       if node.is_a?(Oga::XML::Element)
-         if attribute = node.attributes.first
-           if attribute.name && !attribute.value
-             breadth_first(node) do |child, queue|
-               if child == node
-                 queue.concat(child.children.to_a); next
-               end
-
-               if significant?(child)
-                 return true
-               end
-             end
-           end
-         end
-       end
-
-       false
-     end
-
-     def prop?(node)
-        if node.is_a?(Oga::XML::Element)
-          if attribute = node.attributes.first
-            if attribute.name && !attribute.value
-              breadth_first(node) do |child, queue|
-                if child == node
-                  queue.concat(child.children.to_a); next
-                end
-
-                return false if significant?(child)
-              end
-
-              true
-            end
-          end
-        end
-      end
-
-      def container?(node)
-        node.is_a?(Oga::XML::Comment) && node.text.strip.match(CONTAINER_REGEX)
-      end
-
-      def partial?(node)
-        node.is_a?(Oga::XML::Comment) && node.to_xml.strip.match(PARTIAL_REGEX)
-      end
-
-      def option?(node)
-        node.is_a?(Oga::XML::Element) && node.name == 'option'
-      end
-
-      def component?(node)
-        node.is_a?(Oga::XML::Element) && node.attribute('data-ui')
-      end
-
-      def container_name(node)
-        match = node.text.strip.match(CONTAINER_REGEX)[1]
-
-        if match.empty?
-          :default
-        else
-          match.to_sym
-        end
-      end
-
-      def partial_name(node)
-        node.text.strip.match(PARTIAL_REGEX)[1].to_sym
-      end
-
-      def attributes(node)
-        if node.is_a?(Oga::XML::Element)
-          node.attributes
-        else
-          []
-        end
-      end
-
-      def attributes_instance(node)
-        StringAttributes.new(attributes_hash(node))
-      end
-
-      def attributes_hash(node)
-        hash = attributes(node).each_with_object({}) do |attribute, nodes|
-          nodes[attribute.name.to_sym] = attribute.value
-        end
-      end
-
-      def attributes_string(node)
-        attributes(node).each_with_object("") do |attribute, string|
-          string << " #{attribute.name}=\"#{attribute.value}\""
-        end
+      def build_significant_node(element, object)
+        node = object.node(element)
+        node.parent = self
+        node
       end
     end
   end

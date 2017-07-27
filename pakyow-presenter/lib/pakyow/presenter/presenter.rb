@@ -60,14 +60,14 @@ module Pakyow
         if binder = binder_for_current_scope
           view.repeat(data.map { |object| binder.new(object) }) do |view, binder|
             bindable = binder.object
-            view.object.props.keys.each do |prop_name|
-              value = binder[prop_name]
+            view.props.each do |prop|
+              value = binder[prop.name]
 
               if value.is_a?(BinderParts)
-                bindable[prop_name] = value.content if value.content?
+                bindable[prop.name] = value.content if value.content?
                 view.attrs(value.non_content_parts)
               else
-                bindable[prop_name] = value
+                bindable[prop.name] = value
               end
             end
 
@@ -137,7 +137,8 @@ module Pakyow
 
       attr_reader :template, :page, :partials
 
-      def initialize(template: nil, page: nil, partials: {}, **args)
+      # TODO: we can build the view on boot rather than on demand, then create presenter instances
+      def initialize(template: nil, page: nil, partials: [], **args)
         @template, @page, @partials = template, page, partials
         @view = template.build(page).mixin(partials)
         super(@view, **args)
