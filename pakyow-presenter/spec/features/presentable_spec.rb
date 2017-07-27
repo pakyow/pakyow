@@ -13,7 +13,7 @@ RSpec.describe "presentable definitions" do
 
       configure do
         # TODO: change to relative path
-        config.presenter.path = "/Users/rjclardy/code/pakyow/pakyow-presenter/spec/views"
+        config.presenter.path = "./spec/views"
       end
 
       router :default do
