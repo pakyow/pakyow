@@ -1,24 +1,21 @@
 module Pakyow
   module Support
     module DeepFreeze
-      refine Object.singleton_class do
-        def inherited(subclass)
-          super
+      def self.extended(subclass)
+        subclass.instance_variable_set(:@unfreezable_variables, [])
 
-          subclass.instance_variable_set(:@unfreezable_variables, @unfreezable_variables)
-        end
+        super
+      end
 
-        def unfreezable_variables
-          @unfreezable_variables ||= []
-        end
+      def inherited(subclass)
+        subclass.instance_variable_set(:@unfreezable_variables, @unfreezable_variables)
 
-        private
+        super
+      end
 
-        def unfreezable(*ivars)
-          ivars = ivars.map { |ivar| "@#{ivar}".to_sym }
-          unfreezable_variables.concat(ivars)
-          unfreezable_variables.uniq!
-        end
+      def unfreezable(*ivars)
+        @unfreezable_variables.concat(ivars.map { |ivar| :"@#{ivar}" })
+        @unfreezable_variables.uniq!
       end
 
       refine Object do
@@ -37,7 +34,13 @@ module Pakyow
         private
 
         def freezable_variables
-          instance_variables - self.class.unfreezable_variables
+          object = self.is_a?(Class) ? self : self.class
+
+          if object.instance_variable_defined?(:@unfreezable_variables)
+            instance_variables - object.instance_variable_get(:@unfreezable_variables)
+          else
+            instance_variables
+          end
         end
       end
 
@@ -52,7 +55,7 @@ module Pakyow
           self
         end
       end
-      
+
       refine Hash do
         def deep_freeze
           return self if frozen?

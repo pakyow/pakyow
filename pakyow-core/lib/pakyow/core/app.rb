@@ -314,7 +314,7 @@ module Pakyow
       }
     end
 
-    using Support::DeepFreeze
+    extend Support::DeepFreeze
 
     unfreezable :builder
 

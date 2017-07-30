@@ -1,8 +1,7 @@
 require "pakyow/support/deep_freeze"
-
 using Pakyow::Support::DeepFreeze
-
 class MyObject
+  extend Pakyow::Support::DeepFreeze
   unfreezable :fire
 
   attr_reader :fire, :water
@@ -14,7 +13,7 @@ class MyObject
 end
 
 RSpec.describe Pakyow::Support::DeepFreeze do
-  let :obj_with_unfreezable { 
+  let :obj_with_unfreezable {
     MyObject.new
   }
 
@@ -36,7 +35,7 @@ RSpec.describe Pakyow::Support::DeepFreeze do
       ivar_value = Object.new
       obj = Object.new
       obj.instance_variable_set(:@ivar_name, ivar_value)
-      
+
       obj.deep_freeze
 
       expect(obj).to be_frozen
@@ -48,7 +47,7 @@ RSpec.describe Pakyow::Support::DeepFreeze do
       objects.reduce do |parent, child|
         parent.instance_variable_set(:@child, child)
       end
-      
+
       objects.first.deep_freeze
 
       objects.each do |obj|
@@ -61,7 +60,7 @@ RSpec.describe Pakyow::Support::DeepFreeze do
       objects.reduce do |parent, child|
         parent.instance_variable_set(:@child, child)
       end
-      
+
       objects.first.deep_freeze
 
       objects.each do |obj|
@@ -101,12 +100,5 @@ RSpec.describe Pakyow::Support::DeepFreeze do
       expect(obj_with_unfreezable.water).to be_frozen
       expect(obj_with_unfreezable.fire).not_to be_frozen
     end
-
-    it "returns an array of unfreezeable ivars" do
-      vars = MyObject.unfreezable_variables
-
-      expect(vars).to be_instance_of(Array)
-    end
   end
 end
-
