@@ -314,7 +314,7 @@ module Pakyow
       }
     end
 
-    using Support::DeepFreeze
+    extend Support::DeepFreeze
 
     unfreezable :builder
 
@@ -337,7 +337,7 @@ module Pakyow
       #
       # This ensures that any state registered in the passed block
       # has the proper priority against instance and global state.
-      super(&block)
+      defined!(&block)
     end
 
     # @api private

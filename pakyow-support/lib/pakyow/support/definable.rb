@@ -38,7 +38,8 @@ module Pakyow
       # @api private
       attr_reader :state
 
-      def initialize(&block)
+      # @api private
+      def defined!(&block)
         # create mutable state for this instance based on global
         @state = self.class.state.each_with_object({}) { |(name, global_state), state|
           state[name] = State.new(name, global_state.object)
