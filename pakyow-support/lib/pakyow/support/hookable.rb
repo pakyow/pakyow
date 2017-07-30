@@ -153,15 +153,17 @@ module Pakyow
           raise ArgumentError, "#{event} is not a known hook event" unless known_event?(event)
           priority = PRIORITIES[priority] if priority.is_a?(Symbol)
           (hash_of_hooks[type.to_sym][event.to_sym] ||= []) << [priority, hook]
+          reprioritize(hash_of_hooks, type, event)
+        end
+
+        # @api private
+        def reprioritize(hash_of_hooks, type, event)
+          hash_of_hooks[type][event].sort! { |a, b| b[0] <=> a[0] }
         end
 
         # @api private
         def fetch_hooks(hash_of_hooks, type, event)
-          hash_of_hooks
-            .fetch(type.to_sym, {})
-            .fetch(event.to_sym, [])
-            .sort { |a, b| b[0] <=> a[0] }
-            .map { |t| t[1] }
+          hash_of_hooks[type].fetch(event, []).map { |t| t[1] }
         end
 
         # @api private
