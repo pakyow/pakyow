@@ -142,14 +142,10 @@ module Pakyow
         end
 
         self.class.breadth_first(doc) do |element|
-          # TODO: why do we do this? optimization?
-          children = element.children.reject {|n| n.is_a?(Oga::XML::Text)}
-
           significant_object = significant(element)
 
-          # this is an optimization we can make because we don't care about this element and
-          # we know that nothing inside of it is significant, so we can just collapse it
-          if !nodes.empty? && children.empty? && !significant_object
+          unless significant_object || contains_significant_child?(element)
+            # we know that nothing inside of the node is significant, so we can just collapse it to a single node
             nodes << StringNode.new([element.to_xml, "", []]); next
           end
 
@@ -183,6 +179,15 @@ module Pakyow
         node = object.node(element)
         node.parent = self
         node
+      end
+
+      def contains_significant_child?(element)
+        element.children.each do |child|
+          return true if significant(child)
+          return true if contains_significant_child?(child)
+        end
+
+        false
       end
     end
   end
