@@ -20,11 +20,6 @@ module Pakyow
           instance
         end
 
-        def ensure(object)
-          return object if object.is_a?(StringDoc)
-          StringDoc.new(object)
-        end
-
         def breadth_first(doc)
           queue = [doc]
 
@@ -94,24 +89,24 @@ module Pakyow
         nodes.clear
       end
 
-      def append(doc)
-        children.concat(StringDoc.ensure(doc).nodes)
+      def append(doc_or_string)
+        children.concat(nodes_from_doc_or_string(doc_or_string))
       end
 
-      def prepend(doc)
-        children.unshift(*StringDoc.ensure(doc).nodes)
+      def prepend(doc_or_string)
+        children.unshift(*nodes_from_doc_or_string(doc_or_string))
       end
 
-      def after(doc)
-        nodes.concat(StringDoc.ensure(doc).nodes)
+      def after(doc_or_string)
+        nodes.concat(nodes_from_doc_or_string(doc_or_string))
       end
 
-      def before(doc)
-        nodes.unshift(*StringDoc.ensure(doc).nodes)
+      def before(doc_or_string)
+        nodes.unshift(*nodes_from_doc_or_string(doc_or_string))
       end
 
-      def replace(doc)
-        @nodes = StringDoc.ensure(doc).nodes
+      def replace(doc_or_string)
+        @nodes = nodes_from_doc_or_string(doc_or_string)
       end
 
       def insert_after(node_to_insert, after_node)
@@ -129,6 +124,14 @@ module Pakyow
       end
 
       private
+
+      def nodes_from_doc_or_string(doc_or_string)
+        if doc_or_string.is_a?(StringDoc)
+          doc_or_string.nodes
+        else
+          [StringNode.new([doc_or_string.to_s, "", []])]
+        end
+      end
 
       def render(nodes = @nodes)
         nodes.flatten.reject(&:empty?).map(&:to_s).join
