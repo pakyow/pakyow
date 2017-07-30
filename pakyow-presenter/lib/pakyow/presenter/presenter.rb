@@ -137,7 +137,6 @@ module Pakyow
 
       attr_reader :template, :page, :partials
 
-      # TODO: we can build the view on boot rather than on demand, then create presenter instances
       def initialize(template: nil, page: nil, partials: [], **args)
         @template, @page, @partials = template, page, partials
         @view = template.build(page).mixin(partials)
