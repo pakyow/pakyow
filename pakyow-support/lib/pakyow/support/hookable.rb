@@ -64,6 +64,13 @@ module Pakyow
           base.extend(API)
         end
 
+        def inherited(subclass)
+          super
+
+          subclass.instance_variable_set(:@known_events, @known_events)
+          subclass.instance_variable_set(:@hook_hash, @hook_hash)
+        end
+
         # Sets the known events for the hookable object. Hooks registered for
         # an event that doesn't exist will raise an ArgumentError.
         #
