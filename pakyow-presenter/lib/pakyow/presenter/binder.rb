@@ -1,3 +1,5 @@
+require "pakyow/support/class_maker"
+
 module Pakyow
   module Presenter
     class BinderParts
@@ -29,6 +31,9 @@ end
 module Pakyow
   module Presenter
     class Binder
+      extend Support::ClassMaker
+      CLASS_MAKER_BASE = "Binder".freeze
+
       attr_reader :object
 
       def initialize(object)
@@ -66,35 +71,6 @@ module Pakyow
 
       def parts_for(name)
         @parts[name] ||= BinderParts.new
-      end
-
-      class << self
-        attr_reader :scope
-
-        def make(name, state: nil, &block)
-          klass = const_for_binder_named(Class.new(self), name)
-
-          klass.class_eval do
-            @scope = name
-            class_eval(&block) if block_given?
-          end
-
-          klass
-        end
-
-        # TODO: combine with Router#const_for_router_named and move to support
-        def const_for_binder_named(binder_class, name)
-          return binder_class if name.nil?
-
-          # convert snake case to camel case
-          class_name = "#{name.to_s.split('_').map(&:capitalize).join}Binder"
-
-          if Object.const_defined?(class_name)
-            binder_class
-          else
-            Object.const_set(class_name, binder_class)
-          end
-        end
       end
     end
   end
