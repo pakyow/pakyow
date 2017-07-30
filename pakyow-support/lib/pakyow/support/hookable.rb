@@ -53,8 +53,8 @@ module Pakyow
       end
 
       # @api private
-      def is_known_event?(event)
-        self.class.is_known_event?(event.to_sym)
+      def known_event?(event)
+        self.class.known_event?(event.to_sym)
       end
 
       # Class-level api methods.
@@ -77,12 +77,11 @@ module Pakyow
         # @param events [Array<Symbol>] The list of known events.
         #
         def known_events(*events)
-          (@known_events ||= []).concat(events.map(&:to_sym)).uniq!
-          @known_events
+          (@known_events ||= []).concat(events.map(&:to_sym)).uniq!; @known_events
         end
 
         # @api private
-        def is_known_event?(event)
+        def known_event?(event)
           @known_events && @known_events.include?(event.to_sym)
         end
 
@@ -151,7 +150,7 @@ module Pakyow
 
         # @api private
         def add_hook(hash_of_hooks, type, event, priority, hook)
-          raise ArgumentError, "#{event} is not a known hook event" unless is_known_event?(event)
+          raise ArgumentError, "#{event} is not a known hook event" unless known_event?(event)
           priority = PRIORITIES[priority] if priority.is_a?(Symbol)
           (hash_of_hooks[type.to_sym][event.to_sym] ||= []) << [priority, hook]
         end
