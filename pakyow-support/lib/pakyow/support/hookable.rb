@@ -1,3 +1,5 @@
+require "pakyow/support/deep_dup"
+
 module Pakyow
   module Support
     # Makes it possible to define and call hooks on an object.
@@ -40,21 +42,29 @@ module Pakyow
       #
       PRIORITIES = { default: 0, high: 1, low: -1 }
 
+      using DeepDup
+
       def self.included(base)
         base.include API
         base.extend ClassAPI
-      end
+        base.prepend Initializer
 
-      # @api private
-      def hooks(type, event)
-        self.class.hooks(type, event).concat(
-          fetch_hooks(hook_hash, type, event)
-        )
+        base.instance_variable_set(:@hook_hash, { after: {}, before: {} })
+        base.instance_variable_set(:@pipeline, { after: {}, before: {} })
       end
 
       # @api private
       def known_event?(event)
         self.class.known_event?(event.to_sym)
+      end
+
+      module Initializer
+        def initialize(*)
+          @hook_hash = self.class.hook_hash.deep_dup
+          @pipeline = self.class.pipeline.deep_dup
+
+          super
+        end
       end
 
       # Class-level api methods.
@@ -84,16 +94,13 @@ module Pakyow
         def known_event?(event)
           @known_events && @known_events.include?(event.to_sym)
         end
-
-        # @api private
-        def hooks(type, event)
-          fetch_hooks(hook_hash, type, event)
-        end
       end
 
       # Methods included at the class and instance level.
       #
       module API
+        attr_reader :hook_hash, :pipeline
+
         # Defines a hook to call before event occurs.
         #
         # @param event [Symbol] The name of the event.
@@ -149,26 +156,28 @@ module Pakyow
         end
 
         # @api private
+        def hooks(type, event)
+          pipeline[type][event] || []
+        end
+
+        # @api private
         def add_hook(hash_of_hooks, type, event, priority, hook)
           raise ArgumentError, "#{event} is not a known hook event" unless known_event?(event)
           priority = PRIORITIES[priority] if priority.is_a?(Symbol)
           (hash_of_hooks[type.to_sym][event.to_sym] ||= []) << [priority, hook]
-          reprioritize(hash_of_hooks, type, event)
+
+          reprioritize!(hash_of_hooks, type, event)
+          pipeline!(hash_of_hooks, type, event)
         end
 
         # @api private
-        def reprioritize(hash_of_hooks, type, event)
-          hash_of_hooks[type][event].sort! { |a, b| b[0] <=> a[0] }
+        def reprioritize!(hash_of_hooks, type, event)
+          hash_of_hooks[type.to_sym][event.to_sym].sort! { |a, b| b[0] <=> a[0] }
         end
 
         # @api private
-        def fetch_hooks(hash_of_hooks, type, event)
-          hash_of_hooks[type].fetch(event, []).map { |t| t[1] }
-        end
-
-        # @api private
-        def hook_hash
-          @hook_hash ||= { after: {}, before: {} }
+        def pipeline!(hash_of_hooks, type, event)
+          pipeline[type.to_sym][event.to_sym] = hash_of_hooks[type.to_sym][event.to_sym].map { |t| t[1] }
         end
       end
     end
