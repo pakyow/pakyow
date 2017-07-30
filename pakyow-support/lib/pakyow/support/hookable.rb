@@ -79,6 +79,7 @@ module Pakyow
 
           subclass.instance_variable_set(:@known_events, @known_events)
           subclass.instance_variable_set(:@hook_hash, @hook_hash)
+          subclass.instance_variable_set(:@pipeline, @pipeline)
         end
 
         # Sets the known events for the hookable object. Hooks registered for
