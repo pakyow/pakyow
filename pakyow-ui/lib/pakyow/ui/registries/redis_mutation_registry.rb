@@ -52,8 +52,8 @@ module Pakyow
         end
       end
 
-      def keys(match)
-        Pakyow::Realtime.redis.sscan_each(match).to_a
+      def keys(match, &block)
+        Pakyow::Realtime.redis.scan_each(match: match, &block)
       end
     end
   end

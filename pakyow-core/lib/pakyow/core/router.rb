@@ -1,6 +1,8 @@
 require "pakyow/support/aargv"
 require "pakyow/support/array"
 
+require "pakyow/support/class_maker"
+
 require "pakyow/core/routing/hook_merger"
 
 module Pakyow
@@ -136,7 +138,10 @@ module Pakyow
   class Router
     include Helpers
     using Support::DeepDup
-    extend Pakyow::Routing::HookMerger
+    extend Routing::HookMerger
+
+    extend Support::ClassMaker
+    CLASS_MAKER_BASE = "Router".freeze
 
     router = self
     Pakyow.singleton_class.class_eval do
@@ -609,7 +614,7 @@ module Pakyow
       end
 
       # @api private
-      attr_reader :name, :path, :matcher, :state, :hooks, :children, :templates, :handlers, :exceptions
+      attr_reader :path, :matcher, :hooks, :children, :templates, :handlers, :exceptions
 
       # @api private
       attr_accessor :parent
@@ -666,12 +671,12 @@ module Pakyow
       # @api private
       def make(*args, before: [], after: [], around: [], state: nil, parent: nil, &block)
         name, matcher = parse_name_and_matcher_from_args(*args)
-        klass = const_for_router_named(Class.new(self), name)
+        klass = class_const_for_name(Class.new(self), name)
 
         klass.class_eval do
           @name = name
-          @matcher = finalize_matcher_and_set_path(matcher)
           @state = state
+          @matcher = finalize_matcher_and_set_path(matcher)
           @parent = parent
           @hooks = compile_hooks(before: before, after: after, around: around)
           class_eval(&block) if block
@@ -814,19 +819,6 @@ module Pakyow
 
       def merge_templates(templates_to_merge)
         templates.merge!(templates_to_merge)
-      end
-
-      def const_for_router_named(router_class, name)
-        return router_class if name.nil?
-
-        # convert snake case to camel case
-        class_name = "#{name.to_s.split('_').map(&:capitalize).join}Router"
-
-        if Object.const_defined?(class_name)
-          router_class
-        else
-          Object.const_set(class_name, router_class)
-        end
       end
     end
   end

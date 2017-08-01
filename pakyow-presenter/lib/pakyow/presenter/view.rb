@@ -86,22 +86,30 @@ module Pakyow
 
       # TODO: replace with `find`
       def scope(name)
-        @object.scope(name.to_sym).inject(ViewCollection.new(scoped_as: name)) do |coll, scope|
+        @object.find_significant_nodes_with_name(:scope, name).inject(ViewCollection.new(scoped_as: name)) do |coll, scope|
           coll << View.new(object: scope)
         end
       end
 
       # TODO: replace with `find`
       def prop(name)
-        @object.prop(name.to_sym).inject(ViewCollection.new) do |coll, prop|
+        @object.find_significant_nodes_with_name(:prop, name).inject(ViewCollection.new) do |coll, prop|
           coll << View.new(object: prop[:object])
         end
       end
 
-      def component(name)
-        @object.component(name.to_sym).inject(ViewCollection.new) do |coll, component|
-          coll << View.new(object: component[:object])
-        end
+      # def component(name)
+      #   @object.component(name.to_sym).inject(ViewCollection.new) do |coll, component|
+      #     coll << View.new(object: component[:object])
+      #   end
+      # end
+
+      def scopes
+        @object.find_significant_nodes(:scope)
+      end
+
+      def props
+        @object.find_significant_nodes(:prop)
       end
 
       # call-seq:
@@ -255,8 +263,17 @@ module Pakyow
         match(data).bind(data, &block)
       end
 
-      def mixin(partial_map)
-        object.mixin(partial_map); self
+      def mixin(partials)
+        object.find_significant_nodes(:partial).each do |partial_node|
+          next unless partial = partials[partial_node.name]
+
+          replacement = partial.dup
+          replacement.mixin(partials)
+
+          partial_node.replace(replacement.object)
+        end
+
+        self
       end
 
 			def to_html
@@ -302,24 +319,22 @@ module Pakyow
 
         bind_data_to_root(data)
 
-        object.props.each do |name, props|
-          props.each do |prop|
-            catch :unbound do
+        props.each do |prop|
+          catch :unbound do
+            if StringNode.form_input?(object.tagname)
+              set_form_field_name(prop, prop.name)
+            end
+
+            if data_has_prop?(data, prop.name)
+              value = data[prop.name]
+
               if StringNode.form_input?(object.tagname)
-                set_form_field_name(prop, prop.name)
+                bind_to_form_field(prop, prop.name, value, data)
               end
 
-              if data_has_prop?(data, prop.name)
-                value = data[prop.name]
-
-                if StringNode.form_input?(object.tagname)
-                  bind_to_form_field(prop, prop.name, value, data)
-                end
-
-                bind_data_to_object(prop, value)
-              else
-                handle_unbound_data(prop.name)
-              end
+              bind_data_to_object(prop, value)
+            else
+              handle_unbound_data(prop.name)
             end
           end
         end

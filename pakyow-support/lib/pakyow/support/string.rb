@@ -22,9 +22,8 @@ class String
     caller.match(/^(.+)(:?:\d+(:?:in `.+')?$)/)[1]
   end
 
-  TAIL_SLASH_REPLACE_REGEX = /(\/)+$/
   def self.normalize_path(path)
-    File.join("/", path.gsub("//", "/").gsub(TAIL_SLASH_REPLACE_REGEX, ""))
+    File.join("/", path.gsub("//", "/").chomp("/"))
   end
 
   def self.capitalize(string)

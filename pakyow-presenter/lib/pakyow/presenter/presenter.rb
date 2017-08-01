@@ -60,14 +60,14 @@ module Pakyow
         if binder = binder_for_current_scope
           view.repeat(data.map { |object| binder.new(object) }) do |view, binder|
             bindable = binder.object
-            view.object.props.keys.each do |prop_name|
-              value = binder[prop_name]
+            view.props.each do |prop|
+              value = binder[prop.name]
 
               if value.is_a?(BinderParts)
-                bindable[prop_name] = value.content if value.content?
+                bindable[prop.name] = value.content if value.content?
                 view.attrs(value.non_content_parts)
               else
-                bindable[prop_name] = value
+                bindable[prop.name] = value
               end
             end
 
@@ -92,21 +92,25 @@ module Pakyow
 
       def binder_for_current_scope
         binders.find { |binder|
-          binder.scope == view.scoped_as
+          binder.name == view.scoped_as
         }
       end
     end
 
     class ViewPresenter < Presenter
+      extend Support::ClassMaker
+      CLASS_MAKER_BASE = "ViewPresenter".freeze
+
       class << self
-        attr_reader :name, :path, :block
+        attr_reader :path, :block
 
         def make(path, state: nil, &block)
-          klass = const_for_presenter_named(Class.new(self), name_from_path(path))
+          klass = class_const_for_name(Class.new(self), name_from_path(path))
 
           klass.class_eval do
-            @path = String.normalize_path(path)
             @name = name
+            @state = state
+            @path = String.normalize_path(path)
             @block = block
           end
 
@@ -120,24 +124,11 @@ module Pakyow
           # /posts => Posts
           # /posts/show => PostsShow
         end
-
-        def const_for_presenter_named(presenter_class, name)
-          return presenter_class if name.nil?
-
-          # convert snake case to camel case
-          class_name = "#{name.to_s.split('_').map(&:capitalize).join}ViewPresenter"
-
-          if Object.const_defined?(class_name)
-            presenter_class
-          else
-            Object.const_set(class_name, presenter_class)
-          end
-        end
       end
 
       attr_reader :template, :page, :partials
 
-      def initialize(template: nil, page: nil, partials: {}, **args)
+      def initialize(template: nil, page: nil, partials: [], **args)
         @template, @page, @partials = template, page, partials
         @view = template.build(page).mixin(partials)
         super(@view, **args)

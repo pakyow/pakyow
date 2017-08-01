@@ -1,22 +1,32 @@
+require "forwardable"
+
 module Pakyow
   module Presenter
     # @api private
     class StringNode
       class << self
+        SELF_CLOSING = %w[area base basefont br hr input img link meta].freeze
+        FORM_INPUTS = %w[input select textarea button].freeze
+        WITHOUT_VALUE = %w[select].freeze
+
         def self_closing?(tag)
-          %w[area base basefont br hr input img link meta].include? tag
+          SELF_CLOSING.include? tag
         end
 
         def form_input?(tag)
-          %w[input select textarea button].include? tag
+          FORM_INPUTS.include? tag
         end
 
         def without_value?(tag)
-          %w[select].include? tag
+          WITHOUT_VALUE.include? tag
         end
       end
 
       attr_reader :node, :type, :name, :parent
+      attr_writer :parent
+
+      extend Forwardable
+      def_delegators :children, :find_significant_nodes, :find_significant_nodes_with_name
 
       def initialize(node, type: nil, name: nil, parent: nil)
         @node, @type, @name, @parent = node, type, name, parent
@@ -34,6 +44,7 @@ module Pakyow
         node << (tag ? ">" : "")
         node << StringDoc.from_nodes(child)
         node << ((tag && !self.class.self_closing?(tag)) ? "</#{tag}>" : "")
+        self
       end
 
       def attributes
@@ -42,16 +53,6 @@ module Pakyow
 
       def children
         node[3]
-      end
-
-      # TODO: delegator
-      def props
-        children.props
-      end
-
-      # TODO: delegator
-      def scopes
-        children.scopes
       end
 
       def with_children
@@ -101,7 +102,7 @@ module Pakyow
       end
 
       def tagname
-        node[0].gsub(/[^a-zA-Z]/, '')
+        @tagname ||= node[0].gsub(/[^a-zA-Z]/, "")
       end
 
       # TODO: revisit

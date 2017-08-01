@@ -38,7 +38,8 @@ module Pakyow
       # @api private
       attr_reader :state
 
-      def initialize(&block)
+      # @api private
+      def defined!(&block)
         # create mutable state for this instance based on global
         @state = self.class.state.each_with_object({}) { |(name, global_state), state|
           state[name] = State.new(name, global_state.object)
@@ -121,8 +122,9 @@ module Pakyow
           (@state ||= {})[name] = State.new(name, object)
           method_body = Proc.new do |*args, priority: :default, **opts, &block|
             return @state[name] if block.nil?
-            instance = object.make(*args, state: @state[name], **opts, &block)
-            @state[name].register(instance, priority: priority)
+
+            state = object.make(*args, state: @state[name], **opts, &block)
+            @state[name].register(state, priority: priority)
           end
 
           define_method name, &method_body
