@@ -1,7 +1,9 @@
 module Pakyow
   module Support
     module RecursiveRequire
-      refine Kernel do
+      DOT_RB = ".rb".freeze
+
+      refine Object do
         # Recursively requires all *.rb files at path.
         #
         def require_recursive(require_path)

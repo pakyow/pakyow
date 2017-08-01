@@ -6,6 +6,8 @@ module Pakyow
     end
 
     def render(path = request.route_path || request.path, as: nil)
+      path = String.normalize_path(path)
+
       if info = find_info_for(path)
         unless presenter = find_presenter_for(as || path)
           presenter = Presenter::ViewPresenter
@@ -17,14 +19,21 @@ module Pakyow
         )
 
         if current_router
-          current_router.presentables.each do |presentable|
-            begin
-              value = current_router.__send__(presentable)
-            rescue NoMethodError
-              fail "could not find presentable state for `#{presentable}' on #{current_router}"
+          current_router.presentables.each do |name, opts|
+            if opts.key?(:value)
+              value = opts[:value]
+            elsif opts.key?(:method_name)
+              begin
+                value = current_router.__send__(opts[:method_name])
+              rescue NoMethodError
+                fail "could not find presentable state for `#{opts[:method_name]}' on #{current_router}"
+              end
+            else
+              value = opts[:default_value]
+              value = opts[:block].call if value.nil? && opts[:block]
             end
 
-            presenter_instance.define_singleton_method presentable do
+            presenter_instance.define_singleton_method name do
               value
             end
           end

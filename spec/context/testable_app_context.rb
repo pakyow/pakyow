@@ -61,6 +61,32 @@ module Pakyow
     end
   end
 
+  module Presenter
+    class TemplateStore
+      class << self
+        def reset
+          # TODO: what should we do here?
+        end
+      end
+    end
+
+    class ViewPresenter
+      class << self
+        def reset
+          # TODO: what should we do here?
+        end
+      end
+    end
+
+    class Binder
+      class << self
+        def reset
+          # TODO: what should we do here?
+        end
+      end
+    end
+  end
+
   module Support
     class State
       def reset
