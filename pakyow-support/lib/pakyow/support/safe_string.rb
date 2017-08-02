@@ -11,12 +11,12 @@ module Pakyow
         string.is_a?(SafeString)
       end
 
-      def html_escape(string)
-        CGI.escape_html(string)
-      end
-
       def safe(string)
         SafeString.new(string)
+      end
+
+      def html_escape(string)
+        safe(CGI.escape_html(string))
       end
 
       def strip_tags(string)
