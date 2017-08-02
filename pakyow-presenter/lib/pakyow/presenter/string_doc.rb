@@ -17,6 +17,7 @@ module Pakyow
         def from_nodes(nodes)
           instance = allocate
           instance.instance_variable_set(:@nodes, nodes)
+          instance.instance_variable_set(:@significant, {})
           instance
         end
 
