@@ -3,13 +3,11 @@ module Pakyow
     class ViewSet
       include Enumerable
 
-      attr_reader :views, :scoped_as
+      attr_reader :views, :name
 
-      def initialize(scoped_as: nil)
+      def initialize(name: nil)
+        @name = name
         @views = []
-
-        # TODO: this will be type/name
-        @scoped_as = scoped_as
       end
 
       def initialize_copy(_)

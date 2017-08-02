@@ -138,6 +138,26 @@ module Pakyow
         @view.html = html
       end
 
+      def decorated?
+        @view.decorated?
+      end
+
+      def container?
+        @view.container?
+      end
+
+      def partial?
+        @view.partial?
+      end
+
+      def component?
+        @view.component?
+      end
+
+      def form?
+        @view.form?
+      end
+
       def count
         @view.count
       end
@@ -160,7 +180,7 @@ module Pakyow
 
       def binder_for_current_scope
         binders.find { |binder|
-          binder.name == @view.scoped_as
+          binder.name == @view.name
         }
       end
 

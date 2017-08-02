@@ -15,7 +15,7 @@ module Pakyow
 
       extend Forwardable
 
-      def_delegators :@object, :title=, :title, :text, :html, :to_html, :to_s
+      def_delegators :@object, :type, :name, :title=, :title, :text, :html, :to_html, :to_s
 
       # The object responsible for parsing, manipulating, and rendering
       # the underlying HTML document for the view.
@@ -42,7 +42,7 @@ module Pakyow
       def find(*names)
         name = names.shift
 
-        found = @object.find_significant_nodes_with_name(:prop, name, with_children: false).concat(@object.find_significant_nodes_with_name(:scope, name)).each_with_object(ViewSet.new(scoped_as: name)) { |significant, set|
+        found = @object.find_significant_nodes_with_name(:prop, name, with_children: false).concat(@object.find_significant_nodes_with_name(:scope, name)).each_with_object(ViewSet.new(name: name)) { |significant, set|
           set << View.new(object: significant)
         }
 
@@ -76,17 +76,17 @@ module Pakyow
       end
 
       def container(name)
-        @object.find_significant_nodes(:container, name)[0]
+        @object.find_significant_nodes_with_name(:container, name)[0]
       end
 
       def partial(name)
-        @object.find_significant_nodes(:partial, name).each_with_object(ViewSet.new) { |partial, set|
+        @object.find_significant_nodes_with_name(:partial, name).each_with_object(ViewSet.new) { |partial, set|
           set << View.new(object: partial)
         }
       end
 
       def component(name)
-        @object.find_significant_nodes(:component, name).each_with_object(ViewSet.new) { |component, set|
+        @object.find_significant_nodes_with_name(:component, name).each_with_object(ViewSet.new) { |component, set|
           set << View.new(object: component)
         }
       end
@@ -187,13 +187,28 @@ module Pakyow
         @object.html = html
       end
 
-      def ==(other)
-        other.is_a?(self.class) && @object == other.object
+      def decorated?
+        @object.type == :scope || @object.type == :prop
       end
 
-      # TODO: replaced with name/type
-      def scoped_as
-        @object.name
+      def container?
+        @object.type == :container
+      end
+
+      def partial?
+        @object.type == :partial
+      end
+
+      def component?
+        @object.type == :component
+      end
+
+      def form?
+        # TODO
+      end
+
+      def ==(other)
+        other.is_a?(self.class) && @object == other.object
       end
 
       # Allows multiple attributes to be set at once.
