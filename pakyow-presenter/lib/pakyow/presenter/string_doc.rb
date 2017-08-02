@@ -123,6 +123,10 @@ module Pakyow
         comparison.is_a?(StringDoc) && nodes == comparison.nodes
       end
 
+      def string_nodes
+        nodes.map(&:string_nodes)
+      end
+
       private
 
       def nodes_from_doc_or_string(doc_or_string)
@@ -134,7 +138,15 @@ module Pakyow
       end
 
       def render(nodes = @nodes)
-        nodes.flatten.reject(&:empty?).map(&:to_s).join
+        # nodes.flatten.reject(&:empty?).map(&:to_s).join
+
+        # we save several (hundreds) of calls to `flatten` by pulling in each node and dealing with them together
+        # instead of calling `to_s` on each
+        arr = nodes.map(&:string_nodes)
+        arr.flatten!
+        arr.compact!
+        arr.map!(&:to_s)
+        arr.join
       end
 
       def parse(doc)

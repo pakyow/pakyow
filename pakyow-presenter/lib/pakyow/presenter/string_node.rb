@@ -82,6 +82,11 @@ module Pakyow
       end
 
       alias :to_s :to_html
+
+      def string_nodes
+        [node[0], node[1], node[2], node[3]&.string_nodes, node[4]]
+      end
+
       # TODO: revisit
       # def text
       #   html.gsub(/<[^>]*>/, '')
