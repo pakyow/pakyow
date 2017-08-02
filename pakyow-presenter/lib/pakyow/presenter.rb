@@ -5,6 +5,7 @@ end
 
 require "yaml"
 
+require "pakyow/presenter/helpers"
 require "pakyow/presenter/view"
 require "pakyow/presenter/form"
 require "pakyow/presenter/template"

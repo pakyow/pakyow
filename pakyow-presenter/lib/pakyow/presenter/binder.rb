@@ -36,6 +36,8 @@ module Pakyow
 
       attr_reader :object
 
+      include Helpers
+
       def initialize(object)
         @object = object
         @parts = {}

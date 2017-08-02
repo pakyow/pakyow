@@ -1,5 +1,7 @@
 require "forwardable"
 
+require "pakyow/presenter/helpers"
+
 module Pakyow
   module Presenter
     class View
@@ -19,6 +21,8 @@ module Pakyow
       # the underlying HTML document for the view.
       #
       attr_reader :object
+
+      include Helpers
 
       # Creates a view with +html+.
       #
@@ -132,31 +136,31 @@ module Pakyow
       end
 
       def append(view)
-        # TODO: handle string / collection
+        # TODO: handle string (with sanitization) / collection
         @object.append(view.object)
         self
       end
 
       def prepend(view)
-        # TODO: handle string / collection
+        # TODO: handle string (with sanitization) / collection
         @object.prepend(view.object)
         self
       end
 
       def after(view)
-        # TODO: handle string / collection
+        # TODO: handle string (with sanitization) / collection
         @object.after(view.object)
         self
       end
 
       def before(view)
-        # TODO: handle string / collection
+        # TODO: handle string (with sanitization) / collection
         @object.before(view.object)
         self
       end
 
       def replace(view)
-        # TODO: handle string / collection
+        # TODO: handle string (with sanitization) / collection
         @object.replace(view.object)
         self
       end
@@ -282,12 +286,12 @@ module Pakyow
         return if StringNode.without_value?(tag)
 
         if StringNode.self_closing?(tag)
-          # don't override value if set
+          # TODO: use Attributes, which will properly sanitize values (using CGI::escapeHTML)
           if !object.get_attribute(:value) || object.get_attribute(:value).empty?
             object.set_attribute(:value, value)
           end
         else
-          object.html = value
+          object.html = ensure_html_safety(value)
         end
       end
 
