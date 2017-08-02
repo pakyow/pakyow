@@ -72,16 +72,22 @@ module Pakyow
         @significant = {}
       end
 
-      def find_significant_nodes(type)
-        type = type.to_sym
-        @significant[type] ||= nodes.map(&:with_children).flatten.select { |node|
+      def find_significant_nodes(type, with_children: true)
+        return @significant[type] if @significant[type]
+
+        significant_nodes = if with_children
+                              nodes.map(&:with_children).flatten
+                            else
+                              nodes.dup
+                            end
+
+        @significant[type] = significant_nodes.select { |node|
           node.type == type
         }
       end
 
-      def find_significant_nodes_with_name(type, name)
-        name = name.to_sym
-        find_significant_nodes(type).select { |node|
+      def find_significant_nodes_with_name(type, name, with_children: true)
+        find_significant_nodes(type, with_children: with_children).select { |node|
           node.name == name
         }
       end
