@@ -50,36 +50,104 @@ module Pakyow
         @view, @binders = view, binders
       end
 
-      def find(scope)
-        presenter_for(view.scope(scope))
+      def find(*names)
+        presenter_for(@view.find(*names))
+      end
+
+      def with
+        yield self; self
+      end
+
+      def container(name)
+        presenter_for(@view.container(name))
+      end
+
+      def partial(name)
+        presenter_for(@view.partial(name))
+      end
+
+      def component(name)
+        presenter_for(@view.component(name))
+      end
+
+      def form(name)
+        presenter_for(@view.form(name))
+      end
+
+      def transform(data)
+        presenter_for(@view.transform(data))
+      end
+
+      def bind(data)
+        if binder = binder_for_current_scope
+          if @view.is_a?(ViewCollection)
+            @view.views.zip(Array.ensure(data).map { |object| binder.new(object) }).each do |view, binder|
+              bind_binder_to_view(binder, view)
+            end
+          else
+            bind_binder_to_view(binder.new(data), @view)
+          end
+        else
+          @view.bind(data)
+        end
+
+        presenter_for(@view)
       end
 
       def present(data)
-        data = Array.ensure(data)
-
-        if binder = binder_for_current_scope
-          view.repeat(data.map { |object| binder.new(object) }) do |view, binder|
-            bindable = binder.object
-            view.props.each do |prop|
-              value = binder[prop.name]
-
-              if value.is_a?(BinderParts)
-                bindable[prop.name] = value.content if value.content?
-                view.attrs(value.non_content_parts)
-              else
-                bindable[prop.name] = value
-              end
-            end
-
-            view.bind(bindable)
-          end
-        else
-          view.apply(data)
+        @view.transform(data) do |view, object|
+          presenter_for(view).bind(object)
         end
+
+        presenter_for(@view)
+      end
+
+      def append(view)
+        presenter_for(@view.append(view))
+      end
+
+      def prepend(view)
+        presenter_for(@view.append(view))
+      end
+
+      def after(view)
+        presenter_for(@view.append(view))
+      end
+
+      def before(view)
+        presenter_for(@view.append(view))
+      end
+
+      def replace(view)
+        presenter_for(@view.append(view))
+      end
+
+      def remove
+        presenter_for(@view.remove)
+      end
+
+      def clear
+        presenter_for(@view.clear)
+      end
+
+      def text=(text)
+        @view.text = text
+      end
+
+      def html=(html)
+        @view.html = html
+      end
+
+      def count
+        @view.count
+      end
+
+      def [](i)
+        presenter_for(@view[i])
       end
 
       def to_html
-        view.to_html
+        @view.to_html
       end
 
       alias :to_str :to_html
@@ -92,8 +160,25 @@ module Pakyow
 
       def binder_for_current_scope
         binders.find { |binder|
-          binder.name == view.scoped_as
+          binder.name == @view.scoped_as
         }
+      end
+
+      def bind_binder_to_view(binder, view)
+        bindable = binder.object
+
+        view.props.each do |prop|
+          value = binder[prop.name]
+
+          if value.is_a?(BinderParts)
+            bindable[prop.name] = value.content if value.content?
+            view.attrs(value.non_content_parts)
+          else
+            bindable[prop.name] = value
+          end
+        end
+
+        view.bind(bindable)
       end
     end
 
