@@ -77,10 +77,11 @@ module Pakyow
         @node = []
       end
 
-      def to_s
+      def to_html
         node.flatten.map(&:to_s).join
       end
 
+      alias :to_s :to_html
       # TODO: revisit
       # def text
       #   html.gsub(/<[^>]*>/, '')
