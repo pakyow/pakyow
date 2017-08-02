@@ -4,7 +4,7 @@ module Pakyow
   module Presenter
     class TemplateStore
       extend Support::DeepFreeze
-      unfreezable :info
+      unfreezable :info, :layouts, :partials
 
       attr_reader :name, :path
 
