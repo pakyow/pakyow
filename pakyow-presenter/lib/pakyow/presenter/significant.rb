@@ -1,4 +1,4 @@
-# TODO: component, option, title, form, semantic tags
+# TODO: option, title, form, semantic tags
 
 module Pakyow
   module Presenter
@@ -104,6 +104,20 @@ module Pakyow
         attributes.delete(prop)
 
         StringNode.new(["<#{element.name} ", attributes], type: :prop, name: prop)
+      end
+    end
+
+    class ComponentNode < SignificantNode
+      StringDoc.significant :component, self
+
+      def self.significant?(node)
+        return false unless node.is_a?(Oga::XML::Element)
+        !node.attribute(:"data-ui").nil?
+      end
+
+      def self.node(element)
+        attributes = attributes_instance(element)
+        StringNode.new(["<#{element.name} ", attributes], type: :component, name: attributes[:"data-ui"].to_sym)
       end
     end
   end
