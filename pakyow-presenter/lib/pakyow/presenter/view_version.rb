@@ -42,7 +42,7 @@ class Pakyow::Presenter::ViewVersion
 
   def version(data, &block)
     data = Array.ensure(data)
-    coll = Pakyow::Presenter::ViewCollection.new(@default.scoped_as)
+    coll = Pakyow::Presenter::ViewSet.new(@default.scoped_as)
 
     if data.empty?
       @versions.each(&:remove)

@@ -42,8 +42,8 @@ module Pakyow
       def find(*names)
         name = names.shift
 
-        found = @object.find_significant_nodes_with_name(:prop, name, with_children: false).concat(@object.find_significant_nodes_with_name(:scope, name)).each_with_object(ViewCollection.new(scoped_as: name)) { |significant, collection|
-          collection << View.new(object: significant)
+        found = @object.find_significant_nodes_with_name(:prop, name, with_children: false).concat(@object.find_significant_nodes_with_name(:scope, name)).each_with_object(ViewSet.new(scoped_as: name)) { |significant, set|
+          set << View.new(object: significant)
         }
 
         if names.empty?
@@ -80,14 +80,14 @@ module Pakyow
       end
 
       def partial(name)
-        @object.find_significant_nodes(:partial, name).each_with_object(ViewCollection.new) { |partial, collection|
-          collection << View.new(object: partial)
+        @object.find_significant_nodes(:partial, name).each_with_object(ViewSet.new) { |partial, set|
+          set << View.new(object: partial)
         }
       end
 
       def component(name)
-        @object.find_significant_nodes(:component, name).each_with_object(ViewCollection.new) { |component, collection|
-          collection << View.new(object: component)
+        @object.find_significant_nodes(:component, name).each_with_object(ViewSet.new) { |component, set|
+          set << View.new(object: component)
         }
       end
 

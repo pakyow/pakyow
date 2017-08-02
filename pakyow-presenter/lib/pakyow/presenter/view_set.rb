@@ -1,7 +1,6 @@
 module Pakyow
   module Presenter
-    # TODO: rename to ViewSet
-    class ViewCollection
+    class ViewSet
       include Enumerable
 
       attr_reader :views, :scoped_as
@@ -25,9 +24,9 @@ module Pakyow
       end
 
       def find(*names)
-        each_with_object(ViewCollection.new) { |view, collection|
-          view.find(*names).each_with_object(collection) { |found_view, found_collection|
-            found_collection << found_view
+        each_with_object(ViewSet.new) { |view, set|
+          view.find(*names).each_with_object(set) { |found_view, found_set|
+            found_set << found_view
           }
         }
       end
@@ -42,9 +41,9 @@ module Pakyow
       end
 
       # call-seq:
-      #   transform(data) => ViewCollection
+      #   transform(data) => ViewSet
       #
-      # Manipulates the current collection to match the data. The final ViewCollection object
+      # Manipulates the current collection to match the data. The final ViewSet object
       # will consist n copies of self[data index] || self[-1], where n = data.length.
       #
       # Yields each view and object if a block is passed.
