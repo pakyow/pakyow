@@ -3,8 +3,6 @@ module Pakyow
     # TODO: this should be refactored to PagePresenter
     # the front matter parsing should be part of view and exposed as `info` so that it works everywhere
     class Page
-      MATTER_MATCHER = /\A(---\s*\n.*?\n?)^(---\s*$\n?)/m
-
       class << self
         def load(path)
           name = File.basename(path, '.*').to_sym
@@ -62,15 +60,12 @@ module Pakyow
       end
 
       def parse_info
-        info = parse_front_matter(@contents)
-        info = {} if !info || !info.is_a?(Hash)
-
-        @info.merge!(Hash.symbolize(info))
+        @info.merge!(FrontMatterParser.parse(@contents))
       end
 
       def parse_content
         # remove yaml front matter
-        @contents.gsub!(/---(.|\n)*---/, '')
+        @contents = FrontMatterParser.scrub(@contents)
 
         # process contents
         # @contents = Presenter.process(@contents, @format)
@@ -85,18 +80,6 @@ module Pakyow
 
         # find default content
         @containers[:default] = Container.new(@contents.gsub(within_regex, ''))
-      end
-
-      def parse_front_matter(contents)
-        # match the matter
-        matter = contents.match(MATTER_MATCHER).to_s
-
-        # remove the opening/closing '---'
-        matter = matter.split("\n")[1..-2]
-        # return if no matter
-        return {} if matter.nil?
-
-        YAML.load(matter.join("\n"))
       end
     end
   end

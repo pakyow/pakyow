@@ -20,6 +20,7 @@ require "pakyow/presenter/string_attributes"
 require "pakyow/presenter/template_store"
 require "pakyow/presenter/binder"
 require "pakyow/presenter/significant"
+require "pakyow/presenter/front_matter_parser"
 
 require "pakyow/presenter/presenter"
 

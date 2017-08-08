@@ -14,7 +14,11 @@ module Pakyow
 
       # Creates a view with +html+.
       #
+      # FIXME: only accept html here, create #from_object method
       def initialize(html = "", object: nil)
+        @info = {}
+        @info, html = FrontMatterParser.parse_and_scrub(html) unless html.empty?
+
         @object = object ? object : StringDoc.new(html)
       end
 
@@ -27,6 +31,17 @@ module Pakyow
       #
       def self.load(path)
         new(File.read(path))
+      end
+
+      def info(key = nil)
+        return @info if key.nil?
+        return @info[key]
+      end
+
+      def add_info(*infos)
+        infos.each do |info|
+          @info.merge!(Hash.symbolize(info))
+        end
       end
 
       def container(name)
