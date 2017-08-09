@@ -42,6 +42,8 @@ module Pakyow
         infos.each do |info|
           @info.merge!(Hash.symbolize(info))
         end
+
+        self
       end
 
       def container(name)
