@@ -1,6 +1,7 @@
 module Pakyow
   module Presenter
     # Module for parsing front matter from HTML
+    # @api private
     module FrontMatterParser
 
       MATTER_MATCHER = /\A---\s*\n(.*?\n?)^---\s*$\n?/m
