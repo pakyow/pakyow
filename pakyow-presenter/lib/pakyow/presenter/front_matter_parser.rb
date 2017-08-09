@@ -9,13 +9,11 @@ module Pakyow
       # Parses HTML and returns a hash of front matter info
       #
       def self.parse(html_string)
-        if match = html_string.match(MATTER_MATCHER)
-          info = YAML.load(match.captures[0])
-        end
+        match = html_string.match(MATTER_MATCHER)
+        return {} unless match
 
-        # ensure info is a hash
+        info = YAML.load(match.captures[0])
         info = {} if !info || !info.is_a?(Hash)
-
         Hash.symbolize(info)
       end
 
