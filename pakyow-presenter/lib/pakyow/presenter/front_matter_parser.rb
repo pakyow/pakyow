@@ -12,7 +12,12 @@ module Pakyow
         match = html_string.match(MATTER_MATCHER)
         return {} unless match
 
-        info = YAML.load(match.captures[0])
+        begin
+          info = YAML.load(match.captures[0])
+        rescue Exception => e
+          raise ::SyntaxError.new "Inavlid front matter YAML...\n\n #{match.captures[0]}"
+        end
+
         info = {} if !info || !info.is_a?(Hash)
         Hash.symbolize(info)
       end
