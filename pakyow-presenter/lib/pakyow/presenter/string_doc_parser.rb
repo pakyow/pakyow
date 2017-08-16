@@ -34,45 +34,39 @@ module Pakyow
             next
           end
 
-          children = node.children.reject {|n| n.is_a?(Oga::XML::Text)}
-
           if node.is_a?(Oga::XML::Element)
             attributes = node.attributes
           else
             attributes = []
           end
 
-          if !structure.empty? && children.empty? && !significant?(node)
-            structure << [node.to_xml, {}, []]
-          else
-            if significant?(node)
-              if container?(node)
-                match = node.text.strip.match(CONTAINER_REGEX)
-                name = (match[2] || :default).to_sym
-                structure << [node.to_xml, { container: name }, []]
-              elsif partial?(node)
-                next unless match = node.to_xml.strip.match(PARTIAL_REGEX)
-                name = match[1].to_sym
-                structure << [node.to_xml, { partial: name }, []]
-              else
-                attr_structure = attributes.inject({}) do |attrs, attr|
-                  attrs[attr.name.to_sym] = attr.value
-                  attrs
-                end
-
-                closing = [['>', {}, parse(node)]]
-                closing << ["</#{node.name}>", {}, []] unless self_closing?(node.name)
-                structure << ["<#{node.name} ", attr_structure, closing]
-              end
+          if significant?(node)
+            if container?(node)
+              match = node.text.strip.match(CONTAINER_REGEX)
+              name = (match[2] || :default).to_sym
+              structure << [node.to_xml, { container: name }, []]
+            elsif partial?(node)
+              next unless match = node.to_xml.strip.match(PARTIAL_REGEX)
+              name = match[1].to_sym
+              structure << [node.to_xml, { partial: name }, []]
             else
-              if node.is_a?(Oga::XML::Text) || node.is_a?(Oga::XML::Comment)
-                structure << [node.to_xml, {}, []]
-              else
-                attr_s = attributes.inject('') { |s, a| s << " #{a.name}=\"#{a.value}\""; s }
-                closing = [['>', {}, parse(node)]]
-                closing << ['</' + node.name + '>', {}, []] unless self_closing?(node.name)
-                structure << ['<' + node.name + attr_s, {}, closing]
+              attr_structure = attributes.inject({}) do |attrs, attr|
+                attrs[attr.name.to_sym] = attr.value
+                attrs
               end
+
+              closing = [['>', {}, parse(node)]]
+              closing << ["</#{node.name}>", {}, []] unless self_closing?(node.name)
+              structure << ["<#{node.name} ", attr_structure, closing]
+            end
+          else
+            if node.is_a?(Oga::XML::Text) || node.is_a?(Oga::XML::Comment)
+              structure << [node.to_xml, {}, []]
+            else
+              attr_s = attributes.inject('') { |s, a| s << " #{a.name}=\"#{a.value}\""; s }
+              closing = [['>', {}, parse(node)]]
+              closing << ['</' + node.name + '>', {}, []] unless self_closing?(node.name)
+              structure << ['<' + node.name + attr_s, {}, closing]
             end
           end
         end

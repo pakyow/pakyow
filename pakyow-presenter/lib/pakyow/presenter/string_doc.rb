@@ -48,14 +48,14 @@ module Pakyow
       end
 
       def title
-        title_search do |n, match|
-          return match[1]
+        title_search do |node|
+          return node[2][0][2][0][0]
         end
       end
 
       def title=(title)
-        title_search do |n, match|
-          n.gsub!(TITLE_REGEX, "<title>#{title}</title>")
+        title_search do |node|
+          node[2][0][2][0][0] = title.to_s
         end
       end
 
@@ -254,11 +254,12 @@ module Pakyow
 
       private
 
-      def title_search
-        @structure.flatten.each do |n|
-          next unless n.is_a?(String)
-          if match = n.match(TITLE_REGEX)
-            yield n, match
+      def title_search(structure = @structure, &block)
+        structure.each do |node|
+          if node[0] == "<title"
+            yield node; return
+          else
+            title_search(node[2], &block)
           end
         end
       end
