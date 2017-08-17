@@ -8,14 +8,18 @@ module Pakyow
 
       # Parses HTML and returns a hash of front matter info
       #
-      def self.parse(html_string)
+      def self.parse(html_string, file = nil)
         match = html_string.match(MATTER_MATCHER)
         return {} unless match
 
         begin
           info = YAML.load(match.captures[0])
-        rescue Exception => e
-          raise ::SyntaxError.new "Inavlid front matter YAML...\n\n #{match.captures[0]}"
+        rescue Psych::SyntaxError => e
+          message = "Could not parse front matter"
+          message << " for file #{file}" if file
+          message << "\n\n#{e.problem} at line #{e.line} column #{e.column}\n\n"
+          message << match.captures[0]
+          raise ::SyntaxError.new message
         end
 
         info = {} if !info || !info.is_a?(Hash)

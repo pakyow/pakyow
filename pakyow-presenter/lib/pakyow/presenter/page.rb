@@ -60,7 +60,7 @@ module Pakyow
       end
 
       def parse_info
-        @info.merge!(FrontMatterParser.parse(@contents))
+        @info.merge!(FrontMatterParser.parse(@contents, self.path))
       end
 
       def parse_content
