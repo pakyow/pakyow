@@ -101,7 +101,7 @@ module Pakyow
       end
 
       def prepend(doc_or_string)
-        children.unshift(*nodes_from_doc_or_string(doc_or_string))
+        nodes.unshift(*nodes_from_doc_or_string(doc_or_string))
       end
 
       def after(doc_or_string)

@@ -122,6 +122,10 @@ module Pakyow
         parent.insert_after(node, self)
       end
 
+      def prepend(node)
+        children.prepend(node)
+      end
+
       # TODO: it would be nice if Inspectable could handle this
       def inspect
         inspection = [:type, :name, :attributes, :children].map { |attr|
