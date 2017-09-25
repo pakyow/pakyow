@@ -1,7 +1,8 @@
-# TODO: option, title, form, semantic tags
-
 module Pakyow
   module Presenter
+    FORM_TAG = "form".freeze
+    OPTION_TAG = "option".freeze
+
     class SignificantNode
       def self.node_with_valueless_attribute?(node)
         return false unless node.is_a?(Oga::XML::Element)
@@ -68,6 +69,7 @@ module Pakyow
 
       def self.significant?(node)
         return false unless node_with_valueless_attribute?(node)
+        return false if node.name == FORM_TAG
 
         StringDoc.breadth_first(node) do |child|
           return true if PropNode.significant?(child)
@@ -118,6 +120,36 @@ module Pakyow
       def self.node(element)
         attributes = attributes_instance(element)
         StringNode.new(["<#{element.name} ", attributes], type: :component, name: attributes[:"data-ui"].to_sym)
+      end
+    end
+
+    class FormNode < SignificantNode
+      StringDoc.significant :form, self
+
+      def self.significant?(node)
+        node_with_valueless_attribute?(node) && node.name == FORM_TAG
+      end
+
+      def self.node(element)
+        attributes = attributes_instance(element)
+        scope = attributes.keys.first
+        attributes[:"data-scope"] = scope
+        attributes.delete(scope)
+
+        StringNode.new(["<#{element.name} ", attributes], type: :form, name: scope)
+      end
+    end
+
+    class OptionNode < SignificantNode
+      StringDoc.significant :option, self
+
+      def self.significant?(node)
+        node.is_a?(Oga::XML::Element) && node.name == OPTION_TAG
+      end
+
+      def self.node(element)
+        attributes = attributes_instance(element)
+        StringNode.new(["<#{element.name} ", attributes], type: :option, name: attributes[:value])
       end
     end
   end

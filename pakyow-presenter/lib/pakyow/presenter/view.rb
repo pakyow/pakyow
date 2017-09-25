@@ -92,7 +92,11 @@ module Pakyow
       end
 
       def form(name)
-        # TODO:
+        if form_node = @object.find_significant_nodes(:form)[0]
+          Form.new(object: form_node)
+        else
+          nil
+        end
       end
 
       def transform(object)
@@ -118,9 +122,14 @@ module Pakyow
       # Binds a single datum across existing scopes.
       #
       def bind(object)
+        return if object.nil?
+
         # TODO: should bind recursively through `object`
 
-        bind_data_to_scope(object)
+        props.each do |prop|
+          bind_value_to_node(object[prop.name], prop)
+        end
+
         attrs.send(:"data-id=", object[:id])
         yield self, object if block_given?
         self
@@ -204,20 +213,15 @@ module Pakyow
       end
 
       def form?
-        # TODO
+        @object.type == :form
       end
 
       def ==(other)
         other.is_a?(self.class) && @object == other.object
       end
 
-      # Allows multiple attributes to be set at once.
-      #
-      #   view.attrs(class: '...', style: '...')
-      #
-      def attrs(attrs = {})
-        return Attributes.new(@object) if attrs.empty?
-        bind_attributes_to_object(attrs, @object)
+      def attrs
+        Attributes.new(@object)
       end
 
       # @api private
@@ -244,187 +248,18 @@ module Pakyow
         self
       end
 
-      private
+      protected
 
-      # TODO: probably a concern of presenter
-      # def adjust_value_parts(value, parts)
-      #   return value unless value.is_a?(Hash)
-
-      #   parts_to_keep = parts.fetch(:include, value.keys)
-      #   parts_to_keep -= parts.fetch(:exclude, [])
-
-      #   value.keep_if { |part, _| parts_to_keep.include?(part) }
-      # end
-
-      def bind_data_to_scope(data)
-        return unless data
-
-        # TODO: root bindings should be handled in the binder, not here
-        # bind_data_to_root(data)
-
-        props.each do |prop|
-          # TODO: should be handled explicitly by a form object
-          # if DocHelpers.form_field?(object.tagname)
-          #   set_form_field_name(prop, prop.name)
-          # end
-
-          if data.include?(prop.name)
-            value = data[prop.name]
-
-            # TODO: should be handled explicitly by a form object
-            # if DocHelpers.form_field?(object.tagname)
-            #   bind_to_form_field(prop, prop.name, value, data)
-            # end
-
-            bind_data_to_object(prop, value)
-          else
-            # TODO: do we want to remove the node here?
-            # handle_unbound_data(prop.name)
-          end
-        end
-      end
-
-      # ROOT = :_root # TODO: reconsider if this should have an underscore
-      # def bind_data_to_root(data)
-      #   return unless data.is_a?(Binder) && data.include?(ROOT) && value = data[ROOT]
-      #   value.is_a?(Hash) ? bind_attributes_to_object(value, object) : bind_value_to_object(value, object)
-      # end
-
-      def bind_data_to_object(object, data)
-        data.is_a?(Hash) ? bind_attributes_to_object(data, object) : bind_value_to_object(data, object)
-      end
-
-      def bind_value_to_object(value, object)
-        value = String(value)
-
-        tag = object.tagname
+      def bind_value_to_node(value, view)
+        tag = view.tagname
         return if StringNode.without_value?(tag)
 
+        value = String(value)
+
         if StringNode.self_closing?(tag)
-          # TODO: use Attributes, which will properly sanitize values (using CGI::escapeHTML)
-          if !object.get_attribute(:value) || object.get_attribute(:value).empty?
-            object.set_attribute(:value, value)
-          end
+          view.attributes[:value] = ensure_html_safety(value) if view.attributes[:value].nil?
         else
-          object.html = ensure_html_safety(value)
-        end
-      end
-
-      # def bind_to_form_field(object, scope, prop, value, bindable)
-      #   # special binding for checkboxes and radio buttons
-      #   if object.tagname == 'input' && (object.get_attribute(:type) == 'checkbox' || object.get_attribute(:type) == 'radio')
-      #     bind_to_checked_field(object, value)
-      #     # special binding for selects
-      #   elsif object.tagname == 'select'
-      #     bind_to_select_field(object, scope, prop, value, bindable)
-      #   end
-      # end
-
-      # def bind_to_checked_field(object, value)
-      #   if value == true || (object.get_attribute(:value) && object.get_attribute(:value) == value.to_s)
-      #     object.set_attribute(:checked, 'checked')
-      #   else
-      #     object.remove_attribute(:checked)
-      #   end
-
-      #   # coerce to string since booleans are often used and fail when binding to a view
-      #   value.to_s
-      # end
-
-      # def bind_to_select_field(object, scope, prop, value, bindable)
-      #   create_select_options(object, scope, prop, value, bindable)
-      #   select_option_with_value(object, value)
-      # end
-
-      # def set_form_field_name(object, scope, prop)
-      #   return if object.get_attribute(:name) && !object.get_attribute(:name).empty? # don't overwrite the name if already defined
-      #   object.set_attribute(:name, "#{scope}[#{prop}]")
-      # end
-
-      # TODO: probably a concern of presenter
-      # def create_select_options(object, scope, prop, value, bindable)
-      #   options = Binder.options_for_scoped_prop(scope, prop, bindable)
-      #   return if options.nil?
-
-      #   nodes = Oga::XML::Document.new
-
-      #   until options.length == 0
-      #     catch :optgroup do
-      #       o = options.first
-
-      #       # an array containing value/content
-      #       if o.is_a?(Array)
-      #         node = Oga::XML::Element.new(name: 'option')
-      #         node.inner_text = o[1].to_s
-      #         node.set('value', o[0].to_s)
-      #         nodes.children << node
-      #         options.shift
-      #       else # likely an object (e.g. string); start a group
-      #         node_group = Oga::XML::Element.new(name: 'optgroup')
-      #         node_group.set('label', o.to_s)
-      #         nodes.children << node_group
-
-      #         options.shift
-
-      #         options[0..-1].each_with_index { |o2,i2|
-      #           # starting a new group
-      #           throw :optgroup unless o2.is_a?(Array)
-
-      #           node = Oga::XML::Element.new(name: 'option')
-      #           node.inner_text = o2[1].to_s
-      #           node.set('value', o2[0].to_s)
-      #           node_group.children << node
-      #           options.shift
-      #         }
-      #       end
-      #     end
-      #   end
-
-      #   # remove existing options
-      #   object.clear
-
-      #   # add generated options
-      #   object.append(nodes.to_xml)
-      # end
-
-#       def select_option_with_value(object, value)
-#         option = object.option(value: value)
-#         return if option.nil?
-
-#         option.set_attribute(:selected, 'selected')
-#       end
-
-      def handle_unbound_data(scope, prop = nil)
-        Pakyow.logger.warn("Unbound data for #{scope}[#{prop}]") if Pakyow.logger
-        throw :unbound
-      end
-
-      # TODO: this shouldn't handle content; probably can be simplified
-      # TODO: shouldn't this be handled by the attributes object?
-      def bind_attributes_to_object(attrs, object)
-        attrs.each do |attr, v|
-          case attr
-          when :content
-            v = v.call(object.html) if v.is_a?(Proc)
-            bind_value_to_object(v, object)
-          when :view
-            v.call(View.new(object: object))
-          else
-            attr  = attr.to_s
-            attrs = Attributes.new(object)
-
-            if v.is_a?(Proc)
-              attribute = attrs.send(attr)
-              ret = v.call(attribute)
-              value = ret.respond_to?(:value) ? ret.value : ret
-
-              attrs.send("#{attr}=", value)
-            elsif v.nil?
-              object.remove_attribute(attr)
-            else
-              attrs.send("#{attr}=", v)
-            end
-          end
+          view.html = ensure_html_safety(value)
         end
       end
     end

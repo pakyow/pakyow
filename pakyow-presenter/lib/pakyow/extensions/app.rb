@@ -17,10 +17,6 @@ module Pakyow
     end
 
     class << self
-      RESOURCE_ACTIONS[:presenter] = proc do |app, name, _, _|
-        app.bindings(name) { scope(name) { restful(name) } }
-      end
-
       # TODO: definable
       def processor(*args, &block)
         args.each {|format|

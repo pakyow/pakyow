@@ -97,7 +97,7 @@ module Pakyow
       end
 
       def append(doc_or_string)
-        children.concat(nodes_from_doc_or_string(doc_or_string))
+        nodes.concat(nodes_from_doc_or_string(doc_or_string))
       end
 
       def prepend(doc_or_string)

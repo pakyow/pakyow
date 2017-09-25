@@ -111,15 +111,25 @@ module Pakyow
         @tagname ||= node[0].gsub(/[^a-zA-Z]/, "")
       end
 
-      # TODO: revisit
       # def option(value: nil)
-      #   StringDoc.from_structure(node[2][0][2].select { |option|
-      #     option[1][:value] == value.to_s
-      #   })
+      #   # puts caller
+      #   # p to_html
+      #   # p children.to_html
+      #   # StringDoc.from_structure(node[2][0][2].select { |option|
+      #   #   option[1][:value] == value.to_s
+      #   # })
       # end
+
+      def clear
+        children.clear
+      end
 
       def after(node)
         parent.insert_after(node, self)
+      end
+
+      def append(node)
+        children.append(node)
       end
 
       def prepend(node)
