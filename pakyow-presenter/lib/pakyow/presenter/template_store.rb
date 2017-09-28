@@ -106,12 +106,22 @@ module Pakyow
           # TODO: better way to skip this?
           next if path.basename.to_s.start_with?("_")
 
-          if page = page_at_path(path)
-            @info[normalize_path(path, templates_path)] = {
-              page: page,
-              template: layout_with_name(page.info(:template)),
-              partials: @partials.merge(partials_at_path(path))
-            }
+          begin
+            if page = page_at_path(path)
+              @info[normalize_path(path, templates_path)] = {
+                page: page,
+                template: layout_with_name(page.info(:template)),
+                partials: @partials.merge(partials_at_path(path))
+              }
+            end
+          rescue FrontMatterParsingError => e
+            message = "Could not parse front matter for #{path}:\n\n#{e.context}"
+
+            if e.wrapped_exception
+              message << "\n#{e.wrapped_exception.problem} at line #{e.wrapped_exception.line} column #{e.wrapped_exception.column}"
+            end
+
+            raise FrontMatterParsingError.new(message)
           end
         end
       end

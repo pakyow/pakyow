@@ -14,12 +14,8 @@ module Pakyow
 
         begin
           info = YAML.load(match.captures[0])
-        rescue Psych::SyntaxError => e
-          message = "Could not parse front matter"
-          message << " for file #{file}" if file
-          message << "\n\n#{e.problem} at line #{e.line} column #{e.column}\n\n"
-          message << match.captures[0]
-          raise ::SyntaxError.new message
+        rescue Psych::SyntaxError => error
+          raise Pakyow.build_error(error, FrontMatterParsingError, context: match.captures[0])
         end
 
         info = {} if !info || !info.is_a?(Hash)
