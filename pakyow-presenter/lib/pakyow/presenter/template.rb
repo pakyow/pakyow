@@ -26,7 +26,7 @@ module Pakyow
           container_node.replace(page.content(container_node.name))
         end
 
-        View.new(object: object)
+        View.new(object: object).add_info(self.info, page.info)
       end
     end
   end

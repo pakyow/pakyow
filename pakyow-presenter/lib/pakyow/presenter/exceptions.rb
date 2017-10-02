@@ -1,5 +1,6 @@
 module Pakyow
   module Presenter
+    class FrontMatterParsingError < Error; end
     class MissingTemplatesDir < Error; end
     class MissingView < Error; end
     class MissingTemplate < Error; end
