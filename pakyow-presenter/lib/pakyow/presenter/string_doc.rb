@@ -55,7 +55,7 @@ module Pakyow
 
       inspectable :nodes
 
-      attr_reader :nodes, :significant_nodes
+      attr_reader :nodes
 
       def initialize(html)
         @nodes = parse(Oga.parse_html(html))
@@ -144,12 +144,12 @@ module Pakyow
         end
       end
 
-      def render(nodes = @nodes)
+      def render
         # nodes.flatten.reject(&:empty?).map(&:to_s).join
 
         # we save several (hundreds) of calls to `flatten` by pulling in each node and dealing with them together
         # instead of calling `to_s` on each
-        arr = nodes.map(&:string_nodes)
+        arr = string_nodes
         arr.flatten!
         arr.compact!
         arr.map!(&:to_s)
