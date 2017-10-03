@@ -130,7 +130,7 @@ module Pakyow
           bind_value_to_node(object[prop.name], prop)
         end
 
-        attrs.send(:"data-id=", object[:id])
+        attrs[:"data-id"] = object[:id]
         yield self, object if block_given?
         self
       end
@@ -221,10 +221,17 @@ module Pakyow
       end
 
       def attributes
-        @attributes ||= Attributes.new(@object.attributes)
+        return @attributes if @attributes
+        self.attributes = @object.attributes
       end
 
       alias attrs attributes
+
+      def attributes=(attributes)
+        @attributes = Attributes.new(attributes)
+      end
+
+      alias attrs= attributes=
 
       # @api private
       def scopes

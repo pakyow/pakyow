@@ -194,7 +194,7 @@ module Pakyow
 
           if value.is_a?(BinderParts)
             bindable[prop.name] = value.content if value.content?
-            view.attrs(value.non_content_parts)
+            view.attrs = value.non_content_parts
           else
             bindable[prop.name] = value
           end
