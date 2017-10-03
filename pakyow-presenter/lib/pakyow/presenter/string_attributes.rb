@@ -10,7 +10,6 @@ module Pakyow
       SPACING = " ".freeze
 
       extend Forwardable
-
       def_delegators :@attributes_hash, :keys, :[], :[]=, :delete
 
       def initialize(attributes_hash = {})

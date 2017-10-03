@@ -17,7 +17,7 @@ module Pakyow
 
       def self.attributes_hash(element)
         StringDoc.attributes(element).each_with_object({}) do |attribute, elements|
-          elements[attribute.name.to_sym] = attribute.value
+          elements[attribute.name.to_sym] = Attributes.typed_value_for_attribute_with_name(attribute.value, attribute.name)
         end
       end
     end

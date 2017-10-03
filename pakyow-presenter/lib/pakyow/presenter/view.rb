@@ -220,9 +220,11 @@ module Pakyow
         other.is_a?(self.class) && @object == other.object
       end
 
-      def attrs
-        Attributes.new(@object)
+      def attributes
+        @attributes ||= Attributes.new(@object.attributes)
       end
+
+      alias attrs attributes
 
       # @api private
       def scopes
