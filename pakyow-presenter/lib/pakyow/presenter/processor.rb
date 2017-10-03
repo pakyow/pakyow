@@ -10,12 +10,12 @@ module Pakyow
         extension = File.extname(path).delete(".").to_sym
 
         processors_for_extension(extension).each do |processor|
-          content = processor.new(content).process
+          content = processor.process(content)
         end
 
         unless extension == :html
           processors_for_extension(:html).each do |processor|
-            content = processor.new(content).process
+            content = processor.process(content)
           end
         end
 
@@ -59,14 +59,10 @@ module Pakyow
 
           klass
         end
-      end
 
-      def initialize(content)
-        @content = content
-      end
-
-      def process
-        self.class.block.call(@content)
+        def process(content)
+          block.call(content)
+        end
       end
     end
   end
