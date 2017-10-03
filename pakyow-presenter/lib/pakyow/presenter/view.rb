@@ -8,8 +8,8 @@ module Pakyow
       class << self
         # Creates a view from a file.
         #
-        def load(path)
-          new(File.read(path))
+        def load(path, content: nil)
+          new(content || File.read(path))
         end
       end
 

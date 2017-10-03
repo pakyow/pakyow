@@ -5,8 +5,8 @@ module Pakyow
     end
 
     def self.load_presenter_into(app_class)
-      app_class.after :configure do
-        app_class.template_store << TemplateStore.new(:default, config.presenter.path)
+      app_class.after :load do
+        app_class.template_store << TemplateStore.new(:default, config.presenter.path, processor: ProcessorCaller.new(app_class.state[:processor].instances))
 
         if environment == :development
           app_class.handle Pakyow::Presenter::MissingView, as: 500 do

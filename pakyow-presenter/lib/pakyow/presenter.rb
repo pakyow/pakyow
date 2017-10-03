@@ -3,8 +3,6 @@ Pakyow::Support::Silenceable.silence_warnings do
   require "oga"
 end
 
-require "yaml"
-
 require "pakyow/presenter/helpers"
 require "pakyow/presenter/view"
 require "pakyow/presenter/form"
@@ -22,6 +20,7 @@ require "pakyow/presenter/template_store"
 require "pakyow/presenter/binder"
 require "pakyow/presenter/significant"
 require "pakyow/presenter/front_matter_parser"
+require "pakyow/presenter/processor"
 
 require "pakyow/presenter/presenter"
 

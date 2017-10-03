@@ -12,8 +12,8 @@ module Pakyow
       PARTIALS_PATH = "partials".freeze
       TEMPLATES_PATH = "templates".freeze
 
-      def initialize(name, path)
-        @name, @path = name, Pathname(path)
+      def initialize(name, path, processor: nil)
+        @name, @path, @processor = name, Pathname(path), processor
         load
       end
 
@@ -84,7 +84,7 @@ module Pakyow
         return unless File.exist?(layouts_path)
 
         @layouts = layouts_path.children.each_with_object({}) { |file, layouts|
-          layout = Template.load(file)
+          layout = load_view_of_type_at_path(Template, file)
           layouts[layout.name] = layout
         }
       end
@@ -94,7 +94,7 @@ module Pakyow
         return unless File.exist?(partials_path)
 
         @partials = partials_path.children.each_with_object({}) { |file, partials|
-          partial = Partial.load(file)
+          partial = load_view_of_type_at_path(Partial, file)
           partials[partial.name] = partial
         }
       end
@@ -132,7 +132,7 @@ module Pakyow
             index_page_at_path(path)
           end
         else
-          Page.load(path)
+          load_view_of_type_at_path(Page, path)
         end
       end
 
@@ -169,10 +169,18 @@ module Pakyow
           parent_path.children.select { |child|
             child.basename.to_s.start_with?("_")
           }.each_with_object(partials) { |child, partials|
-            partial = Partial.load(child)
+            partial = load_view_of_type_at_path(Partial, child)
             partials[partial.name] ||= partial
           }
         }
+      end
+
+      def load_view_of_type_at_path(type, path)
+        if @processor
+          type.load(path, content: @processor.process(path))
+        else
+          type.load(path)
+        end
       end
     end
   end
