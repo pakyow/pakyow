@@ -4,6 +4,8 @@ module Pakyow
     OPTION_TAG = "option".freeze
 
     class SignificantNode
+      DATA_ATTRS = %i(version).freeze
+
       def self.node_with_valueless_attribute?(node)
         return false unless node.is_a?(Oga::XML::Element)
         return false unless attribute = node.attributes.first
@@ -17,7 +19,9 @@ module Pakyow
 
       def self.attributes_hash(element)
         StringDoc.attributes(element).each_with_object({}) do |attribute, elements|
-          elements[attribute.name.to_sym] = Attributes.typed_value_for_attribute_with_name(attribute.value, attribute.name)
+          attribute_name = attribute.name.to_sym
+          attribute_name = :"data-#{attribute_name}" if DATA_ATTRS.include?(attribute_name)
+          elements[attribute_name] = Attributes.typed_value_for_attribute_with_name(attribute.value, attribute_name)
         end
       end
     end
