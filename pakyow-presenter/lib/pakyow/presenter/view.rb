@@ -15,7 +15,7 @@ module Pakyow
 
       extend Forwardable
 
-      def_delegators :@object, :type, :name, :title=, :title, :text, :html, :to_html, :to_s
+      def_delegators :@object, :type, :name, :title=, :title, :text, :html
 
       # The object responsible for parsing, manipulating, and rendering
       # the underlying HTML document for the view.
@@ -40,17 +40,25 @@ module Pakyow
       end
 
       def find(*names)
-        name = names.shift
-
-        found = @object.find_significant_nodes_with_name(:prop, name, with_children: false).concat(@object.find_significant_nodes_with_name(:scope, name)).each_with_object(ViewSet.new(name: name)) { |significant, set|
-          set << View.new(object: significant)
+        named = names.shift
+        found = props_and_scopes_with_name(named).each_with_object([]) { |node, arr|
+          arr << View.new(object: node)
         }
 
-        if names.empty?
-          found
+        if names.empty? # found everything; wrap it up
+          VersionedView.new(found)
+        elsif found.count > 0 # descend further
+          # TODO: confirm we actually want to return the first one instead
+          # of the default / working version (e.g. how to find and use some
+          # version then present data to a nested scope)
+          found.first.find(*names)
         else
-          found.find(*names)
+          nil
         end
+      end
+
+      def find_all(*names)
+        # TODO
       end
 
       # call-seq:
@@ -122,16 +130,16 @@ module Pakyow
       # Binds a single datum across existing scopes.
       #
       def bind(object)
+        # TODO: should bind recursively through `object`
+
         return if object.nil?
 
-        # TODO: should bind recursively through `object`
+        attrs[:"data-id"] = object[:id]
 
         props.each do |prop|
           bind_value_to_node(object[prop.name], prop)
         end
 
-        attrs[:"data-id"] = object[:id]
-        yield self, object if block_given?
         self
       end
 
@@ -141,7 +149,11 @@ module Pakyow
       # Transform self to object then binds object to the view.
       #
       def present(object)
-        transform(object).bind(object)
+        transform(object) do |view, object|
+          yield view, object if block_given?
+        end
+
+        bind(object)
       end
 
       def append(view)
@@ -233,6 +245,17 @@ module Pakyow
 
       alias attrs= attributes=
 
+      def version
+        (attributes[:"data-version"] || VersionedView::DEFAULT_VERSION).to_sym
+      end
+
+      def to_html
+        cleanup_versions
+        @object.to_html
+      end
+
+      alias :to_s :to_html
+
       # @api private
       def scopes
         @object.find_significant_nodes(:scope)
@@ -269,6 +292,48 @@ module Pakyow
           view.attributes[:value] = ensure_html_safety(value) if view.attributes[:value].nil?
         else
           view.html = ensure_html_safety(value)
+        end
+      end
+
+      def props_with_name(name)
+        @object.find_significant_nodes_with_name(:prop, name, with_children: false)
+      end
+
+      def scopes_with_name(name)
+        @object.find_significant_nodes_with_name(:scope, name)
+      end
+
+      def props_and_scopes_with_name(name)
+        props_with_name(name) + scopes_with_name(name)
+      end
+
+      def cleanup_versions
+        versioned_nodes.each do |node_set|
+          node_set.each do |node|
+            node.remove unless node.attributes[:"data-version"] && node.attributes[:"data-version"] == VersionedView::DEFAULT_VERSION
+          end
+        end
+      end
+
+      def versioned_nodes(nodes = object_nodes, versions = [])
+        versions << nodes.select { |node|
+          node.type && node.attributes.is_a?(StringAttributes) && node.attributes[:"data-version"]
+        }
+
+        nodes.each do |node|
+          if children = node.children
+            versioned_nodes(children.nodes, versions)
+          end
+        end
+
+        versions.reject(&:empty?)
+      end
+
+      def object_nodes
+        if @object.is_a?(StringDoc)
+          @object.nodes
+        else
+          [@object]
         end
       end
     end

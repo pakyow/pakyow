@@ -98,6 +98,8 @@ module Pakyow
 
       def present(data)
         @view.transform(data) do |view, object|
+          yield view, object if block_given?
+
           presenter_for(view).bind(object)
         end
 

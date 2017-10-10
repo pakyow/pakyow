@@ -16,6 +16,10 @@ module Pakyow
         @attributes_hash = attributes_hash
       end
 
+      def initialize_copy(_)
+        @attributes_hash = @attributes_hash.dup
+      end
+
       def to_s
         # FIXME: assuming we can't mutate the structure with compact!, but needs more thought
         @attributes_hash.compact.map { |attr|

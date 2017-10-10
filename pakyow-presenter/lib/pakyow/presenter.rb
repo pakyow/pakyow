@@ -5,12 +5,12 @@ end
 
 require "pakyow/presenter/helpers"
 require "pakyow/presenter/view"
+require "pakyow/presenter/versioned_view"
 require "pakyow/presenter/form"
 require "pakyow/presenter/template"
 require "pakyow/presenter/page"
 require "pakyow/presenter/container"
 require "pakyow/presenter/partial"
-require "pakyow/presenter/view_set"
 require "pakyow/presenter/attributes"
 require "pakyow/presenter/exceptions"
 require "pakyow/presenter/string_doc"
