@@ -82,13 +82,7 @@ module Pakyow
 
       def bind(data)
         if binder = binder_for_current_scope
-          if @view.is_a?(ViewSet)
-            @view.views.zip(Array.ensure(data).map { |object| binder.new(object) }).each do |view, binder|
-              bind_binder_to_view(binder, view)
-            end
-          else
-            bind_binder_to_view(binder.new(data), @view)
-          end
+          bind_binder_to_view(binder.new(data), @view)
         else
           @view.bind(data)
         end
