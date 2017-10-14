@@ -24,6 +24,17 @@ module Pakyow
       def non_content_parts
         @parts.reject { |name, _| name == :content }
       end
+
+      def reject(*parts)
+        parts = parts.map(&:to_sym)
+        @parts.delete_if { |key, _| parts.include? key }
+      end
+
+      def accept(*parts)
+        return if parts.empty?
+        parts = parts.map(&:to_sym)
+        @parts.keep_if { |key, _| parts.include? key }
+      end
     end
   end
 end

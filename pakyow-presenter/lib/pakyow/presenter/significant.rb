@@ -4,7 +4,7 @@ module Pakyow
     OPTION_TAG = "option".freeze
 
     class SignificantNode
-      DATA_ATTRS = %i(version).freeze
+      DATA_ATTRS = %i(version include exclude).freeze
 
       def self.node_with_valueless_attribute?(node)
         return false unless node.is_a?(Oga::XML::Element)

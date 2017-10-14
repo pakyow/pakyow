@@ -189,8 +189,16 @@ module Pakyow
           value = binder[prop.name]
 
           if value.is_a?(BinderParts)
+            next unless prop_view = view.find(prop.name)
+
+            value.accept(*prop_view.attrs[:"data-include"]&.split(" "))
+            value.reject(*prop_view.attrs[:"data-exclude"]&.split(" "))
+
             bindable[prop.name] = value.content if value.content?
-            view.attrs = value.non_content_parts
+
+            value.non_content_parts.each_pair do |key, value|
+              prop_view.attrs[key] = value
+            end
           else
             bindable[prop.name] = value
           end
