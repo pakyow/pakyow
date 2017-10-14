@@ -4,7 +4,7 @@ class Pakyow::Presenter::ViewVersion
 
   def initialize(views)
     @empty    = views.find { |view| view.version == :empty }
-    @default  = views.find { |view| view.doc.attribute?(:'data-default') } || views.find { |view| view.version != :empty }
+    @default  = views.find { |view| view.labeled?(:default) } || views.find { |view| view.version != :empty }
     @versions = views
   end
 

@@ -15,7 +15,7 @@ module Pakyow
 
       extend Forwardable
 
-      def_delegators :@object, :type, :name, :title=, :title, :text, :html
+      def_delegators :@object, :type, :name, :title=, :title, :text, :html, :label, :labeled?
 
       # The object responsible for parsing, manipulating, and rendering
       # the underlying HTML document for the view.
@@ -134,8 +134,6 @@ module Pakyow
 
         return if object.nil?
 
-        attrs[:"data-id"] = object[:id]
-
         props.each do |prop|
           bind_value_to_node(object[prop.name], prop)
         end
@@ -246,7 +244,7 @@ module Pakyow
       alias attrs= attributes=
 
       def version
-        (attributes[:"data-version"] || VersionedView::DEFAULT_VERSION).to_sym
+        (label(:version) || VersionedView::DEFAULT_VERSION).to_sym
       end
 
       def to_html
@@ -310,14 +308,14 @@ module Pakyow
       def cleanup_versions
         versioned_nodes.each do |node_set|
           node_set.each do |node|
-            node.remove unless node.attributes[:"data-version"] && node.attributes[:"data-version"] == VersionedView::DEFAULT_VERSION
+            node.remove unless node.label(:version) == VersionedView::DEFAULT_VERSION
           end
         end
       end
 
       def versioned_nodes(nodes = object_nodes, versions = [])
         versions << nodes.select { |node|
-          node.type && node.attributes.is_a?(StringAttributes) && node.attributes[:"data-version"]
+          node.type && node.attributes.is_a?(StringAttributes) && node.label(:version)
         }
 
         nodes.each do |node|

@@ -28,8 +28,8 @@ module Pakyow
       extend Forwardable
       def_delegators :children, :find_significant_nodes, :find_significant_nodes_with_name
 
-      def initialize(node, type: nil, name: nil, parent: nil)
-        @node, @type, @name, @parent = node, type, name, parent
+      def initialize(node, type: nil, name: nil, parent: nil, labels: {})
+        @node, @type, @name, @parent, @labels = node, type, name, parent, labels
       end
 
       def initialize_copy(original)
@@ -125,6 +125,14 @@ module Pakyow
 
       def prepend(node)
         children.prepend(node)
+      end
+
+      def label(name)
+        @labels[name.to_sym]
+      end
+
+      def labeled?(name)
+        @labels.key?[name.to_sym]
       end
 
       # TODO: it would be nice if Inspectable could handle this

@@ -25,7 +25,6 @@ module Pakyow
       def use(version)
         # TODO: handle no version found
         set_version(version_named(version))
-        @object.attributes.delete(:"data-version")
       end
 
       def transform(data)

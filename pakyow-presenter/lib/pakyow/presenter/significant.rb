@@ -4,7 +4,13 @@ module Pakyow
     OPTION_TAG = "option".freeze
 
     class SignificantNode
-      DATA_ATTRS = %i(version include exclude).freeze
+      # Attributes that should be prefixed with +data-+
+      #
+      DATA_ATTRS = %i(ui).freeze
+
+      # Attributes that will be turned into +StringDoc+ labels
+      #
+      LABEL_ATTRS = %i(version include exclude).freeze
 
       def self.node_with_valueless_attribute?(node)
         return false unless node.is_a?(Oga::XML::Element)
@@ -22,6 +28,17 @@ module Pakyow
           attribute_name = attribute.name.to_sym
           attribute_name = :"data-#{attribute_name}" if DATA_ATTRS.include?(attribute_name)
           elements[attribute_name] = Attributes.typed_value_for_attribute_with_name(attribute.value, attribute_name)
+        end
+      end
+
+      def self.labels_hash(element)
+        StringDoc.attributes(element).each_with_object({}) do |attribute, labels|
+          attribute_name = attribute.name.to_sym
+          next unless LABEL_ATTRS.include?(attribute_name)
+          puts element.to_xml
+          element.unset(attribute.name)
+          puts element.to_xml
+          labels[attribute_name] = attribute.value
         end
       end
     end
@@ -81,12 +98,12 @@ module Pakyow
       end
 
       def self.node(element)
+        labels = labels_hash(element)
         attributes = attributes_instance(element)
         scope = attributes.keys.first
-        attributes[:"data-scope"] = scope
         attributes.delete(scope)
 
-        StringNode.new(["<#{element.name} ", attributes], type: :scope, name: scope)
+        StringNode.new(["<#{element.name} ", attributes], type: :scope, name: scope, labels: labels)
       end
     end
 
@@ -104,12 +121,12 @@ module Pakyow
       end
 
       def self.node(element)
+        labels = labels_hash(element)
         attributes = attributes_instance(element)
         prop = attributes.keys.first
-        attributes[:"data-prop"] = prop
         attributes.delete(prop)
 
-        StringNode.new(["<#{element.name} ", attributes], type: :prop, name: prop)
+        StringNode.new(["<#{element.name} ", attributes], type: :prop, name: prop, labels: labels)
       end
     end
 
@@ -118,12 +135,13 @@ module Pakyow
 
       def self.significant?(node)
         return false unless node.is_a?(Oga::XML::Element)
-        !node.attribute(:"data-ui").nil?
+        !node.attribute(:ui).nil?
       end
 
       def self.node(element)
+        labels = labels_hash(element)
         attributes = attributes_instance(element)
-        StringNode.new(["<#{element.name} ", attributes], type: :component, name: attributes[:"data-ui"].to_sym)
+        StringNode.new(["<#{element.name} ", attributes], type: :component, name: labels[:ui].to_sym, labels: labels)
       end
     end
 
@@ -135,12 +153,12 @@ module Pakyow
       end
 
       def self.node(element)
+        labels = labels_hash(element)
         attributes = attributes_instance(element)
         scope = attributes.keys.first
-        attributes[:"data-scope"] = scope
         attributes.delete(scope)
 
-        StringNode.new(["<#{element.name} ", attributes], type: :form, name: scope)
+        StringNode.new(["<#{element.name} ", attributes], type: :form, name: scope, labels: labels)
       end
     end
 
@@ -152,8 +170,9 @@ module Pakyow
       end
 
       def self.node(element)
+        labels = labels_hash(element)
         attributes = attributes_instance(element)
-        StringNode.new(["<#{element.name} ", attributes], type: :option, name: attributes[:value])
+        StringNode.new(["<#{element.name} ", attributes], type: :option, name: attributes[:value], labels: labels)
       end
     end
   end
