@@ -51,8 +51,8 @@ RSpec.describe Pakyow::Router do
   end
 
   describe "#logger" do
-    it "delegates to `controller`" do
-      expect(controller).to receive(:logger)
+    it "delegates to `controller.request`" do
+      expect(controller.request).to receive(:logger)
       router.logger
     end
   end
@@ -121,29 +121,29 @@ RSpec.describe Pakyow::Router do
   end
 
   describe "#config" do
-    it "delegates to `controller`" do
-      expect(controller).to receive(:config)
+    it "delegates to `controller.app`" do
+      expect(controller.app).to receive(:config)
       router.config
     end
   end
 
   describe "#params" do
-    it "delegates to `controller`" do
-      expect(controller).to receive(:params)
+    it "delegates to `controller.request`" do
+      expect(controller.request).to receive(:params)
       router.params
     end
   end
 
   describe "#session" do
-    it "delegates to `controller`" do
-      expect(controller).to receive(:session)
+    it "delegates to `controller.request`" do
+      expect(controller.request).to receive(:session)
       router.session
     end
   end
 
   describe "#cookies" do
-    it "delegates to `controller`" do
-      expect(controller).to receive(:cookies)
+    it "delegates to `controller.request`" do
+      expect(controller.request).to receive(:cookies)
       router.cookies
     end
   end

@@ -30,26 +30,10 @@ module Pakyow
     alias req request
     alias res response
 
-    extend Forwardable
-
-    # @!method logger
-    #   @return the request's logger
-    # @!method params
-    #   @return the request's params (see {Request#params})
-    # @!method session
-    #   @return the request's session
-    # @!method cookies
-    #   @return the request's cookies (see {Request#cookies})
-    def_delegators :request, :logger, :params, :session, :cookies
-
-    # @!method config
-    #   @return the config object
-    def_delegators :app, :config
-
     # Tells the logger that an error occurred when processing a request.
     #
     before :error do
-      logger.houston(request.error)
+      request.logger.houston(request.error)
     end
 
     # Dups the cookies for comparison at the end of the request/response lifecycle.
@@ -71,7 +55,7 @@ module Pakyow
         next if @cookies.include?(name) && @cookies[name] == value
 
         # set cookie with defaults
-        response.set_cookie(name, path: config.cookies.path, expires: Time.now + config.cookies.expiry, value: value)
+        response.set_cookie(name, path: app.config.cookies.path, expires: Time.now + app.config.cookies.expiry, value: value)
       end
 
       # delete cookies that were deleted from the request
