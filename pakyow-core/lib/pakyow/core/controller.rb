@@ -203,7 +203,7 @@ module Pakyow
     # @api public
     def redirect(location, as: 302, **params)
       response.status = Rack::Utils.status_code(as)
-      response["Location"] = location.is_a?(Symbol) ? path(location, **params) : location
+      response["Location"] = location.is_a?(Symbol) ? @app.path_builder.path(location, **params) : location
       halt
     end
 
@@ -236,7 +236,7 @@ module Pakyow
       # and providing access to the previous request via `parent`
       # request.setup(path(location, **params), method)
 
-      route_with_path_and_method(location.is_a?(Symbol) ? path(location, **params) : location, method)
+      route_with_path_and_method(location.is_a?(Symbol) ? @app.path_builder.path(location, **params) : location, method)
     end
 
     # Responds to a specific request format.
@@ -330,46 +330,6 @@ module Pakyow
 
         router.trigger_for_code(code, handlers: handlers)
       end
-    end
-
-    # Conveniently builds and returns the path to a particular route.
-    #
-    # @example Build the path to the +new+ route within the +post+ group:
-    #   path(:post_new)
-    #   # => "/posts/new"
-    #
-    # @example Build the path providing a value for +post_id+:
-    #   path(:post_edit, post_id: 1)
-    #   # => "/posts/1/edit"
-    #
-    # @api public
-    def path(name, **params)
-      path_to(*name.to_s.split("_").map(&:to_sym), **params)
-    end
-
-    # Builds and returns the path to a particular route.
-    #
-    # @example Build the path to the +new+ route within the +post+ group:
-    #   path_to(:post, :new)
-    #   # => "/posts/new"
-    #
-    # @example Build the path providing a value for +post_id+:
-    #   path_to(:post, :edit, post_id: 1)
-    #   # => "/posts/1/edit"
-    #
-    # @api public
-    def path_to(*names, **params)
-      matched_routers = app.router.instances.reject { |router_to_match|
-        router_to_match.name.nil? || router_to_match.name != names.first
-      }
-
-      matched_routers.each do |matched_router|
-        if path = matched_router.path_to(*names[1..-1], **params)
-          return path
-        end
-      end
-
-      nil
     end
 
     # Halts request processing, immediately returning the response.

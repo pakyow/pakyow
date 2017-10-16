@@ -48,8 +48,8 @@ module Pakyow
 
       attr_reader :view, :binders
 
-      def initialize(view, binders: [], controller: nil)
-        @view, @binders, @controller = view, binders, controller
+      def initialize(view, binders: [], path_builder: nil)
+        @view, @binders, @path_builder = view, binders, path_builder
       end
 
       def find(*names)
@@ -182,7 +182,7 @@ module Pakyow
       private
 
       def presenter_for(view, type: Presenter)
-        type.new(view, binders: binders, controller: @controller)
+        type.new(view, binders: binders, path_builder: @path_builder)
       end
 
       def binder_for_current_scope

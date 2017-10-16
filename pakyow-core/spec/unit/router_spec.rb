@@ -100,15 +100,15 @@ RSpec.describe Pakyow::Router do
   end
 
   describe "#path" do
-    it "delegates to `controller`" do
-      expect(controller).to receive(:path).with("route")
+    it "delegates to `controller.app.path_builder`" do
+      expect(controller.app.path_builder).to receive(:path).with("route")
       router.path("route")
     end
   end
 
   describe "#path_to" do
-    it "delegates to `controller`" do
-      expect(controller).to receive(:path_to).with("route")
+    it "delegates to `controller.app.path_builder`" do
+      expect(controller.app.path_builder).to receive(:path_to).with("route")
       router.path_to("route")
     end
   end

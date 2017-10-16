@@ -15,7 +15,7 @@ module Pakyow
 
         presenter_instance = presenter.new(
           binders: app.state_for(:binder),
-          controller: self,
+          path_builder: app.path_builder,
           **info
         )
 

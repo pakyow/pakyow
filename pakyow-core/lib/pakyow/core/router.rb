@@ -264,8 +264,14 @@ module Pakyow
     #   Delegates to {context}.
     #
     #   @see Controller#respond_to
-    def_delegators :@controller, :logger, :handle, :redirect, :reroute, :send, :reject, :trigger, :path, :path_to,
+    def_delegators :@controller, :logger, :handle, :redirect, :reroute, :send, :reject, :trigger,
                    :halt, :config, :params, :session, :cookies, :request, :response, :req, :res, :respond_to
+
+    # @!method path
+    #   @return builds the path to a named route (see {PathBuilder#path})
+    # @!method path_to
+    #   @return builds the path to a route, following a trail of names (see {PathBuilder#path_to})
+    def_delegators :"@controller.app.path_builder", :path, :path_to
 
     # The context of the current request lifecycle.
     # Expected to be an instance of {Controller}.
