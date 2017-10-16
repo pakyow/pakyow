@@ -102,7 +102,7 @@ module Pakyow
         scope = attributes.keys.first
         attributes.delete(scope)
 
-        StringNode.new(["<#{element.name} ", attributes], type: :scope, name: scope, labels: labels)
+        StringNode.new(["<#{element.name}", attributes], type: :scope, name: scope, labels: labels)
       end
     end
 
@@ -125,7 +125,7 @@ module Pakyow
         prop = attributes.keys.first
         attributes.delete(prop)
 
-        StringNode.new(["<#{element.name} ", attributes], type: :prop, name: prop, labels: labels)
+        StringNode.new(["<#{element.name}", attributes], type: :prop, name: prop, labels: labels)
       end
     end
 
@@ -140,7 +140,7 @@ module Pakyow
       def self.node(element)
         labels = labels_hash(element)
         attributes = attributes_instance(element)
-        StringNode.new(["<#{element.name} ", attributes], type: :component, name: labels[:ui].to_sym, labels: labels)
+        StringNode.new(["<#{element.name}", attributes], type: :component, name: labels[:ui].to_sym, labels: labels)
       end
     end
 
@@ -157,7 +157,7 @@ module Pakyow
         scope = attributes.keys.first
         attributes.delete(scope)
 
-        StringNode.new(["<#{element.name} ", attributes], type: :form, name: scope, labels: labels)
+        StringNode.new(["<#{element.name}", attributes], type: :form, name: scope, labels: labels)
       end
     end
 
@@ -171,7 +171,7 @@ module Pakyow
       def self.node(element)
         labels = labels_hash(element)
         attributes = attributes_instance(element)
-        StringNode.new(["<#{element.name} ", attributes], type: :option, name: attributes[:value], labels: labels)
+        StringNode.new(["<#{element.name}", attributes], type: :option, name: attributes[:value], labels: labels)
       end
     end
 
@@ -185,7 +185,7 @@ module Pakyow
       def self.node(element)
         labels = labels_hash(element)
         attributes = attributes_instance(element)
-        StringNode.new(["<#{element.name} ", attributes], type: :title, name: attributes[:value], labels: labels)
+        StringNode.new(["<#{element.name}", attributes], type: :title, name: attributes[:value], labels: labels)
       end
     end
   end

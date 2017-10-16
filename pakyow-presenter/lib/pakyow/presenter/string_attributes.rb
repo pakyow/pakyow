@@ -22,9 +22,15 @@ module Pakyow
 
       def to_s
         # FIXME: assuming we can't mutate the structure with compact!, but needs more thought
-        @attributes_hash.compact.map { |attr|
+        string = @attributes_hash.compact.map { |attr|
           attr[0].to_s + OPENING + attr[1].to_s + CLOSING
         }.join(SPACING)
+
+        if string.empty?
+          string
+        else
+          SPACING + string
+        end
       end
     end
   end
