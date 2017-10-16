@@ -35,9 +35,7 @@ module Pakyow
         StringDoc.attributes(element).each_with_object({}) do |attribute, labels|
           attribute_name = attribute.name.to_sym
           next unless LABEL_ATTRS.include?(attribute_name)
-          puts element.to_xml
           element.unset(attribute.name)
-          puts element.to_xml
           labels[attribute_name] = attribute.value
         end
       end
