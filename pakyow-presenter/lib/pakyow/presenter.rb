@@ -23,6 +23,8 @@ require "pakyow/presenter/front_matter_parser"
 require "pakyow/presenter/processor"
 
 require "pakyow/presenter/presenter"
+require "pakyow/presenter/presenters/form"
+require "pakyow/presenter/presenters/view"
 
 require "pakyow/extensions/app"
 require "pakyow/extensions/controller"

@@ -2,45 +2,6 @@ require "pakyow/support/class_maker"
 
 module Pakyow
   module Presenter
-    class BinderParts
-      attr_reader :parts
-
-      def initialize
-        @parts = {}
-      end
-
-      def define_part(name, value)
-        @parts[name] = value
-      end
-
-      def content?
-        @parts.include?(:content)
-      end
-
-      def content
-        @parts[:content]
-      end
-
-      def non_content_parts
-        @parts.reject { |name, _| name == :content }
-      end
-
-      def reject(*parts)
-        parts = parts.map(&:to_sym)
-        @parts.delete_if { |key, _| parts.include? key }
-      end
-
-      def accept(*parts)
-        return if parts.empty?
-        parts = parts.map(&:to_sym)
-        @parts.keep_if { |key, _| parts.include? key }
-      end
-    end
-  end
-end
-
-module Pakyow
-  module Presenter
     class Binder
       extend Support::ClassMaker
       CLASS_MAKER_BASE = "Binder".freeze
@@ -83,7 +44,7 @@ module Pakyow
       end
 
       def parts_for(name)
-        @parts[name] ||= BinderParts.new
+        @parts[name] ||= BindingParts.new
       end
     end
   end
