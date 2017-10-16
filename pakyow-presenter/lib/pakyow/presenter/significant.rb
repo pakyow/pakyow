@@ -2,6 +2,7 @@ module Pakyow
   module Presenter
     FORM_TAG = "form".freeze
     OPTION_TAG = "option".freeze
+    TITLE_TAG = "title".freeze
 
     class SignificantNode
       # Attributes that should be prefixed with +data-+
@@ -171,6 +172,20 @@ module Pakyow
         labels = labels_hash(element)
         attributes = attributes_instance(element)
         StringNode.new(["<#{element.name} ", attributes], type: :option, name: attributes[:value], labels: labels)
+      end
+    end
+
+    class TitleNode < SignificantNode
+      StringDoc.significant :title, self
+
+      def self.significant?(node)
+        node.is_a?(Oga::XML::Element) && node.name == TITLE_TAG
+      end
+
+      def self.node(element)
+        labels = labels_hash(element)
+        attributes = attributes_instance(element)
+        StringNode.new(["<#{element.name} ", attributes], type: :title, name: attributes[:value], labels: labels)
       end
     end
   end

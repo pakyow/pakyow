@@ -56,6 +56,15 @@ module Pakyow
         presenter_for(@view.find(*names))
       end
 
+      def title(value)
+        if title_view = @view.title
+          # FIXME: this should be `text=` once supported by `StringNode`
+          title_view.html = value
+        else
+          # TODO: should we add the title node, or raise an error?
+        end
+      end
+
       def with
         yield self; self
       end

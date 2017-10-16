@@ -15,7 +15,7 @@ module Pakyow
 
       extend Forwardable
 
-      def_delegators :@object, :type, :name, :title=, :title, :text, :html, :label, :labeled?
+      def_delegators :@object, :type, :name, :text, :html, :label, :labeled?
 
       # The object responsible for parsing, manipulating, and rendering
       # the underlying HTML document for the view.
@@ -102,6 +102,14 @@ module Pakyow
       def form(name)
         if form_node = @object.find_significant_nodes(:form)[0]
           Form.new(object: form_node)
+        else
+          nil
+        end
+      end
+
+      def title
+        if title_node = @object.find_significant_nodes(:title)[0]
+          View.new(object: title_node)
         else
           nil
         end
