@@ -7,14 +7,18 @@ module Pakyow
       new(view: Pakyow::Presenter::ViewContext.new(view, context))
     end
 
-    def initialize(view: nil, content: nil)
+    def initialize(view: nil, content: nil, config: nil)
       @view = view
       @content = content
+      @config = config
 
-      @message               = Mail.new
-      @message.from          = Config.mailer.default_sender
-      @message.content_type  = Config.mailer.default_content_type
-      @message.delivery_method(Config.mailer.delivery_method, Config.mailer.delivery_options)
+      @message = Mail.new
+
+      if @config
+        @message.from          = config.default_sender
+        @message.content_type  = config.default_content_type
+        @message.delivery_method(config.delivery_method, config.delivery_options)
+      end
 
       @processed = false
     end
@@ -26,8 +30,9 @@ module Pakyow
       if html.nil?
         @message.body = text
       else
+        encoding = @config.encoding
         @message.html_part do
-          content_type 'text/html; charset=' + Config.mailer.encoding
+          content_type 'text/html; charset=' + encoding
           body html
         end
 
@@ -52,7 +57,7 @@ module Pakyow
         @processed_content = {}
 
         if @view
-          @premailer = Premailer.new(view.to_html, with_html_string: true, input_encoding: Config.mailer.encoding)
+          @premailer = Premailer.new(view.to_html, with_html_string: true, input_encoding: @config.encoding)
 
           @premailer.warnings.each do |w|
             Pakyow.logger.warn "#{w[:message]} (#{w[:level]}) may not render properly in #{w[:clients]}"

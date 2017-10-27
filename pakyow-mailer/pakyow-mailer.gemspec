@@ -23,7 +23,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency('pakyow-core', Pakyow::VERSION)
   spec.add_dependency('pakyow-presenter', Pakyow::VERSION)
   spec.add_dependency('mail', '~> 2.6')
-  spec.add_dependency('premailer', '~> 1.8')
+  spec.add_dependency('premailer', '1.10')
 
   spec.add_development_dependency('minitest', '~> 5.6')
 end

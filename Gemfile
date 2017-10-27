@@ -11,7 +11,7 @@ gem "oga", "~> 2.6"
 
 # mail
 gem "mail", "~> 2.6"
-gem "premailer", "~> 1.8"
+gem "premailer", "1.10"
 
 # realtime
 gem "websocket", "~> 1.2"
