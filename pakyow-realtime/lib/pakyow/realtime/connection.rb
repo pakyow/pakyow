@@ -1,6 +1,6 @@
 require "websocket"
 
-require "pakyow/core/logger/request_logger"
+require "pakyow/logger/request_logger"
 
 require "pakyow/realtime/stream"
 require "pakyow/realtime/delegate"
@@ -39,12 +39,12 @@ module Pakyow
 
       attr_reader :env, :key, :logger, :stream
 
-      def initialize(io, version: nil, env: {}, key: "")
+      def initialize(io, version: nil, env: {}, key: "", delegate: nil)
         @io = io
         @env = env
         @key = key
 
-        @delegate = Delegate.instance
+        @delegate = delegate
         @logger = Logger::RequestLogger.new(:sock, id: @key[0..7])
 
         @stream = Stream.new(io, version: version) do |stream|
@@ -121,10 +121,8 @@ module Pakyow
       end
 
       def self.handle_event(event, env)
-        context = CallContext.new(env)
-
         event_handlers(event).each do |block|
-          context.instance_exec(&block)
+          instance_exec(&block)
         end
       end
 

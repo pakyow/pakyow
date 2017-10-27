@@ -1,5 +1,4 @@
 require "singleton"
-require "pakyow/realtime/config"
 
 module Pakyow
   module Realtime
@@ -7,13 +6,10 @@ module Pakyow
     #
     # @api private
     class Delegate
-      include Singleton
-
       attr_reader :registry, :connections, :channels
 
-      def initialize
-        @registry = Config.realtime.registry.instance
-
+      def initialize(registry)
+        @registry = registry
         @connections = {}
         @channels = {}
       end

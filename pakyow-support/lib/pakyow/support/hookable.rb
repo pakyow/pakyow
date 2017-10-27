@@ -137,8 +137,9 @@ module Pakyow
         #
         def hook_around(event)
           call_hooks :before, event
-          yield
+          value = yield
           call_hooks :after, event
+          value
         end
 
         # Calls all registered hooks of type, for event.
