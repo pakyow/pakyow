@@ -28,9 +28,9 @@ require "pakyow/presenter/views/partial"
 require "pakyow/presenter/presenters/form"
 require "pakyow/presenter/presenters/view"
 
-require "pakyow/extensions/app"
-require "pakyow/extensions/controller"
-require "pakyow/extensions/router"
+require "pakyow/presenter/extensions/app"
+require "pakyow/presenter/extensions/controller"
+require "pakyow/presenter/extensions/router"
 
 require "pakyow/presenter/exceptions"
 require "pakyow/presenter/helpers"
