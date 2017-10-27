@@ -1,6 +1,5 @@
 module Pakyow
   module Presenter
-    # TODO: refactor to PartialPresenter
     class Partial < View
       attr_accessor :name
 

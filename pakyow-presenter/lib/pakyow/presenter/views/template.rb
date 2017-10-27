@@ -1,6 +1,6 @@
 module Pakyow
   module Presenter
-    # TODO: refactor to LayoutPresenter
+    # TODO: rename to Layout
     class Template < View
       attr_accessor :name
 
