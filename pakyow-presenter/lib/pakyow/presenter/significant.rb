@@ -1,9 +1,15 @@
+# TODO: rename to significant_nodes.rb
+
 module Pakyow
   module Presenter
+    # @api private
     FORM_TAG = "form".freeze
+    # @api private
     OPTION_TAG = "option".freeze
+    # @api private
     TITLE_TAG = "title".freeze
 
+    # @api private
     class SignificantNode
       # Attributes that should be prefixed with +data-+
       #
@@ -28,7 +34,7 @@ module Pakyow
         StringDoc.attributes(element).each_with_object({}) do |attribute, elements|
           attribute_name = attribute.name.to_sym
           attribute_name = :"data-#{attribute_name}" if DATA_ATTRS.include?(attribute_name)
-          elements[attribute_name] = Attributes.typed_value_for_attribute_with_name(attribute.value, attribute_name)
+          elements[attribute_name] = attribute.value
         end
       end
 
@@ -42,6 +48,7 @@ module Pakyow
       end
     end
 
+    # @api private
     class ContainerNode < SignificantNode
       StringDoc.significant :container, self
 
@@ -66,6 +73,7 @@ module Pakyow
       end
     end
 
+    # @api private
     class PartialNode < SignificantNode
       StringDoc.significant :partial, self
 
@@ -84,6 +92,7 @@ module Pakyow
       end
     end
 
+    # @api private
     class ScopeNode < SignificantNode
       StringDoc.significant :scope, self
 
@@ -106,6 +115,7 @@ module Pakyow
       end
     end
 
+    # @api private
     class PropNode < SignificantNode
       StringDoc.significant :prop, self
 
@@ -129,6 +139,7 @@ module Pakyow
       end
     end
 
+    # @api private
     class ComponentNode < SignificantNode
       StringDoc.significant :component, self
 
@@ -144,6 +155,7 @@ module Pakyow
       end
     end
 
+    # @api private
     class FormNode < SignificantNode
       StringDoc.significant :form, self
 
@@ -161,6 +173,7 @@ module Pakyow
       end
     end
 
+    # @api private
     class OptionNode < SignificantNode
       StringDoc.significant :option, self
 
@@ -175,6 +188,7 @@ module Pakyow
       end
     end
 
+    # @api private
     class TitleNode < SignificantNode
       StringDoc.significant :title, self
 

@@ -32,11 +32,24 @@ module Pakyow
         @info, html = FrontMatterParser.parse_and_scrub(html) unless html.empty?
 
         @object = object ? object : StringDoc.new(html)
+
+        if @object.respond_to?(:attributes)
+          self.attributes = @object.attributes
+        else
+          @attributes = nil
+        end
       end
 
       def initialize_copy(_)
         super
+
         @object = object.dup
+
+        if @object.respond_to?(:attributes)
+          self.attributes = @object.attributes
+        else
+          @attributes = nil
+        end
       end
 
       def find(*names)
@@ -46,6 +59,7 @@ module Pakyow
         }
 
         if names.empty? # found everything; wrap it up
+          # TODO: handle case where `found` is empty
           VersionedView.new(found)
         elsif found.count > 0 # descend further
           # TODO: confirm we actually want to return the first one instead
@@ -155,8 +169,8 @@ module Pakyow
       # Transform self to object then binds object to the view.
       #
       def present(object)
-        transform(object) do |view, object|
-          yield view, object if block_given?
+        transform(object) do |view, presentable|
+          yield view, presentable if block_given?
         end
 
         bind(object)
@@ -239,14 +253,13 @@ module Pakyow
       end
 
       def attributes
-        return @attributes if @attributes
-        self.attributes = @object.attributes
+        @attributes
       end
 
       alias attrs attributes
 
       def attributes=(attributes)
-        @attributes = Attributes.new(attributes)
+        @attributes = ViewAttributes.new(attributes)
       end
 
       alias attrs= attributes=
@@ -302,7 +315,7 @@ module Pakyow
       end
 
       def props_with_name(name)
-        @object.find_significant_nodes_with_name(:prop, name, with_children: false)
+        @object.find_significant_nodes_with_name(:prop, name)
       end
 
       def scopes_with_name(name)

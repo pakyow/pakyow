@@ -160,7 +160,7 @@ module Pakyow
         nodes = []
 
         unless doc.is_a?(Oga::XML::Element) || !doc.respond_to?(:doctype) || doc.doctype.nil?
-          nodes << StringNode.new(["<!DOCTYPE html>", "", []])
+          nodes << StringNode.new(["<!DOCTYPE html>", StringAttributes.new, []])
         end
 
         self.class.breadth_first(doc) do |element|
@@ -168,13 +168,13 @@ module Pakyow
 
           unless significant_object || contains_significant_child?(element)
             # we know that nothing inside of the node is significant, so we can just collapse it to a single node
-            nodes << StringNode.new([element.to_xml, "", []]); next
+            nodes << StringNode.new([element.to_xml, StringAttributes.new, []]); next
           end
 
           node = if significant_object
                    build_significant_node(element, significant_object)
                  elsif element.is_a?(Oga::XML::Text) || element.is_a?(Oga::XML::Comment)
-                   StringNode.new([element.to_xml, "", []])
+                   StringNode.new([element.to_xml, StringAttributes.new, []])
                  else
                    StringNode.new(["<#{element.name}#{self.class.attributes_string(element)}", ""])
                  end

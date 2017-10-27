@@ -55,10 +55,11 @@ module Pakyow
         @object = view.object
         @working = view
         @version = view.version
+        @attributes = view.attributes
       end
 
       def default_version
-        version_named(DEFAULT_VERSION)
+        version_named(DEFAULT_VERSION) || first_version
       end
 
       def version_named(version)
