@@ -1,5 +1,7 @@
 module Pakyow
   class Controller
+    known_events :render
+
     after :route do
       next if app.config.presenter.require_route && !found?
       render
@@ -13,7 +15,7 @@ module Pakyow
           presenter = Presenter::ViewPresenter
         end
 
-        presenter_instance = presenter.new(
+        @current_presenter = presenter.new(
           binders: app.state_for(:binder),
           path_builder: app.path_builder,
           **info
@@ -34,13 +36,15 @@ module Pakyow
               value = opts[:default_value] unless value
             end
 
-            presenter_instance.define_singleton_method name do
+            @current_presenter.define_singleton_method name do
               value
             end
           end
         end
 
-        halt StringIO.new(presenter_instance)
+        call_hooks :before, :render
+
+        halt StringIO.new(@current_presenter)
       elsif found? # matched a route, but couldn't find a view to present
         raise Presenter::MissingView.new("No view at path `#{path}'")
       end
