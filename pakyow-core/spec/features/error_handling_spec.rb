@@ -298,6 +298,32 @@ RSpec.describe "error handling" do
       end
     end
 
+    context "and a global handler is defined for the error class" do
+      let :app_definition do
+        Proc.new {
+          handle ArgumentError, as: 406 do
+            send "boom"
+          end
+
+          router do
+            default do
+              raise ArgumentError
+            end
+          end
+        }
+      end
+
+      include_context "suppressed output"
+
+      it "handles the error" do
+        expect(call[2].body.read).to eq("boom")
+      end
+
+      it "sets the response code" do
+        expect(call[0]).to eq(406)
+      end
+    end
+
     context "and a global handler is not defined" do
       let :app_definition do
         Proc.new {

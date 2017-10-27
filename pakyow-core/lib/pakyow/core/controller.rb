@@ -30,26 +30,10 @@ module Pakyow
     alias req request
     alias res response
 
-    extend Forwardable
-
-    # @!method logger
-    #   @return the request's logger
-    # @!method params
-    #   @return the request's params (see {Request#params})
-    # @!method session
-    #   @return the request's session
-    # @!method cookies
-    #   @return the request's cookies (see {Request#cookies})
-    def_delegators :request, :logger, :params, :session, :cookies
-
-    # @!method config
-    #   @return the config object
-    def_delegators :app, :config
-
     # Tells the logger that an error occurred when processing a request.
     #
     before :error do
-      logger.houston(request.error)
+      request.logger.houston(request.error)
     end
 
     # Dups the cookies for comparison at the end of the request/response lifecycle.
@@ -71,7 +55,7 @@ module Pakyow
         next if @cookies.include?(name) && @cookies[name] == value
 
         # set cookie with defaults
-        response.set_cookie(name, path: config.cookies.path, expires: Time.now + config.cookies.expiry, value: value)
+        response.set_cookie(name, path: app.config.cookies.path, expires: Time.now + app.config.cookies.expiry, value: value)
       end
 
       # delete cookies that were deleted from the request
@@ -121,11 +105,17 @@ module Pakyow
       request.error = error
 
       catch :halt do
-        if code_and_handler = current_router&.class&.exception_for_class(error.class, exceptions: exceptions)
-          code, handler = code_and_handler
+        unless router = current_router
+          # error occurred somewhere in the framework, not in a route
+          # so create an anonymous router to use any global handlers
+          router = anonymous_router
+        end
+
+        if code_and_handler = router.class.exception_for_class(error.class, exceptions: exceptions)
+          code, handler   = code_and_handler
           response.status = code
-          handlers[code] = handler
-          current_router.trigger_for_code(code, handlers: handlers)
+          handlers[code]  = handler
+          router.trigger_for_code(code, handlers: handlers)
         else
           hook_around :error do
             trigger(500)
@@ -197,7 +187,7 @@ module Pakyow
     # @api public
     def redirect(location, as: 302, **params)
       response.status = Rack::Utils.status_code(as)
-      response["Location"] = location.is_a?(Symbol) ? path(location, **params) : location
+      response["Location"] = location.is_a?(Symbol) ? @app.path_builder.path(location, **params) : location
       halt
     end
 
@@ -230,7 +220,7 @@ module Pakyow
       # and providing access to the previous request via `parent`
       # request.setup(path(location, **params), method)
 
-      route_with_path_and_method(location.is_a?(Symbol) ? path(location, **params) : location, method)
+      route_with_path_and_method(location.is_a?(Symbol) ? @app.path_builder.path(location, **params) : location, method)
     end
 
     # Responds to a specific request format.
@@ -317,57 +307,22 @@ module Pakyow
 
       hook_around :trigger do
         unless router = current_router
-          router = Pakyow::Router.new(self)
+          # error occurred somewhere in the framework, not in a route
+          # so create an anonymous router to use any global handlers
+          router = anonymous_router
         end
 
         router.trigger_for_code(code, handlers: handlers)
       end
     end
 
-    # Conveniently builds and returns the path to a particular route.
-    #
-    # @example Build the path to the +new+ route within the +post+ group:
-    #   path(:post_new)
-    #   # => "/posts/new"
-    #
-    # @example Build the path providing a value for +post_id+:
-    #   path(:post_edit, post_id: 1)
-    #   # => "/posts/1/edit"
-    #
-    # @api public
-    def path(name, **params)
-      path_to(*name.to_s.split("_").map(&:to_sym), **params)
-    end
-
-    # Builds and returns the path to a particular route.
-    #
-    # @example Build the path to the +new+ route within the +post+ group:
-    #   path_to(:post, :new)
-    #   # => "/posts/new"
-    #
-    # @example Build the path providing a value for +post_id+:
-    #   path_to(:post, :edit, post_id: 1)
-    #   # => "/posts/1/edit"
-    #
-    # @api public
-    def path_to(*names, **params)
-      matched_routers = app.router.instances.reject { |router_to_match|
-        router_to_match.name.nil? || router_to_match.name != names.first
-      }
-
-      matched_routers.each do |matched_router|
-        if path = matched_router.path_to(*names[1..-1], **params)
-          return path
-        end
-      end
-
-      nil
-    end
-
     # Halts request processing, immediately returning the response.
     #
+    # The response body will be set to +body+ prior to halting (if it's a non-nil value).
+    #
     # @api public
-    def halt
+    def halt(body = nil)
+      response.body = body if body
       throw :halt, response
     end
 
@@ -402,6 +357,9 @@ module Pakyow
           # make parameterized route data available in request params
           request.params.merge!(match_data)
 
+          # store the path to the matched route
+          request.route_path = File.join(matched_router.path_to_self.to_s, matched_route.path.to_s)
+
           catch :reject do
             instance = matched_router.new(self)
             current_router&.handoff_to(instance)
@@ -415,6 +373,11 @@ module Pakyow
           end
         end
       end
+    end
+
+    # @api private
+    def anonymous_router
+      Pakyow::Router.new(self)
     end
   end
 end

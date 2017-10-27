@@ -1,387 +1,215 @@
+require "pakyow/support/silenceable"
 require "pakyow/support/inspectable"
 
 module Pakyow
   module Presenter
+    # @api private
     class StringDoc
+      class << self
+        def significant(name, object)
+          significant_types[name] = object
+        end
+
+        def significant_types
+          @significant_types ||= {}
+        end
+
+        def from_nodes(nodes)
+          instance = allocate
+          instance.instance_variable_set(:@nodes, nodes)
+          instance.instance_variable_set(:@significant, {})
+          instance
+        end
+
+        def breadth_first(doc)
+          queue = [doc]
+
+          until queue.empty?
+            element = queue.shift
+
+            if element == doc
+              queue.concat(element.children.to_a); next
+            end
+
+            yield element
+          end
+        end
+
+        def attributes(node)
+          if node.is_a?(Oga::XML::Element)
+            node.attributes
+          else
+            []
+          end
+        end
+
+        def attributes_string(node)
+          attributes(node).each_with_object("") do |attribute, string|
+            string << " #{attribute.name}=\"#{attribute.value}\""
+          end
+        end
+      end
+
+      include Support::Silenceable
       include Support::Inspectable
-      using Support::DeepDup
 
-      attr_reader :structure
+      inspectable :nodes
 
-      TITLE_REGEX = /<title>(.*?)<\/title>/m
+      attr_reader :nodes
 
       def initialize(html)
-        @structure = StringDocParser.new(html).structure
-        @node = nil
-        @removed = false
+        @nodes = parse(Oga.parse_html(html))
+        @significant = {}
       end
 
-      def self.from_structure(structure, node: nil)
-        instance = allocate
-        instance.instance_variable_set(:@structure, structure)
-        instance.instance_variable_set(:@node, node)
-        instance.instance_variable_set(:@removed, false)
-        return instance
-      end
-
-      def self.ensure(object)
-        return object if object.is_a?(StringDoc)
-        StringDoc.new(object)
-      end
-
-      def initialize_copy(original_doc)
+      def initialize_copy(original)
         super
 
-        if original_structure = original_doc.instance_variable_get(:@structure)
-          @structure = original_structure.deep_dup
+        @nodes = @nodes.map(&:dup).each do |node|
+          node.instance_variable_set(:@parent, self)
         end
 
-        if original_doc.node?
-          @node = @structure[original_doc.node_index]
-        end
+        @significant = {}
       end
 
-      # Creates a StringDoc instance with the same structure, but a duped node.
-      #
-      def soft_copy
-        StringDoc.from_structure(@structure, node: @node ? @node.deep_dup : nil)
+      def find_significant_nodes(type, with_children: true)
+        return @significant[type] if @significant[type]
+
+        significant_nodes = if with_children
+                              nodes.map(&:with_children).flatten
+                            else
+                              nodes.dup
+                            end
+
+        @significant[type] = significant_nodes.select { |node|
+          node.type == type
+        }
       end
 
-      def title
-        title_search do |n, match|
-          return match[1]
-        end
-      end
-
-      def title=(title)
-        title_search do |n, match|
-          n.gsub!(TITLE_REGEX, "<title>#{title}</title>")
-        end
-      end
-
-      def attribute?(name)
-        attributes.key?(name.to_sym)
-      end
-
-      def set_attribute(name, value)
-        return if attributes.nil?
-        attributes[name.to_sym] = value
-      end
-      alias :update_attribute :set_attribute
-
-      def get_attribute(name)
-        attributes[name.to_sym]
-      end
-
-      def remove_attribute(name)
-        attributes.delete(name.to_sym)
-      end
-
-      def has_attribute?(name)
-        attributes.key?(name)
-      end
-
-      def remove
-        @structure.delete_if { |n| n.equal?(node) }
-
-        if @node.nil?
-          @node = ['', {}, [['', {}, []]]]
-        else
-          @node[0] = ''
-          @node[1] = {}
-          @node[2][0][0] = ''
-          @node[2][0][1] = {}
-          @node[2][0][2] = []
-          @node[2].slice!(1..-1)
-        end
-
-        @removed = true
+      def find_significant_nodes_with_name(type, name, with_children: true)
+        find_significant_nodes(type, with_children: with_children).select { |node|
+          node.name == name
+        }
       end
 
       def clear
-        children.clear
+        nodes.clear
       end
 
-      def text
-        html.gsub(/<[^>]*>/, '')
+      def append(doc_or_string)
+        nodes.concat(nodes_from_doc_or_string(doc_or_string))
       end
 
-      def text=(text)
-        clear
-        children << [text, {}, []]
+      def prepend(doc_or_string)
+        nodes.unshift(*nodes_from_doc_or_string(doc_or_string))
       end
 
-      def html
-        StringDocRenderer.render(children)
+      def after(doc_or_string)
+        nodes.concat(nodes_from_doc_or_string(doc_or_string))
       end
 
-      def html=(html)
-        clear
-        children << [html, {}, []]
+      def before(doc_or_string)
+        nodes.unshift(*nodes_from_doc_or_string(doc_or_string))
       end
 
-      def append(doc)
-        doc = StringDoc.ensure(doc)
-
-        if doc.node?
-          children.push(doc.node)
-        else
-          children.concat(doc.structure)
-        end
+      def replace(doc_or_string)
+        @nodes = nodes_from_doc_or_string(doc_or_string)
       end
 
-      def prepend(doc)
-        doc = StringDoc.ensure(doc)
-
-        if doc.node?
-          children.unshift(doc.node)
-        else
-          children.unshift(*doc.structure)
-        end
-      end
-
-      def after(doc)
-        doc = StringDoc.ensure(doc)
-
-        if doc.node?
-          @structure.insert(node_index + 1, doc.node)
-        else
-          @structure.concat(doc.structure)
-        end
-      end
-
-      def before(doc)
-        doc = StringDoc.ensure(doc)
-
-        if doc.node?
-          @structure.unshift(doc.node)
-        else
-          @structure.unshift(*doc.structure)
-        end
-      end
-
-      def replace(doc)
-        doc = StringDoc.ensure(doc)
-        index = node_index || 0
-
-        if doc.node?
-          @structure.insert(index + 1, node)
-        else
-          @structure.insert(index + 1, *doc.structure)
-        end
-
-        @structure.delete_at(index)
-      end
-
-      def scope(scope_name)
-        scopes.select { |b| b[:scope] == scope_name }
-      end
-
-      def prop(scope_name, prop_name)
-        return [] unless scope = scopes.select { |s| s[:scope] == scope_name }[0]
-        scope[:props].select { |p| p[:prop] == prop_name }
-      end
-
-      def container(name)
-        containers.fetch(name, {})[:doc]
-      end
-
-      def component(name)
-        components.select { |c| c[:component] == name }
-      end
-
-      def channel(name)
-        find_channel(scopes, name)
-      end
-
-      def containers
-        find_containers(@node ? [@node] : @structure)
-      end
-
-      def partials
-        find_partials(@node ? [@node] : @structure)
-      end
-
-      def scopes
-        find_scopes(@node ? [@node] : @structure)
-      end
-
-      def components
-        find_components(@node ? [@node] : @structure)
+      def insert_after(node_to_insert, after_node)
+        @nodes.insert(@nodes.index(after_node) + 1, node_to_insert)
       end
 
       def to_html
-        StringDocRenderer.render((@node && !@removed) ? [@node] : @structure)
-        StringDocRenderer.render(@node ? [@node] : @structure)
+        render
       end
+
       alias :to_s :to_html
 
-      def ==(o)
-        #TODO do this without rendering?
-        # (at least in the case of comparing StringDoc to StringDoc)
-        to_s == o.to_s
+      def ==(comparison)
+        comparison.is_a?(StringDoc) && nodes == comparison.nodes
       end
 
-      def node
-        return @structure if @structure.empty? && !@removed
-        return @node || @structure[0]
-      end
-
-      def node_index
-        return nil unless node?
-        @structure.index { |n| n.equal?(@node) }
-      end
-
-      def node?
-        return false if @node.nil?
-        return false if @removed
-        return true
-      end
-
-      def tagname
-        node[0].gsub(/[^a-zA-Z]/, '')
-      end
-
-      def option(value: nil)
-        StringDoc.from_structure(node[2][0][2].select { |option|
-          option[1][:value] == value.to_s
-        })
-      end
-
-      def exists?
-        @structure.include?(node)
+      def string_nodes
+        nodes.map(&:string_nodes)
       end
 
       private
 
-      def title_search
-        @structure.flatten.each do |n|
-          next unless n.is_a?(String)
-          if match = n.match(TITLE_REGEX)
-            yield n, match
-          end
-        end
-      end
-
-      # Returns the structure representing the attributes for the node
-      #
-      def attributes
-        node[1]
-      end
-
-      def children
-        if @structure.empty? && !@removed
-          @structure
+      def nodes_from_doc_or_string(doc_or_string)
+        if doc_or_string.is_a?(StringDoc)
+          doc_or_string.nodes
         else
-          node[2][0][2]
+          [StringNode.new([doc_or_string.to_s, "", []])]
         end
       end
 
-      def find_containers(structure, primary_structure = @structure, containers = {})
-        return {} if structure.empty?
-        structure.inject(containers) { |s, e|
-          if e[1].has_key?(:container)
-            s[e[1][:container]] = { doc: StringDoc.from_structure(primary_structure, node: e) }
-          end
-          find_containers(e[2], e[2], s)
-          s
-        } || {}
+      def render
+        # nodes.flatten.reject(&:empty?).map(&:to_s).join
+
+        # we save several (hundreds) of calls to `flatten` by pulling in each node and dealing with them together
+        # instead of calling `to_s` on each
+        arr = string_nodes
+        arr.flatten!
+        arr.compact!
+        arr.map!(&:to_s)
+        arr.join
       end
 
-      def find_partials(structure, primary_structure = @structure, partials = {})
-        structure.inject(partials) { |s, e|
-          if e[1].has_key?(:partial)
-            (s[e[1][:partial]] ||= []) << StringDoc.from_structure(primary_structure, node: e)
-          end
-          find_partials(e[2], e[2], s)
-          s
-        } || {}
-      end
+      def parse(doc)
+        nodes = []
 
-      def find_scopes(structure, primary_structure = @structure, scopes = [])
-        ret_scopes = structure.inject(scopes) { |s, e|
-          if e[1].has_key?(:'data-scope')
-            scope = {
-              doc: StringDoc.from_structure(primary_structure, node: e),
-              scope: e[1][:'data-scope'].to_sym,
-              props: find_node_props(e).concat(find_props(e[2])),
-              nested: find_scopes(e[2]),
-            }
-
-            if version = e[1][:'data-version']
-              scope[:version] = version.to_sym
-            end
-
-            s << scope
-          end
-          # only find scopes if `e` is the root node or we're not decending into a nested scope
-          find_scopes(e[2], e[2], s) if e == node || !e[1].has_key?(:'data-scope')
-          s
-        } || []
-
-        ret_scopes
-      end
-
-      def find_props(structure, primary_structure = @structure, props = [])
-        structure.each do |e|
-          find_node_props(e, primary_structure, props)
+        unless doc.is_a?(Oga::XML::Element) || !doc.respond_to?(:doctype) || doc.doctype.nil?
+          nodes << StringNode.new(["<!DOCTYPE html>", StringAttributes.new, []])
         end
 
-        props || []
-      end
+        self.class.breadth_first(doc) do |element|
+          significant_object = significant(element)
 
-      def find_node_props(node, primary_structure = @structure, props = [])
-        if node[1].has_key?(:'data-prop')
-          prop = {
-              doc: StringDoc.from_structure(primary_structure, node: node),
-              prop: node[1][:'data-prop'].to_sym,
-              parts: {},
-          }
-
-          if node[1].has_key?(:'data-parts')
-            prop[:parts][:include] = node[1][:'data-parts'].split(/\s+/).map(&:to_sym)
+          unless significant_object || contains_significant_child?(element)
+            # we know that nothing inside of the node is significant, so we can just collapse it to a single node
+            nodes << StringNode.new([element.to_xml, StringAttributes.new, []]); next
           end
 
-          if node[1].has_key?(:'data-parts-exclude')
-            prop[:parts][:exclude] = node[1][:'data-parts-exclude'].split(/\s+/).map(&:to_sym)
+          node = if significant_object
+                   build_significant_node(element, significant_object)
+                 elsif element.is_a?(Oga::XML::Text) || element.is_a?(Oga::XML::Comment)
+                   StringNode.new([element.to_xml, StringAttributes.new, []])
+                 else
+                   StringNode.new(["<#{element.name}#{self.class.attributes_string(element)}", ""])
+                 end
+
+          if element.is_a?(Oga::XML::Element)
+            node.close(element.name, parse(element))
           end
-          props << prop
+
+          nodes << node
         end
 
-        unless node[1].has_key?(:'data-scope')
-          find_props(node[2], node[2], props)
-        end
-
-        props
+        nodes
       end
 
-      def find_channel(scopes, name)
-        scopes.each do |scope|
-          if scope[:doc].get_attribute(:'data-channel') == name
-            return scope[:doc]
-          end
-
-          if doc = find_channel(scope[:nested], name)
-            return doc
-          end
+      def significant(node)
+        self.class.significant_types.values.each do |object|
+          return object if object.significant?(node)
         end
 
-        nil
+        false
       end
 
-      def find_components(structure, primary_structure = @structure, components = [])
-        ret_components = structure.inject(components) { |s, e|
-          if e[1].has_key?(:'data-ui')
-            s << {
-              doc: StringDoc.from_structure(primary_structure, node: e),
-              component: e[1][:'data-ui'].to_sym,
-            }
-          end
-          find_components(e[2], e[2], s)
-          s
-        } || []
+      def build_significant_node(element, object)
+        node = object.node(element)
+        node.parent = self
+        node
+      end
 
-        ret_components
+      def contains_significant_child?(element)
+        element.children.each do |child|
+          return true if significant(child)
+          return true if contains_significant_child?(child)
+        end
+
+        false
       end
     end
   end

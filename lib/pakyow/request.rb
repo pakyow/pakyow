@@ -14,6 +14,11 @@ module Pakyow
     # @api public
     attr_accessor :error
 
+    # Contains the route path that was matched for the request.
+    #
+    # @api public
+    attr_accessor :route_path
+
     # Returns the request method (e.g. `:get`).
     #
     # @api public

@@ -9,7 +9,7 @@ class BindingAnalyzer
   def self.analyze(view_path)
     bindings = []
 
-    Pakyow::Config.presenter.view_stores.each_pair do |view_store, store_path|
+    Pakyow::App.config.presenter.view_stores.each_pair do |view_store, store_path|
       Pakyow.app.presenter.store(view_store).infos do |info, path|
         path = String.normalize_path(path) unless path == "/"
         next if view_path && path != String.normalize_path(view_path)

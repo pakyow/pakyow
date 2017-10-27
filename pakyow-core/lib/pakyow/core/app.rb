@@ -270,6 +270,9 @@ module Pakyow
     # @api public
     attr_reader :builder
 
+    # @api private
+    attr_reader :path_builder
+
     class << self
       extend Forwardable
 

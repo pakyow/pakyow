@@ -53,4 +53,20 @@ RSpec.describe "halting a request" do
       expect($halted).to be(true)
     end
   end
+
+  context "when halting with a body" do
+    let :app_definition do
+      Proc.new {
+        router do
+          default do
+            halt "foo"
+          end
+        end
+      }
+    end
+
+    it "sets the response body, halts, and returns the response" do
+      expect(call[2].body).to eq("foo")
+    end
+  end
 end

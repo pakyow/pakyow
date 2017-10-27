@@ -1,76 +1,50 @@
-require_relative '../spec_helper'
-
 RSpec.describe Pakyow::Presenter::View do
-  let :view do
-    Pakyow::Presenter::View.new
-  end
-
-  describe '#length' do
-    it 'returns 1' do
-      expect(view.length).to eq(1)
-    end
-  end
-
-  describe '#first' do
-    it 'returns self' do
-      expect(view.first).to eq(view)
-    end
-  end
-
-  describe '#with' do
-    it "yields context" do
-      view.with { |ctx|
-        expect(view).to eq ctx
-      }
+  describe "#attributes" do
+    let :html do
+      "<div@post style=\"color: blue\"></div>"
     end
 
-    it "calls block in context of view" do
-      ctx = nil
-      view.with {
-        ctx = self
-      }
-
-      expect(view).to eq ctx
-    end
-  end
-
-  describe '#for' do
-    let :data do
-      [{}]
+    let :doc do
+      Pakyow::Presenter::StringDoc.new(html)
     end
 
-    it "yields each view/datum pair" do
-      view.for(data) do |ctx, datum|
-        expect(view).to eq ctx
-        expect(data[0]).to eq datum
+    let :view do
+      Pakyow::Presenter::View.new(object: doc.nodes.first)
+    end
+
+    context "when `object` is a StringDoc" do
+      let :view do
+        Pakyow::Presenter::View.new(object: doc)
+      end
+
+      it "does not raise error" do
+        expect { view.attributes }.not_to raise_error
+      end
+
+      it "returns nil" do
+        expect(view.attributes).to eq(nil)
       end
     end
 
-    it "calls block in context of view, yielding datum" do
-      ctx = nil
-      ctx_datum = nil
-      view.for(data) do |datum|
-        ctx = self
-        ctx_datum = datum
+    context "when `object` is a StringNode" do
+      context "when `object` is significant" do
+        let :attributes do
+          view.attributes
+        end
+
+        it "returns an instance of `Attributes`" do
+          expect(attributes).to be_instance_of(Pakyow::Presenter::ViewAttributes)
+        end
       end
 
-      expect(view).to eq ctx
-      expect(data[0]).to eq ctx_datum
-    end
+      context "when `object` is insignificant" do
+        let :html do
+          "<div style=\"color: blue\"></div>"
+        end
 
-    it "stops when no more views" do
-      count = 0
-      view.for(3.times.to_a) do |datum|
-        count += 1
-      end
-
-      expect(count).to eq 1
-    end
-
-    it "handles non-array data" do
-      data = {}
-      view.for(data) do |ctx, datum|
-        expect(data).to eq datum
+        it "returns an instance of `Attributes`" do
+          expect(view.attributes).to be_instance_of(Pakyow::Presenter::ViewAttributes)
+        end
       end
     end
   end
