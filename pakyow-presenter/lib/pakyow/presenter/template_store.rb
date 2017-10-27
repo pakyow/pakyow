@@ -67,7 +67,7 @@ module Pakyow
         load_layouts
 
         unless layout = @layouts[name.to_sym]
-          raise MissingTemplate, "No layout named '#{name}'"
+          raise MissingLayout, "No layout named '#{name}'"
         end
 
         return layout
@@ -84,7 +84,7 @@ module Pakyow
         return unless File.exist?(layouts_path)
 
         @layouts = layouts_path.children.each_with_object({}) { |file, layouts|
-          layout = load_view_of_type_at_path(Template, file)
+          layout = load_view_of_type_at_path(Layout, file)
           layouts[layout.name] = layout
         }
       end

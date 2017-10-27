@@ -20,7 +20,7 @@ require "pakyow/presenter/processor"
 require "pakyow/presenter/binder"
 
 require "pakyow/presenter/views/form"
-require "pakyow/presenter/views/template"
+require "pakyow/presenter/views/layout"
 require "pakyow/presenter/views/page"
 require "pakyow/presenter/views/container"
 require "pakyow/presenter/views/partial"
