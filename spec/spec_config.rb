@@ -36,7 +36,11 @@ def start_simplecov(&block)
   end
 end
 
-require "pry"
+require "pakyow/support/silenceable"
+Pakyow::Support::Silenceable.silence_warnings do
+  require "pry"
+end
+
 require "spec_helper"
 
 ENV["SESSION_SECRET"] = "sekret"

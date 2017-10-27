@@ -205,8 +205,8 @@ module Pakyow
 
             bindable[prop.name] = value.content if value.content?
 
-            value.non_content_parts.each_pair do |key, value|
-              prop_view.attrs[key] = value
+            value.non_content_parts.each_pair do |key, value_part|
+              prop_view.attrs[key] = value_part
             end
           else
             bindable[prop.name] = value

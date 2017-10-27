@@ -24,8 +24,8 @@ module Pakyow
       def info(path)
         return unless view?(path)
 
-        @info[path].each_with_object({}) { |path, info|
-          info[path[0]] = path[1].dup
+        @info[path].each_with_object({}) { |info_path, info|
+          info[info_path[0]] = info_path[1].dup
         }
       end
 
@@ -168,9 +168,9 @@ module Pakyow
         path.ascend.select(&:directory?).each_with_object({}) { |parent_path, partials|
           parent_path.children.select { |child|
             child.basename.to_s.start_with?("_")
-          }.each_with_object(partials) { |child, partials|
+          }.each_with_object(partials) { |child, child_partials|
             partial = load_view_of_type_at_path(Partial, child)
-            partials[partial.name] ||= partial
+            child_partials[partial.name] ||= partial
           }
         }
       end
