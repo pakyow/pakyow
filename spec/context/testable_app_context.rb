@@ -85,6 +85,14 @@ module Pakyow
         end
       end
     end
+
+    class Processor
+      class << self
+        def reset
+          # TODO: what should we do here?
+        end
+      end
+    end
   end
 
   module Support

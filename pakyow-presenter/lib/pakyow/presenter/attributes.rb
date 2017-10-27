@@ -1,238 +1,128 @@
+require "forwardable"
+
+require "pakyow/presenter/attributes/boolean"
+require "pakyow/presenter/attributes/hash"
+require "pakyow/presenter/attributes/set"
+require "pakyow/presenter/attributes/string"
+
 module Pakyow
   module Presenter
-    class Attribute
-      def initialize(name, raw_value, control, doc)
-        @type = type_of_attribute(name)
-        @name = name
-        @value = deconstruct_attribute_value_of_type(raw_value, @type)
-        @control = control
-        @doc = doc
-      end
+    class ViewAttributes
+      class << self
+        def typed_value_for_attribute_with_name(value, name)
+          type = type_of_attribute(name.to_sym)
 
-      def set(value)
-        value = Array(value) if @type == :mult && !value.is_a?(Proc)
-        @value = value
-        update_value
-      end
-
-      # ensures that the value passed is contained in `value`
-      def ensure(value)
-        case @type
-        when :mult
-          @value << value unless @value.include?(value)
-        when :bool
-          @value = value
-        else
-          @value << value if @value.nil? || !@value.match(value)
+          if value.is_a?(type)
+            value
+          else
+            type.parse(value)
+          end
         end
 
-        update_value
-      end
-
-      # opposite of `ensure`
-      def deny(value)
-        case @type
-        when :mult
-          @value.delete(value.to_s)
-        when :bool
-          @value = !value
-        else
-          @value.gsub!(value.to_s, '')
-        end
-
-        update_value
-      end
-
-      # calls `ensure` or `deny` based on result of block
-      def ensure_or_deny(value, &block)
-        raise ArgumentError, 'Expected a block' unless block_given?
-
-        if block.call
-          self.ensure(value)
-        else
-          self.deny(value)
+        def type_of_attribute(attribute)
+          ATTRIBUTE_TYPES[attribute.to_sym] || ATTRIBUTE_TYPE_DEFAULT
         end
       end
 
-      def include?(attribute)
-        @doc.has_attribute?(attribute)
-      end
+      # Object for hash attributes
+      ATTRIBUTE_TYPE_HASH    = Attributes::Hash
+      # Object for set attributes
+      ATTRIBUTE_TYPE_SET     = Attributes::Set
+      # Object for boolean attributes
+      ATTRIBUTE_TYPE_BOOLEAN = Attributes::Boolean
+      # Default attribute object
+      ATTRIBUTE_TYPE_DEFAULT = Attributes::String
 
-      # passes method call to `value`
-      def method_missing(method, *args)
-        ret = @value.send(method, *args)
-        update_value
-        return ret
-      end
+      # Maps non-default attributes to their type
+      ATTRIBUTE_TYPES = {
+        class:    ATTRIBUTE_TYPE_SET,
+        style:    ATTRIBUTE_TYPE_HASH,
+        selected: ATTRIBUTE_TYPE_BOOLEAN,
+        checked:  ATTRIBUTE_TYPE_BOOLEAN,
+        disabled: ATTRIBUTE_TYPE_BOOLEAN,
+        readonly: ATTRIBUTE_TYPE_BOOLEAN,
+        multiple: ATTRIBUTE_TYPE_BOOLEAN,
+      }.freeze
 
-      # returns the full string value
-      def to_s
-        value = @value
-        value = value.call(deconstruct_attribute_value_of_type(@doc.get_attribute(@name), @type)) if value.is_a? Proc
-        value = construct_attribute_value_of_type(value, @type, @name)
+      extend Forwardable
 
-        return value
-      end
+      # @!method keys
+      #   Returns keys from {@attributes}.
+      #
+      # @!method []
+      #   Returns value of key from {@attributes}.
+      #
+      # @!method []=
+      #   Returns sets value for key on {@attributes}.
+      #
+      # @!method delete
+      #   Deletes key by name from {@attributes}.
+      #
+      def_delegators :@attributes, :keys, :delete
 
-      def value
-        @value
-      end
-
-      def ancestors
-        self.class.ancestors
-      end
-
-      def types
-        @types ||= {
-          :hash => [:style],
-          :bool => [:selected, :checked, :disabled, :readonly, :multiple],
-          :mult => [:class]
-        }
-      end
-
-      private
-
-      def update_value
-        updated_value = to_s
-
-        if updated_value.nil?
-          @control.remove_attribute(@name)
-        else
-          @control.update_value_for_attribute(@name, updated_value)
+      # Wraps a hash of view attributes
+      #
+      # @param attributes [Hash]
+      #
+      def initialize(attributes)
+        attributes.each do |name, value|
+          attributes[name] = ViewAttributes.typed_value_for_attribute_with_name(value, name)
         end
+
+        @attributes = attributes
       end
 
-      def type_of_attribute(attribute)
+      def [](attribute)
+        # Note that if +attribute+ isn't present in the view, the return value
+        # will be nil. This could potentially cause a regression in real-world
+        # cases. Consider if we started with this view:
+        #
+        #   <div class="foo"></div>
+        #
+        # Backend code would likey be written as follows:
+        #
+        #   view.attrs[:class] << "bar"
+        #
+        # The thinking is you don't want to modify values in the view. However,
+        # if the view is later refactored to not have a class attribute the
+        # backend code will error out.
+        #
+        # Generally we care about preventing these cases. However, in the case
+        # of attributes, these are acceptable. The case I laid out above should
+        # be considered bad practice but allowed by the framework. Versioned
+        # views should be used instead, which lets the backend choose which
+        # one to use but gives the frontend full ownership over class names.
+        # This removes unnecessary coordination.
+        #
+        # We could probably support this in a non-breaking way from the backend,
+        # but the complexity it would add makes it not worth it. Some things
+        # can and should be prevented in code, but this seems like policy.
+        #
+        # Same ideas apply to non-class attributes as well.
+
         attribute = attribute.to_sym
 
-        return :bool if types[:bool].include?(attribute)
-        return :mult if types[:mult].include?(attribute)
-        return :hash if types[:hash].include?(attribute)
-        return :single
-      end
-
-      def deconstruct_attribute_value_of_type(value, type)
-        return value ? value : ''             if type == :single
-        return value ? value.split(' ') : []  if type == :mult
-        return !value.nil?                    if type == :bool
-        return value_to_hash(value)           if type == :hash
-      end
-
-      def construct_attribute_value_of_type(value, type, attribute)
-        return value if type == :single
-        return value.join(' ') if type == :mult
-        return value ? attribute : nil if type == :bool
-        return value.to_a.map {|a| a.join(':')}.join(';') if type == :hash
-      end
-
-      def value_to_hash(value)
-        return {} if value.nil?
-
-        value.split(';').inject({}) {|h, style|
-          k,v = style.split(':')
-          h[k.to_sym] = v
-          h
-        }
-      end
-    end
-
-    class Attributes
-      def initialize(doc)
-        @doc = doc
-        @attributes = {}
-      end
-
-      def method_missing(method, *args)
-        method_str = method.to_s
-
-        if method_str[0..1] == '[]'
-          attribute = args[0]
-          value = args[1]
+        if self.class.type_of_attribute(attribute) == ATTRIBUTE_TYPE_BOOLEAN
+          @attributes.key?(attribute)
         else
-          attribute = method_str.gsub('=', '')
-          value = args[0]
-        end
-
-        if method_str.include?('=')
-          self.set_attribute(attribute, value)
-        else
-          self.get_attribute(attribute)
+          @attributes[attribute.to_sym]
         end
       end
 
-      def class(*args)
-        method_missing(:class, *args)
-      end
+      def []=(attribute, value)
+        attribute = attribute.to_sym
 
-      def id(*args)
-        method_missing(:id, *args)
-      end
-
-      def method(*args)
-        method_missing(:method, *args)
-      end
-
-      def update_value_for_attribute(attribute, value)
-        @doc.attributes[attribute] = value
-      end
-
-      def remove_attribute(attribute)
-        @doc.attributes.delete(attribute)
-      end
-
-      def include?(attribute)
-        @doc.attributes.key?(attribute)
-      end
-
-      protected
-
-      def set_attribute(attribute, value)
-        get_attribute(attribute).set(value)
-      end
-
-      def get_attribute(attribute)
-        @attributes[attribute] ||
-          Attribute.new(attribute, @doc.attributes[attribute], self, @doc)
-      end
-    end
-
-    class AttributesCollection
-      include Enumerable
-
-      def initialize
-        @attributes = []
-      end
-
-      def <<(attributes)
-        if attributes.is_a?(Attribute) || attributes.is_a?(Attributes)
-          @attributes << attributes
+        if value.nil?
+          @attributes.delete(attribute)
+        elsif self.class.type_of_attribute(attribute) == ATTRIBUTE_TYPE_BOOLEAN
+          if value
+            @attributes[attribute] = self.class.typed_value_for_attribute_with_name(attribute, attribute)
+          else
+            @attributes.delete(attribute)
+          end
         else
-          method_missing(:<<, *attributes)
+          @attributes[attribute] = self.class.typed_value_for_attribute_with_name(value, attribute)
         end
-
-        self
-      end
-
-      def each
-        @attributes.each { |a| yield(a) }
-      end
-
-      def method_missing(method, *args)
-        @attributes.inject(AttributesCollection.new) { |coll, a|
-          coll << a.send(method, *args)
-        }
-      end
-
-      def to_s
-        @attributes.inject([]) { |arr, a| arr << a.to_s }
-      end
-
-      def class(*args)
-        method_missing(:class, *args)
-      end
-
-      def id(*args)
-        method_missing(:id, *args)
       end
     end
   end

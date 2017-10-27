@@ -1,193 +1,251 @@
-RSpec.describe "presentable definitions" do
+RSpec.describe "using presentables" do
   include_context "testable app"
 
-  module Pakyow::Helpers
-    def global_method
-      "global_method"
+  before do
+    call "/"
+  end
+
+  after do
+    $presentable = nil
+  end
+
+  context "presentable is defined globally in the router" do
+    context "presentable is a method" do
+      let :app_definition do
+        Proc.new do
+          instance_exec(&$presenter_app_boilerplate)
+
+          module Pakyow::Helpers
+            def current_user
+              "current_user"
+            end
+          end
+
+          router :default do
+            presentable :current_user
+
+            get "/" do
+            end
+          end
+
+          Pakyow::App.view "/" do
+            $presentable = current_user
+          end
+        end
+      end
+
+      it "is accessible" do
+        expect($presentable).to eq("current_user")
+      end
+    end
+
+    context "presentable is a value" do
+      let :app_definition do
+        Proc.new do
+          instance_exec(&$presenter_app_boilerplate)
+
+          router :default do
+            presentable :current_user, "current_user"
+
+            get "/" do
+            end
+          end
+
+          Pakyow::App.view "/" do
+            $presentable = current_user
+          end
+        end
+      end
+
+      it "is accessible" do
+        expect($presentable).to eq("current_user")
+      end
+    end
+
+    context "presentable is a block" do
+      context "block has a default value and returns nil" do
+        let :app_definition do
+          Proc.new do
+            instance_exec(&$presenter_app_boilerplate)
+
+            router :default do
+              presentable :current_user, "default_user" do
+                nil
+              end
+
+              get "/" do
+              end
+            end
+
+            Pakyow::App.view "/" do
+              $presentable = current_user
+            end
+          end
+        end
+
+        it "is the default value" do
+          expect($presentable).to eq("default_user")
+        end
+      end
+
+      context "block has a default value and does not return nil" do
+        let :app_definition do
+          Proc.new do
+            instance_exec(&$presenter_app_boilerplate)
+
+            router :default do
+              presentable :current_user, "default_user" do
+                "current_user"
+              end
+
+              get "/" do
+              end
+            end
+
+            Pakyow::App.view "/" do
+              $presentable = current_user
+            end
+          end
+        end
+
+        it "is the value from the block" do
+          expect($presentable).to eq("current_user")
+        end
+      end
     end
   end
 
-  let :app_definition do
-    Proc.new {
-      include Pakyow::Presenter
+  context "presentable is defined inline with the route" do
+    context "presentable is a method" do
+      let :app_definition do
+        Proc.new do
+          instance_exec(&$presenter_app_boilerplate)
 
-      configure do
-        config.presenter.path = "./spec/views"
-      end
+          router :default do
+            get "/" do
+              def current_user
+                "current_user"
+              end
 
-      router :default do
-        presentable :global_method
-        presentable :global_value, "global_value"
-
-        presentable :global_block do
-          "global_block"
-        end
-
-        presentable :global_default, "global_default" do
-          "global_fallback"
-        end
-
-        presentable :global_fallback, nil do
-          "global_fallback"
-        end
-
-        get "global/:type" do
-          render "global/#{params[:type]}"
-        end
-
-        get "local/:type" do
-          def local_method
-            "local_method"
+              presentable :current_user
+            end
           end
 
-          presentable :local_method
-          presentable :local_value, "local_value"
-
-          presentable :local_block do
-            "local_block"
+          Pakyow::App.view "/" do
+            $presentable = current_user
           end
-
-          presentable :local_default, "local_default" do
-            "local_fallback"
-          end
-
-          presentable :local_fallback, nil do
-            "local_fallback"
-          end
-
-          render "local/#{params[:type]}"
-        end
-
-        get "other/:type" do
-          render "other/#{params[:type]}"
         end
       end
 
-      Pakyow::App.view "global/method" do
-        view.replace(global_method)
+      it "is accessible" do
+        expect($presentable).to eq("current_user")
       end
-
-      Pakyow::App.view "global/value" do
-        view.replace(global_value)
-      end
-
-      Pakyow::App.view "global/block" do
-        view.replace(global_block)
-      end
-
-      Pakyow::App.view "global/default" do
-        view.replace(global_default)
-      end
-
-      Pakyow::App.view "global/fallback" do
-        view.replace(global_fallback)
-      end
-
-      Pakyow::App.view "local/method" do
-        view.replace(local_method)
-      end
-
-      Pakyow::App.view "local/value" do
-        view.replace(local_value)
-      end
-
-      Pakyow::App.view "local/block" do
-        view.replace(local_block)
-      end
-
-      Pakyow::App.view "local/default" do
-        view.replace(local_default)
-      end
-
-      Pakyow::App.view "local/fallback" do
-        view.replace(local_fallback)
-      end
-
-      Pakyow::App.view "other/method" do
-        view.replace(self.respond_to?('local_method').to_s)
-      end
-
-      Pakyow::App.view "other/value" do
-        view.replace(self.respond_to?('local_value').to_s)
-      end
-
-      Pakyow::App.view "other/block" do
-        view.replace(self.respond_to?('local_block').to_s)
-      end
-
-      Pakyow::App.view "other/default" do
-        view.replace(self.respond_to?('local_default').to_s)
-      end
-
-      Pakyow::App.view "other/fallback" do
-        view.replace(self.respond_to?('local_fallback').to_s)
-      end
-    }
-  end
-
-  context "when a route is called" do
-    it "can call global 'method' presentables" do
-      expect(call("/global/method")[2].body.read).to eq("global_method")
     end
 
-    it "can call global 'value' presentables" do
-      expect(call("/global/value")[2].body.read).to eq("global_value")
+    context "presentable is a value" do
+      let :app_definition do
+        Proc.new do
+          instance_exec(&$presenter_app_boilerplate)
+
+          router :default do
+            get "/" do
+              presentable :current_user, "current_user"
+            end
+          end
+
+          Pakyow::App.view "/" do
+            $presentable = current_user
+          end
+        end
+      end
+
+      it "is accessible" do
+        expect($presentable).to eq("current_user")
+      end
     end
 
-    it "can call global 'block' presentables" do
-      expect(call("/global/block")[2].body.read).to eq("global_block")
-    end
+    context "presentable is a block" do
+      context "block has a default value and returns nil" do
+        let :app_definition do
+          Proc.new do
+            instance_exec(&$presenter_app_boilerplate)
 
-    it "can call global 'fallback' presentables (using default value)" do
-      expect(call("/global/default")[2].body.read).to eq("global_default")
-    end
+            router :default do
+              get "/" do
+                presentable :current_user, "default_user" do
+                  nil
+                end
+              end
+            end
 
-    it "can call global 'fallback' presentables (using fallback value)" do
-      expect(call("/global/fallback")[2].body.read).to eq("global_fallback")
+            Pakyow::App.view "/" do
+              $presentable = current_user
+            end
+          end
+        end
+
+        it "is the default value" do
+          expect($presentable).to eq("default_user")
+        end
+      end
+
+      context "block has a default value and does not return nil" do
+        let :app_definition do
+          Proc.new do
+            instance_exec(&$presenter_app_boilerplate)
+
+            router :default do
+              get "/" do
+                presentable :current_user, "default_user" do
+                  "current_user"
+                end
+              end
+            end
+
+            Pakyow::App.view "/" do
+              $presentable = current_user
+            end
+          end
+        end
+
+        it "is the value from the block" do
+          expect($presentable).to eq("current_user")
+        end
+      end
     end
   end
 
-  context "when a route with local presentables is called" do
-    it "can call local 'method' presentables" do
-      expect(call("/local/method")[2].body.read).to eq("local_method")
+  context "presentable is defined in a route, but not for the called route" do
+    let :app_definition do
+      Proc.new do
+        instance_exec(&$presenter_app_boilerplate)
+
+        router :default do
+          get "/" do
+            presentable :current_user, "current_user"
+          end
+
+          get "/other" do
+          end
+        end
+
+        Pakyow::App.view "/" do
+          $presentable = current_user
+        end
+
+        Pakyow::App.view "/other" do
+          $presentable = respond_to?(:current_user)
+        end
+      end
     end
 
-    it "can call local 'value' presentables" do
-      expect(call("/local/value")[2].body.read).to eq("local_value")
+    it "sets up the test properly" do
+      expect($presentable).to eq("current_user")
     end
 
-    it "can call local 'block' presentables" do
-      expect(call("/local/block")[2].body.read).to eq("local_block")
-    end
-
-    it "can call local 'fallback' presentables (using default value)" do
-      expect(call("/local/default")[2].body.read).to eq("local_default")
-    end
-
-    it "can call local 'fallback' presentables (using fallback value)" do
-      expect(call("/local/fallback")[2].body.read).to eq("local_fallback")
-    end
-  end
-
-  context "when a route without local presentables is called" do
-    it "cannot call 'method' presentables defined in different route" do
-      expect(call("/other/method")[2].body.read).to eq("false")
-    end
-
-    it "cannot call 'value' presentables defined in different route" do
-      expect(call("/other/value")[2].body.read).to eq("false")
-    end
-
-    it "cannot call 'block' presentables defined in different route" do
-      expect(call("/other/block")[2].body.read).to eq("false")
-    end
-
-    it "cannot call 'default' presentables defined in different route" do
-      expect(call("/other/default")[2].body.read).to eq("false")
-    end
-
-    it "cannot call 'fallback' presentables defined in different route" do
-      expect(call("/other/fallback")[2].body.read).to eq("false")
+    it "cannot access the presentable defined in the other route" do
+      call "/other"
+      expect($presentable).to eq(false)
     end
   end
 end

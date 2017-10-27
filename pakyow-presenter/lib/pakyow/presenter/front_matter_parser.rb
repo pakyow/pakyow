@@ -1,6 +1,7 @@
 module Pakyow
   module Presenter
-    # Module for parsing front matter from HTML
+    # Parses front matter from text files.
+    #
     # @api private
     module FrontMatterParser
 

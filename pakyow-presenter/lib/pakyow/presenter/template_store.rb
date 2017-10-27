@@ -4,7 +4,7 @@ module Pakyow
   module Presenter
     class TemplateStore
       extend Support::DeepFreeze
-      unfreezable :info
+      unfreezable :info, :layouts, :partials
 
       attr_reader :name, :path
 
@@ -12,8 +12,8 @@ module Pakyow
       PARTIALS_PATH = "partials".freeze
       TEMPLATES_PATH = "templates".freeze
 
-      def initialize(name, path)
-        @name, @path = name, Pathname(path)
+      def initialize(name, path, processor: nil)
+        @name, @path, @processor = name, Pathname(path), processor
         load
       end
 
@@ -24,8 +24,8 @@ module Pakyow
       def info(path)
         return unless view?(path)
 
-        @info[path].each_with_object({}) { |path, info|
-          info[path[0]] = path[1].dup
+        @info[path].each_with_object({}) { |info_path, info|
+          info[info_path[0]] = info_path[1].dup
         }
       end
 
@@ -67,7 +67,7 @@ module Pakyow
         load_layouts
 
         unless layout = @layouts[name.to_sym]
-          raise MissingTemplate, "No layout named '#{name}'"
+          raise MissingLayout, "No layout named '#{name}'"
         end
 
         return layout
@@ -84,7 +84,7 @@ module Pakyow
         return unless File.exist?(layouts_path)
 
         @layouts = layouts_path.children.each_with_object({}) { |file, layouts|
-          layout = Template.load(file)
+          layout = load_view_of_type_at_path(Layout, file)
           layouts[layout.name] = layout
         }
       end
@@ -94,7 +94,7 @@ module Pakyow
         return unless File.exist?(partials_path)
 
         @partials = partials_path.children.each_with_object({}) { |file, partials|
-          partial = Partial.load(file)
+          partial = load_view_of_type_at_path(Partial, file)
           partials[partial.name] = partial
         }
       end
@@ -132,7 +132,7 @@ module Pakyow
             index_page_at_path(path)
           end
         else
-          Page.load(path)
+          load_view_of_type_at_path(Page, path)
         end
       end
 
@@ -168,11 +168,19 @@ module Pakyow
         path.ascend.select(&:directory?).each_with_object({}) { |parent_path, partials|
           parent_path.children.select { |child|
             child.basename.to_s.start_with?("_")
-          }.each_with_object(partials) { |child, partials|
-            partial = Partial.load(child)
-            partials[partial.name] ||= partial
+          }.each_with_object(partials) { |child, child_partials|
+            partial = load_view_of_type_at_path(Partial, child)
+            child_partials[partial.name] ||= partial
           }
         }
+      end
+
+      def load_view_of_type_at_path(type, path)
+        if @processor
+          type.load(path, content: @processor.process(path))
+        else
+          type.load(path)
+        end
       end
     end
   end

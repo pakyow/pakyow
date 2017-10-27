@@ -30,26 +30,10 @@ module Pakyow
     alias req request
     alias res response
 
-    extend Forwardable
-
-    # @!method logger
-    #   @return the request's logger
-    # @!method params
-    #   @return the request's params (see {Request#params})
-    # @!method session
-    #   @return the request's session
-    # @!method cookies
-    #   @return the request's cookies (see {Request#cookies})
-    def_delegators :request, :logger, :params, :session, :cookies
-
-    # @!method config
-    #   @return the config object
-    def_delegators :app, :config
-
     # Tells the logger that an error occurred when processing a request.
     #
     before :error do
-      logger.houston(request.error)
+      request.logger.houston(request.error)
     end
 
     # Dups the cookies for comparison at the end of the request/response lifecycle.
@@ -71,7 +55,7 @@ module Pakyow
         next if @cookies.include?(name) && @cookies[name] == value
 
         # set cookie with defaults
-        response.set_cookie(name, path: config.cookies.path, expires: Time.now + config.cookies.expiry, value: value)
+        response.set_cookie(name, path: app.config.cookies.path, expires: Time.now + app.config.cookies.expiry, value: value)
       end
 
       # delete cookies that were deleted from the request
@@ -203,7 +187,7 @@ module Pakyow
     # @api public
     def redirect(location, as: 302, **params)
       response.status = Rack::Utils.status_code(as)
-      response["Location"] = location.is_a?(Symbol) ? path(location, **params) : location
+      response["Location"] = location.is_a?(Symbol) ? @app.path_builder.path(location, **params) : location
       halt
     end
 
@@ -236,7 +220,7 @@ module Pakyow
       # and providing access to the previous request via `parent`
       # request.setup(path(location, **params), method)
 
-      route_with_path_and_method(location.is_a?(Symbol) ? path(location, **params) : location, method)
+      route_with_path_and_method(location.is_a?(Symbol) ? @app.path_builder.path(location, **params) : location, method)
     end
 
     # Responds to a specific request format.
@@ -330,46 +314,6 @@ module Pakyow
 
         router.trigger_for_code(code, handlers: handlers)
       end
-    end
-
-    # Conveniently builds and returns the path to a particular route.
-    #
-    # @example Build the path to the +new+ route within the +post+ group:
-    #   path(:post_new)
-    #   # => "/posts/new"
-    #
-    # @example Build the path providing a value for +post_id+:
-    #   path(:post_edit, post_id: 1)
-    #   # => "/posts/1/edit"
-    #
-    # @api public
-    def path(name, **params)
-      path_to(*name.to_s.split("_").map(&:to_sym), **params)
-    end
-
-    # Builds and returns the path to a particular route.
-    #
-    # @example Build the path to the +new+ route within the +post+ group:
-    #   path_to(:post, :new)
-    #   # => "/posts/new"
-    #
-    # @example Build the path providing a value for +post_id+:
-    #   path_to(:post, :edit, post_id: 1)
-    #   # => "/posts/1/edit"
-    #
-    # @api public
-    def path_to(*names, **params)
-      matched_routers = app.router.instances.reject { |router_to_match|
-        router_to_match.name.nil? || router_to_match.name != names.first
-      }
-
-      matched_routers.each do |matched_router|
-        if path = matched_router.path_to(*names[1..-1], **params)
-          return path
-        end
-      end
-
-      nil
     end
 
     # Halts request processing, immediately returning the response.

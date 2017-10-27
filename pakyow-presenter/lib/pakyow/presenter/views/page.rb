@@ -1,13 +1,11 @@
+require "yaml"
+
 module Pakyow
   module Presenter
-    # TODO: this should be refactored to PagePresenter
-    # the front matter parsing should be part of view and exposed as `info` so that it works everywhere
     class Page
       class << self
-        def load(path)
-          name = File.basename(path, '.*').to_sym
-          html = FileTest.file?(path) ? File.read(path) : nil
-          Page.new(name, html, path)
+        def load(path, content: nil)
+          Page.new(File.basename(path, '.*').to_sym, content || File.read(path), path)
         end
       end
 

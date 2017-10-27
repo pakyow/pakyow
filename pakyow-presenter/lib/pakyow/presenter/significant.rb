@@ -1,8 +1,24 @@
-# TODO: component, option, title, form, semantic tags
+# TODO: rename to significant_nodes.rb
 
 module Pakyow
   module Presenter
+    # @api private
+    FORM_TAG = "form".freeze
+    # @api private
+    OPTION_TAG = "option".freeze
+    # @api private
+    TITLE_TAG = "title".freeze
+
+    # @api private
     class SignificantNode
+      # Attributes that should be prefixed with +data-+
+      #
+      DATA_ATTRS = %i(ui).freeze
+
+      # Attributes that will be turned into +StringDoc+ labels
+      #
+      LABEL_ATTRS = %i(version include exclude).freeze
+
       def self.node_with_valueless_attribute?(node)
         return false unless node.is_a?(Oga::XML::Element)
         return false unless attribute = node.attributes.first
@@ -16,11 +32,23 @@ module Pakyow
 
       def self.attributes_hash(element)
         StringDoc.attributes(element).each_with_object({}) do |attribute, elements|
-          elements[attribute.name.to_sym] = attribute.value
+          attribute_name = attribute.name.to_sym
+          attribute_name = :"data-#{attribute_name}" if DATA_ATTRS.include?(attribute_name)
+          elements[attribute_name] = attribute.value
+        end
+      end
+
+      def self.labels_hash(element)
+        StringDoc.attributes(element).each_with_object({}) do |attribute, labels|
+          attribute_name = attribute.name.to_sym
+          next unless LABEL_ATTRS.include?(attribute_name)
+          element.unset(attribute.name)
+          labels[attribute_name] = attribute.value
         end
       end
     end
 
+    # @api private
     class ContainerNode < SignificantNode
       StringDoc.significant :container, self
 
@@ -45,6 +73,7 @@ module Pakyow
       end
     end
 
+    # @api private
     class PartialNode < SignificantNode
       StringDoc.significant :partial, self
 
@@ -63,11 +92,13 @@ module Pakyow
       end
     end
 
+    # @api private
     class ScopeNode < SignificantNode
       StringDoc.significant :scope, self
 
       def self.significant?(node)
         return false unless node_with_valueless_attribute?(node)
+        return false if node.name == FORM_TAG
 
         StringDoc.breadth_first(node) do |child|
           return true if PropNode.significant?(child)
@@ -75,15 +106,16 @@ module Pakyow
       end
 
       def self.node(element)
+        labels = labels_hash(element)
         attributes = attributes_instance(element)
         scope = attributes.keys.first
-        attributes[:"data-scope"] = scope
         attributes.delete(scope)
 
-        StringNode.new(["<#{element.name} ", attributes], type: :scope, name: scope)
+        StringNode.new(["<#{element.name}", attributes], type: :scope, name: scope, labels: labels)
       end
     end
 
+    # @api private
     class PropNode < SignificantNode
       StringDoc.significant :prop, self
 
@@ -98,12 +130,76 @@ module Pakyow
       end
 
       def self.node(element)
+        labels = labels_hash(element)
         attributes = attributes_instance(element)
         prop = attributes.keys.first
-        attributes[:"data-prop"] = prop
         attributes.delete(prop)
 
-        StringNode.new(["<#{element.name} ", attributes], type: :prop, name: prop)
+        StringNode.new(["<#{element.name}", attributes], type: :prop, name: prop, labels: labels)
+      end
+    end
+
+    # @api private
+    class ComponentNode < SignificantNode
+      StringDoc.significant :component, self
+
+      def self.significant?(node)
+        return false unless node.is_a?(Oga::XML::Element)
+        !node.attribute(:ui).nil?
+      end
+
+      def self.node(element)
+        labels = labels_hash(element)
+        attributes = attributes_instance(element)
+        StringNode.new(["<#{element.name}", attributes], type: :component, name: labels[:ui].to_sym, labels: labels)
+      end
+    end
+
+    # @api private
+    class FormNode < SignificantNode
+      StringDoc.significant :form, self
+
+      def self.significant?(node)
+        node_with_valueless_attribute?(node) && node.name == FORM_TAG
+      end
+
+      def self.node(element)
+        labels = labels_hash(element)
+        attributes = attributes_instance(element)
+        scope = attributes.keys.first
+        attributes.delete(scope)
+
+        StringNode.new(["<#{element.name}", attributes], type: :form, name: scope, labels: labels)
+      end
+    end
+
+    # @api private
+    class OptionNode < SignificantNode
+      StringDoc.significant :option, self
+
+      def self.significant?(node)
+        node.is_a?(Oga::XML::Element) && node.name == OPTION_TAG
+      end
+
+      def self.node(element)
+        labels = labels_hash(element)
+        attributes = attributes_instance(element)
+        StringNode.new(["<#{element.name}", attributes], type: :option, name: attributes[:value], labels: labels)
+      end
+    end
+
+    # @api private
+    class TitleNode < SignificantNode
+      StringDoc.significant :title, self
+
+      def self.significant?(node)
+        node.is_a?(Oga::XML::Element) && node.name == TITLE_TAG
+      end
+
+      def self.node(element)
+        labels = labels_hash(element)
+        attributes = attributes_instance(element)
+        StringNode.new(["<#{element.name}", attributes], type: :title, name: attributes[:value], labels: labels)
       end
     end
   end

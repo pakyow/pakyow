@@ -17,6 +17,7 @@ module Pakyow
         def from_nodes(nodes)
           instance = allocate
           instance.instance_variable_set(:@nodes, nodes)
+          instance.instance_variable_set(:@significant, {})
           instance
         end
 
@@ -54,7 +55,7 @@ module Pakyow
 
       inspectable :nodes
 
-      attr_reader :nodes, :significant_nodes
+      attr_reader :nodes
 
       def initialize(html)
         @nodes = parse(Oga.parse_html(html))
@@ -71,16 +72,22 @@ module Pakyow
         @significant = {}
       end
 
-      def find_significant_nodes(type)
-        type = type.to_sym
-        @significant[type] ||= nodes.map(&:with_children).flatten.select { |node|
+      def find_significant_nodes(type, with_children: true)
+        return @significant[type] if @significant[type]
+
+        significant_nodes = if with_children
+                              nodes.map(&:with_children).flatten
+                            else
+                              nodes.dup
+                            end
+
+        @significant[type] = significant_nodes.select { |node|
           node.type == type
         }
       end
 
-      def find_significant_nodes_with_name(type, name)
-        name = name.to_sym
-        find_significant_nodes(type).select { |node|
+      def find_significant_nodes_with_name(type, name, with_children: true)
+        find_significant_nodes(type, with_children: with_children).select { |node|
           node.name == name
         }
       end
@@ -90,11 +97,11 @@ module Pakyow
       end
 
       def append(doc_or_string)
-        children.concat(nodes_from_doc_or_string(doc_or_string))
+        nodes.concat(nodes_from_doc_or_string(doc_or_string))
       end
 
       def prepend(doc_or_string)
-        children.unshift(*nodes_from_doc_or_string(doc_or_string))
+        nodes.unshift(*nodes_from_doc_or_string(doc_or_string))
       end
 
       def after(doc_or_string)
@@ -123,6 +130,10 @@ module Pakyow
         comparison.is_a?(StringDoc) && nodes == comparison.nodes
       end
 
+      def string_nodes
+        nodes.map(&:string_nodes)
+      end
+
       private
 
       def nodes_from_doc_or_string(doc_or_string)
@@ -133,15 +144,23 @@ module Pakyow
         end
       end
 
-      def render(nodes = @nodes)
-        nodes.flatten.reject(&:empty?).map(&:to_s).join
+      def render
+        # nodes.flatten.reject(&:empty?).map(&:to_s).join
+
+        # we save several (hundreds) of calls to `flatten` by pulling in each node and dealing with them together
+        # instead of calling `to_s` on each
+        arr = string_nodes
+        arr.flatten!
+        arr.compact!
+        arr.map!(&:to_s)
+        arr.join
       end
 
       def parse(doc)
         nodes = []
 
         unless doc.is_a?(Oga::XML::Element) || !doc.respond_to?(:doctype) || doc.doctype.nil?
-          nodes << StringNode.new(["<!DOCTYPE html>", "", []])
+          nodes << StringNode.new(["<!DOCTYPE html>", StringAttributes.new, []])
         end
 
         self.class.breadth_first(doc) do |element|
@@ -149,13 +168,13 @@ module Pakyow
 
           unless significant_object || contains_significant_child?(element)
             # we know that nothing inside of the node is significant, so we can just collapse it to a single node
-            nodes << StringNode.new([element.to_xml, "", []]); next
+            nodes << StringNode.new([element.to_xml, StringAttributes.new, []]); next
           end
 
           node = if significant_object
                    build_significant_node(element, significant_object)
                  elsif element.is_a?(Oga::XML::Text) || element.is_a?(Oga::XML::Comment)
-                   StringNode.new([element.to_xml, "", []])
+                   StringNode.new([element.to_xml, StringAttributes.new, []])
                  else
                    StringNode.new(["<#{element.name}#{self.class.attributes_string(element)}", ""])
                  end

@@ -16,8 +16,8 @@ module Pakyow
         if default_omitted && !block_given?
           args[:method_name] = name
         else
-          args[:value] = default_value unless default_omitted
-          args[:value] = yield if args[:value].nil? && block_given?
+          args[:value] = yield if block_given?
+          args[:value] = default_value unless args[:value] || default_omitted
         end
 
         presentables[name] = args
@@ -40,7 +40,7 @@ module Pakyow
         end
 
         def presentables
-          return @presentables if @presentables
+          return @presentables if defined?(@presentables)
 
           if frozen?
             {}

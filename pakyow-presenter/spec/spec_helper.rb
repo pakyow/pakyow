@@ -16,3 +16,11 @@ end
 
 require "../spec/context/testable_app_context"
 require "../spec/context/suppressed_output_context"
+
+$presenter_app_boilerplate = Proc.new do
+  include Pakyow::Presenter
+
+  configure do
+    config.presenter.path = "./spec/features/support/views"
+  end
+end

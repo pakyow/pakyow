@@ -170,102 +170,110 @@ module Pakyow
 
     extend Forwardable
 
-    # @!method logger
-    #   Delegates to {context}.
-    #
-    #   @see Controller#logger
-    #
     # @!method handle
-    #   Delegates to {context}.
+    #   Delegates to {@controller}.
     #
     #   @see Controller#handle
     #
     # @!method redirect
-    #   Delegates to {context}.
+    #   Delegates to {@controller}.
     #
     #   @see Controller#redirect
     #
     # @!method reroute
-    #   Delegates to {context}.
+    #   Delegates to {@controller}.
     #
     #   @see Controller#reroute
     #
     # @!method send
-    #   Delegates to {context}.
+    #   Delegates to {@controller}.
     #
     #   @see Controller#send
     #
     # @!method reject
-    #   Delegates to {context}.
+    #   Delegates to {@controller}.
     #
     #   @see Controller#reject
     #
     # @!method trigger
-    #   Delegates to {context}.
+    #   Delegates to {@controller}.
     #
     #   @see Controller#trigger
     #
     # @!method path
-    #   Delegates to {context}.
+    #   Delegates to {@controller}.
     #
     #   @see Controller#path
     #
     # @!method path_to
-    #   Delegates to {context}.
+    #   Delegates to {@controller}.
     #
     #   @see Controller#path_to
     #
     # @!method halt
-    #   Delegates to {context}.
+    #   Delegates to {@controller}.
     #
     #   @see Controller#halt
     #
-    # @!method config
-    #   Delegates to {context}.
-    #
-    #   @see Controller#config
-    #
-    # @!method params
-    #   Delegates to {context}.
-    #
-    #   @see Controller#params
-    #
-    # @!method session
-    #   Delegates to {context}.
-    #
-    #   @see Controller#session
-    #
-    # @!method :cookies
-    #   Delegates to {context}.
-    #
-    #   @see Controller#:cookies
-    #
     # @!method request
-    #   Delegates to {context}.
+    #   Delegates to {@controller}.
     #
     #   @see Controller#request
     #
     # @!method response
-    #   Delegates to {context}.
+    #   Delegates to {@controller}.
     #
     #   @see Controller#response
     #
     # @!method req
-    #   Delegates to {context}.
+    #   Delegates to {@controller}.
     #
     #   @see Controller#req
     #
     # @!method res
-    #   Delegates to {context}.
+    #   Delegates to {@controller}.
     #
     #   @see Controller#res
     #
     # @!method respond_to
-    #   Delegates to {context}.
+    #   Delegates to {@controller}.
     #
     #   @see Controller#respond_to
-    def_delegators :@controller, :logger, :handle, :redirect, :reroute, :send, :reject, :trigger, :path, :path_to,
-                   :halt, :config, :params, :session, :cookies, :request, :response, :req, :res, :respond_to
+    def_delegators :@controller, :handle, :redirect, :reroute, :send, :reject, :trigger,
+                   :halt, :request, :response, :req, :res, :respond_to
+
+    # @!method config
+    #   Delegates to {@controller.app}.
+    #
+    #   @see App#config
+    def_delegators :"@controller.app", :config
+
+    # @!method logger
+    #   Delegates to {@controller.request}.
+    #
+    #   @see Request#logger
+    #
+    # @!method params
+    #   Delegates to {@controller.request}.
+    #
+    #   @see Request#params
+    #
+    # @!method session
+    #   Delegates to {@controller.request}.
+    #
+    #   @see Request#session
+    #
+    # @!method :cookies
+    #   Delegates to {@controller.request}.
+    #
+    #   @see Request#:cookies
+    def_delegators :"@controller.request", :logger, :params, :session, :cookies
+
+    # @!method path
+    #   @return builds the path to a named route (see {PathBuilder#path})
+    # @!method path_to
+    #   @return builds the path to a route, following a trail of names (see {PathBuilder#path_to})
+    def_delegators :"@controller.app.path_builder", :path, :path_to
 
     # The context of the current request lifecycle.
     # Expected to be an instance of {Controller}.

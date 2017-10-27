@@ -5,8 +5,8 @@ module Pakyow
     end
 
     def self.load_presenter_into(app_class)
-      app_class.after :configure do
-        app_class.template_store << TemplateStore.new(:default, config.presenter.path)
+      app_class.after :load do
+        app_class.template_store << TemplateStore.new(:default, config.presenter.path, processor: ProcessorCaller.new(app_class.state[:processor].instances))
 
         if environment == :development
           app_class.handle Pakyow::Presenter::MissingView, as: 500 do
@@ -44,109 +44,177 @@ module Pakyow
     # State is passed explicitly to the presenter, exposed by calling the `presentable` helper.
     #
     class Presenter
+      include Support::SafeStringHelpers
+
       attr_reader :view, :binders
 
-      def initialize(view, binders: [])
-        @view, @binders = view, binders
+      def initialize(view, binders: [], path_builder: nil)
+        @view, @binders, @path_builder = view, binders, path_builder
       end
 
-      def find(scope)
-        presenter_for(view.scope(scope))
+      def find(*names)
+        presenter_for(@view.find(*names))
       end
 
-      def present(data)
-        data = Array.ensure(data)
-
-        if binder = binder_for_current_scope
-          view.repeat(data.map { |object| binder.new(object) }) do |view, binder|
-            bindable = binder.object
-            view.props.each do |prop|
-              value = binder[prop.name]
-
-              if value.is_a?(BinderParts)
-                bindable[prop.name] = value.content if value.content?
-                view.attrs(value.non_content_parts)
-              else
-                bindable[prop.name] = value
-              end
-            end
-
-            view.bind(bindable)
-          end
+      def title(value)
+        if title_view = @view.title
+          # FIXME: this should be `text=` once supported by `StringNode`
+          title_view.html = value
         else
-          view.apply(data)
+          # TODO: should we add the title node, or raise an error?
         end
       end
 
+      def with
+        yield self; self
+      end
+
+      def container(name)
+        presenter_for(@view.container(name))
+      end
+
+      def partial(name)
+        presenter_for(@view.partial(name))
+      end
+
+      def component(name)
+        presenter_for(@view.component(name))
+      end
+
+      def form(name)
+        presenter_for(@view.form(name), type: FormPresenter)
+      end
+
+      def transform(data)
+        presenter_for(@view.transform(data))
+      end
+
+      def bind(data)
+        if binder = binder_for_current_scope
+          bind_binder_to_view(binder.new(data), @view)
+        else
+          @view.bind(data)
+        end
+
+        presenter_for(@view)
+      end
+
+      def present(data)
+        @view.transform(data) do |view, object|
+          yield view, object if block_given?
+
+          presenter_for(view).bind(object)
+        end
+
+        presenter_for(@view)
+      end
+
+      def append(view)
+        presenter_for(@view.append(view))
+      end
+
+      def prepend(view)
+        presenter_for(@view.append(view))
+      end
+
+      def after(view)
+        presenter_for(@view.append(view))
+      end
+
+      def before(view)
+        presenter_for(@view.append(view))
+      end
+
+      def replace(view)
+        presenter_for(@view.append(view))
+      end
+
+      def remove
+        presenter_for(@view.remove)
+      end
+
+      def clear
+        presenter_for(@view.clear)
+      end
+
+      def text=(text)
+        @view.text = text
+      end
+
+      def html=(html)
+        @view.html = html
+      end
+
+      def decorated?
+        @view.decorated?
+      end
+
+      def container?
+        @view.container?
+      end
+
+      def partial?
+        @view.partial?
+      end
+
+      def component?
+        @view.component?
+      end
+
+      def form?
+        @view.form?
+      end
+
+      def count
+        @view.count
+      end
+
+      def [](i)
+        presenter_for(@view[i])
+      end
+
       def to_html
-        view.to_html
+        @view.to_html
       end
 
       alias :to_str :to_html
 
       private
 
-      def presenter_for(view)
-        Presenter.new(view, binders: binders)
+      def presenter_for(view, type: Presenter)
+        type.new(view, binders: binders, path_builder: @path_builder)
       end
 
       def binder_for_current_scope
         binders.find { |binder|
-          binder.name == view.scoped_as
+          binder.name == @view.name
         }
       end
-    end
 
-    class ViewPresenter < Presenter
-      extend Support::ClassMaker
-      CLASS_MAKER_BASE = "ViewPresenter".freeze
+      def bind_binder_to_view(binder, view)
+        bindable = binder.object
 
-      class << self
-        attr_reader :path, :block
+        view.props.each do |prop|
+          value = binder[prop.name]
 
-        def make(path, state: nil, &block)
-          klass = class_const_for_name(Class.new(self), name_from_path(path))
+          if value.is_a?(BindingParts)
+            next unless prop_view = view.find(prop.name)
 
-          klass.class_eval do
-            @name = name
-            @state = state
-            @path = String.normalize_path(path)
-            @block = block
+            value.accept(*prop_view.label(:include)&.split(" "))
+            value.reject(*prop_view.label(:exclude)&.split(" "))
+
+            bindable[prop.name] = value.content if value.content?
+
+            value.non_content_parts.each_pair do |key, value_part|
+              prop_view.attrs[key] = value_part
+            end
+          else
+            bindable[prop.name] = value
           end
-
-          klass
         end
 
-        def name_from_path(path)
-          return :root if path == "/"
-          # TODO: fill in the rest of this
-          # / => Root
-          # /posts => Posts
-          # /posts/show => PostsShow
-        end
+        view.bind(bindable)
       end
-
-      attr_reader :template, :page, :partials
-
-      def initialize(template: nil, page: nil, partials: [], **args)
-        @template, @page, @partials = template, page, partials
-        @view = template.build(page).mixin(partials)
-        super(@view, **args)
-      end
-
-      def to_html
-        if block = self.class.block
-          instance_exec(&block)
-        end
-
-        if title = page.info(:title)
-          view.title = title
-        end
-
-        super
-      end
-
-      alias :to_str :to_html
     end
   end
 end

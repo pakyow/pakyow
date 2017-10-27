@@ -1,14 +1,11 @@
 module Pakyow
   module Presenter
-    # TODO: refactor to LayoutPresenter
-    class Template < View
+    class Layout < View
       attr_accessor :name
 
       class << self
-        def load(path)
-          html  = File.read(path)
-          name  = File.basename(path, ".*").to_sym
-          self.new(name, html)
+        def load(path, content: nil)
+          self.new(File.basename(path, ".*").to_sym, content || File.read(path))
         end
       end
 

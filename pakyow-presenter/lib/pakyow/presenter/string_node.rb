@@ -28,8 +28,8 @@ module Pakyow
       extend Forwardable
       def_delegators :children, :find_significant_nodes, :find_significant_nodes_with_name
 
-      def initialize(node, type: nil, name: nil, parent: nil)
-        @node, @type, @name, @parent = node, type, name, parent
+      def initialize(node, type: nil, name: nil, parent: nil, labels: {})
+        @node, @type, @name, @parent, @labels = node, type, name, parent, labels
       end
 
       def initialize_copy(original)
@@ -66,7 +66,7 @@ module Pakyow
 
       def replace(replacement)
         if replacement.is_a?(StringDoc)
-          @node = ["", "", "", replacement, ""]
+          @node = ["", StringAttributes.new, "", replacement, ""]
         else
           # TODO: ?
         end
@@ -77,8 +77,14 @@ module Pakyow
         @node = []
       end
 
-      def to_s
+      def to_html
         node.flatten.map(&:to_s).join
+      end
+
+      alias :to_s :to_html
+
+      def string_nodes
+        [node[0], node[1], node[2], node[3]&.string_nodes, node[4]]
       end
 
       # TODO: revisit
@@ -105,15 +111,28 @@ module Pakyow
         @tagname ||= node[0].gsub(/[^a-zA-Z]/, "")
       end
 
-      # TODO: revisit
-      # def option(value: nil)
-      #   StringDoc.from_structure(node[2][0][2].select { |option|
-      #     option[1][:value] == value.to_s
-      #   })
-      # end
+      def clear
+        children.clear
+      end
 
       def after(node)
         parent.insert_after(node, self)
+      end
+
+      def append(node)
+        children.append(node)
+      end
+
+      def prepend(node)
+        children.prepend(node)
+      end
+
+      def label(name)
+        @labels[name.to_sym]
+      end
+
+      def labeled?(name)
+        @labels.key?[name.to_sym]
       end
 
       # TODO: it would be nice if Inspectable could handle this
