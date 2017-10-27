@@ -30,8 +30,8 @@ module Pakyow
                 fail "could not find presentable state for `#{opts[:method_name]}' on #{current_router}"
               end
             else
-              value = opts[:default_value]
-              value = opts[:block].call if value.nil? && opts[:block]
+              value = current_router.instance_exec(&opts[:block]) if opts[:block]
+              value = opts[:default_value] unless value
             end
 
             presenter_instance.define_singleton_method name do
