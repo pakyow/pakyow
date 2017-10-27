@@ -8,6 +8,8 @@ module Pakyow
     OPTION_TAG = "option".freeze
     # @api private
     TITLE_TAG = "title".freeze
+    # @api private
+    BODY_TAG = "body".freeze
 
     # @api private
     class SignificantNode
@@ -200,6 +202,21 @@ module Pakyow
         labels = labels_hash(element)
         attributes = attributes_instance(element)
         StringNode.new(["<#{element.name}", attributes], type: :title, name: attributes[:value], labels: labels)
+      end
+    end
+
+    # @api private
+    class BodyNode < SignificantNode
+      StringDoc.significant :body, self
+
+      def self.significant?(node)
+        node.is_a?(Oga::XML::Element) && node.name == BODY_TAG
+      end
+
+      def self.node(element)
+        labels = labels_hash(element)
+        attributes = attributes_instance(element)
+        StringNode.new(["<#{element.name}", attributes], type: :body, name: attributes[:value], labels: labels)
       end
     end
   end
