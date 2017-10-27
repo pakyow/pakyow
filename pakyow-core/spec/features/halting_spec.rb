@@ -69,4 +69,35 @@ RSpec.describe "halting a request" do
       expect(call[2].body).to eq("foo")
     end
   end
+
+  context "when halting in a before process hook" do
+    let :app_definition do
+      Proc.new {
+        router do
+          default do
+          end
+        end
+      }
+    end
+
+    using Pakyow::Support::DeepDup
+
+    before do
+      @hook_hash = Pakyow::Controller.instance_variable_get(:@hook_hash).deep_dup
+      @pipeline = Pakyow::Controller.instance_variable_get(:@pipeline).deep_dup
+
+      Pakyow::Controller.before :process do
+        halt "foo"
+      end
+    end
+
+    after do
+      Pakyow::Controller.instance_variable_set(:@hook_hash, @hook_hash)
+      Pakyow::Controller.instance_variable_set(:@pipeline, @pipeline)
+    end
+
+    it "sets the response body, halts, and returns the response" do
+      expect(call[2].body).to eq("foo")
+    end
+  end
 end
