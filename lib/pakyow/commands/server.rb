@@ -8,6 +8,23 @@ module Pakyow
   module Commands
     # @api private
     class Server
+      # Register a callback to be called when a file changes.
+      #
+      def self.on_change(path, &block)
+        @on_change_paths ||= {}
+        @on_change_paths[path] ||= []
+        @on_change_paths[path] << block
+      end
+
+      # @api private
+      def self.change_callbacks(path)
+        @on_change_paths.fetch(path, [])
+      end
+
+      on_change "Gemfile" do
+        Process.waitpid(Process.spawn("bundle install"))
+      end
+
       def initialize(env: nil, port: nil, host: nil, server: nil, reload: true)
         @env    = env
         @port   = port
@@ -30,6 +47,8 @@ module Pakyow
           start_process
           trap_interrupts
           watch_for_changes
+
+          sleep
         else
           start_server
         end
@@ -74,24 +93,15 @@ module Pakyow
 
       def watch_for_changes
         listener = Listen.to(".") do |modified, added, removed|
-          if modified.map { |path| File.basename(path) }.include?("Gemfile")
-            bundle_and_restart
+          modified.each do |path|
+            path = path.split(File.expand_path(".") + "/", 2)[1]
+            self.class.change_callbacks(path).each(&:call)
           end
 
           restart_process
         end
 
         listener.start
-        sleep
-      end
-
-      def bundle_and_restart
-        puts "Gemfile changed; running bundle install..."
-        Process.waitpid(Process.spawn("bundle install"))
-        puts "...done; restarting"
-
-        stop_process
-        exec "bundle exec pakyow server"
       end
     end
   end
