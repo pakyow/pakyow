@@ -27,9 +27,9 @@ module Pakyow
 
       def initialize(env: nil, port: nil, host: nil, server: nil, reload: true)
         @env    = env
-        @port   = port
-        @host   = host
-        @server = server
+        @port   = port   || Pakyow.config.server.port
+        @host   = host   || Pakyow.config.server.host
+        @server = server || Pakyow.config.server.default
         @reload = reload
       end
 
