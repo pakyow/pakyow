@@ -1,3 +1,5 @@
+require "pastel"
+
 module Pakyow
   module Logger
     # Helpers for colorizing log messages.
@@ -7,7 +9,7 @@ module Pakyow
       #
       def self.colorize(message, severity)
         return message unless color = color(severity)
-        COLOR_SEQ % (30 + COLOR_TABLE.index(color)) + (message || "") + RESET_SEQ
+        Pastel.new.send(color, message)
       end
 
       LEVEL_COLORS = {
@@ -28,9 +30,6 @@ module Pakyow
         :cyan,
         :white
       ].freeze
-
-      RESET_SEQ = "\033[0m".freeze
-      COLOR_SEQ = "\033[%dm".freeze
 
       # Returns a color for a level of severity.
       #

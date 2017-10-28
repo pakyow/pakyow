@@ -2,6 +2,7 @@ require "pakyow/version"
 require "pakyow/logger/colorizer"
 
 require "listen"
+require "pastel"
 
 module Pakyow
   # @api private
@@ -35,13 +36,8 @@ module Pakyow
 
       def run
         if @reload
-          puts Logger::Colorizer.colorize(
-            File.read(
-              File.expand_path("../output/splash.txt", __FILE__)
-            ).gsub!("{v}", "v#{VERSION}"), :error
-          )
-
-          puts "Running with #{@server} at http://#{@host}:#{@port}"
+          puts colorizer.red(header_text)
+          puts colorizer.black.on_white.bold(running_text)
 
           preload
           start_process
@@ -102,6 +98,20 @@ module Pakyow
         end
 
         listener.start
+      end
+
+      def header_text
+        File.read(
+          File.expand_path("../output/splash.txt", __FILE__)
+        ).gsub!("{v}", "v#{VERSION}")
+      end
+
+      def running_text
+        " running on #{@server} → http://#{@host}:#{@port} \n"
+      end
+
+      def colorizer
+        @colorizer ||= Pastel.new
       end
     end
   end
