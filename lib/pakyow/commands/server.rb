@@ -38,6 +38,7 @@ module Pakyow
         if @reload
           puts colorizer.red(header_text)
           puts colorizer.black.on_white.bold(running_text)
+          puts
 
           preload
           start_process
@@ -107,7 +108,7 @@ module Pakyow
       end
 
       def running_text
-        " running on #{@server} → http://#{@host}:#{@port} \n"
+        " running on #{@server} → http://#{@host}:#{@port} "
       end
 
       def colorizer
