@@ -1,4 +1,0 @@
-#!/usr/bin/env ruby
-
-require "pakyow/command_line_interface"
-Pakyow::CommandLineInterface.start

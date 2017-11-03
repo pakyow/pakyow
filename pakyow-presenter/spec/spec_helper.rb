@@ -1,12 +1,26 @@
-require 'rspec'
-require 'pry'
-require 'pp'
+start_simplecov do
+  add_filter "pakyow-support/"
+end
 
-require File.expand_path('../../../pakyow-support/lib/pakyow-support', __FILE__)
-require File.expand_path('../../../pakyow-core/lib/pakyow-core', __FILE__)
-require File.expand_path('../../lib/pakyow-presenter', __FILE__)
+require "pakyow/core"
+require "pakyow/presenter"
 
-# disable the logger when staging
-Pakyow::App.after :init do
-  Pakyow.logger = Rack::NullLogger.new(self)
+require "../spec/helpers/app_helpers"
+require "../spec/helpers/mock_request"
+require "../spec/helpers/mock_response"
+require "../spec/helpers/mock_handler"
+
+RSpec.configure do |config|
+  config.include AppHelpers
+end
+
+require "../spec/context/testable_app_context"
+require "../spec/context/suppressed_output_context"
+
+$presenter_app_boilerplate = Proc.new do
+  include Pakyow::Presenter
+
+  configure do
+    config.presenter.path = "./spec/features/support/views"
+  end
 end

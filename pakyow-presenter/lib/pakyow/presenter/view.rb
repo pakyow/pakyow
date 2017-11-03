@@ -1,139 +1,78 @@
-require 'forwardable'
+require "forwardable"
+
+require "pakyow/presenter/helpers"
 
 module Pakyow
   module Presenter
     class View
+      class << self
+        # Creates a view from a file.
+        #
+        def load(path, content: nil)
+          new(content || File.read(path))
+        end
+      end
+
       extend Forwardable
 
-      def_delegators :@doc, :title=, :title, :remove, :clear, :text, :html, :exists?
+      def_delegators :@object, :type, :name, :text, :html, :label, :labeled?
 
       # The object responsible for parsing, manipulating, and rendering
       # the underlying HTML document for the view.
       #
-      attr_reader :doc
+      attr_reader :object
 
-      # The scope, if any, that the view belongs to.
-      #
-      attr_accessor :scoped_as
+      include Helpers
 
-      # Creates a view, running `contents` through any registered view processors for `format`.
+      # Creates a view with +html+.
       #
-      # @param contents [String] the contents of the view
-      # @param format [Symbol] the format of contents
-      #
-      def initialize(contents = '', format: :html)
-        @doc = Config.presenter.view_doc_class.new(Presenter.process(contents, format))
+      # FIXME: only accept html here, create #from_object method
+      def initialize(html = "", object: nil)
+        @info = {}
+        @info, html = FrontMatterParser.parse_and_scrub(html) unless html.empty?
+
+        @object = object ? object : StringDoc.new(html)
+
+        if @object.respond_to?(:attributes)
+          self.attributes = @object.attributes
+        else
+          @attributes = nil
+        end
       end
 
-      def initialize_copy(original_view)
+      def initialize_copy(_)
         super
 
-        @doc = original_view.doc.dup
-        @scoped_as = original_view.scoped_as
-      end
+        @object = object.dup
 
-      # Creates a new view with a soft copy of doc.
-      #
-      def soft_copy
-        copy = View.from_doc(@doc.soft_copy)
-        copy.scoped_as = scoped_as
-        copy
-      end
-
-      # Creates a view from a doc.
-      #
-      # @see StringDoc
-      #
-      def self.from_doc(doc)
-        view = new
-        view.instance_variable_set(:@doc, doc)
-        view
-      end
-
-      # Creates a view from a file.
-      #
-      def self.load(path)
-        new(File.read(path), format: File.format(path))
-      end
-
-      def ==(other)
-        self.class == other.class && @doc == other.doc
-      end
-
-      # Allows multiple attributes to be set at once.
-      #
-      #   view.attrs(class: '...', style: '...')
-      #
-      def attrs(attrs = {})
-        return Attributes.new(@doc) if attrs.empty?
-        bind_attributes_to_doc(attrs, @doc)
-      end
-
-      def text=(text)
-        text = text.call(self.text) if text.is_a?(Proc)
-        @doc.text = text
-      end
-
-      def html=(html)
-        html = html.call(self.html) if html.is_a?(Proc)
-        @doc.html = html
-      end
-
-      def append(view)
-        @doc.append(view.doc)
-      end
-
-      def prepend(view)
-        @doc.prepend(view.doc)
-      end
-
-      def after(view)
-        @doc.after(view.doc)
-      end
-
-      def before(view)
-        @doc.before(view.doc)
-      end
-
-      def replace(view)
-        replacement = view.is_a?(View) ? view.doc : view
-        @doc.replace(replacement)
-      end
-
-      def scope(name)
-        name = name.to_sym
-        @doc.scope(name).inject(ViewCollection.new(name)) do |coll, scope|
-          view = View.from_doc(scope[:doc])
-          view.scoped_as = name
-          coll << view
+        if @object.respond_to?(:attributes)
+          self.attributes = @object.attributes
+        else
+          @attributes = nil
         end
       end
 
-      def prop(name)
-        name = name.to_sym
-        @doc.prop(scoped_as, name).inject(ViewCollection.new(scoped_as)) do |coll, prop|
-          view = View.from_doc(prop[:doc])
-          view.scoped_as = scoped_as
-          coll << view
+      def find(*names)
+        named = names.shift
+        found = props_and_scopes_with_name(named).each_with_object([]) { |node, arr|
+          arr << View.new(object: node)
+        }
+
+        if names.empty? # found everything; wrap it up
+          # TODO: handle case where `found` is empty
+          VersionedView.new(found)
+        elsif found.count > 0 # descend further
+          # TODO: confirm we actually want to return the first one instead
+          # of the default / working version (e.g. how to find and use some
+          # version then present data to a nested scope)
+          found.first.find(*names)
+        else
+          nil
         end
       end
 
-      def version
-        return unless versioned?
-        @doc.get_attribute(:'data-version').to_sym
-      end
-
-      def versioned?
-        !@doc.get_attribute(:'data-version').nil?
-      end
-
-      def component(name)
-        name = name.to_sym
-        @doc.component(name).inject(ViewCollection.new(scoped_as)) do |coll, component|
-          view = View.from_doc(component[:doc])
-          view.scoped_as = scoped_as
-          coll << view
-        end
+      def find_all(*names)
+        # TODO
       end
 
       # call-seq:
@@ -141,98 +80,70 @@ module Pakyow
       #
       # Creates a context in which view manipulations can be performed.
       #
-      def with(&block)
-        if block.arity == 0
-          instance_exec(&block)
-        else
-          yield(self)
+      def with
+        yield self; self
+      end
+
+      def info(key = nil)
+        return @info if key.nil?
+        return @info[key]
+      end
+
+      def add_info(*infos)
+        infos.each do |info|
+          @info.merge!(Hash.symbolize(info))
         end
 
         self
       end
 
-      # call-seq:
-      #   for {|view, datum| block}
-      #
-      # Yields a view and its matching dataum. This is driven by the view,
-      # meaning datums are yielded until no more views are available. For
-      # the single View case, only one view/datum pair is yielded.
-      #
-      # (this is basically Bret's `map` function)
-      #
-      def for(data, &block)
-        datum = Array.ensure(data).first
-        if block.arity == 1
-          instance_exec(datum, &block)
+      def container(name)
+        @object.find_significant_nodes_with_name(:container, name)[0]
+      end
+
+      def partial(name)
+        @object.find_significant_nodes_with_name(:partial, name).each_with_object(ViewSet.new) { |partial, set|
+          set << View.new(object: partial)
+        }
+      end
+
+      def component(name)
+        @object.find_significant_nodes_with_name(:component, name).each_with_object(ViewSet.new) { |component, set|
+          set << View.new(object: component)
+        }
+      end
+
+      def form(name)
+        if form_node = @object.find_significant_nodes(:form)[0]
+          Form.new(object: form_node)
         else
-          block.call(self, datum)
+          nil
         end
       end
 
-      # call-seq:
-      #   for_with_index {|view, datum, i| block}
-      #
-      # Yields a view, its matching dataum, and the index. See #for.
-      #
-      def for_with_index(data, &block)
-       self.for(data) do |ctx, datum|
-          if block.arity == 2
-            ctx.instance_exec(datum, 0, &block)
-          else
-            block.call(ctx, datum, 0)
-          end
+      def title
+        if title_node = @object.find_significant_nodes(:title)[0]
+          View.new(object: title_node)
+        else
+          nil
         end
       end
 
-      # call-seq:
-      #   match(data) => ViewCollection
-      #
-      # Returns a ViewCollection object that has been manipulated to match the data.
-      # For the single View case, the ViewCollection collection will consist n copies
-      # of self, where n = data.length.
-      #
-      def match(data)
-        data = Array.ensure(data)
-        coll = ViewCollection.new(scoped_as)
+      def transform(object)
+        # TODO: should transform recursively through `object`
 
-        # an empty set always means an empty view
-        if data.empty?
+        if object.nil?
           remove
         else
-          # the original view match the first datum
-          coll << self
-
-          working = self
-
-          # create views for the other datums
-          data[1..-1].inject(coll) { |set|
-            duped_view = working.soft_copy
-            working.after(duped_view)
-            working = duped_view
-            set << duped_view
-          }
+          props.each do |prop|
+            next if object.key?(prop.name)
+            prop.remove
+          end
         end
 
-        # return the new collection
-        coll
-      end
+        yield self, object if block_given?
 
-      # call-seq:
-      #   repeat(data) {|view, datum| block}
-      #
-      # Matches self with data and yields a view/datum pair.
-      #
-      def repeat(data, &block)
-        match(data).for(data, &block)
-      end
-
-      # call-seq:
-      #   repeat_with_index(data) {|view, datum, i| block}
-      #
-      # Matches self with data and yields a view/datum pair with index.
-      #
-      def repeat_with_index(data, &block)
-        match(data).for_with_index(data, &block)
+        self
       end
 
       # call-seq:
@@ -240,298 +151,208 @@ module Pakyow
       #
       # Binds a single datum across existing scopes.
       #
-      def bind(data, bindings: {}, context: nil, &block)
-        datum = Array.ensure(data).first
-        bind_data_to_scope(datum, doc.scopes.first, bindings, context)
+      def bind(object)
+        # TODO: should bind recursively through `object`
 
-        id = nil
-        if data.is_a?(Hash)
-          id = data[:id]
-        elsif data.respond_to?(:id)
-          id = data.id
-        end
+        return if object.nil?
 
-        attrs.send(:'data-id=', data[:id]) unless id.nil?
-        return if block.nil?
-
-        if block.arity == 1
-          instance_exec(datum, &block)
-        else
-          block.call(self, datum)
+        props.each do |prop|
+          bind_value_to_node(object[prop.name], prop)
         end
 
         self
-      end
-
-      # call-seq:
-      #   bind_with_index(data)
-      #
-      # Binds data across existing scopes, yielding a view/datum pair with index.
-      #
-      def bind_with_index(*a, **k, &block)
-        bind(*a, **k) do |ctx, datum|
-          if block.arity == 2
-            ctx.instance_exec(datum, 0, &block)
-          else
-            block.call(ctx, datum, 0)
-          end
-        end
       end
 
       # call-seq:
       #   apply(data)
       #
-      # Matches self to data then binds data to the view.
+      # Transform self to object then binds object to the view.
       #
-      def apply(data, bindings: {}, context: nil, &block)
-        match(data).bind(data, bindings: bindings, context: context, &block)
-      end
-
-      def includes(partial_map)
-        doc_partials = @doc.partials
-        partial_map = partial_map.dup
-
-        # mixin all the partials
-        doc_partials.each do |partial_name, partial_docs|
-          partials = Array.ensure(partial_map[partial_name])
-
-          partial_docs.each_with_index do |partial_doc, i|
-            replacement = partials[i]
-            next if replacement.nil?
-
-            if replacement.is_a?(ViewCollection)
-              partial_doc.replace(replacement.views.first.doc.dup)
-              partials = replacement.views
-            else
-              partial_doc.replace(replacement.doc)
-            end
-          end
+      def present(object)
+        transform(object) do |view, presentable|
+          yield view, presentable if block_given?
         end
 
-        # refind the partials
-				doc_partials = @doc.partials
+        bind(object)
+      end
 
-        # if mixed in partials included partials, we want to run includes again with a new map
-				if doc_partials.count > 0 && (partial_map.keys - doc_partials.keys).count < partial_map.keys.count
-					includes(partial_map)
-				end
-
+      def append(view)
+        # TODO: handle string (with sanitization) / collection
+        @object.append(view.object)
         self
       end
 
-			def to_html
-				@doc.to_html
-			end
-      alias :to_s :to_html
+      def prepend(view)
+        # TODO: handle string (with sanitization) / collection
+        @object.prepend(view.object)
+        self
+      end
+
+      def after(view)
+        # TODO: handle string (with sanitization) / collection
+        @object.after(view.object)
+        self
+      end
+
+      def before(view)
+        # TODO: handle string (with sanitization) / collection
+        @object.before(view.object)
+        self
+      end
+
+      def replace(view)
+        # TODO: handle string (with sanitization) / collection
+        @object.replace(view.object)
+        self
+      end
+
+      def remove
+        @object.remove
+        self
+      end
+
+      def clear
+        @object.clear
+        self
+      end
+
+      def text=(text)
+        # FIXME: IIRC we support this for bindings; seems like a weird thing to do here
+        text = text.call(self.text) if text.is_a?(Proc)
+        @object.text = text
+      end
+
+      def html=(html)
+        # FIXME: IIRC we support this for bindings; seems like a weird thing to do here
+        html = html.call(self.html) if html.is_a?(Proc)
+        @object.html = html
+      end
+
+      def decorated?
+        @object.type == :scope || @object.type == :prop
+      end
+
+      def container?
+        @object.type == :container
+      end
+
+      def partial?
+        @object.type == :partial
+      end
 
       def component?
-        !attrs.send(:'data-ui').value.empty?
+        @object.type == :component
       end
 
-      def component_name
-        return unless component?
-        attrs.send(:'data-ui').value
+      def form?
+        @object.type == :form
       end
 
-      # Convenience method for parity with Presenter::ViewCollection.
-      #
-      def length
-        1
+      def ==(other)
+        other.is_a?(self.class) && @object == other.object
       end
 
-      # Convenience method for parity with Presenter::ViewCollection.
-      #
-      def first
+      def attributes
+        @attributes
+      end
+
+      alias attrs attributes
+
+      def attributes=(attributes)
+        @attributes = ViewAttributes.new(attributes)
+      end
+
+      alias attrs= attributes=
+
+      def version
+        (label(:version) || VersionedView::DEFAULT_VERSION).to_sym
+      end
+
+      def to_html
+        cleanup_versions
+        @object.to_html
+      end
+
+      alias :to_s :to_html
+
+      # @api private
+      def scopes
+        @object.find_significant_nodes(:scope)
+      end
+
+      # @api private
+      def props
+        @object.find_significant_nodes(:prop, with_children: false)
+      end
+
+      # @api private
+      def mixin(partials)
+        object.find_significant_nodes(:partial).each do |partial_node|
+          next unless partial = partials[partial_node.name]
+
+          replacement = partial
+          replacement.mixin(partials)
+
+          partial_node.replace(replacement.object)
+        end
+
         self
       end
 
-      private
+      protected
 
-      def adjust_value_parts(value, parts)
-        return value unless value.is_a?(Hash)
+      def bind_value_to_node(value, view)
+        tag = view.tagname
+        return if StringNode.without_value?(tag)
 
-        parts_to_keep = parts.fetch(:include, value.keys)
-        parts_to_keep -= parts.fetch(:exclude, [])
-
-        value.keep_if { |part, _| parts_to_keep.include?(part) }
-      end
-
-      def bind_data_to_scope(data, scope_info, bindings, ctx)
-        return unless data
-        return unless scope_info
-
-        scope = scope_info[:scope]
-        bind_data_to_root(data, scope, bindings, ctx)
-
-        scope_info[:props].each do |prop_info|
-          catch(:unbound) do
-            prop  = prop_info[:prop]
-            doc   = prop_info[:doc]
-            parts = prop_info[:parts]
-
-            if DocHelpers.form_field?(doc.tagname)
-              set_form_field_name(doc, scope, prop)
-            end
-
-            if data_has_prop?(data, prop) || Binder.instance.has_scoped_prop?(scope, prop, bindings)
-              value = Binder.instance.value_for_scoped_prop(scope, prop, data, bindings, ctx)
-              value = adjust_value_parts(value, parts)
-
-              if DocHelpers.form_field?(doc.tagname)
-                bind_to_form_field(doc, scope, prop, value, data, ctx)
-              end
-
-              bind_data_to_doc(doc, value)
-            else
-              handle_unbound_data(scope, prop)
-            end
-          end
-        end
-      end
-
-      def bind_data_to_root(data, scope, bindings, ctx)
-        value = Binder.instance.value_for_scoped_prop(scope, :_root, data, bindings, ctx)
-        return if value.nil?
-
-        value.is_a?(Hash) ? bind_attributes_to_doc(value, doc) : bind_value_to_doc(value, doc)
-      end
-
-      def bind_data_to_doc(doc, data)
-        data.is_a?(Hash) ? bind_attributes_to_doc(data, doc) : bind_value_to_doc(data, doc)
-      end
-
-      def data_has_prop?(data, prop)
-        (data.is_a?(Hash) && (data.key?(prop) || data.key?(prop.to_s))) || (!data.is_a?(Hash) && data.class.method_defined?(prop))
-      end
-
-      def bind_value_to_doc(value, doc)
         value = String(value)
 
-        tag = doc.tagname
-        return if DocHelpers.tag_without_value?(tag)
-
-        if DocHelpers.self_closing_tag?(tag)
-          # don't override value if set
-          if !doc.get_attribute(:value) || doc.get_attribute(:value).empty?
-            doc.set_attribute(:value, value)
-          end
+        if StringNode.self_closing?(tag)
+          view.attributes[:value] = ensure_html_safety(value) if view.attributes[:value].nil?
         else
-          doc.html = value
+          view.html = ensure_html_safety(value)
         end
       end
 
-      def bind_to_form_field(doc, scope, prop, value, bindable, ctx)
-        # special binding for checkboxes and radio buttons
-        if doc.tagname == 'input' && (doc.get_attribute(:type) == 'checkbox' || doc.get_attribute(:type) == 'radio')
-          bind_to_checked_field(doc, value)
-          # special binding for selects
-        elsif doc.tagname == 'select'
-          bind_to_select_field(doc, scope, prop, value, bindable, ctx)
+      def props_with_name(name)
+        @object.find_significant_nodes_with_name(:prop, name)
+      end
+
+      def scopes_with_name(name)
+        @object.find_significant_nodes_with_name(:scope, name)
+      end
+
+      def props_and_scopes_with_name(name)
+        props_with_name(name) + scopes_with_name(name)
+      end
+
+      def cleanup_versions
+        versioned_nodes.each do |node_set|
+          node_set.each do |node|
+            node.remove unless node.label(:version) == VersionedView::DEFAULT_VERSION
+          end
         end
       end
 
-      def bind_to_checked_field(doc, value)
-        if value == true || (doc.get_attribute(:value) && doc.get_attribute(:value) == value.to_s)
-          doc.set_attribute(:checked, 'checked')
+      def versioned_nodes(nodes = object_nodes, versions = [])
+        versions << nodes.select { |node|
+          node.type && node.attributes.is_a?(StringAttributes) && node.label(:version)
+        }
+
+        nodes.each do |node|
+          if children = node.children
+            versioned_nodes(children.nodes, versions)
+          end
+        end
+
+        versions.reject(&:empty?)
+      end
+
+      def object_nodes
+        if @object.is_a?(StringDoc)
+          @object.nodes
         else
-          doc.remove_attribute(:checked)
-        end
-
-        # coerce to string since booleans are often used and fail when binding to a view
-        value.to_s
-      end
-
-      def bind_to_select_field(doc, scope, prop, value, bindable, ctx)
-        create_select_options(doc, scope, prop, value, bindable, ctx)
-        select_option_with_value(doc, value)
-      end
-
-      def set_form_field_name(doc, scope, prop)
-        return if doc.get_attribute(:name) && !doc.get_attribute(:name).empty? # don't overwrite the name if already defined
-        doc.set_attribute(:name, "#{scope}[#{prop}]")
-      end
-
-      def create_select_options(doc, scope, prop, value, bindable, ctx)
-        options = Binder.instance.options_for_scoped_prop(scope, prop, bindable, ctx)
-        return if options.nil?
-
-        nodes = Oga::XML::Document.new
-
-        until options.length == 0
-          catch :optgroup do
-            o = options.first
-
-            # an array containing value/content
-            if o.is_a?(Array)
-              node = Oga::XML::Element.new(name: 'option')
-              node.inner_text = o[1].to_s
-              node.set('value', o[0].to_s)
-              nodes.children << node
-              options.shift
-            else # likely an object (e.g. string); start a group
-              node_group = Oga::XML::Element.new(name: 'optgroup')
-              node_group.set('label', o.to_s)
-              nodes.children << node_group
-
-              options.shift
-
-              options[0..-1].each_with_index { |o2,i2|
-                # starting a new group
-                throw :optgroup unless o2.is_a?(Array)
-
-                node = Oga::XML::Element.new(name: 'option')
-                node.inner_text = o2[1].to_s
-                node.set('value', o2[0].to_s)
-                node_group.children << node
-                options.shift
-              }
-            end
-          end
-        end
-
-        # remove existing options
-        doc.clear
-
-        # add generated options
-        doc.append(nodes.to_xml)
-      end
-
-      def select_option_with_value(doc, value)
-        option = doc.option(value: value)
-        return if option.nil?
-
-        option.set_attribute(:selected, 'selected')
-      end
-
-      def handle_unbound_data(scope, prop)
-        Pakyow.logger.warn("Unbound data for #{scope}[#{prop}]") if Pakyow.logger
-        throw :unbound
-      end
-
-      def bind_attributes_to_doc(attrs, doc)
-        attrs.each do |attr, v|
-          case attr
-          when :content
-            v = v.call(doc.html) if v.is_a?(Proc)
-            bind_value_to_doc(v, doc)
-          when :view
-            v.call(View.from_doc(doc))
-          else
-            attr  = attr.to_s
-            attrs = Attributes.new(doc)
-
-            if v.is_a?(Proc)
-              attribute = attrs.send(attr)
-              ret = v.call(attribute)
-              value = ret.respond_to?(:value) ? ret.value : ret
-
-              attrs.send("#{attr}=", value)
-            elsif v.nil?
-              doc.remove_attribute(attr)
-            else
-              attrs.send("#{attr}=", v)
-            end
-          end
+          [@object]
         end
       end
     end

@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+
+require "pakyow"
+require "pakyow/cli"
+Pakyow::CLI.start

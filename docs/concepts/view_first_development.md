@@ -3,25 +3,27 @@ name: View-First Development
 desc: Learn about view-first development.
 ---
 
-Pakyow promotes a **view-first development process**. What's that, you say? To
-put it simply, view-first development is a process that enables the presentation
-layer of a website or web app to be built completely separate from the backend
-code.
+Pakyow promotes a **view-first development process**. Put simply, view-first
+development enables the presentation layer of a website or web app to be built
+and maintained separately from the logic that renders it.
 
-Immediately after generating a project, the presentation layer can be built and
-viewed in a browser without requiring any backend code. The presentation layer
-consists of templates, pages, and partials -- all written in HTML (or your
-favorite template language). These different parts are composable, allowing for
-reusability without writing any backend code.
+View-first development also informs how a project is built. In Pakyow,
+development usually begins with the view, because this is that part that the
+user sees. Immediately after generating a project, the presentation layer can be built and
+viewed in a browser without requiring any backend code.
+
+In Pakyow, the presentation layer consists of templates, pages, and partials --
+all written in HTML (or your favorite template language). These different parts
+are composable, allowing for reusability without writing any backend code.
 
 - [Read more about Pakyow's presentation layer](/docs/presentation)
 
-Once a backend is added, views can be rendered without any changes to the
-presentation layer. View logic is written outside of the presentation layer and
-instead acts upon the views. This is enabled with a process called data binding.
+No changes to the presentation layer are required when adding backend code.
+View logic is written outside of the view templates and uses a technique called
+data binding to insert values into the view.
 
 - [Read more about Pakyow's view logic](/docs/view-logic)
 
-This view-first process provides the base functionality for Pakyow's
-auto-updating views. It also makes development smoother by isolating
-concerns and promoting the reuse of rendering logic.
+This view-first process is the trick that makes Pakyow's auto-updating views
+work without moving code to the client. It also makes development faster by
+isolating concerns and promoting the reuse of rendering logic.

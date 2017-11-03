@@ -6,23 +6,26 @@
 
 # Pakyow Web Framework [![Gitter chat](https://badges.gitter.im/pakyow/chat.svg)](https://gitter.im/pakyow/chat)
 
-Pakyow lets you build modern apps that don't break the web.
+*Build modern web applications that don't break the web.*
 
-It provides features such as auto-updating views while embracing traditional
-concepts like progressive enhancement. Designed to be as simple as possible, it
-helps you quickly create momentum and maintain it throughout a project.
+Pakyow is a Ruby web framework that lets you create fantastic experiences for your users
+without writing any client-side code. Build modern server-driven applications that don't
+compromise on speed or usability.
 
-**Embraces the new web (without breaking it).**  
-Views automatically stay in sync with the server, with no extra code. Pakyow
-brings progressive enhancement to the modern web.
+## Realtime UIs
 
-**Removes friction from development.**  
-Quickly build a prototype with only HTML and CSS. Later on, build right on top
-of the prototype without throwing out previous work.
+Pakyow automatically keeps your presentation layer in sync with state of the server.
+Works out of the box.
 
-**Accessible to everyone.**  
-Pakyow makes it a little bit easier to get started. We believe that a simpler
-web empowers more contribution, leading towards a more democratic web.
+## Quick & Easy Prototypes
+
+Create a working prototype of your project with plain HTML. Later, build right on
+top of the prototype without throwing it out.
+
+## Build a Friendlier Web
+
+We think that a simpler web leads to a democratic web. Pakyow optimizes for
+simplicity, making it easier to start and leading to long-term productivity.
 
 ---
 
@@ -51,10 +54,10 @@ web empowers more contribution, leading towards a more democratic web.
 
 # Next Steps
 
-- Read the [overview](https://pakyow.org/docs/overview) to better understand the goals and architecture of Pakyow.
-- Go through the [warmup](https://pakyow.org/docs/warmup) to build &amp; deploy your first project.
-- Browse the [docs](https://pakyow.org/docs) to learn more about presentation, routing, realtime channels, and more.
-- Check out the [code](https://github.com/pakyow/pakyow) on GitHub.
+- [Read the overview](https://pakyow.org/docs/overview) to better understand the goals and architecture of Pakyow.
+- [Follow the warmup](https://pakyow.org/docs/warmup) to build and deploy your first project.
+- [Browse the docs](https://pakyow.org/docs) to learn more about presentation, routing, realtime channels, and more.
+- [Check out the code](https://github.com/pakyow/pakyow) on Github.
 
 We'd love to have you involved. Here are a few places to start:
 
@@ -68,3 +71,78 @@ We'd love to have you involved. Here are a few places to start:
 # License
 
 Pakyow is released free and open-source under the [MIT License](http://opensource.org/licenses/MIT).
+
+# Overview
+
+*[Read the docs](https://www.pakyow.org/docs) if you want the full skinny.*
+
+Pakyow is designed to be modular, with each library handling one aspect of the
+framework. Here's a list of the libraries that Pakyow ships with by default:
+
+- Core: Introduces the app object. Routes requests to endpoints within an app.
+- Presenter: Handles logicless view presentation, including data binding.
+- Mailer: Delivers logicless views over email, rather than http.
+- Realtime: Adds WebSocket support and realtime channels.
+- UI: Automatically keeps rendered views in sync with server-side state.
+- Test: Provides helpers that make it easy to test various aspects of an app.
+- Support: Provides helpers used throughout the framework.
+- Rake: Adds several tasks that are useful alongside an app.
+
+There are many secondary libraries that add additional functionality, including:
+
+- Markdown: Adds support for writing view templates in Markdown.
+- Slim: Adds support for writing view templates in Slim.
+- Haml: Adds support for writing view templates in Haml.
+- Bindr: Introduces the concept of recursive data binding.
+
+It's standard that every Pakyow-related library is prefixed with `pakyow-*`.
+
+---
+
+The primary library (named simply `pakyow`) handles concerns shared across the
+Pakyow ecosystem. It glues everything together. Read below for a summary.
+
+## Environment
+
+Makes it possible to run multiple Rack-compatible endpoints (including Pakyow
+apps) with the consistency of a single environment.
+
+[Browse the source &raquo;](https://github.com/pakyow/pakyow/blob/environment/lib/pakyow/environment.rb)
+
+## Request Logger
+
+Adds request-level logging, with a human-friendly formatter for development and
+a logfmt formatter for production environments.
+
+[Browse the source &raquo;](https://github.com/pakyow/pakyow/blob/environment/lib/pakyow/logger/request_logger.rb)
+
+## Default Middleware
+
+Introduces a default middleware stack for all apps within the environment,
+including request path normalization and json body parsing.
+
+[Browse the source &raquo;](https://github.com/pakyow/pakyow/blob/environment/lib/pakyow/environment.rb#L145)
+
+## App Template
+
+Ships with the default template for generated Pakyow apps.
+
+[Browse the source &raquo;](https://github.com/pakyow/pakyow/tree/environment/lib/generators/pakyow/app/templates)
+
+## Command Line Interface (CLI)
+
+Adds a CLI for creating Pakyow apps and running the environment.
+
+[Browse the source &raquo;](https://github.com/pakyow/pakyow/blob/environment/lib/pakyow/cli.r://github.com/pakyow/pakyow/blob/environment/lib/pakyow/cli.rb)
+
+# Official Documentation
+
+The official documentation can be found
+[here](https://github.com/pakyow/pakyow/tree/environment/docs). We bundle the
+docs with the code so that they evolve together.
+
+# Canonical Example
+
+The canonical example for Pakyow can be found
+[here](https://github.com/pakyow/pakyow/tree/environment/example). We try and
+keep it current to reflect the entire feature-set across the framework.

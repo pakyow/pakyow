@@ -17,7 +17,40 @@ RSpec.configure do |config|
   config.warnings = true
   config.color = true
 
-  # TODO: some suites are order dependent; enable this once that is fixed
-  # config.order = :random
-  # Kernel.srand config.seed
+  config.order = :random
+  Kernel.srand config.seed
+
+  config.filter_run_excluding benchmark: true
+end
+
+def start_simplecov(&block)
+  if ENV["COVERAGE"]
+    require "simplecov"
+    require "simplecov-console"
+    SimpleCov.formatter = SimpleCov::Formatter::Console
+    SimpleCov.start do
+      add_filter "spec/"
+      add_filter ".bundle/"
+      self.instance_eval(&block) if block_given?
+    end
+  end
+end
+
+require "pakyow/support/silenceable"
+Pakyow::Support::Silenceable.silence_warnings do
+  require "pry"
+end
+
+require "spec_helper"
+
+ENV["SESSION_SECRET"] = "sekret"
+
+if defined?(Pakyow::Controller)
+  Pakyow::Controller.before :error do
+    $stderr.puts req.error
+
+    req.error.backtrace.each do |line|
+      $stderr.puts line
+    end
+  end
 end

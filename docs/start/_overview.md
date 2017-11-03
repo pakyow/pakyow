@@ -3,29 +3,25 @@ name: Get Started
 desc: These docs will guide you through the details of building a website or web app with Pakyow.
 ---
 
-We'd love to help you get started with Pakyow. If you're new here, try going
-through the [warmup tutorial](/docs/warmup). It will walk you through building
-and deploying a simple chat app.
-
-Want to learn whether Pakyow is a good fit for your project? Read the
-[overview](/docs/overview) to better understand the goals and architecture of
-the framework.
+We'd love to help you get started with Pakyow. Curious if Pakyow is a good fit
+for your project? Read the [overview](/docs/overview) to better understand the
+goals and architecture of the framework.
 
 ## Install Pakyow
 
 Before you can start a project you need to install Pakyow and its dependencies.
-We've put together a guide that we hope will help get you off and running.
+We've put together a guide that will get you up and running in no time.
 
 - [Install Pakyow](/docs/start/installing)
 
 ## Build & Deploy Your First Project
 
-We've put together a warmup tutorial that introduces the concepts and walks you
-through building and deploying your first app. It's a good place to start.
+If you're new to Pakyow, try going through the warmup tutorial. It'll walk you
+through building a really simple chat app and deploying it to Heroku.
 
 - [Read the Warmup Tutorial](/docs/warmup)
 
-## Go Deep
+## Expand Your Skills
 
 Browse the docs to learn more about [presentation](/docs/presentation),
 [routing](/docs/routing),

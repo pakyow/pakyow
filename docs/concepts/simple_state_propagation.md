@@ -3,24 +3,26 @@ name: Simple State Propagation
 desc: Learn about simple state propagation.
 ---
 
-Simple State Propagation is the mechanism through which Pakyow propagates
-changes in state from one client to another. It prioritizes user trust and makes
-it easier to reason about your program. This is best explained with an example.
+Simple State Propagation is how Pakyow propagates state changes from one client
+to another. It allows us to prioritize user trust while making our code faster
+to write and easier to maintain.
 
-Let's say we're building a comment system for a blog. When a comment is added,
-we want it to show up immediately without requiring a page reload. It should
-show up automatically not only for the user who created it, but for anyone else
-who is currently looking at the page.
+Let's say you're building a comment system. When a comment is added, users
+should see it immediately without having to reload the page. The new comment
+should also show up for other users who are currently looking at the page.
 
-When a comment is created, Pakyow uses Simple State Propagation to tell all
-clients (including the originator of the comment) how to render the new state.
-It does this by building up rendering instructions that follow the View
-Transformation Protocol and pushing those instructions to any clients that need
-an update.
+Pakyow handles both cases automatically. It accomplishes this by building up
+rendering instructions and pushing them through a WebSocket to the originating
+client and any other client that requires an update.
 
-Letting the server accept state changes before rendering the change helps to
-guarantee consistency. A user knows that if the comment shows up on the page,
-it'll continue to show up when the page is refreshed. There's no chance of
-getting into a state where one client's representation of state is ahead of the
-server. Ultimate truth originates only from the One True Server.
+*State changes aren't rendered by any client, including the originator, until the
+backend has validated and persisted the change.* This is an important
+implementation detail that helps to guarantee consistency and is part of
+[prioritizing user trust](/docs/overview/prioritized-user-trust).
 
+Requiring the server accept state changes before rendering the change helps to
+guarantee consistency. Without this guarantee, users have no way to know that
+what they see is reality. This can come back to bite users if, after refreshing,
+they see state they didn't see before.
+
+**In Pakyow, ultimate truth originates only from the One True Server.**

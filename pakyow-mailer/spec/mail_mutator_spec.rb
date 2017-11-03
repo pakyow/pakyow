@@ -1,6 +1,6 @@
 require 'support/helper'
 
-RSpec.describe 'using mutators in a mailer' do
+RSpec.xdescribe 'using mutators in a mailer' do
   before do
     Pakyow::App.stage(:test)
   end

@@ -1,10 +1,5 @@
 require "pakyow/version"
-
-%w(
-  pakyow-support
-  pakyow-core
-  pakyow-presenter
-  pakyow-mailer
-  pakyow-realtime
-  pakyow-ui
-).each { |lib| require lib }
+require "pakyow/error"
+require "pakyow/environment"
+require "pakyow/request"
+require "pakyow/response"

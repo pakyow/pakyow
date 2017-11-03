@@ -155,7 +155,7 @@ RSpec.describe Pakyow::Support::Hookable do
     end
 
     context "when prioritized class hooks are defined" do
-      it "calls class hooks first, by order of priority" do
+      it "calls hooks by order of priority, regardless of class or instance definition" do
         calls = []
 
         hook_1 = -> { calls << 1 }
@@ -171,8 +171,8 @@ RSpec.describe Pakyow::Support::Hookable do
         instance.call_hooks(:before, event)
 
         expect(calls[0]).to eq 2
-        expect(calls[1]).to eq 1
-        expect(calls[2]).to eq 3
+        expect(calls[1]).to eq 3
+        expect(calls[2]).to eq 1
       end
     end
   end

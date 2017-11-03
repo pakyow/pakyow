@@ -1,29 +1,117 @@
 require "pakyow/version"
+require "pakyow/logger/colorizer"
+
+require "listen"
+require "pastel"
 
 module Pakyow
+  # @api private
   module Commands
+    # @api private
     class Server
-      RACK_ENV = "RACK_ENV".freeze
+      # Register a callback to be called when a file changes.
+      #
+      def self.on_change(path, &block)
+        @on_change_paths ||= {}
+        @on_change_paths[path] ||= []
+        @on_change_paths[path] << block
+      end
 
-      def initialize(environment: ENV[RACK_ENV] || Config.app.default_environment, port: Config.server.port)
-        ENV[RACK_ENV] = environment.to_s
-        @port = port
+      # @api private
+      def self.change_callbacks(path)
+        @on_change_paths.fetch(path, [])
+      end
+
+      on_change "Gemfile" do
+        Process.waitpid(Process.spawn("bundle install"))
+      end
+
+      def initialize(env: nil, port: nil, host: nil, server: nil, reload: true)
+        @env    = env
+        @port   = port   || Pakyow.config.server.port
+        @host   = host   || Pakyow.config.server.host
+        @server = server || Pakyow.config.server.default
+        @reload = reload
       end
 
       def run
-        require "./app/setup"
-        Config.server.port = @port
-        v = "v" + VERSION
+        if @reload
+          puts colorizer.red(header_text)
+          puts colorizer.black.on_white.bold(running_text)
 
-        msg = '                 __                      ' + "\n" \
-              '    ____  ____ _/ /____  ______ _      __' + "\n" \
-              '   / __ \/ __ `/ //_/ / / / __ \ | /| / /' + "\n" \
-              '  / /_/ / /_/ / ,< / /_/ / /_/ / |/ |/ / ' + "\n" \
-              ' / .___/\__,_/_/|_|\__, /\____/|__/|__/  ' + v + "\n" \
-              '/_/               /____/                 ' + "\n"
-        puts Logger::Colorizer.colorize(msg, :error)
+          preload
+          start_process
+          trap_interrupts
+          watch_for_changes
 
-        App.run(ENV[RACK_ENV])
+          sleep
+        else
+          start_server
+        end
+      end
+
+      protected
+
+      def preload
+        require "bundler/setup"
+      end
+
+      def start_process
+        if Process.respond_to?(:fork)
+          @pid = Process.fork do
+            start_server
+          end
+        else
+          @pid = Process.spawn("bundle exec pakyow server --no-reload")
+        end
+      end
+
+      def stop_process
+        Process.kill("INT", @pid) if @pid
+      end
+
+      def restart_process
+        stop_process; start_process
+      end
+
+      def start_server
+        require "./config/environment"
+        Pakyow.setup(env: @env).run(port: @port, host: @host, server: @server)
+      end
+
+      def trap_interrupts
+        Pakyow::STOP_SIGNALS.each do |signal|
+          trap(signal) {
+            stop_process; exit
+          }
+        end
+      end
+
+      def watch_for_changes
+        listener = Listen.to(".") do |modified, added, removed|
+          modified.each do |path|
+            path = path.split(File.expand_path(".") + "/", 2)[1]
+            self.class.change_callbacks(path).each(&:call)
+          end
+
+          restart_process
+        end
+
+        listener.start
+      end
+
+      def header_text
+        File.read(
+          File.expand_path("../output/splash.txt", __FILE__)
+        ).gsub!("{v}", "v#{VERSION}")
+      end
+
+      def running_text
+        " running on #{@server} → http://#{@host}:#{@port} \n"
+      end
+
+      def colorizer
+        @colorizer ||= Pastel.new
       end
     end
   end
