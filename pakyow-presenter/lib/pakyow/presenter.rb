@@ -18,6 +18,7 @@ require "pakyow/presenter/template_store"
 require "pakyow/presenter/front_matter_parser"
 require "pakyow/presenter/processor"
 require "pakyow/presenter/binder"
+require "pakyow/presenter/binding_parts"
 
 require "pakyow/presenter/views/form"
 require "pakyow/presenter/views/layout"
