@@ -13,9 +13,9 @@ class MyObject
 end
 
 RSpec.describe Pakyow::Support::DeepFreeze do
-  let :obj_with_unfreezable {
+  let :obj_with_unfreezable do
     MyObject.new
-  }
+  end
 
   describe "deep_freeze" do
     it "returns the object" do

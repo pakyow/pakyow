@@ -43,12 +43,12 @@ RSpec.describe Pakyow::App do
 
     describe "app.src" do
       it "has a default value" do
-        expect(Pakyow::App.config.app.src).to eq("./app/lib")
+        expect(Pakyow::App.config.app.src).to eq("./backend")
       end
 
       it "is dependent on `app.root`" do
         Pakyow::App.config.app.root = "ROOT"
-        expect(Pakyow::App.config.app.src).to eq("ROOT/app/lib")
+        expect(Pakyow::App.config.app.src).to eq("ROOT/backend")
       end
     end
 

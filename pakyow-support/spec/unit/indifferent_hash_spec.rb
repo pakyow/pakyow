@@ -3,13 +3,13 @@ require "pakyow/support/indifferentize"
 
 module Pakyow::Support
   RSpec.describe IndifferentHash do
-    let :simple_hash {
+    let :simple_hash do
       {
         one: :symbol,
         "one" => "String",
         two: :symbol,
         "three" => "Fantastic",
-        1 => "one", 
+        1 => "one",
         Class => "Class",
         simple_object => "object",
         nested: {
@@ -20,20 +20,31 @@ module Pakyow::Support
           }
         }
       }
-    }
+    end
 
-    let :subset {
+    let :subset do
       { two: :symbol, "three" => "Fantastic" }
-    }
-    let :other_set {
+    end
+
+    let :other_set do
       { "three" => "Great" }
-    }
+    end
 
-    let :indifferent_subset { IndifferentHash.new(subset) }
-    let :indifferent { IndifferentHash.new(simple_hash) }
-    let :deep { IndifferentHash.deep(simple_hash) }
+    let :indifferent_subset do
+      IndifferentHash.new(subset)
+    end
 
-    let :simple_object { Object.new }
+    let :indifferent do
+      IndifferentHash.new(simple_hash)
+    end
+
+    let :deep do
+      IndifferentHash.deep(simple_hash)
+    end
+
+    let :simple_object do
+      Object.new
+    end
 
     context "when initializing with new" do
       it "converts symbol keys to strings" do
@@ -160,7 +171,7 @@ module Pakyow::Support
 
       it "should return a the same indifferent hash for methods that would return a hash modified in place" do
         internal = indifferent.internal_hash
-        methods = [:merge!, :update, :replace, :clear, :keep_if, :delete_if, :compact!, :reject!, :select!, :transform_values, :deep_merge!]
+        methods = [:merge!, :update, :replace, :clear, :keep_if, :delete_if, :compact!, :reject!, :select!, :deep_merge!]
 
         methods.each do |method|
           arity = Hash.public_instance_method(method).arity
@@ -174,7 +185,7 @@ module Pakyow::Support
           expect(return_value.object_id).to eq(indifferent.object_id)
         end
       end
-      
+
       it "should return the same indiffernt hash for to_hash/to_h" do
         expect(indifferent.to_hash.object_id).to eq(indifferent.object_id)
         expect(indifferent.to_h.object_id).to eq(indifferent.object_id)
