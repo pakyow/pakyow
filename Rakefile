@@ -17,7 +17,12 @@ desc "Run tests for all gems"
 task :test do
   errors = []
 
-  GEMS.each do |gem|
+  gems = GEMS.dup
+  gems.delete(:"pakyow-test")
+  gems.delete(:"pakyow-realtime")
+  gems.delete(:"pakyow-ui")
+
+  gems.each do |gem|
     system(%(cd #{gem} && bundle exec rspec)) || errors << gem
   end
 
