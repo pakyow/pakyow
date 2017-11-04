@@ -125,6 +125,7 @@ module Pakyow
 
             state = object.make(*args, state: @state[name], **opts, &block)
             @state[name].register(state, priority: priority)
+            state
           end
 
           define_method name, &method_body
