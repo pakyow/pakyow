@@ -380,7 +380,7 @@ module Pakyow
     using Support::RecursiveRequire
 
     def load_app
-      # TODO: add File.join(config.app.src, "lib") to load path
+      $LOAD_PATH.unshift File.join(config.app.src, "lib")
 
       App.concerns.each do |concern|
         load_app_concern(File.join(config.app.src, concern), concern)
