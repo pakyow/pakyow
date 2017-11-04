@@ -56,6 +56,12 @@ RSpec.describe Pakyow::App do
       end
     end
 
+    describe "app.inferred_naming" do
+      it "has a default value" do
+        expect(Pakyow::App.config.app.inferred_naming).to eq(true)
+      end
+    end
+
     describe "routing.enabled" do
       it "has a default value" do
         expect(Pakyow::App.config.routing.enabled).to eq(true)

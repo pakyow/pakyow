@@ -4,7 +4,6 @@ module Pakyow
   module Presenter
     class ViewPresenter < Presenter
       extend Support::ClassMaker
-      CLASS_MAKER_BASE = "ViewPresenter".freeze
 
       class << self
         attr_reader :path, :block

@@ -39,7 +39,6 @@ module Pakyow
 
     class Processor
       extend Support::ClassMaker
-      CLASS_MAKER_BASE = "Processor".freeze
 
       class << self
         attr_reader :name, :extensions, :block

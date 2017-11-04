@@ -17,15 +17,39 @@ module Pakyow
       end
 
       def class_const_for_name(klass, name)
-        return klass if name.nil? || !defined?(CLASS_MAKER_BASE)
-
-        class_name = "#{name.to_s.split('_').map(&:capitalize).join}#{CLASS_MAKER_BASE}"
-
-        if Object.const_defined?(class_name)
-          klass
-        else
-          Object.const_set(class_name, klass)
+        unless name.nil?
+          target, defined_name = ClassMaker.target_and_name(name)
+          ClassMaker.define_object_on_target_with_name(klass, target, defined_name)
         end
+
+        klass
+      end
+
+      MODULE_SEPARATOR = "__".freeze
+      CLASS_SEPARATOR = "_".freeze
+
+      def self.target_and_name(name)
+        parts = name.to_s.split(MODULE_SEPARATOR)
+        class_name = ClassMaker.camelize(parts.pop)
+
+        target = Object
+        parts.each do |namespace|
+          target = ClassMaker.define_object_on_target_with_name(Module.new, target, ClassMaker.camelize(namespace))
+        end
+
+        return target, class_name
+      end
+
+      def self.define_object_on_target_with_name(object, target, name)
+        unless target.const_defined?(name)
+          target.const_set(name, object)
+        end
+
+        target.const_get(name)
+      end
+
+      def self.camelize(string)
+        string.split(CLASS_SEPARATOR).map(&:capitalize).join
       end
     end
   end

@@ -139,9 +139,7 @@ module Pakyow
     include Helpers
     using Support::DeepDup
     extend Routing::HookMerger
-
     extend Support::ClassMaker
-    CLASS_MAKER_BASE = "Router".freeze
 
     router = self
     Pakyow.singleton_class.class_eval do

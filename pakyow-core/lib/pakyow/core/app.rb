@@ -6,6 +6,7 @@ require "pakyow/support/deep_freeze"
 
 require "pakyow/core/helpers"
 require "pakyow/core/router"
+require "pakyow/core/loader"
 
 require "forwardable"
 
@@ -74,6 +75,9 @@ module Pakyow
   #
   # - +config.app.src+ defines where the application code lives, relative to
   #   where the environment is started from. Default is +{app.root}/app/lib+.
+  #
+  # - +config.app.inferred_naming+ determines whether names for application
+  #   state will automatically be inferred from the application's structure.
   #
   # - +config.routing.enabled+ determines whether or not routing is enabled for
   #   the application. Default is +true+, except when running in the
@@ -190,6 +194,8 @@ module Pakyow
       setting :src do
         File.join(config.app.root, "backend")
       end
+
+      setting :inferred_naming, true
     end
 
     settings_for :routing do
@@ -315,6 +321,10 @@ module Pakyow
           end
         end
       }
+
+      def get_binding
+        binding
+      end
     end
 
     extend Support::DeepFreeze
@@ -358,7 +368,29 @@ module Pakyow
     using Support::RecursiveRequire
 
     def load_app
-      require_recursive(config.app.src)
+      # TODO: add File.join(config.app.src, "lib") to load path
+
+      # TODO: these should be defined somewhere, so that things like presenter can extend
+      load_app_state(File.join(config.app.src, "routes"), "routing")
+    end
+
+    def load_app_state(state_path, state_ident, load_target = self.class)
+      Dir.glob(File.join(state_path, "*.rb")) do |path|
+        state_name = File.basename(path, ".rb")
+
+        loader = Loader.new(load_target, "#{config.app.name}__#{state_ident}__#{state_name}", path)
+        result = if config.app.inferred_naming
+                   loader.call
+                 else
+                   loader.call(TOPLEVEL_BINDING)
+                 end
+
+        nested_path = File.join(state_path, state_name)
+        if Dir.exists?(nested_path)
+          # TODO: should we load subdirs even without a root file?
+          load_app_state(nested_path, "#{state_ident}__#{state_name}", result)
+        end
+      end
     end
   end
 end

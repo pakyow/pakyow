@@ -4,7 +4,6 @@ module Pakyow
   module Presenter
     class Binder
       extend Support::ClassMaker
-      CLASS_MAKER_BASE = "Binder".freeze
 
       attr_reader :object
 
