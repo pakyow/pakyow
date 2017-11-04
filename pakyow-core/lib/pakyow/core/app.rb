@@ -188,7 +188,7 @@ module Pakyow
       setting :root, File.dirname("")
 
       setting :src do
-        File.join(config.app.root, "app", "lib")
+        File.join(config.app.root, "backend")
       end
     end
 
