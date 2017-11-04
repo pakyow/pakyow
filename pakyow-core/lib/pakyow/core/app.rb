@@ -322,14 +322,26 @@ module Pakyow
         end
       }
 
-      def get_binding
-        binding
+      # Concerns of the app to be loaded at runtime (e.g. routing).
+      #
+      # @see load_app
+      def concerns
+        @concerns ||= []
+      end
+
+      # Registers a concern by name
+      #
+      # @see concerns
+      def concern(name)
+        concerns << name.to_s
+        concerns.uniq!
       end
     end
 
     extend Support::DeepFreeze
-
     unfreezable :builder
+
+    concern :routing
 
     # @api private
     def initialize(environment, builder: nil, &block)
@@ -370,11 +382,12 @@ module Pakyow
     def load_app
       # TODO: add File.join(config.app.src, "lib") to load path
 
-      # TODO: these should be defined somewhere, so that things like presenter can extend
-      load_app_state(File.join(config.app.src, "routing"), "routing")
+      App.concerns.each do |concern|
+        load_app_concern(File.join(config.app.src, concern), concern)
+      end
     end
 
-    def load_app_state(state_path, state_ident, load_target = self.class)
+    def load_app_concern(state_path, state_ident, load_target = self.class)
       Dir.glob(File.join(state_path, "*.rb")) do |path|
         state_name = File.basename(path, ".rb")
 
@@ -387,8 +400,7 @@ module Pakyow
 
         nested_path = File.join(state_path, state_name)
         if Dir.exists?(nested_path)
-          # TODO: should we load subdirs even without a root file?
-          load_app_state(nested_path, "#{state_ident}__#{state_name}", result)
+          load_app_concern(nested_path, "#{state_ident}__#{state_name}", result)
         end
       end
     end
