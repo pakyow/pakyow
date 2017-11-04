@@ -371,7 +371,7 @@ module Pakyow
       # TODO: add File.join(config.app.src, "lib") to load path
 
       # TODO: these should be defined somewhere, so that things like presenter can extend
-      load_app_state(File.join(config.app.src, "routes"), "routing")
+      load_app_state(File.join(config.app.src, "routing"), "routing")
     end
 
     def load_app_state(state_path, state_ident, load_target = self.class)
