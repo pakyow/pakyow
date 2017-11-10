@@ -412,4 +412,27 @@ RSpec.describe Pakyow do
       expect(handler_double).to have_received(:run).with(builder_double, Host: host, Port: port)
     end
   end
+
+  describe "#apps" do
+    let :app do
+      Class.new
+    end
+
+    let :app_runtime_block do
+      -> {}
+    end
+
+    before do
+      Pakyow.config.server.default = :mock
+    end
+
+    after do
+      Pakyow.reset
+    end
+
+    it "contains mounted app instances after boot" do
+      run
+      expect(Pakyow.instance_variable_get(:@apps)[0]).to be_instance_of(app)
+    end
+  end
 end

@@ -233,12 +233,16 @@ module Pakyow
         init_global_logger
 
         mounts.each do |path, mount|
+          builder_local_apps = apps
+
           builder.map path do
             app_instance = if defined?(Pakyow::App) && mount[:app].ancestors.include?(Pakyow::App)
                              mount[:app].new(env, builder: self, &mount[:block])
                            else
                              mount[:app].new
                            end
+
+            builder_local_apps << app_instance
 
             run app_instance
           end
@@ -319,6 +323,10 @@ module Pakyow
 
     def mounts
       @mounts ||= {}
+    end
+
+    def apps
+      @apps ||= []
     end
 
     def builder
