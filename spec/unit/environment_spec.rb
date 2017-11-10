@@ -15,6 +15,10 @@ RSpec.describe Pakyow do
     it "includes `fork`" do
       expect(Pakyow.known_events).to include(:fork)
     end
+
+    it "includes `boot`" do
+      expect(Pakyow.known_events).to include(:boot)
+    end
   end
 
   describe "configuration options" do

@@ -101,7 +101,7 @@ require "pakyow/middleware"
 #
 module Pakyow
   include Support::Hookable
-  known_events :configure, :setup, :fork
+  known_events :configure, :setup, :boot, :fork
 
   include Support::Configurable
 
@@ -265,6 +265,8 @@ module Pakyow
       opts.merge!(DEFAULT_HANDLER_OPTIONS.fetch(@server, {}))
 
       handler(@server).run(builder.to_app, Host: @host, Port: @port, **opts) do |app_server|
+        call_hooks :after, :boot
+
         STOP_SIGNALS.each do |signal|
           trap(signal) {
             stop(app_server)
