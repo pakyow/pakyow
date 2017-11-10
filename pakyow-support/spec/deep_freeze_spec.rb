@@ -100,5 +100,11 @@ RSpec.describe Pakyow::Support::DeepFreeze do
       expect(obj_with_unfreezable.water).to be_frozen
       expect(obj_with_unfreezable.fire).not_to be_frozen
     end
+
+    it "doesn't freeze objects that can't be frozen" do
+      object = "foo"
+      object.instance_eval("undef :freeze")
+      expect { object.deep_freeze }.not_to raise_error(NoMethodError)
+    end
   end
 end

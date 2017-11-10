@@ -20,7 +20,7 @@ module Pakyow
 
       refine Object do
         def deep_freeze
-          return self if frozen?
+          return self if frozen? || !respond_to?(:freeze)
 
           self.freeze
 
