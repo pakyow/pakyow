@@ -32,6 +32,12 @@ RSpec.describe Pakyow::Request do
         allow_any_instance_of(Rack::Request).to receive(:params).and_return(params)
         expect(request.params).to be_instance_of(Pakyow::Support::IndifferentHash)
       end
+
+      it "is deeply indifferentized" do
+        params = { foo: { deep: :bar } }
+        allow_any_instance_of(Rack::Request).to receive(:params).and_return(params)
+        expect(request.params[:foo]).to be_instance_of(Pakyow::Support::IndifferentHash)
+      end
     end
   end
 

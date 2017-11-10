@@ -49,7 +49,7 @@ module Pakyow
     def params
       # TODO: any reason not to just use rack.input?
       # @params.merge!(env['pakyow.data']) if env['pakyow.data'].is_a?(Hash)
-      @params ||= super.indifferentize
+      @params ||= super.deep_indifferentize
     end
 
     # Returns an indifferentized cookie hash.
