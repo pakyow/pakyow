@@ -47,9 +47,9 @@ module Pakyow::Support
     end
 
     context "when initializing with new" do
-      it "converts symbol keys to strings" do
-        expect(indifferent.keys).to include("two")
-        expect(indifferent.keys).not_to include(:two)
+      it "converts string keys to symbols" do
+        expect(indifferent.keys).to include(:two)
+        expect(indifferent.keys).not_to include("two")
       end
 
       it "does not resolve conflicts" do
@@ -123,10 +123,10 @@ module Pakyow::Support
           arity = 1 if arity < 0
           args = Array.new(arity - 1, anything)
 
-          expect(internal).to receive(method).with('key', any_args)
+          expect(internal).to receive(method).with(:key, any_args)
           indifferent.public_send(method, 'key', *args)
 
-          expect(internal).to receive(method).with('key', any_args)
+          expect(internal).to receive(method).with(:key, any_args)
           indifferent.public_send(method, :key, *args)
         end
       end
@@ -144,10 +144,10 @@ module Pakyow::Support
           end
           symbol_args = string_args.map(&:to_sym)
 
-          expect(internal).to receive(method).with(*string_args)
+          expect(internal).to receive(method).with(*symbol_args)
           indifferent.public_send(method, *string_args)
 
-          expect(internal).to receive(method).with(*string_args)
+          expect(internal).to receive(method).with(*symbol_args)
           indifferent.public_send(method, *symbol_args)
         end
       end
@@ -187,8 +187,9 @@ module Pakyow::Support
       end
 
       it "should return the same indiffernt hash for to_hash/to_h" do
-        expect(indifferent.to_hash.object_id).to eq(indifferent.object_id)
-        expect(indifferent.to_h.object_id).to eq(indifferent.object_id)
+        internal = indifferent.internal_hash
+        expect(indifferent.to_hash.object_id).to eq(internal.object_id)
+        expect(indifferent.to_h.object_id).to eq(internal.object_id)
       end
 
       it "should be equal to a hash" do

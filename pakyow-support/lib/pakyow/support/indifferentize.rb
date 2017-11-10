@@ -3,19 +3,20 @@ module Pakyow
     # Creates a Hash-like object can access stored data with symbol or
     #   string keys.
     #
-    # The original hash is converted to frozen string keys, which means
+    # The original hash is converted to symbol keys, which means
     #   that a hash that originally contains a symbol and string key
-    #   with the same frozen string value will conflict. It is not
-    #   guaranteed which value will be saved.
+    #   with the same symbold value will conflict. It is not guaranteed
+    #   which value will be saved.
     #
-    # IndifferntHash instances have the same api as Hash, but any method
-    #   that would return a Hash, will return an IndifferentHash.
+    # IndifferentHash instances have the same api as Hash, but any method
+    #   that would return a Hash, will return an IndifferentHash (with
+    #   the exception of to_h/to_hash).
     #
-    # NOTE: Please lookup Ruby's docuementation for Hash to learn what
+    # NOTE: Please lookup Ruby's documentation for Hash to learn what
     #   methods are available.
     #
     # @example
-    #   { test: 'test1', 'test' => 'test2' } => { test: 'test2' }
+    #   { test: "test1", "test" => "test2" } => { test: "test2" }
     #
     class IndifferentHash < SimpleDelegator
       class << self
@@ -99,7 +100,7 @@ module Pakyow
       end
 
       def to_h
-        self
+        internal_hash
       end
       alias to_hash to_h
 
@@ -121,7 +122,7 @@ module Pakyow
       def convert_key(key)
         case key
         when Symbol, String
-          key.to_s.freeze
+          key.to_sym
         else
           key
         end
