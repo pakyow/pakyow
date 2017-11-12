@@ -268,8 +268,8 @@ module Pakyow
         (label(:version) || VersionedView::DEFAULT_VERSION).to_sym
       end
 
-      def to_html
-        cleanup_versions
+      def to_html(clean: true)
+        cleanup_versions if clean
         @object.to_html
       end
 

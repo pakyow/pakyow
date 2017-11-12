@@ -35,6 +35,7 @@ module Pakyow
 
           yield versioned_view, object if block_given?
           versioned_view.working.transform(object)
+          versioned_view.working.object.delete_label(:version)
 
           insertable.after(versioned_view)
           insertable = versioned_view

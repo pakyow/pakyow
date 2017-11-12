@@ -137,6 +137,10 @@ module Pakyow
         @labels.key?[name.to_sym]
       end
 
+      def delete_label(name)
+        @labels.delete(name.to_sym)
+      end
+
       # TODO: it would be nice if Inspectable could handle this
       def inspect
         inspection = [:type, :name, :attributes, :children].map { |attr|

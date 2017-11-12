@@ -90,8 +90,8 @@ module Pakyow
     def process
       catch :halt do
         hook_around :process do
-          if app.config.routing.enabled
-            hook_around :route do
+          hook_around :route do
+            if app.config.routing.enabled
               route_with_path_and_method(request.env[Rack::PATH_INFO], request.env[Rack::REQUEST_METHOD])
             end
           end

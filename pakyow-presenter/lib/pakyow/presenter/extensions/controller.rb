@@ -3,8 +3,11 @@ module Pakyow
     known_events :render
 
     after :route do
-      next if app.config.presenter.require_route && !found?
-      render
+      if app.config.presenter.require_route && !found?
+        next
+      else
+        render
+      end
     end
 
     def render(path = request.route_path || request.path, as: nil)
@@ -44,7 +47,13 @@ module Pakyow
 
         call_hooks :before, :render
 
-        halt StringIO.new(@current_presenter)
+        if app.config.routing.enabled
+          halt StringIO.new(@current_presenter)
+        else
+          halt StringIO.new(@current_presenter.view.to_html(clean: false))
+        end
+
+
       elsif found? # matched a route, but couldn't find a view to present
         raise Presenter::MissingView.new("No view at path `#{path}'")
       end
@@ -61,6 +70,8 @@ module Pakyow
     end
 
     def find_presenter_for(path)
+      return unless app.config.routing.enabled
+
       collapse_path(path) do |collapsed_path|
         if presenter = presenter_for_path(collapsed_path)
           return presenter

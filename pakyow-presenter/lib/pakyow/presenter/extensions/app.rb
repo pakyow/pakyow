@@ -10,11 +10,7 @@ module Pakyow
         File.join(config.app.root, "app", "presentation")
       end
 
-      setting :require_route, true
-
-      defaults :prototype do
-        setting :require_route, false
-      end
+      setting :require_route, false
     end
   end
 end
