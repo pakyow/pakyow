@@ -9,8 +9,10 @@ module Pakyow
       attr_reader :name, :path
 
       LAYOUTS_PATH = "layouts".freeze
-      PARTIALS_PATH = "partials".freeze
-      TEMPLATES_PATH = "templates".freeze
+      # TODO: rename this if we keep the include naming
+      PARTIALS_PATH = "includes".freeze
+      # TODO: rename this
+      TEMPLATES_PATH = "pages".freeze
 
       def initialize(name, path, processor: nil)
         @name, @path, @processor = name, Pathname(path), processor
@@ -84,6 +86,7 @@ module Pakyow
         return unless File.exist?(layouts_path)
 
         @layouts = layouts_path.children.each_with_object({}) { |file, layouts|
+          next if file.basename.to_s.start_with?(".")
           layout = load_view_of_type_at_path(Layout, file)
           layouts[layout.name] = layout
         }
@@ -94,6 +97,7 @@ module Pakyow
         return unless File.exist?(partials_path)
 
         @partials = partials_path.children.each_with_object({}) { |file, partials|
+          next if file.basename.to_s.start_with?(".")
           partial = load_view_of_type_at_path(Partial, file)
           partials[partial.name] = partial
         }
@@ -105,6 +109,7 @@ module Pakyow
         Pathname.glob(File.join(templates_path, "**/*")) do |path|
           # TODO: better way to skip this?
           next if path.basename.to_s.start_with?("_")
+          next if path.basename.to_s.start_with?(".")
 
           begin
             if page = page_at_path(path)
