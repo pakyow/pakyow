@@ -20,8 +20,8 @@ module Pakyow
 
         yield self if block_given?
 
-        @view.attrs.method = FORM_METHOD_DEFAULT
-        @view.attrs.action = form_action(action, object)
+        @view.attrs[:method] = FORM_METHOD_DEFAULT
+        @view.attrs[:action] = form_action(action, object)
 
         if method_override_required?(action)
           @view.prepend(method_override_input(action))
