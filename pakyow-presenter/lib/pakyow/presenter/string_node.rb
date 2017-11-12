@@ -38,6 +38,8 @@ module Pakyow
         @node = node.dup
         @node[1] = attributes.dup
         @node[3] = children.dup
+
+        @labels = @labels.dup
       end
 
       def close(tag, child)
