@@ -7,7 +7,7 @@ module Pakyow
 
     settings_for :presenter do
       setting :path do
-        File.join(config.app.root, "app", "presentation")
+        File.join(config.app.root, "interface")
       end
 
       setting :require_route, false
