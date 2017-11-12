@@ -5,7 +5,7 @@ module Pakyow
     end
 
     def call(eval_binding = binding)
-      eval(File.read(@path), eval_binding)
+      eval(File.read(@path), eval_binding, @path)
     end
 
     def method_missing(name, *args, &block)
