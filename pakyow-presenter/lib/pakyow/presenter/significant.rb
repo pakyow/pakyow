@@ -45,7 +45,7 @@ module Pakyow
           attribute_name = attribute.name.to_sym
           next unless LABEL_ATTRS.include?(attribute_name)
           element.unset(attribute.name)
-          labels[attribute_name] = attribute.value
+          labels[attribute_name] = attribute.value.to_sym
         end
       end
     end
