@@ -173,7 +173,7 @@ module Pakyow
     stateful :router, Router
 
     include Support::Hookable
-    known_events :initialize, :configure, :load
+    known_events :initialize, :configure, :load, :freeze
 
     include Support::Configurable
 
@@ -346,6 +346,11 @@ module Pakyow
     # @api private
     def call(env)
       Controller.process(env, self)
+    end
+
+    def freeze
+      call_hooks :before, :freeze
+      super
     end
 
     protected

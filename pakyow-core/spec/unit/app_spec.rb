@@ -15,6 +15,10 @@ RSpec.describe Pakyow::App do
     it "includes `load`" do
       expect(Pakyow::App.known_events).to include(:load)
     end
+
+    it "includes `freeze`" do
+      expect(Pakyow::App.known_events).to include(:freeze)
+    end
   end
 
   describe "configuration options" do
@@ -265,6 +269,23 @@ RSpec.describe Pakyow::App do
     it "calls Pakyow::Controller.process" do
       expect(Pakyow::Controller).to receive(:process).with(env, app)
       app.call(env)
+    end
+  end
+
+  describe "#freeze" do
+    let :app do
+      Pakyow::App.new(:test, builder: Rack::Builder.new)
+    end
+
+    before do
+      Pakyow::App.before :freeze do
+        $called = true
+      end
+    end
+
+    it "calls before freeze hooks" do
+      app.freeze
+      expect($called).to be(true)
     end
   end
 end
