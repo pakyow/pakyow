@@ -56,9 +56,9 @@ RSpec.describe Pakyow::App do
       end
     end
 
-    describe "app.inferred_naming" do
+    describe "app.dsl" do
       it "has a default value" do
-        expect(Pakyow::App.config.app.inferred_naming).to eq(true)
+        expect(Pakyow::App.config.app.dsl).to eq(true)
       end
     end
 

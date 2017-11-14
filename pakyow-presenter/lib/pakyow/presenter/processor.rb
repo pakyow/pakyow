@@ -44,19 +44,9 @@ module Pakyow
         attr_reader :name, :extensions, :block
 
         def make(name, *extensions, state: nil, &block)
-          klass = class_const_for_name(Class.new(self), name)
-
           # name is expected to also be an extension
           extensions.unshift(name).map!(&:to_sym)
-
-          klass.class_eval do
-            @name = name
-            @extensions = extensions
-            @state = state
-            @block = block
-          end
-
-          klass
+          super(name, state: state, extensions: extensions, block: block) {}
         end
 
         def process(content)

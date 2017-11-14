@@ -2,7 +2,7 @@ RSpec.describe "loading the app" do
   it "loads routes from src/routes"
   it "adds src/lib to the load path"
 
-  context "when using inferred_naming" do
+  context "when using definition dsl" do
     it "automatically names unnamed routers"
     it "respects the given name for named routers"
     it "still allows for fully defined routers"

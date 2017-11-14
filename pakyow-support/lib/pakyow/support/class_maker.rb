@@ -4,11 +4,14 @@ module Pakyow
       attr_reader :name, :state
 
       def make(name, state: nil, **args, &block)
-        klass = class_const_for_name(Class.new(self), name)
+        klass, name = class_const_for_name(Class.new(self), name)
 
         klass.class_eval do
-          @name = name
-          @state = state
+          @name, @state = name, state
+
+          args.each do |arg, value|
+            instance_variable_set(:"@#{arg}", value)
+          end
 
           class_eval(&block) if block_given?
         end
@@ -16,21 +19,23 @@ module Pakyow
         klass
       end
 
+      protected
+
       def class_const_for_name(klass, name)
         unless name.nil?
-          target, defined_name = ClassMaker.target_and_name(name)
-          ClassMaker.define_object_on_target_with_name(klass, target, defined_name)
+          target, name = ClassMaker.target_and_name(name)
+          ClassMaker.define_object_on_target_with_name(klass, target, ClassMaker.camelize(name))
         end
 
-        klass
+        return klass, name
       end
 
-      MODULE_SEPARATOR = "__".freeze
       CLASS_SEPARATOR = "_".freeze
+      MODULE_SEPARATOR = "__".freeze
 
       def self.target_and_name(name)
         parts = name.to_s.split(MODULE_SEPARATOR)
-        class_name = ClassMaker.camelize(parts.pop)
+        class_name = parts.pop.to_sym
 
         target = Object
         parts.each do |namespace|
@@ -41,7 +46,7 @@ module Pakyow
       end
 
       def self.define_object_on_target_with_name(object, target, name)
-        unless target.const_defined?(name)
+        unless target.const_defined?(name, false)
           target.const_set(name, object)
         end
 
@@ -49,7 +54,7 @@ module Pakyow
       end
 
       def self.camelize(string)
-        string.split(CLASS_SEPARATOR).map(&:capitalize).join
+        string.to_s.split(CLASS_SEPARATOR).map(&:capitalize).join
       end
     end
   end
