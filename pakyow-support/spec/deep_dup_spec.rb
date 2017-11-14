@@ -20,7 +20,7 @@ RSpec.describe Pakyow::Support::DeepDup do
       expect(hsh_dup.keys[0]).to_not be(hsh.keys[0])
     end
 
-    xit "deep dupes Hash value" do
+    it "deep dupes Hash value" do
       hsh = { "foo" => "bar" }
       hsh_dup = hsh.deep_dup
       expect(hsh_dup.values[0]).to_not be(hsh.values[0])
@@ -31,12 +31,6 @@ RSpec.describe Pakyow::Support::DeepDup do
     describe "Symbol" do
       it "is uncloneable" do
         expect(Pakyow::Support::DeepDup::UNDUPABLE).to include Symbol
-      end
-    end
-
-    describe "Fixnum" do
-      it "is undupable" do
-        expect(Pakyow::Support::DeepDup::UNDUPABLE).to include Fixnum
       end
     end
 
