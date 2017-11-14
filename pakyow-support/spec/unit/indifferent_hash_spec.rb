@@ -232,10 +232,6 @@ module Pakyow::Support
         expect(indifferent_subset).to be <= indifferent_subset
       end
 
-      it "should shift like a hash, but with string keys" do
-        simple_hash = {  }
-      end
-
       it "should access the hash with [] for string, symbol or other keys" do
         expect(indifferent[:three]).to eq('Fantastic')
         expect(indifferent['three']).to eq('Fantastic')
