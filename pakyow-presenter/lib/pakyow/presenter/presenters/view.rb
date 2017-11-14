@@ -8,10 +8,9 @@ module Pakyow
       class << self
         attr_reader :path, :block
 
-        def make(name, path, state: nil, &block)
-          puts "make view #{name.inspect} #{path.inspect}"
+        def make(path, state: nil, &block)
           path = String.normalize_path(path)
-          super(name, state: state, path: path, block: block) {}
+          super(name_from_path(path), state: state, path: path, block: block) {}
         end
 
         def name_from_path(path)
