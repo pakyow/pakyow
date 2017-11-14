@@ -4,22 +4,13 @@ module Pakyow
   module Presenter
     class ViewPresenter < Presenter
       extend Support::ClassMaker
-      CLASS_MAKER_BASE = "ViewPresenter".freeze
 
       class << self
         attr_reader :path, :block
 
         def make(path, state: nil, &block)
-          klass = class_const_for_name(Class.new(self), name_from_path(path))
-
-          klass.class_eval do
-            @name = name
-            @state = state
-            @path = String.normalize_path(path)
-            @block = block
-          end
-
-          klass
+          path = String.normalize_path(path)
+          super(name_from_path(path), state: state, path: path, block: block) {}
         end
 
         def name_from_path(path)

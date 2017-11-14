@@ -139,9 +139,7 @@ module Pakyow
     include Helpers
     using Support::DeepDup
     extend Routing::HookMerger
-
     extend Support::ClassMaker
-    CLASS_MAKER_BASE = "Router".freeze
 
     router = self
     Pakyow.singleton_class.class_eval do
@@ -317,7 +315,8 @@ module Pakyow
       # @api public
       def Router(matcher, before: [], after: [], around: [])
         Class.new(self) do
-          @matcher = finalize_matcher_and_set_path(matcher)
+          @path = path_from_matcher(matcher)
+          @matcher = finalize_matcher(matcher)
           @hooks = { before: before, after: after, around: around }
         end
       end
@@ -574,7 +573,7 @@ module Pakyow
       #
       # @example
       #   Pakyow::App.define do
-      #     router :api do
+      #     router :api, "/api" do
       #     end
       #
       #     resource :project, "/projects" do
@@ -676,21 +675,14 @@ module Pakyow
         nil
       end
 
-      # @api private
       def make(*args, before: [], after: [], around: [], state: nil, parent: nil, &block)
         name, matcher = parse_name_and_matcher_from_args(*args)
-        klass = class_const_for_name(Class.new(self), name)
 
-        klass.class_eval do
-          @name = name
-          @state = state
-          @matcher = finalize_matcher_and_set_path(matcher)
-          @parent = parent
-          @hooks = compile_hooks(before: before, after: after, around: around)
-          class_eval(&block) if block
-        end
+        path = path_from_matcher(matcher)
+        matcher = finalize_matcher(matcher)
+        hooks = compile_hooks(before: before, after: after, around: around)
 
-        klass
+        super(name, state: state, path: path, matcher: matcher, hooks: hooks, parent: parent, &block)
       end
 
       # @api private
@@ -779,10 +771,8 @@ module Pakyow
         Aargv.normalize([name_or_matcher, matcher_or_name].compact, name: Symbol, matcher: Object).values_at(:name, :matcher)
       end
 
-      def finalize_matcher_and_set_path(matcher)
+      def finalize_matcher(matcher)
         if matcher.is_a?(String)
-          @path = matcher
-
           converted_matcher = String.normalize_path(matcher.split("/").map { |segment|
             if segment.include?(":")
               "(?<#{segment[1..-1]}>(\\w|[-.~:@!$\\'\\(\\)\\*\\+,;])*)"
@@ -794,6 +784,14 @@ module Pakyow
           Regexp.new("^#{String.normalize_path(converted_matcher)}")
         else
           matcher
+        end
+      end
+
+      def path_from_matcher(matcher)
+        if matcher.is_a?(String)
+          matcher
+        else
+          nil
         end
       end
 

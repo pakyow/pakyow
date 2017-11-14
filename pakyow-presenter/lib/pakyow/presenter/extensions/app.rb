@@ -12,5 +12,8 @@ module Pakyow
 
       setting :require_route, false
     end
+
+    concern :views
+    concern :binders
   end
 end

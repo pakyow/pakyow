@@ -6,6 +6,7 @@ require "pakyow/support/deep_freeze"
 
 require "pakyow/core/helpers"
 require "pakyow/core/router"
+require "pakyow/core/loader"
 
 require "forwardable"
 
@@ -74,6 +75,9 @@ module Pakyow
   #
   # - +config.app.src+ defines where the application code lives, relative to
   #   where the environment is started from. Default is +{app.root}/app/lib+.
+  #
+  # - +config.app.dsl+ determines whether or not objects creation will be exposed
+  #   through the simpler dsl.
   #
   # - +config.routing.enabled+ determines whether or not routing is enabled for
   #   the application. Default is +true+, except when running in the
@@ -190,6 +194,8 @@ module Pakyow
       setting :src do
         File.join(config.app.root, "backend")
       end
+
+      setting :dsl, true
     end
 
     settings_for :routing do
@@ -315,11 +321,27 @@ module Pakyow
           end
         end
       }
+
+      # Concerns of the app to be loaded at runtime (e.g. routing).
+      #
+      # @see load_app
+      def concerns
+        @concerns ||= []
+      end
+
+      # Registers a concern by name
+      #
+      # @see concerns
+      def concern(name)
+        concerns << name.to_s
+        concerns.uniq!
+      end
     end
 
     extend Support::DeepFreeze
-
     unfreezable :builder
+
+    concern :routing
 
     # @api private
     def initialize(environment, builder: nil, &block)
@@ -358,7 +380,25 @@ module Pakyow
     using Support::RecursiveRequire
 
     def load_app
-      require_recursive(config.app.src)
+      $LOAD_PATH.unshift File.join(config.app.src, "lib")
+
+      App.concerns.each do |concern|
+        load_app_concern(File.join(config.app.src, concern), concern)
+      end
+    end
+
+    def load_app_concern(state_path, state_type, load_target = self.class)
+      Dir.glob(File.join(state_path, "*.rb")) do |path|
+        if config.app.dsl
+          Loader.new(load_target, "#{config.app.name}__#{state_type}", path).call
+        else
+          require path
+        end
+      end
+
+      Dir.glob(File.join(state_path, "*")).select { |path| File.directory?(path) }.each do |directory|
+        load_app_concern(directory, state_type, load_target)
+      end
     end
   end
 end
