@@ -20,6 +20,8 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version  = '>= 2.0.0'
 
   spec.add_dependency("pakyow-support",   Pakyow::VERSION)
-  spec.add_dependency("sequel")
+  spec.add_dependency("rom")
+  spec.add_dependency("rom-sql")
+
   spec.add_development_dependency('rspec', '~> 3.2')
 end
