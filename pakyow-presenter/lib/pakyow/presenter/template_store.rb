@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "pakyow/support/deep_freeze"
 
 module Pakyow
@@ -35,16 +37,16 @@ module Pakyow
         if name_or_path.is_a?(Symbol)
           layout_with_name(name_or_path)
         else
-          info(name_or_path)&[:template]
+          info(name_or_path) & [:template]
         end
       end
 
       def page(path)
-        info(path)&[:page]
+        info(path) & [:page]
       end
 
       def partials(path)
-        info(path)&[:partials] || {}
+        info(path) & [:partials] || {}
       end
 
       def partial(path, name)
@@ -72,7 +74,7 @@ module Pakyow
           raise MissingLayout, "No layout named '#{name}'"
         end
 
-        return layout
+        layout
       end
 
       def load

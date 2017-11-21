@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 source "https://rubygems.org"
 
 gemspec
 gemspec path: "pakyow-core"
 
-gem "rake", "~> 11.1"
 gem "rack", "~> 2.0"
+gem "rake", "~> 11.1"
 
 # presenter
 gem "oga", "~> 2.6"
@@ -14,8 +16,8 @@ gem "mail", "~> 2.6"
 gem "premailer", "1.10"
 
 # realtime
-gem "websocket", "~> 1.2"
 gem "redis", "~> 3.2"
+gem "websocket", "~> 1.2"
 
 group :test do
   gem "minitest", "~> 5.6"

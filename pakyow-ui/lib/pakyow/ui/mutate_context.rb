@@ -1,4 +1,6 @@
-require_relative 'channel_builder'
+# frozen_string_literal: true
+
+require_relative "channel_builder"
 
 module Pakyow
   module UI

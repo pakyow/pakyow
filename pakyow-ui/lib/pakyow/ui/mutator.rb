@@ -1,5 +1,7 @@
-require_relative 'mutation_set'
-require_relative 'mutate_context'
+# frozen_string_literal: true
+
+require_relative "mutation_set"
+require_relative "mutate_context"
 
 module Pakyow
   module UI

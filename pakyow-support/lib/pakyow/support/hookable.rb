@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "pakyow/support/deep_dup"
 
 module Pakyow
@@ -49,8 +51,8 @@ module Pakyow
         base.extend ClassAPI
         base.prepend Initializer
 
-        base.instance_variable_set(:@hook_hash, { after: {}, before: {} })
-        base.instance_variable_set(:@pipeline, { after: {}, before: {} })
+        base.instance_variable_set(:@hook_hash, after: {}, before: {})
+        base.instance_variable_set(:@pipeline, after: {}, before: {})
       end
 
       # @api private

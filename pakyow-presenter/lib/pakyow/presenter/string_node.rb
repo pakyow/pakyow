@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "forwardable"
 
 module Pakyow
@@ -143,7 +145,7 @@ module Pakyow
 
       # TODO: it would be nice if Inspectable could handle this
       def inspect
-        inspection = [:type, :name, :attributes, :children].map { |attr|
+        inspection = %i[type name attributes children].map { |attr|
           value = send(attr)
           next if value.nil? || (value.respond_to?(:empty?) && value.empty?)
           "#{attr}: #{value.inspect}"

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "forwardable"
 
 module Pakyow
@@ -9,7 +11,7 @@ module Pakyow
       attr_reader :expander, :router, :name
 
       extend Forwardable
-      def_delegators :expander, *[:func, :default, :group, :namespace, :template].concat(Router::SUPPORTED_HTTP_METHODS)
+      def_delegators :expander, *%i[func default group namespace template].concat(Router::SUPPORTED_HTTP_METHODS)
 
       def initialize(template_name, router, &template_block)
         @router = router

@@ -1,9 +1,11 @@
-require 'json'
-require 'redis'
-require 'singleton'
+# frozen_string_literal: true
 
-require 'pakyow/realtime/redis_subscription'
-require 'pakyow/realtime/registries/simple_registry'
+require "json"
+require "redis"
+require "singleton"
+
+require "pakyow/realtime/redis_subscription"
+require "pakyow/realtime/registries/simple_registry"
 
 module Pakyow
   module Realtime

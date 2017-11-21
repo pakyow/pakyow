@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Pakyow
   App.after :load do
     @path_builder = PathBuilder.new(self.class.router.instances)

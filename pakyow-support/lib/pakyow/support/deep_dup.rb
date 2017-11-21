@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Pakyow
   module Support
     # Refines Object, Array, and Hash with support for deep_dup.

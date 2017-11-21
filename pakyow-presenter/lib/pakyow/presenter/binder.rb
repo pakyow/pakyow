@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "pakyow/support/class_maker"
 
 module Pakyow
@@ -33,7 +35,7 @@ module Pakyow
       end
 
       def part(name)
-        parts_for(caller_locations(1,1)[0].label.to_sym).define_part(name, yield)
+        parts_for(caller_locations(1, 1)[0].label.to_sym).define_part(name, yield)
       end
 
       private

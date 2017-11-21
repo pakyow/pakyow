@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Pakyow
   module Support
     # Customized inspectors for your objects.
@@ -34,8 +36,8 @@ module Pakyow
       end
 
       def inspect
-        "#<#{self.class.name}:#{self.object_id} " << (self.class.inspectables || []).map {
-          |ivar| "#{ivar}=#{self.instance_variable_get(ivar).inspect}"
+        "#<#{self.class.name}:#{self.object_id} " << (self.class.inspectables || []).map { |ivar|
+          "#{ivar}=#{self.instance_variable_get(ivar).inspect}"
         }.join(", ") << ">"
       end
     end

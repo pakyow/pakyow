@@ -1,4 +1,6 @@
-require 'redis'
+# frozen_string_literal: true
+
+require "redis"
 
 module Pakyow
   module Realtime
@@ -12,7 +14,7 @@ module Pakyow
       end
 
       def subscribe
-        Thread.new {
+        Thread.new do
           @s_redis.psubscribe(pubsub_channel("socket", "*", "channel", "*")) do |on|
             on.pmessage do |_pattern, channel, message|
               begin
@@ -24,7 +26,7 @@ module Pakyow
               end
             end
           end
-        }
+        end
 
         Thread.new {
           @c_redis.psubscribe(pubsub_channel("channel", "*")) do |on|

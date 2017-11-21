@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Pakyow
   module UI
     # Helper methods for instructable objects.
@@ -110,7 +112,7 @@ module Pakyow
       end
 
       def clean_method(method)
-        method.to_s.delete('=').to_sym
+        method.to_s.delete("=").to_sym
       end
     end
   end

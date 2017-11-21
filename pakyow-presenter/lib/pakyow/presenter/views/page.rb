@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "yaml"
 
 module Pakyow
@@ -5,7 +7,7 @@ module Pakyow
     class Page
       class << self
         def load(path, content: nil)
-          Page.new(File.basename(path, '.*').to_sym, content || File.read(path), path)
+          Page.new(File.basename(path, ".*").to_sym, content || File.read(path), path)
         end
       end
 
@@ -35,11 +37,11 @@ module Pakyow
       # TODO: frontmatter should be supported in View
       def info(key = nil)
         return @info if key.nil?
-        return @info[key]
+        @info[key]
       end
 
-      def ==(page)
-        @contents == page.contents
+      def ==(other)
+        @contents == other.contents
       end
 
       def container(name)
@@ -77,7 +79,7 @@ module Pakyow
         end
 
         # find default content
-        @containers[:default] = Container.new(@contents.gsub(within_regex, ''))
+        @containers[:default] = Container.new(@contents.gsub(within_regex, ""))
       end
     end
   end

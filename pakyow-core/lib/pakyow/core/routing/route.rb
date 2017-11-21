@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "pakyow/support/aargv"
 require "pakyow/core/routing/hook_merger"
 

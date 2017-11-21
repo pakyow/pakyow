@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Pakyow
   module TestHelp
     class MockPresenter
@@ -11,7 +13,7 @@ module Pakyow
       def method_missing(method, *args, &block)
         ret = @presenter.send(method, *args, &block)
         @calls << [method, args]
-        return ret
+        ret
       end
     end
   end

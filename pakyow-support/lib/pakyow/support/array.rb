@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Array
   def self.ensure(object)
     if object.respond_to?(:to_ary)

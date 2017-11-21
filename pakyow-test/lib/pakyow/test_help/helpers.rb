@@ -1,4 +1,6 @@
-require_relative 'simulator'
+# frozen_string_literal: true
+
+require_relative "simulator"
 
 module Pakyow
   module TestHelp

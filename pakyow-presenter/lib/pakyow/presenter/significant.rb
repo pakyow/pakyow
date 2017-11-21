@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # TODO: rename to significant_nodes.rb
 
 module Pakyow

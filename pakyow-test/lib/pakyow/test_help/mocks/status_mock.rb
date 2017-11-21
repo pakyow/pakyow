@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Pakyow
   module TestHelp
     class MockStatus
@@ -7,12 +9,12 @@ module Pakyow
         @value = value
       end
 
-      def ==(equal_value)
-        if equal_value.is_a?(Symbol)
-          equal_value = Pakyow::Response::STATUS_CODE_LOOKUP[equal_value]
+      def ==(other)
+        if other.is_a?(Symbol)
+          other = Pakyow::Response::STATUS_CODE_LOOKUP[other]
         end
 
-        @value == equal_value
+        @value == other
       end
 
       def to_i

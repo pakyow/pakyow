@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Pakyow
   class Controller
     known_events :render
@@ -52,7 +54,6 @@ module Pakyow
         else
           halt StringIO.new(@current_presenter.view.to_html(clean: false))
         end
-
 
       elsif found? # matched a route, but couldn't find a view to present
         raise Presenter::MissingView.new("No view at path `#{path}'")

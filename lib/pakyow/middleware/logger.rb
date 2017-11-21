@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "pakyow/logger/request_logger"
 
 module Pakyow

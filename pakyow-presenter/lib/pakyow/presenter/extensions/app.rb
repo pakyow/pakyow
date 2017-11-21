@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Pakyow
   class App
     stateful :template_store, Presenter::TemplateStore

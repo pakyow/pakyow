@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Pakyow::Helpers
   def current_user
   end

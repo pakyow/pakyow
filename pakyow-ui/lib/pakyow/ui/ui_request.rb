@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Pakyow
   module UI
     # A simple request object used for accessing the session.

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Pakyow
   module Realtime
     # Handles the handshake for establishing a WebSocket connection.
@@ -16,7 +18,7 @@ module Pakyow
         @server = WebSocket::Handshake::Server.new
         @server << handshake_data_from_env(@env)
       end
-      
+
       def finalize(io)
         return unless @server.valid?
         @io = io
@@ -46,7 +48,7 @@ module Pakyow
       end
 
       def rack_env_key_to_http_header_name(key)
-        key.downcase.split('_').map(&:capitalize).join('-')
+        key.downcase.split("_").map(&:capitalize).join("-")
       end
     end
   end

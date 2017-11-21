@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 module Pakyow
   module ParamsOverride
     def params
-      env.fetch('pakyow.params') { super }
+      env.fetch("pakyow.params") { super }
     end
   end
 

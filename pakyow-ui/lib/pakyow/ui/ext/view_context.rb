@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 module Pakyow
   module Presenter
     class ViewContext
-      MSG_NONCOMPONENT = 'Cannot subscribe a non-component view'
+      MSG_NONCOMPONENT = "Cannot subscribe a non-component view"
 
       # Mutates a view with a registered mutator.
       #

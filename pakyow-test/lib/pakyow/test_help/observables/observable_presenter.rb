@@ -1,4 +1,6 @@
-require_relative '../observable'
+# frozen_string_literal: true
+
+require_relative "../observable"
 
 module Pakyow
   module TestHelp

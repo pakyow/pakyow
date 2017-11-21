@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Loads environment variables for the current environment.
 #
 Pakyow.before :configure do

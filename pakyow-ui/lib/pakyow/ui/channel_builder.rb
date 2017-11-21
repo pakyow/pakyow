@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 module Pakyow
   module UI
     # Helpers for building channel names.
     #
     # @api private
     module ChannelBuilder
-      PARTS = [:scope, :mutation, :component]
+      PARTS = %i[scope mutation component]
 
       def self.build(qualifiers: [], data: [], qualifications: {}, **args)
         channel = []
@@ -17,7 +19,7 @@ module Pakyow
         add_qualifiers(qualifiers, data, channel_extras)
         add_qualifications(qualifications, channel_extras)
 
-        channel = channel.join(';')
+        channel = channel.join(";")
 
         return channel if channel_extras.empty?
         channel << "::#{channel_extras.join(';')}"

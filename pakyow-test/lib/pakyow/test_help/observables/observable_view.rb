@@ -1,4 +1,6 @@
-require_relative '../observable'
+# frozen_string_literal: true
+
+require_relative "../observable"
 
 module Pakyow
   module TestHelp
@@ -39,9 +41,9 @@ module Pakyow
       def bind(data, bindings: {}, context: nil, &block)
         presenter.observing(view.scoped_as, :bind, traversal, data: data, bindings: bindings, context: context, block: block)
 
-        result = view.bind(data, bindings: bindings, context: context) do |view, datum|
+        result = view.bind(data, bindings: bindings, context: context) { |view, datum|
           block.call(handle_value(view), datum) unless block.nil?
-        end
+        }
 
         handle_value(result)
       end
@@ -49,9 +51,9 @@ module Pakyow
       def apply(data, bindings: {}, context: nil, &block)
         presenter.observing(view.scoped_as, :apply, traversal, data: data, bindings: bindings, context: context, block: block)
 
-        result = view.apply(data, bindings: bindings, context: context) do |view, datum|
+        result = view.apply(data, bindings: bindings, context: context) { |view, datum|
           block.call(handle_value(view), datum) unless block.nil?
-        end
+        }
 
         handle_value(result)
       end

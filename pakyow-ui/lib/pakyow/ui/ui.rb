@@ -1,6 +1,8 @@
-require_relative 'mutator'
-require_relative 'channel_builder'
-require_relative 'ui_view'
+# frozen_string_literal: true
+
+require_relative "mutator"
+require_relative "channel_builder"
+require_relative "ui_view"
 
 module Pakyow
   module UI

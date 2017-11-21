@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 Pakyow::App.routes do
   default do
-    logger.info 'hello'
+    logger.info "hello"
   end
 
   # define application routes here

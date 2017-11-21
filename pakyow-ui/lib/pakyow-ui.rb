@@ -1,1 +1,3 @@
-require 'pakyow/ui'
+# frozen_string_literal: true
+
+require "pakyow/ui"

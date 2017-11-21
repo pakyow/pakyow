@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "websocket"
 
 require "pakyow/logger/request_logger"
@@ -120,7 +122,7 @@ module Pakyow
         self.class.handle_event(:join, @env)
       end
 
-      def self.handle_event(event, env)
+      def self.handle_event(event, _env)
         event_handlers(event).each do |block|
           instance_exec(&block)
         end

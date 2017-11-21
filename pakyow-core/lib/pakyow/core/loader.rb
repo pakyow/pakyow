@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Pakyow
   class Loader
     def initialize(target, prefix, path)

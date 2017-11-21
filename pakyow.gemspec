@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require File.expand_path("../lib/pakyow/version", __FILE__)
 
 Gem::Specification.new do |spec|
@@ -17,20 +19,20 @@ Gem::Specification.new do |spec|
   spec.executables            = ["pakyow"]
   spec.required_ruby_version  = ">= 2.3.0"
 
-  spec.add_dependency("pakyow-support",   Pakyow::VERSION)
-  spec.add_dependency("pakyow-core",      Pakyow::VERSION)
-  spec.add_dependency("pakyow-presenter", Pakyow::VERSION)
-  spec.add_dependency("pakyow-mailer",    Pakyow::VERSION)
-  spec.add_dependency("pakyow-realtime",  Pakyow::VERSION)
-  spec.add_dependency("pakyow-ui",        Pakyow::VERSION)
-  spec.add_dependency("pakyow-rake",      Pakyow::VERSION)
-  spec.add_dependency("pakyow-test",      Pakyow::VERSION)
   spec.add_dependency("bundler",          "~> 1.13")
-  spec.add_dependency("thor",             "~> 0.19")
   spec.add_dependency("listen",           "~> 3.1")
+  spec.add_dependency("pakyow-core",      Pakyow::VERSION)
+  spec.add_dependency("pakyow-mailer",    Pakyow::VERSION)
+  spec.add_dependency("pakyow-presenter", Pakyow::VERSION)
+  spec.add_dependency("pakyow-rake",      Pakyow::VERSION)
+  spec.add_dependency("pakyow-realtime",  Pakyow::VERSION)
+  spec.add_dependency("pakyow-support",   Pakyow::VERSION)
+  spec.add_dependency("pakyow-test",      Pakyow::VERSION)
+  spec.add_dependency("pakyow-ui",        Pakyow::VERSION)
   spec.add_dependency("pastel",           "~> 0.7")
+  spec.add_dependency("thor",             "~> 0.19")
 
-  spec.add_development_dependency("rspec", "~> 3.5")
   spec.add_development_dependency("pry", "~> 0.10")
-  spec.add_development_dependency("rubocop", "~> 0.34")
+  spec.add_development_dependency("rspec", "~> 3.5")
+  spec.add_development_dependency("rubocop", "~> 0.51")
 end

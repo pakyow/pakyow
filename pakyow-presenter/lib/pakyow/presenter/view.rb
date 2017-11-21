@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "forwardable"
 
 require "pakyow/presenter/helpers"
@@ -86,7 +88,7 @@ module Pakyow
 
       def info(key = nil)
         return @info if key.nil?
-        return @info[key]
+        @info[key]
       end
 
       def add_info(*infos)
@@ -113,7 +115,7 @@ module Pakyow
         }
       end
 
-      def form(name)
+      def form(_name)
         if form_node = @object.find_significant_nodes(:form)[0]
           Form.new(object: form_node)
         else

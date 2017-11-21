@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "pakyow/support/configurable/config_option"
 require "pakyow/support/deep_dup"
 

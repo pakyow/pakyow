@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "pakyow/presenter/presenter"
 
 module Pakyow
@@ -55,11 +57,11 @@ module Pakyow
       end
 
       def options_for(field, options = nil)
-        create_select_options(field, options ||= yield)
+        create_select_options(field, options || yield)
       end
 
       def value_for(field, value = nil)
-        set_value(field, value ||= yield)
+        set_value(field, value || yield)
       end
 
       protected
@@ -102,25 +104,25 @@ module Pakyow
 
             # an array containing value/content
             if o.is_a?(Array)
-              node = Oga::XML::Element.new(name: 'option')
+              node = Oga::XML::Element.new(name: "option")
               node.inner_text = ensure_html_safety(o[1].to_s)
-              node.set('value', ensure_html_safety(o[0].to_s))
+              node.set("value", ensure_html_safety(o[0].to_s))
               option_nodes.children << node
               values.shift
             else # likely an object (e.g. string); start a group
-              node_group = Oga::XML::Element.new(name: 'optgroup')
-              node_group.set('label', ensure_html_safety(o.to_s))
+              node_group = Oga::XML::Element.new(name: "optgroup")
+              node_group.set("label", ensure_html_safety(o.to_s))
               option_nodes.children << node_group
 
               values.shift
 
-              values[0..-1].each_with_index { |o2,i2|
+              values[0..-1].each_with_index { |o2, _i2|
                 # starting a new group
                 throw :optgroup unless o2.is_a?(Array)
 
-                node = Oga::XML::Element.new(name: 'option')
+                node = Oga::XML::Element.new(name: "option")
                 node.inner_text = ensure_html_safety(o2[1].to_s)
-                node.set('value', ensure_html_safety(o2[0].to_s))
+                node.set("value", ensure_html_safety(o2[0].to_s))
                 node_group.children << node
                 values.shift
               }

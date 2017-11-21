@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Pakyow
   module Logger
     # Helpers for formatting time in log messages.

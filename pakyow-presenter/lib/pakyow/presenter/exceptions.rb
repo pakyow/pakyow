@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Pakyow
   module Presenter
     class FrontMatterParsingError < Error; end

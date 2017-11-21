@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 module Pakyow
   module TestHelp
     module Observable
-      #TODO a version of this exists in ViewContext; consider drying it up
+      # TODO a version of this exists in ViewContext; consider drying it up
       VIEW_CLASSES = [
         Pakyow::Presenter::View,
         Pakyow::Presenter::ViewCollection,
@@ -15,7 +17,7 @@ module Pakyow
         handle_value(observable.send(name, *args, &block))
       end
 
-      #TODO likely need to handle nested observations
+      # TODO likely need to handle nested observations
       def observing(scope, action, traversal, values)
         @observations ||= []
         @observations << {
@@ -40,7 +42,7 @@ module Pakyow
           return true
         end
 
-        return false
+        false
       end
 
       private

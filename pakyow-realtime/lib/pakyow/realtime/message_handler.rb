@@ -1,4 +1,6 @@
-require_relative 'exceptions'
+# frozen_string_literal: true
+
+require_relative "exceptions"
 
 module Pakyow
   module Realtime
@@ -25,11 +27,11 @@ module Pakyow
       #
       # @api private
       def self.handle(message, connection)
-        id = message.fetch('id') {
+        id = message.fetch("id") {
           fail ArgumentError, "Expected message to contain key 'id'"
         }
 
-        action = message.fetch('action') {
+        action = message.fetch("action") {
           fail ArgumentError, "Expected message to contain key 'action'"
         }
 

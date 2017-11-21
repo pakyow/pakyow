@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Pakyow
   class Mailer
     attr_accessor :view, :message, :processed
@@ -32,7 +34,7 @@ module Pakyow
       else
         encoding = @config.encoding
         @message.html_part do
-          content_type 'text/html; charset=' + encoding
+          content_type "text/html; charset=" + encoding
           body html
         end
 
@@ -43,11 +45,11 @@ module Pakyow
 
       @message.subject = subject if subject
 
-      Array(recipient).each {|r| deliver(r)}
+      Array(recipient).each { |r| deliver(r) }
     end
 
     def content(type = :html)
-      return process.fetch(type, nil)
+      process.fetch(type, nil)
     end
 
     protected
@@ -72,7 +74,7 @@ module Pakyow
         @processed = true
       end
 
-      return @processed_content
+      @processed_content
     end
 
     def deliver(recipient)

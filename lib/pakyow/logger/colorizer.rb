@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "pastel"
 
 module Pakyow
@@ -20,15 +22,15 @@ module Pakyow
         "FATAL" => :red
       }.freeze
 
-      COLOR_TABLE = [
-        :black,
-        :red,
-        :green,
-        :yellow,
-        :blue,
-        :magenta,
-        :cyan,
-        :white
+      COLOR_TABLE = %i[
+        black
+        red
+        green
+        yellow
+        blue
+        magenta
+        cyan
+        white
       ].freeze
 
       # Returns a color for a level of severity.

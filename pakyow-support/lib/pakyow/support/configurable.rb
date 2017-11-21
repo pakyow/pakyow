@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "pakyow/support/configurable/config"
 require "pakyow/support/configurable/config_group"
 require "pakyow/support/configurable/config_option"

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "forwardable"
 
 module Pakyow
@@ -24,7 +26,7 @@ module Pakyow
 
       def use(version)
         # TODO: handle no version found
-        set_version(version_named(version))
+        self.versioned_view = version_named(version)
       end
 
       def transform(data)
@@ -49,10 +51,10 @@ module Pakyow
       protected
 
       def determine_working_version
-        set_version(default_version || first_version)
+        self.versioned_view = default_version || first_version
       end
 
-      def set_version(view)
+      def versioned_view=(view)
         @object = view.object
         @working = view
         @version = view.version

@@ -1,4 +1,6 @@
-require_relative 'no_op_view'
+# frozen_string_literal: true
+
+require_relative "no_op_view"
 
 # Makes it possible to fetch a particular part of a view for a path. Calls a
 # route with all view actions becoming no-ops. Then a query is run against the
@@ -19,7 +21,7 @@ require_relative 'no_op_view'
 # - prop
 #
 Pakyow::Realtime.handler :'fetch-view' do |message, connection, response|
-  uri = URI.parse(message['uri'])
+  uri = URI.parse(message["uri"])
   env = Rack::MockRequest::DEFAULT_ENV.dup
 
   env[Rack::RACK_URL_SCHEME] = uri.scheme
@@ -27,11 +29,11 @@ Pakyow::Realtime.handler :'fetch-view' do |message, connection, response|
   env[Rack::QUERY_STRING] = uri.query
   env[Rack::REQUEST_METHOD] = Rack::GET
 
-  env['REQUEST_URI'] = message['uri']
-  env['REMOTE_ADDR'] = connection.env['REMOTE_ADDR']
-  env['HTTP_X_FORWARDED_FOR'] = connection.env['HTTP_X_FORWARDED_FOR']
+  env["REQUEST_URI"] = message["uri"]
+  env["REMOTE_ADDR"] = connection.env["REMOTE_ADDR"]
+  env["HTTP_X_FORWARDED_FOR"] = connection.env["HTTP_X_FORWARDED_FOR"]
 
-  env['rack.session'] = connection.env['rack.session']
+  env["rack.session"] = connection.env["rack.session"]
 
   context = Pakyow::CallContext.new(env)
 
@@ -44,14 +46,14 @@ Pakyow::Realtime.handler :'fetch-view' do |message, connection, response|
 
   app_response = context.process.finish
 
-  body = ''
-  lookup = message['lookup']
+  body = ""
+  lookup = message["lookup"]
   view = context.presenter.view
 
-  channel = lookup['channel']
+  channel = lookup["channel"]
 
   if channel
-    unqualified_channel = channel.split('::')[0]
+    unqualified_channel = channel.split("::")[0]
     view_for_channel = view.composed.doc.channel(unqualified_channel)
 
     if view_for_channel
@@ -60,12 +62,12 @@ Pakyow::Realtime.handler :'fetch-view' do |message, connection, response|
     end
   else
     lookup.each_pair do |key, value|
-      next if key == 'version'
+      next if key == "version"
       view = view.send(key.to_sym, value.to_sym)
     end
 
     if view.is_a?(Pakyow::Presenter::ViewVersion)
-      body = view.use((lookup['version'] || :default).to_sym).to_html
+      body = view.use((lookup["version"] || :default).to_sym).to_html
     else
       body = view.to_html
     end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "pakyow/support/silenceable"
 require "pakyow/support/inspectable"
 
@@ -65,9 +67,9 @@ module Pakyow
       def initialize_copy(original)
         super
 
-        @nodes = @nodes.map(&:dup).each do |node|
+        @nodes = @nodes.map(&:dup).each { |node|
           node.instance_variable_set(:@parent, self)
-        end
+        }
 
         @significant = {}
       end
@@ -76,10 +78,10 @@ module Pakyow
         return @significant[type] if @significant[type]
 
         significant_nodes = if with_children
-                              nodes.map(&:with_children).flatten
-                            else
-                              nodes.dup
-                            end
+          nodes.map(&:with_children).flatten
+        else
+          nodes.dup
+        end
 
         @significant[type] = significant_nodes.select { |node|
           node.type == type
@@ -126,8 +128,8 @@ module Pakyow
 
       alias :to_s :to_html
 
-      def ==(comparison)
-        comparison.is_a?(StringDoc) && nodes == comparison.nodes
+      def ==(other)
+        other.is_a?(StringDoc) && nodes == other.nodes
       end
 
       def string_nodes
@@ -172,12 +174,12 @@ module Pakyow
           end
 
           node = if significant_object
-                   build_significant_node(element, significant_object)
-                 elsif element.is_a?(Oga::XML::Text) || element.is_a?(Oga::XML::Comment)
-                   StringNode.new([element.to_xml, StringAttributes.new, []])
-                 else
-                   StringNode.new(["<#{element.name}#{self.class.attributes_string(element)}", ""])
-                 end
+            build_significant_node(element, significant_object)
+          elsif element.is_a?(Oga::XML::Text) || element.is_a?(Oga::XML::Comment)
+            StringNode.new([element.to_xml, StringAttributes.new, []])
+          else
+            StringNode.new(["<#{element.name}#{self.class.attributes_string(element)}", ""])
+          end
 
           if element.is_a?(Oga::XML::Element)
             node.close(element.name, parse(element))

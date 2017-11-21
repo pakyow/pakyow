@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "singleton"
 
 module Pakyow
@@ -65,7 +67,7 @@ module Pakyow
 
         # NOTE: Propagated message should be a pushable object (e.g. json).
         channels.each do |channel_query|
-          connections_for_channel(channel_query).each_pair do |channel, conns|
+          connections_for_channel(channel_query).each_pair do |_channel, conns|
             conns.each do |connection|
               connection.write(message)
             end

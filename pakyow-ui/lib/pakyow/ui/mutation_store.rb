@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Pakyow
   module UI
     # Stores mutations that have occurred in the configured registry.

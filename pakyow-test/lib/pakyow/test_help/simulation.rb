@@ -1,4 +1,6 @@
-require 'forwardable'
+# frozen_string_literal: true
+
+require "forwardable"
 
 module Pakyow
   module TestHelp
@@ -18,18 +20,18 @@ module Pakyow
 
       def redirected?(to: nil, as: nil)
         return false unless REDIRECT_STATUSES.include?(response.status)
-        return false unless response.headers.key?('Location')
+        return false unless response.headers.key?("Location")
 
         unless to.nil?
           path = router.path(to)
-          return false if response.headers['Location'] != path
+          return false if response.headers["Location"] != path
         end
 
         unless as.nil?
           return status == as
         end
 
-        return true
+        true
       end
 
       def rerouted?(to: nil)
@@ -39,7 +41,7 @@ module Pakyow
           return request.path == router.path(to)
         end
 
-        return true
+        true
       end
 
       def subscribed?(to: nil)
@@ -59,7 +61,7 @@ module Pakyow
       end
 
       def log
-        app.request.env['rack.logger']
+        app.request.env["rack.logger"]
       end
 
       private

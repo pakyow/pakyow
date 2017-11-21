@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Pakyow
   # Processes a request received by an application.
   #

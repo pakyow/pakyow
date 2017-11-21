@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Pakyow
   module UI
     # Adds metadata to a dataset returned by a Mutable query.

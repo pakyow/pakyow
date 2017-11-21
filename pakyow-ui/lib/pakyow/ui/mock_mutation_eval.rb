@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Pakyow
   module Presenter
     # Used by NoOpView to perform mutations in a no-op manner.

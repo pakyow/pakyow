@@ -1,4 +1,6 @@
-require_relative 'mock_mutation_eval'
+# frozen_string_literal: true
+
+require_relative "mock_mutation_eval"
 
 module Pakyow
   module Presenter

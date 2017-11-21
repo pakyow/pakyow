@@ -1,4 +1,6 @@
-require_relative 'mutable_data'
+# frozen_string_literal: true
+
+require_relative "mutable_data"
 
 # TODO: make it possible to register this as data instead of mutables
 

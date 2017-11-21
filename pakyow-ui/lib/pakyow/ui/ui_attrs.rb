@@ -1,4 +1,6 @@
-require_relative 'ui_instructable'
+# frozen_string_literal: true
+
+require_relative "ui_instructable"
 
 module Pakyow
   module UI

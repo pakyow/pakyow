@@ -1,1 +1,3 @@
-require 'pakyow/rake'
+# frozen_string_literal: true
+
+require "pakyow/rake"

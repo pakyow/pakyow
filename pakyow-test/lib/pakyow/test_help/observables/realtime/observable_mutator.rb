@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Pakyow
   module TestHelp
     module Realtime
@@ -46,7 +48,7 @@ module Pakyow
             end
           end
 
-          return false
+          false
         end
 
         def subscribed?(observable_view)
@@ -54,7 +56,7 @@ module Pakyow
             return true if mutation[:context].subscribed? && mutation[:view].subject.observable == observable_view.observable
           end
 
-          return false
+          false
         end
       end
 

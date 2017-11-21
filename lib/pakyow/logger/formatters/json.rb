@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "json"
 
 require "pakyow/logger/formatters/base"
@@ -14,7 +16,7 @@ module Pakyow
     #
     # @api private
     class JSONFormatter < BaseFormatter
-      def call(severity, datetime, progname, message)
+      def call(severity, datetime, progname, _message)
         message = super
         message = format_message(message)
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "bundler/setup"
 require "pakyow/integrations/bundler"
 require "pakyow/integrations/dotenv"

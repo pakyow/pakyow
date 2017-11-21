@@ -1,7 +1,9 @@
-require_relative 'ui_attrs'
-require_relative 'ui_instructable'
-require_relative 'ui_context'
-require_relative 'ui_request'
+# frozen_string_literal: true
+
+require_relative "ui_attrs"
+require_relative "ui_instructable"
+require_relative "ui_context"
+require_relative "ui_request"
 
 module Pakyow
   module UI

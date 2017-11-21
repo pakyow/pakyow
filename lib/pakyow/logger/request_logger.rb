@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "securerandom"
 require "logger"
 
@@ -68,11 +70,11 @@ module Pakyow
       #
       def prologue(env)
         info(prologue: {
-            time: start,
-            method: env[Rack::REQUEST_METHOD],
-            uri: env[REQUEST_URI],
-            ip: Request.new(env).ip
-          })
+               time: start,
+               method: env[Rack::REQUEST_METHOD],
+               uri: env[REQUEST_URI],
+               ip: Request.new(env).ip
+             })
       end
 
       # Logs the conclusion of a request, including the response status.
@@ -81,8 +83,8 @@ module Pakyow
       #
       def epilogue(res)
         info(epilogue: {
-            status: res[0]
-          })
+               status: res[0]
+             })
       end
 
       # Logs a problem encountered during the request, including the error
@@ -92,10 +94,10 @@ module Pakyow
       #
       def houston(error)
         error(error: {
-            exception: error.class,
-            message: error.to_s,
-            backtrace: error.backtrace
-          })
+                exception: error.class,
+                message: error.to_s,
+                backtrace: error.backtrace
+              })
       end
 
       private

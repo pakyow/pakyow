@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "pakyow/support/aargv"
 require "pakyow/support/array"
 
@@ -313,6 +315,7 @@ module Pakyow
       #   end
       #
       # @api public
+      # rubocop:disable Naming/MethodName
       def Router(matcher, before: [], after: [], around: [])
         Class.new(self) do
           @path = path_from_matcher(matcher)
@@ -320,6 +323,7 @@ module Pakyow
           @hooks = { before: before, after: after, around: around }
         end
       end
+      # rubocop:enabled Naming/MethodName
 
       # Create a default route. Shorthand for +get "/"+.
       #

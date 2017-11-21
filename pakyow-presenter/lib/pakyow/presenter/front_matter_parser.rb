@@ -1,15 +1,16 @@
+# frozen_string_literal: true
+
 module Pakyow
   module Presenter
     # Parses front matter from text files.
     #
     # @api private
     module FrontMatterParser
-
       MATTER_MATCHER = /\A---\s*\n(.*?\n?)^---\s*$\n?/m
 
       # Parses HTML and returns a hash of front matter info
       #
-      def self.parse(html_string, file = nil)
+      def self.parse(html_string, _file = nil)
         match = html_string.match(MATTER_MATCHER)
         return {} unless match
 
@@ -26,7 +27,7 @@ module Pakyow
       # Returns HTML with front matter removed
       #
       def self.scrub(html_string)
-        html_string.gsub(MATTER_MATCHER, '')
+        html_string.gsub(MATTER_MATCHER, "")
       end
 
       # Parses HTML and returns:

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "pakyow/support/configurable"
 require "pakyow/support/definable"
 require "pakyow/support/hookable"
@@ -262,7 +264,7 @@ module Pakyow
       end
 
       if config.protection.enabled
-        builder.use(Rack::Protection, except: config.session.enabled ? [] : [:session_hijacking, :remote_token])
+        builder.use(Rack::Protection, except: config.session.enabled ? [] : %i[session_hijacking remote_token])
       end
     end
 

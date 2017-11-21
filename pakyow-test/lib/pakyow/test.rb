@@ -1,29 +1,31 @@
-require 'pakyow/support'
-require 'pakyow/core'
-require 'pakyow/presenter'
-require 'pakyow/mailer'
-require 'pakyow/realtime'
-require 'pakyow/ui'
+# frozen_string_literal: true
 
-require 'pakyow/test_help/ext/request'
-require 'pakyow/test_help/ext/response'
+require "pakyow/support"
+require "pakyow/core"
+require "pakyow/presenter"
+require "pakyow/mailer"
+require "pakyow/realtime"
+require "pakyow/ui"
 
-require 'pakyow/test_help/mocks/presenter_mock'
-require 'pakyow/test_help/mocks/status_mock'
+require "pakyow/test_help/ext/request"
+require "pakyow/test_help/ext/response"
 
-require 'pakyow/test_help/observables/observable_presenter'
-require 'pakyow/test_help/observables/observable_view'
-require 'pakyow/test_help/observables/observable_logger'
-require 'pakyow/test_help/observables/realtime/observable_context'
-require 'pakyow/test_help/observables/realtime/observable_mutator'
+require "pakyow/test_help/mocks/presenter_mock"
+require "pakyow/test_help/mocks/status_mock"
 
-require 'pakyow/test_help/helpers'
-require 'pakyow/test_help/simulator'
-require 'pakyow/test_help/simulation'
+require "pakyow/test_help/observables/observable_presenter"
+require "pakyow/test_help/observables/observable_view"
+require "pakyow/test_help/observables/observable_logger"
+require "pakyow/test_help/observables/realtime/observable_context"
+require "pakyow/test_help/observables/realtime/observable_mutator"
+
+require "pakyow/test_help/helpers"
+require "pakyow/test_help/simulator"
+require "pakyow/test_help/simulation"
 
 module Pakyow
   module TestHelp
-    def self.setup(path = './app/setup')
+    def self.setup(path = "./app/setup")
       require path
 
       Pakyow::CallContext.after :match do
@@ -34,7 +36,7 @@ module Pakyow
         Pakyow::TestHelp::Realtime::ObservableMutator.instance.reset
       end
 
-      Pakyow::App.stage(ENV['TEST_ENV'] || :test)
+      Pakyow::App.stage(ENV["TEST_ENV"] || :test)
     end
   end
 end

@@ -1,56 +1,221 @@
-inherit_from: .rubocop_todo.yml
-
 AllCops:
   TargetRubyVersion: 2.4
-
+  DisabledByDefault: true
   Exclude:
     - 'bin/**/*'
-    - 'vendor/**/*'
+    - '**vendor/**/*'
     - '**/spec/**/*'
-    - 'pakyow-mailer/**/*'
-    - 'pakyow-presenter/**/*'
-    - 'pakyow-rake/**/*'
-    - 'pakyow-realtime/**/*'
-    - 'pakyow-support/**/*'
-    - 'pakyow-test/**/*'
-    - 'pakyow-ui/**/*'
+    - 'pakyow-mailer/lib/pakyow/mailer/ext/premailer/adapter/oga.rb'
   DisplayCopNames: true
 
-BlockDelimiters:
-  EnforcedStyle: semantic
+Layout/CaseIndentation:
+  Enabled: true
+  EnforcedStyle: end
 
-Lint/AssignmentInCondition:
-  Enabled: false
+Layout/CommentIndentation:
+  Enabled: true
 
-Metrics:
-  Enabled: false
+Layout/EmptyLineAfterMagicComment:
+  Enabled: true
 
-Style/StringLiterals:
-  EnforcedStyle: double_quotes
+Layout/EmptyLinesAroundClassBody:
+  Enabled: true
+
+Layout/EmptyLinesAroundMethodBody:
+  Enabled: true
+
+Layout/EmptyLinesAroundModuleBody:
+  Enabled: true
+
+Layout/FirstParameterIndentation:
+  Enabled: true
+
+Layout/IndentationConsistency:
+  Enabled: true
+
+Layout/IndentationWidth:
+  Enabled: true
+
+Layout/SpaceAfterColon:
+  Enabled: true
+
+Layout/SpaceAfterComma:
+  Enabled: true
+
+Layout/SpaceAroundEqualsInParameterDefault:
+  Enabled: true
+
+Layout/SpaceAroundKeyword:
+  Enabled: true
+
+Layout/SpaceAroundOperators:
+  Enabled: true
+
+Layout/SpaceBeforeFirstArg:
+  Enabled: true
+
+Layout/Tab:
+  Enabled: true
+
+Layout/TrailingBlankLines:
+  Enabled: true
+
+Layout/TrailingWhitespace:
+  Enabled: true
+
+Layout/SpaceBeforeBlockBraces:
+  Enabled: true
+
+Layout/SpaceInsideBlockBraces:
+  Enabled: true
+
+Layout/SpaceInsideHashLiteralBraces:
+  Enabled: true
+
+Layout/SpaceInsideParens:
+  Enabled: true
+
+Layout/AccessModifierIndentation:
+  Enabled: true
+
+Layout/AlignArray:
+  Enabled: true
+
+Layout/AlignHash:
+  Enabled: true
+
+Layout/BlockEndNewline:
+  Enabled: true
+
+Layout:
+  Enabled: true
+
+Lint/EndAlignment:
+  Enabled: true
+  EnforcedStyleAlignWith: variable
+
+Lint/RequireParentheses:
+  Enabled: true
+
+Lint/AmbiguousBlockAssociation:
+  Enabled: true
+
+Lint/AmbiguousOperator:
+  Enabled: true
+
+Lint/AmbiguousRegexpLiteral:
+  Enabled: true
+
+Lint/BlockAlignment:
+  Enabled: true
+
+Lint/Debugger:
+  Enabled: true
+
+Lint/DefEndAlignment:
+  Enabled: true
+
+Lint/DuplicateCaseCondition:
+  Enabled: true
+
+Lint/ConditionPosition:
+  Enabled: true
+
+Lint/EachWithObjectArgument:
+  Enabled: true
+
+Lint/EmptyExpression:
+  Enabled: true
+
+Lint/EmptyInterpolation:
+  Enabled: true
+
+Lint/EnsureReturn:
+  Enabled: true
+
+Lint/HandleExceptions:
+  Enabled: true
+
+Lint/InheritException:
+  Enabled: true
+
+Lint/RescueException:
+  Enabled: true
+
+Lint/ShadowedException:
+  Enabled: true
+
+Lint/UnderscorePrefixedVariableName:
+  Enabled: true
+
+Lint/UnusedBlockArgument:
+  Enabled: true
+
+Lint/UnusedMethodArgument:
+  Enabled: true
+
+Lint/UselessAssignment:
+  Enabled: true
+
+Style/MethodDefParentheses:
+  Enabled: true
 
 Style/FrozenStringLiteralComment:
-  Enabled: false
+  Enabled: true
+  EnforcedStyle: always
 
-Style/AsciiComments:
-  Enabled: false
+Style/StringLiterals:
+  Enabled: true
+  EnforcedStyle: double_quotes
 
-Style/IndentHash:
-  Enabled: false
+Style/UnneededPercentQ:
+  Enabled: true
 
-Style/CaseIndentation:
-  Enabled: false
-
-Style/FormatString:
-  Enabled: false
-
-Style/RegexpLiteral:
-  Enabled: false
-
-Style/MethodName:
-  Enabled: false
-
-Style/ParallelAssignment:
-  Enabled: false
+Style/RedundantReturn:
+  Enabled: true
+  AllowMultipleReturnValues: true
 
 Style/Semicolon:
-  Enabled: false
+  Enabled: true
+  AllowAsExpressionSeparator: true
+
+Style/AndOr:
+  Enabled: true
+
+Style/BracesAroundHashParameters:
+  Enabled: true
+  EnforcedStyle: context_dependent
+
+Style/AlignParameters:
+  Enabled: true
+
+Style/HashSyntax:
+  Enabled: true
+
+Style/BlockDelimiters:
+  Enabled: true
+  EnforcedStyle: semantic
+
+Style/VariableInterpolation:
+  Enabled: true
+
+Style/SymbolArray:
+  Enabled: true
+
+Style/WordArray:
+  Enabled: true
+
+Style/SymbolLiteral:
+  Enabled: true
+
+Style/SymbolProc:
+  Enabled: true
+
+Gemspec:
+  Enabled: true
+
+Bundler:
+  Enabled: true
+
+Naming:
+  Enabled: true

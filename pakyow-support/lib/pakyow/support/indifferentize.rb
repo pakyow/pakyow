@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Pakyow
   module Support
     # Creates a Hash-like object can access stored data with symbol or
@@ -21,7 +23,7 @@ module Pakyow
     class IndifferentHash < SimpleDelegator
       class << self
         def deep(hash)
-          pairs = hash.to_h.each_pair.map do |key, value|
+          pairs = hash.to_h.each_pair.map { |key, value|
             case value
             when Hash
               value = deep(value)
@@ -29,7 +31,7 @@ module Pakyow
               value = value.map { |value_item| deep(value_item) }
             end
             [key, value]
-          end
+          }
 
           self.new(Hash[pairs])
         end
@@ -48,9 +50,9 @@ module Pakyow
         def indifferent_multi_key_method(*methods)
           methods.each do |name|
             define_method(name) do |*keys, &block|
-              keys = keys.map do |key|
+              keys = keys.map { |key|
                 convert_key(key)
-              end
+              }
               internal_hash.public_send(name, *keys, &block)
             end
           end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "pakyow/version"
 require "pakyow/logger/colorizer"
 
@@ -59,9 +61,9 @@ module Pakyow
 
       def start_process
         if Process.respond_to?(:fork)
-          @pid = Process.fork do
+          @pid = Process.fork {
             start_server
-          end
+          }
         else
           @pid = Process.spawn("bundle exec pakyow server --no-reload")
         end
@@ -89,14 +91,14 @@ module Pakyow
       end
 
       def watch_for_changes
-        listener = Listen.to(".") do |modified, added, removed|
+        listener = Listen.to(".") { |modified, _added, _removed|
           modified.each do |path|
             path = path.split(File.expand_path(".") + "/", 2)[1]
             self.class.change_callbacks(path).each(&:call)
           end
 
           restart_process
-        end
+        }
 
         listener.start
       end

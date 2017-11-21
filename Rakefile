@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "pakyow/version"
 
 GEMS = %i(
@@ -30,14 +32,14 @@ task :test do
 end
 
 namespace :release do
-  desc 'Remove the gems'
+  desc "Remove the gems"
   task :clean do
     system "rm *.gem"
   end
 
-  desc 'Create the gems'
-  task :build => [:clean] do
-    system 'gem build pakyow.gemspec'
+  desc "Create the gems"
+  task build: [:clean] do
+    system "gem build pakyow.gemspec"
 
     GEMS.each do |gem|
       puts
@@ -45,8 +47,8 @@ namespace :release do
     end
   end
 
-  desc 'Create and install the gems'
-  task :install => [:build] do
+  desc "Create and install the gems"
+  task install: [:build] do
     GEMS.each do |gem|
       puts
       system "gem install #{gem}-#{Pakyow::VERSION}.gem"
@@ -56,8 +58,8 @@ namespace :release do
     system "gem install pakyow-#{Pakyow::VERSION}.gem"
   end
 
-  desc 'Create and publish the gems'
-  task :publish => [:build] do
+  desc "Create and publish the gems"
+  task publish: [:build] do
     puts
     puts "\033[31mAre you sure you want to publish ze gems? There's no going back!"
     puts "Enter the current version number to continue...\033[0m"
@@ -66,7 +68,7 @@ namespace :release do
     puts
 
     if input == Pakyow::VERSION
-      gems = GEMS.map { |gem| "#{gem}-#{Pakyow::VERSION}.gem"}
+      gems = GEMS.map { |gem| "#{gem}-#{Pakyow::VERSION}.gem" }
 
       # add pakyow last
       gems << "pakyow-#{Pakyow::VERSION}.gem"
@@ -81,7 +83,7 @@ namespace :release do
     end
   end
 
-  desc 'Create a tag for the current version'
+  desc "Create a tag for the current version"
   task :tag do
     `git tag -a v#{Pakyow::VERSION} -m 'Pakyow #{Pakyow::VERSION}'`
   end

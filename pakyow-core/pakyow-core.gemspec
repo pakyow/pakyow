@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require File.expand_path("../../lib/pakyow/version", __FILE__)
 lib_path = File.exist?("pakyow-core") ? "pakyow-core" : "."
 

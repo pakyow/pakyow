@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "pakyow/logger/formatters/base"
 require "pakyow/logger/colorizer"
 require "pakyow/logger/timekeeper"
@@ -14,7 +16,7 @@ module Pakyow
     #
     # @api private
     class DevFormatter < BaseFormatter
-      def call(severity, datetime, progname, message)
+      def call(severity, datetime, progname, _message)
         message = format_message(super)
         Colorizer.colorize(format(message), severity)
       end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "irb"
 require "rack"
 require "logger"
@@ -237,10 +239,10 @@ module Pakyow
 
           builder.map path do
             app_instance = if defined?(Pakyow::App) && mount[:app].ancestors.include?(Pakyow::App)
-                             mount[:app].new(env, builder: self, &mount[:block])
-                           else
-                             mount[:app].new
-                           end
+              mount[:app].new(env, builder: self, &mount[:block])
+            else
+              mount[:app].new
+            end
 
             builder_local_apps << app_instance
 

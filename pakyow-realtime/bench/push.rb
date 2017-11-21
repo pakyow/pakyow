@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 require "websocket-client-simple"
 require "httparty"
 require "benchmark"
 require "pakyow/core"
 require "pakyow/realtime"
 
-ENV['SESSION_SECRET'] = '123'
+ENV["SESSION_SECRET"] = "123"
 HOST = "localhost"
 
 N_CONNS = 1_000
@@ -20,7 +22,7 @@ processes = []
 
 begin
   N_APPS.times do |n_app|
-    processes << Process.fork do
+    processes << Process.fork {
       Pakyow::App.define do
         configure do
           server.port = PORT_START + n_app
@@ -31,12 +33,12 @@ begin
         routes do
           CHANNELS = 10.times.map { |n| "channel_#{n}" }
 
-          get 'sub' do
+          get "sub" do
             socket.subscribe(CHANNELS)
             send socket_connection_id
           end
-          
-          post 'pub/:msg' do
+
+          post "pub/:msg" do
             msg = { msg: params[:msg] }
             chan = CHANNELS.sample
 
@@ -52,7 +54,7 @@ begin
       end
 
       Pakyow::App.run(:production)
-    end
+    }
   end
 
   class WebSocketClient
@@ -62,8 +64,8 @@ begin
       @cookie = res.headers["set-cookie"]
 
       if ws = socket
-        ws.on :message do |msg|
-          $wr << '.'
+        ws.on :message do |_msg|
+          $wr << "."
         end
 
         ws.on :open do
@@ -86,9 +88,9 @@ begin
     private
 
     def socket
-      @socket ||= WebSocket::Client::Simple.connect("ws://" + HOST + ":#{port}/?socket_connection_id=#{@key}", headers: { 'COOKIE' => @cookie })
+      @socket ||= WebSocket::Client::Simple.connect("ws://" + HOST + ":#{port}/?socket_connection_id=#{@key}", headers: { "COOKIE" => @cookie })
     end
-    
+
     def port
       PORT_START + (0..(N_APPS - 1)).to_a.sample
     end
@@ -99,19 +101,19 @@ begin
 
   # create clients
   (N_CONNS / N_CONNS_PER_PROCESS).times do
-    processes << Process.fork do
+    processes << Process.fork {
       clients = []
 
       N_CONNS_PER_PROCESS.times do
         clients << WebSocketClient.new
       end
-      
+
       sleep
-    end
+    }
   end
 
   # wait for all clients to connect
-  puts 'wait'
+  puts "wait"
   sleep 15
 
   # push messages
@@ -120,23 +122,23 @@ begin
     HTTParty.post("http://" + File.join(HOST + ":#{PORT_START}", "pub", "hello"))
   end
   puts b
-  
+
   puts "Waiting for message receipts:"
   b = Benchmark.measure do
     total = 0
     loop do
       begin
-         total += $rd.read_nonblock(4096).length
+        total += $rd.read_nonblock(4096).length
       rescue IO::WaitReadable
         IO.select([$rd])
         retry
       end
-      
+
       break if total == N_CONNS * N_MSGS
     end
   end
   puts b
-  puts 'DONE'
+  puts "DONE"
 ensure
   processes.each do |process|
     Process.kill("TERM", process)
