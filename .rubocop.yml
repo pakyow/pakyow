@@ -87,6 +87,9 @@ Layout/AlignHash:
 Layout/BlockEndNewline:
   Enabled: true
 
+Layout/AlignParameters:
+  Enabled: true
+
 Layout:
   Enabled: true
 
@@ -185,9 +188,6 @@ Style/AndOr:
 Style/BracesAroundHashParameters:
   Enabled: true
   EnforcedStyle: context_dependent
-
-Style/AlignParameters:
-  Enabled: true
 
 Style/HashSyntax:
   Enabled: true
