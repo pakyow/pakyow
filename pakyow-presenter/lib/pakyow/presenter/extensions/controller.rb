@@ -28,19 +28,7 @@ module Pakyow
 
         if current_router
           current_router.presentables.each do |name, opts|
-            if opts.key?(:value)
-              value = opts[:value]
-            elsif opts.key?(:method_name)
-              begin
-                value = current_router.__send__(opts[:method_name])
-              rescue NoMethodError
-                fail "could not find presentable state for `#{opts[:method_name]}' on #{current_router}"
-              end
-            else
-              value = current_router.instance_exec(&opts[:block]) if opts[:block]
-              value = opts[:default_value] unless value
-            end
-
+            value = value_for_presentable(opts)
             @current_presenter.define_singleton_method name do
               value
             end
@@ -54,7 +42,6 @@ module Pakyow
         else
           halt StringIO.new(@current_presenter.view.to_html(clean: false))
         end
-
       elsif found? # matched a route, but couldn't find a view to present
         raise Presenter::MissingView.new("No view at path `#{path}'")
       end
@@ -100,6 +87,23 @@ module Pakyow
       }.join("/")
 
       nil
+    end
+
+    def value_for_presentable(opts)
+      if opts.key?(:value)
+        value = opts[:value]
+      elsif opts.key?(:method_name)
+        begin
+          value = current_router.__send__(opts[:method_name])
+        rescue NoMethodError
+          fail "could not find presentable state for `#{opts[:method_name]}' on #{current_router}"
+        end
+      else
+        value = current_router.instance_exec(&opts[:block]) if opts[:block]
+        value = opts[:default_value] unless value
+      end
+
+      value
     end
   end
 end
