@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "pakyow/support/class_maker"
 
 module Pakyow
@@ -11,9 +13,17 @@ module Pakyow
         @relation = relation
       end
 
-      def method_missing(method_name, *args)
+      def name
+        self.class.name
+      end
+
+      def qualifications(query_name)
+        self.class.qualifications(query_name)
+      end
+
+      def method_missing(method_name, *args, &block)
         if @relation.respond_to?(method_name)
-          @relation.send(method_name, *args)
+          @relation.send(method_name, *args, &block)
         else
           super
         end
@@ -29,59 +39,37 @@ module Pakyow
       #   * using plugins, if that's a thing to support
 
       def command?(maybe_command_name)
-        [:create, :update, :delete].include?(maybe_command_name)
+        %i[create update delete].include?(maybe_command_name)
       end
 
       def create(values)
         values[:created_at] ||= Time.now
         values[:updated_at] ||= Time.now
-        command(:create).call(values)
+
+        command(:create).call(values, result: :one)
       end
 
       def update(values)
-        command(:update).call(values)
+        command(:update, result: :many).call(values)
       end
 
       def delete
-        command(:delete).call
+        command(:delete, result: :many).call
       end
 
       def all
         @relation.to_a
       end
 
-      # TODO: trigger mutations on the right objects
-      # pass the mutated data to the mutation callback
-      # this way we know exactly what changed
-      #
-      # how will ui know how to qualify the subscription?
-      # could we do it purely based on presentable ids?
-      # if we cache the results of a query, then yes
-      #
-      # problem is it doesn't always work... for example
-      # if present a limited number of objects we'd update
-      # when one of them changed, but not when the set did
-      # e.g. presenting only the first post on the homepage
-      # when a new post is published, it should change
+      def by_id(id)
+        @relation.by_pk(id)
+      end
 
       class << self
         attr_reader :name, :adapter, :connection
 
         def make(name, adapter: nil, connection: :default, state: nil, parent: nil, &block)
-          klass, name = class_const_for_name(::Class.new(self), name)
-
-          klass.class_eval do
-            @name = name
-            @state = state
-            @adapter = adapter
-            @connection = connection
-
-            # TODO: find a pattern for this:
-            @attributes = {}
-            class_eval(&block) if block
-          end
-
-          klass
+          super(name, state: state, parent: parent, adapter: adapter, connection: connection, attributes: {}, &block)
         end
 
         # TODO: default values?
@@ -126,6 +114,14 @@ module Pakyow
 
         def _dataset
           @dataset
+        end
+
+        def subscribe(query_name, qualifications)
+          (@qualifications ||= {})[query_name] = qualifications
+        end
+
+        def qualifications(query_name)
+          @qualifications&.dig(query_name) || {}
         end
       end
     end

@@ -1,6 +1,7 @@
+# frozen_string_literal: true
+
 module Pakyow
   class << self
-    attr_reader :data_model_lookup
     attr_reader :database_containers
   end
 
@@ -13,13 +14,18 @@ module Pakyow
   settings_for :data do
     setting :default_adapter, :sql
     setting :logging, false
+
+    setting :subscription_adapter, :memory
+    setting :subscription_adapter_options, {}
+
+    defaults :production do
+      setting :subscription_adapter, :redis
+      setting :subscription_adapter_options, redis_url: "redis://127.0.0.1:6379",
+                                             redis_prefix: "pw"
+    end
   end
 
   after :boot do
-    model_instances = {}
-
-    # TODO: we need to store and lookup models by app to avoid collisions
-
     @database_containers = Pakyow::Data::CONNECTION_TYPES.each_with_object({}) { |adapter_type, adapter_containers|
       connection_strings = Pakyow.config.connections.public_send(adapter_type)
       next if connection_strings.empty?
@@ -62,18 +68,7 @@ module Pakyow
 
         # TODO: make this a config variable (e.g. do it only in development)
         config.gateways[:default].auto_migrate!(config, inline: true)
-
-        models.each do |model|
-          next if model.attributes.empty?
-          next if model_instances.key?(model.name)
-          model_instances[model.name] = model.new(named_containers[name].relations[model.name])
-        end
-        # unless model_instances.key?(model.name)
-        #     model_instances[model.name] = model.new(relation.new(relation.dataset))
-        #   end
       end
     }
-
-    @data_model_lookup = Data::Lookup.new(model_instances)
   end
 end

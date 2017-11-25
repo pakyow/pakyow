@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "pakyow/data/validator"
 
 require "forwardable"
@@ -105,8 +107,8 @@ module Pakyow
         }
       end
 
-      def >>(to)
-        to.new(@values)
+      def >>(other)
+        other.new(@values)
       end
     end
   end
