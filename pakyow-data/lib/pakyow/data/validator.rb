@@ -28,16 +28,21 @@ module Pakyow
         end
       end
 
+      attr_reader :errors
+
       def initialize(value)
         @value = value
+        @errors = []
       end
 
       def valid?
         self.class.validations.each do |validation, options|
-          return false unless Validator.validation_object_for(validation).valid?(@value, *options)
+          unless Validator.validation_object_for(validation).valid?(@value, *options)
+            @errors << validation
+          end
         end
 
-        true
+        @errors.empty?
       end
     end
   end

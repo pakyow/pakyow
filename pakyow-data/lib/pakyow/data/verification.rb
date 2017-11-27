@@ -4,13 +4,12 @@ require "pakyow/data/verifier"
 
 module Pakyow
   class InvalidData < Error
-    # TODO: what should this expose? we want both schema processing and validation errors
-    # attr_reader :validator
+    attr_reader :verifier
 
-    # def initialize(validator = nil)
-    #   @validator = validator
-    #   super
-    # end
+    def initialize(verifier = nil)
+      @verifier = verifier
+      super
+    end
   end
 
   module Data
@@ -26,7 +25,7 @@ module Pakyow
         verifier.instance_exec(&block)
 
         verifier_instance = verifier.new(object_to_verify)
-        verifier_instance.verify? || raise(InvalidData.new)
+        verifier_instance.verify? || raise(InvalidData.new(verifier_instance))
       end
 
       module ClassMethods

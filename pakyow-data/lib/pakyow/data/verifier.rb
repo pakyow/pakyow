@@ -75,9 +75,11 @@ module Pakyow
         end
       end
 
-      attr_reader :values
+      attr_reader :validator, :values, :errors
 
       def initialize(input)
+        input ||= {}
+
         if should_sanitize?(input)
           @values = self.class.sanitize(input)
         end
@@ -85,18 +87,29 @@ module Pakyow
         if should_validate?(input)
           @validator = self.class.validator.new(input)
         end
+
+        @errors = {}
       end
 
       def verify?
         self.class.required_keys.each do |required_key|
-          return false if @values[required_key].nil?
+          if @values[required_key].nil?
+            (@errors[required_key] ||= []) << :required
+          end
 
           if verifier_for_key = self.class.verifiers_by_key[required_key]
-            return false unless verifier_for_key.new(@values[required_key]).verify?
+            verifier_instance_for_key = verifier_for_key.new(@values[required_key])
+            unless verifier_instance_for_key.verify?
+              if verifier_instance_for_key.validating?
+                (@errors[required_key] ||= []).concat(verifier_instance_for_key.validator.errors)
+              else
+                @errors[required_key] = verifier_instance_for_key.errors
+              end
+            end
           end
         end
 
-        (validating? && @validator.valid?) || !validating?
+        @errors.empty? && (!validating? || (validating? && @validator.valid?))
       end
 
       def invalid_keys
@@ -112,14 +125,14 @@ module Pakyow
         other.new(@values)
       end
 
-      protected
-
       def validating?
-        !@validator.nil?
+        !@validator.nil? && !@validator.class.validations.empty?
       end
 
+      protected
+
       def should_sanitize?(input)
-        input.is_a?(Pakyow::Support::IndifferentHash)
+        input.is_a?(Pakyow::Support::IndifferentHash) || input.is_a?(Hash)
       end
 
       def should_validate?(input)
