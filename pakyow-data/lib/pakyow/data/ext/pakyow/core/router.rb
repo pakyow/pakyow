@@ -2,6 +2,6 @@
 
 module Pakyow
   class Router
-    def_delegators :controller, :data
+    def_delegators :controller, :data, :verify
   end
 end

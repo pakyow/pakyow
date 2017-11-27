@@ -82,8 +82,13 @@ module Pakyow
       attr_reader :values
 
       def initialize(input)
-        @values = self.class.sanitize(input)
-        @validator = self.class.validator.new(input)
+        if should_sanitize?(input)
+          @values = self.class.sanitize(input)
+        end
+
+        if should_validate?(input)
+          @validator = self.class.validator.new(input)
+        end
       end
 
       def verify?
@@ -95,7 +100,7 @@ module Pakyow
           end
         end
 
-        @validator.valid?
+        (validating? && @validator.valid?) || !validating?
       end
 
       def invalid_keys
@@ -109,6 +114,20 @@ module Pakyow
 
       def >>(other)
         other.new(@values)
+      end
+
+      protected
+
+      def validating?
+        !@validator.nil?
+      end
+
+      def should_sanitize?(input)
+        input.is_a?(Pakyow::Support::IndifferentHash)
+      end
+
+      def should_validate?(input)
+        !input.nil?
       end
     end
   end
