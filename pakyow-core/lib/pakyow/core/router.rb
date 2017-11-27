@@ -301,6 +301,7 @@ module Pakyow
     end
 
     @hooks = { before: [], after: [], around: [] }
+    @hooks_for_routes = {}
     @children = []
     @templates = {}
     @handlers = {}
@@ -320,7 +321,12 @@ module Pakyow
         Class.new(self) do
           @path = path_from_matcher(matcher)
           @matcher = finalize_matcher(matcher)
-          @hooks = { before: before, after: after, around: around }
+          @hooks = {
+            before: convert_to_hook_objects(before, :before),
+            after: convert_to_hook_objects(after, :after),
+            around: convert_to_hook_objects(around, :around)
+          }
+          @hooks_for_routes = {}
         end
       end
       # rubocop:enabled Naming/MethodName
@@ -385,8 +391,8 @@ module Pakyow
       #   @see get
       #
       SUPPORTED_HTTP_METHODS.each do |http_method|
-        define_method http_method do |name_or_matcher = nil, matcher_or_name = nil, **hooks, &block|
-          build_route(http_method, name_or_matcher, matcher_or_name, **hooks, &block)
+        define_method http_method do |name_or_matcher = nil, matcher_or_name = nil, skip: {}, skip_before: {}, skip_after: {}, skip_around: {}, **hooks, &block|
+          build_route(http_method, name_or_matcher, matcher_or_name, skip: skip, skip_before: skip_before, skip_after: skip_after, skip_around: skip_around, **hooks, &block)
         end
       end
 
@@ -599,6 +605,18 @@ module Pakyow
         router.make_child(name, matcher, **hooks, &block)
       end
 
+      def before(*routes_and_maybe_method, skip: nil, &block)
+        build_hook(:before, *routes_and_maybe_method, skip: skip, &block)
+      end
+
+      def after(*routes_and_maybe_method, skip: nil, &block)
+        build_hook(:after, *routes_and_maybe_method, skip: skip, &block)
+      end
+
+      def around(*routes_and_maybe_method, skip: nil, &block)
+        build_hook(:around, *routes_and_maybe_method, skip: skip, &block)
+      end
+
       # Attempts to find and expand a template, avoiding the need to call
       # {expand} explicitly. For example, these calls are identical:
       #
@@ -625,7 +643,7 @@ module Pakyow
       end
 
       # @api private
-      attr_reader :path, :matcher, :hooks, :children, :templates, :handlers, :exceptions
+      attr_reader :path, :matcher, :hooks, :hooks_for_routes, :children, :templates, :handlers, :exceptions
 
       # @api private
       attr_accessor :parent
@@ -634,6 +652,7 @@ module Pakyow
       def inherited(klass)
         matcher = self.matcher
         hooks = self.hooks.deep_dup
+        hooks_for_routes = self.hooks_for_routes.deep_dup
         templates = self.templates.deep_dup
         handlers = self.handlers.deep_dup
         exceptions = self.exceptions.deep_dup
@@ -641,6 +660,7 @@ module Pakyow
         klass.class_eval do
           @matcher = matcher
           @hooks = hooks
+          @hooks_for_routes = hooks_for_routes
           @templates = templates
           @handlers = handlers
           @exceptions = exceptions
@@ -684,7 +704,11 @@ module Pakyow
 
         path = path_from_matcher(matcher)
         matcher = finalize_matcher(matcher)
-        hooks = compile_hooks(before: before, after: after, around: around)
+        hooks = compile_hooks(
+          before: convert_to_hook_objects(Array.ensure(before), :before),
+          after: convert_to_hook_objects(Array.ensure(after), :after),
+          around: convert_to_hook_objects(Array.ensure(around), :around)
+        )
 
         super(name, state: state, path: path, matcher: matcher, hooks: hooks, parent: parent, &block)
       end
@@ -799,18 +823,51 @@ module Pakyow
         end
       end
 
-      def build_route(method, *args, **hooks, &block)
+      def build_route(method, *args, skip: {}, skip_before: {}, skip_after: {}, skip_around: {}, **hooks, &block)
         name, matcher = parse_name_and_matcher_from_args(*args)
+
+        hooks ||= {}
+
+        if hooks_for_route = @hooks_for_routes[name]
+          hooks = hooks_for_route.merge(hooks)
+        end
 
         route = Routing::Route.new(
           matcher,
           method: method,
           name: name,
-          hooks: compile_hooks(hooks || {}),
+          hooks: compile_hooks(hooks),
+          skips: {
+            all: skip,
+            before: skip_before,
+            after: skip_after,
+            around: skip_around
+          },
           &block
         )
 
         routes[method] << route; route
+      end
+
+      def build_hook(type, *routes_and_maybe_method, skip: nil)
+        if block_given?
+          endpoint = Proc.new
+          routes = routes_and_maybe_method
+        else
+          endpoint = routes_and_maybe_method.last
+          routes = routes_and_maybe_method[0..-2]
+        end
+
+        hook = Routing::Hook.new(endpoint, type: type, skip: skip)
+
+        if routes.empty?
+          @hooks[type] << hook
+        else
+          routes.each do |route|
+            @hooks_for_routes[route] ||= { before: [], after: [], around: [] }
+            @hooks_for_routes[route][type] << hook
+          end
+        end
       end
 
       def compile_hooks(hooks_to_compile)
@@ -819,6 +876,12 @@ module Pakyow
             Array.ensure(hooks_to_compile[type] || [])
           ).uniq
         end
+      end
+
+      def convert_to_hook_objects(hooks, type)
+        hooks.map { |hook|
+          Routing::Hook.new(hook, type: type)
+        }
       end
 
       def merge_routes(routes_to_merge)

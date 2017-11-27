@@ -15,8 +15,8 @@ module Pakyow
 
       attr_reader :matcher, :path, :method, :name, :block, :hooks, :pipeline
 
-      def initialize(path_or_matcher, name: nil, method: nil, hooks: {}, &block)
-        @name, @method, @hooks, @block = name, method, hooks, block
+      def initialize(path_or_matcher, name: nil, method: nil, hooks: {}, skips: {}, &block)
+        @name, @method, @hooks, @skips, @block = name, method, hooks, skips, block
 
         if path_or_matcher.is_a?(String)
           @path    = path_or_matcher
@@ -42,11 +42,14 @@ module Pakyow
       end
 
       def call(context)
-        @pipeline.each do |route|
-          if route.is_a?(Proc)
-            context.instance_exec(&route)
+        @pipeline.each do |pipeline_part|
+          if pipeline_part.is_a?(Proc)
+            context.instance_exec(&pipeline_part)
+          elsif pipeline_part.is_a?(Hook)
+            next if pipeline_part.skip?(self, context) || skip?(pipeline_part)
+            pipeline_part.call_in_context(context)
           else
-            context.__send__(route)
+            context.__send__(pipeline_part)
           end
         end
       end
@@ -83,6 +86,10 @@ module Pakyow
           hooks[:after],
           hooks[:around]
         ].flatten.compact
+      end
+
+      def skip?(hook)
+        @skips[:all].include?(hook.name) || @skips[hook.type].include?(hook.name)
       end
     end
   end
