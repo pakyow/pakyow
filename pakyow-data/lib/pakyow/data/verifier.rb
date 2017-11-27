@@ -15,25 +15,30 @@ module Pakyow
           @validator ||= Class.new(Validator)
         end
 
-        def required(*keys)
-          required_keys.concat(keys).uniq!
+        def required(key, type = nil)
+          required_keys.push(key).uniq!
+
+          if type
+            types[key] = Types.type_for(type, :input)
+          end
 
           if block_given?
             verifier = Class.new(Verifier)
             verifier.instance_exec(&Proc.new)
-
-            keys.each do |key|
-              verifiers_by_key[key] = verifier
-            end
+            verifiers_by_key[key] = verifier
           end
         end
 
-        def optional(*keys)
-          optional_keys.concat(keys).uniq!
+        def optional(key, type = nil)
+          optional_keys.push(key).uniq!
+
+          if type
+            types[key] = Types.type_for(type, :input)
+          end
         end
 
-        def attribute(key, type)
-          attributes[key] = type
+        def types
+          @types ||= {}
         end
 
         def allowable_keys
@@ -48,34 +53,25 @@ module Pakyow
           @optional_keys ||= []
         end
 
-        def attributes
-          @attributes ||= {}
-        end
-
         def verifiers_by_key
           @verifiers_by_key ||= {}
         end
 
         def sanitize(input)
-          input = enforce_types(input)
-
           # this version excludes keys missing from input
           # input.select { |key, _| allowable_keys.include?(key) }
 
           # this version includes keys for missing input
-          allowable_keys.each_with_object({}) { |key, values|
-            values[key] = input[key]
-          }
-        end
-
-        def enforce_types(input)
-          input.select { |key, value|
-            if type = attributes[key]
-              type.valid?(value)
-            else
-              true
+          allowable_keys.each do |key|
+            value = input[key]
+            if type = types[key]
+              value = type[value]
             end
-          }
+
+            input[key] = value
+          end
+
+          input
         end
       end
 

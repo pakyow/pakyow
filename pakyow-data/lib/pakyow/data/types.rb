@@ -4,6 +4,7 @@ module Pakyow
   module Data
     module Types
       BASE_CLASS = {
+        input: "ROM::Types::Form".freeze,
         memory: "ROM::Types".freeze,
         sql: "ROM::SQL::Types".freeze
       }.freeze
@@ -15,7 +16,7 @@ module Pakyow
         date: "Date",
         time: "Time",
         datetime: "DateTime"
-      }
+      }.freeze
 
       def self.type_for(type, adapter)
         return type unless type.is_a?(Symbol)
