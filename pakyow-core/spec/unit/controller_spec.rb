@@ -64,4 +64,32 @@ RSpec.describe Pakyow::Controller do
       Pakyow::Controller.process(env, app)
     end
   end
+
+  describe "#logger" do
+    it "delegates to `request`" do
+      expect(controller.request).to receive(:logger)
+      controller.logger
+    end
+  end
+
+  describe "#params" do
+    it "delegates to `request`" do
+      expect(controller.request).to receive(:params)
+      controller.params
+    end
+  end
+
+  describe "#session" do
+    it "delegates to `request`" do
+      expect(controller.request).to receive(:session)
+      controller.session
+    end
+  end
+
+  describe "#cookies" do
+    it "delegates to `request`" do
+      expect(controller.request).to receive(:cookies)
+      controller.cookies
+    end
+  end
 end

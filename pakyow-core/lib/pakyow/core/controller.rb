@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "forwardable"
+
 module Pakyow
   # Processes a request received by an application.
   #
@@ -31,6 +33,29 @@ module Pakyow
 
     alias req request
     alias res response
+
+    extend Forwardable
+
+    # @!method logger
+    #   Delegates to {@request}.
+    #
+    #   @see Request#logger
+    #
+    # @!method params
+    #   Delegates to {@request}.
+    #
+    #   @see Request#params
+    #
+    # @!method session
+    #   Delegates to {@request}.
+    #
+    #   @see Request#session
+    #
+    # @!method :cookies
+    #   Delegates to {@request}.
+    #
+    #   @see Request#:cookies
+    def_delegators :request, :logger, :params, :session, :cookies
 
     # Tells the logger that an error occurred when processing a request.
     #
