@@ -4,12 +4,16 @@ module Pakyow
   module Data
     module Validations
       module Presence
-        Validator.register_validation :presence, self
+        def self.name
+          :presence
+        end
 
         def self.valid?(value)
           !value.nil? && !value.empty?
         end
       end
+
+      Validator.register_validation(Presence)
     end
   end
 end

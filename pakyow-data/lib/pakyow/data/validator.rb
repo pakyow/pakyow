@@ -6,16 +6,22 @@ module Pakyow
   module Data
     class Validator
       class << self
-        def validate(validation, **options)
-          validations << [validation, options]
+        def validate(validation_name = nil, **options)
+          validation_object = if block_given?
+            Validations::Inline.new(validation_name, Proc.new)
+          else
+            validation_object_for(validation_name)
+          end
+
+          validations << [validation_object, options]
         end
 
-        def register_validation(validation, validation_object)
-          validation_objects[validation] = validation_object
+        def register_validation(validation_object)
+          Validator.validation_objects[validation_object.name] = validation_object
         end
 
         def validation_object_for(validation)
-          validation_objects[validation] ||
+          Validator.validation_objects[validation] ||
             raise(UnknownValidationError.new("Unknown validation named `#{validation}'"))
         end
 
@@ -37,8 +43,8 @@ module Pakyow
 
       def valid?
         self.class.validations.each do |validation, options|
-          unless Validator.validation_object_for(validation).valid?(@value, *options)
-            @errors << validation
+          unless validation.valid?(@value, *options)
+            @errors << validation.name
           end
         end
 
