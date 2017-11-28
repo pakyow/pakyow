@@ -432,7 +432,7 @@ RSpec.describe Pakyow do
 
     it "contains mounted app instances after boot" do
       run
-      expect(Pakyow.instance_variable_get(:@apps)[0]).to be_instance_of(app)
+      expect(Pakyow.instance_variable_get(:@apps)).to include(app)
     end
   end
 end
