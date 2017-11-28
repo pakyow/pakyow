@@ -5,11 +5,15 @@ module Pakyow
     known_events :render
 
     after :route do
-      if app.config.presenter.require_route && !found?
-        next
-      else
+      if auto_render?
         render
+      else
+        next
       end
+    end
+
+    def auto_render?
+      req.method == :get && (found? || !app.config.presenter.require_route)
     end
 
     def render(path = request.route_path || request.path, as: nil)
