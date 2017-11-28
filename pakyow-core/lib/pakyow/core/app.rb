@@ -390,8 +390,8 @@ module Pakyow
     using Support::RecursiveRequire
 
     def concerns
-      if self.class.superclass.is_a?(App)
-        self.class.superclass + self.class.concerns
+      if self.class.superclass.respond_to?(:concerns)
+        self.class.superclass.concerns + self.class.concerns
       else
         self.class.concerns
       end
