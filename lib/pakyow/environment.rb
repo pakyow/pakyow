@@ -330,6 +330,7 @@ module Pakyow
     def app(name, path: "/", without: [], &block)
       without = Array.ensure(without)
       local_frameworks = frameworks
+
       app = Pakyow::App.make("#{name}__app") {
         config.app.name = name
 
@@ -341,6 +342,8 @@ module Pakyow
       }
 
       mount(app, at: path)
+
+      app
     end
 
     protected

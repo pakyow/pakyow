@@ -44,6 +44,10 @@ RSpec.describe "creating an app" do
     expect(Pakyow).to have_received(:mount).with(Test::App, at: "/")
   end
 
+  it "returns the app" do
+    expect(create_app). to eq(Test::App)
+  end
+
   context "when a mount path is provided" do
     before do
       allow(Pakyow).to receive(:mount)
