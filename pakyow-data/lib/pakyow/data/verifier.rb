@@ -131,6 +131,28 @@ module Pakyow
         !@validator.nil? && !@validator.class.validations.empty?
       end
 
+      def messages(errors = @errors)
+        errors.each_with_object({}) { |(key, error_keys), error_messages|
+          error_messages[key] = if error_keys.is_a?(Hash)
+            messages(error_keys)
+          else
+            error_keys.map { |error_key|
+              message_for(error_key)
+            }
+          end
+        }
+      end
+
+      DEFAULT_ERROR_MESSAGES = {
+        default: "is invalid",
+        required: "is required",
+        presence: "is not present"
+      }.freeze
+
+      def message_for(error_key)
+        DEFAULT_ERROR_MESSAGES[error_key] || DEFAULT_ERROR_MESSAGES[:default]
+      end
+
       protected
 
       def should_sanitize?(input)
