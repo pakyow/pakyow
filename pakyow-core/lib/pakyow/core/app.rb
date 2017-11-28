@@ -389,10 +389,18 @@ module Pakyow
 
     using Support::RecursiveRequire
 
+    def concerns
+      if self.class.superclass.is_a?(App)
+        self.class.superclass + self.class.concerns
+      else
+        self.class.concerns
+      end
+    end
+
     def load_app
       $LOAD_PATH.unshift File.join(config.app.src, "lib")
 
-      App.concerns.each do |concern|
+      concerns.each do |concern|
         load_app_concern(File.join(config.app.src, concern), concern)
       end
     end
