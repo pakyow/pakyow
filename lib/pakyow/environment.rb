@@ -10,6 +10,8 @@ require "pakyow/support/configurable"
 require "pakyow/logger"
 require "pakyow/middleware"
 
+require "pakyow/core/app"
+
 # An environment for running one or more rack apps.
 #
 # Multiple apps can be mounted within the environment, each one handling
@@ -323,6 +325,22 @@ module Pakyow
 
     def frameworks
       @frameworks ||= {}
+    end
+
+    def app(name, path: "/", without: [], &block)
+      without = Array.ensure(without)
+      local_frameworks = frameworks
+      app = Pakyow::App.make("#{name}__app") {
+        config.app.name = name
+
+        local_frameworks.each do |framework_name, framework_module|
+          include framework_module unless without.include?(framework_name)
+        end
+
+        class_eval(&block) if block_given?
+      }
+
+      mount(app, at: path)
     end
 
     protected
