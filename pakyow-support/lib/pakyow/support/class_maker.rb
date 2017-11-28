@@ -5,11 +5,11 @@ module Pakyow
     module ClassMaker
       attr_reader :name, :state
 
-      def make(name, state: nil, **args, &block)
+      def make(name, **args, &block)
         klass, name = class_const_for_name(Class.new(self), name)
 
         klass.class_eval do
-          @name, @state = name, state
+          @name = name
 
           args.each do |arg, value|
             instance_variable_set(:"@#{arg}", value)
