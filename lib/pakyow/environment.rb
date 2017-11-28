@@ -317,6 +317,14 @@ module Pakyow
       builder.call(env)
     end
 
+    def register_framework(framework_name, framework_module)
+      frameworks[framework_name] = framework_module
+    end
+
+    def frameworks
+      @frameworks ||= {}
+    end
+
     protected
 
     def use(middleware, *args)

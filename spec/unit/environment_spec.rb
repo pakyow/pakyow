@@ -289,6 +289,17 @@ RSpec.describe Pakyow do
     end
   end
 
+  describe ".register_framework" do
+    it "registers a framework by name and module" do
+      module FooFramework
+      end
+
+      Pakyow.register_framework(:foo, FooFramework)
+      expect(Pakyow.frameworks.keys).to include(:foo)
+      expect(Pakyow.frameworks.values).to include(FooFramework)
+    end
+  end
+
   describe ".run" do
     def run(opts = { port: port, host: host, server: server })
       allow(Pakyow).to receive(:handler).and_return(handler_double)
