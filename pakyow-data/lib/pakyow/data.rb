@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require "pakyow"
+require "pakyow/core"
+
 require "rom"
 
 module Pakyow
