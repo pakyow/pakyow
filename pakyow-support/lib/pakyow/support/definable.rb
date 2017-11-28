@@ -58,7 +58,8 @@ module Pakyow
         # merge inherited state
         if inherited = self.class.inherited_state
           @state.each do |name, state|
-            state.instances.concat(inherited[name].instances)
+            instances = state.instances
+            instances.concat(inherited[name].instances) if inherited[name]
           end
         end
 
