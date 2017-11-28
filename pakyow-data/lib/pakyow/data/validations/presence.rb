@@ -8,7 +8,7 @@ module Pakyow
           :presence
         end
 
-        def self.valid?(value)
+        def self.valid?(value, **)
           !value.nil? && !value.empty?
         end
       end

@@ -11,8 +11,8 @@ module Pakyow
       #
       # @api public
       def verify(*names, &block)
-        before *names do
-          verify &block
+        before(*names) do
+          verify(&block)
         end
       end
     end

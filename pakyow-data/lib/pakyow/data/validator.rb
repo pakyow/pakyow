@@ -36,14 +36,14 @@ module Pakyow
 
       attr_reader :errors
 
-      def initialize(value)
-        @value = value
+      def initialize(value, context: nil)
+        @value, @context = value, context
         @errors = []
       end
 
       def valid?
         self.class.validations.each do |validation, options|
-          unless validation.valid?(@value, *options)
+          unless validation.valid?(@value, *options, context: @context)
             @errors << validation.name
           end
         end

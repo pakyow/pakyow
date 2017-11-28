@@ -24,7 +24,7 @@ module Pakyow
         verifier = Class.new(Verifier)
         verifier.instance_exec(&block)
 
-        verifier_instance = verifier.new(object_to_verify)
+        verifier_instance = verifier.new(object_to_verify, context: self)
         verifier_instance.verify? || raise(InvalidData.new(verifier_instance))
       end
 

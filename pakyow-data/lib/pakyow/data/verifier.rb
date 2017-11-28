@@ -77,15 +77,17 @@ module Pakyow
 
       attr_reader :validator, :values, :errors
 
-      def initialize(input)
+      def initialize(input, context: nil)
         input ||= {}
+
+        @context = context
 
         if should_sanitize?(input)
           @values = self.class.sanitize(input)
         end
 
         if should_validate?(input)
-          @validator = self.class.validator.new(input)
+          @validator = self.class.validator.new(input, context: @context)
         end
 
         @errors = {}
@@ -98,7 +100,7 @@ module Pakyow
           end
 
           if verifier_for_key = self.class.verifiers_by_key[required_key]
-            verifier_instance_for_key = verifier_for_key.new(@values[required_key])
+            verifier_instance_for_key = verifier_for_key.new(@values[required_key], context: @context)
             unless verifier_instance_for_key.verify?
               if verifier_instance_for_key.validating?
                 (@errors[required_key] ||= []).concat(verifier_instance_for_key.validator.errors)

@@ -17,8 +17,12 @@ module Pakyow
           @name, @block = name, block
         end
 
-        def valid?(value)
-          @block.call(value)
+        def valid?(value, context: nil)
+          if context
+            context.instance_exec(value, &@block)
+          else
+            @block.call(value)
+          end
         end
       end
     end
