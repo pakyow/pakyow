@@ -31,7 +31,6 @@ require "pakyow/presenter/views/partial"
 require "pakyow/presenter/presenters/form"
 require "pakyow/presenter/presenters/view"
 
-require "pakyow/presenter/extensions/app"
 require "pakyow/presenter/extensions/controller"
 require "pakyow/presenter/extensions/router"
 
