@@ -380,6 +380,11 @@ module Pakyow
       super
     end
 
+    def includes_framework?(framework)
+      framework_module = Pakyow.frameworks[framework]
+      self.class.ancestors.include?(framework_module)
+    end
+
     protected
 
     using Support::RecursiveRequire

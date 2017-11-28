@@ -37,3 +37,5 @@ require "pakyow/presenter/extensions/router"
 
 require "pakyow/presenter/exceptions"
 require "pakyow/presenter/helpers"
+
+Pakyow.register_framework :presenter, Pakyow::Presenter

@@ -5,7 +5,7 @@ module Pakyow
     known_events :render
 
     after :route do
-      if auto_render?
+      if app.includes_framework?(:presenter) && auto_render?
         render
       else
         next
