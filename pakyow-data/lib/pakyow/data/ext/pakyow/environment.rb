@@ -55,6 +55,10 @@ module Pakyow
                 use :timestamps
                 timestamps(*timestamps) unless timestamps.nil? || timestamps.empty?
               end
+
+              if setup_block = model.setup_block
+                instance_exec(&setup_block)
+              end
             end
           end
         end

@@ -66,7 +66,7 @@ module Pakyow
       end
 
       class << self
-        attr_reader :name, :adapter, :connection
+        attr_reader :name, :adapter, :connection, :setup_block
 
         def make(name, adapter: nil, connection: :default, state: nil, parent: nil, **kwargs, &block)
           super(name, state: state, parent: parent, adapter: adapter, connection: connection, attributes: {}, **kwargs, &block)
@@ -118,6 +118,10 @@ module Pakyow
 
         def qualifications(query_name)
           @qualifications&.dig(query_name) || {}
+        end
+
+        def setup(&block)
+          @setup_block = block
         end
       end
     end
