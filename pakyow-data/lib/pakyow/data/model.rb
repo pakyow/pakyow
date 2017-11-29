@@ -68,8 +68,8 @@ module Pakyow
       class << self
         attr_reader :name, :adapter, :connection
 
-        def make(name, adapter: nil, connection: :default, state: nil, parent: nil, &block)
-          super(name, state: state, parent: parent, adapter: adapter, connection: connection, attributes: {}, &block)
+        def make(name, adapter: nil, connection: :default, state: nil, parent: nil, **kwargs, &block)
+          super(name, state: state, parent: parent, adapter: adapter, connection: connection, attributes: {}, **kwargs, &block)
         end
 
         # TODO: default values?
@@ -77,6 +77,10 @@ module Pakyow
           attributes[name.to_sym] = {
             type: type
           }
+        end
+
+        def dataset
+          @dataset || @name
         end
 
         def attributes
@@ -106,14 +110,6 @@ module Pakyow
 
         def _primary_key
           @primary_key
-        end
-
-        def dataset(name)
-          @dataset = name
-        end
-
-        def _dataset
-          @dataset
         end
 
         def subscribe(query_name, qualifications)

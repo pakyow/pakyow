@@ -44,7 +44,7 @@ module Pakyow
           next if model.attributes.empty?
 
           config.relation model.name do
-            schema model._dataset do
+            schema model.dataset do
               model.attributes.each do |name, options|
                 attribute name, Data::Types.type_for(options[:type], adapter_type)
               end
