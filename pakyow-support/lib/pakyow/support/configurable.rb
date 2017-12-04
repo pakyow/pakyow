@@ -30,7 +30,13 @@ module Pakyow
       module ClassAPI
         def inherited(subclass)
           super
-          subclass.instance_variable_set(:@config, config.dup)
+
+          duped_config = config.dup
+          duped_config.groups.values.each do |group|
+            group.instance_variable_set(:@__parent, subclass)
+          end
+
+          subclass.instance_variable_set(:@config, duped_config)
         end
 
         def config
