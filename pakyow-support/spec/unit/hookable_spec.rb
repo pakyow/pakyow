@@ -24,6 +24,11 @@ RSpec.describe Pakyow::Support::Hookable do
           expect(object.hooks(:before, event)).to_not be_empty
         end
 
+        it "defines a before hook using `on`" do
+          object.on event do; end
+          expect(object.hooks(:before, event)).to_not be_empty
+        end
+
         it "defines a after hook" do
           object.after event do; end
           expect(object.hooks(:after, event)).to_not be_empty

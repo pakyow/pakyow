@@ -115,6 +115,7 @@ module Pakyow
         def before(event, priority: PRIORITIES[:default], &block)
           add_hook(hook_hash, :before, event, priority, block)
         end
+        alias on before
 
         # Defines a hook to call after event occurs.
         #
