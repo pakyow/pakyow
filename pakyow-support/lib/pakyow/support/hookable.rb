@@ -51,6 +51,7 @@ module Pakyow
         base.extend ClassAPI
         base.prepend Initializer
 
+        base.instance_variable_set(:@known_events, [])
         base.instance_variable_set(:@hook_hash, after: {}, before: {})
         base.instance_variable_set(:@pipeline, after: {}, before: {})
       end
@@ -138,10 +139,10 @@ module Pakyow
         #
         # @param event [Symbol] The name of the event.
         #
-        def hook_around(event)
-          call_hooks :before, event
+        def hook_around(event, *args)
+          call_hooks(:before, event, *args)
           value = yield
-          call_hooks :after, event
+          call_hooks(:after, event, *args)
           value
         end
 
@@ -150,13 +151,9 @@ module Pakyow
         # @param type [Symbol] The type of event (e.g. before / after).
         # @param event [Symbol] The name of the event.
         #
-        def call_hooks(type, event)
+        def call_hooks(type, event, *args)
           hooks(type, event).each do |hook|
-            if hook.arity == 0
-              instance_exec(&hook)
-            else
-              hook.call(self)
-            end
+            instance_exec(*args, &hook)
           end
         end
 

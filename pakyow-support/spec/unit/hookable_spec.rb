@@ -51,6 +51,20 @@ RSpec.describe Pakyow::Support::Hookable do
     end
 
     context "when calling hooks" do
+      it "passes arguments" do
+        event = events.first
+        calls = []
+
+        hook_1 = -> (arg1, arg2) { calls << [arg1, arg2] }
+
+        object.before event, &hook_1
+
+        object.call_hooks(:before, event, :foo, :bar)
+
+        expect(calls[0][0]).to eq :foo
+        expect(calls[0][1]).to eq :bar
+      end
+
       it "calls hooks for event in order of definition" do
         event = events.first
         calls = []
