@@ -9,7 +9,6 @@ module Pakyow
     # of procs and/or method names that are called in order when the route is
     # matched and executed. Pipelines are constructed at runtime.
     #
-    # @api private
     class Route
       include HookMerger
 
@@ -32,13 +31,7 @@ module Pakyow
 
       # TODO: this logic can be shared with router
       def match(path_to_match)
-        return false unless matcher.match?(path_to_match)
-
-        if matcher.respond_to?(:match)
-          matcher.match(path_to_match).named_captures
-        else
-          true
-        end
+        matcher.match(path_to_match)
       end
 
       def call(context)

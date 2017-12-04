@@ -4,14 +4,14 @@ RSpec.describe "rejecting requests" do
   context "when rejecting from a route" do
     let :app_definition do
       Proc.new {
-        router do
+        controller do
           default do
             reject
             $one = true
           end
         end
 
-        router do
+        controller do
           default do
             $two = true
           end

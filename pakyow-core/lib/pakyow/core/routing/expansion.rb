@@ -11,14 +11,14 @@ module Pakyow
       attr_reader :expander, :router, :name
 
       extend Forwardable
-      def_delegators :expander, *%i[func default group namespace template].concat(Router::SUPPORTED_HTTP_METHODS)
+      def_delegators :expander, *%i[default group namespace template].concat(Controller::SUPPORTED_HTTP_METHODS)
 
       def initialize(template_name, router, &template_block)
         @router = router
 
         # Create the router that stores available routes, groups, and namespaces
         #
-        @expander = Router.make(router.name, nil, **router.hooks)
+        @expander = Controller.make(router.name, nil, **router.hooks)
 
         # Evaluate the template to define available routes, groups, and namespaces
         #
@@ -29,7 +29,13 @@ module Pakyow
         @expander.routes.each do |method, routes|
           routes.each do |route|
             @router.define_singleton_method route.name do |*args, &block|
-              if route.name == :new && args.first.is_a?(Controller) # handle template parts named `new`
+              # Handle template parts named `new` by determining if we're calling `new` to expand
+              # part of a template, or if we're intending to create a new controller instance.
+              #
+              # It works by checking to see if the first argument is a call state object, which is
+              # the first argument to Controller.new. If so, we can be reasonably sure that we want
+              # to create a new controller. Yes, it's a bit of a hack. PRs welcome!
+              if route.name == :new && args.first.is_a?(Pakyow::Call)
                 super(*args)
               else
                 build_route(method, route.name, route.path || route.matcher, *args, &block)

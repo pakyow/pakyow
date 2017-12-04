@@ -4,7 +4,7 @@ RSpec.describe "sending data" do
   context "when sending a file" do
     let :app_definition do
       Proc.new {
-        router do
+        controller do
           default do
             send File.open("foo.txt")
           end
@@ -35,7 +35,7 @@ RSpec.describe "sending data" do
     context "with a type" do
       let :app_definition do
         Proc.new {
-          router do
+          controller do
             default do
               send File.open("foo.txt"), type: "application/force-download"
             end
@@ -55,7 +55,7 @@ RSpec.describe "sending data" do
     context "with a name" do
       let :app_definition do
         Proc.new {
-          router do
+          controller do
             default do
               send File.open("foo.txt"), name: "bar.txt"
             end
@@ -75,7 +75,7 @@ RSpec.describe "sending data" do
     context "with a type and a name" do
       let :app_definition do
         Proc.new {
-          router do
+          controller do
             default do
               send File.open("foo.txt"), type: "application/force-download", name: "bar.txt"
             end
@@ -96,7 +96,7 @@ RSpec.describe "sending data" do
   context "when sending an io object" do
     let :app_definition do
       Proc.new {
-        router do
+        controller do
           default do
             send StringIO.new("foo")
           end
@@ -120,7 +120,7 @@ RSpec.describe "sending data" do
   context "when sending a string" do
     let :app_definition do
       Proc.new {
-        router do
+        controller do
           default do
             send "foo"
           end
@@ -143,7 +143,7 @@ RSpec.describe "sending data" do
     context "and a type is specified" do
       let :app_definition do
         Proc.new {
-          router do
+          controller do
             default do
               send "foo", type: "application/json"
             end
@@ -160,7 +160,11 @@ RSpec.describe "sending data" do
   context "when sending an unsupported type" do
     let :app_definition do
       Proc.new {
-        router do
+        controller do
+          handle ArgumentError, as: 500 do
+            $error = req.error
+          end
+
           default do
             send TrueClass
           end
@@ -169,18 +173,7 @@ RSpec.describe "sending data" do
     end
 
     before do
-      @stderr = $stderr.dup
-      $stderr.reopen("/dev/null")
-
-      Pakyow::Controller.after :error do
-        $error = req.error
-      end
-
       call
-    end
-
-    after do
-      $stderr = @stderr
     end
 
     it "raises an ArgumentError" do

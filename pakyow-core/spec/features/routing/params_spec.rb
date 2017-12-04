@@ -3,10 +3,10 @@ require "json"
 RSpec.describe "route params" do
   include_context "testable app"
 
-  context "when set on the router" do
+  context "when set on the controller" do
     let :app_definition do
       Proc.new {
-        router "/:input" do
+        controller "/:input" do
           default do
             send params[:input]
           end
@@ -19,10 +19,10 @@ RSpec.describe "route params" do
     end
   end
 
-  context "when set as a named capture on a regex router matcher" do
+  context "when set as a named capture on a regex controller matcher" do
     let :app_definition do
       Proc.new {
-        router(/\/(?<input>.*)/) do
+        controller(/\/(?<input>.*)/) do
           default do
             send params[:input]
           end
@@ -35,7 +35,7 @@ RSpec.describe "route params" do
     end
   end
 
-  context "when set as a named capture on a custom router matcher" do
+  context "when set as a named capture on a custom controller matcher" do
     let :app_definition do
       Proc.new {
         class CustomRouterMatcherWithCaptures
@@ -52,7 +52,7 @@ RSpec.describe "route params" do
           end
         end
 
-        router CustomRouterMatcherWithCaptures.new do
+        controller CustomRouterMatcherWithCaptures.new do
           get "/foo" do
             send params[:foo] || ""
           end
@@ -68,7 +68,7 @@ RSpec.describe "route params" do
   context "when set on the route" do
     let :app_definition do
       Proc.new {
-        router do
+        controller do
           get "/:input" do
             send params[:input]
           end
@@ -84,7 +84,7 @@ RSpec.describe "route params" do
   context "when set as a named capture on a regex route matcher" do
     let :app_definition do
       Proc.new {
-        router do
+        controller do
           get(/\/(?<input>.*)/) do
             send params[:input]
           end
@@ -114,7 +114,7 @@ RSpec.describe "route params" do
           end
         end
 
-        router do
+        controller do
           get CustomRouteMatcherWithCaptures.new do
             send params[:foo] || ""
           end
@@ -130,7 +130,7 @@ RSpec.describe "route params" do
   context "when passed as a request param" do
     let :app_definition do
       Proc.new {
-        router do
+        controller do
           default do
             send params[:input]
           end
@@ -146,7 +146,7 @@ RSpec.describe "route params" do
   context "when the request is a json request" do
     let :app_definition do
       Proc.new {
-        router do
+        controller do
           default do
             send params[:foo] || ""
           end

@@ -1,4 +1,4 @@
-RSpec.describe "including mixins into a router" do
+RSpec.describe "including mixins into a controller" do
   include_context "testable app"
 
   module RouteMixins
@@ -9,7 +9,7 @@ RSpec.describe "including mixins into a router" do
 
   let :app_definition do
     Proc.new {
-      router do
+      controller do
         include RouteMixins
 
         default do

@@ -12,7 +12,6 @@ module Pakyow
     # When conditions are met, a 301 redirect will be issued to
     # the normalized destination.
     #
-    # @api public
     class Normalizer
       # @api private
       def initialize(app)

@@ -72,7 +72,6 @@ module Pakyow
       #     end
       #   end
       #
-      # @api public
       module Resource
         extend Extension
 

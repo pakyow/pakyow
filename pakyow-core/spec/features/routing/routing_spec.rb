@@ -3,7 +3,7 @@ RSpec.describe "routing requests" do
 
   let :app_definition do
     Proc.new {
-      router do
+      controller do
         get "/" do
           send "GET /"
         end
@@ -50,7 +50,7 @@ RSpec.describe "routing requests" do
   context "when a default route is specified" do
     let :app_definition do
       Proc.new {
-        router do
+        controller do
           default do
             send "default"
           end
@@ -66,7 +66,7 @@ RSpec.describe "routing requests" do
   describe "the routing context" do
     let :app_definition do
       Proc.new {
-        router do
+        controller do
           def foo
             @state ||= "foo"
           end
@@ -93,7 +93,7 @@ RSpec.describe "routing requests" do
       expect(call[2].body.read).to eq("foobar")
     end
 
-    it "shares state across reroutes" do
+    xit "shares state across reroutes" do
       expect(call("/rr")[2].body.read).to eq("onetwo")
     end
 
@@ -108,7 +108,7 @@ RSpec.describe "routing requests" do
   context "when route is defined without a block" do
     let :app_definition do
       Proc.new {
-        router do
+        controller do
           default
         end
       }
@@ -119,13 +119,13 @@ RSpec.describe "routing requests" do
     end
   end
 
-  context "when a route is defined within another router" do
+  context "when a route is defined within another controller" do
     let :app_definition do
       Proc.new {
-        router :api, "/api" do
+        controller :api, "/api" do
         end
 
-        router do
+        controller do
           get "/foo" do
             send "foo"
           end
@@ -139,24 +139,26 @@ RSpec.describe "routing requests" do
       }
     end
 
-    it "calls the route defined within the current router" do
+    it "calls the route defined within the current controller" do
+      expect(call("/foo")[0]).to eq(200)
       expect(call("/foo")[2].body.first).to eq("foo")
     end
 
-    it "calls the route defined within the other router" do
+    it "calls the route defined within the other controller" do
+      expect(call("/api/foo")[0]).to eq(200)
       expect(call("/api/foo")[2].body.first).to eq("api/foo")
     end
   end
 
-  context "when a route is defined within another router that's deeply nested" do
+  context "when a route is defined within another controller that's deeply nested" do
     let :app_definition do
       Proc.new {
-        router :api, "/api" do
+        controller :api, "/api" do
           namespace :v1, "/v1" do
           end
         end
 
-        router do
+        controller do
           get "/foo" do
             send "foo"
           end
@@ -170,11 +172,13 @@ RSpec.describe "routing requests" do
       }
     end
 
-    it "calls the route defined within the current router" do
+    it "calls the route defined within the current controller" do
+      expect(call("/foo")[0]).to eq(200)
       expect(call("/foo")[2].body.first).to eq("foo")
     end
 
-    it "calls the route defined within the other router" do
+    it "calls the route defined within the other controller" do
+      expect(call("/api/v1/foo")[0]).to eq(200)
       expect(call("/api/v1/foo")[2].body.first).to eq("api/v1/foo")
     end
   end

@@ -4,7 +4,7 @@ RSpec.describe "route formats" do
   context "when a route is defined for a specific format" do
     let :app_definition do
       Proc.new {
-        router do
+        controller do
           get "foo.txt" do
             send "foo"
           end
@@ -26,7 +26,7 @@ RSpec.describe "route formats" do
   context "when multiple routes are defined, each for a specific format" do
     let :app_definition do
       Proc.new {
-        router do
+        controller do
           get "foo.txt" do
             send "foo"
           end
@@ -47,7 +47,7 @@ RSpec.describe "route formats" do
   context "when a route is defined for html format" do
     let :app_definition do
       Proc.new {
-        router do
+        controller do
           get "foo.html" do
             send "<foo>"
           end
@@ -71,7 +71,7 @@ RSpec.describe "route formats" do
   context "when a route is defined for multiple formats" do
     let :app_definition do
       Proc.new {
-        router do
+        controller do
           get "foo.txt|html" do
           end
         end
@@ -92,7 +92,7 @@ RSpec.describe "route formats" do
     context "and the route responds to a specific format" do
       let :app_definition do
         Proc.new {
-          router do
+          controller do
             get "foo.txt|html" do
               respond_to :txt do
                 send "foo"
@@ -118,7 +118,7 @@ RSpec.describe "route formats" do
     context "and the route responds to both formats" do
       let :app_definition do
         Proc.new {
-          router do
+          controller do
             get "foo.txt|html" do
               respond_to :txt do
                 send "foo"

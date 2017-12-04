@@ -4,6 +4,7 @@ require "irb"
 require "rack"
 require "logger"
 
+require "pakyow/support/array"
 require "pakyow/support/hookable"
 require "pakyow/support/configurable"
 
@@ -184,27 +185,22 @@ module Pakyow
   class << self
     # Name of the environment
     #
-    # @api public
     attr_reader :env
 
     # Port that the environment is running on
     #
-    # @api public
     attr_reader :port
 
     # Host that the environment is running on
     #
-    # @api public
     attr_reader :host
 
     # Name of the app server running in the environment
     #
-    # @api public
     attr_reader :server
 
     # Logger instance for the environment
     #
-    # @api public
     attr_reader :logger
 
     # Mounts an app at a path.
@@ -215,7 +211,6 @@ module Pakyow
     # @param app the rack endpoint to mount
     # @param at [String] where the endpoint should be mounted
     #
-    # @api public
     def mount(app, at: nil, &block)
       raise ArgumentError, "Mount path is required" if at.nil?
       mounts[at] = { app: app, block: block }
@@ -225,9 +220,8 @@ module Pakyow
     #
     # @param env [Symbol] the environment that Pakyow will be started in
     #
-    # @api public
     def setup(env: nil)
-      @env = env ||= config.env.default
+      @env = (env ||= config.env.default).to_sym
 
       hook_around :configure do
         use_config(env)
@@ -264,7 +258,6 @@ module Pakyow
     #
     # This method also accepts arbitrary options, which are passed directly to the handler.
     #
-    # @api public
     def run(port: nil, host: nil, server: nil, **opts)
       @port   = port   || config.server.port
       @host   = host   || config.server.host
@@ -290,7 +283,6 @@ module Pakyow
     # to be passed. Any before :fork hooks will be called, then the block will
     # be yielded to, then any after :fork hooks will be called.
     #
-    # @api public
     def fork
       forking
       yield
@@ -300,7 +292,6 @@ module Pakyow
     # When running the app with a forking server (e.g. Passenger), call this before
     # the process is forked. All defined "before fork" hooks will be called.
     #
-    # @api public
     def forking
       call_hooks :before, :fork
     end
@@ -308,7 +299,6 @@ module Pakyow
     # When running the app with a forking server (e.g. Passenger), call this after
     # the process is forked. All defined "after fork" hooks will be called.
     #
-    # @api public
     def forked
       call_hooks :after, :fork
     end
@@ -328,22 +318,20 @@ module Pakyow
     end
 
     def app(name, path: "/", without: [], &block)
-      without = Array.ensure(without)
-      local_frameworks = frameworks
+      local_frameworks = frameworks.keys - Array.ensure(without)
 
       app = Pakyow::App.make("#{name}__app") {
         config.app.name = name
-
-        local_frameworks.each do |framework_name, framework_module|
-          include framework_module unless without.include?(framework_name)
-        end
-
-        class_eval(&block) if block_given?
+        include_frameworks(*local_frameworks)
       }
 
+      app.define(&block) if block_given?
       mount(app, at: path)
-
       app
+    end
+
+    def env?(name)
+      env == name.to_sym
     end
 
     protected

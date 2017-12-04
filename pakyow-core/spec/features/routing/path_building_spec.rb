@@ -4,7 +4,7 @@ RSpec.describe "path building" do
 
   let :app_definition do
     Proc.new {
-      router do
+      controller do
         def other_params
           Hash[params.map { |k, v|
             next if k == "name"
@@ -17,7 +17,7 @@ RSpec.describe "path building" do
         end
       end
 
-      router :main do
+      controller :main do
         default
         get :foo, "/foo"
         get :bar, "/bar/:id"
@@ -43,7 +43,7 @@ RSpec.describe "path building" do
         end
       end
 
-      router :foo do
+      controller :foo do
         within :main, :namespaced do
           get :within, "/within"
         end
@@ -87,7 +87,8 @@ RSpec.describe "path building" do
     expect(call("/path/post_comment_list", params: { post_id: "123" })[2].body.read).to eq("/posts/123/comments")
   end
 
-  it "builds path to a route defined within another router" do
+  it "builds path to a route defined within another controller" do
+    expect(call("/path/main_namespaced_foo_within")[0]).to eq(200)
     expect(call("/path/main_namespaced_foo_within")[2].body.read).to eq("/ns/within")
   end
 end

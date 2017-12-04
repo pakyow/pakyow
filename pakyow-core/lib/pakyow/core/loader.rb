@@ -11,8 +11,7 @@ module Pakyow
     end
 
     def method_missing(name, *args, **kargs, &block)
-      # prefix the given name with the known prefix
-      args[0] = :"#{@prefix}__#{args[0]}" if args[0].is_a?(Symbol)
+      args[0] = ConcernName.new(@prefix, args[0]) if args[0].is_a?(Symbol)
       @target.public_send(name, *args, **kargs, &block)
     end
   end

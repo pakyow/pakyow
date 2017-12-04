@@ -7,18 +7,18 @@ require "pakyow/support/recursive_require"
 require "pakyow/support/deep_freeze"
 require "pakyow/support/class_maker"
 
+require "pakyow/core/call"
 require "pakyow/core/helpers"
-require "pakyow/core/router"
 require "pakyow/core/loader"
+require "pakyow/core/paths"
 
 require "forwardable"
-
-require "rack-protection"
 
 module Pakyow
   # Pakyow's main application object. Can be defined directly or subclassed to
   # create multiple application objects, each containing its own state. These
   # applications can then be mounted as an endpoint within the environment.
+  #
   # For example:
   #
   #   Pakyow::App.define do
@@ -35,6 +35,7 @@ module Pakyow
   #   end
   #
   # One or more routers can be registered to process incoming requests.
+  #
   # For example:
   #
   #   Pakyow::App.router do
@@ -129,6 +130,7 @@ module Pakyow
   # - initialize
   # - configure
   # - load
+  # - freeze
   #
   # For example, here's how to write to the log after initialization:
   #
@@ -138,57 +140,87 @@ module Pakyow
   #
   # See {Support::Hookable} for more information.
   #
-  # @api public
   class App
-    include Support::Definable
+    class << self
+      # Includes one or more frameworks into the app class.
+      #
+      def include_frameworks(*frameworks)
+        frameworks.each do |framework|
+          include_framework(framework)
+        end
 
-    # @!scope class
-    # @!method router(name_or_path = nil, path_or_name = nil, before: [], after: [], around: [], &block)
-    #   Defines a router for the application. For example:
-    #
-    #     Pakyow::App.router do
-    #     end
-    #
-    #   The router can be defined with a name, which creates a group
-    #   (see {Router#group}). For example:
-    #
-    #     Pakyow::App.router :post do
-    #     end
-    #
-    #   The router can also be created with both a name and path, which creates
-    #   a namespace (see {Router#namespace}). For example:
-    #
-    #     Pakyow::App.router :post, "/posts" do
-    #     end
-    #
-    #   It's possible to create an anonymous namespace by passing just a path.
-    #   For example:
-    #
-    #     Pakyow::App.router "/posts" do
-    #     end
-    #
-    #   Routes defined in the above router would be prefixed, but would be
-    #   unavailable in path building (see {path} and {path_to}).
-    #
-    #   @param name_or_path [Symbol, String] the name or path for the router
-    #   @param path_or_name [String, Symbol] the path or name for the router
-    #   @param before [Array<Symbol, Proc>] an array of before hooks
-    #   @param after [Array<Symbol, Proc>] an array of after hooks
-    #   @param around [Array<Symbol, Proc>] an array of around hooks
-    #
-    #   @api public
-    stateful :router, Router
+        self
+      end
+
+      # Includes a framework into the app class.
+      #
+      def include_framework(framework)
+        include(Pakyow.frameworks[framework])
+      end
+
+      # Returns true if +framework+ is loaded into the app class.
+      #
+      def includes_framework?(framework)
+        framework_module = Pakyow.frameworks[framework]
+        ancestors.include?(framework_module)
+      end
+
+      # Registers a concern by name.
+      #
+      # @see concerns
+      def concern(name)
+        (concerns << name.to_s).uniq!
+      end
+
+      # Register an endpoint by name.
+      #
+      def endpoint(object)
+        endpoints << object
+      end
+
+      # Registers a helper module to be loaded on defined endpoints.
+      #
+      def helper(helper_module)
+        helpers << helper_module
+      end
+
+      # @api private
+      def concerns
+        @concerns ||= []
+      end
+
+      # @api private
+      def endpoints
+        @endpoints ||= []
+      end
+
+      # @api private
+      def helpers
+        @helpers ||= []
+      end
+
+      def inherited(subclass)
+        super
+
+        subclass.instance_variable_set(:@endpoints, endpoints.dup)
+        subclass.instance_variable_set(:@concerns, concerns.dup)
+        subclass.instance_variable_set(:@helpers, helpers.dup)
+      end
+    end
+
+    include Support::Definable
+    extend Support::ClassMaker
 
     include Support::Hookable
     known_events :initialize, :configure, :load, :freeze
-
-    include Support::Configurable
 
     extend Forwardable
 
     # @!method use
     # Delegates to {builder}.
     def_delegators :builder, :use
+
+    include Support::Configurable
 
     settings_for :app, extendable: true do
       setting :name, "pakyow"
@@ -199,14 +231,6 @@ module Pakyow
       end
 
       setting :dsl, true
-    end
-
-    settings_for :routing do
-      setting :enabled, true
-
-      defaults :prototype do
-        setting :enabled, false
-      end
     end
 
     settings_for :cookies do
@@ -249,8 +273,9 @@ module Pakyow
 
         # set optional options if available
         %i(domain path old_secret).each do |opt|
-          value = config.session.send(opt)
-          opts[opt] = value if value
+          if value = config.session.send(opt)
+            opts[opt] = value
+          end
         end
 
         opts
@@ -265,93 +290,44 @@ module Pakyow
       end
 
       if config.protection.enabled
+        require "rack-protection"
         builder.use(Rack::Protection, except: config.session.enabled ? [] : %i[session_hijacking remote_token])
       end
     end
 
+    before :freeze do
+      load_paths
+    end
+
     # The environment the app is defined in.
     #
-    # @api public
     attr_reader :environment
 
     # The rack builder.
     #
-    # @api public
     attr_reader :builder
 
-    # @api private
-    attr_reader :path_builder
-
-    extend Support::ClassMaker
-
-    class << self
-      extend Forwardable
-
-      # @!method handle
-      # Defines a global error handler.
-      #
-      # @see Router.handle
-      #
-      # @api public
-      def_delegators Router, :handle
-
-      # Defines a RESTful resource. For example:
-      #
-      #   Pakyow::App.resource :post, "/posts" do
-      #     list do
-      #     end
-      #
-      #     create do
-      #     end
-      #
-      #     # etc
-      #   end
-      #
-      # @see Routing::Extension::Resource
-      #
-      # @api public
-      def resource(name, path, **hooks, &block)
-        raise ArgumentError, "Expected a block" unless block_given?
-
-        RESOURCE_ACTIONS.each do |_, action|
-          action.call(self, name, path, hooks, block)
-        end
-      end
-
-      # @api private
-      RESOURCE_ACTIONS = {
-        core: proc do |app, name, path, hooks, block|
-          app.router(name, path, **hooks) do
-            expand_within(:resource, &block)
-          end
-        end
-      }
-
-      # Concerns of the app to be loaded at runtime (e.g. routing).
-      #
-      # @see load_app
-      def concerns
-        @concerns ||= []
-      end
-
-      # Registers a concern by name
-      #
-      # @see concerns
-      def concern(name)
-        concerns << name.to_s
-        concerns.uniq!
-      end
-    end
+    # Path lookup for endpoints.
+    #
+    attr_reader :paths
 
     extend Support::DeepFreeze
     unfreezable :builder
 
-    concern :routing
-
-    # @api private
     def initialize(environment, builder: nil, &block)
+      @paths = Paths.new
       @environment = environment
       @builder = builder
+
+      @endpoints = self.class.endpoints.map { |endpoint|
+        self.class.helpers.each do |helper_module|
+          endpoint.class_eval do
+            include helper_module
+          end
+        end
+
+        endpoint
+      }
 
       hook_around :initialize do
         hook_around :configure do
@@ -370,37 +346,65 @@ module Pakyow
       defined!(&block)
     end
 
-    # @api private
+    RESPOND_MISSING = [[], 404, {}].freeze
+    RESPOND_ERRORED = [[], 500, {}].freeze
+
     def call(env)
-      Controller.process(env, self)
+      call = Call.new(self, Request.new(env), Response.new)
+
+      response = catch(:halt) {
+        @endpoints.each do |endpoint|
+          endpoint.call(call)
+        end
+
+        # If no endpoint has halted or marked the call as processed, assume
+        # that the call was unhandled and return a 404 response.
+        unless call.processed?
+          handle_missing(call)
+        end
+      } || call.response
+
+      call.request.set_cookies(response, config.cookies); response
+    rescue StandardError => error
+      env[Rack::RACK_LOGGER].houston(error)
+
+      catch(:halt) {
+        handle_failure(call, error)
+      }
     end
 
     def freeze
-      call_hooks :before, :freeze
-      super
-    end
-
-    def includes_framework?(framework)
-      framework_module = Pakyow.frameworks[framework]
-      self.class.ancestors.include?(framework_module)
+      hook_around :freeze do
+        super
+      end
     end
 
     protected
 
-    using Support::RecursiveRequire
+    def handle_missing(call)
+      @endpoints.each do |endpoint|
+        endpoint.handle_missing(call)
+      end
 
-    def concerns
-      if self.class.superclass.respond_to?(:concerns)
-        self.class.superclass.concerns + self.class.concerns
-      else
-        self.class.concerns
+      unless call.handled_missing?
+        throw :halt, Response.new(*RESPOND_MISSING)
+      end
+    end
+
+    def handle_failure(call, error)
+      @endpoints.each do |endpoint|
+        endpoint.handle_failure(call, error)
+      end
+
+      unless call.handled_failure?
+        throw :halt, Response.new(*RESPOND_ERRORED)
       end
     end
 
     def load_app
-      $LOAD_PATH.unshift File.join(config.app.src, "lib")
+      $LOAD_PATH.unshift(File.join(config.app.src, "lib"))
 
-      concerns.each do |concern|
+      self.class.concerns.each do |concern|
         load_app_concern(File.join(config.app.src, concern), concern)
       end
     end
@@ -408,7 +412,7 @@ module Pakyow
     def load_app_concern(state_path, state_type, load_target = self.class)
       Dir.glob(File.join(state_path, "*.rb")) do |path|
         if config.app.dsl
-          Loader.new(load_target, "#{config.app.name}__#{state_type}", path).call
+          Loader.new(load_target, ConcernNamePrefix.new(config.app.name, state_type), path).call
         else
           require path
         end
@@ -417,6 +421,42 @@ module Pakyow
       Dir.glob(File.join(state_path, "*")).select { |path| File.directory?(path) }.each do |directory|
         load_app_concern(directory, state_type, load_target)
       end
+    end
+
+    def load_paths
+      state.each_with_object(@paths) { |(_, state_object), paths|
+        state_object.instances.each do |state_instance|
+          paths << state_instance if state_instance.respond_to?(:path_to)
+        end
+      }
+    end
+  end
+
+  class ConcernNamePrefix
+    def initialize(prefix, type)
+      @prefix, @type = prefix, type
+    end
+
+    def to_s
+      [@prefix, @type].join("__")
+    end
+
+    def to_sym
+      to_s.to_sym
+    end
+  end
+
+  class ConcernName
+    def initialize(prefix, name)
+      @prefix, @name = prefix, name
+    end
+
+    def to_s
+      [@prefix, @name].join("__")
+    end
+
+    def to_sym
+      to_s.to_sym
     end
   end
 end

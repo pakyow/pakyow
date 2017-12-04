@@ -3,7 +3,7 @@ RSpec.describe "rerouting requests" do
 
   let :app_definition do
     Proc.new {
-      router :reroute do
+      controller :reroute do
         get "/reroute" do
           reroute "/destination"
         end

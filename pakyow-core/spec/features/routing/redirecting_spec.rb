@@ -3,7 +3,7 @@ RSpec.describe "redirecting requests" do
 
   let :app_definition do
     Proc.new {
-      router :redirect do
+      controller :redirect do
         get "/redirect" do
           redirect "/destination"
         end

@@ -19,10 +19,6 @@ RSpec.describe "request path normalization" do
     ""
   end
 
-  after do
-    Pakyow.reset
-  end
-
   describe "normalizing the trailing slash" do
     context "strict path is enabled" do
       before do

@@ -6,21 +6,22 @@ require "pakyow/support/array"
 require "pakyow/support/class_maker"
 
 require "pakyow/core/routing/hook_merger"
+require "pakyow/core/routing/behavior/error_handling"
 
 module Pakyow
   # Executes code for particular requests. For example:
   #
-  #   Pakyow::App.router do
+  #   Pakyow::App.controller do
   #     get "/" do
   #       # called for GET / requests
   #     end
   #   end
   #
-  # A +Class+ is created dynamically for each defined router. When matched, a route
-  # is called in context of its router. This means that any method defined in a
-  # router is available to be called from within a route. For example:
+  # A +Class+ is created dynamically for each defined controller. When matched, a route
+  # is called in context of its controller. This means that any method defined in a
+  # controller is available to be called from within a route. For example:
   #
-  #   Pakyow::App.router do
+  #   Pakyow::App.controller do
   #     def foo
   #     end
   #
@@ -36,7 +37,7 @@ module Pakyow
   #     end
   #   end
   #
-  #   Pakyow::App.router do
+  #   Pakyow::App.controller do
   #     include AuthHelpers
   #
   #     get :foo, "/foo" do
@@ -44,7 +45,7 @@ module Pakyow
   #     end
   #   end
   #
-  # See {App.router} for more details on defining routers.
+  # See {App.controller} for more details on defining controllers.
   #
   # = Supported HTTP methods
   #
@@ -66,7 +67,7 @@ module Pakyow
   #
   # Methods can be defined and used as hooks for a route. For example:
   #
-  #   Pakyow::App.router do
+  #   Pakyow::App.controller do
   #     def foo
   #     end
   #
@@ -76,21 +77,21 @@ module Pakyow
   #
   # Before, after, and around hooks are supported in this way.
   #
-  # = Extending routers
+  # = Extending controllers
   #
   # Extensions can be defined and used to add shared routes to one or more
-  # routers. See {Routing::Extension}.
+  # controllers. See {Routing::Extension}.
   #
   # = Other routing features
   #
   # More advanced route features are available, including groups, namespaces,
   # and templates. See {group}, {namespace}, and {template}.
   #
-  # = Router subclasses
+  # = Controller subclasses
   #
-  # It's possible to work with routers outside of Pakyow's DSL. For example:
+  # It's possible to work with controllers outside of Pakyow's DSL. For example:
   #
-  #   class FooRouter < Pakyow::Router("/foo", after: [:bar])
+  #   class FooController < Pakyow::Controller("/foo", after: [:bar])
   #     def bar
   #     end
   #
@@ -99,11 +100,11 @@ module Pakyow
   #     end
   #   end
   #
-  #   Pakyow::App.router << FooRouter
+  #   Pakyow::App.controller << FooController
   #
   # = Custom matchers
   #
-  # Routers and routes can be defined with a matcher, which could be a +Regexp+ or
+  # Controllers and routes can be defined with a matcher, which could be a +Regexp+ or
   # any custom object that implements +match?+. For example:
   #
   #   class CustomMatcher
@@ -112,7 +113,7 @@ module Pakyow
   #     end
   #   end
   #
-  #   Pakyow::App.router CustomMatcher.new do
+  #   Pakyow::App.controller CustomMatcher.new do
   #   end
   #
   # Custom matchers can also make data available in +params+ by implementing
@@ -133,20 +134,23 @@ module Pakyow
   #     end
   #   end
   #
-  #   Pakyow::App.router CustomMatcher.new do
+  #   Pakyow::App.controller CustomMatcher.new do
   #   end
   #
-  # @api public
-  class Router
+  class Controller
     include Helpers
-    using Support::DeepDup
-    extend Routing::HookMerger
-    extend Support::ClassMaker
 
-    router = self
+    using Support::DeepDup
+    extend Support::ClassMaker
+    include Support::Hookable
+
+    extend Routing::HookMerger
+    include Routing::Behavior::ErrorHandling
+
+    controller = self
     Pakyow.singleton_class.class_eval do
-      define_method :Router do |path, **hooks|
-        router.Router(path, **hooks)
+      define_method :Controller do |path, **hooks|
+        controller.Controller(path, **hooks)
       end
     end
 
@@ -164,140 +168,157 @@ module Pakyow
       METHOD_DELETE
     ].freeze
 
-    DEFAULT_EXTENSIONS = [
-      "Pakyow::Routing::Extension::Resource".freeze
-    ].freeze
-
-    extend Forwardable
-
-    # @!method handle
-    #   Delegates to {@controller}.
-    #
-    #   @see Controller#handle
-    #
-    # @!method redirect
-    #   Delegates to {@controller}.
-    #
-    #   @see Controller#redirect
-    #
-    # @!method reroute
-    #   Delegates to {@controller}.
-    #
-    #   @see Controller#reroute
-    #
-    # @!method send
-    #   Delegates to {@controller}.
-    #
-    #   @see Controller#send
-    #
-    # @!method reject
-    #   Delegates to {@controller}.
-    #
-    #   @see Controller#reject
-    #
-    # @!method trigger
-    #   Delegates to {@controller}.
-    #
-    #   @see Controller#trigger
-    #
-    # @!method path
-    #   Delegates to {@controller}.
-    #
-    #   @see Controller#path
-    #
-    # @!method path_to
-    #   Delegates to {@controller}.
-    #
-    #   @see Controller#path_to
-    #
-    # @!method halt
-    #   Delegates to {@controller}.
-    #
-    #   @see Controller#halt
-    #
-    # @!method request
-    #   Delegates to {@controller}.
-    #
-    #   @see Controller#request
-    #
-    # @!method response
-    #   Delegates to {@controller}.
-    #
-    #   @see Controller#response
-    #
-    # @!method req
-    #   Delegates to {@controller}.
-    #
-    #   @see Controller#req
-    #
-    # @!method res
-    #   Delegates to {@controller}.
-    #
-    #   @see Controller#res
-    #
-    # @!method respond_to
-    #   Delegates to {@controller}.
-    #
-    #   @see Controller#respond_to
-    def_delegators :@controller, :handle, :redirect, :reroute, :send, :reject, :trigger,
-                   :halt, :request, :response, :req, :res, :respond_to
-
-    # @!method config
-    #   Delegates to {@controller.app}.
-    #
-    #   @see App#config
-    def_delegators :"@controller.app", :config
-
-    # @!method logger
-    #   Delegates to {@controller.request}.
-    #
-    #   @see Request#logger
-    #
-    # @!method params
-    #   Delegates to {@controller.request}.
-    #
-    #   @see Request#params
-    #
-    # @!method session
-    #   Delegates to {@controller.request}.
-    #
-    #   @see Request#session
-    #
-    # @!method :cookies
-    #   Delegates to {@controller.request}.
-    #
-    #   @see Request#:cookies
-    def_delegators :"@controller.request", :logger, :params, :session, :cookies
-
-    # @!method path
-    #   @return builds the path to a named route (see {PathBuilder#path})
-    # @!method path_to
-    #   @return builds the path to a route, following a trail of names (see {PathBuilder#path_to})
-    def_delegators :"@controller.app.path_builder", :path, :path_to
-
-    # The context of the current request lifecycle.
-    # Expected to be an instance of {Controller}.
-    attr_accessor :controller
+    CONTENT_DISPOSITION = "Content-Disposition".freeze
 
     # @api private
-    def initialize(controller)
-      @controller = controller
+    def initialize(state)
+      @__state = state
     end
 
-    # Copies state from self to +router+.
+    def call_route(route)
+      route.call(self); throw(:routed)
+    rescue StandardError => error
+      handle_error(error)
+      raise error
+    end
+
+    # Redirects to +location+ and immediately halts request processing.
     #
-    # @api private
-    def handoff_to(router)
-      instance_variables.each do |ivar|
-        next if router.instance_variable_defined?(ivar)
-        router.instance_variable_set(ivar, instance_variable_get(ivar))
+    # @param location [String] what url the request should be redirected to
+    # @param as [Integer, Symbol] the status to redirect with
+    #
+    # @example Redirecting:
+    #   Pakyow::App.controller do
+    #     default do
+    #       redirect "/foo"
+    #     end
+    #   end
+    #
+    # @example Redirecting with a status code:
+    #   Pakyow::App.controller do
+    #     default do
+    #       redirect "/foo", as: 301
+    #     end
+    #   end
+    #
+    def redirect(location, as: 302, **params)
+      response.status = Rack::Utils.status_code(as)
+      response["Location"] = location.is_a?(Symbol) ? app.paths.path(location, **params) : location
+      halt
+    end
+
+    # Reroutes the request to a different location. Instead of an http redirect,
+    # the request will continued to be handled in the current request lifecycle.
+    #
+    # @param location [String] what url the request should be rerouted to
+    # @param method [Symbol] the http method to reroute as
+    #
+    # @example
+    #   Pakyow::App.resource :post, "/posts" do
+    #     edit do
+    #       @post ||= find_post_by_id(params[:post_id])
+    #
+    #       # render the form for @post
+    #     end
+    #
+    #     update do
+    #       if post_fails_to_create
+    #         @post = failed_post_object
+    #         reroute path(:post_edit, post_id: @post.id), method: :get
+    #       end
+    #     end
+    #   end
+    #
+    def reroute(location, method: request.method, **params)
+      request.env[Rack::REQUEST_METHOD] = method.to_s.upcase
+      request.env[Rack::PATH_INFO] = location.is_a?(Symbol) ? app.paths.path(location, **params) : location
+      throw :halt, app.call(request.env)
+    end
+
+    # Responds to a specific request format.
+    #
+    # The +Content-Type+ header will be set on the response based
+    # on the format that is being responded to.
+    #
+    # After yielding, request processing will be halted.
+    #
+    # @example
+    #   Pakyow::App.controller do
+    #     get "/foo.txt|html" do
+    #       respond_to :txt do
+    #         send "foo"
+    #       end
+    #
+    #       # do something for html format
+    #     end
+    #   end
+    #
+    def respond_to(format)
+      return unless request.format == format.to_sym
+      response.format = format
+      yield
+      halt
+    end
+
+    DEFAULT_SEND_TYPE = "application/octet-stream".freeze
+
+    # Sends a file or other data in the response.
+    #
+    # Accepts data as a +String+ or +IO+ object. When passed a +File+ object,
+    # the mime type will be determined automatically. The type can be set
+    # explicitly with the +type+ option.
+    #
+    # Passing +name+ sets the +Content-Disposition+ header to "attachment".
+    # Otherwise, the disposition will be set to "inline".
+    #
+    # @example Sending data:
+    #   Pakyow::App.controller do
+    #     default do
+    #       send "foo", type: "text/plain"
+    #     end
+    #   end
+    #
+    # @example Sending a file:
+    #   Pakyow::App.controller do
+    #     default do
+    #       filename = "foo.txt"
+    #       send File.open(filename), name: filename
+    #     end
+    #   end
+    #
+    def send(file_or_data, type: nil, name: nil)
+      if file_or_data.is_a?(IO) || file_or_data.is_a?(StringIO)
+        data = file_or_data
+
+        if file_or_data.is_a?(File)
+          type ||= Rack::Mime.mime_type(File.extname(file_or_data.path))
+        end
+
+        response[Rack::CONTENT_TYPE] = type || DEFAULT_SEND_TYPE
+      elsif file_or_data.is_a?(String)
+        response[Rack::CONTENT_TYPE] = type if type
+        data = StringIO.new(file_or_data)
+      else
+        raise ArgumentError, "Expected an IO or String object"
       end
+
+      response[CONTENT_DISPOSITION] = name ? "attachment; filename=#{name}" : "inline"
+      halt(data)
     end
 
-    # @api private
-    def trigger_for_code(code, handlers: {})
-      return unless handler = self.class.handler_for_code(code, handlers: handlers)
-      instance_exec(&handler); true
+    # Halts request processing, immediately returning the response.
+    #
+    # The response body will be set to +body+ prior to halting (if it's a non-nil value).
+    #
+    def halt(body = nil)
+      response.body = body if body
+      throw :halt, response
+    end
+
+    # Rejects the request, calling the next matching route.
+    #
+    def reject
+      throw :reject
     end
 
     @hooks = { before: [], after: [], around: [] }
@@ -308,26 +329,42 @@ module Pakyow
     @exceptions = {}
 
     class << self
-      # Conveniently define defaults when subclassing +Pakyow::Router+.
+      def call(state)
+        return if Pakyow.env == :prototype
+
+        catch :routed do
+          state.app.state_for(:controller).each do |controller|
+            controller.try_routing(state)
+          end
+
+          return false
+        end
+
+        state.processed
+      end
+
+      def handle_missing(state)
+        new(state).trigger(404)
+      end
+
+      def handle_failure(state, error)
+        controller = new(state)
+        # try to handle the specific error
+        controller.handle_error(error)
+        # otherwise, just handle as a generic 500
+        controller.trigger(500)
+      end
+
+      # Conveniently define defaults when subclassing +Pakyow::Controller+.
       #
       # @example
-      #   class MyRouter < Pakyow::Router("/foo", before: [:foo])
+      #   class MyController < Pakyow::Controller("/foo", before: [:foo])
       #     # more routes here
       #   end
       #
-      # @api public
       # rubocop:disable Naming/MethodName
-      def Router(matcher, before: [], after: [], around: [])
-        Class.new(self) do
-          @path = path_from_matcher(matcher)
-          @matcher = finalize_matcher(matcher)
-          @hooks = {
-            before: convert_to_hook_objects(before, :before),
-            after: convert_to_hook_objects(after, :after),
-            around: convert_to_hook_objects(around, :around)
-          }
-          @hooks_for_routes = {}
-        end
+      def Controller(matcher, before: [], after: [], around: [])
+        make(matcher, before: before, after: after, around: around)
       end
       # rubocop:enabled Naming/MethodName
 
@@ -335,7 +372,6 @@ module Pakyow
       #
       # @see get
       #
-      # @api public
       def default(**hooks, &block)
         get :default, "/", **hooks, &block
       end
@@ -343,7 +379,7 @@ module Pakyow
       # @!method get
       #   Create a route that matches +GET+ requests at +path+. For example:
       #
-      #     Pakyow::App.router do
+      #     Pakyow::App.controller do
       #       get "/foo" do
       #         # do something
       #       end
@@ -352,7 +388,7 @@ module Pakyow
       #   Routes can be named, making them available for path building via
       #   {Controller#path}. For example:
       #
-      #     Pakyow::App.router do
+      #     Pakyow::App.controller do
       #       get :foo, "/foo" do
       #         # do something
       #       end
@@ -361,7 +397,7 @@ module Pakyow
       #   Routes can be defined with +before+, +after+, or +around+ hooks.
       #   For example:
       #
-      #     Pakyow::App.router do
+      #     Pakyow::App.controller do
       #       def bar
       #       end
       #
@@ -391,7 +427,7 @@ module Pakyow
       #   @see get
       #
       SUPPORTED_HTTP_METHODS.each do |http_method|
-        define_method http_method do |name_or_matcher = nil, matcher_or_name = nil, skip: {}, skip_before: {}, skip_after: {}, skip_around: {}, **hooks, &block|
+        define_method http_method.downcase.to_sym do |name_or_matcher = nil, matcher_or_name = nil, skip: {}, skip_before: {}, skip_after: {}, skip_around: {}, **hooks, &block|
           build_route(http_method, name_or_matcher, matcher_or_name, skip: skip, skip_before: skip_before, skip_after: skip_after, skip_around: skip_around, **hooks, &block)
         end
       end
@@ -406,7 +442,7 @@ module Pakyow
       # by the most direct parent group that is named.
       #
       # @example Defining a group:
-      #   Pakyow::App.router do
+      #   Pakyow::App.controller do
       #     def foo
       #       logger.info "foo"
       #     end
@@ -441,7 +477,6 @@ module Pakyow
       #   path :baz
       #   # => "/baz"
       #
-      # @api public
       def group(name = nil, **hooks, &block)
         make_child(name, nil, **hooks, &block)
       end
@@ -451,7 +486,7 @@ module Pakyow
       # regard to path lookup and hook inheritance.
       #
       # @example Defining a namespace:
-      #   Pakyow::App.router do
+      #   Pakyow::App.controller do
       #     namespace :api, "/api" do
       #       def auth
       #         handle 401 unless authed?
@@ -485,7 +520,7 @@ module Pakyow
       # to define the resource template ({Routing::Extension::Resource}).
       #
       # @example Defining a template:
-      #   Pakyow::App.router do
+      #   Pakyow::App.controller do
       #     template :talkback do
       #       get :hello, "/hello"
       #       get :goodbye, "/goodbye"
@@ -494,7 +529,7 @@ module Pakyow
       #
       # @example Expanding a template:
       #
-      #   Pakyow::App.router do
+      #   Pakyow::App.controller do
       #     talkback :en, "/en" do
       #       hello do
       #         send "hello"
@@ -529,61 +564,15 @@ module Pakyow
       #
       # @see template
       #
-      # @api public
       def expand(name, *args, **hooks, &block)
         make_child(*args, **hooks).expand_within(name, &block)
       end
 
-      # Registers an error handler used within this router.
-      #
-      # @example Handling a status code:
-      #   Pakyow::App.router do
-      #     handle 500 do
-      #       # handle 500 responses
-      #     end
-      #
-      #     default do
-      #       trigger 500
-      #     end
-      #   end
-      #
-      # @example Handling a status code by name:
-      #   Pakyow::App.router do
-      #     handle :forbidden do
-      #       # handle 403 responses
-      #     end
-      #
-      #     default do
-      #       trigger 403 # or, `trigger :forbidden`
-      #     end
-      #   end
-      #
-      # @example Handling an exception:
-      #   handle Sequel::NoMatchingRow, as: 404 do
-      #     # handle missing records
-      #   end
-      #
-      #   Pakyow::App.router do
-      #     default do
-      #       raise Sequel::NoMatchingRow
-      #     end
-      #   end
-      #
-      # @api public
-      def handle(name_exception_or_code, as: nil, &block)
-        if name_exception_or_code.is_a?(Class) && name_exception_or_code.ancestors.include?(Exception)
-          raise ArgumentError, "status code is required" if as.nil?
-          exceptions[name_exception_or_code] = [Rack::Utils.status_code(as), block]
-        else
-          handlers[Rack::Utils.status_code(name_exception_or_code)] = block
-        end
-      end
-
-      # Defines routes within another router.
+      # Defines routes within another controller.
       #
       # @example
       #   Pakyow::App.define do
-      #     router :api, "/api" do
+      #     controller :api, "/api" do
       #     end
       #
       #     resource :project, "/projects" do
@@ -599,10 +588,9 @@ module Pakyow
       #     end
       #   end
       #
-      # @api public
       def within(*names, &block)
-        raise NameError, "Unknown router `#{names.first}'" unless router = find_router_by_name(names)
-        router.make_child(name, matcher, **hooks, &block)
+        raise NameError, "Unknown controller `#{names.first}'" unless controller = find_controller_by_name(names)
+        controller.make_child(name, matcher, **hooks, &block)
       end
 
       def before(*routes_and_maybe_method, skip: nil, &block)
@@ -620,7 +608,7 @@ module Pakyow
       # Attempts to find and expand a template, avoiding the need to call
       # {expand} explicitly. For example, these calls are identical:
       #
-      #   Pakyow::App.router do
+      #   Pakyow::App.controller do
       #     resource :post, "/posts" do
       #     end
       #
@@ -628,7 +616,6 @@ module Pakyow
       #     end
       #   end
       #
-      # @api private
       def method_missing(name, *args, **hooks, &block)
         if templates.include?(name)
           expand(name, *args, **hooks, &block)
@@ -637,19 +624,19 @@ module Pakyow
         end
       end
 
-      # @api private
       def respond_to_missing?(method_name, include_private = false)
         templates.include?(method_name) || super
       end
 
       # @api private
-      attr_reader :path, :matcher, :hooks, :hooks_for_routes, :children, :templates, :handlers, :exceptions
+      attr_reader :path, :matcher, :hooks, :hooks_for_routes, :children, :templates, :routes
 
       # @api private
       attr_accessor :parent
 
       # @api private
       def inherited(klass)
+        super
         matcher = self.matcher
         hooks = self.hooks.deep_dup
         hooks_for_routes = self.hooks_for_routes.deep_dup
@@ -666,8 +653,8 @@ module Pakyow
           @exceptions = exceptions
           @children = []
 
-          DEFAULT_EXTENSIONS.each do |extension|
-            include(Kernel.const_get(extension))
+          @routes = SUPPORTED_HTTP_METHODS.each_with_object({}) do |method, routes_hash|
+            routes_hash[method] = []
           end
         end
       end
@@ -679,19 +666,18 @@ module Pakyow
 
       # @api private
       def path_to(*names, **params)
-        # look for a matching route before descending into child routers
+        # look for a matching route before descending into child controllers
         combined_name = names.join("_").to_sym
         if found_route = routes.values.flatten.find { |route| route.name == combined_name }
           return found_route.populated_path(path_to_self, **params)
         end
 
-        matched_routers = children.reject { |router_to_match|
-          # TODO: make this a method on router to call from here and controller
-          router_to_match.name.nil? || router_to_match.name != names.first
+        matched_controllers = children.reject { |controller_to_match|
+          controller_to_match.name.nil? || controller_to_match.name != names.first
         }
 
-        matched_routers.each do |matched_router|
-          if path = matched_router.path_to(*names[1..-1], **params)
+        matched_controllers.each do |matched_controller|
+          if path = matched_controller.path_to(*names[1..-1], **params)
             return path
           end
         end
@@ -703,7 +689,7 @@ module Pakyow
         name, matcher = parse_name_and_matcher_from_args(*args)
 
         path = path_from_matcher(matcher)
-        matcher = finalize_matcher(matcher)
+        matcher = finalize_matcher(matcher || "/")
         hooks = compile_hooks(
           before: convert_to_hook_objects(Array.ensure(before), :before),
           after: convert_to_hook_objects(Array.ensure(after), :after),
@@ -715,57 +701,46 @@ module Pakyow
 
       # @api private
       def make_child(*args, **hooks, &block)
-        router = make(*args, parent: self, **hooks, &block)
-        children << router
-        router
+        controller = make(*args, parent: self, **hooks, &block)
+        children << controller
+        controller
       end
 
       # @api private
-      def routes
-        @routes ||= SUPPORTED_HTTP_METHODS.each_with_object({}) do |method, routes_hash|
-          routes_hash[method] = []
+      def try_routing(state, request_path = state.request.path)
+        request_method = state.request.method
+
+        if match = matcher.match(request_path)
+          match_data = match.named_captures
+
+          if matcher.is_a?(Regexp)
+            request_path = String.normalize_path(request_path.sub(matcher, ""))
+          end
+
+          routes[request_method].each do |route|
+            catch :reject do
+              if route_match = route.match(request_path)
+                match_data.merge!(route_match.named_captures)
+
+                state.request.params.merge!(match_data)
+                state.request.env["pakyow.endpoint"] = File.join(path_to_self.to_s, route.path.to_s)
+
+                self.new(state).call_route(route)
+              end
+            end
+          end
+
+          children.each do |child_controller|
+            child_controller.try_routing(state, request_path)
+          end
         end
       end
 
       # @api private
-      def match_router_and_route(path, method, match_data = {}, &block)
-        return if matcher && !matcher.match?(path)
-
-        if matcher.respond_to?(:match)
-          # TODO: need this all to be in a helper and shared with Route
-          match_data.merge!(matcher.match(path).named_captures)
-        end
-
-        if matcher.is_a?(Regexp)
-          path = String.normalize_path(path.sub(matcher, ""))
-        end
-
-        children.each do |child_router|
-          child_router.match_router_and_route(path, method, match_data, &block)
-        end
-
-        routes[method].each do |route|
-          next unless route_match_data = route.match(path)
-          match_data.merge!(route_match_data) if route_match_data.is_a?(Hash)
-          yield self, route, match_data
-        end
-      end
-
-      # @api private
-      def merge(router)
-        merge_hooks(router.hooks)
-        merge_routes(router.routes)
-        merge_templates(router.templates)
-      end
-
-      # @api private
-      def exception_for_class(klass, exceptions: {})
-        self.exceptions.merge(exceptions)[klass]
-      end
-
-      # @api private
-      def handler_for_code(code, handlers: {})
-        self.handlers.merge(handlers)[code]
+      def merge(controller)
+        merge_hooks(controller.hooks)
+        merge_routes(controller.routes)
+        merge_templates(controller.templates)
       end
 
       # @api private
@@ -777,26 +752,25 @@ module Pakyow
 
       protected
 
-      # Finds a router via +names+, starting with a top-level router.
+      # Finds a controller via +names+, starting with a top-level controller.
       #
-      # @api private
-      def find_router_by_name(names, routers = nil)
-        return parent.find_router_by_name(names) if parent
+      def find_controller_by_name(names, controllers = nil)
+        return parent.find_controller_by_name(names) if parent
 
         first_name = names.shift
-        (routers || [self].concat(state.instances)).each do |router|
-          next unless router.name == first_name
+        (controllers || [self].concat(state.instances)).each do |controller|
+          next unless controller.name == first_name
 
           if names.empty?
-            return router
+            return controller
           else
-            return router.find_router_by_name(names, router.children)
+            return controller.find_controller_by_name(names, controller.children)
           end
         end
       end
 
       def parse_name_and_matcher_from_args(name_or_matcher = nil, matcher_or_name = nil)
-        Aargv.normalize([name_or_matcher, matcher_or_name].compact, name: Symbol, matcher: Object).values_at(:name, :matcher)
+        Aargv.normalize([name_or_matcher, matcher_or_name].compact, name: [Symbol, ConcernName], matcher: Object).values_at(:name, :matcher)
       end
 
       def finalize_matcher(matcher)

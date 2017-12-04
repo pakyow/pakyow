@@ -3,7 +3,7 @@ RSpec.describe "responding to request format" do
 
   let :app_definition do
     Proc.new {
-      router do
+      controller do
         get "foo.txt|html" do
           respond_to :txt do
             res.body = "foo"

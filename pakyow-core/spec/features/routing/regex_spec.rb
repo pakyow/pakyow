@@ -4,7 +4,7 @@ RSpec.describe "routing with regex matchers" do
   context "when route is defined with a regex" do
     let :app_definition do
       Proc.new {
-        router do
+        controller do
           get(/.*/) do
             send "regex"
           end
@@ -19,7 +19,7 @@ RSpec.describe "routing with regex matchers" do
     context "when regex contains named captures" do
       let :app_definition do
         Proc.new {
-          router do
+          controller do
             get(/\/(?<input>.*)/) do
               send params[:input] || ""
             end
@@ -36,7 +36,7 @@ RSpec.describe "routing with regex matchers" do
   context "when a namespace is defined with a regex" do
     let :app_definition do
       Proc.new {
-        router do
+        controller do
           namespace(/foo/) do
             default do
               send "foo"
@@ -51,10 +51,10 @@ RSpec.describe "routing with regex matchers" do
     end
   end
 
-  context "when a router is defined with a regex" do
+  context "when a controller is defined with a regex" do
     let :app_definition do
       Proc.new {
-        router(/foo/) do
+        controller(/foo/) do
           default do
             send "foo"
           end

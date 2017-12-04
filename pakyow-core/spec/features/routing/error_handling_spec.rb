@@ -5,7 +5,7 @@ RSpec.describe "error handling" do
     context "and a handler is defined by name" do
       let :app_definition do
         Proc.new {
-          router do
+          controller do
             handle :not_found do
               send "not found"
             end
@@ -29,7 +29,7 @@ RSpec.describe "error handling" do
     context "and a handler is defined by code" do
       let :app_definition do
         Proc.new {
-          router do
+          controller do
             handle 404 do
               send "not found"
             end
@@ -50,10 +50,10 @@ RSpec.describe "error handling" do
       end
     end
 
-    context "and a handler is defined on a route as well as the router" do
+    context "and a handler is defined on a route as well as the controller" do
       let :app_definition do
         Proc.new {
-          router do
+          controller do
             handle 404 do
               send "not found"
             end
@@ -78,10 +78,10 @@ RSpec.describe "error handling" do
       end
     end
 
-    context "and a handler is defined in a parent router" do
+    context "and a handler is defined in a parent controller" do
       let :app_definition do
         Proc.new {
-          router do
+          controller do
             handle 404 do
               send "not found from parent"
             end
@@ -104,10 +104,10 @@ RSpec.describe "error handling" do
       end
     end
 
-    context "and a handler is defined in a nested parent router" do
+    context "and a handler is defined in a nested parent controller" do
       let :app_definition do
         Proc.new {
-          router :top do
+          controller :top do
             group :foo do
               handle 403 do
                 send "forbidden from parent"
@@ -132,16 +132,16 @@ RSpec.describe "error handling" do
       end
     end
 
-    context "and a handler is defined in a sibling router" do
+    context "and a handler is defined in a sibling controller" do
       let :app_definition do
         Proc.new {
-          router do
+          controller do
             handle 404 do
               send "not found from sibling"
             end
           end
 
-          router do
+          controller do
             default do
               trigger 404
             end
@@ -163,7 +163,7 @@ RSpec.describe "error handling" do
     context "and a handler is defined for the exception" do
       let :app_definition do
         Proc.new {
-          router do
+          controller do
             handle StandardError, as: 401 do
               send "handled exception"
             end
@@ -186,7 +186,7 @@ RSpec.describe "error handling" do
       context "and another error of the same type occurs" do
         let :app_definition do
           Proc.new {
-            router do
+            controller do
               handle StandardError, as: 401 do
                 send "handled exception"
               end
@@ -196,7 +196,7 @@ RSpec.describe "error handling" do
               end
             end
 
-            router do
+            controller do
               get "/foo" do
                 raise StandardError
               end
@@ -212,10 +212,10 @@ RSpec.describe "error handling" do
         end
       end
 
-      context "and a handler is defined for the exception in a parent router" do
+      context "and a handler is defined for the exception in a parent controller" do
         let :app_definition do
           Proc.new {
-            router do
+            controller do
               handle StandardError, as: 401 do
                 send "handled exception from parent"
               end
@@ -279,7 +279,7 @@ RSpec.describe "error handling" do
             send "boom"
           end
 
-          router do
+          controller do
             default do
               fail
             end
@@ -305,7 +305,7 @@ RSpec.describe "error handling" do
             send "boom"
           end
 
-          router do
+          controller do
             default do
               raise ArgumentError
             end
@@ -327,7 +327,7 @@ RSpec.describe "error handling" do
     context "and a global handler is not defined" do
       let :app_definition do
         Proc.new {
-          router do
+          controller do
             default do
               fail
             end
@@ -346,7 +346,7 @@ RSpec.describe "error handling" do
   describe "the handling context" do
     let :app_definition do
       Proc.new {
-        router do
+        controller do
           handle 500 do
             @state << "handler"
             send @state

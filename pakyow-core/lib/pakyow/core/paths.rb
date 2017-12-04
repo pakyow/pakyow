@@ -1,15 +1,17 @@
 # frozen_string_literal: true
 
 module Pakyow
-  App.after :load do
-    @path_builder = PathBuilder.new(self.class.router.instances)
-  end
-
-  # Builds paths to an app's routers.
+  # Lookup for app paths.
   #
-  class PathBuilder
-    def initialize(routers)
-      @routers = routers
+  class Paths
+    def initialize
+      @objects_with_paths = []
+    end
+
+    # Adds an object with paths.
+    #
+    def <<(object_with_paths)
+      @objects_with_paths << object_with_paths
     end
 
     # Builds the path to a named route.
@@ -22,7 +24,6 @@ module Pakyow
     #   path(:post_edit, post_id: 1)
     #   # => "/posts/1/edit"
     #
-    # @api public
     def path(name, **params)
       path_to(*name.to_s.split("_").map(&:to_sym), **params)
     end
@@ -37,14 +38,13 @@ module Pakyow
     #   path_to(:post, :edit, post_id: 1)
     #   # => "/posts/1/edit"
     #
-    # @api public
     def path_to(*names, **params)
-      matched_routers = @routers.reject { |router_to_match|
-        router_to_match.name.nil? || router_to_match.name != names.first
+      matched_objects = @objects_with_paths.reject { |object_to_match|
+        object_to_match.name.nil? || object_to_match.name != names.first
       }
 
-      matched_routers.each do |matched_router|
-        if path = matched_router.path_to(*names[1..-1], **params)
+      matched_objects.each do |matched_object|
+        if path = matched_object.path_to(*names[1..-1], **params)
           return path
         end
       end

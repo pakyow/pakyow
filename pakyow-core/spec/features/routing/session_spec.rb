@@ -5,7 +5,7 @@ RSpec.describe "using sessions" do
     Proc.new {
       config.protection.enabled = false
 
-      router do
+      controller do
         get "/get" do
           send session[:foo] || ""
         end

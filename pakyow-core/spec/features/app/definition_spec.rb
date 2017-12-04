@@ -5,7 +5,7 @@ RSpec.describe "defining an app" do
     Proc.new {
       config.app.name = "define-test"
 
-      router do
+      controller do
         default do
           send config.app.name
         end
@@ -21,30 +21,35 @@ RSpec.describe "defining an app" do
 
   context "when app is a subclass" do
     let :app_definition do
-      false
+      Proc.new {}
     end
 
-    let :app do
-      class ChildApp < Pakyow::App; end
-      ChildApp
-    end
+    let :base do
+      klass = Class.new(Pakyow::App) do
+        include_frameworks(:routing)
+      end
 
-    before do
-      Pakyow::App.define do
+      klass.define do
         config.app.name = "define-test"
 
-        router do
+        controller do
           default do
             send config.app.name
           end
         end
       end
 
-      run
+      klass
     end
 
-    after do
-      Pakyow::App.reset
+    let :app do
+      app = Class.new(base)
+      app.define(&app_definition)
+      app
+    end
+
+    before do
+      run
     end
 
     it "inherits parent state" do
@@ -67,7 +72,7 @@ RSpec.describe "defining an app" do
       end
 
       it "does not modify the parent state" do
-        expect(Pakyow::App.config.app.name).to eq("define-test")
+        expect(base.config.app.name).to eq("define-test")
       end
     end
   end
@@ -86,7 +91,7 @@ RSpec.describe "defining an app" do
     end
 
     it "does not modify the class-level state" do
-      expect(Pakyow::App.config.app.name).to eq("define-test")
+      expect(app.config.app.name).to eq("define-test")
     end
   end
 end

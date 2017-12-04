@@ -3,10 +3,6 @@ RSpec.describe "running the environment" do
     Pakyow.config.server.default = :mock
   end
 
-  after do
-    Pakyow.reset
-  end
-
   context "with no mounted endpoints" do
     it "raises a runtime error" do
       expect {

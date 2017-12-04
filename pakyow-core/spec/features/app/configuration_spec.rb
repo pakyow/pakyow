@@ -9,7 +9,7 @@ RSpec.describe "configuring an app" do
     end
 
     it "is configured properly" do
-      expect(Pakyow::App.config.app.name).to eq("config-test")
+      expect(app.config.app.name).to eq("config-test")
     end
   end
 
@@ -20,7 +20,7 @@ RSpec.describe "configuring an app" do
           config.app.name = "config-env-test"
         end
 
-        router do
+        controller do
           default do
             send config.app.name
           end
@@ -44,7 +44,7 @@ RSpec.describe "accessing the app's config" do
       Proc.new {
         config.app.name = "config-test"
 
-        router do
+        controller do
           default do
             send config.app.name
           end
@@ -67,7 +67,7 @@ RSpec.describe "accessing the app's config" do
     end
 
     it "can be accessed externally" do
-      expect(Pakyow::App.config.app.name).to eq("config-test")
+      expect(app.config.app.name).to eq("config-test")
     end
   end
 end

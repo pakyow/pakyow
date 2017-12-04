@@ -9,7 +9,7 @@ RSpec.describe "application helpers" do
 
   let :app_definition do
     Proc.new {
-      router do
+      controller do
         default do
           send foo
         end
@@ -17,7 +17,7 @@ RSpec.describe "application helpers" do
     }
   end
 
-  it "makes helpers callable from a route" do
+  it "makes helpers available within a controller" do
     expect(call[2].body.read).to eq("foo")
   end
 end

@@ -8,7 +8,7 @@ RSpec.describe "route hooks" do
   context "when a single hook is defined" do
     let :app_definition do
       Proc.new do
-        router do
+        controller do
           def foo
             $calls << :foo
           end
@@ -46,7 +46,7 @@ RSpec.describe "route hooks" do
   context "when multiple hooks are defined" do
     let :app_definition do
       Proc.new do
-        router do
+        controller do
           def foo1
             $calls << :foo1
           end

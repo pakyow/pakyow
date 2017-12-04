@@ -1,4 +1,4 @@
-RSpec.describe "extending a router" do
+RSpec.describe "extending a controller" do
   include_context "testable app"
 
   module RouteExtensions
@@ -11,13 +11,13 @@ RSpec.describe "extending a router" do
 
   let :app_definition do
     Proc.new {
-      router do
+      controller do
         include RouteExtensions
       end
     }
   end
 
-  it "makes the extensions available to the router" do
+  it "makes the extensions available to the controller" do
     expect(call[2].body.read).to eq("extension")
   end
 end

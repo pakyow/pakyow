@@ -12,10 +12,6 @@ RSpec.describe "stopping the environment" do
     end
   end
 
-  after do
-    Pakyow.reset
-  end
-
   let :handler_double do
     double
   end

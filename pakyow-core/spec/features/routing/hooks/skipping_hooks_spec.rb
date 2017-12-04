@@ -8,7 +8,7 @@ RSpec.describe "skipping hooks" do
   context "when an inline hook is defined to skip a named route" do
     let :app_definition do
       Proc.new do
-        router do
+        controller do
           before skip: [:skippable] do
             $calls << :before
           end
@@ -38,7 +38,7 @@ RSpec.describe "skipping hooks" do
   context "when an inline hook is defined to skip with the result of a proc" do
     let :app_definition do
       Proc.new do
-        router do
+        controller do
           before skip: -> { req.path.include?("skip") } do
             $calls << :before
           end
@@ -68,7 +68,7 @@ RSpec.describe "skipping hooks" do
   context "when a route is defined to skip a named hook" do
     let :app_definition do
       Proc.new do
-        router do
+        controller do
           before :foo
           after :foo
           around :foo
@@ -111,7 +111,7 @@ RSpec.describe "skipping hooks" do
   context "when a route is defined to skip a named before hook" do
     let :app_definition do
       Proc.new do
-        router do
+        controller do
           before :foo
           after :foo
           around :foo
@@ -144,7 +144,7 @@ RSpec.describe "skipping hooks" do
   context "when a route is defined to skip a named after hook" do
     let :app_definition do
       Proc.new do
-        router do
+        controller do
           before :foo
           after :foo
           around :foo
@@ -177,7 +177,7 @@ RSpec.describe "skipping hooks" do
   context "when a route is defined to skip a named around hook" do
     let :app_definition do
       Proc.new do
-        router do
+        controller do
           before :foo
           after :foo
           around :foo

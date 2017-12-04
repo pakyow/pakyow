@@ -9,10 +9,6 @@ RSpec.describe "default middleware stack" do
     Pakyow.setup
   end
 
-  after do
-    Pakyow.reset
-  end
-
   it "uses Rack::ContentType" do
     expect(builder).to have_received(:use).with(
       Rack::ContentType, "text/html"

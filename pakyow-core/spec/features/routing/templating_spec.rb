@@ -3,7 +3,7 @@ RSpec.describe "route templating" do
 
   let :app_definition do
     Proc.new {
-      router do
+      controller do
         template :talkback do
           get :hello, "/hello"
           get :goodbye, "/goodbye"

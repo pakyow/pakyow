@@ -20,46 +20,44 @@ module Pakyow
     #
     # See {Extension::Resource} for a more complex example.
     #
-    # @api public
     module Extension
       # @api private
       def self.extended(base)
-        base.instance_variable_set(:@__extension, Pakyow::Router(nil))
+        base.instance_variable_set(:@__extension, Pakyow::Controller(nil))
         base.extend(ClassMethods)
       end
 
       # Methods available to the extension.
       #
-      # @api public
       module ClassMethods
         extend Forwardable
 
         # @!method get
-        #   @see Router.get
+        #   @see Controller.get
         # @!method post
-        #   @see Router.post
+        #   @see Controller.post
         # @!method put
-        #   @see Router.put
+        #   @see Controller.put
         # @!method patch
-        #   @see Router.patch
+        #   @see Controller.patch
         # @!method delete
-        #   @see Router.delete
+        #   @see Controller.delete
         # @!method default
-        #   @see Router.default
+        #   @see Controller.default
         # @!method group
-        #   @see Router.group
+        #   @see Controller.group
         # @!method namespace
-        #   @see Router.namespace
+        #   @see Controller.namespace
         # @!method template
-        #   @see Router.template
-        def_delegators :@__extension, *%i[default group namespace template].concat(Router::SUPPORTED_HTTP_METHODS)
+        #   @see Controller.template
+        def_delegators :@__extension, *%i[default group namespace template].concat(Controller::SUPPORTED_HTTP_METHODS)
 
         # @api private
         def included(base)
-          if base.ancestors.include?(Router)
+          if base.ancestors.include?(Controller)
             base.merge(@__extension)
           else
-            raise StandardError, "Expected `#{base}' to be a subclass of `Pakyow::Router'"
+            raise StandardError, "Expected `#{base}' to be a subclass of `Pakyow::Controller'"
           end
         end
       end

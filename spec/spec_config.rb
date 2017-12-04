@@ -21,6 +21,22 @@ RSpec.configure do |config|
   Kernel.srand config.seed
 
   config.filter_run_excluding benchmark: true
+
+  config.before do
+    if Pakyow.respond_to?(:config)
+      @original_pakyow_config = Pakyow.config.dup
+    end
+  end
+
+  config.after do
+    [:@env, :@port, :@host, :@server, :@mounts, :@builder, :@logger, :@apps, :@mounts].each do |ivar|
+      Pakyow.remove_instance_variable(ivar) if Pakyow.instance_variable_defined?(ivar)
+    end
+
+    if instance_variable_defined?(:@original_pakyow_config)
+      Pakyow.instance_variable_set(:@config, @original_pakyow_config)
+    end
+  end
 end
 
 def start_simplecov(&block)
@@ -44,13 +60,3 @@ end
 require "spec_helper"
 
 ENV["SESSION_SECRET"] = "sekret"
-
-if defined?(Pakyow::Controller)
-  Pakyow::Controller.before :error do
-    $stderr.puts req.error
-
-    req.error.backtrace.each do |line|
-      $stderr.puts line
-    end
-  end
-end

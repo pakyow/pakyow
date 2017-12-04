@@ -8,7 +8,7 @@ RSpec.describe "inline hooks" do
   context "when defined as a proc for all routes" do
     let :app_definition do
       Proc.new do
-        router do
+        controller do
           before do
             $calls << :before
           end
@@ -35,7 +35,7 @@ RSpec.describe "inline hooks" do
   context "when defined as a proc for one named route" do
     let :app_definition do
       Proc.new do
-        router do
+        controller do
           before :default do
             $calls << :before
           end
@@ -71,7 +71,7 @@ RSpec.describe "inline hooks" do
   context "when defined as a proc for multiple named routes" do
     let :app_definition do
       Proc.new do
-        router do
+        controller do
           before :default, :other do
             $calls << :before
           end
@@ -115,7 +115,7 @@ RSpec.describe "inline hooks" do
   context "when defined as a method call for all routes" do
     let :app_definition do
       Proc.new do
-        router do
+        controller do
           before :foo
 
           def foo
@@ -144,7 +144,7 @@ RSpec.describe "inline hooks" do
   context "when defined as a method call for one named route" do
     let :app_definition do
       Proc.new do
-        router do
+        controller do
           before :default, :foo
 
           def foo
@@ -182,7 +182,7 @@ RSpec.describe "inline hooks" do
   context "when defined as a method call for multiple named routes" do
     let :app_definition do
       Proc.new do
-        router do
+        controller do
           before :default, :other, :foo
 
           def foo

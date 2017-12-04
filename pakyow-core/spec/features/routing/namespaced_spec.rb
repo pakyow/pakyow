@@ -3,7 +3,9 @@ RSpec.describe "namespaced routes" do
 
   let :app_definition do
     Proc.new {
-      router do
+      controller do
+        # so how do we handle this case? we are defining methods on the router, not the controller :/
+        # would we create a nested controller in this case???
         namespace :ns, "/ns", before: [:foo], after: [:foo], around: [:meh] do
           def foo
             $calls << :foo
@@ -52,7 +54,7 @@ RSpec.describe "namespaced routes" do
   context "when a route is defined in a parameterized namespace" do
     let :app_definition do
       Proc.new {
-        router do
+        controller do
           namespace :ns, "/ns/:id" do
             default do
               send params[:id] || ""
@@ -74,7 +76,7 @@ RSpec.describe "namespaced routes" do
   context "when a namespace is defined without a name" do
     let :app_definition do
       Proc.new {
-        router do
+        controller do
           namespace "/ns" do
             default do
               send "ns"
@@ -86,6 +88,24 @@ RSpec.describe "namespaced routes" do
 
     it "is called" do
       expect(call("/ns")[0]).to eq(200)
+    end
+  end
+
+  context "when a namespace is defined within a controller with a name and path" do
+    let :app_definition do
+      Proc.new {
+        controller :top, "/top" do
+          namespace :ns, "/ns" do
+            default do
+              send "ns"
+            end
+          end
+        end
+      }
+    end
+
+    it "is called" do
+      expect(call("/top/ns")[0]).to eq(200)
     end
   end
 end

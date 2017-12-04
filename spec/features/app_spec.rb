@@ -17,7 +17,6 @@ RSpec.describe "creating an app" do
 
   after do
     Test.send(:remove_const, :App)
-    Pakyow.reset
   end
 
   it "creates the app in a namespaced class" do
