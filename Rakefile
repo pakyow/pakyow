@@ -20,6 +20,7 @@ task :test do
   errors = []
 
   gems = GEMS.dup
+  gems.delete(:"pakyow-mailer")
   gems.delete(:"pakyow-test")
   gems.delete(:"pakyow-realtime")
   gems.delete(:"pakyow-ui")
