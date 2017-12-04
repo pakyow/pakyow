@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require "pakyow/presenter/presentable"
+require "pakyow/presenter/exceptions"
+require "pakyow/presenter/renderer"
+
 module Pakyow
   module Presenter
     def self.included(base)
@@ -7,8 +11,15 @@ module Pakyow
     end
 
     def self.load_presenter_into(app_class)
-
       app_class.class_eval do
+        # TODO: this should happen automatically when loading the framework
+        subclass = Class.new(Presenter)
+        app_class.const_set(:Presenter, subclass)
+        endpoint subclass
+
+        helper Presentable
+        helper RenderHelpers
+
         stateful :template_store, TemplateStore
         stateful :view, ViewPresenter
         stateful :binder, Binder
@@ -18,8 +29,6 @@ module Pakyow
           setting :path do
             File.join(config.app.root, "interface")
           end
-
-          setting :require_route, false
         end
 
         concern :views
@@ -28,34 +37,34 @@ module Pakyow
         after :load do
           app_class.template_store << TemplateStore.new(:default, config.presenter.path, processor: ProcessorCaller.new(app_class.state[:processor].instances))
 
-          if environment == :development
-            app_class.handle MissingView, as: 500 do
-              respond_to :html do
-                render "/missing_view"
-              end
-            end
+          # if environment == :development
+          #   app_class.handle MissingView, as: 500 do
+          #     respond_to :html do
+          #       render "/missing_view"
+          #     end
+          #   end
 
-            app_class.template_store << TemplateStore.new(:errors, File.join(File.expand_path("../../", __FILE__), "views", "errors"))
+          #   app_class.template_store << TemplateStore.new(:errors, File.join(File.expand_path("../../", __FILE__), "views", "errors"))
 
-            # TODO: define view objects to render built-in errors
-          end
+          #   # TODO: define view objects to render built-in errors
+          # end
 
           # TODO: the following handlers override the ones defined on the app
           # ideally global handlers could coexist (e.g. handle bugsnag, then present error page)
           # perhaps by executing all of 'em at once until halted or all called; feels consistent with
           # how multiple handlers are called in non-global cases; though load order would be important
 
-          app_class.handle 404 do
-            respond_to :html do
-              render "/404"
-            end
-          end
+          # app_class.handle 404 do
+          #   respond_to :html do
+          #     render "/404"
+          #   end
+          # end
 
-          app_class.handle 500 do
-            respond_to :html do
-              render "/500"
-            end
-          end
+          # app_class.handle 500 do
+          #   respond_to :html do
+          #     render "/500"
+          #   end
+          # end
         end
       end
     end
@@ -65,12 +74,39 @@ module Pakyow
     # State is passed explicitly to the presenter, exposed by calling the `presentable` helper.
     #
     class Presenter
+      class << self
+        def call(state)
+          if auto_render?(state.request)
+            begin
+              Renderer.perform(state)
+              state.processed
+            rescue MissingView
+              # TODO: in development, raise a missing view error in the case
+              # of auto-render... so we can tell the user what to do
+              #
+              # in production, we want the auto_render to fail but ultimately lead
+              # to a normal 404 error condition
+            end
+          end
+        end
+
+        def handle_missing(state)
+        end
+
+        def handle_failure(state, error)
+        end
+
+        def auto_render?(request)
+          request.method == :get && request.format == :html
+        end
+      end
+
       include Support::SafeStringHelpers
 
       attr_reader :view, :binders
 
-      def initialize(view, binders: [], path_builder: nil)
-        @view, @binders, @path_builder = view, binders, path_builder
+      def initialize(view, binders: [], paths: nil)
+        @view, @binders, @paths = view, binders, paths
       end
 
       def find(*names)
@@ -194,8 +230,8 @@ module Pakyow
         presenter_for(@view[i])
       end
 
-      def to_html
-        @view.to_html
+      def to_html(clean: true)
+        @view.to_html(clean: clean)
       end
 
       alias :to_str :to_html
@@ -203,7 +239,7 @@ module Pakyow
       private
 
       def presenter_for(view, type: Presenter)
-        type.new(view, binders: binders, path_builder: @path_builder)
+        type.new(view, binders: binders, paths: @paths)
       end
 
       def binder_for_current_scope

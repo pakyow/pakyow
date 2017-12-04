@@ -32,7 +32,7 @@ module Pakyow
         super(@view, **args)
       end
 
-      def to_html
+      def to_html(clean: true)
         if block = self.class.block
           instance_exec(&block)
         end

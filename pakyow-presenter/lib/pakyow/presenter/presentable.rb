@@ -3,53 +3,30 @@
 module Pakyow
   module Presenter
     module Presentable
-      attr_reader :presentables
-
-      def initialize(*args)
-        @presentables = self.class.presentables.dup
-        super
+      def presentables
+        initialize_presentables unless defined?(@presentables)
+        @presentables
       end
 
       def presentable(name, default_value = default_omitted = true)
         raise ArgumentError, "name must a symbol" unless name.is_a?(Symbol)
 
-        args = {}
-
-        if default_omitted && !block_given?
-          args[:method_name] = name
-        else
-          args[:value] = yield if block_given?
-          args[:value] = default_value unless args[:value] || default_omitted
+        value = if block_given?
+          yield
+        elsif default_omitted
+          __send__(name)
         end
 
-        presentables[name] = args
+        unless default_omitted
+          value ||= default_value
+        end
+
+        presentables[name] = value
       end
 
-      module ClassMethods
-        def presentable(name, default_value = default_omitted = true)
-          raise ArgumentError, "name must a symbol" unless name.is_a?(Symbol)
-
-          args = {}
-
-          if default_omitted && !block_given?
-            args[:method_name] = name
-          else
-            args[:default_value] = default_value unless default_omitted
-            args[:block] = Proc.new if block_given?
-          end
-
-          presentables[name] = args
-        end
-
-        def presentables
-          return @presentables if defined?(@presentables)
-
-          if frozen?
-            {}
-          else
-            @presentables = {}
-          end
-        end
+      def initialize_presentables
+        @presentables = {}
+        @__state.set(:presentables, @presentables)
       end
     end
   end

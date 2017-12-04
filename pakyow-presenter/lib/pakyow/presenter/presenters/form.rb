@@ -67,7 +67,7 @@ module Pakyow
       protected
 
       def form_action(action, object)
-        @path_builder.path_to(@view.name, action, **form_action_params(object))
+        @paths.path_to(@view.name, action, **form_action_params(object))
       end
 
       def form_action_params(object)
