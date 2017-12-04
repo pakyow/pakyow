@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 
-require "pakyow/support/configurable/config_option"
 require "pakyow/support/deep_dup"
+
+require "pakyow/support/configurable/config_option"
 
 module Pakyow
   module Support
     module Configurable
       class ConfigGroup
         using DeepDup
+
         attr_reader :__name, :__options, :__parent, :__settings
 
         def initialize(name, options, parent, &block)
@@ -23,7 +25,9 @@ module Pakyow
         end
 
         def initialize_copy(original)
-          @__settings = original.__settings.deep_dup
+          super
+
+          @__settings = @__settings.deep_dup
         end
 
         def setting(name, default = nil, &block)
