@@ -5,7 +5,6 @@ require "pakyow/support/definable"
 require "pakyow/support/hookable"
 require "pakyow/support/recursive_require"
 require "pakyow/support/deep_freeze"
-require "pakyow/support/makeable"
 require "pakyow/support/class_level_state"
 
 require "pakyow/core/call"
@@ -143,7 +142,6 @@ module Pakyow
   #
   class App
     include Support::Definable
-    extend Support::Makeable
 
     include Support::Hookable
     known_events :initialize, :configure, :load, :freeze

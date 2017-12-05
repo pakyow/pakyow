@@ -2,6 +2,7 @@
 
 require "pakyow/support/deep_dup"
 require "pakyow/support/deep_freeze"
+require "pakyow/support/makeable"
 
 module Pakyow
   module Support
@@ -35,6 +36,7 @@ module Pakyow
 
       def self.included(base)
         base.extend ClassAPI
+        base.extend Support::Makeable
         base.instance_variable_set(:@state, {})
       end
 
