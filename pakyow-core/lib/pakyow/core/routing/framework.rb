@@ -29,6 +29,35 @@ module Pakyow
           # Load defined controllers into the namespace.
           concern :controllers
 
+          # Remove the routing framework in prototype mode.
+          #
+          # Conditionally loading the routing framework based on
+          # the environment was explored, but not feasible with
+          # how things currently work. We don't know the env until
+          # the environment is booted, but also include the framework
+          # at definition time (which occurs well ahead of boot).
+          #
+          # Why? To support this:
+          #
+          #   Pakyow.app :some_app do
+          #     controller do
+          #       ...
+          #     end
+          #   end
+          #
+          # We'd either have to wait until boot time to build the
+          # app object, or not allow defining app state inline. If
+          # we wait, we introduce some misdirection because it is
+          # no longer clear when the defined app will be built.
+          #
+          # Disabling the endpoint will work fine for now. Perhaps
+          # some clarity on this issue can be found in the future.
+          after :configure do
+            if Pakyow.env?(:prototype)
+              @endpoints.delete(controller_class)
+            end
+          end
+
           # Defines a RESTful resource.
           #
           # @see Routing::Extension::Resource

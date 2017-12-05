@@ -330,8 +330,6 @@ module Pakyow
 
     class << self
       def call(state)
-        return if Pakyow.env == :prototype
-
         catch :routed do
           state.app.state_for(:controller).each do |controller|
             controller.try_routing(state)
