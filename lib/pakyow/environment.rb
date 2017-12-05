@@ -7,6 +7,7 @@ require "logger"
 require "pakyow/support/array"
 require "pakyow/support/hookable"
 require "pakyow/support/configurable"
+require "pakyow/support/class_level_state"
 
 require "pakyow/logger"
 require "pakyow/middleware"
@@ -182,6 +183,12 @@ module Pakyow
     puma: { Silent: true }.freeze
   }.freeze
 
+  extend Support::ClassLevelState
+  class_level_state :apps,       []
+  class_level_state :mounts,     {}
+  class_level_state :frameworks, {}
+  class_level_state :builder,    Rack::Builder.new
+
   class << self
     # Name of the environment
     #
@@ -213,7 +220,7 @@ module Pakyow
     #
     def mount(app, at: nil, &block)
       raise ArgumentError, "Mount path is required" if at.nil?
-      mounts[at] = { app: app, block: block }
+      @mounts[at] = { app: app, block: block }
     end
 
     # Prepares the Pakow Environment for running.
@@ -230,10 +237,10 @@ module Pakyow
       hook_around :setup do
         init_global_logger
 
-        mounts.each do |path, mount|
-          builder_local_apps = apps
+        @mounts.each do |path, mount|
+          builder_local_apps = @apps
 
-          builder.map path do
+          @builder.map path do
             app_instance = if defined?(Pakyow::App) && mount[:app].ancestors.include?(Pakyow::App)
               mount[:app].new(env, builder: self, &mount[:block])
             else
@@ -310,11 +317,7 @@ module Pakyow
     end
 
     def register_framework(framework_name, framework_module)
-      frameworks[framework_name] = framework_module
-    end
-
-    def frameworks
-      @frameworks ||= {}
+      @frameworks[framework_name] = framework_module
     end
 
     def app(app_name, path: "/", without: [], only: nil, &block)
@@ -337,19 +340,7 @@ module Pakyow
     protected
 
     def use(middleware, *args)
-      builder.use(middleware, *args)
-    end
-
-    def mounts
-      @mounts ||= {}
-    end
-
-    def apps
-      @apps ||= []
-    end
-
-    def builder
-      @builder ||= Rack::Builder.new
+      @builder.use(middleware, *args)
     end
 
     def init_global_logger
