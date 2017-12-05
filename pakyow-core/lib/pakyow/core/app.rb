@@ -6,6 +6,7 @@ require "pakyow/support/hookable"
 require "pakyow/support/recursive_require"
 require "pakyow/support/deep_freeze"
 require "pakyow/support/makeable"
+require "pakyow/support/class_level_state"
 
 require "pakyow/core/call"
 require "pakyow/core/helpers"
@@ -141,73 +142,6 @@ module Pakyow
   # See {Support::Hookable} for more information.
   #
   class App
-    class << self
-      # Includes one or more frameworks into the app class.
-      #
-      def include_frameworks(*frameworks)
-        frameworks.each do |framework|
-          include_framework(framework)
-        end
-
-        self
-      end
-
-      # Includes a framework into the app class.
-      #
-      def include_framework(framework)
-        Pakyow.frameworks[framework].new(self).boot
-        (@loaded_frameworks ||= []) << framework
-      end
-
-      # Returns true if +framework+ is loaded.
-      #
-      def includes_framework?(framework)
-        @loaded_frameworks.include?(framework)
-      end
-
-      # Registers a concern by name.
-      #
-      # @see concerns
-      def concern(name)
-        (concerns << name.to_s).uniq!
-      end
-
-      # Register an endpoint by name.
-      #
-      def endpoint(object)
-        endpoints << object
-      end
-
-      # Registers a helper module to be loaded on defined endpoints.
-      #
-      def helper(helper_module)
-        helpers << helper_module
-      end
-
-      # @api private
-      def concerns
-        @concerns ||= []
-      end
-
-      # @api private
-      def endpoints
-        @endpoints ||= []
-      end
-
-      # @api private
-      def helpers
-        @helpers ||= []
-      end
-
-      def inherited(subclass)
-        super
-
-        subclass.instance_variable_set(:@endpoints, endpoints.dup)
-        subclass.instance_variable_set(:@concerns, concerns.dup)
-        subclass.instance_variable_set(:@helpers, helpers.dup)
-      end
-    end
-
     include Support::Definable
     extend Support::Makeable
 
@@ -314,6 +248,12 @@ module Pakyow
     extend Support::DeepFreeze
     unfreezable :builder
 
+    extend Support::ClassLevelState
+    class_level_state :frameworks, [], inheritable: true
+    class_level_state :concerns,   [], inheritable: true
+    class_level_state :endpoints,  [], inheritable: true
+    class_level_state :helpers,    [], inheritable: true
+
     def initialize(environment, builder: nil, &block)
       @paths = Paths.new
       @environment = environment
@@ -405,7 +345,7 @@ module Pakyow
       $LOAD_PATH.unshift(File.join(config.app.src, "lib"))
 
       self.class.concerns.each do |concern|
-        load_app_concern(File.join(config.app.src, concern), concern)
+        load_app_concern(File.join(config.app.src, concern.to_s), concern)
       end
     end
 
@@ -429,6 +369,50 @@ module Pakyow
           paths << state_instance if state_instance.respond_to?(:path_to)
         end
       }
+    end
+
+    class << self
+      # Includes one or more frameworks into the app class.
+      #
+      def include_frameworks(*frameworks)
+        frameworks.each do |framework_name|
+          include_framework(framework_name)
+        end
+
+        self
+      end
+
+      # Includes a framework into the app class.
+      #
+      def include_framework(framework_name)
+        Pakyow.frameworks[framework_name].new(self).boot
+        @frameworks << framework_name
+      end
+
+      # Returns true if +framework+ is loaded.
+      #
+      def includes_framework?(framework_name)
+        @frameworks.include?(framework_name)
+      end
+
+      # Registers a concern by name.
+      #
+      # @see concerns
+      def concern(name)
+        @concerns << name
+      end
+
+      # Register an endpoint by name.
+      #
+      def endpoint(object)
+        @endpoints << object
+      end
+
+      # Registers a helper module to be loaded on defined endpoints.
+      #
+      def helper(helper_module)
+        @helpers << helper_module
+      end
     end
   end
 end
