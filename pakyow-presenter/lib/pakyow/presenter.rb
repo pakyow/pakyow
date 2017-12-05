@@ -5,6 +5,7 @@ Pakyow::Support::Silenceable.silence_warnings do
   require "oga"
 end
 
+require "pakyow/presenter/framework"
 require "pakyow/presenter/presenter"
 
 require "pakyow/presenter/string_doc"
@@ -33,5 +34,3 @@ require "pakyow/presenter/presenters/view"
 
 require "pakyow/presenter/exceptions"
 require "pakyow/presenter/helpers"
-
-Pakyow.register_framework :presenter, Pakyow::Presenter

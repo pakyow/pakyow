@@ -13,7 +13,7 @@ module Pakyow
       extend Forwardable
       def_delegators :expander, *%i[default group namespace template].concat(Controller::SUPPORTED_HTTP_METHODS)
 
-      def initialize(template_name, controller, &template_block)
+      def initialize(_template_name, controller, &template_block)
         @controller = controller
 
         # Create the controller that stores available routes, groups, and namespaces

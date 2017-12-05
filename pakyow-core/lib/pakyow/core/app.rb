@@ -155,14 +155,14 @@ module Pakyow
       # Includes a framework into the app class.
       #
       def include_framework(framework)
-        include(Pakyow.frameworks[framework])
+        Pakyow.frameworks[framework].new(self).boot
+        (@loaded_frameworks ||= []) << framework
       end
 
-      # Returns true if +framework+ is loaded into the app class.
+      # Returns true if +framework+ is loaded.
       #
       def includes_framework?(framework)
-        framework_module = Pakyow.frameworks[framework]
-        ancestors.include?(framework_module)
+        @loaded_frameworks.include?(framework)
       end
 
       # Registers a concern by name.

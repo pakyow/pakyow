@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "dry/inflector"
+require "pakyow/support/inflector"
 
 module Pakyow
   module Support
@@ -17,17 +17,13 @@ module Pakyow
       end
 
       def self.define_object_on_target_with_constant_name(object, target, constant_name)
-        constant_name = ClassMaker.inflector.camelize(constant_name)
+        constant_name = Support.inflector.camelize(constant_name)
 
         unless target.const_defined?(constant_name, false)
           target.const_set(constant_name, object)
         end
 
         target.const_get(constant_name)
-      end
-
-      def self.inflector
-        @inflector ||= Dry::Inflector.new
       end
     end
   end
