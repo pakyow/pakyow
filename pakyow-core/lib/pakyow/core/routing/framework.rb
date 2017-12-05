@@ -12,6 +12,56 @@ require "pakyow/core/framework"
 
 module Pakyow
   module Routing
+    # Defines a RESTful resource.
+    #
+    # @see Routing::Extension::Resource
+    #
+    def resource(name, path, *args, &block)
+      controller name, path, *args do
+        expand_within(:resource, &block)
+      end
+    end
+
+    # Registers an error handler automatically available in all Controller instances.
+    #
+    # @see Routing::Behavior::ErrorHandling#handle
+    def handle(name_exception_or_code, as: nil, &block)
+      const_get(:Controller).handle(name_exception_or_code, as: as, &block)
+    end
+
+    # Extends an existing controller.
+    #
+    # @example
+    #   controller :admin, "/admin" do
+    #     before :require_admin
+    #
+    #     def require_admin
+    #       ...
+    #     end
+    #   end
+    #
+    #   extend_controller :admin do
+    #     resource :post, "/posts" do
+    #       ...
+    #     end
+    #   end
+    #
+    def extend_controller(controller_name)
+      if controller_name.is_a?(Support::ClassName)
+        controller_name = controller_name.name
+      end
+
+      matched_controller = @state[:controller].instances.find { |controller|
+        controller.__class_name.name == controller_name
+      }
+
+      if matched_controller
+        matched_controller.instance_exec(&Proc.new)
+      else
+        fail "could not find controller named `#{controller_name}'"
+      end
+    end
+
     class Framework < Pakyow::Framework(:routing)
       def boot
         controller_class = subclass(Controller) {
@@ -19,6 +69,8 @@ module Pakyow
         }
 
         app.class_eval do
+          extend Routing
+
           # Register the controller subclass as an endpoint,
           # so that requests will potentially be handled.
           endpoint controller_class
@@ -57,58 +109,12 @@ module Pakyow
               @endpoints.delete(controller_class)
             end
           end
-
-          # Defines a RESTful resource.
-          #
-          # @see Routing::Extension::Resource
-          #
-          def self.resource(name, path, *args, &block)
-            controller name, path, *args do
-              expand_within(:resource, &block)
-            end
-          end
-
-          # Registers an error handler automatically available in all Controller instances.
-          #
-          # @see Routing::Behavior::ErrorHandling#handle
-          def self.handle(name_exception_or_code, as: nil, &block)
-            const_get(:Controller).handle(name_exception_or_code, as: as, &block)
-          end
-
-          # Extends an existing controller.
-          #
-          # @example
-          #   controller :admin, "/admin" do
-          #     before :require_admin
-          #
-          #     def require_admin
-          #       ...
-          #     end
-          #   end
-          #
-          #   extend_controller :admin do
-          #     resource :post, "/posts" do
-          #       ...
-          #     end
-          #   end
-          #
-          def self.extend_controller(controller_name)
-            if controller_name.is_a?(Support::ClassName)
-              controller_name = controller_name.name
-            end
-
-            matched_controller = @state[:controller].instances.find { |controller|
-              controller.__class_name.name == controller_name
-            }
-
-            if matched_controller
-              matched_controller.instance_exec(&Proc.new)
-            else
-              fail "could not find controller named `#{controller_name}'"
-            end
-          end
         end
       end
     end
+  end
+
+  class App
+    # @!parse include Routing
   end
 end
