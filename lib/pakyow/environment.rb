@@ -317,8 +317,8 @@ module Pakyow
       @frameworks ||= {}
     end
 
-    def app(app_name, path: "/", without: [], &block)
-      local_frameworks = frameworks.keys - Array.ensure(without)
+    def app(app_name, path: "/", without: [], only: nil, &block)
+      local_frameworks = (only || frameworks.keys) - Array.ensure(without)
 
       app = Pakyow::App.make(Support::ClassName.namespace(app_name, "app")) {
         config.app.name = app_name
