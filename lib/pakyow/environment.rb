@@ -230,11 +230,11 @@ module Pakyow
     def setup(env: nil)
       @env = (env ||= config.env.default).to_sym
 
-      hook_around :configure do
+      performing :configure do
         use_config(env)
       end
 
-      hook_around :setup do
+      performing :setup do
         init_global_logger
 
         @mounts.each do |path, mount|

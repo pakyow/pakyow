@@ -103,7 +103,7 @@ RSpec.describe Pakyow::Support::Hookable do
         object.before event, &hook_2
         object.after event, &hook_1
 
-        object.hook_around event do
+        object.performing event do
           local_calls << :yielded
         end
       end

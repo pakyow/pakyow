@@ -39,7 +39,7 @@ module Pakyow
 
         define_presentables
 
-        hook_around :render do
+        performing :render do
           response.body = StringIO.new(
             @current_presenter.to_html(
               clean: !Pakyow.env?(:prototype)

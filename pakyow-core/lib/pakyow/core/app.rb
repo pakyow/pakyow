@@ -267,12 +267,12 @@ module Pakyow
         endpoint
       }
 
-      hook_around :initialize do
-        hook_around :configure do
+      performing :initialize do
+        performing :configure do
           use_config(environment)
         end
 
-        hook_around :load do
+        performing :load do
           load_app
         end
       end
@@ -312,7 +312,7 @@ module Pakyow
     end
 
     def freeze
-      hook_around :freeze do
+      performing :freeze do
         super
       end
     end

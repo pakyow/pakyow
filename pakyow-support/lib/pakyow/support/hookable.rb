@@ -133,7 +133,7 @@ module Pakyow
         #
         # @param event [Symbol] The name of the event.
         #
-        def hook_around(event, *args)
+        def performing(event, *args)
           call_hooks(:before, event, *args)
           value = yield
           call_hooks(:after, event, *args)
