@@ -1,4 +1,4 @@
-RSpec.describe "extending a controller" do
+RSpec.describe "extending a controller with an extension" do
   include_context "testable app"
 
   module RouteExtensions

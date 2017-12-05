@@ -74,6 +74,39 @@ module Pakyow
           def self.handle(name_exception_or_code, as: nil, &block)
             const_get(:Controller).handle(name_exception_or_code, as: as, &block)
           end
+
+          # Extends an existing controller.
+          #
+          # @example
+          #   controller :admin, "/admin" do
+          #     before :require_admin
+          #
+          #     def require_admin
+          #       ...
+          #     end
+          #   end
+          #
+          #   extend_controller :admin do
+          #     resource :post, "/posts" do
+          #       ...
+          #     end
+          #   end
+          #
+          def self.extend_controller(controller_name)
+            if controller_name.is_a?(Support::ClassName)
+              controller_name = controller_name.name
+            end
+
+            matched_controller = @state[:controller].instances.find { |controller|
+              controller.__class_name.name == controller_name
+            }
+
+            if matched_controller
+              matched_controller.instance_exec(&Proc.new)
+            else
+              fail "could not find controller named `#{controller_name}'"
+            end
+          end
         end
       end
     end

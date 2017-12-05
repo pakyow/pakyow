@@ -12,9 +12,9 @@ module Pakyow
       eval(File.read(@path), eval_binding, @path)
     end
 
-    def method_missing(name, *args, **kargs, &block)
+    def method_missing(name, *args, &block)
       args[0] = Support::ClassName.new(@namespace, args[0]) if args[0].is_a?(Symbol)
-      @target.public_send(name, *args, **kargs, &block)
+      @target.public_send(name, *args, &block)
     end
   end
 end
