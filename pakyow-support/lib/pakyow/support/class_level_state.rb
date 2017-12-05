@@ -7,7 +7,7 @@ module Pakyow
     module ClassLevelState
       using DeepDup
 
-      def class_level_state(name, default: nil, inheritable: false)
+      def class_level_state(name, default: nil, inheritable: false, getter: true)
         ivar = :"@#{name}"
         @class_level_state[ivar] = {
           inheritable: inheritable
@@ -15,8 +15,10 @@ module Pakyow
 
         instance_variable_set(ivar, default)
 
-        define_singleton_method name do
-          instance_variable_get(ivar)
+        if getter
+          define_singleton_method name do
+            instance_variable_get(ivar)
+          end
         end
       end
 

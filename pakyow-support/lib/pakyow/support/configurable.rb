@@ -4,6 +4,8 @@ require "pakyow/support/configurable/config"
 require "pakyow/support/configurable/config_group"
 require "pakyow/support/configurable/config_option"
 
+require "pakyow/support/class_level_state"
+
 module Pakyow
   module Support
     module Configurable

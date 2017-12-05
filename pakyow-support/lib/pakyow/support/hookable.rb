@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "pakyow/support/deep_dup"
+require "pakyow/support/class_level_state"
 
 module Pakyow
   module Support
@@ -51,9 +52,10 @@ module Pakyow
         base.extend ClassAPI
         base.prepend Initializer
 
-        base.instance_variable_set(:@known_events, [])
-        base.instance_variable_set(:@hook_hash, after: {}, before: {})
-        base.instance_variable_set(:@pipeline, after: {}, before: {})
+        base.extend ClassLevelState
+        base.class_level_state :known_events, default: [], inheritable: true, getter: false
+        base.class_level_state :hook_hash, default: { after: {}, before: {} }, inheritable: true
+        base.class_level_state :pipeline, default: { after: {}, before: {} }, inheritable: true
       end
 
       # @api private
@@ -77,26 +79,18 @@ module Pakyow
           base.extend(API)
         end
 
-        def inherited(subclass)
-          super
-
-          subclass.instance_variable_set(:@known_events, @known_events)
-          subclass.instance_variable_set(:@hook_hash, @hook_hash)
-          subclass.instance_variable_set(:@pipeline, @pipeline)
-        end
-
         # Sets the known events for the hookable object. Hooks registered for
         # an event that doesn't exist will raise an ArgumentError.
         #
         # @param events [Array<Symbol>] The list of known events.
         #
         def known_events(*events)
-          (@known_events ||= []).concat(events.map(&:to_sym)).uniq!; @known_events
+          @known_events.concat(events.map(&:to_sym)).uniq!; @known_events
         end
 
         # @api private
         def known_event?(event)
-          @known_events && @known_events.include?(event.to_sym)
+          @known_events.include?(event.to_sym)
         end
       end
 
@@ -159,7 +153,7 @@ module Pakyow
 
         # @api private
         def hooks(type, event)
-          pipeline[type][event] || []
+          @pipeline[type][event] || []
         end
 
         # @api private
