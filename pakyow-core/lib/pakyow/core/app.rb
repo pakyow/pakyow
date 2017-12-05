@@ -249,10 +249,10 @@ module Pakyow
     unfreezable :builder
 
     extend Support::ClassLevelState
-    class_level_state :frameworks, [], inheritable: true
-    class_level_state :concerns,   [], inheritable: true
-    class_level_state :endpoints,  [], inheritable: true
-    class_level_state :helpers,    [], inheritable: true
+    class_level_state :frameworks, default: [], inheritable: true
+    class_level_state :concerns,   default: [], inheritable: true
+    class_level_state :endpoints,  default: [], inheritable: true
+    class_level_state :helpers,    default: [], inheritable: true
 
     def initialize(environment, builder: nil, &block)
       @paths = Paths.new

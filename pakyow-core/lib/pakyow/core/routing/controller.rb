@@ -321,12 +321,16 @@ module Pakyow
       throw :reject
     end
 
-    @hooks = { before: [], after: [], around: [] }
-    @hooks_for_routes = {}
-    @children = []
-    @templates = {}
-    @handlers = {}
-    @exceptions = {}
+    extend Support::ClassLevelState
+    class_level_state :hooks, default: { before: [], after: [], around: [] }, inheritable: true
+    class_level_state :hooks_for_routes, default: {}, inheritable: true
+    class_level_state :children, default: [], inheritable: true
+    class_level_state :templates, default: {}, inheritable: true
+    class_level_state :handlers, default: {}, inheritable: true
+    class_level_state :exceptions, default: {}, inheritable: true
+    class_level_state :routes, default: SUPPORTED_HTTP_METHODS.each_with_object({}) { |supported_method, routes_hash|
+                                          routes_hash[supported_method] = []
+                                        }, inheritable: true
 
     class << self
       def call(state)
@@ -602,35 +606,10 @@ module Pakyow
       end
 
       # @api private
-      attr_reader :path, :matcher, :hooks, :hooks_for_routes, :children, :templates, :routes
+      attr_reader :path, :matcher
 
       # @api private
       attr_accessor :parent
-
-      # @api private
-      def inherited(klass)
-        super
-        matcher = self.matcher
-        hooks = self.hooks.deep_dup
-        hooks_for_routes = self.hooks_for_routes.deep_dup
-        templates = self.templates.deep_dup
-        handlers = self.handlers.deep_dup
-        exceptions = self.exceptions.deep_dup
-
-        klass.class_eval do
-          @matcher = matcher
-          @hooks = hooks
-          @hooks_for_routes = hooks_for_routes
-          @templates = templates
-          @handlers = handlers
-          @exceptions = exceptions
-          @children = []
-
-          @routes = SUPPORTED_HTTP_METHODS.each_with_object({}) do |method, routes_hash|
-            routes_hash[method] = []
-          end
-        end
-      end
 
       def path_to_self
         return path unless parent

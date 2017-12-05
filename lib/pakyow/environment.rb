@@ -184,10 +184,10 @@ module Pakyow
   }.freeze
 
   extend Support::ClassLevelState
-  class_level_state :apps,       []
-  class_level_state :mounts,     {}
-  class_level_state :frameworks, {}
-  class_level_state :builder,    Rack::Builder.new
+  class_level_state :apps,       default: []
+  class_level_state :mounts,     default: {}
+  class_level_state :frameworks, default: {}
+  class_level_state :builder,    default: Rack::Builder.new
 
   class << self
     # Name of the environment
