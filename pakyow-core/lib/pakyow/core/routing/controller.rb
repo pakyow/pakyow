@@ -568,31 +568,6 @@ module Pakyow
         make_child(*args, **hooks).expand_within(name, &block)
       end
 
-      # Defines routes within another controller.
-      #
-      # @example
-      #   Pakyow::App.define do
-      #     controller :api, "/api" do
-      #     end
-      #
-      #     resource :project, "/projects" do
-      #       list do
-      #         # GET /projects
-      #       end
-      #
-      #       within :api do
-      #         list do
-      #           # GET /api/projects
-      #         end
-      #       end
-      #     end
-      #   end
-      #
-      def within(*names, &block)
-        raise NameError, "Unknown controller `#{names.first}'" unless controller = find_controller_by_name(names)
-        controller.make_child(__class_name, matcher, **hooks, &block)
-      end
-
       def before(*routes_and_maybe_method, skip: nil, &block)
         build_hook(:before, *routes_and_maybe_method, skip: skip, &block)
       end
@@ -755,23 +730,6 @@ module Pakyow
       end
 
       protected
-
-      # Finds a controller via +names+, starting with a top-level controller.
-      #
-      def find_controller_by_name(names, controllers = nil)
-        return parent.find_controller_by_name(names) if parent
-
-        first_name = names.shift
-        (controllers || [self].concat(state.instances)).each do |controller|
-          next unless controller.__class_name&.name == first_name
-
-          if names.empty?
-            return controller
-          else
-            return controller.find_controller_by_name(names, controller.children)
-          end
-        end
-      end
 
       def parse_name_and_matcher_from_args(name_or_matcher = nil, matcher_or_name = nil)
         Aargv.normalize([name_or_matcher, matcher_or_name].compact, name: [Symbol, Support::ClassName], matcher: Object).values_at(:name, :matcher)

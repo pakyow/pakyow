@@ -55,14 +55,6 @@ module Pakyow
             end
           end
         end
-
-        # Make the current template available to controller we're adding to
-        #
-        @controller.define_singleton_method :within do |*names, &block|
-          super(*names) do
-            expand_within(template_name, &block)
-          end
-        end
       end
     end
   end

@@ -7,8 +7,7 @@ module Pakyow
   module Support
     # @api private
     module Makeable
-      # TODO: figure out where state as used and define it there; we don't care about it here
-      attr_reader :__class_name, :state
+      attr_reader :__class_name
 
       def make(class_name, within: nil, **kwargs, &block)
         unless class_name.is_a?(ClassName) || class_name.nil?
