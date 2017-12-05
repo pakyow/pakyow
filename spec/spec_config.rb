@@ -21,6 +21,43 @@ RSpec.configure do |config|
   Kernel.srand config.seed
 
   config.filter_run_excluding benchmark: true
+
+  config.before do
+    if Pakyow.respond_to?(:config)
+      @original_pakyow_config = Pakyow.config.dup
+    end
+
+    if Pakyow.instance_variable_defined?(:@class_level_state)
+      @original_class_level_state = Pakyow.instance_variable_get(:@class_level_state).keys.each_with_object({}) do |class_level_ivar, state|
+        state[class_level_ivar] = Pakyow.instance_variable_get(class_level_ivar).dup
+      end
+    end
+  end
+
+  config.after do
+    if Pakyow.instance_variable_defined?(:@class_level_state)
+      @original_class_level_state.each do |ivar, original_value|
+        Pakyow.instance_variable_set(ivar, original_value)
+      end
+
+      # duping the builder isn't enough to present leaky state
+      Pakyow.instance_variable_set(:"@builder", Rack::Builder.new)
+    end
+
+    [:@env, :@port, :@host, :@server, :@logger].each do |ivar|
+      Pakyow.remove_instance_variable(ivar) if Pakyow.instance_variable_defined?(ivar)
+    end
+
+    if instance_variable_defined?(:@original_pakyow_config)
+      Pakyow.instance_variable_set(:@config, @original_pakyow_config)
+    end
+
+    if Kernel.const_defined?(:Test)
+      Test.constants(false).each do |const_to_unset|
+        Test.__send__(:remove_const, const_to_unset)
+      end
+    end
+  end
 end
 
 def start_simplecov(&block)
@@ -44,13 +81,3 @@ end
 require "spec_helper"
 
 ENV["SESSION_SECRET"] = "sekret"
-
-if defined?(Pakyow::Controller)
-  Pakyow::Controller.before :error do
-    $stderr.puts req.error
-
-    req.error.backtrace.each do |line|
-      $stderr.puts line
-    end
-  end
-end

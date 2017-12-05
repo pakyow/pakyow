@@ -35,6 +35,7 @@ module Pakyow
 
       def self.included(base)
         base.extend ClassAPI
+        base.instance_variable_set(:@state, {})
       end
 
       # @api private
@@ -122,11 +123,11 @@ module Pakyow
         #     end
         def stateful(name, object)
           name = name.to_sym
-          (@state ||= {})[name] = State.new(name, object)
+          @state[name] = State.new(name, object)
           method_body = Proc.new do |*args, priority: :default, **opts, &block|
             return @state[name] if block.nil?
 
-            state = object.make(*args, state: @state[name], **opts, &block)
+            state = object.make(*args, within: self, **opts, &block)
             @state[name].register(state, priority: priority)
             state
           end

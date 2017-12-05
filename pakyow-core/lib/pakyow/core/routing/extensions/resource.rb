@@ -7,15 +7,13 @@ module Pakyow
     module Extension
       # An extension for defining RESTful Resources. For example:
       #
-      #   Pakyow::App.router do
-      #     resource :post, "/posts" do
-      #       list do
-      #         # list the posts
-      #       end
+      #   resource :post, "/posts" do
+      #     list do
+      #       # list the posts
       #     end
       #   end
       #
-      # +Resource+ is available in all routers by default.
+      # +Resource+ is available in all controllers by default.
       #
       # = Supported Actions
       #
@@ -34,12 +32,10 @@ module Pakyow
       #
       # Resources can be nested. For example:
       #
-      #   Pakyow::App.router do
-      #     resource :post, "/posts" do
-      #       resource :comment, "/comments" do
-      #         list do
-      #           # available at GET /posts/:post_id/comments
-      #         end
+      #   resource :post, "/posts" do
+      #     resource :comment, "/comments" do
+      #       list do
+      #         # available at GET /posts/:post_id/comments
       #       end
       #     end
       #   end
@@ -48,12 +44,10 @@ module Pakyow
       #
       # Routes can be defined for the collection. For example:
       #
-      #   Pakyow::App.router do
-      #     resource :post, "/posts" do
-      #       collection do
-      #         get "/foo" do
-      #           # available at GET /posts/foo
-      #         end
+      #   resource :post, "/posts" do
+      #     collection do
+      #       get "/foo" do
+      #         # available at GET /posts/foo
       #       end
       #     end
       #   end
@@ -62,25 +56,22 @@ module Pakyow
       #
       # Routes can be defined as members. For example:
       #
-      #   Pakyow::App.router do
-      #     resource :post, "/posts" do
-      #       member do
-      #         get "/foo" do
-      #           # available at GET /posts/:post_id/foo
-      #         end
+      #   resource :post, "/posts" do
+      #     member do
+      #       get "/foo" do
+      #         # available at GET /posts/:post_id/foo
       #       end
       #     end
       #   end
       #
-      # @api public
       module Resource
         extend Extension
 
         template :resource do
-          resource_id = ":#{router.name}_id"
+          resource_id = ":#{controller.__class_name.name}_id"
 
           # Nest resources as members of the current resource
-          router.define_singleton_method :resource do |name, matcher, **hooks, &block|
+          controller.define_singleton_method :resource do |name, matcher, **hooks, &block|
             expand(:resource, name, File.join(resource_id, matcher), **hooks, &block)
           end
 

@@ -9,69 +9,13 @@ RSpec.describe "accessing request context in presentables" do
     $presentable = nil
   end
 
-  context "presentable is defined globally in the router" do
-    context "presentable is a method" do
-      let :app_definition do
-        Proc.new do
-          instance_exec(&$presenter_app_boilerplate)
-
-          module Pakyow::Helpers
-            def test_param
-              params[:test]
-            end
-          end
-
-          router :default do
-            presentable :test_param
-
-            get "/" do
-            end
-          end
-
-          Pakyow::App.view "/" do
-            $presentable = test_param
-          end
-        end
-      end
-
-      it "has access to request params" do
-        expect($presentable).to eq("testing123")
-      end
-    end
-
-    context "presentable is a block" do
-      let :app_definition do
-        Proc.new do
-          instance_exec(&$presenter_app_boilerplate)
-
-          router :default do
-            presentable :test_param do
-              params[:test]
-            end
-
-            get "/" do
-            end
-          end
-
-          Pakyow::App.view "/" do
-            $presentable = test_param
-          end
-        end
-      end
-
-      it "is the value from the block" do
-        expect($presentable).to eq("testing123")
-      end
-    end
-  end
-
   context "presentable is defined inline with the route" do
     context "presentable is a method" do
       let :app_definition do
         Proc.new do
           instance_exec(&$presenter_app_boilerplate)
 
-          router :default do
+          controller :default do
             get "/" do
               def test_param
                 params[:test]
@@ -81,7 +25,7 @@ RSpec.describe "accessing request context in presentables" do
             end
           end
 
-          Pakyow::App.view "/" do
+          view "/" do
             $presentable = test_param
           end
         end
@@ -97,13 +41,13 @@ RSpec.describe "accessing request context in presentables" do
         Proc.new do
           instance_exec(&$presenter_app_boilerplate)
 
-          router :default do
+          controller :default do
             get "/" do
               presentable :test_param, params[:test]
             end
           end
 
-          Pakyow::App.view "/" do
+          view "/" do
             $presentable = test_param
           end
         end
@@ -119,7 +63,7 @@ RSpec.describe "accessing request context in presentables" do
         Proc.new do
           instance_exec(&$presenter_app_boilerplate)
 
-          router :default do
+          controller :default do
             get "/" do
               presentable :test_param do
                 params[:test]
@@ -127,7 +71,7 @@ RSpec.describe "accessing request context in presentables" do
             end
           end
 
-          Pakyow::App.view "/" do
+          view "/" do
             $presentable = test_param
           end
         end

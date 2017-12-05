@@ -2,7 +2,6 @@
 
 module Pakyow
   module Routing
-    # @api private
     class Hook
       attr_reader :type
 

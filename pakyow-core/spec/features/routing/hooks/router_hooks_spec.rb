@@ -1,4 +1,4 @@
-RSpec.describe "router hooks" do
+RSpec.describe "controller hooks" do
   include_context "testable app"
 
   before do
@@ -8,7 +8,7 @@ RSpec.describe "router hooks" do
   context "when a single hook is defined" do
     let :app_definition do
       Proc.new do
-        router before: :foo, after: :bar, around: :baz do
+        controller before: :foo, after: :bar, around: :baz do
           def foo
             $calls << :foo
           end
@@ -46,7 +46,7 @@ RSpec.describe "router hooks" do
   context "when multiple hooks are defined" do
     let :app_definition do
       Proc.new do
-        router before: [:foo1, :foo2], after: [:bar1, :bar2], around: [:baz1, :baz2] do
+        controller before: [:foo1, :foo2], after: [:bar1, :bar2], around: [:baz1, :baz2] do
           def foo1
             $calls << :foo1
           end
@@ -97,10 +97,10 @@ RSpec.describe "router hooks" do
     end
   end
 
-  context "when a hook is defined in a parent router" do
+  context "when a hook is defined in a parent controller" do
     let :app_definition do
       Proc.new {
-        router do
+        controller do
           def foo
             $calls << :foo
           end
@@ -137,10 +137,10 @@ RSpec.describe "router hooks" do
     end
   end
 
-  context "when hooks are defined on a parent router" do
+  context "when hooks are defined on a parent controller" do
     let :app_definition do
       Proc.new {
-        router before: [:foo], after: [:bar], around: [:baz] do
+        controller before: [:foo], after: [:bar], around: [:baz] do
           def foo
             $calls << :foo
           end

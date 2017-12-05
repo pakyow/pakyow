@@ -5,7 +5,7 @@ RSpec.describe "using cookies" do
     context "using the pakyow helper" do
       let :app_definition do
         Proc.new {
-          router do
+          controller do
             get "/set/:value" do
               cookies[:foo] = params[:value]
             end
@@ -33,7 +33,7 @@ RSpec.describe "using cookies" do
     context "using request.set_cookie" do
       let :app_definition do
         Proc.new {
-          router do
+          controller do
             get "/set/:value" do
               response.set_cookie(
                 :foo,
@@ -72,7 +72,7 @@ RSpec.describe "using cookies" do
     context "using the pakyow helper" do
       let :app_definition do
         Proc.new {
-          router do
+          controller do
             get "/" do
               send cookies[:foo] || ""
             end
@@ -88,7 +88,7 @@ RSpec.describe "using cookies" do
     context "using request.cookies" do
       let :app_definition do
         Proc.new {
-          router do
+          controller do
             get "/" do
               send request.cookies[:foo] || ""
             end
@@ -110,7 +110,7 @@ RSpec.describe "using cookies" do
     context "using the pakyow helper" do
       let :app_definition do
         Proc.new {
-          router do
+          controller do
             get "/" do
               cookies.delete(:foo)
             end
@@ -127,7 +127,7 @@ RSpec.describe "using cookies" do
     context "using request.delete_cookie" do
       let :app_definition do
         Proc.new {
-          router do
+          controller do
             get "/" do
               response.delete_cookie(:foo)
             end
@@ -149,7 +149,7 @@ RSpec.describe "using cookies" do
 
     let :app_definition do
       Proc.new {
-        router do
+        controller do
           get "/" do
             cookies[:foo] = nil
           end

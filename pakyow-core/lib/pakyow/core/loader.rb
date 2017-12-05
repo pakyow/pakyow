@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
+require "pakyow/support/makeable"
+
 module Pakyow
   class Loader
-    def initialize(target, prefix, path)
-      @target, @prefix, @path = target, prefix.to_sym, path
+    def initialize(target, namespace, path)
+      @target, @namespace, @path = target, namespace, path
     end
 
     def call(eval_binding = binding)
@@ -11,8 +13,7 @@ module Pakyow
     end
 
     def method_missing(name, *args, **kargs, &block)
-      # prefix the given name with the known prefix
-      args[0] = :"#{@prefix}__#{args[0]}" if args[0].is_a?(Symbol)
+      args[0] = Support::ClassName.new(@namespace, args[0]) if args[0].is_a?(Symbol)
       @target.public_send(name, *args, **kargs, &block)
     end
   end

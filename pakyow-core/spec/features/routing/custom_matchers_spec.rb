@@ -4,14 +4,18 @@ RSpec.describe "routing with custom matchers" do
   context "when route is defined with a custom matcher" do
     let :app_definition do
       Proc.new {
-        klass = Class.new do
-          def match?(path)
-            path == "/custom"
+        matcher = Class.new do
+          def match(path)
+            self if path == "/custom"
+          end
+
+          def named_captures
+            {}
           end
         end
 
-        router do
-          get klass.new do
+        controller do
+          get matcher.new do
             send "custom"
           end
         end
@@ -30,11 +34,7 @@ RSpec.describe "routing with custom matchers" do
     context "and the custom matcher provides a match" do
       let :app_definition do
         Proc.new {
-          klass = Class.new do
-            def match?(path)
-              true
-            end
-
+          matcher = Class.new do
             def match(path)
               self
             end
@@ -44,8 +44,8 @@ RSpec.describe "routing with custom matchers" do
             end
           end
 
-          router do
-            get klass.new do
+          controller do
+            get matcher.new do
               send params[:foo] || ""
             end
           end
@@ -61,14 +61,18 @@ RSpec.describe "routing with custom matchers" do
   context "when route is defined with a custom matcher within a namespace" do
     let :app_definition do
       Proc.new {
-        klass = Class.new do
-          def match?(path)
-            path == "/custom"
+        matcher = Class.new do
+          def match(path)
+            self if path == "/custom"
+          end
+
+          def named_captures
+            {}
           end
         end
 
-        router "/ns" do
-          get klass.new do
+        controller "/ns" do
+          get matcher.new do
             send "custom"
           end
         end
@@ -87,14 +91,18 @@ RSpec.describe "routing with custom matchers" do
   context "when route is defined with a custom matcher within a parameterized namespace" do
     let :app_definition do
       Proc.new {
-        klass = Class.new do
-          def match?(path)
-            path == "/"
+        matcher = Class.new do
+          def match(path)
+            self if path == "/"
+          end
+
+          def named_captures
+            {}
           end
         end
 
-        router "/:id" do
-          get klass.new do
+        controller "/:id" do
+          get matcher.new do
             send params[:id] || ""
           end
         end
@@ -111,16 +119,20 @@ RSpec.describe "routing with custom matchers" do
     end
   end
 
-  context "when a router is defined with a custom matcher" do
+  context "when a controller is defined with a custom matcher" do
     let :app_definition do
       Proc.new {
-        klass = Class.new do
-          def match?(path)
-            true
+        matcher = Class.new do
+          def match(path)
+            self
+          end
+
+          def named_captures
+            {}
           end
         end
 
-        router klass.new do
+        controller matcher.new do
           get "/foo" do
             send "foo"
           end
@@ -137,14 +149,18 @@ RSpec.describe "routing with custom matchers" do
   context "when a namespace is defined with a custom matcher" do
     let :app_definition do
       Proc.new {
-        klass = Class.new do
-          def match?(path)
-            true
+        matcher = Class.new do
+          def match(path)
+            self
+          end
+
+          def named_captures
+            {}
           end
         end
 
-        router do
-          namespace klass.new do
+        controller do
+          namespace matcher.new do
             get "/foo" do
               send "foo"
             end

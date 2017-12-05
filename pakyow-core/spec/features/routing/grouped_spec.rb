@@ -3,7 +3,7 @@ RSpec.describe "grouped routes" do
 
   let :app_definition do
     Proc.new {
-      router do
+      controller do
         group :g, before: [:foo], after: [:foo], around: [:meh] do
           def foo
             $calls << :foo

@@ -22,10 +22,6 @@ RSpec.describe Pakyow do
   end
 
   describe "configuration options" do
-    after do
-      Pakyow.reset
-    end
-
     describe "env.default" do
       it "has a default value" do
         expect(Pakyow.config.env.default).to eq(:development)
@@ -140,10 +136,6 @@ RSpec.describe Pakyow do
   end
 
   describe ".mount" do
-    after do
-      Pakyow.reset
-    end
-
     let :app do
       Class.new
     end
@@ -277,7 +269,6 @@ RSpec.describe Pakyow do
     end
 
     it "initializes the logger" do
-      Pakyow.reset
       expect(Pakyow.logger).to be_nil
       Pakyow.setup
 
@@ -305,10 +296,6 @@ RSpec.describe Pakyow do
       allow(Pakyow).to receive(:handler).and_return(handler_double)
       Pakyow.instance_variable_set(:@builder, builder_double)
       Pakyow.run(**opts)
-    end
-
-    after do
-      Pakyow.reset
     end
 
     let :handler_double do
@@ -437,13 +424,14 @@ RSpec.describe Pakyow do
       Pakyow.config.server.default = :mock
     end
 
-    after do
-      Pakyow.reset
-    end
-
     it "contains mounted app instances after boot" do
       run
       expect(Pakyow.instance_variable_get(:@apps)).to include(app)
     end
+  end
+
+  describe "#env?" do
+    it "returns true when the environment matches"
+    it "returns false when the environment does not match"
   end
 end

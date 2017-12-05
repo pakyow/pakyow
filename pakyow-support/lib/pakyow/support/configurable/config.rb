@@ -17,7 +17,8 @@ module Pakyow
 
         def initialize_copy(original)
           super
-          @groups = original.groups.deep_dup
+
+          @groups = @groups.deep_dup
         end
 
         def add_group(name, options, parent, &block)

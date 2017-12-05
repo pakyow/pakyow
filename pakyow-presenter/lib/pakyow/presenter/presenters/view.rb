@@ -5,14 +5,14 @@ require "pakyow/presenter/presenter"
 module Pakyow
   module Presenter
     class ViewPresenter < Presenter
-      extend Support::ClassMaker
+      extend Support::Makeable
 
       class << self
         attr_reader :path, :block
 
-        def make(path, state: nil, &block)
+        def make(path, **kwargs, &block)
           path = String.normalize_path(path)
-          super(name_from_path(path), state: state, path: path, block: block) {}
+          super(name_from_path(path), path: path, block: block, **kwargs) {}
         end
 
         def name_from_path(path)
@@ -32,7 +32,7 @@ module Pakyow
         super(@view, **args)
       end
 
-      def to_html
+      def to_html(clean: true)
         if block = self.class.block
           instance_exec(&block)
         end

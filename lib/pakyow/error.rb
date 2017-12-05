@@ -3,7 +3,6 @@
 module Pakyow
   # Base Pakyow error object
   #
-  # @api public
   class Error < StandardError
     attr_accessor :wrapped_exception, :context
 

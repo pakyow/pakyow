@@ -8,7 +8,7 @@ RSpec.describe "proc hooks" do
   context "when a hook is defined as a proc on a route" do
     let :app_definition do
       Proc.new do
-        router do
+        controller :testing do
           default before: -> { $calls << :before } do
             $calls << :route
           end
@@ -21,10 +21,10 @@ RSpec.describe "proc hooks" do
     end
   end
 
-  context "when a hook is defined as a proc on a router" do
+  context "when a hook is defined as a proc on a controller" do
     let :app_definition do
       Proc.new do
-        router before: -> { $calls << :before } do
+        controller :testing, before: -> { $calls << :before } do
           default do
             $calls << :route
           end
