@@ -21,12 +21,12 @@ module Pakyow
       end
 
       def self.extended(base)
-        base.instance_variable_set(:@class_level_state, {})
+        unless base.instance_variable_defined?(:@class_level_state)
+          base.instance_variable_set(:@class_level_state, {})
+        end
       end
 
       def inherited(subclass)
-        super
-
         subclass.instance_variable_set(:@class_level_state, @class_level_state.deep_dup)
 
         @class_level_state.each do |ivar, options|
@@ -34,6 +34,8 @@ module Pakyow
 
           subclass.instance_variable_set(ivar, instance_variable_get(ivar).deep_dup)
         end
+
+        super
       end
     end
   end

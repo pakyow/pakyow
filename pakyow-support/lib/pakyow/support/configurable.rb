@@ -9,38 +9,32 @@ module Pakyow
     module Configurable
       def self.included(base)
         base.extend ClassAPI
+        base.extend ClassLevelState
+        base.class_level_state :config, default: Config.new, inheritable: true
+        base.class_level_state :config_envs, default: {}, inheritable: true
       end
+
+      attr_reader :config
 
       def use_config(env)
         @config = self.class.config.dup
 
-        config.load_defaults(env)
+        @config.load_defaults(env)
         [:__global, env.to_sym].each do |config_env|
           next unless config_block = self.class.config_envs[config_env]
           instance_eval(&config_block)
         end
 
-        config.freeze
-      end
-
-      def config
-        @config
+        @config.freeze
       end
 
       module ClassAPI
         def inherited(subclass)
           super
 
-          duped_config = config.dup
-          duped_config.groups.values.each do |group|
+          subclass.config.groups.values.each do |group|
             group.instance_variable_set(:@__parent, subclass)
           end
-
-          subclass.instance_variable_set(:@config, duped_config)
-        end
-
-        def config
-          @config ||= Config.new
         end
 
         def settings_for(group, **options, &block)
@@ -61,10 +55,6 @@ module Pakyow
           end
 
           config.freeze
-        end
-
-        def config_envs
-          @config_envs ||= {}
         end
       end
     end
