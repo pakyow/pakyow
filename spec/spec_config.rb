@@ -36,6 +36,12 @@ RSpec.configure do |config|
     if instance_variable_defined?(:@original_pakyow_config)
       Pakyow.instance_variable_set(:@config, @original_pakyow_config)
     end
+
+    if Kernel.const_defined?(:Test)
+      Test.constants(false).each do |const_to_unset|
+        Test.__send__(:remove_const, const_to_unset)
+      end
+    end
   end
 end
 

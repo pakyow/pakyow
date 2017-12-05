@@ -3,7 +3,7 @@
 require "pakyow/support/aargv"
 require "pakyow/support/array"
 
-require "pakyow/support/class_maker"
+require "pakyow/support/makeable"
 
 require "pakyow/core/routing/hook_merger"
 require "pakyow/core/routing/behavior/error_handling"
@@ -141,7 +141,7 @@ module Pakyow
     include Helpers
 
     using Support::DeepDup
-    extend Support::ClassMaker
+    extend Support::Makeable
     include Support::Hookable
 
     extend Routing::HookMerger
@@ -590,7 +590,7 @@ module Pakyow
       #
       def within(*names, &block)
         raise NameError, "Unknown controller `#{names.first}'" unless controller = find_controller_by_name(names)
-        controller.make_child(name, matcher, **hooks, &block)
+        controller.make_child(__class_name, matcher, **hooks, &block)
       end
 
       def before(*routes_and_maybe_method, skip: nil, &block)
@@ -672,8 +672,9 @@ module Pakyow
           return found_route.populated_path(path_to_self, **params)
         end
 
+        first_name = names.first
         matched_controllers = children.reject { |controller_to_match|
-          controller_to_match.name.nil? || controller_to_match.name != names.first
+          controller_to_match&.__class_name&.name != first_name
         }
 
         matched_controllers.each do |matched_controller|
@@ -685,7 +686,7 @@ module Pakyow
         nil
       end
 
-      def make(*args, before: [], after: [], around: [], state: nil, parent: nil, &block)
+      def make(*args, before: [], after: [], around: [], **kwargs, &block)
         name, matcher = parse_name_and_matcher_from_args(*args)
 
         path = path_from_matcher(matcher)
@@ -696,12 +697,15 @@ module Pakyow
           around: convert_to_hook_objects(Array.ensure(around), :around)
         )
 
-        super(name, state: state, path: path, matcher: matcher, hooks: hooks, parent: parent, &block)
+        super(name, path: path, matcher: matcher, hooks: hooks, **kwargs, &block)
       end
 
       # @api private
-      def make_child(*args, **hooks, &block)
-        controller = make(*args, parent: self, **hooks, &block)
+      def make_child(*args, **kwargs, &block)
+        name, matcher = parse_name_and_matcher_from_args(*args)
+        name = __class_name.subclass(name) if name && name.is_a?(Symbol) && __class_name
+
+        controller = make(name, matcher, parent: self, **kwargs, &block)
         children << controller
         controller
       end
@@ -759,7 +763,7 @@ module Pakyow
 
         first_name = names.shift
         (controllers || [self].concat(state.instances)).each do |controller|
-          next unless controller.name == first_name
+          next unless controller.__class_name&.name == first_name
 
           if names.empty?
             return controller
@@ -770,7 +774,7 @@ module Pakyow
       end
 
       def parse_name_and_matcher_from_args(name_or_matcher = nil, matcher_or_name = nil)
-        Aargv.normalize([name_or_matcher, matcher_or_name].compact, name: [Symbol, ConcernName], matcher: Object).values_at(:name, :matcher)
+        Aargv.normalize([name_or_matcher, matcher_or_name].compact, name: [Symbol, Support::ClassName], matcher: Object).values_at(:name, :matcher)
       end
 
       def finalize_matcher(matcher)

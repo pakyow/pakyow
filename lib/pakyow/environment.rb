@@ -317,11 +317,11 @@ module Pakyow
       @frameworks ||= {}
     end
 
-    def app(name, path: "/", without: [], &block)
+    def app(app_name, path: "/", without: [], &block)
       local_frameworks = frameworks.keys - Array.ensure(without)
 
-      app = Pakyow::App.make("#{name}__app") {
-        config.app.name = name
+      app = Pakyow::App.make(Support::ClassName.namespace(app_name, "app")) {
+        config.app.name = app_name
         include_frameworks(*local_frameworks)
       }
 

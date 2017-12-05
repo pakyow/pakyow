@@ -40,7 +40,7 @@ module Pakyow
     #
     def path_to(*names, **params)
       matched_objects = @objects_with_paths.reject { |object_to_match|
-        object_to_match.name.nil? || object_to_match.name != names.first
+        object_to_match.__class_name.nil? || object_to_match.__class_name.name != names.first
       }
 
       matched_objects.each do |matched_object|

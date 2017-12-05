@@ -8,17 +8,17 @@ module Pakyow
     #
     # @api private
     class Expansion
-      attr_reader :expander, :router, :name
+      attr_reader :expander, :controller, :name
 
       extend Forwardable
       def_delegators :expander, *%i[default group namespace template].concat(Controller::SUPPORTED_HTTP_METHODS)
 
-      def initialize(template_name, router, &template_block)
-        @router = router
+      def initialize(template_name, controller, &template_block)
+        @controller = controller
 
-        # Create the router that stores available routes, groups, and namespaces
+        # Create the controller that stores available routes, groups, and namespaces
         #
-        @expander = Controller.make(router.name, nil, **router.hooks)
+        @expander = Controller.make(controller.name, nil, **controller.hooks)
 
         # Evaluate the template to define available routes, groups, and namespaces
         #
@@ -28,7 +28,7 @@ module Pakyow
         #
         @expander.routes.each do |method, routes|
           routes.each do |route|
-            @router.define_singleton_method route.name do |*args, &block|
+            @controller.define_singleton_method route.name do |*args, &block|
               # Handle template parts named `new` by determining if we're calling `new` to expand
               # part of a template, or if we're intending to create a new controller instance.
               #
@@ -47,18 +47,18 @@ module Pakyow
         # Define helper methods for groups and namespaces
         #
         @expander.children.each do |child|
-          @router.define_singleton_method child.name do |*args, &block|
+          @controller.define_singleton_method child.__class_name.name do |*args, &block|
             if child.path.nil?
-              group(child.name, *args, &block)
+              group(child.__class_name.name, *args, &block)
             else
-              namespace(child.name, child.path || child.matcher, *args, &block)
+              namespace(child.__class_name.name, child.path || child.matcher, *args, &block)
             end
           end
         end
 
-        # Make the current template available to router we're adding to
+        # Make the current template available to controller we're adding to
         #
-        @router.define_singleton_method :within do |*names, &block|
+        @controller.define_singleton_method :within do |*names, &block|
           super(*names) do
             expand_within(template_name, &block)
           end

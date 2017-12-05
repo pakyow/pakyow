@@ -40,15 +40,15 @@ module Pakyow
     end
 
     class Processor
-      extend Support::ClassMaker
+      extend Support::Makeable
 
       class << self
         attr_reader :name, :extensions, :block
 
-        def make(name, *extensions, state: nil, &block)
+        def make(name, *extensions, **kwargs, &block)
           # name is expected to also be an extension
           extensions.unshift(name).map!(&:to_sym)
-          super(name, state: state, extensions: extensions, block: block) {}
+          super(name, extensions: extensions, block: block, **kwargs) {}
         end
 
         def process(content)

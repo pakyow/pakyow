@@ -5,7 +5,7 @@ require "pakyow/support/definable"
 require "pakyow/support/hookable"
 require "pakyow/support/recursive_require"
 require "pakyow/support/deep_freeze"
-require "pakyow/support/class_maker"
+require "pakyow/support/makeable"
 
 require "pakyow/core/call"
 require "pakyow/core/helpers"
@@ -209,7 +209,7 @@ module Pakyow
     end
 
     include Support::Definable
-    extend Support::ClassMaker
+    extend Support::Makeable
 
     include Support::Hookable
     known_events :initialize, :configure, :load, :freeze
@@ -412,7 +412,7 @@ module Pakyow
     def load_app_concern(state_path, state_type, load_target = self.class)
       Dir.glob(File.join(state_path, "*.rb")) do |path|
         if config.app.dsl
-          Loader.new(load_target, ConcernNamePrefix.new(config.app.name, state_type), path).call
+          Loader.new(load_target, Support::ClassNamespace.new(config.app.name, state_type), path).call
         else
           require path
         end
@@ -429,34 +429,6 @@ module Pakyow
           paths << state_instance if state_instance.respond_to?(:path_to)
         end
       }
-    end
-  end
-
-  class ConcernNamePrefix
-    def initialize(prefix, type)
-      @prefix, @type = prefix, type
-    end
-
-    def to_s
-      [@prefix, @type].join("__")
-    end
-
-    def to_sym
-      to_s.to_sym
-    end
-  end
-
-  class ConcernName
-    def initialize(prefix, name)
-      @prefix, @name = prefix, name
-    end
-
-    def to_s
-      [@prefix, @name].join("__")
-    end
-
-    def to_sym
-      to_s.to_sym
     end
   end
 end
