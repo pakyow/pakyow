@@ -1,29 +1,27 @@
 # frozen_string_literal: true
 
 require "nio"
-require "singleton"
+require "concurrent/array"
 
 module Pakyow
   module Realtime
     # Manages reading from a pool of IO objects, such as WebSockets.
     #
-    # Shamelessly inspired by ActionCable::Connection::StreamEventLoop.
-    #
-    class ConnectionPool
-      include Singleton
-
+    # Heavily inspired by ActionCable::Connection::StreamEventLoop.
+    # Copyright (c) 2015-2017 Basecamp, LLC
+    class EventLoop
       def initialize
-        @selector = NIO::Selector.new
         @mutex = Mutex.new
-        @tasks = []
+        @selector = NIO::Selector.new
+        @tasks = Concurrent::Array.new
       end
 
       # Adds a connection to the pool.
       #
-      def <<(conn)
+      def <<(connection)
         @tasks << -> do
-          monitor = @selector.register(conn.to_io, :r)
-          monitor.value = conn
+          monitor = @selector.register(connection.to_io, :r)
+          monitor.value = connection
         end
 
         start
@@ -31,21 +29,19 @@ module Pakyow
 
       # Removes a connection from the pool.
       #
-      def rm(conn)
+      def rm(connection)
         @tasks << -> do
-          @selector.deregister(conn.to_io)
+          @selector.deregister(connection.to_io)
         end
 
         start
       end
 
-      # Wakes up the selector (e.g. after a process fork).
-      #
+      private
+
       def wakeup
         @selector.wakeup
       end
-
-      private
 
       def start
         @mutex.synchronize do
@@ -66,17 +62,17 @@ module Pakyow
           next unless monitors = @selector.select
 
           monitors.each do |monitor|
-            conn = monitor.value
+            connection = monitor.value
 
             begin
-              conn.receive monitor.io.read_nonblock(4096)
+              connection.receive(monitor.io.read_nonblock(4096))
             rescue IO::WaitReadable
               next
             rescue
               begin
-                conn.shutdown
+                connection.shutdown
               rescue
-                @selector.deregister(conn.to_io)
+                @selector.deregister(connection.to_io)
               end
             end
           end

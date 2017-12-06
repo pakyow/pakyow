@@ -22,7 +22,8 @@ Gem::Specification.new do |spec|
   spec.add_dependency "pakyow-core", Pakyow::VERSION
   spec.add_dependency "pakyow-support", Pakyow::VERSION
 
+  spec.add_dependency "concurrent-ruby", "~> 1.0"
+  spec.add_dependency "websocket-driver", "~> 0.7"
   spec.add_dependency "nio4r", "~> 2.1"
   spec.add_dependency "redis", "~> 4.0"
-  spec.add_dependency "websocket", "~> 1.2"
 end
