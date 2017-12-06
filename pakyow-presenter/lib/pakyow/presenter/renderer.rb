@@ -6,25 +6,52 @@ module Pakyow
   module Presenter
     module RenderHelpers
       def render(path = request.env["pakyow.endpoint"] || request.path, as: nil)
-        Renderer.new(@__state).render(path, as: as); throw :halt
+        new(@__state).perform(path, as: as); throw :halt
       end
     end
 
     class Renderer
+      class << self
+        def call(state)
+          if auto_render?(state.request)
+            # rubocop:disable Lint/HandleExceptions
+            begin
+              perform(state)
+              state.processed
+            rescue MissingView
+              # TODO: in development, raise a missing view error in the case
+              # of auto-render... so we can tell the user what to do
+              #
+              # in production, we want the auto_render to fail but ultimately lead
+              # to a normal 404 error condition
+            end
+            # rubocop:enable Lint/HandleExceptions
+          end
+        end
+
+        def handle_missing(_state); end
+
+        def handle_failure(_state, _error); end
+
+        def auto_render?(request)
+          request.method == :get && request.format == :html
+        end
+
+        def perform(state)
+          new(state).perform
+        end
+      end
+
       include Helpers
 
       include Support::Hookable
       known_events :render
 
-      def self.perform(state)
-        new(state).render
-      end
-
       def initialize(state)
         @__state = state
       end
 
-      def render(path = request.env["pakyow.endpoint"] || request.path, as: nil)
+      def perform(path = request.env["pakyow.endpoint"] || request.path, as: nil)
         unless info = find_info_for(path)
           raise MissingView.new("No view at path `#{path}'")
         end

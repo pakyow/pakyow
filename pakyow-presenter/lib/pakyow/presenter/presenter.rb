@@ -11,33 +11,6 @@ module Pakyow
     # State is passed explicitly to the presenter, exposed by calling the `presentable` helper.
     #
     class Presenter
-      class << self
-        def call(state)
-          if auto_render?(state.request)
-            begin
-              Renderer.perform(state)
-              state.processed
-            rescue MissingView
-              # TODO: in development, raise a missing view error in the case
-              # of auto-render... so we can tell the user what to do
-              #
-              # in production, we want the auto_render to fail but ultimately lead
-              # to a normal 404 error condition
-            end
-          end
-        end
-
-        def handle_missing(state)
-        end
-
-        def handle_failure(state, error)
-        end
-
-        def auto_render?(request)
-          request.method == :get && request.format == :html
-        end
-      end
-
       include Support::SafeStringHelpers
 
       attr_reader :view, :binders

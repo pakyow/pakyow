@@ -4,10 +4,10 @@ module Pakyow
   module Presenter
     class Framework < Pakyow::Framework(:presenter)
       def boot
-        presenter_class = subclass(Presenter)
+        renderer_class = subclass(Renderer)
 
         app.class_eval do
-          endpoint presenter_class
+          endpoint renderer_class
 
           stateful :template_store, TemplateStore
           stateful :view, ViewPresenter
