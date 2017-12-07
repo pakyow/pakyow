@@ -10,7 +10,6 @@ module Pakyow
 
       using Support::Method::Introspection
 
-      # TODO: pass in the adapter and config
       def initialize(app_name, adapter = :memory, adapter_config = {})
         require "pakyow/data/subscriber_store/adapters/#{adapter}"
         @adapter = Pakyow::Data::SubscriberStore::Adapter.const_get(adapter.to_s.capitalize).new(app_name, adapter_config)
