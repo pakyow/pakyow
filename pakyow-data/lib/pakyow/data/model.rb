@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require "pakyow/support/class_maker"
+require "pakyow/support/makeable"
 
 module Pakyow
   module Data
     class Model
-      extend Support::ClassMaker
+      extend Support::Makeable
       extend Support::DeepFreeze
       unfreezable :relation
 

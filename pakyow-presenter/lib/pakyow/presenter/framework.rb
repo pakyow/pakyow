@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "pakyow/core/framework"
+
 module Pakyow
   module Presenter
     class Framework < Pakyow::Framework(:presenter)

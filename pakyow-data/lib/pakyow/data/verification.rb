@@ -31,6 +31,12 @@ module Pakyow
       module ClassMethods
         attr_reader :object_name_to_verify
 
+        def inherited(subclass)
+          super
+
+          subclass.instance_variable_set(:@object_name_to_verify, @object_name_to_verify)
+        end
+
         def verifies(object)
           @object_name_to_verify = object
         end

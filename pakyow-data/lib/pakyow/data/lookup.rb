@@ -28,8 +28,9 @@ module Pakyow
       def method_missing(name)
         if model = @models[name]
           # FIXME: protect against missing containers (maybe define a lookup method on the environment)
+          # TODO: handle edge-cases around connections not being defined... just spent some time tracking down a bug caused by it
           container = Pakyow.database_containers[model.adapter || Pakyow.config.data.default_adapter][model.connection]
-          ModelProxy.new(model.new(container.relations[model.name]), @subscriber_store)
+          ModelProxy.new(model.new(container.relations[model.__class_name.name]), @subscriber_store)
         else
           nil
         end
