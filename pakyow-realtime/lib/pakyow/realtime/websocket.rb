@@ -7,16 +7,10 @@ module Pakyow
     class WebSocket
       include Helpers
 
-      attr_reader :env, :url
+      attr_reader :id, :env, :url
 
-      # TODO: register and trigger message handlers
-      # TODO: channels, including subscribe/unsubscribe/transmission
-      # TODO: force disconnects on the current connection, or by id
-      # TODO: make it production ready using redis pubsub
-      # TODO: register and trigger join/leave handlers
-
-      def initialize(state)
-        @__state = state
+      def initialize(id, state)
+        @id, @__state = id, state
 
         @env = request.env
 

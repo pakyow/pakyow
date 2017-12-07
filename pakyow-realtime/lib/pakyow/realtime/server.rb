@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
+require "concurrent/array"
 require "concurrent/timer_task"
 require "concurrent/executor/thread_pool_executor"
+
 require "websocket/driver"
 
 require "pakyow/realtime/websocket"
@@ -17,6 +19,7 @@ module Pakyow
           return unless id_and_digest = state.request.params[:id]
 
           id, digest = id_and_digest.split(":", 2)
+          key = state.request.session[:socket_server_id]
 
           # Verify that the websocket is connecting with a valid digest.
           #
@@ -25,9 +28,9 @@ module Pakyow
           # `id:digest` value is embedded in the response, while the key is stored in
           # the session. We verify by generating the digest and comparing it to the
           # digest sent in the connection attempt.
-          return unless digest == socket_digest(state.request.session[:socket_key], id)
+          return unless digest == socket_digest(key, id)
 
-          WebSocket.new(state)
+          WebSocket.new(key, state)
           state.processed
           throw :halt
         end
@@ -38,40 +41,94 @@ module Pakyow
 
         # Returns a key.
         #
-        def socket_key
+        def socket_server_id
           SecureRandom.hex(24)
         end
 
         # Returns a connection id (used throughout the current request lifecycle).
         #
-        def socket_connection_id
+        def socket_client_id
           SecureRandom.hex(24)
         end
 
         # Returns a digest created from the connection id and socket key.
         #
-        def socket_digest(socket_key, socket_connection_id)
-          Base64.encode64(OpenSSL::HMAC.digest(OpenSSL::Digest.new("sha256"), socket_key, socket_connection_id)).strip()
+        def socket_digest(socket_server_id, socket_client_id)
+          Base64.encode64(OpenSSL::HMAC.digest(OpenSSL::Digest.new("sha256"), socket_server_id, socket_client_id)).strip()
         end
       end
 
       HEARTBEAT_INTERVAL = 3
 
-      def initialize
+      def initialize(adapter = :memory, _adapter_config = {})
+        require "pakyow/realtime/server/adapters/#{adapter}"
+        @adapter = Adapter.const_get(adapter.to_s.capitalize).new(self)
+
         start_heartbeat
         @event_loop = EventLoop.new
-        @connections = Concurrent::Array.new
+        @sockets = Concurrent::Array.new
         @executor = Concurrent::ThreadPoolExecutor.new
+      rescue LoadError => e
+        Pakyow.logger.error "Failed to load data subscriber store adapter named `#{adapter}'"
+        Pakyow.logger.error e.message
       end
 
-      def socket_connect(socket)
-        @event_loop << socket
-        @connections << socket
+      def socket_connect(id_or_socket)
+        find_socket(id_or_socket) do |socket|
+          @event_loop << socket
+          @sockets << socket
+
+          # every connection is subscribed to a channel with its unique id
+          # this is how messages are pushed directly to a connection
+          socket_subscribe(socket, socket.id)
+        end
       end
 
-      def socket_disconnect(socket)
-        @event_loop.rm(socket)
-        @connections.delete(socket)
+      def socket_disconnect(id_or_socket)
+        find_socket(id_or_socket) do |socket|
+          @event_loop.rm(socket)
+          @sockets.delete(socket)
+
+          socket_unsubscribe(socket, socket.id)
+        end
+      end
+
+      def socket_subscribe(id_or_socket, channel)
+        find_socket(id_or_socket) do |socket|
+          @adapter.socket_subscribe(socket, channel)
+        end
+      end
+
+      def socket_unsubscribe(id_or_socket, channel)
+        find_socket(id_or_socket) do |socket|
+          @adapter.socket_unsubscribe(socket, channel)
+        end
+      end
+
+      def subscription_broadcast(channel, message)
+        @adapter.subscription_broadcast(channel, message)
+      end
+
+      # Called by the adapter, which guarantees that this server has connections for these ids.
+      #
+      def transmit_message_to_connection_ids(message, socket_ids)
+        socket_ids.each do |socket_id|
+          find_socket_by_id(socket_id)&.transmit(message)
+        end
+      end
+
+      def find_socket_by_id(socket_id)
+        @sockets.find { |socket| socket.id == socket_id }
+      end
+
+      def find_socket(id_or_socket)
+        socket = if id_or_socket.is_a?(WebSocket)
+          id_or_socket
+        else
+          find_socket_by_id(id_or_socket)
+        end
+
+        yield socket if socket
       end
 
       protected
@@ -79,7 +136,7 @@ module Pakyow
       def start_heartbeat
         @heartbeat = Concurrent::TimerTask.new(execution_interval: HEARTBEAT_INTERVAL) do
           @executor << -> {
-            @connections.each(&:beat)
+            @sockets.each(&:beat)
           }
         end
 

@@ -39,7 +39,7 @@ module Pakyow
             next unless head = @current_presenter.view.object.find_significant_nodes(:head)[0]
 
             # embed the socket connection id (used by pakyow.js to idenfity itself with the server)
-            head.append("<meta name=\"pw-connection-id\" content=\"#{socket_connection_id}:#{socket_digest(socket_connection_id)}\">")
+            head.append("<meta name=\"pw-connection-id\" content=\"#{socket_client_id}:#{socket_digest(socket_client_id)}\">")
 
             # embed the socket connection path
             # TODO: this should be configurable
@@ -50,18 +50,30 @@ module Pakyow
     end
 
     module Helpers
-      def socket_key
-        return request.params[:socket_key] if request.params[:socket_key]
-        request.session[:socket_key] ||= Server.socket_key
+      def broadcast(message)
+        app.websocket_server.subscription_broadcast(socket_server_id, message)
       end
 
-      def socket_connection_id
-        return request.params[:socket_connection_id] if request.params[:socket_connection_id]
-        @socket_connection_id ||= Server.socket_connection_id
+      def subscribe(channel)
+        app.websocket_server.socket_subscribe(socket_server_id, channel)
       end
 
-      def socket_digest(socket_connection_id)
-        Server.socket_digest(socket_key, socket_connection_id)
+      def unsubscribe(channel)
+        app.websocket_server.socket_unsubscribe(socket_server_id, channel)
+      end
+
+      def socket_server_id
+        return request.params[:socket_server_id] if request.params[:socket_server_id]
+        request.session[:socket_server_id] ||= Server.socket_server_id
+      end
+
+      def socket_client_id
+        return request.params[:socket_client_id] if request.params[:socket_client_id]
+        @socket_client_id ||= Server.socket_client_id
+      end
+
+      def socket_digest(socket_client_id)
+        Server.socket_digest(socket_server_id, socket_client_id)
       end
     end
   end
