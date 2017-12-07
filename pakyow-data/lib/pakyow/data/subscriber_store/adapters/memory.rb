@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
 require "digest/sha1"
-require "concurrent"
+
+require "concurrent/array"
+require "concurrent/hash"
+require "concurrent/scheduled_task"
 
 module Pakyow
   module Data
