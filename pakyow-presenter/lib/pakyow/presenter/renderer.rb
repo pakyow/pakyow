@@ -64,7 +64,7 @@ module Pakyow
           **info
         )
 
-        define_presentables
+        define_presentables(@__state.get(:presentables))
 
         performing :render do
           response.body = StringIO.new(
@@ -117,8 +117,8 @@ module Pakyow
         nil
       end
 
-      def define_presentables
-        @__state.get(:presentables)&.each do |name, value|
+      def define_presentables(presentables)
+        presentables&.each do |name, value|
           @current_presenter.define_singleton_method name do
             value
           end
