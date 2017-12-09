@@ -6,6 +6,7 @@
   data
   presenter
   realtime
+  ui
 ).each do |lib|
   require "pakyow/#{lib}"
 end
