@@ -14,6 +14,8 @@ module Pakyow
     BODY_TAG = "body".freeze
     # @api private
     HEAD_TAG = "head".freeze
+    # @api private
+    TEMPLATE_TAG = "template".freeze
 
     # @api private
     class SignificantNode
@@ -236,6 +238,21 @@ module Pakyow
         labels = labels_hash(element)
         attributes = attributes_instance(element)
         StringNode.new(["<#{element.name}", attributes], type: :head, name: attributes[:value], labels: labels)
+      end
+    end
+
+    # @api private
+    class TemplateNode < SignificantNode
+      StringDoc.significant :template, self
+
+      def self.significant?(node)
+        node.is_a?(Oga::XML::Element) && node.name == TEMPLATE_TAG
+      end
+
+      def self.node(element)
+        labels = labels_hash(element)
+        attributes = attributes_instance(element)
+        StringNode.new(["<#{element.name}", attributes], type: :template, name: attributes[:value], labels: labels)
       end
     end
   end

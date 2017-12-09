@@ -11,6 +11,7 @@ module Pakyow
 
       def initialize(versions)
         @versions = versions
+        create_templates
         determine_working_version
       end
 
@@ -52,6 +53,18 @@ module Pakyow
 
       def determine_working_version
         self.versioned_view = default_version || first_version
+      end
+
+      def create_templates
+        @versions.each do |view|
+          template = StringDoc.new("<template data-version=\"#{view.version}\"></template>").nodes.first
+          view.attributes.each do |attribute, value|
+            next unless attribute.to_s.start_with?("data")
+            template.attributes[attribute] = value
+          end
+          template.append(view.dup)
+          view.object.after(template)
+        end
       end
 
       def versioned_view=(view)
