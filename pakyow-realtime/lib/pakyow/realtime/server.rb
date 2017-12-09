@@ -30,7 +30,7 @@ module Pakyow
           # digest sent in the connection attempt.
           return unless digest == socket_digest(key, id)
 
-          WebSocket.new(key, state)
+          WebSocket.new(id, state)
           state.processed
           throw :halt
         end
@@ -77,10 +77,6 @@ module Pakyow
         find_socket(id_or_socket) do |socket|
           @event_loop << socket
           @sockets << socket
-
-          # every connection is subscribed to a channel with its unique id
-          # this is how messages are pushed directly to a connection
-          socket_subscribe(socket, socket.id)
         end
       end
 
@@ -88,25 +84,23 @@ module Pakyow
         find_socket(id_or_socket) do |socket|
           @event_loop.rm(socket)
           @sockets.delete(socket)
-
-          socket_unsubscribe(socket, socket.id)
         end
       end
 
       def socket_subscribe(id_or_socket, channel)
-        find_socket(id_or_socket) do |socket|
-          @adapter.socket_subscribe(socket, channel)
+        find_socket_id(id_or_socket) do |socket_id|
+          @adapter.socket_subscribe(socket_id, channel.to_s)
         end
       end
 
       def socket_unsubscribe(id_or_socket, channel)
-        find_socket(id_or_socket) do |socket|
-          @adapter.socket_unsubscribe(socket, channel)
+        find_socket_id(id_or_socket) do |socket_id|
+          @adapter.socket_unsubscribe(socket_id, channel.to_s)
         end
       end
 
       def subscription_broadcast(channel, message)
-        @adapter.subscription_broadcast(channel, message)
+        @adapter.subscription_broadcast(channel.to_s, channel: channel.name, message: message)
       end
 
       # Called by the adapter, which guarantees that this server has connections for these ids.
@@ -129,6 +123,16 @@ module Pakyow
         end
 
         yield socket if socket
+      end
+
+      def find_socket_id(id_or_socket)
+        socket_id = if id_or_socket.is_a?(WebSocket)
+          id_or_socket.id
+        else
+          id_or_socket
+        end
+
+        yield socket_id if socket_id
       end
 
       protected

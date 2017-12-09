@@ -2,6 +2,7 @@
 
 require "pakyow/core/framework"
 
+require "pakyow/realtime/channel"
 require "pakyow/realtime/server"
 
 module Pakyow
@@ -51,20 +52,20 @@ module Pakyow
 
     module Helpers
       def broadcast(message)
-        app.websocket_server.subscription_broadcast(socket_server_id, message)
+        app.websocket_server.subscription_broadcast(socket_client_id, message)
       end
 
-      def subscribe(channel)
-        app.websocket_server.socket_subscribe(socket_server_id, channel)
+      def subscribe(channel, qualifier = nil)
+        app.websocket_server.socket_subscribe(socket_client_id, Channel.new(channel, qualifier))
       end
 
-      def unsubscribe(channel)
-        app.websocket_server.socket_unsubscribe(socket_server_id, channel)
+      def unsubscribe(channel, qualifier = nil)
+        app.websocket_server.socket_unsubscribe(socket_client_id, Channel.new(channel, qualifier))
       end
 
       def socket_server_id
         return request.params[:socket_server_id] if request.params[:socket_server_id]
-        request.session[:socket_server_id] ||= Server.socket_server_id
+        request.session[:socket_server_id] ||= Server.socket_client_id
       end
 
       def socket_client_id

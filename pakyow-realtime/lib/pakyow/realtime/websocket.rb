@@ -32,7 +32,7 @@ module Pakyow
 
       def transmit(message)
         return unless @open
-        @driver.text(message)
+        @driver.text({ payload: message }.to_json)
       end
 
       def beat

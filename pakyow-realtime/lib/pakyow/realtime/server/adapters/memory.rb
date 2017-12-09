@@ -18,13 +18,13 @@ module Pakyow
             @websocket_ids_by_channel = Concurrent::Hash.new
           end
 
-          def socket_subscribe(socket, channel)
+          def socket_subscribe(socket_id, channel)
             channel = channel.to_sym
-            (@websocket_ids_by_channel[channel] ||= Concurrent::Array.new) << socket.id
+            (@websocket_ids_by_channel[channel] ||= Concurrent::Array.new) << socket_id
           end
 
-          def socket_unsubscribe(socket, channel)
-            @websocket_ids_by_channel[channel.to_sym]&.delete(socket.id)
+          def socket_unsubscribe(socket_id, channel)
+            @websocket_ids_by_channel[channel.to_sym]&.delete(socket_id)
           end
 
           def subscription_broadcast(channel, message)
