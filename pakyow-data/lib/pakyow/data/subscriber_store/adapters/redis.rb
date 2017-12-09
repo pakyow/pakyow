@@ -64,6 +64,8 @@ module Pakyow
               # add the subscription to each model object
               register_model_object_ids_for_subscription_id(object_ids, model, subscription_id, transaction)
             end
+
+            subscription_id
           end
 
           def update_model_object_ids_for_subscription_id(model, object_ids, subscription_id)

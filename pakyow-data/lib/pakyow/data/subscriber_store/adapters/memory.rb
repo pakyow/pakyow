@@ -37,6 +37,8 @@ module Pakyow
             register_model_object_ids_for_subscription_id(subscription[:model], object_ids, subscription_id)
             register_subscription_id_for_model(subscription_id, subscription[:model])
             register_subscriber_for_subscription_id(subscriber, subscription_id)
+
+            subscription_id
           end
 
           def update_model_object_ids_for_subscription_id(model, object_ids, subscription_id)

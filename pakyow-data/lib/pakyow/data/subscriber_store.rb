@@ -10,9 +10,10 @@ module Pakyow
 
       using Support::Method::Introspection
 
-      def initialize(app_name, adapter = :memory, adapter_config = {})
+      def initialize(app, adapter = :memory, adapter_config = {})
+        @app = app
         require "pakyow/data/subscriber_store/adapters/#{adapter}"
-        @adapter = Pakyow::Data::SubscriberStore::Adapter.const_get(adapter.to_s.capitalize).new(app_name, adapter_config)
+        @adapter = Pakyow::Data::SubscriberStore::Adapter.const_get(adapter.to_s.capitalize).new(app.config.app.name, adapter_config)
       rescue LoadError => e
         Pakyow.logger.error "Failed to load data subscriber store adapter named `#{adapter}'"
         Pakyow.logger.error e.message
@@ -59,7 +60,7 @@ module Pakyow
 
       def process(subscription)
         model_object = lookup.send(subscription[:model])
-        callback = subscription[:handler].new
+        callback = subscription[:handler].new(@app)
         query = model_object.send(subscription[:query], *subscription[:query_args])
         arguments = {}
 
@@ -69,6 +70,10 @@ module Pakyow
 
         if callback.method(:call).keyword_argument?(:subscribers)
           arguments[:subscribers] = @adapter.subscribers_for_subscription_id(subscription[:id])
+        end
+
+        if callback.method(:call).keyword_argument?(:id)
+          arguments[:id] = subscription[:id]
         end
 
         callback.call(subscription[:payload], **arguments)

@@ -49,7 +49,7 @@ module Pakyow
             @data_model_lookup = Lookup.new(
               models,
               SubscriberStore.new(
-                config.app.name,
+                self,
                 Pakyow.config.data.subscription_adapter,
                 Pakyow.config.data.subscription_adapter_options
               )
