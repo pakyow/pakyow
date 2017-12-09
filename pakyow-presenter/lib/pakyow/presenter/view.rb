@@ -55,7 +55,7 @@ module Pakyow
       end
 
       def find(*names)
-        named = names.shift
+        named = names.shift.to_sym
         found = props_and_scopes_with_name(named).each_with_object([]) { |node, arr|
           arr << View.new(object: node)
         }

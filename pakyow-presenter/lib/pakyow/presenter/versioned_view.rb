@@ -31,17 +31,25 @@ module Pakyow
       end
 
       def transform(data)
-        insertable = self
+        data = Array.ensure(data)
 
-        Array.ensure(data).each do |object|
-          versioned_view = self.dup
+        if data.empty? && empty_view = version_named(:empty)&.dup
+          empty_view.object.delete_label(:version)
+          empty_view.object.attributes[:"data-empty"] = ""
+          after(empty_view)
+        else
+          insertable = self
 
-          yield versioned_view, object if block_given?
-          versioned_view.working.transform(object)
-          versioned_view.working.object.delete_label(:version)
+          data.each do |object|
+            versioned_view = self.dup
 
-          insertable.after(versioned_view)
-          insertable = versioned_view
+            yield versioned_view, object if block_given?
+            versioned_view.working.transform(object)
+            versioned_view.working.object.delete_label(:version)
+
+            insertable.after(versioned_view)
+            insertable = versioned_view
+          end
         end
 
         @versions.each(&:remove)

@@ -60,7 +60,7 @@ module Pakyow
       # @!method delete
       #   Deletes key by name from {@attributes}.
       #
-      def_delegators :@attributes, :keys, :delete
+      def_delegators :@attributes, :keys, :delete, :each
 
       # Wraps a hash of view attributes
       #
