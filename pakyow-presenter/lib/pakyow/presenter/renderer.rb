@@ -6,7 +6,7 @@ module Pakyow
   module Presenter
     module RenderHelpers
       def render(path = request.env["pakyow.endpoint"] || request.path, as: nil)
-        new(@__state).perform(path, as: as); throw :halt
+        app.class.const_get(:Renderer).new(@__state).perform(path, as: as); throw :halt
       end
     end
 
