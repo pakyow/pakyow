@@ -162,6 +162,8 @@ module Pakyow
           bind_value_to_node(object[prop.name], prop)
         end
 
+        attributes[:"data-id"] = object[:id]
+
         self
       end
 

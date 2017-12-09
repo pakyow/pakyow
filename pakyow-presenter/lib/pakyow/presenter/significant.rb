@@ -118,6 +118,7 @@ module Pakyow
         attributes = attributes_instance(element)
         scope = attributes.keys.first
         attributes.delete(scope)
+        attributes[:"data-s"] = scope
 
         StringNode.new(["<#{element.name}", attributes], type: :scope, name: scope, labels: labels)
       end
@@ -142,6 +143,7 @@ module Pakyow
         attributes = attributes_instance(element)
         prop = attributes.keys.first
         attributes.delete(prop)
+        attributes[:"data-p"] = prop
 
         StringNode.new(["<#{element.name}", attributes], type: :prop, name: prop, labels: labels)
       end
