@@ -10,6 +10,10 @@ module Pakyow
         @model, @subscriber_store = model, subscriber_store
       end
 
+      def name
+        @model.class.__class_name.name
+      end
+
       BUILT_IN_MODEL_QUERY_METHODS = %i[all by_id].freeze
 
       def method_missing(method_name, *args, &block)
@@ -26,7 +30,7 @@ module Pakyow
             result[:id]
           }
 
-          @subscriber_store.did_mutate(@model.class.name, changed_values, changed_ids)
+          @subscriber_store.did_mutate(name, changed_values, changed_ids)
         elsif @model.respond_to?(method_name)
           @model.send(method_name, *args, &block)
         else

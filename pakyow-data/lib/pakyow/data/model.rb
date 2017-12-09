@@ -13,10 +13,6 @@ module Pakyow
         @relation = relation
       end
 
-      def name
-        self.class.name
-      end
-
       def qualifications(query_name)
         self.class.qualifications(query_name)
       end
