@@ -67,7 +67,7 @@ module Pakyow
 
       def create_templates
         @versions.each do |view|
-          template = StringDoc.new("<template data-version=\"#{view.version}\"></template>").nodes.first
+          template = StringDoc.new("<script type=\"text/template\" data-version=\"#{view.version}\"></script>").nodes.first
           view.attributes.each do |attribute, value|
             next unless attribute.to_s.start_with?("data")
             template.attributes[attribute] = value

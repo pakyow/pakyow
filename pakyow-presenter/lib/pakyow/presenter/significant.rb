@@ -15,7 +15,7 @@ module Pakyow
     # @api private
     HEAD_TAG = "head".freeze
     # @api private
-    TEMPLATE_TAG = "template".freeze
+    SCRIPT_TAG = "script".freeze
 
     # @api private
     class SignificantNode
@@ -248,13 +248,13 @@ module Pakyow
       StringDoc.significant :template, self
 
       def self.significant?(node)
-        node.is_a?(Oga::XML::Element) && node.name == TEMPLATE_TAG
+        node.is_a?(Oga::XML::Element) && node.name == SCRIPT_TAG && node[:type] == "text/template"
       end
 
       def self.node(element)
         labels = labels_hash(element)
         attributes = attributes_instance(element)
-        StringNode.new(["<#{element.name}", attributes], type: :template, name: attributes[:value], labels: labels)
+        StringNode.new(["<script", attributes], type: :template, name: attributes[:value], labels: labels)
       end
     end
   end
