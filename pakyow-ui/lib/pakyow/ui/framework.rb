@@ -41,7 +41,7 @@ module Pakyow
           app.const_set(:MutationHandler, handler)
 
           app.const_get(:Renderer).before :render do
-            @transformation_id = SecureRandom.uuid
+            @transformation_id = SecureRandom.hex(24)
 
             # To keep up with the node(s) that matter for the transformation, a `data-t` attribute
             # is added to the node that contains the transformation_id. When the transformation is
