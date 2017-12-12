@@ -33,6 +33,8 @@ module Pakyow
           after :configure do
             @websocket_server = Server.new
           end
+
+          known_events :join, :leave
         end
 
         if app.const_defined?(:Renderer)

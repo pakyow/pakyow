@@ -20,7 +20,7 @@ module Pakyow
       #
       def <<(connection)
         @tasks << -> do
-          monitor = @selector.register(connection.to_io, :r)
+          monitor = @selector.register(connection.io, :r)
           monitor.value = connection
         end
 
@@ -31,7 +31,7 @@ module Pakyow
       #
       def rm(connection)
         @tasks << -> do
-          @selector.deregister(connection.to_io)
+          @selector.deregister(connection.io)
         end
 
         start
@@ -65,14 +65,20 @@ module Pakyow
             connection = monitor.value
 
             begin
-              connection.receive(monitor.io.read_nonblock(4096))
-            rescue IO::WaitReadable
-              next
+              incoming = monitor.io.read_nonblock(4096, exception: false)
+              case incoming
+              when :wait_readable
+                next
+              when nil
+                connection.close
+              else
+                connection.receive(incoming)
+              end
             rescue
               begin
                 connection.shutdown
               rescue
-                @selector.deregister(connection.to_io)
+                @selector.deregister(connection.io)
               end
             end
           end

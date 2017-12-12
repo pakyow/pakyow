@@ -7,7 +7,7 @@ module Pakyow
     class WebSocket
       include Helpers
 
-      attr_reader :id, :env, :url
+      attr_reader :id, :io, :env, :url
 
       def initialize(id, state)
         @id, @__state = id, state
@@ -30,8 +30,12 @@ module Pakyow
         app.websocket_server.socket_connect(self)
       end
 
+      def open?
+        @open == true
+      end
+
       def transmit(message)
-        return unless @open
+        return unless open?
         @driver.text({ payload: message }.to_json)
       end
 
@@ -40,25 +44,14 @@ module Pakyow
       end
 
       def shutdown
+        return unless open?
+
         app.websocket_server.socket_disconnect(self)
         @io.close if @io
         @io = nil
-      end
 
-      def handle_open
-        @open = true
-      end
-
-      def handle_message(message)
-        puts message
-      end
-
-      def handle_close(_code, _reason)
-        shutdown
-      end
-
-      def handle_error(_message)
-        shutdown
+        @open = false
+        trigger_presence(:leave)
       end
 
       def write(string)
@@ -73,8 +66,29 @@ module Pakyow
         shutdown
       end
 
-      def to_io
-        @io
+      protected
+
+      def handle_open
+        @open = true
+        trigger_presence(:join)
+      end
+
+      def handle_message(message)
+        puts message
+      end
+
+      def handle_close(_code, _reason)
+        shutdown
+      end
+
+      def handle_error(_message)
+        shutdown
+      end
+
+      def trigger_presence(event)
+        app.hooks(:before, event).each do |hook|
+          instance_exec(&hook)
+        end
       end
     end
   end
