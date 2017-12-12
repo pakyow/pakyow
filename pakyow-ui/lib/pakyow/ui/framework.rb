@@ -41,16 +41,36 @@ module Pakyow
           app.const_set(:MutationHandler, handler)
 
           app.const_get(:Renderer).before :render do
-            view_path = @current_presenter.class.path
+            @transformation_id = SecureRandom.uuid
+
+            # To keep up with the node(s) that matter for the transformation, a `data-t` attribute
+            # is added to the node that contains the transformation_id. When the transformation is
+            # triggered in the future, the client knows what node to apply tranformations to.
+            #
+            # Note that when we're presenting an entire view, `data-t` is set on the `body` node.
+
+            if node = @current_presenter.view.object.find_significant_nodes(:body)[0]
+              node.attributes[:"data-t"] = @transformation_id
+            else
+              # TODO: mixin the transformation_id into other nodes, once supported in presenter
+              #
+              # These views are going to be much harder. For example, partials. The partial
+              # doesn't really exist after rendering, so we need a way to identify it in the
+              # view. Probably what makes sense is to add `data-t` to every top-level node
+              # in these cases. Then deal with the nodes in a cumulative way on the client.
+            end
+          end
+
+          app.const_get(:Renderer).after :render do
+            # We wait until after render so that we don't create subscriptions unnecessarily
+            # in the event that something blew up during the render process.
+
             presentables = @__state.get(:presentables)
-            transformation_id = SecureRandom.uuid
 
             metadata = {
-              view_path: view_path,
-              transformation_id: transformation_id,
-              presentables: presentables.reject { |_, presentable|
-                next unless presentable.is_a?(Data::Query)
-              }.map { |presentable_name, presentable|
+              view_path: @current_presenter.class.path,
+              transformation_id: @transformation_id,
+              presentables: presentables.map { |presentable_name, presentable|
                 {
                   name: presentable_name,
                   model_name: presentable.model.name,
@@ -63,6 +83,7 @@ module Pakyow
             # Find every subscribed presentable, creating a data subscription for each.
             #
             queries = presentables.values.select { |presentable_value|
+              # TODO: make sure the query is subscribed
               presentable_value.is_a?(Data::Query)
             }
 
@@ -74,23 +95,6 @@ module Pakyow
 
               subscription_id = presentable_query.subscribe(socket_client_id, call: handler, with: metadata)
               subscribe(:transformation, subscription_id)
-            end
-
-            # To keep up with the node(s) that matter for the transformation, a `data-t` attribute
-            # is added to the node that contains the transformation_id. When the transformation is
-            # triggered in the future, the client knows what node to apply tranformations to.
-            #
-            # Note that when we're presenting an entire view, `data-t` is set on the `body` node.
-
-            if node = @current_presenter.view.object.find_significant_nodes(:body)[0]
-              node.attributes[:"data-t"] = transformation_id
-            else
-              # TODO: mixin the transformation_id into other nodes, once supported in presenter
-              #
-              # These views are going to be much harder. For example, partials. The partial
-              # doesn't really exist after rendering, so we need a way to identify it in the
-              # view. Probably what makes sense is to add `data-t` to every top-level node
-              # in these cases. Then deal with the nodes in a cumulative way on the client.
             end
           end
         end
