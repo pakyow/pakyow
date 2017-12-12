@@ -12,7 +12,24 @@ require "pakyow/ui/transformation"
 module Pakyow
   module UI
     class Framework < Pakyow::Framework(:ui)
+      # How long we want to wait before cleaning up data subscriptions. We set the subscriber
+      # (the WebSocket connection) to expire when it's initially created. This way if it never
+      # connects the subscription will be cleaned up, preventing orphaned subscriptions. We
+      # schedule an expiration on disconnect for the same reason.
+      #
+      # When the WebSocket connects, we persist the subscriber, cancelling the expiration.
+      #
+      SUBSCRIPTION_TIMEOUT = 60
+
       def boot
+        app.on :join do
+          app.data_model_lookup.persist(@id)
+        end
+
+        app.on :leave do
+          app.data_model_lookup.expire(@id, SUBSCRIPTION_TIMEOUT)
+        end
+
         if app.const_defined?(:Renderer)
           handler = Class.new do
             def initialize(app)
@@ -88,12 +105,8 @@ module Pakyow
             }
 
             queries.each do |presentable_query|
-              # TODO: set the data subscription to expire, then persist it when the socket connects
-              # TODO: when the socket disconnects again, set it to expire and persist if it reconnects
-              #
-              # both of these will require us to define channel objects on the server-side
-
               subscription_id = presentable_query.subscribe(socket_client_id, call: handler, with: metadata)
+              app.data_model_lookup.expire(socket_client_id, SUBSCRIPTION_TIMEOUT)
               subscribe(:transformation, subscription_id)
             end
           end
