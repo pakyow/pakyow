@@ -28,7 +28,7 @@ module Pakyow
           # `id:digest` value is embedded in the response, while the key is stored in
           # the session. We verify by generating the digest and comparing it to the
           # digest sent in the connection attempt.
-          return unless digest == socket_digest(key, id)
+          return unless key && id && digest == socket_digest(key, id)
 
           WebSocket.new(id, state)
           state.processed
