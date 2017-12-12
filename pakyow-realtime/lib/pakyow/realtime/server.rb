@@ -60,9 +60,18 @@ module Pakyow
 
       HEARTBEAT_INTERVAL = 3
 
-      def initialize(adapter = :memory, _adapter_config = {})
+      # How long we want to wait before cleaning up channel subscriptions. We set all subscriptions
+      # to expire when they are initially created. This way if the WebSocket never connects the
+      # subscription will be cleaned up for us, preventing orphaned subscriptions. We schedule an
+      # expiration on disconnect for the same reason.
+      #
+      # When the WebSocket connects, we cancel the expiration with persist.
+      #
+      SUBSCRIPTION_TIMEOUT = 60
+
+      def initialize(adapter = :memory, adapter_config = {})
         require "pakyow/realtime/server/adapters/#{adapter}"
-        @adapter = Adapter.const_get(adapter.to_s.capitalize).new(self)
+        @adapter = Adapter.const_get(adapter.to_s.capitalize).new(self, adapter_config)
 
         start_heartbeat
         @event_loop = EventLoop.new
@@ -77,6 +86,7 @@ module Pakyow
         find_socket(id_or_socket) do |socket|
           @event_loop << socket
           @sockets << socket
+          @adapter.persist(socket.id)
         end
       end
 
@@ -84,12 +94,14 @@ module Pakyow
         find_socket(id_or_socket) do |socket|
           @event_loop.rm(socket)
           @sockets.delete(socket)
+          @adapter.expire(socket.id, SUBSCRIPTION_TIMEOUT)
         end
       end
 
       def socket_subscribe(id_or_socket, channel)
         find_socket_id(id_or_socket) do |socket_id|
           @adapter.socket_subscribe(socket_id, channel.to_s)
+          @adapter.expire(socket_id, SUBSCRIPTION_TIMEOUT)
         end
       end
 

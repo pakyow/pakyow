@@ -9,29 +9,41 @@ module Pakyow
   module Realtime
     class Framework < Pakyow::Framework(:realtime)
       def boot
+        Pakyow.module_eval do
+          settings_for :realtime do
+            setting :adapter, :memory
+            setting :adapter_options, {}
+
+            defaults :production do
+              setting :adapter, :redis
+              setting :adapter_options, redis_url: "redis://127.0.0.1:6379", redis_prefix: "pw"
+            end
+          end
+        end
+
         app.class_eval do
           endpoint Server
 
           helper Helpers
 
           settings_for :realtime do
-            # setting :registry, Pakyow::Realtime::SimpleRegistry
-            # setting :redis, url: "redis://127.0.0.1:6379"
-            # setting :redis_key, "pw:channels"
-            # setting :delegate do
-            #   Pakyow::Realtime::Delegate.new(config.realtime.registry.instance)
-            # end
+            setting :adapter_options, {}
 
-            # defaults :production do
-            #   setting :registry, Pakyow::Realtime::RedisRegistry
-            # end
+            defaults :production do
+              setting :adapter_options, Proc.new do
+                { redis_prefix: ["pw", config.app.name].join("/") }
+              end
+            end
           end
 
           unfreezable :websocket_server
           attr_reader :websocket_server
 
           after :configure do
-            @websocket_server = Server.new
+            @websocket_server = Server.new(
+              Pakyow.config.realtime.adapter,
+              Pakyow.config.realtime.adapter_options.merge(config.realtime.adapter_options)
+            )
           end
 
           known_events :join, :leave
