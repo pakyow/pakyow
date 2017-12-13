@@ -254,7 +254,16 @@ module Pakyow
         end
       end
 
+      # It's important that we do this in order. Boot events should be able to count
+      # on application instances being created with their final state.
+      #
+      to_app; call_hooks(:after, :boot)
+
       self
+    end
+
+    def to_app
+      @app ||= builder.to_app
     end
 
     # Starts the Pakyow Environment.
@@ -272,9 +281,7 @@ module Pakyow
 
       opts.merge!(DEFAULT_HANDLER_OPTIONS.fetch(@server, {}))
 
-      handler(@server).run(builder.to_app, Host: @host, Port: @port, **opts) do |app_server|
-        call_hooks :after, :boot
-
+      handler(@server).run(to_app, Host: @host, Port: @port, **opts) do |app_server|
         at_exit do
           stop(app_server)
         end

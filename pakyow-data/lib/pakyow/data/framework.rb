@@ -99,13 +99,17 @@ module Pakyow
               require "pakyow/data/adapters/#{adapter_type}"
 
               adapter_containers[adapter_type] = connection_strings.each_with_object({}) do |(name, string), named_containers|
+                config = ROM::Configuration.new(adapter_type, string)
+
+                if Pakyow.config.data.logging
+                  config.gateways[:default].use_logger(Pakyow.logger)
+                end
+
                 models = apps.flat_map { |app|
                   app.state_for(:model)
                 }.select { |model|
                   (model.adapter || Pakyow.config.data.default_adapter) == adapter_type && model.connection == name
                 }
-
-                config = ROM::Configuration.new(adapter_type, string)
 
                 models.each do |model|
                   next if model.attributes.empty?
@@ -128,10 +132,6 @@ module Pakyow
                       end
                     end
                   end
-                end
-
-                if Pakyow.config.data.logging
-                  config.gateways[:default].use_logger(Pakyow.logger)
                 end
 
                 # TODO: rename all our internal state since we aren't using containers
