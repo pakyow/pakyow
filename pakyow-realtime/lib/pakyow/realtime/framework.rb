@@ -30,6 +30,8 @@ module Pakyow
 
           settings_for :realtime do
             setting :adapter_options, {}
+            setting :path, "pw-socket"
+            setting :endpoint
 
             defaults :production do
               setting :adapter_options do
@@ -58,9 +60,9 @@ module Pakyow
             # embed the socket connection id (used by pakyow.js to idenfity itself with the server)
             head.append("<meta name=\"pw-connection-id\" content=\"#{socket_client_id}:#{socket_digest(socket_client_id)}\">")
 
-            # embed the socket connection path
-            # TODO: this should be configurable
-            head.append("<meta name=\"pw-connection-path\" content=\"/pw-socket\">")
+            # embed the endpoint we'll be connecting to
+            endpoint = config.realtime.endpoint || ["#{request.ssl? ? "wss" : "ws"}://#{request.host_with_port}", config.realtime.path].join("/")
+            head.append("<meta name=\"pw-endpoint\" content=\"#{endpoint}\">")
           end
         end
       end
