@@ -23,14 +23,9 @@ module Pakyow
           end
         elsif command?(method_name)
           results = Array.ensure(@model.send(method_name, *args))
-
           changed_values = args[0]
 
-          changed_ids = results.map { |result|
-            result[:id]
-          }
-
-          @subscribers.did_mutate(name, changed_values, changed_ids)
+          @subscribers.did_mutate(name, changed_values, results)
         elsif @model.respond_to?(method_name)
           @model.send(method_name, *args, &block)
         else

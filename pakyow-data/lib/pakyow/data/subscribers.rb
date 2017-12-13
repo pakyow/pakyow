@@ -13,29 +13,22 @@ module Pakyow
       def initialize(app, adapter = :memory, adapter_config = {})
         @app = app
         require "pakyow/data/subscribers/adapters/#{adapter}"
-        @adapter = Pakyow::Data::Subscribers::Adapter.const_get(adapter.to_s.capitalize).new(app.config.app.name, adapter_config)
+        @adapter = Pakyow::Data::Subscribers::Adapter.const_get(adapter.to_s.capitalize).new(adapter_config)
       rescue LoadError => e
         Pakyow.logger.error "Failed to load data subscriber store adapter named `#{adapter}'"
         Pakyow.logger.error e.message
       end
 
-      def register_subscription(subscription, subscriber: nil, object_ids: [])
+      def register_subscription(subscription, subscriber: nil)
         @adapter.persist(subscriber) if @adapter.expiring?(subscriber)
-        @adapter.register_subscription(subscription, subscriber: subscriber, object_ids: object_ids)
+        @adapter.register_subscription(subscription, subscriber: subscriber)
       end
 
-      def did_mutate(model, changed_values, changed_ids)
+      def did_mutate(model, changed_values, changed_results)
         subscriptions = Set.new
 
-        changed_ids.each do |id|
-          @adapter.subscriptions_for_model_object(model, id).each do |subscription|
-            subscription.delete(:qualifications)
-            subscriptions << subscription
-          end
-        end
-
         @adapter.subscriptions_for_model(model).each do |subscription|
-          next unless qualified?(subscription.delete(:qualifications), changed_values)
+          next unless qualified?(subscription.delete(:qualifications), changed_values, changed_results)
           subscriptions << subscription
         end
 
@@ -59,13 +52,11 @@ module Pakyow
       protected
 
       def process(subscription)
-        model_object = lookup.send(subscription[:model])
         callback = subscription[:handler].new(@app)
-        query = model_object.send(subscription[:query], *subscription[:query_args])
         arguments = {}
 
         if subscription.key?(:query) && callback.method(:call).keyword_argument?(:query)
-          arguments[:query] = query
+          arguments[:query] = lookup.send(subscription[:model]).send(subscription[:query], *subscription[:query_args])
         end
 
         if callback.method(:call).keyword_argument?(:subscribers)
@@ -77,17 +68,22 @@ module Pakyow
         end
 
         callback.call(subscription[:payload], **arguments)
-
-        # since the resulting ids from the query may have changed, update them
-        @adapter.update_model_object_ids_for_subscription_id(subscription[:model], query.object_ids, subscription[:id])
       end
 
-      def qualified?(qualifications, changed_values)
+      def qualified?(qualifications, changed_values, changed_results)
         qualifications.each do |key, value|
-          return false unless (value == :* && changed_values.key?(key)) || changed_values[key] == value
+          return false unless changed_values[key] == value || qualified_result?(key, value, changed_results)
         end
 
         true
+      end
+
+      def qualified_result?(key, value, changed_results)
+        changed_results.each do |result|
+          return true if result[key] == value
+        end
+
+        false
       end
     end
   end

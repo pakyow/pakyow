@@ -50,10 +50,20 @@ module Pakyow
               models,
               Subscribers.new(
                 self,
-                Pakyow.config.data.subscription_adapter,
-                Pakyow.config.data.subscription_adapter_options
+                Pakyow.config.data.adapter,
+                Pakyow.config.data.adapter_options
               )
             )
+          end
+
+          settings_for :data do
+            setting :adapter_options, {}
+
+            defaults :production do
+              setting :adapter_options do
+                { redis_prefix: ["pw", config.app.name].join("/") }
+              end
+            end
           end
         end
 
@@ -73,13 +83,12 @@ module Pakyow
             setting :default_adapter, :sql
             setting :logging, false
 
-            setting :subscription_adapter, :memory
-            setting :subscription_adapter_options, {}
+            setting :adapter, :memory
+            setting :adapter_options, {}
 
             defaults :production do
-              setting :subscription_adapter, :redis
-              setting :subscription_adapter_options, redis_url: "redis://127.0.0.1:6379",
-                                                     redis_prefix: "pw"
+              setting :adapter, :redis
+              setting :adapter_options, redis_url: "redis://127.0.0.1:6379", redis_prefix: "pw"
             end
           end
 
@@ -90,13 +99,17 @@ module Pakyow
               require "pakyow/data/adapters/#{adapter_type}"
 
               adapter_containers[adapter_type] = connection_strings.each_with_object({}) do |(name, string), named_containers|
+                config = ROM::Configuration.new(adapter_type, string)
+
+                if Pakyow.config.data.logging
+                  config.gateways[:default].use_logger(Pakyow.logger)
+                end
+
                 models = apps.flat_map { |app|
                   app.state_for(:model)
                 }.select { |model|
                   (model.adapter || Pakyow.config.data.default_adapter) == adapter_type && model.connection == name
                 }
-
-                config = ROM::Configuration.new(adapter_type, string)
 
                 models.each do |model|
                   next if model.attributes.empty?
@@ -119,10 +132,6 @@ module Pakyow
                       end
                     end
                   end
-                end
-
-                if Pakyow.config.data.logging
-                  config.gateways[:default].use_logger(Pakyow.logger)
                 end
 
                 # TODO: rename all our internal state since we aren't using containers

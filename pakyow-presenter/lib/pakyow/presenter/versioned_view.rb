@@ -11,6 +11,7 @@ module Pakyow
 
       def initialize(versions)
         @versions = versions
+        create_templates
         determine_working_version
       end
 
@@ -30,17 +31,27 @@ module Pakyow
       end
 
       def transform(data)
-        insertable = self
+        if ((data.respond_to?(:empty) && data.empty?) || data.nil?) && empty_view = version_named(:empty)&.dup
+          empty_view.object.delete_label(:version)
+          empty_view.object.attributes[:"data-empty"] = ""
+          after(empty_view)
+        else
+          unless data.respond_to?(:each)
+            data = Array.ensure(data)
+          end
 
-        Array.ensure(data).each do |object|
-          versioned_view = self.dup
+          insertable = self
+          data.each do |object|
+            versioned_view = self.dup
 
-          yield versioned_view, object if block_given?
-          versioned_view.working.transform(object)
-          versioned_view.working.object.delete_label(:version)
+            yield versioned_view, object if block_given?
 
-          insertable.after(versioned_view)
-          insertable = versioned_view
+            versioned_view.working.transform(object)
+            versioned_view.working.object.delete_label(:version)
+
+            insertable.after(versioned_view)
+            insertable = versioned_view
+          end
         end
 
         @versions.each(&:remove)
@@ -52,6 +63,18 @@ module Pakyow
 
       def determine_working_version
         self.versioned_view = default_version || first_version
+      end
+
+      def create_templates
+        @versions.each do |view|
+          template = StringDoc.new("<script type=\"text/template\" data-version=\"#{view.version}\"></script>").nodes.first
+          view.attributes.each do |attribute, value|
+            next unless attribute.to_s.start_with?("data")
+            template.attributes[attribute] = value
+          end
+          template.append(view.dup)
+          view.object.after(template)
+        end
       end
 
       def versioned_view=(view)

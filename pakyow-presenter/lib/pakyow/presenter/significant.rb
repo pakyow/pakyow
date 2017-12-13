@@ -14,6 +14,8 @@ module Pakyow
     BODY_TAG = "body".freeze
     # @api private
     HEAD_TAG = "head".freeze
+    # @api private
+    SCRIPT_TAG = "script".freeze
 
     # @api private
     class SignificantNode
@@ -116,6 +118,7 @@ module Pakyow
         attributes = attributes_instance(element)
         scope = attributes.keys.first
         attributes.delete(scope)
+        attributes[:"data-s"] = scope
 
         StringNode.new(["<#{element.name}", attributes], type: :scope, name: scope, labels: labels)
       end
@@ -140,6 +143,7 @@ module Pakyow
         attributes = attributes_instance(element)
         prop = attributes.keys.first
         attributes.delete(prop)
+        attributes[:"data-p"] = prop
 
         StringNode.new(["<#{element.name}", attributes], type: :prop, name: prop, labels: labels)
       end
@@ -236,6 +240,21 @@ module Pakyow
         labels = labels_hash(element)
         attributes = attributes_instance(element)
         StringNode.new(["<#{element.name}", attributes], type: :head, name: attributes[:value], labels: labels)
+      end
+    end
+
+    # @api private
+    class TemplateNode < SignificantNode
+      StringDoc.significant :template, self
+
+      def self.significant?(node)
+        node.is_a?(Oga::XML::Element) && node.name == SCRIPT_TAG && node[:type] == "text/template"
+      end
+
+      def self.node(element)
+        labels = labels_hash(element)
+        attributes = attributes_instance(element)
+        StringNode.new(["<script", attributes], type: :template, name: attributes[:value], labels: labels)
       end
     end
   end

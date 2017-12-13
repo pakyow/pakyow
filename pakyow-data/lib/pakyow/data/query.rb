@@ -27,15 +27,11 @@ module Pakyow
           qualifications: qualifications
         }
 
-        @subscribers.register_subscription(subscription, subscriber: subscriber, object_ids: object_ids)
+        @subscribers.register_subscription(subscription, subscriber: subscriber)
       end
 
       def qualifications
         @model.qualifications(@name)
-      end
-
-      def object_ids
-        map { |result| result[:id] }
       end
     end
   end
