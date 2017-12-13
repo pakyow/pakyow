@@ -41,4 +41,43 @@ RSpec.describe "route templating" do
   it "extends the template with routes" do
     expect(call("/en/thanks")[2].body.first).to eq("thanks")
   end
+
+  context "when the template defines hooks" do
+    let :app_definition do
+      Proc.new {
+        controller do
+          template :hooktest do
+            get :perform, "/", before: [:foo, Proc.new { $calls << :bar }]
+          end
+
+          hooktest :test, "/test" do
+            def foo
+              $calls << :foo
+            end
+
+            def baz
+              $calls << :baz
+            end
+
+            perform before: [:baz], skip: [:foo] do
+              $calls << :perform
+            end
+          end
+        end
+      }
+    end
+
+    before do
+      $calls = []
+    end
+
+    it "calls the hooks" do
+      expect(call("/test")[0]).to eq(200)
+
+      expect($calls[0]).to eq(:baz)
+      expect($calls[1]).to eq(:foo)
+      expect($calls[2]).to eq(:bar)
+      expect($calls[3]).to eq(:perform)
+    end
+  end
 end
