@@ -10,6 +10,8 @@ RSpec.describe "stopping the environment" do
         Pakyow.instance_eval(&block)
       end
     end
+
+    allow(Pakyow).to receive(:at_exit)
   end
 
   let :handler_double do
