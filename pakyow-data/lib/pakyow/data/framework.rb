@@ -60,7 +60,7 @@ module Pakyow
             setting :adapter_options, {}
 
             defaults :production do
-              setting :adapter_options, Proc.new do
+              setting :adapter_options do
                 { redis_prefix: ["pw", config.app.name].join("/") }
               end
             end
