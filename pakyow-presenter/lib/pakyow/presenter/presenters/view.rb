@@ -10,12 +10,14 @@ module Pakyow
       class << self
         attr_reader :path, :block
 
-        def make(path, namespace:, **kwargs, &block)
+        def make(path, namespace: nil, **kwargs, &block)
           path = String.normalize_path(path)
           super(name_from_path(path, namespace), path: path, block: block, **kwargs) {}
         end
 
         def name_from_path(path, namespace)
+          return unless path && namespace
+
           path_parts = path.split("/").reject(&:empty?).map(&:to_sym)
 
           # last one is the actual name, everything else is a namespace
