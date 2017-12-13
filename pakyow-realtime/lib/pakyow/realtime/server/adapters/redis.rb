@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "redis"
+require "concurrent/array"
 
 module Pakyow
   module Realtime
@@ -16,10 +17,18 @@ module Pakyow
           KEY_PREFIX = "realtime"
           INFINITY = "+inf"
 
+          PUBSUB_PREFIX = "pubsub"
+
           def initialize(server, config)
             @server = server
             @redis = ::Redis.new(url: config[:redis])
             @prefix = [config[:redis_prefix], KEY_PREFIX].join(KEY_PART_SEPARATOR)
+
+            @buffer = Buffer.new(@redis, pubsub_channel)
+            Subscriber.new(::Redis.new(url: config[:redis]), pubsub_channel) do |payload|
+              channel, message = Marshal.restore(payload).values_at(:channel, :message)
+              @server.transmit_message_to_connection_ids(message, socket_ids_for_channel(channel))
+            end
           end
 
           def socket_subscribe(socket_id, channel)
@@ -36,8 +45,9 @@ module Pakyow
             end
           end
 
+          # TODO: this is getting called once per connection, even though the transformation is the same; why?
           def subscription_broadcast(channel, message)
-            @server.transmit_message_to_connection_ids(message, socket_ids_for_channel(channel))
+            @buffer << Marshal.dump(channel: channel, message: message)
           end
 
           def expire(socket_id, seconds)
@@ -89,6 +99,64 @@ module Pakyow
 
           def key_channels_by_socket_id(socket_id)
             build_key("socket_id:#{socket_id}")
+          end
+
+          def pubsub_channel
+            [@prefix, PUBSUB_PREFIX].join(KEY_PART_SEPARATOR)
+          end
+
+          class Buffer
+            # The number of publish commands to pipeline to redis.
+            #
+            PUBLISH_BUFFER_SIZE = 1_000
+
+            # How often the publish buffer should be flushed.
+            #
+            PUBLISH_BUFFER_FLUSH_MS = 150
+
+            def initialize(redis, channel)
+              @redis, @channel = redis, channel
+              @buffer = Concurrent::Array.new
+            end
+
+            def <<(payload)
+              @buffer << payload
+              maybe_flush
+            end
+
+            protected
+
+            def maybe_flush
+              if @buffer.count > PUBLISH_BUFFER_SIZE
+                flush
+              end
+
+              unless @task&.pending?
+                @task = Concurrent::ScheduledTask.execute(PUBLISH_BUFFER_FLUSH_MS / 1_000) {
+                  flush
+                }
+              end
+            end
+
+            def flush
+              @redis.pipelined do |pipeline|
+                until @buffer.empty?
+                  pipeline.publish(@channel, @buffer.shift)
+                end
+              end
+            end
+          end
+
+          class Subscriber
+            def initialize(redis, channel, &callback)
+              Thread.new do
+                redis.subscribe(channel) do |on|
+                  on.message do |_, payload|
+                    callback.call(payload)
+                  end
+                end
+              end
+            end
           end
         end
       end
