@@ -10,17 +10,22 @@ module Pakyow
       class << self
         attr_reader :path, :block
 
-        def make(path, **kwargs, &block)
+        def make(path, namespace:, **kwargs, &block)
           path = String.normalize_path(path)
-          super(name_from_path(path), path: path, block: block, **kwargs) {}
+          super(name_from_path(path, namespace), path: path, block: block, **kwargs) {}
         end
 
-        def name_from_path(path)
-          return :root if path == "/"
-          # TODO: fill in the rest of this
-          # / => Root
-          # /posts => Posts
-          # /posts/show => PostsShow
+        def name_from_path(path, namespace)
+          path_parts = path.split("/").reject(&:empty?).map(&:to_sym)
+
+          # last one is the actual name, everything else is a namespace
+          classname = path_parts.pop
+
+          Support::ClassName.new(
+            Support::ClassNamespace.new(
+              *(namespace.parts + path_parts)
+            ), classname
+          )
         end
       end
 
