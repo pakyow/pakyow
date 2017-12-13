@@ -40,7 +40,7 @@ RSpec.configure do |config|
         Pakyow.instance_variable_set(ivar, original_value)
       end
 
-      # duping the builder isn't enough to prevent leaky state
+      # duping the builder isn't enough to present leaky state
       Pakyow.instance_variable_set(:"@builder", Rack::Builder.new)
     end
 
