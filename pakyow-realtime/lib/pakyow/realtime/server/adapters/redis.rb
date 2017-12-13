@@ -45,7 +45,6 @@ module Pakyow
             end
           end
 
-          # TODO: this is getting called once per connection, even though the transformation is the same; why?
           def subscription_broadcast(channel, message)
             @buffer << Marshal.dump(channel: channel, message: message)
           end

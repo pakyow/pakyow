@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "json"
-require "securerandom"
+require "digest"
 
 require "pakyow/core/framework"
 
@@ -58,7 +58,8 @@ module Pakyow
           app.const_set(:MutationHandler, handler)
 
           app.const_get(:Renderer).before :render do
-            @transformation_id = SecureRandom.hex(24)
+            # The transformation id doesn't have to be completely unique, just unique to the presenter.
+            @transformation_id = Digest::SHA1.hexdigest(@current_presenter.class.object_id.to_s)
 
             # To keep up with the node(s) that matter for the transformation, a `data-t` attribute
             # is added to the node that contains the transformation_id. When the transformation is
