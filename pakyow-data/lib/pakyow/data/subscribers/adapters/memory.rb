@@ -8,7 +8,7 @@ require "concurrent/scheduled_task"
 
 module Pakyow
   module Data
-    class SubscriberStore
+    class Subscribers
       module Adapter
         # Manages data subscriptions in memory.
         #

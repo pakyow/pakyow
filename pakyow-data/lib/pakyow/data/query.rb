@@ -7,8 +7,8 @@ module Pakyow
     class Query < SimpleDelegator
       attr_reader :name, :args, :model
 
-      def initialize(model, name, args, subscriber_store)
-        @model, @name, @args, @subscriber_store = model, name, args, subscriber_store
+      def initialize(model, name, args, subscribers)
+        @model, @name, @args, @subscribers = model, name, args, subscribers
 
         __setobj__(model)
       end
@@ -27,7 +27,7 @@ module Pakyow
           qualifications: qualifications
         }
 
-        @subscriber_store.register_subscription(subscription, subscriber: subscriber, object_ids: object_ids)
+        @subscribers.register_subscription(subscription, subscriber: subscriber, object_ids: object_ids)
       end
 
       def qualifications

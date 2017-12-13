@@ -8,7 +8,7 @@ require "pakyow/data/verifier"
 require "pakyow/data/model"
 require "pakyow/data/model_proxy"
 require "pakyow/data/query"
-require "pakyow/data/subscriber_store"
+require "pakyow/data/subscribers"
 require "pakyow/data/verification"
 require "pakyow/data/validations"
 require "pakyow/data/errors"
@@ -48,7 +48,7 @@ module Pakyow
 
             @data_model_lookup = Lookup.new(
               models,
-              SubscriberStore.new(
+              Subscribers.new(
                 self,
                 Pakyow.config.data.subscription_adapter,
                 Pakyow.config.data.subscription_adapter_options

@@ -5,15 +5,15 @@ require "pakyow/support/core_refinements/method/introspection"
 module Pakyow
   module Data
     # @api private
-    class SubscriberStore
+    class Subscribers
       attr_accessor :lookup
 
       using Support::Method::Introspection
 
       def initialize(app, adapter = :memory, adapter_config = {})
         @app = app
-        require "pakyow/data/subscriber_store/adapters/#{adapter}"
-        @adapter = Pakyow::Data::SubscriberStore::Adapter.const_get(adapter.to_s.capitalize).new(app.config.app.name, adapter_config)
+        require "pakyow/data/subscribers/adapters/#{adapter}"
+        @adapter = Pakyow::Data::Subscribers::Adapter.const_get(adapter.to_s.capitalize).new(app.config.app.name, adapter_config)
       rescue LoadError => e
         Pakyow.logger.error "Failed to load data subscriber store adapter named `#{adapter}'"
         Pakyow.logger.error e.message
