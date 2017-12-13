@@ -191,34 +191,30 @@ module Pakyow
       setting :expiry
       setting :path
       setting :domain
-
-      setting :options do
-        opts = {
-          key: config.session.key,
-          secret: config.session.secret
-        }
-
-        # set expiry if set
-        if expiry = config.session.expiry
-          opts[:expire_after] = expiry
-        end
-
-        # set optional options if available
-        %i(domain path old_secret).each do |opt|
-          if value = config.session.send(opt)
-            opts[opt] = value
-          end
-        end
-
-        opts
-      end
     end
 
     # Loads and configures the session middleware.
     #
     after :configure do
       if config.session.enabled
-        builder.use config.session.object, config.session.options
+        options = {
+          key: config.session.key,
+          secret: config.session.secret
+        }
+
+        # set expiry if set
+        if expiry = config.session.expiry
+          options[:expire_after] = expiry
+        end
+
+        # set optional options if available
+        %i(domain path old_secret).each do |option|
+          if value = config.session.send(option)
+            options[option] = value
+          end
+        end
+
+        builder.use config.session.object, options
       end
 
       if config.protection.enabled
