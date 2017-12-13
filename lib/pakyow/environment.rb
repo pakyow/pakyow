@@ -254,16 +254,19 @@ module Pakyow
         end
       end
 
-      # It's important that we do this in order. Boot events should be able to count
-      # on application instances being created with their final state.
-      #
-      to_app; call_hooks(:after, :boot)
+      unless @mounts.empty?
+        to_app
+      end
 
       self
     end
 
     def to_app
-      @app ||= builder.to_app
+      return @app if instance_variable_defined?(:@app)
+
+      @app = builder.to_app
+      call_hooks(:after, :boot)
+      @app
     end
 
     # Starts the Pakyow Environment.
