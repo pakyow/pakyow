@@ -11,6 +11,8 @@ module Pakyow
       def boot
         Pakyow.module_eval do
           settings_for :realtime do
+            setting :server, true
+
             setting :adapter, :memory
             setting :adapter_options, {}
 

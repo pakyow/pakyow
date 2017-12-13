@@ -14,6 +14,7 @@ module Pakyow
     class Server
       class << self
         def call(state)
+          return unless Pakyow.config.realtime.server
           return unless state.request.path == "/pw-socket"
           return unless ::WebSocket::Driver.websocket?(state.request.env)
           return unless id_and_digest = state.request.params[:id]
