@@ -13,8 +13,12 @@ module Pakyow
     end
 
     def method_missing(name, *args, &block)
-      args[0] = Support::ClassName.new(@namespace, args[0]) if args[0].is_a?(Symbol)
-      @target.public_send(name, *args, &block)
+      if args[0].is_a?(Symbol)
+        args[0] = Support::ClassName.new(@namespace, args[0])
+        @target.public_send(name, *args, &block)
+      else
+        @target.public_send(name, *args, namespace: @namespace, &block)
+      end
     end
   end
 end
