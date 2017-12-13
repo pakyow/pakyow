@@ -25,7 +25,7 @@ module Pakyow
             verifies :params
 
             def data
-              app.data_model_lookup
+              app.data
             end
           end
         end
@@ -37,7 +37,7 @@ module Pakyow
 
           helper VerificationHelpers
 
-          attr_reader :data_model_lookup
+          attr_reader :data
 
           before :freeze do
             models = state_for(:model).each_with_object({}) { |model, models_by_name|
@@ -46,7 +46,7 @@ module Pakyow
               models_by_name[model.__class_name.name] = model
             }
 
-            @data_model_lookup = Lookup.new(
+            @data = Lookup.new(
               models,
               Subscribers.new(
                 self,
