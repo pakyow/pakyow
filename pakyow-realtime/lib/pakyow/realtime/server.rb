@@ -109,10 +109,8 @@ module Pakyow
         end
       end
 
-      def socket_unsubscribe(id_or_socket, channel)
-        find_socket_id(id_or_socket) do |socket_id|
-          @adapter.socket_unsubscribe(socket_id, channel.to_s)
-        end
+      def socket_unsubscribe(channel)
+        @adapter.socket_unsubscribe(channel.to_s)
       end
 
       def subscription_broadcast(channel, message)

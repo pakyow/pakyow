@@ -38,10 +38,22 @@ module Pakyow
             end
           end
 
-          def socket_unsubscribe(socket_id, channel)
-            @redis.multi do |transaction|
-              transaction.zrem(key_socket_ids_by_channel(channel), socket_id)
-              transaction.zrem(key_channels_by_socket_id(socket_id), channel)
+          def socket_unsubscribe(channel)
+            # Channel could contain a wildcard, so this takes some work...
+            @redis.scan_each(match: key_socket_ids_by_channel(channel)) do |key|
+              channel = key.split("channel:", 2)[1]
+
+              socket_ids = @redis.zrangebyscore(
+                key, Time.now.to_i, INFINITY
+              )
+
+              @redis.multi do |transaction|
+                transaction.del(key)
+
+                socket_ids.each do |socket_id|
+                  transaction.zrem(key_channels_by_socket_id(socket_id), channel)
+                end
+              end
             end
           end
 

@@ -73,8 +73,8 @@ module Pakyow
         app.websocket_server.socket_subscribe(socket_client_id, Channel.new(channel, qualifier))
       end
 
-      def unsubscribe(channel, qualifier = nil)
-        app.websocket_server.socket_unsubscribe(socket_client_id, Channel.new(channel, qualifier))
+      def unsubscribe(channel, qualifier = "*")
+        app.websocket_server.socket_unsubscribe(Channel.new(channel, qualifier))
       end
 
       def socket_server_id

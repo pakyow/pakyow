@@ -28,10 +28,18 @@ module Pakyow
             (@channels_by_socket_id[socket_id] ||= Concurrent::Array.new) << channel
           end
 
-          def socket_unsubscribe(socket_id, channel)
-            channel = channel.to_sym
-            @socket_ids_by_channel[channel]&.delete(socket_id)
-            @channels_by_socket_id[socket_id]&.delete(channel)
+          def socket_unsubscribe(channel)
+            channel = Regexp.new(channel.to_s)
+
+            @socket_ids_by_channel.select { |key|
+              key.to_s.match?(channel)
+            }.each do |key, socket_ids|
+              @socket_ids_by_channel.delete(key)
+
+              socket_ids.each do |socket_id|
+                @channels_by_socket_id[socket_id]&.delete(key)
+              end
+            end
           end
 
           def subscription_broadcast(channel, message)
@@ -57,7 +65,13 @@ module Pakyow
           protected
 
           def socket_ids_for_channel(channel)
-            @socket_ids_by_channel[channel.to_sym] || []
+            channel = Regexp.new(channel.to_s)
+
+            @socket_ids_by_channel.select { |key|
+              key.to_s.match?(channel)
+            }.each_with_object([]) do |(_, socket_ids_for_channel), socket_ids|
+              socket_ids.concat(socket_ids_for_channel)
+            end
           end
 
           def channels_for_socket_id(socket_id)
