@@ -75,15 +75,6 @@ module Pakyow
             expand(:resource, name, File.join(resource_id, matcher), **hooks, &block)
           end
 
-          # TODO: hook this back up for #show
-          # view_path = nested_path.gsub(/:[^\/]+/, '').split('/').reject { |p| p.empty? }.join('/')
-          # fn :reset_view_path do
-          #   begin
-          #     presenter.path = File.join(view_path, 'show') if @presenter
-          #   rescue Presenter::MissingView
-          #   end
-          # end
-
           get :list, "/"
           get :new,  "/new"
           post :create, "/"
@@ -91,7 +82,7 @@ module Pakyow
           patch :update, "/#{resource_id}"
           put :replace, "/#{resource_id}"
           delete :remove, "/#{resource_id}"
-          get :show, "/#{resource_id}"
+          get :show, "/#{resource_id}", before: Proc.new { req.env["pakyow.endpoint"].gsub!(resource_id, "show") }
 
           group :collection
           namespace :member, resource_id
