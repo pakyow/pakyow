@@ -16,3 +16,4 @@ group :test do
 end
 
 # your gems here
+gem "sqlite3"
