@@ -23,11 +23,11 @@ module Pakyow
 
       def boot
         app.on :join do
-          app.data_model_lookup.persist(@id)
+          app.data.persist(@id)
         end
 
         app.on :leave do
-          app.data_model_lookup.expire(@id, SUBSCRIPTION_TIMEOUT)
+          app.data.expire(@id, SUBSCRIPTION_TIMEOUT)
         end
 
         if app.const_defined?(:Renderer)
@@ -39,7 +39,7 @@ module Pakyow
             def call(args, id: nil)
               presentables = args[:presentables].each_with_object({}) { |presentable_info, presentable_hash|
                 presentable_name, model_name, query_name, query_args = presentable_info.values_at(:name, :model_name, :query_name, :query_args)
-                model = @app.data_model_lookup.public_send(model_name)
+                model = @app.data.public_send(model_name)
                 data = model.public_send(query_name, *query_args)
 
                 # NOTE: We go ahead and convert all data to an array, because the client can always
@@ -107,7 +107,7 @@ module Pakyow
 
             queries.each do |presentable_query|
               subscription_id = presentable_query.subscribe(socket_client_id, call: handler, with: metadata)
-              app.data_model_lookup.expire(socket_client_id, SUBSCRIPTION_TIMEOUT)
+              app.data.expire(socket_client_id, SUBSCRIPTION_TIMEOUT)
               subscribe(:transformation, subscription_id)
             end
           end

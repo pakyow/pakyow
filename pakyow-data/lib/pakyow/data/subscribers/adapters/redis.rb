@@ -3,11 +3,11 @@
 require "digest/sha1"
 require "redis"
 
-require "pakyow/data/subscriber_store/adapters/redis/pipeliner"
+require "pakyow/data/subscribers/adapters/redis/pipeliner"
 
 module Pakyow
   module Data
-    class SubscriberStore
+    class Subscribers
       module Adapter
         # Manages data subscriptions in redis.
         #
@@ -186,6 +186,7 @@ module Pakyow
                     subscription[:id] = subscription_id
                     subscription
                   rescue TypeError
+                    Pakyow.logger.error "could not find subscription for #{subscription_id}"
                   end
                 end
               end

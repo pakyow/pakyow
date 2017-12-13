@@ -8,7 +8,7 @@ require "pakyow/data/verifier"
 require "pakyow/data/model"
 require "pakyow/data/model_proxy"
 require "pakyow/data/query"
-require "pakyow/data/subscriber_store"
+require "pakyow/data/subscribers"
 require "pakyow/data/verification"
 require "pakyow/data/validations"
 require "pakyow/data/errors"
@@ -25,7 +25,7 @@ module Pakyow
             verifies :params
 
             def data
-              app.data_model_lookup
+              app.data
             end
           end
         end
@@ -37,7 +37,7 @@ module Pakyow
 
           helper VerificationHelpers
 
-          attr_reader :data_model_lookup
+          attr_reader :data
 
           before :freeze do
             models = state_for(:model).each_with_object({}) { |model, models_by_name|
@@ -46,9 +46,9 @@ module Pakyow
               models_by_name[model.__class_name.name] = model
             }
 
-            @data_model_lookup = Lookup.new(
+            @data = Lookup.new(
               models,
-              SubscriberStore.new(
+              Subscribers.new(
                 self,
                 Pakyow.config.data.adapter,
                 Pakyow.config.data.adapter_options

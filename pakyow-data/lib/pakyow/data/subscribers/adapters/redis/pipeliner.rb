@@ -2,7 +2,7 @@
 
 module Pakyow
   module Data
-    class SubscriberStore
+    class Subscribers
       module Adapter
         class Redis
           # @api private

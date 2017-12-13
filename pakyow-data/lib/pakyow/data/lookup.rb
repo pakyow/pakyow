@@ -6,23 +6,23 @@ module Pakyow
   module Data
     class Lookup
       extend Support::DeepFreeze
-      unfreezable :subscriber_store
+      unfreezable :subscribers
 
-      def initialize(models, subscriber_store)
-        @models, @subscriber_store = models, subscriber_store
-        subscriber_store.lookup = self
+      def initialize(models, subscribers)
+        @models, @subscribers = models, subscribers
+        subscribers.lookup = self
       end
 
       def unsubscribe(subscriber)
-        @subscriber_store.unsubscribe(subscriber)
+        @subscribers.unsubscribe(subscriber)
       end
 
       def expire(subscriber, seconds)
-        @subscriber_store.expire(subscriber, seconds)
+        @subscribers.expire(subscriber, seconds)
       end
 
       def persist(subscriber)
-        @subscriber_store.persist(subscriber)
+        @subscribers.persist(subscriber)
       end
 
       def method_missing(name)
@@ -30,7 +30,7 @@ module Pakyow
           # FIXME: protect against missing containers (maybe define a lookup method on the environment)
           # TODO: handle edge-cases around connections not being defined... just spent some time tracking down a bug caused by it
           container = Pakyow.database_containers[model.adapter || Pakyow.config.data.default_adapter][model.connection]
-          ModelProxy.new(model.new(container.relations[model.__class_name.name]), @subscriber_store)
+          ModelProxy.new(model.new(container.relations[model.__class_name.name]), @subscribers)
         else
           nil
         end

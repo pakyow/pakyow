@@ -6,8 +6,8 @@ module Pakyow
     # and triggering mutations when commands are called.
     #
     class ModelProxy
-      def initialize(model, subscriber_store)
-        @model, @subscriber_store = model, subscriber_store
+      def initialize(model, subscribers)
+        @model, @subscribers = model, subscribers
       end
 
       def name
@@ -19,13 +19,13 @@ module Pakyow
       def method_missing(method_name, *args, &block)
         if query?(method_name)
           wrap :query, method_name, args do
-            ModelProxy.new(@model.class.new(@model.send(method_name, *args)), @subscriber_store)
+            ModelProxy.new(@model.class.new(@model.send(method_name, *args)), @subscribers)
           end
         elsif command?(method_name)
           results = Array.ensure(@model.send(method_name, *args))
           changed_values = args[0]
 
-          @subscriber_store.did_mutate(name, changed_values, results)
+          @subscribers.did_mutate(name, changed_values, results)
         elsif @model.respond_to?(method_name)
           @model.send(method_name, *args, &block)
         else
@@ -48,7 +48,7 @@ module Pakyow
       end
 
       def wrap(type, name, args)
-        Kernel.const_get("Pakyow::Data::#{type.to_s.capitalize}").new(yield, name, args, @subscriber_store)
+        Kernel.const_get("Pakyow::Data::#{type.to_s.capitalize}").new(yield, name, args, @subscribers)
       end
     end
   end
