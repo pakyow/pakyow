@@ -14,6 +14,8 @@ module Pakyow
 
         @env = request.env
 
+        @logger = Logger::RequestLogger.new(:sock, id: @id[0..7])
+
         secure = request.ssl?
         scheme = secure ? "wss:" : "ws:"
         @url = scheme + "//" + env["HTTP_HOST"] + env["REQUEST_URI"]
@@ -52,9 +54,11 @@ module Pakyow
 
         @open = false
         trigger_presence(:leave)
+        @logger.info "shutdown"
       end
 
       def write(string)
+        @logger.verbose("> " + string)
         @io.write(string)
       rescue
         shutdown
@@ -71,10 +75,11 @@ module Pakyow
       def handle_open
         @open = true
         trigger_presence(:join)
+        @logger.info "opened"
       end
 
       def handle_message(message)
-        puts message
+        @logger.verbose("< " + message)
       end
 
       def handle_close(_code, _reason)
