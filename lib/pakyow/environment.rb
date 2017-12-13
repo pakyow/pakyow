@@ -275,6 +275,10 @@ module Pakyow
       handler(@server).run(builder.to_app, Host: @host, Port: @port, **opts) do |app_server|
         call_hooks :after, :boot
 
+        at_exit do
+          stop(app_server)
+        end
+
         STOP_SIGNALS.each do |signal|
           trap(signal) {
             stop(app_server)
