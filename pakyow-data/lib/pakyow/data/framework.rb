@@ -50,10 +50,20 @@ module Pakyow
               models,
               SubscriberStore.new(
                 self,
-                Pakyow.config.data.subscription_adapter,
-                Pakyow.config.data.subscription_adapter_options
+                Pakyow.config.data.adapter,
+                Pakyow.config.data.adapter_options
               )
             )
+          end
+
+          settings_for :data do
+            setting :adapter_options, {}
+
+            defaults :production do
+              setting :adapter_options, Proc.new do
+                { redis_prefix: ["pw", config.app.name].join("/") }
+              end
+            end
           end
         end
 
@@ -73,13 +83,12 @@ module Pakyow
             setting :default_adapter, :sql
             setting :logging, false
 
-            setting :subscription_adapter, :memory
-            setting :subscription_adapter_options, {}
+            setting :adapter, :memory
+            setting :adapter_options, {}
 
             defaults :production do
-              setting :subscription_adapter, :redis
-              setting :subscription_adapter_options, redis_url: "redis://127.0.0.1:6379",
-                                                     redis_prefix: "pw"
+              setting :adapter, :redis
+              setting :adapter_options, redis_url: "redis://127.0.0.1:6379", redis_prefix: "pw"
             end
           end
 

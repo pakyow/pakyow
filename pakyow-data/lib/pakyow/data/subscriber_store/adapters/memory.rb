@@ -22,7 +22,7 @@ module Pakyow
             end
           end
 
-          def initialize(_app_name, _config)
+          def initialize(_config)
             @subscriptions_by_id = Concurrent::Hash.new
             @subscription_ids_by_model = Concurrent::Hash.new
             @subscribers_by_subscription_id = Concurrent::Hash.new

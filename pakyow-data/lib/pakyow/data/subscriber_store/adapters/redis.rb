@@ -29,14 +29,9 @@ module Pakyow
           KEY_PREFIX = "data"
           INFINITY = "+inf"
 
-          def initialize(app_name, config)
+          def initialize(config)
             @redis = ::Redis.new(url: config[:redis])
-
-            @prefix = [
-              config[:redis_prefix],
-              app_name,
-              KEY_PREFIX
-            ].join(KEY_PART_SEPARATOR)
+            @prefix = [config[:redis_prefix], KEY_PREFIX].join(KEY_PART_SEPARATOR)
           end
 
           def register_subscription(subscription, subscriber: nil)
