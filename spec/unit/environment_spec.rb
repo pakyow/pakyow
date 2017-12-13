@@ -282,12 +282,16 @@ RSpec.describe Pakyow do
 
   describe ".register_framework" do
     it "registers a framework by name and module" do
-      module FooFramework
+      class FooFramework
+        def initialize(_); end
+        def boot; end
       end
 
       Pakyow.register_framework(:foo, FooFramework)
       expect(Pakyow.frameworks.keys).to include(:foo)
       expect(Pakyow.frameworks.values).to include(FooFramework)
+
+      Object.send(:remove_const, :FooFramework)
     end
   end
 

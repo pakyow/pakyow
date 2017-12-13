@@ -44,7 +44,7 @@ RSpec.configure do |config|
       Pakyow.instance_variable_set(:"@builder", Rack::Builder.new)
     end
 
-    [:@env, :@port, :@host, :@server, :@logger].each do |ivar|
+    [:@env, :@port, :@host, :@server, :@logger, :@app].each do |ivar|
       Pakyow.remove_instance_variable(ivar) if Pakyow.instance_variable_defined?(ivar)
     end
 
