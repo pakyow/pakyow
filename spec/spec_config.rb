@@ -23,6 +23,8 @@ RSpec.configure do |config|
   config.filter_run_excluding benchmark: true
 
   config.before do
+    allow(Pakyow).to receive(:at_exit)
+
     if Pakyow.respond_to?(:config)
       @original_pakyow_config = Pakyow.config.dup
     end
@@ -40,7 +42,7 @@ RSpec.configure do |config|
         Pakyow.instance_variable_set(ivar, original_value)
       end
 
-      # duping the builder isn't enough to present leaky state
+      # duping the builder isn't enough to prevent leaky state
       Pakyow.instance_variable_set(:"@builder", Rack::Builder.new)
     end
 
