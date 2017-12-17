@@ -160,6 +160,10 @@ module Pakyow
     setting :require_www, true
   end
 
+  settings_for :tasks do
+    setting :paths, ["./tasks"]
+  end
+
   # Loads the default middleware stack.
   #
   before :setup do
@@ -350,8 +354,32 @@ module Pakyow
       app
     end
 
+    def find_app(name)
+      namespace = Support.inflector.camelize(name)
+      if const_defined?(namespace)
+        klass = const_get(namespace).const_get(:App)
+        apps.find { |app|
+          app.class == klass
+        }
+      else
+        nil
+      end
+    end
+
     def env?(name)
       env == name.to_sym
+    end
+
+    def load_tasks
+      require "rake"
+
+      config.tasks.paths.uniq.each do |path|
+        Dir.glob(File.join(path, "**/*.rake")).each do |path|
+          Rake.application.add_import(path)
+        end
+      end
+
+      Rake.application.load_imports
     end
 
     protected

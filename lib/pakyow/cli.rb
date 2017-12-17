@@ -5,6 +5,10 @@ require "thor"
 module Pakyow
   # @api private
   class CLI < Thor
+    def self.known_command?(command)
+      !find_command_possibilities(command).empty?
+    end
+
     map ["--version", "-v"] => :version
 
     desc "new PROJECT_PATH", "Create a new Pakyow project"
@@ -64,6 +68,20 @@ module Pakyow
     desc "version", "Display the installed Pakyow version"
     def version
       puts "Pakyow v#{VERSION}"
+    end
+
+    desc "exec", "Run a task for the environment or an app"
+    option :app, type: :string, aliases: :"-a"
+    option :args, type: :array, default: []
+    option :env, type: :string
+    def exec(task)
+      require "pakyow/commands/exec"
+      Commands::ExecTask.new(
+        task,
+        app: options[:app],
+        args: options[:args],
+        env: options[:env]
+      ).run
     end
   end
 end
