@@ -83,7 +83,7 @@ module Pakyow
       #
       def epilogue(res)
         info(epilogue: {
-               status: res[0]
+               status: res.to_a[0]
              })
       end
 

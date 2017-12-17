@@ -169,7 +169,6 @@ module Pakyow
     use Rack::MethodOverride
     use Middleware::JSONBody
     use Middleware::Normalizer
-    use Middleware::Logger
   end
 
   # @api private
@@ -246,6 +245,10 @@ module Pakyow
             else
               mount[:app].new
             end
+
+            # Load the logger middleware last so that any app middleware that halts
+            # before the request hits the app will not be logged.
+            use Middleware::Logger
 
             builder_local_apps << app_instance
 

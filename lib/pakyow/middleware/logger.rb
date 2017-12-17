@@ -17,10 +17,9 @@ module Pakyow
         env[Rack::RACK_LOGGER] = logger
 
         logger.prologue(env)
-        result = @app.call(env)
-        logger.epilogue(result)
-
-        result
+        @app.call(env).tap do |result|
+          logger.epilogue(result)
+        end
       end
     end
   end
