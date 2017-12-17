@@ -38,7 +38,6 @@ module Pakyow
 
       def run
         if @reload
-          puts colorizer.red(header_text)
           puts colorizer.black.on_white.bold(running_text)
           puts
 
@@ -91,7 +90,7 @@ module Pakyow
       end
 
       def watch_for_changes
-        listener = Listen.to(".") { |modified, _added, _removed|
+        listener = Listen.to(".", ignore: /public\/assets/) { |modified, _added, _removed|
           modified.each do |path|
             path = path.split(File.expand_path(".") + "/", 2)[1]
             self.class.change_callbacks(path).each(&:call)
@@ -101,12 +100,6 @@ module Pakyow
         }
 
         listener.start
-      end
-
-      def header_text
-        File.read(
-          File.expand_path("../output/splash.txt", __FILE__)
-        ).gsub!("{v}", "v#{VERSION}")
       end
 
       def running_text
