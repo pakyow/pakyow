@@ -60,6 +60,10 @@ module Pakyow
         @instances.delete(process)
       end
 
+      def start_instance(instance)
+        instance.start_and_watch
+      end
+
       protected
 
       def preload
@@ -68,8 +72,7 @@ module Pakyow
 
       def start_processes
         self.class.processes.each do |process|
-          instance = process.new(self)
-          instance.start_and_watch
+          start_instance(process.new(self))
         end
       end
 
