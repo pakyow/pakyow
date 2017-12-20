@@ -4,7 +4,7 @@ module Pakyow
   # @api private
   module Commands
     # @api private
-    class ExecTask
+    class Rake
       def initialize(task, app: nil, args: [], env: nil)
         @task, @app, @args, @env = task, app, args, env.to_s
       end
@@ -14,7 +14,7 @@ module Pakyow
         Pakyow.setup(env: @env)
         Pakyow.load_tasks
 
-        task = Rake.application[@task]
+        task = ::Rake.application[@task]
 
         if task.arg_names.include?(:app)
           app_instance = if @app

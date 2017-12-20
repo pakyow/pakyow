@@ -71,13 +71,13 @@ module Pakyow
       puts "Pakyow v#{VERSION}"
     end
 
-    desc "exec", "Run a task for the environment or an app"
+    desc "rake", "Run a task for the environment or an app"
     option :app, type: :string, aliases: :"-a"
     option :args, type: :array, default: []
     option :env, type: :string
-    def exec(task)
-      require "pakyow/commands/exec"
-      Commands::ExecTask.new(
+    def rake(task)
+      require "pakyow/commands/rake"
+      Commands::Rake.new(
         task,
         app: options[:app],
         args: options[:args],
