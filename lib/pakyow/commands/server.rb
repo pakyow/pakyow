@@ -11,95 +11,88 @@ module Pakyow
   module Commands
     # @api private
     class Server
-      # Register a callback to be called when a file changes.
-      #
-      def self.on_change(path, &block)
-        @on_change_paths ||= {}
-        @on_change_paths[path] ||= []
-        @on_change_paths[path] << block
+      class << self
+        def register_process(process)
+          (@processes ||= []) << process
+        end
+
+        def processes
+          @processes
+        end
       end
 
-      # @api private
-      def self.change_callbacks(path)
-        @on_change_paths.fetch(path, [])
-      end
-
-      on_change "Gemfile" do
-        Process.waitpid(Process.spawn("bundle install"))
-      end
-
-      def initialize(env: nil, port: nil, host: nil, server: nil, reload: true)
-        @env    = env
-        @port   = port   || Pakyow.config.server.port
-        @host   = host   || Pakyow.config.server.host
-        @server = server || Pakyow.config.server.default
-        @reload = reload
+      def initialize(env: nil, port: nil, host: nil, server: nil, standalone: false)
+        @env        = env
+        @port       = port   || Pakyow.config.server.port
+        @host       = host   || Pakyow.config.server.host
+        @server     = server || Pakyow.config.server.default
+        @standalone = standalone
+        @instances  = []
       end
 
       def run
-        if @reload
-          puts colorizer.black.on_white.bold(running_text)
-          puts
+        preload
 
-          preload
-          start_process
+        if @standalone
+          Pakyow.after :boot, exec: false do
+            puts_running_text
+          end
+
+          start_standalone_server
+        else
+          start_processes
           trap_interrupts
-          watch_for_changes
+          puts_running_text
 
           sleep
-        else
-          start_server
         end
+      end
+
+      def start_standalone_server
+        Pakyow.setup(env: @env).run(port: @port, host: @host, server: @server)
+      end
+
+      def started(process)
+        @instances << process
+      end
+
+      def stopped(process)
+        @instances.delete(process)
       end
 
       protected
 
       def preload
-        require "bundler/setup"
+        require "./config/environment"
       end
 
-      def start_process
-        if Process.respond_to?(:fork)
-          @pid = Process.fork {
-            start_server
-          }
-        else
-          @pid = Process.spawn("bundle exec pakyow server --no-reload")
+      def start_processes
+        self.class.processes.each do |process|
+          instance = process.new(self)
+          instance.start_and_watch
         end
       end
 
-      def stop_process
-        Process.kill("INT", @pid) if @pid
+      def stop_processes
+        @instances.each(&:stop)
       end
 
-      def restart_process
-        stop_process; start_process
-      end
-
-      def start_server
-        require "./config/environment"
-        Pakyow.setup(env: @env).run(port: @port, host: @host, server: @server)
+      def restart_processes
+        @instances.each(&:restart)
       end
 
       def trap_interrupts
         Pakyow::STOP_SIGNALS.each do |signal|
           trap(signal) {
-            stop_process; exit
+            stop_processes; exit
           }
         end
       end
 
-      def watch_for_changes
-        listener = Listen.to(".", ignore: /public\/assets/) { |modified, _added, _removed|
-          modified.each do |path|
-            path = path.split(File.expand_path(".") + "/", 2)[1]
-            self.class.change_callbacks(path).each(&:call)
-          end
-
-          restart_process
-        }
-
-        listener.start
+      def puts_running_text
+        return if instance_variable_defined?(:@displayed)
+        puts colorizer.black.on_white.bold(running_text) + "\n"
+        @displayed = true
       end
 
       def running_text
@@ -111,4 +104,6 @@ module Pakyow
       end
     end
   end
+
+  require "pakyow/processes/server"
 end
