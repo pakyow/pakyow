@@ -49,19 +49,20 @@ module Pakyow
     end
 
     def watch
-      @listener = Listen.to(*self.class.watched_paths, ignore: Pakyow.config.server.ignore) { |modified, _added, _removed|
-        modified.each do |path|
-          self.class.change_callbacks(path).each(&:call)
-        end
-
-        restart
-      }
-
+      @listener = Listen.to(*self.class.watched_paths, ignore: Pakyow.config.server.ignore, &method(:watch_callback))
       @listener.start
     end
 
     def start_and_watch
       start; watch
+    end
+
+    def watch_callback(modified, _added, _removed)
+      modified.each do |path|
+        self.class.change_callbacks(path).each(&:call)
+      end
+
+      restart
     end
   end
 end
