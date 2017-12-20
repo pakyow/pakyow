@@ -120,6 +120,42 @@ RSpec.describe Pakyow::Support::Hookable do
         expect(calls[2]).to eq 1
       end
     end
+
+    describe "hook context" do
+      let :event do
+        events.first
+      end
+
+      it "execs by default" do
+        object.before event do
+          $context = self
+        end
+
+        object.performing event do; end
+
+        expect($context).to be(object)
+      end
+
+      it "execs when exec: true" do
+        object.before event, exec: true do
+          $context = self
+        end
+
+        object.performing event do; end
+
+        expect($context).to be(object)
+      end
+
+      it "calls when exec: false" do
+        object.before event, exec: false do
+          $context = self
+        end
+
+        object.performing event do; end
+
+        expect($context).to be(self)
+      end
+    end
   end
 
   describe "hookable class" do

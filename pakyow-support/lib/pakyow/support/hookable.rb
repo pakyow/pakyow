@@ -107,8 +107,8 @@ module Pakyow
         #     high (1)
         #     low (-1)
         #
-        def before(event, priority: PRIORITIES[:default], &block)
-          add_hook(hook_hash, :before, event, priority, block)
+        def before(event, priority: PRIORITIES[:default], exec: true, &block)
+          add_hook(hook_hash, :before, event, priority, exec, block)
         end
         alias on before
 
@@ -116,17 +116,17 @@ module Pakyow
         #
         # @see #before
         #
-        def after(event, priority: PRIORITIES[:default], &block)
-          add_hook(hook_hash, :after, event, priority, block)
+        def after(event, priority: PRIORITIES[:default], exec: true, &block)
+          add_hook(hook_hash, :after, event, priority, exec, block)
         end
 
         # Defines a hook to call before and after event occurs.
         #
         # @see #before
         #
-        def around(event, priority: PRIORITIES[:default], &block)
-          add_hook(hook_hash, :before, event, priority, block)
-          add_hook(hook_hash, :after, event, priority, block)
+        def around(event, priority: PRIORITIES[:default], exec: true, &block)
+          add_hook(hook_hash, :before, event, priority, exec, block)
+          add_hook(hook_hash, :after, event, priority, exec, block)
         end
 
         # Calls all registered hooks for `event`, yielding between them.
@@ -146,8 +146,12 @@ module Pakyow
         # @param event [Symbol] The name of the event.
         #
         def call_hooks(type, event, *args)
-          hooks(type, event).each do |hook|
-            instance_exec(*args, &hook)
+          hooks(type, event).each do |hook, should_exec|
+            if should_exec
+              instance_exec(*args, &hook)
+            else
+              hook.call(*args)
+            end
           end
         end
 
@@ -157,10 +161,10 @@ module Pakyow
         end
 
         # @api private
-        def add_hook(hash_of_hooks, type, event, priority, hook)
+        def add_hook(hash_of_hooks, type, event, priority, exec, hook)
           raise ArgumentError, "#{event} is not a known hook event" unless known_event?(event)
           priority = PRIORITIES[priority] if priority.is_a?(Symbol)
-          (hash_of_hooks[type.to_sym][event.to_sym] ||= []) << [priority, hook]
+          (hash_of_hooks[type.to_sym][event.to_sym] ||= []) << [priority, hook, exec]
 
           reprioritize!(hash_of_hooks, type, event)
           pipeline!(hash_of_hooks, type, event)
@@ -173,7 +177,7 @@ module Pakyow
 
         # @api private
         def pipeline!(hash_of_hooks, type, event)
-          pipeline[type.to_sym][event.to_sym] = hash_of_hooks[type.to_sym][event.to_sym].map { |t| t[1] }
+          pipeline[type.to_sym][event.to_sym] = hash_of_hooks[type.to_sym][event.to_sym].map { |t| t[1..2] }
         end
       end
     end
