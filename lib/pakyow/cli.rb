@@ -53,13 +53,14 @@ module Pakyow
 
     def server(env = nil)
       require "pakyow/commands/server"
-      Commands::Server.new(
+      Pakyow.process = Commands::Server.new(
         env: env,
         port: options[:port],
         host: options[:host],
         server: options[:server],
         standalone: options[:standalone]
-      ).run
+      )
+      Pakyow.process.run
     rescue LoadError => e
       raise Thor::Error, "Error: #{e.message}\n" \
         "You must run the `pakyow server` command in the root directory of a Pakyow project."

@@ -216,6 +216,10 @@ module Pakyow
     #
     attr_reader :logger
 
+    # The main Pakyow process.
+    #
+    attr_accessor :process
+
     # Mounts an app at a path.
     #
     # The app can be any rack endpoint, but must implement an
