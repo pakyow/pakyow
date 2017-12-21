@@ -24,6 +24,10 @@ module Pakyow
         content
       end
 
+      def process?(extension)
+        @processors.key?(extension.tr(".", "").to_sym)
+      end
+
       protected
 
       def processors_for_extension(extension)
