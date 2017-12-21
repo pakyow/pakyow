@@ -8,7 +8,7 @@ module Pakyow
       extend Support::DeepFreeze
       unfreezable :info, :layouts, :partials
 
-      attr_reader :name, :path
+      attr_reader :name, :path, :layouts, :pages
 
       LAYOUTS_PATH = "layouts".freeze
       # TODO: rename this if we keep the include naming
@@ -23,6 +23,10 @@ module Pakyow
 
       def view?(path)
         @info.key?(path)
+      end
+
+      def paths
+        @info.keys
       end
 
       def info(path)
