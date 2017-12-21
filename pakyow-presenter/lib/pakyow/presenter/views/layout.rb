@@ -6,14 +6,14 @@ module Pakyow
       attr_accessor :name
 
       class << self
-        def load(path, content: nil)
-          self.new(File.basename(path, ".*").to_sym, content || File.read(path))
+        def load(path, content: nil, **args)
+          self.new(File.basename(path, ".*").to_sym, content || File.read(path), **args)
         end
       end
 
-      def initialize(name, html = "")
+      def initialize(name, html = "", **args)
         @name = name
-        super(html)
+        super(html, **args)
       end
 
       def container(name = :default)

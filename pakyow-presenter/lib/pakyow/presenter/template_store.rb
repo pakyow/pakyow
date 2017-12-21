@@ -57,8 +57,6 @@ module Pakyow
         partials(path)[name.to_sym]
       end
 
-      private
-
       def layouts_path
         path.join(LAYOUTS_PATH)
       end
@@ -70,6 +68,15 @@ module Pakyow
       def templates_path
         path.join(TEMPLATES_PATH)
       end
+
+      def template?(path)
+        return false if path.basename.to_s.start_with?(".")
+        return false unless path.extname == ".html" || @processor.process?(path.extname)
+
+        true
+      end
+
+      private
 
       def layout_with_name(name)
         load_layouts
@@ -92,7 +99,7 @@ module Pakyow
         return unless File.exist?(layouts_path)
 
         @layouts = layouts_path.children.each_with_object({}) { |file, layouts|
-          next if file.basename.to_s.start_with?(".")
+          next unless template?(file)
           layout = load_view_of_type_at_path(Layout, file)
           layouts[layout.name] = layout
         }
@@ -103,7 +110,7 @@ module Pakyow
         return unless File.exist?(partials_path)
 
         @partials = partials_path.children.each_with_object({}) { |file, partials|
-          next if file.basename.to_s.start_with?(".")
+          next unless template?(file)
           partial = load_view_of_type_at_path(Partial, file)
           partials[partial.name] = partial
         }
@@ -113,9 +120,10 @@ module Pakyow
         @info = {}
 
         Pathname.glob(File.join(templates_path, "**/*")) do |path|
-          # TODO: better way to skip this?
+          # TODO: better way to skip partials?
           next if path.basename.to_s.start_with?("_")
-          next if path.basename.to_s.start_with?(".")
+
+          next unless template?(path)
 
           begin
             if page = page_at_path(path)
@@ -143,7 +151,7 @@ module Pakyow
             index_page_at_path(path)
           end
         else
-          load_view_of_type_at_path(Page, path)
+          load_view_of_type_at_path(Page, path, normalize_path(path))
         end
       end
 
@@ -186,11 +194,11 @@ module Pakyow
         }
       end
 
-      def load_view_of_type_at_path(type, path)
+      def load_view_of_type_at_path(type, path, logical_path = nil)
         if @processor
-          type.load(path, content: @processor.process(path))
+          type.load(path, content: @processor.process(path), logical_path: logical_path)
         else
-          type.load(path)
+          type.load(path, logical_path: logical_path)
         end
       end
     end

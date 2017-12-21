@@ -22,18 +22,20 @@ module Pakyow
       # The object responsible for parsing, manipulating, and rendering
       # the underlying HTML document for the view.
       #
-      attr_reader :object
+      attr_reader :object, :logical_path
 
       include Helpers
 
       # Creates a view with +html+.
       #
       # FIXME: only accept html here, create #from_object method
-      def initialize(html = "", object: nil)
+      def initialize(html = "", object: nil, logical_path: nil)
         @info = {}
         @info, html = FrontMatterParser.parse_and_scrub(html) unless html.empty?
 
         @object = object ? object : StringDoc.new(html)
+
+        @logical_path = logical_path
 
         if @object.respond_to?(:attributes)
           self.attributes = @object.attributes

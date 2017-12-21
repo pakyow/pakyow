@@ -6,15 +6,17 @@ module Pakyow
   module Presenter
     class Page
       class << self
-        def load(path, content: nil)
-          Page.new(File.basename(path, ".*").to_sym, content || File.read(path), path)
+        def load(path, content: nil, **args)
+          Page.new(File.basename(path, ".*").to_sym, content || File.read(path), path, **args)
         end
       end
 
-      attr_reader :path, :contents
+      attr_reader :path, :contents, :logical_path
 
-      def initialize(name, html, path)
+      def initialize(name, html, path, **args)
         @name, @contents, @path = name, html, path
+
+        @logical_path = args[:logical_path]
 
         @info = { template: :default }
         @containers = {}
