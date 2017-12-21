@@ -21,6 +21,7 @@ Gem::Specification.new do |spec|
   spec.executables  = ["pakyow"]
   spec.require_path = "lib"
 
+  spec.add_dependency "pakyow-assets", Pakyow::VERSION
   spec.add_dependency "pakyow-core", Pakyow::VERSION
   spec.add_dependency "pakyow-data", Pakyow::VERSION
   spec.add_dependency "pakyow-mailer", Pakyow::VERSION
