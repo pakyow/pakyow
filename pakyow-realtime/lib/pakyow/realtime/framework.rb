@@ -58,11 +58,11 @@ module Pakyow
             next unless head = @current_presenter.view.object.find_significant_nodes(:head)[0]
 
             # embed the socket connection id (used by pakyow.js to idenfity itself with the server)
-            head.append("<meta name=\"pw-connection-id\" content=\"#{socket_client_id}:#{socket_digest(socket_client_id)}\">")
+            head.append("<meta name=\"pw-connection-id\" content=\"#{socket_client_id}:#{socket_digest(socket_client_id)}\">\n")
 
             # embed the endpoint we'll be connecting to
             endpoint = config.realtime.endpoint || ["#{request.ssl? ? "wss" : "ws"}://#{request.host_with_port}", config.realtime.path].join("/")
-            head.append("<meta name=\"pw-endpoint\" content=\"#{endpoint}\">")
+            head.append("<meta name=\"pw-endpoint\" content=\"#{endpoint}\">\n")
           end
         end
       end
