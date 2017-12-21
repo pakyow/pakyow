@@ -24,7 +24,7 @@ module Pakyow
 
           settings_for :presenter do
             setting :path do
-              File.join(config.app.root, "interface")
+              File.join(config.app.root, "frontend")
             end
           end
 
