@@ -1,28 +1,47 @@
 # frozen_string_literal: true
 
 require "pakyow/support/silenceable"
-require "pakyow/support/inspectable"
 
 module Pakyow
   module Presenter
-    # @api private
+    # String-based XML document optimized for fast manipulation and rendering.
+    #
+    # In Pakyow, we rarely care about every node in a document. Instead, only significant nodes and
+    # immediate children are available for manipulation. StringDoc provides "just enough" for our
+    # purposes. A StringDoc is represented as a multi- dimensional array of strings, making
+    # rendering essentially a +flatten.join+.
+    #
+    # Because less work is performed during render, StringDoc is consistently faster than rendering
+    # a document using Nokigiri or Oga. One obvious tradeoff is that parsing is much slower (we use
+    # Oga to parse the XML, then convert it into a StringDoc). This is an acceptable tradeoff
+    # because we only pay the parsing cost once (when the Pakyow application boots).
+    #
+    # All that to say, StringDoc is a tool that is very specialized to Pakyow's use-case. Use it
+    # only when a longer parse time is acceptable and you only care about a handful of identifiable
+    # nodes in a document.
+    #
     class StringDoc
       class << self
+        # Registers a significant node with a name and an object to handle parsing.
+        #
         def significant(name, object)
           significant_types[name] = object
         end
 
-        def significant_types
-          @significant_types ||= {}
-        end
-
+        # Creates a +StringDoc+ from an array of +StringNode+ objects.
+        #
         def from_nodes(nodes)
-          instance = allocate
-          instance.instance_variable_set(:@nodes, nodes)
-          instance.instance_variable_set(:@significant, {})
-          instance
+          allocate.tap do |instance|
+            instance.instance_variable_set(:@nodes, nodes)
+
+            nodes.each do |node|
+              node.parent = instance
+            end
+          end
         end
 
+        # Yields nodes from an oga document, breadth-first.
+        #
         def breadth_first(doc)
           queue = [doc]
 
@@ -37,120 +56,210 @@ module Pakyow
           end
         end
 
-        def attributes(node)
-          if node.is_a?(Oga::XML::Element)
-            node.attributes
+        # Returns attributes for an oga element.
+        #
+        def attributes(element)
+          if element.is_a?(Oga::XML::Element)
+            element.attributes
           else
             []
           end
         end
 
-        def attributes_string(node)
-          attributes(node).each_with_object("") do |attribute, string|
+        # Builds a string-based representation of attributes for an oga element.
+        #
+        def attributes_string(element)
+          attributes(element).each_with_object(String.new) do |attribute, string|
             string << " #{attribute.name}=\"#{attribute.value}\""
+          end
+        end
+
+        # Returns the significant object builder for the provided Oga element.
+        #
+        def significant_builder(element)
+          significant_types.values.each do |object|
+            return object if object.significant?(element)
+          end
+
+          false
+        end
+
+        # Returns true if the given Oga element contains a child node that is significant.
+        #
+        def contains_significant_child?(element)
+          element.children.each do |child|
+            return true if significant_builder(child)
+            return true if contains_significant_child?(child)
+          end
+
+          false
+        end
+
+        # @api private
+        def significant_types
+          @significant_types ||= {}
+        end
+
+        # @api private
+        def nodes_from_doc_or_string(doc_node_or_string)
+          if doc_node_or_string.is_a?(StringDoc)
+            doc_node_or_string.nodes
+          elsif doc_node_or_string.is_a?(StringNode)
+            [doc_node_or_string]
+          else
+            StringDoc.new(doc_node_or_string.to_s).nodes
           end
         end
       end
 
       include Support::Silenceable
-      include Support::Inspectable
 
-      inspectable :nodes
-
+      # Array of +StringNode+ objects.
+      #
       attr_reader :nodes
 
+      # Creates a +StringDoc+ from an html string.
+      #
       def initialize(html)
         @nodes = parse(Oga.parse_html(html))
-        @significant = {}
       end
 
-      def initialize_copy(original)
+      # @api private
+      def initialize_copy(_)
         super
 
         @nodes = @nodes.map(&:dup).each { |node|
-          node.instance_variable_set(:@parent, self)
+          node.parent = self
         }
-
-        @significant = {}
       end
 
+      # Returns nodes matching the significant type.
+      #
+      # If +with_children+ is true, significant nodes from child nodes will be included.
+      #
       def find_significant_nodes(type, with_children: true)
-        return @significant[type] if @significant[type]
-
         significant_nodes = if with_children
-          nodes.map(&:with_children).flatten
+          @nodes.map(&:with_children).flatten
         else
-          nodes.dup
+          @nodes.dup
         end
 
-        @significant[type] = significant_nodes.select { |node|
+        significant_nodes.select { |node|
           node.type == type
         }
       end
 
+      # Returns nodes matching the significant type and name.
+      #
+      # @see find_significant_nodes
+      #
       def find_significant_nodes_with_name(type, name, with_children: true)
         find_significant_nodes(type, with_children: with_children).select { |node|
           node.name == name
         }
       end
 
+      # Clears all nodes.
+      #
       def clear
-        nodes.clear
+        tap do
+          @nodes.clear
+        end
       end
 
-      def append(doc_or_string)
-        nodes.concat(nodes_from_doc_or_string(doc_or_string))
-      end
-
-      def prepend(doc_or_string)
-        nodes.unshift(*nodes_from_doc_or_string(doc_or_string))
-      end
-
-      def after(doc_or_string)
-        nodes.concat(nodes_from_doc_or_string(doc_or_string))
-      end
-
-      def before(doc_or_string)
-        nodes.unshift(*nodes_from_doc_or_string(doc_or_string))
-      end
-
+      # Replaces the current document.
+      #
+      # Accepts a +StringDoc+ or XML +String+.
+      #
       def replace(doc_or_string)
-        @nodes = nodes_from_doc_or_string(doc_or_string)
+        tap do
+          @nodes = self.class.nodes_from_doc_or_string(doc_or_string)
+        end
       end
 
+      # Appends to this document.
+      #
+      # Accepts a +StringDoc+ or XML +String+.
+      #
+      def append(doc_or_string)
+        tap do
+          @nodes.concat(self.class.nodes_from_doc_or_string(doc_or_string))
+        end
+      end
+
+      # Prepends to this document.
+      #
+      # Accepts a +StringDoc+ or XML +String+.
+      #
+      def prepend(doc_or_string)
+        tap do
+          @nodes.unshift(*self.class.nodes_from_doc_or_string(doc_or_string))
+        end
+      end
+
+      # Inserts a node after another node contained in this document.
+      #
       def insert_after(node_to_insert, after_node)
-        @nodes.insert(@nodes.index(after_node) + 1, node_to_insert)
+        tap do
+          if after_node_index = @nodes.index(after_node)
+            @nodes.insert(after_node_index + 1, *self.class.nodes_from_doc_or_string(node_to_insert))
+          end
+        end
       end
 
-      def to_html
+      # Inserts a node before another node contained in this document.
+      #
+      def insert_before(node_to_insert, before_node)
+        tap do
+          if before_node_index = @nodes.index(before_node)
+            @nodes.insert(before_node_index, *self.class.nodes_from_doc_or_string(node_to_insert))
+          end
+        end
+      end
+
+      # Removes a node from the document.
+      #
+      def remove_node(node_to_delete)
+        tap do
+          @nodes.delete(node_to_delete)
+        end
+      end
+
+      # Replaces a node from the document.
+      #
+      def replace_node(node_to_replace, replacement_node)
+        tap do
+          if replace_node_index = @nodes.index(node_to_replace)
+            @nodes.insert(replace_node_index + 1, *self.class.nodes_from_doc_or_string(replacement_node))
+            @nodes.delete_at(replace_node_index)
+          end
+        end
+      end
+
+      # Converts the document to an xml string.
+      #
+      def to_xml
         render
       end
-
-      alias :to_s :to_html
+      alias :to_html :to_xml
+      alias :to_s :to_xml
 
       def ==(other)
-        other.is_a?(StringDoc) && nodes == other.nodes
+        other.is_a?(StringDoc) && @nodes == other.nodes
       end
 
+      # @api private
       def string_nodes
-        nodes.map(&:string_nodes)
+        @nodes.map(&:string_nodes)
       end
 
       private
 
-      def nodes_from_doc_or_string(doc_or_string)
-        if doc_or_string.is_a?(StringDoc)
-          doc_or_string.nodes
-        else
-          [StringNode.new([doc_or_string.to_s, "", []])]
-        end
-      end
-
       def render
-        # nodes.flatten.reject(&:empty?).map(&:to_s).join
+        # @nodes.flatten.reject(&:empty?).map(&:to_s).join
 
-        # we save several (hundreds) of calls to `flatten` by pulling in each node and dealing with them together
-        # instead of calling `to_s` on each
+        # we save several (hundreds) of calls to `flatten` by pulling in each node and dealing with
+        # them together instead of calling `to_s` on each
         arr = string_nodes
         arr.flatten!
         arr.compact!
@@ -158,6 +267,8 @@ module Pakyow
         arr.join
       end
 
+      # Parses an Oga document into an array of +StringNode+ objects.
+      #
       def parse(doc)
         nodes = []
 
@@ -166,10 +277,10 @@ module Pakyow
         end
 
         self.class.breadth_first(doc) do |element|
-          significant_object = significant(element)
+          significant_object = self.class.significant_builder(element)
 
-          unless significant_object || contains_significant_child?(element)
-            # we know that nothing inside of the node is significant, so we can just collapse it to a single node
+          unless significant_object || self.class.contains_significant_child?(element)
+            # Nothing inside of the node is significant, so collapse it to a single node.
             nodes << StringNode.new([element.to_xml, StringAttributes.new, []]); next
           end
 
@@ -191,27 +302,10 @@ module Pakyow
         nodes
       end
 
-      def significant(node)
-        self.class.significant_types.values.each do |object|
-          return object if object.significant?(node)
-        end
-
-        false
-      end
-
       def build_significant_node(element, object)
         node = object.node(element)
         node.parent = self
         node
-      end
-
-      def contains_significant_child?(element)
-        element.children.each do |child|
-          return true if significant(child)
-          return true if contains_significant_child?(child)
-        end
-
-        false
       end
     end
   end

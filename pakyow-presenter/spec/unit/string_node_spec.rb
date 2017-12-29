@@ -1,0 +1,410 @@
+RSpec.describe Pakyow::Presenter::StringNode do
+  let :html do
+    "<div@post><h1@title>hello</h1></div>"
+  end
+
+  let :doc do
+    Pakyow::Presenter::StringDoc.new(html)
+  end
+
+  let :node do
+    doc.find_significant_nodes_with_name(:scope, :post)[0]
+  end
+
+  describe "#attributes" do
+    it "returns a StringAttributes instance" do
+      expect(node.attributes).to be_instance_of(Pakyow::Presenter::StringAttributes)
+    end
+  end
+
+  describe "#children" do
+    it "returns a StringDoc instance" do
+      expect(node.children).to be_instance_of(Pakyow::Presenter::StringDoc)
+    end
+
+    it "actually contains children" do
+      expect(node.children.to_s).to eq("<h1 data-p=\"title\">hello</h1>")
+    end
+  end
+
+  describe "#with_children" do
+    context "node has children" do
+      it "returns an array containing self, and child nodes" do
+        expect(node.with_children.count).to eq(3)
+        expect(node.with_children[0]).to be(node)
+        expect(node.with_children[1]).to eq(node.children.nodes[0])
+        expect(node.with_children[2]).to eq(node.children.nodes[0].children.nodes[0])
+      end
+    end
+
+    context "node does not have children" do
+      before do
+        node.clear
+      end
+
+      it "returns an array containing self" do
+        expect(node.with_children.count).to eq(1)
+        expect(node.with_children[0]).to be(node)
+      end
+    end
+  end
+
+  describe "#replace" do
+    context "replacement is a StringDoc" do
+      it "replaces" do
+        replacement = Pakyow::Presenter::StringDoc.new("foo")
+        doc.find_significant_nodes_with_name(:prop, :title)[0].replace(replacement)
+        expect(doc.to_s).to eq("<div data-s=\"post\">foo</div>")
+      end
+    end
+
+    context "replacement is a StringNode" do
+      it "replaces" do
+        replacement = node.dup
+        doc.find_significant_nodes_with_name(:prop, :title)[0].replace(replacement)
+        expect(doc.to_s).to eq("<div data-s=\"post\"><div data-s=\"post\"><h1 data-p=\"title\">hello</h1></div></div>")
+      end
+    end
+
+    context "replacement is another object" do
+      it "replaces" do
+        replacement = "foo"
+        doc.find_significant_nodes_with_name(:prop, :title)[0].replace(replacement)
+        expect(doc.to_s).to eq("<div data-s=\"post\">foo</div>")
+      end
+    end
+  end
+
+  describe "#remove" do
+    context "node is primary" do
+      it "removes the node" do
+        node.remove
+        expect(doc.to_s).to eq("")
+      end
+    end
+
+    context "node is a child" do
+      it "removes the node" do
+        doc.find_significant_nodes_with_name(:prop, :title)[0].remove
+        expect(doc.to_s).to eq("<div data-s=\"post\"></div>")
+      end
+    end
+  end
+
+  describe "#text" do
+    it "returns the text value of the current node" do
+      expect(doc.find_significant_nodes_with_name(:prop, :title)[0].text).to eq("hello")
+    end
+
+    context "node has children" do
+      it "includes the text values from children" do
+        expect(node.text).to eq("hello")
+      end
+    end
+  end
+
+  describe "#html" do
+    it "returns the html value of the current node's children" do
+      expect(doc.find_significant_nodes_with_name(:prop, :title)[0].html).to eq("hello")
+    end
+
+    context "node has children" do
+      it "includes the childen in the value" do
+        expect(node.html).to eq("<h1 data-p=\"title\">hello</h1>")
+      end
+    end
+  end
+
+  describe "#html=" do
+    it "sets the html value of the current node" do
+      node = doc.find_significant_nodes_with_name(:prop, :title)[0]
+      node.html = "<div>foo</div>"
+      expect(node.to_s).to eq("<h1 data-p=\"title\"><div>foo</div></h1>")
+    end
+
+    context "node has children" do
+      it "replaces the childen" do
+        node.html = "<div>foo</div>"
+        expect(node.to_s).to eq("<div data-s=\"post\"><div>foo</div></div>")
+      end
+    end
+
+    context "new html has significant nodes" do
+      it "finds the significant nodes" do
+        node.html = "<div@foo>foo</div>"
+        expect(doc.find_significant_nodes_with_name(:prop, :foo).count).to eq(1)
+      end
+    end
+  end
+
+  describe "#tagname" do
+    it "returns the tagname" do
+      expect(node.tagname).to eq("div")
+    end
+  end
+
+  describe "#clear" do
+    it "removes children" do
+      node.clear
+      expect(node.to_s).to eq("<div data-s=\"post\"></div>")
+    end
+  end
+
+  describe "#after" do
+    context "passed a StringDoc" do
+      let :insertable do
+        Pakyow::Presenter::StringDoc.new("<div>insertable</div>")
+      end
+
+      it "inserts after self" do
+        node.after(insertable)
+        expect(doc.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\">hello</h1></div><div>insertable</div>")
+      end
+    end
+
+    context "passed a StringNode" do
+      let :insertable do
+        Pakyow::Presenter::StringDoc.new("<div>insertable</div>").nodes[0]
+      end
+
+      it "inserts after self" do
+        node.after(insertable)
+        expect(doc.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\">hello</h1></div><div>insertable</div>")
+      end
+    end
+
+    context "passed another object" do
+      let :insertable do
+        "<div>insertable</div>"
+      end
+
+      it "inserts after self" do
+        node.after(insertable)
+        expect(doc.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\">hello</h1></div><div>insertable</div>")
+      end
+    end
+  end
+
+  describe "#before" do
+    context "passed a StringDoc" do
+      let :insertable do
+        Pakyow::Presenter::StringDoc.new("<div>insertable</div>")
+      end
+
+      it "inserts before self" do
+        node.before(insertable)
+        expect(doc.to_s).to eq("<div>insertable</div><div data-s=\"post\"><h1 data-p=\"title\">hello</h1></div>")
+      end
+    end
+
+    context "passed a StringNode" do
+      let :insertable do
+        Pakyow::Presenter::StringDoc.new("<div>insertable</div>").nodes[0]
+      end
+
+      it "inserts before self" do
+        node.before(insertable)
+        expect(doc.to_s).to eq("<div>insertable</div><div data-s=\"post\"><h1 data-p=\"title\">hello</h1></div>")
+      end
+    end
+
+    context "passed another object" do
+      let :insertable do
+        "<div>insertable</div>"
+      end
+
+      it "inserts before self" do
+        node.before(insertable)
+        expect(doc.to_s).to eq("<div>insertable</div><div data-s=\"post\"><h1 data-p=\"title\">hello</h1></div>")
+      end
+    end
+  end
+
+  describe "#append" do
+    context "passed a StringDoc" do
+      let :insertable do
+        Pakyow::Presenter::StringDoc.new("<div>insertable</div>")
+      end
+
+      it "appends to self" do
+        node.append(insertable)
+        expect(doc.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\">hello</h1><div>insertable</div></div>")
+      end
+    end
+
+    context "passed a StringNode" do
+      let :insertable do
+        Pakyow::Presenter::StringDoc.new("<div>insertable</div>").nodes[0]
+      end
+
+      it "appends to self" do
+        node.append(insertable)
+        expect(doc.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\">hello</h1><div>insertable</div></div>")
+      end
+    end
+
+    context "passed another object" do
+      let :insertable do
+        "<div>insertable</div>"
+      end
+
+      it "appends to self" do
+        node.append(insertable)
+        expect(doc.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\">hello</h1><div>insertable</div></div>")
+      end
+    end
+  end
+
+  describe "#prepend" do
+    context "passed a StringDoc" do
+      let :insertable do
+        Pakyow::Presenter::StringDoc.new("<div>insertable</div>")
+      end
+
+      it "prepends to self" do
+        node.prepend(insertable)
+        expect(doc.to_s).to eq("<div data-s=\"post\"><div>insertable</div><h1 data-p=\"title\">hello</h1></div>")
+      end
+    end
+
+    context "passed a StringNode" do
+      let :insertable do
+        Pakyow::Presenter::StringDoc.new("<div>insertable</div>").nodes[0]
+      end
+
+      it "prepends to self" do
+        node.prepend(insertable)
+        expect(doc.to_s).to eq("<div data-s=\"post\"><div>insertable</div><h1 data-p=\"title\">hello</h1></div>")
+      end
+    end
+
+    context "passed another object" do
+      let :insertable do
+        "<div>insertable</div>"
+      end
+
+      it "prepends to self" do
+        node.prepend(insertable)
+        expect(doc.to_s).to eq("<div data-s=\"post\"><div>insertable</div><h1 data-p=\"title\">hello</h1></div>")
+      end
+    end
+  end
+
+  describe "#label" do
+    let :html do
+      "<div@post version=\"foo\"><h1@title>hello</h1></div>"
+    end
+
+    context "label exists" do
+      it "returns the value" do
+        expect(node.label(:version)).to eq(:foo)
+      end
+    end
+
+    context "label does not exist" do
+      it "returns nil" do
+        expect(node.label(:nonexistent)).to eq(nil)
+      end
+    end
+  end
+
+  describe "#labeled?" do
+    let :html do
+      "<div@post version=\"foo\"><h1@title>hello</h1></div>"
+    end
+
+    context "label exists" do
+      it "returns true" do
+        expect(node.labeled?(:version)).to eq(true)
+      end
+    end
+
+    context "label does not exist" do
+      it "returns false" do
+        expect(node.labeled?(:nonexistent)).to eq(false)
+      end
+    end
+  end
+
+  describe "#delete_label" do
+    let :html do
+      "<div@post version=\"foo\"><h1@title>hello</h1></div>"
+    end
+
+    context "label exists" do
+      it "deletes the label" do
+        expect(node.label(:version)).to eq(:foo)
+        expect(node.labeled?(:version)).to eq(true)
+        node.delete_label(:version)
+        expect(node.label(:version)).to eq(nil)
+        expect(node.labeled?(:version)).to eq(false)
+      end
+    end
+
+    context "label does not exist" do
+      it "does not error" do
+        expect(node.label(:nonexistent)).to eq(nil)
+        expect(node.labeled?(:nonexistent)).to eq(false)
+        node.delete_label(:nonexistent)
+        expect(node.label(:nonexistent)).to eq(nil)
+        expect(node.labeled?(:nonexistent)).to eq(false)
+      end
+    end
+  end
+
+  describe "#to_xml" do
+    it "converts the document to an xml string" do
+      expect(node.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\">hello</h1></div>")
+    end
+  end
+
+  describe "#to_html" do
+    it "converts the document to an xml string" do
+      expect(node.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\">hello</h1></div>")
+    end
+  end
+
+  describe "#to_s" do
+    it "converts the document to an xml string" do
+      expect(node.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\">hello</h1></div>")
+    end
+  end
+
+  describe "#inspect" do
+    it "includes type" do
+      expect(node.inspect).to include("@type=:scope")
+    end
+
+    it "includes name" do
+      expect(node.inspect).to include("@name=:post")
+    end
+
+    it "includes attributes" do
+      expect(node.inspect).to include("@attributes=#<Pakyow::Presenter::StringAttributes")
+    end
+
+    it "includes children" do
+      expect(node.inspect).to include("@children=#<Pakyow::Presenter::StringDoc")
+    end
+
+    it "does not include node" do
+      expect(node.inspect).not_to include("@node=")
+    end
+  end
+
+  describe "#==" do
+    it "returns true when the nodes are equal" do
+      comparison = Pakyow::Presenter::StringDoc.new(html).nodes[0]
+      expect(node == comparison).to be true
+    end
+
+    it "returns false when the nodes are not equal" do
+      comparison = Pakyow::Presenter::StringDoc.new("<div@post><h1@title>goodbye</h1></div>").nodes[0]
+      expect(node == comparison).to be false
+    end
+
+    it "returns false when the comparison is not a StringNode" do
+      expect(node == "").to be false
+    end
+  end
+end

@@ -2,156 +2,205 @@
 
 require "forwardable"
 
+require "pakyow/support/inspectable"
+
 module Pakyow
   module Presenter
-    # @api private
+    # String-based XML node.
+    #
+    # @see StringDoc
+    #
     class StringNode
       class << self
         SELF_CLOSING = %w[area base basefont br hr input img link meta].freeze
-        FORM_INPUTS = %w[input select textarea button].freeze
-        WITHOUT_VALUE = %w[select].freeze
+        FORM_INPUTS  = %w[input select textarea button].freeze
+        VALUELESS    = %w[select].freeze
 
+        # Returns true if +tag+ is self-closing.
+        #
         def self_closing?(tag)
-          SELF_CLOSING.include? tag
+          SELF_CLOSING.include?(tag)
         end
 
+        # Returns true if +tag+ is a form input.
+        #
         def form_input?(tag)
-          FORM_INPUTS.include? tag
+          FORM_INPUTS.include?(tag)
         end
 
+        # Returns true if +tag+ does not contain a value.
+        #
         def without_value?(tag)
-          WITHOUT_VALUE.include? tag
+          VALUELESS.include?(tag)
         end
       end
 
-      attr_reader :node, :type, :name, :parent
+      attr_reader :node, :type, :name, :parent, :children, :attributes
+
+      # @api private
       attr_writer :parent
 
       extend Forwardable
       def_delegators :children, :find_significant_nodes, :find_significant_nodes_with_name
 
+      include Support::Inspectable
+      inspectable :type, :name, :attributes, :children
+
       def initialize(node, type: nil, name: nil, parent: nil, labels: {})
         @node, @type, @name, @parent, @labels = node, type, name, parent, labels
+        @attributes = @node[1]
+        @children = nil
       end
 
-      def initialize_copy(original)
+      # @api private
+      def initialize_copy(_)
         super
 
-        @node = node.dup
-        @node[1] = attributes.dup
-        @node[3] = children.dup
+        @attributes = @attributes.dup
+        @children = @children.dup
+
+        @node = @node.dup
+        @node[1] = @attributes
+        @node[3] = @children
 
         @labels = @labels.dup
       end
 
+      # Close self with +tag+ and a child.
+      #
       def close(tag, child)
-        node << (tag ? ">" : "")
-        node << StringDoc.from_nodes(child)
-        node << ((tag && !self.class.self_closing?(tag)) ? "</#{tag}>" : "")
-        self
-      end
+        tap do
+          @children = StringDoc.from_nodes(child)
 
-      def attributes
-        node[1]
-      end
-
-      def children
-        node[3]
-      end
-
-      def with_children
-        return [self] unless children
-        [self].concat(children.nodes.map(&:with_children))
-      end
-
-      def empty?
-        node.empty?
-      end
-
-      def replace(replacement)
-        if replacement.is_a?(StringDoc)
-          @node = ["", StringAttributes.new, "", replacement, ""]
-        else
-          # TODO: ?
+          @node << (tag ? ">" : "")
+          @node << @children
+          @node << ((tag && !self.class.self_closing?(tag)) ? "</#{tag}>" : "")
         end
       end
 
+      # Returns an array containing +self+ and any child nodes.
+      #
+      def with_children
+        [self].tap do |self_with_children|
+          if children
+            self_with_children.concat(child_nodes)
+          end
+        end
+      end
+
+      # Replaces the current node.
+      #
+      def replace(replacement)
+        @parent.replace_node(self, replacement)
+      end
+
+      # Removes the node.
+      #
       def remove
-        # TODO: consider also removing from `parent`
-        @node = []
+        @parent.remove_node(self)
       end
 
-      def to_html
-        node.flatten.map(&:to_s).join
+      REGEX_TAGS = /<[^>]*>/
+
+      # Returns the text of this node and all children, joined together.
+      #
+      def text
+        html.gsub(REGEX_TAGS, "")
       end
 
-      alias :to_s :to_html
-
-      def string_nodes
-        [node[0], node[1], node[2], node[3]&.string_nodes, node[4]]
-      end
-
-      # TODO: revisit
-      # def text
-      #   html.gsub(/<[^>]*>/, '')
-      # end
-
-      # TODO: revisit
-      # if we want to support this, it should only replace the text of this node... not everything
-      # def text=(text)
-      #   clear
-      #   children << [text, {}, []]
-      # end
-
+      # Returns the html contained within self.
+      #
       def html
-        node.render
+        children.to_s
       end
 
+      # Replaces self's inner html.
+      #
       def html=(html)
         children.replace(html)
       end
 
+      # Returns the node's tagname.
+      #
       def tagname
-        @tagname ||= node[0].gsub(/[^a-zA-Z]/, "")
+        @node[0].gsub(/[^a-zA-Z]/, "")
       end
 
+      # Removes all children.
+      #
       def clear
         children.clear
       end
 
+      # Inserts +node+ after +self+.
+      #
       def after(node)
-        parent.insert_after(node, self)
+        @parent.insert_after(node, self)
       end
 
+      # Inserts +node+ before +self+.
+      #
+      def before(node)
+        @parent.insert_before(node, self)
+      end
+
+      # Appends +node+ as a child.
+      #
       def append(node)
         children.append(node)
       end
 
+      # Prepends +node+ as a child.
+      #
       def prepend(node)
         children.prepend(node)
       end
 
+      # Returns the value for label with +name+.
+      #
       def label(name)
         @labels[name.to_sym]
       end
 
+      # Returns true if label exists with +name+.
+      #
       def labeled?(name)
-        @labels.key?[name.to_sym]
+        @labels.key?(name.to_sym)
       end
 
+      # Delete the label with +name+.
+      #
       def delete_label(name)
         @labels.delete(name.to_sym)
       end
 
-      # TODO: it would be nice if Inspectable could handle this
-      def inspect
-        inspection = %i[type name attributes children].map { |attr|
-          value = send(attr)
-          next if value.nil? || (value.respond_to?(:empty?) && value.empty?)
-          "#{attr}: #{value.inspect}"
-        }.compact.join(" ")
+      # Converts the node to an xml string.
+      #
+      def to_xml
+        @node.flatten.map(&:to_s).join
+      end
+      alias :to_html :to_xml
+      alias :to_s :to_xml
 
-        "#<#{self.class.name}:#{self.object_id}#{inspection}>"
+      def ==(other)
+        return false unless other.is_a?(StringNode)
+
+        @node.each_with_index do |part, index|
+          return false unless other.node[index] == part
+        end
+
+        true
+      end
+
+      # @api private
+      def string_nodes
+        [@node[0], @node[1], @node[2], @node[3]&.string_nodes, @node[4]]
+      end
+
+      protected
+
+      def child_nodes
+        children.nodes.map(&:with_children).to_a.flatten
       end
     end
   end
