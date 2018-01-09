@@ -23,6 +23,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "pakyow-presenter", Pakyow::VERSION
   spec.add_dependency "pakyow-support", Pakyow::VERSION
 
+  spec.add_dependency "htmlentities", "~> 4.3"
   spec.add_dependency "mail", "~> 2.7"
-  spec.add_dependency "premailer", "1.11"
 end

@@ -6,6 +6,7 @@
   data
   presenter
   assets
+  mailer
   realtime
   ui
 ).each do |lib|
