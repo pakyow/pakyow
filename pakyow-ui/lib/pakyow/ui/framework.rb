@@ -59,7 +59,7 @@ module Pakyow
 
           app.const_get(:Renderer).before :render do
             # The transformation id doesn't have to be completely unique, just unique to the presenter.
-            @transformation_id = Digest::SHA1.hexdigest(@current_presenter.class.object_id.to_s)
+            @transformation_id = Digest::SHA1.hexdigest(@presenter.class.object_id.to_s)
 
             # To keep up with the node(s) that matter for the transformation, a `data-t` attribute
             # is added to the node that contains the transformation_id. When the transformation is
@@ -67,7 +67,7 @@ module Pakyow
             #
             # Note that when we're presenting an entire view, `data-t` is set on the `body` node.
 
-            if node = @current_presenter.view.object.find_significant_nodes(:body)[0]
+            if node = @presenter.view.object.find_significant_nodes(:body)[0]
               node.attributes[:"data-t"] = @transformation_id
             else
               # TODO: mixin the transformation_id into other nodes, once supported in presenter
@@ -86,7 +86,7 @@ module Pakyow
             presentables = @__state.get(:presentables)
 
             metadata = {
-              view_path: @current_presenter.class.path,
+              view_path: @presenter.class.path,
               transformation_id: @transformation_id,
               presentables: presentables.map { |presentable_name, presentable|
                 {

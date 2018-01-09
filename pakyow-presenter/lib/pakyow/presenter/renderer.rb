@@ -47,28 +47,34 @@ module Pakyow
       include Support::Hookable
       known_events :render
 
+      attr_reader :presenter
+
       def initialize(state)
         @__state = state
       end
 
-      def perform(path = request.env["pakyow.endpoint"] || request.path, as: nil)
+      def setup(path = default_path, as: nil)
         unless info = find_info_for(path)
           raise MissingView.new("No view at path `#{path}'")
         end
 
         presenter = find_presenter_for(as || path) || ViewPresenter
 
-        @current_presenter = presenter.new(
+        @presenter = presenter.new(
           binders: app.state_for(:binder),
           paths: app.paths,
           **info
         )
+      end
+
+      def perform(path = default_path, as: nil)
+        setup(path, as: as)
 
         define_presentables(@__state.get(:presentables))
 
         performing :render do
           response.body = StringIO.new(
-            @current_presenter.to_html(
+            @presenter.to_html(
               clean: !Pakyow.env?(:prototype)
             )
           )
@@ -76,6 +82,10 @@ module Pakyow
       end
 
       protected
+
+      def default_path
+        request.env["pakyow.endpoint"] || request.path
+      end
 
       def find_info_for(path)
         collapse_path(path) do |collapsed_path|
@@ -119,7 +129,7 @@ module Pakyow
 
       def define_presentables(presentables)
         presentables&.each do |name, value|
-          @current_presenter.define_singleton_method name do
+          @presenter.define_singleton_method name do
             value
           end
         end

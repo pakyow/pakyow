@@ -55,7 +55,7 @@ module Pakyow
 
         if app.const_defined?(:Renderer)
           app.const_get(:Renderer).before :render do
-            next unless head = @current_presenter.view.object.find_significant_nodes(:head)[0]
+            next unless head = @presenter.view.object.find_significant_nodes(:head)[0]
 
             # embed the socket connection id (used by pakyow.js to idenfity itself with the server)
             head.append("<meta name=\"pw-connection-id\" content=\"#{socket_client_id}:#{socket_digest(socket_client_id)}\">\n")

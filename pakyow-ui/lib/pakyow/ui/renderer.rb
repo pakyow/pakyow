@@ -14,13 +14,13 @@ module Pakyow
       end
 
       def perform(path)
-        @current_presenter = Presenter.new
+        @presenter = Presenter.new
         define_presentables(@presentables)
-        @current_presenter.instance_exec(&presenter_for_path(path).block)
+        @presenter.instance_exec(&presenter_for_path(path).block)
       end
 
       def to_arr
-        @current_presenter.to_arr
+        @presenter.to_arr
       end
     end
   end
