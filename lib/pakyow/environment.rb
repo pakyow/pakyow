@@ -380,9 +380,9 @@ module Pakyow
     def load_tasks
       require "rake"
 
-      config.tasks.paths.uniq.each do |path|
-        Dir.glob(File.join(path, "**/*.rake")).each do |path|
-          Rake.application.add_import(path)
+      config.tasks.paths.uniq.each do |dir_path|
+        Dir.glob(File.join(dir_path, "**/*.rake")).each do |file_path|
+          Rake.application.add_import(file_path)
         end
       end
 
