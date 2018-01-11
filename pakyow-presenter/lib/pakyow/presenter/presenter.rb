@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "forwardable"
+
 require "pakyow/presenter/presentable"
 require "pakyow/presenter/exceptions"
 require "pakyow/presenter/renderer"
@@ -11,9 +13,23 @@ module Pakyow
     # State is passed explicitly to the presenter, exposed by calling the `presentable` helper.
     #
     class Presenter
+      extend Forwardable
+
       include Support::SafeStringHelpers
 
-      attr_reader :view, :binders
+      # The view object being presented.
+      #
+      attr_reader :view
+      attr_reader :binders
+
+      # @!method attributes
+      #   Delegates to {view}.
+      #   @see View#attributes
+      #
+      # @!method attrs
+      #   Delegates to {view}.
+      #   @see View#attrs
+      def_delegators :@view, :attributes, :attrs
 
       def initialize(view, binders: [], paths: nil)
         @view, @binders, @paths = view, binders, paths
