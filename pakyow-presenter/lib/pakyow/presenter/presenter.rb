@@ -12,6 +12,8 @@ module Pakyow
     # Does not have access to the session, request, etc; only what is exposed to it from the route.
     # State is passed explicitly to the presenter, exposed by calling the `presentable` helper.
     #
+    # In normal usage you will be interacting with presenters rather than the {View} directly.
+    #
     class Presenter
       extend Forwardable
 

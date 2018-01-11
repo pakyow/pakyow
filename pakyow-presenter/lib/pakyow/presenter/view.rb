@@ -13,6 +13,21 @@ module Pakyow
         def load(path, content: nil)
           new(content || File.read(path))
         end
+
+        # Creates a view wrapping an object.
+        #
+        def from_object(object)
+          allocate.tap do |instance|
+            instance.instance_variable_set(:@object, object)
+            instance.instance_variable_set(:@info, {})
+            instance.instance_variable_set(:@logical_path, nil)
+            if object.respond_to?(:attributes)
+              instance.attributes = object.attributes
+            else
+              instance.instance_variable_set(:@attributes, nil)
+            end
+          end
+        end
       end
 
       extend Forwardable
@@ -28,13 +43,9 @@ module Pakyow
 
       # Creates a view with +html+.
       #
-      # FIXME: only accept html here, create #from_object method
-      def initialize(html = "", object: nil, logical_path: nil)
-        @info = {}
-        @info, html = FrontMatterParser.parse_and_scrub(html) unless html.empty?
-
-        @object = object ? object : StringDoc.new(html)
-
+      def initialize(html, logical_path: nil)
+        @info, html = FrontMatterParser.parse_and_scrub(html)
+        @object = StringDoc.new(html)
         @logical_path = logical_path
 
         if @object.respond_to?(:attributes)
@@ -59,7 +70,7 @@ module Pakyow
       def find(*names)
         named = names.shift.to_sym
         found = props_and_scopes_with_name(named).each_with_object([]) { |node, arr|
-          arr << View.new(object: node)
+          arr << View.from_object(node)
         }
 
         if names.empty? # found everything; wrap it up
@@ -107,13 +118,13 @@ module Pakyow
 
       def partial(name)
         @object.find_significant_nodes_with_name(:partial, name).each_with_object(ViewSet.new) { |partial, set|
-          set << View.new(object: partial)
+          set << View.from_object(partial)
         }
       end
 
       def component(name)
         @object.find_significant_nodes_with_name(:component, name).each_with_object(ViewSet.new) { |component, set|
-          set << View.new(object: component)
+          set << View.from_object(component)
         }
       end
 
@@ -127,7 +138,7 @@ module Pakyow
 
       def title
         if title_node = @object.find_significant_nodes(:title)[0]
-          View.new(object: title_node)
+          View.from_object(title_node)
         else
           nil
         end

@@ -8,7 +8,7 @@ RSpec.shared_examples :setting_view_attributes do
   end
 
   let :view do
-    Pakyow::Presenter::View.new(object: doc.nodes.first)
+    Pakyow::Presenter::View.from_object(doc.nodes.first)
   end
 
   let :attributes do
