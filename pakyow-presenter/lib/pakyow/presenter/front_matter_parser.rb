@@ -1,11 +1,15 @@
 # frozen_string_literal: true
 
+require "pakyow/support/indifferentize"
+
 module Pakyow
   module Presenter
     # Parses front matter from text files.
     #
     # @api private
     module FrontMatterParser
+      using Support::Indifferentize
+
       MATTER_MATCHER = /\A---\s*\n(.*?\n?)^---\s*$\n?/m
 
       # Parses HTML and returns a hash of front matter info
@@ -15,13 +19,10 @@ module Pakyow
         return {} unless match
 
         begin
-          info = YAML.load(match.captures[0])
+          YAML.load(match.captures[0]).to_h.indifferentize
         rescue Psych::SyntaxError => error
           raise Pakyow.build_error(error, FrontMatterParsingError, context: match.captures[0])
         end
-
-        info = {} if !info || !info.is_a?(Hash)
-        Hash.symbolize(info)
       end
 
       # Returns HTML with front matter removed

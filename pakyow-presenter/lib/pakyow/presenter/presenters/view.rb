@@ -35,7 +35,11 @@ module Pakyow
 
       def initialize(template: nil, page: nil, partials: [], **args)
         @template, @page, @partials = template, page, partials
-        @view = template.build(page).mixin(partials)
+
+        @template.mixin(partials)
+        @page.mixin(partials)
+
+        @view = template.build(page)
         super(@view, **args)
       end
 
@@ -44,14 +48,8 @@ module Pakyow
           instance_exec(&block)
         end
 
-        if title = page.info(:title)
-          view.title = title
-        end
-
         super
       end
-
-      alias :to_str :to_html
     end
   end
 end

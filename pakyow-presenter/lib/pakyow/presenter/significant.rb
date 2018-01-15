@@ -9,6 +9,8 @@ module Pakyow
     # @api private
     OPTION_TAG = "option".freeze
     # @api private
+    OPTGROUP_TAG = "optgroup".freeze
+    # @api private
     TITLE_TAG = "title".freeze
     # @api private
     BODY_TAG = "body".freeze
@@ -25,7 +27,7 @@ module Pakyow
 
       # Attributes that will be turned into +StringDoc+ labels
       #
-      LABEL_ATTRS = %i(version include exclude).freeze
+      LABEL_ATTRS = %i(ui version include exclude).freeze
 
       def self.node_with_valueless_attribute?(node)
         return false unless node.is_a?(Oga::XML::Element)
@@ -100,6 +102,8 @@ module Pakyow
       end
     end
 
+    # TODO: it may be that we can combine scope/prop into a `binding` node... do we ever need to distinguish between them?
+
     # @api private
     class ScopeNode < SignificantNode
       StringDoc.significant :scope, self
@@ -109,7 +113,7 @@ module Pakyow
         return false if node.name == FORM_TAG
 
         StringDoc.breadth_first(node) do |child|
-          return true if PropNode.significant?(child)
+          return true if significant?(child) || PropNode.significant?(child)
         end
       end
 
@@ -130,6 +134,7 @@ module Pakyow
 
       def self.significant?(node)
         return false unless node_with_valueless_attribute?(node)
+        return false if node.name == FORM_TAG
 
         StringDoc.breadth_first(node) do |child|
           return false if significant?(child) || ScopeNode.significant?(child)
@@ -161,7 +166,9 @@ module Pakyow
       def self.node(element)
         labels = labels_hash(element)
         attributes = attributes_instance(element)
-        StringNode.new(["<#{element.name}", attributes], type: :component, name: labels[:ui].to_sym, labels: labels)
+        component_name = labels[:ui].to_sym
+        attributes[:"data-ui"] = component_name
+        StringNode.new(["<#{element.name}", attributes], type: :component, name: component_name, labels: labels)
       end
     end
 
@@ -178,6 +185,7 @@ module Pakyow
         attributes = attributes_instance(element)
         scope = attributes.keys.first
         attributes.delete(scope)
+        attributes[:"data-s"] = scope
 
         StringNode.new(["<#{element.name}", attributes], type: :form, name: scope, labels: labels)
       end
@@ -195,6 +203,21 @@ module Pakyow
         labels = labels_hash(element)
         attributes = attributes_instance(element)
         StringNode.new(["<#{element.name}", attributes], type: :option, name: attributes[:value], labels: labels)
+      end
+    end
+
+    # @api private
+    class OptgroupNode < SignificantNode
+      StringDoc.significant :optgroup, self
+
+      def self.significant?(node)
+        node.is_a?(Oga::XML::Element) && node.name == OPTGROUP_TAG
+      end
+
+      def self.node(element)
+        labels = labels_hash(element)
+        attributes = attributes_instance(element)
+        StringNode.new(["<#{element.name}", attributes], type: :optgroup, labels: labels)
       end
     end
 

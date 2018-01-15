@@ -4,150 +4,154 @@ require "pakyow/presenter/presenter"
 
 module Pakyow
   module Presenter
+    # Presents a form.
+    #
     class FormPresenter < Presenter
-      METHOD_OVERRIDES = {
-        update: "patch".freeze,
-        replace: "put".freeze,
-        remove: "delete".freeze
-      }.freeze
+      SUPPORTED_ACTIONS = %i(create update replace remove).freeze
+      ACTION_METHODS = { create: "post", update: "patch", replace: "put", remove: "delete" }.freeze
 
-      SUPPORTED_ACTIONS = %i(create update replace remove)
+      # Sets the form action (where it submits to).
+      #
+      def action=(action)
+        @view.attrs[:action] = action
+      end
 
-      FORM_METHOD_DEFAULT = "post".freeze
+      # Sets the form method. Automatically handles method overrides by prepending a hidden field
+      # named `_method` when +method+ is not get or post, setting the form method to +post+.
+      #
+      def method=(method)
+        method = method.to_s.downcase
+
+        if method_override_required?(method)
+          @view.attrs[:method] = "post"
+          @view.prepend(method_override_input(method))
+        else
+          @view.attrs[:method] = method
+        end
+      end
+
+      # Populates a select field with options.
+      #
+      def options_for(field, options = nil)
+        create_select_options(field, options || yield)
+      end
+
+      # Populates a select field with grouped options.
+      #
+      def grouped_options_for(field, grouped_options = nil)
+        create_grouped_select_options(field, grouped_options || yield)
+      end
+
+      # Setup the form for creating an object.
+      #
+      def create(object)
+        yield self if block_given?
+        setup :create, object
+      end
+
+      # Setup the form for updating an object.
+      #
+      def update(object)
+        yield self if block_given?
+        setup :update, object
+      end
+
+      # Setup the form for replacing an object.
+      #
+      def replace(object)
+        yield self if block_given?
+        setup :replace, object
+      end
+
+      # Setup the form for removing an object.
+      #
+      def remove(object)
+        yield self if block_given?
+        setup :remove, object
+      end
+
+      protected
 
       def setup(action, object = nil)
         action = action.to_sym
 
         raise ArgumentError.new("Expected action to be one of: #{SUPPORTED_ACTIONS.join(", ")}") unless SUPPORTED_ACTIONS.include?(action)
 
-        yield self if block_given?
+        self.action = form_action(action, object)
+        self.method = method_for_action(action)
 
-        @view.attrs[:method] = FORM_METHOD_DEFAULT
-        @view.attrs[:action] = form_action(action, object)
-
-        if method_override_required?(action)
-          @view.prepend(method_override_input(action))
-        end
-
-        if object
-          @view.bind(object)
-        end
-
-        set_input_names
+        @view.bind(object)
       end
-
-      def create(object)
-        yield self if block_given?
-        setup :create, object
-      end
-
-      def update(object)
-        yield self if block_given?
-        setup :update, object
-      end
-
-      def replace(object)
-        yield self if block_given?
-        setup :replace, object
-      end
-
-      def remove(object)
-        yield self if block_given?
-        setup :remove, object
-      end
-
-      def options_for(field, options = nil)
-        create_select_options(field, options || yield)
-      end
-
-      def value_for(field, value = nil)
-        set_value(field, value || yield)
-      end
-
-      protected
 
       def form_action(action, object)
-        @paths.path_to(@view.name, action, **form_action_params(object))
+        @paths&.path_to(@view.name, action, **form_action_params(object))
       end
 
       def form_action_params(object)
-        params = {}
-        params[:"#{@view.name}_id"] = object[:id] if object
-        params
-      end
-
-      def method_override_required?(action)
-        METHOD_OVERRIDES.include?(action)
-      end
-
-      def method_override(action)
-        METHOD_OVERRIDES[action]
-      end
-
-      def method_override_input(action)
-        # FIXME: avoid creating a new view once string values are supported (there's no need to parse)
-        View.new("<input type=\"hidden\" name=\"_method\" value=\"#{method_override(action)}\">")
-      end
-
-      def set_input_names
-        @view.props.each do |prop|
-          prop.attributes[:name] = "#{@view.name}[#{prop.name}]" if prop.attributes[:name].nil?
+        {}.tap do |params|
+          params[:"#{@view.name}_id"] = object[:id] if object
         end
+      end
+
+      def method_for_action(action)
+        ACTION_METHODS[action]
+      end
+
+      def method_override_required?(method)
+        method != "get" && method != "post"
+      end
+
+      def method_override_input(method)
+        safe("<input type=\"hidden\" name=\"_method\" value=\"#{method}\">")
       end
 
       def create_select_options(field, values)
-        option_nodes = Oga::XML::Document.new
+        options = Oga::XML::Document.new
 
-        until values.length == 0
-          catch :optgroup do
-            o = values.first
+        values.each do |value|
+          options.children << create_select_option(value)
+        end
 
-            # an array containing value/content
-            if o.is_a?(Array)
-              node = Oga::XML::Element.new(name: "option")
-              node.inner_text = ensure_html_safety(o[1].to_s)
-              node.set("value", ensure_html_safety(o[0].to_s))
-              option_nodes.children << node
-              values.shift
-            else # likely an object (e.g. string); start a group
-              node_group = Oga::XML::Element.new(name: "optgroup")
-              node_group.set("label", ensure_html_safety(o.to_s))
-              option_nodes.children << node_group
+        add_options_to_field(options, field)
+      end
 
-              values.shift
+      def create_grouped_select_options(field, values)
+        options = Oga::XML::Document.new
 
-              values[0..-1].each_with_index { |o2, _i2|
-                # starting a new group
-                throw :optgroup unless o2.is_a?(Array)
+        values.each do |group_name, grouped_values|
+          group = Oga::XML::Element.new(name: "optgroup")
+          group.set("label", ensure_html_safety(group_name.to_s))
+          options.children << group
 
-                node = Oga::XML::Element.new(name: "option")
-                node.inner_text = ensure_html_safety(o2[1].to_s)
-                node.set("value", ensure_html_safety(o2[0].to_s))
-                node_group.children << node
-                values.shift
-              }
-            end
+          grouped_values.each do |value|
+            group.children << create_select_option(value)
           end
         end
 
-        field_view = @view.find(field)[0]
-        raise ArgumentError.new("Couldn't find a field named #{field}") if field_view.nil?
+        add_options_to_field(options, field)
+      end
+
+      def create_select_option(value)
+        Oga::XML::Element.new(name: "option").tap do |option|
+          option.set("value", ensure_html_safety(value[0].to_s))
+          option.inner_text = ensure_html_safety(value[1].to_s)
+        end
+      end
+
+      def add_options_to_field(options, field)
+        unless field_view = @view.find(field)
+          raise ArgumentError.new("Could not find field named `#{field}`")
+        end
+
+        unless field_view.object.tagname == "select"
+          raise ArgumentError.new("Expected `#{field}` to be a select field")
+        end
 
         # remove existing options
         field_view.clear
 
         # add generated options
-        # FIXME: avoid creating a new view once string values are supported (there's no need to parse)
-        # we can also build up options as an html string rather than an oga document
-        field_view.append(View.new(option_nodes.to_xml))
-      end
-
-      def set_value(field, value)
-        field_view = @view.find(field)[0]
-        raise ArgumentError.new("Couldn't find a field named #{field}") if field_view.nil?
-        raise ArgumentError.new("Expected #{field} to be of type checkbox or radio") unless Form::CHECKED_TYPES.include?(field_view.object.attributes[:type])
-
-        field_view.object.attributes[:value] = value
+        field_view.append(safe(options.to_xml))
       end
     end
   end

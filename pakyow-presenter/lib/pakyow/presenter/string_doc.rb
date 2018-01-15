@@ -128,8 +128,10 @@ module Pakyow
       def initialize_copy(_)
         super
 
-        @nodes = @nodes.map(&:dup).each { |node|
-          node.parent = self
+        @nodes = @nodes.map { |node|
+          node.dup.tap do |duped_node|
+            duped_node.parent = self
+          end
         }
       end
 
@@ -221,7 +223,9 @@ module Pakyow
       #
       def remove_node(node_to_delete)
         tap do
-          @nodes.delete(node_to_delete)
+          @nodes.delete_if { |node|
+            node.object_id == node_to_delete.object_id
+          }
         end
       end
 

@@ -11,9 +11,8 @@ module Pakyow
       attr_reader :name, :path, :layouts, :pages
 
       LAYOUTS_PATH = "layouts".freeze
-      # TODO: rename this if we keep the include naming
-      PARTIALS_PATH = "includes".freeze
-      # TODO: rename this
+      PARTIALS_PATH = "partials".freeze
+      # TODO: rename this constant
       TEMPLATES_PATH = "pages".freeze
 
       def initialize(name, path, processor: nil)
@@ -129,7 +128,7 @@ module Pakyow
             if page = page_at_path(path)
               @info[normalize_path(path, templates_path)] = {
                 page: page,
-                template: layout_with_name(page.info(:template)),
+                template: layout_with_name(page.info(:layout)),
                 partials: @partials.merge(partials_at_path(path))
               }
             end

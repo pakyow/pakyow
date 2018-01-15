@@ -15,25 +15,21 @@ module Pakyow
         super
 
         if node.tagname == SELECT_TAG
-          select_option_with_value(value, node)
+          select_option_with_value(value, View.from_object(node))
         end
 
         if CHECKED_TYPES.include?(node.attributes[:type])
-          check_or_uncheck_value(value, node)
+          check_or_uncheck_value(value, View.from_object(node))
         end
       end
 
-      def check_or_uncheck_value(value, node)
-        if node.attributes[:value] == value
-          node.attributes[:checked] = "checked"
-        else
-          node.attributes[:checked] = nil
-        end
+      def check_or_uncheck_value(value, view)
+        view.attributes[:checked] = view.attributes[:value] == value
       end
 
-      def select_option_with_value(value, node)
-        if option = node.find_significant_nodes_with_name(:option, value.to_s)[0]
-          option.attributes[:selected] = "selected"
+      def select_option_with_value(value, view)
+        view.object.find_significant_nodes(:option).each do |option|
+          View.from_object(option).attributes[:selected] = option.attributes[:value] == value
         end
       end
     end

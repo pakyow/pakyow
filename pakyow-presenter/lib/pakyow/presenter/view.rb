@@ -2,10 +2,15 @@
 
 require "forwardable"
 
+require "pakyow/support/indifferentize"
+require "pakyow/support/safe_string"
+
 require "pakyow/presenter/helpers"
 
 module Pakyow
   module Presenter
+    # Provides an interface for manipulating view templates.
+    #
     class View
       class << self
         # Creates a view from a file.
@@ -30,6 +35,10 @@ module Pakyow
         end
       end
 
+      include Support::SafeStringHelpers
+
+      using Support::Indifferentize
+
       extend Forwardable
 
       def_delegators :@object, :type, :name, :text, :html, :label, :labeled?
@@ -37,7 +46,11 @@ module Pakyow
       # The object responsible for parsing, manipulating, and rendering
       # the underlying HTML document for the view.
       #
-      attr_reader :object, :logical_path
+      attr_reader :object
+
+      # The logical path to the view template.
+      #
+      attr_reader :logical_path
 
       include Helpers
 
@@ -58,7 +71,8 @@ module Pakyow
       def initialize_copy(_)
         super
 
-        @object = object.dup
+        @info = @info.dup
+        @object = @object.dup
 
         if @object.respond_to?(:attributes)
           self.attributes = @object.attributes
@@ -67,75 +81,89 @@ module Pakyow
         end
       end
 
+      # Finds a view binding by name. When passed more than one value, the view will
+      # be traversed through each name. Returns a {VersionedView}.
+      #
       def find(*names)
         named = names.shift.to_sym
         found = props_and_scopes_with_name(named).each_with_object([]) { |node, arr|
           arr << View.from_object(node)
         }
 
-        if names.empty? # found everything; wrap it up
-          # TODO: handle case where `found` is empty
+        if names.empty? && !found.empty? # found everything; wrap it up
           VersionedView.new(found)
         elsif found.count > 0 # descend further
-          # TODO: confirm we actually want to return the first one instead
-          # of the default / working version (e.g. how to find and use some
-          # version then present data to a nested scope)
           found.first.find(*names)
         else
           nil
         end
       end
 
-      def find_all(*names)
-        # TODO
-      end
-
-      # call-seq:
-      #   with {|view| block}
+      # Finds all view bindings by name, returning an array of {View} objects.
       #
-      # Creates a context in which view manipulations can be performed.
-      #
-      def with
-        yield self; self
-      end
-
-      def info(key = nil)
-        return @info if key.nil?
-        @info[key]
-      end
-
-      def add_info(*infos)
-        infos.each do |info|
-          @info.merge!(Hash.symbolize(info))
-        end
-
-        self
-      end
-
-      def container(name)
-        @object.find_significant_nodes_with_name(:container, name)[0]
-      end
-
-      def partial(name)
-        @object.find_significant_nodes_with_name(:partial, name).each_with_object(ViewSet.new) { |partial, set|
-          set << View.from_object(partial)
+      def find_all(named)
+        props_and_scopes_with_name(named, with_children: false).each_with_object([]) { |node, arr|
+          arr << View.from_object(node)
         }
       end
 
-      def component(name)
-        @object.find_significant_nodes_with_name(:component, name).each_with_object(ViewSet.new) { |component, set|
-          set << View.from_object(component)
-        }
-      end
-
-      def form(_name)
-        if form_node = @object.find_significant_nodes(:form)[0]
-          Form.new(object: form_node)
+      # Finds a form with a binding matching +name+.
+      #
+      def form(name)
+        if form_node = @object.find_significant_nodes_with_name(:form, name)[0]
+          Form.from_object(form_node)
         else
           nil
         end
       end
 
+      # Returns all view info when +key+ is +nil+, otherwise returns the value for +key+.
+      #
+      def info(key = nil)
+        # FIXME: somehow we're creating views without initializing info
+        return {} unless instance_variable_defined?(:@info)
+
+        if key.nil?
+          @info
+        else
+          @info.fetch(key, nil)
+        end
+      end
+
+      # Returns a view for the +<head>+ node.
+      #
+      def head
+        if head_node = @object.find_significant_nodes(:head)[0]
+          View.from_object(head_node)
+        else
+          nil
+        end
+      end
+
+      # Returns a view for the +<body>+ node.
+      #
+      def body
+        if body_node = @object.find_significant_nodes(:body)[0]
+          View.from_object(body_node)
+        else
+          nil
+        end
+      end
+
+      # Returns an array of views, one for each component matching +name+.
+      #
+      # Components are given the +ui+ attribute in the view template. For example:
+      #
+      #   <div ui="some_component">...</div>
+      #
+      def components(name)
+        @object.find_significant_nodes_with_name(:component, name).each_with_object([]) { |component, set|
+          set << View.from_object(component)
+        }
+      end
+
+      # Returns a view for the +<title>+ node.
+      #
       def title
         if title_node = @object.find_significant_nodes(:title)[0]
           View.from_object(title_node)
@@ -144,46 +172,46 @@ module Pakyow
         end
       end
 
-      def transform(object)
-        # TODO: should transform recursively through `object`
-
-        if object.nil?
-          remove
-        else
-          props.each do |prop|
-            next if object.key?(prop.name)
-            prop.remove
-          end
+      # Yields +self+.
+      #
+      def with
+        tap do
+          yield self
         end
-
-        yield self, object if block_given?
-
-        self
       end
 
-      # call-seq:
-      #   bind(data)
+      # Transforms +self+ to match structure of +object+.
       #
-      # Binds a single datum across existing scopes.
+      def transform(object)
+        tap do
+          if object.nil? || object.empty?
+            remove
+          else
+            props.each do |prop|
+              next if object[prop.name]
+              prop.remove
+            end
+          end
+
+          yield self, object if block_given?
+        end
+      end
+
+      # Binds a single object.
       #
       def bind(object)
-        # TODO: should bind recursively through `object`
+        tap do
+          unless object.nil?
+            props.each do |prop|
+              bind_value_to_node(object[prop.name], prop)
+            end
 
-        return if object.nil?
-
-        props.each do |prop|
-          bind_value_to_node(object[prop.name], prop)
+            attributes[:"data-id"] = object[:id]
+          end
         end
-
-        attributes[:"data-id"] = object[:id]
-
-        self
       end
 
-      # call-seq:
-      #   apply(data)
-      #
-      # Transform self to object then binds object to the view.
+      # Transform +self+ to +object+, then binds +object+.
       #
       def present(object)
         transform(object) do |view, presentable|
@@ -193,103 +221,132 @@ module Pakyow
         bind(object)
       end
 
-      def append(view)
-        # TODO: handle string (with sanitization) / collection
-        @object.append(view.object)
-        self
+      # Appends a view or string to +self+.
+      #
+      def append(view_or_string)
+        tap do
+          @object.append(view_from_view_or_string(view_or_string).object)
+        end
       end
 
-      def prepend(view)
-        # TODO: handle string (with sanitization) / collection
-        @object.prepend(view.object)
-        self
+      # Prepends a view or string to +self+.
+      #
+      def prepend(view_or_string)
+        tap do
+          @object.prepend(view_from_view_or_string(view_or_string).object)
+        end
       end
 
-      def after(view)
-        # TODO: handle string (with sanitization) / collection
-        @object.after(view.object)
-        self
+      # Inserts a view or string after +self+.
+      #
+      def after(view_or_string)
+        tap do
+          @object.after(view_from_view_or_string(view_or_string).object)
+        end
       end
 
-      def before(view)
-        # TODO: handle string (with sanitization) / collection
-        @object.before(view.object)
-        self
+      # Inserts a view or string before +self+.
+      #
+      def before(view_or_string)
+        tap do
+          @object.before(view_from_view_or_string(view_or_string).object)
+        end
       end
 
-      def replace(view)
-        # TODO: handle string (with sanitization) / collection
-        @object.replace(view.object)
-        self
+      # Replaces +self+ with a view or string.
+      #
+      def replace(view_or_string)
+        tap do
+          @object.replace(view_from_view_or_string(view_or_string).object)
+        end
       end
 
+      # Removes +self+.
+      #
       def remove
-        @object.remove
-        self
+        tap do
+          @object.remove
+        end
       end
 
+      # Removes +self+'s children.
+      #
       def clear
-        @object.clear
-        self
+        tap do
+          @object.clear
+        end
       end
 
-      def text=(text)
-        # FIXME: IIRC we support this for bindings; seems like a weird thing to do here
-        text = text.call(self.text) if text.is_a?(Proc)
-        @object.text = text
-      end
-
+      # Safely sets the html value of +self+.
+      #
       def html=(html)
-        # FIXME: IIRC we support this for bindings; seems like a weird thing to do here
-        html = html.call(self.html) if html.is_a?(Proc)
-        @object.html = html
+        @object.html = ensure_html_safety(html)
       end
 
-      def decorated?
+      # Returns true if +self+ is a binding.
+      #
+      def binding?
         @object.type == :scope || @object.type == :prop
       end
 
+      # Returns true if +self+ is a container.
+      #
       def container?
         @object.type == :container
       end
 
+      # Returns true if +self+ is a partial.
+      #
       def partial?
         @object.type == :partial
       end
 
+      # Returns true if +self+ is a component.
+      #
       def component?
-        @object.type == :component
+        @object.labeled?(:ui)
       end
 
+      # Returns true if +self+ is a form.
+      #
       def form?
         @object.type == :form
       end
 
+      # Returns true if +self+ equals +other+.
+      #
       def ==(other)
         other.is_a?(self.class) && @object == other.object
       end
 
+      # Returns attributes object for +self+.
+      #
       def attributes
         @attributes
       end
-
       alias attrs attributes
 
+      # Wraps +attributes+ in a {ViewAttributes} instance.
+      #
       def attributes=(attributes)
         @attributes = ViewAttributes.new(attributes)
       end
-
       alias attrs= attributes=
 
+      # Returns the version name for +self+.
+      #
       def version
         (label(:version) || VersionedView::DEFAULT_VERSION).to_sym
       end
 
+      # Converts +self+ to html, rendering the view.
+      #
+      # If +clean+ is +true+, unused versions will be cleaned up prior to rendering.
+      #
       def to_html(clean: true)
         cleanup_versions if clean
         @object.to_html
       end
-
       alias :to_s :to_html
 
       # @api private
@@ -304,56 +361,64 @@ module Pakyow
 
       # @api private
       def mixin(partials)
-        object.find_significant_nodes(:partial).each do |partial_node|
-          next unless partial = partials[partial_node.name]
-
-          replacement = partial
-          replacement.mixin(partials)
-
-          partial_node.replace(replacement.object)
+        tap do
+          @object.find_significant_nodes(:partial).each do |partial_node|
+            if replacement = partials[partial_node.name]
+              partial_node.replace(replacement.mixin(partials).object)
+            end
+          end
         end
+      end
 
-        self
+      # @api private
+      def add_info(*infos)
+        tap do
+          infos.each do |info|
+            @info.merge!(info.indifferentize)
+          end
+        end
       end
 
       protected
 
-      def bind_value_to_node(value, view)
-        tag = view.tagname
+      def bind_value_to_node(value, node)
+        tag = node.tagname
         return if StringNode.without_value?(tag)
 
         value = String(value)
 
         if StringNode.self_closing?(tag)
-          view.attributes[:value] = ensure_html_safety(value) if view.attributes[:value].nil?
+          node.attributes[:value] = ensure_html_safety(value) if node.attributes[:value].nil?
         else
-          view.html = ensure_html_safety(value)
+          node.html = ensure_html_safety(value)
         end
       end
 
-      def props_with_name(name)
-        @object.find_significant_nodes_with_name(:prop, name)
+      def props_with_name(name, with_children: true)
+        @object.find_significant_nodes_with_name(:prop, name, with_children: with_children)
       end
 
-      def scopes_with_name(name)
-        @object.find_significant_nodes_with_name(:scope, name)
+      def scopes_with_name(name, with_children: true)
+        @object.find_significant_nodes_with_name(:scope, name, with_children: with_children)
       end
 
-      def props_and_scopes_with_name(name)
-        props_with_name(name) + scopes_with_name(name)
+      def props_and_scopes_with_name(name, with_children: true)
+        props_with_name(name, with_children: with_children) + scopes_with_name(name, with_children: with_children)
       end
 
       def cleanup_versions
         versioned_nodes.each do |node_set|
           node_set.each do |node|
-            node.remove unless node.label(:version) == VersionedView::DEFAULT_VERSION
+            unless node.label(:version) == VersionedView::DEFAULT_VERSION
+              node.remove
+            end
           end
         end
       end
 
       def versioned_nodes(nodes = object_nodes, versions = [])
         versions << nodes.select { |node|
-          node.type && node.attributes.is_a?(StringAttributes) && node.label(:version)
+          node.type && node.attributes.is_a?(StringAttributes) && node.labeled?(:version)
         }
 
         nodes.each do |node|
@@ -370,6 +435,16 @@ module Pakyow
           @object.nodes
         else
           [@object]
+        end
+      end
+
+      def view_from_view_or_string(view_or_string)
+        if view_or_string.is_a?(View)
+          view_or_string
+        elsif view_or_string.is_a?(String)
+          View.new(ensure_html_safety(view_or_string))
+        else
+          View.new(ensure_html_safety(view_or_string.to_s))
         end
       end
     end

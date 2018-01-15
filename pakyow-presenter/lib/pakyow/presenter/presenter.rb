@@ -2,13 +2,15 @@
 
 require "forwardable"
 
+require "pakyow/support/safe_string"
+
 require "pakyow/presenter/presentable"
 require "pakyow/presenter/exceptions"
 require "pakyow/presenter/renderer"
 
 module Pakyow
   module Presenter
-    # Presents data in the view. Performs queries for view data. Understands binders / formatters.
+    # Presents a view object. Performs queries for view data. Understands binders / formatters.
     # Does not have access to the session, request, etc; only what is exposed to it from the route.
     # State is passed explicitly to the presenter, exposed by calling the `presentable` helper.
     #
@@ -31,148 +33,251 @@ module Pakyow
       # @!method attrs
       #   Delegates to {view}.
       #   @see View#attrs
-      def_delegators :@view, :attributes, :attrs
+      #
+      # @!method html=
+      #   Delegates to {view}.
+      #   @see View#html=
+      #
+      # @!method html
+      #   Delegates to {view}.
+      #   @see View#html
+      #
+      # @!method text
+      #   Delegates to {view}.
+      #   @see View#text
+      #
+      # @!method binding?
+      #   Delegates to {view}.
+      #   @see View#binding?
+      #
+      # @!method container?
+      #   Delegates to {view}.
+      #   @see View#container?
+      #
+      # @!method partial?
+      #   Delegates to {view}.
+      #   @see View#partial?
+      #
+      # @!method component?
+      #   Delegates to {view}.
+      #   @see View#component?
+      #
+      # @!method form?
+      #   Delegates to {view}.
+      #   @see View#form?
+      #
+      # @!method to_html
+      #   Delegates to {view}.
+      #   @see View#to_html
+      #
+      # @!method to_s
+      #   Delegates to {view}.
+      #   @see View#to_s
+      #
+      # @!method version
+      #   Delegates to {view}.
+      #   @see View#version
+      #
+      # @!method info
+      #   Delegates to {view}.
+      #   @see View#info
+      #
+      # @!method use
+      #   Delegates to {view}.
+      #   @see VersionedView#use
+      #
+      # @!method versioned
+      #   Delegates to {view}.
+      #   @see VersionedView#versioned
+      def_delegators :@view, :attributes, :attrs, :html=, :html, :text, :binding?, :container?, :partial?, :component?, :form?, :version, :info, :to_html, :to_s, :use, :versioned
 
-      def initialize(view, binders: [], paths: nil)
-        @view, @binders, @paths = view, binders, paths
+      def initialize(view, binders: [], paths: nil, embed_templates: true)
+        @view, @binders, @paths, @embed_templates = view, binders, paths, embed_templates
+
+        set_title_from_info
+        set_form_field_names
+
+        if embed_templates
+          create_embedded_templates
+        end
       end
 
+      # Returns a presenter for a view binding.
+      #
+      # @see View#find
       def find(*names)
-        presenter_for(@view.find(*names))
-      end
-
-      def title(value)
-        if title_view = @view.title
-          # FIXME: this should be `text=` once supported by `StringNode`
-          title_view.html = value
+        if found_view = @view.find(*names)
+          presenter_for(found_view)
         else
-          # TODO: should we add the title node, or raise an error?
+          nil
         end
       end
 
-      def with
-        yield self; self
+      # Returns an array of presenters, one for each view binding.
+      #
+      # @see View#find_all
+      def find_all(*names)
+        @view.find_all(*names).map { |view|
+          presenter_for(view)
+        }
       end
 
-      def container(name)
-        presenter_for(@view.container(name))
-      end
-
-      def partial(name)
-        presenter_for(@view.partial(name))
-      end
-
-      def component(name)
-        presenter_for(@view.component(name))
-      end
-
+      # Returns the named form from the view being presented.
+      #
       def form(name)
-        presenter_for(@view.form(name), type: FormPresenter)
-      end
-
-      def transform(data)
-        presenter_for(@view.transform(data))
-      end
-
-      def bind(data)
-        if binder = binder_for_current_scope
-          bind_binder_to_view(binder.new(data), @view)
+        if found_form = @view.form(name)
+          presenter_for(found_form, type: FormPresenter)
         else
-          @view.bind(data)
+          nil
         end
-
-        presenter_for(@view)
       end
 
+      # Returns the title value from the view being presented.
+      #
+      def title
+        @view.title&.text
+      end
+
+      # Sets the title value on the view.
+      #
+      def title=(value)
+        unless @view.title
+          if head_view = @view.head
+            title_view = View.new("<title></title>")
+            head_view.append(title_view)
+          end
+        end
+
+        @view.title&.html = strip_tags(value)
+      end
+
+      # Returns an array of components matching +name+.
+      #
+      def components(name)
+        @view.components(name).map { |view|
+          presenter_for(view)
+        }
+      end
+
+      # Yields +self+.
+      #
+      def with
+        tap do
+          yield self
+        end
+      end
+
+      # Transforms the view to match +data+.
+      #
+      # @see View#transform
+      #
+      def transform(data)
+        tap do
+          @view.transform(data)
+        end
+      end
+
+      # Binds +data+ to the view, using the appropriate binder if available.
+      #
+      def bind(data)
+        tap do
+          if binder = binder_for_current_scope
+            bind_binder_to_view(binder.new(data), @view)
+          else
+            @view.bind(data)
+          end
+        end
+      end
+
+      # Transforms the view to match +data+, then binds.
+      #
+      # @see View#present
+      #
       def present(data)
-        @view.transform(data) do |view, object|
-          yield view, object if block_given?
+        tap do
+          @view.transform(data) do |view, object|
+            presenter = presenter_for(view)
+            yield view, object if block_given?
+            presenter.bind(object)
 
-          presenter_for(view).bind(object)
+            view.scopes.each do |scoped_node|
+              presenter.find(scoped_node.name).present(object[scoped_node.name])
+            end
+          end
         end
-
-        presenter_for(@view)
       end
 
+      # @see View#append
+      #
       def append(view)
-        presenter_for(@view.append(view))
+        tap do
+          @view.append(view)
+        end
       end
 
+      # @see View#prepend
+      #
       def prepend(view)
-        presenter_for(@view.append(view))
+        tap do
+          @view.prepend(view)
+        end
       end
 
+      # @see View#after
+      #
       def after(view)
-        presenter_for(@view.append(view))
+        tap do
+          @view.after(view)
+        end
       end
 
+      # @see View#before
+      #
       def before(view)
-        presenter_for(@view.append(view))
+        tap do
+          @view.before(view)
+        end
       end
 
+      # @see View#replace
+      #
       def replace(view)
-        presenter_for(@view.append(view))
+        tap do
+          @view.replace(view)
+        end
       end
 
+      # @see View#remove
+      #
       def remove
-        presenter_for(@view.remove)
+        tap do
+          @view.remove
+        end
       end
 
+      # @see View#clear
+      #
       def clear
-        presenter_for(@view.clear)
+        tap do
+          @view.clear
+        end
       end
 
-      def text=(text)
-        @view.text = text
+      # Returns true if +self+ equals +other+.
+      #
+      def ==(other)
+        other.is_a?(Presenter) && @view == other.view
       end
-
-      def html=(html)
-        @view.html = html
-      end
-
-      def decorated?
-        @view.decorated?
-      end
-
-      def container?
-        @view.container?
-      end
-
-      def partial?
-        @view.partial?
-      end
-
-      def component?
-        @view.component?
-      end
-
-      def form?
-        @view.form?
-      end
-
-      def count
-        @view.count
-      end
-
-      def [](i)
-        presenter_for(@view[i])
-      end
-
-      def to_html(clean: true)
-        @view.to_html(clean: clean)
-      end
-
-      alias :to_str :to_html
 
       private
 
       def presenter_for(view, type: Presenter)
-        type.new(view, binders: binders, paths: @paths)
+        type.new(view, binders: binders, paths: @paths, embed_templates: @embed_templates)
       end
 
       def binder_for_current_scope
         binders.find { |binder|
-          binder.name == @view.name
+          binder.__class_name.name == @view.name
         }
       end
 
@@ -185,8 +290,8 @@ module Pakyow
           if value.is_a?(BindingParts)
             next unless prop_view = view.find(prop.name)
 
-            value.accept(*prop_view.label(:include)&.split(" "))
-            value.reject(*prop_view.label(:exclude)&.split(" "))
+            value.accept(*prop_view.label(:include).to_s.split(" "))
+            value.reject(*prop_view.label(:exclude).to_s.split(" "))
 
             bindable[prop.name] = value.content if value.content?
 
@@ -199,6 +304,41 @@ module Pakyow
         end
 
         view.bind(bindable)
+      end
+
+      def set_title_from_info
+        if @view && title_from_info = @view.info(:title)
+          self.title = title_from_info
+        end
+      end
+
+      def set_form_field_names
+        @view.object.find_significant_nodes(:form).each do |form_node|
+          form_node.children.find_significant_nodes(:prop).each do |prop_node|
+            prop_node.attributes[:name] ||= "#{form_node.name}[#{prop_node.name}]"
+          end
+        end
+      end
+
+      # FIXME: templates should be creating for "binding points", which are:
+      #   - top-level (bindings that aren't contained in a binding)
+      #   - scoped (bindings that contain bindings)
+      def create_embedded_templates
+        @view.object.find_significant_nodes(:scope).each do |node_with_binding|
+          version = node_with_binding.label(:version) || VersionedView::DEFAULT_VERSION
+          template = StringDoc.new("<script type=\"text/template\" data-version=\"#{version}\"></script>").nodes.first
+
+          node_with_binding.attributes.each do |attribute, value|
+            next unless attribute.to_s.start_with?("data")
+            template.attributes[attribute] = value
+          end
+
+          duped_node_with_binding = node_with_binding.dup
+          duped_node_with_binding.instance_variable_set(:@type, nil)
+          duped_node_with_binding.instance_variable_set(:@name, nil)
+          template.append(duped_node_with_binding)
+          node_with_binding.after(template)
+        end
       end
     end
   end

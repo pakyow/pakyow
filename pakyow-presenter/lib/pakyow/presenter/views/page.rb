@@ -18,7 +18,7 @@ module Pakyow
 
         @logical_path = args[:logical_path]
 
-        @info = { template: :default }
+        @info = { layout: :default }
         @containers = {}
 
         parse
@@ -52,6 +52,12 @@ module Pakyow
 
       def each_container
         @containers.each_pair { |name, container| yield(name, container) }
+      end
+
+      def mixin(partials)
+        @containers.values.each do |container|
+          container.mixin(partials)
+        end
       end
 
       private

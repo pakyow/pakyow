@@ -17,15 +17,15 @@ module Pakyow
       end
 
       def container(name = :default)
-        object.container(name.to_sym)
+        @object.container(name.to_sym)
       end
 
       def build(page)
-        object.find_significant_nodes(:container).each do |container_node|
+        @object.find_significant_nodes(:container).each do |container_node|
           container_node.replace(page.content(container_node.name))
         end
 
-        View.from_object(object).add_info(self.info, page.info)
+        View.from_object(@object).add_info(info, page.info)
       end
     end
   end

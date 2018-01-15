@@ -3,6 +3,7 @@
 require "forwardable"
 
 require "pakyow/support/deep_dup"
+require "pakyow/support/safe_string"
 
 module Pakyow
   module Presenter
@@ -14,6 +15,8 @@ module Pakyow
       OPENING = '="'
       CLOSING = '"'
       SPACING = " "
+
+      include Support::SafeStringHelpers
 
       using Support::DeepDup
 
@@ -45,7 +48,7 @@ module Pakyow
 
       def to_s
         string = @attributes_hash.compact.map { |name, value|
-          name.to_s + OPENING + value.to_s + CLOSING
+          name.to_s + OPENING + ensure_html_safety(value.to_s) + CLOSING
         }.join(SPACING)
 
         if string.empty?
