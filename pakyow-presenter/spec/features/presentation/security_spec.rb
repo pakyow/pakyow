@@ -7,7 +7,7 @@ RSpec.describe "sanitization during presentation" do
 
   context "binding a value" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post><h1@title>title goes here</h1></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\">title goes here</h1></div>")
     end
 
     it "escapes the value" do
@@ -49,7 +49,7 @@ RSpec.describe "sanitization during presentation" do
     end
 
     let :view do
-      Pakyow::Presenter::View.new("<div@post><h1@title>title goes here</h1><p@body></p></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\">title goes here</h1><p binding=\"body\"></p></div>")
     end
 
     it "escapes the value and parts" do
@@ -61,7 +61,7 @@ RSpec.describe "sanitization during presentation" do
 
   context "appending an html string" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\"></div>")
     end
 
     it "escapes the value" do
@@ -81,7 +81,7 @@ RSpec.describe "sanitization during presentation" do
 
   context "prepending an html string" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\"></div>")
     end
 
     it "escapes the value" do
@@ -101,7 +101,7 @@ RSpec.describe "sanitization during presentation" do
 
   context "inserting an html string after" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\"></div>")
     end
 
     it "escapes the value" do
@@ -121,7 +121,7 @@ RSpec.describe "sanitization during presentation" do
 
   context "inserting an html string before" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\"></div>")
     end
 
     it "escapes the value" do
@@ -141,7 +141,7 @@ RSpec.describe "sanitization during presentation" do
 
   context "replacing a node with an html string" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\"></div>")
     end
 
     it "escapes the value" do
@@ -161,7 +161,7 @@ RSpec.describe "sanitization during presentation" do
 
   context "setting an attribute value" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\"></div>")
     end
 
     it "escapes each attribute value" do
@@ -186,7 +186,7 @@ RSpec.describe "sanitization during presentation" do
 
   context "setting an html value" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\"></div>")
     end
 
     it "escapes the value" do
@@ -206,7 +206,7 @@ RSpec.describe "sanitization during presentation" do
 
   context "creating select options" do
     let :view do
-      Pakyow::Presenter::View.new("<form@post><select@tag></select></form>")
+      Pakyow::Presenter::View.new("<form binding=\"post\"><select binding=\"tag\"></select></form>")
     end
 
     before do
@@ -220,7 +220,7 @@ RSpec.describe "sanitization during presentation" do
 
   context "creating grouped select options" do
     let :view do
-      Pakyow::Presenter::View.new("<form@post><select@tag></select></form>")
+      Pakyow::Presenter::View.new("<form binding=\"post\"><select binding=\"tag\"></select></form>")
     end
 
     before do

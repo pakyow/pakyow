@@ -20,7 +20,7 @@ RSpec.describe "binding data via presenter, with a binder" do
   end
 
   let :view do
-    Pakyow::Presenter::View.new("<div@post><h1@title>title goes here</h1><p@body>body goes here</p></div>")
+    Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\">title goes here</h1><p binding=\"body\">body goes here</p></div>")
   end
 
   let :post_presenter do
@@ -72,7 +72,7 @@ RSpec.describe "binding data via presenter, with a binder" do
       end
 
       let :view do
-        Pakyow::Presenter::View.new("<div@post><h1@title include=\"content title\">title goes here</h1><p@body>body goes here</p></div>")
+        Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\" include=\"content title\">title goes here</h1><p binding=\"body\">body goes here</p></div>")
       end
 
       it "binds only the included parts" do
@@ -101,7 +101,7 @@ RSpec.describe "binding data via presenter, with a binder" do
       end
 
       let :view do
-        Pakyow::Presenter::View.new("<div@post><h1@title exclude=\"title\">title goes here</h1><p@body>body goes here</p></div>")
+        Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\" exclude=\"title\">title goes here</h1><p binding=\"body\">body goes here</p></div>")
       end
 
       it "binds only the non-excluded parts" do
@@ -130,7 +130,7 @@ RSpec.describe "binding data via presenter, with a binder" do
 
   context "nested data has a binder" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post><h1@title>title goes here</h1><div@comment><p@body>comment body goes here</p></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\">title goes here</h1><div binding=\"comment\"><p binding=\"body\">comment body goes here</p></div>")
     end
 
     it "uses the binder" do

@@ -4,7 +4,7 @@ RSpec.describe "binding data via presenter" do
   end
 
   let :view do
-    Pakyow::Presenter::View.new("<div@post><h1@title>title goes here</h1><p@body>body goes here</p></div>")
+    Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\">title goes here</h1><p binding=\"body\">body goes here</p></div>")
   end
 
   let :post_presenter do

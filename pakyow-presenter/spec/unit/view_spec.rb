@@ -1,7 +1,7 @@
 RSpec.describe Pakyow::Presenter::View do
   describe "#attributes" do
     let :html do
-      "<div@post style=\"color: blue\"></div>"
+      "<div binding=\"post\" style=\"color: blue\"></div>"
     end
 
     let :doc do

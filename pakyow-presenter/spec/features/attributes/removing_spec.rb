@@ -5,7 +5,7 @@ RSpec.describe "removing attributes via presenter" do
 
   context "string attributes" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post title=\"foo\"></div>").find(:post)
+      Pakyow::Presenter::View.new("<div binding=\"post\" title=\"foo\"></div>").find(:post)
     end
 
     it "can be removed" do
@@ -21,7 +21,7 @@ RSpec.describe "removing attributes via presenter" do
 
   context "hash attributes" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post style=\"color:red\"></div>").find(:post)
+      Pakyow::Presenter::View.new("<div binding=\"post\" style=\"color:red\"></div>").find(:post)
     end
 
     it "can be removed" do
@@ -37,7 +37,7 @@ RSpec.describe "removing attributes via presenter" do
 
   context "set attributes" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post class=\"foo bar\"></div>").find(:post)
+      Pakyow::Presenter::View.new("<div binding=\"post\" class=\"foo bar\"></div>").find(:post)
     end
 
     it "can be removed" do
@@ -53,7 +53,7 @@ RSpec.describe "removing attributes via presenter" do
 
   context "boolean attributes" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post checked=\"checked\"></div>").find(:post)
+      Pakyow::Presenter::View.new("<div binding=\"post\" checked=\"checked\"></div>").find(:post)
     end
 
     it "can be removed" do

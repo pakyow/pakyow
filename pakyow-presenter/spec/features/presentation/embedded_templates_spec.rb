@@ -5,7 +5,7 @@ RSpec.describe "templates embedded by presenter" do
 
   context "top-level scope" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post><h1@title>title</h1></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\">title</h1></div>")
     end
 
     it "embeds a template" do
@@ -15,7 +15,7 @@ RSpec.describe "templates embedded by presenter" do
 
   context "nested scope" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post><div@comment><h1@title>title</h1></div></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\"><div binding=\"comment\"><h1 binding=\"title\">title</h1></div></div>")
     end
 
     it "embeds a template" do
@@ -25,7 +25,7 @@ RSpec.describe "templates embedded by presenter" do
 
   context "versioned bindings" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post version=\"default\"><h1@title>title1</h1></div><div@post version=\"one\"><h1@title>title2</h1></div><div@post version=\"two\"><h1@title>title3</h1></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\" version=\"default\"><h1 binding=\"title\">title1</h1></div><div binding=\"post\" version=\"one\"><h1 binding=\"title\">title2</h1></div><div binding=\"post\" version=\"two\"><h1 binding=\"title\">title3</h1></div>")
     end
 
     it "embeds a template" do
@@ -39,7 +39,7 @@ RSpec.describe "templates embedded by presenter" do
     end
 
     let :view do
-      Pakyow::Presenter::View.new("<div@post><h1@title>title</h1></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\">title</h1></div>")
     end
 
     it "does not embed templates" do

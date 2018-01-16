@@ -6,8 +6,8 @@ RSpec.describe "presenting forms" do
   let :view do
     Pakyow::Presenter::View.new(
       <<~HTML
-        <form@post>
-          <input@title type="text">
+        <form binding=\"post\">
+          <input binding=\"title\" type="text">
           <input@foo type="text" name="foo">
         </form>
       HTML

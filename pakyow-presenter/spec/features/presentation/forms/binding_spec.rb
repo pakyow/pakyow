@@ -6,13 +6,13 @@ RSpec.describe "binding values to a form via presenter" do
   let :view do
     Pakyow::Presenter::View.new(
       <<~HTML
-        <form@post>
-          <input@title type="text">
-          <textarea@body></textarea>
-          <input@published type="checkbox" value="true">
-          <input@public type="checkbox" value="true">
-          <input@public type="checkbox" value="false">
-          <select@tag><option value="foo">Foo</option><option value="bar">Bar</option></select>
+        <form binding="post">
+          <input binding="title" type="text">
+          <textarea binding="body"></textarea>
+          <input binding="published" type="checkbox" value="true">
+          <input binding="public" type="checkbox" value="true">
+          <input binding="public" type="checkbox" value="false">
+          <select binding="tag"><option value="foo">Foo</option><option value="bar">Bar</option></select>
         </form>
       HTML
     )

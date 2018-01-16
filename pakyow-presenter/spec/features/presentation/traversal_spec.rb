@@ -5,7 +5,7 @@ RSpec.describe "view traversal via presenter" do
 
   describe "form" do
     let :view do
-      Pakyow::Presenter::View.new("<form@post></form>")
+      Pakyow::Presenter::View.new("<form binding=\"post\"></form>")
     end
 
     it "returns the form" do

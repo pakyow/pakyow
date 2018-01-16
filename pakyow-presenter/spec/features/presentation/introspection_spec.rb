@@ -5,7 +5,7 @@ RSpec.describe "view introspection via presenter" do
 
   describe "text" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post><span>foo</span></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\"><span>foo</span></div>")
     end
 
     it "returns the text value" do
@@ -15,7 +15,7 @@ RSpec.describe "view introspection via presenter" do
 
   describe "html" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post><span>foo</span></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\"><span>foo</span></div>")
     end
 
     it "returns the html value" do
@@ -26,7 +26,7 @@ RSpec.describe "view introspection via presenter" do
   describe "version" do
     context "view is versioned" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post version=\"foo\"></div>")
+        Pakyow::Presenter::View.new("<div binding=\"post\" version=\"foo\"></div>")
       end
 
       it "returns the version" do
@@ -36,7 +36,7 @@ RSpec.describe "view introspection via presenter" do
 
     context "view is not versioned" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post></div>")
+        Pakyow::Presenter::View.new("<div binding=\"post\"></div>")
       end
 
       it "returns default" do
@@ -48,7 +48,7 @@ RSpec.describe "view introspection via presenter" do
   describe "binding?" do
     context "view has a binding" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post></div>")
+        Pakyow::Presenter::View.new("<div binding=\"post\"></div>")
       end
 
       it "returns true" do
@@ -80,7 +80,7 @@ RSpec.describe "view introspection via presenter" do
 
     context "view is a component with a binding" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post ui=\"foo\"></div>")
+        Pakyow::Presenter::View.new("<div binding=\"post\" ui=\"foo\"></div>")
       end
 
       it "returns true" do
@@ -90,7 +90,7 @@ RSpec.describe "view introspection via presenter" do
 
     context "view is not a component" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post></div>")
+        Pakyow::Presenter::View.new("<div binding=\"post\"></div>")
       end
 
       it "returns false" do
@@ -102,7 +102,7 @@ RSpec.describe "view introspection via presenter" do
   describe "form?" do
     context "view is a form" do
       let :view do
-        Pakyow::Presenter::View.new("<form@post></form>")
+        Pakyow::Presenter::View.new("<form binding=\"post\"></form>")
       end
 
       it "returns true" do
@@ -112,7 +112,7 @@ RSpec.describe "view introspection via presenter" do
 
     context "view is not a form" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post></div>")
+        Pakyow::Presenter::View.new("<div binding=\"post\"></div>")
       end
 
       it "returns false" do

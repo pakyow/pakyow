@@ -6,9 +6,9 @@ RSpec.describe "presenting select fields in a form" do
   let :view do
     Pakyow::Presenter::View.new(
       <<~HTML
-        <form@post>
-          <input@title type="text">
-          <select@tag><option>existing</option></select>
+        <form binding="post">
+          <input binding="title" type="text">
+          <select binding="tag"><option>existing</option></select>
         </form>
       HTML
     )

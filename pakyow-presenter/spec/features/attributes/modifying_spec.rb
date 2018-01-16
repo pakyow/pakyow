@@ -6,7 +6,7 @@ RSpec.describe "modifying attributes via presenter" do
   context "string attributes" do
     context "when the attribute exists in the view" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post title=\"foo\"></div>").find(:post)
+        Pakyow::Presenter::View.new("<div binding=\"post\" title=\"foo\"></div>").find(:post)
       end
 
       it "can be modified" do
@@ -17,7 +17,7 @@ RSpec.describe "modifying attributes via presenter" do
 
     context "when the attribute does not exist in the view" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post></div>")
+        Pakyow::Presenter::View.new("<div binding=\"post\"></div>")
       end
 
       it "cannot be modified" do
@@ -31,7 +31,7 @@ RSpec.describe "modifying attributes via presenter" do
   context "hash attributes" do
     context "when the attribute exists in the view" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post style=\"color:red\"></div>").find(:post)
+        Pakyow::Presenter::View.new("<div binding=\"post\" style=\"color:red\"></div>").find(:post)
       end
 
       it "can be modified" do
@@ -42,7 +42,7 @@ RSpec.describe "modifying attributes via presenter" do
 
     context "when the attribute does not exist in the view" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post></div>").find(:post)
+        Pakyow::Presenter::View.new("<div binding=\"post\"></div>").find(:post)
       end
 
       it "cannot be modified" do
@@ -56,7 +56,7 @@ RSpec.describe "modifying attributes via presenter" do
   context "set attributes" do
     context "when the attribute exists in the view" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post class=\"foo bar\"></div>").find(:post)
+        Pakyow::Presenter::View.new("<div binding=\"post\" class=\"foo bar\"></div>").find(:post)
       end
 
       it "can be modified" do
@@ -67,7 +67,7 @@ RSpec.describe "modifying attributes via presenter" do
 
     context "when the attribute does not exist in the view" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post></div>").find(:post)
+        Pakyow::Presenter::View.new("<div binding=\"post\"></div>").find(:post)
       end
 
       it "cannot be modified" do

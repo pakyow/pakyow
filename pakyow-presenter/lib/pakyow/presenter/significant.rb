@@ -29,13 +29,6 @@ module Pakyow
       #
       LABEL_ATTRS = %i(ui version include exclude).freeze
 
-      def self.node_with_valueless_attribute?(node)
-        return false unless node.is_a?(Oga::XML::Element)
-        return false unless attribute = node.attributes.first
-        return false if !attribute.name || attribute.value
-        true
-      end
-
       def self.attributes_instance(element)
         StringAttributes.new(attributes_hash(element))
       end
@@ -109,7 +102,8 @@ module Pakyow
       StringDoc.significant :scope, self
 
       def self.significant?(node)
-        return false unless node_with_valueless_attribute?(node)
+        return false unless node.is_a?(Oga::XML::Element)
+        return false if !node.attribute(:binding)
         return false if node.name == FORM_TAG
 
         StringDoc.breadth_first(node) do |child|
@@ -120,8 +114,8 @@ module Pakyow
       def self.node(element)
         labels = labels_hash(element)
         attributes = attributes_instance(element)
-        scope = attributes.keys.first
-        attributes.delete(scope)
+        scope = attributes[:binding].to_sym
+        attributes.delete(:binding)
         attributes[:"data-s"] = scope
 
         StringNode.new(["<#{element.name}", attributes], type: :scope, name: scope, labels: labels)
@@ -133,7 +127,8 @@ module Pakyow
       StringDoc.significant :prop, self
 
       def self.significant?(node)
-        return false unless node_with_valueless_attribute?(node)
+        return false unless node.is_a?(Oga::XML::Element)
+        return false if !node.attribute(:binding)
         return false if node.name == FORM_TAG
 
         StringDoc.breadth_first(node) do |child|
@@ -146,8 +141,8 @@ module Pakyow
       def self.node(element)
         labels = labels_hash(element)
         attributes = attributes_instance(element)
-        prop = attributes.keys.first
-        attributes.delete(prop)
+        prop = attributes[:binding].to_sym
+        attributes.delete(:binding)
         attributes[:"data-p"] = prop
 
         StringNode.new(["<#{element.name}", attributes], type: :prop, name: prop, labels: labels)
@@ -177,14 +172,14 @@ module Pakyow
       StringDoc.significant :form, self
 
       def self.significant?(node)
-        node_with_valueless_attribute?(node) && node.name == FORM_TAG
+        node.is_a?(Oga::XML::Element) && node.attribute(:binding) && node.name == FORM_TAG
       end
 
       def self.node(element)
         labels = labels_hash(element)
         attributes = attributes_instance(element)
-        scope = attributes.keys.first
-        attributes.delete(scope)
+        scope = attributes[:binding].to_sym
+        attributes.delete(:binding)
         attributes[:"data-s"] = scope
 
         StringNode.new(["<#{element.name}", attributes], type: :form, name: scope, labels: labels)

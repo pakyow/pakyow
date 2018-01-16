@@ -6,7 +6,7 @@ RSpec.describe "setting attributes via presenter" do
   context "string attributes" do
     context "when the attribute exists in the view" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post title=\"foo\"></div>").find(:post)
+        Pakyow::Presenter::View.new("<div binding=\"post\" title=\"foo\"></div>").find(:post)
       end
 
       it "can be overridden" do
@@ -17,7 +17,7 @@ RSpec.describe "setting attributes via presenter" do
 
     context "when the attribute does not exist in the view" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post></div>").find(:post)
+        Pakyow::Presenter::View.new("<div binding=\"post\"></div>").find(:post)
       end
 
       it "can be set" do
@@ -28,7 +28,7 @@ RSpec.describe "setting attributes via presenter" do
 
     context "when the value is not a string" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post></div>").find(:post)
+        Pakyow::Presenter::View.new("<div binding=\"post\"></div>").find(:post)
       end
 
       it "is typecast to a string" do
@@ -41,7 +41,7 @@ RSpec.describe "setting attributes via presenter" do
   context "hash attributes" do
     context "when the attribute exists in the view" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post style=\"color:red\"></div>").find(:post)
+        Pakyow::Presenter::View.new("<div binding=\"post\" style=\"color:red\"></div>").find(:post)
       end
 
       it "can be overridden" do
@@ -52,7 +52,7 @@ RSpec.describe "setting attributes via presenter" do
 
     context "when the attribute does not exist in the view" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post></div>").find(:post)
+        Pakyow::Presenter::View.new("<div binding=\"post\"></div>").find(:post)
       end
 
       it "can be set" do
@@ -63,7 +63,7 @@ RSpec.describe "setting attributes via presenter" do
 
     context "when the value is a string" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post></div>").find(:post)
+        Pakyow::Presenter::View.new("<div binding=\"post\"></div>").find(:post)
       end
 
       it "converts the string into a hash" do
@@ -81,7 +81,7 @@ RSpec.describe "setting attributes via presenter" do
 
     context "when the value is not a hash or string" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post></div>").find(:post)
+        Pakyow::Presenter::View.new("<div binding=\"post\"></div>").find(:post)
       end
 
       it "typecasts value to a string and converts it" do
@@ -94,7 +94,7 @@ RSpec.describe "setting attributes via presenter" do
   context "set attributes" do
     context "when the attribute exists in the view" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post class=\"foo bar\"></div>").find(:post)
+        Pakyow::Presenter::View.new("<div binding=\"post\" class=\"foo bar\"></div>").find(:post)
       end
 
       it "can be overridden" do
@@ -105,7 +105,7 @@ RSpec.describe "setting attributes via presenter" do
 
     context "when the attribute does not exist in the view" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post></div>").find(:post)
+        Pakyow::Presenter::View.new("<div binding=\"post\"></div>").find(:post)
       end
 
       it "can be set" do
@@ -116,7 +116,7 @@ RSpec.describe "setting attributes via presenter" do
 
     context "when the value is an array" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post></div>").find(:post)
+        Pakyow::Presenter::View.new("<div binding=\"post\"></div>").find(:post)
       end
 
       it "is typecast to a set" do
@@ -127,7 +127,7 @@ RSpec.describe "setting attributes via presenter" do
 
     context "when the value is an string" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post></div>").find(:post)
+        Pakyow::Presenter::View.new("<div binding=\"post\"></div>").find(:post)
       end
 
       it "converts the value into a set" do
@@ -145,7 +145,7 @@ RSpec.describe "setting attributes via presenter" do
 
     context "when the value is not a set, array, or string" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post></div>").find(:post)
+        Pakyow::Presenter::View.new("<div binding=\"post\"></div>").find(:post)
       end
 
       it "typecasts value to a string and converts it" do
@@ -158,7 +158,7 @@ RSpec.describe "setting attributes via presenter" do
   context "boolean attributes" do
     context "when the attribute exists in the view" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post checked=\"checked\"></div>").find(:post)
+        Pakyow::Presenter::View.new("<div binding=\"post\" checked=\"checked\"></div>").find(:post)
       end
 
       it "can be overridden" do
@@ -169,7 +169,7 @@ RSpec.describe "setting attributes via presenter" do
 
     context "when the attribute does not exist in the view" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post></div>").find(:post)
+        Pakyow::Presenter::View.new("<div binding=\"post\"></div>").find(:post)
       end
 
       it "can be set" do

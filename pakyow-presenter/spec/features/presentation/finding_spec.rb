@@ -5,7 +5,7 @@ RSpec.describe "finding a significant view via presenter" do
 
   describe "finding a top-level binding" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\"></div>")
     end
 
     context "binding exists" do
@@ -26,7 +26,7 @@ RSpec.describe "finding a significant view via presenter" do
 
   describe "finding a nested binding via traversal" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post><h1@title></h1></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\"></h1></div>")
     end
 
     context "binding exists" do
@@ -47,7 +47,7 @@ RSpec.describe "finding a significant view via presenter" do
 
   describe "finding a nested binding via multiple finds" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post><h1@title></h1></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\"></h1></div>")
     end
 
     context "binding exists" do
@@ -68,7 +68,7 @@ RSpec.describe "finding a significant view via presenter" do
 
   describe "finding a deeply nested binding via traversal" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post><div@comment><h1@title></h1></div></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\"><div binding=\"comment\"><h1 binding=\"title\"></h1></div></div>")
     end
 
     context "binding exists" do
@@ -89,7 +89,7 @@ RSpec.describe "finding a significant view via presenter" do
 
   describe "finding a deeply nested binding via multiple finds" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post><div@comment><h1@title></h1></div></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\"><div binding=\"comment\"><h1 binding=\"title\"></h1></div></div>")
     end
 
     context "binding exists" do
@@ -110,7 +110,7 @@ RSpec.describe "finding a significant view via presenter" do
 
   describe "finding a nested binding when there's more than one match" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post><h1@title>one</h1></div><div@post><h1@title>two</h1></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\">one</h1></div><div binding=\"post\"><h1 binding=\"title\">two</h1></div>")
     end
 
     it "traverses through the first match" do
@@ -126,7 +126,7 @@ RSpec.describe "finding all significant views via presenter" do
 
   describe "finding a top-level binding" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post></div><div@post></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\"></div><div binding=\"post\"></div>")
     end
 
     context "binding exists" do
@@ -147,7 +147,7 @@ RSpec.describe "finding all significant views via presenter" do
 
   describe "finding a nested binding via traversal" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post><h1@title></h1><h1@title></h1></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\"></h1><h1 binding=\"title\"></h1></div>")
     end
 
     context "binding exists" do
@@ -159,7 +159,7 @@ RSpec.describe "finding all significant views via presenter" do
 
   describe "finding a nested binding via multiple finds" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post><h1@title></h1><h1@title></h1></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\"></h1><h1 binding=\"title\"></h1></div>")
     end
 
     context "binding exists" do

@@ -6,8 +6,8 @@ RSpec.describe "setting up a form via presenter" do
   let :view do
     Pakyow::Presenter::View.new(
       <<~HTML
-        <form@post>
-          <input@title type="text">
+        <form binding=\"post\">
+          <input binding=\"title\" type="text">
           <input@foo type="text" name="foo">
           <input@published type="checkbox" value="true">
           <input@public type="checkbox" value="true">

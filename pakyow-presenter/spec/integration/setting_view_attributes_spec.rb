@@ -1,6 +1,6 @@
 RSpec.shared_examples :setting_view_attributes do
   let :html do
-    "<div@post style=\"color: blue\" class=\"foo bar\" title=\"baz\" checked=\"checked\"></div>"
+    "<div binding=\"post\" style=\"color: blue\" class=\"foo bar\" title=\"baz\" checked=\"checked\"></div>"
   end
 
   let :doc do

@@ -11,7 +11,7 @@ RSpec.describe Pakyow::Presenter::StringDoc do
 
   describe "#find_significant_nodes" do
     let :html do
-      "<div@post><h1@title></h1><p@body></p></div>"
+      "<div binding=\"post\"><h1 binding=\"title\"></h1><p binding=\"body\"></p></div>"
     end
 
     context "nodes of the type are found" do
@@ -46,7 +46,7 @@ RSpec.describe Pakyow::Presenter::StringDoc do
 
   describe "#find_significant_nodes_with_name" do
     let :html do
-      "<div@post><h1@title></h1><p@body></p></div>"
+      "<div binding=\"post\"><h1 binding=\"title\"></h1><p binding=\"body\"></p></div>"
     end
 
     context "nodes of the type and name are found" do

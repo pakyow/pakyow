@@ -6,7 +6,7 @@ RSpec.describe "view versioning via presenter" do
   context "when a version is unspecified" do
     context "when there is one unversioned view" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post><h1@title></h1></div>")
+        Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\"></h1></div>")
       end
 
       it "renders it" do
@@ -16,7 +16,7 @@ RSpec.describe "view versioning via presenter" do
 
     context "when there are multiple views, none of them versioned" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post><h1@title>one</h1></div><div@post><h1@title>two</h1></div>")
+        Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\">one</h1></div><div binding=\"post\"><h1 binding=\"title\">two</h1></div>")
       end
 
       it "renders both of them" do
@@ -26,7 +26,7 @@ RSpec.describe "view versioning via presenter" do
 
     context "when there are multiple views, one of them being versioned" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post><h1@title>one</h1></div><div@post version=\"two\"><h1@title>two</h1></div>")
+        Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\">one</h1></div><div binding=\"post\" version=\"two\"><h1 binding=\"title\">two</h1></div>")
       end
 
       it "renders only the first one" do
@@ -36,7 +36,7 @@ RSpec.describe "view versioning via presenter" do
 
     context "when there is only a default version" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post version=\"default\"><h1@title>default</h1></div>")
+        Pakyow::Presenter::View.new("<div binding=\"post\" version=\"default\"><h1 binding=\"title\">default</h1></div>")
       end
 
       it "renders the default" do
@@ -46,7 +46,7 @@ RSpec.describe "view versioning via presenter" do
 
     context "when there are multiple versions, including a default" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post version=\"one\"><h1@title>one</h1></div><div@post version=\"default\"><h1@title>default</h1></div>")
+        Pakyow::Presenter::View.new("<div binding=\"post\" version=\"one\"><h1 binding=\"title\">one</h1></div><div binding=\"post\" version=\"default\"><h1 binding=\"title\">default</h1></div>")
       end
 
       it "renders only the default" do
@@ -56,7 +56,7 @@ RSpec.describe "view versioning via presenter" do
 
     context "when there are multiple versions, without a default" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post version=\"one\"><h1@title>one</h1></div><div@post version=\"two\"><h1@title>two</h1></div>")
+        Pakyow::Presenter::View.new("<div binding=\"post\" version=\"one\"><h1 binding=\"title\">one</h1></div><div binding=\"post\" version=\"two\"><h1 binding=\"title\">two</h1></div>")
       end
 
       it "renders neither" do
@@ -69,7 +69,7 @@ RSpec.describe "view versioning via presenter" do
     context "when a version is unspecified" do
       context "when there is one unversioned view" do
         let :view do
-          Pakyow::Presenter::View.new("<div@post><h1@title></h1></div>")
+          Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\"></h1></div>")
         end
 
         it "renders it" do
@@ -79,7 +79,7 @@ RSpec.describe "view versioning via presenter" do
 
       context "when there are multiple views, none of them versioned" do
         let :view do
-          Pakyow::Presenter::View.new("<div@post><h1@title>one</h1></div><div@post><h1@title>two</h1></div>")
+          Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\">one</h1></div><div binding=\"post\"><h1 binding=\"title\">two</h1></div>")
         end
 
         it "renders both of them" do
@@ -89,7 +89,7 @@ RSpec.describe "view versioning via presenter" do
 
       context "when there are multiple views, one of them being versioned" do
         let :view do
-          Pakyow::Presenter::View.new("<div@post><h1@title>one</h1></div><div@post version=\"two\"><h1@title>two</h1></div>")
+          Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\">one</h1></div><div binding=\"post\" version=\"two\"><h1 binding=\"title\">two</h1></div>")
         end
 
         it "renders both of them" do
@@ -99,7 +99,7 @@ RSpec.describe "view versioning via presenter" do
 
       context "when there is only a default version" do
         let :view do
-          Pakyow::Presenter::View.new("<div@post version=\"default\"><h1@title>default</h1></div>")
+          Pakyow::Presenter::View.new("<div binding=\"post\" version=\"default\"><h1 binding=\"title\">default</h1></div>")
         end
 
         it "renders the default" do
@@ -109,7 +109,7 @@ RSpec.describe "view versioning via presenter" do
 
       context "when there are multiple versions, including a default" do
         let :view do
-          Pakyow::Presenter::View.new("<div@post version=\"one\"><h1@title>one</h1></div><div@post version=\"default\"><h1@title>default</h1></div>")
+          Pakyow::Presenter::View.new("<div binding=\"post\" version=\"one\"><h1 binding=\"title\">one</h1></div><div binding=\"post\" version=\"default\"><h1 binding=\"title\">default</h1></div>")
         end
 
         it "renders all of them" do
@@ -119,7 +119,7 @@ RSpec.describe "view versioning via presenter" do
 
       context "when there are multiple versions, without a default" do
         let :view do
-          Pakyow::Presenter::View.new("<div@post version=\"one\"><h1@title>one</h1></div><div@post version=\"two\"><h1@title>two</h1></div>")
+          Pakyow::Presenter::View.new("<div binding=\"post\" version=\"one\"><h1 binding=\"title\">one</h1></div><div binding=\"post\" version=\"two\"><h1 binding=\"title\">two</h1></div>")
         end
 
         it "renders all of them" do
@@ -131,7 +131,7 @@ RSpec.describe "view versioning via presenter" do
 
   context "when a version is used" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post version=\"default\"><h1@title>default</h1></div><div@post version=\"two\"><h1@title>two</h1></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\" version=\"default\"><h1 binding=\"title\">default</h1></div><div binding=\"post\" version=\"two\"><h1 binding=\"title\">two</h1></div>")
     end
 
     before do
@@ -155,7 +155,7 @@ RSpec.describe "view versioning via presenter" do
 
   context "when using versioned props inside of an unversioned scope" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post><h1@title version=\"default\">default</h1><h1@title version=\"two\">two</h1></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\" version=\"default\">default</h1><h1 binding=\"title\" version=\"two\">two</h1></div>")
     end
 
     before do
@@ -169,7 +169,7 @@ RSpec.describe "view versioning via presenter" do
 
   context "when using versioned props inside of a versioned scope" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post version=\"one\"><h1@title>one</h1></div><div@post version=\"two\"><h1@title version=\"one\">one</h1><h1@title version=\"two\">two</h1></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\" version=\"one\"><h1 binding=\"title\">one</h1></div><div binding=\"post\" version=\"two\"><h1 binding=\"title\" version=\"one\">one</h1><h1 binding=\"title\" version=\"two\">two</h1></div>")
     end
 
     before do
@@ -183,7 +183,7 @@ RSpec.describe "view versioning via presenter" do
 
   describe "finding a version" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post version=\"default\"><h1@title>default</h1></div><div@post version=\"two\"><h1@title>two</h1></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\" version=\"default\"><h1 binding=\"title\">default</h1></div><div binding=\"post\" version=\"two\"><h1 binding=\"title\">two</h1></div>")
     end
 
     let :versioned do
@@ -205,7 +205,7 @@ RSpec.describe "view versioning via presenter" do
 
   describe "presenting a versioned view" do
     let :view do
-      Pakyow::Presenter::View.new("<div@post version=\"default\"><h1@title>default</h1></div><div@post version=\"two\"><h1@title>two</h1></div>")
+      Pakyow::Presenter::View.new("<div binding=\"post\" version=\"default\"><h1 binding=\"title\">default</h1></div><div binding=\"post\" version=\"two\"><h1 binding=\"title\">two</h1></div>")
     end
 
     let :data do
@@ -219,7 +219,7 @@ RSpec.describe "view versioning via presenter" do
 
     context "using versions during presentation" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post version=\"default\" title=\"default\"><h1@title>default</h1></div><div@post version=\"two\" title=\"two\"><h1@title>two</h1></div><div@post version=\"three\" title=\"three\"><h1@title>three</h1></div>")
+        Pakyow::Presenter::View.new("<div binding=\"post\" version=\"default\" title=\"default\"><h1 binding=\"title\">default</h1></div><div binding=\"post\" version=\"two\" title=\"two\"><h1 binding=\"title\">two</h1></div><div binding=\"post\" version=\"three\" title=\"three\"><h1 binding=\"title\">three</h1></div>")
       end
 
       it "uses a version for each object" do
@@ -233,7 +233,7 @@ RSpec.describe "view versioning via presenter" do
 
     context "empty version exists, and data is empty" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post version=\"empty\">no posts here</div><div@post><h1@title>post title</h1></div>")
+        Pakyow::Presenter::View.new("<div binding=\"post\" version=\"empty\">no posts here</div><div binding=\"post\"><h1 binding=\"title\">post title</h1></div>")
       end
 
       before do

@@ -4,7 +4,7 @@ RSpec.describe "reading attributes via presenter" do
   end
 
   let :view do
-    Pakyow::Presenter::View.new("<div@post title=\"foo\"></div>").find(:post)
+    Pakyow::Presenter::View.new("<div binding=\"post\" title=\"foo\"></div>").find(:post)
   end
 
   it "responds the same to attrs or attributes" do
@@ -14,7 +14,7 @@ RSpec.describe "reading attributes via presenter" do
   context "string attributes" do
     context "when the attribute exists in the view" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post title=\"foo\"></div>").find(:post)
+        Pakyow::Presenter::View.new("<div binding=\"post\" title=\"foo\"></div>").find(:post)
       end
 
       it "can be read" do
@@ -24,7 +24,7 @@ RSpec.describe "reading attributes via presenter" do
 
     context "when the attribute does not exist in the view" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post></div>").find(:post)
+        Pakyow::Presenter::View.new("<div binding=\"post\"></div>").find(:post)
       end
 
       it "is nil" do
@@ -36,7 +36,7 @@ RSpec.describe "reading attributes via presenter" do
   context "hash attributes" do
     context "when the attribute exists in the view" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post style=\"color:red\"></div>").find(:post)
+        Pakyow::Presenter::View.new("<div binding=\"post\" style=\"color:red\"></div>").find(:post)
       end
 
       it "can be read" do
@@ -46,7 +46,7 @@ RSpec.describe "reading attributes via presenter" do
 
     context "when the attribute does not exist in the view" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post></div>").find(:post)
+        Pakyow::Presenter::View.new("<div binding=\"post\"></div>").find(:post)
       end
 
       it "is nil" do
@@ -58,7 +58,7 @@ RSpec.describe "reading attributes via presenter" do
   context "set attributes" do
     context "when the attribute exists in the view" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post class=\"foo bar\"></div>").find(:post)
+        Pakyow::Presenter::View.new("<div binding=\"post\" class=\"foo bar\"></div>").find(:post)
       end
 
       it "can be read" do
@@ -68,7 +68,7 @@ RSpec.describe "reading attributes via presenter" do
 
     context "when the attribute does not exist in the view" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post></div>").find(:post)
+        Pakyow::Presenter::View.new("<div binding=\"post\"></div>").find(:post)
       end
 
       it "is nil" do
@@ -80,7 +80,7 @@ RSpec.describe "reading attributes via presenter" do
   context "boolean attributes" do
     context "when the attribute exists in the view" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post checked=\"checked\"></div>").find(:post)
+        Pakyow::Presenter::View.new("<div binding=\"post\" checked=\"checked\"></div>").find(:post)
       end
 
       it "can be read" do
@@ -90,7 +90,7 @@ RSpec.describe "reading attributes via presenter" do
 
     context "when the attribute does not exist in the view" do
       let :view do
-        Pakyow::Presenter::View.new("<div@post></div>").find(:post)
+        Pakyow::Presenter::View.new("<div binding=\"post\"></div>").find(:post)
       end
 
       it "is false" do

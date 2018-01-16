@@ -1,6 +1,6 @@
 RSpec.describe Pakyow::Presenter::StringNode do
   let :html do
-    "<div@post><h1@title>hello</h1></div>"
+    "<div binding=\"post\"><h1 binding=\"title\">hello</h1></div>"
   end
 
   let :doc do
@@ -131,7 +131,7 @@ RSpec.describe Pakyow::Presenter::StringNode do
 
     context "new html has significant nodes" do
       it "finds the significant nodes" do
-        node.html = "<div@foo>foo</div>"
+        node.html = "<div binding=\"foo\">foo</div>"
         expect(doc.find_significant_nodes_with_name(:prop, :foo).count).to eq(1)
       end
     end
@@ -292,7 +292,7 @@ RSpec.describe Pakyow::Presenter::StringNode do
 
   describe "#label" do
     let :html do
-      "<div@post version=\"foo\"><h1@title>hello</h1></div>"
+      "<div binding=\"post\" version=\"foo\"><h1 binding=\"title\">hello</h1></div>"
     end
 
     context "label exists" do
@@ -310,7 +310,7 @@ RSpec.describe Pakyow::Presenter::StringNode do
 
   describe "#labeled?" do
     let :html do
-      "<div@post version=\"foo\"><h1@title>hello</h1></div>"
+      "<div binding=\"post\" version=\"foo\"><h1 binding=\"title\">hello</h1></div>"
     end
 
     context "label exists" do
@@ -328,7 +328,7 @@ RSpec.describe Pakyow::Presenter::StringNode do
 
   describe "#delete_label" do
     let :html do
-      "<div@post version=\"foo\"><h1@title>hello</h1></div>"
+      "<div binding=\"post\" version=\"foo\"><h1 binding=\"title\">hello</h1></div>"
     end
 
     context "label exists" do
@@ -399,7 +399,7 @@ RSpec.describe Pakyow::Presenter::StringNode do
     end
 
     it "returns false when the nodes are not equal" do
-      comparison = Pakyow::Presenter::StringDoc.new("<div@post><h1@title>goodbye</h1></div>").nodes[0]
+      comparison = Pakyow::Presenter::StringDoc.new("<div binding=\"post\"><h1 binding=\"title\">goodbye</h1></div>").nodes[0]
       expect(node == comparison).to be false
     end
 
