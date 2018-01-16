@@ -11,7 +11,7 @@ module Pakyow
       attr_reader :name, :path, :layouts, :pages
 
       LAYOUTS_PATH = "layouts".freeze
-      PARTIALS_PATH = "partials".freeze
+      PARTIALS_PATH = "includes".freeze
       # TODO: rename this constant
       TEMPLATES_PATH = "pages".freeze
 
