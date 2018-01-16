@@ -12,7 +12,7 @@ module Pakyow
 
       def start
         # TODO: or, start the webpack-dev-server based on the config options
-        @pid = ::Process.spawn("webpack --config config/assets/environment.js --watch", out: File.open(File::NULL, "w"), err: $stderr)
+        @pid = ::Process.spawn("./node_modules/.bin/webpack --config config/assets/environment.js --watch", out: File.open(File::NULL, "w"), err: $stderr)
       end
 
       def watch_callback(_modified, added, removed)
