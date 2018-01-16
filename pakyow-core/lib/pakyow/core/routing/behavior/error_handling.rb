@@ -47,7 +47,7 @@ module Pakyow
 
           def trigger_for_code(code)
             return unless handler = handler_for_code(code)
-            instance_exec(&handler); throw :halt
+            instance_exec(&handler); throw :halt, response
           end
 
           def handler_for_code(code)
