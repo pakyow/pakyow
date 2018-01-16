@@ -5,11 +5,11 @@ RSpec.describe "view template composition via presenter" do
     Proc.new {
       instance_exec(&$presenter_app_boilerplate)
 
-      controller :default do
-        handle Pakyow::Presenter::MissingView, as: 500 do
-          res.body = "#{req.error.class}: #{req.error.message}"
-        end
+      handle 500 do
+        res.body = "#{req.error.class}: #{req.error.message}"
+      end
 
+      controller :default do
         get(/.*/) do
           render req.path
         end
