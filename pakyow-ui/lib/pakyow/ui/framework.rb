@@ -83,7 +83,7 @@ module Pakyow
             # We wait until after render so that we don't create subscriptions unnecessarily
             # in the event that something blew up during the render process.
 
-            presentables = @__state.get(:presentables)
+            presentables = @__state.values
 
             metadata = {
               view_path: @presenter.class.path,
