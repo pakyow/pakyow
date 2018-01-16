@@ -23,7 +23,7 @@ module Pakyow
           after :configure do
             builder.use Static
             # builder.map "/assets" do
-            #   use AssetProxy
+            #   use Middleware::Proxy
             # end
           end
 
