@@ -90,9 +90,6 @@ Layout/BlockEndNewline:
 Layout/AlignParameters:
   Enabled: true
 
-Layout:
-  Enabled: true
-
 Lint/EndAlignment:
   Enabled: true
   EnforcedStyleAlignWith: variable
