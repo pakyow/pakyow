@@ -13,12 +13,12 @@ RSpec.describe "binding data via presenter" do
 
   it "binds a single value" do
     post_presenter.bind(title: "foo")
-    expect(presenter.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\">foo</h1><p data-p=\"body\"></p></div>")
+    expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">foo</h1><p data-b=\"body\"></p></div>")
   end
 
   it "binds multiple values" do
     post_presenter.bind(title: "foo", body: "bar")
-    expect(presenter.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\">foo</h1><p data-p=\"body\">bar</p></div>")
+    expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">foo</h1><p data-b=\"body\">bar</p></div>")
   end
 
   it "returns self" do
@@ -28,7 +28,7 @@ RSpec.describe "binding data via presenter" do
   context "binding a nonexistent value" do
     it "ignores the nonexistent bindings" do
       post_presenter.bind(title: "foo", body: "bar", baz: "baz")
-      expect(presenter.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\">foo</h1><p data-p=\"body\">bar</p></div>")
+      expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">foo</h1><p data-b=\"body\">bar</p></div>")
     end
 
     it "returns self" do
@@ -42,7 +42,7 @@ RSpec.describe "binding data via presenter" do
     end
 
     it "sets the data-id attribute" do
-      expect(presenter.to_s).to eq("<div data-s=\"post\" data-id=\"1\"><h1 data-p=\"title\">foo</h1><p data-p=\"body\">bar</p></div>")
+      expect(presenter.to_s).to eq("<div data-b=\"post\" data-id=\"1\"><h1 data-b=\"title\">foo</h1><p data-b=\"body\">bar</p></div>")
     end
 
     it "returns self" do
@@ -57,7 +57,7 @@ RSpec.describe "binding data via presenter" do
 
     it "leaves the view intact" do
       post_presenter.bind(nil)
-      expect(presenter.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\">title goes here</h1><p data-p=\"body\">body goes here</p></div>")
+      expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">title goes here</h1><p data-b=\"body\">body goes here</p></div>")
     end
 
     it "returns self" do

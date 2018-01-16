@@ -95,57 +95,25 @@ module Pakyow
       end
     end
 
-    # TODO: it may be that we can combine scope/prop into a `binding` node... do we ever need to distinguish between them?
-
     # @api private
-    class ScopeNode < SignificantNode
-      StringDoc.significant :scope, self
+    class BindingNode < SignificantNode
+      StringDoc.significant :binding, self
 
       def self.significant?(node)
         return false unless node.is_a?(Oga::XML::Element)
         return false if !node.attribute(:binding)
         return false if node.name == FORM_TAG
-
-        StringDoc.breadth_first(node) do |child|
-          return true if significant?(child) || PropNode.significant?(child)
-        end
-      end
-
-      def self.node(element)
-        labels = labels_hash(element)
-        attributes = attributes_instance(element)
-        scope = attributes[:binding].to_sym
-        attributes.delete(:binding)
-        attributes[:"data-s"] = scope
-
-        StringNode.new(["<#{element.name}", attributes], type: :scope, name: scope, labels: labels)
-      end
-    end
-
-    # @api private
-    class PropNode < SignificantNode
-      StringDoc.significant :prop, self
-
-      def self.significant?(node)
-        return false unless node.is_a?(Oga::XML::Element)
-        return false if !node.attribute(:binding)
-        return false if node.name == FORM_TAG
-
-        StringDoc.breadth_first(node) do |child|
-          return false if significant?(child) || ScopeNode.significant?(child)
-        end
-
         true
       end
 
       def self.node(element)
         labels = labels_hash(element)
         attributes = attributes_instance(element)
-        prop = attributes[:binding].to_sym
+        binding = attributes[:binding].to_sym
         attributes.delete(:binding)
-        attributes[:"data-p"] = prop
+        attributes[:"data-b"] = binding
 
-        StringNode.new(["<#{element.name}", attributes], type: :prop, name: prop, labels: labels)
+        StringNode.new(["<#{element.name}", attributes], type: :binding, name: binding, labels: labels)
       end
     end
 
@@ -178,11 +146,11 @@ module Pakyow
       def self.node(element)
         labels = labels_hash(element)
         attributes = attributes_instance(element)
-        scope = attributes[:binding].to_sym
+        binding = attributes[:binding].to_sym
         attributes.delete(:binding)
-        attributes[:"data-s"] = scope
+        attributes[:"data-b"] = binding
 
-        StringNode.new(["<#{element.name}", attributes], type: :form, name: scope, labels: labels)
+        StringNode.new(["<#{element.name}", attributes], type: :form, name: binding, labels: labels)
       end
     end
 

@@ -200,8 +200,8 @@ module Pakyow
             yield view, object if block_given?
             presenter.bind(object)
 
-            view.scopes.each do |scoped_node|
-              presenter.find(scoped_node.name).present(object[scoped_node.name])
+            view.binding_scopes.each do |binding_node|
+              presenter.find(binding_node.name).present(object[binding_node.name])
             end
           end
         end
@@ -284,22 +284,22 @@ module Pakyow
       def bind_binder_to_view(binder, view)
         bindable = binder.object
 
-        view.props.each do |prop|
-          value = binder[prop.name]
+        view.binding_props.each do |binding|
+          value = binder[binding.name]
 
           if value.is_a?(BindingParts)
-            next unless prop_view = view.find(prop.name)
+            next unless binding_view = view.find(binding.name)
 
-            value.accept(*prop_view.label(:include).to_s.split(" "))
-            value.reject(*prop_view.label(:exclude).to_s.split(" "))
+            value.accept(*binding_view.label(:include).to_s.split(" "))
+            value.reject(*binding_view.label(:exclude).to_s.split(" "))
 
-            bindable[prop.name] = value.content if value.content?
+            bindable[binding.name] = value.content if value.content?
 
             value.non_content_parts.each_pair do |key, value_part|
-              prop_view.attrs[key] = value_part
+              binding_view.attrs[key] = value_part
             end
           else
-            bindable[prop.name] = value
+            bindable[binding.name] = value
           end
         end
 
@@ -314,17 +314,14 @@ module Pakyow
 
       def set_form_field_names
         @view.object.find_significant_nodes(:form).each do |form_node|
-          form_node.children.find_significant_nodes(:prop).each do |prop_node|
-            prop_node.attributes[:name] ||= "#{form_node.name}[#{prop_node.name}]"
+          form_node.children.find_significant_nodes(:binding).each do |binding_node|
+            binding_node.attributes[:name] ||= "#{form_node.name}[#{binding_node.name}]"
           end
         end
       end
 
-      # FIXME: templates should be creating for "binding points", which are:
-      #   - top-level (bindings that aren't contained in a binding)
-      #   - scoped (bindings that contain bindings)
       def create_embedded_templates
-        @view.object.find_significant_nodes(:scope).each do |node_with_binding|
+        @view.binding_scopes.each do |node_with_binding|
           version = node_with_binding.label(:version) || VersionedView::DEFAULT_VERSION
           template = StringDoc.new("<script type=\"text/template\" data-version=\"#{version}\"></script>").nodes.first
 

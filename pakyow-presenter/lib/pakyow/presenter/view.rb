@@ -86,7 +86,7 @@ module Pakyow
       #
       def find(*names)
         named = names.shift.to_sym
-        found = props_and_scopes_with_name(named).each_with_object([]) { |node, arr|
+        found = bindings_with_name(named).each_with_object([]) { |node, arr|
           arr << View.from_object(node)
         }
 
@@ -102,7 +102,7 @@ module Pakyow
       # Finds all view bindings by name, returning an array of {View} objects.
       #
       def find_all(named)
-        props_and_scopes_with_name(named, with_children: false).each_with_object([]) { |node, arr|
+        bindings_with_name(named).each_with_object([]) { |node, arr|
           arr << View.from_object(node)
         }
       end
@@ -187,9 +187,9 @@ module Pakyow
           if object.nil? || object.empty?
             remove
           else
-            props.each do |prop|
-              next if object[prop.name]
-              prop.remove
+            binding_props.each do |binding|
+              next if object[binding.name]
+              binding.remove
             end
           end
 
@@ -202,8 +202,8 @@ module Pakyow
       def bind(object)
         tap do
           unless object.nil?
-            props.each do |prop|
-              bind_value_to_node(object[prop.name], prop)
+            binding_props.each do |binding|
+              bind_value_to_node(object[binding.name], binding)
             end
 
             attributes[:"data-id"] = object[:id]
@@ -286,7 +286,7 @@ module Pakyow
       # Returns true if +self+ is a binding.
       #
       def binding?
-        @object.type == :scope || @object.type == :prop
+        @object.type == :binding
       end
 
       # Returns true if +self+ is a container.
@@ -350,13 +350,17 @@ module Pakyow
       alias :to_s :to_html
 
       # @api private
-      def scopes
-        @object.find_significant_nodes(:scope)
+      def binding_scopes
+        @object.find_significant_nodes(:binding).select { |node|
+          node.find_significant_nodes(:binding).any?
+        }
       end
 
       # @api private
-      def props
-        @object.find_significant_nodes(:prop, with_children: false)
+      def binding_props
+        @object.find_significant_nodes(:binding, with_children: false).reject { |node|
+          node.find_significant_nodes(:binding).any?
+        }
       end
 
       # @api private
@@ -394,16 +398,10 @@ module Pakyow
         end
       end
 
-      def props_with_name(name, with_children: true)
-        @object.find_significant_nodes_with_name(:prop, name, with_children: with_children)
-      end
-
-      def scopes_with_name(name, with_children: true)
-        @object.find_significant_nodes_with_name(:scope, name, with_children: with_children)
-      end
-
-      def props_and_scopes_with_name(name, with_children: true)
-        props_with_name(name, with_children: with_children) + scopes_with_name(name, with_children: with_children)
+      def bindings_with_name(name)
+        (binding_scopes + binding_props).select { |node|
+          node.name == name
+        }
       end
 
       def cleanup_versions

@@ -28,18 +28,18 @@ RSpec.describe "view transformation via presenter" do
 
     it "tranforms to match a single object, removing bindings for nonexistent values" do
       post_presenter.transform(body: "foo")
-      expect(presenter.to_s).to eq("<div data-s=\"post\"><p data-p=\"body\">body goes here</p></div>")
+      expect(presenter.to_s).to eq("<div data-b=\"post\"><p data-b=\"body\">body goes here</p></div>")
     end
 
     it "tranforms to match an array of objects" do
       post_presenter.transform([{ title: "foo" }, { body: "bar" }])
-      expect(presenter.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\">title goes here</h1></div><div data-s=\"post\"><p data-p=\"body\">body goes here</p></div>")
+      expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">title goes here</h1></div><div data-b=\"post\"><p data-b=\"body\">body goes here</p></div>")
     end
 
     context "value for binding is nil" do
       it "removes the binding" do
         post_presenter.transform(body: nil)
-        expect(presenter.to_s).to eq("<div data-s=\"post\"></div>")
+        expect(presenter.to_s).to eq("<div data-b=\"post\"></div>")
       end
     end
   end
@@ -50,7 +50,7 @@ RSpec.describe "view transformation via presenter" do
     end
 
     it "appends" do
-      expect(presenter.to_s).to include("<h1 data-p=\"title\">title goes here hi</h1>")
+      expect(presenter.to_s).to include("<h1 data-b=\"title\">title goes here hi</h1>")
     end
   end
 
@@ -60,7 +60,7 @@ RSpec.describe "view transformation via presenter" do
     end
 
     it "prepends" do
-      expect(presenter.to_s).to include("<h1 data-p=\"title\">hi title goes here</h1>")
+      expect(presenter.to_s).to include("<h1 data-b=\"title\">hi title goes here</h1>")
     end
   end
 
@@ -70,7 +70,7 @@ RSpec.describe "view transformation via presenter" do
     end
 
     it "inserts after" do
-      expect(presenter.to_s).to include("<h1 data-p=\"title\">title goes here</h1> hi")
+      expect(presenter.to_s).to include("<h1 data-b=\"title\">title goes here</h1> hi")
     end
   end
 
@@ -80,7 +80,7 @@ RSpec.describe "view transformation via presenter" do
     end
 
     it "inserts before" do
-      expect(presenter.to_s).to include("hi <h1 data-p=\"title\">title goes here</h1>")
+      expect(presenter.to_s).to include("hi <h1 data-b=\"title\">title goes here</h1>")
     end
   end
 

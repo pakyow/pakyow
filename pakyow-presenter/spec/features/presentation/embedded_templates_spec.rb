@@ -9,7 +9,7 @@ RSpec.describe "templates embedded by presenter" do
     end
 
     it "embeds a template" do
-      expect(presenter.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\">title</h1></div><script type=\"text/template\" data-version=\"default\" data-s=\"post\"><div data-s=\"post\"><h1 data-p=\"title\">title</h1></div></script>")
+      expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">title</h1></div><script type=\"text/template\" data-version=\"default\" data-b=\"post\"><div data-b=\"post\"><h1 data-b=\"title\">title</h1></div></script>")
     end
   end
 
@@ -19,7 +19,7 @@ RSpec.describe "templates embedded by presenter" do
     end
 
     it "embeds a template" do
-      expect(presenter.to_s).to eq("<div data-s=\"post\"><div data-s=\"comment\"><h1 data-p=\"title\">title</h1></div><script type=\"text/template\" data-version=\"default\" data-s=\"comment\"><div data-s=\"comment\"><h1 data-p=\"title\">title</h1></div></script></div><script type=\"text/template\" data-version=\"default\" data-s=\"post\"><div data-s=\"post\"><div data-s=\"comment\"><h1 data-p=\"title\">title</h1></div></div></script>")
+      expect(presenter.to_s).to eq("<div data-b=\"post\"><div data-b=\"comment\"><h1 data-b=\"title\">title</h1></div><script type=\"text/template\" data-version=\"default\" data-b=\"comment\"><div data-b=\"comment\"><h1 data-b=\"title\">title</h1></div></script></div><script type=\"text/template\" data-version=\"default\" data-b=\"post\"><div data-b=\"post\"><div data-b=\"comment\"><h1 data-b=\"title\">title</h1></div></div></script>")
     end
   end
 
@@ -29,7 +29,7 @@ RSpec.describe "templates embedded by presenter" do
     end
 
     it "embeds a template" do
-      expect(presenter.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\">title1</h1></div><script type=\"text/template\" data-version=\"default\" data-s=\"post\"><div data-s=\"post\"><h1 data-p=\"title\">title1</h1></div></script><script type=\"text/template\" data-version=\"one\" data-s=\"post\"><div data-s=\"post\"><h1 data-p=\"title\">title2</h1></div></script><script type=\"text/template\" data-version=\"two\" data-s=\"post\"><div data-s=\"post\"><h1 data-p=\"title\">title3</h1></div></script>")
+      expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">title1</h1></div><script type=\"text/template\" data-version=\"default\" data-b=\"post\"><div data-b=\"post\"><h1 data-b=\"title\">title1</h1></div></script><script type=\"text/template\" data-version=\"one\" data-b=\"post\"><div data-b=\"post\"><h1 data-b=\"title\">title2</h1></div></script><script type=\"text/template\" data-version=\"two\" data-b=\"post\"><div data-b=\"post\"><h1 data-b=\"title\">title3</h1></div></script>")
     end
   end
 
@@ -43,7 +43,7 @@ RSpec.describe "templates embedded by presenter" do
     end
 
     it "does not embed templates" do
-      expect(presenter.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\">title</h1></div>")
+      expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">title</h1></div>")
     end
   end
 end

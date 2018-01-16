@@ -16,8 +16,8 @@ RSpec.describe Pakyow::Presenter::StringDoc do
 
     context "nodes of the type are found" do
       it "returns the found nodes" do
-        nodes = doc.find_significant_nodes(:scope)
-        expect(nodes.count).to eq(1)
+        nodes = doc.find_significant_nodes(:binding)
+        expect(nodes.count).to eq(3)
         expect(nodes.first).to be_instance_of(Pakyow::Presenter::StringNode)
       end
     end
@@ -31,14 +31,14 @@ RSpec.describe Pakyow::Presenter::StringDoc do
 
     context "doc contains significant children" do
       it "returns children by default" do
-        nodes = doc.find_significant_nodes(:prop)
-        expect(nodes.count).to eq(2)
+        nodes = doc.find_significant_nodes(:binding)
+        expect(nodes.count).to eq(3)
       end
 
       context "passing with_children: false" do
         it "does not return children" do
-          nodes = doc.find_significant_nodes(:prop, with_children: false)
-        expect(nodes.count).to eq(0)
+          nodes = doc.find_significant_nodes(:binding, with_children: false)
+          expect(nodes.count).to eq(1)
         end
       end
     end
@@ -51,7 +51,7 @@ RSpec.describe Pakyow::Presenter::StringDoc do
 
     context "nodes of the type and name are found" do
       it "returns the found nodes" do
-        nodes = doc.find_significant_nodes_with_name(:scope, :post)
+        nodes = doc.find_significant_nodes_with_name(:binding, :post)
         expect(nodes.count).to eq(1)
         expect(nodes.first).to be_instance_of(Pakyow::Presenter::StringNode)
       end
@@ -59,20 +59,20 @@ RSpec.describe Pakyow::Presenter::StringDoc do
 
     context "no nodes of the type and name are found" do
       it "returns an empty array" do
-        nodes = doc.find_significant_nodes_with_name(:scope, :foo)
+        nodes = doc.find_significant_nodes_with_name(:binding, :foo)
         expect(nodes).to eq([])
       end
     end
 
     context "doc contains significant children" do
       it "returns children by default" do
-        nodes = doc.find_significant_nodes_with_name(:prop, :title)
+        nodes = doc.find_significant_nodes_with_name(:binding, :title)
         expect(nodes.count).to eq(1)
       end
 
       context "passing `with_children: false`" do
         it "does not return children" do
-          nodes = doc.find_significant_nodes_with_name(:prop, :title, with_children: false)
+          nodes = doc.find_significant_nodes_with_name(:binding, :title, with_children: false)
           expect(nodes.count).to eq(0)
         end
       end

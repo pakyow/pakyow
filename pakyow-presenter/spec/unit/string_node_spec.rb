@@ -8,7 +8,7 @@ RSpec.describe Pakyow::Presenter::StringNode do
   end
 
   let :node do
-    doc.find_significant_nodes_with_name(:scope, :post)[0]
+    doc.find_significant_nodes_with_name(:binding, :post)[0]
   end
 
   describe "#attributes" do
@@ -23,7 +23,7 @@ RSpec.describe Pakyow::Presenter::StringNode do
     end
 
     it "actually contains children" do
-      expect(node.children.to_s).to eq("<h1 data-p=\"title\">hello</h1>")
+      expect(node.children.to_s).to eq("<h1 data-b=\"title\">hello</h1>")
     end
   end
 
@@ -53,24 +53,24 @@ RSpec.describe Pakyow::Presenter::StringNode do
     context "replacement is a StringDoc" do
       it "replaces" do
         replacement = Pakyow::Presenter::StringDoc.new("foo")
-        doc.find_significant_nodes_with_name(:prop, :title)[0].replace(replacement)
-        expect(doc.to_s).to eq("<div data-s=\"post\">foo</div>")
+        doc.find_significant_nodes_with_name(:binding, :title)[0].replace(replacement)
+        expect(doc.to_s).to eq("<div data-b=\"post\">foo</div>")
       end
     end
 
     context "replacement is a StringNode" do
       it "replaces" do
         replacement = node.dup
-        doc.find_significant_nodes_with_name(:prop, :title)[0].replace(replacement)
-        expect(doc.to_s).to eq("<div data-s=\"post\"><div data-s=\"post\"><h1 data-p=\"title\">hello</h1></div></div>")
+        doc.find_significant_nodes_with_name(:binding, :title)[0].replace(replacement)
+        expect(doc.to_s).to eq("<div data-b=\"post\"><div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div></div>")
       end
     end
 
     context "replacement is another object" do
       it "replaces" do
         replacement = "foo"
-        doc.find_significant_nodes_with_name(:prop, :title)[0].replace(replacement)
-        expect(doc.to_s).to eq("<div data-s=\"post\">foo</div>")
+        doc.find_significant_nodes_with_name(:binding, :title)[0].replace(replacement)
+        expect(doc.to_s).to eq("<div data-b=\"post\">foo</div>")
       end
     end
   end
@@ -85,15 +85,15 @@ RSpec.describe Pakyow::Presenter::StringNode do
 
     context "node is a child" do
       it "removes the node" do
-        doc.find_significant_nodes_with_name(:prop, :title)[0].remove
-        expect(doc.to_s).to eq("<div data-s=\"post\"></div>")
+        doc.find_significant_nodes_with_name(:binding, :title)[0].remove
+        expect(doc.to_s).to eq("<div data-b=\"post\"></div>")
       end
     end
   end
 
   describe "#text" do
     it "returns the text value of the current node" do
-      expect(doc.find_significant_nodes_with_name(:prop, :title)[0].text).to eq("hello")
+      expect(doc.find_significant_nodes_with_name(:binding, :title)[0].text).to eq("hello")
     end
 
     context "node has children" do
@@ -105,34 +105,34 @@ RSpec.describe Pakyow::Presenter::StringNode do
 
   describe "#html" do
     it "returns the html value of the current node's children" do
-      expect(doc.find_significant_nodes_with_name(:prop, :title)[0].html).to eq("hello")
+      expect(doc.find_significant_nodes_with_name(:binding, :title)[0].html).to eq("hello")
     end
 
     context "node has children" do
       it "includes the childen in the value" do
-        expect(node.html).to eq("<h1 data-p=\"title\">hello</h1>")
+        expect(node.html).to eq("<h1 data-b=\"title\">hello</h1>")
       end
     end
   end
 
   describe "#html=" do
     it "sets the html value of the current node" do
-      node = doc.find_significant_nodes_with_name(:prop, :title)[0]
+      node = doc.find_significant_nodes_with_name(:binding, :title)[0]
       node.html = "<div>foo</div>"
-      expect(node.to_s).to eq("<h1 data-p=\"title\"><div>foo</div></h1>")
+      expect(node.to_s).to eq("<h1 data-b=\"title\"><div>foo</div></h1>")
     end
 
     context "node has children" do
       it "replaces the childen" do
         node.html = "<div>foo</div>"
-        expect(node.to_s).to eq("<div data-s=\"post\"><div>foo</div></div>")
+        expect(node.to_s).to eq("<div data-b=\"post\"><div>foo</div></div>")
       end
     end
 
     context "new html has significant nodes" do
       it "finds the significant nodes" do
         node.html = "<div binding=\"foo\">foo</div>"
-        expect(doc.find_significant_nodes_with_name(:prop, :foo).count).to eq(1)
+        expect(doc.find_significant_nodes_with_name(:binding, :foo).count).to eq(1)
       end
     end
   end
@@ -146,7 +146,7 @@ RSpec.describe Pakyow::Presenter::StringNode do
   describe "#clear" do
     it "removes children" do
       node.clear
-      expect(node.to_s).to eq("<div data-s=\"post\"></div>")
+      expect(node.to_s).to eq("<div data-b=\"post\"></div>")
     end
   end
 
@@ -158,7 +158,7 @@ RSpec.describe Pakyow::Presenter::StringNode do
 
       it "inserts after self" do
         node.after(insertable)
-        expect(doc.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\">hello</h1></div><div>insertable</div>")
+        expect(doc.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div><div>insertable</div>")
       end
     end
 
@@ -169,7 +169,7 @@ RSpec.describe Pakyow::Presenter::StringNode do
 
       it "inserts after self" do
         node.after(insertable)
-        expect(doc.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\">hello</h1></div><div>insertable</div>")
+        expect(doc.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div><div>insertable</div>")
       end
     end
 
@@ -180,7 +180,7 @@ RSpec.describe Pakyow::Presenter::StringNode do
 
       it "inserts after self" do
         node.after(insertable)
-        expect(doc.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\">hello</h1></div><div>insertable</div>")
+        expect(doc.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div><div>insertable</div>")
       end
     end
   end
@@ -193,7 +193,7 @@ RSpec.describe Pakyow::Presenter::StringNode do
 
       it "inserts before self" do
         node.before(insertable)
-        expect(doc.to_s).to eq("<div>insertable</div><div data-s=\"post\"><h1 data-p=\"title\">hello</h1></div>")
+        expect(doc.to_s).to eq("<div>insertable</div><div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div>")
       end
     end
 
@@ -204,7 +204,7 @@ RSpec.describe Pakyow::Presenter::StringNode do
 
       it "inserts before self" do
         node.before(insertable)
-        expect(doc.to_s).to eq("<div>insertable</div><div data-s=\"post\"><h1 data-p=\"title\">hello</h1></div>")
+        expect(doc.to_s).to eq("<div>insertable</div><div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div>")
       end
     end
 
@@ -215,7 +215,7 @@ RSpec.describe Pakyow::Presenter::StringNode do
 
       it "inserts before self" do
         node.before(insertable)
-        expect(doc.to_s).to eq("<div>insertable</div><div data-s=\"post\"><h1 data-p=\"title\">hello</h1></div>")
+        expect(doc.to_s).to eq("<div>insertable</div><div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div>")
       end
     end
   end
@@ -228,7 +228,7 @@ RSpec.describe Pakyow::Presenter::StringNode do
 
       it "appends to self" do
         node.append(insertable)
-        expect(doc.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\">hello</h1><div>insertable</div></div>")
+        expect(doc.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">hello</h1><div>insertable</div></div>")
       end
     end
 
@@ -239,7 +239,7 @@ RSpec.describe Pakyow::Presenter::StringNode do
 
       it "appends to self" do
         node.append(insertable)
-        expect(doc.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\">hello</h1><div>insertable</div></div>")
+        expect(doc.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">hello</h1><div>insertable</div></div>")
       end
     end
 
@@ -250,7 +250,7 @@ RSpec.describe Pakyow::Presenter::StringNode do
 
       it "appends to self" do
         node.append(insertable)
-        expect(doc.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\">hello</h1><div>insertable</div></div>")
+        expect(doc.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">hello</h1><div>insertable</div></div>")
       end
     end
   end
@@ -263,7 +263,7 @@ RSpec.describe Pakyow::Presenter::StringNode do
 
       it "prepends to self" do
         node.prepend(insertable)
-        expect(doc.to_s).to eq("<div data-s=\"post\"><div>insertable</div><h1 data-p=\"title\">hello</h1></div>")
+        expect(doc.to_s).to eq("<div data-b=\"post\"><div>insertable</div><h1 data-b=\"title\">hello</h1></div>")
       end
     end
 
@@ -274,7 +274,7 @@ RSpec.describe Pakyow::Presenter::StringNode do
 
       it "prepends to self" do
         node.prepend(insertable)
-        expect(doc.to_s).to eq("<div data-s=\"post\"><div>insertable</div><h1 data-p=\"title\">hello</h1></div>")
+        expect(doc.to_s).to eq("<div data-b=\"post\"><div>insertable</div><h1 data-b=\"title\">hello</h1></div>")
       end
     end
 
@@ -285,7 +285,7 @@ RSpec.describe Pakyow::Presenter::StringNode do
 
       it "prepends to self" do
         node.prepend(insertable)
-        expect(doc.to_s).to eq("<div data-s=\"post\"><div>insertable</div><h1 data-p=\"title\">hello</h1></div>")
+        expect(doc.to_s).to eq("<div data-b=\"post\"><div>insertable</div><h1 data-b=\"title\">hello</h1></div>")
       end
     end
   end
@@ -354,25 +354,25 @@ RSpec.describe Pakyow::Presenter::StringNode do
 
   describe "#to_xml" do
     it "converts the document to an xml string" do
-      expect(node.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\">hello</h1></div>")
+      expect(node.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div>")
     end
   end
 
   describe "#to_html" do
     it "converts the document to an xml string" do
-      expect(node.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\">hello</h1></div>")
+      expect(node.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div>")
     end
   end
 
   describe "#to_s" do
     it "converts the document to an xml string" do
-      expect(node.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\">hello</h1></div>")
+      expect(node.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div>")
     end
   end
 
   describe "#inspect" do
     it "includes type" do
-      expect(node.inspect).to include("@type=:scope")
+      expect(node.inspect).to include("@type=:binding")
     end
 
     it "includes name" do

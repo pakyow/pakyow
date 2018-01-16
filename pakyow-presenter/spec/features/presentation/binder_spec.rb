@@ -29,7 +29,7 @@ RSpec.describe "binding data via presenter, with a binder" do
 
   it "uses the binder, falling back to the object when binder does not support a value" do
     post_presenter.present(title: "foo", body: "bar")
-    expect(presenter.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\">oof</h1><p data-p=\"body\">bar</p></div>")
+    expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">oof</h1><p data-b=\"body\">bar</p></div>")
   end
 
   context "binder defines parts" do
@@ -49,7 +49,7 @@ RSpec.describe "binding data via presenter, with a binder" do
 
     it "binds each part" do
       post_presenter.present(title: "foo", body: "bar")
-      expect(presenter.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\" style=\"color:red\">oof</h1><p data-p=\"body\">bar</p></div>")
+      expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\" style=\"color:red\">oof</h1><p data-b=\"body\">bar</p></div>")
     end
 
     context "view includes parts" do
@@ -77,7 +77,7 @@ RSpec.describe "binding data via presenter, with a binder" do
 
       it "binds only the included parts" do
         post_presenter.present(title: "foo", body: "bar")
-        expect(presenter.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\" title=\"title is: foo\">oof</h1><p data-p=\"body\">bar</p></div>")
+        expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\" title=\"title is: foo\">oof</h1><p data-b=\"body\">bar</p></div>")
       end
     end
 
@@ -106,7 +106,7 @@ RSpec.describe "binding data via presenter, with a binder" do
 
       it "binds only the non-excluded parts" do
         post_presenter.present(title: "foo", body: "bar")
-        expect(presenter.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\" style=\"color:red\">oof</h1><p data-p=\"body\">bar</p></div>")
+        expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\" style=\"color:red\">oof</h1><p data-b=\"body\">bar</p></div>")
       end
     end
 
@@ -123,7 +123,7 @@ RSpec.describe "binding data via presenter, with a binder" do
 
       it "binds the defined parts, pulling content from object" do
         post_presenter.present(title: "foo", body: "bar")
-        expect(presenter.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\" style=\"color:red\">foo</h1><p data-p=\"body\">bar</p></div>")
+        expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\" style=\"color:red\">foo</h1><p data-b=\"body\">bar</p></div>")
       end
     end
   end
@@ -135,7 +135,7 @@ RSpec.describe "binding data via presenter, with a binder" do
 
     it "uses the binder" do
       post_presenter.present(title: "post", comment: { body: "comment" })
-      expect(presenter.to_s).to eq("<div data-s=\"post\"><h1 data-p=\"title\">tsop</h1><div data-s=\"comment\"><p data-p=\"body\">comment: comment</p></div></div>")
+      expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">tsop</h1><div data-b=\"comment\"><p data-b=\"body\">comment: comment</p></div></div>")
     end
   end
 end
