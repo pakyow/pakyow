@@ -2,9 +2,9 @@
   "name": "@pakyow/assets",
   "version": "0.1.0",
   "description": "Asset management for Pakyow",
-  "main": "src/index.js",
+  "main": "package/index.js",
   "files": [
-    "src/index.js"
+    "package"
   ],
   "engines": {
     "node": ">=6.0.0",
