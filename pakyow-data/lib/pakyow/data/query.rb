@@ -9,13 +9,15 @@ module Pakyow
 
       def initialize(model, name, args, subscribers)
         @model, @name, @args, @subscribers = model, name, args, subscribers
-
+        @subscribable = true
         __setobj__(model)
       end
 
       # TODO: support passing a mapper through an `as` method that uses map_to behind the scenes
 
       def subscribe(subscriber, call: nil, with: nil)
+        return unless subscribable?
+
         model = @model.name
 
         subscription = {
@@ -28,6 +30,16 @@ module Pakyow
         }
 
         @subscribers.register_subscription(subscription, subscriber: subscriber)
+      end
+
+      def subscribable(boolean)
+        tap do
+          @subscribable = boolean
+        end
+      end
+
+      def subscribable?
+        @subscribable == true
       end
 
       def qualifications

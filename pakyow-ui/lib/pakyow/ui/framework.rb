@@ -101,14 +101,14 @@ module Pakyow
             # Find every subscribed presentable, creating a data subscription for each.
             #
             queries = presentables.values.select { |presentable_value|
-              # TODO: make sure the query is subscribed
               presentable_value.is_a?(Data::Query)
             }
 
             queries.each do |presentable_query|
-              subscription_id = presentable_query.subscribe(socket_client_id, call: handler, with: metadata)
-              app.data.expire(socket_client_id, SUBSCRIPTION_TIMEOUT)
-              subscribe(:transformation, subscription_id)
+              if subscription_id = presentable_query.subscribe(socket_client_id, call: handler, with: metadata)
+                app.data.expire(socket_client_id, SUBSCRIPTION_TIMEOUT)
+                subscribe(:transformation, subscription_id)
+              end
             end
           end
         end
