@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
-require "pakyow/support/deep_freeze"
+require "pakyow/support/deep_dup"
 
 module Pakyow
   module Presenter
     class TemplateStore
-      extend Support::DeepFreeze
-      unfreezable :info, :layouts, :partials
+      using Support::DeepDup
 
       attr_reader :name, :path, :layouts, :pages
 
@@ -29,11 +28,9 @@ module Pakyow
       end
 
       def info(path)
-        return unless view?(path)
-
-        @info[path].each_with_object({}) { |info_path, info|
-          info[info_path[0]] = info_path[1].dup
-        }
+        if view?(path)
+          @info[path].deep_dup
+        end
       end
 
       def layout(name_or_path)
