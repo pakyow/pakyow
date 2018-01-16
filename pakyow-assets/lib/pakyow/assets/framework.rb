@@ -30,6 +30,8 @@ module Pakyow
           settings_for :assets do
             setting :packs, {}
             setting :autoload, [:application]
+            setting :polyfills, true
+            setting :common, true
           end
 
           after :freeze do
@@ -87,17 +89,39 @@ module Pakyow
 
         if app.const_defined?(:Renderer)
           app.const_get(:Renderer).before :render do
-            next unless head = @current_presenter.view.object.find_significant_nodes(:head)[0]
+            next unless head = @presenter.view.object.find_significant_nodes(:head)[0]
+
+            if config.assets.polyfills
+              head.append(<<~HTML
+                <script>
+                  var modernBrowser = (
+                    "fetch" in window &&
+                    "assign" in Object
+                  );
+                  if (!modernBrowser) {
+                    var scriptElement = document.createElement("script");
+                    scriptElement.async = false;
+                    scriptElement.src = "/assets/packs/polyfills.js";
+                    document.head.appendChild(scriptElement);
+                  }
+                </script>
+                HTML
+              )
+            end
+
+            if config.assets.common
+              head.append("<script src=\"/assets/common.js\"></script>\n")
+            end
 
             if frontend_pack = config.assets.packs[:frontend]
-              key = "layouts/#{@current_presenter.template.name}".to_sym
+              key = "layouts/#{@presenter.template.name}".to_sym
               if frontend_pack.key?(key)
                 path = File.join("/assets", "frontend", key.to_s)
                 head.append("<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"#{path}.css\">\n")
                 head.append("<script src=\"#{path}.js\"></script>\n")
               end
 
-              key = @current_presenter.page.logical_path[1..-1].to_sym
+              key = @presenter.page.logical_path[1..-1].to_sym
               if frontend_pack.key?(key)
                 path = File.join("/assets", "frontend", key.to_s)
                 head.append("<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"#{path}.css\">\n")
@@ -112,16 +136,6 @@ module Pakyow
                 head.append("<script src=\"#{path}.js\"></script>\n")
               end
             end
-
-            # TODO: the below code will load all packs; only load: autoload configured, defined in view
-            #
-            # config.assets.packs.each do |pack_name, assets|
-            #   assets.each do |asset_name, _|
-            #     path = File.join("/assets", pack_name.to_s, asset_name.to_s)
-            #     head.append("<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"#{path}.css\">\n")
-            #     head.append("<script src=\"#{path}.js\"></script>\n")
-            #   end
-            # end
           end
         end
       end
