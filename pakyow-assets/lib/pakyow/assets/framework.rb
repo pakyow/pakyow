@@ -29,6 +29,7 @@ module Pakyow
 
           settings_for :assets do
             setting :packs, {}
+            setting :autoload, [:application]
           end
 
           after :freeze do
@@ -43,34 +44,44 @@ module Pakyow
           end
 
           def build_packs
-            if defined?(Presenter)
-              info = state_for(:template_store).each_with_object({}) { |store, combined_info|
-                store.layouts.each do |layout_name, _layout|
-                  layout_key = :"layouts/#{layout_name}"
-                  combined_info[layout_key] = []
-
-                  Pathname.glob(File.join(store.layouts_path, "#{layout_name}.*")) do |path|
-                    next if store.template?(path)
-                    combined_info[layout_key] << path
-                  end
-                end
-
-                store.paths.each do |path|
-                  info = store.info(path)
-
-                  page_key = :"#{info[:page].logical_path[1..-1]}"
-
-                  combined_info[page_key] = []
-                  Pathname.glob(File.join(info[:page].path.dirname, "#{info[:page].path.basename(info[:page].path.extname)}.*")) do |path|
-                    next if store.template?(path)
-                    combined_info[page_key] << path
-                  end
-                  combined_info.delete(page_key) if combined_info[page_key].empty?
-                end
-              }
-
-              config.assets.packs[:frontend] = info
+            config.assets.packs[:packs] = {}
+            Dir.glob(File.join(config.app.root, "frontend/assets/packs/*.js")) do |path|
+              pack_name = File.basename(path, File.extname(path)).to_sym
+              config.assets.packs[:packs][pack_name] = path
             end
+
+            if defined?(Presenter)
+              build_frontend_pack
+            end
+          end
+
+          def build_frontend_pack
+            info = state_for(:template_store).each_with_object({}) { |store, combined_info|
+              store.layouts.each do |layout_name, _layout|
+                layout_key = :"layouts/#{layout_name}"
+                combined_info[layout_key] = []
+
+                Pathname.glob(File.join(store.layouts_path, "#{layout_name}.*")) do |path|
+                  next if store.template?(path)
+                  combined_info[layout_key] << path
+                end
+              end
+
+              store.paths.each do |path|
+                info = store.info(path)
+
+                page_key = :"#{info[:page].logical_path[1..-1]}"
+
+                combined_info[page_key] = []
+                Pathname.glob(File.join(info[:page].path.dirname, "#{info[:page].path.basename(info[:page].path.extname)}.*")) do |path|
+                  next if store.template?(path)
+                  combined_info[page_key] << path
+                end
+                combined_info.delete(page_key) if combined_info[page_key].empty?
+              end
+            }
+
+            config.assets.packs[:frontend] = info
           end
         end
 
@@ -78,20 +89,28 @@ module Pakyow
           app.const_get(:Renderer).before :render do
             next unless head = @current_presenter.view.object.find_significant_nodes(:head)[0]
 
-            frontend_pack = config.assets.packs[:frontend]
+            if frontend_pack = config.assets.packs[:frontend]
+              key = "layouts/#{@current_presenter.template.name}".to_sym
+              if frontend_pack.key?(key)
+                path = File.join("/assets", "frontend", key.to_s)
+                head.append("<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"#{path}.css\">\n")
+                head.append("<script src=\"#{path}.js\"></script>\n")
+              end
 
-            key = "layouts/#{@current_presenter.template.name}".to_sym
-            if frontend_pack.key?(key)
-              path = File.join("/assets", "frontend", key.to_s)
-              head.append("<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"#{path}.css\">\n")
-              head.append("<script src=\"#{path}.js\"></script>\n")
+              key = @current_presenter.page.logical_path[1..-1].to_sym
+              if frontend_pack.key?(key)
+                path = File.join("/assets", "frontend", key.to_s)
+                head.append("<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"#{path}.css\">\n")
+                head.append("<script src=\"#{path}.js\"></script>\n")
+              end
             end
 
-            key = @current_presenter.page.logical_path[1..-1].to_sym
-            if frontend_pack.key?(key)
-              path = File.join("/assets", "frontend", key.to_s)
-              head.append("<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"#{path}.css\">\n")
-              head.append("<script src=\"#{path}.js\"></script>\n")
+            config.assets.autoload.each do |pack|
+              if config.assets.packs[:packs][pack]
+                path = File.join("/assets", "packs", pack.to_s)
+                head.append("<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"#{path}.css\">\n")
+                head.append("<script src=\"#{path}.js\"></script>\n")
+              end
             end
 
             # TODO: the below code will load all packs; only load: autoload configured, defined in view
