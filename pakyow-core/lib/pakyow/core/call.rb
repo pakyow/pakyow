@@ -41,5 +41,9 @@ module Pakyow
     def get(key)
       @state[key]
     end
+
+    def values
+      @state
+    end
   end
 end

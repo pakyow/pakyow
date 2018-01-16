@@ -70,7 +70,7 @@ module Pakyow
       def perform(path = default_path, as: nil)
         setup(path, as: as)
 
-        define_presentables(@__state.get(:presentables))
+        define_presentables(@__state.values)
 
         performing :render do
           response.body = StringIO.new(

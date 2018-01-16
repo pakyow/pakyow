@@ -4,7 +4,6 @@ require "forwardable"
 
 require "pakyow/support/safe_string"
 
-require "pakyow/presenter/presentable"
 require "pakyow/presenter/exceptions"
 require "pakyow/presenter/renderer"
 

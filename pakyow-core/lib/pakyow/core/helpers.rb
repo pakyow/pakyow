@@ -64,5 +64,21 @@ module Pakyow
     # @!method path_to
     #   @return builds the path to a route, following a trail of names (see {Paths#path_to})
     def_delegators :"app.paths", :path, :path_to
+
+    def expose(name, default_value = default_omitted = true)
+      raise ArgumentError, "name must a symbol" unless name.is_a?(Symbol)
+
+      value = if block_given?
+        yield
+      elsif default_omitted
+        __send__(name)
+      end
+
+      unless default_omitted
+        value ||= default_value
+      end
+
+      @__state.set(name, value)
+    end
   end
 end

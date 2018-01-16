@@ -9,6 +9,26 @@ RSpec.describe "using presentables" do
     $presentable = nil
   end
 
+  let :app_definition do
+    Proc.new do
+      instance_exec(&$presenter_app_boilerplate)
+
+      controller :default do
+        get "/" do
+          expose :current_user, "current_user"
+        end
+      end
+
+      view "/" do
+        $presentable = current_user
+      end
+    end
+  end
+
+  it "makes exposures presentable" do
+    expect($presentable).to eq("current_user")
+  end
+
   context "presentable is defined inline with the route" do
     context "presentable is a method" do
       let :app_definition do
@@ -21,7 +41,7 @@ RSpec.describe "using presentables" do
             end
 
             get "/" do
-              presentable :current_user
+              expose :current_user
             end
           end
 
@@ -43,7 +63,7 @@ RSpec.describe "using presentables" do
 
           controller :default do
             get "/" do
-              presentable :current_user, "current_user"
+              expose :current_user, "current_user"
             end
           end
 
@@ -66,7 +86,7 @@ RSpec.describe "using presentables" do
 
             controller :default do
               get "/" do
-                presentable :current_user, "default_user" do
+                expose :current_user, "default_user" do
                   nil
                 end
               end
@@ -90,7 +110,7 @@ RSpec.describe "using presentables" do
 
             controller :default do
               get "/" do
-                presentable :current_user, "default_user" do
+                expose :current_user, "default_user" do
                   "current_user"
                 end
               end
@@ -116,7 +136,7 @@ RSpec.describe "using presentables" do
 
         controller :default do
           get "/" do
-            presentable :current_user, "current_user"
+            expose :current_user, "current_user"
           end
 
           get "/other" do

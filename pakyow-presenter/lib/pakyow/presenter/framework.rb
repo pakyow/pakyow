@@ -16,7 +16,6 @@ module Pakyow
           stateful :binder, Binder
           stateful :processor, Processor
 
-          helper Presentable
           helper RenderHelpers
 
           concern :views
