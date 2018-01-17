@@ -54,8 +54,12 @@ module Pakyow
               File.join(config.app.root, "public")
             end
 
+            setting :local_public_asset_path do
+              File.join(config.assets.local_public_path, "assets")
+            end
+
             setting :output_path do
-              File.join(config.assets.local_public_path, config.assets.public_path)
+              config.assets.local_public_asset_path
             end
 
             setting :manifest_path do
