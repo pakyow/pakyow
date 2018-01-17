@@ -1,0 +1,47 @@
+$num-columns: 5;
+
+$container-width: 700px;
+$container-margin: 20px;
+
+$relational-margin: 50px;
+
+$base-font-size: 13;
+
+$h1-factor: 2.5;
+$h2-factor: 1.9;
+$h3-factor: 1.4;
+$h4-factor: 1.2;
+$h5-factor: 1.0;
+
+@function h1-size() {
+  @return $base-font-size * $h1-factor;
+}
+
+@function h2-size() {
+  @return $base-font-size * $h2-factor;
+}
+
+@function h3-size() {
+  @return $base-font-size * $h3-factor;
+}
+
+@function h4-size() {
+  @return $base-font-size * $h4-factor;
+}
+
+@function h5-size() {
+  @return $base-font-size * $h5-factor;
+}
+
+@function text-margin($size, $factor: 1.0) {
+  @return $size * $text-margin-factor * $factor;
+}
+
+$line-height-factor: 1.4;
+$inline-code-factor: 0.9;
+$text-margin-factor: 0.7;
+
+$header-margin-top-factor: 1.5;
+
+$font-main: "Helvetica Neue", Helvetica, sans-serif;
+$font-code: "Source Code Pro", Menlo, monospace;

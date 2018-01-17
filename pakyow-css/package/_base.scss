@@ -1,0 +1,176 @@
+@import "mixins";
+
+html {
+  // setting font-size and line-height to 62.5% means
+  // we can express `rem` in the same terms of pixels
+
+  font-size: 62.5%;
+  line-height: 62.5%;
+}
+
+body {
+  margin: $container-margin;
+}
+
+body, input, button {
+  @include rem(font-size, $base-font-size);
+  font-family: $font-main;
+}
+
+code, code * {
+  @include rem(font-size, $base-font-size);
+  @include rem(line-height, $base-font-size * $line-height-factor);
+  @include rem(margin-bottom, text-margin($base-font-size, 2.0));
+  font-family: $font-code;
+}
+
+pre {
+  line-height: 0;
+}
+
+p code {
+  @include rem(font-size, $base-font-size * $inline-code-factor);
+  display: inline;
+}
+
+h1 {
+  @include rem(font-size, h1-size());
+  @include rem(line-height, h1-size() * $line-height-factor);
+  @include rem(margin-bottom, text-margin(h1-size()));
+  @include rem(margin-top, text-margin(h1-size(), $header-margin-top-factor));
+}
+
+h2 {
+  @include rem(font-size, h2-size());
+  @include rem(line-height, h2-size() * $line-height-factor);
+  @include rem(margin-bottom, text-margin(h2-size()));
+  @include rem(margin-top, text-margin(h2-size(), $header-margin-top-factor));
+}
+
+h3 {
+  @include rem(font-size, h3-size());
+  @include rem(line-height, h3-size() * $line-height-factor);
+  @include rem(margin-bottom, text-margin(h3-size()));
+  @include rem(margin-top, text-margin(h3-size(), $header-margin-top-factor));
+}
+
+h4 {
+  @include rem(font-size, h4-size());
+  @include rem(line-height, h4-size() * $line-height-factor);
+  @include rem(margin-bottom, text-margin(h4-size()));
+  @include rem(margin-top, text-margin(h4-size(), $header-margin-top-factor));
+}
+
+h5 {
+  @include rem(font-size, h5-size());
+  @include rem(line-height, h5-size() * $line-height-factor);
+  @include rem(margin-bottom, text-margin(h5-size()));
+  @include rem(margin-top, text-margin(h5-size(), $header-margin-top-factor));
+}
+
+p {
+  @include rem(font-size, $base-font-size);
+  @include rem(line-height, $base-font-size * $line-height-factor);
+  @include rem(margin-bottom, text-margin($base-font-size));
+}
+
+strong {
+  font-weight: bold;
+}
+
+em {
+  font-style: italic;
+}
+
+hr {
+  @include rem(margin-top, text-margin($base-font-size, 2.0));
+  @include rem(margin-bottom, text-margin($base-font-size, 2.0));
+}
+
+/*****************************
+    Type
+*****************************/
+
+.lead, .lead * {
+  @include rem(font-size, h4-size());
+  @include rem(line-height, h4-size() * $line-height-factor);
+  @include rem(margin-bottom, text-margin(h4-size(), 2.0));
+
+  code {
+    @include rem(font-size, h4-size() * $inline-code-factor);
+  }
+}
+
+.error {}
+
+/*****************************
+    Lists
+*****************************/
+
+ul, ol {
+  @include rem(margin-bottom, 9);
+  @include rem(margin-left, 25);
+}
+
+ul {
+  list-style:disc;
+}
+
+ol {
+  list-style:decimal;
+}
+
+li {
+  @include rem(font-size, $base-font-size);
+  @include rem(line-height, $base-font-size * $line-height-factor);
+}
+
+ul.horizontal, ol.horizontal {
+  margin: 0;
+  display: inline;
+
+  li {
+    display: inline;
+  }
+}
+
+ul.plain, ol.plain {
+  margin-left: 0;
+
+  li {
+    list-style: none;
+  }
+}
+
+/*****************************
+    Forms
+*****************************/
+
+label {
+  display: block;
+
+  &.inline {
+    display: inline;
+  }
+}
+
+fieldset {
+  @include rem(margin-bottom, text-margin($base-font-size, 2.0));
+
+  ul {
+    margin-left: 0;
+    list-style: none;
+
+    li {
+      @include rem(margin-bottom, text-margin($base-font-size));
+
+      label {
+        @include rem(margin-bottom, text-margin($base-font-size));
+      }
+    }
+  }
+}
+
+input, textarea {
+  outline: none;
+}

@@ -1,0 +1,135 @@
+@import "vars";
+
+// override vars here
+
+@import "base";
+
+$color-black: #222;
+$color-white: #fff;
+$color-xgray: #eee;
+$color-lgray: #ccc;
+$color-mgray: #777;
+$color-dgray: #555;
+$color-red: #e74c3c;
+$color-blue: #2f6f9f;
+
+body {
+  color: $color-black;
+}
+
+h1, h2, h3, h4, h5 {
+  font-weight: 600;
+}
+
+h1 {
+  border-bottom: 1px solid $color-xgray;
+  @include rem(padding-bottom, text-margin(h1-size(), 0.25));
+}
+
+code {
+  display: block;
+  background: $color-white;
+  padding: 10px 15px;
+  border-radius: 2px;
+  border: 1px solid $color-xgray;
+  overflow: auto;
+}
+
+p code {
+  padding: 1px 2px;
+  background: lighten($color-blue, 55%);
+  color: $color-blue;
+  border: 0;
+}
+
+hr {
+  border: 0;
+  height: 1px;
+  background: $color-xgray;
+}
+
+a {
+  color: $color-red;
+
+  &:hover {
+    text-decoration:none;
+  }
+}
+
+label {
+  font-weight: 600;
+}
+
+footer {
+  border-top: 1px solid $color-xgray;
+  @include rem(padding-top, text-margin($base-font-size, 1.5));
+}
+
+/*****************************
+    Type
+*****************************/
+
+.lead {
+  color: $color-dgray;
+}
+
+.error {
+  font-weight: normal;
+  background: $color-red;
+  color: $color-white;
+  padding: 2px 5px;
+  border-radius: 2px;
+}
+
+.icon {
+  fill: $color-red;
+}
+
+/*****************************
+    Forms
+*****************************/
+
+input, textarea {
+  padding: 3px;
+}
+
+input[type='text'], input[type='password'], textarea {
+  border-radius: 2px;
+  border: 1px solid $color-lgray;
+  padding: 5px;
+
+  &:focus {
+    border-color: $color-blue;
+  }
+}
+
+input[type='submit'], input[type='button'], button, .button {
+  cursor:pointer;
+
+  border-radius:2px;
+  border: 1px solid $color-lgray;
+  padding: 5px 8px;
+
+  background: #ffffff; /* Old browsers */
+  background: -moz-linear-gradient(top,  #ffffff 0%, #f3f3f3 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(100%,#f3f3f3)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top,  #ffffff 0%,#f3f3f3 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top,  #ffffff 0%,#f3f3f3 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top,  #ffffff 0%,#f3f3f3 100%); /* IE10+ */
+  background: linear-gradient(top,  #ffffff 0%,#f3f3f3 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#f3f3f3',GradientType=0 ); /* IE6-9 */
+
+  color: $color-black;
+  font-weight: 600;
+
+  &:hover {
+    text-decoration:none;
+    background: -webkit-linear-gradient(top,  #ffffff 0%,#f6f6f6 100%); /* Chrome10+,Safari5.1+ */
+    border-color:#ccc;
+    color:#777;
+  }
+}
+
+input.errored {
+  //TODO
+}
