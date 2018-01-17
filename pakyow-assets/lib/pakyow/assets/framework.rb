@@ -139,13 +139,19 @@ module Pakyow
                 info = store.info(path)
 
                 page_key = :"#{info[:page].logical_path[1..-1]}"
-
                 combined_info[page_key] = []
+
+                info[:partials].values.each do |partial|
+                  Pathname.glob(File.join(config.presenter.path, "#{partial.logical_path}.*")) do |path|
+                    next if store.template?(path)
+                    combined_info[page_key] << path
+                  end
+                end
+
                 Pathname.glob(File.join(info[:page].path.dirname, "#{info[:page].path.basename(info[:page].path.extname)}.*")) do |path|
                   next if store.template?(path)
                   combined_info[page_key] << path
                 end
-                combined_info.delete(page_key) if combined_info[page_key].empty?
               end
             }
 

@@ -107,7 +107,7 @@ module Pakyow
 
         @partials = partials_path.children.each_with_object({}) { |file, partials|
           next unless template?(file)
-          partial = load_view_of_type_at_path(Partial, file)
+          partial = load_view_of_type_at_path(Partial, file, normalize_path(file))
           partials[partial.name] = partial
         }
       end
@@ -184,7 +184,7 @@ module Pakyow
           parent_path.children.select { |child|
             child.basename.to_s.start_with?("_")
           }.each_with_object(partials) { |child, child_partials|
-            partial = load_view_of_type_at_path(Partial, child)
+            partial = load_view_of_type_at_path(Partial, child, normalize_path(child))
             child_partials[partial.name] ||= partial
           }
         }
