@@ -4,15 +4,6 @@ require "rack/proxy"
 
 require "pakyow/assets/types"
 
-# We don't want pakyow to restart the server when an asset changes, since assets handles that itself.
-#
-# TODO: don't hardcode the public/assets and frontend values
-Pakyow.config.server.ignore.concat([
-  /public\/assets/,
-  /frontend\/assets/,
-  /frontend\/.*(#{Pakyow::Assets.extensions.join("|")})/
-])
-
 require "pakyow/assets/middleware/proxy"
 require "pakyow/assets/middleware/static"
 
@@ -30,6 +21,14 @@ module Pakyow
             # builder.map "/assets" do
             #   use Middleware::Proxy
             # end
+
+            # We don't want pakyow to restart the server when an asset changes, since assets handles that itself.
+            #
+            Pakyow.config.server.ignore.concat([
+              /#{File.expand_path(config.assets.local_public_asset_path).gsub(File.join(File.expand_path(config.app.root), "/"), "")}/,
+              /#{File.expand_path(config.assets.frontend_assets_path).gsub(File.join(File.expand_path(config.app.root), "/"), "")}/,
+              /#{File.expand_path(config.presenter.path).gsub(File.join(File.expand_path(config.app.root), "/"), "")}\/.*(#{Pakyow::Assets.extensions.join("|")})/
+            ])
           end
 
           settings_for :assets do
