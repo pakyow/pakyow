@@ -13,7 +13,10 @@ var packsEntry = {};
 Object.keys(config["packs"]).forEach(function(key) {
   var val = config["packs"][key];
   Object.keys(val).forEach(function(vkey) {
-    packsEntry[key + "/" + vkey] = val[vkey];
+    var packVal = val[vkey];
+    if (packVal && packVal.length > 0) {
+      packsEntry[key + "/" + vkey] = packVal;
+    }
   });
 });
 
