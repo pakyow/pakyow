@@ -44,7 +44,7 @@ module Pakyow
             setting :uglify, false
             setting :compress, false
 
-            setting :public_path, "/assets/"
+            setting :public_path, "/compiled/"
 
             setting :frontend_assets_path do
               File.join(config.presenter.path, "assets")
@@ -55,7 +55,7 @@ module Pakyow
             end
 
             setting :local_public_asset_path do
-              File.join(config.assets.local_public_path, "assets")
+              File.join(config.assets.local_public_path, "compiled")
             end
 
             setting :output_path do
