@@ -45,12 +45,21 @@ module Pakyow
             setting :compress, false
 
             setting :public_path, "/assets/"
+
+            setting :frontend_assets_path do
+              File.join(config.presenter.path, "assets")
+            end
+
             setting :local_public_path do
               File.join(config.app.root, "public")
             end
 
             setting :output_path do
               File.join(config.assets.local_public_path, config.assets.public_path)
+            end
+
+            setting :manifest_path do
+              File.join(config.assets.output_path, "manifest.json")
             end
 
             defaults :development do
@@ -78,8 +87,8 @@ module Pakyow
           end
 
           def load_manifest
-            if File.exists?("public/assets/manifest.json")
-              JSON.parse(File.read("public/assets/manifest.json"))
+            if File.exists?(config.assets.manifest_path)
+              JSON.parse(File.read(config.assets.manifest_path))
             else
               {}
             end
@@ -88,13 +97,24 @@ module Pakyow
           def build_packs
             config.assets.packs[:packs] = {}
 
-            Dir.glob(File.join(config.app.root, "frontend/assets/packs/*.js")) do |path|
+            Dir.glob(File.join(config.assets.frontend_assets_path, "packs/*.js")) do |path|
               pack_name = File.basename(path, File.extname(path)).to_sym
               config.assets.packs[:packs][pack_name] = path
             end
 
+            build_assets_pack
+
             if defined?(Presenter)
               build_frontend_pack
+            end
+          end
+
+          def build_assets_pack
+            config.assets.packs[:assets] = { all: [] }
+
+            Dir.glob(File.join(File.join(config.assets.frontend_assets_path, "**/*"))) do |path|
+              next if path.start_with?(File.join(config.assets.frontend_assets_path, "packs"))
+              config.assets.packs[:assets][:all] << path
             end
           end
 
@@ -141,13 +161,13 @@ module Pakyow
             end
 
             before :render do
-              next unless head = @presenter.view.object.find_significant_nodes(:head)[0]
-
-              manifest = if config.assets.manifest_hot_load
+              @manifest = if config.assets.manifest_hot_load
                 app.load_manifest
               else
                 config.assets.manifest
               end
+
+              next unless head = @presenter.view.object.find_significant_nodes(:head)[0]
 
               if config.assets.polyfills
                 # TODO: don't hardcode the polyfills path below
@@ -160,7 +180,7 @@ module Pakyow
                     if (!modernBrowser) {
                       var scriptElement = document.createElement("script");
                       scriptElement.async = false;
-                      scriptElement.src = "/assets/packs/polyfills.js";
+                      scriptElement.src = "#{File.join(config.assets.public_path, "packs/polyfills.js")}";
                       document.head.appendChild(scriptElement);
                     }
                   </script>
@@ -169,15 +189,33 @@ module Pakyow
               end
 
               if config.assets.common
-                append_asset_to_head_from_manifest("common", head, manifest)
+                append_asset_to_head_from_manifest("common", head, @manifest)
               end
 
               config.assets.autoload.each do |pack|
-                append_asset_to_head_from_manifest(File.join("packs", pack.to_s), head, manifest)
+                append_asset_to_head_from_manifest(File.join("packs", pack.to_s), head, @manifest)
               end
 
-              append_asset_to_head_from_manifest(File.join("frontend", "layouts", @presenter.template.name.to_s), head, manifest)
-              append_asset_to_head_from_manifest(File.join("frontend", @presenter.page.logical_path[1..-1].to_s), head, manifest)
+              append_asset_to_head_from_manifest(File.join("frontend", "layouts", @presenter.template.name.to_s), head, @manifest)
+              append_asset_to_head_from_manifest(File.join("frontend", @presenter.page.logical_path[1..-1].to_s), head, @manifest)
+            end
+
+            after :render do
+              if instance_variable_defined?(:@manifest)
+                html = res.body.read
+
+                # webpack removes the relative path, so we must too
+                frontend_assets_path = config.assets.frontend_assets_path.gsub(File.join(config.app.root, "/"), "")
+
+                @manifest.each do |key, value|
+                  if key.start_with?(frontend_assets_path)
+                    key = key.gsub(File.join(frontend_assets_path, "/"), "")
+                    html.gsub!(key, value)
+                  end
+                end
+
+                res.body = StringIO.new(html)
+              end
             end
           end
         end
