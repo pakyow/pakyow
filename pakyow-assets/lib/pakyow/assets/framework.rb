@@ -113,6 +113,14 @@ module Pakyow
               head.append("<script src=\"/assets/common.js\"></script>\n")
             end
 
+            config.assets.autoload.each do |pack|
+              if config.assets.packs[:packs][pack]
+                path = File.join("/assets", "packs", pack.to_s)
+                head.append("<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"#{path}.css\">\n")
+                head.append("<script src=\"#{path}.js\"></script>\n")
+              end
+            end
+
             if frontend_pack = config.assets.packs[:frontend]
               key = "layouts/#{@presenter.template.name}".to_sym
               if frontend_pack.key?(key)
@@ -124,14 +132,6 @@ module Pakyow
               key = @presenter.page.logical_path[1..-1].to_sym
               if frontend_pack.key?(key)
                 path = File.join("/assets", "frontend", key.to_s)
-                head.append("<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"#{path}.css\">\n")
-                head.append("<script src=\"#{path}.js\"></script>\n")
-              end
-            end
-
-            config.assets.autoload.each do |pack|
-              if config.assets.packs[:packs][pack]
-                path = File.join("/assets", "packs", pack.to_s)
                 head.append("<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"#{path}.css\">\n")
                 head.append("<script src=\"#{path}.js\"></script>\n")
               end
