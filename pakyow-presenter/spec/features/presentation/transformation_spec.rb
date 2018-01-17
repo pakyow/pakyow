@@ -42,6 +42,20 @@ RSpec.describe "view transformation via presenter" do
         expect(presenter.to_s).to eq("<div data-b=\"post\"></div>")
       end
     end
+
+    context "object is empty" do
+      it "removes the binding" do
+        post_presenter.transform([])
+        expect(presenter.to_s).to eq("")
+      end
+    end
+
+    context "object is nil" do
+      it "removes the binding" do
+        post_presenter.transform(nil)
+        expect(presenter.to_s).to eq("")
+      end
+    end
   end
 
   describe "append" do

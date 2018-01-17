@@ -51,13 +51,14 @@ module Pakyow
       # Transforms the versioned view to match +data+.
       #
       def transform(data)
-        if ((data.respond_to?(:empty?) && data.empty?) || data.nil?) && version_named(:empty)
-          use(:empty)
-        else
-          if !data.respond_to?(:each) || data.is_a?(Hash)
-            data = Array.ensure(data)
+        data = Array.ensure(data)
+        if ((data.respond_to?(:empty?) && data.empty?) || data.nil?)
+          if version_named(:empty)
+            use(:empty)
+          else
+            remove
           end
-
+        else
           template = dup
           insertable = self
           versioned_view = self
