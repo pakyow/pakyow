@@ -43,6 +43,7 @@ module Pakyow
             setting :source_maps, false
             setting :uglify, false
             setting :compress, false
+            setting :fingerprint, false
 
             setting :public_path, "/compiled/"
 
@@ -74,6 +75,7 @@ module Pakyow
             defaults :production do
               setting :uglify, true
               setting :compress, true
+              setting :fingerprint, true
             end
           end
 

@@ -20,13 +20,15 @@ Object.keys(config["packs"]).forEach(function(key) {
   });
 });
 
+var filenameString = config["fingerprint"] ? "chunkhash" : "name";
+
 var webpackConfig = {
   entry: packsEntry,
 
   output: {
     path: path.resolve(process.cwd(), config["output_path"]),
     publicPath: config["public_path"],
-    filename: "[name].js"
+    filename: `[${filenameString}].js`
   },
 
   module: {
@@ -65,7 +67,7 @@ var webpackConfig = {
         use: {
           loader: "file-loader",
           options: {
-            name: "[path][name].[ext]"
+            name: `[path][${filenameString}].[ext]`
           }
         }
       },
@@ -74,7 +76,7 @@ var webpackConfig = {
         use: {
           loader: "file-loader",
           options: {
-            name: "[path][name].[ext]"
+            name: `[path][${filenameString}].[ext]`
           }
         }
       }
@@ -85,7 +87,7 @@ var webpackConfig = {
     new ManifestPlugin({
       publicPath: config["public_path"]
     }),
-    new ExtractTextPlugin("[name].css"),
+    new ExtractTextPlugin(`[${filenameString}].css`),
     new WebpackCleanupPlugin()
   ],
 
