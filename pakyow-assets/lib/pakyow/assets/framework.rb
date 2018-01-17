@@ -114,11 +114,11 @@ module Pakyow
           end
 
           def build_assets_pack
-            config.assets.packs[:assets] = { all: [] }
+            config.assets.packs[:packs][:assets] = []
 
             Dir.glob(File.join(File.join(config.assets.frontend_assets_path, "**/*"))) do |path|
               next if path.start_with?(File.join(config.assets.frontend_assets_path, "packs"))
-              config.assets.packs[:assets][:all] << path
+              config.assets.packs[:packs][:assets] << path
             end
           end
 
