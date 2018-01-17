@@ -2,6 +2,6 @@
 
 namespace :assets do
   task :json, [:app] do |_, args|
-    puts args[:app].config.assets.packs.to_json
+    puts args[:app].config.assets.to_hash.to_json
   end
 end

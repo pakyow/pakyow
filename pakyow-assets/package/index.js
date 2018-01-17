@@ -7,22 +7,22 @@ const UglifyJSPlugin = require("uglifyjs-webpack-plugin");
 const CompressionPlugin = require("compression-webpack-plugin");
 const WebpackCleanupPlugin = require("webpack-cleanup-plugin");
 
-var packs = JSON.parse(require("child_process").execSync("bundle exec pakyow assets:json").toString());
-var packsEntry = {};
+var config = JSON.parse(require("child_process").execSync("bundle exec pakyow assets:json").toString());
 
-Object.keys(packs).forEach(function(key) {
-  var val = packs[key];
+var packsEntry = {};
+Object.keys(config["packs"]).forEach(function(key) {
+  var val = config["packs"][key];
   Object.keys(val).forEach(function(vkey) {
     packsEntry[key + "/" + vkey] = val[vkey];
   });
 });
 
-module.exports = {
+var webpackConfig = {
   entry: packsEntry,
 
   output: {
-    path: path.resolve(process.cwd(), "public/assets"),
-    publicPath: "/assets/",
+    path: path.resolve(process.cwd(), config["output_path"]),
+    publicPath: config["public_path"],
     filename: "[name].js"
   },
 
@@ -50,8 +50,7 @@ module.exports = {
             presets: [
               ["env", {
                 "targets": {
-                  // TODO: this should be a config option
-                  "browsers": ["last 2 versions"]
+                  "browsers": [config["browsers"]]
                 }
               }]
             ]
@@ -81,21 +80,33 @@ module.exports = {
 
   plugins: [
     new ManifestPlugin({
-      publicPath: "/assets/"
+      publicPath: config["public_path"]
     }),
     new ExtractTextPlugin("[name].css"),
-    new webpack.optimize.CommonsChunkPlugin({
-      name: "common"
-    }),
     new WebpackCleanupPlugin()
-
-    // TODO: production only
-    // new UglifyJSPlugin(),
-    // new CompressionPlugin()
   ],
-
-  // TODO: dev only
-  devtool: "eval-source-map",
 
   target: "web"
 };
+
+if (config["source_maps"]) {
+  webpackConfig["devtool"] = "eval-source-map";
+}
+
+if (config["common"]) {
+  webpackConfig["plugins"].push(
+    new webpack.optimize.CommonsChunkPlugin({
+      name: "common"
+    })
+  );
+}
+
+if (config["uglify"]) {
+  webpackConfig["plugins"].push(new UglifyJSPlugin());
+}
+
+if (config["compress"]) {
+  webpackConfig["plugins"].push(new CompressionPlugin());
+}
+
+module.exports = webpackConfig;

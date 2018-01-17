@@ -8,6 +8,7 @@ module Pakyow
       end
 
       def call(env)
+        # TODO: use config.assets.local_public_path
         path = File.join("./public", env["PATH_INFO"])
         if path =~ /\.(.*)$/ && File.file?(path)
           catch :halt do

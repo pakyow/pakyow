@@ -39,9 +39,28 @@ module Pakyow
             setting :common, true
             setting :manifest, {}
             setting :manifest_hot_load, false
+            setting :browsers, "last 2 versions"
+            setting :source_maps, false
+            setting :uglify, false
+            setting :compress, false
+
+            setting :public_path, "/assets/"
+            setting :local_public_path do
+              File.join(config.app.root, "public")
+            end
+
+            setting :output_path do
+              File.join(config.assets.local_public_path, config.assets.public_path)
+            end
 
             defaults :development do
               setting :manifest_hot_load, true
+              setting :source_maps, true
+            end
+
+            defaults :production do
+              setting :uglify, true
+              setting :compress, true
             end
           end
 
