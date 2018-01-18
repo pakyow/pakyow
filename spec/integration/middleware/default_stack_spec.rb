@@ -7,7 +7,12 @@ RSpec.describe "default middleware stack" do
     Pakyow.instance_variable_set(:@builder, builder)
     allow(builder).to receive(:use)
     allow(builder).to receive(:to_app)
-    Pakyow.setup
+    allow(builder).to receive(:map) { |&block| builder.instance_exec(&block) }
+    allow(builder).to receive(:run)
+
+    Pakyow.app :test
+    Pakyow.config.server.default = :mock
+    Pakyow.setup(env: :test).run
   end
 
   it "uses Rack::ContentType" do
