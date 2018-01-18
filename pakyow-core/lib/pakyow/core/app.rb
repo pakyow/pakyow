@@ -118,9 +118,6 @@ module Pakyow
   # - +config.session.object+ defines the object used to store sessions. Default
   #   is +Rack::Session::Cookie+.
   #
-  # - +config.protection.enabled+ determines whether or not to use
-  #   +Rack::Protection+ for the applicaton. Default is +true+.
-  #
   # See {Support::Configurable} for more information.
   #
   # = Application Hooks
@@ -171,10 +168,6 @@ module Pakyow
       setting :expiry, 60 * 60 * 24 * 7
     end
 
-    settings_for :protection do
-      setting :enabled, true
-    end
-
     settings_for :session do
       setting :enabled, true
 
@@ -215,11 +208,6 @@ module Pakyow
         end
 
         builder.use config.session.object, options
-      end
-
-      if config.protection.enabled
-        require "rack-protection"
-        builder.use(Rack::Protection, except: config.session.enabled ? [] : %i[session_hijacking remote_token])
       end
     end
 

@@ -52,12 +52,6 @@ RSpec.describe Pakyow::App do
       end
     end
 
-    describe "protection.enabled" do
-      it "has a default value" do
-        expect(app.config.protection.enabled).to eq(true)
-      end
-    end
-
     describe "session.enabled" do
       it "has a default value" do
         expect(app.config.session.enabled).to eq(true)

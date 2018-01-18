@@ -3,8 +3,6 @@ RSpec.describe "using sessions" do
 
   let :app_definition do
     Proc.new {
-      config.protection.enabled = false
-
       controller do
         get "/get" do
           send session[:foo] || ""
