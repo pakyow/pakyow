@@ -24,12 +24,12 @@ module Pakyow
 
       def restart?(modified, added, removed)
         return true if (added + removed).find { |path|
-          Assets.extensions.include?(File.extname(path))
+          @app.config.assets.extensions.include?(File.extname(path))
         }
 
         expanded_presenter_path = File.expand_path(@app.config.presenter.path)
         return true if modified.find { |path|
-          !Assets.extensions.include?(File.extname(path)) && File.expand_path(path).start_with?(expanded_presenter_path)
+          !@app.config.assets.extensions.include?(File.extname(path)) && File.expand_path(path).start_with?(expanded_presenter_path)
         }
 
         false

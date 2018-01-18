@@ -22,6 +22,16 @@ Object.keys(config["packs"]).forEach(function(key) {
 
 var filenameString = config["fingerprint"] ? "chunkhash" : "name";
 
+var regexpStyles = new RegExp(`.\(${config["types"]["styles"].join("\|")}\)`);
+var regexpScripts = new RegExp(`.\(${config["types"]["scripts"].join("\|")}\)`);
+
+var fileTypes = [];
+fileTypes.concat(config["types"]["av"]);
+fileTypes.concat(config["types"]["data"]);
+fileTypes.concat(config["types"]["fonts"]);
+fileTypes.concat(config["types"]["images"]);
+var regexpFiles = new RegExp(`.\(${(fileTypes).join("\|")}\)`);
+
 var webpackConfig = {
   entry: packsEntry,
 
@@ -34,20 +44,14 @@ var webpackConfig = {
   module: {
     rules: [
       {
-        test: /\.css$/,
-        use: ExtractTextPlugin.extract({
-          use: "css-loader"
-        })
-      },
-      {
-        test: /\.(scss|sass)$/,
+        test: regexpStyles,
         exclude: /node_modules/,
         use: ExtractTextPlugin.extract({
           use: ["css-loader", "sass-loader"]
         })
       },
       {
-        test: /\.js$/,
+        test: regexpScripts,
         exclude: /(node_modules|bower_components)/,
         use: {
           loader: "babel-loader",
@@ -63,16 +67,7 @@ var webpackConfig = {
         }
       },
       {
-        test: /\.(woff|woff2|eot|ttf|otf)$/,
-        use: {
-          loader: "file-loader",
-          options: {
-            name: `[path][${filenameString}].[ext]`
-          }
-        }
-      },
-      {
-        test: /\.(png|svg|jpg|gif)$/,
+        test: regexpFiles,
         use: {
           loader: "file-loader",
           options: {

@@ -2,8 +2,6 @@
 
 require "rack/proxy"
 
-require "pakyow/assets/types"
-
 require "pakyow/assets/middleware/proxy"
 require "pakyow/assets/middleware/static"
 
@@ -27,11 +25,23 @@ module Pakyow
             Pakyow.config.server.ignore.concat([
               /#{File.expand_path(config.assets.local_public_asset_path).gsub(File.join(File.expand_path(config.app.root), "/"), "")}/,
               /#{File.expand_path(config.assets.frontend_assets_path).gsub(File.join(File.expand_path(config.app.root), "/"), "")}/,
-              /#{File.expand_path(config.presenter.path).gsub(File.join(File.expand_path(config.app.root), "/"), "")}\/.*(#{Pakyow::Assets.extensions.join("|")})/
+              /#{File.expand_path(config.presenter.path).gsub(File.join(File.expand_path(config.app.root), "/"), "")}\/.*(#{config.assets.extensions.join("|")})/
             ])
           end
 
           settings_for :assets do
+            setting :types,
+                    av: %w(.webm .snd .au .aiff .mp3 .mp2 .m2a .m3a .ogx .gg .oga .midi .mid .avi .wav .wave .mp4 .m4v .acc .m4a .flac),
+                    data: %w(.json .xml .yml .yaml),
+                    fonts: %w(.eot .otf .ttf .woff .woff2),
+                    images: %w(.ico .bmp .gif .webp .png .jpg .jpeg .tiff .tif .svg),
+                    scripts: %w(.js .es6 .eco .ejs),
+                    styles: %w(.css .sass .scss)
+
+            setting :extensions do
+              config.assets.types.values.flatten
+            end
+
             setting :packs, {}
             setting :autoload, [:application]
             setting :polyfills, true
