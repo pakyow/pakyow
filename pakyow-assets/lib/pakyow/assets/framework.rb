@@ -235,8 +235,8 @@ module Pakyow
 
                 @manifest.each do |key, value|
                   if key.start_with?(frontend_assets_path)
-                    key = key.gsub(File.join(frontend_assets_path, "/"), "")
-                    html.gsub!(key, value)
+                    key = key.gsub(Regexp.new("^#{File.join(frontend_assets_path, "/")}"), "")
+                    html.gsub!(Regexp.new("\"/?#{key}\""), value)
                   end
                 end
 
