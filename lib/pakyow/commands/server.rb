@@ -68,7 +68,7 @@ module Pakyow
 
       def preload
         require "./config/environment"
-        Pakyow.setup(env: @env, go_to_app: false)
+        Pakyow.setup(env: @env)
       end
 
       def start_processes
