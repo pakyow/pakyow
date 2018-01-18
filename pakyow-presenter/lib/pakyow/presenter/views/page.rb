@@ -54,10 +54,18 @@ module Pakyow
         @containers.each_pair { |name, container| yield(name, container) }
       end
 
+      # @api private
       def mixin(partials)
         @containers.values.each do |container|
           container.mixin(partials)
         end
+      end
+
+      # @api private
+      def find_partials(partials)
+        @containers.values.each_with_object([]) { |container, found_partials|
+          found_partials.concat(container.find_partials(partials))
+        }
       end
 
       private

@@ -364,6 +364,16 @@ module Pakyow
       end
 
       # @api private
+      def find_partials(partials)
+        @object.find_significant_nodes(:partial).each_with_object([]) { |partial_node, found_partials|
+          if replacement = partials[partial_node.name]
+            found_partials << partial_node.name
+            found_partials.concat(replacement.find_partials(partials))
+          end
+        }
+      end
+
+      # @api private
       def mixin(partials)
         tap do
           @object.find_significant_nodes(:partial).each do |partial_node|

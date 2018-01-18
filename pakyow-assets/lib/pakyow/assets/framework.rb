@@ -141,10 +141,12 @@ module Pakyow
                 page_key = :"#{info[:page].logical_path[1..-1]}"
                 combined_info[page_key] = []
 
-                info[:partials].values.each do |partial|
-                  Pathname.glob(File.join(config.presenter.path, "#{partial.logical_path}.*")) do |path|
-                    next if store.template?(path)
-                    combined_info[page_key] << path
+                (info[:page].find_partials(info[:partials]) + info[:template].find_partials(info[:partials])).each do |used_partial_name|
+                  if partial = info[:partials][used_partial_name]
+                    Pathname.glob(File.join(config.presenter.path, "#{partial.logical_path}.*")) do |path|
+                      next if store.template?(path)
+                      combined_info[page_key] << path
+                    end
                   end
                 end
 
