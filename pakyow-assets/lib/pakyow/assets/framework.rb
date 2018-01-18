@@ -14,7 +14,10 @@ module Pakyow
 
         app.class_eval do
           after :configure do
-            builder.use Static
+            klass = Class.new(Static)
+            local_app = self
+            klass.define_singleton_method(:app) do local_app end
+            builder.use klass
 
             # TODO: future feature
             # builder.map "/assets" do
