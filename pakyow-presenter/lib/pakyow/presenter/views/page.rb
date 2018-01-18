@@ -18,7 +18,7 @@ module Pakyow
 
         @logical_path = args[:logical_path]
 
-        @info = { layout: :default }
+        @info = { "layout" => :default }
         @containers = {}
 
         parse
@@ -39,7 +39,7 @@ module Pakyow
       # TODO: frontmatter should be supported in View
       def info(key = nil)
         return @info if key.nil?
-        @info[key]
+        @info[key.to_s]
       end
 
       def ==(other)

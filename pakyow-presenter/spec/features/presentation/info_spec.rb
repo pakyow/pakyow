@@ -40,7 +40,7 @@ RSpec.describe "view info via presenter" do
       end
 
       it "returns a hash of values" do
-        expect(presenter.info).to eq({ foo: "bar" })
+        expect(presenter.info).to eq({ "foo" => "bar" })
       end
     end
 

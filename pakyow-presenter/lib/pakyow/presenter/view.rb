@@ -126,7 +126,7 @@ module Pakyow
         if key.nil?
           @info
         else
-          @info.fetch(key, nil)
+          @info.fetch(key.to_s, nil)
         end
       end
 
@@ -378,7 +378,7 @@ module Pakyow
       def add_info(*infos)
         tap do
           infos.each do |info|
-            @info.merge!(info.indifferentize)
+            @info.merge!(info)
           end
         end
       end
