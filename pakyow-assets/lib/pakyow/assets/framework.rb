@@ -2,7 +2,6 @@
 
 require "rack/proxy"
 
-require "pakyow/assets/middleware/proxy"
 require "pakyow/assets/middleware/static"
 
 require "pakyow/assets/process"
@@ -16,6 +15,8 @@ module Pakyow
         app.class_eval do
           after :configure do
             builder.use Static
+
+            # TODO: future feature
             # builder.map "/assets" do
             #   use Middleware::Proxy
             # end
@@ -53,6 +54,9 @@ module Pakyow
             setting :uglify, false
             setting :compress, false
             setting :fingerprint, false
+            setting :config_file do
+              File.join(config.app.root, "config/assets/environment.js")
+            end
 
             setting :public_path, "/compiled/"
 

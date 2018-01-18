@@ -3,6 +3,8 @@
 module Pakyow
   module Assets
     module Middleware
+      # Proxies to webpack-dev-server (to be supported in the future).
+      #
       class Proxy < Rack::Proxy
         def rewrite_env(env)
           # TODO: pull this from a config option

@@ -4,6 +4,8 @@ require "pakyow/process"
 
 module Pakyow
   module Assets
+    # Manages the webpack process.
+    #
     class Process < Process
       def initialize(server, app)
         super(server)
@@ -11,9 +13,13 @@ module Pakyow
       end
 
       def start
-        # TODO: or, start the webpack-dev-server based on the config options
-        @pid = ::Process.spawn("./node_modules/.bin/webpack --config config/assets/environment.js --watch", out: File.open(File::NULL, "w"), err: $stderr)
+        webpack = File.join(@app.config.app.root, "node_modules/.bin/webpack")
+        @pid = ::Process.spawn("#{webpack} --config #{@app.config.assets.config_file} --watch", out: File.open(File::NULL, "w"), err: $stderr)
+
+        # TODO: in the future, we may also start the webpack-dev-server based on config options
       end
+
+      protected
 
       def watch_callback(modified, added, removed)
         if restart?(modified, added, removed)

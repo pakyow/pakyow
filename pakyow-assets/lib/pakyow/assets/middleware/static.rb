@@ -2,6 +2,8 @@
 
 module Pakyow
   module Assets
+    # Serves content from the configured public directory.
+    #
     class Static
       def initialize(app)
         @app = app
