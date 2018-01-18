@@ -239,7 +239,6 @@ module Pakyow
     #
     def setup(env: nil)
       @env = (env ||= config.env.default).to_sym
-
       performing :configure do
         use_config(env)
       end
@@ -273,6 +272,23 @@ module Pakyow
       end
 
       self
+    end
+
+    # Stages the environment, which only configures the environment and each app.
+    #
+    # @param env [Symbol] the environment that Pakyow will be staged in
+    #
+    def stage(env: nil)
+      builder = Rack::Builder.new
+
+      @env = (env ||= config.env.default).to_sym
+      performing :configure do
+        use_config(env)
+      end
+
+      @mounts.each do |_, mount|
+        mount[:app].new(env, builder: builder, stage: true, &mount[:block])
+      end
     end
 
     def to_app
