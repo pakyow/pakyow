@@ -2,7 +2,7 @@ RSpec.describe "stopping the environment" do
   before do
     allow(handler_double).to receive(:run).and_yield(server_double)
     allow(Pakyow).to receive(:handler).and_return(handler_double)
-    Pakyow.instance_variable_set(:@builder, double.as_null_object)
+    allow(Pakyow).to receive(:builder_instance).and_return(double.as_null_object)
     Pakyow.config.server.default = :mock
 
     expect(Pakyow).to receive(:trap).at_least(:once) do |signal, &block|

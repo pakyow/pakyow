@@ -4,7 +4,7 @@ RSpec.describe "default middleware stack" do
   end
 
   before do
-    Pakyow.instance_variable_set(:@builder, builder)
+    allow(Pakyow).to receive(:builder_instance).and_return(builder)
     allow(builder).to receive(:use)
     allow(builder).to receive(:to_app)
     allow(builder).to receive(:map) { |&block| builder.instance_exec(&block) }
