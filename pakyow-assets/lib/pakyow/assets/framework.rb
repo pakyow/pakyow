@@ -181,7 +181,6 @@ module Pakyow
               next unless head = @presenter.view.object.find_significant_nodes(:head)[0]
 
               if config.assets.polyfills
-                # TODO: don't hardcode the polyfills path below
                 head.append(<<~HTML
                   <script>
                     var modernBrowser = (
@@ -203,7 +202,7 @@ module Pakyow
                 append_asset_to_head_from_manifest("common", head, @manifest)
               end
 
-              config.assets.autoload.each do |pack|
+              (config.assets.autoload + @presenter.view.info(:packs).to_s.split(" ")).uniq.each do |pack|
                 append_asset_to_head_from_manifest(File.join("packs", pack.to_s), head, @manifest)
               end
 
