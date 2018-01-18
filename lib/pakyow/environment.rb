@@ -193,7 +193,7 @@ module Pakyow
   class_level_state :apps,       default: []
   class_level_state :mounts,     default: {}
   class_level_state :frameworks, default: {}
-  class_level_state :builder
+  class_level_state :builder,    default: Rack::Builder.new
 
   class << self
     # Name of the environment
@@ -238,8 +238,6 @@ module Pakyow
     # @param env [Symbol] the environment that Pakyow will be started in
     #
     def setup(env: nil)
-      @builder = builder_instance
-
       @env = (env ||= config.env.default).to_sym
 
       performing :configure do
@@ -280,7 +278,7 @@ module Pakyow
     def to_app
       return @app if instance_variable_defined?(:@app)
 
-      @app = @builder.to_app
+      @app = builder.to_app
       call_hooks(:after, :boot)
       @app
     end
@@ -392,10 +390,6 @@ module Pakyow
     end
 
     protected
-
-    def builder_instance
-      Rack::Builder.new
-    end
 
     def use(middleware, *args)
       @builder.use(middleware, *args)
