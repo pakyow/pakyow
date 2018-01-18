@@ -237,7 +237,7 @@ module Pakyow
     #
     # @param env [Symbol] the environment that Pakyow will be started in
     #
-    def setup(env: nil)
+    def setup(env: nil, go_to_app: true)
       @builder = builder_instance
 
       @env = (env ||= config.env.default).to_sym
@@ -270,7 +270,7 @@ module Pakyow
         end
       end
 
-      unless @mounts.empty?
+      unless !go_to_app || @mounts.empty?
         to_app
       end
 
