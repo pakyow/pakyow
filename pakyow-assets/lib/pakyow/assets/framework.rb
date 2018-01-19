@@ -57,6 +57,13 @@ module Pakyow
             setting :uglify, false
             setting :compress, false
             setting :fingerprint, false
+            setting :build, false
+
+            setting :webpack_command do
+              webpack = File.join(config.app.root, "node_modules/.bin/webpack")
+              "#{webpack} --config #{config.assets.config_file}"
+            end
+
             setting :config_file do
               File.join(config.app.root, "config/assets/environment.js")
             end
@@ -86,6 +93,7 @@ module Pakyow
             defaults :development do
               setting :manifest_hot_load, true
               setting :source_maps, true
+              setting :build, true
             end
 
             defaults :production do
@@ -100,7 +108,7 @@ module Pakyow
 
             config.assets.manifest = load_manifest
 
-            if Pakyow.process
+            if Pakyow.process && config.assets.build
               process = Class.new(Pakyow::Assets::Process)
               process.watch(config.presenter.path)
 

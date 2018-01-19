@@ -13,8 +13,7 @@ module Pakyow
       end
 
       def start
-        webpack = File.join(@app.config.app.root, "node_modules/.bin/webpack")
-        @pid = ::Process.spawn("#{webpack} --config #{@app.config.assets.config_file} --watch", out: File.open(File::NULL, "w"), err: $stderr)
+        @pid = ::Process.spawn("PAKYOW_ASSETS_CONFIG='#{Base64.encode64(@app.config.assets.to_hash.to_json)}' #{@app.config.assets.webpack_command} --watch", out: File.open(File::NULL, "w"), err: $stderr)
 
         # TODO: in the future, we may also start the webpack-dev-server based on config options
       end

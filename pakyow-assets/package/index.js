@@ -7,7 +7,7 @@ const UglifyJSPlugin = require("uglifyjs-webpack-plugin");
 const CompressionPlugin = require("compression-webpack-plugin");
 const WebpackCleanupPlugin = require("webpack-cleanup-plugin");
 
-var config = JSON.parse(require("child_process").execSync("bundle exec pakyow assets:json").toString());
+var config = JSON.parse(new Buffer(process.env.PAKYOW_ASSETS_CONFIG, "base64").toString("ascii"));
 
 var packsEntry = {};
 Object.keys(config["packs"]).forEach(function(key) {
@@ -20,38 +20,33 @@ Object.keys(config["packs"]).forEach(function(key) {
   });
 });
 
-var filenameString = config["fingerprint"] ? "chunkhash" : "name";
-
-var regexpStyles = new RegExp(`.\(${config["types"]["styles"].join("\|")}\)`);
-var regexpScripts = new RegExp(`.\(${config["types"]["scripts"].join("\|")}\)`);
-
-var fileTypes = [];
-fileTypes.concat(config["types"]["av"]);
-fileTypes.concat(config["types"]["data"]);
-fileTypes.concat(config["types"]["fonts"]);
-fileTypes.concat(config["types"]["images"]);
-var regexpFiles = new RegExp(`.\(${(fileTypes).join("\|")}\)`);
-
 var webpackConfig = {
   entry: packsEntry,
 
   output: {
     path: path.resolve(process.cwd(), config["output_path"]),
     publicPath: config["public_path"],
-    filename: `[${filenameString}].js`
+    filename: `[${config["fingerprint"] ? "chunkhash" : "name"}].js`
   },
 
   module: {
     rules: [
       {
-        test: regexpStyles,
-        exclude: /node_modules/,
+        test: function (path) {
+          var ext = "." + path.split('.').pop();
+          if (config["types"]["styles"].indexOf(ext) > -1) { return true; }
+        },
+        exclude: /(node_modules|bower_components)/,
         use: ExtractTextPlugin.extract({
           use: ["css-loader", "sass-loader"]
         })
       },
+
       {
-        test: regexpScripts,
+        test: function (path) {
+          var ext = "." + path.split('.').pop();
+          if (config["types"]["scripts"].indexOf(ext) > -1) { return true; }
+        },
         exclude: /(node_modules|bower_components)/,
         use: {
           loader: "babel-loader",
@@ -66,12 +61,20 @@ var webpackConfig = {
           }
         }
       },
+
       {
-        test: regexpFiles,
+        test: function (path) {
+          var ext = "." + path.split('.').pop();
+          if (config["types"]["av"].indexOf(ext) > -1) { return true; }
+          if (config["types"]["data"].indexOf(ext) > -1) { return true; }
+          if (config["types"]["fonts"].indexOf(ext) > -1) { return true; }
+          if (config["types"]["images"].indexOf(ext) > -1) { return true; }
+        },
+        exclude: /(node_modules|bower_components)/,
         use: {
           loader: "file-loader",
           options: {
-            name: `[path][${filenameString}].[ext]`
+            name: `[path][${config["fingerprint"] ? "hash" : "name"}].foo.[ext]`
           }
         }
       }
@@ -82,7 +85,12 @@ var webpackConfig = {
     new ManifestPlugin({
       publicPath: config["public_path"]
     }),
-    new ExtractTextPlugin(`[${filenameString}].css`),
+
+    new ExtractTextPlugin({
+      filename: `[${config["fingerprint"] ? "contenthash" : "name"}].css`,
+      allChunks: true
+    }),
+
     new WebpackCleanupPlugin()
   ],
 
