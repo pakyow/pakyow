@@ -7,7 +7,12 @@ const UglifyJSPlugin = require("uglifyjs-webpack-plugin");
 const CompressionPlugin = require("compression-webpack-plugin");
 const WebpackCleanupPlugin = require("webpack-cleanup-plugin");
 
-var config = JSON.parse(new Buffer(process.env.PAKYOW_ASSETS_CONFIG, "base64").toString("ascii"));
+var config = {};
+if (process.env.PAKYOW_ASSETS_CONFIG) {
+  config = JSON.parse(new Buffer(process.env.PAKYOW_ASSETS_CONFIG, "base64").toString("ascii"));
+} else {
+  config = JSON.parse(require("child_process").execSync("bundle exec pakyow assets:json").toString());
+}
 
 var packsEntry = {};
 Object.keys(config["packs"]).forEach(function(key) {
