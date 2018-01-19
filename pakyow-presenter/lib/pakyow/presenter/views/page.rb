@@ -18,7 +18,7 @@ module Pakyow
 
         @logical_path = args[:logical_path]
 
-        @info = { layout: :default }
+        @info = { "layout" => :default }
         @containers = {}
 
         parse
@@ -39,7 +39,7 @@ module Pakyow
       # TODO: frontmatter should be supported in View
       def info(key = nil)
         return @info if key.nil?
-        @info[key]
+        @info[key.to_s]
       end
 
       def ==(other)
@@ -54,10 +54,18 @@ module Pakyow
         @containers.each_pair { |name, container| yield(name, container) }
       end
 
+      # @api private
       def mixin(partials)
         @containers.values.each do |container|
           container.mixin(partials)
         end
+      end
+
+      # @api private
+      def find_partials(partials)
+        @containers.values.each_with_object([]) { |container, found_partials|
+          found_partials.concat(container.find_partials(partials))
+        }
       end
 
       private

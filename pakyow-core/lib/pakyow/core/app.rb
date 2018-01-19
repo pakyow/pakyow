@@ -236,7 +236,7 @@ module Pakyow
     class_level_state :endpoints,  default: [], inheritable: true
     class_level_state :helpers,    default: [], inheritable: true
 
-    def initialize(environment, builder: nil, &block)
+    def initialize(environment, builder: nil, stage: false, &block)
       @paths = Paths.new
       @environment = environment
       @builder = builder
@@ -256,8 +256,10 @@ module Pakyow
           use_config(environment)
         end
 
-        performing :load do
-          load_app
+        unless stage
+          performing :load do
+            load_app
+          end
         end
       end
 
@@ -265,7 +267,7 @@ module Pakyow
       #
       # This ensures that any state registered in the passed block
       # has the proper priority against instance and global state.
-      defined!(&block)
+      defined!(&block) unless stage
     end
 
     RESPOND_MISSING = [[], 404, {}].freeze

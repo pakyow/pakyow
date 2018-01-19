@@ -5,6 +5,7 @@
   core
   data
   presenter
+  assets
   realtime
   ui
 ).each do |lib|

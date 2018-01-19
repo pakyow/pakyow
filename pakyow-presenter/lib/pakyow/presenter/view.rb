@@ -126,7 +126,7 @@ module Pakyow
         if key.nil?
           @info
         else
-          @info.fetch(key, nil)
+          @info.fetch(key.to_s, nil)
         end
       end
 
@@ -364,6 +364,16 @@ module Pakyow
       end
 
       # @api private
+      def find_partials(partials)
+        @object.find_significant_nodes(:partial).each_with_object([]) { |partial_node, found_partials|
+          if replacement = partials[partial_node.name]
+            found_partials << partial_node.name
+            found_partials.concat(replacement.find_partials(partials))
+          end
+        }
+      end
+
+      # @api private
       def mixin(partials)
         tap do
           @object.find_significant_nodes(:partial).each do |partial_node|
@@ -378,7 +388,7 @@ module Pakyow
       def add_info(*infos)
         tap do
           infos.each do |info|
-            @info.merge!(info.indifferentize)
+            @info.merge!(info)
           end
         end
       end

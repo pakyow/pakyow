@@ -71,6 +71,12 @@ module Pakyow
         def extendable?
           @__options[:extendable] == true
         end
+
+        def to_hash
+          Hash[@__settings.map { |key, option|
+            [key, option.value(@__parent)]
+          }]
+        end
       end
     end
   end
