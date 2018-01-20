@@ -180,7 +180,7 @@ module Pakyow
       #
       def transform(object)
         tap do
-          if object.nil? || object.empty?
+          if object.nil? || (object.respond_to?(:empty?) && object.empty?)
             remove
           else
             binding_props(children: false).each do |binding|

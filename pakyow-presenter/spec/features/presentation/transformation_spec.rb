@@ -56,6 +56,17 @@ RSpec.describe "view transformation via presenter" do
         expect(presenter.to_s).to eq("")
       end
     end
+
+    context "object does not respond to empty" do
+      let :object do
+        Struct.new(:title, :body) do; end
+      end
+
+      it "attempts to bind" do
+        post_presenter.transform(object.new("title"))
+        expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">title goes here</h1></div>")
+      end
+    end
   end
 
   describe "append" do
