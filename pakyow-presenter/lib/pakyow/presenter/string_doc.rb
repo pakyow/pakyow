@@ -234,7 +234,10 @@ module Pakyow
       def replace_node(node_to_replace, replacement_node)
         tap do
           if replace_node_index = @nodes.index(node_to_replace)
-            @nodes.insert(replace_node_index + 1, *self.class.nodes_from_doc_or_string(replacement_node))
+            nodes_to_insert = self.class.nodes_from_doc_or_string(replacement_node).map { |node|
+              node.instance_variable_set(:@parent, self); node
+            }
+            @nodes.insert(replace_node_index + 1, *nodes_to_insert)
             @nodes.delete_at(replace_node_index)
           end
         end

@@ -64,6 +64,15 @@ RSpec.describe Pakyow::Presenter::StringNode do
         doc.find_significant_nodes_with_name(:binding, :title)[0].replace(replacement)
         expect(doc.to_s).to eq("<div data-b=\"post\"><div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div></div>")
       end
+
+      context "removing a node that has been used as a replacement" do
+        it "properly removes the replacement node" do
+          replacement = node.dup
+          doc.find_significant_nodes_with_name(:binding, :title)[0].replace(replacement)
+          replacement.remove
+          expect(doc.to_html).to eq("<div data-b=\"post\"></div>")
+        end
+      end
     end
 
     context "replacement is another object" do
