@@ -4,19 +4,19 @@ require "pakyow/support/deep_dup"
 
 module Pakyow
   module Presenter
-    class TemplateStore
+    class Templates
       using Support::DeepDup
 
       attr_reader :name, :path, :layouts, :pages
 
-      LAYOUTS_PATH = "layouts".freeze
-      PARTIALS_PATH = "includes".freeze
-      # TODO: rename this constant
-      TEMPLATES_PATH = "pages".freeze
+      DEFAULT_LAYOUTS_PATH = "layouts"
+      DEFAULT_PARTIALS_PATH = "includes"
+      DEFAULT_PAGES_PATH = "pages"
 
-      def initialize(name, path, processor: nil)
+      def initialize(name, path, processor: nil, config: {})
         @name, @path, @processor = name, Pathname(path), processor
-        load
+        build_config(config)
+        load_templates
       end
 
       def view?(path)
@@ -54,20 +54,20 @@ module Pakyow
       end
 
       def layouts_path
-        path.join(LAYOUTS_PATH)
+        path.join(@config[:paths][:layouts])
       end
 
       def partials_path
-        path.join(PARTIALS_PATH)
+        path.join(@config[:paths][:partials])
       end
 
-      def templates_path
-        path.join(TEMPLATES_PATH)
+      def pages_path
+        path.join(@config[:paths][:pages])
       end
 
       def template?(path)
         return false if path.basename.to_s.start_with?(".")
-        return false unless path.extname == ".html" || @processor.process?(path.extname)
+        return false unless path.extname == ".html" || @processor&.process?(path.extname)
 
         true
       end
@@ -84,7 +84,17 @@ module Pakyow
         layout
       end
 
-      def load
+      def build_config(config)
+        @config = {
+          paths: {
+            layouts: config.dig(:paths, :layouts) || DEFAULT_LAYOUTS_PATH,
+            pages: config.dig(:paths, :pages) || DEFAULT_PAGES_PATH,
+            partials: config.dig(:paths, :partials) || DEFAULT_PARTIALS_PATH,
+          }
+        }
+      end
+
+      def load_templates
         load_layouts
         load_partials
         load_path_info
@@ -115,7 +125,7 @@ module Pakyow
       def load_path_info
         @info = {}
 
-        Pathname.glob(File.join(templates_path, "**/*")) do |path|
+        Pathname.glob(File.join(pages_path, "**/*")) do |path|
           # TODO: better way to skip partials?
           next if path.basename.to_s.start_with?("_")
 
@@ -123,7 +133,7 @@ module Pakyow
 
           begin
             if page = page_at_path(path)
-              @info[normalize_path(path, templates_path)] = {
+              @info[normalize_path(path, pages_path)] = {
                 page: page,
                 template: layout_with_name(page.info(:layout)),
                 partials: @partials.merge(partials_at_path(path))
@@ -163,6 +173,9 @@ module Pakyow
       # TODO: do we always need to make it relative, etc here?
       # maybe break up these responsibilities to the bare minimum required
       def normalize_path(path, relative_from = @path)
+        path = path.expand_path
+        relative_from = relative_from.expand_path
+
         # make it relative
         path = path.relative_path_from(relative_from)
         # we can short-circuit here
@@ -191,10 +204,14 @@ module Pakyow
       end
 
       def load_view_of_type_at_path(type, path, logical_path = nil)
+        content = File.read(path)
+        info, content = FrontMatterParser.parse_and_scrub(content)
+
         if @processor
-          type.load(path, content: @processor.process(path), logical_path: logical_path)
+          extension = File.extname(path).delete(".").to_sym
+          type.load(path, info: info, content: @processor.process(content, extension), logical_path: logical_path)
         else
-          type.load(path, logical_path: logical_path)
+          type.load(path, info: info, logical_path: logical_path)
         end
       end
     end

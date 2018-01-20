@@ -16,7 +16,7 @@ module Pakyow
         super(html, **args)
       end
 
-      def container(name = :default)
+      def container(name = Page::DEFAULT_CONTAINER)
         @object.container(name.to_sym)
       end
 

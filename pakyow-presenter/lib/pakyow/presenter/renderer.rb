@@ -106,7 +106,7 @@ module Pakyow
       end
 
       def info_for_path(path)
-        app.state_for(:template_store).lazy.map { |store|
+        app.state_for(:templates).lazy.map { |store|
           store.info(path)
         }.find(&:itself)
       end

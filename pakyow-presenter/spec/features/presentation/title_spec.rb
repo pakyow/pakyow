@@ -5,15 +5,7 @@ RSpec.describe "view titles via presenter" do
 
   context "title contained in front matter" do
     let :view do
-      Pakyow::Presenter::View.new(
-        <<~HTML
-          ---
-          title: hi
-          ---
-
-          <head><title></title></head>
-        HTML
-      )
+      Pakyow::Presenter::View.new("<head><title></title></head>", info: { "title" => "hi" })
     end
 
     it "sets the value" do

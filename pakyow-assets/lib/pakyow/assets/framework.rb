@@ -149,7 +149,7 @@ module Pakyow
           end
 
           def build_frontend_pack
-            info = state_for(:template_store).each_with_object({}) { |store, combined_info|
+            info = state_for(:templates).each_with_object({}) { |store, combined_info|
               store.layouts.each do |layout_name, _layout|
                 layout_key = :"layouts/#{layout_name}"
                 combined_info[layout_key] = []

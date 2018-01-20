@@ -5,13 +5,7 @@ RSpec.describe "view info via presenter" do
 
   describe "accessing a key" do
     let :view do
-      Pakyow::Presenter::View.new(
-        <<~HTML
-          ---
-          foo: bar
-          ---
-        HTML
-      )
+      Pakyow::Presenter::View.new("", info: { "foo" => "bar" })
     end
 
     context "value exists" do
@@ -30,13 +24,7 @@ RSpec.describe "view info via presenter" do
   describe "accessing info" do
     context "view has front matter" do
       let :view do
-        Pakyow::Presenter::View.new(
-          <<~HTML
-            ---
-            foo: bar
-            ---
-          HTML
-        )
+        Pakyow::Presenter::View.new("", info: { "foo" => "bar" })
       end
 
       it "returns a hash of values" do

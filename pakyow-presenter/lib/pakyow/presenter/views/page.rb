@@ -4,24 +4,23 @@ require "yaml"
 
 module Pakyow
   module Presenter
-    class Page
+    class Page < View
+      DEFAULT_CONTAINER = :main
+
+      attr_reader :name, :path
+
       class << self
         def load(path, content: nil, **args)
-          Page.new(File.basename(path, ".*").to_sym, content || File.read(path), path, **args)
+          self.new(File.basename(path, ".*").to_sym, content || File.read(path), **args, path: path)
         end
       end
 
-      attr_reader :path, :contents, :logical_path
-
-      def initialize(name, html, path, **args)
-        @name, @contents, @path = name, html, path
-
-        @logical_path = args[:logical_path]
-
-        @info = { "layout" => :default }
+      def initialize(name, html = "", path: nil, info: {}, **args)
         @containers = {}
-
-        parse
+        parse_content(html)
+        @name, @path = name, path
+        info["layout"] ||= :default
+        super(html, info: info, **args)
       end
 
       def initialize_copy(_)
@@ -33,69 +32,26 @@ module Pakyow
       end
 
       def content(container)
-        container(container)&.object
-      end
+        container = container.to_sym
 
-      # TODO: frontmatter should be supported in View
-      def info(key = nil)
-        return @info if key.nil?
-        @info[key.to_s]
-      end
-
-      def ==(other)
-        @contents == other.contents
-      end
-
-      def container(name)
-        @containers[name.to_sym]
-      end
-
-      def each_container
-        @containers.each_pair { |name, container| yield(name, container) }
-      end
-
-      # @api private
-      def mixin(partials)
-        @containers.values.each do |container|
-          container.mixin(partials)
+        if container == DEFAULT_CONTAINER
+          @object
+        else
+          @containers[container]
         end
       end
 
-      # @api private
-      def find_partials(partials)
-        @containers.values.each_with_object([]) { |container, found_partials|
-          found_partials.concat(container.find_partials(partials))
-        }
-      end
+      protected
 
-      private
+      WITHIN_REGEX = /<!--\s*@within\s*([a-zA-Z0-9\-_]*)\s*-->(.*?)<!--\s*\/within\s*-->/m
 
-      def parse
-        parse_info
-        parse_content
-      end
-
-      def parse_info
-        @info.merge!(FrontMatterParser.parse(@contents, self.path))
-      end
-
-      def parse_content
-        # remove yaml front matter
-        @contents = FrontMatterParser.scrub(@contents)
-
-        # process contents
-        # @contents = Presenter.process(@contents, @format)
-
-        # find content in named containers
-        within_regex = /<!--\s*@within\s*([a-zA-Z0-9\-_]*)\s*-->(.*?)<!--\s*\/within\s*-->/m
-
-        @contents.scan(within_regex) do |m|
-          container_name = m[0].to_sym
-          @containers[container_name] = Container.new(m[1])
+      def parse_content(html)
+        html.scan(WITHIN_REGEX) do |match|
+          container_name = match[0].to_sym
+          @containers[container_name] = StringDoc.new(match[1])
         end
 
-        # find default content
-        @containers[:default] = Container.new(@contents.gsub(within_regex, ""))
+        html.gsub!(WITHIN_REGEX, "")
       end
     end
   end

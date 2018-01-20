@@ -11,7 +11,7 @@ module Pakyow
         app.class_eval do
           endpoint renderer_class
 
-          stateful :template_store, TemplateStore
+          stateful :templates, Templates
           stateful :view, ViewPresenter
           stateful :binder, Binder
           stateful :processor, Processor
@@ -28,7 +28,7 @@ module Pakyow
           end
 
           after :load do
-            self.class.template_store << TemplateStore.new(
+            self.class.templates << Templates.new(
               :default,
               config.presenter.path,
               processor: ProcessorCaller.new(
@@ -43,7 +43,7 @@ module Pakyow
             #     end
             #   end
 
-            #   app_class.template_store << TemplateStore.new(:errors, File.join(File.expand_path("../../", __FILE__), "views", "errors"))
+            #   app_class.templates << Templates.new(:errors, File.join(File.expand_path("../../", __FILE__), "views", "errors"))
 
             #   # TODO: define view objects to render built-in errors
             # end

@@ -7,10 +7,7 @@ module Pakyow
         @processors = normalize(instances)
       end
 
-      def process(path)
-        content   = File.read(path)
-        extension = File.extname(path).delete(".").to_sym
-
+      def process(content, extension)
         processors_for_extension(extension).each do |processor|
           content = processor.process(content)
         end

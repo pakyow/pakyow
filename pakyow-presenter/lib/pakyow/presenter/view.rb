@@ -56,10 +56,9 @@ module Pakyow
 
       # Creates a view with +html+.
       #
-      def initialize(html, logical_path: nil)
-        @info, html = FrontMatterParser.parse_and_scrub(html)
+      def initialize(html, info: {}, logical_path: nil)
         @object = StringDoc.new(html)
-        @logical_path = logical_path
+        @info, @logical_path = info, logical_path
 
         if @object.respond_to?(:attributes)
           self.attributes = @object.attributes
@@ -120,9 +119,6 @@ module Pakyow
       # Returns all view info when +key+ is +nil+, otherwise returns the value for +key+.
       #
       def info(key = nil)
-        # FIXME: somehow we're creating views without initializing info
-        return {} unless instance_variable_defined?(:@info)
-
         if key.nil?
           @info
         else

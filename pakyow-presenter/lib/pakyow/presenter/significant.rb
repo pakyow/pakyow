@@ -69,7 +69,7 @@ module Pakyow
         match = element.text.strip.match(CONTAINER_REGEX)[1]
 
         if match.empty?
-          :default
+          Page::DEFAULT_CONTAINER
         else
           match.to_sym
         end
