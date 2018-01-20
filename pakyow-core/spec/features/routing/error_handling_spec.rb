@@ -157,6 +157,27 @@ RSpec.describe "error handling" do
         expect(call[0]).to eq(404)
       end
     end
+
+    context "and a handler is not defined" do
+      let :app_definition do
+        Proc.new {
+          controller do
+            default do
+              trigger 404
+              res.body = ["foo"]
+            end
+          end
+        }
+      end
+
+      it "halts" do
+        expect(call[2].body).not_to eq(["foo"])
+      end
+
+      it "sets the response code" do
+        expect(call[0]).to eq(404)
+      end
+    end
   end
 
   context "when an exception occurs" do
@@ -236,6 +257,26 @@ RSpec.describe "error handling" do
         it "sets the response code" do
           expect(call[0]).to eq(401)
         end
+      end
+    end
+
+    context "and a handler is not defined for the exception" do
+      let :app_definition do
+        Proc.new {
+          controller do
+            default do
+              raise StandardError
+            end
+          end
+        }
+      end
+
+      it "sets the response code" do
+        expect(call[0]).to eq(500)
+      end
+
+      it "returns an empty body" do
+        expect(call[2].body).to eq([])
       end
     end
   end
