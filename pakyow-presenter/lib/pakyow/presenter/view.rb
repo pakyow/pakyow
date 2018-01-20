@@ -183,7 +183,7 @@ module Pakyow
           if object.nil? || object.empty?
             remove
           else
-            binding_props.each do |binding|
+            binding_props(children: false).each do |binding|
               next if object[binding.name]
               binding.remove
             end
@@ -353,8 +353,8 @@ module Pakyow
       end
 
       # @api private
-      def binding_props
-        @object.find_significant_nodes(:binding, with_children: false).reject { |node|
+      def binding_props(children: true)
+        @object.find_significant_nodes(:binding, with_children: children).reject { |node|
           node.find_significant_nodes(:binding).any?
         }
       end

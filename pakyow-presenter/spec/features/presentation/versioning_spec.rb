@@ -233,7 +233,7 @@ RSpec.describe "view versioning via presenter" do
 
     context "empty version exists, and data is empty" do
       let :view do
-        Pakyow::Presenter::View.new("<div binding=\"post\" version=\"empty\">no posts here</div><div binding=\"post\"><h1 binding=\"title\">post title</h1></div>")
+        Pakyow::Presenter::View.new("<body><div binding=\"post\" version=\"empty\">no posts here</div><div binding=\"post\"><h1 binding=\"title\">post title</h1></div></body>")
       end
 
       before do
@@ -241,7 +241,7 @@ RSpec.describe "view versioning via presenter" do
       end
 
       it "renders the empty version" do
-        expect(presenter.to_s).to eq("<div data-b=\"post\">no posts here</div>")
+        expect(presenter.to_s).to eq("<body><div data-b=\"post\">no posts here</div></body>")
       end
     end
   end

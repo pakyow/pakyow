@@ -130,12 +130,12 @@ RSpec.describe "binding data via presenter, with a binder" do
 
   context "nested data has a binder" do
     let :view do
-      Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\">title goes here</h1><div binding=\"comment\"><p binding=\"body\">comment body goes here</p></div>")
+      Pakyow::Presenter::View.new("<body><div binding=\"post\"><h1 binding=\"title\">title goes here</h1><div binding=\"comment\"><p binding=\"body\">comment body goes here</p></div></body>")
     end
 
     it "uses the binder" do
       post_presenter.present(title: "post", comment: { body: "comment" })
-      expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">tsop</h1><div data-b=\"comment\"><p data-b=\"body\">comment: comment</p></div></div>")
+      expect(presenter.to_s).to eq("<body><div data-b=\"post\"><h1 data-b=\"title\">tsop</h1><div data-b=\"comment\"><p data-b=\"body\">comment: comment</p></div></div></body>")
     end
   end
 end
