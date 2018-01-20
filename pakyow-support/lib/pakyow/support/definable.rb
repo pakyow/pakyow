@@ -199,7 +199,7 @@ module Pakyow
 
       def reprioritize!
         @instances.sort! { |a, b|
-          priorities[b] <=> priorities[a]
+          (@priorities[b] || 0) <=> (@priorities[a] || 0)
         }
       end
     end
