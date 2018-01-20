@@ -166,7 +166,7 @@ module Pakyow
                 page_key = :"#{info[:page].logical_path[1..-1]}"
                 combined_info[page_key] = []
 
-                (info[:page].find_partials(info[:partials]) + info[:template].find_partials(info[:partials])).each do |used_partial_name|
+                (info[:page].find_partials(info[:partials]) + info[:layout].find_partials(info[:partials])).each do |used_partial_name|
                   if partial = info[:partials][used_partial_name]
                     Pathname.glob(File.join(config.presenter.path, "#{partial.logical_path}.*")) do |path|
                       next if store.template?(path)
@@ -233,7 +233,7 @@ module Pakyow
                 append_asset_to_head_from_manifest(File.join("packs", pack.to_s), head, @manifest)
               end
 
-              append_asset_to_head_from_manifest(File.join("frontend", "layouts", @presenter.template.name.to_s), head, @manifest)
+              append_asset_to_head_from_manifest(File.join("frontend", "layouts", @presenter.layout.name.to_s), head, @manifest)
               append_asset_to_head_from_manifest(File.join("frontend", @presenter.page.logical_path[1..-1].to_s), head, @manifest)
             end
 

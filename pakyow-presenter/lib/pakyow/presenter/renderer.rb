@@ -5,8 +5,14 @@ require "pakyow/support/hookable"
 module Pakyow
   module Presenter
     module RenderHelpers
-      def render(path = request.env["pakyow.endpoint"] || request.path, as: nil)
-        app.class.const_get(:Renderer).new(@__state).perform(path, as: as); throw :halt
+      def render(path = request.env["pakyow.endpoint"] || request.path, as: nil, layout: nil)
+        path = String.normalize_path(path)
+
+        if as
+          as = String.normalize_path(as)
+        end
+
+        app.class.const_get(:Renderer).new(@__state).perform(path, as: as, layout: layout); throw :halt
       end
     end
 
@@ -53,9 +59,13 @@ module Pakyow
         @__state = state
       end
 
-      def setup(path = default_path, as: nil)
+      def setup(path = default_path, as: nil, layout: nil)
         unless info = find_info_for(path)
           raise MissingView.new("No view at path `#{path}'")
+        end
+
+        if layout && layout = layout_with_name(layout)
+          info[:layout] = layout.dup
         end
 
         presenter = find_presenter_for(as || path) || ViewPresenter
@@ -67,8 +77,8 @@ module Pakyow
         )
       end
 
-      def perform(path = default_path, as: nil)
-        setup(path, as: as)
+      def perform(path = default_path, as: nil, layout: nil)
+        setup(path, as: as, layout: layout)
 
         define_presentables(@__state.values)
 
@@ -108,6 +118,12 @@ module Pakyow
       def info_for_path(path)
         app.state_for(:templates).lazy.map { |store|
           store.info(path)
+        }.find(&:itself)
+      end
+
+      def layout_with_name(name)
+        app.state_for(:templates).lazy.map { |store|
+          store.layout(name)
         }.find(&:itself)
       end
 

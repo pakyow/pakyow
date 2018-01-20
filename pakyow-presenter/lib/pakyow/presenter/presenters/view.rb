@@ -31,15 +31,15 @@ module Pakyow
         end
       end
 
-      attr_reader :template, :page, :partials
+      attr_reader :layout, :page, :partials
 
-      def initialize(template: nil, page: nil, partials: [], **args)
-        @template, @page, @partials = template, page, partials
+      def initialize(layout: nil, page: nil, partials: [], **args)
+        @layout, @page, @partials = layout, page, partials
 
-        @template.mixin(partials)
+        @layout.mixin(partials)
         @page.mixin(partials)
 
-        @view = template.build(page)
+        @view = layout.build(page)
         super(@view, **args)
       end
 

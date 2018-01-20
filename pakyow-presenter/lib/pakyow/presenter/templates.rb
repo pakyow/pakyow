@@ -37,7 +37,7 @@ module Pakyow
         if name_or_path.is_a?(Symbol)
           layout_with_name(name_or_path)
         else
-          info(name_or_path) & [:template]
+          info(name_or_path) & [:layout]
         end
       end
 
@@ -78,7 +78,7 @@ module Pakyow
         load_layouts
 
         unless layout = @layouts[name.to_sym]
-          raise MissingLayout, "No layout named '#{name}'"
+          raise MissingLayout, "No layout named `#{name}'"
         end
 
         layout
@@ -101,8 +101,7 @@ module Pakyow
       end
 
       def load_layouts
-        @layouts = {}
-        return unless File.exist?(layouts_path)
+        return if instance_variable_defined?(:@layouts) || !File.exist?(layouts_path)
 
         @layouts = layouts_path.children.each_with_object({}) { |file, layouts|
           next unless template?(file)
@@ -135,7 +134,7 @@ module Pakyow
             if page = page_at_path(path)
               @info[normalize_path(path, pages_path)] = {
                 page: page,
-                template: layout_with_name(page.info(:layout)),
+                layout: layout_with_name(page.info(:layout)),
                 partials: @partials.merge(partials_at_path(path))
               }
             end
