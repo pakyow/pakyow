@@ -89,12 +89,14 @@ module Pakyow
               view_path: @presenter.class.path,
               transformation_id: @transformation_id,
               presentables: presentables.map { |presentable_name, presentable|
-                {
-                  name: presentable_name,
-                  model_name: presentable.model.name,
-                  query_name: presentable.name,
-                  query_args: presentable.args
-                }
+                if presentable.is_a?(Data::Query)
+                  {
+                    name: presentable_name,
+                    model_name: presentable.model.name,
+                    query_name: presentable.name,
+                    query_args: presentable.args
+                  }
+                end
               }
             }
 
