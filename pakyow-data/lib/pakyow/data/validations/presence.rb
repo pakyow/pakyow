@@ -3,10 +3,8 @@
 module Pakyow
   module Data
     module Validations
-      # Validates that the value is present, or that a value is
-      # non-empty, non-nil, and not a string consisting of
-      # whitespace only characters. Example values that will
-      # not pass this validation:
+      # Validates that the value is present, or that a value is non-empty, non-nil, and not a string
+      # consisting of whitespace only characters. Example values that will not pass this validation:
       #
       # * +nil+
       # * +""+
