@@ -27,7 +27,7 @@ RSpec.describe "auto rendering" do
             get "/other" do; end
           end
 
-          view "/other" do
+          presenter "/other" do
             self.title = "invoked"
           end
         }

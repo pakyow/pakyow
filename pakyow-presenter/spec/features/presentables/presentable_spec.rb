@@ -19,7 +19,7 @@ RSpec.describe "using presentables" do
         end
       end
 
-      view "/" do
+      presenter "/" do
         $presentable = current_user
       end
     end
@@ -45,7 +45,7 @@ RSpec.describe "using presentables" do
             end
           end
 
-          view "/" do
+          presenter "/" do
             $presentable = current_user
           end
         end
@@ -67,7 +67,7 @@ RSpec.describe "using presentables" do
             end
           end
 
-          view "/" do
+          presenter "/" do
             $presentable = current_user
           end
         end
@@ -92,7 +92,7 @@ RSpec.describe "using presentables" do
               end
             end
 
-            view "/" do
+            presenter "/" do
               $presentable = current_user
             end
           end
@@ -116,7 +116,7 @@ RSpec.describe "using presentables" do
               end
             end
 
-            view "/" do
+            presenter "/" do
               $presentable = current_user
             end
           end
@@ -143,11 +143,11 @@ RSpec.describe "using presentables" do
           end
         end
 
-        view "/" do
+        presenter "/" do
           $presentable = current_user
         end
 
-        view "/other" do
+        presenter "/other" do
           $presentable = respond_to?(:current_user)
         end
       end

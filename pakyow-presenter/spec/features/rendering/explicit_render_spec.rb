@@ -100,7 +100,7 @@ RSpec.describe "explicit rendering" do
           end
         end
 
-        view "/other" do
+        presenter "/other" do
           self.title = "invoked"
         end
       }
@@ -124,7 +124,7 @@ RSpec.describe "explicit rendering" do
           end
         end
 
-        view "/something" do
+        presenter "/something" do
           self.title = "invoked"
         end
       }
@@ -148,7 +148,7 @@ RSpec.describe "explicit rendering" do
           end
         end
 
-        view "something" do
+        presenter "something" do
           self.title = "invoked"
         end
       }

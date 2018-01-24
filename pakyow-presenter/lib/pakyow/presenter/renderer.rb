@@ -128,7 +128,7 @@ module Pakyow
       end
 
       def presenter_for_path(path)
-        app.state_for(:view).find { |presenter|
+        app.state_for(:presenter).find { |presenter|
           presenter.path == path
         }
       end

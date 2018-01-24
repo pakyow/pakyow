@@ -12,7 +12,7 @@ module Pakyow
           endpoint renderer_class
 
           stateful :templates, Templates
-          stateful :view, ViewPresenter
+          stateful :presenter, ViewPresenter
           stateful :binder, Binder
           stateful :processor, Processor
 
