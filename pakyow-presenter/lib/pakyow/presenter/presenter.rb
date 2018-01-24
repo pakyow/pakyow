@@ -223,19 +223,6 @@ module Pakyow
       # @see View#present
       #
       def present(data)
-        # TODO: I think presenter should take responsibility for presenting data, be it collections
-        # or whatever... unsure at this point whose job it is to handle using the empty version but
-        # I think it may also fall on presenter...
-        #
-        # so, presenter would yield the view to the caller, then transform / bind... resulting in
-        # things occuring in the right order so that we can switch the binding flag on the binder
-        # which changes how value? is calculated
-        #
-        # also... don't try to optimize this right now. just transform/bind to all versions and
-        # then yield / use. still implement many in presenter, transform/bind calls each version
-        # and then yields once... memoization on the binder will prevent us from calling methods
-        # more than once... also remove present from view
-
         tap do
           transform(data) do |presenter, object|
             yield presenter, object if block_given?
