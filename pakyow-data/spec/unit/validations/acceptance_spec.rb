@@ -7,51 +7,15 @@ RSpec.describe Pakyow::Data::Validations::Acceptance do
     expect(validation.name).to eq(:acceptance)
   end
 
-  context "value is a non-empty string" do
+  context "value is true" do
     it "is valid" do
-      expect(validation.valid?("foo")).to be true
+      expect(validation.valid?(true)).to be true
     end
   end
 
-  context "value is a non-empty array" do
-    it "is valid" do
-      expect(validation.valid?([:foo])).to be true
-    end
-  end
-
-  context "value is a non-empty hash" do
-    it "is valid" do
-      expect(validation.valid?({ foo: :bar })).to be true
-    end
-  end
-
-  context "value is an empty string" do
+  context "value is false" do
     it "is invalid" do
-      expect(validation.valid?("")).to be false
-    end
-  end
-
-  context "value is a string of whitespace" do
-    it "is invalid" do
-      expect(validation.valid?("   ")).to be false
-    end
-  end
-
-  context "value is nil" do
-    it "is invalid" do
-      expect(validation.valid?(nil)).to be false
-    end
-  end
-
-  context "value is an empty array" do
-    it "is invalid" do
-      expect(validation.valid?([])).to be false
-    end
-  end
-
-  context "value is an empty hash" do
-    it "is invalid" do
-      expect(validation.valid?({})).to be false
+      expect(validation.valid?(false)).to be false
     end
   end
 
@@ -62,9 +26,23 @@ RSpec.describe Pakyow::Data::Validations::Acceptance do
       end
     end
 
-    context "value does not matche accepts option" do
+    context "value does not match accepts option" do
       it "is invalid" do
         expect(validation.valid?("n", accepts: "yes")).to be false
+      end
+    end
+
+    context "accepts multiple values" do
+      context "value matches one" do
+        it "is valid" do
+          expect(validation.valid?("yes", accepts: [true, "yes"])).to be true
+        end
+      end
+
+      context "value matches none" do
+        it "is invalid" do
+          expect(validation.valid?("false", accepts: [true, "yes"])).to be false
+        end
       end
     end
   end

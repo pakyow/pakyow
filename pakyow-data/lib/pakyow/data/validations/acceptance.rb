@@ -3,14 +3,14 @@
 module Pakyow
   module Data
     module Validations
-      # Validates acceptance by ensuring that the given value is present (@see Presence), or
-      # (optionally) that the given value matches the +accepts+ option.
+      # Ensures that the given value matches an acceptance value. By default, the value must equal
+      # +true+. Use the `accepts` keyword argument to pass one or more comparison values.
       #
       # @example
       #   validate :acceptance
       #
       # @example
-      #   validate :acceptance, accepts: "yes"
+      #   validate :acceptance, accepts: ["yes", "y"]
       #
       # @api public
       module Acceptance
@@ -18,12 +18,8 @@ module Pakyow
           :acceptance
         end
 
-        def self.valid?(value, **options)
-          if options.key?(:accepts)
-            value == options[:accepts]
-          else
-            Presence.valid?(value)
-          end
+        def self.valid?(value, accepts: true)
+          Array.ensure(accepts).include?(value)
         end
       end
 
