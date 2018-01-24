@@ -31,4 +31,84 @@ RSpec.describe "presenting data via presenter" do
       expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">foo</h1></div><div data-b=\"post\"><p data-b=\"body\">bar</p><div data-b=\"comment\"><p data-b=\"body\">comment1</p></div><div data-b=\"comment\"><p data-b=\"body\">comment2</p></div></div>")
     end
   end
+
+  context "presenting a changing value" do
+    let :post do
+      Class.new do
+        def initialize
+          @accessed = false
+        end
+
+        def title
+          if @accessed
+            nil
+          else
+            @accessed = true
+            "title"
+          end
+        end
+
+        def [](key)
+          if respond_to?(key)
+            public_send(key)
+          else
+            nil
+          end
+        end
+
+        def include?(key)
+          instance_variable_defined?(:"@#{key}") || respond_to?(key)
+        end
+
+        def value?(key)
+          include?(key) && !!self[key]
+        end
+      end
+    end
+
+    it "transforms and binds with the same value" do
+      post_presenter.present(post.new)
+      expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">title</h1></div>")
+    end
+  end
+
+  context "presenting a value multiple times" do
+    let :view do
+      Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\">title goes here</h1><h1 binding=\"title\">title goes here</h1></div>")
+    end
+
+    let :post do
+      Class.new do
+        def initialize
+          @accessed = false
+        end
+
+        def title
+          rand.to_s
+        end
+
+        def [](key)
+          if respond_to?(key)
+            public_send(key)
+          else
+            nil
+          end
+        end
+
+        def include?(key)
+          instance_variable_defined?(:"@#{key}") || respond_to?(key)
+        end
+
+        def value?(key)
+          include?(key) && !!self[key]
+        end
+      end
+    end
+
+    it "presents the same value each time" do
+      post_presenter.present(post.new)
+      titles = post_presenter.find_all(:title).map(&:text)
+      expect(titles[0]).to eq(titles[1])
+    end
+  end
 end

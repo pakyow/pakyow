@@ -184,8 +184,9 @@ module Pakyow
             remove
           else
             binding_props(children: false).each do |binding|
-              next if object[binding.name]
-              binding.remove
+              unless object.value?(binding.name)
+                binding.remove
+              end
             end
           end
 
@@ -199,22 +200,14 @@ module Pakyow
         tap do
           unless object.nil?
             binding_props.each do |binding|
-              bind_value_to_node(object[binding.name], binding)
+              if object.include?(binding.name)
+                bind_value_to_node(object[binding.name], binding)
+              end
             end
 
             attributes[:"data-id"] = object[:id]
           end
         end
-      end
-
-      # Transform +self+ to +object+, then binds +object+.
-      #
-      def present(object)
-        transform(object) do |view, presentable|
-          yield view, presentable if block_given?
-        end
-
-        bind(object)
       end
 
       # Appends a view or string to +self+.

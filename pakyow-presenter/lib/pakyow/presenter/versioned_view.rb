@@ -26,10 +26,16 @@ module Pakyow
         determine_working_version
       end
 
+      # Returns true if +version+ exists.
+      #
+      def version?(version)
+        !!version_named(version.to_sym)
+      end
+
       # Returns the view matching +version+.
       #
       def versioned(version)
-        version_named(version)
+        version_named(version.to_sym)
       end
 
       # Uses the view matching +version+, removing all other versions.
@@ -48,44 +54,26 @@ module Pakyow
         end
       end
 
-      # Transforms the versioned view to match +data+.
-      #
-      def transform(data)
-        data = Array.ensure(data)
-        if ((data.respond_to?(:empty?) && data.empty?) || data.nil?)
-          if version_named(:empty)
-            use(:empty)
-          else
-            remove
-          end
-        else
-          template = dup
-          insertable = self
-          versioned_view = self
-
-          data.each do |object|
-            if block_given?
-              yield versioned_view, object
-            end
-
-            versioned_view.working.transform(object)
-
-            unless versioned_view == self
-              insertable.after(versioned_view)
-              insertable = versioned_view
-            end
-
-            versioned_view = template.dup
-          end
+      def transform(object)
+        @versions.each do |version|
+          version.transform(object)
         end
 
-        self
+        yield self, object if block_given?
+      end
+
+      def bind(object)
+        @versions.each do |version|
+          version.bind(object)
+        end
+
+        yield self, object if block_given?
       end
 
       protected
 
       def determine_working_version
-        self.versioned_view = default_version || first_version
+        self.versioned_view = default_version
       end
 
       def versioned_view=(view)
@@ -101,11 +89,9 @@ module Pakyow
       end
 
       def version_named(version)
-        @versions.each do |view|
-          return view if view.version == version
-        end
-
-        nil
+        @versions.find { |view|
+          view.version == version
+        }
       end
 
       def first_version

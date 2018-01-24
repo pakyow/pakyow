@@ -59,7 +59,11 @@ RSpec.describe "view transformation via presenter" do
 
     context "object does not respond to empty" do
       let :object do
-        Struct.new(:title, :body) do; end
+        Struct.new(:title, :body) do
+          def value?(key)
+            !!self[key]
+          end
+        end
       end
 
       it "attempts to bind" do

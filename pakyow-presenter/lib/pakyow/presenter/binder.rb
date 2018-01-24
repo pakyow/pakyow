@@ -18,6 +18,8 @@ module Pakyow
       def initialize(object)
         @object = object
         @parts = {}
+        @binding = false
+        @memoized = {}
       end
 
       # Defines a binding part, which binds to an aspect of the view.
@@ -39,10 +41,12 @@ module Pakyow
         parts_for(caller_locations(1, 1)[0].label.to_sym).define_part(name, yield)
       end
 
-      # Returns the value for a key.
+      # Returns the value for a key (including parts).
       #
-      def [](key)
-        if respond_to?(key)
+      def value(key)
+        return @memoized[key] if @memoized.include?(key)
+
+        @memoized[key] = if respond_to?(key)
           value = __send__(key)
 
           if parts?(key)
@@ -55,16 +59,46 @@ module Pakyow
         end
       end
 
-      # Returns +true+ if the binder defines a value for +key+.
+      # Returns only the text value for a key.
+      #
+      def [](key)
+        return_value = value(key)
+        if return_value.is_a?(BindingParts)
+          if return_value.content?
+            return_value.content
+          else
+            @object[key]
+          end
+        else
+          return_value
+        end
+      end
+
+      # Returns +true+ if the binder might return a value for +key+.
       #
       def include?(key)
+        return false if @binding && !@object.include?(key) && (parts?(key) && !parts_for(key).content?)
         respond_to?(key) || @object.include?(key)
+      end
+
+      # Returns +true+ if the a value is present for +key+.
+      #
+      def value?(key)
+        !!value(key) || @object.value?(key)
+      end
+
+      # Flips a switch, telling the binder that we now only care about content, not other parts.
+      # This is so that we can transform based on parts, but bind only based on content.
+      #
+      # @api private
+      def binding!
+        @binding = true
       end
 
       private
 
       def parts?(name)
-        @parts.include?(name)
+        @parts.include?(name.to_sym)
       end
 
       def parts_for(name)

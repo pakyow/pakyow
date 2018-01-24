@@ -125,6 +125,13 @@ RSpec.describe "binding data via presenter, with a binder" do
         post_presenter.present(title: "foo", body: "bar")
         expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\" style=\"color:red\">foo</h1><p data-b=\"body\">bar</p></div>")
       end
+
+      context "content value is not provided by the binder, and the object has no value" do
+        it "leaves the value defined in the view template" do
+          post_presenter.present(body: "bar")
+          expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\" style=\"color:red\">title goes here</h1><p data-b=\"body\">bar</p></div>")
+        end
+      end
     end
   end
 
@@ -136,6 +143,41 @@ RSpec.describe "binding data via presenter, with a binder" do
     it "uses the binder" do
       post_presenter.present(title: "post", comment: { body: "comment" })
       expect(presenter.to_s).to eq("<body><div data-b=\"post\"><h1 data-b=\"title\">tsop</h1><div data-b=\"comment\"><p data-b=\"body\">comment: comment</p></div></div></body>")
+    end
+  end
+
+  context "binding tries to build a url" do
+    include_context "testable app"
+
+    let :app_definition do
+      Proc.new {
+        resource :post, "/posts" do
+          show do; end
+        end
+      }
+    end
+
+    let :post_binder do
+      Pakyow::Presenter::Binder.make :post do
+        def permalink
+          part :href do
+            path(:post_show, id: object[:id])
+          end
+        end
+      end
+    end
+
+    let :presenter do
+      Pakyow::Presenter::Presenter.new(view, paths: Pakyow.apps[0].paths, embed_templates: false, binders: [post_binder, comment_binder])
+    end
+
+    let :view do
+      Pakyow::Presenter::View.new("<body><div binding=\"post\"><a binding=\"permalink\">permalink</a></div></body>")
+    end
+
+    it "builds the url" do
+      post_presenter.present(id: 1)
+      expect(presenter.to_s).to eq("<body><div data-b=\"post\" data-id=\"1\"><a data-b=\"permalink\" href=\"/posts\">permalink</a></div></body>")
     end
   end
 end

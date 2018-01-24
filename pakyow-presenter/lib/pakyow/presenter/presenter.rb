@@ -172,7 +172,36 @@ module Pakyow
       #
       def transform(data)
         tap do
-          @view.transform(data)
+          data = Array.ensure(data)
+
+          if ((data.respond_to?(:empty?) && data.empty?) || data.nil?)
+            if @view.is_a?(VersionedView) && @view.version?(:empty)
+              @view.use(:empty)
+            else
+              remove
+            end
+          else
+            template = @view.dup
+            insertable = @view
+            local = @view
+
+            data.each do |object|
+              object = binder_or_data(object)
+
+              local.transform(object)
+
+              if block_given?
+                yield presenter_for(local), object
+              end
+
+              unless local.equal?(@view)
+                insertable.after(local)
+                insertable = local
+              end
+
+              local = template.dup
+            end
+          end
         end
       end
 
@@ -180,26 +209,39 @@ module Pakyow
       #
       def bind(data)
         tap do
-          if binder = binder_for_current_scope
-            bind_binder_to_view(binder.new(data), @view)
+          data = binder_or_data(data)
+          if data.is_a?(Binder)
+            bind_binder_to_view(data, @view)
           else
             @view.bind(data)
           end
         end
       end
 
-      # Transforms the view to match +data+, then binds.
+      # Transforms the view to match +data+, then binds, using the appropriate binder if available.
       #
       # @see View#present
       #
       def present(data)
+        # TODO: I think presenter should take responsibility for presenting data, be it collections
+        # or whatever... unsure at this point whose job it is to handle using the empty version but
+        # I think it may also fall on presenter...
+        #
+        # so, presenter would yield the view to the caller, then transform / bind... resulting in
+        # things occuring in the right order so that we can switch the binding flag on the binder
+        # which changes how value? is calculated
+        #
+        # also... don't try to optimize this right now. just transform/bind to all versions and
+        # then yield / use. still implement many in presenter, transform/bind calls each version
+        # and then yields once... memoization on the binder will prevent us from calling methods
+        # more than once... also remove present from view
+
         tap do
-          @view.transform(data) do |view, object|
-            presenter = presenter_for(view)
-            yield view, object if block_given?
+          transform(data) do |presenter, object|
+            yield presenter, object if block_given?
             presenter.bind(object)
 
-            view.binding_scopes.each do |binding_node|
+            presenter.view.binding_scopes.each do |binding_node|
               presenter.find(binding_node.name).present(object[binding_node.name])
             end
           end
@@ -281,28 +323,38 @@ module Pakyow
       end
 
       def bind_binder_to_view(binder, view)
-        bindable = binder.object
-
         view.binding_props.each do |binding|
-          value = binder[binding.name]
-
-          if value.is_a?(BindingParts)
-            next unless binding_view = view.find(binding.name)
-
+          value = binder.value(binding.name)
+          if value.is_a?(BindingParts) && binding_view = view.find(binding.name)
             value.accept(*binding_view.label(:include).to_s.split(" "))
             value.reject(*binding_view.label(:exclude).to_s.split(" "))
-
-            bindable[binding.name] = value.content if value.content?
 
             value.non_content_parts.each_pair do |key, value_part|
               binding_view.attrs[key] = value_part
             end
-          else
-            bindable[binding.name] = value
           end
         end
 
-        view.bind(bindable)
+        binder.binding!
+        view.bind(binder)
+      end
+
+      def binder_or_data(data)
+        if data.nil? || data.is_a?(Array) || data.is_a?(Binder)
+          data
+        else
+          (binder_for_current_scope || Binder).new(data).tap do |binder|
+            if binder_local_paths = @paths
+              binder.define_singleton_method :path do |*args|
+                binder_local_paths.path(*args)
+              end
+
+              binder.define_singleton_method :path_to do |*args|
+                binder_local_paths.path_to(*args)
+              end
+            end
+          end
+        end
       end
 
       def set_title_from_info

@@ -13,7 +13,7 @@ RSpec.describe "binding data via presenter" do
 
   it "binds a single value" do
     post_presenter.bind(title: "foo")
-    expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">foo</h1><p data-b=\"body\"></p></div>")
+    expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">foo</h1><p data-b=\"body\">body goes here</p></div>")
   end
 
   it "binds multiple values" do
