@@ -1,4 +1,8 @@
 RSpec.describe "defining resources" do
+  before do
+    Pakyow.config.security.csrf = false
+  end
+
   include_context "testable app"
 
   context "when the resource is defined at the top level" do
