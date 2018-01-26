@@ -30,6 +30,13 @@ RSpec.describe "presenting data via presenter" do
       post_presenter.present([{ title: "foo" }, { body: "bar", comment: [{ body: "comment1" }, { body: "comment2" }] }])
       expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">foo</h1></div><div data-b=\"post\"><p data-b=\"body\">bar</p><div data-b=\"comment\"><p data-b=\"body\">comment1</p></div><div data-b=\"comment\"><p data-b=\"body\">comment2</p></div></div>")
     end
+
+    context "nested binding is singular, but the object responds to plural" do
+      it "presents recursively" do
+        post_presenter.present([{ title: "foo" }, { body: "bar", comments: [{ body: "comment1" }, { body: "comment2" }] }])
+        expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">foo</h1></div><div data-b=\"post\"><p data-b=\"body\">bar</p><div data-b=\"comment\"><p data-b=\"body\">comment1</p></div><div data-b=\"comment\"><p data-b=\"body\">comment2</p></div></div>")
+      end
+    end
   end
 
   context "presenting a changing value" do

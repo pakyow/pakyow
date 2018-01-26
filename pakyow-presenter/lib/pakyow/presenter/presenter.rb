@@ -224,12 +224,22 @@ module Pakyow
       #
       def present(data)
         tap do
-          transform(data) do |presenter, object|
-            yield presenter, object if block_given?
-            presenter.bind(object)
+          transform(data) do |presenter, binder|
+            yield presenter, binder.object if block_given?
+            presenter.bind(binder)
 
             presenter.view.binding_scopes.each do |binding_node|
-              presenter.find(binding_node.name).present(object[binding_node.name])
+              plural_binding_node_name = Support.inflector.pluralize(binding_node.name).to_sym
+
+              data = if binder.object.include?(binding_node.name)
+                binder.object[binding_node.name]
+              elsif binder.object.include?(plural_binding_node_name)
+                binder.object[plural_binding_node_name]
+              else
+                nil
+              end
+
+              presenter.find(binding_node.name).present(data)
             end
           end
         end
