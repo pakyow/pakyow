@@ -18,7 +18,7 @@ module Pakyow
 
           helper RenderHelpers
 
-          concern :views
+          concern :presenters
           concern :binders
 
           settings_for :presenter do
