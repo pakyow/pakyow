@@ -425,6 +425,13 @@ RSpec.describe Pakyow do
       run
       expect(handler_double).to have_received(:run).with(builder_double, Host: host, Port: port)
     end
+
+    it "calls booted on each app" do
+      app = double(:app)
+      Pakyow.instance_variable_set(:@apps, [app])
+      expect(app).to receive(:booted)
+      run
+    end
   end
 
   describe "#apps" do

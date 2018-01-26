@@ -141,7 +141,7 @@ module Pakyow
     include Support::Definable
 
     include Support::Hookable
-    known_events :initialize, :configure, :load, :freeze
+    known_events :initialize, :configure, :load, :freeze, :boot
 
     extend Forwardable
 
@@ -268,6 +268,10 @@ module Pakyow
       # This ensures that any state registered in the passed block
       # has the proper priority against instance and global state.
       defined!(&block) unless stage
+    end
+
+    def booted
+      call_hooks :after, :boot
     end
 
     RESPOND_MISSING = [[], 404, {}].freeze

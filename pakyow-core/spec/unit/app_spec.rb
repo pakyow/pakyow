@@ -65,4 +65,21 @@ RSpec.describe Pakyow::App do
       expect($called).to be(true)
     end
   end
+
+  describe "#boot" do
+    let :app do
+      app_class.new(:test, builder: Rack::Builder.new)
+    end
+
+    before do
+      app_class.after :boot do
+        $called = true
+      end
+    end
+
+    it "calls after boot hooks" do
+      app.booted
+      expect($called).to be(true)
+    end
+  end
 end

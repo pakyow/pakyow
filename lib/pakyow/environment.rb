@@ -310,6 +310,7 @@ module Pakyow
 
       @app = builder.to_app
       call_hooks(:after, :boot)
+      @apps.each do |app| app.booted if app.respond_to?(:booted) end
       @app
     end
 
