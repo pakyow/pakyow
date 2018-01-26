@@ -21,7 +21,9 @@ module Pakyow
     #     known_events :swim
     #
     #     def swim
-    #       puts "swimming"
+    #       performing :swim do
+    #         puts "swimming"
+    #       end
     #     end
     #   end
     #
@@ -53,9 +55,9 @@ module Pakyow
         base.prepend Initializer
 
         base.extend ClassLevelState
-        base.class_level_state :known_events, default: [], inheritable: true, getter: false
-        base.class_level_state :hook_hash, default: { after: {}, before: {} }, inheritable: true
-        base.class_level_state :pipeline, default: { after: {}, before: {} }, inheritable: true
+        base.class_level_state :__known_events, default: [], inheritable: true, getter: false
+        base.class_level_state :__hook_hash, default: { after: {}, before: {} }, inheritable: true
+        base.class_level_state :__pipeline, default: { after: {}, before: {} }, inheritable: true
       end
 
       # @api private
@@ -65,8 +67,8 @@ module Pakyow
 
       module Initializer
         def initialize(*)
-          @hook_hash = self.class.hook_hash.deep_dup
-          @pipeline = self.class.pipeline.deep_dup
+          @__hook_hash = self.class.__hook_hash.deep_dup
+          @__pipeline = self.class.__pipeline.deep_dup
 
           super
         end
@@ -85,19 +87,19 @@ module Pakyow
         # @param events [Array<Symbol>] The list of known events.
         #
         def known_events(*events)
-          @known_events.concat(events.map(&:to_sym)).uniq!; @known_events
+          @__known_events.concat(events.map(&:to_sym)).uniq!; @__known_events
         end
 
         # @api private
         def known_event?(event)
-          @known_events.include?(event.to_sym)
+          @__known_events.include?(event.to_sym)
         end
       end
 
       # Methods included at the class and instance level.
       #
       module API
-        attr_reader :hook_hash, :pipeline
+        attr_reader :__hook_hash, :__pipeline
 
         # Defines a hook to call before event occurs.
         #
@@ -108,7 +110,7 @@ module Pakyow
         #     low (-1)
         #
         def before(event, priority: PRIORITIES[:default], exec: true, &block)
-          add_hook(hook_hash, :before, event, priority, exec, block)
+          add_hook(@__hook_hash, :before, event, priority, exec, block)
         end
         alias on before
 
@@ -117,7 +119,7 @@ module Pakyow
         # @see #before
         #
         def after(event, priority: PRIORITIES[:default], exec: true, &block)
-          add_hook(hook_hash, :after, event, priority, exec, block)
+          add_hook(@__hook_hash, :after, event, priority, exec, block)
         end
 
         # Defines a hook to call before and after event occurs.
@@ -125,8 +127,8 @@ module Pakyow
         # @see #before
         #
         def around(event, priority: PRIORITIES[:default], exec: true, &block)
-          add_hook(hook_hash, :before, event, priority, exec, block)
-          add_hook(hook_hash, :after, event, priority, exec, block)
+          add_hook(@__hook_hash, :before, event, priority, exec, block)
+          add_hook(@__hook_hash, :after, event, priority, exec, block)
         end
 
         # Calls all registered hooks for `event`, yielding between them.
@@ -157,7 +159,7 @@ module Pakyow
 
         # @api private
         def hooks(type, event)
-          @pipeline[type][event] || []
+          @__pipeline[type][event] || []
         end
 
         # @api private
@@ -177,7 +179,7 @@ module Pakyow
 
         # @api private
         def pipeline!(hash_of_hooks, type, event)
-          pipeline[type.to_sym][event.to_sym] = hash_of_hooks[type.to_sym][event.to_sym].map { |t| t[1..2] }
+          @__pipeline[type.to_sym][event.to_sym] = hash_of_hooks[type.to_sym][event.to_sym].map { |t| t[1..2] }
         end
       end
     end
