@@ -57,5 +57,11 @@ RSpec.describe Pakyow::Support::DeepDup do
         expect(Pakyow::Support::DeepDup::UNDUPABLE).to include Class
       end
     end
+
+    describe "Module" do
+      it "is undupable" do
+        expect(Pakyow::Support::DeepDup::UNDUPABLE).to include Module
+      end
+    end
   end
 end

@@ -17,7 +17,7 @@ module Pakyow
     #
     module DeepDup
       # Objects that can't be copied.
-      UNDUPABLE = [Symbol, Integer, NilClass, TrueClass, FalseClass, Class].freeze
+      UNDUPABLE = [Symbol, Integer, NilClass, TrueClass, FalseClass, Class, Module].freeze
 
       refine Object do
         # Returns a copy of the object.
