@@ -81,7 +81,7 @@ RSpec.describe "error handling" do
     context "and a handler is defined in a parent controller" do
       let :app_definition do
         Proc.new {
-          controller do
+          controller :top do
             handle 404 do
               send "not found from parent"
             end
@@ -236,7 +236,7 @@ RSpec.describe "error handling" do
       context "and a handler is defined for the exception in a parent controller" do
         let :app_definition do
           Proc.new {
-            controller do
+            controller :top do
               handle StandardError, as: 401 do
                 send "handled exception from parent"
               end
