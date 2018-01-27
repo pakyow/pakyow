@@ -379,13 +379,19 @@ module Pakyow
       # Registers an app aspect by name.
       #
       def aspect(name)
-        (config.app.aspects << name).uniq!
+        (config.app.aspects << name.to_sym).uniq!
       end
 
       # Register an endpoint by name.
       #
       def endpoint(object)
         @endpoints << object
+      end
+
+      # Registers a helper module to be loaded on defined endpoints.
+      #
+      def helper(helper_module)
+        (config.app.helpers << helper_module).uniq!
       end
     end
   end

@@ -26,6 +26,8 @@ module Pakyow
         app.class_eval do
           endpoint Server
 
+          helper Helpers
+
           settings_for :realtime do
             setting :adapter_options, {}
             setting :path, "pw-socket"
@@ -42,8 +44,6 @@ module Pakyow
           attr_reader :websocket_server
 
           after :configure do
-            config.app.helpers << Helpers
-
             @websocket_server = Server.new(
               Pakyow.config.realtime.adapter,
               Pakyow.config.realtime.adapter_options.merge(config.realtime.adapter_options)

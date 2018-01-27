@@ -80,6 +80,8 @@ module Pakyow
           # Load defined controllers into the namespace.
           aspect :controllers
 
+          helper Pakyow::Routing::Helpers
+
           # Remove the routing framework in prototype mode.
           #
           # Conditionally loading the routing framework based on
@@ -110,8 +112,6 @@ module Pakyow
           end
 
           before :load do
-            controller_class.include Pakyow::Routing::Helpers
-
             # Include other registered helpers into the controller class.
             config.app.helpers.each do |helper|
               controller_class.include helper

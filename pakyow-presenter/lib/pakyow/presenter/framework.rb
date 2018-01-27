@@ -19,14 +19,12 @@ module Pakyow
           aspect :presenters
           aspect :binders
 
+          helper RenderHelpers
+
           settings_for :presenter do
             setting :path do
               File.join(config.app.root, "frontend")
             end
-          end
-
-          after :configure do
-            config.app.helpers << RenderHelpers
           end
 
           after :load do

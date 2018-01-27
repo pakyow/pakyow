@@ -26,9 +26,7 @@ RSpec.describe "application helpers" do
       end
 
       Proc.new {
-        configure do
-          config.app.helpers << MyHelpers
-        end
+        helper MyHelpers
 
         controller do
           default do
