@@ -77,8 +77,10 @@ module Pakyow
 
           action :update_request_path_for_show, only: [:show]
 
-          controller.define_method :update_request_path_for_show do
-            req.env["pakyow.endpoint"].gsub!(resource_id, "show")
+          controller.class_eval do
+            define_method :update_request_path_for_show do
+              req.env["pakyow.endpoint"].gsub!(resource_id, "show")
+            end
           end
 
           get :list, "/"
