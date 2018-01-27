@@ -16,8 +16,8 @@ module Pakyow
           stateful :binder, Binder
           stateful :processor, Processor
 
-          concern :presenters
-          concern :binders
+          aspect :presenters
+          aspect :binders
 
           settings_for :presenter do
             setting :path do

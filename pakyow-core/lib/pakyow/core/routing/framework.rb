@@ -78,7 +78,7 @@ module Pakyow
           stateful :controller, controller_class
 
           # Load defined controllers into the namespace.
-          concern :controllers
+          aspect :controllers
 
           # Remove the routing framework in prototype mode.
           #

@@ -31,7 +31,7 @@ module Pakyow
         end
 
         app.class_eval do
-          concern :models
+          aspect :models
 
           stateful :model, Model
 

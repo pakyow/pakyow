@@ -160,6 +160,7 @@ module Pakyow
 
       setting :dsl, true
       setting :helpers, []
+      setting :aspects, []
     end
 
     settings_for :cookies do
@@ -232,7 +233,6 @@ module Pakyow
 
     extend Support::ClassLevelState
     class_level_state :frameworks, default: [], inheritable: true
-    class_level_state :concerns,   default: [], inheritable: true
     class_level_state :endpoints,  default: [], inheritable: true
 
     def initialize(environment, builder: nil, stage: false, &block)
@@ -323,12 +323,12 @@ module Pakyow
     def load_app
       $LOAD_PATH.unshift(File.join(config.app.src, "lib"))
 
-      self.class.concerns.each do |concern|
-        load_app_concern(File.join(config.app.src, concern.to_s), concern)
+      config.app.aspects.each do |aspect|
+        load_app_aspect(File.join(config.app.src, aspect.to_s), aspect)
       end
     end
 
-    def load_app_concern(state_path, state_type, load_target = self.class)
+    def load_app_aspect(state_path, state_type, load_target = self.class)
       Dir.glob(File.join(state_path, "*.rb")) do |path|
         if config.app.dsl
           Loader.new(load_target, Support::ClassNamespace.new(config.app.name, state_type), path).call
@@ -338,7 +338,7 @@ module Pakyow
       end
 
       Dir.glob(File.join(state_path, "*")).select { |path| File.directory?(path) }.each do |directory|
-        load_app_concern(directory, state_type, load_target)
+        load_app_aspect(directory, state_type, load_target)
       end
     end
 
@@ -374,11 +374,10 @@ module Pakyow
         @frameworks.include?(framework_name)
       end
 
-      # Registers a concern by name.
+      # Registers an app aspect by name.
       #
-      # @see concerns
-      def concern(name)
-        @concerns << name
+      def aspect(name)
+        (config.app.aspects << name).uniq!
       end
 
       # Register an endpoint by name.
