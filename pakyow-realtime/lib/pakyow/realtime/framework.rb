@@ -26,8 +26,6 @@ module Pakyow
         app.class_eval do
           endpoint Server
 
-          helper Helpers
-
           settings_for :realtime do
             setting :adapter_options, {}
             setting :path, "pw-socket"
@@ -44,6 +42,8 @@ module Pakyow
           attr_reader :websocket_server
 
           after :configure do
+            config.app.helpers << Helpers
+
             @websocket_server = Server.new(
               Pakyow.config.realtime.adapter,
               Pakyow.config.realtime.adapter_options.merge(config.realtime.adapter_options)
@@ -54,15 +54,18 @@ module Pakyow
         end
 
         if app.const_defined?(:Renderer)
-          app.const_get(:Renderer).before :render do
-            next unless head = @presenter.view.object.find_significant_nodes(:head)[0]
+          app.const_get(:Renderer).tap do |renderer_class|
+            renderer_class.include Helpers
+            renderer_class.before :render do
+              next unless head = @presenter.view.object.find_significant_nodes(:head)[0]
 
-            # embed the socket connection id (used by pakyow.js to idenfity itself with the server)
-            head.append("<meta name=\"pw-connection-id\" content=\"#{socket_client_id}:#{socket_digest(socket_client_id)}\">\n")
+              # embed the socket connection id (used by pakyow.js to idenfity itself with the server)
+              head.append("<meta name=\"pw-connection-id\" content=\"#{socket_client_id}:#{socket_digest(socket_client_id)}\">\n")
 
-            # embed the endpoint we'll be connecting to
-            endpoint = config.realtime.endpoint || ["#{request.ssl? ? "wss" : "ws"}://#{request.host_with_port}", config.realtime.path].join("/")
-            head.append("<meta name=\"pw-endpoint\" content=\"#{endpoint}\">\n")
+              # embed the endpoint we'll be connecting to
+              endpoint = config.realtime.endpoint || ["#{request.ssl? ? "wss" : "ws"}://#{request.host_with_port}", config.realtime.path].join("/")
+              head.append("<meta name=\"pw-endpoint\" content=\"#{endpoint}\">\n")
+            end
           end
         end
       end

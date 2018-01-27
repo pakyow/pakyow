@@ -43,8 +43,8 @@ RSpec.describe Pakyow::Controller do
     end
   end
 
-  it "includes helpers" do
-    expect(controller.class.ancestors).to include(Pakyow::Helpers)
+  it "includes call helpers" do
+    expect(controller.class.ancestors).to include(Pakyow::CallHelpers)
   end
 
   describe ".method_missing" do

@@ -6,6 +6,9 @@ require "pakyow/support/array"
 require "pakyow/support/makeable"
 
 require "pakyow/support/pipelined"
+
+require "pakyow/core/call_helpers"
+require "pakyow/core/routing/helpers"
 require "pakyow/core/routing/behavior/error_handling"
 
 module Pakyow
@@ -136,7 +139,7 @@ module Pakyow
   #   end
   #
   class Controller
-    include Helpers
+    include CallHelpers
 
     using Support::DeepDup
     extend Support::Makeable

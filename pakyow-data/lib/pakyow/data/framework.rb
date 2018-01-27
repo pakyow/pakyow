@@ -35,8 +35,6 @@ module Pakyow
 
           stateful :model, Model
 
-          helper VerificationHelpers
-
           attr_reader :data
 
           before :freeze do
@@ -54,6 +52,10 @@ module Pakyow
                 Pakyow.config.data.adapter_options
               )
             )
+          end
+
+          after :configure do
+            config.app.helpers << VerificationHelpers
           end
 
           settings_for :data do

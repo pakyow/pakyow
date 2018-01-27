@@ -108,6 +108,15 @@ module Pakyow
               @endpoints.delete(controller_class)
             end
           end
+
+          before :load do
+            controller_class.include Pakyow::Routing::Helpers
+
+            # Include other registered helpers into the controller class.
+            config.app.helpers.each do |helper|
+              controller_class.include helper
+            end
+          end
         end
       end
     end

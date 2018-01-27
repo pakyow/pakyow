@@ -2,10 +2,12 @@
 
 require "securerandom"
 
+require "pakyow/core/call_helpers"
+
 module Pakyow
   module Realtime
     class WebSocket
-      include Helpers
+      include CallHelpers
 
       attr_reader :id, :io, :env, :url
 

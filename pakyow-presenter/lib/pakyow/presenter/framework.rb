@@ -16,8 +16,6 @@ module Pakyow
           stateful :binder, Binder
           stateful :processor, Processor
 
-          helper RenderHelpers
-
           concern :presenters
           concern :binders
 
@@ -25,6 +23,10 @@ module Pakyow
             setting :path do
               File.join(config.app.root, "frontend")
             end
+          end
+
+          after :configure do
+            config.app.helpers << RenderHelpers
           end
 
           after :load do

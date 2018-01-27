@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "pakyow/support/hookable"
+require "pakyow/core/call_helpers"
 
 module Pakyow
   module Presenter
@@ -48,7 +49,7 @@ module Pakyow
         end
       end
 
-      include Helpers
+      include CallHelpers
 
       include Support::Hookable
       known_events :render

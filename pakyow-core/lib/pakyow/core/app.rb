@@ -8,7 +8,6 @@ require "pakyow/support/deep_freeze"
 require "pakyow/support/class_level_state"
 
 require "pakyow/core/call"
-require "pakyow/core/helpers"
 require "pakyow/core/loader"
 require "pakyow/core/paths"
 
@@ -160,6 +159,7 @@ module Pakyow
       end
 
       setting :dsl, true
+      setting :helpers, []
     end
 
     settings_for :cookies do
@@ -234,22 +234,13 @@ module Pakyow
     class_level_state :frameworks, default: [], inheritable: true
     class_level_state :concerns,   default: [], inheritable: true
     class_level_state :endpoints,  default: [], inheritable: true
-    class_level_state :helpers,    default: [], inheritable: true
 
     def initialize(environment, builder: nil, stage: false, &block)
       @paths = Paths.new
       @environment = environment
       @builder = builder
 
-      @endpoints = self.class.endpoints.map { |endpoint|
-        self.class.helpers.each do |helper_module|
-          endpoint.class_eval do
-            include helper_module
-          end
-        end
-
-        endpoint
-      }
+      @endpoints = self.class.endpoints.dup
 
       performing :initialize do
         performing :configure do
@@ -394,12 +385,6 @@ module Pakyow
       #
       def endpoint(object)
         @endpoints << object
-      end
-
-      # Registers a helper module to be loaded on defined endpoints.
-      #
-      def helper(helper_module)
-        @helpers << helper_module
       end
     end
   end
