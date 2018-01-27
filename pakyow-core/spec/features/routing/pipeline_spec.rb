@@ -365,6 +365,8 @@ RSpec.describe "controller pipelines" do
 
     let :app_definition do
       Proc.new {
+        require "pakyow/support/pipeline"
+
         module Foo
           extend Pakyow::Support::Pipeline
 
@@ -410,6 +412,8 @@ RSpec.describe "controller pipelines" do
 
     let :app_definition do
       Proc.new {
+        require "pakyow/support/pipeline"
+
         module Foo
           extend Pakyow::Support::Pipeline
 
@@ -456,6 +460,8 @@ RSpec.describe "controller pipelines" do
 
     let :app_definition do
       Proc.new {
+        require "pakyow/support/pipeline"
+
         module Foo
           extend Pakyow::Support::Pipeline
 
