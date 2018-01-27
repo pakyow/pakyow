@@ -159,8 +159,10 @@ module Pakyow
       end
 
       setting :dsl, true
+
       setting :helpers, []
       setting :aspects, []
+      setting :frameworks, []
     end
 
     settings_for :cookies do
@@ -232,7 +234,6 @@ module Pakyow
     unfreezable :builder
 
     extend Support::ClassLevelState
-    class_level_state :frameworks, default: [], inheritable: true
     class_level_state :endpoints,  default: [], inheritable: true
 
     def initialize(environment, builder: nil, stage: false, &block)
@@ -354,24 +355,25 @@ module Pakyow
       # Includes one or more frameworks into the app class.
       #
       def include_frameworks(*frameworks)
-        frameworks.each do |framework_name|
-          include_framework(framework_name)
+        tap do
+          frameworks.each do |framework_name|
+            include_framework(framework_name)
+          end
         end
-
-        self
       end
 
       # Includes a framework into the app class.
       #
       def include_framework(framework_name)
+        framework_name = framework_name.to_sym
         Pakyow.frameworks[framework_name].new(self).boot
-        @frameworks << framework_name
+        (config.app.frameworks << framework_name).uniq!
       end
 
       # Returns true if +framework+ is loaded.
       #
       def includes_framework?(framework_name)
-        @frameworks.include?(framework_name)
+        config.app.frameworks.include?(framework_name.to_sym)
       end
 
       # Registers an app aspect by name.
