@@ -71,8 +71,14 @@ module Pakyow
           resource_id = ":#{controller.__class_name.name}_id"
 
           # Nest resources as members of the current resource
-          controller.define_singleton_method :resource do |name, matcher, **hooks, &block|
-            expand(:resource, name, File.join(resource_id, matcher), **hooks, &block)
+          controller.define_singleton_method :resource do |name, matcher, &block|
+            expand(:resource, name, File.join(resource_id, matcher), &block)
+          end
+
+          action :update_request_path_for_show, only: [:show]
+
+          controller.define_method :update_request_path_for_show do
+            req.env["pakyow.endpoint"].gsub!(resource_id, "show")
           end
 
           get :list, "/"
@@ -82,7 +88,7 @@ module Pakyow
           patch :update, "/#{resource_id}"
           put :replace, "/#{resource_id}"
           delete :remove, "/#{resource_id}"
-          get :show, "/#{resource_id}", before: Proc.new { req.env["pakyow.endpoint"].gsub!(resource_id, "show") }
+          get :show, "/#{resource_id}"
 
           group :collection
           namespace :member, resource_id

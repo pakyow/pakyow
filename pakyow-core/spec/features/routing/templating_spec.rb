@@ -42,12 +42,14 @@ RSpec.describe "route templating" do
     expect(call("/en/thanks")[2].body.first).to eq("thanks")
   end
 
-  context "when the template defines hooks" do
+  context "when the template defines actions" do
     let :app_definition do
       Proc.new {
         controller do
           template :hooktest do
-            get :perform, "/", before: [:foo, Proc.new { $calls << :bar }]
+            action :foo
+            action :bar
+            get :perform, "/"
           end
 
           hooktest :test, "/test" do
@@ -55,11 +57,18 @@ RSpec.describe "route templating" do
               $calls << :foo
             end
 
+            def bar
+              $calls << :bar
+            end
+
             def baz
               $calls << :baz
             end
 
-            perform before: [:baz], skip: [:foo] do
+            action :baz
+            skip_action :foo
+
+            perform do
               $calls << :perform
             end
           end
@@ -71,13 +80,12 @@ RSpec.describe "route templating" do
       $calls = []
     end
 
-    it "calls the hooks" do
+    it "calls the actions" do
       expect(call("/test")[0]).to eq(200)
 
-      expect($calls[0]).to eq(:baz)
-      expect($calls[1]).to eq(:foo)
-      expect($calls[2]).to eq(:bar)
-      expect($calls[3]).to eq(:perform)
+      expect($calls[0]).to eq(:bar)
+      expect($calls[1]).to eq(:baz)
+      expect($calls[2]).to eq(:perform)
     end
   end
 end

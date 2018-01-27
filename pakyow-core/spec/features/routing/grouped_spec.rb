@@ -4,7 +4,11 @@ RSpec.describe "grouped routes" do
   let :app_definition do
     Proc.new {
       controller do
-        group :g, before: [:foo], after: [:foo], around: [:meh] do
+        action :foo
+
+        group :g do
+          action :bar
+
           def foo
             $calls << :foo
           end
@@ -13,15 +17,7 @@ RSpec.describe "grouped routes" do
             $calls << :bar
           end
 
-          def baz
-            $calls << :baz
-          end
-
-          def meh
-            $calls << :meh
-          end
-
-          default before: [:bar], after: [:baz] do
+          default do
             $calls << :route
           end
         end
@@ -37,15 +33,11 @@ RSpec.describe "grouped routes" do
     expect(call[0]).to eq(200)
   end
 
-  it "calls the hooks and route in order" do
+  it "calls the actions and route in order" do
     call
 
-    expect($calls[0]).to eq(:meh)
-    expect($calls[1]).to eq(:foo)
-    expect($calls[2]).to eq(:bar)
-    expect($calls[3]).to eq(:route)
-    expect($calls[4]).to eq(:foo)
-    expect($calls[5]).to eq(:baz)
-    expect($calls[6]).to eq(:meh)
+    expect($calls[0]).to eq(:foo)
+    expect($calls[1]).to eq(:bar)
+    expect($calls[2]).to eq(:route)
   end
 end

@@ -26,16 +26,18 @@ RSpec.describe "halting a request" do
     end
   end
 
-  context "when halting from a hook" do
+  context "when halting from a pipeline action" do
     let :app_definition do
       Proc.new {
         controller do
+          action :hook
+
           def hook
             $hooked = true
             halt
           end
 
-          default before: [:hook] do
+          default do
             $halted = false
           end
         end

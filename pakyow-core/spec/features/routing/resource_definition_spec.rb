@@ -43,10 +43,12 @@ RSpec.describe "defining resources" do
     end
   end
 
-  context "when the resource is defined with hooks" do
+  context "when the resource is defined with actions" do
     let :app_definition do
       Proc.new {
-        resource :post, "/posts", before: [:validate] do
+        resource :post, "/posts" do
+          action :validate
+
           def validate
             send "validate"
           end
@@ -58,16 +60,19 @@ RSpec.describe "defining resources" do
       }
     end
 
-    it "calls the resource's hooks" do
+    it "calls the resource's actions" do
       res = call("/posts")
       expect(res[0]).to eq(200)
       expect(res[2].body.read).to eq("validate")
     end
 
-    context "and the resource route defines its own hooks" do
+    context "and the resource route defines its own actions" do
       let :app_definition do
         Proc.new {
-          resource :post, "/posts", before: [:validate] do
+          resource :post, "/posts" do
+            action :validate
+            action :foo, only: [:list]
+
             def validate
               $calls << :validate
             end
@@ -76,7 +81,7 @@ RSpec.describe "defining resources" do
               $calls << :foo
             end
 
-            list before: [:foo] do
+            list do
               send "list"
             end
           end
@@ -87,7 +92,7 @@ RSpec.describe "defining resources" do
         $calls = []
       end
 
-      it "calls all the hooks" do
+      it "calls all the actions" do
         res = call("/posts")
         expect(res[0]).to eq(200)
         expect(res[2].body.read).to eq("list")

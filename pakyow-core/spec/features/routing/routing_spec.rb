@@ -71,11 +71,13 @@ RSpec.describe "routing requests" do
     let :app_definition do
       Proc.new {
         controller do
+          action :foo, only: [:default]
+
           def foo
             @state ||= "foo"
           end
 
-          default before: [:foo] do
+          default do
             @state << "bar"
             send @state
           end
@@ -93,7 +95,7 @@ RSpec.describe "routing requests" do
       }
     end
 
-    it "shares state across hooks and routes" do
+    it "shares state across actions and routes" do
       expect(call[2].body.read).to eq("foobar")
     end
 

@@ -4,7 +4,7 @@ RSpec.describe "extending a controller without an extension" do
   let :app_definition do
     Proc.new {
       controller :admin, "/admin" do
-        before :require_admin
+        action :require_admin
 
         def require_admin
           $calls << :require_admin

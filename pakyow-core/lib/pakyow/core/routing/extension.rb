@@ -7,7 +7,7 @@ module Pakyow
     # Makes it possible to define router extensions. For example:
     #
     #   module FooRoutes
-    #     include Pakyow::Routing::Extension
+    #     extend Pakyow::Routing::Extension
     #
     #     get "/foo" do
     #       # this route will be defined on any router extended with FooRoutes
@@ -15,7 +15,7 @@ module Pakyow
     #   end
     #
     #   Pakyow::App.router do
-    #     extend FooRoutes
+    #     include FooRoutes
     #   end
     #
     # See {Extension::Resource} for a more complex example.

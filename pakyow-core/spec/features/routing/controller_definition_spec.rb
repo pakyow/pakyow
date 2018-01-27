@@ -71,8 +71,7 @@ RSpec.describe "defining a controller" do
   end
 
   xcontext "when the controller is a subclass and we create the subclass with options" do
-    class ChildControllerWithOptions < Pakyow::Controller("/foo", before: [:bar])
-      def bar; end
+    class ChildControllerWithOptions < Pakyow::Controller("/foo")
       default
     end
 

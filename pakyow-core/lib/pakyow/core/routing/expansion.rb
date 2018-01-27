@@ -11,7 +11,8 @@ module Pakyow
       attr_reader :expander, :controller, :name
 
       extend Forwardable
-      def_delegators :expander, *%i[default group namespace template].concat(Controller::SUPPORTED_HTTP_METHODS)
+      def_delegators :@expander, *%i(default group namespace template).concat(Controller::SUPPORTED_HTTP_METHODS)
+      def_delegators :@controller, :action
 
       def initialize(_template_name, controller, &template_block)
         @controller = controller
@@ -28,7 +29,7 @@ module Pakyow
         #
         @expander.routes.each do |method, routes|
           routes.each do |route|
-            @controller.define_singleton_method route.name do |*args, skip: {}, skip_before: {}, skip_after: {}, skip_around: {}, **hooks, &block|
+            @controller.define_singleton_method route.name do |*args, &block|
               # Handle template parts named `new` by determining if we're calling `new` to expand
               # part of a template, or if we're intending to create a new controller instance.
               #
@@ -38,18 +39,10 @@ module Pakyow
               if route.name == :new && args.first.is_a?(Pakyow::Call)
                 super(*args)
               else
-                merge_hooks(route.hooks, hooks)
-
                 build_route(
                   method,
                   route.name,
                   route.path || route.matcher,
-                  *args,
-                  skip: skip,
-                  skip_before: skip_before,
-                  skip_after: skip_after,
-                  skip_around: skip_around,
-                  **hooks,
                   &block
                 )
               end
@@ -60,11 +53,11 @@ module Pakyow
         # Define helper methods for groups and namespaces
         #
         @expander.children.each do |child|
-          @controller.define_singleton_method child.__class_name.name do |*args, &block|
+          @controller.define_singleton_method child.__class_name.name do |&block|
             if child.path.nil?
-              group(child.__class_name.name, *args, &block)
+              group(child.__class_name.name, &block)
             else
-              namespace(child.__class_name.name, child.path || child.matcher, *args, &block)
+              namespace(child.__class_name.name, child.path || child.matcher, &block)
             end
           end
         end

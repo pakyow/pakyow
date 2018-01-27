@@ -54,7 +54,7 @@ RSpec.describe Pakyow::Controller do
       end
 
       it "expands the template" do
-        expect(Pakyow::Controller).to receive(:expand).with(:foo, {})
+        expect(Pakyow::Controller).to receive(:expand).with(:foo)
         Pakyow::Controller.foo
       end
     end
