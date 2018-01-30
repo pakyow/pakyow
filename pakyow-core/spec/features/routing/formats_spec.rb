@@ -63,7 +63,7 @@ RSpec.describe "route formats" do
 
     context "and the request path includes the format" do
       it "is not called" do
-        expect(call("/foo")[2].body.first).to eq(nil)
+        expect(call("/foo")[0]).to eq(404)
       end
     end
   end

@@ -24,7 +24,7 @@ module Pakyow
         end
 
         app.class_eval do
-          endpoint Server
+          action Server
 
           helper Helpers
 

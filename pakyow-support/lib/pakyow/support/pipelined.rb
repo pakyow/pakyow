@@ -29,13 +29,29 @@ module Pakyow
           @actions = @actions.dup
         end
 
-        def call(*args, context: self)
+        def call(connection, context: self)
           @actions.each do |action|
-            if action.is_a?(Symbol)
-              context.__send__(action, *args)
+            if action.is_a?(Proc)
+              if action.arity > 0
+                context.instance_exec(connection, &action)
+              else
+                context.instance_exec(&action)
+              end
             else
-              action.call(*args)
+              action_method = if action.is_a?(Symbol)
+                context.method(action)
+              else
+                action.method(:call)
+              end
+
+              if action_method.arity > 0
+                action_method.call(connection)
+              else
+                action_method.call
+              end
             end
+
+            break if connection.halted?
           end
         end
 
@@ -57,6 +73,10 @@ module Pakyow
 
         def exclude(other_pipeline)
           exclude_actions(other_pipeline.actions)
+        end
+
+        def delete(action)
+          @actions.delete(action)
         end
 
         def clear

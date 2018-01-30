@@ -7,10 +7,10 @@ module Pakyow
     # A {Controller} endpoint.
     #
     class Route
-      attr_reader :path, :name
+      attr_reader :path, :name, :pipeline
 
-      def initialize(path_or_matcher, name:, method:, pipeline:, &block)
-        @name, @method, @pipeline, @block = name, method, pipeline, block
+      def initialize(path_or_matcher, name:, method:, pipeline:)
+        @name, @method, @pipeline, @block = name, method, pipeline
 
         if path_or_matcher.is_a?(String)
           @path    = path_or_matcher
@@ -21,14 +21,12 @@ module Pakyow
         end
       end
 
-      # TODO: this logic can be shared with router
       def match(path_to_match)
         @matcher.match(path_to_match)
       end
 
-      def call(context)
-        @pipeline.call(context: context)
-        context.instance_exec(&@block) if @block
+      def call(connection, context)
+        @pipeline.call(connection, context: context)
       end
 
       def populated_path(path_to_self, **params)

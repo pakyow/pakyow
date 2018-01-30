@@ -124,4 +124,46 @@ RSpec.describe "routing requests" do
       expect(call("/")[0]).to eq(200)
     end
   end
+
+  context "when more than one route matches in the same controller" do
+    let :app_definition do
+      Proc.new {
+        controller do
+          get "/foo" do
+            send "one"
+          end
+
+          get "/foo" do
+            send "two"
+          end
+        end
+      }
+    end
+
+    it "only calls the first one" do
+      expect(call("/foo")[2].body.read).to eq("one")
+    end
+  end
+
+  context "when more than one route matches in different controllers" do
+    let :app_definition do
+      Proc.new {
+        controller do
+          get "/foo" do
+            send "one"
+          end
+        end
+
+        controller do
+          get "/foo" do
+            send "two"
+          end
+        end
+      }
+    end
+
+    it "only calls the first one" do
+      expect(call("/foo")[2].body.read).to eq("one")
+    end
+  end
 end

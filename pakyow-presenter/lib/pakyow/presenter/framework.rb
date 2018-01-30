@@ -9,7 +9,7 @@ module Pakyow
         renderer_class = subclass(Renderer)
 
         app.class_eval do
-          endpoint renderer_class
+          action renderer_class
 
           stateful :templates, Templates
           stateful :presenter, ViewPresenter

@@ -50,7 +50,7 @@ module Pakyow
               instance_exec(&handler)
             end
 
-            throw :halt, response
+            halt
           end
 
           def handler_for_code(code)

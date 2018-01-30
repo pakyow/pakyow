@@ -11,13 +11,14 @@ RSpec.describe "extending a controller with an extension" do
 
   let :app_definition do
     Proc.new {
-      controller do
+      controller :haha do
         include RouteExtensions
       end
     }
   end
 
   it "makes the extensions available to the controller" do
+    expect(call[0]).to eq(200)
     expect(call[2].body.read).to eq("extension")
   end
 end

@@ -6,6 +6,7 @@ require "pakyow/support/hookable"
 require "pakyow/support/recursive_require"
 require "pakyow/support/deep_freeze"
 require "pakyow/support/class_level_state"
+require "pakyow/support/pipelined"
 
 require "pakyow/core/call"
 require "pakyow/core/loader"
@@ -160,6 +161,12 @@ module Pakyow
 
       setting :dsl, true
 
+      setting :pipelines, {
+        routing: Support::Pipelined::Pipeline.new,
+        missing: Support::Pipelined::Pipeline.new,
+        failure: Support::Pipelined::Pipeline.new
+      }
+
       setting :helpers, []
       setting :aspects, []
       setting :frameworks, []
@@ -233,15 +240,10 @@ module Pakyow
     extend Support::DeepFreeze
     unfreezable :builder
 
-    extend Support::ClassLevelState
-    class_level_state :endpoints,  default: [], inheritable: true
-
     def initialize(environment, builder: nil, stage: false, &block)
       @paths = Paths.new
       @environment = environment
       @builder = builder
-
-      @endpoints = self.class.endpoints.dup
 
       performing :initialize do
         performing :configure do
@@ -266,31 +268,23 @@ module Pakyow
       call_hooks :after, :boot
     end
 
-    RESPOND_MISSING = [[], 404, {}].freeze
-    RESPOND_ERRORED = [[], 500, {}].freeze
-
     def call(env)
-      call = Call.new(self, Request.new(env), Response.new)
+      begin
+        call = Call.new(self, env)
+        call_pipeline :routing, call, fall_through: -> {
+          call_pipeline :missing, call, fall_through: -> {
+            respond_to_missing(call)
+          }
+        }
+      rescue StandardError => error
+        env[Rack::RACK_LOGGER].houston(error)
 
-      response = catch(:halt) {
-        @endpoints.each do |endpoint|
-          endpoint.call(call)
-        end
+        call_pipeline :failure, call, fall_through: -> {
+          respond_to_failure(call)
+        }
+      end
 
-        # If no endpoint has halted or marked the call as processed, assume
-        # that the call was unhandled and return a 404 response.
-        unless call.processed?
-          handle_missing(call)
-        end
-      } || call.response
-
-      call.request.set_cookies(response, config.cookies); response
-    rescue StandardError => error
-      env[Rack::RACK_LOGGER].houston(error)
-
-      catch(:halt) {
-        handle_failure(call, error)
-      }
+      call.finalize
     end
 
     def freeze
@@ -301,24 +295,21 @@ module Pakyow
 
     protected
 
-    def handle_missing(call)
-      @endpoints.each do |endpoint|
-        endpoint.handle_missing(call)
-      end
-
-      unless call.handled_missing?
-        throw :halt, Response.new(*RESPOND_MISSING)
-      end
+    def call_pipeline(pipeline_name, connection, fall_through: nil)
+      config.app.pipelines[pipeline_name].call(connection, context: self)
+      fall_through.call if fall_through.is_a?(Proc) && !connection.processed?
     end
 
-    def handle_failure(call, error)
-      @endpoints.each do |endpoint|
-        endpoint.handle_failure(call, error)
-      end
+    def respond_to_missing(connection)
+      connection.response.status = 404
+      connection.response.body = ["404 Not Found"]
+      connection.response.set_header(Rack::CONTENT_TYPE, "text/plain")
+    end
 
-      unless call.handled_failure?
-        throw :halt, Response.new(*RESPOND_ERRORED)
-      end
+    def respond_to_failure(connection)
+      connection.response.status = 500
+      connection.response.body = ["500 Internal Server Error"]
+      connection.response.set_header(Rack::CONTENT_TYPE, "text/plain")
     end
 
     def load_app
@@ -382,10 +373,11 @@ module Pakyow
         (config.app.aspects << name.to_sym).uniq!
       end
 
-      # Register an endpoint by name.
+      # Register a pipeline action.
       #
-      def endpoint(object)
-        @endpoints << object
+      def action(action, pipeline: :routing)
+        raise ArgumentError, "Unknown pipeline `#{pipeline}'" unless config.app.pipelines.key?(pipeline)
+        config.app.pipelines[pipeline].action(action)
       end
 
       # Registers a helper module to be loaded on defined endpoints.

@@ -13,16 +13,8 @@ RSpec.describe Pakyow::Controller do
     klass.new(:test, builder: Rack::Builder.new)
   end
 
-  let :request do
-    Pakyow::Request.new({})
-  end
-
-  let :response do
-    Pakyow::Response.new
-  end
-
   let :call_state do
-    Pakyow::Call.new(app, request, response)
+    Pakyow::Call.new(app, {})
   end
 
   let :controller do

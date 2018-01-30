@@ -275,7 +275,7 @@ RSpec.describe "error handling" do
         expect(call[0]).to eq(500)
       end
 
-      it "returns an empty body" do
+      it "returns the default response" do
         expect(call[2].body).to eq([])
       end
     end
@@ -308,6 +308,10 @@ RSpec.describe "error handling" do
 
       it "sets the response code" do
         expect(call[0]).to eq(404)
+      end
+
+      it "returns the default response" do
+        expect(call[2].body).to eq([])
       end
     end
   end

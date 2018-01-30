@@ -178,10 +178,17 @@ module Pakyow
     end
 
     def call_route(route)
-      route.call(self); throw(:routed)
+      route.call(@__state, self)
+      @__state.processed
     rescue StandardError => error
       handle_error(error)
-      raise error
+
+      # If this controller handled the error, it would have halted the request so there's no need to
+      # reraise for the application to attempt to handle it. On the other hand, if this controller
+      # didn't handle the error the application needs to know that it occured.
+      unless @__state.halted?
+        raise error
+      end
     end
 
     # Redirects to +location+ and immediately halts request processing.
@@ -234,7 +241,7 @@ module Pakyow
     def reroute(location, method: request.method, **params)
       request.env[Rack::REQUEST_METHOD] = method.to_s.upcase
       request.env[Rack::PATH_INFO] = location.is_a?(Symbol) ? app.paths.path(location, **params) : location
-      throw :halt, app.call(request.env)
+      Routing::Router.call(@__state)
     end
 
     # Responds to a specific request format.
@@ -313,7 +320,8 @@ module Pakyow
     #
     def halt(body = nil)
       response.body = body if body
-      throw :halt, response
+      @__state.halt
+      throw :halt
     end
 
     # Rejects the request, calling the next matching route.
@@ -370,18 +378,6 @@ module Pakyow
 
       def exclude_pipeline(pipeline_module)
         pipeline.exclude(pipeline_module)
-      end
-
-      def call(state)
-        catch :routed do
-          state.app.state_for(:controller).each do |controller|
-            controller.try_routing(state)
-          end
-
-          return false
-        end
-
-        state.processed
       end
 
       def handle_missing(state)
@@ -689,9 +685,12 @@ module Pakyow
 
                 state.request.params.merge!(match_data)
                 state.request.env["pakyow.endpoint"] = File.join(path_to_self.to_s, route.path.to_s)
+
                 self.new(state).call_route(route)
               end
             end
+
+            break if state.processed?
           end
 
           children.each do |child_controller|
@@ -746,13 +745,13 @@ module Pakyow
 
       def build_route(method, *args, &block)
         name, matcher = parse_name_and_matcher_from_args(*args)
+        pipeline = build_pipeline_for_route(name, &block)
 
         Routing::Route.new(
           matcher,
           name: name,
           method: method,
-          pipeline: build_pipeline_for_route(name),
-          &block
+          pipeline: pipeline
         ).tap do |route|
           routes[method] << route
         end
@@ -772,10 +771,11 @@ module Pakyow
         templates.merge!(templates_to_merge)
       end
 
-      def build_pipeline_for_route(route_name)
+      def build_pipeline_for_route(route_name, &block)
         pipeline.dup.tap do |route_pipeline|
           route_pipeline.include_actions(@route_actions[route_name].to_a)
           route_pipeline.exclude_actions(@route_skips[route_name].to_a)
+          route_pipeline.action(block) if block_given?
         end
       end
     end

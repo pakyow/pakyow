@@ -84,7 +84,7 @@ RSpec.describe "routing with custom matchers" do
     end
 
     it "is not matched" do
-      expect(call("/foo")[2].body.first).to eq(nil)
+      expect(call("/foo")[0]).to eq(404)
     end
   end
 
