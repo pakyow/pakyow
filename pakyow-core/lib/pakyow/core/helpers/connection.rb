@@ -7,6 +7,8 @@ module Pakyow
     module Connection
       extend Forwardable
 
+      attr_reader :connection
+
       # @!method app
       #   Returns the current app.
       #
@@ -41,7 +43,7 @@ module Pakyow
       #   Returns cookies.
       #
       #   @see Request#:cookies
-      def_delegators :@connection, :app, :request, :response, :logger, :params, :session, :cookies
+      def_delegators :connection, :app, :request, :response, :logger, :params, :session, :cookies
 
       alias req request
       alias res response
