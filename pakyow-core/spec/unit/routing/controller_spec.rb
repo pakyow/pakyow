@@ -14,7 +14,7 @@ RSpec.describe Pakyow::Controller do
   end
 
   let :call_state do
-    Pakyow::Call.new(app, {})
+    Pakyow::Connection.new(app, {})
   end
 
   let :controller do
@@ -36,7 +36,7 @@ RSpec.describe Pakyow::Controller do
   end
 
   it "includes call helpers" do
-    expect(controller.class.ancestors).to include(Pakyow::CallHelpers)
+    expect(controller.class.ancestors).to include(Pakyow::Helpers::Connection)
   end
 
   describe ".method_missing" do

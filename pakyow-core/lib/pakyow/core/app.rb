@@ -8,7 +8,7 @@ require "pakyow/support/deep_freeze"
 require "pakyow/support/class_level_state"
 require "pakyow/support/pipelined"
 
-require "pakyow/core/call"
+require "pakyow/core/connection"
 require "pakyow/core/loader"
 require "pakyow/core/paths"
 
@@ -265,7 +265,7 @@ module Pakyow
 
     def call(env)
       begin
-        connection = super(Call.new(self, env))
+        connection = super(Connection.new(self, env))
 
         if connection.halted?
           connection.finalize

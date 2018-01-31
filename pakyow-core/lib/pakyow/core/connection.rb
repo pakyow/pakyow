@@ -4,7 +4,7 @@ require "pakyow/support/hookable"
 require "pakyow/support/pipelined/haltable"
 
 module Pakyow
-  class Call
+  class Connection
     include Support::Hookable
     known_events :finalize
 

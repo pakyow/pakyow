@@ -1,4 +1,4 @@
-RSpec.describe Pakyow::Call do
+RSpec.describe Pakyow::Connection do
   describe "#initialize" do
     it "initializes with an app, request, and response"
   end

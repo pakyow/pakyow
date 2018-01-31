@@ -7,7 +7,7 @@ require "pakyow/support/makeable"
 
 require "pakyow/support/pipelined"
 
-require "pakyow/core/call_helpers"
+require "pakyow/core/helpers/connection"
 require "pakyow/core/routing/helpers"
 require "pakyow/core/routing/behavior/error_handling"
 
@@ -139,7 +139,7 @@ module Pakyow
   #   end
   #
   class Controller
-    include CallHelpers
+    include Helpers::Connection
 
     using Support::DeepDup
     extend Support::Makeable
@@ -174,7 +174,7 @@ module Pakyow
 
     # @api private
     def initialize(arg)
-      @__state = arg if arg.is_a?(Call)
+      @__connection = arg if arg.is_a?(Connection)
 
       @children = self.class.children.map { |child|
         child.new(arg)
@@ -228,7 +228,7 @@ module Pakyow
         actions_to_remove.include?(action.name)
       end
 
-      @__state, @route = connection, route
+      @__connection, @route = connection, route
       @__pipeline.call(connection)
     rescue StandardError => error
       request.env[Rack::RACK_LOGGER].houston(error)
@@ -289,7 +289,7 @@ module Pakyow
     def reroute(location, method: request.method, **params)
       request.env[Rack::REQUEST_METHOD] = method.to_s.upcase
       request.env[Rack::PATH_INFO] = location.is_a?(Symbol) ? app.paths.path(location, **params) : location
-      @__state.instance_variable_set(:@response, app.call(@__state.request.env))
+      @__connection.instance_variable_set(:@response, app.call(@__connection.request.env))
     end
 
     # Responds to a specific request format.
@@ -368,7 +368,7 @@ module Pakyow
     #
     def halt(body = nil)
       response.body = body if body
-      @__state.halt
+      @__connection.halt
     end
 
     # Rejects the request, calling the next matching route.

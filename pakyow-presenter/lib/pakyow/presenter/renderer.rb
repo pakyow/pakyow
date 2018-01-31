@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "pakyow/support/hookable"
-require "pakyow/core/call_helpers"
+require "pakyow/core/helpers/connection"
 
 module Pakyow
   module Presenter
@@ -10,7 +10,7 @@ module Pakyow
         path = String.normalize_path(path)
         as = String.normalize_path(as) if as
 
-        app.class.const_get(:Renderer).new(@__state).perform(path, as: as, layout: layout)
+        app.class.const_get(:Renderer).new(@__connection).perform(path, as: as, layout: layout)
       end
     end
 
@@ -42,15 +42,15 @@ module Pakyow
         end
       end
 
-      include CallHelpers
+      include Helpers::Connection
 
       include Support::Hookable
       known_events :render
 
       attr_reader :presenter
 
-      def initialize(state)
-        @__state = state
+      def initialize(connection)
+        @__connection = connection
       end
 
       def setup(path = default_path, as: nil, layout: nil)
@@ -74,7 +74,7 @@ module Pakyow
       def perform(path = default_path, as: nil, layout: nil)
         setup(path, as: as, layout: layout)
 
-        define_presentables(@__state.values)
+        define_presentables(@__connection.values)
 
         performing :render do
           response.body = StringIO.new(
@@ -84,7 +84,7 @@ module Pakyow
           )
         end
 
-        @__state.rendered
+        @__connection.rendered
       end
 
       protected

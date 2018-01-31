@@ -35,7 +35,7 @@ module Pakyow
       end
     end
 
-    class Pakyow::Call
+    class Pakyow::Connection
       include Renderable
     end
 

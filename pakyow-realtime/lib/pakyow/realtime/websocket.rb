@@ -2,17 +2,17 @@
 
 require "securerandom"
 
-require "pakyow/core/call_helpers"
+require "pakyow/core/helpers/connection"
 
 module Pakyow
   module Realtime
     class WebSocket
-      include CallHelpers
+      include Helpers::Connection
 
       attr_reader :id, :io, :env, :url
 
       def initialize(id, state)
-        @id, @__state = id, state
+        @id, @__connection = id, state
 
         @env = request.env
 

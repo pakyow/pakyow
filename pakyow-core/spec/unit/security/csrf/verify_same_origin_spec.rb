@@ -14,7 +14,7 @@ RSpec.describe Pakyow::Security::CSRF::VerifySameOrigin do
   end
 
   let :connection do
-    Pakyow::Call.new(app, env)
+    Pakyow::Connection.new(app, env)
   end
 
   let :app do
