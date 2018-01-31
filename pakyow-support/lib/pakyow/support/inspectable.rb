@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "pakyow/support/class_level_state"
+
 module Pakyow
   module Support
     # Customized inspectors for your objects.
@@ -21,24 +23,30 @@ module Pakyow
     module Inspectable
       def self.included(base)
         base.extend ClassAPI
+        base.extend ClassLevelState unless base.ancestors.include?(ClassLevelState)
+        base.class_level_state :__inspectables, inheritable: true, default: []
       end
 
       module ClassAPI
-        attr_reader :inspectables
-
         # Sets the instance vars that should be part of the inspection.
         #
         # @param ivars [Array<Symbol>] The list of instance variables.
         #
         def inspectable(*ivars)
-          @inspectables = ivars.map { |ivar| "@#{ivar}".to_sym }
+          @__inspectables = ivars.map { |ivar| "@#{ivar}".to_sym }
         end
       end
 
       def inspect
-        "#<#{self.class.name}:#{self.object_id} " + (self.class.inspectables || []).map { |ivar|
-          "#{ivar}=#{self.instance_variable_get(ivar).inspect}"
-        }.join(", ") << ">"
+        inspection = String.new("#<#{self.class}:#{self.object_id}")
+
+        if self.class.__inspectables.any?
+          inspection << " " + self.class.__inspectables.map { |ivar|
+            "#{ivar}=#{self.instance_variable_get(ivar).inspect}"
+          }.join(", ")
+        end
+
+        inspection.strip << ">"
       end
     end
   end
