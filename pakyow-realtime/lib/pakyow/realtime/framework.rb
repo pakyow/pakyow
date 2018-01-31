@@ -90,7 +90,7 @@ module Pakyow
               head.append("<meta name=\"pw-connection-id\" content=\"#{socket_client_id}:#{socket_digest(socket_client_id)}\">\n")
 
               # embed the endpoint we'll be connecting to
-              endpoint = config.realtime.endpoint || ["#{request.ssl? ? "wss" : "ws"}://#{request.host_with_port}", config.realtime.path].join("/")
+              endpoint = @connection.app.config.realtime.endpoint || ["#{@connection.ssl? ? "wss" : "ws"}://#{@connection.request.host_with_port}", @connection.app.config.realtime.path].join("/")
               head.append("<meta name=\"pw-endpoint\" content=\"#{endpoint}\">\n")
             end
           end
@@ -100,24 +100,24 @@ module Pakyow
 
     module Helpers
       def broadcast(message)
-        app.websocket_server.subscription_broadcast(socket_client_id, message)
+        @connection.app.websocket_server.subscription_broadcast(socket_client_id, message)
       end
 
       def subscribe(channel, qualifier = nil)
-        app.websocket_server.socket_subscribe(socket_client_id, Channel.new(channel, qualifier))
+        @connection.app.websocket_server.socket_subscribe(socket_client_id, Channel.new(channel, qualifier))
       end
 
       def unsubscribe(channel, qualifier = "*")
-        app.websocket_server.socket_unsubscribe(Channel.new(channel, qualifier))
+        @connection.app.websocket_server.socket_unsubscribe(Channel.new(channel, qualifier))
       end
 
       def socket_server_id
-        return request.params[:socket_server_id] if request.params[:socket_server_id]
-        request.session[:socket_server_id] ||= Server.socket_client_id
+        return @connection.params[:socket_server_id] if @connection.params[:socket_server_id]
+        @connection.session[:socket_server_id] ||= Server.socket_client_id
       end
 
       def socket_client_id
-        return request.params[:socket_client_id] if request.params[:socket_client_id]
+        return @connection.params[:socket_client_id] if @connection.params[:socket_client_id]
         @socket_client_id ||= Server.socket_client_id
       end
 

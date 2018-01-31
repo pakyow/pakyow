@@ -199,15 +199,15 @@ module Pakyow
             end
 
             before :render do
-              @manifest = if config.assets.manifest_hot_load
-                app.load_manifest
+              @manifest = if @connection.app.config.assets.manifest_hot_load
+                @connection.app.load_manifest
               else
-                config.assets.manifest
+                @connection.app.config.assets.manifest
               end
 
               next unless head = @presenter.view.object.find_significant_nodes(:head)[0]
 
-              if config.assets.polyfills
+              if @connection.app.config.assets.polyfills
                 head.append(<<~HTML
                   <script>
                     var modernBrowser = (
@@ -217,7 +217,7 @@ module Pakyow
                     if (!modernBrowser) {
                       var scriptElement = document.createElement("script");
                       scriptElement.async = false;
-                      scriptElement.src = "#{File.join(config.assets.public_path, "packs/polyfills.js")}";
+                      scriptElement.src = "#{File.join(@connection.app.config.assets.public_path, "packs/polyfills.js")}";
                       document.head.appendChild(scriptElement);
                     }
                   </script>
@@ -225,11 +225,11 @@ module Pakyow
                 )
               end
 
-              if config.assets.common
+              if @connection.app.config.assets.common
                 append_asset_to_head_from_manifest("common", head, @manifest)
               end
 
-              (config.assets.autoload + @presenter.view.info(:packs).to_s.split(" ")).uniq.each do |pack|
+              (@connection.app.config.assets.autoload + @presenter.view.info(:packs).to_s.split(" ")).uniq.each do |pack|
                 append_asset_to_head_from_manifest(File.join("packs", pack.to_s), head, @manifest)
               end
 
@@ -239,10 +239,10 @@ module Pakyow
 
             after :render do
               if instance_variable_defined?(:@manifest)
-                html = res.body.read
+                html = @connection.response.body.read
 
                 # webpack removes the relative path, so we must too
-                frontend_assets_path = config.assets.frontend_assets_path.gsub(File.join(config.app.root, "/"), "")
+                frontend_assets_path = @connection.app.config.assets.frontend_assets_path.gsub(File.join(@connection.app.config.app.root, "/"), "")
 
                 @manifest.each do |key, value|
                   if key.start_with?(frontend_assets_path)
@@ -251,7 +251,7 @@ module Pakyow
                   end
                 end
 
-                res.body = StringIO.new(html)
+                @connection.body = StringIO.new(html)
               end
             end
           end

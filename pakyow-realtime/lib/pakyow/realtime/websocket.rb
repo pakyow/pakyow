@@ -11,18 +11,17 @@ module Pakyow
 
       attr_reader :id, :io, :env, :url
 
-      def initialize(id, state)
-        @id, @__connection = id, state
-
-        @env = request.env
+      def initialize(id, connection)
+        @id, @connection = id, connection
 
         @logger = Logger::RequestLogger.new(:sock, id: @id[0..7])
+        @env = @connection.env
 
-        secure = request.ssl?
+        secure = @connection.ssl?
         scheme = secure ? "wss:" : "ws:"
-        @url = scheme + "//" + env["HTTP_HOST"] + env["REQUEST_URI"]
+        @url = scheme + "//" + @connection.env["HTTP_HOST"] + @connection.env["REQUEST_URI"]
 
-        @io = @env["rack.hijack"].call
+        @io = @connection.env["rack.hijack"].call
 
         @driver = ::WebSocket::Driver.rack(self)
         @driver.on(:open)    do |_e| handle_open end
@@ -31,7 +30,7 @@ module Pakyow
         @driver.on(:error)   do |e| handle_error(e.message) end
         @driver.start
 
-        app.websocket_server.socket_connect(self)
+        @connection.app.websocket_server.socket_connect(self)
       end
 
       def open?
@@ -50,7 +49,7 @@ module Pakyow
       def shutdown
         return unless open?
 
-        app.websocket_server.socket_disconnect(self)
+        @connection.app.websocket_server.socket_disconnect(self)
         @io.close if @io
         @io = nil
 
@@ -93,7 +92,7 @@ module Pakyow
       end
 
       def trigger_presence(event)
-        app.hooks(:before, event).each do |hook, _|
+        @connection.app.hooks(:before, event).each do |hook, _|
           instance_exec(&hook)
         end
       end

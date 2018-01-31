@@ -41,7 +41,7 @@ module Pakyow
       #   Returns cookies.
       #
       #   @see Request#:cookies
-      def_delegators :@__connection, :app, :request, :response, :logger, :params, :session, :cookies
+      def_delegators :@connection, :app, :request, :response, :logger, :params, :session, :cookies
 
       alias req request
       alias res response

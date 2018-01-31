@@ -20,7 +20,7 @@ module Pakyow
           value ||= default_value
         end
 
-        @__connection.set(name, value)
+        @connection.set(name, value)
       end
     end
   end

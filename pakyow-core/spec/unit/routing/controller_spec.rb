@@ -35,7 +35,7 @@ RSpec.describe Pakyow::Controller do
     end
   end
 
-  it "includes call helpers" do
+  it "includes connection helpers" do
     expect(controller.class.ancestors).to include(Pakyow::Helpers::Connection)
   end
 

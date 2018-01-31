@@ -174,7 +174,7 @@ module Pakyow
 
     # @api private
     def initialize(arg)
-      @__connection = arg if arg.is_a?(Connection)
+      @connection = arg if arg.is_a?(Connection)
 
       @children = self.class.children.map { |child|
         child.new(arg)
@@ -228,10 +228,10 @@ module Pakyow
         actions_to_remove.include?(action.name)
       end
 
-      @__connection, @route = connection, route
+      @connection, @route = connection, route
       @__pipeline.call(connection)
     rescue StandardError => error
-      request.env[Rack::RACK_LOGGER].houston(error)
+      @connection.logger.houston(error)
       handle_error(error)
     end
 
@@ -259,8 +259,8 @@ module Pakyow
     #   end
     #
     def redirect(location, as: 302, **params)
-      response.status = Rack::Utils.status_code(as)
-      response["Location"] = location.is_a?(Symbol) ? app.paths.path(location, **params) : location
+      @connection.status = Rack::Utils.status_code(as)
+      @connection.set_response_header("Location", location.is_a?(Symbol) ? app.paths.path(location, **params) : location)
       halt
     end
 
@@ -287,9 +287,9 @@ module Pakyow
     #   end
     #
     def reroute(location, method: request.method, **params)
-      request.env[Rack::REQUEST_METHOD] = method.to_s.upcase
-      request.env[Rack::PATH_INFO] = location.is_a?(Symbol) ? app.paths.path(location, **params) : location
-      @__connection.instance_variable_set(:@response, app.call(@__connection.request.env))
+      @connection.env[Rack::REQUEST_METHOD] = method.to_s.upcase
+      @connection.env[Rack::PATH_INFO] = location.is_a?(Symbol) ? app.paths.path(location, **params) : location
+      @connection.instance_variable_set(:@response, app.call(@connection.request.env))
     end
 
     # Responds to a specific request format.
@@ -311,8 +311,8 @@ module Pakyow
     #   end
     #
     def respond_to(format)
-      return unless request.format == format.to_sym
-      response.format = format
+      return unless @connection.format == format.to_sym
+      @connection.response.format = format
       yield
       halt
     end
@@ -350,15 +350,15 @@ module Pakyow
           type ||= Rack::Mime.mime_type(File.extname(file_or_data.path))
         end
 
-        response[Rack::CONTENT_TYPE] = type || DEFAULT_SEND_TYPE
+        @connection.set_response_header(Rack::CONTENT_TYPE, type || DEFAULT_SEND_TYPE)
       elsif file_or_data.is_a?(String)
-        response[Rack::CONTENT_TYPE] = type if type
+        @connection.set_response_header(Rack::CONTENT_TYPE, type) if type
         data = StringIO.new(file_or_data)
       else
         raise ArgumentError, "Expected an IO or String object"
       end
 
-      response[CONTENT_DISPOSITION] = name ? "attachment; filename=#{name}" : "inline"
+      @connection.set_response_header(CONTENT_DISPOSITION, name ? "attachment; filename=#{name}" : "inline")
       halt(data)
     end
 
@@ -367,8 +367,8 @@ module Pakyow
     # The response body will be set to +body+ prior to halting (if it's a non-nil value).
     #
     def halt(body = nil)
-      response.body = body if body
-      @__connection.halt
+      @connection.body = body if body
+      @connection.halt
     end
 
     # Rejects the request, calling the next matching route.

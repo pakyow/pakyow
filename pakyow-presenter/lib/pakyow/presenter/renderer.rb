@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "pakyow/support/hookable"
-require "pakyow/core/helpers/connection"
 
 module Pakyow
   module Presenter
@@ -10,7 +9,7 @@ module Pakyow
         path = String.normalize_path(path)
         as = String.normalize_path(as) if as
 
-        app.class.const_get(:Renderer).new(@__connection).perform(path, as: as, layout: layout)
+        app.class.const_get(:Renderer).new(@connection).perform(path, as: as, layout: layout)
       end
     end
 
@@ -42,15 +41,13 @@ module Pakyow
         end
       end
 
-      include Helpers::Connection
-
       include Support::Hookable
       known_events :render
 
       attr_reader :presenter
 
       def initialize(connection)
-        @__connection = connection
+        @connection = connection
       end
 
       def setup(path = default_path, as: nil, layout: nil)
@@ -65,8 +62,8 @@ module Pakyow
         presenter = find_presenter_for(as || path) || ViewPresenter
 
         @presenter = presenter.new(
-          binders: app.state_for(:binder),
-          paths: app.paths,
+          binders: @connection.app.state_for(:binder),
+          paths: @connection.app.paths,
           **info
         )
       end
@@ -74,23 +71,23 @@ module Pakyow
       def perform(path = default_path, as: nil, layout: nil)
         setup(path, as: as, layout: layout)
 
-        define_presentables(@__connection.values)
+        define_presentables(@connection.values)
 
         performing :render do
-          response.body = StringIO.new(
+          @connection.body = StringIO.new(
             @presenter.to_html(
               clean: !Pakyow.env?(:prototype)
             )
           )
         end
 
-        @__connection.rendered
+        @connection.rendered
       end
 
       protected
 
       def default_path
-        request.env["pakyow.endpoint"] || request.path
+        @connection.env["pakyow.endpoint"] || @connection.path
       end
 
       def find_info_for(path)
@@ -112,19 +109,19 @@ module Pakyow
       end
 
       def info_for_path(path)
-        app.state_for(:templates).lazy.map { |store|
+        @connection.app.state_for(:templates).lazy.map { |store|
           store.info(path)
         }.find(&:itself)
       end
 
       def layout_with_name(name)
-        app.state_for(:templates).lazy.map { |store|
+        @connection.app.state_for(:templates).lazy.map { |store|
           store.layout(name)
         }.find(&:itself)
       end
 
       def presenter_for_path(path)
-        app.state_for(:presenter).find { |presenter|
+        @connection.app.state_for(:presenter).find { |presenter|
           presenter.path == path
         }
       end

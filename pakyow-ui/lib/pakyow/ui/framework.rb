@@ -23,11 +23,11 @@ module Pakyow
 
       def boot
         app.on :join do
-          app.data.persist(@id)
+          @connection.app.data.persist(@id)
         end
 
         app.on :leave do
-          app.data.expire(@id, SUBSCRIPTION_TIMEOUT)
+          @connection.app.data.expire(@id, SUBSCRIPTION_TIMEOUT)
         end
 
         if app.const_defined?(:Renderer)
@@ -83,7 +83,7 @@ module Pakyow
             # We wait until after render so that we don't create subscriptions unnecessarily
             # in the event that something blew up during the render process.
 
-            presentables = @__connection.values
+            presentables = @connection.values
 
             metadata = {
               view_path: @presenter.class.path,
@@ -108,7 +108,7 @@ module Pakyow
 
             queries.each do |presentable_query|
               if subscription_id = presentable_query.subscribe(socket_client_id, call: handler, with: metadata)
-                app.data.expire(socket_client_id, SUBSCRIPTION_TIMEOUT)
+                @connection.app.data.expire(socket_client_id, SUBSCRIPTION_TIMEOUT)
                 subscribe(:transformation, subscription_id)
               end
             end

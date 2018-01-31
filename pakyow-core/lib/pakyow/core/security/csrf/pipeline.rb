@@ -11,11 +11,11 @@ module Pakyow
       action :verify_authenticity_token
 
       def verify_same_origin
-        config.csrf.protection[:origin].call(@__connection)
+        config.csrf.protection[:origin].call(@connection)
       end
 
       def verify_authenticity_token
-        config.csrf.protection[:authenticity].call(@__connection)
+        config.csrf.protection[:authenticity].call(@connection)
       end
     end
   end
