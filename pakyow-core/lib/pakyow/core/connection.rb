@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "forwardable"
+
 require "pakyow/support/hookable"
 require "pakyow/support/pipelined/haltable"
 
@@ -10,11 +12,11 @@ module Pakyow
 
     include Support::Pipelined::Haltable
 
-    attr_reader :app, :request, :response
+    attr_reader :app, :request, :response, :values
 
     def initialize(app, env)
       @app, @request, @response = app, Request.new(env), Response.new
-      @state = {}
+      @values = {}
     end
 
     def finalize
@@ -25,15 +27,41 @@ module Pakyow
     end
 
     def set(key, value)
-      @state[key] = value
+      @values[key] = value
     end
 
     def get(key)
-      @state[key]
+      @values[key]
     end
 
-    def values
-      @state
+    extend Forwardable
+    def_delegators :request, :method, :format, :host, :port, :ip, :user_agent, :base_url, :path,
+                   :path_info, :script_name, :url, :params, :cookies, :session, :env, :logger
+
+    def_delegators :response, :status, :status=, :write, :close, :body=
+
+    def request_header?(key)
+      @request.has_header?(key)
+    end
+
+    def request_header(key)
+      @request.get_header(key)
+    end
+
+    def response_header?(key)
+      @response.has_header?(key)
+    end
+
+    def response_header(key)
+      @response.get_header(key)
+    end
+
+    def set_response_header(key, value)
+      @response.add_header(key, value)
+    end
+
+    def delete_response_header(key)
+      @response.delete_header(key)
     end
   end
 end

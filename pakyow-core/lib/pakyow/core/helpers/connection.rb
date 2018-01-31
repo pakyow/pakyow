@@ -21,7 +21,27 @@ module Pakyow
       #   Returns the current response.
       #
       #   @see Response
-      def_delegators :@__connection, :app, :request, :response
+      #
+      # @!method logger
+      #   Returns the logger.
+      #
+      #   @see Request#logger
+      #
+      # @!method params
+      #   Returns the request params.
+      #
+      #   @see Request#params
+      #
+      # @!method session
+      #   Returns the session.
+      #
+      #   @see Request#session
+      #
+      # @!method :cookies
+      #   Returns cookies.
+      #
+      #   @see Request#:cookies
+      def_delegators :@__connection, :app, :request, :response, :logger, :params, :session, :cookies
 
       alias req request
       alias res response
@@ -31,27 +51,6 @@ module Pakyow
       #
       #   @see App#config
       def_delegators :app, :config
-
-      # @!method logger
-      #   Delegates to {request}.
-      #
-      #   @see Request#logger
-      #
-      # @!method params
-      #   Delegates to {request}.
-      #
-      #   @see Request#params
-      #
-      # @!method session
-      #   Delegates to {request}.
-      #
-      #   @see Request#session
-      #
-      # @!method :cookies
-      #   Delegates to {request}.
-      #
-      #   @see Request#:cookies
-      def_delegators :request, :logger, :params, :session, :cookies
 
       # @!method path
       #   @return builds the path to a named route (see {Paths#path})

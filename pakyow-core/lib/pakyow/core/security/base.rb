@@ -28,16 +28,16 @@ module Pakyow
         performing :reject do
           logger(connection)&.warn "Request rejected by #{self.class}; env: #{loggable_env(connection.request.env).inspect}"
 
-          connection.response.status = 403
-          connection.response["Content-Type"] = "text/plain"
-          connection.response.body = ["Forbidden"]
+          connection.status = 403
+          connection.set_response_header("Content-Type", "text/plain")
+          connection.body = ["Forbidden"]
 
           raise InsecureRequest
         end
       end
 
       def logger(connection)
-        connection.request.env["rack.logger"]
+        connection.env["rack.logger"]
       end
 
       def safe?(connection)

@@ -198,8 +198,8 @@ module Pakyow
           catch :reject do
             if route_match = route.match(request_path)
               match_data.merge!(route_match.named_captures)
-              connection.request.params.merge!(match_data)
-              connection.request.env["pakyow.endpoint"] = File.join(self.class.path_to_self.to_s, route.path.to_s)
+              connection.params.merge!(match_data)
+              connection.env["pakyow.endpoint"] = File.join(self.class.path_to_self.to_s, route.path.to_s)
               dup.call_route(connection, route)
             end
           end
