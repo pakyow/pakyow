@@ -14,12 +14,6 @@ module Pakyow
     #
     attr_accessor :error
 
-    def initialize(*args)
-      super
-
-      @initial_cookies = cookies.dup
-    end
-
     # Returns the request method (e.g. `:get`).
     #
     def method
@@ -54,25 +48,6 @@ module Pakyow
     #
     def cookies
       @cookies ||= super.indifferentize
-    end
-
-    # @api private
-    def set_cookies(response, config)
-      cookies.each_pair do |name, value|
-        # delete the cookie if the value has been set to nil
-        response.delete_cookie(name) if value.nil?
-
-        # cookie is already set with value, ignore
-        next if @initial_cookies.include?(name) && @initial_cookies[name] == value
-
-        # set cookie with defaults
-        response.set_cookie(name, path: config.path, expires: Time.now + config.expiry, value: value)
-      end
-
-      # delete cookies that were deleted from the request
-      (@initial_cookies.keys - cookies.keys).each do |name|
-        response.delete_cookie(name)
-      end
     end
   end
 end
