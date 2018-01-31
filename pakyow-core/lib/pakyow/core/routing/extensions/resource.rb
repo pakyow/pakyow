@@ -67,33 +67,35 @@ module Pakyow
       module Resource
         extend Extension
 
-        template :resource do
-          resource_id = ":#{controller.__class_name.name}_id"
+        apply_extension do
+          template :resource do
+            resource_id = ":#{controller.__class_name.name}_id"
 
-          # Nest resources as members of the current resource
-          controller.define_singleton_method :resource do |name, matcher, &block|
-            expand(:resource, name, File.join(resource_id, matcher), &block)
-          end
-
-          action :update_request_path_for_show, only: [:show]
-
-          controller.class_eval do
-            define_method :update_request_path_for_show do
-              req.env["pakyow.endpoint"].gsub!(resource_id, "show")
+            # Nest resources as members of the current resource
+            controller.define_singleton_method :resource do |name, matcher, &block|
+              expand(:resource, name, File.join(resource_id, matcher), &block)
             end
+
+            action :update_request_path_for_show, only: [:show]
+
+            controller.class_eval do
+              define_method :update_request_path_for_show do
+                req.env["pakyow.endpoint"].gsub!(resource_id, "show")
+              end
+            end
+
+            get :list, "/"
+            get :new,  "/new"
+            post :create, "/"
+            get :edit, "/#{resource_id}/edit"
+            patch :update, "/#{resource_id}"
+            put :replace, "/#{resource_id}"
+            delete :remove, "/#{resource_id}"
+            get :show, "/#{resource_id}"
+
+            group :collection
+            namespace :member, resource_id
           end
-
-          get :list, "/"
-          get :new,  "/new"
-          post :create, "/"
-          get :edit, "/#{resource_id}/edit"
-          patch :update, "/#{resource_id}"
-          put :replace, "/#{resource_id}"
-          delete :remove, "/#{resource_id}"
-          get :show, "/#{resource_id}"
-
-          group :collection
-          namespace :member, resource_id
         end
       end
     end

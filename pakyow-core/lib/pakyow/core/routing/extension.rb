@@ -9,8 +9,14 @@ module Pakyow
     #   module FooRoutes
     #     extend Pakyow::Routing::Extension
     #
-    #     get "/foo" do
-    #       # this route will be defined on any router extended with FooRoutes
+    #     def foo
+    #       # this method will be available to controllers that includes the extension
+    #     end
+    #
+    #     apply_extension do
+    #       get "/foo" do
+    #         # this route will be defined on any controller that includes the extension
+    #       end
     #     end
     #   end
     #
@@ -21,44 +27,15 @@ module Pakyow
     # See {Extension::Resource} for a more complex example.
     #
     module Extension
-      # @api private
-      def self.extended(base)
-        base.instance_variable_set(:@__extension, Pakyow::Controller(nil))
-        base.extend(ClassMethods)
+      def apply_extension(&block)
+        @__extensions = block
       end
 
-      # Methods available to the extension.
-      #
-      module ClassMethods
-        extend Forwardable
-
-        # @!method get
-        #   @see Controller.get
-        # @!method post
-        #   @see Controller.post
-        # @!method put
-        #   @see Controller.put
-        # @!method patch
-        #   @see Controller.patch
-        # @!method delete
-        #   @see Controller.delete
-        # @!method default
-        #   @see Controller.default
-        # @!method group
-        #   @see Controller.group
-        # @!method namespace
-        #   @see Controller.namespace
-        # @!method template
-        #   @see Controller.template
-        def_delegators :@__extension, *%i[default group namespace template].concat(Controller::SUPPORTED_HTTP_METHODS)
-
-        # @api private
-        def included(base)
-          if base.ancestors.include?(Controller)
-            base.merge(@__extension)
-          else
-            raise StandardError, "Expected `#{base}' to be a subclass of `Pakyow::Controller'"
-          end
+      def included(base)
+        if base.ancestors.include?(Controller)
+          base.instance_exec(&@__extensions) if @__extensions
+        else
+          raise StandardError, "Expected `#{base}' to be a subclass of `Pakyow::Controller'"
         end
       end
     end

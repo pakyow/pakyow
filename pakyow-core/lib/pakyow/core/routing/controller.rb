@@ -700,12 +700,6 @@ module Pakyow
       end
 
       # @api private
-      def merge(controller)
-        merge_routes(controller.routes)
-        merge_templates(controller.templates)
-      end
-
-      # @api private
       def expand_within(name, &block)
         raise NameError, "Unknown template `#{name}'" unless template = templates[name]
         Routing::Expansion.new(name, self, &template)
@@ -747,16 +741,6 @@ module Pakyow
         Routing::Route.new(matcher, name: name, method: method, &block).tap do |route|
           routes[method] << route
         end
-      end
-
-      def merge_routes(routes_to_merge)
-        routes.each_pair do |type, routes_of_type|
-          routes_of_type.concat(routes_to_merge[type].map(&:dup))
-        end
-      end
-
-      def merge_templates(templates_to_merge)
-        templates.merge!(templates_to_merge)
       end
     end
   end

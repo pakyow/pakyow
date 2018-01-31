@@ -4,8 +4,10 @@ RSpec.describe "extending a controller with an extension" do
   module RouteExtensions
     extend Pakyow::Routing::Extension
 
-    default do
-      send "extension"
+    apply_extension do
+      default do
+        send "extension"
+      end
     end
   end
 
