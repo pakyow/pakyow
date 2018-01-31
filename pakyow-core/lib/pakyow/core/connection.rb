@@ -35,7 +35,7 @@ module Pakyow
     end
 
     extend Forwardable
-    def_delegators :request, :method, :format, :host, :port, :ip, :user_agent, :base_url, :path,
+    def_delegators :request, :method, :format, :type, :host, :port, :ip, :user_agent, :base_url, :path,
                    :path_info, :script_name, :url, :params, :cookies, :session, :env, :logger, :ssl?
 
     def_delegators :response, :status, :status=, :write, :close, :body=
