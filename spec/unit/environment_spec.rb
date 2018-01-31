@@ -139,12 +139,6 @@ RSpec.describe Pakyow do
         expect(Pakyow.config.tasks.paths).to eq(["./tasks"])
       end
     end
-
-    describe "security.csrf" do
-      it "has a default value" do
-        expect(Pakyow.config.security.csrf).to eq(true)
-      end
-    end
   end
 
   describe ".mount" do

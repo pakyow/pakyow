@@ -59,48 +59,4 @@ RSpec.describe "default middleware stack" do
       )
     end
   end
-
-  context "security.csrf is enabled" do
-    before do
-      Pakyow.instance_variable_set(:@builder, builder)
-
-      allow(builder).to receive(:use)
-      allow(builder).to receive(:to_app)
-      allow(builder).to receive(:map) { |&block| builder.instance_exec(&block) }
-      allow(builder).to receive(:run)
-
-      Pakyow.app :test
-      Pakyow.config.server.default = :mock
-      Pakyow.config.security.csrf = true
-      Pakyow.setup(env: :test).run
-    end
-
-    it "uses Security::Middleware::CSRF" do
-      expect(builder).to have_received(:use).with(
-        Pakyow::Security::Middleware::CSRF
-      )
-    end
-  end
-
-  context "security.csrf is disabled" do
-    before do
-      Pakyow.instance_variable_set(:@builder, builder)
-
-      allow(builder).to receive(:use)
-      allow(builder).to receive(:to_app)
-      allow(builder).to receive(:map) { |&block| builder.instance_exec(&block) }
-      allow(builder).to receive(:run)
-
-      Pakyow.app :test
-      Pakyow.config.server.default = :mock
-      Pakyow.config.security.csrf = false
-      Pakyow.setup(env: :test).run
-    end
-
-    it "does not use Security::Middleware::CSRF" do
-      expect(builder).not_to have_received(:use).with(
-        Pakyow::Security::Middleware::CSRF
-      )
-    end
-  end
 end

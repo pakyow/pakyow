@@ -1,16 +1,34 @@
-require "pakyow/security/middleware/csrf"
+require "pakyow/core/security/csrf/verify_same_origin"
 
-RSpec.describe Pakyow::Security::Middleware::CSRF do
+RSpec.describe Pakyow::Security::CSRF::VerifySameOrigin do
   it "inherits base" do
-    expect(Pakyow::Security::Middleware::CSRF.ancestors).to include(Pakyow::Security::Middleware::Base)
+    expect(Pakyow::Security::CSRF::VerifySameOrigin.ancestors).to include(Pakyow::Security::Base)
   end
 
   let :instance do
-    Pakyow::Security::Middleware::CSRF.new(app)
+    Pakyow::Security::CSRF::VerifySameOrigin.new(config)
+  end
+
+  let :config do
+    {}
+  end
+
+  let :connection do
+    Pakyow::Call.new(app, env)
   end
 
   let :app do
     double(:app)
+  end
+
+  let :env do
+    {}
+  end
+
+  before do
+    allow_any_instance_of(Pakyow::Security::CSRF::VerifySameOrigin).to receive(:reject) { |_, connection|
+      connection.response.status = 403
+    }
   end
 
   context "origin header is present" do
@@ -21,6 +39,7 @@ RSpec.describe Pakyow::Security::Middleware::CSRF do
     context "origin matches request" do
       let :env do
         {
+          "REQUEST_METHOD" => "POST",
           "HTTP_ORIGIN" => "https://pakyow.com",
           "HTTP_HOST" => "pakyow.com",
           Rack::RACK_URL_SCHEME => "https",
@@ -29,14 +48,14 @@ RSpec.describe Pakyow::Security::Middleware::CSRF do
       end
 
       it "allows" do
-        expect(app).to receive(:call).with(env)
-        instance.call(env)
+        expect(instance.call(connection).response.status).to be 200
       end
     end
 
     context "origin does not match request" do
       let :env do
         {
+          "REQUEST_METHOD" => "POST",
           "HTTP_ORIGIN" => "http://hacked.com",
           "HTTP_HOST" => "pakyow.com",
           Rack::RACK_URL_SCHEME => "https",
@@ -45,18 +64,16 @@ RSpec.describe Pakyow::Security::Middleware::CSRF do
       end
 
       it "rejects" do
-        expect(app).not_to receive(:call).with(env)
-        expect(instance.call(env)[0]).to be(403)
+        expect(instance.call(connection).response.status).to be 403
       end
 
       context "origin is whitelisted" do
-        before do
-          instance.config.origin.whitelist << "http://hacked.com"
+        let :config do
+          { origin_whitelist: ["http://hacked.com"] }
         end
 
         it "allows" do
-          expect(app).to receive(:call).with(env)
-          instance.call(env)
+          expect(instance.call(connection).response.status).to be 200
         end
       end
     end
@@ -69,6 +86,7 @@ RSpec.describe Pakyow::Security::Middleware::CSRF do
 
     let :env do
       {
+        "REQUEST_METHOD" => "POST",
         "HTTP_HOST" => "pakyow.com",
         Rack::RACK_URL_SCHEME => "https",
         Rack::SERVER_PORT => 443
@@ -76,8 +94,7 @@ RSpec.describe Pakyow::Security::Middleware::CSRF do
     end
 
     it "rejects" do
-      expect(app).not_to receive(:call).with(env)
-      expect(instance.call(env)[0]).to be(403)
+      expect(instance.call(connection).response.status).to be 403
     end
   end
 
@@ -89,6 +106,7 @@ RSpec.describe Pakyow::Security::Middleware::CSRF do
     context "referrer matches request" do
       let :env do
         {
+          "REQUEST_METHOD" => "POST",
           "HTTP_REFERER" => "https://pakyow.com",
           "HTTP_HOST" => "pakyow.com",
           Rack::RACK_URL_SCHEME => "https",
@@ -97,14 +115,14 @@ RSpec.describe Pakyow::Security::Middleware::CSRF do
       end
 
       it "allows" do
-        expect(app).to receive(:call).with(env)
-        instance.call(env)
+        expect(instance.call(connection).response.status).to be 200
       end
     end
 
     context "referrer does not match request" do
       let :env do
         {
+          "REQUEST_METHOD" => "POST",
           "HTTP_REFERER" => "http://hacked.com",
           "HTTP_HOST" => "pakyow.com",
           Rack::RACK_URL_SCHEME => "https",
@@ -113,8 +131,7 @@ RSpec.describe Pakyow::Security::Middleware::CSRF do
       end
 
       it "rejects" do
-        expect(app).not_to receive(:call).with(env)
-        expect(instance.call(env)[0]).to be(403)
+        expect(instance.call(connection).response.status).to be 403
       end
     end
   end
@@ -126,36 +143,30 @@ RSpec.describe Pakyow::Security::Middleware::CSRF do
 
     let :env do
       {
+        "REQUEST_METHOD" => "POST",
         "HTTP_HOST" => "pakyow.com",
         Rack::RACK_URL_SCHEME => "https",
         Rack::SERVER_PORT => 443
       }
     end
 
-    it "allows" do
-      expect(app).to receive(:call).with(env)
-      instance.call(env)
-    end
-
     context "referrer.allow_empty is true" do
-      before do
-        instance.config.referrer.allow_empty = true
+      let :config do
+        { allow_empty_referrer: true }
       end
 
       it "allows" do
-        expect(app).to receive(:call).with(env)
-        instance.call(env)
+        expect(instance.call(connection).response.status).to be 200
       end
     end
 
     context "referrer.allow_empty is false" do
-      before do
-        instance.config.referrer.allow_empty = false
+      let :config do
+        { allow_empty_referrer: false }
       end
 
       it "rejects" do
-        expect(app).not_to receive(:call).with(env)
-        expect(instance.call(env)[0]).to be(403)
+        expect(instance.call(connection).response.status).to be 403
       end
     end
   end
@@ -163,6 +174,7 @@ RSpec.describe Pakyow::Security::Middleware::CSRF do
   context "origin and referrer are both valid" do
     let :env do
       {
+        "REQUEST_METHOD" => "POST",
         "HTTP_REFERER" => "https://pakyow.com",
         "HTTP_ORIGIN" => "https://pakyow.com",
         "HTTP_HOST" => "pakyow.com",
@@ -172,14 +184,14 @@ RSpec.describe Pakyow::Security::Middleware::CSRF do
     end
 
     it "allows" do
-      expect(app).to receive(:call).with(env)
-      instance.call(env)
+      expect(instance.call(connection).response.status).to be 200
     end
   end
 
   context "origin and referrer are both invalid" do
     let :env do
       {
+        "REQUEST_METHOD" => "POST",
         "HTTP_REFERER" => "http://hacked.com",
         "HTTP_ORIGIN" => "http://hacked.com",
         "HTTP_HOST" => "pakyow.com",
@@ -189,14 +201,14 @@ RSpec.describe Pakyow::Security::Middleware::CSRF do
     end
 
     it "rejects" do
-      expect(app).not_to receive(:call).with(env)
-      expect(instance.call(env)[0]).to be(403)
+      expect(instance.call(connection).response.status).to be 403
     end
   end
 
   context "origin is valid but referrer is invalid" do
     let :env do
       {
+        "REQUEST_METHOD" => "POST",
         "HTTP_REFERER" => "http://hacked.com",
         "HTTP_ORIGIN" => "https://pakyow.com",
         "HTTP_HOST" => "pakyow.com",
@@ -206,14 +218,14 @@ RSpec.describe Pakyow::Security::Middleware::CSRF do
     end
 
     it "rejects" do
-      expect(app).not_to receive(:call).with(env)
-      expect(instance.call(env)[0]).to be(403)
+      expect(instance.call(connection).response.status).to be 403
     end
   end
 
   context "referrer is valid but origin is invalid" do
     let :env do
       {
+        "REQUEST_METHOD" => "POST",
         "HTTP_REFERER" => "https://pakyow.com",
         "HTTP_ORIGIN" => "http://hacked.com",
         "HTTP_HOST" => "pakyow.com",
@@ -223,8 +235,7 @@ RSpec.describe Pakyow::Security::Middleware::CSRF do
     end
 
     it "rejects" do
-      expect(app).not_to receive(:call).with(env)
-      expect(instance.call(env)[0]).to be(403)
+      expect(instance.call(connection).response.status).to be 403
     end
   end
 end

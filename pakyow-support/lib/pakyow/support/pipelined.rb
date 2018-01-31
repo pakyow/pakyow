@@ -168,6 +168,8 @@ module Pakyow
           base.instance_variable_set(:@__pipeline, InternalPipeline.new)
         end
 
+        attr_reader :__pipeline
+
         # Defines an action.
         # @see Pipelined::ClassAPI#action
         #

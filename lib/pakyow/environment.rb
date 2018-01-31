@@ -61,9 +61,6 @@ require "pakyow/core/app"
 #
 # - +tasks.paths+ defines paths where rake tasks are located. Default is +["./tasks"]+.
 #
-# - +security.csrf+ defines whether or not to protect against csrf. Default is +true+.
-#   @see Security::Middleware::CSRF
-#
 # Configuration support is added via {Support::Configurable}.
 #
 # @example Configure the environment:
@@ -172,10 +169,6 @@ module Pakyow
     setting :paths, ["./tasks"]
   end
 
-  settings_for :security do
-    setting :csrf, true
-  end
-
   # Loads the default middleware stack.
   #
   before :setup do
@@ -185,11 +178,6 @@ module Pakyow
     use Rack::MethodOverride
     use Middleware::JSONBody
     use Middleware::Normalizer
-
-    if config.security.csrf
-      require "pakyow/security/middleware/csrf"
-      use Security::Middleware::CSRF
-    end
   end
 
   # @api private

@@ -89,6 +89,53 @@ module Pakyow
 
           helper Pakyow::Routing::Helpers
 
+          settings_for :csrf do
+            setting :origin_whitelist, []
+            setting :allow_empty_referrer, true
+            setting :protection, {}
+          end
+
+          require "pakyow/core/security/csrf/verify_same_origin"
+          require "pakyow/core/security/csrf/verify_authenticity_token"
+
+          config.csrf.protection = {
+            origin: Security::CSRF::VerifySameOrigin.new(
+              origin_whitelist: config.csrf.origin_whitelist,
+              allow_empty_referrer: config.csrf.allow_empty_referrer
+            ),
+
+            authenticity: Security::CSRF::VerifyAuthenticityToken.new({}),
+          }
+
+          require "pakyow/core/security/csrf/pipeline"
+          controller_class.include_pipeline Security::CSRF
+
+          handle InsecureRequest, as: 403 do
+            trigger(403)
+          end
+
+          controller_class.class_eval do
+            def self.disable_protection(type, only: [], except: [])
+              if type.to_sym == :csrf
+                if only.any? || except.any?
+                  Security::CSRF.__pipeline.actions.each do |action|
+                    if only.any?
+                      skip_action action.target, only: only
+                    end
+
+                    if except.any?
+                      action action.target, only: except
+                    end
+                  end
+                else
+                  exclude_pipeline Security::CSRF
+                end
+              else
+                raise ArgumentError, "Unknown protection type `#{type}'"
+              end
+            end
+          end
+
           before :load do
             # Include other registered helpers into the controller class.
             config.app.helpers.each do |helper|

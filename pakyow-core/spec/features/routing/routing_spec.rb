@@ -1,13 +1,11 @@
 RSpec.describe "routing requests" do
-  before do
-    Pakyow.config.security.csrf = false
-  end
-
   include_context "testable app"
 
   let :app_definition do
     Proc.new {
       controller do
+        disable_protection :csrf
+
         get "/" do
           send "GET /"
         end

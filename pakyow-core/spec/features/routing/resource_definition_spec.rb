@@ -1,8 +1,4 @@
 RSpec.describe "defining resources" do
-  before do
-    Pakyow.config.security.csrf = false
-  end
-
   include_context "testable app"
 
   context "when the resource is defined at the top level" do
@@ -156,6 +152,8 @@ RSpec.describe "defining resources" do
     let :app_definition do
       Proc.new {
         resource :post, "/posts" do
+          disable_protection :csrf
+
           list do
             send "post list"
           end
