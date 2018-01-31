@@ -9,8 +9,8 @@ module Pakyow
     class Route
       attr_reader :path, :name, :pipeline
 
-      def initialize(path_or_matcher, name:, method:, pipeline:)
-        @name, @method, @pipeline, @block = name, method, pipeline
+      def initialize(path_or_matcher, name:, method:, &block)
+        @name, @method, @block = name, method, block
 
         if path_or_matcher.is_a?(String)
           @path    = path_or_matcher
@@ -25,8 +25,8 @@ module Pakyow
         @matcher.match(path_to_match)
       end
 
-      def call(connection, context)
-        @pipeline.call(connection, context: context)
+      def call(context)
+        context.instance_exec(&@block) if @block
       end
 
       def populated_path(path_to_self, **params)

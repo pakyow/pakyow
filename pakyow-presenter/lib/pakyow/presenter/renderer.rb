@@ -16,11 +16,13 @@ module Pakyow
 
     class Renderer
       class << self
-        def call(state)
-          if render_implicitly?(state.request)
+        def perform_for_connection(connection)
+          if implicitly_render?(connection)
             # rubocop:disable Lint/HandleExceptions
             begin
-              perform(state)
+              catch :halt do
+                new(connection).perform
+              end
             rescue MissingView
               # TODO: in development, raise a missing view error in the case
               # of auto-render... so we can tell the user what to do
@@ -32,12 +34,11 @@ module Pakyow
           end
         end
 
-        def render_implicitly?(request)
-          request.method == :get && request.format == :html
-        end
-
-        def perform(state)
-          new(state).perform
+        def implicitly_render?(connection)
+          !connection.rendered? &&
+            connection.response.status == 200 &&
+            connection.request.method == :get &&
+            connection.request.format == :html
         end
       end
 
@@ -83,7 +84,7 @@ module Pakyow
           )
         end
 
-        @__state.halt
+        @__state.rendered
       end
 
       protected

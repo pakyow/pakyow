@@ -359,35 +359,27 @@ RSpec.describe "controller pipelines" do
   end
 
   context "using another pipeline module" do
-    after do
-      Object.send(:remove_const, :Foo)
-    end
-
     let :app_definition do
       Proc.new {
-        require "pakyow/support/pipeline"
+        controller do
+          action :bar
 
-        module Foo
-          extend Pakyow::Support::Pipeline
+          pipeline :foo do
+            action :foo
+          end
 
-          action :foo
+          use_pipeline :foo
+
+          default do
+            $calls << :route
+          end
 
           def foo
             $calls << :foo
           end
-        end
-
-        controller do
-          action :bar
 
           def bar
             $calls << :bar
-          end
-
-          use_pipeline Foo
-
-          default do
-            $calls << :route
           end
         end
       }
@@ -406,35 +398,27 @@ RSpec.describe "controller pipelines" do
   end
 
   context "including a pipeline" do
-    after do
-      Object.send(:remove_const, :Foo)
-    end
-
     let :app_definition do
       Proc.new {
-        require "pakyow/support/pipeline"
+        controller do
+          action :bar
 
-        module Foo
-          extend Pakyow::Support::Pipeline
+          pipeline :foo do
+            action :foo
+          end
 
-          action :foo
+          include_pipeline :foo
+
+          default do
+            $calls << :route
+          end
 
           def foo
             $calls << :foo
           end
-        end
-
-        controller do
-          action :bar
 
           def bar
             $calls << :bar
-          end
-
-          include_pipeline Foo
-
-          default do
-            $calls << :route
           end
         end
       }
@@ -454,23 +438,21 @@ RSpec.describe "controller pipelines" do
   end
 
   context "excluding a pipeline" do
-    after do
-      Object.send(:remove_const, :Foo)
-    end
-
     let :app_definition do
       Proc.new {
-        require "pakyow/support/pipeline"
-
-        module Foo
-          extend Pakyow::Support::Pipeline
-
-          action :foo
-        end
-
         controller do
           action :foo
           action :bar
+
+          pipeline :foo do
+            action :foo
+          end
+
+          exclude_pipeline :foo
+
+          default do
+            $calls << :route
+          end
 
           def foo
             $calls << :foo
@@ -478,12 +460,6 @@ RSpec.describe "controller pipelines" do
 
           def bar
             $calls << :bar
-          end
-
-          exclude_pipeline Foo
-
-          default do
-            $calls << :route
           end
         end
       }
@@ -499,5 +475,17 @@ RSpec.describe "controller pipelines" do
         expect($calls[i]).to eq(call)
       end
     end
+  end
+
+  context "using an externally defined pipeline" do
+    it "needs a test case"
+  end
+
+  context "including an externally defined pipeline" do
+    it "needs a test case"
+  end
+
+  context "excluding an externally defined pipeline" do
+    it "needs a test case"
   end
 end

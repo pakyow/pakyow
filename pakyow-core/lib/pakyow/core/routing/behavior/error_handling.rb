@@ -35,12 +35,17 @@ module Pakyow
 
           def handle_error(error)
             request.error = error
+            response.status = 500
 
             if code_and_handler = exception_for_class(error.class)
               code, handler   = code_and_handler
               response.status = code
-              instance_exec(&handler); halt
+              instance_exec(&handler)
+            elsif handler = handler_for_code(500)
+              instance_exec(&handler)
             end
+
+            halt
           end
 
           protected

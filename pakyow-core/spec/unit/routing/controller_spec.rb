@@ -75,22 +75,4 @@ RSpec.describe Pakyow::Controller do
       end
     end
   end
-
-  describe "#initialize" do
-    it "exposes call state properly" do
-      expect(controller.instance_variable_get(:@__state)).to eq(call_state)
-    end
-  end
-
-  describe ".call" do
-    it "tries routing each controller"
-
-    context "when routed" do
-      it "marks call state as processed"
-    end
-
-    context "when not routed" do
-      it "does not mark call state as routed"
-    end
-  end
 end

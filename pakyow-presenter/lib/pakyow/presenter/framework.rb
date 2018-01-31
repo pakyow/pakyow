@@ -4,13 +4,62 @@ require "pakyow/core/framework"
 
 module Pakyow
   module Presenter
+    class AutoRender
+      def initialize(_)
+      end
+
+      def call(connection)
+        connection.app.class.const_get(:Renderer).perform_for_connection(connection)
+      end
+    end
+
+    module Renderable
+      def self.included(base)
+        base.prepend Initializer
+      end
+
+      def rendered
+        @rendered = true
+        halt
+      end
+
+      def rendered?
+        @rendered == true
+      end
+
+      module Initializer
+        def initialize(*args)
+          @rendered = false
+          super
+        end
+      end
+    end
+
+    class Pakyow::Call
+      include Renderable
+    end
+
+    module ImplicitRendering
+      extend Support::Pipelined::Pipeline
+
+      action :setup_for_implicit_rendering
+
+      protected
+
+      def setup_for_implicit_rendering(connection)
+        connection.on :finalize do
+          app.class.const_get(:Renderer).perform_for_connection(self)
+        end
+      end
+    end
+
     class Framework < Pakyow::Framework(:presenter)
       def boot
-        renderer_class = subclass(Renderer)
+        # We create a subclass because other frameworks could extend its behavior. Since frameworks
+        # are loaded at the application level, we don't want one application affecting another.
+        subclass(Renderer)
 
         app.class_eval do
-          action renderer_class
-
           stateful :templates, Templates
           stateful :presenter, ViewPresenter
           stateful :binder, Binder
@@ -20,6 +69,10 @@ module Pakyow
           aspect :binders
 
           helper RenderHelpers
+
+          if const_defined?(:Controller)
+            const_get(:Controller).include_pipeline ImplicitRendering
+          end
 
           settings_for :presenter do
             setting :path do
@@ -64,6 +117,12 @@ module Pakyow
             #     render "/500"
             #   end
             # end
+          end
+
+          before :freeze do
+            if Pakyow.env?(:prototype)
+              @__pipeline.action(AutoRender)
+            end
           end
         end
       end

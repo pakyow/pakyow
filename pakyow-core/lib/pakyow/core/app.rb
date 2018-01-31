@@ -160,13 +160,6 @@ module Pakyow
       end
 
       setting :dsl, true
-
-      setting :pipelines, {
-        routing: Support::Pipelined::Pipeline.new,
-        missing: Support::Pipelined::Pipeline.new,
-        failure: Support::Pipelined::Pipeline.new
-      }
-
       setting :helpers, []
       setting :aspects, []
       setting :frameworks, []
@@ -240,6 +233,8 @@ module Pakyow
     extend Support::DeepFreeze
     unfreezable :builder
 
+    include Support::Pipelined
+
     def initialize(environment, builder: nil, stage: false, &block)
       @paths = Paths.new
       @environment = environment
@@ -270,21 +265,17 @@ module Pakyow
 
     def call(env)
       begin
-        call = Call.new(self, env)
-        call_pipeline :routing, call, fall_through: -> {
-          call_pipeline :missing, call, fall_through: -> {
-            respond_to_missing(call)
-          }
-        }
+        connection = super(Call.new(self, env))
+
+        if connection.halted?
+          connection.finalize
+        else
+          error_404
+        end
       rescue StandardError => error
         env[Rack::RACK_LOGGER].houston(error)
-
-        call_pipeline :failure, call, fall_through: -> {
-          respond_to_failure(call)
-        }
+        error_500
       end
-
-      call.finalize
     end
 
     def freeze
@@ -295,21 +286,12 @@ module Pakyow
 
     protected
 
-    def call_pipeline(pipeline_name, connection, fall_through: nil)
-      config.app.pipelines[pipeline_name].call(connection, context: self)
-      fall_through.call if fall_through.is_a?(Proc) && !connection.processed?
+    def error_404
+      [404, { Rack::CONTENT_TYPE => "text/plain" }, ["404 Not Found"]]
     end
 
-    def respond_to_missing(connection)
-      connection.response.status = 404
-      connection.response.body = ["404 Not Found"]
-      connection.response.set_header(Rack::CONTENT_TYPE, "text/plain")
-    end
-
-    def respond_to_failure(connection)
-      connection.response.status = 500
-      connection.response.body = ["500 Internal Server Error"]
-      connection.response.set_header(Rack::CONTENT_TYPE, "text/plain")
+    def error_500
+      [500, { Rack::CONTENT_TYPE => "text/plain" }, ["500 Internal Server Error"]]
     end
 
     def load_app
@@ -371,13 +353,6 @@ module Pakyow
       #
       def aspect(name)
         (config.app.aspects << name.to_sym).uniq!
-      end
-
-      # Register a pipeline action.
-      #
-      def action(action, pipeline: :routing)
-        raise ArgumentError, "Unknown pipeline `#{pipeline}'" unless config.app.pipelines.key?(pipeline)
-        config.app.pipelines[pipeline].action(action)
       end
 
       # Registers a helper module to be loaded on defined endpoints.

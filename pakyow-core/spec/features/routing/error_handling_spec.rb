@@ -335,6 +335,7 @@ RSpec.describe "error handling" do
       include_context "suppressed output"
 
       it "handles the error" do
+        expect(call[0]).to eq(500)
         expect(call[2].body.read).to eq("boom")
       end
 

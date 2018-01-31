@@ -166,4 +166,28 @@ RSpec.describe "routing requests" do
       expect(call("/foo")[2].body.read).to eq("one")
     end
   end
+
+  context "when two child controllers match" do
+    let :app_definition do
+      Proc.new {
+        controller do
+          namespace "/foo" do
+            get "/" do
+              send "one"
+            end
+          end
+
+          namespace "/foo" do
+            get "/" do
+              send "two"
+            end
+          end
+        end
+      }
+    end
+
+    it "only calls the first one" do
+      expect(call("/foo")[2].body.read).to eq("one")
+    end
+  end
 end

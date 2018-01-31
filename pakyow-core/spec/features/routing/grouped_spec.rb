@@ -6,6 +6,9 @@ RSpec.describe "grouped routes" do
       controller do
         action :foo
 
+        def foo
+        end
+
         group :g do
           action :bar
 

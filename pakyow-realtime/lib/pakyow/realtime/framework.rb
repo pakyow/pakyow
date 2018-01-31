@@ -7,6 +7,33 @@ require "pakyow/realtime/server"
 
 module Pakyow
   module Realtime
+    class WebSocketUpgrader
+      def initialize(_)
+      end
+
+      def call(state)
+        return unless Pakyow.config.realtime.server
+        return unless state.request.path == "/pw-socket"
+        return unless ::WebSocket::Driver.websocket?(state.request.env)
+        return unless id_and_digest = state.request.params[:id]
+
+        id, digest = id_and_digest.split(":", 2)
+        key = state.request.session[:socket_server_id]
+
+        # Verify that the websocket is connecting with a valid digest.
+        #
+        # We expect to receive an id and digest, separated by a colon. The digest is
+        # generated from the id along with the key. When the client is a browser, the
+        # `id:digest` value is embedded in the response, while the key is stored in
+        # the session. We verify by generating the digest and comparing it to the
+        # digest sent in the connection attempt.
+        return unless key && id && digest == Server.socket_digest(key, id)
+
+        WebSocket.new(id, state)
+        state.halt
+      end
+    end
+
     class Framework < Pakyow::Framework(:realtime)
       def boot
         Pakyow.module_eval do
@@ -24,7 +51,7 @@ module Pakyow
         end
 
         app.class_eval do
-          action Server
+          action WebSocketUpgrader
 
           helper Helpers
 

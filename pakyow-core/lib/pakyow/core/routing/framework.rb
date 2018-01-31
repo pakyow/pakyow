@@ -11,41 +11,14 @@ require "pakyow/core/framework"
 
 module Pakyow
   module Routing
-    class Router
-      class << self
-        def call(state)
-          state.app.state_for(:controller).each do |controller|
-            catch :halt do
-              controller.try_routing(state)
-            end
-
-            break if state.processed?
-          end
-        end
+    # @api private
+    class RespondMissing
+      def initialize(app)
+        @app = app
       end
-    end
 
-    class RespondToMissing
-      class << self
-        def call(state)
-          catch :halt do
-            state.app.class.const_get(:Controller).new(state).trigger(404)
-          end
-        end
-      end
-    end
-
-    class RespondToFailure
-      class << self
-        def call(state)
-          catch :halt do
-            controller = state.app.class.const_get(:Controller).new(state)
-            # try to handle the specific error
-            controller.handle_error(state.request.error)
-            # otherwise, just handle as a generic 500
-            controller.trigger(500)
-          end
-        end
+      def call(connection)
+        @app.class.const_get(:Controller).new(connection).trigger(404)
       end
     end
 
@@ -116,42 +89,20 @@ module Pakyow
 
           helper Pakyow::Routing::Helpers
 
-          action Router
-          action RespondToMissing, pipeline: :missing
-          action RespondToFailure, pipeline: :failure
-
-          # Remove the routing framework in prototype mode.
-          #
-          # Conditionally loading the routing framework based on
-          # the environment was explored, but not feasible with
-          # how things currently work. We don't know the env until
-          # the environment is booted, but also include the framework
-          # at definition time (which occurs well ahead of boot).
-          #
-          # Why? To support this:
-          #
-          #   Pakyow.app :some_app do
-          #     controller do
-          #       ...
-          #     end
-          #   end
-          #
-          # We'd either have to wait until boot time to build the
-          # app object, or not allow defining app state inline. If
-          # we wait, we introduce some misdirection because it is
-          # no longer clear when the defined app will be built.
-          #
-          # Conditionally removing the action will work fine.
-          after :configure do
-            if Pakyow.env?(:prototype)
-              config.app.pipelines[:routing].delete(Router)
-            end
-          end
-
           before :load do
             # Include other registered helpers into the controller class.
             config.app.helpers.each do |helper|
               controller_class.include helper
+            end
+          end
+
+          before :freeze do
+            unless Pakyow.env?(:prototype)
+              state_for(:controller).each do |controller|
+                @__pipeline.action(controller)
+              end
+
+              @__pipeline.action(RespondMissing, self)
             end
           end
         end

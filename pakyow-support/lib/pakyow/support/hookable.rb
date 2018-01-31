@@ -57,7 +57,7 @@ module Pakyow
         base.extend ClassLevelState
         base.class_level_state :__known_events, default: [], inheritable: true, getter: false
         base.class_level_state :__hook_hash, default: { after: {}, before: {} }, inheritable: true
-        base.class_level_state :__pipeline, default: { after: {}, before: {} }, inheritable: true
+        base.class_level_state :__hook_pipeline, default: { after: {}, before: {} }, inheritable: true
       end
 
       # @api private
@@ -68,7 +68,7 @@ module Pakyow
       module Initializer
         def initialize(*)
           @__hook_hash = self.class.__hook_hash.deep_dup
-          @__pipeline = self.class.__pipeline.deep_dup
+          @__hook_pipeline = self.class.__hook_pipeline.deep_dup
 
           super
         end
@@ -99,7 +99,7 @@ module Pakyow
       # Methods included at the class and instance level.
       #
       module API
-        attr_reader :__hook_hash, :__pipeline
+        attr_reader :__hook_hash, :__hook_pipeline
 
         # Defines a hook to call before event occurs.
         #
@@ -159,7 +159,7 @@ module Pakyow
 
         # @api private
         def hooks(type, event)
-          @__pipeline[type][event] || []
+          @__hook_pipeline[type][event] || []
         end
 
         # @api private
@@ -179,7 +179,7 @@ module Pakyow
 
         # @api private
         def pipeline!(hash_of_hooks, type, event)
-          @__pipeline[type.to_sym][event.to_sym] = hash_of_hooks[type.to_sym][event.to_sym].map { |t| t[1..2] }
+          @__hook_pipeline[type.to_sym][event.to_sym] = hash_of_hooks[type.to_sym][event.to_sym].map { |t| t[1..2] }
         end
       end
     end

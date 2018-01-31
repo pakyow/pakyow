@@ -19,6 +19,6 @@ RSpec.describe "routing in prototype mode" do
 
   it "does not call routes" do
     res = call
-    expect(res[2].body.first).not_to eq("called")
+    expect(res[2].first).not_to eq("called")
   end
 end

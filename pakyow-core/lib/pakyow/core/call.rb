@@ -1,34 +1,27 @@
 # frozen_string_literal: true
 
+require "pakyow/support/hookable"
+require "pakyow/support/pipelined/haltable"
+
 module Pakyow
   class Call
+    include Support::Hookable
+    known_events :finalize
+
+    include Support::Pipelined::Haltable
+
     attr_reader :app, :request, :response
 
     def initialize(app, env)
       @app, @request, @response = app, Request.new(env), Response.new
-      @processed, @halted = false, false
       @state = {}
     end
 
-    def processed
-      @processed = true
-    end
-
-    def processed?
-      halted? || @processed == true
-    end
-
-    def halt
-      @halted = true
-    end
-
-    def halted?
-      @halted == true
-    end
-
     def finalize
-      @request.set_cookies(@response, @app.config.cookies)
-      @response
+      performing :finalize do
+        @request.set_cookies(@response, @app.config.cookies)
+        @response
+      end
     end
 
     def set(key, value)

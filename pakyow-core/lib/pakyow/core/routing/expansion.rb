@@ -33,10 +33,9 @@ module Pakyow
               # Handle template parts named `new` by determining if we're calling `new` to expand
               # part of a template, or if we're intending to create a new controller instance.
               #
-              # It works by checking to see if the first argument is a call state object, which is
-              # the first argument to Controller.new. If so, we can be reasonably sure that we want
-              # to create a new controller. Yes, it's a bit of a hack. PRs welcome!
-              if route.name == :new && args.first.is_a?(Pakyow::Call)
+              # If args are empty we can be sure that we're creating a route.
+              #
+              if args.any?
                 super(*args)
               else
                 build_route(

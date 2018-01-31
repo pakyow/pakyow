@@ -173,22 +173,70 @@ module Pakyow
     CONTENT_DISPOSITION = "Content-Disposition".freeze
 
     # @api private
-    def initialize(state)
-      @__state = state
+    def initialize(arg)
+      @__state = arg if arg.is_a?(Call)
+
+      @children = self.class.children.map { |child|
+        child.new(arg)
+      }
+
+      @__pipeline.instance_variable_get(:@stack) << Support::Pipelined::PipelineAction.new(:dispatch).finalize(self)
     end
 
-    def call_route(route)
-      route.call(@__state, self)
-      @__state.processed
-    rescue StandardError => error
-      handle_error(error)
+    def call(connection, request_path = connection.request.path)
+      request_method = connection.request.method
 
-      # If this controller handled the error, it would have halted the request so there's no need to
-      # reraise for the application to attempt to handle it. On the other hand, if this controller
-      # didn't handle the error the application needs to know that it occured.
-      unless @__state.halted?
-        raise error
+      matcher = self.class.matcher
+      if match = matcher.match(request_path)
+        match_data = match.named_captures
+
+        if matcher.is_a?(Regexp)
+          request_path = String.normalize_path(request_path.sub(matcher, ""))
+        end
+
+        self.class.routes[request_method].each do |route|
+          catch :reject do
+            if route_match = route.match(request_path)
+              match_data.merge!(route_match.named_captures)
+              connection.request.params.merge!(match_data)
+              connection.request.env["pakyow.endpoint"] = File.join(self.class.path_to_self.to_s, route.path.to_s)
+              dup.call_route(connection, route)
+            end
+          end
+
+          break if connection.halted?
+        end
+
+        @children.each do |child_controller|
+          child_controller.call(connection, request_path)
+
+          break if connection.halted?
+        end
       end
+    end
+
+    def call_route(connection, route)
+      # TODO: mixin route-specific actions (and delete ones that don't apply)
+
+      actions_to_remove = self.class.route_skips[route.name].to_a
+
+      self.class.route_actions.each do |action, routes|
+        actions_to_remove << action unless routes.include?(route.name)
+      end
+
+      @__pipeline.instance_variable_get(:@stack).delete_if do |action|
+        actions_to_remove.include?(action.name)
+      end
+
+      @__state, @route = connection, route
+      @__pipeline.call(connection)
+    rescue StandardError => error
+      request.env[Rack::RACK_LOGGER].houston(error)
+      handle_error(error)
+    end
+
+    def dispatch
+      @route.call(self); halt
     end
 
     # Redirects to +location+ and immediately halts request processing.
@@ -241,7 +289,7 @@ module Pakyow
     def reroute(location, method: request.method, **params)
       request.env[Rack::REQUEST_METHOD] = method.to_s.upcase
       request.env[Rack::PATH_INFO] = location.is_a?(Symbol) ? app.paths.path(location, **params) : location
-      Routing::Router.call(@__state)
+      @__state.instance_variable_set(:@response, app.call(@__state.request.env))
     end
 
     # Responds to a specific request format.
@@ -321,7 +369,6 @@ module Pakyow
     def halt(body = nil)
       response.body = body if body
       @__state.halt
-      throw :halt
     end
 
     # Rejects the request, calling the next matching route.
@@ -345,16 +392,14 @@ module Pakyow
     class << self
       def action(name, only: [], skip: [])
         only.each do |route_name|
-          (@route_actions[route_name] ||= []) << name
+          (@route_actions[name] ||= []) << route_name
         end
 
         skip.each do |route_name|
           (@route_skips[route_name] ||= []) << name
         end
 
-        if only.empty?
-          pipeline.include_actions([name])
-        end
+        super(name)
       end
 
       def skip_action(name, only: [])
@@ -363,21 +408,8 @@ module Pakyow
         end
 
         if only.empty?
-          pipeline.exclude_actions([name])
+          @__pipeline.exclude_actions([name])
         end
-      end
-
-      def use_pipeline(pipeline_module)
-        pipeline.clear
-        include_pipeline(pipeline_module)
-      end
-
-      def include_pipeline(pipeline_module)
-        include pipeline_module
-      end
-
-      def exclude_pipeline(pipeline_module)
-        pipeline.exclude(pipeline_module)
       end
 
       def handle_missing(state)
@@ -668,40 +700,7 @@ module Pakyow
       end
 
       # @api private
-      def try_routing(state, request_path = state.request.path)
-        request_method = state.request.method
-
-        if match = matcher.match(request_path)
-          match_data = match.named_captures
-
-          if matcher.is_a?(Regexp)
-            request_path = String.normalize_path(request_path.sub(matcher, ""))
-          end
-
-          routes[request_method].each do |route|
-            catch :reject do
-              if route_match = route.match(request_path)
-                match_data.merge!(route_match.named_captures)
-
-                state.request.params.merge!(match_data)
-                state.request.env["pakyow.endpoint"] = File.join(path_to_self.to_s, route.path.to_s)
-
-                self.new(state).call_route(route)
-              end
-            end
-
-            break if state.processed?
-          end
-
-          children.each do |child_controller|
-            child_controller.try_routing(state, request_path)
-          end
-        end
-      end
-
-      # @api private
       def merge(controller)
-        merge_pipeline(controller.pipeline)
         merge_routes(controller.routes)
         merge_templates(controller.templates)
       end
@@ -745,20 +744,9 @@ module Pakyow
 
       def build_route(method, *args, &block)
         name, matcher = parse_name_and_matcher_from_args(*args)
-        pipeline = build_pipeline_for_route(name, &block)
-
-        Routing::Route.new(
-          matcher,
-          name: name,
-          method: method,
-          pipeline: pipeline
-        ).tap do |route|
+        Routing::Route.new(matcher, name: name, method: method, &block).tap do |route|
           routes[method] << route
         end
-      end
-
-      def merge_pipeline(pipeline_to_merge)
-        pipeline.merge(pipeline_to_merge)
       end
 
       def merge_routes(routes_to_merge)
@@ -769,14 +757,6 @@ module Pakyow
 
       def merge_templates(templates_to_merge)
         templates.merge!(templates_to_merge)
-      end
-
-      def build_pipeline_for_route(route_name, &block)
-        pipeline.dup.tap do |route_pipeline|
-          route_pipeline.include_actions(@route_actions[route_name].to_a)
-          route_pipeline.exclude_actions(@route_skips[route_name].to_a)
-          route_pipeline.action(block) if block_given?
-        end
       end
     end
   end
