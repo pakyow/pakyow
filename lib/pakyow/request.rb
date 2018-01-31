@@ -3,6 +3,7 @@
 require "rack/request"
 
 require "pakyow/support/indifferentize"
+require "pakyow/support/inspectable"
 
 module Pakyow
   # Pakyow's Request object.
@@ -13,6 +14,9 @@ module Pakyow
     # Contains the error object when request is in a failed state.
     #
     attr_accessor :error
+
+    include Support::Inspectable
+    inspectable :method, :params, :cookies
 
     # Returns the request method (e.g. `:get`).
     #

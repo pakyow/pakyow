@@ -3,6 +3,8 @@
 require "forwardable"
 
 require "pakyow/support/hookable"
+require "pakyow/support/inspectable"
+
 require "pakyow/support/pipelined/haltable"
 
 module Pakyow
@@ -11,6 +13,9 @@ module Pakyow
     known_events :finalize
 
     include Support::Pipelined::Haltable
+
+    include Pakyow::Support::Inspectable
+    inspectable :halted, :app, :request, :response
 
     attr_reader :app, :request, :response, :values
 

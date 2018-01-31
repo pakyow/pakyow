@@ -7,6 +7,7 @@ require "pakyow/support/recursive_require"
 require "pakyow/support/deep_freeze"
 require "pakyow/support/class_level_state"
 require "pakyow/support/pipelined"
+require "pakyow/support/inspectable"
 
 require "pakyow/core/connection"
 require "pakyow/core/loader"
@@ -150,6 +151,9 @@ module Pakyow
     def_delegators :builder, :use
 
     include Support::Configurable
+
+    include Pakyow::Support::Inspectable
+    inspectable :environment
 
     settings_for :app, extendable: true do
       setting :name, "pakyow"

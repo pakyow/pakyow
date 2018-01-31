@@ -2,10 +2,15 @@
 
 require "rack/response"
 
+require "pakyow/support/inspectable"
+
 module Pakyow
   # Pakyow's response object.
   #
   class Response < Rack::Response
+    include Support::Inspectable
+    inspectable :status, :body
+
     # Returns the string representation for a status code.
     #
     # @example
