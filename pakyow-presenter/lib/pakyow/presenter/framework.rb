@@ -119,7 +119,7 @@ module Pakyow
             # end
           end
 
-          before :freeze do
+          before :finalize do
             if Pakyow.env?(:prototype)
               @__pipeline.action(AutoRender)
             end

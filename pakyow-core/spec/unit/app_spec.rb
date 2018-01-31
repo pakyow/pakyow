@@ -55,12 +55,12 @@ RSpec.describe Pakyow::App do
     end
 
     before do
-      app_class.before :freeze do
+      app_class.before :finalize do
         $called = true
       end
     end
 
-    it "calls before freeze hooks" do
+    it "calls before finalize hooks" do
       app.freeze
       expect($called).to be(true)
     end

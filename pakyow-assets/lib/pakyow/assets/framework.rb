@@ -103,7 +103,7 @@ module Pakyow
             end
           end
 
-          after :freeze do
+          after :finalize do
             build_packs
 
             config.assets.manifest = load_manifest

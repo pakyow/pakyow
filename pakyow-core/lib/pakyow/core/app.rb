@@ -141,7 +141,7 @@ module Pakyow
     include Support::Definable
 
     include Support::Hookable
-    known_events :initialize, :configure, :load, :freeze, :boot
+    known_events :initialize, :configure, :load, :finalize, :boot
 
     extend Forwardable
 
@@ -214,7 +214,7 @@ module Pakyow
       end
     end
 
-    before :freeze do
+    before :finalize do
       load_endpoints
     end
 
@@ -279,7 +279,7 @@ module Pakyow
     end
 
     def freeze
-      performing :freeze do
+      performing :finalize do
         super
       end
     end

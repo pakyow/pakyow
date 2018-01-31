@@ -12,8 +12,8 @@ RSpec.describe Pakyow::App do
       expect(Pakyow::App.known_events).to include(:load)
     end
 
-    it "includes `freeze`" do
-      expect(Pakyow::App.known_events).to include(:freeze)
+    it "includes `finalize`" do
+      expect(Pakyow::App.known_events).to include(:finalize)
     end
 
     it "includes `boot`" do

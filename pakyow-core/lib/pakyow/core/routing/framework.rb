@@ -143,7 +143,7 @@ module Pakyow
             end
           end
 
-          before :freeze do
+          before :finalize do
             unless Pakyow.env?(:prototype)
               state_for(:controller).each do |controller|
                 @__pipeline.action(controller)
