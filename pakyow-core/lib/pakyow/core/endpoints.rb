@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
 module Pakyow
-  # Lookup for app paths.
+  # Lookup for endpoints.
   #
-  class Paths
+  class Endpoints
     def initialize
-      @objects_with_paths = []
+      @objects_with_endpoints = []
     end
 
-    # Adds an object with paths.
+    # Adds an object with endpoints.
     #
-    def <<(object_with_paths)
-      @objects_with_paths << object_with_paths
+    def <<(object_with_endpoints)
+      @objects_with_endpoints << object_with_endpoints
     end
 
     # Builds the path to a named route.
@@ -39,7 +39,7 @@ module Pakyow
     #   # => "/posts/1/edit"
     #
     def path_to(*names, **params)
-      matched_objects = @objects_with_paths.reject { |object_to_match|
+      matched_objects = @objects_with_endpoints.reject { |object_to_match|
         object_to_match.__class_name.nil? || object_to_match.__class_name.name != names.first
       }
 

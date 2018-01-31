@@ -10,7 +10,7 @@ require "pakyow/support/pipelined"
 
 require "pakyow/core/connection"
 require "pakyow/core/loader"
-require "pakyow/core/paths"
+require "pakyow/core/endpoints"
 
 require "forwardable"
 
@@ -215,7 +215,7 @@ module Pakyow
     end
 
     before :freeze do
-      load_paths
+      load_endpoints
     end
 
     # The environment the app is defined in.
@@ -226,9 +226,9 @@ module Pakyow
     #
     attr_reader :builder
 
-    # Path lookup for endpoints.
+    # Endpoint lookup.
     #
-    attr_reader :paths
+    attr_reader :endpoints
 
     extend Support::DeepFreeze
     unfreezable :builder
@@ -236,7 +236,7 @@ module Pakyow
     include Support::Pipelined
 
     def initialize(environment, builder: nil, stage: false, &block)
-      @paths = Paths.new
+      @endpoints = Endpoints.new
       @environment = environment
       @builder = builder
 
@@ -316,10 +316,10 @@ module Pakyow
       end
     end
 
-    def load_paths
-      state.each_with_object(@paths) { |(_, state_object), paths|
+    def load_endpoints
+      state.each_with_object(@endpoints) { |(_, state_object), endpoints|
         state_object.instances.each do |state_instance|
-          paths << state_instance if state_instance.respond_to?(:path_to)
+          endpoints << state_instance if state_instance.respond_to?(:path_to)
         end
       }
     end

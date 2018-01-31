@@ -84,7 +84,7 @@ module Pakyow
       end
 
       def form_action(action, object)
-        @paths&.path_to(@view.name, action, **form_action_params(object))
+        @endpoints&.path_to(@view.name, action, **form_action_params(object))
       end
 
       def form_action_params(object)

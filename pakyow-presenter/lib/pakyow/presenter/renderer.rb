@@ -63,7 +63,7 @@ module Pakyow
 
         @presenter = presenter.new(
           binders: @connection.app.state_for(:binder),
-          paths: @connection.app.paths,
+          endpoints: @connection.app.endpoints,
           **info
         )
       end

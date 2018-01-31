@@ -260,7 +260,7 @@ module Pakyow
     #
     def redirect(location, as: 302, **params)
       @connection.status = Rack::Utils.status_code(as)
-      @connection.set_response_header("Location", location.is_a?(Symbol) ? app.paths.path(location, **params) : location)
+      @connection.set_response_header("Location", location.is_a?(Symbol) ? app.endpoints.path(location, **params) : location)
       halt
     end
 
@@ -288,7 +288,7 @@ module Pakyow
     #
     def reroute(location, method: request.method, **params)
       @connection.env[Rack::REQUEST_METHOD] = method.to_s.upcase
-      @connection.env[Rack::PATH_INFO] = location.is_a?(Symbol) ? app.paths.path(location, **params) : location
+      @connection.env[Rack::PATH_INFO] = location.is_a?(Symbol) ? app.endpoints.path(location, **params) : location
       @connection.instance_variable_set(:@response, app.call(@connection.request.env))
     end
 

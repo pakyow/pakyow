@@ -90,8 +90,8 @@ module Pakyow
       #   @see VersionedView#versioned
       def_delegators :@view, :attributes, :attrs, :html=, :html, :text, :binding?, :container?, :partial?, :component?, :form?, :version, :info, :to_html, :to_s, :use, :versioned
 
-      def initialize(view, binders: [], paths: nil, embed_templates: true)
-        @view, @binders, @paths, @embed_templates = view, binders, paths, embed_templates
+      def initialize(view, binders: [], endpoints: nil, embed_templates: true)
+        @view, @binders, @endpoints, @embed_templates = view, binders, endpoints, embed_templates
 
         set_title_from_info
         set_form_field_names
@@ -310,7 +310,7 @@ module Pakyow
       private
 
       def presenter_for(view, type: Presenter)
-        type.new(view, binders: binders, paths: @paths, embed_templates: @embed_templates)
+        type.new(view, binders: binders, endpoints: @endpoints, embed_templates: @embed_templates)
       end
 
       def binder_for_current_scope
@@ -341,13 +341,13 @@ module Pakyow
           data
         else
           (binder_for_current_scope || Binder).new(data).tap do |binder|
-            if binder_local_paths = @paths
+            if binder_local_endpoints = @endpoints
               binder.define_singleton_method :path do |*args|
-                binder_local_paths.path(*args)
+                binder_local_endpoints.path(*args)
               end
 
               binder.define_singleton_method :path_to do |*args|
-                binder_local_paths.path_to(*args)
+                binder_local_endpoints.path_to(*args)
               end
             end
           end

@@ -57,7 +57,7 @@ module Pakyow
       #
       # @!method path_to
       #   @return builds the path to a route, following a trail of names (see {Paths#path_to})
-      def_delegators :"app.paths", :path, :path_to
+      def_delegators :"app.endpoints", :path, :path_to
     end
   end
 end
