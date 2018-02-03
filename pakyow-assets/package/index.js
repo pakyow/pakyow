@@ -43,7 +43,21 @@ var webpackConfig = {
         },
         exclude: /(node_modules|bower_components)/,
         use: ExtractTextPlugin.extract({
-          use: ["css-loader", "sass-loader"]
+          use: [
+            {
+              loader: "css-loader"
+            },
+            {
+              loader: "sass-loader",
+              options: {
+                includePaths: [
+                  path.resolve(config["frontend_assets_path"])
+                ],
+
+                data: "$pakyow_public_path: '" + config["public_path"] + "';"
+              }
+            }
+          ]
         })
       },
 
