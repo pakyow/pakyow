@@ -11,6 +11,10 @@ module Pakyow
 
       def initialize(app, presentables)
         @app, @presentables = app, presentables
+
+        connection = Connection.new(@app, {})
+        connection.instance_variable_set(:@values, @presentables)
+        super(connection)
       end
 
       def perform(path)

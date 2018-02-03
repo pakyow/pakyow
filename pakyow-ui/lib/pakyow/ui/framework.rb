@@ -36,22 +36,25 @@ module Pakyow
               @app = app
             end
 
-            def call(args, id: nil)
+            def call(args, result: nil, subscription: nil)
               presentables = args[:presentables].each_with_object({}) { |presentable_info, presentable_hash|
-                presentable_name, model_name, query_name, query_args = presentable_info.values_at(:name, :model_name, :query_name, :query_args)
-                model = @app.data.public_send(model_name)
-                data = model.public_send(query_name, *query_args)
+                presentable_name, proxy = presentable_info.values_at(:name, :proxy)
 
-                # NOTE: We go ahead and convert all data to an array, because the client can always
-                # deal with this format, even if it only contains a single object.
-                presentable_hash[presentable_name] = data.to_a
+                # convert data to an array, because the client can always deal arrays
+                presentable_hash[presentable_name] = Data::Proxy.deserialize(proxy, @app.data.public_send(proxy[:model])).to_a
               }
 
               renderer = Renderer.new(@app, presentables)
               renderer.perform(args[:view_path])
 
               message = { transformation_id: args[:transformation_id], transformations: renderer.to_arr }
-              @app.websocket_server.subscription_broadcast(Realtime::Channel.new(:transformation, id), message)
+              @app.websocket_server.subscription_broadcast(Realtime::Channel.new(:transformation, subscription[:id]), message)
+
+              # the data has changed, so resubscribe to the new set
+              result.subscribe(args[:socket_client_id], handler: subscription[:handler], payload: subscription[:payload]).each do |subscription_id|
+                @app.websocket_server.socket_unsubscribe(Realtime::Channel.new(:transformation, subscription[:id]))
+                @app.websocket_server.socket_subscribe(args[:socket_client_id], Realtime::Channel.new(:transformation, subscription_id))
+              end
             end
           end
 
@@ -82,33 +85,28 @@ module Pakyow
           app.const_get(:Renderer).after :render do
             # We wait until after render so that we don't create subscriptions unnecessarily
             # in the event that something blew up during the render process.
-
-            presentables = @connection.values
+            #
+            presentables = @connection.values.select { |_, presentable|
+              presentable.is_a?(Data::Proxy)
+            }
 
             metadata = {
               view_path: @presenter.class.path,
               transformation_id: @transformation_id,
+              socket_client_id: socket_client_id,
               presentables: presentables.map { |presentable_name, presentable|
-                if presentable.is_a?(Data::Query)
-                  {
-                    name: presentable_name,
-                    model_name: presentable.model.name,
-                    query_name: presentable.name,
-                    query_args: presentable.args
-                  }
-                end
+                { name: presentable_name, proxy: presentable.to_h }
               }
             }
 
-            # Find every subscribed presentable, creating a data subscription for each.
+            # Find every subscribable presentable, creating a data subscription for each.
             #
-            queries = presentables.values.select { |presentable_value|
-              presentable_value.is_a?(Data::Query)
-            }
-
-            queries.each do |presentable_query|
-              if subscription_id = presentable_query.subscribe(socket_client_id, call: handler, with: metadata)
+            presentables.values.select(&:subscribable?).each do |subscribable|
+              subscribable.subscribe(socket_client_id, handler: handler, payload: metadata).each do |subscription_id|
                 @connection.app.data.expire(socket_client_id, SUBSCRIPTION_TIMEOUT)
+
+                # Create the socket subscription on the "transformation" channel.
+                #
                 subscribe(:transformation, subscription_id)
               end
             end
