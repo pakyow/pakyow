@@ -6,8 +6,7 @@ require "pakyow/data/types"
 require "pakyow/data/lookup"
 require "pakyow/data/verifier"
 require "pakyow/data/model"
-require "pakyow/data/model_proxy"
-require "pakyow/data/query"
+require "pakyow/data/proxy"
 require "pakyow/data/subscribers"
 require "pakyow/data/verification"
 require "pakyow/data/validations"
@@ -45,6 +44,17 @@ module Pakyow
 
               models_by_name[model.__class_name.name] = model
             }
+
+            # discover associations
+            models.values.flatten.each do |model|
+              model.associations[:has_many].each do |has_many_association|
+                if associated_model = models.values.flatten.find { |potentially_associated_model|
+                     potentially_associated_model.__class_name.name == has_many_association
+                   }
+                  associated_model.belongs_to(model.__class_name.name)
+                end
+              end
+            end
 
             @data = Lookup.new(
               models,
@@ -94,6 +104,23 @@ Pakyow.module_eval do
   class << self
     # TODO: probably best as config
     attr_reader :database_containers
+
+    def relation(name, adapter, connection)
+      unless relation = container(adapter, connection).relations[name]
+        raise ArgumentError, "Unknown database relation `#{name}' for adapter `#{adapter}', connection `#{connection}'"
+      end
+
+      relation
+    end
+
+    def container(adapter, connection)
+      adapter ||= Pakyow.config.data.default_adapter
+      unless container = Pakyow.database_containers.dig(adapter, connection)
+        raise ArgumentError, "Unknown database container container for adapter `#{adapter}', connection `#{connection}'"
+      end
+
+      container
+    end
   end
 
   settings_for :connections do
@@ -138,12 +165,24 @@ Pakyow.module_eval do
           next if model.attributes.empty?
 
           config.relation model.__class_name.name do
-            schema model.dataset do
+            schema model.name do
               model.attributes.each do |name, options|
-                attribute name, Pakyow::Data::Types.type_for(options[:type], adapter_type)
+                type = Pakyow::Data::Types.type_for(options[:type], adapter_type)
+                type = type.optional unless model._primary_key == name
+                attribute name, type
               end
 
-              primary_key(*model._primary_key) if model._primary_key
+              primary_key(model._primary_key) if model._primary_key
+
+              associations do
+                model.associations[:has_many].each do |has_many_relation|
+                  has_many has_many_relation
+                end
+              end
+
+              model.associations[:belongs_to].each do |belongs_to_relation|
+                attribute :"#{Pakyow::Support.inflector.singularize(belongs_to_relation)}_id", Pakyow::Data::Types.type_for(:integer, adapter_type).optional
+              end
 
               if timestamps = model._timestamps
                 use :timestamps

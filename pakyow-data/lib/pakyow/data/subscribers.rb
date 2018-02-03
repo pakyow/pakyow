@@ -24,12 +24,13 @@ module Pakyow
         @adapter.register_subscription(subscription, subscriber: subscriber)
       end
 
-      def did_mutate(model, changed_values, changed_results)
+      def did_mutate(model_name, changed_values, changed_results)
         subscriptions = Set.new
 
-        @adapter.subscriptions_for_model(model).each do |subscription|
-          next unless qualified?(subscription.delete(:qualifications), changed_values, changed_results)
-          subscriptions << subscription
+        @adapter.subscriptions_for_model(model_name).each do |subscription|
+          if qualified?(subscription.delete(:qualifications), changed_values, changed_results)
+            subscriptions << subscription
+          end
         end
 
         subscriptions.each do |subscription|
@@ -55,8 +56,8 @@ module Pakyow
         callback = subscription[:handler].new(@app)
         arguments = {}
 
-        if subscription.key?(:query) && callback.method(:call).keyword_argument?(:query)
-          arguments[:query] = lookup.send(subscription[:model]).send(subscription[:query], *subscription[:query_args])
+        if callback.method(:call).keyword_argument?(:result)
+          arguments[:result] = Proxy.deserialize(subscription[:proxy], @app.data.public_send(subscription[:proxy][:model]))
         end
 
         if callback.method(:call).keyword_argument?(:subscribers)
@@ -65,6 +66,10 @@ module Pakyow
 
         if callback.method(:call).keyword_argument?(:id)
           arguments[:id] = subscription[:id]
+        end
+
+        if callback.method(:call).keyword_argument?(:subscription)
+          arguments[:subscription] = subscription
         end
 
         callback.call(subscription[:payload], **arguments)

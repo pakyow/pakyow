@@ -15,7 +15,8 @@ module Pakyow
         boolean: "Bool",
         date: "Date",
         time: "Time",
-        datetime: "DateTime"
+        datetime: "DateTime",
+        integer: "Int"
       }.freeze
 
       def self.type_for(type, adapter)

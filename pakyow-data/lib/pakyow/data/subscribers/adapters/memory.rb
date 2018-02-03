@@ -66,7 +66,7 @@ module Pakyow
           end
 
           def expiring?(subscriber)
-            @expirations_for_subscriber[subscriber]&.positive?
+            @expirations_for_subscriber[subscriber]&.any?
           end
 
           def subscribers_for_subscription_id(subscription_id)

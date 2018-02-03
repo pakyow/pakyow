@@ -8,9 +8,25 @@ module Pakyow
       extend Support::DeepFreeze
       unfreezable :subscribers
 
+      attr_reader :subscribers
+
       def initialize(models, subscribers)
         @models, @subscribers = models, subscribers
         subscribers.lookup = self
+
+        @models.each do |key, model|
+          define_singleton_method key do
+            Proxy.new(
+              model.new(
+                Pakyow.relation(model.__class_name.name, model.adapter, model.connection)
+              ), @subscribers
+            )
+          end
+        end
+      end
+
+      def model(name)
+        @models[name]
       end
 
       def unsubscribe(subscriber)
@@ -23,17 +39,6 @@ module Pakyow
 
       def persist(subscriber)
         @subscribers.persist(subscriber)
-      end
-
-      def method_missing(name)
-        if model = @models[name]
-          # FIXME: protect against missing containers (maybe define a lookup method on the environment)
-          # TODO: handle edge-cases around connections not being defined... just spent some time tracking down a bug caused by it
-          container = Pakyow.database_containers[model.adapter || Pakyow.config.data.default_adapter][model.connection]
-          ModelProxy.new(model.new(container.relations[model.__class_name.name]), @subscribers)
-        else
-          nil
-        end
       end
     end
   end
