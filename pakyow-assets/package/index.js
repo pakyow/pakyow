@@ -57,7 +57,7 @@ var webpackConfig = {
           loader: "babel-loader",
           options: {
             presets: [
-              ["env", {
+              [require.resolve("babel-preset-env"), {
                 "targets": {
                   "browsers": [config["browsers"]]
                 }
