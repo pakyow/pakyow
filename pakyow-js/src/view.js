@@ -1,3 +1,5 @@
+var Inflector = require("inflector-js");
+
 export default class {
   constructor(node) {
     this.node = node;
@@ -10,9 +12,12 @@ export default class {
 
     names = names.slice(0);
     var named = names.shift();
-    var found = this.qs(`*[data-b='${named}']:not(script)`);
-    var templates = this.qs(`script[data-b='${named}']`);
 
+    var found = this.bindingScopes().concat(this.bindingProps()).filter((binding) => {
+      return binding.name == named;
+    }).map((binding) => { return new pw.View(binding.node) });
+
+    var templates = this.qs(`script[data-b='${named}']`);
     if (found.length == 0 && templates.length == 0) {
       // There's nothing we can do in this case, except throw our hands in the air.
       return pw.tryTurningItOffAndOnAgain();
@@ -30,14 +35,53 @@ export default class {
       return;
     }
 
-    for (var prop of this.qs("*[data-b]:not(script)")) {
-      // TODO: handle self-closing tags
-      console.log("setting prop", prop.node)
-      prop.node.innerText = object[prop.node.getAttribute("data-b")];
+    for (let binding of this.bindingProps()) {
+      binding.node.innerText = object[binding.name];
     }
 
     // TODO: anything we should do if object has no id?
     this.node.setAttribute("data-id", object.id);
+
+    return this;
+  }
+
+  transform(object) {
+    if (!object || (Array.isArray(object) && object.length == 0) || Object.getOwnPropertyNames(object).length == 0) {
+      this.remove();
+    } else {
+      for (let binding of this.bindingProps()) {
+        if (!object[binding.name]) {
+          new pw.View(binding.node).remove();
+        }
+      }
+    }
+
+    return this;
+  }
+
+  present(object) {
+    this.transform(object).bind(object);
+
+    // present recursively
+
+    var bindingScopeNames = new Set(
+      this.bindingScopes(true).map(
+        (binding) => { return binding.name; }
+      )
+    );
+
+    for (let binding of bindingScopeNames) {
+      var pluralBinding = Inflector.pluralize(binding);
+
+      var data = [];
+      if (binding in object) {
+        data = object[binding];
+      } else if (pluralBinding in object) {
+        data = object[pluralBinding];
+      }
+
+      this.find(binding).present(data);
+    }
 
     return this;
   }
@@ -52,16 +96,71 @@ export default class {
     return results;
   }
 
-  // present (objects) {
-  //   if (!Array.isArray(objects)) {
-  //     objects = [objects];
-  //   }
+  remove() {
+    this.node.parentNode.removeChild(this.node);
+  }
 
-  //   console.log("View#present", objects);
+  bindingScopes(includeScripts = false) {
+    var bindings = [];
 
-  //   // TODO: for each object:
-  //   //   - [ ] make sure it exists; if not, request view from backend and add it
-  //   // TODO: delete views that aren't present in `objects`
-  //   // TODO: reorder views based on the order in `objects`
-  // }
+    this.breadthFirst(this.node, function(childNode, halt) {
+      if (childNode == this.node) {
+        return; // we only care about the children
+      }
+
+      if (childNode.hasAttribute("data-b") && new pw.View(childNode).bindingProps().length > 0) {
+        bindings.push({
+          name: childNode.getAttribute("data-b"),
+          node: childNode
+        });
+      }
+    }, includeScripts);
+
+    return bindings;
+  }
+
+  bindingProps() {
+    var bindings = [];
+
+    this.breadthFirst(this.node, function(childNode, halt) {
+      if (childNode == this.node) {
+        return; // we only care about the children
+      }
+
+      if (childNode.hasAttribute("data-b")) {
+        if (new pw.View(childNode).bindingProps().length == 0) {
+          bindings.push({
+            name: childNode.getAttribute("data-b"),
+            node: childNode
+          });
+        } else {
+          halt(); // we're done here
+        }
+      }
+    });
+
+    return bindings;
+  }
+
+  breadthFirst(node, cb, includeScripts = false) {
+    var queue = [node];
+    var halted = false;
+    var halt = function () { halted = true; }
+    while (!halted && queue.length > 0) {
+      var subNode = queue.shift();
+      if (!subNode) continue;
+      if(typeof subNode == "object" && "nodeType" in subNode && subNode.nodeType === 1 && subNode.cloneNode) {
+        cb.call(this, subNode, halt);
+      }
+
+      var children = subNode.childNodes;
+      if (children) {
+        for(var i = 0; i < children.length; i++) {
+          if (includeScripts || children[i].tagName != "SCRIPT") {
+            queue.push(children[i]);
+          }
+        }
+      }
+    }
+  }
 }

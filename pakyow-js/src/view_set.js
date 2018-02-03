@@ -9,8 +9,6 @@ export default class {
       objects = [objects];
     }
 
-    console.log("ViewSet#present", objects, this.views, this.templates);
-
     if (objects.length > 0) {
       for (let view of this.views) {
         if (view.node.hasAttribute("data-empty")) {
@@ -32,7 +30,19 @@ export default class {
           // TODO: I feel like we should use the ViewTemplate class for this...
           var template = document.createElement("div");
           template.innerHTML = this.templates["default"].node.innerHTML;
+
           view = new pw.View(template.firstChild, true);
+
+          // create templates for any nested bindings
+          for (let binding of view.bindingScopes()) {
+            var bindingTemplate = document.createElement("script");
+            bindingTemplate.setAttribute("type", "text/template");
+            bindingTemplate.setAttribute("data-version", binding.node.getAttribute("data-version") || "default");
+            bindingTemplate.setAttribute("data-b", binding.node.getAttribute("data-b"));
+            bindingTemplate.appendChild(binding.node.cloneNode(true));
+            view.node.appendChild(bindingTemplate);
+          }
+
           if (this.views.length > 0) {
             this.views.slice(-1)[0].node.insertAdjacentElement("afterend", view.node)
           } else {
@@ -41,12 +51,15 @@ export default class {
           this.views.push(view);
         }
 
-        view.bind(object);
+        view.present(object);
       }
 
       this.order(objects);
     } else {
-      // TODO: remove everything and replace it with the empty version
+      // TODO: look for an empty version and add it before removing views
+      for (let view of this.views) {
+        view.remove();
+      }
     }
   }
 

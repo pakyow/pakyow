@@ -16,5 +16,8 @@
     "url": "git+https://github.com/pakyow/pakyow.git"
   },
   "author": "Bryan Powell <bryan@metabahn.com>",
-  "license": "LGPL-3.0"
+  "license": "LGPL-3.0",
+  "dependencies": {
+    "inflector-js": "^1.0.1"
+  }
 }

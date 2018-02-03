@@ -2,3 +2,6 @@
 # yarn lockfile v1
 
 
+inflector-js@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/inflector-js/-/inflector-js-1.0.1.tgz#8f2b8dae06ba8c1a846e40a196a5e132721be0e0"
