@@ -1,6 +1,6 @@
 RSpec.describe "templates embedded by presenter" do
   let :presenter do
-    Pakyow::Presenter::Presenter.new(view)
+    Pakyow::Presenter::Presenter.new(view, embed_templates: true)
   end
 
   context "top-level scope" do

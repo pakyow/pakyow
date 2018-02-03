@@ -90,7 +90,7 @@ module Pakyow
       #   @see VersionedView#versioned
       def_delegators :@view, :attributes, :attrs, :html=, :html, :text, :binding?, :container?, :partial?, :component?, :form?, :version, :info, :to_html, :to_s, :use, :versioned
 
-      def initialize(view, binders: [], endpoints: nil, embed_templates: true)
+      def initialize(view, binders: [], endpoints: nil, embed_templates: false)
         @view, @binders, @endpoints, @embed_templates = view, binders, endpoints, embed_templates
 
         set_title_from_info
@@ -310,7 +310,7 @@ module Pakyow
       private
 
       def presenter_for(view, type: Presenter)
-        type.new(view, binders: binders, endpoints: @endpoints, embed_templates: @embed_templates)
+        type.new(view, binders: binders, endpoints: @endpoints)
       end
 
       def binder_for_current_scope

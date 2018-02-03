@@ -64,6 +64,7 @@ module Pakyow
         @presenter = presenter.new(
           binders: @connection.app.state_for(:binder),
           endpoints: @connection.app.endpoints,
+          embed_templates: true,
           **info
         )
       end

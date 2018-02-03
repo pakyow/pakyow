@@ -339,8 +339,8 @@ module Pakyow
       alias :to_s :to_html
 
       # @api private
-      def binding_scopes
-        @object.find_significant_nodes(:binding).select { |node|
+      def binding_scopes(children: true)
+        @object.find_significant_nodes(:binding, with_children: children).select { |node|
           node.find_significant_nodes(:binding).any?
         }
       end
