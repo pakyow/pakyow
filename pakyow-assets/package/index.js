@@ -79,7 +79,7 @@ var webpackConfig = {
         use: {
           loader: "file-loader",
           options: {
-            name: `[path][${config["fingerprint"] ? "hash" : "name"}].foo.[ext]`
+            name: `[path][${config["fingerprint"] ? "hash" : "name"}].[ext]`
           }
         }
       }
