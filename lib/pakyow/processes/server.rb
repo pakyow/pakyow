@@ -15,7 +15,10 @@ module Pakyow
 
       def start
         if ::Process.respond_to?(:fork)
+          local_timezone = Time.now.getlocal.zone
           @pid = ::Process.fork {
+            # workaround for: https://bugs.ruby-lang.org/issues/14435
+            ENV["TZ"] = local_timezone
             @server.start_standalone_server
           }
         else
