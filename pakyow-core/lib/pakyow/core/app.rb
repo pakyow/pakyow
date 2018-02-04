@@ -220,6 +220,7 @@ module Pakyow
 
     before :finalize do
       load_endpoints
+      load_pipeline
     end
 
     # The environment the app is defined in.
@@ -326,6 +327,22 @@ module Pakyow
           endpoints << state_instance if state_instance.respond_to?(:path_to)
         end
       }
+    end
+
+    def load_pipeline
+      if self.class.includes_framework?(:routing) && !Pakyow.env?(:prototype)
+        state_for(:controller).each do |controller|
+          @__pipeline.action(controller)
+        end
+      end
+
+      if self.class.includes_framework?(:presenter) && !Pakyow.env?(:production)
+        @__pipeline.action(Presenter::AutoRender)
+      end
+
+      if self.class.includes_framework?(:routing) && !Pakyow.env?(:prototype)
+        @__pipeline.action(Routing::RespondMissing, self)
+      end
     end
 
     class << self

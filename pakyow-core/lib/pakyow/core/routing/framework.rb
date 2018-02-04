@@ -142,16 +142,6 @@ module Pakyow
               controller_class.include helper
             end
           end
-
-          before :finalize do
-            unless Pakyow.env?(:prototype)
-              state_for(:controller).each do |controller|
-                @__pipeline.action(controller)
-              end
-
-              @__pipeline.action(RespondMissing, self)
-            end
-          end
         end
       end
     end

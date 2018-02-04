@@ -118,12 +118,6 @@ module Pakyow
             #   end
             # end
           end
-
-          before :finalize do
-            if Pakyow.env?(:prototype)
-              @__pipeline.action(AutoRender)
-            end
-          end
         end
       end
     end
