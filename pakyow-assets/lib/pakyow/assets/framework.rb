@@ -29,7 +29,7 @@ module Pakyow
             Pakyow.config.server.ignore.concat([
               /#{File.expand_path(config.assets.local_public_asset_path).gsub(File.join(File.expand_path(config.app.root), "/"), "")}/,
               /#{File.expand_path(config.assets.frontend_assets_path).gsub(File.join(File.expand_path(config.app.root), "/"), "")}/,
-              /#{File.expand_path(config.presenter.path).gsub(File.join(File.expand_path(config.app.root), "/"), "")}\/(#{config.assets.extensions.join("|")})/
+              /.*\.(#{config.assets.extensions.join("|")})/
             ])
           end
 
