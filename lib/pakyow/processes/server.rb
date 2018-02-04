@@ -11,6 +11,7 @@ module Pakyow
 
       on_change(/Gemfile/) do
         ::Process.waitpid(::Process.spawn("bundle install"))
+        @server.respawn
       end
 
       def start

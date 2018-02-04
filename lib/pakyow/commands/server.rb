@@ -64,6 +64,11 @@ module Pakyow
         instance.start_and_watch
       end
 
+      def respawn
+        stop_processes
+        exec("bundle exec pakyow server")
+      end
+
       protected
 
       def preload
