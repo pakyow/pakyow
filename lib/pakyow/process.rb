@@ -58,8 +58,17 @@ module Pakyow
     end
 
     def watch_callback(modified, _added, _removed)
+      return if modified.empty?
+
       modified.each do |path|
-        self.class.change_callbacks(path).each(&:call)
+        callbacks_for_path = self.class.change_callbacks(path)
+        if callbacks_for_path.any?
+          callbacks_for_path.each do |callback|
+            instance_exec(&callback)
+          end
+
+          return
+        end
       end
 
       restart
