@@ -73,7 +73,11 @@ module Pakyow
       def perform(path = default_path, as: nil, layout: nil)
         setup(path, as: as, layout: layout)
 
-        define_presentables(@connection.values)
+        if @presenter.class == ViewPresenter # rendering with the default presenter
+          find_and_present_presentables(@connection.values)
+        else # rendering with a custom presenter
+          define_presentables(@connection.values)
+        end
 
         performing :render do
           @connection.body = StringIO.new(
@@ -139,9 +143,18 @@ module Pakyow
       end
 
       def define_presentables(presentables)
-        presentables&.each do |name, value|
+        presentables.each do |name, value|
           @presenter.define_singleton_method name do
             value
+          end
+        end
+      end
+
+      def find_and_present_presentables(presentables)
+        presentables.each do |name, value|
+          [name, Support.inflector.singularize(name)].each do |name_varient|
+            next unless found = presenter.find(name_varient)
+            found.present(value); break
           end
         end
       end
