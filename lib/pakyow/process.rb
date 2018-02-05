@@ -5,8 +5,9 @@ require "pakyow/support/class_level_state"
 module Pakyow
   class Process
     extend Support::ClassLevelState
-    class_level_state :on_change_matchers, default: {}, inheritable: true
-    class_level_state :watched_paths,      default: [], inheritable: true
+    class_level_state :on_change_matchers, default: {},  inheritable: true
+    class_level_state :watched_paths,      default: [],  inheritable: true
+    class_level_state :dependent_on,       default: nil, inheritable: true
 
     class << self
       # Register a callback to be called when a file changes.
@@ -19,6 +20,14 @@ module Pakyow
       #
       def watch(*paths)
         @watched_paths.concat(paths).uniq!
+      end
+
+      def dependent_on(other_process_class = nil)
+        if other_process_class.nil?
+          @dependent_on
+        else
+          @dependent_on = other_process_class
+        end
       end
 
       # @api private

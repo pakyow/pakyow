@@ -1,12 +1,15 @@
 # frozen_string_literal: true
 
 require "pakyow/process"
+require "pakyow/processes/server"
 
 module Pakyow
   module Assets
     # Manages the webpack process.
     #
     class Process < Process
+      dependent_on Processes::Server
+
       def initialize(server, app)
         super(server)
         @app = app
@@ -16,6 +19,7 @@ module Pakyow
         @pid = ::Process.spawn("PAKYOW_ASSETS_CONFIG='#{Base64.encode64(@app.config.assets.to_hash.to_json)}' #{@app.config.assets.webpack_command} --watch", out: File.open(File::NULL, "w"), err: $stderr)
 
         # TODO: in the future, we may also start the webpack-dev-server based on config options
+        super
       end
 
       protected
@@ -30,11 +34,6 @@ module Pakyow
       def restart?(modified, added, removed)
         return true if (added + removed).find { |path|
           @app.config.assets.extensions.include?(File.extname(path))
-        }
-
-        expanded_presenter_path = File.expand_path(@app.config.presenter.path)
-        return true if modified.find { |path|
-          !@app.config.assets.extensions.include?(File.extname(path)) && File.expand_path(path).start_with?(expanded_presenter_path)
         }
 
         false
