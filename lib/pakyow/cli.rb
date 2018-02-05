@@ -19,9 +19,8 @@ module Pakyow
     DESC
 
     def new(name = nil)
-      require "generators/pakyow/app/app_generator"
+      require "pakyow/generators/app/app_generator"
       Generators::AppGenerator.start([name])
-      puts "Done! Run `cd #{name}; bundle exec pakyow server` to get started!"
     end
 
     desc "console [ENVIRONMENT]", "Start an interactive Pakyow console"
@@ -82,6 +81,17 @@ module Pakyow
         app: options[:app],
         args: options[:args],
         env: options[:env]
+      ).run
+    end
+
+    desc "generate", "Generate code for an app"
+    option :app, type: :string, aliases: :"-a"
+    def generate(generator, *args)
+      require "pakyow/commands/generate"
+      Commands::Generate.new(
+        generator,
+        app: options[:app],
+        args: args
       ).run
     end
   end

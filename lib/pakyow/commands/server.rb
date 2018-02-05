@@ -69,6 +69,14 @@ module Pakyow
         exec("bundle exec pakyow server")
       end
 
+      def stop_dependent_processes(dependent_on)
+        @instances.each do |instance|
+          if instance.class.dependent_on == dependent_on
+            instance.stop
+          end
+        end
+      end
+
       protected
 
       def preload

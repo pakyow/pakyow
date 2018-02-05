@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 require "securerandom"
+
+require "pakyow/generator"
 require "pakyow/version"
 
 module Pakyow
   # @api private
   module Generators
-    class AppGenerator < Thor::Group
-      include Thor::Actions
-
+    class AppGenerator < Generator
       def self.source_root
         File.expand_path("../", __FILE__)
       end
@@ -25,6 +25,10 @@ module Pakyow
 
       def dot
         "."
+      end
+
+      def done
+        puts "Done! Run `cd #{name}; bundle exec pakyow server` to get started!"
       end
 
       protected
