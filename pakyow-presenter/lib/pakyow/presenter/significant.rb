@@ -52,6 +52,21 @@ module Pakyow
     end
 
     # @api private
+    class PrototypeNode < SignificantNode
+      StringDoc.significant :prototype, self
+
+      def self.significant?(node)
+        node.is_a?(Oga::XML::Element) && node.attribute(:prototype)
+      end
+
+      def self.node(element)
+        labels = labels_hash(element)
+        attributes = attributes_instance(element)
+        StringNode.new(["<#{element.name}", attributes], type: :prototype, labels: labels)
+      end
+    end
+
+    # @api private
     class ContainerNode < SignificantNode
       StringDoc.significant :container, self
 

@@ -90,11 +90,15 @@ module Pakyow
       #   @see VersionedView#versioned
       def_delegators :@view, :attributes, :attrs, :html=, :html, :text, :binding?, :container?, :partial?, :component?, :form?, :version, :info, :to_html, :to_s, :use, :versioned
 
-      def initialize(view, binders: [], endpoints: nil, embed_templates: false)
+      def initialize(view, binders: [], endpoints: nil, prototype: false, embed_templates: false)
         @view, @binders, @endpoints, @embed_templates = view, binders, endpoints, embed_templates
 
         set_title_from_info
         set_form_field_names
+
+        unless prototype
+          remove_prototype_nodes
+        end
 
         if embed_templates
           create_embedded_templates
@@ -366,6 +370,10 @@ module Pakyow
             binding_node.attributes[:name] ||= "#{form_node.name}[#{binding_node.name}]"
           end
         end
+      end
+
+      def remove_prototype_nodes
+        @view.object.find_significant_nodes(:prototype, with_children: true).each(&:remove)
       end
 
       def create_embedded_templates
