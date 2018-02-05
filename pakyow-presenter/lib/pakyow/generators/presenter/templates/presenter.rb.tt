@@ -1,0 +1,2 @@
+presenter "<%= normalized_view_path %>" do
+end
