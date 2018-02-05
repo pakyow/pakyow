@@ -1,0 +1,45 @@
+@import "../../variables";
+
+$space-unit: 1 / $num-columns / $num-columns;
+
+@for $i from 1 through $num-columns {
+  .space-#{$i} {
+    margin: percentage($i * $space-unit);
+  }
+
+  .space-above-#{$i} {
+    margin-top: percentage($i * $space-unit);
+  }
+
+  .space-right-#{$i} {
+    margin-right: percentage($i * $space-unit);
+  }
+
+  .space-below-#{$i} {
+    margin-bottom: percentage($i * $space-unit);
+  }
+
+  .space-left-#{$i} {
+    margin-left: percentage($i * $space-unit);
+  }
+
+  .space-inside-#{$i} {
+    padding: percentage($i * $space-unit);
+  }
+
+  .space-inside-top-#{$i} {
+    padding-top: percentage($i * $space-unit);
+  }
+
+  .space-inside-right-#{$i} {
+    padding-right: percentage($i * $space-unit);
+  }
+
+  .space-inside-bottom-#{$i} {
+    padding-bottom: percentage($i * $space-unit);
+  }
+
+  .space-inside-left-#{$i} {
+    padding-left: percentage($i * $space-unit);
+  }
+}

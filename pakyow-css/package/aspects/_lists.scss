@@ -1,0 +1,34 @@
+ul, ol {
+  @include rem(margin-bottom, 9);
+  @include rem(margin-left, 25);
+}
+
+ul {
+  list-style:disc;
+}
+
+ol {
+  list-style:decimal;
+}
+
+li {
+  @include rem(font-size, $base-font-size);
+  @include rem(line-height, $base-font-size * $line-height-factor);
+}
+
+ul.horizontal, ol.horizontal {
+  margin: 0;
+  display: inline-block;
+
+  li {
+    display: inline-block;
+  }
+}
+
+ul.plain, ol.plain {
+  margin-left: 0;
+
+  li {
+    list-style: none;
+  }
+}

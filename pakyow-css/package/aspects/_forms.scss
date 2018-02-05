@@ -1,0 +1,28 @@
+label {
+  display: block;
+
+  &.inline {
+    display: inline;
+  }
+}
+
+fieldset {
+  @include rem(margin-bottom, text-margin($base-font-size, 2.0));
+
+  ul {
+    margin-left: 0;
+    list-style: none;
+
+    li {
+      @include rem(margin-bottom, text-margin($base-font-size));
+
+      label {
+        @include rem(margin-bottom, text-margin($base-font-size));
+      }
+    }
+  }
+}
+
+input, textarea {
+  outline: none;
+}

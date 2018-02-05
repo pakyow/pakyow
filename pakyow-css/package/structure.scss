@@ -1,126 +1,13 @@
-@import "reset";
-@import "vars";
+@import "variables";
 
-/*****************************
-    Positioning
-*****************************/
+@import "aspects/structure/containers";
+@import "aspects/structure/positioning";
+@import "aspects/structure/spacing";
 
-.float-r {
-  float: right;
-}
-
-.float-l {
-  float: left;
-}
-
-.align-r {
-  text-align: right;
-}
-
-.align-l {
-  text-align: left;
-}
-
-.align-c {
-  text-align: center;
+* {
+  box-sizing: border-box;
 }
 
 .hidden {
-  display: none;
-}
-
-.clear {
-  clear: both;
-}
-
-.clear-l {
-  clear: left;
-}
-
-.clear-r {
-  clear: right;
-}
-
-/*****************************
-    Relational
-*****************************/
-
-.margin {
-  margin: $relational-margin;
-}
-
-.margin-t {
-  margin-top: $relational-margin;
-}
-
-.margin-b {
-  margin-bottom: $relational-margin;
-}
-
-.margin-r {
-  margin-right: $relational-margin;
-}
-
-.margin-l {
-  margin-left: $relational-margin;
-}
-
-/*****************************
-    Structure
-*****************************/
-
-.container, *[class*="container-"] {
-  width: $container-width;
-  margin: auto;
-}
-
-*[class*="container-"] {
-  display: flex;
-}
-
-.col {
-  flex-grow: 1;
-
-  &:not(:first-child) {
-    margin-left: $container-margin;
-  }
-
-  // resized columns
-  @for $i from 2 through $num-columns {
-    @if $i > 2 {
-      @for $j from 1 to $i {
-        &.r-#{$i}-#{$j} {
-          flex-grow: $j;
-          flex-basis: $container-width / $i * $j + $container-margin * ($j - 1);
-        }
-      }
-    }
-  }
-}
-
-// nested containers should be constrained
-.container .container, .container *[class*="container-"], *[class*="container-"] .container, *[class*="container-"] *[class*="container-"] {
-  width: auto;
-}
-
-// fluid containers should be constrained
-.container.fluid, .fluid .container, *[class*="container-"].fluid, .fluid *[class*="container-"] {
-  width: auto;
-}
-
-// containers within columns should have no margin
-.col .container, .col *[class*="container-"] {
-  margin-top: 0;
-}
-
-/*****************************
-    Flows
-*****************************/
-
-.container.flow {
-  display: flex;
-
-  .col {
-    flex-grow: 0;
-  }
+  visibility: hidden;
 }
