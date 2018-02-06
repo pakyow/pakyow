@@ -98,6 +98,13 @@ module Pakyow
               setting :build, true
             end
 
+            defaults :prototype do
+              setting :show_all_stats, false
+              setting :manifest_hot_load, true
+              setting :source_maps, true
+              setting :build, true
+            end
+
             defaults :production do
               setting :uglify, true
               setting :compress, true
