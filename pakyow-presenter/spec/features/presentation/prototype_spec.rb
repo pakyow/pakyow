@@ -3,6 +3,8 @@ RSpec.describe "prototype nodes" do
 
   let :app_definition do
     Proc.new {
+      Pakyow.config.logger.enabled = false
+
       instance_exec(&$presenter_app_boilerplate)
 
       controller :default do
