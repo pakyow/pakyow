@@ -3,7 +3,7 @@ RSpec.describe "presenting views that define endpoints" do
 
   let :app_definition do
     Proc.new {
-      resource :post, "/posts" do
+      resources :posts, "/posts" do
         list   do; end
         show   do; end
         remove do; end
@@ -21,7 +21,7 @@ RSpec.describe "presenting views that define endpoints" do
 
   context "anchor node defines an endpoint" do
     let :view do
-      Pakyow::Presenter::View.new("<a href=\"#\" endpoint=\"post#list\"></a>")
+      Pakyow::Presenter::View.new("<a href=\"#\" endpoint=\"posts#list\"></a>")
     end
 
     it "sets the href" do
@@ -50,7 +50,7 @@ RSpec.describe "presenting views that define endpoints" do
 
     context "endpoint does not exist" do
       let :view do
-        Pakyow::Presenter::View.new("<a href=\"#\" endpoint=\"post#nonexistent\"></a>")
+        Pakyow::Presenter::View.new("<a href=\"#\" endpoint=\"posts#nonexistent\"></a>")
       end
 
       it "does not set the href" do
@@ -60,7 +60,7 @@ RSpec.describe "presenting views that define endpoints" do
 
     context "endpoint node is within a binding" do
       let :view do
-        Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\">title</h1><a href=\"#\" endpoint=\"post#list\">Back</a></div>")
+        Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\">title</h1><a href=\"#\" endpoint=\"posts#list\">Back</a></div>")
       end
 
       it "does not set the href automatically" do
@@ -88,7 +88,7 @@ RSpec.describe "presenting views that define endpoints" do
 
         context "endpoint does not exist" do
           let :view do
-            Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\">title</h1><a href=\"#\" endpoint=\"post#nonexistent\">Back</a></div>")
+            Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\">title</h1><a href=\"#\" endpoint=\"posts#nonexistent\">Back</a></div>")
           end
 
           it "does not set the href" do
@@ -100,7 +100,7 @@ RSpec.describe "presenting views that define endpoints" do
 
     context "endpoint node is a binding prop" do
       let :view do
-        Pakyow::Presenter::View.new("<div binding=\"post\"><a binding=\"title\" endpoint=\"post#list\">title</a></div>")
+        Pakyow::Presenter::View.new("<div binding=\"post\"><a binding=\"title\" endpoint=\"posts#list\">title</a></div>")
       end
 
       it "does not set the href automatically" do
@@ -128,7 +128,7 @@ RSpec.describe "presenting views that define endpoints" do
 
         context "endpoint does not exist" do
           let :view do
-            Pakyow::Presenter::View.new("<div binding=\"post\"><a binding=\"title\" endpoint=\"post#nonexistent\">foo</a></div>")
+            Pakyow::Presenter::View.new("<div binding=\"post\"><a binding=\"title\" endpoint=\"posts#nonexistent\">foo</a></div>")
           end
 
           it "does not set the href" do
@@ -178,7 +178,7 @@ RSpec.describe "presenting views that define endpoints" do
 
     context "endpoint node defines an href" do
       let :view do
-        Pakyow::Presenter::View.new("<a href=\"/posts\" endpoint=\"post#nonexistent\"></a>")
+        Pakyow::Presenter::View.new("<a href=\"/posts\" endpoint=\"posts#nonexistent\"></a>")
       end
 
       context "defined endpoint is not found, but current endpoint matches the href" do
@@ -195,7 +195,7 @@ RSpec.describe "presenting views that define endpoints" do
 
   context "anchor node defines a contextual endpoint" do
     let :view do
-      Pakyow::Presenter::View.new("<a href=\"#\" endpoint=\"post#show\"></a>")
+      Pakyow::Presenter::View.new("<a href=\"#\" endpoint=\"posts#show\"></a>")
     end
 
     let :current_endpoint do
@@ -208,7 +208,7 @@ RSpec.describe "presenting views that define endpoints" do
 
     context "endpoint node is within a binding" do
       let :view do
-        Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\">title</h1><a href=\"#\" endpoint=\"post#show\">View</a></div>")
+        Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\">title</h1><a href=\"#\" endpoint=\"posts#show\">View</a></div>")
       end
 
       before do
@@ -222,7 +222,7 @@ RSpec.describe "presenting views that define endpoints" do
 
     context "endpoint node is a binding prop" do
       let :view do
-        Pakyow::Presenter::View.new("<div binding=\"post\"><a binding=\"title\" endpoint=\"post#show\">title</a></div>")
+        Pakyow::Presenter::View.new("<div binding=\"post\"><a binding=\"title\" endpoint=\"posts#show\">title</a></div>")
       end
 
       before do
@@ -237,7 +237,7 @@ RSpec.describe "presenting views that define endpoints" do
 
   context "an endpoint node has a child action node" do
     let :view do
-      Pakyow::Presenter::View.new("<div endpoint=\"post#list\"><a href=\"#\" endpoint-action></a></div>")
+      Pakyow::Presenter::View.new("<div endpoint=\"posts#list\"><a href=\"#\" endpoint-action></a></div>")
     end
 
     it "sets the href on the action node" do
@@ -257,7 +257,7 @@ RSpec.describe "presenting views that define endpoints" do
 
   context "node defines a delete endpoint" do
     let :view do
-      Pakyow::Presenter::View.new("<button endpoint=\"post#remove\">delete</button>")
+      Pakyow::Presenter::View.new("<button endpoint=\"posts#remove\">delete</button>")
     end
 
     let :current_endpoint do

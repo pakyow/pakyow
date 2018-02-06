@@ -26,9 +26,9 @@ module Pakyow
     #
     # @see Routing::Extension::Resource
     #
-    def resource(name, path, *args, &block)
+    def resources(name, path, *args, &block)
       controller name, path, *args do
-        expand_within(:resource, &block)
+        expand_within(:resources, &block)
       end
     end
 
@@ -51,7 +51,7 @@ module Pakyow
     #   end
     #
     #   extend_controller :admin do
-    #     resource :post, "/posts" do
+    #     resources :posts, "/posts" do
     #       ...
     #     end
     #   end

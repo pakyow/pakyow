@@ -84,7 +84,8 @@ module Pakyow
       end
 
       def form_action(action, object)
-        @endpoints&.path_to(@view.name, action, **form_action_params(object))
+        plural_name = Support.inflector.pluralize(@view.name).to_sym
+        @endpoints&.path_to(plural_name, action, **form_action_params(object))
       end
 
       def form_action_params(object)

@@ -7,7 +7,7 @@ module Pakyow
     module Extension
       # An extension for defining RESTful Resources. For example:
       #
-      #   resource :post, "/posts" do
+      #   resources :posts, "/posts" do
       #     list do
       #       # list the posts
       #     end
@@ -32,8 +32,8 @@ module Pakyow
       #
       # Resources can be nested. For example:
       #
-      #   resource :post, "/posts" do
-      #     resource :comment, "/comments" do
+      #   resources :posts, "/posts" do
+      #     resources :comments, "/comments" do
       #       list do
       #         # available at GET /posts/:post_id/comments
       #       end
@@ -44,7 +44,7 @@ module Pakyow
       #
       # Routes can be defined for the collection. For example:
       #
-      #   resource :post, "/posts" do
+      #   resources :posts, "/posts" do
       #     collection do
       #       get "/foo" do
       #         # available at GET /posts/foo
@@ -56,7 +56,7 @@ module Pakyow
       #
       # Routes can be defined as members. For example:
       #
-      #   resource :post, "/posts" do
+      #   resources :posts, "/posts" do
       #     member do
       #       get "/foo" do
       #         # available at GET /posts/:post_id/foo
@@ -68,12 +68,12 @@ module Pakyow
         extend Extension
 
         apply_extension do
-          template :resource do
-            resource_id = ":#{controller.__class_name.name}_id"
+          template :resources do
+            resource_id = ":#{Support.inflector.singularize(controller.__class_name.name)}_id"
 
             # Nest resources as members of the current resource
-            controller.define_singleton_method :resource do |name, matcher, &block|
-              expand(:resource, name, File.join(resource_id, matcher), &block)
+            controller.define_singleton_method :resources do |name, matcher, &block|
+              expand(:resources, name, File.join(resource_id, matcher), &block)
             end
 
             action :update_request_path_for_show, only: [:show]

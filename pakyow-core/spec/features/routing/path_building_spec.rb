@@ -35,10 +35,10 @@ RSpec.describe "path building" do
         end
       end
 
-      resource :post, "/posts" do
+      resources :posts, "/posts" do
         list
 
-        resource :comment, "/comments" do
+        resources :comments, "/comments" do
           list
         end
       end
@@ -74,10 +74,10 @@ RSpec.describe "path building" do
   end
 
   it "builds path to a resource route" do
-    expect(call("/path/post_list")[2].body.read).to eq("/posts")
+    expect(call("/path/posts_list")[2].body.read).to eq("/posts")
   end
 
   it "builds path to a nested resource route" do
-    expect(call("/path/post_comment_list", params: { post_id: "123" })[2].body.read).to eq("/posts/123/comments")
+    expect(call("/path/posts_comments_list", params: { post_id: "123" })[2].body.read).to eq("/posts/123/comments")
   end
 end

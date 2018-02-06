@@ -271,7 +271,7 @@ module Pakyow
     # @param method [Symbol] the http method to reroute as
     #
     # @example
-    #   Pakyow::App.resource :post, "/posts" do
+    #   Pakyow::App.resources :posts, "/posts" do
     #     edit do
     #       @post ||= find_post_by_id(params[:post_id])
     #
@@ -281,7 +281,7 @@ module Pakyow
     #     update do
     #       if post_fails_to_create
     #         @post = failed_post_object
-    #         reroute path(:post_edit, post_id: @post.id), method: :get
+    #         reroute path(:posts_edit, post_id: @post.id), method: :get
     #       end
     #     end
     #   end
@@ -628,10 +628,10 @@ module Pakyow
       # example, these calls are identical:
       #
       #   Pakyow::App.controller do
-      #     resource :post, "/posts" do
+      #     resources :posts, "/posts" do
       #     end
       #
-      #     expand :resource, :post, "/posts" do
+      #     expand :resource, :posts, "/posts" do
       #     end
       #   end
       #

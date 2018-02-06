@@ -151,7 +151,7 @@ RSpec.describe "binding data via presenter, with a binder" do
 
     let :app_definition do
       Proc.new {
-        resource :post, "/posts" do
+        resources :posts, "/posts" do
           show do; end
         end
       }
@@ -161,7 +161,7 @@ RSpec.describe "binding data via presenter, with a binder" do
       Pakyow::Presenter::Binder.make :post do
         def permalink
           part :href do
-            path(:post_show, id: object[:id])
+            path(:posts_show, id: object[:id])
           end
         end
       end
