@@ -5,7 +5,6 @@ const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const ManifestPlugin = require("webpack-manifest-plugin");
 const UglifyJSPlugin = require("uglifyjs-webpack-plugin");
 const CompressionPlugin = require("compression-webpack-plugin");
-const WebpackCleanupPlugin = require("webpack-cleanup-plugin");
 
 var config = {};
 if (process.env.PAKYOW_ASSETS_CONFIG) {
@@ -108,9 +107,7 @@ var webpackConfig = {
     new ExtractTextPlugin({
       filename: `[${config["fingerprint"] ? "contenthash" : "name"}].css`,
       allChunks: true
-    }),
-
-    new WebpackCleanupPlugin()
+    })
   ],
 
   target: "web"
