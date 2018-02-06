@@ -16,7 +16,17 @@ module Pakyow
       end
 
       def start
-        @pid = ::Process.spawn("PAKYOW_ASSETS_CONFIG='#{Base64.encode64(@app.config.assets.to_hash.to_json)}' #{@app.config.assets.webpack_command} --watch", out: File.open(File::NULL, "w"), err: $stderr)
+        Thread.new do
+          webpack = IO.popen("PAKYOW_ASSETS_CONFIG='#{Base64.encode64(@app.config.assets.to_hash.to_json)}' #{@app.config.assets.webpack_command} --watch")
+          @pid = webpack.pid
+
+          # Filter annoying output (yes this is unreasonable).
+          #
+          webpack.each do |line|
+            next if line == "Webpack is watching the files…\n" || line.strip.empty?
+            Pakyow.logger << line
+          end
+        end
 
         # TODO: in the future, we may also start the webpack-dev-server based on config options
         super
@@ -31,7 +41,7 @@ module Pakyow
         end
       end
 
-      def restart?(modified, added, removed)
+      def restart?(_modified, added, removed)
         return true if (added + removed).find { |path|
           @app.config.assets.extensions.include?(File.extname(path))
         }
