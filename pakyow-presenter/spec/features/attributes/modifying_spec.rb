@@ -45,10 +45,9 @@ RSpec.describe "modifying attributes via presenter" do
         Pakyow::Presenter::View.new("<div binding=\"post\"></div>").find(:post)
       end
 
-      it "cannot be modified" do
-        expect {
-          presenter.attributes[:style][:color] = "blue"
-        }.to raise_error(NoMethodError)
+      it "can be modified" do
+        presenter.attributes[:style][:color] = "blue"
+        expect(presenter.to_html).to include("style=\"color:blue\"")
       end
     end
   end
@@ -70,10 +69,9 @@ RSpec.describe "modifying attributes via presenter" do
         Pakyow::Presenter::View.new("<div binding=\"post\"></div>").find(:post)
       end
 
-      it "cannot be modified" do
-        expect {
-          presenter.attributes[:class].delete(:bar)
-        }.to raise_error(NoMethodError)
+      it "can be modified" do
+        presenter.attributes[:class].delete(:bar)
+        expect(presenter.to_html).not_to include("class=\"foo\"")
       end
     end
   end

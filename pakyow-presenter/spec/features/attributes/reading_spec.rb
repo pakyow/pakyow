@@ -27,8 +27,8 @@ RSpec.describe "reading attributes via presenter" do
         Pakyow::Presenter::View.new("<div binding=\"post\"></div>").find(:post)
       end
 
-      it "is nil" do
-        expect(presenter.attributes[:title]).to eq(nil)
+      it "is empty" do
+        expect(presenter.attributes[:title]).to be_empty
       end
     end
   end
@@ -49,8 +49,8 @@ RSpec.describe "reading attributes via presenter" do
         Pakyow::Presenter::View.new("<div binding=\"post\"></div>").find(:post)
       end
 
-      it "is nil" do
-        expect(presenter.attributes[:title]).to eq(nil)
+      it "is empty" do
+        expect(presenter.attributes[:title]).to be_empty
       end
     end
   end
@@ -71,8 +71,8 @@ RSpec.describe "reading attributes via presenter" do
         Pakyow::Presenter::View.new("<div binding=\"post\"></div>").find(:post)
       end
 
-      it "is nil" do
-        expect(presenter.attributes[:class]).to eq(nil)
+      it "is empty" do
+        expect(presenter.attributes[:class]).to be_empty
       end
     end
   end

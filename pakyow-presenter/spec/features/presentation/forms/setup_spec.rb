@@ -65,7 +65,7 @@ RSpec.describe "setting up a form via presenter" do
     context "matching route is not found" do
       it "does not set the form action" do
         form.create(object)
-        expect(form.attrs[:action]).to eq(nil)
+        expect(form.attrs[:action]).to be_empty
       end
     end
 
@@ -120,7 +120,7 @@ RSpec.describe "setting up a form via presenter" do
     context "matching route is not found" do
       it "does not set the form action" do
         form.create(object)
-        expect(form.attrs[:action]).to eq(nil)
+        expect(form.attrs[:action]).to be_empty
       end
     end
 
@@ -175,7 +175,7 @@ RSpec.describe "setting up a form via presenter" do
     context "matching route is not found" do
       it "does not set the form action" do
         form.create(object)
-        expect(form.attrs[:action]).to eq(nil)
+        expect(form.attrs[:action]).to be_empty
       end
     end
 
@@ -230,7 +230,7 @@ RSpec.describe "setting up a form via presenter" do
     context "matching route is not found" do
       it "does not set the form action" do
         form.create(object)
-        expect(form.attrs[:action]).to eq(nil)
+        expect(form.attrs[:action]).to be_empty
       end
     end
 

@@ -24,6 +24,19 @@ module Pakyow
         def type_of_attribute(attribute)
           ATTRIBUTE_TYPES[attribute.to_sym] || ATTRIBUTE_TYPE_DEFAULT
         end
+
+        def default_value_for_attribute(attribute)
+          type = type_of_attribute(attribute.to_sym)
+          if type == ATTRIBUTE_TYPE_SET
+            ::Set.new
+          elsif type == ATTRIBUTE_TYPE_HASH
+            ::Hash.new
+          elsif type == ATTRIBUTE_TYPE_BOOLEAN
+            false
+          else
+            ::String.new
+          end
+        end
       end
 
       # Object for hash attributes
@@ -103,11 +116,12 @@ module Pakyow
         # Same ideas apply to non-class attributes as well.
 
         attribute = attribute.to_sym
+        attribute_type = self.class.type_of_attribute(attribute)
 
-        if self.class.type_of_attribute(attribute) == ATTRIBUTE_TYPE_BOOLEAN
+        if attribute_type == ATTRIBUTE_TYPE_BOOLEAN
           @attributes.key?(attribute)
         else
-          @attributes[attribute.to_sym]
+          @attributes[attribute] ||= attribute_type.new(self.class.default_value_for_attribute(attribute))
         end
       end
 
@@ -125,6 +139,10 @@ module Pakyow
         else
           @attributes[attribute] = self.class.typed_value_for_attribute_with_name(value, attribute)
         end
+      end
+
+      def has?(attribute)
+        @attributes.key?(attribute.to_sym)
       end
     end
   end
