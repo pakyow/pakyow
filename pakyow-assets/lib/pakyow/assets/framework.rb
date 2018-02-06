@@ -58,6 +58,7 @@ module Pakyow
             setting :compress, false
             setting :fingerprint, false
             setting :build, false
+            setting :show_all_stats, true
 
             setting :webpack_command do
               webpack = File.join(config.app.root, "node_modules/.bin/webpack")
@@ -91,6 +92,7 @@ module Pakyow
             end
 
             defaults :development do
+              setting :show_all_stats, false
               setting :manifest_hot_load, true
               setting :source_maps, true
               setting :build, true

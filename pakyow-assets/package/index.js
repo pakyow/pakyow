@@ -136,4 +136,33 @@ if (config["compress"]) {
   webpackConfig["plugins"].push(new CompressionPlugin());
 }
 
+if (!config["show_all_stats"]) {
+  webpackConfig["stats"] = {
+    assets: false,
+    cached: false,
+    cachedAssets: false,
+    children: false,
+    chunks: false,
+    chunkModules: false,
+    chunkOrigins: false,
+    colors: true,
+    depth: false,
+    entrypoints: false,
+    errors: true,
+    errorDetails: true,
+    hash: false,
+    maxModules: 0,
+    modules: false,
+    performance: false,
+    providedExports: false,
+    publicPath: false,
+    reasons: false,
+    source: false,
+    timings: false,
+    usedExports: false,
+    version: false,
+    warnings: false
+  }
+}
+
 module.exports = webpackConfig;
