@@ -1,12 +1,6 @@
 .container {
   display: flex;
 
-  .col {
-    &:not(:first-child) {
-      margin-left: $container-margin;
-    }
-  }
-
   @for $i from 1 through $num-columns {
     .col-#{$i} {
       width: percentage((100 - (($num-columns - $i) * 100 / $num-columns)) / 100);
