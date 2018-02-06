@@ -2,14 +2,13 @@
 @import "../functions";
 
 * {
-  @include rem(font-size, $base-font-size);
+  font-size: #{$base-font-size}rem;
   font-family: $font-main;
 }
 
 code, code * {
-  @include rem(font-size, $base-font-size);
-  @include rem(line-height, $base-font-size * $line-height-factor);
-  @include rem(margin-bottom, text-margin($base-font-size, 2.0));
+  line-height: #{$base-font-size * $line-height-factor}rem;
+  margin-bottom: #{text-margin($base-font-size, 2.0)}rem;
   font-family: $font-mono;
 }
 
@@ -18,54 +17,53 @@ pre {
 }
 
 p code {
-  @include rem(font-size, $base-font-size * $inline-code-factor);
+  font-size: #{$base-font-size * $inline-code-factor}rem;
   display: inline;
 }
 
 h1 {
   font-family: $font-head;
-  @include rem(font-size, h1-size());
-  @include rem(line-height, h1-size() * $line-height-factor);
-  @include rem(margin-bottom, text-margin(h1-size()));
-  @include rem(margin-top, text-margin(h1-size(), $header-margin-top-factor));
+  font-size: #{h1-size()}rem;
+  line-height: #{h1-size() * $line-height-factor}rem;
+  margin-bottom: #{text-margin(h1-size())}rem;
+  margin-top: #{text-margin(h1-size(), $header-margin-top-factor)}rem;
 }
 
 h2 {
   font-family: $font-head;
-  @include rem(font-size, h2-size());
-  @include rem(line-height, h2-size() * $line-height-factor);
-  @include rem(margin-bottom, text-margin(h2-size()));
-  @include rem(margin-top, text-margin(h2-size(), $header-margin-top-factor));
+  font-size: #{h2-size()}rem;
+  line-height: #{h2-size() * $line-height-factor}rem;
+  margin-bottom: #{text-margin(h2-size())}rem;
+  margin-top: #{text-margin(h2-size(), $header-margin-top-factor)}rem;
 }
 
 h3 {
   font-family: $font-head;
-  @include rem(font-size, h3-size());
-  @include rem(line-height, h3-size() * $line-height-factor);
-  @include rem(margin-bottom, text-margin(h3-size()));
-  @include rem(margin-top, text-margin(h3-size(), $header-margin-top-factor));
+  font-size: #{h3-size()}rem;
+  line-height: #{h3-size() * $line-height-factor}rem;
+  margin-bottom: #{text-margin(h3-size())}rem;
+  margin-top: #{text-margin(h3-size(), $header-margin-top-factor)}rem;
 }
 
 h4 {
   font-family: $font-head;
-  @include rem(font-size, h4-size());
-  @include rem(line-height, h4-size() * $line-height-factor);
-  @include rem(margin-bottom, text-margin(h4-size()));
-  @include rem(margin-top, text-margin(h4-size(), $header-margin-top-factor));
+  font-size: #{h4-size()}rem;
+  line-height: #{h4-size() * $line-height-factor}rem;
+  margin-bottom: #{text-margin(h4-size())}rem;
+  margin-top: #{text-margin(h4-size(), $header-margin-top-factor)}rem;
 }
 
 h5 {
   font-family: $font-head;
-  @include rem(font-size, h5-size());
-  @include rem(line-height, h5-size() * $line-height-factor);
-  @include rem(margin-bottom, text-margin(h5-size()));
-  @include rem(margin-top, text-margin(h5-size(), $header-margin-top-factor));
+  font-size: #{h5-size()}rem;
+  line-height: #{h5-size() * $line-height-factor}rem;
+  margin-bottom: #{text-margin(h5-size())}rem;
+  margin-top: #{text-margin(h5-size(), $header-margin-top-factor)}rem;
 }
 
 p {
-  @include rem(font-size, $base-font-size);
-  @include rem(line-height, $base-font-size * $line-height-factor);
-  @include rem(margin-bottom, text-margin($base-font-size));
+  line-height: #{$base-font-size * $line-height-factor}rem;
+  margin-bottom: #{text-margin($base-font-size)}rem;
 }
 
 strong {

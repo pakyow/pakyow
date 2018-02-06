@@ -1,45 +1,45 @@
 @import "../../variables";
 
-$space-unit: 1 / $num-columns / $num-columns;
+$space-unit: 1;
 
 @for $i from 1 through $num-columns {
   .space-#{$i} {
-    margin: percentage($i * $space-unit);
+    margin: #{$i * $space-unit}rem;
   }
 
   .space-above-#{$i} {
-    margin-top: percentage($i * $space-unit);
+    margin-top: #{$i * $space-unit}rem;
   }
 
   .space-right-#{$i} {
-    margin-right: percentage($i * $space-unit);
+    margin-right: #{$i * $space-unit}rem;
   }
 
   .space-below-#{$i} {
-    margin-bottom: percentage($i * $space-unit);
+    margin-bottom: #{$i * $space-unit}rem;
   }
 
   .space-left-#{$i} {
-    margin-left: percentage($i * $space-unit);
+    margin-left: #{$i * $space-unit}rem;
   }
 
   .space-inside-#{$i} {
-    padding: percentage($i * $space-unit);
+    padding: #{$i * $space-unit}rem;
   }
 
   .space-inside-top-#{$i} {
-    padding-top: percentage($i * $space-unit);
+    padding-top: #{$i * $space-unit}rem;
   }
 
   .space-inside-right-#{$i} {
-    padding-right: percentage($i * $space-unit);
+    padding-right: #{$i * $space-unit}rem;
   }
 
   .space-inside-bottom-#{$i} {
-    padding-bottom: percentage($i * $space-unit);
+    padding-bottom: #{$i * $space-unit}rem;
   }
 
   .space-inside-left-#{$i} {
-    padding-left: percentage($i * $space-unit);
+    padding-left: #{$i * $space-unit}rem;
   }
 }

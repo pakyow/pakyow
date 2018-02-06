@@ -1,4 +1,0 @@
-@mixin rem($style, $px) {
-  #{$style}: #{$px}px;
-  #{$style}: #{$px / 10}rem;
-}

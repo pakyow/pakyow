@@ -1,6 +1,6 @@
 ul, ol {
-  @include rem(margin-bottom, 9);
-  @include rem(margin-left, 25);
+  margin-bottom: 0.9rem;
+  margin-left: 2.5rem;
 }
 
 ul {
@@ -12,8 +12,8 @@ ol {
 }
 
 li {
-  @include rem(font-size, $base-font-size);
-  @include rem(line-height, $base-font-size * $line-height-factor);
+  font-size: #{$base-font-size}rem;
+  line-height: #{$base-font-size * $line-height-factor}rem;
 }
 
 ul.horizontal, ol.horizontal {
