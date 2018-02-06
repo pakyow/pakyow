@@ -90,11 +90,11 @@ module Pakyow
       #   @see VersionedView#versioned
       def_delegators :@view, :attributes, :attrs, :html=, :html, :text, :binding?, :container?, :partial?, :component?, :form?, :version, :info, :to_html, :to_s, :use, :versioned
 
-      def initialize(view, binders: [], endpoints: nil, prototype: false, embed_templates: false)
-        @view, @binders, @endpoints, @embed_templates = view, binders, endpoints, embed_templates
+      def initialize(view, binders: [], endpoints: nil, current_endpoint: {}, prototype: false, embed_templates: false)
+        @view, @binders, @endpoints, @current_endpoint, @embed_templates = view, binders, endpoints, current_endpoint, embed_templates
 
         set_title_from_info
-        set_form_field_names
+        setup_form_field_names
 
         unless prototype
           remove_prototype_nodes
@@ -102,6 +102,10 @@ module Pakyow
 
         if embed_templates
           create_embedded_templates
+        end
+
+        if endpoints
+          setup_non_contextual_endpoints
         end
       end
 
@@ -213,7 +217,10 @@ module Pakyow
       #
       def bind(data)
         tap do
-          data = binder_or_data(data)
+          if data = binder_or_data(data)
+            setup_binding_endpoints(data.object)
+          end
+
           if data.is_a?(Binder)
             bind_binder_to_view(data, @view)
           else
@@ -314,7 +321,7 @@ module Pakyow
       private
 
       def presenter_for(view, type: Presenter)
-        type.new(view, binders: binders, endpoints: @endpoints)
+        type.new(view, binders: binders, endpoints: @endpoints, current_endpoint: @current_endpoint)
       end
 
       def binder_for_current_scope
@@ -364,7 +371,7 @@ module Pakyow
         end
       end
 
-      def set_form_field_names
+      def setup_form_field_names
         @view.object.find_significant_nodes(:form).each do |form_node|
           form_node.children.find_significant_nodes(:binding).each do |binding_node|
             binding_node.attributes[:name] ||= "#{form_node.name}[#{binding_node.name}]"
@@ -393,6 +400,73 @@ module Pakyow
           end
           template.append(duped_node_with_binding)
           node_with_binding.after(template)
+        end
+      end
+
+      def setup_non_contextual_endpoints
+        setup_endpoints(@view.object.find_significant_nodes(:endpoint, with_children: true))
+      end
+
+      def setup_binding_endpoints(object)
+        if object.include?(:id)
+          object[:"#{Support.inflector.singularize(@view.name)}_id"] = object[:id]
+        end
+
+        setup_endpoints(
+          @view.object.find_significant_nodes(
+            :binding_endpoint, with_children: true
+          ).concat(@view.object.find_significant_nodes(
+            :binding, with_children: true
+            ).select { |binding_node|
+              binding_node.labeled?(:endpoint)
+            }
+          ), object)
+      end
+
+      def setup_endpoints(nodes, params = @current_endpoint[:params] || {})
+        nodes.each do |endpoint_node|
+          endpoint_view = View.from_object(endpoint_node)
+          endpoint_parts = endpoint_node.label(:endpoint).to_s.split("#").map(&:to_sym)
+
+          endpoint_action_node = find_endpoint_action_node(endpoint_node)
+
+          if endpoint_parts.last == :remove
+            wrap_endpoint_for_removal(endpoint_view, endpoint_parts, params)
+          elsif endpoint_action_node.tagname == "a"
+            setup_endpoint_for_anchor(endpoint_view, View.from_object(endpoint_action_node), endpoint_parts, params)
+          end
+        end
+      end
+
+      def wrap_endpoint_for_removal(endpoint_view, endpoint_parts, params)
+        delete_form = View.new(
+          <<~HTML
+          <form action="#{@endpoints.path_to(*endpoint_parts, params)}" method="post" data-ui="confirm">
+            <input type="hidden" name="_method">
+
+            #{endpoint_view}
+          </form>
+          HTML
+        )
+
+        endpoint_view.replace(delete_form)
+      end
+
+      def setup_endpoint_for_anchor(endpoint_view, endpoint_action_view, endpoint_parts, params)
+        if path = @endpoints.path_to(*endpoint_parts, params)
+          endpoint_action_view.attributes[:href] = path
+        end
+
+        if endpoint_action_view.attributes.has?(:href) && @current_endpoint[:path].to_s.start_with?(endpoint_action_view.attributes[:href])
+          endpoint_view.attributes[:class].add(:active)
+        end
+      end
+
+      def find_endpoint_action_node(endpoint_node)
+        if action_node = endpoint_node.find_significant_nodes(:endpoint_action, with_children: false)[0]
+          action_node
+        else
+          endpoint_node
         end
       end
     end

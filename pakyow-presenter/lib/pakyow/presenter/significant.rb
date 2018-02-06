@@ -27,7 +27,7 @@ module Pakyow
 
       # Attributes that will be turned into +StringDoc+ labels
       #
-      LABEL_ATTRS = %i(ui version include exclude).freeze
+      LABEL_ATTRS = %i(ui version include exclude endpoint).freeze
 
       def self.attributes_instance(element)
         StringAttributes.new(attributes_hash(element))
@@ -49,6 +49,16 @@ module Pakyow
           labels[attribute_name] = attribute.value.to_sym
         end
       end
+
+      def self.within_binding?(node)
+        if BindingNode.significant?(node)
+          true
+        elsif !node.is_a?(Oga::XML::Document)
+          within_binding?(node.parent)
+        else
+          false
+        end
+      end
     end
 
     # @api private
@@ -63,6 +73,37 @@ module Pakyow
         labels = labels_hash(element)
         attributes = attributes_instance(element)
         StringNode.new(["<#{element.name}", attributes], type: :prototype, labels: labels)
+      end
+    end
+
+    # @api private
+    class EndpointNode < SignificantNode
+      StringDoc.significant :endpoint, self
+
+      def self.significant?(node)
+        node.is_a?(Oga::XML::Element) && node.attribute(:endpoint) && !within_binding?(node)
+      end
+
+      def self.node(element)
+        labels = labels_hash(element)
+        attributes = attributes_instance(element)
+        StringNode.new(["<#{element.name}", attributes], type: :endpoint, labels: labels)
+      end
+    end
+
+    # @api private
+    class EndpointActionNode < SignificantNode
+      StringDoc.significant :endpoint_action, self
+
+      def self.significant?(node)
+        node.is_a?(Oga::XML::Element) && node.attribute(:"endpoint-action")
+      end
+
+      def self.node(element)
+        labels = labels_hash(element)
+        attributes = attributes_instance(element)
+        attributes.delete(:"endpoint-action")
+        StringNode.new(["<#{element.name}", attributes], type: :endpoint_action, labels: labels)
       end
     end
 
@@ -129,6 +170,21 @@ module Pakyow
         attributes[:"data-b"] = binding
 
         StringNode.new(["<#{element.name}", attributes], type: :binding, name: binding, labels: labels)
+      end
+    end
+
+    # @api private
+    class BindingEndpointNode < SignificantNode
+      StringDoc.significant :binding_endpoint, self
+
+      def self.significant?(node)
+        node.is_a?(Oga::XML::Element) && node.attribute(:endpoint) && within_binding?(node)
+      end
+
+      def self.node(element)
+        labels = labels_hash(element)
+        attributes = attributes_instance(element)
+        StringNode.new(["<#{element.name}", attributes], type: :binding_endpoint, labels: labels)
       end
     end
 

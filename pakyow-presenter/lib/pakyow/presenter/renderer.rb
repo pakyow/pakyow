@@ -66,6 +66,10 @@ module Pakyow
           endpoints: @connection.app.endpoints,
           prototype: Pakyow.env?(:prototype),
           embed_templates: true,
+          current_endpoint: {
+            path: @connection.path,
+            params: @connection.params
+          },
           **info
         )
       end
