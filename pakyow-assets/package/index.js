@@ -30,7 +30,7 @@ var webpackConfig = {
   output: {
     path: path.resolve(process.cwd(), config["output_path"]),
     publicPath: config["public_path"],
-    filename: `[${config["fingerprint"] ? "chunkhash" : "name"}].js`
+    filename: `${config["fingerprint"] ? "[name].[chunkhash]" : "[name]"}.js`
   },
 
   module: {
@@ -92,7 +92,7 @@ var webpackConfig = {
         use: {
           loader: "file-loader",
           options: {
-            name: `[path][${config["fingerprint"] ? "hash" : "name"}].[ext]`
+            name: `[path]${config["fingerprint"] ? "[name].[hash]" : "[name]"}.[ext]`
           }
         }
       }
@@ -105,7 +105,7 @@ var webpackConfig = {
     }),
 
     new ExtractTextPlugin({
-      filename: `[${config["fingerprint"] ? "contenthash" : "name"}].css`,
+      filename: `${config["fingerprint"] ? "[name].[contenthash]" : "[name]"}.css`,
       allChunks: true
     })
   ],
