@@ -36,8 +36,18 @@ module Pakyow
 
         if container == DEFAULT_CONTAINER
           @object
+        elsif @containers.key?(container)
+          @containers[container].object
         else
-          @containers[container]
+          nil
+        end
+      end
+
+      def mixin(partials)
+        super
+
+        @containers.values.each do |view|
+          view.mixin(partials)
         end
       end
 
@@ -48,7 +58,7 @@ module Pakyow
       def parse_content(html)
         html.scan(WITHIN_REGEX) do |match|
           container_name = match[0].to_sym
-          @containers[container_name] = StringDoc.new(match[1])
+          @containers[container_name] = View.from_object(StringDoc.new(match[1]))
         end
 
         html.gsub!(WITHIN_REGEX, "")

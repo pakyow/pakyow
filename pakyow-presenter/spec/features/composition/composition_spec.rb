@@ -45,6 +45,22 @@ RSpec.describe "view template composition via presenter" do
         expect(response[2].body.read).to eq("<!DOCTYPE html>\n<html>\n  <head>\n    <title>default</title>\n  </head>\n\n  <body>\n    within\n\n\n\n  </body>\n</html>\n")
       end
     end
+
+    context "page content includes a partial" do
+      it "includes the partial" do
+        response = call("/within/page-includes-partial")
+        expect(response[0]).to eq(200)
+        expect(response[2].body.read).to eq("<!DOCTYPE html>\n<html>\n  <head>\n    <title>within</title>\n  </head>\n\n  <body>\n    within\n\n\n\n\n    <section>\n      \n  global\n\n\n    </section>\n  </body>\n</html>\n")
+      end
+    end
+  end
+
+  context "page does not define content for a container" do
+    it "removes the container" do
+      response = call("/within/page-provides-no-content")
+      expect(response[0]).to eq(200)
+      expect(response[2].body.read).to eq("<!DOCTYPE html>\n<html>\n  <head>\n    <title>within</title>\n  </head>\n\n  <body>\n    within\n\n\n    <section>\n      \n    </section>\n  </body>\n</html>\n")
+    end
   end
 
   context "page includes a partial" do
