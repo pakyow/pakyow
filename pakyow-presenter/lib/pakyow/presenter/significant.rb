@@ -42,7 +42,7 @@ module Pakyow
       end
 
       def self.labels_hash(element)
-        StringDoc.attributes(element).each_with_object({}) do |attribute, labels|
+        StringDoc.attributes(element).dup.each_with_object({}) do |attribute, labels|
           attribute_name = attribute.name.to_sym
           next unless LABEL_ATTRS.include?(attribute_name)
           element.unset(attribute.name)
