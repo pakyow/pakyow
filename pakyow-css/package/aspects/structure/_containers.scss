@@ -1,9 +1,0 @@
-.container {
-  display: flex;
-
-  @for $i from 1 through $num-columns {
-    .col-#{$i} {
-      width: percentage((100 - (($num-columns - $i) * 100 / $num-columns)) / 100);
-    }
-  }
-}
