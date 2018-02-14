@@ -62,6 +62,22 @@ RSpec.configure do |config|
   end
 end
 
+RSpec::Matchers.define :eq_sans_whitespace do |expected|
+  match do |actual|
+    expected.gsub(/\s+/, "") == actual.gsub(/\s+/, "")
+  end
+
+  diffable
+end
+
+RSpec::Matchers.define :include_sans_whitespace do |expected|
+  match do |actual|
+    actual.gsub(/\s+/, "").include?(expected.gsub(/\s+/, ""))
+  end
+
+  diffable
+end
+
 def start_simplecov(&block)
   if ENV["COVERAGE"]
     require "simplecov"

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "pakyow/presenter/presenter"
+require "pakyow/presenter/behavior/endpoints/form"
 
 module Pakyow
   module Presenter
@@ -9,6 +10,8 @@ module Pakyow
     class FormPresenter < Presenter
       SUPPORTED_ACTIONS = %i(create update replace remove).freeze
       ACTION_METHODS = { create: "post", update: "patch", replace: "put", remove: "delete" }.freeze
+
+      include Behavior::Endpoints::Form
 
       # Sets the form action (where it submits to).
       #
@@ -46,51 +49,39 @@ module Pakyow
       #
       def create(object)
         yield self if block_given?
-        setup :create, object
+        setup_form :create, object
       end
 
       # Setup the form for updating an object.
       #
       def update(object)
         yield self if block_given?
-        setup :update, object
+        setup_form :update, object
       end
 
       # Setup the form for replacing an object.
       #
       def replace(object)
         yield self if block_given?
-        setup :replace, object
+        setup_form :replace, object
       end
 
       # Setup the form for removing an object.
       #
       def remove(object)
         yield self if block_given?
-        setup :remove, object
+        setup_form :remove, object
       end
 
       protected
 
-      def setup(action, object = nil)
+      def setup_form(action, object)
         action = action.to_sym
-
-        raise ArgumentError.new("Expected action to be one of: #{SUPPORTED_ACTIONS.join(", ")}") unless SUPPORTED_ACTIONS.include?(action)
-
-        self.action = form_action(action, object)
-        self.method = method_for_action(action)
-
-        @view.bind(object)
-      end
-
-      def form_action(action, object)
-        plural_name = Support.inflector.pluralize(@view.name).to_sym
-        @endpoints&.path_to(plural_name, action, **form_action_params(object))
-      end
-
-      def form_action_params(object)
-        {}.tap do |params|
-          params[:"#{@view.name}_id"] = object[:id] if object
+        if SUPPORTED_ACTIONS.include?(action)
+          self.method = method_for_action(action)
+          @view.bind(object)
+        else
+          raise ArgumentError.new("Expected action to be one of: #{SUPPORTED_ACTIONS.join(", ")}")
         end
       end
 

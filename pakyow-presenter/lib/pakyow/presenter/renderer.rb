@@ -5,11 +5,8 @@ require "pakyow/support/hookable"
 module Pakyow
   module Presenter
     module RenderHelpers
-      def render(path = request.env["pakyow.endpoint"] || request.path, as: nil, layout: nil)
-        path = String.normalize_path(path)
-        as = String.normalize_path(as) if as
-
-        app.class.const_get(:Renderer).new(@connection).perform(path, as: as, layout: layout)
+      def render(path = request.env["pakyow.endpoint"] || request.path, as: nil, layout: nil, mode: :default)
+        app.class.const_get(:Renderer).new(@connection, path: path, as: as, layout: layout, mode: mode).perform
       end
     end
 
@@ -20,7 +17,7 @@ module Pakyow
             # rubocop:disable Lint/HandleExceptions
             begin
               catch :halt do
-                new(connection).perform
+                new(connection, implicit: true).perform
               end
             rescue MissingView
               # TODO: in development, raise a missing view error in the case
@@ -46,48 +43,56 @@ module Pakyow
 
       attr_reader :presenter
 
-      def initialize(connection)
-        @connection = connection
-      end
+      def initialize(connection, path: nil, as: nil, layout: nil, mode: :default, implicit: false)
+        @connection, @implicit = connection, implicit
 
-      def setup(path = default_path, as: nil, layout: nil)
-        unless info = find_info_for(path)
+        path = String.normalize_path(path || default_path)
+        as = String.normalize_path(as) if as
+
+        unless info = find_info(path)
           raise MissingView.new("No view at path `#{path}'")
         end
 
+        # TODO: why are we doing this here?
         if layout && layout = layout_with_name(layout)
           info[:layout] = layout.dup
         end
 
-        presenter = find_presenter_for(as || path) || ViewPresenter
-
-        @presenter = presenter.new(
+        @presenter = (find_presenter(as || path) || ViewPresenter).new(
           binders: @connection.app.state_for(:binder),
-          endpoints: @connection.app.endpoints,
-          prototype: Pakyow.env?(:prototype),
-          embed_templates: true,
-          current_endpoint: {
-            path: @connection.path,
-            params: @connection.params
-          },
           **info
         )
+
+        @presenter.install_endpoints(
+          endpoints_for_environment,
+          current_endpoint: @connection.endpoint,
+          setup_for_bindings: rendering_prototype?
+        )
+
+        if rendering_prototype?
+          mode = @connection.params[:mode] || :default
+        end
+
+        @presenter.place_in_mode(mode)
+
+        if rendering_prototype?
+          @presenter.insert_prototype_bar(mode)
+        else
+          @presenter.cleanup_prototype_nodes
+          @presenter.create_template_nodes
+        end
       end
 
-      def perform(path = default_path, as: nil, layout: nil)
-        setup(path, as: as, layout: layout)
-
-        if @presenter.class == ViewPresenter # rendering with the default presenter
+      def perform
+        if @presenter.class == ViewPresenter
           find_and_present_presentables(@connection.values)
-        else # rendering with a custom presenter
+        else
           define_presentables(@connection.values)
         end
 
         performing :render do
           @connection.body = StringIO.new(
-            @presenter.to_html(
-              clean: !Pakyow.env?(:prototype)
-            )
+            @presenter.to_html
           )
         end
 
@@ -96,11 +101,31 @@ module Pakyow
 
       protected
 
+      def rendering_implicitly?
+        @implicit == true
+      end
+
+      def rendering_prototype?
+        Pakyow.env?(:prototype)
+      end
+
+      # We still mark endpoints as active when running in the prototype environment, but we don't
+      # want to replace anchor hrefs, form actions, etc with backend routes. This gives the designer
+      # control over how the prototype behaves.
+      #
+      def endpoints_for_environment
+        if rendering_prototype?
+          Endpoints.new
+        else
+          @connection.app.endpoints
+        end
+      end
+
       def default_path
         @connection.env["pakyow.endpoint"] || @connection.path
       end
 
-      def find_info_for(path)
+      def find_info(path)
         collapse_path(path) do |collapsed_path|
           if info = info_for_path(collapsed_path)
             return info
@@ -108,14 +133,16 @@ module Pakyow
         end
       end
 
-      def find_presenter_for(path)
-        return if Pakyow.env?(:prototype)
-
-        collapse_path(path) do |collapsed_path|
-          if presenter = presenter_for_path(collapsed_path)
-            return presenter
+      def find_presenter(path)
+        unless rendering_prototype?
+          collapse_path(path) do |collapsed_path|
+            if presenter = presenter_for_path(collapsed_path)
+              return presenter
+            end
           end
         end
+
+        nil
       end
 
       def info_for_path(path)

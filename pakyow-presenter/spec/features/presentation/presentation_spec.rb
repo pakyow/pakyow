@@ -1,6 +1,6 @@
 RSpec.describe "presenting data via presenter" do
   let :presenter do
-    Pakyow::Presenter::Presenter.new(view, embed_templates: false)
+    Pakyow::Presenter::Presenter.new(view)
   end
 
   let :view do

@@ -69,6 +69,11 @@ module Pakyow
       @response.delete_header(key)
     end
 
+    Endpoint = Struct.new(:path, :params)
+    def endpoint
+      Endpoint.new(path, params)
+    end
+
     protected
 
     # @api private

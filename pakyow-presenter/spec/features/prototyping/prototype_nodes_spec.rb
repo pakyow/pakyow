@@ -1,10 +1,8 @@
-RSpec.describe "prototype nodes" do
+RSpec.describe "nodes marked for prototype" do
   include_context "testable app"
 
   let :app_definition do
     Proc.new {
-      Pakyow.config.logger.enabled = false
-
       instance_exec(&$presenter_app_boilerplate)
 
       controller :default do
@@ -19,13 +17,25 @@ RSpec.describe "prototype nodes" do
     end
 
     it "does not remove the prototype nodes" do
-      expect(call("/prototype")[2].body.read).to eq("<!DOCTYPE html>\n<html>\n  <head>\n    <title>default</title>\n  </head>\n\n  <body>\n    <div>\n  foo\n</div>\n\n  </body>\n</html>\n")
+      expect(call("/prototype")[2].body.read).to eq_sans_whitespace(
+        <<~HTML
+          <div>
+            foo
+          </div>
+        HTML
+      )
     end
   end
 
   context "not running in prototype mode" do
     it "removes the prototype nodes" do
-      expect(call("/prototype")[2].body.read).to eq("<!DOCTYPE html>\n<html>\n  <head>\n    <title>default</title>\n  </head>\n\n  <body>\n    \n\n  </body>\n</html>\n")
+      expect(call("/prototype")[2].body.read).to_not include_sans_whitespace(
+        <<~HTML
+          <div>
+            foo
+          </div>
+        HTML
+      )
     end
   end
 end

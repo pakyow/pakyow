@@ -53,7 +53,9 @@ RSpec.describe "setting up a form via presenter" do
       end
 
       let :presenter do
-        Pakyow::Presenter::Presenter.new(view, endpoints: Pakyow.apps[0].endpoints)
+        Pakyow::Presenter::Presenter.new(view).tap do |presenter|
+          presenter.install_endpoints(Pakyow.apps[0].endpoints)
+        end
       end
 
       it "sets the form action" do
@@ -108,7 +110,9 @@ RSpec.describe "setting up a form via presenter" do
       end
 
       let :presenter do
-        Pakyow::Presenter::Presenter.new(view, endpoints: Pakyow.apps[0].endpoints)
+        Pakyow::Presenter::Presenter.new(view).tap do |presenter|
+          presenter.install_endpoints(Pakyow.apps[0].endpoints)
+        end
       end
 
       it "sets the form action" do
@@ -163,7 +167,9 @@ RSpec.describe "setting up a form via presenter" do
       end
 
       let :presenter do
-        Pakyow::Presenter::Presenter.new(view, endpoints: Pakyow.apps[0].endpoints)
+        Pakyow::Presenter::Presenter.new(view).tap do |presenter|
+          presenter.install_endpoints(Pakyow.apps[0].endpoints)
+        end
       end
 
       it "sets the form action" do
@@ -218,7 +224,9 @@ RSpec.describe "setting up a form via presenter" do
       end
 
       let :presenter do
-        Pakyow::Presenter::Presenter.new(view, endpoints: Pakyow.apps[0].endpoints)
+        Pakyow::Presenter::Presenter.new(view).tap do |presenter|
+          presenter.install_endpoints(Pakyow.apps[0].endpoints)
+        end
       end
 
       it "sets the form action" do

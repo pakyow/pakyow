@@ -2,7 +2,7 @@ RSpec.describe "sanitization during presentation" do
   include Pakyow::Support::SafeStringHelpers
 
   let :presenter do
-    Pakyow::Presenter::Presenter.new(view, embed_templates: false)
+    Pakyow::Presenter::Presenter.new(view)
   end
 
   context "binding a value" do
@@ -45,7 +45,7 @@ RSpec.describe "sanitization during presentation" do
     end
 
     let :presenter do
-      Pakyow::Presenter::Presenter.new(view, embed_templates: false, binders: [post_binder])
+      Pakyow::Presenter::Presenter.new(view, binders: [post_binder])
     end
 
     let :view do

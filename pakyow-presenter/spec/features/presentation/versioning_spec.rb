@@ -1,6 +1,6 @@
 RSpec.describe "view versioning via presenter" do
   let :presenter do
-    Pakyow::Presenter::Presenter.new(view, embed_templates: false)
+    Pakyow::Presenter::Presenter.new(view)
   end
 
   context "when a version is unspecified" do

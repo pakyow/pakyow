@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "pakyow/core/routing/extension"
+require "pakyow/support/extension"
 
 module Pakyow
   module Routing
@@ -65,7 +65,9 @@ module Pakyow
       #   end
       #
       module Resource
-        extend Extension
+        extend Support::Extension
+
+        restrict_extension Controller
 
         apply_extension do
           template :resources do

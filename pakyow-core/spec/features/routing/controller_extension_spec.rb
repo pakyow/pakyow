@@ -2,7 +2,7 @@ RSpec.describe "extending a controller with an extension" do
   include_context "testable app"
 
   module RouteExtensions
-    extend Pakyow::Routing::Extension
+    extend Pakyow::Support::Extension
 
     apply_extension do
       default do
