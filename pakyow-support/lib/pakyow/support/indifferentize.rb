@@ -93,8 +93,8 @@ module Pakyow
 
       indifferent_key_method :[], :[]=, :default, :delete, :fetch, :has_key?, :key?, :include?, :member?, :store
       indifferent_multi_key_method :fetch_values, :values_at, :dig
-      indifferentize_return_method :merge, :invert, :compact, :reject, :select, :transform_values, :deep_merge
-      indifferentize_update_method :merge!, :update, :replace, :clear, :keep_if, :delete_if, :compact!, :reject!, :select!, :deep_merge!
+      indifferentize_return_method :merge, :invert, :compact, :reject, :select, :transform_values
+      indifferentize_update_method :merge!, :update, :replace, :clear, :keep_if, :delete_if, :compact!, :reject!, :select!
       indifferentize_argument_method :>, :>=, :<=>, :<, :<=, :==
 
       def internal_hash

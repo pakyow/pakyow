@@ -1,4 +1,3 @@
-require "pakyow/support/hash"
 require "pakyow/support/indifferentize"
 
 module Pakyow::Support
@@ -153,7 +152,7 @@ module Pakyow::Support
 
       it "should return a new indifferent hash for methods that would return a new hash" do
         internal = indifferent.internal_hash
-        methods = [:merge, :invert, :compact, :reject, :select, :transform_values, :deep_merge]
+        methods = [:merge, :invert, :compact, :reject, :select, :transform_values]
 
         methods.each do |method|
           arity = Hash.public_instance_method(method).arity
@@ -170,7 +169,7 @@ module Pakyow::Support
 
       it "should return a the same indifferent hash for methods that would return a hash modified in place" do
         internal = indifferent.internal_hash
-        methods = [:merge!, :update, :replace, :clear, :keep_if, :delete_if, :compact!, :reject!, :select!, :deep_merge!]
+        methods = [:merge!, :update, :replace, :clear, :keep_if, :delete_if, :compact!, :reject!, :select!]
 
         methods.each do |method|
           arity = Hash.public_instance_method(method).arity

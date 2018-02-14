@@ -3,7 +3,6 @@
 require "pakyow/support/configurable"
 require "pakyow/support/definable"
 require "pakyow/support/hookable"
-require "pakyow/support/recursive_require"
 require "pakyow/support/deep_freeze"
 require "pakyow/support/class_level_state"
 require "pakyow/support/pipelined"
