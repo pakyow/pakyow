@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "pakyow/support/class_level_state"
+require "pakyow/support/class_state"
 
 module Pakyow
   module Support
@@ -23,8 +23,8 @@ module Pakyow
     module Inspectable
       def self.included(base)
         base.extend ClassAPI
-        base.extend ClassLevelState unless base.ancestors.include?(ClassLevelState)
-        base.class_level_state :__inspectables, inheritable: true, default: []
+        base.extend ClassState unless base.ancestors.include?(ClassState)
+        base.class_state :__inspectables, inheritable: true, default: []
       end
 
       module ClassAPI

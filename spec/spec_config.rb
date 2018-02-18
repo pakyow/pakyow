@@ -29,16 +29,16 @@ RSpec.configure do |config|
       @original_pakyow_config = Pakyow.config.dup
     end
 
-    if Pakyow.instance_variable_defined?(:@class_level_state)
-      @original_class_level_state = Pakyow.instance_variable_get(:@class_level_state).keys.each_with_object({}) do |class_level_ivar, state|
+    if Pakyow.instance_variable_defined?(:@__class_state)
+      @original_class_state = Pakyow.instance_variable_get(:@__class_state).keys.each_with_object({}) do |class_level_ivar, state|
         state[class_level_ivar] = Pakyow.instance_variable_get(class_level_ivar).dup
       end
     end
   end
 
   config.after do
-    if Pakyow.instance_variable_defined?(:@class_level_state)
-      @original_class_level_state.each do |ivar, original_value|
+    if Pakyow.instance_variable_defined?(:@__class_state)
+      @original_class_state.each do |ivar, original_value|
         Pakyow.instance_variable_set(ivar, original_value)
       end
 

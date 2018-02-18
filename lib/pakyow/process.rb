@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require "pakyow/support/class_level_state"
+require "pakyow/support/class_state"
 
 module Pakyow
   class Process
-    extend Support::ClassLevelState
-    class_level_state :on_change_matchers, default: {},  inheritable: true
-    class_level_state :watched_paths,      default: [],  inheritable: true
-    class_level_state :dependent_on,       default: nil, inheritable: true
+    extend Support::ClassState
+    class_state :on_change_matchers, default: {},  inheritable: true
+    class_state :watched_paths,      default: [],  inheritable: true
+    class_state :dependent_on,       default: nil, inheritable: true
 
     class << self
       # Register a callback to be called when a file changes.

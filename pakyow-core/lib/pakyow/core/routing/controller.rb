@@ -377,17 +377,17 @@ module Pakyow
       throw :reject
     end
 
-    extend Support::ClassLevelState
-    class_level_state :children, default: [], inheritable: true
-    class_level_state :templates, default: {}, inheritable: true
-    class_level_state :handlers, default: {}, inheritable: true
-    class_level_state :exceptions, default: {}, inheritable: true
-    class_level_state :routes, default: SUPPORTED_HTTP_METHODS.each_with_object({}) { |supported_method, routes_hash|
+    extend Support::ClassState
+    class_state :children, default: [], inheritable: true
+    class_state :templates, default: {}, inheritable: true
+    class_state :handlers, default: {}, inheritable: true
+    class_state :exceptions, default: {}, inheritable: true
+    class_state :routes, default: SUPPORTED_HTTP_METHODS.each_with_object({}) { |supported_method, routes_hash|
                                           routes_hash[supported_method] = []
                                         }, inheritable: true
 
-    class_level_state :route_actions, default: {}, inheritable: true
-    class_level_state :route_skips, default: {}, inheritable: true
+    class_state :route_actions, default: {}, inheritable: true
+    class_state :route_skips, default: {}, inheritable: true
 
     class << self
       def action(name, only: [], skip: [])

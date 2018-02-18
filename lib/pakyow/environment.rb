@@ -7,7 +7,7 @@ require "logger"
 require "pakyow/support/array"
 require "pakyow/support/hookable"
 require "pakyow/support/configurable"
-require "pakyow/support/class_level_state"
+require "pakyow/support/class_state"
 
 require "pakyow/logger"
 require "pakyow/middleware"
@@ -191,11 +191,11 @@ module Pakyow
     puma: { Silent: true }.freeze
   }.freeze
 
-  extend Support::ClassLevelState
-  class_level_state :apps,       default: []
-  class_level_state :mounts,     default: {}
-  class_level_state :frameworks, default: {}
-  class_level_state :builder,    default: Rack::Builder.new
+  extend Support::ClassState
+  class_state :apps,       default: []
+  class_state :mounts,     default: {}
+  class_state :frameworks, default: {}
+  class_state :builder,    default: Rack::Builder.new
 
   class << self
     # Name of the environment

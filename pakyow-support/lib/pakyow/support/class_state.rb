@@ -4,12 +4,12 @@ require "pakyow/support/deep_dup"
 
 module Pakyow
   module Support
-    module ClassLevelState
+    module ClassState
       using DeepDup
 
-      def class_level_state(name, default: nil, inheritable: false, getter: true)
+      def class_state(name, default: nil, inheritable: false, getter: true)
         ivar = :"@#{name}"
-        @class_level_state[ivar] = {
+        @__class_state[ivar] = {
           inheritable: inheritable
         }
 
@@ -23,15 +23,15 @@ module Pakyow
       end
 
       def self.extended(base)
-        unless base.instance_variable_defined?(:@class_level_state)
-          base.instance_variable_set(:@class_level_state, {})
+        unless base.instance_variable_defined?(:@__class_state)
+          base.instance_variable_set(:@__class_state, {})
         end
       end
 
       def inherited(subclass)
-        subclass.instance_variable_set(:@class_level_state, @class_level_state.deep_dup)
+        subclass.instance_variable_set(:@__class_state, @__class_state.deep_dup)
 
-        @class_level_state.each do |ivar, options|
+        @__class_state.each do |ivar, options|
           next unless options[:inheritable]
 
           subclass.instance_variable_set(ivar, instance_variable_get(ivar).deep_dup)

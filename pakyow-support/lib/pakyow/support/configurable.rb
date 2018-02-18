@@ -4,16 +4,16 @@ require "pakyow/support/configurable/config"
 require "pakyow/support/configurable/config_group"
 require "pakyow/support/configurable/config_option"
 
-require "pakyow/support/class_level_state"
+require "pakyow/support/class_state"
 
 module Pakyow
   module Support
     module Configurable
       def self.included(base)
         base.extend ClassAPI
-        base.extend ClassLevelState
-        base.class_level_state :config, default: Config.new, inheritable: true
-        base.class_level_state :config_envs, default: {}, inheritable: true
+        base.extend ClassState
+        base.class_state :config, default: Config.new, inheritable: true
+        base.class_state :config_envs, default: {}, inheritable: true
       end
 
       attr_reader :config

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "pakyow/support/makeable"
-require "pakyow/support/class_level_state"
+require "pakyow/support/class_state"
 
 module Pakyow
   module Data
@@ -43,9 +43,9 @@ module Pakyow
         count == 0
       end
 
-      extend Support::ClassLevelState
-      class_level_state :attributes, inheritable: true, default: {}
-      class_level_state :associations, inheritable: true, default: { has_many: [], belongs_to: [] }
+      extend Support::ClassState
+      class_state :attributes, inheritable: true, default: {}
+      class_state :associations, inheritable: true, default: { has_many: [], belongs_to: [] }
 
       class << self
         attr_reader :name, :adapter, :connection, :setup_block, :associations

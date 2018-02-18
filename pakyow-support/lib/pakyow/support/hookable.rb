@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "pakyow/support/deep_dup"
-require "pakyow/support/class_level_state"
+require "pakyow/support/class_state"
 
 module Pakyow
   module Support
@@ -54,10 +54,10 @@ module Pakyow
         base.extend ClassAPI
         base.prepend Initializer
 
-        base.extend ClassLevelState
-        base.class_level_state :__known_events, default: [], inheritable: true, getter: false
-        base.class_level_state :__hook_hash, default: { after: {}, before: {} }, inheritable: true
-        base.class_level_state :__hook_pipeline, default: { after: {}, before: {} }, inheritable: true
+        base.extend ClassState
+        base.class_state :__known_events, default: [], inheritable: true, getter: false
+        base.class_state :__hook_hash, default: { after: {}, before: {} }, inheritable: true
+        base.class_state :__hook_pipeline, default: { after: {}, before: {} }, inheritable: true
       end
 
       # @api private

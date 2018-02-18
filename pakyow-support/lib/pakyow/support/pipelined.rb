@@ -46,10 +46,10 @@ module Pakyow
       # @api private
       def self.included(base)
         base.extend ClassAPI
-        base.extend ClassLevelState unless base.ancestors.include?(ClassLevelState)
+        base.extend ClassState unless base.ancestors.include?(ClassState)
         base.prepend Initializer
-        base.class_level_state :__pipelines, default: {}, inheritable: true
-        base.class_level_state :__pipeline, inheritable: true
+        base.class_state :__pipelines, default: {}, inheritable: true
+        base.class_state :__pipeline, inheritable: true
 
         # Define a default pipeline so that actions can be defined immediately without ceremony.
         #
