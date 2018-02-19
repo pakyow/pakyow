@@ -39,7 +39,7 @@ module Pakyow
           setting :enabled, true
 
           setting :key do
-            "#{config.app.name}.session"
+            "#{config.name}.session"
           end
 
           setting :secret do

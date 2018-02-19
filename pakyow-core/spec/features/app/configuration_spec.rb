@@ -4,12 +4,12 @@ RSpec.describe "configuring an app" do
   context "when configured globally" do
     let :app_definition do
       Proc.new {
-        config.app.name = "config-test"
+        config.name = "config-test"
       }
     end
 
     it "is configured properly" do
-      expect(app.config.app.name).to eq("config-test")
+      expect(app.config.name).to eq("config-test")
     end
   end
 
@@ -17,12 +17,12 @@ RSpec.describe "configuring an app" do
     let :app_definition do
       Proc.new {
         configure :test do
-          config.app.name = "config-env-test"
+          config.name = "config-env-test"
         end
 
         controller do
           default do
-            send config.app.name
+            send config.name
           end
         end
       }
@@ -42,11 +42,11 @@ RSpec.describe "accessing the app's config" do
   context "when accessed internally" do
     let :app_definition do
       Proc.new {
-        config.app.name = "config-test"
+        config.name = "config-test"
 
         controller do
           default do
-            send config.app.name
+            send config.name
           end
         end
       }
@@ -62,12 +62,12 @@ RSpec.describe "accessing the app's config" do
   context "when accessed externally" do
     let :app_definition do
       Proc.new {
-        config.app.name = "config-test"
+        config.name = "config-test"
       }
     end
 
     it "can be accessed externally" do
-      expect(app.config.app.name).to eq("config-test")
+      expect(app.config.name).to eq("config-test")
     end
   end
 end

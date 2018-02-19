@@ -57,33 +57,33 @@ module Pakyow
   # App objects can be configured.
   #
   #   Pakyow::App.configure do
-  #     config.app.name = "my-app"
+  #     config.name = "my-app"
   #   end
   #
   # It's possible to configure for certain environments.
   #
   #   Pakyow::App.configure :development do
-  #     config.app.name = "my-dev-app"
+  #     config.name = "my-dev-app"
   #   end
   #
   # The +app+ config namespace can be extended with your own custom options.
   #
   #   Pakyow::App.configure do
-  #     config.app.foo = "bar"
+  #     config.foo = "bar"
   #   end
   #
   # Config Options:
   #
-  # - +config.app.name+ defines the name of the application, used when a human
+  # - +config.name+ defines the name of the application, used when a human
   #   readable unique identifier is necessary. Default is "pakyow".
   #
-  # - +config.app.root+ defines the root directory of the application, relative
+  # - +config.root+ defines the root directory of the application, relative
   #   to where the environment is started from. Default is +./+.
   #
-  # - +config.app.src+ defines where the application code lives, relative to
+  # - +config.src+ defines where the application code lives, relative to
   #   where the environment is started from. Default is +{app.root}/app/lib+.
   #
-  # - +config.app.dsl+ determines whether or not objects creation will be exposed
+  # - +config.dsl+ determines whether or not objects creation will be exposed
   #   through the simpler dsl.
   #
   # @see Support::Configurable
@@ -110,16 +110,14 @@ module Pakyow
     include Support::Pipelined
 
     include Support::Configurable
-    settings_for :app, extendable: true do
-      setting :name, "pakyow"
-      setting :root, File.dirname("")
+    setting :name, "pakyow"
+    setting :root, File.dirname("")
 
-      setting :src do
-        File.join(config.app.root, "backend")
-      end
-
-      setting :dsl, true
+    setting :src do
+      File.join(config.root, "backend")
     end
+
+    setting :dsl, true
 
     include Support::Hookable
     known_events :initialize, :configure, :load, :finalize, :boot
@@ -159,7 +157,7 @@ module Pakyow
 
         unless stage
           performing :load do
-            $LOAD_PATH.unshift(File.join(config.app.src, "lib"))
+            $LOAD_PATH.unshift(File.join(config.src, "lib"))
           end
         end
       end

@@ -8,7 +8,7 @@ Pakyow::App.define do
   include Pakyow::Presenter
 
   configure do
-    config.app.name = "example"
+    config.name = "example"
 
     DB = Sequel.connect(adapter: 'sqlite')
 

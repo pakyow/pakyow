@@ -27,8 +27,8 @@ module Pakyow
             # We don't want pakyow to restart the server when an asset changes, since assets handles that itself.
             #
             Pakyow.config.server.ignore.concat([
-              /#{File.expand_path(config.assets.local_public_asset_path).gsub(File.join(File.expand_path(config.app.root), "/"), "")}/,
-              /#{File.expand_path(config.assets.frontend_assets_path).gsub(File.join(File.expand_path(config.app.root), "/"), "")}/,
+              /#{File.expand_path(config.assets.local_public_asset_path).gsub(File.join(File.expand_path(config.root), "/"), "")}/,
+              /#{File.expand_path(config.assets.frontend_assets_path).gsub(File.join(File.expand_path(config.root), "/"), "")}/,
               /.*\.(#{config.assets.extensions.join("|")})/
             ])
           end
@@ -61,12 +61,12 @@ module Pakyow
             setting :show_all_stats, true
 
             setting :webpack_command do
-              webpack = File.join(config.app.root, "node_modules/.bin/webpack")
+              webpack = File.join(config.root, "node_modules/.bin/webpack")
               "#{webpack} --config #{config.assets.config_file}"
             end
 
             setting :config_file do
-              File.join(config.app.root, "config/assets/environment.js")
+              File.join(config.root, "config/assets/environment.js")
             end
 
             setting :public_path, "/compiled/"
@@ -76,7 +76,7 @@ module Pakyow
             end
 
             setting :local_public_path do
-              File.join(config.app.root, "public")
+              File.join(config.root, "public")
             end
 
             setting :local_public_asset_path do
@@ -251,7 +251,7 @@ module Pakyow
                 html = @connection.response.body.read
 
                 # webpack removes the relative path, so we must too
-                frontend_assets_path = @connection.app.config.assets.frontend_assets_path.gsub(File.join(@connection.app.config.app.root, "/"), "")
+                frontend_assets_path = @connection.app.config.assets.frontend_assets_path.gsub(File.join(@connection.app.config.root, "/"), "")
 
                 @manifest.each do |key, value|
                   if key.start_with?(frontend_assets_path)

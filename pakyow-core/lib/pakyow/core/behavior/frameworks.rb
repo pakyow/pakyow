@@ -10,7 +10,7 @@ module Pakyow
       extend Support::Extension
 
       apply_extension do
-        config.app.setting :loaded_frameworks, []
+        setting :loaded_frameworks, []
       end
 
       class_methods do
@@ -29,13 +29,13 @@ module Pakyow
         def include_framework(framework_name)
           framework_name = framework_name.to_sym
           Pakyow.frameworks[framework_name].new(self).boot
-          (config.app.loaded_frameworks << framework_name).uniq!
+          (config.loaded_frameworks << framework_name).uniq!
         end
 
         # Returns true if +framework+ is loaded.
         #
         def includes_framework?(framework_name)
-          config.app.loaded_frameworks.include?(framework_name.to_sym)
+          config.loaded_frameworks.include?(framework_name.to_sym)
         end
       end
     end

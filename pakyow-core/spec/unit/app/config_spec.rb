@@ -6,37 +6,37 @@ RSpec.describe Pakyow::App do
 
     describe "app" do
       it "can be extended with custom options" do
-        app.config.app.foo = :bar
-        expect(app.config.app.foo).to eq(:bar)
+        app.config.foo = :bar
+        expect(app.config.foo).to eq(:bar)
       end
     end
 
     describe "app.name" do
       it "has a default value" do
-        expect(app.config.app.name).to eq("pakyow")
+        expect(app.config.name).to eq("pakyow")
       end
     end
 
     describe "app.root" do
       it "has a default value" do
-        expect(app.config.app.root).to eq(".")
+        expect(app.config.root).to eq(".")
       end
     end
 
     describe "app.src" do
       it "has a default value" do
-        expect(app.config.app.src).to eq("./backend")
+        expect(app.config.src).to eq("./backend")
       end
 
       it "is dependent on `app.root`" do
-        app.config.app.root = "ROOT"
-        expect(app.config.app.src).to eq("ROOT/backend")
+        app.config.root = "ROOT"
+        expect(app.config.src).to eq("ROOT/backend")
       end
     end
 
     describe "app.dsl" do
       it "has a default value" do
-        expect(app.config.app.dsl).to eq(true)
+        expect(app.config.dsl).to eq(true)
       end
     end
 
@@ -64,7 +64,7 @@ RSpec.describe Pakyow::App do
       end
 
       it "is dependent on `app.name`" do
-        app.config.app.name = "NAME"
+        app.config.name = "NAME"
         expect(app.config.session.key).to eq("NAME.session")
       end
     end

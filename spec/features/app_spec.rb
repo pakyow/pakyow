@@ -26,7 +26,7 @@ RSpec.describe "creating an app" do
 
   it "sets the name of the app" do
     create_app
-    expect(Test::App.config.app.name).to eq(:test)
+    expect(Test::App.config.name).to eq(:test)
   end
 
   it "loads all registered frameworks" do
@@ -107,12 +107,12 @@ RSpec.describe "creating an app" do
   context "when a block is given" do
     before do
       create_app_with_block do
-        config.app.name = :foo
+        config.name = :foo
       end
     end
 
     it "evals the given block" do
-      expect(Test::App.config.app.name).to eq(:foo)
+      expect(Test::App.config.name).to eq(:foo)
     end
   end
 end

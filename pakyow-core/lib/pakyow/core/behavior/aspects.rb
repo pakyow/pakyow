@@ -12,11 +12,11 @@ module Pakyow
       extend Support::Extension
 
       apply_extension do
-        config.app.setting :aspects, []
+        setting :aspects, []
 
         after :load do
-          config.app.aspects.each do |aspect|
-            load_app_aspect(File.join(config.app.src, aspect.to_s), aspect)
+          config.aspects.each do |aspect|
+            load_app_aspect(File.join(config.src, aspect.to_s), aspect)
           end
         end
       end
@@ -25,7 +25,7 @@ module Pakyow
         # Registers an app aspect by name.
         #
         def aspect(name)
-          (config.app.aspects << name.to_sym).uniq!
+          (config.aspects << name.to_sym).uniq!
         end
       end
 
@@ -33,8 +33,8 @@ module Pakyow
 
       def load_app_aspect(state_path, state_type, load_target = self.class)
         Dir.glob(File.join(state_path, "*.rb")) do |path|
-          if config.app.dsl
-            Loader.new(load_target, Support::ClassNamespace.new(config.app.name, state_type), path).call
+          if config.dsl
+            Loader.new(load_target, Support::ClassNamespace.new(config.name, state_type), path).call
           else
             require path
           end

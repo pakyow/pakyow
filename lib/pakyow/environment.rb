@@ -371,7 +371,7 @@ module Pakyow
       local_frameworks = (only || frameworks.keys) - Array.ensure(without)
 
       app = Pakyow::App.make(Support::ClassName.namespace(app_name, "app")) {
-        config.app.name = app_name
+        config.name = app_name
         include_frameworks(*local_frameworks)
       }
 

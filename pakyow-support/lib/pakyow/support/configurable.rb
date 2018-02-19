@@ -14,6 +14,10 @@ module Pakyow
         base.extend ClassState
         base.class_state :config, default: Config.new, inheritable: true
         base.class_state :config_envs, default: {}, inheritable: true
+
+        base.settings_for :__root, extendable: true do
+          # intentionally empty
+        end
       end
 
       attr_reader :config
@@ -57,6 +61,10 @@ module Pakyow
           end
 
           config.freeze
+        end
+
+        def setting(name, default = nil, &block)
+          config.__root.setting(name, default, &block)
         end
       end
     end

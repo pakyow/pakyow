@@ -137,7 +137,7 @@ module Pakyow
 
           before :load do
             # Include other registered helpers into the controller class.
-            config.app.helpers.each do |helper|
+            config.helpers.each do |helper|
               controller_class.include helper
             end
           end

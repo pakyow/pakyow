@@ -3,11 +3,11 @@ RSpec.describe "defining an app" do
 
   let :app_definition do
     Proc.new {
-      config.app.name = "define-test"
+      config.name = "define-test"
 
       controller do
         default do
-          send config.app.name
+          send config.name
         end
       end
     }
@@ -30,11 +30,11 @@ RSpec.describe "defining an app" do
       end
 
       klass.define do
-        config.app.name = "define-test"
+        config.name = "define-test"
 
         controller do
           default do
-            send config.app.name
+            send config.name
           end
         end
       end
@@ -61,7 +61,7 @@ RSpec.describe "defining an app" do
     context "and the subclassed app defines new state" do
       let :app_definition do
         Proc.new {
-          config.app.name = "child-test"
+          config.name = "child-test"
         }
       end
 
@@ -72,7 +72,7 @@ RSpec.describe "defining an app" do
       end
 
       it "does not modify the parent state" do
-        expect(base.config.app.name).to eq("define-test")
+        expect(base.config.name).to eq("define-test")
       end
     end
   end
@@ -80,7 +80,7 @@ RSpec.describe "defining an app" do
   context "when app is extended at runtime" do
     let :app_runtime_block do
       Proc.new {
-        config.app.name = "runtime-test"
+        config.name = "runtime-test"
       }
     end
 
@@ -91,7 +91,7 @@ RSpec.describe "defining an app" do
     end
 
     it "does not modify the class-level state" do
-      expect(app.config.app.name).to eq("define-test")
+      expect(app.config.name).to eq("define-test")
     end
   end
 end

@@ -26,8 +26,14 @@ module Pakyow
           @groups[name.to_sym] = settings
         end
 
-        def method_missing(name)
-          @groups[name]
+        def method_missing(name, value = nil)
+          if name[-1] == "="
+            @groups[:__root].public_send(name, value)
+          elsif @groups.key?(:__root) && @groups[:__root].__settings.include?(name)
+            @groups[:__root].public_send(name)
+          else
+            @groups[name]
+          end
         end
 
         def load_defaults(env)

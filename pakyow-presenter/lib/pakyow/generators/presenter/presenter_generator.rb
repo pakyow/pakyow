@@ -15,7 +15,7 @@ module Pakyow
       argument :view_path
 
       def create_presenter
-        template("templates/presenter.rb.tt", File.join(app.config.app.src, "presenters/#{name}_presenter.rb"))
+        template("templates/presenter.rb.tt", File.join(app.config.src, "presenters/#{name}_presenter.rb"))
       end
 
       protected
