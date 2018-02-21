@@ -3,6 +3,8 @@
 require "pakyow/version"
 require "pakyow/logger/colorizer"
 
+require "pakyow/support/deep_freeze"
+
 require "listen"
 require "pastel"
 
@@ -20,6 +22,9 @@ module Pakyow
           @processes
         end
       end
+
+      extend Support::DeepFreeze
+      unfreezable :instances
 
       def initialize(env: nil, port: nil, host: nil, server: nil, standalone: false)
         @env        = env

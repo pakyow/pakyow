@@ -38,7 +38,7 @@ module Pakyow
 
           attr_reader :data
 
-          before :finalize do
+          after :initialize do
             models = state_for(:model).each_with_object({}) { |model, models_by_name|
               next if model.attributes.empty?
 

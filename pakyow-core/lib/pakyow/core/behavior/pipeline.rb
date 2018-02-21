@@ -10,7 +10,7 @@ module Pakyow
       extend Support::Extension
 
       apply_extension do
-        before :finalize do
+        after :initialize do
           load_pipeline_defaults
         end
       end

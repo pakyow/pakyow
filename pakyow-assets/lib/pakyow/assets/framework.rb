@@ -112,7 +112,7 @@ module Pakyow
             end
           end
 
-          after :finalize do
+          after :initialize do
             build_packs
 
             config.assets.manifest = load_manifest

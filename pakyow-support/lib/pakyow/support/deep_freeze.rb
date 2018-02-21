@@ -36,7 +36,11 @@ module Pakyow
         private
 
         def freezable_variables
-          object = self.is_a?(Class) ? self : self.class
+          object = if self.is_a?(Class) || self.is_a?(Module)
+            self
+          else
+            self.class
+          end
 
           if object.instance_variable_defined?(:@unfreezable_variables)
             instance_variables - object.instance_variable_get(:@unfreezable_variables)

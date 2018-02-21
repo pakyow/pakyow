@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "pakyow/support/deep_dup"
-require "pakyow/support/deep_freeze"
 require "pakyow/support/makeable"
 
 module Pakyow
@@ -32,7 +31,6 @@ module Pakyow
     #
     module Definable
       using DeepDup
-      using DeepFreeze
 
       def self.included(base)
         base.extend ClassAPI
@@ -65,9 +63,6 @@ module Pakyow
             instances.concat(inherited[name].instances) if inherited[name]
           end
         end
-
-        # instance state is now immutable
-        deep_freeze
       end
 
       # Returns register instances for state.

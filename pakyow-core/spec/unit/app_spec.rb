@@ -49,23 +49,6 @@ RSpec.describe Pakyow::App do
     end
   end
 
-  describe "#freeze" do
-    let :app do
-      app_class.new(:test, builder: Rack::Builder.new)
-    end
-
-    before do
-      app_class.before :finalize do
-        $called = true
-      end
-    end
-
-    it "calls before finalize hooks" do
-      app.freeze
-      expect($called).to be(true)
-    end
-  end
-
   describe "#boot" do
     let :app do
       app_class.new(:test, builder: Rack::Builder.new)

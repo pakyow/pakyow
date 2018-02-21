@@ -12,10 +12,6 @@ RSpec.describe Pakyow::App do
       expect(Pakyow::App.known_events).to include(:load)
     end
 
-    it "includes `finalize`" do
-      expect(Pakyow::App.known_events).to include(:finalize)
-    end
-
     it "includes `boot`" do
       expect(Pakyow::App.known_events).to include(:boot)
     end

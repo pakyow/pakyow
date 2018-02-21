@@ -110,6 +110,7 @@ module Pakyow
     include Support::Pipelined
 
     include Support::Configurable
+
     setting :name, "pakyow"
     setting :root, File.dirname("")
 
@@ -185,12 +186,6 @@ module Pakyow
       rescue StandardError => error
         rack_env[Rack::RACK_LOGGER].houston(error)
         error_500
-      end
-    end
-
-    def freeze
-      performing :finalize do
-        super
       end
     end
 

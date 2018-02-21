@@ -23,6 +23,10 @@ RSpec.configure do |config|
   config.filter_run_excluding benchmark: true
 
   config.before do
+    if Pakyow.respond_to?(:config)
+      Pakyow.config.freeze_on_boot = false
+    end
+
     allow(Pakyow).to receive(:at_exit)
 
     if Pakyow.respond_to?(:config)

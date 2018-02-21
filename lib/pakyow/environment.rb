@@ -8,6 +8,7 @@ require "pakyow/support/array"
 require "pakyow/support/hookable"
 require "pakyow/support/configurable"
 require "pakyow/support/class_state"
+require "pakyow/support/deep_freeze"
 
 require "pakyow/logger"
 require "pakyow/middleware"
@@ -110,10 +111,17 @@ require "pakyow/core/app"
 #   Pakyow.run
 #
 module Pakyow
+  using Support::DeepFreeze
+
+  extend Support::DeepFreeze
+  unfreezable :logger, :app
+
   include Support::Hookable
   known_events :configure, :setup, :boot, :fork
 
   include Support::Configurable
+
+  setting :freeze_on_boot, true
 
   settings_for :env do
     setting :default, :development
@@ -277,12 +285,14 @@ module Pakyow
     end
 
     def to_app
-      return @app if instance_variable_defined?(:@app)
-
-      @app = builder.to_app
-      call_hooks(:after, :boot)
-      @apps.each do |app| app.booted if app.respond_to?(:booted) end
-      @app
+      if instance_variable_defined?(:@app)
+        @app
+      else
+        @app = builder.to_app.tap do
+          call_hooks(:after, :boot)
+          @apps.select { |app| app.respond_to?(:booted) }.each(&:booted)
+        end
+      end
     end
 
     # Starts the Pakyow Environment.
@@ -301,6 +311,8 @@ module Pakyow
       opts.merge!(DEFAULT_HANDLER_OPTIONS.fetch(@server, {}))
 
       handler(@server).run(to_app, Host: @host, Port: @port, **opts) do |app_server|
+        deep_freeze if config.freeze_on_boot
+
         at_exit do
           stop(app_server)
         end
