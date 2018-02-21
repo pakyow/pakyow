@@ -12,15 +12,20 @@ module Pakyow
     include Support::Hookable
     known_events :finalize
 
-    include Support::Pipelined::Haltable
-
     include Pakyow::Support::Inspectable
     inspectable :halted, :app, :request, :response
 
+    include Support::Pipelined::Haltable
+
+    extend Forwardable
+    def_delegators :request, :method, :format, :type, :host, :port, :ip, :user_agent, :base_url, :path,
+                   :path_info, :script_name, :url, :params, :cookies, :session, :env, :logger, :ssl?
+    def_delegators :response, :status, :status=, :write, :close, :body=
+
     attr_reader :app, :request, :response, :values
 
-    def initialize(app, env)
-      @app, @request, @response = app, Request.new(env), Response.new
+    def initialize(app, rack_env)
+      @app, @request, @response = app, Request.new(rack_env), Response.new
       @initial_cookies = @request.cookies.dup
       @values = {}
     end
@@ -38,12 +43,6 @@ module Pakyow
     def get(key)
       @values[key]
     end
-
-    extend Forwardable
-    def_delegators :request, :method, :format, :type, :host, :port, :ip, :user_agent, :base_url, :path,
-                   :path_info, :script_name, :url, :params, :cookies, :session, :env, :logger, :ssl?
-
-    def_delegators :response, :status, :status=, :write, :close, :body=
 
     def request_header?(key)
       @request.has_header?(key)
@@ -74,9 +73,8 @@ module Pakyow
       Endpoint.new(path, params)
     end
 
-    protected
+    private
 
-    # @api private
     def set_cookies
       config = @app.config.cookies
 
