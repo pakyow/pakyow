@@ -159,13 +159,13 @@ module Pakyow
         performing :load do
           $LOAD_PATH.unshift(File.join(config.src, "lib"))
         end
-      end
 
-      # Call the Pakyow::Definable initializer.
-      #
-      # This ensures that any state registered in the passed block
-      # has the proper priority against instance and global state.
-      defined!(&block)
+        # Call the Pakyow::Definable initializer.
+        #
+        # This ensures that any state registered in the passed block
+        # has the proper priority against instance and global state.
+        defined!(&block)
+      end
     end
 
     # Called by the environment after it boots the app.
