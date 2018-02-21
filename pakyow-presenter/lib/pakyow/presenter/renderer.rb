@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "pakyow/support/hookable"
+require "pakyow/support/core_refinements/string/normalization"
 
 module Pakyow
   module Presenter
@@ -40,6 +41,8 @@ module Pakyow
 
       include Support::Hookable
       known_events :render
+
+      using Support::Refinements::String::Normalization
 
       attr_reader :presenter
 

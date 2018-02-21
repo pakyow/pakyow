@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "pakyow/support/core_refinements/string/normalization"
+
 require "pakyow/presenter/presenter"
 
 module Pakyow
@@ -8,6 +10,8 @@ module Pakyow
       extend Support::Makeable
 
       class << self
+        using Support::Refinements::String::Normalization
+
         attr_reader :path, :block
 
         def make(path, namespace: nil, **kwargs, &block)

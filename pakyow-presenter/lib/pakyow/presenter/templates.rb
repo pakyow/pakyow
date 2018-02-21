@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
 require "pakyow/support/deep_dup"
+require "pakyow/support/core_refinements/string/normalization"
 
 module Pakyow
   module Presenter
     class Templates
       using Support::DeepDup
+      using Support::Refinements::String::Normalization
 
       attr_reader :name, :path, :layouts, :pages
 

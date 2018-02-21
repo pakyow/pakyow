@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
+require "pakyow/support/core_refinements/string/normalization"
+
 module Pakyow
   class Controller
+    using Support::Refinements::String::Normalization
+
     def mailer(path)
       path = String.normalize_path(path)
 

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "pakyow/support/string"
-
 module Pakyow
   module Middleware
     # Rack compatible middleware that normalizes requests by:

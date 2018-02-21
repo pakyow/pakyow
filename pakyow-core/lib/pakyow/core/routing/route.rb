@@ -1,12 +1,15 @@
 # frozen_string_literal: true
 
 require "pakyow/support/aargv"
+require "pakyow/support/core_refinements/string/normalization"
 
 module Pakyow
   module Routing
     # A {Controller} endpoint.
     #
     class Route
+      using Support::Refinements::String::Normalization
+
       attr_reader :path, :name, :pipeline
 
       def initialize(path_or_matcher, name:, method:, &block)

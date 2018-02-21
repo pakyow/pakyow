@@ -5,6 +5,7 @@ require "pakyow/support/aargv"
 require "pakyow/support/makeable"
 
 require "pakyow/support/pipelined"
+require "pakyow/support/core_refinements/string/normalization"
 
 require "pakyow/core/helpers/connection"
 require "pakyow/core/routing/helpers"
@@ -147,6 +148,8 @@ module Pakyow
     include Routing::Behavior::ErrorHandling
 
     include Support::Pipelined
+
+    using Support::Refinements::String::Normalization
 
     controller = self
     Pakyow.singleton_class.class_eval do
