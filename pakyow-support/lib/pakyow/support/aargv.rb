@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
-require "pakyow/support/array"
+require "pakyow/support/core_refinements/array/ensurable"
 
 module Pakyow
   class Aargv
+    using Support::Refinements::Array::Ensurable
+
     def self.normalize(args, opts)
       Hash[opts.map { |opt_name, opt_types|
         [opt_name, value_of_type(args, Array.ensure(opt_types))]

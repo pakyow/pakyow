@@ -4,7 +4,8 @@ require "irb"
 require "rack"
 require "logger"
 
-require "pakyow/support/array"
+require "pakyow/support/core_refinements/array/ensurable"
+
 require "pakyow/support/hookable"
 require "pakyow/support/configurable"
 require "pakyow/support/class_state"
@@ -112,6 +113,7 @@ require "pakyow/core/app"
 #
 module Pakyow
   using Support::DeepFreeze
+  using Support::Refinements::Array::Ensurable
 
   extend Support::DeepFreeze
   unfreezable :logger, :app

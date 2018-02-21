@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "pakyow/support/aargv"
-require "pakyow/support/array"
 
 require "pakyow/support/makeable"
 

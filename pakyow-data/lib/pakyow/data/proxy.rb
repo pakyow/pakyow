@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "pakyow/support/core_refinements/array/ensurable"
+
 module Pakyow
   module Data
     class Proxy
@@ -12,6 +14,8 @@ module Pakyow
           model_proxy
         end
       end
+
+      using Support::Refinements::Array::Ensurable
 
       attr_reader :model, :proxied_calls
 

@@ -3,6 +3,7 @@
 require "forwardable"
 
 require "pakyow/support/safe_string"
+require "pakyow/support/core_refinements/array/ensurable"
 
 require "pakyow/presenter/exceptions"
 require "pakyow/presenter/renderer"
@@ -22,6 +23,8 @@ module Pakyow
     #
     class Presenter
       extend Forwardable
+
+      using Support::Refinements::Array::Ensurable
 
       include Support::SafeStringHelpers
 
