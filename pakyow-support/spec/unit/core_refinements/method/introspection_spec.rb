@@ -1,7 +1,7 @@
 require "pakyow/support/core_refinements/method/introspection"
 
-RSpec.describe Pakyow::Support::Method::Introspection do
-  using Pakyow::Support::Method::Introspection
+RSpec.describe Pakyow::Support::Refinements::Method::Introspection do
+  using Pakyow::Support::Refinements::Method::Introspection
 
   describe "#keyword_argument?" do
     context "method accepts no arguments" do

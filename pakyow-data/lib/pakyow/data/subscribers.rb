@@ -8,7 +8,7 @@ module Pakyow
     class Subscribers
       attr_accessor :lookup
 
-      using Support::Method::Introspection
+      using Support::Refinements::Method::Introspection
 
       def initialize(app, adapter = :memory, adapter_config = {})
         @app = app
