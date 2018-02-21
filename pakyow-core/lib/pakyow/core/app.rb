@@ -147,7 +147,7 @@ module Pakyow
     #
     attr_reader :builder
 
-    def initialize(environment, builder: nil, stage: false, &block)
+    def initialize(environment, builder: nil, &block)
       @environment, @builder = environment, builder
 
       performing :initialize do
@@ -155,10 +155,8 @@ module Pakyow
           use_config(environment)
         end
 
-        unless stage
-          performing :load do
-            $LOAD_PATH.unshift(File.join(config.src, "lib"))
-          end
+        performing :load do
+          $LOAD_PATH.unshift(File.join(config.src, "lib"))
         end
       end
 
@@ -166,7 +164,7 @@ module Pakyow
       #
       # This ensures that any state registered in the passed block
       # has the proper priority against instance and global state.
-      defined!(&block) unless stage
+      defined!(&block)
     end
 
     # Called by the environment after it boots the app.
