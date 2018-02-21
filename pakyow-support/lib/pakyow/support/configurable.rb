@@ -1,70 +1,101 @@
 # frozen_string_literal: true
 
-require "pakyow/support/configurable/config"
-require "pakyow/support/configurable/config_group"
-require "pakyow/support/configurable/config_option"
+require "concurrent/hash"
 
 require "pakyow/support/class_state"
 
+require "pakyow/support/configurable/config"
+
 module Pakyow
   module Support
+    # Makes an object configurable.
+    #
+    #   class ConfigurableObject
+    #     include Configurable
+    #
+    #     setting :foo, "default"
+    #     setting :bar
+    #
+    #     defaults :development do
+    #       setting :bar, "bar"
+    #     end
+    #   end
+    #
+    #   class ConfigurableSubclass < ConfigurableObject
+    #     configure :development do
+    #       config.foo = "development"
+    #     end
+    #
+    #     configure :production do
+    #       config.foo = "production"
+    #     end
+    #   end
+    #
+    #   instance = ConfigurableSubclass.new
+    #   instance.configure! :development
+    #
+    #   instance.config.foo
+    #   # => "development"
+    #   instance.config.bar
+    #   # => "bar"
+    #
     module Configurable
+      # @api private
       def self.included(base)
-        base.extend ClassAPI
         base.extend ClassState
-        base.class_state :config, default: Config.new, inheritable: true
-        base.class_state :config_envs, default: {}, inheritable: true
+        base.class_state :config, default: Config.new(base), inheritable: true
+        base.class_state :__config_environments, default: Concurrent::Hash.new, inheritable: true
 
-        base.settings_for :__root, extendable: true do
-          # intentionally empty
-        end
+        base.prepend Initializer
+        base.include CommonMethods
+        base.extend  ClassMethods, CommonMethods
       end
 
+      # Configuration for the object.
+      #
       attr_reader :config
 
-      def use_config(env)
-        @config = self.class.config.dup
-
-        @config.load_defaults(env)
-        [:__global, env.to_sym].each do |config_env|
-          next unless config_block = self.class.config_envs[config_env]
-          instance_eval(&config_block)
-        end
-
-        @config.freeze
+      private def __config_environments
+        self.class.__config_environments
       end
 
-      module ClassAPI
+      module Initializer
+        # @api private
+        def initialize(*)
+          @config = self.class.config.dup
+          @config.update_configurable(self)
+          super
+        end
+      end
+
+      module ClassMethods
+        extend Forwardable
+        def_delegators :@config, :setting, :defaults, :settings_for
+
+        # Define configuration to be applied when configuring for an environment.
+        #
+        def configure(environment = :__global, &block)
+          @__config_environments[environment] = block
+        end
+
+        # @api private
         def inherited(subclass)
           super
+          subclass.config.update_configurable(subclass)
+        end
+      end
 
-          subclass.config.groups.values.each do |group|
-            group.instance_variable_set(:@__parent, subclass)
+      module CommonMethods
+        # Configures the object for an environment, then freezes the configuration.
+        #
+        def configure!(configured_environment = nil)
+          @config.configure_defaults!(configured_environment)
+
+          [:__global, configured_environment].compact.map(&:to_sym).select { |environment|
+            __config_environments.key?(environment)
+          }.each do |environment|
+            instance_eval(&__config_environments[environment])
           end
-        end
-
-        def settings_for(group, **options, &block)
-          raise ArgumentError, "Expected group name" unless group
-          raise ArgumentError, "Expected block" unless block_given?
-          config.add_group(group, options, self, &block)
-        end
-
-        def configure(env = :__global, &block)
-          config_envs[env] = block
-        end
-
-        def use_config(env)
-          config.load_defaults(env)
-          [:__global, env.to_sym].each do |config_env|
-            next unless config_block = config_envs[config_env]
-            instance_eval(&config_block)
-          end
-
-          config.freeze
-        end
-
-        def setting(name, default = nil, &block)
-          config.__root.setting(name, default, &block)
         end
       end
     end

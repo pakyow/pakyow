@@ -6,7 +6,7 @@ RSpec.describe Pakyow::App do
 
     describe "app" do
       it "can be extended with custom options" do
-        app.config.foo = :bar
+        app.config.setting :foo, :bar
         expect(app.config.foo).to eq(:bar)
       end
     end

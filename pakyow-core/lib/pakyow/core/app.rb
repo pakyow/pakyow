@@ -153,7 +153,7 @@ module Pakyow
 
       performing :initialize do
         performing :configure do
-          use_config(environment)
+          configure!(environment)
         end
 
         performing :load do

@@ -1,8 +1,4 @@
-require "./spec/helpers/config_helpers"
-
 RSpec.describe Pakyow do
-  include ConfigHelpers
-
   describe "known events" do
     it "includes `configure`" do
       expect(Pakyow.known_events).to include(:configure)
@@ -58,14 +54,22 @@ RSpec.describe Pakyow do
       end
 
       context "in test" do
+        before do
+          Pakyow.configure!(:test)
+        end
+
         it "defaults to false" do
-          expect(config_defaults(Pakyow.config.logger, :test).enabled).to eq(false)
+          expect(Pakyow.config.logger.enabled).to eq(false)
         end
       end
 
       context "in ludicrous" do
+        before do
+          Pakyow.configure!(:ludicrous)
+        end
+
         it "defaults to false" do
-          expect(config_defaults(Pakyow.config.logger, :ludicrous).enabled).to eq(false)
+          expect(Pakyow.config.logger.enabled).to eq(false)
         end
       end
     end
@@ -76,8 +80,12 @@ RSpec.describe Pakyow do
       end
 
       context "in production" do
+        before do
+          Pakyow.configure!(:production)
+        end
+
         it "defaults to info" do
-          expect(config_defaults(Pakyow.config.logger, :production).level).to eq(:info)
+          expect(Pakyow.config.logger.level).to eq(:info)
         end
       end
     end
@@ -88,8 +96,12 @@ RSpec.describe Pakyow do
       end
 
       context "in production" do
+        before do
+          Pakyow.configure!(:production)
+        end
+
         it "defaults to logfmt" do
-          expect(config_defaults(Pakyow.config.logger, :production).formatter).to eq(Pakyow::Logger::LogfmtFormatter)
+          expect(Pakyow.config.logger.formatter).to eq(Pakyow::Logger::LogfmtFormatter)
         end
       end
     end
@@ -270,7 +282,7 @@ RSpec.describe Pakyow do
 
     it "configures for the environment" do
       env = :foo
-      expect(Pakyow).to receive(:use_config).with(env)
+      expect(Pakyow).to receive(:configure!).with(env)
       Pakyow.setup(env: env)
     end
 

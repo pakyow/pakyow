@@ -17,7 +17,7 @@ module Pakyow
 
       def start
         Thread.new do
-          webpack = IO.popen("PAKYOW_ASSETS_CONFIG='#{Base64.encode64(@app.config.assets.to_hash.to_json)}' #{@app.config.assets.webpack_command} --watch")
+          webpack = IO.popen("PAKYOW_ASSETS_CONFIG='#{Base64.encode64(@app.config.assets.to_h.to_json)}' #{@app.config.assets.webpack_command} --watch")
           @pid = webpack.pid
 
           # Filter annoying output (yes this is unreasonable).
