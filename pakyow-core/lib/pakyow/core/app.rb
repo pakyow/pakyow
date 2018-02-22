@@ -118,6 +118,10 @@ module Pakyow
       File.join(config.root, "backend")
     end
 
+    setting :lib do
+      File.join(config.src, "lib")
+    end
+
     setting :dsl, true
 
     include Support::Hookable
@@ -157,7 +161,7 @@ module Pakyow
         end
 
         performing :load do
-          $LOAD_PATH.unshift(File.join(config.src, "lib"))
+          $LOAD_PATH.unshift(config.lib)
         end
 
         # Call the Pakyow::Definable initializer.
