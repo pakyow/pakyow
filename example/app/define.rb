@@ -10,7 +10,7 @@ Pakyow::App.define do
   configure do
     config.name = "example"
 
-    DB = Sequel.connect(adapter: 'sqlite')
+    DB = Sequel.connect(adapter: "sqlite")
 
     DB.create_table :users do
       primary_key :id
