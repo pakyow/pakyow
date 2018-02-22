@@ -18,6 +18,4 @@ Gem::Specification.new do |spec|
 
   spec.files        = Dir["CHANGELOG.md", "README.md", "LICENSE", "lib/**/*"]
   spec.require_path = "lib"
-
-  spec.add_dependency "rack-proxy"
 end

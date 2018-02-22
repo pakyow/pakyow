@@ -8,6 +8,9 @@ require "pakyow/assets/process"
 
 module Pakyow
   module Assets
+    # EXPERIMENTAL assets framework built around webpack.
+    # But honestly, why do we insist on making the web so hard?
+    #
     class Framework < Pakyow::Framework(:assets)
       def boot
         Pakyow.config.tasks.paths << File.expand_path("../tasks", __FILE__)
