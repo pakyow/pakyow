@@ -41,8 +41,6 @@ require "pakyow/core/app"
 #   Default is +3000+.
 # - +server.host+ defines the host that the environment runs on.
 #   Default is "localhost".
-# - +server.ignore+ defines patterns that should be ignored for restarts.
-#   Default is +[]+.
 #
 # - +logger.enabled+ defines whether or not logging is enabled.
 #   Default is +true+.
@@ -133,7 +131,6 @@ module Pakyow
     setting :default, :puma
     setting :port, 3000
     setting :host, "localhost"
-    setting :ignore, []
   end
 
   settings_for :console do

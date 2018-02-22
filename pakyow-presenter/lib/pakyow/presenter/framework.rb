@@ -81,6 +81,12 @@ module Pakyow
           end
 
           after :load do
+            ([:html] + self.class.state[:processor].instances.map(&:extensions).flatten).uniq.each do |extension|
+              config.process.watched_paths << File.join(config.presenter.path, "**/*.#{extension}")
+            end
+          end
+
+          after :load do
             self.class.templates << Templates.new(
               :default,
               config.presenter.path,

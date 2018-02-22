@@ -34,19 +34,15 @@ module Pakyow
 
       protected
 
-      def watch_callback(modified, added, removed)
-        if restart?(modified, added, removed)
+      def watch_callback(path, _event)
+        if restart?(path)
           @app.build_packs
           restart
         end
       end
 
-      def restart?(_modified, added, removed)
-        return true if (added + removed).find { |path|
-          @app.config.assets.extensions.include?(File.extname(path))
-        }
-
-        false
+      def restart?(path)
+        @app.config.assets.extensions.include?(File.extname(path))
       end
     end
   end

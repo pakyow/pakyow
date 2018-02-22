@@ -17,6 +17,7 @@ require "pakyow/core/behavior/pipeline"
 require "pakyow/core/behavior/frameworks"
 require "pakyow/core/behavior/aspects"
 require "pakyow/core/behavior/helpers"
+require "pakyow/core/behavior/restarting"
 
 require "pakyow/core/connection"
 
@@ -134,6 +135,7 @@ module Pakyow
     include Behavior::Frameworks
     include Behavior::Aspects
     include Behavior::Helpers
+    include Behavior::Restarting
 
     include Pakyow::Support::Inspectable
     inspectable :environment

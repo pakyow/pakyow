@@ -23,14 +23,6 @@ module Pakyow
             # builder.map "/assets" do
             #   use Middleware::Proxy
             # end
-
-            # We don't want pakyow to restart the server when an asset changes, since assets handles that itself.
-            #
-            Pakyow.config.server.ignore.concat([
-              /#{File.expand_path(config.assets.local_public_asset_path).gsub(File.join(File.expand_path(config.root), "/"), "")}/,
-              /#{File.expand_path(config.assets.frontend_assets_path).gsub(File.join(File.expand_path(config.root), "/"), "")}/,
-              /.*\.(#{config.assets.extensions.join("|")})/
-            ])
           end
 
           settings_for :assets do

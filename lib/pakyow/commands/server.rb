@@ -5,7 +5,6 @@ require "pakyow/logger/colorizer"
 
 require "pakyow/support/deep_freeze"
 
-require "listen"
 require "pastel"
 
 module Pakyow

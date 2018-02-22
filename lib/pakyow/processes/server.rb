@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "fileutils"
+
 require "pakyow/process"
 require "pakyow/commands/server"
 
@@ -8,12 +10,18 @@ module Pakyow
     class Server < Process
       Pakyow::Commands::Server.register_process(self)
 
-      watch "."
+      # Other processes (e.g. apps) can touch this file to restart the server.
+      #
+      watch "./tmp/restart.txt"
 
+      # Respawn the entire environment when the bundle changes.
+      #
       on_change(/Gemfile/) do
         ::Process.waitpid(::Process.spawn("bundle install"))
         @server.respawn
       end
+
+      watch "./Gemfile"
 
       def start
         if ::Process.respond_to?(:fork)

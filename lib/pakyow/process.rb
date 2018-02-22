@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "filewatcher"
+
 require "pakyow/support/class_state"
 
 module Pakyow
@@ -58,29 +60,27 @@ module Pakyow
     end
 
     def watch
-      @listener = Listen.to(*self.class.watched_paths, ignore: Pakyow.config.server.ignore, &method(:watch_callback))
-      @listener.start
+      Thread.new do
+        Filewatcher.new(self.class.watched_paths).watch(&method(:watch_callback))
+      end
+    end
+
+    def watch_callback(path, _event)
+      callbacks_for_path = self.class.change_callbacks(path)
+
+      if callbacks_for_path.any?
+        callbacks_for_path.each do |callback|
+          instance_exec(&callback)
+        end
+
+        return
+      end
+
+      restart
     end
 
     def start_and_watch
       start; watch
-    end
-
-    def watch_callback(modified, _added, _removed)
-      return if modified.empty?
-
-      modified.each do |path|
-        callbacks_for_path = self.class.change_callbacks(path)
-        if callbacks_for_path.any?
-          callbacks_for_path.each do |callback|
-            instance_exec(&callback)
-          end
-
-          return
-        end
-      end
-
-      restart
     end
   end
 end
