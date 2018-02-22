@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 require "pakyow/process"
-require "pakyow/processes/server"
+require "pakyow/processes/environment"
 
 module Pakyow
   module Assets
     # Manages the webpack process.
     #
     class Process < Process
-      dependent_on Processes::Server
+      dependent_on Processes::Environment
 
       def initialize(server, app)
         super(server)

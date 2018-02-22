@@ -34,6 +34,10 @@ module Pakyow
           if config.process.trigger_restarts
             config.process.watched_paths << File.join(config.src, "**/*.rb")
 
+            # FIXME: this doesn't need to be hardcoded, but instead determined
+            # from the source location when registered with the environment
+            config.process.watched_paths << "./config/application.rb"
+
             Thread.new do
               Filewatcher.new(config.process.watched_paths).watch do |_path, _event|
                 FileUtils.mkdir_p "./tmp"

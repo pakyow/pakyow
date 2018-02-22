@@ -79,8 +79,8 @@ module Pakyow
       restart
     end
 
-    def start_and_watch
-      start; watch
+    def start_with_watch
+      watch; start
     end
   end
 end

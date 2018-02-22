@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
+require "pastel"
+
 require "pakyow/version"
 require "pakyow/logger/colorizer"
-
 require "pakyow/support/deep_freeze"
 
-require "pastel"
+require "pakyow/processes/environment"
 
 module Pakyow
   # @api private
@@ -25,6 +26,8 @@ module Pakyow
       extend Support::DeepFreeze
       unfreezable :instances
 
+      attr_reader :env, :port, :host, :server
+
       def initialize(env: nil, port: nil, host: nil, server: nil, standalone: false)
         @env        = env
         @port       = port   || Pakyow.config.server.port
@@ -37,23 +40,17 @@ module Pakyow
       def run
         preload
 
-        if @standalone
-          Pakyow.after :boot, exec: false do
-            puts_running_text
-          end
+        Pakyow.after :boot, exec: false do
+          puts_running_text
+        end
 
-          start_standalone_server
+        if @standalone
+          start_environment
         else
           start_processes
           trap_interrupts
-          puts_running_text
-
-          sleep
+          start_environment
         end
-      end
-
-      def start_standalone_server
-        Pakyow.setup(env: @env).run(port: @port, host: @host, server: @server)
       end
 
       def started(process)
@@ -65,11 +62,12 @@ module Pakyow
       end
 
       def start_instance(instance)
-        instance.start_and_watch
+        instance.start_with_watch
       end
 
       def respawn
         stop_processes
+        # TODO: take into account environment, other options that can be specified
         exec("bundle exec pakyow server")
       end
 
@@ -81,20 +79,31 @@ module Pakyow
         end
       end
 
+      def standalone?
+        @standalone == true
+      end
+
       protected
 
       def preload
         require "./config/environment"
       end
 
+      def start_environment
+        Pakyow::Processes::Environment.new(self).start_with_watch
+      end
+
       def start_processes
-        self.class.processes.each do |process|
+        self.class.processes.to_a.each do |process|
           start_instance(process.new(self))
         end
       end
 
       def stop_processes
-        @instances.each(&:stop)
+        @instances.each do |instance|
+          stop_dependent_processes(instance.class)
+          instance.stop
+        end
       end
 
       def restart_processes
@@ -124,6 +133,4 @@ module Pakyow
       end
     end
   end
-
-  require "pakyow/processes/server"
 end
