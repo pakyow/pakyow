@@ -86,8 +86,8 @@ module Pakyow
             end
           end
 
-          after :load do
-            self.class.templates << Templates.new(
+          after :initialize do
+            state_for(:templates) << Templates.new(
               :default,
               config.presenter.path,
               processor: ProcessorCaller.new(
