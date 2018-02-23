@@ -3,6 +3,7 @@
 namespace :assets do
   desc "Precompiles assets"
   task :precompile, [:app] do |_, args|
-    # TODO: implement this
+    require "pakyow/assets/precompiler"
+    Pakyow::Assets::Precompiler.new(args[:app]).precompile!
   end
 end

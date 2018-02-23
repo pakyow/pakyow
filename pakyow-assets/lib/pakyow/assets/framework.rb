@@ -41,11 +41,23 @@ module Pakyow
               config.process.watched_paths << File.join(config.presenter.path, "**/*#{extension}")
             end
           end
-        end
 
-        if app.const_defined?(:Renderer)
-          app.const_get(:Renderer).class_eval do
-            include Behavior::Rendering
+          after :configure do
+            if !config.assets.process && self.class.includes_framework?(:presenter)
+              self.class.processor :html do |content|
+                state_for(:asset).each do |asset|
+                  content.gsub!(asset.logical_path, asset.public_path)
+                end
+
+                content
+              end
+            end
+          end
+
+          if const_defined?(:Renderer)
+            const_get(:Renderer).class_eval do
+              include Behavior::Rendering
+            end
           end
         end
       end

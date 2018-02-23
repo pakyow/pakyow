@@ -103,15 +103,19 @@ module Pakyow
         end
       end
 
-      attr_reader :public_path, :mime_type, :mime_suffix, :dependencies
+      attr_reader :logical_path, :public_path, :mime_type, :mime_suffix, :dependencies
 
       def initialize(local_path:, config:, dependencies: [], source_location: "")
         @local_path, @config, @source_location, @dependencies = local_path, config, source_location, dependencies
 
-        @public_path = self.class.update_path_for_emitted_type(
+        @logical_path = self.class.update_path_for_emitted_type(
           String.normalize_path(
             local_path.sub(source_location, "")
           )
+        )
+
+        @public_path = String.normalize_path(
+          File.join(config.prefix, @logical_path)
         )
 
         @mime_type = Rack::Mime.mime_type(File.extname(@public_path))

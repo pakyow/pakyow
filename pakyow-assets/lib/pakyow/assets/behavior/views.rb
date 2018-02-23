@@ -19,7 +19,7 @@ module Pakyow
 
         def build_layout_packs(template_store)
           template_store.layouts.each do |layout_name, layout|
-            layout_pack = Pack.new(:"layouts/#{layout_name}")
+            layout_pack = Pack.new(:"layouts/#{layout_name}", config.assets)
             register_pack_with_view(layout_pack, layout)
 
             Pathname.glob(File.join(template_store.layouts_path, "#{layout_name}.*")) do |potential_asset_path|
@@ -27,7 +27,7 @@ module Pakyow
               layout_pack << Asset.new_from_path(potential_asset_path, config: config.assets)
             end
 
-            self.pack << layout_pack
+            self.pack << layout_pack.finalize
           end
         end
 
@@ -35,7 +35,7 @@ module Pakyow
           template_store.paths.each do |template_path|
             template_info = template_store.info(template_path, false)
 
-            page_pack = Pack.new(:"#{template_info[:page].logical_path[1..-1]}")
+            page_pack = Pack.new(:"#{template_info[:page].logical_path[1..-1]}", config.assets)
             register_pack_with_view(page_pack, template_info[:page])
 
             # Find all partials used by the page.
@@ -62,7 +62,7 @@ module Pakyow
               page_pack << Asset.new_from_path(potential_asset_path, config: config.assets)
             end
 
-            self.pack << page_pack
+            self.pack << page_pack.finalize
           end
         end
 

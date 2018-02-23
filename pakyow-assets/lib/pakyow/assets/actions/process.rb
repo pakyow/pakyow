@@ -26,7 +26,7 @@ module Pakyow
 
         def find_asset(connection)
           connection.app.state_for(:asset).find { |asset|
-            asset.public_path == connection.path
+            asset.logical_path == connection.path
           }
         end
 

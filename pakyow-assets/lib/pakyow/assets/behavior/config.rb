@@ -24,10 +24,11 @@ module Pakyow
 
             setting :public, true
             setting :cache, false
-            setting :process, true
+            setting :process, false
             setting :minify, false
             setting :fingerprint, false
             setting :autoloaded_packs, %i[pakyow application]
+            setting :prefix, "/assets"
 
             setting :public_path do
               File.join(config.root, "public")
@@ -39,6 +40,10 @@ module Pakyow
 
             setting :frontend_asset_packs_path do
               File.join(config.presenter.path, "assets", "packs")
+            end
+
+            setting :compiliation_path do
+              config.assets.public_path
             end
 
             defaults :production do

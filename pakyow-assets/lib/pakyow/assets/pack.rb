@@ -14,16 +14,19 @@ module Pakyow
 
       attr_reader :name, :public_path
 
-      def initialize(name)
+      def initialize(name, config)
         @name = name
-        @public_path = String.normalize_path(name)
         @assets = []
         @packed = { js: [], css: [] }
+        @public_path = String.normalize_path(
+          File.join(config.prefix, "packs", name.to_s)
+        )
       end
 
-      def freeze
-        pack_assets!
-        super
+      def finalize
+        tap do
+          pack_assets!
+        end
       end
 
       def <<(asset)
@@ -38,12 +41,20 @@ module Pakyow
         end
       end
 
+      def javascripts
+        @packed[:js]
+      end
+
+      def stylesheets
+        @packed[:css]
+      end
+
       def javascripts?
-        @packed[:js].any?
+        javascripts.any?
       end
 
       def stylesheets?
-        @packed[:css].any?
+        stylesheets.any?
       end
 
       def fingerprint
@@ -57,11 +68,11 @@ module Pakyow
       def pack_assets!
         @packed[:js] = PackedAssets.new(@assets.select { |asset|
           asset.mime_suffix == "javascript"
-        })
+        }, @public_path + ".js")
 
         @packed[:css] = PackedAssets.new(@assets.select { |asset|
           asset.mime_suffix == "css"
-        })
+        }, @public_path + ".css")
       end
     end
 
@@ -69,8 +80,10 @@ module Pakyow
       extend Forwardable
       def_delegators :@assets, :any?
 
-      def initialize(assets)
-        @assets = assets
+      attr_reader :public_path
+
+      def initialize(assets, public_path)
+        @assets, @public_path = assets, public_path
       end
 
       def mime_type
