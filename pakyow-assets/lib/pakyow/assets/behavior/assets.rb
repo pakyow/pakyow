@@ -19,12 +19,7 @@ module Pakyow
               next if File.basename(path).start_with?("_")
 
               if config.assets.extensions.include?(File.extname(path))
-                asset_for_path = Asset.new_from_path(
-                  path,
-                  source_location: config.assets.frontend_assets_path
-                )
-
-                self.asset << asset_for_path
+                self.asset << Asset.new_from_path(path, config: config.assets, source_location: config.assets.frontend_assets_path)
               end
             end
           end

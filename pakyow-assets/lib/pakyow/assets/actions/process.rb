@@ -13,7 +13,9 @@ module Pakyow
         end
 
         def call(connection)
-          if connection.app.config.assets.process && asset = find_asset(connection)
+          asset = find_asset(connection) || find_pack(connection)
+
+          if connection.app.config.assets.process && asset
             connection.set_response_header("Content-Type", asset.mime_type)
             connection.body = asset.dup
             connection.halt
@@ -26,6 +28,12 @@ module Pakyow
           connection.app.state_for(:asset).find { |asset|
             asset.public_path == connection.path
           }
+        end
+
+        def find_pack(connection)
+          connection.app.state_for(:pack).lazy.map { |pack|
+            pack.packed(connection.path)
+          }.find { |packed| !packed.nil? && packed.any? }
         end
       end
     end

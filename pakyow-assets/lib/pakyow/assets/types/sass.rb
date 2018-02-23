@@ -30,7 +30,8 @@ module Pakyow
             cache: false,
             load_paths: [
               File.dirname(@local_path),
-              @source_location
+              @source_location,
+              @config.frontend_assets_path
             ]
           }
         end

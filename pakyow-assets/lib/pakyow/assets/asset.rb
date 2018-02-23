@@ -7,7 +7,7 @@ require "pakyow/support/core_refinements/string/normalization"
 
 module Pakyow
   module Assets
-    # Represents an asset, which may be made up of more than one file.
+    # Represents an asset.
     #
     # Instances are created when booting in all environments, meaning the app
     # is guaranteed access to these objects. Contents are loaded and processed
@@ -26,7 +26,7 @@ module Pakyow
       class_state :minifiable, default: false, inheritable: true
 
       class << self
-        def new_from_path(path, source_location:, minify: false)
+        def new_from_path(path, config:, source_location: "")
           type = @types.find { |type|
             type._extensions.include?(File.extname(path))
           } || self
@@ -34,35 +34,38 @@ module Pakyow
           type.load; type.new(
             local_path: path,
             source_location: source_location,
-            minify: minify
+            config: config
           )
         end
 
+        # Implemented by subclasses to load any libraries they need.
+        #
+        def load
+          # intentionally empty
+        end
+
+        # @api private
         def inherited(asset_class)
           @types << asset_class
           super
         end
 
+        # @api private
         def _extensions
           @extensions
         end
 
+        # @api private
         def _emits
           @emits
         end
 
+        # @api private
         def processable?
           @processable == true
         end
 
-        def processable
-          @processable = true
-        end
-
-        def load
-          # intentionally empty
-        end
-
+        # @api private
         def update_path_for_emitted_type(path)
           if @emits
             path.sub(File.extname(path), @emits)
@@ -73,25 +76,37 @@ module Pakyow
 
         private
 
+        # Marks the asset as being processable.
+        #
+        def processable
+          @processable = true
+        end
+
+        # Registers +extension+ for this asset.
+        #
         def extension(extension)
           extensions(extension)
         end
 
+        # Registers multiple extensions for this asset.
+        #
         def extensions(*extensions)
           extensions.each do |extension|
             @extensions << ".#{extension}"
           end
         end
 
+        # Defines the emitted asset type (e.g. +sass+ emits +css+).
+        #
         def emits(type)
           @emits = ".#{type}"
         end
       end
 
-      attr_reader :public_path, :mime_type, :dependencies
+      attr_reader :public_path, :mime_type, :mime_suffix, :dependencies
 
-      def initialize(local_path:, source_location:, dependencies: [], minify: false)
-        @local_path, @source_location, @dependencies = local_path, source_location, dependencies
+      def initialize(local_path:, config:, dependencies: [], source_location: "")
+        @local_path, @config, @source_location, @dependencies = local_path, config, source_location, dependencies
 
         @public_path = self.class.update_path_for_emitted_type(
           String.normalize_path(
@@ -102,7 +117,7 @@ module Pakyow
         @mime_type = Rack::Mime.mime_type(File.extname(@public_path))
         @mime_prefix, @mime_suffix = @mime_type.split("/", 2)
 
-        if minify
+        if config.minify
           require "yui/compressor"
 
           @minifier = case @mime_suffix
@@ -113,19 +128,6 @@ module Pakyow
           else
             nil
           end
-        end
-      end
-
-      def process(content)
-        content
-      end
-
-      def minify(content)
-        begin
-          @minifier.compress(content)
-        rescue YUI::Compressor::RuntimeError
-          Pakyow.logger.warn "Unable to minify #{@local_path}; using raw content instead"
-          content
         end
       end
 
@@ -157,6 +159,19 @@ module Pakyow
 
       def ensure_content
         yield File.read(@local_path) if block_given?
+      end
+
+      def process(content)
+        content
+      end
+
+      def minify(content)
+        begin
+          @minifier.compress(content)
+        rescue YUI::Compressor::RuntimeError
+          Pakyow.logger.warn "Unable to minify #{@local_path}; using raw content instead"
+          content
+        end
       end
     end
   end

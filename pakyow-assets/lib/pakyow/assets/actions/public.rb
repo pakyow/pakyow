@@ -29,7 +29,7 @@ module Pakyow
         private
 
         def public?(path)
-          File.exists?(path)
+          File.file?(path)
         end
 
         def public_path(connection)

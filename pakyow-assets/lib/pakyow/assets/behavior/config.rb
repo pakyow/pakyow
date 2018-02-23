@@ -27,6 +27,7 @@ module Pakyow
             setting :process, true
             setting :minify, false
             setting :fingerprint, false
+            setting :autoloaded_packs, %i[pakyow application]
 
             setting :public_path do
               File.join(config.root, "public")
