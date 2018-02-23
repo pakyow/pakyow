@@ -29,9 +29,13 @@ module Pakyow
         @info.keys
       end
 
-      def info(path)
+      def info(path, duped = true)
         if view?(path)
-          @info[path].deep_dup
+          if duped
+            @info[path].deep_dup
+          else
+            @info[path]
+          end
         end
       end
 
