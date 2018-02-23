@@ -373,11 +373,15 @@ module Pakyow
         end
       end
 
+      # Thanks Dan! https://stackoverflow.com/a/30225093
+      # @api private
+      INFO_MERGER = proc { |_, v1, v2| Hash === v1 && Hash === v2 ? v1.merge(v2, &merger) : Array === v1 && Array === v2 ? v1 | v2 : [:undefined, nil, :nil].include?(v2) ? v1 : v2 }
+
       # @api private
       def add_info(*infos)
         tap do
           infos.each do |info|
-            @info.merge!(info)
+            @info.merge!(info, &INFO_MERGER)
           end
         end
       end
