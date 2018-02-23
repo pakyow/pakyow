@@ -23,8 +23,8 @@ module Pakyow
             end
 
             setting :public, true
+            setting :process, true
             setting :cache, false
-            setting :process, false
             setting :minify, false
             setting :fingerprint, false
             setting :autoloaded_packs, %i[pakyow application]

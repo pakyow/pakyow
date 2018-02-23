@@ -22,18 +22,17 @@ module Pakyow
         extension :scss
         emits :css
 
-        def initialize(*)
-          super
-
+        def initialize(local_path:, config:, **kwargs)
           @options = {
             syntax: :scss,
             cache: false,
             load_paths: [
-              File.dirname(@local_path),
-              @source_location,
-              @config.frontend_assets_path
+              File.dirname(local_path),
+              config.frontend_assets_path
             ]
           }
+
+          super
         end
 
         def process(content)

@@ -21,6 +21,14 @@ module Pakyow
         @public_path = String.normalize_path(
           File.join(config.prefix, "packs", name.to_s)
         )
+
+        if config.fingerprint
+          extension = File.extname(@public_path)
+          @public_path = File.join(
+            File.dirname(@public_path),
+            File.basename(@public_path, extension) + "__" + fingerprint + extension
+          )
+        end
       end
 
       def finalize

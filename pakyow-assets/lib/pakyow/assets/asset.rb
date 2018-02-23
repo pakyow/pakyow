@@ -118,6 +118,14 @@ module Pakyow
           File.join(config.prefix, @logical_path)
         )
 
+        if config.fingerprint
+          extension = File.extname(@public_path)
+          @public_path = File.join(
+            File.dirname(@public_path),
+            File.basename(@public_path, extension) + "__" + fingerprint + extension
+          )
+        end
+
         @mime_type = Rack::Mime.mime_type(File.extname(@public_path))
         @mime_prefix, @mime_suffix = @mime_type.split("/", 2)
 
