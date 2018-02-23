@@ -32,7 +32,9 @@ module Pakyow
 
     def finalize
       performing :finalize do
-        set_cookies; @response
+        set_cookies
+        logger.epilogue(status) if logger
+        @response
       end
     end
 

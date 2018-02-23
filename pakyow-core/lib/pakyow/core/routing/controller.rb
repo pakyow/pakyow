@@ -186,6 +186,11 @@ module Pakyow
     end
 
     def call(connection, request_path = connection.request.path)
+      unless connection.env[Rack::RACK_LOGGER]
+        connection.env[Rack::RACK_LOGGER] = Pakyow::Logger::RequestLogger.new(:http)
+        connection.logger.prologue(connection.env)
+      end
+
       request_method = connection.request.method
 
       matcher = self.class.matcher

@@ -79,11 +79,11 @@ module Pakyow
 
       # Logs the conclusion of a request, including the response status.
       #
-      # @param res [Array] the rack response array
+      # @param status [Integer] the rack response status
       #
-      def epilogue(res)
+      def epilogue(status)
         info(epilogue: {
-               status: res.to_a[0]
+               status: status
              })
       end
 
