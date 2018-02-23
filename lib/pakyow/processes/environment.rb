@@ -108,7 +108,7 @@ module Pakyow
               parse_request_headers(env)
             ).send(
               env["REQUEST_METHOD"].downcase,
-              File.join("#{env["rack.url_scheme"]}://#{destination}", env["REQUEST_PATH"].to_s)
+              File.join("#{env["rack.url_scheme"]}://#{destination}", env["REQUEST_URI"].to_s)
             )
 
             [response.status, parse_response_headers(response), response.body]
