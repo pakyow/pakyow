@@ -51,6 +51,10 @@ module Pakyow
         end
       end
 
+      def container_views
+        @containers.values
+      end
+
       protected
 
       WITHIN_REGEX = /<!--\s*@within\s*([a-zA-Z0-9\-_]*)\s*-->(.*?)<!--\s*\/within\s*-->/m
