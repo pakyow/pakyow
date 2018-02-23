@@ -18,6 +18,11 @@ module Pakyow
       private
 
       def load_pipeline_defaults
+        if self.class.includes_framework?(:assets)
+          @__pipeline.action(Assets::Actions::Public)
+          @__pipeline.action(Assets::Actions::Process)
+        end
+
         if self.class.includes_framework?(:routing) && !Pakyow.env?(:prototype)
           state_for(:controller).each do |controller|
             @__pipeline.action(controller)
