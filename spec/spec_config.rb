@@ -82,25 +82,25 @@ RSpec::Matchers.define :include_sans_whitespace do |expected|
   diffable
 end
 
+require "pakyow/support/silenceable"
+
 def start_simplecov(&block)
-  if ENV["COVERAGE"]
+  Pakyow::Support::Silenceable.silence_warnings do
     require "simplecov"
     require "simplecov-console"
-    SimpleCov::Formatter::Console.table_options = { max_width: 200 }
-    SimpleCov.formatter = SimpleCov::Formatter::Console
-    SimpleCov.start do
-      add_filter "spec/"
-      add_filter ".bundle/"
-      self.instance_eval(&block) if block_given?
-    end
+  end
+
+  SimpleCov::Formatter::Console.table_options = { max_width: 200 }
+  SimpleCov.formatter = SimpleCov::Formatter::Console
+  SimpleCov.start do
+    add_filter "spec/"
+    add_filter ".bundle/"
+    self.instance_eval(&block) if block_given?
   end
 end
 
-require "pakyow/support/silenceable"
 Pakyow::Support::Silenceable.silence_warnings do
   require "pry"
 end
-
-require "spec_helper"
 
 ENV["SESSION_SECRET"] = "sekret"

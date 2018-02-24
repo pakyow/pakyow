@@ -1,24 +1,30 @@
 start_simplecov do
-  add_filter "pakyow-support/"
+  lib_path = File.expand_path("../../lib", __FILE__)
+
+  add_filter do |file|
+    !file.filename.start_with?(lib_path)
+  end
+
+  track_files File.join(lib_path, "**/*.rb")
 end
 
 require "pakyow/core"
 require "pakyow/presenter"
 
-require "../spec/helpers/app_helpers"
-require "../spec/helpers/mock_request"
-require "../spec/helpers/mock_response"
-require "../spec/helpers/mock_handler"
+require_relative "../../spec/helpers/app_helpers"
+require_relative "../../spec/helpers/mock_request"
+require_relative "../../spec/helpers/mock_response"
+require_relative "../../spec/helpers/mock_handler"
 
 RSpec.configure do |config|
   config.include AppHelpers
 end
 
-require "../spec/context/testable_app_context"
-require "../spec/context/suppressed_output_context"
+require_relative "../../spec/context/testable_app_context"
+require_relative "../../spec/context/suppressed_output_context"
 
 $presenter_app_boilerplate = Proc.new do
   configure do
-    config.presenter.path = "./spec/features/support/views"
+    config.presenter.path = File.join(File.expand_path("../", __FILE__), "features/support/views")
   end
 end
