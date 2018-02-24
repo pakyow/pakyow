@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "pakyow/support/core_refinements/string/normalization"
+
 module Pakyow
   module Middleware
     # Rack compatible middleware that normalizes requests by:
@@ -11,6 +13,8 @@ module Pakyow
     # the normalized destination.
     #
     class Normalizer
+      using Support::Refinements::String::Normalization
+
       # @api private
       def initialize(app)
         @app = app
