@@ -43,14 +43,14 @@ RSpec.describe Pakyow::Middleware::Logger do
   end
 
   it "logs the epilogue" do
-    expect(logger).to receive(:epilogue).with(res)
+    expect(logger).to receive(:epilogue).with(res[0])
     middleware.call(env)
   end
 
   it "calls the app between prologue and epilogue" do
     expect(logger).to receive(:prologue).with(env)
     expect(app).to receive(:call).with(env)
-    expect(logger).to receive(:epilogue).with(res)
+    expect(logger).to receive(:epilogue).with(res[0])
     middleware.call(env)
   end
 

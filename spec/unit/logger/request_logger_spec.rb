@@ -126,7 +126,7 @@ RSpec.describe Pakyow::Logger::RequestLogger do
         )
       end
 
-      instance.epilogue(res)
+      instance.epilogue(res[0])
     end
   end
 

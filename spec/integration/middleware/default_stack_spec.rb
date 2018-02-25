@@ -52,11 +52,5 @@ RSpec.describe "default middleware stack" do
         Pakyow::Middleware::Normalizer
       )
     end
-
-    it "uses Middleware::Logger" do
-      expect(builder).to have_received(:use).with(
-        Pakyow::Middleware::Logger
-      )
-    end
   end
 end
