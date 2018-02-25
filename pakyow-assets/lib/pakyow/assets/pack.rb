@@ -103,6 +103,14 @@ module Pakyow
           asset.each(&block)
         end
       end
+
+      def read
+        String.new.tap do |packed_asset|
+          @assets.each do |asset|
+            packed_asset << asset.read
+          end
+        end
+      end
     end
   end
 end

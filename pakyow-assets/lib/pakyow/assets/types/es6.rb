@@ -18,7 +18,6 @@ module Pakyow
           end
         end
 
-        processable
         extension :es6
         emits :js
 

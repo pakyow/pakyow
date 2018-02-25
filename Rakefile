@@ -5,6 +5,7 @@ GEMS = %i[
   core
   data
   presenter
+  assets
   mailer
   rake
   test

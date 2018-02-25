@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "pakyow/core/framework"
+
 require "pakyow/assets/asset"
 require "pakyow/assets/pack"
 

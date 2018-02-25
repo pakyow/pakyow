@@ -5,7 +5,7 @@ require "pakyow/assets/asset"
 module Pakyow
   module Assets
     module Types
-      class Sass < Asset
+      class Scss < Asset
         class << self
           def load
             require "sass"
@@ -18,7 +18,6 @@ module Pakyow
           end
         end
 
-        processable
         extension :scss
         emits :css
 

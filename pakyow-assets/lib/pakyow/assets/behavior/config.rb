@@ -39,10 +39,10 @@ module Pakyow
             end
 
             setting :frontend_asset_packs_path do
-              File.join(config.presenter.path, "assets", "packs")
+              File.join(config.assets.frontend_assets_path, "packs")
             end
 
-            setting :compiliation_path do
+            setting :compilation_path do
               config.assets.public_path
             end
 

@@ -20,18 +20,18 @@ module Pakyow
       using Support::Refinements::String::Normalization
 
       extend Support::ClassState
-      class_state :types, default: []
-      class_state :extensions, default: [], inheritable: true
-      class_state :processable, default: false, inheritable: true
-      class_state :minifiable, default: false, inheritable: true
+      class_state :__types, default: []
+      class_state :__emits, default: nil
+      class_state :__extensions, default: [], inheritable: true
+      class_state :__minifiable, default: false, inheritable: true
 
       class << self
         def new_from_path(path, config:, source_location: "")
-          type = @types.find { |type|
-            type._extensions.include?(File.extname(path))
+          asset_class = @__types.find { |type|
+            type.__extensions.include?(File.extname(path))
           } || self
 
-          type.load; type.new(
+          asset_class.load; asset_class.new(
             local_path: path,
             source_location: source_location,
             config: config
@@ -46,41 +46,20 @@ module Pakyow
 
         # @api private
         def inherited(asset_class)
-          @types << asset_class
+          @__types << asset_class
           super
         end
 
         # @api private
-        def _extensions
-          @extensions
-        end
-
-        # @api private
-        def _emits
-          @emits
-        end
-
-        # @api private
-        def processable?
-          @processable == true
-        end
-
-        # @api private
         def update_path_for_emitted_type(path)
-          if @emits
-            path.sub(File.extname(path), @emits)
+          if @__emits
+            path.sub(File.extname(path), @__emits)
           else
             path
           end
         end
 
         private
-
-        # Marks the asset as being processable.
-        #
-        def processable
-          @processable = true
-        end
 
         # Registers +extension+ for this asset.
         #
@@ -92,14 +71,14 @@ module Pakyow
         #
         def extensions(*extensions)
           extensions.each do |extension|
-            @extensions << ".#{extension}"
+            @__extensions << ".#{extension}"
           end
         end
 
         # Defines the emitted asset type (e.g. +sass+ emits +css+).
         #
         def emits(type)
-          @emits = ".#{type}"
+          @__emits = ".#{type}"
         end
       end
 
@@ -140,19 +119,27 @@ module Pakyow
           else
             nil
           end
+        else
+          @minifier = nil
         end
       end
 
       def each(&block)
-        if self.class.processable? || minify?
-          ensure_content do |content|
-            content = process(content) if self.class.processable?
-            content = minify(content) if minify?
-            StringIO.new(content).each(&block)
+        ensure_content do |content|
+          content = process(content)
+
+          if minify?
+            content = minify(content)
           end
-        else
-          File.open(@local_path, "r") do |file|
-            file.each_line(&block)
+
+          StringIO.new(content).each(&block)
+        end
+      end
+
+      def read
+        String.new.tap do |asset|
+          each do |content|
+            asset << content
           end
         end
       end
