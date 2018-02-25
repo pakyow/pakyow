@@ -107,13 +107,17 @@ module Pakyow
       end
 
       def load_layouts
-        return if instance_variable_defined?(:@layouts) || !File.exist?(layouts_path)
+        return if instance_variable_defined?(:@layouts)
 
-        @layouts = layouts_path.children.each_with_object({}) { |file, layouts|
-          next unless template?(file)
-          layout = load_view_of_type_at_path(Layout, file)
-          layouts[layout.name] = layout
-        }
+        @layouts = if File.exist?(layouts_path)
+          layouts_path.children.each_with_object({}) { |file, layouts|
+            next unless template?(file)
+            layout = load_view_of_type_at_path(Layout, file)
+            layouts[layout.name] = layout
+          }
+        else
+          []
+        end
       end
 
       def load_partials
