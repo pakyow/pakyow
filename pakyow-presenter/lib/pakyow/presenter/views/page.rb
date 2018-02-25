@@ -52,7 +52,7 @@ module Pakyow
       end
 
       def container_views
-        @containers.values
+        [View.from_object(@object)].concat(@containers.values)
       end
 
       protected
