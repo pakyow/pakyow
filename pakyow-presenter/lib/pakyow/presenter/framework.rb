@@ -9,6 +9,11 @@ module Pakyow
       end
 
       def call(connection)
+        unless connection.env[Rack::RACK_LOGGER]
+          connection.env[Rack::RACK_LOGGER] = Pakyow::Logger::RequestLogger.new(:http)
+          connection.logger.prologue(connection.env)
+        end
+
         connection.app.class.const_get(:Renderer).perform_for_connection(connection)
       end
     end
