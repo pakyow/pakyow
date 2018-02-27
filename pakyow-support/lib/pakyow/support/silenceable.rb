@@ -2,7 +2,7 @@
 
 module Pakyow
   module Support
-    # Methods for silencing various output.
+    # Silence warnings.
     #
     module Silenceable
       def self.silence_warnings
