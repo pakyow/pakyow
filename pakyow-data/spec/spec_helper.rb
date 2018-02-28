@@ -20,4 +20,6 @@ RSpec.configure do |config|
 end
 
 require_relative "../../spec/context/testable_app_context"
-require_relative "../../spec/context/suppressed_output_context"
+
+$data_app_boilerplate = Proc.new do
+end

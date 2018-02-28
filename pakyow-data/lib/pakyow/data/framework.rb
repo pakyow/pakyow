@@ -21,7 +21,14 @@ module Pakyow
         if controller = app.const_get(:Controller)
           controller.class_eval do
             include Verification
+
+            # Define the data we wish to verify.
+            #
             verifies :params
+
+            # Handle all invalid data errors as a bad request, by default.
+            #
+            handle Pakyow::InvalidData, as: :bad_request
 
             def data
               app.data
@@ -51,6 +58,7 @@ module Pakyow
                 if associated_model = models.values.flatten.find { |potentially_associated_model|
                      potentially_associated_model.__class_name.name == has_many_association
                    }
+
                   associated_model.belongs_to(model.__class_name.name)
                 end
               end
@@ -91,9 +99,13 @@ module Pakyow
         #
         # @api public
         def verify(*names, &block)
-          before(*names) do
+          verification_method_name = :"verify_#{names.join("_")}"
+
+          define_method verification_method_name do
             verify(&block)
           end
+
+          action verification_method_name, only: names
         end
       end
     end
@@ -123,6 +135,7 @@ Pakyow.module_eval do
     end
   end
 
+  # TODO: nest this under data
   settings_for :connections do
     Pakyow::Data::CONNECTION_TYPES.each do |type|
       setting type, {}
@@ -132,13 +145,17 @@ Pakyow.module_eval do
   settings_for :data do
     setting :default_adapter, :sql
     setting :logging, false
+    setting :auto_migrate, true
 
+    # TODO: nest these two under subscriptions
     setting :adapter, :memory
     setting :adapter_options, {}
 
     defaults :production do
       setting :adapter, :redis
+      # TODO: use REDIS_PROVIDER/REDIS_URL with fallback
       setting :adapter_options, redis_url: "redis://127.0.0.1:6379", redis_prefix: "pw"
+      setting :auto_migrate, false
     end
   end
 
@@ -149,6 +166,7 @@ Pakyow.module_eval do
       require "pakyow/data/adapters/#{adapter_type}"
 
       adapter_containers[adapter_type] = connection_strings.each_with_object({}) do |(name, string), named_containers|
+        # TODO: perform some validation on the connection string, instructing on the format
         config = ROM::Configuration.new(adapter_type, string)
 
         if Pakyow.config.data.logging
@@ -162,21 +180,35 @@ Pakyow.module_eval do
         }
 
         models.each do |model|
-          next if model.attributes.empty?
-
           config.relation model.__class_name.name do
             schema model.name do
               model.attributes.each do |name, options|
                 type = Pakyow::Data::Types.type_for(options[:type], adapter_type)
-                type = type.optional unless model._primary_key == name
-                attribute name, type
+
+                if options[:nullable] && model._primary_key != name
+                  type = type.optional
+                end
+
+                if default_value = options[:default]
+                  type = type.default { default_value }
+                end
+
+                attribute name, type, null: options[:nullable]
               end
 
-              primary_key(model._primary_key) if model._primary_key
+              if model._primary_key && model.attributes.keys.include?(model._primary_key)
+                primary_key(model._primary_key)
+              else
+                # TODO: protect against defining an unknown field as a pk
+              end
 
               associations do
                 model.associations[:has_many].each do |has_many_relation|
                   has_many has_many_relation
+                end
+
+                model.associations[:belongs_to].each do |belongs_to_relation|
+                  belongs_to belongs_to_relation, as: Pakyow::Support.inflector.singularize(belongs_to_relation).to_sym
                 end
               end
 
@@ -186,7 +218,7 @@ Pakyow.module_eval do
 
               if timestamps = model._timestamps
                 use :timestamps
-                timestamps(*timestamps) unless timestamps.nil? || timestamps.empty?
+                timestamps(*[timestamps[:update], timestamps[:create]].compact)
               end
 
               if setup_block = model.setup_block
@@ -194,13 +226,37 @@ Pakyow.module_eval do
               end
             end
           end
+
+          config.commands model.__class_name.name do
+            define :create do
+              result :one
+
+              if timestamps = model._timestamps
+                use :timestamps
+                timestamp(*[timestamps[:update], timestamps[:create]].compact)
+              end
+            end
+
+            define :update do
+              result :many
+
+              if timestamps = model._timestamps
+                use :timestamps
+                timestamp timestamps[:update]
+              end
+            end
+
+            define :delete do
+              result :many
+            end
+          end
         end
 
-        # TODO: rename all our internal state since we aren't using containers
         named_containers[name] = ROM.container(config)
 
-        # TODO: make this a config variable (e.g. do it only in development)
-        config.gateways[:default].auto_migrate!(config, inline: true)
+        if Pakyow.config.data.auto_migrate && config.gateways[:default].respond_to?(:auto_migrate!)
+          config.gateways[:default].auto_migrate!(config, inline: true)
+        end
       end
     }
   end

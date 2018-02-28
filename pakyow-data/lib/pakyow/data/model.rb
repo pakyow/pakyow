@@ -17,26 +17,21 @@ module Pakyow
       end
 
       def create(values)
-        values[:created_at] ||= Time.now
-        values[:updated_at] ||= Time.now
-
-        command(:create).call(values, result: :one)
+        self.class.set_ids_for_belongs_to_associations!(values)
+        command(:create).call(values)
       end
 
       def update(values)
-        command(:update, result: :many).call(values)
+        self.class.set_ids_for_belongs_to_associations!(values)
+        command(:update).call(values)
       end
 
       def delete
-        command(:delete, result: :many).call
+        command(:delete).call
       end
 
       def all
         to_a
-      end
-
-      def by_id(id)
-        by_pk(id)
       end
 
       def empty?
@@ -54,15 +49,22 @@ module Pakyow
           super(name, state: state, parent: parent, adapter: adapter, connection: connection, attributes: {}, **kwargs, &block)
         end
 
-        # TODO: default values?
-        def attribute(name, type = :string)
+        def attribute(name, type = :string, default: nil, nullable: true)
           attributes[name.to_sym] = {
-            type: type
+            type: type,
+            default: default,
+            nullable: nullable
           }
+
+          define_query_for_attribute!(name)
+          qualify_query_for_attribute!(name)
         end
 
-        def timestamps(*fields)
-          @timestamps = fields
+        def timestamps(create: :created_at, update: :updated_at)
+          @timestamps = {
+            create: create,
+            update: update
+          }
         end
 
         def _timestamps
@@ -105,7 +107,29 @@ module Pakyow
         # rubocop:enable Naming/PredicateName
 
         def belongs_to(relation)
-          @associations[:belongs_to] << relation
+          @associations[:belongs_to] << Support.inflector.pluralize(relation).to_sym
+        end
+
+        # @api private
+        def set_ids_for_belongs_to_associations!(values)
+          associations[:belongs_to].each do |association|
+            association = Support.inflector.singularize(association).to_sym
+            if values.key?(association)
+              values[:"#{association}_id"] = values[association][:id]
+            end
+          end
+        end
+
+        private
+
+        def define_query_for_attribute!(attribute_name)
+          define_method :"by_#{attribute_name}" do |value|
+            where(attribute_name => value)
+          end
+        end
+
+        def qualify_query_for_attribute!(attribute_name)
+          subscribe :"by_#{attribute_name}", attribute_name => :__arg0__
         end
       end
     end

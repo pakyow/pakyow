@@ -17,9 +17,6 @@ gem "pronto-rubocop", ">= 0.9", require: false
 gem "pry", ">= 0.11"
 gem "rubocop", ">= 0.51"
 
-gem "babel-transpiler"
-gem "sass"
-
 group :test do
   gem "simplecov", ">= 0.15", require: false
   gem "simplecov-console", ">= 0.4"
@@ -34,4 +31,11 @@ group :test do
 
   gem "rspec", "~> 3.7"
   gem "rspec-benchmark", "~> 0.3"
+
+  gem "babel-transpiler"
+  gem "sass"
+
+  gem "pg"
+  gem "sqlite3"
+  gem "mysql2"
 end

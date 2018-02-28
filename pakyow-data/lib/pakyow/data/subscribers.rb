@@ -28,7 +28,7 @@ module Pakyow
         subscriptions = Set.new
 
         @adapter.subscriptions_for_model(model_name).each do |subscription|
-          if qualified?(subscription.delete(:qualifications), changed_values, changed_results)
+          if qualified?(subscription.delete(:qualifications), subscription.delete(:object_pks), subscription.delete(:pk_field), changed_values, changed_results)
             subscriptions << subscription
           end
         end
@@ -75,9 +75,13 @@ module Pakyow
         callback.call(subscription[:payload], **arguments)
       end
 
-      def qualified?(qualifications, changed_values, changed_results)
+      def qualified?(qualifications, object_pks, pk_field, changed_values, changed_results)
+        changed_results.each do |changed_result|
+          return true if object_pks.include?(changed_result[pk_field])
+        end
+
         qualifications.each do |key, value|
-          return false unless changed_values[key] == value || qualified_result?(key, value, changed_results)
+          return false unless changed_values.to_h[key] == value || qualified_result?(key, value, changed_results)
         end
 
         true

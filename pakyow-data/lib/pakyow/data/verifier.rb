@@ -35,6 +35,12 @@ module Pakyow
           if type
             types[key] = Types.type_for(type, :input)
           end
+
+          if block_given?
+            verifier = Class.new(Verifier)
+            verifier.instance_exec(&Proc.new)
+            verifiers_by_key[key] = verifier
+          end
         end
 
         def types
@@ -58,12 +64,15 @@ module Pakyow
         end
 
         def sanitize(input)
-          # this version excludes keys missing from input
-          # input.select { |key, _| allowable_keys.include?(key) }
+          input.select! do |key, _|
+            allowable_keys.include?(key)
+          end
 
-          # this version includes keys for missing input
           allowable_keys.each do |key|
+            next unless input.key?(key)
+
             value = input[key]
+
             if type = types[key]
               value = type[value]
             end
@@ -94,18 +103,22 @@ module Pakyow
       end
 
       def verify?
-        self.class.required_keys.each do |required_key|
-          if @values[required_key].nil?
-            (@errors[required_key] ||= []) << :required
+        self.class.allowable_keys.each do |allowable_key|
+          if @values[allowable_key].nil?
+            if self.class.required_keys.include?(allowable_key)
+              (@errors[allowable_key] ||= []) << :required
+            else
+              next
+            end
           end
 
-          if verifier_for_key = self.class.verifiers_by_key[required_key]
-            verifier_instance_for_key = verifier_for_key.new(@values[required_key], context: @context)
+          if verifier_for_key = self.class.verifiers_by_key[allowable_key]
+            verifier_instance_for_key = verifier_for_key.new(@values[allowable_key], context: @context)
             unless verifier_instance_for_key.verify?
               if verifier_instance_for_key.validating?
-                (@errors[required_key] ||= []).concat(verifier_instance_for_key.validator.errors)
+                (@errors[allowable_key] ||= []).concat(verifier_instance_for_key.validator.errors)
               else
-                @errors[required_key] = verifier_instance_for_key.errors
+                @errors[allowable_key] = verifier_instance_for_key.errors
               end
             end
           end

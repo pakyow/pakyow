@@ -22,7 +22,7 @@ module Pakyow
           :acceptance
         end
 
-        def self.valid?(value, accepts: true)
+        def self.valid?(value, accepts: true, **)
           Array.ensure(accepts).include?(value)
         end
       end

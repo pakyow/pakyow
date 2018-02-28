@@ -43,7 +43,7 @@ module Pakyow
 
       def valid?
         self.class.validations.each do |validation, options|
-          unless validation.valid?(@value, *options, context: @context)
+          unless validation.valid?(@value, context: @context, **options)
             @errors << validation.name
           end
         end

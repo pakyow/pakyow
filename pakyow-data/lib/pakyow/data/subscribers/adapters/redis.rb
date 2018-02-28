@@ -79,10 +79,10 @@ module Pakyow
 
             # expire the subscriber
             @redis.multi do |transaction|
-              transaction.expireat(key_subscription_ids_by_subscriber(subscriber), time_expire + 1)
+              transaction.expireat(key_subscription_ids_by_subscriber(subscriber), time_expire)
 
               expire_subscriber_on_these_keys.each do |key|
-                transaction.zadd(key, time_expire, subscriber)
+                transaction.zadd(key, time_expire - 1, subscriber)
               end
             end
 
@@ -105,9 +105,9 @@ module Pakyow
                   @redis.multi do |transaction|
                     transaction.zadd(key_subscription_ids_by_model(model), last_time_expire, subscription_id)
 
-                    transaction.expireat(key_model_for_subscription_id(subscription_id), last_time_expire + 1)
-                    transaction.expireat(key_subscribers_by_subscription_id(subscription_id), last_time_expire + 1)
-                    transaction.expireat(key_subscription_id(subscription_id), last_time_expire + 1)
+                    transaction.expireat(key_model_for_subscription_id(subscription_id), last_time_expire)
+                    transaction.expireat(key_subscribers_by_subscription_id(subscription_id), last_time_expire)
+                    transaction.expireat(key_subscription_id(subscription_id), last_time_expire)
                   end
                 end
               end
