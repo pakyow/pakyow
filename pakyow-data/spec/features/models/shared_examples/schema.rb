@@ -213,13 +213,13 @@ RSpec.shared_examples :model_schema do
         end
 
         it "cannot be null" do
+          puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+
           expect {
             data.posts.create({})[:attr]
           }.to raise_error { |error|
             expect([ROM::SQL::NotNullConstraintError, ROM::SQL::DatabaseError]).to include(error.class)
           }
-
-          puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
         end
 
         it "allows a value" do
