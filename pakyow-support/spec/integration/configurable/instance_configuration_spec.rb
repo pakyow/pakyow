@@ -16,6 +16,7 @@ RSpec.describe "configuring an instance of a configurable class" do
       object.setting :foo, :foo_default
       object.setting :bar, :bar_default
       object.setting :name
+      object.setting :mutable_default, []
 
       object.configure do
         config.foo = :foo_global
@@ -41,6 +42,11 @@ RSpec.describe "configuring an instance of a configurable class" do
 
     it "allows new settings to be defined during configuration" do
       expect(@instance.config.extended).to eq(true)
+    end
+
+    it "does not modify the original default value" do
+      @instance.config.mutable_default << :foo
+      expect(object.config.mutable_default).to eq([])
     end
   end
 
