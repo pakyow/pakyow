@@ -10,9 +10,6 @@ notifications:
   webhooks:
     urls:
       - https://webhooks.gitter.im/e/9d2966f0802fa60b226f
-branches:
-  only:
-    - master
 script: "bundle exec rake"
 before_install: gem install bundler
 addons:
