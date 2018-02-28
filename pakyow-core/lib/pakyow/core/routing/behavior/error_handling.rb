@@ -38,9 +38,12 @@ module Pakyow
             response.status = 500
 
             if code_and_handler = exception_for_class(error.class)
-              code, handler   = code_and_handler
+              code, handler = code_and_handler
               response.status = code
-              instance_exec(&handler)
+
+              if handler
+                instance_exec(&handler)
+              end
             elsif handler = handler_for_code(500)
               instance_exec(&handler)
             end

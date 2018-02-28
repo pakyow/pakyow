@@ -260,6 +260,24 @@ RSpec.describe "error handling" do
       end
     end
 
+    context "and a blockless handler is defined for the exception" do
+      let :app_definition do
+        Proc.new {
+          controller do
+            handle StandardError, as: 401
+
+            default do
+              raise StandardError
+            end
+          end
+        }
+      end
+
+      it "sets the response code" do
+        expect(call[0]).to eq(401)
+      end
+    end
+
     context "and a handler is not defined for the exception" do
       let :app_definition do
         Proc.new {
