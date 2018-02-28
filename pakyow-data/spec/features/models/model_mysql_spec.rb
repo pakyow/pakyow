@@ -7,7 +7,7 @@ require_relative "shared_examples/results"
 require_relative "shared_examples/schema"
 require_relative "shared_examples/setup"
 
-RSpec.describe "sqlite model" do
+RSpec.describe "mysql model" do
   include_examples :model_associations
   include_examples :model_commands
   include_examples :model_connection
