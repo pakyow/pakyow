@@ -31,6 +31,10 @@ RSpec.describe "mysql model" do
     system "mysql -e 'CREATE DATABASE `pakyow-test`'", out: File::NULL, err: File::NULL
   end
 
+  after do
+    system "mysql -e 'SHOW FIELDS from posts' pakyow-test"
+  end
+
   describe "mysql-specific types" do
     it "needs to be defined"
   end
