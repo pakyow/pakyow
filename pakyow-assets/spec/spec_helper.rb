@@ -20,12 +20,9 @@ RSpec.configure do |config|
 end
 
 require_relative "../../spec/context/testable_app_context"
-# require_relative "../../spec/context/suppressed_output_context"
 
 $assets_app_boilerplate = Proc.new do
   configure do
     config.root = File.expand_path("../support/app", __FILE__)
-    # config.presenter.path = File.join(root, "features/support/views")
-    # config.presenter.path = File.join(root, "features/support/views")
   end
 end
