@@ -188,4 +188,26 @@ RSpec.describe "routing requests" do
       expect(call("/foo")[2].body.read).to eq("one")
     end
   end
+
+  context "when a post route is matched in a parent with a child" do
+    let :app_definition do
+      Proc.new {
+        controller "/posts" do
+          skip_action :verify_same_origin
+          skip_action :verify_authenticity_token
+
+          post "/" do
+            res.body << "one"
+          end
+
+          group do
+          end
+        end
+      }
+    end
+
+    it "only dispatches once" do
+      expect(call("/posts", method: :post)[2].body).to eq(["one"])
+    end
+  end
 end

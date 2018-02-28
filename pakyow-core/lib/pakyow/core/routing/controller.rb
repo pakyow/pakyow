@@ -214,17 +214,16 @@ module Pakyow
           break if connection.halted?
         end
 
-        @children.each do |child_controller|
-          child_controller.call(connection, request_path)
-
-          break if connection.halted?
+        unless connection.halted?
+          @children.each do |child_controller|
+            child_controller.call(connection, request_path)
+            break if connection.halted?
+          end
         end
       end
     end
 
     def call_route(connection, route)
-      # TODO: mixin route-specific actions (and delete ones that don't apply)
-
       actions_to_remove = self.class.route_skips[route.name].to_a
 
       self.class.route_actions.each do |action, routes|
