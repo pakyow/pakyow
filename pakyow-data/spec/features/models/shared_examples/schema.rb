@@ -218,6 +218,8 @@ RSpec.shared_examples :model_schema do
           }.to raise_error { |error|
             expect([ROM::SQL::NotNullConstraintError, ROM::SQL::DatabaseError]).to include(error.class)
           }
+
+          puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
         end
 
         it "allows a value" do
