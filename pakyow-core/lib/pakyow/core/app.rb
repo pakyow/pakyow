@@ -126,7 +126,7 @@ module Pakyow
     setting :dsl, true
 
     include Support::Hookable
-    known_events :initialize, :configure, :load, :finalize, :boot
+    known_events :initialize, :configure, :load, :finalize, :boot, :rescue
 
     include Behavior::Cookies
     include Behavior::Sessions
@@ -171,6 +171,22 @@ module Pakyow
         # This ensures that any state registered in the passed block
         # has the proper priority against instance and global state.
         defined!(&block)
+      end
+    rescue StandardError => error
+      # Enter rescue mode, which logs the error and returns an errored response.
+      #
+      performing :rescue do
+        message = <<~ERROR
+          #{self.class} failed to initialize.
+
+          #{error.to_s}
+          #{error.backtrace.join("\n")}
+        ERROR
+
+        Pakyow.logger.error message
+        define_singleton_method :call do |_|
+          [500, { "Content-Type" => "text/plain" }, [message]]
+        end
       end
     end
 

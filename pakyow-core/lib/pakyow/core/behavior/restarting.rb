@@ -31,18 +31,29 @@ module Pakyow
         end
 
         after :initialize do
-          if config.process.trigger_restarts
-            config.process.watched_paths << File.join(config.src, "**/*.rb")
+          setup_for_restarting
+        end
 
-            # FIXME: this doesn't need to be hardcoded, but instead determined
-            # from the source location when registered with the environment
-            config.process.watched_paths << "./config/application.rb"
+        # Setting up for restarting even after the app fails to initialize lets
+        # the developer fix the problem and let the server restart on its own.
+        #
+        after :rescue do
+          setup_for_restarting
+        end
+      end
 
-            Thread.new do
-              Filewatcher.new(config.process.watched_paths).watch do |_path, _event|
-                FileUtils.mkdir_p "./tmp"
-                FileUtils.touch "./tmp/restart.txt"
-              end
+      def setup_for_restarting
+        if config.process.trigger_restarts
+          config.process.watched_paths << File.join(config.src, "**/*.rb")
+
+          # FIXME: this doesn't need to be hardcoded, but instead determined
+          # from the source location when registered with the environment
+          config.process.watched_paths << "./config/application.rb"
+
+          Thread.new do
+            Filewatcher.new(config.process.watched_paths).watch do |_path, _event|
+              FileUtils.mkdir_p "./tmp"
+              FileUtils.touch "./tmp/restart.txt"
             end
           end
         end
