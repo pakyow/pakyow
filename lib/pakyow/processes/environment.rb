@@ -54,30 +54,45 @@ module Pakyow
       def run_environment_subprocess(port)
         if ::Process.respond_to?(:fork)
           local_timezone = Time.now.getlocal.zone
-          @pid = ::Process.fork {
+          @pid = fork {
             # workaround for: https://bugs.ruby-lang.org/issues/14435
             ENV["TZ"] = local_timezone
             run_environment(port: port)
           }
         else
-          # TODO: pass correct config options
-          @pid = ::Process.spawn("bundle exec pakyow server --no-reload")
+          puts <<~ERROR
+
+            Reloading is only supported on platforms that support process forking.
+
+            Please use the standalone server instead:
+
+              bundle exec pakyow server --standalone
+
+          ERROR
+
+          exit
         end
       end
 
       def start_proxy(port)
-        if instance_variable_defined?(:@proxy)
-          return
-        else
-          @proxy = true
+        unless @proxy_pid
+          @proxy_pid = fork {
+            host = @server.host
+            builder = Rack::Builder.new {
+              run Proxy.new(host: host, port: port)
+            }
+
+            Pakyow.send(:handler, @server.server).run(builder.to_app, Host: @server.host, Port: @server.port, Silent: true)
+          }
+
+          Pakyow::STOP_SIGNALS.each do |signal|
+            trap(signal) {
+              ::Process.kill("TERM", @proxy_pid); exit
+            }
+          end
+
+          sleep
         end
-
-        host = @server.host
-        builder = Rack::Builder.new {
-          run Proxy.new(port: port, host: host)
-        }
-
-        Pakyow.send(:handler, @server.server).run(builder.to_app, Host: @server.host, Port: @server.port)
       end
 
       def find_local_port
@@ -87,7 +102,7 @@ module Pakyow
         port
       end
 
-      # Proxies requests to the underlying environment process..
+      # Proxies requests to the underlying environment process.
       #
       class Proxy
         require "http"
@@ -113,7 +128,7 @@ module Pakyow
 
             [response.status, parse_response_headers(response), response.body]
           else
-            [404, {}, ["app not found"]]
+            [404, {}, ["app did not respond"]]
           end
         end
 
