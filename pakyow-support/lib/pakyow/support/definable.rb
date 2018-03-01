@@ -68,8 +68,11 @@ module Pakyow
       # Returns register instances for state.
       #
       def state_for(type)
-        return [] unless @state.key?(type)
-        @state[type].instances
+        if @state && @state.key?(type)
+          @state[type].instances
+        else
+          []
+        end
       end
 
       module ClassAPI
