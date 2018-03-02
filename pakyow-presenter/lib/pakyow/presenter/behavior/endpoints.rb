@@ -68,31 +68,21 @@ module Pakyow
 
         def setup_non_contextual_endpoints
           setup_endpoints(
-            @view.object.find_significant_nodes(
-              :endpoint, with_children: true
-            ).concat(@view.object.find_significant_nodes(
-              :prototype, with_children: true
-              ).select { |prototype_node|
-                prototype_node.labeled?(:endpoint)
-              }
-            )
-          )
+            @view.object.find_significant_nodes(:endpoint).reject { |node|
+              node.significant?(:within_binding)
+            })
         end
 
         def setup_binding_endpoints(object)
           if object.include?(:id)
-            object[:"#{Support.inflector.singularize(@view.name)}_id"] = object[:id]
+            # TODO: can we do this without mutating `object`?
+            object[:"#{Support.inflector.singularize(@view.label(:binding))}_id"] = object[:id]
           end
 
           setup_endpoints(
-            @view.object.find_significant_nodes(
-              :binding_endpoint, with_children: true
-            ).concat(@view.object.find_significant_nodes(
-              :binding, with_children: true
-              ).select { |binding_node|
-                binding_node.labeled?(:endpoint)
-              }
-            ), object)
+            @view.object.find_significant_nodes(:endpoint).select { |node|
+              node.significant?(:within_binding)
+            }, object)
         end
 
         def setup_endpoints(nodes, params = nil)

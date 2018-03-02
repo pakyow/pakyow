@@ -9,7 +9,7 @@ module Pakyow
         extend Support::Extension
 
         def cleanup_prototype_nodes
-          @view.object.find_significant_nodes(:prototype, with_children: true).each(&:remove)
+          @view.object.find_significant_nodes(:prototype).each(&:remove)
         end
 
         def insert_prototype_bar(current_mode)

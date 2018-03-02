@@ -380,12 +380,12 @@ RSpec.describe Pakyow::Presenter::StringNode do
   end
 
   describe "#inspect" do
-    it "includes type" do
-      expect(node.inspect).to include("@type=:binding")
+    it "includes significance" do
+      expect(node.inspect).to include("@significance=[:binding, :within_binding]")
     end
 
-    it "includes name" do
-      expect(node.inspect).to include("@name=:post")
+    it "includes labels" do
+      expect(node.inspect).to include("@labels={:binding=>:title}")
     end
 
     it "includes attributes" do

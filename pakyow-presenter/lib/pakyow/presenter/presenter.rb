@@ -239,17 +239,17 @@ module Pakyow
             presenter.bind(binder)
 
             presenter.view.binding_scopes.each do |binding_node|
-              plural_binding_node_name = Support.inflector.pluralize(binding_node.name).to_sym
+              plural_binding_node_name = Support.inflector.pluralize(binding_node.label(:binding)).to_sym
 
-              data = if binder.object.include?(binding_node.name)
-                binder.object[binding_node.name]
+              data = if binder.object.include?(binding_node.label(:binding))
+                binder.object[binding_node.label(:binding)]
               elsif binder.object.include?(plural_binding_node_name)
                 binder.object[plural_binding_node_name]
               else
                 nil
               end
 
-              presenter.find(binding_node.name).present(data)
+              presenter.find(binding_node.label(:binding)).present(data)
             end
           end
         end
@@ -325,14 +325,14 @@ module Pakyow
 
       def binder_for_current_scope
         binders.find { |binder|
-          binder.__class_name.name == @view.name
+          binder.__class_name.name == @view.label(:binding)
         }
       end
 
       def bind_binder_to_view(binder, view)
         view.binding_props.each do |binding|
-          value = binder.value(binding.name)
-          if value.is_a?(BindingParts) && binding_view = view.find(binding.name)
+          value = binder.value(binding.label(:binding))
+          if value.is_a?(BindingParts) && binding_view = view.find(binding.label(:binding))
             value.accept(*binding_view.label(:include).to_s.split(" "))
             value.reject(*binding_view.label(:exclude).to_s.split(" "))
 
@@ -367,7 +367,7 @@ module Pakyow
       def setup_form_field_names
         @view.object.find_significant_nodes(:form).each do |form_node|
           form_node.children.find_significant_nodes(:binding).each do |binding_node|
-            binding_node.attributes[:name] ||= "#{form_node.name}[#{binding_node.name}]"
+            binding_node.attributes[:name] ||= "#{form_node.label(:binding)}[#{binding_node.label(:binding)}]"
           end
         end
       end

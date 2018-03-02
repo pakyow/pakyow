@@ -22,7 +22,7 @@ module Pakyow
               type, name, version = instruction.split(".").map(&:to_sym)
               type = :component if type == :ui
 
-              @view.object.find_significant_nodes_with_name(type, name, with_children: true).each do |node|
+              @view.object.find_significant_nodes_with_name(type, name).each do |node|
                 if !version || (version && node.label(:version) == version)
                   node.remove
                 end
@@ -35,7 +35,7 @@ module Pakyow
               type, name, version = instruction.split(".").map(&:to_sym)
               type = :component if type == :ui
 
-              @view.object.find_significant_nodes_with_name(type, name, with_children: true).each do |node|
+              @view.object.find_significant_nodes_with_name(type, name).each do |node|
                 if version && node.label(:version) != version
                   node.remove
                 end
