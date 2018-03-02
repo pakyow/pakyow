@@ -74,15 +74,15 @@ module Pakyow
         end
 
         def setup_binding_endpoints(object)
-          if object.include?(:id)
-            # TODO: can we do this without mutating `object`?
-            object[:"#{Support.inflector.singularize(@view.label(:binding))}_id"] = object[:id]
-          end
-
-          setup_endpoints(
+          nodes = if @view.object.is_a?(StringNode) && @view.object.significant?(:endpoint) && @view.object.significant?(:binding)
+            [@view.object]
+          else
             @view.object.find_significant_nodes(:endpoint).select { |node|
               node.significant?(:within_binding)
-            }, object)
+            }
+          end
+
+          setup_endpoints(nodes, object)
         end
 
         def setup_endpoints(nodes, params = nil)
@@ -121,7 +121,7 @@ module Pakyow
         end
 
         def setup_endpoint_for_anchor(endpoint_view, endpoint_action_view, endpoint_parts, params)
-          if path = @endpoints&.path_to(*endpoint_parts, params)
+          if path = @endpoints.path_to(*endpoint_parts, params)
             endpoint_action_view.attributes[:href] = path
           end
 
