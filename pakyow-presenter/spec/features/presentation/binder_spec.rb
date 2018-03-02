@@ -179,7 +179,7 @@ RSpec.describe "binding data via presenter, with a binder" do
 
     it "builds the url" do
       post_presenter.present(id: 1)
-      expect(presenter.to_s).to eq("<body><div data-b=\"post\" data-id=\"1\"><a data-b=\"permalink\" href=\"/posts\">permalink</a></div></body>")
+      expect(presenter.to_s).to eq("<body><div data-b=\"post\" data-id=\"1\"><a data-b=\"permalink\" href=\"/posts/1\">permalink</a></div></body>")
     end
   end
 end

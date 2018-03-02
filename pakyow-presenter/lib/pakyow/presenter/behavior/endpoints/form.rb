@@ -26,7 +26,7 @@ module Pakyow
 
           def form_action_params(object)
             {}.tap do |params|
-              params[:"#{@view.label(:binding)}_id"] = object[:id] if object
+              params[:id] = object[:id] if object
             end
           end
         end

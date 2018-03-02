@@ -148,6 +148,44 @@ RSpec.describe "defining resources" do
   context "when the resource is defined with a regexp"
   context "when the resource is defined with a custom matcher"
 
+  context "when the resource is defined with a url param" do
+    let :app_definition do
+      Proc.new {
+        resources :posts, "/posts", param: :slug do
+          show do
+            send "post #{params[:slug]} show"
+          end
+        end
+      }
+    end
+
+    it "properly paramaterizes the url" do
+      res = call("/posts/foo")
+      expect(res[0]).to eq(200)
+      expect(res[2].body.read).to eq("post foo show")
+    end
+  end
+
+  context "when a nested resource is defined with a url param" do
+    let :app_definition do
+      Proc.new {
+        resources :posts, "/posts" do
+          resources :comments, "/comments", param: :slug do
+            show do
+              send "comment #{params[:slug]} show"
+            end
+          end
+        end
+      }
+    end
+
+    it "properly paramaterizes the url" do
+      res = call("/posts/foo/comments/bar")
+      expect(res[0]).to eq(200)
+      expect(res[2].body.read).to eq("comment bar show")
+    end
+  end
+
   describe "the defined resource" do
     let :app_definition do
       Proc.new {
@@ -167,23 +205,23 @@ RSpec.describe "defining resources" do
           end
 
           edit do
-            send "post #{params[:post_id]} edit"
+            send "post #{params[:id]} edit"
           end
 
           update do
-            send "post #{params[:post_id]} update"
+            send "post #{params[:id]} update"
           end
 
           replace do
-            send "post #{params[:post_id]} replace"
+            send "post #{params[:id]} replace"
           end
 
           remove do
-            send "post #{params[:post_id]} remove"
+            send "post #{params[:id]} remove"
           end
 
           show do
-            send "post #{params[:post_id]} show"
+            send "post #{params[:id]} show"
           end
         end
       }

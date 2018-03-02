@@ -66,16 +66,18 @@ module Pakyow
       #
       module Resource
         extend Support::Extension
-
         restrict_extension Controller
 
+        DEFAULT_PARAM = :id
+
         apply_extension do
-          template :resources do
-            resource_id = ":#{Support.inflector.singularize(controller.__class_name.name)}_id"
+          template :resources do |param: DEFAULT_PARAM|
+            resource_id = ":#{param}"
+            nested_resource_id = ":#{Support.inflector.singularize(controller.__class_name.name)}_#{param}"
 
             # Nest resources as members of the current resource
-            controller.define_singleton_method :resources do |name, matcher, &block|
-              expand(:resources, name, File.join(resource_id, matcher), &block)
+            controller.define_singleton_method :resources do |name, matcher, param: DEFAULT_PARAM, &block|
+              expand(:resources, name, File.join(nested_resource_id, matcher), param: param, &block)
             end
 
             action :update_request_path_for_show, only: [:show]
@@ -96,7 +98,7 @@ module Pakyow
             get :show, "/#{resource_id}"
 
             group :collection
-            namespace :member, resource_id
+            namespace :member, nested_resource_id
           end
         end
       end

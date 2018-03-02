@@ -626,8 +626,8 @@ module Pakyow
       #
       # @see template
       #
-      def expand(name, *args, &block)
-        make_child(*args).expand_within(name, &block)
+      def expand(name, *args, **options, &block)
+        make_child(*args).expand_within(name, **options, &block)
       end
 
       # Attempts to find and expand a template, avoiding the need to call {expand} explicitly. For
@@ -706,9 +706,9 @@ module Pakyow
       end
 
       # @api private
-      def expand_within(name, &block)
+      def expand_within(name, **options, &block)
         raise NameError, "Unknown template `#{name}'" unless template = templates[name]
-        Routing::Expansion.new(name, self, &template)
+        Routing::Expansion.new(name, self, options, &template)
         class_eval(&block)
       end
 
