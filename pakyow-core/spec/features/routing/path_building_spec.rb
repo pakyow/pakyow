@@ -22,6 +22,11 @@ RSpec.describe "path building" do
         get :foo, "/foo"
         get :bar, "/bar/:id"
 
+        namespace :internal, "/internal" do
+          get :static, "#foo"
+          get :params, "#:id"
+        end
+
         group :grouped do
           default
         end
@@ -79,5 +84,13 @@ RSpec.describe "path building" do
 
   it "builds path to a nested resource route" do
     expect(call("/path/posts_comments_list", params: { post_id: "123" })[2].body.read).to eq("/posts/123/comments")
+  end
+
+  it "builds path to a named internal route" do
+    expect(call("/path/main_internal_static")[2].body.read).to eq("/internal#foo")
+  end
+
+  it "builds path to a named internal route with params" do
+    expect(call("/path/main_internal_params", params: { id: "123" })[2].body.read).to eq("/internal#123")
   end
 end
