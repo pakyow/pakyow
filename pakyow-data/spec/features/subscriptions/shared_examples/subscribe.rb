@@ -56,7 +56,7 @@ RSpec.shared_examples :subscription_subscribe do
 
           update do
             verify do
-              required :post_id
+              required :id
 
               required :post do
                 optional :title
@@ -64,11 +64,11 @@ RSpec.shared_examples :subscription_subscribe do
               end
             end
 
-            data.posts.by_title(params[:post_id]).update(params[:post])
+            data.posts.by_title(params[:id]).update(params[:post])
           end
 
           remove do
-            data.posts.by_title(params[:post_id]).delete
+            data.posts.by_title(params[:id]).delete
           end
 
           collection do
