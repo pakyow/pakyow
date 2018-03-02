@@ -225,6 +225,10 @@ Pakyow.module_eval do
                 instance_exec(&setup_block)
               end
             end
+
+            if model._queries
+              class_eval(&model._queries)
+            end
           end
 
           config.commands model.__class_name.name do

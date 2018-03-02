@@ -49,6 +49,14 @@ module Pakyow
           super(name, state: state, parent: parent, adapter: adapter, connection: connection, attributes: {}, **kwargs, &block)
         end
 
+        def queries(&block)
+          @queries = block
+        end
+
+        def _queries
+          @queries
+        end
+
         def attribute(name, type = :string, default: nil, nullable: true)
           attributes[name.to_sym] = {
             type: type,
