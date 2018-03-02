@@ -390,7 +390,7 @@ module Pakyow
     class_state :exceptions, default: {}, inheritable: true
     class_state :routes, default: SUPPORTED_HTTP_METHODS.each_with_object({}) { |supported_method, routes_hash|
                                     routes_hash[supported_method] = []
-                                  }, inheritable: true
+                                  }, inheritable: false
 
     class_state :route_actions, default: {}, inheritable: true
     class_state :route_skips, default: {}, inheritable: true
