@@ -156,6 +156,7 @@ module Pakyow
 
     def initialize(environment, builder: nil, &block)
       @environment, @builder = environment, builder
+      @rescued = false
 
       performing :initialize do
         performing :configure do
@@ -173,27 +174,17 @@ module Pakyow
         defined!(&block)
       end
     rescue StandardError => error
-      # Enter rescue mode, which logs the error and returns an errored response.
-      #
-      performing :rescue do
-        message = <<~ERROR
-          #{self.class} failed to initialize.
-
-          #{error.to_s}
-          #{error.backtrace.join("\n")}
-        ERROR
-
-        Pakyow.logger.error message
-        define_singleton_method :call do |_|
-          [500, { "Content-Type" => "text/plain" }, [message]]
-        end
-      end
+      rescue!(error)
     end
 
     # Called by the environment after it boots the app.
     #
     def booted
-      call_hooks :after, :boot
+      unless rescued?
+        call_hooks :after, :boot
+      end
+    rescue StandardError => error
+      rescue!(error)
     end
 
     def call(rack_env)
@@ -211,6 +202,10 @@ module Pakyow
       end
     end
 
+    def rescued?
+      @rescued == true
+    end
+
     private
 
     def error_404
@@ -219,6 +214,26 @@ module Pakyow
 
     def error_500
       [500, { Rack::CONTENT_TYPE => "text/plain" }, ["500 Internal Server Error"]]
+    end
+
+    # Enter rescue mode, which logs the error and returns an errored response.
+    #
+    def rescue!(error)
+      @rescued = true
+
+      performing :rescue do
+        message = <<~ERROR
+          #{self.class} failed to initialize.
+
+          #{error.to_s}
+          #{error.backtrace.join("\n")}
+        ERROR
+
+        Pakyow.logger.error message
+        define_singleton_method :call do |_|
+          [500, { "Content-Type" => "text/plain" }, [message]]
+        end
+      end
     end
   end
 end
