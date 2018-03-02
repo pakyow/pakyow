@@ -104,6 +104,19 @@ module Pakyow
         @parent.replace_node(self, replacement)
       end
 
+      # Replaces the current node internally, without replacing the object.
+      #
+      # Use this when it's necessary to retain internal state, such as labels.
+      #
+      def replace_internal(replacement)
+        @children = replacement
+        @node[0] = ""
+        @node[1] = StringAttributes.new
+        @node[2] = ""
+        @node[3] = replacement
+        @node[4] = ""
+      end
+
       # Removes the node.
       #
       def remove

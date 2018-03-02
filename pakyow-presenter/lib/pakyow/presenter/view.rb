@@ -371,7 +371,7 @@ module Pakyow
         tap do
           @object.find_significant_nodes(:partial).each do |partial_node|
             if replacement = partials[partial_node.label(:partial)]
-              partial_node.replace(replacement.mixin(partials).object)
+              partial_node.replace_internal(replacement.mixin(partials).object)
             end
           end
         end

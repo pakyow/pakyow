@@ -22,7 +22,7 @@ module Pakyow
 
       def build(page)
         @object.find_significant_nodes(:container).each do |container_node|
-          container_node.replace(page.content(container_node.label(:container)))
+          container_node.replace_internal(page.content(container_node.label(:container)))
         end
 
         View.from_object(@object).add_info(info, page.info)
