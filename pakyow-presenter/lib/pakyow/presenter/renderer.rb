@@ -9,6 +9,19 @@ module Pakyow
       def render(path = request.env["pakyow.endpoint"] || request.path, as: nil, layout: nil, mode: :default)
         app.class.const_get(:Renderer).new(@connection, path: path, as: as, layout: layout, mode: mode).perform
       end
+
+      NOT_PASSED = Object.new
+      def expose(name, default_value = NOT_PASSED, options = {})
+        if within = options[:within]
+          name = :"#{name};__within__:#{within}"
+        end
+
+        if default_value == NOT_PASSED
+          super name
+        else
+          super name, default_value
+        end
+      end
     end
 
     class Renderer
@@ -177,6 +190,8 @@ module Pakyow
       end
 
       def define_presentables(presentables)
+        # TODO: handle within
+
         presentables.each do |name, value|
           @presenter.define_singleton_method name do
             value
@@ -186,11 +201,29 @@ module Pakyow
 
       def find_and_present_presentables(presentables)
         presentables.each do |name, value|
+          if name.to_s.include?(";__within__:")
+            name, within = name.to_s.split(";__within__:")
+          end
+
           [name, Support.inflector.singularize(name)].each do |name_varient|
-            next unless found = presenter.find(name_varient)
-            found.present(value); break
+            target = if within && node = find_container_or_partial_with_name(within)
+              presenter.presenter_for(View.from_object(StringDoc.from_nodes([node])))
+            else
+              presenter
+            end
+
+            if found = target.find(name_varient)
+              found.present(value); break
+            end
           end
         end
+      end
+
+      def find_container_or_partial_with_name(name)
+        name = name.to_sym
+        (presenter.view.object.find_significant_nodes(:container) + presenter.view.object.find_significant_nodes(:partial)).find { |node|
+          node.label(:container) == name || node.label(:partial) == name
+        }
       end
     end
   end

@@ -317,11 +317,12 @@ module Pakyow
         other.is_a?(Presenter) && @view == other.view
       end
 
-      private
-
+      # @api private
       def presenter_for(view, type: Presenter)
         type.new(view, binders: @binders)
       end
+
+      private
 
       def binder_for_current_scope
         binders.find { |binder|
