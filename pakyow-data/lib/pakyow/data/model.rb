@@ -109,19 +109,24 @@ module Pakyow
         end
 
         # rubocop:disable Naming/PredicateName
-        def has_many(relation)
-          @associations[:has_many] << relation
+        def has_many(model, view: nil)
+          @associations[:has_many] << {
+            model: model,
+            view: view
+          }
         end
         # rubocop:enable Naming/PredicateName
 
-        def belongs_to(relation)
-          @associations[:belongs_to] << Support.inflector.pluralize(relation).to_sym
+        def belongs_to(model)
+          @associations[:belongs_to] << {
+            model: Support.inflector.pluralize(model).to_sym
+          }
         end
 
         # @api private
         def set_ids_for_belongs_to_associations!(values)
           associations[:belongs_to].each do |association|
-            association = Support.inflector.singularize(association).to_sym
+            association = Support.inflector.singularize(association[:model]).to_sym
             if values.key?(association)
               values[:"#{association}_id"] = values[association][:id]
             end
