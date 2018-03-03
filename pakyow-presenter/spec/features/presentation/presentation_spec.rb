@@ -21,6 +21,11 @@ RSpec.describe "presenting data via presenter" do
     expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">foo</h1></div><div data-b=\"post\"><p data-b=\"body\">bar</p></div>")
   end
 
+  it "presents nil" do
+    post_presenter.present(nil)
+    expect(presenter.to_s).to eq("")
+  end
+
   context "presenting a deeply nested data structure" do
     let :view do
       Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\">title goes here</h1><p binding=\"body\">body goes here</p><div binding=\"comment\"><p binding=\"body\">comment body goes here</p></div>")

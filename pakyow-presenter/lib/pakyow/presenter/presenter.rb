@@ -181,7 +181,7 @@ module Pakyow
       #
       def transform(data)
         tap do
-          data = Array.ensure(data)
+          data = Array.ensure(data).compact
 
           if ((data.respond_to?(:empty?) && data.empty?) || data.nil?)
             if @view.is_a?(VersionedView) && @view.version?(:empty)
