@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "pakyow/support/core_refinements/array/ensurable"
+require "pakyow/support/inspectable"
 
 module Pakyow
   module Data
@@ -14,6 +15,9 @@ module Pakyow
           model_proxy
         end
       end
+
+      include Support::Inspectable
+      inspectable :model
 
       using Support::Refinements::Array::Ensurable
 
