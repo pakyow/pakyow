@@ -35,7 +35,7 @@ group :test do
   gem "babel-transpiler"
   gem "sass"
 
+  gem "mysql2"
   gem "pg"
   gem "sqlite3"
-  gem "mysql2"
 end

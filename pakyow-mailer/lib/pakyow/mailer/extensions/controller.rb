@@ -18,7 +18,9 @@ module Pakyow
 
         Mailer.new(view: presenter, config: app.config.mailer)
       else
-        raise Presenter::MissingView.new("No view at path `#{path}'")
+        error = Presenter::MissingPage.new("No view at path `#{path}'")
+        error.context = path
+        raise error
       end
     end
   end

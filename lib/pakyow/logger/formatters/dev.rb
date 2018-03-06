@@ -45,24 +45,33 @@ module Pakyow
 
       def format_error(message)
         error = message.delete(:error)
-        message.merge(message: sprintf(
-          "%s: %s\n%s",
-          error[:exception],
-          error[:message],
-          error[:backtrace].join("\n")
-        ))
+
+        if error.is_a?(Pakyow::Error)
+          message.merge(message: Pakyow::Error::CLIFormatter.new(error).to_s)
+        else
+          message.merge(message: sprintf(
+            "%s: %s\n%s",
+            error.class,
+            error.to_s,
+            error.backtrace.join("\n")
+          ))
+        end
       end
 
       def format(message)
         return message[:message] + "\n" unless message.key?(:request)
 
-        sprintf(
+        constructed_message = sprintf(
           "%s %s.%s | %s\n",
           Timekeeper.format(message[:elapsed]).rjust(8, " "),
           message[:request][:type],
           message[:request][:id],
-          message[:message]
+          message[:message].lines.first.rstrip
         )
+
+        message[:message].lines[1..-1].each_with_object(constructed_message) { |line, full|
+          full << "                       | #{line.rstrip}\n"
+        }
       end
     end
   end

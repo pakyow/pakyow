@@ -87,17 +87,12 @@ module Pakyow
              })
       end
 
-      # Logs a problem encountered during the request, including the error
-      # class, message, and backtrace.
+      # Logs an error raised when processing the request.
       #
       # @param error [Object] the error object
       #
       def houston(error)
-        error(error: {
-                exception: error.class,
-                message: error.to_s,
-                backtrace: error.backtrace
-              })
+        error(error: error)
       end
 
       private

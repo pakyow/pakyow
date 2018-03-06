@@ -34,7 +34,7 @@ module Pakyow
       # Strips html tags from the string.
       #
       def strip_tags(string)
-        safe(string.gsub(/<[^>]*>/ui, ""))
+        safe(string.to_s.gsub(/<[^>]*>/ui, ""))
       end
 
       # Strips html tags from the string, except for tags specified.

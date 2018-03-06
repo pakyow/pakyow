@@ -23,4 +23,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "pakyow-support", Pakyow::VERSION
 
   spec.add_dependency "oga", "~> 2.11"
+  spec.add_dependency "redcarpet", "~> 3.4"
 end

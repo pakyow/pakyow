@@ -84,7 +84,9 @@ module Pakyow
         load_layouts
 
         unless layout = @layouts[name.to_sym]
-          raise MissingLayout, "No layout named `#{name}'"
+          error = MissingLayout.new("Could not find layout named `#{name}'")
+          error.context = name
+          raise error
         end
 
         layout

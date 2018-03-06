@@ -19,7 +19,8 @@ module Pakyow
 
     extend Forwardable
     def_delegators :request, :method, :format, :type, :host, :port, :ip, :user_agent, :base_url, :path,
-                   :path_info, :script_name, :url, :params, :cookies, :session, :env, :logger, :ssl?
+                   :path_info, :script_name, :url, :params, :cookies, :session, :env, :logger, :ssl?,
+                   :error
     def_delegators :response, :status, :status=, :write, :close, :body=
 
     attr_reader :app, :request, :response, :values

@@ -47,7 +47,11 @@ module Pakyow
 
       def format_error(message)
         error = message.delete(:error)
-        message.merge(error)
+        message.merge(
+          exception: error.class,
+          message: error.to_s,
+          backtrace: error.backtrace
+        )
       end
 
       def format(message)

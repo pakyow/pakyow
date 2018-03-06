@@ -1,0 +1,50 @@
+---
+layout: development_error
+title: 500 (Server Error)
+---
+
+<div binding="error" version="friendly">
+  <h1 binding="name">
+    Error Class
+  </h1>
+
+  <div binding="message">
+    <p>
+      Error message goes here.
+    </p>
+  </div>
+
+  <hr>
+
+  <p>
+    <a href="https://pakyow.com/docs/" target="_blank">https://pakyow.com/docs/</a>
+  </p>
+
+  <h2>
+    Details
+  </h2>
+
+  <div binding="details">
+    <p>
+      Details go here.
+    </p>
+  </div>
+
+  <h2>
+    Backtrace
+  </h2>
+
+  <code binding="backtrace"></code>
+</div>
+
+<div binding="error" version="other">
+  <h1 binding="name">
+    Error Class
+  </h1>
+
+  <p binding="message">
+    Error message goes here.
+  </p>
+
+  <code binding="backtrace"></code>
+</div>

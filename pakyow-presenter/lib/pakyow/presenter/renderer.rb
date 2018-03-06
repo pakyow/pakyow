@@ -28,19 +28,21 @@ module Pakyow
       class << self
         def perform_for_connection(connection)
           if implicitly_render?(connection)
-            # rubocop:disable Lint/HandleExceptions
             begin
               catch :halt do
                 new(connection, implicit: true).perform
               end
-            rescue MissingView
-              # TODO: in development, raise a missing view error in the case
-              # of auto-render... so we can tell the user what to do
-              #
-              # in production, we want the implicit render to fail but ultimately lead
-              # to a normal 404 error condition
+            rescue MissingPage => error
+              implicit_error = ImplicitRenderingError.new("Could not implicitly render at path `#{connection.path}'")
+              implicit_error.context = connection.path
+              implicit_error.set_backtrace(error.backtrace)
+              connection.set(:error, implicit_error)
+              connection.status = 404
+
+              catch :halt do
+                new(connection, path: "/development/500").perform
+              end
             end
-            # rubocop:enable Lint/HandleExceptions
           end
         end
 
@@ -66,10 +68,13 @@ module Pakyow
         as = String.normalize_path(as) if as
 
         unless info = find_info(path)
-          raise MissingView.new("No view at path `#{path}'")
+          error = MissingPage.new("No view at path `#{path}'")
+          error.context = path
+          raise error
         end
 
-        # TODO: why are we doing this here?
+        # Finds a matching layout across template stores.
+        #
         if layout && layout = layout_with_name(layout)
           info[:layout] = layout.dup
         end

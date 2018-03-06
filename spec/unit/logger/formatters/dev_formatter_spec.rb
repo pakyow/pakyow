@@ -16,7 +16,7 @@ RSpec.describe Pakyow::Logger::DevFormatter do
   end
 
   it "formats an error" do
-    expect(formatter.call(severity, datetime, progname, error)).to eq("\e[36m 10.00ms http.123 | ArgumentError: foo\none\ntwo\n\e[0m")
+    expect(formatter.call(severity, datetime, progname, error)).to eq("\e[36m 10.00ms http.123 | ArgumentError: foo\n                       | one\n                       | two\n\e[0m")
   end
 
   it "formats a message" do

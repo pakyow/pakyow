@@ -107,10 +107,10 @@ RSpec.describe "auto rendering" do
       }
     end
 
-    it "does not render, or fail" do
+    it "renders a missing page error" do
       response = call("/nonexistent")
-      expect(response[0]).to eq(200)
-      expect(response[2].body).to eq([])
+      expect(response[0]).to eq(404)
+      expect(response[2].body.read).to include("Missing page")
     end
   end
 end

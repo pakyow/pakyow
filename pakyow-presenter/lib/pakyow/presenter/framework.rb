@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+require "pakyow/support/silenceable"
+Pakyow::Support::Silenceable.silence_warnings do
+  require "redcarpet"
+end
+
 require "pakyow/core/framework"
 
 module Pakyow
@@ -100,34 +105,50 @@ module Pakyow
               )
             )
 
-            # if environment == :development
-            #   app_class.handle MissingView, as: 500 do
-            #     respond_to :html do
-            #       render "/missing_view"
-            #     end
-            #   end
+            state_for(:templates) << Templates.new(:errors, File.join(File.expand_path("../../", __FILE__), "views", "errors"))
+          end
 
-            #   app_class.templates << Templates.new(:errors, File.join(File.expand_path("../../", __FILE__), "views", "errors"))
+          handle 404 do
+            respond_to :html do
+              if Pakyow.env?(:development) || Pakyow.env?(:prototype)
+                # nothing to do since a MissingPage error will be raised
+              else
+                render "/404"
+              end
+            end
+          end
 
-            #   # TODO: define view objects to render built-in errors
-            # end
+          handle 500 do
+            respond_to :html do
+              if Pakyow.env?(:development) || Pakyow.env?(:prototype)
+                expose :error, connection.error
+                render "/development/500"
+              else
+                render "/500"
+              end
+            end
+          end
 
-            # TODO: the following handlers override the ones defined on the app
-            # ideally global handlers could coexist (e.g. handle bugsnag, then present error page)
-            # perhaps by executing all of 'em at once until halted or all called; feels consistent with
-            # how multiple handlers are called in non-global cases; though load order would be important
-
-            # app_class.handle 404 do
-            #   respond_to :html do
-            #     render "/404"
-            #   end
-            # end
-
-            # app_class.handle 500 do
-            #   respond_to :html do
-            #     render "/500"
-            #   end
-            # end
+          presenter "/development/500" do
+            if error.is_a?(Pakyow::Error)
+              self.title = error.name
+              markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
+              find(:error).use(:friendly)
+              find(:error).present(
+                name: error.name,
+                message: safe(markdown.render(error.message)),
+                details: safe(markdown.render(error.details)),
+                backtrace: safe(error.backtrace.to_a.join("<br>"))
+              )
+            else
+              self.title = error.class
+              find(:error).use(:other)
+              find(:error).present(
+                name: error.class,
+                message: error.to_s,
+                backtrace: safe(error.backtrace.join("<br>"))
+              )
+            end
           end
         end
       end

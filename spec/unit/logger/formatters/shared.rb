@@ -31,16 +31,9 @@ RSpec.shared_examples :log_formatter do
   end
 
   let :error do
-    {
-      error: {
-        exception: "ArgumentError",
-        backtrace: [
-          "one",
-          "two",
-        ],
-        message: "foo",
-      },
-    }.merge(message)
+    error = ArgumentError.new("foo")
+    error.set_backtrace(["one", "two"])
+    { error: error }.merge(message)
   end
 
   let :message do

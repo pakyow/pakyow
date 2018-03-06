@@ -41,7 +41,7 @@ RSpec.describe "explicit rendering" do
     it "fails" do
       response = call("/")
       expect(response[0]).to eq(500)
-      expect(response[2].body).to eq("Pakyow::Presenter::MissingView: No view at path `/nonexistent'")
+      expect(response[2].body).to include("Pakyow::Presenter::MissingPage: Pakyow could not find a page to render for `/nonexistent`")
     end
   end
 
@@ -84,7 +84,7 @@ RSpec.describe "explicit rendering" do
       it "fails" do
         response = call("/")
         expect(response[0]).to eq(500)
-        expect(response[2].body).to eq("Pakyow::Presenter::MissingLayout: No layout named `nonexistent'")
+        expect(response[2].body).to eq("Pakyow::Presenter::MissingLayout: Pakyow could not find a layout named `nonexistent`.\n\nTo resolve this error, create a matching template at this path:\n\n    frontend/layouts/nonexistent.html\n")
       end
     end
   end
