@@ -14,4 +14,4 @@ pw.ready(function () {
   });
 });
 
-global.pw = pw;
+export default pw;
