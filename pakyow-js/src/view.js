@@ -1,4 +1,4 @@
-var Inflector = require("inflector-js");
+import { pluralize } from "inflected";
 
 export default class {
   constructor(node) {
@@ -71,7 +71,7 @@ export default class {
     );
 
     for (let binding of bindingScopeNames) {
-      var pluralBinding = Inflector.pluralize(binding);
+      var pluralBinding = pluralize(binding);
 
       var data = [];
       if (binding in object) {
