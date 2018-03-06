@@ -85,17 +85,19 @@ end
 require "pakyow/support/silenceable"
 
 def start_simplecov(&block)
-  Pakyow::Support::Silenceable.silence_warnings do
-    require "simplecov"
-    require "simplecov-console"
-  end
+  if ENV["COVERAGE"]
+    Pakyow::Support::Silenceable.silence_warnings do
+      require "simplecov"
+      require "simplecov-console"
+    end
 
-  SimpleCov::Formatter::Console.table_options = { max_width: 200 }
-  SimpleCov.formatter = SimpleCov::Formatter::Console
-  SimpleCov.start do
-    add_filter "spec/"
-    add_filter ".bundle/"
-    self.instance_eval(&block) if block_given?
+    SimpleCov::Formatter::Console.table_options = { max_width: 200 }
+    SimpleCov.formatter = SimpleCov::Formatter::Console
+    SimpleCov.start do
+      add_filter "spec/"
+      add_filter ".bundle/"
+      self.instance_eval(&block) if block_given?
+    end
   end
 end
 
