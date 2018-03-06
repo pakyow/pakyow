@@ -83,5 +83,25 @@ RSpec.describe Pakyow::App do
       app.booted
       expect($called).to be(true)
     end
+
+    context "when booting fails" do
+      before do
+        app_class.after :boot do
+          fail "testing rescue mode"
+        end
+
+        Pakyow.instance_variable_set(:@logger, Logger.new(File::NULL))
+      end
+
+      it "enters rescue mode" do
+        app.booted
+        response = app.call({})
+        expect(response[0]).to eq(500)
+        expect(response[1]["Content-Type"]).to eq("text/plain")
+        expect(response[2][0]).to include("failed to initialize")
+        expect(response[2][0]).to include("testing rescue mode")
+        expect(response[2][0]).to include("pakyow-core/spec/unit/app_spec.rb")
+      end
+    end
   end
 end

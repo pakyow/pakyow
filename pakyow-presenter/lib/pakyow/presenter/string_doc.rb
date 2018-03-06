@@ -74,21 +74,21 @@ module Pakyow
           end
         end
 
-        # Returns the significant object builder for the provided Oga element.
+        # Determines the significance of +element+.
         #
-        def significant_builder(element)
-          significant_types.values.each do |object|
-            return object if object.significant?(element)
+        def find_significance(element)
+          significant_types.each_with_object([]) do |(key, object), significance|
+            if object.significant?(element)
+              significance << key
+            end
           end
-
-          false
         end
 
         # Returns true if the given Oga element contains a child node that is significant.
         #
         def contains_significant_child?(element)
           element.children.each do |child|
-            return true if significant_builder(child)
+            return true if find_significance(child).any?
             return true if contains_significant_child?(child)
           end
 
@@ -146,8 +146,9 @@ module Pakyow
           @nodes.dup
         end
 
+        type = type.to_sym
         significant_nodes.select { |node|
-          node.type == type
+          node.significant?(type)
         }
       end
 
@@ -156,8 +157,9 @@ module Pakyow
       # @see find_significant_nodes
       #
       def find_significant_nodes_with_name(type, name, with_children: true)
+        name = name.to_sym
         find_significant_nodes(type, with_children: with_children).select { |node|
-          node.name == name
+          node.label(type) == name
         }
       end
 
@@ -284,15 +286,15 @@ module Pakyow
         end
 
         self.class.breadth_first(doc) do |element|
-          significant_object = self.class.significant_builder(element)
+          significance = self.class.find_significance(element)
 
-          unless significant_object || self.class.contains_significant_child?(element)
+          unless significance.any? || self.class.contains_significant_child?(element)
             # Nothing inside of the node is significant, so collapse it to a single node.
             nodes << StringNode.new([element.to_xml, StringAttributes.new, []]); next
           end
 
-          node = if significant_object
-            build_significant_node(element, significant_object)
+          node = if significance.any?
+            build_significant_node(element, significance)
           elsif element.is_a?(Oga::XML::Text) || element.is_a?(Oga::XML::Comment)
             StringNode.new([element.to_xml, StringAttributes.new, []])
           else
@@ -309,10 +311,67 @@ module Pakyow
         nodes
       end
 
-      def build_significant_node(element, object)
-        node = object.node(element)
-        node.parent = self
-        node
+      # Attributes that should be prefixed with +data-+
+      #
+      DATA_ATTRS = %i(ui binding).freeze
+
+      # Attributes that will be turned into +StringDoc+ labels
+      #
+      LABEL_ATTRS = %i(ui version include exclude endpoint prototype binding).freeze
+
+      # Attributes that should be deleted from the view
+      #
+      DELETED_ATTRS = %i(version include exclude endpoint endpoint-action prototype).freeze
+
+      ATTR_MAPPING = {
+        binding: "b"
+      }
+
+      def attributes_hash(element)
+        StringDoc.attributes(element).each_with_object({}) { |attribute, elements|
+          elements[attribute.name.to_sym] = attribute.value
+        }
+      end
+
+      def labels_hash(element)
+        StringDoc.attributes(element).dup.each_with_object({}) { |attribute, labels|
+          attribute_name = attribute.name.to_sym
+
+          if LABEL_ATTRS.include?(attribute_name)
+            labels[attribute_name] = attribute.value.to_s.to_sym
+          end
+        }
+      end
+
+      def build_significant_node(element, significance)
+        if element.is_a?(Oga::XML::Element)
+          attributes = attributes_hash(element).each_with_object({}) { |(key, value), remapped_attributes|
+            unless DELETED_ATTRS.include?(key)
+              remapped_key = ATTR_MAPPING.fetch(key, key)
+
+              if DATA_ATTRS.include?(key)
+                remapped_key = :"data-#{remapped_key}"
+              end
+
+              remapped_attributes[remapped_key] = value
+            end
+          }
+
+          labels = labels_hash(element)
+          StringNode.new(["<#{element.name}", StringAttributes.new(attributes)], significance: significance, labels: labels, parent: self)
+        else
+          name = element.text.strip.match(/@[^\s]*\s*([a-zA-Z0-9\-_]*)/)[1]
+          labels = significance.each_with_object({}) { |significant_type, labels_hash|
+            # FIXME: remove this special case logic
+            labels_hash[significant_type] = if name.empty? && significant_type == :container
+              Page::DEFAULT_CONTAINER
+            else
+              name.to_sym
+            end
+          }
+
+          StringNode.new([element.to_xml, ""], significance: significance, parent: self, labels: labels)
+        end
       end
     end
   end

@@ -10,10 +10,11 @@ module Pakyow
       def class_state(name, default: nil, inheritable: false, getter: true)
         ivar = :"@#{name}"
         @__class_state[ivar] = {
+          default: default,
           inheritable: inheritable
         }
 
-        instance_variable_set(ivar, default)
+        instance_variable_set(ivar, default.deep_dup)
 
         if getter
           define_singleton_method name do
@@ -32,9 +33,11 @@ module Pakyow
         subclass.instance_variable_set(:@__class_state, @__class_state.deep_dup)
 
         @__class_state.each do |ivar, options|
-          next unless options[:inheritable]
-
-          subclass.instance_variable_set(ivar, instance_variable_get(ivar).deep_dup)
+          if options[:inheritable]
+            subclass.instance_variable_set(ivar, instance_variable_get(ivar).deep_dup)
+          elsif @__class_state[ivar][:default]
+            subclass.instance_variable_set(ivar, @__class_state[ivar][:default].deep_dup)
+          end
         end
 
         super

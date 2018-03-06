@@ -56,7 +56,7 @@ module Pakyow
             models.values.flatten.each do |model|
               model.associations[:has_many].each do |has_many_association|
                 if associated_model = models.values.flatten.find { |potentially_associated_model|
-                     potentially_associated_model.__class_name.name == has_many_association
+                     potentially_associated_model.__class_name.name == has_many_association[:model]
                    }
 
                   associated_model.belongs_to(model.__class_name.name)
@@ -203,17 +203,17 @@ Pakyow.module_eval do
               end
 
               associations do
-                model.associations[:has_many].each do |has_many_relation|
-                  has_many has_many_relation
+                model.associations[:has_many].each do |has_many_association|
+                  has_many has_many_association[:model], view: has_many_association[:view]
                 end
 
-                model.associations[:belongs_to].each do |belongs_to_relation|
-                  belongs_to belongs_to_relation, as: Pakyow::Support.inflector.singularize(belongs_to_relation).to_sym
+                model.associations[:belongs_to].each do |belongs_to_association|
+                  belongs_to belongs_to_association[:model], as: Pakyow::Support.inflector.singularize(belongs_to_association[:model]).to_sym
                 end
               end
 
-              model.associations[:belongs_to].each do |belongs_to_relation|
-                attribute :"#{Pakyow::Support.inflector.singularize(belongs_to_relation)}_id", Pakyow::Data::Types.type_for(:integer, adapter_type).optional
+              model.associations[:belongs_to].each do |belongs_to_association|
+                attribute :"#{Pakyow::Support.inflector.singularize(belongs_to_association[:model])}_id", Pakyow::Data::Types.type_for(:integer, adapter_type).optional
               end
 
               if timestamps = model._timestamps
@@ -224,6 +224,10 @@ Pakyow.module_eval do
               if setup_block = model.setup_block
                 instance_exec(&setup_block)
               end
+            end
+
+            if model._queries
+              class_eval(&model._queries)
             end
           end
 

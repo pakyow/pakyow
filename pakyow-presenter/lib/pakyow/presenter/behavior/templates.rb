@@ -20,8 +20,8 @@ module Pakyow
 
             duped_node_with_binding = node_with_binding.dup
             duped_node_with_binding.with_children.each do |node|
-              node.instance_variable_set(:@type, nil)
-              node.instance_variable_set(:@name, nil)
+              node.instance_variable_set(:@labels, {})
+              node.instance_variable_set(:@significance, [])
             end
             template.append(duped_node_with_binding)
             node_with_binding.after(template)

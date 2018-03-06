@@ -25,9 +25,9 @@ module Pakyow
     #
     # @see Routing::Extension::Resource
     #
-    def resources(name, path, *args, &block)
+    def resources(name, path, *args, param: Pakyow::Routing::Extension::Resource::DEFAULT_PARAM, &block)
       controller name, path, *args do
-        expand_within(:resources, &block)
+        expand_within(:resources, param: param, &block)
       end
     end
 

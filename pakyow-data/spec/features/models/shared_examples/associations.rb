@@ -54,11 +54,42 @@ RSpec.shared_examples :model_associations do
         end
       end
 
-      describe "aliasing an association" do
-        it "needs to be defined"
+      describe "extending an association" do
+        let :app_definition do
+          Proc.new do
+            instance_exec(&$data_app_boilerplate)
+
+            model :posts do
+              primary_id
+              has_many :comments, view: :ordered
+            end
+
+            model :comments do
+              primary_id
+              attribute :order
+
+              queries do
+                def ordered
+                  order { order.asc }
+                end
+              end
+            end
+          end
+        end
+
+        it "can be extended" do
+          post = data.posts.create({})
+          data.comments.create(post_id: post[:id], order: "3")
+          data.comments.create(post_id: post[:id], order: "1")
+          data.comments.create(post_id: post[:id], order: "2")
+          expect(data.posts.combine(:comments).first[:comments].count).to eq(3)
+          expect(data.posts.combine(:comments).first[:comments][0][:order]).to eq("1")
+          expect(data.posts.combine(:comments).first[:comments][1][:order]).to eq("2")
+          expect(data.posts.combine(:comments).first[:comments][2][:order]).to eq("3")
+        end
       end
 
-      describe "extending an association" do
+      describe "aliasing an association" do
         it "needs to be defined"
       end
 

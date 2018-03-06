@@ -34,12 +34,12 @@ module Pakyow
 
       def populated_path(path_to_self, **params)
         String.normalize_path(File.join(path_to_self.to_s, @path.to_s).split("/").map { |path_segment|
-          if path_segment[0] == ":"
-            params[path_segment[1..-1].to_sym]
+          if path_segment.include?(":")
+            path_segment.sub(path_segment[(path_segment.index(":"))..-1], params[path_segment[(path_segment.index(":") + 1)..-1].to_sym].to_s)
           else
             path_segment
           end
-        }.join("/"))
+        }.join("/")).gsub("/#", "#")
       end
 
       protected
@@ -47,7 +47,7 @@ module Pakyow
       def create_matcher_from_path(path)
         converted_path = String.normalize_path(path.split("/").map { |segment|
           if segment.include?(":")
-            "(?<#{segment[1..-1]}>(\\w|[-.~:@!$\\'\\(\\)\\*\\+,;])*)"
+            "(?<#{segment[(segment.index(":") + 1)..-1]}>(\\w|[-.~:@!$\\'\\(\\)\\*\\+,;])*)"
           else
             segment
           end

@@ -217,11 +217,10 @@ module Pakyow
         info, content = FrontMatterParser.parse_and_scrub(content)
 
         if @processor
-          extension = File.extname(path).delete(".").to_sym
-          type.load(path, info: info, content: @processor.process(content, extension), logical_path: logical_path)
-        else
-          type.load(path, info: info, logical_path: logical_path)
+          content = @processor.process(content, File.extname(path).delete(".").to_sym)
         end
+
+        type.load(path, info: info, content: content, logical_path: logical_path)
       end
     end
   end

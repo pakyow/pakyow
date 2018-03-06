@@ -227,7 +227,7 @@ RSpec.describe "view versioning via presenter" do
           view.use(object[:title])
         end
 
-        expect(presenter.to_s).to eq("<div title=\"default\" data-b=\"post\"><h1 data-b=\"title\">default</h1></div><div title=\"three\" data-b=\"post\"><h1 data-b=\"title\">three</h1></div><div title=\"two\" data-b=\"post\"><h1 data-b=\"title\">two</h1></div>")
+        expect(presenter.to_s).to eq("<div data-b=\"post\" title=\"default\"><h1 data-b=\"title\">default</h1></div><div data-b=\"post\" title=\"three\"><h1 data-b=\"title\">three</h1></div><div data-b=\"post\" title=\"two\"><h1 data-b=\"title\">two</h1></div>")
       end
     end
 

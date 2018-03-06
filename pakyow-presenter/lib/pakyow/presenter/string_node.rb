@@ -35,7 +35,7 @@ module Pakyow
         end
       end
 
-      attr_reader :node, :type, :name, :parent, :children, :attributes
+      attr_reader :node, :parent, :children, :attributes
 
       # @api private
       attr_writer :parent
@@ -44,10 +44,11 @@ module Pakyow
       def_delegators :children, :find_significant_nodes, :find_significant_nodes_with_name
 
       include Support::Inspectable
-      inspectable :type, :name, :attributes, :children
+      inspectable :attributes, :children, :significance, :labels
 
-      def initialize(node, type: nil, name: nil, parent: nil, labels: {})
-        @node, @type, @name, @parent, @labels = node, type, name, parent, labels
+      def initialize(node, parent: nil, significance: [], labels: {})
+        @node, @parent, @labels = node, parent, labels
+        @significance = significance
         @attributes = @node[1]
         @children = nil
       end
@@ -56,6 +57,7 @@ module Pakyow
       def initialize_copy(_)
         super
 
+        @significance = @significance.dup
         @attributes = @attributes.dup
         @children = @children.dup
 
@@ -64,6 +66,14 @@ module Pakyow
         @node[3] = @children
 
         @labels = @labels.dup
+      end
+
+      def significant?(type = nil)
+        if type
+          @significance.include?(type.to_sym)
+        else
+          @significance.any?
+        end
       end
 
       # Close self with +tag+ and a child.
@@ -92,6 +102,19 @@ module Pakyow
       #
       def replace(replacement)
         @parent.replace_node(self, replacement)
+      end
+
+      # Replaces the current node internally, without replacing the object.
+      #
+      # Use this when it's necessary to retain internal state, such as labels.
+      #
+      def replace_internal(replacement)
+        @children = replacement
+        @node[0] = ""
+        @node[1] = StringAttributes.new
+        @node[2] = ""
+        @node[3] = replacement
+        @node[4] = ""
       end
 
       # Removes the node.

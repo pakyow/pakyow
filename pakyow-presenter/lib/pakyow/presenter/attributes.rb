@@ -88,33 +88,6 @@ module Pakyow
       end
 
       def [](attribute)
-        # Note that if +attribute+ isn't present in the view, the return value
-        # will be nil. This could potentially cause a regression in real-world
-        # cases. Consider if we started with this view:
-        #
-        #   <div class="foo"></div>
-        #
-        # Backend code would likey be written as follows:
-        #
-        #   view.attrs[:class] << "bar"
-        #
-        # The thinking is you don't want to modify values in the view. However,
-        # if the view is later refactored to not have a class attribute the
-        # backend code will error out.
-        #
-        # Generally we care about preventing these cases. However, in the case
-        # of attributes, these are acceptable. The case I laid out above should
-        # be considered bad practice but allowed by the framework. Versioned
-        # views should be used instead, which lets the backend choose which
-        # one to use but gives the frontend full ownership over class names.
-        # This removes unnecessary coordination.
-        #
-        # We could probably support this in a non-breaking way from the backend,
-        # but the complexity it would add makes it not worth it. Some things
-        # can and should be prevented in code, but this seems like policy.
-        #
-        # Same ideas apply to non-class attributes as well.
-
         attribute = attribute.to_sym
         attribute_type = self.class.type_of_attribute(attribute)
 

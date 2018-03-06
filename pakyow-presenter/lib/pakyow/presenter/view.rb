@@ -41,7 +41,7 @@ module Pakyow
 
       extend Forwardable
 
-      def_delegators :@object, :type, :name, :text, :html, :label, :labeled?
+      def_delegators :@object, :type, :text, :html, :label, :labeled?
 
       # The object responsible for parsing, manipulating, and rendering
       # the underlying HTML document for the view.
@@ -109,7 +109,7 @@ module Pakyow
       # Finds a form with a binding matching +name+.
       #
       def form(name)
-        if form_node = @object.find_significant_nodes_with_name(:form, name)[0]
+        if form_node = @object.find_significant_nodes(:form).find { |form| form.label(:binding) == name }
           Form.from_object(form_node)
         else
           nil
@@ -153,8 +153,10 @@ module Pakyow
       #   <div ui="some_component">...</div>
       #
       def components(name)
-        @object.find_significant_nodes_with_name(:component, name).each_with_object([]) { |component, set|
-          set << View.from_object(component)
+        @object.find_significant_nodes(:component).each_with_object([]) { |component, set|
+          if component.label(:ui) == name
+            set << View.from_object(component)
+          end
         }
       end
 
@@ -184,7 +186,7 @@ module Pakyow
             remove
           else
             binding_props(children: false).each do |binding|
-              unless object.value?(binding.name)
+              unless object.value?(binding.label(:binding))
                 binding.remove
               end
             end
@@ -200,8 +202,8 @@ module Pakyow
         tap do
           unless object.nil?
             binding_props.each do |binding|
-              if object.include?(binding.name)
-                bind_value_to_node(object[binding.name], binding)
+              if object.include?(binding.label(:binding))
+                bind_value_to_node(object[binding.label(:binding)], binding)
               end
             end
 
@@ -272,22 +274,24 @@ module Pakyow
         @object.html = ensure_html_safety(html)
       end
 
+      # FIXME: define these introspection methods dynamically based on significant types
+
       # Returns true if +self+ is a binding.
       #
       def binding?
-        @object.type == :binding
+        @object.significant?(:binding)
       end
 
       # Returns true if +self+ is a container.
       #
       def container?
-        @object.type == :container
+        @object.significant?(:container)
       end
 
       # Returns true if +self+ is a partial.
       #
       def partial?
-        @object.type == :partial
+        @object.significant?(:partial)
       end
 
       # Returns true if +self+ is a component.
@@ -299,7 +303,7 @@ module Pakyow
       # Returns true if +self+ is a form.
       #
       def form?
-        @object.type == :form
+        @object.significant?(:form)
       end
 
       # Returns true if +self+ equals +other+.
@@ -355,8 +359,8 @@ module Pakyow
       # @api private
       def find_partials(partials)
         @object.find_significant_nodes(:partial).each_with_object([]) { |partial_node, found_partials|
-          if replacement = partials[partial_node.name]
-            found_partials << partial_node.name
+          if replacement = partials[partial_node.label(:partial)]
+            found_partials << partial_node.label(:partial)
             found_partials.concat(replacement.find_partials(partials))
           end
         }
@@ -366,8 +370,8 @@ module Pakyow
       def mixin(partials)
         tap do
           @object.find_significant_nodes(:partial).each do |partial_node|
-            if replacement = partials[partial_node.name]
-              partial_node.replace(replacement.mixin(partials).object)
+            if replacement = partials[partial_node.label(:partial)]
+              partial_node.replace_internal(replacement.mixin(partials).object)
             end
           end
         end
@@ -403,7 +407,7 @@ module Pakyow
 
       def bindings_with_name(name)
         (binding_scopes + binding_props).select { |node|
-          node.name == name
+          node.label(:binding) == name
         }
       end
 
@@ -419,7 +423,7 @@ module Pakyow
 
       def versioned_nodes(nodes = object_nodes, versions = [])
         versions << nodes.select { |node|
-          node.type && node.attributes.is_a?(StringAttributes) && node.labeled?(:version)
+          node.significant? && node.attributes.is_a?(StringAttributes) && node.labeled?(:version)
         }
 
         nodes.each do |node|

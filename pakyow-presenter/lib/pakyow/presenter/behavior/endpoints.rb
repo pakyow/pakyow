@@ -68,31 +68,21 @@ module Pakyow
 
         def setup_non_contextual_endpoints
           setup_endpoints(
-            @view.object.find_significant_nodes(
-              :endpoint, with_children: true
-            ).concat(@view.object.find_significant_nodes(
-              :prototype, with_children: true
-              ).select { |prototype_node|
-                prototype_node.labeled?(:endpoint)
-              }
-            )
-          )
+            @view.object.find_significant_nodes(:endpoint).reject { |node|
+              node.significant?(:within_binding)
+            })
         end
 
         def setup_binding_endpoints(object)
-          if object.include?(:id)
-            object[:"#{Support.inflector.singularize(@view.name)}_id"] = object[:id]
+          nodes = if @view.object.is_a?(StringNode) && @view.object.significant?(:endpoint) && @view.object.significant?(:binding)
+            [@view.object]
+          else
+            @view.object.find_significant_nodes(:endpoint).select { |node|
+              node.significant?(:within_binding)
+            }
           end
 
-          setup_endpoints(
-            @view.object.find_significant_nodes(
-              :binding_endpoint, with_children: true
-            ).concat(@view.object.find_significant_nodes(
-              :binding, with_children: true
-              ).select { |binding_node|
-                binding_node.labeled?(:endpoint)
-              }
-            ), object)
+          setup_endpoints(nodes, object)
         end
 
         def setup_endpoints(nodes, params = nil)
@@ -104,22 +94,22 @@ module Pakyow
 
           nodes.each do |endpoint_node|
             endpoint_view = View.from_object(endpoint_node)
-            endpoint_parts = endpoint_node.label(:endpoint).to_s.split("#").map(&:to_sym)
+            endpoint_string = endpoint_node.label(:endpoint).to_s
 
             endpoint_action_node = find_endpoint_action_node(endpoint_node)
 
-            if endpoint_parts.last == :remove
-              wrap_endpoint_for_removal(endpoint_view, endpoint_parts, params)
+            if endpoint_string.end_with?("remove")
+              wrap_endpoint_for_removal(endpoint_view, endpoint_string, params)
             elsif endpoint_action_node.tagname == "a"
-              setup_endpoint_for_anchor(endpoint_view, View.from_object(endpoint_action_node), endpoint_parts, params)
+              setup_endpoint_for_anchor(endpoint_view, View.from_object(endpoint_action_node), endpoint_string, params)
             end
           end
         end
 
-        def wrap_endpoint_for_removal(endpoint_view, endpoint_parts, params)
+        def wrap_endpoint_for_removal(endpoint_view, endpoint_string, params)
           delete_form = View.new(
             <<~HTML
-              <form action="#{@endpoints&.path_to(*endpoint_parts, params)}" method="post" data-ui="confirm">
+              <form action="#{@endpoints&.path(*endpoint_string, params)}" method="post" data-ui="confirm">
                 <input type="hidden" name="_method" value="delete">
 
                 #{endpoint_view}
@@ -130,8 +120,8 @@ module Pakyow
           endpoint_view.replace(delete_form)
         end
 
-        def setup_endpoint_for_anchor(endpoint_view, endpoint_action_view, endpoint_parts, params)
-          if path = @endpoints&.path_to(*endpoint_parts, params)
+        def setup_endpoint_for_anchor(endpoint_view, endpoint_action_view, endpoint_string, params)
+          if path = @endpoints.path(*endpoint_string, params)
             endpoint_action_view.attributes[:href] = path
           end
 

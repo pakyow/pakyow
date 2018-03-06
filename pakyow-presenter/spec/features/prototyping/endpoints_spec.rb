@@ -49,7 +49,7 @@ RSpec.describe "presenting prototypes that define endpoints" do
     it "sets an active class" do
       expect(call("/prototyping/endpoints/current_binding_prop")[2].body.read).to include_sans_whitespace(
         <<~HTML
-          <a href="/prototyping/endpoints/current" data-b="title" class="active"></a>
+          <a data-b="title" href="/prototyping/endpoints/current" class="active"></a>
         HTML
       )
     end

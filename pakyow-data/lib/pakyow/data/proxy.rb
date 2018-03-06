@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "pakyow/support/core_refinements/array/ensurable"
+require "pakyow/support/inspectable"
 
 module Pakyow
   module Data
@@ -14,6 +15,9 @@ module Pakyow
           model_proxy
         end
       end
+
+      include Support::Inspectable
+      inspectable :model
 
       using Support::Refinements::Array::Ensurable
 
@@ -72,7 +76,14 @@ module Pakyow
           }
 
           primary_key = @model.class._primary_key
-          result_pks = @model.select(primary_key).map { |object|
+
+          result_pks_target = if @model.__getobj__.is_a?(ROM::Relation::Combined)
+            @model.root
+          else
+            @model
+          end
+
+          result_pks = result_pks_target.select(primary_key).map { |object|
             object[primary_key]
           }
 

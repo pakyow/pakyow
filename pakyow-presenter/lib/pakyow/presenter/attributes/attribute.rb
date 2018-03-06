@@ -16,7 +16,7 @@ module Pakyow
         end
 
         def deep_dup
-          __getobj__.deep_dup
+          self.class.new(__getobj__.deep_dup)
         end
       end
     end

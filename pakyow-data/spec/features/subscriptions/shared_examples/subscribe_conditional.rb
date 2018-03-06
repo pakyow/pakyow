@@ -52,7 +52,7 @@ RSpec.shared_examples :subscription_subscribe_conditional do
 
           update do
             verify do
-              required :post_id
+              required :id
 
               required :post do
                 optional :title
@@ -60,11 +60,11 @@ RSpec.shared_examples :subscription_subscribe_conditional do
               end
             end
 
-            data.posts.by_title(params[:post_id]).update(params[:post])
+            data.posts.by_title(params[:id]).update(params[:post])
           end
 
           remove do
-            data.posts.by_title(params[:post_id]).delete
+            data.posts.by_title(params[:id]).delete
           end
 
           collection do
@@ -99,11 +99,11 @@ RSpec.shared_examples :subscription_subscribe_conditional do
               end
             end
 
-            data.comments.by_title(params[:comment_id]).update(params[:comment])
+            data.comments.by_title(params[:id]).update(params[:comment])
           end
 
           remove do
-            data.comments.by_title(params[:comment_id]).delete
+            data.comments.by_title(params[:id]).delete
           end
         end
       end

@@ -84,6 +84,23 @@ RSpec.describe Pakyow::Presenter::StringNode do
     end
   end
 
+  describe "#replace_internal" do
+    context "replacement is a StringDoc" do
+      it "replaces" do
+        replacement = Pakyow::Presenter::StringDoc.new("foo")
+        doc.find_significant_nodes_with_name(:binding, :title)[0].replace_internal(replacement)
+        expect(doc.to_s).to eq("<div data-b=\"post\">foo</div>")
+      end
+
+      it "maintains internal state" do
+        node = doc.find_significant_nodes_with_name(:binding, :title)[0]
+        node.instance_variable_set(:@labels, { foo: "bar" })
+        node.replace_internal(Pakyow::Presenter::StringDoc.new("foo"))
+        expect(node.label(:foo)).to eq("bar")
+      end
+    end
+  end
+
   describe "#remove" do
     context "node is primary" do
       it "removes the node" do
@@ -380,12 +397,12 @@ RSpec.describe Pakyow::Presenter::StringNode do
   end
 
   describe "#inspect" do
-    it "includes type" do
-      expect(node.inspect).to include("@type=:binding")
+    it "includes significance" do
+      expect(node.inspect).to include("@significance=[:binding, :within_binding]")
     end
 
-    it "includes name" do
-      expect(node.inspect).to include("@name=:post")
+    it "includes labels" do
+      expect(node.inspect).to include("@labels={:binding=>:title}")
     end
 
     it "includes attributes" do

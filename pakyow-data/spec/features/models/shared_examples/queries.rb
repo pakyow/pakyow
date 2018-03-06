@@ -50,8 +50,10 @@ RSpec.shared_examples :model_queries do
           primary_id
           attribute :title, :string
 
-          def title_is_foo
-            where(title: "foo")
+          queries do
+            def title_is_foo
+              where(title: "foo")
+            end
           end
         end
       end
