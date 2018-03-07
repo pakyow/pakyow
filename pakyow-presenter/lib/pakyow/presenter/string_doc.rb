@@ -319,12 +319,16 @@ module Pakyow
       #
       LABEL_ATTRS = %i(ui version include exclude endpoint prototype binding).freeze
 
+      LABEL_MAPPING = {
+        ui: :component
+      }
+
       # Attributes that should be deleted from the view
       #
       DELETED_ATTRS = %i(version include exclude endpoint endpoint-action prototype).freeze
 
       ATTR_MAPPING = {
-        binding: "b"
+        binding: :b
       }
 
       def attributes_hash(element)
@@ -338,7 +342,7 @@ module Pakyow
           attribute_name = attribute.name.to_sym
 
           if LABEL_ATTRS.include?(attribute_name)
-            labels[attribute_name] = attribute.value.to_s.to_sym
+            labels[LABEL_MAPPING.fetch(attribute_name, attribute_name)] = attribute.value.to_s.to_sym
           end
         }
       end

@@ -153,10 +153,8 @@ module Pakyow
       #   <div ui="some_component">...</div>
       #
       def components(name)
-        @object.find_significant_nodes(:component).each_with_object([]) { |component, set|
-          if component.label(:ui) == name
-            set << View.from_object(component)
-          end
+        @object.find_significant_nodes_with_name(:component, name).each_with_object([]) { |component, set|
+          set << View.from_object(component)
         }
       end
 
@@ -297,7 +295,7 @@ module Pakyow
       # Returns true if +self+ is a component.
       #
       def component?
-        @object.labeled?(:ui)
+        @object.significant?(:component)
       end
 
       # Returns true if +self+ is a form.
