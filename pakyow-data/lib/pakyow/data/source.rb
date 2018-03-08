@@ -29,11 +29,19 @@ module Pakyow
       end
 
       def all
-        map_with(:model).to_a
+        if mappable?
+          map_with(:model).to_a
+        else
+          to_a
+        end
       end
 
       def one
-        map_with(:model).one
+        if mappable?
+          map_with(:model).one
+        else
+          super
+        end
       end
 
       def each(&block)
@@ -53,6 +61,14 @@ module Pakyow
             values[:"#{association}_id"] = values[association][:id]
           end
         end
+      end
+
+      UNMAPPABLE = [
+        ROM::Relation::Composite
+      ].freeze
+
+      def mappable?
+        !UNMAPPABLE.include?(__getobj__.class)
       end
     end
   end
