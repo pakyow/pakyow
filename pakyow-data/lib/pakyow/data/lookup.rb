@@ -14,13 +14,13 @@ module Pakyow
         @models, @subscribers = models, subscribers
         subscribers.lookup = self
 
-        @models.each do |key, model|
-          define_singleton_method key do
+        @models.values.each do |model|
+          define_singleton_method model.plural_name do
             Proxy.new(
               Source.new(
                 model: model,
                 relation: Pakyow.relation(
-                  model.__class_name.name,
+                  model.plural_name,
                   model.adapter,
                   model.connection
                 )

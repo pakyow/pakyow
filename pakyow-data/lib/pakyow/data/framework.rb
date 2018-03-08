@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "pakyow/support/inflector"
+
 require "pakyow/core/framework"
 
 require "pakyow/data/types"
@@ -57,10 +59,10 @@ module Pakyow
             models.values.flatten.each do |model|
               model.associations[:has_many].each do |has_many_association|
                 if associated_model = models.values.flatten.find { |potentially_associated_model|
-                     potentially_associated_model.__class_name.name == has_many_association[:model]
+                     potentially_associated_model.plural_name == has_many_association[:model]
                    }
 
-                  associated_model.belongs_to(model.__class_name.name)
+                  associated_model.belongs_to(model.plural_name)
                 end
               end
             end
@@ -180,8 +182,8 @@ Pakyow.module_eval do
         }
 
         models.each do |model|
-          config.relation model.__class_name.name do
-            schema model.name do
+          config.relation model.plural_name.to_sym do
+            schema do
               model.attributes.each do |name, options|
                 type = Pakyow::Data::Types.type_for(options[:type], adapter_type)
 
@@ -232,7 +234,7 @@ Pakyow.module_eval do
 
             model.attributes.each do |attribute_name, _options|
               define_method :"by_#{attribute_name}" do |value|
-                where(attribute_name => value).map_with(:model)
+                map_with(:model).where(attribute_name => value)
               end
             end
 
@@ -255,13 +257,13 @@ Pakyow.module_eval do
           end
 
           config.mappers do
-            define model.__class_name.name do
+            define model.plural_name do
               self.model model
               register_as :model
             end
           end
 
-          config.commands model.__class_name.name do
+          config.commands model.plural_name do
             define :create do
               result :one
 

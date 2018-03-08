@@ -10,7 +10,7 @@ RSpec.shared_examples :model_instances do
       Proc.new do
         instance_exec(&$data_app_boilerplate)
 
-        model :posts do
+        model :post do
           primary_id
           has_many :comments
 
@@ -21,7 +21,7 @@ RSpec.shared_examples :model_instances do
           end
         end
 
-        model :comments do
+        model :comment do
           primary_id
         end
       end
@@ -34,14 +34,14 @@ RSpec.shared_examples :model_instances do
     describe "#all" do
       it "returns model instances" do
         data.posts.create({})
-        expect(data.posts.all[0]).to be_instance_of(Test::Posts)
+        expect(data.posts.all[0]).to be_instance_of(Test::Post)
       end
     end
 
     describe "#one" do
       it "returns model instances" do
         data.posts.create({})
-        expect(data.posts.one).to be_instance_of(Test::Posts)
+        expect(data.posts.one).to be_instance_of(Test::Post)
       end
     end
 
@@ -49,7 +49,7 @@ RSpec.shared_examples :model_instances do
       it "yields model instances" do
         data.posts.create({})
         data.posts.each do |post|
-          expect(post).to be_instance_of(Test::Posts)
+          expect(post).to be_instance_of(Test::Post)
         end
       end
     end
@@ -57,7 +57,7 @@ RSpec.shared_examples :model_instances do
     describe "#by_*" do
       it "returns model instances" do
         post = data.posts.create({})
-        expect(data.posts.by_id(post[:id]).one).to be_instance_of(Test::Posts)
+        expect(data.posts.by_id(post[:id]).one).to be_instance_of(Test::Post)
       end
     end
 
@@ -65,27 +65,27 @@ RSpec.shared_examples :model_instances do
       it "returns model instances" do
         post = data.posts.create({})
         data.comments.create(post_id: post[:id])
-        expect(data.posts.with_comments.first).to be_instance_of(Test::Posts)
+        expect(data.posts.with_comments.first).to be_instance_of(Test::Post)
       end
 
       it "returns model instances for the associated data" do
         post = data.posts.create({})
         data.comments.create(post_id: post[:id])
-        expect(data.posts.with_comments.first[:comments][0]).to be_instance_of(Test::Comments)
+        expect(data.posts.with_comments.first[:comments][0]).to be_instance_of(Test::Comment)
       end
     end
 
     describe "#create" do
       it "returns a model instance" do
         post = data.posts.create({})
-        expect(post).to be_instance_of(Test::Posts)
+        expect(post).to be_instance_of(Test::Post)
       end
     end
 
     describe "custom query" do
       it "returns model instances" do
         data.posts.create({})
-        expect(data.posts.query.all[0]).to be_instance_of(Test::Posts)
+        expect(data.posts.query.all[0]).to be_instance_of(Test::Post)
       end
     end
   end
@@ -101,7 +101,7 @@ RSpec.shared_examples :model_instances do
       Proc.new do
         instance_exec(&$data_app_boilerplate)
 
-        model :posts do
+        model :post do
           primary_id
 
           def foo

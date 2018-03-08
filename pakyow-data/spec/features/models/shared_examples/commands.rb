@@ -14,7 +14,7 @@ RSpec.shared_examples :model_commands do
       Proc.new do
         instance_exec(&$data_app_boilerplate)
 
-        model :posts do
+        model :post do
           primary_id
           attribute :title, :string
         end
@@ -28,7 +28,7 @@ RSpec.shared_examples :model_commands do
       end
 
       it "returns a single result" do
-        expect(data.posts.create({})).to be_instance_of(Test::Posts)
+        expect(data.posts.create({})).to be_instance_of(Test::Post)
       end
     end
 

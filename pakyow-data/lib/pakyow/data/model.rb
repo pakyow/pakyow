@@ -3,6 +3,7 @@
 require "forwardable"
 
 require "pakyow/support/indifferentize"
+require "pakyow/support/inflector"
 require "pakyow/support/makeable"
 require "pakyow/support/class_state"
 
@@ -113,6 +114,10 @@ module Pakyow
           @associations[:belongs_to] << {
             model: Support.inflector.pluralize(model).to_sym
           }
+        end
+
+        def plural_name
+          @plural_name ||= Support.inflector.pluralize(__class_name.name).to_sym
         end
 
         private
