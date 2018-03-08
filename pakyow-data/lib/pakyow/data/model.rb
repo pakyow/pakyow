@@ -15,12 +15,6 @@ module Pakyow
     class Model
       using Support::Indifferentize
 
-      extend Support::Makeable
-      extend Support::ClassState
-
-      class_state :attributes, inheritable: true, default: {}
-      class_state :associations, inheritable: true, default: { has_many: [], belongs_to: [] }
-
       extend Forwardable
       def_delegators :@values, :[], :include?, :keys
 
@@ -43,6 +37,16 @@ module Pakyow
         @values.include?(name)
       end
 
+      extend Support::Makeable
+      extend Support::ClassState
+
+      class_state :queries_block
+      class_state :timestamp_fields
+      class_state :primary_key_field
+      class_state :attributes, default: {}
+      class_state :qualifications, default: {}
+      class_state :associations, default: { has_many: [], belongs_to: [] }
+
       class << self
         attr_reader :name, :adapter, :connection, :setup_block, :associations
 
@@ -51,11 +55,7 @@ module Pakyow
         end
 
         def queries(&block)
-          @queries = block
-        end
-
-        def _queries
-          @queries
+          @queries_block = block
         end
 
         def attribute(name, type = :string, default: nil, nullable: true)
@@ -69,14 +69,10 @@ module Pakyow
         end
 
         def timestamps(create: :created_at, update: :updated_at)
-          @timestamps = {
+          @timestamp_fields = {
             create: create,
             update: update
           }
-        end
-
-        def _timestamps
-          @timestamps
         end
 
         def command(name, &block)
@@ -89,19 +85,15 @@ module Pakyow
         end
 
         def primary_key(field)
-          @primary_key = field
-        end
-
-        def _primary_key
-          @primary_key
+          @primary_key_field = field
         end
 
         def subscribe(query_name, qualifications)
-          (@qualifications ||= {})[query_name] = qualifications
+          @qualifications[query_name] = qualifications
         end
 
         def qualifications(query_name)
-          @qualifications&.dig(query_name) || {}
+          @qualifications.dig(query_name) || {}
         end
 
         def setup(&block)

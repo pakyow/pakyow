@@ -75,7 +75,7 @@ module Pakyow
             qualifications.merge(qualifications_for_proxied_call)
           }
 
-          primary_key = @source.model._primary_key
+          primary_key = @source.model.primary_key_field
 
           result_pks_target = if @source.__getobj__.is_a?(ROM::Relation::Combined)
             @source.__getobj__.root

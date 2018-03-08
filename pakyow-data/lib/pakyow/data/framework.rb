@@ -185,7 +185,7 @@ Pakyow.module_eval do
               model.attributes.each do |name, options|
                 type = Pakyow::Data::Types.type_for(options[:type], adapter_type)
 
-                if options[:nullable] && model._primary_key != name
+                if options[:nullable] && model.primary_key_field != name
                   type = type.optional
                 end
 
@@ -196,8 +196,8 @@ Pakyow.module_eval do
                 attribute name, type, null: options[:nullable]
               end
 
-              if model._primary_key && model.attributes.keys.include?(model._primary_key)
-                primary_key(model._primary_key)
+              if model.primary_key_field && model.attributes.keys.include?(model.primary_key_field)
+                primary_key(model.primary_key_field)
               else
                 # TODO: protect against defining an unknown field as a pk
               end
@@ -216,7 +216,7 @@ Pakyow.module_eval do
                 attribute :"#{Pakyow::Support.inflector.singularize(belongs_to_association[:model])}_id", Pakyow::Data::Types.type_for(:integer, adapter_type).optional
               end
 
-              if timestamps = model._timestamps
+              if timestamps = model.timestamp_fields
                 use :timestamps
                 timestamps(*[timestamps[:update], timestamps[:create]].compact)
               end
@@ -226,8 +226,8 @@ Pakyow.module_eval do
               end
             end
 
-            if model._queries
-              class_eval(&model._queries)
+            if model.queries_block
+              class_eval(&model.queries_block)
             end
 
             model.attributes.each do |attribute_name, _options|
@@ -265,7 +265,7 @@ Pakyow.module_eval do
             define :create do
               result :one
 
-              if timestamps = model._timestamps
+              if timestamps = model.timestamp_fields
                 use :timestamps
                 timestamp(*[timestamps[:update], timestamps[:create]].compact)
               end
@@ -274,7 +274,7 @@ Pakyow.module_eval do
             define :update do
               result :many
 
-              if timestamps = model._timestamps
+              if timestamps = model.timestamp_fields
                 use :timestamps
                 timestamp timestamps[:update]
               end
