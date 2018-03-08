@@ -22,8 +22,8 @@ RSpec.shared_examples :model_qualifications do
     end
 
     it "defines a qualification for each query" do
-      expect(data.posts.model.class.qualifications(:by_id)).to eq(id: :__arg0__)
-      expect(data.posts.model.class.qualifications(:by_title)).to eq(title: :__arg0__)
+      expect(data.posts.source.model.qualifications(:by_id)).to eq(id: :__arg0__)
+      expect(data.posts.source.model.qualifications(:by_title)).to eq(title: :__arg0__)
     end
   end
 
@@ -55,7 +55,7 @@ RSpec.shared_examples :model_qualifications do
     end
 
     it "defines the qualification" do
-      expect(data.posts.model.class.qualifications(:title_is_foo)).to eq(title: "foo")
+      expect(data.posts.source.model.qualifications(:title_is_foo)).to eq(title: "foo")
     end
   end
 end

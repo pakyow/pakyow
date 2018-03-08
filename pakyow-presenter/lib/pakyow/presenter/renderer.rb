@@ -16,7 +16,7 @@ module Pakyow
           name = :"#{name};__within__:#{within}"
         end
 
-        if default_value == NOT_PASSED
+        if default_value.equal?(NOT_PASSED)
           super name
         else
           super name, default_value

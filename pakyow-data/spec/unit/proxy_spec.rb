@@ -1,7 +1,7 @@
 RSpec.describe Pakyow::Data::Proxy do
   describe "#inspect" do
-    it "includes model" do
-      expect(Pakyow::Data::Proxy.__inspectables).to include(:@model)
+    it "includes source" do
+      expect(Pakyow::Data::Proxy.__inspectables).to include(:@source)
     end
 
     it "does not include subscribers" do

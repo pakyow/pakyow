@@ -29,13 +29,13 @@ RSpec.shared_examples :model_associations do
       it "creates a has_many relationship" do
         post = data.posts.create({})
         data.comments.create(post_id: post[:id])
-        expect(data.posts.combine(:comments).first[:comments].count).to eq(1)
+        expect(data.posts.with_comments.first[:comments].count).to eq(1)
       end
 
       it "creates a belongs_to relationship on the associated model" do
         post = data.posts.create({})
         data.comments.create(post_id: post[:id])
-        expect(data.comments.combine(:post).first[:post][:id]).to eq(1)
+        expect(data.comments.with_post.first[:post][:id]).to eq(1)
       end
 
       describe "specifying the associated data when updating" do
@@ -43,14 +43,14 @@ RSpec.shared_examples :model_associations do
           post = data.posts.create({})
           data.comments.create({})
           data.comments.update(post_id: post[:id])
-          expect(data.posts.combine(:comments).first[:comments].count).to eq(1)
+          expect(data.posts.with_comments.first[:comments].count).to eq(1)
         end
 
         it "can be specified with the object" do
           post = data.posts.create({})
           data.comments.create({})
           data.comments.update(post: post)
-          expect(data.posts.combine(:comments).first[:comments].count).to eq(1)
+          expect(data.posts.with_comments.first[:comments].count).to eq(1)
         end
       end
 
@@ -82,10 +82,10 @@ RSpec.shared_examples :model_associations do
           data.comments.create(post_id: post[:id], order: "3")
           data.comments.create(post_id: post[:id], order: "1")
           data.comments.create(post_id: post[:id], order: "2")
-          expect(data.posts.combine(:comments).first[:comments].count).to eq(3)
-          expect(data.posts.combine(:comments).first[:comments][0][:order]).to eq("1")
-          expect(data.posts.combine(:comments).first[:comments][1][:order]).to eq("2")
-          expect(data.posts.combine(:comments).first[:comments][2][:order]).to eq("3")
+          expect(data.posts.with_comments.first[:comments].count).to eq(3)
+          expect(data.posts.with_comments.first[:comments][0][:order]).to eq("1")
+          expect(data.posts.with_comments.first[:comments][1][:order]).to eq("2")
+          expect(data.posts.with_comments.first[:comments][2][:order]).to eq("3")
         end
       end
 
@@ -121,7 +121,7 @@ RSpec.shared_examples :model_associations do
       it "creates a belongs_to relationship" do
         post = data.posts.create({})
         data.comments.create(post_id: post[:id])
-        expect(data.comments.combine(:post).first[:post][:id]).to eq(1)
+        expect(data.comments.with_post.first[:post][:id]).to eq(1)
       end
 
       describe "the foreign key" do

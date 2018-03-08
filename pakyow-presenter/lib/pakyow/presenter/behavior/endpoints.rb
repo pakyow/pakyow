@@ -121,7 +121,7 @@ module Pakyow
         end
 
         def setup_endpoint_for_anchor(endpoint_view, endpoint_action_view, endpoint_string, params)
-          if path = @endpoints.path(*endpoint_string, params)
+          if path = @endpoints.path(*endpoint_string, **params.to_h)
             endpoint_action_view.attributes[:href] = path
           end
 

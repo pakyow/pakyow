@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require "forwardable"
+
+require "pakyow/support/indifferentize"
 require "pakyow/support/makeable"
 require "pakyow/support/class_state"
 
@@ -9,38 +12,36 @@ module Pakyow
     #
     # Implemented as a delegator to {Rom::Relation}.
     #
-    class Model < SimpleDelegator
+    class Model
+      using Support::Indifferentize
+
       extend Support::Makeable
-
-      def command?(maybe_command_name)
-        %i[create update delete].include?(maybe_command_name)
-      end
-
-      def create(values)
-        self.class.set_ids_for_belongs_to_associations!(values)
-        command(:create).call(values)
-      end
-
-      def update(values)
-        self.class.set_ids_for_belongs_to_associations!(values)
-        command(:update).call(values)
-      end
-
-      def delete
-        command(:delete).call
-      end
-
-      def all
-        to_a
-      end
-
-      def empty?
-        count == 0
-      end
-
       extend Support::ClassState
+
       class_state :attributes, inheritable: true, default: {}
       class_state :associations, inheritable: true, default: { has_many: [], belongs_to: [] }
+
+      extend Forwardable
+      def_delegators :@values, :[], :include?, :keys
+
+      attr_reader :values
+
+      def initialize(values)
+        @values = values.indifferentize
+        @values.freeze
+      end
+
+      def to_h
+        @values
+      end
+
+      def method_missing(name, *)
+        @values[name]
+      end
+
+      def respond_to_missing?(name, *)
+        @values.include?(name)
+      end
 
       class << self
         attr_reader :name, :adapter, :connection, :setup_block, :associations
@@ -64,7 +65,6 @@ module Pakyow
             nullable: nullable
           }
 
-          define_query_for_attribute!(name)
           qualify_query_for_attribute!(name)
         end
 
@@ -123,23 +123,7 @@ module Pakyow
           }
         end
 
-        # @api private
-        def set_ids_for_belongs_to_associations!(values)
-          associations[:belongs_to].each do |association|
-            association = Support.inflector.singularize(association[:model]).to_sym
-            if values.key?(association)
-              values[:"#{association}_id"] = values[association][:id]
-            end
-          end
-        end
-
         private
-
-        def define_query_for_attribute!(attribute_name)
-          define_method :"by_#{attribute_name}" do |value|
-            where(attribute_name => value)
-          end
-        end
 
         def qualify_query_for_attribute!(attribute_name)
           subscribe :"by_#{attribute_name}", attribute_name => :__arg0__

@@ -17,8 +17,13 @@ module Pakyow
         @models.each do |key, model|
           define_singleton_method key do
             Proxy.new(
-              model.new(
-                Pakyow.relation(model.__class_name.name, model.adapter, model.connection)
+              Source.new(
+                model: model,
+                relation: Pakyow.relation(
+                  model.__class_name.name,
+                  model.adapter,
+                  model.connection
+                )
               ), @subscribers
             )
           end

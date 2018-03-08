@@ -6,6 +6,7 @@ require "pakyow/data/types"
 require "pakyow/data/lookup"
 require "pakyow/data/verifier"
 require "pakyow/data/model"
+require "pakyow/data/source"
 require "pakyow/data/proxy"
 require "pakyow/data/subscribers"
 require "pakyow/data/verification"
@@ -114,7 +115,6 @@ end
 
 Pakyow.module_eval do
   class << self
-    # TODO: probably best as config
     attr_reader :database_containers
 
     def relation(name, adapter, connection)
@@ -228,6 +228,36 @@ Pakyow.module_eval do
 
             if model._queries
               class_eval(&model._queries)
+            end
+
+            model.attributes.each do |attribute_name, _options|
+              define_method :"by_#{attribute_name}" do |value|
+                where(attribute_name => value).map_with(:model)
+              end
+            end
+
+            model.associations[:has_many].each do |has_many_association|
+              define_method :"with_#{has_many_association[:model]}" do
+                map_with(:model).combine(has_many_association[:model]).node(has_many_association[:model]) { |objects|
+                  objects.map_with(:model)
+                }
+              end
+            end
+
+            model.associations[:belongs_to].each do |belongs_to_association|
+              association_name = Pakyow::Support.inflector.singularize(belongs_to_association[:model]).to_sym
+              define_method :"with_#{association_name}" do
+                map_with(:model).combine(association_name).node(association_name) { |objects|
+                  objects.map_with(:model)
+                }
+              end
+            end
+          end
+
+          config.mappers do
+            define model.__class_name.name do
+              self.model model
+              register_as :model
             end
           end
 

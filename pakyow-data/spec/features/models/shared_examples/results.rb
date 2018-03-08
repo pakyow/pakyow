@@ -18,8 +18,10 @@ RSpec.shared_examples :model_results do
           primary_id
           attribute :title, :string
 
-          def ordered
-            order(:id)
+          queries do
+            def ordered
+              order(:id)
+            end
           end
         end
       end

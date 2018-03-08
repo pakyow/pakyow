@@ -7,39 +7,39 @@ module Pakyow
   module Data
     class Proxy
       class << self
-        def deserialize(info, model_proxy)
+        def deserialize(info, proxy)
           info[:proxied_calls].each do |proxied_call|
-            model_proxy = model_proxy.public_send(proxied_call[:call], *proxied_call[:args])
+            proxy = proxy.public_send(proxied_call[:call], *proxied_call[:args])
           end
 
-          model_proxy
+          proxy
         end
       end
 
       include Support::Inspectable
-      inspectable :model
+      inspectable :source
 
       using Support::Refinements::Array::Ensurable
 
-      attr_reader :model, :proxied_calls
+      attr_reader :source, :proxied_calls
 
-      def initialize(model, subscribers)
-        @model, @subscribers = model, subscribers
+      def initialize(source, subscribers)
+        @source, @subscribers = source, subscribers
         @proxied_calls = []
         @subscribable = true
       end
 
       def method_missing(method_name, *args, &block)
-        result = @model.public_send(method_name, *args, &block)
+        result = @source.public_send(method_name, *args, &block)
 
-        if @model.command?(method_name)
-          @subscribers.did_mutate(@model.class.__class_name.name, args[0], Array.ensure(result).compact)
+        if @source.command?(method_name)
+          @subscribers.did_mutate(@source.model.__class_name.name, args[0], Array.ensure(result).compact)
           return result
         end
 
-        if result.class.name.include?("ROM::Relation")
+        if !result.is_a?(Pakyow::Data::Model) && result.class.name.include?("ROM::Relation")
           proxy = dup
-          proxy.instance_variable_set(:@model, @model.class.new(result))
+          proxy.instance_variable_set(:@source, @source.class.new(model: @source.model, relation: result))
           proxy.instance_variable_get(:@proxied_calls) << {
             call: method_name,
             args: args
@@ -52,7 +52,7 @@ module Pakyow
       end
 
       def respond_to_missing?(*)
-        # All method calls are forwarded to the model.
+        # All method calls are forwarded to the source.
         #
         true
       end
@@ -62,7 +62,7 @@ module Pakyow
 
         if subscribable?
           qualifications = @proxied_calls.inject({}) { |qualifications, proxied_call|
-            qualifications_for_proxied_call = @model.class.qualifications(proxied_call[:call])
+            qualifications_for_proxied_call = @source.model.qualifications(proxied_call[:call])
 
             # Populate argument qualifications with argument values.
             #
@@ -75,12 +75,14 @@ module Pakyow
             qualifications.merge(qualifications_for_proxied_call)
           }
 
-          primary_key = @model.class._primary_key
+          primary_key = @source.model._primary_key
 
-          result_pks_target = if @model.__getobj__.is_a?(ROM::Relation::Combined)
-            @model.root
+          result_pks_target = if @source.__getobj__.is_a?(ROM::Relation::Combined)
+            @source.__getobj__.root
+          elsif @source.__getobj__.is_a?(ROM::Relation::Composite)
+            @source.__getobj__.left
           else
-            @model
+            @source
           end
 
           result_pks = result_pks_target.select(primary_key).map { |object|
@@ -88,7 +90,7 @@ module Pakyow
           }
 
           subscription = {
-            model: @model.class.__class_name.name,
+            model: @source.model.__class_name.name,
             handler: handler,
             payload: payload,
             qualifications: qualifications,
@@ -102,7 +104,7 @@ module Pakyow
 
           # Register subscriptions for any combined models.
           #
-          if @model.__getobj__.is_a?(ROM::Relation::Combined)
+          if @source.__getobj__.is_a?(ROM::Relation::Combined)
             result_pks.each do |result_pk_value|
               nodes.each do |node|
                 combined_subscription = {
@@ -110,7 +112,7 @@ module Pakyow
                   handler: handler,
                   payload: payload,
                   qualifications: {
-                    :"#{Support.inflector.singularize(@model.class.__class_name.name)}_#{primary_key}" => result_pk_value
+                    :"#{Support.inflector.singularize(@source.model.__class_name.name)}_#{primary_key}" => result_pk_value
                   },
                   proxy: to_h
                 }
@@ -136,7 +138,7 @@ module Pakyow
 
       def to_h
         {
-          model: @model.class.__class_name.name,
+          model: @source.model.__class_name.name,
           proxied_calls: @proxied_calls
         }
       end

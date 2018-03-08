@@ -28,7 +28,7 @@ RSpec.shared_examples :model_commands do
       end
 
       it "returns a single result" do
-        expect(data.posts.create({})).to be_instance_of(Hash)
+        expect(data.posts.create({})).to be_instance_of(Test::Posts)
       end
     end
 
