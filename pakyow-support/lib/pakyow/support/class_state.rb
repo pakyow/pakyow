@@ -37,6 +37,8 @@ module Pakyow
             subclass.instance_variable_set(ivar, instance_variable_get(ivar).deep_dup)
           elsif @__class_state[ivar][:default]
             subclass.instance_variable_set(ivar, @__class_state[ivar][:default].deep_dup)
+          else
+            subclass.instance_variable_set(ivar, nil)
           end
         end
 
