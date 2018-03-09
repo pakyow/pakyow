@@ -11,10 +11,10 @@ module Pakyow
       attr_reader :subscribers
 
       def initialize(models, subscribers)
-        @models, @subscribers = models, subscribers
-        subscribers.lookup = self
+        @subscribers = subscribers
+        @subscribers.lookup = self
 
-        @models.values.each do |model|
+        models.each do |model|
           define_singleton_method model.plural_name do
             Proxy.new(
               Source.new(
@@ -28,10 +28,6 @@ module Pakyow
             )
           end
         end
-      end
-
-      def model(name)
-        @models[name]
       end
 
       def unsubscribe(subscriber)

@@ -1,7 +1,7 @@
 RSpec.shared_examples :model_setup do
   describe "model setup" do
     before do
-      Pakyow.config.connections.sql[:default] = connection_string
+      Pakyow.config.data.connections.sql[:default] = connection_string
     end
 
     include_context "testable app"

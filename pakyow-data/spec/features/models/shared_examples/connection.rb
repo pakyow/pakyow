@@ -6,7 +6,7 @@ RSpec.shared_examples :model_connection do
 
     context "single default connection is defined" do
       before do
-        Pakyow.config.connections.sql[:default] = "sqlite://"
+        Pakyow.config.data.connections.sql[:default] = "sqlite://"
       end
 
       include_context "testable app"
@@ -46,7 +46,7 @@ RSpec.shared_examples :model_connection do
 
     context "single non-default connection is defined" do
       before do
-        Pakyow.config.connections.sql[:test] = "sqlite://"
+        Pakyow.config.data.connections.sql[:test] = "sqlite://"
       end
 
       include_context "testable app"
@@ -70,8 +70,8 @@ RSpec.shared_examples :model_connection do
 
     context "multiple connections are defined, with a default" do
       before do
-        Pakyow.config.connections.sql[:default] = "sqlite://"
-        Pakyow.config.connections.sql[:test] = "sqlite://"
+        Pakyow.config.data.connections.sql[:default] = "sqlite://"
+        Pakyow.config.data.connections.sql[:test] = "sqlite://"
       end
 
       include_context "testable app"
@@ -127,8 +127,8 @@ RSpec.shared_examples :model_connection do
 
     context "multiple connections are defined, with no default" do
       before do
-        Pakyow.config.connections.sql[:test1] = "sqlite://"
-        Pakyow.config.connections.sql[:test2] = "sqlite://"
+        Pakyow.config.data.connections.sql[:test1] = "sqlite://"
+        Pakyow.config.data.connections.sql[:test2] = "sqlite://"
       end
 
       include_context "testable app"

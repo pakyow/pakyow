@@ -1,7 +1,7 @@
 RSpec.shared_examples :model_commands do
   describe "built-in model commands" do
     before do
-      Pakyow.config.connections.sql[:default] = connection_string
+      Pakyow.config.data.connections.sql[:default] = connection_string
     end
 
     include_context "testable app"

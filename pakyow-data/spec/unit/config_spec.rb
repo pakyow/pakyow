@@ -33,7 +33,7 @@ RSpec.describe "data config" do
 
   describe "adapter" do
     it "has a default value" do
-      expect(config.adapter).to eq(:memory)
+      expect(config.subscriptions.adapter).to eq(:memory)
     end
 
     context "in production" do
@@ -42,14 +42,14 @@ RSpec.describe "data config" do
       end
 
       it "has a default production value" do
-        expect(config.adapter).to eq(:redis)
+        expect(config.subscriptions.adapter).to eq(:redis)
       end
     end
   end
 
   describe "adapter_options" do
     it "has a default value" do
-      expect(config.adapter_options).to eq({})
+      expect(config.subscriptions.adapter_options).to eq({})
     end
 
     context "in production" do
@@ -58,7 +58,22 @@ RSpec.describe "data config" do
       end
 
       it "has a production value" do
-        expect(config.adapter_options).to eq(redis_url: "redis://127.0.0.1:6379", redis_prefix: "pw")
+        expect(config.subscriptions.adapter_options).to eq(redis_url: "redis://127.0.0.1:6379", redis_prefix: "pw")
+      end
+
+      context "REDIS_URL env var is defined" do
+        before do
+          ENV["REDIS_URL"] = "!!!"
+          Pakyow.configure!(:production)
+        end
+
+        after do
+          ENV.delete("REDIS_URL")
+        end
+
+        it "uses the env var value" do
+          expect(config.subscriptions.adapter_options).to eq(redis_url: "!!!", redis_prefix: "pw")
+        end
       end
     end
   end
@@ -66,11 +81,11 @@ end
 
 RSpec.describe "connections config" do
   let :config do
-    Pakyow.config.connections
+    Pakyow.config.data.connections
   end
 
   it "has a setting for each type" do
-    Pakyow::Data::CONNECTION_TYPES.each do |type|
+    Pakyow::Data::SUPPORTED_CONNECTION_TYPES.each do |type|
       expect(config.public_send(type)).to eq({})
     end
   end

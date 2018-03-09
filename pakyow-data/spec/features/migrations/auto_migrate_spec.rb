@@ -3,7 +3,7 @@ require "rom/sql"
 
 RSpec.describe "auto migrating on boot" do
   before do
-    Pakyow.config.connections.send(adapter_type)[:default] = adapter_url
+    Pakyow.config.data.connections.send(adapter_type)[:default] = adapter_url
     Pakyow.config.data.auto_migrate = auto_migrate_enabled
     setup_gateway_expectations
   end
@@ -30,24 +30,6 @@ RSpec.describe "auto migrating on boot" do
 
       it "auto migrates" do
         # intentionally empty
-      end
-    end
-
-    context "using an adapter that does not support auto migration" do
-      let :adapter_type do
-        :memory
-      end
-
-      let :adapter_url do
-        "memory://test"
-      end
-
-      def setup_gateway_expectations
-        # intentionally empty
-      end
-
-      it "does not attempt to auto migrate" do
-        # intentionally empty; this will fail if auto migrate is called
       end
     end
   end

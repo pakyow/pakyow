@@ -1,7 +1,7 @@
 RSpec.shared_examples :model_qualifications do
   describe "qualifications for by_attribute queries" do
     before do
-      Pakyow.config.connections.sql[:default] = connection_string
+      Pakyow.config.data.connections.sql[:default] = connection_string
     end
 
     include_context "testable app"
@@ -29,7 +29,7 @@ RSpec.shared_examples :model_qualifications do
 
   describe "qualifications for custom model queries" do
     before do
-      Pakyow.config.connections.sql[:default] = connection_string
+      Pakyow.config.data.connections.sql[:default] = connection_string
     end
 
     include_context "testable app"

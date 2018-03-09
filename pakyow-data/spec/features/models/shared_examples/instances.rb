@@ -1,7 +1,7 @@
 RSpec.shared_examples :model_instances do
   describe "creating instances" do
     before do
-      Pakyow.config.connections.sql[:default] = "sqlite://"
+      Pakyow.config.data.connections.sql[:default] = "sqlite://"
     end
 
     include_context "testable app"
@@ -92,7 +92,7 @@ RSpec.shared_examples :model_instances do
 
   describe "a model instance" do
     before do
-      Pakyow.config.connections.sql[:default] = "sqlite://"
+      Pakyow.config.data.connections.sql[:default] = "sqlite://"
     end
 
     include_context "testable app"

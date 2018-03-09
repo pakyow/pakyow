@@ -13,8 +13,8 @@ RSpec.shared_examples :subscription_unsubscribe do
   # include_context "testable app"
 
   # let :app_definition do
-  #   Pakyow.config.connections.memory[:default] = "memory://test"
-  #   Pakyow.config.data.adapter = data_subscription_adapter
+  #   Pakyow.config.data.connections.memory[:default] = "memory://test"
+  #   Pakyow.config.data.subscriptions.adapter = data_subscription_adapter
 
   #   Proc.new do
   #     model :post do

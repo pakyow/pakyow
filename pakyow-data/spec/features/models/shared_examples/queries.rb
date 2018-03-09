@@ -1,7 +1,7 @@
 RSpec.shared_examples :model_queries do
   describe "built-in model queries" do
     before do
-      Pakyow.config.connections.sql[:default] = connection_string
+      Pakyow.config.data.connections.sql[:default] = connection_string
     end
 
     include_context "testable app"
@@ -33,7 +33,7 @@ RSpec.shared_examples :model_queries do
 
   describe "custom model queries" do
     before do
-      Pakyow.config.connections.sql[:default] = connection_string
+      Pakyow.config.data.connections.sql[:default] = connection_string
     end
 
     include_context "testable app"
