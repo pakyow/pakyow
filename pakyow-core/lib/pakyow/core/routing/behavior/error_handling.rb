@@ -1,73 +1,76 @@
 # frozen_string_literal: true
 
+require "pakyow/support/class_state"
 require "pakyow/support/deep_dup"
+require "pakyow/support/extension"
 
 module Pakyow
   module Routing
     module Behavior
       module ErrorHandling
-        using Support::DeepDup
+        extend Support::Extension
 
-        def self.included(base)
-          base.include API
-          base.extend ClassAPI
-          base.prepend Initializer
+        apply_extension do
+          class_state :handlers, default: {}, inheritable: true
+          class_state :exceptions, default: {}, inheritable: true
 
-          base.instance_variable_set(:@handlers, {})
-          base.instance_variable_set(:@exceptions, {})
+          include API
+          extend API
         end
 
-        module Initializer
+        prepend_methods do
+          using Support::DeepDup
+
           def initialize(*)
             @handlers = self.class.handlers.deep_dup
             @exceptions = self.class.exceptions.deep_dup
 
             super
           end
+        end
 
-          # Calls the handler for a particular http status code.
-          #
-          def trigger(name_or_code)
-            code = Rack::Utils.status_code(name_or_code)
+        # Calls the handler for a particular http status code.
+        #
+        def trigger(name_or_code)
+          code = Rack::Utils.status_code(name_or_code)
+          response.status = code
+          trigger_for_code(code)
+        end
+
+        def handle_error(error)
+          request.error = error
+          response.status = 500
+
+          if code_and_handler = exception_for_class(error.class)
+            code, handler = code_and_handler
             response.status = code
-            trigger_for_code(code)
-          end
 
-          def handle_error(error)
-            request.error = error
-            response.status = 500
-
-            if code_and_handler = exception_for_class(error.class)
-              code, handler = code_and_handler
-              response.status = code
-
-              if handler
-                instance_exec(&handler)
-              end
-            elsif handler = handler_for_code(500)
+            if handler
               instance_exec(&handler)
             end
-
-            halt
+          elsif handler = handler_for_code(500)
+            instance_exec(&handler)
           end
 
-          protected
+          halt
+        end
 
-          def trigger_for_code(code)
-            if handler = handler_for_code(code)
-              instance_exec(&handler)
-            end
+        protected
 
-            halt
+        def trigger_for_code(code)
+          if handler = handler_for_code(code)
+            instance_exec(&handler)
           end
 
-          def handler_for_code(code)
-            @handlers[code]
-          end
+          halt
+        end
 
-          def exception_for_class(klass)
-            @exceptions[klass]
-          end
+        def handler_for_code(code)
+          @handlers[code]
+        end
+
+        def exception_for_class(klass)
+          @exceptions[klass]
         end
 
         module API
@@ -129,20 +132,6 @@ module Pakyow
             else
               @handlers[Rack::Utils.status_code(name_exception_or_code)] = block
             end
-          end
-        end
-
-        module ClassAPI
-          attr_reader :handlers, :exceptions
-
-          def self.extended(base)
-            base.extend(API)
-          end
-
-          def inherited(subclass)
-            super
-            subclass.instance_variable_set(:@handlers, @handlers.deep_dup)
-            subclass.instance_variable_set(:@exceptions, @exceptions.deep_dup)
           end
         end
       end
