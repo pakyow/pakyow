@@ -1,17 +1,31 @@
 # frozen_string_literal: true
 
+require "json"
+
 require "pakyow/error"
 
 module Pakyow
-  class UnknownValidationError < Error; end
-
   class InvalidData < Error
-    # TODO: make this context?
-    attr_reader :verifier
+    # Failed verifier instance.
+    #
+    def verifier
+      @context[:verifier]
+    end
 
-    def initialize(verifier = nil)
-      @verifier = verifier
-      super
+    def object
+      @context[:object]
+    end
+
+    def message
+      <<~MESSAGE
+      Verification failed for the following data:
+
+      #{indent_as_code(JSON.pretty_generate(object))}
+
+      Here are the failures:
+
+      #{indent_as_code(JSON.pretty_generate(verifier.messages))}
+      MESSAGE
     end
   end
 
@@ -27,8 +41,10 @@ module Pakyow
       Try using one of these known types:
 
       #{known_types}
-
       MESSAGE
     end
+  end
+
+  class UnknownValidationError < Error
   end
 end

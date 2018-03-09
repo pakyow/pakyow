@@ -16,7 +16,16 @@ module Pakyow
       verifier.instance_exec(&block)
 
       verifier_instance = verifier.new(object_to_verify, context: self)
-      verifier_instance.verify? || raise(InvalidData.new(verifier_instance))
+      unless verifier_instance.verify?
+        InvalidData.new("Verification failed for #{object_to_verify}").tap do |error|
+          error.context = {
+            object: object_to_verify,
+            verifier: verifier_instance
+          }
+
+          raise(error)
+        end
+      end
     end
 
     module ClassMethods

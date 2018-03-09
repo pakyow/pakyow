@@ -45,7 +45,7 @@ module Pakyow
         <<~MESSAGE
         `#{self.class}` occurred on line `#{line.lineno}` of `#{path}`:
 
-            #{line.lineno}|> #{MethodSource.source_helper([path, line.lineno], line.label)}
+        #{indent_as_source(MethodSource.source_helper([path, line.lineno], line.label), line.lineno)}
         MESSAGE
       end
     end
@@ -86,6 +86,24 @@ module Pakyow
       backtrace_locations.to_a.select { |line|
         File.expand_path(line.absolute_path).include?(ROOT_PATH)
       }
+    end
+
+    def indent_as_code(message)
+      message.split("\n").map { |line|
+        "    #{line}"
+      }.join("\n")
+    end
+
+    def indent_as_source(message, lineno)
+      message.split("\n").each_with_index.map { |line, i|
+        start = String.new("    #{lineno + i}|")
+        if i == 0
+          start << ">"
+        else
+          start << " "
+        end
+        "#{start} #{line}"
+      }.join("\n")
     end
 
     # @api private
@@ -136,14 +154,15 @@ module Pakyow
   end
 
   # @api private
-  def self.build_error(exception, klass, context: nil)
-    return exception if exception.is_a?(klass)
-
-    error = klass.new("#{exception.class}: #{exception.message}")
-    error.wrapped_exception = exception
-    error.context = context
-    error.set_backtrace(exception.backtrace)
-
-    error
+  def self.build_error(original_error, error_class, context: nil)
+    if original_error.is_a?(error_class)
+      original_error
+    else
+      error_class.new("#{original_error.class}: #{original_error.message}").tap do |error|
+        error.wrapped_exception = original_error
+        error.set_backtrace(original_error.backtrace)
+        error.context = context
+      end
+    end
   end
 end
