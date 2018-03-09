@@ -215,6 +215,7 @@ RSpec.shared_examples :model_schema do
         it "cannot be null" do
           require "pp"
           puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+          puts data.posts.count
           data.posts.create({})
           system "mysql -e 'INSERT INTO posts(attr) VALUES(NULL)' pakyow-test"
           puts data.posts.count
