@@ -213,10 +213,13 @@ RSpec.shared_examples :model_schema do
         end
 
         it "cannot be null" do
+          require "pp"
           puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-
           data.posts.create({})
+          system "mysql -e 'INSERT INTO posts(attr) VALUES(NULL)' pakyow-test"
           puts data.posts.count
+          pp data.posts.all
+          puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 
           expect {
             data.posts.create({})
