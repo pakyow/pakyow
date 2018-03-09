@@ -206,11 +206,7 @@ RSpec.describe "verifying all routes in a controller" do
 
   let :app_definition do
     Proc.new do
-      instance_exec(&$data_app_boilerplate)
-
       controller do
-        include Pakyow::Data::VerificationHelpers
-
         verify do
           instance_exec(&$verification)
         end
@@ -231,11 +227,7 @@ RSpec.describe "verifying a specific route in a controller" do
 
   let :app_definition do
     Proc.new do
-      instance_exec(&$data_app_boilerplate)
-
       controller do
-        include Pakyow::Data::VerificationHelpers
-
         verify :test do
           instance_exec(&$verification)
         end
@@ -256,11 +248,7 @@ RSpec.describe "verifying inside of a route" do
 
   let :app_definition do
     Proc.new do
-      instance_exec(&$data_app_boilerplate)
-
       controller do
-        include Pakyow::Data::VerificationHelpers
-
         get :test, "/test" do
           verify do
             instance_exec(&$verification)
@@ -282,11 +270,7 @@ RSpec.describe "handling failed verification" do
 
     let :app_definition do
       Proc.new do
-        instance_exec(&$data_app_boilerplate)
-
         controller do
-          include Pakyow::Data::VerificationHelpers
-
           verify :test do
             required :value
           end
@@ -306,11 +290,7 @@ RSpec.describe "handling failed verification" do
 
     let :app_definition do
       Proc.new do
-        instance_exec(&$data_app_boilerplate)
-
         controller do
-          include Pakyow::Data::VerificationHelpers
-
           handle Pakyow::InvalidData, as: :not_found
 
           verify :test do

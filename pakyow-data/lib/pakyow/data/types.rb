@@ -4,7 +4,6 @@ module Pakyow
   module Data
     module Types
       BASE_CLASS = {
-        input: "ROM::Types::Form",
         sql: "ROM::SQL::Types"
       }.freeze
 
@@ -13,7 +12,6 @@ module Pakyow
 
       MAPPING = {
         serial: "Serial",
-        # TODO: this causes issues with inputs, because it doesn't return a type object but String
         string: "String",
         boolean: "Bool",
         date: "Date",
@@ -26,20 +24,27 @@ module Pakyow
       }.freeze
 
       def self.type_for(type, adapter)
-        return type unless type.is_a?(Symbol)
-        mapped_type = Kernel.const_get(BASE_CLASS.fetch(adapter)).const_get(MAPPING.fetch(type))
-        if type == :boolean
-          mapped_type = mapped_type.meta(db_type: "boolean")
+        if type.is_a?(Dry::Types::Type)
+          type
+        else
+          mapped_type = Kernel.const_get(BASE_CLASS.fetch(adapter)).const_get(MAPPING.fetch(type))
+
+          if type == :boolean
+            mapped_type = mapped_type.meta(db_type: "boolean")
+          end
+          if type == :blob
+            mapped_type = mapped_type.meta(db_type: "blob")
+          end
+          if type == :decimal
+            mapped_type = mapped_type.meta(db_type: "numeric(10, 2)")
+          end
+
+          mapped_type
         end
-        if type == :blob
-          mapped_type = mapped_type.meta(db_type: "blob")
-        end
-        if type == :decimal
-          mapped_type = mapped_type.meta(db_type: "numeric(10, 2)")
-        end
-        mapped_type
-        # TODO: present a nicer error message
-        # fail("unknown #{category} type #{type}")
+      rescue KeyError => error
+        raise Pakyow.build_error(error, UnknownType, context: {
+          type: type, types: MAPPING.keys
+        })
       end
     end
   end

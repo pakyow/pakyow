@@ -1,6 +1,6 @@
-RSpec.describe Pakyow::Data::Validations::Acceptance do
+RSpec.describe Pakyow::Validations::Acceptance do
   let :validation do
-    Pakyow::Data::Validations::Acceptance
+    Pakyow::Validations::Acceptance
   end
 
   it "is named" do

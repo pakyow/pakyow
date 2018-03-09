@@ -3,11 +3,7 @@ RSpec.describe "inline validation" do
 
   let :app_definition do
     Proc.new do
-      instance_exec(&$data_app_boilerplate)
-
       controller do
-        include Pakyow::Data::VerificationHelpers
-
         verify :test do
           required :value do
             validate do |value|

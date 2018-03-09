@@ -6,13 +6,10 @@ require "pakyow/core/framework"
 
 require "pakyow/data/types"
 require "pakyow/data/lookup"
-require "pakyow/data/verifier"
 require "pakyow/data/model"
 require "pakyow/data/source"
 require "pakyow/data/proxy"
 require "pakyow/data/subscribers"
-require "pakyow/data/verification"
-require "pakyow/data/validations"
 require "pakyow/data/errors"
 require "pakyow/data/container"
 
@@ -24,16 +21,6 @@ module Pakyow
       def boot
         if controller = app.const_get(:Controller)
           controller.class_eval do
-            include Verification
-
-            # Define the data we wish to verify.
-            #
-            verifies :params
-
-            # Handle all invalid data errors as a bad request, by default.
-            #
-            handle Pakyow::InvalidData, as: :bad_request
-
             def data
               app.data
             end
@@ -46,8 +33,6 @@ module Pakyow
           # Autoload models from the `models` directory.
           #
           aspect :models
-
-          helper VerificationHelpers
 
           # Data lookup object.
           #
@@ -84,29 +69,6 @@ module Pakyow
               end
             end
           end
-        end
-      end
-    end
-
-    module VerificationHelpers
-      def self.included(base)
-        base.extend ClassAPI
-      end
-
-      module ClassAPI
-        # Perform input verification before one or more routes, identified by name.
-        #
-        # @see Pakyow::Data::Verifier
-        #
-        # @api public
-        def verify(*names, &block)
-          verification_method_name = :"verify_#{names.join("_")}"
-
-          define_method verification_method_name do
-            verify(&block)
-          end
-
-          action verification_method_name, only: names
         end
       end
     end

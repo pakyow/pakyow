@@ -9,7 +9,9 @@ require "pakyow/support/core_refinements/string/normalization"
 
 require "pakyow/core/helpers/connection"
 require "pakyow/core/routing/helpers"
+
 require "pakyow/core/routing/behavior/error_handling"
+require "pakyow/core/routing/behavior/param_verification"
 
 module Pakyow
   # Executes code for particular requests. For example:
@@ -146,6 +148,7 @@ module Pakyow
     include Support::Hookable
 
     include Routing::Behavior::ErrorHandling
+    include Routing::Behavior::ParamVerification
 
     include Support::Pipelined
 
@@ -386,8 +389,6 @@ module Pakyow
     extend Support::ClassState
     class_state :children, default: [], inheritable: true
     class_state :templates, default: {}, inheritable: true
-    class_state :handlers, default: {}, inheritable: true
-    class_state :exceptions, default: {}, inheritable: true
     class_state :routes, default: SUPPORTED_HTTP_METHODS.each_with_object({}) { |supported_method, routes_hash|
                                     routes_hash[supported_method] = []
                                   }, inheritable: false

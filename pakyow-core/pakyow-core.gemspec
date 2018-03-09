@@ -20,4 +20,6 @@ Gem::Specification.new do |spec|
   spec.require_path = "lib"
 
   spec.add_dependency "pakyow-support", Pakyow::VERSION
+
+  spec.add_dependency "dry-types", "~> 0.12"
 end

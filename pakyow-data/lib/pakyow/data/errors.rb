@@ -4,6 +4,5 @@ require "pakyow/error"
 
 module Pakyow
   module Data
-    class UnknownValidationError < Error; end
   end
 end
