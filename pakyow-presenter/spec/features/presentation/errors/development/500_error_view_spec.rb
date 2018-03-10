@@ -74,7 +74,7 @@ RSpec.describe "telling the user about a failure in development" do
     end
 
     it "includes the backtrace" do
-      expect(call[2].body.read).to include("/Users/bryanp/src/pakyow/pakyow/pakyow-presenter/spec/features/presentation/errors/development/500_error_view_spec.rb:58:in `block")
+      expect(call[2].body.read).to include("pakyow-presenter/spec/features/presentation/errors/development/500_error_view_spec.rb:58:in `block")
     end
   end
 end
