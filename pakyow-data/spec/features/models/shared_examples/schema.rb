@@ -217,6 +217,7 @@ RSpec.shared_examples :model_schema do
           puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
           puts data.posts.count
           data.posts.create({})
+          data.posts.create(attr: nil)
           system "mysql -e 'INSERT INTO posts(attr) VALUES(NULL)' pakyow-test"
           db = Sequel.connect("mysql2://localhost/pakyow-test")
           db.run("INSERT INTO posts(attr) VALUES(NULL)")

@@ -14,7 +14,7 @@ module Pakyow
           @config.gateways[:default].use_logger(Pakyow.logger)
         end
 
-        @config.gateways[:default].use_logger($stdout)
+        @config.gateways[:default].use_logger(::Logger.new($stdout))
 
         define!
         auto_migrate!
