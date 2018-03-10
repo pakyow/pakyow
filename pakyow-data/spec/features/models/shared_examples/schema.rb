@@ -217,7 +217,8 @@ RSpec.shared_examples :model_schema do
           puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
           puts data.posts.count
           data.posts.create({})
-          data.posts.create(attr: nil)
+          # this correctly fails:
+          # data.posts.create(attr: nil)
           if system "mysql -e 'INSERT INTO posts() VALUES()' pakyow-test"
             puts "IT WORKED"
           else
