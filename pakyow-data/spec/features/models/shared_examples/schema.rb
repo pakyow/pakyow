@@ -213,8 +213,25 @@ RSpec.shared_examples :model_schema do
         end
 
         it "cannot be null" do
+          require "pp"
+          puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+          puts data.posts.count
+          data.posts.create({})
+          # this correctly fails:
+          # data.posts.create(attr: nil)
+          if system "mysql -e 'INSERT INTO posts() VALUES()' pakyow-test"
+            puts "IT WORKED"
+          else
+            puts "IT FAILED"
+          end
+          # db = Sequel.connect("mysql2://localhost/pakyow-test")
+          # db.run("INSERT INTO posts() VALUES()")
+          puts data.posts.count
+          pp data.posts.all
+          puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+
           expect {
-            data.posts.create({})[:attr]
+            data.posts.create({})
           }.to raise_error { |error|
             expect([ROM::SQL::NotNullConstraintError, ROM::SQL::DatabaseError]).to include(error.class)
           }
