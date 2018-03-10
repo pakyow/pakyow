@@ -147,7 +147,7 @@ RSpec.shared_examples :model_instances do
     describe "attempting to change a value" do
       it "fails" do
         post = data.posts.create({})
-        expect { post.values[:id] = 2 }.to raise_error(FrozenError)
+        expect { post.values[:id] = 2 }.to raise_error(RuntimeError)
       end
     end
   end

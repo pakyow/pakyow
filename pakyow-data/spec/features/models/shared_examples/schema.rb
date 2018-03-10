@@ -214,7 +214,7 @@ RSpec.shared_examples :model_schema do
 
         it "cannot be null" do
           expect {
-            data.posts.create({})[:attr]
+            data.posts.create(attr: nil)
           }.to raise_error { |error|
             expect([ROM::SQL::NotNullConstraintError, ROM::SQL::DatabaseError]).to include(error.class)
           }
