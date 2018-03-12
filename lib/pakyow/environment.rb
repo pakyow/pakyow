@@ -248,6 +248,7 @@ module Pakyow
     #
     def setup(env: nil)
       @env = (env ||= config.env.default).to_sym
+
       performing :configure do
         configure!(env)
       end

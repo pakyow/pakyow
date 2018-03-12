@@ -10,7 +10,13 @@ module Pakyow
       include Helpers
 
       def initialize(task, app: nil, args: [], env: nil)
-        @task, @app, @args, @env = task, app, args, env.to_s
+        @task, @app, @args = task, app, args
+
+        @env = if env.nil? || env.empty?
+          ENV["RACK_ENV"]
+        else
+          env
+        end.to_s
       end
 
       def run
