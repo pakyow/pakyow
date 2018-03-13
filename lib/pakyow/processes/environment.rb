@@ -128,6 +128,7 @@ module Pakyow
 
         def call(env)
           if wait_or_timeout
+            initial_request = Rack::Request.new(env)
             destination = "#{@host}:#{@port}"
 
             env["HTTP_HOST"] = destination
@@ -136,7 +137,8 @@ module Pakyow
               parse_request_headers(env)
             ).send(
               env["REQUEST_METHOD"].downcase,
-              File.join("#{env["rack.url_scheme"]}://#{destination}", env["REQUEST_URI"].to_s)
+              File.join("#{env["rack.url_scheme"]}://#{destination}", env["REQUEST_URI"].to_s),
+              body: initial_request.body
             )
 
             [response.status, parse_response_headers(response), response.body]
