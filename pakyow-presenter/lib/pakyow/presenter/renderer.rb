@@ -40,7 +40,11 @@ module Pakyow
               connection.status = 404
 
               catch :halt do
-                new(connection, path: "/development/500").perform
+                if Pakyow.env?(:production)
+                  connection.app.class.const_get(:Controller).new(connection).trigger(404)
+                else
+                  new(connection, path: "/development/500").perform
+                end
               end
             end
           end

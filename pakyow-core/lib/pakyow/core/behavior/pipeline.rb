@@ -29,7 +29,7 @@ module Pakyow
           end
         end
 
-        if self.class.includes_framework?(:presenter) && !Pakyow.env?(:production)
+        if self.class.includes_framework?(:presenter)
           @__pipeline.action(Presenter::AutoRender)
         end
 
