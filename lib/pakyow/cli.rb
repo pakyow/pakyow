@@ -9,6 +9,30 @@ module Pakyow
       !find_command_possibilities(command).empty?
     end
 
+    def self.define_commands_for_tasks!
+      require "./config/environment"
+      Pakyow.setup(env: ENV["RACK_ENV"])
+      Pakyow.load_tasks
+
+      ::Rake.application.tasks.each do |task|
+        desc task.name, task.comment
+        task.arg_names.each do |task_arg|
+          option task_arg, type: :string
+        end
+        define_method task.name do
+          require "pakyow/commands/rake"
+          symbolized_options = Hash[options.map { |option|
+            [option[0].to_sym, option[1]]
+          }]
+
+          Commands::Rake.new(
+            task,
+            **symbolized_options
+          ).run
+        end
+      end
+    end
+
     map ["--version", "-v"] => :version
 
     desc "new PROJECT_PATH", "Create a new Pakyow project"
@@ -68,20 +92,6 @@ module Pakyow
     desc "version", "Display the installed Pakyow version"
     def version
       puts "Pakyow v#{VERSION}"
-    end
-
-    desc "rake", "Run a task for the environment or an app"
-    option :app, type: :string, aliases: :"-a"
-    option :args, type: :array, default: []
-    option :env, type: :string
-    def rake(task)
-      require "pakyow/commands/rake"
-      Commands::Rake.new(
-        task,
-        app: options[:app],
-        args: options[:args],
-        env: options[:env]
-      ).run
     end
 
     desc "generate", "Generate code for an app"

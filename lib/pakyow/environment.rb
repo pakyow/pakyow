@@ -397,7 +397,7 @@ module Pakyow
 
     def load_tasks
       require "rake"
-
+      Rake::TaskManager.record_task_metadata = true
       config.tasks.paths.uniq.each do |dir_path|
         Dir.glob(File.join(dir_path, "**/*.rake")).each do |file_path|
           Rake.application.add_import(file_path)

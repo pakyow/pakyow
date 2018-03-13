@@ -5,7 +5,7 @@ require "pakyow"
 require "pakyow/cli"
 
 unless Pakyow::CLI.known_command?(ARGV[0])
-  ARGV.unshift("rake")
+  Pakyow::CLI.define_commands_for_tasks!
 end
 
 Pakyow::CLI.start

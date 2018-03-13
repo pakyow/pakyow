@@ -9,30 +9,23 @@ module Pakyow
     class Rake
       include Helpers
 
-      def initialize(task, app: nil, args: [], env: nil)
-        @task, @app, @args = task, app, args
-
-        @env = if env.nil? || env.empty?
-          ENV["RACK_ENV"]
-        else
-          env
-        end.to_s
+      def initialize(task, **options)
+        @task, @options = task, options
       end
 
       def run
-        require "./config/environment"
-        Pakyow.setup(env: @env)
-        Pakyow.load_tasks
-
         task = ::Rake.application[@task]
 
-        if task.arg_names.include?(:app) && app_instance = find_app(@app)
-          @args.unshift(app_instance)
-        elsif options.key?(:app)
-          Pakyow.logger.warn "Task does not run in context of an app; ignoring --app #{@app}"
-        end
+        args = task.arg_names.each_with_object([]) { |arg_name, args_arr|
+          arg_name = arg_name.to_sym
+          args_arr << if arg_name == :app
+            find_app(@options[:app])
+          else
+            @options[arg_name]
+          end
+        }
 
-        task.invoke(*@args)
+        task.invoke(*args)
       end
     end
   end
