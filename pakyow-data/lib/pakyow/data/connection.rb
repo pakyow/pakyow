@@ -9,14 +9,20 @@ module Pakyow
   module Data
     class Connection
       extend Forwardable
-      def_delegators :@adapter, :dataset_for_source, :migratable?, :needs_migration?, :auto_migrate!, :finalize_migration!
+      def_delegators :@adapter, :dataset_for_source, :connected?, :disconnect,
+                     :migratable?, :needs_migration?, :migrate!, :auto_migrate!,
+                     :finalize_migration!
 
-      attr_reader :type, :name
+      attr_reader :type, :name, :opts
 
-      def initialize(connection_string, type:, name:)
+      def initialize(type:, name:, string: nil, opts: nil)
         @type, @name = type, name
 
-        @opts = self.class.parse_connection_string(connection_string)
+        @opts = if opts.is_a?(Hash)
+          opts
+        else
+          self.class.parse_connection_string(string)
+        end
 
         if SUPPORTED_CONNECTION_TYPES.include?(type)
           require "pakyow/data/adapters/#{type}"
@@ -28,6 +34,10 @@ module Pakyow
         puts e
 
         # TODO: raise nice MissingConnectionAdapter error, telling them how to proceed
+      end
+
+      def connected?
+        !@adapter.nil? && @adapter.connected?
       end
 
       def auto_migrate?

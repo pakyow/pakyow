@@ -12,6 +12,10 @@ module Pakyow
           raise "dataset_for_source is not implemented on #{self}"
         end
 
+        def connected?
+          false
+        end
+
         def migratable?
           false
         end

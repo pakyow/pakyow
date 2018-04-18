@@ -43,14 +43,47 @@ module Pakyow
           puts e
 
           # TODO: handle missing gems
+        rescue Sequel::DatabaseConnectionError => e
+          puts e
+
+          # TODO: handle failed connections
+          #
+          # maybe by raising a connection error that Pakyow::Data::Connection handles
+          # by printing out a trace or something... it's important to communicate but
+          # could also be handled (e.g. in the case you're running db:create)
+          # there's a balance to strike here I think
         end
 
         def dataset_for_source(source)
           @connection[source.plural_name]
         end
 
+        def disconnect
+          @connection.disconnect if connected?
+        end
+
+        def connected?
+          !@connection.nil?
+        end
+
         def migratable?
           true
+        end
+
+        def needs_migration?(source)
+          differ = Differ.new(connection: @connection, source: source)
+          !differ.exists? || differ.changes?
+        end
+
+        def migrate!(migration_path)
+          Pakyow.module_eval do
+            def self.migration(&block)
+              Sequel.migration(&block)
+            end
+          end
+
+          Sequel.extension :migration
+          Sequel::Migrator.run(@connection, migration_path)
         end
 
         def auto_migrate!(source)
@@ -83,11 +116,6 @@ module Pakyow
           end
         end
 
-        def needs_migration?(source)
-          differ = Differ.new(connection: @connection, source: source)
-          !differ.exists? || differ.changes?
-        end
-
         def finalize_migration!(source)
           differ = Differ.new(connection: @connection, source: source)
 
@@ -96,22 +124,22 @@ module Pakyow
               template = <<~TEMPLATE
                 change do
                   alter_table <%= differ.table_name.inspect %> do
-                    <% differ.attributes_to_add.each do |attribute_name, attribute_type| %>
+                    <%- differ.attributes_to_add.each do |attribute_name, attribute_type| -%>
                     add_column <%= attribute_name.inspect %>, <%= attribute_type.meta[:column_type].inspect %>
-                    <% end %>
+                    <%- end -%>
 
-                    <% differ.columns_to_remove.keys.each do |column_name| %>
+                    <%- differ.columns_to_remove.keys.each do |column_name| -%>
                     drop_column <%= column_name.inspect %>
-                    <% end %>
+                    <%- end -%>
 
-                    <% differ.column_types_to_change.each do |column_name, column_type| %>
+                    <%- differ.column_types_to_change.each do |column_name, column_type| -%>
                     set_column_type <%= column_name.inspect %>, <%= column_type.inspect %>
-                    <% end %>
+                    <%- end -%>
                   end
                 end
               TEMPLATE
 
-              ERB.new(template, nil, "%<>-").result(binding)
+              return :change, ERB.new(template, nil, "%<>-").result(binding)
             end
           else
             template = <<~TEMPLATE
@@ -121,14 +149,14 @@ module Pakyow
                   <%- if attribute_type.meta[:primary_key] -%>
                   primary_key <%= attribute_name.inspect %>
                   <%- else -%>
-                  column <%= attribute_name.inspect %>, <%= attribute_type.meta[:db_type].inspect %>
+                  column <%= attribute_name.inspect %>, <%= attribute_type.meta[:column_type].inspect %>
                   <%- end -%>
                   <%- end -%>
                 end
               end
             TEMPLATE
 
-            ERB.new(template, nil, "%<>-").result(binding)
+            return :create, ERB.new(template, nil, "%<>-").result(binding)
           end
         end
 
@@ -138,7 +166,7 @@ module Pakyow
           if attribute_type.meta[:primary_key]
             table.primary_key attribute_name
           else
-            table.column attribute_name, attribute_type.meta[:db_type]
+            table.column attribute_name, attribute_type.meta[:column_type]
           end
         end
 

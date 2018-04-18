@@ -57,7 +57,12 @@ module Pakyow
         arguments = {}
 
         if callback.method(:call).keyword_argument?(:result)
-          arguments[:result] = Proxy.deserialize(subscription[:proxy], @app.data.public_send(subscription[:proxy][:model]))
+          arguments[:result] = Proxy.deserialize(
+            subscription[:proxy],
+            @app.data.public_send(
+              Support.inflector.pluralize(subscription[:proxy][:model])
+            )
+          )
         end
 
         if callback.method(:call).keyword_argument?(:subscribers)

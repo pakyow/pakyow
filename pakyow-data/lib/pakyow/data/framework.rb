@@ -13,7 +13,6 @@ require "pakyow/data/subscribers"
 require "pakyow/data/errors"
 require "pakyow/data/connection"
 require "pakyow/data/container"
-require "pakyow/data/auto_migrator"
 
 module Pakyow
   module Data
@@ -91,28 +90,19 @@ module Pakyow
     end
 
     Pakyow.module_eval do
+      class_state :data_connections
+
       class << self
         # @api private
-        attr_reader :data_connections
+        def connection(adapter, connection)
+          adapter ||= Pakyow.config.data.default_adapter
+          connection ||= Pakyow.config.data.default_connection
+          unless connection = Pakyow.data_connections.dig(adapter.to_sym, connection.to_sym)
+            raise ArgumentError, "Unknown database connection named `#{connection}' for adapter `#{adapter}'"
+          end
 
-        # @api private
-        # def relation(name, adapter, connection)
-        #   unless relation = container(adapter, connection).relations[name]
-        #     raise ArgumentError, "Unknown database relation `#{name}' for adapter `#{adapter}', connection `#{connection}'"
-        #   end
-
-        #   relation
-        # end
-
-        # @api private
-        # def container(adapter, connection)
-        #   adapter ||= Pakyow.config.data.default_adapter
-        #   unless container = Pakyow.data_connections.dig(adapter, connection)
-        #     raise ArgumentError, "Unknown database container container for adapter `#{adapter}', connection `#{connection}'"
-        #   end
-
-        #   container
-        # end
+          connection
+        end
       end
 
       settings_for :data do
@@ -121,6 +111,7 @@ module Pakyow
 
         setting :logging, false
         setting :auto_migrate, true
+        setting :migration_path, "./database/migrations"
 
         defaults :production do
           setting :auto_migrate, false
@@ -147,7 +138,7 @@ module Pakyow
         @data_connections = SUPPORTED_CONNECTION_TYPES.each_with_object({}) { |connection_type, connections|
           connections[connection_type] = Pakyow.config.data.connections.public_send(connection_type).each_with_object({}) { |(connection_name, connection_string), adapter_connections|
             adapter_connections[connection_name] = Connection.new(
-              connection_string,
+              string: connection_string,
               type: connection_type,
               name: connection_name
             )
@@ -156,21 +147,20 @@ module Pakyow
       end
 
       after :boot do
-        # TODO: reconsider doing this here
-        # we could make it so that auto migrating is non-destructive... it'll
-        # never remove tables / columns so that it's safe to do across apps
+        @data_connections.values.flat_map(&:values).select(&:connected?).select(&:auto_migrate?).each do |auto_migratable_connection|
+          # TODO: need a Migrator.with_connection method since we have a ready connection
 
-        if Pakyow.config.data.auto_migrate
-          @data_connections.values.flat_map(&:values).select(&:auto_migrate?).each do |auto_migratable_connection|
-            Pakyow::Data::AutoMigrator.new(
-              connection: auto_migratable_connection,
-              sources: apps.flat_map { |app| app.state_for(:source) }.select { |source|
-                auto_migratable_connection.name == source.connection && auto_migratable_connection.type == source.adapter
-              }
-            ).migrate!
-          end
+          # migrator = Pakyow::Data::Migrator.establish(
+          #   adapter: args[:adapter],
+          #   connection: args[:connection]
+          # )
+
+          # migrator.auto_migrate!
+          # migrator.disconnect!
         end
       end
+
+      config.tasks.paths << File.expand_path("../tasks", __FILE__)
     end
   end
 end
