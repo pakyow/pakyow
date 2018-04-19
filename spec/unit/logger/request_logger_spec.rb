@@ -18,6 +18,7 @@ RSpec.describe Pakyow::Logger::RequestLogger do
   end
 
   before do
+    allow(logger).to receive(:dup).and_return(logger)
     allow(Pakyow).to receive(:logger).and_return(logger)
   end
 
@@ -33,7 +34,8 @@ RSpec.describe Pakyow::Logger::RequestLogger do
     end
 
     describe "argument: logger" do
-      it "defaults to Pakyow.logger" do
+      it "defaults to a dup of Pakyow.logger" do
+        expect(logger).to receive(:dup)
         expect(instance.logger).to be(logger)
       end
 

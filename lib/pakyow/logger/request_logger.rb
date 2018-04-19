@@ -45,7 +45,7 @@ module Pakyow
       # @param type [Symbol] the type of request being logged (e.g. :http, :sock)
       # @param logger [Object] the object that will perform the logging
       # @param id [String] a unique id used to identify the request
-      def initialize(type, logger: Pakyow.logger, id: SecureRandom.hex(4))
+      def initialize(type, logger: Pakyow.logger.dup, id: SecureRandom.hex(4))
         @start = Time.now
         @logger = logger
         @type = type
