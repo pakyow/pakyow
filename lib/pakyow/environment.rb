@@ -263,16 +263,12 @@ module Pakyow
             app_instance = if defined?(Pakyow::App) && mount[:app].ancestors.include?(Pakyow::App)
               mount[:app].new(env, builder: self, &mount[:block])
             else
-              mount[:app].new.tap do
-                # Load the logger middleware last so that any app middleware that
-                # halts before the request hits the app will not be logged.
-                #
-                # We only load this middleware for non-Pakyow apps because Pakyow
-                # lets pipeline actions handle logging on their own.
-                #
-                use Middleware::Logger
-              end
+              mount[:app].new
             end
+
+            # Load the logger middleware last so that any app middleware that halts
+            # before the request hits the app will not be logged.
+            use Middleware::Logger
 
             builder_local_apps << app_instance
 

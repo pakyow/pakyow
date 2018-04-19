@@ -18,7 +18,7 @@ module Pakyow
 
         logger.prologue(env)
         @app.call(env).tap do |result|
-          logger.epilogue(result.to_a[0])
+          logger.epilogue(result)
         end
       end
     end
