@@ -29,6 +29,7 @@ module Pakyow
             setting :fingerprint, false
             setting :autoloaded_packs, %i[pakyow application]
             setting :prefix, "/assets"
+            setting :silent, true
 
             setting :public_path do
               File.join(config.root, "public")
@@ -51,6 +52,7 @@ module Pakyow
               setting :fingerprint, true
               setting :process, false
               setting :cache, true
+              setting :silent, false
             end
           end
         end

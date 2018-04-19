@@ -17,6 +17,7 @@ require "pakyow/assets/behavior/assets"
 require "pakyow/assets/behavior/packs"
 require "pakyow/assets/behavior/rendering"
 require "pakyow/assets/behavior/views"
+require "pakyow/assets/behavior/silencing"
 
 module Pakyow
   module Assets
@@ -37,6 +38,7 @@ module Pakyow
           include Behavior::Assets
           include Behavior::Packs
           include Behavior::Views
+          include Behavior::Silencing
 
           after :load do
             config.assets.extensions.each do |extension|

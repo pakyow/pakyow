@@ -138,4 +138,20 @@ RSpec.describe "assets config" do
       expect(config.public_path).to eq("PUBLIC_PATH")
     end
   end
+
+  describe "silent" do
+    it "has a default value" do
+      expect(config.silent).to eq(true)
+    end
+
+    context "in production" do
+      before do
+        app.configure!(:production)
+      end
+
+      it "is false" do
+        expect(config.silent).to be(false)
+      end
+    end
+  end
 end

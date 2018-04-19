@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "pakyow/support/class_state"
+
 require "pakyow/logger/request_logger"
 
 module Pakyow
@@ -8,18 +10,39 @@ module Pakyow
     #
     # @api private
     class Logger
+      extend Support::ClassState
+      class_state :silencers, default: []
+
       def initialize(app)
         @app = app
       end
 
       def call(env)
-        logger = Pakyow::Logger::RequestLogger.new(:http)
-        env[Rack::RACK_LOGGER] = logger
+        env[Rack::RACK_LOGGER] = Pakyow::Logger::RequestLogger.new(:http)
 
-        logger.prologue(env)
-        @app.call(env).tap do |result|
-          logger.epilogue(result)
+        if silence?(env)
+          env[Rack::RACK_LOGGER].silence do
+            call_with_logging(env)
+          end
+        else
+          call_with_logging(env)
         end
+      end
+
+      def call_with_logging(env)
+        env[Rack::RACK_LOGGER].prologue(env)
+
+        @app.call(env).tap do |result|
+          env[Rack::RACK_LOGGER].epilogue(result)
+        end
+      end
+
+      private
+
+      def silence?(env)
+        self.class.silencers.any? { |silencer|
+          silencer.call(env[Rack::PATH_INFO])
+        }
       end
     end
   end

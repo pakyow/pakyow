@@ -52,6 +52,16 @@ module Pakyow
         @id = id
       end
 
+      # Temporarily silences logs, up to +temporary_level+.
+      #
+      def silence(temporary_level = ::Logger::ERROR)
+        original_level = @logger.level
+        @logger.level = temporary_level
+        yield
+      ensure
+        @logger.level = original_level
+      end
+
       %i(<< add debug error fatal info log unknown warn).each do |method|
         define_method method do |message|
           logger.send(method, decorate(message))

@@ -43,18 +43,52 @@ RSpec.describe Pakyow::Middleware::Logger do
   end
 
   it "logs the epilogue" do
-    expect(logger).to receive(:epilogue).with(res[0])
+    expect(logger).to receive(:epilogue).with(res)
     middleware.call(env)
   end
 
   it "calls the app between prologue and epilogue" do
     expect(logger).to receive(:prologue).with(env)
     expect(app).to receive(:call).with(env)
-    expect(logger).to receive(:epilogue).with(res[0])
+    expect(logger).to receive(:epilogue).with(res)
     middleware.call(env)
   end
 
   it "returns the result of calling the app" do
     expect(middleware.call(env)).to be(res)
+  end
+
+  context "when silencer exists" do
+    let :io do
+      StringIO.new
+    end
+
+    let :logger do
+      Pakyow::Logger::RequestLogger.new(:http, logger: ::Logger.new(io))
+    end
+
+    before do
+      Pakyow::Middleware::Logger.silencers << Proc.new do |path_info|
+        path_info.include?("foo")
+      end
+    end
+
+    after do
+      Pakyow::Middleware::Logger.silencers.clear
+    end
+
+    context "silencer is matched" do
+      it "silences log output" do
+        middleware.call(Rack::PATH_INFO => "/foo")
+        expect(io.string).to be_empty
+      end
+    end
+
+    context "silencer is not matched" do
+      it "does not silence log output" do
+        middleware.call(Rack::PATH_INFO => "/bar")
+        expect(io.string).not_to be_empty
+      end
+    end
   end
 end
