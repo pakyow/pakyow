@@ -16,7 +16,7 @@ RSpec.shared_examples :model_connection do
           Proc.new do
             instance_exec(&$data_app_boilerplate)
 
-            model :post do
+            source :post do
               primary_id
             end
           end
@@ -32,7 +32,7 @@ RSpec.shared_examples :model_connection do
           Proc.new do
             instance_exec(&$data_app_boilerplate)
 
-            model :posts, connection: :default do
+            source :posts, connection: :default do
               primary_id
             end
           end
@@ -56,7 +56,7 @@ RSpec.shared_examples :model_connection do
           Proc.new do
             instance_exec(&$data_app_boilerplate)
 
-            model :posts, connection: :test do
+            source :posts, connection: :test do
               primary_id
             end
           end
@@ -81,7 +81,7 @@ RSpec.shared_examples :model_connection do
           Proc.new do
             instance_exec(&$data_app_boilerplate)
 
-            model :post do
+            source :post do
               primary_id
             end
           end
@@ -97,7 +97,7 @@ RSpec.shared_examples :model_connection do
           Proc.new do
             instance_exec(&$data_app_boilerplate)
 
-            model :posts, connection: :default do
+            source :posts, connection: :default do
               primary_id
             end
           end
@@ -113,7 +113,7 @@ RSpec.shared_examples :model_connection do
           Proc.new do
             instance_exec(&$data_app_boilerplate)
 
-            model :posts, connection: :test do
+            source :posts, connection: :test do
               primary_id
             end
           end
@@ -138,7 +138,7 @@ RSpec.shared_examples :model_connection do
           Proc.new do
             instance_exec(&$data_app_boilerplate)
 
-            model :posts, connection: :test2 do
+            source :posts, connection: :test2 do
               primary_id
             end
           end

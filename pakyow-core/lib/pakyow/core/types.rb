@@ -7,14 +7,14 @@ module Pakyow
     include Dry::Types.module
 
     MAPPING = {
-      string: Pakyow::Types::Coercible::String,
-      boolean: Pakyow::Types::Form::Bool,
-      date: Pakyow::Types::Form::Date,
-      time: Pakyow::Types::Form::Time,
-      datetime: Pakyow::Types::Form::Time,
-      integer: Pakyow::Types::Form::Int,
-      float: Pakyow::Types::Form::Float,
-      decimal: Pakyow::Types::Form::Decimal
+      string: Coercible::String,
+      boolean: Form::Bool,
+      date: Form::Date,
+      time: Form::Time,
+      datetime: Form::Time,
+      integer: Form::Int,
+      float: Form::Float,
+      decimal: Form::Decimal
     }.freeze
 
     def self.type_for(type)

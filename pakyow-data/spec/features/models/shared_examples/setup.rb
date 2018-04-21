@@ -11,7 +11,7 @@ RSpec.shared_examples :model_setup do
         Proc.new do
           instance_exec(&$data_app_boilerplate)
 
-          model :post do
+          source :post do
             primary_id
 
             setup do

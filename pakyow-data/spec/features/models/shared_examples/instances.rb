@@ -10,7 +10,7 @@ RSpec.shared_examples :model_instances do
       Proc.new do
         instance_exec(&$data_app_boilerplate)
 
-        model :post do
+        source :post do
           primary_id
           has_many :comments
 
@@ -21,7 +21,7 @@ RSpec.shared_examples :model_instances do
           end
         end
 
-        model :comment do
+        source :comment do
           primary_id
         end
       end
@@ -101,7 +101,7 @@ RSpec.shared_examples :model_instances do
       Proc.new do
         instance_exec(&$data_app_boilerplate)
 
-        model :post do
+        source :post do
           primary_id
 
           def foo

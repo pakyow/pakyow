@@ -34,20 +34,15 @@ module Pakyow
 
         if @source.command?(method_name)
           @subscribers.did_mutate(@source.model.__class_name.name, args[0], Array.ensure(result).compact)
-          return result
-        end
-
-        if !result.is_a?(Pakyow::Data::Model) && result.class.name.include?("ROM::Relation")
-          proxy = dup
-          proxy.instance_variable_set(:@source, @source.class.new(model: @source.model, relation: result))
-          proxy.instance_variable_get(:@proxied_calls) << {
-            call: method_name,
-            args: args
-          }
-
-          return proxy
+          result
         else
-          return result
+          dup.tap { |proxy|
+            proxy.instance_variable_set(:@source, result)
+            proxy.instance_variable_get(:@proxied_calls) << {
+              call: method_name,
+              args: args
+            }
+          }
         end
       end
 

@@ -9,7 +9,7 @@ end
 #
 # Methods that cause changes to occur must be declared as commands.
 #
-Pakyow::App.model :user do
+Pakyow::App.source :user do
   object User
 
   # calls to these commands are passed through to the model object
@@ -20,6 +20,6 @@ end
 
 # eventually we can have adapters... like:
 #
-# Pakyow::App.model :user, :sequel
+# Pakyow::App.source :user, :sequel
 #
 # it would auto-define the model object, commands, etc

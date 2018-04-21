@@ -7,11 +7,11 @@ RSpec.describe "defining a database connection" do
     include_context "testable app"
 
     it "creates a container for the connection" do
-      expect(Pakyow.database_containers[:sql][:default]).to be_instance_of(ROM::Container)
+      expect(Pakyow.data_connections[:sql][:default]).to be_instance_of(ROM::Container)
     end
 
     it "creates a gateway for the adapter" do
-      expect(Pakyow.database_containers[:sql][:default].gateways[:default]).to be_instance_of(ROM::SQL::Gateway)
+      expect(Pakyow.data_connections[:sql][:default].gateways[:default]).to be_instance_of(ROM::SQL::Gateway)
     end
   end
 end

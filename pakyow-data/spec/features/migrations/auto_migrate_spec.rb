@@ -1,6 +1,3 @@
-require "rom/memory"
-require "rom/sql"
-
 RSpec.describe "auto migrating on boot" do
   before do
     Pakyow.config.data.connections.send(adapter_type)[:default] = adapter_url

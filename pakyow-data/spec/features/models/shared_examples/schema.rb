@@ -24,7 +24,7 @@ RSpec.shared_examples :model_schema do
           Proc.new do
             instance_exec(&$data_app_boilerplate)
 
-            model :post do
+            source :post do
               primary_key :foo
               attribute :foo, :integer
             end
@@ -47,7 +47,7 @@ RSpec.shared_examples :model_schema do
           Proc.new do
             instance_exec(&$data_app_boilerplate)
 
-            model :post do
+            source :post do
               attribute :foo, :integer
             end
           end
@@ -70,7 +70,7 @@ RSpec.shared_examples :model_schema do
         Proc.new do
           instance_exec(&$data_app_boilerplate)
 
-          model :post do
+          source :post do
             primary_id
           end
         end
@@ -100,7 +100,7 @@ RSpec.shared_examples :model_schema do
         Proc.new do
           instance_exec(&$data_app_boilerplate)
 
-          model :post do
+          source :post do
             primary_id
             timestamps
             attribute :title, :string
@@ -145,7 +145,7 @@ RSpec.shared_examples :model_schema do
           Proc.new do
             instance_exec(&$data_app_boilerplate)
 
-            model :post do
+            source :post do
               primary_id
               timestamps create: :custom_created_at, update: :custom_updated_at
               attribute :title, :string
@@ -168,7 +168,7 @@ RSpec.shared_examples :model_schema do
         Proc.new do
           instance_exec(&$data_app_boilerplate)
 
-          model :post do
+          source :post do
             primary_id
             attribute :attr, :string
           end
@@ -188,7 +188,7 @@ RSpec.shared_examples :model_schema do
           Proc.new do
             instance_exec(&$data_app_boilerplate)
 
-            model :post do
+            source :post do
               primary_id
               attribute :attr, :string, default: "foo"
             end
@@ -205,7 +205,7 @@ RSpec.shared_examples :model_schema do
           Proc.new do
             instance_exec(&$data_app_boilerplate)
 
-            model :post do
+            source :post do
               primary_id
               attribute :attr, :string, nullable: false
             end
@@ -231,7 +231,7 @@ RSpec.shared_examples :model_schema do
             Proc.new do
               instance_exec(&$data_app_boilerplate)
 
-              model :post do
+              source :post do
                 primary_id
                 attribute :attr, :serial
               end
@@ -248,7 +248,7 @@ RSpec.shared_examples :model_schema do
             Proc.new do
               instance_exec(&$data_app_boilerplate)
 
-              model :post do
+              source :post do
                 primary_id
                 attribute :attr, :string
               end
@@ -265,7 +265,7 @@ RSpec.shared_examples :model_schema do
             Proc.new do
               instance_exec(&$data_app_boilerplate)
 
-              model :post do
+              source :post do
                 primary_id
                 attribute :attr, :boolean
               end
@@ -282,7 +282,7 @@ RSpec.shared_examples :model_schema do
             Proc.new do
               instance_exec(&$data_app_boilerplate)
 
-              model :post do
+              source :post do
                 primary_id
                 attribute :attr, :date
               end
@@ -299,7 +299,7 @@ RSpec.shared_examples :model_schema do
             Proc.new do
               instance_exec(&$data_app_boilerplate)
 
-              model :post do
+              source :post do
                 primary_id
                 attribute :attr, :time
               end
@@ -317,7 +317,7 @@ RSpec.shared_examples :model_schema do
             Proc.new do
               instance_exec(&$data_app_boilerplate)
 
-              model :post do
+              source :post do
                 primary_id
                 attribute :attr, :datetime
               end
@@ -335,7 +335,7 @@ RSpec.shared_examples :model_schema do
             Proc.new do
               instance_exec(&$data_app_boilerplate)
 
-              model :post do
+              source :post do
                 primary_id
                 attribute :attr, :integer
               end
@@ -352,7 +352,7 @@ RSpec.shared_examples :model_schema do
             Proc.new do
               instance_exec(&$data_app_boilerplate)
 
-              model :post do
+              source :post do
                 primary_id
                 attribute :attr, :float
               end
@@ -369,7 +369,7 @@ RSpec.shared_examples :model_schema do
             Proc.new do
               instance_exec(&$data_app_boilerplate)
 
-              model :post do
+              source :post do
                 primary_id
                 attribute :attr, :decimal
               end
@@ -386,7 +386,7 @@ RSpec.shared_examples :model_schema do
             Proc.new do
               instance_exec(&$data_app_boilerplate)
 
-              model :post do
+              source :post do
                 primary_id
                 attribute :attr, :blob
               end

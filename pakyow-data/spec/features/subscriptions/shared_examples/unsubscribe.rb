@@ -17,7 +17,7 @@ RSpec.shared_examples :subscription_unsubscribe do
   #   Pakyow.config.data.subscriptions.adapter = data_subscription_adapter
 
   #   Proc.new do
-  #     model :post do
+  #     source :post do
   #       attribute :title, :string
 
   #       def with_title(title)
@@ -25,7 +25,7 @@ RSpec.shared_examples :subscription_unsubscribe do
   #       end
   #     end
 
-  #     model :comment do
+  #     source :comment do
   #       attribute :title, :string
 
   #       def with_title(title)
