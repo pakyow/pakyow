@@ -27,22 +27,6 @@ module Pakyow
             end
           end
         end
-
-        # sources.each do |source|
-        #   define_singleton_method source.plural_name do
-        #     source.new
-        #     # Proxy.new(
-        #     #   Source.new(
-        #     #     model: model,
-        #     #     relation: Pakyow.relation(
-        #     #       model.plural_name,
-        #     #       model.adapter,
-        #     #       model.connection
-        #     #     )
-        #     #   ), @subscribers
-        #     # )
-        #   end
-        # end
       end
 
       def unsubscribe(subscriber)
