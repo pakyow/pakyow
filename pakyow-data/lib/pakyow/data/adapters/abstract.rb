@@ -20,6 +20,9 @@ module Pakyow
           false
         end
 
+        module Commands
+        end
+
         module DatasetMethods
           def each(_dataset)
             raise "each is not implemented on #{self}"

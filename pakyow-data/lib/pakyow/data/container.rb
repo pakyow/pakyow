@@ -35,11 +35,16 @@ module Pakyow
 
       def finalize!
         @sources.each do |source|
+          mixin_commands!(source)
           mixin_dataset_methods!(source)
           finalize_source_types!(source)
 
           # TODO: wire any interdependencies (e.g. inverse associations)
         end
+      end
+
+      def mixin_commands!(source)
+        source.include @connection.adapter.class.const_get("Commands")
       end
 
       def mixin_dataset_methods!(source)

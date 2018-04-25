@@ -6,6 +6,7 @@ require "erb"
 require "sequel"
 
 require "pakyow/support/deep_freeze"
+require "pakyow/support/extension"
 
 require "pakyow/data/adapters/abstract"
 
@@ -277,6 +278,27 @@ module Pakyow
 
           def one(dataset)
             dataset.first
+          end
+        end
+
+        module Commands
+          extend Support::Extension
+
+          apply_extension do
+            command :create do |values|
+              if inserted_primary_key = insert(values)
+                where(self.class.primary_key_field => inserted_primary_key)
+              end
+            end
+
+            command :update do |values|
+              update(values)
+              __getobj__
+            end
+
+            command :delete do
+              delete
+            end
           end
         end
       end

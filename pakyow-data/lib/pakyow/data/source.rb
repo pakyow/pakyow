@@ -3,6 +3,8 @@
 require "pakyow/support/makeable"
 require "pakyow/support/class_state"
 
+require "pakyow/data/command"
+
 module Pakyow
   module Data
     # Represents a data source through which you interact with a persistence
@@ -76,10 +78,17 @@ module Pakyow
         wrap(self.class.one(__getobj__))
       end
 
-      def command?(maybe_command_name)
-        # TODO: hook this up for real
+      def command(command_name)
+        if command_block = self.class.commands[command_name]
+          Command.new(command_block, source: self)
+        else
+          # TODO: raise a nicer error indicating what commands are available
+          raise "unknown command #{command_name}"
+        end
+      end
 
-        false
+      def command?(maybe_command_name)
+        self.class.commands.include?(maybe_command_name)
       end
 
       def query?(maybe_query_name)
@@ -110,6 +119,7 @@ module Pakyow
       class_state :attributes, default: {}
       class_state :qualifications, default: {}
       class_state :associations, default: { has_many: [], belongs_to: [] }
+      class_state :commands, default: {}
 
       class << self
         attr_reader :name, :adapter, :connection
@@ -126,6 +136,10 @@ module Pakyow
               end
             )
           }
+        end
+
+        def command(command_name, &block)
+          @commands[command_name] = block
         end
 
         def queries

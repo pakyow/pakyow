@@ -31,9 +31,9 @@ module Pakyow
 
       def method_missing(method_name, *args, &block)
         if @source.command?(method_name)
-          @source.public_send(method_name, *args, &block).tap { |result|
+          @source.command(method_name).call(*args, &block).tap { |result|
             @subscribers.did_mutate(
-              @source.model.__class_name.name,
+              @source.class.__class_name.name,
               args[0],
               Array.ensure(result).compact
             )
