@@ -98,11 +98,11 @@ module Pakyow
         def connection(adapter, connection)
           adapter ||= Pakyow.config.data.default_adapter
           connection ||= Pakyow.config.data.default_connection
-          unless connection = Pakyow.data_connections.dig(adapter.to_sym, connection.to_sym)
+          unless connection_instance = Pakyow.data_connections.dig(adapter.to_sym, connection.to_sym)
             raise ArgumentError, "Unknown database connection named `#{connection}' for adapter `#{adapter}'"
           end
 
-          connection
+          connection_instance
         end
       end
 
