@@ -32,10 +32,7 @@ module Pakyow
       def method_missing(method_name, *args, &block)
         result = @source.public_send(method_name, *args, &block)
 
-        if @source.command?(method_name)
-          @subscribers.did_mutate(@source.model.__class_name.name, args[0], Array.ensure(result).compact)
-          result
-        else
+        if result.is_a?(Source)
           dup.tap { |proxy|
             proxy.instance_variable_set(:@source, result)
             proxy.instance_variable_get(:@proxied_calls) << {
@@ -43,6 +40,16 @@ module Pakyow
               args: args
             }
           }
+        else
+          if @source.command?(method_name)
+            @subscribers.did_mutate(
+              @source.model.__class_name.name,
+              args[0],
+              Array.ensure(result).compact
+            )
+          end
+
+          result
         end
       end
 

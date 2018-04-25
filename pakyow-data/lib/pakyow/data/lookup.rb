@@ -17,7 +17,13 @@ module Pakyow
         containers.each do |container|
           container.sources.each do |source|
             define_singleton_method source.plural_name do
-              Proxy.new(container.source_instance(source.plural_name), @subscribers)
+              Proxy.new(
+                container.source_instance(
+                  source.plural_name
+                ),
+
+                @subscribers
+              )
             end
           end
         end

@@ -19,10 +19,14 @@ module Pakyow
     # verify and validate input before passing it to a data source
     # (@see Pakyow::Verifier).
     #
-    # Queries always return a {Pakyow::Data::Query} object containing the value
-    # returned by the query as well as metadata describing the query. Access to
-    # the underlying value is provided through methods such as +first+, +all+,
-    # and +each+ (@see Pakyow::Data::Query).
+    # Queries always return a {Pakyow::Data::Proxy} object containing the value
+    # returned as well as metadata describing the query. Access to the
+    # underlying value is provided through methods such as +first+, +all+, and
+    # +each+ (@see Pakyow::Data::Proxy).
+    #
+    # Sources accept an optional +object_map+ for mapping values to instances of
+    # +Pakyow::Data::Object+. If an object matching the source name is found,
+    # instances of that object will be returned as results.
     #
     # @example
     #   source :posts, adapter: :sql, connection: :default do
@@ -45,14 +49,47 @@ module Pakyow
     #   data.posts.by_id(1).first
     #
     class Source < SimpleDelegator
-      def initialize(dataset)
+      def initialize(dataset, object_map: {})
         __setobj__(dataset)
+        @object_map = object_map
+        @wrap_as = self.class.singular_name
+      end
+
+      def as(object)
+        @wrap_as = object
+        self
+      end
+
+      def each
+        self.class.each(__getobj__) do |result|
+          yield wrap(result)
+        end
+      end
+
+      def to_a
+        self.class.to_a(__getobj__).map { |result|
+          wrap(result)
+        }
+      end
+
+      def one
+        wrap(self.class.one(__getobj__))
       end
 
       def command?(maybe_command_name)
         # TODO: hook this up for real
 
         false
+      end
+
+      def query?(maybe_query_name)
+        self.class.queries.include?(maybe_query_name)
+      end
+
+      private
+
+      def wrap(result)
+        @object_map.fetch(@wrap_as, Object).new(result)
       end
 
       extend Support::Makeable
@@ -68,7 +105,23 @@ module Pakyow
         attr_reader :name, :adapter, :connection
 
         def make(name, adapter: Pakyow.config.data.default_adapter, connection: Pakyow.config.data.default_connection, state: nil, parent: nil, **kwargs, &block)
-          super(name, state: state, parent: parent, adapter: adapter, connection: connection, attributes: {}, **kwargs, &block)
+          super(name, state: state, parent: parent, adapter: adapter, connection: connection, attributes: {}, **kwargs, &block).tap { |source|
+            source.prepend(
+              Module.new do
+                source.queries.each do |query|
+                  define_method query do |*args, &block|
+                    self.class.new(super(*args, &block), object_map: @object_map)
+                  end
+                end
+              end
+            )
+
+            source.extend Pakyow.connection(adapter, connection).adapter.class.const_get("DatasetMethods")
+          }
+        end
+
+        def queries
+          instance_methods - superclass.instance_methods
         end
 
         def timestamps(create: :created_at, update: :updated_at)
@@ -124,7 +177,11 @@ module Pakyow
         end
 
         def plural_name
-          @plural_name ||= Support.inflector.pluralize(__class_name.name).to_sym
+          Support.inflector.pluralize(__class_name.name).to_sym
+        end
+
+        def singular_name
+          Support.inflector.singularize(__class_name.name).to_sym
         end
 
         private

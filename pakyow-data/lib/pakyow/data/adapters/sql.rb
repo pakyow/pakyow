@@ -265,6 +265,20 @@ module Pakyow
             attribute_type.primitive.to_s.downcase.to_sym
           end
         end
+
+        module DatasetMethods
+          def each(dataset, &block)
+            dataset.each(&block)
+          end
+
+          def to_a(dataset)
+            dataset.all
+          end
+
+          def one(dataset)
+            dataset.first
+          end
+        end
       end
     end
   end

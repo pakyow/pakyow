@@ -5,8 +5,12 @@ module Pakyow
     class Container
       attr_reader :connection, :sources
 
-      def initialize(connection:, sources:)
+      def initialize(connection:, sources:, objects:)
         @connection, @sources = connection, sources
+
+        @object_map = objects.each_with_object({}) { |object, map|
+          map[object.__class_name.name] = object
+        }
 
         # TODO: finalize the sources, which wires any interdependencies (e.g. inverse associations)
 
@@ -39,7 +43,10 @@ module Pakyow
              source.plural_name == plural_source_name
            }
 
-          source.new(@connection.dataset_for_source(source))
+          source.new(
+            @connection.dataset_for_source(source),
+            object_map: @object_map
+          )
         else
           # TODO: raise UnknownSource
         end
@@ -47,11 +54,6 @@ module Pakyow
     end
   end
 end
-
-# module Pakyow
-#   module Data
-#     class Container
-#       def initialize(adapter_type:, connection_name:, connection_string:)
 #         @adapter_type, @connection_name, @connection_string = adapter_type, connection_name, connection_string
 
 #         @config = ROM::Configuration.new(adapter_type, connection_string)

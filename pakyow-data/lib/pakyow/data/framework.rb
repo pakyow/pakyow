@@ -6,8 +6,8 @@ require "pakyow/core/framework"
 
 require "pakyow/data/types"
 require "pakyow/data/lookup"
-require "pakyow/data/entity"
 require "pakyow/data/source"
+require "pakyow/data/object"
 require "pakyow/data/proxy"
 require "pakyow/data/subscribers"
 require "pakyow/data/errors"
@@ -30,15 +30,15 @@ module Pakyow
 
         app.class_eval do
           stateful :source, Source
-          stateful :entity, Entity
+          stateful :object, Object
 
           # Autoload sources from the `sources` directory.
           #
           aspect :sources
 
-          # Autoload entities from the `entities` directory.
+          # Autoload objects from the `objects` directory.
           #
-          aspect :entities
+          aspect :objects
 
           # Data container object.
           #
@@ -55,7 +55,8 @@ module Pakyow
                     connection: connection,
                     sources: state_for(:source).select { |source|
                       connection.name == source.connection && connection.type == source.adapter
-                    }
+                    },
+                    objects: state_for(:object)
                   )
                 end
               },

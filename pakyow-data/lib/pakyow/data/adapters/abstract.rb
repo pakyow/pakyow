@@ -19,6 +19,20 @@ module Pakyow
         def migratable?
           false
         end
+
+        module DatasetMethods
+          def each(_dataset)
+            raise "each is not implemented on #{self}"
+          end
+
+          def to_a(_dataset)
+            raise "to_a is not implemented on #{self}"
+          end
+
+          def one(_dataset)
+            raise "one is not implemented on #{self}"
+          end
+        end
       end
     end
   end

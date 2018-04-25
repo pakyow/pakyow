@@ -13,7 +13,7 @@ module Pakyow
                      :migratable?, :needs_migration?, :migrate!, :auto_migrate!,
                      :finalize_migration!
 
-      attr_reader :type, :name, :opts
+      attr_reader :type, :name, :opts, :adapter
 
       def initialize(type:, name:, string: nil, opts: nil)
         @type, @name = type, name
