@@ -30,33 +30,32 @@ module Pakyow
       end
 
       def method_missing(method_name, *args, &block)
-        result = @source.public_send(method_name, *args, &block)
-
-        if result.is_a?(Source)
-          dup.tap { |proxy|
-            proxy.instance_variable_set(:@source, result)
-            proxy.instance_variable_get(:@proxied_calls) << {
-              call: method_name,
-              args: args
-            }
-          }
-        else
-          if @source.command?(method_name)
+        if @source.command?(method_name)
+          @source.public_send(method_name, *args, &block).tap { |result|
             @subscribers.did_mutate(
               @source.model.__class_name.name,
               args[0],
               Array.ensure(result).compact
             )
-          end
-
-          result
+          }
+        elsif @source.query?(method_name)
+          dup.tap { |proxy|
+            proxy.instance_variable_set(:@source, @source.public_send(method_name, *args, &block))
+            proxy.instance_variable_get(:@proxied_calls) << {
+              call: method_name,
+              args: args
+            }
+          }
+        elsif @source.result?(method_name) || @source.modifier?(method_name)
+          @source.public_send(method_name, *args, &block)
+        else
+          super
         end
       end
 
-      def respond_to_missing?(*)
-        # All method calls are forwarded to the source.
-        #
-        true
+      def respond_to_missing?(method_name, *)
+        @source.command?(method_name) || @source.query?(method_name) ||
+          @source.result?(method_name) || @source.modifier?(method_name)
       end
 
       def subscribe(subscriber, handler:, payload: nil)

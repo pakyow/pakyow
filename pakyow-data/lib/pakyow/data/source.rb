@@ -86,6 +86,16 @@ module Pakyow
         self.class.queries.include?(maybe_query_name)
       end
 
+      RESULT_METHODS = %i(each to_a one).freeze
+      def result?(maybe_result_name)
+        RESULT_METHODS.include?(maybe_result_name)
+      end
+
+      MODIFIER_METHODS = %i(as).freeze
+      def modifier?(maybe_modifier_name)
+        MODIFIER_METHODS.include?(maybe_modifier_name)
+      end
+
       private
 
       def wrap(result)
