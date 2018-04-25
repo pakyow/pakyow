@@ -91,7 +91,7 @@ module Pakyow
     end
 
     Pakyow.module_eval do
-      class_state :data_connections
+      class_state :data_connections, default: {}
 
       class << self
         # @api private
