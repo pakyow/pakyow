@@ -148,16 +148,22 @@ module Pakyow
       end
 
       after :boot do
-        @data_connections.values.flat_map(&:values).select(&:connected?).select(&:auto_migrate?).each do |auto_migratable_connection|
-          # TODO: need a Migrator.with_connection method since we have a ready connection
+        if Pakyow.config.data.auto_migrate
+          require "pakyow/data/migrator"
+          require "pakyow/data/migrators/mysql"
+          require "pakyow/data/migrators/postgres"
+          require "pakyow/data/migrators/sqlite"
 
-          # migrator = Pakyow::Data::Migrator.establish(
-          #   adapter: args[:adapter],
-          #   connection: args[:connection]
-          # )
+          @data_connections.values.flat_map(&:values).select(&:connected?).select(&:auto_migrate?).each do |auto_migratable_connection|
+            migrator = Pakyow::Data::Migrator.establish(
+              adapter: auto_migratable_connection.type,
+              connection: auto_migratable_connection.name
+            )
 
-          # migrator.auto_migrate!
-          # migrator.disconnect!
+            # migrator = Pakyow::Data::Migrator.with_connection(auto_migratable_connection)
+            migrator.auto_migrate!
+            migrator.disconnect!
+          end
         end
       end
 

@@ -96,6 +96,15 @@ module Pakyow
           }
         end
 
+        def with_connection(connection)
+          allocate.tap do |instance|
+            instance.instance_variable_set(:@connection, connection)
+            instance.instance_variable_set(:@adapter_type, connection.type)
+            instance.instance_variable_set(:@connection_name, connection.name)
+            instance.instance_variable_set(:@connection_opts, connection.opts)
+          end
+        end
+
         def establish(adapter:, connection:, connection_overrides: {})
           adapter = if adapter
             adapter.to_sym
