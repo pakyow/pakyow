@@ -125,8 +125,6 @@ module Pakyow
                 end
               end
             )
-
-            source.extend Pakyow.connection(adapter, connection).adapter.class.const_get("DatasetMethods")
           }
         end
 
