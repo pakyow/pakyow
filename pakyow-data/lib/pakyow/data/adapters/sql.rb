@@ -59,6 +59,10 @@ module Pakyow
           @connection[source.plural_name]
         end
 
+        def result_for_attribute_value(attribute, value, source)
+          source.where(attribute => value)
+        end
+
         def disconnect
           @connection.disconnect if connected?
         end

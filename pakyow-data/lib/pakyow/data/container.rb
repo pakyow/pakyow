@@ -42,6 +42,7 @@ module Pakyow
           mixin_commands!(source)
           mixin_dataset_methods!(source)
           finalize_source_types!(source)
+          define_queries_for_attributes!(source)
 
           # TODO: wire any interdependencies (e.g. inverse associations)
         end
@@ -76,8 +77,13 @@ module Pakyow
       end
 
       def define_queries_for_attributes!(source)
-        source.attributes.keys do |attribute|
-          define_method :"by_#{attribute}" do |value|
+        local_adapter = adapter
+        source.attributes.keys.each do |attribute|
+          source.define_method :"by_#{attribute}" do |value|
+            self.class.new(local_adapter.result_for_attribute_value(attribute, value, self), object_map: @object_map)
+          end
+        end
+      end
     end
   end
 end
