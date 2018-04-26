@@ -283,6 +283,10 @@ module Pakyow
           def one(dataset)
             dataset.first
           end
+
+          def count(dataset)
+            dataset.count
+          end
         end
 
         module Commands

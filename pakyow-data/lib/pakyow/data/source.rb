@@ -95,7 +95,7 @@ module Pakyow
         self.class.queries.include?(maybe_query_name)
       end
 
-      RESULT_METHODS = %i(each to_a one).freeze
+      RESULT_METHODS = %i(each to_a one count).freeze
       def result?(maybe_result_name)
         RESULT_METHODS.include?(maybe_result_name)
       end

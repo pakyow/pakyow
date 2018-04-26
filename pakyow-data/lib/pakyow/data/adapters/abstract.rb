@@ -39,6 +39,10 @@ module Pakyow
           def one(_dataset)
             raise "one is not implemented on #{self}"
           end
+
+          def count(_dataset)
+            raise "count is not implemented on #{self}"
+          end
         end
       end
     end
