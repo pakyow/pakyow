@@ -33,6 +33,10 @@ module Pakyow
 
       private
 
+      def adapter
+        @connection.adapter
+      end
+
       def finalize!
         @sources.each do |source|
           mixin_commands!(source)
@@ -44,11 +48,11 @@ module Pakyow
       end
 
       def mixin_commands!(source)
-        source.include @connection.adapter.class.const_get("Commands")
+        source.include adapter.class.const_get("Commands")
       end
 
       def mixin_dataset_methods!(source)
-        source.extend @connection.adapter.class.const_get("DatasetMethods")
+        source.extend adapter.class.const_get("DatasetMethods")
       end
 
       def finalize_source_types!(source)
@@ -70,6 +74,10 @@ module Pakyow
           source.attributes[attribute_name] = type
         end
       end
+
+      def define_queries_for_attributes!(source)
+        source.attributes.keys do |attribute|
+          define_method :"by_#{attribute}" do |value|
     end
   end
 end
