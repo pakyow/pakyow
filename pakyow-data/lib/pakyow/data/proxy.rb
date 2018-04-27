@@ -38,32 +38,32 @@ module Pakyow
               Array.ensure(result).compact
             )
           }
-        elsif @source.query?(method_name)
+        elsif @source.query?(method_name) || @source.modifier?(method_name)
           dup.tap { |proxy|
-            proxy.instance_variable_set(:@source, @source.public_send(method_name, *args, &block))
+            source = if block_given? && @source.block_for_nested_source?(method_name)
+              # In this case a block has been passed that would, without intervention,
+              # be called in context of a source instance. We don't want that, since
+              # it would provide full access to the underlying dataset. Instead the
+              # exposed object should simply be another proxy.
+
+              local_subscribers = @subscribers
+              @source.public_send(method_name, *args) {
+                tap { |source|
+                  Proxy.new(source, local_subscribers).instance_exec(&block)
+                }
+              }
+            else
+              @source.public_send(method_name, *args, &block)
+            end
+
+            proxy.instance_variable_set(:@source, source)
             proxy.instance_variable_get(:@proxied_calls) << {
               call: method_name,
               args: args
             }
           }
-        elsif @source.result?(method_name) || @source.modifier?(method_name)
-          # TODO: shouldn't this be returning a new proxy, proxied calls, etc?
-
-          if block_given? && @source.block_for_nested_source?(method_name)
-            # In this case a block has been passed that would, without intervention,
-            # be called in context of a source instance. We don't want that, since
-            # it would provide full access to the underlying dataset. Instead the
-            # exposed object should simply be another proxy.
-
-            local_subscribers = @subscribers
-            @source.public_send(method_name, *args) {
-              tap { |source|
-                Proxy.new(source, local_subscribers).instance_exec(&block)
-              }
-            }
-          else
-            @source.public_send(method_name, *args, &block)
-          end
+        elsif @source.result?(method_name)
+          @source.public_send(method_name, *args, &block)
         else
           super
         end
@@ -155,7 +155,7 @@ module Pakyow
 
       def to_h
         {
-          model: @source.model.__class_name.name,
+          source: @source.class.__class_name.name,
           proxied_calls: @proxied_calls
         }
       end
