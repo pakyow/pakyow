@@ -64,9 +64,12 @@ module Pakyow
       def including(source_name, &block)
         if association(source_name)
           source_from_self(__getobj__).tap { |returned_source|
-            returned_source.instance_variable_get(:@included) << @container.source_instance(source_name).tap { |included_source|
-              included_source.instance_exec(&block) if block_given?
-            }
+            included_source = @container.source_instance(source_name)
+            returned_source.instance_variable_get(:@included) << if block_given?
+              included_source.instance_exec(&block) || included_source
+            else
+              included_source
+            end
           }
         else
           # TODO: raise a nicer error indicating what associations are available
@@ -130,6 +133,11 @@ module Pakyow
       MODIFIER_METHODS = %i(as including).freeze
       def modifier?(maybe_modifier_name)
         MODIFIER_METHODS.include?(maybe_modifier_name)
+      end
+
+      NESTED_METHODS = %i(including).freeze
+      def block_for_nested_source?(maybe_nested_name)
+        NESTED_METHODS.include?(maybe_nested_name)
       end
 
       private
