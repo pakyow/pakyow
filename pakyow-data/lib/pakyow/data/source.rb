@@ -51,10 +51,27 @@ module Pakyow
     #   data.posts.by_id(1).first
     #
     class Source < SimpleDelegator
-      def initialize(dataset, object_map: {})
+      # @api private
+      attr_reader :container
+
+      def initialize(dataset, container:, object_map: {})
         __setobj__(dataset)
-        @object_map = object_map
+        @container, @object_map = container, object_map
         @wrap_as = self.class.singular_name
+        @included = []
+      end
+
+      def including(source_name, &block)
+        if association(source_name)
+          source_from_self(__getobj__).tap { |returned_source|
+            returned_source.instance_variable_get(:@included) << @container.source_instance(source_name).tap { |included_source|
+              included_source.instance_exec(&block) if block_given?
+            }
+          }
+        else
+          # TODO: raise a nicer error indicating what associations are available
+          raise "unknown association for #{source_name}"
+        end
       end
 
       def as(object)
@@ -67,13 +84,17 @@ module Pakyow
       end
 
       def to_a
-        self.class.to_a(__getobj__).map { |result|
+        results = self.class.to_a(__getobj__)
+        include_results!(results)
+        results.map! { |result|
           wrap(result)
         }
       end
 
       def one
-        wrap(self.class.one(__getobj__))
+        result = self.class.one(__getobj__)
+        include_results!([result])
+        wrap(result)
       end
 
       def command(command_name)
@@ -83,6 +104,14 @@ module Pakyow
           # TODO: raise a nicer error indicating what commands are available
           raise "unknown command #{command_name}"
         end
+      end
+
+      def association(source_name)
+        plural_source_name = Support.inflector.pluralize(source_name).to_sym
+
+        self.class.associations.values.flatten.find { |association|
+          association[:source_name] == plural_source_name
+        }
       end
 
       def command?(maybe_command_name)
@@ -98,15 +127,56 @@ module Pakyow
         RESULT_METHODS.include?(maybe_result_name)
       end
 
-      MODIFIER_METHODS = %i(as).freeze
+      MODIFIER_METHODS = %i(as including).freeze
       def modifier?(maybe_modifier_name)
         MODIFIER_METHODS.include?(maybe_modifier_name)
       end
 
       private
 
+      def source_from_self(dataset)
+        Source.source_from_source(self, dataset)
+      end
+
       def wrap(result)
         @object_map.fetch(@wrap_as, Object).new(result)
+      end
+
+      def include_results!(results)
+        @included.each do |combined_source|
+          association = association(combined_source.class.plural_name)
+
+          combined_dataset = combined_source.container.connection.adapter.result_for_attribute_value(
+            association[:associated_column_name] || combined_source.class.primary_key_field,
+            results.map { |result| result[association[:column_name]] },
+            combined_source
+          )
+
+          combined_source = Source.source_from_source(combined_source, combined_dataset)
+
+          combined_results = combined_source.to_a.group_by { |combined_result|
+            combined_result[association[:associated_column_name] || combined_source.class.primary_key_field]
+          }
+
+          if association[:type] == :has_many
+            result_key = combined_source.class.plural_name
+            result_type = :many
+          else
+            result_key = combined_source.class.singular_name
+            result_type = :one
+          end
+
+          results.map! { |result|
+            combined_results_for_result = combined_results[result[association[:column_name]]].to_a
+            result[result_key] = if result_type == :one
+              combined_results_for_result[0]
+            else
+              combined_results_for_result
+            end
+
+            result
+          }
+        end
       end
 
       extend Support::Makeable
@@ -128,12 +198,20 @@ module Pakyow
               Module.new do
                 source.queries.each do |query|
                   define_method query do |*args, &block|
-                    self.class.new(super(*args, &block), object_map: @object_map)
+                    source_from_self(super(*args, &block))
                   end
                 end
               end
             )
           }
+        end
+
+        def source_from_source(source, dataset)
+          source.class.new(
+            dataset,
+            container: source.instance_variable_get(:@container),
+            object_map: source.instance_variable_get(:@object_map)
+          )
         end
 
         def command(command_name, &block)
@@ -182,17 +260,28 @@ module Pakyow
         end
 
         # rubocop:disable Naming/PredicateName
-        def has_many(model, view: nil)
+        def has_many(source_name, query: nil)
+          plural_name = Support.inflector.pluralize(source_name)
+
           @associations[:has_many] << {
-            model: model,
-            view: view
+            type: :has_many,
+            source_name: plural_name.to_sym,
+            query_name: query,
+            column_name: primary_key_field,
+            associated_column_name: :"#{singular_name}_id"
           }
         end
         # rubocop:enable Naming/PredicateName
 
-        def belongs_to(model)
+        def belongs_to(source_name)
+          plural_name = Support.inflector.pluralize(source_name)
+          singular_name = Support.inflector.singularize(source_name)
+
           @associations[:belongs_to] << {
-            model: Support.inflector.pluralize(model).to_sym
+            type: :belongs_to,
+            source_name: plural_name.to_sym,
+            column_name: :"#{singular_name}_id",
+            column_type: :integer
           }
         end
 

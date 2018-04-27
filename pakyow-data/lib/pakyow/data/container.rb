@@ -24,7 +24,8 @@ module Pakyow
 
           source.new(
             @connection.dataset_for_source(source),
-            object_map: @object_map
+            object_map: @object_map,
+            container: self
           )
         else
           # TODO: raise UnknownSource
@@ -39,12 +40,16 @@ module Pakyow
 
       def finalize!
         @sources.each do |source|
+          define_inverse_associations!(source)
+        end
+
+        @sources.each do |source|
           mixin_commands!(source)
           mixin_dataset_methods!(source)
-          finalize_source_types!(source)
+          define_attributes_for_associations!(source)
           define_queries_for_attributes!(source)
 
-          # TODO: wire any interdependencies (e.g. inverse associations)
+          finalize_source_types!(source)
         end
       end
 
@@ -54,6 +59,31 @@ module Pakyow
 
       def mixin_dataset_methods!(source)
         source.extend adapter.class.const_get("DatasetMethods")
+      end
+
+      def define_attributes_for_associations!(source)
+        source.associations[:belongs_to].each do |belongs_to_association|
+          source.attribute belongs_to_association[:column_name], belongs_to_association[:column_type]
+        end
+      end
+
+      def define_inverse_associations!(source)
+        source.associations[:has_many].each do |has_many_association|
+          if associated_source = @sources.find { |potentially_associated_source|
+               potentially_associated_source.plural_name == has_many_association[:source_name]
+             }
+
+            associated_source.belongs_to(source.plural_name)
+          end
+        end
+      end
+
+      def define_queries_for_attributes!(source)
+        source.attributes.keys.each do |attribute|
+          source.define_method :"by_#{attribute}" do |value|
+            source_from_self(@container.connection.adapter.result_for_attribute_value(attribute, value, self))
+          end
+        end
       end
 
       def finalize_source_types!(source)
@@ -73,15 +103,6 @@ module Pakyow
           # end
 
           source.attributes[attribute_name] = type
-        end
-      end
-
-      def define_queries_for_attributes!(source)
-        local_adapter = adapter
-        source.attributes.keys.each do |attribute|
-          source.define_method :"by_#{attribute}" do |value|
-            self.class.new(local_adapter.result_for_attribute_value(attribute, value, self), object_map: @object_map)
-          end
         end
       end
     end
