@@ -62,10 +62,8 @@ module Pakyow
         self
       end
 
-      def each
-        self.class.each(__getobj__) do |result|
-          yield wrap(result)
-        end
+      def each(&block)
+        to_a.each(&block)
       end
 
       def to_a

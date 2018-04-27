@@ -28,10 +28,6 @@ module Pakyow
         end
 
         module DatasetMethods
-          def each(_dataset)
-            raise "each is not implemented on #{self}"
-          end
-
           def to_a(_dataset)
             raise "to_a is not implemented on #{self}"
           end

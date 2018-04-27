@@ -272,10 +272,6 @@ module Pakyow
         end
 
         module DatasetMethods
-          def each(dataset, &block)
-            dataset.each(&block)
-          end
-
           def to_a(dataset)
             dataset.all
           end
