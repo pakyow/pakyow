@@ -12,7 +12,7 @@ module Pakyow
       def initialize(app, presentables)
         @app, @presentables = app, presentables
 
-        connection = Connection.new(@app, {})
+        connection = Connection.new(@app, "rack.input" => StringIO.new)
         connection.instance_variable_set(:@values, @presentables)
         super(connection)
       end
