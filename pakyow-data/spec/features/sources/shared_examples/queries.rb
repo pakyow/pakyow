@@ -1,7 +1,7 @@
-RSpec.shared_examples :model_queries do
-  describe "built-in model queries" do
+RSpec.shared_examples :source_queries do
+  describe "built-in source queries" do
     before do
-      Pakyow.config.data.connections.sql[:default] = connection_string
+      Pakyow.config.data.connections.public_send(connection_type)[:default] = connection_string
     end
 
     include_context "testable app"
@@ -14,7 +14,7 @@ RSpec.shared_examples :model_queries do
       Proc.new do
         instance_exec(&$data_app_boilerplate)
 
-        model :post do
+        source :post do
           primary_id
           attribute :title, :string
         end
@@ -31,9 +31,9 @@ RSpec.shared_examples :model_queries do
     end
   end
 
-  describe "custom model queries" do
+  describe "custom source queries" do
     before do
-      Pakyow.config.data.connections.sql[:default] = connection_string
+      Pakyow.config.data.connections.public_send(connection_type)[:default] = connection_string
     end
 
     include_context "testable app"
@@ -46,14 +46,12 @@ RSpec.shared_examples :model_queries do
       Proc.new do
         instance_exec(&$data_app_boilerplate)
 
-        model :post do
+        source :post do
           primary_id
           attribute :title, :string
 
-          queries do
-            def title_is_foo
-              where(title: "foo")
-            end
+          def title_is_foo
+            where(title: "foo")
           end
         end
       end

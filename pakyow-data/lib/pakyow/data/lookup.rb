@@ -10,22 +10,21 @@ module Pakyow
 
       attr_reader :subscribers
 
-      def initialize(models, subscribers)
+      def initialize(containers:, subscribers:)
         @subscribers = subscribers
         @subscribers.lookup = self
 
-        models.each do |model|
-          define_singleton_method model.plural_name do
-            Proxy.new(
-              Source.new(
-                model: model,
-                relation: Pakyow.relation(
-                  model.plural_name,
-                  model.adapter,
-                  model.connection
-                )
-              ), @subscribers
-            )
+        containers.each do |container|
+          container.sources.each do |source|
+            define_singleton_method source.plural_name do
+              Proxy.new(
+                container.source_instance(
+                  source.plural_name
+                ),
+
+                @subscribers
+              )
+            end
           end
         end
       end

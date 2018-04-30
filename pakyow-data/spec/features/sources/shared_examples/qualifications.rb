@@ -1,7 +1,7 @@
-RSpec.shared_examples :model_qualifications do
+RSpec.shared_examples :source_qualifications do
   describe "qualifications for by_attribute queries" do
     before do
-      Pakyow.config.data.connections.sql[:default] = connection_string
+      Pakyow.config.data.connections.public_send(connection_type)[:default] = connection_string
     end
 
     include_context "testable app"
@@ -14,7 +14,7 @@ RSpec.shared_examples :model_qualifications do
       Proc.new do
         instance_exec(&$data_app_boilerplate)
 
-        model :post do
+        source :post do
           primary_id
           attribute :title, :string
         end
@@ -22,14 +22,14 @@ RSpec.shared_examples :model_qualifications do
     end
 
     it "defines a qualification for each query" do
-      expect(data.posts.source.model.qualifications(:by_id)).to eq(id: :__arg0__)
-      expect(data.posts.source.model.qualifications(:by_title)).to eq(title: :__arg0__)
+      expect(data.posts.source.class.qualifications(:by_id)).to eq(id: :__arg0__)
+      expect(data.posts.source.class.qualifications(:by_title)).to eq(title: :__arg0__)
     end
   end
 
-  describe "qualifications for custom model queries" do
+  describe "qualifications for custom source queries" do
     before do
-      Pakyow.config.data.connections.sql[:default] = connection_string
+      Pakyow.config.data.connections.public_send(connection_type)[:default] = connection_string
     end
 
     include_context "testable app"
@@ -42,7 +42,7 @@ RSpec.shared_examples :model_qualifications do
       Proc.new do
         instance_exec(&$data_app_boilerplate)
 
-        model :post do
+        source :post do
           primary_id
           attribute :title, :string
 
@@ -55,7 +55,7 @@ RSpec.shared_examples :model_qualifications do
     end
 
     it "defines the qualification" do
-      expect(data.posts.source.model.qualifications(:title_is_foo)).to eq(title: "foo")
+      expect(data.posts.source.class.qualifications(:title_is_foo)).to eq(title: "foo")
     end
   end
 end

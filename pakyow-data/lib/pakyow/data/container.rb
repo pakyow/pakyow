@@ -1,180 +1,114 @@
 # frozen_string_literal: true
 
-require "rom"
-
 module Pakyow
   module Data
     class Container
-      def initialize(adapter_type:, connection_name:, connection_string:)
-        @adapter_type, @connection_name, @connection_string = adapter_type, connection_name, connection_string
+      attr_reader :connection, :sources
 
-        @config = ROM::Configuration.new(adapter_type, connection_string)
+      def initialize(connection:, sources:, objects:)
+        @connection, @sources = connection, sources
 
-        if Pakyow.config.data.logging
-          @config.gateways[:default].use_logger(Pakyow.logger)
-        end
+        @object_map = objects.each_with_object({}) { |object, map|
+          map[object.__class_name.name] = object
+        }
 
-        define!
-        auto_migrate!
+        finalize!
       end
 
-      def container
-        ROM.container(@config)
+      def source_instance(source_name)
+        plural_source_name = Support.inflector.pluralize(source_name).to_sym
+
+        if source = sources.find { |source|
+             source.plural_name == plural_source_name
+           }
+
+          source.new(
+            @connection.dataset_for_source(source),
+            object_map: @object_map,
+            container: self
+          )
+        else
+          # TODO: raise UnknownSource
+        end
       end
 
       private
 
-      def models
-        @models ||= Pakyow.apps.flat_map { |app|
-          app.state_for(:model)
-        }.select { |model|
-          (model.adapter || Pakyow.config.data.default_adapter) == @adapter_type && model.connection == @connection_name
-        }
+      def adapter
+        @connection.adapter
       end
 
-      def define!
-        models.each do |model|
-          define_relation!(model)
-          define_mappers!(model)
-          define_commands!(model)
+      def finalize!
+        @sources.each do |source|
+          define_inverse_associations!(source)
+        end
+
+        @sources.each do |source|
+          mixin_commands!(source)
+          mixin_dataset_methods!(source)
+          define_attributes_for_associations!(source)
+          define_queries_for_attributes!(source)
+
+          finalize_source_types!(source)
         end
       end
 
-      def define_relation!(model)
-        @config.relation(model.plural_name.to_sym).tap do |relation|
-          define_relation_schema!(relation, model)
-          define_relation_queries!(relation, model.queries_block)
-          define_relation_queries_for_attributes!(relation, model.attributes)
-          define_relation_queries_for_associations!(relation, model.associations)
+      def mixin_commands!(source)
+        source.include adapter.class.const_get("Commands")
+      end
+
+      def mixin_dataset_methods!(source)
+        source.extend adapter.class.const_get("DatasetMethods")
+      end
+
+      def define_attributes_for_associations!(source)
+        source.associations[:belongs_to].each do |belongs_to_association|
+          source.attribute belongs_to_association[:column_name], belongs_to_association[:column_type]
         end
       end
 
-      def define_relation_schema!(relation, model)
-        local_adapter_type = @adapter_type
+      def define_inverse_associations!(source)
+        source.associations[:has_many].each do |has_many_association|
+          if associated_source = @sources.find { |potentially_associated_source|
+               potentially_associated_source.plural_name == has_many_association[:source_name]
+             }
 
-        relation.schema do
-          model.attributes.each do |name, options|
-            type = Pakyow::Data::Types.type_for(options[:type], local_adapter_type)
-
-            if options[:nullable] && model.primary_key_field != name
-              type = type.optional
-            end
-
-            if default_value = options[:default]
-              type = type.default { default_value }
-            end
-
-            attribute name, type, null: options[:nullable]
-          end
-
-          if model.primary_key_field && model.attributes.keys.include?(model.primary_key_field)
-            primary_key(model.primary_key_field)
-          else
-            # TODO: protect against defining an unknown field as a pk
-          end
-
-          associations do
-            model.associations[:has_many].each do |has_many_association|
-              has_many has_many_association[:model], view: has_many_association[:view]
-            end
-
-            model.associations[:belongs_to].each do |belongs_to_association|
-              belongs_to belongs_to_association[:model], as: Pakyow::Support.inflector.singularize(belongs_to_association[:model]).to_sym
-            end
-          end
-
-          model.associations[:belongs_to].each do |belongs_to_association|
-            attribute :"#{Pakyow::Support.inflector.singularize(belongs_to_association[:model])}_id", Pakyow::Data::Types.type_for(:integer, local_adapter_type).optional
-          end
-
-          if timestamps = model.timestamp_fields
-            use :timestamps
-            timestamps(*[timestamps[:update], timestamps[:create]].compact)
-          end
-
-          if setup_block = model.setup_block
-            instance_exec(&setup_block)
+            associated_source.belongs_to(source.plural_name)
           end
         end
       end
 
-      def define_relation_queries!(relation, queries_block)
-        relation.class_eval do
-          if queries_block
-            class_eval(&queries_block)
-          end
-        end
-      end
-
-      def define_relation_queries_for_attributes!(relation, attributes)
-        relation.class_eval do
-          attributes.each do |attribute_name, _options|
-            define_method :"by_#{attribute_name}" do |value|
-              map_with(:model).where(attribute_name => value)
+      def define_queries_for_attributes!(source)
+        source.attributes.keys.each do |attribute|
+          source.class_eval do
+            define_method :"by_#{attribute}" do |value|
+              source_from_self(@container.connection.adapter.result_for_attribute_value(attribute, value, self))
             end
           end
         end
       end
 
-      def define_relation_queries_for_associations!(relation, associations)
-        relation.class_eval do
-          associations[:has_many].each do |has_many_association|
-            define_method :"with_#{has_many_association[:model]}" do
-              map_with(:model).combine(has_many_association[:model]).node(has_many_association[:model]) { |objects|
-                objects.map_with(:model)
-              }
-            end
+      def finalize_source_types!(source)
+        source.attributes.each do |attribute_name, attribute_info|
+          type = Types.type_for(attribute_info[:type], connection.types)
+
+          if attribute_name == source.primary_key_field
+            type = type.meta(primary_key: true)
           end
 
-          associations[:belongs_to].each do |belongs_to_association|
-            association_name = Pakyow::Support.inflector.singularize(belongs_to_association[:model]).to_sym
-            define_method :"with_#{association_name}" do
-              map_with(:model).combine(association_name).node(association_name) { |objects|
-                objects.map_with(:model)
-              }
-            end
-          end
-        end
-      end
+          # TODO: set metadata values for default, null
 
-      def define_mappers!(model)
-        @config.mappers do
-          define model.plural_name do
-            self.model model
-            register_as :model
-          end
-        end
-      end
+          # final_type = original_type
 
-      def define_commands!(model)
-        @config.commands model.plural_name do
-          define :create do
-            result :one
+          # if attribute_info[:nullable] && source.primary_key_field != attribute_name
+          #   final_type = final_type.optional
+          # end
 
-            if timestamps = model.timestamp_fields
-              use :timestamps
-              timestamp(*[timestamps[:update], timestamps[:create]].compact)
-            end
-          end
+          # if attribute_info.key?(:default)
+          #   final_type = final_type.default { attribute_info[:default] }
+          # end
 
-          define :update do
-            result :many
-
-            if timestamps = model.timestamp_fields
-              use :timestamps
-              timestamp timestamps[:update]
-            end
-          end
-
-          define :delete do
-            result :many
-          end
-        end
-      end
-
-      def auto_migrate!
-        if Pakyow.config.data.auto_migrate && @config.gateways[:default].respond_to?(:auto_migrate!)
-          @config.gateways[:default].auto_migrate!(@config, inline: true)
+          source.attributes[attribute_name] = type
         end
       end
     end

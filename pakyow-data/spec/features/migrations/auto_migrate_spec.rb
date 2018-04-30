@@ -1,8 +1,6 @@
-require "rom/memory"
-require "rom/sql"
-
 RSpec.describe "auto migrating on boot" do
   before do
+    require "pakyow/data/migrator"
     Pakyow.config.data.connections.send(adapter_type)[:default] = adapter_url
     Pakyow.config.data.auto_migrate = auto_migrate_enabled
     setup_gateway_expectations
@@ -21,11 +19,11 @@ RSpec.describe "auto migrating on boot" do
       end
 
       let :adapter_url do
-        "sqlite://"
+        "sqlite::memory"
       end
 
       def setup_gateway_expectations
-        expect_any_instance_of(ROM::SQL::Gateway).to receive(:auto_migrate!)
+        expect_any_instance_of(Pakyow::Data::Migrator).to receive(:auto_migrate!)
       end
 
       it "auto migrates" do
@@ -44,11 +42,11 @@ RSpec.describe "auto migrating on boot" do
     end
 
     let :adapter_url do
-      "sqlite://"
+      "sqlite::memory"
     end
 
     def setup_gateway_expectations
-      expect_any_instance_of(ROM::SQL::Gateway).to_not receive(:auto_migrate!)
+      expect_any_instance_of(Pakyow::Data::Migrator).to_not receive(:auto_migrate!)
     end
 
     it "does not auto migrate" do

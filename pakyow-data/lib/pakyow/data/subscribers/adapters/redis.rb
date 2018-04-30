@@ -38,7 +38,7 @@ module Pakyow
             subscription_string = self.class.stringify_subscription(subscription)
             subscription_id = self.class.generate_subscription_id(subscription_string)
 
-            model = subscription[:model]
+            source = subscription[:source]
 
             @redis.multi do |transaction|
               # store the subscription
@@ -50,18 +50,18 @@ module Pakyow
               # add the subscriber to the subscription's set
               transaction.zadd(key_subscribers_by_subscription_id(subscription_id), INFINITY, subscriber)
 
-              # add the subscription to the model's set
-              transaction.zadd(key_subscription_ids_by_model(model), INFINITY, subscription_id)
+              # add the subscription to the source's set
+              transaction.zadd(key_subscription_ids_by_source(source), INFINITY, subscription_id)
 
-              # define what model the subscription is for
-              transaction.set(key_model_for_subscription_id(subscription_id), model)
+              # define what source the subscription is for
+              transaction.set(key_source_for_subscription_id(subscription_id), source)
             end
 
             subscription_id
           end
 
-          def subscriptions_for_model(model)
-            subscriptions_for_subscription_ids(subscription_ids_for_model(model)).compact
+          def subscriptions_for_source(source)
+            subscriptions_for_subscription_ids(subscription_ids_for_source(source)).compact
           end
 
           def unsubscribe(subscriber)
@@ -96,16 +96,16 @@ module Pakyow
                 non_expire_count = @redis.zcount(key_subscribers_for_subscription_id, INFINITY, INFINITY)
 
                 if non_expire_count == 0
-                  model = @redis.get(key_model_for_subscription_id(subscription_id))
+                  source = @redis.get(key_source_for_subscription_id(subscription_id))
 
                   last_time_expire = @redis.zrevrangebyscore(
                     key_subscribers_for_subscription_id, INFINITY, 0, with_scores: true, limit: [0, 1]
                   )[0][1].to_i
 
                   @redis.multi do |transaction|
-                    transaction.zadd(key_subscription_ids_by_model(model), last_time_expire, subscription_id)
+                    transaction.zadd(key_subscription_ids_by_source(source), last_time_expire, subscription_id)
 
-                    transaction.expireat(key_model_for_subscription_id(subscription_id), last_time_expire)
+                    transaction.expireat(key_source_for_subscription_id(subscription_id), last_time_expire)
                     transaction.expireat(key_subscribers_by_subscription_id(subscription_id), last_time_expire)
                     transaction.expireat(key_subscription_id(subscription_id), last_time_expire)
                   end
@@ -136,12 +136,12 @@ module Pakyow
 
               # this means that if a subscriber is added to the subscription, the following block will not be executed
               @redis.watch(key_subscribers_for_subscription_id) do
-                model = @redis.get(key_model_for_subscription_id(subscription_id))
+                source = @redis.get(key_source_for_subscription_id(subscription_id))
 
                 @redis.multi do |transaction|
-                  transaction.zadd(key_subscription_ids_by_model(model), INFINITY, subscription_id)
+                  transaction.zadd(key_subscription_ids_by_source(source), INFINITY, subscription_id)
 
-                  transaction.persist(key_model_for_subscription_id(subscription_id))
+                  transaction.persist(key_source_for_subscription_id(subscription_id))
                   transaction.persist(key_subscribers_by_subscription_id(subscription_id))
                   transaction.persist(key_subscription_id(subscription_id))
                 end
@@ -163,10 +163,10 @@ module Pakyow
 
           protected
 
-          def subscription_ids_for_model(model)
+          def subscription_ids_for_source(source)
             @redis.zrangebyscore(
-              key_subscription_ids_by_model(
-                model
+              key_subscription_ids_by_source(
+                source
               ), Time.now.to_i, INFINITY
             )
           end
@@ -209,12 +209,12 @@ module Pakyow
             build_key("subscriber:#{subscriber}")
           end
 
-          def key_subscription_ids_by_model(model)
-            build_key("model:#{model}")
+          def key_subscription_ids_by_source(source)
+            build_key("source:#{source}")
           end
 
-          def key_model_for_subscription_id(subscription_id)
-            build_key("subscription:#{subscription_id}", "model")
+          def key_source_for_subscription_id(subscription_id)
+            build_key("subscription:#{subscription_id}", "source")
           end
         end
       end

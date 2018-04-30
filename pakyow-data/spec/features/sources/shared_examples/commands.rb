@@ -1,7 +1,7 @@
-RSpec.shared_examples :model_commands do
-  describe "built-in model commands" do
+RSpec.shared_examples :source_commands do
+  describe "built-in source commands" do
     before do
-      Pakyow.config.data.connections.sql[:default] = connection_string
+      Pakyow.config.data.connections.public_send(connection_type)[:default] = connection_string
     end
 
     include_context "testable app"
@@ -14,7 +14,7 @@ RSpec.shared_examples :model_commands do
       Proc.new do
         instance_exec(&$data_app_boilerplate)
 
-        model :post do
+        source :post do
           primary_id
           attribute :title, :string
         end
@@ -36,13 +36,13 @@ RSpec.shared_examples :model_commands do
       before do
         data.posts.create(title: "foo")
         data.posts.create(title: "bar")
-        @result = data.posts.update(title: "baz")
+        @result = data.posts.update(title: "baz").to_a
       end
 
       it "updates all matching records" do
         expect(data.posts.count).to eq(2)
-        expect(data.posts.all[0][:title]).to eq("baz")
-        expect(data.posts.all[1][:title]).to eq("baz")
+        expect(data.posts.to_a[0][:title]).to eq("baz")
+        expect(data.posts.to_a[1][:title]).to eq("baz")
       end
 
       it "returns the updated results" do
@@ -57,7 +57,7 @@ RSpec.shared_examples :model_commands do
       before do
         data.posts.create(title: "foo")
         data.posts.create(title: "bar")
-        @result = data.posts.delete
+        @result = data.posts.delete.to_a
       end
 
       it "deletes all matching records" do
@@ -73,7 +73,7 @@ RSpec.shared_examples :model_commands do
     end
   end
 
-  describe "custom model commands" do
+  describe "custom source commands" do
     it "needs to be defined"
   end
 end
