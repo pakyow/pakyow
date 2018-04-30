@@ -47,7 +47,7 @@ RSpec.describe "silencing requests" do
 
       it "logs the asset request" do
         call("/assets/foo.bar")
-        expect(io.string).to eq("")
+        expect(io.string).not_to be_empty
       end
     end
   end
