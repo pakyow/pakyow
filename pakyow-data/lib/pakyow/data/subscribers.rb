@@ -65,14 +65,16 @@ module Pakyow
         callback = subscription[:handler].new(@app)
         arguments = {}
 
-        if callback.method(:call).keyword_argument?(:result)
-          arguments[:result] = @app.data.public_send(
-            subscription[:proxy][:source]
-          ).apply(subscription[:proxy][:proxied_calls])
-        end
+        result = @app.data.public_send(
+          subscription[:proxy][:source]
+        ).apply(subscription[:proxy][:proxied_calls])
 
-        if callback.method(:call).keyword_argument?(:subscribers)
-          arguments[:subscribers] = @adapter.subscribers_for_subscription_id(subscription[:id])
+        # resubscribe the subscriber to the new result
+        unsubscribe(subscription[:subscriber])
+        subscription_ids = result.subscribe(subscription[:subscriber], handler: subscription[:handler], payload: subscription[:payload])
+
+        if callback.method(:call).keyword_argument?(:result)
+          arguments[:result] = result
         end
 
         if callback.method(:call).keyword_argument?(:id)
@@ -81,6 +83,10 @@ module Pakyow
 
         if callback.method(:call).keyword_argument?(:subscription)
           arguments[:subscription] = subscription
+        end
+
+        if callback.method(:call).keyword_argument?(:subscription_ids)
+          arguments[:subscription_ids] = subscription_ids
         end
 
         callback.call(subscription[:payload], **arguments)

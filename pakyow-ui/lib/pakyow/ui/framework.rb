@@ -36,7 +36,7 @@ module Pakyow
               @app = app
             end
 
-            def call(args, result: nil, subscription: nil)
+            def call(args, subscription: nil, subscription_ids: [])
               presentables = args[:presentables].each_with_object({}) { |presentable_info, presentable_hash|
                 presentable_name, proxy = presentable_info.values_at(:name, :proxy)
 
@@ -52,8 +52,8 @@ module Pakyow
               message = { transformation_id: args[:transformation_id], transformations: renderer.to_arr }
               @app.websocket_server.subscription_broadcast(Realtime::Channel.new(:transformation, subscription[:id]), message)
 
-              # the data has changed, so resubscribe to the new set
-              result.subscribe(args[:socket_client_id], handler: subscription[:handler], payload: subscription[:payload]).each do |subscription_id|
+              # resubscribe websockets to the new subscriptions
+              subscription_ids.each do |subscription_id|
                 @app.websocket_server.socket_unsubscribe(Realtime::Channel.new(:transformation, subscription[:id]))
                 @app.websocket_server.socket_subscribe(args[:socket_client_id], Realtime::Channel.new(:transformation, subscription_id))
               end

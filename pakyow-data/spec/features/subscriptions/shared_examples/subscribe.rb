@@ -16,7 +16,7 @@ RSpec.shared_examples :subscription_subscribe do
       Pakyow.config.data.subscriptions.adapter = data_subscription_adapter
 
       Proc.new do
-        source :post do
+        source :posts do
           primary_id
 
           attribute :title, :string
@@ -29,7 +29,7 @@ RSpec.shared_examples :subscription_subscribe do
           end
         end
 
-        source :comment do
+        source :comments do
           primary_id
 
           attribute :title, :string

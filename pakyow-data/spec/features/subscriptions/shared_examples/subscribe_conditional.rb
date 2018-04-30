@@ -16,7 +16,7 @@ RSpec.shared_examples :subscription_subscribe_conditional do
       Pakyow.config.data.subscriptions.adapter = data_subscription_adapter
 
       Proc.new do
-        source :post do
+        source :posts do
           primary_id
 
           attribute :title, :string
@@ -27,12 +27,6 @@ RSpec.shared_examples :subscription_subscribe_conditional do
           def by_title(title)
             where(title: title)
           end
-        end
-
-        source :comment do
-          primary_id
-
-          attribute :title, :string
         end
 
         resources :posts, "/posts" do
@@ -75,35 +69,6 @@ RSpec.shared_examples :subscription_subscribe_conditional do
             post "unsubscribe" do
               data.subscribers.unsubscribe(:post_subscriber)
             end
-          end
-        end
-
-        resources :comments, "/comments" do
-          skip_action :verify_same_origin
-          skip_action :verify_authenticity_token
-
-          create do
-            verify do
-              required :comment do
-                required :title
-              end
-            end
-
-            data.comments.create(params[:comment])
-          end
-
-          update do
-            verify do
-              required :comment do
-                required :title
-              end
-            end
-
-            data.comments.by_title(params[:id]).update(params[:comment])
-          end
-
-          remove do
-            data.comments.by_title(params[:id]).delete
           end
         end
       end
@@ -151,6 +116,18 @@ RSpec.shared_examples :subscription_subscribe_conditional do
         expect_any_instance_of(TestHandler).to receive(:call)
         response = call("/posts/foo", method: :patch, params: { post: { title: "bar" } })
         expect(response[0]).to eq(200)
+      end
+
+      context "when that object is updated again" do
+        it "does not call the handler" do
+          call("/posts", method: :post, params: { post: { title: "foo" } })
+
+          subscribe!
+          call("/posts/foo", method: :patch, params: { post: { title: "bar" } })
+          expect_any_instance_of(TestHandler).not_to receive(:call)
+          response = call("/posts/bar", method: :patch, params: { post: { title: "baz" } })
+          expect(response[0]).to eq(200)
+        end
       end
     end
 

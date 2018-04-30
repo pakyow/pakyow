@@ -23,10 +23,7 @@ module Pakyow
         if @source.command?(method_name)
           @source.command(method_name).call(*args, &block).tap { |result|
             @subscribers.did_mutate(
-              @source.class.__class_name.name,
-              args[0],
-              # TODO: see if compact is still needed
-              result.to_a.compact
+              @source.class.__class_name.name, args[0], result.to_a
             )
           }
         elsif @source.query?(method_name) || @source.modifier?(method_name)
@@ -113,7 +110,8 @@ module Pakyow
                 included_source,
                 subscriber: subscriber,
                 handler: handler,
-                payload: payload
+                payload: payload,
+                parent_pks: result_pks
               )
             )
           end
@@ -122,7 +120,7 @@ module Pakyow
         subscription_ids
       end
 
-      def subscribe_included_source(source, subscriber:, handler:, payload:)
+      def subscribe_included_source(source, subscriber:, handler:, payload:, parent_pks:)
         subscription_ids = []
 
         primary_key = source.class.primary_key_field
@@ -131,21 +129,27 @@ module Pakyow
           object[primary_key]
         }
 
-        subscription = {
-          source: source.class.__class_name.name,
-          handler: handler,
-          payload: payload,
-          # qualifications: {
-          #   :"#{Support.inflector.singularize(@source.model.__class_name.name)}_#{primary_key}" => result_pk_value
-          # },
-          subscriber: subscriber,
-          qualifications: {},
-          pk_field: primary_key,
-          object_pks: result_pks,
-          proxy: to_h
+        association = source.class.associations.values.flatten.find { |association|
+          association[:source_name] == @source.class.plural_name ||
+            association[:source_name] == @source.class.singular_name
         }
 
-        subscription_ids << @subscribers.register_subscription(subscription, subscriber: subscriber)
+        parent_pks.each do |result_pk_value|
+          subscription = {
+            source: source.class.__class_name.name,
+            handler: handler,
+            payload: payload,
+            qualifications: {
+              association[:column_name] => result_pk_value
+            },
+            subscriber: subscriber,
+            pk_field: primary_key,
+            object_pks: result_pks,
+            proxy: to_h
+          }
+
+          subscription_ids << @subscribers.register_subscription(subscription, subscriber: subscriber)
+        end
 
         source.included.each do |included_source|
           subscription_ids.concat(
@@ -153,7 +157,8 @@ module Pakyow
               included_source,
               subscriber: subscriber,
               handler: handler,
-              payload: payload
+              payload: payload,
+              parent_pks: result_pks
             )
           )
         end

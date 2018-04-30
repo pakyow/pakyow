@@ -46,7 +46,7 @@ module Pakyow
           end
 
           def unsubscribe(subscriber)
-            subscription_ids_for_subscriber(subscriber).each do |subscription_id|
+            subscription_ids_for_subscriber(subscriber).dup.each do |subscription_id|
               unsubscribe_subscriber_from_subscription_id(subscriber, subscription_id)
             end
           end
