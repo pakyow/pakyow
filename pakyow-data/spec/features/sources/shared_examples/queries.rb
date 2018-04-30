@@ -1,7 +1,7 @@
 RSpec.shared_examples :source_queries do
   describe "built-in source queries" do
     before do
-      Pakyow.config.data.connections.sql[:default] = connection_string
+      Pakyow.config.data.connections.public_send(connection_type)[:default] = connection_string
     end
 
     include_context "testable app"
@@ -33,7 +33,7 @@ RSpec.shared_examples :source_queries do
 
   describe "custom source queries" do
     before do
-      Pakyow.config.data.connections.sql[:default] = connection_string
+      Pakyow.config.data.connections.public_send(connection_type)[:default] = connection_string
     end
 
     include_context "testable app"

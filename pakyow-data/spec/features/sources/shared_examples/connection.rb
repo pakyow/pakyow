@@ -6,7 +6,7 @@ RSpec.shared_examples :source_connection do
 
     context "single default connection is defined" do
       before do
-        Pakyow.config.data.connections.sql[:default] = "sqlite::memory"
+        Pakyow.config.data.connections.public_send(connection_type)[:default] = connection_string
       end
 
       include_context "testable app"
@@ -46,7 +46,7 @@ RSpec.shared_examples :source_connection do
 
     context "single non-default connection is defined" do
       before do
-        Pakyow.config.data.connections.sql[:test] = "sqlite::memory"
+        Pakyow.config.data.connections.public_send(connection_type)[:test] = connection_string
       end
 
       include_context "testable app"
@@ -70,8 +70,8 @@ RSpec.shared_examples :source_connection do
 
     context "multiple connections are defined, with a default" do
       before do
-        Pakyow.config.data.connections.sql[:default] = "sqlite::memory"
-        Pakyow.config.data.connections.sql[:test] = "sqlite::memory"
+        Pakyow.config.data.connections.public_send(connection_type)[:default] = connection_string
+        Pakyow.config.data.connections.public_send(connection_type)[:test] = connection_string
       end
 
       include_context "testable app"
@@ -127,8 +127,8 @@ RSpec.shared_examples :source_connection do
 
     context "multiple connections are defined, with no default" do
       before do
-        Pakyow.config.data.connections.sql[:test1] = "sqlite::memory"
-        Pakyow.config.data.connections.sql[:test2] = "sqlite::memory"
+        Pakyow.config.data.connections.public_send(connection_type)[:test1] = connection_string
+        Pakyow.config.data.connections.public_send(connection_type)[:test2] = connection_string
       end
 
       include_context "testable app"
