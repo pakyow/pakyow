@@ -5,8 +5,11 @@ RSpec.shared_examples :finalizing_migrations do
     # we'll generate a second migration for the second table.
 
     before do
+      @old_environment_tasks = Pakyow.config.tasks.paths.dup
+      Pakyow.config.tasks.paths.delete("./tasks")
+
       Pakyow.config.data.connections.sql[:default] = connection_string
-      Pakyow.config.data.migration_path = "./spec/features/migrations/support/database/migrations"
+      Pakyow.config.data.migration_path = File.expand_path("../../support/database/migrations", __FILE__)
       Pakyow.load_tasks
 
       # Create the initial migration.
@@ -19,6 +22,8 @@ RSpec.shared_examples :finalizing_migrations do
 
     after do
       FileUtils.rm_r(adapter_migration_path)
+
+      Pakyow.config.tasks.paths = @old_environment_tasks
     end
 
     def adapter_migration_path
