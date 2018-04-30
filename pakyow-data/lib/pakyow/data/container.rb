@@ -80,8 +80,10 @@ module Pakyow
 
       def define_queries_for_attributes!(source)
         source.attributes.keys.each do |attribute|
-          source.define_method :"by_#{attribute}" do |value|
-            source_from_self(@container.connection.adapter.result_for_attribute_value(attribute, value, self))
+          source.class_eval do
+            define_method :"by_#{attribute}" do |value|
+              source_from_self(@container.connection.adapter.result_for_attribute_value(attribute, value, self))
+            end
           end
         end
       end
