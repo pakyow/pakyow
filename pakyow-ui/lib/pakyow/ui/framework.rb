@@ -41,7 +41,9 @@ module Pakyow
                 presentable_name, proxy = presentable_info.values_at(:name, :proxy)
 
                 # convert data to an array, because the client can always deal arrays
-                presentable_hash[presentable_name] = Data::Proxy.deserialize(proxy, @app.data.public_send(proxy[:model])).to_a
+                presentable_hash[presentable_name] = @app.data.public_send(
+                  proxy[:source]
+                ).apply(proxy[:proxied_calls]).to_a
               }
 
               renderer = Renderer.new(@app, presentables)
