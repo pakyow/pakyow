@@ -8,11 +8,8 @@ RSpec.describe "silencing requests" do
   end
 
   before do
-    allow(Pakyow::Logger::RequestLogger).to receive(:new).with(:http).and_return(logger)
-  end
-
-  after do
     Pakyow::Middleware::Logger.silencers.clear
+    allow(Pakyow::Logger::RequestLogger).to receive(:new).with(:http).and_return(logger)
   end
 
   include_context "testable app"
