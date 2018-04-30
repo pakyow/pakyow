@@ -17,7 +17,7 @@ module Pakyow
       end
 
       def disconnect!
-        if @connection && @connection.connected?
+        if instance_variable_defined?(:@connection) && @connection.connected?
           @connection.disconnect
         end
       end

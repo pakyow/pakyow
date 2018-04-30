@@ -4,6 +4,7 @@ require "uri"
 require "forwardable"
 
 require "pakyow/support/core_refinements/string/normalization"
+require "pakyow/support/deep_freeze"
 
 module Pakyow
   module Data
@@ -15,8 +16,11 @@ module Pakyow
 
       attr_reader :type, :name, :opts, :adapter
 
-      def initialize(type:, name:, string: nil, opts: nil)
-        @type, @name = type, name
+      extend Support::DeepFreeze
+      unfreezable :logger
+
+      def initialize(type:, name:, string: nil, opts: nil, logger: nil)
+        @type, @name, @logger = type, name, logger
 
         @opts = if opts.is_a?(Hash)
           opts
@@ -26,7 +30,7 @@ module Pakyow
 
         if SUPPORTED_CONNECTION_TYPES.include?(type)
           require "pakyow/data/adapters/#{type}"
-          @adapter = Adapters.const_get(Support.inflector.classify(type)).new(@opts)
+          @adapter = Adapters.const_get(Support.inflector.classify(type)).new(@opts, logger: logger)
         else
           # TODO: raise nice UnsupportedConnectionType error, telling them what the supported types are
         end

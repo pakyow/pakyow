@@ -90,6 +90,10 @@ module Pakyow
         source.attributes.each do |attribute_name, attribute_info|
           type = Types.type_for(attribute_info[:type], connection.types)
 
+          if attribute_name == source.primary_key_field
+            type = type.meta(primary_key: true)
+          end
+
           # TODO: set metadata values for default, null
 
           # final_type = original_type

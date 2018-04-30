@@ -3,6 +3,7 @@
 require "forwardable"
 
 require "pakyow/support/makeable"
+require "pakyow/support/indifferentize"
 
 module Pakyow
   module Data
@@ -17,10 +18,10 @@ module Pakyow
       def_delegators :@values, :include?, :value?, :[]
 
       def initialize(values)
-        @values = values
+        @values = Support::IndifferentHash.new(values).freeze
       end
 
-      def method_missing(name, *args)
+      def method_missing(name, *_args)
         if @values.include?(name)
           @values[name]
         end
@@ -28,6 +29,10 @@ module Pakyow
 
       def respond_to_missing(name, *)
         @values.include?(name)
+      end
+
+      def to_h
+        @values
       end
 
       class << self

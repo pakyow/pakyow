@@ -12,7 +12,7 @@ RSpec.shared_examples :subscription_subscribe do
 
     let :app_definition do
       Pakyow.config.data.default_adapter = :sql
-      Pakyow.config.data.connections.sql[:default] = "sqlite://"
+      Pakyow.config.data.connections.sql[:default] = "sqlite::memory"
       Pakyow.config.data.subscriptions.adapter = data_subscription_adapter
 
       Proc.new do

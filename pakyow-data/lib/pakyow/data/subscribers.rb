@@ -19,15 +19,24 @@ module Pakyow
         Pakyow.logger.error e.message
       end
 
+      # {
+      #   source
+      #   qualifications
+      #   object_pks
+      #   pk_field
+      #   handler
+      #   proxy => source
+      #   payload
+      # }
       def register_subscription(subscription, subscriber: nil)
         @adapter.persist(subscriber) if @adapter.expiring?(subscriber)
         @adapter.register_subscription(subscription, subscriber: subscriber)
       end
 
-      def did_mutate(model_name, changed_values, changed_results)
+      def did_mutate(source_name, changed_values, changed_results)
         subscriptions = Set.new
 
-        @adapter.subscriptions_for_model(model_name).each do |subscription|
+        @adapter.subscriptions_for_source(source_name).each do |subscription|
           if qualified?(subscription.delete(:qualifications), subscription.delete(:object_pks), subscription.delete(:pk_field), changed_values, changed_results)
             subscriptions << subscription
           end
@@ -57,12 +66,9 @@ module Pakyow
         arguments = {}
 
         if callback.method(:call).keyword_argument?(:result)
-          arguments[:result] = Proxy.deserialize(
-            subscription[:proxy],
-            @app.data.public_send(
-              Support.inflector.pluralize(subscription[:proxy][:model])
-            )
-          )
+          arguments[:result] = @app.data.public_send(
+            subscription[:proxy][:source]
+          ).apply(subscription[:proxy][:proxied_calls])
         end
 
         if callback.method(:call).keyword_argument?(:subscribers)

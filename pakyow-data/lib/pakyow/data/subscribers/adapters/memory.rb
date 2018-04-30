@@ -24,7 +24,7 @@ module Pakyow
 
           def initialize(_config)
             @subscriptions_by_id = Concurrent::Hash.new
-            @subscription_ids_by_model = Concurrent::Hash.new
+            @subscription_ids_by_source = Concurrent::Hash.new
             @subscribers_by_subscription_id = Concurrent::Hash.new
             @subscription_ids_by_subscriber = Concurrent::Hash.new
             @expirations_for_subscriber = Concurrent::Hash.new
@@ -33,14 +33,14 @@ module Pakyow
           def register_subscription(subscription, subscriber: nil)
             subscription_id = self.class.generate_subscription_id(subscription)
             register_subscription_with_subscription_id(subscription, subscription_id)
-            register_subscription_id_for_model(subscription_id, subscription[:model])
+            register_subscription_id_for_source(subscription_id, subscription[:source])
             register_subscriber_for_subscription_id(subscriber, subscription_id)
 
             subscription_id
           end
 
-          def subscriptions_for_model(model)
-            subscription_ids_for_model(model).map { |subscription_id|
+          def subscriptions_for_source(source)
+            subscription_ids_for_source(source).map { |subscription_id|
               subscription_with_id(subscription_id)
             }
           end
@@ -75,8 +75,8 @@ module Pakyow
 
           protected
 
-          def subscription_ids_for_model(model)
-            @subscription_ids_by_model[model] || []
+          def subscription_ids_for_source(source)
+            @subscription_ids_by_source[source] || []
           end
 
           def subscription_with_id(subscription_id)
@@ -93,9 +93,9 @@ module Pakyow
             @subscriptions_by_id[subscription_id] = subscription
           end
 
-          def register_subscription_id_for_model(subscription_id, model)
-            @subscription_ids_by_model[model] ||= Concurrent::Array.new
-            (@subscription_ids_by_model[model] << subscription_id).uniq!
+          def register_subscription_id_for_source(subscription_id, source)
+            @subscription_ids_by_source[source] ||= Concurrent::Array.new
+            (@subscription_ids_by_source[source] << subscription_id).uniq!
           end
 
           def register_subscriber_for_subscription_id(subscriber, subscription_id)
@@ -113,7 +113,7 @@ module Pakyow
             if subscribers_for_subscription_id(subscription_id).empty?
               @subscriptions_by_id.delete(subscription_id)
 
-              @subscription_ids_by_model.each do |_, ids|
+              @subscription_ids_by_source.each do |_, ids|
                 ids.delete(subscription_id)
               end
             end

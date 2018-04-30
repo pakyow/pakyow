@@ -1,4 +1,4 @@
-RSpec.shared_examples :model_results do
+RSpec.shared_examples :source_results do
   describe "returning results from a query" do
     before do
       Pakyow.config.data.connections.sql[:default] = connection_string
@@ -18,10 +18,8 @@ RSpec.shared_examples :model_results do
           primary_id
           attribute :title, :string
 
-          queries do
-            def ordered
-              order(:id)
-            end
+          def ordered
+            order(:id)
           end
         end
       end
@@ -42,35 +40,14 @@ RSpec.shared_examples :model_results do
         end
 
         context "query contains more than one result" do
-          it "raises an error" do
-            expect { data.posts.one }.to raise_error(ROM::TupleCountMismatchError)
+          it "returns the first result" do
+            expect(data.posts.ordered.one[:title]).to eq("foo")
           end
-        end
-      end
-
-      describe "first" do
-        it "returns the first result" do
-          expect(data.posts.ordered.first[:title]).to eq("foo")
-        end
-      end
-
-      describe "last" do
-        it "returns the last result" do
-          expect(data.posts.ordered.last[:title]).to eq("baz")
         end
       end
     end
 
     describe "returning multiple results" do
-      describe "all" do
-        it "returns multiple results" do
-          expect(data.posts.ordered.all.count).to eq(3)
-          expect(data.posts.ordered.all[0][:title]).to eq("foo")
-          expect(data.posts.ordered.all[1][:title]).to eq("bar")
-          expect(data.posts.ordered.all[2][:title]).to eq("baz")
-        end
-      end
-
       describe "to_a" do
         it "returns multiple results" do
           expect(data.posts.ordered.to_a.count).to eq(3)

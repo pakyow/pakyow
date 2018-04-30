@@ -4,5 +4,7 @@ require "pakyow/error"
 
 module Pakyow
   module Data
+    class UniqueConstraintError < Pakyow::Error
+    end
   end
 end

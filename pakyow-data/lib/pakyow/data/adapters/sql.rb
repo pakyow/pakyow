@@ -22,8 +22,7 @@ module Pakyow
           date: Types::Date,
           datetime: Types::DateTime.meta(db_type: :datetime),
           time: Types::Time,
-          boolean: Types::Bool.meta(column_type: TrueClass),
-          serial: Types::Int.meta(primary_key: true)
+          boolean: Types::Bool.meta(column_type: TrueClass, db_type: :boolean)
         }.freeze
 
         extend Support::DeepFreeze
@@ -32,13 +31,16 @@ module Pakyow
         extend Forwardable
         def_delegators :@connection, :disconnect
 
-        def initialize(opts)
+        attr_reader :connection
+
+        def initialize(opts, logger: nil)
           @connection = Sequel.connect(
             adapter: opts[:adapter],
             database: opts[:path],
             host: opts[:host],
             user: opts[:user],
-            password: opts[:password]
+            password: opts[:password],
+            logger: logger
           )
         rescue Sequel::AdapterNotFound => e
           puts e
@@ -187,7 +189,7 @@ module Pakyow
           table.set_column_type column_name, column_type
         end
 
-        def column_opts_for_attribute_type(attribute_type)
+        def column_opts_for_attribute_type(_attribute_type)
           # TODO: hook this up for default, nullable, others in the future
 
           {}
@@ -290,17 +292,30 @@ module Pakyow
 
           apply_extension do
             command :create do |values|
-              if inserted_primary_key = insert(values)
-                where(self.class.primary_key_field => inserted_primary_key)
+              begin
+                if inserted_primary_key = insert(values)
+                  where(self.class.primary_key_field => inserted_primary_key)
+                else
+                  where(values)
+                end
+              rescue Sequel::UniqueConstraintViolation => error
+                raise Pakyow.build_error(error, UniqueConstraintError)
               end
             end
 
-            command :update do |values|
-              update(values)
-              __getobj__
+            command :update, provides_ids: true do |values|
+              __getobj__.select(self.class.primary_key_field).map { |result|
+                result[:id]
+              }.tap do
+                begin
+                  update(values)
+                rescue Sequel::UniqueConstraintViolation => error
+                  raise Pakyow.build_error(error, UniqueConstraintError)
+                end
+              end
             end
 
-            command :delete do
+            command :delete, provides_dataset: false do
               delete
             end
           end

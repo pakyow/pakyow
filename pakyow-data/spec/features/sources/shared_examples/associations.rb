@@ -1,5 +1,5 @@
-RSpec.shared_examples :model_associations do
-  describe "associating models" do
+RSpec.shared_examples :source_associations do
+  describe "associating sources" do
     before do
       Pakyow.config.data.connections.sql[:default] = connection_string
     end
@@ -27,30 +27,30 @@ RSpec.shared_examples :model_associations do
       end
 
       it "creates a has_many relationship" do
-        post = data.posts.create({})
+        post = data.posts.create({}).one
         data.comments.create(post_id: post[:id])
-        expect(data.posts.with_comments.first[:comments].count).to eq(1)
+        expect(data.posts.including(:comments).one[:comments].count).to eq(1)
       end
 
-      it "creates a belongs_to relationship on the associated model" do
-        post = data.posts.create({})
+      it "creates a belongs_to relationship on the associated source" do
+        post = data.posts.create({}).one
         data.comments.create(post_id: post[:id])
-        expect(data.comments.with_post.first[:post][:id]).to eq(1)
+        expect(data.comments.including(:post).one[:post][:id]).to eq(1)
       end
 
       describe "specifying the associated data when updating" do
         it "can be specified with an id" do
-          post = data.posts.create({})
+          post = data.posts.create({}).one
           data.comments.create({})
           data.comments.update(post_id: post[:id])
-          expect(data.posts.with_comments.first[:comments].count).to eq(1)
+          expect(data.posts.including(:comments).one[:comments].count).to eq(1)
         end
 
         it "can be specified with the object" do
-          post = data.posts.create({})
+          post = data.posts.create({}).one
           data.comments.create({})
           data.comments.update(post: post)
-          expect(data.posts.with_comments.first[:comments].count).to eq(1)
+          expect(data.posts.including(:comments).one[:comments].count).to eq(1)
         end
       end
 
@@ -61,31 +61,29 @@ RSpec.shared_examples :model_associations do
 
             source :post do
               primary_id
-              has_many :comments, view: :ordered
+              has_many :comments, query: :ordered
             end
 
             source :comment do
               primary_id
               attribute :order
 
-              queries do
-                def ordered
-                  order { order.asc }
-                end
+              def ordered
+                order { order.asc }
               end
             end
           end
         end
 
         it "can be extended" do
-          post = data.posts.create({})
+          post = data.posts.create({}).one
           data.comments.create(post_id: post[:id], order: "3")
           data.comments.create(post_id: post[:id], order: "1")
           data.comments.create(post_id: post[:id], order: "2")
-          expect(data.posts.with_comments.first[:comments].count).to eq(3)
-          expect(data.posts.with_comments.first[:comments][0][:order]).to eq("1")
-          expect(data.posts.with_comments.first[:comments][1][:order]).to eq("2")
-          expect(data.posts.with_comments.first[:comments][2][:order]).to eq("3")
+          expect(data.posts.including(:comments).one[:comments].count).to eq(3)
+          expect(data.posts.including(:comments).one[:comments][0][:order]).to eq("1")
+          expect(data.posts.including(:comments).one[:comments][1][:order]).to eq("2")
+          expect(data.posts.including(:comments).one[:comments][2][:order]).to eq("3")
         end
       end
 
@@ -119,15 +117,15 @@ RSpec.shared_examples :model_associations do
       end
 
       it "creates a belongs_to relationship" do
-        post = data.posts.create({})
+        post = data.posts.create({}).one
         data.comments.create(post_id: post[:id])
-        expect(data.comments.with_post.first[:post][:id]).to eq(1)
+        expect(data.comments.including(:post).one[:post][:id]).to eq(1)
       end
 
       describe "the foreign key" do
         it "has a default" do
           data.comments.create({})
-          expect(data.comments.first.keys).to include(:post_id)
+          expect(data.comments.one.to_h.keys).to include(:post_id)
         end
 
         context "specifying the foreign key" do
@@ -137,31 +135,31 @@ RSpec.shared_examples :model_associations do
 
       describe "specifying the associated data when creating" do
         it "can be specified with an id" do
-          post = data.posts.create({})
+          post = data.posts.create({}).one
           data.comments.create(post_id: post[:id])
-          expect(data.comments.first[:post_id]).to eq(post[:id])
+          expect(data.comments.one[:post_id]).to eq(post[:id])
         end
 
         it "can be specified with the object" do
-          post = data.posts.create({})
+          post = data.posts.create({}).one
           data.comments.create(post: post)
-          expect(data.comments.first[:post_id]).to eq(post[:id])
+          expect(data.comments.one[:post_id]).to eq(post[:id])
         end
       end
 
       describe "specifying the associated data when updating" do
         it "can be specified with an id" do
-          post = data.posts.create({})
+          post = data.posts.create({}).one
           data.comments.create({})
           data.comments.update(post_id: post[:id])
-          expect(data.comments.first[:post_id]).to eq(post[:id])
+          expect(data.comments.one[:post_id]).to eq(post[:id])
         end
 
         it "can be specified with the object" do
-          post = data.posts.create({})
+          post = data.posts.create({}).one
           data.comments.create({})
           data.comments.update(post: post)
-          expect(data.comments.first[:post_id]).to eq(post[:id])
+          expect(data.comments.one[:post_id]).to eq(post[:id])
         end
       end
 

@@ -52,7 +52,7 @@ module Pakyow
     #
     class Source < SimpleDelegator
       # @api private
-      attr_reader :container
+      attr_reader :container, :included
 
       def initialize(dataset, container:, object_map: {})
         __setobj__(dataset)
@@ -62,14 +62,21 @@ module Pakyow
       end
 
       def including(source_name, &block)
-        if association(source_name)
+        if included_association = association(source_name)
           source_from_self(__getobj__).tap { |returned_source|
             included_source = @container.source_instance(source_name)
-            returned_source.instance_variable_get(:@included) << if block_given?
+
+            if included_association[:query_name]
+              included_source = included_source.send(included_association[:query_name])
+            end
+
+            final_source = if block_given?
               included_source.instance_exec(&block) || included_source
             else
               included_source
             end
+
+            returned_source.instance_variable_get(:@included) << final_source
           }
         else
           # TODO: raise a nicer error indicating what associations are available
@@ -86,23 +93,36 @@ module Pakyow
         to_a.each(&block)
       end
 
+      def map(&block)
+        to_a.map(&block)
+      end
+
       def to_a
-        results = self.class.to_a(__getobj__)
-        include_results!(results)
-        results.map! { |result|
+        return @results if instance_variable_defined?(:@results)
+        @results = self.class.to_a(__getobj__)
+        include_results!(@results)
+        @results.map! { |result|
           wrap(result)
         }
       end
 
       def one
-        result = self.class.one(__getobj__)
-        include_results!([result])
-        wrap(result)
+        return @results.first if instance_variable_defined?(:@results)
+        return @result if instance_variable_defined?(:@result)
+        @result = self.class.one(__getobj__)
+        include_results!([@result])
+        wrap(@result)
       end
 
       def command(command_name)
-        if command_block = self.class.commands[command_name]
-          Command.new(command_block, source: self)
+        if command = self.class.commands[command_name]
+          Command.new(
+            command_name,
+            block: command[:block],
+            source: self,
+            provides_dataset: command[:provides_dataset],
+            provides_ids: command[:provides_ids]
+          )
         else
           # TODO: raise a nicer error indicating what commands are available
           raise "unknown command #{command_name}"
@@ -222,8 +242,12 @@ module Pakyow
           )
         end
 
-        def command(command_name, &block)
-          @commands[command_name] = block
+        def command(command_name, provides_dataset: true, provides_ids: false, &block)
+          @commands[command_name] = {
+            block: block,
+            provides_dataset: provides_dataset,
+            provides_ids: provides_ids
+          }
         end
 
         def queries
@@ -242,7 +266,7 @@ module Pakyow
 
         def primary_id
           primary_key :id
-          attribute :id, :serial
+          attribute :id, :integer
         end
 
         def primary_key(field)
@@ -273,6 +297,7 @@ module Pakyow
 
           @associations[:has_many] << {
             type: :has_many,
+            access_type: :many,
             source_name: plural_name.to_sym,
             query_name: query,
             column_name: primary_key_field,
@@ -287,6 +312,7 @@ module Pakyow
 
           @associations[:belongs_to] << {
             type: :belongs_to,
+            access_type: :one,
             source_name: plural_name.to_sym,
             column_name: :"#{singular_name}_id",
             column_type: :integer

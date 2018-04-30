@@ -45,9 +45,6 @@ module Pakyow
           attr_reader :data
 
           after :initialize do
-            # TODO: hook this back up later (probably in Container)
-            # define_inverse_associations!
-
             @data = Lookup.new(
               containers: Pakyow.data_connections.values.each_with_object([]) { |connections, containers|
                 connections.values.each do |connection|
@@ -67,25 +64,6 @@ module Pakyow
               )
             )
           end
-
-          private
-
-          # Defines inverse associations. For example, this method would define
-          # a +belongs_to :post+ relationship on the +:comment+ model, when the
-          # +:post+ model +has_many :comments+.
-          #
-          # def define_inverse_associations!
-          #   state_for(:model).each do |model|
-          #     model.associations[:has_many].each do |has_many_association|
-          #       if associated_model = state_for(:model).flatten.find { |potentially_associated_model|
-          #            potentially_associated_model.plural_name == has_many_association[:model]
-          #          }
-
-          #         associated_model.belongs_to(model.plural_name)
-          #       end
-          #     end
-          #   end
-          # end
         end
       end
     end
@@ -138,10 +116,17 @@ module Pakyow
       after :setup do
         @data_connections = SUPPORTED_CONNECTION_TYPES.each_with_object({}) { |connection_type, connections|
           connections[connection_type] = Pakyow.config.data.connections.public_send(connection_type).each_with_object({}) { |(connection_name, connection_string), adapter_connections|
+            extra_options = {}
+
+            if Pakyow.config.data.logging
+              extra_options[:logger] = Pakyow.logger
+            end
+
             adapter_connections[connection_name] = Connection.new(
               string: connection_string,
               type: connection_type,
-              name: connection_name
+              name: connection_name,
+              **extra_options
             )
           }
         }
@@ -155,14 +140,8 @@ module Pakyow
           require "pakyow/data/migrators/sqlite"
 
           @data_connections.values.flat_map(&:values).select(&:connected?).select(&:auto_migrate?).each do |auto_migratable_connection|
-            migrator = Pakyow::Data::Migrator.establish(
-              adapter: auto_migratable_connection.type,
-              connection: auto_migratable_connection.name
-            )
-
-            # migrator = Pakyow::Data::Migrator.with_connection(auto_migratable_connection)
+            migrator = Pakyow::Data::Migrator.with_connection(auto_migratable_connection)
             migrator.auto_migrate!
-            migrator.disconnect!
           end
         end
       end

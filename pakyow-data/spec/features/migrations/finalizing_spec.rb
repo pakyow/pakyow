@@ -4,7 +4,7 @@ RSpec.describe "finalizing migrations in sqlite" do
   include_examples :finalizing_migrations
 
   let :connection_string do
-    "sqlite://"
+    "sqlite::memory"
   end
 
   let :initial_migration_content do
