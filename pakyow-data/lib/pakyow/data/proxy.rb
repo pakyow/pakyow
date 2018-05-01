@@ -88,7 +88,7 @@ module Pakyow
 
         if subscribable?
           subscription = {
-            source: @source.class.__class_name.name,
+            source: @source.source_name,
             handler: handler,
             payload: payload,
             qualifications: qualifications,
@@ -122,7 +122,7 @@ module Pakyow
         if association = parent_source.class.find_association_to_source(@source)
           parent_source.each do |parent_result|
             subscription = {
-              source: @source.class.__class_name.name,
+              source: @source.source_name,
               handler: handler,
               payload: payload,
               qualifications: qualifications.merge(
@@ -167,7 +167,7 @@ module Pakyow
 
       def to_h
         {
-          source: @source.class.__class_name.name,
+          source: @source.source_name,
           proxied_calls: @proxied_calls
         }
       end

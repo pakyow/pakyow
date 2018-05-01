@@ -4,6 +4,7 @@ require "pakyow/support/makeable"
 require "pakyow/support/class_state"
 
 require "pakyow/data/command"
+require "pakyow/data/sources/abstract"
 
 module Pakyow
   module Data
@@ -50,7 +51,7 @@ module Pakyow
     #
     #   data.posts.by_id(1).first
     #
-    class Source < SimpleDelegator
+    class Source < Sources::Abstract
       # @api private
       attr_reader :container, :included
 
@@ -135,6 +136,10 @@ module Pakyow
         self.class.associations.values.flatten.find { |association|
           association[:source_name] == plural_source_name
         }
+      end
+
+      def source_name
+        self.class.__class_name.name
       end
 
       def command?(maybe_command_name)
