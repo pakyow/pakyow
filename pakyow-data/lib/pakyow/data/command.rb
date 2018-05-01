@@ -54,8 +54,10 @@ module Pakyow
 
         if @provides_ids
           @source.container.source_instance(@source.class.__class_name.name).tap do |updated_source|
-            @source.container.connection.adapter.result_for_attribute_value(
-              @source.class.primary_key_field, command_result, updated_source
+            updated_source.__setobj__(
+              @source.container.connection.adapter.result_for_attribute_value(
+                @source.class.primary_key_field, command_result, updated_source
+              )
             )
           end
         elsif @provides_dataset

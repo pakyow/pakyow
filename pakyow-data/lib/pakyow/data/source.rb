@@ -174,36 +174,36 @@ module Pakyow
         @included.map! { |combined_source|
           association = association(combined_source.class.plural_name)
 
-          combined_dataset = combined_source.container.connection.adapter.result_for_attribute_value(
-            association[:associated_column_name] || combined_source.class.primary_key_field,
-            results.map { |result| result[association[:column_name]] },
-            combined_source
+          combined_source.__setobj__(
+            combined_source.container.connection.adapter.result_for_attribute_value(
+              association[:associated_column_name] || combined_source.class.primary_key_field,
+              results.map { |result| result[association[:column_name]] },
+              combined_source
+            )
           )
 
-          Source.source_from_source(combined_source, combined_dataset).tap do |combined_source|
-            combined_results = combined_source.to_a.group_by { |combined_result|
-              combined_result[association[:associated_column_name] || combined_source.class.primary_key_field]
-            }
+          combined_results = combined_source.to_a.group_by { |combined_result|
+            combined_result[association[:associated_column_name] || combined_source.class.primary_key_field]
+          }
 
-            if association[:type] == :has_many
-              result_key = combined_source.class.plural_name
-              result_type = :many
+          if association[:type] == :has_many
+            result_key = combined_source.class.plural_name
+            result_type = :many
+          else
+            result_key = combined_source.class.singular_name
+            result_type = :one
+          end
+
+          results.map! { |result|
+            combined_results_for_result = combined_results[result[association[:column_name]]].to_a
+            result[result_key] = if result_type == :one
+              combined_results_for_result[0]
             else
-              result_key = combined_source.class.singular_name
-              result_type = :one
+              combined_results_for_result
             end
 
-            results.map! { |result|
-              combined_results_for_result = combined_results[result[association[:column_name]]].to_a
-              result[result_key] = if result_type == :one
-                combined_results_for_result[0]
-              else
-                combined_results_for_result
-              end
-
-              result
-            }
-          end
+            result
+          }
         }
       end
 
@@ -325,6 +325,13 @@ module Pakyow
 
         def singular_name
           Support.inflector.singularize(__class_name.name).to_sym
+        end
+
+        def find_association_to_source(source)
+          associations.values.flatten.find { |association|
+            association[:source_name] == source.class.plural_name ||
+              association[:source_name] == source.class.singular_name
+          }
         end
 
         private

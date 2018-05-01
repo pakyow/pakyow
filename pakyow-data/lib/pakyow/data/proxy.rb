@@ -5,18 +5,20 @@ require "pakyow/support/inspectable"
 
 module Pakyow
   module Data
+    # @api private
     class Proxy
       include Support::Inspectable
       inspectable :source
 
       using Support::Refinements::Array::Ensurable
 
-      attr_reader :source, :proxied_calls
+      attr_reader :source, :proxied_calls, :nested_proxies
 
       def initialize(source, subscribers)
         @source, @subscribers = source, subscribers
         @proxied_calls = []
         @subscribable = true
+        @nested_proxies = []
       end
 
       def method_missing(method_name, *args, &block)
@@ -40,10 +42,20 @@ module Pakyow
               @source.public_send(method_name, *args) {
                 nested_proxy = Proxy.new(self, local_subscribers)
                 nested_proxy.instance_variable_set(:@proxied_calls, nested_calls)
-                nested_proxy.instance_exec(&block).source
+                nested_proxy.instance_exec(&block).source.tap do |nested_proxy_source|
+                  proxy.nested_proxies << nested_proxy.dup.tap do |finalized_nested_proxy|
+                    finalized_nested_proxy.instance_variable_set(:@source, nested_proxy_source)
+                  end
+                end
               }
             else
-              @source.public_send(method_name, *args, &block)
+              # TODO: this isn't quite right
+              @source.public_send(method_name, *args).tap do |foo|
+                foo.included.each do |included_source|
+                  nested_proxy = Proxy.new(included_source, @subscribers)
+                  proxy.nested_proxies << nested_proxy
+                end
+              end
             end
 
             proxy.instance_variable_set(:@source, source)
@@ -71,26 +83,6 @@ module Pakyow
         subscription_ids = []
 
         if subscribable?
-          qualifications = @proxied_calls.inject({}) { |qualifications, proxied_call|
-            qualifications_for_proxied_call = @source.class.qualifications(proxied_call[0])
-
-            # Populate argument qualifications with argument values.
-            #
-            qualifications_for_proxied_call.each do |qualification_key, qualification_value|
-              next unless qualification_value.to_s.start_with?("__arg")
-              arg_number = qualification_value.to_s.gsub(/[^0-9]/, "").to_i
-              qualifications_for_proxied_call[qualification_key] = proxied_call[1][arg_number]
-            end
-
-            qualifications.merge(qualifications_for_proxied_call)
-          }
-
-          primary_key = @source.class.primary_key_field
-
-          result_pks = @source.map { |object|
-            object[primary_key]
-          }
-
           subscription = {
             source: @source.class.__class_name.name,
             handler: handler,
@@ -104,14 +96,14 @@ module Pakyow
 
           subscription_ids << @subscribers.register_subscription(subscription, subscriber: subscriber)
 
-          @source.included.each do |included_source|
+          @nested_proxies.each do |related_proxy|
             subscription_ids.concat(
-              subscribe_included_source(
-                included_source,
-                subscriber: subscriber,
+              related_proxy.subscribe_related(
+                subscriber,
+                parent_source: @source,
+                serialized_proxy: to_h,
                 handler: handler,
-                payload: payload,
-                parent_pks: result_pks
+                payload: payload
               )
             )
           end
@@ -120,45 +112,38 @@ module Pakyow
         subscription_ids
       end
 
-      def subscribe_included_source(source, subscriber:, handler:, payload:, parent_pks:)
+      def subscribe_related(subscriber, parent_source:, serialized_proxy:, handler:, payload: nil)
         subscription_ids = []
 
-        primary_key = source.class.primary_key_field
-
-        result_pks = source.map { |object|
-          object[primary_key]
-        }
-
-        association = source.class.associations.values.flatten.find { |association|
-          association[:source_name] == @source.class.plural_name ||
-            association[:source_name] == @source.class.singular_name
-        }
-
-        parent_pks.each do |result_pk_value|
-          subscription = {
-            source: source.class.__class_name.name,
-            handler: handler,
-            payload: payload,
-            qualifications: {
-              association[:column_name] => result_pk_value
-            },
-            subscriber: subscriber,
-            pk_field: primary_key,
-            object_pks: result_pks,
-            proxy: to_h
-          }
-
-          subscription_ids << @subscribers.register_subscription(subscription, subscriber: subscriber)
-        end
-
-        source.included.each do |included_source|
-          subscription_ids.concat(
-            subscribe_included_source(
-              included_source,
-              subscriber: subscriber,
+        if association = parent_source.class.find_association_to_source(@source)
+          parent_source.each do |parent_result|
+            subscription = {
+              source: @source.class.__class_name.name,
               handler: handler,
               payload: payload,
-              parent_pks: result_pks
+              qualifications: qualifications.merge(
+                association[:associated_column_name] => parent_result[association[:column_name]]
+              ),
+              subscriber: subscriber,
+              pk_field: primary_key,
+              object_pks: result_pks,
+              proxy: serialized_proxy
+            }
+
+            subscription_ids << @subscribers.register_subscription(subscription, subscriber: subscriber)
+          end
+        else
+          Pakyow.logger.error "tried to subscribe a related source, but we don't know how it's related"
+        end
+
+        @nested_proxies.each do |related_proxy|
+          subscription_ids.concat(
+            related_proxy.subscribe_related(
+              subscriber,
+              parent_source: self,
+              serialized_proxy: serialized_proxy,
+              handler: handler,
+              payload: payload
             )
           )
         end
@@ -183,7 +168,6 @@ module Pakyow
         }
       end
 
-      # @api private
       def apply(proxied_calls)
         proxied_calls.inject(self) { |_proxy, proxied_call|
           if proxied_call[2].any?
@@ -193,6 +177,32 @@ module Pakyow
           else
             public_send(proxied_call[0], *proxied_call[1])
           end
+        }
+      end
+
+      def qualifications
+        @proxied_calls.inject({}) { |qualifications, proxied_call|
+          qualifications_for_proxied_call = @source.class.qualifications(proxied_call[0])
+
+          # Populate argument qualifications with argument values.
+          #
+          qualifications_for_proxied_call.each do |qualification_key, qualification_value|
+            next unless qualification_value.to_s.start_with?("__arg")
+            arg_number = qualification_value.to_s.gsub(/[^0-9]/, "").to_i
+            qualifications_for_proxied_call[qualification_key] = proxied_call[1][arg_number]
+          end
+
+          qualifications.merge(qualifications_for_proxied_call)
+        }
+      end
+
+      def primary_key
+        @source.class.primary_key_field
+      end
+
+      def result_pks
+        @source.map { |object|
+          object[primary_key]
         }
       end
     end

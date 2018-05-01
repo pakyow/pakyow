@@ -305,7 +305,7 @@ module Pakyow
 
             command :update, provides_ids: true do |values|
               __getobj__.select(self.class.primary_key_field).map { |result|
-                result[:id]
+                result[self.class.primary_key_field]
               }.tap do
                 begin
                   update(values)
