@@ -185,7 +185,7 @@ module Pakyow
       end
 
       def qualifications
-        @proxied_calls.inject({}) { |qualifications, proxied_call|
+        @proxied_calls.inject(@source.qualifications) { |qualifications, proxied_call|
           qualifications_for_proxied_call = @source.class.qualifications(proxied_call[0])
 
           # Populate argument qualifications with argument values.

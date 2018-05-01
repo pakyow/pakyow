@@ -2,6 +2,8 @@
 
 require "pakyow/support/deep_freeze"
 
+require "pakyow/data/sources/ephemeral"
+
 module Pakyow
   module Data
     class Lookup
@@ -27,6 +29,13 @@ module Pakyow
             end
           end
         end
+      end
+
+      def ephemeral(type, id: nil)
+        Proxy.new(
+          Sources::Ephemeral.new(type, id: id),
+          @subscribers
+        )
       end
 
       def unsubscribe(subscriber)

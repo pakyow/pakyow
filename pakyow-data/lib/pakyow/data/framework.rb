@@ -14,6 +14,8 @@ require "pakyow/data/errors"
 require "pakyow/data/connection"
 require "pakyow/data/container"
 
+require "pakyow/data/sources/ephemeral"
+
 module Pakyow
   module Data
     SUPPORTED_CONNECTION_TYPES = %i(sql)

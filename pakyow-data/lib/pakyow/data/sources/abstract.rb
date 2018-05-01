@@ -4,6 +4,10 @@ module Pakyow
   module Data
     module Sources
       class Abstract < SimpleDelegator
+        def qualifications
+          {}
+        end
+
         def command?(_maybe_command_name)
           false
         end

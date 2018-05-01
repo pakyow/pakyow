@@ -65,9 +65,13 @@ module Pakyow
         callback = subscription[:handler].new(@app)
         arguments = {}
 
-        result = @app.data.public_send(
-          subscription[:proxy][:source]
-        ).apply(subscription[:proxy][:proxied_calls])
+        result = if @app.data.respond_to?(subscription[:proxy][:source])
+          @app.data.public_send(subscription[:proxy][:source])
+        else
+          @app.data.ephemeral(subscription[:proxy][:source])
+        end
+
+        result = result.apply(subscription[:proxy][:proxied_calls])
 
         # resubscribe the subscriber to the new result
         unsubscribe(subscription[:subscriber])
@@ -92,13 +96,16 @@ module Pakyow
         callback.call(subscription[:payload], **arguments)
       end
 
+      SUPPORTED_VALUE_TYPES = [Hash, Support::IndifferentHash]
       def qualified?(qualifications, object_pks, pk_field, changed_values, changed_results)
         changed_results.each do |changed_result|
           return true if object_pks.include?(changed_result[pk_field])
         end
 
         qualifications.each do |key, value|
-          return false unless changed_values.to_h[key] == value || qualified_result?(key, value, changed_results)
+          next if SUPPORTED_VALUE_TYPES.include?(changed_values.class) && changed_values.to_h[key] == value
+          next if qualified_result?(key, value, changed_results)
+          return false
         end
 
         true
