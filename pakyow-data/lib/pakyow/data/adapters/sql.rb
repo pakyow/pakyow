@@ -58,7 +58,7 @@ module Pakyow
         end
 
         def dataset_for_source(source)
-          @connection[source.plural_name]
+          @connection[source.dataset_table]
         end
 
         def result_for_attribute_value(attribute, value, source)
@@ -211,7 +211,7 @@ module Pakyow
           end
 
           def table_name
-            @source.plural_name
+            @source.dataset_table
           end
 
           def attributes
@@ -270,6 +270,24 @@ module Pakyow
 
           def column_db_type_for_attribute_type(attribute_type)
             attribute_type.primitive.to_s.downcase.to_sym
+          end
+        end
+
+        module SourceExtension
+          extend Support::Extension
+
+          apply_extension do
+            def sql
+              __getobj__.sql
+            end
+
+            class_state :dataset_table, default: self.__class_name.name
+
+            class << self
+              def table(table_name)
+                @dataset_table = table_name
+              end
+            end
           end
         end
 

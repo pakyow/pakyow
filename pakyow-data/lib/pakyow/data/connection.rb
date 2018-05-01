@@ -28,12 +28,7 @@ module Pakyow
           self.class.parse_connection_string(string)
         end
 
-        if SUPPORTED_CONNECTION_TYPES.include?(type)
-          require "pakyow/data/adapters/#{type}"
-          @adapter = Adapters.const_get(Support.inflector.classify(type)).new(@opts, logger: logger)
-        else
-          # TODO: raise nice UnsupportedConnectionType error, telling them what the supported types are
-        end
+        @adapter = self.class.adapter(type).new(@opts, logger: logger)
       rescue LoadError => e
         puts e
 
@@ -73,6 +68,15 @@ module Pakyow
             user: uri.user,
             password: uri.password
           }
+        end
+
+        def adapter(type)
+          if SUPPORTED_CONNECTION_TYPES.include?(type)
+            require "pakyow/data/adapters/#{type}"
+            Adapters.const_get(Support.inflector.classify(type))
+          else
+            # TODO: raise nice UnsupportedConnectionType error, telling them what the supported types are
+          end
         end
       end
     end

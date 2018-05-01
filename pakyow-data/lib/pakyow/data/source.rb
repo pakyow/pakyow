@@ -218,17 +218,28 @@ module Pakyow
         attr_reader :name, :adapter, :connection
 
         def make(name, adapter: Pakyow.config.data.default_adapter, connection: Pakyow.config.data.default_connection, state: nil, parent: nil, **kwargs, &block)
-          super(name, state: state, parent: parent, adapter: adapter, connection: connection, attributes: {}, **kwargs, &block).tap { |source|
-            source.prepend(
+          super(name, state: state, parent: parent, adapter: adapter, connection: connection, attributes: {}, **kwargs) do
+            # Extend the source with any adapter-specific behavior.
+            #
+            include(Connection.adapter(adapter).const_get("SourceExtension"))
+
+            # Call the original block.
+            #
+            class_eval(&block) if block_given?
+
+            # Override queries with methods that wrap the dataset in a source.
+            #
+            local_queries = queries
+            prepend(
               Module.new do
-                source.queries.each do |query|
+                local_queries.each do |query|
                   define_method query do |*args, &block|
                     source_from_self(super(*args, &block))
                   end
                 end
               end
             )
-          }
+          end
         end
 
         def source_from_source(source, dataset)

@@ -24,6 +24,9 @@ module Pakyow
           false
         end
 
+        module SourceExtension
+        end
+
         module Commands
         end
 
