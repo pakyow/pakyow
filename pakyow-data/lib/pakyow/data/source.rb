@@ -63,10 +63,10 @@ module Pakyow
       end
 
       def including(source_name, &block)
-        if included_association = association(source_name)
-          source_from_self(__getobj__).tap { |returned_source|
-            included_source = @container.source_instance(source_name)
+        included_source = @container.source_instance(source_name)
 
+        if included_association = self.class.find_association_to_source(included_source)
+          source_from_self(__getobj__).tap { |returned_source|
             if included_association[:query_name]
               included_source = included_source.send(included_association[:query_name])
             end
@@ -130,14 +130,6 @@ module Pakyow
         end
       end
 
-      def association(source_name)
-        plural_source_name = Support.inflector.pluralize(source_name).to_sym
-
-        self.class.associations.values.flatten.find { |association|
-          association[:source_name] == plural_source_name
-        }
-      end
-
       def source_name
         self.class.__class_name.name
       end
@@ -177,7 +169,7 @@ module Pakyow
 
       def include_results!(results)
         @included.map! { |combined_source|
-          association = association(combined_source.class.plural_name)
+          association = self.class.find_association_to_source(combined_source)
 
           combined_source.__setobj__(
             combined_source.container.connection.adapter.result_for_attribute_value(
