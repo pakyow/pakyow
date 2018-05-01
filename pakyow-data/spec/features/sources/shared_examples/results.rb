@@ -14,7 +14,7 @@ RSpec.shared_examples :source_results do
       Proc.new do
         instance_exec(&$data_app_boilerplate)
 
-        source :post do
+        source :posts do
           primary_id
           attribute :title, :string
 

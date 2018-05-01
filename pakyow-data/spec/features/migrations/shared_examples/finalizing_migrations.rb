@@ -40,12 +40,12 @@ RSpec.shared_examples :finalizing_migrations do
       Proc.new do
         instance_exec(&$data_app_boilerplate)
 
-        source :post do
+        source :posts do
           primary_id
           attribute :title
         end
 
-        source :comment do
+        source :comments do
           primary_id
           attribute :title
         end

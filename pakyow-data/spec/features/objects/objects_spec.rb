@@ -21,7 +21,7 @@ RSpec.describe "data objects" do
           object :comment do
           end
 
-          source :post do
+          source :posts do
             primary_id
             has_many :comments
 
@@ -30,7 +30,7 @@ RSpec.describe "data objects" do
             end
           end
 
-          source :comment do
+          source :comments do
             primary_id
           end
         end
@@ -96,7 +96,7 @@ RSpec.describe "data objects" do
           object :foo do
           end
 
-          source :post do
+          source :posts do
             primary_id
             has_many :comments
 
@@ -105,7 +105,7 @@ RSpec.describe "data objects" do
             end
           end
 
-          source :comment do
+          source :comments do
             primary_id
           end
         end
@@ -173,7 +173,7 @@ RSpec.describe "data objects" do
           object :post do
           end
 
-          source :post do
+          source :posts do
             primary_id
           end
         end
@@ -193,7 +193,7 @@ RSpec.describe "data objects" do
           object :foo do
           end
 
-          source :post do
+          source :posts do
             primary_id
           end
         end
@@ -217,7 +217,7 @@ RSpec.describe "data objects" do
           end
         end
 
-        source :post do
+        source :posts do
           primary_id
         end
       end

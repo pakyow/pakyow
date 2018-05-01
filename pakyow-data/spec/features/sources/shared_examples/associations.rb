@@ -15,12 +15,12 @@ RSpec.shared_examples :source_associations do
         Proc.new do
           instance_exec(&$data_app_boilerplate)
 
-          source :post do
+          source :posts do
             primary_id
             has_many :comments
           end
 
-          source :comment do
+          source :comments do
             primary_id
           end
         end
@@ -59,12 +59,12 @@ RSpec.shared_examples :source_associations do
           Proc.new do
             instance_exec(&$data_app_boilerplate)
 
-            source :post do
+            source :posts do
               primary_id
               has_many :comments, query: :ordered
             end
 
-            source :comment do
+            source :comments do
               primary_id
               attribute :order
 
@@ -105,11 +105,11 @@ RSpec.shared_examples :source_associations do
         Proc.new do
           instance_exec(&$data_app_boilerplate)
 
-          source :post do
+          source :posts do
             primary_id
           end
 
-          source :comment do
+          source :comments do
             primary_id
             belongs_to :post
           end
