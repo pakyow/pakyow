@@ -184,31 +184,42 @@ RSpec.shared_examples :source_schema do
         expect(data.posts.create({}).one[:attr]).to be(nil)
       end
 
-      xcontext "with a default value" do
+      context "with a default value" do
         let :app_definition do
           Proc.new do
             instance_exec(&$data_app_boilerplate)
 
             source :posts do
               primary_id
-              attribute :attr, :string, default: "foo"
+              attribute :attr1, :string, default: "foo"
+              attribute :attr2, :string
             end
           end
         end
 
-        it "uses the default" do
-          expect(data.posts.create({}).one[:attr]).to eq("foo")
+        it "uses the default when creating and a value is not provided" do
+          expect(data.posts.create(attr2: "baz").one[:attr1]).to eq("foo")
+        end
+
+        it "does not use the default when creating and a value is provided" do
+          expect(data.posts.create(attr1: "bar").one[:attr1]).to eq("bar")
+        end
+
+        it "does not use the default when updating and a value is not provided" do
+          post = data.posts.create(attr1: "bar").one
+          expect(post[:attr1]).to eq("bar")
+          expect(data.posts.by_id(post.id).update(attr2: "baz").one[:attr1]).to eq("bar")
         end
       end
 
-      xcontext "with a not-null restriction" do
+      context "with a not-null restriction" do
         let :app_definition do
           Proc.new do
             instance_exec(&$data_app_boilerplate)
 
             source :posts do
               primary_id
-              attribute :attr, :string, nullable: false
+              attribute :attr, :string, required: true
             end
           end
         end
@@ -216,13 +227,11 @@ RSpec.shared_examples :source_schema do
         it "cannot be null" do
           expect {
             data.posts.create(attr: nil)
-          }.to raise_error { |error|
-            expect([ROM::SQL::NotNullConstraintError, ROM::SQL::DatabaseError]).to include(error.class)
-          }
+          }.to raise_error(Pakyow::Data::NotNullViolation)
         end
 
         it "allows a value" do
-          expect(data.posts.create(attr: "foo")[:attr]).to eq("foo")
+          expect(data.posts.create(attr: "foo").one[:attr]).to eq("foo")
         end
       end
 

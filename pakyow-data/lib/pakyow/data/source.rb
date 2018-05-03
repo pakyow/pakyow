@@ -281,11 +281,10 @@ module Pakyow
           @primary_key_field = field
         end
 
-        def attribute(name, type = :string, default: nil, nullable: true)
+        def attribute(name, type = :string, **options)
           attributes[name.to_sym] = {
             type: type,
-            default: default,
-            nullable: nullable
+            options: options
           }
 
           qualify_query_for_attribute!(name)

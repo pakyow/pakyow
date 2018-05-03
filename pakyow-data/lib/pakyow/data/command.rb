@@ -13,21 +13,45 @@ module Pakyow
 
       def call(values = nil)
         if values
+          final_values = values.to_h.deep_dup
+
           if timestamp_fields = @source.class.timestamp_fields
             if @name == :create
               timestamp_fields.values.each do |timestamp_field|
-                values[timestamp_field] = Time.now
+                final_values[timestamp_field] = Time.now
               end
             elsif timestamp_field = timestamp_fields[@name]
-              values[timestamp_field] = Time.now
+              final_values[timestamp_field] = Time.now
             end
           end
 
-          if values.is_a?(Support::IndifferentHash)
-            values = values.__getobj__
+          if @name == :create
+            # Set default values.
+            #
+            @source.class.attributes.each do |attribute_name, attribute|
+              if !final_values.include?(attribute_name) && default = attribute.meta[:default]
+                final_values[attribute_name] = if default.is_a?(Proc)
+                  default.call
+                else
+                  default
+                end
+              end
+            end
           end
 
-          values = values.deep_dup
+          # Enforce required attributes.
+          #
+          @source.class.attributes.each do |attribute_name, attribute|
+            if attribute.meta[:required]
+              if @name == :create && !final_values.include?(attribute_name)
+                raise NotNullViolation.new("Expected a value for #{attribute_name}")
+              end
+
+              if final_values.include?(attribute_name) && final_values[attribute_name].nil?
+                raise NotNullViolation.new("Expected a value for #{attribute_name}")
+              end
+            end
+          end
 
           @source.class.associations.values.flatten.each do |association|
             inflector_call = case association[:access_type]
@@ -40,8 +64,8 @@ module Pakyow
               association[:source_name]
             ).to_sym
 
-            if values.key?(key)
-              values[association[:column_name]] = values.delete(key)[@source.class.primary_key_field]
+            if final_values.key?(key)
+              final_values[association[:column_name]] = final_values.delete(key)[@source.class.primary_key_field]
             end
           end
         end
@@ -50,7 +74,7 @@ module Pakyow
           @source.to_a
         end
 
-        command_result = @source.instance_exec(values, &@block)
+        command_result = @source.instance_exec(final_values, &@block)
 
         if @provides_ids
           @source.container.source_instance(@source.class.__class_name.name).tap do |updated_source|
