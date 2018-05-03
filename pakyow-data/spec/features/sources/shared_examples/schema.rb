@@ -357,7 +357,7 @@ RSpec.shared_examples :source_schema do
           end
         end
 
-        xcontext "type is decimal" do
+        context "type is decimal" do
           let :app_definition do
             Proc.new do
               instance_exec(&$data_app_boilerplate)
@@ -370,7 +370,29 @@ RSpec.shared_examples :source_schema do
           end
 
           it "defines the attribute" do
-            expect(data.posts.create(attr: 1.1).one[:attr]).to eq(1.1)
+            expect(data.posts.create(attr: 1.12).one[:attr]).to eq(1.12)
+          end
+
+          context "size is defined" do
+            let :app_definition do
+              Proc.new do
+                instance_exec(&$data_app_boilerplate)
+
+                source :posts do
+                  primary_id
+                  attribute :attr, :decimal, size: [10, 1]
+                end
+              end
+            end
+
+            it "defines the attribute with the defined size" do
+              if connection_string.include?("sqlite")
+                # FIXME: sqlite doesn't handle numerics the same; expected?
+                expect(data.posts.create(attr: 1.16).one[:attr]).to eq(0.116e1)
+              else
+                expect(data.posts.create(attr: 1.16).one[:attr]).to eq(1.2)
+              end
+            end
           end
         end
 

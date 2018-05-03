@@ -18,7 +18,7 @@ module Pakyow
           integer: Types::Coercible::Int,
           string: Types::Coercible::String,
           float: Types::Coercible::Float,
-          decimal: Types::Coercible::Decimal.meta(column_type: BigDecimal),
+          decimal: Types::Coercible::Decimal.meta(column_type: BigDecimal, size: [10, 2]),
           date: Types::Date,
           datetime: Types::DateTime.meta(db_type: :datetime),
           time: Types::Time,
@@ -132,7 +132,7 @@ module Pakyow
                 change do
                   alter_table <%= differ.table_name.inspect %> do
                     <%- differ.attributes_to_add.each do |attribute_name, attribute_type| -%>
-                    add_column <%= attribute_name.inspect %>, <%= attribute_type.meta[:column_type].inspect %>
+                    add_column <%= attribute_name.inspect %>, <%= attribute_type.meta[:column_type].inspect %><%= column_opts_string_for_attribute_type(attribute_type) %>
                     <%- end -%>
 
                     <%- differ.columns_to_remove.keys.each do |column_name| -%>
@@ -156,7 +156,7 @@ module Pakyow
                   <%- if attribute_type.meta[:primary_key] -%>
                   primary_key <%= attribute_name.inspect %>
                   <%- else -%>
-                  column <%= attribute_name.inspect %>, <%= attribute_type.meta[:column_type].inspect %>
+                  column <%= attribute_name.inspect %>, <%= attribute_type.meta[:column_type].inspect %><%= column_opts_string_for_attribute_type(attribute_type) %>
                   <%- end -%>
                   <%- end -%>
                 end
@@ -173,12 +173,12 @@ module Pakyow
           if attribute_type.meta[:primary_key]
             table.primary_key attribute_name
           else
-            table.column attribute_name, attribute_type.meta[:column_type]
+            table.column attribute_name, attribute_type.meta[:column_type], **column_opts_for_attribute_type(attribute_type)
           end
         end
 
         def add_column_for_attribute(attribute_name, attribute_type, table)
-          table.add_column attribute_name, attribute_type.meta[:column_type]
+          table.add_column attribute_name, attribute_type.meta[:column_type], **column_opts_for_attribute_type(attribute_type)
         end
 
         def remove_column_by_name(column_name, table)
@@ -189,8 +189,26 @@ module Pakyow
           table.set_column_type column_name, column_type
         end
 
-        def column_opts_for_attribute_type(_attribute_type)
-          {}
+        def column_opts_for_attribute_type(attribute_type)
+          {}.tap do |opts|
+            if attribute_type.meta[:column_type] == BigDecimal
+              if size = attribute_type.meta[:size]
+                opts[:size] = size
+              end
+            end
+          end
+        end
+
+        def column_opts_string_for_attribute_type(attribute_type)
+          opts = column_opts_for_attribute_type(attribute_type)
+
+          if opts.any?
+            opts.each_with_object(String.new) { |(key, value), opts_string|
+              opts_string << ", #{key}: #{value.inspect}"
+            }
+          else
+            ""
+          end
         end
 
         # Diffs a data source with the table behind it.

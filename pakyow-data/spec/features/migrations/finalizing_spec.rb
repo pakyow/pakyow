@@ -27,6 +27,7 @@ RSpec.describe "finalizing migrations in sqlite" do
           create_table :comments do
             primary_key :id
             column :title, String
+            column :popularity, BigDecimal, size: [10, 2]
           end
         end
       end
@@ -61,6 +62,7 @@ RSpec.describe "finalizing migrations in postgres" do
           create_table :comments do
             primary_key :id
             column :title, String
+            column :popularity, BigDecimal, size: [10, 2]
           end
         end
       end
@@ -104,6 +106,7 @@ RSpec.describe "finalizing migrations in mysql" do
           create_table :comments do
             primary_key :id
             column :title, String
+            column :popularity, BigDecimal, size: [10, 2]
           end
         end
       end

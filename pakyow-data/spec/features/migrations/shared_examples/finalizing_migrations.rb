@@ -48,6 +48,7 @@ RSpec.shared_examples :finalizing_migrations do
         source :comments do
           primary_id
           attribute :title
+          attribute :popularity, :decimal
         end
       end
     end
