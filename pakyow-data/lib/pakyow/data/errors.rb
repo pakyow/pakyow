@@ -4,6 +4,9 @@ require "pakyow/error"
 
 module Pakyow
   module Data
+    class ConstraintViolation < Pakyow::Error
+    end
+
     class NotNullViolation < Pakyow::Error
     end
 

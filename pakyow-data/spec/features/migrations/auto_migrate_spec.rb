@@ -55,16 +55,6 @@ RSpec.describe "auto migrating on boot" do
   end
 end
 
-require_relative "shared_examples/auto_migration"
-
-RSpec.describe "auto migrating in sqlite" do
-  include_examples :auto_migration
-end
-
-RSpec.describe "auto migrating in postgres" do
-  include_examples :auto_migration
-end
-
-RSpec.describe "auto migrating in mysql" do
-  include_examples :auto_migration
+RSpec.describe "auto migrating" do
+  it "needs to be defined"
 end

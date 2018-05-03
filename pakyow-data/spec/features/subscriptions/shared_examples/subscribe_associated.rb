@@ -133,9 +133,11 @@ RSpec.shared_examples :subscription_subscribe_associated do
       it "calls the handler" do
         call("/comments", method: :post, params: { comment: { title: "foo", post_id: @post.id } })
 
+        post = Pakyow.apps.first.data.posts.create(title: "another post").one
+
         subscribe!
         expect_any_instance_of(TestHandler).to receive(:call)
-        response = call("/comments/foo", method: :patch, params: { comment: { title: "bar", post_id: 2 } })
+        response = call("/comments/foo", method: :patch, params: { comment: { title: "bar", post_id: post.id } })
         expect(response[0]).to eq(200)
       end
 
@@ -143,8 +145,10 @@ RSpec.shared_examples :subscription_subscribe_associated do
         it "does not call the handler" do
           call("/comments", method: :post, params: { comment: { title: "foo", post_id: @post.id } })
 
+          post = Pakyow.apps.first.data.posts.create(title: "another post").one
+
           subscribe!
-          call("/comments/foo", method: :patch, params: { comment: { title: "foo", post_id: 2 } })
+          call("/comments/foo", method: :patch, params: { comment: { title: "foo", post_id: post.id } })
           expect_any_instance_of(TestHandler).not_to receive(:call)
           response = call("/comments/foo", method: :patch, params: { comment: { title: "bar" } })
           expect(response[0]).to eq(200)
@@ -176,9 +180,11 @@ RSpec.shared_examples :subscription_subscribe_associated do
 
     context "when an object not covered by the association is created" do
       it "does not call the handler" do
+        post = Pakyow.apps.first.data.posts.create(title: "another post").one
+
         subscribe!
         expect_any_instance_of(TestHandler).to_not receive(:call)
-        response = call("/comments", method: :post, params: { comment: { title: "foo", post_id: @post.id + 1 } })
+        response = call("/comments", method: :post, params: { comment: { title: "foo", post_id: post.id } })
         expect(response[0]).to eq(200)
       end
     end

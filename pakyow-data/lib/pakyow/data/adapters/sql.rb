@@ -78,8 +78,7 @@ module Pakyow
         end
 
         def needs_migration?(source)
-          differ = Differ.new(connection: @connection, source: source)
-          !differ.exists? || differ.changes?
+          Differ.new(connection: @connection, source: source).any?
         end
 
         def migrate!(migration_path)
@@ -132,13 +131,17 @@ module Pakyow
                 change do
                   alter_table <%= differ.table_name.inspect %> do
                     <%- differ.attributes_to_add.each do |attribute_name, attribute_type| -%>
+                    <%- if attribute_type.meta[:primary_key] -%>
+                    add_primary_key <%= attribute_name.inspect %>
+                    <%- elsif attribute_type.meta[:foreign_key] -%>
+                    add_foreign_key <%= attribute_name.inspect %>, <%= attribute_type.meta[:foreign_key].inspect %>
+                    <%- else -%>
                     add_column <%= attribute_name.inspect %>, <%= attribute_type.meta[:column_type].inspect %><%= column_opts_string_for_attribute_type(attribute_type) %>
                     <%- end -%>
-
+                    <%- end -%>
                     <%- differ.columns_to_remove.keys.each do |column_name| -%>
                     drop_column <%= column_name.inspect %>
                     <%- end -%>
-
                     <%- differ.column_types_to_change.each do |column_name, column_type| -%>
                     set_column_type <%= column_name.inspect %>, <%= column_type.inspect %>
                     <%- end -%>
@@ -175,7 +178,8 @@ module Pakyow
           if attribute_type.meta[:primary_key]
             table.primary_key attribute_name
           elsif attribute_type.meta[:foreign_key]
-            table.foreign_key attribute_name, attribute_type.meta[:foreign_key]
+            # table.foreign_key attribute_name, attribute_type.meta[:foreign_key]
+            table.column attribute_name, attribute_type.meta[:column_type], **column_opts_for_attribute_type(attribute_type)
           else
             table.column attribute_name, attribute_type.meta[:column_type], **column_opts_for_attribute_type(attribute_type)
           end
@@ -220,6 +224,10 @@ module Pakyow
         class Differ
           def initialize(connection:, source:)
             @connection, @source = connection, source
+          end
+
+          def any?
+            !exists? || changes?
           end
 
           def exists?
@@ -338,6 +346,8 @@ module Pakyow
                 end
               rescue Sequel::UniqueConstraintViolation => error
                 raise Pakyow.build_error(error, UniqueViolation)
+              rescue Sequel::ForeignKeyConstraintViolation => error
+                raise Pakyow.build_error(error, ConstraintViolation)
               end
             end
 
@@ -349,6 +359,8 @@ module Pakyow
                   update(values)
                 rescue Sequel::UniqueConstraintViolation => error
                   raise Pakyow.build_error(error, UniqueViolation)
+                rescue Sequel::ForeignKeyConstraintViolation => error
+                  raise Pakyow.build_error(error, ConstraintViolation)
                 end
               end
             end

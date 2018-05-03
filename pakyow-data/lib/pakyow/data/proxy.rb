@@ -173,13 +173,13 @@ module Pakyow
       end
 
       def apply(proxied_calls)
-        proxied_calls.inject(self) { |_proxy, proxied_call|
+        proxied_calls.inject(self) { |proxy, proxied_call|
           if proxied_call[2].any?
-            public_send(proxied_call[0], *proxied_call[1]) do
+            proxy.public_send(proxied_call[0], *proxied_call[1]) do
               apply(proxied_call[2])
             end
           else
-            public_send(proxied_call[0], *proxied_call[1])
+            proxy.public_send(proxied_call[0], *proxied_call[1])
           end
         }
       end
