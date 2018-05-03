@@ -63,7 +63,11 @@ module Pakyow
 
       def define_attributes_for_associations!(source)
         source.associations[:belongs_to].each do |belongs_to_association|
-          source.attribute belongs_to_association[:column_name], belongs_to_association[:column_type]
+          source.attribute(
+            belongs_to_association[:column_name],
+            belongs_to_association[:column_type],
+            foreign_key: belongs_to_association[:source_name]
+          )
         end
       end
 

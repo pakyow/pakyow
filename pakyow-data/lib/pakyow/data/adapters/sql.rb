@@ -155,6 +155,8 @@ module Pakyow
                   <%- differ.attributes.each do |attribute_name, attribute_type| -%>
                   <%- if attribute_type.meta[:primary_key] -%>
                   primary_key <%= attribute_name.inspect %>
+                  <%- elsif attribute_type.meta[:foreign_key] -%>
+                  foreign_key <%= attribute_name.inspect %>, <%= attribute_type.meta[:foreign_key].inspect %>
                   <%- else -%>
                   column <%= attribute_name.inspect %>, <%= attribute_type.meta[:column_type].inspect %><%= column_opts_string_for_attribute_type(attribute_type) %>
                   <%- end -%>
@@ -172,6 +174,8 @@ module Pakyow
         def define_column_for_attribute(attribute_name, attribute_type, table)
           if attribute_type.meta[:primary_key]
             table.primary_key attribute_name
+          elsif attribute_type.meta[:foreign_key]
+            table.foreign_key attribute_name, attribute_type.meta[:foreign_key]
           else
             table.column attribute_name, attribute_type.meta[:column_type], **column_opts_for_attribute_type(attribute_type)
           end
