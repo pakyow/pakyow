@@ -15,7 +15,7 @@ module Pakyow
     module Adapters
       class Sql < Abstract
         TYPES = {
-          integer: Types::Coercible::Int,
+          integer: Types::Coercible::Integer,
           string: Types::Coercible::String,
           float: Types::Coercible::Float,
           decimal: Types::Coercible::Decimal.meta(column_type: BigDecimal, size: [10, 2]),

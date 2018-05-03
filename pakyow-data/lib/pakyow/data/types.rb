@@ -8,7 +8,7 @@ module Pakyow
       include Dry::Types.module
 
       MAPPING = {
-        integer: Coercible::Int,
+        integer: Coercible::Integer,
         string: Coercible::String,
         float: Coercible::Float,
         decimal: Coercible::Decimal,

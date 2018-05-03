@@ -8,13 +8,13 @@ module Pakyow
 
     MAPPING = {
       string: Coercible::String,
-      boolean: Form::Bool,
-      date: Form::Date,
-      time: Form::Time,
-      datetime: Form::Time,
-      integer: Form::Int,
-      float: Form::Float,
-      decimal: Form::Decimal
+      boolean: Params::Bool,
+      date: Params::Date,
+      time: Params::Time,
+      datetime: Params::Time,
+      integer: Params::Integer,
+      float: Params::Float,
+      decimal: Params::Decimal
     }.freeze
 
     def self.type_for(type)

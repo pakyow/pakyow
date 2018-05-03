@@ -28,43 +28,43 @@ RSpec.describe Pakyow::Types do
 
     describe "boolean" do
       it "is known" do
-        expect(Pakyow::Types.type_for(:boolean)).to be(Pakyow::Types::Form::Bool)
+        expect(Pakyow::Types.type_for(:boolean)).to be(Pakyow::Types::Params::Bool)
       end
     end
 
     describe "date" do
       it "is known" do
-        expect(Pakyow::Types.type_for(:date)).to be(Pakyow::Types::Form::Date)
+        expect(Pakyow::Types.type_for(:date)).to be(Pakyow::Types::Params::Date)
       end
     end
 
     describe "time" do
       it "is known" do
-        expect(Pakyow::Types.type_for(:time)).to be(Pakyow::Types::Form::Time)
+        expect(Pakyow::Types.type_for(:time)).to be(Pakyow::Types::Params::Time)
       end
     end
 
     describe "datetime" do
       it "is known" do
-        expect(Pakyow::Types.type_for(:datetime)).to be(Pakyow::Types::Form::Time)
+        expect(Pakyow::Types.type_for(:datetime)).to be(Pakyow::Types::Params::Time)
       end
     end
 
     describe "integer" do
       it "is known" do
-        expect(Pakyow::Types.type_for(:integer)).to be(Pakyow::Types::Form::Int)
+        expect(Pakyow::Types.type_for(:integer)).to be(Pakyow::Types::Params::Integer)
       end
     end
 
     describe "float" do
       it "is known" do
-        expect(Pakyow::Types.type_for(:float)).to be(Pakyow::Types::Form::Float)
+        expect(Pakyow::Types.type_for(:float)).to be(Pakyow::Types::Params::Float)
       end
     end
 
     describe "decimal" do
       it "is known" do
-        expect(Pakyow::Types.type_for(:decimal)).to be(Pakyow::Types::Form::Decimal)
+        expect(Pakyow::Types.type_for(:decimal)).to be(Pakyow::Types::Params::Decimal)
       end
     end
   end
