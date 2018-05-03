@@ -190,8 +190,6 @@ module Pakyow
         end
 
         def column_opts_for_attribute_type(_attribute_type)
-          # TODO: hook this up for default, nullable, others in the future
-
           {}
         end
 
@@ -317,7 +315,7 @@ module Pakyow
                   where(values)
                 end
               rescue Sequel::UniqueConstraintViolation => error
-                raise Pakyow.build_error(error, UniqueConstraintError)
+                raise Pakyow.build_error(error, UniqueViolation)
               end
             end
 
@@ -328,7 +326,7 @@ module Pakyow
                 begin
                   update(values)
                 rescue Sequel::UniqueConstraintViolation => error
-                  raise Pakyow.build_error(error, UniqueConstraintError)
+                  raise Pakyow.build_error(error, UniqueViolation)
                 end
               end
             end

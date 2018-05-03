@@ -37,7 +37,7 @@ RSpec.shared_examples :source_schema do
           expect {
             data.posts.create(foo: 1)
             pp data.posts.to_a
-          }.to raise_error(Pakyow::Data::UniqueConstraintError)
+          }.to raise_error(Pakyow::Data::UniqueViolation)
 
           expect(data.posts.count).to eq(1)
         end
@@ -88,7 +88,7 @@ RSpec.shared_examples :source_schema do
 
         expect {
           data.posts.create(id: 1)
-        }.to raise_error(Pakyow::Data::UniqueConstraintError)
+        }.to raise_error(Pakyow::Data::UniqueViolation)
       end
     end
 
