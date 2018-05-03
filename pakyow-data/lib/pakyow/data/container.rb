@@ -96,19 +96,7 @@ module Pakyow
             type = type.meta(primary_key: true)
           end
 
-          # TODO: set metadata values for default, null
-
-          # final_type = original_type
-
-          # if attribute_info[:nullable] && source.primary_key_field != attribute_name
-          #   final_type = final_type.optional
-          # end
-
-          # if attribute_info.key?(:default)
-          #   final_type = final_type.default { attribute_info[:default] }
-          # end
-
-          source.attributes[attribute_name] = type
+          source.attributes[attribute_name] = type.meta(**attribute_info[:options])
         end
       end
     end
