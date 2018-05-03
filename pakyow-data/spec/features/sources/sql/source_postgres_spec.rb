@@ -9,6 +9,7 @@ require_relative "../shared_examples/schema"
 
 require_relative "./shared_examples/raw"
 require_relative "./shared_examples/table"
+require_relative "./shared_examples/transactions"
 
 RSpec.describe "postgres source" do
   include_examples :source_associations
@@ -22,6 +23,7 @@ RSpec.describe "postgres source" do
 
   include_examples :source_sql_raw
   include_examples :source_sql_table
+  include_examples :source_sql_transactions
 
   let :connection_type do
     :sql

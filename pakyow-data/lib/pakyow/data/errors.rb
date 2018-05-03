@@ -12,5 +12,8 @@ module Pakyow
 
     class UniqueViolation < Pakyow::Error
     end
+
+    class Rollback < Pakyow::Error
+    end
   end
 end

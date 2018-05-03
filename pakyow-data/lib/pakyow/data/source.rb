@@ -115,6 +115,10 @@ module Pakyow
         wrap(@result)
       end
 
+      def transaction(&block)
+        @container.connection.transaction(&block)
+      end
+
       def command(command_name)
         if command = self.class.commands[command_name]
           Command.new(
@@ -142,7 +146,7 @@ module Pakyow
         self.class.queries.include?(maybe_query_name)
       end
 
-      RESULT_METHODS = %i(each to_a one count).freeze
+      RESULT_METHODS = %i(each to_a one count transaction).freeze
       def result?(maybe_result_name)
         RESULT_METHODS.include?(maybe_result_name)
       end

@@ -12,7 +12,7 @@ module Pakyow
       extend Forwardable
       def_delegators :@adapter, :dataset_for_source, :connected?, :disconnect,
                      :migratable?, :needs_migration?, :migrate!, :auto_migrate!,
-                     :finalize_migration!
+                     :finalize_migration!, :transaction
 
       attr_reader :type, :name, :opts, :adapter
 

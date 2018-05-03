@@ -16,6 +16,10 @@ module Pakyow
           raise "result_for_attribute_value is not implemented on #{self}"
         end
 
+        def transaction
+          raise "transactions are not supported by #{self}"
+        end
+
         def connected?
           false
         end

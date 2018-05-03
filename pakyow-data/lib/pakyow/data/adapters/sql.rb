@@ -65,6 +65,16 @@ module Pakyow
           source.where(attribute => value)
         end
 
+        def transaction(&block)
+          @connection.transaction do
+            begin
+              block.call
+            rescue Rollback
+              raise Sequel::Rollback
+            end
+          end
+        end
+
         def disconnect
           @connection.disconnect if connected?
         end
