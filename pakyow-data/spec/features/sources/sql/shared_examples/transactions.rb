@@ -68,7 +68,7 @@ RSpec.shared_examples :source_sql_transactions do
             data.posts.transaction do
               raise
             end
-          }.to raise_error
+          }.to raise_error(RuntimeError)
         end
       end
 
