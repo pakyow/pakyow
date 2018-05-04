@@ -53,9 +53,8 @@ module Pakyow
                 end
               }
             else
-              # TODO: this isn't quite right
-              @source.public_send(method_name, *args).tap do |foo|
-                foo.included.each do |included_source|
+              @source.public_send(method_name, *args).tap do |working_source|
+                working_source.included.each do |included_source|
                   nested_proxy = Proxy.new(included_source, @subscribers)
                   proxy.nested_proxies << nested_proxy
                 end
