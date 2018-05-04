@@ -146,6 +146,17 @@ RSpec.describe "binding data via presenter, with a binder" do
     end
   end
 
+  context "channeled binding has a binder" do
+    let :view do
+      Pakyow::Presenter::View.new("<body><div binding=\"post:foo\"><h1 binding=\"title\">title goes here</h1></div></body>")
+    end
+
+    it "uses the binder" do
+      post_presenter.present(title: "post")
+      expect(presenter.to_s).to eq("<body><div data-b=\"post:foo\"><h1 data-b=\"title\">tsop</h1></div></body>")
+    end
+  end
+
   context "binding tries to build a url" do
     include_context "testable app"
 

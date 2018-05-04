@@ -8,7 +8,7 @@ module Pakyow
       include Support::SafeStringHelpers
 
       def expose(name, default_value = default_omitted = true)
-        raise ArgumentError, "name must a symbol" unless name.is_a?(Symbol)
+        name = name.to_sym
 
         value = if block_given?
           yield

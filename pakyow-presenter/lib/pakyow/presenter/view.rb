@@ -405,7 +405,7 @@ module Pakyow
 
       def bindings_with_name(name)
         (binding_scopes + binding_props).select { |node|
-          node.label(:binding) == name
+          node.label(:binding).to_s.start_with?(name.to_s)
         }
       end
 

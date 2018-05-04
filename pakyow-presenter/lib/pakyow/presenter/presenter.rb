@@ -324,8 +324,10 @@ module Pakyow
       end
 
       def binder_for_current_scope
+        expected_binder_name = @view.label(:binding).to_s.split(":")[0].to_sym
+
         binders.find { |binder|
-          binder.__class_name.name == @view.label(:binding)
+          binder.__class_name.name == expected_binder_name
         }
       end
 
