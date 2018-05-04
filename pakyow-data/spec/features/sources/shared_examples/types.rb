@@ -1,5 +1,5 @@
-RSpec.shared_examples :source_schema do
-  describe "source schema" do
+RSpec.shared_examples :source_types do
+  describe "source types" do
     before do
       Pakyow.config.data.connections.public_send(connection_type)[:default] = connection_string
     end
@@ -8,14 +8,6 @@ RSpec.shared_examples :source_schema do
 
     let :data do
       Pakyow.apps.first.data
-    end
-
-    describe "table name" do
-      it "defaults to the source name"
-
-      context "custom table name specified" do
-        it "needs to be defined"
-      end
     end
 
     context "defining a primary key" do
@@ -370,7 +362,7 @@ RSpec.shared_examples :source_schema do
           end
 
           it "defines the attribute" do
-            expect(data.posts.create(attr: 1.12).one[:attr]).to eq(1.12)
+            expect(data.posts.create(attr: BigDecimal.new(1.12, 3)).one[:attr]).to eq(1.12)
           end
 
           context "size is defined" do
@@ -386,31 +378,8 @@ RSpec.shared_examples :source_schema do
             end
 
             it "defines the attribute with the defined size" do
-              if connection_string.include?("sqlite")
-                # FIXME: sqlite doesn't handle numerics the same; expected?
-                expect(data.posts.create(attr: 1.16).one[:attr]).to eq(0.116e1)
-              else
-                expect(data.posts.create(attr: 1.16).one[:attr]).to eq(1.2)
-              end
+              expect(data.posts.create(attr: BigDecimal.new(1.16, 2)).one[:attr]).to eq(1.2)
             end
-          end
-        end
-
-        xcontext "type is blob" do
-          let :app_definition do
-            Proc.new do
-              instance_exec(&$data_app_boilerplate)
-
-              source :posts do
-                primary_id
-                attribute :attr, :blob
-              end
-            end
-          end
-
-          it "defines the attribute" do
-            random_bytes = Random.new.bytes(10)
-            expect(data.posts.create(attr: random_bytes).one[:attr]).to eq(random_bytes)
           end
         end
       end

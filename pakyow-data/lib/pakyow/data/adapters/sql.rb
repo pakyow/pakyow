@@ -15,14 +15,14 @@ module Pakyow
     module Adapters
       class Sql < Abstract
         TYPES = {
-          integer: Types::Coercible::Integer,
-          string: Types::Coercible::String,
-          float: Types::Coercible::Float,
-          decimal: Types::Coercible::Decimal.meta(column_type: BigDecimal, size: [10, 2]),
-          date: Types::Date,
+          # overrides for default types
+          boolean: Types::Bool.meta(column_type: TrueClass, db_type: :boolean),
           datetime: Types::DateTime.meta(db_type: :datetime),
-          time: Types::Time,
-          boolean: Types::Bool.meta(column_type: TrueClass, db_type: :boolean)
+          decimal: Types::Coercible::Decimal.meta(column_type: BigDecimal, size: [10, 2]),
+
+          # sql-specific types
+          file: Types.Constructor(Sequel::SQL::Blob).meta(column_type: File),
+          text: Types::String.meta(text: true)
         }.freeze
 
         extend Support::DeepFreeze
@@ -33,6 +33,10 @@ module Pakyow
 
         attr_reader :connection
 
+        DEFAULT_EXTENSIONS = {
+          postgres: %i(pg_json)
+        }.freeze
+
         def initialize(opts, logger: nil)
           @connection = Sequel.connect(
             adapter: opts[:adapter],
@@ -42,6 +46,10 @@ module Pakyow
             password: opts[:password],
             logger: logger
           )
+
+          DEFAULT_EXTENSIONS[opts[:adapter].to_sym].to_a.each do |extension|
+            @connection.extension extension
+          end
         rescue Sequel::AdapterNotFound => e
           puts e
 
@@ -207,11 +215,12 @@ module Pakyow
           table.set_column_type column_name, column_type
         end
 
+        ALLOWED_COLUMN_OPTS = %i(size text)
         def column_opts_for_attribute_type(attribute_type)
           {}.tap do |opts|
-            if attribute_type.meta[:column_type] == BigDecimal
-              if size = attribute_type.meta[:size]
-                opts[:size] = size
+            ALLOWED_COLUMN_OPTS.each do |opt|
+              if value = attribute_type.meta[opt]
+                opts[opt] = value
               end
             end
           end
@@ -226,6 +235,19 @@ module Pakyow
             }
           else
             ""
+          end
+        end
+
+        class << self
+          CONNECTION_TYPES = {
+            postgres: "Types::Postgres",
+            sqlite: "Types::SQLite",
+            mysql2: "Types::MySQL"
+          }.freeze
+
+          def types_for_connection(connection)
+            connection_adapter = connection.adapter.connection.opts[:adapter]
+            TYPES.dup.merge(const_get(CONNECTION_TYPES[connection_adapter.to_sym])::TYPES)
           end
         end
 
@@ -340,6 +362,24 @@ module Pakyow
 
           def count(dataset)
             dataset.count
+          end
+        end
+
+        module Types
+          module Postgres
+            TYPES = {
+              json: Pakyow::Data::Types.Constructor(:json) { |value|
+                Sequel.pg_json(value)
+              }.meta(db_type: :json)
+            }.freeze
+          end
+
+          module SQLite
+            TYPES = {}.freeze
+          end
+
+          module MySQL
+            TYPES = {}.freeze
           end
         end
 

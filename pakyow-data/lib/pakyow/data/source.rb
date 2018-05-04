@@ -309,6 +309,7 @@ module Pakyow
           @associations[:has_many] << {
             type: :has_many,
             access_type: :many,
+            access_name: plural_name.to_sym,
             source_name: plural_name.to_sym,
             query_name: query,
             column_name: primary_key_field,
@@ -324,6 +325,7 @@ module Pakyow
           @associations[:belongs_to] << {
             type: :belongs_to,
             access_type: :one,
+            access_name: singular_name.to_sym,
             source_name: plural_name.to_sym,
             column_name: :"#{singular_name}_id",
             column_type: :integer

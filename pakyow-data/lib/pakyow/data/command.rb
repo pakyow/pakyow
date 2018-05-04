@@ -13,7 +13,27 @@ module Pakyow
 
       def call(values = nil)
         if values
-          final_values = values.to_h.deep_dup
+          # Enforce required attributes.
+          #
+          @source.class.attributes.each do |attribute_name, attribute|
+            if attribute.meta[:required]
+              if @name == :create && !values.include?(attribute_name)
+                raise NotNullViolation.new("Expected a value for #{attribute_name}")
+              end
+
+              if values.include?(attribute_name) && values[attribute_name].nil?
+                raise NotNullViolation.new("Expected a value for #{attribute_name}")
+              end
+            end
+          end
+
+          final_values = values.each_with_object({}) { |(key, value), final_values|
+            if attribute = @source.class.attributes[key]
+              final_values[key] = attribute[value]
+            elsif @source.class.associations.values.flatten.find { |association| association[:access_name] == key }
+              final_values[key] = value
+            end
+          }
 
           if timestamp_fields = @source.class.timestamp_fields
             if @name == :create
@@ -35,20 +55,6 @@ module Pakyow
                 else
                   default
                 end
-              end
-            end
-          end
-
-          # Enforce required attributes.
-          #
-          @source.class.attributes.each do |attribute_name, attribute|
-            if attribute.meta[:required]
-              if @name == :create && !final_values.include?(attribute_name)
-                raise NotNullViolation.new("Expected a value for #{attribute_name}")
-              end
-
-              if final_values.include?(attribute_name) && final_values[attribute_name].nil?
-                raise NotNullViolation.new("Expected a value for #{attribute_name}")
               end
             end
           end

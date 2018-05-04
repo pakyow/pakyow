@@ -49,7 +49,7 @@ module Pakyow
 
       def types
         if @adapter.class.const_defined?("TYPES")
-          @adapter.class.const_get("TYPES")
+          @adapter.class.types_for_connection(self)
         else
           nil
         end

@@ -28,6 +28,11 @@ module Pakyow
           false
         end
 
+        class << self
+          def types_for_connection(_connection)
+          end
+        end
+
         module SourceExtension
         end
 
