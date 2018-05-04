@@ -317,16 +317,17 @@ module Pakyow
         other.is_a?(Presenter) && @view == other.view
       end
 
-      # @api private
+      private
+
       def presenter_for(view, type: Presenter)
         type.new(view, binders: @binders)
       end
 
-      private
-
       def binder_for_current_scope
+        expected_binder_name = @view.label(:binding).to_s.split(":")[0].to_sym
+
         binders.find { |binder|
-          binder.__class_name.name == @view.label(:binding)
+          binder.__class_name.name == expected_binder_name
         }
       end
 

@@ -117,6 +117,50 @@ RSpec.describe "finding a significant view via presenter" do
       expect(presenter.find(:post, :title).view.text).to eq("one")
     end
   end
+
+  describe "finding a channeled binding" do
+    let :view do
+      Pakyow::Presenter::View.new("<div binding=\"post:foo\"><h1 binding=\"title\"></h1></div><div binding=\"post:bar\"><h1 binding=\"title\"></h1></div>")
+    end
+
+    describe "finding by part of the channel name" do
+      it "returns the first matching view" do
+        result = presenter.find(:post)
+        expect(result).to be_instance_of(Pakyow::Presenter::Presenter)
+        expect(result.view.label(:binding)).to eq(:"post:foo")
+      end
+    end
+
+    describe "finding by the full channel name" do
+      it "returns the first matching view" do
+        result = presenter.find("post:bar")
+        expect(result).to be_instance_of(Pakyow::Presenter::Presenter)
+        expect(result.view.label(:binding)).to eq(:"post:bar")
+      end
+    end
+  end
+
+  describe "finding a deeply channeled binding" do
+    let :view do
+      Pakyow::Presenter::View.new("<div binding=\"post:foo:bar\"><h1 binding=\"title\"></h1></div><div binding=\"post:foo:baz\"><h1 binding=\"title\"></h1></div>")
+    end
+
+    describe "finding by part of the channel name" do
+      it "returns the first matching view" do
+        result = presenter.find("post:foo")
+        expect(result).to be_instance_of(Pakyow::Presenter::Presenter)
+        expect(result.view.label(:binding)).to eq(:"post:foo:bar")
+      end
+    end
+
+    describe "finding by the full channel name" do
+      it "returns the first matching view" do
+        result = presenter.find("post:foo:baz")
+        expect(result).to be_instance_of(Pakyow::Presenter::Presenter)
+        expect(result.view.label(:binding)).to eq(:"post:foo:baz")
+      end
+    end
+  end
 end
 
 RSpec.describe "finding all significant views via presenter" do
@@ -183,6 +227,58 @@ RSpec.describe "finding all significant views via presenter" do
     context "binding does not exist" do
       it "returns an empty array" do
         expect(presenter.find_all(:post)[0].find_all(:foo)).to eq([])
+      end
+    end
+  end
+
+  describe "finding a channeled binding" do
+    let :view do
+      Pakyow::Presenter::View.new("<div binding=\"post:foo\"><h1 binding=\"title\"></h1></div><div binding=\"post:bar\"><h1 binding=\"title\"></h1></div>")
+    end
+
+    describe "finding by part of the channel name" do
+      it "returns an array of presenters wrapping the binding" do
+        result = presenter.find_all(:post)
+        expect(result.count).to eq(2)
+        expect(result[0]).to be_instance_of(Pakyow::Presenter::Presenter)
+        expect(result[0].view.label(:binding)).to eq(:"post:foo")
+        expect(result[1]).to be_instance_of(Pakyow::Presenter::Presenter)
+        expect(result[1].view.label(:binding)).to eq(:"post:bar")
+      end
+    end
+
+    describe "finding by the full channel name" do
+      it "returns an array of presenters wrapping the binding" do
+        result = presenter.find_all("post:bar")
+        expect(result.count).to eq(1)
+        expect(result[0]).to be_instance_of(Pakyow::Presenter::Presenter)
+        expect(result[0].view.label(:binding)).to eq(:"post:bar")
+      end
+    end
+  end
+
+  describe "finding a deeply channeled binding" do
+    let :view do
+      Pakyow::Presenter::View.new("<div binding=\"post:foo:bar\"><h1 binding=\"title\"></h1></div><div binding=\"post:foo:baz\"><h1 binding=\"title\"></h1></div>")
+    end
+
+    describe "finding by part of the channel name" do
+      it "returns an array of presenters wrapping the binding" do
+        result = presenter.find_all("post:foo")
+        expect(result.count).to eq(2)
+        expect(result[0]).to be_instance_of(Pakyow::Presenter::Presenter)
+        expect(result[0].view.label(:binding)).to eq(:"post:foo:bar")
+        expect(result[1]).to be_instance_of(Pakyow::Presenter::Presenter)
+        expect(result[1].view.label(:binding)).to eq(:"post:foo:baz")
+      end
+    end
+
+    describe "finding by the full channel name" do
+      it "returns an array of presenters wrapping the binding" do
+        result = presenter.find_all("post:foo:baz")
+        expect(result.count).to eq(1)
+        expect(result[0]).to be_instance_of(Pakyow::Presenter::Presenter)
+        expect(result[0].view.label(:binding)).to eq(:"post:foo:baz")
       end
     end
   end

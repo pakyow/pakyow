@@ -33,7 +33,7 @@ RSpec.describe "auto rendering" do
         }
       end
 
-      it "invokes the presenter" do
+      it "invokes the defined presenter" do
         response = call("/other")
         expect(response[0]).to eq(200)
         expect(response[2].body.read).to eq("<!DOCTYPE html>\n<html>\n  <head>\n    <title>invoked</title>\n  </head>\n\n  <body>\n    other\n\n  </body>\n</html>\n")
@@ -72,6 +72,25 @@ RSpec.describe "auto rendering" do
 
         it "finds and presents to the singular version" do
           expect(call("/exposure")[2].body.read).to eq("<!DOCTYPE html>\n<html>\n  <head>\n    <title>default</title>\n  </head>\n\n  <body>\n    <div data-b=\"post\">\n  <h1 data-b=\"title\">foo</h1>\n</div><div data-b=\"post\">\n  <h1 data-b=\"title\">bar</h1>\n</div><script type=\"text/template\" data-version=\"default\" data-b=\"post\"><div data-b=\"post\">\n  <h1 data-b=\"title\">title goes here</h1>\n</div></script>\n\n  </body>\n</html>\n")
+        end
+      end
+
+      context "exposure is channeled" do
+        let :app_definition do
+          Proc.new {
+            instance_exec(&$presenter_app_boilerplate)
+
+            controller :default do
+              get "/exposure/channeled" do
+                expose "post:foo", { title: "foo" }
+                expose "post:bar", { title: "bar" }
+              end
+            end
+          }
+        end
+
+        it "finds and presents each channeled version" do
+          expect(call("/exposure/channeled")[2].body.read).to eq("<!DOCTYPE html>\n<html>\n  <head>\n    <title>default</title>\n  </head>\n\n  <body>\n    <div data-b=\"post:foo\">\n  foo\n  <h1 data-b=\"title\">foo</h1>\n</div><script type=\"text/template\" data-version=\"default\" data-b=\"post:foo\"><div data-b=\"post:foo\">\n  foo\n  <h1 data-b=\"title\">title goes here</h1>\n</div></script>\n\n<div data-b=\"post:bar\">\n  bar\n  <h1 data-b=\"title\">bar</h1>\n</div><script type=\"text/template\" data-version=\"default\" data-b=\"post:bar\"><div data-b=\"post:bar\">\n  bar\n  <h1 data-b=\"title\">title goes here</h1>\n</div></script>\n\n  </body>\n</html>\n")
         end
       end
 

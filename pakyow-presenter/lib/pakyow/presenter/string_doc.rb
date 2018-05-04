@@ -146,7 +146,6 @@ module Pakyow
           @nodes.dup
         end
 
-        type = type.to_sym
         significant_nodes.select { |node|
           node.significant?(type)
         }
@@ -157,7 +156,6 @@ module Pakyow
       # @see find_significant_nodes
       #
       def find_significant_nodes_with_name(type, name, with_children: true)
-        name = name.to_sym
         find_significant_nodes(type, with_children: with_children).select { |node|
           node.label(type) == name
         }
