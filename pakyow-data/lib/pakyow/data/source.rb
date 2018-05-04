@@ -60,6 +60,16 @@ module Pakyow
         @container, @object_map = container, object_map
         @wrap_as = self.class.singular_name
         @included = []
+
+        if default_query = self.class.__default_query
+          result = if default_query.is_a?(Proc)
+            instance_exec(&default_query)
+          else
+            public_send(self.class.__default_query)
+          end
+
+          __setobj__(result.__getobj__)
+        end
       end
 
       def including(source_name, &block)
@@ -211,6 +221,7 @@ module Pakyow
       extend Support::Makeable
       extend Support::ClassState
 
+      class_state :__default_query
       class_state :timestamp_fields
       class_state :primary_key_field
       class_state :attributes, default: {}
@@ -247,11 +258,9 @@ module Pakyow
         end
 
         def source_from_source(source, dataset)
-          source.class.new(
-            dataset,
-            container: source.instance_variable_get(:@container),
-            object_map: source.instance_variable_get(:@object_map)
-          )
+          source.dup.tap do |duped_source|
+            duped_source.__setobj__(dataset)
+          end
         end
 
         def command(command_name, provides_dataset: true, provides_ids: false, &block)
@@ -264,6 +273,10 @@ module Pakyow
 
         def queries
           instance_methods - superclass.instance_methods
+        end
+
+        def query(query_name = nil, &block)
+          @__default_query = query_name || block
         end
 
         def timestamps(create: :created_at, update: :updated_at)
