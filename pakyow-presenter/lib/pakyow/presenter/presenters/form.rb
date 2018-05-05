@@ -68,7 +68,7 @@ module Pakyow
 
       # Setup the form for creating an object.
       #
-      def create(object)
+      def create(object = {})
         yield self if block_given?
         setup_form :create, object
       end

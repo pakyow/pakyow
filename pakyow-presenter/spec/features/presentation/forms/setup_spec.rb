@@ -74,7 +74,55 @@ RSpec.describe "setting up a form via presenter" do
     end
   end
 
-  describe "setting up the form for updating" do
+  describe "setting up the form for creating, without an object" do
+    it "sets the form method" do
+      form.create
+      expect(form.attrs[:method]).to eq("post")
+    end
+
+    it "does not create the method override field" do
+      form.create
+      expect(presenter.to_s).not_to include("<input type=\"hidden\" name=\"_method\"")
+    end
+
+    context "matching route is found" do
+      include_context "testable app"
+
+      let :app_definition do
+        Proc.new {
+          resources :posts, "/posts" do
+            create do; end
+          end
+        }
+      end
+
+      let :presenter do
+        Pakyow::Presenter::Presenter.new(view).tap do |presenter|
+          presenter.install_endpoints(Pakyow.apps[0].endpoints)
+        end
+      end
+
+      it "sets the form action" do
+        form.create
+        expect(form.attrs[:action]).to eq("/posts")
+      end
+    end
+
+    context "matching route is not found" do
+      it "does not set the form action" do
+        form.create
+        expect(form.attrs[:action]).to be_empty
+      end
+    end
+
+    context "block is given" do
+      it "yields form to the block" do
+        expect { |b| form.create(&b) }.to yield_with_args(form)
+      end
+    end
+  end
+
+  describe "setting up the form for updating an object" do
     let :object do
       { id: 1, title: "bar" }
     end
@@ -131,7 +179,7 @@ RSpec.describe "setting up a form via presenter" do
     end
   end
 
-  describe "setting up the form for replacing" do
+  describe "setting up the form for replacing an object" do
     let :object do
       { id: 1, title: "bar" }
     end
@@ -188,7 +236,7 @@ RSpec.describe "setting up a form via presenter" do
     end
   end
 
-  describe "setting up the form for removing" do
+  describe "setting up the form for removing an object" do
     let :object do
       { id: 1, title: "bar" }
     end
