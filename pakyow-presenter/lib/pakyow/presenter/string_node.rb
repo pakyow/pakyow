@@ -191,9 +191,9 @@ module Pakyow
         @labels.key?(name.to_sym)
       end
 
-      # Adds the label with +name+ and +value+.
+      # Sets the label with +name+ and +value+.
       #
-      def add_label(name, value)
+      def set_label(name, value)
         @labels[name.to_sym] = value
       end
 

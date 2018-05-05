@@ -23,7 +23,7 @@ module Pakyow
 
         unless @view.labeled?(ID_LABEL)
           id = SecureRandom.hex(24)
-          @view.object.add_label(ID_LABEL, id)
+          @view.object.set_label(ID_LABEL, id)
           embed_id(id)
         end
 
