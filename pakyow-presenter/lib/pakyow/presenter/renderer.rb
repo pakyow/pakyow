@@ -222,6 +222,8 @@ module Pakyow
 
       def setup_forms
         @presenter.forms.each do |form|
+          form.embed_origin(@connection.fullpath)
+
           if @connection.app.config.presenter.embed_authenticity_token
             digest = Support::MessageVerifier.digest(
               form.id, key: authenticity_server_id

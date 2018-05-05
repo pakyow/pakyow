@@ -24,6 +24,7 @@ module Pakyow
         unless @view.labeled?(ID_LABEL)
           id = SecureRandom.hex(24)
           @view.object.add_label(ID_LABEL, id)
+          embed_id(id)
         end
 
         setup_field_names
@@ -97,6 +98,10 @@ module Pakyow
         @view.prepend(authenticity_token_input(token, param: param))
       end
 
+      def embed_origin(origin)
+        @view.prepend(origin_input(origin))
+      end
+
       protected
 
       def setup_form(action, object)
@@ -115,6 +120,10 @@ module Pakyow
         end
       end
 
+      def embed_id(id)
+        @view.prepend(id_input(id))
+      end
+
       def method_for_action(action)
         ACTION_METHODS[action]
       end
@@ -129,6 +138,14 @@ module Pakyow
 
       def authenticity_token_input(token, param:)
         safe("<input type=\"hidden\" name=\"#{param}\" value=\"#{token}\">")
+      end
+
+      def origin_input(origin)
+        safe("<input type=\"hidden\" name=\"form[origin]\" value=\"#{origin}\">")
+      end
+
+      def id_input(id)
+        safe("<input type=\"hidden\" name=\"form[id]\" value=\"#{id}\">")
       end
 
       def create_select_options(field, values)
