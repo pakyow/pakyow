@@ -87,11 +87,13 @@ module Pakyow
           aspect :controllers
 
           helper Pakyow::Routing::Helpers
+          helper Pakyow::Routing::Helpers::CSRF
 
           settings_for :csrf do
             setting :origin_whitelist, []
             setting :allow_empty_referrer, true
             setting :protection, {}
+            setting :param, :authenticity_token
           end
 
           require "pakyow/core/security/csrf/verify_same_origin"

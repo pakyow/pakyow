@@ -93,6 +93,12 @@ module Pakyow
           @presenter.cleanup_prototype_nodes
           @presenter.create_template_nodes
         end
+
+        if @connection.app.config.presenter.embed_authenticity_token
+          embed_authenticity_token
+        end
+
+        setup_forms
       end
 
       def perform
@@ -198,6 +204,30 @@ module Pakyow
           [name, Support.inflector.singularize(name)].each do |name_varient|
             next unless found = presenter.find(name_varient)
             found.present(value); break
+          end
+        end
+      end
+
+      include Routing::Helpers::CSRF
+
+      def embed_authenticity_token
+        if head = @presenter.view.object.find_significant_nodes(:head)[0]
+          # embed the authenticity token
+          head.append("<meta name=\"pw-authenticity-token\" content=\"#{authenticity_client_id}:#{authenticity_digest(authenticity_client_id)}\">\n")
+
+          # embed the parameter name the token should be submitted as
+          head.append("<meta name=\"pw-authenticity-param\" content=\"#{@connection.app.config.csrf.param}\">\n")
+        end
+      end
+
+      def setup_forms
+        @presenter.forms.each do |form|
+          if @connection.app.config.presenter.embed_authenticity_token
+            digest = Support::MessageVerifier.digest(
+              form.id, key: authenticity_server_id
+            )
+
+            form.embed_authenticity_token("#{form.id}:#{digest}", param: @connection.app.config.csrf.param)
           end
         end
       end

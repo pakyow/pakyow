@@ -26,5 +26,6 @@ require_relative "../../spec/context/suppressed_output_context"
 $presenter_app_boilerplate = Proc.new do
   configure do
     config.presenter.path = File.join(File.expand_path("../", __FILE__), "features/support/views")
+    config.presenter.embed_authenticity_token = false
   end
 end

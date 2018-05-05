@@ -88,6 +88,8 @@ module Pakyow
             setting :path do
               File.join(config.root, "frontend")
             end
+
+            setting :embed_authenticity_token, true
           end
 
           after :load do

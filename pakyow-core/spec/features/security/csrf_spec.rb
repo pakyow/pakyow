@@ -1,4 +1,4 @@
-RSpec.describe "security-related actions" do
+RSpec.describe "processing requests with csrf protection" do
   include_context "testable app"
 
   context "csrf protection rejects the request" do
@@ -162,42 +162,6 @@ RSpec.describe "security-related actions" do
     it "disables protection for the appropriate routes" do
       expect(call("/foo", method: :post)[0]).to eq(200)
       expect(call("/bar", method: :post)[0]).to eq(403)
-    end
-  end
-
-  describe "skipping verify_same_origin" do
-    let :app_definition do
-      Proc.new do
-        controller do
-          skip_action :verify_same_origin
-
-          post "/" do
-          end
-        end
-      end
-    end
-
-    it "skips" do
-      expect(call("/", method: :post)[0]).to eq(200)
-    end
-  end
-
-  describe "overriding verify_same_origin" do
-    let :app_definition do
-      Proc.new do
-        controller do
-          post "/" do
-          end
-
-          def verify_same_origin
-            send "overridden"
-          end
-        end
-      end
-    end
-
-    it "overrides" do
-      expect(call("/", method: :post)[2].body.read).to eq("overridden")
     end
   end
 end

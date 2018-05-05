@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "pakyow/support/message_verifier"
+
 require "pakyow/core/security/base"
 
 module Pakyow
@@ -8,11 +10,18 @@ module Pakyow
       # Protects against Cross-Site Forgery Requests (CSRF).
       # https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)_Prevention_Cheat_Sheet
       #
-      # TODO: further description
+      # Requires a valid token be passed as a request parameter. The token consists
+      # of a client id (unique to the request) and a digest generated from the
+      # client id and the server id stored in the session.
+      #
+      # @see Pakyow::Support::MessageVerifier
       #
       class VerifyAuthenticityToken < Base
-        def allowed?(_connection)
-          true
+        def allowed?(connection)
+          id, digest = connection.params[connection.app.config.csrf.param].to_s.split(":", 2)
+          Support::MessageVerifier.valid?(
+            id, digest: digest, key: connection.session[:authenticity_server_id]
+          )
         end
       end
     end

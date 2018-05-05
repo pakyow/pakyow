@@ -116,6 +116,14 @@ module Pakyow
         end
       end
 
+      # Returns all forms.
+      #
+      def forms
+        @object.find_significant_nodes(:form).map { |form_node|
+          Form.from_object(form_node)
+        }
+      end
+
       # Returns all view info when +key+ is +nil+, otherwise returns the value for +key+.
       #
       def info(key = nil)

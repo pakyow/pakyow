@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "securerandom"
+
 require "pakyow/presenter/presenter"
 require "pakyow/presenter/behavior/endpoints/form"
 
@@ -12,6 +14,24 @@ module Pakyow
       ACTION_METHODS = { create: "post", update: "patch", replace: "put", remove: "delete" }.freeze
 
       include Behavior::Endpoints::Form
+
+      # @api private
+      ID_LABEL = :__form_id
+
+      def initialize(*)
+        super
+
+        unless @view.labeled?(ID_LABEL)
+          id = SecureRandom.hex(24)
+          @view.object.add_label(ID_LABEL, id)
+        end
+
+        setup_field_names
+      end
+
+      def id
+        @view.label(ID_LABEL)
+      end
 
       # Sets the form action (where it submits to).
       #
@@ -73,6 +93,10 @@ module Pakyow
         setup_form :remove, object
       end
 
+      def embed_authenticity_token(token, param:)
+        @view.prepend(authenticity_token_input(token, param: param))
+      end
+
       protected
 
       def setup_form(action, object)
@@ -82,6 +106,12 @@ module Pakyow
           @view.bind(object)
         else
           raise ArgumentError.new("Expected action to be one of: #{SUPPORTED_ACTIONS.join(", ")}")
+        end
+      end
+
+      def setup_field_names
+        @view.object.children.find_significant_nodes(:binding).each do |binding_node|
+          binding_node.attributes[:name] ||= "#{@view.object.label(:binding)}[#{binding_node.label(:binding)}]"
         end
       end
 
@@ -95,6 +125,10 @@ module Pakyow
 
       def method_override_input(method)
         safe("<input type=\"hidden\" name=\"_method\" value=\"#{method}\">")
+      end
+
+      def authenticity_token_input(token, param:)
+        safe("<input type=\"hidden\" name=\"#{param}\" value=\"#{token}\">")
       end
 
       def create_select_options(field, values)

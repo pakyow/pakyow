@@ -107,7 +107,6 @@ module Pakyow
         @view, @binders = view, binders
 
         set_title_from_info
-        setup_form_field_names
       end
 
       # Returns a presenter for a view binding.
@@ -138,6 +137,14 @@ module Pakyow
         else
           nil
         end
+      end
+
+      # Returns all forms.
+      #
+      def forms
+        @view.forms.map { |form|
+          presenter_for(form, type: FormPresenter)
+        }
       end
 
       # Returns the title value from the view being presented.
@@ -363,14 +370,6 @@ module Pakyow
       def set_title_from_info
         if @view && title_from_info = @view.info(:title)
           self.title = title_from_info
-        end
-      end
-
-      def setup_form_field_names
-        @view.object.find_significant_nodes(:form).each do |form_node|
-          form_node.children.find_significant_nodes(:binding).each do |binding_node|
-            binding_node.attributes[:name] ||= "#{form_node.label(:binding)}[#{binding_node.label(:binding)}]"
-          end
         end
       end
     end
