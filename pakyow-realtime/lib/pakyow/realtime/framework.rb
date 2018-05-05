@@ -2,6 +2,8 @@
 
 require "pakyow/core/framework"
 
+require "pakyow/support/message_verifier"
+
 require "pakyow/realtime/channel"
 require "pakyow/realtime/server"
 
@@ -15,10 +17,6 @@ module Pakyow
         return unless Pakyow.config.realtime.server
         return unless state.request.path == "/pw-socket"
         return unless ::WebSocket::Driver.websocket?(state.request.env)
-        return unless id_and_digest = state.request.params[:id]
-
-        id, digest = id_and_digest.split(":", 2)
-        key = state.request.session[:socket_server_id]
 
         # Verify that the websocket is connecting with a valid digest.
         #
@@ -27,7 +25,10 @@ module Pakyow
         # `id:digest` value is embedded in the response, while the key is stored in
         # the session. We verify by generating the digest and comparing it to the
         # digest sent in the connection attempt.
-        return unless key && id && digest == Server.socket_digest(key, id)
+        id, digest = state.request.params[:id].to_s.split(":", 2)
+        return unless Support::MessageVerifier.valid?(
+          id, digest: digest, key: state.request.session[:socket_server_id]
+        )
 
         WebSocket.new(id, state)
         state.halt
@@ -99,6 +100,8 @@ module Pakyow
     end
 
     module Helpers
+      require "pakyow/support/message_verifier"
+
       def broadcast(message)
         @connection.app.websocket_server.subscription_broadcast(socket_client_id, message)
       end
@@ -113,16 +116,16 @@ module Pakyow
 
       def socket_server_id
         return @connection.params[:socket_server_id] if @connection.params[:socket_server_id]
-        @connection.session[:socket_server_id] ||= Server.socket_client_id
+        @connection.session[:socket_server_id] ||= Support::MessageVerifier.key
       end
 
       def socket_client_id
         return @connection.params[:socket_client_id] if @connection.params[:socket_client_id]
-        @socket_client_id ||= Server.socket_client_id
+        @socket_client_id ||= Support::MessageVerifier.key
       end
 
       def socket_digest(socket_client_id)
-        Server.socket_digest(socket_server_id, socket_client_id)
+        Support::MessageVerifier.digest(socket_client_id, key: socket_server_id)
       end
     end
   end

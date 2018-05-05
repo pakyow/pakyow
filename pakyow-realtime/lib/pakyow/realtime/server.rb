@@ -6,6 +6,8 @@ require "concurrent/executor/thread_pool_executor"
 
 require "websocket/driver"
 
+require "pakyow/support/message_verifier"
+
 require "pakyow/realtime/websocket"
 require "pakyow/realtime/event_loop"
 
@@ -16,19 +18,19 @@ module Pakyow
         # Returns a key.
         #
         def socket_server_id
-          SecureRandom.hex(24)
+          Support::MessageVerifier.key
         end
 
         # Returns a connection id (used throughout the current request lifecycle).
         #
         def socket_client_id
-          SecureRandom.hex(24)
+          Support::MessageVerifier.key
         end
 
         # Returns a digest created from the connection id and socket key.
         #
         def socket_digest(socket_server_id, socket_client_id)
-          Base64.encode64(OpenSSL::HMAC.digest(OpenSSL::Digest.new("sha256"), socket_server_id, socket_client_id)).strip()
+          Support::MessageVerifier.digest(socket_client_id, key: socket_server_id)
         end
       end
 
