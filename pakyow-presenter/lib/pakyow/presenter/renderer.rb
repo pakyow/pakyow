@@ -71,7 +71,7 @@ module Pakyow
             info[:layout] = layout.dup
           end
 
-          @presenter = (find_presenter(as || path) || Presenter).compose(
+          @presenter = (find_presenter(as || path) || @connection.app.class.const_get(:Presenter)).compose(
             binders: @connection.app.state_for(:binder),
             **info
           )

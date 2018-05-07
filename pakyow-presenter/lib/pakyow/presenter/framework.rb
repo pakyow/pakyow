@@ -70,7 +70,6 @@ module Pakyow
         #
         subclass(Presenter)
         subclass(Renderer)
-        subclass(View)
 
         app.class_eval do
           stateful :binder, Binder
