@@ -91,9 +91,18 @@ Layout/BlockEndNewline:
 Layout/AlignParameters:
   Enabled: true
 
-Lint/EndAlignment:
+Layout/EndAlignment:
   Enabled: true
   EnforcedStyleAlignWith: variable
+
+Layout/BlockAlignment:
+  Enabled: true
+
+Layout/DefEndAlignment:
+  Enabled: true
+
+Layout/ConditionPosition:
+  Enabled: true
 
 Lint/RequireParentheses:
   Enabled: true
@@ -107,19 +116,10 @@ Lint/AmbiguousOperator:
 Lint/AmbiguousRegexpLiteral:
   Enabled: true
 
-Lint/BlockAlignment:
-  Enabled: true
-
 Lint/Debugger:
   Enabled: true
 
-Lint/DefEndAlignment:
-  Enabled: true
-
 Lint/DuplicateCaseCondition:
-  Enabled: true
-
-Lint/ConditionPosition:
   Enabled: true
 
 Lint/EachWithObjectArgument:
@@ -219,4 +219,7 @@ Naming:
   Enabled: true
 
 Naming/AccessorMethodName:
+  Enabled: false
+
+Naming/UncommunicativeMethodParamName:
   Enabled: false
