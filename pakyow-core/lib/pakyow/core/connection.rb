@@ -37,6 +37,10 @@ module Pakyow
       end
     end
 
+    def set?(key)
+      @values.key?(key.to_sym)
+    end
+
     def set(key, value)
       @values[key.to_sym] = value
     end
