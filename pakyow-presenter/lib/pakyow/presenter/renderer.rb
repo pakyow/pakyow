@@ -102,7 +102,7 @@ module Pakyow
       end
 
       def perform
-        if @presenter.class == Presenter
+        if @presenter.class == @connection.app.class.const_get(:Presenter)
           find_and_present_presentables(@connection.values)
         else
           define_presentables(@connection.values)
