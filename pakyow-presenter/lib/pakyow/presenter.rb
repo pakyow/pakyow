@@ -5,6 +5,8 @@ Pakyow::Support::Silenceable.silence_warnings do
   require "oga"
 end
 
+require "pakyow/core"
+
 require "pakyow/presenter/framework"
 require "pakyow/presenter/presenter"
 
@@ -23,13 +25,9 @@ require "pakyow/presenter/processor"
 require "pakyow/presenter/binder"
 require "pakyow/presenter/binding_parts"
 
-require "pakyow/presenter/views/form"
 require "pakyow/presenter/views/layout"
 require "pakyow/presenter/views/page"
 require "pakyow/presenter/views/partial"
-
-require "pakyow/presenter/presenters/form"
-require "pakyow/presenter/presenters/view"
 
 require "pakyow/presenter/exceptions"
 require "pakyow/presenter/helpers"

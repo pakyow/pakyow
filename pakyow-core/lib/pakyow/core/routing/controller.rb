@@ -204,7 +204,13 @@ module Pakyow
             if route_match = route.match(request_path)
               match_data.merge!(route_match.named_captures)
               connection.params.merge!(match_data)
-              connection.env["pakyow.endpoint"] = File.join(self.class.path_to_self.to_s, route.path.to_s)
+
+              connection.env["pakyow.endpoint.path"] = File.join(
+                self.class.path_to_self.to_s, route.path.to_s
+              )
+
+              connection.env["pakyow.endpoint.name"] = route.name
+
               dup.call_route(connection, route)
             end
           end

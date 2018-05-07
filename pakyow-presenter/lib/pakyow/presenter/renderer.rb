@@ -6,7 +6,7 @@ require "pakyow/support/core_refinements/string/normalization"
 module Pakyow
   module Presenter
     module RenderHelpers
-      def render(path = request.env["pakyow.endpoint"] || request.path, as: nil, layout: nil, mode: :default)
+      def render(path = request.env["pakyow.endpoint.path"] || request.path, as: nil, layout: nil, mode: :default)
         app.class.const_get(:Renderer).new(@connection, path: path, as: as, layout: layout, mode: mode).perform
       end
     end
@@ -46,7 +46,7 @@ module Pakyow
       end
 
       include Support::Hookable
-      known_events :render
+      known_events :initialize, :render
 
       using Support::Refinements::String::Normalization
 
@@ -55,54 +55,54 @@ module Pakyow
       def initialize(connection, path: nil, as: nil, layout: nil, mode: :default, implicit: false)
         @connection, @implicit = connection, implicit
 
-        path = String.normalize_path(path || default_path)
-        as = String.normalize_path(as) if as
+        performing :initialize do
+          path = String.normalize_path(path || default_path)
+          as = String.normalize_path(as) if as
 
-        unless info = find_info(path)
-          error = MissingPage.new("No view at path `#{path}'")
-          error.context = path
-          raise error
+          unless info = find_info(path)
+            error = MissingPage.new("No view at path `#{path}'")
+            error.context = path
+            raise error
+          end
+
+          # Finds a matching layout across template stores.
+          #
+          if layout && layout = layout_with_name(layout)
+            info[:layout] = layout.dup
+          end
+
+          @presenter = (find_presenter(as || path) || Presenter).compose(
+            binders: @connection.app.state_for(:binder),
+            **info
+          )
+
+          @presenter.install_endpoints(
+            endpoints_for_environment,
+            current_endpoint: @connection.endpoint,
+            setup_for_bindings: rendering_prototype?
+          )
+
+          if rendering_prototype?
+            mode = @connection.params[:mode] || :default
+          end
+
+          @presenter.place_in_mode(mode)
+
+          if rendering_prototype?
+            @presenter.insert_prototype_bar(mode)
+          else
+            @presenter.cleanup_prototype_nodes
+            @presenter.create_template_nodes
+          end
+
+          if @connection.app.config.presenter.embed_authenticity_token
+            embed_authenticity_token
+          end
         end
-
-        # Finds a matching layout across template stores.
-        #
-        if layout && layout = layout_with_name(layout)
-          info[:layout] = layout.dup
-        end
-
-        @presenter = (find_presenter(as || path) || ViewPresenter).new(
-          binders: @connection.app.state_for(:binder),
-          **info
-        )
-
-        @presenter.install_endpoints(
-          endpoints_for_environment,
-          current_endpoint: @connection.endpoint,
-          setup_for_bindings: rendering_prototype?
-        )
-
-        if rendering_prototype?
-          mode = @connection.params[:mode] || :default
-        end
-
-        @presenter.place_in_mode(mode)
-
-        if rendering_prototype?
-          @presenter.insert_prototype_bar(mode)
-        else
-          @presenter.cleanup_prototype_nodes
-          @presenter.create_template_nodes
-        end
-
-        if @connection.app.config.presenter.embed_authenticity_token
-          embed_authenticity_token
-        end
-
-        setup_forms
       end
 
       def perform
-        if @presenter.class == ViewPresenter
+        if @presenter.class == Presenter
           find_and_present_presentables(@connection.values)
         else
           define_presentables(@connection.values)
@@ -140,7 +140,7 @@ module Pakyow
       end
 
       def default_path
-        @connection.env["pakyow.endpoint"] || @connection.path
+        @connection.env["pakyow.endpoint.path"] || @connection.path
       end
 
       def find_info(path)
@@ -217,20 +217,6 @@ module Pakyow
 
           # embed the parameter name the token should be submitted as
           head.append("<meta name=\"pw-authenticity-param\" content=\"#{@connection.app.config.csrf.param}\">\n")
-        end
-      end
-
-      def setup_forms
-        @presenter.forms.each do |form|
-          form.embed_origin(@connection.fullpath)
-
-          if @connection.app.config.presenter.embed_authenticity_token
-            digest = Support::MessageVerifier.digest(
-              form.id, key: authenticity_server_id
-            )
-
-            form.embed_authenticity_token("#{form.id}:#{digest}", param: @connection.app.config.csrf.param)
-          end
         end
       end
     end
