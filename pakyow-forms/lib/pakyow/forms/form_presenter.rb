@@ -3,17 +3,18 @@
 require "securerandom"
 
 require "pakyow/presenter/presenter"
-require "pakyow/presenter/behavior/endpoints/form"
+
+require "pakyow/forms/behavior/endpoints"
 
 module Pakyow
-  module Presenter
+  module Forms
     # Presents a form.
     #
-    class FormPresenter < Presenter
+    class FormPresenter < Presenter::Presenter
       SUPPORTED_ACTIONS = %i(create update replace remove).freeze
       ACTION_METHODS = { create: "post", update: "patch", replace: "put", remove: "delete" }.freeze
 
-      include Behavior::Endpoints::Form
+      include Behavior::Endpoints
 
       # @api private
       ID_LABEL = :__form_id
@@ -114,8 +115,11 @@ module Pakyow
         end
       end
 
+      FIELD_TAGS = %w(input select textarea)
       def setup_field_names
-        @view.object.children.find_significant_nodes(:binding).each do |binding_node|
+        @view.object.children.find_significant_nodes(:binding).select { |binding_node|
+          FIELD_TAGS.include?(binding_node.tagname)
+        }.each do |binding_node|
           binding_node.attributes[:name] ||= "#{@view.object.label(:binding)}[#{binding_node.label(:binding)}]"
         end
       end

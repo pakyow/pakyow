@@ -5,7 +5,7 @@ RSpec.describe "forms csrf" do
     context "form is not setup explicitly" do
       let :app_definition do
         Proc.new {
-          instance_exec(&$presenter_app_boilerplate)
+          instance_exec(&$forms_app_boilerplate)
 
           configure :test do
             config.presenter.embed_authenticity_token = true
@@ -37,7 +37,7 @@ RSpec.describe "forms csrf" do
     context "form is setup explicitly" do
       let :app_definition do
         Proc.new {
-          instance_exec(&$presenter_app_boilerplate)
+          instance_exec(&$forms_app_boilerplate)
 
           configure :test do
             config.presenter.embed_authenticity_token = true
@@ -78,7 +78,7 @@ RSpec.describe "forms csrf" do
   context "presenter is not configured to embed authenticity tokens" do
     let :app_definition do
       Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
+        instance_exec(&$forms_app_boilerplate)
 
         configure :test do
           config.presenter.embed_authenticity_token = false

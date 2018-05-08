@@ -106,24 +106,6 @@ module Pakyow
         }
       end
 
-      # Finds a form with a binding matching +name+.
-      #
-      def form(name)
-        if form_node = @object.find_significant_nodes(:form).find { |form| form.label(:binding) == name }
-          Form.from_object(form_node)
-        else
-          nil
-        end
-      end
-
-      # Returns all forms.
-      #
-      def forms
-        @object.find_significant_nodes(:form).map { |form_node|
-          Form.from_object(form_node)
-        }
-      end
-
       # Returns all view info when +key+ is +nil+, otherwise returns the value for +key+.
       #
       def info(key = nil)
@@ -304,12 +286,6 @@ module Pakyow
       #
       def component?
         @object.significant?(:component)
-      end
-
-      # Returns true if +self+ is a form.
-      #
-      def form?
-        @object.significant?(:form)
       end
 
       # Returns true if +self+ equals +other+.

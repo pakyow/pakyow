@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module Pakyow
-  module Presenter
-    class Form < View
+  module Forms
+    class FormView < Presenter::View
       SELECT_TAG = "select".freeze
 
       CHECKBOX_TYPE = "checkbox"
@@ -15,11 +15,11 @@ module Pakyow
         super
 
         if node.tagname == SELECT_TAG
-          select_option_with_value(value, View.from_object(node))
+          select_option_with_value(value, Presenter::View.from_object(node))
         end
 
         if CHECKED_TYPES.include?(node.attributes[:type])
-          check_or_uncheck_value(value, View.from_object(node))
+          check_or_uncheck_value(value, Presenter::View.from_object(node))
         end
       end
 
@@ -29,7 +29,7 @@ module Pakyow
 
       def select_option_with_value(value, view)
         view.object.find_significant_nodes(:option).each do |option|
-          View.from_object(option).attributes[:selected] = option.attributes[:value] == value
+          Presenter::View.from_object(option).attributes[:selected] = option.attributes[:value] == value
         end
       end
     end

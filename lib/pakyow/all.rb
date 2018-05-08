@@ -5,6 +5,7 @@
   core
   data
   presenter
+  forms
   assets
   realtime
   ui

@@ -4,7 +4,7 @@ RSpec.describe "form origin" do
   context "form is not setup explicitly" do
     let :app_definition do
       Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
+        instance_exec(&$forms_app_boilerplate)
 
         controller :default do
           get "/form" do
@@ -29,7 +29,7 @@ RSpec.describe "form origin" do
   context "form is setup explicitly" do
     let :app_definition do
       Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
+        instance_exec(&$forms_app_boilerplate)
 
         controller :default do
           get "/form" do
@@ -47,7 +47,7 @@ RSpec.describe "form origin" do
       }
     end
 
-    it "embeds a valid authenticity token" do
+    it "embeds the form origin" do
       response = call("/form?foo=bar")
       expect(response[0]).to eq(200)
 
@@ -57,5 +57,9 @@ RSpec.describe "form origin" do
       form_origin = response_body.match(/name=\"form\[origin\]\" value=\"([^\"]+)\"/)[1]
       expect(form_origin).to eq("/form?foo=bar")
     end
+  end
+
+  context "form is setup as a result of a submission" do
+    it "embeds the same form origin"
   end
 end

@@ -1,6 +1,8 @@
-RSpec.describe "setting up a form via presenter" do
+RSpec.describe "setting up a form explicitly via presenter" do
+  include_context "testable app"
+
   let :presenter do
-    Pakyow::Presenter::Presenter.new(view)
+    Pakyow.apps.first.class.const_get(:Presenter).new(view)
   end
 
   let :view do
@@ -49,7 +51,7 @@ RSpec.describe "setting up a form via presenter" do
       end
 
       let :presenter do
-        Pakyow::Presenter::Presenter.new(view).tap do |presenter|
+        Pakyow.apps.first.class.const_get(:Presenter).new(view).tap do |presenter|
           presenter.install_endpoints(Pakyow.apps[0].endpoints)
         end
       end
@@ -97,7 +99,7 @@ RSpec.describe "setting up a form via presenter" do
       end
 
       let :presenter do
-        Pakyow::Presenter::Presenter.new(view).tap do |presenter|
+        Pakyow.apps.first.class.const_get(:Presenter).new(view).tap do |presenter|
           presenter.install_endpoints(Pakyow.apps[0].endpoints)
         end
       end
@@ -154,7 +156,7 @@ RSpec.describe "setting up a form via presenter" do
       end
 
       let :presenter do
-        Pakyow::Presenter::Presenter.new(view).tap do |presenter|
+        Pakyow.apps.first.class.const_get(:Presenter).new(view).tap do |presenter|
           presenter.install_endpoints(Pakyow.apps[0].endpoints)
         end
       end
@@ -211,7 +213,7 @@ RSpec.describe "setting up a form via presenter" do
       end
 
       let :presenter do
-        Pakyow::Presenter::Presenter.new(view).tap do |presenter|
+        Pakyow.apps.first.class.const_get(:Presenter).new(view).tap do |presenter|
           presenter.install_endpoints(Pakyow.apps[0].endpoints)
         end
       end
@@ -268,7 +270,7 @@ RSpec.describe "setting up a form via presenter" do
       end
 
       let :presenter do
-        Pakyow::Presenter::Presenter.new(view).tap do |presenter|
+        Pakyow.apps.first.class.const_get(:Presenter).new(view).tap do |presenter|
           presenter.install_endpoints(Pakyow.apps[0].endpoints)
         end
       end

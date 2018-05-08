@@ -2,8 +2,10 @@
 
 require "forwardable"
 
+require "pakyow/support/makeable"
 require "pakyow/support/safe_string"
 require "pakyow/support/core_refinements/array/ensurable"
+require "pakyow/support/core_refinements/string/normalization"
 
 require "pakyow/presenter/exceptions"
 require "pakyow/presenter/renderer"
@@ -78,14 +80,6 @@ module Pakyow
       #   Delegates to {view}.
       #   @see View#form?
       #
-      # @!method to_html
-      #   Delegates to {view}.
-      #   @see View#to_html
-      #
-      # @!method to_s
-      #   Delegates to {view}.
-      #   @see View#to_s
-      #
       # @!method version
       #   Delegates to {view}.
       #   @see View#version
@@ -101,7 +95,7 @@ module Pakyow
       # @!method versioned
       #   Delegates to {view}.
       #   @see VersionedView#versioned
-      def_delegators :@view, :attributes, :attrs, :html=, :html, :text, :binding?, :container?, :partial?, :component?, :form?, :version, :info, :to_html, :to_s, :use, :versioned
+      def_delegators :@view, :attributes, :attrs, :html=, :html, :text, :binding?, :container?, :partial?, :component?, :form?, :version, :info, :use, :versioned
 
       def initialize(view, binders: [])
         @view, @binders = view, binders
@@ -126,24 +120,6 @@ module Pakyow
       def find_all(*names)
         @view.find_all(*names).map { |view|
           presenter_for(view)
-        }
-      end
-
-      # Returns the named form from the view being presented.
-      #
-      def form(name)
-        if found_form = @view.form(name)
-          presenter_for(found_form, type: FormPresenter)
-        else
-          nil
-        end
-      end
-
-      # Returns all forms.
-      #
-      def forms
-        @view.forms.map { |form|
-          presenter_for(form, type: FormPresenter)
         }
       end
 
@@ -324,6 +300,19 @@ module Pakyow
         other.is_a?(Presenter) && @view == other.view
       end
 
+      # Converts +self+ to html, rendering the view.
+      #
+      # If +clean+ is +true+, unused versions will be cleaned up prior to rendering.
+      #
+      def to_html(clean: true)
+        if block = self.class.block
+          instance_exec(&block)
+        end
+
+        @view.to_html(clean: clean)
+      end
+      alias :to_s :to_html
+
       private
 
       def presenter_for(view, type: Presenter)
@@ -370,6 +359,40 @@ module Pakyow
       def set_title_from_info
         if @view && title_from_info = @view.info(:title)
           self.title = title_from_info
+        end
+      end
+
+      extend Support::Makeable
+
+      class << self
+        using Support::Refinements::String::Normalization
+
+        attr_reader :path, :block
+
+        def make(path, namespace: nil, **kwargs, &block)
+          path = String.normalize_path(path)
+          super(name_from_path(path, namespace), path: path, block: block, **kwargs) {}
+        end
+
+        def name_from_path(path, namespace)
+          return unless path && namespace
+
+          path_parts = path.split("/").reject(&:empty?).map(&:to_sym)
+
+          # last one is the actual name, everything else is a namespace
+          classname = path_parts.pop
+
+          Support::ClassName.new(
+            Support::ClassNamespace.new(
+              *(namespace.parts + path_parts)
+            ), classname
+          )
+        end
+
+        def compose(layout: nil, page: nil, partials: [], **args)
+          layout.mixin(partials)
+          page.mixin(partials)
+          new(layout.build(page), **args)
         end
       end
     end

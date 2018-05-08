@@ -1,6 +1,8 @@
 RSpec.describe "presenting forms" do
+  include_context "testable app"
+
   let :presenter do
-    Pakyow::Presenter::Presenter.new(view)
+    Pakyow.apps.first.class.const_get(:Presenter).new(view)
   end
 
   let :view do
@@ -20,12 +22,8 @@ RSpec.describe "presenting forms" do
 
   describe "finding a form by name" do
     it "returns a form presenter, wrapping a form object" do
-      expect(form).to be_instance_of(Pakyow::Presenter::FormPresenter)
-      expect(form.view).to be_instance_of(Pakyow::Presenter::Form)
-    end
-
-    it "does not find forms using the find method" do
-      expect(presenter.find(:post)).to be nil
+      expect(form).to be_instance_of(Pakyow::Forms::FormPresenter)
+      expect(form.view).to be_instance_of(Pakyow::Forms::FormView)
     end
 
     context "form with name does not exist" do

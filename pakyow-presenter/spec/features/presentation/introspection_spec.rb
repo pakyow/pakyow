@@ -99,28 +99,6 @@ RSpec.describe "view introspection via presenter" do
     end
   end
 
-  describe "form?" do
-    context "view is a form" do
-      let :view do
-        Pakyow::Presenter::View.new("<form binding=\"post\"></form>")
-      end
-
-      it "returns true" do
-        expect(presenter.form(:post).form?).to be true
-      end
-    end
-
-    context "view is not a form" do
-      let :view do
-        Pakyow::Presenter::View.new("<div binding=\"post\"></div>")
-      end
-
-      it "returns false" do
-        expect(presenter.find(:post).form?).to be false
-      end
-    end
-  end
-
   describe "title" do
     context "title node exists" do
       let :view do

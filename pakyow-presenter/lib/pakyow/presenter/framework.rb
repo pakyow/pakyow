@@ -67,13 +67,15 @@ module Pakyow
       def boot
         # We create a subclass because other frameworks could extend its behavior. Since frameworks
         # are loaded at the application level, we don't want one application affecting another.
+        #
+        subclass(Presenter)
         subclass(Renderer)
 
         app.class_eval do
-          stateful :templates, Templates
-          stateful :presenter, ViewPresenter
           stateful :binder, Binder
+          stateful :presenter, const_get(:Presenter)
           stateful :processor, Processor
+          stateful :templates, Templates
 
           aspect :presenters
           aspect :binders

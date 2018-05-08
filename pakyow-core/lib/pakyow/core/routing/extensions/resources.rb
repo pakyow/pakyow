@@ -84,7 +84,7 @@ module Pakyow
 
             controller.class_eval do
               define_method :update_request_path_for_show do
-                req.env["pakyow.endpoint"].gsub!(resource_id, "show")
+                req.env["pakyow.endpoint.path"].gsub!(resource_id, "show")
               end
             end
 
