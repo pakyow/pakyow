@@ -2,6 +2,7 @@
 
 require "forwardable"
 
+require "pakyow/support/deep_dup"
 require "pakyow/support/hookable"
 require "pakyow/support/inspectable"
 
@@ -9,6 +10,8 @@ require "pakyow/support/pipelined/haltable"
 
 module Pakyow
   class Connection
+    using Support::DeepDup
+
     include Support::Hookable
     known_events :finalize
 
@@ -29,6 +32,15 @@ module Pakyow
       @app, @request, @response = app, Request.new(rack_env), Response.new
       @initial_cookies = @request.cookies.dup
       @values = {}
+    end
+
+    # @api private
+    def initialize_copy(_)
+      super
+
+      @request = @request.dup
+      @response = @response.dup
+      @values = @values.deep_dup
     end
 
     def finalize
