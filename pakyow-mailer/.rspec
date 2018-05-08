@@ -1,1 +1,2 @@
 --require ../spec/spec_config
+--require spec_helper

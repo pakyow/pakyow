@@ -5,77 +5,70 @@ require "pakyow/mailer/plaintext"
 module Pakyow
   module Mailer
     class Mailer
-      attr_accessor :view, :message, :processed
-
-      def self.from_store(view_path, view_store, context = nil)
-        view = view_store.view(view_path)
-        new(view: Pakyow::Presenter::ViewContext.new(view, context))
-      end
-
-      def initialize(view: nil, content: nil, config: nil)
-        @view = view
-        @content = content
+      def initialize(config:, content:, content_type: config.default_content_type)
         @config = config
 
-        @message = Mail.new
-
-        if @config
-          @message.from          = config.default_sender
-          @message.content_type  = config.default_content_type
-          @message.delivery_method(config.delivery_method, config.delivery_options)
+        if content
+          @processed_content = process(content, content_type)
         end
-
-        process
       end
 
-      def deliver_to(recipient, subject = nil)
-        html = content :html
-        text = content :text
+      def deliver_to(recipient, subject: nil, sender: nil, content: nil, type: nil)
+        processed_content = if content
+          process(content, type || "text/plain")
+        else
+          @processed_content
+        end
+
+        html = processed_content[:html]
+        text = processed_content[:text]
+
+        mail = Mail.new
+        mail.from = sender || @config.default_sender
+        mail.content_type = type || @config.default_content_type
+        mail.delivery_method(@config.delivery_method, @config.delivery_options)
 
         if html.nil?
-          @message.body = text
+          mail.body = text
         else
           encoding = @config.encoding
-          @message.html_part do
+          mail.html_part do
             content_type "text/html; charset=" + encoding
             body html
           end
 
-          @message.text_part do
+          mail.text_part do
             body text
           end
         end
 
-        @message.subject = subject if subject
-
-        Array(recipient).each { |r| deliver(r) }
-      end
-
-      def content(type = :html)
-        @processed_content.fetch(type, nil)
-      end
-
-      protected
-
-      def process
-        @processed_content = {}
-
-        if @view
-          document = Oga.parse_html(@view)
-          @processed_content[:text] = Plaintext.convert_to_text(document.at_css("body").to_xml)
-
-          # TODO: inline css
-          @processed_content[:html] = @view
-        else
-          @processed_content[:text] = @content
+        if subject
+          mail.subject = subject
         end
 
-        @processed_content
+        Array(recipient).map { |recipient|
+          deliverable_mail = mail.dup
+          deliverable_mail.to = recipient
+          deliverable_mail.deliver
+        }
       end
 
-      def deliver(recipient)
-        @message.to = recipient
-        @message.deliver
+      private
+
+      def process(content, content_type)
+        {}.tap do |processed_content|
+          if content_type.include?("text/html")
+            document = Oga.parse_html(content)
+            processed_content[:text] = Plaintext.convert_to_text(
+              (document.at_css("body") || document).to_xml
+            )
+
+            # TODO: inline css
+            processed_content[:html] = content
+          else
+            processed_content[:text] = content
+          end
+        end
       end
     end
   end

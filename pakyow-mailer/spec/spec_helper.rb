@@ -23,3 +23,7 @@ end
 
 require_relative "../../spec/context/testable_app_context"
 require_relative "../../spec/context/suppressed_output_context"
+
+$mailer_app_boilerplate = Proc.new do
+  config.presenter.path = File.join(File.expand_path("../", __FILE__), "features/support/views")
+end
