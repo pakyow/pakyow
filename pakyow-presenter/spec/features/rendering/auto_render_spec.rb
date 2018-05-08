@@ -132,4 +132,24 @@ RSpec.describe "auto rendering" do
       expect(response[2].body.read).to include("Missing page")
     end
   end
+
+  context "route halts without rendering" do
+    let :app_definition do
+      Proc.new {
+        instance_exec(&$presenter_app_boilerplate)
+
+        controller :default do
+          get "/other" do
+            send "halted"
+          end
+        end
+      }
+    end
+
+    it "does not automatically render the view" do
+      response = call("/other")
+      expect(response[0]).to eq(200)
+      expect(response[2].body.read).to eq("halted")
+    end
+  end
 end
