@@ -5,19 +5,19 @@ require "pakyow/mailer/plaintext"
 module Pakyow
   module Mailer
     class Mailer
-      def initialize(config:, content:, content_type: config.default_content_type)
-        @config = config
-
-        if content
-          @processed_content = process(content, content_type)
-        end
+      def initialize(config:, renderer: nil)
+        @config, @renderer = config, renderer
       end
 
       def deliver_to(recipient, subject: nil, sender: nil, content: nil, type: nil)
         processed_content = if content
           process(content, type || "text/plain")
         else
-          @processed_content
+          catch :halt do
+            @renderer.perform
+          end
+
+          process(@renderer.connection.response.body.read, @config.default_content_type)
         end
 
         html = processed_content[:html]

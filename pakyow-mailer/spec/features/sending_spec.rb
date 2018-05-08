@@ -153,6 +153,52 @@ RSpec.describe "sending mail" do
         ).not_to include("script")
       end
     end
+
+    context "mailing with a block" do
+      let :app_definition do
+        Proc.new do
+          instance_exec(&$mailer_app_boilerplate)
+
+          controller "/mail" do
+            get "/send" do
+              $sent = []
+
+              users = [
+                { name: "foo bar", email: "foo@bar.com" },
+                { name: "baz qux", email: "baz@qux.com" }
+              ]
+
+              users.each do |user|
+                mailer("mail/with_bindings") do |mailer|
+                  expose :user, user
+                  $sent.concat(mailer.deliver_to(user[:email]))
+                end
+              end
+
+              send "sent"
+            end
+          end
+        end
+      end
+
+      it "sends each version of the message" do
+        call("/mail/send")
+
+        expect($sent.count).to eq(2)
+
+        expect(
+          $sent[0].body.parts.find { |part|
+            part.content_type.to_s.include?("text/plain")
+          }.to_s
+        ).to include("foo bar")
+
+        expect(
+          $sent[1].body.parts.find { |part|
+            part.content_type.to_s.include?("text/plain")
+          }.to_s
+        ).to include("baz qux")
+      end
+    end
   end
 
   context "mailing without presenter" do

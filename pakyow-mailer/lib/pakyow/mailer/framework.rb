@@ -13,25 +13,23 @@ module Pakyow
             def mailer(path = nil)
               content = if path
                 connection = @connection.dup
+
                 renderer = Presenter::Renderer.new(
                   connection,
                   path: path,
                   templates: false
                 )
 
-                catch :halt do
-                  renderer.perform
+                Mailer.new(renderer: renderer, config: app.config.mailer).tap do |mailer|
+                  if block_given?
+                    context = dup
+                    context.instance_variable_set(:@connection, connection)
+                    context.instance_exec(mailer, &Proc.new)
+                  end
                 end
-
-                connection.response.body.read
               else
-                nil
+                Mailer.new(config: app.config.mailer)
               end
-
-              Mailer.new(
-                content: content,
-                config: app.config.mailer
-              )
             end
           end
         end
