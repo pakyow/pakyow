@@ -52,7 +52,7 @@ module Pakyow
 
       using Support::Refinements::String::Normalization
 
-      attr_reader :presenter
+      attr_reader :connection, :presenter
 
       def initialize(connection, path: nil, as: nil, layout: nil, mode: :default, implicit: false, templates: true)
         @connection, @implicit = connection, implicit
