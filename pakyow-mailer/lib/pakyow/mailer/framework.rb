@@ -11,7 +11,7 @@ module Pakyow
         if controller = app.const_get(:Controller)
           controller.class_eval do
             def mailer(path = nil)
-              content = if path
+              if path
                 connection = @connection.dup
 
                 renderer = Presenter::Renderer.new(
@@ -20,7 +20,11 @@ module Pakyow
                   templates: false
                 )
 
-                Mailer.new(renderer: renderer, config: app.config.mailer).tap do |mailer|
+                Mailer.new(
+                  renderer: renderer,
+                  config: app.config.mailer,
+                  logger: @connection.logger
+                ).tap do |mailer|
                   if block_given?
                     context = dup
                     context.instance_variable_set(:@connection, connection)
@@ -28,7 +32,10 @@ module Pakyow
                   end
                 end
               else
-                Mailer.new(config: app.config.mailer)
+                Mailer.new(
+                  config: app.config.mailer,
+                  logger: @connection.logger
+                )
               end
             end
           end
@@ -37,12 +44,13 @@ module Pakyow
         app.class_eval do
           settings_for :mailer do
             setting :default_sender, "Pakyow"
-            setting :default_content_type do
-              "text/html; charset=" + config.mailer.encoding
-            end
+            setting :default_content_type, "text/html"
             setting :delivery_method, :sendmail
             setting :delivery_options, enable_starttls_auto: false
             setting :encoding, "UTF-8"
+            setting :log_outgoing do
+              Pakyow.env?(:development)
+            end
           end
         end
       end
