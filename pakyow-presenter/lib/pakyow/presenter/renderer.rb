@@ -52,7 +52,7 @@ module Pakyow
 
       attr_reader :presenter
 
-      def initialize(connection, path: nil, as: nil, layout: nil, mode: :default, implicit: false)
+      def initialize(connection, path: nil, as: nil, layout: nil, mode: :default, implicit: false, templates: true)
         @connection, @implicit = connection, implicit
 
         path = String.normalize_path(path || default_path)
@@ -91,7 +91,10 @@ module Pakyow
           @presenter.insert_prototype_bar(mode)
         else
           @presenter.cleanup_prototype_nodes
-          @presenter.create_template_nodes
+
+          if templates
+            @presenter.create_template_nodes
+          end
         end
 
         if @connection.app.config.presenter.embed_authenticity_token
