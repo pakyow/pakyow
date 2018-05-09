@@ -1,85 +1,124 @@
 # frozen_string_literal: true
 
+require "oga"
+
+require "pakyow/mailer/plaintext"
+require "pakyow/mailer/style_inliner"
+
 module Pakyow
-  class Mailer
-    attr_accessor :view, :message, :processed
-
-    def self.from_store(view_path, view_store, context = nil)
-      view = view_store.view(view_path)
-      new(view: Pakyow::Presenter::ViewContext.new(view, context))
-    end
-
-    def initialize(view: nil, content: nil, config: nil)
-      @view = view
-      @content = content
-      @config = config
-
-      @message = Mail.new
-
-      if @config
-        @message.from          = config.default_sender
-        @message.content_type  = config.default_content_type
-        @message.delivery_method(config.delivery_method, config.delivery_options)
+  module Mailer
+    class Mailer
+      def initialize(config:, renderer: nil, logger: Pakyow.logger)
+        @config, @renderer, @logger = config, renderer, logger
       end
 
-      @processed = false
-    end
-
-    def deliver_to(recipient, subject = nil)
-      html = content :html
-      text = content :text
-
-      if html.nil?
-        @message.body = text
-      else
-        encoding = @config.encoding
-        @message.html_part do
-          content_type "text/html; charset=" + encoding
-          body html
-        end
-
-        @message.text_part do
-          body text
-        end
-      end
-
-      @message.subject = subject if subject
-
-      Array(recipient).each { |r| deliver(r) }
-    end
-
-    def content(type = :html)
-      process.fetch(type, nil)
-    end
-
-    protected
-
-    def process
-      unless @processed
-        @processed_content = {}
-
-        if @view
-          @premailer = Premailer.new(view.to_html, with_html_string: true, input_encoding: @config.encoding)
-
-          @premailer.warnings.each do |w|
-            Pakyow.logger.warn "#{w[:message]} (#{w[:level]}) may not render properly in #{w[:clients]}"
+      def deliver_to(recipient, subject: nil, sender: nil, content: nil, type: nil)
+        processed_content = if content
+          process(content, type || "text/plain")
+        elsif @renderer
+          catch :halt do
+            @renderer.perform
           end
 
-          @processed_content[:text] = @content || @premailer.to_plain_text
-          @processed_content[:html] = @premailer.to_inline_css
+          process(@renderer.connection.response.body.read, @config.default_content_type)
         else
-          @processed_content[:text] = @content
+          {}
         end
 
-        @processed = true
+        html = processed_content[:html]
+        text = processed_content[:text]
+
+        mail = Mail.new
+        mail.from = sender || @config.default_sender
+        mail.content_type = type || @config.default_content_type
+        mail.delivery_method(@config.delivery_method, @config.delivery_options)
+
+        if html.nil?
+          mail.body = text
+        else
+          encoding = @config.encoding
+
+          mail.html_part do
+            content_type "text/html; charset=" + encoding
+            body html
+          end
+
+          mail.text_part do
+            content_type "text/plain; charset=" + encoding
+            body text
+          end
+        end
+
+        if subject
+          mail.subject = subject
+        end
+
+        Array(recipient).map { |recipient|
+          deliverable_mail = mail.dup
+          deliverable_mail.to = recipient
+          deliverable_mail.deliver.tap do |delivered_mail|
+            if @config.log_outgoing
+              log_outgoing(delivered_mail)
+            end
+          end
+        }
       end
 
-      @processed_content
-    end
+      private
 
-    def deliver(recipient)
-      @message.to = recipient
-      @message.deliver
+      def process(content, content_type)
+        {}.tap do |processed_content|
+          if content_type.include?("text/html")
+            document = Oga.parse_html(content)
+            mailable_document = document.at_css("body") || document
+
+            processed_content[:text] = Plaintext.convert_to_text(
+              mailable_document.to_xml
+            )
+
+            stylesheets = if @renderer
+              @renderer.packs.select(&:stylesheets?).map(&:stylesheets)
+            else
+              []
+            end
+
+            processed_content[:html] = StyleInliner.new(
+              mailable_document,
+              stylesheets: stylesheets
+            ).inlined
+          else
+            processed_content[:text] = content
+          end
+        end
+      end
+
+      # @api private
+      def log_outgoing(delivered_mail)
+        message = String.new
+        message << "┌──────────────────────────────────────────────────────────────────────────────┐\n"
+        message << "│ Subject: #{rpad(delivered_mail.subject, -9)} │\n"
+
+        if plaintext = delivered_mail.body.parts.find { |part|
+             part.content_type.include?("text/plain")
+           }
+
+          message << "├──────────────────────────────────────────────────────────────────────────────┤\n"
+
+          plaintext.body.to_s.split("\n").each do |line|
+            message << "│ #{rpad(line)} │\n"
+          end
+        end
+
+        message << "├──────────────────────────────────────────────────────────────────────────────┤\n"
+        message << "│ → #{rpad(delivered_mail.to.join(", "), -2)} │\n"
+        message << "└──────────────────────────────────────────────────────────────────────────────┘\n"
+        @logger.debug message
+      end
+
+      # @api private
+      def rpad(message, offset = 0)
+        message + " " * (76 + offset - message.length)
+      end
     end
   end
 end
