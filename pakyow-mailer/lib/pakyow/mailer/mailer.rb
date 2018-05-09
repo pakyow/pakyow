@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
+require "oga"
+
 require "pakyow/mailer/plaintext"
+require "pakyow/mailer/style_inliner"
 
 module Pakyow
   module Mailer
@@ -67,18 +70,29 @@ module Pakyow
         {}.tap do |processed_content|
           if content_type.include?("text/html")
             document = Oga.parse_html(content)
+            mailable_document = document.at_css("body") || document
+
             processed_content[:text] = Plaintext.convert_to_text(
-              (document.at_css("body") || document).to_xml
+              mailable_document.to_xml
             )
 
-            # TODO: inline css
-            processed_content[:html] = content
+            stylesheets = if @renderer
+              @renderer.packs.select(&:stylesheets?).map(&:stylesheets)
+            else
+              []
+            end
+
+            processed_content[:html] = StyleInliner.new(
+              mailable_document,
+              stylesheets: stylesheets
+            ).inlined
           else
             processed_content[:text] = content
           end
         end
       end
 
+      # @api private
       def log_outgoing(delivered_mail)
         message = String.new
         message << "┌──────────────────────────────────────────────────────────────────────────────┐\n"
@@ -101,6 +115,7 @@ module Pakyow
         @logger.debug message
       end
 
+      # @api private
       def rpad(message, offset = 0)
         message + " " * (76 + offset - message.length)
       end

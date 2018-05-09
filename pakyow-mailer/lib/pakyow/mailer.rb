@@ -2,6 +2,7 @@
 
 require "mail"
 
+require "pakyow/assets"
 require "pakyow/core"
 require "pakyow/presenter"
 

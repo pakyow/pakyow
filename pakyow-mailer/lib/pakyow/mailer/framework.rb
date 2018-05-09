@@ -14,7 +14,7 @@ module Pakyow
               if path
                 connection = @connection.dup
 
-                renderer = Presenter::Renderer.new(
+                renderer = @connection.app.class.const_get(:Renderer).new(
                   connection,
                   path: path,
                   templates: false
