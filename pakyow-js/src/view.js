@@ -1,5 +1,3 @@
-import { pluralize } from "inflected";
-
 export default class {
   constructor(node) {
     this.node = node;
@@ -36,7 +34,7 @@ export default class {
     }
 
     for (let binding of this.bindingProps()) {
-      binding.node.innerText = object[binding.name];
+      binding.node.innerHTML = object[binding.name];
     }
 
     // TODO: anything we should do if object has no id?
@@ -62,8 +60,7 @@ export default class {
   present(object) {
     this.transform(object).bind(object);
 
-    // present recursively
-
+    // Present recursively by finding nested bindings and presenting any we have data for.
     var bindingScopeNames = new Set(
       this.bindingScopes(true).map(
         (binding) => { return binding.name; }
@@ -71,16 +68,9 @@ export default class {
     );
 
     for (let binding of bindingScopeNames) {
-      var pluralBinding = pluralize(binding);
-
-      var data = [];
       if (binding in object) {
-        data = object[binding];
-      } else if (pluralBinding in object) {
-        data = object[pluralBinding];
+        this.find(binding).present(object[binding]);
       }
-
-      this.find(binding).present(data);
     }
 
     return this;
@@ -108,7 +98,7 @@ export default class {
         return; // we only care about the children
       }
 
-      if (childNode.hasAttribute("data-b") && new pw.View(childNode).bindingProps().length > 0) {
+      if (childNode.hasAttribute("data-b") && (childNode.tagName == "SCRIPT" || new pw.View(childNode).bindingProps().length > 0)) {
         bindings.push({
           name: childNode.getAttribute("data-b"),
           node: childNode

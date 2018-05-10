@@ -44,9 +44,13 @@ export default class {
           }
 
           if (this.views.length > 0) {
-            this.views.slice(-1)[0].node.insertAdjacentElement("afterend", view.node)
+            this.views.slice(-1)[0].node.insertAdjacentElement(
+              "afterend", view.node
+            );
           } else {
-            this.templates["default"].node.parentNode.insertBefore(view.node, this.templates["default"].node.nextSibling);
+            this.templates["default"].node.parentNode.insertBefore(
+              view.node, this.templates["default"].node
+            );
           }
           this.views.push(view);
         }
@@ -66,6 +70,7 @@ export default class {
   order (orderedObjects) {
     for (var object of orderedObjects) {
       var id = object.id;
+
       if (id) {
         id = id.toString();
       } else {
