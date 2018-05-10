@@ -168,6 +168,7 @@ module Pakyow
           @nodes.clear
         end
       end
+      alias remove clear
 
       # Replaces the current document.
       #
