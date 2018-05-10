@@ -35,6 +35,10 @@ module Pakyow
         @values
       end
 
+      def to_json(*)
+        @values.to_json
+      end
+
       class << self
         attr_reader :name
 
