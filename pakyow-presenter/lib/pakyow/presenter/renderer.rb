@@ -57,22 +57,24 @@ module Pakyow
       def initialize(connection, path: nil, as: nil, layout: nil, mode: :default, implicit: false, templates: true)
         @connection, @implicit = connection, implicit
 
-        path = String.normalize_path(path || default_path)
-        as = String.normalize_path(as) if as
+        @path = String.normalize_path(path || default_path)
+        @as = as ? String.normalize_path(as) : nil
+        @layout = layout
+        @mode = mode
 
-        unless info = find_info(path)
-          error = MissingPage.new("No view at path `#{path}'")
-          error.context = path
+        unless info = find_info(@path)
+          error = MissingPage.new("No view at path `#{@path}'")
+          error.context = @path
           raise error
         end
 
         # Finds a matching layout across template stores.
         #
-        if layout && layout = layout_with_name(layout)
-          info[:layout] = layout.dup
+        if @layout && layout_object = layout_with_name(@layout)
+          info[:layout] = layout_object.dup
         end
 
-        @presenter = (find_presenter(as || path) || ViewPresenter).new(
+        @presenter = (find_presenter(@as || @path) || ViewPresenter).new(
           binders: @connection.app.state_for(:binder),
           **info
         )
@@ -84,13 +86,13 @@ module Pakyow
         )
 
         if rendering_prototype?
-          mode = @connection.params[:mode] || :default
+          @mode = @connection.params[:mode] || :default
         end
 
-        @presenter.place_in_mode(mode)
+        @presenter.place_in_mode(@mode)
 
         if rendering_prototype?
-          @presenter.insert_prototype_bar(mode)
+          @presenter.insert_prototype_bar(@mode)
         else
           @presenter.cleanup_prototype_nodes
 
