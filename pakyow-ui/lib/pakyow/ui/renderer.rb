@@ -7,24 +7,18 @@ require "pakyow/ui/presenter"
 module Pakyow
   module UI
     class Renderer < Pakyow::Presenter::Renderer
-      attr_reader :app
-
-      def initialize(app, presentables)
-        @app, @presentables = app, presentables
-
-        connection = Connection.new(@app, "rack.input" => StringIO.new)
-        connection.instance_variable_set(:@values, @presentables)
-        super(connection)
+      def perform
+        # TODO: handle implicit presentation
+        # if @presenter.class == ViewPresenter
+        #   find_and_present_presentables(@connection.values)
+        # else
+        define_presentables(@connection.values)
+        @presenter.instance_exec(&@presenter.block)
+        # end
       end
 
-      def perform(path)
-        @presenter = Presenter.new
-        define_presentables(@presentables)
-        @presenter.instance_exec(&presenter_for_path(path).block)
-      end
-
-      def to_arr
-        @presenter.to_arr
+      def to_json(*)
+        @presenter.to_json
       end
     end
   end
