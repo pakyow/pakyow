@@ -35,6 +35,10 @@ module Pakyow
         parts = parts.map(&:to_sym)
         @parts.keep_if { |key, _| parts.include? key }
       end
+
+      def to_json(*)
+        @parts.to_json
+      end
     end
   end
 end
