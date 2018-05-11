@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "forwardable"
-
 require "pakyow/support/makeable"
 require "pakyow/support/indifferentize"
 
@@ -14,21 +12,37 @@ module Pakyow
 
       extend Support::Makeable
 
-      extend Forwardable
-      def_delegators :@values, :include?, :value?, :[]
-
       def initialize(values)
         @values = Support::IndifferentHash.new(values).freeze
       end
 
+      def include?(key)
+        value_methods.include?(key) || @values.include?(key)
+      end
+
+      def value?(key)
+        value_methods.include?(key) || @values.value?(key)
+      end
+
+      def [](key)
+        key = key.to_sym
+        if value_methods.include?(key)
+          public_send(key)
+        else
+          @values[key]
+        end
+      end
+
       def method_missing(name, *_args)
-        if @values.include?(name)
+        if include?(name)
           @values[name]
+        else
+          super
         end
       end
 
       def respond_to_missing(name, *)
-        @values.include?(name)
+        include?(name) || super
       end
 
       def to_h
@@ -37,6 +51,12 @@ module Pakyow
 
       def to_json(*)
         @values.to_json
+      end
+
+      private
+
+      def value_methods
+        (public_methods - self.class.superclass.public_instance_methods)
       end
 
       class << self
