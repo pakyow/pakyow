@@ -320,6 +320,11 @@ module Pakyow
         other.is_a?(Presenter) && @view == other.view
       end
 
+      # @api private
+      def wrap_data_in_binder(data)
+        (binder_for_current_scope || Binder).new(data)
+      end
+
       private
 
       def presenter_for(view, type: Presenter)
@@ -363,10 +368,6 @@ module Pakyow
         else
           wrap_data_in_binder(data)
         end
-      end
-
-      def wrap_data_in_binder(data)
-        (binder_for_current_scope || Binder).new(data)
       end
 
       def set_title_from_info
