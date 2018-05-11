@@ -77,7 +77,7 @@ RSpec.describe "presenting a view that defines one or more ui mode" do
 
       expect(result).to include_sans_whitespace(
         <<~HTML
-          <div data-b="post">
+          <div data-b="post" data-v="two">
             <h1>two</h1>
           </div>
         HTML
@@ -123,7 +123,7 @@ RSpec.describe "presenting a view that defines one or more ui mode" do
 
       expect(result).to include_sans_whitespace(
         <<~HTML
-          <div data-b="post">
+          <div data-b="post" data-v="two">
             <h1>two</h1>
           </div>
         HTML
@@ -167,7 +167,7 @@ RSpec.describe "presenting a view that defines one or more ui mode" do
 
       expect(result).to include_sans_whitespace(
         <<~HTML
-          <div data-b="post">
+          <div data-b="post" data-v="two">
             <h1>two</h1>
           </div>
         HTML
@@ -189,7 +189,7 @@ RSpec.describe "presenting a view that defines one or more ui mode" do
 
       expect(result).to include_sans_whitespace(
         <<~HTML
-          <div data-b="post">
+          <div data-b="post" data-v="one">
             <h1>one</h1>
           </div>
         HTML
