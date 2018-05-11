@@ -93,15 +93,7 @@ module Pakyow
       # @!method info
       #   Delegates to {view}.
       #   @see View#info
-      #
-      # @!method use
-      #   Delegates to {view}.
-      #   @see VersionedView#use
-      #
-      # @!method versioned
-      #   Delegates to {view}.
-      #   @see VersionedView#versioned
-      def_delegators :@view, :attributes, :attrs, :html=, :html, :text, :binding?, :container?, :partial?, :component?, :form?, :version, :info, :to_html, :to_s, :use, :versioned
+      def_delegators :@view, :attributes, :attrs, :html=, :html, :text, :binding?, :container?, :partial?, :component?, :form?, :version, :info, :to_html, :to_s
 
       def initialize(view, binders: [])
         @view, @binders = view, binders
@@ -164,6 +156,18 @@ module Pakyow
         end
 
         @view.title&.html = strip_tags(value)
+      end
+
+      # Uses the view matching +version+, removing all other versions.
+      #
+      def use(version)
+        presenter_for(@view.use(version))
+      end
+
+      # Returns a presenter for the view matching +version+.
+      #
+      def versioned(version)
+        presenter_for(@view.versioned(version))
       end
 
       # Yields +self+.

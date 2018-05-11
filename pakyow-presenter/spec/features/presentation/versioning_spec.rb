@@ -191,7 +191,7 @@ RSpec.describe "view versioning via presenter" do
     end
 
     it "returns the view matching the version" do
-      expect(versioned).to be_instance_of(Pakyow::Presenter::View)
+      expect(versioned).to be_instance_of(Pakyow::Presenter::Presenter)
       expect(versioned.version).to eq(:two)
       expect(versioned.to_s(clean_bindings: false)).to eq("<div data-b=\"post\"><h1 data-b=\"title\">two</h1></div>")
     end
