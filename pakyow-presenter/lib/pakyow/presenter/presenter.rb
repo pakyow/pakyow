@@ -319,7 +319,11 @@ module Pakyow
       private
 
       def presenter_for(view, type: Presenter)
-        type.new(view, binders: @binders)
+        if view.nil?
+          nil
+        else
+          type.new(view, binders: @binders)
+        end
       end
 
       def binder_for_current_scope
