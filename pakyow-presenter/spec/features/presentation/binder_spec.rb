@@ -49,7 +49,7 @@ RSpec.describe "binding data via presenter, with a binder" do
 
     it "binds each part" do
       post_presenter.present(title: "foo", body: "bar")
-      expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\" style=\"color:red\">oof</h1><p data-b=\"body\">bar</p></div>")
+      expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\" style=\"color: red;\">oof</h1><p data-b=\"body\">bar</p></div>")
     end
 
     context "view includes parts" do
@@ -106,7 +106,7 @@ RSpec.describe "binding data via presenter, with a binder" do
 
       it "binds only the non-excluded parts" do
         post_presenter.present(title: "foo", body: "bar")
-        expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\" style=\"color:red\">oof</h1><p data-b=\"body\">bar</p></div>")
+        expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\" style=\"color: red;\">oof</h1><p data-b=\"body\">bar</p></div>")
       end
     end
 
@@ -123,13 +123,13 @@ RSpec.describe "binding data via presenter, with a binder" do
 
       it "binds the defined parts, pulling content from object" do
         post_presenter.present(title: "foo", body: "bar")
-        expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\" style=\"color:red\">foo</h1><p data-b=\"body\">bar</p></div>")
+        expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\" style=\"color: red;\">foo</h1><p data-b=\"body\">bar</p></div>")
       end
 
       context "content value is not provided by the binder, and the object has no value" do
         it "leaves the value defined in the view template" do
           post_presenter.present(body: "bar")
-          expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\" style=\"color:red\">title goes here</h1><p data-b=\"body\">bar</p></div>")
+          expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\" style=\"color: red;\">title goes here</h1><p data-b=\"body\">bar</p></div>")
         end
       end
     end
@@ -191,6 +191,31 @@ RSpec.describe "binding data via presenter, with a binder" do
     it "builds the url" do
       post_presenter.present(id: 1)
       expect(presenter.to_s).to eq("<body><div data-b=\"post\" data-id=\"1\"><a data-b=\"permalink\" href=\"/posts/1\">permalink</a></div></body>")
+    end
+  end
+
+  context "binding tries to make a string safe" do
+    include_context "testable app"
+
+    let :app_definition do
+      Proc.new {
+        resources :posts, "/posts" do
+          show do; end
+        end
+      }
+    end
+
+    let :post_binder do
+      Pakyow::Presenter::Binder.make :post do
+        def title
+          safe("<strong>#{object[:title]}</strong>")
+        end
+      end
+    end
+
+    it "makes it safe" do
+      post_presenter.present(id: 1)
+      expect(presenter.to_s).to eq("<div data-b=\"post\" data-id=\"1\"><h1 data-b=\"title\"><strong></strong></h1></div>")
     end
   end
 end

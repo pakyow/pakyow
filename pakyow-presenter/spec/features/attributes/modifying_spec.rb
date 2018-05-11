@@ -36,7 +36,7 @@ RSpec.describe "modifying attributes via presenter" do
 
       it "can be modified" do
         presenter.attributes[:style][:color] = "blue"
-        expect(presenter.to_html).to include("style=\"color:blue\"")
+        expect(presenter.to_html).to include("style=\"color: blue;\"")
       end
     end
 
@@ -47,7 +47,7 @@ RSpec.describe "modifying attributes via presenter" do
 
       it "can be modified" do
         presenter.attributes[:style][:color] = "blue"
-        expect(presenter.to_html).to include("style=\"color:blue\"")
+        expect(presenter.to_html).to include("style=\"color: blue;\"")
       end
     end
   end

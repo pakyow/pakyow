@@ -27,8 +27,15 @@ module Pakyow
           end
         end
 
+        WRITE_VALUE_SEPARATOR = ": ".freeze
+        WRITE_PAIR_SEPARATOR  = "; ".freeze
+
         def to_s
-          to_a.map { |value| value.join(VALUE_SEPARATOR) }.join(PAIR_SEPARATOR)
+          value = to_a.map { |value|
+            value.join(WRITE_VALUE_SEPARATOR)
+          }.join(WRITE_PAIR_SEPARATOR)
+
+          value.empty? ? value : value + PAIR_SEPARATOR
         end
       end
     end

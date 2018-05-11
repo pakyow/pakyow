@@ -169,7 +169,7 @@ RSpec.describe "sanitization during presentation" do
       post_view.attrs[:class] = ["\"one"]
       post_view.attrs[:style] = { color: "red\">haha"}
       post_view.attrs[:title] = "\">again"
-      expect(presenter.to_s(clean_bindings: false)).to include("<div data-b=\"post\" class=\"&quot;one\" style=\"color:red&quot;&gt;haha\" title=\"&quot;&gt;again\"></div>")
+      expect(presenter.to_s(clean_bindings: false)).to include("<div data-b=\"post\" class=\"&quot;one\" style=\"color: red&quot;&gt;haha;\" title=\"&quot;&gt;again\"></div>")
     end
   end
 
