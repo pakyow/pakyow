@@ -1,0 +1,1 @@
+{"id":"af9fd41774106a6edc42f8ee27970145e37f4124","calls":[["find",["post"],[],[["present",[[{"id":1,"title":"foo"},{"id":2,"title":"bar","body":"bar body"},{"id":3,"title":"baz"}]],[[["use",["unpublished"],[],[]]],[["use",["published"],[],[]]],[["use",["unpublished"],[],[]]]],[]]]]]}

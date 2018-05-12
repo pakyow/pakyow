@@ -1,0 +1,1 @@
+{"id":"f3a20f6fc28224efa5b65988ec6952f96a324d2f","calls":[["find",["post"],[],[["present",[[{"id":1,"title":"foo"}]],[[["use",["published"],[],[]],["attrs",[],[],[["[]=",["style",{"color":"red"}],[],[]]]]]],[]]]]]}

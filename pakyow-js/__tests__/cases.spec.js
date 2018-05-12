@@ -6,20 +6,28 @@ const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 
 global.pw = require("../src/index");
+import {default as Transformer} from "../src/internal/transformer";
 
 const caseDir = "__tests__/support/cases";
 
+const removeWhitespace = function (string) {
+  return string.replace(/\n/g, "").replace(/[\t ]+\</g, "<").replace(/\>[\t ]+\</g, "><").replace(/\>[\t ]+$/g, ">");
+}
+
 for (let caseName of dirs(caseDir)) {
+  // if (caseName != "empty_to_data") {
+  //   continue;
+  // }
   test(`case: ${caseName}`, () => {
     let initial = fs.readFileSync(
       path.join(caseDir, caseName, "initial.html"),
       "utf8"
     );
 
-    let result = fs.readFileSync(
+    let result = removeWhitespace(fs.readFileSync(
       path.join(caseDir, caseName, "result.html"),
       "utf8"
-    );
+    ));
 
     let transformation = JSON.parse(
       fs.readFileSync(
@@ -37,7 +45,7 @@ for (let caseName of dirs(caseDir)) {
     document.querySelector("html").innerHTML = dom.window.document.querySelector("html").innerHTML;
 
     // apply the transformation
-    new pw.Transformer(transformation);
+    new Transformer(transformation);
 
     // remove the templates from the result (making it easier to compare)
     for (let script of document.querySelectorAll("script")) {
@@ -45,7 +53,7 @@ for (let caseName of dirs(caseDir)) {
     }
 
     // strip all whitespace from the result (making it easier to compare)
-    let actual = document.querySelector("body").outerHTML.replace(/\n/g, "").replace(/[\t ]+\</g, "<").replace(/\>[\t ]+\</g, "><").replace(/\>[\t ]+$/g, ">");
+    let actual = removeWhitespace(document.querySelector("body").outerHTML);
 
     // finally, make the assertion
     expect(actual).toEqual(result);

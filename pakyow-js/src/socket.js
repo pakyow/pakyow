@@ -24,7 +24,6 @@ export default class {
     this.connection.onopen = () => {
       this.currentReconnectTimeout = this.reconnectTimeout;
       this.connected = true;
-      console.log("connected");
     }
 
     this.connection.onclose = () => {
@@ -32,11 +31,10 @@ export default class {
       this.reconnect();
     }
 
-    this.connection.onmessage = (evt) => {
-      var payload = JSON.parse(evt.data).payload;
-      console.log("onmessage", payload);
-      for (let cb of this.subscriptions[payload.channel] || []) {
-        cb(payload);
+    this.connection.onmessage = (event) => {
+      var payload = JSON.parse(event.data).payload;
+      for (let callback of this.subscriptions[payload.channel] || []) {
+        callback(payload);
       }
     }
   }
@@ -52,11 +50,11 @@ export default class {
     }, this.currentReconnectTimeout);
   }
 
-  subscribe (channel, cb) {
+  subscribe (channel, callback) {
     if (!this.subscriptions[channel]) {
       this.subscriptions[channel] = [];
     }
 
-    this.subscriptions[channel].push(cb);
+    this.subscriptions[channel].push(callback);
   }
 }

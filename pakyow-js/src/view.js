@@ -1,6 +1,35 @@
+import {default as ViewAttributes} from "./internal/view_attributes";
+import {default as ViewSet} from "./internal/view_set";
+
 export default class {
-  constructor(node) {
+  constructor(node, versions) {
     this.node = node;
+    this.versions = versions;
+  }
+
+  id() {
+    return this.node.getAttribute("data-id");
+  }
+
+  binding() {
+    return this.node.getAttribute("data-b");
+  }
+
+  version() {
+    return this.node.getAttribute("data-v");
+  }
+
+  match(property, value) {
+    let propertyValue = this[property]() || "";
+    value = String(value)
+
+    if (property === "binding") {
+      return propertyValue.startsWith(value);
+    } else if (property === "version") {
+      return value === propertyValue || (propertyValue === "" && value === "default");
+    } else {
+      return value === propertyValue;
+    }
   }
 
   find (names) {
@@ -10,19 +39,21 @@ export default class {
 
     names = names.slice(0);
     var named = names.shift();
+    var templates = this.templatesNamed(named);
 
-    var found = this.bindingScopes().concat(this.bindingProps()).filter((binding) => {
-      return binding.name == named;
-    }).map((binding) => { return new pw.View(binding.node) });
+    var found = this.bindingScopes().concat(this.bindingProps()).filter((view) => {
+      return view.match("binding", named);
+    }).map((view) => {
+      return new pw.View(view.node, templates)
+    });
 
-    var templates = this.qs(`script[data-b='${named}']`);
     if (found.length == 0 && templates.length == 0) {
       // There's nothing we can do in this case, except throw our hands in the air.
       return pw.tryTurningItOffAndOnAgain();
     }
 
     if (names.length == 0) {
-      return new pw.ViewSet(found, templates);
+      return new ViewSet(found, templates);
     } else if (found.length > 0) {
       return found[0].find(names);
     }
@@ -33,8 +64,22 @@ export default class {
       return;
     }
 
-    for (let binding of this.bindingProps()) {
-      binding.node.innerHTML = object[binding.name];
+    for (let view of this.bindingProps()) {
+      let value = object[view.binding()];
+
+      if (typeof value === "object") {
+        for (let key in value) {
+          let partValue = value[key];
+
+          if (key === "content") {
+            view.node.innerHTML = partValue;
+          } else {
+            new pw.View(view.node).attributes().set(key, partValue);
+          }
+        }
+      } else {
+        view.node.innerHTML = value;
+      }
     }
 
     // TODO: anything we should do if object has no id?
@@ -47,9 +92,9 @@ export default class {
     if (!object || (Array.isArray(object) && object.length == 0) || Object.getOwnPropertyNames(object).length == 0) {
       this.remove();
     } else {
-      for (let binding of this.bindingProps()) {
-        if (!object[binding.name]) {
-          new pw.View(binding.node).remove();
+      for (let view of this.bindingProps()) {
+        if (!object[view.binding()]) {
+          new pw.View(view.node).remove();
         }
       }
     }
@@ -63,13 +108,13 @@ export default class {
     // Present recursively by finding nested bindings and presenting any we have data for.
     var bindingScopeNames = new Set(
       this.bindingScopes(true).map(
-        (binding) => { return binding.name; }
+        (view) => { return view.binding(); }
       )
     );
 
-    for (let binding of bindingScopeNames) {
-      if (binding in object) {
-        this.find(binding).present(object[binding]);
+    for (let view of bindingScopeNames) {
+      if (view in object) {
+        this.find(view).present(object[view]);
       }
     }
 
@@ -80,7 +125,7 @@ export default class {
     var results = [];
 
     for (let node of this.node.querySelectorAll(selector)) {
-      results.push(new pw.View(node));
+      results.push(node);
     }
 
     return results;
@@ -88,6 +133,10 @@ export default class {
 
   remove() {
     this.node.parentNode.removeChild(this.node);
+  }
+
+  bindings() {
+    return this.bindingScopes(true).concat(this.bindingProps());
   }
 
   bindingScopes(includeScripts = false) {
@@ -99,10 +148,7 @@ export default class {
       }
 
       if (childNode.hasAttribute("data-b") && (childNode.tagName == "SCRIPT" || new pw.View(childNode).bindingProps().length > 0)) {
-        bindings.push({
-          name: childNode.getAttribute("data-b"),
-          node: childNode
-        });
+        bindings.push(new pw.View(childNode));
       }
     }, includeScripts);
 
@@ -119,10 +165,7 @@ export default class {
 
       if (childNode.hasAttribute("data-b")) {
         if (new pw.View(childNode).bindingProps().length == 0) {
-          bindings.push({
-            name: childNode.getAttribute("data-b"),
-            node: childNode
-          });
+          bindings.push(new pw.View(childNode));
         } else {
           halt(); // we're done here
         }
@@ -151,6 +194,39 @@ export default class {
           }
         }
       }
+    }
+  }
+
+  attributes() {
+    return new ViewAttributes(this);
+  }
+
+  templatesNamed(name) {
+    return this.qs(`script[data-b^='${name}']`).map((node) => {
+      return new pw.View(node);
+    });
+  }
+
+  create(insert = true) {
+    var template = document.createElement("div");
+    template.innerHTML = this.node.innerHTML;
+
+    var createdView = new pw.View(template.firstChild);
+
+    if (insert) {
+      this.node.parentNode.insertBefore(
+        createdView.node, this.node
+      );
+    }
+
+    return createdView;
+  }
+
+  use (version) {
+    if (!this.match("version", version)) {
+      let viewWithVersion = this.versions.find((view) => { return view.match("version", version) }).create(false);
+      this.node.parentNode.replaceChild(viewWithVersion.node, this.node);
+      this.node = viewWithVersion.node;
     }
   }
 }

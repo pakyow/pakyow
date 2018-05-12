@@ -34,13 +34,17 @@ $ui_app_boilerplate = Proc.new do
 end
 
 def save_ui_case(case_name, path:)
-  initial = call(path)[2].body.read
+  initial_response = call(path)
+  expect(initial_response[0]).to eq(200)
+  initial = initial_response[2].body.read
 
   transformation = ws_intercept do
     yield
   end
 
-  result = call(path)[2].body.read
+  result_response = call(path)
+  expect(result_response[0]).to eq(200)
+  result = result_response[2].body.read
 
   save_path = File.expand_path(
     "../../../pakyow-js/__tests__/support/cases/#{case_name}",
@@ -58,16 +62,9 @@ def save_ui_case(case_name, path:)
   # remove templates
   result_doc.css("script").each(&:remove)
 
-  # strip all the whitespace
-  result = result_doc.at_css("body").to_xml
-    .gsub(/\n/, "")
-    .gsub(/[\t ]+\</, "<")
-    .gsub(/\>[\t ]+\</, "><")
-    .gsub(/\>[\t ]+$/, ">")
-
   File.open(
     File.join(save_path, "result.html"), "w+"
-  ).write(result)
+  ).write(result_doc.at_css("body").to_xml)
 
   File.open(
     File.join(save_path, "transformation.json"), "w+"
