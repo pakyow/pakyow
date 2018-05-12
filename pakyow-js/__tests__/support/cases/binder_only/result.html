@@ -1,14 +1,32 @@
-<body>
+<!DOCTYPE html>
+<html data-t="0076d65b7c1b30caa30f8eac0ceddec6d2255667">
+  <head>
+    <title>default</title>
+    <meta name="pw-authenticity-token" content="6dbea9472c08001fb414ee066c2d2752b38920349c87aa0e:O0kXyifOBrN1ikbZF+Bg2Lu85vYkcW9ABFhlOWY/zco=">
+    <meta name="pw-authenticity-param" content="authenticity_token">
+    <meta name="pw-connection-id" content="8387f233ad3052ef0e2b244d917fdafc22c021e3d0f93c25:36j61hWRFT7BB9BOvkeZR+3fUYhnWYGn88A8pcREbeg=">
+    <meta name="pw-endpoint" content="ws://example.org:80/pw-socket">
+  </head>
+  <body>
     <main>
       <h1>
-  Blog Posts
-</h1>
-
-<article data-b="post" data-id="1">
-  <h1 data-b="title">foo</h1>
-
-  <p data-b="reversed_title">oof</p>
-</article>
-
+        Blog Posts
+      </h1>
+      <article data-b="post" data-id="1">
+        <h1 data-b="title">foo</h1>
+        <p data-b="reversed_title">oof</p>
+      </article>
+      <script type="text/template" data-b="post">
+        <article data-b="post">
+          <h1 data-b="title">
+            title goes here
+          </h1>
+        
+          <p data-b="reversed_title">
+            reversed title goes here
+          </p>
+        </article>
+      </script>
     </main>
   </body>
+</html>

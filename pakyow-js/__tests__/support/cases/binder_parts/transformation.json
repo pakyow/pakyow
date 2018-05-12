@@ -1,1 +1,4 @@
-{"id":"16e9658902e7998e0059154c406f0059c445308e","calls":[["find",["post"],[],[["present",[[{"id":1,"title":{"content":"oof","style":{"color":"red"},"class":["fooclass"],"title":"foo","selected":true}}]],[],[]]]]]}
+{
+  "id": "23417beead667ed0209500bb5c04d04c07e5266a",
+  "calls": [["find",["post"],[],[["present",[[{"id":1,"title":{"content":"oof","style":{"color":"red"},"class":["fooclass"],"title":"foo","selected":true}}]],[],[]]]]]
+}

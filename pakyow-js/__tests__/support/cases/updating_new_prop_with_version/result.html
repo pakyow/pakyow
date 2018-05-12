@@ -1,30 +1,56 @@
-<body>
+<!DOCTYPE html>
+<html data-t="c32b27aab23edbbcae858bff3d6fae8500c928bd">
+  <head>
+    <title>default</title>
+    <meta name="pw-authenticity-token" content="ea741278f4e956777b58535b8d871d42dd54b0ea9fa1e1f5:YIieWL8u2IVkioBxe2dhgfj51kxV5hREkbFwtBkWpD8=">
+    <meta name="pw-authenticity-param" content="authenticity_token">
+    <meta name="pw-connection-id" content="ce4f59678c0c9a2a57966a4e801a93f5de5bee56e077677d:LYz5Q7ZSbTDWTYLy8I9Nu0LYWGZjTNsakObBZgfcxl4=">
+    <meta name="pw-endpoint" content="ws://example.org:80/pw-socket">
+  </head>
+  <body>
     <main>
       <h1>
-  Blog Posts
-</h1>
-
-
-
-<article data-b="post" data-v="unpublished" data-id="1">
-  unpublished
-
-  <h1 data-b="title">foo</h1>
-
-  
-</article><article data-b="post" data-v="published" data-id="2">
-  published!
-
-  <h1 data-b="title">bar</h1>
-
-  <p data-b="body">bar body</p>
-</article><article data-b="post" data-v="unpublished" data-id="3">
-  unpublished
-
-  <h1 data-b="title">baz</h1>
-
-  
-</article>
-
+        Blog Posts
+      </h1>
+      <script type="text/template" data-b="post" data-v="published">
+        <article data-b="post" data-v="published">
+          published!
+        
+          <h1 data-b="title">
+            title goes here
+          </h1>
+        
+          <p data-b="body">
+            body goes here
+          </p>
+        </article>
+      </script>
+      <article data-b="post" data-v="unpublished" data-id="1">
+        unpublished
+        <h1 data-b="title">foo</h1>
+      </article>
+      <article data-b="post" data-v="published" data-id="2">
+        published!
+        <h1 data-b="title">bar</h1>
+        <p data-b="body">bar body</p>
+      </article>
+      <article data-b="post" data-v="unpublished" data-id="3">
+        unpublished
+        <h1 data-b="title">baz</h1>
+      </article>
+      <script type="text/template" data-b="post" data-v="unpublished">
+        <article data-b="post" data-v="unpublished">
+          unpublished
+        
+          <h1 data-b="title">
+            title goes here
+          </h1>
+        
+          <p data-b="body">
+            body goes here
+          </p>
+        </article>
+      </script>
     </main>
   </body>
+</html>

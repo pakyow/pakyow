@@ -11,7 +11,19 @@ import {default as Transformer} from "../src/internal/transformer";
 const caseDir = "__tests__/support/cases";
 
 const removeWhitespace = function (string) {
-  return string.replace(/\n/g, "").replace(/[\t ]+\</g, "<").replace(/\>[\t ]+\</g, "><").replace(/\>[\t ]+$/g, ">");
+  return string.replace(/\n/g, "").replace(/[ ]+\</g, "<").replace(/\>[ ]+\</g, "><").replace(/\>[ ]+/g, ">");
+}
+
+const comparable = function (dom) {
+  // remove the templates from the result (making it easier to compare)
+  for (let script of dom.querySelectorAll("script")) {
+    script.parentNode.removeChild(script)
+  }
+
+  // strip all whitespace from the result (making it easier to compare)
+  return removeWhitespace(
+    dom.querySelector("body").outerHTML
+  );
 }
 
 for (let caseName of dirs(caseDir)) {
@@ -24,10 +36,10 @@ for (let caseName of dirs(caseDir)) {
       "utf8"
     );
 
-    let result = removeWhitespace(fs.readFileSync(
+    let result = fs.readFileSync(
       path.join(caseDir, caseName, "result.html"),
       "utf8"
-    ));
+    );
 
     let transformation = JSON.parse(
       fs.readFileSync(
@@ -36,26 +48,19 @@ for (let caseName of dirs(caseDir)) {
       )
     );
 
-    let dom = new JSDOM(initial);
+    let initialDOM = new JSDOM(initial);
+    let resultDOM = new JSDOM(result);
 
     // set the top level transformation id
-    document.querySelector("html").setAttribute("data-t", dom.window.document.querySelector("html").getAttribute("data-t"))
+    document.querySelector("html").setAttribute("data-t", initialDOM.window.document.querySelector("html").getAttribute("data-t"))
 
     // replace the rest of the document
-    document.querySelector("html").innerHTML = dom.window.document.querySelector("html").innerHTML;
+    document.querySelector("html").innerHTML = initialDOM.window.document.querySelector("html").innerHTML;
 
     // apply the transformation
     new Transformer(transformation);
 
-    // remove the templates from the result (making it easier to compare)
-    for (let script of document.querySelectorAll("script")) {
-      script.parentNode.removeChild(script)
-    }
-
-    // strip all whitespace from the result (making it easier to compare)
-    let actual = removeWhitespace(document.querySelector("body").outerHTML);
-
     // finally, make the assertion
-    expect(actual).toEqual(result);
+    expect(comparable(resultDOM.window.document)).toEqual(comparable(document));
   });
 }

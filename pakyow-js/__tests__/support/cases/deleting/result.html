@@ -1,24 +1,38 @@
-<body>
+<!DOCTYPE html>
+<html data-t="094b178de0f352aad018572860d0d122aa50bcea">
+  <head>
+    <title>default</title>
+    <meta name="pw-authenticity-token" content="4fd9f1ddbd300697c8b03665b832fa81c81d7b9871023398:vl2ocWixbLetKIOXJ6bu/iioL+Q/D3WC9bcqObh+juo=">
+    <meta name="pw-authenticity-param" content="authenticity_token">
+    <meta name="pw-connection-id" content="d7dde6d5c418b833dc4a9d4df0a28a676460aa1f8a29978a:EBbEtNWL8vFaL8kXo9Pmb/lYhCM6DOUttKT71kwsfC0=">
+    <meta name="pw-endpoint" content="ws://example.org:80/pw-socket">
+  </head>
+  <body>
     <main>
       <h1>
-  Blog Posts
-</h1>
-
-<article data-b="post" data-id="1">
-  <h1 data-b="title">foo</h1>
-
-  
-</article><article data-b="post" data-id="2">
-  <h1 data-b="title">bar</h1>
-
-  
-</article><article data-b="post" data-id="4">
-  <h1 data-b="title">qux</h1>
-
-  
-</article>
-
-<hr>
-
+        Blog Posts
+      </h1>
+      <article data-b="post" data-id="1">
+        <h1 data-b="title">foo</h1>
+      </article>
+      <article data-b="post" data-id="2">
+        <h1 data-b="title">bar</h1>
+      </article>
+      <article data-b="post" data-id="4">
+        <h1 data-b="title">qux</h1>
+      </article>
+      <script type="text/template" data-b="post">
+        <article data-b="post">
+          <h1 data-b="title">
+            title goes here
+          </h1>
+        
+          <p data-b="body">
+            body goes here
+          </p>
+        </article>
+      </script>
+      <hr>
     </main>
   </body>
+</html>

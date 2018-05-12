@@ -189,7 +189,7 @@ export default class {
       var children = subNode.childNodes;
       if (children) {
         for(var i = 0; i < children.length; i++) {
-          if (includeScripts || children[i].tagName != "SCRIPT") {
+          if (children[i].tagName && (includeScripts || children[i].tagName != "SCRIPT")) {
             queue.push(children[i]);
           }
         }
@@ -209,7 +209,7 @@ export default class {
 
   create(insert = true) {
     var template = document.createElement("div");
-    template.innerHTML = this.node.innerHTML;
+    template.innerHTML = this.node.innerHTML.trim();
 
     var createdView = new pw.View(template.firstChild);
 

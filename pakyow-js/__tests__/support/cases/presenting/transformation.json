@@ -1,1 +1,4 @@
-{"id":"f2a1a106dc9513bd2cd8860c3ad0af682be856c1","calls":[["find",["post"],[],[["present",[[{"id":1,"title":"foo"}]],[],[]]]]]}
+{
+  "id": "d542b1b1d87e8ec6f428dea82209b1a04520dd30",
+  "calls": [["find",["post"],[],[["present",[[{"id":1,"title":"foo"}]],[],[]]]]]
+}

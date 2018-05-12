@@ -1,1 +1,4 @@
-{"id":"012e4bd340ab24fcff14cc569dac3ca1890d2008","calls":[["find",["post"],[],[["use",["unpublished"],[],[]],["present",[{"id":1,"title":"foo","published":null}],[],[]]]]]}
+{
+  "id": "cfc155fa5a747202a7279d67011a1661c1638e75",
+  "calls": [["find",["post"],[],[["use",["unpublished"],[],[]],["present",[{"id":1,"title":"foo","published":null}],[],[]]]]]
+}

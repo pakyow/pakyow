@@ -1,1 +1,4 @@
-{"id":"cac304101bab6f56a75e331b5524ff197c24814b","calls":[["find",["post"],[],[["present",[[{"id":1,"title":"foo","reversed_title":"oof"}]],[],[]]]]]}
+{
+  "id": "44e3e8893c5c8ff248b3b774b236c3bd80a0109b",
+  "calls": [["find",["post"],[],[["present",[[{"id":1,"title":"foo","reversed_title":"oof"}]],[],[]]]]]
+}

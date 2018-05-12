@@ -1,16 +1,32 @@
-<body>
+<!DOCTYPE html>
+<html data-t="d542b1b1d87e8ec6f428dea82209b1a04520dd30">
+  <head>
+    <title>default</title>
+    <meta name="pw-authenticity-token" content="a2663c3f85ea2e0260cbcaa74f2b5ef91a0619230d13898c:c9nf25BqyVuEQzsKIYosJVUFWQRrKxvcEwkUVoXJGIY=">
+    <meta name="pw-authenticity-param" content="authenticity_token">
+    <meta name="pw-connection-id" content="802ebcf7f20bc7b379db34d0ebccdf690670fd0d3cbfcabb:rZ31VMjLX2yIIoV7rZnuk2oP5dO+dRnlxy/4KMg8dFw=">
+    <meta name="pw-endpoint" content="ws://example.org:80/pw-socket">
+  </head>
+  <body>
     <main>
       <h1>
-  Blog Posts
-</h1>
-
-<article data-b="post" data-id="1">
-  <h1 data-b="title">foo</h1>
-
-  
-</article>
-
-<hr>
-
+        Blog Posts
+      </h1>
+      <article data-b="post" data-id="1">
+        <h1 data-b="title">foo</h1>
+      </article>
+      <script type="text/template" data-b="post">
+        <article data-b="post">
+          <h1 data-b="title">
+            title goes here
+          </h1>
+        
+          <p data-b="body">
+            body goes here
+          </p>
+        </article>
+      </script>
+      <hr>
     </main>
   </body>
+</html>

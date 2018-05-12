@@ -8,6 +8,8 @@ start_simplecov do
   track_files File.join(lib_path, "**/*.rb")
 end
 
+require "htmlbeautifier"
+
 require "pakyow/ui"
 
 require_relative "../../spec/helpers/app_helpers"
@@ -55,20 +57,15 @@ def save_ui_case(case_name, path:)
 
   File.open(
     File.join(save_path, "initial.html"), "w+"
-  ).write(initial)
-
-  result_doc = Oga.parse_html(result)
-
-  # remove templates
-  result_doc.css("script").each(&:remove)
+  ).write(HtmlBeautifier.beautify(initial))
 
   File.open(
     File.join(save_path, "result.html"), "w+"
-  ).write(result_doc.at_css("body").to_xml)
+  ).write(HtmlBeautifier.beautify(result))
 
   File.open(
     File.join(save_path, "transformation.json"), "w+"
-  ).write(transformation.first.to_json)
+  ).write(JSON.pretty_generate(transformation.first))
 
   transformation
 end

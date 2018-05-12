@@ -1,1 +1,4 @@
-{"id":"de689d6e84dcbf789d0a323270ea6e68cfcc0f38","calls":[["find",["post"],[],[["present",[[{"id":1,"title":"foo"},{"id":2,"title":"bar","body":"bar body"},{"id":3,"title":"baz"}]],[],[]]]]]}
+{
+  "id": "6a2a61131b1e6bbd59c740fd417bfcc6f793ff33",
+  "calls": [["find",["post"],[],[["present",[[{"id":1,"title":"foo"},{"id":2,"title":"bar","body":"bar body"},{"id":3,"title":"baz"}]],[],[]]]]]
+}
