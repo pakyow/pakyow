@@ -6,7 +6,9 @@ export default {
   plugins: [
     node(),
     babel({
-      plugins: ["external-helpers"]
+      plugins: [
+        "external-helpers"
+      ]
     })
   ],
   output: {

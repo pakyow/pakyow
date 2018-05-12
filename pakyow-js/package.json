@@ -26,7 +26,6 @@
     "babel-jest": "^22.4.3",
     "babel-plugin-external-helpers": "^6.22.0",
     "babel-preset-env": "^1.7.0",
-    "babel-preset-es2015": "^6.24.1",
     "babel-register": "^6.26.0",
     "jest": "^22.4.3",
     "jsdom": "^11.10.0",
