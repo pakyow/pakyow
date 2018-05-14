@@ -27,7 +27,7 @@ const comparable = function (dom) {
 }
 
 for (let caseName of dirs(caseDir)) {
-  // if (caseName != "empty_to_data") {
+  // if (caseName != "versioned_prop_create_inline") {
   //   continue;
   // }
   test(`case: ${caseName}`, () => {
@@ -61,6 +61,6 @@ for (let caseName of dirs(caseDir)) {
     new Transformer(transformation);
 
     // finally, make the assertion
-    expect(comparable(resultDOM.window.document)).toEqual(comparable(document));
+    expect(comparable(document)).toEqual(comparable(resultDOM.window.document));
   });
 }

@@ -6,13 +6,16 @@ export default class {
 
   process (calls) {
     for (let node of document.querySelectorAll("*[data-t='" + this.id + "']")) {
-      this.transform(calls, new pw.View(node));
+      let view = new pw.View(node);
+      this.transform(calls, view);
+      view.clean();
     }
   }
 
   transform(calls, transformable) {
     for (let transformation of calls) {
       let methodName = transformation[0];
+
       if (methodName === "[]=") {
         methodName = "set";
       }

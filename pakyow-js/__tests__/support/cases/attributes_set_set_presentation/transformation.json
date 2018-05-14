@@ -1,4 +1,4 @@
 {
-  "id": "4d0d89abf85ea00f34c89b34de1e00dab24bc98b",
+  "id": "78a762afe24fdb6f8ea90300dd5bb53cb1f026e5",
   "calls": [["find",["post"],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]=",["class",["foo","bar"]],[],[]]]],["attrs",[],[],[["[]=",["style",{}],[],[]]]]]],[]]]]]
 }

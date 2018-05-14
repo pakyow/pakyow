@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html data-t="c32b27aab23edbbcae858bff3d6fae8500c928bd">
+<html data-t="f318965cced440b960686be9ac29cd9287573e42">
   <head>
     <title>default</title>
-    <meta name="pw-authenticity-token" content="e2bbe77911e3ad0cf0638ae6b811f6c873a2d81c906fb364:CWD/PHvw/EEBxSnBJzdUeHdpIK3aei8HE0ADq6zKlu0=">
+    <meta name="pw-authenticity-token" content="cba201b56a23e90fe114efb3f26595a1e03c7dca7ce2e73c:rtFefcWPEJB9WXw+r+06/NBOATRWi1n/OfVd1qnqlDg=">
     <meta name="pw-authenticity-param" content="authenticity_token">
-    <meta name="pw-connection-id" content="6f5ec032105ca286f697c66824195363b3d23e8f20c8d566:WP9fa2lr3xefYWsLKvk7yLAwUGZWv+7EvvwKHX2lDtg=">
+    <meta name="pw-connection-id" content="191ecfb11ddc2e6091d52d3458f0c5d6ac239a5b4cc0eb5a:EGcJItD78u3ls8yAf1sDCwUEcSjjbefB3M52t+4GhKY=">
     <meta name="pw-endpoint" content="ws://example.org:80/pw-socket">
   </head>
   <body>
@@ -16,9 +16,13 @@
         <article data-b="post" data-v="published">
           published!
         
-          <h1 data-b="title">
+          <h2 data-b="title">
             title goes here
-          </h1>
+          </h2>
+        
+          <h2 data-b="title" data-v="red" style="color: red;">
+            title goes here
+          </h2>
         
           <p data-b="body">
             body goes here
@@ -27,23 +31,27 @@
       </script>
       <article data-b="post" data-v="unpublished" data-id="1">
         unpublished
-        <h1 data-b="title">foo</h1>
+        <h2 data-b="title" data-v="default">foo</h2>
       </article>
       <article data-b="post" data-v="unpublished" data-id="2">
         unpublished
-        <h1 data-b="title">bar</h1>
+        <h2 data-b="title" data-v="default">bar</h2>
       </article>
       <article data-b="post" data-v="unpublished" data-id="3">
         unpublished
-        <h1 data-b="title">baz</h1>
+        <h2 data-b="title" data-v="default">baz</h2>
       </article>
       <script type="text/template" data-b="post" data-v="unpublished">
         <article data-b="post" data-v="unpublished">
           unpublished
         
-          <h1 data-b="title">
+          <h2 data-b="title" data-v="default">
             title goes here
-          </h1>
+          </h2>
+        
+          <h2 data-b="title" data-v="red" style="color: red;">
+            title goes here
+          </h2>
         
           <p data-b="body">
             body goes here

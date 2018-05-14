@@ -16,7 +16,7 @@ export default class {
   }
 
   version() {
-    return this.node.getAttribute("data-v");
+    return this.node.getAttribute("data-v") || "default";
   }
 
   match(property, value) {
@@ -25,8 +25,6 @@ export default class {
 
     if (property === "binding") {
       return propertyValue.startsWith(value);
-    } else if (property === "version") {
-      return value === propertyValue || (propertyValue === "" && value === "default");
     } else {
       return value === propertyValue;
     }
@@ -41,10 +39,10 @@ export default class {
     var named = names.shift();
     var templates = this.templatesNamed(named);
 
-    var found = this.bindingScopes().concat(this.bindingProps()).filter((view) => {
+    var found = this.bindingScopes().map((view) => {
+      return new pw.View(view.node, templates);
+    }).concat(this.versionedProps()).filter((view) => {
       return view.match("binding", named);
-    }).map((view) => {
-      return new pw.View(view.node, templates)
     });
 
     if (found.length == 0 && templates.length == 0) {
@@ -135,8 +133,8 @@ export default class {
     this.node.parentNode.removeChild(this.node);
   }
 
-  bindings() {
-    return this.bindingScopes(true).concat(this.bindingProps());
+  bindings(includeScripts = true) {
+    return this.bindingScopes(includeScripts).concat(this.bindingProps());
   }
 
   bindingScopes(includeScripts = false) {
@@ -175,6 +173,31 @@ export default class {
     return bindings;
   }
 
+  versionedProps() {
+    var bindingPropsByName = {};
+    for (let prop of this.bindingProps()) {
+      let propName = prop.node.getAttribute("data-b");
+      if (!bindingPropsByName[propName]) {
+        bindingPropsByName[propName] = []
+      }
+
+      bindingPropsByName[propName].push(prop);
+    }
+
+    var bindings = [];
+    for (let propName of Object.keys(bindingPropsByName)) {
+      let versions = bindingPropsByName[propName];
+      let defaultVersion = versions.find((version) => {
+        return version.match("version", "default")
+      }) || versions[0];
+
+      defaultVersion.versions = versions.filter((version) => { return version.node != defaultVersion.node });
+      bindings.push(defaultVersion);
+    }
+
+    return bindings;
+  }
+
   breadthFirst(node, cb, includeScripts = false) {
     var queue = [node];
     var halted = false;
@@ -209,9 +232,16 @@ export default class {
 
   create(insert = true) {
     var template = document.createElement("div");
-    template.innerHTML = this.node.innerHTML.trim();
+
+    // TODO: we could avoid this special case by creating templates without including the script tag
+    if (this.node.tagName === "SCRIPT") {
+      template.innerHTML = this.node.innerHTML.trim();
+    } else {
+      template.innerHTML = this.node.outerHTML.trim();
+    }
 
     var createdView = new pw.View(template.firstChild);
+    createdView.node.__pw_used = true;
 
     if (insert) {
       this.node.parentNode.insertBefore(
@@ -224,9 +254,24 @@ export default class {
 
   use (version) {
     if (!this.match("version", version)) {
-      let viewWithVersion = this.versions.find((view) => { return view.match("version", version) }).create(false);
+      let viewWithVersion = this.versions.find((view) => {
+        return view.match("version", version)
+      }).create(false);
+
       this.node.parentNode.replaceChild(viewWithVersion.node, this.node);
       this.node = viewWithVersion.node;
+    }
+
+    this.node.__pw_used = true;
+  }
+
+  clean() {
+    for (let binding of this.bindings()) {
+      binding.clean();
+
+      if (!binding.node.__pw_used && !binding.match("version", "default")) {
+        binding.remove();
+      }
     }
   }
 }

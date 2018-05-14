@@ -1,0 +1,4 @@
+{
+  "id": "819a8b06f20b95603a47bce08631a5fc4496070a",
+  "calls": [["find",["post"],[],[["present",[[{"id":1,"title":"foo"}]],[[["use",["published"],[],[]],["attrs",[],[],[["[]=",["style",{"color":"red"}],[],[]]]]]],[]]]]]
+}

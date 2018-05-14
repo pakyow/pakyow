@@ -43,7 +43,18 @@ export default class {
             })[0];
           }
 
-          view = new pw.View(template.create().node, this.templates);
+          let createdView;
+          if (this.views.length == 0) {
+            createdView = template.create();
+          } else {
+            createdView = template.create(false);
+            let lastView = this.views[this.views.length - 1];
+            lastView.node.parentNode.insertBefore(
+              createdView.node, lastView.node.nextSibling
+            );
+          }
+
+          view = new pw.View(createdView.node, this.templates);
           this.views.push(view);
 
           // create templates for any nested bindings
