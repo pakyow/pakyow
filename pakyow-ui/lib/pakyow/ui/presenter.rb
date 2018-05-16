@@ -75,6 +75,10 @@ module Pakyow
         @presenter.class.block
       end
 
+      def nil?
+        @presenter.nil?
+      end
+
       private
 
       def wrap(result)

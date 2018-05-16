@@ -74,7 +74,12 @@ module Pakyow
           info[:layout] = layout_object.dup
         end
 
-        @presenter = (find_presenter(@as || @path) || ViewPresenter).new(
+        unless presenter_class = find_presenter(@as || @path)
+          presenter_class = ViewPresenter
+          @automatic_presentation = true
+        end
+
+        @presenter = presenter_class.new(
           binders: @connection.app.state_for(:binder),
           **info
         )
@@ -109,7 +114,7 @@ module Pakyow
       end
 
       def perform
-        if @presenter.class == ViewPresenter
+        if automatic_presentation?
           find_and_present_presentables(@connection.values)
         else
           define_presentables(@connection.values)
@@ -132,6 +137,10 @@ module Pakyow
 
       def rendering_prototype?
         Pakyow.env?(:prototype)
+      end
+
+      def automatic_presentation?
+        @automatic_presentation == true
       end
 
       # We still mark endpoints as active when running in the prototype environment, but we don't
@@ -209,8 +218,10 @@ module Pakyow
       def find_and_present_presentables(presentables)
         presentables.each do |name, value|
           [name, Support.inflector.singularize(name)].each do |name_varient|
-            next unless found = presenter.find(name_varient)
-            found.present(value); break
+            found = @presenter.find(name_varient)
+            unless found.nil?
+              found.present(value); break
+            end
           end
         end
       end
