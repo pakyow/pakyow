@@ -56,11 +56,13 @@ export default class {
 
     if (found.length == 0 && templates.length == 0) {
       return pw.tryTurningItOffAndOnAgain();
-    } else if (names.length == 0) {
-      return new ViewSet(found, templates);
-    } else if (found.length > 0) {
-      // FIXME: picking the first one isn't correct... handle multiple matches
-      return found[0].find(names);
+    } else {
+      let set = new ViewSet(found, templates);
+      if (names.length == 0) {
+        return set;
+      } else {
+        return set.find(names);
+      }
     }
   }
 

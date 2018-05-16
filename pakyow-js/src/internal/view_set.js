@@ -6,6 +6,37 @@ export default class {
     this.templates = templates;
   }
 
+  find(names) {
+    if (!Array.isArray(names)) {
+      names = [names];
+    }
+
+    var views = [], templates = [];
+
+    for (let view of this.views) {
+      let found = view.find(names);
+      views = views.concat(found.views);
+
+      if (!templates) {
+        templates = views.templates();
+      }
+    }
+
+    for (let template of this.templates) {
+      templates = templates.concat(
+        template.templates().filter((view) => {
+          for (let name of names) {
+            if (view.match("binding", name)) {
+              return true;
+            }
+          }
+        })
+      );
+    }
+
+    return new this.constructor(views, templates);
+  }
+
   present(objects, callback) {
     if (!Array.isArray(objects)) {
       objects = [objects];
