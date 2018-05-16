@@ -54,15 +54,15 @@ export default class {
       return view.match("binding", currentName);
     });
 
-    if (found.length == 0 && templates.length == 0) {
-      return pw.tryTurningItOffAndOnAgain();
-    } else {
+    if (found.length > 0 || templates.length > 0) {
       let set = new ViewSet(found, templates);
       if (names.length == 0) {
         return set;
       } else {
         return set.find(names);
       }
+    } else {
+      // FIXME: nothing was found; anything to do?
     }
   }
 
