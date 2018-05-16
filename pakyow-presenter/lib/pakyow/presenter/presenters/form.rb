@@ -94,10 +94,12 @@ module Pakyow
         setup_form :remove, object
       end
 
+      # @ api private
       def embed_authenticity_token(token, param:)
         @view.prepend(authenticity_token_input(token, param: param))
       end
 
+      # @ api private
       def embed_origin(origin)
         @view.prepend(origin_input(origin))
       end
