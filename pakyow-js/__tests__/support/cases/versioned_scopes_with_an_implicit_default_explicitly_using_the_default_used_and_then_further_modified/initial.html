@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html data-t="b4c101a8dbe8f56e502dfe936b04a3346a72e580">
+  <head>
+    <title>default</title>
+    <meta name="pw-authenticity-token" content="8053ed7898d6450f72850bdf2e4b957d8c62b00f54ae82af:rGX1rflFpA9fkz2QV8lDIv/MyTYMEVe78ujCkL/UXDM=">
+    <meta name="pw-authenticity-param" content="authenticity_token">
+    <meta name="pw-connection-id" content="0ff346906280c860c41a74bf9c7810b9e83ed85cd496c1d4:KBa4jdBy0O21Gq/yeDN2xXohuiXtw0TNgYqhuFU40+0=">
+    <meta name="pw-endpoint" content="ws://example.org:80/pw-socket">
+  </head>
+  <body>
+    <main>
+      <h1>
+        Blog Posts
+      </h1>
+      <article data-b="post" style="background: blue;">
+        published!
+        <h2 data-b="title">
+          title goes here
+        </h2>
+        <p data-b="body">
+          body goes here
+        </p>
+      </article>
+      <script type="text/template" data-b="post">
+        <article data-b="post">
+          published!
+        
+          <h2 data-b="title">
+            title goes here
+          </h2>
+        
+          <p data-b="body">
+            body goes here
+          </p>
+        </article>
+      </script>
+      <script type="text/template" data-b="post" data-v="unpublished">
+        <article data-b="post" data-v="unpublished">
+          unpublished
+        
+          <h2 data-b="title">
+            title goes here
+          </h2>
+        
+          <p data-b="body">
+            body goes here
+          </p>
+        </article>
+      </script>
+    </main>
+  </body>
+</html>

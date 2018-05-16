@@ -1,0 +1,6 @@
+[
+  {
+    "id": "810c20433f84b811c6e49ec7146853b1312bf1e5",
+    "calls": [["find",[["post"]],[],[["present",[[{"id":1,"title":"foo","comment":[{"id":1,"title":"foo comment","post_id":1}]}]],[],[]]]]]
+  }
+]

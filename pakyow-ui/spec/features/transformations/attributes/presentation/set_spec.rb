@@ -37,13 +37,13 @@ RSpec.describe "modifying set attributes during presentation" do
       end
     end
 
-    it "transforms" do
-      transformations = save_ui_case("attributes_set_set_presentation", path: "/posts") do
+    it "transforms" do |x|
+      transformations = save_ui_case(x, path: "/posts") do
         call("/posts", method: :post)
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",["post"],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]=",["class",["foo","bar"]],[],[]]]],["attrs",[],[],[["[]=",["style",{}],[],[]]]]]],[]]]]]'
+        '[["find",[["post"]],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]=",["class",["foo","bar"]],[],[]]]],["attrs",[],[],[["[]=",["style",{}],[],[]]]]]],[]]]]]'
       )
     end
   end
@@ -83,13 +83,13 @@ RSpec.describe "modifying set attributes during presentation" do
       end
     end
 
-    it "transforms" do
-      transformations = save_ui_case("attributes_set_shovel_presentation", path: "/posts") do
+    it "transforms" do |x|
+      transformations = save_ui_case(x, path: "/posts") do
         call("/posts", method: :post)
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",["post"],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]",["class"],[],[["<<",["foo"],[],[]]]]]],["attrs",[],[],[["[]=",["style",{}],[],[]]]]]],[]]]]]'
+        '[["find",[["post"]],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]",["class"],[],[["<<",["foo"],[],[]]]]]],["attrs",[],[],[["[]=",["style",{}],[],[]]]]]],[]]]]]'
       )
     end
   end
@@ -129,13 +129,13 @@ RSpec.describe "modifying set attributes during presentation" do
       end
     end
 
-    it "transforms" do
-      transformations = save_ui_case("attributes_set_add_presentation", path: "/posts") do
+    it "transforms" do |x|
+      transformations = save_ui_case(x, path: "/posts") do
         call("/posts", method: :post)
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",["post"],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]",["class"],[],[["add",["foo"],[],[]]]]]],["attrs",[],[],[["[]=",["style",{}],[],[]]]]]],[]]]]]'
+        '[["find",[["post"]],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]",["class"],[],[["add",["foo"],[],[]]]]]],["attrs",[],[],[["[]=",["style",{}],[],[]]]]]],[]]]]]'
       )
     end
   end
@@ -175,13 +175,13 @@ RSpec.describe "modifying set attributes during presentation" do
       end
     end
 
-    it "transforms" do
-      transformations = save_ui_case("attributes_set_delete_presentation", path: "/posts") do
+    it "transforms" do |x|
+      transformations = save_ui_case(x, path: "/posts") do
         call("/posts", method: :post)
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",["post"],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]",["class"],[],[["delete",["one"],[],[]]]]]],["attrs",[],[],[["[]=",["style",{}],[],[]]]]]],[]]]]]'
+        '[["find",[["post"]],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]",["class"],[],[["delete",["one"],[],[]]]]]],["attrs",[],[],[["[]=",["style",{}],[],[]]]]]],[]]]]]'
       )
     end
   end
@@ -221,13 +221,13 @@ RSpec.describe "modifying set attributes during presentation" do
       end
     end
 
-    it "transforms" do
-      transformations = save_ui_case("attributes_set_clear_presentation", path: "/posts") do
+    it "transforms" do |x|
+      transformations = save_ui_case(x, path: "/posts") do
         call("/posts", method: :post)
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",["post"],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]",["class"],[],[["clear",[],[],[]]]]]],["attrs",[],[],[["[]=",["style",{}],[],[]]]]]],[]]]]]'
+        '[["find",[["post"]],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]",["class"],[],[["clear",[],[],[]]]]]],["attrs",[],[],[["[]=",["style",{}],[],[]]]]]],[]]]]]'
       )
     end
   end

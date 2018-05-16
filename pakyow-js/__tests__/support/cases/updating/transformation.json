@@ -1,4 +1,0 @@
-{
-  "id": "20e6d78dc96563e6bfdc17f00b9ac68ae37e6fe5",
-  "calls": [["find",["post"],[],[["present",[[{"id":1,"title":"foo"},{"id":2,"title":"qux"},{"id":3,"title":"baz"}]],[],[]]]]]
-}

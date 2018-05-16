@@ -27,9 +27,10 @@ const comparable = function (dom) {
 }
 
 for (let caseName of dirs(caseDir)) {
-  // if (caseName != "versioned_prop_create_inline") {
-  //   continue;
-  // }
+  if (caseName != "versioned_props_with_no_default_used_during_presentation_with_no_further_action") {
+    // continue;
+  }
+
   test(`case: ${caseName}`, () => {
     let initial = fs.readFileSync(
       path.join(caseDir, caseName, "initial.html"),
@@ -41,9 +42,9 @@ for (let caseName of dirs(caseDir)) {
       "utf8"
     );
 
-    let transformation = JSON.parse(
+    let transformations = JSON.parse(
       fs.readFileSync(
-        path.join(caseDir, caseName, "transformation.json"),
+        path.join(caseDir, caseName, "transformations.json"),
         "utf8"
       )
     );
@@ -57,8 +58,10 @@ for (let caseName of dirs(caseDir)) {
     // replace the rest of the document
     document.querySelector("html").innerHTML = initialDOM.window.document.querySelector("html").innerHTML;
 
-    // apply the transformation
-    new Transformer(transformation);
+    // apply the transformations
+    for (let transformation of transformations) {
+      new Transformer(transformation);
+    }
 
     // finally, make the assertion
     expect(comparable(document)).toEqual(comparable(resultDOM.window.document));

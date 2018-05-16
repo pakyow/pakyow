@@ -35,13 +35,13 @@ RSpec.describe "modifying string attributes" do
       end
     end
 
-    it "transforms" do
-      transformations = save_ui_case("attributes_string_set", path: "/posts") do
+    it "transforms" do |x|
+      transformations = save_ui_case(x, path: "/posts") do
         call("/posts", method: :post)
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",["post"],[],[["attrs",[],[],[["[]=",["title","foo"],[],[]]]]]],["find",["post"],[],[["attrs",[],[],[["[]=",["style",{}],[],[]]]]]]]'
+        '[["find",[["post"]],[],[["attrs",[],[],[["[]=",["title","foo"],[],[]]]]]],["find",[["post"]],[],[["attrs",[],[],[["[]=",["style",{}],[],[]]]]]]]'
       )
     end
   end

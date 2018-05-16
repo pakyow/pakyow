@@ -20,7 +20,7 @@ require_relative "../../spec/helpers/mock_handler"
 RSpec.configure do |config|
   config.include AppHelpers
 
-  config.before do
+  config.before do |example|
     Pakyow.config.data.connections.sql[:default] = "sqlite::memory"
   end
 end
@@ -35,7 +35,7 @@ $ui_app_boilerplate = Proc.new do
   end
 end
 
-def save_ui_case(case_name, path:)
+def save_ui_case(example, path:)
   initial_response = call(path)
   expect(initial_response[0]).to eq(200)
   initial = initial_response[2].body.read
@@ -47,6 +47,8 @@ def save_ui_case(case_name, path:)
   result_response = call(path)
   expect(result_response[0]).to eq(200)
   result = result_response[2].body.read
+
+  case_name = example.metadata[:full_description].gsub(" ", "_").gsub(/_transforms$/, "")
 
   save_path = File.expand_path(
     "../../../pakyow-js/__tests__/support/cases/#{case_name}",
@@ -64,8 +66,8 @@ def save_ui_case(case_name, path:)
   ).write(HtmlBeautifier.beautify(result))
 
   File.open(
-    File.join(save_path, "transformation.json"), "w+"
-  ).write(JSON.pretty_generate(transformation.first))
+    File.join(save_path, "transformations.json"), "w+"
+  ).write(JSON.pretty_generate(transformation))
 
   transformation
 end

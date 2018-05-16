@@ -34,13 +34,13 @@ RSpec.describe "modifying hash attributes during presentation" do
       end
     end
 
-    it "transforms" do
-      transformations = save_ui_case("attributes_hash_set_presentation", path: "/posts") do
+    it "transforms" do |x|
+      transformations = save_ui_case(x, path: "/posts") do
         call("/posts", method: :post)
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",["post"],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]=",["style",{"color":"red"}],[],[]]]]]],[]]]]]'
+        '[["find",[["post"]],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]=",["style",{"color":"red"}],[],[]]]]]],[]]]]]'
       )
     end
   end
@@ -77,13 +77,13 @@ RSpec.describe "modifying hash attributes during presentation" do
       end
     end
 
-    it "transforms" do
-      transformations = save_ui_case("attributes_hash_change_key_presentation", path: "/posts") do
+    it "transforms" do |x|
+      transformations = save_ui_case(x, path: "/posts") do
         call("/posts", method: :post)
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",["post"],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]",["style"],[],[["[]=",["color","red"],[],[]]]]]]]],[]]]]]'
+        '[["find",[["post"]],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]",["style"],[],[["[]=",["color","red"],[],[]]]]]]]],[]]]]]'
       )
     end
   end
@@ -120,13 +120,13 @@ RSpec.describe "modifying hash attributes during presentation" do
       end
     end
 
-    it "transforms" do
-      transformations = save_ui_case("attributes_hash_delete_key_presentation", path: "/posts") do
+    it "transforms" do |x|
+      transformations = save_ui_case(x, path: "/posts") do
         call("/posts", method: :post)
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",["post"],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]",["style"],[],[["delete",["background"],[],[]]]]]]]],[]]]]]'
+        '[["find",[["post"]],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]",["style"],[],[["delete",["background"],[],[]]]]]]]],[]]]]]'
       )
     end
   end
@@ -163,13 +163,13 @@ RSpec.describe "modifying hash attributes during presentation" do
       end
     end
 
-    it "transforms" do
-      transformations = save_ui_case("attributes_hash_clear_presentation", path: "/posts") do
+    it "transforms" do |x|
+      transformations = save_ui_case(x, path: "/posts") do
         call("/posts", method: :post)
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",["post"],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]",["style"],[],[["clear",[],[],[]]]]]]]],[]]]]]'
+        '[["find",[["post"]],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]",["style"],[],[["clear",[],[],[]]]]]]]],[]]]]]'
       )
     end
   end

@@ -6,9 +6,7 @@ export default class {
 
   process (calls) {
     for (let node of document.querySelectorAll("*[data-t='" + this.id + "']")) {
-      let view = new pw.View(node);
-      this.transform(calls, view);
-      view.clean();
+      this.transform(calls, new pw.View(node));
     }
   }
 

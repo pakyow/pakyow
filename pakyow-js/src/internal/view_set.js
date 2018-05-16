@@ -12,6 +12,63 @@ export default class {
     }
 
     if (objects.length > 0) {
+      for (let object of objects) {
+        var view = this.viewForObject(object);
+
+        if (!view) {
+          let template = this.templates.find((template) => {
+            return template.match("version", this.usableVersion || "default")
+          });
+
+          if (!template) {
+            // If we don't have a default version, use the first non-empty one.
+            if (callback) {
+              template = this.templates.filter((template) => {
+                return !template.match("version", "empty");
+              })[0];
+            } else {
+              continue;
+            }
+          }
+
+          let createdView = template.clone();
+
+          if (this.views.length == 0) {
+            template.insertionPoint.parentNode.insertBefore(
+              createdView.node, template.insertionPoint
+            );
+          } else {
+            let lastView = this.views[this.views.length - 1];
+            lastView.node.parentNode.insertBefore(
+              createdView.node, lastView.node.nextSibling
+            );
+          }
+
+          view = new pw.View(createdView.node, this.templates);
+          this.views.push(view);
+        } else if (!this.viewHasAllBindings(view, object)) {
+          // Replace the current view with a fresh version.
+
+          let template = this.templates.find((template) => {
+            return template.match("version", this.usableVersion || "default")
+          });
+
+          if (!template) {
+            // if we don't have a default version, use the first one
+            template = this.templates[0];
+          }
+
+          var freshView = template.clone();
+          this.views[this.views.indexOf(view)] = freshView;
+          view.node.parentNode.insertBefore(freshView.node, view.node);
+          view.remove();
+
+          view = new pw.View(freshView.node, this.templates);
+        }
+
+        view.present(object, callback);
+      }
+
       for (let view of this.views) {
         // Remove the view if it's an empty version, since we now have data.
         if (view.match("version", "empty")) {
@@ -28,81 +85,6 @@ export default class {
         }
       }
 
-      for (let object of objects) {
-        var view = this.viewForObject(object);
-
-        if (!view) {
-          let template = this.templates.find((template) => {
-            return template.match("version", "default")
-          });
-
-          if (!template) {
-            // If we don't have a default version, use the first non-empty one.
-            template = this.templates.filter((template) => {
-              return !template.match("version", "empty");
-            })[0];
-          }
-
-          let createdView;
-          if (this.views.length == 0) {
-            createdView = template.create();
-          } else {
-            createdView = template.create(false);
-            let lastView = this.views[this.views.length - 1];
-            lastView.node.parentNode.insertBefore(
-              createdView.node, lastView.node.nextSibling
-            );
-          }
-
-          view = new pw.View(createdView.node, this.templates);
-          this.views.push(view);
-
-          // create templates for any nested bindings
-          // for (let binding of view.bindingScopes()) {
-          //   var bindingTemplate = document.createElement("script");
-          //   bindingTemplate.setAttribute("type", "text/template");
-          //   bindingTemplate.setAttribute("data-v", binding.node.getAttribute("data-v") || "default");
-          //   bindingTemplate.setAttribute("data-b", binding.node.getAttribute("data-b"));
-          //   bindingTemplate.appendChild(binding.node.cloneNode(true));
-          //   view.node.appendChild(bindingTemplate);
-          // }
-
-          // if (this.views.length > 0) {
-          //   this.views.slice(-1)[0].node.insertAdjacentElement(
-          //     "afterend", view.node
-          //   );
-          // } else {
-          //   this.templates["default"].view.node.parentNode.insertBefore(
-          //     view.node, this.templates["default"].node
-          //   );
-          // }
-        } else if (!this.viewHasAllBindings(view, object)) {
-          // Replace the current view with a fresh version.
-
-          let template = this.templates.find((template) => {
-            return template.match("version", "default")
-          });
-
-          if (!template) {
-            // if we don't have a default version, use the first one
-            template = this.templates[0];
-          }
-
-          var freshView = template.create(false);
-          this.views[this.views.indexOf(view)] = freshView;
-          view.node.parentNode.insertBefore(freshView.node, view.node);
-          view.remove();
-
-          view = new pw.View(freshView.node, this.templates);
-        }
-
-        if (callback) {
-          callback(view, object);
-        }
-
-        view.present(object);
-      }
-
       this.order(objects);
     } else {
       let template = this.templates.find((template) => {
@@ -110,7 +92,10 @@ export default class {
       });
 
       if (template) {
-        template.create();
+        let createdView = template.clone();
+        template.insertionPoint.parentNode.insertBefore(
+          createdView.node, template.insertionPoint
+        );
       }
 
       for (let view of this.views) {
@@ -120,17 +105,26 @@ export default class {
   }
 
   use(version) {
-    // Use the version in each view.
-    for (let view of this.views) {
-      view.use(version);
-    }
+    if (this.views.length > 0) {
+      for (let view of this.views) {
+        view.use(version);
+      }
+    } else {
+      let templateWithVersion = this.templates.find((view) => {
+        return view.match("version", version)
+      });
 
-    // Delete templates that aren't the used version.
-    for (let template of this.templates.slice()) {
-      if (!template.match("version", version)) {
-        this.templates.splice(this.templates.indexOf(template), 1);
+      if (templateWithVersion) {
+        let viewWithVersion = templateWithVersion.clone();
+        templateWithVersion.insertionPoint.parentNode.insertBefore(
+          viewWithVersion.node, templateWithVersion.insertionPoint
+        );
+        this.views.push(viewWithVersion);
       }
     }
+
+    this.usableVersion = version;
+    return this;
   }
 
   attributes() {
@@ -138,6 +132,10 @@ export default class {
   }
 
   order (orderedObjects) {
+    if (this.views.length == 0) {
+      return;
+    }
+
     let orderedIds = orderedObjects.map((object) => {
       return object.id;
     });

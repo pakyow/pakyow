@@ -32,13 +32,13 @@ RSpec.describe "modifying hash attributes" do
       end
     end
 
-    it "transforms" do
-      transformations = save_ui_case("attributes_hash_set", path: "/posts") do
+    it "transforms" do |x|
+      transformations = save_ui_case(x, path: "/posts") do
         call("/posts", method: :post)
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",["post"],[],[["attrs",[],[],[["[]=",["style",{"color":"red"}],[],[]]]]]]]'
+        '[["find",[["post"]],[],[["attrs",[],[],[["[]=",["style",{"color":"red"}],[],[]]]]]]]'
       )
     end
   end
@@ -73,13 +73,13 @@ RSpec.describe "modifying hash attributes" do
       end
     end
 
-    it "transforms" do
-      transformations = save_ui_case("attributes_hash_change_key", path: "/posts") do
+    it "transforms" do |x|
+      transformations = save_ui_case(x, path: "/posts") do
         call("/posts", method: :post)
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",["post"],[],[["attrs",[],[],[["[]",["style"],[],[["[]=",["color","red"],[],[]]]]]]]]]'
+        '[["find",[["post"]],[],[["attrs",[],[],[["[]",["style"],[],[["[]=",["color","red"],[],[]]]]]]]]]'
       )
     end
   end
@@ -114,13 +114,13 @@ RSpec.describe "modifying hash attributes" do
       end
     end
 
-    it "transforms" do
-      transformations = save_ui_case("attributes_hash_delete_key", path: "/posts") do
+    it "transforms" do |x|
+      transformations = save_ui_case(x, path: "/posts") do
         call("/posts", method: :post)
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",["post"],[],[["attrs",[],[],[["[]",["style"],[],[["delete",["background"],[],[]]]]]]]]]'
+        '[["find",[["post"]],[],[["attrs",[],[],[["[]",["style"],[],[["delete",["background"],[],[]]]]]]]]]'
       )
     end
   end
@@ -155,13 +155,13 @@ RSpec.describe "modifying hash attributes" do
       end
     end
 
-    it "transforms" do
-      transformations = save_ui_case("attributes_hash_clear", path: "/posts") do
+    it "transforms" do |x|
+      transformations = save_ui_case(x, path: "/posts") do
         call("/posts", method: :post)
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",["post"],[],[["attrs",[],[],[["[]",["style"],[],[["clear",[],[],[]]]]]]]]]'
+        '[["find",[["post"]],[],[["attrs",[],[],[["[]",["style"],[],[["clear",[],[],[]]]]]]]]]'
       )
     end
   end

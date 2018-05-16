@@ -1,0 +1,6 @@
+[
+  {
+    "id": "ba83abce30f36a37d58d05fd791283890e4666b9",
+    "calls": [["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"},{"id":2,"title":"bar"},{"id":4,"title":"qux"}]],[],[]]]]]
+  }
+]

@@ -46,6 +46,12 @@ module Pakyow
               viewify!(data)
             end
 
+            if method_name == :find
+              # Because multiple bindings can be passed, we want to wrap them in
+              # an array so that the client sees them as a single argument.
+              args = [args]
+            end
+
             @calls << [method_name, args, calls_for_each, wrapped]
           }
         else
