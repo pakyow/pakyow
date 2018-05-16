@@ -24,7 +24,7 @@ module Pakyow
         @calls = []
       end
 
-      IGNORE = %i()
+      UNSUPPORTED = %i(view layout page partials find_all forms action= method= options_for grouped_options_for)
       def method_missing(method_name, *args)
         if @presenter.respond_to?(method_name)
           calls_for_each = []
@@ -52,7 +52,11 @@ module Pakyow
               args = [args]
             end
 
-            @calls << [method_name, args, calls_for_each, wrapped]
+            if UNSUPPORTED.include?(method_name)
+              Pakyow.logger.warn "`#{method_name}' is unsupported in pakyow/ui"
+            else
+              @calls << [method_name, args, calls_for_each, wrapped]
+            end
           }
         else
           super
