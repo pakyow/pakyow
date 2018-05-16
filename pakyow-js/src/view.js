@@ -229,42 +229,46 @@ export default class {
   }
 
   templates() {
-    var templates = this.qs("script[type='text/template']").map((templateNode) => {
-      // console.log("template", templateNode.outerHTML)
-      let template = document.createElement("div");
-      template.innerHTML = templateNode.innerHTML.trim();
+    if (!this.memoizedTemplates) {
+      var templates = this.qs("script[type='text/template']").map((templateNode) => {
+        // console.log("template", templateNode.outerHTML)
+        let template = document.createElement("div");
+        template.innerHTML = templateNode.innerHTML.trim();
 
-      // FIXME: I think it would make things more clear to create a dedicated template object
-      // we could initialize with an insertion point, then have a `clone` method there rather than on view
-      let view = new pw.View(template.firstChild);
-      view.insertionPoint = templateNode;
+        // FIXME: I think it would make things more clear to create a dedicated template object
+        // we could initialize with an insertion point, then have a `clone` method there rather than on view
+        let view = new pw.View(template.firstChild);
+        view.insertionPoint = templateNode;
 
-      // Replace bindings with templates.
-      for (let binding of view.bindingProps()) {
-        if (!binding.match("version", "default")) {
-          let template = document.createElement("script");
-          template.setAttribute("type", "text/template");
-          template.dataset.b = binding.binding();
-          template.dataset.v = binding.version();
-          // Prevents this template from being returned by `bindingScopes`.
-          template.dataset.p = true;
-          template.innerHTML = binding.node.outerHTML.trim();
-          binding.node.parentNode.replaceChild(template, binding.node);
+        // Replace bindings with templates.
+        for (let binding of view.bindingProps()) {
+          if (!binding.match("version", "default")) {
+            let template = document.createElement("script");
+            template.setAttribute("type", "text/template");
+            template.dataset.b = binding.binding();
+            template.dataset.v = binding.version();
+            // Prevents this template from being returned by `bindingScopes`.
+            template.dataset.p = true;
+            template.innerHTML = binding.node.outerHTML.trim();
+            binding.node.parentNode.replaceChild(template, binding.node);
+          }
         }
+
+        return view;
+      });
+
+      if (this.id()) {
+        // we're looking for prop templates for a node that might have been rendered
+        // on the server; look for the prop templates through the sibling scope template
+        this.memoizedTemplates = new pw.View(this.node.parentNode).templates().find((template) => {
+          return template.match("binding", this.binding()) && template.match("version", this.version());
+        }).templates().concat(templates);
+      } else {
+        this.memoizedTemplates = templates;
       }
-
-      return view;
-    });
-
-    if (this.id()) {
-      // we're looking for prop templates for a node that might have been rendered
-      // on the server; look for the prop templates through the sibling scope template
-      return new pw.View(this.node.parentNode).templates().find((template) => {
-        return template.match("binding", this.binding()) && template.match("version", this.version());
-      }).templates().concat(templates);
-    } else {
-      return templates;
     }
+
+    return this.memoizedTemplates;
   }
 
   breadthFirst(node, cb, includeScripts = false) {

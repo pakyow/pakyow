@@ -27,9 +27,9 @@ const comparable = function (dom) {
 }
 
 for (let caseName of dirs(caseDir)) {
-  if (caseName != "versioned_props_with_no_default_used_during_presentation_with_no_further_action") {
-    // continue;
-  }
+  // if (caseName != "versioned_props_with_no_default_used_and_then_presented") {
+  //   continue;
+  // }
 
   test(`case: ${caseName}`, () => {
     let initial = fs.readFileSync(
