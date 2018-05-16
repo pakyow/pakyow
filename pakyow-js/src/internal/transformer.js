@@ -30,6 +30,11 @@ export default class {
         methodName = "attributes";
       }
 
+      if (methodName.substr(methodName.length - 1) === "=") {
+        methodName = methodName.substr(0, methodName.length - 1);
+        methodName = `set${methodName.charAt(0).toUpperCase() + methodName.substr(1)}`;
+      }
+
       let method = transformable[methodName];
 
       if (method) {

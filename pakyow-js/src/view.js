@@ -162,6 +162,14 @@ export default class {
     this.node.parentNode.removeChild(this.node);
   }
 
+  setTitle(value) {
+    var titleNode = this.qs("title")[0];
+
+    if (titleNode) {
+      titleNode.innerHTML = value;
+    }
+  }
+
   //////////////////////
   // INTERNAL METHODS //
   //////////////////////
