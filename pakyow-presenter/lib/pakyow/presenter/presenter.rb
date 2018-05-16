@@ -166,14 +166,6 @@ module Pakyow
         @view.title&.html = strip_tags(value)
       end
 
-      # Returns an array of components matching +name+.
-      #
-      def components(name)
-        @view.components(name).map { |view|
-          presenter_for(view)
-        }
-      end
-
       # Yields +self+.
       #
       def with

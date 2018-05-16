@@ -55,48 +55,6 @@ RSpec.describe "view introspection via presenter" do
         expect(presenter.find(:post).binding?).to be true
       end
     end
-
-    context "view does not have a binding" do
-      let :view do
-        Pakyow::Presenter::View.new("<div ui=\"post\"></div>")
-      end
-
-      it "returns false" do
-        expect(presenter.components(:post)[0].binding?).to be false
-      end
-    end
-  end
-
-  describe "component?" do
-    context "view is a component" do
-      let :view do
-        Pakyow::Presenter::View.new("<div ui=\"foo\"></div>")
-      end
-
-      it "returns true" do
-        expect(presenter.components(:foo)[0].component?).to be true
-      end
-    end
-
-    context "view is a component with a binding" do
-      let :view do
-        Pakyow::Presenter::View.new("<div binding=\"post\" ui=\"foo\"></div>")
-      end
-
-      it "returns true" do
-        expect(presenter.find(:post).component?).to be true
-      end
-    end
-
-    context "view is not a component" do
-      let :view do
-        Pakyow::Presenter::View.new("<div binding=\"post\"></div>")
-      end
-
-      it "returns false" do
-        expect(presenter.find(:post).component?).to be false
-      end
-    end
   end
 
   describe "form?" do

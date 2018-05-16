@@ -154,18 +154,6 @@ module Pakyow
         end
       end
 
-      # Returns an array of views, one for each component matching +name+.
-      #
-      # Components are given the +ui+ attribute in the view template. For example:
-      #
-      #   <div ui="some_component">...</div>
-      #
-      def components(name)
-        @object.find_significant_nodes_with_name(:component, name).each_with_object([]) { |component, set|
-          set << View.from_object(component)
-        }
-      end
-
       # Returns a view for the +<title>+ node.
       #
       def title
@@ -280,8 +268,6 @@ module Pakyow
         @object.html = ensure_html_safety(html)
       end
 
-      # FIXME: define these introspection methods dynamically based on significant types
-
       # Returns true if +self+ is a binding.
       #
       def binding?
@@ -298,12 +284,6 @@ module Pakyow
       #
       def partial?
         @object.significant?(:partial)
-      end
-
-      # Returns true if +self+ is a component.
-      #
-      def component?
-        @object.significant?(:component)
       end
 
       # Returns true if +self+ is a form.
