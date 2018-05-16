@@ -32,5 +32,9 @@
     "rollup": "^0.56.4",
     "rollup-plugin-babel": "^3.0.3",
     "rollup-plugin-node-resolve": "^3.0.3"
+  },
+  "jest": {
+    "testURL": "http://localhost",
+    "testRegex": "__tests__/.+\\.spec\\.(js)$"
   }
 }
