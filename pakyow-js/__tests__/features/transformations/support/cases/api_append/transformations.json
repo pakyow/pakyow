@@ -1,0 +1,6 @@
+[
+  {
+    "id": "44ccda51ec72a5dd253c11d34adc5e6db7d4b84a",
+    "calls": [["find",[["post"]],[],[["bind",[{"id":1,"title":"foo"}],[],[["append",["foo"],[],[]]]]]]]
+  }
+]

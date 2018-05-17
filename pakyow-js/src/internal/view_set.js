@@ -37,18 +37,21 @@ export default class {
     return new this.constructor(views, templates);
   }
 
+  with(callback) {
+    callback(this, this);
+    return this;
+  }
+
   bind(objects) {
     if (!Array.isArray(objects)) {
       objects = [objects];
     }
 
     for (let object of objects) {
-      let view = this.viewForObject(object);
-
-      if (view) {
-        view.bind(object)
-      }
+      this.ensureViewForObject(object).bind(object)
     }
+
+    return this;
   }
 
   transform(objects, callback) {
@@ -58,55 +61,7 @@ export default class {
 
     if (objects.length > 0) {
       for (let object of objects) {
-        var view = this.viewForObject(object);
-
-        if (!view) {
-          let template = this.templates.find((template) => {
-            return template.match("version", this.usableVersion || "default")
-          });
-
-          if (!template) {
-            template = this.templates.filter((template) => {
-              return !template.match("version", "empty");
-            })[0];
-          }
-
-          let createdView = template.clone();
-
-          if (this.views.length == 0) {
-            template.insertionPoint.parentNode.insertBefore(
-              createdView.node, template.insertionPoint
-            );
-          } else {
-            let lastView = this.views[this.views.length - 1];
-            lastView.node.parentNode.insertBefore(
-              createdView.node, lastView.node.nextSibling
-            );
-          }
-
-          view = new pw.View(createdView.node, this.templates);
-          this.views.push(view);
-        } else if (!this.viewHasAllBindings(view, object)) {
-          // Replace the current view with a fresh version.
-
-          let template = this.templates.find((template) => {
-            return template.match("version", this.usableVersion || "default")
-          });
-
-          if (!template) {
-            // if we don't have a default version, use the first one
-            template = this.templates[0];
-          }
-
-          var freshView = template.clone();
-          this.views[this.views.indexOf(view)] = freshView;
-          view.node.parentNode.insertBefore(freshView.node, view.node);
-          view.remove();
-
-          view = new pw.View(freshView.node, this.templates);
-        }
-
-        view.transform(object, callback);
+        this.ensureViewForObject(object).transform(object, callback);
       }
 
       for (let view of this.views) {
@@ -142,12 +97,16 @@ export default class {
         view.remove();
       }
     }
+
+    return this;
   }
 
   present(objects, callback) {
     this.transform(objects, (view, object) => {
       view.present(object, callback);
     });
+
+    return this;
   }
 
   use(version) {
@@ -170,6 +129,7 @@ export default class {
     }
 
     this.usableVersion = version;
+
     return this;
   }
 
@@ -212,6 +172,64 @@ export default class {
 
       currentMatch = nextMatch;
     }
+
+    return this;
+  }
+
+  append(arg) {
+    this.views.forEach((view) => {
+      view.append(arg);
+    });
+
+    return this;
+  }
+
+  prepend(arg) {
+    this.views.forEach((view) => {
+      view.prepend(arg);
+    });
+
+    return this;
+  }
+
+  after(arg) {
+    this.views.forEach((view) => {
+      view.after(arg);
+    });
+
+    return this;
+  }
+
+  before(arg) {
+    this.views.forEach((view) => {
+      view.before(arg);
+    });
+
+    return this;
+  }
+
+  replace(arg) {
+    this.views.forEach((view) => {
+      view.replace(arg);
+    });
+
+    return this;
+  }
+
+  remove() {
+    this.views.forEach((view) => {
+      view.remove();
+    });
+
+    return this;
+  }
+
+  clear() {
+    this.views.forEach((view) => {
+      view.clear();
+    });
+
+    return this;
   }
 
   viewWithId(id) {
@@ -236,5 +254,57 @@ export default class {
     }
 
     return true;
+  }
+
+  ensureViewForObject(object) {
+    var view = this.viewForObject(object);
+
+    if (!view) {
+      let template = this.templates.find((template) => {
+        return template.match("version", this.usableVersion || "default")
+      });
+
+      if (!template) {
+        template = this.templates.filter((template) => {
+          return !template.match("version", "empty");
+        })[0];
+      }
+
+      let createdView = template.clone();
+
+      if (this.views.length == 0) {
+        template.insertionPoint.parentNode.insertBefore(
+          createdView.node, template.insertionPoint
+        );
+      } else {
+        let lastView = this.views[this.views.length - 1];
+        lastView.node.parentNode.insertBefore(
+          createdView.node, lastView.node.nextSibling
+        );
+      }
+
+      view = new pw.View(createdView.node, this.templates);
+      this.views.push(view);
+    } else if (!this.viewHasAllBindings(view, object)) {
+      // Replace the current view with a fresh version.
+
+      let template = this.templates.find((template) => {
+        return template.match("version", this.usableVersion || "default")
+      });
+
+      if (!template) {
+        // if we don't have a default version, use the first one
+        template = this.templates[0];
+      }
+
+      var freshView = template.clone();
+      this.views[this.views.indexOf(view)] = freshView;
+      view.node.parentNode.insertBefore(freshView.node, view.node);
+      view.remove();
+
+      view = new pw.View(freshView.node, this.templates);
+    }
+
+    return view;
   }
 }

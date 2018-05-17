@@ -66,6 +66,11 @@ export default class {
     }
   }
 
+  with(callback) {
+    callback(this, this);
+    return this;
+  }
+
   bind(object) {
     this.ensureUsed();
 
@@ -86,6 +91,8 @@ export default class {
             new pw.View(view.node).attributes().set(key, partValue);
           }
         }
+      } else if(typeof value === "undefined") {
+        view.remove();
       } else {
         view.node.innerHTML = value;
       }
@@ -158,8 +165,48 @@ export default class {
     return this;
   }
 
+  append(arg) {
+    this.node.appendChild(this.ensureElement(arg));
+
+    return this;
+  }
+
+  prepend(arg) {
+    this.node.insertBefore(this.ensureElement(arg), this.node.firstChild);
+
+    return this;
+  }
+
+  after(arg) {
+    this.node.parentNode.insertBefore(this.ensureElement(arg), this.node.nextSibling);
+
+    return this;
+  }
+
+  before(arg) {
+    this.node.parentNode.insertBefore(this.ensureElement(arg), this.node);
+
+    return this;
+  }
+
+  replace(arg) {
+    this.node.parentNode.replaceChild(this.ensureElement(arg), this.node);
+
+    return this;
+  }
+
   remove() {
     this.node.parentNode.removeChild(this.node);
+
+    return this;
+  }
+
+  clear() {
+    while (this.node.firstChild) {
+      this.node.removeChild(this.node.firstChild);
+    }
+
+    return this;
   }
 
   setTitle(value) {
@@ -238,12 +285,9 @@ export default class {
   templates() {
     if (!this.memoizedTemplates) {
       var templates = this.qs("script[type='text/template']").map((templateView) => {
-        let template = document.createElement("div");
-        template.innerHTML = templateView.node.innerHTML.trim();
-
         // FIXME: I think it would make things more clear to create a dedicated template object
         // we could initialize with an insertion point, then have a `clone` method there rather than on view
-        let view = new pw.View(template.firstChild);
+        let view = new pw.View(this.ensureElement(templateView.node.innerHTML));
         view.insertionPoint = templateView.node;
 
         // Replace bindings with templates.
@@ -306,6 +350,16 @@ export default class {
   ensureUsed() {
     if (!this.used) {
       this.use("default");
+    }
+  }
+
+  ensureElement(arg) {
+    if (arg instanceof Element) {
+      return arg;
+    } else {
+      let container = document.createElement("div");
+      container.innerHTML = arg.trim();
+      return container.firstChild;
     }
   }
 }

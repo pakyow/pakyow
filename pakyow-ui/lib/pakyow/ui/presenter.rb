@@ -36,7 +36,7 @@ module Pakyow
               yield wrapped_nested_presenter, *nested_args
             end
           }).tap { |wrapped|
-            if method_name == :present
+            if method_name == :present || method_name == :transform || method_name == :bind
               data = if args[0].is_a?(Data::Source)
                 args[0].to_a
               else
