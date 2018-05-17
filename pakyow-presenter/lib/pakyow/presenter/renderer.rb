@@ -74,6 +74,7 @@ module Pakyow
           info[:layout] = layout_object.dup
         end
 
+        @automatic_presentation = false
         unless presenter_class = find_presenter(@as || @path)
           presenter_class = ViewPresenter
           @automatic_presentation = true
