@@ -24,7 +24,7 @@ module Pakyow
         @calls = []
       end
 
-      UNSUPPORTED = %i(view layout page partials find_all form forms action= method= options_for grouped_options_for)
+      UNSUPPORTED = %i(view layout page partials find_all form forms)
       def method_missing(method_name, *args)
         if @presenter.respond_to?(method_name)
           calls_for_each = []
