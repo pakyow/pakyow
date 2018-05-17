@@ -1,6 +1,6 @@
 [
   {
-    "id": "d6e77d2efb215097ab7bc53be20967d0074374b2",
+    "id": "6b245ae4ae93d8c31afe2c4a8c99a394e4e5fdb3",
     "calls": [["find",[["post"]],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]=",["class",["foo","bar"]],[],[]]]],["attrs",[],[],[["[]=",["style",{}],[],[]]]]]],[]]]]]
   }
 ]

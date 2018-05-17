@@ -1,6 +1,6 @@
 [
   {
-    "id": "7669435a2b8e6de438d89b37898ba1871a1c5320",
+    "id": "6ff5171bc992bb796ce4160518159ac7732c9fa0",
     "calls": [["find",[["post"]],[],[["bind",[{"id":1,"title":"foo"}],[],[["replace",["foo"],[],[]]]]]]]
   }
 ]

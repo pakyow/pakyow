@@ -6,7 +6,6 @@ gemspec
 gemspec path: "pakyow-core"
 gemspec path: "pakyow-data"
 gemspec path: "pakyow-presenter"
-gemspec path: "pakyow-rake"
 gemspec path: "pakyow-realtime"
 gemspec path: "pakyow-support"
 gemspec path: "pakyow-test"

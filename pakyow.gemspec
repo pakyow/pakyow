@@ -26,7 +26,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "pakyow-data", Pakyow::VERSION
   spec.add_dependency "pakyow-mailer", Pakyow::VERSION
   spec.add_dependency "pakyow-presenter", Pakyow::VERSION
-  spec.add_dependency "pakyow-rake", Pakyow::VERSION
   spec.add_dependency "pakyow-realtime", Pakyow::VERSION
   spec.add_dependency "pakyow-support", Pakyow::VERSION
   spec.add_dependency "pakyow-test", Pakyow::VERSION

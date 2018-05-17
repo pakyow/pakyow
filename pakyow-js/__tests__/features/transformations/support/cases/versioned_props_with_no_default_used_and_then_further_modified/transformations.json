@@ -1,6 +1,6 @@
 [
   {
-    "id": "3e495abb97672c2a3235ecc2d07e62d70cf1cb0d",
+    "id": "7dd6768cba1565b9a32104c6b2e4486b8bdb4808",
     "calls": [["find",[["post","title"]],[],[["use",["red"],[],[["attrs",[],[],[["[]",["style"],[],[["[]=",["background","blue"],[],[]]]]]]]]]]]
   }
 ]

@@ -1,10 +1,10 @@
 [
   {
-    "id": "1970c627c9d7846516e679cab9ad2c7f230a937c",
+    "id": "c94ecf9bbe4f9ec697d681833ba7680ddf8497a0",
     "calls": [["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"}]],[[]],[]]]]]
   },
   {
-    "id": "1970c627c9d7846516e679cab9ad2c7f230a937c",
+    "id": "c94ecf9bbe4f9ec697d681833ba7680ddf8497a0",
     "calls": [["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"},{"id":2,"title":"red foo"}]],[[],[["find",[["title"]],[],[["use",["red"],[],[]]]]]],[]]]]]
   }
 ]

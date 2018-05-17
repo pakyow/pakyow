@@ -1,6 +1,6 @@
 [
   {
-    "id": "9a460a00a0d846502bbef5f21f5190a5fa585716",
+    "id": "3516bcd1860b270eda595a4f8f98777ede305823",
     "calls": [["find",[["post"]],[],[["bind",[{"id":1,"title":"foo"}],[],[["remove",[],[],[]]]]]]]
   }
 ]
