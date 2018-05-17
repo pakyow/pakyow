@@ -8,6 +8,10 @@ pw.inits.push(function () {
   });
 });
 
+pw.inits.push(function () {
+  pw.Component.init(document.querySelector("html"));
+});
+
 pw.ready(function () {
   pw.inits.forEach(function (fn) {
     fn();
