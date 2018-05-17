@@ -14,7 +14,7 @@ RSpec.describe "minifying assets" do
     end
 
     it "minifies js" do
-      expect(call("/default.js")[2].body.read).to eq("console.log(\"foo\");console.log(\"bar\");")
+      expect(call("/default.js")[2].body.read).to eq("console.log(\"foo\"),console.log(\"bar\");")
     end
   end
 

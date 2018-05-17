@@ -23,5 +23,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "pakyow-presenter", Pakyow::VERSION
   spec.add_dependency "pakyow-support", Pakyow::VERSION
 
+  spec.add_dependency "uglifier", "~> 4.1"
   spec.add_dependency "yui-compressor", "~> 0.12"
 end

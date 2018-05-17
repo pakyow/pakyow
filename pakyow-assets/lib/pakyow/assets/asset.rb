@@ -109,13 +109,14 @@ module Pakyow
         @mime_prefix, @mime_suffix = @mime_type.split("/", 2)
 
         if config.minify
+          require "uglifier"
           require "yui/compressor"
 
           @minifier = case @mime_suffix
           when "css"
             YUI::CssCompressor.new
           when "javascript"
-            YUI::JavaScriptCompressor.new
+            Uglifier.new
           else
             nil
           end
@@ -167,7 +168,7 @@ module Pakyow
       def minify(content)
         begin
           @minifier.compress(content)
-        rescue YUI::Compressor::RuntimeError
+        rescue StandardError
           Pakyow.logger.warn "Unable to minify #{@local_path}; using raw content instead"
           content
         end
