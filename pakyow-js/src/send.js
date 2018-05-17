@@ -19,13 +19,17 @@ export default function (url, options = {}) {
       if (status >= 200 && (status < 300 || status === 304)) {
         if (options.success) {
           options.success(xhr.responseText);
+          pw.broadcast("pw:request:succeeded");
         }
       } else {
         if (options.error) {
           options.error(xhr, xhr.statusText);
+          pw.broadcast("pw:request:failed");
         }
       }
     }
+
+    pw.broadcast("pw:request:completed");
   }
 
   if (method !== "GET") {
@@ -50,5 +54,8 @@ export default function (url, options = {}) {
   }
 
   xhr.send(data);
+
+  pw.broadcast("pw:request:dispatched");
+
   return xhr;
 };

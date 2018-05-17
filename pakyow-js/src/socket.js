@@ -24,9 +24,13 @@ export default class {
     this.connection.onopen = () => {
       this.currentReconnectTimeout = this.reconnectTimeout;
       this.connected = true;
+
+      pw.broadcast("pw:socket:connected");
     }
 
     this.connection.onclose = () => {
+      pw.broadcast("pw:socket:closed");
+
       this.connected = false;
       this.reconnect();
     }
