@@ -149,7 +149,7 @@ describe("broadcasting an event", () => {
     });
 
     pw.Component.init(document.querySelector("html"));
-    pw.Component.broadcast("test:channel1", "foo");
+    pw.broadcast("test:channel1", "foo");
 
     expect(pw.Component.instances[0].called).toBe("foo");
     expect(pw.Component.instances[1].called).toBe(undefined);
@@ -336,14 +336,14 @@ describe("ignoring broadcasts", () => {
 
     pw.Component.init(document.querySelector("html"));
 
-    pw.Component.broadcast("test:channel", "foo");
+    pw.broadcast("test:channel", "foo");
     expect(pw.Component.instances[0].called).toBe("foo");
     expect(pw.Component.instances[0].called_again).toBe("foo");
     expect(pw.Component.instances[1].called).toBe("foo");
 
     pw.Component.instances[0].ignore("test:channel");
 
-    pw.Component.broadcast("test:channel", "bar");
+    pw.broadcast("test:channel", "bar");
     expect(pw.Component.instances[0].called).toBe("foo");
     expect(pw.Component.instances[0].called_again).toBe("foo");
     expect(pw.Component.instances[1].called).toBe("bar");
