@@ -163,10 +163,10 @@ export default class {
   }
 
   setTitle(value) {
-    var titleNode = this.qs("title")[0];
+    var titleView = this.qs("title")[0];
 
-    if (titleNode) {
-      titleNode.innerHTML = value;
+    if (titleView) {
+      titleView.node.innerHTML = value;
     }
   }
 
@@ -174,12 +174,11 @@ export default class {
   // INTERNAL METHODS //
   //////////////////////
 
-  // FIXME: seems like this should return view objects
   qs (selector) {
     var results = [];
 
     for (let node of this.node.querySelectorAll(selector)) {
-      results.push(node);
+      results.push(new this.constructor(node));
     }
 
     return results;
@@ -238,15 +237,14 @@ export default class {
 
   templates() {
     if (!this.memoizedTemplates) {
-      var templates = this.qs("script[type='text/template']").map((templateNode) => {
-        // console.log("template", templateNode.outerHTML)
+      var templates = this.qs("script[type='text/template']").map((templateView) => {
         let template = document.createElement("div");
-        template.innerHTML = templateNode.innerHTML.trim();
+        template.innerHTML = templateView.node.innerHTML.trim();
 
         // FIXME: I think it would make things more clear to create a dedicated template object
         // we could initialize with an insertion point, then have a `clone` method there rather than on view
         let view = new pw.View(template.firstChild);
-        view.insertionPoint = templateNode;
+        view.insertionPoint = templateView.node;
 
         // Replace bindings with templates.
         for (let binding of view.bindingProps()) {
