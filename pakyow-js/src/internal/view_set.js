@@ -37,7 +37,21 @@ export default class {
     return new this.constructor(views, templates);
   }
 
-  present(objects, callback) {
+  bind(objects) {
+    if (!Array.isArray(objects)) {
+      objects = [objects];
+    }
+
+    for (let object of objects) {
+      let view = this.viewForObject(object);
+
+      if (view) {
+        view.bind(object)
+      }
+    }
+  }
+
+  transform(objects, callback) {
     if (!Array.isArray(objects)) {
       objects = [objects];
     }
@@ -52,14 +66,9 @@ export default class {
           });
 
           if (!template) {
-            // If we don't have a default version, use the first non-empty one.
-            if (callback) {
-              template = this.templates.filter((template) => {
-                return !template.match("version", "empty");
-              })[0];
-            } else {
-              continue;
-            }
+            template = this.templates.filter((template) => {
+              return !template.match("version", "empty");
+            })[0];
           }
 
           let createdView = template.clone();
@@ -97,7 +106,7 @@ export default class {
           view = new pw.View(freshView.node, this.templates);
         }
 
-        view.present(object, callback);
+        view.transform(object, callback);
       }
 
       for (let view of this.views) {
@@ -133,6 +142,12 @@ export default class {
         view.remove();
       }
     }
+  }
+
+  present(objects, callback) {
+    this.transform(objects, (view, object) => {
+      view.present(object, callback);
+    });
   }
 
   use(version) {
