@@ -47,7 +47,7 @@ module Pakyow
         super(@view, **args)
       end
 
-      def to_html(clean: true)
+      def to_html(clean_bindings: true, clean_versions: true)
         if block = self.class.block
           instance_exec(&block)
         end

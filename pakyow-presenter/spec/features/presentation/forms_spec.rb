@@ -6,16 +6,16 @@ RSpec.describe "presenting forms" do
   let :view do
     Pakyow::Presenter::View.new(
       <<~HTML
-        <form binding=\"post\">
-          <input binding=\"title\" type="text">
-          <input@foo type="text" name="foo">
+        <form binding="post">
+          <input binding="title" type="text">
+          <input binding="foo" type="text" name="foo">
         </form>
       HTML
     )
   end
 
   let :form do
-    presenter.form(:post)
+    presenter.form(:post).bind(title: "", foo: "")
   end
 
   describe "finding a form by name" do

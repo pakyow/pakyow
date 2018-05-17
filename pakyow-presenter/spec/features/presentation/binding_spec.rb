@@ -11,9 +11,9 @@ RSpec.describe "binding data via presenter" do
     presenter.find(:post)
   end
 
-  it "binds a single value" do
+  it "binds a single value, removing the unbound binding" do
     post_presenter.bind(title: "foo")
-    expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">foo</h1><p data-b=\"body\">body goes here</p></div>")
+    expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">foo</h1></div>")
   end
 
   it "binds multiple values" do
@@ -55,9 +55,9 @@ RSpec.describe "binding data via presenter" do
       expect { post_presenter.bind(nil) }.not_to raise_error
     end
 
-    it "leaves the view intact" do
+    it "removes the unbound view" do
       post_presenter.bind(nil)
-      expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">title goes here</h1><p data-b=\"body\">body goes here</p></div>")
+      expect(presenter.to_s).to eq("")
     end
 
     it "returns self" do

@@ -28,32 +28,32 @@ RSpec.describe "view transformation via presenter" do
 
     it "tranforms to match a single object, removing bindings for nonexistent values" do
       post_presenter.transform(body: "foo")
-      expect(presenter.to_s).to eq("<div data-b=\"post\"><p data-b=\"body\">body goes here</p></div>")
+      expect(presenter.to_s(clean_bindings: false)).to eq("<div data-b=\"post\"><p data-b=\"body\">body goes here</p></div>")
     end
 
     it "tranforms to match an array of objects" do
       post_presenter.transform([{ title: "foo" }, { body: "bar" }])
-      expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">title goes here</h1></div><div data-b=\"post\"><p data-b=\"body\">body goes here</p></div>")
+      expect(presenter.to_s(clean_bindings: false)).to eq("<div data-b=\"post\"><h1 data-b=\"title\">title goes here</h1></div><div data-b=\"post\"><p data-b=\"body\">body goes here</p></div>")
     end
 
     context "value for binding is nil" do
       it "removes the binding" do
         post_presenter.transform(body: nil)
-        expect(presenter.to_s).to eq("<div data-b=\"post\"></div>")
+        expect(presenter.to_s(clean_bindings: false)).to eq("<div data-b=\"post\"></div>")
       end
     end
 
     context "object is empty" do
       it "removes the binding" do
         post_presenter.transform([])
-        expect(presenter.to_s).to eq("")
+        expect(presenter.to_s(clean_bindings: false)).to eq("")
       end
     end
 
     context "object is nil" do
       it "removes the binding" do
         post_presenter.transform(nil)
-        expect(presenter.to_s).to eq("")
+        expect(presenter.to_s(clean_bindings: false)).to eq("")
       end
     end
 
@@ -68,7 +68,7 @@ RSpec.describe "view transformation via presenter" do
 
       it "attempts to bind" do
         post_presenter.transform(object.new("title"))
-        expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">title goes here</h1></div>")
+        expect(presenter.to_s(clean_bindings: false)).to eq("<div data-b=\"post\"><h1 data-b=\"title\">title goes here</h1></div>")
       end
     end
   end
@@ -79,7 +79,7 @@ RSpec.describe "view transformation via presenter" do
     end
 
     it "appends" do
-      expect(presenter.to_s).to include("<h1 data-b=\"title\">title goes here hi</h1>")
+      expect(presenter.to_s(clean_bindings: false)).to include("<h1 data-b=\"title\">title goes here hi</h1>")
     end
   end
 
@@ -89,7 +89,7 @@ RSpec.describe "view transformation via presenter" do
     end
 
     it "prepends" do
-      expect(presenter.to_s).to include("<h1 data-b=\"title\">hi title goes here</h1>")
+      expect(presenter.to_s(clean_bindings: false)).to include("<h1 data-b=\"title\">hi title goes here</h1>")
     end
   end
 
@@ -99,7 +99,7 @@ RSpec.describe "view transformation via presenter" do
     end
 
     it "inserts after" do
-      expect(presenter.to_s).to include("<h1 data-b=\"title\">title goes here</h1> hi")
+      expect(presenter.to_s(clean_bindings: false)).to include("<h1 data-b=\"title\">title goes here</h1> hi")
     end
   end
 
@@ -109,7 +109,7 @@ RSpec.describe "view transformation via presenter" do
     end
 
     it "inserts before" do
-      expect(presenter.to_s).to include("hi <h1 data-b=\"title\">title goes here</h1>")
+      expect(presenter.to_s(clean_bindings: false)).to include("hi <h1 data-b=\"title\">title goes here</h1>")
     end
   end
 
@@ -119,7 +119,7 @@ RSpec.describe "view transformation via presenter" do
     end
 
     it "replaces" do
-      expect(presenter.to_s).to include("hi")
+      expect(presenter.to_s(clean_bindings: false)).to include("hi")
       expect(presenter.find(:post, :title)).to be nil
     end
   end

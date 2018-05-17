@@ -4,6 +4,26 @@ RSpec.describe "presenting a view that defines one or more ui mode" do
   let :app_definition do
     Proc.new {
       instance_exec(&$presenter_app_boilerplate)
+
+      presenter "/presentation/ui_modes" do
+        find(:post).bind({})
+      end
+
+      presenter "/presentation/ui_modes/default" do
+        find(:post).bind({})
+      end
+
+      presenter "/presentation/ui_modes/conceal_by_type_and_name" do
+        find(:post).bind({})
+      end
+
+      presenter "/presentation/ui_modes/conceal_by_type_name_and_version" do
+        find(:post).bind({})
+      end
+
+      presenter "/presentation/ui_modes/display_by_type_name_and_version" do
+        find(:post).bind({})
+      end
     }
   end
 
@@ -74,6 +94,10 @@ RSpec.describe "presenting a view that defines one or more ui mode" do
           default do
             render "/presentation/ui_modes", mode: :two
           end
+        end
+
+        presenter "/presentation/ui_modes" do
+          find(:post).bind({})
         end
       }
     end

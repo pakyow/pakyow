@@ -115,7 +115,7 @@ module Pakyow
 
         performing :render do
           @connection.body = StringIO.new(
-            @presenter.to_html
+            @presenter.to_html(clean_bindings: !rendering_prototype?)
           )
         end
 

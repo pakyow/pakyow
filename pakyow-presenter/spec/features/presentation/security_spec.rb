@@ -67,14 +67,14 @@ RSpec.describe "sanitization during presentation" do
     it "escapes the value" do
       post_view = presenter.find(:post)
       post_view.append("<span></span>")
-      expect(presenter.to_s).to include("<div data-b=\"post\">&lt;span&gt;&lt;/span&gt;</div>")
+      expect(presenter.to_s(clean_bindings: false)).to include("<div data-b=\"post\">&lt;span&gt;&lt;/span&gt;</div>")
     end
 
     context "value is marked as safe" do
       it "does not escape the value" do
         post_view = presenter.find(:post)
         post_view.append(safe("<span></span>"))
-        expect(presenter.to_s).to include("<div data-b=\"post\"><span></span></div>")
+        expect(presenter.to_s(clean_bindings: false)).to include("<div data-b=\"post\"><span></span></div>")
       end
     end
   end
@@ -87,14 +87,14 @@ RSpec.describe "sanitization during presentation" do
     it "escapes the value" do
       post_view = presenter.find(:post)
       post_view.prepend("<span></span>")
-      expect(presenter.to_s).to include("<div data-b=\"post\">&lt;span&gt;&lt;/span&gt;</div>")
+      expect(presenter.to_s(clean_bindings: false)).to include("<div data-b=\"post\">&lt;span&gt;&lt;/span&gt;</div>")
     end
 
     context "value is marked as safe" do
       it "does not escape the value" do
         post_view = presenter.find(:post)
         post_view.prepend(safe("<span></span>"))
-        expect(presenter.to_s).to include("<div data-b=\"post\"><span></span></div>")
+        expect(presenter.to_s(clean_bindings: false)).to include("<div data-b=\"post\"><span></span></div>")
       end
     end
   end
@@ -107,14 +107,14 @@ RSpec.describe "sanitization during presentation" do
     it "escapes the value" do
       post_view = presenter.find(:post)
       post_view.after("<span></span>")
-      expect(presenter.to_s).to include("<div data-b=\"post\"></div>&lt;span&gt;&lt;/span&gt;")
+      expect(presenter.to_s(clean_bindings: false)).to include("<div data-b=\"post\"></div>&lt;span&gt;&lt;/span&gt;")
     end
 
     context "value is marked as safe" do
       it "does not escape the value" do
         post_view = presenter.find(:post)
         post_view.after(safe("<span></span>"))
-        expect(presenter.to_s).to include("<div data-b=\"post\"></div><span></span>")
+        expect(presenter.to_s(clean_bindings: false)).to include("<div data-b=\"post\"></div><span></span>")
       end
     end
   end
@@ -127,14 +127,14 @@ RSpec.describe "sanitization during presentation" do
     it "escapes the value" do
       post_view = presenter.find(:post)
       post_view.before("<span></span>")
-      expect(presenter.to_s).to include("&lt;span&gt;&lt;/span&gt;<div data-b=\"post\"></div>")
+      expect(presenter.to_s(clean_bindings: false)).to include("&lt;span&gt;&lt;/span&gt;<div data-b=\"post\"></div>")
     end
 
     context "value is marked as safe" do
       it "does not escape the value" do
         post_view = presenter.find(:post)
         post_view.before(safe("<span></span>"))
-        expect(presenter.to_s).to include("<span></span><div data-b=\"post\"></div>")
+        expect(presenter.to_s(clean_bindings: false)).to include("<span></span><div data-b=\"post\"></div>")
       end
     end
   end
@@ -147,14 +147,14 @@ RSpec.describe "sanitization during presentation" do
     it "escapes the value" do
       post_view = presenter.find(:post)
       post_view.replace("<span></span>")
-      expect(presenter.to_s).to include("&lt;span&gt;&lt;/span&gt;")
+      expect(presenter.to_s(clean_bindings: false)).to include("&lt;span&gt;&lt;/span&gt;")
     end
 
     context "value is marked as safe" do
       it "does not escape the value" do
         post_view = presenter.find(:post)
         post_view.replace(safe("<span></span>"))
-        expect(presenter.to_s).to include("<span></span>")
+        expect(presenter.to_s(clean_bindings: false)).to include("<span></span>")
       end
     end
   end
@@ -169,7 +169,7 @@ RSpec.describe "sanitization during presentation" do
       post_view.attrs[:class] = ["\"one"]
       post_view.attrs[:style] = { color: "red\">haha"}
       post_view.attrs[:title] = "\">again"
-      expect(presenter.to_s).to include("<div data-b=\"post\" class=\"&quot;one\" style=\"color:red&quot;&gt;haha\" title=\"&quot;&gt;again\"></div>")
+      expect(presenter.to_s(clean_bindings: false)).to include("<div data-b=\"post\" class=\"&quot;one\" style=\"color:red&quot;&gt;haha\" title=\"&quot;&gt;again\"></div>")
     end
   end
 
@@ -180,7 +180,7 @@ RSpec.describe "sanitization during presentation" do
 
     it "strips tags from the value" do
       presenter.title = "<div>injected</div>"
-      expect(presenter.to_s).to eq("<head><title>injected</title></head>")
+      expect(presenter.to_s(clean_bindings: false)).to eq("<head><title>injected</title></head>")
     end
   end
 
@@ -192,14 +192,14 @@ RSpec.describe "sanitization during presentation" do
     it "escapes the value" do
       post_view = presenter.find(:post)
       post_view.html = "<span></span>"
-      expect(presenter.to_s).to include("<div data-b=\"post\">&lt;span&gt;&lt;/span&gt;</div>")
+      expect(presenter.to_s(clean_bindings: false)).to include("<div data-b=\"post\">&lt;span&gt;&lt;/span&gt;</div>")
     end
 
     context "value is marked as safe" do
       it "does not escape the value" do
         post_view = presenter.find(:post)
         post_view.html = safe("<span></span>")
-        expect(presenter.to_s).to include("<div data-b=\"post\"><span></span></div>")
+        expect(presenter.to_s(clean_bindings: false)).to include("<div data-b=\"post\"><span></span></div>")
       end
     end
   end
@@ -214,7 +214,7 @@ RSpec.describe "sanitization during presentation" do
     end
 
     it "escapes the submitted and presented values" do
-      expect(presenter.to_s).to include("<option value=\"&gt;haha\">&gt;lol</option>")
+      expect(presenter.to_s(clean_bindings: false)).to include("<option value=\"&gt;haha\">&gt;lol</option>")
     end
   end
 
@@ -228,11 +228,11 @@ RSpec.describe "sanitization during presentation" do
     end
 
     it "escapes the group label" do
-      expect(presenter.to_s).to include("<optgroup label=\"&quot;&gt;&lt;script&gt;&lt;/script&gt;\">")
+      expect(presenter.to_s(clean_bindings: false)).to include("<optgroup label=\"&quot;&gt;&lt;script&gt;&lt;/script&gt;\">")
     end
 
     it "escapes the submitted and presented values" do
-      expect(presenter.to_s).to include("<option value=\"&gt;haha\">&gt;lol</option>")
+      expect(presenter.to_s(clean_bindings: false)).to include("<option value=\"&gt;haha\">&gt;lol</option>")
     end
   end
 end

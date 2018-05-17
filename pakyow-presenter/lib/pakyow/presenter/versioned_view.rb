@@ -46,11 +46,12 @@ module Pakyow
         tap do
           if view = version_named(version)
             view.object.delete_label(:version)
+            view.object.set_label(:used, true)
             self.versioned_view = view
+            cleanup
+          else
+            cleanup(:all)
           end
-
-          # remove everything but the used version
-          @versions.reject { |versioned_view| versioned_view == view }.each(&:remove)
         end
       end
 
@@ -63,6 +64,8 @@ module Pakyow
       end
 
       def bind(object)
+        cleanup
+
         @versions.each do |version|
           version.bind(object)
         end
@@ -71,6 +74,21 @@ module Pakyow
       end
 
       protected
+
+      def cleanup(mode = nil)
+        if mode == :all
+          @versions.each(&:remove)
+          @versions = []
+        else
+          @working.object.delete_label(:version)
+          @versions.each do |view_to_remove|
+            unless view_to_remove == @working
+              view_to_remove.remove
+              @versions.delete(view_to_remove)
+            end
+          end
+        end
+      end
 
       def determine_working_version
         self.versioned_view = default_version

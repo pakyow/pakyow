@@ -11,10 +11,6 @@ RSpec.describe "templates embedded by presenter" do
     it "embeds a template" do
       expect(call("/embeds/top-level")[2].body.read).to eq_sans_whitespace(
         <<~HTML
-          <div data-b="post">
-            <h1 data-b="title">title</h1>
-          </div>
-
           <script type="text/template" data-version="default" data-b="post">
             <div data-b="post">
               <h1 data-b="title">title</h1>
@@ -29,18 +25,6 @@ RSpec.describe "templates embedded by presenter" do
     it "embeds a template" do
       expect(call("/embeds/nested")[2].body.read).to eq_sans_whitespace(
         <<~HTML
-          <div data-b="post">
-            <div data-b="comment">
-              <h1 data-b="title">title</h1>
-            </div>
-
-            <script type="text/template" data-version="default" data-b="comment">
-              <div data-b="comment">
-                <h1 data-b="title">title</h1>
-              </div>
-            </script>
-          </div>
-
           <script type="text/template" data-version="default" data-b="post">
             <div data-b="post">
               <div data-b="comment">
@@ -57,10 +41,6 @@ RSpec.describe "templates embedded by presenter" do
     it "embeds a template" do
       expect(call("/embeds/versioned")[2].body.read).to eq_sans_whitespace(
         <<~HTML
-          <div data-b="post">
-            <h1 data-b="title">title1</h1>
-          </div>
-
           <script type="text/template" data-version="default" data-b="post">
             <div data-b="post">
               <h1 data-b="title">title1</h1>

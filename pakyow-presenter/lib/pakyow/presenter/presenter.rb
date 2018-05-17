@@ -340,6 +340,8 @@ module Pakyow
             value.non_content_parts.each_pair do |key, value_part|
               binding_view.attrs[key] = value_part
             end
+
+            binding_view.object.set_label(:used, true)
           end
         end
 

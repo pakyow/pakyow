@@ -198,10 +198,12 @@ module Pakyow
             binding_props.each do |binding|
               if object.include?(binding.label(:binding))
                 bind_value_to_node(object[binding.label(:binding)], binding)
+                binding.set_label(:used, true)
               end
             end
 
             attributes[:"data-id"] = object[:id]
+            self.object.set_label(:used, true)
           end
         end
       end
@@ -320,10 +322,15 @@ module Pakyow
 
       # Converts +self+ to html, rendering the view.
       #
-      # If +clean+ is +true+, unused versions will be cleaned up prior to rendering.
-      #
-      def to_html(clean: true)
-        cleanup_versions if clean
+      def to_html(clean_bindings: true, clean_versions: true)
+        if clean_bindings
+          remove_unused_bindings
+        end
+
+        if clean_versions
+          remove_unused_versions
+        end
+
         @object.to_html
       end
       alias :to_s :to_html
@@ -397,13 +404,17 @@ module Pakyow
         }
       end
 
-      def cleanup_versions
+      def remove_unused_bindings
+        (binding_scopes + binding_props).reject { |node|
+          node.labeled?(:used)
+        }.each(&:remove)
+      end
+
+      def remove_unused_versions
         versioned_nodes.each do |node_set|
-          node_set.each do |node|
-            unless node.label(:version) == VersionedView::DEFAULT_VERSION
-              node.remove
-            end
-          end
+          node_set.reject { |node|
+            node.label(:version) == VersionedView::DEFAULT_VERSION
+          }.each(&:remove)
         end
       end
 
