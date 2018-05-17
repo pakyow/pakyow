@@ -53,7 +53,7 @@ RSpec.describe "presenting data via presenter" do
 
         def title
           if @accessed
-            nil
+            "title2"
           else
             @accessed = true
             "title"

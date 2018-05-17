@@ -182,7 +182,7 @@ module Pakyow
       #
       # @see View#transform
       #
-      def transform(data)
+      def transform(data, yield_binder = false)
         tap do
           data = Array.ensure(data).compact
 
@@ -198,12 +198,12 @@ module Pakyow
             local = @view
 
             data.each do |object|
-              object = binder_or_data(object)
+              binder = binder_or_data(object)
 
-              local.transform(object)
+              local.transform(binder)
 
               if block_given?
-                yield presenter_for(local), object
+                yield presenter_for(local), yield_binder ? binder : object
               end
 
               unless local.equal?(@view)
@@ -237,7 +237,7 @@ module Pakyow
       #
       def present(data)
         tap do
-          transform(data) do |presenter, binder|
+          transform(data, true) do |presenter, binder|
             yield presenter, binder.object if block_given?
             presenter.bind(binder)
 
