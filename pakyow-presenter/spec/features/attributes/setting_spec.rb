@@ -41,12 +41,12 @@ RSpec.describe "setting attributes via presenter" do
   context "hash attributes" do
     context "when the attribute exists in the view" do
       let :view do
-        Pakyow::Presenter::View.new("<div binding=\"post\" style=\"color:red\"></div>").find(:post)
+        Pakyow::Presenter::View.new("<div binding=\"post\" style=\"color: red;\"></div>").find(:post)
       end
 
       it "can be overridden" do
         presenter.attributes[:style] = { color: "blue" }
-        expect(presenter.to_html).to include("style=\"color:blue\"")
+        expect(presenter.to_html).to include("style=\"color: blue;\"")
       end
     end
 
@@ -57,7 +57,7 @@ RSpec.describe "setting attributes via presenter" do
 
       it "can be set" do
         presenter.attributes[:style] = { color: "blue" }
-        expect(presenter.to_html).to include("style=\"color:blue\"")
+        expect(presenter.to_html).to include("style=\"color: blue;\"")
       end
     end
 
@@ -68,7 +68,7 @@ RSpec.describe "setting attributes via presenter" do
 
       it "converts the string into a hash" do
         presenter.attributes[:style] = "color: blue; text-decoration: underline"
-        expect(presenter.to_html).to include("style=\"color:blue;text-decoration:underline\"")
+        expect(presenter.to_html).to include("style=\"color: blue; text-decoration: underline;\"")
       end
 
       context "when the value cannot be converted" do

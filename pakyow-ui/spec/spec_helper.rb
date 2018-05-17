@@ -1,48 +1,73 @@
-require_relative '../../pakyow-support/lib/pakyow-support'
-require_relative '../../pakyow-core/lib/pakyow-core'
-require_relative '../../pakyow-presenter/lib/pakyow-presenter'
-require_relative '../../pakyow-realtime/lib/pakyow-realtime'
+start_simplecov do
+  lib_path = File.expand_path("../../lib", __FILE__)
 
-require 'rack/test'
-
-# disable the logger when staging
-Pakyow::App.after :init do
-  Pakyow.logger = Rack::NullLogger.new(self)
-end
-
-# handle errors that occur
-Pakyow::CallContext.after :error do
-  # puts request.error.message
-  # puts request.error.backtrace
-
-  fail request.error
-end
-
-if ENV['COVERAGE']
-  require 'simplecov'
-  require 'simplecov-console'
-  SimpleCov.formatter = SimpleCov::Formatter::Console
-  SimpleCov.start
-end
-
-module PerformedMutations
-  def self.perform(name, view = nil, data = nil)
-    performed(name) << {
-      view: view,
-      data: data
-    }
-
-    view
+  add_filter do |file|
+    !file.filename.start_with?(lib_path)
   end
 
-  def self.performed(name = nil)
-    @performed ||= {}
+  track_files File.join(lib_path, "**/*.rb")
+end
 
-    return @performed if name.nil?
-    @performed[name] ||= []
+require "htmlbeautifier"
+
+require "pakyow/ui"
+
+require_relative "../../spec/helpers/app_helpers"
+require_relative "../../spec/helpers/mock_request"
+require_relative "../../spec/helpers/mock_response"
+require_relative "../../spec/helpers/mock_handler"
+
+RSpec.configure do |config|
+  config.include AppHelpers
+
+  config.before do |example|
+    Pakyow.config.data.connections.sql[:default] = "sqlite::memory"
+  end
+end
+
+require_relative "../../spec/context/testable_app_context"
+require_relative "../../spec/context/suppressed_output_context"
+require_relative "../../spec/context/websocket_intercept_context"
+
+$ui_app_boilerplate = Proc.new do
+  configure do
+    config.presenter.path = File.join(File.expand_path("../", __FILE__), "features/support/views")
+  end
+end
+
+def save_ui_case(example, path:)
+  initial_response = call(path)
+  expect(initial_response[0]).to eq(200)
+  initial = initial_response[2].body.read
+
+  transformation = ws_intercept do
+    yield
   end
 
-  def self.reset
-    @performed = {}
-  end
+  result_response = call(path)
+  expect(result_response[0]).to eq(200)
+  result = result_response[2].body.read
+
+  case_name = example.metadata[:full_description].gsub(" ", "_").gsub(/_transforms$/, "")
+
+  save_path = File.expand_path(
+    "../../../pakyow-js/__tests__/features/transformations/support/cases/#{case_name}",
+    __FILE__
+  )
+
+  FileUtils.mkdir_p(save_path)
+
+  File.open(
+    File.join(save_path, "initial.html"), "w+"
+  ).write(HtmlBeautifier.beautify(initial))
+
+  File.open(
+    File.join(save_path, "result.html"), "w+"
+  ).write(HtmlBeautifier.beautify(result))
+
+  File.open(
+    File.join(save_path, "transformations.json"), "w+"
+  ).write(JSON.pretty_generate(transformation))
+
+  transformation
 end

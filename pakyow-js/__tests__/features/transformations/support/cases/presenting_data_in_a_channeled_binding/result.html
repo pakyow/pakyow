@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html data-t="9f041ce6223bb381f83dec825601b50ed98a3c47">
+  <head>
+    <title>default</title>
+    <meta name="pw-authenticity-token" content="68804fff3bc9b78d4eca8a66d22e5e31a22ef59d1a16ad2e:fXY853QMFbEOowvEscjJ/G/ES7Pw8MfX4ap8wtegPgc=">
+    <meta name="pw-authenticity-param" content="authenticity_token">
+    <meta name="pw-connection-id" content="eba948301cac42fa281ab82200b1933228f87d2420654544:1HGq5SAL+OkFxYiB8ZHs2gBE5v2HbgLw3W9+rsL1BjU=">
+    <meta name="pw-endpoint" content="ws://example.org:80/pw-socket">
+  </head>
+  <body>
+    <main>
+      <h1>
+        Published Blog Posts
+      </h1>
+      <article data-b="post:published" data-id="1">
+        <h1 data-b="title">foo</h1>
+      </article>
+      <article data-b="post:published" data-id="3">
+        <h1 data-b="title">baz</h1>
+      </article>
+      <script type="text/template" data-b="post:published">
+        <article data-b="post:published">
+          <h1 data-b="title">
+            title goes here
+          </h1>
+        
+          <p data-b="body">
+            body goes here
+          </p>
+        </article>
+      </script>
+      <hr>
+      <h2>
+        Unpublished Blog Posts
+      </h2>
+      <article data-b="post:unpublished" data-id="2">
+        <h1 data-b="title">bar</h1>
+      </article>
+      <script type="text/template" data-b="post:unpublished">
+        <article data-b="post:unpublished">
+          <h1 data-b="title">
+            title goes here
+          </h1>
+        
+          <p data-b="body">
+            body goes here
+          </p>
+        </article>
+      </script>
+    </main>
+  </body>
+</html>

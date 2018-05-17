@@ -82,6 +82,10 @@ module Pakyow
         to_a
       end
 
+      def to_json(*)
+        @source.to_json
+      end
+
       def subscribe(subscriber, handler:, payload: nil)
         subscription_ids = []
 

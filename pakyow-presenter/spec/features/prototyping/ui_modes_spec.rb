@@ -14,7 +14,7 @@ RSpec.describe "prototype ui modes" do
   it "uses the mode passed as a param" do
     expect(call("/prototyping/ui_modes?mode=one")[2].body.read).to include_sans_whitespace(
       <<~HTML
-        <div data-b="post">
+        <div data-b="post" data-v="one">
           <h1>one</h1>
         </div>
       HTML
@@ -22,7 +22,7 @@ RSpec.describe "prototype ui modes" do
 
     expect(call("/prototyping/ui_modes?mode=two")[2].body.read).to include_sans_whitespace(
       <<~HTML
-        <div data-b="post">
+        <div data-b="post" data-v="two">
           <h1>two</h1>
         </div>
       HTML

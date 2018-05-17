@@ -40,7 +40,7 @@ RSpec.describe "view versioning via presenter" do
       end
 
       it "renders the default" do
-        expect(presenter.to_s(clean_bindings: false)).to eq("<div data-b=\"post\"><h1 data-b=\"title\">default</h1></div>")
+        expect(presenter.to_s(clean_bindings: false)).to eq("<div data-b=\"post\" data-v=\"default\"><h1 data-b=\"title\">default</h1></div>")
       end
     end
 
@@ -50,7 +50,7 @@ RSpec.describe "view versioning via presenter" do
       end
 
       it "renders only the default" do
-        expect(presenter.to_s(clean_bindings: false)).to eq("<div data-b=\"post\"><h1 data-b=\"title\">default</h1></div>")
+        expect(presenter.to_s(clean_bindings: false)).to eq("<div data-b=\"post\" data-v=\"default\"><h1 data-b=\"title\">default</h1></div>")
       end
     end
 
@@ -93,7 +93,7 @@ RSpec.describe "view versioning via presenter" do
         end
 
         it "renders both of them" do
-          expect(presenter.to_s(clean_versions: false, clean_bindings: false)).to eq("<div data-b=\"post\"><h1 data-b=\"title\">one</h1></div><div data-b=\"post\"><h1 data-b=\"title\">two</h1></div>")
+          expect(presenter.to_s(clean_versions: false, clean_bindings: false)).to eq("<div data-b=\"post\"><h1 data-b=\"title\">one</h1></div><div data-b=\"post\" data-v=\"two\"><h1 data-b=\"title\">two</h1></div>")
         end
       end
 
@@ -103,7 +103,7 @@ RSpec.describe "view versioning via presenter" do
         end
 
         it "renders the default" do
-          expect(presenter.to_s(clean_versions: false, clean_bindings: false)).to eq("<div data-b=\"post\"><h1 data-b=\"title\">default</h1></div>")
+          expect(presenter.to_s(clean_versions: false, clean_bindings: false)).to eq("<div data-b=\"post\" data-v=\"default\"><h1 data-b=\"title\">default</h1></div>")
         end
       end
 
@@ -113,7 +113,7 @@ RSpec.describe "view versioning via presenter" do
         end
 
         it "renders all of them" do
-          expect(presenter.to_s(clean_versions: false, clean_bindings: false)).to eq("<div data-b=\"post\"><h1 data-b=\"title\">one</h1></div><div data-b=\"post\"><h1 data-b=\"title\">default</h1></div>")
+          expect(presenter.to_s(clean_versions: false, clean_bindings: false)).to eq("<div data-b=\"post\" data-v=\"one\"><h1 data-b=\"title\">one</h1></div><div data-b=\"post\" data-v=\"default\"><h1 data-b=\"title\">default</h1></div>")
         end
       end
 
@@ -123,7 +123,7 @@ RSpec.describe "view versioning via presenter" do
         end
 
         it "renders all of them" do
-          expect(presenter.to_s(clean_versions: false, clean_bindings: false)).to eq("<div data-b=\"post\"><h1 data-b=\"title\">one</h1></div><div data-b=\"post\"><h1 data-b=\"title\">two</h1></div>")
+          expect(presenter.to_s(clean_versions: false, clean_bindings: false)).to eq("<div data-b=\"post\" data-v=\"one\"><h1 data-b=\"title\">one</h1></div><div data-b=\"post\" data-v=\"two\"><h1 data-b=\"title\">two</h1></div>")
         end
       end
     end
@@ -139,7 +139,7 @@ RSpec.describe "view versioning via presenter" do
     end
 
     it "only renders the used version" do
-      expect(presenter.to_s(clean_bindings: false)).to eq("<div data-b=\"post\"><h1 data-b=\"title\">two</h1></div>")
+      expect(presenter.to_s(clean_bindings: false)).to eq("<div data-b=\"post\" data-v=\"two\"><h1 data-b=\"title\">two</h1></div>")
     end
 
     context "when the used version is missing" do
@@ -163,7 +163,7 @@ RSpec.describe "view versioning via presenter" do
     end
 
     it "renders appropriately" do
-      expect(presenter.to_s(clean_bindings: false)).to eq("<div data-b=\"post\"><h1 data-b=\"title\">two</h1></div>")
+      expect(presenter.to_s(clean_bindings: false)).to eq("<div data-b=\"post\"><h1 data-b=\"title\" data-v=\"two\">two</h1></div>")
     end
   end
 
@@ -177,7 +177,7 @@ RSpec.describe "view versioning via presenter" do
     end
 
     it "renders appropriately" do
-      expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">two</h1></div>")
+      expect(presenter.to_s).to eq("<div data-b=\"post\" data-v=\"two\"><h1 data-b=\"title\" data-v=\"two\">two</h1></div>")
     end
   end
 
@@ -191,9 +191,9 @@ RSpec.describe "view versioning via presenter" do
     end
 
     it "returns the view matching the version" do
-      expect(versioned).to be_instance_of(Pakyow::Presenter::View)
+      expect(versioned).to be_instance_of(Pakyow::Presenter::Presenter)
       expect(versioned.version).to eq(:two)
-      expect(versioned.to_s(clean_bindings: false)).to eq("<div data-b=\"post\"><h1 data-b=\"title\">two</h1></div>")
+      expect(versioned.to_s(clean_bindings: false)).to eq("<div data-b=\"post\" data-v=\"two\"><h1 data-b=\"title\">two</h1></div>")
     end
 
     context "match is not found" do
@@ -214,7 +214,7 @@ RSpec.describe "view versioning via presenter" do
 
     it "presents the default version" do
       presenter.find(:post).present(data)
-      expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">default</h1></div><div data-b=\"post\"><h1 data-b=\"title\">three</h1></div><div data-b=\"post\"><h1 data-b=\"title\">two</h1></div>")
+      expect(presenter.to_s).to eq("<div data-b=\"post\" data-v=\"default\"><h1 data-b=\"title\">default</h1></div><div data-b=\"post\" data-v=\"default\"><h1 data-b=\"title\">three</h1></div><div data-b=\"post\" data-v=\"default\"><h1 data-b=\"title\">two</h1></div>")
     end
 
     context "using versions during presentation" do
@@ -227,7 +227,7 @@ RSpec.describe "view versioning via presenter" do
           view.use(object[:title])
         end
 
-        expect(presenter.to_s).to eq("<div data-b=\"post\" title=\"default\"><h1 data-b=\"title\">default</h1></div><div data-b=\"post\" title=\"three\"><h1 data-b=\"title\">three</h1></div><div data-b=\"post\" title=\"two\"><h1 data-b=\"title\">two</h1></div>")
+        expect(presenter.to_s).to eq("<div data-b=\"post\" data-v=\"default\" title=\"default\"><h1 data-b=\"title\">default</h1></div><div data-b=\"post\" data-v=\"three\" title=\"three\"><h1 data-b=\"title\">three</h1></div><div data-b=\"post\" data-v=\"two\" title=\"two\"><h1 data-b=\"title\">two</h1></div>")
       end
     end
 
@@ -241,7 +241,7 @@ RSpec.describe "view versioning via presenter" do
       end
 
       it "renders the empty version" do
-        expect(presenter.to_s).to eq("<body><div data-b=\"post\">no posts here</div></body>")
+        expect(presenter.to_s).to eq("<body><div data-b=\"post\" data-v=\"empty\">no posts here</div></body>")
       end
     end
   end

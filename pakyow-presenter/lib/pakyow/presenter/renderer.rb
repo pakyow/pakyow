@@ -57,22 +57,30 @@ module Pakyow
       def initialize(connection, path: nil, as: nil, layout: nil, mode: :default, implicit: false, templates: true)
         @connection, @implicit = connection, implicit
 
-        path = String.normalize_path(path || default_path)
-        as = String.normalize_path(as) if as
+        @path = String.normalize_path(path || default_path)
+        @as = as ? String.normalize_path(as) : nil
+        @layout = layout
+        @mode = mode
 
-        unless info = find_info(path)
-          error = MissingPage.new("No view at path `#{path}'")
-          error.context = path
+        unless info = find_info(@path)
+          error = MissingPage.new("No view at path `#{@path}'")
+          error.context = @path
           raise error
         end
 
         # Finds a matching layout across template stores.
         #
-        if layout && layout = layout_with_name(layout)
-          info[:layout] = layout.dup
+        if @layout && layout_object = layout_with_name(@layout)
+          info[:layout] = layout_object.dup
         end
 
-        @presenter = (find_presenter(as || path) || ViewPresenter).new(
+        @automatic_presentation = false
+        unless presenter_class = find_presenter(@as || @path)
+          presenter_class = ViewPresenter
+          @automatic_presentation = true
+        end
+
+        @presenter = presenter_class.new(
           binders: @connection.app.state_for(:binder),
           **info
         )
@@ -84,13 +92,13 @@ module Pakyow
         )
 
         if rendering_prototype?
-          mode = @connection.params[:mode] || :default
+          @mode = @connection.params[:mode] || :default
         end
 
-        @presenter.place_in_mode(mode)
+        @presenter.place_in_mode(@mode)
 
         if rendering_prototype?
-          @presenter.insert_prototype_bar(mode)
+          @presenter.insert_prototype_bar(@mode)
         else
           @presenter.cleanup_prototype_nodes
 
@@ -107,7 +115,7 @@ module Pakyow
       end
 
       def perform
-        if @presenter.class == ViewPresenter
+        if automatic_presentation?
           find_and_present_presentables(@connection.values)
         else
           define_presentables(@connection.values)
@@ -130,6 +138,10 @@ module Pakyow
 
       def rendering_prototype?
         Pakyow.env?(:prototype)
+      end
+
+      def automatic_presentation?
+        @automatic_presentation == true
       end
 
       # We still mark endpoints as active when running in the prototype environment, but we don't
@@ -207,8 +219,10 @@ module Pakyow
       def find_and_present_presentables(presentables)
         presentables.each do |name, value|
           [name, Support.inflector.singularize(name)].each do |name_varient|
-            next unless found = presenter.find(name_varient)
-            found.present(value); break
+            found = @presenter.find(name_varient)
+            unless found.nil?
+              found.present(value); break
+            end
           end
         end
       end

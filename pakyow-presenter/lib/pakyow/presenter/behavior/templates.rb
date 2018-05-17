@@ -10,8 +10,7 @@ module Pakyow
 
         def create_template_nodes
           @view.binding_scopes.each do |node_with_binding|
-            version = node_with_binding.label(:version) || VersionedView::DEFAULT_VERSION
-            template = StringDoc.new("<script type=\"text/template\" data-version=\"#{version}\"></script>").nodes.first
+            template = StringDoc.new("<script type=\"text/template\"></script>").nodes.first
 
             node_with_binding.attributes.each do |attribute, value|
               next unless attribute.to_s.start_with?("data")

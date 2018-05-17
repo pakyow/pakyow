@@ -4,17 +4,6 @@ RSpec.describe "modifying attributes via presenter" do
   end
 
   context "string attributes" do
-    context "when the attribute exists in the view" do
-      let :view do
-        Pakyow::Presenter::View.new("<div binding=\"post\" title=\"foo\"></div>").find(:post)
-      end
-
-      it "can be modified" do
-        presenter.attributes[:title].reverse!
-        expect(presenter.to_html).to include("title=\"oof\"")
-      end
-    end
-
     context "when the attribute does not exist in the view" do
       let :view do
         Pakyow::Presenter::View.new("<div binding=\"post\"></div>")
@@ -36,7 +25,7 @@ RSpec.describe "modifying attributes via presenter" do
 
       it "can be modified" do
         presenter.attributes[:style][:color] = "blue"
-        expect(presenter.to_html).to include("style=\"color:blue\"")
+        expect(presenter.to_html).to include("style=\"color: blue;\"")
       end
     end
 
@@ -47,7 +36,7 @@ RSpec.describe "modifying attributes via presenter" do
 
       it "can be modified" do
         presenter.attributes[:style][:color] = "blue"
-        expect(presenter.to_html).to include("style=\"color:blue\"")
+        expect(presenter.to_html).to include("style=\"color: blue;\"")
       end
     end
   end

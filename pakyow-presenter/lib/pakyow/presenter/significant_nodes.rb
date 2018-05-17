@@ -15,6 +15,8 @@ module Pakyow
     # @api private
     HEAD_TAG = "head".freeze
     # @api private
+    HTML_TAG = "html".freeze
+    # @api private
     SCRIPT_TAG = "script".freeze
 
     # @api private
@@ -157,6 +159,15 @@ module Pakyow
 
       def self.significant?(node)
         node.is_a?(Oga::XML::Element) && node.name == HEAD_TAG
+      end
+    end
+
+    # @api private
+    class HTMLNode < SignificantNode
+      StringDoc.significant :html, self
+
+      def self.significant?(node)
+        node.is_a?(Oga::XML::Element) && node.name == HTML_TAG
       end
     end
 

@@ -8,7 +8,8 @@
     "src"
   ],
   "scripts": {
-    "build": "rollup -c rollup.config.js"
+    "build": "rollup -c rollup.config.js",
+    "test": "jest"
   },
   "engines": {
     "node": ">=6.0.0",
@@ -20,14 +21,21 @@
   },
   "author": "Bryan Powell <bryan@metabahn.com>",
   "license": "LGPL-3.0",
-  "dependencies": {
+  "devDependencies": {
     "babel-core": "^6.26.0",
-    "babel-loader": "^7.1.4",
+    "babel-jest": "^22.4.3",
     "babel-plugin-external-helpers": "^6.22.0",
-    "babel-preset-es2015": "^6.24.1",
-    "inflected": "^2.0.4",
+    "babel-preset-env": "^1.7.0",
+    "babel-register": "^6.26.0",
+    "jest": "^22.4.3",
+    "jsdom": "^11.10.0",
+    "mutationobserver-shim": "^0.3.2",
     "rollup": "^0.56.4",
     "rollup-plugin-babel": "^3.0.3",
     "rollup-plugin-node-resolve": "^3.0.3"
+  },
+  "jest": {
+    "testURL": "http://localhost",
+    "testRegex": "__tests__/.+\\.spec\\.(js)$"
   }
 }

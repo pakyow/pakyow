@@ -93,15 +93,7 @@ module Pakyow
       # @!method info
       #   Delegates to {view}.
       #   @see View#info
-      #
-      # @!method use
-      #   Delegates to {view}.
-      #   @see VersionedView#use
-      #
-      # @!method versioned
-      #   Delegates to {view}.
-      #   @see VersionedView#versioned
-      def_delegators :@view, :attributes, :attrs, :html=, :html, :text, :binding?, :container?, :partial?, :component?, :form?, :version, :info, :to_html, :to_s, :use, :versioned
+      def_delegators :@view, :attributes, :attrs, :html=, :html, :text, :binding?, :container?, :partial?, :component?, :form?, :version, :info, :to_html, :to_s
 
       def initialize(view, binders: [])
         @view, @binders = view, binders
@@ -166,6 +158,18 @@ module Pakyow
         @view.title&.html = strip_tags(value)
       end
 
+      # Uses the view matching +version+, removing all other versions.
+      #
+      def use(version)
+        presenter_for(@view.use(version))
+      end
+
+      # Returns a presenter for the view matching +version+.
+      #
+      def versioned(version)
+        presenter_for(@view.versioned(version))
+      end
+
       # Yields +self+.
       #
       def with
@@ -178,7 +182,7 @@ module Pakyow
       #
       # @see View#transform
       #
-      def transform(data)
+      def transform(data, yield_binder = false)
         tap do
           data = Array.ensure(data).compact
 
@@ -194,12 +198,12 @@ module Pakyow
             local = @view
 
             data.each do |object|
-              object = binder_or_data(object)
+              binder = binder_or_data(object)
 
-              local.transform(object)
+              local.transform(binder)
 
               if block_given?
-                yield presenter_for(local), object
+                yield presenter_for(local), yield_binder ? binder : object
               end
 
               unless local.equal?(@view)
@@ -233,7 +237,7 @@ module Pakyow
       #
       def present(data)
         tap do
-          transform(data) do |presenter, binder|
+          transform(data, true) do |presenter, binder|
             yield presenter, binder.object if block_given?
             presenter.bind(binder)
 
@@ -316,10 +320,19 @@ module Pakyow
         other.is_a?(Presenter) && @view == other.view
       end
 
+      # @api private
+      def wrap_data_in_binder(data)
+        (binder_for_current_scope || Binder).new(data)
+      end
+
       private
 
       def presenter_for(view, type: Presenter)
-        type.new(view, binders: @binders)
+        if view.nil?
+          nil
+        else
+          type.new(view, binders: @binders)
+        end
       end
 
       def binder_for_current_scope
@@ -355,10 +368,6 @@ module Pakyow
         else
           wrap_data_in_binder(data)
         end
-      end
-
-      def wrap_data_in_binder(data)
-        (binder_for_current_scope || Binder).new(data)
       end
 
       def set_title_from_info

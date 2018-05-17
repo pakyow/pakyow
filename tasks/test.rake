@@ -6,7 +6,6 @@ GEMS_WITH_TESTS = GEMS.dup
 GEMS_WITH_TESTS.delete(:rake)
 GEMS_WITH_TESTS.delete(:realtime)
 GEMS_WITH_TESTS.delete(:test)
-GEMS_WITH_TESTS.delete(:ui)
 
 namespace :test do
   desc "Run tests for all gems"

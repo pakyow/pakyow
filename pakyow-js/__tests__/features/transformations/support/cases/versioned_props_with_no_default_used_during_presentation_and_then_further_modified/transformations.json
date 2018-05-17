@@ -1,0 +1,6 @@
+[
+  {
+    "id": "fc7cba49c15026703e7e6d67f6207678a4bebb15",
+    "calls": [["find",[["post"]],[],[["present",[[{"id":1,"title":"red foo"},{"id":2,"title":"blue foo"}]],[[["find",[["title"]],[],[["use",["red"],[],[]]]],["find",[["title"]],[],[["attrs",[],[],[["[]=",["style",{"background":"gray"}],[],[]]]]]]],[["find",[["title"]],[],[["use",["blue"],[],[]]]],["find",[["title"]],[],[["attrs",[],[],[["[]=",["style",{"background":"gray"}],[],[]]]]]]]],[]]]]]
+  }
+]

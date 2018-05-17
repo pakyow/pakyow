@@ -12,6 +12,7 @@ gemspec path: "pakyow-support"
 gemspec path: "pakyow-test"
 gemspec path: "pakyow-ui"
 
+gem "htmlbeautifier", ">= 1.3"
 gem "pronto", ">= 0.9"
 gem "pronto-rubocop", ">= 0.9", require: false
 gem "pry", ">= 0.11"

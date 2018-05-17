@@ -156,7 +156,7 @@ module Pakyow
         self.class.queries.include?(maybe_query_name)
       end
 
-      RESULT_METHODS = %i(each to_a one count transaction).freeze
+      RESULT_METHODS = %i(each to_a one count transaction to_json).freeze
       def result?(maybe_result_name)
         RESULT_METHODS.include?(maybe_result_name)
       end
@@ -169,6 +169,10 @@ module Pakyow
       NESTED_METHODS = %i(including).freeze
       def block_for_nested_source?(maybe_nested_name)
         NESTED_METHODS.include?(maybe_nested_name)
+      end
+
+      def to_json(*)
+        to_a.to_json
       end
 
       private

@@ -243,12 +243,23 @@ RSpec.describe "data objects" do
         expect(post[:id]).to eq(1)
         expect(post["id"]).to eq(1)
       end
+
+      it "calls a value method" do
+        post = data.posts.create({}).one
+        expect(post[:foo]).to eq("foo_1")
+        expect(post["foo"]).to eq("foo_1")
+      end
     end
 
     describe "method-style lookup" do
       it "returns an attribute value" do
         post = data.posts.create({}).one
         expect(post.id).to eq(1)
+      end
+
+      it "calls a value method" do
+        post = data.posts.create({}).one
+        expect(post.foo).to eq("foo_1")
       end
     end
 

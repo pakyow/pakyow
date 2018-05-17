@@ -7,7 +7,6 @@ require "pakyow/core/framework"
 
 require "pakyow/ui/presenter"
 require "pakyow/ui/renderer"
-require "pakyow/ui/transformation"
 
 module Pakyow
   module UI
@@ -43,13 +42,24 @@ module Pakyow
                 # convert data to an array, because the client can always deal arrays
                 presentable_hash[presentable_name] = @app.data.public_send(
                   proxy[:source]
-                ).apply(proxy[:proxied_calls]).to_a
+                ).apply(proxy[:proxied_calls])
               }
 
-              renderer = Renderer.new(@app, presentables)
-              renderer.perform(args[:view_path])
+              connection = Connection.new(@app, "rack.input" => StringIO.new)
+              connection.instance_variable_set(:@values, presentables)
 
-              message = { transformation_id: args[:transformation_id], transformations: renderer.to_arr }
+              renderer = Renderer.new(
+                connection,
+                as: args[:as],
+                path: args[:path],
+                layout: args[:layout],
+                mode: args[:mode]
+              )
+
+              renderer.instance_variable_set(:@presenter, Presenter.new(renderer.presenter))
+              renderer.perform
+
+              message = { id: args[:transformation_id], calls: renderer }
               @app.websocket_server.subscription_broadcast(Realtime::Channel.new(:transformation, subscription[:id]), message)
 
               # resubscribe websockets to the new subscriptions
@@ -72,7 +82,7 @@ module Pakyow
             #
             # Note that when we're presenting an entire view, `data-t` is set on the `body` node.
 
-            if node = @presenter.view.object.find_significant_nodes(:body)[0]
+            if node = @presenter.view.object.find_significant_nodes(:html)[0]
               node.attributes[:"data-t"] = @transformation_id
             else
               # TODO: mixin the transformation_id into other nodes, once supported in presenter
@@ -93,7 +103,10 @@ module Pakyow
             }
 
             metadata = {
-              view_path: @presenter.class.path,
+              as: @as,
+              path: @path,
+              layout: @layout,
+              mode: @mode,
               transformation_id: @transformation_id,
               socket_client_id: socket_client_id,
               presentables: presentables.map { |presentable_name, presentable|

@@ -168,6 +168,7 @@ module Pakyow
           @nodes.clear
         end
       end
+      alias remove clear
 
       # Replaces the current document.
       #
@@ -311,7 +312,7 @@ module Pakyow
 
       # Attributes that should be prefixed with +data-+
       #
-      DATA_ATTRS = %i(ui binding).freeze
+      DATA_ATTRS = %i(ui binding version).freeze
 
       # Attributes that will be turned into +StringDoc+ labels
       #
@@ -323,10 +324,11 @@ module Pakyow
 
       # Attributes that should be deleted from the view
       #
-      DELETED_ATTRS = %i(version include exclude endpoint endpoint-action prototype).freeze
+      DELETED_ATTRS = %i(include exclude endpoint endpoint-action prototype).freeze
 
       ATTR_MAPPING = {
-        binding: :b
+        binding: :b,
+        version: :v
       }
 
       def attributes_hash(element)

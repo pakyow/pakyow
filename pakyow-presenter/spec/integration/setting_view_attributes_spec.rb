@@ -34,7 +34,7 @@ RSpec.shared_examples :setting_view_attributes do
       end
 
       it "includes the value in the rendered html" do
-        expect(testable.to_html).to include("color:red")
+        expect(testable.to_html).to include("color: red")
       end
     end
 
@@ -52,7 +52,7 @@ RSpec.shared_examples :setting_view_attributes do
       end
 
       it "includes the value in the rendered html" do
-        expect(testable.to_html).to include("color:red")
+        expect(testable.to_html).to include("color: red")
       end
     end
 
@@ -66,7 +66,7 @@ RSpec.shared_examples :setting_view_attributes do
       end
 
       it "includes the value in the rendered html" do
-        expect(testable.to_html).to include("color:red")
+        expect(testable.to_html).to include("color: red")
       end
     end
   end
@@ -201,20 +201,6 @@ RSpec.shared_examples :setting_view_attributes do
         expect(testable.to_html).to include("title=\"newtitle\"")
       end
     end
-
-    describe "modifying the value" do
-      before do
-        attributes[:title].reverse!
-      end
-
-      it "modifies the value" do
-        expect(value).to eq("zab")
-      end
-
-      it "includes the value in the rendered html" do
-        expect(testable.to_html).to include("title=\"zab\"")
-      end
-    end
   end
 end
 
@@ -243,8 +229,8 @@ RSpec.describe "setting attributes on a duped view" do
         end
 
         it "is not modified" do
-          expect(view.to_html).to_not include("color:red")
-          expect(view.to_html).to include("color:blue")
+          expect(view.to_html).to_not include("color: red")
+          expect(view.to_html).to include("color: blue")
         end
       end
 
@@ -254,8 +240,8 @@ RSpec.describe "setting attributes on a duped view" do
         end
 
         it "is not modified" do
-          expect(view.to_html).to_not include("color:red")
-          expect(view.to_html).to include("color:blue")
+          expect(view.to_html).to_not include("color: red")
+          expect(view.to_html).to include("color: blue")
         end
       end
 
@@ -265,8 +251,8 @@ RSpec.describe "setting attributes on a duped view" do
         end
 
         it "is not modified" do
-          expect(view.to_html).to_not include("color:red")
-          expect(view.to_html).to include("color:blue")
+          expect(view.to_html).to_not include("color: red")
+          expect(view.to_html).to include("color: blue")
         end
       end
     end
@@ -347,17 +333,6 @@ RSpec.describe "setting attributes on a duped view" do
 
         it "is not modified" do
           expect(view.to_html).to_not include("title=\"newtitle\"")
-          expect(view.to_html).to include("title=\"baz\"")
-        end
-      end
-
-      context "when modifying the value" do
-        before do
-          attributes[:title].reverse!
-        end
-
-        it "is not modified" do
-          expect(view.to_html).to_not include("title=\"zab\"")
           expect(view.to_html).to include("title=\"baz\"")
         end
       end
