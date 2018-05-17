@@ -97,7 +97,11 @@ export default class {
     return this;
   }
 
-  transform(object) {
+  transform(object, callback) {
+    if (callback) {
+      callback(this, object);
+    }
+
     this.ensureUsed();
 
     if (!object || (Array.isArray(object) && object.length == 0) || Object.getOwnPropertyNames(object).length == 0) {
@@ -114,11 +118,7 @@ export default class {
   }
 
   present(object, callback) {
-    if (callback) {
-      callback(this, object);
-    }
-
-    this.transform(object).bind(object);
+    this.transform(object, callback).bind(object);
 
     // Present recursively by finding nested bindings and presenting any we have data for.
     var bindingScopeNames = new Set(
