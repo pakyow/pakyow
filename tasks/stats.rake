@@ -5,17 +5,21 @@ namespace :stats do
   task :loc do
     all_libs = GEMS.each_with_object(["lib"]) { |gem, command|
       command << "pakyow-#{gem}/lib"
-    }.join(" ")
+    }
 
-    system "cloc #{all_libs}"
+    all_libs << "pakyow-js/src"
+
+    system "cloc #{all_libs.join(" ")}"
   end
 
   desc "Count the lines of tests across all libraries"
   task :lot do
     all_libs = GEMS.each_with_object(["spec"]) { |gem, command|
       command << "pakyow-#{gem}/spec"
-    }.join(" ")
+    }
 
-    system "cloc #{all_libs}"
+    all_libs << "pakyow-js/__tests__"
+
+    system "cloc #{all_libs.join(" ")}"
   end
 end
