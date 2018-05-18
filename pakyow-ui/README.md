@@ -307,8 +307,7 @@ Source code can be downloaded as part of the Pakyow project on Github:
 
 # License
 
-Pakyow UI is released free and open-source under the [MIT
-License](http://opensource.org/licenses/MIT).
+Pakyow UI is free and open-source under the [LGPLv3 license](https://choosealicense.com/licenses/gpl-3.0/).
 
 # Support
 

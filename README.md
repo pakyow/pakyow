@@ -70,7 +70,7 @@ We'd love to have you involved. Here are a few places to start:
 
 # License
 
-Pakyow is released free and open-source under the [MIT License](http://opensource.org/licenses/MIT).
+Pakyow is free and open-source under the [LGPLv3 license](https://choosealicense.com/licenses/gpl-3.0/).
 
 # Overview
 
