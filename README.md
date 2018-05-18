@@ -1,8 +1,5 @@
 [gem]: https://rubygems.org/gems/pakyow
 [travis]: https://travis-ci.org/pakyow/pakyow
-[gemnasium]: https://gemnasium.com/pakyow/pakyow
-[inchpages]: http://inch-ci.org/github/pakyow/pakyow
-[codeclimate]: https://codeclimate.com/github/pakyow/pakyow
 
 # Pakyow Web Framework [![Gitter chat](https://badges.gitter.im/pakyow/chat.svg)](https://gitter.im/pakyow/chat)
 
@@ -31,8 +28,6 @@ simplicity, making it easier to start and leading to long-term productivity.
 
 [![Gem Version](https://badge.fury.io/rb/pakyow.svg)][gem]
 [![Build Status](https://travis-ci.org/pakyow/pakyow.svg?branch=master)][travis]
-[![Dependency Status](https://gemnasium.com/pakyow/pakyow.svg)][gemnasium]
-[![Inline docs](http://inch-ci.org/github/pakyow/pakyow.svg?branch=master&style=flat)][inchpages]
 
 ---
 
