@@ -24,7 +24,7 @@ RSpec.describe "clearing data in a populated view" do
           data.posts.create(params[:post]); halt
         end
 
-        remove do
+        delete do
           data.posts.by_id(params[:id]).delete
         end
       end
@@ -78,7 +78,7 @@ RSpec.describe "clearing data in a populated view that contains an empty version
           data.posts.create(params[:post]); halt
         end
 
-        remove do
+        delete do
           data.posts.by_id(params[:id]).delete
         end
       end

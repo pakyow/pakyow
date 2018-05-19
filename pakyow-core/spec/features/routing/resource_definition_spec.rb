@@ -216,8 +216,8 @@ RSpec.describe "defining resources" do
             send "post #{params[:id]} replace"
           end
 
-          remove do
-            send "post #{params[:id]} remove"
+          delete do
+            send "post #{params[:id]} delete"
           end
 
           show do
@@ -263,10 +263,10 @@ RSpec.describe "defining resources" do
       expect(res[2].body.read).to eq("post 1 replace")
     end
 
-    it "can have a remove action" do
+    it "can have a delete action" do
       res = call("/posts/1", method: :delete)
       expect(res[0]).to eq(200)
-      expect(res[2].body.read).to eq("post 1 remove")
+      expect(res[2].body.read).to eq("post 1 delete")
     end
 
     it "can have a show action" do

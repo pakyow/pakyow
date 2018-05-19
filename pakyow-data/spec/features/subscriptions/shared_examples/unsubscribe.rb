@@ -57,7 +57,7 @@ RSpec.shared_examples :subscription_unsubscribe do
   #         data.posts.with_title(params[:post_id]).update(params[:post])
   #       end
 
-  #       remove do
+  #       delete do
   #         data.posts.with_title(params[:post_id]).delete
   #       end
 
@@ -96,7 +96,7 @@ RSpec.shared_examples :subscription_unsubscribe do
   #         data.comments.with_title(params[:comment_id]).update(params[:comment])
   #       end
 
-  #       remove do
+  #       delete do
   #         data.comments.with_title(params[:comment_id]).delete
   #       end
   #     end

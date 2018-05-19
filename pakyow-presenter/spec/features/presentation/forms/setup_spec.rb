@@ -236,23 +236,23 @@ RSpec.describe "setting up a form via presenter" do
     end
   end
 
-  describe "setting up the form for removing an object" do
+  describe "setting up the form for deleting an object" do
     let :object do
       { id: 1, title: "bar" }
     end
 
     it "sets the form method" do
-      form.remove(object)
+      form.delete(object)
       expect(form.attrs[:method]).to eq("post")
     end
 
     it "creates the method override field" do
-      form.remove(object)
+      form.delete(object)
       expect(presenter.to_s).to include("<input type=\"hidden\" name=\"_method\" value=\"delete\">")
     end
 
     it "binds the values" do
-      form.remove(object)
+      form.delete(object)
       expect(form.find(:title).attrs[:value]).to eq("bar")
     end
 
@@ -262,7 +262,7 @@ RSpec.describe "setting up a form via presenter" do
       let :app_definition do
         Proc.new {
           resources :posts, "/posts" do
-            remove do; end
+            delete do; end
           end
         }
       end
@@ -274,7 +274,7 @@ RSpec.describe "setting up a form via presenter" do
       end
 
       it "sets the form action" do
-        form.remove(object)
+        form.delete(object)
         expect(form.attrs[:action]).to eq("/posts/1")
       end
     end
@@ -288,7 +288,7 @@ RSpec.describe "setting up a form via presenter" do
 
     context "block is given" do
       it "yields form to the block" do
-        expect { |b| form.remove(object, &b) }.to yield_with_args(form)
+        expect { |b| form.delete(object, &b) }.to yield_with_args(form)
       end
     end
   end

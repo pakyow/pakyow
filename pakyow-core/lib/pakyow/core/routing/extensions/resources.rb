@@ -25,7 +25,7 @@ module Pakyow
       # - +edit+ -- +GET /:resource_id/edit+
       # - +update+ -- +PATCH /:resource_id+
       # - +replace+ -- +PUT /:resource_id+
-      # - +remove+ -- +DELETE /:resource_id+
+      # - +delete+ -- +DELETE /:resource_id+
       # - +show+ -- +GET /:resource_id+
       #
       # = Nested Resources
@@ -94,7 +94,7 @@ module Pakyow
             get :edit, "/#{resource_id}/edit"
             patch :update, "/#{resource_id}"
             put :replace, "/#{resource_id}"
-            delete :remove, "/#{resource_id}"
+            delete :delete, "/#{resource_id}"
             get :show, "/#{resource_id}"
 
             group :collection

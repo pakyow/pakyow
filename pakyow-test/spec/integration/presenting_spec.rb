@@ -161,7 +161,7 @@ RSpec.context 'when testing a route that presents' do
 
     context 'by removing it' do
       it 'appears that the node was removed' do
-        get :remove do |sim|
+        get :delete do |sim|
           expect(sim.view.scope(:post).exists?).to eq(false)
         end
       end

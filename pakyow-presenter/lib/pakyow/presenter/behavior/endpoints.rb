@@ -98,7 +98,7 @@ module Pakyow
 
             endpoint_action_node = find_endpoint_action_node(endpoint_node)
 
-            if endpoint_string.end_with?("remove")
+            if endpoint_string.end_with?("delete")
               wrap_endpoint_for_removal(endpoint_view, endpoint_string, params)
             elsif endpoint_action_node.tagname == "a"
               setup_endpoint_for_anchor(endpoint_view, View.from_object(endpoint_action_node), endpoint_string, params)

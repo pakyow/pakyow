@@ -78,7 +78,7 @@ RSpec.shared_examples :subscription_subscribe_associated_conditional do
             data.comments.by_title(params[:id]).update(params[:comment])
           end
 
-          remove do
+          delete do
             data.comments.by_title(params[:id]).delete
           end
         end

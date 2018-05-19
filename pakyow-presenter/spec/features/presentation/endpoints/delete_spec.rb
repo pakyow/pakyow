@@ -1,4 +1,4 @@
-RSpec.describe "presenting a view that defines an endpoint for removal" do
+RSpec.describe "presenting a view that defines an endpoint for delete" do
   include_context "testable app"
 
   let :app_definition do
@@ -7,10 +7,10 @@ RSpec.describe "presenting a view that defines an endpoint for removal" do
 
       resources :posts, "/posts" do
         show do
-          render "/presentation/endpoints/remove"
+          render "/presentation/endpoints/delete"
         end
 
-        remove do; end
+        delete do; end
       end
     }
   end

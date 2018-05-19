@@ -57,7 +57,7 @@ RSpec.shared_examples :subscription_subscribe_conditional do
             data.posts.by_title(params[:id]).update(params[:post])
           end
 
-          remove do
+          delete do
             data.posts.by_title(params[:id]).delete
           end
 

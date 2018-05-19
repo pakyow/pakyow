@@ -10,8 +10,8 @@ module Pakyow
     # Presents a form.
     #
     class FormPresenter < Presenter
-      SUPPORTED_ACTIONS = %i(create update replace remove).freeze
-      ACTION_METHODS = { create: "post", update: "patch", replace: "put", remove: "delete" }.freeze
+      SUPPORTED_ACTIONS = %i(create update replace delete).freeze
+      ACTION_METHODS = { create: "post", update: "patch", replace: "put", delete: "delete" }.freeze
 
       include Behavior::Endpoints::Form
 
@@ -89,9 +89,9 @@ module Pakyow
 
       # Setup the form for removing an object.
       #
-      def remove(object)
+      def delete(object)
         yield self if block_given?
-        setup_form :remove, object
+        setup_form :delete, object
       end
 
       # @ api private
