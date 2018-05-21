@@ -2,7 +2,7 @@
 
 require "pakyow/support/extension"
 
-require "pakyow/core/loader"
+require "pakyow/loader"
 
 module Pakyow
   module Behavior

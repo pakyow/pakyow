@@ -14,7 +14,7 @@ require "pakyow/support/deep_freeze"
 require "pakyow/logger"
 require "pakyow/middleware"
 
-require "pakyow/core/app"
+require "pakyow/app"
 
 # An environment for running one or more rack apps.
 #

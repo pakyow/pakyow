@@ -1,3 +1,5 @@
+require "pakyow/core"
+
 RSpec.describe "configuring an app" do
   include_context "testable app"
 

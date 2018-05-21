@@ -7,11 +7,12 @@ require "pakyow/support/makeable"
 require "pakyow/support/pipelined"
 require "pakyow/support/core_refinements/string/normalization"
 
-require "pakyow/core/helpers/connection"
-require "pakyow/core/routing/helpers"
+require "pakyow/helpers/connection"
 
-require "pakyow/core/routing/behavior/error_handling"
-require "pakyow/core/routing/behavior/param_verification"
+require "pakyow/core/helpers"
+
+require "pakyow/core/controller/behavior/error_handling"
+require "pakyow/core/controller/behavior/param_verification"
 
 module Pakyow
   # Executes code for particular requests. For example:

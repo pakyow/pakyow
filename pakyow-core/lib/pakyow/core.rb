@@ -3,8 +3,7 @@
 require "pakyow"
 require "pakyow/support"
 
-require "pakyow/core/app"
 require "pakyow/core/verification"
 require "pakyow/core/validations"
 
-require "pakyow/core/routing/framework"
+require "pakyow/core/framework"

@@ -2,7 +2,7 @@
 
 require "pakyow/support/extension"
 
-require "pakyow/core/endpoints"
+require "pakyow/endpoints"
 
 module Pakyow
   module Behavior

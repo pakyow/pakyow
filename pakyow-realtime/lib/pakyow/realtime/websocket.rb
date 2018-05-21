@@ -2,7 +2,7 @@
 
 require "securerandom"
 
-require "pakyow/core/helpers/connection"
+require "pakyow/helpers/connection"
 
 module Pakyow
   module Realtime

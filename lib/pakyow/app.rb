@@ -10,16 +10,16 @@ require "pakyow/support/hookable"
 require "pakyow/support/configurable"
 require "pakyow/support/pipelined"
 
-require "pakyow/core/behavior/cookies"
-require "pakyow/core/behavior/sessions"
-require "pakyow/core/behavior/endpoints"
-require "pakyow/core/behavior/pipeline"
-require "pakyow/core/behavior/frameworks"
-require "pakyow/core/behavior/aspects"
-require "pakyow/core/behavior/helpers"
-require "pakyow/core/behavior/restarting"
+require "pakyow/app/behavior/cookies"
+require "pakyow/app/behavior/sessions"
+require "pakyow/app/behavior/endpoints"
+require "pakyow/app/behavior/pipeline"
+require "pakyow/app/behavior/frameworks"
+require "pakyow/app/behavior/aspects"
+require "pakyow/app/behavior/helpers"
+require "pakyow/app/behavior/restarting"
 
-require "pakyow/core/connection"
+require "pakyow/connection"
 
 module Pakyow
   # Pakyow's main application object. Can be defined directly or subclassed to
