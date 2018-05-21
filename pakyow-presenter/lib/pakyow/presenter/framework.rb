@@ -112,11 +112,7 @@ module Pakyow
 
           handle 404 do
             respond_to :html do
-              if Pakyow.env?(:development) || Pakyow.env?(:prototype)
-                # nothing to do since a MissingPage error will be raised
-              else
-                render "/404"
-              end
+              render "/404"
             end
           end
 
