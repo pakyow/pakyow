@@ -12,9 +12,12 @@ RSpec.describe "logging outgoing mail" do
 
         controller "/mail" do
           get "/send/:email/:subject" do
+            params[:email].gsub!("__", ".")
             mailer("mail/simple").deliver_to(
               params[:email], subject: params[:subject]
             )
+
+            halt
           end
         end
       end
@@ -31,7 +34,7 @@ RSpec.describe "logging outgoing mail" do
       └──────────────────────────────────────────────────────────────────────────────┘
       LOG
 
-      expect(call("mail/send/bryan@bryanp.org/logtest")[0]).to eq(200)
+      expect(call("/mail/send/bryan@bryanp__org/logtest")[0]).to eq(200)
     end
   end
 
@@ -46,9 +49,12 @@ RSpec.describe "logging outgoing mail" do
 
         controller "/mail" do
           get "/send/:email/:subject" do
+            params[:email].gsub!("__", ".")
             mailer("mail/simple").deliver_to(
               params[:email], subject: params[:subject]
             )
+
+            halt
           end
         end
       end
@@ -56,7 +62,7 @@ RSpec.describe "logging outgoing mail" do
 
     it "does not log" do
       expect_any_instance_of(Pakyow::Logger::RequestLogger).not_to receive(:debug)
-      expect(call("mail/send/bryan@bryanp.org/logtest")[0]).to eq(200)
+      expect(call("/mail/send/bryan@bryanp__org/logtest")[0]).to eq(200)
     end
   end
 end

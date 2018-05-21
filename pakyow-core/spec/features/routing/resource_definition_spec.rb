@@ -4,7 +4,7 @@ RSpec.describe "defining resources" do
   context "when the resource is defined at the top level" do
     let :app_definition do
       Proc.new {
-        resources:posts, "/posts" do
+        resources :posts, "/posts" do
           list do
             send "post list"
           end
@@ -273,6 +273,31 @@ RSpec.describe "defining resources" do
       res = call("/posts/1")
       expect(res[0]).to eq(200)
       expect(res[2].body.read).to eq("post 1 show")
+    end
+  end
+
+  describe "routing to a path with an extension" do
+    let :app_definition do
+      Proc.new {
+        resources :posts, "/posts" do
+          list do
+            send "post list"
+          end
+
+          show do
+            send "post #{params[:id]} show"
+          end
+        end
+      }
+    end
+
+    it "calls the appropriate route" do
+      res = call("/posts")
+      expect(res[0]).to eq(200)
+      expect(res[2].body.read).to eq("post list")
+
+      res = call("/posts.html")
+      expect(res[0]).to eq(404)
     end
   end
 end

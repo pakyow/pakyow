@@ -210,4 +210,30 @@ RSpec.describe "routing requests" do
       expect(call("/posts", method: :post)[2].body).to eq(["one"])
     end
   end
+
+  context "when routing with a path containing an extension" do
+    context "path does not exist" do
+      it "responds 404" do
+        expect(call("/posts")[0]).to eq(404)
+        expect(call("/posts.xml")[0]).to eq(404)
+      end
+    end
+
+    context "path exists, but does not respond to extension" do
+      let :app_definition do
+      Proc.new {
+        controller "/posts" do
+          default do
+            res.body << "one"
+          end
+        end
+      }
+    end
+
+      it "responds 404" do
+        expect(call("/posts")[0]).to eq(200)
+        expect(call("/posts.xml")[0]).to eq(404)
+      end
+    end
+  end
 end

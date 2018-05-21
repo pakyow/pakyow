@@ -20,6 +20,7 @@ RSpec.describe "sending mail" do
           end
 
           get "/send/:email/:subject" do
+            params[:email].gsub!("__", ".")
             $sent = mailer("mail/simple").deliver_to(
               params[:email], subject: params[:subject]
             )
@@ -34,7 +35,7 @@ RSpec.describe "sending mail" do
       expect_any_instance_of(
         Pakyow::Mailer::Mailer
       ).to receive(:deliver_to).with("bryan@bryanp.org", subject: "test123")
-      response = call("/mail/send/bryan@bryanp.org/test123")
+      response = call("/mail/send/bryan@bryanp__org/test123")
       expect(response[0]).to eq(200)
       expect(response[2].body.read).to eq("sent")
     end
@@ -50,7 +51,7 @@ RSpec.describe "sending mail" do
     end
 
     it "sets the html content" do
-      call("/mail/send/bryan@bryanp.org/test123")
+      call("/mail/send/bryan@bryanp__org/test123")
 
       expect(
         $sent.first.body.parts.find { |part|
@@ -60,7 +61,7 @@ RSpec.describe "sending mail" do
     end
 
     it "sets the text content" do
-      call("/mail/send/bryan@bryanp.org/test123")
+      call("/mail/send/bryan@bryanp__org/test123")
 
       expect(
         $sent.first.body.parts.find { |part|
@@ -70,7 +71,7 @@ RSpec.describe "sending mail" do
     end
 
     it "sets the message subject" do
-      call("/mail/send/bryan@bryanp.org/test123")
+      call("/mail/send/bryan@bryanp__org/test123")
       expect($sent.first.subject).to eq("test123")
     end
 
@@ -96,7 +97,7 @@ RSpec.describe "sending mail" do
       end
 
       it "renders the mail view with presenter" do
-        call("/mail/send/bryan@bryanp.org/test123")
+        call("/mail/send/bryan@bryanp__org/test123")
 
         expect(
           $sent.first.body.parts.find { |part|
@@ -106,7 +107,7 @@ RSpec.describe "sending mail" do
       end
 
       it "does not render the templates" do
-        call("/mail/send/bryan@bryanp.org/test123")
+        call("/mail/send/bryan@bryanp__org/test123")
 
         expect(
           $sent.first.body.parts.find { |part|
@@ -134,7 +135,7 @@ RSpec.describe "sending mail" do
       end
 
       it "renders automatically" do
-        call("/mail/send/bryan@bryanp.org/test123")
+        call("/mail/send/bryan@bryanp__org/test123")
 
         expect(
           $sent.first.body.parts.find { |part|
@@ -144,7 +145,7 @@ RSpec.describe "sending mail" do
       end
 
       it "does not render the templates" do
-        call("/mail/send/bryan@bryanp.org/test123")
+        call("/mail/send/bryan@bryanp__org/test123")
 
         expect(
           $sent.first.body.parts.find { |part|
@@ -217,7 +218,7 @@ RSpec.describe "sending mail" do
     end
 
     it "sends content as plaintext" do
-      call("/mail/send/bryan@bryanp.org/test123")
+      call("/mail/send/bryan@bryanp__org/test123")
       expect($sent.first.multipart?).to be(false)
       expect($sent.first.subject.to_s).to eq("test123")
       expect($sent.first.body.to_s).to eq("foo")
@@ -239,12 +240,12 @@ RSpec.describe "sending mail" do
       end
 
       it "sends a multipart email" do
-        call("/mail/send/bryan@bryanp.org/test123")
+        call("/mail/send/bryan@bryanp__org/test123")
         expect($sent.first.multipart?).to be(true)
       end
 
       it "sets the html content" do
-        call("/mail/send/bryan@bryanp.org/test123")
+        call("/mail/send/bryan@bryanp__org/test123")
 
         expect(
           $sent.first.body.parts.find { |part|
@@ -254,7 +255,7 @@ RSpec.describe "sending mail" do
       end
 
       it "sets the text content" do
-        call("/mail/send/bryan@bryanp.org/test123")
+        call("/mail/send/bryan@bryanp__org/test123")
 
         expect(
           $sent.first.body.parts.find { |part|
@@ -264,7 +265,7 @@ RSpec.describe "sending mail" do
       end
 
       it "sets the message subject" do
-        call("/mail/send/bryan@bryanp.org/test123")
+        call("/mail/send/bryan@bryanp__org/test123")
         expect($sent.first.subject).to eq("test123")
       end
     end

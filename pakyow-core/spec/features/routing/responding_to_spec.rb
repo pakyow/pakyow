@@ -19,4 +19,15 @@ RSpec.describe "responding to request format" do
     expect(call("/foo.txt")[2].body).to eq("foo")
     expect(call("/foo.html")[2].body).to eq("<foo>")
   end
+
+  it "responds 404 to unsupported extensions" do
+    expect(call("/foo.bar")[0]).to eq(404)
+  end
+
+  context "route does not exist" do
+    it "responds 404" do
+      expect(call("/bar")[0]).to eq(404)
+      expect(call("/bar.txt")[0]).to eq(404)
+    end
+  end
 end
