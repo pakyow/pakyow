@@ -120,9 +120,14 @@ module Pakyow
       def one
         return @results.first if instance_variable_defined?(:@results)
         return @result if instance_variable_defined?(:@result)
-        @result = self.class.one(__getobj__)
-        include_results!([@result])
-        wrap(@result)
+
+        if result = self.class.one(__getobj__)
+          include_results!([result])
+          @result = result
+          wrap(@result)
+        else
+          nil
+        end
       end
 
       def transaction(&block)

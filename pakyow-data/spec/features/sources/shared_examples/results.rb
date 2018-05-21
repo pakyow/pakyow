@@ -44,6 +44,13 @@ RSpec.shared_examples :source_results do
             expect(data.posts.ordered.one[:title]).to eq("foo")
           end
         end
+
+        context "query contains no results" do
+          it "returns nil" do
+            data.posts.delete
+            expect(data.posts.ordered.one).to be(nil)
+          end
+        end
       end
     end
 
