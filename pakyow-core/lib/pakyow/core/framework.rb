@@ -71,7 +71,7 @@ module Pakyow
       end
     end
 
-    class Framework < Pakyow::Framework(:routing)
+    class Framework < Pakyow::Framework(:core)
       def boot
         controller_class = subclass(Controller) {
           include Pakyow::Routing::Extension::Resource
