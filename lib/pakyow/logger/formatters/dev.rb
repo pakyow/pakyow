@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
+require "pakyow/connection"
+
 require "pakyow/logger/formatters/base"
 require "pakyow/logger/colorizer"
 require "pakyow/logger/timekeeper"
-require "pakyow/response"
 
 module Pakyow
   module Logger
@@ -39,7 +40,7 @@ module Pakyow
         message.merge(message: sprintf(
           "%s (%s)",
           epilogue[:status],
-          Response.nice_status(epilogue[:status])
+          Connection.nice_status(epilogue[:status])
         ))
       end
 

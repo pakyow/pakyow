@@ -27,7 +27,7 @@ RSpec.describe "explicit rendering" do
         instance_exec(&$presenter_app_boilerplate)
 
         handle 500 do
-          res.body = "#{req.error.class}: #{req.error.message}"
+          res.body = "#{connection.error.class}: #{connection.error.message}"
         end
 
         controller :default do
@@ -70,7 +70,7 @@ RSpec.describe "explicit rendering" do
           instance_exec(&$presenter_app_boilerplate)
 
           handle 500 do
-            res.body = "#{req.error.class}: #{req.error.message}"
+            res.body = "#{connection.error.class}: #{connection.error.message}"
           end
 
           controller :default do

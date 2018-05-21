@@ -6,12 +6,12 @@ RSpec.describe "view template composition via presenter" do
       instance_exec(&$presenter_app_boilerplate)
 
       handle 500 do
-        res.body = "#{req.error.class}: #{req.error.message}"
+        res.body = "#{connection.error.class}: #{connection.error.message}"
       end
 
       controller :default do
         get(/.*/) do
-          render req.path
+          render connection.path
         end
       end
     }

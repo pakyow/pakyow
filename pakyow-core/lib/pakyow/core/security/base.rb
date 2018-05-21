@@ -41,7 +41,7 @@ module Pakyow
       end
 
       def safe?(connection)
-        SAFE_HTTP_METHODS.include? connection.request.method
+        SAFE_HTTP_METHODS.include? connection.method
       end
 
       def allowed?(_)

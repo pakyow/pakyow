@@ -3,7 +3,7 @@
 require "securerandom"
 require "logger"
 
-require "pakyow/request"
+require "pakyow/connection"
 
 module Pakyow
   module Logger
@@ -83,7 +83,7 @@ module Pakyow
                time: start,
                method: env[Rack::REQUEST_METHOD],
                uri: env[REQUEST_URI],
-               ip: Request.new(env).ip
+               ip: Rack::Request.new(env).ip
              })
       end
 

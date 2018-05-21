@@ -4,33 +4,51 @@ require "forwardable"
 
 require "pakyow/support/deep_dup"
 require "pakyow/support/hookable"
+require "pakyow/support/indifferentize"
 require "pakyow/support/inspectable"
 
 require "pakyow/support/pipelined/haltable"
 
 module Pakyow
   class Connection
+    class << self
+      # Returns the string representation for a status code.
+      #
+      # @example
+      #   Pakyow::Connection.nice_status(200)
+      #   => "OK"
+      #
+      def nice_status(status_code)
+        Rack::Utils::HTTP_STATUS_CODES[status_code] || "?"
+      end
+    end
+
     using Support::DeepDup
+    using Support::Indifferentize
 
     include Support::Hookable
     known_events :finalize
 
     include Pakyow::Support::Inspectable
-    inspectable :halted, :app, :request, :response
+    inspectable :method, :params, :cookies, :status, :body
 
     include Support::Pipelined::Haltable
 
     extend Forwardable
-    def_delegators :request, :method, :format, :type, :host, :port, :ip, :user_agent, :base_url, :path,
-                   :path_info, :script_name, :url, :params, :cookies, :session, :env, :logger, :ssl?,
-                   :error, :fullpath
+    def_delegators :request, :type, :host, :port, :ip, :user_agent, :base_url, :path,
+                   :path_info, :script_name, :url, :session, :env, :logger, :ssl?,
+                   :fullpath
     def_delegators :response, :status, :status=, :write, :close, :body=
 
     attr_reader :app, :request, :response, :values
 
+    # Contains the error object when the connection is in a failed state.
+    #
+    attr_accessor :error
+
     def initialize(app, rack_env)
-      @app, @request, @response = app, Request.new(rack_env), Response.new
-      @initial_cookies = @request.cookies.dup
+      @app, @request, @response = app, Rack::Request.new(rack_env), Rack::Response.new
+      @initial_cookies = cookies.dup
       @values = {}
     end
 
@@ -90,12 +108,64 @@ module Pakyow
       Endpoint.new(path, params)
     end
 
+    # Returns the request method (e.g. `:get`).
+    #
+    def method
+      @method ||= @request.request_method.downcase.to_sym
+    end
+
+    # Returns the symbolized format of the request.
+    #
+    # @example
+    #   request.format
+    #   => :html
+    #
+    def format
+      return @format if defined?(@format)
+
+      if @request.path.include?(".")
+        @format = @request.path.split(".").last.to_sym
+      else
+        @format = :html
+      end
+    end
+
+    # Returns an indifferentized params hash.
+    #
+    def params
+      @params ||= @request.params.deep_indifferentize
+    end
+
+    # Returns an indifferentized cookie hash.
+    #
+    def cookies
+      @cookies ||= @request.cookies.indifferentize
+    end
+
+    # Sets the Content-Type header based on the format.
+    #
+    # @example
+    #   request.format = :json
+    #   request.content_type
+    #   => "application/json"
+    #
+    def format=(format)
+      @response["Content-Type"] = Rack::Mime.mime_type(".#{format}")
+    end
+
+    # Returns the value of the Content-Type header.
+    #
+    def content_type
+      @response["Content-Type"]
+    end
+    alias type content_type
+
     private
 
     def set_cookies
       config = @app.config.cookies
 
-      @request.cookies.each_pair do |name, value|
+      cookies.each_pair do |name, value|
         # delete the cookie if the value has been set to nil
         @response.delete_cookie(name) if value.nil?
 
@@ -107,7 +177,7 @@ module Pakyow
       end
 
       # delete cookies that were deleted from the request
-      (@initial_cookies.keys - @request.cookies.keys).each do |name|
+      (@initial_cookies.keys - cookies.keys).each do |name|
         @response.delete_cookie(name)
       end
     end

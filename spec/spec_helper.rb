@@ -17,8 +17,6 @@ if i.nil? || ARGV[i + 1].start_with?(File.expand_path("../", __FILE__))
   require "pakyow"
 
   require "helpers/app_helpers"
-  require "helpers/mock_request"
-  require "helpers/mock_response"
   require "helpers/mock_handler"
 
   RSpec.configure do |config|

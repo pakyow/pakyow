@@ -33,17 +33,17 @@ module Pakyow
         #
         def trigger(name_or_code)
           code = Rack::Utils.status_code(name_or_code)
-          response.status = code
+          connection.status = code
           trigger_for_code(code)
         end
 
         def handle_error(error)
-          request.error = error
-          response.status = 500
+          connection.error = error
+          connection.status = 500
 
           if code_and_handler = exception_for_class(error.class)
             code, handler = code_and_handler
-            response.status = code
+            connection.status = code
 
             if handler
               instance_exec(&handler)

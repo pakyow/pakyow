@@ -13,8 +13,6 @@ require "pakyow/presenter"
 require "pakyow/mailer"
 
 require_relative "../../spec/helpers/app_helpers"
-require_relative "../../spec/helpers/mock_request"
-require_relative "../../spec/helpers/mock_response"
 require_relative "../../spec/helpers/mock_handler"
 
 RSpec.configure do |config|

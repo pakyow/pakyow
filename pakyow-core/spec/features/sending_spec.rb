@@ -162,7 +162,7 @@ RSpec.describe "sending data" do
       Proc.new {
         controller do
           handle ArgumentError, as: 500 do
-            $error = req.error
+            $error = connection.error
           end
 
           default do

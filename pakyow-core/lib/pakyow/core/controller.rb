@@ -190,7 +190,7 @@ module Pakyow
     end
 
     def call(connection, request_path = connection.request.path)
-      request_method = connection.request.method
+      request_method = connection.method
 
       matcher = self.class.matcher
       if match = matcher.match(request_path)
@@ -297,10 +297,10 @@ module Pakyow
     #     end
     #   end
     #
-    def reroute(location, method: request.method, **params)
+    def reroute(location, method: connection.method, **params)
       @connection.env[Rack::REQUEST_METHOD] = method.to_s.upcase
       @connection.env[Rack::PATH_INFO] = location.is_a?(Symbol) ? app.endpoints.path(location, **params) : location
-      @connection.instance_variable_set(:@response, app.call(@connection.request.env))
+      @connection.instance_variable_set(:@response, app.call(@connection.env))
     end
 
     # Responds to a specific request format.
@@ -323,7 +323,7 @@ module Pakyow
     #
     def respond_to(format)
       return unless @connection.format == format.to_sym
-      @connection.response.format = format
+      @connection.format = format
       yield
       halt
     end

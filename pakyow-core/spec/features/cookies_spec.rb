@@ -30,12 +30,12 @@ RSpec.describe "using cookies" do
       end
     end
 
-    context "using request.set_cookie" do
+    context "using response.set_cookie" do
       let :app_definition do
         Proc.new {
           controller do
             get "/set/:value" do
-              response.set_cookie(
+              connection.response.set_cookie(
                 :foo,
                 path: "/path",
                 value: params[:value],
@@ -90,7 +90,7 @@ RSpec.describe "using cookies" do
         Proc.new {
           controller do
             get "/" do
-              send request.cookies[:foo] || ""
+              send cookies[:foo] || ""
             end
           end
         }
@@ -124,7 +124,7 @@ RSpec.describe "using cookies" do
       end
     end
 
-    context "using request.delete_cookie" do
+    context "using response.delete_cookie" do
       let :app_definition do
         Proc.new {
           controller do

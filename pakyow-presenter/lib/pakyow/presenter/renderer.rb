@@ -41,9 +41,9 @@ module Pakyow
           Pakyow.env?(:prototype) ||
           ((!connection.halted? || connection.set?(:__fully_dispatched)) &&
             !connection.rendered? &&
-            connection.response.status == 200 &&
-            connection.request.method == :get &&
-            connection.request.format == :html)
+            connection.status == 200 &&
+            connection.method == :get &&
+            connection.format == :html)
         end
       end
 
