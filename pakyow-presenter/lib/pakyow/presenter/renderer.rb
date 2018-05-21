@@ -38,12 +38,8 @@ module Pakyow
         end
 
         def implicitly_render?(connection)
-          Pakyow.env?(:prototype) ||
-          ((!connection.halted? || connection.set?(:__fully_dispatched)) &&
-            !connection.rendered? &&
-            connection.status == 200 &&
-            connection.method == :get &&
-            connection.format == :html)
+          connection.status == 200 && connection.method == :get && connection.format == :html &&
+          (Pakyow.env?(:prototype) || ((!connection.halted? || connection.set?(:__fully_dispatched)) && !connection.rendered?))
         end
       end
 
