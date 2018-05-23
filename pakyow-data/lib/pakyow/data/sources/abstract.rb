@@ -4,6 +4,8 @@ module Pakyow
   module Data
     module Sources
       class Abstract < SimpleDelegator
+        attr_reader :original_results
+
         def qualifications
           {}
         end

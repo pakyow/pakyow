@@ -3,8 +3,6 @@
 require "digest/sha1"
 require "redis"
 
-require "pakyow/data/subscribers/adapters/redis/pipeliner"
-
 module Pakyow
   module Data
     class Subscribers
@@ -178,19 +176,19 @@ module Pakyow
           end
 
           def subscriptions_for_subscription_ids(subscription_ids)
-            Pipeliner.pipeline @redis do |pipeline|
-              subscription_ids.each do |subscription_id|
-                pipeline.enqueue(@redis.get(key_subscription_id(subscription_id))) do |subscription_string|
-                  begin
-                    subscription = Marshal.restore(subscription_string)
-                    subscription[:id] = subscription_id
-                    subscription
-                  rescue TypeError
-                    Pakyow.logger.error "could not find subscription for #{subscription_id}"
-                  end
+            return [] if subscription_ids.empty?
+
+            @redis.mget(subscription_ids.map { |subscription_id|
+              key_subscription_id(subscription_id)
+            }).zip(subscription_ids).map { |subscription_string, subscription_id|
+              begin
+                Marshal.restore(subscription_string).tap do |subscription|
+                  subscription[:id] = subscription_id
                 end
+              rescue TypeError
+                Pakyow.logger.error "could not find subscription for #{subscription_id}"
               end
-            end
+            }
           end
 
           def build_key(*parts)

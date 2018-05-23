@@ -7,8 +7,8 @@ module Pakyow
     class Command
       using Support::DeepDup
 
-      def initialize(name, block:, source:, provides_dataset:, provides_ids:)
-        @name, @block, @source, @provides_dataset, @provides_ids = name, block, source, provides_dataset, provides_ids
+      def initialize(name, block:, source:, provides_dataset:, performs_update:)
+        @name, @block, @source, @provides_dataset, @performs_update = name, block, source, provides_dataset, performs_update
       end
 
       def call(values = nil)
@@ -76,19 +76,37 @@ module Pakyow
           end
         end
 
-        unless @provides_dataset || @provides_ids
+        original_dataset = if @performs_update
+          # Hold on to the original values so we can update them locally.
+          @source.dup.to_a
+        else
+          nil
+        end
+
+        unless @provides_dataset || @performs_update
+          # Cache the result prior to running the command.
           @source.to_a
         end
 
         command_result = @source.instance_exec(final_values, &@block)
 
-        if @provides_ids
+        if @performs_update
+          # For updates, we fetch the values prior to performing the update and
+          # return a source containing locally updated values. This lets us see
+          # the original values but prevents us from fetching twice.
+
           @source.container.source_instance(@source.class.__class_name.name).tap do |updated_source|
             updated_source.__setobj__(
               @source.container.connection.adapter.result_for_attribute_value(
                 @source.class.primary_key_field, command_result, updated_source
               )
             )
+
+            updated_source.instance_variable_set(:@results, original_dataset.map { |original_object|
+              original_object.class.new(original_object.values.merge(final_values))
+            })
+
+            updated_source.instance_variable_set(:@original_results, original_dataset)
           end
         elsif @provides_dataset
           @source.dup.tap { |source|

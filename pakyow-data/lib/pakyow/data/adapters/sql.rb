@@ -401,7 +401,7 @@ module Pakyow
               end
             end
 
-            command :update, provides_ids: true do |values|
+            command :update, performs_update: true do |values|
               __getobj__.select(self.class.primary_key_field).map { |result|
                 result[self.class.primary_key_field]
               }.tap do
