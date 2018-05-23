@@ -174,9 +174,13 @@ module Pakyow
           false
         end
 
+        PASSED_REQUEST_HEADERS = [
+          "CONTENT_TYPE"
+        ]
+
         def parse_request_headers(env)
           env.select { |key, _|
-            key.start_with? "HTTP_"
+            key.start_with?("HTTP_") || PASSED_REQUEST_HEADERS.include?(key)
           }.each_with_object({}) { |arr, headers|
             key, value = arr
             headers[key.sub(/^HTTP_/, "").split("_").map(&:capitalize).join("-")] = value
