@@ -8,7 +8,7 @@ beforeEach(() => {
 });
 
 describe("sending to the server", () => {
-  test("sents", () => {
+  test("sends", () => {
     pw.send("/");
 
     expect(XMLHttpRequest.mock.instances[0].open.mock.calls.length).toBe(1);
@@ -60,6 +60,21 @@ describe("sending to the server", () => {
 
       expect(error.mock.calls.length).toBe(0);
     });
+
+    test("calls complete", () => {
+      let complete = jest.fn();
+      let xhr = pw.send("/", { complete: complete });
+      xhr.status = 200;
+      xhr.readyState = 4;
+      xhr.responseText = "foo";
+      xhr.onreadystatechange();
+
+      expect(complete.mock.calls.length).toBe(1);
+      expect(complete.mock.calls[0]).toEqual([xhr]);
+    });
+
+    test("broadcasts with success callback");
+    test("broadcasts without success callback");
   });
 
   describe("500 response", () => {
@@ -84,6 +99,21 @@ describe("sending to the server", () => {
 
       expect(success.mock.calls.length).toBe(0);
     });
+
+    test("calls complete", () => {
+      let complete = jest.fn();
+      let xhr = pw.send("/", { complete: complete });
+      xhr.status = 500;
+      xhr.readyState = 4;
+      xhr.statusText = "foo";
+      xhr.onreadystatechange();
+
+      expect(complete.mock.calls.length).toBe(1);
+      expect(complete.mock.calls[0]).toEqual([xhr]);
+    });
+
+    test("broadcasts with error callback");
+    test("broadcasts without error callback");
   });
 
   describe("sending with data", () => {
