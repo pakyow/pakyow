@@ -27,7 +27,7 @@ module Pakyow
             result = @source.command(method_name).call(*args, &block)
 
             @subscribers.did_mutate(
-              @source.source_name, args[0], result.to_a
+              @source.source_name, args[0], result
             )
 
             proxy.instance_variable_set(:@source, result)

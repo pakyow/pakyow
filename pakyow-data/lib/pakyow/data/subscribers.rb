@@ -31,9 +31,14 @@ module Pakyow
         @adapter.register_subscription(subscription, subscriber: subscriber)
       end
 
-      def did_mutate(source_name, changed_values, changed_results)
+      def did_mutate(source_name, changed_values, result_source)
         @adapter.subscriptions_for_source(source_name).select { |subscription|
-          qualified?(subscription.delete(:qualifications), changed_values, changed_results)
+          qualified?(
+            subscription.delete(:qualifications),
+            changed_values,
+            result_source.to_a,
+            result_source.original_results || []
+          )
         }.uniq.each do |subscription|
           process(subscription)
         end
@@ -78,14 +83,15 @@ module Pakyow
         callback.call(subscription[:payload], **arguments)
       end
 
-      def qualified?(qualifications, changed_values, changed_results)
+      QUALIFIABLE_TYPES = [Hash, Support::IndifferentHash]
+      def qualified?(qualifications, changed_values, changed_results, original_results)
         qualifications.all? do |key, value|
-          changed_values.to_h[key] == value || qualified_result?(key, value, changed_results)
+          (QUALIFIABLE_TYPES.include?(changed_values.class) && changed_values.to_h[key] == value) || qualified_result?(key, value, changed_results, original_results)
         end
       end
 
-      def qualified_result?(key, value, changed_results)
-        changed_results.any? do |result|
+      def qualified_result?(key, value, changed_results, original_results)
+        original_results.concat(changed_results).any? do |result|
           result[key] == value
         end
       end
