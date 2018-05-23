@@ -1,6 +1,87 @@
 [
   {
-    "id": "14096ac5a9ca2abfe85a397768e8b87d7103ec40",
-    "calls": [["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"},{"id":2,"title":"bar","body":"bar body"},{"id":3,"title":"baz"}]],[[["use",["unpublished"],[],[]]],[["use",["published"],[],[]]],[["use",["unpublished"],[],[]]]],[]]]]]
+    "id": "61aeb4df92f094a6ae2e1c0a569e480d2244c8fe",
+    "calls": [
+      [
+        "find",
+        [
+          [
+            "post"
+          ]
+        ],
+        [
+
+        ],
+        [
+          [
+            "present",
+            [
+              [
+                {
+                  "id": 1,
+                  "title": "foo"
+                },
+                {
+                  "id": 2,
+                  "title": "bar",
+                  "body": "bar body"
+                },
+                {
+                  "id": 3,
+                  "title": "baz"
+                }
+              ]
+            ],
+            [
+              [
+                [
+                  "use",
+                  [
+                    "unpublished"
+                  ],
+                  [
+
+                  ],
+                  [
+
+                  ]
+                ]
+              ],
+              [
+                [
+                  "use",
+                  [
+                    "published"
+                  ],
+                  [
+
+                  ],
+                  [
+
+                  ]
+                ]
+              ],
+              [
+                [
+                  "use",
+                  [
+                    "unpublished"
+                  ],
+                  [
+
+                  ],
+                  [
+
+                  ]
+                ]
+              ]
+            ],
+            [
+
+            ]
+          ]
+        ]
+      ]
+    ]
   }
 ]

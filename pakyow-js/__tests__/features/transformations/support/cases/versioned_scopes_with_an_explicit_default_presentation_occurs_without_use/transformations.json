@@ -1,6 +1,37 @@
 [
   {
-    "id": "22932784c34b7786dde30bf399eb1c4ed93bf6b5",
-    "calls": [["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"}]],[],[]]]]]
+    "id": "61aeb4df92f094a6ae2e1c0a569e480d2244c8fe",
+    "calls": [
+      [
+        "find",
+        [
+          [
+            "post"
+          ]
+        ],
+        [
+
+        ],
+        [
+          [
+            "present",
+            [
+              [
+                {
+                  "id": 1,
+                  "title": "foo"
+                }
+              ]
+            ],
+            [
+
+            ],
+            [
+
+            ]
+          ]
+        ]
+      ]
+    ]
   }
 ]

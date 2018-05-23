@@ -1,10 +1,140 @@
 [
   {
-    "id": "672e88f1f8b0106a28a61ce4812f150f4bdd0e00",
-    "calls": [["find",[["post:published"]],[],[["present",[[{"id":1,"title":"foo"},{"id":3,"title":"baz"}]],[],[]]]],["find",[["post:unpublished"]],[],[["present",[[{"id":2,"title":"bar"}]],[],[]]]]]
+    "id": "61aeb4df92f094a6ae2e1c0a569e480d2244c8fe",
+    "calls": [
+      [
+        "find",
+        [
+          [
+            "post:published"
+          ]
+        ],
+        [
+
+        ],
+        [
+          [
+            "present",
+            [
+              [
+                {
+                  "id": 1,
+                  "title": "foo"
+                },
+                {
+                  "id": 3,
+                  "title": "baz"
+                }
+              ]
+            ],
+            [
+
+            ],
+            [
+
+            ]
+          ]
+        ]
+      ],
+      [
+        "find",
+        [
+          [
+            "post:unpublished"
+          ]
+        ],
+        [
+
+        ],
+        [
+          [
+            "present",
+            [
+              [
+                {
+                  "id": 2,
+                  "title": "bar"
+                }
+              ]
+            ],
+            [
+
+            ],
+            [
+
+            ]
+          ]
+        ]
+      ]
+    ]
   },
   {
-    "id": "672e88f1f8b0106a28a61ce4812f150f4bdd0e00",
-    "calls": [["find",[["post:published"]],[],[["present",[[{"id":1,"title":"foo"},{"id":3,"title":"baz"}]],[],[]]]],["find",[["post:unpublished"]],[],[["present",[[{"id":2,"title":"bar"}]],[],[]]]]]
+    "id": "61aeb4df92f094a6ae2e1c0a569e480d2244c8fe",
+    "calls": [
+      [
+        "find",
+        [
+          [
+            "post:published"
+          ]
+        ],
+        [
+
+        ],
+        [
+          [
+            "present",
+            [
+              [
+                {
+                  "id": 1,
+                  "title": "foo"
+                },
+                {
+                  "id": 3,
+                  "title": "baz"
+                }
+              ]
+            ],
+            [
+
+            ],
+            [
+
+            ]
+          ]
+        ]
+      ],
+      [
+        "find",
+        [
+          [
+            "post:unpublished"
+          ]
+        ],
+        [
+
+        ],
+        [
+          [
+            "present",
+            [
+              [
+                {
+                  "id": 2,
+                  "title": "bar"
+                }
+              ]
+            ],
+            [
+
+            ],
+            [
+
+            ]
+          ]
+        ]
+      ]
+    ]
   }
 ]

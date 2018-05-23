@@ -1,6 +1,76 @@
 [
   {
-    "id": "b0a7fcfdeaaf92f94d16a25a3bf4be1d7058ab6a",
-    "calls": [["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"}]],[[["use",["default"],[],[]],["attrs",[],[],[["[]=",["style",{"color":"red"}],[],[]]]]]],[]]]]]
+    "id": "61aeb4df92f094a6ae2e1c0a569e480d2244c8fe",
+    "calls": [
+      [
+        "find",
+        [
+          [
+            "post"
+          ]
+        ],
+        [
+
+        ],
+        [
+          [
+            "present",
+            [
+              [
+                {
+                  "id": 1,
+                  "title": "foo"
+                }
+              ]
+            ],
+            [
+              [
+                [
+                  "use",
+                  [
+                    "default"
+                  ],
+                  [
+
+                  ],
+                  [
+
+                  ]
+                ],
+                [
+                  "attrs",
+                  [
+
+                  ],
+                  [
+
+                  ],
+                  [
+                    [
+                      "[]=",
+                      [
+                        "style",
+                        {
+                          "color": "red"
+                        }
+                      ],
+                      [
+
+                      ],
+                      [
+
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+
+            ]
+          ]
+        ]
+      ]
+    ]
   }
 ]

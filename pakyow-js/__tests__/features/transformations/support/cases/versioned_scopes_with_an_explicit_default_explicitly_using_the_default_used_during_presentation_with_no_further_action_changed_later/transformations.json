@@ -1,6 +1,50 @@
 [
   {
-    "id": "b8dc65402ee8a4ab69ae7648e7fe68f34290f6a5",
-    "calls": [["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"}]],[[["use",["default"],[],[]]]],[]]]]]
+    "id": "61aeb4df92f094a6ae2e1c0a569e480d2244c8fe",
+    "calls": [
+      [
+        "find",
+        [
+          [
+            "post"
+          ]
+        ],
+        [
+
+        ],
+        [
+          [
+            "present",
+            [
+              [
+                {
+                  "id": 1,
+                  "title": "foo"
+                }
+              ]
+            ],
+            [
+              [
+                [
+                  "use",
+                  [
+                    "default"
+                  ],
+                  [
+
+                  ],
+                  [
+
+                  ]
+                ]
+              ]
+            ],
+            [
+
+            ]
+          ]
+        ]
+      ]
+    ]
   }
 ]

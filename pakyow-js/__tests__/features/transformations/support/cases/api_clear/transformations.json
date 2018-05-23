@@ -1,6 +1,46 @@
 [
   {
-    "id": "537ffd543df294d518f13acea64d1a3ef74b4ae8",
-    "calls": [["find",[["post"]],[],[["bind",[{"id":1,"title":"foo"}],[],[["clear",[],[],[]]]]]]]
+    "id": "61aeb4df92f094a6ae2e1c0a569e480d2244c8fe",
+    "calls": [
+      [
+        "find",
+        [
+          [
+            "post"
+          ]
+        ],
+        [
+
+        ],
+        [
+          [
+            "bind",
+            [
+              {
+                "id": 1,
+                "title": "foo"
+              }
+            ],
+            [
+
+            ],
+            [
+              [
+                "clear",
+                [
+
+                ],
+                [
+
+                ],
+                [
+
+                ]
+              ]
+            ]
+          ]
+        ]
+      ]
+    ]
   }
 ]

@@ -1,6 +1,47 @@
 [
   {
-    "id": "94eb072c312f17b2121a940746d8e6d917013bab",
-    "calls": [["find",[["post"]],[],[["present",[[{"id":1,"title":{"content":"oof","style":{"color":"red"},"class":["fooclass"],"title":"foo","selected":true}}]],[],[]]]]]
+    "id": "61aeb4df92f094a6ae2e1c0a569e480d2244c8fe",
+    "calls": [
+      [
+        "find",
+        [
+          [
+            "post"
+          ]
+        ],
+        [
+
+        ],
+        [
+          [
+            "present",
+            [
+              [
+                {
+                  "id": 1,
+                  "title": {
+                    "content": "oof",
+                    "style": {
+                      "color": "red"
+                    },
+                    "class": [
+                      "fooclass"
+                    ],
+                    "title": "foo",
+                    "selected": true
+                  }
+                }
+              ]
+            ],
+            [
+
+            ],
+            [
+
+            ]
+          ]
+        ]
+      ]
+    ]
   }
 ]

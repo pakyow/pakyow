@@ -1,6 +1,64 @@
 [
   {
-    "id": "c0cd32743fbc5ab4edf8a5124b8d21a50d8fbd3c",
-    "calls": [["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"}]],[[["attrs",[],[],[["[]=",["style",{"color":"red"}],[],[]]]]]],[]]]]]
+    "id": "61aeb4df92f094a6ae2e1c0a569e480d2244c8fe",
+    "calls": [
+      [
+        "find",
+        [
+          [
+            "post"
+          ]
+        ],
+        [
+
+        ],
+        [
+          [
+            "present",
+            [
+              [
+                {
+                  "id": 1,
+                  "title": "foo"
+                }
+              ]
+            ],
+            [
+              [
+                [
+                  "attrs",
+                  [
+
+                  ],
+                  [
+
+                  ],
+                  [
+                    [
+                      "[]=",
+                      [
+                        "style",
+                        {
+                          "color": "red"
+                        }
+                      ],
+                      [
+
+                      ],
+                      [
+
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+
+            ]
+          ]
+        ]
+      ]
+    ]
   }
 ]

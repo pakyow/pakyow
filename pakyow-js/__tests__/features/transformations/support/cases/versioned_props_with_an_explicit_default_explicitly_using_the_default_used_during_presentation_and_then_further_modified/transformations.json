@@ -1,6 +1,102 @@
 [
   {
-    "id": "7a57b91aced6d0cc37d28bf8ea58303153620d0a",
-    "calls": [["find",[["post"]],[],[["present",[[{"id":1,"title":"red foo"}]],[[["find",[["title"]],[],[["use",["red"],[],[]]]],["find",[["title"]],[],[["attrs",[],[],[["[]=",["style",{"background":"gray"}],[],[]]]]]]]],[]]]]]
+    "id": "61aeb4df92f094a6ae2e1c0a569e480d2244c8fe",
+    "calls": [
+      [
+        "find",
+        [
+          [
+            "post"
+          ]
+        ],
+        [
+
+        ],
+        [
+          [
+            "present",
+            [
+              [
+                {
+                  "id": 1,
+                  "title": "red foo"
+                }
+              ]
+            ],
+            [
+              [
+                [
+                  "find",
+                  [
+                    [
+                      "title"
+                    ]
+                  ],
+                  [
+
+                  ],
+                  [
+                    [
+                      "use",
+                      [
+                        "red"
+                      ],
+                      [
+
+                      ],
+                      [
+
+                      ]
+                    ]
+                  ]
+                ],
+                [
+                  "find",
+                  [
+                    [
+                      "title"
+                    ]
+                  ],
+                  [
+
+                  ],
+                  [
+                    [
+                      "attrs",
+                      [
+
+                      ],
+                      [
+
+                      ],
+                      [
+                        [
+                          "[]=",
+                          [
+                            "style",
+                            {
+                              "background": "gray"
+                            }
+                          ],
+                          [
+
+                          ],
+                          [
+
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+
+            ]
+          ]
+        ]
+      ]
+    ]
   }
 ]
