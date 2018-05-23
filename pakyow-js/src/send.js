@@ -7,6 +7,7 @@ export default function (url, options = {}) {
 
   var xhr = new XMLHttpRequest();
   xhr.open(method, url);
+  xhr.setRequestHeader("Pw-Ui", pw.version);
 
   for (let header in (options.headers || {})){
     xhr.setRequestHeader(header, options.headers[header]);

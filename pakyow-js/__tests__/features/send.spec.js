@@ -38,6 +38,14 @@ describe("sending to the server", () => {
     );
   });
 
+  test("sets the pw ui header", () => {
+    pw.send("/");
+
+    expect(XMLHttpRequest.mock.instances[0].setRequestHeader.mock.calls[0]).toEqual(
+      ["Pw-Ui", pw.version]
+    );
+  });
+
   describe("200 response", () => {
     test("calls success callback with response text", () => {
       let success = jest.fn();
@@ -120,7 +128,7 @@ describe("sending to the server", () => {
     test("sets the content type to application/json", () => {
       pw.send("/", { data: { foo: "bar" } });
 
-      expect(XMLHttpRequest.mock.instances[0].setRequestHeader.mock.calls[0]).toEqual(
+      expect(XMLHttpRequest.mock.instances[0].setRequestHeader.mock.calls[1]).toEqual(
         ["Content-Type", "application/json"]
       );
     });
@@ -143,11 +151,11 @@ describe("sending to the server", () => {
         }
       });
 
-      expect(XMLHttpRequest.mock.instances[0].setRequestHeader.mock.calls[0]).toEqual(
+      expect(XMLHttpRequest.mock.instances[0].setRequestHeader.mock.calls[1]).toEqual(
         ["Content-Length", 0]
       );
 
-      expect(XMLHttpRequest.mock.instances[0].setRequestHeader.mock.calls[1]).toEqual(
+      expect(XMLHttpRequest.mock.instances[0].setRequestHeader.mock.calls[2]).toEqual(
         ["Content-Type", "text/xml"]
       );
     });
