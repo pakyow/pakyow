@@ -32,15 +32,9 @@ module Pakyow
       end
 
       def did_mutate(source_name, changed_values, changed_results)
-        subscriptions = Set.new
-
-        @adapter.subscriptions_for_source(source_name).each do |subscription|
-          if qualified?(subscription.delete(:qualifications), changed_values, changed_results)
-            subscriptions << subscription
-          end
-        end
-
-        subscriptions.each do |subscription|
+        @adapter.subscriptions_for_source(source_name).select { |subscription|
+          qualified?(subscription.delete(:qualifications), changed_values, changed_results)
+        }.uniq.each do |subscription|
           process(subscription)
         end
       end
