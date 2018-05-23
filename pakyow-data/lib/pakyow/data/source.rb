@@ -141,7 +141,7 @@ module Pakyow
             block: command[:block],
             source: self,
             provides_dataset: command[:provides_dataset],
-            provides_ids: command[:provides_ids]
+            performs_update: command[:performs_update]
           )
         else
           # TODO: raise a nicer error indicating what commands are available
@@ -272,11 +272,11 @@ module Pakyow
           end
         end
 
-        def command(command_name, provides_dataset: true, provides_ids: false, &block)
+        def command(command_name, provides_dataset: true, performs_update: false, &block)
           @commands[command_name] = {
             block: block,
             provides_dataset: provides_dataset,
-            provides_ids: provides_ids
+            performs_update: performs_update
           }
         end
 
