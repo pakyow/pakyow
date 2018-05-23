@@ -27,7 +27,9 @@ module Pakyow
             @buffer = Buffer.new(@redis, pubsub_channel)
             Subscriber.new(::Redis.new(url: config[:redis]), pubsub_channel) do |payload|
               channel, message = Marshal.restore(payload).values_at(:channel, :message)
-              @server.transmit_message_to_connection_ids(message, socket_ids_for_channel(channel))
+              # TODO: we can improve performance by not deserializing here and supporting
+              # raw messages in `transmit`... just serialize with the payload key
+              @server.transmit_message_to_connection_ids(JSON.parse(message), socket_ids_for_channel(channel))
             end
           end
 
@@ -58,7 +60,7 @@ module Pakyow
           end
 
           def subscription_broadcast(channel, message)
-            @buffer << Marshal.dump(channel: channel, message: message)
+            @buffer << Marshal.dump(channel: channel, message: message.to_json)
           end
 
           def expire(socket_id, seconds)
