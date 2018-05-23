@@ -95,9 +95,6 @@ module Pakyow
             handler: handler,
             payload: payload,
             qualifications: qualifications,
-            subscriber: subscriber,
-            pk_field: primary_key,
-            object_pks: result_pks,
             proxy: to_h
           }
 
@@ -131,9 +128,6 @@ module Pakyow
               qualifications: qualifications.merge(
                 association[:associated_column_name] => parent_result[association[:column_name]]
               ),
-              subscriber: subscriber,
-              pk_field: primary_key,
-              object_pks: result_pks,
               proxy: serialized_proxy
             }
 
@@ -200,16 +194,6 @@ module Pakyow
           end
 
           qualifications.merge(qualifications_for_proxied_call)
-        }
-      end
-
-      def primary_key
-        @source.class.primary_key_field
-      end
-
-      def result_pks
-        @source.map { |object|
-          object[primary_key]
         }
       end
     end

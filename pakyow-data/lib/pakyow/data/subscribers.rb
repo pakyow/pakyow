@@ -22,8 +22,6 @@ module Pakyow
       # {
       #   source
       #   qualifications
-      #   object_pks
-      #   pk_field
       #   handler
       #   proxy => source
       #   payload
@@ -37,7 +35,7 @@ module Pakyow
         subscriptions = Set.new
 
         @adapter.subscriptions_for_source(source_name).each do |subscription|
-          if qualified?(subscription.delete(:qualifications), subscription.delete(:object_pks), subscription.delete(:pk_field), changed_values, changed_results)
+          if qualified?(subscription.delete(:qualifications), changed_values, changed_results)
             subscriptions << subscription
           end
         end
@@ -71,52 +69,31 @@ module Pakyow
           @app.data.ephemeral(subscription[:proxy][:source])
         end
 
-        result = result.apply(subscription[:proxy][:proxied_calls])
-
-        # resubscribe the subscriber to the new result
-        unsubscribe(subscription[:subscriber])
-        subscription_ids = result.subscribe(subscription[:subscriber], handler: subscription[:handler], payload: subscription[:payload])
-
-        if callback.method(:call).keyword_argument?(:result)
-          arguments[:result] = result
-        end
-
         if callback.method(:call).keyword_argument?(:id)
           arguments[:id] = subscription[:id]
+        end
+
+        if callback.method(:call).keyword_argument?(:result)
+          arguments[:result] = result.apply(subscription[:proxy][:proxied_calls])
         end
 
         if callback.method(:call).keyword_argument?(:subscription)
           arguments[:subscription] = subscription
         end
 
-        if callback.method(:call).keyword_argument?(:subscription_ids)
-          arguments[:subscription_ids] = subscription_ids
-        end
-
         callback.call(subscription[:payload], **arguments)
       end
 
-      SUPPORTED_VALUE_TYPES = [Hash, Support::IndifferentHash]
-      def qualified?(qualifications, object_pks, pk_field, changed_values, changed_results)
-        changed_results.each do |changed_result|
-          return true if object_pks.include?(changed_result[pk_field])
+      def qualified?(qualifications, changed_values, changed_results)
+        qualifications.all? do |key, value|
+          changed_values.to_h[key] == value || qualified_result?(key, value, changed_results)
         end
-
-        qualifications.each do |key, value|
-          next if SUPPORTED_VALUE_TYPES.include?(changed_values.class) && changed_values.to_h[key] == value
-          next if qualified_result?(key, value, changed_results)
-          return false
-        end
-
-        true
       end
 
       def qualified_result?(key, value, changed_results)
-        changed_results.each do |result|
-          return true if result[key] == value
+        changed_results.any? do |result|
+          result[key] == value
         end
-
-        false
       end
     end
   end
