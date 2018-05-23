@@ -129,8 +129,8 @@ module Pakyow
               end
             end
 
-            # at this point we've expired the subscribers, but we haven't dealt with the subscription
-            # so now, if all subscribers have been removed we need to expire each subscription
+            # at this point we've persisted the subscriber, but we haven't dealt with the subscription
+            # since the subscriber has been persisted we need to persist each subscription
             subscription_ids.each do |subscription_id|
               key_subscribers_for_subscription_id = key_subscribers_by_subscription_id(subscription_id)
 
