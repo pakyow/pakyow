@@ -47,7 +47,9 @@ export default class {
       return view.match("binding", currentName);
     });
 
-    let found = this.bindingScopes().concat(this.bindingProps()).map((view) => {
+    let found = this.bindingScopes().concat(this.bindingProps()).filter((view) => {
+      return view.node.tagName !== "FORM";
+    }).map((view) => {
       view.versions = templates;
       return view;
     }).filter((view) => {

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html data-t="61aeb4df92f094a6ae2e1c0a569e480d2244c8fe">
+  <head>
+    <title>default</title>
+    <meta name="pw-authenticity-token" content="20afce95f20bf5da2f809f8c8cc85678e09ee576f83356c1:iB1qcLdhJYLCHw2ug4Kk7TySZtD8zAn+lxxJ/pBtP1Q=">
+    <meta name="pw-authenticity-param" content="authenticity_token">
+    <meta name="pw-connection-id" content="ce811dd5c34f347fbe0b220a77cc773441526fc186967a1a:ZW3Ab+5O+zs5la5JG99p5/m1bL8UDdiznem1ZZIEDjw=">
+    <meta name="pw-endpoint" content="ws://example.org:80/pw-socket">
+  </head>
+  <body>
+    <main>
+      <h1>
+        Blog Posts
+      </h1>
+      <form data-b="post" method="post" action="/posts"><input type="hidden" name="authenticity_token" value="71120d62b5c0476dc33f3feaeb68ab22f21a7bd57d28bf3b:kyh0HsIjMHrsla2NhPlyhW49+0c24jQ1QueXzULtBuA="><input type="hidden" name="form[origin]" value="/posts"><input type="hidden" name="form[id]" value="71120d62b5c0476dc33f3feaeb68ab22f21a7bd57d28bf3b">
+        <input data-b="title" type="text" name="post[title]" value="">
+        <input type="submit">
+      </form>
+      <hr>
+      <article data-b="post" data-id="1">
+        <h1 data-b="title">foo</h1>
+      </article>
+      <script type="text/template" data-b="post">
+        <article data-b="post">
+          <h1 data-b="title">
+            title goes here
+          </h1>
+        </article>
+      </script>
+      <script type="text/template" data-b="post" data-v="empty">
+        <p data-b="post" data-v="empty">
+          no posts here
+        </p>
+      </script>
+    </main>
+  </body>
+</html>
