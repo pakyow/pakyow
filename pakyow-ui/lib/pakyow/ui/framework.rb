@@ -5,6 +5,7 @@ require "digest"
 
 require "pakyow/core/framework"
 
+require "pakyow/ui/helpers"
 require "pakyow/ui/presenter"
 require "pakyow/ui/renderer"
 
@@ -21,6 +22,8 @@ module Pakyow
       SUBSCRIPTION_TIMEOUT = 60
 
       def boot
+        app.helper Helpers
+
         app.on :join do
           @connection.app.data.persist(@id)
         end
