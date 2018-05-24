@@ -250,19 +250,6 @@ module Pakyow
             # Call the original block.
             #
             class_eval(&block) if block_given?
-
-            # Override queries with methods that wrap the dataset in a source.
-            #
-            local_queries = queries
-            prepend(
-              Module.new do
-                local_queries.each do |query|
-                  define_method query do |*args, &block|
-                    source_from_self(super(*args, &block))
-                  end
-                end
-              end
-            )
           end
         end
 
@@ -312,8 +299,6 @@ module Pakyow
             type: type,
             options: options
           }
-
-          qualify_query_for_attribute!(name)
         end
 
         def subscribe(query_name, qualifications)
@@ -367,12 +352,6 @@ module Pakyow
             association[:source_name] == source.class.plural_name ||
               association[:source_name] == source.class.singular_name
           }
-        end
-
-        private
-
-        def qualify_query_for_attribute!(attribute_name)
-          subscribe :"by_#{attribute_name}", attribute_name => :__arg0__
         end
       end
     end

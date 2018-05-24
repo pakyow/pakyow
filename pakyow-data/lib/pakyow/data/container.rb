@@ -48,7 +48,7 @@ module Pakyow
           mixin_dataset_methods!(source)
           define_attributes_for_associations!(source)
           define_queries_for_attributes!(source)
-
+          wrap_defined_queries!(source)
           finalize_source_types!(source)
         end
       end
@@ -86,10 +86,29 @@ module Pakyow
         source.attributes.keys.each do |attribute|
           source.class_eval do
             define_method :"by_#{attribute}" do |value|
-              source_from_self(@container.connection.adapter.result_for_attribute_value(attribute, value, self))
+              @container.connection.adapter.result_for_attribute_value(attribute, value, self)
             end
+
+            # Qualify the query.
+            #
+            subscribe :"by_#{attribute}", attribute => :__arg0__
           end
         end
+      end
+
+      # Override queries with methods that wrap the dataset in a source.
+      #
+      def wrap_defined_queries!(source)
+        local_queries = source.queries
+        source.prepend(
+          Module.new do
+            local_queries.each do |query|
+              define_method query do |*args, &block|
+                source_from_self(super(*args, &block))
+              end
+            end
+          end
+        )
       end
 
       def finalize_source_types!(source)
