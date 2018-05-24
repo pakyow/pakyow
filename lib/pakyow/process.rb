@@ -51,7 +51,11 @@ module Pakyow
     end
 
     def stop
-      ::Process.kill("INT", @pid) if @pid
+      if @pid
+        ::Process.kill("INT", @pid)
+        ::Process.waitpid(@pid)
+      end
+
       @server.stopped(self)
     end
 
