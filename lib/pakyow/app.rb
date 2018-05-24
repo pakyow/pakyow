@@ -173,7 +173,7 @@ module Pakyow
         # has the proper priority against instance and global state.
         defined!(&block)
       end
-    rescue StandardError => error
+    rescue ScriptError, StandardError => error
       rescue!(error)
     end
 
@@ -183,7 +183,7 @@ module Pakyow
       unless rescued?
         call_hooks :after, :boot
       end
-    rescue StandardError => error
+    rescue ScriptError, StandardError => error
       rescue!(error)
     end
 

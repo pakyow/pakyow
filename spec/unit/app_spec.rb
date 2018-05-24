@@ -30,7 +30,7 @@ RSpec.describe Pakyow::App do
       end
     end
 
-    context "when initialization fails" do
+    context "when initialization fails because of a runtime error" do
       before do
         app_class.before :load do
           fail "testing rescue mode"
@@ -45,6 +45,26 @@ RSpec.describe Pakyow::App do
         expect(response[1]["Content-Type"]).to eq("text/plain")
         expect(response[2][0]).to include("failed to initialize")
         expect(response[2][0]).to include("testing rescue mode")
+        expect(response[2][0]).to include("pakyow/spec/unit/app_spec.rb")
+      end
+    end
+
+    context "when initialization fails because of a syntax error" do
+      before do
+        app_class.before :load do
+          eval("if")
+        end
+
+        Pakyow.instance_variable_set(:@logger, Logger.new(File::NULL))
+      end
+
+      it "enters rescue mode" do
+        app.booted
+        response = app.call({})
+        expect(response[0]).to eq(500)
+        expect(response[1]["Content-Type"]).to eq("text/plain")
+        expect(response[2][0]).to include("failed to initialize")
+        expect(response[2][0]).to include("syntax error, unexpected end-of-input")
         expect(response[2][0]).to include("pakyow/spec/unit/app_spec.rb")
       end
     end
@@ -84,7 +104,7 @@ RSpec.describe Pakyow::App do
       expect($called).to be(true)
     end
 
-    context "when booting fails" do
+    context "when booting fails because of a runtime error" do
       before do
         app_class.after :boot do
           fail "testing rescue mode"
@@ -100,6 +120,26 @@ RSpec.describe Pakyow::App do
         expect(response[1]["Content-Type"]).to eq("text/plain")
         expect(response[2][0]).to include("failed to initialize")
         expect(response[2][0]).to include("testing rescue mode")
+        expect(response[2][0]).to include("pakyow/spec/unit/app_spec.rb")
+      end
+    end
+
+    context "when booting fails because of a syntax error" do
+      before do
+        app_class.after :boot do
+          eval("if")
+        end
+
+        Pakyow.instance_variable_set(:@logger, Logger.new(File::NULL))
+      end
+
+      it "enters rescue mode" do
+        app.booted
+        response = app.call({})
+        expect(response[0]).to eq(500)
+        expect(response[1]["Content-Type"]).to eq("text/plain")
+        expect(response[2][0]).to include("failed to initialize")
+        expect(response[2][0]).to include("syntax error, unexpected end-of-input")
         expect(response[2][0]).to include("pakyow/spec/unit/app_spec.rb")
       end
     end
