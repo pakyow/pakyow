@@ -120,7 +120,7 @@ module Pakyow
     end
 
     setting :lib do
-      File.join(config.src, "lib")
+      File.join(config.root, "lib")
     end
 
     setting :dsl, true
