@@ -21,7 +21,9 @@ module Pakyow
         spinner = TTY::Spinner.new(":spinner Bundling ...", format: :dots)
         spinner.auto_spin
 
-        result = TTY::Command.new(printer: :null, pty: true).run!("bundle install")
+        result = Bundler.with_clean_env {
+          TTY::Command.new(printer: :null, pty: true).run!("bundle install")
+        }
 
         if result.failure?
           spinner.error("failed:")
