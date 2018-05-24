@@ -92,6 +92,7 @@ module Pakyow
 
         setting :logging, false
         setting :auto_migrate, true
+        setting :auto_migrate_always, [:memory]
         setting :migration_path, "./database/migrations"
 
         defaults :production do
@@ -135,13 +136,18 @@ module Pakyow
       end
 
       after :boot do
-        if Pakyow.config.data.auto_migrate
+        if Pakyow.config.data.auto_migrate || Pakyow.config.data.auto_migrate_always.any?
           require "pakyow/data/migrator"
           require "pakyow/data/migrators/mysql"
           require "pakyow/data/migrators/postgres"
           require "pakyow/data/migrators/sqlite"
 
-          @data_connections.values.flat_map(&:values).select(&:connected?).select(&:auto_migrate?).each do |auto_migratable_connection|
+          @data_connections.values.flat_map(&:values)
+            .select(&:connected?)
+            .select(&:auto_migrate?)
+            .select { |connection|
+              Pakyow.config.data.auto_migrate || Pakyow.config.data.auto_migrate_always.include?(connection.name)
+            }.each do |auto_migratable_connection|
             migrator = Pakyow::Data::Migrator.with_connection(auto_migratable_connection)
             migrator.auto_migrate!
           end

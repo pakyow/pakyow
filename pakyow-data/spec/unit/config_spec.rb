@@ -31,6 +31,12 @@ RSpec.describe "data config" do
     end
   end
 
+  describe "auto_migrate_always" do
+    it "always migrates :memory" do
+      expect(config.auto_migrate_always).to eq([:memory])
+    end
+  end
+
   describe "adapter" do
     it "has a default value" do
       expect(config.subscriptions.adapter).to eq(:memory)
