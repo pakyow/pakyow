@@ -95,9 +95,9 @@ module Pakyow
 
       # Called by the adapter, which guarantees that this server has connections for these ids.
       #
-      def transmit_message_to_connection_ids(message, socket_ids)
+      def transmit_message_to_connection_ids(message, socket_ids, raw: false)
         socket_ids.each do |socket_id|
-          find_socket_by_id(socket_id)&.transmit(message)
+          find_socket_by_id(socket_id)&.transmit(message, raw: raw)
         end
       end
 

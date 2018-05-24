@@ -37,9 +37,10 @@ module Pakyow
         @open == true
       end
 
-      def transmit(message)
-        return unless open?
-        @driver.text({ payload: message }.to_json)
+      def transmit(message, raw: false)
+        if open?
+          @driver.text(raw ? message : { payload: message }.to_json)
+        end
       end
 
       def beat
