@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 %w(
-  support
+  assets
   core
   data
-  presenter
-  assets
   mailer
+  presenter
   realtime
+  support
   ui
 ).each do |lib|
   require "pakyow/#{lib}"
