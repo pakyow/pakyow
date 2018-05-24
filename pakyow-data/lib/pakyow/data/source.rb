@@ -11,20 +11,20 @@ module Pakyow
     # Represents a data source through which you interact with a persistence
     # layer such as a sql database, redis, or http. Defines the schema, queries,
     # and other adapter-specific metadata (e.g. sql table). All data access
-    # occurs through queries. Mutations are handled through commands.
+    # occurs through queries. Mutations occur through commands.
     #
     # Each adapter provides its own interface for interacting with the underlying
     # persistence layer. For example, the sql adapter exposes +Sequel::Dataset+
-    # provided by the fantastic Sequel library.
+    # provided by the *fantastic* Sequel gem.
     #
-    # Sources blindly accept input and do not implement validation, though input
+    # Commands blindly accept input and do not implement validation, though input
     # will be coerced to the appropriate type. Use the input verifier pattern to
     # verify and validate input before passing it to a data source
     # (@see Pakyow::Verifier).
     #
     # Queries always return a {Pakyow::Data::Proxy} object containing the value
     # returned as well as metadata describing the query. Access to the
-    # underlying value is provided through methods such as +first+, +all+, and
+    # underlying value is provided through methods such as +one+, +to_a+, and
     # +each+ (@see Pakyow::Data::Proxy).
     #
     # Sources accept an optional +object_map+ for mapping values to instances of
