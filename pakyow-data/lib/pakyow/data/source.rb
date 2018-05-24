@@ -72,6 +72,10 @@ module Pakyow
         end
       end
 
+      def all
+        self
+      end
+
       def including(source_name, &block)
         included_source = @container.source_instance(source_name)
 
@@ -166,7 +170,7 @@ module Pakyow
         RESULT_METHODS.include?(maybe_result_name)
       end
 
-      MODIFIER_METHODS = %i(as including).freeze
+      MODIFIER_METHODS = %i(all as including).freeze
       def modifier?(maybe_modifier_name)
         MODIFIER_METHODS.include?(maybe_modifier_name)
       end
