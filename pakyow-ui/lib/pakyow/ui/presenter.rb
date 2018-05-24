@@ -52,9 +52,7 @@ module Pakyow
               args = [args]
             end
 
-            if UNSUPPORTED.include?(method_name)
-              Pakyow.logger.warn "`#{method_name}' is unsupported in pakyow/ui"
-            else
+            unless UNSUPPORTED.include?(method_name)
               @calls << [method_name, args, calls_for_each, wrapped]
             end
           }
