@@ -90,9 +90,10 @@ module Pakyow
       def start_proxy(port)
         unless @proxy_pid
           @proxy_pid = fork {
-            host = @server.host
+            server_host = @server.host
+            server_port = @server.port
             builder = Rack::Builder.new {
-              run Proxy.new(host: host, port: port)
+              run Proxy.new(host: server_host, port: port, forwarded: "#{server_host}:#{server_port}")
             }
 
             Pakyow.send(:handler, @server.server).run(builder.to_app, Host: @server.host, Port: @server.port, Silent: true)
@@ -122,8 +123,8 @@ module Pakyow
         require "socket"
         require "timeout"
 
-        def initialize(port:, host:)
-          @port, @host = port, host
+        def initialize(port:, host:, forwarded:)
+          @port, @host, @forwarded = port, host, forwarded
         end
 
         def call(env)
@@ -134,7 +135,7 @@ module Pakyow
             env["HTTP_HOST"] = destination
 
             response = HTTP.headers(
-              parse_request_headers(env)
+              parse_request_headers(env).merge("X-Forwarded-Host" => @forwarded)
             ).send(
               env["REQUEST_METHOD"].downcase,
               File.join("#{env["rack.url_scheme"]}://#{destination}", env["REQUEST_URI"].to_s),

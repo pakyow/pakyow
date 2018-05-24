@@ -91,7 +91,19 @@ module Pakyow
               head.append("<meta name=\"pw-connection-id\" content=\"#{socket_client_id}:#{socket_digest(socket_client_id)}\">\n")
 
               # embed the endpoint we'll be connecting to
-              endpoint = @connection.app.config.realtime.endpoint || ["#{@connection.ssl? ? "wss" : "ws"}://#{@connection.request.host_with_port}", @connection.app.config.realtime.path].join("/")
+              endpoint = @connection.app.config.realtime.endpoint
+
+              unless endpoint
+                endpoint = if Pakyow.env?(:development)
+                  # Connect directly to the app in development, since the proxy
+                  # does not support websocket connections.
+                  #
+                  File.join("ws://#{Pakyow.host}:#{Pakyow.port}", @connection.app.config.realtime.path)
+                else
+                  File.join("#{@connection.ssl? ? "wss" : "ws"}://#{@connection.request.host_with_port}", @connection.app.config.realtime.path)
+                end
+              end
+
               head.append("<meta name=\"pw-endpoint\" content=\"#{endpoint}\">\n")
             end
           end
