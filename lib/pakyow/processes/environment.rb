@@ -129,9 +129,17 @@ module Pakyow
           @port, @host, @forwarded = port, host, forwarded
         end
 
-        def call(env)
+        # Interval to retry a request that failed (likely due to a restart).
+        #
+        RETRY_EVERY = 0.25
+
+        # How long to retry before letting the request fail.
+        #
+        RETRY_OVER_SECONDS = 5
+
+        def call(env, retry_count = 0)
           if wait_or_timeout
-            initial_request = Rack::Request.new(env)
+            request = Rack::Request.new(env)
             destination = "#{@host}:#{@port}"
 
             env["HTTP_HOST"] = destination
@@ -141,12 +149,19 @@ module Pakyow
             ).send(
               env["REQUEST_METHOD"].downcase,
               File.join("#{env["rack.url_scheme"]}://#{destination}", env["REQUEST_URI"].to_s),
-              body: initial_request.body
+              body: request.body
             )
 
             [response.status, parse_response_headers(response), response.body]
           else
             [404, {}, ["app did not respond"]]
+          end
+        rescue HTTP::ConnectionError => error
+          if retry_count > RETRY_OVER_SECONDS / RETRY_EVERY
+            raise error
+          else
+            sleep RETRY_EVERY
+            call(env, retry_count + 1)
           end
         end
 
