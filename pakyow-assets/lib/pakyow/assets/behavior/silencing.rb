@@ -15,7 +15,7 @@ module Pakyow
             if config.assets.silent
               # silence asset requests
               Middleware::Logger.silencers << Proc.new do |path_info|
-                path_info.start_with?(config.assets.prefix)
+                path_info.start_with?(config.assets.prefix) || File.file?(File.join(config.assets.frontend_assets_path, path_info))
               end
 
               # silence requests to public files
