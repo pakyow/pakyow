@@ -37,6 +37,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "method_source", "~> 0.9"
   spec.add_dependency "pastel", "~> 0.7"
   spec.add_dependency "rack", "~> 2.0"
+  spec.add_dependency "rake", "~> 12.3"
   spec.add_dependency "thor", "~> 0.19"
   spec.add_dependency "tty-command", "~> 0.7"
   spec.add_dependency "tty-spinner", "~> 0.8"
