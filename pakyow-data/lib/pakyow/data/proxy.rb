@@ -141,7 +141,7 @@ module Pakyow
           subscription_ids.concat(
             related_proxy.subscribe_related(
               subscriber,
-              parent_source: self,
+              parent_source: @source,
               serialized_proxy: serialized_proxy,
               handler: handler,
               payload: payload
