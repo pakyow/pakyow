@@ -29,7 +29,14 @@ module Pakyow
               setup_binding_endpoints(object)
             end
 
-            super
+            super.tap do
+              if object && endpoint_state_defined?
+                # Keep track of parent bindings / bound objects. We'll use these
+                # later when setting up endpoints that rely on parent state.
+                #
+                (@current_endpoint.params[:__parent_bindings] ||= {})[view.binding_name] = object
+              end
+            end
           end
 
           def presenter_for(*)
@@ -85,11 +92,18 @@ module Pakyow
           setup_endpoints(nodes, object)
         end
 
-        def setup_endpoints(nodes, params = nil)
-          params ||= if endpoint_state_defined?
-            @current_endpoint.to_h[:params] || {}
-          else
-            {}
+        def setup_endpoints(nodes, params = {})
+          if endpoint_state_defined?
+            # Build up all the endpoint state we have into a single value hash.
+            #
+            # FIXME: we could be smarter about this by asking @endpoints what
+            # values it expects, then building up only what we need; endpoints
+            # don't currently provide this knowledge
+            params = @current_endpoint.params[:__parent_bindings].to_h.each_with_object(@current_endpoint.params.dup) { |(parent_binding, parent_object), merged_params|
+              merged_params.merge!(Hash[parent_object.to_h.map { |key, value|
+                [:"#{parent_binding}_#{key}", value]
+              }])
+            }.merge(params.to_h)
           end
 
           nodes.each do |endpoint_node|

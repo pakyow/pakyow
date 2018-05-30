@@ -336,6 +336,11 @@ module Pakyow
       alias :to_s :to_html
 
       # @api private
+      def binding_name
+        label(:binding).to_s.split(":", 2)[0]
+      end
+
+      # @api private
       def binding_scopes(children: true)
         @object.find_significant_nodes(:binding, with_children: children).select { |node|
           node.find_significant_nodes(:binding).any? || node.label(:version) == :empty
