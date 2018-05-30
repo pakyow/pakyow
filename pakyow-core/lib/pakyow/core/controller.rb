@@ -301,6 +301,7 @@ module Pakyow
       @connection.env[Rack::REQUEST_METHOD] = method.to_s.upcase
       @connection.env[Rack::PATH_INFO] = location.is_a?(Symbol) ? app.endpoints.path(location, **params) : location
       @connection.instance_variable_set(:@response, app.call(@connection.env))
+      halt
     end
 
     # Responds to a specific request format.

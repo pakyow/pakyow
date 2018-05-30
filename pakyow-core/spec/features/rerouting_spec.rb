@@ -16,6 +16,13 @@ RSpec.describe "rerouting requests" do
           reroute :reroute_destination_with_params, id: params[:id]
         end
 
+        get "/reroute_and_test_halt" do
+          $body = []
+          $body << "foo"
+          reroute :reroute_destination_for_halt_test
+          $body << "baz"
+        end
+
         get "/reroute_with_custom_status" do
           reroute "/destination", as: 301
         end
@@ -26,6 +33,10 @@ RSpec.describe "rerouting requests" do
 
         get :destination_with_params, "/destination/:id" do
           send "destination/#{params[:id]}"
+        end
+
+        get :destination_for_halt_test, "/destination_for_halt_test" do
+          $body << "bar"
         end
       end
     }
@@ -47,6 +58,12 @@ RSpec.describe "rerouting requests" do
     res = call("/reroute_to_route_with_params", params: { id: "123" })
     expect(res[0]).to eq(200)
     expect(res[2].body.first).to eq("destination/123")
+  end
+
+  it "halts after rerouting" do
+    res = call("/reroute_and_test_halt")
+    expect(res[0]).to eq(200)
+    expect($body).to eq(["foo", "bar"])
   end
 
   describe "the rerouted request" do
