@@ -42,7 +42,7 @@ module Pakyow
       end
 
       def packed(path)
-        if path.start_with?(@public_path)
+        if path.start_with?(@public_path + ".")
           @packed[File.extname(path)[1..-1].to_sym]
         else
           nil
