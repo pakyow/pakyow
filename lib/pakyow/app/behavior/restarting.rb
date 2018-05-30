@@ -45,6 +45,7 @@ module Pakyow
       def setup_for_restarting
         if config.process.trigger_restarts
           config.process.watched_paths << File.join(config.src, "**/*.rb")
+          config.process.watched_paths << File.join(config.lib, "**/*.rb")
 
           # FIXME: this doesn't need to be hardcoded, but instead determined
           # from the source location when registered with the environment
