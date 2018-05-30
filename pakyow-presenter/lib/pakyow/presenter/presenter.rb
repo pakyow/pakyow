@@ -238,7 +238,10 @@ module Pakyow
       def present(data)
         tap do
           transform(data, true) do |presenter, binder|
-            yield presenter, binder.object if block_given?
+            if block_given?
+              yield presenter, binder.object
+            end
+
             presenter.bind(binder)
 
             presenter.view.binding_scopes.each do |binding_node|
