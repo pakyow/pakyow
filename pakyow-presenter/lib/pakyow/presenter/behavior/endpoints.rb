@@ -8,7 +8,7 @@ module Pakyow
       module Endpoints
         extend Support::Extension
 
-        def install_endpoints(endpoints, current_endpoint: nil, setup_for_bindings: false)
+        def install_endpoints(endpoints, current_endpoint:, setup_for_bindings: false)
           @endpoints, @current_endpoint = endpoints, current_endpoint
 
           setup_non_contextual_endpoints

@@ -50,8 +50,12 @@ RSpec.describe "setting up a form via presenter" do
 
       let :presenter do
         Pakyow::Presenter::Presenter.new(view).tap do |presenter|
-          presenter.install_endpoints(Pakyow.apps[0].endpoints)
+          presenter.install_endpoints(Pakyow.apps[0].endpoints, current_endpoint: endpoint)
         end
+      end
+
+      let :endpoint do
+        Pakyow::Connection::Endpoint.new("/", {})
       end
 
       it "sets the form action" do
@@ -98,8 +102,12 @@ RSpec.describe "setting up a form via presenter" do
 
       let :presenter do
         Pakyow::Presenter::Presenter.new(view).tap do |presenter|
-          presenter.install_endpoints(Pakyow.apps[0].endpoints)
+          presenter.install_endpoints(Pakyow.apps[0].endpoints, current_endpoint: endpoint)
         end
+      end
+
+      let :endpoint do
+        Pakyow::Connection::Endpoint.new("/", {})
       end
 
       it "sets the form action" do
@@ -155,8 +163,12 @@ RSpec.describe "setting up a form via presenter" do
 
       let :presenter do
         Pakyow::Presenter::Presenter.new(view).tap do |presenter|
-          presenter.install_endpoints(Pakyow.apps[0].endpoints)
+          presenter.install_endpoints(Pakyow.apps[0].endpoints, current_endpoint: endpoint)
         end
+      end
+
+      let :endpoint do
+        Pakyow::Connection::Endpoint.new("/", {})
       end
 
       it "sets the form action" do
@@ -212,8 +224,12 @@ RSpec.describe "setting up a form via presenter" do
 
       let :presenter do
         Pakyow::Presenter::Presenter.new(view).tap do |presenter|
-          presenter.install_endpoints(Pakyow.apps[0].endpoints)
+          presenter.install_endpoints(Pakyow.apps[0].endpoints, current_endpoint: endpoint)
         end
+      end
+
+      let :endpoint do
+        Pakyow::Connection::Endpoint.new("/", {})
       end
 
       it "sets the form action" do
@@ -269,8 +285,12 @@ RSpec.describe "setting up a form via presenter" do
 
       let :presenter do
         Pakyow::Presenter::Presenter.new(view).tap do |presenter|
-          presenter.install_endpoints(Pakyow.apps[0].endpoints)
+          presenter.install_endpoints(Pakyow.apps[0].endpoints, current_endpoint: endpoint)
         end
+      end
+
+      let :endpoint do
+        Pakyow::Connection::Endpoint.new("/", {})
       end
 
       it "sets the form action" do
