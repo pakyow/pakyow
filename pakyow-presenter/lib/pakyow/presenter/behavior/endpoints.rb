@@ -1,15 +1,22 @@
 # frozen_string_literal: true
 
+require "pakyow/support/deep_dup"
 require "pakyow/support/extension"
 
 module Pakyow
   module Presenter
     module Behavior
       module Endpoints
+        using Support::DeepDup
+
         extend Support::Extension
 
         def install_endpoints(endpoints, current_endpoint:, setup_for_bindings: false)
-          @endpoints, @current_endpoint = endpoints, current_endpoint
+          @endpoints = endpoints
+
+          @current_endpoint = current_endpoint.dup.tap do |duped_endpoint|
+            duped_endpoint.params = duped_endpoint.params.to_h.deep_dup
+          end
 
           setup_non_contextual_endpoints
           if setup_for_bindings
