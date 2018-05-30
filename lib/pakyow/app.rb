@@ -82,7 +82,10 @@ module Pakyow
   #   to where the environment is started from. Default is +./+.
   #
   # - +config.src+ defines where the application code lives, relative to
-  #   where the environment is started from. Default is +{app.root}/app/lib+.
+  #   where the environment is started from. Default is +{app.root}/backend+.
+  #
+  # - +config.lib+ defines where the application library lives, relative to
+  #   where the environment is started from. Default is +{app.root}/lib+.
   #
   # - +config.dsl+ determines whether or not objects creation will be exposed
   #   through the simpler dsl.
