@@ -38,6 +38,14 @@ RSpec.shared_examples :source_associations do
         expect(data.comments.including(:post).one[:post][:id]).to eq(1)
       end
 
+      it "allows the result to be fetched multiple times" do
+        post = data.posts.create({}).one
+        data.comments.create(post_id: post[:id])
+        result = data.comments.including(:post)
+        expect(result.one[:post][:id]).to eq(1)
+        expect(result.to_a[0][:post][:id]).to eq(1)
+      end
+
       describe "specifying the associated data when updating" do
         it "can be specified with an id" do
           post = data.posts.create({}).one

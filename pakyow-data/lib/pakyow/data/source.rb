@@ -195,7 +195,7 @@ module Pakyow
       end
 
       def include_results!(results)
-        @included.map! { |combined_source|
+        @included.each do |combined_source|
           association = self.class.find_association_to_source(combined_source)
 
           combined_source.__setobj__(
@@ -228,7 +228,7 @@ module Pakyow
 
             result
           }
-        }
+        end
       end
 
       extend Support::Makeable
