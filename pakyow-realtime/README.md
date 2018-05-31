@@ -146,7 +146,7 @@ Source code can be downloaded as part of the Pakyow project on Github:
 
 # License
 
-Pakyow Realtime is free and open-source under the [LGPLv3 license](https://choosealicense.com/licenses/gpl-3.0/).
+Pakyow Realtime is free and open-source under the [LGPLv3 license](https://choosealicense.com/licenses/lgpl-3.0/).
 
 # Support
 

@@ -65,7 +65,7 @@ We'd love to have you involved. Here are a few places to start:
 
 # License
 
-Pakyow is free and open-source under the [LGPLv3 license](https://choosealicense.com/licenses/gpl-3.0/).
+Pakyow is free and open-source under the [LGPLv3 license](https://choosealicense.com/licenses/lgpl-3.0/).
 
 # Overview
 
