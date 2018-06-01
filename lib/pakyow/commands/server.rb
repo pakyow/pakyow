@@ -32,7 +32,7 @@ module Pakyow
         @env        = env
         @port       = port   || Pakyow.config.server.port
         @host       = host   || Pakyow.config.server.host
-        @server     = server || Pakyow.config.server.default
+        @server     = server || Pakyow.config.server.name
         @standalone = standalone
         @instances  = []
       end

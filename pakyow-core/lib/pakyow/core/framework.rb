@@ -89,20 +89,22 @@ module Pakyow
           helper Pakyow::Routing::Helpers
           helper Pakyow::Routing::Helpers::CSRF
 
-          settings_for :csrf do
-            setting :origin_whitelist, []
-            setting :allow_empty_referrer, true
-            setting :protection, {}
-            setting :param, :authenticity_token
+          settings_for :security do
+            settings_for :csrf do
+              setting :protection, {}
+              setting :origin_whitelist, []
+              setting :allow_empty_referrer, true
+              setting :param, :authenticity_token
+            end
           end
 
           require "pakyow/core/security/csrf/verify_same_origin"
           require "pakyow/core/security/csrf/verify_authenticity_token"
 
-          config.csrf.protection = {
+          config.security.csrf.protection = {
             origin: Security::CSRF::VerifySameOrigin.new(
-              origin_whitelist: config.csrf.origin_whitelist,
-              allow_empty_referrer: config.csrf.allow_empty_referrer
+              origin_whitelist: config.security.csrf.origin_whitelist,
+              allow_empty_referrer: config.security.csrf.allow_empty_referrer
             ),
 
             authenticity: Security::CSRF::VerifyAuthenticityToken.new({}),

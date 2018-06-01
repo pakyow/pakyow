@@ -7,7 +7,7 @@ RSpec.describe "logging outgoing mail" do
         instance_exec(&$mailer_app_boilerplate)
 
         configure :test do
-          config.mailer.log_outgoing = true
+          config.mailer.silent = false
         end
 
         controller "/mail" do
@@ -44,7 +44,7 @@ RSpec.describe "logging outgoing mail" do
         instance_exec(&$mailer_app_boilerplate)
 
         configure :test do
-          config.mailer.log_outgoing = false
+          config.mailer.silent = true
         end
 
         controller "/mail" do

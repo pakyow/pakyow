@@ -18,15 +18,15 @@ RSpec.describe Pakyow do
   end
 
   describe "configuration options" do
-    describe "env.default" do
+    describe "fallback_env" do
       it "has a default value" do
-        expect(Pakyow.config.env.default).to eq(:development)
+        expect(Pakyow.config.fallback_env).to eq(:development)
       end
     end
 
-    describe "server.default" do
+    describe "server.name" do
       it "has a default value" do
-        expect(Pakyow.config.server.default).to eq(:puma)
+        expect(Pakyow.config.server.name).to eq(:puma)
       end
     end
 
@@ -42,9 +42,9 @@ RSpec.describe Pakyow do
       end
     end
 
-    describe "console.object" do
+    describe "cli.repl" do
       it "has a default value" do
-        expect(Pakyow.config.console.object).to eq(IRB)
+        expect(Pakyow.config.cli.repl).to eq(IRB)
       end
     end
 
@@ -270,7 +270,7 @@ RSpec.describe Pakyow do
       end
 
       it "uses the default name" do
-        expect(Pakyow.env).to be(Pakyow.config.env.default)
+        expect(Pakyow.env).to be(Pakyow.config.fallback_env)
       end
     end
 
@@ -408,7 +408,7 @@ RSpec.describe Pakyow do
       end
 
       it "uses the default server" do
-        expect(Pakyow.server).to be(Pakyow.config.server.default)
+        expect(Pakyow.server).to be(Pakyow.config.server.name)
       end
     end
 
@@ -450,7 +450,7 @@ RSpec.describe Pakyow do
     end
 
     before do
-      Pakyow.config.server.default = :mock
+      Pakyow.config.server.name = :mock
     end
 
     it "contains mounted app instances after boot" do

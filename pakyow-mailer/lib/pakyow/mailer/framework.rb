@@ -46,10 +46,12 @@ module Pakyow
             setting :default_sender, "Pakyow"
             setting :default_content_type, "text/html"
             setting :delivery_method, :sendmail
-            setting :delivery_options, enable_starttls_auto: false
+            setting :delivery_options, {}
             setting :encoding, "UTF-8"
-            setting :log_outgoing do
-              Pakyow.env?(:development)
+            setting :silent, true
+
+            defaults :development do
+              setting :silent, false
             end
           end
         end

@@ -9,9 +9,9 @@ RSpec.describe "data config" do
     end
   end
 
-  describe "logging" do
+  describe "silent" do
     it "has a default value" do
-      expect(config.logging).to eq(false)
+      expect(config.silent).to eq(true)
     end
   end
 

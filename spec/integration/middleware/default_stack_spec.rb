@@ -13,7 +13,7 @@ RSpec.describe "default middleware stack" do
       allow(builder).to receive(:run)
 
       Pakyow.app :test
-      Pakyow.config.server.default = :mock
+      Pakyow.config.server.name = :mock
       Pakyow.setup(env: :test).run
     end
 

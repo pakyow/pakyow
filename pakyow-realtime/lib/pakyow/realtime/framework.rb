@@ -46,7 +46,7 @@ module Pakyow
 
             defaults :production do
               setting :adapter, :redis
-              setting :adapter_options, redis_url: "redis://127.0.0.1:6379", redis_prefix: "pw"
+              setting :adapter_options, redis_url: ENV["REDIS_URL"] || "redis://127.0.0.1:6379", redis_prefix: "pw"
             end
           end
         end
@@ -94,7 +94,7 @@ module Pakyow
               endpoint = @connection.app.config.realtime.endpoint
 
               unless endpoint
-                endpoint = if Pakyow.env?(:development)
+                endpoint = if Pakyow.env?(:development) || Pakyow.env?(:prototype)
                   # Connect directly to the app in development, since the proxy
                   # does not support websocket connections.
                   #

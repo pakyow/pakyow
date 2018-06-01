@@ -15,7 +15,7 @@ module Pakyow
         ARGV.clear
 
         require "irb"
-        Pakyow.config.console.object.start
+        Pakyow.config.cli.repl.start
       end
     end
   end

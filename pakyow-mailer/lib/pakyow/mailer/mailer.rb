@@ -57,7 +57,7 @@ module Pakyow
           deliverable_mail = mail.dup
           deliverable_mail.to = recipient
           deliverable_mail.deliver.tap do |delivered_mail|
-            if @config.log_outgoing
+            unless @config.silent
               log_outgoing(delivered_mail)
             end
           end

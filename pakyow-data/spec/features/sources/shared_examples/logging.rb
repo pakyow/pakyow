@@ -2,7 +2,7 @@ RSpec.shared_examples :source_logging do
   describe "logging queries" do
     before do
       Pakyow.config.data.connections.public_send(connection_type)[:default] = connection_string
-      Pakyow.config.data.logging = logging_enabled
+      Pakyow.config.data.silent = !logging_enabled
     end
 
     include_context "testable app"

@@ -32,15 +32,15 @@ require "pakyow/app"
 #
 # These config options are available:
 #
-# - +env.default+ defines the named environment to start when one is not
+# - +fallback_env+ defines the named environment to start when one is not
 #   explicitly provided. Default is +:development+.
 #
-# - +server.default+ defines the application server to use by default.
+# - +server.name+ defines the application server to use by default.
 #   Default is +:puma+.
-# - +server.port+ defines the port that the environment runs on.
-#   Default is +3000+.
 # - +server.host+ defines the host that the environment runs on.
 #   Default is "localhost".
+# - +server.port+ defines the port that the environment runs on.
+#   Default is +3000+.
 #
 # - +logger.enabled+ defines whether or not logging is enabled.
 #   Default is +true+.
@@ -121,22 +121,17 @@ module Pakyow
 
   include Support::Configurable
 
+  setting :fallback_env, :development
   setting :freeze_on_boot, true
 
-  settings_for :env do
-    setting :default, :development
-  end
-
   settings_for :server do
-    setting :default, :puma
-    setting :port, 3000
+    setting :name, :puma
     setting :host, "localhost"
+    setting :port, 3000
   end
 
-  settings_for :console do
-    setting :object do
-      IRB
-    end
+  settings_for :cli do
+    setting :repl, IRB
   end
 
   settings_for :logger do
@@ -248,7 +243,7 @@ module Pakyow
     # @param env [Symbol] the environment that Pakyow will be started in
     #
     def setup(env: nil)
-      @env = (env ||= config.env.default).to_sym
+      @env = (env ||= config.fallback_env).to_sym
 
       performing :configure do
         configure!(env)
@@ -303,7 +298,7 @@ module Pakyow
     def run(port: nil, host: nil, server: nil, **opts)
       @port   = port   || config.server.port
       @host   = host   || config.server.host
-      @server = server || config.server.default
+      @server = server || config.server.name
 
       opts.merge!(DEFAULT_HANDLER_OPTIONS.fetch(@server, {}))
 

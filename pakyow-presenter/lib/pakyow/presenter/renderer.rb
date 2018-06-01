@@ -231,7 +231,7 @@ module Pakyow
           head.append("<meta name=\"pw-authenticity-token\" content=\"#{authenticity_client_id}:#{authenticity_digest(authenticity_client_id)}\">\n")
 
           # embed the parameter name the token should be submitted as
-          head.append("<meta name=\"pw-authenticity-param\" content=\"#{@connection.app.config.csrf.param}\">\n")
+          head.append("<meta name=\"pw-authenticity-param\" content=\"#{@connection.app.config.security.csrf.param}\">\n")
         end
       end
 
@@ -244,7 +244,7 @@ module Pakyow
               form.id, key: authenticity_server_id
             )
 
-            form.embed_authenticity_token("#{form.id}:#{digest}", param: @connection.app.config.csrf.param)
+            form.embed_authenticity_token("#{form.id}:#{digest}", param: @connection.app.config.security.csrf.param)
           end
         end
       end

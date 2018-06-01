@@ -1,6 +1,6 @@
 RSpec.describe "running the environment" do
   before do
-    Pakyow.config.server.default = :mock
+    Pakyow.config.server.name = :mock
   end
 
   context "with no mounted endpoints" do

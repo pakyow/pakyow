@@ -90,7 +90,7 @@ module Pakyow
         setting :default_adapter, :sql
         setting :default_connection, :default
 
-        setting :logging, false
+        setting :silent, true
         setting :auto_migrate, true
         setting :auto_migrate_always, [:memory]
         setting :migration_path, "./database/migrations"
@@ -121,7 +121,7 @@ module Pakyow
           connections[connection_type] = Pakyow.config.data.connections.public_send(connection_type).each_with_object({}) { |(connection_name, connection_string), adapter_connections|
             extra_options = {}
 
-            if Pakyow.config.data.logging
+            unless Pakyow.config.data.silent
               extra_options[:logger] = Pakyow.logger
             end
 
