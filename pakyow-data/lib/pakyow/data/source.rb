@@ -339,7 +339,8 @@ module Pakyow
             access_name: singular_name.to_sym,
             source_name: plural_name.to_sym,
             column_name: :"#{singular_name}_id",
-            column_type: :integer
+            column_type: :integer,
+            associated_column_name: primary_key_field
           }
         end
 
