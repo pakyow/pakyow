@@ -312,7 +312,7 @@ module Pakyow
 
       # Attributes that should be prefixed with +data-+
       #
-      DATA_ATTRS = %i(ui binding version).freeze
+      DATA_ATTRS = %i(ui binding endpoint version).freeze
 
       # Attributes that will be turned into +StringDoc+ labels
       #
@@ -324,10 +324,11 @@ module Pakyow
 
       # Attributes that should be deleted from the view
       #
-      DELETED_ATTRS = %i(include exclude endpoint endpoint-action prototype).freeze
+      DELETED_ATTRS = %i(include exclude endpoint-action prototype).freeze
 
       ATTR_MAPPING = {
         binding: :b,
+        endpoint: :e,
         version: :v
       }
 

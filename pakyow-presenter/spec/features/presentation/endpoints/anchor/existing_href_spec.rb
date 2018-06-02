@@ -17,7 +17,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint with an existi
     it "receives an active class" do
       expect(call("/posts")[2].body.read).to include_sans_whitespace(
         <<~HTML
-          <a href="/posts" class="active"></a>
+          <a href="/posts" data-e="posts_nonexistent" class="active"></a>
         HTML
       )
     end

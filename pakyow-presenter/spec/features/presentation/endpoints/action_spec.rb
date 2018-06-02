@@ -16,7 +16,7 @@ RSpec.describe "presenting a view that defines an endpoints with an action" do
   it "sets the href on the action node" do
     expect(call("/presentation/endpoints/action")[2].body.read).to include_sans_whitespace(
       <<~HTML
-        <div>
+        <div data-e="posts_list">
           <a href="/posts"></a>
         </div>
       HTML
@@ -27,7 +27,7 @@ RSpec.describe "presenting a view that defines an endpoints with an action" do
     it "adds an active class to the endpoint node" do
       expect(call("/posts")[2].body.read).to include_sans_whitespace(
         <<~HTML
-          <div class="active">
+          <div data-e="posts_list" class="active">
             <a href="/posts"></a>
           </div>
         HTML

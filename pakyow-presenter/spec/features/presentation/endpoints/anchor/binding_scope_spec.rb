@@ -31,7 +31,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
     it "sets the href" do
       expect(call("/presentation/endpoints/anchor/binding_scope")[2].body.read).to include_sans_whitespace(
         <<~HTML
-          <a data-b="post" href="/posts">Link</a>
+          <a data-b="post" data-e="posts_list" href="/posts">Link</a>
         HTML
       )
     end
@@ -40,7 +40,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
       it "receives an active class" do
         expect(call("/posts")[2].body.read).to include_sans_whitespace(
           <<~HTML
-            <a data-b="post" href="/posts" class="active">Link</a>
+            <a data-b="post" data-e="posts_list" href="/posts" class="active">Link</a>
           HTML
         )
       end

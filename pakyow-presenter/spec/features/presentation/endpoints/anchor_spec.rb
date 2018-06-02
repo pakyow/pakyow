@@ -20,7 +20,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint" do
   it "sets the href" do
     expect(call("/presentation/endpoints/anchor")[2].body.read).to eq_sans_whitespace(
       <<~HTML
-        <a href="/posts"></a>
+        <a href="/posts" data-e="posts_list"></a>
       HTML
     )
   end
@@ -29,7 +29,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint" do
     it "receives an active class" do
       expect(call("/posts")[2].body.read).to eq_sans_whitespace(
         <<~HTML
-          <a href="/posts" class="active"></a>
+          <a href="/posts" data-e="posts_list" class="active"></a>
         HTML
       )
     end
@@ -39,7 +39,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint" do
     it "receives an active class" do
       expect(call("/posts/1")[2].body.read).to eq_sans_whitespace(
         <<~HTML
-          <a href="/posts" class="active"></a>
+          <a href="/posts" data-e="posts_list" class="active"></a>
         HTML
       )
     end
@@ -49,7 +49,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint" do
     it "does not set the href" do
       expect(call("/presentation/endpoints/anchor/nonexistent")[2].body.read).to eq_sans_whitespace(
         <<~HTML
-          <a href="#"></a>
+          <a href="#" data-e="posts_nonexistent"></a>
         HTML
       )
     end

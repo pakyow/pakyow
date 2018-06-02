@@ -29,7 +29,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint in a nested sc
     it "sets the href" do
       expect(call("/presentation/endpoints/anchor/nested_scope")[2].body.read).to include_sans_whitespace(
         <<~HTML
-          <a href="/posts/1/comments/2">
+          <a href="/posts/1/comments/2" data-e="posts_comments_show">
             view comment
           </a>
         HTML
@@ -40,7 +40,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint in a nested sc
       it "receives an active class" do
         expect(call("/posts/1/comments/2")[2].body.read).to include_sans_whitespace(
           <<~HTML
-            <a href="/posts/1/comments/2" class="active">
+            <a href="/posts/1/comments/2" data-e="posts_comments_show" class="active">
               view comment
             </a>
           HTML

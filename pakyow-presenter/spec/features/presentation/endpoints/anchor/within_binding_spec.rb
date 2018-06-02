@@ -13,7 +13,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint within a bindi
         <div data-b="post">
           <h1 data-b="title">title</h1>
 
-          <a href="#">Back</a>
+          <a href="#" data-e="posts_list">Back</a>
         </div>
       HTML
     )
@@ -42,7 +42,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint within a bindi
           <div data-b="post">
             <h1 data-b="title">foo</h1>
 
-            <a href="/posts">Back</a>
+            <a href="/posts" data-e="posts_list">Back</a>
           </div>
         HTML
       )
@@ -55,7 +55,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint within a bindi
             <div data-b="post">
               <h1 data-b="title">foo</h1>
 
-              <a href="/posts" class="active">Back</a>
+              <a href="/posts" data-e="posts_list" class="active">Back</a>
             </div>
           HTML
         )
