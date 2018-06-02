@@ -37,10 +37,10 @@ RSpec.describe "presenting a view that defines an anchor endpoint in a nested sc
     end
 
     context "endpoint is current" do
-      it "receives an active class" do
+      it "receives a current class" do
         expect(call("/posts/1/comments/2")[2].body.read).to include_sans_whitespace(
           <<~HTML
-            <a href="/posts/1/comments/2" data-e="posts_comments_show" class="active">
+            <a href="/posts/1/comments/2" data-e="posts_comments_show" class="current">
               view comment
             </a>
           HTML

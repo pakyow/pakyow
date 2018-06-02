@@ -16,7 +16,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that needs add
   it "builds the action using request params as context" do
     expect(call("/posts/1")[2].body.read).to include_sans_whitespace(
       <<~HTML
-        <a href="/posts/1" data-e="posts_show" class="active"></a>
+        <a href="/posts/1" data-e="posts_show" class="current"></a>
       HTML
     )
   end

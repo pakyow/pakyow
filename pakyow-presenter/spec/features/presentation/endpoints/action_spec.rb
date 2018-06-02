@@ -24,10 +24,10 @@ RSpec.describe "presenting a view that defines an endpoints with an action" do
   end
 
   context "endpoint is current" do
-    it "adds an active class to the endpoint node" do
+    it "adds a current class to the endpoint node" do
       expect(call("/posts")[2].body.read).to include_sans_whitespace(
         <<~HTML
-          <div data-e="posts_list" class="active">
+          <div data-e="posts_list" class="current">
             <a href="/posts"></a>
           </div>
         HTML

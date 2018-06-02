@@ -166,8 +166,13 @@ module Pakyow
               endpoint_action_view.attributes[:href] = endpoint[:path]
             end
 
-            if endpoint_action_view.attributes.has?(:href) && @current_endpoint[:path].to_s.start_with?(endpoint_action_view.attributes[:href])
-              endpoint_view.attributes[:class].add(:active)
+            if endpoint_action_view.attributes.has?(:href)
+              endpoint_path = @current_endpoint[:path].to_s
+              if endpoint_path == endpoint_action_view.attributes[:href]
+                endpoint_view.attributes[:class].add(:current)
+              elsif endpoint_path.start_with?(endpoint_action_view.attributes[:href])
+                endpoint_view.attributes[:class].add(:active)
+              end
             end
           end
         end

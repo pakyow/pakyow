@@ -37,10 +37,10 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
     end
 
     context "endpoint is current" do
-      it "receives an active class" do
+      it "receives a current class" do
         expect(call("/posts")[2].body.read).to include_sans_whitespace(
           <<~HTML
-            <a data-b="post" data-e="posts_list" href="/posts" class="active">Link</a>
+            <a data-b="post" data-e="posts_list" href="/posts" class="current">Link</a>
           HTML
         )
       end
