@@ -19,6 +19,7 @@ module Pakyow
           end
 
           setup_non_contextual_endpoints
+
           if setup_for_bindings
             setup_binding_endpoints({})
           end
@@ -74,20 +75,8 @@ module Pakyow
           end
         end
 
-        private
-
-        def endpoint_state_defined?
-          instance_variable_defined?(:@endpoints)
-        end
-
-        def setup_non_contextual_endpoints
-          setup_endpoints(
-            @view.object.find_significant_nodes(:endpoint).reject { |node|
-              node.significant?(:within_binding)
-            })
-        end
-
-        def setup_binding_endpoints(object)
+        # @api private
+        def binding_endpoints(object)
           nodes = if @view.object.is_a?(StringNode) && @view.object.significant?(:endpoint) && @view.object.significant?(:binding)
             [@view.object]
           else
@@ -96,10 +85,16 @@ module Pakyow
             }
           end
 
-          setup_endpoints(nodes, object)
+          build_endpoints(nodes, object)
         end
 
-        def setup_endpoints(nodes, params = {})
+        private
+
+        def endpoint_state_defined?
+          instance_variable_defined?(:@endpoints)
+        end
+
+        def build_endpoints(nodes, params = {})
           if endpoint_state_defined?
             # Build up all the endpoint state we have into a single value hash.
             #
@@ -113,41 +108,67 @@ module Pakyow
             }.merge(params.to_h)
           end
 
-          nodes.each do |endpoint_node|
-            endpoint_view = View.from_object(endpoint_node)
-            endpoint_string = endpoint_node.label(:endpoint).to_s
+          nodes.each_with_object([]) { |node, endpoints|
+            name = node.label(:endpoint)
 
-            endpoint_action_node = find_endpoint_action_node(endpoint_node)
+            endpoints << {
+              node: node,
+              name: name,
+              path: @endpoints.path(*name, **params.to_h)
+            }
+          }
+        end
 
-            if endpoint_string.end_with?("delete")
-              wrap_endpoint_for_removal(endpoint_view, endpoint_string, params)
-            elsif endpoint_action_node.tagname == "a"
-              setup_endpoint_for_anchor(endpoint_view, View.from_object(endpoint_action_node), endpoint_string, params)
+        def setup_non_contextual_endpoints
+          setup_endpoints(
+            build_endpoints(
+              @view.object.find_significant_nodes(:endpoint).reject { |node|
+                node.significant?(:within_binding)
+              }
+            )
+          )
+        end
+
+        def setup_binding_endpoints(object)
+          setup_endpoints(binding_endpoints(object))
+        end
+
+        def setup_endpoints(endpoints)
+          endpoints.each do |endpoint|
+            if endpoint[:name].to_s.end_with?("delete")
+              wrap_endpoint_for_removal(endpoint)
+            else
+              setup_endpoint(endpoint)
             end
           end
         end
 
-        def wrap_endpoint_for_removal(endpoint_view, endpoint_string, params)
-          delete_form = View.new(
-            <<~HTML
-              <form action="#{@endpoints&.path(*endpoint_string, params)}" method="post" data-ui="confirm">
-                <input type="hidden" name="_method" value="delete">
+        def wrap_endpoint_for_removal(endpoint)
+          View.from_object(endpoint[:node]).replace(
+            View.new(
+              <<~HTML
+                <form action="#{endpoint[:path]}" method="post" data-ui="confirm">
+                  <input type="hidden" name="_method" value="delete">
 
-                #{endpoint_view}
-              </form>
+                  #{endpoint[:node]}
+                </form>
               HTML
+            )
           )
-
-          endpoint_view.replace(delete_form)
         end
 
-        def setup_endpoint_for_anchor(endpoint_view, endpoint_action_view, endpoint_string, params)
-          if path = @endpoints.path(*endpoint_string, **params.to_h)
-            endpoint_action_view.attributes[:href] = path
-          end
+        def setup_endpoint(endpoint)
+          endpoint_view = View.from_object(endpoint[:node])
+          endpoint_action_view = View.from_object(find_endpoint_action_node(endpoint[:node]))
 
-          if endpoint_action_view.attributes.has?(:href) && @current_endpoint[:path].to_s.start_with?(endpoint_action_view.attributes[:href])
-            endpoint_view.attributes[:class].add(:active)
+          if endpoint_action_view.object.tagname == "a"
+            if endpoint[:path]
+              endpoint_action_view.attributes[:href] = endpoint[:path]
+            end
+
+            if endpoint_action_view.attributes.has?(:href) && @current_endpoint[:path].to_s.start_with?(endpoint_action_view.attributes[:href])
+              endpoint_view.attributes[:class].add(:active)
+            end
           end
         end
 
