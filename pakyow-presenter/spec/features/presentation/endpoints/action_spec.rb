@@ -17,7 +17,7 @@ RSpec.describe "presenting a view that defines an endpoints with an action" do
     expect(call("/presentation/endpoints/action")[2].body.read).to include_sans_whitespace(
       <<~HTML
         <div data-e="posts_list">
-          <a href="/posts"></a>
+          <a href="/posts" data-e-a=""></a>
         </div>
       HTML
     )
@@ -28,7 +28,7 @@ RSpec.describe "presenting a view that defines an endpoints with an action" do
       expect(call("/posts")[2].body.read).to include_sans_whitespace(
         <<~HTML
           <div data-e="posts_list" class="current">
-            <a href="/posts"></a>
+            <a href="/posts" data-e-a=""></a>
           </div>
         HTML
       )
