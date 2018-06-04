@@ -41,7 +41,7 @@ RSpec.describe "modifying boolean attributes" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["attrs",[],[],[["[]=",["selected",true],[],[]]]]]],["find",[["post"]],[],[["attrs",[],[],[["[]=",["style",{}],[],[]]]]]]]'
+        '[["find",[["post"]],[],[["attributes",[],[],[["set",["selected",true],[],[]]]]]],["find",[["post"]],[],[["attributes",[],[],[["set",["style",{}],[],[]]]]]]]'
       )
     end
   end
@@ -85,7 +85,7 @@ RSpec.describe "modifying boolean attributes" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["attrs",[],[],[["[]=",["selected",false],[],[]]]]]],["find",[["post"]],[],[["attrs",[],[],[["[]=",["style",{}],[],[]]]]]]]'
+        '[["find",[["post"]],[],[["attributes",[],[],[["set",["selected",false],[],[]]]]]],["find",[["post"]],[],[["attributes",[],[],[["set",["style",{}],[],[]]]]]]]'
       )
     end
   end

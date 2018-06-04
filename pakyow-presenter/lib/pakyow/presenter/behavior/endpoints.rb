@@ -62,12 +62,16 @@ module Pakyow
             super.tap do |binder|
               if endpoint_state_defined?
                 if binder_local_endpoints = @endpoints
-                  binder.define_singleton_method :path do |*args|
-                    binder_local_endpoints.path(*args)
+                  unless binder.respond_to?(:path)
+                    binder.define_singleton_method :path do |*args|
+                      binder_local_endpoints.path(*args)
+                    end
                   end
 
-                  binder.define_singleton_method :path_to do |*args|
-                    binder_local_endpoints.path_to(*args)
+                  unless binder.respond_to?(:path_to)
+                    binder.define_singleton_method :path_to do |*args|
+                      binder_local_endpoints.path_to(*args)
+                    end
                   end
                 end
               end

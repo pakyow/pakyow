@@ -57,7 +57,7 @@ RSpec.describe "presenting data in a channeled binding" do
     end
 
     expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post:published"]],[],[["present",[[{"id":1,"title":"foo"},{"id":3,"title":"baz"}]],[],[]]]],["find",[["post:unpublished"]],[],[["present",[[{"id":2,"title":"bar"}]],[],[]]]]]'
+      '[["find",[["post:published"]],[],[["transform",[[{"id":1,"title":"foo"},{"id":3,"title":"baz"}]],[[["bind",[{"id":1,"title":"foo"}],[],[]]],[["bind",[{"id":3,"title":"baz"}],[],[]]]],[]]]],["find",[["post:unpublished"]],[],[["transform",[[{"id":2,"title":"bar"}]],[[["bind",[{"id":2,"title":"bar"}],[],[]]]],[]]]]]'
     )
   end
 end
@@ -111,7 +111,7 @@ RSpec.describe "presenting data across channeled bindings" do
     end
 
     expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"},{"id":2,"title":"bar"},{"id":3,"title":"baz"}]],[],[]]]]]'
+      '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"},{"id":2,"title":"bar"},{"id":3,"title":"baz"}]],[[["bind",[{"id":1,"title":"foo"}],[],[]]],[["bind",[{"id":2,"title":"bar"}],[],[]]],[["bind",[{"id":3,"title":"baz"}],[],[]]]],[]]]]]'
     )
   end
 end

@@ -51,7 +51,7 @@ RSpec.describe "deleting an object in a populated view" do
     end
 
     expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"},{"id":2,"title":"bar"},{"id":4,"title":"qux"}]],[],[]]]]]'
+      '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"},{"id":2,"title":"bar"},{"id":4,"title":"qux"}]],[[["bind",[{"id":1,"title":"foo"}],[],[]]],[["bind",[{"id":2,"title":"bar"}],[],[]]],[["bind",[{"id":4,"title":"qux"}],[],[]]]],[]]]]]'
     )
   end
 end

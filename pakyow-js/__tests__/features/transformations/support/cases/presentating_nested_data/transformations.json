@@ -14,7 +14,7 @@
         ],
         [
           [
-            "present",
+            "transform",
             [
               [
                 {
@@ -31,7 +31,76 @@
               ]
             ],
             [
+              [
+                [
+                  "bind",
+                  [
+                    {
+                      "id": 1,
+                      "title": "foo",
+                      "comment": [
+                        {
+                          "id": 1,
+                          "title": "foo comment",
+                          "post_id": 1
+                        }
+                      ]
+                    }
+                  ],
+                  [
 
+                  ],
+                  [
+
+                  ]
+                ],
+                [
+                  "find",
+                  [
+                    [
+                      "comment"
+                    ]
+                  ],
+                  [
+
+                  ],
+                  [
+                    [
+                      "transform",
+                      [
+                        [
+                          {
+                            "id": 1,
+                            "title": "foo comment"
+                          }
+                        ]
+                      ],
+                      [
+                        [
+                          [
+                            "bind",
+                            [
+                              {
+                                "id": 1,
+                                "title": "foo comment"
+                              }
+                            ],
+                            [
+
+                            ],
+                            [
+
+                            ]
+                          ]
+                        ]
+                      ],
+                      [
+
+                      ]
+                    ]
+                  ]
+                ]
+              ]
             ],
             [
 

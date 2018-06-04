@@ -42,7 +42,7 @@ RSpec.describe "presenting an object with a safe html value" do
     end
 
     expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["present",[[{"id":1,"title":"<strong>hi</strong>"}]],[],[]]]]]'
+      '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"<strong>hi</strong>"}]],[[["bind",[{"id":1,"title":"<strong>hi</strong>"}],[],[]]]],[]]]]]'
     )
   end
 end

@@ -41,7 +41,7 @@ RSpec.describe "modifying string attributes" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["attrs",[],[],[["[]=",["title","foo"],[],[]]]]]],["find",[["post"]],[],[["attrs",[],[],[["[]=",["style",{}],[],[]]]]]]]'
+        '[["find",[["post"]],[],[["attributes",[],[],[["set",["title","foo"],[],[]]]]]],["find",[["post"]],[],[["attributes",[],[],[["set",["style",{}],[],[]]]]]]]'
       )
     end
   end

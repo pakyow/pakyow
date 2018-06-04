@@ -57,7 +57,7 @@ RSpec.describe "updating an object in a populated view" do
     end
 
     expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"},{"id":2,"title":"qux"},{"id":3,"title":"baz"}]],[],[]]]]]'
+      '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"},{"id":2,"title":"qux"},{"id":3,"title":"baz"}]],[[["bind",[{"id":1,"title":"foo"}],[],[]]],[["bind",[{"id":2,"title":"qux"}],[],[]]],[["bind",[{"id":3,"title":"baz"}],[],[]]]],[]]]]]'
     )
   end
 end
@@ -122,7 +122,7 @@ RSpec.describe "updating an object in a way that presents a new prop" do
     end
 
     expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"},{"id":2,"title":"bar","body":"bar body"},{"id":3,"title":"baz"}]],[],[]]]]]'
+      '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"},{"id":2,"title":"bar","body":"bar body"},{"id":3,"title":"baz"}]],[[["bind",[{"id":1,"title":"foo"}],[],[]]],[["bind",[{"id":2,"title":"bar","body":"bar body"}],[],[]]],[["bind",[{"id":3,"title":"baz"}],[],[]]]],[]]]]]'
     )
   end
 end
@@ -189,7 +189,7 @@ RSpec.describe "updating an object in a way that presents a new prop in a differ
     end
 
     expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"},{"id":2,"title":"bar","body":"bar body"},{"id":3,"title":"baz"}]],[[["use",["unpublished"],[],[]]],[["use",["published"],[],[]]],[["use",["unpublished"],[],[]]]],[]]]]]'
+      '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"},{"id":2,"title":"bar","body":"bar body"},{"id":3,"title":"baz"}]],[[["use",["unpublished"],[],[]],["bind",[{"id":1,"title":"foo"}],[],[]]],[["use",["published"],[],[]],["bind",[{"id":2,"title":"bar","body":"bar body"}],[],[]]],[["use",["unpublished"],[],[]],["bind",[{"id":3,"title":"baz"}],[],[]]]],[]]]]]'
     )
   end
 end

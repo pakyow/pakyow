@@ -37,11 +37,6 @@ export default class {
     return new this.constructor(views, templates);
   }
 
-  with(callback) {
-    callback(this, this);
-    return this;
-  }
-
   bind(objects) {
     if (!Array.isArray(objects)) {
       objects = [objects];
@@ -97,14 +92,6 @@ export default class {
         view.remove();
       }
     }
-
-    return this;
-  }
-
-  present(objects, callback) {
-    this.transform(objects, (view, object) => {
-      view.present(object, callback);
-    });
 
     return this;
   }
@@ -248,7 +235,7 @@ export default class {
         continue;
       }
 
-      if ( !view.bindings().find((view) => { return view.match("binding", key) })) {
+      if (!view.bindings().find((view) => { return view.match("binding", key) })) {
         return false;
       }
     }

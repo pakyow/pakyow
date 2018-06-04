@@ -43,7 +43,7 @@ RSpec.describe "modifying boolean attributes during presentation" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]=",["selected",true],[],[]]]],["attrs",[],[],[["[]=",["style",{}],[],[]]]]]],[]]]]]'
+        '[["find",[["post"]],[],[["transform",[[{"id":1}]],[[["attributes",[],[],[["set",["selected",true],[],[]]]],["attributes",[],[],[["set",["style",{}],[],[]]]],["bind",[{"id":1}],[],[]]]],[]]]]]'
       )
     end
   end
@@ -89,7 +89,7 @@ RSpec.describe "modifying boolean attributes during presentation" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]=",["selected",false],[],[]]]],["attrs",[],[],[["[]=",["style",{}],[],[]]]]]],[]]]]]'
+        '[["find",[["post"]],[],[["transform",[[{"id":1}]],[[["attributes",[],[],[["set",["selected",false],[],[]]]],["attributes",[],[],[["set",["style",{}],[],[]]]],["bind",[{"id":1}],[],[]]]],[]]]]]'
       )
     end
   end

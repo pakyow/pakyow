@@ -14,7 +14,7 @@
         ],
         [
           [
-            "present",
+            "transform",
             [
               [
                 {
@@ -29,6 +29,21 @@
                   "use",
                   [
                     "unpublished"
+                  ],
+                  [
+
+                  ],
+                  [
+
+                  ]
+                ],
+                [
+                  "bind",
+                  [
+                    {
+                      "id": 1,
+                      "title": "foo"
+                    }
                   ],
                   [
 

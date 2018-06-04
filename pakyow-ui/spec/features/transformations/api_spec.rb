@@ -58,7 +58,7 @@ RSpec.describe "api" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["title=",["foo"],[],[]]]'
+        '[["setTitle",["foo"],[],[]]]'
       )
     end
   end
@@ -121,7 +121,7 @@ RSpec.describe "api" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["with",[],[[["bind",[{"id":1,"title":"foo"}],[],[]],["attrs",[],[],[["[]",["style"],[],[["[]=",["background","purple"],[],[]]]]]]]],[]]]]]'
+        '[["find",[["post"]],[],[["bind",[{"id":1,"title":"foo"}],[],[]],["attributes",[],[],[["get",["style"],[],[["set",["background","purple"],[],[]]]]]]]]]'
       )
     end
   end
@@ -141,7 +141,7 @@ RSpec.describe "api" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["bind",[{"id":1,"title":"foo"}],[],[["append",["foo"],[],[]]]]]]]'
+        '[["find",[["post"]],[],[["bind",[{"id":1,"title":"foo"}],[],[]],["append",["foo"],[],[]]]]]'
       )
     end
   end
@@ -161,7 +161,7 @@ RSpec.describe "api" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["bind",[{"id":1,"title":"foo"}],[],[["prepend",["foo"],[],[]]]]]]]'
+        '[["find",[["post"]],[],[["bind",[{"id":1,"title":"foo"}],[],[]],["prepend",["foo"],[],[]]]]]'
       )
     end
   end
@@ -181,7 +181,7 @@ RSpec.describe "api" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["bind",[{"id":1,"title":"foo"}],[],[["after",["foo"],[],[]]]]]]]'
+        '[["find",[["post"]],[],[["bind",[{"id":1,"title":"foo"}],[],[]],["after",["foo"],[],[]]]]]'
       )
     end
   end
@@ -201,7 +201,7 @@ RSpec.describe "api" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["bind",[{"id":1,"title":"foo"}],[],[["before",["foo"],[],[]]]]]]]'
+        '[["find",[["post"]],[],[["bind",[{"id":1,"title":"foo"}],[],[]],["before",["foo"],[],[]]]]]'
       )
     end
   end
@@ -221,7 +221,7 @@ RSpec.describe "api" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["bind",[{"id":1,"title":"foo"}],[],[["replace",["foo"],[],[]]]]]]]'
+        '[["find",[["post"]],[],[["bind",[{"id":1,"title":"foo"}],[],[]],["replace",["foo"],[],[]]]]]'
       )
     end
   end
@@ -241,7 +241,7 @@ RSpec.describe "api" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["bind",[{"id":1,"title":"foo"}],[],[["remove",[],[],[]]]]]]]'
+        '[["find",[["post"]],[],[["bind",[{"id":1,"title":"foo"}],[],[]],["remove",[],[],[]]]]]'
       )
     end
   end
@@ -261,7 +261,7 @@ RSpec.describe "api" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["bind",[{"id":1,"title":"foo"}],[],[["clear",[],[],[]]]]]]]'
+        '[["find",[["post"]],[],[["bind",[{"id":1,"title":"foo"}],[],[]],["clear",[],[],[]]]]]'
       )
     end
   end

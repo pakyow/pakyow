@@ -24,7 +24,7 @@ RSpec.describe "versioned props with no default" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"}]],[],[]]]]]'
+        '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"}]],[[["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]'
       )
     end
   end
@@ -76,7 +76,7 @@ RSpec.describe "versioned props with no default" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post","title"]],[],[["use",["red"],[],[["attrs",[],[],[["[]",["style"],[],[["[]=",["background","blue"],[],[]]]]]]]]]]]'
+        '[["find",[["post","title"]],[],[["use",["red"],[],[["attributes",[],[],[["get",["style"],[],[["set",["background","blue"],[],[]]]]]]]]]]]'
       )
     end
   end
@@ -103,7 +103,7 @@ RSpec.describe "versioned props with no default" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post","title"]],[],[["use",["red"],[],[]]]],["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"}]],[],[]]]]]'
+        '[["find",[["post","title"]],[],[["use",["red"],[],[]]]],["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"}]],[[["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]'
       )
     end
   end
@@ -133,7 +133,7 @@ RSpec.describe "versioned props with no default" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["present",[[{"id":1,"title":"blue foo"},{"id":2,"title":"red foo"}]],[[["find",[["title"]],[],[["use",["blue"],[],[]]]]],[["find",[["title"]],[],[["use",["red"],[],[]]]]]],[]]]]]'
+        '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"blue foo"},{"id":2,"title":"red foo"}]],[[["find",[["title"]],[],[["use",["blue"],[],[]]]],["bind",[{"id":1,"title":"blue foo"}],[],[]]],[["find",[["title"]],[],[["use",["red"],[],[]]]],["bind",[{"id":2,"title":"red foo"}],[],[]]]],[]]]]]'
       )
     end
 
@@ -148,7 +148,7 @@ RSpec.describe "versioned props with no default" do
         end
 
         expect(transformations[0][:calls].to_json).to eq(
-          '[["find",[["post"]],[],[["present",[[{"id":1,"title":"red foo2"},{"id":2,"title":"blue foo"},{"id":3,"title":"red foo"}]],[[["find",[["title"]],[],[["use",["red"],[],[]]]]],[["find",[["title"]],[],[["use",["blue"],[],[]]]]],[["find",[["title"]],[],[["use",["red"],[],[]]]]]],[]]]]]'
+          '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"red foo2"},{"id":2,"title":"blue foo"},{"id":3,"title":"red foo"}]],[[["find",[["title"]],[],[["use",["red"],[],[]]]],["bind",[{"id":1,"title":"red foo2"}],[],[]]],[["find",[["title"]],[],[["use",["blue"],[],[]]]],["bind",[{"id":2,"title":"blue foo"}],[],[]]],[["find",[["title"]],[],[["use",["red"],[],[]]]],["bind",[{"id":3,"title":"red foo"}],[],[]]]],[]]]]]'
         )
       end
     end
@@ -180,7 +180,7 @@ RSpec.describe "versioned props with no default" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["present",[[{"id":1,"title":"red foo"},{"id":2,"title":"blue foo"}]],[[["find",[["title"]],[],[["use",["red"],[],[]]]],["find",[["title"]],[],[["attrs",[],[],[["[]=",["style",{"background":"gray"}],[],[]]]]]]],[["find",[["title"]],[],[["use",["blue"],[],[]]]],["find",[["title"]],[],[["attrs",[],[],[["[]=",["style",{"background":"gray"}],[],[]]]]]]]],[]]]]]'
+        '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"red foo"},{"id":2,"title":"blue foo"}]],[[["find",[["title"]],[],[["use",["red"],[],[]]]],["find",[["title"]],[],[["attributes",[],[],[["set",["style",{"background":"gray"}],[],[]]]]]],["bind",[{"id":1,"title":"red foo"}],[],[]]],[["find",[["title"]],[],[["use",["blue"],[],[]]]],["find",[["title"]],[],[["attributes",[],[],[["set",["style",{"background":"gray"}],[],[]]]]]],["bind",[{"id":2,"title":"blue foo"}],[],[]]]],[]]]]]'
       )
     end
 
@@ -193,7 +193,7 @@ RSpec.describe "versioned props with no default" do
         end
 
         expect(transformations[0][:calls].to_json).to eq(
-          '[["find",[["post"]],[],[["present",[[{"id":1,"title":"red foo"}]],[[["find",[["title"]],[],[["use",["red"],[],[]]]],["find",[["title"]],[],[["attrs",[],[],[["[]=",["style",{"background":"gray"}],[],[]]]]]]]],[]]]]]'
+          '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"red foo"}]],[[["find",[["title"]],[],[["use",["red"],[],[]]]],["find",[["title"]],[],[["attributes",[],[],[["set",["style",{"background":"gray"}],[],[]]]]]],["bind",[{"id":1,"title":"red foo"}],[],[]]]],[]]]]]'
         )
       end
     end

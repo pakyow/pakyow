@@ -48,7 +48,7 @@ RSpec.describe "presenting an object with a value overridden in a data object" d
     end
 
     expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["present",[[{"id":1,"title":"oof"}]],[],[]]]]]'
+      '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"oof"}]],[[["bind",[{"id":1,"title":"oof"}],[],[]]]],[]]]]]'
     )
   end
 end
@@ -103,7 +103,7 @@ RSpec.describe "presenting an object with a value defined only in a data object"
     end
 
     expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["present",[[{"id":1,"title":"foo","reversed_title":"oof"}]],[],[]]]]]'
+      '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo","reversed_title":"oof"}]],[[["bind",[{"id":1,"title":"foo","reversed_title":"oof"}],[],[]]]],[]]]]]'
     )
   end
 end
