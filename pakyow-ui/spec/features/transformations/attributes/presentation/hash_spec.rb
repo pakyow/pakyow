@@ -40,7 +40,7 @@ RSpec.describe "modifying hash attributes during presentation" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]=",["style",{"color":"red"}],[],[]]]]]],[]]]]]'
+        '[["find",[["post"]],[],[["transform",[[{"id":1}]],[[["attributes",[],[],[["set",["style",{"color":"red"}],[],[]]]],["bind",[{"id":1}],[],[]]]],[]]]]]'
       )
     end
   end
@@ -83,7 +83,7 @@ RSpec.describe "modifying hash attributes during presentation" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]",["style"],[],[["[]=",["color","red"],[],[]]]]]]]],[]]]]]'
+        '[["find",[["post"]],[],[["transform",[[{"id":1}]],[[["attributes",[],[],[["get",["style"],[],[["set",["color","red"],[],[]]]]]],["bind",[{"id":1}],[],[]]]],[]]]]]'
       )
     end
   end
@@ -126,7 +126,7 @@ RSpec.describe "modifying hash attributes during presentation" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]",["style"],[],[["delete",["background"],[],[]]]]]]]],[]]]]]'
+        '[["find",[["post"]],[],[["transform",[[{"id":1}]],[[["attributes",[],[],[["get",["style"],[],[["delete",["background"],[],[]]]]]],["bind",[{"id":1}],[],[]]]],[]]]]]'
       )
     end
   end
@@ -169,7 +169,7 @@ RSpec.describe "modifying hash attributes during presentation" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]",["style"],[],[["clear",[],[],[]]]]]]]],[]]]]]'
+        '[["find",[["post"]],[],[["transform",[[{"id":1}]],[[["attributes",[],[],[["get",["style"],[],[["clear",[],[],[]]]]]],["bind",[{"id":1}],[],[]]]],[]]]]]'
       )
     end
   end

@@ -43,7 +43,7 @@ RSpec.describe "modifying string attributes during presentation" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]=",["title","foo"],[],[]]]],["attrs",[],[],[["[]=",["style",{}],[],[]]]]]],[]]]]]'
+        '[["find",[["post"]],[],[["transform",[[{"id":1}]],[[["attributes",[],[],[["set",["title","foo"],[],[]]]],["attributes",[],[],[["set",["style",{}],[],[]]]],["bind",[{"id":1}],[],[]]]],[]]]]]'
       )
     end
   end

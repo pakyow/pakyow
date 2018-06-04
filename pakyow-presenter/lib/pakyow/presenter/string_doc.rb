@@ -312,11 +312,11 @@ module Pakyow
 
       # Attributes that should be prefixed with +data-+
       #
-      DATA_ATTRS = %i(ui binding version).freeze
+      DATA_ATTRS = %i(ui binding endpoint endpoint-action version).freeze
 
       # Attributes that will be turned into +StringDoc+ labels
       #
-      LABEL_ATTRS = %i(ui version include exclude endpoint prototype binding).freeze
+      LABEL_ATTRS = %i(ui version include exclude endpoint endpoint-action prototype binding).freeze
 
       LABEL_MAPPING = {
         ui: :component
@@ -324,10 +324,12 @@ module Pakyow
 
       # Attributes that should be deleted from the view
       #
-      DELETED_ATTRS = %i(include exclude endpoint endpoint-action prototype).freeze
+      DELETED_ATTRS = %i(include exclude prototype).freeze
 
       ATTR_MAPPING = {
         binding: :b,
+        endpoint: :e,
+        "endpoint-action": :"e-a",
         version: :v
       }
 
@@ -357,7 +359,7 @@ module Pakyow
                 remapped_key = :"data-#{remapped_key}"
               end
 
-              remapped_attributes[remapped_key] = value
+              remapped_attributes[remapped_key] = value || ""
             end
           }
 

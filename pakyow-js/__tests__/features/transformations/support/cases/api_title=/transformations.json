@@ -3,7 +3,7 @@
     "id": "61aeb4df92f094a6ae2e1c0a569e480d2244c8fe",
     "calls": [
       [
-        "title=",
+        "setTitle",
         [
           "foo"
         ],

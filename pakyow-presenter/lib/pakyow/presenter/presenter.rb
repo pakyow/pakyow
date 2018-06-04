@@ -252,6 +252,8 @@ module Pakyow
                 nested_view.present(binder.object[binding_node.label(:binding)])
               elsif binder.object.include?(plural_binding_node_name)
                 nested_view.present(binder.object[plural_binding_node_name])
+              else
+                nested_view.remove
               end
             end
           end
@@ -322,7 +324,11 @@ module Pakyow
 
       # @api private
       def wrap_data_in_binder(data)
-        (binder_for_current_scope || Binder).new(data)
+        if data.is_a?(Binder)
+          data
+        else
+          (binder_for_current_scope || Binder).new(data)
+        end
       end
 
       private

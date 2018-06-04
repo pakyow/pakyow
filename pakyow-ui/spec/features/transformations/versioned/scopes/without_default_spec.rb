@@ -24,7 +24,7 @@ RSpec.describe "versioned scopes with no default" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"}]],[],[]]]]]'
+        '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"}]],[[["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]'
       )
     end
   end
@@ -76,7 +76,7 @@ RSpec.describe "versioned scopes with no default" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["use",["unpublished"],[],[["attrs",[],[],[["[]",["style"],[],[["[]=",["background","blue"],[],[]]]]]]]]]]]'
+        '[["find",[["post"]],[],[["use",["unpublished"],[],[["attributes",[],[],[["get",["style"],[],[["set",["background","blue"],[],[]]]]]]]]]]]'
       )
     end
   end
@@ -102,7 +102,7 @@ RSpec.describe "versioned scopes with no default" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["use",["unpublished"],[],[["present",[[{"id":1,"title":"foo"}]],[],[]]]]]]]'
+        '[["find",[["post"]],[],[["use",["unpublished"],[],[["transform",[[{"id":1,"title":"foo"}]],[[["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]]]'
       )
     end
   end
@@ -130,7 +130,7 @@ RSpec.describe "versioned scopes with no default" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"}]],[[["use",["unpublished"],[],[]]]],[]]]]]'
+        '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"}]],[[["use",["unpublished"],[],[]],["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]'
       )
     end
 
@@ -143,7 +143,7 @@ RSpec.describe "versioned scopes with no default" do
         end
 
         expect(transformations[0][:calls].to_json).to eq(
-          '[["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"}]],[[["use",["published"],[],[]]]],[]]]]]'
+          '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"}]],[[["use",["published"],[],[]],["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]'
         )
       end
     end
@@ -173,7 +173,7 @@ RSpec.describe "versioned scopes with no default" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"}]],[[["use",["unpublished"],[],[]],["attrs",[],[],[["[]=",["style",{"color":"red"}],[],[]]]]]],[]]]]]'
+        '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"}]],[[["use",["unpublished"],[],[]],["attributes",[],[],[["set",["style",{"color":"red"}],[],[]]]],["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]'
       )
     end
 
@@ -186,7 +186,7 @@ RSpec.describe "versioned scopes with no default" do
         end
 
         expect(transformations[0][:calls].to_json).to eq(
-          '[["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"}]],[[["use",["published"],[],[]],["attrs",[],[],[["[]=",["style",{"color":"red"}],[],[]]]]]],[]]]]]'
+          '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"}]],[[["use",["published"],[],[]],["attributes",[],[],[["set",["style",{"color":"red"}],[],[]]]],["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]'
         )
       end
     end

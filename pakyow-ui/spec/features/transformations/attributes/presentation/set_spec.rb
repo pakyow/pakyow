@@ -43,7 +43,7 @@ RSpec.describe "modifying set attributes during presentation" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]=",["class",["foo","bar"]],[],[]]]],["attrs",[],[],[["[]=",["style",{}],[],[]]]]]],[]]]]]'
+        '[["find",[["post"]],[],[["transform",[[{"id":1}]],[[["attributes",[],[],[["set",["class",["foo","bar"]],[],[]]]],["attributes",[],[],[["set",["style",{}],[],[]]]],["bind",[{"id":1}],[],[]]]],[]]]]]'
       )
     end
   end
@@ -89,7 +89,7 @@ RSpec.describe "modifying set attributes during presentation" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]",["class"],[],[["<<",["foo"],[],[]]]]]],["attrs",[],[],[["[]=",["style",{}],[],[]]]]]],[]]]]]'
+        '[["find",[["post"]],[],[["transform",[[{"id":1}]],[[["attributes",[],[],[["get",["class"],[],[["add",["foo"],[],[]]]]]],["attributes",[],[],[["set",["style",{}],[],[]]]],["bind",[{"id":1}],[],[]]]],[]]]]]'
       )
     end
   end
@@ -135,7 +135,7 @@ RSpec.describe "modifying set attributes during presentation" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]",["class"],[],[["add",["foo"],[],[]]]]]],["attrs",[],[],[["[]=",["style",{}],[],[]]]]]],[]]]]]'
+        '[["find",[["post"]],[],[["transform",[[{"id":1}]],[[["attributes",[],[],[["get",["class"],[],[["add",["foo"],[],[]]]]]],["attributes",[],[],[["set",["style",{}],[],[]]]],["bind",[{"id":1}],[],[]]]],[]]]]]'
       )
     end
   end
@@ -181,7 +181,7 @@ RSpec.describe "modifying set attributes during presentation" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]",["class"],[],[["delete",["one"],[],[]]]]]],["attrs",[],[],[["[]=",["style",{}],[],[]]]]]],[]]]]]'
+        '[["find",[["post"]],[],[["transform",[[{"id":1}]],[[["attributes",[],[],[["get",["class"],[],[["delete",["one"],[],[]]]]]],["attributes",[],[],[["set",["style",{}],[],[]]]],["bind",[{"id":1}],[],[]]]],[]]]]]'
       )
     end
   end
@@ -227,7 +227,7 @@ RSpec.describe "modifying set attributes during presentation" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["present",[[{"id":1}]],[[["attrs",[],[],[["[]",["class"],[],[["clear",[],[],[]]]]]],["attrs",[],[],[["[]=",["style",{}],[],[]]]]]],[]]]]]'
+        '[["find",[["post"]],[],[["transform",[[{"id":1}]],[[["attributes",[],[],[["get",["class"],[],[["clear",[],[],[]]]]]],["attributes",[],[],[["set",["style",{}],[],[]]]],["bind",[{"id":1}],[],[]]]],[]]]]]'
       )
     end
   end

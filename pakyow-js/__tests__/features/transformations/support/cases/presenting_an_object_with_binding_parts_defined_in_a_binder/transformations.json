@@ -14,7 +14,7 @@
         ],
         [
           [
-            "present",
+            "transform",
             [
               [
                 {
@@ -34,7 +34,33 @@
               ]
             ],
             [
+              [
+                [
+                  "bind",
+                  [
+                    {
+                      "id": 1,
+                      "title": {
+                        "content": "oof",
+                        "style": {
+                          "color": "red"
+                        },
+                        "class": [
+                          "fooclass"
+                        ],
+                        "title": "foo",
+                        "selected": true
+                      }
+                    }
+                  ],
+                  [
 
+                  ],
+                  [
+
+                  ]
+                ]
+              ]
             ],
             [
 

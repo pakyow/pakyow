@@ -38,7 +38,7 @@ RSpec.describe "modifying hash attributes" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["attrs",[],[],[["[]=",["style",{"color":"red"}],[],[]]]]]]]'
+        '[["find",[["post"]],[],[["attributes",[],[],[["set",["style",{"color":"red"}],[],[]]]]]]]'
       )
     end
   end
@@ -79,7 +79,7 @@ RSpec.describe "modifying hash attributes" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["attrs",[],[],[["[]",["style"],[],[["[]=",["color","red"],[],[]]]]]]]]]'
+        '[["find",[["post"]],[],[["attributes",[],[],[["get",["style"],[],[["set",["color","red"],[],[]]]]]]]]]'
       )
     end
   end
@@ -120,7 +120,7 @@ RSpec.describe "modifying hash attributes" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["attrs",[],[],[["[]",["style"],[],[["delete",["background"],[],[]]]]]]]]]'
+        '[["find",[["post"]],[],[["attributes",[],[],[["get",["style"],[],[["delete",["background"],[],[]]]]]]]]]'
       )
     end
   end
@@ -161,7 +161,7 @@ RSpec.describe "modifying hash attributes" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["attrs",[],[],[["[]",["style"],[],[["clear",[],[],[]]]]]]]]]'
+        '[["find",[["post"]],[],[["attributes",[],[],[["get",["style"],[],[["clear",[],[],[]]]]]]]]]'
       )
     end
   end

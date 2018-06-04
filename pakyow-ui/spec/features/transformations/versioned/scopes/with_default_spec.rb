@@ -20,7 +20,7 @@ RSpec.shared_context "default versions" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"}]],[],[]]]]]'
+        '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"}]],[[["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]'
       )
     end
   end
@@ -43,7 +43,7 @@ RSpec.shared_context "default versions" do
         end
 
         expect(transformations[0][:calls].to_json).to eq(
-          '[["find",[["post"]],[],[["attrs",[],[],[["[]",["style"],[],[["[]=",["background","blue"],[],[]]]]]]]]]'
+          '[["find",[["post"]],[],[["attributes",[],[],[["get",["style"],[],[["set",["background","blue"],[],[]]]]]]]]]'
         )
       end
     end
@@ -65,7 +65,7 @@ RSpec.shared_context "default versions" do
         end
 
         expect(transformations[0][:calls].to_json).to eq(
-          '[["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"}]],[],[]]]]]'
+          '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"}]],[[["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]'
         )
       end
     end
@@ -91,7 +91,7 @@ RSpec.shared_context "default versions" do
         end
 
         expect(transformations[0][:calls].to_json).to eq(
-          '[["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"}]],[[["use",["unpublished"],[],[]]]],[]]]]]'
+          '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"}]],[[["use",["unpublished"],[],[]],["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]'
         )
       end
 
@@ -104,7 +104,7 @@ RSpec.shared_context "default versions" do
           end
 
           expect(transformations[0][:calls].to_json).to eq(
-            '[["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"}]],[[]],[]]]]]'
+            '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"}]],[[["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]'
           )
         end
       end
@@ -133,7 +133,7 @@ RSpec.shared_context "default versions" do
         end
 
         expect(transformations[0][:calls].to_json).to eq(
-          '[["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"}]],[[["use",["unpublished"],[],[]],["attrs",[],[],[["[]=",["style",{"color":"red"}],[],[]]]]]],[]]]]]'
+          '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"}]],[[["use",["unpublished"],[],[]],["attributes",[],[],[["set",["style",{"color":"red"}],[],[]]]],["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]'
         )
       end
 
@@ -146,7 +146,7 @@ RSpec.shared_context "default versions" do
           end
 
           expect(transformations[0][:calls].to_json).to eq(
-            '[["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"}]],[[["attrs",[],[],[["[]=",["style",{"color":"red"}],[],[]]]]]],[]]]]]'
+            '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"}]],[[["attributes",[],[],[["set",["style",{"color":"red"}],[],[]]]],["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]'
           )
         end
       end
@@ -193,7 +193,7 @@ RSpec.shared_context "default versions" do
         end
 
         expect(transformations[0][:calls].to_json).to eq(
-          '[["find",[["post"]],[],[["use",["default"],[],[["attrs",[],[],[["[]",["style"],[],[["[]=",["background","blue"],[],[]]]]]]]]]]]'
+          '[["find",[["post"]],[],[["use",["default"],[],[["attributes",[],[],[["get",["style"],[],[["set",["background","blue"],[],[]]]]]]]]]]]'
         )
       end
     end
@@ -215,7 +215,7 @@ RSpec.shared_context "default versions" do
         end
 
         expect(transformations[0][:calls].to_json).to eq(
-          '[["find",[["post"]],[],[["use",["default"],[],[["present",[[{"id":1,"title":"foo"}]],[],[]]]]]]]'
+          '[["find",[["post"]],[],[["use",["default"],[],[["transform",[[{"id":1,"title":"foo"}]],[[["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]]]'
         )
       end
     end
@@ -243,7 +243,7 @@ RSpec.shared_context "default versions" do
         end
 
         expect(transformations[0][:calls].to_json).to eq(
-          '[["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"}]],[[["use",["unpublished"],[],[]]]],[]]]]]'
+          '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"}]],[[["use",["unpublished"],[],[]],["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]'
         )
       end
 
@@ -256,7 +256,7 @@ RSpec.shared_context "default versions" do
           end
 
           expect(transformations[0][:calls].to_json).to eq(
-            '[["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"}]],[[["use",["default"],[],[]]]],[]]]]]'
+            '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"}]],[[["use",["default"],[],[]],["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]'
           )
         end
       end
@@ -287,7 +287,7 @@ RSpec.shared_context "default versions" do
         end
 
         expect(transformations[0][:calls].to_json).to eq(
-          '[["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"}]],[[["use",["unpublished"],[],[]],["attrs",[],[],[["[]=",["style",{"color":"red"}],[],[]]]]]],[]]]]]'
+          '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"}]],[[["use",["unpublished"],[],[]],["attributes",[],[],[["set",["style",{"color":"red"}],[],[]]]],["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]'
         )
       end
 
@@ -300,7 +300,7 @@ RSpec.shared_context "default versions" do
           end
 
           expect(transformations[0][:calls].to_json).to eq(
-            '[["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"}]],[[["use",["default"],[],[]],["attrs",[],[],[["[]=",["style",{"color":"red"}],[],[]]]]]],[]]]]]'
+            '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"}]],[[["use",["default"],[],[]],["attributes",[],[],[["set",["style",{"color":"red"}],[],[]]]],["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]'
           )
         end
       end

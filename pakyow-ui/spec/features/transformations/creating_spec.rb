@@ -44,7 +44,7 @@ RSpec.describe "creating an object in a populated view" do
     end
 
     expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["present",[[{"id":1,"title":"foo"},{"id":2,"title":"bar"}]],[],[]]]]]'
+      '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"},{"id":2,"title":"bar"}]],[[["bind",[{"id":1,"title":"foo"}],[],[]]],[["bind",[{"id":2,"title":"bar"}],[],[]]]],[]]]]]'
     )
   end
 end

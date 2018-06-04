@@ -59,7 +59,7 @@ module Pakyow
                 mode: args[:mode]
               )
 
-              renderer.instance_variable_set(:@presenter, Presenter.new(renderer.presenter))
+              renderer.instance_variable_set(:@presenter, Presenter.from_presenter(renderer.presenter))
               renderer.perform
 
               message = { id: args[:transformation_id], calls: renderer }

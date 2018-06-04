@@ -21,7 +21,7 @@ RSpec.describe "presenting a view that defines an endpoint for delete" do
         <form action="/posts/1" method="post" data-ui="confirm">
           <input type="hidden" name="_method" value="delete">
 
-          <button>delete</button>
+          <button data-e="posts_delete">delete</button>
         </form>
       HTML
     )

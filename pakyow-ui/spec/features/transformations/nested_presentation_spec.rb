@@ -65,7 +65,7 @@ RSpec.describe "presentating nested data" do
     end
 
     expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["present",[[{"id":1,"title":"foo","comment":[{"id":1,"title":"foo comment","post_id":1}]}]],[],[]]]]]'
+      '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo","comment":[{"id":1,"title":"foo comment","post_id":1}]}]],[[["bind",[{"id":1,"title":"foo","comment":[{"id":1,"title":"foo comment","post_id":1}]}],[],[]],["find",[["comment"]],[],[["transform",[[{"id":1,"title":"foo comment"}]],[[["bind",[{"id":1,"title":"foo comment"}],[],[]]]],[]]]]]],[]]]]]'
     )
   end
 end

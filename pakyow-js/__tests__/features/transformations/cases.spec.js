@@ -2,8 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const dirs = p => fs.readdirSync(p).filter(f => fs.statSync(path.join(p, f)).isDirectory());
 
-const jsdom = require("jsdom");
-const { JSDOM } = jsdom;
+const { JSDOM } = require("jsdom");
 
 global.pw = require("../../../src/index");
 import {default as Transformer} from "../../../src/internal/transformer";
@@ -28,7 +27,7 @@ const comparable = function (dom) {
 
 describe("transformations", () => {
   for (let caseName of dirs(caseDir)) {
-    // if (caseName != "versioned_props_with_no_default_used_and_then_presented") {
+    // if (caseName != "api_after") {
     //   continue;
     // }
 
@@ -49,6 +48,17 @@ describe("transformations", () => {
           "utf8"
         )
       );
+
+      let metadata = JSON.parse(
+        fs.readFileSync(
+          path.join(caseDir, caseName, "metadata.json"),
+          "utf8"
+        )
+      );
+
+      jsdom.reconfigure({
+        url: "http://localhost" + metadata.path
+      });
 
       let initialDOM = new JSDOM(initial);
       let resultDOM = new JSDOM(result);

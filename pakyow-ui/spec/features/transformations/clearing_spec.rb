@@ -47,7 +47,7 @@ RSpec.describe "clearing data in a populated view" do
     end
 
     expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["present",[[]],[],[]]]]]'
+      '[["find",[["post"]],[],[["remove",[],[],[]],["transform",[[]],[],[]]]]]'
     )
   end
 end
@@ -101,7 +101,7 @@ RSpec.describe "clearing data in a populated view that contains an empty version
     end
 
     expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["present",[[]],[],[]]]]]'
+      '[["find",[["post"]],[],[["transform",[[]],[],[]]]]]'
     )
   end
 end

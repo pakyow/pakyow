@@ -13,28 +13,6 @@ export default class {
   transform(calls, transformable) {
     for (let transformation of calls) {
       let methodName = transformation[0];
-
-      if (methodName === "[]=") {
-        methodName = "set";
-      }
-
-      if (methodName === "[]") {
-        methodName = "get";
-      }
-
-      if (methodName === "<<") {
-        methodName = "add";
-      }
-
-      if (methodName === "attrs") {
-        methodName = "attributes";
-      }
-
-      if (methodName.substr(methodName.length - 1) === "=") {
-        methodName = methodName.substr(0, methodName.length - 1);
-        methodName = `set${methodName.charAt(0).toUpperCase() + methodName.substr(1)}`;
-      }
-
       let method = transformable[methodName];
 
       if (method) {

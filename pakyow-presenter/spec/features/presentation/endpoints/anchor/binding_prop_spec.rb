@@ -11,7 +11,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
     expect(call("/presentation/endpoints/anchor/binding_prop")[2].body.read).to include_sans_whitespace(
       <<~HTML
         <div data-b="post">
-          <a data-b="title">title</a>
+          <a data-b="title" data-e="posts_list">title</a>
         </div>
       HTML
     )
@@ -38,18 +38,18 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
       expect(call("/presentation/endpoints/anchor/binding_prop")[2].body.read).to include_sans_whitespace(
         <<~HTML
           <div data-b="post">
-            <a data-b="title" href="/posts">foo</a>
+            <a data-b="title" data-e="posts_list" href="/posts">foo</a>
           </div>
         HTML
       )
     end
 
     context "endpoint is current" do
-      it "receives an active class" do
+      it "receives a current class" do
         expect(call("/posts")[2].body.read).to include_sans_whitespace(
           <<~HTML
             <div data-b="post">
-              <a data-b="title" href="/posts" class="active">foo</a>
+              <a data-b="title" data-e="posts_list" href="/posts" class="current">foo</a>
             </div>
           HTML
         )
@@ -83,7 +83,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
         expect(call("/presentation/endpoints/anchor/binding_prop")[2].body.read).to include_sans_whitespace(
           <<~HTML
             <div data-b="post">
-              <a data-b="title" href="/posts">oof</a>
+              <a data-b="title" data-e="posts_list" href="/posts">oof</a>
             </div>
           HTML
         )
@@ -122,7 +122,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
           expect(call("/presentation/endpoints/anchor/binding_prop")[2].body.read).to include_sans_whitespace(
           <<~HTML
             <div data-b="post">
-              <a data-b="title" href="overridden">oof</a>
+              <a data-b="title" data-e="posts_list" href="overridden">oof</a>
             </div>
           HTML
         )

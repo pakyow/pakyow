@@ -41,7 +41,7 @@ RSpec.describe "modifying set attributes" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["attrs",[],[],[["[]=",["class",["foo","bar"]],[],[]]]]]],["find",[["post"]],[],[["attrs",[],[],[["[]=",["style",{}],[],[]]]]]]]'
+        '[["find",[["post"]],[],[["attributes",[],[],[["set",["class",["foo","bar"]],[],[]]]]]],["find",[["post"]],[],[["attributes",[],[],[["set",["style",{}],[],[]]]]]]]'
       )
     end
   end
@@ -85,7 +85,7 @@ RSpec.describe "modifying set attributes" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["attrs",[],[],[["[]",["class"],[],[["<<",["foo"],[],[]]]]]]]],["find",[["post"]],[],[["attrs",[],[],[["[]=",["style",{}],[],[]]]]]]]'
+        '[["find",[["post"]],[],[["attributes",[],[],[["get",["class"],[],[["add",["foo"],[],[]]]]]]]],["find",[["post"]],[],[["attributes",[],[],[["set",["style",{}],[],[]]]]]]]'
       )
     end
   end
@@ -129,7 +129,7 @@ RSpec.describe "modifying set attributes" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["attrs",[],[],[["[]",["class"],[],[["add",["foo"],[],[]]]]]]]],["find",[["post"]],[],[["attrs",[],[],[["[]=",["style",{}],[],[]]]]]]]'
+        '[["find",[["post"]],[],[["attributes",[],[],[["get",["class"],[],[["add",["foo"],[],[]]]]]]]],["find",[["post"]],[],[["attributes",[],[],[["set",["style",{}],[],[]]]]]]]'
       )
     end
   end
@@ -173,7 +173,7 @@ RSpec.describe "modifying set attributes" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["attrs",[],[],[["[]",["class"],[],[["delete",["one"],[],[]]]]]]]],["find",[["post"]],[],[["attrs",[],[],[["[]=",["style",{}],[],[]]]]]]]'
+        '[["find",[["post"]],[],[["attributes",[],[],[["get",["class"],[],[["delete",["one"],[],[]]]]]]]],["find",[["post"]],[],[["attributes",[],[],[["set",["style",{}],[],[]]]]]]]'
       )
     end
   end
@@ -217,7 +217,7 @@ RSpec.describe "modifying set attributes" do
       end
 
       expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["attrs",[],[],[["[]",["class"],[],[["clear",[],[],[]]]]]]]],["find",[["post"]],[],[["attrs",[],[],[["[]=",["style",{}],[],[]]]]]]]'
+        '[["find",[["post"]],[],[["attributes",[],[],[["get",["class"],[],[["clear",[],[],[]]]]]]]],["find",[["post"]],[],[["attributes",[],[],[["set",["style",{}],[],[]]]]]]]'
       )
     end
   end

@@ -68,11 +68,6 @@ export default class {
     }
   }
 
-  with(callback) {
-    callback(this, this);
-    return this;
-  }
-
   bind(object) {
     this.ensureUsed();
 
@@ -120,25 +115,6 @@ export default class {
         if (!object[view.binding()]) {
           new pw.View(view.node).remove();
         }
-      }
-    }
-
-    return this;
-  }
-
-  present(object, callback) {
-    this.transform(object, callback).bind(object);
-
-    // Present recursively by finding nested bindings and presenting any we have data for.
-    var bindingScopeNames = new Set(
-      this.bindingScopes(true).map(
-        (view) => { return view.binding(); }
-      )
-    );
-
-    for (let view of bindingScopeNames) {
-      if (view in object) {
-        this.find(view).present(object[view]);
       }
     }
 
@@ -198,7 +174,9 @@ export default class {
   }
 
   remove() {
-    this.node.parentNode.removeChild(this.node);
+    if (this.node.parentNode) {
+      this.node.parentNode.removeChild(this.node);
+    }
 
     return this;
   }
@@ -362,6 +340,55 @@ export default class {
       let container = document.createElement("div");
       container.innerHTML = arg.trim();
       return container.firstChild;
+    }
+  }
+
+  setupEndpoint(endpoint) {
+    var endpointView = this.findEndpoint(endpoint);
+
+    if (endpointView) {
+      let endpointActionView = this.qs("[data-e-a]")[0];
+
+      if (!endpointActionView) {
+        endpointActionView = endpointView;
+      }
+
+      if (endpointActionView.node.tagName === "A") {
+        endpointActionView.node.setAttribute("href", endpoint.path);
+
+        if (window.location.href === endpointActionView.node.href) {
+          endpointView.node.classList.add("current");
+        } else if (window.location.href.startsWith(endpointActionView.node.href)) {
+          endpointView.node.classList.remove("current");
+          endpointView.node.classList.add("active");
+        } else {
+          endpointView.node.classList.remove("current");
+          endpointView.node.classList.remove("active");
+        }
+      } else {
+        // unsupported
+      }
+    }
+  }
+
+  wrapEndpointForRemoval(endpoint) {
+    var endpointView = this.findEndpoint(endpoint);
+
+    if (endpointView) {
+      let removal = document.createElement("form");
+      removal.setAttribute("action", endpoint.path);
+      removal.setAttribute("method", "post");
+      removal.setAttribute("data-ui", "confirm");
+      removal.innerHTML = '<input type="hidden" name="_method" value="delete">' + endpointView.node.outerHTML;
+      endpointView.node.parentNode.replaceChild(removal, endpointView.node);
+    }
+  }
+
+  findEndpoint(endpoint) {
+    if (this.node.getAttribute("data-e") === endpoint.name) {
+      return this;
+    } else {
+      return this.qs(`[data-e='${endpoint.name}']`)[0];
     }
   }
 }

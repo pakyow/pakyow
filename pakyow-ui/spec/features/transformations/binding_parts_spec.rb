@@ -66,7 +66,7 @@ RSpec.describe "presenting an object with binding parts defined in a binder" do
     end
 
     expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["present",[[{"id":1,"title":{"content":"oof","style":{"color":"red"},"class":["fooclass"],"title":"foo","selected":true}}]],[],[]]]]]'
+      '[["find",[["post"]],[],[["transform",[[{"id":1,"title":{"content":"oof","style":{"color":"red"},"class":["fooclass"],"title":"foo","selected":true}}]],[[["bind",[{"id":1,"title":{"content":"oof","style":{"color":"red"},"class":["fooclass"],"title":"foo","selected":true}}],[],[]]]],[]]]]]'
     )
   end
 end

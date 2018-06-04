@@ -14,7 +14,7 @@
         ],
         [
           [
-            "present",
+            "transform",
             [
               [
                 {
@@ -25,7 +25,24 @@
               ]
             ],
             [
+              [
+                [
+                  "bind",
+                  [
+                    {
+                      "id": 1,
+                      "title": "foo",
+                      "reversed_title": "oof"
+                    }
+                  ],
+                  [
 
+                  ],
+                  [
+
+                  ]
+                ]
+              ]
             ],
             [
 

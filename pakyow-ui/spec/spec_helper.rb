@@ -84,5 +84,9 @@ def save_ui_case(example, path:)
     File.join(save_path, "transformations.json"), "w+"
   ).write(process_ui_case_transformations(transformations))
 
+  File.open(
+    File.join(save_path, "metadata.json"), "w+"
+  ).write({ path: path }.to_json)
+
   transformations
 end

@@ -74,7 +74,7 @@ RSpec.describe "reordering a populated view" do
     end
 
     expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["present",[[{"id":3,"title":"aaa"},{"id":2,"title":"bar"},{"id":1,"title":"foo"},{"id":4,"title":"qux"}]],[],[]]]]]'
+      '[["find",[["post"]],[],[["transform",[[{"id":3,"title":"aaa"},{"id":2,"title":"bar"},{"id":1,"title":"foo"},{"id":4,"title":"qux"}]],[[["bind",[{"id":3,"title":"aaa"}],[],[]]],[["bind",[{"id":2,"title":"bar"}],[],[]]],[["bind",[{"id":1,"title":"foo"}],[],[]]],[["bind",[{"id":4,"title":"qux"}],[],[]]]],[]]]]]'
     )
   end
 
@@ -89,7 +89,7 @@ RSpec.describe "reordering a populated view" do
     end
 
     expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["present",[[{"id":1,"title":"aaa"},{"id":2,"title":"aaa"},{"id":3,"title":"aaa"},{"id":4,"title":"aaa"}]],[],[]]]]]'
+      '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"aaa"},{"id":2,"title":"aaa"},{"id":3,"title":"aaa"},{"id":4,"title":"aaa"}]],[[["bind",[{"id":1,"title":"aaa"}],[],[]]],[["bind",[{"id":2,"title":"aaa"}],[],[]]],[["bind",[{"id":3,"title":"aaa"}],[],[]]],[["bind",[{"id":4,"title":"aaa"}],[],[]]]],[]]]]]'
     )
   end
 end
