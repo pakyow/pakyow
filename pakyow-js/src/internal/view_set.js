@@ -97,25 +97,19 @@ export default class {
   }
 
   use(version) {
-    if (this.views.length > 0) {
-      for (let view of this.views) {
-        view.use(version);
-      }
-    } else {
-      let templateWithVersion = this.templates.find((view) => {
-        return view.match("version", version)
-      });
-
-      if (templateWithVersion) {
-        let viewWithVersion = templateWithVersion.clone();
-        templateWithVersion.insertionPoint.parentNode.insertBefore(
-          viewWithVersion.node, templateWithVersion.insertionPoint
-        );
-        this.views.push(viewWithVersion);
-      }
+    for (let view of this.views) {
+      view.use(version);
     }
 
     this.usableVersion = version;
+
+    return this;
+  }
+
+  clean() {
+    this.views.forEach((view) => {
+      view.clean();
+    });
 
     return this;
   }
@@ -285,8 +279,9 @@ export default class {
       }
 
       var freshView = template.clone();
-      this.views[this.views.indexOf(view)] = freshView;
+      freshView.node.dataset.id = object.id;
       view.node.parentNode.insertBefore(freshView.node, view.node);
+      this.views[this.views.indexOf(view)] = freshView;
       view.remove();
 
       view = new pw.View(freshView.node, this.templates);

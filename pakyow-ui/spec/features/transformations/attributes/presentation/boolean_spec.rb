@@ -38,13 +38,9 @@ RSpec.describe "modifying boolean attributes during presentation" do
     end
 
     it "transforms" do |x|
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         call("/posts", method: :post)
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["transform",[[{"id":1}]],[[["attributes",[],[],[["set",["selected",true],[],[]]]],["attributes",[],[],[["set",["style",{}],[],[]]]],["bind",[{"id":1}],[],[]]]],[]]]]]'
-      )
     end
   end
 
@@ -84,13 +80,9 @@ RSpec.describe "modifying boolean attributes during presentation" do
     end
 
     it "transforms" do |x|
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         call("/posts", method: :post)
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["transform",[[{"id":1}]],[[["attributes",[],[],[["set",["selected",false],[],[]]]],["attributes",[],[],[["set",["style",{}],[],[]]]],["bind",[{"id":1}],[],[]]]],[]]]]]'
-      )
     end
   end
 end

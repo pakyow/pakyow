@@ -19,13 +19,9 @@ RSpec.describe "versioned props with no default" do
     end
 
     it "transforms" do |x|
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         call("/posts", method: :post, params: { post: { title: "foo" } })
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"}]],[[["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]'
-      )
     end
   end
 
@@ -45,13 +41,9 @@ RSpec.describe "versioned props with no default" do
     end
 
     it "transforms" do |x|
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         call("/posts", method: :post, params: { post: { title: "foo" } })
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post","title"]],[],[["use",["red"],[],[]]]]]'
-      )
     end
   end
 
@@ -71,13 +63,9 @@ RSpec.describe "versioned props with no default" do
     end
 
     it "transforms" do |x|
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         call("/posts", method: :post, params: { post: { title: "foo" } })
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post","title"]],[],[["use",["red"],[],[["attributes",[],[],[["get",["style"],[],[["set",["background","blue"],[],[]]]]]]]]]]]'
-      )
     end
   end
 
@@ -97,14 +85,14 @@ RSpec.describe "versioned props with no default" do
       end
     end
 
-    it "transforms" do |x|
-      transformations = save_ui_case(x, path: "/posts") do
+    # This is unsupported, and may always be. In order to support it on the client,
+    # we'd need to apply transformations to templates as well as rendered views.
+    # If this comes back to bite us in other ways, we'll revisit.
+    #
+    xit "transforms" do |x|
+      save_ui_case(x, path: "/posts") do
         call("/posts", method: :post, params: { post: { title: "foo" } })
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post","title"]],[],[["use",["red"],[],[]]]],["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"}]],[[["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]'
-      )
     end
   end
 
@@ -128,13 +116,9 @@ RSpec.describe "versioned props with no default" do
     it "transforms" do |x|
       call("/posts", method: :post, params: { post: { title: "blue foo" } })
 
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         call("/posts", method: :post, params: { post: { title: "red foo" } })
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"blue foo"},{"id":2,"title":"red foo"}]],[[["find",[["title"]],[],[["use",["blue"],[],[]]]],["bind",[{"id":1,"title":"blue foo"}],[],[]]],[["find",[["title"]],[],[["use",["red"],[],[]]]],["bind",[{"id":2,"title":"red foo"}],[],[]]]],[]]]]]'
-      )
     end
 
     context "changed later" do
@@ -143,13 +127,9 @@ RSpec.describe "versioned props with no default" do
         call("/posts", method: :post, params: { post: { title: "blue foo" } })
         call("/posts", method: :post, params: { post: { title: "red foo" } })
 
-        transformations = save_ui_case(x, path: "/posts") do
+        save_ui_case(x, path: "/posts") do
           expect(call("/posts/1", method: :patch, params: { post: { title: "red foo2" } })[0]).to eq(200)
         end
-
-        expect(transformations[0][:calls].to_json).to eq(
-          '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"red foo2"},{"id":2,"title":"blue foo"},{"id":3,"title":"red foo"}]],[[["find",[["title"]],[],[["use",["red"],[],[]]]],["bind",[{"id":1,"title":"red foo2"}],[],[]]],[["find",[["title"]],[],[["use",["blue"],[],[]]]],["bind",[{"id":2,"title":"blue foo"}],[],[]]],[["find",[["title"]],[],[["use",["red"],[],[]]]],["bind",[{"id":3,"title":"red foo"}],[],[]]]],[]]]]]'
-        )
       end
     end
   end
@@ -175,26 +155,18 @@ RSpec.describe "versioned props with no default" do
     it "transforms" do |x|
       call("/posts", method: :post, params: { post: { title: "red foo" } })
 
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         call("/posts", method: :post, params: { post: { title: "blue foo" } })
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"red foo"},{"id":2,"title":"blue foo"}]],[[["find",[["title"]],[],[["use",["red"],[],[]]]],["find",[["title"]],[],[["attributes",[],[],[["set",["style",{"background":"gray"}],[],[]]]]]],["bind",[{"id":1,"title":"red foo"}],[],[]]],[["find",[["title"]],[],[["use",["blue"],[],[]]]],["find",[["title"]],[],[["attributes",[],[],[["set",["style",{"background":"gray"}],[],[]]]]]],["bind",[{"id":2,"title":"blue foo"}],[],[]]]],[]]]]]'
-      )
     end
 
     context "changed later" do
       it "transforms" do |x|
         call("/posts", method: :post, params: { post: { title: "blue foo" } })
 
-        transformations = save_ui_case(x, path: "/posts") do
+        save_ui_case(x, path: "/posts") do
           expect(call("/posts/1", method: :patch, params: { post: { title: "red foo" } })[0]).to eq(200)
         end
-
-        expect(transformations[0][:calls].to_json).to eq(
-          '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"red foo"}]],[[["find",[["title"]],[],[["use",["red"],[],[]]]],["find",[["title"]],[],[["attributes",[],[],[["set",["style",{"background":"gray"}],[],[]]]]]],["bind",[{"id":1,"title":"red foo"}],[],[]]]],[]]]]]'
-        )
       end
     end
   end

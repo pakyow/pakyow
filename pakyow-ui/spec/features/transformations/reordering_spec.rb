@@ -69,13 +69,9 @@ RSpec.describe "reordering a populated view" do
     call("/posts", method: :post, params: { post: { title: "baz" } })
     call("/posts", method: :post, params: { post: { title: "qux" } })
 
-    transformations = save_ui_case(x, path: "/posts") do
+    save_ui_case(x, path: "/posts") do
       expect(call("/posts/3", method: :patch, params: { post: { title: "aaa" } })[0]).to eq(200)
     end
-
-    expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["transform",[[{"id":3,"title":"aaa"},{"id":2,"title":"bar"},{"id":1,"title":"foo"},{"id":4,"title":"qux"}]],[[["bind",[{"id":3,"title":"aaa"}],[],[]]],[["bind",[{"id":2,"title":"bar"}],[],[]]],[["bind",[{"id":1,"title":"foo"}],[],[]]],[["bind",[{"id":4,"title":"qux"}],[],[]]]],[]]]]]'
-    )
   end
 
   it "transforms for a reorder of the entire set" do |x|
@@ -84,12 +80,8 @@ RSpec.describe "reordering a populated view" do
     call("/posts", method: :post, params: { post: { title: "bar" } })
     call("/posts", method: :post, params: { post: { title: "baz" } })
 
-    transformations = save_ui_case(x, path: "/posts") do
+    save_ui_case(x, path: "/posts") do
       expect(call("/posts/reorder-all", method: :post, params: { post: { title: "aaa" } })[0]).to eq(200)
     end
-
-    expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"aaa"},{"id":2,"title":"aaa"},{"id":3,"title":"aaa"},{"id":4,"title":"aaa"}]],[[["bind",[{"id":1,"title":"aaa"}],[],[]]],[["bind",[{"id":2,"title":"aaa"}],[],[]]],[["bind",[{"id":3,"title":"aaa"}],[],[]]],[["bind",[{"id":4,"title":"aaa"}],[],[]]]],[]]]]]'
-    )
   end
 end

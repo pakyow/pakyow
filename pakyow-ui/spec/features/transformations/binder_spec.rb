@@ -43,13 +43,9 @@ RSpec.describe "presenting an object with a value overridden in a binder" do
   end
 
   it "transforms" do |x|
-    transformations = save_ui_case(x, path: "/posts") do
+    save_ui_case(x, path: "/posts") do
       call("/posts", method: :post, params: { post: { title: "foo" } })
     end
-
-    expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"oof"}]],[[["bind",[{"id":1,"title":"oof"}],[],[]]]],[]]]]]'
-    )
   end
 end
 
@@ -98,12 +94,8 @@ RSpec.describe "presenting an object with a value defined only in a binder" do
   end
 
   it "transforms" do |x|
-    transformations = save_ui_case(x, path: "/posts") do
+    save_ui_case(x, path: "/posts") do
       call("/posts", method: :post, params: { post: { title: "foo" } })
     end
-
-    expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo","reversed_title":"oof"}]],[[["bind",[{"id":1,"title":"foo","reversed_title":"oof"}],[],[]]]],[]]]]]'
-    )
   end
 end

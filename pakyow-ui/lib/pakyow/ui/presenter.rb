@@ -95,9 +95,14 @@ module Pakyow
           nested = []
 
           super(*args) { |nested_presenter, *nested_args|
-            next unless block
-            nested << nested_presenter
-            block.call(nested_presenter, *nested_args)
+            if block
+              nested << nested_presenter
+              block.call(nested_presenter, *nested_args).tap do
+                if method_name == :transform
+                  ensure_explicit_use(nested_presenter)
+                end
+              end
+            end
           }.tap do |result|
             call_args = case method_name
             when :find
@@ -186,6 +191,7 @@ module Pakyow
           binder = @presenter.wrap_data_in_binder(object)
           object = binder.object
 
+          # TODO: think through if we still need to do this:
           keys_and_binding_names = object.to_h.keys.map { |key|
             if key == :id || @bindings.include?(key)
               binding_name = key
@@ -215,12 +221,48 @@ module Pakyow
 
           viewified = keys_and_binding_names.compact.uniq.each_with_object({}) { |(key, binding_name), values|
             value = binder.value(key)
-            value = ensure_html_safety(value) if value.is_a?(String)
-            values[binding_name] = value unless value.nil?
+
+            if value.is_a?(String)
+              value = ensure_html_safety(value)
+            end
+
+            if value.is_a?(Pakyow::Presenter::BindingParts) && !value.content?
+              value.parts[:content] = object[key]
+            end
+
+            unless value.nil?
+              values[binding_name] = value
+            end
           }
 
           viewified
         }
+      end
+
+      def ensure_explicit_use(presenter)
+        presenter.view.binding_props.each do |binding_prop|
+          binding_prop_presenter = presenter.instance_variable_get(:@presenter).find(binding_prop.label(:binding))
+
+          if binding_prop_presenter.view.is_a?(Pakyow::Presenter::VersionedView)
+            unless binding_prop_presenter.view.used?
+              if binding_prop_presenter.view.version?(:default)
+                presenter.instance_variable_get(:@calls).unshift([:find, [[binding_prop.label(:binding)]], [], [[:use, [:default], [], []]]])
+              else
+                presenter.instance_variable_get(:@calls).unshift([:find, [[binding_prop.label(:binding)]], [], [[:clean, [], [], []]]])
+              end
+            end
+          end
+        end
+
+        if presenter.view.is_a?(Pakyow::Presenter::VersionedView)
+          unless presenter.view.used?
+            if presenter.view.version?(:default)
+              presenter.instance_variable_get(:@calls).unshift([:use, [:default], [], []])
+            else
+              presenter.instance_variable_get(:@calls).unshift([:clean, [], [], []])
+            end
+          end
+        end
       end
 
       class << self

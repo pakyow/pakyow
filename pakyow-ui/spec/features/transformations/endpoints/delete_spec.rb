@@ -40,12 +40,8 @@ RSpec.describe "presenting a view that defines an endpoint for delete" do
   end
 
   it "transforms" do |x|
-    transformations = save_ui_case(x, path: "/posts") do
+    save_ui_case(x, path: "/posts") do
       expect(call("/posts", method: :post, params: { post: { title: "foo" } })[0]).to eq(200)
     end
-
-    expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"}]],[[["wrapEndpointForRemoval",[{"name":"posts_delete","path":"/posts/1"}],[],[]],["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]'
-    )
   end
 end

@@ -92,26 +92,18 @@ RSpec.describe "presenting a view that defines an anchor endpoint in a nested bi
       expect(call("/posts", method: :post, params: { post: { title: "foo" } })[0]).to eq(200)
       expect(call("/posts/1/comments", method: :post, params: { comment: { title: "foo" } })[0]).to eq(200)
 
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         expect(call("/posts/1/comments", method: :post, params: { comment: { title: "bar" } })[0]).to eq(200)
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo","comment":[{"id":1,"title":"foo","post_id":1},{"id":2,"title":"bar","post_id":1}]}]],[[["setupEndpoint",[{"name":"posts_show","path":"/posts/1"}],[],[]],["setupEndpoint",[{"name":"posts_comments_show","path":"/posts/comments/1"}],[],[]],["bind",[{"id":1,"title":"foo","comment":[{"id":1,"title":"foo","post_id":1},{"id":2,"title":"bar","post_id":1}]}],[],[]],["find",[["comment"]],[],[["transform",[[{"id":1,"title":"foo"},{"id":2,"title":"bar"}]],[[["setupEndpoint",[{"name":"posts_comments_show","path":"/posts/1/comments/1"}],[],[]],["bind",[{"id":1,"title":"foo"}],[],[]]],[["setupEndpoint",[{"name":"posts_comments_show","path":"/posts/1/comments/2"}],[],[]],["bind",[{"id":2,"title":"bar"}],[],[]]]],[]]]]]],[]]]]]'
-      )
     end
 
     context "endpoint is current" do
       it "transforms" do |x|
         expect(call("/posts", method: :post, params: { post: { title: "foo" } })[0]).to eq(200)
 
-        transformations = save_ui_case(x, path: "/posts/1") do
+        save_ui_case(x, path: "/posts/1") do
           expect(call("/posts/1", method: :patch, params: { post: { title: "bar" } })[0]).to eq(200)
         end
-
-        expect(transformations[0][:calls].to_json).to eq(
-          '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"bar","comment":[]}]],[[["setupEndpoint",[{"name":"posts_show","path":"/posts/1"}],[],[]],["setupEndpoint",[{"name":"posts_comments_show","path":"/posts/comments/1"}],[],[]],["bind",[{"id":1,"title":"bar","comment":[]}],[],[]],["find",[["comment"]],[],[["remove",[],[],[]],["transform",[[]],[],[]]]]]],[]]]]]'
-        )
       end
     end
 
@@ -119,13 +111,9 @@ RSpec.describe "presenting a view that defines an anchor endpoint in a nested bi
       it "transforms" do |x|
         expect(call("/posts", method: :post, params: { post: { title: "foo" } })[0]).to eq(200)
 
-        transformations = save_ui_case(x, path: "/posts/1/related") do
+        save_ui_case(x, path: "/posts/1/related") do
           expect(call("/posts", method: :post, params: { post: { title: "bar" } })[0]).to eq(200)
         end
-
-        expect(transformations[0][:calls].to_json).to eq(
-          '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"},{"id":2,"title":"bar"}]],[[["setupEndpoint",[{"name":"posts_show","path":"/posts/1"}],[],[]],["setupEndpoint",[{"name":"posts_comments_show","path":"/posts/comments/1"}],[],[]],["bind",[{"id":1,"title":"foo"}],[],[]],["find",[["comment"]],[],[["remove",[],[],[]]]]],[["setupEndpoint",[{"name":"posts_show","path":"/posts/2"}],[],[]],["setupEndpoint",[{"name":"posts_comments_show","path":"/posts/comments/2"}],[],[]],["bind",[{"id":2,"title":"bar"}],[],[]],["find",[["comment"]],[],[["remove",[],[],[]]]]]],[]]]]]'
-        )
       end
     end
   end

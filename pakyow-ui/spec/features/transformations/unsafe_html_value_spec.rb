@@ -31,12 +31,8 @@ RSpec.describe "presenting an object with an unsafe html value" do
   end
 
   it "transforms" do |x|
-    transformations = save_ui_case(x, path: "/posts") do
+    save_ui_case(x, path: "/posts") do
       call("/posts", method: :post)
     end
-
-    expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"&lt;strong&gt;hi&lt;/strong&gt;"}]],[[["bind",[{"id":1,"title":"&lt;strong&gt;hi&lt;/strong&gt;"}],[],[]]]],[]]]]]'
-    )
   end
 end

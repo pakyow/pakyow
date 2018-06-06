@@ -52,13 +52,9 @@ RSpec.describe "presenting data in a channeled binding" do
     call("/posts", method: :post, params: { post: { title: "foo", published: true } })
     call("/posts", method: :post, params: { post: { title: "bar", published: false } })
 
-    transformations = save_ui_case(x, path: "/posts") do
+    save_ui_case(x, path: "/posts") do
       call("/posts", method: :post, params: { post: { title: "baz", published: true } })
     end
-
-    expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post:published"]],[],[["transform",[[{"id":1,"title":"foo"},{"id":3,"title":"baz"}]],[[["bind",[{"id":1,"title":"foo"}],[],[]]],[["bind",[{"id":3,"title":"baz"}],[],[]]]],[]]]],["find",[["post:unpublished"]],[],[["transform",[[{"id":2,"title":"bar"}]],[[["bind",[{"id":2,"title":"bar"}],[],[]]]],[]]]]]'
-    )
   end
 end
 
@@ -106,12 +102,8 @@ RSpec.describe "presenting data across channeled bindings" do
     call("/posts", method: :post, params: { post: { title: "foo", published: true } })
     call("/posts", method: :post, params: { post: { title: "bar", published: false } })
 
-    transformations = save_ui_case(x, path: "/posts") do
+    save_ui_case(x, path: "/posts") do
       call("/posts", method: :post, params: { post: { title: "baz", published: true } })
     end
-
-    expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"},{"id":2,"title":"bar"},{"id":3,"title":"baz"}]],[[["bind",[{"id":1,"title":"foo"}],[],[]]],[["bind",[{"id":2,"title":"bar"}],[],[]]],[["bind",[{"id":3,"title":"baz"}],[],[]]]],[]]]]]'
-    )
   end
 end

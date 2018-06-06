@@ -60,12 +60,8 @@ RSpec.describe "presentating nested data" do
   it "transforms" do |x|
     call("/posts", method: :post, params: { post: { title: "foo" } })
 
-    transformations = save_ui_case(x, path: "/posts") do
+    save_ui_case(x, path: "/posts") do
       call("/comments", method: :post, params: { comment: { post_id: 1, title: "foo comment" } })
     end
-
-    expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo","comment":[{"id":1,"title":"foo comment","post_id":1}]}]],[[["bind",[{"id":1,"title":"foo","comment":[{"id":1,"title":"foo comment","post_id":1}]}],[],[]],["find",[["comment"]],[],[["transform",[[{"id":1,"title":"foo comment"}]],[[["bind",[{"id":1,"title":"foo comment"}],[],[]]]],[]]]]]],[]]]]]'
-    )
   end
 end

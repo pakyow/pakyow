@@ -30,6 +30,43 @@
             [
               [
                 [
+                  "use",
+                  [
+                    "default"
+                  ],
+                  [
+
+                  ],
+                  [
+
+                  ]
+                ],
+                [
+                  "find",
+                  [
+                    [
+                      "title"
+                    ]
+                  ],
+                  [
+
+                  ],
+                  [
+                    [
+                      "use",
+                      [
+                        "default"
+                      ],
+                      [
+
+                      ],
+                      [
+
+                      ]
+                    ]
+                  ]
+                ],
+                [
                   "setupEndpoint",
                   [
                     {
@@ -49,7 +86,7 @@
                   [
                     {
                       "name": "posts_comments_show",
-                      "path": "/posts/comments/1"
+                      "path": "/posts/1/comments/1"
                     }
                   ],
                   [
@@ -102,6 +139,43 @@
               ],
               [
                 [
+                  "use",
+                  [
+                    "default"
+                  ],
+                  [
+
+                  ],
+                  [
+
+                  ]
+                ],
+                [
+                  "find",
+                  [
+                    [
+                      "title"
+                    ]
+                  ],
+                  [
+
+                  ],
+                  [
+                    [
+                      "use",
+                      [
+                        "default"
+                      ],
+                      [
+
+                      ],
+                      [
+
+                      ]
+                    ]
+                  ]
+                ],
+                [
                   "setupEndpoint",
                   [
                     {
@@ -121,7 +195,7 @@
                   [
                     {
                       "name": "posts_comments_show",
-                      "path": "/posts/comments/2"
+                      "path": "/posts/1/comments/2"
                     }
                   ],
                   [

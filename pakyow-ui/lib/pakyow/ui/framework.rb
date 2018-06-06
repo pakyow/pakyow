@@ -21,6 +21,39 @@ module Pakyow
       #
       SUBSCRIPTION_TIMEOUT = 60
 
+      # Values we want to serialize from the rack env.
+      #
+      ENV_KEYS = %w(
+        SCRIPT_NAME
+        QUERY_STRING
+        SERVER_PROTOCOL
+        SERVER_SOFTWARE
+        GATEWAY_INTERFACE
+        REQUEST_METHOD
+        REQUEST_PATH
+        REQUEST_URI
+        HTTP_VERSION
+        HTTP_HOST
+        HTTP_CACHE_CONTROL
+        HTTP_UPGRADE_INSECURE_REQUESTS
+        HTTP_USER_AGENT
+        HTTP_ACCEPT
+        HTTP_REFERER
+        HTTP_ACCEPT_ENCODING
+        HTTP_ACCEPT_LANGUAGE
+        HTTP_COOKIE
+        HTTP_X_FORWARDED_HOST
+        HTTP_CONNECTION
+        CONTENT_LENGTH
+        SERVER_NAME
+        SERVER_PORT
+        PATH_INFO
+        REMOTE_ADDR
+        rack.request.query_string
+        rack.request.query_hash
+        pakyow.endpoint
+      ).freeze
+
       def boot
         app.helper Helpers
 
@@ -48,7 +81,10 @@ module Pakyow
                 ).apply(proxy[:proxied_calls])
               }
 
-              connection = Connection.new(@app, "rack.input" => StringIO.new)
+              env = args[:env]
+              env["rack.input"] = StringIO.new
+
+              connection = Connection.new(@app, env)
               connection.instance_variable_set(:@values, presentables)
 
               renderer = Renderer.new(
@@ -108,6 +144,11 @@ module Pakyow
               socket_client_id: socket_client_id,
               presentables: presentables.map { |presentable_name, presentable|
                 { name: presentable_name, proxy: presentable.to_h }
+              },
+              env: @connection.env.each_with_object({}) { |(key, value), keep|
+                if ENV_KEYS.include?(key)
+                  keep[key] = value
+                end
               }
             }
 

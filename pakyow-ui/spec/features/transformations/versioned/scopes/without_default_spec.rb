@@ -19,13 +19,9 @@ RSpec.describe "versioned scopes with no default" do
     end
 
     it "transforms" do |x|
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         call("/posts", method: :post, params: { post: { title: "foo" } })
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"}]],[[["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]'
-      )
     end
   end
 
@@ -45,13 +41,9 @@ RSpec.describe "versioned scopes with no default" do
     end
 
     it "transforms" do |x|
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         call("/posts", method: :post, params: { post: { title: "foo" } })
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["use",["unpublished"],[],[]]]]]'
-      )
     end
   end
 
@@ -71,13 +63,9 @@ RSpec.describe "versioned scopes with no default" do
     end
 
     it "transforms" do |x|
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         call("/posts", method: :post, params: { post: { title: "foo" } })
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["use",["unpublished"],[],[["attributes",[],[],[["get",["style"],[],[["set",["background","blue"],[],[]]]]]]]]]]]'
-      )
     end
   end
 
@@ -97,13 +85,9 @@ RSpec.describe "versioned scopes with no default" do
     end
 
     it "transforms" do |x|
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         call("/posts", method: :post, params: { post: { title: "foo" } })
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["use",["unpublished"],[],[["transform",[[{"id":1,"title":"foo"}]],[[["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]]]'
-      )
     end
   end
 
@@ -125,26 +109,18 @@ RSpec.describe "versioned scopes with no default" do
     end
 
     it "transforms" do |x|
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         call("/posts", method: :post, params: { post: { title: "foo" } })
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"}]],[[["use",["unpublished"],[],[]],["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]'
-      )
     end
 
     context "changed later" do
       it "transforms" do |x|
         call("/posts", method: :post, params: { post: { title: "foo" } })
 
-        transformations = save_ui_case(x, path: "/posts") do
+        save_ui_case(x, path: "/posts") do
           expect(call("/posts/1", method: :patch, params: { post: { published: true } })[0]).to eq(200)
         end
-
-        expect(transformations[0][:calls].to_json).to eq(
-          '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"}]],[[["use",["published"],[],[]],["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]'
-        )
       end
     end
   end
@@ -168,26 +144,18 @@ RSpec.describe "versioned scopes with no default" do
     end
 
     it "transforms" do |x|
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         call("/posts", method: :post, params: { post: { title: "foo" } })
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"}]],[[["use",["unpublished"],[],[]],["attributes",[],[],[["set",["style",{"color":"red"}],[],[]]]],["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]'
-      )
     end
 
     context "changed later" do
       it "transforms" do |x|
         call("/posts", method: :post, params: { post: { title: "foo" } })
 
-        transformations = save_ui_case(x, path: "/posts") do
+        save_ui_case(x, path: "/posts") do
           expect(call("/posts/1", method: :patch, params: { post: { published: true } })[0]).to eq(200)
         end
-
-        expect(transformations[0][:calls].to_json).to eq(
-          '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"}]],[[["use",["published"],[],[]],["attributes",[],[],[["set",["style",{"color":"red"}],[],[]]]],["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]'
-        )
       end
     end
   end

@@ -37,13 +37,9 @@ RSpec.describe "presenting data into a previously empty view" do
   end
 
   it "transforms" do |x|
-    transformations = save_ui_case(x, path: "/posts") do
+    save_ui_case(x, path: "/posts") do
       call("/posts", method: :post, params: { post: { title: "foo" } })
     end
-
-    expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"}]],[[["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]'
-    )
   end
 end
 
@@ -86,12 +82,8 @@ RSpec.describe "presenting data into a previously empty view that contains an em
   end
 
   it "transforms" do |x|
-    transformations = save_ui_case(x, path: "/posts") do
+    save_ui_case(x, path: "/posts") do
       call("/posts", method: :post, params: { post: { title: "foo" } })
     end
-
-    expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"}]],[[["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]'
-    )
   end
 end

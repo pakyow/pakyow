@@ -46,12 +46,8 @@ RSpec.describe "deleting an object in a populated view" do
     call("/posts", method: :post, params: { post: { title: "baz" } })
     call("/posts", method: :post, params: { post: { title: "qux" } })
 
-    transformations = save_ui_case(x, path: "/posts") do
+    save_ui_case(x, path: "/posts") do
       call("/posts/3", method: :delete)
     end
-
-    expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"},{"id":2,"title":"bar"},{"id":4,"title":"qux"}]],[[["bind",[{"id":1,"title":"foo"}],[],[]]],[["bind",[{"id":2,"title":"bar"}],[],[]]],[["bind",[{"id":4,"title":"qux"}],[],[]]]],[]]]]]'
-    )
   end
 end

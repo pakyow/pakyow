@@ -36,13 +36,9 @@ RSpec.describe "modifying boolean attributes" do
     end
 
     it "transforms" do |x|
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         call("/posts", method: :post)
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["attributes",[],[],[["set",["selected",true],[],[]]]]]],["find",[["post"]],[],[["attributes",[],[],[["set",["style",{}],[],[]]]]]]]'
-      )
     end
   end
 
@@ -80,13 +76,9 @@ RSpec.describe "modifying boolean attributes" do
     end
 
     it "transforms" do |x|
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         call("/posts", method: :post)
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["attributes",[],[],[["set",["selected",false],[],[]]]]]],["find",[["post"]],[],[["attributes",[],[],[["set",["style",{}],[],[]]]]]]]'
-      )
     end
   end
 end

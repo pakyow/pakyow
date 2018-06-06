@@ -42,13 +42,9 @@ RSpec.describe "clearing data in a populated view" do
 
   it "transforms" do |x|
     call("/posts", method: :post, params: { post: { title: "foo" } })
-    transformations = save_ui_case(x, path: "/posts") do
+    save_ui_case(x, path: "/posts") do
       call("/posts/1", method: :delete)
     end
-
-    expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["remove",[],[],[]],["transform",[[]],[],[]]]]]'
-    )
   end
 end
 
@@ -96,13 +92,9 @@ RSpec.describe "clearing data in a populated view that contains an empty version
 
   it "transforms" do |x|
     call("/posts", method: :post, params: { post: { title: "foo" } })
-    transformations = save_ui_case(x, path: "/posts") do
+    save_ui_case(x, path: "/posts") do
       call("/posts/1", method: :delete)
     end
-
-    expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["transform",[[]],[],[]]]]]'
-    )
   end
 end
 

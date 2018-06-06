@@ -39,12 +39,8 @@ RSpec.describe "creating an object in a populated view" do
   it "transforms" do |x|
     call("/posts", method: :post, params: { post: { title: "foo" } })
 
-    transformations = save_ui_case(x, path: "/posts") do
+    save_ui_case(x, path: "/posts") do
       call("/posts", method: :post, params: { post: { title: "bar" } })
     end
-
-    expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"},{"id":2,"title":"bar"}]],[[["bind",[{"id":1,"title":"foo"}],[],[]]],[["bind",[{"id":2,"title":"bar"}],[],[]]]],[]]]]]'
-    )
   end
 end

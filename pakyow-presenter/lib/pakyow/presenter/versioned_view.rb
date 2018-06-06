@@ -17,6 +17,7 @@ module Pakyow
       def initialize(versions)
         @versions = versions
         determine_working_version
+        @used = false
       end
 
       def initialize_copy(_)
@@ -42,6 +43,7 @@ module Pakyow
       #
       def use(version)
         version = version.to_sym
+        @used = true
 
         tap do
           if view = version_named(version)
@@ -73,6 +75,18 @@ module Pakyow
         yield self, object if block_given?
       end
 
+      def versioned?
+        @versions.length > 1
+      end
+
+      def version?(version)
+        !!version_named(version)
+      end
+
+      def used?
+        @used == true
+      end
+
       protected
 
       def cleanup(mode = nil)
@@ -81,7 +95,7 @@ module Pakyow
           @versions = []
         else
           @working.object.delete_label(:version)
-          @versions.each do |view_to_remove|
+          @versions.dup.each do |view_to_remove|
             unless view_to_remove == @working
               view_to_remove.remove
               @versions.delete(view_to_remove)

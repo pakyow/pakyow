@@ -53,13 +53,9 @@ RSpec.describe "api" do
     end
 
     it "transforms" do |x|
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         expect(call("/posts", method: :post, params: { post: { title: "foo" } })[0]).to eq(200)
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["setTitle",["foo"],[],[]]]'
-      )
     end
   end
 
@@ -73,13 +69,9 @@ RSpec.describe "api" do
     end
 
     it "transforms" do |x|
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         expect(call("/posts", method: :post, params: { post: { title: "foo" } })[0]).to eq(200)
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"}]],[[["bind",[{"id":1,"title":"foo"}],[],[]]]],[]]]]]'
-      )
     end
   end
 
@@ -93,13 +85,9 @@ RSpec.describe "api" do
     end
 
     it "transforms" do |x|
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         expect(call("/posts", method: :post, params: { post: { title: "foo" } })[0]).to eq(200)
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["bind",[{"id":1,"title":"foo"}],[],[]]]]]'
-      )
     end
   end
 
@@ -116,13 +104,9 @@ RSpec.describe "api" do
     end
 
     it "transforms" do |x|
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         expect(call("/posts", method: :post, params: { post: { title: "foo" } })[0]).to eq(200)
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["bind",[{"id":1,"title":"foo"}],[],[]],["attributes",[],[],[["get",["style"],[],[["set",["background","purple"],[],[]]]]]]]]]'
-      )
     end
   end
 
@@ -136,13 +120,9 @@ RSpec.describe "api" do
     end
 
     it "transforms" do |x|
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         expect(call("/posts", method: :post, params: { post: { title: "foo" } })[0]).to eq(200)
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["bind",[{"id":1,"title":"foo"}],[],[]],["append",["foo"],[],[]]]]]'
-      )
     end
   end
 
@@ -156,13 +136,9 @@ RSpec.describe "api" do
     end
 
     it "transforms" do |x|
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         expect(call("/posts", method: :post, params: { post: { title: "foo" } })[0]).to eq(200)
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["bind",[{"id":1,"title":"foo"}],[],[]],["prepend",["foo"],[],[]]]]]'
-      )
     end
   end
 
@@ -176,13 +152,9 @@ RSpec.describe "api" do
     end
 
     it "transforms" do |x|
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         expect(call("/posts", method: :post, params: { post: { title: "foo" } })[0]).to eq(200)
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["bind",[{"id":1,"title":"foo"}],[],[]],["after",["foo"],[],[]]]]]'
-      )
     end
   end
 
@@ -196,13 +168,9 @@ RSpec.describe "api" do
     end
 
     it "transforms" do |x|
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         expect(call("/posts", method: :post, params: { post: { title: "foo" } })[0]).to eq(200)
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["bind",[{"id":1,"title":"foo"}],[],[]],["before",["foo"],[],[]]]]]'
-      )
     end
   end
 
@@ -216,13 +184,9 @@ RSpec.describe "api" do
     end
 
     it "transforms" do |x|
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         expect(call("/posts", method: :post, params: { post: { title: "foo" } })[0]).to eq(200)
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["bind",[{"id":1,"title":"foo"}],[],[]],["replace",["foo"],[],[]]]]]'
-      )
     end
   end
 
@@ -236,13 +200,9 @@ RSpec.describe "api" do
     end
 
     it "transforms" do |x|
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         expect(call("/posts", method: :post, params: { post: { title: "foo" } })[0]).to eq(200)
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["bind",[{"id":1,"title":"foo"}],[],[]],["remove",[],[],[]]]]]'
-      )
     end
   end
 
@@ -256,13 +216,9 @@ RSpec.describe "api" do
     end
 
     it "transforms" do |x|
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         expect(call("/posts", method: :post, params: { post: { title: "foo" } })[0]).to eq(200)
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["bind",[{"id":1,"title":"foo"}],[],[]],["clear",[],[],[]]]]]'
-      )
     end
   end
 end

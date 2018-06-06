@@ -52,13 +52,9 @@ RSpec.describe "updating an object in a populated view" do
     call("/posts", method: :post, params: { post: { title: "bar" } })
     call("/posts", method: :post, params: { post: { title: "baz" } })
 
-    transformations = save_ui_case(x, path: "/posts") do
+    save_ui_case(x, path: "/posts") do
       expect(call("/posts/2", method: :patch, params: { post: { title: "qux" } })[0]).to eq(200)
     end
-
-    expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"},{"id":2,"title":"qux"},{"id":3,"title":"baz"}]],[[["bind",[{"id":1,"title":"foo"}],[],[]]],[["bind",[{"id":2,"title":"qux"}],[],[]]],[["bind",[{"id":3,"title":"baz"}],[],[]]]],[]]]]]'
-    )
   end
 end
 
@@ -117,13 +113,9 @@ RSpec.describe "updating an object in a way that presents a new prop" do
     call("/posts", method: :post, params: { post: { title: "bar" } })
     call("/posts", method: :post, params: { post: { title: "baz" } })
 
-    transformations = save_ui_case(x, path: "/posts") do
+    save_ui_case(x, path: "/posts") do
       expect(call("/posts/2", method: :patch, params: { post: { body: "bar body" } })[0]).to eq(200)
     end
-
-    expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"},{"id":2,"title":"bar","body":"bar body"},{"id":3,"title":"baz"}]],[[["bind",[{"id":1,"title":"foo"}],[],[]]],[["bind",[{"id":2,"title":"bar","body":"bar body"}],[],[]]],[["bind",[{"id":3,"title":"baz"}],[],[]]]],[]]]]]'
-    )
   end
 end
 
@@ -184,12 +176,8 @@ RSpec.describe "updating an object in a way that presents a new prop in a differ
     call("/posts", method: :post, params: { post: { title: "bar" } })
     call("/posts", method: :post, params: { post: { title: "baz" } })
 
-    transformations = save_ui_case(x, path: "/posts") do
+    save_ui_case(x, path: "/posts") do
       expect(call("/posts/2", method: :patch, params: { post: { body: "bar body" } })[0]).to eq(200)
     end
-
-    expect(transformations[0][:calls].to_json).to eq(
-      '[["find",[["post"]],[],[["transform",[[{"id":1,"title":"foo"},{"id":2,"title":"bar","body":"bar body"},{"id":3,"title":"baz"}]],[[["use",["unpublished"],[],[]],["bind",[{"id":1,"title":"foo"}],[],[]]],[["use",["published"],[],[]],["bind",[{"id":2,"title":"bar","body":"bar body"}],[],[]]],[["use",["unpublished"],[],[]],["bind",[{"id":3,"title":"baz"}],[],[]]]],[]]]]]'
-    )
   end
 end

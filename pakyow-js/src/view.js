@@ -63,17 +63,16 @@ export default class {
       } else {
         return set.find(names);
       }
-    } else {
-      // FIXME: nothing was found; anything to do?
     }
   }
 
   bind(object) {
-    this.ensureUsed();
-
     if (!object) {
       return;
     }
+
+    // Insert binding props that aren't present in the view.
+    this.ensureBindingPropsForObject(object);
 
     for (let view of this.bindingProps()) {
       let value = object[view.binding()];
@@ -83,7 +82,9 @@ export default class {
           let partValue = value[key];
 
           if (key === "content") {
-            view.node.innerHTML = partValue;
+            if (view.node.innerHTML !== partValue) {
+              view.node.innerHTML = partValue;
+            }
           } else {
             new pw.View(view.node).attributes().set(key, partValue);
           }
@@ -91,26 +92,25 @@ export default class {
       } else if(typeof value === "undefined") {
         view.remove();
       } else {
-        view.node.innerHTML = value;
+        if (view.node.innerHTML !== value) {
+          view.node.innerHTML = value;
+        }
       }
     }
 
-    // TODO: anything we should do if object has no id?
     this.node.dataset.id = object.id;
 
     return this;
   }
 
   transform(object, callback) {
-    if (callback) {
-      callback(this, object);
-    }
-
-    this.ensureUsed();
-
     if (!object || (Array.isArray(object) && object.length == 0) || Object.getOwnPropertyNames(object).length == 0) {
       this.remove();
     } else {
+      // Insert binding props that aren't present in the view.
+      this.ensureBindingPropsForObject(object);
+
+      // Remove binding props that aren't in the object.
       for (let view of this.bindingProps()) {
         if (!object[view.binding()]) {
           new pw.View(view.node).remove();
@@ -118,10 +118,14 @@ export default class {
       }
     }
 
+    if (callback) {
+      callback(this, object);
+    }
+
     return this;
   }
 
-  use (version) {
+  use(version) {
     if (!this.match("version", version)) {
       let templateWithVersion = this.versions.find((view) => {
         return view.match("version", version)
@@ -131,15 +135,24 @@ export default class {
         let viewWithVersion = templateWithVersion.clone();
         this.node.parentNode.replaceChild(viewWithVersion.node, this.node);
         this.node = viewWithVersion.node;
-      } else {
-        // couldn't find the version
-        // FIXME: do something here?
       }
     }
 
-    // FIXME: should we remove all known versions like on the server?
+    return this;
+  }
 
-    this.used = true;
+  clean() {
+    if (this.node.parentNode) {
+      // Remove templates for this view so it's gone for good.
+      new pw.View(this.node.parentNode).templates().forEach((template) => {
+        if (template.match("binding", this.binding())) {
+          template.insertionPoint.parentNode.removeChild(template.insertionPoint);
+        }
+      });
+    }
+
+    this.remove();
+
     return this;
   }
 
@@ -215,6 +228,7 @@ export default class {
     return this.bindingScopes(includeScripts).concat(this.bindingProps());
   }
 
+  // TODO: can we remove the includeScripts stuff?
   bindingScopes(includeScripts = false) {
     var bindings = [];
 
@@ -263,42 +277,50 @@ export default class {
   }
 
   templates() {
-    if (!this.memoizedTemplates) {
-      var templates = this.qs("script[type='text/template']").map((templateView) => {
-        // FIXME: I think it would make things more clear to create a dedicated template object
-        // we could initialize with an insertion point, then have a `clone` method there rather than on view
-        let view = new pw.View(this.ensureElement(templateView.node.innerHTML));
-        view.insertionPoint = templateView.node;
+    var templates = this.qs("script[type='text/template']").map((templateView) => {
+      // FIXME: I think it would make things more clear to create a dedicated template object
+      // we could initialize with an insertion point, then have a `clone` method there rather than on view
+      let view = new pw.View(this.ensureElement(templateView.node.innerHTML));
+      view.insertionPoint = templateView.node;
 
-        // Replace bindings with templates.
-        for (let binding of view.bindingProps()) {
-          if (!binding.match("version", "default")) {
-            let template = document.createElement("script");
-            template.setAttribute("type", "text/template");
-            template.dataset.b = binding.binding();
-            template.dataset.v = binding.version();
-            // Prevents this template from being returned by `bindingScopes`.
-            template.dataset.p = true;
-            template.innerHTML = binding.node.outerHTML.trim();
-            binding.node.parentNode.replaceChild(template, binding.node);
-          }
-        }
+      // Replace binding scopes with templates.
+      for (let binding of view.bindingScopes()) {
+        let template = document.createElement("script");
+        template.setAttribute("type", "text/template");
+        template.dataset.b = binding.binding();
+        template.dataset.v = binding.version();
+        template.innerHTML = binding.node.outerHTML.trim();
+        binding.node.parentNode.replaceChild(template, binding.node);
+      }
 
-        return view;
+      // Replace binding props with templates.
+      for (let binding of view.bindingProps()) {
+        let template = document.createElement("script");
+        template.setAttribute("type", "text/template");
+        template.dataset.b = binding.binding();
+        template.dataset.v = binding.version();
+        // Prevents this template from being returned by `bindingScopes`.
+        template.dataset.p = true;
+        template.innerHTML = binding.node.outerHTML.trim();
+        binding.node.parentNode.replaceChild(template, binding.node);
+      }
+
+      return view;
+    });
+
+    if (this.id()) {
+      // We're looking for prop templates for a node that might have been rendered
+      // on the server; try to find the prop templates that exist in the view.
+      let sibling = new pw.View(this.node.parentNode).templates().find((template) => {
+        return template.match("binding", this.binding()) && template.match("version", this.version());
       });
 
-      if (this.id()) {
-        // we're looking for prop templates for a node that might have been rendered
-        // on the server; look for the prop templates through the sibling scope template
-        this.memoizedTemplates = new pw.View(this.node.parentNode).templates().find((template) => {
-          return template.match("binding", this.binding()) && template.match("version", this.version());
-        }).templates().concat(templates);
-      } else {
-        this.memoizedTemplates = templates;
+      if (sibling) {
+        templates = templates.concat(sibling.templates());
       }
     }
 
-    return this.memoizedTemplates;
+    return templates;
   }
 
   breadthFirst(node, cb, includeScripts = false) {
@@ -325,12 +347,6 @@ export default class {
 
   clone() {
     return new pw.View(this.node.cloneNode(true));
-  }
-
-  ensureUsed() {
-    if (!this.used) {
-      this.use("default");
-    }
   }
 
   ensureElement(arg) {
@@ -389,6 +405,26 @@ export default class {
       return this;
     } else {
       return this.qs(`[data-e='${endpoint.name}']`)[0];
+    }
+  }
+
+  ensureBindingPropsForObject(object) {
+    for (let key in object) {
+      // Skip nested data structures.
+      if (object[key].constructor === Array) {
+        continue;
+      }
+
+      if (!this.bindingProps().find((binding) => { return binding.match("binding", key) })) {
+        let template = this.templates().find((template) => { return template.match("binding", key) });
+
+        if (template) {
+          let createdView = template.clone();
+          template.insertionPoint.parentNode.insertBefore(
+            createdView.node, template.insertionPoint
+          );
+        }
+      }
     }
   }
 }

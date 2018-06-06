@@ -27,9 +27,9 @@ const comparable = function (dom) {
 
 describe("transformations", () => {
   for (let caseName of dirs(caseDir)) {
-    // if (caseName != "api_after") {
-    //   continue;
-    // }
+    if (caseName != "updating_an_object_in_a_way_that_presents_a_new_prop") {
+      // continue;
+    }
 
     test(`case: ${caseName}`, () => {
       let initial = fs.readFileSync(

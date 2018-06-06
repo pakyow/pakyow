@@ -35,8 +35,6 @@ export default class {
   }
 
   set(attribute, value) {
-    this.view.ensureUsed();
-
     let attributeType = attributeTypes[attribute];
 
     if (attributeType === attributeTypeHash) {

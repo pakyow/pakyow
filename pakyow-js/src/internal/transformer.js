@@ -11,6 +11,10 @@ export default class {
   }
 
   transform(calls, transformable) {
+    if (!transformable) {
+      return;
+    }
+
     for (let transformation of calls) {
       let methodName = transformation[0];
       let method = transformable[methodName];

@@ -35,13 +35,9 @@ RSpec.describe "modifying hash attributes during presentation" do
     end
 
     it "transforms" do |x|
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         call("/posts", method: :post)
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["transform",[[{"id":1}]],[[["attributes",[],[],[["set",["style",{"color":"red"}],[],[]]]],["bind",[{"id":1}],[],[]]]],[]]]]]'
-      )
     end
   end
 
@@ -78,13 +74,9 @@ RSpec.describe "modifying hash attributes during presentation" do
     end
 
     it "transforms" do |x|
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         call("/posts", method: :post)
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["transform",[[{"id":1}]],[[["attributes",[],[],[["get",["style"],[],[["set",["color","red"],[],[]]]]]],["bind",[{"id":1}],[],[]]]],[]]]]]'
-      )
     end
   end
 
@@ -121,13 +113,9 @@ RSpec.describe "modifying hash attributes during presentation" do
     end
 
     it "transforms" do |x|
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         call("/posts", method: :post)
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["transform",[[{"id":1}]],[[["attributes",[],[],[["get",["style"],[],[["delete",["background"],[],[]]]]]],["bind",[{"id":1}],[],[]]]],[]]]]]'
-      )
     end
   end
 
@@ -164,13 +152,9 @@ RSpec.describe "modifying hash attributes during presentation" do
     end
 
     it "transforms" do |x|
-      transformations = save_ui_case(x, path: "/posts") do
+      save_ui_case(x, path: "/posts") do
         call("/posts", method: :post)
       end
-
-      expect(transformations[0][:calls].to_json).to eq(
-        '[["find",[["post"]],[],[["transform",[[{"id":1}]],[[["attributes",[],[],[["get",["style"],[],[["clear",[],[],[]]]]]],["bind",[{"id":1}],[],[]]]],[]]]]]'
-      )
     end
   end
 end
