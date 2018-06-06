@@ -203,18 +203,14 @@ export default class {
   }
 
   setTitle(value) {
-    var titleView = this.qs("title")[0];
+    var titleView = this.query("title")[0];
 
     if (titleView) {
       titleView.node.innerHTML = value;
     }
   }
 
-  //////////////////////
-  // INTERNAL METHODS //
-  //////////////////////
-
-  qs (selector) {
+  query(selector) {
     var results = [];
 
     for (let node of this.node.querySelectorAll(selector)) {
@@ -277,7 +273,7 @@ export default class {
   }
 
   templates() {
-    var templates = this.qs("script[type='text/template']").map((templateView) => {
+    var templates = this.query("script[type='text/template']").map((templateView) => {
       // FIXME: I think it would make things more clear to create a dedicated template object
       // we could initialize with an insertion point, then have a `clone` method there rather than on view
       let view = new pw.View(this.ensureElement(templateView.node.innerHTML));
@@ -363,7 +359,7 @@ export default class {
     var endpointView = this.findEndpoint(endpoint);
 
     if (endpointView) {
-      let endpointActionView = this.qs("[data-e-a]")[0];
+      let endpointActionView = this.query("[data-e-a]")[0];
 
       if (!endpointActionView) {
         endpointActionView = endpointView;
@@ -404,7 +400,7 @@ export default class {
     if (this.node.getAttribute("data-e") === endpoint.name) {
       return this;
     } else {
-      return this.qs(`[data-e='${endpoint.name}']`)[0];
+      return this.query(`[data-e='${endpoint.name}']`)[0];
     }
   }
 

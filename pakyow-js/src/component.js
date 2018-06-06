@@ -39,7 +39,7 @@ export default class {
       observer.observe(document.body, { childList: true });
     }
 
-    for (let view of new pw.View(node).qs("*[data-ui]")) {
+    for (let view of new pw.View(node).query("*[data-ui]")) {
       if (!instances.find((component) => { return component.view.node === view.node })) {
         let object = components[view.node.dataset.ui] || this.create();
         let instance = new object(view, this.parseConfig(view.node.dataset.config));
@@ -124,7 +124,7 @@ export default class {
     component.prototype.trickle = function (channel, payload) {
       this.trigger(channel, payload);
 
-      for (let view of this.view.qs("*[data-ui]")) {
+      for (let view of this.view.query("*[data-ui]")) {
         let tuple = broadcasts[channel].find((tuple) => {
           return tuple[0].view.node === view.node;
         });
