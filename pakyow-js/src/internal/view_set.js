@@ -69,9 +69,8 @@ export default class {
 
         // Remove the view if we can't find an object with its id.
         if (!objects.find((object) => { return view.match("id", object["id"]) } )) {
-          view.node.remove();
-          // Update `this.views` to match.
           this.views.splice(this.views.indexOf(view), 1);
+          view.remove();
         }
       }
 
@@ -280,11 +279,10 @@ export default class {
 
       var freshView = template.clone();
       freshView.node.dataset.id = object.id;
-      view.node.parentNode.insertBefore(freshView.node, view.node);
+      freshView.versions = this.templates;
       this.views[this.views.indexOf(view)] = freshView;
-      view.remove();
-
-      view = new pw.View(freshView.node, this.templates);
+      view.node.parentNode.replaceChild(freshView.node, view.node);
+      view = freshView;
     }
 
     return view;
