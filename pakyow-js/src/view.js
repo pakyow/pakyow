@@ -220,12 +220,11 @@ export default class {
     return results;
   }
 
-  bindings(includeScripts = true) {
-    return this.bindingScopes(includeScripts).concat(this.bindingProps());
+  bindings() {
+    return this.bindingScopes().concat(this.bindingProps());
   }
 
-  // TODO: can we remove the includeScripts stuff?
-  bindingScopes(includeScripts = false) {
+  bindingScopes() {
     var bindings = [];
 
     this.breadthFirst(this.node, function(childNode, halt) {
@@ -243,7 +242,7 @@ export default class {
       ) {
         bindings.push(new pw.View(childNode));
       }
-    }, includeScripts);
+    });
 
     return bindings;
   }
@@ -319,7 +318,7 @@ export default class {
     return templates;
   }
 
-  breadthFirst(node, cb, includeScripts = false) {
+  breadthFirst(node, cb) {
     var queue = [node];
     var halted = false;
     var halt = function () { halted = true; }
@@ -333,7 +332,7 @@ export default class {
       var children = subNode.childNodes;
       if (children) {
         for(var i = 0; i < children.length; i++) {
-          if (children[i].tagName && (includeScripts || children[i].tagName != "SCRIPT")) {
+          if (children[i].tagName && (children[i].tagName !== "SCRIPT")) {
             queue.push(children[i]);
           }
         }
