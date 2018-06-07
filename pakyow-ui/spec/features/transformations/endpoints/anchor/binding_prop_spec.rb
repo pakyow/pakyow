@@ -18,7 +18,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
         end
 
         show do
-          expose :posts, data.posts.by_id(params[:id].to_i)
+          expose :posts, data.posts.by_id(params[:id])
           render "/endpoints/anchor/binding_prop"
         end
 

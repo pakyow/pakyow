@@ -190,7 +190,7 @@ module Pakyow
           qualifications_for_proxied_call.each do |qualification_key, qualification_value|
             next unless qualification_value.to_s.start_with?("__arg")
             arg_number = qualification_value.to_s.gsub(/[^0-9]/, "").to_i
-            qualifications_for_proxied_call[qualification_key] = proxied_call[1][arg_number]
+            qualifications_for_proxied_call[qualification_key] = @source.class.attributes[qualification_key][proxied_call[1][arg_number]]
           end
 
           qualifications.merge(qualifications_for_proxied_call)
