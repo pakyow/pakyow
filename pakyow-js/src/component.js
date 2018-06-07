@@ -19,6 +19,14 @@ export default class {
   static init(node) {
     if (!observer) {
       observer = new MutationObserver((evt) => {
+        if (evt[0].addedNodes) {
+          for (let node of evt[0].addedNodes) {
+            if (node.tagName && node.dataset.ui) {
+              this.componentFromView(new pw.View(node));
+            }
+          }
+        }
+
         if (evt[0].removedNodes) {
           for (let node of evt[0].removedNodes) {
             let component = instances.find((component) => {
@@ -40,12 +48,16 @@ export default class {
     }
 
     for (let view of new pw.View(node).query("*[data-ui]")) {
-      if (!instances.find((component) => { return component.view.node === view.node })) {
-        let object = components[view.node.dataset.ui] || this.create();
-        let instance = new object(view, this.parseConfig(view.node.dataset.config));
-        instances.push(instance);
-        instance.ready();
-      }
+      this.componentFromView(view);
+    }
+  }
+
+  static componentFromView(view) {
+    if (!instances.find((component) => { return component.view.node === view.node })) {
+      let object = components[view.node.dataset.ui] || this.create();
+      let instance = new object(view, this.parseConfig(view.node.dataset.config));
+      instances.push(instance);
+      instance.ready();
     }
   }
 

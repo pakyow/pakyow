@@ -57,6 +57,25 @@ describe("initializing components in a node", () => {
   });
 });
 
+describe("adding component nodes to the dom", () => {
+  beforeEach(() => {
+    document.querySelector("body").innerHTML = `
+      <div data-ui="foo"></div>
+    `;
+
+    pw.Component.init(document.querySelector("html"));
+  });
+
+  test("removes the component instance tied to the removed node", async () => {
+    expect(pw.Component.instances.length).toBe(1);
+    let component = document.createElement("div");
+    component.innerHTML = `<div data-ui="bar"></div>`;
+    document.querySelector("body").appendChild(component.firstChild);
+    await sleep(50);
+    expect(pw.Component.instances.length).toBe(2);
+  });
+});
+
 describe("removing component nodes from the dom", () => {
   beforeEach(() => {
     document.querySelector("body").innerHTML = `
