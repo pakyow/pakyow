@@ -139,7 +139,7 @@ RSpec.describe Pakyow::Logger::RequestLogger do
 
     it "logs the error at the proper level" do
       expect(logger).to receive(:error) do |message|
-        expect(message[:error]).to eq(err)
+        expect(message[:error].wrapped_exception).to eq(err)
       end
 
       instance.houston(err)
