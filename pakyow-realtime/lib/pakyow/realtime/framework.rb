@@ -7,6 +7,8 @@ require "pakyow/support/message_verifier"
 require "pakyow/realtime/channel"
 require "pakyow/realtime/server"
 
+require "pakyow/realtime/behavior/silencing"
+
 module Pakyow
   module Realtime
     class WebSocketUpgrader
@@ -54,17 +56,22 @@ module Pakyow
         app.class_eval do
           action WebSocketUpgrader
 
+          include Behavior::Silencing
+
           helper Helpers
 
           settings_for :realtime do
             setting :adapter_options, {}
             setting :path, "pw-socket"
             setting :endpoint
+            setting :log_initial_request, false
 
             defaults :production do
               setting :adapter_options do
                 { redis_prefix: ["pw", config.name].join("/") }
               end
+
+              setting :log_initial_request, true
             end
           end
 
