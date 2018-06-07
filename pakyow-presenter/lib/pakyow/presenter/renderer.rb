@@ -33,6 +33,14 @@ module Pakyow
                   new(connection, path: "/development/500").perform
                 end
               end
+            rescue StandardError => error
+              connection.logger.houston(error)
+
+              if connection.app.class.includes_framework?(:core)
+                catch :halt do
+                  connection.app.class.const_get(:Controller).new(connection).handle_error(error)
+                end
+              end
             end
           end
         end
