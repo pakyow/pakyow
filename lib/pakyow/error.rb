@@ -22,6 +22,14 @@ module Pakyow
       wrapped_exception || super
     end
 
+    def backtrace_locations
+      if wrapped_exception
+        wrapped_exception.backtrace_locations
+      else
+        super
+      end
+    end
+
     def url
       "https://pakyow.com/docs"
     end
