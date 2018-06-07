@@ -423,18 +423,6 @@ module Pakyow
         end
       end
 
-      def handle_missing(state)
-        new(state).trigger(404)
-      end
-
-      def handle_failure(state, error)
-        controller = new(state)
-        # try to handle the specific error
-        controller.handle_error(error)
-        # otherwise, just handle as a generic 500
-        controller.trigger(500)
-      end
-
       # Conveniently define defaults when subclassing +Pakyow::Controller+.
       #
       # @example
