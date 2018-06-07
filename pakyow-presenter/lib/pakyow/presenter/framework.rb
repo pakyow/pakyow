@@ -119,7 +119,13 @@ module Pakyow
           handle 500 do
             respond_to :html do
               if Pakyow.env?(:development) || Pakyow.env?(:prototype)
-                expose :error, connection.error
+                error = if connection.error.is_a?(Pakyow::Error)
+                  connection.error
+                else
+                  Pakyow.build_error(connection.error, Pakyow::Error)
+                end
+
+                expose :error, error
                 render "/development/500"
               else
                 render "/500"

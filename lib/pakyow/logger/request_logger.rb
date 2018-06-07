@@ -102,6 +102,10 @@ module Pakyow
       # @param error [Object] the error object
       #
       def houston(error)
+        unless error.is_a?(Pakyow::Error)
+          error = Pakyow.build_error(error, Pakyow::Error)
+        end
+
         error(error: error)
       end
 
