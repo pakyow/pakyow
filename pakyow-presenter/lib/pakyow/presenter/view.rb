@@ -179,7 +179,7 @@ module Pakyow
           if object.nil? || (object.respond_to?(:empty?) && object.empty?)
             remove
           else
-            binding_props(children: false).each do |binding|
+            binding_props.each do |binding|
               unless object.value?(binding.label(:binding))
                 binding.remove
               end
@@ -341,15 +341,29 @@ module Pakyow
       end
 
       # @api private
-      def binding_scopes(children: true)
-        @object.find_significant_nodes(:binding, with_children: children).select { |node|
+      def all_binding_scopes
+        @object.find_significant_nodes(:binding).select { |node|
           node.find_significant_nodes(:binding).any? || node.label(:version) == :empty
         }
       end
 
       # @api private
-      def binding_props(children: true)
-        @object.find_significant_nodes(:binding, with_children: children).reject { |node|
+      def binding_scopes
+        @object.find_significant_nodes_without_descending(:binding).select { |node|
+          node.find_significant_nodes(:binding).any? || node.label(:version) == :empty
+        }
+      end
+
+      # @api private
+      def all_binding_props
+        @object.find_significant_nodes(:binding).reject { |node|
+          node.find_significant_nodes(:binding).any?
+        }
+      end
+
+      # @api private
+      def binding_props
+        @object.find_significant_nodes_without_descending(:binding).reject { |node|
           node.find_significant_nodes(:binding).any?
         }
       end
@@ -410,7 +424,7 @@ module Pakyow
       end
 
       def remove_unused_bindings
-        (binding_scopes + binding_props).reject { |node|
+        @object.find_significant_nodes(:binding).reject { |node|
           node.labeled?(:used)
         }.each(&:remove)
       end

@@ -182,7 +182,7 @@ module Pakyow
         end
 
         def find_endpoint_action_node(endpoint_node)
-          if action_node = endpoint_node.find_significant_nodes(:endpoint_action, with_children: false)[0]
+          if action_node = endpoint_node.find_significant_nodes_without_descending(:endpoint_action)[0]
             action_node
           else
             endpoint_node

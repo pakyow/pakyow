@@ -170,8 +170,8 @@ module Pakyow
 
       # @api private
       def cache_bindings!
-        @bindings = (@presenter.view.binding_scopes + @presenter.view.binding_props).map { |view|
-          view.label(:binding)
+        @bindings = @presenter.view.object.find_significant_nodes(:binding).map { |node|
+          node.label(:binding)
         }
       end
 

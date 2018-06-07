@@ -22,6 +22,14 @@ module Pakyow
     #
     class StringDoc
       class << self
+        # Creates an empty doc.
+        #
+        def empty
+          allocate.tap do |doc|
+            doc.instance_variable_set(:@nodes, [])
+          end
+        end
+
         # Registers a significant node with a name and an object to handle parsing.
         #
         def significant(name, object)
@@ -137,17 +145,26 @@ module Pakyow
 
       # Returns nodes matching the significant type.
       #
-      # If +with_children+ is true, significant nodes from child nodes will be included.
-      #
-      def find_significant_nodes(type, with_children: true)
-        significant_nodes = if with_children
-          @nodes.map(&:with_children).flatten
-        else
-          @nodes.dup
-        end
+      def find_significant_nodes(type)
+        @nodes.each_with_object([]) { |node, matches|
+          if node.significant?(type)
+            matches << node
+          end
 
-        significant_nodes.select { |node|
-          node.significant?(type)
+          matches.concat(node.children.find_significant_nodes(type))
+        }
+      end
+
+      # Returns nodes matching the significant type, without descending into
+      # nodes that are of that type.
+      #
+      def find_significant_nodes_without_descending(type)
+        @nodes.flat_map { |node|
+          if node.significant?(type)
+            node
+          else
+            node.children.find_significant_nodes_without_descending(type)
+          end
         }
       end
 
@@ -155,8 +172,19 @@ module Pakyow
       #
       # @see find_significant_nodes
       #
-      def find_significant_nodes_with_name(type, name, with_children: true)
-        find_significant_nodes(type, with_children: with_children).select { |node|
+      def find_significant_nodes_with_name(type, name)
+        find_significant_nodes(type).select { |node|
+          node.label(type) == name
+        }
+      end
+
+      # Returns nodes matching the significant type and name, without descending
+      # into nodes that are of that type.
+      #
+      # @see find_significant_nodes
+      #
+      def find_significant_nodes_with_name_without_descending(type, name)
+        find_significant_nodes_without_descending(type).select { |node|
           node.label(type) == name
         }
       end

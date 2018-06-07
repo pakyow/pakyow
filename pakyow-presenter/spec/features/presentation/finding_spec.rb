@@ -196,7 +196,7 @@ RSpec.describe "finding all significant views via presenter" do
 
     context "binding exists" do
       it "returns an array of presenters wrapping the binding" do
-        result = presenter.find_all(:title)
+        result = presenter.find(:post).find_all(:title)
         expect(result.count).to eq(2)
         expect(result[0]).to be_instance_of(Pakyow::Presenter::Presenter)
         expect(result[1]).to be_instance_of(Pakyow::Presenter::Presenter)

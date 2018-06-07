@@ -41,7 +41,7 @@ module Pakyow
       attr_writer :parent
 
       extend Forwardable
-      def_delegators :children, :find_significant_nodes, :find_significant_nodes_with_name
+      def_delegators :children, :find_significant_nodes, :find_significant_nodes_with_name, :find_significant_nodes_without_descending
 
       include Support::Inspectable
       inspectable :attributes, :children, :significance, :labels
@@ -50,7 +50,7 @@ module Pakyow
         @node, @parent, @labels = node, parent, labels
         @significance = significance
         @attributes = @node[1]
-        @children = nil
+        @children = StringDoc.empty
       end
 
       # @api private
@@ -109,7 +109,7 @@ module Pakyow
       # Use this when it's necessary to retain internal state, such as labels.
       #
       def replace_internal(replacement)
-        @children = replacement
+        @children = replacement || StringDoc.empty
         @node[0] = ""
         @node[1] = StringAttributes.new
         @node[2] = ""

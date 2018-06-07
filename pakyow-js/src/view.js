@@ -224,30 +224,7 @@ export default class {
     return this.bindingScopes().concat(this.bindingProps());
   }
 
-  bindingScopes() {
-    var bindings = [];
-
-    this.breadthFirst(this.node, function(childNode, halt) {
-      if (childNode == this.node) {
-        return; // we only care about the children
-      }
-
-      if (
-        childNode.dataset.b
-        && (
-          (childNode.tagName == "SCRIPT" && !childNode.dataset.p)
-          || new pw.View(childNode).bindingProps().length > 0
-          || new pw.View(childNode).match("version", "empty")
-        )
-      ) {
-        bindings.push(new pw.View(childNode));
-      }
-    });
-
-    return bindings;
-  }
-
-  bindingProps() {
+  bindingScopes(templates = false) {
     var bindings = [];
 
     this.breadthFirst(this.node, function(childNode, halt) {
@@ -256,11 +233,40 @@ export default class {
       }
 
       if (childNode.dataset.b) {
-        if (
-          new pw.View(childNode).bindingProps().length == 0
-          && !new pw.View(childNode).match("version", "empty")
-        ) {
-          childNode.prop = true;
+        let childView = new pw.View(childNode);
+
+        if ((childNode.tagName === "SCRIPT" && !childNode.dataset.p) || childView.bindingProps().length > 0 || new pw.View(childNode).match("version", "empty")) {
+          // Don't descend into nested scopes.
+          if (!bindings.find((binding) => { return binding.node.contains(childNode); })) {
+            bindings.push(childView);
+          }
+        }
+      }
+    });
+
+    if (templates) {
+      return bindings.filter((binding) => {
+        return binding.node.tagName === "SCRIPT";
+      });
+    } else {
+      return bindings.filter((binding) => {
+        return binding.node.tagName !== "SCRIPT";
+      });
+    }
+
+    return bindings;
+  }
+
+  bindingProps(templates = false) {
+    var bindings = [];
+
+    this.breadthFirst(this.node, function(childNode, halt) {
+      if (childNode == this.node) {
+        return; // we only care about the children
+      }
+
+      if (childNode.dataset.b) {
+        if (new pw.View(childNode).bindingProps().length == 0 && !new pw.View(childNode).match("version", "empty")) {
           bindings.push(new pw.View(childNode));
         } else {
           halt(); // we're done here
@@ -268,11 +274,19 @@ export default class {
       }
     });
 
-    return bindings;
+    if (templates) {
+      return bindings.filter((binding) => {
+        return binding.node.tagName === "SCRIPT";
+      });
+    } else {
+      return bindings.filter((binding) => {
+        return binding.node.tagName !== "SCRIPT";
+      });
+    }
   }
 
   templates() {
-    var templates = this.query("script[type='text/template']").map((templateView) => {
+    var templates = this.bindingScopes(true).concat(this.bindingProps(true)).map((templateView) => {
       // FIXME: I think it would make things more clear to create a dedicated template object
       // we could initialize with an insertion point, then have a `clone` method there rather than on view
       let view = new pw.View(this.ensureElement(templateView.node.innerHTML));
@@ -332,7 +346,7 @@ export default class {
       var children = subNode.childNodes;
       if (children) {
         for(var i = 0; i < children.length; i++) {
-          if (children[i].tagName && (children[i].tagName !== "SCRIPT")) {
+          if (children[i].tagName) {
             queue.push(children[i]);
           }
         }
