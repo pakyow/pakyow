@@ -360,28 +360,28 @@ module Pakyow
       # @api private
       def all_binding_scopes
         @object.find_significant_nodes(:binding).select { |node|
-          node.find_significant_nodes(:binding).any? || node.label(:version) == :empty
+          node.significant?(:binding_within) || node.label(:version) == :empty
         }
       end
 
       # @api private
       def binding_scopes
         @object.find_significant_nodes_without_descending(:binding).select { |node|
-          node.find_significant_nodes(:binding).any? || node.label(:version) == :empty
+          node.significant?(:binding_within) || node.label(:version) == :empty
         }
       end
 
       # @api private
       def all_binding_props
         @object.find_significant_nodes(:binding).reject { |node|
-          node.find_significant_nodes(:binding).any?
+          node.significant?(:binding_within)
         }
       end
 
       # @api private
       def binding_props
         @object.find_significant_nodes_without_descending(:binding).reject { |node|
-          node.find_significant_nodes(:binding).any?
+          node.significant?(:binding_within)
         }
       end
 

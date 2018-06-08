@@ -30,6 +30,18 @@ module Pakyow
           false
         end
       end
+
+      def self.binding_within?(node)
+        node.children.each do |child|
+          if BindingNode.significant?(child)
+            return true
+          else
+            binding_within?(child)
+          end
+        end
+
+        false
+      end
     end
 
     # @api private
@@ -96,6 +108,15 @@ module Pakyow
 
       def self.significant?(node)
         node.is_a?(Oga::XML::Element) && within_binding?(node)
+      end
+    end
+
+    # @api private
+    class BindingWithinNode < SignificantNode
+      StringDoc.significant :binding_within, self
+
+      def self.significant?(node)
+        node.is_a?(Oga::XML::Element) && binding_within?(node)
       end
     end
 
