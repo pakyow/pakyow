@@ -2,6 +2,7 @@
 
 require "forwardable"
 
+require "pakyow/support/core_refinements/array/ensurable"
 require "pakyow/support/indifferentize"
 require "pakyow/support/safe_string"
 
@@ -38,6 +39,7 @@ module Pakyow
       include Support::SafeStringHelpers
 
       using Support::Indifferentize
+      using Support::Refinements::Array::Ensurable
 
       extend Forwardable
 
@@ -83,11 +85,26 @@ module Pakyow
       # Finds a view binding by name. When passed more than one value, the view will
       # be traversed through each name. Returns a {VersionedView}.
       #
-      def find(*names)
+      def find(*names, channel: nil)
         named = names.shift.to_sym
-        found = bindings_with_name(named).each_with_object([]) { |node, arr|
-          arr << View.from_object(node)
-        }
+        found = bindings_with_name(named)
+
+        unless channel.nil?
+          combined_channel = Array.ensure(channel).join(":")
+
+          found.select! do |node|
+            if channel.nil?
+              true
+            else
+              node_channel = node.label(:channel).join(":")
+              node_channel == combined_channel || node_channel.end_with?(":" + combined_channel)
+            end
+          end
+        end
+
+        found.map! do |node|
+          View.from_object(node)
+        end
 
         if names.empty? && !found.empty? # found everything; wrap it up
           VersionedView.new(found)
@@ -419,7 +436,7 @@ module Pakyow
 
       def bindings_with_name(name)
         (binding_scopes + binding_props).select { |node|
-          node.label(:binding).to_s.start_with?(name.to_s)
+          node.label(:binding) == name
         }
       end
 

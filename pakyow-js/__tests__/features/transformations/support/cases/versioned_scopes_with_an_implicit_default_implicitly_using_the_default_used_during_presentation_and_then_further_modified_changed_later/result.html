@@ -12,32 +12,32 @@
       <h1>
         Blog Posts
       </h1>
-      <article data-b="post" style="color: red;" data-id="1">
+      <article data-b="post" data-c="article" style="color: red;" data-id="1">
         published!
-        <h2 data-b="title">foo</h2>
+        <h2 data-b="title" data-c="article">foo</h2>
       </article>
-      <script type="text/template" data-b="post">
-        <article data-b="post">
+      <script type="text/template" data-b="post" data-c="article">
+        <article data-b="post" data-c="article">
           published!
         
-          <h2 data-b="title">
+          <h2 data-b="title" data-c="article">
             title goes here
           </h2>
         
-          <p data-b="body">
+          <p data-b="body" data-c="article">
             body goes here
           </p>
         </article>
       </script>
-      <script type="text/template" data-b="post" data-v="unpublished">
-        <article data-b="post" data-v="unpublished">
+      <script type="text/template" data-b="post" data-v="unpublished" data-c="article">
+        <article data-b="post" data-v="unpublished" data-c="article">
           unpublished
         
-          <h2 data-b="title">
+          <h2 data-b="title" data-c="article">
             title goes here
           </h2>
         
-          <p data-b="body">
+          <p data-b="body" data-c="article">
             body goes here
           </p>
         </article>

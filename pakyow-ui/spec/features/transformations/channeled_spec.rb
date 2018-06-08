@@ -10,8 +10,8 @@ RSpec.describe "presenting data in a channeled binding" do
         disable_protection :csrf
 
         list do
-          expose :published, data.posts.published
-          expose :unpublished, data.posts.unpublished
+          expose :posts, data.posts.published, channel: :published
+          expose :posts, data.posts.unpublished, channel: :unpublished
           render "/channeled/posts"
         end
 
@@ -43,8 +43,8 @@ RSpec.describe "presenting data in a channeled binding" do
 
       presenter "/channeled/posts" do
         perform do
-          find("post:published").present(published)
-          find("post:unpublished").present(unpublished)
+          find(:post, channel: :published).present(posts(:published))
+          find(:post, channel: :unpublished).present(posts(:unpublished))
         end
       end
     end

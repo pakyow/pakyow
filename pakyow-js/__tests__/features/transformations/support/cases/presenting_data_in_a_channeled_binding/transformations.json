@@ -6,8 +6,11 @@
         "find",
         [
           [
-            "post:published"
-          ]
+            "post"
+          ],
+          {
+            "channel": "published"
+          }
         ],
         [
 
@@ -147,8 +150,11 @@
         "find",
         [
           [
-            "post:unpublished"
-          ]
+            "post"
+          ],
+          {
+            "channel": "unpublished"
+          }
         ],
         [
 
@@ -235,8 +241,11 @@
         "find",
         [
           [
-            "post:published"
-          ]
+            "post"
+          ],
+          {
+            "channel": "published"
+          }
         ],
         [
 
@@ -376,8 +385,11 @@
         "find",
         [
           [
-            "post:unpublished"
-          ]
+            "post"
+          ],
+          {
+            "channel": "unpublished"
+          }
         ],
         [
 

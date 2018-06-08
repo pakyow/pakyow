@@ -44,8 +44,17 @@ module Pakyow
           else
             Proc.new do
               presentables.each do |name, value|
-                [name, Support.inflector.singularize(name)].each do |name_varient|
-                  found = find(name_varient)
+                name_parts = name.to_s.split(":")
+
+                channel = if name_parts.count > 1
+                  name_parts[1..-1]
+                else
+                  nil
+                end
+
+                [name_parts[0], Support.inflector.singularize(name_parts[0])].each do |name_varient|
+                  found = find(name_varient, channel: channel)
+
                   unless found.nil?
                     found.present(value); break
                   end

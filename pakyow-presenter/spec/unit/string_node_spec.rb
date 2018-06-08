@@ -402,7 +402,7 @@ RSpec.describe Pakyow::Presenter::StringNode do
     end
 
     it "includes labels" do
-      expect(node.inspect).to include("@labels={:binding=>:title}")
+      expect(node.inspect).to include("@labels={:binding=>:title, :channel=>[]}")
     end
 
     it "includes attributes" do

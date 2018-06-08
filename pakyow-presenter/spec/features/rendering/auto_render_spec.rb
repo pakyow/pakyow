@@ -84,15 +84,15 @@ RSpec.describe "auto rendering" do
 
             controller :default do
               get "/exposure/channeled" do
-                expose "post:foo", { title: "foo" }
-                expose "post:bar", { title: "bar" }
+                expose :post, { title: "foo" }, channel: :foo
+                expose :post, { title: "bar" }, channel: :bar
               end
             end
           }
         end
 
         it "finds and presents each channeled version" do
-          expect(call("/exposure/channeled")[2].body.read).to eq("<!DOCTYPE html>\n<html>\n  <head>\n    <title>default</title>\n  </head>\n\n  <body>\n    <div data-b=\"post:foo\">\n  foo\n  <h1 data-b=\"title\">foo</h1>\n</div><script type=\"text/template\" data-b=\"post:foo\"><div data-b=\"post:foo\">\n  foo\n  <h1 data-b=\"title\">title goes here</h1>\n</div></script>\n\n<div data-b=\"post:bar\">\n  bar\n  <h1 data-b=\"title\">bar</h1>\n</div><script type=\"text/template\" data-b=\"post:bar\"><div data-b=\"post:bar\">\n  bar\n  <h1 data-b=\"title\">title goes here</h1>\n</div></script>\n\n  </body>\n</html>\n")
+          expect(call("/exposure/channeled")[2].body.read).to eq("<!DOCTYPE html>\n<html>\n  <head>\n    <title>default</title>\n  </head>\n\n  <body>\n    <div data-b=\"post\" data-c=\"foo\">\n  foo\n  <h1 data-b=\"title\">foo</h1>\n</div><script type=\"text/template\" data-b=\"post\" data-c=\"foo\"><div data-b=\"post\" data-c=\"foo\">\n  foo\n  <h1 data-b=\"title\">title goes here</h1>\n</div></script>\n\n<div data-b=\"post\" data-c=\"bar\">\n  bar\n  <h1 data-b=\"title\">bar</h1>\n</div><script type=\"text/template\" data-b=\"post\" data-c=\"bar\"><div data-b=\"post\" data-c=\"bar\">\n  bar\n  <h1 data-b=\"title\">title goes here</h1>\n</div></script>\n\n  </body>\n</html>\n")
         end
       end
 

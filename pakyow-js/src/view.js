@@ -19,22 +19,28 @@ export default class {
     return this.node.dataset.v || "default";
   }
 
+  channel() {
+    return this.node.dataset.c;
+  }
+
   match(property, value) {
     let propertyValue = this[property]() || "";
     value = String(value)
 
-    if (property === "binding") {
-      return propertyValue.startsWith(value);
+    if (property === "channel") {
+      return propertyValue === value || propertyValue.endsWith(":" + value);
     } else {
-      return value === propertyValue;
+      return propertyValue === value;
     }
+
+    return String(value) === this[property]() || "";
   }
 
   attributes() {
     return new ViewAttributes(this);
   }
 
-  find (names) {
+  find (names, options) {
     if (!Array.isArray(names)) {
       names = [names];
     }
@@ -55,6 +61,12 @@ export default class {
     }).filter((view) => {
       return view.match("binding", currentName);
     });
+
+    if (options && options.channel) {
+      found = found.filter((view) => {
+        return view.match("channel", options.channel);
+      });
+    }
 
     if (found.length > 0 || templates.length > 0) {
       let set = new ViewSet(found, templates);

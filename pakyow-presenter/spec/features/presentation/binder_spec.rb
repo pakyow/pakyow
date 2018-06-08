@@ -153,7 +153,7 @@ RSpec.describe "binding data via presenter, with a binder" do
 
     it "uses the binder" do
       post_presenter.present(title: "post")
-      expect(presenter.to_s).to eq("<body><div data-b=\"post:foo\"><h1 data-b=\"title\">tsop</h1></div></body>")
+      expect(presenter.to_s).to eq("<body><div data-b=\"post\" data-c=\"foo\"><h1 data-b=\"title\">tsop</h1></div></body>")
     end
   end
 

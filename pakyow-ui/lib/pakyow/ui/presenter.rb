@@ -117,7 +117,13 @@ module Pakyow
               # Because multiple bindings can be passed, we want to wrap them in
               # an array so that the client sees them as a single argument.
               #
-              [args]
+              # We also want to send the channels.
+              #
+              if args.last.is_a?(Hash)
+                [args, args.pop]
+              else
+                [args]
+              end
             when :setup_endpoint
               # We don't want to send `node` down to the client.
               #

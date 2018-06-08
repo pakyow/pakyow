@@ -12,15 +12,15 @@
       <h1>
         Blog Posts
       </h1>
-      <article data-b="post" style="background: blue; font-weight: bold; color: red;" class="one two" data-id="1">
+      <article data-b="post" style="background: blue; font-weight: bold; color: red;" class="one two" data-c="article" data-id="1">
       </article>
-      <script type="text/template" data-b="post">
-        <article data-b="post" style="background:blue;font-weight:bold" class="one two">
-          <h1 data-b="title">
+      <script type="text/template" data-b="post" data-c="article">
+        <article data-b="post" style="background:blue;font-weight:bold" class="one two" data-c="article">
+          <h1 data-b="title" data-c="article">
             title goes here
           </h1>
         
-          <p data-b="body">
+          <p data-b="body" data-c="article">
             body goes here
           </p>
         </article>

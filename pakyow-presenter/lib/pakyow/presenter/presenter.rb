@@ -104,8 +104,8 @@ module Pakyow
       # Returns a presenter for a view binding.
       #
       # @see View#find
-      def find(*names)
-        if found_view = @view.find(*names)
+      def find(*names, channel: nil)
+        if found_view = @view.find(*names, channel: channel)
           presenter_for(found_view)
         else
           nil
@@ -342,10 +342,8 @@ module Pakyow
       end
 
       def binder_for_current_scope
-        expected_binder_name = @view.label(:binding).to_s.split(":")[0].to_sym
-
         binders.find { |binder|
-          binder.__class_name.name == expected_binder_name
+          binder.__class_name.name == @view.label(:binding)
         }
       end
 

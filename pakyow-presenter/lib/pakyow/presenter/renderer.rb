@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "pakyow/support/hookable"
+require "pakyow/support/core_refinements/array/ensurable"
 require "pakyow/support/core_refinements/string/normalization"
 
 module Pakyow
@@ -8,6 +9,36 @@ module Pakyow
     module RenderHelpers
       def render(path = request.env["pakyow.endpoint"] || request.path, as: nil, layout: nil, mode: :default)
         app.class.const_get(:Renderer).new(@connection, path: path, as: as, layout: layout, mode: mode).perform
+      end
+
+      using Support::Refinements::Array::Ensurable
+
+      # Expose a value by name, if the value is not already set.
+      #
+      def expose(name, default_value = default_omitted = true, options = {}, &block)
+        if channel = options[:channel]
+          name = [name].concat(Array.ensure(channel)).join(":").to_sym
+        end
+
+        if default_omitted
+          super(name, &block)
+        else
+          super(name, default_value, &block)
+        end
+      end
+
+      # Force expose a value by name, overriding any existing value.
+      #
+      def expose!(name, default_value = default_omitted = true, options = {}, &block)
+        if channel = options[:channel]
+          name = [name].concat(Array.ensure(channel)).join(":").to_sym
+        end
+
+        if default_omitted
+          super(name, &block)
+        else
+          super(name, default_value, &block)
+        end
       end
     end
 
@@ -54,6 +85,7 @@ module Pakyow
       include Support::Hookable
       known_events :render
 
+      using Support::Refinements::Array::Ensurable
       using Support::Refinements::String::Normalization
 
       attr_reader :connection, :presenter
@@ -199,12 +231,15 @@ module Pakyow
       end
 
       def define_presentables(presentables)
-        @presenter.presentables = presentables
-        presentables.each do |name, value|
-          @presenter.define_singleton_method name do
-            value
+        presentables.map { |key, _value|
+          key.to_s.split(":")[0].to_sym
+        }.uniq.each do |method_name|
+          @presenter.define_singleton_method(method_name) do |*channels|
+            presentables[[method_name].concat(channels).join(":").to_sym]
           end
         end
+
+        @presenter.presentables = presentables
       end
 
       include Routing::Helpers::CSRF

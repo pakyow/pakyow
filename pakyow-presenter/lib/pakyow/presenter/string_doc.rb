@@ -392,6 +392,11 @@ module Pakyow
           }
 
           labels = labels_hash(element)
+
+          if labels.include?(:binding)
+            find_channel_for_binding!(element, attributes, labels)
+          end
+
           StringNode.new(["<#{element.name}", StringAttributes.new(attributes)], significance: significance, labels: labels, parent: self)
         else
           name = element.text.strip.match(/@[^\s]*\s*([a-zA-Z0-9\-_]*)/)[1]
@@ -406,6 +411,46 @@ module Pakyow
 
           StringNode.new([element.to_xml, ""], significance: significance, parent: self, labels: labels)
         end
+      end
+
+      def find_channel_for_binding!(element, attributes, labels)
+        channel = semantic_channel_for_element(element)
+
+        binding_parts = labels[:binding].to_s.split(":").map(&:to_sym)
+        labels[:binding] = binding_parts[0]
+        attributes[:"data-b"] = binding_parts[0]
+
+        channel.concat(binding_parts[1..-1])
+        labels[:channel] = channel
+
+        unless channel.empty?
+          attributes[:"data-c"] = channel.join(":")
+        end
+      end
+
+      SEMANTIC_TAGS = %w(
+        article
+        aside
+        details
+        footer
+        form
+        header
+        main
+        nav
+        section
+        summary
+      ).freeze
+
+      def semantic_channel_for_element(element, channel = [])
+        if element.parent.is_a?(Oga::XML::Element)
+          semantic_channel_for_element(element.parent, channel)
+        end
+
+        if SEMANTIC_TAGS.include?(element.name)
+          channel << element.name.to_sym
+        end
+
+        channel
       end
     end
   end
