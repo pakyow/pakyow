@@ -9,7 +9,9 @@ RSpec.shared_context "default versions" do
 
       Proc.new do
         presenter local_view_path do
-          find(:post).present(posts)
+          perform do
+            find(:post).present(posts)
+          end
         end
       end
     end
@@ -28,7 +30,9 @@ RSpec.shared_context "default versions" do
 
         Proc.new do
           presenter local_view_path do
-            find(:post, :title).attrs[:style][:background] = "blue"
+            perform do
+              find(:post, :title).attrs[:style][:background] = "blue"
+            end
           end
         end
       end
@@ -46,9 +50,11 @@ RSpec.shared_context "default versions" do
 
         Proc.new do
           presenter local_view_path do
-            find(:post).present(posts) do |post_view, post|
-              if post.title.include?("red")
-                post_view.find(:title).use(:red)
+            perform do
+              find(:post).present(posts) do |post_view, post|
+                if post.title.include?("red")
+                  post_view.find(:title).use(:red)
+                end
               end
             end
           end
@@ -79,12 +85,14 @@ RSpec.shared_context "default versions" do
 
         Proc.new do
           presenter local_view_path do
-            find(:post).present(posts) do |post_view, post|
-              if post.title.include?("red")
-                post_view.find(:title).use(:red)
-              end
+            perform do
+              find(:post).present(posts) do |post_view, post|
+                if post.title.include?("red")
+                  post_view.find(:title).use(:red)
+                end
 
-              post_view.find(:title).attrs[:style] = { background: "gray" }
+                post_view.find(:title).attrs[:style] = { background: "gray" }
+              end
             end
           end
         end
@@ -115,7 +123,9 @@ RSpec.shared_context "default versions" do
 
         Proc.new do
           presenter local_view_path do
-            find(:post, :title).use(:default)
+            perform do
+              find(:post, :title).use(:default)
+            end
           end
         end
       end
@@ -133,7 +143,9 @@ RSpec.shared_context "default versions" do
 
         Proc.new do
           presenter local_view_path do
-            find(:post, :title).use(:default).attrs[:style][:background] = "blue"
+            perform do
+              find(:post, :title).use(:default).attrs[:style][:background] = "blue"
+            end
           end
         end
       end
@@ -151,11 +163,13 @@ RSpec.shared_context "default versions" do
 
         Proc.new do
           presenter local_view_path do
-            find(:post).present(posts) do |post_view, post|
-              if post.title.include?("red")
-                post_view.find(:title).use(:red)
-              else
-                post_view.find(:title).use(:default)
+            perform do
+              find(:post).present(posts) do |post_view, post|
+                if post.title.include?("red")
+                  post_view.find(:title).use(:red)
+                else
+                  post_view.find(:title).use(:default)
+                end
               end
             end
           end
@@ -185,14 +199,16 @@ RSpec.shared_context "default versions" do
 
         Proc.new do
           presenter local_view_path do
-            find(:post).present(posts) do |post_view, post|
-              if post.title.include?("red")
-                post_view.find(:title).use(:red)
-              else
-                post_view.find(:title).use(:red)
-              end
+            perform do
+              find(:post).present(posts) do |post_view, post|
+                if post.title.include?("red")
+                  post_view.find(:title).use(:red)
+                else
+                  post_view.find(:title).use(:red)
+                end
 
-              post_view.find(:title).attrs[:style] = { background: "gray" }
+                post_view.find(:title).attrs[:style] = { background: "gray" }
+              end
             end
           end
         end

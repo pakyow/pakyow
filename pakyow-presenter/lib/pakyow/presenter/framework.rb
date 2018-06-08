@@ -134,24 +134,26 @@ module Pakyow
           end
 
           presenter "/development/500" do
-            if error.is_a?(Pakyow::Error)
-              self.title = error.name
-              markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
-              find(:error).use(:friendly)
-              find(:error).present(
-                name: error.name,
-                message: safe(markdown.render(error.message)),
-                details: safe(markdown.render(error.details)),
-                backtrace: safe(error.backtrace.to_a.join("<br>"))
-              )
-            else
-              self.title = error.class
-              find(:error).use(:other)
-              find(:error).present(
-                name: error.class,
-                message: error.to_s,
-                backtrace: safe(error.backtrace.join("<br>"))
-              )
+            perform do
+              if error.is_a?(Pakyow::Error)
+                self.title = error.name
+                markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
+                find(:error).use(:friendly)
+                find(:error).present(
+                  name: error.name,
+                  message: safe(markdown.render(error.message)),
+                  details: safe(markdown.render(error.details)),
+                  backtrace: safe(error.backtrace.to_a.join("<br>"))
+                )
+              else
+                self.title = error.class
+                find(:error).use(:other)
+                find(:error).present(
+                  name: error.class,
+                  message: error.to_s,
+                  backtrace: safe(error.backtrace.join("<br>"))
+                )
+              end
             end
           end
         end

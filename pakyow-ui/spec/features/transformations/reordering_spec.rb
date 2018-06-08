@@ -58,7 +58,9 @@ RSpec.describe "reordering a populated view" do
       end
 
       presenter "/simple/posts" do
-        find(:post).present(posts)
+        perform do
+          find(:post).present(posts)
+        end
       end
     end
   end

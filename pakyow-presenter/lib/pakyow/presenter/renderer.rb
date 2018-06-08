@@ -78,13 +78,7 @@ module Pakyow
           info[:layout] = layout_object.dup
         end
 
-        @automatic_presentation = false
-        unless presenter_class = find_presenter(@as || @path)
-          presenter_class = ViewPresenter
-          @automatic_presentation = true
-        end
-
-        @presenter = presenter_class.new(
+        @presenter = (find_presenter(@as || @path) || ViewPresenter).new(
           binders: @connection.app.state_for(:binder),
           **info
         )
@@ -94,6 +88,8 @@ module Pakyow
           current_endpoint: @connection.endpoint,
           setup_for_bindings: rendering_prototype?
         )
+
+        define_presentables(@connection.values)
 
         if rendering_prototype?
           @mode = @connection.params[:mode] || :default
@@ -119,12 +115,6 @@ module Pakyow
       end
 
       def perform
-        if automatic_presentation?
-          find_and_present_presentables(@connection.values)
-        else
-          define_presentables(@connection.values)
-        end
-
         performing :render do
           @connection.body = StringIO.new(
             @presenter.to_html(clean_bindings: !rendering_prototype?)
@@ -142,10 +132,6 @@ module Pakyow
 
       def rendering_prototype?
         Pakyow.env?(:prototype)
-      end
-
-      def automatic_presentation?
-        @automatic_presentation == true
       end
 
       # We still mark endpoints as active when running in the prototype environment, but we don't
@@ -213,20 +199,10 @@ module Pakyow
       end
 
       def define_presentables(presentables)
+        @presenter.presentables = presentables
         presentables.each do |name, value|
           @presenter.define_singleton_method name do
             value
-          end
-        end
-      end
-
-      def find_and_present_presentables(presentables)
-        presentables.each do |name, value|
-          [name, Support.inflector.singularize(name)].each do |name_varient|
-            found = @presenter.find(name_varient)
-            unless found.nil?
-              found.present(value); break
-            end
           end
         end
       end

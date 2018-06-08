@@ -35,7 +35,9 @@ RSpec.describe "clearing data in a populated view" do
       end
 
       presenter "/simple/posts" do
-        find(:post).present(posts)
+        perform do
+          find(:post).present(posts)
+        end
       end
     end
   end
@@ -85,7 +87,9 @@ RSpec.describe "clearing data in a populated view that contains an empty version
       end
 
       presenter "/empty/posts" do
-        find(:post).present(posts)
+        perform do
+          find(:post).present(posts)
+        end
       end
     end
   end

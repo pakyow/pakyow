@@ -13,7 +13,9 @@ RSpec.describe "versioned scopes with no default" do
 
       Proc.new do
         presenter local_view_path do
-          find(:post).present(posts)
+          perform do
+            find(:post).present(posts)
+          end
         end
       end
     end
@@ -35,7 +37,9 @@ RSpec.describe "versioned scopes with no default" do
 
       Proc.new do
         presenter local_view_path do
-          find(:post).use(:unpublished)
+          perform do
+            find(:post).use(:unpublished)
+          end
         end
       end
     end
@@ -57,7 +61,9 @@ RSpec.describe "versioned scopes with no default" do
 
       Proc.new do
         presenter local_view_path do
-          find(:post).use(:unpublished).attrs[:style][:background] = "blue"
+          perform do
+            find(:post).use(:unpublished).attrs[:style][:background] = "blue"
+          end
         end
       end
     end
@@ -79,7 +85,9 @@ RSpec.describe "versioned scopes with no default" do
 
       Proc.new do
         presenter local_view_path do
-          find(:post).use(:unpublished).present(posts)
+          perform do
+            find(:post).use(:unpublished).present(posts)
+          end
         end
       end
     end
@@ -101,8 +109,10 @@ RSpec.describe "versioned scopes with no default" do
 
       Proc.new do
         presenter local_view_path do
-          find(:post).present(posts) do |post_view, post|
-            post_view.use(post.published ? :published : :unpublished)
+          perform do
+            find(:post).present(posts) do |post_view, post|
+              post_view.use(post.published ? :published : :unpublished)
+            end
           end
         end
       end
@@ -135,9 +145,11 @@ RSpec.describe "versioned scopes with no default" do
 
       Proc.new do
         presenter local_view_path do
-          find(:post).present(posts) do |post_view, post|
-            post_view.use(post.published ? :published : :unpublished)
-            post_view.attrs[:style] = { color: "red" }
+          perform do
+            find(:post).present(posts) do |post_view, post|
+              post_view.use(post.published ? :published : :unpublished)
+              post_view.attrs[:style] = { color: "red" }
+            end
           end
         end
       end

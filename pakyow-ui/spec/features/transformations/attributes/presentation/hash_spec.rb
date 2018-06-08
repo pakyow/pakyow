@@ -25,9 +25,11 @@ RSpec.describe "modifying hash attributes during presentation" do
         end
 
         presenter "/attributes/posts" do
-          if posts.count > 0
-            find(:post).present(posts) do |post_view, post|
-              post_view.attrs[:style] = { color: "red" }
+          perform do
+            if posts.count > 0
+              find(:post).present(posts) do |post_view, post|
+                post_view.attrs[:style] = { color: "red" }
+              end
             end
           end
         end
@@ -64,9 +66,11 @@ RSpec.describe "modifying hash attributes during presentation" do
         end
 
         presenter "/attributes/posts" do
-          if posts.count > 0
-            find(:post).present(posts) do |post_view, post|
-              post_view.attrs[:style][:color] = "red"
+          perform do
+            if posts.count > 0
+              find(:post).present(posts) do |post_view, post|
+                post_view.attrs[:style][:color] = "red"
+              end
             end
           end
         end
@@ -103,9 +107,11 @@ RSpec.describe "modifying hash attributes during presentation" do
         end
 
         presenter "/attributes/posts" do
-          if posts.count > 0
-            find(:post).present(posts) do |post_view, post|
-              post_view.attrs[:style].delete(:background)
+          perform do
+            if posts.count > 0
+              find(:post).present(posts) do |post_view, post|
+                post_view.attrs[:style].delete(:background)
+              end
             end
           end
         end
@@ -142,9 +148,11 @@ RSpec.describe "modifying hash attributes during presentation" do
         end
 
         presenter "/attributes/posts" do
-          if posts.count > 0
-            find(:post).present(posts) do |post_view, post|
-              post_view.attrs[:style].clear
+          perform do
+            if posts.count > 0
+              find(:post).present(posts) do |post_view, post|
+                post_view.attrs[:style].clear
+              end
             end
           end
         end

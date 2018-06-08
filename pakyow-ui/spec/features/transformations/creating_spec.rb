@@ -31,7 +31,9 @@ RSpec.describe "creating an object in a populated view" do
       end
 
       presenter "/simple/posts" do
-        find(:post).present(posts)
+        perform do
+          find(:post).present(posts)
+        end
       end
     end
   end

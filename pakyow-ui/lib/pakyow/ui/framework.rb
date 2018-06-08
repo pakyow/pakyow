@@ -7,7 +7,6 @@ require "pakyow/core/framework"
 
 require "pakyow/ui/helpers"
 require "pakyow/ui/presenter"
-require "pakyow/ui/renderer"
 
 module Pakyow
   module UI
@@ -87,7 +86,7 @@ module Pakyow
               connection = Connection.new(@app, env)
               connection.instance_variable_set(:@values, presentables)
 
-              renderer = Renderer.new(
+              renderer = Pakyow::Presenter::Renderer.new(
                 connection,
                 as: args[:as],
                 path: args[:path],
@@ -95,10 +94,10 @@ module Pakyow
                 mode: args[:mode]
               )
 
-              renderer.instance_variable_set(:@presenter, Presenter.from_presenter(renderer.presenter))
-              renderer.perform
+              presenter = Presenter.from_presenter(renderer.presenter)
+              presenter.perform
 
-              message = { id: args[:transformation_id], calls: renderer }
+              message = { id: args[:transformation_id], calls: presenter }
               @app.websocket_server.subscription_broadcast(Realtime::Channel.new(:transformation, subscription[:id]), message)
             end
           end

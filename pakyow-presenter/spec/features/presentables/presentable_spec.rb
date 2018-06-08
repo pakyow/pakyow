@@ -20,7 +20,9 @@ RSpec.describe "presentable exposures" do
       end
 
       presenter "/" do
-        $presentable = current_user
+        perform do
+          $presentable = current_user
+        end
       end
     end
   end

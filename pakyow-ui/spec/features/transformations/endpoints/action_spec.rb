@@ -48,7 +48,9 @@ RSpec.describe "presenting a view that defines an endpoints with an action" do
       end
 
       presenter "/endpoints/action" do
-        find(:post).present(posts)
+        perform do
+          find(:post).present(posts)
+        end
       end
 
       source :posts do

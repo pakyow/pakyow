@@ -68,7 +68,9 @@ RSpec.describe "presenting a view that defines an anchor endpoint in a nested bi
       end
 
       presenter "/endpoints/anchor/nested_scope" do
-        find(:post).present(posts)
+        perform do
+          find(:post).present(posts)
+        end
       end
 
       source :posts do

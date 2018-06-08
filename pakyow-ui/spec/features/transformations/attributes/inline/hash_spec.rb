@@ -25,8 +25,10 @@ RSpec.describe "modifying hash attributes" do
         end
 
         presenter "/attributes/posts" do
-          if posts.count > 0
-            find(:post).attrs[:style] = { color: "red" }
+          perform do
+            if posts.count > 0
+              find(:post).attrs[:style] = { color: "red" }
+            end
           end
         end
       end
@@ -62,8 +64,10 @@ RSpec.describe "modifying hash attributes" do
         end
 
         presenter "/attributes/posts" do
-          if posts.count > 0
-            find(:post).attrs[:style][:color] = "red"
+          perform do
+            if posts.count > 0
+              find(:post).attrs[:style][:color] = "red"
+            end
           end
         end
       end
@@ -99,8 +103,10 @@ RSpec.describe "modifying hash attributes" do
         end
 
         presenter "/attributes/posts" do
-          if posts.count > 0
-            find(:post).attrs[:style].delete(:background)
+          perform do
+            if posts.count > 0
+              find(:post).attrs[:style].delete(:background)
+            end
           end
         end
       end
@@ -136,8 +142,10 @@ RSpec.describe "modifying hash attributes" do
         end
 
         presenter "/attributes/posts" do
-          if posts.count > 0
-            find(:post).attrs[:style].clear
+          perform do
+            if posts.count > 0
+              find(:post).attrs[:style].clear
+            end
           end
         end
       end

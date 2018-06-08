@@ -37,7 +37,9 @@ RSpec.describe "presenting an object with a value overridden in a data object" d
       end
 
       presenter "/simple/posts" do
-        find(:post).present(posts)
+        perform do
+          find(:post).present(posts)
+        end
       end
     end
   end
@@ -88,7 +90,9 @@ RSpec.describe "presenting an object with a value defined only in a data object"
       end
 
       presenter "/binder/posts" do
-        find(:post).present(posts)
+        perform do
+          find(:post).present(posts)
+        end
       end
     end
   end

@@ -12,11 +12,11 @@ module Pakyow
       class << self
         using Support::Refinements::String::Normalization
 
-        attr_reader :path, :block
+        attr_reader :path
 
         def make(path, namespace: nil, **kwargs, &block)
           path = String.normalize_path(path)
-          super(name_from_path(path, namespace), path: path, block: block, **kwargs) {}
+          super(name_from_path(path, namespace), path: path, **kwargs, &block)
         end
 
         def name_from_path(path, namespace)
@@ -33,9 +33,33 @@ module Pakyow
             ), classname
           )
         end
+
+        def perform(&block)
+          @block = block
+        end
+
+        def block
+          if instance_variable_defined?(:@block)
+            @block
+          else
+            Proc.new do
+              presentables.each do |name, value|
+                [name, Support.inflector.singularize(name)].each do |name_varient|
+                  found = find(name_varient)
+                  unless found.nil?
+                    found.present(value); break
+                  end
+                end
+              end
+            end
+          end
+        end
       end
 
       attr_reader :layout, :page, :partials
+
+      # @api private
+      attr_accessor :presentables
 
       def initialize(layout: nil, page: nil, partials: [], **args)
         @layout, @page, @partials = layout, page, partials
@@ -48,11 +72,12 @@ module Pakyow
       end
 
       def to_html(clean_bindings: true, clean_versions: true)
-        if block = self.class.block
-          instance_exec(&block)
-        end
-
+        perform
         super
+      end
+
+      def perform
+        instance_exec(&self.class.block)
       end
     end
   end

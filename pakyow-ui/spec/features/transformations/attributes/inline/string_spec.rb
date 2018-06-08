@@ -25,11 +25,13 @@ RSpec.describe "modifying string attributes" do
         end
 
         presenter "/attributes/posts" do
-          if posts.count > 0
-            find(:post).attrs[:title] = "foo"
+          perform do
+            if posts.count > 0
+              find(:post).attrs[:title] = "foo"
 
-            # if we don't set this, the view won't quite match
-            find(:post).attrs[:style] = {}
+              # if we don't set this, the view won't quite match
+              find(:post).attrs[:style] = {}
+            end
           end
         end
       end

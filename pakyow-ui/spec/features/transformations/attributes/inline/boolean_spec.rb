@@ -25,11 +25,13 @@ RSpec.describe "modifying boolean attributes" do
         end
 
         presenter "/attributes/posts" do
-          if posts.count > 0
-            find(:post).attrs[:selected] = true
+          perform do
+            if posts.count > 0
+              find(:post).attrs[:selected] = true
 
-            # if we don't set this, the view won't quite match
-            find(:post).attrs[:style] = {}
+              # if we don't set this, the view won't quite match
+              find(:post).attrs[:style] = {}
+            end
           end
         end
       end
@@ -65,11 +67,13 @@ RSpec.describe "modifying boolean attributes" do
         end
 
         presenter "/attributes/posts" do
-          if posts.count > 0
-            find(:post).attrs[:selected] = false
+          perform do
+            if posts.count > 0
+              find(:post).attrs[:selected] = false
 
-            # if we don't set this, the view won't quite match
-            find(:post).attrs[:style] = {}
+              # if we don't set this, the view won't quite match
+              find(:post).attrs[:style] = {}
+            end
           end
         end
       end

@@ -42,7 +42,9 @@ RSpec.describe "form origin" do
         end
 
         presenter "/form" do
-          form(:post).create({})
+          perform do
+            form(:post).create({})
+          end
         end
       }
     end

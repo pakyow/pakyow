@@ -34,7 +34,9 @@ RSpec.describe "api" do
       end
 
       presenter local_view_path do
-        instance_exec(&local_presenter)
+        perform do
+          instance_exec(&local_presenter)
+        end
       end
     end
   end

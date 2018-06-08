@@ -52,7 +52,9 @@ RSpec.describe "presentating nested data" do
       end
 
       presenter "/nested/posts" do
-        find(:post).present(posts)
+        perform do
+          find(:post).present(posts)
+        end
       end
     end
   end

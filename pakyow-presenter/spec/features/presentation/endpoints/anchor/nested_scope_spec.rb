@@ -21,7 +21,9 @@ RSpec.describe "presenting a view that defines an anchor endpoint in a nested sc
         end
 
         presenter "/presentation/endpoints/anchor/nested_scope" do
-          find(:post).present(id: 1, title: "foo", comments: [{ id: 2, title: "bar" }])
+          perform do
+            find(:post).present(id: 1, title: "foo", comments: [{ id: 2, title: "bar" }])
+          end
         end
       }
     end

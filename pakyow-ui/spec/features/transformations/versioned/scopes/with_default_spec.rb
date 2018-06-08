@@ -9,7 +9,9 @@ RSpec.shared_context "default versions" do
 
       Proc.new do
         presenter local_view_path do
-          find(:post).present(posts)
+          perform do
+            find(:post).present(posts)
+          end
         end
       end
     end
@@ -28,7 +30,9 @@ RSpec.shared_context "default versions" do
 
         Proc.new do
           presenter local_view_path do
-            find(:post).attrs[:style][:background] = "blue"
+            perform do
+              find(:post).attrs[:style][:background] = "blue"
+            end
           end
         end
       end
@@ -46,7 +50,9 @@ RSpec.shared_context "default versions" do
 
         Proc.new do
           presenter local_view_path do
-            find(:post).present(posts)
+            perform do
+              find(:post).present(posts)
+            end
           end
         end
       end
@@ -64,9 +70,11 @@ RSpec.shared_context "default versions" do
 
         Proc.new do
           presenter local_view_path do
-            find(:post).present(posts) do |post_view, post|
-              unless post.published
-                post_view.use(:unpublished)
+            perform do
+              find(:post).present(posts) do |post_view, post|
+                unless post.published
+                  post_view.use(:unpublished)
+                end
               end
             end
           end
@@ -96,12 +104,14 @@ RSpec.shared_context "default versions" do
 
         Proc.new do
           presenter local_view_path do
-            find(:post).present(posts) do |post_view, post|
-              unless post.published
-                post_view.use(:unpublished)
-              end
+            perform do
+              find(:post).present(posts) do |post_view, post|
+                unless post.published
+                  post_view.use(:unpublished)
+                end
 
-              post_view.attrs[:style] = { color: "red" }
+                post_view.attrs[:style] = { color: "red" }
+              end
             end
           end
         end
@@ -132,7 +142,9 @@ RSpec.shared_context "default versions" do
 
         Proc.new do
           presenter local_view_path do
-            find(:post).use(:default)
+            perform do
+              find(:post).use(:default)
+            end
           end
         end
       end
@@ -150,7 +162,9 @@ RSpec.shared_context "default versions" do
 
         Proc.new do
           presenter local_view_path do
-            find(:post).use(:default).attrs[:style][:background] = "blue"
+            perform do
+              find(:post).use(:default).attrs[:style][:background] = "blue"
+            end
           end
         end
       end
@@ -168,7 +182,9 @@ RSpec.shared_context "default versions" do
 
         Proc.new do
           presenter local_view_path do
-            find(:post).use(:default).present(posts)
+            perform do
+              find(:post).use(:default).present(posts)
+            end
           end
         end
       end
@@ -186,11 +202,13 @@ RSpec.shared_context "default versions" do
 
         Proc.new do
           presenter local_view_path do
-            find(:post).present(posts) do |post_view, post|
-              if post.published
-                post_view.use(:default)
-              else
-                post_view.use(:unpublished)
+            perform do
+              find(:post).present(posts) do |post_view, post|
+                if post.published
+                  post_view.use(:default)
+                else
+                  post_view.use(:unpublished)
+                end
               end
             end
           end
@@ -220,14 +238,16 @@ RSpec.shared_context "default versions" do
 
         Proc.new do
           presenter local_view_path do
-            find(:post).present(posts) do |post_view, post|
-              if post.published
-                post_view.use(:default)
-              else
-                post_view.use(:unpublished)
-              end
+            perform do
+              find(:post).present(posts) do |post_view, post|
+                if post.published
+                  post_view.use(:default)
+                else
+                  post_view.use(:unpublished)
+                end
 
-              post_view.attrs[:style] = { color: "red" }
+                post_view.attrs[:style] = { color: "red" }
+              end
             end
           end
         end

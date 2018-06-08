@@ -13,7 +13,9 @@ RSpec.describe "versioned props with no default" do
 
       Proc.new do
         presenter local_view_path do
-          find(:post).present(posts)
+          perform do
+            find(:post).present(posts)
+          end
         end
       end
     end
@@ -35,7 +37,9 @@ RSpec.describe "versioned props with no default" do
 
       Proc.new do
         presenter local_view_path do
-          find(:post, :title).use(:red)
+          perform do
+            find(:post, :title).use(:red)
+          end
         end
       end
     end
@@ -57,7 +61,9 @@ RSpec.describe "versioned props with no default" do
 
       Proc.new do
         presenter local_view_path do
-          find(:post, :title).use(:red).attrs[:style][:background] = "blue"
+          perform do
+            find(:post, :title).use(:red).attrs[:style][:background] = "blue"
+          end
         end
       end
     end
@@ -79,8 +85,10 @@ RSpec.describe "versioned props with no default" do
 
       Proc.new do
         presenter local_view_path do
-          find(:post, :title).use(:red)
-          find(:post).present(posts)
+          perform do
+            find(:post, :title).use(:red)
+            find(:post).present(posts)
+          end
         end
       end
     end
@@ -106,8 +114,10 @@ RSpec.describe "versioned props with no default" do
 
       Proc.new do
         presenter local_view_path do
-          find(:post).present(posts) do |post_view, post|
-            post_view.find(:title).use(post.title.include?("red") ? :red : :blue)
+          perform do
+            find(:post).present(posts) do |post_view, post|
+              post_view.find(:title).use(post.title.include?("red") ? :red : :blue)
+            end
           end
         end
       end
@@ -144,9 +154,11 @@ RSpec.describe "versioned props with no default" do
 
       Proc.new do
         presenter local_view_path do
-          find(:post).present(posts) do |post_view, post|
-            post_view.find(:title).use(post.title.include?("red") ? :red : :blue)
-            post_view.find(:title).attrs[:style] = { background: "gray" }
+          perform do
+            find(:post).present(posts) do |post_view, post|
+              post_view.find(:title).use(post.title.include?("red") ? :red : :blue)
+              post_view.find(:title).attrs[:style] = { background: "gray" }
+            end
           end
         end
       end

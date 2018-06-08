@@ -90,6 +90,14 @@ module Pakyow
 
       using Support::Refinements::Array::Ensurable
 
+      def perform
+        instance_exec(&@presenter.class.block)
+      end
+
+      def presentables
+        @presenter.presentables
+      end
+
       %i(find transform use bind append prepend after before replace remove clear title= setup_endpoint wrap_endpoint_for_removal).each do |method_name|
         define_method method_name do |*args, &block|
           nested = []
@@ -166,6 +174,18 @@ module Pakyow
 
       def to_json(*)
         @calls.to_json
+      end
+
+      def method_missing(method_name, *args, &block)
+        if @presenter.respond_to?(method_name)
+          @presenter.public_send(method_name, *args, &block)
+        else
+          super
+        end
+      end
+
+      def respond_to_missing?(method_name, include_private = false)
+        @presenter.respond_to_missing?(method_name, include_private)
       end
 
       # @api private

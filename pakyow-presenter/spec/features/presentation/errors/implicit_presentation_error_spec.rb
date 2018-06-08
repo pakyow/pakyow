@@ -11,7 +11,9 @@ RSpec.describe "errors during implicit presentation" do
       end
 
       presenter "/" do
-        fail "failed in presenter"
+        perform do
+          fail "failed in presenter"
+        end
       end
     }
   end

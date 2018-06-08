@@ -25,11 +25,13 @@ RSpec.describe "modifying set attributes" do
         end
 
         presenter "/attributes/posts" do
-          if posts.count > 0
-            find(:post).attrs[:class] = [:foo, :bar]
+          perform do
+            if posts.count > 0
+              find(:post).attrs[:class] = [:foo, :bar]
 
-            # if we don't set this, the view won't quite match
-            find(:post).attrs[:style] = {}
+              # if we don't set this, the view won't quite match
+              find(:post).attrs[:style] = {}
+            end
           end
         end
       end
@@ -65,11 +67,13 @@ RSpec.describe "modifying set attributes" do
         end
 
         presenter "/attributes/posts" do
-          if posts.count > 0
-            find(:post).attrs[:class] << :foo
+          perform do
+            if posts.count > 0
+              find(:post).attrs[:class] << :foo
 
-            # if we don't set this, the view won't quite match
-            find(:post).attrs[:style] = {}
+              # if we don't set this, the view won't quite match
+              find(:post).attrs[:style] = {}
+            end
           end
         end
       end
@@ -105,11 +109,13 @@ RSpec.describe "modifying set attributes" do
         end
 
         presenter "/attributes/posts" do
-          if posts.count > 0
-            find(:post).attrs[:class].add(:foo)
+          perform do
+            if posts.count > 0
+              find(:post).attrs[:class].add(:foo)
 
-            # if we don't set this, the view won't quite match
-            find(:post).attrs[:style] = {}
+              # if we don't set this, the view won't quite match
+              find(:post).attrs[:style] = {}
+            end
           end
         end
       end
@@ -145,11 +151,13 @@ RSpec.describe "modifying set attributes" do
         end
 
         presenter "/attributes/posts" do
-          if posts.count > 0
-            find(:post).attrs[:class].delete(:one)
+          perform do
+            if posts.count > 0
+              find(:post).attrs[:class].delete(:one)
 
-            # if we don't set this, the view won't quite match
-            find(:post).attrs[:style] = {}
+              # if we don't set this, the view won't quite match
+              find(:post).attrs[:style] = {}
+            end
           end
         end
       end
@@ -185,11 +193,13 @@ RSpec.describe "modifying set attributes" do
         end
 
         presenter "/attributes/posts" do
-          if posts.count > 0
-            find(:post).attrs[:class].clear
+          perform do
+            if posts.count > 0
+              find(:post).attrs[:class].clear
 
-            # if we don't set this, the view won't quite match
-            find(:post).attrs[:style] = {}
+              # if we don't set this, the view won't quite match
+              find(:post).attrs[:style] = {}
+            end
           end
         end
       end
