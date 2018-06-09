@@ -10,8 +10,8 @@ RSpec.describe "presenting data in a channeled binding" do
         disable_protection :csrf
 
         list do
-          expose :posts, data.posts.published, channel: :published
-          expose :posts, data.posts.unpublished, channel: :unpublished
+          expose :posts, data.posts.published, for: :published
+          expose :posts, data.posts.unpublished, for: :unpublished
           render "/channeled/posts"
         end
 

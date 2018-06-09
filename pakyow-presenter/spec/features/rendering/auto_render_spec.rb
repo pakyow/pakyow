@@ -84,8 +84,8 @@ RSpec.describe "auto rendering" do
 
             controller :default do
               get "/exposure/channeled" do
-                expose :post, { title: "foo" }, channel: :foo
-                expose :post, { title: "bar" }, channel: :bar
+                expose :post, { title: "foo" }, for: :foo
+                expose :post, { title: "bar" }, for: :bar
               end
             end
           }

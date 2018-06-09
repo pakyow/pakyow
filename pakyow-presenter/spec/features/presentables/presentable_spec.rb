@@ -42,8 +42,8 @@ RSpec.describe "presentable exposures" do
 
         controller :default do
           get "/" do
-            expose :current_user, "user1", channel: [:foo]
-            expose :current_user, "user2", channel: [:foo, :bar]
+            expose :current_user, "user1", for: [:foo]
+            expose :current_user, "user2", for: [:foo, :bar]
           end
         end
 
