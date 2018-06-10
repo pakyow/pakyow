@@ -134,7 +134,7 @@ module Pakyow
           end
 
           presenter "/development/500" do
-            perform do
+            def perform
               if error.is_a?(Pakyow::Error)
                 self.title = error.name
                 markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)

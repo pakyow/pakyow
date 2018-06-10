@@ -37,7 +37,7 @@ RSpec.describe "presenting an object with a value overridden in a binder" do
       end
 
       presenter "/simple/posts" do
-        perform do
+        def perform
           find(:post).present(posts)
         end
       end
@@ -90,7 +90,7 @@ RSpec.describe "presenting an object with a value defined only in a binder" do
       end
 
       presenter "/binder/posts" do
-        perform do
+        def perform
           find(:post).present(posts)
         end
       end

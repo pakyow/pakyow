@@ -31,7 +31,7 @@ RSpec.describe "presenting an object with a safe html value" do
       end
 
       presenter "/simple/posts" do
-        perform do
+        def perform
           find(:post).present(posts)
         end
       end

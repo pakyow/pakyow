@@ -28,7 +28,7 @@ RSpec.describe "presenting a view that defines an endpoint for delete" do
       end
 
       presenter "/endpoints/delete" do
-        perform do
+        def perform
           find(:post).present(posts)
         end
       end

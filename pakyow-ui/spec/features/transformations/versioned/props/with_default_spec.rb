@@ -9,7 +9,7 @@ RSpec.shared_context "default versions" do
 
       Proc.new do
         presenter local_view_path do
-          perform do
+          def perform
             find(:post).present(posts)
           end
         end
@@ -30,7 +30,7 @@ RSpec.shared_context "default versions" do
 
         Proc.new do
           presenter local_view_path do
-            perform do
+            def perform
               find(:post, :title).attrs[:style][:background] = "blue"
             end
           end
@@ -50,7 +50,7 @@ RSpec.shared_context "default versions" do
 
         Proc.new do
           presenter local_view_path do
-            perform do
+            def perform
               find(:post).present(posts) do |post_view, post|
                 if post.title.include?("red")
                   post_view.find(:title).use(:red)
@@ -85,7 +85,7 @@ RSpec.shared_context "default versions" do
 
         Proc.new do
           presenter local_view_path do
-            perform do
+            def perform
               find(:post).present(posts) do |post_view, post|
                 if post.title.include?("red")
                   post_view.find(:title).use(:red)
@@ -123,7 +123,7 @@ RSpec.shared_context "default versions" do
 
         Proc.new do
           presenter local_view_path do
-            perform do
+            def perform
               find(:post, :title).use(:default)
             end
           end
@@ -143,7 +143,7 @@ RSpec.shared_context "default versions" do
 
         Proc.new do
           presenter local_view_path do
-            perform do
+            def perform
               find(:post, :title).use(:default).attrs[:style][:background] = "blue"
             end
           end
@@ -163,7 +163,7 @@ RSpec.shared_context "default versions" do
 
         Proc.new do
           presenter local_view_path do
-            perform do
+            def perform
               find(:post).present(posts) do |post_view, post|
                 if post.title.include?("red")
                   post_view.find(:title).use(:red)
@@ -199,7 +199,7 @@ RSpec.shared_context "default versions" do
 
         Proc.new do
           presenter local_view_path do
-            perform do
+            def perform
               find(:post).present(posts) do |post_view, post|
                 if post.title.include?("red")
                   post_view.find(:title).use(:red)

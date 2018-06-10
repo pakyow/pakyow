@@ -25,7 +25,7 @@ RSpec.describe "modifying boolean attributes during presentation" do
         end
 
         presenter "/attributes/posts" do
-          perform do
+          def perform
             if posts.count > 0
               find(:post).present(posts) do |post_view, post|
                 post_view.attrs[:selected] = true
@@ -69,7 +69,7 @@ RSpec.describe "modifying boolean attributes during presentation" do
         end
 
         presenter "/attributes/posts" do
-          perform do
+          def perform
             if posts.count > 0
               find(:post).present(posts) do |post_view, post|
                 post_view.attrs[:selected] = false

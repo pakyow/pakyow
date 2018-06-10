@@ -55,7 +55,7 @@ RSpec.describe "presenting an object with binding parts defined in a binder" do
       end
 
       presenter "/simple/posts" do
-        perform do
+        def perform
           find(:post).present(posts)
         end
       end

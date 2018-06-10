@@ -3,7 +3,7 @@ RSpec.describe "api" do
   include_context "websocket intercept"
 
   let :app_definition do
-    local_presenter = presenter
+    $local_presenter = presenter
     local_view_path = view_path
 
     Proc.new do
@@ -34,8 +34,8 @@ RSpec.describe "api" do
       end
 
       presenter local_view_path do
-        perform do
-          instance_exec(&local_presenter)
+        def perform
+          instance_exec(&$local_presenter)
         end
       end
     end

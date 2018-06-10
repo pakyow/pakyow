@@ -5,7 +5,7 @@ module Pakyow
     # Provides pipeline behavior. Pipelined objects can define actions to be called in order on an
     # instance of the pipelined object. Each action can act on the state passed to it. Any action
     # can halt the pipeline, causing the result to be immediately returned without calling other
-    # actions. Passed state should respond to `halt` and `halted?` (@see Haltable).
+    # actions. Passed state should respond to `halt` and `halted?` (@see Pipelined::Haltable).
     #
     # See {Pakyow::App} and {Pakyow::Controller} for examples of more complex pipelines.
     #
@@ -26,7 +26,7 @@ module Pakyow
     #   end
     #
     #   class Result
-    #     include Pakyow::Support::Haltable
+    #     include Pakyow::Support::Pipelined::Haltable
     #
     #     attr_reader :results
     #

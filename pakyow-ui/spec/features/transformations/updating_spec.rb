@@ -42,7 +42,7 @@ RSpec.describe "updating an object in a populated view" do
       end
 
       presenter "/simple/posts" do
-        perform do
+        def perform
           find(:post).present(posts)
         end
       end
@@ -105,7 +105,7 @@ RSpec.describe "updating an object in a way that presents a new prop" do
       end
 
       presenter "/simple/posts" do
-        perform do
+        def perform
           find(:post).present(posts)
         end
       end
@@ -168,7 +168,7 @@ RSpec.describe "updating an object in a way that presents a new prop in a differ
       end
 
       presenter "/versioned/scopes" do
-        perform do
+        def perform
           find(:post).present(posts) do |post_view, post|
             post_view.use(post.body ? :published : :unpublished)
           end

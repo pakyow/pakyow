@@ -28,7 +28,7 @@ RSpec.describe "auto rendering" do
           end
 
           presenter "/other" do
-            perform do
+            def perform
               self.title = "invoked"
             end
           end

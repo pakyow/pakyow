@@ -6,7 +6,9 @@ require "digest"
 require "pakyow/core/framework"
 
 require "pakyow/ui/helpers"
-require "pakyow/ui/presenter"
+require "pakyow/ui/renderer"
+
+require "pakyow/ui/behavior/recording"
 
 module Pakyow
   module UI
@@ -64,6 +66,22 @@ module Pakyow
           @connection.app.data.expire(@id, SUBSCRIPTION_TIMEOUT)
         end
 
+        app.attr_reader :ui_presenters
+
+        # Create subclasses of each presenter, then make the subclasses recordable.
+        # These subclasses will be used when performing a ui presentation instead
+        # of the original presenter, but they'll behave identically!
+        #
+        app.after :initialize do
+          @ui_presenters = [Pakyow::Presenter::ViewPresenter].concat(
+            state_for(:presenter)
+          ).map { |presenter_class|
+            Class.new(presenter_class).tap do |subclass|
+              subclass.include Behavior::Recording
+            end
+          }
+        end
+
         if app.const_defined?(:Renderer)
           handler = Class.new do
             def initialize(app)
@@ -86,7 +104,7 @@ module Pakyow
               connection = Connection.new(@app, env)
               connection.instance_variable_set(:@values, presentables)
 
-              renderer = Pakyow::Presenter::Renderer.new(
+              renderer = Renderer.new(
                 connection,
                 as: args[:as],
                 path: args[:path],
@@ -94,10 +112,9 @@ module Pakyow
                 mode: args[:mode]
               )
 
-              presenter = Presenter.from_presenter(renderer.presenter)
-              presenter.perform
+              renderer.presenter.perform
 
-              message = { id: args[:transformation_id], calls: presenter }
+              message = { id: args[:transformation_id], calls: renderer.presenter }
               @app.websocket_server.subscription_broadcast(Realtime::Channel.new(:transformation, subscription[:id]), message)
             end
           end

@@ -51,7 +51,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
       end
 
       presenter "/endpoints/anchor/binding_prop" do
-        perform do
+        def perform
           find(:post).present(posts)
         end
       end

@@ -25,7 +25,7 @@ RSpec.describe "modifying set attributes during presentation" do
         end
 
         presenter "/attributes/posts" do
-          perform do
+          def perform
             if posts.count > 0
               find(:post).present(posts) do |post_view, post|
                 post_view.attrs[:class] = [:foo, :bar]
@@ -69,7 +69,7 @@ RSpec.describe "modifying set attributes during presentation" do
         end
 
         presenter "/attributes/posts" do
-          perform do
+          def perform
             if posts.count > 0
               find(:post).present(posts) do |post_view, post|
                 post_view.attrs[:class] << :foo
@@ -113,7 +113,7 @@ RSpec.describe "modifying set attributes during presentation" do
         end
 
         presenter "/attributes/posts" do
-          perform do
+          def perform
             if posts.count > 0
               find(:post).present(posts) do |post_view, post|
                 post_view.attrs[:class].add(:foo)
@@ -157,7 +157,7 @@ RSpec.describe "modifying set attributes during presentation" do
         end
 
         presenter "/attributes/posts" do
-          perform do
+          def perform
             if posts.count > 0
               find(:post).present(posts) do |post_view, post|
                 post_view.attrs[:class].delete(:one)
@@ -201,7 +201,7 @@ RSpec.describe "modifying set attributes during presentation" do
         end
 
         presenter "/attributes/posts" do
-          perform do
+          def perform
             if posts.count > 0
               find(:post).present(posts) do |post_view, post|
                 post_view.attrs[:class].clear

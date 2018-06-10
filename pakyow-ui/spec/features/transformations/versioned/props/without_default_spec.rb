@@ -13,7 +13,7 @@ RSpec.describe "versioned props with no default" do
 
       Proc.new do
         presenter local_view_path do
-          perform do
+          def perform
             find(:post).present(posts)
           end
         end
@@ -37,7 +37,7 @@ RSpec.describe "versioned props with no default" do
 
       Proc.new do
         presenter local_view_path do
-          perform do
+          def perform
             find(:post, :title).use(:red)
           end
         end
@@ -61,7 +61,7 @@ RSpec.describe "versioned props with no default" do
 
       Proc.new do
         presenter local_view_path do
-          perform do
+          def perform
             find(:post, :title).use(:red).attrs[:style][:background] = "blue"
           end
         end
@@ -85,7 +85,7 @@ RSpec.describe "versioned props with no default" do
 
       Proc.new do
         presenter local_view_path do
-          perform do
+          def perform
             find(:post, :title).use(:red)
             find(:post).present(posts)
           end
@@ -114,7 +114,7 @@ RSpec.describe "versioned props with no default" do
 
       Proc.new do
         presenter local_view_path do
-          perform do
+          def perform
             find(:post).present(posts) do |post_view, post|
               post_view.find(:title).use(post.title.include?("red") ? :red : :blue)
             end
@@ -154,7 +154,7 @@ RSpec.describe "versioned props with no default" do
 
       Proc.new do
         presenter local_view_path do
-          perform do
+          def perform
             find(:post).present(posts) do |post_view, post|
               post_view.find(:title).use(post.title.include?("red") ? :red : :blue)
               post_view.find(:title).attrs[:style] = { background: "gray" }

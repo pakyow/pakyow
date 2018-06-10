@@ -55,7 +55,7 @@ RSpec.describe "forms csrf" do
           end
 
           presenter "/form" do
-            perform do
+            def perform
               form(:post).create({})
             end
           end

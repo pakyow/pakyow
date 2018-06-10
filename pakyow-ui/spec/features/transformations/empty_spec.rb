@@ -31,7 +31,7 @@ RSpec.describe "presenting data into a previously empty view" do
       end
 
       presenter "/simple/posts" do
-        perform do
+        def perform
           find(:post).present(posts)
         end
       end
@@ -78,7 +78,7 @@ RSpec.describe "presenting data into a previously empty view that contains an em
       end
 
       presenter "/empty/posts" do
-        perform do
+        def perform
           find(:post).present(posts)
         end
       end

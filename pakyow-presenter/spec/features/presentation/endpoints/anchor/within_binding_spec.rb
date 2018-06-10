@@ -31,7 +31,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint within a bindi
         end
 
         presenter "/presentation/endpoints/anchor/within_binding" do
-          perform do
+          def perform
             find(:post).present(title: "foo")
           end
         end

@@ -35,7 +35,7 @@ RSpec.describe "deleting an object in a populated view" do
       end
 
       presenter "/simple/posts" do
-        perform do
+        def perform
           find(:post).present(posts)
         end
       end

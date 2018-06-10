@@ -25,7 +25,7 @@ RSpec.describe "modifying string attributes during presentation" do
         end
 
         presenter "/attributes/posts" do
-          perform do
+          def perform
             if posts.count > 0
               find(:post).present(posts) do |post_view, post|
                 post_view.attrs[:title] = "foo"

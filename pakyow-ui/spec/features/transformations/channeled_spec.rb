@@ -42,7 +42,7 @@ RSpec.describe "presenting data in a channeled binding" do
       end
 
       presenter "/channeled/posts" do
-        perform do
+        def perform
           find(:post, channel: :published).present(posts(:published))
           find(:post, channel: :unpublished).present(posts(:unpublished))
         end
@@ -95,7 +95,7 @@ RSpec.describe "presenting data across channeled bindings" do
       end
 
       presenter "/channeled/posts" do
-        perform do
+        def perform
           find(:post).present(posts)
         end
       end

@@ -25,7 +25,7 @@ RSpec.describe "modifying set attributes" do
         end
 
         presenter "/attributes/posts" do
-          perform do
+          def perform
             if posts.count > 0
               find(:post).attrs[:class] = [:foo, :bar]
 
@@ -67,7 +67,7 @@ RSpec.describe "modifying set attributes" do
         end
 
         presenter "/attributes/posts" do
-          perform do
+          def perform
             if posts.count > 0
               find(:post).attrs[:class] << :foo
 
@@ -109,7 +109,7 @@ RSpec.describe "modifying set attributes" do
         end
 
         presenter "/attributes/posts" do
-          perform do
+          def perform
             if posts.count > 0
               find(:post).attrs[:class].add(:foo)
 
@@ -151,7 +151,7 @@ RSpec.describe "modifying set attributes" do
         end
 
         presenter "/attributes/posts" do
-          perform do
+          def perform
             if posts.count > 0
               find(:post).attrs[:class].delete(:one)
 
@@ -193,7 +193,7 @@ RSpec.describe "modifying set attributes" do
         end
 
         presenter "/attributes/posts" do
-          perform do
+          def perform
             if posts.count > 0
               find(:post).attrs[:class].clear
 

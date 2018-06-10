@@ -25,7 +25,7 @@ RSpec.describe "modifying boolean attributes" do
         end
 
         presenter "/attributes/posts" do
-          perform do
+          def perform
             if posts.count > 0
               find(:post).attrs[:selected] = true
 
@@ -67,7 +67,7 @@ RSpec.describe "modifying boolean attributes" do
         end
 
         presenter "/attributes/posts" do
-          perform do
+          def perform
             if posts.count > 0
               find(:post).attrs[:selected] = false
 

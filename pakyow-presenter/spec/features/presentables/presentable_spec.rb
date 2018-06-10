@@ -20,7 +20,7 @@ RSpec.describe "presentable exposures" do
       end
 
       presenter "/" do
-        perform do
+        def perform
           $presentable = current_user
         end
       end
@@ -48,7 +48,7 @@ RSpec.describe "presentable exposures" do
         end
 
         presenter "/" do
-          perform do
+          def perform
             $presentables = {
               default: current_user,
               foo: current_user(:foo),

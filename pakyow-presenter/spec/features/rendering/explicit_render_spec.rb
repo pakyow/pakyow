@@ -101,7 +101,7 @@ RSpec.describe "explicit rendering" do
         end
 
         presenter "/other" do
-          perform do
+          def perform
             self.title = "invoked"
           end
         end
@@ -127,7 +127,7 @@ RSpec.describe "explicit rendering" do
         end
 
         presenter "/something" do
-          perform do
+          def perform
             self.title = "invoked"
           end
         end
@@ -153,7 +153,7 @@ RSpec.describe "explicit rendering" do
         end
 
         presenter "something" do
-          perform do
+          def perform
             self.title = "invoked"
           end
         end

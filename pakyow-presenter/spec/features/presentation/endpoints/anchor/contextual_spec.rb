@@ -33,7 +33,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that needs add
         end
 
         presenter "/presentation/endpoints/anchor/contextual/within_binding" do
-          perform do
+          def perform
             find(:post).bind(id: 3, title: "foo")
           end
         end
@@ -65,7 +65,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that needs add
         end
 
         presenter "/presentation/endpoints/anchor/contextual/binding_prop" do
-          perform do
+          def perform
             find(:post).bind(id: 5, title: "foo")
           end
         end

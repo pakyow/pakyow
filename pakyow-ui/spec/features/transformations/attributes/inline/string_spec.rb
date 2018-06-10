@@ -25,7 +25,7 @@ RSpec.describe "modifying string attributes" do
         end
 
         presenter "/attributes/posts" do
-          perform do
+          def perform
             if posts.count > 0
               find(:post).attrs[:title] = "foo"
 

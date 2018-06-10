@@ -13,7 +13,7 @@ RSpec.describe "versioned scopes with no default" do
 
       Proc.new do
         presenter local_view_path do
-          perform do
+          def perform
             find(:post).present(posts)
           end
         end
@@ -37,7 +37,7 @@ RSpec.describe "versioned scopes with no default" do
 
       Proc.new do
         presenter local_view_path do
-          perform do
+          def perform
             find(:post).use(:unpublished)
           end
         end
@@ -61,7 +61,7 @@ RSpec.describe "versioned scopes with no default" do
 
       Proc.new do
         presenter local_view_path do
-          perform do
+          def perform
             find(:post).use(:unpublished).attrs[:style][:background] = "blue"
           end
         end
@@ -85,7 +85,7 @@ RSpec.describe "versioned scopes with no default" do
 
       Proc.new do
         presenter local_view_path do
-          perform do
+          def perform
             find(:post).use(:unpublished).present(posts)
           end
         end
@@ -109,7 +109,7 @@ RSpec.describe "versioned scopes with no default" do
 
       Proc.new do
         presenter local_view_path do
-          perform do
+          def perform
             find(:post).present(posts) do |post_view, post|
               post_view.use(post.published ? :published : :unpublished)
             end
@@ -145,7 +145,7 @@ RSpec.describe "versioned scopes with no default" do
 
       Proc.new do
         presenter local_view_path do
-          perform do
+          def perform
             find(:post).present(posts) do |post_view, post|
               post_view.use(post.published ? :published : :unpublished)
               post_view.attrs[:style] = { color: "red" }

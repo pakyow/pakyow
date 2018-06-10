@@ -2,6 +2,9 @@
 
 require "pakyow/support/core_refinements/string/normalization"
 
+require "pakyow/support/pipelined"
+require "pakyow/support/pipelined/haltable"
+
 require "pakyow/presenter/presenter"
 
 module Pakyow
@@ -33,37 +36,12 @@ module Pakyow
             ), classname
           )
         end
-
-        def perform(&block)
-          @block = block
-        end
-
-        def block
-          if instance_variable_defined?(:@block)
-            @block
-          else
-            Proc.new do
-              presentables.each do |name, value|
-                name_parts = name.to_s.split(":")
-
-                channel = if name_parts.count > 1
-                  name_parts[1..-1]
-                else
-                  nil
-                end
-
-                [name_parts[0], Support.inflector.singularize(name_parts[0])].each do |name_varient|
-                  found = find(name_varient, channel: channel)
-
-                  unless found.nil?
-                    found.present(value); break
-                  end
-                end
-              end
-            end
-          end
-        end
       end
+
+      include Support::Pipelined
+      include Support::Pipelined::Haltable
+
+      action :perform
 
       attr_reader :layout, :page, :partials
 
@@ -81,12 +59,27 @@ module Pakyow
       end
 
       def to_html(clean_bindings: true, clean_versions: true)
-        perform
-        super
+        call(self); super
       end
 
       def perform
-        instance_exec(&self.class.block)
+        presentables.each do |name, value|
+          name_parts = name.to_s.split(":")
+
+          channel = if name_parts.count > 1
+            name_parts[1..-1]
+          else
+            nil
+          end
+
+          [name_parts[0], Support.inflector.singularize(name_parts[0])].each do |name_varient|
+            found = find(name_varient, channel: channel)
+
+            unless found.nil?
+              found.present(value); break
+            end
+          end
+        end
       end
     end
   end

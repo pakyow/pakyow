@@ -91,7 +91,7 @@ RSpec.describe "sending mail" do
           end
 
           presenter "/mail/with_bindings" do
-            perform do
+            def perform
               find(:user).present(user)
             end
           end
