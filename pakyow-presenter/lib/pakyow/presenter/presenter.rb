@@ -3,6 +3,7 @@
 require "forwardable"
 
 require "pakyow/support/safe_string"
+require "pakyow/support/class_state"
 require "pakyow/support/core_refinements/array/ensurable"
 
 require "pakyow/presenter/exceptions"
@@ -242,9 +243,22 @@ module Pakyow
               yield presenter, binder.object
             end
 
+            unless presenter.view.used? || self.class.__version_logic.empty?
+              presented_view_channel = presenter.view.label(:channel).join(":")
+              version_logic = self.class.__version_logic[presenter.view.binding_name].to_a.find { |logic|
+                logic[:channel].nil? || logic[:channel] == presented_view_channel || logic[:channel].end_with?(":" + presented_view_channel)
+              }
+
+              if version_logic
+                version_logic[:block].call(presenter, binder.object)
+              end
+            end
+
             presenter.bind(binder)
 
-            presenter.view.binding_scopes.each do |binding_node|
+            presenter.view.binding_scopes.uniq { |binding_scope|
+              binding_scope.label(:binding)
+            }.each do |binding_node|
               plural_binding_node_name = Support.inflector.pluralize(binding_node.label(:binding)).to_sym
 
               nested_view = presenter.find(binding_node.label(:binding))
@@ -377,6 +391,24 @@ module Pakyow
       def set_title_from_info
         if @view && title_from_info = @view.info(:title)
           self.title = title_from_info
+        end
+      end
+
+      extend Support::ClassState
+      class_state :__version_logic, default: {}, inheritable: true
+
+      class << self
+        # Defines a versioning block called when +binding_name+ is presented. If
+        # +channel+ is provided, the block will only be called for that channel.
+        #
+        def version(binding_name, channel: nil, &block)
+          if channel
+            channel = Array.ensure(channel).join(":")
+          end
+
+          (@__version_logic[binding_name] ||= []) << {
+            block: block, channel: channel
+          }
         end
       end
     end
