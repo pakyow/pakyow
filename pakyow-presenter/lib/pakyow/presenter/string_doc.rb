@@ -423,8 +423,11 @@ module Pakyow
         channel.concat(binding_parts[1..-1])
         labels[:channel] = channel
 
+        combined_channel = channel.join(":")
+        labels[:combined_channel] = combined_channel
+
         unless channel.empty?
-          attributes[:"data-c"] = channel.join(":")
+          attributes[:"data-c"] = combined_channel
         end
       end
 

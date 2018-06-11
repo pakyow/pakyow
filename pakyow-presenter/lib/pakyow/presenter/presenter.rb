@@ -244,9 +244,8 @@ module Pakyow
             end
 
             unless presenter.view.used? || self.class.__version_logic.empty?
-              presented_view_channel = presenter.view.label(:channel).join(":")
               version_logic = self.class.__version_logic[presenter.view.binding_name].to_a.find { |logic|
-                logic[:channel].nil? || logic[:channel] == presented_view_channel || logic[:channel].end_with?(":" + presented_view_channel)
+                logic[:channel].nil? || presenter.view.label(:combined_channel) == logic[:channel] || presenter.view.label(:combined_channel).end_with?(":" + logic[:channel])
               }
 
               if version_logic

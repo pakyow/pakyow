@@ -96,8 +96,7 @@ module Pakyow
             if channel.nil?
               true
             else
-              node_channel = node.label(:channel).join(":")
-              node_channel == combined_channel || node_channel.end_with?(":" + combined_channel)
+              node.label(:combined_channel) == combined_channel || node.label(:combined_channel).end_with?(":" + combined_channel)
             end
           end
         end
