@@ -43,19 +43,17 @@ module Pakyow
 
       action :perform
 
-      attr_reader :layout, :page, :partials
-
       # @api private
       attr_accessor :presentables
 
-      def initialize(layout: nil, page: nil, partials: [], **args)
-        @layout, @page, @partials = layout, page, partials
+      def initialize(view = nil, layout: nil, page: nil, partials: [], **args)
+        unless view
+          layout.mixin(partials)
+          page.mixin(partials)
+          view = layout.build(page)
+        end
 
-        @layout.mixin(partials)
-        @page.mixin(partials)
-
-        @view = layout.build(page)
-        super(@view, **args)
+        super(view, **args)
       end
 
       def to_html(clean_bindings: true, clean_versions: true)
