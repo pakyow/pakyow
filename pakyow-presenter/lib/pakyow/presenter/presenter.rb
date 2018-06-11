@@ -319,7 +319,7 @@ module Pakyow
       # Returns true if +self+ equals +other+.
       #
       def ==(other)
-        other.is_a?(Presenter) && @view == other.view
+        other.is_a?(self.class) && @view == other.view
       end
 
       # @api private
@@ -333,7 +333,7 @@ module Pakyow
 
       private
 
-      def presenter_for(view, type: Presenter)
+      def presenter_for(view, type: self.class)
         if view.nil?
           nil
         else
