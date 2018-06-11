@@ -354,7 +354,7 @@ module Pakyow
 
       # @api private
       def binding_name
-        label(:binding).to_s.split(":", 2)[0]
+        label(:binding)
       end
 
       # @api private
