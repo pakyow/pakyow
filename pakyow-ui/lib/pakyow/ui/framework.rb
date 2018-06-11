@@ -66,8 +66,6 @@ module Pakyow
           @connection.app.data.expire(@id, SUBSCRIPTION_TIMEOUT)
         end
 
-        app.attr_reader :ui_presenters
-
         # Create subclasses of each presenter, then make the subclasses recordable.
         # These subclasses will be used when performing a ui presentation instead
         # of the original presenter, but they'll behave identically!
@@ -80,6 +78,10 @@ module Pakyow
               subclass.include Behavior::Recording
             end
           }
+        end
+
+        app.class_eval do
+          attr_reader :ui_presenters
         end
 
         if app.const_defined?(:Renderer)
