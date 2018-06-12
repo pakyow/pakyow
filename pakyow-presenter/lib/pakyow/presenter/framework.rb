@@ -71,7 +71,7 @@ module Pakyow
 
         app.class_eval do
           stateful :templates, Templates
-          stateful :presenter, ViewPresenter
+          stateful :presenter, Presenter
           stateful :binder, Binder
           stateful :processor, Processor
 

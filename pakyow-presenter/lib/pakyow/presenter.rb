@@ -29,7 +29,6 @@ require "pakyow/presenter/views/page"
 require "pakyow/presenter/views/partial"
 
 require "pakyow/presenter/presenters/form"
-require "pakyow/presenter/presenters/view"
 
 require "pakyow/presenter/exceptions"
 require "pakyow/presenter/helpers"

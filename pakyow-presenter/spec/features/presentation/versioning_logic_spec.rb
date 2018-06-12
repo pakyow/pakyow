@@ -1,6 +1,6 @@
 RSpec.describe "versioning via defined logic" do
   let :presenter_class do
-    Class.new(Pakyow::Presenter::ViewPresenter)
+    Class.new(Pakyow::Presenter::Presenter)
   end
 
   let :presenter do

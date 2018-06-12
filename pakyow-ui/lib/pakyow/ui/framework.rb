@@ -71,7 +71,7 @@ module Pakyow
         # of the original presenter, but they'll behave identically!
         #
         app.after :initialize do
-          @ui_presenters = [Pakyow::Presenter::ViewPresenter].concat(
+          @ui_presenters = [Pakyow::Presenter::Presenter].concat(
             state_for(:presenter)
           ).map { |presenter_class|
             Class.new(presenter_class).tap do |subclass|
@@ -114,7 +114,7 @@ module Pakyow
                 mode: args[:mode]
               )
 
-              renderer.presenter.perform
+              renderer.presenter.call(renderer.presenter)
 
               message = { id: args[:transformation_id], calls: renderer.presenter }
               @app.websocket_server.subscription_broadcast(Realtime::Channel.new(:transformation, subscription[:id]), message)

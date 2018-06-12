@@ -2,9 +2,13 @@
 
 require "forwardable"
 
-require "pakyow/support/safe_string"
-require "pakyow/support/class_state"
 require "pakyow/support/core_refinements/array/ensurable"
+require "pakyow/support/core_refinements/string/normalization"
+
+require "pakyow/support/class_state"
+require "pakyow/support/safe_string"
+require "pakyow/support/pipelined"
+require "pakyow/support/pipelined/haltable"
 
 require "pakyow/presenter/exceptions"
 require "pakyow/presenter/renderer"
@@ -33,6 +37,11 @@ module Pakyow
       include Behavior::Prototype
       include Behavior::Templates
       include Behavior::Modes
+
+      include Support::Pipelined
+      include Support::Pipelined::Haltable
+
+      action :perform
 
       # The view object being presented.
       #
@@ -79,10 +88,6 @@ module Pakyow
       #   Delegates to {view}.
       #   @see View#form?
       #
-      # @!method to_html
-      #   Delegates to {view}.
-      #   @see View#to_html
-      #
       # @!method to_s
       #   Delegates to {view}.
       #   @see View#to_s
@@ -94,12 +99,11 @@ module Pakyow
       # @!method info
       #   Delegates to {view}.
       #   @see View#info
-      def_delegators :@view, :attributes, :attrs, :html=, :html, :text, :binding?, :container?, :partial?, :component?, :form?, :version, :info, :to_html, :to_s
-
-      def initialize(view, binders: [])
-        @view, @binders = view, binders
+      def_delegators :@view, :attributes, :attrs, :html=, :html, :text, :binding?, :container?, :partial?, :component?, :form?, :version, :info
 
         set_title_from_info
+      def initialize(view, binders: [], presentables: {})
+        @view, @binders, @presentables = view, binders, presentables
       end
 
       # Returns a presenter for a view binding.
@@ -344,7 +348,32 @@ module Pakyow
         end
       end
 
+      def to_html(clean_bindings: true, clean_versions: true)
+        call(self); @view.to_html(clean_bindings: clean_bindings, clean_versions: clean_versions)
+      end
+      alias to_s to_html
+
       private
+
+      def perform
+        @presentables.each do |name, value|
+          name_parts = name.to_s.split(":")
+
+          channel = if name_parts.count > 1
+            name_parts[1..-1]
+          else
+            nil
+          end
+
+          [name_parts[0], Support.inflector.singularize(name_parts[0])].each do |name_varient|
+            found = find(name_varient, channel: channel)
+
+            unless found.nil?
+              found.present(value); break
+            end
+          end
+        end
+      end
 
       def presenter_for(view, type: self.class)
         if view.nil?
@@ -396,7 +425,33 @@ module Pakyow
       extend Support::ClassState
       class_state :__version_logic, default: {}, inheritable: true
 
+      extend Support::Makeable
+
       class << self
+        using Support::Refinements::String::Normalization
+
+        attr_reader :path
+
+        def make(path, namespace: nil, **kwargs, &block)
+          path = String.normalize_path(path)
+          super(name_from_path(path, namespace), path: path, **kwargs, &block)
+        end
+
+        def name_from_path(path, namespace)
+          return unless path && namespace
+
+          path_parts = path.split("/").reject(&:empty?).map(&:to_sym)
+
+          # last one is the actual name, everything else is a namespace
+          classname = path_parts.pop
+
+          Support::ClassName.new(
+            Support::ClassNamespace.new(
+              *(namespace.parts + path_parts)
+            ), classname
+          )
+        end
+
         # Defines a versioning block called when +binding_name+ is presented. If
         # +channel+ is provided, the block will only be called for that channel.
         #

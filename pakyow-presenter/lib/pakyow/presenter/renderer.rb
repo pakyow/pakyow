@@ -110,9 +110,13 @@ module Pakyow
           info[:layout] = layout_object.dup
         end
 
-        @presenter = (find_presenter(@as || @path) || ViewPresenter).new(
+        info[:layout].mixin(info[:partials])
+        info[:page].mixin(info[:partials])
+
+        @presenter = (find_presenter(@as || @path) || Presenter).new(
+          info[:layout].build(info[:page]),
           binders: @connection.app.state_for(:binder),
-          **info
+          presentables: @connection.values
         )
 
         @presenter.install_endpoints(
@@ -238,8 +242,6 @@ module Pakyow
             presentables[[method_name].concat(channels).join(":").to_sym]
           end
         end
-
-        @presenter.presentables = presentables
       end
 
       include Routing::Helpers::CSRF
