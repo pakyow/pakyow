@@ -101,7 +101,7 @@ module Pakyow
               endpoint = @connection.app.config.realtime.endpoint
 
               unless endpoint
-                endpoint = if Pakyow.env?(:development) || Pakyow.env?(:prototype)
+                endpoint = if (Pakyow.env?(:development) || Pakyow.env?(:prototype)) && Pakyow.host && Pakyow.port
                   # Connect directly to the app in development, since the proxy
                   # does not support websocket connections.
                   #
