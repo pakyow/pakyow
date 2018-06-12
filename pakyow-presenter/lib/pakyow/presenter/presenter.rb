@@ -41,6 +41,7 @@ module Pakyow
       include Support::Pipelined
       include Support::Pipelined::Haltable
 
+      action :set_title
       action :perform
 
       # The view object being presented.
@@ -101,7 +102,6 @@ module Pakyow
       #   @see View#info
       def_delegators :@view, :attributes, :attrs, :html=, :html, :text, :binding?, :container?, :partial?, :component?, :form?, :version, :info
 
-        set_title_from_info
       def initialize(view, binders: [], presentables: {})
         @view, @binders, @presentables = view, binders, presentables
       end
@@ -355,6 +355,34 @@ module Pakyow
 
       private
 
+      TITLE_VAR_REGEX = /{([^}]*)}/
+
+      def set_title
+        if title = @view.info(:title)
+          working_title = title.dup
+          working_title.scan(TITLE_VAR_REGEX).each do |match|
+            if match[0].include?(".")
+              object, property = match[0].split(".").map(&:to_sym)
+              if presentable = @presentables[object]
+                if defined?(Data::Proxy) && presentable.is_a?(Data::Proxy)
+                  presentable = presentable.one
+                end
+
+                value = presentable[property]
+              end
+            else
+              if presentable = @presentables[match[0].to_sym]
+                value = presentable.to_s
+              end
+            end
+
+            working_title.gsub!("{#{match[0]}}", value || "")
+          end
+
+          self.title = working_title
+        end
+      end
+
       def perform
         @presentables.each do |name, value|
           name_parts = name.to_s.split(":")
@@ -413,12 +441,6 @@ module Pakyow
           data
         else
           wrap_data_in_binder(data)
-        end
-      end
-
-      def set_title_from_info
-        if @view && title_from_info = @view.info(:title)
-          self.title = title_from_info
         end
       end
 

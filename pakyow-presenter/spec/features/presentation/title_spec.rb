@@ -1,6 +1,14 @@
 RSpec.describe "view titles via presenter" do
   let :presenter do
-    Pakyow::Presenter::Presenter.new(view)
+    Pakyow::Presenter::Presenter.new(view, presentables: presentables)
+  end
+
+  let :presentables do
+    {}
+  end
+
+  before do
+    presenter.call(presenter)
   end
 
   context "title contained in front matter" do
@@ -10,6 +18,45 @@ RSpec.describe "view titles via presenter" do
 
     it "sets the value" do
       expect(presenter.title).to eq("hi")
+    end
+
+    context "title contains dynamic values" do
+      let :view do
+        Pakyow::Presenter::View.new("<head><title></title></head>", info: { "title" => "My Site | {greeting} {user.name}" })
+      end
+
+      context "presentables exist" do
+        let :presentables do
+          {
+            greeting: "hi",
+            user: {
+              name: "bob"
+            }
+          }
+        end
+
+        it "sets the value" do
+          expect(presenter.title).to eq("My Site | hi bob")
+        end
+      end
+
+      context "some presentables exist" do
+        let :presentables do
+          {
+            greeting: "hi",
+          }
+        end
+
+        it "sets a partial value" do
+          expect(presenter.title).to eq("My Site | hi ")
+        end
+      end
+
+      context "no presentables exist" do
+        it "sets a partial value" do
+          expect(presenter.title).to eq("My Site |  ")
+        end
+      end
     end
   end
 
