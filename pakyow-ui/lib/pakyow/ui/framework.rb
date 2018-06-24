@@ -159,7 +159,6 @@ module Pakyow
               layout: @layout,
               mode: @mode,
               transformation_id: @transformation_id,
-              socket_client_id: socket_client_id,
               presentables: presentables.map { |presentable_name, presentable|
                 { name: presentable_name, proxy: presentable.to_h }
               },
