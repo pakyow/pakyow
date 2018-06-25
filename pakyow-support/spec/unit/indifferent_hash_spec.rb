@@ -184,10 +184,10 @@ module Pakyow::Support
         end
       end
 
-      it "should return the same indiffernt hash for to_hash/to_h" do
+      it "should return the same indifferent hash for to_hash/to_h" do
         internal = indifferent.internal_hash
-        expect(indifferent.to_hash.object_id).to eq(internal.object_id)
-        expect(indifferent.to_h.object_id).to eq(internal.object_id)
+        expect(indifferent.to_hash).to eq(internal)
+        expect(indifferent.to_h).to eq(internal)
       end
 
       it "should be equal to a hash" do
@@ -252,6 +252,34 @@ module Pakyow::Support
         expect(hash[1]).to eq('Changed one')
         expect(hash[Class]).to eq('Changed Class')
         expect(hash[simple_object]).to eq('Changed object')
+      end
+    end
+
+    describe "#to_h" do
+      let :hash do
+        { foo: "bar" }
+      end
+
+      it "converts the indifferent hash back to a hash" do
+        expect(IndifferentHash.deep(hash).to_h).to eq(hash)
+      end
+
+      context "indifferent hash is deeply nested" do
+        let :hash do
+          {
+            foo: {
+              bar: "baz"
+            }
+          }
+        end
+
+        it "converts the deeply nested indifferent hash back to a hash" do
+          expect(IndifferentHash.deep(hash).to_h).to be_instance_of(Hash)
+          expect(IndifferentHash.deep(hash).to_h).to eq(hash)
+
+          expect(IndifferentHash.deep(hash).to_h[:foo]).to be_instance_of(Hash)
+          expect(IndifferentHash.deep(hash).to_h[:foo]).to eq(hash[:foo])
+        end
       end
     end
   end

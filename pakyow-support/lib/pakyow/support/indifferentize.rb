@@ -102,7 +102,15 @@ module Pakyow
       end
 
       def to_h
-        internal_hash
+        Hash[internal_hash.map { |key, value|
+          value = if value.is_a?(IndifferentHash)
+            value.to_h
+          else
+            value
+          end
+
+          [key, value]
+        }]
       end
       alias to_hash to_h
 
