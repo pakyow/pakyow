@@ -34,7 +34,7 @@ module Pakyow
       def did_mutate(source_name, changed_values, result_source)
         @adapter.subscriptions_for_source(source_name).select { |subscription|
           qualified?(
-            subscription.delete(:qualifications),
+            subscription.delete(:qualifications).to_a,
             changed_values,
             result_source.to_a,
             result_source.original_results || []
