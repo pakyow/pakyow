@@ -41,7 +41,7 @@ module Pakyow
 
       def silence?(env)
         self.class.silencers.any? { |silencer|
-          silencer.call(env[Rack::PATH_INFO])
+          silencer.call(env[Rack::PATH_INFO], env)
         }
       end
     end
