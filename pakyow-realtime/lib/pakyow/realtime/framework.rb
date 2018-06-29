@@ -39,20 +39,6 @@ module Pakyow
 
     class Framework < Pakyow::Framework(:realtime)
       def boot
-        Pakyow.module_eval do
-          settings_for :realtime do
-            setting :server, true
-
-            setting :adapter, :memory
-            setting :adapter_options, {}
-
-            defaults :production do
-              setting :adapter, :redis
-              setting :adapter_options, redis_url: ENV["REDIS_URL"] || "redis://127.0.0.1:6379", redis_prefix: "pw"
-            end
-          end
-        end
-
         app.class_eval do
           action WebSocketUpgrader
 
@@ -114,6 +100,20 @@ module Pakyow
               head.append("<meta name=\"pw-endpoint\" content=\"#{endpoint}\">\n")
             end
           end
+        end
+      end
+    end
+
+    Pakyow.module_eval do
+      settings_for :realtime do
+        setting :server, true
+
+        setting :adapter, :memory
+        setting :adapter_options, {}
+
+        defaults :production do
+          setting :adapter, :redis
+          setting :adapter_options, redis_url: ENV["REDIS_URL"] || "redis://127.0.0.1:6379", redis_prefix: "pw"
         end
       end
     end
