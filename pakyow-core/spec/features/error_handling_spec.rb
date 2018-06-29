@@ -412,6 +412,7 @@ RSpec.describe "error handling" do
           controller do
             on :error do
               $error_hook_called = true
+              $error_hook_error = connection.error
             end
 
             default do
@@ -423,6 +424,7 @@ RSpec.describe "error handling" do
 
       after do
         $error_hook_called = nil
+        $error_hook_error = nil
       end
 
       it "handles the error" do
@@ -431,6 +433,10 @@ RSpec.describe "error handling" do
 
       it "sets the response code" do
         expect(call[0]).to eq(500)
+      end
+
+      it "has access to the error" do
+        call; expect($error_hook_error).to be_instance_of(RuntimeError)
       end
     end
   end

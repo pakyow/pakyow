@@ -40,8 +40,9 @@ module Pakyow
         end
 
         def handle_error(error)
+          connection.error = error
+
           performing :error do
-            connection.error = error
             connection.status = 500
 
             if code_and_handler = exception_for_class(error.class)
