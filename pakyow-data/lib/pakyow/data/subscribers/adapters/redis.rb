@@ -187,6 +187,7 @@ module Pakyow
                 end
               rescue TypeError
                 Pakyow.logger.error "could not find subscription for #{subscription_id}"
+                {}
               end
             }
           end
