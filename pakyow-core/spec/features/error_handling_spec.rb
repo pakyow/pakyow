@@ -405,6 +405,34 @@ RSpec.describe "error handling" do
         expect(call[0]).to eq(500)
       end
     end
+
+    context "and a hook is defined" do
+      let :app_definition do
+        Proc.new {
+          controller do
+            on :error do
+              $error_hook_called = true
+            end
+
+            default do
+              fail
+            end
+          end
+        }
+      end
+
+      after do
+        $error_hook_called = nil
+      end
+
+      it "handles the error" do
+        call; expect($error_hook_called).to be(true)
+      end
+
+      it "sets the response code" do
+        expect(call[0]).to eq(500)
+      end
+    end
   end
 
   describe "the handling context" do

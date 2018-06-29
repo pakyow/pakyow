@@ -14,6 +14,8 @@ module Pakyow
           class_state :handlers, default: {}, inheritable: true
           class_state :exceptions, default: {}, inheritable: true
 
+          known_events :error
+
           include API
           extend API
         end
@@ -38,18 +40,20 @@ module Pakyow
         end
 
         def handle_error(error)
-          connection.error = error
-          connection.status = 500
+          performing :error do
+            connection.error = error
+            connection.status = 500
 
-          if code_and_handler = exception_for_class(error.class)
-            code, handler = code_and_handler
-            connection.status = code
+            if code_and_handler = exception_for_class(error.class)
+              code, handler = code_and_handler
+              connection.status = code
 
-            if handler
+              if handler
+                instance_exec(&handler)
+              end
+            elsif handler = handler_for_code(500)
               instance_exec(&handler)
             end
-          elsif handler = handler_for_code(500)
-            instance_exec(&handler)
           end
 
           halt
