@@ -160,13 +160,22 @@ module Pakyow
 
           class Subscriber
             def initialize(redis, channel, &callback)
+              @redis, @channel, @callback = redis, channel, callback
+
               Thread.new do
-                redis.subscribe(channel) do |on|
-                  on.message do |_, payload|
-                    callback.call(payload)
-                  end
+                subscribe
+              end
+            end
+
+            def subscribe
+              @redis.subscribe(@channel) do |on|
+                on.message do |_, payload|
+                  @callback.call(payload)
                 end
               end
+            rescue ::Redis::CannotConnectError
+              sleep 0.25
+              subscribe
             end
           end
         end
