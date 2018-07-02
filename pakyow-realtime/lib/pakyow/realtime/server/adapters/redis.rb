@@ -33,7 +33,7 @@ module Pakyow
             end
 
             Concurrent::TimerTask.new(execution_interval: 300, timeout_interval: 300) {
-              Pakyow.logger.info "[Pakyow::Realtime::Server::Adapter::Redis] Cleaning up channel keys"
+              Pakyow.logger.verbose "[Pakyow::Realtime::Server::Adapter::Redis] Cleaning up channel keys"
 
               removed_count = 0
               @redis.scan_each(match: key_socket_ids_by_channel("*")) do |key|
@@ -47,7 +47,7 @@ module Pakyow
                 end
               end
 
-              Pakyow.logger.info "[Pakyow::Realtime::Server::Adapter::Redis] Removed #{removed_count} keys"
+              Pakyow.logger.verbose "[Pakyow::Realtime::Server::Adapter::Redis] Removed #{removed_count} keys"
             }.execute
 
             Concurrent::TimerTask.new(execution_interval: 30) {
