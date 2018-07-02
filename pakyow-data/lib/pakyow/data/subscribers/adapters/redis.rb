@@ -32,7 +32,7 @@ module Pakyow
             @redis = ::Redis.new(url: config[:redis])
             @prefix = [config[:redis_prefix], KEY_PREFIX].join(KEY_PART_SEPARATOR)
 
-            Concurrent::TimerTask.new(execution_interval: 10, timeout_interval: 10) {
+            Concurrent::TimerTask.new(execution_interval: 300, timeout_interval: 300) {
               @redis.scan_each(match: key_subscription_ids_by_source("*")) do |key|
                 Pakyow.logger.info "[Pakyow::Data::Subscribers::Adapter::Redis] Cleaning up expired subscriptions for #{key}"
                 removed_count = @redis.zremrangebyscore(key, 0, Time.now.to_i)
