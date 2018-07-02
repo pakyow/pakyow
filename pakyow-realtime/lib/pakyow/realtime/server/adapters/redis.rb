@@ -2,6 +2,7 @@
 
 require "redis"
 require "concurrent/array"
+require "concurrent/timer_task"
 
 module Pakyow
   module Realtime
@@ -29,6 +30,24 @@ module Pakyow
               channel, message = Marshal.restore(payload).values_at(:channel, :message)
               @server.transmit_message_to_connection_ids(message, socket_ids_for_channel(channel), raw: true)
             end
+
+            Concurrent::TimerTask.new(execution_interval: 300, timeout_interval: 300) {
+              Pakyow.logger.info "[Pakyow::Realtime::Server::Adapter] Cleaning up channel keys"
+
+              removed_count = 0
+              @redis.scan_each(match: key_socket_ids_by_channel("*")) do |key|
+                socket_ids = @redis.zrangebyscore(
+                  key, Time.now.to_i, INFINITY
+                )
+
+                if socket_ids.empty?
+                  removed_count += 1
+                  @redis.del(key)
+                end
+              end
+
+              Pakyow.logger.info "[Pakyow::Realtime::Server::Adapter] Removed #{removed_count} keys"
+            }.execute
           end
 
           def socket_subscribe(socket_id, channel)
