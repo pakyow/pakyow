@@ -5,5 +5,9 @@ RSpec.describe "using data subscriptions with the redis adapter" do
     :redis
   end
 
+  after do
+    Redis.new.flushdb
+  end
+
   include_examples "data subscriptions"
 end
