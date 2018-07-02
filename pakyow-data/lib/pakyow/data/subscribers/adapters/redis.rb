@@ -112,9 +112,9 @@ module Pakyow
                   @redis.multi do |transaction|
                     transaction.zadd(key_subscription_ids_by_source(source), last_time_expire, subscription_id)
 
-                    transaction.expireat(key_source_for_subscription_id(subscription_id), last_time_expire)
-                    transaction.expireat(key_subscribers_by_subscription_id(subscription_id), last_time_expire)
-                    transaction.expireat(key_subscription_id(subscription_id), last_time_expire)
+                    transaction.expireat(key_source_for_subscription_id(subscription_id), last_time_expire + 1)
+                    transaction.expireat(key_subscribers_by_subscription_id(subscription_id), last_time_expire + 1)
+                    transaction.expireat(key_subscription_id(subscription_id), last_time_expire + 1)
                   end
                 end
               end
