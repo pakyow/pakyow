@@ -200,6 +200,14 @@ module Pakyow
                 end
               end
             rescue ::Redis::CannotConnectError
+              Pakyow.logger.error "[Pakyow::Realtime::Server::Adapter] Subscriber disconnected"
+              resubscribe
+            rescue => error
+              Pakyow.logger.error "[Pakyow::Realtime::Server::Adapter] Subscriber crashed: #{error}"
+              resubscribe
+            end
+
+            def resubscribe
               sleep 0.25
               subscribe
             end
