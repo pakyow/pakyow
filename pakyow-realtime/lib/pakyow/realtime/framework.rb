@@ -64,7 +64,7 @@ module Pakyow
           unfreezable :websocket_server
           attr_reader :websocket_server
 
-          after :configure do
+          after :boot do
             @websocket_server = Server.new(
               Pakyow.config.realtime.adapter,
               Pakyow.config.realtime.adapter_options.merge(config.realtime.adapter_options)
