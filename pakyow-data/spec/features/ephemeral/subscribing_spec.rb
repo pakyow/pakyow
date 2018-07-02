@@ -39,6 +39,10 @@ RSpec.describe "creating an ephemeral data source" do
     Pakyow.apps.first.data.subscribers
   end
 
+  before do
+    allow(Thread).to receive(:new).and_yield
+  end
+
   after do
     subscribers.unsubscribe(:errors_subscriber)
   end

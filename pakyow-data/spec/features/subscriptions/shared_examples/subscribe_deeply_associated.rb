@@ -58,6 +58,8 @@ RSpec.shared_examples :subscription_subscribe_deeply_associated do
     end
 
     before do
+      allow(Thread).to receive(:new).and_yield
+
       @post = Pakyow.apps.first.data.posts.create(title: "post").one
       @comment = Pakyow.apps.first.data.comments.create(post: @post, title: "post").one
       Pakyow.apps.first.data.tags.create(comment: @comment, title: "foo")

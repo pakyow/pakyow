@@ -74,6 +74,10 @@ RSpec.shared_examples :subscription_subscribe_conditional do
       end
     end
 
+    before do
+      allow(Thread).to receive(:new).and_yield
+    end
+
     after do
       unsubscribe!
     end

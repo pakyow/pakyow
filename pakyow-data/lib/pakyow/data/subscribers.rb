@@ -32,15 +32,21 @@ module Pakyow
       end
 
       def did_mutate(source_name, changed_values, result_source)
-        @adapter.subscriptions_for_source(source_name).select { |subscription|
-          subscription[:handler] && qualified?(
-            subscription.delete(:qualifications).to_a,
-            changed_values,
-            result_source.to_a,
-            result_source.original_results || []
-          )
-        }.uniq.each do |subscription|
-          process(subscription)
+        Thread.new do
+          begin
+            @adapter.subscriptions_for_source(source_name).select { |subscription|
+              subscription[:handler] && qualified?(
+                subscription.delete(:qualifications).to_a,
+                changed_values,
+                result_source.to_a,
+                result_source.original_results || []
+              )
+            }.uniq.each do |subscription|
+              process(subscription)
+            end
+          rescue => error
+            Pakyow.logger.error "[Pakyow::Data::Subscribers] did_mutate failed: #{error}"
+          end
         end
       end
 

@@ -80,6 +80,8 @@ RSpec.shared_examples :subscription_subscribe_associated do
     end
 
     before do
+      allow(Thread).to receive(:new).and_yield
+
       @post = Pakyow.apps.first.data.posts.create(title: "post").one
     end
 
@@ -291,6 +293,8 @@ RSpec.shared_examples :subscription_subscribe_associated do
     end
 
     before do
+      allow(Thread).to receive(:new).and_yield
+
       @user = Pakyow.apps.first.data.users.create(name: "user1").one
       @post = Pakyow.apps.first.data.posts.create(title: "post", user: @user).one
     end

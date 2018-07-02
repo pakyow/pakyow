@@ -20,7 +20,18 @@ RSpec.configure do |config|
 
   config.before do |example|
     Pakyow.config.data.connections.sql[:default] = "sqlite::memory"
+
+    allow_any_instance_of(Pakyow::Realtime::Server).to receive(:start_heartbeat)
+
+    if $booted
+      allow(Thread).to receive(:new).and_yield
+    end
   end
+end
+
+$booted = false
+Pakyow::App.after :boot do
+  $booted = true
 end
 
 require_relative "../../spec/context/testable_app_context"
