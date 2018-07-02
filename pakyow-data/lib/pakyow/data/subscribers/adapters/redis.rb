@@ -86,11 +86,11 @@ module Pakyow
 
             # expire the subscriber
             @redis.multi do |transaction|
-              transaction.expireat(key_subscription_ids_by_subscriber(subscriber), time_expire)
-
               expire_subscriber_on_these_keys.each do |key|
-                transaction.zadd(key, time_expire - 1, subscriber)
+                transaction.zadd(key, time_expire, subscriber)
               end
+
+              transaction.expireat(key_subscription_ids_by_subscriber(subscriber), time_expire + 1)
             end
 
             # at this point the subscriber has been expired, but we haven't dealt with the subscription
@@ -129,11 +129,11 @@ module Pakyow
             }
 
             @redis.multi do |transaction|
-              transaction.persist(key_subscription_ids_by_subscriber(subscriber))
-
               persist_subscriber_on_these_keys.each do |key|
                 transaction.zadd(key, INFINITY, subscriber)
               end
+
+              transaction.persist(key_subscription_ids_by_subscriber(subscriber))
             end
 
             # at this point we've persisted the subscriber, but we haven't dealt with the subscription
