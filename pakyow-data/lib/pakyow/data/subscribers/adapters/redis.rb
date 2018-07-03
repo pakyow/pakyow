@@ -41,30 +41,33 @@ module Pakyow
             }.execute
           end
 
-          def register_subscription(subscription, subscriber: nil)
-            subscription_string = self.class.stringify_subscription(subscription)
-            subscription_id = self.class.generate_subscription_id(subscription_string)
+          def register_subscriptions(subscriptions, subscriber: nil)
+            [].tap do |subscription_ids|
+              @redis.multi do |transaction|
+                subscriptions.each do |subscription|
+                  subscription_string = self.class.stringify_subscription(subscription)
+                  subscription_id = self.class.generate_subscription_id(subscription_string)
+                  source = subscription[:source]
 
-            source = subscription[:source]
+                  # store the subscription
+                  transaction.set(key_subscription_id(subscription_id), subscription_string)
 
-            @redis.multi do |transaction|
-              # store the subscription
-              transaction.set(key_subscription_id(subscription_id), subscription_string)
+                  # add the subscription to the subscriber's set
+                  transaction.zadd(key_subscription_ids_by_subscriber(subscriber), INFINITY, subscription_id)
 
-              # add the subscription to the subscriber's set
-              transaction.zadd(key_subscription_ids_by_subscriber(subscriber), INFINITY, subscription_id)
+                  # add the subscriber to the subscription's set
+                  transaction.zadd(key_subscribers_by_subscription_id(subscription_id), INFINITY, subscriber)
 
-              # add the subscriber to the subscription's set
-              transaction.zadd(key_subscribers_by_subscription_id(subscription_id), INFINITY, subscriber)
+                  # add the subscription to the source's set
+                  transaction.zadd(key_subscription_ids_by_source(source), INFINITY, subscription_id)
 
-              # add the subscription to the source's set
-              transaction.zadd(key_subscription_ids_by_source(source), INFINITY, subscription_id)
+                  # define what source the subscription is for
+                  transaction.set(key_source_for_subscription_id(subscription_id), source)
 
-              # define what source the subscription is for
-              transaction.set(key_source_for_subscription_id(subscription_id), source)
+                  subscription_ids << subscription_id
+                end
+              end
             end
-
-            subscription_id
           end
 
           def subscriptions_for_source(source)

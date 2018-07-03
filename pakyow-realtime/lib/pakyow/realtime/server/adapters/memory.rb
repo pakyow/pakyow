@@ -22,22 +22,26 @@ module Pakyow
             @expirations_for_socket_id = Concurrent::Hash.new
           end
 
-          def socket_subscribe(socket_id, channel)
-            channel = channel.to_sym
-            (@socket_ids_by_channel[channel] ||= Concurrent::Array.new) << socket_id
-            (@channels_by_socket_id[socket_id] ||= Concurrent::Array.new) << channel
+          def socket_subscribe(socket_id, *channels)
+            channels.each do |channel|
+              channel = channel.to_s.to_sym
+              (@socket_ids_by_channel[channel] ||= Concurrent::Array.new) << socket_id
+              (@channels_by_socket_id[socket_id] ||= Concurrent::Array.new) << channel
+            end
           end
 
-          def socket_unsubscribe(channel)
-            channel = Regexp.new(channel.to_s)
+          def socket_unsubscribe(*channels)
+            channels.each do |channel|
+              channel = Regexp.new(channel.to_s)
 
-            @socket_ids_by_channel.select { |key|
-              key.to_s.match?(channel)
-            }.each do |key, socket_ids|
-              @socket_ids_by_channel.delete(key)
+              @socket_ids_by_channel.select { |key|
+                key.to_s.match?(channel)
+              }.each do |key, socket_ids|
+                @socket_ids_by_channel.delete(key)
 
-              socket_ids.each do |socket_id|
-                @channels_by_socket_id[socket_id]&.delete(key)
+                socket_ids.each do |socket_id|
+                  @channels_by_socket_id[socket_id]&.delete(key)
+                end
               end
             end
           end

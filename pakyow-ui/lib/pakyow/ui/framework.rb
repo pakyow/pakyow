@@ -172,14 +172,16 @@ module Pakyow
             # Find every subscribable presentable, creating a data subscription for each.
             #
             presentables.values.select(&:subscribable?).each do |subscribable|
-              subscribable.subscribe(socket_client_id, handler: handler, payload: metadata).each do |subscription_id|
-                @connection.app.data.expire(socket_client_id, SUBSCRIPTION_TIMEOUT)
+              subscription_ids = subscribable.subscribe(socket_client_id, handler: handler, payload: metadata)
 
-                # Create the socket subscription on the "transformation" channel.
-                #
-                subscribe(:transformation, subscription_id)
-              end
+              # Subscribe the subscriptions to the "transformation" channel.
+              #
+              subscribe(:transformation, *subscription_ids)
             end
+
+            # Set the subscriptions we just created to expire if the connection is never established.
+            #
+            @connection.app.data.expire(socket_client_id, SUBSCRIPTION_TIMEOUT)
           end
         end
       end

@@ -78,15 +78,15 @@ module Pakyow
         end
       end
 
-      def socket_subscribe(id_or_socket, channel)
+      def socket_subscribe(id_or_socket, *channels)
         find_socket_id(id_or_socket) do |socket_id|
-          @adapter.socket_subscribe(socket_id, channel.to_s)
+          @adapter.socket_subscribe(socket_id, *channels)
           @adapter.expire(socket_id, SUBSCRIPTION_TIMEOUT)
         end
       end
 
-      def socket_unsubscribe(channel)
-        @adapter.socket_unsubscribe(channel.to_s)
+      def socket_unsubscribe(*channels)
+        @adapter.socket_unsubscribe(*channels)
       end
 
       def subscription_broadcast(channel, message)

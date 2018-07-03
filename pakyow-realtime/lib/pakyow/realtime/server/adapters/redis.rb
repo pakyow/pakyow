@@ -55,27 +55,34 @@ module Pakyow
             }.execute
           end
 
-          def socket_subscribe(socket_id, channel)
+          def socket_subscribe(socket_id, *channels)
             @redis.multi do |transaction|
-              transaction.zadd(key_socket_ids_by_channel(channel), INFINITY, socket_id)
-              transaction.zadd(key_channels_by_socket_id(socket_id), INFINITY, channel)
+              channels.each do |channel|
+                channel = channel.to_s
+                transaction.zadd(key_socket_ids_by_channel(channel), INFINITY, socket_id)
+                transaction.zadd(key_channels_by_socket_id(socket_id), INFINITY, channel)
+              end
             end
           end
 
-          def socket_unsubscribe(channel)
-            # Channel could contain a wildcard, so this takes some work...
-            @redis.scan_each(match: key_socket_ids_by_channel(channel)) do |key|
-              channel = key.split("channel:", 2)[1]
+          def socket_unsubscribe(*channels)
+            channels.each do |channel|
+              channel = channel.to_s
 
-              socket_ids = @redis.zrangebyscore(
-                key, Time.now.to_i, INFINITY
-              )
+              # Channel could contain a wildcard, so this takes some work...
+              @redis.scan_each(match: key_socket_ids_by_channel(channel)) do |key|
+                channel = key.split("channel:", 2)[1]
 
-              @redis.multi do |transaction|
-                transaction.del(key)
+                socket_ids = @redis.zrangebyscore(
+                  key, Time.now.to_i, INFINITY
+                )
 
-                socket_ids.each do |socket_id|
-                  transaction.zrem(key_channels_by_socket_id(socket_id), channel)
+                @redis.multi do |transaction|
+                  transaction.del(key)
+
+                  socket_ids.each do |socket_id|
+                    transaction.zrem(key_channels_by_socket_id(socket_id), channel)
+                  end
                 end
               end
             end

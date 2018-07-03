@@ -125,12 +125,28 @@ module Pakyow
         @connection.app.websocket_server.subscription_broadcast(socket_client_id, message)
       end
 
-      def subscribe(channel, qualifier = nil)
-        @connection.app.websocket_server.socket_subscribe(socket_client_id, Channel.new(channel, qualifier))
+      def subscribe(channel, *qualifiers)
+        channels = if qualifiers.empty?
+          Channel.new(channel)
+        else
+          qualifiers.map { |qualifier|
+            Channel.new(channel, qualifier)
+          }
+        end
+
+        @connection.app.websocket_server.socket_subscribe(socket_client_id, *channels)
       end
 
-      def unsubscribe(channel, qualifier = "*")
-        @connection.app.websocket_server.socket_unsubscribe(Channel.new(channel, qualifier))
+      def unsubscribe(channel, *qualifiers)
+        channels = if qualifiers.empty?
+          Channel.new(channel, "*")
+        else
+          qualifiers.map { |qualifier|
+            Channel.new(channel, qualifier)
+          }
+        end
+
+        @connection.app.websocket_server.socket_unsubscribe(*channels)
       end
 
       def socket_server_id

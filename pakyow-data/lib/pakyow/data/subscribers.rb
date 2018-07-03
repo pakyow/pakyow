@@ -26,9 +26,9 @@ module Pakyow
       #   proxy => source
       #   payload
       # }
-      def register_subscription(subscription, subscriber: nil)
+      def register_subscriptions(subscriptions, subscriber: nil)
         @adapter.persist(subscriber) if @adapter.expiring?(subscriber)
-        @adapter.register_subscription(subscription, subscriber: subscriber)
+        @adapter.register_subscriptions(subscriptions, subscriber: subscriber)
       end
 
       def did_mutate(source_name, changed_values, result_source)

@@ -87,10 +87,10 @@ module Pakyow
       end
 
       def subscribe(subscriber, handler:, payload: nil)
-        subscription_ids = []
+        subscriptions = []
 
         if subscribable?
-          subscription = {
+          subscriptions << {
             source: @source.source_name,
             handler: handler,
             payload: payload,
@@ -98,12 +98,9 @@ module Pakyow
             proxy: to_h
           }
 
-          subscription_ids << @subscribers.register_subscription(subscription, subscriber: subscriber)
-
           @nested_proxies.each do |related_proxy|
-            subscription_ids.concat(
+            subscriptions.concat(
               related_proxy.subscribe_related(
-                subscriber,
                 parent_source: @source,
                 serialized_proxy: to_h,
                 handler: handler,
@@ -113,15 +110,15 @@ module Pakyow
           end
         end
 
-        subscription_ids
+        @subscribers.register_subscriptions(subscriptions, subscriber: subscriber)
       end
 
-      def subscribe_related(subscriber, parent_source:, serialized_proxy:, handler:, payload: nil)
-        subscription_ids = []
+      def subscribe_related(parent_source:, serialized_proxy:, handler:, payload: nil)
+        subscriptions = []
 
         if association = parent_source.class.find_association_to_source(@source)
           parent_source.each do |parent_result|
-            subscription = {
+            subscriptions << {
               source: @source.source_name,
               handler: handler,
               payload: payload,
@@ -130,17 +127,14 @@ module Pakyow
               ),
               proxy: serialized_proxy
             }
-
-            subscription_ids << @subscribers.register_subscription(subscription, subscriber: subscriber)
           end
         else
           Pakyow.logger.error "tried to subscribe a related source, but we don't know how it's related"
         end
 
         @nested_proxies.each do |related_proxy|
-          subscription_ids.concat(
+          subscriptions.concat(
             related_proxy.subscribe_related(
-              subscriber,
               parent_source: @source,
               serialized_proxy: serialized_proxy,
               handler: handler,
@@ -149,7 +143,7 @@ module Pakyow
           )
         end
 
-        subscription_ids
+        subscriptions
       end
 
       def subscribable(boolean)
