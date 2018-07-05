@@ -23,5 +23,5 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "concurrent-ruby", "~> 1.0"
   spec.add_dependency "dry-types", "~> 0.13"
-  spec.add_dependency "sequel", "~> 5.7"
+  spec.add_dependency "sequel", "~> 5.10"
 end
