@@ -1,63 +1,68 @@
 RSpec.describe "view titles via presenter" do
-  let :presenter do
-    Pakyow::Presenter::Presenter.new(view, presentables: presentables)
-  end
+  include_context "testable app"
 
-  let :presentables do
-    {}
-  end
+  let :app_definition do
+    Proc.new {
+      instance_exec(&$presenter_app_boilerplate)
 
-  before do
-    presenter.call(presenter)
+      controller do
+        get "/titles/dynamic" do
+          expose :greeting, "hi"
+          expose :user, { name: "bob" }
+        end
+
+        get "/titles/dynamic/channel" do
+          expose :greeting, "hi", for: :title
+          expose :user, { name: "bob" }, for: :title
+          render "/titles/dynamic"
+        end
+
+        get "/titles/dynamic/some" do
+          expose :greeting, "hi"
+          render "/titles/dynamic"
+        end
+
+        get "/titles/dynamic/none" do
+          render "/titles/dynamic"
+        end
+      end
+    }
   end
 
   context "title contained in front matter" do
-    let :view do
-      Pakyow::Presenter::View.new("<head><title></title></head>", info: { "title" => "hi" })
-    end
-
     it "sets the value" do
-      expect(presenter.title).to eq("hi")
+      expect(call("/titles")[2].body.read).to include("<title>hi</title>")
     end
 
     context "title contains dynamic values" do
-      let :view do
-        Pakyow::Presenter::View.new("<head><title></title></head>", info: { "title" => "My Site | {greeting} {user.name}" })
+      context "presentables exist" do
+        it "sets the value" do
+          expect(call("/titles/dynamic")[2].body.read).to include("<title>My Site | hi bob</title>")
+        end
       end
 
-      context "presentables exist" do
-        let :presentables do
-          {
-            greeting: "hi",
-            user: {
-              name: "bob"
-            }
-          }
-        end
-
+      context "presentables are exposed for the title" do
         it "sets the value" do
-          expect(presenter.title).to eq("My Site | hi bob")
+          expect(call("/titles/dynamic/channel")[2].body.read).to include("<title>My Site | hi bob</title>")
         end
       end
 
       context "some presentables exist" do
-        let :presentables do
-          {
-            greeting: "hi",
-          }
-        end
-
         it "sets a partial value" do
-          expect(presenter.title).to eq("My Site | hi ")
+          expect(call("/titles/dynamic/some")[2].body.read).to include("<title>My Site | hi </title>")
         end
       end
 
       context "no presentables exist" do
         it "sets a partial value" do
-          expect(presenter.title).to eq("My Site |  ")
+          expect(call("/titles/dynamic/none")[2].body.read).to include("<title>My Site |  </title>")
         end
       end
     end
+  end
+
+  let :presenter do
+    Pakyow::Presenter::Presenter.new(view)
   end
 
   describe "setting" do

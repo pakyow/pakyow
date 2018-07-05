@@ -363,23 +363,31 @@ module Pakyow
           working_title.scan(TITLE_VAR_REGEX).each do |match|
             if match[0].include?(".")
               object, property = match[0].split(".").map(&:to_sym)
-              if presentable = @presentables[object]
-                if defined?(Data::Proxy) && presentable.is_a?(Data::Proxy)
-                  presentable = presentable.one
+              if value = get_title_value(object)
+                if defined?(Data::Proxy) && value.is_a?(Data::Proxy)
+                  value = value.one
                 end
 
-                value = presentable[property]
+                value = value[property]
               end
             else
-              if presentable = @presentables[match[0].to_sym]
-                value = presentable.to_s
-              end
+              value = get_title_value(match[0].to_sym)
             end
 
             working_title.gsub!("{#{match[0]}}", value || "")
           end
 
           self.title = working_title
+        end
+      end
+
+      def get_title_value(object)
+        if respond_to?(object)
+          send(object, :title) || send(object)
+        elsif @presentables.key?(object)
+          @presentables[object]
+        else
+          nil
         end
       end
 
