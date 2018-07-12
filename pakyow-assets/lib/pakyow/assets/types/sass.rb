@@ -28,7 +28,8 @@ module Pakyow
             load_paths: [
               File.dirname(local_path),
               config.frontend_assets_path
-            ]
+            ],
+            style: config.minify ? :compressed : :nested
           }
 
           super

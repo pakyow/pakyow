@@ -110,11 +110,8 @@ module Pakyow
 
         if config.minify
           require "uglifier"
-          require "yui/compressor"
 
           @minifier = case @mime_suffix
-          when "css"
-            YUI::CssCompressor.new
           when "javascript"
             Uglifier.new
           else

@@ -9,8 +9,12 @@ RSpec.describe "minifying assets" do
       end
     end
 
-    it "minifies css" do
-      expect(call("/default.css")[2].body.read).to eq("body{background:purple}")
+    it "minifies sass" do
+      expect(call("/types-sass.css")[2].body.read).to eq("body{background:#f33}\n")
+    end
+
+    it "minifies scss" do
+      expect(call("/types-scss.css")[2].body.read).to eq("body{background:#f33}\n")
     end
 
     it "minifies js" do
@@ -26,8 +30,12 @@ RSpec.describe "minifying assets" do
       end
     end
 
-    it "does not minify css" do
-      expect(call("/default.css")[2].body.read).to eq("body {\n  background: purple;\n}\n")
+    it "does not minify sass" do
+      expect(call("/types-sass.css")[2].body.read).to eq("body {\n  background: #ff3333; }\n")
+    end
+
+    it "does not minify scss" do
+      expect(call("/types-scss.css")[2].body.read).to eq("body {\n  background: #ff3333; }\n")
     end
 
     it "does not minify js" do
