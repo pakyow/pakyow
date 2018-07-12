@@ -27,7 +27,7 @@ module Pakyow
             setting :cache, false
             setting :minify, false
             setting :fingerprint, false
-            setting :autoloaded_packs, %i[pakyow application]
+            setting :autoloaded_packs, %i[pakyow]
             setting :prefix, "/assets"
             setting :silent, true
 
