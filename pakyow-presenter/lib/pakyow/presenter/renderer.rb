@@ -116,7 +116,8 @@ module Pakyow
         @presenter = (find_presenter(@as || @path) || Presenter).new(
           info[:layout].build(info[:page]),
           binders: @connection.app.state_for(:binder),
-          presentables: @connection.values
+          presentables: @connection.values,
+          logger: @connection.logger
         )
 
         @presenter.install_endpoints(

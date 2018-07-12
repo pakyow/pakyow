@@ -49,6 +49,10 @@ module Pakyow
       attr_reader :view
       attr_reader :binders
 
+      # The logger object.
+      #
+      attr_reader :logger
+
       # @!method attributes
       #   Delegates to {view}.
       #   @see View#attributes
@@ -102,8 +106,9 @@ module Pakyow
       #   @see View#info
       def_delegators :@view, :attributes, :attrs, :html=, :html, :text, :binding?, :container?, :partial?, :component?, :form?, :version, :info
 
-      def initialize(view, binders: [], presentables: {})
+      def initialize(view, binders: [], presentables: {}, logger: nil)
         @view, @binders, @presentables = view, binders, presentables
+        @logger = logger || Pakyow.logger
       end
 
       # Returns a presenter for a view binding.
