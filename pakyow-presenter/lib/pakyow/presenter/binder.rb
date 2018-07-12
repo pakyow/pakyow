@@ -43,7 +43,7 @@ module Pakyow
 
       # Returns the value for a key (including parts).
       #
-      def value(key)
+      def __value(key)
         if @memoized.include?(key)
           @memoized[key]
         else
@@ -69,8 +69,8 @@ module Pakyow
 
       # Returns only the content value for a key.
       #
-      def content(key, view)
-        return_value = value(key)
+      def __content(key, view)
+        return_value = __value(key)
         if return_value.is_a?(BindingParts)
           if return_value.content?
             return_value.content(view)
@@ -92,7 +92,7 @@ module Pakyow
       # Returns +true+ if the a value is present for +key+.
       #
       def value?(key)
-        !!value(key) || @object.value?(key)
+        !!__value(key) || @object.value?(key)
       end
 
       # Flips a switch, telling the binder that we now only care about content, not other parts.

@@ -214,7 +214,7 @@ module Pakyow
             binding_props.each do |binding|
               if object.include?(binding.label(:binding))
                 value = if object.is_a?(Binder)
-                  object.content(binding.label(:binding), binding)
+                  object.__content(binding.label(:binding), binding)
                 else
                   object[binding.label(:binding)]
                 end

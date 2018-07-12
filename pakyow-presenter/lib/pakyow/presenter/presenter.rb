@@ -427,7 +427,7 @@ module Pakyow
 
       def bind_binder_to_view(binder, view)
         view.binding_props.each do |binding|
-          value = binder.value(binding.label(:binding))
+          value = binder.__value(binding.label(:binding))
           if value.is_a?(BindingParts) && binding_view = view.find(binding.label(:binding))
             value.accept(*binding_view.label(:include).to_s.split(" "))
             value.reject(*binding_view.label(:exclude).to_s.split(" "))
