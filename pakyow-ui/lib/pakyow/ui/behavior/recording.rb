@@ -120,7 +120,8 @@ module Pakyow
             binder = wrap_data_in_binder(object)
             object = binder.object
 
-            # TODO: think through if we still need to do this:
+            # Map object keys to the binding name.
+            #
             keys_and_binding_names = object.to_h.keys.map { |key|
               if key == :id || @bindings.include?(key)
                 binding_name = key
