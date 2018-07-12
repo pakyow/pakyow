@@ -102,6 +102,7 @@ module Pakyow
 
               env = args[:env]
               env["rack.input"] = StringIO.new
+              env[Rack::RACK_LOGGER] = Logger::RequestLogger.new(:"  ui")
 
               connection = Connection.new(@app, env)
               connection.instance_variable_set(:@values, presentables)
