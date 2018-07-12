@@ -146,6 +146,10 @@ module Pakyow
         subscriptions
       end
 
+      def unsubscribe
+        subscribable(false)
+      end
+
       def subscribable(boolean)
         tap do
           @subscribable = boolean

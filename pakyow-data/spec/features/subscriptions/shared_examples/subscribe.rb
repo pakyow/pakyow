@@ -189,4 +189,100 @@ RSpec.shared_examples :subscription_subscribe do
       end
     end
   end
+
+  describe "subscribing to an unsubscribable query" do
+    class TestHandler
+      def initialize(app)
+        @app = app
+      end
+
+      def call(*); end
+    end
+
+    include_context "testable app"
+
+    let :app_definition do
+      Pakyow.config.data.default_adapter = :sql
+      Pakyow.config.data.connections.sql[:default] = "sqlite::memory"
+      Pakyow.config.data.subscriptions.adapter = data_subscription_adapter
+
+      Proc.new do
+        source :posts do
+          primary_id
+
+          attribute :title, :string
+          attribute :body, :string
+
+          subscribe :by_title, title: :__arg0__
+
+          def by_title(title)
+            where(title: title)
+          end
+        end
+
+        source :comments do
+          primary_id
+
+          attribute :title, :string
+
+          def by_title(title)
+            where(title: title)
+          end
+        end
+
+        resources :posts, "/posts" do
+          skip_action :verify_same_origin
+          skip_action :verify_authenticity_token
+
+          create do
+            verify do
+              required :post do
+                required :title
+                optional :body
+              end
+            end
+
+            data.posts.create(params[:post])
+          end
+
+          collection do
+            post "subscribe" do
+              data.posts.subscribable(false).subscribe(:post_subscriber, handler: TestHandler)
+            end
+
+            post "unsubscribe" do
+              data.subscribers.unsubscribe(:post_subscriber)
+            end
+          end
+        end
+      end
+    end
+
+    before do
+      allow(Thread).to receive(:new).and_yield
+    end
+
+    after do
+      unsubscribe!
+    end
+
+    def subscribe!
+      response = call("/posts/subscribe", method: :post)
+      expect(response[0]).to eq(200)
+    end
+
+    def unsubscribe!
+      response = call("/posts/unsubscribe", method: :post)
+      expect(response[0]).to eq(200)
+    end
+
+    context "when an object covered by the query is created" do
+      it "does not call the handler" do
+        subscribe!
+        expect_any_instance_of(TestHandler).not_to receive(:call)
+        response = call("/posts", method: :post, params: { post: { title: "foo" } })
+        expect(response[0]).to eq(200)
+      end
+    end
+  end
 end
