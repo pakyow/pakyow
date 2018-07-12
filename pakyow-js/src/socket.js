@@ -9,6 +9,16 @@ export default class {
     this.reconnectTimeout = this.currentReconnectTimeout = 500;
     this.reconnectDecay = 1.25;
 
+    // Server state associated with a socket is cleaned up after 60 seconds. When
+    // this happens, clients should either ask the user to reload, or reload the
+    // page themselves if it can do so in a non-destructive way. Stale sockets
+    // will broadcast a `pw:socket:connected:stale` message upon reconnecting.
+    //
+    // Note that a socket becomes stale 5 seconds early to account for the fact
+    // that server-side state is created ahead of the socket connecting.
+    //
+    this.socketBecomesStaleIn = 55000;
+
     this.subscriptions = {};
 
     this.connect();
@@ -25,13 +35,22 @@ export default class {
       this.currentReconnectTimeout = this.reconnectTimeout;
       this.connected = true;
 
-      pw.broadcast("pw:socket:connected");
+      if (this.disconnectedAt && (this.timeInMilliseconds() - this.disconnectedAt) > this.socketBecomesStaleIn) {
+        pw.broadcast("pw:socket:connected:stale");
+      } else {
+        pw.broadcast("pw:socket:connected");
+      }
+
+      this.disconnectedAt = null;
     }
 
     this.connection.onclose = () => {
-      pw.broadcast("pw:socket:closed");
+      if (this.connected) {
+        pw.broadcast("pw:socket:closed");
+        this.connected = false;
+        this.disconnectedAt = this.timeInMilliseconds();
+      }
 
-      this.connected = false;
       this.reconnect();
     }
 
@@ -60,5 +79,9 @@ export default class {
     }
 
     this.subscriptions[channel].push(callback);
+  }
+
+  timeInMilliseconds() {
+    return (new Date).getTime();
   }
 }
