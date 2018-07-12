@@ -45,6 +45,12 @@ describe("initializing components in a node", () => {
     expect(pw.Component.instances[2].view.node.dataset.ui).toEqual("baz")
   });
 
+  test("initializes each component with a node", () => {
+    expect(pw.Component.instances[0].node.dataset.ui).toEqual("foo")
+    expect(pw.Component.instances[1].node.dataset.ui).toEqual("bar")
+    expect(pw.Component.instances[2].node.dataset.ui).toEqual("baz")
+  });
+
   test("initializes each component with its config", () => {
     expect(pw.Component.instances[0].config).toEqual({})
     expect(pw.Component.instances[1].config).toEqual({ key1: "val1" })

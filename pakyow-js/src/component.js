@@ -89,6 +89,7 @@ export default class {
   static create() {
     var component = function(view, config = {}) {
       this.view = view;
+      this.node = view.node;
       this.config = config;
       this.channels = [];
     };
