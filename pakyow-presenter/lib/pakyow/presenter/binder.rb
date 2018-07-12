@@ -37,35 +37,43 @@ module Pakyow
       #     end
       #   end
       #
-      def part(name)
-        parts_for(caller_locations(1, 1)[0].label.to_sym).define_part(name, yield)
+      def part(name, &block)
+        parts_for(caller_locations(1, 1)[0].label.to_sym).define_part(name, block)
       end
 
       # Returns the value for a key (including parts).
       #
       def value(key)
-        return @memoized[key] if @memoized.include?(key)
-
-        @memoized[key] = if respond_to?(key)
-          value = __send__(key)
-
-          if parts?(key)
-            parts_for(key)
-          else
-            value
-          end
+        if @memoized.include?(key)
+          @memoized[key]
         else
-          @object[key]
+          @memoized[key] = if respond_to?(key)
+            value = public_send(key)
+
+            if parts?(key)
+              parts_for(key)
+            else
+              value
+            end
+          else
+            @object[key]
+          end
         end
       end
 
-      # Returns only the text value for a key.
+      # Returns the underlying object value for a key.
       #
       def [](key)
+        @object[key]
+      end
+
+      # Returns only the content value for a key.
+      #
+      def content(key, view)
         return_value = value(key)
         if return_value.is_a?(BindingParts)
           if return_value.content?
-            return_value.content
+            return_value.content(view)
           else
             @object[key]
           end

@@ -9,20 +9,32 @@ module Pakyow
         @parts = {}
       end
 
-      def define_part(name, value)
-        @parts[name] = value
+      def define_part(name, block)
+        @parts[name] = block
       end
 
       def content?
         @parts.include?(:content)
       end
 
-      def content
-        @parts[:content]
+      def content(view)
+        @parts[:content].call(view.text)
       end
 
-      def non_content_parts
-        @parts.reject { |name, _| name == :content }
+      def non_content_values(view)
+        Hash[@parts.reject { |name, _|
+          name == :content
+        }.map { |name, block|
+          value = if block.arity == 0
+            block.call
+          else
+            view.attrs[name].tap do |current_value|
+              block.call(current_value)
+            end
+          end
+
+          [name, value]
+        }]
       end
 
       def reject(*parts)

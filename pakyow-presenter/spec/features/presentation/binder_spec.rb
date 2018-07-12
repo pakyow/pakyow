@@ -52,6 +52,48 @@ RSpec.describe "binding data via presenter, with a binder" do
       expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\" style=\"color: red;\">oof</h1><p data-b=\"body\">bar</p></div>")
     end
 
+    context "part modifies the current value of an attribute" do
+      let :view do
+        Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\" style=\"background: blue; color: green\">title goes here</h1><p binding=\"body\">body goes here</p></div>")
+      end
+
+      let :post_binder do
+        Pakyow::Presenter::Binder.make :post do
+          def title
+            part :content do
+              object[:title].to_s.reverse
+            end
+
+            part :style do |style|
+              style[:color] = "red"
+            end
+          end
+        end
+      end
+
+      it "binds the modified value" do
+        post_presenter.present(title: "foo", body: "bar")
+        expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\" style=\"background: blue; color: red;\">oof</h1><p data-b=\"body\">bar</p></div>")
+      end
+    end
+
+    context "part modifies the current value of the content" do
+      let :post_binder do
+        Pakyow::Presenter::Binder.make :post do
+          def title
+            part :content do |content|
+              content + " " + object[:title].to_s.reverse
+            end
+          end
+        end
+      end
+
+      it "binds the modified value" do
+        post_presenter.present(title: "foo", body: "bar")
+        expect(presenter.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">title goes here oof</h1><p data-b=\"body\">bar</p></div>")
+      end
+    end
+
     context "view includes parts" do
       let :post_binder do
         Pakyow::Presenter::Binder.make :post do

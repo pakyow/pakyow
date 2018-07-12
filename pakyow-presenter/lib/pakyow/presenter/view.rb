@@ -213,7 +213,13 @@ module Pakyow
           unless object.nil?
             binding_props.each do |binding|
               if object.include?(binding.label(:binding))
-                bind_value_to_node(object[binding.label(:binding)], binding)
+                value = if object.is_a?(Binder)
+                  object.content(binding.label(:binding), binding)
+                else
+                  object[binding.label(:binding)]
+                end
+
+                bind_value_to_node(value, binding)
                 binding.set_label(:used, true)
               end
             end

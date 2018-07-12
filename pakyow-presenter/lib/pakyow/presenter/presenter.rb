@@ -432,7 +432,7 @@ module Pakyow
             value.accept(*binding_view.label(:include).to_s.split(" "))
             value.reject(*binding_view.label(:exclude).to_s.split(" "))
 
-            value.non_content_parts.each_pair do |key, value_part|
+            value.non_content_values(binding_view).each_pair do |key, value_part|
               binding_view.attrs[key] = value_part
             end
 
