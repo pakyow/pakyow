@@ -149,17 +149,19 @@ module Pakyow
             end
 
             viewified = keys_and_binding_names.compact.uniq.each_with_object({}) { |(key, binding_name), values|
-              value = binder.value(key)
+              value = binder.__value(key)
 
               if value.is_a?(String)
                 value = ensure_html_safety(value)
               end
 
-              if value.is_a?(Pakyow::Presenter::BindingParts) && !value.content?
-                value.parts[:content] = object[key]
-              end
+              if value.is_a?(Pakyow::Presenter::BindingParts)
+                if !value.content?
+                  value.parts[:content] = object.content
+                end
 
-              unless value.nil?
+                values[binding_name] = value.values(@view.find(binding_name))
+              elsif !value.nil?
                 values[binding_name] = value
               end
             }

@@ -21,20 +21,14 @@ module Pakyow
         @parts[:content].call(view.text)
       end
 
-      def non_content_values(view)
-        Hash[@parts.reject { |name, _|
-          name == :content
-        }.map { |name, block|
-          value = if block.arity == 0
-            block.call
-          else
-            view.attrs[name].tap do |current_value|
-              block.call(current_value)
-            end
-          end
+      def values(view)
+        values_for_parts(@parts, view)
+      end
 
-          [name, value]
-        }]
+      def non_content_values(view)
+        values_for_parts(@parts.reject { |name, _|
+          name == :content
+        }, view)
       end
 
       def reject(*parts)
@@ -50,6 +44,22 @@ module Pakyow
 
       def to_json(*)
         @parts.to_json
+      end
+
+      private
+
+      def values_for_parts(parts, view)
+        Hash[parts.map { |name, block|
+          value = if block.arity == 0
+            block.call
+          else
+            view.attrs[name].tap do |current_value|
+              block.call(current_value)
+            end
+          end
+
+          [name, value]
+        }]
       end
     end
   end
