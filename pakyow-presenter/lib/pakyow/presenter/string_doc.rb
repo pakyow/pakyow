@@ -340,7 +340,7 @@ module Pakyow
 
       # Attributes that should be prefixed with +data-+
       #
-      DATA_ATTRS = %i(ui binding endpoint endpoint-action version).freeze
+      DATA_ATTRS = %i(ui binding endpoint endpoint-action version config).freeze
 
       # Attributes that will be turned into +StringDoc+ labels
       #
