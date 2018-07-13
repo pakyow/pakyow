@@ -1,0 +1,178 @@
+[
+  {
+    "id": "61aeb4df92f094a6ae2e1c0a569e480d2244c8fe",
+    "calls": [
+      [
+        "find",
+        [
+          [
+            "post"
+          ]
+        ],
+        [
+
+        ],
+        [
+          [
+            "transform",
+            [
+              [
+                {
+                  "id": 1,
+                  "title": "foo"
+                },
+                {
+                  "id": 2,
+                  "title": "bar"
+                }
+              ]
+            ],
+            [
+              [
+                [
+                  "use",
+                  [
+                    "default"
+                  ],
+                  [
+
+                  ],
+                  [
+
+                  ]
+                ],
+                [
+                  "find",
+                  [
+                    [
+                      "title"
+                    ]
+                  ],
+                  [
+
+                  ],
+                  [
+                    [
+                      "use",
+                      [
+                        "default"
+                      ],
+                      [
+
+                      ],
+                      [
+
+                      ]
+                    ]
+                  ]
+                ],
+                [
+                  "setupEndpoint",
+                  [
+                    {
+                      "name": "posts_show",
+                      "path": "/posts/1"
+                    }
+                  ],
+                  [
+
+                  ],
+                  [
+
+                  ]
+                ],
+                [
+                  "bind",
+                  [
+                    {
+                      "id": 1,
+                      "title": "foo"
+                    }
+                  ],
+                  [
+
+                  ],
+                  [
+
+                  ]
+                ]
+              ],
+              [
+                [
+                  "use",
+                  [
+                    "default"
+                  ],
+                  [
+
+                  ],
+                  [
+
+                  ]
+                ],
+                [
+                  "find",
+                  [
+                    [
+                      "title"
+                    ]
+                  ],
+                  [
+
+                  ],
+                  [
+                    [
+                      "use",
+                      [
+                        "default"
+                      ],
+                      [
+
+                      ],
+                      [
+
+                      ]
+                    ]
+                  ]
+                ],
+                [
+                  "setupEndpoint",
+                  [
+                    {
+                      "name": "posts_show",
+                      "path": "/posts/2"
+                    }
+                  ],
+                  [
+
+                  ],
+                  [
+
+                  ]
+                ],
+                [
+                  "bind",
+                  [
+                    {
+                      "id": 2,
+                      "title": "bar"
+                    }
+                  ],
+                  [
+
+                  ],
+                  [
+
+                  ]
+                ]
+              ]
+            ],
+            [
+
+            ]
+          ]
+        ]
+      ]
+    ]
+  }
+]

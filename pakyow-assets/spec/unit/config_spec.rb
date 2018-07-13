@@ -85,7 +85,7 @@ RSpec.describe "assets config" do
 
   describe "autoloaded_packs" do
     it "has a default value" do
-      expect(config.autoloaded_packs).to eq([:pakyow])
+      expect(config.autoloaded_packs).to eq([])
     end
   end
 

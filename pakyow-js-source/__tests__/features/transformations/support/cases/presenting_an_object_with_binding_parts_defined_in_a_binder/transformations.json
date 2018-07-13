@@ -1,0 +1,110 @@
+[
+  {
+    "id": "61aeb4df92f094a6ae2e1c0a569e480d2244c8fe",
+    "calls": [
+      [
+        "find",
+        [
+          [
+            "post"
+          ]
+        ],
+        [
+
+        ],
+        [
+          [
+            "transform",
+            [
+              [
+                {
+                  "id": 1,
+                  "title": {
+                    "content": "oof",
+                    "style": {
+                      "color": "red"
+                    },
+                    "class": [
+                      "fooclass"
+                    ],
+                    "title": "foo",
+                    "selected": true
+                  }
+                }
+              ]
+            ],
+            [
+              [
+                [
+                  "use",
+                  [
+                    "default"
+                  ],
+                  [
+
+                  ],
+                  [
+
+                  ]
+                ],
+                [
+                  "find",
+                  [
+                    [
+                      "title"
+                    ]
+                  ],
+                  [
+
+                  ],
+                  [
+                    [
+                      "use",
+                      [
+                        "default"
+                      ],
+                      [
+
+                      ],
+                      [
+
+                      ]
+                    ]
+                  ]
+                ],
+                [
+                  "bind",
+                  [
+                    {
+                      "id": 1,
+                      "title": {
+                        "content": "oof",
+                        "style": {
+                          "color": "red"
+                        },
+                        "class": [
+                          "fooclass"
+                        ],
+                        "title": "foo",
+                        "selected": true
+                      }
+                    }
+                  ],
+                  [
+
+                  ],
+                  [
+
+                  ]
+                ]
+              ]
+            ],
+            [
+
+            ]
+          ]
+        ]
+      ]
+    ]
+  }
+]

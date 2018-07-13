@@ -9,6 +9,7 @@
   realtime
   support
   ui
+  js
 ).each do |lib|
   require "pakyow/#{lib}"
 end
