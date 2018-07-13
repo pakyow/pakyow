@@ -20,7 +20,7 @@ matrix:
       node_js:
         - node
       script: npm test
-      before_install: cd pakyow-js-source
+      before_install: cd pakyow-js
 
 notifications:
   email: false

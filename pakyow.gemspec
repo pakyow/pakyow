@@ -30,7 +30,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "pakyow-support", Pakyow::VERSION
   spec.add_dependency "pakyow-test", Pakyow::VERSION
   spec.add_dependency "pakyow-ui", Pakyow::VERSION
-  spec.add_dependency "pakyow-js", Pakyow::VERSION
 
   spec.add_dependency "bundler", "~> 1.16"
   spec.add_dependency "filewatcher", "~> 1.0"
