@@ -40,6 +40,22 @@ RSpec.describe "asset packs included in a view" do
   end
 end
 
+RSpec.describe "asset packs for components" do
+  include_context "testable app"
+  include_context "loaded asset packs"
+
+  let :app_definition do
+    Proc.new do
+      instance_exec(&$assets_app_boilerplate)
+      config.assets.autoloaded_packs = []
+    end
+  end
+
+  let :request_path do
+    "/packs/component"
+  end
+end
+
 RSpec.describe "missing asset packs" do
   include_context "testable app"
 

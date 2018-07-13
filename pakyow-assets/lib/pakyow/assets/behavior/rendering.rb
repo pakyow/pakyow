@@ -26,7 +26,7 @@ module Pakyow
 
         # @api private
         def packs
-          (autoloaded_packs + view_packs).uniq.each_with_object([]) { |pack_name, packs|
+          (autoloaded_packs + view_packs + component_packs).uniq.each_with_object([]) { |pack_name, packs|
             if pack = @connection.app.state_for(:pack).find { |pack| pack.name == pack_name.to_sym }
               packs << pack
             end
@@ -41,6 +41,13 @@ module Pakyow
         # @api private
         def view_packs
           @presenter.view.info(:packs).to_a
+        end
+
+        # @api private
+        def component_packs
+          @presenter.view.object.find_significant_nodes(:component).map { |node|
+            node.label(:component)
+          }
         end
       end
     end
