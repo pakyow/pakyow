@@ -14,12 +14,15 @@ module Pakyow
 
         apply_extension do
           after :load do
-            Dir.glob(File.join(config.assets.frontend_assets_path, "**/*")) do |path|
-              next if path.start_with?(config.assets.frontend_asset_packs_path)
-              next if File.basename(path).start_with?("_")
+            config.assets.paths.each do |assets_path|
+              Dir.glob(File.join(assets_path, "**/*")) do |path|
+                next if config.assets.packs_paths.any? { |packs_path|
+                  path.start_with?(packs_path)
+                } || File.basename(path).start_with?("_")
 
-              if config.assets.extensions.include?(File.extname(path))
-                self.class.asset << Asset.new_from_path(path, config: config.assets, source_location: config.assets.frontend_assets_path)
+                if config.assets.extensions.include?(File.extname(path))
+                  self.class.asset << Asset.new_from_path(path, config: config.assets, source_location: assets_path)
+                end
               end
             end
           end

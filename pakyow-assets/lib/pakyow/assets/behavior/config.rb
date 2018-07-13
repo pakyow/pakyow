@@ -43,6 +43,18 @@ module Pakyow
               File.join(config.assets.frontend_assets_path, "packs")
             end
 
+            setting :paths do
+              @paths ||= [
+                config.assets.frontend_assets_path
+              ]
+            end
+
+            setting :packs_paths do
+              @packs_paths ||= [
+                config.assets.frontend_asset_packs_path
+              ]
+            end
+
             setting :compilation_path do
               config.assets.public_path
             end

@@ -128,6 +128,28 @@ RSpec.describe "assets config" do
     end
   end
 
+  describe "paths" do
+    it "has a default value" do
+      expect(config.paths).to eq(["./frontend/assets"])
+    end
+
+    it "is dependent on config.assets.frontend_assets_path" do
+      app.config.assets.frontend_assets_path = "FRONTEND_ASSETS_PATH"
+      expect(config.paths).to eq(["FRONTEND_ASSETS_PATH"])
+    end
+  end
+
+  describe "packs_paths" do
+    it "has a default value" do
+      expect(config.packs_paths).to eq(["./frontend/assets/packs"])
+    end
+
+    it "is dependent on config.assets.frontend_asset_packs_path" do
+      app.config.assets.frontend_asset_packs_path = "FRONTEND_ASSET_PACKS_PATH"
+      expect(config.packs_paths).to eq(["FRONTEND_ASSET_PACKS_PATH"])
+    end
+  end
+
   describe "compilation_path" do
     it "has a default value" do
       expect(config.compilation_path).to eq("./public")
