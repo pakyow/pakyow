@@ -98,10 +98,9 @@ module Pakyow
         )
 
         if config.fingerprint
-          extension = File.extname(@public_path)
           @public_path = File.join(
             File.dirname(@public_path),
-            File.basename(@public_path, extension) + "__" + fingerprint + extension
+            fingerprinted_filename
           )
         end
 
@@ -148,6 +147,11 @@ module Pakyow
         }.hexdigest
       end
 
+      def fingerprinted_filename
+        extension = File.extname(@public_path)
+        File.basename(@public_path, extension) + "__" + fingerprint + extension
+      end
+
       private
 
       def minify?
@@ -169,6 +173,10 @@ module Pakyow
           Pakyow.logger.warn "Unable to minify #{@local_path}; using raw content instead"
           content
         end
+      end
+
+      def external?
+        File.dirname(@local_path) == @config.externals.asset_packs_path
       end
     end
   end

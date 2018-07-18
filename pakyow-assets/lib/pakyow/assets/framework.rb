@@ -8,7 +8,7 @@ require "pakyow/assets/pack"
 require "pakyow/assets/actions/process"
 require "pakyow/assets/actions/public"
 
-require "pakyow/assets/types/es6"
+require "pakyow/assets/types/js"
 require "pakyow/assets/types/sass"
 require "pakyow/assets/types/scss"
 
@@ -18,6 +18,7 @@ require "pakyow/assets/behavior/packs"
 require "pakyow/assets/behavior/rendering"
 require "pakyow/assets/behavior/views"
 require "pakyow/assets/behavior/silencing"
+require "pakyow/assets/behavior/externals"
 
 module Pakyow
   module Assets
@@ -39,6 +40,7 @@ module Pakyow
           include Behavior::Packs
           include Behavior::Views
           include Behavior::Silencing
+          include Behavior::Externals
 
           after :load do
             config.assets.extensions.each do |extension|

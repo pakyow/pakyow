@@ -85,7 +85,7 @@ RSpec.describe "assets config" do
 
   describe "autoloaded_packs" do
     it "has a default value" do
-      expect(config.autoloaded_packs).to eq([])
+      expect(config.autoloaded_packs).to eq([:pakyow])
     end
   end
 
@@ -141,12 +141,12 @@ RSpec.describe "assets config" do
 
   describe "packs_paths" do
     it "has a default value" do
-      expect(config.packs_paths).to eq(["./frontend/assets/packs"])
+      expect(config.packs_paths).to eq(["./frontend/assets/packs", "./frontend/assets/packs/vendor"])
     end
 
     it "is dependent on config.assets.frontend_asset_packs_path" do
       app.config.assets.frontend_asset_packs_path = "FRONTEND_ASSET_PACKS_PATH"
-      expect(config.packs_paths).to eq(["FRONTEND_ASSET_PACKS_PATH"])
+      expect(config.packs_paths).to eq(["FRONTEND_ASSET_PACKS_PATH", "FRONTEND_ASSET_PACKS_PATH/vendor"])
     end
   end
 

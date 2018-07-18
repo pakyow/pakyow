@@ -24,7 +24,7 @@ RSpec.describe "assets config", "types" do
   end
 
   it "defines types for scripts" do
-    expect(config.types[:scripts]).to eq(%w(.js .es6 .eco .ejs))
+    expect(config.types[:scripts]).to eq(%w(.js))
   end
 
   it "defines types for styles" do

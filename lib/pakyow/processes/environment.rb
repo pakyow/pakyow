@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 require "fileutils"
-require "tty-command"
-require "tty-spinner"
 
 require "pakyow/process"
 require "pakyow/commands/server"
+
+require "pakyow/support/cli/runner"
 
 module Pakyow
   module Processes
@@ -18,18 +18,7 @@ module Pakyow
       #
       watch "./Gemfile"
       on_change(/Gemfile/) do
-        spinner = TTY::Spinner.new(":spinner Bundling ...", format: :dots)
-        spinner.auto_spin
-
-        result = Bundler.with_clean_env {
-          TTY::Command.new(printer: :null, pty: true).run!("bundle install")
-        }
-
-        if result.failure?
-          spinner.error("failed:")
-          puts result.out
-        else
-          spinner.stop(" done! Respawning ...\n")
+        Support::CLI::Runner.new(message: "Bundling").run("bundle install") do
           ::Process.kill("TERM", @proxy_pid)
           @server.respawn
         end

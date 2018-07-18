@@ -21,4 +21,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "concurrent-ruby", "~> 1.0"
   spec.add_dependency "dry-inflector", "~> 0.1"
+  spec.add_dependency "pastel", "~> 0.7"
+  spec.add_dependency "tty-command", "~> 0.8"
+  spec.add_dependency "tty-spinner", "~> 0.8"
 end

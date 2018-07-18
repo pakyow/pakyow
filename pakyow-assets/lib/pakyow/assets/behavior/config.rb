@@ -15,7 +15,7 @@ module Pakyow
                     data: %w(.json .xml .yml .yaml),
                     fonts: %w(.eot .otf .ttf .woff .woff2),
                     images: %w(.ico .bmp .gif .webp .png .jpg .jpeg .tiff .tif .svg),
-                    scripts: %w(.js .es6 .eco .ejs),
+                    scripts: %w(.js),
                     styles: %w(.css .sass .scss)
 
             setting :extensions do
@@ -27,9 +27,28 @@ module Pakyow
             setting :cache, false
             setting :minify, false
             setting :fingerprint, false
-            setting :autoloaded_packs, []
+            setting :autoloaded_packs, %i[pakyow]
             setting :prefix, "/assets"
             setting :silent, true
+
+            settings_for :externals do
+              setting :fetch, true
+              setting :pakyow, true
+              setting :provider, "https://unpkg.com/"
+              setting :scripts, []
+
+              setting :asset_packs_path do
+                File.join(config.assets.frontend_asset_packs_path, "vendor")
+              end
+
+              defaults :test do
+                setting :fetch, false
+              end
+
+              defaults :production do
+                setting :fetch, false
+              end
+            end
 
             setting :public_path do
               File.join(config.root, "public")
@@ -51,7 +70,8 @@ module Pakyow
 
             setting :packs_paths do
               @packs_paths ||= [
-                config.assets.frontend_asset_packs_path
+                config.assets.frontend_asset_packs_path,
+                config.assets.externals.asset_packs_path
               ]
             end
 

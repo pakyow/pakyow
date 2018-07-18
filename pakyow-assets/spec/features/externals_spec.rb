@@ -1,0 +1,188 @@
+RSpec.describe "external scripts" do
+  include_context "testable app"
+
+  let :tmp do
+    File.expand_path("../tmp", __FILE__)
+  end
+
+  let :latest do
+    File.read(File.join(File.expand_path("../../../../", __FILE__), "pakyow-js/src/version.js")).split('"', 2)[1].split('";', 2)[0]
+  end
+
+  after do
+    if File.exist?(tmp)
+      FileUtils.rm_r(tmp)
+    end
+  end
+
+  context "fetch is enabled" do
+    let :app_definition do
+      local_tmp = tmp
+
+      Proc.new do
+        instance_exec(&$assets_app_boilerplate)
+
+        configure :test do
+          config.presenter.path = File.join(local_tmp, "frontend")
+
+          config.assets.externals.fetch = true
+          config.assets.externals.pakyow = false
+          config.assets.externals.scripts = []
+        end
+
+        after :configure do
+          external_script :pakyow, "1.0.0-alpha.4", package: "@pakyow/js"
+          external_script :jquery, "3.3.1"
+        end
+
+        before :initialize do
+          @original_stdout = $stdout
+          @original_stderr = $stderr
+          $stdout = $stderr = StringIO.new
+        end
+
+        after :boot do
+          $stdout = @original_stdout
+          $stderr = @original_stderr
+        end
+      end
+    end
+
+    it "downloads the specified version of each external script" do
+      expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@1.0.0-alpha.4.js"))).to be(true)
+      expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "jquery@3.3.1.js"))).to be(true)
+    end
+
+    context "external exists" do
+      let :app_definition do
+        local_tmp = tmp
+
+        Proc.new do
+          instance_exec(&$assets_app_boilerplate)
+
+          configure :test do
+            config.presenter.path = File.join(local_tmp, "frontend")
+
+            config.assets.externals.fetch = true
+            config.assets.externals.pakyow = false
+            config.assets.externals.scripts = []
+          end
+
+          after :configure do
+            FileUtils.mkdir_p(config.assets.externals.asset_packs_path)
+            FileUtils.touch(File.join(config.assets.externals.asset_packs_path, "pakyow@1.0.0-alpha.4.js"))
+            FileUtils.touch(File.join(config.assets.externals.asset_packs_path, "jquery@3.3.1.js"))
+            external_script :pakyow, "1.0.0-alpha.4", package: "@pakyow/js"
+            external_script :jquery, "3.3.1"
+          end
+        end
+      end
+
+      it "does not download again" do
+        expect(File.size(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@1.0.0-alpha.4.js"))).to eq(0)
+        expect(File.size(File.join(tmp, "frontend/assets/packs/vendor", "jquery@3.3.1.js"))).to eq(0)
+      end
+    end
+
+    context "external exists but it's a different version" do
+      let :app_definition do
+        local_tmp = tmp
+
+        Proc.new do
+          instance_exec(&$assets_app_boilerplate)
+
+          configure :test do
+            config.presenter.path = File.join(local_tmp, "frontend")
+
+            config.assets.externals.fetch = true
+            config.assets.externals.pakyow = false
+            config.assets.externals.scripts = []
+          end
+
+          after :configure do
+            FileUtils.mkdir_p(config.assets.externals.asset_packs_path)
+            FileUtils.touch(File.join(config.assets.externals.asset_packs_path, "pakyow@1.0.0-alpha.3.js"))
+            FileUtils.touch(File.join(config.assets.externals.asset_packs_path, "jquery@3.2.1.js"))
+            external_script :pakyow, "1.0.0-alpha.4", package: "@pakyow/js"
+            external_script :jquery, "3.3.1"
+          end
+        end
+      end
+
+      it "does not download again" do
+        expect(File.size(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@1.0.0-alpha.3.js"))).to eq(0)
+        expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@1.0.0-alpha.4.js"))).to be(false)
+        expect(File.size(File.join(tmp, "frontend/assets/packs/vendor", "jquery@3.2.1.js"))).to eq(0)
+        expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "jquery@3.3.1.js"))).to be(false)
+      end
+    end
+
+    context "pakyow is enabled" do
+      let :app_definition do
+        local_tmp = tmp
+
+        Proc.new do
+          instance_exec(&$assets_app_boilerplate)
+
+          configure :test do
+            config.presenter.path = File.join(local_tmp, "frontend")
+
+            config.assets.externals.fetch = true
+            config.assets.externals.pakyow = true
+          end
+        end
+      end
+
+      it "downloads the latest pakyow" do
+        expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@#{latest}.js"))).to be(true)
+      end
+    end
+
+    context "version is unspecified" do
+      let :app_definition do
+        local_tmp = tmp
+
+        Proc.new do
+          instance_exec(&$assets_app_boilerplate)
+
+          configure :test do
+            config.presenter.path = File.join(local_tmp, "frontend")
+
+            config.assets.externals.fetch = true
+            config.assets.externals.pakyow = false
+            config.assets.externals.scripts = []
+          end
+
+          after :configure do
+            external_script :pakyow, package: "@pakyow/js"
+          end
+        end
+      end
+
+      it "downloads the latest version" do
+        expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@#{latest}.js"))).to be(true)
+      end
+    end
+  end
+
+  context "fetch is disabled" do
+    let :app_definition do
+      local_tmp = tmp
+
+      Proc.new do
+        instance_exec(&$assets_app_boilerplate)
+
+        configure :test do
+          config.presenter.path = File.join(local_tmp, "frontend")
+
+          config.assets.externals.fetch = false
+          config.assets.externals.pakyow = true
+        end
+      end
+    end
+
+    it "does not download" do
+      expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@#{latest}.js"))).to be(false)
+    end
+  end
+end

@@ -30,7 +30,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "pakyow-support", Pakyow::VERSION
   spec.add_dependency "pakyow-test", Pakyow::VERSION
   spec.add_dependency "pakyow-ui", Pakyow::VERSION
-  spec.add_dependency "pakyow-js", Pakyow::VERSION
 
   spec.add_dependency "bundler", "~> 1.16"
   spec.add_dependency "filewatcher", "~> 1.0"
@@ -40,6 +39,4 @@ Gem::Specification.new do |spec|
   spec.add_dependency "rack", "~> 2.0"
   spec.add_dependency "rake", "~> 12.3"
   spec.add_dependency "thor", "~> 0.19"
-  spec.add_dependency "tty-command", "~> 0.8"
-  spec.add_dependency "tty-spinner", "~> 0.8"
 end

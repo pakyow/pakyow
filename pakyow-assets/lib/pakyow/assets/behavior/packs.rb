@@ -13,7 +13,13 @@ module Pakyow
             config.assets.packs_paths.each do |packs_path|
               Pathname.glob(File.join(packs_path, "*.*")).group_by { |path|
                 File.join(File.dirname(path), File.basename(path, File.extname(path)))
-              }.each do |pack_path, pack_asset_paths|
+              }.to_a.sort { |pack_a, pack_b|
+                pack_b[1] <=> pack_a[1]
+              }.uniq { |pack_path, _|
+                unversioned_pack_path(pack_path)
+              }.map { |pack_path, pack_asset_paths|
+                [unversioned_pack_path(pack_path), pack_asset_paths]
+              }.reverse.each do |pack_path, pack_asset_paths|
                 asset_pack = Pack.new(File.basename(pack_path).to_sym, config.assets)
 
                 pack_asset_paths.each do |pack_asset_path|
@@ -26,6 +32,10 @@ module Pakyow
               end
             end
           end
+        end
+
+        def unversioned_pack_path(pack_path)
+          pack_path.split("@", 2)[0]
         end
       end
     end
