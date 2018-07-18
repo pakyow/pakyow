@@ -98,10 +98,9 @@ module Pakyow
         )
 
         if config.fingerprint
-          extension = File.extname(@public_path)
           @public_path = File.join(
             File.dirname(@public_path),
-            File.basename(@public_path, extension) + "__" + fingerprint + extension
+            fingerprinted_filename
           )
         end
 
@@ -146,6 +145,11 @@ module Pakyow
         [@local_path].concat(dependencies).each_with_object(Digest::MD5.new) { |path, digest|
           digest.update(Digest::MD5.file(path).hexdigest)
         }.hexdigest
+      end
+
+      def fingerprinted_filename
+        extension = File.extname(@public_path)
+        File.basename(@public_path, extension) + "__" + fingerprint + extension
       end
 
       private
