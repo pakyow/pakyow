@@ -15,7 +15,7 @@ module Pakyow
                     data: %w(.json .xml .yml .yaml),
                     fonts: %w(.eot .otf .ttf .woff .woff2),
                     images: %w(.ico .bmp .gif .webp .png .jpg .jpeg .tiff .tif .svg),
-                    scripts: %w(.js .es6 .eco .ejs),
+                    scripts: %w(.js),
                     styles: %w(.css .sass .scss)
 
             setting :extensions do
