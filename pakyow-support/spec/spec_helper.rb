@@ -7,3 +7,9 @@ start_simplecov do
 
   track_files File.join(lib_path, "**/*.rb")
 end
+
+require_relative "../../spec/helpers/output_helpers"
+
+RSpec.configure do |config|
+  config.include OutputHelpers
+end

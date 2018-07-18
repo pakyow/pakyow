@@ -39,6 +39,4 @@ Gem::Specification.new do |spec|
   spec.add_dependency "rack", "~> 2.0"
   spec.add_dependency "rake", "~> 12.3"
   spec.add_dependency "thor", "~> 0.19"
-  spec.add_dependency "tty-command", "~> 0.8"
-  spec.add_dependency "tty-spinner", "~> 0.8"
 end
