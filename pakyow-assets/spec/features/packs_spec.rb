@@ -87,6 +87,11 @@ RSpec.describe "versioned asset packs" do
   include_context "testable app"
   include_context "loaded asset packs"
 
+  before do
+    # Go ahead and require this to prevent intermittent failures.
+    require "babel-transpiler"
+  end
+
   let :app_definition do
     Proc.new do
       instance_exec(&$assets_app_boilerplate)
@@ -103,7 +108,7 @@ RSpec.describe "versioned asset packs" do
   end
 
   it "includes the latest js pack" do
-    expect(call("/assets/packs/versioned.js")[2].body.read).to eq("console.log(\"2.0\");\n")
+    expect(call("/assets/packs/versioned.js")[2].body.read).to eq("\"use strict\";\n\nconsole.log(\"2.0\");")
   end
 
   it "includes the latest css pack" do

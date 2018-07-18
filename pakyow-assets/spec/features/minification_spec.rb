@@ -1,6 +1,11 @@
 RSpec.describe "minifying assets" do
   include_context "testable app"
 
+  before do
+    # Go ahead and require this to prevent intermittent failures.
+    require "babel-transpiler"
+  end
+
   context "app is configured to minify" do
     let :app_definition do
       Proc.new do
@@ -18,7 +23,7 @@ RSpec.describe "minifying assets" do
     end
 
     it "minifies js" do
-      expect(call("/default.js")[2].body.read).to eq("console.log(\"foo\"),console.log(\"bar\");")
+      expect(call("/default.js")[2].body.read).to eq("\"use strict\";console.log(\"foo\"),console.log(\"bar\");")
     end
   end
 
@@ -39,7 +44,7 @@ RSpec.describe "minifying assets" do
     end
 
     it "does not minify js" do
-      expect(call("/default.js")[2].body.read).to eq("console.log(\"foo\");\nconsole.log(\"bar\");\n")
+      expect(call("/default.js")[2].body.read).to eq("\"use strict\";\n\nconsole.log(\"foo\");\nconsole.log(\"bar\");")
     end
   end
 end

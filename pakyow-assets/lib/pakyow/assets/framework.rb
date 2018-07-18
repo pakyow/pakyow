@@ -8,7 +8,7 @@ require "pakyow/assets/pack"
 require "pakyow/assets/actions/process"
 require "pakyow/assets/actions/public"
 
-require "pakyow/assets/types/es6"
+require "pakyow/assets/types/js"
 require "pakyow/assets/types/sass"
 require "pakyow/assets/types/scss"
 
