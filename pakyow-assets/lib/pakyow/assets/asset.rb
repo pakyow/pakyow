@@ -174,6 +174,10 @@ module Pakyow
           content
         end
       end
+
+      def external?
+        File.dirname(@local_path) == @config.externals.asset_packs_path
+      end
     end
   end
 end

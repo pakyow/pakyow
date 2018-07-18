@@ -31,6 +31,25 @@ module Pakyow
             setting :prefix, "/assets"
             setting :silent, true
 
+            settings_for :externals do
+              setting :fetch, true
+              setting :pakyow, true
+              setting :provider, "https://unpkg.com/"
+              setting :scripts, []
+
+              setting :asset_packs_path do
+                File.join(config.assets.frontend_asset_packs_path, "vendor")
+              end
+
+              defaults :test do
+                setting :fetch, false
+              end
+
+              defaults :production do
+                setting :fetch, false
+              end
+            end
+
             setting :public_path do
               File.join(config.root, "public")
             end
@@ -51,7 +70,8 @@ module Pakyow
 
             setting :packs_paths do
               @packs_paths ||= [
-                config.assets.frontend_asset_packs_path
+                config.assets.frontend_asset_packs_path,
+                config.assets.externals.asset_packs_path
               ]
             end
 
