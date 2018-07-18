@@ -1,19 +1,29 @@
 RSpec.describe "external scripts" do
   include_context "testable app"
 
+  let :tmp do
+    File.expand_path("../tmp", __FILE__)
+  end
+
+  let :latest do
+    File.read(File.join(File.expand_path("../../../../", __FILE__), "pakyow-js/src/version.js")).split('"', 2)[1].split('";', 2)[0]
+  end
+
   after do
-    if File.exist?("./spec/features/tmp")
-      FileUtils.rm_r("./spec/features/tmp")
+    if File.exist?(tmp)
+      FileUtils.rm_r(tmp)
     end
   end
 
   context "fetch is enabled" do
     let :app_definition do
+      local_tmp = tmp
+
       Proc.new do
         instance_exec(&$assets_app_boilerplate)
 
         configure :test do
-          config.presenter.path = "./spec/features/tmp/frontend"
+          config.presenter.path = File.join(local_tmp, "frontend")
 
           config.assets.externals.fetch = true
           config.assets.externals.pakyow = false
@@ -39,17 +49,19 @@ RSpec.describe "external scripts" do
     end
 
     it "downloads the specified version of each external script" do
-      expect(File.exist?(File.join("./spec/features/tmp/frontend/assets/packs/vendor", "pakyow@1.0.0-alpha.4.js"))).to be(true)
-      expect(File.exist?(File.join("./spec/features/tmp/frontend/assets/packs/vendor", "jquery@3.3.1.js"))).to be(true)
+      expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@1.0.0-alpha.4.js"))).to be(true)
+      expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "jquery@3.3.1.js"))).to be(true)
     end
 
     context "external exists" do
       let :app_definition do
+        local_tmp = tmp
+
         Proc.new do
           instance_exec(&$assets_app_boilerplate)
 
           configure :test do
-            config.presenter.path = "./spec/features/tmp/frontend"
+            config.presenter.path = File.join(local_tmp, "frontend")
 
             config.assets.externals.fetch = true
             config.assets.externals.pakyow = false
@@ -67,18 +79,20 @@ RSpec.describe "external scripts" do
       end
 
       it "does not download again" do
-        expect(File.size(File.join("./spec/features/tmp/frontend/assets/packs/vendor", "pakyow@1.0.0-alpha.4.js"))).to eq(0)
-        expect(File.size(File.join("./spec/features/tmp/frontend/assets/packs/vendor", "jquery@3.3.1.js"))).to eq(0)
+        expect(File.size(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@1.0.0-alpha.4.js"))).to eq(0)
+        expect(File.size(File.join(tmp, "frontend/assets/packs/vendor", "jquery@3.3.1.js"))).to eq(0)
       end
     end
 
     context "external exists but it's a different version" do
       let :app_definition do
+        local_tmp = tmp
+
         Proc.new do
           instance_exec(&$assets_app_boilerplate)
 
           configure :test do
-            config.presenter.path = "./spec/features/tmp/frontend"
+            config.presenter.path = File.join(local_tmp, "frontend")
 
             config.assets.externals.fetch = true
             config.assets.externals.pakyow = false
@@ -96,20 +110,22 @@ RSpec.describe "external scripts" do
       end
 
       it "does not download again" do
-        expect(File.size(File.join("./spec/features/tmp/frontend/assets/packs/vendor", "pakyow@1.0.0-alpha.3.js"))).to eq(0)
-        expect(File.exist?(File.join("./spec/features/tmp/frontend/assets/packs/vendor", "pakyow@1.0.0-alpha.4.js"))).to be(false)
-        expect(File.size(File.join("./spec/features/tmp/frontend/assets/packs/vendor", "jquery@3.2.1.js"))).to eq(0)
-        expect(File.exist?(File.join("./spec/features/tmp/frontend/assets/packs/vendor", "jquery@3.3.1.js"))).to be(false)
+        expect(File.size(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@1.0.0-alpha.3.js"))).to eq(0)
+        expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@1.0.0-alpha.4.js"))).to be(false)
+        expect(File.size(File.join(tmp, "frontend/assets/packs/vendor", "jquery@3.2.1.js"))).to eq(0)
+        expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "jquery@3.3.1.js"))).to be(false)
       end
     end
 
     context "pakyow is enabled" do
       let :app_definition do
+        local_tmp = tmp
+
         Proc.new do
           instance_exec(&$assets_app_boilerplate)
 
           configure :test do
-            config.presenter.path = "./spec/features/tmp/frontend"
+            config.presenter.path = File.join(local_tmp, "frontend")
 
             config.assets.externals.fetch = true
             config.assets.externals.pakyow = true
@@ -118,18 +134,19 @@ RSpec.describe "external scripts" do
       end
 
       it "downloads the latest pakyow" do
-        latest = File.read("../pakyow-js/src/version.js").split('"', 2)[1].split('";', 2)[0]
-        expect(File.exist?(File.join("./spec/features/tmp/frontend/assets/packs/vendor", "pakyow@#{latest}.js"))).to be(true)
+        expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@#{latest}.js"))).to be(true)
       end
     end
 
     context "version is unspecified" do
       let :app_definition do
+        local_tmp = tmp
+
         Proc.new do
           instance_exec(&$assets_app_boilerplate)
 
           configure :test do
-            config.presenter.path = "./spec/features/tmp/frontend"
+            config.presenter.path = File.join(local_tmp, "frontend")
 
             config.assets.externals.fetch = true
             config.assets.externals.pakyow = false
@@ -143,19 +160,20 @@ RSpec.describe "external scripts" do
       end
 
       it "downloads the latest version" do
-        latest = File.read("../pakyow-js/src/version.js").split('"', 2)[1].split('";', 2)[0]
-        expect(File.exist?(File.join("./spec/features/tmp/frontend/assets/packs/vendor", "pakyow@#{latest}.js"))).to be(true)
+        expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@#{latest}.js"))).to be(true)
       end
     end
   end
 
   context "fetch is disabled" do
     let :app_definition do
+      local_tmp = tmp
+
       Proc.new do
         instance_exec(&$assets_app_boilerplate)
 
         configure :test do
-          config.presenter.path = "./spec/features/tmp/frontend"
+          config.presenter.path = File.join(local_tmp, "frontend")
 
           config.assets.externals.fetch = false
           config.assets.externals.pakyow = true
@@ -164,8 +182,7 @@ RSpec.describe "external scripts" do
     end
 
     it "does not download" do
-      latest = File.read("../pakyow-js/src/version.js").split('"', 2)[1].split('";', 2)[0]
-      expect(File.exist?(File.join("./spec/features/tmp/frontend/assets/packs/vendor", "pakyow@#{latest}.js"))).to be(false)
+      expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@#{latest}.js"))).to be(false)
     end
   end
 end
