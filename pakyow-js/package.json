@@ -1,11 +1,12 @@
 {
   "name": "@pakyow/js",
-  "version": "0.1.0",
-  "description": "Pakyow on the client",
-  "main": "index.js",
+  "version": "1.0.0-alpha.4",
+  "description": "Client-Side Pakyow",
+  "main": "dist/pakyow.js",
   "files": [
     "index.js",
-    "src"
+    "src",
+    "dist"
   ],
   "scripts": {
     "build": "rollup -c rollup.config.js",
