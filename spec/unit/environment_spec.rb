@@ -18,9 +18,9 @@ RSpec.describe Pakyow do
   end
 
   describe "configuration options" do
-    describe "fallback_env" do
+    describe "default_env" do
       it "has a default value" do
-        expect(Pakyow.config.fallback_env).to eq(:development)
+        expect(Pakyow.config.default_env).to eq(:development)
       end
     end
 
@@ -270,7 +270,7 @@ RSpec.describe Pakyow do
       end
 
       it "uses the default name" do
-        expect(Pakyow.env).to be(Pakyow.config.fallback_env)
+        expect(Pakyow.env).to be(Pakyow.config.default_env)
       end
     end
 

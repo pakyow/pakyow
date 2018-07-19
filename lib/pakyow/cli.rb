@@ -52,7 +52,7 @@ module Pakyow
       The `pakyow console` command starts a console session for the current Pakyow project,
       providing access to an application instance that you can interact with.
 
-      If environment is unspecified, the default environment (#{Pakyow.config.fallback_env}) will be used.
+      If environment is unspecified, the default environment (#{Pakyow.config.default_env}) will be used.
     DESC
 
     def console(env = nil)
@@ -67,7 +67,7 @@ module Pakyow
     long_desc <<-DESC
       The `pakyow server` command starts the server for the current Pakyow project.
 
-      If environment is unspecified, the default environment (#{Pakyow.config.fallback_env}) will be used.
+      If environment is unspecified, the default environment (#{Pakyow.config.default_env}) will be used.
     DESC
     option :port, type: :string, aliases: :"-p"
     option :host, type: :string, aliases: :"-h"

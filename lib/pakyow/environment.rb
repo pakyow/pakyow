@@ -32,7 +32,7 @@ require "pakyow/app"
 #
 # These config options are available:
 #
-# - +fallback_env+ defines the named environment to start when one is not
+# - +default_env+ defines the named environment to start when one is not
 #   explicitly provided. Default is +:development+.
 #
 # - +server.name+ defines the application server to use by default.
@@ -121,7 +121,7 @@ module Pakyow
 
   include Support::Configurable
 
-  setting :fallback_env, :development
+  setting :default_env, :development
   setting :freeze_on_boot, true
 
   settings_for :server do
@@ -243,7 +243,7 @@ module Pakyow
     # @param env [Symbol] the environment that Pakyow will be started in
     #
     def setup(env: nil)
-      @env = (env ||= config.fallback_env).to_sym
+      @env = (env ||= config.default_env).to_sym
 
       performing :configure do
         configure!(env)
