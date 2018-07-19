@@ -19,7 +19,7 @@ RSpec.describe "autoloaded asset packs" do
   let :app_definition do
     Proc.new do
       instance_exec(&$assets_app_boilerplate)
-      config.assets.autoloaded_packs = [:test]
+      config.assets.packs.autoload = [:test]
     end
   end
 
@@ -35,7 +35,7 @@ RSpec.describe "asset packs included in a view" do
   let :app_definition do
     Proc.new do
       instance_exec(&$assets_app_boilerplate)
-      config.assets.autoloaded_packs = []
+      config.assets.packs.autoload = []
     end
   end
 
@@ -51,7 +51,7 @@ RSpec.describe "asset packs for components" do
   let :app_definition do
     Proc.new do
       instance_exec(&$assets_app_boilerplate)
-      config.assets.autoloaded_packs = []
+      config.assets.packs.autoload = []
     end
   end
 
@@ -66,7 +66,7 @@ RSpec.describe "missing asset packs" do
   let :app_definition do
     Proc.new do
       instance_exec(&$assets_app_boilerplate)
-      config.assets.autoloaded_packs = [:nonexistent]
+      config.assets.packs.autoload = [:nonexistent]
     end
   end
 
@@ -95,7 +95,7 @@ RSpec.describe "versioned asset packs" do
   let :app_definition do
     Proc.new do
       instance_exec(&$assets_app_boilerplate)
-      config.assets.autoloaded_packs = []
+      config.assets.packs.autoload = []
     end
   end
 

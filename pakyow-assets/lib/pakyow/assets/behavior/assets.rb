@@ -16,7 +16,7 @@ module Pakyow
           after :load do
             config.assets.paths.each do |assets_path|
               Dir.glob(File.join(assets_path, "**/*")) do |path|
-                next if config.assets.packs_paths.any? { |packs_path|
+                next if config.assets.packs.paths.any? { |packs_path|
                   path.start_with?(packs_path)
                 } || File.basename(path).start_with?("_")
 

@@ -27,55 +27,24 @@ module Pakyow
             setting :cache, false
             setting :minify, false
             setting :fingerprint, false
-            setting :autoloaded_packs, %i[pakyow]
             setting :prefix, "/assets"
             setting :silent, true
-
-            settings_for :externals do
-              setting :fetch, true
-              setting :pakyow, true
-              setting :provider, "https://unpkg.com/"
-              setting :scripts, []
-
-              setting :asset_packs_path do
-                File.join(config.assets.frontend_asset_packs_path, "vendor")
-              end
-
-              defaults :test do
-                setting :fetch, false
-              end
-
-              defaults :production do
-                setting :fetch, false
-              end
-            end
 
             setting :public_path do
               File.join(config.root, "public")
             end
 
-            setting :frontend_assets_path do
+            setting :path do
               File.join(config.presenter.path, "assets")
-            end
-
-            setting :frontend_asset_packs_path do
-              File.join(config.assets.frontend_assets_path, "packs")
             end
 
             setting :paths do
               @paths ||= [
-                config.assets.frontend_assets_path
+                config.assets.path
               ]
             end
 
-            setting :packs_paths do
-              @packs_paths ||= [
-                config.assets.frontend_asset_packs_path,
-                config.assets.externals.asset_packs_path
-              ]
-            end
-
-            setting :compilation_path do
+            setting :compile_path do
               config.assets.public_path
             end
 
@@ -85,6 +54,40 @@ module Pakyow
               setting :process, false
               setting :cache, true
               setting :silent, false
+            end
+
+            settings_for :packs do
+              setting :autoload, %i[pakyow]
+
+              setting :path do
+                File.join(config.assets.path, "packs")
+              end
+
+              setting :paths do
+                @packs_paths ||= [
+                  config.assets.packs.path,
+                  config.assets.externals.path
+                ]
+              end
+            end
+
+            settings_for :externals do
+              setting :fetch, true
+              setting :pakyow, true
+              setting :provider, "https://unpkg.com/"
+              setting :scripts, []
+
+              setting :path do
+                File.join(config.assets.packs.path, "vendor")
+              end
+
+              defaults :test do
+                setting :fetch, false
+              end
+
+              defaults :production do
+                setting :fetch, false
+              end
             end
           end
         end

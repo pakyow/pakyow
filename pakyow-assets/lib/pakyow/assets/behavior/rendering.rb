@@ -35,7 +35,7 @@ module Pakyow
 
         # @api private
         def autoloaded_packs
-          @connection.app.config.assets.autoloaded_packs
+          @connection.app.config.assets.packs.autoload
         end
 
         # @api private

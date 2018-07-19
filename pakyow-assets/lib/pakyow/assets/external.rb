@@ -16,7 +16,7 @@ module Pakyow
       end
 
       def exist?
-        Dir.glob(File.join(@config.externals.asset_packs_path, "#{@name}*.js")).any?
+        Dir.glob(File.join(@config.externals.path, "#{@name}*.js")).any?
       end
 
       def fetch!
@@ -42,12 +42,12 @@ module Pakyow
             )
 
             if response.code == 200
-              FileUtils.mkdir_p(@config.externals.asset_packs_path)
+              FileUtils.mkdir_p(@config.externals.path)
 
               fetched_version = response.uri.to_s.split(@package.to_s, 2)[1].split("/", 2)[0].split("@", 2)[1]
 
               local_path = File.join(
-                @config.externals.asset_packs_path,
+                @config.externals.path,
                 "#{name}@#{fetched_version}.js"
               )
 

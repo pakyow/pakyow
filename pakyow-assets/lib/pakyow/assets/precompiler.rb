@@ -26,8 +26,8 @@ module Pakyow
       end
 
       def precompile_asset!(asset)
-        compilation_path = File.join(@app.config.assets.compilation_path, asset.public_path)
-        FileUtils.mkdir_p(File.dirname(compilation_path))
+        compile_path = File.join(@app.config.assets.compile_path, asset.public_path)
+        FileUtils.mkdir_p(File.dirname(compile_path))
 
         asset_content = String.new
         asset.each do |content|
@@ -38,7 +38,7 @@ module Pakyow
           asset_content.gsub!(asset_state.logical_path, asset_state.public_path)
         end
 
-        File.open(compilation_path, "w+") do |file|
+        File.open(compile_path, "w+") do |file|
           file.write(asset_content)
         end
       end

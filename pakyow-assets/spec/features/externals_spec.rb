@@ -69,9 +69,9 @@ RSpec.describe "external scripts" do
           end
 
           after :configure do
-            FileUtils.mkdir_p(config.assets.externals.asset_packs_path)
-            FileUtils.touch(File.join(config.assets.externals.asset_packs_path, "pakyow@1.0.0-alpha.4.js"))
-            FileUtils.touch(File.join(config.assets.externals.asset_packs_path, "jquery@3.3.1.js"))
+            FileUtils.mkdir_p(config.assets.externals.path)
+            FileUtils.touch(File.join(config.assets.externals.path, "pakyow@1.0.0-alpha.4.js"))
+            FileUtils.touch(File.join(config.assets.externals.path, "jquery@3.3.1.js"))
             external_script :pakyow, "1.0.0-alpha.4", package: "@pakyow/js"
             external_script :jquery, "3.3.1"
           end
@@ -100,9 +100,9 @@ RSpec.describe "external scripts" do
           end
 
           after :configure do
-            FileUtils.mkdir_p(config.assets.externals.asset_packs_path)
-            FileUtils.touch(File.join(config.assets.externals.asset_packs_path, "pakyow@1.0.0-alpha.3.js"))
-            FileUtils.touch(File.join(config.assets.externals.asset_packs_path, "jquery@3.2.1.js"))
+            FileUtils.mkdir_p(config.assets.externals.path)
+            FileUtils.touch(File.join(config.assets.externals.path, "pakyow@1.0.0-alpha.3.js"))
+            FileUtils.touch(File.join(config.assets.externals.path, "jquery@3.2.1.js"))
             external_script :pakyow, "1.0.0-alpha.4", package: "@pakyow/js"
             external_script :jquery, "3.3.1"
           end

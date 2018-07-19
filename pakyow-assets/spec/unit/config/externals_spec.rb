@@ -51,14 +51,14 @@ RSpec.describe "assets config", "externals" do
     end
   end
 
-  describe "asset_packs_path" do
+  describe "path" do
     it "has a default value" do
-      expect(config.asset_packs_path).to eq("./frontend/assets/packs/vendor")
+      expect(config.path).to eq("./frontend/assets/packs/vendor")
     end
 
-    it "is dependent on config.assets.frontend_asset_packs_path" do
-      app.config.assets.frontend_asset_packs_path = "FRONTEND_ASSET_PACKS_PATH"
-      expect(config.asset_packs_path).to eq("FRONTEND_ASSET_PACKS_PATH/vendor")
+    it "is dependent on config.assets.packs.path" do
+      app.config.assets.packs.path = "FRONTEND_ASSET_PACKS_PATH"
+      expect(config.path).to eq("FRONTEND_ASSET_PACKS_PATH/vendor")
     end
   end
 end

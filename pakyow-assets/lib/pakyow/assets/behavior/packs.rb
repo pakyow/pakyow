@@ -10,7 +10,7 @@ module Pakyow
 
         apply_extension do
           after :initialize do
-            config.assets.packs_paths.each do |packs_path|
+            config.assets.packs.paths.each do |packs_path|
               Pathname.glob(File.join(packs_path, "*.*")).group_by { |path|
                 File.join(File.dirname(path), File.basename(path, File.extname(path)))
               }.to_a.sort { |pack_a, pack_b|

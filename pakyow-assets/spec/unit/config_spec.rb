@@ -83,12 +83,6 @@ RSpec.describe "assets config" do
     end
   end
 
-  describe "autoloaded_packs" do
-    it "has a default value" do
-      expect(config.autoloaded_packs).to eq([:pakyow])
-    end
-  end
-
   describe "prefix" do
     it "has a default value" do
       expect(config.prefix).to eq("/assets")
@@ -106,25 +100,14 @@ RSpec.describe "assets config" do
     end
   end
 
-  describe "frontend_assets_path" do
+  describe "path" do
     it "has a default value" do
-      expect(config.frontend_assets_path).to eq("./frontend/assets")
+      expect(config.path).to eq("./frontend/assets")
     end
 
     it "is dependent on config.presenter.path" do
       app.config.presenter.path = "PRESENTER"
-      expect(config.frontend_assets_path).to eq("PRESENTER/assets")
-    end
-  end
-
-  describe "frontend_asset_packs_path" do
-    it "has a default value" do
-      expect(config.frontend_asset_packs_path).to eq("./frontend/assets/packs")
-    end
-
-    it "is dependent on config.assets.frontend_assets_path" do
-      app.config.assets.frontend_assets_path = "FRONTEND_ASSETS_PATH"
-      expect(config.frontend_asset_packs_path).to eq("FRONTEND_ASSETS_PATH/packs")
+      expect(config.path).to eq("PRESENTER/assets")
     end
   end
 
@@ -133,26 +116,15 @@ RSpec.describe "assets config" do
       expect(config.paths).to eq(["./frontend/assets"])
     end
 
-    it "is dependent on config.assets.frontend_assets_path" do
-      app.config.assets.frontend_assets_path = "FRONTEND_ASSETS_PATH"
+    it "is dependent on config.assets.path" do
+      app.config.assets.path = "FRONTEND_ASSETS_PATH"
       expect(config.paths).to eq(["FRONTEND_ASSETS_PATH"])
     end
   end
 
-  describe "packs_paths" do
+  describe "compile_path" do
     it "has a default value" do
-      expect(config.packs_paths).to eq(["./frontend/assets/packs", "./frontend/assets/packs/vendor"])
-    end
-
-    it "is dependent on config.assets.frontend_asset_packs_path" do
-      app.config.assets.frontend_asset_packs_path = "FRONTEND_ASSET_PACKS_PATH"
-      expect(config.packs_paths).to eq(["FRONTEND_ASSET_PACKS_PATH", "FRONTEND_ASSET_PACKS_PATH/vendor"])
-    end
-  end
-
-  describe "compilation_path" do
-    it "has a default value" do
-      expect(config.compilation_path).to eq("./public")
+      expect(config.compile_path).to eq("./public")
     end
 
     it "is dependent on config.assets.public_path" do

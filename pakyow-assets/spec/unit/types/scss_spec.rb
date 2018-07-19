@@ -56,7 +56,7 @@ RSpec.describe Pakyow::Assets::Types::Scss do
       end
 
       it "includes the assets path" do
-        expect(@load_paths[1]).to eq(config.frontend_assets_path)
+        expect(@load_paths[1]).to eq(config.path)
       end
     end
   end

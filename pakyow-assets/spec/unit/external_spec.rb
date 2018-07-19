@@ -21,7 +21,7 @@ RSpec.describe Pakyow::Assets::External do
         self
       end
 
-      def asset_packs_path
+      def path
         "./spec/unit/tmp/packs/vendor"
       end
     }.new
@@ -67,7 +67,7 @@ RSpec.describe Pakyow::Assets::External do
 
   describe "exist?" do
     before do
-      FileUtils.mkdir_p(config.asset_packs_path)
+      FileUtils.mkdir_p(config.path)
     end
 
     after do
@@ -76,7 +76,7 @@ RSpec.describe Pakyow::Assets::External do
 
     context "pack exists" do
       before do
-        FileUtils.touch(File.join(config.asset_packs_path, "test.js"))
+        FileUtils.touch(File.join(config.path, "test.js"))
       end
 
       it "returns true" do
@@ -86,7 +86,7 @@ RSpec.describe Pakyow::Assets::External do
 
     context "versioned pack exists" do
       before do
-        FileUtils.touch(File.join(config.asset_packs_path, "test@1.0.0.js"))
+        FileUtils.touch(File.join(config.path, "test@1.0.0.js"))
       end
 
       it "returns true" do
@@ -95,7 +95,7 @@ RSpec.describe Pakyow::Assets::External do
 
       context "version does not match external's version" do
         before do
-          FileUtils.touch(File.join(config.asset_packs_path, "test@42.0.0.js"))
+          FileUtils.touch(File.join(config.path, "test@42.0.0.js"))
         end
 
         it "returns true" do

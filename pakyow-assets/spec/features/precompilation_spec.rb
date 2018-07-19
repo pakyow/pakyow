@@ -13,7 +13,7 @@ RSpec.describe "precompiling assets" do
   after do
     FileUtils.rm_r(
       File.join(
-        running_app.config.assets.compilation_path,
+        running_app.config.assets.compile_path,
         running_app.config.assets.prefix
       )
     )
@@ -21,7 +21,7 @@ RSpec.describe "precompiling assets" do
     # put back the asset that's needed for other tests
     FileUtils.mkdir_p(
       File.join(
-        running_app.config.assets.compilation_path,
+        running_app.config.assets.compile_path,
         running_app.config.assets.prefix,
         "cache"
       )
@@ -29,7 +29,7 @@ RSpec.describe "precompiling assets" do
 
     FileUtils.touch(
       File.join(
-        running_app.config.assets.compilation_path,
+        running_app.config.assets.compile_path,
         running_app.config.assets.prefix,
         "cache/default.css"
       )
@@ -48,7 +48,7 @@ RSpec.describe "precompiling assets" do
       expect(
         File.exist?(
           File.join(
-            running_app.config.assets.compilation_path,
+            running_app.config.assets.compile_path,
             running_app.config.assets.prefix,
             "default.css"
           )
@@ -60,7 +60,7 @@ RSpec.describe "precompiling assets" do
       expect(
         File.exist?(
           File.join(
-            running_app.config.assets.compilation_path,
+            running_app.config.assets.compile_path,
             running_app.config.assets.prefix,
             "packs/test.css"
           )
@@ -72,7 +72,7 @@ RSpec.describe "precompiling assets" do
       expect(
         File.exist?(
           File.join(
-            running_app.config.assets.compilation_path,
+            running_app.config.assets.compile_path,
             running_app.config.assets.prefix,
             "packs/layouts/view_packs.css"
           )
@@ -93,7 +93,7 @@ RSpec.describe "precompiling assets" do
       expect(
         File.exist?(
           File.join(
-            running_app.config.assets.compilation_path,
+            running_app.config.assets.compile_path,
             running_app.config.assets.prefix,
             "default__7fa5f06760d4acab98e05946e86aad82.css"
           )
@@ -105,7 +105,7 @@ RSpec.describe "precompiling assets" do
       expect(
         File.exist?(
           File.join(
-            running_app.config.assets.compilation_path,
+            running_app.config.assets.compile_path,
             running_app.config.assets.prefix,
             "packs/test__d41d8cd98f00b204e9800998ecf8427e.css"
           )
@@ -117,7 +117,7 @@ RSpec.describe "precompiling assets" do
       expect(
         File.exist?(
           File.join(
-            running_app.config.assets.compilation_path,
+            running_app.config.assets.compile_path,
             running_app.config.assets.prefix,
             "packs/layouts/view_packs__d41d8cd98f00b204e9800998ecf8427e.css"
           )
