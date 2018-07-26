@@ -168,7 +168,7 @@ module Pakyow
   end
 
   settings_for :tasks do
-    setting :paths, ["./tasks"]
+    setting :paths, ["./tasks", File.expand_path("../tasks", __FILE__)]
   end
 
   # Loads the default middleware stack.
@@ -196,9 +196,11 @@ module Pakyow
 
   extend Support::ClassState
   class_state :apps,       default: []
+  class_state :tasks,      default: []
   class_state :mounts,     default: {}
   class_state :frameworks, default: {}
   class_state :builder,    default: Rack::Builder.new
+  class_state :booted,     default: false
 
   class << self
     # Name of the environment
@@ -235,7 +237,7 @@ module Pakyow
     #
     def mount(app, at: nil, &block)
       raise ArgumentError, "Mount path is required" if at.nil?
-      @mounts[at] = { app: app, block: block }
+      mounts[at] = { app: app, block: block }
     end
 
     # Prepares the Pakow Environment for running.
@@ -252,38 +254,30 @@ module Pakyow
       performing :setup do
         init_global_logger
 
-        @mounts.each do |path, mount|
-          builder_local_apps = @apps
+        mounts.each do |path, mount|
+          builder_local_apps = apps
+          builder_local_environment = self
 
-          @builder.map path do
-            app_instance = if defined?(Pakyow::App) && mount[:app].ancestors.include?(Pakyow::App)
-              mount[:app].new(env, builder: self, &mount[:block])
-            else
-              mount[:app].new
-            end
-
+          builder.map path do
+            app_instance = builder_local_environment.initialize_app_for_mount(mount, builder: self)
             builder_local_apps << app_instance
-
             run app_instance
           end
         end
-      end
-
-      unless @mounts.empty?
-        to_app
       end
 
       self
     end
 
     def to_app
-      if instance_variable_defined?(:@app)
-        @app
-      else
-        @app = builder.to_app.tap do
-          call_hooks(:after, :boot)
-          @apps.select { |app| app.respond_to?(:booted) }.each(&:booted)
-        end
+      builder.to_app.tap do
+        # Tasks should only be available before boot.
+        #
+        @tasks = []
+
+        @booted = true
+        call_hooks(:after, :boot)
+        @apps.select { |app| app.respond_to?(:booted) }.each(&:booted)
       end
     end
 
@@ -347,7 +341,7 @@ module Pakyow
     # TODO: this is only ever used by tests and should be removed
     # @api private
     def call(env)
-      builder.call(env)
+      @builder.call(env)
     end
 
     def register_framework(framework_name, framework_module)
@@ -368,14 +362,22 @@ module Pakyow
     end
 
     def find_app(name)
-      namespace = Support.inflector.camelize(name)
-      if const_defined?(namespace)
-        klass = const_get(namespace).const_get(:App)
+      name = name.to_sym
+
+      if booted?
         apps.find { |app|
-          app.class == klass
+          app.config.name == name
         }
       else
-        nil
+        mount = mounts.values.find { |mount|
+          mount[:app].config.name == name
+        }
+
+        if mount
+          initialize_app_for_mount(mount)
+        else
+          nil
+        end
       end
     end
 
@@ -383,16 +385,31 @@ module Pakyow
       env == name.to_sym
     end
 
+    # Returns true if the environment has booted.
+    #
+    def booted?
+      @booted == true
+    end
+
+    # @api private
     def load_tasks
       require "rake"
-      Rake::TaskManager.record_task_metadata = true
-      config.tasks.paths.uniq.each do |dir_path|
-        Dir.glob(File.join(dir_path, "**/*.rake")).each do |file_path|
-          Rake.application.add_import(file_path)
+      require "pakyow/task"
+
+      @tasks = config.tasks.paths.uniq.each_with_object([]) do |tasks_path, tasks|
+        Dir.glob(File.join(File.expand_path(tasks_path), "**/*.rake")).each do |task_path|
+          tasks.concat(Pakyow::Task::Loader.new(task_path).__tasks)
         end
       end
+    end
 
-      Rake.application.load_imports
+    # @api private
+    def initialize_app_for_mount(mount, builder: @builder)
+      if mount[:app].ancestors.include?(Pakyow::App)
+        mount[:app].new(env, builder: builder, &mount[:block])
+      else
+        mount[:app].new
+      end
     end
 
     protected

@@ -3,7 +3,6 @@
 require "fileutils"
 
 require "pakyow/process"
-require "pakyow/commands/server"
 
 require "pakyow/support/cli/runner"
 
@@ -52,7 +51,7 @@ module Pakyow
       private
 
       def run_environment(port: @server.port, host: @server.host)
-        Pakyow.setup(env: @server.env).run(port: port, host: host, server: @server.server)
+        Pakyow.run(port: port, host: host, server: @server.server)
       end
 
       def run_environment_subprocess(port)
@@ -70,7 +69,7 @@ module Pakyow
 
             Please use the standalone server instead:
 
-              bundle exec pakyow server --standalone
+              pakyow boot --standalone
 
           ERROR
 

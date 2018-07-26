@@ -1,11 +1,13 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require "pakyow"
-require "pakyow/cli"
-
-unless Pakyow::CLI.known_command?(ARGV[0])
-  Pakyow::CLI.define_commands_for_tasks!
+# Automatically run with bundler.
+#
+current_path = File.expand_path(".")
+binstub_path = File.join(current_path, "bin/pakyow")
+if !defined?(Bundler) && File.exist?(binstub_path)
+  exec "#{binstub_path} #{ARGV.join(" ")}"
+else
+  require "pakyow/cli"
+  Pakyow::CLI.new
 end
-
-Pakyow::CLI.start

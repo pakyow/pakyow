@@ -148,7 +148,7 @@ RSpec.describe Pakyow do
 
     describe "tasks.paths" do
       it "has a default value" do
-        expect(Pakyow.config.tasks.paths).to eq(["./tasks"])
+        expect(Pakyow.config.tasks.paths).to eq(["./tasks", File.expand_path("../../../lib/pakyow/tasks", __FILE__)])
       end
     end
   end
@@ -438,6 +438,12 @@ RSpec.describe Pakyow do
       expect(app).to receive(:booted)
       run
     end
+
+    it "indicates that the environment has booted" do
+      expect(Pakyow.booted?).to be(false)
+      run
+      expect(Pakyow.booted?).to be(true)
+    end
   end
 
   describe "#apps" do
@@ -462,5 +468,35 @@ RSpec.describe Pakyow do
   describe "#env?" do
     it "returns true when the environment matches"
     it "returns false when the environment does not match"
+  end
+
+  describe "::find_app" do
+    before do
+      Pakyow.config.server.name = :mock
+
+      Pakyow.app :foo, path: "/foo"
+      Pakyow.app :bar, path: "/bar"
+      Pakyow.app :baz, path: "/baz"
+    end
+
+    context "environment has booted" do
+      before do
+        Pakyow.setup(env: :test).run
+      end
+
+      it "returns an app instance" do
+        expect(Pakyow.find_app(:foo).config.name).to eq(:foo)
+        expect(Pakyow.find_app(:bar).config.name).to eq(:bar)
+        expect(Pakyow.find_app(:baz).config.name).to eq(:baz)
+      end
+    end
+
+    context "environment has not booted" do
+      it "returns an app instance" do
+        expect(Pakyow.find_app(:foo).config.name).to eq(:foo)
+        expect(Pakyow.find_app(:bar).config.name).to eq(:bar)
+        expect(Pakyow.find_app(:baz).config.name).to eq(:baz)
+      end
+    end
   end
 end
