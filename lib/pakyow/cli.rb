@@ -105,7 +105,7 @@ module Pakyow
       require "bootsnap"
 
       Bootsnap.setup(
-        cache_dir:            "tmp/cache",
+        cache_dir:            File.join(current_path, "tmp/cache"),
         development_mode:     @options[:env] == "development",
         load_path_cache:      true,
         autoload_paths_cache: false,
