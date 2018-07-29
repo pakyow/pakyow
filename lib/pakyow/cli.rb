@@ -6,6 +6,7 @@ require "optparse"
 require "pakyow/support/cli/style"
 
 require "pakyow/error"
+require "pakyow/environment"
 
 module Pakyow
   class CLI
@@ -30,8 +31,12 @@ module Pakyow
       @command = nil
 
       parse_global_options
-      configure_bootsnap
-      load_environment
+
+      if project_context?
+        configure_bootsnap
+        load_environment
+      end
+
       load_tasks
 
       if @command
@@ -53,6 +58,16 @@ module Pakyow
     end
 
     private
+
+    def tasks
+      Pakyow.tasks.select { |task|
+        (task.global? && !project_context?) || (!task.global? && project_context?)
+      }
+    end
+
+    def project_context?
+      File.exist?(environment_path)
+    end
 
     def current_path
       File.expand_path(".")
@@ -131,7 +146,7 @@ module Pakyow
     end
 
     def find_task_for_command
-      unless @task = Pakyow.tasks.find { |task| task.name == @command }
+      unless @task = tasks.find { |task| task.name == @command }
         raise "#{Support::CLI.style.blue(@command)} is not a command"
       end
     end
@@ -193,8 +208,8 @@ module Pakyow
     def puts_commands
       puts
       puts Support::CLI.style.bold("COMMANDS")
-      longest_name_length = Pakyow.tasks.map(&:name).max_by(&:length).length
-      Pakyow.tasks.sort { |a, b| a.name <=> b.name }.each do |task|
+      longest_name_length = tasks.map(&:name).max_by(&:length).length
+      tasks.sort { |a, b| a.name <=> b.name }.each do |task|
         puts "  #{task.name}".ljust(longest_name_length + 4) + Support::CLI.style.yellow(task.description) + "\n"
       end
     end

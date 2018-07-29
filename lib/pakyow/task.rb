@@ -18,8 +18,8 @@ module Pakyow
 
     attr_reader :description
 
-    def initialize(namespace: [], description: nil, arguments: {}, options: {}, task_args: [], &block)
-      @description, @arguments, @options = description, arguments, options
+    def initialize(namespace: [], description: nil, arguments: {}, options: {}, task_args: [], global: false, &block)
+      @description, @arguments, @options, @global = description, arguments, options, global
 
       if namespace.any?
         send(:namespace, namespace.join(":")) do
@@ -104,6 +104,10 @@ module Pakyow
       args.include?(:app)
     end
 
+    def global?
+      @global == true
+    end
+
     private
 
     def sorted_arguments
@@ -176,7 +180,7 @@ module Pakyow
     end
 
     class Loader
-      attr_reader :__namespace, :__description, :__arguments, :__options, :__tasks
+      attr_reader :__namespace, :__description, :__arguments, :__options, :__tasks, :__global
 
       def initialize(path)
         @__namespace = []
@@ -184,6 +188,7 @@ module Pakyow
         @__arguments = {}
         @__options = {}
         @__tasks = []
+        @__global = false
 
         eval(File.read(path), binding, path)
       end
@@ -220,12 +225,19 @@ module Pakyow
           arguments: @__arguments,
           options: CLI::GLOBAL_OPTIONS.merge(@__options),
           task_args: args,
+          global: @__global,
           &block
         )
 
         @__description = nil
         @__arguments = {}
         @__options = {}
+        @__global = false
+      end
+
+      def global_task(*args, &block)
+        @__global = true
+        task(*args, &block)
       end
     end
   end

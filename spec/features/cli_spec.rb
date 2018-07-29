@@ -1,3 +1,5 @@
+require "pakyow/cli"
+
 RSpec.describe "command line interface" do
   shared_examples :banner do
     it "prints the banner" do
@@ -22,7 +24,6 @@ RSpec.describe "command line interface" do
       expect(output).to include("  boot               \e[33mBoot the project server\e[0m\n")
       expect(output).to include("  help               \e[33mGet help for the command line interface\e[0m\n")
       expect(output).to include("  prelaunch          \e[33mRun the prelaunch tasks\e[0m\n")
-      expect(output).to include("  projects:create    \e[33mCreate a new project\e[0m\n")
       expect(output).to include("  projects:info      \e[33mShow details about the current project\e[0m\n")
       expect(output).to include("  repl               \e[33mStart an interactive session\e[0m\n")
       expect(output).to include("  test:pass_app      \e[33mTest passing the application\e[0m\n")
@@ -190,7 +191,7 @@ RSpec.describe "command line interface" do
       end
 
       it "runs the command" do
-        expect(output).to include("Pakyow.env: development\n")
+        expect(output).to include("Pakyow.env")
       end
 
       it "prints a warning" do
@@ -201,6 +202,9 @@ RSpec.describe "command line interface" do
 
   before do
     define_apps
+
+    allow_any_instance_of(Pakyow::CLI).to receive(:project_context?).and_return(true)
+    allow_any_instance_of(Pakyow::CLI).to receive(:configure_bootsnap)
 
     # Set the working directory to the supporting app.
     #
