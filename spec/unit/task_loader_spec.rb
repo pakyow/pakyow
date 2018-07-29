@@ -181,6 +181,7 @@ RSpec.describe Pakyow::Task::Loader do
           }
         },
         task_args: [:foo_task, [:foo, :bar]],
+        global: false,
       }, &block)
 
       instance.describe "task that does foo"
