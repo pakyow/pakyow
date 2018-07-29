@@ -3,7 +3,6 @@
 require "pakyow/version"
 require "pakyow/logger/colorizer"
 require "pakyow/support/deep_freeze"
-require "pakyow/support/cli/style"
 
 require "pakyow/processes/environment"
 
@@ -34,10 +33,6 @@ module Pakyow
     end
 
     def run
-      Pakyow.after :boot, exec: false do
-        puts_running_text
-      end
-
       if @standalone
         start_environment
       else
@@ -106,17 +101,6 @@ module Pakyow
           stop_processes; exit
         }
       end
-    end
-
-    def puts_running_text
-      unless instance_variable_defined?(:@displayed)
-        puts Support::CLI.style.black.on_white.bold(running_text) + "\n"
-        @displayed = true
-      end
-    end
-
-    def running_text
-      " running on #{@server} › http://#{@host}:#{@port} "
     end
   end
 end

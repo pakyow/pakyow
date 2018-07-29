@@ -5,6 +5,7 @@ require "fileutils"
 require "pakyow/process"
 
 require "pakyow/support/cli/runner"
+require "pakyow/support/cli/style"
 
 module Pakyow
   module Processes
@@ -39,6 +40,7 @@ module Pakyow
           @proxy_port ||= find_local_port
 
           run_environment_subprocess(@proxy_port)
+          @started = true
 
           # Register the pid for internal process management.
           #
@@ -51,6 +53,7 @@ module Pakyow
       private
 
       def run_environment(port: @server.port, host: @server.host)
+        puts running_text unless instance_variable_defined?(:@started)
         Pakyow.run(port: port, host: host, server: @server.server)
       end
 
@@ -104,6 +107,12 @@ module Pakyow
         port = server.addr[1]
         server.close
         port
+      end
+
+      def running_text
+        Support::CLI.style.blue.bold(
+          "Pakyow › #{Pakyow.env.capitalize} › http://#{@server.host}:#{@server.port}"
+        ) + Support::CLI.style.italic("\nUse Ctrl-C to stop the project.")
       end
 
       # Proxies requests to the underlying environment process.
