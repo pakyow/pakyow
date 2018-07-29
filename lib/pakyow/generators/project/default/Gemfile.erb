@@ -1,0 +1,28 @@
+source "https://rubygems.org"
+git_source(:github) { |repo| "https://github.com/#{repo}.git" }
+
+ruby "<%= RUBY_VERSION %>"
+
+<%- if generating_locally? -%>
+gem "pakyow", github: "pakyow/pakyow"
+<%- else -%>
+gem "pakyow", "~> <%= Pakyow::VERSION %>"
+<%- end -%>
+
+# Use the puma application server.
+#
+gem "puma"
+
+# Use SQLite3 as the defaul data source.
+#
+gem "sqlite3"
+
+group :development do
+  # Easily manage environment variables.
+  #
+  gem "dotenv"
+
+  # Speed up project boot time.
+  #
+  gem "bootsnap", require: false
+end
