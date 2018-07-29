@@ -275,10 +275,24 @@ module Pakyow
         #
         @tasks = []
 
-        @booted = true
-        call_hooks(:after, :boot)
-        @apps.select { |app| app.respond_to?(:booted) }.each(&:booted)
+        booted
       end
+    end
+
+    # Returns true if the environment has booted.
+    #
+    def booted?
+      @booted == true
+    end
+
+    def booted
+      @booted = true unless booted?
+      call_hooks(:after, :boot)
+      @apps.select { |app| app.respond_to?(:booted) }.each(&:booted)
+    rescue StandardError => error
+      logger.error "Pakyow failed to boot: #{error}"
+      logger.error error.backtrace
+      exit
     end
 
     # Starts the Pakyow Environment.
@@ -383,12 +397,6 @@ module Pakyow
 
     def env?(name)
       env == name.to_sym
-    end
-
-    # Returns true if the environment has booted.
-    #
-    def booted?
-      @booted == true
     end
 
     # @api private

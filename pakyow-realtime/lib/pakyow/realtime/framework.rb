@@ -65,10 +65,14 @@ module Pakyow
           attr_reader :websocket_server
 
           after :boot do
-            @websocket_server = Server.new(
-              Pakyow.config.realtime.adapter,
-              Pakyow.config.realtime.adapter_options.merge(config.realtime.adapter_options)
-            )
+            if instance_variable_defined?(:@websocket_server)
+              # TODO: reconnect the adapter
+            else
+              @websocket_server = Server.new(
+                Pakyow.config.realtime.adapter,
+                Pakyow.config.realtime.adapter_options.merge(config.realtime.adapter_options)
+              )
+            end
           end
 
           known_events :join, :leave
