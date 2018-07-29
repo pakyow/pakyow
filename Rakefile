@@ -7,8 +7,6 @@ GEMS = %i[
   presenter
   assets
   mailer
-  rake
-  test
   realtime
   ui
 ].freeze

@@ -5,7 +5,14 @@ require "pakyow/version"
 namespace :release do
   desc "Remove the gems"
   task :clean do
-    system "rm *.gem"
+    GEMS.each do |gem|
+      puts
+      system "cd pakyow-#{gem} && rm -f *.gem && gem uninstall -I -x pakyow-#{gem} -v #{Pakyow::VERSION} && cd .."
+    end
+
+    puts
+    system "gem uninstall -I -x pakyow -v #{Pakyow::VERSION}"
+    system "rm -f *.gem"
   end
 
   desc "Create the gems"
@@ -14,7 +21,7 @@ namespace :release do
 
     GEMS.each do |gem|
       puts
-      system "gem build pakyow-#{gem}/pakyow-#{gem}.gemspec"
+      system "cd pakyow-#{gem} && gem build pakyow-#{gem}.gemspec && cd .."
     end
   end
 
@@ -22,7 +29,7 @@ namespace :release do
   task install: [:build] do
     GEMS.each do |gem|
       puts
-      system "gem install pakyow-#{gem}-#{Pakyow::VERSION}.gem"
+      system "cd pakyow-#{gem} && gem install pakyow-#{gem}-#{Pakyow::VERSION}.gem && cd .."
     end
 
     puts
@@ -32,14 +39,14 @@ namespace :release do
   desc "Create and publish the gems"
   task publish: [:build] do
     puts
-    puts "\033[31mAre you sure you want to publish ze gems? There's no going back!"
+    puts "\033[31mAre you sure you want to publish these gems? There's no going back!"
     puts "Enter the current version number to continue...\033[0m"
     puts
     input = STDIN.gets.chomp
     puts
 
     if input == Pakyow::VERSION
-      gems = GEMS.map { |gem| "pakyow-#{gem}-#{Pakyow::VERSION}.gem" }
+      gems = GEMS.map { |gem| "pakyow-#{gem}/pakyow-#{gem}-#{Pakyow::VERSION}.gem" }
 
       # add pakyow last
       gems << "pakyow-#{Pakyow::VERSION}.gem"
