@@ -100,6 +100,14 @@ RSpec.describe "command line interface" do
     it "sets the environment" do
       expect(output).to include("Pakyow.env: #{env}")
     end
+
+    it "sets APP_ENV" do
+      expect(ENV["APP_ENV"]).to eq(env)
+    end
+
+    it "sets RACK_ENV" do
+      expect(ENV["RACK_ENV"]).to eq(env)
+    end
   end
 
   shared_examples :app do

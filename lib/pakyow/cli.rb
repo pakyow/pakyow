@@ -79,7 +79,8 @@ module Pakyow
         end
       end
 
-      @options[:env] ||= ENV["RACK_ENV"] || "development"
+      @options[:env] ||= ENV["APP_ENV"] || ENV["RACK_ENV"] || "development"
+      ENV["APP_ENV"] = ENV["RACK_ENV"] = @options[:env]
     end
 
     def parse_with_unknown_args
