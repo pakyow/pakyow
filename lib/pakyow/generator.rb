@@ -4,29 +4,58 @@ require "erb"
 require "fileutils"
 require "pathname"
 
+require "pakyow/support/cli/runner"
 require "pakyow/support/class_state"
 require "pakyow/support/extension"
 require "pakyow/support/pipelined"
+require "pakyow/support/hookable"
 
 module Pakyow
   # Base class for generators.
   #
   class Generator
+    module Common
+      def dot
+        "."
+      end
+    end
+
+    include Common
+
+    include Support::Hookable
+    known_events :generate
+
     attr_reader :files
 
     def initialize(source_path)
-      @files = Dir.glob(::File.join(source_path, "**/*")).map { |path|
+      @files = Dir.glob(::File.join(source_path, "**/*")).reject { |path|
+        ::File.directory?(path)
+      }.map { |path|
         File.new(path, source_path, context: self)
       }
     end
 
     def generate(destination_path, options)
-      @files.each do |file|
-        file.generate(destination_path, options)
+      @destination_path = destination_path
+
+      performing :generate do
+        FileUtils.mkdir_p(destination_path)
+
+        @files.each do |file|
+          file.generate(destination_path, options)
+        end
       end
     end
 
+    def run(command, message:)
+      Support::CLI::Runner.new(message: message).run(
+        "cd #{@destination_path} && #{command}"
+      )
+    end
+
     class File
+      include Common
+
       attr_accessor :path, :logical_path, :content, :context
 
       def initialize(path, source_path, context: self)
@@ -56,15 +85,15 @@ module Pakyow
         #
         FileUtils.mkdir_p(::File.dirname(destination_path_for_file))
 
-        # Write the file.
+        # Skip keep files.
         #
-        ::File.open(destination_path_for_file, "w+") do |file|
-          file.write(@content)
+        unless ::File.basename(@logical_path) == "keep"
+          # Write the file.
+          #
+          ::File.open(destination_path_for_file, "w+") do |file|
+            file.write(@content)
+          end
         end
-      end
-
-      def dot
-        "."
       end
     end
 

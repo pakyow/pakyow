@@ -31,13 +31,57 @@ RSpec.describe Pakyow::Generator do
     end
 
     it "generates each file" do
-      expect(instance.files.length).to eq(4)
+      expect(instance.files.length).to eq(5)
 
       instance.files.each do |file|
         expect(file).to receive(:generate).with(destination_path, options)
       end
 
       instance.generate(destination_path, options)
+    end
+
+    context "hooks are defined for :generate" do
+      before do
+        $generate_hook_calls = []
+
+        described_class.before :generate do
+          $generate_hook_calls << :before
+        end
+
+        described_class.after :generate do
+          $generate_hook_calls << :after
+        end
+
+        allow_any_instance_of(Pakyow::Generator::File).to receive(:generate)
+      end
+
+      it "invokes the hooks" do
+        instance.generate(destination_path, options)
+        expect($generate_hook_calls[0]).to be(:before)
+        expect($generate_hook_calls[1]).to be(:after)
+      end
+    end
+  end
+
+  describe "#run" do
+    let :instance do
+      described_class.new(source_path)
+    end
+
+    let :runner_double do
+      instance_double(Pakyow::Support::CLI::Runner)
+    end
+
+    it "runs the command in context of the destination" do
+      instance.instance_variable_set(:@destination_path, "dest")
+
+      expect(Pakyow::Support::CLI::Runner).to receive(:new).with(message: "foo").and_return(
+        runner_double
+      )
+
+      expect(runner_double).to receive(:run).with("cd dest && ls")
+
+      instance.run("ls", message: "foo")
     end
   end
 end
@@ -73,18 +117,22 @@ RSpec.describe Pakyow::Generator::File do
 
   describe "#generate" do
     before do
-      expect(File.exist?(destination_path)).to be(false)
+      cleanup
       instance.generate(destination_path, options)
     end
 
     after do
-      if File.exist?(destination_path)
-        FileUtils.rm_r(destination_path)
-      end
+      cleanup
     end
 
     let :options do
       {}
+    end
+
+    def cleanup
+      if File.exist?(destination_path)
+        FileUtils.rm_r(destination_path)
+      end
     end
 
     it "generates the file at the destination" do
@@ -137,6 +185,20 @@ RSpec.describe Pakyow::Generator::File do
         it "contains the correct content" do
           expect(File.read(File.join(destination_path, ".gitignore")).strip).to eq("dotfile_test")
         end
+      end
+    end
+
+    context "file is a keep file" do
+      let :file_path do
+        "test-keep/keep"
+      end
+
+      it "generates the enclosing directory" do
+        expect(File.directory?(File.join(destination_path, "test-keep"))).to be(true)
+      end
+
+      it "does not generate the keep file" do
+        expect(File.exist?(File.join(destination_path, "test-keep/keep"))).to be(false)
       end
     end
 
