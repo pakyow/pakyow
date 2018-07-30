@@ -42,6 +42,7 @@ module Pakyow
             adapter: opts[:adapter],
             database: opts[:path],
             host: opts[:host],
+            port: opts[:port],
             user: opts[:user],
             password: opts[:password],
             logger: logger

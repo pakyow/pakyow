@@ -65,6 +65,7 @@ module Pakyow
             adapter: uri.scheme,
             path: String.normalize_path(uri.path)[1..-1],
             host: uri.host,
+            port: uri.port,
             user: uri.user,
             password: uri.password
           }
