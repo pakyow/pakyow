@@ -14,14 +14,18 @@ module Pakyow
       #
       watch "./tmp/restart.txt"
 
-      # Respawn the entire environment when the bundle changes.
+      # Automatically bundle.
       #
       watch "./Gemfile"
-      on_change(/Gemfile/) do
-        Support::CLI::Runner.new(message: "Bundling").run("bundle install") do
-          ::Process.kill("TERM", @proxy_pid)
-          @server.respawn
-        end
+      on_change(/Gemfile$/) do
+        Support::CLI::Runner.new(message: "Bundling").run("bundle install")
+      end
+
+      # Respawn when the bundle changes.
+      #
+      watch "./Gemfile.lock"
+      on_change(/Gemfile.lock/) do
+        @server.respawn
       end
 
       # Respawn when something about the environment changes.
@@ -35,25 +39,34 @@ module Pakyow
 
       def start
         if @server.standalone?
+          puts running_text
           run_environment
         else
           @proxy_port ||= find_local_port
 
           run_environment_subprocess(@proxy_port)
-          @started = true
 
           # Register the pid for internal process management.
           #
           super
 
-          start_proxy(@proxy_port)
+          if !@proxy_pid
+            start_proxy(@proxy_port)
+          end
+        end
+      end
+
+      def stop(exiting = false)
+        super
+
+        if exiting
+          stop_proxy
         end
       end
 
       private
 
       def run_environment(port: @server.port, host: @server.host)
-        puts running_text unless instance_variable_defined?(:@started)
         Pakyow.run(port: port, host: host, server: @server.server)
       end
 
@@ -81,24 +94,35 @@ module Pakyow
       end
 
       def start_proxy(port)
-        unless @proxy_pid
-          @proxy_pid = fork {
-            server_host = @server.host
-            server_port = @server.port
-            builder = Rack::Builder.new {
-              run Proxy.new(host: server_host, port: port, forwarded: "#{server_host}:#{server_port}")
-            }
-
-            Pakyow.send(:handler, @server.server).run(builder.to_app, Host: @server.host, Port: @server.port, Silent: true)
+        @proxy_pid = fork {
+          server_host = @server.host
+          server_port = @server.port
+          builder = Rack::Builder.new {
+            run Proxy.new(host: server_host, port: port, forwarded: "#{server_host}:#{server_port}")
           }
 
-          Pakyow::STOP_SIGNALS.each do |signal|
-            trap(signal) {
-              ::Process.kill("TERM", @proxy_pid); exit
-            }
+          unless ENV["PW_RESPAWN"]
+            puts running_text
           end
 
-          sleep
+          Pakyow.send(:handler, @server.server).run(builder.to_app, Host: @server.host, Port: @server.port, Silent: true)
+        }
+
+        Pakyow::STOP_SIGNALS.each do |signal|
+          trap(signal) {
+            @server.stop
+            raise SignalException, signal
+          }
+        end
+
+        sleep
+      end
+
+      def stop_proxy
+        if @proxy_pid
+          ::Process.kill("TERM", @proxy_pid)
+          ::Process.waitpid(@proxy_pid)
+          @proxy_pid = nil
         end
       end
 

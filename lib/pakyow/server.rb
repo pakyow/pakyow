@@ -22,7 +22,7 @@ module Pakyow
     extend Support::DeepFreeze
     unfreezable :instances
 
-    attr_reader :port, :host, :server
+    attr_reader :port, :host, :server, :master_pid
 
     def initialize(port: nil, host: nil, server: nil, standalone: false)
       @port       = port   || Pakyow.config.server.port
@@ -30,6 +30,7 @@ module Pakyow
       @server     = server || Pakyow.config.server.name
       @standalone = standalone
       @instances  = []
+      @master_pid = ::Process.pid
     end
 
     def run
@@ -37,7 +38,6 @@ module Pakyow
         start_environment
       else
         start_processes
-        trap_interrupts
         start_environment
       end
     end
@@ -55,9 +55,18 @@ module Pakyow
     end
 
     def respawn
-      stop_processes
-      # TODO: take into account environment, other options that can be specified
-      exec "pakyow boot"
+      # Don't allow a forked process to respawn.
+      #
+      if ::Process.pid == @master_pid
+        stop
+
+        # TODO: pass all server options passed through cli
+        exec "PW_RESPAWN=true pakyow boot"
+      end
+    end
+
+    def stop
+      stop_processes(true)
     end
 
     def stop_dependent_processes(dependent_on)
@@ -84,23 +93,15 @@ module Pakyow
       end
     end
 
-    def stop_processes
+    def stop_processes(exiting = false)
       @instances.each do |instance|
         stop_dependent_processes(instance.class)
-        instance.stop
+        instance.stop(exiting)
       end
     end
 
     def restart_processes
       @instances.each(&:restart)
-    end
-
-    def trap_interrupts
-      Pakyow::STOP_SIGNALS.each do |signal|
-        trap(signal) {
-          stop_processes; exit
-        }
-      end
     end
   end
 end

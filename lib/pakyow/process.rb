@@ -50,17 +50,22 @@ module Pakyow
       @server.started(self)
     end
 
-    def stop
+    def stop(exiting = false)
       if @pid
-        ::Process.kill("INT", @pid)
+        ::Process.kill("TERM", @pid)
         ::Process.waitpid(@pid)
+        @pid = nil
       end
 
       @server.stopped(self)
     end
 
     def restart
-      stop; start
+      # Don't allow a forked process to issue a restart.
+      #
+      if ::Process.pid == @server.master_pid
+        stop; start
+      end
     end
 
     def watch
@@ -70,17 +75,15 @@ module Pakyow
     end
 
     def watch_callback(path, _event)
-      callbacks_for_path = self.class.change_callbacks(path)
+      callbacks = self.class.change_callbacks(path)
 
-      if callbacks_for_path.any?
-        callbacks_for_path.each do |callback|
+      if callbacks.any?
+        callbacks.each do |callback|
           instance_exec(&callback)
         end
-
-        return
+      else
+        restart
       end
-
-      restart
     end
 
     def start_with_watch
