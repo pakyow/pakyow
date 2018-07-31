@@ -1,8 +1,17 @@
 # frozen_string_literal: true
 
 desc "Get help for the command line interface"
-task :help, [:command] do |_, _args|
-  # TODO: present help for a command, or global if no command
-  #   we also need to handle the command being invalid
-  pp self
+argument :command, "The command to get help for"
+task :help, [:command] do |_, args|
+  # FIXME: Without this condition the command runs infinitely. The reason isn't
+  # obvious and needs to be revisited at some point in the future.
+  #
+  unless defined?($helping) && $helping
+    $helping = true
+    if args.key?(:command)
+      Pakyow::CLI.new([args[:command], "-h"])
+    else
+      Pakyow::CLI.new(["-h"])
+    end
+  end
 end
