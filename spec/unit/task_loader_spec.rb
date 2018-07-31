@@ -180,7 +180,7 @@ RSpec.describe Pakyow::Task::Loader do
             required: false
           }
         },
-        task_args: [:foo_task, [:foo, :bar]],
+        task_args: [:foo_task, [:app, :foo, :bar]],
         global: false,
       }, &block)
 
@@ -188,7 +188,7 @@ RSpec.describe Pakyow::Task::Loader do
       instance.argument :foo, "foo argument"
       instance.option :bar, "bar option"
       instance.namespace :ns do
-        task :foo_task, [:foo, :bar], &block
+        task :foo_task, [:app, :foo, :bar], &block
       end
 
       expect(instance.__tasks.count).to be(1)

@@ -223,7 +223,9 @@ module Pakyow
           namespace: @__namespace,
           description: @__description,
           arguments: @__arguments,
-          options: CLI::GLOBAL_OPTIONS.merge(@__options),
+          options: CLI::GLOBAL_OPTIONS.select { |key, _|
+            key == :env || args[1].to_a.include?(key)
+          }.merge(@__options),
           task_args: args,
           global: @__global,
           &block

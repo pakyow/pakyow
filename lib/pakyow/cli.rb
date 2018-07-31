@@ -171,7 +171,9 @@ module Pakyow
       if @options[:help]
         puts @task.help
       else
-        @task.call(@options, @argv.dup)
+        @task.call(@options.select { |key, _|
+          (key == :app && @task.app?) || key != :app
+        }, @argv.dup)
       end
     rescue InvalidInput => error
       puts_error(error)

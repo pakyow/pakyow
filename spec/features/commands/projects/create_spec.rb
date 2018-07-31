@@ -13,7 +13,13 @@ RSpec.describe "cli: projects:create" do
 
   describe "help" do
     it "is helpful" do
-      expect(run_command(command)).to eq("  \e[31m›\e[0m Missing required argument: path\n\n\e[1mUSAGE\e[0m\n  $ pakyow projects:create [PATH]\n\n\e[1mARGUMENTS\e[0m\n  PATH  \e[33mWhere to create the project\e[0m\e[31m (required)\e[0m\n\n\e[1mOPTIONS\e[0m\n  -a, --app=app  \e[33mThe app to run the command on\e[0m\n  -e, --env=env  \e[33mWhat environment to use\e[0m\n")
+      expect(run_command(command, "-h")).to eq("\e[34;1mCreate a new project\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow projects:create [PATH]\n\n\e[1mARGUMENTS\e[0m\n  PATH  \e[33mWhere to create the project\e[0m\e[31m (required)\e[0m\n\n\e[1mOPTIONS\e[0m\n  -e, --env=env  \e[33mWhat environment to use\e[0m\n")
+    end
+  end
+
+  describe "failure" do
+    it "is helpful" do
+      expect(run_command(command)).to eq("  \e[31m›\e[0m Missing required argument: path\n\n\e[1mUSAGE\e[0m\n  $ pakyow projects:create [PATH]\n\n\e[1mARGUMENTS\e[0m\n  PATH  \e[33mWhere to create the project\e[0m\e[31m (required)\e[0m\n\n\e[1mOPTIONS\e[0m\n  -e, --env=env  \e[33mWhat environment to use\e[0m\n")
     end
   end
 

@@ -60,7 +60,6 @@ RSpec.describe "command line interface" do
 
     it "prints options" do
       expect(output).to include("\e[1mOPTIONS\e[0m\n")
-      expect(output).to include("  -a, --app=app  \e[33mThe app to run the command on\e[0m\n")
       expect(output).to include("  -b, --baz=baz  \e[33mBaz arg\e[0m\e[31m (required)\e[0m\n")
       expect(output).to include("  -e, --env=env  \e[33mWhat environment to use\e[0m\n")
       expect(output).to include("  -q, --qux=qux  \e[33mQux arg\e[0m\n")
