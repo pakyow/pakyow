@@ -18,10 +18,13 @@ namespace :projects do
       puts "  #{Pakyow::Support.inflector.humanize(key).ljust(longest_key_length + 8)}#{value}"
     end
 
-    puts
     info[:apps].each do |app|
-      puts Pakyow::Support::CLI.style.bold(app[:class])
+      header = app[:class]
+      header += " [#{app[:reference]}]" if app.key?(:reference)
+      puts
+      puts Pakyow::Support::CLI.style.bold(header)
       app.delete(:class)
+      app.delete(:reference)
       app.each do |key, value|
         puts "  #{Pakyow::Support.inflector.humanize(key).ljust(longest_key_length + 8)}#{value}"
       end

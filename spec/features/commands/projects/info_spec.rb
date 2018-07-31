@@ -9,6 +9,14 @@ RSpec.describe "cli: projects:info" do
 
     allow_any_instance_of(Pakyow::CLI).to receive(:project_context?).and_return(true)
     allow_any_instance_of(Pakyow::CLI).to receive(:load_environment)
+    allow_any_instance_of(Pakyow::CLI).to receive(:configure_bootsnap)
+  end
+
+  after do
+    Foo.__send__(:remove_const, :App)
+    Bar.__send__(:remove_const, :App)
+    Object.__send__(:remove_const, :Foo)
+    Object.__send__(:remove_const, :Bar)
   end
 
   let :command do
@@ -23,7 +31,20 @@ RSpec.describe "cli: projects:info" do
 
   describe "running" do
     it "shows project info" do
-      expect(run_command(command)).to eq("\e[1mLIBRARY VERSIONS\e[0m\n  Ruby          v2.5.1-p57 (x86_64-darwin17)\n  Pakyow        v1.0.0.alpha1\n  Rack          v2.0.5\n\n\e[1mFoo::App\e[0m\n  Mount path    /\n  Frameworks    []\n  App root      /Users/bryanp/src/pakyow/pakyow/spec/tmp\n\e[1mBar::App\e[0m\n  Mount path    /\n  Frameworks    []\n  App root      /Users/bryanp/src/pakyow/pakyow/spec/tmp\n")
+      expect(run_command(command)).to eq("\e[1mLIBRARY VERSIONS\e[0m\n  Ruby          v2.5.1-p57 (x86_64-darwin17)\n  Pakyow        v1.0.0.alpha1\n  Rack          v2.0.5\n\n\e[1mFoo::App [:foo]\e[0m\n  Mount path    /\n  Frameworks    []\n  App root      /Users/bryanp/src/pakyow/pakyow/spec/tmp\n\n\e[1mBar::App [:bar]\e[0m\n  Mount path    /\n  Frameworks    []\n  App root      /Users/bryanp/src/pakyow/pakyow/spec/tmp\n")
+    end
+
+    context "non-pakyow app is mounted" do
+      class RackEndpoint
+      end
+
+      before do
+        Pakyow.mount RackEndpoint, at: "/non-pakyow"
+      end
+
+      it "shows as much info as possible" do
+        expect(run_command(command)).to eq("\e[1mLIBRARY VERSIONS\e[0m\n  Ruby          v2.5.1-p57 (x86_64-darwin17)\n  Pakyow        v1.0.0.alpha1\n  Rack          v2.0.5\n\n\e[1mFoo::App [:foo]\e[0m\n  Mount path    /\n  Frameworks    []\n  App root      /Users/bryanp/src/pakyow/pakyow/spec/tmp\n\n\e[1mBar::App [:bar]\e[0m\n  Mount path    /\n  Frameworks    []\n  App root      /Users/bryanp/src/pakyow/pakyow/spec/tmp\n\n\e[1mRackEndpoint\e[0m\n  Mount path    /\n")
+      end
     end
 
     it "needs more specific tests"

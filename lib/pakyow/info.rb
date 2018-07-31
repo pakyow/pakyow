@@ -12,12 +12,20 @@ module Pakyow
       },
 
       apps: Pakyow.mounts.map { |path, info|
-        {
+        common_info = {
           mount_path: "/",
           class: info[:app].to_s,
-          frameworks: info[:app].config.loaded_frameworks,
-          app_root: File.expand_path(info[:app].config.root),
         }
+
+        if info[:app].ancestors.include?(Pakyow::App)
+          common_info.merge(
+            reference: info[:app].config.name.inspect,
+            frameworks: info[:app].config.loaded_frameworks,
+            app_root: File.expand_path(info[:app].config.root)
+          )
+        else
+          common_info
+        end
       }
     }
   end
