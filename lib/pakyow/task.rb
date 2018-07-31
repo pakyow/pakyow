@@ -14,7 +14,7 @@ module Pakyow
     include Rake::DSL
 
     extend Forwardable
-    def_delegators :@rake, :name, :reenable
+    def_delegators :@rake, :name
 
     attr_reader :description
 

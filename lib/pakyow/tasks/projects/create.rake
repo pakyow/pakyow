@@ -4,12 +4,21 @@ namespace :projects do
   desc "Create a new project"
   argument :path, "Where to create the project", required: true
   global_task :create, [:path] do |_, args|
-    project_name = File.basename(args[:path])
+    require "pakyow/support/inflector"
+
+    project_name = Pakyow::Support.inflector.underscore(
+      File.basename(args[:path]).downcase
+    )
+
+    project_name.gsub!("  ", " ")
+    project_name.gsub!(" ", "_")
+
+    human_project_name = Pakyow::Support.inflector.humanize(project_name)
 
     require "pakyow/generators/project"
     Pakyow::Generators::Project.new(
       File.expand_path("../../../generators/project/default", __FILE__)
-    ).generate(args[:path], project_name: project_name)
+    ).generate(args[:path], project_name: project_name, human_project_name: human_project_name)
 
     require "pakyow/support/cli/style"
     puts <<~OUTPUT

@@ -66,7 +66,7 @@ module Pakyow
     end
 
     def project_context?
-      File.exist?(environment_path)
+      File.exist?(environment_path + ".rb")
     end
 
     def current_path

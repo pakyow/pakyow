@@ -228,11 +228,8 @@ RSpec.describe "command line interface" do
   end
 
   after do
-    Pakyow.tasks.each(&:reenable)
     Pakyow.mounts.clear
-  end
 
-  after do
     cache_dir = File.expand_path("../support/tmp/cache", __FILE__)
     if File.exist?(cache_dir)
       FileUtils.rm_r(cache_dir)

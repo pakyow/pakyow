@@ -19,12 +19,15 @@ if i.nil? || ARGV[i + 1].start_with?(File.expand_path("../", __FILE__))
   require "helpers/app_helpers"
   require "helpers/mock_handler"
   require "helpers/output_helpers"
+  require "helpers/command_helpers"
 
   RSpec.configure do |config|
     config.include AppHelpers
     config.include OutputHelpers
+    config.include CommandHelpers
   end
 
   require "context/testable_app_context"
+  require "context/testable_command_context"
   require "context/suppressed_output_context"
 end

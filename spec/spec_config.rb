@@ -41,6 +41,10 @@ RSpec.configure do |config|
   end
 
   config.after do
+    if defined?(Rake)
+      Rake.application.clear
+    end
+
     if Pakyow.instance_variable_defined?(:@__class_state)
       @original_class_state.each do |ivar, original_value|
         Pakyow.instance_variable_set(ivar, original_value)
