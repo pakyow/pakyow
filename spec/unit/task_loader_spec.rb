@@ -180,15 +180,21 @@ RSpec.describe Pakyow::Task::Loader do
             required: false
           }
         },
-        task_args: [:foo_task, [:app, :foo, :bar]],
+        flags: {
+          baz: {
+            description: "baz flag"
+          }
+        },
+        task_args: [:foo_task, [:app, :foo, :bar, :baz]],
         global: false,
       }, &block)
 
       instance.describe "task that does foo"
       instance.argument :foo, "foo argument"
       instance.option :bar, "bar option"
+      instance.flag :baz, "baz flag"
       instance.namespace :ns do
-        task :foo_task, [:app, :foo, :bar], &block
+        task :foo_task, [:app, :foo, :bar, :baz], &block
       end
 
       expect(instance.__tasks.count).to be(1)
