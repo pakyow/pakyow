@@ -443,7 +443,7 @@ module Pakyow
       end
 
       # exit ungracefully
-      Process.exit!
+      ::Process.exit!
     end
   end
 end
