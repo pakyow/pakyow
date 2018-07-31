@@ -10,6 +10,7 @@ RSpec.describe "cli: projects:info" do
     allow_any_instance_of(Pakyow::CLI).to receive(:project_context?).and_return(true)
     allow_any_instance_of(Pakyow::CLI).to receive(:load_environment)
     allow_any_instance_of(Pakyow::CLI).to receive(:configure_bootsnap)
+
   end
 
   after do
@@ -23,6 +24,14 @@ RSpec.describe "cli: projects:info" do
     "projects:info"
   end
 
+  let :frameworks do
+    Pakyow.frameworks.keys.inspect
+  end
+
+  let :local_path do
+    File.expand_path("../../../../../", __FILE__)
+  end
+
   describe "help" do
     it "is helpful" do
       expect(run_command(command, "-h")).to eq("\e[34;1mShow details about the current project\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow projects:info\n\n\e[1mOPTIONS\e[0m\n  -e, --env=env  \e[33mWhat environment to use\e[0m\n")
@@ -31,7 +40,7 @@ RSpec.describe "cli: projects:info" do
 
   describe "running" do
     it "shows project info" do
-      expect(run_command(command)).to eq("\e[1mLIBRARY VERSIONS\e[0m\n  Ruby          v2.5.1-p57 (x86_64-darwin17)\n  Pakyow        v1.0.0.alpha1\n  Rack          v2.0.5\n\n\e[1mFoo::App [:foo]\e[0m\n  Mount path    /\n  Frameworks    []\n  App root      /Users/bryanp/src/pakyow/pakyow/spec/tmp\n\n\e[1mBar::App [:bar]\e[0m\n  Mount path    /\n  Frameworks    []\n  App root      /Users/bryanp/src/pakyow/pakyow/spec/tmp\n")
+      expect(run_command(command)).to eq("\e[1mLIBRARY VERSIONS\e[0m\n  Ruby          v2.5.1-p57 (x86_64-darwin17)\n  Pakyow        v1.0.0.alpha1\n  Rack          v2.0.5\n\n\e[1mFoo::App [:foo]\e[0m\n  Mount path    /\n  Frameworks    #{frameworks}\n  App root      #{local_path}/spec/tmp\n\n\e[1mBar::App [:bar]\e[0m\n  Mount path    /\n  Frameworks    #{frameworks}\n  App root      #{local_path}/spec/tmp\n")
     end
 
     context "non-pakyow app is mounted" do
@@ -43,7 +52,7 @@ RSpec.describe "cli: projects:info" do
       end
 
       it "shows as much info as possible" do
-        expect(run_command(command)).to eq("\e[1mLIBRARY VERSIONS\e[0m\n  Ruby          v2.5.1-p57 (x86_64-darwin17)\n  Pakyow        v1.0.0.alpha1\n  Rack          v2.0.5\n\n\e[1mFoo::App [:foo]\e[0m\n  Mount path    /\n  Frameworks    []\n  App root      /Users/bryanp/src/pakyow/pakyow/spec/tmp\n\n\e[1mBar::App [:bar]\e[0m\n  Mount path    /\n  Frameworks    []\n  App root      /Users/bryanp/src/pakyow/pakyow/spec/tmp\n\n\e[1mRackEndpoint\e[0m\n  Mount path    /\n")
+        expect(run_command(command)).to eq("\e[1mLIBRARY VERSIONS\e[0m\n  Ruby          v2.5.1-p57 (x86_64-darwin17)\n  Pakyow        v1.0.0.alpha1\n  Rack          v2.0.5\n\n\e[1mFoo::App [:foo]\e[0m\n  Mount path    /\n  Frameworks    #{frameworks}\n  App root      #{local_path}/spec/tmp\n\n\e[1mBar::App [:bar]\e[0m\n  Mount path    /\n  Frameworks    #{frameworks}\n  App root      #{local_path}/spec/tmp\n\n\e[1mRackEndpoint\e[0m\n  Mount path    /\n")
       end
     end
 
