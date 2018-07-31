@@ -18,8 +18,8 @@ module Pakyow
 
     attr_reader :description
 
-    def initialize(namespace: [], description: nil, arguments: {}, options: {}, task_args: [], global: false, &block)
-      @description, @arguments, @options, @global = description, arguments, options, global
+    def initialize(namespace: [], description: nil, arguments: {}, options: {}, flags: {}, task_args: [], global: false, &block)
+      @description, @arguments, @options, @flags, @global = description, arguments, options, flags, global
 
       if namespace.any?
         send(:namespace, namespace.join(":")) do
@@ -87,13 +87,21 @@ module Pakyow
           #{Support::CLI.style.bold("OPTIONS")}
         HELP
 
-        longest_length = @options.keys.map(&:to_s).max_by(&:length).length
-        sorted_options.each do |key, option|
+        longest_length = (@options.keys + @flags.keys).map(&:to_s).max_by(&:length).length
+        sorted_options_and_flags.each do |key, option|
           description = Support::CLI.style.yellow(option[:description])
+
           if option[:required]
             description += Support::CLI.style.red(" (required)")
           end
-          text += "  -#{key.to_s[0]}, --#{key}=#{key}".ljust(longest_length * 2 + 11) + description + "\n"
+
+          prefix = if @flags.key?(key)
+            "      --#{key}"
+          else
+            "  -#{key.to_s[0]}, --#{key}=#{key}"
+          end
+
+          text += prefix.ljust(longest_length * 2 + 11) + description + "\n"
         end
       end
 
@@ -118,6 +126,10 @@ module Pakyow
       @options.sort
     end
 
+    def sorted_options_and_flags
+      @options.merge(@flags).sort
+    end
+
     def define_task(task_args, task_block)
       @rake = task(*task_args) { |task, args|
         instance_exec(task, args, &task_block)
@@ -131,6 +143,12 @@ module Pakyow
     def parse_options(argv, options)
       unparsed = Array.new
       OptionParser.new { |opts|
+        @flags.keys.each do |flag|
+          opts.on("--#{flag}") do |v|
+            options[flag] = v
+          end
+        end
+
         @options.keys.each do |option|
           opts.on("-#{option.to_s[0]}VAL", "--#{option}=VAL") do |v|
             options[option] = v
@@ -180,13 +198,14 @@ module Pakyow
     end
 
     class Loader
-      attr_reader :__namespace, :__description, :__arguments, :__options, :__tasks, :__global
+      attr_reader :__namespace, :__description, :__arguments, :__options, :__flags, :__tasks, :__global
 
       def initialize(path)
         @__namespace = []
         @__description = nil
         @__arguments = {}
         @__options = {}
+        @__flags = {}
         @__tasks = []
         @__global = false
 
@@ -218,6 +237,12 @@ module Pakyow
         }
       end
 
+      def flag(name, description)
+        @__flags[name.to_sym] = {
+          description: description
+        }
+      end
+
       def task(*args, &block)
         @__tasks << Task.new(
           namespace: @__namespace,
@@ -226,6 +251,7 @@ module Pakyow
           options: CLI::GLOBAL_OPTIONS.select { |key, _|
             key == :env || args[1].to_a.include?(key)
           }.merge(@__options),
+          flags: @__flags,
           task_args: args,
           global: @__global,
           &block

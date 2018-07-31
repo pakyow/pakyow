@@ -21,14 +21,14 @@ RSpec.describe "command line interface" do
 
     it "prints known commands" do
       expect(output).to include("\e[1mCOMMANDS\e[0m\n")
-      expect(output).to include("  boot               \e[33mBoot the project server\e[0m\n")
-      expect(output).to include("  help               \e[33mGet help for the command line interface\e[0m\n")
-      expect(output).to include("  prelaunch          \e[33mRun the prelaunch tasks\e[0m\n")
-      expect(output).to include("  projects:info      \e[33mShow details about the current project\e[0m\n")
-      expect(output).to include("  irb                \e[33mStart an interactive session\e[0m\n")
-      expect(output).to include("  test:pass_app      \e[33mTest passing the application\e[0m\n")
-      expect(output).to include("  test:pass_arg_opt  \e[33mTest arguments + options\e[0m\n")
-      expect(output).to include("  test:pass_env      \e[33mTest passing the environment\e[0m\n")
+      expect(output).to include("  boot                   \e[33mBoot the project server\e[0m\n")
+      expect(output).to include("  help                   \e[33mGet help for the command line interface\e[0m\n")
+      expect(output).to include("  prelaunch              \e[33mRun the prelaunch tasks\e[0m\n")
+      expect(output).to include("  projects:info          \e[33mShow details about the current project\e[0m\n")
+      expect(output).to include("  irb                    \e[33mStart an interactive session\e[0m\n")
+      expect(output).to include("  test:pass_app          \e[33mTest passing the application\e[0m\n")
+      expect(output).to include("  test:pass_arg_opt_flg  \e[33mTest arguments + options\e[0m\n")
+      expect(output).to include("  test:pass_env          \e[33mTest passing the environment\e[0m\n")
     end
   end
 
@@ -44,12 +44,12 @@ RSpec.describe "command line interface" do
 
   shared_examples :command_help do
     let :command do
-      "test:pass_arg_opt"
+      "test:pass_arg_opt_flg"
     end
 
     it "prints usage instructions" do
       expect(output).to include("\e[1mUSAGE\e[0m\n")
-      expect(output).to include("  $ pakyow test:pass_arg_opt [FOO] --baz=baz\n")
+      expect(output).to include("  $ pakyow test:pass_arg_opt_flg [FOO] --baz=baz\n")
     end
 
     it "prints arguments" do
@@ -63,6 +63,10 @@ RSpec.describe "command line interface" do
       expect(output).to include("  -b, --baz=baz  \e[33mBaz arg\e[0m\e[31m (required)\e[0m\n")
       expect(output).to include("  -e, --env=env  \e[33mWhat environment to use\e[0m\n")
       expect(output).to include("  -q, --qux=qux  \e[33mQux arg\e[0m\n")
+    end
+
+    it "prints flags" do
+      expect(output).to include("      --meh      \e[33mMeh flag\e[0m\n")
     end
   end
 
@@ -322,7 +326,7 @@ RSpec.describe "command line interface" do
 
     context "missing a required argument" do
       let :command do
-        "test:pass_arg_opt"
+        "test:pass_arg_opt_flg"
       end
 
       let :argv do
@@ -338,7 +342,7 @@ RSpec.describe "command line interface" do
 
     context "missing a required option" do
       let :command do
-        "test:pass_arg_opt"
+        "test:pass_arg_opt_flg"
       end
 
       let :argv do
@@ -354,7 +358,7 @@ RSpec.describe "command line interface" do
 
     context "passing an unknown argument" do
       let :command do
-        "test:pass_arg_opt"
+        "test:pass_arg_opt_flg"
       end
 
       let :argv do
@@ -370,7 +374,7 @@ RSpec.describe "command line interface" do
 
     context "passing an unknown option" do
       let :command do
-        "test:pass_arg_opt"
+        "test:pass_arg_opt_flg"
       end
 
       let :argv do

@@ -14,6 +14,7 @@ namespace :test do
   argument :bar, "Bar arg"
   option :baz, "Baz arg", required: true
   option :qux, "Qux arg"
-  task :pass_arg_opt, [:foo, :bar, :baz, :qux] do |_, args|
+  flag :meh, "Meh flag"
+  task :pass_arg_opt_flg, [:foo, :bar, :baz, :qux, :meh] do |_, args|
   end
 end
