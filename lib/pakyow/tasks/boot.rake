@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
+require "pakyow/server"
+
 desc "Boot the project server"
-task :boot do
-  require "pakyow/server"
-
-  # TODO: accept these arguments...
-  # port: nil, host: nil, server: nil, standalone: false
-
-  server = Pakyow::Server.new(standalone: Pakyow.env?(:production))
-  server.run
+option :host, "The host the server runs on (default: #{Pakyow.config.server.host})"
+option :port, "The port the server runs on (default: #{Pakyow.config.server.port})"
+flag :standalone, "Disable automatic reloading of changes"
+task :boot, [:host, :port, :standalone] do |_, args|
+  Pakyow::Server.new(
+    host: args[:host], port: args[:port],
+    standalone: args[:standalone] || Pakyow.env?(:production)
+  ).run
 end

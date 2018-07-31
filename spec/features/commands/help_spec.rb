@@ -29,7 +29,7 @@ RSpec.describe "cli: help" do
     end
 
     it "displays help for a command" do
-      expect(run_command(command, "boot")).to eq("\e[34;1mBoot the project server\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow boot\n\n\e[1mOPTIONS\e[0m\n  -e, --env=env  \e[33mWhat environment to use\e[0m\n")
+      expect(run_command(command, "boot")).to eq("\e[34;1mBoot the project server\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow boot\n\n\e[1mOPTIONS\e[0m\n  -e, --env=env                \e[33mWhat environment to use\e[0m\n  -h, --host=host              \e[33mThe host the server runs on (default: localhost)\e[0m\n  -p, --port=port              \e[33mThe port the server runs on (default: 3000)\e[0m\n      --standalone             \e[33mDisable automatic reloading of changes\e[0m\n")
     end
 
     it "displays help for the help command" do
