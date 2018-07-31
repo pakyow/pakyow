@@ -2,7 +2,6 @@
 
 desc "Start an interactive session"
 task :irb do
-  ARGV.clear
   require "#{Pakyow.config.cli.repl.to_s.downcase}"
   Pakyow.config.cli.repl.start
 end
