@@ -84,7 +84,13 @@ module Pakyow
     protected
 
     def start_environment
-      Processes::Environment.new(self).start_with_watch
+      Processes::Environment.new(self).tap do |environment|
+        if standalone?
+          environment.start
+        else
+          environment.start_with_watch
+        end
+      end
     end
 
     def start_processes
