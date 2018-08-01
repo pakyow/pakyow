@@ -19,7 +19,6 @@ module Pakyow
           INFINITY = "+inf"
 
           PUBSUB_PREFIX = "pubsub"
-          PUBSUB_HEARTBEAT = "heartbeat"
 
           def initialize(server, config)
             @server = server
@@ -48,10 +47,6 @@ module Pakyow
               end
 
               Pakyow.logger.debug "[Pakyow::Realtime::Server::Adapter::Redis] Removed #{removed_count} keys"
-            }.execute
-
-            Concurrent::TimerTask.new(execution_interval: 30) {
-              @redis.publish(pubsub_channel, PUBSUB_HEARTBEAT)
             }.execute
           end
 
@@ -201,9 +196,7 @@ module Pakyow
             def subscribe
               @redis.subscribe(@channel) do |on|
                 on.message do |_, payload|
-                  unless payload == PUBSUB_HEARTBEAT
-                    @callback.call(payload)
-                  end
+                  @callback.call(payload)
                 end
               end
             rescue ::Redis::CannotConnectError
