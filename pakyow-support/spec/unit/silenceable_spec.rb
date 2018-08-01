@@ -1,3 +1,5 @@
+require "pakyow/support/silenceable"
+
 RSpec.describe Pakyow::Support::Silenceable do
   let :instance do
     Class.new {

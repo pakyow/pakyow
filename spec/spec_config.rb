@@ -88,14 +88,30 @@ RSpec::Matchers.define :include_sans_whitespace do |expected|
   diffable
 end
 
-require "pakyow/support/silenceable"
+require "warning"
+warnings = []
+pakyow_path = File.expand_path("../../", __FILE__)
+Warning.process do |warning|
+  if warning.start_with?(pakyow_path)
+    warnings << warning.gsub(/^#{pakyow_path}\//, "")
+  end
+end
+
+at_exit do
+  if warnings.any?
+    require "pakyow/support/cli/style"
+    puts Pakyow::Support::CLI.style.yellow "#{warnings.count} warnings were generated:"
+    warnings.each do |warning|
+      puts Pakyow::Support::CLI.style.yellow("  › ") + warning.strip
+    end
+    puts
+  end
+end
 
 def start_simplecov(&block)
   if ENV["COVERAGE"]
-    Pakyow::Support::Silenceable.silence_warnings do
-      require "simplecov"
-      require "simplecov-console"
-    end
+    require "simplecov"
+    require "simplecov-console"
 
     SimpleCov::Formatter::Console.table_options = { max_width: 200 }
     SimpleCov.formatter = SimpleCov::Formatter::Console
@@ -107,8 +123,6 @@ def start_simplecov(&block)
   end
 end
 
-Pakyow::Support::Silenceable.silence_warnings do
-  require "pry"
-end
+require "pry"
 
 ENV["SESSION_SECRET"] = "sekret"

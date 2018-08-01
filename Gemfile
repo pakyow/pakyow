@@ -33,6 +33,8 @@ group :test do
   gem "rspec", "~> 3.7"
   gem "rspec-benchmark", "~> 0.3"
 
+  gem "warning", "~> 0.10"
+
   gem "babel-transpiler"
   gem "sass"
 
