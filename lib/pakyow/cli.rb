@@ -48,15 +48,19 @@ module Pakyow
         puts_help
       end
     rescue RuntimeError => error
-      puts_error(error)
+      if $stdout.isatty
+        puts_error(error)
 
-      if @task
-        puts @task.help(describe: false)
+        if @task
+          puts @task.help(describe: false)
+        else
+          puts_help(banner: false)
+        end
+
+        ::Process.exit(0)
       else
-        puts_help(banner: false)
+        raise error
       end
-
-      ::Process.exit(0)
     end
 
     private

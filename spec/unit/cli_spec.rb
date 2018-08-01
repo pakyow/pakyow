@@ -80,6 +80,43 @@ RSpec.describe Pakyow::CLI do
     end
   end
 
+  describe "failing tasks" do
+    before do
+      allow_any_instance_of(Pakyow::CLI).to receive(:configure_bootsnap)
+      allow_any_instance_of(Pakyow::CLI).to receive(:load_tasks)
+      allow_any_instance_of(Pakyow::CLI).to receive(:puts_help)
+      allow_any_instance_of(Pakyow::CLI).to receive(:puts_error)
+    end
+
+    context "stdout is a tty" do
+      before do
+        allow($stdout).to receive(:isatty).and_return(true)
+      end
+
+      it "does not raise the error" do
+        expect_any_instance_of(Pakyow::CLI).to receive(:parse_global_options).and_raise(RuntimeError)
+
+        expect {
+          Pakyow::CLI.new([])
+        }.to_not raise_error
+      end
+    end
+
+    context "stdout is not a tty" do
+      before do
+        allow($stdout).to receive(:isatty).and_return(false)
+      end
+
+      it "raises the error" do
+        expect_any_instance_of(Pakyow::CLI).to receive(:parse_global_options).and_raise(RuntimeError)
+
+        expect {
+          Pakyow::CLI.new([])
+        }.to raise_error(RuntimeError)
+      end
+    end
+  end
+
   describe "exit codes" do
     before do
       allow_any_instance_of(Pakyow::CLI).to receive(:configure_bootsnap)
