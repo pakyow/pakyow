@@ -2,7 +2,6 @@ RSpec.describe "data prelaunch tasks" do
   include_context "testable app"
 
   let :app_definition do
-
     Proc.new do
       instance_exec(&$data_app_boilerplate)
 
@@ -10,6 +9,11 @@ RSpec.describe "data prelaunch tasks" do
       Pakyow.config.data.connections.sql[:another] = "postgres://localhost/pakyow-test2"
       Pakyow.config.data.connections.sql[:memory] = "sqlite::memory"
     end
+  end
+
+  before do
+    system "createdb pakyow-test > /dev/null", out: File::NULL, err: File::NULL
+    system "createdb pakyow-test2 > /dev/null", out: File::NULL, err: File::NULL
   end
 
   it "registers a prelaunch task for each migratable connection" do
