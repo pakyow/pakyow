@@ -7,6 +7,8 @@ require "pakyow/data/migrators/sqlite"
 
 namespace :db do
   desc "Finalize a database"
+  option :adapter, "The adapter to migrate"
+  option :connection, "The connection to migrate"
   task :finalize, [:adapter, :connection] do |_, args|
     migrator = Pakyow::Data::Migrator.establish(
       adapter: args[:adapter],
