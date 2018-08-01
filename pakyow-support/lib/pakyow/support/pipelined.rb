@@ -248,7 +248,7 @@ module Pakyow
                 action.call(object)
               end
 
-              break if object.halted?
+              break if object.respond_to?(:halted?) && object.halted?
             end
           end
 

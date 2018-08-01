@@ -10,14 +10,14 @@ RSpec.describe "assets:precompile" do
   end
 
   before do
-    require "rake"
-    load File.expand_path("../../../../lib/pakyow/assets/tasks/assets.rake", __FILE__)
+    require "pakyow/task"
+    @loader = Pakyow::Task::Loader.new(File.expand_path("../../../../lib/pakyow/assets/tasks/precompile.rake", __FILE__))
     allow(Pakyow::Assets::Precompiler).to receive(:new).and_return(precompiler_instance)
   end
 
   after do
-    Rake::Task["assets:precompile"].invoke(app)
-    Rake::Task["assets:precompile"].reenable
+    task = @loader.__tasks.first
+    task.call(app: app)
   end
 
   it "initializes the precompiler" do

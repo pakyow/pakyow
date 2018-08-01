@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "pastel"
+require "pakyow/support/cli/style"
 
 module Pakyow
   module Logger
@@ -10,8 +10,11 @@ module Pakyow
       # Colorizes message based on severity.
       #
       def self.colorize(message, severity)
-        return message unless color = color(severity)
-        Pastel.new.send(color, message)
+        if color = color(severity)
+          Support::CLI.style.public_send(color, message)
+        else
+          message
+        end
       end
 
       LEVEL_COLORS = {

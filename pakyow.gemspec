@@ -35,8 +35,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "filewatcher", "~> 1.0"
   spec.add_dependency "http", "~> 3.3"
   spec.add_dependency "method_source", "~> 0.9"
-  spec.add_dependency "pastel", "~> 0.7"
   spec.add_dependency "rack", "~> 2.0"
   spec.add_dependency "rake", "~> 12.3"
-  spec.add_dependency "thor", "~> 0.19"
 end

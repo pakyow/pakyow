@@ -1,108 +1,221 @@
 # frozen_string_literal: true
 
-require "thor"
+require "fileutils"
+require "optparse"
+
+require "pakyow/support/cli/style"
+
+require "pakyow/error"
+require "pakyow/environment"
 
 module Pakyow
-  # @api private
-  class CLI < Thor
-    def self.known_command?(command)
-      !find_command_possibilities(command).empty?
+  class CLI
+    class InvalidInput < Error
     end
 
-    def self.define_commands_for_tasks!
-      require "./config/environment"
-      Pakyow.setup(env: ENV["RACK_ENV"])
+    GLOBAL_OPTIONS = {
+      app: {
+        description: "The app to run the command on",
+        global: true
+      },
+      env: {
+        description: "What environment to use",
+        global: true
+      }
+    }
+
+    def initialize(argv = ARGV)
+      @argv = argv
+      @options = {}
+      @task = nil
+      @command = nil
+
+      parse_global_options
+
+      if project_context?
+        configure_bootsnap
+        load_environment
+      end
+
+      load_tasks
+
+      if @command
+        setup_environment
+        find_task_for_command
+        set_app_for_command
+        call_task
+      else
+        puts_help
+      end
+    rescue RuntimeError => error
+      puts_error(error)
+
+      if @task
+        puts @task.help(describe: false)
+      else
+        puts_help(banner: false)
+      end
+
+      ::Process.exit(0)
+    end
+
+    private
+
+    def tasks
+      Pakyow.tasks.select { |task|
+        (task.global? && !project_context?) || (!task.global? && project_context?)
+      }
+    end
+
+    def project_context?
+      File.exist?(environment_path + ".rb")
+    end
+
+    def current_path
+      File.expand_path(".")
+    end
+
+    def environment_path
+      File.join(current_path, "config/environment")
+    end
+
+    def parse_global_options
+      parse_with_unknown_args do
+        OptionParser.new do |opts|
+          opts.on("-eENV", "--env=ENV") do |e|
+            @options[:env] = e
+          end
+
+          opts.on("-aAPP", "--app=APP") do |a|
+            @options[:app] = a
+          end
+
+          opts.on("-h", "--help") do
+            @options[:help] = true
+          end
+        end
+      end
+
+      @options[:env] ||= ENV["APP_ENV"] || ENV["RACK_ENV"] || "development"
+      ENV["APP_ENV"] = ENV["RACK_ENV"] = @options[:env]
+    end
+
+    def parse_with_unknown_args
+      parser, unknown, original, unparsed = yield, Array.new, @argv.dup, Array.new
+
+      begin
+        parser.order!(@argv) do |arg|
+          if @command
+            unparsed << arg
+          else
+            @command = arg
+          end
+        end
+      rescue OptionParser::InvalidOption => error
+        unknown.concat(error.args); retry
+      end
+
+      @argv = (original & (@argv | unknown)) + unparsed
+    end
+
+    # rubocop:disable Lint/HandleExceptions
+    def configure_bootsnap
+      require "bootsnap"
+
+      Bootsnap.setup(
+        cache_dir:            File.join(current_path, "tmp/cache"),
+        development_mode:     @options[:env] == "development",
+        load_path_cache:      true,
+        autoload_paths_cache: false,
+        disable_trace:        false,
+        compile_cache_iseq:   true,
+        compile_cache_yaml:   true
+      )
+    rescue LoadError
+    end
+    # rubocop:enable Lint/HandleExceptions
+
+    def load_environment
+      require environment_path
+    end
+
+    def setup_environment
+      Pakyow.setup(env: @options[:env])
+    end
+
+    def load_tasks
       Pakyow.load_tasks
+    end
 
-      ::Rake.application.tasks.each do |task|
-        desc task.name, task.comment
-        task.arg_names.each do |task_arg|
-          option task_arg, type: :string
-        end
-        define_method task.name do
-          require "pakyow/commands/rake"
-          symbolized_options = Hash[options.map { |option|
-            [option[0].to_sym, option[1]]
-          }]
-
-          Commands::Rake.new(
-            task,
-            **symbolized_options
-          ).run
-        end
+    def find_task_for_command
+      unless @task = tasks.find { |task| task.name == @command }
+        raise "#{Support::CLI.style.blue(@command)} is not a command"
       end
     end
 
-    map ["--version", "-v"] => :version
-
-    desc "new PROJECT_PATH", "Create a new Pakyow project"
-    long_desc <<-DESC
-      The `pakyow new` command creates a new Pakyow project at the path you specify.
-
-      $ pakyow new path/to/project
-    DESC
-
-    def new(name = nil)
-      require "pakyow/generators/app/app_generator"
-      Generators::AppGenerator.start([name])
+    def set_app_for_command
+      if @task.app?
+        @options[:app] = if @options.key?(:app)
+          Pakyow.find_app(@options[:app]) || raise("could not find app named #{Support::CLI.style.blue(@options[:app])}")
+        elsif Pakyow.mounts.count == 1
+          Pakyow.initialize_app_for_mount(Pakyow.mounts.values.first)
+        elsif Pakyow.mounts.count > 0
+          raise "found multiple apps; please specify one with the --app option"
+        else
+          raise "could not find any apps"
+        end
+      elsif @options.key?(:app)
+        puts_warning "app was ignored by command #{Support::CLI.style.blue(@command)}"
+      end
     end
 
-    desc "console [ENVIRONMENT]", "Start an interactive Pakyow console"
-    long_desc <<-DESC
-      The `pakyow console` command starts a console session for the current Pakyow project,
-      providing access to an application instance that you can interact with.
-
-      If environment is unspecified, the default environment (#{Pakyow.config.default_env}) will be used.
-    DESC
-
-    def console(env = nil)
-      require "pakyow/commands/console"
-      Commands::Console.new(env: env).run
-    rescue LoadError => e
-      raise Thor::Error, "Error: #{e.message}\n" \
-        "You must run the `pakyow console` command in the root directory of a Pakyow project."
+    def call_task
+      if @options[:help]
+        puts @task.help
+      else
+        @task.call(@options.select { |key, _|
+          (key == :app && @task.app?) || key != :app
+        }, @argv.dup)
+      end
+    rescue InvalidInput => error
+      puts_error(error)
+      puts @task.help(describe: false)
     end
 
-    desc "server [ENVIRONMENT] [options]", "Start a Pakyow application"
-    long_desc <<-DESC
-      The `pakyow server` command starts the server for the current Pakyow project.
-
-      If environment is unspecified, the default environment (#{Pakyow.config.default_env}) will be used.
-    DESC
-    option :port, type: :string, aliases: :"-p"
-    option :host, type: :string, aliases: :"-h"
-    option :server, type: :string, aliases: :"-s"
-    option :standalone, type: :boolean, default: false
-
-    def server(env = nil)
-      require "pakyow/commands/server"
-      Pakyow.process = Commands::Server.new(
-        env: env,
-        port: options[:port],
-        host: options[:host],
-        server: options[:server],
-        standalone: options[:standalone]
-      )
-      Pakyow.process.run
-    rescue LoadError => e
-      raise Thor::Error, "Error: #{e.message}\n" \
-        "You must run the `pakyow server` command in the root directory of a Pakyow project."
+    def puts_error(error)
+      puts "  #{Support::CLI.style.red("›")} #{error}"
     end
 
-    desc "version", "Display the installed Pakyow version"
-    def version
-      puts "Pakyow v#{VERSION}"
+    def puts_warning(warning)
+      puts "  #{Support::CLI.style.yellow("›")} #{warning}"
     end
 
-    desc "generate", "Generate code for an app"
-    option :app, type: :string, aliases: :"-a"
-    def generate(generator, *args)
-      require "pakyow/commands/generate"
-      Commands::Generate.new(
-        generator,
-        app: options[:app],
-        args: args
-      ).run
+    def puts_help(banner: true)
+      if banner
+        puts_banner
+      end
+
+      puts_usage
+      puts_commands
+    end
+
+    def puts_banner
+      puts Support::CLI.style.blue.bold("Pakyow Command Line Interface")
+    end
+
+    def puts_usage
+      puts
+      puts Support::CLI.style.bold("USAGE")
+      puts "  $ pakyow [COMMAND]"
+    end
+
+    def puts_commands
+      puts
+      puts Support::CLI.style.bold("COMMANDS")
+      longest_name_length = tasks.map(&:name).max_by(&:length).length
+      tasks.sort { |a, b| a.name <=> b.name }.each do |task|
+        puts "  #{task.name}".ljust(longest_name_length + 4) + Support::CLI.style.yellow(task.description) + "\n"
+      end
     end
   end
 end

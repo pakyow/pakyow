@@ -105,5 +105,11 @@ RSpec.describe Pakyow::App do
         expect(app.config.session.domain).to be(nil)
       end
     end
+
+    describe "tasks.prelaunch" do
+      it "exists" do
+        expect(app.config.tasks.prelaunch).to eq([])
+      end
+    end
   end
 end

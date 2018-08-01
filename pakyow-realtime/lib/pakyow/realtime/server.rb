@@ -53,10 +53,6 @@ module Pakyow
         @event_loop = EventLoop.new
         @sockets = Concurrent::Array.new
         @executor = Concurrent::ThreadPoolExecutor.new
-
-        at_exit {
-          @sockets.each(&:shutdown)
-        }
       rescue LoadError => e
         Pakyow.logger.error "Failed to load data subscriber store adapter named `#{adapter}'"
         Pakyow.logger.error e.message

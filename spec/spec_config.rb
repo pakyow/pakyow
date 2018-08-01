@@ -37,10 +37,16 @@ RSpec.configure do |config|
       @original_class_state = Pakyow.instance_variable_get(:@__class_state).keys.each_with_object({}) do |class_level_ivar, state|
         state[class_level_ivar] = Pakyow.instance_variable_get(class_level_ivar).dup
       end
+
+      allow(Process).to receive(:exit)
     end
   end
 
   config.after do
+    if defined?(Rake)
+      Rake.application.clear
+    end
+
     if Pakyow.instance_variable_defined?(:@__class_state)
       @original_class_state.each do |ivar, original_value|
         Pakyow.instance_variable_set(ivar, original_value)

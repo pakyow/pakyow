@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
-require "pastel"
 require "tty-command"
 require "tty-spinner"
+
+require "pakyow/support/cli/style"
 
 module Pakyow
   module Support
@@ -17,9 +18,8 @@ module Pakyow
         SUCCESS_MESSAGE = ""
 
         def initialize(message:)
-          @pastel = Pastel.new
           @spinner = TTY::Spinner.new(
-            @pastel.bold(":spinner #{message}"),
+            Support::CLI.style.bold(":spinner #{message}"),
             format: SPINNER,
             success_mark: SUCCESS_MARK,
             error_mark: FAILURE_MARK
@@ -58,7 +58,7 @@ module Pakyow
         def succeeded(output = "")
           unless completed?
             @succeeded = true
-            @spinner.success(@pastel.green(SUCCESS_MESSAGE))
+            @spinner.success(Support::CLI.style.green(SUCCESS_MESSAGE))
             puts indent_output(output)
             puts unless output.empty?
           end
@@ -69,7 +69,7 @@ module Pakyow
         def failed(output = "")
           unless completed?
             @failed = true
-            @spinner.error(@pastel.red(FAILURE_MESSAGE))
+            @spinner.error(Support::CLI.style.red(FAILURE_MESSAGE))
             puts indent_output(output)
             puts unless output.empty?
           end

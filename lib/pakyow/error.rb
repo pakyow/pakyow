@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require "pathname"
-
-require "pastel"
 require "method_source"
+
+require "pakyow/support/cli/style"
 
 module Pakyow
   # Base Pakyow error object.
@@ -118,22 +118,21 @@ module Pakyow
     class CLIFormatter
       def initialize(error)
         @error = error
-        @pastel = Pastel.new
       end
 
       def to_s
         <<~MESSAGE
-        #{@pastel.black.on_red.bold(header)}
+        #{Support::CLI.style.black.on_red.bold(header)}
 
         #{indent(@error.message)}
 
-        #{@pastel.blue(indent("<#{@error.url}>"))}
+        #{Support::CLI.style.blue(indent("<#{@error.url}>"))}
 
-        #{@pastel.black.on_white.bold(" DETAILS                                                                        ")}
+        #{Support::CLI.style.black.on_white.bold(" DETAILS                                                                        ")}
 
         #{indent(@error.details)}
 
-        #{@pastel.black.on_white.bold(" BACKTRACE                                                                      ")}
+        #{Support::CLI.style.black.on_white.bold(" BACKTRACE                                                                      ")}
 
         #{@error.backtrace.map { |line| indent(line) }.join("\n")}
         MESSAGE

@@ -23,9 +23,9 @@ require "pakyow/assets/behavior/externals"
 module Pakyow
   module Assets
     class Framework < Pakyow::Framework(:assets)
-      def boot
-        register_tasks
+      Pakyow.config.tasks.paths << File.expand_path("../tasks", __FILE__)
 
+      def boot
         app.class_eval do
           # Let other frameworks load their own assets.
           #
@@ -46,6 +46,8 @@ module Pakyow
             config.assets.extensions.each do |extension|
               config.process.watched_paths << File.join(config.presenter.path, "**/*#{extension}")
             end
+
+            config.tasks.prelaunch << [:"assets:precompile", {}]
           end
 
           after :configure do
@@ -66,12 +68,6 @@ module Pakyow
             end
           end
         end
-      end
-
-      private
-
-      def register_tasks
-        Pakyow.config.tasks.paths << File.expand_path("../tasks", __FILE__)
       end
     end
   end
