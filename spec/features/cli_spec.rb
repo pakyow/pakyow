@@ -24,7 +24,7 @@ RSpec.describe "command line interface" do
       expect(output).to include("  boot                   \e[33mBoot the project server\e[0m\n")
       expect(output).to include("  help                   \e[33mGet help for the command line interface\e[0m\n")
       expect(output).to include("  prelaunch              \e[33mRun the prelaunch tasks\e[0m\n")
-      expect(output).to include("  projects:info          \e[33mShow details about the current project\e[0m\n")
+      expect(output).to include("  info                   \e[33mShow details about the current project\e[0m\n")
       expect(output).to include("  irb                    \e[33mStart an interactive session\e[0m\n")
       expect(output).to include("  test:pass_app          \e[33mTest passing the application\e[0m\n")
       expect(output).to include("  test:pass_arg_opt_flg  \e[33mTest arguments + options\e[0m\n")

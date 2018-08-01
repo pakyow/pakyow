@@ -1,6 +1,6 @@
 require "pakyow/cli"
 
-RSpec.describe "cli: projects:info" do
+RSpec.describe "cli: info" do
   include_context "testable command"
 
   before do
@@ -21,7 +21,7 @@ RSpec.describe "cli: projects:info" do
   end
 
   let :command do
-    "projects:info"
+    "info"
   end
 
   let :frameworks do
@@ -29,18 +29,18 @@ RSpec.describe "cli: projects:info" do
   end
 
   let :local_path do
-    File.expand_path("../../../../../", __FILE__)
+    File.expand_path("../../../../", __FILE__)
   end
 
   describe "help" do
     it "is helpful" do
-      expect(run_command(command, "-h")).to eq("\e[34;1mShow details about the current project\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow projects:info\n\n\e[1mOPTIONS\e[0m\n  -e, --env=env  \e[33mWhat environment to use\e[0m\n")
+      expect(run_command(command, "-h")).to eq("\e[34;1mShow details about the current project\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow info\n\n\e[1mOPTIONS\e[0m\n  -e, --env=env  \e[33mWhat environment to use\e[0m\n")
     end
   end
 
   describe "running" do
     it "shows project info" do
-      expect(run_command(command)).to eq("\e[1mLIBRARY VERSIONS\e[0m\n  Ruby          v2.5.1-p57 (x86_64-darwin17)\n  Pakyow        v1.0.0.alpha1\n  Rack          v2.0.5\n\n\e[1mFoo::App [:foo]\e[0m\n  Mount path    /\n  Frameworks    #{frameworks}\n  App root      #{local_path}/spec/tmp\n\n\e[1mBar::App [:bar]\e[0m\n  Mount path    /\n  Frameworks    #{frameworks}\n  App root      #{local_path}/spec/tmp\n")
+      expect(run_command(command)).to eq("\e[1mLIBRARY VERSIONS\e[0m\n  Ruby          v2.5.1-p57 (x86_64-darwin17)\n  Pakyow        v1.0.0.alpha1\n  Rack          v2.0.5\n\n\e[1mFoo::App [:foo]\e[0m\n  Mount path    /\n  Frameworks    []\n  App root      /Users/bryanp/src/pakyow/pakyow/spec/tmp\n\n\e[1mBar::App [:bar]\e[0m\n  Mount path    /\n  Frameworks    []\n  App root      /Users/bryanp/src/pakyow/pakyow/spec/tmp\n")
     end
 
     context "non-pakyow app is mounted" do
