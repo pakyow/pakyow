@@ -29,8 +29,8 @@ module Pakyow
           INFINITY = "+inf"
 
           def initialize(config)
-            @redis = ::Redis.new(url: config[:redis])
-            @prefix = [config[:redis_prefix], KEY_PREFIX].join(KEY_PART_SEPARATOR)
+            @redis = ::Redis.new(config[:connection].to_h)
+            @prefix = [config[:key_prefix], KEY_PREFIX].join(KEY_PART_SEPARATOR)
 
             Concurrent::TimerTask.new(execution_interval: 300, timeout_interval: 300) {
               @redis.scan_each(match: key_subscription_ids_by_source("*")) do |key|

@@ -172,6 +172,23 @@ module Pakyow
     setting :prelaunch, []
   end
 
+  settings_for :redis do
+    settings_for :connection do
+      setting :url do
+        ENV["REDIS_URL"] || "redis://127.0.0.1:6379"
+      end
+
+      setting :timeout, 5.0
+      setting :driver, nil
+      setting :id, nil
+      setting :tcp_keepalive, 0
+      setting :reconnect_attempts, 1
+      setting :inherit_socket, false
+    end
+
+    setting :key_prefix, "pw"
+  end
+
   # Loads the default middleware stack.
   #
   before :setup do

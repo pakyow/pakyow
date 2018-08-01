@@ -62,7 +62,7 @@ module Pakyow
               subscribers: Subscribers.new(
                 self,
                 Pakyow.config.data.subscriptions.adapter,
-                Pakyow.config.data.subscriptions.adapter_options
+                Pakyow.config.data.subscriptions.adapter_settings.to_h
               )
             )
           end
@@ -101,11 +101,13 @@ module Pakyow
 
         settings_for :subscriptions do
           setting :adapter, :memory
-          setting :adapter_options, {}
+          setting :adapter_settings, {}
 
           defaults :production do
             setting :adapter, :redis
-            setting :adapter_options, redis_url: ENV["REDIS_URL"] || "redis://127.0.0.1:6379", redis_prefix: "pw"
+            setting :adapter_settings do
+              @adapter_settings ||= Pakyow.config.redis.dup
+            end
           end
         end
 

@@ -53,9 +53,9 @@ RSpec.describe "data config" do
     end
   end
 
-  describe "adapter_options" do
+  describe "adapter_settings" do
     it "has a default value" do
-      expect(config.subscriptions.adapter_options).to eq({})
+      expect(config.subscriptions.adapter_settings).to eq({})
     end
 
     context "in production" do
@@ -63,22 +63,14 @@ RSpec.describe "data config" do
         Pakyow.configure!(:production)
       end
 
-      it "has a production value" do
-        expect(config.subscriptions.adapter_options).to eq(redis_url: "redis://127.0.0.1:6379", redis_prefix: "pw")
+      it "defaults to global redis settings" do
+        expect(config.subscriptions.adapter_settings.to_h).to eq(Pakyow.config.redis.to_h)
       end
 
-      context "REDIS_URL env var is defined" do
-        before do
-          ENV["REDIS_URL"] = "!!!"
-          Pakyow.configure!(:production)
-        end
-
-        after do
-          ENV.delete("REDIS_URL")
-        end
-
-        it "uses the env var value" do
-          expect(config.subscriptions.adapter_options).to eq(redis_url: "!!!", redis_prefix: "pw")
+      describe "changing the adapter settings" do
+        it "does not affect the global settings" do
+          config.subscriptions.adapter_settings.connection.tcp_keepalive = 5
+          expect(Pakyow.config.redis.connection.tcp_keepalive).to eq(0)
         end
       end
     end

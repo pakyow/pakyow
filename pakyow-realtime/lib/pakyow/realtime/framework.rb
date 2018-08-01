@@ -47,14 +47,14 @@ module Pakyow
           helper Helpers
 
           settings_for :realtime do
-            setting :adapter_options, {}
+            setting :adapter_settings, {}
             setting :path, "pw-socket"
             setting :endpoint
             setting :log_initial_request, false
 
             defaults :production do
-              setting :adapter_options do
-                { redis_prefix: ["pw", config.name].join("/") }
+              setting :adapter_settings do
+                { key_prefix: ["pw", config.name].join("/") }
               end
 
               setting :log_initial_request, true
@@ -70,7 +70,9 @@ module Pakyow
             else
               @websocket_server = Server.new(
                 Pakyow.config.realtime.adapter,
-                Pakyow.config.realtime.adapter_options.merge(config.realtime.adapter_options)
+                Pakyow.config.realtime.adapter_settings.to_h.merge(
+                  config.realtime.adapter_settings.to_h
+                )
               )
             end
           end
@@ -113,11 +115,13 @@ module Pakyow
         setting :server, true
 
         setting :adapter, :memory
-        setting :adapter_options, {}
+        setting :adapter_settings, {}
 
         defaults :production do
           setting :adapter, :redis
-          setting :adapter_options, redis_url: ENV["REDIS_URL"] || "redis://127.0.0.1:6379", redis_prefix: "pw"
+          setting :adapter_settings do
+            @adapter_settings ||= Pakyow.config.redis.dup
+          end
         end
       end
     end

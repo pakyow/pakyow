@@ -157,6 +157,68 @@ RSpec.describe Pakyow do
         expect(Pakyow.config.tasks.prelaunch).to eq([])
       end
     end
+
+    describe "redis.connection.url" do
+      it "has a default value" do
+        expect(Pakyow.config.redis.connection.url).to eq("redis://127.0.0.1:6379")
+      end
+
+      context "REDIS_URL is set" do
+        before do
+          ENV["REDIS_URL"] = "worked"
+        end
+
+        after do
+          ENV.delete("REDIS_URL")
+        end
+
+        it "uses REDIS_URL" do
+          expect(Pakyow.config.redis.connection.url).to eq("worked")
+        end
+      end
+    end
+
+    describe "redis.connection.timeout" do
+      it "has a default value" do
+        expect(Pakyow.config.redis.connection.timeout).to eq(5.0)
+      end
+    end
+
+    describe "redis.connection.driver" do
+      it "has a default value" do
+        expect(Pakyow.config.redis.connection.driver).to eq(nil)
+      end
+    end
+
+    describe "redis.connection.id" do
+      it "has a default value" do
+        expect(Pakyow.config.redis.connection.id).to eq(nil)
+      end
+    end
+
+    describe "redis.connection.tcp_keepalive" do
+      it "has a default value" do
+        expect(Pakyow.config.redis.connection.tcp_keepalive).to eq(0)
+      end
+    end
+
+    describe "redis.connection.reconnect_attempts" do
+      it "has a default value" do
+        expect(Pakyow.config.redis.connection.reconnect_attempts).to eq(1)
+      end
+    end
+
+    describe "redis.connection.inherit_socket" do
+      it "has a default value" do
+        expect(Pakyow.config.redis.connection.inherit_socket).to eq(false)
+      end
+    end
+
+    describe "redis.key_prefix" do
+      it "has a default value" do
+        expect(Pakyow.config.redis.key_prefix).to eq("pw")
+      end
+    end
   end
 
   describe ".mount" do
