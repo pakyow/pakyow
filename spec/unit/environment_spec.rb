@@ -485,6 +485,15 @@ RSpec.describe Pakyow do
       Pakyow.app :baz, path: "/baz"
     end
 
+    after do
+        Foo.__send__(:remove_const, :App)
+        Bar.__send__(:remove_const, :App)
+        Baz.__send__(:remove_const, :App)
+        Object.__send__(:remove_const, :Foo)
+        Object.__send__(:remove_const, :Bar)
+        Object.__send__(:remove_const, :Baz)
+    end
+
     context "environment has booted" do
       before do
         Pakyow.setup(env: :test).run
