@@ -18,7 +18,6 @@ RSpec.describe "assets:precompile" do
   after do
     task = @loader.__tasks.first
     task.call(app: app)
-    task.reenable
   end
 
   it "initializes the precompiler" do
