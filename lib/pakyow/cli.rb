@@ -55,6 +55,8 @@ module Pakyow
       else
         puts_help(banner: false)
       end
+
+      ::Process.exit(0)
     end
 
     private
