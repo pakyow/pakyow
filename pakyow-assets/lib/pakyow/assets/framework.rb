@@ -46,6 +46,8 @@ module Pakyow
             config.assets.extensions.each do |extension|
               config.process.watched_paths << File.join(config.presenter.path, "**/*#{extension}")
             end
+
+            config.tasks.prelaunch << [:"assets:precompile", {}]
           end
 
           after :configure do

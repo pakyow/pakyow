@@ -151,6 +151,12 @@ RSpec.describe Pakyow do
         expect(Pakyow.config.tasks.paths).to eq(["./tasks", File.expand_path("../../../lib/pakyow/tasks", __FILE__)])
       end
     end
+
+    describe "tasks.prelaunch" do
+      it "has a default value" do
+        expect(Pakyow.config.tasks.prelaunch).to eq([])
+      end
+    end
   end
 
   describe ".mount" do

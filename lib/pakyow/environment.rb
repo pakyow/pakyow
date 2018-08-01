@@ -169,6 +169,7 @@ module Pakyow
 
   settings_for :tasks do
     setting :paths, ["./tasks", File.expand_path("../tasks", __FILE__)]
+    setting :prelaunch, []
   end
 
   # Loads the default middleware stack.

@@ -7,6 +7,8 @@ require "pakyow/data/migrators/sqlite"
 
 namespace :db do
   desc "Migrate a database"
+  option :adapter, "The adapter to migrate"
+  option :connection, "The connection to migrate"
   task :migrate, [:adapter, :connection] do |_, args|
     if Pakyow.config.data.auto_migrate
       # FIXME: make this a nice error

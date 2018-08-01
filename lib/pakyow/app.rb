@@ -128,6 +128,10 @@ module Pakyow
 
     setting :dsl, true
 
+    settings_for :tasks do
+      setting :prelaunch, []
+    end
+
     include Support::Hookable
     known_events :initialize, :configure, :load, :finalize, :boot, :rescue
 
