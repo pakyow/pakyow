@@ -1,4 +1,9 @@
 RSpec.describe "external scripts" do
+  before do
+    allow_any_instance_of(TTY::Spinner).to receive(:auto_spin)
+    allow_any_instance_of(TTY::Spinner).to receive(:success)
+  end
+
   include_context "testable app"
 
   let :tmp do
@@ -33,17 +38,6 @@ RSpec.describe "external scripts" do
         after :configure do
           external_script :pakyow, "1.0.0-alpha.4", package: "@pakyow/js"
           external_script :jquery, "3.3.1"
-        end
-
-        before :initialize do
-          @original_stdout = $stdout
-          @original_stderr = $stderr
-          $stdout = $stderr = StringIO.new
-        end
-
-        after :boot do
-          $stdout = @original_stdout
-          $stderr = @original_stderr
         end
       end
     end

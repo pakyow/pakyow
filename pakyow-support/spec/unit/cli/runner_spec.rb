@@ -1,6 +1,11 @@
 require "pakyow/support/cli/runner"
 
 RSpec.describe Pakyow::Support::CLI::Runner do
+  before do
+    allow_any_instance_of(TTY::Spinner).to receive(:auto_spin)
+    allow_any_instance_of(TTY::Spinner).to receive(:success)
+  end
+
   let :message do
     "testing"
   end
@@ -75,7 +80,7 @@ RSpec.describe Pakyow::Support::CLI::Runner do
             end
           end
 
-          expect(output).to eq("\n" + "called\n" + "\n")
+          expect(output).to eq("called\n")
         end
       end
     end
@@ -217,7 +222,7 @@ RSpec.describe Pakyow::Support::CLI::Runner do
           instance.succeeded("succeeded")
         end
 
-        expect(output).to eq("   succeeded\n" + "\n")
+        expect(output).to eq("   succeeded\n")
       end
     end
 
@@ -305,7 +310,7 @@ RSpec.describe Pakyow::Support::CLI::Runner do
           instance.failed("failed")
         end
 
-        expect(output).to eq("   failed\n" + "\n")
+        expect(output).to eq("   failed\n")
       end
     end
 
