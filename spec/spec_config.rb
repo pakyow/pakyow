@@ -37,6 +37,8 @@ RSpec.configure do |config|
       @original_class_state = Pakyow.instance_variable_get(:@__class_state).keys.each_with_object({}) do |class_level_ivar, state|
         state[class_level_ivar] = Pakyow.instance_variable_get(class_level_ivar).dup
       end
+
+      allow(Process).to receive(:exit)
     end
   end
 
