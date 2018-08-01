@@ -48,14 +48,21 @@ module Pakyow
       def initialize(adapter = :memory, adapter_config = {})
         require "pakyow/realtime/server/adapters/#{adapter}"
         @adapter = Adapter.const_get(adapter.to_s.capitalize).new(self, adapter_config)
-
-        start_heartbeat
         @event_loop = EventLoop.new
         @sockets = Concurrent::Array.new
-        @executor = Concurrent::ThreadPoolExecutor.new
+
+        connect
       rescue LoadError => e
         Pakyow.logger.error "Failed to load data subscriber store adapter named `#{adapter}'"
         Pakyow.logger.error e.message
+      end
+
+      def connect
+        start_heartbeat; @adapter.connect
+      end
+
+      def disconnect
+        stop_heartbeat; @adapter.disconnect
       end
 
       def socket_connect(id_or_socket)
@@ -124,6 +131,8 @@ module Pakyow
       protected
 
       def start_heartbeat
+        @executor = Concurrent::ThreadPoolExecutor.new
+
         @heartbeat = Concurrent::TimerTask.new(execution_interval: HEARTBEAT_INTERVAL) do
           @executor << -> {
             @sockets.each(&:beat)
@@ -131,6 +140,10 @@ module Pakyow
         end
 
         @heartbeat.execute
+      end
+
+      def stop_heartbeat
+        @heartbeat.shutdown
       end
     end
   end

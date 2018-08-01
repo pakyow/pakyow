@@ -297,11 +297,26 @@ RSpec.describe Pakyow do
       expect(Pakyow).to receive(:call_hooks).with(:before, :fork)
       Pakyow.forking
     end
+
+    it "calls forking on each app" do
+      app = double(:app)
+      Pakyow.instance_variable_set(:@apps, [app])
+      expect(app).to receive(:forking)
+      Pakyow.forking
+    end
   end
 
   describe ".forked" do
-    it "calls after fork hooks" do
+    it "calls after fork hooks, then calls booted" do
       expect(Pakyow).to receive(:call_hooks).with(:after, :fork)
+      expect(Pakyow).to receive(:booted)
+      Pakyow.forked
+    end
+
+    it "calls forked on each app" do
+      app = double(:app)
+      Pakyow.instance_variable_set(:@apps, [app])
+      expect(app).to receive(:forked)
       Pakyow.forked
     end
   end

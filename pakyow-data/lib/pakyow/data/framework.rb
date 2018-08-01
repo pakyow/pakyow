@@ -164,6 +164,14 @@ module Pakyow
         end
       end
 
+      before :fork do
+        @data_connections.values.flat_map(&:values).each do |connection|
+          unless connection.name == :memory
+            connection.disconnect
+          end
+        end
+      end
+
       config.tasks.paths << File.expand_path("../tasks", __FILE__)
     end
   end

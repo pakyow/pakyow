@@ -95,13 +95,17 @@ RSpec.describe Pakyow::App do
 
     before do
       app_class.after :boot do
-        $called = true
+        $called_after_boot = true
       end
+    end
+
+    after do
+      $called_after_boot = nil
     end
 
     it "calls after boot hooks" do
       app.booted
-      expect($called).to be(true)
+      expect($called_after_boot).to be(true)
     end
 
     context "when booting fails because of a runtime error" do
@@ -142,6 +146,48 @@ RSpec.describe Pakyow::App do
         expect(response[2][0]).to include("syntax error, unexpected end-of-input")
         expect(response[2][0]).to include("pakyow/spec/unit/app_spec.rb")
       end
+    end
+  end
+
+  describe "#forking" do
+    let :app do
+      app_class.new(:test, builder: Rack::Builder.new)
+    end
+
+    before do
+      app_class.before :fork do
+        $called_before_fork = true
+      end
+    end
+
+    after do
+      $called_before_fork = nil
+    end
+
+    it "calls before fork hooks" do
+      app.forking
+      expect($called_before_fork).to be(true)
+    end
+  end
+
+  describe "#forked" do
+    let :app do
+      app_class.new(:test, builder: Rack::Builder.new)
+    end
+
+    before do
+      app_class.after :fork do
+        $called_after_fork = true
+      end
+    end
+
+    after do
+      $called_after_fork = nil
+    end
+
+    it "calls after fork hooks" do
+      app.forked
+      expect($called_after_fork).to be(true)
     end
   end
 end

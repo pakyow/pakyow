@@ -133,7 +133,7 @@ module Pakyow
     end
 
     include Support::Hookable
-    known_events :initialize, :configure, :load, :finalize, :boot, :rescue
+    known_events :initialize, :configure, :load, :finalize, :boot, :fork, :rescue
 
     include Behavior::Cookies
     include Behavior::Sessions
@@ -192,6 +192,18 @@ module Pakyow
       end
     rescue ScriptError, StandardError => error
       rescue!(error)
+    end
+
+    # Called by the environment right before the process is forked.
+    #
+    def forking
+      call_hooks :before, :fork
+    end
+
+    # Called by the environment right after the process is forked.
+    #
+    def forked
+      call_hooks :after, :fork
     end
 
     def call(rack_env)

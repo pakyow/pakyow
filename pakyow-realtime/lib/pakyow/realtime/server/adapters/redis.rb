@@ -21,33 +21,24 @@ module Pakyow
           PUBSUB_PREFIX = "pubsub"
 
           def initialize(server, config)
-            @server = server
-            @redis = ::Redis.new(config[:connection].to_h)
-            @prefix = [config[:key_prefix], KEY_PREFIX].join(KEY_PART_SEPARATOR)
+            @server, @config = server, config
+            @prefix = [@config[:key_prefix], KEY_PREFIX].join(KEY_PART_SEPARATOR)
 
+            connect
+            cleanup
+          end
+
+          def connect
+            @redis = ::Redis.new(@config[:connection].to_h)
             @buffer = Buffer.new(@redis, pubsub_channel)
-            Subscriber.new(::Redis.new(config[:connection]), pubsub_channel) do |payload|
+            @subscriber = Subscriber.new(::Redis.new(@config[:connection]), pubsub_channel) do |payload|
               channel, message = Marshal.restore(payload).values_at(:channel, :message)
               @server.transmit_message_to_connection_ids(message, socket_ids_for_channel(channel), raw: true)
             end
+          end
 
-            Concurrent::TimerTask.new(execution_interval: 300, timeout_interval: 300) {
-              Pakyow.logger.debug "[Pakyow::Realtime::Server::Adapter::Redis] Cleaning up channel keys"
-
-              removed_count = 0
-              @redis.scan_each(match: key_socket_ids_by_channel("*")) do |key|
-                socket_ids = @redis.zrangebyscore(
-                  key, Time.now.to_i, INFINITY
-                )
-
-                if socket_ids.empty?
-                  removed_count += 1
-                  @redis.del(key)
-                end
-              end
-
-              Pakyow.logger.debug "[Pakyow::Realtime::Server::Adapter::Redis] Removed #{removed_count} keys"
-            }.execute
+          def disconnect
+            @subscriber.disconnect
           end
 
           def socket_subscribe(socket_id, *channels)
@@ -142,6 +133,26 @@ module Pakyow
             [@prefix, PUBSUB_PREFIX].join(KEY_PART_SEPARATOR)
           end
 
+          def cleanup
+            Concurrent::TimerTask.new(execution_interval: 300, timeout_interval: 300) {
+              Pakyow.logger.debug "[Pakyow::Realtime::Server::Adapter::Redis] Cleaning up channel keys"
+
+              removed_count = 0
+              @redis.scan_each(match: key_socket_ids_by_channel("*")) do |key|
+                socket_ids = @redis.zrangebyscore(
+                  key, Time.now.to_i, INFINITY
+                )
+
+                if socket_ids.empty?
+                  removed_count += 1
+                  @redis.del(key)
+                end
+              end
+
+              Pakyow.logger.debug "[Pakyow::Realtime::Server::Adapter::Redis] Removed #{removed_count} keys"
+            }.execute
+          end
+
           class Buffer
             # The number of publish commands to pipeline to redis.
             #
@@ -188,9 +199,14 @@ module Pakyow
             def initialize(redis, channel, &callback)
               @redis, @channel, @callback = redis, channel, callback
 
-              Thread.new do
+              @thread = Thread.new do
                 subscribe
               end
+            end
+
+            def disconnect
+              @thread.exit
+              @redis.disconnect!
             end
 
             def subscribe

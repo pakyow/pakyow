@@ -64,17 +64,21 @@ module Pakyow
           unfreezable :websocket_server
           attr_reader :websocket_server
 
-          after :boot do
-            if instance_variable_defined?(:@websocket_server)
-              # TODO: reconnect the adapter
-            else
-              @websocket_server = Server.new(
-                Pakyow.config.realtime.adapter,
-                Pakyow.config.realtime.adapter_settings.to_h.merge(
-                  config.realtime.adapter_settings.to_h
-                )
+          after :initialize do
+            @websocket_server = Server.new(
+              Pakyow.config.realtime.adapter,
+              Pakyow.config.realtime.adapter_settings.to_h.merge(
+                config.realtime.adapter_settings.to_h
               )
-            end
+            )
+          end
+
+          before :fork do
+            @websocket_server.disconnect
+          end
+
+          after :fork do
+            @websocket_server.connect
           end
 
           known_events :join, :leave

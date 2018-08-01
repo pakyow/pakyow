@@ -361,6 +361,10 @@ module Pakyow
     #
     def forking
       call_hooks :before, :fork
+
+      @apps.select { |app|
+        app.respond_to?(:forking)
+      }.each(&:forking)
     end
 
     # When running the app with a forking server (e.g. Passenger), call this after
@@ -368,6 +372,12 @@ module Pakyow
     #
     def forked
       call_hooks :after, :fork
+
+      @apps.select { |app|
+        app.respond_to?(:forked)
+      }.each(&:forked)
+
+      booted
     end
 
     # TODO: this is only ever used by tests and should be removed

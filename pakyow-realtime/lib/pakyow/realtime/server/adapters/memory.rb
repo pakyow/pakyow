@@ -22,6 +22,14 @@ module Pakyow
             @expirations_for_socket_id = Concurrent::Hash.new
           end
 
+          def connect
+            # intentionally empty
+          end
+
+          def disconnect
+            # intentionally empty
+          end
+
           def socket_subscribe(socket_id, *channels)
             channels.each do |channel|
               channel = channel.to_s.to_sym
