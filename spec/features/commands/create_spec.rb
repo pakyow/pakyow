@@ -38,7 +38,7 @@ RSpec.describe "cli: create" do
     end
 
     it "tells the user what to do next" do
-      expect(run_command(command, path)).to eq("\n\n\e[1mYou're all set! Go to your new project:\e[0m\n  $ cd test/app\n\n\e[1mThen boot it up:\e[0m\n  $ pakyow boot\n\n")
+      expect(run_command(command, path)).to eq("\n\e[1mYou're all set! Go to your new project:\e[0m\n  $ cd test/app\n\n\e[1mThen boot it up:\e[0m\n  $ pakyow boot\n\n")
     end
   end
 

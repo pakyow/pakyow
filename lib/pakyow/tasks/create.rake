@@ -21,6 +21,7 @@ global_task :create, [:path] do |_, args|
 
   require "pakyow/support/cli/style"
   puts <<~OUTPUT
+
     #{Pakyow::Support::CLI.style.bold "You're all set! Go to your new project:"}
       $ cd #{args[:path]}
 

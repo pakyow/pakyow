@@ -32,7 +32,6 @@ module Pakyow
         # the block, the result will be yielded to the block on success.
         #
         def run(*command)
-          puts
           @spinner.auto_spin
 
           if command.empty? && block_given?
@@ -59,8 +58,7 @@ module Pakyow
           unless completed?
             @succeeded = true
             @spinner.success(Support::CLI.style.green(SUCCESS_MESSAGE))
-            puts indent_output(output)
-            puts unless output.empty?
+            puts indent_output(output) unless output.empty?
           end
         end
 
@@ -70,8 +68,7 @@ module Pakyow
           unless completed?
             @failed = true
             @spinner.error(Support::CLI.style.red(FAILURE_MESSAGE))
-            puts indent_output(output)
-            puts unless output.empty?
+            puts indent_output(output) unless output.empty?
           end
         end
 
