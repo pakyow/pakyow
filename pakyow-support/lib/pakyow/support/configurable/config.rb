@@ -67,6 +67,12 @@ module Pakyow
           end
         end
 
+        def respond_to_missing?(method_name, include_private = false)
+          (setter?(method_name) && find_setting(method_name[0..-2])) ||
+            find_setting(method_name) ||
+            find_group(method_name)
+        end
+
         def configure_defaults!(configured_environment)
           if defaults = @defaults[configured_environment.to_s.to_sym]
             instance_eval(&defaults)

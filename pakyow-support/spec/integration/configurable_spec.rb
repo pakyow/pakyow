@@ -54,4 +54,16 @@ RSpec.describe "configuring an object" do
     object.configure!
     expect(object.config.to_h).to eq({:foo => :bar})
   end
+
+  it "responds to missing" do
+    object.settings_for :foo do
+      setting :bar, :baz
+    end
+
+    object.configure!
+    expect(object.config.respond_to?(:foo)).to be(true)
+    expect(object.config.respond_to?(:bar)).to be(false)
+    expect(object.config.foo.respond_to?(:bar)).to be(true)
+    expect(object.config.foo.respond_to?(:baz)).to be(false)
+  end
 end
