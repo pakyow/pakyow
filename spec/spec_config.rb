@@ -20,7 +20,10 @@ RSpec.configure do |config|
   config.order = :random
   Kernel.srand config.seed
 
-  config.filter_run_excluding benchmark: true
+  unless ENV["CI"]
+    config.filter_run_excluding benchmark: true
+    config.filter_run_excluding smoke: true
+  end
 
   config.before do
     if Pakyow.respond_to?(:config)

@@ -9,7 +9,7 @@ matrix:
         - 2.5.0
         - 2.5.1
         - 2.6.0-preview1
-      script: "bundle exec rake"
+      script: "CI=true bundle exec rake"
       before_install: gem install bundler
       services:
         - redis-server
