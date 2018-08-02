@@ -193,11 +193,19 @@ module Pakyow
 
   settings_for :puma do
     setting :host do
-      ENV["HOST"] || config.server.host
+      if config.puma.binds.any?
+        nil
+      else
+        ENV["HOST"] || config.server.host
+      end
     end
 
     setting :port do
-      ENV["PORT"] || config.server.port
+      if config.puma.binds.any?
+        nil
+      else
+        ENV["PORT"] || config.server.port
+      end
     end
 
     setting :binds do

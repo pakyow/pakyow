@@ -227,6 +227,16 @@ RSpec.describe Pakyow do
         )
       end
 
+      context "binds is not empty" do
+        before do
+          Pakyow.config.puma.binds = ["foo"]
+        end
+
+        it "has a default value" do
+          expect(Pakyow.config.puma.host).to be(nil)
+        end
+      end
+
       context "HOST is set" do
         before do
           ENV["HOST"] = "foo"
@@ -239,6 +249,16 @@ RSpec.describe Pakyow do
         it "defaults to HOST" do
           expect(Pakyow.config.puma.host).to eq("foo")
         end
+
+        context "binds is not empty" do
+          before do
+            Pakyow.config.puma.binds = ["foo"]
+          end
+
+          it "has a default value" do
+            expect(Pakyow.config.puma.host).to be(nil)
+          end
+        end
       end
     end
 
@@ -247,6 +267,16 @@ RSpec.describe Pakyow do
         expect(Pakyow.config.puma.port).to eq(
           Pakyow.config.server.port
         )
+      end
+
+      context "binds is not empty" do
+        before do
+          Pakyow.config.puma.binds = ["foo"]
+        end
+
+        it "has a default value" do
+          expect(Pakyow.config.puma.port).to be(nil)
+        end
       end
 
       context "PORT is set" do
@@ -260,6 +290,16 @@ RSpec.describe Pakyow do
 
         it "defaults to PORT" do
           expect(Pakyow.config.puma.port).to eq("4242")
+        end
+
+        context "binds is not empty" do
+          before do
+            Pakyow.config.puma.binds = ["foo"]
+          end
+
+          it "has a default value" do
+            expect(Pakyow.config.puma.port).to be(nil)
+          end
         end
       end
     end
