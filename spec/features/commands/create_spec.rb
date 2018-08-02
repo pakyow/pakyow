@@ -115,10 +115,6 @@ RSpec.describe "cli: create" do
           expect(File.exist?(File.join(generated_path, "config/environment.rb"))).to be(true)
         end
 
-        it "contains puma/production.rb" do
-          expect(File.exist?(File.join(generated_path, "config/puma/production.rb"))).to be(true)
-        end
-
         describe "application.rb" do
           it "sets the project name" do
             expect(File.read(File.join(generated_path, "config/application.rb"))).to include("Pakyow.app :app_test")

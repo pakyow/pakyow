@@ -219,6 +219,194 @@ RSpec.describe Pakyow do
         expect(Pakyow.config.redis.key_prefix).to eq("pw")
       end
     end
+
+    describe "puma.host" do
+      it "has a default value" do
+        expect(Pakyow.config.puma.host).to eq(
+          Pakyow.config.server.host
+        )
+      end
+
+      context "HOST is set" do
+        before do
+          ENV["HOST"] = "foo"
+        end
+
+        after do
+          ENV.delete("HOST")
+        end
+
+        it "defaults to HOST" do
+          expect(Pakyow.config.puma.host).to eq("foo")
+        end
+      end
+    end
+
+    describe "puma.port" do
+      it "has a default value" do
+        expect(Pakyow.config.puma.port).to eq(
+          Pakyow.config.server.port
+        )
+      end
+
+      context "PORT is set" do
+        before do
+          ENV["PORT"] = "4242"
+        end
+
+        after do
+          ENV.delete("PORT")
+        end
+
+        it "defaults to PORT" do
+          expect(Pakyow.config.puma.port).to eq("4242")
+        end
+      end
+    end
+
+    describe "puma.binds" do
+      it "has a default value" do
+        expect(Pakyow.config.puma.binds).to eq([])
+      end
+
+      context "BIND is set" do
+        before do
+          ENV["BIND"] = "unix://"
+        end
+
+        after do
+          ENV.delete("BIND")
+        end
+
+        it "includes BIND" do
+          expect(Pakyow.config.puma.binds).to eq(["unix://"])
+        end
+      end
+    end
+
+    describe "puma.min_threads" do
+      it "has a default value" do
+        expect(Pakyow.config.puma.min_threads).to eq(5)
+      end
+
+      context "THREADS is set" do
+        before do
+          ENV["THREADS"] = "10"
+        end
+
+        after do
+          ENV.delete("THREADS")
+        end
+
+        it "defaults to THREADS" do
+          expect(Pakyow.config.puma.min_threads).to eq("10")
+        end
+      end
+    end
+
+    describe "puma.max_threads" do
+      it "has a default value" do
+        expect(Pakyow.config.puma.max_threads).to eq(5)
+      end
+
+      context "THREADS is set" do
+        before do
+          ENV["THREADS"] = "15"
+        end
+
+        after do
+          ENV.delete("THREADS")
+        end
+
+        it "defaults to THREADS" do
+          expect(Pakyow.config.puma.min_threads).to eq("15")
+        end
+      end
+    end
+
+    describe "puma.workers" do
+      it "has a default value" do
+        expect(Pakyow.config.puma.workers).to eq(5)
+      end
+
+      context "WORKERS is set" do
+        before do
+          ENV["WORKERS"] = "42"
+        end
+
+        after do
+          ENV.delete("WORKERS")
+        end
+
+        it "defaults to WORKERS" do
+          expect(Pakyow.config.puma.workers).to eq("42")
+        end
+      end
+    end
+
+    describe "puma.worker_timeout" do
+      it "has a default value" do
+        expect(Pakyow.config.puma.worker_timeout).to eq(60)
+      end
+    end
+
+    describe "puma.on_restart" do
+      it "has a default value" do
+        expect(Pakyow.config.puma.on_restart).to eq([])
+      end
+    end
+
+    describe "puma.before_fork" do
+      it "has a default value" do
+        expect(Pakyow.config.puma.before_fork).to eq([])
+      end
+    end
+
+    describe "puma.before_worker_boot" do
+      it "has a default value" do
+        expect(Pakyow.config.puma.before_worker_fork.count).to be(1)
+
+        expect(Pakyow).to receive(:forking)
+        Pakyow.config.puma.before_worker_fork[0].call(nil)
+      end
+    end
+
+    describe "puma.after_worker_fork" do
+      it "has a default value" do
+        expect(Pakyow.config.puma.after_worker_fork).to eq([])
+      end
+    end
+
+    describe "puma.before_worker_boot" do
+      it "has a default value" do
+        expect(Pakyow.config.puma.before_worker_boot.count).to be(1)
+
+        expect(Pakyow).to receive(:forked)
+        Pakyow.config.puma.before_worker_boot[0].call(nil)
+      end
+    end
+
+    describe "puma.before_worker_shutdown" do
+      it "has a default value" do
+        expect(Pakyow.config.puma.before_worker_shutdown).to eq([])
+      end
+    end
+
+    describe "puma.silent" do
+      it "has a default value" do
+        expect(Pakyow.config.puma.silent).to be(true)
+      end
+
+      context "in production" do
+        before do
+          Pakyow.configure!(:production)
+        end
+
+        it "has a default value" do
+          expect(Pakyow.config.puma.silent).to be(false)
+        end
+      end
+    end
   end
 
   describe ".mount" do
@@ -397,135 +585,166 @@ RSpec.describe Pakyow do
   end
 
   describe ".run" do
-    def run(opts = { port: port, host: host, server: server })
+    before do
+      allow(handler_double).to receive(:run).and_yield(server_double)
+      allow(builder_double).to receive(:to_app)
       allow(Pakyow).to receive(:handler).and_return(handler_double)
       Pakyow.instance_variable_set(:@builder, builder_double)
-      Pakyow.run(**opts)
     end
 
     let :handler_double do
-      double.as_null_object
+      double(:handler)
     end
 
     let :builder_double do
-      double.as_null_object
+      double(:builder)
     end
 
-    let :port do
-      4242
-    end
-
-    let :host do
-      "local.dev"
-    end
-
-    let :server do
-      :mock
-    end
-
-    context "called with a port" do
-      before do
-        run
-      end
-
-      it "uses the passed port" do
-        expect(Pakyow.port).to be(port)
-      end
-    end
-
-    context "called without a port" do
-      let :port do
-        nil
-      end
-
-      before do
-        run
-      end
-
-      it "uses the default port" do
-        expect(Pakyow.port).to be(Pakyow.config.server.port)
-      end
-    end
-
-    context "called with a host" do
-      before do
-        run
-      end
-
-      it "uses the passed host" do
-        expect(Pakyow.host).to be(host)
-      end
-    end
-
-    context "called without a host" do
-      let :host do
-        nil
-      end
-
-      before do
-        run
-      end
-
-      it "uses the default host" do
-        expect(Pakyow.host).to be(Pakyow.config.server.host)
-      end
+    let :server_double do
+      double(:server)
     end
 
     context "called with a server" do
-      before do
-        run
+      it "exposes the server" do
+        Pakyow.run(server: :foo)
+        expect(Pakyow.server).to eq(:foo)
       end
 
-      it "uses the passed server" do
-        expect(Pakyow.server).to be(server)
+      it "runs the passed server" do
+        expect(Pakyow).to receive(:handler).with(:foo).and_return(handler_double)
+        expect(Pakyow).to receive(:to_app).and_return(:app)
+        expect(handler_double).to receive(:run) { |app, _| expect(app).to eq(:app) }
+        Pakyow.run(server: :foo)
       end
     end
 
     context "called without a server" do
-      let :server do
-        nil
+      it "exposes the default server" do
+        Pakyow.run
+        expect(Pakyow.server).to eq(Pakyow.config.server.name)
       end
 
-      before do
-        run
-      end
-
-      it "uses the default server" do
-        expect(Pakyow.server).to be(Pakyow.config.server.name)
-      end
-    end
-
-    context "called with extra opts" do
-      before do
-        run(port: port, host: host, foo: :bar)
-      end
-
-      it "passes on the default opts" do
-        expect(handler_double).to have_received(:run).with(builder_double, Host: host, Port: port, Silent: true, foo: :bar)
+      it "runs the default server" do
+        expect(Pakyow).to receive(:handler).with(:puma).and_return(handler_double)
+        expect(Pakyow).to receive(:to_app).and_return(:app)
+        expect(handler_double).to receive(:run) { |app, _| expect(app).to eq(:app) }
+        Pakyow.run
       end
     end
 
-    it "looks up the handler for the server" do
-      run
-      expect(Pakyow).to have_received(:handler).with(server)
+    context "called with a host" do
+      it "sets the host" do
+        Pakyow.run(host: "somehost")
+        expect(Pakyow.host).to eq("somehost")
+      end
     end
 
-    it "runs the handler with the builder on the right host / port" do
-      run
-      expect(handler_double).to have_received(:run).with(builder_double, Host: host, Port: port)
+    context "called with a port" do
+      it "sets the port" do
+        Pakyow.run(port: 4242)
+        expect(Pakyow.port).to eq(4242)
+      end
     end
 
-    it "calls booted on each app" do
-      app = double(:app)
-      Pakyow.instance_variable_set(:@apps, [app])
-      expect(app).to receive(:booted)
-      run
+    context "called with a block" do
+      it "yields" do
+        Pakyow.run do
+          @called = true
+        end
+
+        expect(@called).to be(true)
+      end
     end
 
-    it "indicates that the environment has booted" do
-      expect(Pakyow.booted?).to be(false)
-      run
-      expect(Pakyow.booted?).to be(true)
+    describe "determining server options" do
+      context "server config is defined" do
+        it "passes the server options" do
+          expect(handler_double).to receive(:run) { |_, options|
+            expect(options[:workers]).to eq(Pakyow.config.puma.to_h[:workers])
+          }
+
+          Pakyow.run
+        end
+
+        it "remaps options for puma" do
+          expect(handler_double).to receive(:run) { |_, options|
+            expect(options[:Host]).to eq(Pakyow.config.puma.to_h[:host])
+            expect(options[:Port]).to eq(Pakyow.config.puma.to_h[:port])
+            expect(options[:Silent]).to eq(Pakyow.config.puma.to_h[:silent])
+          }
+
+          Pakyow.run
+        end
+
+        context "additional options are passed" do
+          it "uses merged server config + passed options" do
+            expect(handler_double).to receive(:run) { |_, options|
+              expect(options[:workers]).to eq(Pakyow.config.puma.to_h[:workers])
+              expect(options[:foo]).to eq(:bar)
+            }
+
+            Pakyow.run(foo: :bar)
+          end
+
+          it "gives precedence to passed options" do
+            expect(handler_double).to receive(:run) { |_, options|
+              expect(options[:workers]).to eq(42)
+            }
+
+            Pakyow.run(workers: 42)
+          end
+        end
+      end
+
+      context "server config is not defined" do
+        it "does not pass any options" do
+          expect(handler_double).to receive(:run) { |_, options|
+            expect(options).to eq({})
+          }
+
+          Pakyow.run(server: :mock)
+        end
+
+        context "additional options are passed" do
+          it "uses the passed options" do
+            expect(handler_double).to receive(:run) { |_, options|
+              expect(options).to eq(foo: :bar)
+            }
+
+            Pakyow.run(server: :mock, foo: :bar)
+          end
+        end
+      end
+
+      context "server config file exists" do
+        before do
+          expect(File).to receive(:exist?).with("./config/puma.rb").and_return(true)
+        end
+
+        it "passes no options" do
+          expect(handler_double).to receive(:run) { |_, options|
+            expect(options).to be_empty
+          }
+
+          Pakyow.run(foo: :bar)
+        end
+      end
+
+      context "server config file exists for environment" do
+        before do
+          expect(File).to receive(:exist?).with("./config/puma.rb").and_return(false)
+          expect(File).to receive(:exist?).with("./config/puma/fooenv.rb").and_return(true)
+          Pakyow.instance_variable_set(:@env, "fooenv")
+        end
+
+        it "passes no options" do
+          expect(handler_double).to receive(:run) { |_, options|
+            expect(options).to be_empty
+          }
+
+          Pakyow.run(foo: :bar)
+        end
+      end
     end
   end
 

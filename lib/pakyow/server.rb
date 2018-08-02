@@ -25,11 +25,7 @@ module Pakyow
     attr_reader :port, :host, :server, :master_pid
 
     def initialize(port: nil, host: nil, server: nil, standalone: false)
-      @port       = port   || Pakyow.config.server.port
-      @host       = host   || Pakyow.config.server.host
-      @server     = server || Pakyow.config.server.name
-      @standalone = standalone
-      @instances  = []
+      @port, @host, @server, @standalone, @instances = port, host, server, standalone, []
       @master_pid = ::Process.pid
     end
 

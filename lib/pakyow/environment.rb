@@ -9,6 +9,7 @@ require "pakyow/support/core_refinements/array/ensurable"
 require "pakyow/support/hookable"
 require "pakyow/support/configurable"
 require "pakyow/support/class_state"
+require "pakyow/support/deep_dup"
 require "pakyow/support/deep_freeze"
 
 require "pakyow/logger"
@@ -110,6 +111,7 @@ require "pakyow/app"
 #   Pakyow.run
 #
 module Pakyow
+  using Support::DeepDup
   using Support::DeepFreeze
   using Support::Refinements::Array::Ensurable
 
@@ -189,6 +191,68 @@ module Pakyow
     setting :key_prefix, "pw"
   end
 
+  settings_for :puma do
+    setting :host do
+      ENV["HOST"] || config.server.host
+    end
+
+    setting :port do
+      ENV["PORT"] || config.server.port
+    end
+
+    setting :binds do
+      [ENV["BIND"]].compact
+    end
+
+    setting :min_threads do
+      ENV["THREADS"] || 5
+    end
+
+    setting :max_threads do
+      ENV["THREADS"] || 5
+    end
+
+    setting :workers do
+      ENV["WORKERS"] || 5
+    end
+
+    setting :worker_timeout, 60
+
+    setting :on_restart do
+      @on_restart ||= []
+    end
+
+    setting :before_fork do
+      @before_fork ||= []
+    end
+
+    setting :before_worker_fork do
+      @before_worker_fork ||= [
+        lambda { |_| Pakyow.forking }
+      ]
+    end
+
+    setting :after_worker_fork do
+      @after_worker_fork ||= []
+    end
+
+    setting :before_worker_boot do
+      @before_worker_boot ||= [
+        lambda { |_| Pakyow.forked }
+      ]
+    end
+
+    setting :before_worker_shutdown do
+      @before_worker_shutdown ||= []
+    end
+
+    setting :silent, true
+
+    defaults :production do
+      setting :silent, false
+    end
+  end
+
   # Loads the default middleware stack.
   #
   before :setup do
@@ -202,15 +266,11 @@ module Pakyow
   end
 
   # @api private
-  SERVERS = %w(puma thin webrick).freeze
+  SERVERS = %w(puma).freeze
   # @api private
   STOP_METHODS = %w(stop! stop).freeze
   # @api private
   STOP_SIGNALS = %w(INT TERM).freeze
-  # @api private
-  DEFAULT_HANDLER_OPTIONS = {
-    puma: { Silent: true }.freeze
-  }.freeze
 
   extend Support::ClassState
   class_state :apps,       default: []
@@ -315,20 +375,22 @@ module Pakyow
 
     # Starts the Pakyow Environment.
     #
-    # @param port [Integer] what port to bind Pakyow to
-    # @param host [String] what ip address to bind Pakyow to
     # @param server [Symbol] name of the rack handler to use
     #
     # This method also accepts arbitrary options, which are passed directly to the handler.
     #
-    def run(port: nil, host: nil, server: nil, **opts)
-      @port   = port   || config.server.port
-      @host   = host   || config.server.host
+    def run(server: nil, **opts)
       @server = server || config.server.name
 
-      opts.merge!(DEFAULT_HANDLER_OPTIONS.fetch(@server, {}))
+      opts = if server_config_file_exists?
+        {}
+      else
+        default_options_for_server(opts)
+      end
 
-      handler(@server).run(to_app, Host: @host, Port: @port, **opts) do |app_server|
+      @host, @port = opts.values_at(:host, :port)
+
+      handler(@server).run(to_app, **opts) do |app_server|
         deep_freeze if config.freeze_on_boot
 
         at_exit do
@@ -340,6 +402,8 @@ module Pakyow
             stop(app_server)
           }
         end
+
+        yield if block_given?
       end
     end
 
@@ -472,6 +536,26 @@ module Pakyow
 
       # exit ungracefully
       ::Process.exit!
+    end
+
+    def server_config_file_exists?
+      File.exist?("./config/#{@server}.rb") || File.exist?("./config/#{@server}/#{@env}.rb")
+    end
+
+    def default_options_for_server(opts)
+      if config.respond_to?(@server)
+        opts = config.public_send(@server).to_h.deep_dup.merge(
+          opts.reject { |_, v| v.nil? }
+        )
+
+        if @server == :puma
+          opts[:Host] = opts[:host]
+          opts[:Port] = opts[:port]
+          opts[:Silent] = opts[:silent]
+        end
+      end
+
+      opts
     end
   end
 end

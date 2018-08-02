@@ -39,8 +39,9 @@ module Pakyow
 
       def start
         if @server.standalone?
-          puts running_text
-          run_environment
+          run_environment do
+            puts running_text
+          end
         else
           @proxy_port ||= find_local_port
 
@@ -66,8 +67,8 @@ module Pakyow
 
       private
 
-      def run_environment(port: @server.port, host: @server.host)
-        Pakyow.run(port: port, host: host, server: @server.server)
+      def run_environment(port: @server.port, host: @server.host, &block)
+        Pakyow.run(port: port, host: host, server: @server.server, &block)
       end
 
       def run_environment_subprocess(port)
@@ -95,17 +96,16 @@ module Pakyow
 
       def start_proxy(port)
         @proxy_pid = fork {
-          server_host = @server.host
-          server_port = @server.port
+          server_host = @server.host || Pakyow.config.server.host
+          server_port = @server.port || Pakyow.config.server.port
+
           builder = Rack::Builder.new {
             run Proxy.new(host: server_host, port: port, forwarded: "#{server_host}:#{server_port}")
           }
 
-          unless ENV["PW_RESPAWN"]
-            puts running_text
+          Pakyow.send(:handler, @server.server).run(builder.to_app, Host: server_host, Port: server_port, Silent: true) do
+            puts running_text(host: server_host, port: server_port) unless ENV.key?("PW_RESPAWN")
           end
-
-          Pakyow.send(:handler, @server.server).run(builder.to_app, Host: @server.host, Port: @server.port, Silent: true)
         }
 
         Pakyow::STOP_SIGNALS.each do |signal|
@@ -133,9 +133,12 @@ module Pakyow
         port
       end
 
-      def running_text
+      def running_text(host: Pakyow.host, port: Pakyow.port)
+        text = String.new("Pakyow › #{Pakyow.env.capitalize}")
+        text << " › http://#{host}:#{port}" if host && port
+
         Support::CLI.style.blue.bold(
-          "Pakyow › #{Pakyow.env.capitalize} › http://#{@server.host}:#{@server.port}"
+          text
         ) + Support::CLI.style.italic("\nUse Ctrl-C to stop the project.")
       end
 
