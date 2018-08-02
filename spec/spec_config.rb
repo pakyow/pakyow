@@ -92,7 +92,7 @@ require "warning"
 warnings = []
 pakyow_path = File.expand_path("../../", __FILE__)
 Warning.process do |warning|
-  if warning.start_with?(pakyow_path)
+  if warning.start_with?(pakyow_path) && !warning.include?("_spec.rb") && !warning.include?("spec/")
     warnings << warning.gsub(/^#{pakyow_path}\//, "")
   end
 end
