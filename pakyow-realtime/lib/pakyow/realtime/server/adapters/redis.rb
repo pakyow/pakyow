@@ -212,7 +212,11 @@ module Pakyow
             def subscribe
               @redis.subscribe(@channel) do |on|
                 on.message do |_, payload|
-                  @callback.call(payload)
+                  begin
+                    @callback.call(payload)
+                  rescue => error
+                    Pakyow.logger.error "[Pakyow::Realtime::Server::Adapter::Redis] Subscriber callback failed: #{error}"
+                  end
                 end
               end
             rescue ::Redis::CannotConnectError
