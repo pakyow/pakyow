@@ -11,7 +11,7 @@ module Pakyow
     class Project < Generator
       after :generate do
         Bundler.with_clean_env do
-          run "pwd && which bundle && bundle install --binstubs", message: "Bundling dependencies"
+          run "bundle install --binstubs", message: "Bundling dependencies"
         end
       end
 
