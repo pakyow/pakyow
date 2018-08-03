@@ -10,7 +10,9 @@ module Pakyow
   module Generators
     class Project < Generator
       after :generate do
-        run "bundle install --binstubs", message: "Bundling dependencies"
+        Bundler.with_clean_env do
+          run "pwd && which bundle && bundle install --binstubs", message: "Bundling dependencies"
+        end
       end
 
       def generating_locally?

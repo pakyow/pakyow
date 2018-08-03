@@ -18,7 +18,9 @@ module Pakyow
       #
       watch "./Gemfile"
       on_change(/Gemfile$/) do
-        Support::CLI::Runner.new(message: "Bundling").run("bundle install")
+        Bundler.with_clean_env do
+          Support::CLI::Runner.new(message: "Bundling").run("bundle install")
+        end
       end
 
       # Respawn when the bundle changes.
