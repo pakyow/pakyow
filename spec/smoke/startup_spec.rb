@@ -1,5 +1,6 @@
-require "fileutils"
+require "bundler"
 require "http"
+require "fileutils"
 
 RSpec.describe "starting up a newly generated project", smoke: true do
   def install
