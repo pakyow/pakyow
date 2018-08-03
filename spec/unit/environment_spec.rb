@@ -227,27 +227,9 @@ RSpec.describe Pakyow do
         )
       end
 
-      context "binds is not empty" do
+      context "in production" do
         before do
-          Pakyow.config.puma.binds = ["foo"]
-        end
-
-        it "has a default value" do
-          expect(Pakyow.config.puma.host).to be(nil)
-        end
-      end
-
-      context "HOST is set" do
-        before do
-          ENV["HOST"] = "foo"
-        end
-
-        after do
-          ENV.delete("HOST")
-        end
-
-        it "defaults to HOST" do
-          expect(Pakyow.config.puma.host).to eq("foo")
+          Pakyow.configure!(:production)
         end
 
         context "binds is not empty" do
@@ -257,6 +239,30 @@ RSpec.describe Pakyow do
 
           it "has a default value" do
             expect(Pakyow.config.puma.host).to be(nil)
+          end
+        end
+
+        context "HOST is set" do
+          before do
+            ENV["HOST"] = "foo"
+          end
+
+          after do
+            ENV.delete("HOST")
+          end
+
+          it "defaults to HOST" do
+            expect(Pakyow.config.puma.host).to eq("foo")
+          end
+
+          context "binds is not empty" do
+            before do
+              Pakyow.config.puma.binds = ["foo"]
+            end
+
+            it "has a default value" do
+              expect(Pakyow.config.puma.host).to be(nil)
+            end
           end
         end
       end
@@ -269,27 +275,9 @@ RSpec.describe Pakyow do
         )
       end
 
-      context "binds is not empty" do
+      context "in production" do
         before do
-          Pakyow.config.puma.binds = ["foo"]
-        end
-
-        it "has a default value" do
-          expect(Pakyow.config.puma.port).to be(nil)
-        end
-      end
-
-      context "PORT is set" do
-        before do
-          ENV["PORT"] = "4242"
-        end
-
-        after do
-          ENV.delete("PORT")
-        end
-
-        it "defaults to PORT" do
-          expect(Pakyow.config.puma.port).to eq("4242")
+          Pakyow.configure!(:production)
         end
 
         context "binds is not empty" do
@@ -301,6 +289,30 @@ RSpec.describe Pakyow do
             expect(Pakyow.config.puma.port).to be(nil)
           end
         end
+
+        context "PORT is set" do
+          before do
+            ENV["PORT"] = "4242"
+          end
+
+          after do
+            ENV.delete("PORT")
+          end
+
+          it "defaults to PORT" do
+            expect(Pakyow.config.puma.port).to eq("4242")
+          end
+
+          context "binds is not empty" do
+            before do
+              Pakyow.config.puma.binds = ["foo"]
+            end
+
+            it "has a default value" do
+              expect(Pakyow.config.puma.port).to be(nil)
+            end
+          end
+        end
       end
     end
 
@@ -309,17 +321,23 @@ RSpec.describe Pakyow do
         expect(Pakyow.config.puma.binds).to eq([])
       end
 
-      context "BIND is set" do
+      context "in production" do
         before do
-          ENV["BIND"] = "unix://"
+          Pakyow.configure!(:production)
         end
 
-        after do
-          ENV.delete("BIND")
-        end
+        context "BIND is set" do
+          before do
+            ENV["BIND"] = "unix://"
+          end
 
-        it "includes BIND" do
-          expect(Pakyow.config.puma.binds).to eq(["unix://"])
+          after do
+            ENV.delete("BIND")
+          end
+
+          it "includes BIND" do
+            expect(Pakyow.config.puma.binds).to eq(["unix://"])
+          end
         end
       end
     end
@@ -329,17 +347,23 @@ RSpec.describe Pakyow do
         expect(Pakyow.config.puma.min_threads).to eq(5)
       end
 
-      context "THREADS is set" do
+      context "in production" do
         before do
-          ENV["THREADS"] = "10"
+          Pakyow.configure!(:production)
         end
 
-        after do
-          ENV.delete("THREADS")
-        end
+        context "THREADS is set" do
+          before do
+            ENV["THREADS"] = "10"
+          end
 
-        it "defaults to THREADS" do
-          expect(Pakyow.config.puma.min_threads).to eq("10")
+          after do
+            ENV.delete("THREADS")
+          end
+
+          it "defaults to THREADS" do
+            expect(Pakyow.config.puma.min_threads).to eq("10")
+          end
         end
       end
     end
@@ -349,37 +373,49 @@ RSpec.describe Pakyow do
         expect(Pakyow.config.puma.max_threads).to eq(5)
       end
 
-      context "THREADS is set" do
+      context "in production" do
         before do
-          ENV["THREADS"] = "15"
+          Pakyow.configure!(:production)
         end
 
-        after do
-          ENV.delete("THREADS")
-        end
+        context "THREADS is set" do
+          before do
+            ENV["THREADS"] = "15"
+          end
 
-        it "defaults to THREADS" do
-          expect(Pakyow.config.puma.min_threads).to eq("15")
+          after do
+            ENV.delete("THREADS")
+          end
+
+          it "defaults to THREADS" do
+            expect(Pakyow.config.puma.min_threads).to eq("15")
+          end
         end
       end
     end
 
     describe "puma.workers" do
       it "has a default value" do
-        expect(Pakyow.config.puma.workers).to eq(5)
+        expect(Pakyow.config.puma.workers).to eq(0)
       end
 
-      context "WORKERS is set" do
+      context "in production" do
         before do
-          ENV["WORKERS"] = "42"
+          Pakyow.configure!(:production)
         end
 
-        after do
-          ENV.delete("WORKERS")
-        end
+        context "WORKERS is set" do
+          before do
+            ENV["WORKERS"] = "42"
+          end
 
-        it "defaults to WORKERS" do
-          expect(Pakyow.config.puma.workers).to eq("42")
+          after do
+            ENV.delete("WORKERS")
+          end
+
+          it "defaults to WORKERS" do
+            expect(Pakyow.config.puma.workers).to eq("42")
+          end
         end
       end
     end

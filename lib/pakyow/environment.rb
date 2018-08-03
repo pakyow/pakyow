@@ -193,37 +193,17 @@ module Pakyow
 
   settings_for :puma do
     setting :host do
-      if config.puma.binds.any?
-        nil
-      else
-        ENV["HOST"] || config.server.host
-      end
+      config.server.host
     end
 
     setting :port do
-      if config.puma.binds.any?
-        nil
-      else
-        ENV["PORT"] || config.server.port
-      end
+      config.server.port
     end
 
-    setting :binds do
-      [ENV["BIND"]].compact
-    end
-
-    setting :min_threads do
-      ENV["THREADS"] || 5
-    end
-
-    setting :max_threads do
-      ENV["THREADS"] || 5
-    end
-
-    setting :workers do
-      ENV["WORKERS"] || 5
-    end
-
+    setting :binds, []
+    setting :min_threads, 5
+    setting :max_threads, 5
+    setting :workers, 0
     setting :worker_timeout, 60
 
     setting :on_restart do
@@ -258,6 +238,38 @@ module Pakyow
 
     defaults :production do
       setting :silent, false
+
+      setting :host do
+        if config.puma.binds.to_a.any?
+          nil
+        else
+          ENV["HOST"] || config.server.host
+        end
+      end
+
+      setting :port do
+        if config.puma.binds.to_a.any?
+          nil
+        else
+          ENV["PORT"] || config.server.port
+        end
+      end
+
+      setting :binds do
+        [ENV["BIND"]].compact
+      end
+
+      setting :min_threads do
+        ENV["THREADS"] || 5
+      end
+
+      setting :max_threads do
+        ENV["THREADS"] || 5
+      end
+
+      setting :workers do
+        ENV["WORKERS"] || 5
+      end
     end
   end
 
