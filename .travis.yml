@@ -1,60 +1,51 @@
+language: ruby
+sudo: false
+
+services:
+  - redis-server
+
+rvm:
+  - 2.4.4
+  - 2.5.1
+  - ruby-head
+
+env:
+  matrix:
+    - CI=true
+    - CI_BENCH=true
+    - CI_SMOKE=true
+
 matrix:
   include:
-    - sudo: false
-      language: ruby
-      rvm:
-        - 2.4.0
-        - 2.4.1
-        - 2.4.2
-        - 2.5.0
-        - 2.5.1
-        - 2.6.0-preview1
+    - language: ruby
+      before_install:
+        - gem install bundler
+      before_script:
+        - psql -c "CREATE DATABASE travis;" -U postgres
       script:
         - bundle exec rake
-      before_install: gem install bundler
-      services:
-        - redis-server
-      before_script:
-        - psql -c "CREATE DATABASE travis;" -U postgres
-
-    - sudo: false
-      language: ruby
-      rvm:
-        - 2.4.0
-        - 2.4.1
-        - 2.4.2
-        - 2.5.0
-        - 2.5.1
-        - 2.6.0-preview1
-      script:
-        - CI_SMOKE=true bundle exec rake
-      before_install: gem install bundler
-      services:
-        - redis-server
-      before_script:
-        - psql -c "CREATE DATABASE travis;" -U postgres
-
-    - sudo: false
-      language: ruby
-      rvm:
-        - 2.5.1
-        - 2.6.0-preview1
-      script:
-        - CI_BENCH=true bundle exec rake
-      before_install: gem install bundler
-      services:
-        - redis-server
-      before_script:
-        - psql -c "CREATE DATABASE travis;" -U postgres
 
     - language: node_js
       node_js:
         - node
-      script: npm test
-      before_install: cd pakyow-js
+      before_install:
+        - cd pakyow-js
+      script:
+        - npm test
+
+  exclude:
+    - rvm: 2.4.4
+      env: CI_BENCH=true
+    - rvm: ruby-head
+      env: CI_BENCH=true
+    - rvm: ruby-head
+      env: CI_SMOKE=true
+
+  allow_failures:
+    - rvm: ruby-head
+    - env: CI_BENCH=true
+
+  fast_finish: true
 
 notifications:
   email: false
-  webhooks:
-    urls:
-      - https://webhooks.gitter.im/e/9d2966f0802fa60b226f
