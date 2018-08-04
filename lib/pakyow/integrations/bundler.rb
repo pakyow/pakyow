@@ -3,5 +3,7 @@
 # Requires gems for the current environment.
 #
 Pakyow.before :configure do
-  Bundler.require :default, Pakyow.env
+  if defined?(Bundler)
+    Bundler.require :default, Pakyow.env
+  end
 end
