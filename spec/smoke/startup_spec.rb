@@ -18,7 +18,7 @@ RSpec.describe "starting up a newly generated project", smoke: true do
   def boot
     @server = Process.fork {
       Bundler.with_clean_env do
-        exec "pakyow boot"
+        exec "RACK_ENV=development pakyow boot"
       end
     }
 
@@ -52,13 +52,14 @@ RSpec.describe "starting up a newly generated project", smoke: true do
   end
 
   after :all do
-    Process.kill("INT", @server)
+    Process.kill("KILL", @server)
     Process.waitpid(@server)
 
     Dir.chdir(@original_path)
     system "bundle exec rake release:clean"
 
     at_exit do
+      sleep 5 # let things calm down
       FileUtils.rm_r(@working_path)
     end
   end

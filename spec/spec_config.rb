@@ -9,10 +9,6 @@ RSpec.configure do |config|
     mocks.verify_partial_doubles = true
   end
 
-  config.filter_run :focus
-  config.run_all_when_everything_filtered = true
-
-  config.example_status_persistence_file_path = "spec/examples.txt"
   config.disable_monkey_patching!
   config.warnings = true
   config.color = true
@@ -20,10 +16,17 @@ RSpec.configure do |config|
   config.order = :random
   Kernel.srand config.seed
 
-  # unless ENV["CI"]
+  if ENV.key?("CI_BENCH")
+    config.filter_run benchmark: true
+  else
     config.filter_run_excluding benchmark: true
+  end
+
+  if ENV.key?("CI_SMOKE")
+    config.filter_run smoke: true
+  else
     config.filter_run_excluding smoke: true
-  # end
+  end
 
   config.before do
     if Pakyow.respond_to?(:config)

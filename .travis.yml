@@ -9,7 +9,38 @@ matrix:
         - 2.5.0
         - 2.5.1
         - 2.6.0-preview1
-      script: "CI=true bundle exec rake"
+      script:
+        - bundle exec rake
+      before_install: gem install bundler
+      services:
+        - redis-server
+      before_script:
+        - psql -c "CREATE DATABASE travis;" -U postgres
+
+    - sudo: false
+      language: ruby
+      rvm:
+        - 2.4.0
+        - 2.4.1
+        - 2.4.2
+        - 2.5.0
+        - 2.5.1
+        - 2.6.0-preview1
+      script:
+        - CI_SMOKE=true bundle exec rake
+      before_install: gem install bundler
+      services:
+        - redis-server
+      before_script:
+        - psql -c "CREATE DATABASE travis;" -U postgres
+
+    - sudo: false
+      language: ruby
+      rvm:
+        - 2.5.1
+        - 2.6.0-preview1
+      script:
+        - CI_BENCH=true bundle exec rake
       before_install: gem install bundler
       services:
         - redis-server
