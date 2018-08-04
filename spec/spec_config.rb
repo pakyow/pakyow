@@ -21,8 +21,8 @@ RSpec.configure do |config|
   Kernel.srand config.seed
 
   # unless ENV["CI"]
-  #   config.filter_run_excluding benchmark: true
-  #   config.filter_run_excluding smoke: true
+    config.filter_run_excluding benchmark: true
+    config.filter_run_excluding smoke: true
   # end
 
   config.before do
