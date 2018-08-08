@@ -18,6 +18,12 @@ RSpec.describe Pakyow do
   end
 
   describe "configuration options" do
+    describe "environment_path" do
+      it "has a default value" do
+        expect(Pakyow.config.environment_path).to eq("config/environment")
+      end
+    end
+
     describe "default_env" do
       it "has a default value" do
         expect(Pakyow.config.default_env).to eq(:development)

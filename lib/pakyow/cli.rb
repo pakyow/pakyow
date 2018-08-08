@@ -80,7 +80,7 @@ module Pakyow
     end
 
     def environment_path
-      File.join(current_path, "config/environment")
+      File.join(current_path, Pakyow.config.environment_path)
     end
 
     def parse_global_options

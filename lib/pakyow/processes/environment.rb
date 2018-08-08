@@ -33,10 +33,8 @@ module Pakyow
 
       # Respawn when something about the environment changes.
       #
-      # FIXME: this doesn't need to be hardcoded; make it a config setting
-      #
-      watch "./config/environment.rb"
-      on_change(/config\/environment.rb/) do
+      watch "#{Pakyow.config.environment_path}.rb"
+      on_change(/#{Pakyow.config.environment_path}.rb/) do
         @server.respawn
       end
 

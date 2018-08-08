@@ -123,6 +123,7 @@ module Pakyow
 
   include Support::Configurable
 
+  setting :environment_path, "config/environment"
   setting :default_env, :development
   setting :freeze_on_boot, true
 
