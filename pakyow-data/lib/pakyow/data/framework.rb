@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require "pakyow/support/inflector"
+require "pakyow/framework"
 
-require "pakyow/core/framework"
+require "pakyow/support/inflector"
 
 require "pakyow/data/types"
 require "pakyow/data/lookup"

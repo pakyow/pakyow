@@ -3,7 +3,7 @@
 require "json"
 require "digest"
 
-require "pakyow/core/framework"
+require "pakyow/framework"
 
 require "pakyow/ui/helpers"
 require "pakyow/ui/renderer"

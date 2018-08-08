@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "pakyow/environment"
+
 module Pakyow
   class Framework
     class << self

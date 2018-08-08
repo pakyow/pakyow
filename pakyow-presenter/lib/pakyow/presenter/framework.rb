@@ -5,7 +5,7 @@ Pakyow::Support::Silenceable.silence_warnings do
   require "redcarpet"
 end
 
-require "pakyow/core/framework"
+require "pakyow/framework"
 
 module Pakyow
   module Presenter

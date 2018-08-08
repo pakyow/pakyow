@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "pakyow/core/framework"
+require "pakyow/framework"
 
 require "pakyow/mailer/mailer"
 
