@@ -62,7 +62,7 @@ module Pakyow
         @logger.level = original_level
       end
 
-      %i(<< add debug error fatal info log unknown warn).each do |method|
+      %i(<< debug error fatal info unknown warn).each do |method|
         define_method method do |message|
           logger.send(method, decorate(message))
         end
@@ -70,8 +70,13 @@ module Pakyow
 
       ::Logger::VERBOSE = -1
       def verbose(message)
-        logger.add(-1, decorate(message))
+        add(-1, message)
       end
+
+      def add(severity, message)
+        logger.add(severity, decorate(message))
+      end
+      alias log add
 
       # Logs the beginning of a request, including the time, request method,
       # request uri, and ip address of the requester.

@@ -70,7 +70,7 @@ RSpec.describe Pakyow::Logger::RequestLogger do
       double
     end
 
-    %i(<< add debug error fatal info log unknown warn).each do |method|
+    %i(<< debug error fatal info unknown warn).each do |method|
       describe "##{method}" do
         it "calls #{method} on logger with decorated message" do
           expect(instance).to receive(:decorate).with(message).and_return(decorated)
@@ -85,6 +85,16 @@ RSpec.describe Pakyow::Logger::RequestLogger do
         expect(instance).to receive(:decorate).with(message).and_return(decorated)
         expect(logger).to receive(:add).with(-1, decorated)
         instance.verbose(message)
+      end
+    end
+
+    %i(add log).each do |method|
+      describe "##{method}" do
+        it "calls add on logger with decorated message at the given severity" do
+          expect(instance).to receive(:decorate).with(message).and_return(decorated)
+          expect(logger).to receive(:add).with(2, decorated)
+          instance.send(method, 2, message)
+        end
       end
     end
   end
