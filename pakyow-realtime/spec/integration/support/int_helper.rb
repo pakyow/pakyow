@@ -15,7 +15,7 @@ Pakyow::App.define do
     server.port = PORT
     server.host = HOST
     logger.level = :error
-    logger.formatter = Pakyow::Logger::DevFormatter
+    logger.formatter = Pakyow::Logger::Formatters::Dev
     session.secret = "sekret"
   end
 

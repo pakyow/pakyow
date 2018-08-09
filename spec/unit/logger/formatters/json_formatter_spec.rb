@@ -1,10 +1,10 @@
 require "unit/logger/formatters/shared"
 
-RSpec.describe Pakyow::Logger::JSONFormatter do
+RSpec.describe Pakyow::Logger::Formatters::JSON do
   include_examples :log_formatter
 
   let :formatter do
-    Pakyow::Logger::JSONFormatter.new
+    Pakyow::Logger::Formatters::JSON.new
   end
 
   it "formats the prologue" do

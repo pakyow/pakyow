@@ -1,10 +1,10 @@
 require "unit/logger/formatters/shared"
 
-RSpec.describe Pakyow::Logger::LogfmtFormatter do
+RSpec.describe Pakyow::Logger::Formatters::Logfmt do
   include_examples :log_formatter
 
   let :formatter do
-    Pakyow::Logger::LogfmtFormatter.new
+    Pakyow::Logger::Formatters::Logfmt.new
   end
 
   it "formats the prologue" do

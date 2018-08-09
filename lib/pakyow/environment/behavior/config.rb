@@ -25,7 +25,7 @@ module Pakyow
         settings_for :logger do
           setting :enabled, true
           setting :level, :debug
-          setting :formatter, Logger::DevFormatter
+          setting :formatter, Logger::Formatters::Dev
 
           setting :destinations do
             if config.logger.enabled
@@ -41,7 +41,7 @@ module Pakyow
 
           defaults :production do
             setting :level, :info
-            setting :formatter, Logger::LogfmtFormatter
+            setting :formatter, Logger::Formatters::Logfmt
           end
 
           defaults :ludicrous do
