@@ -19,7 +19,7 @@ module Pakyow
           connection.logger.prologue(connection.env)
         end
 
-        connection.app.class.const_get(:Renderer).perform_for_connection(connection)
+        connection.app.subclass(:Renderer).perform_for_connection(connection)
       end
     end
 
@@ -58,18 +58,16 @@ module Pakyow
 
       def setup_for_implicit_rendering(connection)
         connection.on :finalize do
-          app.class.const_get(:Renderer).perform_for_connection(self)
+          app.subclass(:Renderer).perform_for_connection(self)
         end
       end
     end
 
     class Framework < Pakyow::Framework(:presenter)
       def boot
-        # We create a subclass because other frameworks could extend its behavior. Since frameworks
-        # are loaded at the application level, we don't want one application affecting another.
-        subclass(Renderer)
-
         app.class_eval do
+          subclass!(Renderer)
+
           stateful :templates, Templates
           stateful :presenter, Presenter
           stateful :binder, Binder
@@ -80,8 +78,8 @@ module Pakyow
 
           helper RenderHelpers
 
-          if const_defined?(:Controller)
-            const_get(:Controller).include_pipeline ImplicitRendering
+          subclass? :Controller do
+            include_pipeline ImplicitRendering
           end
 
           settings_for :presenter do

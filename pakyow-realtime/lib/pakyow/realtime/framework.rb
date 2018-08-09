@@ -82,12 +82,11 @@ module Pakyow
           end
 
           known_events :join, :leave
-        end
 
-        if app.const_defined?(:Renderer)
-          app.const_get(:Renderer).tap do |renderer_class|
-            renderer_class.include Helpers
-            renderer_class.before :render do
+          subclass? :Renderer do
+            include Helpers
+
+            before :render do
               next unless head = @presenter.view.object.find_significant_nodes(:head)[0]
 
               # embed the socket connection id (used by pakyow.js to idenfity itself with the server)

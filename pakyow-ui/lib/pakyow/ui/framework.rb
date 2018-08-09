@@ -124,7 +124,7 @@ module Pakyow
 
           app.const_set(:MutationHandler, handler)
 
-          app.const_get(:Renderer).before :render do
+          app.subclass(:Renderer).before :render do
             # The transformation id doesn't have to be completely unique, just unique to the presenter.
             @transformation_id = Digest::SHA1.hexdigest(@presenter.class.object_id.to_s)
 
@@ -146,7 +146,7 @@ module Pakyow
             end
           end
 
-          app.const_get(:Renderer).after :render do
+          app.subclass(:Renderer).after :render do
             # We wait until after render so that we don't create subscriptions unnecessarily
             # in the event that something blew up during the render process.
             #

@@ -18,6 +18,7 @@ require "pakyow/app/behavior/frameworks"
 require "pakyow/app/behavior/aspects"
 require "pakyow/app/behavior/helpers"
 require "pakyow/app/behavior/restarting"
+require "pakyow/app/behavior/subclassing"
 
 require "pakyow/connection"
 
@@ -143,6 +144,7 @@ module Pakyow
     include Behavior::Aspects
     include Behavior::Helpers
     include Behavior::Restarting
+    include Behavior::Subclassing
 
     include Pakyow::Support::Inspectable
     inspectable :environment

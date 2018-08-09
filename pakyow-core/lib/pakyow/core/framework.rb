@@ -17,7 +17,7 @@ module Pakyow
       end
 
       def call(connection)
-        @app.class.const_get(:Controller).new(connection).trigger(404)
+        @app.subclass(:Controller).new(connection).trigger(404)
       end
     end
 
@@ -73,17 +73,19 @@ module Pakyow
 
     class Framework < Pakyow::Framework(:core)
       def boot
-        controller_class = subclass(Controller) {
-          include Pakyow::Routing::Extension::Resource
-        }
-
         app.class_eval do
+          subclass! Controller do
+            include Pakyow::Routing::Extension::Resource
+          end
+
           extend Routing
 
-          # Make it possible to define controllers on the app.
-          stateful :controller, controller_class
+          # Make controllers definable on the app.
+          #
+          stateful :controller, subclass(:Controller)
 
-          # Load defined controllers into the namespace.
+          # Load controllers for the app.
+          #
           aspect :controllers
 
           helper Pakyow::Routing::Helpers
@@ -111,13 +113,13 @@ module Pakyow
           }
 
           require "pakyow/core/security/csrf/pipeline"
-          controller_class.include_pipeline Security::CSRF
+          subclass(:Controller).include_pipeline Security::CSRF
 
           handle InsecureRequest, as: 403 do
             trigger(403)
           end
 
-          controller_class.class_eval do
+          subclass(:Controller).class_eval do
             def self.disable_protection(type, only: [], except: [])
               if type.to_sym == :csrf
                 if only.any? || except.any?
@@ -141,8 +143,9 @@ module Pakyow
 
           before :load do
             # Include other registered helpers into the controller class.
+            #
             config.helpers.each do |helper|
-              controller_class.include helper
+              subclass(:Controller).include helper
             end
           end
         end

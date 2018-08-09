@@ -8,7 +8,7 @@ module Pakyow
   module Presenter
     module RenderHelpers
       def render(path = request.env["pakyow.endpoint"] || request.path, as: nil, layout: nil, mode: :default)
-        app.class.const_get(:Renderer).new(@connection, path: path, as: as, layout: layout, mode: mode).perform
+        app.subclass(:Renderer).new(@connection, path: path, as: as, layout: layout, mode: mode).perform
       end
 
       using Support::Refinements::Array::Ensurable
@@ -59,7 +59,7 @@ module Pakyow
 
               catch :halt do
                 if Pakyow.env?(:production)
-                  connection.app.class.const_get(:Controller).new(connection).trigger(404)
+                  connection.app.subclass(:Controller).new(connection).trigger(404)
                 else
                   new(connection, path: "/development/500").perform
                 end
@@ -69,7 +69,7 @@ module Pakyow
 
               if connection.app.class.includes_framework?(:core)
                 catch :halt do
-                  connection.app.class.const_get(:Controller).new(connection).handle_error(error)
+                  connection.app.subclass(:Controller).new(connection).handle_error(error)
                 end
               end
             end

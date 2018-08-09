@@ -8,13 +8,13 @@ module Pakyow
   module Mailer
     class Framework < Pakyow::Framework(:mailer)
       def boot
-        if controller = app.const_get(:Controller)
-          controller.class_eval do
+        app.class_eval do
+          subclass? :Controller do
             def mailer(path = nil)
               if path
                 connection = @connection.dup
 
-                renderer = @connection.app.class.const_get(:Renderer).new(
+                renderer = @connection.app.subclass(:Renderer).new(
                   connection,
                   path: path,
                   templates: false
@@ -39,9 +39,7 @@ module Pakyow
               end
             end
           end
-        end
 
-        app.class_eval do
           settings_for :mailer do
             setting :default_sender, "Pakyow"
             setting :default_content_type, "text/html"

@@ -22,15 +22,13 @@ module Pakyow
 
     class Framework < Pakyow::Framework(:data)
       def boot
-        if controller = app.const_get(:Controller)
-          controller.class_eval do
+        app.class_eval do
+          subclass? :Controller do
             def data
               app.data
             end
           end
-        end
 
-        app.class_eval do
           stateful :source, Source
           stateful :object, Object
 

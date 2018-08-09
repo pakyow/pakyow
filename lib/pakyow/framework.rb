@@ -33,19 +33,5 @@ module Pakyow
     def initialize(app)
       @app = app
     end
-
-    def subclass(class_to_subclass)
-      subclass_name = Support.inflector.demodulize(class_to_subclass.name).to_sym
-
-      subclass = Class.new(class_to_subclass)
-
-      unless app.const_defined?(subclass_name)
-        app.const_set(subclass_name, subclass)
-      end
-
-      defined_subclass = app.const_get(subclass_name)
-      defined_subclass.class_eval(&Proc.new) if block_given?
-      defined_subclass
-    end
   end
 end
