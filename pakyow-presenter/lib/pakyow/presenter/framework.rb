@@ -45,10 +45,6 @@ module Pakyow
       end
     end
 
-    class Pakyow::Connection
-      include Renderable
-    end
-
     module ImplicitRendering
       extend Support::Pipelined::Pipeline
 
@@ -67,6 +63,10 @@ module Pakyow
       def boot
         app.class_eval do
           subclass!(Renderer)
+
+          subclass? :Connection do
+            include Renderable
+          end
 
           stateful :templates, Templates
           stateful :presenter, Presenter

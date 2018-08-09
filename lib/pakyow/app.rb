@@ -162,6 +162,7 @@ module Pakyow
     # The Rack builder object.
     #
     attr_reader :builder
+    subclass! Connection
 
     def initialize(environment, builder: nil, &block)
       @environment, @builder = environment, builder
