@@ -3,40 +3,42 @@
 require "pakyow/support/extension"
 
 module Pakyow
-  module Behavior
-    # Lets an app to be rescued from errors encountered during boot. Once rescued,
-    # an app returns a 500 response with the error that caused it to fail.
-    #
-    module Rescuing
-      extend Support::Extension
-
-      # Returns true if the app has been rescued.
+  class App
+    module Behavior
+      # Lets an app to be rescued from errors encountered during boot. Once rescued,
+      # an app returns a 500 response with the error that caused it to fail.
       #
-      def rescued?
-        @rescued == true
-      end
+      module Rescuing
+        extend Support::Extension
 
-      private
+        # Returns true if the app has been rescued.
+        #
+        def rescued?
+          @rescued == true
+        end
 
-      # Enters rescue mode after logging the error.
-      #
-      def rescue!(error)
-        @rescued = true
+        private
 
-        performing :rescue do
-          message = <<~ERROR
-            #{self.class} failed to initialize.
+        # Enters rescue mode after logging the error.
+        #
+        def rescue!(error)
+          @rescued = true
 
-            #{error.to_s}
-            #{error.backtrace.join("\n")}
-          ERROR
+          performing :rescue do
+            message = <<~ERROR
+              #{self.class} failed to initialize.
 
-          Pakyow.logger.error message
+              #{error.to_s}
+              #{error.backtrace.join("\n")}
+            ERROR
 
-          # Override call to always return an errored response.
-          #
-          define_singleton_method :call do |_|
-            error_500(message)
+            Pakyow.logger.error message
+
+            # Override call to always return an errored response.
+            #
+            define_singleton_method :call do |_|
+              error_500(message)
+            end
           end
         end
       end
