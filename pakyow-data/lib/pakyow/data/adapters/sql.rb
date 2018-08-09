@@ -98,15 +98,15 @@ module Pakyow
 
         def migrate!(migration_path)
           Pakyow.module_eval do
-            def self.migration(&block)
-              Sequel.migration(&block)
+            unless singleton_class.instance_methods.include?(:migration)
+              def self.migration(&block)
+                Sequel.migration(&block)
+              end
             end
           end
 
           Sequel.extension :migration
           Sequel::Migrator.run(@connection, migration_path)
-
-          Pakyow.singleton_class.undef_method(:migration)
         end
 
         def auto_migrate!(source)
