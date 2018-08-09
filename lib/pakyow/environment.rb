@@ -118,7 +118,9 @@ module Pakyow
   class_state :mounts,     default: {}
   class_state :frameworks, default: {}
   class_state :builder,    default: Rack::Builder.new
-  class_state :booted,     default: false
+  class_state :booted,     default: false, getter: false
+  class_state :server,     default: nil, getter: false
+  class_state :env,        default: nil, getter: false
 
   class << self
     # Name of the environment
@@ -309,12 +311,12 @@ module Pakyow
           app.config.name == name
         }
       else
-        mount = mounts.values.find { |mount|
+        found_mount = mounts.values.find { |mount|
           mount[:app].config.name == name
         }
 
-        if mount
-          initialize_app_for_mount(mount)
+        if found_mount
+          initialize_app_for_mount(found_mount)
         else
           nil
         end

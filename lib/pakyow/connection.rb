@@ -52,9 +52,8 @@ module Pakyow
     include Support::Pipelined::Haltable
 
     extend Forwardable
-    def_delegators :request, :type, :host, :port, :ip, :user_agent, :base_url, :path,
-                   :path_info, :script_name, :url, :session, :env, :logger, :ssl?,
-                   :fullpath
+    def_delegators :request, :host, :port, :ip, :user_agent, :base_url, :path, :path_info,
+                   :script_name, :url, :session, :env, :logger, :ssl?, :fullpath
     def_delegators :response, :status, :status=, :write, :close, :body=
 
     attr_reader :app, :request, :response, :values

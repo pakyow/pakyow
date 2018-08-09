@@ -11,7 +11,7 @@ module Pakyow
     extend Support::ClassState
     class_state :on_change_matchers, default: {},  inheritable: true
     class_state :watched_paths,      default: [],  inheritable: true
-    class_state :dependent_on,       default: nil, inheritable: true
+    class_state :dependent_on,       default: nil, inheritable: true, getter: false
 
     class << self
       # Register a callback to be called when a file changes.
