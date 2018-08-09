@@ -258,6 +258,26 @@ RSpec.describe "error handling" do
           expect(call[0]).to eq(401)
         end
       end
+
+      context "and the handler accepts the error object" do
+        let :app_definition do
+          Proc.new {
+            controller do
+              handle StandardError, as: 401 do |error|
+                send error.to_s
+              end
+
+              default do
+                raise StandardError
+              end
+            end
+          }
+        end
+
+        it "is passed the error object" do
+          expect(call[2].body.read).to eq("StandardError")
+        end
+      end
     end
 
     context "and a blockless handler is defined for the exception" do

@@ -50,10 +50,10 @@ module Pakyow
               connection.status = code
 
               if handler
-                instance_exec(&handler)
+                instance_exec(error, &handler)
               end
             elsif handler = handler_for_code(500)
-              instance_exec(&handler)
+              instance_exec(error, &handler)
             end
           end
 
