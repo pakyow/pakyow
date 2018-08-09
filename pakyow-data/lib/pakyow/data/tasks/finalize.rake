@@ -14,8 +14,8 @@ namespace :db do
       adapter: args[:adapter],
       connection: args[:connection],
       connection_overrides: {
-        path: -> (path) {
-          "#{path}-migrator"
+        path: -> (connection_path) {
+          "#{connection_path}-migrator"
         }
       }
     )

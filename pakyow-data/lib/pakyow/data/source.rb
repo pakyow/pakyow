@@ -238,7 +238,7 @@ module Pakyow
       class_state :timestamp_fields
       class_state :primary_key_field
       class_state :attributes, default: {}
-      class_state :qualifications, default: {}
+      class_state :qualifications, default: {}, getter: false
       class_state :associations, default: { has_many: [], belongs_to: [] }
       class_state :commands, default: {}
 

@@ -18,12 +18,12 @@ module Pakyow
       def source_instance(source_name)
         plural_source_name = Support.inflector.pluralize(source_name).to_sym
 
-        if source = sources.find { |source|
+        if found_source = sources.find { |source|
              source.plural_name == plural_source_name
            }
 
-          source.new(
-            @connection.dataset_for_source(source),
+          found_source.new(
+            @connection.dataset_for_source(found_source),
             object_map: @object_map,
             container: self
           )
@@ -85,13 +85,16 @@ module Pakyow
       def define_queries_for_attributes!(source)
         source.attributes.keys.each do |attribute|
           source.class_eval do
-            define_method :"by_#{attribute}" do |value|
-              @container.connection.adapter.result_for_attribute_value(attribute, value, self)
-            end
+            method_name = :"by_#{attribute}"
+            unless instance_methods(false).include?(method_name)
+              define_method method_name do |value|
+                @container.connection.adapter.result_for_attribute_value(attribute, value, self)
+              end
 
-            # Qualify the query.
-            #
-            subscribe :"by_#{attribute}", attribute => :__arg0__
+              # Qualify the query.
+              #
+              subscribe :"by_#{attribute}", attribute => :__arg0__
+            end
           end
         end
       end

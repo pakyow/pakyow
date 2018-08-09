@@ -135,7 +135,7 @@ module Pakyow
             def perform
               if error.is_a?(Pakyow::Error)
                 self.title = error.name
-                markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
+                markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML.new({}))
                 find(:error).use(:friendly)
                 find(:error).present(
                   name: error.name,

@@ -27,11 +27,11 @@ module Pakyow
             end
           end
 
-          final_values = values.each_with_object({}) { |(key, value), final_values|
+          final_values = values.each_with_object({}) { |(key, value), values_hash|
             if attribute = @source.class.attributes[key]
-              final_values[key] = attribute[value]
+              values_hash[key] = attribute[value]
             elsif @source.class.associations.values.flatten.find { |association| association[:access_name] == key }
-              final_values[key] = value
+              values_hash[key] = value
             end
           }
 

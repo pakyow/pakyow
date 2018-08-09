@@ -22,11 +22,11 @@ module Pakyow
         def_delegators :@value, :any?, :empty?, :include?, :key?, :value?, :[], :[]=, :delete, :clear
 
         def to_s
-          value = @value.to_a.map { |value|
+          string_value = @value.to_a.map { |value|
             value.join(WRITE_VALUE_SEPARATOR)
           }.join(WRITE_PAIR_SEPARATOR)
 
-          value.empty? ? value : value + PAIR_SEPARATOR
+          string_value.empty? ? string_value : string_value + PAIR_SEPARATOR
         end
 
         class << self

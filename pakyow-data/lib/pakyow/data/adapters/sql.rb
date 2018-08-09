@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "forwardable"
 require "erb"
 
 require "sequel"
@@ -27,9 +26,6 @@ module Pakyow
 
         extend Support::DeepFreeze
         unfreezable :connection
-
-        extend Forwardable
-        def_delegators :@connection, :disconnect
 
         attr_reader :connection
 
@@ -109,6 +105,8 @@ module Pakyow
 
           Sequel.extension :migration
           Sequel::Migrator.run(@connection, migration_path)
+
+          Pakyow.singleton_class.undef_method(:migration)
         end
 
         def auto_migrate!(source)
@@ -308,8 +306,8 @@ module Pakyow
           def column_types_to_change
             {}.tap { |attributes|
               attributes.each do |attribute_name, attribute_type|
-                if column = schema.find { |column| column[0] == attribute_name }
-                  column_name, column_info = column
+                if found_column = schema.find { |column| column[0] == attribute_name }
+                  column_name, column_info = found_column
 
                   unless column_info[:type] == attribute_type.meta(:db_type)
                     attributes[column_name] = attribute_type.meta(:db_type)

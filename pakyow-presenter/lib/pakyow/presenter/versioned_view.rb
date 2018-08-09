@@ -79,10 +79,6 @@ module Pakyow
         @versions.length > 1
       end
 
-      def version?(version)
-        !!version_named(version)
-      end
-
       def used?
         @used == true
       end

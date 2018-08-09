@@ -55,10 +55,6 @@ module Pakyow
           RESULTS.include?(maybe_result_name)
         end
 
-        def command(maybe_command_name)
-          method(maybe_command_name)
-        end
-
         def source_name
           @type
         end

@@ -369,7 +369,7 @@ module Pakyow
             if match[0].include?(".")
               object, property = match[0].split(".").map(&:to_sym)
               if value = get_title_value(object)
-                if defined?(Data::Proxy) && value.is_a?(Data::Proxy)
+                if defined?(Pakyow::Data::Proxy) && value.is_a?(Pakyow::Data::Proxy)
                   value = value.one
                 end
 

@@ -53,9 +53,9 @@ module Pakyow
           mail.subject = subject
         end
 
-        Array(recipient).map { |recipient|
+        Array(recipient).map { |to|
           deliverable_mail = mail.dup
-          deliverable_mail.to = recipient
+          deliverable_mail.to = to
           deliverable_mail.deliver.tap do |delivered_mail|
             unless @config.silent
               log_outgoing(delivered_mail)
