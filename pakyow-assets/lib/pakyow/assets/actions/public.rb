@@ -6,7 +6,12 @@ module Pakyow
       class Public
         # Pipeline Action that serves files out of your public directory.
         #
-        def initialize(_)
+        def initialize(app)
+          @asset_paths = app.state_for(:asset).map { |asset|
+            asset.public_path
+          } + app.state_for(:pack).flat_map { |pack|
+            [pack.public_css_path, pack.public_js_path]
+          }
         end
 
         def call(connection)
@@ -37,9 +42,7 @@ module Pakyow
         end
 
         def asset?(connection)
-          connection.app.state_for(:asset).any? { |asset|
-            asset.public_path == connection.path
-          }
+          @asset_paths.include?(connection.path)
         end
 
         def set_cache_headers(connection, public_path)

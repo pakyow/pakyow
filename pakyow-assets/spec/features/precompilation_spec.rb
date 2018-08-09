@@ -18,7 +18,8 @@ RSpec.describe "precompiling assets" do
       )
     )
 
-    # put back the asset that's needed for other tests
+    # Put back the assets that are needed for other tests.
+    #
     FileUtils.mkdir_p(
       File.join(
         running_app.config.assets.compile_path,
@@ -26,12 +27,25 @@ RSpec.describe "precompiling assets" do
         "cache"
       )
     )
-
     FileUtils.touch(
       File.join(
         running_app.config.assets.compile_path,
         running_app.config.assets.prefix,
         "cache/default.css"
+      )
+    )
+    FileUtils.mkdir_p(
+      File.join(
+        running_app.config.assets.compile_path,
+        running_app.config.assets.prefix,
+        "packs"
+      )
+    )
+    FileUtils.touch(
+      File.join(
+        running_app.config.assets.compile_path,
+        running_app.config.assets.prefix,
+        "packs/test.css"
       )
     )
   end

@@ -32,6 +32,20 @@ RSpec.describe "setting cache headers" do
         expect(headers["Age"]).to_not be_nil
       end
     end
+
+    context "requested file is public, and is a pack" do
+      it "responds 200" do
+        expect(call("/assets/packs/test.css")[0]).to eq(200)
+      end
+
+      it "responds with cache headers" do
+        headers = call("/assets/packs/test.css")[1]
+        expect(headers["Cache-Control"]).to eq("public, max-age=31536000")
+        expect(headers["Vary"]).to eq("Accept-Encoding")
+        expect(headers["Last-Modified"]).to_not be_nil
+        expect(headers["Age"]).to_not be_nil
+      end
+    end
   end
 
   context "cache is disabled" do
@@ -59,6 +73,20 @@ RSpec.describe "setting cache headers" do
 
       it "does not respond with cache headers" do
         headers = call("/assets/cache/default.css")[1]
+        expect(headers["Cache-Control"]).to be_nil
+        expect(headers["Vary"]).to be_nil
+        expect(headers["Last-Modified"]).to be_nil
+        expect(headers["Age"]).to be_nil
+      end
+    end
+
+    context "requested file is public, and is a pack" do
+      it "responds 200" do
+        expect(call("/assets/packs/test.css")[0]).to eq(200)
+      end
+
+      it "does not respond with cache headers" do
+        headers = call("/assets/packs/test.css")[1]
         expect(headers["Cache-Control"]).to be_nil
         expect(headers["Vary"]).to be_nil
         expect(headers["Last-Modified"]).to be_nil

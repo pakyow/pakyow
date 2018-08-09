@@ -71,16 +71,24 @@ module Pakyow
         }.hexdigest
       end
 
+      def public_js_path
+        @public_path + ".js"
+      end
+
+      def public_css_path
+        @public_path + ".css"
+      end
+
       private
 
       def pack_assets!
         @packed[:js] = PackedAssets.new(@assets.select { |asset|
           asset.mime_suffix == "javascript"
-        }, @public_path + ".js")
+        }, public_js_path)
 
         @packed[:css] = PackedAssets.new(@assets.select { |asset|
           asset.mime_suffix == "css"
-        }, @public_path + ".css")
+        }, public_css_path)
       end
     end
 
