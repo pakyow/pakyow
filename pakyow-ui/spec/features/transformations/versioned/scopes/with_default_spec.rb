@@ -1,6 +1,6 @@
 require_relative "../shared"
 
-RSpec.shared_context "default versions" do
+RSpec.shared_context "versioned scopes with defaults" do
   include_context "versioned"
 
   context "presentation occurs without use" do
@@ -273,7 +273,7 @@ RSpec.shared_context "default versions" do
 end
 
 RSpec.describe "versioned scopes with an explicit default" do
-  include_context "default versions"
+  include_context "versioned scopes with defaults"
 
   let :view_path do
     "/versioned/scopes/defaults"
@@ -281,7 +281,7 @@ RSpec.describe "versioned scopes with an explicit default" do
 end
 
 RSpec.describe "versioned scopes with an implicit default" do
-  include_context "default versions"
+  include_context "versioned scopes with defaults"
 
   let :view_path do
     "/versioned/scopes/defaults/implicit"

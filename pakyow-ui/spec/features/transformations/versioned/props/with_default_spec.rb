@@ -1,6 +1,6 @@
 require_relative "../shared"
 
-RSpec.shared_context "default versions" do
+RSpec.shared_context "versioned props with defaults" do
   include_context "versioned"
 
   context "presentation occurs without use" do
@@ -234,7 +234,7 @@ RSpec.shared_context "default versions" do
 end
 
 RSpec.describe "versioned props with an explicit default" do
-  include_context "default versions"
+  include_context "versioned props with defaults"
 
   let :view_path do
     "/versioned/props/defaults"
@@ -242,7 +242,7 @@ RSpec.describe "versioned props with an explicit default" do
 end
 
 RSpec.describe "versioned props with an implicit default" do
-  include_context "default versions"
+  include_context "versioned props with defaults"
 
   let :view_path do
     "/versioned/props/defaults/implicit"
