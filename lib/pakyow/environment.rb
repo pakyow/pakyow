@@ -12,103 +12,71 @@ require "pakyow/support/class_state"
 require "pakyow/support/deep_dup"
 require "pakyow/support/deep_freeze"
 
+require "pakyow/environment/behavior/config"
+
 require "pakyow/logger"
 require "pakyow/middleware"
 
 require "pakyow/app"
 
-# An environment for running one or more rack apps.
+# Pakyow environment for running one or more rack apps. Multiple apps can be
+# mounted in the environment, each one handling requests at some path.
 #
-# Multiple apps can be mounted within the environment, each one handling
-# requests at some path. The environment doesn't care if the endpoints are
-# Pakyow apps; any Rack endpoint is fine. But the environment does make
-# some assumptions about how the endpoint will be initialized (see {App#initialize}).
-#
-# @example Mounting an app:
 #   Pakyow.configure do
 #     mount Pakyow::App, at: "/"
 #   end
 #
-# == Configuration Options
+# = Configuration
 #
-# These config options are available:
+# The environment can be configured
 #
-# - +default_env+ defines the named environment to start when one is not
-#   explicitly provided. Default is +:development+.
-#
-# - +server.name+ defines the application server to use by default.
-#   Default is +:puma+.
-# - +server.host+ defines the host that the environment runs on.
-#   Default is "localhost".
-# - +server.port+ defines the port that the environment runs on.
-#   Default is +3000+.
-#
-# - +logger.enabled+ defines whether or not logging is enabled.
-#   Default is +true+.
-# - +logger.level+ defines what level to log at. Default is +:debug+, or
-#   +:info+ in the +production+ environment.
-# - +logger.formatter+ defines the formatter to use when logging. Default is
-#   {Logger::DevFormatter}, or {Logger::LogfmtFormatter} in production.
-# - +logger.destinations+ defines where logs are output to. Default is
-#   +$stdout+ (when +logger.enabled+), or +/dev/null+ in the +test+
-#   environment or when logger is disabled).
-#
-# - +normalizer.strict_path+ defines whether or not request paths are
-#   normalized. Default is +true+.
-# - +normalizer.strict_www+ defines whether or not the www subdomain are
-#   normalized. Default is +false+.
-# - +normalizer.require_www+ defines whether or not to require www in the
-#   hostname. Default is +true+.
-#
-# - +tasks.paths+ defines paths where rake tasks are located. Default is +["./tasks"]+.
-#
-# Configuration support is added via {Support::Configurable}.
-#
-# @example Configure the environment:
 #   Pakyow.configure do
 #     config.server.port = 2001
 #   end
 #
-# @example Configure for a specific environment:
+# It's possible to configure environments differently.
+#
 #   Pakyow.configure :development do
 #     config.server.host = "pakyow.dev"
 #   end
 #
-# Hooks are available to extend the environment with custom behavior:
+# @see Support::Configurable
 #
-# - configure
-# - setup
-# - fork
+# = Hooks
 #
-# @example Run code after the environment is setup:
-#   Pakyow.after :setup do
-#     # do something here
+# Hooks can be defined for the following events: configure, setup, boot, and fork.
+# Here's how to log a message after boot:
+#
+#   Pakyow.after :boot do
+#     logger.info "booted"
 #   end
 #
-# Hook support is added via {Support::Hookable}.
+# @see Support::Hookable
+#
+# = Logging
 #
 # The environment contains a global general-purpose logger. It also provides
-# a {Logger::RequestLogger} instance to each app for logging additional
-# metadata about each request.
+# a {Logger::RequestLogger} instance to each app for logging during a request.
 #
-# The environment is started with a default middleware stack:
+# = Middleware
 #
-# - Rack::ContentType, "text/html;charset=utf-8"
+# The environment contains a default middleware stack:
+#
+# - Rack::ContentType, "text/html"
 # - Rack::ContentLength
 # - Rack::Head
 # - Rack::MethodOverride
 # - {Middleware::JSONBody}
-# - {Middleware::ReqPathNormalizer}
+# - {Middleware::Normalizer}
 # - {Middleware::Logger}
 #
-# Each endpoint can add its own middleware through the builder instance
-# provided during initialization.
+# Each endpoint can add its own middleware through its builder.
 #
-# @example Setting up the environment:
-#   Pakyow.setup
+# = Setup & Running
 #
-# @example Running the environment:
-#   Pakyow.run
+# The environment can be setup and then run.
+#
+#   Pakyow.setup(env: :development).run
 #
 module Pakyow
   using Support::DeepDup
@@ -123,156 +91,7 @@ module Pakyow
 
   include Support::Configurable
 
-  setting :environment_path, "config/environment"
-  setting :default_env, :development
-  setting :freeze_on_boot, true
-
-  settings_for :server do
-    setting :name, :puma
-    setting :host, "localhost"
-    setting :port, 3000
-  end
-
-  settings_for :cli do
-    setting :repl, IRB
-  end
-
-  settings_for :logger do
-    setting :enabled, true
-    setting :level, :debug
-    setting :formatter, Logger::DevFormatter
-
-    setting :destinations do
-      if config.logger.enabled
-        [$stdout]
-      else
-        ["/dev/null"]
-      end
-    end
-
-    defaults :test do
-      setting :enabled, false
-    end
-
-    defaults :production do
-      setting :level, :info
-      setting :formatter, Logger::LogfmtFormatter
-    end
-
-    defaults :ludicrous do
-      setting :enabled, false
-    end
-  end
-
-  settings_for :normalizer do
-    setting :strict_path, true
-    setting :strict_www, false
-    setting :require_www, true
-  end
-
-  settings_for :tasks do
-    setting :paths, ["./tasks", File.expand_path("../tasks", __FILE__)]
-    setting :prelaunch, []
-  end
-
-  settings_for :redis do
-    settings_for :connection do
-      setting :url do
-        ENV["REDIS_URL"] || "redis://127.0.0.1:6379"
-      end
-
-      setting :timeout, 5.0
-      setting :driver, nil
-      setting :id, nil
-      setting :tcp_keepalive, 0
-      setting :reconnect_attempts, 1
-      setting :inherit_socket, false
-    end
-
-    setting :key_prefix, "pw"
-  end
-
-  settings_for :puma do
-    setting :host do
-      config.server.host
-    end
-
-    setting :port do
-      config.server.port
-    end
-
-    setting :binds, []
-    setting :min_threads, 5
-    setting :max_threads, 5
-    setting :workers, 0
-    setting :worker_timeout, 60
-
-    setting :on_restart do
-      @on_restart ||= []
-    end
-
-    setting :before_fork do
-      @before_fork ||= []
-    end
-
-    setting :before_worker_fork do
-      @before_worker_fork ||= [
-        lambda { |_| Pakyow.forking }
-      ]
-    end
-
-    setting :after_worker_fork do
-      @after_worker_fork ||= []
-    end
-
-    setting :before_worker_boot do
-      @before_worker_boot ||= [
-        lambda { |_| Pakyow.forked }
-      ]
-    end
-
-    setting :before_worker_shutdown do
-      @before_worker_shutdown ||= []
-    end
-
-    setting :silent, true
-
-    defaults :production do
-      setting :silent, false
-
-      setting :host do
-        if config.puma.binds.to_a.any?
-          nil
-        else
-          ENV["HOST"] || config.server.host
-        end
-      end
-
-      setting :port do
-        if config.puma.binds.to_a.any?
-          nil
-        else
-          ENV["PORT"] || config.server.port
-        end
-      end
-
-      setting :binds do
-        [ENV["BIND"]].compact
-      end
-
-      setting :min_threads do
-        ENV["THREADS"] || 5
-      end
-
-      setting :max_threads do
-        ENV["THREADS"] || 5
-      end
-
-      setting :workers do
-        ENV["WORKERS"] || 5
-      end
-    end
-  end
+  include Behavior::Config
 
   # Loads the default middleware stack.
   #
