@@ -3,6 +3,8 @@
 require "pakyow/environment"
 
 module Pakyow
+  # Base framework class.
+  #
   class Framework
     class << self
       # rubocop:disable Naming/MethodName

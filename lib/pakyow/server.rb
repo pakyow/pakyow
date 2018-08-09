@@ -7,7 +7,8 @@ require "pakyow/support/deep_freeze"
 require "pakyow/processes/environment"
 
 module Pakyow
-  # @api private
+  # Manages the server and its related processes.
+  #
   class Server
     class << self
       def register_process(process)

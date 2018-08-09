@@ -3,6 +3,8 @@
 require "pakyow/support/makeable"
 
 module Pakyow
+  # Loads files that define an app aspect and names the objects appropriately.
+  #
   class Loader
     def initialize(target, namespace, path)
       @target, @namespace, @path = target, namespace, path

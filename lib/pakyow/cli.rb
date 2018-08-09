@@ -9,9 +9,11 @@ require "pakyow/error"
 require "pakyow/environment"
 
 module Pakyow
+  # The Pakyow command line interface.
+  #
+  # @api private
   class CLI
-    class InvalidInput < Error
-    end
+    class InvalidInput < Error; end
 
     GLOBAL_OPTIONS = {
       app: {

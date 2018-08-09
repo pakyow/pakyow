@@ -6,7 +6,7 @@ require "method_source"
 require "pakyow/support/cli/style"
 
 module Pakyow
-  # Base Pakyow error object.
+  # Base error object.
   #
   class Error < StandardError
     attr_accessor :wrapped_exception, :context
@@ -17,7 +17,6 @@ module Pakyow
       super
     end
 
-    # @api private
     def cause
       wrapped_exception || super
     end

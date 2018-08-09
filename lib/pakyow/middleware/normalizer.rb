@@ -9,18 +9,15 @@ module Pakyow
     # - removing trailing "/" from request paths
     # - adding or removing the "www" subdomain
     #
-    # When conditions are met, a 301 redirect will be issued to
-    # the normalized destination.
+    # If a request is normalized, it will be 301 redirected to the destination.
     #
     class Normalizer
       using Support::Refinements::String::Normalization
 
-      # @api private
       def initialize(app)
         @app = app
       end
 
-      # @api private
       def call(env)
         path = env[Rack::PATH_INFO]
         host = env[Rack::SERVER_NAME]

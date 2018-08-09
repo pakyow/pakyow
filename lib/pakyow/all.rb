@@ -1,14 +1,10 @@
 # frozen_string_literal: true
 
-%w(
-  assets
-  core
-  data
-  mailer
-  presenter
-  realtime
-  support
-  ui
-).each do |lib|
-  require "pakyow/#{lib}"
-end
+require "pakyow/assets"
+require "pakyow/core"
+require "pakyow/data"
+require "pakyow/mailer"
+require "pakyow/presenter"
+require "pakyow/realtime"
+require "pakyow/support"
+require "pakyow/ui"

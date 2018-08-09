@@ -9,7 +9,8 @@ require "pakyow/support/cli/style"
 require "pakyow/cli"
 
 module Pakyow
-  # @api private
+  # Base task class that extends rake with additional functionality.
+  #
   class Task
     include Rake::DSL
 

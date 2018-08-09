@@ -10,6 +10,13 @@ require "pakyow/support/cli/style"
 
 module Pakyow
   module Processes
+    # The primary environment process. Runs in standalone mode or proxy mode. In
+    # standalone mode, the process does not automatically restart (this is the
+    # default mode for production environments). In proxy mode, the main process
+    # runs a simple proxy server at the desired port and manages the environment
+    # process separately. When the environment is restarted, the proxy holds any
+    # requests it receives until the environment can respond.
+    #
     class Environment < Process
       # Other processes (e.g. apps) can touch this file to restart the server.
       #

@@ -3,6 +3,8 @@
 require "pakyow/version"
 
 module Pakyow
+  # Returns information about the environment.
+  #
   def self.info
     {
       versions: {

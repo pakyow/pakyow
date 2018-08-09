@@ -10,6 +10,8 @@ require "pakyow/support/inspectable"
 require "pakyow/support/pipelined/haltable"
 
 module Pakyow
+  # Represents the request/response.
+  #
   class Connection
     class << self
       # Returns the string representation for a status code.

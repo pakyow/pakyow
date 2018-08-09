@@ -4,6 +4,8 @@ require "forwardable"
 
 module Pakyow
   module Helpers
+    # Convenience methods for interacting with the connection object.
+    #
     module Connection
       extend Forwardable
 

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Requires gems for the current environment.
+# Requires the bundle.
 #
 Pakyow.before :configure do
   if defined?(Bundler)

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Loads environment variables for the current environment.
+# Loads environment variables.
 #
 Pakyow.before :configure do
   if defined?(Dotenv)

@@ -8,7 +8,6 @@ module Pakyow
   module Middleware
     # Rack middleware used for logging during the request / response lifecycle.
     #
-    # @api private
     class Logger
       extend Support::ClassState
       class_state :silencers, default: []
@@ -29,6 +28,8 @@ module Pakyow
         end
       end
 
+      private
+
       def call_with_logging(env)
         env[Rack::RACK_LOGGER].prologue(env)
 
@@ -36,8 +37,6 @@ module Pakyow
           env[Rack::RACK_LOGGER].epilogue(result)
         end
       end
-
-      private
 
       def silence?(env)
         self.class.silencers.any? { |silencer|

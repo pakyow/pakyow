@@ -5,6 +5,8 @@ require "filewatcher"
 require "pakyow/support/class_state"
 
 module Pakyow
+  # Represents a process that can be restarted when conditions are met.
+  #
   class Process
     extend Support::ClassState
     class_state :on_change_matchers, default: {},  inheritable: true
@@ -24,6 +26,8 @@ module Pakyow
         @watched_paths.concat(paths).uniq!
       end
 
+      # Makes this process dependent on another process.
+      #
       def dependent_on(other_process_class = nil)
         if other_process_class.nil?
           @dependent_on
