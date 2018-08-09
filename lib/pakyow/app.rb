@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "forwardable"
+require "rack"
 
 require "pakyow/support/definable"
 require "pakyow/support/deep_freeze"
@@ -10,6 +11,7 @@ require "pakyow/support/hookable"
 require "pakyow/support/configurable"
 require "pakyow/support/pipelined"
 
+require "pakyow/app/behavior/config"
 require "pakyow/app/behavior/cookies"
 require "pakyow/app/behavior/sessions"
 require "pakyow/app/behavior/endpoints"
@@ -17,6 +19,7 @@ require "pakyow/app/behavior/pipeline"
 require "pakyow/app/behavior/frameworks"
 require "pakyow/app/behavior/aspects"
 require "pakyow/app/behavior/helpers"
+require "pakyow/app/behavior/rescuing"
 require "pakyow/app/behavior/restarting"
 require "pakyow/app/behavior/subclassing"
 
@@ -45,7 +48,7 @@ module Pakyow
   # provides an interface to the underlying request state. The connection is
   # pushed through a pipeline. Each pipeline action can modify the connection
   # and then either 1) allow the connection to hit the next action 2) halt
-  # pipeline execution completely (@see Support::Pipelined).
+  # pipeline execution completely.
   #
   # Once the connection exits the pipeline a response is returned. If an action
   # halted, the connection is finalized and returned, otherwise app assumes
@@ -53,6 +56,8 @@ module Pakyow
   #
   # App also catches any unhandled errors that occur in the pipeline by simply
   # logging the error and returning a canned 500 response.
+  #
+  # @see Support::Pipelined
   #
   # = Configuration
   #
@@ -74,68 +79,45 @@ module Pakyow
   #     config.foo = "bar"
   #   end
   #
-  # Config Options:
-  #
-  # - +config.name+ defines the name of the application, used when a human
-  #   readable unique identifier is necessary. Default is "pakyow".
-  #
-  # - +config.root+ defines the root directory of the application, relative
-  #   to where the environment is started from. Default is +./+.
-  #
-  # - +config.src+ defines where the application code lives, relative to
-  #   where the environment is started from. Default is +{app.root}/backend+.
-  #
-  # - +config.lib+ defines where the application library lives, relative to
-  #   where the environment is started from. Default is +{app.root}/lib+.
-  #
-  # - +config.dsl+ determines whether or not objects creation will be exposed
-  #   through the simpler dsl.
-  #
   # @see Support::Configurable
   #
   # = Hooks
   #
-  # The following events can be hooked in to:
-  #
-  # - initialize
-  # - configure
-  # - load
-  # - freeze
-  #
-  # Here's how to log a message after initialize:
+  # Hooks can be defined for the following events: initialize, configure, load,
+  # finalize, boot, and fork. Here's how to log a message after initialize:
   #
   #   Pakyow::App.after :initialize do
-  #     logger.info "application initialized"
+  #     logger.info "initialized #{self}"
   #   end
   #
   # @see Support::Hookable
   #
   class App
+    # Environment the app is booted in, e.g. +:development+.
+    #
+    attr_reader :environment
+
+    # Rack builder.
+    #
+    attr_reader :builder
+
+    extend Forwardable
+    def_delegators :builder, :use
+
+    include Support::Configurable
     include Support::Definable
     include Support::Pipelined
 
-    include Support::Configurable
-
-    setting :name, "pakyow"
-    setting :root, File.dirname("")
-
-    setting :src do
-      File.join(config.root, "backend")
-    end
-
-    setting :lib do
-      File.join(config.root, "lib")
-    end
-
-    setting :dsl, true
-
-    settings_for :tasks do
-      setting :prelaunch, []
-    end
+    include Support::Inspectable
+    inspectable :environment
 
     include Support::Hookable
     known_events :initialize, :configure, :load, :finalize, :boot, :fork, :rescue
 
+    extend Support::DeepFreeze
+    unfreezable :builder
+
+    include Behavior::Config
     include Behavior::Cookies
     include Behavior::Sessions
     include Behavior::Endpoints
@@ -143,30 +125,16 @@ module Pakyow
     include Behavior::Frameworks
     include Behavior::Aspects
     include Behavior::Helpers
+    include Behavior::Rescuing
     include Behavior::Restarting
     include Behavior::Subclassing
 
-    include Pakyow::Support::Inspectable
-    inspectable :environment
-
-    extend Support::DeepFreeze
-    unfreezable :builder
-
-    extend Forwardable
-    def_delegators :builder, :use
-
-    # The environment the app is running in, e.g. +:development+.
+    # Creates a connection subclass that other frameworks can safely extend.
     #
-    attr_reader :environment
-
-    # The Rack builder object.
-    #
-    attr_reader :builder
     subclass! Connection
 
     def initialize(environment, builder: nil, &block)
-      @environment, @builder = environment, builder
-      @rescued = false
+      @environment, @builder, @rescued = environment, builder, false
 
       performing :initialize do
         performing :configure do
@@ -181,6 +149,7 @@ module Pakyow
         #
         # This ensures that any state registered in the passed block
         # has the proper priority against instance and global state.
+        #
         defined!(&block)
       end
     rescue ScriptError, StandardError => error
@@ -209,9 +178,11 @@ module Pakyow
       call_hooks :after, :fork
     end
 
+    # Calls the app pipeline with a connection created from the rack env.
+    #
     def call(rack_env)
       begin
-        connection = super(rack_env["pakyow.connection"] || Connection.new(self, rack_env))
+        connection = super(rack_env["pakyow.connection"] || subclass(:Connection).new(self, rack_env))
 
         if connection.halted?
           connection.finalize
@@ -224,38 +195,18 @@ module Pakyow
       end
     end
 
-    def rescued?
-      @rescued == true
-    end
-
     private
 
-    def error_404
-      [404, { Rack::CONTENT_TYPE => "text/plain" }, ["404 Not Found"]]
+    ERROR_HEADERS = {
+      Rack::CONTENT_TYPE => "text/plain"
+    }.freeze
+
+    def error_404(message = "404 Not Found")
+      [404, ERROR_HEADERS, [message]]
     end
 
-    def error_500
-      [500, { Rack::CONTENT_TYPE => "text/plain" }, ["500 Internal Server Error"]]
-    end
-
-    # Enter rescue mode, which logs the error and returns an errored response.
-    #
-    def rescue!(error)
-      @rescued = true
-
-      performing :rescue do
-        message = <<~ERROR
-          #{self.class} failed to initialize.
-
-          #{error.to_s}
-          #{error.backtrace.join("\n")}
-        ERROR
-
-        Pakyow.logger.error message
-        define_singleton_method :call do |_|
-          [500, { "Content-Type" => "text/plain" }, [message]]
-        end
-      end
+    def error_500(message = "500 Internal Server Error")
+      [500, ERROR_HEADERS, [message]]
     end
   end
 end
