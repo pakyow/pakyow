@@ -208,7 +208,7 @@ module Pakyow
 
     def call(rack_env)
       begin
-        connection = super(Connection.new(self, rack_env))
+        connection = super(rack_env["pakyow.connection"] || Connection.new(self, rack_env))
 
         if connection.halted?
           connection.finalize

@@ -86,6 +86,10 @@ RSpec.describe Pakyow::App do
       it "sets cookies"
       it "returns response"
     end
+
+    context "rack env includes a connection" do
+      it "uses the given connection"
+    end
   end
 
   describe "#boot" do
