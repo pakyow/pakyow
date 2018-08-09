@@ -24,7 +24,7 @@ RSpec.describe "running the environment" do
     end
 
     it "runs the endpoint" do
-      res = Pakyow.call(Rack::MockRequest.env_for("/"))
+      res = Pakyow.builder.call(Rack::MockRequest.env_for("/"))
       expect(res[0]).to eq(200)
       expect(res[2]).to eq("foo")
     end

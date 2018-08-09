@@ -598,7 +598,7 @@ RSpec.describe Pakyow do
 
     it "calls the builder" do
       expect_any_instance_of(Rack::Builder).to receive(:call).with(env)
-      Pakyow.call(env)
+      Pakyow.builder.call(env)
     end
   end
 

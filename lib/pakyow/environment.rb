@@ -465,12 +465,6 @@ module Pakyow
       booted
     end
 
-    # TODO: this is only ever used by tests and should be removed
-    # @api private
-    def call(env)
-      @builder.call(env)
-    end
-
     def register_framework(framework_name, framework_module)
       @frameworks[framework_name] = framework_module
     end
