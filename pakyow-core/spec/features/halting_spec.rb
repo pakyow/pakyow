@@ -71,4 +71,36 @@ RSpec.describe "halting a request" do
       expect(call[2].body).to eq("foo")
     end
   end
+
+  context "halting with a status code" do
+    let :app_definition do
+      Proc.new {
+        controller do
+          default do
+            halt status: 418
+          end
+        end
+      }
+    end
+
+    it "sets the status code on the response, halts, and returns the response" do
+      expect(call[0]).to eq(418)
+    end
+  end
+
+  context "halting with a nice status code" do
+    let :app_definition do
+      Proc.new {
+        controller do
+          default do
+            halt status: :bad_request
+          end
+        end
+      }
+    end
+
+    it "sets the status code on the response, halts, and returns the response" do
+      expect(call[0]).to eq(400)
+    end
+  end
 end

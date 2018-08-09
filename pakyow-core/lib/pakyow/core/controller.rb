@@ -379,8 +379,9 @@ module Pakyow
     #
     # The response body will be set to +body+ prior to halting (if it's a non-nil value).
     #
-    def halt(body = nil)
+    def halt(body = nil, status: nil)
       @connection.body = body if body
+      @connection.status = Connection.status_code(status) if status
       @connection.halt
     end
 
