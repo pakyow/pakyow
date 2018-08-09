@@ -11,7 +11,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          after :initialize do
+          after :initialize, priority: :low do
             load_pipeline_defaults
           end
         end
@@ -20,7 +20,7 @@ module Pakyow
 
         def load_pipeline_defaults
           if self.class.includes_framework?(:assets)
-            @__pipeline.action(Assets::Actions::Public)
+            @__pipeline.action(Assets::Actions::Public, self)
             @__pipeline.action(Assets::Actions::Process)
           end
 
