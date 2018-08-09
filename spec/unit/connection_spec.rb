@@ -118,7 +118,7 @@ RSpec.describe Pakyow::Connection do
     end
   end
 
-  describe ".nice_status" do
+  describe "::nice_status" do
     context "when the status is known" do
       it "returns the nice status code name" do
         expect(Pakyow::Connection.nice_status(200)).to eq("OK")
@@ -128,6 +128,20 @@ RSpec.describe Pakyow::Connection do
     context "when the status is not known" do
       it "returns ?" do
         expect(Pakyow::Connection.nice_status(-1)).to eq("?")
+      end
+    end
+  end
+
+  describe "::status_code" do
+    context "given status is a symbolized nice name" do
+      it "returns the status code for the nice name" do
+        expect(Pakyow::Connection.status_code(:ok)).to eq(200)
+      end
+    end
+
+    context "given status is not a symbol" do
+      it "returns the status code" do
+        expect(Pakyow::Connection.status_code(200)).to eq(200)
       end
     end
   end

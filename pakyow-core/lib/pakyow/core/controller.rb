@@ -271,7 +271,7 @@ module Pakyow
     #   end
     #
     def redirect(location, as: 302, **params)
-      @connection.status = Rack::Utils.status_code(as)
+      @connection.status = Connection.status_code(as)
       @connection.set_response_header("Location", location.is_a?(Symbol) ? app.endpoints.path(location, **params) : location)
       halt
     end

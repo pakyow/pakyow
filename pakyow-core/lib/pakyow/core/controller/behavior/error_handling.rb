@@ -34,7 +34,7 @@ module Pakyow
         # Calls the handler for a particular http status code.
         #
         def trigger(name_or_code)
-          code = Rack::Utils.status_code(name_or_code)
+          code = Connection.status_code(name_or_code)
           connection.status = code
           trigger_for_code(code)
         end
@@ -133,9 +133,9 @@ module Pakyow
           def handle(name_exception_or_code, as: nil, &block)
             if name_exception_or_code.is_a?(Class) && name_exception_or_code.ancestors.include?(Exception)
               raise ArgumentError, "status code is required" if as.nil?
-              @exceptions[name_exception_or_code] = [Rack::Utils.status_code(as), block]
+              @exceptions[name_exception_or_code] = [Connection.status_code(as), block]
             else
-              @handlers[Rack::Utils.status_code(name_exception_or_code)] = block
+              @handlers[Connection.status_code(name_exception_or_code)] = block
             end
           end
         end

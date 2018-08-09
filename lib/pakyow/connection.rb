@@ -18,8 +18,23 @@ module Pakyow
       #   Pakyow::Connection.nice_status(200)
       #   => "OK"
       #
-      def nice_status(status_code)
-        Rack::Utils::HTTP_STATUS_CODES[status_code] || "?"
+      def nice_status(code)
+        Rack::Utils::HTTP_STATUS_CODES[code] || "?"
+      end
+
+      # Returns the status code for the symbolized status name.
+      #
+      # @example
+      #   Pakyow::Connection.status_code(:ok)
+      #   => 200
+      #
+      def status_code(code_or_status)
+        case code_or_status
+        when Symbol
+          Rack::Utils::SYMBOL_TO_STATUS_CODE[code_or_status]
+        else
+          code_or_status.to_i
+        end
       end
     end
 
