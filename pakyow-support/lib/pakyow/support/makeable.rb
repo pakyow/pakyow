@@ -13,6 +13,8 @@ module Pakyow
         unless class_name.is_a?(ClassName) || class_name.nil?
           namespace = if within && within.respond_to?(:__class_name)
             within.__class_name.namespace
+          elsif within.is_a?(ClassNamespace)
+            within
           else
             ClassNamespace.new
           end

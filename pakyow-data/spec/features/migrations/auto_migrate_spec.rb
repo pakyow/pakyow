@@ -46,7 +46,7 @@ RSpec.describe "auto migrating on boot" do
 
         def setup_expectations
           expect_any_instance_of(Pakyow::Data::Connection).to receive(:auto_migrate!) { |_, source|
-            expect(source).to be(Test::Posts)
+            expect(source).to be(Test::Sources::Posts)
           }
         end
 

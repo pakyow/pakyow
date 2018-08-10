@@ -1,26 +1,31 @@
 # frozen_string_literal: true
 
+require "pakyow/support/inflector"
 require "pakyow/support/makeable"
 
 module Pakyow
   # Loads files that define an app aspect and names the objects appropriately.
   #
   class Loader
-    def initialize(target, namespace, path)
-      @target, @namespace, @path = target, namespace, path
+    def initialize(path)
+      @path = path
     end
 
-    def call(eval_binding = binding)
-      eval(File.read(@path), eval_binding, @path)
-    end
-
-    def method_missing(name, *args, &block)
-      if args[0].is_a?(Symbol)
-        args[0] = Support::ClassName.new(@namespace, args[0])
-        @target.public_send(name, *args, &block)
-      else
-        @target.public_send(name, *args, namespace: @namespace, &block)
+    def call(target)
+      code = String.new
+      target.__class_name.namespace.parts.each do |part|
+        code << "module #{Support.inflector.camelize(part)}\n"
       end
+
+      code << "class #{Support.inflector.camelize(target.__class_name.name)}\n"
+      code << File.read(@path)
+      code << "end\n"
+
+      target.__class_name.namespace.parts.count.times do
+        code << "end\n"
+      end
+
+      eval(code, TOPLEVEL_BINDING, @path, 1 - target.__class_name.namespace.parts.count - 1)
     end
   end
 end

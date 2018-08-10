@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "pakyow/support/deep_dup"
+require "pakyow/support/inflector"
 require "pakyow/support/makeable"
 
 module Pakyow
@@ -124,12 +125,20 @@ module Pakyow
         def stateful(name, object)
           name = name.to_sym
           @state[name] = State.new(name, object)
+          plural_name = Support.inflector.pluralize(name.to_s).to_sym
+
+          within = if __class_name
+            ClassNamespace.new(*__class_name.namespace.parts.dup.concat([plural_name]))
+          else
+            self
+          end
+
           method_body = Proc.new do |*args, priority: :default, **opts, &block|
             return @state[name] if block.nil?
 
-            state = object.make(*args, within: self, **opts, &block)
-            @state[name].register(state, priority: priority)
-            state
+            object.make(*args, within: within, **opts, &block).tap do |state|
+              @state[name].register(state, priority: priority)
+            end
           end
 
           define_method name, &method_body

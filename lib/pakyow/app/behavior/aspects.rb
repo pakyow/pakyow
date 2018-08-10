@@ -35,7 +35,7 @@ module Pakyow
         def load_app_aspect(state_path, state_type, load_target = self.class)
           Dir.glob(File.join(state_path, "*.rb")) do |path|
             if config.dsl
-              Loader.new(load_target, Support::ClassNamespace.new(config.name, state_type), path).call
+              Loader.new(path).call(load_target)
             else
               require path
             end

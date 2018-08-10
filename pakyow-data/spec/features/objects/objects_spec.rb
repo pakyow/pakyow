@@ -39,14 +39,14 @@ RSpec.describe "data objects" do
       describe "#all" do
         it "returns specific data object instances" do
           data.posts.create({})
-          expect(data.posts.to_a[0]).to be_instance_of(Test::Post)
+          expect(data.posts.to_a[0]).to be_instance_of(Test::Objects::Post)
         end
       end
 
       describe "#one" do
         it "returns specific data object instances" do
           data.posts.create({})
-          expect(data.posts.one).to be_instance_of(Test::Post)
+          expect(data.posts.one).to be_instance_of(Test::Objects::Post)
         end
       end
 
@@ -54,7 +54,7 @@ RSpec.describe "data objects" do
         it "yields specific data object instances" do
           data.posts.create({})
           data.posts.each do |post|
-            expect(post).to be_instance_of(Test::Post)
+            expect(post).to be_instance_of(Test::Objects::Post)
           end
         end
       end
@@ -62,7 +62,7 @@ RSpec.describe "data objects" do
       describe "#by_*" do
         it "returns specific data object instances" do
           post = data.posts.create({}).one
-          expect(data.posts.by_id(post[:id]).one).to be_instance_of(Test::Post)
+          expect(data.posts.by_id(post[:id]).one).to be_instance_of(Test::Objects::Post)
         end
       end
 
@@ -70,20 +70,20 @@ RSpec.describe "data objects" do
         it "returns specific data object instances" do
           post = data.posts.create({}).one
           data.comments.create(post_id: post[:id])
-          expect(data.posts.including(:comments).one).to be_instance_of(Test::Post)
+          expect(data.posts.including(:comments).one).to be_instance_of(Test::Objects::Post)
         end
 
         it "returns specific data object instances for the associated data" do
           post = data.posts.create({}).one
           data.comments.create(post_id: post[:id])
-          expect(data.posts.including(:comments).one[:comments][0]).to be_instance_of(Test::Comment)
+          expect(data.posts.including(:comments).one[:comments][0]).to be_instance_of(Test::Objects::Comment)
         end
       end
 
       describe "custom query" do
         it "returns specific data object instances" do
           data.posts.create({})
-          expect(data.posts.query.to_a[0]).to be_instance_of(Test::Post)
+          expect(data.posts.query.to_a[0]).to be_instance_of(Test::Objects::Post)
         end
       end
     end
@@ -181,7 +181,7 @@ RSpec.describe "data objects" do
 
       it "returns a general data object instance" do
         post = data.posts.create({}).one
-        expect(post).to be_instance_of(Test::Post)
+        expect(post).to be_instance_of(Test::Objects::Post)
       end
     end
 
