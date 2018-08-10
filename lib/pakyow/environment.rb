@@ -338,7 +338,13 @@ module Pakyow
     private
 
     def booted
-      @booted = true
+      unless booted?
+        # Protect against changing frozen state since workers will call `booted`
+        # after booting and freezing the environment in the main process.
+        #
+        @booted = true
+      end
+
       call_hooks(:after, :boot)
       @apps.select { |app| app.respond_to?(:booted) }.each(&:booted)
     rescue StandardError => error
