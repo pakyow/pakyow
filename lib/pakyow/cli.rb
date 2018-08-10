@@ -161,11 +161,12 @@ module Pakyow
 
     def set_app_for_command
       if @task.app?
+        Pakyow.boot
         @options[:app] = if @options.key?(:app)
-          Pakyow.find_app(@options[:app]) || raise("could not find app named #{Support::CLI.style.blue(@options[:app])}")
-        elsif Pakyow.mounts.count == 1
-          Pakyow.initialize_app_for_mount(Pakyow.mounts.values.first)
-        elsif Pakyow.mounts.count > 0
+          Pakyow.app(@options[:app]) || raise("could not find app named #{Support::CLI.style.blue(@options[:app])}")
+        elsif Pakyow.apps.count == 1
+          Pakyow.mounts.apps.first
+        elsif Pakyow.apps.count > 0
           raise "found multiple apps; please specify one with the --app option"
         else
           raise "could not find any apps"

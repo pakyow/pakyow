@@ -24,9 +24,7 @@ task :prelaunch do |_, args|
 
   # Run prelaunch tasks registered with each pakyow app.
   #
-  Pakyow.mounts.values.map { |mount|
-    Pakyow.initialize_app_for_mount(mount)
-  }.each do |app|
+  Pakyow.apps.each do |app|
     if app.is_a?(Pakyow::App)
       app.config.tasks.prelaunch.each do |task_name, task_options|
         task_options[:app] = app

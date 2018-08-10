@@ -175,13 +175,10 @@ module Pakyow
         init_global_logger
 
         mounts.each do |path, mount|
-          builder_local_apps = apps
           builder_local_environment = self
 
           builder.map path do
-            app_instance = builder_local_environment.initialize_app_for_mount(mount, builder: self)
-            builder_local_apps << app_instance
-            run app_instance
+            run builder_local_environment.initialize_app_for_mount(mount, builder: self)
           end
         end
       end
@@ -205,17 +202,17 @@ module Pakyow
       @booted == true
     end
 
-    def booted
-      @booted = true unless booted?
-      call_hooks(:after, :boot)
-      @apps.select { |app| app.respond_to?(:booted) }.each(&:booted)
-    rescue StandardError => error
-      logger.error "Pakyow failed to boot: #{error}"
-      logger.error error.backtrace
-      exit
+    # Boots the Pakyow Environment without running it.
+    #
+    def boot
+      mounts.values.each do |mount|
+        initialize_app_for_mount(mount)
+      end
+
+      booted
     end
 
-    # Starts the Pakyow Environment.
+    # Runs the Pakyow Environment.
     #
     # @param server [Symbol] name of the rack handler to use
     #
@@ -291,34 +288,21 @@ module Pakyow
     end
 
     def app(app_name, path: "/", without: [], only: nil, &block)
-      local_frameworks = (only || frameworks.keys) - Array.ensure(without)
-
-      app = Pakyow::App.make(Support::ClassName.namespace(app_name, "app")) {
-        config.name = app_name
-        include_frameworks(*local_frameworks)
-      }
-
-      app.define(&block) if block_given?
-      mount(app, at: path)
-      app
-    end
-
-    def find_app(name)
-      name = name.to_sym
+      app_name = app_name.to_sym
 
       if booted?
-        apps.find { |app|
-          app.config.name == name
+        @apps.find { |app|
+          app.config.name == app_name
         }
       else
-        found_mount = mounts.values.find { |mount|
-          mount[:app].config.name == name
-        }
+        local_frameworks = (only || frameworks.keys) - Array.ensure(without)
 
-        if found_mount
-          initialize_app_for_mount(found_mount)
-        else
-          nil
+        Pakyow::App.make(Support::ClassName.namespace(app_name, "app")) {
+          config.name = app_name
+          include_frameworks(*local_frameworks)
+        }.tap do |app|
+          app.define(&block) if block_given?
+          mount(app, at: path)
         end
       end
     end
@@ -341,14 +325,27 @@ module Pakyow
 
     # @api private
     def initialize_app_for_mount(mount, builder: @builder)
-      if mount[:app].ancestors.include?(Pakyow::App)
+      app_instance = if mount[:app].ancestors.include?(Pakyow::App)
         mount[:app].new(env, builder: builder, &mount[:block])
       else
         mount[:app].new
       end
+
+      @apps << app_instance
+      app_instance
     end
 
-    protected
+    private
+
+    def booted
+      @booted = true
+      call_hooks(:after, :boot)
+      @apps.select { |app| app.respond_to?(:booted) }.each(&:booted)
+    rescue StandardError => error
+      logger.error "Pakyow failed to boot: #{error}"
+      logger.error error.backtrace
+      exit
+    end
 
     def use(middleware, *args)
       @builder.use(middleware, *args)
