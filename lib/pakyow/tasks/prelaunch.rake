@@ -16,6 +16,8 @@ task :prelaunch do |_, args|
     task.call(task_options)
   end
 
+  Pakyow.boot
+
   # Run prelaunch tasks registered with the environment.
   #
   Pakyow.config.tasks.prelaunch.each do |task_name, task_options|
