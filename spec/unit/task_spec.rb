@@ -396,11 +396,13 @@ RSpec.describe Pakyow::Task do
       let :options do
         {
           bar: {
-            description: "bar arg"
+            description: "bar arg",
+            short: :default
           },
           baz: {
             description: "baz arg",
-            required: true
+            required: true,
+            short: :default
           }
         }
       end
@@ -410,7 +412,7 @@ RSpec.describe Pakyow::Task do
       end
 
       it "returns help for the command" do
-        expect(instance.help).to eq("\e[34;1mTests help text\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow test_task --baz=baz\n\n\e[1mOPTIONS\e[0m\n  -b, --bar=bar  \e[33mbar arg\e[0m\n  -b, --baz=baz  \e[33mbaz arg\e[0m\e[31m (required)\e[0m\n")
+        expect(instance.help).to eq("\e[34;1mTests help text\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow test_task --baz=baz\n\n\e[1mOPTIONS\e[0m\n  -b, --bar=bar  \e[33mbar arg\e[0m\n      --baz=baz  \e[33mbaz arg\e[0m\e[31m (required)\e[0m\n")
       end
     end
 
@@ -430,11 +432,13 @@ RSpec.describe Pakyow::Task do
       let :options do
         {
           bar: {
-            description: "bar arg"
+            description: "bar arg",
+            short: :default
           },
           baz: {
             description: "baz arg",
-            required: true
+            required: true,
+            short: :default
           }
         }
       end
@@ -444,7 +448,7 @@ RSpec.describe Pakyow::Task do
       end
 
       it "returns help for the command" do
-        expect(instance.help).to eq("\e[34;1mTests help text\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow test_task [FOO] --baz=baz\n\n\e[1mARGUMENTS\e[0m\n  FOO  \e[33mfoo arg\e[0m\e[31m (required)\e[0m\n  QUX  \e[33mqux arg\e[0m\n\n\e[1mOPTIONS\e[0m\n  -b, --bar=bar  \e[33mbar arg\e[0m\n  -b, --baz=baz  \e[33mbaz arg\e[0m\e[31m (required)\e[0m\n")
+        expect(instance.help).to eq("\e[34;1mTests help text\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow test_task [FOO] --baz=baz\n\n\e[1mARGUMENTS\e[0m\n  FOO  \e[33mfoo arg\e[0m\e[31m (required)\e[0m\n  QUX  \e[33mqux arg\e[0m\n\n\e[1mOPTIONS\e[0m\n  -b, --bar=bar  \e[33mbar arg\e[0m\n      --baz=baz  \e[33mbaz arg\e[0m\e[31m (required)\e[0m\n")
       end
     end
   end

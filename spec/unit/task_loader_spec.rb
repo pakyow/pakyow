@@ -138,7 +138,8 @@ RSpec.describe Pakyow::Task::Loader do
       instance.option("foo", "foo description")
       expect(instance.__options[:foo]).to eq({
         description: "foo description",
-        required: false
+        required: false,
+        short: :default
       })
     end
 
@@ -147,7 +148,8 @@ RSpec.describe Pakyow::Task::Loader do
         instance.option("foo", "foo description", required: true)
         expect(instance.__options[:foo]).to eq({
           description: "foo description",
-          required: true
+          required: true,
+          short: :default
         })
       end
     end
@@ -177,12 +179,14 @@ RSpec.describe Pakyow::Task::Loader do
           },
           bar: {
             description: "bar option",
-            required: false
+            required: false,
+            short: :default
           }
         },
         flags: {
           baz: {
-            description: "baz flag"
+            description: "baz flag",
+            short: nil
           }
         },
         task_args: [:foo_task, [:app, :foo, :bar, :baz]],

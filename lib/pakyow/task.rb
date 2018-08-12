@@ -21,6 +21,7 @@ module Pakyow
 
     def initialize(namespace: [], description: nil, arguments: {}, options: {}, flags: {}, task_args: [], global: false, &block)
       @description, @arguments, @options, @flags, @global = description, arguments, options, flags, global
+      @short_names = determine_short_names
 
       if namespace.any?
         send(:namespace, namespace.join(":")) do
@@ -99,7 +100,11 @@ module Pakyow
           prefix = if @flags.key?(key)
             "      --#{key}"
           else
-            "  -#{key.to_s[0]}, --#{key}=#{key}"
+            if @short_names.key?(key)
+              "  -#{key.to_s[0]}, --#{key}=#{key}"
+            else
+              "      --#{key}=#{key}"
+            end
           end
 
           text += prefix.ljust(longest_length * 2 + 11) + description + "\n"
@@ -151,7 +156,12 @@ module Pakyow
         end
 
         @options.keys.each do |option|
-          opts.on("-#{option.to_s[0]}VAL", "--#{option}=VAL") do |v|
+          match = ["--#{option}=VAL"]
+          if @short_names.key?(option)
+            match.unshift("-#{@short_names[option]}VAL")
+          end
+
+          opts.on(*match) do |v|
             options[option] = v
           end
         end
@@ -198,6 +208,32 @@ module Pakyow
       }]
     end
 
+    UNAVAILABLE_SHORT_NAMES = %w(a e h).freeze
+    def determine_short_names
+      short_names = {
+        env: "e"
+      }
+
+      @options.each do |name, opts|
+        if short = opts[:short]
+          short = name[0] if short == :default
+          unless short_names.value?(short) || UNAVAILABLE_SHORT_NAMES.include?(short)
+            short_names[name] = short
+          end
+        end
+      end
+
+      @flags.each do |name, opts|
+        if short = opts[:short]
+          unless short_names.value?(short) || UNAVAILABLE_SHORT_NAMES.include?(short)
+            short_names[name] = short
+          end
+        end
+      end
+
+      short_names
+    end
+
     class Loader
       attr_reader :__namespace, :__description, :__arguments, :__options, :__flags, :__tasks, :__global
 
@@ -231,16 +267,18 @@ module Pakyow
         }
       end
 
-      def option(name, description, required: false)
+      def option(name, description, required: false, short: :default)
         @__options[name.to_sym] = {
           description: description,
-          required: required
+          required: required,
+          short: short
         }
       end
 
-      def flag(name, description)
+      def flag(name, description, short: nil)
         @__flags[name.to_sym] = {
-          description: description
+          description: description,
+          short: short
         }
       end
 
