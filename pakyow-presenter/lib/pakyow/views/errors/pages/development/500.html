@@ -1,40 +1,33 @@
 ---
 layout: development_error
-title: "{error.name}"
 ---
 
-<div binding="error">
+<div binding="pw_error">
   <h1 binding="name">
     Error Class
   </h1>
 
-  <div binding="presentable_message">
+  <div binding="message">
     <p>
       Error message goes here.
     </p>
   </div>
 
-  <hr>
-
-  <p>
-    <a href="https://pakyow.com/docs/" target="_blank">
-      https://pakyow.com/docs/
-    </a>
-  </p>
+  <input id="details-toggle" type="checkbox">
 
   <h2>
-    Details
+    <label for="details-toggle">
+      View more details
+    </label>
   </h2>
 
-  <div binding="presentable_details">
-    <p>
-      Details go here.
-    </p>
-  </div>
+  <section class="details">
+    <div binding="details">
+      <p>
+        Details go here.
+      </p>
+    </div>
 
-  <h2>
-    Backtrace
-  </h2>
-
-  <code binding="presentable_backtrace"></code>
+    <code binding="backtrace"></code>
+  </section>
 </div>

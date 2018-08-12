@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "redcarpet"
+
 require "pakyow/framework"
 
 module Pakyow
@@ -120,11 +122,43 @@ module Pakyow
                   Pakyow.build_error(connection.error, Pakyow::Error)
                 end
 
-                expose :error, error
+                expose :"pw_error", error
                 render "/development/500"
               else
                 render "/500"
               end
+            end
+          end
+
+          binder :"pw_error" do
+            def message
+              safe(markdown.render(object.message))
+            end
+
+            def details
+              safe(markdown.render(object.details))
+            end
+
+            def backtrace
+              safe(object.backtrace.to_a.join("<br>"))
+            end
+
+            def link
+              part :href do
+                object.url
+              end
+
+              part :content do
+                object.url
+              end
+            end
+
+            private
+
+            def markdown
+              @markdown ||= Redcarpet::Markdown.new(
+                Redcarpet::Render::HTML.new({})
+              )
             end
           end
         end

@@ -29,10 +29,6 @@ module Pakyow
       end
     end
 
-    def url
-      "https://pakyow.com/docs"
-    end
-
     def name
       Support.inflector.humanize(
         Support.inflector.underscore(
@@ -121,11 +117,9 @@ module Pakyow
 
       def to_s
         <<~MESSAGE
-        #{Support::CLI.style.black.on_red.bold(header)}
+        #{Support::CLI.style.white.on_red.bold(header)}
 
         #{indent(@error.message)}
-
-        #{Support::CLI.style.blue(indent("<#{@error.url}>"))}
 
         #{Support::CLI.style.black.on_white.bold(" DETAILS                                                                        ")}
 

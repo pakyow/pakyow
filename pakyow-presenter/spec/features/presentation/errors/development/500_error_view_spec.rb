@@ -42,10 +42,6 @@ RSpec.describe "telling the user about a failure in development" do
     it "includes the source" do
       expect(call[2].body.read).to include("15|&gt;             raise Pakyow::Error.new(\"failed in some way\")")
     end
-
-    it "includes a link to the docs" do
-      expect(call[2].body.read).to include("https://pakyow.com/docs")
-    end
   end
 
   context "error is not a pakyow error" do
@@ -74,7 +70,7 @@ RSpec.describe "telling the user about a failure in development" do
     end
 
     it "includes the backtrace" do
-      expect(call[2].body.read).to include("spec/features/presentation/errors/development/500_error_view_spec.rb:58:block")
+      expect(call[2].body.read).to include("spec/features/presentation/errors/development/500_error_view_spec.rb:54:block")
     end
   end
 end

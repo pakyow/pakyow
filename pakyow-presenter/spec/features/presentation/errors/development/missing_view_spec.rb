@@ -23,16 +23,12 @@ RSpec.describe "telling the user about a missing view in development" do
     end
 
     it "includes instructions for creating a page" do
-      expect(call[2].body.read).to include("To resolve this error, create a matching template at this path:")
+      expect(call[2].body.read).to include("Try creating a view template for this path:")
       expect(call[2].body.read).to include("frontend/pages/nonexistent.html")
     end
 
-    it "does not include instructions for defining a route" do
-      expect(call[2].body.read).to_not include("If you don't intend to render a view")
-    end
-
-    it "includes a link to the docs" do
-      expect(call[2].body.read).to include("https://pakyow.com/docs")
+    it "does not include instructions for defining an endpoint" do
+      expect(call[2].body.read).to_not include("If you want to call backend code instead")
     end
   end
 
@@ -48,17 +44,13 @@ RSpec.describe "telling the user about a missing view in development" do
     end
 
     it "includes instructions for creating a page" do
-      expect(call("/nonexistent")[2].body.read).to include("To resolve this error, create a matching template at this path:")
+      expect(call("/nonexistent")[2].body.read).to include("Try creating a view template for this path:")
       expect(call("/nonexistent")[2].body.read).to include("frontend/pages/nonexistent.html")
     end
 
     it "includes instructions for defining a route" do
-      expect(call("/nonexistent")[2].body.read).to include("If you don't intend to render a view")
+      expect(call("/nonexistent")[2].body.read).to include("If you want to call backend code instead")
       expect(call("/nonexistent")[2].body.read).to include("get \"/nonexistent\" do")
-    end
-
-    it "includes a link to the docs" do
-      expect(call("/nonexistent")[2].body.read).to include("https://pakyow.com/docs")
     end
   end
 end

@@ -22,7 +22,7 @@ module Pakyow
 
       #{indent_as_code(JSON.pretty_generate(object))}
 
-      Here are the failures:
+      Here's a list of failures:
 
       #{indent_as_code(JSON.pretty_generate(verifier.messages))}
       MESSAGE

@@ -50,11 +50,11 @@ module Pakyow
               catch :halt do
                 new(connection, implicit: true).perform
               end
-            rescue MissingPage => error
+            rescue UnknownPage => error
               implicit_error = ImplicitRenderingError.new("Could not implicitly render at path `#{connection.path}'")
               implicit_error.context = connection.path
               implicit_error.set_backtrace(error.backtrace)
-              connection.set(:error, implicit_error)
+              connection.set(:"pw_error", implicit_error)
               connection.status = 404
 
               catch :halt do
@@ -99,7 +99,7 @@ module Pakyow
         @mode = mode
 
         unless info = find_info(@path)
-          error = MissingPage.new("No view at path `#{@path}'")
+          error = UnknownPage.new("No view at path `#{@path}'")
           error.context = @path
           raise error
         end

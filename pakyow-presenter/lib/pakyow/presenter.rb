@@ -30,5 +30,5 @@ require "pakyow/presenter/views/partial"
 
 require "pakyow/presenter/presenters/form"
 
-require "pakyow/presenter/exceptions"
+require "pakyow/presenter/errors"
 require "pakyow/presenter/helpers"
