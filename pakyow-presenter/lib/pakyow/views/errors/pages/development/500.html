@@ -1,14 +1,14 @@
 ---
 layout: development_error
-title: 500 (Server Error)
+title: "{error.name}"
 ---
 
-<div binding="error" version="friendly">
+<div binding="error">
   <h1 binding="name">
     Error Class
   </h1>
 
-  <div binding="message">
+  <div binding="presentable_message">
     <p>
       Error message goes here.
     </p>
@@ -17,14 +17,16 @@ title: 500 (Server Error)
   <hr>
 
   <p>
-    <a href="https://pakyow.com/docs/" target="_blank">https://pakyow.com/docs/</a>
+    <a href="https://pakyow.com/docs/" target="_blank">
+      https://pakyow.com/docs/
+    </a>
   </p>
 
   <h2>
     Details
   </h2>
 
-  <div binding="details">
+  <div binding="presentable_details">
     <p>
       Details go here.
     </p>
@@ -34,17 +36,5 @@ title: 500 (Server Error)
     Backtrace
   </h2>
 
-  <code binding="backtrace"></code>
-</div>
-
-<div binding="error" version="other">
-  <h1 binding="name">
-    Error Class
-  </h1>
-
-  <p binding="message">
-    Error message goes here.
-  </p>
-
-  <code binding="backtrace"></code>
+  <code binding="presentable_backtrace"></code>
 </div>

@@ -98,7 +98,7 @@ module Pakyow
           instance_variable_defined?(:@endpoints)
         end
 
-        def build_endpoints(nodes, params = {})
+        def build_endpoints(nodes, passed_params = {})
           if endpoint_state_defined?
             # Build up all the endpoint state we have into a single value hash.
             #
@@ -109,7 +109,7 @@ module Pakyow
               merged_params.merge!(Hash[parent_object.to_h.map { |key, value|
                 [:"#{parent_binding}_#{key}", value]
               }])
-            }.merge(params.to_h)
+            }.merge(passed_params.respond_to?(:to_h) ? passed_params.to_h : {})
           end
 
           nodes.each_with_object([]) { |node, endpoints|

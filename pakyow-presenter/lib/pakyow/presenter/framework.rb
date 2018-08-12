@@ -1,10 +1,5 @@
 # frozen_string_literal: true
 
-require "pakyow/support/silenceable"
-Pakyow::Support::Silenceable.silence_warnings do
-  require "redcarpet"
-end
-
 require "pakyow/framework"
 
 module Pakyow
@@ -61,6 +56,8 @@ module Pakyow
 
     class Framework < Pakyow::Framework(:presenter)
       def boot
+        require "pakyow/presenter/presentable_error"
+
         app.class_eval do
           subclass!(Renderer)
 
@@ -127,30 +124,6 @@ module Pakyow
                 render "/development/500"
               else
                 render "/500"
-              end
-            end
-          end
-
-          presenter "/development/500" do
-            def perform
-              if error.is_a?(Pakyow::Error)
-                self.title = error.name
-                markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML.new({}))
-                find(:error).use(:friendly)
-                find(:error).present(
-                  name: error.name,
-                  message: safe(markdown.render(error.message)),
-                  details: safe(markdown.render(error.details)),
-                  backtrace: safe(error.backtrace.to_a.join("<br>"))
-                )
-              else
-                self.title = error.class
-                find(:error).use(:other)
-                find(:error).present(
-                  name: error.class,
-                  message: error.to_s,
-                  backtrace: safe(error.backtrace.join("<br>"))
-                )
               end
             end
           end
