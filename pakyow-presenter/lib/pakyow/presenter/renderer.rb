@@ -132,8 +132,6 @@ module Pakyow
           @mode = @connection.params[:mode] || :default
         end
 
-        @presenter.place_in_mode(@mode)
-
         if rendering_prototype?
           @presenter.insert_prototype_bar(@mode)
         else
@@ -143,6 +141,8 @@ module Pakyow
             @presenter.create_template_nodes
           end
         end
+
+        @presenter.place_in_mode(@mode)
 
         if @connection.app.config.presenter.embed_authenticity_token
           embed_authenticity_token

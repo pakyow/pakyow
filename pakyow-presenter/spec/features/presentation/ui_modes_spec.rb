@@ -42,25 +42,19 @@ RSpec.describe "presenting a view that defines one or more ui mode" do
 
     expect(result).to include_sans_whitespace(
       <<~HTML
-        <div data-b="post">
-          <h1>default</h1>
-        </div>
+        <h1>default</h1>
       HTML
     )
 
     expect(result).not_to include_sans_whitespace(
       <<~HTML
-        <div data-b="post">
-          <h1>one</h1>
-        </div>
+        <h1>one</h1>
       HTML
     )
 
     expect(result).not_to include_sans_whitespace(
       <<~HTML
-        <div data-b="post">
-          <h1>two</h1>
-        </div>
+        <h1>two</h1>
       HTML
     )
   end
@@ -71,25 +65,19 @@ RSpec.describe "presenting a view that defines one or more ui mode" do
 
       expect(result).not_to include_sans_whitespace(
         <<~HTML
-          <div data-b="post">
-            <h1>default</h1>
-          </div>
+          <h1>default</h1>
         HTML
       )
 
       expect(result).not_to include_sans_whitespace(
         <<~HTML
-          <div data-b="post">
-            <h1>one</h1>
-          </div>
+          <h1>one</h1>
         HTML
       )
 
       expect(result).to include_sans_whitespace(
         <<~HTML
-          <div data-b="post" data-v="two">
-            <h1>two</h1>
-          </div>
+          <h1>two</h1>
         HTML
       )
     end
@@ -119,99 +107,19 @@ RSpec.describe "presenting a view that defines one or more ui mode" do
 
       expect(result).not_to include_sans_whitespace(
         <<~HTML
-          <div data-b="post">
-            <h1>default</h1>
-          </div>
+          <h1>default</h1>
         HTML
       )
 
       expect(result).not_to include_sans_whitespace(
         <<~HTML
-          <div data-b="post">
-            <h1>one</h1>
-          </div>
+          <h1>one</h1>
         HTML
       )
 
       expect(result).to include_sans_whitespace(
         <<~HTML
-          <div data-b="post" data-v="two">
-            <h1>two</h1>
-          </div>
-        HTML
-      )
-    end
-  end
-
-  context "concealing a node by type and name" do
-    it "conceals the node matching type and name" do
-      result = call("/presentation/ui_modes/conceal_by_type_and_name")[2].body.read
-
-      expect(result).to include_sans_whitespace(
-        <<~HTML
-          <div data-b="post">
-            <h1>post</h1>
-          </div>
-        HTML
-      )
-
-      expect(result).not_to include_sans_whitespace(
-        <<~HTML
-          <div data-b="comment">
-            <h1>comment</h1>
-          </div>
-        HTML
-      )
-    end
-  end
-
-  context "concealing a node by type, name, and version" do
-    it "conceals the node matching type, name and version" do
-      result = call("/presentation/ui_modes/conceal_by_type_name_and_version")[2].body.read
-
-      expect(result).not_to include_sans_whitespace(
-        <<~HTML
-          <div data-b="post">
-            <h1>one</h1>
-          </div>
-        HTML
-      )
-
-      expect(result).to include_sans_whitespace(
-        <<~HTML
-          <div data-b="post" data-v="two">
-            <h1>two</h1>
-          </div>
-        HTML
-      )
-    end
-  end
-
-  context "displaying a node by type, name, and version" do
-    it "displays the node matching type, name, and version" do
-      result = call("/presentation/ui_modes/display_by_type_name_and_version")[2].body.read
-
-      expect(result).not_to include_sans_whitespace(
-        <<~HTML
-          <div data-b="post">
-            <h1>default</h1>
-          </div>
-        HTML
-      )
-
-      expect(result).to include_sans_whitespace(
-        <<~HTML
-          <div data-b="post" data-v="one">
-            <h1>one</h1>
-          </div>
-        HTML
-      )
-
-      expect(result).not_to include_sans_whitespace(
-        <<~HTML
-          <div data-b="post">
-            <h1>two</h1>
-          </div>
+          <h1>two</h1>
         HTML
       )
     end

@@ -130,6 +130,15 @@ module Pakyow
     end
 
     # @api private
+    class ModeNode < SignificantNode
+      StringDoc.significant :mode, self
+
+      def self.significant?(node)
+        node.is_a?(Oga::XML::Element) && node.attribute(:mode)
+      end
+    end
+
+    # @api private
     class FormNode < SignificantNode
       StringDoc.significant :form, self
 

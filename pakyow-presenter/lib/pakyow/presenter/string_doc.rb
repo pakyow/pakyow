@@ -344,7 +344,7 @@ module Pakyow
 
       # Attributes that will be turned into +StringDoc+ labels
       #
-      LABEL_ATTRS = %i(ui version include exclude endpoint endpoint-action prototype binding).freeze
+      LABEL_ATTRS = %i(ui mode version include exclude endpoint endpoint-action prototype binding).freeze
 
       LABEL_MAPPING = {
         ui: :component
