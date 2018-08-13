@@ -13,7 +13,8 @@ RSpec.describe "application helpers" do
 
   it "makes helpers available within a controller" do
     expect(call[0]).to eq(200)
-    expect(call[2].body).to include(Pakyow::Routing::Helpers)
+    expect(call[2].body).to include(Pakyow::Routing::Helpers::Exposures)
+    expect(call[2].body).to include(Pakyow::Routing::Helpers::CSRF)
   end
 
   describe "configuring the app with another helper module" do
