@@ -7,7 +7,7 @@ require "pakyow/helpers/connection"
 module Pakyow
   module Realtime
     class WebSocket
-      include Helpers::Connection
+      include Pakyow::Helpers::Connection
 
       attr_reader :id, :io, :env, :url
 

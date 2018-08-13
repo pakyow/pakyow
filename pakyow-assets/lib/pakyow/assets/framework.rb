@@ -5,13 +5,6 @@ require "pakyow/framework"
 require "pakyow/assets/asset"
 require "pakyow/assets/pack"
 
-require "pakyow/assets/actions/process"
-require "pakyow/assets/actions/public"
-
-require "pakyow/assets/types/js"
-require "pakyow/assets/types/sass"
-require "pakyow/assets/types/scss"
-
 require "pakyow/assets/behavior/config"
 require "pakyow/assets/behavior/assets"
 require "pakyow/assets/behavior/packs"
@@ -19,12 +12,13 @@ require "pakyow/assets/behavior/rendering"
 require "pakyow/assets/behavior/views"
 require "pakyow/assets/behavior/silencing"
 require "pakyow/assets/behavior/externals"
+require "pakyow/assets/behavior/watching"
+require "pakyow/assets/behavior/prelaunching"
+require "pakyow/assets/behavior/processing"
 
 module Pakyow
   module Assets
     class Framework < Pakyow::Framework(:assets)
-      Pakyow.config.tasks.paths << File.expand_path("../tasks", __FILE__)
-
       def boot
         app.class_eval do
           # Let other frameworks load their own assets.
@@ -41,31 +35,12 @@ module Pakyow
           include Behavior::Views
           include Behavior::Silencing
           include Behavior::Externals
+          include Behavior::Watching
+          include Behavior::Prelaunching
+          include Behavior::Processing
 
-          after :load do
-            config.assets.extensions.each do |extension|
-              config.process.watched_paths << File.join(config.presenter.path, "**/*#{extension}")
-            end
-
-            config.tasks.prelaunch << [:"assets:precompile", {}]
-          end
-
-          after :configure do
-            if !config.assets.process && self.class.includes_framework?(:presenter)
-              self.class.processor :html do |content|
-                state_for(:asset).each do |asset|
-                  content.gsub!(asset.logical_path, asset.public_path)
-                end
-
-                content
-              end
-            end
-          end
-
-          if const_defined?(:Renderer)
-            const_get(:Renderer).class_eval do
-              include Behavior::Rendering
-            end
+          subclass :Renderer do
+            include Behavior::Rendering
           end
         end
       end

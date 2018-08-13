@@ -13,10 +13,10 @@ require "pakyow/support/pipelined/haltable"
 require "pakyow/presenter/errors"
 require "pakyow/presenter/renderer"
 
-require "pakyow/presenter/behavior/endpoints"
-require "pakyow/presenter/behavior/prototype"
-require "pakyow/presenter/behavior/templates"
-require "pakyow/presenter/behavior/modes"
+require "pakyow/presenter/presenter/behavior/endpoints"
+require "pakyow/presenter/presenter/behavior/prototype"
+require "pakyow/presenter/presenter/behavior/templates"
+require "pakyow/presenter/presenter/behavior/modes"
 
 module Pakyow
   module Presenter

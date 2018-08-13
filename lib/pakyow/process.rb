@@ -54,7 +54,7 @@ module Pakyow
       @server.started(self)
     end
 
-    def stop(exiting = false)
+    def stop(_exiting = false)
       if @pid
         ::Process.kill("TERM", @pid)
         ::Process.waitpid(@pid)

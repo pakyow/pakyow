@@ -51,9 +51,9 @@ module Pakyow
                 "#{name}@#{fetched_version}.js"
               )
 
-              File.open(local_path, "w") { |file|
+              File.open(local_path, "w") do |file|
                 file.write(response.body.to_s)
-              }
+              end
 
               runner.succeeded
             else

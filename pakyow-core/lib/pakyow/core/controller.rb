@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 require "pakyow/support/aargv"
-
 require "pakyow/support/makeable"
-
 require "pakyow/support/pipelined"
 require "pakyow/support/core_refinements/string/normalization"
+
+require "pakyow/core/route"
 
 require "pakyow/core/controller/behavior/error_handling"
 require "pakyow/core/controller/behavior/param_verification"
@@ -171,6 +171,8 @@ module Pakyow
     ].freeze
 
     CONTENT_DISPOSITION = "Content-Disposition".freeze
+
+    require "pakyow/core/expansion"
 
     # @api private
     def initialize(arg)

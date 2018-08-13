@@ -4,6 +4,8 @@ require "pakyow/support/hookable"
 require "pakyow/support/core_refinements/array/ensurable"
 require "pakyow/support/core_refinements/string/normalization"
 
+require "pakyow/core/security/helpers/csrf"
+
 module Pakyow
   module Presenter
     class Renderer
@@ -18,7 +20,7 @@ module Pakyow
               implicit_error = ImplicitRenderingError.new("Could not implicitly render at path `#{connection.path}'")
               implicit_error.context = connection.path
               implicit_error.set_backtrace(error.backtrace)
-              connection.set(:"pw_error", implicit_error)
+              connection.set(:pw_error, implicit_error)
               connection.status = 404
 
               catch :halt do
@@ -209,7 +211,7 @@ module Pakyow
         end
       end
 
-      include Routing::Helpers::CSRF
+      include Security::Helpers::CSRF
 
       def embed_authenticity_token
         if head = @presenter.view.object.find_significant_nodes(:head)[0]

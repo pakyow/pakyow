@@ -32,3 +32,5 @@ require "pakyow/presenter/presenters/form"
 
 require "pakyow/presenter/errors"
 require "pakyow/presenter/helpers"
+
+require "pakyow/presenter/actions/auto_render"

@@ -1,7 +1,7 @@
-RSpec.describe Pakyow::Presenter::Behavior::Endpoints do
+RSpec.describe Pakyow::Presenter::Presenter::Behavior::Endpoints do
   let :object_with_behavior do
     Class.new do
-      include Pakyow::Presenter::Behavior::Endpoints
+      include Pakyow::Presenter::Presenter::Behavior::Endpoints
     end
   end
 

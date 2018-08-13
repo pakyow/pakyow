@@ -70,7 +70,8 @@ module Pakyow
         def respond_to_missing?(method_name, include_private = false)
           (setter?(method_name) && find_setting(method_name[0..-2])) ||
             find_setting(method_name) ||
-            find_group(method_name)
+            find_group(method_name) ||
+            super(method_name, include_private)
         end
 
         def configure_defaults!(configured_environment)

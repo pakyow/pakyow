@@ -14,8 +14,6 @@ namespace :assets do
       args[:app].config.assets.externals.scripts
     end
 
-    scripts.each do |external_script|
-      external_script.fetch!
-    end
+    scripts.each(&:fetch!)
   end
 end

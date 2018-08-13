@@ -31,11 +31,11 @@ module Pakyow
           end
 
           if self.class.includes_framework?(:presenter)
-            @__pipeline.action(Presenter::AutoRender)
+            @__pipeline.action(Presenter::Actions::AutoRender)
           end
 
           if self.class.includes_framework?(:core) && !Pakyow.env?(:prototype)
-            @__pipeline.action(Routing::RespondMissing, self)
+            @__pipeline.action(Routing::Actions::RespondMissing, self)
           end
         end
       end

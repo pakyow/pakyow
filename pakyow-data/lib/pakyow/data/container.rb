@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require "pakyow/support/inflector"
+
+require "pakyow/data/types"
+
 module Pakyow
   module Data
     class Container

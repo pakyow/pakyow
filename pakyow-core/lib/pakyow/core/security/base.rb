@@ -2,9 +2,9 @@
 
 require "pakyow/support/hookable"
 
-module Pakyow
-  class InsecureRequest < Error; end
+require "pakyow/core/security/errors"
 
+module Pakyow
   module Security
     class Base
       include Support::Hookable

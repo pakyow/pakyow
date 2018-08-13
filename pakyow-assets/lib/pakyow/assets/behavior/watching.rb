@@ -1,0 +1,21 @@
+# frozen_string_literal: true
+
+require "pakyow/support/extension"
+
+module Pakyow
+  module Assets
+    module Behavior
+      module Watching
+        extend Support::Extension
+
+        apply_extension do
+          after :load do
+            config.assets.extensions.each do |extension|
+              config.process.watched_paths << File.join(config.presenter.path, "**/*#{extension}")
+            end
+          end
+        end
+      end
+    end
+  end
+end

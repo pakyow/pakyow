@@ -2,6 +2,7 @@
 
 require "pakyow/support/deep_freeze"
 
+require "pakyow/data/proxy"
 require "pakyow/data/sources/ephemeral"
 
 module Pakyow

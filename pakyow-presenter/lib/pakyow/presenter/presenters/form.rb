@@ -3,7 +3,7 @@
 require "securerandom"
 
 require "pakyow/presenter/presenter"
-require "pakyow/presenter/behavior/endpoints/form"
+require "pakyow/presenter/presenter/behavior/endpoints/form"
 
 module Pakyow
   module Presenter

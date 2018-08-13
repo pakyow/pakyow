@@ -5,10 +5,13 @@ require "forwardable"
 
 require "pakyow/support/core_refinements/string/normalization"
 require "pakyow/support/deep_freeze"
+require "pakyow/support/inflector"
 
 module Pakyow
   module Data
     class Connection
+      SUPPORTED_CONNECTION_TYPES = %i(sql).freeze
+
       extend Forwardable
       def_delegators :@adapter, :dataset_for_source, :disconnect, :migratable?,
                      :needs_migration?, :migrate!, :auto_migrate!,

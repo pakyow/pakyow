@@ -3,7 +3,7 @@
 require "pakyow/support/message_verifier"
 
 module Pakyow
-  module Routing
+  module Security
     module Helpers
       module CSRF
         def authenticity_server_id

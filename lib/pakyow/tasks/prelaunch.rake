@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 desc "Run the prelaunch tasks"
-task :prelaunch do |_, args|
+task :prelaunch do
   def find_task(task_name)
     Pakyow.tasks.find { |task|
       task.name == task_name.to_s

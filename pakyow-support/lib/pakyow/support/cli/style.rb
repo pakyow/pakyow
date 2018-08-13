@@ -6,7 +6,7 @@ module Pakyow
   module Support
     module CLI
       def self.style
-        @pastel ||= Pastel.new
+        @style ||= Pastel.new
       end
     end
   end

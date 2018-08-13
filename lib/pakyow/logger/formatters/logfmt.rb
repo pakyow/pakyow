@@ -16,32 +16,32 @@ module Pakyow
       class Logfmt < Pakyow::Logger::Formatters::JSON
         private
 
-          UNESCAPED_STRING = /\A[\w\.\-\+\%\,\:\;\/]*\z/i
+        UNESCAPED_STRING = /\A[\w\.\-\+\%\,\:\;\/]*\z/i
 
-          def format(message)
-            message.delete(:time)
-            escape(message).map { |key, value|
-              "#{key}=#{value}"
-            }.join(" ") + "\n"
-          end
+        def format(message)
+          message.delete(:time)
+          escape(message).map { |key, value|
+            "#{key}=#{value}"
+          }.join(" ") + "\n"
+        end
 
-          # From polyfox/moon-logfmt.
-          #
-          def escape(message)
-            return to_enum :escape, message unless block_given?
+        # From polyfox/moon-logfmt.
+        #
+        def escape(message)
+          return to_enum :escape, message unless block_given?
 
-            message.each_pair do |key, value|
-              value = case value
-              when Array
-                value.join(",")
-              else
-                value.to_s
-              end
-
-              value = value.dump unless value =~ UNESCAPED_STRING
-              yield key.to_s, value
+          message.each_pair do |key, value|
+            value = case value
+            when Array
+              value.join(",")
+            else
+              value.to_s
             end
+
+            value = value.dump unless value =~ UNESCAPED_STRING
+            yield key.to_s, value
           end
+        end
       end
     end
   end

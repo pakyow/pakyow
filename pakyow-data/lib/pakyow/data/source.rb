@@ -2,6 +2,7 @@
 
 require "pakyow/support/makeable"
 require "pakyow/support/class_state"
+require "pakyow/support/inflector"
 
 require "pakyow/data/command"
 require "pakyow/data/sources/abstract"

@@ -15,7 +15,7 @@ module Pakyow
 
       apps: Pakyow.mounts.map { |path, info|
         common_info = {
-          mount_path: "/",
+          mount_path: path,
           class: info[:app].to_s,
         }
 
