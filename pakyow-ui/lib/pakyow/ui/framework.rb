@@ -148,7 +148,7 @@ module Pakyow
             end
           end
 
-          app.subclass? :Renderer do
+          app.subclass :Renderer do
             include Realtime::Helpers::Subscriptions
 
             after :render do

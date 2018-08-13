@@ -66,7 +66,7 @@ module Pakyow
         app.class_eval do
           subclass!(Renderer)
 
-          subclass? :Connection do
+          subclass :Connection do
             include Renderable
           end
 
@@ -78,7 +78,7 @@ module Pakyow
           aspect :presenters
           aspect :binders
 
-          subclass? :Controller do
+          subclass :Controller do
             include_pipeline ImplicitRendering
 
             # We don't load these as normal helpers because they should only be

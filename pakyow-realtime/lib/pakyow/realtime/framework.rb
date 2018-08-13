@@ -87,12 +87,12 @@ module Pakyow
 
           known_events :join, :leave
 
-          subclass? :Controller do
+          subclass :Controller do
             include Helpers::Broadcasting
             include Helpers::Subscriptions
           end
 
-          subclass? :Renderer do
+          subclass :Renderer do
             before :render do
               next unless head = @presenter.view.object.find_significant_nodes(:head)[0]
 

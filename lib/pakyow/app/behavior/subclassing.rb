@@ -41,27 +41,27 @@ module Pakyow
             end
           end
 
-          # Returns true or evaluates the given block if the subclass exists.
+          # Returns true if the subclass exists.
           #
-          def subclass?(subclass_name, &block)
-            if const_defined?(subclass_name)
-              subclass(subclass_name).class_eval(&block)
-            else
-              false
-            end
+          def subclass?(subclass_name)
+            const_defined?(subclass_name)
           end
 
-          # Returns the defined subclass.
+          # Returns the defined subclass, evaluating the block if provided.
           #
-          def subclass(subclass_name)
-            const_get(subclass_name)
+          def subclass(subclass_name, &block)
+            const_get(subclass_name).tap do |subclass|
+              if subclass && block_given?
+                subclass.class_eval(&block)
+              end
+            end
           end
         end
 
         # Convenience method for +Pakyow::App::subclass+.
         #
-        def subclass(*args)
-          self.class.subclass(*args)
+        def subclass(*args, &block)
+          self.class.subclass(*args, &block)
         end
       end
     end

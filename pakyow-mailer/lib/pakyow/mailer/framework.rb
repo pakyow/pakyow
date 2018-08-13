@@ -10,7 +10,7 @@ module Pakyow
     class Framework < Pakyow::Framework(:mailer)
       def boot
         app.class_eval do
-          subclass? :Controller do
+          subclass :Controller do
             include Helpers
           end
 
