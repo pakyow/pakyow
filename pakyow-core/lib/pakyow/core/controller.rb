@@ -7,10 +7,6 @@ require "pakyow/support/makeable"
 require "pakyow/support/pipelined"
 require "pakyow/support/core_refinements/string/normalization"
 
-require "pakyow/helpers/connection"
-
-require "pakyow/core/helpers"
-
 require "pakyow/core/controller/behavior/error_handling"
 require "pakyow/core/controller/behavior/param_verification"
 
@@ -142,8 +138,6 @@ module Pakyow
   #   end
   #
   class Controller
-    include Helpers::Connection
-
     using Support::DeepDup
     extend Support::Makeable
     include Support::Hookable

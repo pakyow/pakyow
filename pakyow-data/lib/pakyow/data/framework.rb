@@ -16,6 +16,8 @@ require "pakyow/data/container"
 
 require "pakyow/data/sources/ephemeral"
 
+require "pakyow/data/helpers"
+
 module Pakyow
   module Data
     SUPPORTED_CONNECTION_TYPES = %i(sql)
@@ -23,12 +25,6 @@ module Pakyow
     class Framework < Pakyow::Framework(:data)
       def boot
         app.class_eval do
-          subclass? :Controller do
-            def data
-              app.data
-            end
-          end
-
           stateful :source, Source
           stateful :object, Object
 
@@ -43,6 +39,8 @@ module Pakyow
           # Data container object.
           #
           attr_reader :data
+
+          helper Helpers
 
           after :initialize do
             @data = Lookup.new(

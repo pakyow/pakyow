@@ -5,6 +5,8 @@ require "digest"
 
 require "pakyow/framework"
 
+require "pakyow/realtime/helpers/subscriptions"
+
 require "pakyow/ui/helpers"
 require "pakyow/ui/renderer"
 
@@ -146,43 +148,47 @@ module Pakyow
             end
           end
 
-          app.subclass(:Renderer).after :render do
-            # We wait until after render so that we don't create subscriptions unnecessarily
-            # in the event that something blew up during the render process.
-            #
-            presentables = @connection.values.select { |_, presentable|
-              presentable.is_a?(Data::Proxy)
-            }
+          app.subclass? :Renderer do
+            include Realtime::Helpers::Subscriptions
 
-            metadata = {
-              as: @as,
-              path: @path,
-              layout: @layout,
-              mode: @mode,
-              transformation_id: @transformation_id,
-              presentables: presentables.map { |presentable_name, presentable|
-                { name: presentable_name, proxy: presentable.to_h }
-              },
-              env: @connection.env.each_with_object({}) { |(key, value), keep|
-                if ENV_KEYS.include?(key)
-                  keep[key] = value
-                end
-              }
-            }
-
-            # Find every subscribable presentable, creating a data subscription for each.
-            #
-            presentables.values.select(&:subscribable?).each do |subscribable|
-              subscription_ids = subscribable.subscribe(socket_client_id, handler: handler, payload: metadata)
-
-              # Subscribe the subscriptions to the "transformation" channel.
+            after :render do
+              # We wait until after render so that we don't create subscriptions unnecessarily
+              # in the event that something blew up during the render process.
               #
-              subscribe(:transformation, *subscription_ids)
-            end
+              presentables = @connection.values.select { |_, presentable|
+                presentable.is_a?(Data::Proxy)
+              }
 
-            # Set the subscriptions we just created to expire if the connection is never established.
-            #
-            @connection.app.data.expire(socket_client_id, SUBSCRIPTION_TIMEOUT)
+              metadata = {
+                as: @as,
+                path: @path,
+                layout: @layout,
+                mode: @mode,
+                transformation_id: @transformation_id,
+                presentables: presentables.map { |presentable_name, presentable|
+                  { name: presentable_name, proxy: presentable.to_h }
+                },
+                env: @connection.env.each_with_object({}) { |(key, value), keep|
+                  if ENV_KEYS.include?(key)
+                    keep[key] = value
+                  end
+                }
+              }
+
+              # Find every subscribable presentable, creating a data subscription for each.
+              #
+              presentables.values.select(&:subscribable?).each do |subscribable|
+                subscription_ids = subscribable.subscribe(socket_client_id, handler: handler, payload: metadata)
+
+                # Subscribe the subscriptions to the "transformation" channel.
+                #
+                subscribe(:transformation, *subscription_ids)
+              end
+
+              # Set the subscriptions we just created to expire if the connection is never established.
+              #
+              @connection.app.data.expire(socket_client_id, SUBSCRIPTION_TIMEOUT)
+            end
           end
         end
       end

@@ -35,10 +35,6 @@ RSpec.describe Pakyow::Controller do
     end
   end
 
-  it "includes connection helpers" do
-    expect(controller.class.ancestors).to include(Pakyow::Helpers::Connection)
-  end
-
   describe ".method_missing" do
     context "when a template is available" do
       before do

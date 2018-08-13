@@ -4,6 +4,9 @@ require "redcarpet"
 
 require "pakyow/framework"
 
+require "pakyow/presenter/helpers/exposures"
+require "pakyow/presenter/helpers/rendering"
+
 module Pakyow
   module Presenter
     class AutoRender
@@ -75,10 +78,14 @@ module Pakyow
           aspect :presenters
           aspect :binders
 
-          helper RenderHelpers
-
           subclass? :Controller do
             include_pipeline ImplicitRendering
+
+            # We don't load these as normal helpers because they should only be
+            # available within controllers; not anywhere helpers are loaded.
+            #
+            include Helpers::Exposures
+            include Helpers::Rendering
           end
 
           settings_for :presenter do
@@ -87,6 +94,14 @@ module Pakyow
             end
 
             setting :embed_authenticity_token, true
+          end
+
+          before :load do
+            # Include other registered helpers into the controller class.
+            #
+            config.helpers.each do |helper|
+              subclass(:Renderer).include helper
+            end
           end
 
           after :load do

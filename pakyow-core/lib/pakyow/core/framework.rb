@@ -8,6 +8,9 @@ require "pakyow/core/route"
 require "pakyow/core/expansion"
 require "pakyow/core/extensions"
 
+require "pakyow/core/helpers/csrf"
+require "pakyow/core/helpers/exposures"
+
 module Pakyow
   module Routing
     # @api private
@@ -88,7 +91,6 @@ module Pakyow
           #
           aspect :controllers
 
-          helper Pakyow::Routing::Helpers
           helper Pakyow::Routing::Helpers::CSRF
 
           settings_for :security do
@@ -120,6 +122,8 @@ module Pakyow
           end
 
           subclass(:Controller).class_eval do
+            include Helpers::Exposures
+
             def self.disable_protection(type, only: [], except: [])
               if type.to_sym == :csrf
                 if only.any? || except.any?

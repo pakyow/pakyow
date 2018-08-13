@@ -7,6 +7,10 @@ require "pakyow/support/message_verifier"
 require "pakyow/realtime/channel"
 require "pakyow/realtime/server"
 
+require "pakyow/realtime/helpers/broadcasting"
+require "pakyow/realtime/helpers/subscriptions"
+require "pakyow/realtime/helpers/socket"
+
 require "pakyow/realtime/behavior/silencing"
 
 module Pakyow
@@ -44,7 +48,7 @@ module Pakyow
 
           include Behavior::Silencing
 
-          helper Helpers
+          helper Helpers::Socket
 
           settings_for :realtime do
             setting :adapter_settings, {}
@@ -83,9 +87,12 @@ module Pakyow
 
           known_events :join, :leave
 
-          subclass? :Renderer do
-            include Helpers
+          subclass? :Controller do
+            include Helpers::Broadcasting
+            include Helpers::Subscriptions
+          end
 
+          subclass? :Renderer do
             before :render do
               next unless head = @presenter.view.object.find_significant_nodes(:head)[0]
 
@@ -126,52 +133,6 @@ module Pakyow
             @adapter_settings ||= Pakyow.config.redis.dup
           end
         end
-      end
-    end
-
-    module Helpers
-      require "pakyow/support/message_verifier"
-
-      def broadcast(message)
-        @connection.app.websocket_server.subscription_broadcast(socket_client_id, message)
-      end
-
-      def subscribe(channel, *qualifiers)
-        channels = if qualifiers.empty?
-          Channel.new(channel)
-        else
-          qualifiers.map { |qualifier|
-            Channel.new(channel, qualifier)
-          }
-        end
-
-        @connection.app.websocket_server.socket_subscribe(socket_client_id, *channels)
-      end
-
-      def unsubscribe(channel, *qualifiers)
-        channels = if qualifiers.empty?
-          Channel.new(channel, "*")
-        else
-          qualifiers.map { |qualifier|
-            Channel.new(channel, qualifier)
-          }
-        end
-
-        @connection.app.websocket_server.socket_unsubscribe(*channels)
-      end
-
-      def socket_server_id
-        return @connection.params[:socket_server_id] if @connection.params[:socket_server_id]
-        @connection.session[:socket_server_id] ||= Support::MessageVerifier.key
-      end
-
-      def socket_client_id
-        return @connection.params[:socket_client_id] if @connection.params[:socket_client_id]
-        @socket_client_id ||= Support::MessageVerifier.key
-      end
-
-      def socket_digest(socket_client_id)
-        Support::MessageVerifier.digest(socket_client_id, key: socket_server_id)
       end
     end
   end

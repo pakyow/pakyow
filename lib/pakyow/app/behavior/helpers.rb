@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require "pakyow/support/extension"
+require "pakyow/support/safe_string"
+
+require "pakyow/helpers/connection"
 
 module Pakyow
   class App
@@ -11,7 +14,10 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          setting :helpers, []
+          setting :helpers, [
+            Pakyow::Helpers::Connection,
+            Support::SafeStringHelpers
+          ]
         end
 
         class_methods do
