@@ -4,7 +4,7 @@ RSpec.shared_examples :setting_view_attributes do
   end
 
   let :doc do
-    Pakyow::Presenter::StringDoc.new(html)
+    StringDoc.new(html)
   end
 
   let :view do

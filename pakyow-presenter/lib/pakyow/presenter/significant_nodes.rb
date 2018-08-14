@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "string_doc"
+
 module Pakyow
   module Presenter
     # @api private

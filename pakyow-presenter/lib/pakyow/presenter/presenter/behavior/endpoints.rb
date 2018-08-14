@@ -82,7 +82,7 @@ module Pakyow
 
           # @api private
           def binding_endpoints(object)
-            nodes = if @view.object.is_a?(StringNode) && @view.object.significant?(:endpoint) && @view.object.significant?(:binding)
+            nodes = if @view.object.is_a?(StringDoc::Node) && @view.object.significant?(:endpoint) && @view.object.significant?(:binding)
               [@view.object]
             else
               @view.object.find_significant_nodes(:endpoint).select { |node|

@@ -428,11 +428,11 @@ module Pakyow
 
       def bind_value_to_node(value, node)
         tag = node.tagname
-        return if StringNode.without_value?(tag)
+        return if StringDoc::Node.without_value?(tag)
 
         value = String(value)
 
-        if StringNode.self_closing?(tag)
+        if StringDoc::Node.self_closing?(tag)
           node.attributes[:value] = ensure_html_safety(value) if node.attributes[:value].nil?
         else
           node.html = ensure_html_safety(value)
@@ -461,7 +461,7 @@ module Pakyow
 
       def versioned_nodes(nodes = object_nodes, versions = [])
         versions << nodes.select { |node|
-          node.significant? && node.attributes.is_a?(StringAttributes) && node.labeled?(:version)
+          node.significant? && node.attributes.is_a?(StringDoc::Attributes) && node.labeled?(:version)
         }
 
         nodes.each do |node|

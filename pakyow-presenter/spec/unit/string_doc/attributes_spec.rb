@@ -1,12 +1,12 @@
-RSpec.describe Pakyow::Presenter::StringAttributes do
+RSpec.describe StringDoc::Attributes do
   describe "#initialize" do
     it "initializes with a hash" do
-      expect(Pakyow::Presenter::StringAttributes.new({})).to be_instance_of(Pakyow::Presenter::StringAttributes)
+      expect(StringDoc::Attributes.new({})).to be_instance_of(StringDoc::Attributes)
     end
   end
 
   let :attributes do
-    Pakyow::Presenter::StringAttributes.new(name: "foo", title: "bar")
+    StringDoc::Attributes.new(name: "foo", title: "bar")
   end
 
   describe "#keys" do
@@ -53,16 +53,16 @@ RSpec.describe Pakyow::Presenter::StringAttributes do
 
   describe "#==" do
     it "returns true when the objects are equal" do
-      other = Pakyow::Presenter::StringAttributes.new(name: "foo", title: "bar")
+      other = StringDoc::Attributes.new(name: "foo", title: "bar")
       expect(attributes).to eq(other)
     end
 
     it "returns false when the objects are not equal" do
-      other = Pakyow::Presenter::StringAttributes.new(name: "foo", title: "baz")
+      other = StringDoc::Attributes.new(name: "foo", title: "baz")
       expect(attributes).not_to eq(other)
     end
 
-    it "returns false when the other object is not of type StringAttributes" do
+    it "returns false when the other object is not of type StringDoc::Attributes" do
       other = 'name="foo" title="bar"'
       expect(attributes).not_to eq(other)
     end
@@ -74,7 +74,7 @@ RSpec.describe Pakyow::Presenter::StringAttributes do
     end
 
     it "returns an empty string when no attributes" do
-      expect(Pakyow::Presenter::StringAttributes.new({}).to_s).to eq("")
+      expect(StringDoc::Attributes.new({}).to_s).to eq("")
     end
   end
 end

@@ -1,11 +1,11 @@
-RSpec.describe Pakyow::Presenter::StringDoc do
+RSpec.describe StringDoc do
   let :doc do
-    Pakyow::Presenter::StringDoc.new(html)
+    StringDoc.new(html)
   end
 
   describe "#initialize" do
     it "initializes with an xml string" do
-      expect(Pakyow::Presenter::StringDoc.new("<div></div>")).to be_instance_of(Pakyow::Presenter::StringDoc)
+      expect(StringDoc.new("<div></div>")).to be_instance_of(StringDoc)
     end
   end
 
@@ -18,7 +18,7 @@ RSpec.describe Pakyow::Presenter::StringDoc do
       it "returns the found nodes" do
         nodes = doc.find_significant_nodes(:binding)
         expect(nodes.count).to eq(3)
-        expect(nodes.first).to be_instance_of(Pakyow::Presenter::StringNode)
+        expect(nodes.first).to be_instance_of(StringDoc::Node)
       end
     end
 
@@ -46,7 +46,7 @@ RSpec.describe Pakyow::Presenter::StringDoc do
       it "returns the found nodes" do
         nodes = doc.find_significant_nodes_without_descending(:binding)
         expect(nodes.count).to eq(1)
-        expect(nodes.first).to be_instance_of(Pakyow::Presenter::StringNode)
+        expect(nodes.first).to be_instance_of(StringDoc::Node)
       end
     end
 
@@ -74,7 +74,7 @@ RSpec.describe Pakyow::Presenter::StringDoc do
       it "returns the found nodes" do
         nodes = doc.find_significant_nodes_with_name(:binding, :post)
         expect(nodes.count).to eq(1)
-        expect(nodes.first).to be_instance_of(Pakyow::Presenter::StringNode)
+        expect(nodes.first).to be_instance_of(StringDoc::Node)
       end
     end
 
@@ -102,7 +102,7 @@ RSpec.describe Pakyow::Presenter::StringDoc do
       it "returns the found nodes" do
         nodes = doc.find_significant_nodes_with_name_without_descending(:binding, :post)
         expect(nodes.count).to eq(1)
-        expect(nodes.first).to be_instance_of(Pakyow::Presenter::StringNode)
+        expect(nodes.first).to be_instance_of(StringDoc::Node)
       end
     end
 
@@ -143,7 +143,7 @@ RSpec.describe Pakyow::Presenter::StringDoc do
 
     context "passed a StringDoc" do
       let :replacement do
-        Pakyow::Presenter::StringDoc.new("replacement")
+        StringDoc.new("replacement")
       end
 
       it "replaces the current doc with the replacement" do
@@ -179,7 +179,7 @@ RSpec.describe Pakyow::Presenter::StringDoc do
 
     context "passed a StringDoc" do
       let :child do
-        Pakyow::Presenter::StringDoc.new("child")
+        StringDoc.new("child")
       end
 
       it "appends as a child" do
@@ -215,7 +215,7 @@ RSpec.describe Pakyow::Presenter::StringDoc do
 
     context "passed a StringDoc" do
       let :child do
-        Pakyow::Presenter::StringDoc.new("child")
+        StringDoc.new("child")
       end
 
       it "prepends as a child" do
@@ -252,7 +252,7 @@ RSpec.describe Pakyow::Presenter::StringDoc do
     context "node to insert after is found" do
       context "passed a StringDoc" do
         let :child do
-          Pakyow::Presenter::StringDoc.new("child")
+          StringDoc.new("child")
         end
 
         let :node do
@@ -269,9 +269,9 @@ RSpec.describe Pakyow::Presenter::StringDoc do
         end
       end
 
-      context "passed a StringNode" do
+      context "passed a StringDoc::Node" do
         let :child do
-          Pakyow::Presenter::StringDoc.new("child").nodes[0]
+          StringDoc.new("child").nodes[0]
         end
 
         let :node do
@@ -314,7 +314,7 @@ RSpec.describe Pakyow::Presenter::StringDoc do
       end
 
       let :node do
-        Pakyow::Presenter::StringNode.new([])
+        StringDoc::Node.new([])
       end
 
       it "does not insert" do
@@ -336,7 +336,7 @@ RSpec.describe Pakyow::Presenter::StringDoc do
     context "node to insert before is found" do
       context "passed a StringDoc" do
         let :child do
-          Pakyow::Presenter::StringDoc.new("child")
+          StringDoc.new("child")
         end
 
         let :node do
@@ -353,9 +353,9 @@ RSpec.describe Pakyow::Presenter::StringDoc do
         end
       end
 
-      context "passed a StringNode" do
+      context "passed a StringDoc::Node" do
         let :child do
-          Pakyow::Presenter::StringDoc.new("child").nodes[0]
+          StringDoc.new("child").nodes[0]
         end
 
         let :node do
@@ -398,7 +398,7 @@ RSpec.describe Pakyow::Presenter::StringDoc do
       end
 
       let :node do
-        Pakyow::Presenter::StringNode.new([])
+        StringDoc::Node.new([])
       end
 
       it "does not insert" do
@@ -435,7 +435,7 @@ RSpec.describe Pakyow::Presenter::StringDoc do
 
     context "the node does not exist" do
       it "returns self" do
-        expect(doc.remove_node(Pakyow::Presenter::StringNode.new([]))).to be(doc)
+        expect(doc.remove_node(StringDoc::Node.new([]))).to be(doc)
         expect(doc.nodes.count).to eq(3)
       end
     end
@@ -460,7 +460,7 @@ RSpec.describe Pakyow::Presenter::StringDoc do
     context "the node exists" do
       context "replacement is a StringDoc" do
         let :replacement do
-          Pakyow::Presenter::StringDoc.new("<div>replacement</div>")
+          StringDoc.new("<div>replacement</div>")
         end
 
         it "replaces the mode" do
@@ -474,9 +474,9 @@ RSpec.describe Pakyow::Presenter::StringDoc do
         end
       end
 
-      context "replacement is a StringNode" do
+      context "replacement is a StringDoc::Node" do
         let :replacement do
-          Pakyow::Presenter::StringDoc.new("<div>replacement</div>").nodes[0]
+          StringDoc.new("<div>replacement</div>").nodes[0]
         end
 
         it "replaces the mode" do
@@ -509,18 +509,18 @@ RSpec.describe Pakyow::Presenter::StringDoc do
 
     context "the node does not exist" do
       let :replacement do
-        Pakyow::Presenter::StringDoc.new("<div>replacement</div>")
+        StringDoc.new("<div>replacement</div>")
       end
 
       it "returns self" do
-        expect(doc.replace_node(Pakyow::Presenter::StringNode.new([]), replacement)).to be(doc)
+        expect(doc.replace_node(StringDoc::Node.new([]), replacement)).to be(doc)
         expect(doc.nodes.count).to eq(3)
       end
     end
 
     context "the node to replace is not a node" do
       let :replacement do
-        Pakyow::Presenter::StringDoc.new("<div>replacement</div>")
+        StringDoc.new("<div>replacement</div>")
       end
 
       it "returns self" do
@@ -566,12 +566,12 @@ RSpec.describe Pakyow::Presenter::StringDoc do
     end
 
     it "returns true when the documents are equal" do
-      comparison = Pakyow::Presenter::StringDoc.new(html)
+      comparison = StringDoc.new(html)
       expect(doc == comparison).to be true
     end
 
     it "returns false when the documents are not equal" do
-      comparison = Pakyow::Presenter::StringDoc.new("<div>bar</div>")
+      comparison = StringDoc.new("<div>bar</div>")
       expect(doc == comparison).to be false
     end
 

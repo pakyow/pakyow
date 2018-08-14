@@ -1,10 +1,10 @@
-RSpec.describe Pakyow::Presenter::StringNode do
+RSpec.describe StringDoc::Node do
   let :html do
     "<div binding=\"post\"><h1 binding=\"title\">hello</h1></div>"
   end
 
   let :doc do
-    Pakyow::Presenter::StringDoc.new(html)
+    StringDoc.new(html)
   end
 
   let :node do
@@ -12,14 +12,14 @@ RSpec.describe Pakyow::Presenter::StringNode do
   end
 
   describe "#attributes" do
-    it "returns a StringAttributes instance" do
-      expect(node.attributes).to be_instance_of(Pakyow::Presenter::StringAttributes)
+    it "returns a StringDoc::Attributes instance" do
+      expect(node.attributes).to be_instance_of(StringDoc::Attributes)
     end
   end
 
   describe "#children" do
     it "returns a StringDoc instance" do
-      expect(node.children).to be_instance_of(Pakyow::Presenter::StringDoc)
+      expect(node.children).to be_instance_of(StringDoc)
     end
 
     it "actually contains children" do
@@ -52,13 +52,13 @@ RSpec.describe Pakyow::Presenter::StringNode do
   describe "#replace" do
     context "replacement is a StringDoc" do
       it "replaces" do
-        replacement = Pakyow::Presenter::StringDoc.new("foo")
+        replacement = StringDoc.new("foo")
         doc.find_significant_nodes_with_name(:binding, :title)[0].replace(replacement)
         expect(doc.to_s).to eq("<div data-b=\"post\">foo</div>")
       end
     end
 
-    context "replacement is a StringNode" do
+    context "replacement is a StringDoc::Node" do
       it "replaces" do
         replacement = node.dup
         doc.find_significant_nodes_with_name(:binding, :title)[0].replace(replacement)
@@ -87,7 +87,7 @@ RSpec.describe Pakyow::Presenter::StringNode do
   describe "#replace_internal" do
     context "replacement is a StringDoc" do
       it "replaces" do
-        replacement = Pakyow::Presenter::StringDoc.new("foo")
+        replacement = StringDoc.new("foo")
         doc.find_significant_nodes_with_name(:binding, :title)[0].replace_internal(replacement)
         expect(doc.to_s).to eq("<div data-b=\"post\">foo</div>")
       end
@@ -95,7 +95,7 @@ RSpec.describe Pakyow::Presenter::StringNode do
       it "maintains internal state" do
         node = doc.find_significant_nodes_with_name(:binding, :title)[0]
         node.instance_variable_set(:@labels, { foo: "bar" })
-        node.replace_internal(Pakyow::Presenter::StringDoc.new("foo"))
+        node.replace_internal(StringDoc.new("foo"))
         expect(node.label(:foo)).to eq("bar")
       end
     end
@@ -179,7 +179,7 @@ RSpec.describe Pakyow::Presenter::StringNode do
   describe "#after" do
     context "passed a StringDoc" do
       let :insertable do
-        Pakyow::Presenter::StringDoc.new("<div>insertable</div>")
+        StringDoc.new("<div>insertable</div>")
       end
 
       it "inserts after self" do
@@ -188,9 +188,9 @@ RSpec.describe Pakyow::Presenter::StringNode do
       end
     end
 
-    context "passed a StringNode" do
+    context "passed a StringDoc::Node" do
       let :insertable do
-        Pakyow::Presenter::StringDoc.new("<div>insertable</div>").nodes[0]
+        StringDoc.new("<div>insertable</div>").nodes[0]
       end
 
       it "inserts after self" do
@@ -214,7 +214,7 @@ RSpec.describe Pakyow::Presenter::StringNode do
   describe "#before" do
     context "passed a StringDoc" do
       let :insertable do
-        Pakyow::Presenter::StringDoc.new("<div>insertable</div>")
+        StringDoc.new("<div>insertable</div>")
       end
 
       it "inserts before self" do
@@ -223,9 +223,9 @@ RSpec.describe Pakyow::Presenter::StringNode do
       end
     end
 
-    context "passed a StringNode" do
+    context "passed a StringDoc::Node" do
       let :insertable do
-        Pakyow::Presenter::StringDoc.new("<div>insertable</div>").nodes[0]
+        StringDoc.new("<div>insertable</div>").nodes[0]
       end
 
       it "inserts before self" do
@@ -249,7 +249,7 @@ RSpec.describe Pakyow::Presenter::StringNode do
   describe "#append" do
     context "passed a StringDoc" do
       let :insertable do
-        Pakyow::Presenter::StringDoc.new("<div>insertable</div>")
+        StringDoc.new("<div>insertable</div>")
       end
 
       it "appends to self" do
@@ -258,9 +258,9 @@ RSpec.describe Pakyow::Presenter::StringNode do
       end
     end
 
-    context "passed a StringNode" do
+    context "passed a StringDoc::Node" do
       let :insertable do
-        Pakyow::Presenter::StringDoc.new("<div>insertable</div>").nodes[0]
+        StringDoc.new("<div>insertable</div>").nodes[0]
       end
 
       it "appends to self" do
@@ -284,7 +284,7 @@ RSpec.describe Pakyow::Presenter::StringNode do
   describe "#prepend" do
     context "passed a StringDoc" do
       let :insertable do
-        Pakyow::Presenter::StringDoc.new("<div>insertable</div>")
+        StringDoc.new("<div>insertable</div>")
       end
 
       it "prepends to self" do
@@ -293,9 +293,9 @@ RSpec.describe Pakyow::Presenter::StringNode do
       end
     end
 
-    context "passed a StringNode" do
+    context "passed a StringDoc::Node" do
       let :insertable do
-        Pakyow::Presenter::StringDoc.new("<div>insertable</div>").nodes[0]
+        StringDoc.new("<div>insertable</div>").nodes[0]
       end
 
       it "prepends to self" do
@@ -406,11 +406,11 @@ RSpec.describe Pakyow::Presenter::StringNode do
     end
 
     it "includes attributes" do
-      expect(node.inspect).to include("@attributes=#<Pakyow::Presenter::StringAttributes")
+      expect(node.inspect).to include("@attributes=#<StringDoc::Attributes")
     end
 
     it "includes children" do
-      expect(node.inspect).to include("@children=#<Pakyow::Presenter::StringDoc")
+      expect(node.inspect).to include("@children=#<StringDoc")
     end
 
     it "does not include node" do
@@ -420,16 +420,16 @@ RSpec.describe Pakyow::Presenter::StringNode do
 
   describe "#==" do
     it "returns true when the nodes are equal" do
-      comparison = Pakyow::Presenter::StringDoc.new(html).nodes[0]
+      comparison = StringDoc.new(html).nodes[0]
       expect(node == comparison).to be true
     end
 
     it "returns false when the nodes are not equal" do
-      comparison = Pakyow::Presenter::StringDoc.new("<div binding=\"post\"><h1 binding=\"title\">goodbye</h1></div>").nodes[0]
+      comparison = StringDoc.new("<div binding=\"post\"><h1 binding=\"title\">goodbye</h1></div>").nodes[0]
       expect(node == comparison).to be false
     end
 
-    it "returns false when the comparison is not a StringNode" do
+    it "returns false when the comparison is not a StringDoc::Node" do
       expect(node == "").to be false
     end
   end

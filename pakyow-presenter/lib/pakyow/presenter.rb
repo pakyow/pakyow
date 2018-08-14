@@ -8,9 +8,6 @@ end
 require "pakyow/presenter/framework"
 require "pakyow/presenter/presenter"
 
-require "pakyow/presenter/string_doc"
-require "pakyow/presenter/string_node"
-require "pakyow/presenter/string_attributes"
 require "pakyow/presenter/significant_nodes"
 
 require "pakyow/presenter/view"

@@ -5,7 +5,7 @@ RSpec.describe Pakyow::Presenter::View do
     end
 
     let :doc do
-      Pakyow::Presenter::StringDoc.new(html)
+      StringDoc.new(html)
     end
 
     let :view do
@@ -26,7 +26,7 @@ RSpec.describe Pakyow::Presenter::View do
       end
     end
 
-    context "when `object` is a StringNode" do
+    context "when `object` is a StringDoc::Node" do
       context "when `object` is significant" do
         let :attributes do
           view.attributes
