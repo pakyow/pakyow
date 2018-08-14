@@ -34,18 +34,16 @@ module Pakyow
       using DeepDup
 
       def self.included(base)
-        base.extend ClassAPI
+        base.include CommonMethods
+        base.extend ClassMethods, CommonMethods
         base.extend Support::Makeable
-        base.instance_variable_set(:@state, {})
+        base.instance_variable_set(:@__state, {})
       end
-
-      # @api private
-      attr_reader :state
 
       # @api private
       def defined!(&block)
         # create mutable state for this instance based on global
-        @state = self.class.state.each_with_object({}) { |(name, global_state), state|
+        @__state = self.class.__state.each_with_object({}) { |(name, global_state), state|
           state[name] = State.new(name, global_state.object)
         }
 
@@ -53,37 +51,27 @@ module Pakyow
         self.instance_eval(&block) if block_given?
 
         # merge global state
-        @state.each do |name, state|
-          state.instances.concat(self.class.state[name].instances)
+        @__state.each do |name, state|
+          state.instances.concat(self.class.__state[name].instances)
         end
 
         # merge inherited state
-        if inherited = self.class.inherited_state
-          @state.each do |name, state|
+        if inherited = self.class.__inherited_state
+          @__state.each do |name, state|
             instances = state.instances
             instances.concat(inherited[name].instances) if inherited[name]
           end
         end
       end
 
-      # Returns register instances for state.
-      #
-      def state_for(type)
-        if @state && @state.key?(type)
-          @state[type].instances
-        else
-          []
-        end
-      end
-
-      module ClassAPI
-        attr_reader :state, :inherited_state
+      module ClassMethods
+        attr_reader :__state, :__inherited_state
 
         def inherited(subclass)
           super
 
-          subclass.instance_variable_set(:@inherited_state, state.deep_dup)
-          subclass.instance_variable_set(:@state, state.each_with_object({}) { |(name, state_instance), state|
+          subclass.instance_variable_set(:@__inherited_state, @__state.deep_dup)
+          subclass.instance_variable_set(:@__state, @__state.each_with_object({}) { |(name, state_instance), state|
             state[name] = State.new(name, state_instance.object)
           })
         end
@@ -122,9 +110,10 @@ module Pakyow
         #     App.person 'Sofie', Date.new(2015, 9, 6) do
         #       befriend(john)
         #     end
+        #
         def stateful(name, object)
           name = name.to_sym
-          @state[name] = State.new(name, object)
+          @__state[name] = State.new(name, object)
           plural_name = Support.inflector.pluralize(name.to_s).to_sym
 
           within = if __class_name
@@ -134,10 +123,10 @@ module Pakyow
           end
 
           method_body = Proc.new do |*args, priority: :default, **opts, &block|
-            return @state[name] if block.nil?
+            return @__state[name] if block.nil?
 
             object.make(*args, within: within, **opts, &block).tap do |state|
-              @state[name].register(state, priority: priority)
+              @__state[name].register(state, priority: priority)
             end
           end
 
@@ -149,6 +138,24 @@ module Pakyow
         #
         def define(&block)
           instance_eval(&block)
+        end
+      end
+
+      module CommonMethods
+        # Returns registered state instances. If +type+ is passed, returns state of that type.
+        #
+        def state(type = nil)
+          if instance_variable_defined?(:@__state)
+            return @__state if type.nil?
+
+            if @__state && @__state.key?(type)
+              @__state[type].instances
+            else
+              []
+            end
+          else
+            {}
+          end
         end
       end
     end

@@ -43,7 +43,7 @@ module Pakyow
             controller_name = controller_name.name
           end
 
-          matched_controller = @state[:controller].instances.find { |controller|
+          matched_controller = state(:controller).find { |controller|
             controller.__class_name.name == controller_name
           }
 

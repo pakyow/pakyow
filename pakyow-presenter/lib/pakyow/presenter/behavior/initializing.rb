@@ -10,15 +10,15 @@ module Pakyow
 
         apply_extension do
           after :initialize do
-            state_for(:templates) << Templates.new(
+            state(:templates) << Templates.new(
               :default,
               config.presenter.path,
               processor: ProcessorCaller.new(
-                self.class.state[:processor].instances
+                state(:processor)
               )
             )
 
-            state_for(:templates) << Templates.new(:errors, File.join(File.expand_path("../../../", __FILE__), "views", "errors"))
+            state(:templates) << Templates.new(:errors, File.join(File.expand_path("../../../", __FILE__), "views", "errors"))
           end
         end
       end

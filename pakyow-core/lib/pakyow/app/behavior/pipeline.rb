@@ -25,7 +25,7 @@ module Pakyow
           end
 
           if self.class.includes_framework?(:core) && !Pakyow.env?(:prototype)
-            state_for(:controller).each do |controller|
+            state(:controller).each do |controller|
               @__pipeline.action(controller)
             end
           end

@@ -29,7 +29,7 @@ module Pakyow
       end
 
       def auto_migrate!
-        Pakyow.apps.reject(&:rescued?).flat_map { |app| app.state_for(:source) }.select { |source|
+        Pakyow.apps.reject(&:rescued?).flat_map { |app| app.state(:source) }.select { |source|
           connection.name == source.connection && connection.type == source.adapter
         }.each do |source|
           if connection.needs_migration?(source)
@@ -39,7 +39,7 @@ module Pakyow
       end
 
       def finalize!
-        Pakyow.apps.flat_map { |app| app.state_for(:source) }.select { |source|
+        Pakyow.apps.flat_map { |app| app.state(:source) }.select { |source|
           connection.name == source.connection && connection.type == source.adapter
         }.each do |source|
           if connection.needs_migration?(source)

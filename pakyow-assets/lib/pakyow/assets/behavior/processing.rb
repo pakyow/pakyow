@@ -12,7 +12,7 @@ module Pakyow
           after :configure do
             if !config.assets.process && self.class.includes_framework?(:presenter)
               self.class.processor :html do |content|
-                state_for(:asset).each do |asset|
+                state(:asset).each do |asset|
                   content.gsub!(asset.logical_path, asset.public_path)
                 end
 

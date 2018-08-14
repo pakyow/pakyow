@@ -25,13 +25,13 @@ module Pakyow
         private
 
         def find_asset(connection)
-          connection.app.state_for(:asset).find { |asset|
+          connection.app.state(:asset).find { |asset|
             asset.logical_path == connection.path
           }
         end
 
         def find_pack(connection)
-          connection.app.state_for(:pack).lazy.map { |pack|
+          connection.app.state(:pack).lazy.map { |pack|
             pack.packed(connection.path)
           }.find { |packed| !packed.nil? && packed.any? }
         end

@@ -27,7 +27,7 @@ module Pakyow
         # @api private
         def packs
           (autoloaded_packs + view_packs + component_packs).uniq.each_with_object([]) { |pack_name, packs|
-            if found_pack = @connection.app.state_for(:pack).find { |pack| pack.name == pack_name.to_sym }
+            if found_pack = @connection.app.state(:pack).find { |pack| pack.name == pack_name.to_sym }
               packs << found_pack
             end
           }

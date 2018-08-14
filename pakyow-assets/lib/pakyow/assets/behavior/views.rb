@@ -10,7 +10,7 @@ module Pakyow
 
         apply_extension do
           after :initialize do
-            state_for(:templates).each do |template_store|
+            state(:templates).each do |template_store|
               build_layout_packs(template_store)
               build_page_packs(template_store)
             end

@@ -81,7 +81,7 @@ module Pakyow
 
         @presenter = (find_presenter(@as || @path) || Presenter).new(
           info[:layout].build(info[:page]),
-          binders: @connection.app.state_for(:binder),
+          binders: @connection.app.state(:binder),
           presentables: @connection.values,
           logger: @connection.logger
         )
@@ -174,19 +174,19 @@ module Pakyow
       end
 
       def info_for_path(path)
-        @connection.app.state_for(:templates).lazy.map { |store|
+        @connection.app.state(:templates).lazy.map { |store|
           store.info(path)
         }.find(&:itself)
       end
 
       def layout_with_name(name)
-        @connection.app.state_for(:templates).lazy.map { |store|
+        @connection.app.state(:templates).lazy.map { |store|
           store.layout(name)
         }.find(&:itself)
       end
 
       def presenter_for_path(path)
-        @connection.app.state_for(:presenter).find { |presenter|
+        @connection.app.state(:presenter).find { |presenter|
           presenter.path == path
         }
       end

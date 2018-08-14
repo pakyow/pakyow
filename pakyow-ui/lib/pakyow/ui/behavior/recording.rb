@@ -17,7 +17,7 @@ module Pakyow
           #
           after :initialize do
             @ui_presenters = [Pakyow::Presenter::Presenter].concat(
-              state_for(:presenter)
+              state(:presenter)
             ).map { |presenter_class|
               Class.new(presenter_class).tap do |subclass|
                 subclass.include Recordable

@@ -23,10 +23,10 @@ module Pakyow
                 connections.values.each do |connection|
                   containers << Container.new(
                     connection: connection,
-                    sources: state_for(:source).select { |source|
+                    sources: state(:source).select { |source|
                       connection.name == source.connection && connection.type == source.adapter
                     },
-                    objects: state_for(:object)
+                    objects: state(:object)
                   )
                 end
               },

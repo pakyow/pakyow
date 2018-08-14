@@ -10,11 +10,11 @@ module Pakyow
       end
 
       def precompile!
-        @app.state_for(:asset).each do |asset|
+        @app.state(:asset).each do |asset|
           precompile_asset!(asset)
         end
 
-        @app.state_for(:pack).each do |pack|
+        @app.state(:pack).each do |pack|
           if pack.javascripts?
             precompile_asset!(pack.javascripts)
           end
@@ -34,7 +34,7 @@ module Pakyow
           asset_content << content
         end
 
-        @app.state_for(:asset).each do |asset_state|
+        @app.state(:asset).each do |asset_state|
           asset_content.gsub!(asset_state.logical_path, asset_state.public_path)
         end
 
