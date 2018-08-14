@@ -1,7 +1,7 @@
 i = ARGV.index("--pattern")
 
 # Works around an annoying problem where this helper is required when running
-# specs for other libraries, such as pakyow-core.
+# specs for other libraries, such as pakyow-routing.
 #
 if i.nil? || ARGV[i + 1].start_with?(File.expand_path("../", __FILE__))
   start_simplecov do

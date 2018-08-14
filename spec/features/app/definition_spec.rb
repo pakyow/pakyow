@@ -1,4 +1,4 @@
-require "pakyow/core"
+require "pakyow/routing"
 
 RSpec.describe "defining an app" do
   include_context "testable app"

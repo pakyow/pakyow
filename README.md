@@ -74,7 +74,7 @@ Pakyow is free and open-source under the [LGPLv3 license](https://choosealicense
 Pakyow is designed to be modular, with each library handling one aspect of the
 framework. Here's a list of the libraries that Pakyow ships with by default:
 
-- Core: Introduces the app object. Routes requests to endpoints within an app.
+- Routing: Routes requests to endpoints within an app.
 - Presenter: Handles logicless view presentation, including data binding.
 - Mailer: Delivers logicless views over email, rather than http.
 - Realtime: Adds WebSocket support and realtime channels.

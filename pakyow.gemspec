@@ -22,11 +22,11 @@ Gem::Specification.new do |spec|
   spec.require_path = "lib"
 
   spec.add_dependency "pakyow-assets", Pakyow::VERSION
-  spec.add_dependency "pakyow-core", Pakyow::VERSION
   spec.add_dependency "pakyow-data", Pakyow::VERSION
   spec.add_dependency "pakyow-mailer", Pakyow::VERSION
   spec.add_dependency "pakyow-presenter", Pakyow::VERSION
   spec.add_dependency "pakyow-realtime", Pakyow::VERSION
+  spec.add_dependency "pakyow-routing", Pakyow::VERSION
   spec.add_dependency "pakyow-support", Pakyow::VERSION
   spec.add_dependency "pakyow-ui", Pakyow::VERSION
 

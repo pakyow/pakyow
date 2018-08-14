@@ -8,7 +8,7 @@ start_simplecov do
   track_files File.join(lib_path, "**/*.rb")
 end
 
-require "pakyow/core"
+require "pakyow/routing"
 require "pakyow/presenter"
 
 require_relative "../../spec/helpers/app_helpers"

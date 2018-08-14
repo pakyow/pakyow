@@ -3,7 +3,7 @@
 # require "websocket-client-simple"
 # require "httparty"
 # require "benchmark"
-# require "pakyow/core"
+# require "pakyow/routing"
 # require "pakyow/realtime"
 
 # ENV["SESSION_SECRET"] = "123"

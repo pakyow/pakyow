@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "pakyow/support"
-require "pakyow/core"
+require "pakyow/routing"
 require "pakyow/presenter"
 require "pakyow/mailer"
 require "pakyow/realtime"

@@ -3,12 +3,12 @@
 require File.expand_path("../../lib/pakyow/version", __FILE__)
 
 Gem::Specification.new do |spec|
-  spec.name        = "pakyow-ui"
+  spec.name        = "pakyow-routing"
   spec.version     = Pakyow::VERSION
-  spec.summary     = "Pakyow UI"
-  spec.description = "Auto-Updating UIs for Pakyow"
+  spec.summary     = "Pakyow Routing"
+  spec.description = "Routing functionality for Pakyow"
 
-  spec.author   = "Bryan Powell"
+  spec.authors  = ["Bryan Powell", "Bret Young"]
   spec.email    = "bryan@metabahn.com"
   spec.homepage = "https://pakyow.org"
 
@@ -19,9 +19,7 @@ Gem::Specification.new do |spec|
   spec.files        = Dir["CHANGELOG.md", "README.md", "LICENSE", "lib/**/*"]
   spec.require_path = "lib"
 
-  spec.add_dependency "pakyow-data", Pakyow::VERSION
-  spec.add_dependency "pakyow-presenter", Pakyow::VERSION
-  spec.add_dependency "pakyow-realtime", Pakyow::VERSION
-  spec.add_dependency "pakyow-routing", Pakyow::VERSION
   spec.add_dependency "pakyow-support", Pakyow::VERSION
+
+  spec.add_dependency "dry-types", "~> 0.13"
 end

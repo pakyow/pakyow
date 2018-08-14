@@ -1,5 +1,5 @@
+require 'pakyow-routing'
 require 'pakyow-support'
-require 'pakyow-core'
 require 'rack/test'
 
 if ENV['COVERAGE']

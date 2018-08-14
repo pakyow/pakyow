@@ -4,7 +4,7 @@ require "pakyow/support/hookable"
 require "pakyow/support/core_refinements/array/ensurable"
 require "pakyow/support/core_refinements/string/normalization"
 
-require "pakyow/core/security/helpers/csrf"
+require "pakyow/routing/security/helpers/csrf"
 
 module Pakyow
   module Presenter

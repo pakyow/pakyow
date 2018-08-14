@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 GEMS = %i[
-  support
-  core
-  data
-  presenter
   assets
+  data
   mailer
+  presenter
   realtime
+  routing
+  support
   ui
 ].freeze
 

@@ -3,7 +3,7 @@
 require "mail"
 
 require "pakyow/assets"
-require "pakyow/core"
+require "pakyow/routing"
 require "pakyow/presenter"
 
 require "pakyow/mailer/mailer"
