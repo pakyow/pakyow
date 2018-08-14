@@ -18,7 +18,7 @@ RSpec.describe "using bootsnap in the cli" do
   end
 
   let :cache_dir do
-    File.expand_path("../../../../tmp/cache", __FILE__)
+    File.join(Dir.pwd, "tmp/cache")
   end
 
   context "within a project folder" do

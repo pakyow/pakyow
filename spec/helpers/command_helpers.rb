@@ -17,7 +17,7 @@ module CommandHelpers
     ARGV.concat(command)
 
     output = capture_stdout do
-      eval(File.read(File.expand_path("../../../commands/pakyow", __FILE__)))
+      eval(File.read(File.expand_path("../../../pakyow-core/commands/pakyow", __FILE__)))
       yield if block_given?
     end
 

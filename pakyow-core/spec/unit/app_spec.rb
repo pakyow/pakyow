@@ -45,7 +45,7 @@ RSpec.describe Pakyow::App do
         expect(response[1]["Content-Type"]).to eq("text/plain")
         expect(response[2][0]).to include("failed to initialize")
         expect(response[2][0]).to include("testing rescue mode")
-        expect(response[2][0]).to include("pakyow/spec/unit/app_spec.rb")
+        expect(response[2][0]).to include("pakyow-core/spec/unit/app_spec.rb")
       end
     end
 
@@ -65,7 +65,7 @@ RSpec.describe Pakyow::App do
         expect(response[1]["Content-Type"]).to eq("text/plain")
         expect(response[2][0]).to include("failed to initialize")
         expect(response[2][0]).to include("syntax error, unexpected end-of-input")
-        expect(response[2][0]).to include("pakyow/spec/unit/app_spec.rb")
+        expect(response[2][0]).to include("pakyow-core/spec/unit/app_spec.rb")
       end
     end
   end
@@ -128,7 +128,7 @@ RSpec.describe Pakyow::App do
         expect(response[1]["Content-Type"]).to eq("text/plain")
         expect(response[2][0]).to include("failed to initialize")
         expect(response[2][0]).to include("testing rescue mode")
-        expect(response[2][0]).to include("pakyow/spec/unit/app_spec.rb")
+        expect(response[2][0]).to include("pakyow-core/spec/unit/app_spec.rb")
       end
     end
 
@@ -148,7 +148,7 @@ RSpec.describe Pakyow::App do
         expect(response[1]["Content-Type"]).to eq("text/plain")
         expect(response[2][0]).to include("failed to initialize")
         expect(response[2][0]).to include("syntax error, unexpected end-of-input")
-        expect(response[2][0]).to include("pakyow/spec/unit/app_spec.rb")
+        expect(response[2][0]).to include("pakyow-core/spec/unit/app_spec.rb")
       end
     end
   end

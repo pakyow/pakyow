@@ -17,11 +17,10 @@ Gem::Specification.new do |spec|
   spec.license = "LGPL-3.0"
 
   spec.files        = Dir["CHANGELOG.md", "README.md", "LICENSE", "lib/**/*"]
-  spec.bindir       = "commands"
-  spec.executables  = ["pakyow"]
   spec.require_path = "lib"
 
   spec.add_dependency "pakyow-assets", Pakyow::VERSION
+  spec.add_dependency "pakyow-core", Pakyow::VERSION
   spec.add_dependency "pakyow-data", Pakyow::VERSION
   spec.add_dependency "pakyow-mailer", Pakyow::VERSION
   spec.add_dependency "pakyow-presenter", Pakyow::VERSION
@@ -31,9 +30,4 @@ Gem::Specification.new do |spec|
   spec.add_dependency "pakyow-ui", Pakyow::VERSION
 
   spec.add_dependency "bundler", "~> 1.16"
-  spec.add_dependency "filewatcher", "~> 1.0"
-  spec.add_dependency "http", "~> 3.3"
-  spec.add_dependency "method_source", "~> 0.9"
-  spec.add_dependency "rack", "~> 2.0"
-  spec.add_dependency "rake", "~> 12.3"
 end

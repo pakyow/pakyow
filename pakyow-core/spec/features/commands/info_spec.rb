@@ -29,7 +29,7 @@ RSpec.describe "cli: info" do
   end
 
   let :local_path do
-    File.expand_path("../../../../", __FILE__)
+    File.expand_path("../../../../../", __FILE__)
   end
 
   describe "help" do

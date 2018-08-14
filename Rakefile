@@ -2,6 +2,7 @@
 
 GEMS = %i[
   assets
+  core
   data
   mailer
   presenter

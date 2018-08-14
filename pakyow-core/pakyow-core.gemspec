@@ -3,10 +3,10 @@
 require File.expand_path("../../lib/pakyow/version", __FILE__)
 
 Gem::Specification.new do |spec|
-  spec.name        = "pakyow-mailer"
+  spec.name        = "pakyow-core"
   spec.version     = Pakyow::VERSION
-  spec.summary     = "Pakyow Mailer"
-  spec.description = "Mailers for Pakyow"
+  spec.summary     = "Pakyow Core"
+  spec.description = "Core functionality for Pakyow"
 
   spec.authors  = ["Bryan Powell", "Bret Young"]
   spec.email    = "bryan@metabahn.com"
@@ -17,16 +17,16 @@ Gem::Specification.new do |spec|
   spec.license = "LGPL-3.0"
 
   spec.files        = Dir["CHANGELOG.md", "README.md", "LICENSE", "lib/**/*"]
+  spec.bindir       = "commands"
+  spec.executables  = ["pakyow"]
   spec.require_path = "lib"
 
-  spec.add_dependency "pakyow-assets", Pakyow::VERSION
-  spec.add_dependency "pakyow-core", Pakyow::VERSION
-  spec.add_dependency "pakyow-presenter", Pakyow::VERSION
-  spec.add_dependency "pakyow-routing", Pakyow::VERSION
   spec.add_dependency "pakyow-support", Pakyow::VERSION
 
-  spec.add_dependency "css_parser", "~> 1.6"
-  spec.add_dependency "htmlentities", "~> 4.3"
-  spec.add_dependency "mail", "~> 2.7"
-  spec.add_dependency "oga", "~> 2.15"
+  spec.add_dependency "dry-types", "~> 0.13"
+  spec.add_dependency "filewatcher", "~> 1.0"
+  spec.add_dependency "http", "~> 3.3"
+  spec.add_dependency "method_source", "~> 0.9"
+  spec.add_dependency "rack", "~> 2.0"
+  spec.add_dependency "rake", "~> 12.3"
 end

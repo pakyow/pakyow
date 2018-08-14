@@ -17,7 +17,7 @@ RSpec.describe Pakyow::CLI do
 
       it "requires" do
         expect_any_instance_of(Pakyow::CLI).to receive(:require).with(
-          File.expand_path("../../../config/environment", __FILE__)
+          File.join(Dir.pwd, "config/environment")
         )
 
         Pakyow::CLI.new

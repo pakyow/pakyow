@@ -33,13 +33,13 @@ RSpec.describe "pakyow command" do
     context "pakyow binstub exists" do
       before do
         expect(File).to receive(:exist?).with(
-          File.join(File.expand_path("../../../", __FILE__), "bin/pakyow")
+          File.join(Dir.pwd, "bin/pakyow")
         ).and_return(true)
       end
 
       it "runs the binstub with the same arguments" do
         expect_any_instance_of(Object).to receive(:exec).with(
-          "#{File.join(File.expand_path("../../../", __FILE__), "bin/pakyow")} #{ARGV.join(" ")}"
+          "#{File.join(Dir.pwd, "bin/pakyow")} #{ARGV.join(" ")}"
         )
 
         run_command
@@ -54,7 +54,7 @@ RSpec.describe "pakyow command" do
     context "pakyow binstub does not exist" do
       before do
         expect(File).to receive(:exist?).with(
-          File.join(File.expand_path("../../../", __FILE__), "bin/pakyow")
+          File.join(Dir.pwd, "bin/pakyow")
         ).and_return(false)
       end
 

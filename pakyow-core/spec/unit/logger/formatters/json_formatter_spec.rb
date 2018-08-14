@@ -1,4 +1,4 @@
-require "unit/logger/formatters/shared"
+require_relative "shared"
 
 RSpec.describe Pakyow::Logger::Formatters::JSON do
   include_examples :log_formatter

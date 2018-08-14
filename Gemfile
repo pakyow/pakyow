@@ -3,6 +3,8 @@
 source "https://rubygems.org"
 
 gemspec
+gemspec path: "pakyow-assets"
+gemspec path: "pakyow-core"
 gemspec path: "pakyow-data"
 gemspec path: "pakyow-presenter"
 gemspec path: "pakyow-realtime"
