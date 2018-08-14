@@ -18,8 +18,8 @@ module Pakyow
             end
           end
 
-          require "pakyow/routing/security/csrf/verify_same_origin"
-          require "pakyow/routing/security/csrf/verify_authenticity_token"
+          require "pakyow/security/csrf/verify_same_origin"
+          require "pakyow/security/csrf/verify_authenticity_token"
 
           config.security.csrf.protection = {
             origin: CSRF::VerifySameOrigin.new(

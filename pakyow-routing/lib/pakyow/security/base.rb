@@ -2,7 +2,7 @@
 
 require "pakyow/support/hookable"
 
-require "pakyow/routing/security/errors"
+require "pakyow/security/errors"
 
 module Pakyow
   module Security

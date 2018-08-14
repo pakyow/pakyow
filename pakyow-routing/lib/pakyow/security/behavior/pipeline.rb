@@ -2,17 +2,17 @@
 
 require "pakyow/support/extension"
 
-require "pakyow/routing/security/errors"
-
 module Pakyow
   module Security
     module Behavior
-      module Insecure
+      module Pipeline
         extend Support::Extension
 
         apply_extension do
-          handle InsecureRequest, as: 403 do
-            trigger(403)
+          require "pakyow/security/pipelines/csrf"
+
+          subclass :Controller do
+            include_pipeline Pipelines::CSRF
           end
         end
       end

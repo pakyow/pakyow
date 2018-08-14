@@ -1,4 +1,4 @@
-require "pakyow/routing/security/base"
+require "pakyow/security/base"
 
 RSpec.describe Pakyow::Security::Base do
   let :instance do

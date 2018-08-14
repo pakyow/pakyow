@@ -2,7 +2,7 @@
 
 require "uri"
 
-require "pakyow/routing/security/base"
+require "pakyow/security/base"
 
 module Pakyow
   module Security

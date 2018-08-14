@@ -8,11 +8,11 @@ require "pakyow/routing/extensions"
 require "pakyow/routing/helpers/definition"
 require "pakyow/routing/helpers/exposures"
 
-require "pakyow/routing/security/behavior/config"
-require "pakyow/routing/security/behavior/disabling"
-require "pakyow/routing/security/behavior/helpers"
-require "pakyow/routing/security/behavior/insecure"
-require "pakyow/routing/security/behavior/pipeline"
+require "pakyow/security/behavior/config"
+require "pakyow/security/behavior/disabling"
+require "pakyow/security/behavior/helpers"
+require "pakyow/security/behavior/insecure"
+require "pakyow/security/behavior/pipeline"
 
 module Pakyow
   module Routing

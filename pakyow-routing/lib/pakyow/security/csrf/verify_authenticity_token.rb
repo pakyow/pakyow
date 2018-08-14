@@ -2,7 +2,7 @@
 
 require "pakyow/support/message_verifier"
 
-require "pakyow/routing/security/base"
+require "pakyow/security/base"
 
 module Pakyow
   module Security

@@ -1,4 +1,4 @@
-require "pakyow/routing/security/csrf/verify_same_origin"
+require "pakyow/security/csrf/verify_same_origin"
 
 RSpec.describe Pakyow::Security::CSRF::VerifySameOrigin do
   it "inherits base" do

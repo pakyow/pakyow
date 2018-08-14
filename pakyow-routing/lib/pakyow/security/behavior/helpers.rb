@@ -2,18 +2,16 @@
 
 require "pakyow/support/extension"
 
+require "pakyow/security/helpers/csrf"
+
 module Pakyow
   module Security
     module Behavior
-      module Pipeline
+      module Helpers
         extend Support::Extension
 
         apply_extension do
-          require "pakyow/routing/security/pipelines/csrf"
-
-          subclass :Controller do
-            include_pipeline Pipelines::CSRF
-          end
+          helper Security::Helpers::CSRF
         end
       end
     end
