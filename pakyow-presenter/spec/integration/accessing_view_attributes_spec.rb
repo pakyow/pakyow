@@ -85,7 +85,7 @@ RSpec.describe "accessing view attributes" do
 
     describe "attributes" do
       it "is empty" do
-        expect(view.attributes).to be_instance_of(Pakyow::Presenter::ViewAttributes)
+        expect(view.attributes).to be_instance_of(Pakyow::Presenter::Attributes)
       end
     end
   end

@@ -33,7 +33,7 @@ RSpec.describe Pakyow::Presenter::View do
         end
 
         it "returns an instance of `Attributes`" do
-          expect(attributes).to be_instance_of(Pakyow::Presenter::ViewAttributes)
+          expect(attributes).to be_instance_of(Pakyow::Presenter::Attributes)
         end
       end
 
@@ -43,7 +43,7 @@ RSpec.describe Pakyow::Presenter::View do
         end
 
         it "returns an instance of `Attributes`" do
-          expect(view.attributes).to be_instance_of(Pakyow::Presenter::ViewAttributes)
+          expect(view.attributes).to be_instance_of(Pakyow::Presenter::Attributes)
         end
       end
     end

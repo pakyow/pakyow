@@ -6,7 +6,7 @@ require "pakyow/presenter/attributes/attribute"
 
 module Pakyow
   module Presenter
-    module Attributes
+    class Attributes
       # Wraps the value for a hash-type view attribute (e.g. style).
       #
       # Behaves just like a normal +Hash+.

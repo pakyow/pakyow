@@ -4,7 +4,7 @@ require "pakyow/support/deep_dup"
 
 module Pakyow
   module Presenter
-    module Attributes
+    class Attributes
       # @api private
       class Attribute
         using Support::DeepDup

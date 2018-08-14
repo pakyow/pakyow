@@ -329,10 +329,10 @@ module Pakyow
       end
       alias attrs attributes
 
-      # Wraps +attributes+ in a {ViewAttributes} instance.
+      # Wraps +attributes+ in a {Attributes} instance.
       #
       def attributes=(attributes)
-        @attributes = ViewAttributes.new(attributes)
+        @attributes = Attributes.new(attributes)
       end
       alias attrs= attributes=
 

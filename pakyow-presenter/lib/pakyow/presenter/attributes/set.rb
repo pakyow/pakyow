@@ -7,7 +7,7 @@ require "pakyow/presenter/attributes/attribute"
 
 module Pakyow
   module Presenter
-    module Attributes
+    class Attributes
       # Wraps the value for a set-type view attribute (e.g. class).
       #
       # Behaves just like a normal +Set+.

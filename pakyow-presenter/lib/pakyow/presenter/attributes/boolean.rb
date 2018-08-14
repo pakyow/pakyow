@@ -4,7 +4,7 @@ require "pakyow/presenter/attributes/string"
 
 module Pakyow
   module Presenter
-    module Attributes
+    class Attributes
       # Boolean is an odd attribute, since we ultimately want it to behave in this way:
       #
       #   view.attrs[:checked] = true
@@ -13,7 +13,7 @@ module Pakyow
       #   view.attrs[:checked] = false
       #   => <input ...>
       #
-      # To support this, +ViewAttributes+ manages setting / removing the value on the
+      # To support this, +Attributes+ manages setting / removing the value on the
       # underlying object; all we do is behave like a String.
       #
       # @api private

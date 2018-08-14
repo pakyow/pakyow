@@ -9,7 +9,7 @@ require "pakyow/presenter/attributes/string"
 
 module Pakyow
   module Presenter
-    class ViewAttributes
+    class Attributes
       class << self
         def typed_value_for_attribute_with_name(value, name)
           type = type_of_attribute(name.to_sym)
@@ -81,7 +81,7 @@ module Pakyow
       #
       def initialize(attributes)
         attributes.each do |name, value|
-          attributes[name] = ViewAttributes.typed_value_for_attribute_with_name(value, name)
+          attributes[name] = Attributes.typed_value_for_attribute_with_name(value, name)
         end
 
         @attributes = attributes

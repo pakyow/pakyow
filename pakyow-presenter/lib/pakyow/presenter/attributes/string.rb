@@ -6,7 +6,7 @@ require "pakyow/presenter/attributes/attribute"
 
 module Pakyow
   module Presenter
-    module Attributes
+    class Attributes
       # Wraps the value for a string-type view attribute (e.g. href).
       #
       # Behaves just like a normal +String+.
