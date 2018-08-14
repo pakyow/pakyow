@@ -49,7 +49,7 @@ module Pakyow
           @defaults[environment] = block
         end
 
-        def settings_for(group, &block)
+        def configurable(group, &block)
           config = Config.new(@configurable)
           config.instance_eval(&block)
           @groups[group.to_sym] = config

@@ -5,7 +5,7 @@ RSpec.describe Pakyow::Assets::Types::Scss do
     app_class = Class.new(Pakyow::App) do
       include Pakyow::Assets::Behavior::Config
 
-      settings_for :presenter do
+      configurable :presenter do
         setting :path, ""
       end
     end

@@ -8,7 +8,7 @@ RSpec.describe "nested configuration" do
   end
 
   it "provides access to a nested setting" do
-    object.settings_for :foo do
+    object.configurable :foo do
       setting :bar, :baz
     end
 
@@ -17,8 +17,8 @@ RSpec.describe "nested configuration" do
   end
 
   it "provides access to a deeply nested setting" do
-    object.settings_for :foo do
-      settings_for :bar do
+    object.configurable :foo do
+      configurable :bar do
         setting :baz, :qux
       end
     end
@@ -28,8 +28,8 @@ RSpec.describe "nested configuration" do
   end
 
   it "converts to a hash" do
-    object.settings_for :foo do
-      settings_for :bar do
+    object.configurable :foo do
+      configurable :bar do
         setting :baz, :qux
       end
     end

@@ -56,7 +56,7 @@ RSpec.describe "configuring an object" do
   end
 
   it "responds to missing" do
-    object.settings_for :foo do
+    object.configurable :foo do
       setting :bar, :baz
     end
 

@@ -36,7 +36,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          settings_for :session do
+          configurable :session do
             setting :enabled, true
 
             setting :key do

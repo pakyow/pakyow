@@ -18,7 +18,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          settings_for :process do
+          configurable :process do
             setting :trigger_restarts
             setting :watched_paths, []
 

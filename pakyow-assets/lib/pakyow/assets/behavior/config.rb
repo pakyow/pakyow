@@ -9,7 +9,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          settings_for :assets do
+          configurable :assets do
             setting :types,
                     av: %w(.webm .snd .au .aiff .mp3 .mp2 .m2a .m3a .ogx .gg .oga .midi .mid .avi .wav .wave .mp4 .m4v .acc .m4a .flac),
                     data: %w(.json .xml .yml .yaml),
@@ -56,7 +56,7 @@ module Pakyow
               setting :silent, false
             end
 
-            settings_for :packs do
+            configurable :packs do
               setting :autoload, %i[pakyow]
 
               setting :path do
@@ -71,7 +71,7 @@ module Pakyow
               end
             end
 
-            settings_for :externals do
+            configurable :externals do
               setting :fetch, true
               setting :pakyow, true
               setting :provider, "https://unpkg.com/"

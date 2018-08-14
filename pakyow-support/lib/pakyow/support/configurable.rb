@@ -43,17 +43,13 @@ module Pakyow
       # @api private
       def self.included(base)
         base.extend ClassState
-        base.class_state :config, default: Config.new(base), inheritable: true
+        base.class_state :__config, default: Config.new(base), inheritable: true
         base.class_state :__config_environments, default: Concurrent::Hash.new, inheritable: true
 
         base.prepend Initializer
         base.include CommonMethods
         base.extend  ClassMethods, CommonMethods
       end
-
-      # Configuration for the object.
-      #
-      attr_reader :config
 
       private def __config_environments
         self.class.__config_environments
@@ -62,15 +58,15 @@ module Pakyow
       module Initializer
         # @api private
         def initialize(*)
-          @config = self.class.config.dup
-          @config.update_configurable(self)
+          @__config = self.class.__config.dup
+          @__config.update_configurable(self)
           super
         end
       end
 
       module ClassMethods
         extend Forwardable
-        def_delegators :@config, :setting, :defaults, :settings_for
+        def_delegators :@__config, :setting, :defaults, :configurable
 
         # Define configuration to be applied when configuring for an environment.
         #
@@ -86,10 +82,14 @@ module Pakyow
       end
 
       module CommonMethods
+        def config
+          @__config
+        end
+
         # Configures the object for an environment, then freezes the configuration.
         #
         def configure!(configured_environment = nil)
-          @config.configure_defaults!(configured_environment)
+          @__config.configure_defaults!(configured_environment)
 
           [:__global, configured_environment].compact.map(&:to_sym).select { |environment|
             __config_environments.key?(environment)

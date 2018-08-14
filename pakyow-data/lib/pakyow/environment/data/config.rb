@@ -9,7 +9,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          settings_for :data do
+          configurable :data do
             setting :default_adapter, :sql
             setting :default_connection, :default
 
@@ -22,7 +22,7 @@ module Pakyow
               setting :auto_migrate, false
             end
 
-            settings_for :subscriptions do
+            configurable :subscriptions do
               setting :adapter, :memory
               setting :adapter_settings, {}
 
@@ -34,7 +34,7 @@ module Pakyow
               end
             end
 
-            settings_for :connections do
+            configurable :connections do
               setting :types, Pakyow::Data::Connection::SUPPORTED_CONNECTION_TYPES
 
               Pakyow::Data::Connection::SUPPORTED_CONNECTION_TYPES.each do |type|

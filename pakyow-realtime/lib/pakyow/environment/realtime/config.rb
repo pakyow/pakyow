@@ -9,7 +9,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          settings_for :realtime do
+          configurable :realtime do
             setting :server, true
 
             setting :adapter, :memory

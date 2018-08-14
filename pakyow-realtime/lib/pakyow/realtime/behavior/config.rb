@@ -9,7 +9,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          settings_for :realtime do
+          configurable :realtime do
             setting :adapter_settings, {}
             setting :path, "pw-socket"
             setting :endpoint

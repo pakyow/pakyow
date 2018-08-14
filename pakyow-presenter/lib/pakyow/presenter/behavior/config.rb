@@ -9,7 +9,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          settings_for :presenter do
+          configurable :presenter do
             setting :path do
               File.join(config.root, "frontend")
             end

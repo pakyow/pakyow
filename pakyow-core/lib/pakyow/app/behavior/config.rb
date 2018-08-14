@@ -22,7 +22,7 @@ module Pakyow
 
           setting :dsl, true
 
-          settings_for :tasks do
+          configurable :tasks do
             setting :prelaunch, []
           end
         end

@@ -9,8 +9,8 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          settings_for :security do
-            settings_for :csrf do
+          configurable :security do
+            configurable :csrf do
               setting :protection, {}
               setting :origin_whitelist, []
               setting :allow_empty_referrer, true

@@ -18,7 +18,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          settings_for :cookies do
+          configurable :cookies do
             setting :path, "/"
             setting :expiry, 60 * 60 * 24 * 7
           end

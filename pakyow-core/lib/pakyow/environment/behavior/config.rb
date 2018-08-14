@@ -12,17 +12,17 @@ module Pakyow
         setting :default_env, :development
         setting :freeze_on_boot, true
 
-        settings_for :server do
+        configurable :server do
           setting :name, :puma
           setting :host, "localhost"
           setting :port, 3000
         end
 
-        settings_for :cli do
+        configurable :cli do
           setting :repl, IRB
         end
 
-        settings_for :logger do
+        configurable :logger do
           setting :enabled, true
           setting :level, :debug
           setting :formatter, Logger::Formatters::Dev
@@ -49,19 +49,19 @@ module Pakyow
           end
         end
 
-        settings_for :normalizer do
+        configurable :normalizer do
           setting :strict_path, true
           setting :strict_www, false
           setting :require_www, true
         end
 
-        settings_for :tasks do
+        configurable :tasks do
           setting :paths, ["./tasks", File.expand_path("../../../tasks", __FILE__)]
           setting :prelaunch, []
         end
 
-        settings_for :redis do
-          settings_for :connection do
+        configurable :redis do
+          configurable :connection do
             setting :url do
               ENV["REDIS_URL"] || "redis://127.0.0.1:6379"
             end
@@ -77,7 +77,7 @@ module Pakyow
           setting :key_prefix, "pw"
         end
 
-        settings_for :puma do
+        configurable :puma do
           setting :host do
             config.server.host
           end
