@@ -51,7 +51,7 @@ module Pakyow
 
       def self.included(base)
         base.include API
-        base.extend ClassAPI
+        base.extend ClassMethods
         base.prepend Initializer
 
         base.extend ClassState
@@ -76,7 +76,7 @@ module Pakyow
 
       # Class-level api methods.
       #
-      module ClassAPI
+      module ClassMethods
         def self.extended(base)
           base.extend(API)
         end

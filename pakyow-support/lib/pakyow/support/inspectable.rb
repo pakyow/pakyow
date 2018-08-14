@@ -22,12 +22,12 @@ module Pakyow
     #
     module Inspectable
       def self.included(base)
-        base.extend ClassAPI
+        base.extend ClassMethods
         base.extend ClassState unless base.ancestors.include?(ClassState)
         base.class_state :__inspectables, inheritable: true, default: []
       end
 
-      module ClassAPI
+      module ClassMethods
         # Sets the instance vars that should be part of the inspection.
         #
         # @param ivars [Array<Symbol>] The list of instance variables.

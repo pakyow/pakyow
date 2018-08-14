@@ -45,7 +45,7 @@ module Pakyow
     module Pipelined
       # @api private
       def self.included(base)
-        base.extend ClassAPI
+        base.extend ClassMethods
         base.extend ClassState unless base.ancestors.include?(ClassState)
         base.prepend Initializer
         base.class_state :__pipelines, default: {}, inheritable: true
@@ -86,7 +86,7 @@ module Pakyow
         end
       end
 
-      module ClassAPI
+      module ClassMethods
         # Defines a pipeline.
         #
         def pipeline(name, &block)
@@ -171,7 +171,7 @@ module Pakyow
         attr_reader :__pipeline
 
         # Defines an action.
-        # @see Pipelined::ClassAPI#action
+        # @see Pipelined::ClassMethods#action
         #
         def action(name, options = {})
           @__pipeline.action(name, options)
