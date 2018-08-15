@@ -15,7 +15,7 @@ RSpec.describe "assets config", "packs" do
 
   describe "path" do
     it "has a default value" do
-      expect(config.path).to eq("./frontend/assets/packs")
+      expect(config.path).to eq(File.join(Pakyow.config.root, "frontend/assets/packs"))
     end
 
     it "is dependent on config.assets.path" do
@@ -26,7 +26,7 @@ RSpec.describe "assets config", "packs" do
 
   describe "paths" do
     it "has a default value" do
-      expect(config.paths).to eq(["./frontend/assets/packs", "./frontend/assets/packs/vendor"])
+      expect(config.paths).to eq([File.join(Pakyow.config.root, "frontend/assets/packs"), File.join(Pakyow.config.root, "frontend/assets/packs/vendor")])
     end
 
     it "is dependent on config.assets.packs.path" do

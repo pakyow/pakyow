@@ -19,13 +19,13 @@ RSpec.describe Pakyow::App do
 
     describe "app.root" do
       it "has a default value" do
-        expect(app.config.root).to eq(".")
+        expect(app.config.root).to eq(File.expand_path("."))
       end
     end
 
     describe "app.src" do
       it "has a default value" do
-        expect(app.config.src).to eq("./backend")
+        expect(app.config.src).to eq(File.join(Pakyow.config.root, "backend"))
       end
 
       it "is dependent on `app.root`" do

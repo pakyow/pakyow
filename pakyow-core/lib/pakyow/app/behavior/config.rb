@@ -10,7 +10,10 @@ module Pakyow
 
         apply_extension do
           setting :name, "pakyow"
-          setting :root, File.dirname("")
+
+          setting :root do
+            Pakyow.config.root
+          end
 
           setting :src do
             File.join(config.root, "backend")

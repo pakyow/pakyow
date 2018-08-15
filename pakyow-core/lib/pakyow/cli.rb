@@ -74,15 +74,7 @@ module Pakyow
     end
 
     def project_context?
-      File.exist?(environment_path + ".rb")
-    end
-
-    def current_path
-      File.expand_path(".")
-    end
-
-    def environment_path
-      File.join(current_path, Pakyow.config.environment_path)
+      File.exist?(Pakyow.config.environment_path + ".rb")
     end
 
     def parse_global_options
@@ -129,7 +121,7 @@ module Pakyow
       require "bootsnap"
 
       Bootsnap.setup(
-        cache_dir:            File.join(current_path, "tmp/cache"),
+        cache_dir:            File.join(Pakyow.config.root, "tmp/cache"),
         development_mode:     @options[:env] == "development",
         load_path_cache:      true,
         autoload_paths_cache: false,
@@ -142,7 +134,7 @@ module Pakyow
     # rubocop:enable Lint/HandleExceptions
 
     def load_environment
-      require environment_path
+      require Pakyow.config.environment_path
     end
 
     def setup_environment

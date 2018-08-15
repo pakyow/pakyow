@@ -53,7 +53,7 @@ RSpec.describe "assets config", "externals" do
 
   describe "path" do
     it "has a default value" do
-      expect(config.path).to eq("./frontend/assets/packs/vendor")
+      expect(config.path).to eq(File.join(Pakyow.config.root, "frontend/assets/packs/vendor"))
     end
 
     it "is dependent on config.assets.packs.path" do

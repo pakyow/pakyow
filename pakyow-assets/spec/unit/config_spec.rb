@@ -91,7 +91,7 @@ RSpec.describe "assets config" do
 
   describe "public_path" do
     it "has a default value" do
-      expect(config.public_path).to eq("./public")
+      expect(config.public_path).to eq(File.join(Pakyow.config.root, "public"))
     end
 
     it "is dependent on config.root" do
@@ -102,7 +102,7 @@ RSpec.describe "assets config" do
 
   describe "path" do
     it "has a default value" do
-      expect(config.path).to eq("./frontend/assets")
+      expect(config.path).to eq(File.join(Pakyow.config.root, "frontend/assets"))
     end
 
     it "is dependent on config.presenter.path" do
@@ -113,7 +113,7 @@ RSpec.describe "assets config" do
 
   describe "paths" do
     it "has a default value" do
-      expect(config.paths).to eq(["./frontend/assets"])
+      expect(config.paths).to eq([File.join(Pakyow.config.root, "frontend/assets")])
     end
 
     it "is dependent on config.assets.path" do
@@ -124,7 +124,7 @@ RSpec.describe "assets config" do
 
   describe "compile_path" do
     it "has a default value" do
-      expect(config.compile_path).to eq("./public")
+      expect(config.compile_path).to eq(File.join(Pakyow.config.root, "public"))
     end
 
     it "is dependent on config.assets.public_path" do

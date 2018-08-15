@@ -8,9 +8,16 @@ module Pakyow
       extend Support::Extension
 
       apply_extension do
-        setting :environment_path, "config/environment"
         setting :default_env, :development
         setting :freeze_on_boot, true
+
+        setting :root do
+          File.expand_path(".")
+        end
+
+        setting :environment_path do
+          File.join(config.root, "config/environment")
+        end
 
         configurable :server do
           setting :name, :puma
