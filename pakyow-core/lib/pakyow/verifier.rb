@@ -2,8 +2,8 @@
 
 require "forwardable"
 
-require "pakyow/routing/types"
-require "pakyow/routing/validator"
+require "pakyow/types"
+require "pakyow/validator"
 
 module Pakyow
   class Verifier

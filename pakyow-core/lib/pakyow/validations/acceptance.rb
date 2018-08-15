@@ -2,7 +2,7 @@
 
 require "pakyow/support/core_refinements/array/ensurable"
 
-require "pakyow/routing/validator"
+require "pakyow/validator"
 
 module Pakyow
   module Validations

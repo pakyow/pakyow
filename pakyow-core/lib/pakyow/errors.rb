@@ -5,11 +5,6 @@ require "json"
 require "pakyow/error"
 
 module Pakyow
-  module Routing
-    class Error < Pakyow::Error
-    end
-  end
-
   class InvalidData < Error
     # Failed verifier instance.
     #

@@ -21,6 +21,4 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "pakyow-core", Pakyow::VERSION
   spec.add_dependency "pakyow-support", Pakyow::VERSION
-
-  spec.add_dependency "dry-types", "~> 0.13"
 end

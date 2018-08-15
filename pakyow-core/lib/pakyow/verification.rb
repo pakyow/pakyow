@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "pakyow/routing/errors"
-require "pakyow/routing/verifier"
+require "pakyow/errors"
+require "pakyow/verifier"
 
 module Pakyow
   module Verification

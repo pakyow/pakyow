@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "pakyow/routing/validator"
+require "pakyow/validator"
 
 module Pakyow
   module Validations

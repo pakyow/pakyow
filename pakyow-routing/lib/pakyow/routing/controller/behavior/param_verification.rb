@@ -2,8 +2,8 @@
 
 require "pakyow/support/extension"
 
-require "pakyow/routing/errors"
-require "pakyow/routing/verification"
+require "pakyow/errors"
+require "pakyow/verification"
 
 module Pakyow
   module Routing
@@ -26,7 +26,7 @@ module Pakyow
         class_methods do
           # Perform input verification before one or more routes, identified by name.
           #
-          # @see Pakyow::Data::Verifier
+          # @see Pakyow::Verifier
           #
           # @api public
           def verify(*names, &block)
