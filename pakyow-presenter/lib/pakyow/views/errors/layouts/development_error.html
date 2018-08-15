@@ -30,7 +30,7 @@ title: "{pw_error.name}"
       display: block;
       overflow: auto;
       background: #f9f9f9;
-      padding: 5px;
+      padding: 5px 15px;
       box-shadow: 0.30rem 0.30rem #ff8b6c;
       line-height: 1.5rem;
       color: #333;
@@ -39,14 +39,16 @@ title: "{pw_error.name}"
       font-family: monospace;
       font-size: 13px;
     }
+    code pre {
+      white-space: pre;
+      margin: 0;
+    }
     p code {
+      padding: 3px 5px;
       font-size: 13.5px;
       display: inline;
       box-shadow: none;
       border: 0;
-    }
-    pre code {
-      white-space: pre;
     }
     hr {
       border: 0;
@@ -62,15 +64,6 @@ title: "{pw_error.name}"
       font-size: 13px;
       text-transform: uppercase;
       margin-top: 30px;
-    }
-    h2 label {
-      cursor: pointer;
-    }
-    h2 label::before {
-      content: "+";
-      width: 20px;
-      display: inline-block;
-      color: #ffcc5e;
     }
     a {
       display: inline-block;
