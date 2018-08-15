@@ -28,7 +28,7 @@ module Pakyow
           }
         end
       rescue KeyError => error
-        raise Pakyow.build_error(error, UnknownType, context: {
+        raise UnknownType.build(error, context: {
           type: type, types: MAPPING.keys
         })
       end

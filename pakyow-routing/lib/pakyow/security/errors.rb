@@ -3,5 +3,11 @@
 require "pakyow/error"
 
 module Pakyow
-  class InsecureRequest < Error; end
+  module Security
+    class Error < Pakyow::Error
+    end
+
+    class InsecureRequest < Error
+    end
+  end
 end

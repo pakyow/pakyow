@@ -108,7 +108,7 @@ module Pakyow
       #
       def houston(error)
         unless error.is_a?(Pakyow::Error)
-          error = Pakyow.build_error(error, Pakyow::Error)
+          error = Pakyow::Error.build(error)
         end
 
         error(error: error)

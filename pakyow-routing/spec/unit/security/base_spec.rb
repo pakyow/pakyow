@@ -42,7 +42,7 @@ RSpec.describe Pakyow::Security::Base do
   describe "unsafe methods" do
     it "rejects POST" do
       connection = Pakyow::Connection.new(double("app"), "REQUEST_METHOD" => "POST")
-      expect { instance.call(connection) }.to raise_error(Pakyow::InsecureRequest)
+      expect { instance.call(connection) }.to raise_error(Pakyow::Security::InsecureRequest)
     end
   end
 
@@ -59,7 +59,7 @@ RSpec.describe Pakyow::Security::Base do
 
       begin
         instance.call(connection)
-      rescue Pakyow::InsecureRequest
+      rescue Pakyow::Security::InsecureRequest
       end
     end
 
@@ -68,7 +68,7 @@ RSpec.describe Pakyow::Security::Base do
 
       begin
         instance.call(connection)
-      rescue Pakyow::InsecureRequest
+      rescue Pakyow::Security::InsecureRequest
       end
 
       expect(connection.response.status).to be(403)
@@ -79,7 +79,7 @@ RSpec.describe Pakyow::Security::Base do
 
       begin
         instance.call(connection)
-      rescue Pakyow::InsecureRequest
+      rescue Pakyow::Security::InsecureRequest
       end
 
       expect(connection.response["Content-Type"]).to eq("text/plain")
@@ -90,7 +90,7 @@ RSpec.describe Pakyow::Security::Base do
 
       begin
         instance.call(connection)
-      rescue Pakyow::InsecureRequest
+      rescue Pakyow::Security::InsecureRequest
       end
 
       expect(connection.response.body).to eq(["Forbidden"])

@@ -5,6 +5,11 @@ require "json"
 require "pakyow/error"
 
 module Pakyow
+  module Routing
+    class Error < Pakyow::Error
+    end
+  end
+
   class InvalidData < Error
     # Failed verifier instance.
     #
@@ -12,6 +17,8 @@ module Pakyow
       @context[:verifier]
     end
 
+    # Object that failed verification.
+    #
     def object
       @context[:object]
     end

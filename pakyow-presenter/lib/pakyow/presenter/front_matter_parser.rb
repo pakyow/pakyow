@@ -17,7 +17,7 @@ module Pakyow
         begin
           YAML.load(match.captures[0]).to_h
         rescue Psych::SyntaxError => error
-          raise Pakyow.build_error(error, FrontMatterParsingError, context: match.captures[0])
+          raise FrontMatterParsingError.build(error, context: match.captures[0])
         end
       end
 

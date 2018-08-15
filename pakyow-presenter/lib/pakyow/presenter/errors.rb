@@ -4,21 +4,21 @@ require "pakyow/error"
 
 module Pakyow
   module Presenter
-    class FrontMatterParsingError < Error; end
+    class Error < Pakyow::Error
+    end
+
+    class FrontMatterParsingError < Error
+    end
 
     class UnknownPage < Error
       def message
         <<~MESSAGE
         Pakyow couldn't render a view for `#{@context}`. Try creating a view template for this path:
 
-            ./frontend/pages#{@context}.html
+            frontend/pages#{@context}.html
 
           * [Learn about view templates &rarr;](https://pakyow.com/docs/frontend/composition/)
         MESSAGE
-      end
-
-      def url
-        ""
       end
     end
 

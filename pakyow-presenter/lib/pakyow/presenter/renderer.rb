@@ -17,9 +17,7 @@ module Pakyow
                 new(connection, implicit: true).perform
               end
             rescue UnknownPage => error
-              implicit_error = ImplicitRenderingError.new("Could not implicitly render at path `#{connection.path}'")
-              implicit_error.context = connection.path
-              implicit_error.set_backtrace(error.backtrace)
+              implicit_error = ImplicitRenderingError.build(error, context: connection.path)
               connection.set(:pw_error, implicit_error)
               connection.status = 404
 

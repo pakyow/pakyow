@@ -394,9 +394,9 @@ module Pakyow
                   where(values)
                 end
               rescue Sequel::UniqueConstraintViolation => error
-                raise Pakyow.build_error(error, UniqueViolation)
+                raise UniqueViolation.build(error)
               rescue Sequel::ForeignKeyConstraintViolation => error
-                raise Pakyow.build_error(error, ConstraintViolation)
+                raise ConstraintViolation.build(error)
               end
             end
 
@@ -407,9 +407,9 @@ module Pakyow
                 begin
                   update(values)
                 rescue Sequel::UniqueConstraintViolation => error
-                  raise Pakyow.build_error(error, UniqueViolation)
+                  raise UniqueViolation.build(error)
                 rescue Sequel::ForeignKeyConstraintViolation => error
-                  raise Pakyow.build_error(error, ConstraintViolation)
+                  raise ConstraintViolation.build(error)
                 end
               end
             end

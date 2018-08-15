@@ -13,21 +13,19 @@ layout: development_error
     </p>
   </div>
 
-  <input id="details-toggle" type="checkbox">
+  <hr>
+
+  <div binding="details">
+    <p>
+      Details go here.
+    </p>
+  </div>
 
   <h2>
-    <label for="details-toggle">
-      View more details
-    </label>
+    Backtrace:
   </h2>
 
-  <section class="details">
-    <div binding="details">
-      <p>
-        Details go here.
-      </p>
-    </div>
-
-    <code binding="backtrace"></code>
-  </section>
+  <code>
+    <pre binding="backtrace"></pre>
+  </code>
 </div>

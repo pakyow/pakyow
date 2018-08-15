@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "cgi"
+
 require "redcarpet"
 
 require "pakyow/support/extension"
@@ -25,7 +27,7 @@ module Pakyow
                 error = if connection.error.is_a?(Pakyow::Error)
                   connection.error
                 else
-                  Pakyow.build_error(connection.error, Pakyow::Error)
+                  Pakyow::Error.build(connection.error)
                 end
 
                 expose :pw_error, error
@@ -38,7 +40,21 @@ module Pakyow
 
           binder :pw_error do
             def message
-              safe(markdown.render(object.message))
+              message = object.message.dup
+
+              # Replace `foo' with `foo` to render as inline code.
+              #
+              message.dup.scan(/`(.*)'/).each do |match|
+                message.gsub!("`#{match[0]}'", "`#{match[0]}`")
+              end
+
+              # Format object references as inline code.
+              #
+              message.dup.scan(/#<(.*)>/).each do |match|
+                message.gsub!("#<#{match[0]}>", "`#<#{match[0]}>`")
+              end
+
+              safe(markdown.render(message))
             end
 
             def details
@@ -46,7 +62,9 @@ module Pakyow
             end
 
             def backtrace
-              safe(object.backtrace.to_a.join("<br>"))
+              safe(object.condensed_backtrace.to_a.map { |line|
+                CGI.escape_html(line)
+              }.join("<br>"))
             end
 
             def link

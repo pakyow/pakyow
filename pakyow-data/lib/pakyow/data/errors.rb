@@ -4,16 +4,19 @@ require "pakyow/error"
 
 module Pakyow
   module Data
-    class ConstraintViolation < Pakyow::Error
+    class Error < Pakyow::Error
     end
 
-    class NotNullViolation < Pakyow::Error
+    class ConstraintViolation < Error
     end
 
-    class UniqueViolation < Pakyow::Error
+    class NotNullViolation < Error
     end
 
-    class Rollback < Pakyow::Error
+    class UniqueViolation < Error
+    end
+
+    class Rollback < Error
     end
   end
 end
