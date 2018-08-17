@@ -52,7 +52,7 @@ RSpec.describe "starting up a newly generated project", smoke: true do
   end
 
   after :all do
-    Process.kill("KILL", @server)
+    Process.kill("TERM", @server)
     Process.waitpid(@server)
 
     Dir.chdir(@original_path)
