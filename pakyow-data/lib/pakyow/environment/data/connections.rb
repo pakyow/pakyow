@@ -49,7 +49,7 @@ module Pakyow
             @data_connections.each do |adapter, connections|
               connections.each do |connection_name, connection|
                 if connection.migratable? && connection_name != :memory
-                  config.tasks.prelaunch << [:"db:migrate", { adapter: adapter, connection: connection_name }]
+                  config.tasks.prelaunch << ["db:migrate", { adapter: adapter, connection: connection_name }]
                 end
               end
             end

@@ -20,7 +20,7 @@ task :prelaunch do
 
   # Run prelaunch tasks registered with the environment.
   #
-  Pakyow.config.tasks.prelaunch.each do |task_name, task_options|
+  Pakyow.config.tasks.prelaunch.each do |task_name, task_options = {}|
     run_task(task_name, task_options)
   end
 
@@ -28,7 +28,7 @@ task :prelaunch do
   #
   Pakyow.apps.each do |app|
     if app.is_a?(Pakyow::App)
-      app.config.tasks.prelaunch.each do |task_name, task_options|
+      app.config.tasks.prelaunch.each do |task_name, task_options = {}|
         task_options[:app] = app
         run_task(task_name, task_options)
       end

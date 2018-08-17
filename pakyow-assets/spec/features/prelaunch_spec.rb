@@ -8,6 +8,6 @@ RSpec.describe "assets prelaunch tasks" do
   end
 
   it "registers assets:precompile on the app" do
-    expect(Pakyow.apps.first.config.tasks.prelaunch).to include([:"assets:precompile", {}])
+    expect(Pakyow.apps.first.config.tasks.prelaunch).to include("assets:precompile")
   end
 end
