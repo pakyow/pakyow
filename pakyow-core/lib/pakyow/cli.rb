@@ -35,14 +35,12 @@ module Pakyow
       parse_global_options
 
       if project_context?
-        configure_bootsnap
-        load_environment
+        setup_environment
       end
 
       load_tasks
 
       if @command
-        setup_environment
         find_task_for_command
         set_app_for_command
         call_task
@@ -114,27 +112,6 @@ module Pakyow
       end
 
       @argv = (original & (@argv | unknown)) + unparsed
-    end
-
-    # rubocop:disable Lint/HandleExceptions
-    def configure_bootsnap
-      require "bootsnap"
-
-      Bootsnap.setup(
-        cache_dir:            File.join(Pakyow.config.root, "tmp/cache"),
-        development_mode:     @options[:env] == "development",
-        load_path_cache:      true,
-        autoload_paths_cache: false,
-        disable_trace:        false,
-        compile_cache_iseq:   true,
-        compile_cache_yaml:   true
-      )
-    rescue LoadError
-    end
-    # rubocop:enable Lint/HandleExceptions
-
-    def load_environment
-      require Pakyow.config.environment_path
     end
 
     def setup_environment

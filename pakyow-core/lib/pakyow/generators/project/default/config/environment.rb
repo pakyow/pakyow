@@ -1,15 +1,5 @@
-# frozen_string_literal: true
-
-require "bundler/setup"
-
-require "pakyow"
-require "pakyow/all"
-
-require "pakyow/integrations/bundler"
-require "pakyow/integrations/dotenv"
-
 Pakyow.configure do
-  require "./config/application"
+  # Global environment configuration.
 end
 
 Pakyow.configure :development do

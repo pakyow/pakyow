@@ -45,4 +45,5 @@ group :test do
   gem "sqlite3"
 
   gem "bootsnap"
+  gem "dotenv"
 end

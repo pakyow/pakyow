@@ -207,7 +207,6 @@ RSpec.describe "command line interface" do
     define_apps
 
     allow_any_instance_of(Pakyow::CLI).to receive(:project_context?).and_return(true)
-    allow_any_instance_of(Pakyow::CLI).to receive(:configure_bootsnap)
 
     # Set the working directory to the supporting app.
     #

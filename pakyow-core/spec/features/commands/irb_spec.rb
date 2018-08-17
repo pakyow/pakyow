@@ -6,8 +6,6 @@ RSpec.describe "cli: irb" do
 
   before do
     allow_any_instance_of(Pakyow::CLI).to receive(:project_context?).and_return(true)
-    allow_any_instance_of(Pakyow::CLI).to receive(:load_environment)
-    allow_any_instance_of(Pakyow::CLI).to receive(:configure_bootsnap)
   end
 
   let :command do

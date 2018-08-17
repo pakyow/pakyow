@@ -35,6 +35,10 @@ RSpec.configure do |config|
 
     allow(Pakyow).to receive(:at_exit)
 
+    if Pakyow.respond_to?(:load)
+      allow(Pakyow).to receive(:load)
+    end
+
     if Pakyow.respond_to?(:config)
       @original_pakyow_config = Pakyow.config.dup
     end

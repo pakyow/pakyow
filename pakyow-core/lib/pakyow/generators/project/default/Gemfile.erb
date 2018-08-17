@@ -4,9 +4,9 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby "<%= RUBY_VERSION %>"
 
 <%- if generating_locally? -%>
-gem "pakyow", github: "pakyow/pakyow"
+gem "pakyow", github: "pakyow/pakyow", require: "pakyow/all"
 <%- else -%>
-gem "pakyow", "~> <%= Pakyow::VERSION %>"
+gem "pakyow", "~> <%= Pakyow::VERSION %>", require: "pakyow/all"
 <%- end -%>
 
 # Use the puma application server.

@@ -1,3 +1,5 @@
+require "pakyow/validations/presence"
+
 RSpec.describe Pakyow::Validations::Presence do
   let :validation do
     Pakyow::Validations::Presence

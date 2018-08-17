@@ -19,6 +19,10 @@ module Pakyow
           File.join(config.root, "config/environment")
         end
 
+        setting :loader_path do
+          File.join(config.root, "config/loader")
+        end
+
         configurable :server do
           setting :name, :puma
           setting :host, "localhost"

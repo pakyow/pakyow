@@ -1,497 +1,22 @@
+require_relative "environment/shared_examples/booted"
+
 RSpec.describe Pakyow do
-  describe "known events" do
-    it "includes `configure`" do
-      expect(Pakyow.known_events).to include(:configure)
-    end
+  describe "::register_framework" do
+    it "registers a framework by name and module" do
+      class FooFramework
+        def initialize(_); end
+        def boot; end
+      end
 
-    it "includes `setup`" do
-      expect(Pakyow.known_events).to include(:setup)
-    end
+      Pakyow.register_framework(:foo, FooFramework)
+      expect(Pakyow.frameworks.keys).to include(:foo)
+      expect(Pakyow.frameworks.values).to include(FooFramework)
 
-    it "includes `fork`" do
-      expect(Pakyow.known_events).to include(:fork)
-    end
-
-    it "includes `boot`" do
-      expect(Pakyow.known_events).to include(:boot)
+      Object.send(:remove_const, :FooFramework)
     end
   end
 
-  describe "configuration options" do
-    describe "environment_path" do
-      it "has a default value" do
-        expect(Pakyow.config.environment_path).to eq(File.join(Pakyow.config.root, "config/environment"))
-      end
-    end
-
-    describe "default_env" do
-      it "has a default value" do
-        expect(Pakyow.config.default_env).to eq(:development)
-      end
-    end
-
-    describe "server.name" do
-      it "has a default value" do
-        expect(Pakyow.config.server.name).to eq(:puma)
-      end
-    end
-
-    describe "server.port" do
-      it "has a default value" do
-        expect(Pakyow.config.server.port).to eq(3000)
-      end
-    end
-
-    describe "server.host" do
-      it "has a default value" do
-        expect(Pakyow.config.server.host).to eq("localhost")
-      end
-    end
-
-    describe "cli.repl" do
-      it "has a default value" do
-        expect(Pakyow.config.cli.repl).to eq(IRB)
-      end
-    end
-
-    describe "logger.enabled" do
-      it "has a default value" do
-        expect(Pakyow.config.logger.enabled).to eq(true)
-      end
-
-      context "in test" do
-        before do
-          Pakyow.configure!(:test)
-        end
-
-        it "defaults to false" do
-          expect(Pakyow.config.logger.enabled).to eq(false)
-        end
-      end
-
-      context "in ludicrous" do
-        before do
-          Pakyow.configure!(:ludicrous)
-        end
-
-        it "defaults to false" do
-          expect(Pakyow.config.logger.enabled).to eq(false)
-        end
-      end
-    end
-
-    describe "logger.level" do
-      it "has a default value" do
-        expect(Pakyow.config.logger.level).to eq(:debug)
-      end
-
-      context "in production" do
-        before do
-          Pakyow.configure!(:production)
-        end
-
-        it "defaults to info" do
-          expect(Pakyow.config.logger.level).to eq(:info)
-        end
-      end
-    end
-
-    describe "logger.formatter" do
-      it "has a default value" do
-        expect(Pakyow.config.logger.formatter).to eq(Pakyow::Logger::Formatters::Dev)
-      end
-
-      context "in production" do
-        before do
-          Pakyow.configure!(:production)
-        end
-
-        it "defaults to logfmt" do
-          expect(Pakyow.config.logger.formatter).to eq(Pakyow::Logger::Formatters::Logfmt)
-        end
-      end
-    end
-
-    describe "logger.destinations" do
-      context "when logger is enabled" do
-        before do
-          Pakyow.config.logger.enabled = true
-        end
-
-        it "defaults to stdout" do
-          expect(Pakyow.config.logger.destinations).to eq([$stdout])
-        end
-      end
-
-      context "when logger is disabled" do
-        before do
-          Pakyow.config.logger.enabled = false
-        end
-
-        it "defaults to /dev/null" do
-          expect(Pakyow.config.logger.destinations).to eq(["/dev/null"])
-        end
-      end
-    end
-
-    describe "normalizer.strict_path" do
-      it "has a default value" do
-        expect(Pakyow.config.normalizer.strict_path).to eq(true)
-      end
-    end
-
-    describe "normalizer.strict_www" do
-      it "has a default value" do
-        expect(Pakyow.config.normalizer.strict_www).to eq(false)
-      end
-    end
-
-    describe "normalizer.require_www" do
-      it "has a default value" do
-        expect(Pakyow.config.normalizer.require_www).to eq(true)
-      end
-    end
-
-    describe "tasks.paths" do
-      it "has a default value" do
-        expect(Pakyow.config.tasks.paths).to eq(["./tasks", File.expand_path("../../../lib/pakyow/tasks", __FILE__)])
-      end
-    end
-
-    describe "tasks.prelaunch" do
-      it "has a default value" do
-        expect(Pakyow.config.tasks.prelaunch).to eq([])
-      end
-    end
-
-    describe "redis.connection.url" do
-      it "has a default value" do
-        expect(Pakyow.config.redis.connection.url).to eq("redis://127.0.0.1:6379")
-      end
-
-      context "REDIS_URL is set" do
-        before do
-          ENV["REDIS_URL"] = "worked"
-        end
-
-        after do
-          ENV.delete("REDIS_URL")
-        end
-
-        it "uses REDIS_URL" do
-          expect(Pakyow.config.redis.connection.url).to eq("worked")
-        end
-      end
-    end
-
-    describe "redis.connection.timeout" do
-      it "has a default value" do
-        expect(Pakyow.config.redis.connection.timeout).to eq(5.0)
-      end
-    end
-
-    describe "redis.connection.driver" do
-      it "has a default value" do
-        expect(Pakyow.config.redis.connection.driver).to eq(nil)
-      end
-    end
-
-    describe "redis.connection.id" do
-      it "has a default value" do
-        expect(Pakyow.config.redis.connection.id).to eq(nil)
-      end
-    end
-
-    describe "redis.connection.tcp_keepalive" do
-      it "has a default value" do
-        expect(Pakyow.config.redis.connection.tcp_keepalive).to eq(0)
-      end
-    end
-
-    describe "redis.connection.reconnect_attempts" do
-      it "has a default value" do
-        expect(Pakyow.config.redis.connection.reconnect_attempts).to eq(1)
-      end
-    end
-
-    describe "redis.connection.inherit_socket" do
-      it "has a default value" do
-        expect(Pakyow.config.redis.connection.inherit_socket).to eq(false)
-      end
-    end
-
-    describe "redis.key_prefix" do
-      it "has a default value" do
-        expect(Pakyow.config.redis.key_prefix).to eq("pw")
-      end
-    end
-
-    describe "puma.host" do
-      it "has a default value" do
-        expect(Pakyow.config.puma.host).to eq(
-          Pakyow.config.server.host
-        )
-      end
-
-      context "in production" do
-        before do
-          Pakyow.configure!(:production)
-        end
-
-        context "binds is not empty" do
-          before do
-            Pakyow.config.puma.binds = ["foo"]
-          end
-
-          it "has a default value" do
-            expect(Pakyow.config.puma.host).to be(nil)
-          end
-        end
-
-        context "HOST is set" do
-          before do
-            ENV["HOST"] = "foo"
-          end
-
-          after do
-            ENV.delete("HOST")
-          end
-
-          it "defaults to HOST" do
-            expect(Pakyow.config.puma.host).to eq("foo")
-          end
-
-          context "binds is not empty" do
-            before do
-              Pakyow.config.puma.binds = ["foo"]
-            end
-
-            it "has a default value" do
-              expect(Pakyow.config.puma.host).to be(nil)
-            end
-          end
-        end
-      end
-    end
-
-    describe "puma.port" do
-      it "has a default value" do
-        expect(Pakyow.config.puma.port).to eq(
-          Pakyow.config.server.port
-        )
-      end
-
-      context "in production" do
-        before do
-          Pakyow.configure!(:production)
-        end
-
-        context "binds is not empty" do
-          before do
-            Pakyow.config.puma.binds = ["foo"]
-          end
-
-          it "has a default value" do
-            expect(Pakyow.config.puma.port).to be(nil)
-          end
-        end
-
-        context "PORT is set" do
-          before do
-            ENV["PORT"] = "4242"
-          end
-
-          after do
-            ENV.delete("PORT")
-          end
-
-          it "defaults to PORT" do
-            expect(Pakyow.config.puma.port).to eq("4242")
-          end
-
-          context "binds is not empty" do
-            before do
-              Pakyow.config.puma.binds = ["foo"]
-            end
-
-            it "has a default value" do
-              expect(Pakyow.config.puma.port).to be(nil)
-            end
-          end
-        end
-      end
-    end
-
-    describe "puma.binds" do
-      it "has a default value" do
-        expect(Pakyow.config.puma.binds).to eq([])
-      end
-
-      context "in production" do
-        before do
-          Pakyow.configure!(:production)
-        end
-
-        context "BIND is set" do
-          before do
-            ENV["BIND"] = "unix://"
-          end
-
-          after do
-            ENV.delete("BIND")
-          end
-
-          it "includes BIND" do
-            expect(Pakyow.config.puma.binds).to eq(["unix://"])
-          end
-        end
-      end
-    end
-
-    describe "puma.min_threads" do
-      it "has a default value" do
-        expect(Pakyow.config.puma.min_threads).to eq(5)
-      end
-
-      context "in production" do
-        before do
-          Pakyow.configure!(:production)
-        end
-
-        context "THREADS is set" do
-          before do
-            ENV["THREADS"] = "10"
-          end
-
-          after do
-            ENV.delete("THREADS")
-          end
-
-          it "defaults to THREADS" do
-            expect(Pakyow.config.puma.min_threads).to eq("10")
-          end
-        end
-      end
-    end
-
-    describe "puma.max_threads" do
-      it "has a default value" do
-        expect(Pakyow.config.puma.max_threads).to eq(5)
-      end
-
-      context "in production" do
-        before do
-          Pakyow.configure!(:production)
-        end
-
-        context "THREADS is set" do
-          before do
-            ENV["THREADS"] = "15"
-          end
-
-          after do
-            ENV.delete("THREADS")
-          end
-
-          it "defaults to THREADS" do
-            expect(Pakyow.config.puma.min_threads).to eq("15")
-          end
-        end
-      end
-    end
-
-    describe "puma.workers" do
-      it "has a default value" do
-        expect(Pakyow.config.puma.workers).to eq(0)
-      end
-
-      context "in production" do
-        before do
-          Pakyow.configure!(:production)
-        end
-
-        context "WORKERS is set" do
-          before do
-            ENV["WORKERS"] = "42"
-          end
-
-          after do
-            ENV.delete("WORKERS")
-          end
-
-          it "defaults to WORKERS" do
-            expect(Pakyow.config.puma.workers).to eq("42")
-          end
-        end
-      end
-    end
-
-    describe "puma.worker_timeout" do
-      it "has a default value" do
-        expect(Pakyow.config.puma.worker_timeout).to eq(60)
-      end
-    end
-
-    describe "puma.on_restart" do
-      it "has a default value" do
-        expect(Pakyow.config.puma.on_restart).to eq([])
-      end
-    end
-
-    describe "puma.before_fork" do
-      it "has a default value" do
-        expect(Pakyow.config.puma.before_fork).to eq([])
-      end
-    end
-
-    describe "puma.before_worker_boot" do
-      it "has a default value" do
-        expect(Pakyow.config.puma.before_worker_fork.count).to be(1)
-
-        expect(Pakyow).to receive(:forking)
-        Pakyow.config.puma.before_worker_fork[0].call(nil)
-      end
-    end
-
-    describe "puma.after_worker_fork" do
-      it "has a default value" do
-        expect(Pakyow.config.puma.after_worker_fork).to eq([])
-      end
-    end
-
-    describe "puma.before_worker_boot" do
-      it "has a default value" do
-        expect(Pakyow.config.puma.before_worker_boot.count).to be(1)
-
-        expect(Pakyow).to receive(:forked)
-        Pakyow.config.puma.before_worker_boot[0].call(nil)
-      end
-    end
-
-    describe "puma.before_worker_shutdown" do
-      it "has a default value" do
-        expect(Pakyow.config.puma.before_worker_shutdown).to eq([])
-      end
-    end
-
-    describe "puma.silent" do
-      it "has a default value" do
-        expect(Pakyow.config.puma.silent).to be(true)
-      end
-
-      context "in production" do
-        before do
-          Pakyow.configure!(:production)
-        end
-
-        it "has a default value" do
-          expect(Pakyow.config.puma.silent).to be(false)
-        end
-      end
-    end
-  end
-
-  describe ".mount" do
+  describe "::mount" do
     let :app do
       Class.new
     end
@@ -541,7 +66,7 @@ RSpec.describe Pakyow do
     end
   end
 
-  describe ".fork" do
+  describe "::fork" do
     it "calls `forking`" do
       expect(Pakyow).to receive(:forking)
       Pakyow.fork {}
@@ -562,7 +87,7 @@ RSpec.describe Pakyow do
     end
   end
 
-  describe ".forking" do
+  describe "::forking" do
     it "calls before fork hooks" do
       expect(Pakyow).to receive(:call_hooks).with(:before, :fork)
       Pakyow.forking
@@ -576,33 +101,301 @@ RSpec.describe Pakyow do
     end
   end
 
-  describe ".forked" do
+  describe "::forked" do
+    after do
+      Pakyow.forked
+    end
+
     it "calls after fork hooks, then calls booted" do
       expect(Pakyow).to receive(:call_hooks).with(:after, :fork)
       expect(Pakyow).to receive(:booted)
-      Pakyow.forked
     end
 
     it "calls forked on each app" do
       app = double(:app)
       Pakyow.instance_variable_set(:@apps, [app])
       expect(app).to receive(:forked)
-      Pakyow.forked
+    end
+
+    include_examples :environment_booted
+  end
+
+  describe "::load" do
+    before do
+      allow(Pakyow).to receive(:load).and_call_original
+      allow(Pakyow).to receive(:require)
+    end
+
+    it "performs the load event" do
+      expect(Pakyow).to receive(:performing).with(:load)
+      Pakyow.load
+    end
+
+    context "environment loader does not exist" do
+      describe "bundler setup" do
+        before do
+          allow(Pakyow).to receive(:require).with("pakyow/integrations/bundler/setup") do
+            load "pakyow/integrations/bundler/setup.rb"
+          end
+        end
+
+        context "bundler is available" do
+          before do
+            expect(defined?(Bundler)).to eq("constant")
+          end
+
+          it "sets up bundler" do
+            expect(TOPLEVEL_BINDING.receiver).to receive(:require).with("bundler/setup")
+            Pakyow.load
+          end
+        end
+
+        context "bundler is not available" do
+          before do
+            @const = Bundler
+            Object.send(:remove_const, :Bundler)
+          end
+
+          after do
+            Object.const_set(:Bundler, @const)
+          end
+
+          it "does not setup bundler" do
+            expect(TOPLEVEL_BINDING.receiver).to_not receive(:require).with("bundler/setup")
+            Pakyow.load
+          end
+        end
+      end
+
+      describe "bootsnap setup" do
+        before do
+          allow(Pakyow).to receive(:require).with("pakyow/integrations/bootsnap") do
+            load "pakyow/integrations/bootsnap.rb"
+          end
+
+          require "bootsnap"
+        end
+
+        let :cache_dir do
+          File.join(Dir.pwd, "tmp/cache")
+        end
+
+        context "bootsnap is available" do
+          before do
+            expect(TOPLEVEL_BINDING.receiver).to receive(:require).with("bootsnap").and_call_original
+          end
+
+          context "environment is development" do
+            before do
+              allow(Pakyow).to receive(:env?).with(:development).and_return(true)
+            end
+
+            it "sets up bootsnap in development mode" do
+              expect(Bootsnap).to receive(:setup).with({
+                cache_dir:            cache_dir,
+                development_mode:     true,
+                load_path_cache:      true,
+                autoload_paths_cache: false,
+                disable_trace:        false,
+                compile_cache_iseq:   true,
+                compile_cache_yaml:   true
+              })
+
+              Pakyow.load
+            end
+          end
+
+          context "environment is not development" do
+            before do
+              allow(Pakyow).to receive(:env?).with(:development).and_return(false)
+            end
+
+            it "sets up bootsnap, but not in development mode" do
+              expect(Bootsnap).to receive(:setup).with({
+                cache_dir:            cache_dir,
+                development_mode:     false,
+                load_path_cache:      true,
+                autoload_paths_cache: false,
+                disable_trace:        false,
+                compile_cache_iseq:   true,
+                compile_cache_yaml:   true
+              })
+
+              Pakyow.load
+            end
+          end
+        end
+
+        context "bootsnap is not available" do
+          before do
+            expect(TOPLEVEL_BINDING.receiver).to receive(:require).with("bootsnap").and_raise(LoadError)
+          end
+
+          it "does not setup bootsnap" do
+            expect(Bootsnap).to_not receive(:setup)
+            Pakyow.load
+          end
+        end
+      end
+
+      describe "bundler require" do
+        before do
+          allow(Pakyow).to receive(:require).with("pakyow/integrations/bundler/require") do
+            load "pakyow/integrations/bundler/require.rb"
+          end
+        end
+
+        context "bundler is available" do
+          before do
+            expect(defined?(Bundler)).to eq("constant")
+          end
+
+          it "requires the bundle" do
+            expect(Bundler).to receive(:require).with(:default, Pakyow.env)
+            Pakyow.load
+          end
+        end
+
+        context "bundler is not available" do
+          before do
+            @const = Bundler
+            Object.send(:remove_const, :Bundler)
+          end
+
+          after do
+            Object.const_set(:Bundler, @const)
+          end
+
+          it "does not require the bundle" do
+            expect {
+              Pakyow.load
+            }.not_to raise_error
+          end
+        end
+      end
+
+      describe "dotenv setup" do
+        before do
+          allow(Pakyow).to receive(:require).with("pakyow/integrations/dotenv") do
+            load "pakyow/integrations/dotenv.rb"
+          end
+
+          require "dotenv"
+        end
+
+        context "dotenv is available" do
+          before do
+            expect(defined?(Dotenv)).to eq("constant")
+          end
+
+          it "loads dotenv" do
+            expect(Dotenv).to receive(:load)
+            Pakyow.load
+          end
+
+          context "environment-specific dotfile is available" do
+            before do
+              Pakyow.instance_variable_set(:@env, :test)
+
+              allow(Dotenv).to receive(:load)
+              allow(File).to receive(:exist?)
+              allow(File).to receive(:exist?).with(".env.test").and_return(true)
+            end
+
+            it "loads the environment-specific dotfile" do
+              expect(Dotenv).to receive(:load).with(".env.test")
+              Pakyow.load
+            end
+
+            it "loads dotenv" do
+              expect(Dotenv).to receive(:load).with(no_args)
+              Pakyow.load
+            end
+          end
+        end
+
+        context "dotenv is not available" do
+          before do
+            @const = Dotenv
+            Object.send(:remove_const, :Dotenv)
+          end
+
+          after do
+            Object.const_set(:Dotenv, @const)
+          end
+
+          it "does not load dotenv" do
+            expect {
+              Pakyow.load
+            }.not_to raise_error
+          end
+        end
+      end
+
+      it "requires the environment" do
+        expect(Pakyow).to receive(:require).with(Pakyow.config.environment_path)
+        Pakyow.load
+      end
+
+      it "calls load_apps" do
+        expect(Pakyow).to receive(:load_apps)
+        Pakyow.load
+      end
+    end
+
+    context "environment loader exists" do
+      before do
+        allow(File).to receive(:exist?).with(Pakyow.config.loader_path + ".rb").and_return(true)
+      end
+
+      it "requires the loader" do
+        expect(Pakyow).to receive(:require).with(Pakyow.config.loader_path)
+        Pakyow.load
+      end
+
+      it "does not setup bundler" do
+        expect(Pakyow).to_not receive(:require).with("pakyow/integrations/bundler/setup")
+        Pakyow.load
+      end
+
+      it "does not setup bootsnap" do
+        expect(Pakyow).to_not receive(:require).with("pakyow/integrations/bootsnap")
+        Pakyow.load
+      end
+
+      it "does not require the bundle" do
+        expect(Pakyow).to_not receive(:require).with("pakyow/integrations/bundler/require")
+        Pakyow.load
+      end
+
+      it "does not setup dotenv" do
+        expect(Pakyow).to_not receive(:require).with("pakyow/integrations/dotenv")
+        Pakyow.load
+      end
+
+      it "does not require the environment" do
+        expect(Pakyow).to_not receive(:require).with(Pakyow.config.environment_path)
+        Pakyow.load
+      end
+
+      it "does not call load_apps" do
+        expect(Pakyow).to_not receive(:load_apps)
+        Pakyow.load
+      end
     end
   end
 
-  describe ".call" do
-    let :env do
-      { foo: :bar }
+  describe "::load_apps" do
+    after do
+      Pakyow.load_apps
     end
 
-    it "calls the builder" do
-      expect_any_instance_of(Rack::Builder).to receive(:call).with(env)
-      Pakyow.builder.call(env)
+    it "requires the application" do
+      expect(Pakyow).to receive(:require).with("./config/application")
     end
   end
 
-  describe ".setup" do
+  describe "::setup" do
     context "called with an environment name" do
       let :name do
         :foo
@@ -633,6 +426,11 @@ RSpec.describe Pakyow do
       Pakyow.setup
     end
 
+    it "loads the environment" do
+      expect(Pakyow).to receive(:load)
+      Pakyow.setup
+    end
+
     it "configures for the environment" do
       env = :foo
       expect(Pakyow).to receive(:configure!).with(env)
@@ -651,22 +449,15 @@ RSpec.describe Pakyow do
     end
   end
 
-  describe ".register_framework" do
-    it "registers a framework by name and module" do
-      class FooFramework
-        def initialize(_); end
-        def boot; end
-      end
-
-      Pakyow.register_framework(:foo, FooFramework)
-      expect(Pakyow.frameworks.keys).to include(:foo)
-      expect(Pakyow.frameworks.values).to include(FooFramework)
-
-      Object.send(:remove_const, :FooFramework)
+  describe "::boot" do
+    after do
+      Pakyow.boot
     end
+
+    include_examples :environment_booted
   end
 
-  describe ".run" do
+  describe "::run" do
     before do
       allow(handler_double).to receive(:run).and_yield(server_double)
       allow(builder_double).to receive(:to_app)
@@ -830,7 +621,19 @@ RSpec.describe Pakyow do
     end
   end
 
-  describe "#apps" do
+  describe "::to_app" do
+    before do
+      allow(Pakyow.builder).to receive(:to_app).and_return(double(:builder))
+    end
+
+    after do
+      Pakyow.to_app
+    end
+
+    include_examples :environment_booted
+  end
+
+  describe "::apps" do
     let :app do
       Class.new
     end
@@ -845,13 +648,22 @@ RSpec.describe Pakyow do
 
     it "contains mounted app instances after boot" do
       run
-      expect(Pakyow.instance_variable_get(:@apps)).to include(app)
+      expect(Pakyow.apps).to include(app)
     end
   end
 
-  describe "#env?" do
-    it "returns true when the environment matches"
-    it "returns false when the environment does not match"
+  describe "::env?" do
+    before do
+      Pakyow.setup(env: :test)
+    end
+
+    it "returns true when the environment matches" do
+      expect(Pakyow.env?(:test)).to be(true)
+    end
+
+    it "returns false when the environment does not match" do
+      expect(Pakyow.env?(:toast)).to be(false)
+    end
   end
 
   describe "::app" do

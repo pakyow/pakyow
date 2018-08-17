@@ -87,7 +87,7 @@ module Pakyow
   unfreezable :logger, :app
 
   include Support::Hookable
-  known_events :configure, :setup, :boot, :fork
+  known_events :load, :configure, :setup, :boot, :fork
 
   include Support::Configurable
 
@@ -160,12 +160,40 @@ module Pakyow
       mounts[at] = { app: app, block: block }
     end
 
-    # Prepares the Pakow Environment for running.
+    # Loads the Pakyow environment for the current project.
+    #
+    def load
+      performing :load do
+        if File.exist?(config.loader_path + ".rb")
+          require config.loader_path
+        else
+          require "pakyow/integrations/bundler/setup"
+          require "pakyow/integrations/bootsnap"
+
+          require "pakyow/integrations/bundler/require"
+          require "pakyow/integrations/dotenv"
+
+          require config.environment_path
+
+          load_apps
+        end
+      end
+    end
+
+    # Loads apps located in the current project.
+    #
+    def load_apps
+      require "./config/application"
+    end
+
+    # Prepares the Pakyow Environment for running.
     #
     # @param env [Symbol] the environment that Pakyow will be started in
     #
     def setup(env: nil)
       @env = (env ||= config.default_env).to_sym
+
+      load
 
       performing :configure do
         configure!(env)

@@ -6,7 +6,6 @@ RSpec.describe "cli: create" do
 
   before do
     allow_any_instance_of(Pakyow::CLI).to receive(:project_context?).and_return(false)
-    allow_any_instance_of(Pakyow::CLI).to receive(:configure_bootsnap)
     allow(Bundler).to receive(:with_clean_env)
   end
 

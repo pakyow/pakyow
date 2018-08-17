@@ -4,7 +4,6 @@ require "pakyow/task"
 RSpec.describe Pakyow::CLI do
   describe "requiring config/environment.rb" do
     before do
-      allow_any_instance_of(Pakyow::CLI).to receive(:configure_bootsnap)
       allow_any_instance_of(Pakyow::CLI).to receive(:load_tasks)
       allow_any_instance_of(Pakyow::CLI).to receive(:puts_help)
       allow_any_instance_of(Pakyow::CLI).to receive(:puts_error)
@@ -15,10 +14,8 @@ RSpec.describe Pakyow::CLI do
         allow_any_instance_of(Pakyow::CLI).to receive(:project_context?).and_return(true)
       end
 
-      it "requires" do
-        expect_any_instance_of(Pakyow::CLI).to receive(:require).with(
-          File.join(Dir.pwd, "config/environment")
-        )
+      it "loads the environment" do
+        expect(Pakyow).to receive(:load)
 
         Pakyow::CLI.new
       end
@@ -29,8 +26,8 @@ RSpec.describe Pakyow::CLI do
         allow_any_instance_of(Pakyow::CLI).to receive(:project_context?).and_return(false)
       end
 
-      it "does not require" do
-        expect_any_instance_of(Pakyow::CLI).not_to receive(:require)
+      it "does not load the environment" do
+        expect(Pakyow).not_to receive(:load)
 
         Pakyow::CLI.new
       end
@@ -39,8 +36,6 @@ RSpec.describe Pakyow::CLI do
 
   describe "presenting commands based on context" do
     before do
-      allow_any_instance_of(Pakyow::CLI).to receive(:configure_bootsnap)
-      allow_any_instance_of(Pakyow::CLI).to receive(:load_environment)
       allow_any_instance_of(Pakyow::CLI).to receive(:puts_help)
       allow_any_instance_of(Pakyow::CLI).to receive(:puts_error)
       allow_any_instance_of(Pakyow::CLI).to receive(:load_tasks)
@@ -82,7 +77,6 @@ RSpec.describe Pakyow::CLI do
 
   describe "failing tasks" do
     before do
-      allow_any_instance_of(Pakyow::CLI).to receive(:configure_bootsnap)
       allow_any_instance_of(Pakyow::CLI).to receive(:load_tasks)
       allow_any_instance_of(Pakyow::CLI).to receive(:puts_help)
       allow_any_instance_of(Pakyow::CLI).to receive(:puts_error)
@@ -119,7 +113,6 @@ RSpec.describe Pakyow::CLI do
 
   describe "exit codes" do
     before do
-      allow_any_instance_of(Pakyow::CLI).to receive(:configure_bootsnap)
       allow_any_instance_of(Pakyow::CLI).to receive(:load_tasks)
       allow_any_instance_of(Pakyow::CLI).to receive(:puts_help)
       allow_any_instance_of(Pakyow::CLI).to receive(:puts_error)

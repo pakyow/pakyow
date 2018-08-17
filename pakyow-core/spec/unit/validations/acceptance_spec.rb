@@ -1,3 +1,5 @@
+require "pakyow/validations/acceptance"
+
 RSpec.describe Pakyow::Validations::Acceptance do
   let :validation do
     Pakyow::Validations::Acceptance
