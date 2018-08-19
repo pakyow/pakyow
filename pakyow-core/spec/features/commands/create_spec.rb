@@ -116,9 +116,35 @@ RSpec.describe "cli: create" do
           expect(File.exist?(File.join(generated_path, "config/environment.rb"))).to be(true)
         end
 
+        it "contains initializers" do
+          expect(File.exist?(File.join(generated_path, "config/initializers"))).to be(true)
+        end
+
         describe "application.rb" do
           it "sets the project name" do
             expect(File.read(File.join(generated_path, "config/application.rb"))).to include("Pakyow.app :app_test")
+          end
+        end
+
+        describe "initializers" do
+          it "contains application" do
+            expect(File.exist?(File.join(generated_path, "config/initializers/application"))).to be(true)
+          end
+
+          it "contains environment" do
+            expect(File.exist?(File.join(generated_path, "config/initializers/environment"))).to be(true)
+          end
+
+          describe "application" do
+            it "is empty" do
+              expect(Dir.glob(File.join(generated_path, "config/initializers/application/*"))).to eq([])
+            end
+          end
+
+          describe "environment" do
+            it "is empty" do
+              expect(Dir.glob(File.join(generated_path, "config/initializers/environment/*"))).to eq([])
+            end
           end
         end
       end

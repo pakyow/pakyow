@@ -22,6 +22,7 @@ require "pakyow/app/behavior/helpers"
 require "pakyow/app/behavior/rescuing"
 require "pakyow/app/behavior/restarting"
 require "pakyow/app/behavior/subclassing"
+require "pakyow/app/behavior/initializers"
 
 require "pakyow/connection"
 
@@ -128,6 +129,7 @@ module Pakyow
     include Behavior::Rescuing
     include Behavior::Restarting
     include Behavior::Subclassing
+    include Behavior::Initializers
 
     # Creates a connection subclass that other frameworks can safely extend.
     #
