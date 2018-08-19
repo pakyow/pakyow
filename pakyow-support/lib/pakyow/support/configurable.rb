@@ -65,9 +65,6 @@ module Pakyow
       end
 
       module ClassMethods
-        extend Forwardable
-        def_delegators :@__config, :setting, :defaults, :configurable
-
         # Define configuration to be applied when configuring for an environment.
         #
         def configure(environment = :__global, &block)
@@ -82,11 +79,14 @@ module Pakyow
       end
 
       module CommonMethods
+        extend Forwardable
+        def_delegators :@__config, :setting, :defaults, :configurable
+
         def config
           @__config
         end
 
-        # Configures the object for an environment, then freezes the configuration.
+        # Configures the object for an environment.
         #
         def configure!(configured_environment = nil)
           @__config.configure_defaults!(configured_environment)
