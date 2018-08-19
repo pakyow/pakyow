@@ -134,6 +134,8 @@ module Pakyow
     subclass! Connection
 
     def initialize(environment, builder: nil, &block)
+      super()
+
       @environment, @builder, @rescued = environment, builder, false
 
       performing :initialize do

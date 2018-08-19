@@ -24,9 +24,11 @@ module Pakyow
     #     include Support::Definable
     #
     #     def initialize(some_arg, &block)
+    #       super()
+
     #       # Do something with some_arg, etc.
     #
-    #       super(&block)
+    #       defined!(&block)
     #     end
     #   end
     #
@@ -36,17 +38,13 @@ module Pakyow
       def self.included(base)
         base.include CommonMethods
         base.extend ClassMethods, CommonMethods
+        base.prepend Initializer
         base.extend Support::Makeable
         base.instance_variable_set(:@__state, {})
       end
 
       # @api private
       def defined!(&block)
-        # create mutable state for this instance based on global
-        @__state = self.class.__state.each_with_object({}) { |(name, global_state), state|
-          state[name] = State.new(name, global_state.object)
-        }
-
         # set instance level state
         self.instance_eval(&block) if block_given?
 
@@ -156,6 +154,18 @@ module Pakyow
           else
             {}
           end
+        end
+      end
+
+      module Initializer
+        def initialize(*)
+          # Create mutable state for this instance based on global.
+          #
+          @__state = self.class.__state.each_with_object({}) { |(name, global_state), state|
+            state[name] = State.new(name, global_state.object)
+          }
+
+          super
         end
       end
     end
