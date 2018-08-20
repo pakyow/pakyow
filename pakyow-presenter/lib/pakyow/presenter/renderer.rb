@@ -14,7 +14,7 @@ module Pakyow
           if implicitly_render?(connection)
             begin
               catch :halt do
-                new(connection, implicit: true).perform
+                new(connection).perform
               end
             rescue UnknownPage => error
               implicit_error = ImplicitRenderingError.build(error, context: connection.path)
@@ -54,8 +54,8 @@ module Pakyow
 
       attr_reader :connection, :presenter
 
-      def initialize(connection, path: nil, as: nil, layout: nil, mode: :default, implicit: false, templates: true)
-        @connection, @implicit = connection, implicit
+      def initialize(connection, path: nil, as: nil, layout: nil, mode: :default, templates: true)
+        @connection = connection
 
         @path = String.normalize_path(path || default_path)
         @as = as ? String.normalize_path(as) : nil
@@ -127,9 +127,6 @@ module Pakyow
 
       protected
 
-      def rendering_implicitly?
-        @implicit == true
-      end
 
       def rendering_prototype?
         Pakyow.env?(:prototype)
