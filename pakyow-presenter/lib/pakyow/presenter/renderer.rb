@@ -90,8 +90,6 @@ module Pakyow
           setup_for_bindings: rendering_prototype?
         )
 
-        define_presentables(@connection.values)
-
         if rendering_prototype?
           @mode = @connection.params[:mode] || :default
         end
@@ -126,7 +124,6 @@ module Pakyow
       end
 
       protected
-
 
       def rendering_prototype?
         Pakyow.env?(:prototype)
@@ -194,16 +191,6 @@ module Pakyow
         }.join("/")
 
         nil
-      end
-
-      def define_presentables(presentables)
-        presentables.map { |key, _value|
-          key.to_s.split(":")[0].to_sym
-        }.uniq.each do |method_name|
-          @presenter.define_singleton_method(method_name) do |*channels|
-            presentables[[method_name].concat(channels).join(":").to_sym]
-          end
-        end
       end
 
       include Security::Helpers::CSRF
