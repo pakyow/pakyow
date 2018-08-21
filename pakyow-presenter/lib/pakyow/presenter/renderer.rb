@@ -66,15 +66,20 @@ module Pakyow
       using Support::Refinements::Array::Ensurable
       using Support::Refinements::String::Normalization
 
-      attr_reader :connection, :presenter
+      attr_reader :presenter
 
       def initialize(connection, templates_path: nil, presenter_path: nil, layout: nil, mode: :default, embed_templates: true)
         @connection, @embed_templates = connection, embed_templates
 
-        @templates_path = String.normalize_path(templates_path || default_path)
+        @templates_path = String.normalize_path(templates_path || @connection.env["pakyow.endpoint"] || @connection.path)
         @presenter_path = presenter_path ? String.normalize_path(presenter_path) : nil
         @layout = layout
-        @mode = mode
+
+        @mode = if rendering_prototype?
+          @connection.params[:mode] || :default
+        else
+          mode
+        end
 
         unless info = find_info(@templates_path)
           error = UnknownPage.new("No view at path `#{@templates_path}'")
@@ -105,10 +110,6 @@ module Pakyow
           current_endpoint: @connection.endpoint,
           setup_for_bindings: rendering_prototype?
         )
-
-        if rendering_prototype?
-          @mode = @connection.params[:mode] || :default
-        end
 
         if rendering_prototype?
           @presenter.insert_prototype_bar(@mode)
@@ -149,10 +150,6 @@ module Pakyow
         else
           @connection.app.endpoints
         end
-      end
-
-      def default_path
-        @connection.env["pakyow.endpoint"] || @connection.path
       end
 
       def find_info(path)
