@@ -20,7 +20,7 @@ module Pakyow
             @renderer.perform
           end
 
-          process(@renderer.connection.response.body.read, @config.default_content_type)
+          process(@renderer.presenter.to_html, @config.default_content_type)
         else
           {}
         end

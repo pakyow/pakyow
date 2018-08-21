@@ -14,7 +14,14 @@ module Pakyow
           if implicitly_render?(connection)
             begin
               catch :halt do
-                new(connection).perform
+                renderer = new(connection)
+                renderer.perform
+
+                connection.body = StringIO.new(
+                  renderer.presenter.to_html(clean_bindings: !Pakyow.env?(:prototype))
+                )
+
+                connection.rendered
               end
             rescue UnknownPage => error
               implicit_error = ImplicitRenderingError.build(error, context: connection.path)
@@ -25,7 +32,14 @@ module Pakyow
                 if Pakyow.env?(:production)
                   connection.app.subclass(:Controller).new(connection).trigger(404)
                 else
-                  new(connection, templates_path: "/development/500").perform
+                  renderer = new(connection, templates_path: "/development/500")
+                  renderer.perform
+
+                  connection.body = StringIO.new(
+                    renderer.presenter.to_html(clean_bindings: !Pakyow.env?(:prototype))
+                  )
+
+                  connection.rendered
                 end
               end
             rescue StandardError => error
@@ -115,12 +129,8 @@ module Pakyow
 
       def perform
         performing :render do
-          @connection.body = StringIO.new(
-            @presenter.to_html(clean_bindings: !rendering_prototype?)
-          )
+          @presenter.call
         end
-
-        @connection.rendered
       end
 
       protected
