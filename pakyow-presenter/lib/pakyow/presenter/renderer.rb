@@ -58,6 +58,10 @@ module Pakyow
           connection.status == 200 && connection.method == :get && connection.format == :html &&
           (Pakyow.env?(:prototype) || ((!connection.halted? || connection.set?(:__fully_dispatched)) && !connection.rendered?))
         end
+
+        def restore(connection, serialized)
+          new(connection, **serialized)
+        end
       end
 
       include Support::Hookable
@@ -132,6 +136,15 @@ module Pakyow
         performing :render do
           @presenter.call
         end
+      end
+
+      def serialize
+        {
+          templates_path: @templates_path,
+          presenter_path: @presenter_path,
+          layout: @layout,
+          mode: @mode
+        }
       end
 
       protected

@@ -3,6 +3,7 @@
 require "pakyow/support/extension"
 
 require "pakyow/ui/recordable"
+require "pakyow/ui/wrappable"
 
 module Pakyow
   module UI
@@ -16,7 +17,7 @@ module Pakyow
           # of the original presenter, but they'll behave identically!
           #
           after :initialize do
-            @ui_presenters = [Pakyow::Presenter::Presenter].concat(
+            @ui_presenters = [Presenter::Presenter].concat(
               state(:presenter)
             ).map { |presenter_class|
               Class.new(presenter_class).tap do |subclass|
@@ -25,8 +26,19 @@ module Pakyow
             }
           end
 
+          # Subclass each renderer to use the recordable presenters.
+          #
+          after :initialize do
+            @ui_renderers = [subclass(:Renderer)].map { |renderer_class|
+              Class.new(renderer_class).tap do |subclass|
+                subclass.include Wrappable
+              end
+            }
+          end
+
           class_eval do
             attr_reader :ui_presenters
+            attr_reader :ui_renderers
           end
         end
       end
