@@ -25,7 +25,7 @@ module Pakyow
                 if Pakyow.env?(:production)
                   connection.app.subclass(:Controller).new(connection).trigger(404)
                 else
-                  new(connection, path: "/development/500").perform
+                  new(connection, templates_path: "/development/500").perform
                 end
               end
             rescue StandardError => error
@@ -54,17 +54,17 @@ module Pakyow
 
       attr_reader :connection, :presenter
 
-      def initialize(connection, path: nil, as: nil, layout: nil, mode: :default, templates: true)
+      def initialize(connection, templates_path: nil, presenter_path: nil, layout: nil, mode: :default, embed_templates: true)
         @connection = connection
 
-        @path = String.normalize_path(path || default_path)
-        @as = as ? String.normalize_path(as) : nil
+        @templates_path = String.normalize_path(templates_path || default_path)
+        @presenter_path = presenter_path ? String.normalize_path(presenter_path) : nil
         @layout = layout
         @mode = mode
 
-        unless info = find_info(@path)
-          error = UnknownPage.new("No view at path `#{@path}'")
-          error.context = @path
+        unless info = find_info(@templates_path)
+          error = UnknownPage.new("No view at path `#{@templates_path}'")
+          error.context = @templates_path
           raise error
         end
 
@@ -77,7 +77,7 @@ module Pakyow
         info[:layout].mixin(info[:partials])
         info[:page].mixin(info[:partials])
 
-        @presenter = (find_presenter(@as || @path) || Presenter).new(
+        @presenter = (find_presenter(@presenter_path || @templates_path) || Presenter).new(
           info[:layout].build(info[:page]),
           binders: @connection.app.state(:binder),
           presentables: @connection.values,
@@ -99,7 +99,7 @@ module Pakyow
         else
           @presenter.cleanup_prototype_nodes
 
-          if templates
+          if embed_templates
             @presenter.create_template_nodes
           end
         end

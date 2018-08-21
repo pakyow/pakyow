@@ -33,8 +33,8 @@ module Pakyow
 
         renderer = Renderer.new(
           connection,
-          as: args[:as],
-          path: args[:path],
+          templates_path: args[:templates_path],
+          presenter_path: args[:presenter_path],
           layout: args[:layout],
           mode: args[:mode]
         )

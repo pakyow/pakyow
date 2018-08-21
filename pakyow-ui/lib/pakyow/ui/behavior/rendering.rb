@@ -83,8 +83,8 @@ module Pakyow
               }
 
               metadata = {
-                as: @as,
-                path: @path,
+                templates_path: @templates_path,
+                presenter_path: @presenter_path,
                 layout: @layout,
                 mode: @mode,
                 transformation_id: @transformation_id,

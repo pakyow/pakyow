@@ -9,8 +9,8 @@ module Pakyow
 
           renderer = @connection.app.subclass(:Renderer).new(
             connection,
-            path: path,
-            templates: false
+            templates_path: path,
+            embed_templates: false
           )
 
           Mailer.new(
