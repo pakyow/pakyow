@@ -39,8 +39,7 @@ module Pakyow
           mode: args[:mode]
         )
 
-        renderer.presenter.call
-
+        renderer.perform
         message = { id: args[:transformation_id], calls: renderer.presenter }
         @app.websocket_server.subscription_broadcast(Realtime::Channel.new(:transformation, subscription[:id]), message)
       end

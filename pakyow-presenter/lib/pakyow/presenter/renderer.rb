@@ -69,7 +69,7 @@ module Pakyow
       attr_reader :connection, :presenter
 
       def initialize(connection, templates_path: nil, presenter_path: nil, layout: nil, mode: :default, embed_templates: true)
-        @connection = connection
+        @connection, @embed_templates = connection, embed_templates
 
         @templates_path = String.normalize_path(templates_path || default_path)
         @presenter_path = presenter_path ? String.normalize_path(presenter_path) : nil
@@ -97,7 +97,9 @@ module Pakyow
           presentables: @connection.values,
           logger: @connection.logger
         )
+      end
 
+      def perform
         @presenter.install_endpoints(
           endpoints_for_environment,
           current_endpoint: @connection.endpoint,
@@ -113,7 +115,7 @@ module Pakyow
         else
           @presenter.cleanup_prototype_nodes
 
-          if embed_templates
+          if @embed_templates
             @presenter.create_template_nodes
           end
         end
@@ -125,9 +127,7 @@ module Pakyow
         end
 
         setup_forms
-      end
 
-      def perform
         performing :render do
           @presenter.call
         end
