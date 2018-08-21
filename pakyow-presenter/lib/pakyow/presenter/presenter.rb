@@ -354,7 +354,7 @@ module Pakyow
       end
 
       def to_html(clean_bindings: true, clean_versions: true)
-        call(self); @view.to_html(clean_bindings: clean_bindings, clean_versions: clean_versions)
+        call; @view.to_html(clean_bindings: clean_bindings, clean_versions: clean_versions)
       end
       alias to_s to_html
 
@@ -368,6 +368,10 @@ module Pakyow
 
       def respond_to_missing?(method_name, include_private = false)
         @presentables.keys.any? { |key| key.to_s.start_with?(method_name.to_s) } || super
+      end
+
+      def call
+        super(self)
       end
 
       private
