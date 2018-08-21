@@ -109,6 +109,7 @@ module Pakyow
       def initialize(view, binders: [], presentables: {}, logger: nil)
         @view, @binders, @presentables = view, binders, presentables
         @logger = logger || Pakyow.logger
+        @called = false
       end
 
       # Returns a presenter for a view binding.
@@ -354,7 +355,8 @@ module Pakyow
       end
 
       def to_html(clean_bindings: true, clean_versions: true)
-        call; @view.to_html(clean_bindings: clean_bindings, clean_versions: clean_versions)
+        call unless called?
+        @view.to_html(clean_bindings: clean_bindings, clean_versions: clean_versions)
       end
       alias to_s to_html
 
@@ -370,8 +372,16 @@ module Pakyow
         @presentables.keys.any? { |key| key.to_s.start_with?(method_name.to_s) } || super
       end
 
+      # @api private
       def call
-        super(self)
+        super(self).tap do
+          @called = true
+        end
+      end
+
+      # @api private
+      def called?
+        @called == true
       end
 
       private
