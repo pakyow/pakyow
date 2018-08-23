@@ -1,10 +1,19 @@
 # frozen_string_literal: true
 
 require "pakyow/support/hookable"
+require "pakyow/support/pipelined"
 require "pakyow/support/core_refinements/array/ensurable"
 require "pakyow/support/core_refinements/string/normalization"
 
 require "pakyow/security/helpers/csrf"
+
+require "pakyow/presenter/renderer/actions/cleanup_prototype_nodes"
+require "pakyow/presenter/renderer/actions/create_template_nodes"
+require "pakyow/presenter/renderer/actions/embed_authenticity_token"
+require "pakyow/presenter/renderer/actions/insert_prototype_bar"
+require "pakyow/presenter/renderer/actions/install_endpoints"
+require "pakyow/presenter/renderer/actions/place_in_mode"
+require "pakyow/presenter/renderer/actions/setup_forms"
 
 module Pakyow
   module Presenter
@@ -64,13 +73,26 @@ module Pakyow
         end
       end
 
+      include Security::Helpers::CSRF
+
       include Support::Hookable
       known_events :render
+
+      include Support::Pipelined
+      include Support::Pipelined::Haltable
+
+      action Actions::InstallEndpoints
+      action Actions::InsertPrototypeBar
+      action Actions::CleanupPrototypeNodes
+      action Actions::CreateTemplateNodes
+      action Actions::PlaceInMode
+      action Actions::EmbedAuthenticityToken
+      action Actions::SetupForms
 
       using Support::Refinements::Array::Ensurable
       using Support::Refinements::String::Normalization
 
-      attr_reader :presenter
+      attr_reader :connection, :presenter, :mode
 
       def initialize(connection, templates_path: nil, presenter_path: nil, layout: nil, mode: :default, embed_templates: true)
         @connection, @embed_templates = connection, embed_templates
@@ -109,29 +131,7 @@ module Pakyow
       end
 
       def perform
-        @presenter.install_endpoints(
-          endpoints_for_environment,
-          current_endpoint: @connection.endpoint,
-          setup_for_bindings: rendering_prototype?
-        )
-
-        if rendering_prototype?
-          @presenter.insert_prototype_bar(@mode)
-        else
-          @presenter.cleanup_prototype_nodes
-
-          if @embed_templates
-            @presenter.create_template_nodes
-          end
-        end
-
-        @presenter.place_in_mode(@mode)
-
-        if @connection.app.config.presenter.embed_authenticity_token
-          embed_authenticity_token
-        end
-
-        setup_forms
+        call(self)
 
         performing :render do
           @presenter.call
@@ -147,23 +147,15 @@ module Pakyow
         }
       end
 
-      protected
+      def embed_templates?
+        @embed_templates == true
+      end
 
       def rendering_prototype?
         Pakyow.env?(:prototype)
       end
 
-      # We still mark endpoints as active when running in the prototype environment, but we don't
-      # want to replace anchor hrefs, form actions, etc with backend routes. This gives the designer
-      # control over how the prototype behaves.
-      #
-      def endpoints_for_environment
-        if rendering_prototype?
-          Endpoints.new
-        else
-          @connection.app.endpoints
-        end
-      end
+      private
 
       def find_info(path)
         collapse_path(path) do |collapsed_path|
@@ -211,32 +203,6 @@ module Pakyow
         }.join("/")
 
         nil
-      end
-
-      include Security::Helpers::CSRF
-
-      def embed_authenticity_token
-        if head = @presenter.view.object.find_significant_nodes(:head)[0]
-          # embed the authenticity token
-          head.append("<meta name=\"pw-authenticity-token\" content=\"#{authenticity_client_id}:#{authenticity_digest(authenticity_client_id)}\">\n")
-
-          # embed the parameter name the token should be submitted as
-          head.append("<meta name=\"pw-authenticity-param\" content=\"#{@connection.app.config.security.csrf.param}\">\n")
-        end
-      end
-
-      def setup_forms
-        @presenter.forms.each do |form|
-          form.embed_origin(@connection.fullpath)
-
-          if @connection.app.config.presenter.embed_authenticity_token
-            digest = Support::MessageVerifier.digest(
-              form.id, key: authenticity_server_id
-            )
-
-            form.embed_authenticity_token("#{form.id}:#{digest}", param: @connection.app.config.security.csrf.param)
-          end
-        end
       end
     end
   end

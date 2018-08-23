@@ -14,9 +14,6 @@ require "pakyow/presenter/errors"
 require "pakyow/presenter/renderer"
 
 require "pakyow/presenter/presenter/behavior/endpoints"
-require "pakyow/presenter/presenter/behavior/prototype"
-require "pakyow/presenter/presenter/behavior/templates"
-require "pakyow/presenter/presenter/behavior/modes"
 
 module Pakyow
   module Presenter
@@ -34,9 +31,6 @@ module Pakyow
       include Support::SafeStringHelpers
 
       include Behavior::Endpoints
-      include Behavior::Prototype
-      include Behavior::Templates
-      include Behavior::Modes
 
       include Support::Pipelined
       include Support::Pipelined::Haltable
