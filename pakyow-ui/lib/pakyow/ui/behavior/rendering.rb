@@ -19,31 +19,6 @@ module Pakyow
         # Values we want to serialize from the rack env.
         #
         ENV_KEYS = %w(
-          SCRIPT_NAME
-          QUERY_STRING
-          SERVER_PROTOCOL
-          SERVER_SOFTWARE
-          GATEWAY_INTERFACE
-          REQUEST_METHOD
-          REQUEST_PATH
-          REQUEST_URI
-          HTTP_VERSION
-          HTTP_HOST
-          HTTP_CACHE_CONTROL
-          HTTP_UPGRADE_INSECURE_REQUESTS
-          HTTP_USER_AGENT
-          HTTP_ACCEPT
-          HTTP_REFERER
-          HTTP_ACCEPT_ENCODING
-          HTTP_ACCEPT_LANGUAGE
-          HTTP_COOKIE
-          HTTP_X_FORWARDED_HOST
-          HTTP_CONNECTION
-          CONTENT_LENGTH
-          SERVER_NAME
-          SERVER_PORT
-          PATH_INFO
-          REMOTE_ADDR
           rack.request.query_string
           rack.request.query_hash
           pakyow.endpoint
