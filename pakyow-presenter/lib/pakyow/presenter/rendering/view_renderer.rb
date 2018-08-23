@@ -17,18 +17,22 @@ module Pakyow
   module Presenter
     class ViewRenderer < BaseRenderer
       class << self
+        def render(connection, **args)
+          renderer = new(connection, **args)
+          renderer.perform
+
+          connection.body = StringIO.new(
+            renderer.presenter.to_html(clean_bindings: !Pakyow.env?(:prototype))
+          )
+
+          connection.rendered
+        end
+
         def perform_for_connection(connection)
           if implicitly_render?(connection)
             begin
               catch :halt do
-                renderer = new(connection)
-                renderer.perform
-
-                connection.body = StringIO.new(
-                  renderer.presenter.to_html(clean_bindings: !Pakyow.env?(:prototype))
-                )
-
-                connection.rendered
+                render(connection)
               end
             rescue UnknownPage => error
               implicit_error = ImplicitRenderingError.build(error, context: connection.path)
@@ -39,14 +43,7 @@ module Pakyow
                 if Pakyow.env?(:production)
                   connection.app.subclass(:Controller).new(connection).trigger(404)
                 else
-                  renderer = new(connection, templates_path: "/development/500")
-                  renderer.perform
-
-                  connection.body = StringIO.new(
-                    renderer.presenter.to_html(clean_bindings: !Pakyow.env?(:prototype))
-                  )
-
-                  connection.rendered
+                  render(connection, templates_path: "/development/500")
                 end
               end
             rescue StandardError => error
