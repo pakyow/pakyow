@@ -341,11 +341,11 @@ class StringDoc
 
   # Attributes that should be prefixed with +data-+
   #
-  DATA_ATTRS = %i(ui binding endpoint endpoint-action version config).freeze
+  DATA_ATTRS = %i(ui config binding endpoint endpoint-action version).freeze
 
   # Attributes that will be turned into +StringDoc+ labels
   #
-  LABEL_ATTRS = %i(ui mode version include exclude endpoint endpoint-action prototype binding).freeze
+  LABEL_ATTRS = %i(ui config mode version include exclude endpoint endpoint-action prototype binding).freeze
 
   LABEL_MAPPING = {
     ui: :component

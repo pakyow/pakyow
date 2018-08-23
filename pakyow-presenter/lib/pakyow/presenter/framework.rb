@@ -2,6 +2,8 @@
 
 require "pakyow/framework"
 
+require "pakyow/routing/helpers/exposures"
+
 require "pakyow/presenter/behavior/config"
 require "pakyow/presenter/behavior/error_rendering"
 require "pakyow/presenter/behavior/initializing"
@@ -24,14 +26,21 @@ module Pakyow
 
           stateful :templates, Templates
           stateful :presenter, Presenter
+          stateful :component, subclass!(Component)
           stateful :binder, Binder
           stateful :processor, Processor
 
           aspect :presenters
+          aspect :components
           aspect :binders
 
           subclass :Connection do
             include Helpers::Renderable
+          end
+
+          subclass :Component do
+            include Routing::Helpers::Exposures
+            include Helpers::Exposures
           end
 
           subclass :Controller do
@@ -45,10 +54,14 @@ module Pakyow
           end
 
           before :load do
-            # Include other registered helpers into the controller class.
-            #
             config.helpers.each do |helper|
+              # Include other registered helpers into the renderer class.
+              #
               subclass(:Renderer).include helper
+
+              # Include other registered helpers into the component class.
+              #
+              subclass(:Component).include helper
             end
           end
 

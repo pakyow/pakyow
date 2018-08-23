@@ -47,6 +47,9 @@ module Pakyow
       #
       attr_reader :logger
 
+      # @api private
+      attr_reader :presentables
+
       # @!method attributes
       #   Delegates to {view}.
       #   @see View#attributes
@@ -141,6 +144,14 @@ module Pakyow
       def forms
         @view.forms.map { |form|
           presenter_for(form, type: FormPresenter)
+        }
+      end
+
+      # Returns all components.
+      #
+      def components
+        @view.components.map { |form|
+          presenter_for(form)
         }
       end
 

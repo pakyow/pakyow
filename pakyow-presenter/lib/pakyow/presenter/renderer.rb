@@ -128,6 +128,8 @@ module Pakyow
           presentables: @connection.values,
           logger: @connection.logger
         )
+
+        @original_exposures = @connection.values
       end
 
       def perform
@@ -135,6 +137,7 @@ module Pakyow
 
         performing :render do
           @presenter.call
+          render_components
         end
       end
 
@@ -203,6 +206,45 @@ module Pakyow
         }.join("/")
 
         nil
+      end
+
+      def render_components(presenter = @presenter)
+        presenter.components.each do |component_presenter|
+          found_component = @connection.app.state(:component).find { |component|
+            component.__class_name.name == component_presenter.view.object.label(:component)
+          }
+
+          if found_component
+            component_connection = @connection
+            component_connection.instance_variable_set(:@values, @original_exposures.dup)
+
+            component_instance = found_component.new(
+              connection: component_connection
+            )
+
+            component_instance.perform
+
+            component_presenter.presentables.merge!(component_connection.values)
+
+            if component_instance.class.__presenter_extension
+              component_presenter.instance_eval(&component_instance.class.__presenter_extension)
+
+              # Rebind actions in case they were redefined above.
+              #
+              component_presenter.instance_variable_get(:@__pipeline).instance_variable_get(:@stack).map! { |action|
+                if action.is_a?(::Method) && action.receiver.is_a?(Presenter)
+                  component_presenter.method(action.name)
+                else
+                  action
+                end
+              }
+            end
+
+            component_presenter.call
+          end
+
+          render_components(component_presenter)
+        end
       end
     end
   end
