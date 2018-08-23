@@ -1,23 +1,21 @@
 # frozen_string_literal: true
 
-require "pakyow/support/hookable"
-require "pakyow/support/pipelined"
-require "pakyow/support/core_refinements/array/ensurable"
 require "pakyow/support/core_refinements/string/normalization"
 
 require "pakyow/security/helpers/csrf"
 
-require "pakyow/presenter/renderer/actions/cleanup_prototype_nodes"
-require "pakyow/presenter/renderer/actions/create_template_nodes"
-require "pakyow/presenter/renderer/actions/embed_authenticity_token"
-require "pakyow/presenter/renderer/actions/insert_prototype_bar"
-require "pakyow/presenter/renderer/actions/install_endpoints"
-require "pakyow/presenter/renderer/actions/place_in_mode"
-require "pakyow/presenter/renderer/actions/setup_forms"
+require "pakyow/presenter/rendering/base_renderer"
+require "pakyow/presenter/rendering/actions/cleanup_prototype_nodes"
+require "pakyow/presenter/rendering/actions/create_template_nodes"
+require "pakyow/presenter/rendering/actions/embed_authenticity_token"
+require "pakyow/presenter/rendering/actions/insert_prototype_bar"
+require "pakyow/presenter/rendering/actions/install_endpoints"
+require "pakyow/presenter/rendering/actions/place_in_mode"
+require "pakyow/presenter/rendering/actions/setup_forms"
 
 module Pakyow
   module Presenter
-    class Renderer
+    class ViewRenderer < BaseRenderer
       class << self
         def perform_for_connection(connection)
           if implicitly_render?(connection)
@@ -75,12 +73,6 @@ module Pakyow
 
       include Security::Helpers::CSRF
 
-      include Support::Hookable
-      known_events :render
-
-      include Support::Pipelined
-      include Support::Pipelined::Haltable
-
       action Actions::InstallEndpoints
       action Actions::InsertPrototypeBar
       action Actions::CleanupPrototypeNodes
@@ -89,10 +81,9 @@ module Pakyow
       action Actions::EmbedAuthenticityToken
       action Actions::SetupForms
 
-      using Support::Refinements::Array::Ensurable
       using Support::Refinements::String::Normalization
 
-      attr_reader :connection, :presenter, :mode
+      attr_reader :mode
 
       def initialize(connection, templates_path: nil, presenter_path: nil, layout: nil, mode: :default, embed_templates: true)
         @connection, @embed_templates = connection, embed_templates
@@ -129,16 +120,7 @@ module Pakyow
           logger: @connection.logger
         )
 
-        @original_exposures = @connection.values
-      end
-
-      def perform
-        call(self)
-
-        performing :render do
-          @presenter.call
-          render_components
-        end
+        super(@connection, @presenter)
       end
 
       def serialize
@@ -206,45 +188,6 @@ module Pakyow
         }.join("/")
 
         nil
-      end
-
-      def render_components(presenter = @presenter)
-        presenter.components.each do |component_presenter|
-          found_component = @connection.app.state(:component).find { |component|
-            component.__class_name.name == component_presenter.view.object.label(:component)
-          }
-
-          if found_component
-            component_connection = @connection
-            component_connection.instance_variable_set(:@values, @original_exposures.dup)
-
-            component_instance = found_component.new(
-              connection: component_connection
-            )
-
-            component_instance.perform
-
-            component_presenter.presentables.merge!(component_connection.values)
-
-            if component_instance.class.__presenter_extension
-              component_presenter.instance_eval(&component_instance.class.__presenter_extension)
-
-              # Rebind actions in case they were redefined above.
-              #
-              component_presenter.instance_variable_get(:@__pipeline).instance_variable_get(:@stack).map! { |action|
-                if action.is_a?(::Method) && action.receiver.is_a?(Presenter)
-                  component_presenter.method(action.name)
-                else
-                  action
-                end
-              }
-            end
-
-            component_presenter.call
-          end
-
-          render_components(component_presenter)
-        end
       end
     end
   end

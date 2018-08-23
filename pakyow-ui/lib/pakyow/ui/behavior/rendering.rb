@@ -25,7 +25,7 @@ module Pakyow
         ).freeze
 
         apply_extension do
-          subclass :Renderer do
+          subclass :ViewRenderer do
             include Realtime::Helpers::Subscriptions
 
             before :render do

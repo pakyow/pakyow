@@ -9,7 +9,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          subclass :Renderer do
+          subclass :ViewRenderer do
             before :render do
               next unless head = @presenter.view.object.find_significant_nodes(:head)[0]
 

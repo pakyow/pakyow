@@ -5,7 +5,7 @@ module Pakyow
     module Helpers
       module Rendering
         def render(path = request.env["pakyow.endpoint"] || request.path, as: nil, layout: nil, mode: :default)
-          renderer = app.subclass(:Renderer).new(
+          renderer = app.subclass(:ViewRenderer).new(
             @connection,
             templates_path: path,
             presenter_path: as,

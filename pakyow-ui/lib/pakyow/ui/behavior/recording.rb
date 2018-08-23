@@ -29,7 +29,7 @@ module Pakyow
           # Subclass each renderer to use the recordable presenters.
           #
           after :initialize do
-            @ui_renderers = [subclass(:Renderer)].map { |renderer_class|
+            @ui_renderers = [subclass(:ViewRenderer)].map { |renderer_class|
               Class.new(renderer_class).tap do |subclass|
                 subclass.include Wrappable
               end

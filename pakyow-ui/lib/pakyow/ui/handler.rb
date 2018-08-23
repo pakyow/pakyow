@@ -3,7 +3,7 @@
 require "pakyow/connection"
 require "pakyow/logger/request_logger"
 
-require "pakyow/presenter/renderer"
+require "pakyow/presenter/rendering/view_renderer"
 
 require "pakyow/realtime/channel"
 
@@ -32,7 +32,7 @@ module Pakyow
         base_renderer_class = if @app.class.const_defined?(args[:renderer][:class_name])
           @app.class.const_get(args[:renderer][:class_name])
         else
-          @app.subclass(:Renderer)
+          @app.subclass(:ViewRenderer)
         end
 
         renderer_class = @app.ui_renderers.find { |ui_renderer|

@@ -22,7 +22,7 @@ module Pakyow
         require "pakyow/presenter/presentable_error"
 
         app.class_eval do
-          subclass!(Renderer)
+          subclass!(ViewRenderer)
 
           stateful :templates, Templates
           stateful :presenter, Presenter
@@ -57,7 +57,7 @@ module Pakyow
             config.helpers.each do |helper|
               # Include other registered helpers into the renderer class.
               #
-              subclass(:Renderer).include helper
+              subclass(:ViewRenderer).include helper
 
               # Include other registered helpers into the component class.
               #

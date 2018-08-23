@@ -39,7 +39,7 @@ module Pakyow
           include Behavior::Prelaunching
           include Behavior::Processing
 
-          subclass :Renderer do
+          subclass :ViewRenderer do
             include Behavior::Rendering
           end
         end

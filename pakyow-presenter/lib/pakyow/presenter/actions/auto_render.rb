@@ -15,7 +15,7 @@ module Pakyow
             connection.logger.prologue(connection.env)
           end
 
-          connection.app.subclass(:Renderer).perform_for_connection(connection)
+          connection.app.subclass(:ViewRenderer).perform_for_connection(connection)
         end
       end
     end
