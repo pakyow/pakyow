@@ -428,7 +428,10 @@ module Pakyow
 
       def perform
         @presentables.each do |name, value|
-          name_parts = name.to_s.split(":")
+          name = name.to_s
+          next if name.start_with?("__")
+
+          name_parts = name.split(":")
 
           channel = if name_parts.count > 1
             name_parts[1..-1]
