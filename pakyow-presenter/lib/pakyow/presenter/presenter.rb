@@ -10,9 +10,6 @@ require "pakyow/support/safe_string"
 require "pakyow/support/pipelined"
 require "pakyow/support/pipelined/haltable"
 
-require "pakyow/presenter/errors"
-require "pakyow/presenter/renderer"
-
 require "pakyow/presenter/presenter/behavior/endpoints"
 
 module Pakyow
@@ -46,6 +43,9 @@ module Pakyow
       # The logger object.
       #
       attr_reader :logger
+
+      # @api private
+      attr_reader :presentables
 
       # @!method attributes
       #   Delegates to {view}.
@@ -141,6 +141,14 @@ module Pakyow
       def forms
         @view.forms.map { |form|
           presenter_for(form, type: FormPresenter)
+        }
+      end
+
+      # Returns all components.
+      #
+      def components
+        @view.components.map { |form|
+          presenter_for(form)
         }
       end
 
@@ -418,7 +426,10 @@ module Pakyow
 
       def perform
         @presentables.each do |name, value|
-          name_parts = name.to_s.split(":")
+          name = name.to_s
+          next if name.start_with?("__")
+
+          name_parts = name.split(":")
 
           channel = if name_parts.count > 1
             name_parts[1..-1]

@@ -140,6 +140,14 @@ module Pakyow
         }
       end
 
+      # Returns all components.
+      #
+      def components
+        @object.find_significant_nodes_without_descending(:component).map { |component_node|
+          View.from_object(component_node)
+        }
+      end
+
       # Returns all view info when +key+ is +nil+, otherwise returns the value for +key+.
       #
       def info(key = nil)

@@ -14,7 +14,7 @@ module Pakyow
 
         def setup_for_implicit_rendering(connection)
           connection.on :finalize do
-            app.subclass(:Renderer).perform_for_connection(self)
+            app.subclass(:ViewRenderer).perform_for_connection(self)
           end
         end
       end

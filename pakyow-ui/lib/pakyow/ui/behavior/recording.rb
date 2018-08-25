@@ -20,8 +20,8 @@ module Pakyow
             @ui_presenters = [Presenter::Presenter].concat(
               state(:presenter)
             ).map { |presenter_class|
-              Class.new(presenter_class).tap do |subclass|
-                subclass.include Recordable
+              Class.new(presenter_class) do
+                include Recordable
               end
             }
           end
@@ -29,9 +29,17 @@ module Pakyow
           # Subclass each renderer to use the recordable presenters.
           #
           after :initialize do
-            @ui_renderers = [subclass(:Renderer)].map { |renderer_class|
-              Class.new(renderer_class).tap do |subclass|
-                subclass.include Wrappable
+            @ui_renderers = [subclass(:ComponentRenderer), subclass(:ViewRenderer)].map { |renderer_class|
+              Class.new(renderer_class) do
+                include Wrappable
+
+                pipeline :ui do
+                  action Presenter::Actions::InstallEndpoints
+                  action Presenter::Actions::CleanupPrototypeNodes
+                  action Presenter::Actions::PlaceInMode
+                end
+
+                use_pipeline :ui
               end
             }
           end
