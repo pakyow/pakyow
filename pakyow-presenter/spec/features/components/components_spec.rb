@@ -1,4 +1,4 @@
-RSpec.describe "rendering with backent components" do
+RSpec.describe "rendering with backend components" do
   include_examples "testable app"
 
   let :app_definition do
