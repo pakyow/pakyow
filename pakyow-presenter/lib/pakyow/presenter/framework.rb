@@ -4,6 +4,7 @@ require "pakyow/framework"
 
 require "pakyow/routing/helpers/exposures"
 
+require "pakyow/presenter/behavior/building"
 require "pakyow/presenter/behavior/config"
 require "pakyow/presenter/behavior/error_rendering"
 require "pakyow/presenter/behavior/initializing"
@@ -15,6 +16,9 @@ require "pakyow/presenter/helpers/renderable"
 
 require "pakyow/presenter/pipelines/implicit_rendering"
 
+require "pakyow/presenter/rendering/component_renderer"
+require "pakyow/presenter/rendering/view_renderer"
+
 module Pakyow
   module Presenter
     class Framework < Pakyow::Framework(:presenter)
@@ -22,6 +26,7 @@ module Pakyow
         require "pakyow/presenter/presentable_error"
 
         app.class_eval do
+          subclass!(ComponentRenderer)
           subclass!(ViewRenderer)
 
           stateful :templates, Templates
@@ -55,16 +60,18 @@ module Pakyow
 
           before :load do
             config.helpers.each do |helper|
-              # Include other registered helpers into the renderer class.
+              # Include other registered helpers into the view renderer.
               #
               subclass(:ViewRenderer).include helper
 
-              # Include other registered helpers into the component class.
+              # Include other registered helpers into the component and renderer.
               #
               subclass(:Component).include helper
+              subclass(:ComponentRenderer).include helper
             end
           end
 
+          include Behavior::Building
           include Behavior::Config
           include Behavior::ErrorRendering
           include Behavior::Initializing

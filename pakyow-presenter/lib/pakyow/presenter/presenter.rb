@@ -10,8 +10,6 @@ require "pakyow/support/safe_string"
 require "pakyow/support/pipelined"
 require "pakyow/support/pipelined/haltable"
 
-require "pakyow/presenter/errors"
-
 require "pakyow/presenter/presenter/behavior/endpoints"
 
 module Pakyow

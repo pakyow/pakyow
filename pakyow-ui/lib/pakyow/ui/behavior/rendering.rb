@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "digest"
+require "securerandom"
 
 require "pakyow/support/extension"
 require "pakyow/support/inflector"
@@ -25,67 +25,92 @@ module Pakyow
         ).freeze
 
         apply_extension do
-          subclass :ViewRenderer do
+          subclass :ComponentRenderer do
             include Realtime::Helpers::Subscriptions
+            include TransformationHelpers
 
             before :render do
-              unless self.class.ancestors.include?(Wrappable)
-                # The transformation id doesn't have to be completely unique, just unique to the presenter.
-                @transformation_id = Digest::SHA1.hexdigest(@presenter.class.object_id.to_s)
+              unless ui_transform? || subscribables.empty?
+                @presenter.view.object.attributes[:"data-t"] = transformation_id
+              end
+            end
 
+            after :render do
+              subscribe_to_transformations
+            end
+          end
+
+          subclass :ViewRenderer do
+            include Realtime::Helpers::Subscriptions
+            include TransformationHelpers
+
+            before :render do
+              unless ui_transform? || subscribables.empty?
                 # To keep up with the node(s) that matter for the transformation, a `data-t` attribute
                 # is added to the node that contains the transformation_id. When the transformation is
                 # triggered in the future, the client knows what node to apply tranformations to.
                 #
-                # Note that when we're presenting an entire view, `data-t` is set on the `body` node.
-
+                # Note that when we're presenting an entire view, `data-t` is set on the `html` node.
+                #
                 if node = @presenter.view.object.find_significant_nodes(:html)[0]
-                  node.attributes[:"data-t"] = @transformation_id
-                else
-                  # TODO: mixin the transformation_id into other nodes, once supported in presenter
+                  # The transformation id doesn't have to be completely unique, just unique to the presenter.
                   #
-                  # These views are going to be much harder. For example, partials. The partial
-                  # doesn't really exist after rendering, so we need a way to identify it in the
-                  # view. Probably what makes sense is to add `data-t` to every top-level node
-                  # in these cases. Then deal with the nodes in a cumulative way on the client.
+                  node.attributes[:"data-t"] = transformation_id
                 end
               end
             end
 
             after :render do
-              unless self.class.ancestors.include?(Wrappable)
-                # We wait until after render so that we don't create subscriptions unnecessarily
-                # in the event that something blew up during the render process.
-                #
-                presentables = @connection.values.select { |_, presentable|
-                  presentable.is_a?(Data::Proxy)
+              subscribe_to_transformations
+            end
+          end
+        end
+
+        module TransformationHelpers
+          def transformation_id
+            @transformation_id ||= SecureRandom.uuid
+          end
+
+          def transformation_id?
+            instance_variable_defined?(:@transformation_id)
+          end
+
+          def presentables
+            @presentables ||= @connection.values.select { |_, presentable|
+              presentable.is_a?(Data::Proxy)
+            }
+          end
+
+          def subscribables
+            @subscribables ||= presentables.values.select(&:subscribable?)
+          end
+
+          def subscribe_to_transformations
+            unless ui_transform? || !transformation_id?
+              metadata = {
+                renderer: {
+                  class_name: Support.inflector.demodulize(self.class),
+                  serialized: serialize
+                },
+                transformation_id: transformation_id,
+                presentables: presentables.map { |presentable_name, presentable|
+                  { name: presentable_name, proxy: presentable.to_h }
+                },
+                env: @connection.env.each_with_object({}) { |(key, value), keep|
+                  if ENV_KEYS.include?(key)
+                    keep[key] = value
+                  end
                 }
+              }
 
-                metadata = {
-                  renderer: {
-                    class_name: Support.inflector.demodulize(self.class),
-                    serialized: serialize
-                  },
-                  transformation_id: @transformation_id,
-                  presentables: presentables.map { |presentable_name, presentable|
-                    { name: presentable_name, proxy: presentable.to_h }
-                  },
-                  env: @connection.env.each_with_object({}) { |(key, value), keep|
-                    if ENV_KEYS.include?(key)
-                      keep[key] = value
-                    end
-                  }
-                }
+              # Find every subscribable presentable, creating a data subscription for each.
+              #
+              subscribables.each do |subscribable|
+                subscription_ids = subscribable.subscribe(socket_client_id, handler: Handler, payload: metadata)
 
-                # Find every subscribable presentable, creating a data subscription for each.
+                # Subscribe the subscriptions to the "transformation" channel.
                 #
-                presentables.values.select(&:subscribable?).each do |subscribable|
-                  subscription_ids = subscribable.subscribe(socket_client_id, handler: Handler, payload: metadata)
-
-                  # Subscribe the subscriptions to the "transformation" channel.
-                  #
-                  subscribe(:transformation, *subscription_ids)
-                end
+                subscribe(:transformation, *subscription_ids)
               end
             end
           end

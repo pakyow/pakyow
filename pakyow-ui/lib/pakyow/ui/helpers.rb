@@ -12,6 +12,10 @@ module Pakyow
       def ui
         connection.env[UI_REQUEST_HEADER]
       end
+
+      def ui_transform?
+        connection.env.key?("pakyow.ui_transform")
+      end
     end
   end
 end

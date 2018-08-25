@@ -21,8 +21,6 @@ require "pakyow/presenter/binder"
 require "pakyow/presenter/binding_parts"
 require "pakyow/presenter/component"
 
-require "pakyow/presenter/rendering/view_renderer"
-
 require "pakyow/presenter/views/form"
 require "pakyow/presenter/views/layout"
 require "pakyow/presenter/views/page"

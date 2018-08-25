@@ -5,12 +5,14 @@ require "pakyow/support/core_refinements/string/normalization"
 require "pakyow/security/helpers/csrf"
 
 require "pakyow/presenter/rendering/base_renderer"
+require "pakyow/presenter/rendering/component_renderer"
 require "pakyow/presenter/rendering/actions/cleanup_prototype_nodes"
 require "pakyow/presenter/rendering/actions/create_template_nodes"
 require "pakyow/presenter/rendering/actions/embed_authenticity_token"
 require "pakyow/presenter/rendering/actions/insert_prototype_bar"
 require "pakyow/presenter/rendering/actions/install_endpoints"
 require "pakyow/presenter/rendering/actions/place_in_mode"
+require "pakyow/presenter/rendering/actions/render_components"
 require "pakyow/presenter/rendering/actions/setup_forms"
 
 module Pakyow
@@ -77,10 +79,11 @@ module Pakyow
       action Actions::PlaceInMode
       action Actions::EmbedAuthenticityToken
       action Actions::SetupForms
+      action Actions::RenderComponents
 
       using Support::Refinements::String::Normalization
 
-      attr_reader :mode
+      attr_reader :templates_path, :layout, :mode
 
       def initialize(connection, templates_path: nil, presenter_path: nil, layout: nil, mode: :default, embed_templates: true)
         @connection, @embed_templates = connection, embed_templates
@@ -95,23 +98,8 @@ module Pakyow
           mode
         end
 
-        unless info = find_info(@templates_path)
-          error = UnknownPage.new("No view at path `#{@templates_path}'")
-          error.context = @templates_path
-          raise error
-        end
-
-        # Finds a matching layout across template stores.
-        #
-        if @layout && layout_object = layout_with_name(@layout)
-          info[:layout] = layout_object.dup
-        end
-
-        info[:layout].mixin(info[:partials])
-        info[:page].mixin(info[:partials])
-
-        @presenter = (find_presenter(@presenter_path || @templates_path) || Presenter).new(
-          info[:layout].build(info[:page]),
+        @presenter = (find_presenter(@presenter_path || @templates_path)).new(
+          @connection.app.build_view(@templates_path, layout: @layout),
           binders: @connection.app.state(:binder),
           presentables: @connection.values,
           logger: @connection.logger
@@ -131,60 +119,6 @@ module Pakyow
 
       def embed_templates?
         @embed_templates == true
-      end
-
-      def rendering_prototype?
-        Pakyow.env?(:prototype)
-      end
-
-      private
-
-      def find_info(path)
-        collapse_path(path) do |collapsed_path|
-          if info = info_for_path(collapsed_path)
-            return info
-          end
-        end
-      end
-
-      def find_presenter(path)
-        unless rendering_prototype?
-          collapse_path(path) do |collapsed_path|
-            if presenter = presenter_for_path(collapsed_path)
-              return presenter
-            end
-          end
-        end
-
-        nil
-      end
-
-      def info_for_path(path)
-        @connection.app.state(:templates).lazy.map { |store|
-          store.info(path)
-        }.find(&:itself)
-      end
-
-      def layout_with_name(name)
-        @connection.app.state(:templates).lazy.map { |store|
-          store.layout(name)
-        }.find(&:itself)
-      end
-
-      def presenter_for_path(path)
-        @connection.app.state(:presenter).find { |presenter|
-          presenter.path == path
-        }
-      end
-
-      def collapse_path(path)
-        yield path; return if path == "/"
-
-        yield path.split("/").keep_if { |part|
-          part[0] != ":"
-        }.join("/")
-
-        nil
       end
     end
   end

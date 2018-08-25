@@ -8,7 +8,7 @@ module Pakyow
       extend Support::Extension
 
       def find_presenter(*)
-        presenter_class = super || Presenter::Presenter
+        presenter_class = super
         @connection.app.ui_presenters.find { |ui_presenter|
           ui_presenter.ancestors.include?(presenter_class)
         }

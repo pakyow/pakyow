@@ -23,6 +23,7 @@ module Pakyow
         }
 
         env = args[:env]
+        env["pakyow.ui_transform"] = true
         env["rack.input"] = StringIO.new
         env[Rack::RACK_LOGGER] = Logger::RequestLogger.new(:"  ui")
 
