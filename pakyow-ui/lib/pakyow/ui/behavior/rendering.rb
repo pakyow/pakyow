@@ -31,7 +31,7 @@ module Pakyow
 
             before :render do
               unless ui_transform? || subscribables.empty?
-                @presenter.view.object.attributes[:"data-t"] = transformation_id
+                @transformation_target = @presenter.view.object
               end
             end
 
@@ -53,9 +53,7 @@ module Pakyow
                 # Note that when we're presenting an entire view, `data-t` is set on the `html` node.
                 #
                 if node = @presenter.view.object.find_significant_nodes(:html)[0]
-                  # The transformation id doesn't have to be completely unique, just unique to the presenter.
-                  #
-                  node.attributes[:"data-t"] = transformation_id
+                  @transformation_target = node
                 end
               end
             end
@@ -67,12 +65,8 @@ module Pakyow
         end
 
         module TransformationHelpers
-          def transformation_id
-            @transformation_id ||= SecureRandom.uuid
-          end
-
-          def transformation_id?
-            instance_variable_defined?(:@transformation_id)
+          def transformation_target?
+            instance_variable_defined?(:@transformation_target)
           end
 
           def presentables
@@ -86,13 +80,12 @@ module Pakyow
           end
 
           def subscribe_to_transformations
-            unless ui_transform? || !transformation_id?
+            unless ui_transform? || !transformation_target?
               metadata = {
                 renderer: {
                   class_name: Support.inflector.demodulize(self.class),
                   serialized: serialize
                 },
-                transformation_id: transformation_id,
                 presentables: presentables.map { |presentable_name, presentable|
                   { name: presentable_name, proxy: presentable.to_h }
                 },
@@ -102,6 +95,15 @@ module Pakyow
                   end
                 }
               }
+
+              # Generate a unique id based on the value of the metadata.
+              #
+              transformation_id = Digest::SHA1.hexdigest(Marshal.dump(metadata))
+              metadata[:transformation_id] = transformation_id
+
+              # Set the transformation_id on the target node so that transformations can be applied to the right place.
+              #
+              @transformation_target.attributes[:"data-t"] = transformation_id
 
               # Find every subscribable presentable, creating a data subscription for each.
               #
