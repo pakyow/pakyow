@@ -29,19 +29,30 @@ module Pakyow
           # Subclass each renderer to use the recordable presenters.
           #
           after :initialize do
-            @ui_renderers = [subclass(:ComponentRenderer), subclass(:ViewRenderer)].map { |renderer_class|
-              Class.new(renderer_class) do
-                include Wrappable
+            @ui_renderers = []
 
-                pipeline :ui do
-                  action Presenter::Actions::InstallEndpoints
-                  action Presenter::Actions::CleanupPrototypeNodes
-                  action Presenter::Actions::PlaceInMode
-                end
+            @ui_renderers << Class.new(subclass(:ComponentRenderer)) do
+              include Wrappable
 
-                use_pipeline :ui
+              pipeline :ui do
+                action Presenter::Actions::InstallEndpoints
+                action Presenter::Actions::CleanupPrototypeNodes
               end
-            }
+
+              use_pipeline :ui
+            end
+
+            @ui_renderers << Class.new(subclass(:ViewRenderer)) do
+              include Wrappable
+
+              pipeline :ui do
+                action Presenter::Actions::InstallEndpoints
+                action Presenter::Actions::CleanupPrototypeNodes
+                action Presenter::Actions::PlaceInMode
+              end
+
+              use_pipeline :ui
+            end
           end
 
           class_eval do

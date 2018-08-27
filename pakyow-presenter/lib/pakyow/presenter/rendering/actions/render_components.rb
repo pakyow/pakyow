@@ -29,6 +29,9 @@ module Pakyow
             }
 
             if found_component
+              original_values = connection.values
+              connection.instance_variable_set(:@values, {})
+
               component_instance = found_component.new(
                 connection: connection
               )
@@ -47,9 +50,12 @@ module Pakyow
 
               # Remove exposed values that aren't internal to the framework.
               #
-              connection.values.delete_if do |key|
-                !key.to_s.start_with?("__")
+              connection.values.each do |key, value|
+                next unless key.to_s.start_with?("__")
+                original_values[key] = value
               end
+
+              connection.instance_variable_set(:@values, original_values)
             end
 
             render(

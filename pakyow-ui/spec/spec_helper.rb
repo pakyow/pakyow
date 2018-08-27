@@ -53,9 +53,11 @@ TRANSFORMATION_IDS = [
 ]
 
 def process_ui_case_html(html)
-  html.scan(/data-t="(.*)"/).map { |match|
+  @transformation_ids = html.scan(/data-t="(.*)"/).map { |match|
     match[0]
-  }.uniq.each_with_index do |id_to_replace, i|
+  }.uniq
+
+  @transformation_ids.each_with_index do |id_to_replace, i|
     html.gsub!(id_to_replace, TRANSFORMATION_IDS[i])
   end
 
@@ -69,7 +71,9 @@ def process_ui_case_transformations(transformations)
   transformations = JSON.parse(transformations.to_json)
 
   replaced_transformation_ids = {}
-  transformations.each_with_index do |transformation, i|
+  transformations.sort { |a, b|
+    @transformation_ids.index(a["id"]) <=> @transformation_ids.index(b["id"])
+  }.each_with_index do |transformation, i|
     if replaced_transformation_ids.key?(transformation["id"])
       transformation_id = replaced_transformation_ids[transformation["id"]]
     else

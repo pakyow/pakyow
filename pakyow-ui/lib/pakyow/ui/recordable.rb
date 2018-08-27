@@ -140,7 +140,11 @@ module Pakyow
             # Copy state from the presenter we're tracking.
             #
             presenter.instance_variables.each do |ivar|
-              instance.instance_variable_set(ivar, presenter.instance_variable_get(ivar))
+              if ivar == :@__pipeline
+                instance.instance_variable_set(ivar, presenter.class.__pipeline.callable(instance))
+              else
+                instance.instance_variable_set(ivar, presenter.instance_variable_get(ivar))
+              end
             end
 
             instance.cache_bindings!

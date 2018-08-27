@@ -147,8 +147,8 @@ module Pakyow
       # Returns all components.
       #
       def components
-        @view.components.map { |form|
-          presenter_for(form)
+        @view.components.map { |component|
+          presenter_for(component)
         }
       end
 
