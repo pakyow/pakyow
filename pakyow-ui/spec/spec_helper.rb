@@ -96,6 +96,8 @@ def save_ui_case(example, path:)
   expect(result_response[0]).to eq(200)
   result = result_response[2].body.read
 
+  sleep 0.1
+
   case_name = example.metadata[:full_description].gsub(" ", "_").gsub(/_transforms$/, "")
 
   save_path = File.expand_path(
