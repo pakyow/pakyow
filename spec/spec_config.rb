@@ -1,4 +1,8 @@
+require "pakyow/support/deep_dup"
+
 RSpec.configure do |config|
+  using Pakyow::Support::DeepDup
+
   config.expect_with :rspec do |expectations|
     # TODO This option will default to `true` in RSpec 4. Remove then.
     expectations.include_chain_clauses_in_custom_matcher_descriptions = true
@@ -45,7 +49,7 @@ RSpec.configure do |config|
 
     if Pakyow.instance_variable_defined?(:@__class_state)
       @original_class_state = Pakyow.instance_variable_get(:@__class_state).keys.each_with_object({}) do |class_level_ivar, state|
-        state[class_level_ivar] = Pakyow.instance_variable_get(class_level_ivar).dup
+        state[class_level_ivar] = Pakyow.instance_variable_get(class_level_ivar).deep_dup
       end
 
       allow(Process).to receive(:exit)
