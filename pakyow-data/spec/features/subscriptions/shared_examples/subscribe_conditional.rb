@@ -12,10 +12,13 @@ RSpec.shared_examples :subscription_subscribe_conditional do
 
     let :app_definition do
       Pakyow.config.data.default_adapter = :sql
-      Pakyow.config.data.connections.sql[:default] = "sqlite::memory"
       Pakyow.config.data.subscriptions.adapter = data_subscription_adapter
 
       Proc.new do
+        Pakyow.after :configure do
+          config.data.connections.sql[:default] = "sqlite::memory"
+        end
+
         source :posts do
           primary_id
 

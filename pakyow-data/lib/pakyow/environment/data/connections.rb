@@ -10,8 +10,6 @@ module Pakyow
       module Connections
         extend Support::Extension
 
-        SUPPORTED_CONNECTION_TYPES = %i(sql).freeze
-
         apply_extension do
           class_state :data_connections, default: {}
 
@@ -29,7 +27,7 @@ module Pakyow
           end
 
           after :setup do
-            @data_connections = config.data.connections.types.each_with_object({}) { |connection_type, connections|
+            @data_connections = Pakyow::Data::Connection.adapter_types.each_with_object({}) { |connection_type, connections|
               connections[connection_type] = Pakyow.config.data.connections.public_send(connection_type).each_with_object({}) { |(connection_name, connection_string), adapter_connections|
                 extra_options = {}
 

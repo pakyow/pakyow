@@ -78,12 +78,16 @@ RSpec.describe "data config" do
 end
 
 RSpec.describe "connections config" do
+  before do
+    Pakyow.setup
+  end
+
   let :config do
     Pakyow.config.data.connections
   end
 
   it "has a setting for each type" do
-    Pakyow::Data::Connection::SUPPORTED_CONNECTION_TYPES.each do |type|
+    Pakyow::Data::Connection.adapter_types.each do |type|
       expect(config.public_send(type)).to eq({})
     end
   end

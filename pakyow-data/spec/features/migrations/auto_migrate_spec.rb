@@ -1,9 +1,16 @@
 RSpec.describe "auto migrating on boot" do
   before do
     require "pakyow/data/migrator"
-    Pakyow.config.data.connections.send(adapter_type)[:default] = adapter_url
+
     Pakyow.config.data.auto_migrate = auto_migrate_enabled
     Pakyow.config.data.auto_migrate_always = auto_migrate_always
+
+    local_adapter_type, local_adapter_url = adapter_type, adapter_url
+
+    Pakyow.after :configure do
+      Pakyow.config.data.connections.send(local_adapter_type)[:default] = local_adapter_url
+    end
+
     setup_expectations
   end
 

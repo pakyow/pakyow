@@ -3,6 +3,10 @@
 require "pakyow"
 require "pakyow/routing"
 
+require "pakyow/data/connection"
+
+Pakyow::Data::Connection.register_adapter :sql
+
 require "pakyow/data/errors"
 require "pakyow/data/framework"
 

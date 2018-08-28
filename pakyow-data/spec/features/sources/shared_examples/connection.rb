@@ -5,15 +5,17 @@ RSpec.shared_examples :source_connection do
     end
 
     context "single default connection is defined" do
-      before do
-        Pakyow.config.data.connections.public_send(connection_type)[:default] = connection_string
-      end
-
       include_context "testable app"
 
       context "source does not specify connection" do
         let :app_definition do
+          local_connection_type, local_connection_string = connection_type, connection_string
+
           Proc.new do
+            Pakyow.after :configure do
+              config.data.connections.public_send(local_connection_type)[:default] = local_connection_string
+            end
+
             instance_exec(&$data_app_boilerplate)
 
             source :posts do
@@ -29,7 +31,13 @@ RSpec.shared_examples :source_connection do
 
       context "source specifies the default connection" do
         let :app_definition do
+          local_connection_type, local_connection_string = connection_type, connection_string
+
           Proc.new do
+            Pakyow.after :configure do
+              config.data.connections.public_send(local_connection_type)[:default] = local_connection_string
+            end
+
             instance_exec(&$data_app_boilerplate)
 
             source :posts, connection: :default do
@@ -45,15 +53,17 @@ RSpec.shared_examples :source_connection do
     end
 
     context "single non-default connection is defined" do
-      before do
-        Pakyow.config.data.connections.public_send(connection_type)[:test] = connection_string
-      end
-
       include_context "testable app"
 
       context "source specifies a connection" do
         let :app_definition do
+          local_connection_type, local_connection_string = connection_type, connection_string
+
           Proc.new do
+            Pakyow.after :configure do
+              config.data.connections.public_send(local_connection_type)[:test] = local_connection_string
+            end
+
             instance_exec(&$data_app_boilerplate)
 
             source :posts, connection: :test do
@@ -69,16 +79,18 @@ RSpec.shared_examples :source_connection do
     end
 
     context "multiple connections are defined, with a default" do
-      before do
-        Pakyow.config.data.connections.public_send(connection_type)[:default] = connection_string
-        Pakyow.config.data.connections.public_send(connection_type)[:test] = connection_string
-      end
-
       include_context "testable app"
 
       context "source does not specify connection" do
         let :app_definition do
+          local_connection_type, local_connection_string = connection_type, connection_string
+
           Proc.new do
+            Pakyow.after :configure do
+              config.data.connections.public_send(local_connection_type)[:default] = local_connection_string
+              config.data.connections.public_send(local_connection_type)[:test] = local_connection_string
+            end
+
             instance_exec(&$data_app_boilerplate)
 
             source :posts do
@@ -94,7 +106,14 @@ RSpec.shared_examples :source_connection do
 
       context "source specifies the default connection" do
         let :app_definition do
+          local_connection_type, local_connection_string = connection_type, connection_string
+
           Proc.new do
+            Pakyow.after :configure do
+              config.data.connections.public_send(local_connection_type)[:default] = local_connection_string
+              config.data.connections.public_send(local_connection_type)[:test] = local_connection_string
+            end
+
             instance_exec(&$data_app_boilerplate)
 
             source :posts, connection: :default do
@@ -110,7 +129,14 @@ RSpec.shared_examples :source_connection do
 
       context "source specifies a connection" do
         let :app_definition do
+          local_connection_type, local_connection_string = connection_type, connection_string
+
           Proc.new do
+            Pakyow.after :configure do
+              config.data.connections.public_send(local_connection_type)[:default] = local_connection_string
+              config.data.connections.public_send(local_connection_type)[:test] = local_connection_string
+            end
+
             instance_exec(&$data_app_boilerplate)
 
             source :posts, connection: :test do
@@ -126,16 +152,18 @@ RSpec.shared_examples :source_connection do
     end
 
     context "multiple connections are defined, with no default" do
-      before do
-        Pakyow.config.data.connections.public_send(connection_type)[:test1] = connection_string
-        Pakyow.config.data.connections.public_send(connection_type)[:test2] = connection_string
-      end
-
       include_context "testable app"
 
       context "source specifies a connection" do
         let :app_definition do
+          local_connection_type, local_connection_string = connection_type, connection_string
+
           Proc.new do
+            Pakyow.after :configure do
+              config.data.connections.public_send(local_connection_type)[:test1] = local_connection_string
+              config.data.connections.public_send(local_connection_type)[:test2] = local_connection_string
+            end
+
             instance_exec(&$data_app_boilerplate)
 
             source :posts, connection: :test2 do

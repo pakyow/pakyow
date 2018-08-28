@@ -19,8 +19,6 @@ RSpec.configure do |config|
   config.include AppHelpers
 
   config.before do |example|
-    Pakyow.config.data.connections.sql[:default] = "sqlite::memory"
-
     allow_any_instance_of(Pakyow::Realtime::Server).to receive(:start_heartbeat)
 
     if $booted
@@ -39,6 +37,10 @@ require_relative "../../spec/context/suppressed_output_context"
 require_relative "../../spec/context/websocket_intercept_context"
 
 $ui_app_boilerplate = Proc.new do
+  Pakyow.after :configure do
+    config.data.connections.sql[:default] = "sqlite::memory"
+  end
+
   configure do
     config.presenter.path = File.join(File.expand_path("../", __FILE__), "features/support/views")
   end

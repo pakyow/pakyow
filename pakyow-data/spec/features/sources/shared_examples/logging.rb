@@ -1,7 +1,12 @@
 RSpec.shared_examples :source_logging do
   describe "logging queries" do
     before do
-      Pakyow.config.data.connections.public_send(connection_type)[:default] = connection_string
+      local_connection_type, local_connection_string = connection_type, connection_string
+
+      Pakyow.after :configure do
+        config.data.connections.public_send(local_connection_type)[:default] = local_connection_string
+      end
+
       Pakyow.config.data.silent = !logging_enabled
     end
 

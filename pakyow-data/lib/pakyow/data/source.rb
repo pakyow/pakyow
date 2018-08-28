@@ -192,7 +192,11 @@ module Pakyow
       end
 
       def wrap(result)
-        @object_map.fetch(@wrap_as, Object).new(result)
+        if @wrap_as.is_a?(Class)
+          @wrap_as.new(result)
+        else
+          @object_map.fetch(@wrap_as, Object).new(result)
+        end
       end
 
       def include_results!(results)
@@ -248,9 +252,12 @@ module Pakyow
 
         def make(name, adapter: Pakyow.config.data.default_adapter, connection: Pakyow.config.data.default_connection, state: nil, parent: nil, **kwargs, &block)
           super(name, state: state, parent: parent, adapter: adapter, connection: connection, attributes: {}, **kwargs) do
-            # Extend the source with any adapter-specific behavior.
-            #
-            include(Connection.adapter(adapter).const_get("SourceExtension"))
+            adapter_class = Connection.adapter(adapter)
+            if adapter_class.const_defined?("SourceExtension")
+              # Extend the source with any adapter-specific behavior.
+              #
+              include(adapter_class.const_get("SourceExtension"))
+            end
 
             # Call the original block.
             #

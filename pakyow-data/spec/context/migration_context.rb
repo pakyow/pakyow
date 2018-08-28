@@ -1,7 +1,10 @@
 RSpec.shared_context "migration" do
   before do
-    Pakyow.config.data.connections.sql[:default] = "sqlite::memory"
     Pakyow.config.data.migration_path = migration_path
+
+    Pakyow.after :configure do
+      config.data.connections.sql[:default] = "sqlite::memory"
+    end
 
     # Create the initial migrations.
     #

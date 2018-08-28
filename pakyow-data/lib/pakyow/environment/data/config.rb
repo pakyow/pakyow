@@ -9,6 +9,16 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
+          before :configure do
+            # We have to define these in a before configure hook since new types could be added.
+            #
+            Pakyow.config.data.connections.instance_eval do
+              Pakyow::Data::Connection.adapter_types.each do |type|
+                setting type, {}
+              end
+            end
+          end
+
           configurable :data do
             setting :default_adapter, :sql
             setting :default_connection, :default
@@ -35,11 +45,6 @@ module Pakyow
             end
 
             configurable :connections do
-              setting :types, Pakyow::Data::Connection::SUPPORTED_CONNECTION_TYPES
-
-              Pakyow::Data::Connection::SUPPORTED_CONNECTION_TYPES.each do |type|
-                setting type, {}
-              end
             end
           end
         end

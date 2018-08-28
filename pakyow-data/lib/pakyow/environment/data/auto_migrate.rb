@@ -8,8 +8,6 @@ module Pakyow
       module AutoMigrate
         extend Support::Extension
 
-        SUPPORTED_CONNECTION_TYPES = %i(sql).freeze
-
         apply_extension do
           after :boot do
             if Pakyow.config.data.auto_migrate || Pakyow.config.data.auto_migrate_always.any?

@@ -23,7 +23,7 @@ module Pakyow
           type
         else
           type = type.to_sym
-          additional_types.fetch(type) {
+          additional_types.to_h.fetch(type) {
             MAPPING.fetch(type)
           }
         end
