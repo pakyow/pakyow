@@ -15,6 +15,10 @@ module Pakyow
           File.expand_path(".")
         end
 
+        setting :lib do
+          File.join(config.root, "lib")
+        end
+
         setting :environment_path do
           File.join(config.root, "config/environment")
         end

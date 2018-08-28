@@ -199,6 +199,7 @@ module Pakyow
 
       performing :configure do
         configure!(env)
+        $LOAD_PATH.unshift(config.lib)
       end
 
       performing :setup do
