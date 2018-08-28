@@ -22,7 +22,9 @@ RSpec.configure do |config|
     allow_any_instance_of(Pakyow::Realtime::Server).to receive(:start_heartbeat)
 
     if $booted
-      allow(Thread).to receive(:new).and_yield
+      allow_any_instance_of(Concurrent::ThreadPoolExecutor).to receive(:<<) do |_, block|
+        block.call
+      end
     end
   end
 end

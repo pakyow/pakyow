@@ -61,7 +61,9 @@ RSpec.shared_examples :subscription_subscribe_deeply_associated do
     end
 
     before do
-      allow(Thread).to receive(:new).and_yield
+      allow_any_instance_of(Concurrent::ThreadPoolExecutor).to receive(:<<) do |_, block|
+        block.call
+      end
 
       @post = Pakyow.apps.first.data.posts.create(title: "post").one
       @comment = Pakyow.apps.first.data.comments.create(post: @post, title: "post").one

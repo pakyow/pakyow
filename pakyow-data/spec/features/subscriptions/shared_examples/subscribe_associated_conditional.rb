@@ -89,7 +89,9 @@ RSpec.shared_examples :subscription_subscribe_associated_conditional do
     end
 
     before do
-      allow(Thread).to receive(:new).and_yield
+      allow_any_instance_of(Concurrent::ThreadPoolExecutor).to receive(:<<) do |_, block|
+        block.call
+      end
 
       @post = Pakyow.apps.first.data.posts.create(title: "post").one
     end

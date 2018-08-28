@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "concurrent/executor/thread_pool_executor"
+
 require "pakyow/support/core_refinements/method/introspection"
 
 module Pakyow
@@ -14,6 +16,11 @@ module Pakyow
         @app = app
         require "pakyow/data/subscribers/adapters/#{adapter}"
         @adapter = Pakyow::Data::Subscribers::Adapter.const_get(adapter.to_s.capitalize).new(adapter_config)
+        @executor = Concurrent::ThreadPoolExecutor.new(
+          min_threads: 1,
+          max_threads: 10,
+          max_queue: 0
+        )
       rescue LoadError => e
         Pakyow.logger.error "Failed to load data subscriber store adapter named `#{adapter}'"
         Pakyow.logger.error e.message
@@ -32,7 +39,7 @@ module Pakyow
       end
 
       def did_mutate(source_name, changed_values, result_source)
-        Thread.new do
+        @executor << Proc.new {
           begin
             @adapter.subscriptions_for_source(source_name).select { |subscription|
               subscription[:handler] && qualified?(
@@ -47,7 +54,7 @@ module Pakyow
           rescue => error
             Pakyow.logger.error "[Pakyow::Data::Subscribers] did_mutate failed: #{error}"
           end
-        end
+        }
       end
 
       def unsubscribe(subscriber)
