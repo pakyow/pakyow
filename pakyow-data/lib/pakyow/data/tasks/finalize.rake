@@ -10,6 +10,8 @@ namespace :db do
   option :adapter, "The adapter to migrate"
   option :connection, "The connection to migrate"
   task :finalize, [:adapter, :connection] do |_, args|
+    Pakyow.boot
+
     migrator = Pakyow::Data::Migrator.establish(
       adapter: args[:adapter],
       connection: args[:connection],
