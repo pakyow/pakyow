@@ -21,7 +21,7 @@ module Pakyow
         @namespace, @name = namespace, name.to_sym
       end
 
-      def subclass(subclass_name)
+      def isolated(subclass_name)
         ClassName.new(
           ClassNamespace.new(*parts),
           subclass_name

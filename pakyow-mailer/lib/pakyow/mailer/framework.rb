@@ -12,7 +12,7 @@ module Pakyow
         app.class_eval do
           include Behavior::Config
 
-          subclass :Controller do
+          isolated :Controller do
             include Helpers
           end
         end

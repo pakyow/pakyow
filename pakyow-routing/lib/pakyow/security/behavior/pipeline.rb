@@ -11,7 +11,7 @@ module Pakyow
         apply_extension do
           require "pakyow/security/pipelines/csrf"
 
-          subclass :Controller do
+          isolated :Controller do
             include_pipeline Pipelines::CSRF
           end
         end

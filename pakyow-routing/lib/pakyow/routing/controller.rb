@@ -688,7 +688,7 @@ module Pakyow
       # @api private
       def make_child(*args, **kwargs, &block)
         name, matcher = parse_name_and_matcher_from_args(*args)
-        name = __class_name.subclass(name) if name && name.is_a?(Symbol) && __class_name
+        name = __class_name.isolated(name) if name && name.is_a?(Symbol) && __class_name
 
         controller = make(name, matcher, parent: self, **kwargs, &block)
         children << controller

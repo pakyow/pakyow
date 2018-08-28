@@ -43,7 +43,7 @@ module Pakyow
 
               catch :halt do
                 if Pakyow.env?(:production)
-                  connection.app.subclass(:Controller).new(connection).trigger(404)
+                  connection.app.isolated(:Controller).new(connection).trigger(404)
                 else
                   render(connection, templates_path: "/development/500")
                 end
@@ -53,7 +53,7 @@ module Pakyow
 
               if connection.app.class.includes_framework?(:core)
                 catch :halt do
-                  connection.app.subclass(:Controller).new(connection).handle_error(error)
+                  connection.app.isolated(:Controller).new(connection).handle_error(error)
                 end
               end
             end

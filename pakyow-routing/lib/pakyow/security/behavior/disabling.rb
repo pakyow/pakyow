@@ -9,7 +9,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          subclass :Controller do
+          isolated :Controller do
             def self.disable_protection(type, only: [], except: [])
               if type.to_sym == :csrf
                 if only.any? || except.any?

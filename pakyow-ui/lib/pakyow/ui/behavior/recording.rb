@@ -31,7 +31,7 @@ module Pakyow
           after :initialize do
             @ui_renderers = []
 
-            @ui_renderers << Class.new(subclass(:ComponentRenderer)) do
+            @ui_renderers << Class.new(isolated(:ComponentRenderer)) do
               include Wrappable
 
               pipeline :ui do
@@ -42,7 +42,7 @@ module Pakyow
               use_pipeline :ui
             end
 
-            @ui_renderers << Class.new(subclass(:ViewRenderer)) do
+            @ui_renderers << Class.new(isolated(:ViewRenderer)) do
               include Wrappable
 
               pipeline :ui do

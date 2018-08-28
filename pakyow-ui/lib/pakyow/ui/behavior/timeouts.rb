@@ -26,7 +26,7 @@ module Pakyow
             @connection.app.data.expire(@id, SUBSCRIPTION_TIMEOUT)
           end
 
-          subclass :ViewRenderer do
+          isolated :ViewRenderer do
             after :render do
               # Set the subscriptions we just created to expire if the connection is never established.
               #

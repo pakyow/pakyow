@@ -9,7 +9,7 @@ module Pakyow
         end
 
         def call(connection)
-          @app.subclass(:Controller).new(connection).trigger(404)
+          @app.isolated(:Controller).new(connection).trigger(404)
         end
       end
     end

@@ -38,7 +38,7 @@ module Pakyow
 
               component_instance.perform
 
-              connection.app.subclass(:ComponentRenderer).new(
+              connection.app.isolated(:ComponentRenderer).new(
                 connection,
                 component_presenter,
                 name: found_component.__class_name.name,

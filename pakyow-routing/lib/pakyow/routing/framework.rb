@@ -19,7 +19,7 @@ module Pakyow
     class Framework < Pakyow::Framework(:core)
       def boot
         app.class_eval do
-          subclass! Controller do
+          isolate Controller do
             include Extension::Resource
             include Helpers::Exposures
           end
@@ -28,7 +28,7 @@ module Pakyow
 
           # Make controllers definable on the app.
           #
-          stateful :controller, subclass(:Controller)
+          stateful :controller, isolated(:Controller)
 
           # Load controllers for the app.
           #
@@ -38,7 +38,7 @@ module Pakyow
           #
           before :load do
             config.helpers.each do |helper|
-              subclass(:Controller).include helper
+              isolated(:Controller).include helper
             end
           end
 

@@ -25,7 +25,7 @@ module Pakyow
         ).freeze
 
         apply_extension do
-          subclass :ComponentRenderer do
+          isolated :ComponentRenderer do
             include Realtime::Helpers::Subscriptions
             include TransformationHelpers
 
@@ -40,7 +40,7 @@ module Pakyow
             end
           end
 
-          subclass :ViewRenderer do
+          isolated :ViewRenderer do
             include Realtime::Helpers::Subscriptions
             include TransformationHelpers
 

@@ -30,7 +30,7 @@ module Pakyow
           include Behavior::Server
           include Behavior::Silencing
 
-          subclass :Controller do
+          isolated :Controller do
             include Helpers::Broadcasting
             include Helpers::Subscriptions
           end

@@ -21,7 +21,7 @@ require "pakyow/app/behavior/aspects"
 require "pakyow/app/behavior/helpers"
 require "pakyow/app/behavior/rescuing"
 require "pakyow/app/behavior/restarting"
-require "pakyow/app/behavior/subclassing"
+require "pakyow/app/behavior/isolating"
 require "pakyow/app/behavior/initializers"
 
 require "pakyow/connection"
@@ -128,12 +128,12 @@ module Pakyow
     include Behavior::Helpers
     include Behavior::Rescuing
     include Behavior::Restarting
-    include Behavior::Subclassing
+    include Behavior::Isolating
     include Behavior::Initializers
 
     # Creates a connection subclass that other frameworks can safely extend.
     #
-    subclass! Connection
+    isolate Connection
 
     def initialize(environment, builder: nil, &block)
       super()
@@ -186,7 +186,7 @@ module Pakyow
     #
     def call(rack_env)
       begin
-        connection = super(rack_env["pakyow.connection"] || subclass(:Connection).new(self, rack_env))
+        connection = super(rack_env["pakyow.connection"] || isolated(:Connection).new(self, rack_env))
 
         if connection.halted?
           connection.finalize

@@ -7,7 +7,7 @@ module Pakyow
         if path
           connection = @connection.dup
 
-          renderer = @connection.app.subclass(:ViewRenderer).new(
+          renderer = @connection.app.isolated(:ViewRenderer).new(
             connection,
             templates_path: path,
             embed_templates: false

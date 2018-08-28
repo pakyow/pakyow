@@ -33,7 +33,7 @@ module Pakyow
         base_renderer_class = if @app.class.const_defined?(args[:renderer][:class_name])
           @app.class.const_get(args[:renderer][:class_name])
         else
-          @app.subclass(:ViewRenderer)
+          @app.isolated(:ViewRenderer)
         end
 
         renderer_class = @app.ui_renderers.find { |ui_renderer|

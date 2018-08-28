@@ -26,12 +26,12 @@ module Pakyow
         require "pakyow/presenter/presentable_error"
 
         app.class_eval do
-          subclass!(ComponentRenderer)
-          subclass!(ViewRenderer)
+          isolate(ComponentRenderer)
+          isolate(ViewRenderer)
 
           stateful :templates, Templates
           stateful :presenter, Presenter
-          stateful :component, subclass!(Component)
+          stateful :component, isolate(Component)
           stateful :binder, Binder
           stateful :processor, Processor
 
@@ -39,16 +39,16 @@ module Pakyow
           aspect :components
           aspect :binders
 
-          subclass :Connection do
+          isolated :Connection do
             include Helpers::Renderable
           end
 
-          subclass :Component do
+          isolated :Component do
             include Routing::Helpers::Exposures
             include Helpers::Exposures
           end
 
-          subclass :Controller do
+          isolated :Controller do
             include_pipeline Pipelines::ImplicitRendering
 
             # We don't load these as normal helpers because they should only be
@@ -62,12 +62,12 @@ module Pakyow
             config.helpers.each do |helper|
               # Include other registered helpers into the view renderer.
               #
-              subclass(:ViewRenderer).include helper
+              isolated(:ViewRenderer).include helper
 
               # Include other registered helpers into the component and renderer.
               #
-              subclass(:Component).include helper
-              subclass(:ComponentRenderer).include helper
+              isolated(:Component).include helper
+              isolated(:ComponentRenderer).include helper
             end
           end
 
