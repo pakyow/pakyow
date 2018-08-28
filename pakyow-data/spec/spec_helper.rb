@@ -15,6 +15,10 @@ require_relative "../../spec/helpers/mock_handler"
 
 RSpec.configure do |config|
   config.include AppHelpers
+
+  config.after do
+    Pakyow.data_connections.values.flat_map(&:values).each(&:disconnect)
+  end
 end
 
 require_relative "../../spec/context/testable_app_context"
