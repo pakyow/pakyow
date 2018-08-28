@@ -26,18 +26,22 @@ module Pakyow
         require "pakyow/presenter/presentable_error"
 
         app.class_eval do
-          isolate(ComponentRenderer)
-          isolate(ViewRenderer)
+          isolate Binder
+          isolate Component
+          isolate Presenter
+          isolate ComponentRenderer
+          isolate ViewRenderer
 
-          stateful :templates, Templates
-          stateful :presenter, Presenter
-          stateful :component, isolate(Component)
-          stateful :binder, Binder
+          stateful :binder,    isolated(:Binder)
+          stateful :component, isolated(:Component)
+          stateful :presenter, isolated(:Presenter)
+
           stateful :processor, Processor
+          stateful :templates, Templates
 
-          aspect :presenters
-          aspect :components
           aspect :binders
+          aspect :components
+          aspect :presenters
 
           isolated :Connection do
             include Helpers::Renderable

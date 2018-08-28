@@ -13,8 +13,11 @@ module Pakyow
     class Framework < Pakyow::Framework(:data)
       def boot
         app.class_eval do
-          stateful :source, Source
-          stateful :object, Object
+          isolate Source
+          isolate Object
+
+          stateful :source, isolated(:Source)
+          stateful :object, isolated(:Object)
 
           # Autoload sources from the `sources` directory.
           #
