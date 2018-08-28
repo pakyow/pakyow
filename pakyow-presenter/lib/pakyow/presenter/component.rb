@@ -15,7 +15,7 @@ module Pakyow
       class_state :__presenter_extension, inheritable: true
 
       include Support::Hookable
-      known_events :render
+      events :render
 
       # @api private
       attr_reader :connection

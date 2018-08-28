@@ -18,7 +18,7 @@ module Pakyow
     # @example
     #   class Fish
     #     include Pakyow::Support::Hookable
-    #     known_events :swim
+    #     events :swim
     #
     #     def swim
     #       performing :swim do
@@ -55,7 +55,7 @@ module Pakyow
         base.prepend Initializer
 
         base.extend ClassState
-        base.class_state :__known_events, default: [], inheritable: true, getter: false
+        base.class_state :__events, default: [], inheritable: true, getter: false
         base.class_state :__hook_hash, default: { after: {}, before: {} }, inheritable: true
         base.class_state :__hook_pipeline, default: { after: {}, before: {} }, inheritable: true
       end
@@ -86,13 +86,13 @@ module Pakyow
         #
         # @param events [Array<Symbol>] The list of known events.
         #
-        def known_events(*events)
-          @__known_events.concat(events.map(&:to_sym)).uniq!; @__known_events
+        def events(*events)
+          @__events.concat(events.map(&:to_sym)).uniq!; @__events
         end
 
         # @api private
         def known_event?(event)
-          @__known_events.include?(event.to_sym)
+          @__events.include?(event.to_sym)
         end
       end
 

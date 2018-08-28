@@ -88,7 +88,7 @@ module Pakyow
   unfreezable :logger, :app
 
   include Support::Hookable
-  known_events :load, :configure, :setup, :boot, :fork
+  events :load, :configure, :setup, :boot, :fork
 
   include Support::Configurable
 

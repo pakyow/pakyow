@@ -113,7 +113,7 @@ module Pakyow
     inspectable :environment
 
     include Support::Hookable
-    known_events :initialize, :configure, :load, :finalize, :boot, :fork, :rescue
+    events :initialize, :configure, :load, :finalize, :boot, :fork, :rescue
 
     extend Support::DeepFreeze
     unfreezable :builder

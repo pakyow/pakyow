@@ -44,7 +44,7 @@ module Pakyow
     using Support::Indifferentize
 
     include Support::Hookable
-    known_events :finalize
+    events :finalize
 
     include Pakyow::Support::Inspectable
     inspectable :method, :params, :cookies, :status, :body

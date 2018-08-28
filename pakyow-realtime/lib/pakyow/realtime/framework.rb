@@ -23,7 +23,7 @@ module Pakyow
 
           # Socket events are triggered on the app.
           #
-          known_events :join, :leave
+          events :join, :leave
 
           include Behavior::Config
           include Behavior::Rendering

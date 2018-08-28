@@ -13,7 +13,7 @@ module Pakyow
       end
 
       include Support::Hookable
-      known_events :render
+      events :render
 
       include Support::Pipelined
       include Support::Pipelined::Haltable

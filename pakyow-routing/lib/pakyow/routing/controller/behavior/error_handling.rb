@@ -14,7 +14,7 @@ module Pakyow
           class_state :handlers, default: {}, inheritable: true
           class_state :exceptions, default: {}, inheritable: true
 
-          known_events :error
+          events :error
 
           include API
           extend API

@@ -23,7 +23,7 @@ module Pakyow
     include Common
 
     include Support::Hookable
-    known_events :generate
+    events :generate
 
     attr_reader :files
 

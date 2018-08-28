@@ -8,7 +8,7 @@ module Pakyow
   module Security
     class Base
       include Support::Hookable
-      known_events :reject
+      events :reject
 
       SAFE_HTTP_METHODS = %i(get head options trace).freeze
 

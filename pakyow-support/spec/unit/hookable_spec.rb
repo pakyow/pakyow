@@ -8,7 +8,7 @@ RSpec.describe Pakyow::Support::Hookable do
   let :hookable do
     Class.new {
       include Pakyow::Support::Hookable
-      known_events :event_one, :event_two, :event_three
+      events :event_one, :event_two, :event_three
     }
   end
 
