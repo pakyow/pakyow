@@ -86,7 +86,7 @@ module Pakyow
               adapter_path = "pakyow/data/adapters/#{type}"
               require adapter_path
               Adapters.const_get(Support.inflector.camelize(type))
-            rescue LoadError => error
+            rescue LoadError
               # TODO: present a nicer message here that tells the user how to resolve
               Pakyow.logger.error "Couldn't find a data adapter to load at `#{adapter_path}`"
             end
