@@ -231,7 +231,7 @@ module Pakyow
       end
 
       @connection, @route = connection, route
-      @__pipeline.call(connection)
+      @__pipeline.call(connection); halt
     rescue StandardError => error
       @connection.logger.houston(error)
       handle_error(error)
@@ -243,8 +243,6 @@ module Pakyow
       # Tell Pakyow that a route was called and didn't halt itself.
       # If it did, we wouldn't make it to this point.
       @connection.set(:__fully_dispatched, true)
-
-      halt
     end
 
     # Redirects to +location+ and immediately halts request processing.
