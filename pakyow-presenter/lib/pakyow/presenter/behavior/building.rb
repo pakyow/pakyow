@@ -24,9 +24,9 @@ module Pakyow
             info[:layout] = layout_object.dup
           end
 
-          info[:layout].mixin(info[:partials])
-          info[:page].mixin(info[:partials])
-          info[:layout].build(info[:page])
+          info[:layout].build(info[:page]).tap do |view|
+            view.mixin(info[:partials])
+          end
         end
 
         private
