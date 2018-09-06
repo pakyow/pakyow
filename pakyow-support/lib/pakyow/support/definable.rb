@@ -12,12 +12,12 @@ module Pakyow
     # You define the type of state provided by an object, along with any global
     # state for that object type. When an instance is created or the definable
     # object is subclassed, the new object inherits the global state and can be
-    # extended with its own state.
+    # extended with its own state. Definable objects' `initialize` method should
+    # always call super with the block to ensure that state is inherited correctly.
     #
-    # Once an instance has been created, global state for that object is frozen.
+    # Once `defined!` is called on an instance, consider freezing the object so
+    # that it cannot be extended later.
     #
-    # Definable objects' `initialize` method should always call super with
-    # the block to ensure that state is inherited correctly.
     #
     # @example
     #   class SomeDefinableObject
@@ -31,6 +31,8 @@ module Pakyow
     #       defined!(&block)
     #     end
     #   end
+    #
+    # @api private
     #
     module Definable
       using DeepDup
