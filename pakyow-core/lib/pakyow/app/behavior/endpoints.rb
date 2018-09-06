@@ -33,7 +33,7 @@ module Pakyow
         def load_endpoints
           state.each_with_object(@endpoints) { |(_, state_object), endpoints|
             state_object.instances.each do |state_instance|
-              endpoints << state_instance if state_instance.respond_to?(:path_to)
+              endpoints.load(state_instance)
             end
           }
         end

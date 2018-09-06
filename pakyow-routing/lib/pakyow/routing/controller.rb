@@ -652,26 +652,37 @@ module Pakyow
         File.join(parent.path_to_self.to_s, path.to_s)
       end
 
-      # @api private
-      def path_to(*names, **params)
-        # look for a matching route before descending into child controllers
-        combined_name = names.join("_").to_sym
-        if found_route = routes.values.flatten.find { |route| route.name == combined_name }
-          return found_route.populated_path(path_to_self, **params)
-        end
+      def endpoints
+        self_name = __class_name&.name.to_s
 
-        first_name = names.first
-        matched_controllers = children.reject { |controller_to_match|
-          controller_to_match&.__class_name&.name != first_name
-        }
+        [].tap do |endpoints|
+          @routes.values.flatten.each do |route|
+            if route.name == :default
+              # Register the endpoint without the default name for easier lookup.
+              #
+              endpoints << Endpoint.new(
+                name: self_name,
+                builder: Proc.new { |**params|
+                  route.populated_path(path_to_self, **params)
+                }
+              )
+            end
 
-        matched_controllers.each do |matched_controller|
-          if path = matched_controller.path_to(*names[1..-1], **params)
-            return path
+            endpoints << Endpoint.new(
+              name: [self_name, route.name.to_s].join("_"),
+              builder: Proc.new { |**params|
+                route.populated_path(path_to_self, **params)
+              }
+            )
+          end
+
+          children.flat_map(&:endpoints).each do |child_endpoint|
+            endpoints << Endpoint.new(
+              name: [self_name, child_endpoint.name].join("_"),
+              builder: child_endpoint.builder
+            )
           end
         end
-
-        nil
       end
 
       def make(*args, **kwargs, &block)

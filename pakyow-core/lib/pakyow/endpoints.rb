@@ -1,17 +1,32 @@
 # frozen_string_literal: true
 
+require "forwardable"
+
 module Pakyow
   # Lookup for endpoints.
   #
   class Endpoints
+    include Enumerable
+
+    extend Forwardable
+    def_delegator :@endpoints, :each
+
     def initialize
-      @objects_with_endpoints = []
+      @endpoints = []
     end
 
-    # Adds an object with endpoints.
+    # Adds an endpoint.
     #
-    def <<(object_with_endpoints)
-      @objects_with_endpoints << object_with_endpoints
+    def <<(endpoint)
+      @endpoints << endpoint
+    end
+
+    def load(object_with_endpoints)
+      if object_with_endpoints.respond_to?(:endpoints)
+        object_with_endpoints.endpoints.each do |endpoint|
+          self << endpoint
+        end
+      end
     end
 
     # Builds the path to a named route.
@@ -25,7 +40,12 @@ module Pakyow
     #   # => "/posts/1/edit"
     #
     def path(name, **params)
-      path_to(*name.to_s.split("_").map(&:to_sym), **params)
+      name = name.to_sym
+      found = @endpoints.find { |endpoint|
+        endpoint.name == name
+      }
+
+      found&.path(**params)
     end
 
     # Builds the path to a route, following a trail of names.
@@ -39,17 +59,19 @@ module Pakyow
     #   # => "/posts/1/edit"
     #
     def path_to(*names, **params)
-      matched_objects = @objects_with_endpoints.reject { |object_to_match|
-        object_to_match.__class_name.nil? || object_to_match.__class_name.name != names.first
-      }
+      path(names.join("_").to_sym, **params)
+    end
+  end
 
-      matched_objects.each do |matched_object|
-        if path = matched_object.path_to(*names[1..-1], **params)
-          return path
-        end
-      end
+  class Endpoint
+    attr_reader :name, :builder
 
-      nil
+    def initialize(name:, builder:)
+      @name, @builder = name.to_sym, builder
+    end
+
+    def path(**params)
+      @builder.call(**params)
     end
   end
 end
