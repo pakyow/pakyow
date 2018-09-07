@@ -20,6 +20,10 @@ module Pakyow
             defaults :development do
               setting :silent, false
             end
+
+            defaults :test do
+              setting :delivery_method, :test
+            end
           end
         end
       end
