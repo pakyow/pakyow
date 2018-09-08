@@ -92,18 +92,6 @@ module Pakyow
 
       private
 
-      def layout_with_name(name)
-        load_layouts
-
-        unless layout = @layouts[name.to_sym]
-          error = UnknownLayout.new("Could not find layout named `#{name}'")
-          error.context = name
-          raise error
-        end
-
-        layout
-      end
-
       def build_config(config)
         @config = {
           paths: {
@@ -121,8 +109,6 @@ module Pakyow
       end
 
       def load_layouts
-        return if instance_variable_defined?(:@layouts)
-
         @layouts = if File.exist?(layouts_path)
           layouts_path.children.each_with_object({}) { |file, layouts|
             next unless template?(file)
@@ -130,19 +116,20 @@ module Pakyow
             layouts[layout.name] = layout
           }
         else
-          []
+          {}
         end
       end
 
       def load_partials
-        @partials = {}
-        return unless File.exist?(partials_path)
-
-        @partials = partials_path.children.each_with_object({}) { |file, partials|
-          next unless template?(file)
-          partial = load_view_of_type_at_path(Partial, file, normalize_path(file))
-          partials[partial.name] = partial
-        }
+        @partials = if File.exist?(partials_path)
+          partials_path.children.each_with_object({}) { |file, partials|
+            next unless template?(file)
+            partial = load_view_of_type_at_path(Partial, file, normalize_path(file))
+            partials[partial.name] = partial
+          }
+        else
+          {}
+        end
       end
 
       def load_path_info
@@ -172,6 +159,10 @@ module Pakyow
             raise FrontMatterParsingError.new(message)
           end
         end
+      end
+
+      def layout_with_name(name)
+        @layouts[name.to_sym]
       end
 
       def page_at_path(path)

@@ -81,10 +81,10 @@ RSpec.describe "explicit rendering" do
         }
       end
 
-      it "fails" do
+      it "uses the default layout" do
         response = call("/")
-        expect(response[0]).to eq(500)
-        expect(response[2].body).to eq("Pakyow::Presenter::UnknownLayout: Pakyow couldn't find a layout named `nonexistent`. Try creating a view template for it here:\n\n    frontend/layouts/nonexistent.html\n")
+        expect(response[0]).to eq(200)
+        expect(response[2].body.read).to include_sans_whitespace("<title>default</title>")
       end
     end
   end

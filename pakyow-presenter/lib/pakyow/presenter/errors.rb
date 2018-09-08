@@ -45,15 +45,5 @@ module Pakyow
         end
       end
     end
-
-    class UnknownLayout < Error
-      def message
-        <<~MESSAGE
-        Pakyow couldn't find a layout named `#{@context}`. Try creating a view template for it here:
-
-            frontend/layouts/#{@context}.html
-        MESSAGE
-      end
-    end
   end
 end
