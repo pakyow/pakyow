@@ -27,7 +27,7 @@ module Pakyow
           #
           aspect :objects
 
-          helper Helpers
+          helper :active, Helpers
 
           include Behavior::Lookup
         end

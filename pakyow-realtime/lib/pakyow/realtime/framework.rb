@@ -19,7 +19,10 @@ module Pakyow
       def boot
         app.class_eval do
           action Actions::Upgrader
-          helper Helpers::Socket
+
+          helper :active, Helpers::Broadcasting
+          helper :active, Helpers::Subscriptions
+          helper :passive, Helpers::Socket
 
           # Socket events are triggered on the app.
           #
@@ -29,11 +32,6 @@ module Pakyow
           include Behavior::Rendering
           include Behavior::Server
           include Behavior::Silencing
-
-          isolated :Controller do
-            include Helpers::Broadcasting
-            include Helpers::Subscriptions
-          end
         end
       end
     end

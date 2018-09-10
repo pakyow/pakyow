@@ -6,8 +6,6 @@ require "pakyow/support/core_refinements/array/ensurable"
 require "pakyow/support/indifferentize"
 require "pakyow/support/safe_string"
 
-require "pakyow/presenter/helpers"
-
 module Pakyow
   module Presenter
     # Provides an interface for manipulating view templates.
@@ -53,8 +51,6 @@ module Pakyow
       # The logical path to the view template.
       #
       attr_reader :logical_path
-
-      include Helpers
 
       # Creates a view with +html+.
       #

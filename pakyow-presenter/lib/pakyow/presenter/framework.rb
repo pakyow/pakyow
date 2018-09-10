@@ -12,7 +12,8 @@ require "pakyow/presenter/behavior/watching"
 
 require "pakyow/presenter/helpers/exposures"
 require "pakyow/presenter/helpers/rendering"
-require "pakyow/presenter/helpers/renderable"
+
+require "pakyow/presenter/renderable"
 
 require "pakyow/presenter/pipelines/implicit_rendering"
 
@@ -43,36 +44,23 @@ module Pakyow
           aspect :components
           aspect :presenters
 
-          isolated :Connection do
-            include Helpers::Renderable
-          end
+          helper :active, Helpers::Exposures
+          helper :active, Helpers::Rendering
 
-          isolated :Component do
-            include Routing::Helpers::Exposures
-            include Helpers::Exposures
+          isolated :Connection do
+            include Renderable
           end
 
           isolated :Controller do
             include_pipeline Pipelines::ImplicitRendering
-
-            # We don't load these as normal helpers because they should only be
-            # available within controllers; not anywhere helpers are loaded.
-            #
-            include Helpers::Exposures
-            include Helpers::Rendering
           end
 
           before :load do
-            config.helpers.each do |helper|
-              # Include other registered helpers into the view renderer.
-              #
-              isolated(:ViewRenderer).include helper
-
-              # Include other registered helpers into the component and renderer.
-              #
-              isolated(:Component).include helper
-              isolated(:ComponentRenderer).include helper
-            end
+            self.class.include_helpers :global, isolated(:Binder)
+            self.class.include_helpers :global, isolated(:Presenter)
+            self.class.include_helpers :active, isolated(:Component)
+            self.class.include_helpers :passive, isolated(:ComponentRenderer)
+            self.class.include_helpers :passive, isolated(:ViewRenderer)
           end
 
           include Behavior::Building

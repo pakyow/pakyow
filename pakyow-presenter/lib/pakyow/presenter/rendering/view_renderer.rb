@@ -70,8 +70,6 @@ module Pakyow
         end
       end
 
-      include Security::Helpers::CSRF
-
       action Actions::InstallEndpoints
       action Actions::InsertPrototypeBar
       action Actions::CleanupPrototypeNodes

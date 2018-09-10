@@ -1,4 +1,10 @@
+# FIXME: these tests should be written from an end-user perspective so that helpers and such are loaded properly
+#
 RSpec.describe "binding data via presenter, with a binder" do
+  class Pakyow::Presenter::Binder
+    include Pakyow::Support::SafeStringHelpers
+  end
+
   let :post_binder do
     Pakyow::Presenter::Binder.make :post do
       def title

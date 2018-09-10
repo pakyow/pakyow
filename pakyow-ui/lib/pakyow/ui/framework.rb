@@ -13,7 +13,7 @@ module Pakyow
     class Framework < Pakyow::Framework(:ui)
       def boot
         app.class_eval do
-          helper Helpers
+          helper :passive, Helpers
 
           include Behavior::Recording
           include Behavior::Rendering

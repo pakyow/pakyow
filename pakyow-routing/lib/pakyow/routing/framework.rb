@@ -4,9 +4,9 @@ require "pakyow/framework"
 
 require "pakyow/routing/controller"
 require "pakyow/routing/extensions"
-
-require "pakyow/routing/helpers/definition"
 require "pakyow/routing/helpers/exposures"
+
+require "pakyow/app/behavior/definition"
 
 require "pakyow/security/behavior/config"
 require "pakyow/security/behavior/disabling"
@@ -19,12 +19,11 @@ module Pakyow
     class Framework < Pakyow::Framework(:core)
       def boot
         app.class_eval do
+          include App::Behavior::Definition
+
           isolate Controller do
             include Extension::Resource
-            include Helpers::Exposures
           end
-
-          extend Helpers::Definition
 
           # Make controllers definable on the app.
           #
@@ -34,12 +33,12 @@ module Pakyow
           #
           aspect :controllers
 
+          helper :active, Helpers::Exposures
+
           # Include helpers into the controller class.
           #
           before :load do
-            config.helpers.each do |helper|
-              isolated(:Controller).include helper
-            end
+            self.class.include_helpers :active, isolated(:Controller)
           end
 
           include Security::Behavior::Config
