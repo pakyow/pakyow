@@ -1,4 +1,4 @@
-RSpec.describe "isolated controller class" do
+RSpec.describe "isolated state" do
   include_examples "testable app"
 
   it "creates an isolated controller class for the app" do
