@@ -10,7 +10,6 @@ gemspec path: "pakyow-presenter"
 gemspec path: "pakyow-realtime"
 gemspec path: "pakyow-routing"
 gemspec path: "pakyow-support"
-gemspec path: "pakyow-test"
 gemspec path: "pakyow-ui"
 
 gem "htmlbeautifier", ">= 1.3"
