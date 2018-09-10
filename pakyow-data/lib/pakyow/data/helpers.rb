@@ -4,7 +4,7 @@ module Pakyow
   module Data
     module Helpers
       def data
-        app.data
+        @connection.app.data
       end
     end
   end
