@@ -3,7 +3,6 @@
 require "rspec/core/rake_task"
 
 GEMS_WITH_TESTS = GEMS.dup
-GEMS_WITH_TESTS.delete(:realtime)
 GEMS_WITH_TESTS.delete(:test)
 
 namespace :test do
