@@ -47,10 +47,12 @@ module Pakyow
           # Returns the isolated class, evaluating the block (if provided).
           #
           def isolated(class_name, &block)
-            const_get(class_name).tap do |isolated_class|
-              if isolated_class && block_given?
-                isolated_class.class_eval(&block)
+            if isolated?(class_name)
+              const_get(class_name).tap do |isolated_class|
+                isolated_class.class_eval(&block) if block_given?
               end
+            else
+              nil
             end
           end
         end
