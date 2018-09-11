@@ -4,7 +4,7 @@ RSpec.describe "defining resources" do
   context "when the resource is defined at the top level" do
     let :app_definition do
       Proc.new {
-        resources :posts, "/posts" do
+        resource :posts, "/posts" do
           list do
             send "post list"
           end
@@ -22,8 +22,8 @@ RSpec.describe "defining resources" do
   context "when the resource is nested within another resource" do
     let :app_definition do
       Proc.new {
-        resources :posts, "/posts" do
-          resources :comments, "/comments" do
+        resource :posts, "/posts" do
+          resource :comments, "/comments" do
             list do
               send "post #{params[:post_id]} comment list"
             end
@@ -42,7 +42,7 @@ RSpec.describe "defining resources" do
   context "when the resource is defined with actions" do
     let :app_definition do
       Proc.new {
-        resources :posts, "/posts" do
+        resource :posts, "/posts" do
           action :validate
 
           def validate
@@ -65,7 +65,7 @@ RSpec.describe "defining resources" do
     context "and the resource route defines its own actions" do
       let :app_definition do
         Proc.new {
-          resources :posts, "/posts" do
+          resource :posts, "/posts" do
             action :validate
             action :foo, only: [:list]
 
@@ -101,7 +101,7 @@ RSpec.describe "defining resources" do
   context "when the resource is defined partially" do
     let :app_definition do
       Proc.new {
-        resources :posts, "/posts" do
+        resource :posts, "/posts" do
           list do
           end
         end
@@ -116,7 +116,7 @@ RSpec.describe "defining resources" do
   context "when the resource is extended with member routes" do
     let :app_definition do
       Proc.new {
-        resources :posts, "/posts" do
+        resource :posts, "/posts" do
           member do
             get "/member"
           end
@@ -132,7 +132,7 @@ RSpec.describe "defining resources" do
   context "when the resource is extended with collection routes" do
     let :app_definition do
       Proc.new {
-        resources :posts, "/posts" do
+        resource :posts, "/posts" do
           collection do
             get "/collection"
           end
@@ -151,7 +151,7 @@ RSpec.describe "defining resources" do
   context "when the resource is defined with a url param" do
     let :app_definition do
       Proc.new {
-        resources :posts, "/posts", param: :slug do
+        resource :posts, "/posts", param: :slug do
           show do
             send "post #{params[:slug]} show"
           end
@@ -169,8 +169,8 @@ RSpec.describe "defining resources" do
   context "when a nested resource is defined with a url param" do
     let :app_definition do
       Proc.new {
-        resources :posts, "/posts" do
-          resources :comments, "/comments", param: :slug do
+        resource :posts, "/posts" do
+          resource :comments, "/comments", param: :slug do
             show do
               send "comment #{params[:slug]} show"
             end
@@ -189,7 +189,7 @@ RSpec.describe "defining resources" do
   describe "the defined resource" do
     let :app_definition do
       Proc.new {
-        resources :posts, "/posts" do
+        resource :posts, "/posts" do
           disable_protection :csrf
 
           list do
@@ -279,7 +279,7 @@ RSpec.describe "defining resources" do
   describe "routing to a path with an extension" do
     let :app_definition do
       Proc.new {
-        resources :posts, "/posts" do
+        resource :posts, "/posts" do
           list do
             send "post list"
           end

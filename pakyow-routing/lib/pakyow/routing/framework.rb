@@ -33,6 +33,10 @@ module Pakyow
           #
           aspect :controllers
 
+          # Load resources for the app.
+          #
+          aspect :resources
+
           helper :active, Helpers::Exposures
 
           # Include helpers into the controller class.

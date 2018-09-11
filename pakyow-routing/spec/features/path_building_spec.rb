@@ -40,10 +40,10 @@ RSpec.describe "path building" do
         end
       end
 
-      resources :posts, "/posts" do
+      resource :posts, "/posts" do
         list
 
-        resources :comments, "/comments" do
+        resource :comments, "/comments" do
           list
         end
       end

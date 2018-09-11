@@ -13,7 +13,7 @@ RSpec.describe "creating an ephemeral data source" do
     Proc.new do
       instance_exec(&$data_app_boilerplate)
 
-      resources :posts, "/posts" do
+      resource :posts, "/posts" do
         disable_protection :csrf
 
         show do
@@ -25,7 +25,7 @@ RSpec.describe "creating an ephemeral data source" do
         end
       end
 
-      resources :comments, "/comments" do
+      resource :comments, "/comments" do
         disable_protection :csrf
 
         create do

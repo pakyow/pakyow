@@ -42,7 +42,7 @@ RSpec.describe "setting up a form via presenter" do
 
       let :app_definition do
         Proc.new {
-          resources :posts, "/posts" do
+          resource :posts, "/posts" do
             create do; end
           end
         }
@@ -94,7 +94,7 @@ RSpec.describe "setting up a form via presenter" do
 
       let :app_definition do
         Proc.new {
-          resources :posts, "/posts" do
+          resource :posts, "/posts" do
             create do; end
           end
         }
@@ -155,7 +155,7 @@ RSpec.describe "setting up a form via presenter" do
 
       let :app_definition do
         Proc.new {
-          resources :posts, "/posts" do
+          resource :posts, "/posts" do
             update do; end
           end
         }
@@ -216,7 +216,7 @@ RSpec.describe "setting up a form via presenter" do
 
       let :app_definition do
         Proc.new {
-          resources :posts, "/posts" do
+          resource :posts, "/posts" do
             replace do; end
           end
         }
@@ -277,7 +277,7 @@ RSpec.describe "setting up a form via presenter" do
 
       let :app_definition do
         Proc.new {
-          resources :posts, "/posts" do
+          resource :posts, "/posts" do
             delete do; end
           end
         }

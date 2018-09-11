@@ -7,7 +7,7 @@ RSpec.describe "modifying boolean attributes during presentation" do
       Proc.new do
         instance_exec(&$ui_app_boilerplate)
 
-        resources :posts, "/posts" do
+        resource :posts, "/posts" do
           disable_protection :csrf
 
           list do
@@ -51,7 +51,7 @@ RSpec.describe "modifying boolean attributes during presentation" do
       Proc.new do
         instance_exec(&$ui_app_boilerplate)
 
-        resources :posts, "/posts" do
+        resource :posts, "/posts" do
           disable_protection :csrf
 
           list do

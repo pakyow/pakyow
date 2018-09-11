@@ -6,7 +6,7 @@ RSpec.describe "creating an object in a populated view" do
     Proc.new do
       instance_exec(&$ui_app_boilerplate)
 
-      resources :posts, "/posts" do
+      resource :posts, "/posts" do
         disable_protection :csrf
 
         list do

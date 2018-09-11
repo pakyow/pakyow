@@ -5,7 +5,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that needs add
     Proc.new {
       instance_exec(&$presenter_app_boilerplate)
 
-      resources :posts, "/posts" do
+      resource :posts, "/posts" do
         show do
           render "/presentation/endpoints/anchor/contextual"
         end
@@ -26,7 +26,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that needs add
       Proc.new {
         instance_exec(&$presenter_app_boilerplate)
 
-        resources :posts, "/posts" do
+        resource :posts, "/posts" do
           show do
             render "/presentation/endpoints/anchor/contextual/within_binding"
           end
@@ -58,7 +58,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that needs add
       Proc.new {
         instance_exec(&$presenter_app_boilerplate)
 
-        resources :posts, "/posts" do
+        resource :posts, "/posts" do
           show do
             render "/presentation/endpoints/anchor/contextual/binding_prop"
           end

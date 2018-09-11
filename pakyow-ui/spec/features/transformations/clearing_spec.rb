@@ -6,7 +6,7 @@ RSpec.describe "clearing data in a populated view" do
     Proc.new do
       instance_exec(&$ui_app_boilerplate)
 
-      resources :posts, "/posts" do
+      resource :posts, "/posts" do
         disable_protection :csrf
 
         list do
@@ -58,7 +58,7 @@ RSpec.describe "clearing data in a populated view that contains an empty version
     Proc.new do
       instance_exec(&$ui_app_boilerplate)
 
-      resources :posts, "/posts" do
+      resource :posts, "/posts" do
         disable_protection :csrf
 
         list do

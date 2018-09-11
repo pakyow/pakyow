@@ -210,7 +210,7 @@ RSpec.describe "binding data via presenter, with a binder" do
 
     let :app_definition do
       Proc.new {
-        resources :posts, "/posts" do
+        resource :posts, "/posts" do
           show do; end
         end
       }
@@ -251,7 +251,7 @@ RSpec.describe "binding data via presenter, with a binder" do
 
     let :app_definition do
       Proc.new {
-        resources :posts, "/posts" do
+        resource :posts, "/posts" do
           show do; end
         end
       }

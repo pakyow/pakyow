@@ -6,7 +6,7 @@ RSpec.describe "presenting data in a channeled binding" do
     Proc.new do
       instance_exec(&$ui_app_boilerplate)
 
-      resources :posts, "/posts" do
+      resource :posts, "/posts" do
         disable_protection :csrf
 
         list do
@@ -68,7 +68,7 @@ RSpec.describe "presenting data across channeled bindings" do
     Proc.new do
       instance_exec(&$ui_app_boilerplate)
 
-      resources :posts, "/posts" do
+      resource :posts, "/posts" do
         disable_protection :csrf
 
         list do

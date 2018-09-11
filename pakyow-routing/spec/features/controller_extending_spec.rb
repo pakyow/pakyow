@@ -12,7 +12,7 @@ RSpec.describe "extending a controller without an extension" do
       end
 
       extend_controller :admin do
-        resources :posts, "/posts" do
+        resource :posts, "/posts" do
           list do
             $calls << :list
           end

@@ -33,7 +33,7 @@ RSpec.shared_examples :subscription_subscribe_associated do
           attribute :title, :string
         end
 
-        resources :posts, "/posts" do
+        resource :posts, "/posts" do
           skip_action :verify_same_origin
           skip_action :verify_authenticity_token
 
@@ -48,7 +48,7 @@ RSpec.shared_examples :subscription_subscribe_associated do
           end
         end
 
-        resources :comments, "/comments" do
+        resource :comments, "/comments" do
           skip_action :verify_same_origin
           skip_action :verify_authenticity_token
 
@@ -253,7 +253,7 @@ RSpec.shared_examples :subscription_subscribe_associated do
           has_many :posts
         end
 
-        resources :posts, "/posts" do
+        resource :posts, "/posts" do
           skip_action :verify_same_origin
           skip_action :verify_authenticity_token
 
@@ -268,7 +268,7 @@ RSpec.shared_examples :subscription_subscribe_associated do
           end
         end
 
-        resources :users, "/users" do
+        resource :users, "/users" do
           skip_action :verify_same_origin
           skip_action :verify_authenticity_token
 

@@ -6,7 +6,7 @@ RSpec.describe "presenting an object with a value overridden in a binder" do
     Proc.new do
       instance_exec(&$ui_app_boilerplate)
 
-      resources :posts, "/posts" do
+      resource :posts, "/posts" do
         disable_protection :csrf
 
         list do
@@ -59,7 +59,7 @@ RSpec.describe "presenting an object with a value defined only in a binder" do
     Proc.new do
       instance_exec(&$ui_app_boilerplate)
 
-      resources :posts, "/posts" do
+      resource :posts, "/posts" do
         disable_protection :csrf
 
         list do

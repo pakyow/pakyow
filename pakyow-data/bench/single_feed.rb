@@ -20,7 +20,7 @@ class BenchHandler
 end
 
 Pakyow.app :single_feed_benchmark, only: %i[core data] do
-  resources :messages, "/messages" do
+  resource :messages, "/messages" do
     disable_protection :csrf
 
     create do

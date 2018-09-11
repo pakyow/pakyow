@@ -12,8 +12,8 @@ RSpec.describe "presenting a view that defines an anchor endpoint in a nested sc
       Proc.new {
         instance_exec(&$presenter_app_boilerplate)
 
-        resources :posts, "/posts" do
-          resources :comments, "/comments" do
+        resource :posts, "/posts" do
+          resource :comments, "/comments" do
             show do
               render "/presentation/endpoints/anchor/nested_scope"
             end

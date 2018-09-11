@@ -6,7 +6,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint within a bindi
     Proc.new {
       instance_exec(&$ui_app_boilerplate)
 
-      resources :posts, "/posts" do
+      resource :posts, "/posts" do
         disable_protection :csrf
 
         list do

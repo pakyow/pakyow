@@ -9,7 +9,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
       instance_exec(&$ui_app_boilerplate)
       instance_exec(&local_extensions)
 
-      resources :posts, "/posts" do
+      resource :posts, "/posts" do
         disable_protection :csrf
 
         list do

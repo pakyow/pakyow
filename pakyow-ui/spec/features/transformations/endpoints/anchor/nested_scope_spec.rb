@@ -6,7 +6,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint in a nested bi
     Proc.new {
       instance_exec(&$ui_app_boilerplate)
 
-      resources :posts, "/posts" do
+      resource :posts, "/posts" do
         disable_protection :csrf
 
         list do
@@ -46,7 +46,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint in a nested bi
           end
         end
 
-        resources :comments, "/comments" do
+        resource :comments, "/comments" do
           disable_protection :csrf
 
           show do

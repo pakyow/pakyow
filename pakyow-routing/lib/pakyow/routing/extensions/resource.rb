@@ -7,7 +7,7 @@ module Pakyow
     module Extension
       # An extension for defining RESTful Resources. For example:
       #
-      #   resources :posts, "/posts" do
+      #   resource :posts, "/posts" do
       #     list do
       #       # list the posts
       #     end
@@ -32,8 +32,8 @@ module Pakyow
       #
       # Resources can be nested. For example:
       #
-      #   resources :posts, "/posts" do
-      #     resources :comments, "/comments" do
+      #   resource :posts, "/posts" do
+      #     resource :comments, "/comments" do
       #       list do
       #         # available at GET /posts/:post_id/comments
       #       end
@@ -44,7 +44,7 @@ module Pakyow
       #
       # Routes can be defined for the collection. For example:
       #
-      #   resources :posts, "/posts" do
+      #   resource :posts, "/posts" do
       #     collection do
       #       get "/foo" do
       #         # available at GET /posts/foo
@@ -56,7 +56,7 @@ module Pakyow
       #
       # Routes can be defined as members. For example:
       #
-      #   resources :posts, "/posts" do
+      #   resource :posts, "/posts" do
       #     member do
       #       get "/foo" do
       #         # available at GET /posts/:post_id/foo
@@ -71,7 +71,7 @@ module Pakyow
         DEFAULT_PARAM = :id
 
         apply_extension do
-          template :resources do |param: DEFAULT_PARAM|
+          template :resource do |param: DEFAULT_PARAM|
             resource_id = ":#{param}"
             nested_resource_id = ":#{Support.inflector.singularize(controller.__class_name.name)}_#{param}"
 
@@ -103,8 +103,8 @@ module Pakyow
           # Nest resources as members of the current resource.
           #
           def self.define(controller, nested_resource_id)
-            controller.define_singleton_method :resources do |name, matcher, param: DEFAULT_PARAM, &block|
-              expand(:resources, name, File.join(nested_resource_id, matcher), param: param, &block)
+            controller.define_singleton_method :resource do |name, matcher, param: DEFAULT_PARAM, &block|
+              expand(:resource, name, File.join(nested_resource_id, matcher), param: param, &block)
             end
           end
         end

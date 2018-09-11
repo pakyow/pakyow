@@ -5,7 +5,7 @@ RSpec.describe "presenting a view that defines an endpoint for delete" do
     Proc.new {
       instance_exec(&$presenter_app_boilerplate)
 
-      resources :posts, "/posts" do
+      resource :posts, "/posts" do
         show do
           render "/presentation/endpoints/delete"
         end

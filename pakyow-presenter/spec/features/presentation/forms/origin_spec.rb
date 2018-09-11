@@ -37,7 +37,7 @@ RSpec.describe "form origin" do
           end
         end
 
-        resources :posts, "/posts" do
+        resource :posts, "/posts" do
           create do; end
         end
 

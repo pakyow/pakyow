@@ -32,7 +32,7 @@ RSpec.shared_examples :subscription_subscribe_conditional do
           end
         end
 
-        resources :posts, "/posts" do
+        resource :posts, "/posts" do
           skip_action :verify_same_origin
           skip_action :verify_authenticity_token
 

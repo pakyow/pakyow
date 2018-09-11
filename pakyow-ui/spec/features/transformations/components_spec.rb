@@ -6,7 +6,7 @@ RSpec.describe "presenting an object in a component" do
     Proc.new do
       instance_exec(&$ui_app_boilerplate)
 
-      resources :posts, "/posts" do
+      resource :posts, "/posts" do
         disable_protection :csrf
 
         create do
@@ -48,7 +48,7 @@ RSpec.describe "presenting the same data in a component and outside of it" do
     Proc.new do
       instance_exec(&$ui_app_boilerplate)
 
-      resources :posts, "/posts" do
+      resource :posts, "/posts" do
         disable_protection :csrf
 
         list do

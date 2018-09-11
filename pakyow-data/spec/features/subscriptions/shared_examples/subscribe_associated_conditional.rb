@@ -34,7 +34,7 @@ RSpec.shared_examples :subscription_subscribe_associated_conditional do
           attribute :body, :string
         end
 
-        resources :posts, "/posts" do
+        resource :posts, "/posts" do
           skip_action :verify_same_origin
           skip_action :verify_authenticity_token
 
@@ -51,7 +51,7 @@ RSpec.shared_examples :subscription_subscribe_associated_conditional do
           end
         end
 
-        resources :comments, "/comments" do
+        resource :comments, "/comments" do
           skip_action :verify_same_origin
           skip_action :verify_authenticity_token
 

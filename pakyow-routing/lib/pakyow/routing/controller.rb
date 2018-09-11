@@ -277,7 +277,7 @@ module Pakyow
     # @param method [Symbol] the http method to reroute as
     #
     # @example
-    #   Pakyow::App.resources :posts, "/posts" do
+    #   Pakyow::App.resource :posts, "/posts" do
     #     edit do
     #       @post ||= find_post_by_id(params[:post_id])
     #
@@ -622,7 +622,7 @@ module Pakyow
       # example, these calls are identical:
       #
       #   Pakyow::App.controller do
-      #     resources :posts, "/posts" do
+      #     resource :posts, "/posts" do
       #     end
       #
       #     expand :resource, :posts, "/posts" do

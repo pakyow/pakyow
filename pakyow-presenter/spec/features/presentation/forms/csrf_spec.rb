@@ -50,7 +50,7 @@ RSpec.describe "forms csrf" do
             end
           end
 
-          resources :posts, "/posts" do
+          resource :posts, "/posts" do
             create do; end
           end
 
