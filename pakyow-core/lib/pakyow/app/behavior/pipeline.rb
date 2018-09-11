@@ -24,7 +24,7 @@ module Pakyow
             @__pipeline.action(Assets::Actions::Process)
           end
 
-          if self.class.includes_framework?(:core) && !Pakyow.env?(:prototype)
+          if self.class.includes_framework?(:routing) && !Pakyow.env?(:prototype)
             state(:controller).each do |controller|
               @__pipeline.action(controller)
             end
@@ -34,7 +34,7 @@ module Pakyow
             @__pipeline.action(Presenter::Actions::AutoRender)
           end
 
-          if self.class.includes_framework?(:core) && !Pakyow.env?(:prototype)
+          if self.class.includes_framework?(:routing) && !Pakyow.env?(:prototype)
             @__pipeline.action(Routing::Actions::RespondMissing, self)
           end
         end

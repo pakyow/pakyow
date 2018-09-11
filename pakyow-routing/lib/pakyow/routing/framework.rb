@@ -16,7 +16,7 @@ require "pakyow/security/behavior/pipeline"
 
 module Pakyow
   module Routing
-    class Framework < Pakyow::Framework(:core)
+    class Framework < Pakyow::Framework(:routing)
       def boot
         app.class_eval do
           include App::Behavior::Definition

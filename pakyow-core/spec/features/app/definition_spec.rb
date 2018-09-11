@@ -28,7 +28,7 @@ RSpec.describe "defining an app" do
 
     let :base do
       klass = Class.new(Pakyow::App) do
-        include_frameworks(:core)
+        include_frameworks(:routing)
       end
 
       klass.define do

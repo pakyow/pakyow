@@ -51,7 +51,7 @@ module Pakyow
             rescue StandardError => error
               connection.logger.houston(error)
 
-              if connection.app.class.includes_framework?(:core)
+              if connection.app.class.includes_framework?(:routing)
                 catch :halt do
                   connection.app.isolated(:Controller).new(connection).handle_error(error)
                 end
