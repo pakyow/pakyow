@@ -15,24 +15,24 @@ module Pakyow
       attr_reader :name, :public_path
 
       def initialize(name, config)
-        @name = name
+        @name, @config = name, config
         @assets = []
         @packed = { js: [], css: [] }
         @public_path = String.normalize_path(
           File.join(config.prefix, "packs", name.to_s)
         )
-
-        if config.fingerprint
-          extension = File.extname(@public_path)
-          @public_path = File.join(
-            File.dirname(@public_path),
-            File.basename(@public_path, extension) + "__" + fingerprint + extension
-          )
-        end
       end
 
       def finalize
         tap do
+          if @config.fingerprint
+            extension = File.extname(@public_path)
+            @public_path = File.join(
+              File.dirname(@public_path),
+              File.basename(@public_path, extension) + "__" + fingerprint + extension
+            )
+          end
+
           pack_assets!
         end
       end
