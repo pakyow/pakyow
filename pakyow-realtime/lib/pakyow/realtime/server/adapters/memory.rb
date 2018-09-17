@@ -61,7 +61,8 @@ module Pakyow
           def expire(socket_id, seconds)
             task = Concurrent::ScheduledTask.execute(seconds) {
               channels_for_socket_id(socket_id).each do |channel|
-                socket_unsubscribe(socket_id, channel)
+                @channels_by_socket_id.delete(socket_id)
+                @socket_ids_by_channel[channel].delete(socket_id)
               end
             }
 
