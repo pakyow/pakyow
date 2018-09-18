@@ -457,7 +457,7 @@ module Pakyow
 
       def binder_for_current_scope
         binders.find { |binder|
-          binder.__class_name.name == @view.label(:binding)
+          binder.__object_name.name == @view.label(:binding)
         }
       end
 
@@ -511,8 +511,8 @@ module Pakyow
           # last one is the actual name, everything else is a namespace
           classname = path_parts.pop
 
-          Support::ClassName.new(
-            Support::ClassNamespace.new(
+          Support::ObjectName.new(
+            Support::ObjectNamespace.new(
               *(namespace.parts + path_parts)
             ), classname
           )

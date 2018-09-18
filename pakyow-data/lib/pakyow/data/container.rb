@@ -13,7 +13,7 @@ module Pakyow
         @connection, @sources = connection, sources
 
         @object_map = objects.each_with_object({}) { |object, map|
-          map[object.__class_name.name] = object
+          map[object.__object_name.name] = object
         }
 
         finalize!

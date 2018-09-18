@@ -653,7 +653,7 @@ module Pakyow
       end
 
       def endpoints
-        self_name = __class_name&.name.to_s
+        self_name = __object_name&.name.to_s
 
         [].tap do |endpoints|
           @routes.values.flatten.each do |route|
@@ -697,7 +697,7 @@ module Pakyow
       # @api private
       def make_child(*args, **kwargs, &block)
         name, matcher = parse_name_and_matcher_from_args(*args)
-        name = __class_name.isolated(name) if name && name.is_a?(Symbol) && __class_name
+        name = __object_name.isolated(name) if name && name.is_a?(Symbol) && __object_name
 
         controller = make(name, matcher, parent: self, **kwargs, &block)
         children << controller
@@ -714,7 +714,7 @@ module Pakyow
       protected
 
       def parse_name_and_matcher_from_args(name_or_matcher = nil, matcher_or_name = nil)
-        Aargv.normalize([name_or_matcher, matcher_or_name].compact, name: [Symbol, Support::ClassName], matcher: Object).values_at(:name, :matcher)
+        Aargv.normalize([name_or_matcher, matcher_or_name].compact, name: [Symbol, Support::ObjectName], matcher: Object).values_at(:name, :matcher)
       end
 
       def finalize_matcher(matcher)

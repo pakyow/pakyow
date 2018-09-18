@@ -1,25 +1,25 @@
 # frozen_string_literal: true
 
-require "pakyow/support/makeable/class_maker"
-require "pakyow/support/makeable/class_name"
+require "pakyow/support/makeable/object_maker"
+require "pakyow/support/makeable/object_name"
 
 module Pakyow
   module Support
     # @api private
     module Makeable
-      attr_reader :__class_name
+      attr_reader :__object_name
 
-      def make(class_name, within: nil, **kwargs, &block)
-        unless class_name.is_a?(ClassName) || class_name.nil?
-          namespace = if within && within.respond_to?(:__class_name)
-            within.__class_name.namespace
-          elsif within.is_a?(ClassNamespace)
+      def make(object_name, within: nil, **kwargs, &block)
+        unless object_name.is_a?(ObjectName) || object_name.nil?
+          namespace = if within && within.respond_to?(:__object_name)
+            within.__object_name.namespace
+          elsif within.is_a?(ObjectNamespace)
             within
           else
-            ClassNamespace.new
+            ObjectNamespace.new
           end
 
-          class_name = ClassName.new(namespace, class_name)
+          object_name = ObjectName.new(namespace, object_name)
         end
 
         if self.is_a?(Class)
@@ -27,18 +27,18 @@ module Pakyow
           eval_method = :class_eval
         elsif self.is_a?(Module)
           new_class = Module.new do
-            def self.__class_name
-              @__class_name
+            def self.__object_name
+              @__object_name
             end
           end
 
           eval_method = :module_eval
         end
 
-        ClassMaker.define_const_for_class_with_name(new_class, class_name)
+        ObjectMaker.define_const_for_object_with_name(new_class, object_name)
 
         new_class.send(eval_method) do
-          @__class_name = class_name
+          @__object_name = object_name
 
           kwargs.each do |arg, value|
             instance_variable_set(:"@#{arg}", value)

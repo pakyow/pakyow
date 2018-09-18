@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
-require "pakyow/support/makeable/class_namespace"
+require "pakyow/support/makeable/object_namespace"
 
 module Pakyow
   module Support
     # @api private
-    class ClassName
+    class ObjectName
       class << self
-        def namespace(*namespaces, class_name)
-          ClassName.new(
-            ClassNamespace.new(*namespaces),
-            class_name
+        def namespace(*namespaces, object_name)
+          ObjectName.new(
+            ObjectNamespace.new(*namespaces),
+            object_name
           )
         end
       end
@@ -21,10 +21,10 @@ module Pakyow
         @namespace, @name = namespace, name.to_sym
       end
 
-      def isolated(subclass_name)
-        ClassName.new(
-          ClassNamespace.new(*parts),
-          subclass_name
+      def isolated(subobject_name)
+        ObjectName.new(
+          ObjectNamespace.new(*parts),
+          subobject_name
         )
       end
 

@@ -116,8 +116,8 @@ module Pakyow
           @__state[name] = State.new(name, object)
           plural_name = Support.inflector.pluralize(name.to_s).to_sym
 
-          within = if __class_name
-            ClassNamespace.new(*__class_name.namespace.parts.dup.concat([plural_name]))
+          within = if __object_name
+            ObjectNamespace.new(*__object_name.namespace.parts.dup.concat([plural_name]))
           else
             self
           end

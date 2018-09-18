@@ -43,7 +43,7 @@ module Pakyow
         @presenter.presentables.merge!(connection.values)
 
         component_class = connection.app.state(:component).find { |component|
-          component.__class_name.name == name
+          component.__object_name.name == name
         }
 
         if component_class.__presenter_extension

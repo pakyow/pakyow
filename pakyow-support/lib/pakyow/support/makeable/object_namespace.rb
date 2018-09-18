@@ -3,7 +3,7 @@
 module Pakyow
   module Support
     # @api private
-    class ClassNamespace
+    class ObjectNamespace
       def initialize(*namespaces)
         @namespaces = namespaces.map(&:to_sym)
       end

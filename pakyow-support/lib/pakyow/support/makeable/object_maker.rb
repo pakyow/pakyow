@@ -5,15 +5,15 @@ require "pakyow/support/inflector"
 module Pakyow
   module Support
     # @api private
-    module ClassMaker
-      def self.define_const_for_class_with_name(class_to_define, class_name)
-        return if class_name.nil?
+    module ObjectMaker
+      def self.define_const_for_object_with_name(object_to_define, object_name)
+        return if object_name.nil?
 
-        target = class_name.namespace.parts.inject(Object) { |target_for_part, class_name_part|
-          ClassMaker.define_object_on_target_with_constant_name(Module.new, target_for_part, class_name_part)
+        target = object_name.namespace.parts.inject(Object) { |target_for_part, object_name_part|
+          ObjectMaker.define_object_on_target_with_constant_name(Module.new, target_for_part, object_name_part)
         }
 
-        ClassMaker.define_object_on_target_with_constant_name(class_to_define, target, class_name.name)
+        ObjectMaker.define_object_on_target_with_constant_name(object_to_define, target, object_name.name)
       end
 
       def self.define_object_on_target_with_constant_name(object, target, constant_name)

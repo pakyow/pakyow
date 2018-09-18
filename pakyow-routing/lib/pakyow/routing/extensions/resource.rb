@@ -73,7 +73,7 @@ module Pakyow
         apply_extension do
           template :resource do |param: DEFAULT_PARAM|
             resource_id = ":#{param}"
-            nested_resource_id = ":#{Support.inflector.singularize(controller.__class_name.name)}_#{param}"
+            nested_resource_id = ":#{Support.inflector.singularize(controller.__object_name.name)}_#{param}"
 
             action :update_request_path_for_show, only: [:show]
 

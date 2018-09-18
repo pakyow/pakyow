@@ -25,7 +25,7 @@ module Pakyow
             component_path = path.dup << i
 
             found_component = connection.app.state(:component).find { |component|
-              component.__class_name.name == component_presenter.view.object.label(:component)
+              component.__object_name.name == component_presenter.view.object.label(:component)
             }
 
             if found_component
@@ -41,7 +41,7 @@ module Pakyow
               connection.app.isolated(:ComponentRenderer).new(
                 connection,
                 component_presenter,
-                name: found_component.__class_name.name,
+                name: found_component.__object_name.name,
                 templates_path: templates_path,
                 component_path: component_path,
                 layout: layout,

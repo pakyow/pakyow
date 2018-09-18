@@ -8,7 +8,7 @@ RSpec.describe Pakyow::Support::Makeable do
       end
 
       it "sets the name on the class" do
-        expect(object.make(:foo).__class_name.name).to eq(:foo)
+        expect(object.make(:foo).__object_name.name).to eq(:foo)
       end
 
       it "evals the block on the class" do
@@ -37,15 +37,15 @@ RSpec.describe Pakyow::Support::Makeable do
         end
       end
 
-      context "given name is an instance of ClassName" do
+      context "given name is an instance of ObjectName" do
         context "given name has an underscore" do
           after do
             Object.send(:remove_const, :FooBar)
           end
 
           let :class_name do
-            Pakyow::Support::ClassName.new(
-              Pakyow::Support::ClassNamespace.new,
+            Pakyow::Support::ObjectName.new(
+              Pakyow::Support::ObjectNamespace.new,
               :foo_bar
             )
           end
@@ -61,8 +61,8 @@ RSpec.describe Pakyow::Support::Makeable do
           end
 
           let :class_name do
-            Pakyow::Support::ClassName.new(
-              Pakyow::Support::ClassNamespace.new,
+            Pakyow::Support::ObjectName.new(
+              Pakyow::Support::ObjectNamespace.new,
               :foo_bar_baz
             )
           end
@@ -73,7 +73,7 @@ RSpec.describe Pakyow::Support::Makeable do
         end
       end
 
-      context "given name is a namespaced instance of ClassName" do
+      context "given name is a namespaced instance of ObjectName" do
         context "given name has a single namespace" do
           after do
             Foo.send(:remove_const, :Bar)
@@ -81,8 +81,8 @@ RSpec.describe Pakyow::Support::Makeable do
           end
 
           let :class_name do
-            Pakyow::Support::ClassName.new(
-              Pakyow::Support::ClassNamespace.new(:foo),
+            Pakyow::Support::ObjectName.new(
+              Pakyow::Support::ObjectNamespace.new(:foo),
               :bar
             )
           end
@@ -100,8 +100,8 @@ RSpec.describe Pakyow::Support::Makeable do
           end
 
           let :class_name do
-            Pakyow::Support::ClassName.new(
-              Pakyow::Support::ClassNamespace.new(:foo, :bar),
+            Pakyow::Support::ObjectName.new(
+              Pakyow::Support::ObjectNamespace.new(:foo, :bar),
               :baz
             )
           end

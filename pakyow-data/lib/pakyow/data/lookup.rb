@@ -19,10 +19,10 @@ module Pakyow
 
         containers.each do |container|
           container.sources.each do |source|
-            define_singleton_method source.__class_name.name do
+            define_singleton_method source.__object_name.name do
               Proxy.new(
                 container.source_instance(
-                  source.__class_name.name
+                  source.__object_name.name
                 ),
 
                 @subscribers

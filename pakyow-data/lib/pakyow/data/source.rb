@@ -155,7 +155,7 @@ module Pakyow
       end
 
       def source_name
-        self.class.__class_name.name
+        self.class.__object_name.name
       end
 
       def command?(maybe_command_name)
@@ -353,11 +353,11 @@ module Pakyow
         end
 
         def plural_name
-          Support.inflector.pluralize(__class_name.name).to_sym
+          Support.inflector.pluralize(__object_name.name).to_sym
         end
 
         def singular_name
-          Support.inflector.singularize(__class_name.name).to_sym
+          Support.inflector.singularize(__object_name.name).to_sym
         end
 
         def find_association_to_source(source)

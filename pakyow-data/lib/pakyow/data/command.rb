@@ -96,7 +96,7 @@ module Pakyow
           # return a source containing locally updated values. This lets us see
           # the original values but prevents us from fetching twice.
 
-          @source.container.source_instance(@source.class.__class_name.name).tap do |updated_source|
+          @source.container.source_instance(@source.class.__object_name.name).tap do |updated_source|
             updated_source.__setobj__(
               @source.container.connection.adapter.result_for_attribute_value(
                 @source.class.primary_key_field, command_result, updated_source

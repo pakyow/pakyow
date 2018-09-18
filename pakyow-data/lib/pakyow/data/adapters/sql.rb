@@ -340,7 +340,7 @@ module Pakyow
               __getobj__.sql
             end
 
-            class_state :dataset_table, default: self.__class_name.name
+            class_state :dataset_table, default: self.__object_name.name
 
             class << self
               def table(table_name)

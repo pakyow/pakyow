@@ -49,12 +49,12 @@ module Pakyow
           #   end
           #
           def extend_controller(controller_name)
-            if controller_name.is_a?(Support::ClassName)
+            if controller_name.is_a?(Support::ObjectName)
               controller_name = controller_name.name
             end
 
             matched_controller = state(:controller).find { |controller|
-              controller.__class_name.name == controller_name
+              controller.__object_name.name == controller_name
             }
 
             if matched_controller
