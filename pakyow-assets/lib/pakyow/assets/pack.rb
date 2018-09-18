@@ -66,7 +66,7 @@ module Pakyow
       end
 
       def fingerprint
-        @assets.flat_map(&:fingerprint).each_with_object(Digest::MD5.new) { |fingerprint, digest|
+        @assets.flat_map(&:fingerprint).sort.each_with_object(Digest::MD5.new) { |fingerprint, digest|
           digest.update(fingerprint)
         }.hexdigest
       end

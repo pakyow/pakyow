@@ -133,7 +133,7 @@ RSpec.describe "precompiling assets" do
           File.join(
             running_app.config.assets.compile_path,
             running_app.config.assets.prefix,
-            "packs/layouts/view_packs__70425ca9e040d613d234371053838ab2.css"
+            "packs/layouts/view_packs__44717c2fcdb8f554091ee8f4762aca40.css"
           )
         )
       ).to be(true)
