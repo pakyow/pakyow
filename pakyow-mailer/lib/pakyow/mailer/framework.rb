@@ -12,7 +12,7 @@ module Pakyow
         app.class_eval do
           include Behavior::Config
 
-          helper :active, Helpers
+          register_helper :active, Helpers
         end
       end
     end

@@ -20,9 +20,9 @@ module Pakyow
         app.class_eval do
           action Actions::Upgrader
 
-          helper :active, Helpers::Broadcasting
-          helper :active, Helpers::Subscriptions
-          helper :passive, Helpers::Socket
+          register_helper :active, Helpers::Broadcasting
+          register_helper :active, Helpers::Subscriptions
+          register_helper :passive, Helpers::Socket
 
           # Socket events are triggered on the app.
           #

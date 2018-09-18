@@ -11,7 +11,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          helper :passive, Security::Helpers::CSRF
+          register_helper :passive, Security::Helpers::CSRF
         end
       end
     end

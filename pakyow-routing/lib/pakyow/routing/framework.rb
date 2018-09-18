@@ -37,7 +37,7 @@ module Pakyow
           #
           aspect :resources
 
-          helper :active, Helpers::Exposures
+          register_helper :active, Helpers::Exposures
 
           # Include helpers into the controller class.
           #

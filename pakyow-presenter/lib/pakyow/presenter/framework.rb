@@ -44,8 +44,8 @@ module Pakyow
           aspect :components
           aspect :presenters
 
-          helper :active, Helpers::Exposures
-          helper :active, Helpers::Rendering
+          register_helper :active, Helpers::Exposures
+          register_helper :active, Helpers::Rendering
 
           isolated :Connection do
             include Renderable
