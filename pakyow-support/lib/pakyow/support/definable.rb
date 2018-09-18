@@ -207,20 +207,26 @@ module Pakyow
           }
         end
 
-        ancestors = if instance.respond_to?(:new)
-          instance.ancestors
-        else
-          instance.class.ancestors
-        end
-
-        unless ancestors.include?(object)
-          raise ArgumentError, "Expected instance of '#{object}'"
+        unless instance.is_a?(Module)
+          enforce_registration!(instance)
         end
 
         instances << instance
 
         priorities[instance] = priority
         reprioritize!
+      end
+
+      def enforce_registration!(instance)
+        ancestors = if instance.respond_to?(:new)
+          instance.ancestors
+        else
+          instance.class.ancestors
+        end
+
+        unless ancestors.include?(@object)
+          raise ArgumentError, "Expected instance of '#{@object}'"
+        end
       end
 
       def reprioritize!

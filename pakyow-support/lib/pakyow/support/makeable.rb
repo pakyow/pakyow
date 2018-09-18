@@ -22,10 +22,22 @@ module Pakyow
           class_name = ClassName.new(namespace, class_name)
         end
 
-        new_class = Class.new(self)
+        if self.is_a?(Class)
+          new_class = Class.new(self)
+          eval_method = :class_eval
+        elsif self.is_a?(Module)
+          new_class = Module.new do
+            def self.__class_name
+              @__class_name
+            end
+          end
+
+          eval_method = :module_eval
+        end
+
         ClassMaker.define_const_for_class_with_name(new_class, class_name)
 
-        new_class.class_eval do
+        new_class.send(eval_method) do
           @__class_name = class_name
 
           kwargs.each do |arg, value|
