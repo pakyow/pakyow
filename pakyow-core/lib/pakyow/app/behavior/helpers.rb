@@ -23,6 +23,11 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
+          # @api private
+          class_state :__included_helpers, default: {
+            global: [], passive: [], active: []
+          }, inheritable: true
+
           setting :helpers,
                   global: [
                     Support::SafeStringHelpers
@@ -74,6 +79,8 @@ module Pakyow
             helpers(context.to_sym).each do |helper|
               isolated(isolated_class_name).include helper
             end
+
+            @__included_helpers[context] << isolated_class_name
           end
 
           def helpers(context)
