@@ -66,13 +66,13 @@ module Pakyow
             (config.helpers[context.to_sym] << helper_module).uniq!
           end
 
-          # Includes helpers of a particular context into an object. Global helpers
+          # Includes helpers for a context into an isolated class. Global helpers
           # will automatically be included into active and passive contexts, and
           # passive helpers will automatically be included into the active context.
           #
-          def include_helpers(context, object)
+          def include_helpers(context, isolated_class_name)
             helpers(context.to_sym).each do |helper|
-              object.include helper
+              isolated(isolated_class_name).include helper
             end
           end
 
