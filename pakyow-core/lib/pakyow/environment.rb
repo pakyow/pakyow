@@ -92,8 +92,8 @@ module Pakyow
 
   include Support::Configurable
 
-  include Behavior::Config
-  include Behavior::Initializers
+  include Environment::Behavior::Config
+  include Environment::Behavior::Initializers
 
   # Loads the default middleware stack.
   #

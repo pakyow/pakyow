@@ -6,7 +6,7 @@ require "pakyow/routing/controller"
 require "pakyow/routing/extensions"
 require "pakyow/routing/helpers/exposures"
 
-require "pakyow/app/behavior/definition"
+require "pakyow/behavior/definition"
 
 require "pakyow/security/behavior/config"
 require "pakyow/security/behavior/disabling"
@@ -19,7 +19,7 @@ module Pakyow
     class Framework < Pakyow::Framework(:routing)
       def boot
         object.class_eval do
-          include App::Behavior::Definition
+          include Pakyow::Behavior::Definition
 
           isolate Controller do
             include Extension::Resource
