@@ -12,7 +12,7 @@ module Pakyow
   module UI
     class Framework < Pakyow::Framework(:ui)
       def boot
-        app.class_eval do
+        object.class_eval do
           register_helper :passive, Helpers
 
           include Behavior::Recording

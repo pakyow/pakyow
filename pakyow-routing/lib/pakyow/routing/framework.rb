@@ -18,7 +18,7 @@ module Pakyow
   module Routing
     class Framework < Pakyow::Framework(:routing)
       def boot
-        app.class_eval do
+        object.class_eval do
           include App::Behavior::Definition
 
           isolate Controller do

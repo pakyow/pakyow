@@ -26,7 +26,7 @@ module Pakyow
       def boot
         require "pakyow/presenter/presentable_error"
 
-        app.class_eval do
+        object.class_eval do
           isolate Binder
           isolate Component
           isolate Presenter
