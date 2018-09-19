@@ -56,11 +56,11 @@ module Pakyow
           end
 
           before :load do
-            self.class.include_helpers :global, :Binder
-            self.class.include_helpers :global, :Presenter
-            self.class.include_helpers :active, :Component
-            self.class.include_helpers :passive, :ComponentRenderer
-            self.class.include_helpers :passive, :ViewRenderer
+            self.class.include_helpers :global, isolated(:Binder)
+            self.class.include_helpers :global, isolated(:Presenter)
+            self.class.include_helpers :active, isolated(:Component)
+            self.class.include_helpers :passive, isolated(:ComponentRenderer)
+            self.class.include_helpers :passive, isolated(:ViewRenderer)
           end
 
           include Behavior::Building

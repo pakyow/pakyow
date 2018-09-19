@@ -42,7 +42,7 @@ module Pakyow
           # Include helpers into the controller class.
           #
           before :load do
-            self.class.include_helpers :active, :Controller
+            self.class.include_helpers :active, isolated(:Controller)
           end
 
           include Security::Behavior::Config
