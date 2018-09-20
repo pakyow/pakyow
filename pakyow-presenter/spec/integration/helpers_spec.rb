@@ -10,31 +10,31 @@ RSpec.describe "presenter helpers" do
   end
 
   it "includes global helpers into Binder" do
-    app.helpers(:global).each do |helper|
+    app.helpers(:global).reject { |helper| helper.name.nil? }.each do |helper|
       expect(app.isolated(:Binder).ancestors).to include(helper)
     end
   end
 
   it "includes global helpers into Presenter" do
-    app.helpers(:global).each do |helper|
+    app.helpers(:global).reject { |helper| helper.name.nil? }.each do |helper|
       expect(app.isolated(:Presenter).ancestors).to include(helper)
     end
   end
 
   it "includes active helpers into Component" do
-    app.helpers(:active).each do |helper|
+    app.helpers(:active).reject { |helper| helper.name.nil? }.each do |helper|
       expect(app.isolated(:Component).ancestors).to include(helper)
     end
   end
 
   it "includes passive helpers into ComponentRenderer" do
-    app.helpers(:passive).each do |helper|
+    app.helpers(:passive).reject { |helper| helper.name.nil? }.each do |helper|
       expect(app.isolated(:ComponentRenderer).ancestors).to include(helper)
     end
   end
 
   it "includes passive helpers into ViewRenderer" do
-    app.helpers(:passive).each do |helper|
+    app.helpers(:passive).reject { |helper| helper.name.nil? }.each do |helper|
       expect(app.isolated(:ViewRenderer).ancestors).to include(helper)
     end
   end

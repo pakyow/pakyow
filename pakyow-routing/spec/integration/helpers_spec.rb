@@ -6,7 +6,7 @@ RSpec.describe "routing helpers" do
   end
 
   it "includes active helpers into Controller" do
-    app.helpers(:active).each do |helper|
+    app.helpers(:active).reject { |helper| helper.name.nil? }.each do |helper|
       expect(app.isolated(:Controller).ancestors).to include(helper)
     end
   end
