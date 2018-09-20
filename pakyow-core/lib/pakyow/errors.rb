@@ -49,4 +49,20 @@ module Pakyow
 
   class UnknownValidationError < Error
   end
+
+  class UnknownPlugin < Error
+    def message
+      available_plugins = Pakyow.plugins.keys.each_with_object(String.new) { |plugin_name, available_plugins_message|
+        available_plugins_message << "  - #{plugin_name.inspect}\n"
+      }
+
+      <<~MESSAGE
+        #{super}
+
+        Try using one of these available plugins:
+
+        #{available_plugins}
+      MESSAGE
+    end
+  end
 end

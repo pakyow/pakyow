@@ -16,7 +16,7 @@ module Pakyow
 
         after :load do
           config.aspects.each do |aspect|
-            load_app_aspect(File.join(config.src, aspect.to_s), aspect)
+            load_aspect(aspect)
           end
         end
       end
@@ -31,17 +31,17 @@ module Pakyow
 
       private
 
-      def load_app_aspect(state_path, state_type, load_target = self.class)
-        Dir.glob(File.join(state_path, "*.rb")) do |path|
+      def load_aspect(aspect, path: File.join(config.src, aspect.to_s), target: self.class)
+        Dir.glob(File.join(path, "*.rb")) do |file_path|
           if config.dsl
-            Loader.new(path).call(load_target)
+            Loader.new(file_path).call(target)
           else
-            require path
+            require file_path
           end
         end
 
-        Dir.glob(File.join(state_path, "*")).select { |path| File.directory?(path) }.each do |directory|
-          load_app_aspect(directory, state_type, load_target)
+        Dir.glob(File.join(path, "*")).select { |sub_path| File.directory?(sub_path) }.each do |directory|
+          load_aspect(directory, aspect, target)
         end
       end
     end

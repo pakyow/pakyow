@@ -29,11 +29,17 @@ module Pakyow
           end
         end
 
+        if instance_variable_defined?(:@__plug_instances)
+          @__plug_instances.each do |plug_instance|
+            @__pipeline.action(plug_instance)
+          end
+        end
+
         if self.class.includes_framework?(:presenter)
           @__pipeline.action(Presenter::Actions::AutoRender)
         end
 
-        if self.class.includes_framework?(:routing) && !Pakyow.env?(:prototype)
+        if self.class.includes_framework?(:routing) && !Pakyow.env?(:prototype) && !is_a?(Plugin)
           @__pipeline.action(Routing::Actions::RespondMissing, self)
         end
       end

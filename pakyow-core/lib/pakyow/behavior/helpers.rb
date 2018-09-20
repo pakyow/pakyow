@@ -22,6 +22,10 @@ module Pakyow
       extend Support::Extension
 
       apply_extension do
+        class_state :__included_helpers, default: {
+           global: [], passive: [], active: []
+         }, inheritable: true
+
         setting :helpers,
                 global: [
                   Support::SafeStringHelpers
@@ -36,7 +40,7 @@ module Pakyow
         before :load do
           # Helpers are loaded first so that other aspects inherit them.
           #
-          load_app_aspect(File.join(config.src, "helpers"), :helpers)
+          load_aspect(:helpers)
 
           self.class.state(:helper).each do |helper|
             context = if helper.instance_variable_defined?(:@type)
@@ -70,6 +74,7 @@ module Pakyow
         # passive helpers will automatically be included into the active context.
         #
         def include_helpers(context, object)
+          @__included_helpers[object] = context
           helpers(context.to_sym).each do |helper|
             object.include helper
           end

@@ -14,6 +14,7 @@ require "pakyow/support/deep_freeze"
 
 require "pakyow/environment/behavior/config"
 require "pakyow/environment/behavior/initializers"
+require "pakyow/environment/behavior/plugins"
 
 require "pakyow/logger"
 require "pakyow/middleware"
@@ -94,6 +95,7 @@ module Pakyow
 
   include Environment::Behavior::Config
   include Environment::Behavior::Initializers
+  include Environment::Behavior::Plugins
 
   # Loads the default middleware stack.
   #

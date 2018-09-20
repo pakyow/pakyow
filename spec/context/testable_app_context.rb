@@ -14,9 +14,10 @@ RSpec.shared_context "testable app" do
   before do
     Pakyow.config.server.name = :mock
     Pakyow.config.logger.enabled = false
+    run_app if autorun
+  end
 
-    if autorun
-      run(env: respond_to?(:mode) ? mode : :test)
-    end
+  def run_app
+    run(env: respond_to?(:mode) ? mode : :test)
   end
 end
