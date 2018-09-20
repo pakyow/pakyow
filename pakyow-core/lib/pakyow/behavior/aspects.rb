@@ -41,7 +41,7 @@ module Pakyow
         end
 
         Dir.glob(File.join(path, "*")).select { |sub_path| File.directory?(sub_path) }.each do |directory|
-          load_aspect(directory, aspect, target)
+          load_aspect(aspect, path: directory, target: target)
         end
       end
     end
