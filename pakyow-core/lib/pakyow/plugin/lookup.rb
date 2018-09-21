@@ -1,9 +1,16 @@
 # frozen_string_literal: true
 
+require "forwardable"
+
 module Pakyow
   class Plugin
     # @api private
     class Lookup
+      include Enumerable
+
+      extend Forwardable
+      def_delegator :@plugs, :each
+
       def initialize(plugs)
         @plugs = plugs
 

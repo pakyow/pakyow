@@ -64,6 +64,10 @@ module Pakyow
               File.join(config.root, "backend")
             end
 
+            plug.configurable :tasks do
+              setting :prelaunch, []
+            end
+
             # Finally, create the plugin instance.
             #
             plug.new(self)

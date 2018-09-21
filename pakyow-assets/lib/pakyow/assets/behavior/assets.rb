@@ -21,7 +21,13 @@ module Pakyow
                 } || File.basename(path).start_with?("_")
 
                 if config.assets.extensions.include?(File.extname(path))
-                  self.class.asset << Asset.new_from_path(path, config: config.assets, source_location: assets_path)
+                  prefix = if is_a?(Plugin)
+                    self.class.mount_path
+                  else
+                    "/"
+                  end
+
+                  self.class.asset << Asset.new_from_path(path, config: config.assets, source_location: assets_path, prefix: prefix)
                 end
               end
             end

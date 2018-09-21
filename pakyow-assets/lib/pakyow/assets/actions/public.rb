@@ -1,15 +1,25 @@
 # frozen_string_literal: true
 
+require "pakyow/support/core_refinements/string/normalization"
+
 module Pakyow
   module Assets
     module Actions
       class Public
+        using Support::Refinements::String::Normalization
+
         # Pipeline Action that serves files out of your public directory.
         #
-        def initialize(app)
-          @asset_paths = app.state(:asset).map(&:public_path) + app.state(:pack).flat_map { |pack|
+        def initialize(object)
+          @asset_paths = object.state(:asset).map(&:public_path) + object.state(:pack).flat_map { |pack|
             [pack.public_css_path, pack.public_js_path]
           }
+
+          @prefix = if object.is_a?(Plugin)
+            Pathname.new(object.class.mount_path)
+          else
+            Pathname.new("/")
+          end
         end
 
         def call(connection)
@@ -36,7 +46,12 @@ module Pakyow
         end
 
         def public_path(connection)
-          File.join(connection.app.config.assets.public_path, connection.path)
+          File.join(
+            connection.app.config.assets.public_path,
+            String.normalize_path(
+              Pathname.new(connection.path).relative_path_from(@prefix).to_s
+            )
+          )
         end
 
         def asset?(connection)
