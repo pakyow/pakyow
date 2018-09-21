@@ -22,8 +22,6 @@ module Pakyow
           File.join(config.src, "lib")
         end
 
-        setting :dsl, true
-
         configurable :tasks do
           setting :prelaunch, []
         end

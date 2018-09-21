@@ -34,12 +34,6 @@ RSpec.describe Pakyow::App do
       end
     end
 
-    describe "app.dsl" do
-      it "has a default value" do
-        expect(app.config.dsl).to eq(true)
-      end
-    end
-
     describe "cookies.path" do
       it "has a default value" do
         expect(app.config.cookies.path).to eq("/")

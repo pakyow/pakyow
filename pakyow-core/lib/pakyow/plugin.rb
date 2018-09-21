@@ -34,7 +34,6 @@ module Pakyow
 
     setting :name
     setting :root
-    setting :dsl, true
 
     setting :src do
       File.join(config.root, "backend")
