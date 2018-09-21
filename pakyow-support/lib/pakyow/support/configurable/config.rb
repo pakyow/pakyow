@@ -19,6 +19,9 @@ module Pakyow
         extend DeepFreeze
         unfreezable :configurable
 
+        # @api private
+        attr_reader :settings
+
         def initialize(configurable)
           @configurable = configurable
 

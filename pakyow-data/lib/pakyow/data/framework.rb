@@ -12,7 +12,7 @@ module Pakyow
   module Data
     class Framework < Pakyow::Framework(:data)
       def boot
-        app.class_eval do
+        object.class_eval do
           isolate Source
           isolate Object
 

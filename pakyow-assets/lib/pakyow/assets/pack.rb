@@ -14,12 +14,12 @@ module Pakyow
 
       attr_reader :name, :public_path
 
-      def initialize(name, config)
+      def initialize(name, config, prefix: "/")
         @name, @config = name, config
         @assets = []
         @packed = { js: [], css: [] }
         @public_path = String.normalize_path(
-          File.join(config.prefix, "packs", name.to_s)
+          File.join(config.prefix, prefix, "packs", name.to_s)
         )
       end
 

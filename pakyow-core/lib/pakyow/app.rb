@@ -11,18 +11,19 @@ require "pakyow/support/hookable"
 require "pakyow/support/configurable"
 require "pakyow/support/pipelined"
 
-require "pakyow/app/behavior/config"
-require "pakyow/app/behavior/cookies"
-require "pakyow/app/behavior/sessions"
-require "pakyow/app/behavior/endpoints"
-require "pakyow/app/behavior/pipeline"
-require "pakyow/app/behavior/frameworks"
-require "pakyow/app/behavior/aspects"
-require "pakyow/app/behavior/helpers"
-require "pakyow/app/behavior/rescuing"
-require "pakyow/app/behavior/restarting"
-require "pakyow/app/behavior/isolating"
-require "pakyow/app/behavior/initializers"
+require "pakyow/behavior/config"
+require "pakyow/behavior/cookies"
+require "pakyow/behavior/sessions"
+require "pakyow/behavior/endpoints"
+require "pakyow/behavior/pipeline"
+require "pakyow/behavior/frameworks"
+require "pakyow/behavior/aspects"
+require "pakyow/behavior/helpers"
+require "pakyow/behavior/rescuing"
+require "pakyow/behavior/restarting"
+require "pakyow/behavior/isolating"
+require "pakyow/behavior/initializers"
+require "pakyow/behavior/plugins"
 
 require "pakyow/connection"
 
@@ -130,6 +131,7 @@ module Pakyow
     include Behavior::Restarting
     include Behavior::Isolating
     include Behavior::Initializers
+    include Behavior::Plugins
 
     # Creates a connection subclass that other frameworks can safely extend.
     #

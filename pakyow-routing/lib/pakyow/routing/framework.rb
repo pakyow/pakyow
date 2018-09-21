@@ -6,7 +6,7 @@ require "pakyow/routing/controller"
 require "pakyow/routing/extensions"
 require "pakyow/routing/helpers/exposures"
 
-require "pakyow/app/behavior/definition"
+require "pakyow/behavior/definition"
 
 require "pakyow/security/behavior/config"
 require "pakyow/security/behavior/disabling"
@@ -18,8 +18,8 @@ module Pakyow
   module Routing
     class Framework < Pakyow::Framework(:routing)
       def boot
-        app.class_eval do
-          include App::Behavior::Definition
+        object.class_eval do
+          include Pakyow::Behavior::Definition
 
           isolate Controller do
             include Extension::Resource
@@ -27,7 +27,15 @@ module Pakyow
 
           # Make controllers definable on the app.
           #
-          stateful :controller, isolated(:Controller)
+          stateful :controller, isolated(:Controller) do |args, opts|
+            if self.ancestors.include?(Plugin)
+              # When using plugins, prefix controller paths with the mount path.
+              #
+              name, matcher = Controller.send(:parse_name_and_matcher_from_args, *args)
+              path = File.join(@mount_path, Controller.send(:path_from_matcher, matcher).to_s)
+              args.replace([name, path])
+            end
+          end
 
           # Load controllers for the app.
           #
@@ -42,7 +50,7 @@ module Pakyow
           # Include helpers into the controller class.
           #
           before :load do
-            self.class.include_helpers :active, :Controller
+            self.class.include_helpers :active, isolated(:Controller)
           end
 
           include Security::Behavior::Config

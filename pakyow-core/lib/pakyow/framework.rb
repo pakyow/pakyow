@@ -30,10 +30,10 @@ module Pakyow
       end
     end
 
-    attr_reader :app
+    attr_reader :object
 
-    def initialize(app)
-      @app = app
+    def initialize(object)
+      @object = object
     end
   end
 end

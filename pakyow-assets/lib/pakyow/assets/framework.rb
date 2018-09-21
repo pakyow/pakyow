@@ -20,7 +20,7 @@ module Pakyow
   module Assets
     class Framework < Pakyow::Framework(:assets)
       def boot
-        app.class_eval do
+        object.class_eval do
           # Let other frameworks load their own assets.
           #
           stateful :asset, Asset

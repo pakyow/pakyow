@@ -26,7 +26,7 @@ module Pakyow
       class_state :__minifiable, default: false, inheritable: true
 
       class << self
-        def new_from_path(path, config:, source_location: "")
+        def new_from_path(path, config:, source_location: "", prefix: "/")
           asset_class = @__types.find { |type|
             type.__extensions.include?(File.extname(path))
           } || self
@@ -34,7 +34,8 @@ module Pakyow
           asset_class.load; asset_class.new(
             local_path: path,
             source_location: source_location,
-            config: config
+            config: config,
+            prefix: prefix
           )
         end
 
@@ -84,12 +85,12 @@ module Pakyow
 
       attr_reader :logical_path, :public_path, :mime_type, :mime_suffix, :dependencies
 
-      def initialize(local_path:, config:, dependencies: [], source_location: "")
+      def initialize(local_path:, config:, dependencies: [], source_location: "", prefix: "/")
         @local_path, @config, @source_location, @dependencies = local_path, config, source_location, dependencies
 
         @logical_path = self.class.update_path_for_emitted_type(
           String.normalize_path(
-            local_path.sub(source_location, "")
+            File.join(prefix, local_path.sub(source_location, ""))
           )
         )
 

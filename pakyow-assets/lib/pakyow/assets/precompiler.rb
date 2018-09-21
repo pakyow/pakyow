@@ -10,11 +10,11 @@ module Pakyow
       end
 
       def precompile!
-        @app.state(:asset).each do |asset|
+        assets.each do |asset|
           precompile_asset!(asset)
         end
 
-        @app.state(:pack).each do |pack|
+        packs.each do |pack|
           if pack.javascripts?
             precompile_asset!(pack.javascripts)
           end
@@ -41,6 +41,20 @@ module Pakyow
         File.open(compile_path, "w+") do |file|
           file.write(asset_content)
         end
+      end
+
+      private
+
+      def assets
+        @app.state(:asset) + @app.plugs.flat_map { |plug|
+          plug.state(:asset)
+        }
+      end
+
+      def packs
+        @app.state(:pack) + @app.plugs.flat_map { |plug|
+          plug.state(:pack)
+        }
       end
     end
   end

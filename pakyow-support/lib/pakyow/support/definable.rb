@@ -111,7 +111,7 @@ module Pakyow
         #       befriend(john)
         #     end
         #
-        def stateful(name, object)
+        def stateful(name, object, &stateful_block)
           name = name.to_sym
           @__state[name] = State.new(name, object)
           plural_name = Support.inflector.pluralize(name.to_s).to_sym
@@ -125,6 +125,7 @@ module Pakyow
           method_body = Proc.new do |*args, priority: :default, **opts, &block|
             return @__state[name] if block.nil?
 
+            stateful_block.call(args, opts) if stateful_block
             object.make(*args, within: within, **opts, &block).tap do |state|
               @__state[name].register(state, priority: priority)
             end

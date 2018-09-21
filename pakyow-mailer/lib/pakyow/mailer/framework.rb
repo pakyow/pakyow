@@ -9,7 +9,7 @@ module Pakyow
   module Mailer
     class Framework < Pakyow::Framework(:mailer)
       def boot
-        app.class_eval do
+        object.class_eval do
           include Behavior::Config
 
           register_helper :active, Helpers
