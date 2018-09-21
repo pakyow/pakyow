@@ -31,6 +31,23 @@ module Pakyow
     class_state :__disabled_features, default: []
 
     include Support::Configurable
+
+    setting :name
+    setting :root
+    setting :dsl, true
+
+    setting :src do
+      File.join(config.root, "backend")
+    end
+
+    setting :lib do
+      File.join(config.src, "lib")
+    end
+
+    configurable :tasks do
+      setting :prelaunch, []
+    end
+
     include Support::Definable
     include Support::Hookable
     include Support::Pipelined

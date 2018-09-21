@@ -2,6 +2,7 @@
 
 require "pakyow/errors"
 
+require "pakyow/support/deep_dup"
 require "pakyow/support/extension"
 
 require "pakyow/plugin/lookup"
@@ -11,6 +12,8 @@ module Pakyow
   module Behavior
     module Plugins
       extend Support::Extension
+
+      using Support::DeepDup
 
       attr_reader :plugs
 
@@ -52,30 +55,19 @@ module Pakyow
               *self.class.config.loaded_frameworks
             )
 
-            # Set config values to mirror app.
+            # Copy config from the app.
+            #
+            plug.config.instance_variable_set(:@settings, config.settings.deep_dup.merge(plug.config.settings))
+
+            # Override config values that require a specific value.
             #
             full_name = [plug.plugin_name]
             unless plug.__object_name.name == :default
               full_name << plug.__object_name.name
             end
 
-            plug.setting :name, full_name.join("_").to_sym
-
-            plug.setting :root, plug.plugin_path
-
-            plug.setting :dsl, true
-
-            plug.setting :src do
-              File.join(config.root, "backend")
-            end
-
-            plug.setting :lib do
-              File.join(config.src, "lib")
-            end
-
-            plug.configurable :tasks do
-              setting :prelaunch, []
-            end
+            plug.config.name = full_name.join("_").to_sym
+            plug.config.root = plug.plugin_path
 
             # Finally, create the plugin instance.
             #
