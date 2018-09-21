@@ -16,6 +16,7 @@ require "pakyow/behavior/rescuing"
 require "pakyow/behavior/restarting"
 
 require "pakyow/app"
+require "pakyow/endpoints"
 
 require "pakyow/plugin/helper_caller"
 
@@ -56,6 +57,7 @@ module Pakyow
 
       @app = app
       @state = []
+      @endpoints = Endpoints.new
 
       performing :configure do
         configure!(@app.environment)
@@ -77,6 +79,7 @@ module Pakyow
         defined!
       end
 
+      load_endpoints
       create_helper_contexts
 
       if respond_to?(:boot)
@@ -138,6 +141,25 @@ module Pakyow
     def load_feature_state
       self.class.features.each do |feature|
         @state << State.new(self, path: feature[:path])
+      end
+    end
+
+    def load_endpoints
+      state.each_with_object(@endpoints) do |(_, state_object), endpoints|
+        state_object.instances.each do |state_instance|
+          endpoints.load(state_instance)
+        end
+      end
+
+      define_app_endpoints
+    end
+
+    def define_app_endpoints
+      @endpoints.each do |endpoint|
+        @app.endpoints << Endpoint.new(
+          name: [config.name.to_s, endpoint.name].join("_"),
+          builder: endpoint.builder
+        )
       end
     end
 
