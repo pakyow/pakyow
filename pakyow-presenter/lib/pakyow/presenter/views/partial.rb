@@ -11,6 +11,12 @@ module Pakyow
           name = name[1..-1] if name.start_with?("_")
           self.new(name.to_sym, content || File.read(path), **args)
         end
+
+        def from_object(name, object)
+          super(object).tap do |instance|
+            instance.instance_variable_set(:@name, name)
+          end
+        end
       end
 
       def initialize(name, html = "", **args)

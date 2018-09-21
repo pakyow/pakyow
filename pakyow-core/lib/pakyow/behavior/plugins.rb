@@ -41,6 +41,11 @@ module Pakyow
             #
             plug.register_helper :passive, Plugin::Helpers::ParentApp
 
+            if self.class.includes_framework?(:presenter)
+              require "pakyow/plugin/helpers/rendering"
+              plug.register_helper :passive, Plugin::Helpers::Rendering
+            end
+
             # Include frameworks from app.
             #
             plug.include_frameworks(
@@ -62,6 +67,10 @@ module Pakyow
 
             plug.setting :src do
               File.join(config.root, "backend")
+            end
+
+            plug.setting :lib do
+              File.join(config.src, "lib")
             end
 
             plug.configurable :tasks do

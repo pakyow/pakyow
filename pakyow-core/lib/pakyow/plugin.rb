@@ -121,6 +121,10 @@ module Pakyow
       )
     end
 
+    def load_frontend
+      @state.each(&:load_frontend)
+    end
+
     private
 
     def load_aspect(aspect)

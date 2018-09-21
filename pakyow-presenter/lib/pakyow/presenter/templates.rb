@@ -94,6 +94,7 @@ module Pakyow
 
       def build_config(config)
         @config = {
+          prefix: config[:prefix] || "/",
           paths: {
             layouts: config.dig(:paths, :layouts) || DEFAULT_LAYOUTS_PATH,
             pages: config.dig(:paths, :pages) || DEFAULT_PAGES_PATH,
@@ -143,7 +144,7 @@ module Pakyow
 
           begin
             if page = page_at_path(path)
-              @info[normalize_path(path, pages_path)] = {
+              @info[File.join(@config[:prefix], normalize_path(path, pages_path))] = {
                 page: page,
                 layout: layout_with_name(page.info(:layout)),
                 partials: @partials.merge(partials_at_path(path))
