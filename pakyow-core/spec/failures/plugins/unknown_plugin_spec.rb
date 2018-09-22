@@ -12,12 +12,6 @@ RSpec.describe "failure caused by plugging an unknown plugin" do
 
   include_context "testable app"
 
-  # let :app_definition do
-  #   Proc.new {
-  #     plug :foo, at: "/"
-  #   }
-  # end
-
   let :autorun do
     false
   end
@@ -38,6 +32,10 @@ RSpec.describe "failure caused by plugging an unknown plugin" do
 
         MESSAGE
       )
+    end
+
+    Foo.constants(false).each do |const_to_unset|
+      Foo.__send__(:remove_const, const_to_unset)
     end
   end
 end
