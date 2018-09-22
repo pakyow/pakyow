@@ -74,6 +74,10 @@ RSpec.describe "accessing helpers from the app" do
           def initialize(connection)
             @connection = connection
           end
+
+          def some_action
+            :some_action
+          end
         end
 
         self.class.include_helpers :passive, @object
@@ -82,6 +86,7 @@ RSpec.describe "accessing helpers from the app" do
       class_eval do
         def test(connection)
           plug = connection.params[:plug]
+          helper = connection.params[:helper] || :test_helper
 
           helper_context = if plug
             @object.new(connection).testable(plug)
@@ -89,7 +94,7 @@ RSpec.describe "accessing helpers from the app" do
             @object.new(connection).testable
           end
 
-          connection.body = helper_context.test_helper
+          connection.body = helper_context.send(helper)
           connection.halt
         end
       end
@@ -105,6 +110,13 @@ RSpec.describe "accessing helpers from the app" do
     call("/helpers?plug=foo").tap do |result|
       expect(result[0]).to eq(200)
       expect(result[2].body).to eq("test_helper: Test::Testable::Foo")
+    end
+  end
+
+  it "has access to methods in the original context" do
+    call("/helpers/default?helper=test_context").tap do |result|
+      expect(result[0]).to eq(200)
+      expect(result[2].body).to eq("test_context: some_action")
     end
   end
 end

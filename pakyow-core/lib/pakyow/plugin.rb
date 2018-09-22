@@ -129,11 +129,11 @@ module Pakyow
       self.class.__object_name
     end
 
-    def helper_caller(context, connection)
+    def helper_caller(helper_context, connection, call_context)
       HelperCaller.new(
         plugin: self,
         connection: connection,
-        helpers: @helper_contexts[context.to_sym].new(connection)
+        helpers: @helper_contexts[helper_context.to_sym].new(connection, call_context)
       )
     end
 
@@ -186,8 +186,20 @@ module Pakyow
     def create_helper_contexts
       @helper_contexts = %i(global passive active).each_with_object({}) { |context, helper_contexts|
         helper_class = Class.new do
-          def initialize(connection)
-            @connection = connection
+          def initialize(connection, context)
+            @connection, @context = connection, context
+          end
+
+          def method_missing(method_name, *args, &block)
+            if @context.respond_to?(method_name)
+              @context.public_send(method_name, *args, &block)
+            else
+              super
+            end
+          end
+
+          def respond_to_missing?(method_name, include_private = false)
+            @context.respond_to?(method_name, include_private) || super
           end
         end
 

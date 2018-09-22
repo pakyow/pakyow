@@ -31,7 +31,8 @@ module Pakyow
               define_method plugin_name do |plug = :default|
                 app.plugs.send(plugin_name, plug).helper_caller(
                   app.class.__included_helpers[self.class],
-                  @connection
+                  @connection,
+                  self
                 )
               end
             end
