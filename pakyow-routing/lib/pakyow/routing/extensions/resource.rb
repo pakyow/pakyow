@@ -82,7 +82,7 @@ module Pakyow
               allow_params param
 
               define_method :update_request_path_for_show do
-                req.env["pakyow.endpoint"].gsub!(resource_id, "show")
+                req.env["pakyow.endpoint.path"].gsub!(resource_id, "show")
               end
 
               NestedResource.define(self, nested_resource_id, nested_param)

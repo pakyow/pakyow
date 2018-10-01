@@ -4,7 +4,7 @@ module Pakyow
   module Presenter
     module Helpers
       module Rendering
-        def render(path = request.env["pakyow.endpoint"] || request.path, as: nil, layout: nil, mode: :default)
+        def render(path = request.env["pakyow.endpoint.path"] || request.path, as: nil, layout: nil, mode: :default)
           @connection.app.isolated(:ViewRenderer).render(
             @connection,
             templates_path: path,

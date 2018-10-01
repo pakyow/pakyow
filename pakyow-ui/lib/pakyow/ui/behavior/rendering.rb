@@ -21,7 +21,8 @@ module Pakyow
         ENV_KEYS = %w(
           rack.request.query_string
           rack.request.query_hash
-          pakyow.endpoint
+          pakyow.endpoint.path
+          pakyow.endpoint.name
         ).freeze
 
         apply_extension do

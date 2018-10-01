@@ -9,7 +9,7 @@ module Pakyow
         extend Support::Extension
 
         prepend_methods do
-          def render(path = request.env["pakyow.endpoint"] || request.path, *args)
+          def render(path = request.env["pakyow.endpoint.path"] || request.path, *args)
             super(File.join(@connection.app.class.mount_path, path), *args)
           end
         end
