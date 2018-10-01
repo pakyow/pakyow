@@ -13,6 +13,7 @@ module Pakyow
 
       def initialize(id, connection)
         @id, @connection = id, connection
+        @open = false
 
         @logger = Logger::RequestLogger.new(:sock, id: @id[0..7])
         @env = @connection.env

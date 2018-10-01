@@ -46,6 +46,14 @@ $ui_app_boilerplate = Proc.new do
   configure do
     config.presenter.path = File.join(File.expand_path("../", __FILE__), "features/support/views")
   end
+
+  isolated :ViewRenderer do
+    after :render do
+      # Persist subscriptions so that they are processed and intercepted.
+      #
+      @connection.app.data.persist(socket_client_id)
+    end
+  end
 end
 
 TRANSFORMATION_IDS = [

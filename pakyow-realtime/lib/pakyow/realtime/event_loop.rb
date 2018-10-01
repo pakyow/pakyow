@@ -14,6 +14,7 @@ module Pakyow
         @mutex = Mutex.new
         @selector = NIO::Selector.new
         @tasks = Concurrent::Array.new
+        @thread = nil
       end
 
       # Adds a connection to the pool.

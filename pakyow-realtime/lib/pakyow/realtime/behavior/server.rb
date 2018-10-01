@@ -19,7 +19,8 @@ module Pakyow
               Pakyow.config.realtime.adapter,
               Pakyow.config.realtime.adapter_settings.to_h.merge(
                 config.realtime.adapter_settings.to_h
-              )
+              ),
+              config.realtime.timeouts
             )
           end
 

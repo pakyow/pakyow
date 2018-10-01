@@ -22,6 +22,18 @@ module Pakyow
 
               setting :log_initial_request, true
             end
+
+            configurable :timeouts do
+              # Give sockets 60 seconds to connect before cleaning up their state.
+              #
+              setting :initial, 60
+
+              # When a socket disconnects, keep state around for 24 hours before
+              # cleaning up. This improves the user experience in cases such as
+              # when a browser window is left open on a sleeping computer.
+              #
+              setting :disconnect, 24 * 60 * 60
+            end
           end
         end
       end

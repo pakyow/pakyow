@@ -77,7 +77,11 @@ module Pakyow
           protected
 
           def subscription_ids_for_source(source)
-            @subscription_ids_by_source[source] || []
+            (@subscription_ids_by_source[source] || []).select { |subscription_id|
+              subscribers_for_subscription_id(subscription_id).any? { |subscriber|
+                !expiring?(subscriber)
+              }
+            }
           end
 
           def subscription_with_id(subscription_id)

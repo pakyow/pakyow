@@ -167,7 +167,7 @@ module Pakyow
             @redis.zrangebyscore(
               key_subscribers_by_subscription_id(
                 subscription_id
-              ), Time.now.to_i, INFINITY
+              ), INFINITY, INFINITY
             ).map(&:to_sym)
           end
 
@@ -177,13 +177,13 @@ module Pakyow
             @redis.zrangebyscore(
               key_subscription_ids_by_source(
                 source
-              ), Time.now.to_i, INFINITY
+              ), INFINITY, INFINITY
             )
           end
 
           def subscription_ids_for_subscriber(subscriber)
             @redis.zrangebyscore(
-              key_subscription_ids_by_subscriber(subscriber), Time.now.to_i, INFINITY
+              key_subscription_ids_by_subscriber(subscriber), INFINITY, INFINITY
             )
           end
 
