@@ -16,6 +16,7 @@ module Pakyow
       end
 
       def required(key, type = nil)
+        key = key.to_sym
         required_keys.push(key).uniq!
 
         if type
@@ -30,6 +31,7 @@ module Pakyow
       end
 
       def optional(key, type = nil)
+        key = key.to_sym
         optional_keys.push(key).uniq!
 
         if type

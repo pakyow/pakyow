@@ -12,6 +12,8 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
+          class_state :__allowed_params, default: [], inheritable: true
+
           include Verification
 
           # Define the data we wish to verify.
@@ -33,10 +35,38 @@ module Pakyow
             verification_method_name = :"verify_#{names.join("_")}"
 
             define_method verification_method_name do
-              verify(&block)
+              local_allowed_params = self.class.__allowed_params
+
+              verify do
+                local_allowed_params.each do |allowed_param|
+                  optional allowed_param
+                end
+
+                instance_exec(&block)
+              end
             end
 
             action verification_method_name, only: names
+          end
+
+          # Set one or more params as optional in all routes.
+          #
+          def allow_params(*names)
+            @__allowed_params.concat(names).uniq!
+          end
+        end
+
+        prepend_methods do
+          def verify(&block)
+            local_allowed_params = self.class.__allowed_params
+
+            super do
+              local_allowed_params.each do |allowed_param|
+                optional allowed_param
+              end
+
+              instance_exec(&block)
+            end
           end
         end
       end

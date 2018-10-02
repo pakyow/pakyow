@@ -73,16 +73,19 @@ module Pakyow
         apply_extension do
           template :resource do |param: DEFAULT_PARAM|
             resource_id = ":#{param}"
-            nested_resource_id = ":#{Support.inflector.singularize(controller.__object_name.name)}_#{param}"
+            nested_param = "#{Support.inflector.singularize(controller.__object_name.name)}_#{param}"
+            nested_resource_id = ":#{nested_param}"
 
             action :update_request_path_for_show, only: [:show]
 
             controller.class_eval do
+              allow_params param
+
               define_method :update_request_path_for_show do
                 req.env["pakyow.endpoint"].gsub!(resource_id, "show")
               end
 
-              NestedResource.define(self, nested_resource_id)
+              NestedResource.define(self, nested_resource_id, nested_param)
             end
 
             get :list, "/"
@@ -102,9 +105,12 @@ module Pakyow
         module NestedResource
           # Nest resources as members of the current resource.
           #
-          def self.define(controller, nested_resource_id)
+          def self.define(controller, nested_resource_id, nested_param)
             controller.define_singleton_method :resource do |name, matcher, param: DEFAULT_PARAM, &block|
-              expand(:resource, name, File.join(nested_resource_id, matcher), param: param, &block)
+              expand(:resource, name, File.join(nested_resource_id, matcher), param: param) do
+                allow_params nested_param
+                instance_exec(&block)
+              end
             end
           end
         end

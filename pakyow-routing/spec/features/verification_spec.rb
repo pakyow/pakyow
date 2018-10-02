@@ -307,3 +307,149 @@ RSpec.describe "handling failed verification" do
     end
   end
 end
+
+RSpec.describe "setting allowed params" do
+  include_context "testable app"
+
+  context "verified in the controller" do
+    let :app_definition do
+      Proc.new do
+        controller do
+          allow_params :value1
+
+          verify :test do
+            required :value2
+          end
+
+          get :test, "/test" do
+            send params.to_json
+          end
+        end
+      end
+    end
+
+    it "allows allowed params" do
+      call("/test", params: { value1: "one", value2: "two" }).tap do |result|
+        expect(result[0]).to eq(200)
+        expect(result[2].body.read).to eq('{"value1":"one","value2":"two"}')
+      end
+    end
+  end
+
+  context "verified in the route" do
+    let :app_definition do
+      Proc.new do
+        controller do
+          allow_params :value1
+
+          get :test, "/test" do
+            verify do
+              required :value2
+            end
+
+            send params.to_json
+          end
+        end
+      end
+    end
+
+    it "allows allowed params" do
+      call("/test", params: { value1: "one", value2: "two" }).tap do |result|
+        expect(result[0]).to eq(200)
+        expect(result[2].body.read).to eq('{"value1":"one","value2":"two"}')
+      end
+    end
+  end
+
+  context "allow params is called twice" do
+    let :app_definition do
+      Proc.new do
+        controller do
+          allow_params :value1
+          allow_params :value2
+
+          get :test, "/test" do
+            verify do
+            end
+
+            send params.to_json
+          end
+        end
+      end
+    end
+
+    it "allows all allowed params" do
+      call("/test", params: { value1: "one", value2: "two" }).tap do |result|
+        expect(result[0]).to eq(200)
+        expect(result[2].body.read).to eq('{"value1":"one","value2":"two"}')
+      end
+    end
+  end
+
+  describe "inheriting allowed params" do
+    let :app_definition do
+      Proc.new do
+        isolated :Controller do
+          allow_params :value2
+        end
+
+        controller do
+          get :test, "/test" do
+            verify do
+              required :value1
+            end
+
+            send params.to_json
+          end
+        end
+      end
+    end
+
+    it "inherits allowed params from a parent controller" do
+      call("/test", params: { value1: "one", value2: "two" }).tap do |result|
+        expect(result[0]).to eq(200)
+        expect(result[2].body.read).to eq('{"value1":"one","value2":"two"}')
+      end
+    end
+  end
+end
+
+RSpec.describe "allowing resource ids" do
+  include_context "testable app"
+
+  let :app_definition do
+    Proc.new do
+      resource :posts, "/posts" do
+        show do
+          verify do
+          end
+
+          send params.to_json
+        end
+
+        resource :comments, "/comments" do
+          show do
+            verify do
+            end
+
+            send params.to_json
+          end
+        end
+      end
+    end
+  end
+
+  it "allows top level resource ids" do
+    call("/posts/1").tap do |result|
+      expect(result[0]).to eq(200)
+      expect(result[2].body.read).to eq('{"id":"1"}')
+    end
+  end
+
+  it "allows nested resource ids" do
+    call("/posts/1/comments/2").tap do |result|
+      expect(result[0]).to eq(200)
+      expect(result[2].body.read).to eq('{"post_id":"1","id":"2"}')
+    end
+  end
+end
