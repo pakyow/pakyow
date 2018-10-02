@@ -168,7 +168,7 @@ RSpec.describe Pakyow do
 
     describe "redis.connection.timeout" do
       it "has a default value" do
-        expect(Pakyow.config.redis.connection.timeout).to eq(5.0)
+        expect(Pakyow.config.redis.connection.timeout).to eq(5)
       end
     end
 
@@ -186,7 +186,7 @@ RSpec.describe Pakyow do
 
     describe "redis.connection.tcp_keepalive" do
       it "has a default value" do
-        expect(Pakyow.config.redis.connection.tcp_keepalive).to eq(0)
+        expect(Pakyow.config.redis.connection.tcp_keepalive).to eq(5)
       end
     end
 

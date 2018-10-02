@@ -69,8 +69,8 @@ RSpec.describe "data config" do
 
       describe "changing the adapter settings" do
         it "does not affect the global settings" do
-          config.subscriptions.adapter_settings.connection.tcp_keepalive = 5
-          expect(Pakyow.config.redis.connection.tcp_keepalive).to eq(0)
+          config.subscriptions.adapter_settings.connection.tcp_keepalive = 15
+          expect(Pakyow.config.redis.connection.tcp_keepalive).to eq(5)
         end
       end
     end

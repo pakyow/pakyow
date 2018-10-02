@@ -82,10 +82,10 @@ module Pakyow
                 ENV["REDIS_URL"] || "redis://127.0.0.1:6379"
               end
 
-              setting :timeout, 5.0
+              setting :timeout, 5
               setting :driver, nil
               setting :id, nil
-              setting :tcp_keepalive, 0
+              setting :tcp_keepalive, 5
               setting :reconnect_attempts, 1
               setting :inherit_socket, false
             end
