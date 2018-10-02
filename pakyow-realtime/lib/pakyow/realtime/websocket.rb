@@ -22,7 +22,9 @@ module Pakyow
         scheme = secure ? "wss:" : "ws:"
         @url = scheme + "//" + @connection.env["HTTP_HOST"] + @connection.env["REQUEST_URI"]
 
-        @io = @connection.env["rack.hijack"].call
+        @connection.env["rack.hijack"].call
+        @io = @connection.env["rack.hijack_io"]
+        @connection.app.websocket_server.socket_connect(self, @io)
 
         @driver = ::WebSocket::Driver.rack(self)
         @driver.on(:open)    do |_e| handle_open end
@@ -30,8 +32,6 @@ module Pakyow
         @driver.on(:close)   do |e| handle_close(e.reason, e.code) end
         @driver.on(:error)   do |e| handle_error(e.message) end
         @driver.start
-
-        @connection.app.websocket_server.socket_connect(self)
       end
 
       def open?

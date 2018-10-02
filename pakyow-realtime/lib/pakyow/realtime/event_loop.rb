@@ -19,9 +19,9 @@ module Pakyow
 
       # Adds a connection to the pool.
       #
-      def <<(connection)
+      def add(io, connection)
         @tasks << -> do
-          monitor = @selector.register(connection.io, :r)
+          monitor = @selector.register(io, :r)
           monitor.value = connection
         end
 
@@ -30,9 +30,9 @@ module Pakyow
 
       # Removes a connection from the pool.
       #
-      def rm(connection)
+      def rm(io)
         @tasks << -> do
-          @selector.deregister(connection.io)
+          @selector.deregister(io)
         end
 
         start

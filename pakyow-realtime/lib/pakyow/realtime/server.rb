@@ -57,9 +57,9 @@ module Pakyow
         stop_heartbeat; @adapter.disconnect
       end
 
-      def socket_connect(id_or_socket)
+      def socket_connect(id_or_socket, io)
         find_socket(id_or_socket) do |socket|
-          @event_loop << socket
+          @event_loop.add(io, socket)
           @sockets << socket
           @adapter.persist(socket.id)
         end
@@ -67,7 +67,7 @@ module Pakyow
 
       def socket_disconnect(id_or_socket)
         find_socket(id_or_socket) do |socket|
-          @event_loop.rm(socket)
+          @event_loop.rm(socket.io)
           @sockets.delete(socket)
           @adapter.expire(socket.id, @timeout_config.disconnect)
         end

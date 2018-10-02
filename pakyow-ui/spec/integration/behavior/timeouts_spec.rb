@@ -9,7 +9,9 @@ RSpec.describe "ui state timeout behavior" do
     env = Rack::MockRequest.env_for("/")
     env["HTTP_HOST"] = "localhost"
     env["REQUEST_URI"] = "/"
-    env["rack.hijack"] = Proc.new { Tempfile.new("hijack") }
+    io = Tempfile.new("hijack")
+    env["rack.hijack"] = Proc.new { io }
+    env["rack.hijack_io"] = io
     Pakyow::Connection.new(Pakyow.app(:test), env)
   end
 
