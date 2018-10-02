@@ -22,12 +22,11 @@ module Pakyow
         super
 
         unless @view.labeled?(ID_LABEL)
-          id = SecureRandom.hex(24)
-          @view.object.set_label(ID_LABEL, id)
-          embed_id(id)
+          setup_form_id
         end
 
         setup_field_names
+        use_binding_nodes
       end
 
       def id
@@ -116,11 +115,23 @@ module Pakyow
         end
       end
 
+      def setup_form_id
+        id = SecureRandom.hex(24)
+        @view.object.set_label(ID_LABEL, id)
+        embed_id(id)
+      end
+
       def setup_field_names
         @view.object.children.find_significant_nodes_without_descending(:binding).reject { |binding_node|
           binding_node.significant?(:multipart_binding)
         }.each do |binding_node|
           binding_node.attributes[:name] ||= "#{@view.object.label(:binding)}[#{binding_node.label(:binding)}]"
+        end
+      end
+
+      def use_binding_nodes
+        [@view.object].concat(@view.object.children.find_significant_nodes(:binding)).each do |object|
+          object.set_label(:used, true)
         end
       end
 

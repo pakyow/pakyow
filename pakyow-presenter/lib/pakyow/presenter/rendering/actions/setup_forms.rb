@@ -10,15 +10,58 @@ module Pakyow
 
         def call(renderer)
           renderer.presenter.forms.each do |form|
-            form.embed_origin(renderer.connection.fullpath)
+            setup_form(form, renderer)
+          end
+        end
 
-            if renderer.connection.app.config.presenter.embed_authenticity_token
-              digest = Support::MessageVerifier.digest(
-                form.id, key: renderer.authenticity_server_id
-              )
+        private
 
-              form.embed_authenticity_token("#{form.id}:#{digest}", param: renderer.connection.app.config.security.csrf.param)
+        def setup_form(form, renderer)
+          setup_id(form, renderer)
+          setup_origin(form, renderer)
+
+          if renderer.connection.app.config.presenter.embed_authenticity_token
+            setup_authenticity_token(form, renderer)
+          end
+
+          setup_for_exposed_object(form, renderer)
+        end
+
+        def setup_id(form, renderer)
+          if form_id = renderer.connection.params.dig(:form, :id)
+            form.view.object.set_label(FormPresenter::ID_LABEL, form_id)
+          end
+        end
+
+        def setup_origin(form, renderer)
+          form.embed_origin(renderer.connection.params.dig(:form, :origin) || renderer.connection.fullpath)
+        end
+
+        def setup_authenticity_token(form, renderer)
+          digest = Support::MessageVerifier.digest(
+            form.id, key: renderer.authenticity_server_id
+          )
+
+          form.embed_authenticity_token(
+            "#{form.id}:#{digest}",
+            param: renderer.connection.app.config.security.csrf.param
+          )
+        end
+
+        def setup_for_exposed_object(form, renderer)
+          case renderer.connection.env["pakyow.endpoint.name"]
+          when :new
+            form.create(object_for_form(form, renderer) || {})
+          when :edit
+            if object = object_for_form(form, renderer)
+              form.update(object)
             end
+          end
+        end
+
+        def object_for_form(form, renderer)
+          if form_binding_name = form.view.label(:binding)
+            renderer.connection.get("#{form_binding_name}:form")
           end
         end
       end
