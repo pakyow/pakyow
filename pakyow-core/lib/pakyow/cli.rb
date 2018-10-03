@@ -134,7 +134,7 @@ module Pakyow
         @options[:app] = if @options.key?(:app)
           Pakyow.app(@options[:app]) || raise("could not find app named #{Support::CLI.style.blue(@options[:app])}")
         elsif Pakyow.apps.count == 1
-          Pakyow.mounts.apps.first
+          Pakyow.apps.first
         elsif Pakyow.apps.count > 0
           raise "found multiple apps; please specify one with the --app option"
         else
