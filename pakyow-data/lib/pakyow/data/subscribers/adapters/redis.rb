@@ -144,17 +144,15 @@ module Pakyow
             subscription_ids.each do |subscription_id|
               key_subscribers_for_subscription_id = key_subscribers_by_subscription_id(subscription_id)
 
-              # this means that if a subscriber is added to the subscription, the following block will not be executed
-              @redis.watch(key_subscribers_for_subscription_id) do
-                source = @redis.get(key_source_for_subscription_id(subscription_id))
+              # don't setup a watch here, because persist should always win
+              source = @redis.get(key_source_for_subscription_id(subscription_id))
 
-                @redis.multi do |transaction|
-                  transaction.zadd(key_subscription_ids_by_source(source), INFINITY, subscription_id)
+              @redis.multi do |transaction|
+                transaction.zadd(key_subscription_ids_by_source(source), INFINITY, subscription_id)
 
-                  transaction.persist(key_source_for_subscription_id(subscription_id))
-                  transaction.persist(key_subscribers_by_subscription_id(subscription_id))
-                  transaction.persist(key_subscription_id(subscription_id))
-                end
+                transaction.persist(key_source_for_subscription_id(subscription_id))
+                transaction.persist(key_subscribers_by_subscription_id(subscription_id))
+                transaction.persist(key_subscription_id(subscription_id))
               end
             end
           end
