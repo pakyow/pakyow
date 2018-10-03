@@ -12,6 +12,12 @@ pw.inits.push(function () {
   pw.Component.init(document.querySelector("html"));
 });
 
+pw.wakes.push(function () {
+  if (window.socket) {
+    window.socket.beat();
+  }
+});
+
 pw.ready(function () {
   pw.inits.forEach(function (fn) {
     fn();
