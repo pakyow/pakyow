@@ -88,6 +88,7 @@ module Pakyow
               end
 
               transaction.expireat(key_channels_by_socket_id(socket_id), time_expire + 1)
+              transaction.expireat(key_socket_instance_id_by_socket_id(socket_id), time_expire + 1)
             end
           end
 
@@ -100,7 +101,16 @@ module Pakyow
               end
 
               transaction.persist(key_channels_by_socket_id(socket_id))
+              transaction.persist(key_socket_instance_id_by_socket_id(socket_id))
             end
+          end
+
+          def current!(socket_id, socket_instance_id)
+            @redis.set(key_socket_instance_id_by_socket_id(socket_id), socket_instance_id)
+          end
+
+          def current?(socket_id, socket_instance_id)
+            @redis.get(key_socket_instance_id_by_socket_id(socket_id)) == socket_instance_id.to_s
           end
 
           protected
@@ -127,6 +137,10 @@ module Pakyow
 
           def key_channels_by_socket_id(socket_id)
             build_key("socket_id:#{socket_id}")
+          end
+
+          def key_socket_instance_id_by_socket_id(socket_id)
+            build_key("socket_instance_id:#{socket_id}")
           end
 
           def pubsub_channel

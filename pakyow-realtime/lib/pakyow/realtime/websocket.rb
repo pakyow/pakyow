@@ -53,9 +53,7 @@ module Pakyow
 
         @connection.app.websocket_server.socket_disconnect(self, @io)
         @io = nil
-
         @open = false
-        trigger_presence(:leave)
         @logger.info "shutdown"
       end
 
@@ -70,6 +68,10 @@ module Pakyow
         @driver.parse(data)
       rescue
         shutdown
+      end
+
+      def leave
+        trigger_presence(:leave)
       end
 
       protected

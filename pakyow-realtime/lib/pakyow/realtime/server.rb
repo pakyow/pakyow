@@ -62,6 +62,7 @@ module Pakyow
           @event_loop.add(io, socket)
           @sockets << socket
           @adapter.persist(socket.id)
+          @adapter.current!(socket.id, socket.object_id)
         end
       end
 
@@ -69,7 +70,16 @@ module Pakyow
         find_socket(id_or_socket) do |socket|
           @event_loop.rm(io)
           @sockets.delete(socket)
-          @adapter.expire(socket.id, @timeout_config.disconnect)
+
+          # If this isn't the current instance for the socket id, it means that a
+          # reconnect probably happened and the new socket connected before we
+          # knew that the old one disconnected. Since there's a newer socket,
+          # don't trigger leave events or expirations for the old one.
+          #
+          if @adapter.current?(socket.id, socket.object_id)
+            socket.leave
+            @adapter.expire(socket.id, @timeout_config.disconnect)
+          end
         end
       end
 

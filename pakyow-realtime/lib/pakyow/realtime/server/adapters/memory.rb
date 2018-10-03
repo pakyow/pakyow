@@ -20,6 +20,7 @@ module Pakyow
             @socket_ids_by_channel = Concurrent::Hash.new
             @channels_by_socket_id = Concurrent::Hash.new
             @expirations_for_socket_id = Concurrent::Hash.new
+            @socket_instances_by_socket_id = Concurrent::Hash.new
           end
 
           def connect
@@ -63,6 +64,7 @@ module Pakyow
               channels_for_socket_id(socket_id).each do |channel|
                 @channels_by_socket_id.delete(socket_id)
                 @socket_ids_by_channel[channel].delete(socket_id)
+                @socket_instances_by_socket_id.delete(socket_id)
               end
             }
 
@@ -73,6 +75,14 @@ module Pakyow
           def persist(socket_id)
             (@expirations_for_socket_id[socket_id] || []).each(&:cancel)
             @expirations_for_socket_id.delete(socket_id)
+          end
+
+          def current!(socket_id, socket_instance_id)
+            @socket_instances_by_socket_id[socket_id] = socket_instance_id
+          end
+
+          def current?(socket_id, socket_instance_id)
+            @socket_instances_by_socket_id[socket_id] == socket_instance_id
           end
 
           protected
