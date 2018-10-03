@@ -58,7 +58,7 @@ module Pakyow
       def run
         loop do
           until @tasks.empty?
-            @tasks.pop.call
+            @tasks.shift.call
           end
 
           next unless monitors = @selector.select
