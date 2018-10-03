@@ -18,4 +18,18 @@ pw.ready(function () {
   });
 });
 
+// Wake detection inspired by Alex MacCaw:
+//   https://blog.alexmaccaw.com/javascript-wake-event
+var wakeTimeout = 10000;
+var lastKnownTime = (new Date()).getTime();
+setInterval(function() {
+  var currentTime = (new Date()).getTime();
+  if (currentTime > (lastKnownTime + wakeTimeout + 1000)) {
+    pw.wakes.forEach(function (fn) {
+      fn();
+    });
+  }
+  lastKnownTime = currentTime;
+}, wakeTimeout);
+
 export default pw;
