@@ -9,6 +9,8 @@ export default class {
     this.reconnectTimeout = this.currentReconnectTimeout = 500;
     this.reconnectDecay = 1.25;
 
+    this.heartbeat = 30000;
+
     // Server state associated with a socket is cleaned up after 60 seconds. When
     // this happens, clients should either ask the user to reload, or reload the
     // page themselves if it can do so in a non-destructive way. Stale sockets
@@ -60,6 +62,10 @@ export default class {
         callback(payload);
       }
     }
+
+    setInterval(() => {
+      this.beat();
+    }, this.heartbeat);
   }
 
   websocketUrl() {
@@ -71,6 +77,10 @@ export default class {
       this.currentReconnectTimeout *= this.reconnectDecay;
       this.connect();
     }, this.currentReconnectTimeout);
+  }
+
+  beat() {
+    this.connection.send("beat");
   }
 
   subscribe (channel, callback) {
