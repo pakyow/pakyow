@@ -65,9 +65,9 @@ module Pakyow
         end
       end
 
-      def socket_disconnect(id_or_socket)
+      def socket_disconnect(id_or_socket, io)
         find_socket(id_or_socket) do |socket|
-          @event_loop.rm(socket.io)
+          @event_loop.rm(io)
           @sockets.delete(socket)
           @adapter.expire(socket.id, @timeout_config.disconnect)
         end

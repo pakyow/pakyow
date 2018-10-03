@@ -33,6 +33,7 @@ module Pakyow
       def rm(io)
         @tasks << -> do
           @selector.deregister(io)
+          io.close
         end
 
         start

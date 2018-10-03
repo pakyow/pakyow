@@ -51,8 +51,7 @@ module Pakyow
       def shutdown
         return unless open?
 
-        @connection.app.websocket_server.socket_disconnect(self)
-        @io.close if @io
+        @connection.app.websocket_server.socket_disconnect(self, @io)
         @io = nil
 
         @open = false
