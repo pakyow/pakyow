@@ -117,13 +117,13 @@ module Pakyow
 
           def socket_ids_for_channel(channel)
             @redis.zrangebyscore(
-              key_socket_ids_by_channel(channel), Time.now.to_i, INFINITY
+              key_socket_ids_by_channel(channel), INFINITY, INFINITY
             )
           end
 
           def channels_for_socket_id(socket_id)
             @redis.zrangebyscore(
-              key_channels_by_socket_id(socket_id), Time.now.to_i, INFINITY
+              key_channels_by_socket_id(socket_id), INFINITY, INFINITY
             )
           end
 

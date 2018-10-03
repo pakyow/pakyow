@@ -77,6 +77,10 @@ module Pakyow
             @expirations_for_socket_id.delete(socket_id)
           end
 
+          def expiring?(socket_id)
+            @expirations_for_socket_id[socket_id]&.any?
+          end
+
           def current!(socket_id, socket_instance_id)
             @socket_instances_by_socket_id[socket_id] = socket_instance_id
           end
@@ -93,7 +97,11 @@ module Pakyow
             @socket_ids_by_channel.select { |key|
               key.to_s.match?(channel)
             }.each_with_object([]) do |(_, socket_ids_for_channel), socket_ids|
-              socket_ids.concat(socket_ids_for_channel)
+              socket_ids.concat(
+                socket_ids_for_channel.reject { |socket_id|
+                  expiring?(socket_id)
+                }
+              )
             end
           end
 
