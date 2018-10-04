@@ -30,7 +30,12 @@ module Pakyow
 
             if found_component
               original_values = connection.values
-              connection.instance_variable_set(:@values, {})
+              connection.instance_variable_set(
+                :@values,
+                Support::IndifferentHash.new(
+                  connection.values.to_h.select { |key| key.to_s.start_with?("__") }
+                )
+              )
 
               component_instance = found_component.new(
                 connection: connection

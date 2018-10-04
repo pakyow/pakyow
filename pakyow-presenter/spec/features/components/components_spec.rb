@@ -252,19 +252,26 @@ RSpec.describe "rendering with backend components" do
         controller "/components" do
           default do
             expose :posts, [
-              { title: "post 1" },
-              { title: "post 2" },
-              { title: "post 3" }
+              { title: "controller post 1" },
+              { title: "controller post 2" },
+              { title: "controller post 3" }
             ]
           end
         end
 
         component :single do
+          def perform
+            expose :posts, [
+              { title: "component post 1" },
+              { title: "component post 2" },
+              { title: "component post 3" }
+            ]
+          end
         end
       end
     end
 
-    it "exposes the value to the component" do
+    it "does not expose the value to the component" do
       expect(call("/components")[2].body.read).to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
@@ -276,11 +283,65 @@ RSpec.describe "rendering with backend components" do
             <body>
               <div data-ui="single">
             <div data-b="post">
-              <h1 data-b="title">post 1</h1>
+              <h1 data-b="title">component post 1</h1>
             </div><div data-b="post">
-              <h1 data-b="title">post 2</h1>
+              <h1 data-b="title">component post 2</h1>
             </div><div data-b="post">
-              <h1 data-b="title">post 3</h1>
+              <h1 data-b="title">component post 3</h1>
+            </div><script type="text/template" data-b="post"><div data-b="post">
+              <h1 data-b="title">
+                title goes here
+              </h1>
+            </div></script>
+          </div>
+
+            </body>
+          </html>
+        HTML
+      )
+    end
+  end
+
+  context "controller exposes a system value" do
+    let :app_definition do
+      Proc.new do
+        instance_exec(&$presenter_app_boilerplate)
+
+        controller "/components" do
+          default do
+            expose :__posts, [
+              { title: "controller post 1" },
+              { title: "controller post 2" },
+              { title: "controller post 3" }
+            ]
+          end
+        end
+
+        component :single do
+          def perform
+            expose :posts, connection.get(:__posts)
+          end
+        end
+      end
+    end
+
+    it "does expose the value to the component" do
+      expect(call("/components")[2].body.read).to eq_sans_whitespace(
+        <<~HTML
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>default</title>
+            </head>
+
+            <body>
+              <div data-ui="single">
+            <div data-b="post">
+              <h1 data-b="title">controller post 1</h1>
+            </div><div data-b="post">
+              <h1 data-b="title">controller post 2</h1>
+            </div><div data-b="post">
+              <h1 data-b="title">controller post 3</h1>
             </div><script type="text/template" data-b="post"><div data-b="post">
               <h1 data-b="title">
                 title goes here

@@ -148,7 +148,7 @@ module Pakyow
       #
       def components
         @view.components.map { |component|
-          presenter_for(component)
+          presenter_for(component, type: Presenter)
         }
       end
 
@@ -439,8 +439,7 @@ module Pakyow
 
           [name_parts[0], Support.inflector.singularize(name_parts[0])].each do |name_varient|
             found = find(name_varient, channel: channel)
-
-            unless found.nil?
+            unless found.nil? || found.view.labeled?(:used)
               found.present(value); break
             end
           end
