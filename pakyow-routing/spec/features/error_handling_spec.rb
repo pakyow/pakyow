@@ -482,4 +482,31 @@ RSpec.describe "error handling" do
       expect(call[2].body.read).to eq("routehandler")
     end
   end
+
+  describe "rejecting from handlers" do
+    let :app_definition do
+      Proc.new {
+        controller do
+          handle 500 do
+            @state << "handler2"
+            send @state
+          end
+
+          handle 500 do
+            @state << "handler1"
+            reject
+          end
+
+          default do
+            @state = "route"
+            trigger 500
+          end
+        end
+      }
+    end
+
+    it "passes off to the next handler" do
+      expect(call[2].body.read).to eq("routehandler1handler2")
+    end
+  end
 end

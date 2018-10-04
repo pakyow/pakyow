@@ -37,25 +37,15 @@ module Pakyow
                 render(connection)
               end
             rescue UnknownPage => error
-              implicit_error = ImplicitRenderingError.build(error, context: connection.path)
-              connection.set(:pw_error, implicit_error)
-              connection.status = 404
+              raise ImplicitRenderingError.build(error, context: connection.path)
+            end
+          end
+        rescue StandardError => error
+          connection.logger.houston(error)
 
-              catch :halt do
-                if Pakyow.env?(:production)
-                  connection.app.isolated(:Controller).new(connection).trigger(404)
-                else
-                  render(connection, templates_path: "/development/500")
-                end
-              end
-            rescue StandardError => error
-              connection.logger.houston(error)
-
-              if connection.app.class.includes_framework?(:routing)
-                catch :halt do
-                  connection.app.isolated(:Controller).new(connection).handle_error(error)
-                end
-              end
+          if connection.app.class.includes_framework?(:routing)
+            catch :halt do
+              connection.app.isolated(:Controller).new(connection).handle_error(error)
             end
           end
         end

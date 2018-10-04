@@ -14,6 +14,21 @@ module Pakyow
       module ErrorRendering
         extend Support::Extension
 
+        def self.render_error(error, context)
+          context.respond_to :html do
+            if Pakyow.env?(:production)
+              context.render "/500"
+            else
+              unless error.is_a?(Pakyow::Error)
+                error = Pakyow::Error.build(error)
+              end
+
+              context.expose :pw_error, error
+              context.render "/development/500"
+            end
+          end
+        end
+
         apply_extension do
           handle 404 do
             respond_to :html do
@@ -21,20 +36,23 @@ module Pakyow
             end
           end
 
-          handle 500 do
-            respond_to :html do
-              if Pakyow.env?(:development) || Pakyow.env?(:prototype)
-                error = if connection.error.is_a?(Pakyow::Error)
-                  connection.error
-                else
-                  Pakyow::Error.build(connection.error)
-                end
+          handle 500 do |error|
+            ErrorRendering.render_error(error, self)
+          end
 
-                expose :pw_error, error
-                render "/development/500"
-              else
-                render "/500"
-              end
+          handle UnknownPage, as: 404 do |error|
+            if Pakyow.env?(:production)
+              trigger 404
+            else
+              ErrorRendering.render_error(error, self)
+            end
+          end
+
+          handle ImplicitRenderingError, as: 404 do |error|
+            if Pakyow.env?(:production)
+              trigger 404
+            else
+              ErrorRendering.render_error(error, self)
             end
           end
 

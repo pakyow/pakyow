@@ -44,37 +44,42 @@ module Pakyow
 
           performing :error do
             connection.status = 500
-
-            if code_and_handler = exception_for_class(error.class)
-              code, handler = code_and_handler
-              connection.status = code
-
-              if handler
-                instance_exec(error, &handler)
-              end
-            elsif handler = handler_for_code(500)
-              instance_exec(error, &handler)
+            catch :halt do
+              call_handlers_with_args(
+                exceptions_for_class(error.class) || handlers_for_code(500),
+                error
+              )
             end
           end
 
           halt
         end
 
-        protected
+        private
 
-        def trigger_for_code(code)
-          if handler = handler_for_code(code)
-            instance_exec(&handler)
+        def call_handlers_with_args(handlers, *args)
+          handlers.to_a.reverse.each do |status_code, handler|
+            catch :reject do
+              connection.status = status_code
+
+              if handler
+                instance_exec(*args, &handler)
+              end
+
+              halt
+            end
           end
-
-          halt
         end
 
-        def handler_for_code(code)
+        def trigger_for_code(code)
+          call_handlers_with_args(handlers_for_code(code)); halt
+        end
+
+        def handlers_for_code(code)
           @handlers[code]
         end
 
-        def exception_for_class(klass)
+        def exceptions_for_class(klass)
           @exceptions[klass]
         end
 
@@ -133,9 +138,10 @@ module Pakyow
           def handle(name_exception_or_code, as: nil, &block)
             if name_exception_or_code.is_a?(Class) && name_exception_or_code.ancestors.include?(Exception)
               raise ArgumentError, "status code is required" if as.nil?
-              @exceptions[name_exception_or_code] = [Connection.status_code(as), block]
+              (@exceptions[name_exception_or_code] ||= []) << [Connection.status_code(as), block]
             else
-              @handlers[Connection.status_code(name_exception_or_code)] = block
+              status_code = Connection.status_code(name_exception_or_code)
+              (@handlers[status_code] ||= []) << [as || status_code, block]
             end
           end
         end

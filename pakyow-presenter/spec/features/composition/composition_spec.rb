@@ -130,8 +130,8 @@ RSpec.describe "view template composition via presenter" do
   context "explicit render for nonexistent view" do
     it "raises UnknownPage" do
       response = call("/fail")
-      expect(response[0]).to eq(500)
-      expect(response[2].body).to include("Pakyow::Presenter::UnknownPage: Pakyow couldn't render a view for `/fail`.")
+      expect(response[0]).to eq(404)
+      expect(response[2].body.read).to include("Unknown page")
     end
   end
 end

@@ -18,8 +18,8 @@ RSpec.describe "telling the user about a missing view in development" do
       }
     end
 
-    it "responds 500" do
-      expect(call[0]).to eq(500)
+    it "responds 404" do
+      expect(call[0]).to eq(404)
     end
 
     it "includes instructions for creating a page" do
