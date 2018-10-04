@@ -71,6 +71,17 @@ RSpec.describe "view transformation via presenter" do
         expect(presenter.to_s(clean_bindings: false)).to eq("<div data-b=\"post\"><h1 data-b=\"title\">title goes here</h1></div>")
       end
     end
+
+    context "scope/prop is defined on a single node" do
+      let :view do
+        Pakyow::Presenter::View.new("<h1 binding=\"post.title\">title goes here</h1>")
+      end
+
+      it "transforms" do
+        post_presenter.transform(title: "foo")
+        expect(presenter.to_s(clean_bindings: false)).to eq("<h1 data-b=\"post.title\">title goes here</h1>")
+      end
+    end
   end
 
   describe "append" do

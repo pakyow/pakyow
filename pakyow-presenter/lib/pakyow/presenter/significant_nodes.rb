@@ -123,6 +123,15 @@ module Pakyow
     end
 
     # @api private
+    class MultipartBinding < SignificantNode
+      StringDoc.significant :multipart_binding, self
+
+      def self.significant?(node)
+        BindingNode.significant?(node) && node.attribute(:binding).value.include?(".")
+      end
+    end
+
+    # @api private
     class ComponentNode < SignificantNode
       StringDoc.significant :component, self
 

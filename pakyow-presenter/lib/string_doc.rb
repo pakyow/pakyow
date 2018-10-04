@@ -418,7 +418,9 @@ class StringDoc
     channel = semantic_channel_for_element(element)
 
     binding_parts = labels[:binding].to_s.split(":").map(&:to_sym)
-    labels[:binding] = binding_parts[0]
+    binding_name_parts = binding_parts[0].to_s.split(".", 2)
+    labels[:binding] = binding_name_parts[0].to_sym
+    labels[:binding_prop] = binding_name_parts[1].to_sym if binding_name_parts.length > 1
     attributes[:"data-b"] = binding_parts[0]
 
     channel.concat(binding_parts[1..-1])

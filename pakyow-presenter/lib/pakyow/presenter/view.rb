@@ -200,7 +200,13 @@ module Pakyow
             remove
           else
             binding_props.each do |binding|
-              unless object.value?(binding.label(:binding))
+              binding_name = if binding.significant?(:multipart_binding)
+                binding.label(:binding_prop)
+              else
+                binding.label(:binding)
+              end
+
+              unless object.value?(binding_name)
                 binding.remove
               end
             end
@@ -216,11 +222,17 @@ module Pakyow
         tap do
           unless object.nil?
             binding_props.each do |binding|
-              if object.include?(binding.label(:binding))
+              binding_name = if binding.significant?(:multipart_binding)
+                binding.label(:binding_prop)
+              else
+                binding.label(:binding)
+              end
+
+              if object.include?(binding_name)
                 value = if object.is_a?(Binder)
-                  object.__content(binding.label(:binding), binding)
+                  object.__content(binding_name, binding)
                 else
-                  object[binding.label(:binding)]
+                  object[binding_name]
                 end
 
                 bind_value_to_node(value, binding)
@@ -369,29 +381,37 @@ module Pakyow
       # @api private
       def all_binding_scopes
         @object.find_significant_nodes(:binding).select { |node|
-          node.significant?(:binding_within) || node.label(:version) == :empty
+          node.significant?(:binding_within) || node.significant?(:multipart_binding) || node.label(:version) == :empty
         }
       end
 
       # @api private
       def binding_scopes
         @object.find_significant_nodes_without_descending(:binding).select { |node|
-          node.significant?(:binding_within) || node.label(:version) == :empty
+          node.significant?(:binding_within) || node.significant?(:multipart_binding) || node.label(:version) == :empty
         }
       end
 
       # @api private
       def all_binding_props
-        @object.find_significant_nodes(:binding).reject { |node|
-          node.significant?(:binding_within)
-        }
+        if @object.is_a?(StringDoc::Node) && @object.significant?(:multipart_binding)
+          [@object]
+        else
+          @object.find_significant_nodes(:binding).select { |node|
+            !node.significant?(:binding_within) || node.significant?(:multipart_binding)
+          }
+        end
       end
 
       # @api private
       def binding_props
-        @object.find_significant_nodes_without_descending(:binding).reject { |node|
-          node.significant?(:binding_within)
-        }
+        if @object.is_a?(StringDoc::Node) && @object.significant?(:multipart_binding)
+          [@object]
+        else
+          @object.find_significant_nodes_without_descending(:binding).select { |node|
+            !node.significant?(:binding_within) || node.significant?(:multipart_binding)
+          }
+        end
       end
 
       # @api private

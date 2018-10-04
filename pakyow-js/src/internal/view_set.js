@@ -228,7 +228,7 @@ export default class {
         continue;
       }
 
-      if (!view.bindings().find((view) => { return view.match("binding", key) })) {
+      if (!view.bindings().find((view) => { return view.binding() === key || view.binding(true) === key })) {
         return false;
       }
     }

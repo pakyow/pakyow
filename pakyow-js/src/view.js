@@ -11,8 +11,12 @@ export default class {
     return this.node.dataset.id;
   }
 
-  binding() {
-    return this.node.dataset.b;
+  binding(prop = false) {
+    if (prop) {
+      return this.node.dataset.b.split(".").pop();
+    } else {
+      return this.node.dataset.b;
+    }
   }
 
   version() {
@@ -29,6 +33,8 @@ export default class {
 
     if (property === "channel") {
       return propertyValue === value || propertyValue.endsWith(":" + value);
+    } else if(property === "binding") {
+      return propertyValue === value || propertyValue.startsWith(value + ".");
     } else {
       return propertyValue === value;
     }
@@ -87,7 +93,7 @@ export default class {
     this.ensureBindingPropsForObject(object);
 
     for (let view of this.bindingProps()) {
-      let value = object[view.binding()];
+      let value = object[view.binding(true)];
 
       if (typeof value === "object") {
         for (let key in value) {
@@ -124,7 +130,7 @@ export default class {
 
       // Remove binding props that aren't in the object.
       for (let view of this.bindingProps()) {
-        if (!object[view.binding()]) {
+        if (!object[view.binding(true)]) {
           new pw.View(view.node).remove();
         }
       }
@@ -273,12 +279,12 @@ export default class {
     var bindings = [];
 
     this.breadthFirst(this.node, function(childNode, halt) {
-      if (childNode == this.node) {
+      if (childNode == this.node && !String(childNode.dataset.b).includes(".")) {
         return; // we only care about the children
       }
 
       if (childNode.dataset.b) {
-        if (new pw.View(childNode).bindingProps().length == 0 && !new pw.View(childNode).match("version", "empty")) {
+        if (childNode.dataset.b.includes(".") || (new pw.View(childNode).bindingProps().length == 0 && !new pw.View(childNode).match("version", "empty"))) {
           bindings.push(new pw.View(childNode));
         } else {
           halt(); // we're done here

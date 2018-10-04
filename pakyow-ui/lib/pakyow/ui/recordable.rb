@@ -30,9 +30,15 @@ module Pakyow
 
       # @api private
       def cache_bindings!
-        @bindings = @view.object.find_significant_nodes(:binding).map { |node|
-          node.label(:binding)
-        }
+        binding_nodes = if @view.object.is_a?(StringDoc::Node) && @view.object.significant?(:multipart_binding)
+          [@view.object]
+        else
+          @view.object.find_significant_nodes(:binding)
+        end
+
+        @bindings = binding_nodes.flat_map { |node|
+          [node.label(:binding), node.label(:binding_prop)]
+        }.compact
       end
 
       private
@@ -104,14 +110,20 @@ module Pakyow
 
       def ensure_explicit_use(presenter)
         presenter.view.binding_props.each do |binding_prop|
-          binding_prop_view = presenter.view.find(binding_prop.label(:binding))
+          binding_name = if binding_prop.significant?(:multipart_binding)
+            binding_prop.label(:binding_prop)
+          else
+            binding_prop.label(:binding)
+          end
+
+          binding_prop_view = presenter.view.find(binding_name)
 
           if binding_prop_view.is_a?(Presenter::VersionedView)
             unless binding_prop_view.used?
               if binding_prop_view.version?(:default)
-                presenter.instance_variable_get(:@calls).unshift([:find, [[binding_prop.label(:binding)]], [], [[:use, [:default], [], []]]])
+                presenter.instance_variable_get(:@calls).unshift([:find, [[binding_name]], [], [[:use, [:default], [], []]]])
               else
-                presenter.instance_variable_get(:@calls).unshift([:find, [[binding_prop.label(:binding)]], [], [[:clean, [], [], []]]])
+                presenter.instance_variable_get(:@calls).unshift([:find, [[binding_name]], [], [[:clean, [], [], []]]])
               end
             end
           end

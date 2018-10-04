@@ -64,4 +64,15 @@ RSpec.describe "binding data via presenter" do
       expect(post_presenter.bind(nil)).to be(post_presenter)
     end
   end
+
+  context "scope/prop is defined on a single node" do
+    let :view do
+      Pakyow::Presenter::View.new("<h1 binding=\"post.title\">title goes here</h1>")
+    end
+
+    it "binds the value" do
+      post_presenter.bind(title: "foo")
+      expect(presenter.to_s).to eq("<h1 data-b=\"post.title\">foo</h1>")
+    end
+  end
 end

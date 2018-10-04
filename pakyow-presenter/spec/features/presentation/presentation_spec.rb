@@ -123,4 +123,15 @@ RSpec.describe "presenting data via presenter" do
       expect(titles[0]).to eq(titles[1])
     end
   end
+
+  context "scope/prop is defined on a single node" do
+    let :view do
+      Pakyow::Presenter::View.new("<h1 binding=\"post.title\">title goes here</h1>")
+    end
+
+    it "presents the value" do
+      post_presenter.present(title: "foo")
+      expect(presenter.to_s).to eq("<h1 data-b=\"post.title\">foo</h1>")
+    end
+  end
 end
