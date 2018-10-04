@@ -292,11 +292,21 @@ module Pakyow
     #     end
     #   end
     #
-    def reroute(location, method: connection.method, **params)
+    def reroute(location, method: connection.method, as: nil, **params)
       @connection.env[Rack::REQUEST_METHOD] = method.to_s.upcase
+      @connection.instance_variable_set(:@method, nil)
+
       @connection.env[Rack::PATH_INFO] = location.is_a?(Symbol) ? app.endpoints.path(location, **params) : location
-      @connection.instance_variable_set(:@response, app.call(@connection.env))
-      halt
+
+      # Change the response status, if set.
+      #
+      @connection.status = Connection.status_code(as) if as
+
+      # Share the connection.
+      #
+      @connection.env["pakyow.connection"] = @connection
+
+      app.call(@connection.env); halt
     end
 
     # Responds to a specific request format.

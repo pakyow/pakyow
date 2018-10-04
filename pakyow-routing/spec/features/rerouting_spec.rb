@@ -24,7 +24,7 @@ RSpec.describe "rerouting requests" do
         end
 
         get "/reroute_with_custom_status" do
-          reroute "/destination", as: 301
+          reroute "/destination", as: 400
         end
 
         get :destination, "/destination" do
@@ -66,9 +66,99 @@ RSpec.describe "rerouting requests" do
     expect($body).to eq(["foo", "bar"])
   end
 
-  describe "the rerouted request" do
-    it "reflects the rerouted path"
-    it "reflects the rerouted method"
-    it "makes the parent request available"
+  describe "rerouting to a different method" do
+    let :app_definition do
+      Proc.new {
+        controller :reroute do
+          disable_protection :csrf
+
+          get "/reroute" do
+            reroute "/destination", method: :post
+          end
+
+          post "/destination" do
+            send "destination"
+          end
+        end
+      }
+    end
+
+    it "reroutes" do
+      call("/reroute").tap do |result|
+        expect(result[0]).to eq(200)
+        expect(result[2].body.first).to eq("destination")
+      end
+    end
+  end
+
+  describe "rerouting with a status" do
+    let :app_definition do
+      Proc.new {
+        controller :reroute do
+          get "/reroute" do
+            reroute "/destination", as: :bad_request
+          end
+
+          get "/destination" do
+            send "destination"
+          end
+        end
+      }
+    end
+
+    it "reflects the status" do
+      call("/reroute").tap do |result|
+        expect(result[0]).to eq(400)
+        expect(result[2].body.first).to eq("destination")
+      end
+    end
+
+    context "later route explicitly sets a status" do
+      let :app_definition do
+        Proc.new {
+          controller :reroute do
+            get "/reroute" do
+              reroute "/destination", as: :bad_request
+            end
+
+            get "/destination" do
+              res.status = 403
+              send "destination"
+            end
+          end
+        }
+      end
+
+      it "gives precedence to the later route" do
+        call("/reroute").tap do |result|
+          expect(result[0]).to eq(403)
+          expect(result[2].body.first).to eq("destination")
+        end
+      end
+    end
+  end
+
+  describe "sharing values across reroutes" do
+    let :app_definition do
+      Proc.new {
+        controller :reroute do
+          get "/reroute" do
+            connection.set(:value, "foo")
+            reroute "/destination"
+          end
+
+          get "/destination" do
+            send connection.get(:value)
+          end
+        end
+      }
+    end
+
+    it "shares the values" do
+      call("/reroute").tap do |result|
+        expect(result[0]).to eq(200)
+        expect(result[2].body.first).to eq("foo")
+      end
+    end
   end
 end
