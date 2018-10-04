@@ -117,7 +117,9 @@ module Pakyow
       end
 
       def setup_field_names
-        @view.object.children.find_significant_nodes(:binding).each do |binding_node|
+        @view.object.children.find_significant_nodes_without_descending(:binding).reject { |binding_node|
+          binding_node.significant?(:multipart_binding)
+        }.each do |binding_node|
           binding_node.attributes[:name] ||= "#{@view.object.label(:binding)}[#{binding_node.label(:binding)}]"
         end
       end

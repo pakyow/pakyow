@@ -142,8 +142,6 @@ module Pakyow
             # at this point we've persisted the subscriber, but we haven't dealt with the subscription
             # since the subscriber has been persisted we need to persist each subscription
             subscription_ids.each do |subscription_id|
-              key_subscribers_for_subscription_id = key_subscribers_by_subscription_id(subscription_id)
-
               # don't setup a watch here, because persist should always win
               source = @redis.get(key_source_for_subscription_id(subscription_id))
 

@@ -32,9 +32,9 @@ module Pakyow
         end
       end
 
-      def ephemeral(type, id: nil)
+      def ephemeral(type, **qualifications)
         Proxy.new(
-          Sources::Ephemeral.new(type, id: id),
+          Sources::Ephemeral.new(type, **qualifications),
           @subscribers
         )
       end

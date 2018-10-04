@@ -15,7 +15,9 @@ RSpec.describe "creating an ephemeral data source" do
         end
 
         get "ephemeral-with-value/:value" do
-          $data = data.ephemeral(:test).set(params[:value])
+          $data = data.ephemeral(:test).set([
+            { value: params[:value] }
+          ])
         end
       end
     end
@@ -36,18 +38,13 @@ RSpec.describe "creating an ephemeral data source" do
     expect($data.source.type).to eq(:test)
   end
 
-  it "is given a uuid" do
-    expect(call("/ephemeral")[0]).to eq(200)
-    expect($data.source.id.length).to eq(36)
-  end
-
-  it "can be created with an explicit id" do
+  it "can be created with explicit qualifications" do
     expect(call("/ephemeral-with-id/123")[0]).to eq(200)
-    expect($data.source.id).to eq("123")
+    expect($data.source.qualifications).to eq(id: "123", type: :test)
   end
 
   it "can have a value set on it" do
     expect(call("/ephemeral-with-value/foo")[0]).to eq(200)
-    expect($data.value).to eq("foo")
+    expect($data.results.first[:value]).to eq("foo")
   end
 end

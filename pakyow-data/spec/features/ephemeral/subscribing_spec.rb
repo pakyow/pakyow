@@ -21,7 +21,11 @@ RSpec.describe "creating an ephemeral data source" do
         end
 
         create do
-          data.ephemeral(:errors, id: params[:id]).set([:error1, :error2, :error3])
+          data.ephemeral(:errors, id: params[:id]).set([
+            { message: "error1" },
+            { message: "error2" },
+            { message: "error3" }
+          ])
         end
       end
 
@@ -29,7 +33,11 @@ RSpec.describe "creating an ephemeral data source" do
         disable_protection :csrf
 
         create do
-          data.ephemeral(:errors_for_comments, id: params[:id]).set([:error1, :error2, :error3])
+          data.ephemeral(:errors_for_comments, id: params[:id]).set([
+            { message: "error1" },
+            { message: "error2" },
+            { message: "error3" }
+          ])
         end
       end
     end

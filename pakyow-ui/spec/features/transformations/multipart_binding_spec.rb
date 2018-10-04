@@ -29,12 +29,6 @@ RSpec.describe "presenting data in a multipart binding" do
         primary_id
         attribute :title
       end
-
-      presenter "/channeled/posts" do
-        def perform
-          find(:post).present(posts)
-        end
-      end
     end
   end
 

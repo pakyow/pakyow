@@ -14,12 +14,20 @@ module Pakyow
         @app = app
       end
 
-      def call(args, subscription: nil)
+      def call(args, subscription: nil, result: nil)
         presentables = args[:presentables].each_with_object({}) { |presentable_info, presentable_hash|
-          presentable_name, proxy = presentable_info.values_at(:name, :proxy)
-          presentable_hash[presentable_name] = @app.data.public_send(
-            proxy[:source]
-          ).apply(proxy[:proxied_calls])
+          if presentable_info[:ephemeral]
+            ephemeral = Data::Sources::Ephemeral.restore(presentable_info[:ephemeral])
+            presentable_hash[presentable_info[:name]] = if result && result.type == ephemeral.type && result.qualifications == ephemeral.qualifications
+              result
+            else
+              ephemeral
+            end
+          else
+            presentable_hash[presentable_info[:name]] = @app.data.public_send(
+              presentable_info[:proxy][:source]
+            ).apply(presentable_info[:proxy][:proxied_calls])
+          end
         }
 
         env = args[:env]

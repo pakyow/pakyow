@@ -49,7 +49,7 @@ module Pakyow
                 result_source.original_results || []
               )
             }.uniq.each do |subscription|
-              process(subscription)
+              process(subscription, result_source)
             end
           rescue => error
             Pakyow.logger.error "[Pakyow::Data::Subscribers] did_mutate failed: #{error}"
@@ -71,22 +71,20 @@ module Pakyow
 
       protected
 
-      def process(subscription)
+      def process(subscription, mutated_source)
         callback = subscription[:handler].new(@app)
         arguments = {}
-
-        result = if @app.data.respond_to?(subscription[:proxy][:source])
-          @app.data.public_send(subscription[:proxy][:source])
-        else
-          @app.data.ephemeral(subscription[:proxy][:source])
-        end
 
         if callback.method(:call).keyword_argument?(:id)
           arguments[:id] = subscription[:id]
         end
 
         if callback.method(:call).keyword_argument?(:result)
-          arguments[:result] = result.apply(subscription[:proxy][:proxied_calls])
+          arguments[:result] = if @app.data.respond_to?(subscription[:proxy][:source])
+            @app.data.public_send(subscription[:proxy][:source]).apply(subscription[:proxy][:proxied_calls])
+          else
+            mutated_source
+          end
         end
 
         if callback.method(:call).keyword_argument?(:subscription)

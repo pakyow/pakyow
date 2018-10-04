@@ -87,7 +87,11 @@ module Pakyow
                   serialized: serialize
                 },
                 presentables: presentables.map { |presentable_name, presentable|
-                  { name: presentable_name, proxy: presentable.to_h }
+                  if presentable.source.is_a?(Data::Sources::Ephemeral)
+                    { name: presentable_name, ephemeral: presentable.source.serialize }
+                  else
+                    { name: presentable_name, proxy: presentable.to_h }
+                  end
                 },
                 env: @connection.env.each_with_object({}) { |(key, value), keep|
                   if ENV_KEYS.include?(key)
