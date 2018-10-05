@@ -303,6 +303,8 @@ module Pakyow
       @connection.instance_variable_set(:@method, nil)
 
       @connection.env[Rack::PATH_INFO] = location.is_a?(Symbol) ? app.endpoints.path(location, **params) : location
+      @connection.env.delete("pakyow.endpoint.path")
+      @connection.env.delete("pakyow.endpoint.name")
 
       # Change the response status, if set.
       #
