@@ -70,13 +70,15 @@ module Pakyow
           end
 
           def presentables
-            @presentables ||= @connection.values.select { |_, presentable|
-              presentable.is_a?(Data::Proxy)
+            @presentables ||= @connection.values.reject { |presentable_name, _|
+              presentable_name.to_s.start_with?("__")
             }
           end
 
           def subscribables
-            @subscribables ||= presentables.values.select(&:subscribable?)
+            @subscribables ||= presentables.values.select { |value|
+              value.is_a?(Data::Proxy) && value.subscribable?
+            }
           end
 
           def subscribe_to_transformations
@@ -87,10 +89,12 @@ module Pakyow
                   serialized: serialize
                 },
                 presentables: presentables.map { |presentable_name, presentable|
-                  if presentable.source.is_a?(Data::Sources::Ephemeral)
+                  if presentable.is_a?(Data::Proxy) && presentable.source.is_a?(Data::Sources::Ephemeral)
                     { name: presentable_name, ephemeral: presentable.source.serialize }
-                  else
+                  elsif presentable.is_a?(Data::Proxy)
                     { name: presentable_name, proxy: presentable.to_h }
+                  else
+                    { name: presentable_name, value: presentable }
                   end
                 },
                 env: @connection.env.each_with_object({}) { |(key, value), keep|

@@ -16,17 +16,19 @@ module Pakyow
 
       def call(args, subscription: nil, result: nil)
         presentables = args[:presentables].each_with_object({}) { |presentable_info, presentable_hash|
-          if presentable_info[:ephemeral]
+          if presentable_info.key?(:ephemeral)
             ephemeral = Data::Sources::Ephemeral.restore(presentable_info[:ephemeral])
             presentable_hash[presentable_info[:name]] = if result && result.type == ephemeral.type && result.qualifications == ephemeral.qualifications
               result
             else
               ephemeral
             end
-          else
+          elsif presentable_info.key?(:proxy)
             presentable_hash[presentable_info[:name]] = @app.data.public_send(
               presentable_info[:proxy][:source]
             ).apply(presentable_info[:proxy][:proxied_calls])
+          else
+            presentable_hash[presentable_info[:name]] = presentable_info[:value]
           end
         }
 
