@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "forwardable"
+
 require "pakyow/support/makeable"
 require "pakyow/support/class_state"
 require "pakyow/support/inflector"
@@ -56,6 +58,11 @@ module Pakyow
       # @api private
       attr_reader :container, :included
 
+      extend Forwardable
+      def_delegator :to_a, :each
+
+      include Enumerable
+
       def initialize(dataset, container:, object_map: {})
         __setobj__(dataset)
         @container, @object_map = container, object_map
@@ -103,14 +110,6 @@ module Pakyow
       def as(object)
         @wrap_as = object
         self
-      end
-
-      def each(&block)
-        to_a.each(&block)
-      end
-
-      def map(&block)
-        to_a.map(&block)
       end
 
       def to_a
@@ -164,11 +163,6 @@ module Pakyow
 
       def query?(maybe_query_name)
         self.class.queries.include?(maybe_query_name)
-      end
-
-      RESULT_METHODS = %i(each to_a one count transaction to_json).freeze
-      def result?(maybe_result_name)
-        RESULT_METHODS.include?(maybe_result_name)
       end
 
       MODIFIER_METHODS = %i(all as including).freeze

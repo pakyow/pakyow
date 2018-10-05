@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "forwardable"
 require "securerandom"
 
 require "pakyow/support/core_refinements/array/ensurable"
@@ -18,6 +19,11 @@ module Pakyow
 
         using Support::Refinements::Array::Ensurable
         attr_reader :type, :qualifications, :results
+
+        include Enumerable
+
+        extend Forwardable
+        def_delegator :to_a, :each
 
         def initialize(type, **qualifications)
           @type = type
@@ -47,14 +53,6 @@ module Pakyow
 
         def to_a
           Array.ensure(@results)
-        end
-
-        def map(&block)
-          to_a.map(&block)
-        end
-
-        def each(&block)
-          to_a.each(&block)
         end
 
         COMMANDS = %i(set).freeze

@@ -66,16 +66,13 @@ module Pakyow
               method_name, args, nested_calls
             ]
           }
-        elsif @source.result?(method_name)
-          @source.public_send(method_name, *args, &block)
         else
-          super
+          @source.public_send(method_name, *args, &block)
         end
       end
 
-      def respond_to_missing?(method_name, *)
-        @source.command?(method_name) || @source.query?(method_name) ||
-          @source.result?(method_name) || @source.modifier?(method_name)
+      def respond_to_missing?(method_name, include_private = false)
+        @source.command?(method_name) || @source.query?(method_name) || @source.modifier?(method_name) || @source.respond_to?(method_name, include_private)
       end
 
       def to_ary
