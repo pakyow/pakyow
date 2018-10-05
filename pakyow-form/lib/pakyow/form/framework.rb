@@ -63,7 +63,7 @@ module Pakyow
 
             presenter do
               def perform
-                find(:error).present(errors)
+                find(:error)&.present(errors)
               end
             end
           end
