@@ -101,13 +101,19 @@ module Pakyow
           View.from_object(node)
         end
 
-        if names.empty? && !found.empty? # found everything; wrap it up
+        result = if names.empty? && !found.empty? # found everything; wrap it up
           VersionedView.new(found)
         elsif found.count > 0 # descend further
           found.first.find(*names)
         else
           nil
         end
+
+        if result && block_given?
+          yield result
+        end
+
+        result
       end
 
       # Finds all view bindings by name, returning an array of {View} objects.

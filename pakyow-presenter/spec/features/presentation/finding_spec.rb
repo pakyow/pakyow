@@ -357,4 +357,22 @@ RSpec.describe "finding all significant views via presenter" do
       end
     end
   end
+
+  describe "defensively finding a top-level binding" do
+    let :view do
+      Pakyow::Presenter::View.new("<div binding=\"post\"></div>")
+    end
+
+    context "binding exists" do
+      it "yields the result" do
+        expect { |b| presenter.find(:post, &b) }.to yield_control
+      end
+    end
+
+    context "binding does not exist" do
+      it "does not yield" do
+        expect { |b| presenter.find(:nonexistent, &b) }.to_not yield_control
+      end
+    end
+  end
 end

@@ -110,11 +110,17 @@ module Pakyow
       #
       # @see View#find
       def find(*names, channel: nil)
-        if found_view = @view.find(*names, channel: channel)
+        result = if found_view = @view.find(*names, channel: channel)
           presenter_for(found_view)
         else
           nil
         end
+
+        if result && block_given?
+          yield result
+        end
+
+        result
       end
 
       # Returns an array of presenters, one for each view binding.
