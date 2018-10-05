@@ -28,11 +28,11 @@ module Pakyow
         def set(results)
           tap do
             @results = results.map { |result|
-              result.merge(qualifications).tap do |qualified_result|
-                unless qualified_result.key?(:id)
-                  qualified_result[:id] = SecureRandom.uuid
-                end
+              unless result.key?(:id)
+                result[:id] = SecureRandom.uuid
               end
+
+              result
             }
           end
         end

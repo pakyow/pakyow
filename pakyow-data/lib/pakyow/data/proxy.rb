@@ -92,6 +92,7 @@ module Pakyow
         if subscribable?
           subscriptions << {
             source: @source.source_name,
+            ephemeral: @source.is_a?(Sources::Ephemeral),
             handler: handler,
             payload: payload,
             qualifications: qualifications,

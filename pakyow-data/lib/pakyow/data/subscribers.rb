@@ -42,12 +42,18 @@ module Pakyow
         @executor << Proc.new {
           begin
             @adapter.subscriptions_for_source(source_name).select { |subscription|
-              subscription[:handler] && qualified?(
-                subscription.delete(:qualifications).to_a,
-                changed_values,
-                result_source.to_a,
-                result_source.original_results || []
-              )
+              next unless subscription[:handler]
+
+              if subscription[:ephemeral]
+                result_source.qualifications == subscription[:qualifications]
+              else
+                qualified?(
+                  subscription.delete(:qualifications).to_a,
+                  changed_values,
+                  result_source.to_a,
+                  result_source.original_results || []
+                )
+              end
             }.uniq.each do |subscription|
               process(subscription, result_source)
             end
