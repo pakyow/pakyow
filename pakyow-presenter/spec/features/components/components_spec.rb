@@ -127,7 +127,9 @@ RSpec.describe "rendering with backend components" do
 
         component :child do
           presenter do
-            attrs[:style][:color] = "red"
+            def perform
+              attrs[:style][:color] = "red"
+            end
           end
         end
       end
@@ -363,7 +365,9 @@ RSpec.describe "rendering with backend components" do
 
         component :single do
           presenter do
-            attrs[:style][:background] = "blue"
+            def perform
+              attrs[:style][:background] = "blue"
+            end
           end
         end
       end

@@ -19,6 +19,10 @@ module Pakyow
           after :initialize do
             @ui_presenters = [Presenter::Presenter].concat(
               state(:presenter)
+            ).concat(
+              state(:component).map { |component|
+                component.__presenter_class
+              }
             ).map { |presenter_class|
               Class.new(presenter_class) do
                 include Recordable

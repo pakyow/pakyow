@@ -12,7 +12,7 @@ module Pakyow
       extend Support::Makeable
 
       extend Support::ClassState
-      class_state :__presenter_extension, inheritable: true
+      class_state :__presenter_class, default: Presenter, inheritable: true
 
       include Support::Hookable
       events :render
@@ -32,7 +32,9 @@ module Pakyow
 
       class << self
         def presenter(&block)
-          @__presenter_extension = block
+          @__presenter_class = Class.new(@__presenter_class) do
+            class_eval(&block)
+          end
         end
       end
     end

@@ -20,9 +20,11 @@ module Pakyow
       attr_reader :mode
 
       def initialize(connection, presenter = nil, name:, templates_path:, component_path:, layout:, mode:)
-        @connection, @presenter, @name, @templates_path, @component_path, @layout, @mode = connection, presenter, name, templates_path, component_path, layout, mode
+        @connection, @name, @templates_path, @component_path, @layout, @mode = connection, name, templates_path, component_path, layout, mode
 
-        unless @presenter
+        if presenter
+          @presenter = find_presenter.new(presenter.view)
+        else
           @presenter = find_presenter.new(
             connection.app.build_view(
               templates_path, layout: layout
@@ -42,24 +44,6 @@ module Pakyow
 
         @presenter.presentables.merge!(connection.values)
 
-        component_class = connection.app.state(:component).find { |component|
-          component.__object_name.name == name
-        }
-
-        if component_class.__presenter_extension
-          @presenter.instance_eval(&component_class.__presenter_extension)
-
-          # Rebind actions in case they were redefined above.
-          #
-          @presenter.instance_variable_get(:@__pipeline).instance_variable_get(:@stack).map! { |action|
-            if action.is_a?(::Method) && action.receiver.is_a?(Presenter)
-              @presenter.method(action.name)
-            else
-              action
-            end
-          }
-        end
-
         super(connection, @presenter)
       end
 
@@ -70,6 +54,18 @@ module Pakyow
           component_path: @component_path,
           layout: @layout,
           mode: @mode
+        }
+      end
+
+      private
+
+      def find_presenter
+        component_class.__presenter_class
+      end
+
+      def component_class
+        @connection.app.state(:component).find { |component|
+          component.__object_name.name == @name
         }
       end
     end
