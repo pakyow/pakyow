@@ -57,7 +57,6 @@ module Pakyow
                 []
               end
 
-              expose :errors_id, SecureRandom.hex(24)
               expose :errors, data.ephemeral(:errors, form_id: connection.get(:__form_ids).shift).set(errors)
             end
 
