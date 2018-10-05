@@ -9,9 +9,19 @@ module Pakyow
         end
 
         def call(renderer)
+          form_ids = []
           renderer.presenter.forms.each do |form|
             setup_form(form, renderer)
+
+            # FIXME: I don't like this, but unsure of a better way to make the
+            # form id available to the form component; needs more thought
+            #
+            if form.view.object.significant?(:component)
+              form_ids << form.view.object.label(FormPresenter::ID_LABEL)
+            end
           end
+
+          renderer.connection.set(:__form_ids, form_ids)
         end
 
         private

@@ -1,3 +1,5 @@
+require "rack"
+
 module Pakyow
   module TestHelp
     class MockHandler

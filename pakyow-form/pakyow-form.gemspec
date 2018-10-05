@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
-require File.expand_path("../lib/pakyow/version", __FILE__)
+require File.expand_path("../../lib/pakyow/version", __FILE__)
 
 Gem::Specification.new do |spec|
-  spec.name        = "pakyow"
+  spec.name        = "pakyow-form"
   spec.version     = Pakyow::VERSION
-  spec.summary     = "Pakyow"
-  spec.description = "Modern web framework for Ruby"
+  spec.summary     = "Pakyow Forms"
+  spec.description = "Forms for Pakyow"
 
-  spec.authors  = ["Bryan Powell", "Bret Young"]
+  spec.author   = "Bryan Powell"
   spec.email    = "bryan@metabahn.com"
   spec.homepage = "https://pakyow.org"
 
@@ -19,16 +19,9 @@ Gem::Specification.new do |spec|
   spec.files        = Dir["CHANGELOG.md", "README.md", "LICENSE", "lib/**/*"]
   spec.require_path = "lib"
 
-  spec.add_dependency "pakyow-assets", Pakyow::VERSION
   spec.add_dependency "pakyow-core", Pakyow::VERSION
   spec.add_dependency "pakyow-data", Pakyow::VERSION
-  spec.add_dependency "pakyow-form", Pakyow::VERSION
-  spec.add_dependency "pakyow-mailer", Pakyow::VERSION
   spec.add_dependency "pakyow-presenter", Pakyow::VERSION
-  spec.add_dependency "pakyow-realtime", Pakyow::VERSION
   spec.add_dependency "pakyow-routing", Pakyow::VERSION
   spec.add_dependency "pakyow-support", Pakyow::VERSION
-  spec.add_dependency "pakyow-ui", Pakyow::VERSION
-
-  spec.add_dependency "bundler", "~> 1.16"
 end
