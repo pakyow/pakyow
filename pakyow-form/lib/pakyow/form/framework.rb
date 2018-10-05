@@ -62,7 +62,24 @@ module Pakyow
 
             presenter do
               def perform
-                find(:error)&.present(errors)
+                classify_form
+                present_errors
+              end
+
+              private
+
+              def classify_form
+                if errors.any?
+                  attrs[:class] << :errored
+                else
+                  attrs[:class].delete(:errored)
+                end
+              end
+
+              def present_errors
+                find(:error) do |view|
+                  view.present(errors)
+                end
               end
             end
           end

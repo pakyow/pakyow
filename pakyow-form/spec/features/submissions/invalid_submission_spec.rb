@@ -28,6 +28,13 @@ RSpec.describe "submitting invalid form data" do
       expect(call("/posts", method: :post, params: { form: { errors_id: 123, origin: "/posts/new" } })[0]).to be(400)
     end
 
+    it "adds an errored class to the form" do
+      call("/posts", method: :post, params: { form: { errors_id: 123, origin: "/posts/new" }, post: { title: "foo title"} }).tap do |result|
+        expect(result[0]).to be(400)
+        expect(result[2].body.read).to include('<form data-b="post" data-ui="form" data-c="form" method="post" class="errored"')
+      end
+    end
+
     it "presents errors for the invalid submission" do
       call("/posts", method: :post, params: { form: { errors_id: 123, origin: "/posts/new" }, post: { title: "foo title"} }).tap do |result|
         expect(result[0]).to be(400)
