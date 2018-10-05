@@ -43,7 +43,7 @@ RSpec.describe "submitting invalid form data via ui" do
   context "form submission is present" do
     it "causes the form errors to mutate" do
       ephemeral_double = double(:ephemeral)
-      expect(ephemeral_double).to receive(:set).with([{:message=>"Title is required"}, {:message=>"Body is required"}])
+      expect(ephemeral_double).to receive(:set).with([{:field=>:title,:message=>"Title is required"}, {:field=>:body,:message=>"Body is required"}])
       expect_any_instance_of(Pakyow::Data::Lookup).to receive(:ephemeral) { |lookup, type, **qualifications|
         expect(type).to eq(:errors)
         expect(qualifications).to eq(form_id: "foo123")

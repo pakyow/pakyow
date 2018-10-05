@@ -26,7 +26,7 @@ module Pakyow
               errors = error.verifier.messages.flat_map { |_type, field_messages|
                 field_messages.flat_map { |field, messages|
                   messages.map { |message|
-                    { message: "#{Support.inflector.humanize(field)} #{message}" }
+                    { field: field, message: "#{Support.inflector.humanize(field)} #{message}" }
                   }
                 }
               }
@@ -63,6 +63,7 @@ module Pakyow
             presenter do
               def perform
                 classify_form
+                classify_fields
                 present_errors
               end
 
@@ -73,6 +74,22 @@ module Pakyow
                   attrs[:class] << :errored
                 else
                   attrs[:class].delete(:errored)
+                end
+              end
+
+              def classify_fields
+                errored_fields = errors.map { |error|
+                  error[:field]
+                }
+
+                view.binding_props.map { |prop|
+                  prop.label(:binding)
+                }.each do |binding_name|
+                  if errored_fields.include?(binding_name)
+                    find(binding_name).attrs[:class] << :errored
+                  else
+                    find(binding_name).attrs[:class].delete(:errored)
+                  end
                 end
               end
 
