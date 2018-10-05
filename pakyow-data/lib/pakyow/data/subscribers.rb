@@ -86,10 +86,10 @@ module Pakyow
         end
 
         if callback.method(:call).keyword_argument?(:result)
-          arguments[:result] = if @app.data.respond_to?(subscription[:proxy][:source])
-            @app.data.public_send(subscription[:proxy][:source]).apply(subscription[:proxy][:proxied_calls])
-          else
+          arguments[:result] = if subscription[:ephemeral]
             mutated_source
+          else
+            @app.data.public_send(subscription[:proxy][:source]).apply(subscription[:proxy][:proxied_calls])
           end
         end
 
