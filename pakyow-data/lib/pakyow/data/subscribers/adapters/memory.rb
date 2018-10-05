@@ -6,6 +6,8 @@ require "concurrent/array"
 require "concurrent/hash"
 require "concurrent/scheduled_task"
 
+require "pakyow/support/deep_dup"
+
 module Pakyow
   module Data
     class Subscribers
@@ -21,6 +23,8 @@ module Pakyow
               Digest::SHA1.hexdigest(Marshal.dump(subscription))
             end
           end
+
+          using Support::DeepDup
 
           def initialize(_config)
             @subscriptions_by_id = Concurrent::Hash.new
@@ -85,7 +89,7 @@ module Pakyow
           end
 
           def subscription_with_id(subscription_id)
-            subscription = @subscriptions_by_id[subscription_id].dup
+            subscription = @subscriptions_by_id[subscription_id].deep_dup
             subscription[:id] = subscription_id
             subscription
           end
