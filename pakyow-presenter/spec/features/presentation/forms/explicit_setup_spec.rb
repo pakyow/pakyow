@@ -28,19 +28,14 @@ RSpec.describe "setting up a form explicitly via presenter" do
       { title: "foo" }
     end
 
-    it "sets the form method" do
+    it "does not setup the endpoint" do
       form.create(object)
-      expect(form.attrs[:method]).to eq("post")
+      expect(presenter.to_s).to include('<form data-b="post" data-c="form">')
     end
 
     it "binds the values" do
       form.create(object)
       expect(form.find(:title).attrs[:value]).to eq("foo")
-    end
-
-    it "does not create the method override field" do
-      form.create(object)
-      expect(presenter.to_s).not_to include("<input type=\"hidden\" name=\"_method\"")
     end
 
     context "matching route is found" do
@@ -81,14 +76,9 @@ RSpec.describe "setting up a form explicitly via presenter" do
   end
 
   describe "setting up the form for creating, without an object" do
-    it "sets the form method" do
+    it "does not setup the endpoint" do
       form.create
-      expect(form.attrs[:method]).to eq("post")
-    end
-
-    it "does not create the method override field" do
-      form.create
-      expect(presenter.to_s).not_to include("<input type=\"hidden\" name=\"_method\"")
+      expect(presenter.to_s).to include('<form data-b="post" data-c="form">')
     end
 
     context "matching route is found" do
@@ -133,14 +123,9 @@ RSpec.describe "setting up a form explicitly via presenter" do
       { id: 1, title: "bar" }
     end
 
-    it "sets the form method" do
+    it "does not setup the endpoint" do
       form.update(object)
-      expect(form.attrs[:method]).to eq("post")
-    end
-
-    it "creates the method override field" do
-      form.update(object)
-      expect(presenter.to_s).to include("<input type=\"hidden\" name=\"_method\" value=\"patch\">")
+      expect(presenter.to_s).to include('<form data-b="post" data-c="form" data-id="1">')
     end
 
     it "binds the values" do
@@ -190,14 +175,9 @@ RSpec.describe "setting up a form explicitly via presenter" do
       { id: 1, title: "bar" }
     end
 
-    it "sets the form method" do
+    it "does not setup the endpoint" do
       form.replace(object)
-      expect(form.attrs[:method]).to eq("post")
-    end
-
-    it "creates the method override field" do
-      form.replace(object)
-      expect(presenter.to_s).to include("<input type=\"hidden\" name=\"_method\" value=\"put\">")
+      expect(presenter.to_s).to include('<form data-b="post" data-c="form" data-id="1">')
     end
 
     it "binds the values" do
@@ -247,14 +227,9 @@ RSpec.describe "setting up a form explicitly via presenter" do
       { id: 1, title: "bar" }
     end
 
-    it "sets the form method" do
+    it "does not setup the endpoint" do
       form.delete(object)
-      expect(form.attrs[:method]).to eq("post")
-    end
-
-    it "creates the method override field" do
-      form.delete(object)
-      expect(presenter.to_s).to include("<input type=\"hidden\" name=\"_method\" value=\"delete\">")
+      expect(presenter.to_s).to include('<form data-b="post" data-c="form" data-id="1">')
     end
 
     it "binds the values" do
@@ -295,6 +270,47 @@ RSpec.describe "setting up a form explicitly via presenter" do
     context "block is given" do
       it "yields form to the block" do
         expect { |b| form.delete(object, &b) }.to yield_with_args(form)
+      end
+    end
+  end
+
+  describe "setting up the form multiple times" do
+    let :object do
+      { title: "foo" }
+    end
+
+    context "matching route is found" do
+      include_context "testable app"
+
+      let :app_definition do
+        Proc.new {
+          resource :posts, "/posts" do
+            create do; end
+            update do; end
+            delete do; end
+          end
+        }
+      end
+
+      let :presenter do
+        Pakyow.apps.first.class.const_get(:Presenter).new(view).tap do |presenter|
+          presenter.install_endpoints(Pakyow.apps[0].endpoints, current_endpoint: endpoint)
+        end
+      end
+
+      before do
+        form.create(object)
+        form.update(object)
+        form.delete(object)
+      end
+
+      it "sets the form action" do
+        expect(form.attrs[:action]).to eq("/posts")
+      end
+
+      it "reuses the method override" do
+        expect(presenter.to_s).to include('<input type="hidden" name="_method" value="delete">')
+        expect(presenter.to_s).to_not include('<input type="hidden" name="_method" value="patch">')
       end
     end
   end

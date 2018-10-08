@@ -100,13 +100,15 @@ RSpec.describe "automatic form setup" do
         }
       end
 
-      it "does not set up the form" do
-        expect_any_instance_of(
-          Pakyow::Presenter::FormPresenter
-        ).not_to receive(:update)
+      it "sets up the form with params" do
+        call("/posts/1/edit").tap do |response|
+          expect(response[0]).to eq(200)
 
-        response = call("/posts/1/edit")
-        expect(response[0]).to eq(200)
+          response[2].body.read.tap do |body|
+            expect(body).to include('<form data-b="post" data-c="form" action="/posts/1" method="post" data-id="1">')
+            expect(body).to include('<input type="hidden" name="_method" value="patch">')
+          end
+        end
       end
     end
   end

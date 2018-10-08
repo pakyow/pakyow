@@ -119,7 +119,8 @@ module Pakyow
               endpoints << {
                 node: node,
                 name: name,
-                path: @endpoints.path(*name, **params.to_h)
+                path: @endpoints.path(*name, **params.to_h),
+                method: @endpoints.method(name)
               }
             }
           end
@@ -140,7 +141,7 @@ module Pakyow
 
           def setup_endpoints(endpoints)
             endpoints.each do |endpoint|
-              if endpoint[:name].to_s.end_with?("delete")
+              if endpoint[:method] == :delete
                 wrap_endpoint_for_removal(endpoint)
               else
                 setup_endpoint(endpoint)
@@ -149,17 +150,19 @@ module Pakyow
           end
 
           def wrap_endpoint_for_removal(endpoint)
-            View.from_object(endpoint[:node]).replace(
-              View.new(
-                <<~HTML
-                  <form action="#{endpoint[:path]}" method="post" data-ui="confirm">
-                    <input type="hidden" name="_method" value="delete">
+            if endpoint[:node].tagname != "form"
+              View.from_object(endpoint[:node]).replace(
+                View.new(
+                  <<~HTML
+                    <form action="#{endpoint[:path]}" method="post" data-ui="confirm">
+                      <input type="hidden" name="_method" value="delete">
 
-                    #{endpoint[:node]}
-                  </form>
-                HTML
+                      #{endpoint[:node]}
+                    </form>
+                  HTML
+                )
               )
-            )
+            end
           end
 
           def setup_endpoint(endpoint)

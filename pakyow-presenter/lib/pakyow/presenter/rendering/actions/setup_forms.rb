@@ -34,7 +34,18 @@ module Pakyow
             setup_authenticity_token(form, renderer)
           end
 
-          setup_for_exposed_object(form, renderer)
+          if object = object_for_form(form, renderer)
+            setup_form_for_exposed_object(form, object)
+          elsif endpoint = form.view.label(:endpoint)
+            form.action = endpoint
+          elsif form.view.labeled?(:binding)
+            case renderer.connection.env["pakyow.endpoint.name"]
+            when :new
+              form.create({})
+            when :edit
+              form.update(renderer.connection.params)
+            end
+          end
         end
 
         def setup_id(form, renderer)
@@ -58,13 +69,14 @@ module Pakyow
           )
         end
 
-        def setup_for_exposed_object(form, renderer)
-          case renderer.connection.env["pakyow.endpoint.name"]
-          when :new
-            form.create(object_for_form(form, renderer) || {})
-          when :edit
-            if object = object_for_form(form, renderer)
+        def setup_form_for_exposed_object(form, object)
+          if form.view.label(:endpoint)
+            form.setup(object)
+          else
+            if object.key?(:id)
               form.update(object)
+            else
+              form.create(object)
             end
           end
         end

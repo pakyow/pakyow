@@ -49,7 +49,7 @@ RSpec.describe "form origin" do
       }
     end
 
-    it "embeds a valid authenticity token" do
+    it "embeds the form origin" do
       response = call("/form?foo=bar")
       expect(response[0]).to eq(200)
 

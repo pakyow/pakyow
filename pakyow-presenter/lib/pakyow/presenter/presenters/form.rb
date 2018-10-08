@@ -3,7 +3,6 @@
 require "securerandom"
 
 require "pakyow/presenter/presenter"
-require "pakyow/presenter/presenter/behavior/endpoints/form"
 
 module Pakyow
   module Presenter
@@ -12,8 +11,6 @@ module Pakyow
     class FormPresenter < Presenter
       SUPPORTED_ACTIONS = %i(create update replace delete).freeze
       ACTION_METHODS = { create: "post", update: "patch", replace: "put", delete: "delete" }.freeze
-
-      include Behavior::Endpoints::Form
 
       # @api private
       ID_LABEL = :__form_id
@@ -36,7 +33,12 @@ module Pakyow
       # Sets the form action (where it submits to).
       #
       def action=(action)
-        @view.attrs[:action] = action
+        if action.is_a?(Symbol)
+          @view.object.set_label(:endpoint, action)
+          setup_form_endpoint(build_endpoints([@view.object]).first)
+        else
+          @view.attrs[:action] = action
+        end
       end
 
       # Sets the form method. Automatically handles method overrides by prepending a hidden field
@@ -44,10 +46,10 @@ module Pakyow
       #
       def method=(method)
         method = method.to_s.downcase
-
         if method_override_required?(method)
           @view.attrs[:method] = "post"
-          @view.prepend(method_override_input(method))
+
+          find_or_create_method_override_input.attributes[:value] = method
         else
           @view.attrs[:method] = method
         end
@@ -65,32 +67,37 @@ module Pakyow
         create_grouped_select_options(field, grouped_options || yield)
       end
 
+      def setup(object)
+        endpoint = build_endpoints([@view.object], object).first
+        setup_form_endpoint(endpoint)
+      end
+
       # Setup the form for creating an object.
       #
       def create(object = {})
         yield self if block_given?
-        setup_form :create, object
+        setup_form_for_binding :create, object
       end
 
       # Setup the form for updating an object.
       #
       def update(object)
         yield self if block_given?
-        setup_form :update, object
+        setup_form_for_binding :update, object
       end
 
       # Setup the form for replacing an object.
       #
       def replace(object)
         yield self if block_given?
-        setup_form :replace, object
+        setup_form_for_binding :replace, object
       end
 
       # Setup the form for removing an object.
       #
       def delete(object)
         yield self if block_given?
-        setup_form :delete, object
+        setup_form_for_binding :delete, object
       end
 
       # @ api private
@@ -105,10 +112,13 @@ module Pakyow
 
       protected
 
-      def setup_form(action, object)
+      def setup_form_for_binding(action, object)
         action = action.to_sym
         if SUPPORTED_ACTIONS.include?(action)
-          self.method = method_for_action(action)
+          if self.action = form_action_for_binding(action, object)
+            self.method = method_for_action(action)
+          end
+
           @view.bind(object)
         else
           raise ArgumentError.new("Expected action to be one of: #{SUPPORTED_ACTIONS.join(", ")}")
@@ -139,6 +149,23 @@ module Pakyow
         @view.prepend(id_input(id))
       end
 
+      def form_action_for_binding(action, object)
+        if endpoint_state_defined?
+          [
+            Support.inflector.singularize(@view.label(:binding)).to_sym,
+            Support.inflector.pluralize(@view.label(:binding)).to_sym
+          ].map { |possible_endpoint_name|
+            @endpoints.path_to(possible_endpoint_name, action, **form_action_params(object))
+          }.compact.first
+        end
+      end
+
+      def form_action_params(object)
+        {}.tap do |params|
+          params[:id] = object[:id] if object
+        end
+      end
+
       def method_for_action(action)
         ACTION_METHODS[action]
       end
@@ -147,8 +174,17 @@ module Pakyow
         method != "get" && method != "post"
       end
 
-      def method_override_input(method)
-        safe("<input type=\"hidden\" name=\"_method\" value=\"#{method}\">")
+      def method_override_input
+        safe("<input type=\"hidden\" name=\"_method\">")
+      end
+
+      def find_or_create_method_override_input
+        unless input = @view.object.find_significant_nodes_without_descending(:method_override).first
+          @view.prepend(method_override_input)
+          input = @view.object.find_significant_nodes_without_descending(:method_override).first
+        end
+
+        input
       end
 
       def authenticity_token_input(token, param:)
@@ -210,6 +246,11 @@ module Pakyow
 
         # add generated options
         field_view.append(safe(options.to_xml))
+      end
+
+      def setup_form_endpoint(endpoint)
+        self.action = endpoint[:path]
+        self.method = endpoint[:method]
       end
     end
   end

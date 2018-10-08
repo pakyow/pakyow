@@ -5,7 +5,7 @@ RSpec.describe "submitting invalid form data" do
     Proc.new do
       instance_exec(&$form_app_boilerplate)
 
-      resource :post, "/posts" do
+      resource :posts, "/posts" do
         disable_protection :csrf
 
         new do; end
@@ -31,7 +31,7 @@ RSpec.describe "submitting invalid form data" do
     it "adds an errored class to the form" do
       call("/posts", method: :post, params: { form: { errors_id: 123, origin: "/posts/new" }, post: { title: "foo title"} }).tap do |result|
         expect(result[0]).to be(400)
-        expect(result[2].body.read).to include('<form data-b="post" data-ui="form" data-c="form" method="post" class="errored"')
+        expect(result[2].body.read).to include('<form data-b="post" data-ui="form" data-c="form" action="/posts" method="post" class="errored"')
       end
     end
 

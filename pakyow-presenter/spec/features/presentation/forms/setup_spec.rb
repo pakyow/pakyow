@@ -22,9 +22,9 @@ RSpec.describe "setting up a form via presenter" do
       { title: "foo" }
     end
 
-    it "sets the form method" do
+    it "does not setup the endpoint" do
       form.create(object)
-      expect(form.attrs[:method]).to eq("post")
+      expect(presenter.to_s).to include('<form data-b="post" data-c="form">')
     end
 
     it "binds the values" do
@@ -32,12 +32,7 @@ RSpec.describe "setting up a form via presenter" do
       expect(form.find(:title).attrs[:value]).to eq("foo")
     end
 
-    it "does not create the method override field" do
-      form.create(object)
-      expect(presenter.to_s).not_to include("<input type=\"hidden\" name=\"_method\"")
-    end
-
-    context "matching route is found" do
+    context "matching route is found for a plural endpoint" do
       include_context "testable app"
 
       let :app_definition do
@@ -64,6 +59,64 @@ RSpec.describe "setting up a form via presenter" do
       end
     end
 
+    context "matching route is found for a singular endpoint" do
+      include_context "testable app"
+
+      let :app_definition do
+        Proc.new {
+          resource :post, "/post" do
+            create do; end
+          end
+        }
+      end
+
+      let :presenter do
+        Pakyow::Presenter::Presenter.new(view).tap do |presenter|
+          presenter.install_endpoints(Pakyow.apps[0].endpoints, current_endpoint: endpoint)
+        end
+      end
+
+      let :endpoint do
+        Pakyow::Connection::Endpoint.new("/", {})
+      end
+
+      it "sets the form action" do
+        form.create(object)
+        expect(form.attrs[:action]).to eq("/post")
+      end
+    end
+
+    context "matching route is found for both a singular and plural endpoint" do
+      include_context "testable app"
+
+      let :app_definition do
+        Proc.new {
+          resource :post, "/post" do
+            create do; end
+          end
+
+          resource :posts, "/posts" do
+            create do; end
+          end
+        }
+      end
+
+      let :presenter do
+        Pakyow::Presenter::Presenter.new(view).tap do |presenter|
+          presenter.install_endpoints(Pakyow.apps[0].endpoints, current_endpoint: endpoint)
+        end
+      end
+
+      let :endpoint do
+        Pakyow::Connection::Endpoint.new("/", {})
+      end
+
+      it "sets the form action for the singular endpoint" do
+        form.create(object)
+        expect(form.attrs[:action]).to eq("/post")
+      end
+    end
+
     context "matching route is not found" do
       it "does not set the form action" do
         form.create(object)
@@ -79,14 +132,9 @@ RSpec.describe "setting up a form via presenter" do
   end
 
   describe "setting up the form for creating, without an object" do
-    it "sets the form method" do
+    it "does not setup the endpoint" do
       form.create
-      expect(form.attrs[:method]).to eq("post")
-    end
-
-    it "does not create the method override field" do
-      form.create
-      expect(presenter.to_s).not_to include("<input type=\"hidden\" name=\"_method\"")
+      expect(presenter.to_s).to include('<form data-b="post" data-c="form">')
     end
 
     context "matching route is found" do
@@ -135,14 +183,9 @@ RSpec.describe "setting up a form via presenter" do
       { id: 1, title: "bar" }
     end
 
-    it "sets the form method" do
+    it "does not setup the endpoint" do
       form.update(object)
-      expect(form.attrs[:method]).to eq("post")
-    end
-
-    it "creates the method override field" do
-      form.update(object)
-      expect(presenter.to_s).to include("<input type=\"hidden\" name=\"_method\" value=\"patch\">")
+      expect(presenter.to_s).to include('<form data-b="post" data-c="form" data-id="1">')
     end
 
     it "binds the values" do
@@ -196,14 +239,9 @@ RSpec.describe "setting up a form via presenter" do
       { id: 1, title: "bar" }
     end
 
-    it "sets the form method" do
+    it "does not setup the endpoint" do
       form.replace(object)
-      expect(form.attrs[:method]).to eq("post")
-    end
-
-    it "creates the method override field" do
-      form.replace(object)
-      expect(presenter.to_s).to include("<input type=\"hidden\" name=\"_method\" value=\"put\">")
+      expect(presenter.to_s).to include('<form data-b="post" data-c="form" data-id="1">')
     end
 
     it "binds the values" do
@@ -257,14 +295,9 @@ RSpec.describe "setting up a form via presenter" do
       { id: 1, title: "bar" }
     end
 
-    it "sets the form method" do
+    it "does not setup the endpoint" do
       form.delete(object)
-      expect(form.attrs[:method]).to eq("post")
-    end
-
-    it "creates the method override field" do
-      form.delete(object)
-      expect(presenter.to_s).to include("<input type=\"hidden\" name=\"_method\" value=\"delete\">")
+      expect(presenter.to_s).to include('<form data-b="post" data-c="form" data-id="1">')
     end
 
     it "binds the values" do

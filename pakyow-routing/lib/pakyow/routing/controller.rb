@@ -680,6 +680,7 @@ module Pakyow
               #
               endpoints << Endpoint.new(
                 name: self_name,
+                method: route.method,
                 builder: Proc.new { |**params|
                   route.populated_path(path_to_self, **params)
                 }
@@ -688,6 +689,7 @@ module Pakyow
 
             endpoints << Endpoint.new(
               name: [self_name, route.name.to_s].join("_"),
+              method: route.method,
               builder: Proc.new { |**params|
                 route.populated_path(path_to_self, **params)
               }
@@ -697,6 +699,7 @@ module Pakyow
           children.flat_map(&:endpoints).each do |child_endpoint|
             endpoints << Endpoint.new(
               name: [self_name, child_endpoint.name].join("_"),
+              method: child_endpoint.method,
               builder: child_endpoint.builder
             )
           end
