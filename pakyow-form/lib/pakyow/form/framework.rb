@@ -63,12 +63,10 @@ module Pakyow
 
             presenter do
               def perform
-                if form_binding == view.channeled_binding_name
+                if form_binding.nil? || form_binding == view.channeled_binding_name
                   classify_form
                   classify_fields
                   present_errors(form_errors)
-                else
-                  present_errors([])
                 end
               end
 
