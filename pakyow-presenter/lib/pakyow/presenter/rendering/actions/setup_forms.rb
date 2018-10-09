@@ -83,7 +83,7 @@ module Pakyow
 
         def object_for_form(form, renderer)
           if form_binding_name = form.view.label(:binding)
-            renderer.connection.get("#{form_binding_name}:form")
+            renderer.connection.get([form_binding_name].concat(form.view.label(:channel)).join(":"))
           end
         end
       end

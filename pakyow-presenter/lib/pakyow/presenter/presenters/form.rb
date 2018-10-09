@@ -22,6 +22,7 @@ module Pakyow
           setup_form_id
         end
 
+        setup_form_binding
         setup_field_names
         use_binding_nodes
       end
@@ -131,6 +132,10 @@ module Pakyow
         embed_id(id)
       end
 
+      def setup_form_binding
+        @view.prepend(binding_input)
+      end
+
       def setup_field_names
         @view.object.children.find_significant_nodes_without_descending(:binding).reject { |binding_node|
           binding_node.significant?(:multipart_binding)
@@ -197,6 +202,10 @@ module Pakyow
 
       def id_input(id)
         safe("<input type=\"hidden\" name=\"form[id]\" value=\"#{id}\">")
+      end
+
+      def binding_input
+        safe("<input type=\"hidden\" name=\"form[binding]\" value=\"#{[@view.label(:binding)].concat(@view.label(:channel)).join(":")}\">")
       end
 
       def create_select_options(field, values)
