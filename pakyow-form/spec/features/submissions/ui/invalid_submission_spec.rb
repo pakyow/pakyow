@@ -35,7 +35,7 @@ RSpec.describe "submitting invalid form data via ui" do
     it "sets the form as subscribed" do
       call("/posts/new").tap do |result|
         expect(result[0]).to eq(200)
-        expect(result[2].body.read).to include_sans_whitespace('<form data-b="post" data-ui="form" data-c="form" action="/posts" method="post" class="" data-t="')
+        expect(result[2].body.read).to include_sans_whitespace('<form data-b="post" data-ui="form" data-c="form" action="/posts" method="post" data-t="')
       end
     end
   end
@@ -53,7 +53,7 @@ RSpec.describe "submitting invalid form data via ui" do
 
     it "does not reroute" do
       expect_any_instance_of(Pakyow::Controller).to_not receive(:reroute)
-      expect(call("/posts", method: :post, params: { form: { origin: "/posts/new" } }, Pakyow::UI::Helpers::UI_REQUEST_HEADER => "true")[0]).to be(400)
+      expect(call("/posts", method: :post, params: { form: { origin: "/posts/new", binding: "post:form" } }, Pakyow::UI::Helpers::UI_REQUEST_HEADER => "true")[0]).to be(400)
     end
 
     context "app handles the invalid submission" do

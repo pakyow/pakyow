@@ -39,7 +39,7 @@ module Pakyow
                 # Expose submitted values to be presented in the form.
                 #
                 params.reject { |key| key == :form }.each do |key, value|
-                  expose key, value, for: :form
+                  expose key, value, for: params[:form][:binding].to_s.split(":", 2)[1]
                 end
 
                 reroute params[:form][:origin], method: :get, as: :bad_request
@@ -57,20 +57,25 @@ module Pakyow
                 []
               end
 
-              expose :errors, data.ephemeral(:errors, form_id: connection.get(:__form_ids).shift).set(errors)
+              expose :form_binding, params.dig(:form, :binding)
+              expose :form_errors, data.ephemeral(:errors, form_id: connection.get(:__form_ids).shift).set(errors)
             end
 
             presenter do
               def perform
-                classify_form
-                classify_fields
-                present_errors
+                if form_binding == view.channeled_binding_name
+                  classify_form
+                  classify_fields
+                  present_errors(form_errors)
+                else
+                  present_errors([])
+                end
               end
 
               private
 
               def classify_form
-                if errors.any?
+                if form_errors.any?
                   attrs[:class] << :errored
                 else
                   attrs[:class].delete(:errored)
@@ -78,7 +83,7 @@ module Pakyow
               end
 
               def classify_fields
-                errored_fields = errors.map { |error|
+                errored_fields = form_errors.map { |error|
                   error[:field]
                 }
 
@@ -93,7 +98,7 @@ module Pakyow
                 end
               end
 
-              def present_errors
+              def present_errors(errors)
                 find(:error) do |view|
                   view.present(errors)
                 end
