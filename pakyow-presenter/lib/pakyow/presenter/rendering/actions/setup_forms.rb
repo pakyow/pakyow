@@ -44,6 +44,8 @@ module Pakyow
               form.create({})
             when :edit
               form.update(renderer.connection.params)
+            else
+              form.create({})
             end
           end
         end

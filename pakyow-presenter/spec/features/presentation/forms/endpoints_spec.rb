@@ -156,6 +156,25 @@ RSpec.describe "form endpoints" do
       end
     end
 
+    context "create endpoint is defined for the binding" do
+      let :app_definition do
+        Proc.new {
+          instance_exec(&$presenter_app_boilerplate)
+
+          resource :posts, "/posts" do
+            create do
+            end
+          end
+        }
+      end
+
+      it "sets up the form for creating" do
+        call("/presentation/forms/endpoints")[2].body.read.tap do |body|
+          expect(body).to include('<form data-b="post" data-c="form" action="/posts" method="post">')
+        end
+      end
+    end
+
     context "object is exposed for the form" do
       context "object has an id" do
         context "resource update route exists" do
