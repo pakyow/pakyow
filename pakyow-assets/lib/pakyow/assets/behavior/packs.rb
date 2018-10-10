@@ -16,9 +16,9 @@ module Pakyow
               }.to_a.sort { |pack_a, pack_b|
                 pack_b[1] <=> pack_a[1]
               }.uniq { |pack_path, _|
-                unversioned_pack_path(pack_path)
+                accessible_pack_path(pack_path)
               }.map { |pack_path, pack_asset_paths|
-                [unversioned_pack_path(pack_path), pack_asset_paths]
+                [accessible_pack_path(pack_path), pack_asset_paths]
               }.reverse.each do |pack_path, pack_asset_paths|
                 prefix = if is_a?(Plugin)
                   self.class.mount_path
@@ -40,8 +40,18 @@ module Pakyow
           end
         end
 
-        def unversioned_pack_path(pack_path)
-          pack_path.split("@", 2)[0]
+        def accessible_pack_path(pack_path)
+          pack_path_parts = pack_path.split("/")
+          # pack_path.split("__", 2)[1].split("@", 2)[0]
+          pack_path_parts[-1] = if pack_path_parts[-1].include?("__")
+            pack_path_parts[-1].split("__", 2)[1]
+          elsif pack_path_parts[-1].include?("@")
+            pack_path_parts[-1].split("@", 2)[0]
+          else
+            pack_path_parts[-1]
+          end
+
+          pack_path_parts.join("/")
         end
       end
     end

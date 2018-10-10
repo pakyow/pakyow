@@ -10,9 +10,9 @@ module Pakyow
       module Externals
         extend Support::Extension
 
-        def external_script(name, version = nil, package: nil)
+        def external_script(name, version = nil, package: nil, files: nil)
           config.assets.externals.scripts << External.new(
-            name, version: version, package: package, config: config.assets
+            name, version: version, package: package, files: files, config: config.assets
           )
         end
 

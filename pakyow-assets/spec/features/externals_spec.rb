@@ -157,6 +157,33 @@ RSpec.describe "external scripts" do
         expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@#{latest}.js"))).to be(true)
       end
     end
+
+    context "files are specified" do
+      let :app_definition do
+        local_tmp = tmp
+
+        Proc.new do
+          instance_exec(&$assets_app_boilerplate)
+
+          configure :test do
+            config.presenter.path = File.join(local_tmp, "frontend")
+
+            config.assets.externals.fetch = true
+            config.assets.externals.pakyow = false
+            config.assets.externals.scripts = []
+          end
+
+          after :configure do
+            external_script :vue, "2.5.17", files: ["dist/vue.common.js", "dist/vue.runtime.js"]
+          end
+        end
+      end
+
+      it "downloads each file" do
+        expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "vue@2.5.17__vue.common.js"))).to be(true)
+        expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "vue@2.5.17__vue.runtime.js"))).to be(true)
+      end
+    end
   end
 
   context "fetch is disabled" do

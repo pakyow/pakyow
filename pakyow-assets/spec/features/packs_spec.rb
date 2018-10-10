@@ -115,3 +115,36 @@ RSpec.describe "versioned asset packs" do
     expect(call("/assets/packs/versioned.css")[2].body.read).to eq("// 2.0\n")
   end
 end
+
+RSpec.describe "versioned, namespaced asset packs" do
+  include_context "testable app"
+  include_context "loaded asset packs"
+
+  before do
+    # Go ahead and require this to prevent intermittent failures.
+    require "babel-transpiler"
+  end
+
+  let :app_definition do
+    Proc.new do
+      instance_exec(&$assets_app_boilerplate)
+      config.assets.packs.autoload = []
+    end
+  end
+
+  let :request_path do
+    "/packs/namespaced"
+  end
+
+  let :included_pack_name do
+    "bar"
+  end
+
+  it "includes the latest js pack" do
+    expect(call("/assets/packs/bar.js")[2].body.read).to eq("\"use strict\";\n\nconsole.log(\"2.0 bar\");")
+  end
+
+  it "includes the latest css pack" do
+    expect(call("/assets/packs/bar.css")[2].body.read).to eq("// 2.0 bar\n")
+  end
+end

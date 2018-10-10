@@ -1,6 +1,6 @@
 RSpec.describe Pakyow::Assets::External do
   let :instance do
-    described_class.new(:test, version: version, package: package, config: config)
+    described_class.new(:test, version: version, package: package, files: [], config: config)
   end
 
   let :name do

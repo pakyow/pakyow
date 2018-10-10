@@ -31,7 +31,7 @@ RSpec.describe Pakyow::Assets::Behavior::Externals do
 
   describe "#external_script" do
     it "registers the external" do
-      expect(Pakyow::Assets::External).to receive(:new).with(:test, version: nil, package: nil, config: instance)
+      expect(Pakyow::Assets::External).to receive(:new).with(:test, version: nil, package: nil, files: nil, config: instance)
 
       instance.external_script :test
       expect(instance.scripts.count).to be(1)
@@ -39,7 +39,7 @@ RSpec.describe Pakyow::Assets::Behavior::Externals do
 
     context "version is passed" do
       it "registers the external" do
-        expect(Pakyow::Assets::External).to receive(:new).with(:test, version: "1.0.0", package: nil, config: instance)
+        expect(Pakyow::Assets::External).to receive(:new).with(:test, version: "1.0.0", package: nil, files: nil, config: instance)
 
         instance.external_script :test, "1.0.0"
         expect(instance.scripts.count).to be(1)
@@ -47,7 +47,7 @@ RSpec.describe Pakyow::Assets::Behavior::Externals do
 
       context "package is passed" do
         it "registers the external" do
-          expect(Pakyow::Assets::External).to receive(:new).with(:test, version: "1.0.0", package: :test2, config: instance)
+          expect(Pakyow::Assets::External).to receive(:new).with(:test, version: "1.0.0", package: :test2, files: nil, config: instance)
 
           instance.external_script :test, "1.0.0", package: :test2
           expect(instance.scripts.count).to be(1)
@@ -57,7 +57,7 @@ RSpec.describe Pakyow::Assets::Behavior::Externals do
 
     context "package is passed" do
       it "registers the external" do
-        expect(Pakyow::Assets::External).to receive(:new).with(:test, version: nil, package: :test2, config: instance)
+        expect(Pakyow::Assets::External).to receive(:new).with(:test, version: nil, package: :test2, files: nil, config: instance)
 
         instance.external_script :test, package: :test2
         expect(instance.scripts.count).to be(1)
