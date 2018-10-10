@@ -71,7 +71,8 @@
                   [
                     {
                       "name": "posts_show",
-                      "path": "/posts/1"
+                      "path": "/posts/1",
+                      "method": "get"
                     }
                   ],
                   [
@@ -86,7 +87,8 @@
                   [
                     {
                       "name": "posts_comments_show",
-                      "path": "/posts/1/comments/1"
+                      "path": "/posts/1/comments/1",
+                      "method": "get"
                     }
                   ],
                   [
@@ -180,7 +182,8 @@
                   [
                     {
                       "name": "posts_show",
-                      "path": "/posts/2"
+                      "path": "/posts/2",
+                      "method": "get"
                     }
                   ],
                   [
@@ -195,7 +198,8 @@
                   [
                     {
                       "name": "posts_comments_show",
-                      "path": "/posts/1/comments/2"
+                      "path": "/posts/1/comments/2",
+                      "method": "get"
                     }
                   ],
                   [

@@ -10,7 +10,7 @@ module Pakyow
     class Route
       using Support::Refinements::String::Normalization
 
-      attr_reader :path, :name, :pipeline
+      attr_reader :path, :method, :name, :pipeline
 
       def initialize(path_or_matcher, name:, method:, &block)
         @name, @method, @block = name, method, block

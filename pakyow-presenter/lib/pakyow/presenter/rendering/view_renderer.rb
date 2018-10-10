@@ -51,7 +51,7 @@ module Pakyow
         end
 
         def implicitly_render?(connection)
-          connection.status == 200 && connection.method == :get && connection.format == :html &&
+          connection.method == :get && connection.format == :html &&
           (Pakyow.env?(:prototype) || ((!connection.halted? || connection.set?(:__fully_dispatched)) && !connection.rendered?))
         end
 
@@ -76,7 +76,7 @@ module Pakyow
       def initialize(connection, templates_path: nil, presenter_path: nil, layout: nil, mode: :default, embed_templates: true)
         @connection, @embed_templates = connection, embed_templates
 
-        @templates_path = String.normalize_path(templates_path || @connection.env["pakyow.endpoint"] || @connection.path)
+        @templates_path = String.normalize_path(templates_path || @connection.env["pakyow.endpoint.path"] || @connection.path)
         @presenter_path = presenter_path ? String.normalize_path(presenter_path) : nil
         @layout = layout
 

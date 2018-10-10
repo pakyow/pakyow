@@ -178,6 +178,7 @@ module Pakyow
       @endpoints.each do |endpoint|
         @app.endpoints << Endpoint.new(
           name: [config.name.to_s, endpoint.name].join("_"),
+          method: :get,
           builder: endpoint.builder
         )
       end

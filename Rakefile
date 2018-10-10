@@ -4,6 +4,7 @@ GEMS = %i[
   assets
   core
   data
+  form
   mailer
   presenter
   realtime

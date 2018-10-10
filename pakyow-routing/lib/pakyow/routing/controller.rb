@@ -202,7 +202,13 @@ module Pakyow
               match_data.merge!(route_match.named_captures)
               connection.params.merge!(match_data)
               connection.env["rack.request.query_hash"].merge!(match_data)
-              connection.env["pakyow.endpoint"] = File.join(self.class.path_to_self.to_s, route.path.to_s)
+
+              connection.env["pakyow.endpoint.path"] = File.join(
+                self.class.path_to_self.to_s, route.path.to_s
+              )
+
+              connection.env["pakyow.endpoint.name"] = route.name
+
               dup.call_route(connection, route)
             end
           end
@@ -297,6 +303,8 @@ module Pakyow
       @connection.instance_variable_set(:@method, nil)
 
       @connection.env[Rack::PATH_INFO] = location.is_a?(Symbol) ? app.endpoints.path(location, **params) : location
+      @connection.env.delete("pakyow.endpoint.path")
+      @connection.env.delete("pakyow.endpoint.name")
 
       # Change the response status, if set.
       #
@@ -672,6 +680,7 @@ module Pakyow
               #
               endpoints << Endpoint.new(
                 name: self_name,
+                method: route.method,
                 builder: Proc.new { |**params|
                   route.populated_path(path_to_self, **params)
                 }
@@ -680,6 +689,7 @@ module Pakyow
 
             endpoints << Endpoint.new(
               name: [self_name, route.name.to_s].join("_"),
+              method: route.method,
               builder: Proc.new { |**params|
                 route.populated_path(path_to_self, **params)
               }
@@ -689,6 +699,7 @@ module Pakyow
           children.flat_map(&:endpoints).each do |child_endpoint|
             endpoints << Endpoint.new(
               name: [self_name, child_endpoint.name].join("_"),
+              method: child_endpoint.method,
               builder: child_endpoint.builder
             )
           end

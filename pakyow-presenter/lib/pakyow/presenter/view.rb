@@ -385,6 +385,11 @@ module Pakyow
       end
 
       # @api private
+      def channeled_binding_name
+        [label(:binding)].concat(label(:channel)).join(":")
+      end
+
+      # @api private
       def all_binding_scopes
         @object.find_significant_nodes(:binding).select { |node|
           node.significant?(:binding_within) || node.significant?(:multipart_binding) || node.label(:version) == :empty

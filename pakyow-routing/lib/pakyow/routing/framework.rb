@@ -27,7 +27,7 @@ module Pakyow
 
           # Make controllers definable on the app.
           #
-          stateful :controller, isolated(:Controller) do |args, opts|
+          stateful :controller, isolated(:Controller) do |args, _opts|
             if self.ancestors.include?(Plugin)
               # When using plugins, prefix controller paths with the mount path.
               #

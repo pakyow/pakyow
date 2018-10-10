@@ -40,12 +40,11 @@ module Pakyow
     #   # => "/posts/1/edit"
     #
     def path(name, **params)
-      name = name.to_sym
-      found = @endpoints.find { |endpoint|
-        endpoint.name == name
-      }
+      endpoint_with_name(name)&.path(**params)
+    end
 
-      found&.path(**params)
+    def method(name)
+      endpoint_with_name(name)&.method
     end
 
     # Builds the path to a route, following a trail of names.
@@ -61,13 +60,22 @@ module Pakyow
     def path_to(*names, **params)
       path(names.join("_").to_sym, **params)
     end
+
+    private
+
+    def endpoint_with_name(name)
+      name = name.to_sym
+      @endpoints.find { |endpoint|
+        endpoint.name == name
+      }
+    end
   end
 
   class Endpoint
-    attr_reader :name, :builder
+    attr_reader :name, :method, :builder
 
-    def initialize(name:, builder:)
-      @name, @builder = name.to_sym, builder
+    def initialize(name:, method:, builder:)
+      @name, @method, @builder = name.to_sym, method.to_sym, builder
     end
 
     def path(**params)

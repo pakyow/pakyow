@@ -70,7 +70,8 @@
                   [
                     {
                       "name": "posts_show",
-                      "path": "/posts/1"
+                      "path": "/posts/1",
+                      "method": "get"
                     }
                   ],
                   [

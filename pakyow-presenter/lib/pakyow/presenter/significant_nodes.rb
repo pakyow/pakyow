@@ -11,6 +11,8 @@ module Pakyow
     # @api private
     OPTGROUP_TAG = "optgroup".freeze
     # @api private
+    INPUT_TAG = "input".freeze
+    # @api private
     TITLE_TAG = "title".freeze
     # @api private
     BODY_TAG = "body".freeze
@@ -173,6 +175,15 @@ module Pakyow
 
       def self.significant?(node)
         node.is_a?(Oga::XML::Element) && node.name == OPTGROUP_TAG
+      end
+    end
+
+    # @api private
+    class MethodOverrideNode < SignificantNode
+      StringDoc.significant :method_override, self
+
+      def self.significant?(node)
+        node.is_a?(Oga::XML::Element) && node.name == INPUT_TAG && node.attribute(:name).to_s == "_method"
       end
     end
 

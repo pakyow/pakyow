@@ -6,6 +6,7 @@ gemspec
 gemspec path: "pakyow-assets"
 gemspec path: "pakyow-core"
 gemspec path: "pakyow-data"
+gemspec path: "pakyow-form"
 gemspec path: "pakyow-presenter"
 gemspec path: "pakyow-realtime"
 gemspec path: "pakyow-routing"
