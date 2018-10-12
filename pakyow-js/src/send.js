@@ -39,25 +39,27 @@ export default function (url, options = {}) {
     }
   }
 
-  if (method !== "GET") {
-    let $token = document.querySelector("meta[name='pw-authenticity-token']");
-    let $param = document.querySelector("meta[name='pw-authenticity-param']");
+  var data = options.data;
+  if (!(data instanceof FormData)) {
+    if (method !== "GET") {
+      let $token = document.querySelector("meta[name='pw-authenticity-token']");
+      let $param = document.querySelector("meta[name='pw-authenticity-param']");
 
-    if ($token && $param) {
-      if (!options.data || !options.data[$param.getAttribute("content")]) {
-        if (!options.data) {
-          options.data = {};
+      if ($token && $param) {
+        if (!data || !data[$param.getAttribute("content")]) {
+          if (!data) {
+            data = {};
+          }
+
+          data[$param.getAttribute("content")] = $token.getAttribute("content");
         }
-
-        options.data[$param.getAttribute("content")] = $token.getAttribute("content");
       }
     }
-  }
 
-  var data;
-  if (options.data) {
-    xhr.setRequestHeader("Content-Type", "application/json");
-    data = JSON.stringify(options.data);
+    if (data) {
+      xhr.setRequestHeader("Content-Type", "application/json");
+      data = JSON.stringify(data);
+    }
   }
 
   xhr.send(data);

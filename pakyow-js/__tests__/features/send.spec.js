@@ -210,5 +210,13 @@ describe("sending to the server", () => {
       pw.send("/", { method: "POST" });
       expect(XMLHttpRequest.mock.instances[0].send.mock.calls.length).toBe(1);
     });
-  })
+  });
+
+  describe("form data", () => {
+    test("sends with form data", () => {
+      var formData = new FormData();
+      pw.send("/", { method: "POST", data: formData });
+      expect(XMLHttpRequest.mock.instances[0].send.mock.calls[0][0]).toEqual(formData);
+    });
+  });
 });
