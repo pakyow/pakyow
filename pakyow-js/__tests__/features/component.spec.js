@@ -63,6 +63,24 @@ describe("initializing components in a node", () => {
   });
 });
 
+describe("parsing component config with values that contain colons", () => {
+  beforeEach(() => {
+    document.querySelector("html").innerHTML = `
+      <head>
+      </head>
+      <body>
+        <div data-ui="foo" data-config="key1: val:1; key2: val2"></div>
+      </body>
+    `;
+
+    pw.Component.init(document.querySelector("html"));
+  });
+
+  test("parses correctly", () => {
+    expect(pw.Component.instances[0].config).toEqual({ key1: "val:1", key2: "val2" })
+  });
+});
+
 describe("adding component nodes to the dom", () => {
   beforeEach(() => {
     document.querySelector("body").innerHTML = `

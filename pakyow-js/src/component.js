@@ -73,8 +73,8 @@ export default class {
     }
 
     return configString.split(";").reduce((config, option) => {
-      let key_value = option.trim().split(":");
-      config[key_value[0].trim()] = key_value[1].trim();
+      let splitOption = option.trim().split(":");
+      config[splitOption.shift().trim()] = splitOption.join(":").trim();
       return config;
     }, {});
   }
