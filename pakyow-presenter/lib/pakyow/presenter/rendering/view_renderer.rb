@@ -23,10 +23,10 @@ module Pakyow
           renderer = new(connection, **args)
           renderer.perform
 
-          connection.body = StringIO.new(
-            renderer.presenter.to_html(clean_bindings: !Pakyow.env?(:prototype))
-          )
-
+          html = renderer.presenter.to_html(clean_bindings: !Pakyow.env?(:prototype))
+          connection.set_response_header(Rack::CONTENT_LENGTH, html.bytesize)
+          connection.set_response_header(Rack::CONTENT_TYPE, "text/html")
+          connection.body = StringIO.new(html)
           connection.rendered
         end
 

@@ -102,6 +102,12 @@ module Pakyow
         @assets, @public_path = assets, public_path
       end
 
+      def initialize_copy(_)
+        super
+
+        @assets = @assets.map(&:dup)
+      end
+
       def mime_type
         @assets.first&.mime_type
       end
@@ -118,6 +124,10 @@ module Pakyow
             packed_asset << asset.read
           end
         end
+      end
+
+      def bytesize
+        @assets.map(&:bytesize).inject(&:+)
       end
     end
   end

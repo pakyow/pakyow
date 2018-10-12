@@ -124,12 +124,6 @@ module Pakyow
 
       def each(&block)
         ensure_content do |content|
-          content = process(content)
-
-          if minify?
-            content = minify(content)
-          end
-
           StringIO.new(content).each(&block)
         end
       end
@@ -140,6 +134,10 @@ module Pakyow
             asset << content
           end
         end
+      end
+
+      def bytesize
+        ensure_content(&:bytesize)
       end
 
       def fingerprint
@@ -160,7 +158,14 @@ module Pakyow
       end
 
       def ensure_content
-        yield File.read(@local_path) if block_given?
+        @content ||= load_content
+        yield @content if block_given?
+      end
+
+      def load_content
+        content = process(File.read(@local_path))
+        content = minify(content) if minify?
+        content
       end
 
       def process(content)

@@ -27,13 +27,15 @@ module Pakyow
             public_path = public_path(connection)
 
             if public?(public_path)
-              connection.set_response_header("Content-Type", Rack::Mime.mime_type(File.extname(public_path)))
+              file = File.open(public_path)
+              connection.set_response_header(Rack::CONTENT_LENGTH, file.size)
+              connection.set_response_header(Rack::CONTENT_TYPE, Rack::Mime.mime_type(File.extname(public_path)))
 
               if connection.app.config.assets.cache && asset?(connection)
                 set_cache_headers(connection, public_path)
               end
 
-              connection.body = File.open(public_path)
+              connection.body = file
               connection.halt
             end
           end

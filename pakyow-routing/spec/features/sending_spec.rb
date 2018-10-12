@@ -132,8 +132,8 @@ RSpec.describe "sending data" do
       expect(call[2].body.read).to eq("foo")
     end
 
-    it "sends with the response's type" do
-      expect(call[1]["Content-Type"]).to eq("text/html")
+    it "does not set a content type" do
+      expect(call[1]["Content-Type"]).to eq(nil)
     end
 
     it "sends inline" do

@@ -372,11 +372,13 @@ module Pakyow
         data = file_or_data
 
         if file_or_data.is_a?(File)
+          @connection.set_response_header(Rack::CONTENT_LENGTH, file_or_data.size)
           type ||= Rack::Mime.mime_type(File.extname(file_or_data.path))
         end
 
         @connection.set_response_header(Rack::CONTENT_TYPE, type || DEFAULT_SEND_TYPE)
       elsif file_or_data.is_a?(String)
+        @connection.set_response_header(Rack::CONTENT_LENGTH, file_or_data.bytesize)
         @connection.set_response_header(Rack::CONTENT_TYPE, type) if type
         data = StringIO.new(file_or_data)
       else

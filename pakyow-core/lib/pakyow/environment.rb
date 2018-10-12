@@ -64,8 +64,6 @@ require "pakyow/app"
 #
 # The environment contains a default middleware stack:
 #
-# - Rack::ContentType, "text/html"
-# - Rack::ContentLength
 # - Rack::Head
 # - Rack::MethodOverride
 # - {Middleware::JSONBody}
@@ -100,8 +98,6 @@ module Pakyow
   # Loads the default middleware stack.
   #
   before :setup do
-    use Rack::ContentType, "text/html"
-    use Rack::ContentLength
     use Rack::Head
     use Rack::MethodOverride
     use Middleware::JSONBody

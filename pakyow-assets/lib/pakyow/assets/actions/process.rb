@@ -16,7 +16,9 @@ module Pakyow
           asset = find_asset(connection) || find_pack(connection)
 
           if connection.app.config.assets.process && asset
-            connection.set_response_header("Content-Type", asset.mime_type)
+            asset = asset.dup
+            connection.set_response_header(Rack::CONTENT_LENGTH, asset.bytesize)
+            connection.set_response_header(Rack::CONTENT_TYPE, asset.mime_type)
             connection.body = asset.dup
             connection.halt
           end

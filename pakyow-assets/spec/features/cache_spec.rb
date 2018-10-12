@@ -15,7 +15,7 @@ RSpec.describe "setting cache headers" do
       end
 
       it "does not respond with cache headers" do
-        expect(call("/robots.txt")[1]).to eq("Content-Type" => "text/plain")
+        expect(call("/robots.txt")[1]).to eq("Content-Length" => 23, "Content-Type" => "text/plain")
       end
     end
 
@@ -62,7 +62,7 @@ RSpec.describe "setting cache headers" do
       end
 
       it "does not respond with cache headers" do
-        expect(call("/robots.txt")[1]).to eq("Content-Type" => "text/plain")
+        expect(call("/robots.txt")[1]).to eq("Content-Length" => 23, "Content-Type" => "text/plain")
       end
     end
 

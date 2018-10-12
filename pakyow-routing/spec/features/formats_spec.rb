@@ -94,11 +94,11 @@ RSpec.describe "route formats" do
         Proc.new {
           controller do
             get "foo.txt|html" do
-              respond_to :txt do
-                send "foo"
+              respond_to :html do
+                send "<foo>"
               end
 
-              send "<foo>"
+              send "foo"
             end
           end
         }
@@ -110,7 +110,7 @@ RSpec.describe "route formats" do
       end
 
       it "sets the appropriate content type" do
-        expect(call("/foo.txt")[1]['Content-Type']).to eq("text/plain")
+        expect(call("/foo.txt")[1]['Content-Type']).to eq(nil)
         expect(call("/foo.html")[1]['Content-Type']).to eq("text/html")
       end
     end
