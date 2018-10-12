@@ -17,7 +17,7 @@ RSpec.describe "response headers for assets" do
 
   context "asset is a pack" do
     it "sets Content-Length" do
-      expect(call("/assets/packs/versioned.js")[1]["Content-Length"]).to eq(20)
+      expect(call("/assets/packs/versioned.js")[1]["Content-Length"]).to eq(34)
     end
 
     it "sets Content-Type" do
