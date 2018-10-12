@@ -154,7 +154,7 @@ module Pakyow
               View.from_object(endpoint[:node]).replace(
                 View.new(
                   <<~HTML
-                    <form action="#{endpoint[:path]}" method="post" data-ui="confirm">
+                    <form action="#{endpoint[:path]}" method="post" data-ui="confirmable">
                       <input type="hidden" name="_method" value="delete">
 
                       #{endpoint[:node]}
