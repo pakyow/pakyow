@@ -39,6 +39,8 @@ export default class {
               });
 
               instances.splice(instances.indexOf(component), 1);
+
+              component.disappear();
             }
           }
         }
@@ -57,7 +59,7 @@ export default class {
       let object = components[view.node.dataset.ui] || this.create();
       let instance = new object(view, this.parseConfig(view.node.dataset.config));
       instances.push(instance);
-      instance.ready();
+      instance.appear();
     }
   }
 
@@ -94,7 +96,11 @@ export default class {
       this.channels = [];
     };
 
-    component.prototype.ready = function () {
+    component.prototype.appear = function () {
+      // intentionally empty
+    };
+
+    component.prototype.disappear = function () {
       // intentionally empty
     };
 

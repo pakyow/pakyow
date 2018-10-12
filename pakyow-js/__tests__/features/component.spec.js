@@ -101,16 +101,14 @@ describe("adding component nodes to the dom", () => {
 });
 
 describe("removing component nodes from the dom", () => {
-  beforeEach(() => {
+  test("removes the component instance tied to the removed node", async () => {
     document.querySelector("body").innerHTML = `
       <div data-ui="foo"></div>
       <div data-ui="bar"></div>
     `;
 
     pw.Component.init(document.querySelector("html"));
-  });
 
-  test("removes the component instance tied to the removed node", async () => {
     expect(pw.Component.instances.length).toBe(2);
     new pw.View(document.querySelector("*[data-ui='foo']")).remove();
     await sleep(50);
@@ -118,6 +116,27 @@ describe("removing component nodes from the dom", () => {
     new pw.View(document.querySelector("*[data-ui='bar']")).remove();
     await sleep(50);
     expect(pw.Component.instances.length).toBe(0);
+  });
+
+  test("it calls disappear for each matching component", async () => {
+    document.querySelector("body").innerHTML = `
+      <div data-ui="foo"></div>
+    `;
+
+    var disappeared = [];
+
+    pw.define("foo", {
+      disappear() {
+        disappeared.push(this);
+      }
+    });
+
+    pw.Component.init(document.querySelector("html"));
+    await sleep(50);
+    new pw.View(document.querySelector("*[data-ui='foo']")).remove();
+    await sleep(50);
+
+    expect(disappeared.length).toEqual(1);
   });
 });
 
@@ -143,17 +162,17 @@ describe("registering a component", () => {
     expect(pw.Component.instances[2].foo()).toEqual("foo");
   });
 
-  test("it calls ready for each matching component", () => {
+  test("it calls appear for each matching component", () => {
     pw.define("foo", {
-      ready() {
-        this.ready = true;
+      appear() {
+        this.appeared = true;
       }
     });
 
     pw.Component.init(document.querySelector("html"));
 
-    expect(pw.Component.instances[0].ready).toEqual(true);
-    expect(pw.Component.instances[2].ready).toEqual(true);
+    expect(pw.Component.instances[0].appeared).toEqual(true);
+    expect(pw.Component.instances[2].appeared).toEqual(true);
   });
 });
 
@@ -168,7 +187,7 @@ describe("broadcasting an event", () => {
 
   test("reaches each listening component", () => {
     pw.define("foo", {
-      ready() {
+      appear() {
         this.listen("test:channel1", (payload) => {
           this.called = payload;
         });
@@ -176,7 +195,7 @@ describe("broadcasting an event", () => {
     });
 
     pw.define("bar", {
-      ready() {
+      appear() {
         this.listen("test:channel2", (payload) => {
           this.called = payload;
         });
@@ -184,7 +203,7 @@ describe("broadcasting an event", () => {
     });
 
     pw.define("baz", {
-      ready() {
+      appear() {
         this.listen("test:channel1", (payload) => {
           this.called = payload;
         });
@@ -210,7 +229,7 @@ describe("triggering an event", () => {
 
   test("calls each handler", () => {
     pw.define("foo", {
-      ready() {
+      appear() {
         this.listen("test:channel", (payload) => {
           this.called = payload;
         });
@@ -222,7 +241,7 @@ describe("triggering an event", () => {
     });
 
     pw.define("bar", {
-      ready() {
+      appear() {
         this.listen("test:channel", (payload) => {
           this.called = payload;
         });
@@ -252,7 +271,7 @@ describe("bubbling an event", () => {
 
   test("bubbles up to each handler", () => {
     pw.define("foo", {
-      ready() {
+      appear() {
         this.listen("test:channel", (payload) => {
           this.called = payload;
         });
@@ -260,7 +279,7 @@ describe("bubbling an event", () => {
     });
 
     pw.define("foo:bar", {
-      ready() {
+      appear() {
         this.listen("test:channel", (payload) => {
           this.called = payload;
         });
@@ -268,7 +287,7 @@ describe("bubbling an event", () => {
     });
 
     pw.define("foo:bar:baz", {
-      ready() {
+      appear() {
         this.listen("test:channel", (payload) => {
           this.called = payload;
         });
@@ -276,7 +295,7 @@ describe("bubbling an event", () => {
     });
 
     pw.define("bar", {
-      ready() {
+      appear() {
         this.listen("test:channel", (payload) => {
           this.called = payload;
         });
@@ -307,7 +326,7 @@ describe("trickling an event", () => {
 
   test("trickles down to each handler", () => {
     pw.define("foo", {
-      ready() {
+      appear() {
         this.listen("test:channel", (payload) => {
           this.called = payload;
         });
@@ -315,7 +334,7 @@ describe("trickling an event", () => {
     });
 
     pw.define("foo:bar", {
-      ready() {
+      appear() {
         this.listen("test:channel", (payload) => {
           this.called = payload;
         });
@@ -323,7 +342,7 @@ describe("trickling an event", () => {
     });
 
     pw.define("foo:bar:baz", {
-      ready() {
+      appear() {
         this.listen("test:channel", (payload) => {
           this.called = payload;
         });
@@ -331,7 +350,7 @@ describe("trickling an event", () => {
     });
 
     pw.define("bar", {
-      ready() {
+      appear() {
         this.listen("test:channel", (payload) => {
           this.called = payload;
         });
@@ -358,7 +377,7 @@ describe("ignoring broadcasts", () => {
 
   test("reaches each listening component", () => {
     pw.define("foo", {
-      ready() {
+      appear() {
         this.listen("test:channel", (payload) => {
           this.called = payload;
         });
@@ -370,7 +389,7 @@ describe("ignoring broadcasts", () => {
     });
 
     pw.define("bar", {
-      ready() {
+      appear() {
         this.listen("test:channel", (payload) => {
           this.called = payload;
         });
