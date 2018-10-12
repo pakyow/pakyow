@@ -67,11 +67,12 @@ module Pakyow
               FileUtils.mkdir_p(@config.externals.path)
 
               fetched_version = response.uri.to_s.split(@package.to_s, 2)[1].split("/", 2)[0].split("@", 2)[1]
+              file_basename = File.basename(file.to_s, File.extname(file.to_s))
 
-              local_path = if file
+              local_path = if file && file_basename != name.to_s
                 File.join(
                   @config.externals.path,
-                  "#{name}@#{fetched_version}__#{File.basename(file, File.extname(file))}.js"
+                  "#{name}@#{fetched_version}__#{file_basename}.js"
                 )
               else
                 File.join(
