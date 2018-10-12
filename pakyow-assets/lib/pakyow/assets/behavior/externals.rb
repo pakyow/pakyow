@@ -19,7 +19,10 @@ module Pakyow
         apply_extension do
           after :initialize do
             if config.assets.externals.pakyow
-              external_script :pakyow, "^1.0.0-alpha.1", package: "@pakyow/js"
+              external_script :pakyow, "^1.0.0-alpha.1", package: "@pakyow/js", files: [
+                "dist/pakyow.js",
+                "dist/components/socket.js"
+              ]
             end
 
             if config.assets.externals.fetch

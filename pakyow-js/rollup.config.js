@@ -14,7 +14,7 @@ export default [
     ],
     output: {
       extend: true,
-      file: "/Users/bryanp/src/pakyow/pw1/frontend/assets/packs/vendor/pakyow@1.0.0-alpha.5.js",
+      file: "dist/pakyow.js",
       format: "umd",
       name: "pw"
     }
@@ -32,7 +32,7 @@ export default [
     ],
     output: {
       extend: true,
-      file: "/Users/bryanp/src/pakyow/pw1/frontend/assets/packs/vendor/pakyow@1.0.0-alpha.5__socket.js",
+      file: "dist/components/socket.js",
       format: "esm"
     }
   }
