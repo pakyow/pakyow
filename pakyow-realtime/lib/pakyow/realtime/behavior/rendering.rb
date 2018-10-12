@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "cgi"
+
 require "pakyow/support/extension"
 
 module Pakyow
@@ -10,19 +12,14 @@ module Pakyow
 
         apply_extension do
           isolated :ViewRenderer do
-            before :render do
+            before :render, priority: :high do
               next unless head = @presenter.view.object.find_significant_nodes(:head)[0]
 
-              # embed the socket connection id (used by pakyow.js to idenfity itself with the server)
-              head.append("<meta name=\"pw-connection-id\" content=\"#{socket_client_id}:#{socket_digest(socket_client_id)}\">\n")
-
-              # embed the endpoint we'll be connecting to
               endpoint = @connection.app.config.realtime.endpoint
 
               unless endpoint
                 endpoint = if (Pakyow.env?(:development) || Pakyow.env?(:prototype)) && Pakyow.host && Pakyow.port
-                  # Connect directly to the app in development, since the proxy
-                  # does not support websocket connections.
+                  # Connect directly to the app in development, since the proxy does not support websocket connections.
                   #
                   File.join("ws://#{Pakyow.host}:#{Pakyow.port}", @connection.app.config.realtime.path)
                 else
@@ -30,7 +27,11 @@ module Pakyow
                 end
               end
 
-              head.append("<meta name=\"pw-endpoint\" content=\"#{endpoint}\">\n")
+              head.append(
+                <<~HTML
+                  <meta name="pw-socket" ui="socket" config="endpoint: #{endpoint}?id=#{CGI::escape("#{socket_client_id}:#{socket_digest(socket_client_id)}")}">
+                HTML
+              )
             end
           end
         end

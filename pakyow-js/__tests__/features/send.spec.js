@@ -81,8 +81,8 @@ describe("sending to the server", () => {
       expect(complete.mock.calls[0]).toEqual([xhr]);
     });
 
-    test("broadcasts with success callback");
-    test("broadcasts without success callback");
+    xtest("broadcasts with success callback", () => {});
+    xtest("broadcasts without success callback", () => {});
   });
 
   describe("500 response", () => {
@@ -120,8 +120,8 @@ describe("sending to the server", () => {
       expect(complete.mock.calls[0]).toEqual([xhr]);
     });
 
-    test("broadcasts with error callback");
-    test("broadcasts without error callback");
+    xtest("broadcasts with error callback", () => {});
+    xtest("broadcasts without error callback", () => {});
   });
 
   describe("sending with data", () => {

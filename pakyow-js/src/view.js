@@ -421,7 +421,7 @@ export default class {
       let removal = document.createElement("form");
       removal.setAttribute("action", endpoint.path);
       removal.setAttribute("method", "post");
-      removal.setAttribute("data-ui", "confirm");
+      removal.setAttribute("data-ui", "confirmable");
       removal.innerHTML = '<input type="hidden" name="_method" value="delete">' + endpointView.node.outerHTML;
       endpointView.node.parentNode.replaceChild(removal, endpointView.node);
     }
