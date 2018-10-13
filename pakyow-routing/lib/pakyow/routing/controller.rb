@@ -140,7 +140,7 @@ module Pakyow
   class Controller
     using Support::DeepDup
     extend Support::Makeable
-    include Support::Hookable
+    extend Support::ClassState
 
     include Routing::Behavior::ErrorHandling
     include Routing::Behavior::ParamVerification
@@ -405,7 +405,6 @@ module Pakyow
       throw :reject
     end
 
-    extend Support::ClassState
     class_state :children, default: [], inheritable: true
     class_state :templates, default: {}, inheritable: true
     class_state :routes, default: SUPPORTED_HTTP_METHODS.each_with_object({}) { |supported_method, routes_hash|
