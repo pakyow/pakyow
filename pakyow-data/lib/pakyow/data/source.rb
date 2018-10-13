@@ -58,10 +58,18 @@ module Pakyow
       # @api private
       attr_reader :container, :included
 
-      extend Forwardable
-      def_delegator :to_a, :each
-
       include Enumerable
+
+      def count
+        if __getobj__.respond_to?(:count)
+          __getobj__.count
+        else
+          super
+        end
+      end
+
+      extend Forwardable
+      def_delegators :to_a, :each
 
       def initialize(dataset, container:, object_map: {})
         __setobj__(dataset)

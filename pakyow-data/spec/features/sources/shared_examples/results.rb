@@ -73,6 +73,13 @@ RSpec.shared_examples :source_results do
       it "returns the count" do
         expect(data.posts.count).to eq(3)
       end
+
+      it "does not fetch the results" do
+        posts = data.posts.ordered
+        posts.count
+
+        expect(posts.source.instance_variable_get(:@results)).to be(nil)
+      end
     end
   end
 end
