@@ -49,7 +49,7 @@ pw.define("socket", {
         this.beat();
       }, this.heartbeat);
 
-      pw.wakes.push(() => {
+      pw.wake(() => {
         this.beat();
       });
     }
