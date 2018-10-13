@@ -21,37 +21,53 @@ export default class {
       observer = new MutationObserver((evt) => {
         if (evt[0].addedNodes) {
           for (let node of evt[0].addedNodes) {
-            if (node.tagName && node.dataset.ui) {
-              this.componentFromView(new pw.View(node));
-            }
+            this.componentsForView(new pw.View(node)).forEach((view) => {
+              this.componentFromView(view);
+            });
           }
         }
 
         if (evt[0].removedNodes) {
           for (let node of evt[0].removedNodes) {
-            let component = instances.find((component) => {
-              return component.view.node === node;
-            });
-
-            if (component) {
-              component.channels.forEach((channel) => {
-                component.ignore(channel);
+            this.componentsForView(new pw.View(node)).forEach((view) => {
+              let component = instances.find((component) => {
+                return component.view.node === view.node;
               });
 
-              instances.splice(instances.indexOf(component), 1);
+              if (component) {
+                component.channels.slice(0).forEach((channel) => {
+                  component.ignore(channel);
+                });
 
-              component.disappear();
-            }
+                instances.splice(instances.indexOf(component), 1);
+
+                component.disappear();
+              }
+            });
           }
         }
       });
 
-      observer.observe(document.body, { childList: true });
+      observer.observe(document.documentElement, {
+        attributes: true,
+        childList: true,
+        subtree: true
+      });
     }
 
-    for (let view of new pw.View(node).query("*[data-ui]")) {
+    this.componentsForView(new pw.View(node)).forEach((view) => {
       this.componentFromView(view);
+    });
+  }
+
+  static componentsForView(view) {
+    let components = [];
+
+    if (view.node.tagName && view.node.dataset.ui) {
+      components.push(view);
     }
+
+    return components.concat(view.query("[data-ui]"));
   }
 
   static componentFromView(view) {

@@ -90,10 +90,46 @@ describe("adding component nodes to the dom", () => {
     pw.Component.init(document.querySelector("html"));
   });
 
-  test("removes the component instance tied to the removed node", async () => {
+  test("creates component instances for each added node", async () => {
     expect(pw.Component.instances.length).toBe(1);
     let component = document.createElement("div");
     component.innerHTML = `<div data-ui="bar"></div>`;
+    document.querySelector("body").appendChild(component.firstChild);
+    await sleep(50);
+    expect(pw.Component.instances.length).toBe(2);
+  });
+
+  test("it calls appear for each matching component", async () => {
+    var appeared = [];
+
+    pw.define("bar", {
+      appear() {
+        appeared.push(this);
+      }
+    });
+
+    let component = document.createElement("div");
+    component.innerHTML = `<div data-ui="bar"></div>`;
+    document.querySelector("body").appendChild(component.firstChild);
+    await sleep(50);
+
+    expect(appeared.length).toBe(1);
+  });
+});
+
+describe("adding nested component nodes to the dom", () => {
+  beforeEach(() => {
+    document.querySelector("body").innerHTML = `
+      <div data-ui="foo"></div>
+    `;
+
+    pw.Component.init(document.querySelector("html"));
+  });
+
+  test("creates component instances for each added node", async () => {
+    expect(pw.Component.instances.length).toBe(1);
+    let component = document.createElement("div");
+    component.innerHTML = `<main><div data-ui="bar"></div></main>`;
     document.querySelector("body").appendChild(component.firstChild);
     await sleep(50);
     expect(pw.Component.instances.length).toBe(2);
@@ -137,6 +173,28 @@ describe("removing component nodes from the dom", () => {
     await sleep(50);
 
     expect(disappeared.length).toEqual(1);
+  });
+});
+
+describe("removing nested component nodes from the dom", () => {
+  test("removes the component instance tied to the removed node", async () => {
+    document.querySelector("body").innerHTML = `
+      <div data-ui="foo"></div>
+
+      <main>
+        <div data-ui="bar"></div>
+      </main>
+    `;
+
+    pw.Component.init(document.querySelector("html"));
+
+    expect(pw.Component.instances.length).toBe(2);
+    new pw.View(document.querySelector("*[data-ui='foo']")).remove();
+    await sleep(50);
+    expect(pw.Component.instances.length).toBe(1);
+    new pw.View(document.querySelector("main")).remove();
+    await sleep(50);
+    expect(pw.Component.instances.length).toBe(0);
   });
 });
 
