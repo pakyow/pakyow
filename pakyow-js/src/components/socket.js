@@ -12,6 +12,7 @@ pw.define("socket", {
 
   disappear() {
     pw.broadcast("pw:socket:disappeared", this);
+    clearInterval(this.beatInterval);
     this.connection.onclose = null;
     this.connection.close();
     this.connected = false;
@@ -45,7 +46,7 @@ pw.define("socket", {
     }
 
     if (!this.reconnecting) {
-      setInterval(() => {
+      this.beatInterval = setInterval(() => {
         this.beat();
       }, this.heartbeat);
 
