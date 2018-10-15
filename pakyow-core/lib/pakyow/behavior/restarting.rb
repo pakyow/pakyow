@@ -20,6 +20,7 @@ module Pakyow
         configurable :process do
           setting :trigger_restarts
           setting :watched_paths, []
+          setting :excluded_paths, []
 
           defaults :development do
             setting :trigger_restarts, true
@@ -52,7 +53,10 @@ module Pakyow
           config.process.watched_paths << "./config/application.rb"
 
           Thread.new do
-            Filewatcher.new(config.process.watched_paths).watch do |_path, _event|
+            Filewatcher.new(
+              config.process.watched_paths,
+              exclude: config.process.excluded_paths
+            ).watch do |_path, _event|
               FileUtils.mkdir_p "./tmp"
               FileUtils.touch "./tmp/restart.txt"
             end
