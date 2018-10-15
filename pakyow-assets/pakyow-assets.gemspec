@@ -24,6 +24,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "pakyow-routing", Pakyow::VERSION
   spec.add_dependency "pakyow-support", Pakyow::VERSION
 
-  spec.add_dependency "http", "~> 3.3"
+  spec.add_dependency "http", "~> 4.0"
   spec.add_dependency "uglifier", "~> 4.1"
 end
