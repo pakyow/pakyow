@@ -102,7 +102,9 @@ pw.define("navigable", {
           value = event.loaded / event.total;
         }
 
-        pw.broadcast("navigator:progressed", { id: xhr.id, value: value });
+        if (value < 1) {
+          pw.broadcast("navigator:progressed", { id: xhr.id, value: value });
+        }
       }
     });
 
@@ -135,7 +137,7 @@ pw.define("navigable", {
       }
     });
 
-    this.loadExternals(loadables, () => {
+    this.loadExternals(loadables, xhr, () => {
       // Insert new non-scripts/styles.
       newHeadDetails.others.forEach((view) => {
         document.head.appendChild(view.node);
@@ -208,7 +210,7 @@ pw.define("navigable", {
     return details;
   },
 
-  loadExternals(loadables, callback) {
+  loadExternals(loadables, xhr, callback) {
     if (loadables.length > 0) {
       let loading = [];
       loadables.forEach((view) => {
@@ -216,6 +218,11 @@ pw.define("navigable", {
 
         view.node.onload = () => {
           loading.splice(loading.indexOf(view), 1);
+
+          let total = loadables.length + 1;
+          let loaded = total - loading.length;
+          pw.broadcast("navigator:progressed", {id: xhr.id, value: loaded / total });
+
           if (loading.length === 0) {
             callback();
           }
@@ -224,6 +231,7 @@ pw.define("navigable", {
         document.head.appendChild(view.node);
       });
     } else {
+      pw.broadcast("navigator:progressed", {id: xhr.id, value: 1 });
       callback();
     }
   },
@@ -260,14 +268,13 @@ pw.define("navigator:progress", {
           this.timeout = null;
         }
 
-        this.node.style.width = "100%";
         this.current = null;
         this.hide();
       }
     });
 
     this.listen("navigator:progressed", (state) => {
-      if (this.current === state.id && state.value < 1) {
+      if (this.current === state.id) {
         this.node.style.width = state.value * 100 + "%";
       }
     });
