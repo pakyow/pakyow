@@ -118,8 +118,13 @@ module Pakyow
 
         # Defines an action on the current pipeline.
         #
-        def action(name, options = {})
-          @__pipeline.action(name, options)
+        def action(name, options = {}, &block)
+          if block_given?
+            define_method name, &block
+            private name
+          end
+
+          @__pipeline.action(name, options, &block)
         end
 
         private
