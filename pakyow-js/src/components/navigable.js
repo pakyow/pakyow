@@ -12,9 +12,16 @@ pw.define("navigable", {
     };
 
     this.modifierKeyPressed = false;
+
     document.documentElement.addEventListener("keydown", (event) => {
       if (event.metaKey || event.crtlKey || event.altKey || event.shiftKey) {
         this.modifierKeyPressed = true;
+      }
+    });
+
+    document.documentElement.addEventListener("keyup", (event) => {
+      if (!event.metaKey && !event.crtlKey && !event.altKey && !event.shiftKey) {
+        this.modifierKeyPressed = false;
       }
     });
 
