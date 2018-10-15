@@ -47,7 +47,7 @@ describe("sending to the server", () => {
   });
 
   describe("200 response", () => {
-    test("calls success callback with response text", () => {
+    test("calls success callback with response, response text", () => {
       let success = jest.fn();
       let xhr = pw.send("/", { success: success });
       xhr.status = 200;
@@ -56,7 +56,7 @@ describe("sending to the server", () => {
       xhr.onreadystatechange();
 
       expect(success.mock.calls.length).toBe(1);
-      expect(success.mock.calls[0]).toEqual(["foo"]);
+      expect(success.mock.calls[0]).toEqual([xhr, "foo"]);
     });
 
     test("does not call error callback", () => {

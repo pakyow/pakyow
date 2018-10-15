@@ -19,7 +19,22 @@ export default [
       name: "pw"
     }
   },
-
+  {
+    input: "src/components/navigable",
+    plugins: [
+      node(),
+      babel({
+        plugins: [
+          "external-helpers"
+        ]
+      })
+    ],
+    output: {
+      extend: true,
+      file: "dist/components/navigable.js",
+      format: "esm"
+    }
+  },
   {
     input: "src/components/socket",
     plugins: [

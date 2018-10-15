@@ -15,6 +15,10 @@ module Pakyow
             end
 
             setting :embed_authenticity_token, true
+
+            configurable :ui do
+              setting :navigable, true
+            end
           end
         end
       end

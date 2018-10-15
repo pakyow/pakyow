@@ -12,6 +12,7 @@ require "pakyow/presenter/rendering/actions/embed_authenticity_token"
 require "pakyow/presenter/rendering/actions/insert_prototype_bar"
 require "pakyow/presenter/rendering/actions/install_endpoints"
 require "pakyow/presenter/rendering/actions/place_in_mode"
+require "pakyow/presenter/rendering/actions/install_components"
 require "pakyow/presenter/rendering/actions/render_components"
 require "pakyow/presenter/rendering/actions/setup_forms"
 
@@ -67,6 +68,7 @@ module Pakyow
       action Actions::PlaceInMode
       action Actions::EmbedAuthenticityToken
       action Actions::SetupForms
+      action Actions::InstallComponents
       action Actions::RenderComponents
 
       using Support::Refinements::String::Normalization

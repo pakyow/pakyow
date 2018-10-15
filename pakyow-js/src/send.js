@@ -1,11 +1,14 @@
 export default function (url, options = {}) {
+  var id = new Date().getTime();
+
   if (!options.cache) {
-    url += ((-1 == url.indexOf("?")) ? "?" : "&") + "_=" + new Date().getTime();
+    url += ((-1 == url.indexOf("?")) ? "?" : "&") + "_=" + id;
   }
 
   var method = options.method || "GET";
 
   var xhr = new XMLHttpRequest();
+  xhr.id = id;
   xhr.open(method, url);
   xhr.setRequestHeader("Pw-Ui", pw.version);
 
@@ -19,23 +22,23 @@ export default function (url, options = {}) {
 
       if (status >= 200 && (status < 300 || status === 304)) {
         if (options.success) {
-          options.success(xhr.responseText);
+          options.success(xhr, xhr.responseText);
         }
-
-        pw.broadcast("pw:request:succeeded");
       } else {
         if (options.error) {
           options.error(xhr, xhr.statusText);
         }
-
-        pw.broadcast("pw:request:failed");
       }
 
       if (options.complete) {
         options.complete(xhr);
       }
+    }
+  }
 
-      pw.broadcast("pw:request:completed");
+  xhr.onprogress = (event) => {
+    if (options.progress) {
+      options.progress(event);
     }
   }
 
@@ -63,8 +66,6 @@ export default function (url, options = {}) {
   }
 
   xhr.send(data);
-
-  pw.broadcast("pw:request:dispatched");
 
   return xhr;
 };

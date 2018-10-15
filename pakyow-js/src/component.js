@@ -1,6 +1,6 @@
+var broadcasts = {};
 var components = {};
 var instances = [];
-var broadcasts = {};
 var observer;
 
 export default class {
@@ -18,34 +18,36 @@ export default class {
 
   static init(node) {
     if (!observer) {
-      observer = new MutationObserver((evt) => {
-        if (evt[0].addedNodes) {
-          for (let node of evt[0].addedNodes) {
-            this.componentsForView(new pw.View(node)).forEach((view) => {
-              this.componentFromView(view);
-            });
-          }
-        }
-
-        if (evt[0].removedNodes) {
-          for (let node of evt[0].removedNodes) {
-            this.componentsForView(new pw.View(node)).forEach((view) => {
-              let component = instances.find((component) => {
-                return component.view.node === view.node;
+      observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.addedNodes) {
+            for (let node of mutation.addedNodes) {
+              this.componentsForView(new pw.View(node)).forEach((view) => {
+                this.componentFromView(view);
               });
+            }
+          }
 
-              if (component) {
-                component.channels.slice(0).forEach((channel) => {
-                  component.ignore(channel);
+          if (mutation.removedNodes) {
+            for (let node of mutation.removedNodes) {
+              this.componentsForView(new pw.View(node)).forEach((view) => {
+                let component = instances.find((component) => {
+                  return component.view.node === view.node;
                 });
 
-                instances.splice(instances.indexOf(component), 1);
+                if (component) {
+                  component.channels.slice(0).forEach((channel) => {
+                    component.ignore(channel);
+                  });
 
-                component.disappear();
-              }
-            });
+                  instances.splice(instances.indexOf(component), 1);
+
+                  component.disappear();
+                }
+              });
+            }
           }
-        }
+        });
       });
 
       observer.observe(document.documentElement, {
@@ -63,11 +65,15 @@ export default class {
   static componentsForView(view) {
     let components = [];
 
-    if (view.node.tagName && view.node.dataset.ui) {
-      components.push(view);
+    if (view.node.tagName) {
+      if (view.node.dataset.ui) {
+        components.push(view);
+      }
+
+      components = components.concat(view.query("[data-ui]"))
     }
 
-    return components.concat(view.query("[data-ui]"));
+    return components;
   }
 
   static componentFromView(view) {

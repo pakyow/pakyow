@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require "pakyow/presenter/rendering/base_renderer"
+
+require "pakyow/presenter/rendering/actions/place_in_mode"
+require "pakyow/presenter/rendering/actions/install_components"
 require "pakyow/presenter/rendering/actions/install_endpoints"
 
 module Pakyow
@@ -34,6 +37,10 @@ module Pakyow
           # Place the presenter in the correct mode, since this could affect which component is returned.
           #
           Actions::PlaceInMode.new({}).call(self)
+
+          # Install components, which impacts the component path.
+          #
+          Actions::InstallComponents.new({}).call(self)
 
           # Follow the path to find the correct component.
           #
