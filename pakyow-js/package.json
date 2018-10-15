@@ -1,6 +1,6 @@
 {
   "name": "@pakyow/js",
-  "version": "1.0.0-alpha.10",
+  "version": "1.0.0-alpha.11",
   "description": "Client-Side Pakyow",
   "main": "dist/pakyow.js",
   "files": [
