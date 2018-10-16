@@ -29,10 +29,17 @@ module Pakyow
             end
 
             if config.assets.externals.fetch
+              fetched = false
+
               config.assets.externals.scripts.each do |external_script|
                 unless external_script.exist?
                   external_script.fetch!
+                  fetched = true
                 end
+              end
+
+              if fetched
+                FileUtils.touch "./tmp/restart.txt"
               end
             end
           end

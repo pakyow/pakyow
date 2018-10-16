@@ -2,6 +2,7 @@ RSpec.describe "external scripts" do
   before do
     allow_any_instance_of(TTY::Spinner).to receive(:auto_spin)
     allow_any_instance_of(TTY::Spinner).to receive(:success)
+    allow(FileUtils).to receive(:touch).and_call_original
   end
 
   include_context "testable app"
@@ -45,6 +46,10 @@ RSpec.describe "external scripts" do
     it "downloads the specified version of each external script" do
       expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@1.0.0-alpha.4.js"))).to be(true)
       expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "jquery@3.3.1.js"))).to be(true)
+    end
+
+    it "touches .tmp/restart.txt" do
+      expect(FileUtils).to have_received(:touch).with("./tmp/restart.txt")
     end
 
     context "external exists" do
