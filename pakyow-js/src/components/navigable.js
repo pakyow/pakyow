@@ -11,22 +11,8 @@ pw.define("navigable", {
       this.load(event.state || this.initialState);
     };
 
-    this.modifierKeyPressed = false;
-
-    document.documentElement.addEventListener("keydown", (event) => {
-      if (event.metaKey || event.crtlKey || event.altKey || event.shiftKey) {
-        this.modifierKeyPressed = true;
-      }
-    });
-
-    document.documentElement.addEventListener("keyup", (event) => {
-      if (!event.metaKey && !event.crtlKey && !event.altKey && !event.shiftKey) {
-        this.modifierKeyPressed = false;
-      }
-    });
-
     document.documentElement.addEventListener("click", (event) => {
-      if (this.modifierKeyPressed) {
+      if (pw.ui.modifierKeyPressed) {
         return;
       }
 
@@ -39,7 +25,7 @@ pw.define("navigable", {
     });
 
     document.documentElement.addEventListener("submit", (event) => {
-      if (this.modifierKeyPressed) {
+      if (pw.ui.modifierKeyPressed) {
         return;
       }
 

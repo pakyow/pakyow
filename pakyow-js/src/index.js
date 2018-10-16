@@ -3,6 +3,7 @@ export {default as define} from "./define";
 export {default as ready} from "./ready";
 export {default as send} from "./send";
 export {default as server} from "./server";
+export {default as ui} from "./ui";
 export {default as version} from "./version";
 export {default as wake} from "./wake";
 
