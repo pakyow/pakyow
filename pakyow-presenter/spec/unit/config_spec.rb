@@ -24,9 +24,9 @@ RSpec.describe "presenter config" do
     end
   end
 
-  describe "ui.navigable" do
+  describe "componentized" do
     it "has a default value" do
-      expect(config.ui.navigable).to eq(true)
+      expect(config.componentize).to eq(true)
     end
   end
 end

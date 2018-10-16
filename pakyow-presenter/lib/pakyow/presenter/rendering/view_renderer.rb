@@ -66,9 +66,9 @@ module Pakyow
       action Actions::CleanupPrototypeNodes
       action Actions::CreateTemplateNodes
       action Actions::PlaceInMode
+      action Actions::InstallComponents
       action Actions::EmbedAuthenticityToken
       action Actions::SetupForms
-      action Actions::InstallComponents
       action Actions::RenderComponents
 
       using Support::Refinements::String::Normalization

@@ -45,7 +45,7 @@ $ui_app_boilerplate = Proc.new do
 
   configure do
     config.presenter.path = File.join(File.expand_path("../", __FILE__), "features/support/views")
-    config.presenter.ui.navigable = false
+    config.presenter.componentize = false
   end
 
   isolated :ViewRenderer do
