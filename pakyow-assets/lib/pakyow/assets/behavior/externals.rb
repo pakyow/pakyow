@@ -22,6 +22,7 @@ module Pakyow
               external_script :pakyow, "^1.0.0-alpha.1", package: "@pakyow/js", files: [
                 "dist/pakyow.js",
                 "dist/components/confirmable.js",
+                "dist/components/form.js",
                 "dist/components/navigable.js",
                 "dist/components/socket.js"
               ]

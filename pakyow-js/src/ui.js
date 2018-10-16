@@ -12,8 +12,21 @@ document.documentElement.addEventListener("keyup", (event) => {
   }
 });
 
+var currentNavigator;
 export default class {
   static get modifierKeyPressed() {
     return modifierKeyPressed;
+  }
+
+  static navigableVia(navigatorObject) {
+    currentNavigator = navigatorObject;
+  }
+
+  static visit(url, xhr) {
+    if (currentNavigator) {
+      currentNavigator.visit(url, xhr);
+    } else {
+      document.location = url;
+    }
   }
 }

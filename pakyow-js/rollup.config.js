@@ -36,6 +36,22 @@ export default [
     }
   },
   {
+    input: "src/components/form",
+    plugins: [
+      node(),
+      babel({
+        plugins: [
+          "external-helpers"
+        ]
+      })
+    ],
+    output: {
+      extend: true,
+      file: "dist/components/form.js",
+      format: "esm"
+    }
+  },
+  {
     input: "src/components/navigable",
     plugins: [
       node(),
