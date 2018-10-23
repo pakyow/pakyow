@@ -56,6 +56,13 @@ RSpec.describe StringDoc::Node do
         doc.find_significant_nodes_with_name(:binding, :title)[0].replace(replacement)
         expect(doc.to_s).to eq("<div data-b=\"post\">foo</div>")
       end
+
+      it "maintains internal state" do
+        node = doc.find_significant_nodes_with_name(:binding, :title)[0]
+        node.instance_variable_set(:@labels, { foo: "bar" })
+        node.replace(StringDoc.new("foo"))
+        expect(node.label(:foo)).to eq("bar")
+      end
     end
 
     context "replacement is a StringDoc::Node" do
@@ -63,6 +70,13 @@ RSpec.describe StringDoc::Node do
         replacement = node.dup
         doc.find_significant_nodes_with_name(:binding, :title)[0].replace(replacement)
         expect(doc.to_s).to eq("<div data-b=\"post\"><div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div></div>")
+      end
+
+      it "maintains internal state" do
+        node = doc.find_significant_nodes_with_name(:binding, :title)[0]
+        node.instance_variable_set(:@labels, { foo: "bar" })
+        node.replace(node.dup)
+        expect(node.label(:foo)).to eq("bar")
       end
 
       context "removing a node that has been used as a replacement" do
@@ -80,23 +94,6 @@ RSpec.describe StringDoc::Node do
         replacement = "foo"
         doc.find_significant_nodes_with_name(:binding, :title)[0].replace(replacement)
         expect(doc.to_s).to eq("<div data-b=\"post\">foo</div>")
-      end
-    end
-  end
-
-  describe "#replace_internal" do
-    context "replacement is a StringDoc" do
-      it "replaces" do
-        replacement = StringDoc.new("foo")
-        doc.find_significant_nodes_with_name(:binding, :title)[0].replace_internal(replacement)
-        expect(doc.to_s).to eq("<div data-b=\"post\">foo</div>")
-      end
-
-      it "maintains internal state" do
-        node = doc.find_significant_nodes_with_name(:binding, :title)[0]
-        node.instance_variable_set(:@labels, { foo: "bar" })
-        node.replace_internal(StringDoc.new("foo"))
-        expect(node.label(:foo)).to eq("bar")
       end
     end
   end
