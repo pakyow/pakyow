@@ -50,22 +50,6 @@ RSpec.shared_examples :source_associations do
         expect(result.to_a[0][:post][:id]).to eq(1)
       end
 
-      describe "specifying the associated data when updating" do
-        it "can be specified with an id" do
-          post = data.posts.create({}).one
-          data.comments.create({})
-          data.comments.update(post_id: post[:id])
-          expect(data.posts.including(:comments).one[:comments].count).to eq(1)
-        end
-
-        it "can be specified with the object" do
-          post = data.posts.create({}).one
-          data.comments.create({})
-          data.comments.update(post: post)
-          expect(data.posts.including(:comments).one[:comments].count).to eq(1)
-        end
-      end
-
       describe "extending an association" do
         let :app_definition do
           Proc.new do
@@ -100,11 +84,7 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "aliasing an association" do
-        it "needs to be defined"
-      end
-
-      describe "overriding an association" do
-        it "needs to be defined"
+        it "will be supported in the future"
       end
 
       context "belongs_to relationship already exists on the associated source" do
@@ -128,10 +108,6 @@ RSpec.shared_examples :source_associations do
           expect(data.comments.source.class.associations[:belongs_to].count).to eq(1)
         end
       end
-    end
-
-    describe "has_one" do
-      it "needs to be defined"
     end
 
     describe "belongs_to" do
@@ -163,7 +139,7 @@ RSpec.shared_examples :source_associations do
         end
 
         context "specifying the foreign key" do
-          it "needs to be defined"
+          it "will be supported in the future"
         end
       end
 
@@ -198,24 +174,24 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "aliasing an association" do
-        it "needs to be defined"
-      end
-
-      describe "extending an association" do
-        it "needs to be defined"
-      end
-
-      describe "overriding an association" do
-        it "needs to be defined"
+        it "will be supported in the future"
       end
     end
 
-    describe "has_many_through" do
-      it "needs to be defined"
+    describe "has_one" do
+      it "will be supported in the future"
     end
 
-    describe "has_one_through" do
-      it "needs to be defined"
+    describe "has_many :through" do
+      it "will be supported in the future"
+    end
+
+    describe "has_one :through" do
+      it "will be supported in the future"
+    end
+
+    describe "many_to_many" do
+      it "will be supported in the future"
     end
   end
 end
