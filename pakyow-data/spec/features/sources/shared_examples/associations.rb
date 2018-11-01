@@ -106,6 +106,28 @@ RSpec.shared_examples :source_associations do
       describe "overriding an association" do
         it "needs to be defined"
       end
+
+      context "belongs_to relationship already exists on the associated source" do
+        let :app_definition do
+          Proc.new do
+            instance_exec(&$data_app_boilerplate)
+
+            source :posts do
+              primary_id
+              has_many :comments
+            end
+
+            source :comments do
+              primary_id
+              belongs_to :post
+            end
+          end
+        end
+
+        it "does not create another belongs_to relationship on the associated source" do
+          expect(data.comments.source.class.associations[:belongs_to].count).to eq(1)
+        end
+      end
     end
 
     describe "has_one" do
