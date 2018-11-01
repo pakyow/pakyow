@@ -8,8 +8,8 @@ module Pakyow
     class Command
       using Support::DeepDup
 
-      def initialize(name, block:, source:, provides_dataset:, performs_update:)
-        @name, @block, @source, @provides_dataset, @performs_update = name, block, source, provides_dataset, performs_update
+      def initialize(name, block:, source:, provides_dataset:, performs_update:, performs_delete:)
+        @name, @block, @source, @provides_dataset, @performs_update, @performs_delete = name, block, source, provides_dataset, performs_update, performs_delete
       end
 
       def call(values = nil)
@@ -79,32 +79,64 @@ module Pakyow
           @source.to_a
         end
 
-        command_result = @source.instance_exec(final_values, &@block)
-
-        if @performs_update
-          # For updates, we fetch the values prior to performing the update and
-          # return a source containing locally updated values. This lets us see
-          # the original values but prevents us from fetching twice.
-
-          @source.container.source_instance(@source.class.__object_name.name).tap do |updated_source|
-            updated_source.__setobj__(
-              @source.container.connection.adapter.result_for_attribute_value(
-                @source.class.primary_key_field, command_result, updated_source
+        @source.transaction do
+          if @performs_delete
+            @source.class.associations.values.flatten.select { |association|
+              association.key?(:dependent)
+            }.each do |association|
+              dependent_data = @source.container.source_instance(association[:source_name]).send(
+                :"by_#{association[:associated_column_name]}", @source.container.connection.adapter.restrict_to_attribute(
+                  @source.class.primary_key_field, @source
+                )
               )
-            )
 
-            updated_source.instance_variable_set(:@results, original_dataset.map { |original_object|
-              original_object.class.new(original_object.values.merge(final_values))
-            })
+              case association[:dependent]
+              when :delete
+                dependent_data.delete
+              when :nullify
+                dependent_data.update(association[:associated_column_name] => nil)
+              when :raise
+                dependent_count = dependent_data.count
+                if dependent_count > 0
+                  dependent_name = if dependent_count > 1
+                    Support.inflector.pluralize(association[:source_name])
+                  else
+                    Support.inflector.singularize(association[:source_name])
+                  end
 
-            updated_source.instance_variable_set(:@original_results, original_dataset)
+                  raise ConstraintViolation, "Cannot delete #{@source.class.__object_name.name} because of #{dependent_count} dependent #{dependent_name}"
+                end
+              end
+            end
           end
-        elsif @provides_dataset
-          @source.dup.tap { |source|
-            source.__setobj__(command_result)
-          }
-        else
-          @source
+
+          command_result = @source.instance_exec(final_values, &@block)
+
+          if @performs_update
+            # For updates, we fetch the values prior to performing the update and
+            # return a source containing locally updated values. This lets us see
+            # the original values but prevents us from fetching twice.
+
+            @source.container.source_instance(@source.class.__object_name.name).tap do |updated_source|
+              updated_source.__setobj__(
+                @source.container.connection.adapter.result_for_attribute_value(
+                  @source.class.primary_key_field, command_result, updated_source
+                )
+              )
+
+              updated_source.instance_variable_set(:@results, original_dataset.map { |original_object|
+                original_object.class.new(original_object.values.merge(final_values))
+              })
+
+              updated_source.instance_variable_set(:@original_results, original_dataset)
+            end
+          elsif @provides_dataset
+            @source.dup.tap { |source|
+              source.__setobj__(command_result)
+            }
+          else
+            @source
+          end
         end
       end
     end

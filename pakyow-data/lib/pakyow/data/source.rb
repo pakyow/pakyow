@@ -149,7 +149,8 @@ module Pakyow
             block: command[:block],
             source: self,
             provides_dataset: command[:provides_dataset],
-            performs_update: command[:performs_update]
+            performs_update: command[:performs_update],
+            performs_delete: command[:performs_delete]
           )
         else
           # TODO: raise a nicer error indicating what commands are available
@@ -267,11 +268,12 @@ module Pakyow
           end
         end
 
-        def command(command_name, provides_dataset: true, performs_update: false, &block)
+        def command(command_name, provides_dataset: true, performs_update: false, performs_delete: false, &block)
           @commands[command_name] = {
             block: block,
             provides_dataset: provides_dataset,
-            performs_update: performs_update
+            performs_update: performs_update,
+            performs_delete: performs_delete
           }
         end
 
@@ -318,7 +320,7 @@ module Pakyow
         end
 
         # rubocop:disable Naming/PredicateName
-        def has_many(association_name, query: nil, source: association_name, as: singular_name)
+        def has_many(association_name, query: nil, source: association_name, as: singular_name, dependent: :raise)
           @associations[:has_many] << {
             type: :has_many,
             access_type: :many,
@@ -327,7 +329,8 @@ module Pakyow
             query_name: query,
             column_name: primary_key_field,
             associated_access_name: as.to_sym,
-            associated_column_name: :"#{as}_id"
+            associated_column_name: :"#{as}_id",
+            dependent: dependent
           }
         end
         # rubocop:enable Naming/PredicateName

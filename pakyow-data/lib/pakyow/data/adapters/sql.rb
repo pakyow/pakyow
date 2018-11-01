@@ -70,6 +70,10 @@ module Pakyow
           source.where(attribute => value)
         end
 
+        def restrict_to_attribute(attribute, source)
+          source.select(attribute)
+        end
+
         def transaction(&block)
           @connection.transaction do
             begin
@@ -414,7 +418,7 @@ module Pakyow
               end
             end
 
-            command :delete, provides_dataset: false do
+            command :delete, provides_dataset: false, performs_delete: true do
               delete
             end
           end
