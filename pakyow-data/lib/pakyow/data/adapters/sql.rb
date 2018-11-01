@@ -390,7 +390,7 @@ module Pakyow
           extend Support::Extension
 
           apply_extension do
-            command :create do |values|
+            command :create, performs_create: true do |values|
               begin
                 if inserted_primary_key = insert(values)
                   where(self.class.primary_key_field => inserted_primary_key)

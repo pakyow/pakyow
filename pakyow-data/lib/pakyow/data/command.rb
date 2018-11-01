@@ -8,8 +8,8 @@ module Pakyow
     class Command
       using Support::DeepDup
 
-      def initialize(name, block:, source:, provides_dataset:, performs_update:, performs_delete:)
-        @name, @block, @source, @provides_dataset, @performs_update, @performs_delete = name, block, source, provides_dataset, performs_update, performs_delete
+      def initialize(name, block:, source:, provides_dataset:, performs_create:, performs_update:, performs_delete:)
+        @name, @block, @source, @provides_dataset, @performs_create, @performs_update, @performs_delete = name, block, source, provides_dataset, performs_create, performs_update, performs_delete
       end
 
       def call(values = nil)
@@ -18,7 +18,7 @@ module Pakyow
           #
           @source.class.attributes.each do |attribute_name, attribute|
             if attribute.meta[:required]
-              if @name == :create && !values.include?(attribute_name)
+              if @performs_create && !values.include?(attribute_name)
                 raise NotNullViolation.new("Expected a value for #{attribute_name}")
               end
 
@@ -37,7 +37,7 @@ module Pakyow
           }
 
           if timestamp_fields = @source.class.timestamp_fields
-            if @name == :create
+            if @performs_create
               timestamp_fields.values.each do |timestamp_field|
                 final_values[timestamp_field] = Time.now
               end
@@ -46,7 +46,7 @@ module Pakyow
             end
           end
 
-          if @name == :create
+          if @performs_create
             # Set default values.
             #
             @source.class.attributes.each do |attribute_name, attribute|

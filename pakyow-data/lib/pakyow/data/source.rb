@@ -149,6 +149,7 @@ module Pakyow
             block: command[:block],
             source: self,
             provides_dataset: command[:provides_dataset],
+            performs_create: command[:performs_create],
             performs_update: command[:performs_update],
             performs_delete: command[:performs_delete]
           )
@@ -268,10 +269,11 @@ module Pakyow
           end
         end
 
-        def command(command_name, provides_dataset: true, performs_update: false, performs_delete: false, &block)
+        def command(command_name, provides_dataset: true, performs_create: false, performs_update: false, performs_delete: false, &block)
           @commands[command_name] = {
             block: block,
             provides_dataset: provides_dataset,
+            performs_create: performs_create,
             performs_update: performs_update,
             performs_delete: performs_delete
           }
