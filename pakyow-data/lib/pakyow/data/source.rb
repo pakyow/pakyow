@@ -58,16 +58,6 @@ module Pakyow
       # @api private
       attr_reader :container, :included
 
-      include Enumerable
-
-      def count
-        if __getobj__.respond_to?(:count)
-          __getobj__.count
-        else
-          super
-        end
-      end
-
       extend Forwardable
       def_delegators :to_a, :each
 
@@ -191,6 +181,14 @@ module Pakyow
 
       def to_json(*)
         to_a.to_json
+      end
+
+      def count
+        if __getobj__.respond_to?(:count)
+          __getobj__.count
+        else
+          super
+        end
       end
 
       private

@@ -67,7 +67,11 @@ module Pakyow
             ]
           }
         else
-          @source.public_send(method_name, *args, &block)
+          if Enumerable.instance_methods.include?(method_name) && !@source.class.instance_methods.include?(method_name)
+            @source.each.public_send(method_name, *args, &block)
+          else
+            @source.public_send(method_name, *args, &block)
+          end
         end
       end
 

@@ -81,5 +81,16 @@ RSpec.shared_examples :source_results do
         expect(posts.source.instance_variable_get(:@results)).to be(nil)
       end
     end
+
+    describe "enumerating over the result" do
+      it "enumerates" do
+        found = data.posts.find { |post|
+          post[:id] == 1
+        }
+
+        expect(found).to be_instance_of(Pakyow::Data::Object)
+        expect(found).to eq(data.posts.to_a.first)
+      end
+    end
   end
 end

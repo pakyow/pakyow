@@ -65,6 +65,10 @@ RSpec.shared_examples :source_queries do
           def title_is_foo
             where(title: "foo")
           end
+
+          def only_id
+            select(:id)
+          end
         end
       end
     end
@@ -73,6 +77,11 @@ RSpec.shared_examples :source_queries do
       post = data.posts.create(title: "foo")
       post = data.posts.create(title: "bar")
       expect(data.posts.title_is_foo.count).to eq(1)
+    end
+
+    it "has access to dataset methods that conflict with enumerable methods" do
+      data.posts.create(title: "foo")
+      expect(data.posts.only_id.one.values.keys).to eq([:id])
     end
   end
 end
