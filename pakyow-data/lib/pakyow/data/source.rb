@@ -92,13 +92,18 @@ module Pakyow
         self
       end
 
-      def including(source_name, &block)
-        included_source = @container.source_instance(source_name)
+      def including(association_name, &block)
+        association_name = association_name.to_sym
+        association_to_include = self.class.associations.values.flatten(1).find { |association|
+          association[:access_name] = association_name
+        }
 
-        if included_association = self.class.find_association_to_source(included_source)
+        if association_to_include
+          included_source = @container.source_instance(association_to_include[:source_name])
+
           source_from_self(__getobj__).tap { |returned_source|
-            if included_association[:query_name]
-              included_source = included_source.send(included_association[:query_name])
+            if association_to_include[:query_name]
+              included_source = included_source.send(association_to_include[:query_name])
             end
 
             final_source = if block_given?
@@ -107,11 +112,12 @@ module Pakyow
               included_source
             end
 
-            returned_source.instance_variable_get(:@included) << final_source
+            # TODO: pass the access name here?
+            returned_source.instance_variable_get(:@included) << [association_to_include, final_source]
           }
         else
           # TODO: raise a nicer error indicating what associations are available
-          raise "unknown association for #{source_name}"
+          raise "unknown association for #{association_name}"
         end
       end
 
@@ -202,9 +208,7 @@ module Pakyow
       end
 
       def include_results!(results)
-        @included.each do |combined_source|
-          association = self.class.find_association_to_source(combined_source)
-
+        @included.each do |association, combined_source|
           combined_source.__setobj__(
             combined_source.container.connection.adapter.result_for_attribute_value(
               association[:associated_column_name] || combined_source.class.primary_key_field,
@@ -217,17 +221,9 @@ module Pakyow
             combined_result[association[:associated_column_name] || combined_source.class.primary_key_field]
           }
 
-          if association[:type] == :has_many
-            result_key = combined_source.class.plural_name
-            result_type = :many
-          else
-            result_key = combined_source.class.singular_name
-            result_type = :one
-          end
-
           results.map! { |result|
             combined_results_for_result = combined_results[result[association[:column_name]]].to_a
-            result[result_key] = if result_type == :one
+            result[association[:access_name]] = if association[:access_type] == :one
               combined_results_for_result[0]
             else
               combined_results_for_result
@@ -324,31 +320,29 @@ module Pakyow
         end
 
         # rubocop:disable Naming/PredicateName
-        def has_many(source_name, query: nil)
-          plural_name = Support.inflector.pluralize(source_name)
-
+        def has_many(association_name, query: nil, source: association_name, as: singular_name)
           @associations[:has_many] << {
             type: :has_many,
             access_type: :many,
-            access_name: plural_name.to_sym,
-            source_name: plural_name.to_sym,
+            access_name: Support.inflector.pluralize(association_name).to_sym,
+            source_name: Support.inflector.pluralize(source).to_sym,
             query_name: query,
             column_name: primary_key_field,
-            associated_column_name: :"#{singular_name}_id"
+            associated_access_name: as.to_sym,
+            associated_column_name: :"#{as}_id"
           }
         end
         # rubocop:enable Naming/PredicateName
 
-        def belongs_to(source_name)
-          plural_name = Support.inflector.pluralize(source_name)
-          singular_name = Support.inflector.singularize(source_name)
+        def belongs_to(association_name, source: association_name)
+          access_name = Support.inflector.singularize(association_name)
 
           @associations[:belongs_to] << {
             type: :belongs_to,
             access_type: :one,
-            access_name: singular_name.to_sym,
-            source_name: plural_name.to_sym,
-            column_name: :"#{singular_name}_id",
+            access_name: access_name.to_sym,
+            source_name: Support.inflector.pluralize(source).to_sym,
+            column_name: :"#{access_name}_id",
             column_type: :integer,
             associated_column_name: primary_key_field
           }

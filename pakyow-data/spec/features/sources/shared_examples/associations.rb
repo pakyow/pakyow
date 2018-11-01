@@ -84,7 +84,49 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "aliasing an association" do
-        it "will be supported in the future"
+        let :app_definition do
+          Proc.new do
+            instance_exec(&$data_app_boilerplate)
+
+            source :posts do
+              primary_id
+              has_many :notes, source: :comments
+            end
+
+            source :comments do
+              primary_id
+            end
+          end
+        end
+
+        it "creates an aliased has_many relationship" do
+          post = data.posts.create({}).one
+          data.comments.create(post: post)
+          expect(data.posts.including(:notes).one[:notes].count).to eq(1)
+        end
+      end
+
+      describe "providing an aliased name for the reciprocal relationship" do
+        let :app_definition do
+          Proc.new do
+            instance_exec(&$data_app_boilerplate)
+
+            source :posts do
+              primary_id
+              has_many :comments, as: :owner
+            end
+
+            source :comments do
+              primary_id
+            end
+          end
+        end
+
+        it "creates a belongs_to relationship on the associated source" do
+          post = data.posts.create({}).one
+          data.comments.create(owner: post)
+          expect(data.comments.including(:owner).one[:owner][:id]).to eq(1)
+        end
       end
 
       context "belongs_to relationship already exists on the associated source" do
@@ -174,7 +216,68 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "aliasing an association" do
-        it "will be supported in the future"
+        let :app_definition do
+          Proc.new do
+            instance_exec(&$data_app_boilerplate)
+
+            source :posts do
+              primary_id
+              has_many :comments, as: :owner
+            end
+
+            source :comments do
+              primary_id
+              belongs_to :owner, source: :posts
+            end
+          end
+        end
+
+        it "creates an aliased belongs_to relationship" do
+          post = data.posts.create({}).one
+          data.comments.create(owner: post)
+          expect(data.comments.including(:owner).one[:owner][:id]).to eq(1)
+        end
+
+        describe "the foreign key" do
+          it "has a default" do
+            data.comments.create({})
+            expect(data.comments.one.to_h.keys).to include(:owner_id)
+          end
+
+          context "specifying the foreign key" do
+            it "will be supported in the future"
+          end
+        end
+
+        describe "specifying the associated data when creating" do
+          it "can be specified with an id" do
+            post = data.posts.create({}).one
+            data.comments.create(owner_id: post[:id])
+            expect(data.comments.one[:owner_id]).to eq(post[:id])
+          end
+
+          it "can be specified with the object" do
+            post = data.posts.create({}).one
+            data.comments.create(owner: post)
+            expect(data.comments.one[:owner_id]).to eq(post[:id])
+          end
+        end
+
+        describe "specifying the associated data when updating" do
+          it "can be specified with an id" do
+            post = data.posts.create({}).one
+            data.comments.create({})
+            data.comments.update(owner_id: post[:id])
+            expect(data.comments.one[:owner_id]).to eq(post[:id])
+          end
+
+          it "can be specified with the object" do
+            post = data.posts.create({}).one
+            data.comments.create({})
+            data.comments.update(owner: post)
+            expect(data.comments.one[:owner_id]).to eq(post[:id])
+          end
+        end
       end
     end
 

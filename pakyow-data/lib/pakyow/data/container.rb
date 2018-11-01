@@ -82,8 +82,8 @@ module Pakyow
           }
 
           if associated_source
-            unless associated_source.associations[:belongs_to].any? { |association| association[:source_name] == source.plural_name }
-              associated_source.belongs_to(source.plural_name)
+            unless associated_source.associations[:belongs_to].any? { |association| association[:column_name] == has_many_association[:associated_column_name] }
+              associated_source.belongs_to(has_many_association[:associated_access_name], source: source.plural_name)
             end
           end
         end

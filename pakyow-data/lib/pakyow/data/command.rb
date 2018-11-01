@@ -61,18 +61,8 @@ module Pakyow
           end
 
           @source.class.associations.values.flatten.each do |association|
-            inflector_call = case association[:access_type]
-            when :one then :singularize
-            when :many then :pluralize
-            end
-
-            key = Support.inflector.public_send(
-              inflector_call,
-              association[:source_name]
-            ).to_sym
-
-            if final_values.key?(key)
-              final_values[association[:column_name]] = final_values.delete(key)[@source.class.primary_key_field]
+            if final_values.key?(association[:access_name])
+              final_values[association[:column_name]] = final_values.delete(association[:access_name])[@source.class.primary_key_field]
             end
           end
         end
