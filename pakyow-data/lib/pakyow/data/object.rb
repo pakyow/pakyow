@@ -53,6 +53,10 @@ module Pakyow
         @values.to_json
       end
 
+      def ==(other)
+        other.class == self.class && other.values == @values
+      end
+
       private
 
       def value_methods

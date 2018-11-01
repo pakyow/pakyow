@@ -272,4 +272,24 @@ RSpec.describe "data objects" do
       end
     end
   end
+
+  context "testing for equality" do
+    context "objects have the same values" do
+      it "recognizes them as equal" do
+        expect(Pakyow::Data::Object.new(id: 1)).to eq(Pakyow::Data::Object.new(id: 1))
+      end
+
+      context "objects are of different classes" do
+        it "recognizes them as inequal" do
+          expect(Pakyow::Data::Object.new(id: 1)).not_to eq(Class.new(Pakyow::Data::Object).new(id: 1))
+        end
+      end
+    end
+
+    context "objects do not have the same values" do
+      it "recognizes them as inequal" do
+        expect(Pakyow::Data::Object.new(id: 1)).not_to eq(Pakyow::Data::Object.new(id: 2))
+      end
+    end
+  end
 end
