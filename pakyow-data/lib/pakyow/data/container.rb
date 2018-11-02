@@ -76,14 +76,14 @@ module Pakyow
       end
 
       def define_inverse_associations!(source)
-        source.associations[:has_many].each do |has_many_association|
+        (source.associations[:has_many] + source.associations[:has_one]).each do |association|
           associated_source = @sources.find { |potentially_associated_source|
-            potentially_associated_source.plural_name == has_many_association[:source_name]
+            potentially_associated_source.plural_name == association[:source_name]
           }
 
           if associated_source
-            unless associated_source.associations[:belongs_to].any? { |association| association[:column_name] == has_many_association[:associated_column_name] }
-              associated_source.belongs_to(has_many_association[:associated_access_name], source: source.plural_name)
+            unless associated_source.associations[:belongs_to].any? { |current_association| current_association[:column_name] == association[:associated_column_name] }
+              associated_source.belongs_to(association[:associated_access_name], source: source.plural_name)
             end
           end
         end

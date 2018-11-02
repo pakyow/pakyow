@@ -110,6 +110,30 @@ module Pakyow
             end
           end
 
+          if @performs_create || @performs_update
+            @source.class.associations[:belongs_to].flat_map { |belongs_to_association|
+              @source.container.source_instance(belongs_to_association[:source_name]).class.associations[:has_one].select { |has_one_association|
+                has_one_association[:associated_column_name] == belongs_to_association[:column_name]
+              }
+            }.each do |association|
+              value = final_values.dig(
+                association[:associated_access_name], association[:column_name]
+              ) || final_values.dig(association[:associated_column_name])
+
+              if value
+                @source.container.source_instance(@source.class.__object_name.name).tap do |impacted_source|
+                  impacted_source.__setobj__(
+                    @source.container.connection.adapter.result_for_attribute_value(
+                      association[:associated_column_name], value, impacted_source
+                    )
+                  )
+
+                  impacted_source.update(association[:associated_column_name] => nil)
+                end
+              end
+            end
+          end
+
           command_result = @source.instance_exec(final_values, &@block)
 
           if @performs_update

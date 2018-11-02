@@ -242,7 +242,7 @@ module Pakyow
       class_state :primary_key_field
       class_state :attributes, default: {}
       class_state :qualifications, default: {}, getter: false
-      class_state :associations, default: { has_many: [], belongs_to: [] }
+      class_state :associations, default: { belongs_to: [], has_many: [], has_one: [] }
       class_state :commands, default: {}
 
       class << self
@@ -321,6 +321,20 @@ module Pakyow
           @qualifications.dig(query_name) || {}
         end
 
+        def belongs_to(association_name, source: association_name)
+          access_name = Support.inflector.singularize(association_name)
+
+          @associations[:belongs_to] << {
+            type: :belongs_to,
+            access_type: :one,
+            access_name: access_name.to_sym,
+            source_name: Support.inflector.pluralize(source).to_sym,
+            column_name: :"#{access_name}_id",
+            column_type: :integer,
+            associated_column_name: primary_key_field
+          }
+        end
+
         # rubocop:disable Naming/PredicateName
         def has_many(association_name, query: nil, source: association_name, as: singular_name, dependent: :raise)
           @associations[:has_many] << {
@@ -337,19 +351,21 @@ module Pakyow
         end
         # rubocop:enable Naming/PredicateName
 
-        def belongs_to(association_name, source: association_name)
-          access_name = Support.inflector.singularize(association_name)
-
-          @associations[:belongs_to] << {
-            type: :belongs_to,
+        # rubocop:disable Naming/PredicateName
+        def has_one(association_name, query: nil, source: association_name, as: singular_name, dependent: :raise)
+          @associations[:has_one] << {
+            type: :has_one,
             access_type: :one,
-            access_name: access_name.to_sym,
+            access_name: Support.inflector.singularize(association_name).to_sym,
             source_name: Support.inflector.pluralize(source).to_sym,
-            column_name: :"#{access_name}_id",
-            column_type: :integer,
-            associated_column_name: primary_key_field
+            query_name: query,
+            column_name: primary_key_field,
+            associated_access_name: as.to_sym,
+            associated_column_name: :"#{as}_id",
+            dependent: dependent
           }
         end
+        # rubocop:enable Naming/PredicateName
 
         def plural_name
           Support.inflector.pluralize(__object_name.name).to_sym
