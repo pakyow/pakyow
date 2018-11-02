@@ -62,7 +62,13 @@ module Pakyow
 
           @source.class.associations.values.flatten.each do |association|
             if final_values.key?(association[:access_name])
-              final_values[association[:column_name]] = final_values.delete(association[:access_name])[@source.class.primary_key_field]
+              association_value = final_values.delete(association[:access_name])
+              final_values[association[:column_name]] = case association_value
+              when Proxy
+                association_value.one[@source.class.primary_key_field]
+              else
+                association_value[@source.class.primary_key_field]
+              end
             end
           end
         end

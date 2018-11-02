@@ -44,6 +44,20 @@ RSpec.shared_examples :source_associations_belongs_to do
         data.comments.create(post: post)
         expect(data.comments.one[:post_id]).to eq(post[:id])
       end
+
+      it "can be specified with a dataset" do
+        data.comments.create(post: data.posts.create({}))
+        expect(data.comments.one[:post_id]).to eq(data.posts.one.id)
+      end
+
+      context "dataset includes more than one result" do
+        it "associates the first result" do
+          data.posts.create({})
+          data.posts.create({})
+          data.comments.create(post: data.posts.all)
+          expect(data.comments.one[:post_id]).to eq(data.posts.one.id)
+        end
+      end
     end
 
     describe "specifying the associated data when updating" do
@@ -59,6 +73,22 @@ RSpec.shared_examples :source_associations_belongs_to do
         data.comments.create({})
         data.comments.update(post: post)
         expect(data.comments.one[:post_id]).to eq(post[:id])
+      end
+
+      it "can be specified with a dataset" do
+        data.comments.create({})
+        data.comments.update(post: data.posts.create({}))
+        expect(data.comments.one[:post_id]).to eq(data.posts.one.id)
+      end
+
+      context "dataset includes more than one result" do
+        it "associates the first result" do
+          data.posts.create({})
+          data.posts.create({})
+          data.comments.create({})
+          data.comments.update(post: data.posts.all)
+          expect(data.comments.one[:post_id]).to eq(data.posts.one.id)
+        end
       end
     end
 
