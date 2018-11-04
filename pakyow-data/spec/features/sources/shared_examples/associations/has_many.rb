@@ -22,6 +22,14 @@ RSpec.shared_examples :source_associations_has_many do
             order { id.asc }
           end
         end
+
+        source :replies do
+          primary_id
+
+          query do
+            order { id.asc }
+          end
+        end
       end
     end
 
@@ -88,6 +96,42 @@ RSpec.shared_examples :source_associations_has_many do
         end
 
         include_examples :association_tests
+
+        context "dataset is not for the correct source" do
+          before do
+            data.replies.create({})
+            data.replies.create({})
+          end
+
+          it "does not associate the data" do
+            expect(data.posts.count).to eq(1)
+
+            begin
+              data.posts.create(comments: data.replies)
+            rescue
+            end
+
+            expect(data.posts.count).to eq(1)
+          end
+
+          it "raises an error" do
+            expect {
+              data.posts.create(comments: data.replies)
+            }.to raise_error(Pakyow::Data::ConstraintViolation)
+          end
+
+          describe "error message" do
+            it "is worded properly" do
+              expect {
+                data.posts.create(comments: data.replies)
+              }.to raise_error do |error|
+                expect(error.to_s).to eq(
+                  "Cannot associate replies as comments"
+                )
+              end
+            end
+          end
+        end
       end
     end
 
@@ -139,6 +183,41 @@ RSpec.shared_examples :source_associations_has_many do
         end
 
         include_examples :association_tests
+
+        context "dataset is not for the correct source" do
+          before do
+            data.replies.create({})
+            data.replies.create({})
+            data.comments.update(post_id: nil)
+          end
+
+          it "does not associate the data" do
+            begin
+              data.posts.update(comments: data.replies)
+            rescue
+            end
+
+            expect(data.comments.one[:post_id]).to eq(nil)
+          end
+
+          it "raises an error" do
+            expect {
+              data.posts.create(comments: data.replies)
+            }.to raise_error(Pakyow::Data::ConstraintViolation)
+          end
+
+          describe "error message" do
+            it "is worded properly" do
+              expect {
+                data.posts.create(comments: data.replies)
+              }.to raise_error do |error|
+                expect(error.to_s).to eq(
+                  "Cannot associate replies as comments"
+                )
+              end
+            end
+          end
+        end
       end
 
       context "multiple objects are updated" do

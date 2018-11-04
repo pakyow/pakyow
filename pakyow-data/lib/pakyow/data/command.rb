@@ -73,7 +73,11 @@ module Pakyow
               association_value = final_values.delete(association[:access_name])
               final_values[association[:column_name]] = case association_value
               when Proxy
-                association_value.one[@source.class.primary_key_field]
+                if association_value.source.class.__object_name.name == association[:source_name]
+                  association_value.one[@source.class.primary_key_field]
+                else
+                  raise ConstraintViolation, "Cannot associate #{association_value.source.class.__object_name.name} as #{association[:source_name]}"
+                end
               else
                 association_value[@source.class.primary_key_field]
               end
@@ -184,7 +188,11 @@ module Pakyow
             future_associated_changes.each do |association, association_value|
               associated_dataset = case association_value
               when Proxy
-                association_value
+                if association_value.source.class.__object_name.name == association[:source_name]
+                  association_value
+                else
+                  raise ConstraintViolation, "Cannot associate #{association_value.source.class.__object_name.name} as #{association[:source_name]}"
+                end
               else
                 updatable = Array.ensure(association_value).map { |value|
                   case value
