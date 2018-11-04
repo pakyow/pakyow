@@ -74,7 +74,14 @@ module Pakyow
             public_send(self.class.__default_query)
           end
 
-          __setobj__(result.__getobj__)
+          result = case result
+          when Source
+            result.__getobj__
+          else
+            result
+          end
+
+          __setobj__(result)
         end
       end
 
