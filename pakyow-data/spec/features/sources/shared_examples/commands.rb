@@ -34,6 +34,12 @@ RSpec.shared_examples :source_commands do
       it "returns a single result" do
         expect(data.posts.create({}).one).to be_instance_of(Pakyow::Data::Object)
       end
+
+      context "value is nil" do
+        it "creates with the nil value" do
+          expect(data.posts.create(title: nil).one).to be_instance_of(Pakyow::Data::Object)
+        end
+      end
     end
 
     describe "update" do
@@ -54,6 +60,18 @@ RSpec.shared_examples :source_commands do
         expect(@result.count).to eq(2)
         expect(@result[0][:title]).to eq("baz")
         expect(@result[1][:title]).to eq("baz")
+      end
+
+      context "value is nil" do
+        it "updates with the nil value" do
+          expect(data.posts.count).to eq(2)
+          expect(data.posts.to_a[0][:title]).to eq("baz")
+          expect(data.posts.to_a[1][:title]).to eq("baz")
+
+          data.posts.update(title: nil).to_a
+          expect(data.posts.to_a[0][:title]).to eq(nil)
+          expect(data.posts.to_a[1][:title]).to eq(nil)
+        end
       end
 
       context "updating with no values" do
