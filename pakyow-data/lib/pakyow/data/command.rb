@@ -15,6 +15,8 @@ module Pakyow
       end
 
       def call(values = nil)
+        future_associated_changes = []
+
         if values
           # Enforce required attributes.
           #
@@ -64,7 +66,6 @@ module Pakyow
 
           # Set values for associations.
           #
-          future_associated_changes = []
           @source.class.associations.values.flatten.select { |association|
             final_values.key?(association[:access_name])
           }.each do |association|
