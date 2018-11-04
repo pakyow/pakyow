@@ -405,15 +405,17 @@ module Pakyow
             end
 
             command :update, performs_update: true do |values|
-              __getobj__.select(self.class.primary_key_field).map { |result|
-                result[self.class.primary_key_field]
-              }.tap do
-                begin
-                  update(values)
-                rescue Sequel::UniqueConstraintViolation => error
-                  raise UniqueViolation.build(error)
-                rescue Sequel::ForeignKeyConstraintViolation => error
-                  raise ConstraintViolation.build(error)
+              unless values.empty?
+                __getobj__.select(self.class.primary_key_field).map { |result|
+                  result[self.class.primary_key_field]
+                }.tap do
+                  begin
+                    update(values)
+                  rescue Sequel::UniqueConstraintViolation => error
+                    raise UniqueViolation.build(error)
+                  rescue Sequel::ForeignKeyConstraintViolation => error
+                    raise ConstraintViolation.build(error)
+                  end
                 end
               end
             end

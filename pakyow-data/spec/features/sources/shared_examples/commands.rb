@@ -55,6 +55,20 @@ RSpec.shared_examples :source_commands do
         expect(@result[0][:title]).to eq("baz")
         expect(@result[1][:title]).to eq("baz")
       end
+
+      context "updating with no values" do
+        it "does not fail" do
+          expect {
+            data.posts.update({})
+          }.not_to raise_error
+        end
+
+        it "returns the results" do
+          result = data.posts.update({}).to_a
+          expect(result).to be_instance_of(Array)
+          expect(result.count).to eq(2)
+        end
+      end
     end
 
     describe "delete" do
