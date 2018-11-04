@@ -2,11 +2,13 @@
 
 require "pakyow/support/deep_dup"
 require "pakyow/support/inflector"
+require "pakyow/support/core_refinements/array/ensurable"
 
 module Pakyow
   module Data
     class Command
       using Support::DeepDup
+      using Support::Refinements::Array::Ensurable
 
       def initialize(name, block:, source:, provides_dataset:, performs_create:, performs_update:, performs_delete:)
         @name, @block, @source, @provides_dataset, @performs_create, @performs_update, @performs_delete = name, block, source, provides_dataset, performs_create, performs_update, performs_delete
@@ -60,8 +62,14 @@ module Pakyow
             end
           end
 
-          @source.class.associations.values.flatten.each do |association|
-            if final_values.key?(association[:access_name])
+          # Set values for associations.
+          #
+          future_associated_changes = []
+          @source.class.associations.values.flatten.select { |association|
+            final_values.key?(association[:access_name])
+          }.each do |association|
+            case association[:type]
+            when :belongs_to
               association_value = final_values.delete(association[:access_name])
               final_values[association[:column_name]] = case association_value
               when Proxy
@@ -69,6 +77,8 @@ module Pakyow
               else
                 association_value[@source.class.primary_key_field]
               end
+            when :has_many
+              future_associated_changes << [association, final_values.delete(association[:access_name])]
             end
           end
         end
@@ -142,7 +152,7 @@ module Pakyow
 
           command_result = @source.instance_exec(final_values, &@block)
 
-          if @performs_update
+          final_result = if @performs_update
             # For updates, we fetch the values prior to performing the update and
             # return a source containing locally updated values. This lets us see
             # the original values but prevents us from fetching twice.
@@ -167,6 +177,46 @@ module Pakyow
           else
             @source
           end
+
+          if @performs_create || @performs_update
+            # Update records associated with the data we just changed.
+            #
+            future_associated_changes.each do |association, association_value|
+              associated_dataset = case association_value
+              when Proxy
+                association_value
+              else
+                updatable = Array.ensure(association_value).map { |value|
+                  case value
+                  when Object
+                    value[association[:column_name]]
+                  else
+                    value
+                  end
+                }
+
+                @source.container.source_instance(association[:source_name]).send(
+                  :"by_#{association[:column_name]}", updatable
+                )
+              end
+
+              associated_column_value = final_result.one[association[:column_name]]
+
+              # Disassociate old data.
+              #
+              @source.container.source_instance(association[:source_name]).send(
+                :"by_#{association[:associated_column_name]}", associated_column_value
+              ).update(association[:associated_column_name] => nil)
+
+              # Associate the correct data.
+              #
+              associated_dataset.update(
+                association[:associated_column_name] => associated_column_value
+              )
+            end
+          end
+
+          final_result
         end
       end
     end

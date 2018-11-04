@@ -9,10 +9,18 @@ RSpec.shared_examples :source_associations_has_many do
         source :posts do
           primary_id
           has_many :comments
+
+          query do
+            order { id.asc }
+          end
         end
 
         source :comments do
           primary_id
+
+          query do
+            order { id.asc }
+          end
         end
       end
     end
@@ -35,6 +43,111 @@ RSpec.shared_examples :source_associations_has_many do
       post = data.posts.create({}).one
       data.comments.create(post: post)
       expect(data.comments.including(:post).one[:post][:id]).to eq(1)
+    end
+
+    describe "specifying associated belongs_to data when creating" do
+      before do
+        data.comments.create({})
+        data.comments.create({})
+        data.comments.create({})
+        data.comments.create({})
+        post
+      end
+
+      shared_examples :association_tests do
+        it "associates the specified data" do
+          expect(data.comments.to_a[0][:post_id]).to eq(post[:id])
+          expect(data.comments.to_a[1][:post_id]).to eq(post[:id])
+          expect(data.comments.to_a[2][:post_id]).to eq(post[:id])
+        end
+
+        it "does not associate unspecified data" do
+          expect(data.comments.to_a[3][:post_id]).to eq(nil)
+        end
+      end
+
+      context "specified as an array of ids" do
+        let :post do
+          data.posts.create(comments: data.comments.to_a.map(&:id).take(3)).one
+        end
+
+        include_examples :association_tests
+      end
+
+      context "specified as an array of objects" do
+        let :post do
+          data.posts.create(comments: data.comments.to_a.take(3)).one
+        end
+
+        include_examples :association_tests
+      end
+
+      context "specified as a dataset" do
+        let :post do
+          data.posts.create(comments: data.comments.by_id(data.comments.to_a.map(&:id).take(3))).one
+        end
+
+        include_examples :association_tests
+      end
+    end
+
+    describe "specifying associated belongs_to data when updating" do
+      before do
+        data.comments.create({})
+        data.comments.create({})
+        data.comments.create({})
+        data.comments.create({})
+        data.posts.create(comments: data.comments.create({}))
+        post
+      end
+
+      shared_examples :association_tests do
+        it "associates the specified data" do
+          expect(data.comments.to_a[0][:post_id]).to eq(post[:id])
+          expect(data.comments.to_a[1][:post_id]).to eq(post[:id])
+          expect(data.comments.to_a[2][:post_id]).to eq(post[:id])
+        end
+
+        it "does not associate unspecified data" do
+          expect(data.comments.to_a[3][:post_id]).to eq(nil)
+        end
+
+        it "disassociates data that is no longer associated" do
+          expect(data.comments.to_a[4][:post_id]).to eq(nil)
+        end
+      end
+
+      context "specified as an array of ids" do
+        let :post do
+          data.posts.by_id(1).update(comments: data.comments.to_a.map(&:id).take(3)).one
+        end
+
+        include_examples :association_tests
+      end
+
+      context "specified as an array of objects" do
+        let :post do
+          data.posts.by_id(1).update(comments: data.comments.to_a.take(3)).one
+        end
+
+        include_examples :association_tests
+      end
+
+      context "specified as a dataset" do
+        let :post do
+          data.posts.by_id(1).update(comments: data.comments.by_id(data.comments.to_a.map(&:id).take(3))).one
+        end
+
+        include_examples :association_tests
+      end
+
+      context "multiple objects are updated" do
+        let :post do
+          data.posts.update(comments: data.comments.by_id(data.comments.to_a.map(&:id).take(3))).one
+        end
+
+        include_examples :association_tests
+      end
     end
 
     context "belongs_to relationship already exists on the associated source" do
