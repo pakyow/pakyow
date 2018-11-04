@@ -82,7 +82,7 @@ module Pakyow
               else
                 association_value[@source.class.primary_key_field]
               end
-            when :has_many
+            when :has_many, :has_one
               future_associated_changes << [association, final_values.delete(association[:access_name])]
             end
           end

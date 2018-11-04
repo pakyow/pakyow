@@ -202,14 +202,14 @@ RSpec.shared_examples :source_associations_has_many do
 
           it "raises an error" do
             expect {
-              data.posts.create(comments: data.replies)
+              data.posts.update(comments: data.replies)
             }.to raise_error(Pakyow::Data::ConstraintViolation)
           end
 
           describe "error message" do
             it "is worded properly" do
               expect {
-                data.posts.create(comments: data.replies)
+                data.posts.update(comments: data.replies)
               }.to raise_error do |error|
                 expect(error.to_s).to eq(
                   "Cannot associate replies as comments"
