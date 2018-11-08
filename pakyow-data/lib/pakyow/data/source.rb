@@ -218,14 +218,14 @@ module Pakyow
         @included.each do |association, combined_source|
           combined_source.__setobj__(
             combined_source.container.connection.adapter.result_for_attribute_value(
-              association[:associated_column_name] || combined_source.class.primary_key_field,
+              association[:associated_column_name],
               results.map { |result| result[association[:column_name]] },
               combined_source
             )
           )
 
           combined_results = combined_source.to_a.group_by { |combined_result|
-            combined_result[association[:associated_column_name] || combined_source.class.primary_key_field]
+            combined_result[association[:associated_column_name]]
           }
 
           results.map! { |result|
