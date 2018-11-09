@@ -55,6 +55,15 @@ RSpec.shared_examples :source_results do
             expect(data.posts.ordered.one).to be(nil)
           end
         end
+
+        context "fetched multiple times" do
+          it "returns a data object" do
+            posts = data.posts
+            (2..10).to_a.sample.times do
+              expect(posts.one).to be_instance_of(Pakyow::Data::Object)
+            end
+          end
+        end
       end
     end
 
@@ -65,6 +74,17 @@ RSpec.shared_examples :source_results do
           expect(data.posts.ordered.to_a[0][:title]).to eq("foo")
           expect(data.posts.ordered.to_a[1][:title]).to eq("bar")
           expect(data.posts.ordered.to_a[2][:title]).to eq("baz")
+        end
+
+        context "fetched multiple times" do
+          it "returns a data object" do
+            posts = data.posts
+            (2..10).to_a.sample.times do
+              posts.to_a.each do |post|
+                expect(post).to be_instance_of(Pakyow::Data::Object)
+              end
+            end
+          end
         end
       end
     end

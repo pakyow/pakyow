@@ -138,8 +138,7 @@ module Pakyow
 
         if result = self.class.one(__getobj__)
           include_results!([result])
-          @result = result
-          wrap(@result)
+          @result = wrap(result)
         else
           nil
         end
