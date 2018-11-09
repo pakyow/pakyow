@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "forwardable"
-
 require "pakyow/support/makeable"
 require "pakyow/support/class_state"
 require "pakyow/support/inflector"
@@ -57,9 +55,6 @@ module Pakyow
     class Source < Sources::Abstract
       # @api private
       attr_reader :container, :included
-
-      extend Forwardable
-      def_delegators :to_a, :each
 
       def initialize(dataset, container:, object_map: {})
         __setobj__(dataset)

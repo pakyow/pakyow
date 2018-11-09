@@ -112,5 +112,13 @@ RSpec.shared_examples :source_results do
         expect(found).to eq(data.posts.to_a.first)
       end
     end
+
+    describe "calling an array method on the result" do
+      it "succeeds" do
+        found = data.posts.last
+        expect(found).to be_instance_of(Pakyow::Data::Object)
+        expect(found).to eq(data.posts.to_a.last)
+      end
+    end
   end
 end
