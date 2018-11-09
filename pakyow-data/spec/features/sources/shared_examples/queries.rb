@@ -111,4 +111,36 @@ RSpec.shared_examples :source_queries do
       end
     end
   end
+
+  describe "calling dataset methods externally" do
+    before do
+      local_connection_type, local_connection_string = connection_type, connection_string
+
+      Pakyow.after :configure do
+        config.data.connections.public_send(local_connection_type)[:default] = local_connection_string
+      end
+    end
+
+    include_context "testable app"
+
+    let :data do
+      Pakyow.apps.first.data
+    end
+
+    let :app_definition do
+      Proc.new do
+        instance_exec(&$data_app_boilerplate)
+
+        source :posts do
+          primary_id
+        end
+      end
+    end
+
+    it "does not allow them to be called" do
+      expect {
+        data.posts.order
+      }.to raise_error
+    end
+  end
 end

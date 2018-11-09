@@ -69,8 +69,10 @@ module Pakyow
         else
           if Array.instance_methods.include?(method_name) && !@source.class.instance_methods.include?(method_name)
             @source.to_a.public_send(method_name, *args, &block)
-          else
+          elsif @source.class.instance_methods.include?(method_name)
             @source.public_send(method_name, *args, &block)
+          else
+            super
           end
         end
       end
