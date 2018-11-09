@@ -83,5 +83,32 @@ RSpec.shared_examples :source_queries do
       data.posts.create(title: "foo")
       expect(data.posts.only_id.one.values.keys).to eq([:id])
     end
+
+    describe "queries that include associated data" do
+      let :app_definition do
+        Proc.new do
+          instance_exec(&$data_app_boilerplate)
+
+          source :posts do
+            primary_id
+
+            has_many :comments
+
+            def including_comments
+              including(:comments)
+            end
+          end
+
+          source :comments do
+            primary_id
+          end
+        end
+      end
+
+      it "returns the results" do
+        data.posts.create(comments: data.comments.create({}))
+        expect(data.posts.including_comments.one.comments.first).to be_instance_of(Pakyow::Data::Object)
+      end
+    end
   end
 end

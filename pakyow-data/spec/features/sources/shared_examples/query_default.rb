@@ -100,5 +100,33 @@ RSpec.shared_examples :source_query_default do
         expect(data.posts.to_a.map(&:title)).to eq(["1", "2", "3"])
       end
     end
+
+    context "query includes data" do
+      let :app_definition do
+        Proc.new do
+          instance_exec(&$data_app_boilerplate)
+
+          source :posts do
+            primary_id
+            attribute :title, :string
+
+            has_many :comments
+
+            query do
+              including(:comments)
+            end
+          end
+
+          source :comments do
+            primary_id
+          end
+        end
+      end
+
+      it "automatically applies the query" do
+        data.posts.create(title: "2", comments: data.comments.create({}))
+        expect(data.posts.one.comments.first).to be_instance_of(Pakyow::Data::Object)
+      end
+    end
   end
 end
