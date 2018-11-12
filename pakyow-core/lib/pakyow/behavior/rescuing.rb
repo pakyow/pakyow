@@ -27,7 +27,7 @@ module Pakyow
           message = <<~ERROR
             #{self.class} failed to initialize.
 
-            #{error.to_s}
+            #{error.message}
             #{error.backtrace.join("\n")}
           ERROR
 
