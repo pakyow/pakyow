@@ -89,7 +89,7 @@ RSpec.shared_examples :source_types do
     end
 
     context "defining a primary uuid key" do
-      it "needs to be defined"
+      it "will be supported in the future"
     end
 
     context "defining timestamp fields" do

@@ -32,6 +32,8 @@ module Pakyow
             end
           end
 
+          # Throw out values that aren't expected by the source.
+          #
           final_values = values.each_with_object({}) { |(key, value), values_hash|
             if attribute = @source.class.attributes[key]
               values_hash[key] = value.nil? ? value : attribute[value]
@@ -40,6 +42,8 @@ module Pakyow
             end
           }
 
+          # Update timestamp fields.
+          #
           if timestamp_fields = @source.class.timestamp_fields
             if @performs_create
               timestamp_fields.values.each do |timestamp_field|
@@ -64,7 +68,101 @@ module Pakyow
             end
           end
 
-          # Set values for associations.
+          # Enforce constraints on association values passed by access name.
+          #
+          @source.class.associations.values.flatten.select { |association|
+            final_values.key?(association[:access_name])
+          }.each do |association|
+            association_value = final_values[association[:access_name]]
+
+            case association_value
+            when Proxy
+              if association_value.source.class.__object_name.name == association[:source_name]
+                if association[:access_type] == :one && (association_value.count > 1 || (@performs_update && @source.count > 1))
+                  raise ConstraintViolation, "Cannot associate multiple results as #{association[:access_name]}"
+                end
+              else
+                raise TypeMismatch, "Cannot associate #{association_value.source.class.__object_name.name} as #{association[:access_name]}"
+              end
+            when Object
+              if association[:access_type] == :one
+                if association_value.originating_source
+                  if association_value.originating_source.__object_name.name == association[:source_name]
+                    case association[:type]
+                    when :belongs_to
+                      associated_column_name = association[:associated_column_name]
+                      associated_column_value = association_value[association[:associated_column_name]]
+                      associated_object_query = @source.container.source_instance(association[:source_name]).send(
+                        :"by_#{association[:associated_column_name]}", associated_column_value
+                      )
+                    when :has_one
+                      associated_column_name = association[:column_name]
+                      associated_column_value = association_value[association[:column_name]]
+                      associated_object_query = @source.container.source_instance(association[:source_name]).send(
+                        :"by_#{association[:column_name]}", associated_column_value
+                      )
+                    end
+
+                    if associated_object_query && associated_object_query.count == 0
+                      raise ConstraintViolation, "Cannot find associated #{association[:access_name]} with #{associated_column_name} of #{associated_column_value}"
+                    end
+                  else
+                    raise TypeMismatch, "Cannot associate an object from #{association_value.originating_source.__object_name.name} as #{association[:access_name]}"
+                  end
+                else
+                  raise TypeMismatch, "Cannot associate an object with an unknown source as #{association[:access_name]}"
+                end
+              else
+                raise TypeMismatch, "Cannot associate #{association_value.class} as #{association[:access_name]}"
+              end
+            when Array
+              if association[:access_type] == :many
+                if not_data_object = association_value.find { |value| !value.is_a?(Object) }
+                  raise TypeMismatch, "Cannot associate results as #{association[:access_name]} because at least one value is not a Pakyow::Data::Object"
+                else
+                  if association_value.any? { |value| value.originating_source.nil? }
+                    raise TypeMismatch, "Cannot associate an object with an unknown source as #{association[:access_name]}"
+                  else
+                    if not_from_source = association_value.find { |value| value.originating_source.__object_name.name != association[:source_name] }
+                      raise TypeMismatch, "Cannot associate results as #{association[:access_name]} because at least one value did not originate from #{association[:source_name]}"
+                    else
+                      associated_column_name = association[:column_name]
+                      associated_column_value = association_value.map { |object| object[association[:column_name]] }
+                      associated_object_query = @source.container.source_instance(association[:source_name]).send(
+                        :"by_#{association[:column_name]}", associated_column_value
+                      )
+
+                      if associated_object_query.count != association_value.count
+                        raise ConstraintViolation, "Cannot associate results as #{association[:access_name]} because at least one value could not be found"
+                      end
+                    end
+                  end
+                end
+              else
+                raise ConstraintViolation, "Cannot associate multiple results as #{association[:access_name]}"
+              end
+            when NilClass
+            else
+              raise TypeMismatch, "Cannot associate #{association_value.class} as #{association[:access_name]}"
+            end
+          end
+
+          # Enforce constraints for association values passed by column name.
+          #
+          @source.class.associations.values.flatten.select { |association|
+            final_values.key?(association[:column_name]) && !final_values[association[:column_name]].nil?
+          }.each do |association|
+            associated_column_value = final_values[association[:column_name]]
+            associated_object_query = @source.container.source_instance(association[:source_name]).send(
+              :"by_#{association[:associated_column_name]}", associated_column_value
+            )
+
+            if associated_object_query.count == 0
+              raise ConstraintViolation, "Cannot find associated #{association[:access_name]} with #{association[:associated_column_name]} of #{associated_column_value}"
+            end
+          end
+
+          # Set values for associations passed by access name.
           #
           @source.class.associations.values.flatten.select { |association|
             final_values.key?(association[:access_name])
@@ -74,13 +172,15 @@ module Pakyow
               association_value = final_values.delete(association[:access_name])
               final_values[association[:column_name]] = case association_value
               when Proxy
-                if association_value.source.class.__object_name.name == association[:source_name]
-                  association_value.one[@source.class.primary_key_field]
+                if association_result = association_value.one
+                  association_result[@source.class.primary_key_field]
                 else
-                  raise ConstraintViolation, "Cannot associate #{association_value.source.class.__object_name.name} as #{association[:source_name]}"
+                  nil
                 end
-              else
+              when Object
                 association_value[@source.class.primary_key_field]
+              when NilClass
+                nil
               end
             when :has_many, :has_one
               future_associated_changes << [association, final_values.delete(association[:access_name])]
@@ -189,12 +289,8 @@ module Pakyow
             future_associated_changes.each do |association, association_value|
               associated_dataset = case association_value
               when Proxy
-                if association_value.source.class.__object_name.name == association[:source_name]
-                  association_value
-                else
-                  raise ConstraintViolation, "Cannot associate #{association_value.source.class.__object_name.name} as #{association[:source_name]}"
-                end
-              else
+                association_value
+              when Object, Array
                 updatable = Array.ensure(association_value).map { |value|
                   case value
                   when Object
@@ -207,6 +303,8 @@ module Pakyow
                 @source.container.source_instance(association[:source_name]).send(
                   :"by_#{association[:column_name]}", updatable
                 )
+              when NilClass
+                nil
               end
 
               associated_column_value = final_result.one[association[:column_name]]
@@ -219,9 +317,24 @@ module Pakyow
 
               # Associate the correct data.
               #
-              associated_dataset.update(
-                association[:associated_column_name] => associated_column_value
-              )
+              if associated_dataset
+                associated_dataset.update(
+                  association[:associated_column_name] => associated_column_value
+                )
+
+                # Update the column value in passed objects.
+                #
+                case association_value
+                when Proxy
+                  association_value.source.reload
+                when Object, Array
+                  Array.ensure(association_value).each do |object|
+                    values = object.values.dup
+                    values[association[:associated_column_name]] = associated_column_value
+                    object.instance_variable_set(:@values, values.freeze)
+                  end
+                end
+              end
             end
           end
 

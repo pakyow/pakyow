@@ -10,6 +10,9 @@ module Pakyow
     class Object
       attr_reader :values
 
+      # @api private
+      attr_accessor :originating_source
+
       extend Support::Makeable
 
       def initialize(values)

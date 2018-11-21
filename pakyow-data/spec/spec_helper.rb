@@ -17,6 +17,12 @@ RSpec.configure do |config|
   config.include AppHelpers
 
   config.after do
+    Pakyow.data_connections[:sql].to_h.values.each do |connection|
+      connection.adapter.connection.tables.each do |table|
+        connection.adapter.connection.run "DROP TABLE #{table}"
+      end
+    end
+
     Pakyow.data_connections.values.flat_map(&:values).each(&:disconnect)
   end
 end

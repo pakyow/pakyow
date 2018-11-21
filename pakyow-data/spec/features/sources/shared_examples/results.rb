@@ -120,5 +120,64 @@ RSpec.shared_examples :source_results do
         expect(found).to eq(data.posts.to_a.last)
       end
     end
+
+    describe "invalidating fetched results" do
+      context "results are fetched as a different type after the result has been returned" do
+        before do
+          data.posts.create(title: "foo")
+        end
+
+        let :posts do
+          results = data.posts
+          results.one
+          results.as(as)
+        end
+
+        let :as do
+          Class.new(Pakyow::Data::Object)
+        end
+
+        it "invalidates" do
+          expect(posts.one).to be_instance_of(as)
+        end
+      end
+
+      context "associated data is included after the result has been returned" do
+        let :app_definition do
+          Proc.new do
+            instance_exec(&$data_app_boilerplate)
+
+            source :posts do
+              primary_id
+              attribute :title, :string
+
+              def ordered
+                order(:id)
+              end
+            end
+
+            source :comments do
+              primary_id
+
+              belongs_to :post
+            end
+          end
+        end
+
+        before do
+          data.comments.create(post: data.posts.create(title: "foo"))
+        end
+
+        let :comments do
+          results = data.comments
+          results.one
+          results.including(:post)
+        end
+
+        it "invalidates" do
+          expect(comments.one.post).to be_instance_of(Pakyow::Data::Object)
+        end
+      end
+    end
   end
 end

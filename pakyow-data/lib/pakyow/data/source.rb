@@ -86,36 +86,35 @@ module Pakyow
 
       def including(association_name, &block)
         association_name = association_name.to_sym
-        association_to_include = self.class.associations.values.flatten(1).find { |association|
-          association[:access_name] = association_name
-        }
 
-        if association_to_include
+        association_to_include = self.class.associations.values.flatten.find { |association|
+          association[:access_name] == association_name
+        } || raise(UnknownAssociation.new("Unknown association `#{association_name}`").tap { |error| error.context = self.class })
+
+        source_from_self(__getobj__).tap do |returned_source|
           included_source = @container.source_instance(association_to_include[:source_name])
 
-          source_from_self(__getobj__).tap { |returned_source|
-            if association_to_include[:query_name]
-              included_source = included_source.send(association_to_include[:query_name])
-            end
+          if association_to_include[:query_name]
+            included_source = included_source.send(association_to_include[:query_name])
+          end
 
-            final_source = if block_given?
-              included_source.instance_exec(&block) || included_source
-            else
-              included_source
-            end
+          final_source = if block_given?
+            included_source.instance_exec(&block) || included_source
+          else
+            included_source
+          end
 
-            # TODO: pass the access name here?
-            returned_source.instance_variable_get(:@included) << [association_to_include, final_source]
-          }
-        else
-          # TODO: raise a nicer error indicating what associations are available
-          raise "unknown association for #{association_name}"
+          returned_source.instance_variable_get(:@included) << [association_to_include, final_source]
+
+          returned_source.reload
         end
       end
 
       def as(object)
-        @wrap_as = object
-        self
+        tap do
+          @wrap_as = object
+          reload
+        end
       end
 
       def to_a
@@ -194,6 +193,20 @@ module Pakyow
         end
       end
 
+      IVARS_TO_RELOAD = %i(
+        @results @result
+      )
+
+      def reload
+        IVARS_TO_RELOAD.select { |ivar|
+          instance_variable_defined?(ivar)
+        }.each do |ivar|
+          remove_instance_variable(ivar)
+        end
+
+        self
+      end
+
       private
 
       def source_from_self(dataset)
@@ -201,11 +214,17 @@ module Pakyow
       end
 
       def wrap(result)
-        if @wrap_as.is_a?(Class)
+        wrapped_result = if @wrap_as.is_a?(Class)
           @wrap_as.new(result)
         else
           @object_map.fetch(@wrap_as, Object).new(result)
         end
+
+        if wrapped_result.is_a?(Object)
+          wrapped_result.originating_source = self.class
+        end
+
+        wrapped_result
       end
 
       def include_results!(results)
@@ -322,7 +341,7 @@ module Pakyow
           @qualifications.dig(query_name) || {}
         end
 
-        def belongs_to(association_name, source: association_name)
+        def belongs_to(association_name, query: nil, source: association_name)
           access_name = Support.inflector.singularize(association_name)
 
           @associations[:belongs_to] << {
@@ -330,6 +349,7 @@ module Pakyow
             access_type: :one,
             access_name: access_name.to_sym,
             source_name: Support.inflector.pluralize(source).to_sym,
+            query_name: query,
             column_name: :"#{access_name}_id",
             column_type: :integer,
             associated_column_name: primary_key_field
