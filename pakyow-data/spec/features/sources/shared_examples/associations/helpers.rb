@@ -1,6 +1,6 @@
 RSpec.shared_context :source_associations_helpers do
   before do
-    associated_dataset.source.class.define_method :return_none do
+    associated_dataset.source.class.send(:define_method, :return_none) do
       source_from_self(
         where {
           id < 1
