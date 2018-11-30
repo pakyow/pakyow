@@ -67,7 +67,7 @@ RSpec.shared_examples :subscription_subscribe_deeply_associated do
 
       @post = Pakyow.apps.first.data.posts.create(title: "post").one
       @comment = Pakyow.apps.first.data.comments.create(post: @post, title: "post").one
-      Pakyow.apps.first.data.tags.create(comment: @comment, title: "foo")
+      Pakyow.apps.first.data.tags.create(comment: @comment, name: "foo")
     end
 
     after do
