@@ -130,6 +130,10 @@ RSpec.describe "postgres source" do
       expect(column[:allow_null]).to eq(false)
     end
 
+    it "has no default" do
+      expect(column[:default]).to eq(nil)
+    end
+
     it "is a bignum integer" do
       expect(column[:db_type]).to eq("bigint")
       expect(column[:type]).to eq(:integer)
