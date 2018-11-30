@@ -350,6 +350,7 @@ module Pakyow
             end
           end
 
+          yield final_result if block_given?
           final_result
         end
       end

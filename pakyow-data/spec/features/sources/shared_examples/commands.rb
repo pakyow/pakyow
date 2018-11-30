@@ -83,6 +83,17 @@ RSpec.shared_examples :source_commands do
           end
         end
       end
+
+      context "called with a block" do
+        it "yields the result to the block" do
+          yielded = nil
+          data.posts.create do |post|
+            yielded = post
+          end
+
+          expect(yielded).to be_instance_of(Pakyow::Data::Proxy)
+        end
+      end
     end
 
     describe "update" do
@@ -195,6 +206,17 @@ RSpec.shared_examples :source_commands do
               expect(error.cause).to be_instance_of(Dry::Types::ConstraintError)
             end
           end
+        end
+      end
+
+      context "called with a block" do
+        it "yields the result to the block" do
+          yielded = nil
+          data.posts.update do |post|
+            yielded = post
+          end
+
+          expect(yielded).to be_instance_of(Pakyow::Data::Proxy)
         end
       end
     end
