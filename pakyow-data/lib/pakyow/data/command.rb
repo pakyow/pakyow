@@ -14,7 +14,7 @@ module Pakyow
         @name, @block, @source, @provides_dataset, @performs_create, @performs_update, @performs_delete = name, block, source, provides_dataset, performs_create, performs_update, performs_delete
       end
 
-      def call(values = nil)
+      def call(values = {})
         future_associated_changes = []
 
         if values

@@ -40,6 +40,12 @@ RSpec.shared_examples :source_commands do
           expect(data.posts.create(title: nil).one).to be_instance_of(Pakyow::Data::Object)
         end
       end
+
+      context "passing no values" do
+        it "creates an empty record" do
+          expect(data.posts.create.one).to be_instance_of(Pakyow::Data::Object)
+        end
+      end
     end
 
     describe "update" do
@@ -74,15 +80,45 @@ RSpec.shared_examples :source_commands do
         end
       end
 
-      context "updating with no values" do
+      context "updating without values" do
         it "does not fail" do
           expect {
             data.posts.update({})
           }.not_to raise_error
         end
 
+        it "does not change any values" do
+          expect {
+            data.posts.update({})
+          }.not_to change {
+            data.posts.to_a.map(&:values)
+          }
+        end
+
         it "returns the results" do
           result = data.posts.update({}).to_a
+          expect(result).to be_instance_of(Array)
+          expect(result.count).to eq(2)
+        end
+      end
+
+      context "passing no value" do
+        it "does not fail" do
+          expect {
+            data.posts.update
+          }.not_to raise_error
+        end
+
+        it "does not change any values" do
+          expect {
+            data.posts.update
+          }.not_to change {
+            data.posts.to_a.map(&:values)
+          }
+        end
+
+        it "returns the results" do
+          result = data.posts.update.to_a
           expect(result).to be_instance_of(Array)
           expect(result.count).to eq(2)
         end
