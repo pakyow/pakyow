@@ -25,7 +25,7 @@ module Pakyow
             @sources[source.__object_name.name] = source
             define_singleton_method source.__object_name.name do
               Proxy.new(
-                container.source_instance(
+                container.source(
                   source.__object_name.name
                 ),
 

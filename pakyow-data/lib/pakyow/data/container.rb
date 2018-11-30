@@ -19,7 +19,7 @@ module Pakyow
         finalize!
       end
 
-      def source_instance(source_name)
+      def source(source_name)
         plural_source_name = Support.inflector.pluralize(source_name).to_sym
 
         if found_source = sources.find { |source|

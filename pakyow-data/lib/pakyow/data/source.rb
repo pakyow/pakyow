@@ -92,7 +92,7 @@ module Pakyow
             association[:access_name] == association_name
           } || raise(UnknownAssociation.new("Unknown association `#{association_name}`").tap { |error| error.context = self.class })
 
-          included_source = @container.source_instance(association_to_include[:source_name])
+          included_source = @container.source(association_to_include[:source_name])
 
           if association_to_include[:query_name]
             included_source = included_source.send(association_to_include[:query_name])
