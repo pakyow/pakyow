@@ -7,7 +7,7 @@ services:
   - mysql
 
 addons:
-  postgresql: "10.5"
+  postgresql: 10
 
 rvm:
   - 2.4.4
