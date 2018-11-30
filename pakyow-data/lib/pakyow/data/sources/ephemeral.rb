@@ -40,6 +40,8 @@ module Pakyow
 
               result
             }
+
+            yield self if block_given?
           end
         end
 
