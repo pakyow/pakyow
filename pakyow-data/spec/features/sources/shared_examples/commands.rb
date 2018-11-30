@@ -242,6 +242,47 @@ RSpec.shared_examples :source_commands do
   end
 
   describe "custom source commands" do
-    it "needs to be defined"
+    before do
+      local_connection_type, local_connection_string = connection_type, connection_string
+
+      Pakyow.after :configure do
+        config.data.connections.public_send(local_connection_type)[:default] = local_connection_string
+      end
+    end
+
+    include_context "testable app"
+
+    let :data do
+      Pakyow.apps.first.data
+    end
+
+    let :app_definition do
+      Proc.new do
+        instance_exec(&$data_app_boilerplate)
+
+        source :posts do
+          primary_id
+          attribute :title
+          has_many :comments
+
+          command :create_with_default_comment, performs_create: true do |values|
+            command(:create).call(values) do |post|
+              container.source_instance(:comment).command(:create).call(body: "default comment", post: post.one)
+            end
+          end
+        end
+
+        source :comments do
+          primary_id
+          attribute :body
+        end
+      end
+    end
+
+    it "calls the command" do
+      post = data.posts.create_with_default_comment(title: "foo").including(:comments).one
+      expect(post.comments.length).to eq(1)
+      expect(post.comments.first.body).to eq("default comment")
+    end
   end
 end
