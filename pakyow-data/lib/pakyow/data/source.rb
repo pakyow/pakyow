@@ -85,13 +85,13 @@ module Pakyow
       end
 
       def including(association_name, &block)
-        association_name = association_name.to_sym
+        tap do
+          association_name = association_name.to_sym
 
-        association_to_include = self.class.associations.values.flatten.find { |association|
-          association[:access_name] == association_name
-        } || raise(UnknownAssociation.new("Unknown association `#{association_name}`").tap { |error| error.context = self.class })
+          association_to_include = self.class.associations.values.flatten.find { |association|
+            association[:access_name] == association_name
+          } || raise(UnknownAssociation.new("Unknown association `#{association_name}`").tap { |error| error.context = self.class })
 
-        source_from_self(__getobj__).tap do |returned_source|
           included_source = @container.source_instance(association_to_include[:source_name])
 
           if association_to_include[:query_name]
@@ -104,16 +104,13 @@ module Pakyow
             included_source
           end
 
-          returned_source.instance_variable_get(:@included) << [association_to_include, final_source]
-
-          returned_source.reload
+          @included << [association_to_include, final_source]
         end
       end
 
       def as(object)
         tap do
           @wrap_as = object
-          reload
         end
       end
 
@@ -209,10 +206,6 @@ module Pakyow
 
       private
 
-      def source_from_self(dataset)
-        Source.source_from_source(self, dataset)
-      end
-
       def wrap(result)
         wrapped_result = if @wrap_as.is_a?(Class)
           @wrap_as.new(result)
@@ -283,10 +276,9 @@ module Pakyow
           end
         end
 
-        def source_from_source(source, dataset)
-          source.dup.tap do |duped_source|
-            duped_source.__setobj__(dataset)
-          end
+        # @api private
+        def source_from_source(*)
+          super.tap(&:reload)
         end
 
         def command(command_name, provides_dataset: true, performs_create: false, performs_update: false, performs_delete: false, &block)

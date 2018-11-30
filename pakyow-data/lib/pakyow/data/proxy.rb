@@ -23,46 +23,46 @@ module Pakyow
 
       def method_missing(method_name, *args, &block)
         if @source.command?(method_name)
-          dup.tap { |proxy|
+          dup.tap { |duped_proxy|
             result = @source.command(method_name).call(*args, &block)
 
             @subscribers.did_mutate(
               @source.source_name, args[0], result
             )
 
-            proxy.instance_variable_set(:@source, result)
+            duped_proxy.instance_variable_set(:@source, result)
           }
         elsif @source.query?(method_name) || @source.modifier?(method_name)
-          dup.tap { |proxy|
+          dup.tap { |duped_proxy|
             nested_calls = []
 
-            source = if block_given? && @source.block_for_nested_source?(method_name)
+            new_source = if block_given? && @source.block_for_nested_source?(method_name)
               # In this case a block has been passed that would, without intervention,
               # be called in context of a source instance. We don't want that, since
               # it would provide full access to the underlying dataset. Instead the
               # exposed object should simply be another proxy.
 
               local_subscribers = @subscribers
-              @source.public_send(method_name, *args) {
+              @source.source_from_self.public_send(method_name, *args) {
                 nested_proxy = Proxy.new(self, local_subscribers)
                 nested_proxy.instance_variable_set(:@proxied_calls, nested_calls)
                 nested_proxy.instance_exec(&block).source.tap do |nested_proxy_source|
-                  proxy.nested_proxies << nested_proxy.dup.tap do |finalized_nested_proxy|
+                  duped_proxy.nested_proxies << nested_proxy.dup.tap do |finalized_nested_proxy|
                     finalized_nested_proxy.instance_variable_set(:@source, nested_proxy_source)
                   end
                 end
               }
             else
-              @source.public_send(method_name, *args).tap do |working_source|
+              @source.source_from_self.public_send(method_name, *args).tap do |working_source|
                 working_source.included.each do |_, included_source|
                   nested_proxy = Proxy.new(included_source, @subscribers)
-                  proxy.nested_proxies << nested_proxy
+                  duped_proxy.nested_proxies << nested_proxy
                 end
               end
             end
 
-            proxy.instance_variable_set(:@source, source)
-            proxy.instance_variable_get(:@proxied_calls) << [
+            duped_proxy.instance_variable_set(:@source, new_source)
+            duped_proxy.instance_variable_get(:@proxied_calls) << [
               method_name, args, nested_calls
             ]
           }

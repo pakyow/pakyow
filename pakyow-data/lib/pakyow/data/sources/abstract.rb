@@ -26,7 +26,19 @@ module Pakyow
           false
         end
 
+        # @api private
+        def source_from_self(dataset = __getobj__)
+          Source.source_from_source(self, dataset)
+        end
+
         class << self
+          # @api private
+          def source_from_source(source, dataset)
+            source.dup.tap do |duped_source|
+              duped_source.__setobj__(dataset)
+            end
+          end
+
           def primary_key_field
             :id
           end
