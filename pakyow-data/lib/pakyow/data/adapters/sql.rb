@@ -197,9 +197,8 @@ module Pakyow
 
         def define_column_for_attribute(attribute_name, attribute_type, table)
           if attribute_type.meta[:primary_key]
-            table.primary_key attribute_name
+            table.primary_key attribute_name, type: attribute_type.meta[:column_type]
           elsif attribute_type.meta[:foreign_key]
-            # table.foreign_key attribute_name, attribute_type.meta[:foreign_key]
             table.column attribute_name, attribute_type.meta[:column_type], **column_opts_for_attribute_type(attribute_type)
           else
             table.column attribute_name, attribute_type.meta[:column_type], **column_opts_for_attribute_type(attribute_type)
@@ -349,6 +348,10 @@ module Pakyow
             class << self
               def table(table_name)
                 @dataset_table = table_name
+              end
+
+              def primary_key_type
+                Pakyow::Data::Types::Coercible::Integer.meta(column_type: :Bignum)
               end
             end
           end

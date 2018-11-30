@@ -303,11 +303,15 @@ module Pakyow
 
           def primary_id
             primary_key :id
-            attribute :id, :integer
+            attribute :id, primary_key_type
           end
 
           def primary_key(field)
             @primary_key_field = field
+          end
+
+          def primary_key_type
+            :integer
           end
 
           def attribute(name, type = :string, **options)
@@ -335,7 +339,7 @@ module Pakyow
               source_name: Support.inflector.pluralize(source).to_sym,
               query_name: query,
               column_name: :"#{access_name}_id",
-              column_type: :integer,
+              column_type: primary_key_type,
               associated_column_name: primary_key_field
             }
           end

@@ -44,4 +44,111 @@ RSpec.describe "mysql source" do
       system "mysql -e 'CREATE DATABASE `pakyow-test`'", out: File::NULL, err: File::NULL
     end
   end
+
+  describe "primary id" do
+    let :data do
+      Pakyow.apps.first.data
+    end
+
+    before do
+      local_connection_type, local_connection_string = connection_type, connection_string
+
+      Pakyow.after :configure do
+        config.data.connections.public_send(local_connection_type)[:default] = local_connection_string
+      end
+    end
+
+    include_context "testable app"
+
+    let :app_definition do
+      Proc.new do
+        instance_exec(&$data_app_boilerplate)
+
+        source :posts do
+          primary_id
+        end
+      end
+    end
+
+    let :column do
+      data.posts.source.container.connection.adapter.connection.schema(:posts)[0][1]
+    end
+
+    it "is a primary key" do
+      expect(column[:primary_key]).to eq(true)
+    end
+
+    it "auto increments" do
+      expect(column[:auto_increment]).to eq(true)
+    end
+
+    it "does not allow null" do
+      expect(column[:allow_null]).to eq(false)
+    end
+
+    it "has no default" do
+      expect(column[:default]).to eq(nil)
+    end
+
+    it "is a bignum integer" do
+      expect(column[:db_type]).to eq("bigint(20)")
+      expect(column[:type]).to eq(:integer)
+    end
+  end
+
+  describe "foreign key" do
+    let :data do
+      Pakyow.apps.first.data
+    end
+
+    before do
+      local_connection_type, local_connection_string = connection_type, connection_string
+
+      Pakyow.after :configure do
+        config.data.connections.public_send(local_connection_type)[:default] = local_connection_string
+      end
+    end
+
+    include_context "testable app"
+
+    let :app_definition do
+      Proc.new do
+        instance_exec(&$data_app_boilerplate)
+
+        source :posts do
+          primary_id
+          has_many :comments
+        end
+
+        source :comments do
+          primary_id
+        end
+      end
+    end
+
+    let :column do
+      data.comments.source.container.connection.adapter.connection.schema(:comments)[1][1]
+    end
+
+    it "is not a primary key" do
+      expect(column[:primary_key]).to eq(false)
+    end
+
+    it "does not auto increment" do
+      expect(column[:auto_increment]).to eq(nil)
+    end
+
+    it "allows null" do
+      expect(column[:allow_null]).to eq(true)
+    end
+
+    it "has no default" do
+      expect(column[:default]).to eq(nil)
+    end
+
+    it "is a bignum integer" do
+      expect(column[:db_type]).to eq("bigint(20)")
+      expect(column[:type]).to eq(:integer)
+    end
+  end
 end
