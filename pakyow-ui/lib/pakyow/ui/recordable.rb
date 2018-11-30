@@ -6,7 +6,7 @@ require "pakyow/support/core_refinements/array/ensurable"
 require "pakyow/support/extension"
 require "pakyow/support/inflector"
 
-require "pakyow/data/source"
+require "pakyow/data/sources/relational"
 
 require "pakyow/presenter/binding_parts"
 require "pakyow/presenter/versioned_view"
@@ -47,7 +47,7 @@ module Pakyow
       # Let's create a `Viewified` object instead... then check to see if it's already happened.
       #
       def viewify(data)
-        data = if data.is_a?(Data::Source)
+        data = if data.is_a?(Data::Sources::Relational)
           data.to_a
         else
           Array.ensure(data)
