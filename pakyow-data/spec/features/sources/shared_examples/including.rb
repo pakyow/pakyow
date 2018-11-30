@@ -155,5 +155,32 @@ RSpec.shared_examples :source_including do
         include_examples :included_data_values
       end
     end
+
+    describe "with_association methods" do
+      before do
+        data.posts.create(
+          title: "post 1",
+          author: data.users.create(
+            name: "post 1 author"
+          ),
+          comments: data.comments.create(
+            body: "post 1 comment 1",
+            author: data.users.create(
+              name: "post 1 comment 1 author"
+            )
+          )
+        )
+      end
+
+      let :results do
+        data.posts.with_author
+      end
+
+      it "defines a method for each association" do
+        expect(results.count).to eq(1)
+        expect(results.first.title).to eq("post 1")
+        expect(results.first.author.name).to eq("post 1 author")
+      end
+    end
   end
 end

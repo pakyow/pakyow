@@ -53,6 +53,7 @@ module Pakyow
           define_attributes_for_associations!(source)
           define_queries_for_attributes!(source)
           wrap_defined_queries!(source)
+          define_methods_for_associations!(source)
           finalize_source_types!(source)
         end
       end
@@ -101,6 +102,16 @@ module Pakyow
               # Qualify the query.
               #
               subscribe :"by_#{attribute}", attribute => :__arg0__
+            end
+          end
+        end
+      end
+
+      def define_methods_for_associations!(source)
+        source.associations.values.flatten.each do |association|
+          source.class_eval do
+            define_method :"with_#{association[:access_name]}" do
+              including(association[:access_name])
             end
           end
         end
