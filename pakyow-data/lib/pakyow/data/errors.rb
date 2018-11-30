@@ -22,6 +22,9 @@ module Pakyow
     class TypeMismatch < Error
     end
 
+    class UnknownAttribute < Error
+    end
+
     class UnknownAssociation < Error
       def message
         if associations.any?

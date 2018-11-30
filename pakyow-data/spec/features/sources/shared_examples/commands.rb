@@ -46,6 +46,43 @@ RSpec.shared_examples :source_commands do
           expect(data.posts.create.one).to be_instance_of(Pakyow::Data::Object)
         end
       end
+
+      context "passing an unknown value" do
+        it "raises an unknown attribute error" do
+          expect {
+            data.posts.create(foo: "bar")
+          }.to raise_error(Pakyow::Data::UnknownAttribute) do |error|
+            expect(error.message).to eq("Unknown attribute foo for posts")
+          end
+        end
+      end
+
+      context "passing the wrong type of value" do
+        it "coerces the value" do
+          expect(data.posts.create(title: 1).one.title).to eq("1")
+        end
+
+        context "attribute type is strict" do
+          let :app_definition do
+            Proc.new do
+              instance_exec(&$data_app_boilerplate)
+
+              source :posts do
+                primary_id
+                attribute :title, Pakyow::Data::Types::Strict::String
+              end
+            end
+          end
+
+          it "raises a type mismatch error" do
+            expect {
+              data.posts.create(title: 1)
+            }.to raise_error(Pakyow::Data::TypeMismatch) do |error|
+              expect(error.cause).to be_instance_of(Dry::Types::ConstraintError)
+            end
+          end
+        end
+      end
     end
 
     describe "update" do
@@ -121,6 +158,43 @@ RSpec.shared_examples :source_commands do
           result = data.posts.update.to_a
           expect(result).to be_instance_of(Array)
           expect(result.count).to eq(2)
+        end
+      end
+
+      context "passing an unknown value" do
+        it "raises an unknown attribute error" do
+          expect {
+            data.posts.update(foo: "bar")
+          }.to raise_error(Pakyow::Data::UnknownAttribute) do |error|
+            expect(error.message).to eq("Unknown attribute foo for posts")
+          end
+        end
+      end
+
+      context "passing the wrong type of value" do
+        it "coerces the value" do
+          expect(data.posts.update(title: 1).one.title).to eq("1")
+        end
+
+        context "attribute type is strict" do
+          let :app_definition do
+            Proc.new do
+              instance_exec(&$data_app_boilerplate)
+
+              source :posts do
+                primary_id
+                attribute :title, Pakyow::Data::Types::Strict::String
+              end
+            end
+          end
+
+          it "raises a type mismatch error" do
+            expect {
+              data.posts.update(title: 1)
+            }.to raise_error(Pakyow::Data::TypeMismatch) do |error|
+              expect(error.cause).to be_instance_of(Dry::Types::ConstraintError)
+            end
+          end
         end
       end
     end

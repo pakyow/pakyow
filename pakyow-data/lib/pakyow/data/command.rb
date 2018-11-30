@@ -32,13 +32,25 @@ module Pakyow
             end
           end
 
-          # Throw out values that aren't expected by the source.
+          # Fail if unexpected values were passed.
+          #
+          values.keys.each do |key|
+            unless @source.class.attributes.include?(key) || @source.class.associations.values.flatten.find { |association| association[:access_name] == key }
+              raise UnknownAttribute.new("Unknown attribute #{key} for #{@source.class.__object_name.name}")
+            end
+          end
+
+          # Coerce values into the appropriate type.
           #
           final_values = values.each_with_object({}) { |(key, value), values_hash|
-            if attribute = @source.class.attributes[key]
-              values_hash[key] = value.nil? ? value : attribute[value]
-            elsif @source.class.associations.values.flatten.find { |association| association[:access_name] == key }
-              values_hash[key] = value
+            begin
+              if attribute = @source.class.attributes[key]
+                values_hash[key] = value.nil? ? value : attribute[value]
+              else
+                values_hash[key] = value
+              end
+            rescue Dry::Types::ConstraintError => error
+              raise TypeMismatch.build(error)
             end
           }
 

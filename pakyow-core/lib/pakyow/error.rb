@@ -17,6 +17,8 @@ module Pakyow
         if original_error.is_a?(self)
           original_error
         else
+          # TODO: consider not including the original error class, since it's included elsewhere in the trace
+          #
           new("#{original_error.class}: #{original_error.message}").tap do |error|
             error.wrapped_exception = original_error
             error.set_backtrace(original_error.backtrace)
