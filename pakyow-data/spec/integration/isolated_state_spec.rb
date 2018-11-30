@@ -6,6 +6,6 @@ RSpec.describe "isolated state" do
   end
 
   it "creates an isolated source class for the app" do
-    expect(app.isolated(:Source)).to_not be(nil)
+    expect(app.isolated(:Relational)).to_not be(nil)
   end
 end

@@ -34,7 +34,7 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise|
           expect {
             target_dataset.including(:nonexistent)
           }.to raise_error(Pakyow::Data::UnknownAssociation) do |error|
-            expect(error.context.ancestors).to include(Pakyow::Data::Source)
+            expect(error.context.ancestors).to include(Pakyow::Data::Sources::Relational)
             expect(error.message).to include("Unknown association `nonexistent`")
           end
         end

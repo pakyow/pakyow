@@ -2,21 +2,22 @@
 
 require "pakyow/framework"
 
-require "pakyow/data/source"
 require "pakyow/data/object"
 require "pakyow/data/helpers"
 
 require "pakyow/data/behavior/lookup"
+
+require "pakyow/data/sources/relational"
 
 module Pakyow
   module Data
     class Framework < Pakyow::Framework(:data)
       def boot
         object.class_eval do
-          isolate Source
+          isolate Sources::Relational
           isolate Object
 
-          stateful :source, isolated(:Source)
+          stateful :source, isolated(:Relational)
           stateful :object, isolated(:Object)
 
           # Autoload sources from the `sources` directory.

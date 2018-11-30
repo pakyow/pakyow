@@ -28,7 +28,7 @@ module Pakyow
 
         # @api private
         def source_from_self(dataset = __getobj__)
-          Source.source_from_source(self, dataset)
+          self.class.source_from_source(self, dataset)
         end
 
         class << self
