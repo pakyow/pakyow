@@ -337,10 +337,11 @@ module Pakyow
               access_type: :one,
               access_name: access_name.to_sym,
               source_name: Support.inflector.pluralize(source).to_sym,
-              query_name: query,
-              column_name: :"#{access_name}_id",
-              column_type: primary_key_type,
-              associated_column_name: primary_key_field
+              query_name: query
+
+              # The following values are set in Container#set_association_fields!
+              #
+              # column_name, column_type, associated_column_name
             }
           end
 
@@ -353,8 +354,9 @@ module Pakyow
               source_name: Support.inflector.pluralize(source).to_sym,
               query_name: query,
               column_name: primary_key_field,
+              column_type: primary_key_type,
               associated_access_name: as.to_sym,
-              associated_column_name: :"#{as}_id",
+              associated_column_name: :"#{as}_#{primary_key_field}",
               dependent: dependent
             }
           end
@@ -369,8 +371,9 @@ module Pakyow
               source_name: Support.inflector.pluralize(source).to_sym,
               query_name: query,
               column_name: primary_key_field,
+              column_type: primary_key_type,
               associated_access_name: as.to_sym,
-              associated_column_name: :"#{as}_id",
+              associated_column_name: :"#{as}_#{primary_key_field}",
               dependent: dependent
             }
           end

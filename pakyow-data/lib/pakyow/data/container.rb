@@ -69,11 +69,21 @@ module Pakyow
 
       def define_attributes_for_associations!(source)
         source.associations[:belongs_to].each do |belongs_to_association|
-          source.attribute(
-            belongs_to_association[:column_name],
-            belongs_to_association[:column_type],
-            foreign_key: belongs_to_association[:source_name]
-          )
+          associated_source = @sources.find { |potentially_associated_source|
+            potentially_associated_source.plural_name == belongs_to_association[:source_name]
+          }
+
+          if associated_source
+            belongs_to_association[:column_name] = :"#{belongs_to_association[:access_name]}_#{associated_source.primary_key_field}"
+            belongs_to_association[:column_type] = associated_source.primary_key_type
+            belongs_to_association[:associated_column_name] = associated_source.primary_key_field
+
+            source.attribute(
+              belongs_to_association[:column_name],
+              belongs_to_association[:column_type],
+              foreign_key: belongs_to_association[:source_name]
+            )
+          end
         end
       end
 
