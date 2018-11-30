@@ -54,6 +54,7 @@ module Pakyow
           define_queries_for_attributes!(source)
           wrap_defined_queries!(source)
           define_methods_for_associations!(source)
+          define_methods_for_objects!(source)
           finalize_source_types!(source)
         end
       end
@@ -112,6 +113,16 @@ module Pakyow
           source.class_eval do
             define_method :"with_#{association[:access_name]}" do
               including(association[:access_name])
+            end
+          end
+        end
+      end
+
+      def define_methods_for_objects!(source)
+        @object_map.keys.each do |object_name|
+          source.class_eval do
+            define_method :"as_#{object_name}" do
+              as(object_name)
             end
           end
         end
