@@ -117,16 +117,15 @@ module Pakyow
               end
             when Array
               if association[:access_type] == :many
-                if not_data_object = association_value.find { |value| !value.is_a?(Object) }
+                if association_value.find { |value| !value.is_a?(Object) }
                   raise TypeMismatch, "Cannot associate results as #{association[:access_name]} because at least one value is not a Pakyow::Data::Object"
                 else
                   if association_value.any? { |value| value.originating_source.nil? }
                     raise TypeMismatch, "Cannot associate an object with an unknown source as #{association[:access_name]}"
                   else
-                    if not_from_source = association_value.find { |value| value.originating_source.__object_name.name != association[:source_name] }
+                    if association_value.find { |value| value.originating_source.__object_name.name != association[:source_name] }
                       raise TypeMismatch, "Cannot associate results as #{association[:access_name]} because at least one value did not originate from #{association[:source_name]}"
                     else
-                      associated_column_name = association[:column_name]
                       associated_column_value = association_value.map { |object| object[association[:column_name]] }
                       associated_object_query = @source.container.source_instance(association[:source_name]).send(
                         :"by_#{association[:column_name]}", associated_column_value
@@ -206,7 +205,8 @@ module Pakyow
               association.key?(:dependent)
             }.each do |association|
               dependent_data = @source.container.source_instance(association[:source_name]).send(
-                :"by_#{association[:associated_column_name]}", @source.container.connection.adapter.restrict_to_attribute(
+                :"by_#{association[:associated_column_name]}",
+                @source.container.connection.adapter.restrict_to_attribute(
                   @source.class.primary_key_field, @source
                 )
               )

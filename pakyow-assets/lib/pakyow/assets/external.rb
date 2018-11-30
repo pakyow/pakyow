@@ -20,13 +20,13 @@ module Pakyow
         if @files.empty?
           Dir.glob(File.join(@config.externals.path, "#{@name}*.js")).any?
         else
-          !@files.any? do |file|
+          !@files.any? { |file|
             if File.basename(file, File.extname(file)) == @name.to_s
               Dir.glob(File.join(@config.externals.path, "#{@name}*.js")).empty?
             else
               Dir.glob(File.join(@config.externals.path, "#{@name}*__#{File.basename(file, File.extname(file))}.js")).empty?
             end
-          end
+          }
         end
       end
 

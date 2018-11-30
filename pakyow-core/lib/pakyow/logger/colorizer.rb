@@ -19,8 +19,8 @@ module Pakyow
 
       LEVEL_COLORS = {
         "DEBUG" => :cyan,
-        "INFO"  => :green,
-        "WARN"  => :yellow,
+        "INFO" => :green,
+        "WARN" => :yellow,
         "ERROR" => :red,
         "FATAL" => :red
       }.freeze

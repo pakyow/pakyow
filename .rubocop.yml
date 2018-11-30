@@ -5,8 +5,8 @@ AllCops:
     - 'bin/**/*'
     - '**vendor/**/*'
     - '**/spec/**/*'
-    - 'pakyow-mailer/lib/pakyow/mailer/ext/premailer/adapter/oga.rb'
     - '**/node_modules/**/*'
+    - 'pakyow-core/lib/pakyow/generators/**/*'
   DisplayCopNames: true
 
 Layout/CaseIndentation:
