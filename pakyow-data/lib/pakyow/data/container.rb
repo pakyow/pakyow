@@ -138,7 +138,7 @@ module Pakyow
         end
       end
 
-      # Override queries with methods that wrap the dataset in a source.
+      # Override queries with methods that update the source with a new dataset.
       #
       def wrap_defined_queries!(source)
         local_queries = source.queries
@@ -146,7 +146,15 @@ module Pakyow
           Module.new do
             local_queries.each do |query|
               define_method query do |*args, &block|
-                source_from_self(super(*args, &block))
+                tap do
+                  result = super(*args, &block)
+                  case result
+                  when self.class
+                    result
+                  else
+                    __setobj__(result)
+                  end
+                end
               end
             end
           end
