@@ -18,7 +18,7 @@ module Pakyow
         end
 
         using Support::Refinements::Array::Ensurable
-        attr_reader :type, :qualifications, :results
+        attr_reader :type, :qualifications
 
         include Enumerable
 
@@ -28,25 +28,27 @@ module Pakyow
         def initialize(type, **qualifications)
           @type = type
           @qualifications = { type: @type }.merge(qualifications)
-          @results = []
+          __setobj__([])
         end
 
         def set(results)
           tap do
-            @results = results.map { |result|
-              unless result.key?(:id)
-                result[:id] = SecureRandom.uuid
-              end
+            __setobj__(
+              results.map { |result|
+                unless result.key?(:id)
+                  result[:id] = SecureRandom.uuid
+                end
 
-              result
-            }
+                result
+              }
+            )
 
             yield self if block_given?
           end
         end
 
         def serialize
-          { type: @type, qualifications: @qualifications, results: @results }
+          { type: @type, qualifications: @qualifications, results: __getobj__ }
         end
 
         def to_ary
@@ -54,7 +56,11 @@ module Pakyow
         end
 
         def to_a
-          Array.ensure(@results)
+          Array.ensure(__getobj__)
+        end
+
+        def one
+          to_a.first
         end
 
         COMMANDS = %i(set).freeze
@@ -66,11 +72,7 @@ module Pakyow
           method(maybe_command_name)
         end
 
-        RESULTS = %i(to_a each results).freeze
-        def result?(maybe_result_name)
-          RESULTS.include?(maybe_result_name)
-        end
-
+        # @api private
         def source_name
           @type
         end

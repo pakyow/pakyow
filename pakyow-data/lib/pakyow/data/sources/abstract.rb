@@ -22,10 +22,6 @@ module Pakyow
           false
         end
 
-        def result?(_maybe_result_name)
-          false
-        end
-
         # @api private
         def source_from_self(dataset = __getobj__)
           self.class.source_from_source(self, dataset)
@@ -37,10 +33,6 @@ module Pakyow
             source.dup.tap do |duped_source|
               duped_source.__setobj__(dataset)
             end
-          end
-
-          def primary_key_field
-            :id
           end
         end
       end
