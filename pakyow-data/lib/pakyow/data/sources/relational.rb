@@ -161,8 +161,8 @@ module Pakyow
         end
 
         def count
-          if __getobj__.respond_to?(:count)
-            __getobj__.count
+          if self.class.respond_to?(:count)
+            self.class.count(__getobj__)
           else
             super
           end

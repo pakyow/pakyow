@@ -360,14 +360,20 @@ module Pakyow
         module DatasetMethods
           def to_a(dataset)
             dataset.all
+          rescue Sequel::Error => error
+            raise QueryError.build(error)
           end
 
           def one(dataset)
             dataset.first
+          rescue Sequel::Error => error
+            raise QueryError.build(error)
           end
 
           def count(dataset)
             dataset.count
+          rescue Sequel::Error => error
+            raise QueryError.build(error)
           end
         end
 

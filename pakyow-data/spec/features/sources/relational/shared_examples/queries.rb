@@ -143,4 +143,61 @@ RSpec.shared_examples :source_queries do
       }.to raise_error
     end
   end
+
+  describe "exposing query errors" do
+    before do
+      local_connection_type, local_connection_string = connection_type, connection_string
+
+      Pakyow.after :configure do
+        config.data.connections.public_send(local_connection_type)[:default] = local_connection_string
+      end
+    end
+
+    include_context "testable app"
+
+    let :data do
+      Pakyow.apps.first.data
+    end
+
+    let :app_definition do
+      Proc.new do
+        instance_exec(&$data_app_boilerplate)
+
+        source :posts do
+          primary_id
+          attribute :title, :string
+
+          def dataset_error
+            where(foo: "bar")
+          end
+
+          def other_error
+            foo
+          end
+        end
+      end
+    end
+
+    %i(to_a one count).each do |method|
+      context "dataset error occurs" do
+        context "calling #{method}" do
+          it "raises a query error wrapping the original" do
+            expect {
+              data.posts.dataset_error.send(method)
+            }.to raise_error(Pakyow::Data::QueryError) do |error|
+              expect(error.cause).to be_instance_of(Sequel::DatabaseError)
+            end
+          end
+        end
+      end
+
+      context "other error occurs" do
+        it "raises the original error" do
+          expect {
+              data.posts.other_error.send(method)
+            }.to raise_error(NameError)
+        end
+      end
+    end
+  end
 end

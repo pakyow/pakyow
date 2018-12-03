@@ -7,6 +7,9 @@ module Pakyow
     class Error < Pakyow::Error
     end
 
+    class QueryError < Error
+    end
+
     class ConstraintViolation < Error
     end
 
