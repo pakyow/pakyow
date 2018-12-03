@@ -28,10 +28,10 @@ RSpec.describe "presenting data in a form component" do
           def perform
             # This is weird, but done so the ephemeral data shows up in the result.
             #
-            presenting = if $call_count == 1
-              [{ id: 1, message: "error 1" }, { id: 2, message: "error 2" }]
-            else
+            presenting = if $call_count == 0
               errors
+            else
+              [{ id: 1, message: "error 1" }, { id: 2, message: "error 2" }]
             end
 
             find(:error).present(presenting)
