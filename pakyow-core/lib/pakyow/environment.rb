@@ -378,7 +378,10 @@ module Pakyow
       @apps.select { |app| app.respond_to?(:booted) }.each(&:booted)
     rescue StandardError => error
       logger.error "Pakyow failed to boot: #{error}"
-      logger.error error.backtrace
+      error.backtrace.each do |line|
+        logger.error(line)
+      end
+
       exit if config.exit_on_boot_failure
     end
 
