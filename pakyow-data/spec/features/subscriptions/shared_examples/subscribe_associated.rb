@@ -250,7 +250,7 @@ RSpec.shared_examples :subscription_subscribe_associated do
 
           attribute :name, :string
 
-          has_many :posts, dependent: :destroy
+          has_many :posts, dependent: :delete
         end
 
         resource :posts, "/posts" do
