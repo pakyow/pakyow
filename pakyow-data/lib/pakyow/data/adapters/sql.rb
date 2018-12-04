@@ -429,7 +429,11 @@ module Pakyow
             end
 
             command :delete, provides_dataset: false, performs_delete: true do
-              delete
+              begin
+                delete
+              rescue Sequel::ForeignKeyConstraintViolation => error
+                raise ConstraintViolation.build(error)
+              end
             end
           end
         end
