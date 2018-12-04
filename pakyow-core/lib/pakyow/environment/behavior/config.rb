@@ -11,6 +11,7 @@ module Pakyow
         apply_extension do
           setting :default_env, :development
           setting :freeze_on_boot, true
+          setting :exit_on_boot_failure, true
 
           setting :root do
             File.expand_path(".")
@@ -26,6 +27,10 @@ module Pakyow
 
           setting :loader_path do
             File.join(config.root, "config/loader")
+          end
+
+          defaults :test do
+            setting :exit_on_boot_failure, false
           end
 
           configurable :server do

@@ -12,6 +12,22 @@ RSpec.describe Pakyow do
       end
     end
 
+    describe "exit_on_boot_failure" do
+      it "has a default value" do
+        expect(Pakyow.config.exit_on_boot_failure).to eq(true)
+      end
+
+      context "in test" do
+        before do
+          Pakyow.configure!(:test)
+        end
+
+        it "defaults to false" do
+          expect(Pakyow.config.exit_on_boot_failure).to eq(false)
+        end
+      end
+    end
+
     describe "server.name" do
       it "has a default value" do
         expect(Pakyow.config.server.name).to eq(:puma)

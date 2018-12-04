@@ -379,7 +379,7 @@ module Pakyow
     rescue StandardError => error
       logger.error "Pakyow failed to boot: #{error}"
       logger.error error.backtrace
-      exit
+      exit if config.exit_on_boot_failure
     end
 
     def use(middleware, *args)
