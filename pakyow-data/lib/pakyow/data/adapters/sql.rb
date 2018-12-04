@@ -155,7 +155,7 @@ module Pakyow
                     <%- if attribute_type.meta[:primary_key] -%>
                     add_primary_key <%= attribute_name.inspect %>
                     <%- elsif attribute_type.meta[:foreign_key] -%>
-                    add_foreign_key <%= attribute_name.inspect %>, <%= attribute_type.meta[:foreign_key].inspect %>
+                    add_foreign_key <%= attribute_name.inspect %>, <%= attribute_type.meta[:foreign_key].inspect %>, type: <%= attribute_type.meta[:column_type].inspect %>
                     <%- else -%>
                     add_column <%= attribute_name.inspect %>, <%= attribute_type.meta[:column_type].inspect %><%= column_opts_string_for_attribute_type(attribute_type) %>
                     <%- end -%>
@@ -180,7 +180,7 @@ module Pakyow
                   <%- if attribute_type.meta[:primary_key] -%>
                   primary_key <%= attribute_name.inspect %>
                   <%- elsif attribute_type.meta[:foreign_key] -%>
-                  foreign_key <%= attribute_name.inspect %>, <%= attribute_type.meta[:foreign_key].inspect %>
+                  foreign_key <%= attribute_name.inspect %>, <%= attribute_type.meta[:foreign_key].inspect %>, type: <%= attribute_type.meta[:column_type].inspect %>
                   <%- else -%>
                   column <%= attribute_name.inspect %>, <%= attribute_type.meta[:column_type].inspect %><%= column_opts_string_for_attribute_type(attribute_type) %>
                   <%- end -%>
@@ -199,7 +199,7 @@ module Pakyow
           if attribute_type.meta[:primary_key]
             table.primary_key attribute_name, type: attribute_type.meta[:column_type]
           elsif attribute_type.meta[:foreign_key]
-            table.column attribute_name, attribute_type.meta[:column_type], **column_opts_for_attribute_type(attribute_type)
+            table.foreign_key attribute_name, attribute_type.meta[:foreign_key], type: attribute_type.meta[:column_type]
           else
             table.column attribute_name, attribute_type.meta[:column_type], **column_opts_for_attribute_type(attribute_type)
           end
@@ -308,12 +308,11 @@ module Pakyow
 
           def column_types_to_change
             {}.tap { |attributes|
-              attributes.each do |attribute_name, attribute_type|
+              self.attributes.each do |attribute_name, attribute_type|
                 if found_column = schema.find { |column| column[0] == attribute_name }
                   column_name, column_info = found_column
-
-                  unless column_info[:type] == attribute_type.meta(:db_type)
-                    attributes[column_name] = attribute_type.meta(:db_type)
+                  unless column_info[:type] == attribute_type.meta[:db_type]
+                    attributes[column_name] = attribute_type.meta[:db_type]
                   end
                 end
               end

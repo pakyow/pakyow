@@ -37,7 +37,7 @@ RSpec.describe "finalizing migration for a new foreign key" do
       Pakyow.migration do
         change do
           alter_table :comments do
-            add_foreign_key :post_id, :posts
+            add_foreign_key :post_id, :posts, type: :Bignum
           end
         end
       end

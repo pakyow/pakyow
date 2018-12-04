@@ -949,6 +949,12 @@ RSpec.shared_examples :source_associations_belongs_to do
       )
     end
 
+    let :foreign_key do
+      target_dataset.source.container.connection.adapter.connection.schema(
+        target_dataset.source.class.__object_name.name
+      )[2][1]
+    end
+
     it "is named appropriately" do
       expect(
         target_dataset.one.values.keys

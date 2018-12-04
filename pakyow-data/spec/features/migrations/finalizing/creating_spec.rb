@@ -22,6 +22,7 @@ RSpec.describe "finalizing migration for a new source" do
             primary_key :id
             column :title, String
             column :popularity, BigDecimal, size: [10, 2]
+            foreign_key :post_id, :posts, type: :Bignum
           end
         end
       end
@@ -39,6 +40,7 @@ RSpec.describe "finalizing migration for a new source" do
       source :posts do
         primary_id
         attribute :title
+        has_many :comments
       end
 
       source :comments do
