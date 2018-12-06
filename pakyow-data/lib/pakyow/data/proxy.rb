@@ -24,14 +24,14 @@ module Pakyow
       def method_missing(method_name, *args, &block)
         if @source.command?(method_name)
           dup.tap { |duped_proxy|
-            @source.command(method_name).call(*args) do |result|
-              duped_proxy.instance_variable_set(:@source, result)
+            result = @source.command(method_name).call(*args) { |yielded_result|
+              duped_proxy.instance_variable_set(:@source, yielded_result)
               yield duped_proxy if block_given?
+            }
 
-              @subscribers.did_mutate(
-                @source.source_name, args[0], result
-              )
-            end
+            @subscribers.did_mutate(
+              @source.source_name, args[0], result
+            )
           }
         elsif @source.query?(method_name) || @source.modifier?(method_name)
           dup.tap { |duped_proxy|
