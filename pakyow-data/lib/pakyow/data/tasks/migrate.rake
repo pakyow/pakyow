@@ -14,6 +14,8 @@ namespace :db do
       # FIXME: make this a nice error
       raise "Can't migrate with auto migrate enabled"
     else
+      Pakyow.boot
+
       migrator = Pakyow::Data::Migrator.establish(
         adapter: args[:adapter],
         connection: args[:connection]

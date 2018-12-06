@@ -10,47 +10,51 @@ module Pakyow
     class Migrator
       def initialize(adapter_type:, connection_name:, connection_opts: {})
         @adapter_type, @connection_name, @connection_opts = adapter_type, connection_name, connection_opts
+        @connection, @global_connection = nil
       end
 
       def connection
         @connection ||= Connection.new(opts: @connection_opts, type: @adapter_type, name: @connection_name)
       end
 
+      def global_connection
+        @global_connection ||= create_global_connection
+      end
+
       def disconnect!
-        if instance_variable_defined?(:@connection) && @connection.connected?
+        if @connection
           @connection.disconnect
+        end
+
+        yield if block_given?
+
+        if @global_connection
+          @global_connection.disconnect
         end
       end
 
       def migrate!
-        if migrations_to_run?
-          connection.migrate!(migration_path)
+        if migrations_to_run? && sources.any?
+          sources.first.const_get(:Migrator).new(sources, @connection).run!(migration_path)
         end
       end
 
       def auto_migrate!
-        Pakyow.apps.reject(&:rescued?).flat_map { |app| app.state(:source) }.select { |source|
-          connection.name == source.connection && connection.type == source.adapter
-        }.each do |source|
-          if connection.needs_migration?(source)
-            connection.auto_migrate!(source)
-          end
+        if sources.any?
+          sources.first.const_get(:Migrator).new(sources, @connection).auto_migrate!
         end
       end
 
       def finalize!
-        Pakyow.apps.flat_map { |app| app.state(:source) }.select { |source|
-          connection.name == source.connection && connection.type == source.adapter
-        }.each do |source|
-          if connection.needs_migration?(source)
-            action, content = connection.finalize_migration!(source)
-            filename = "#{Time.now.strftime("%Y%m%d%H%M%S")}_#{action}_#{source.plural_name}.rb"
+        if sources.any?
+          sources.first.const_get(:Migrator).new(sources, @connection).finalize!.each do |filename, content|
             FileUtils.mkdir_p(migration_path)
+
             File.open(File.join(migration_path, filename), "w+") do |file|
               file.write <<~CONTENT
-              Pakyow.migration do
-              #{content.split("\n").map { |line| "  #{line}" }.join("\n")}
-              end
+                Pakyow.migration do
+                #{content.to_s.split("\n").map { |line| "  #{line}" }.join("\n")}
+                end
               CONTENT
             end
           end
@@ -58,6 +62,12 @@ module Pakyow
       end
 
       private
+
+      def sources
+        Pakyow.apps.reject(&:rescued?).flat_map { |app| app.state(:source) }.select { |source|
+          connection.name == source.connection && connection.type == source.adapter
+        }
+      end
 
       def migrations
         Dir.glob(File.join(migration_path, "*.rb"))

@@ -3,7 +3,6 @@
 require "uri"
 require "forwardable"
 
-require "pakyow/support/core_refinements/string/normalization"
 require "pakyow/support/class_state"
 require "pakyow/support/deep_freeze"
 require "pakyow/support/inflector"
@@ -12,9 +11,7 @@ module Pakyow
   module Data
     class Connection
       extend Forwardable
-      def_delegators :@adapter, :dataset_for_source, :disconnect, :migratable?,
-                     :needs_migration?, :migrate!, :auto_migrate!,
-                     :finalize_migration!, :transaction
+      def_delegators :@adapter, :dataset_for_source, :disconnect, :transaction, :migratable?
 
       attr_reader :type, :name, :opts, :adapter
 
@@ -27,7 +24,9 @@ module Pakyow
         @opts = if opts.is_a?(Hash)
           opts
         else
-          self.class.parse_connection_string(string)
+          self.class.adapter(type).build_opts(
+            self.class.parse_connection_string(string)
+          )
         end
 
         @adapter = self.class.adapter(type).new(@opts, logger: logger)
@@ -42,16 +41,12 @@ module Pakyow
       end
 
       def auto_migrate?
-        @adapter.migratable? && @adapter.respond_to?(:auto_migrate!)
-      end
-
-      def finalize_migration?
-        @adapter.migratable? && @adapter.respond_to?(:finalize_migration!)
+        @adapter.migratable? && @adapter.auto_migratable?
       end
 
       def types
         if @adapter.class.const_defined?("TYPES")
-          @adapter.class.types_for_connection(self)
+          @adapter.class.types_for_adapter(adapter.connection.opts[:adapter])
         else
           nil
         end
@@ -61,14 +56,12 @@ module Pakyow
       class_state :adapter_types, default: []
 
       class << self
-        using Support::Refinements::String::Normalization
-
         def parse_connection_string(connection_string)
           uri = URI(connection_string)
 
           {
             adapter: uri.scheme,
-            path: String.normalize_path(uri.path)[1..-1],
+            path: uri.path,
             host: uri.host,
             port: uri.port,
             user: uri.user,

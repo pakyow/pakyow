@@ -163,13 +163,15 @@ module Pakyow
 
       def finalize_source_types!(source)
         source.attributes.each do |attribute_name, attribute_info|
-          type = Types.type_for(attribute_info[:type], connection.types)
+          if attribute_info.is_a?(Hash)
+            type = Types.type_for(attribute_info[:type], connection.types)
 
-          if attribute_name == source.primary_key_field
-            type = type.meta(primary_key: true)
+            if attribute_name == source.primary_key_field
+              type = type.meta(primary_key: true)
+            end
+
+            source.attributes[attribute_name] = type.meta(**attribute_info[:options])
           end
-
-          source.attributes[attribute_name] = type.meta(**attribute_info[:options])
         end
       end
     end

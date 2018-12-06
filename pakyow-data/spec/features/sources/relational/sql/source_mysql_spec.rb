@@ -9,27 +9,29 @@ require_relative "../shared_examples/query_default"
 require_relative "../shared_examples/results"
 require_relative "../shared_examples/types"
 
+require_relative "./shared_examples/migrations"
 require_relative "./shared_examples/raw"
 require_relative "./shared_examples/table"
 require_relative "./shared_examples/transactions"
 require_relative "./shared_examples/types"
 
 RSpec.describe "mysql source" do
-  include_examples :source_associations
-  include_examples :source_commands
-  include_examples :source_connection
-  include_examples :source_including
-  include_examples :source_logging
-  include_examples :source_qualifications
-  include_examples :source_queries
-  include_examples :source_query_default
-  include_examples :source_results
-  include_examples :source_types
+  it_behaves_like :source_associations
+  it_behaves_like :source_commands
+  it_behaves_like :source_connection
+  it_behaves_like :source_including
+  it_behaves_like :source_logging
+  it_behaves_like :source_qualifications
+  it_behaves_like :source_queries
+  it_behaves_like :source_query_default
+  it_behaves_like :source_results
+  it_behaves_like :source_types
 
-  include_examples :source_sql_raw
-  include_examples :source_sql_table
-  include_examples :source_sql_transactions
-  include_examples :source_sql_types
+  it_behaves_like :source_sql_migrations, adapter: :mysql2
+  it_behaves_like :source_sql_raw
+  it_behaves_like :source_sql_table
+  it_behaves_like :source_sql_transactions
+  it_behaves_like :source_sql_types
 
   let :connection_type do
     :sql
@@ -45,7 +47,7 @@ RSpec.describe "mysql source" do
     end
   end
 
-  describe "primary id" do
+  describe "default primary id" do
     let :data do
       Pakyow.apps.first.data
     end
@@ -94,9 +96,13 @@ RSpec.describe "mysql source" do
       expect(column[:db_type]).to eq("bigint(20)")
       expect(column[:type]).to eq(:integer)
     end
+
+    context "primary key is a custom type" do
+      it "is of the correct type"
+    end
   end
 
-  describe "foreign key" do
+  describe "default foreign key" do
     let :data do
       Pakyow.apps.first.data
     end
@@ -149,6 +155,156 @@ RSpec.describe "mysql source" do
     it "is a bignum integer" do
       expect(column[:db_type]).to eq("bigint(20)")
       expect(column[:type]).to eq(:integer)
+    end
+
+    context "primary key for the foreign source is a custom type" do
+      it "matches the type"
+    end
+  end
+
+  describe "column types" do
+    let :data do
+      Pakyow.apps.first.data
+    end
+
+    before do
+      local_connection_type, local_connection_string = connection_type, connection_string
+
+      Pakyow.after :configure do
+        config.data.connections.public_send(local_connection_type)[:default] = local_connection_string
+      end
+    end
+
+    include_context "testable app"
+
+    let :column do
+      data.posts.source.container.connection.adapter.connection.schema(:posts)[0][1]
+    end
+
+    let :app_definition do
+      context = self
+
+      Proc.new do
+        instance_exec(&$data_app_boilerplate)
+
+        source :posts do
+          attribute :test, context.type
+        end
+      end
+    end
+
+    describe "boolean" do
+      let :type do
+        :boolean
+      end
+
+      it "is the correct db type" do
+        expect(column[:db_type]).to eq("tinyint(1)")
+      end
+
+      it "is the correct type" do
+        expect(column[:type]).to eq(:boolean)
+      end
+    end
+
+    describe "date" do
+      let :type do
+        :date
+      end
+
+      it "is the correct db type" do
+        expect(column[:db_type]).to eq("date")
+      end
+    end
+
+    describe "datetime" do
+      let :type do
+        :datetime
+      end
+
+      it "is the correct db type" do
+        expect(column[:db_type]).to eq("datetime")
+      end
+    end
+
+    describe "decimal" do
+      let :type do
+        :decimal
+      end
+
+      it "is the correct db type" do
+        expect(column[:db_type]).to eq("decimal(10,2)")
+      end
+    end
+
+    describe "float" do
+      let :type do
+        :float
+      end
+
+      it "is the correct db type" do
+        expect(column[:db_type]).to eq("float")
+      end
+    end
+
+    describe "integer" do
+      let :type do
+        :integer
+      end
+
+      it "is the correct db type" do
+        expect(column[:db_type]).to eq("int(11)")
+      end
+    end
+
+    describe "string" do
+      let :type do
+        :string
+      end
+
+      it "is the correct db type" do
+        expect(column[:db_type]).to eq("varchar(255)")
+      end
+    end
+
+    describe "time" do
+      let :type do
+        :time
+      end
+
+      it "is the correct db type" do
+        expect(column[:db_type]).to eq("datetime")
+      end
+    end
+
+    describe "file" do
+      let :type do
+        :file
+      end
+
+      it "is the correct db type" do
+        expect(column[:db_type]).to eq("blob")
+      end
+    end
+
+    describe "text" do
+      let :type do
+        :text
+      end
+
+      it "is the correct db type" do
+        expect(column[:db_type]).to eq("text")
+      end
+    end
+
+    describe "bignum" do
+      let :type do
+        :bignum
+      end
+
+      it "is the correct db type" do
+        expect(column[:db_type]).to eq("bigint(20)")
+      end
     end
   end
 end

@@ -17,7 +17,7 @@ RSpec.shared_context "testable app" do
     run_app if autorun
   end
 
-  def run_app
-    run(env: respond_to?(:mode) ? mode : :test)
+  def run_app(env: respond_to?(:mode) ? mode : :test)
+    setup(env: env) && run
   end
 end

@@ -122,7 +122,3 @@ RSpec.describe "auto migrating on boot" do
     end
   end
 end
-
-RSpec.describe "auto migrating" do
-  it "needs to be defined"
-end

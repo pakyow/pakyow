@@ -7,21 +7,22 @@ module Pakyow
     class PostgresMigrator < Migrator
       migrates :postgres
 
-      def global_connection
-        return @global_connection if @global_connection
-        global_connection_opts = @connection_opts.dup
-        global_connection_opts[:path] = "template1"
-        @global_connection = Sequel.connect(global_connection_opts)
-      end
-
       def create!
-        global_connection.run("CREATE DATABASE \"#{@connection_opts[:path]}\"")
+        global_connection.adapter.connection.run("CREATE DATABASE \"#{@connection_opts[:path]}\"")
       end
 
       def drop!
-        global_connection.run("DROP DATABASE \"#{@connection_opts[:path]}\"")
+        global_connection.adapter.connection.run("DROP DATABASE \"#{@connection_opts[:path]}\"")
       rescue Sequel::DatabaseError => e
         Pakyow.logger.warn "Failed to drop database `#{@connection_opts[:path]}`: #{e}"
+      end
+
+      private
+
+      def create_global_connection
+        global_connection_opts = @connection_opts.dup
+        global_connection_opts[:path] = "template1"
+        Connection.new(opts: global_connection_opts, type: :sql, name: :global)
       end
     end
   end

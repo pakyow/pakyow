@@ -16,7 +16,7 @@ RSpec.describe "app initializers" do
   end
 
   after do
-    run(env: :test)
+    run_app(env: :test)
   end
 
   context "single app environment" do

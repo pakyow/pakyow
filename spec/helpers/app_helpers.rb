@@ -1,7 +1,11 @@
 module AppHelpers
-  def run(env: :test)
+  def setup(env: :test)
     Pakyow.mount app, at: "/", &app_runtime_block
-    @app = Pakyow.setup(env: env).run
+    Pakyow.setup(env: env)
+  end
+
+  def run
+    @app = Pakyow.run
   end
 
   def call(path = "/", opts = {})

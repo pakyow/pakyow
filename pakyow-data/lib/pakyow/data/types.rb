@@ -8,14 +8,14 @@ module Pakyow
       include Dry::Types.module
 
       MAPPING = {
-        boolean: Bool,
-        date: Date,
-        datetime: DateTime,
-        decimal: Coercible::Decimal,
-        float: Coercible::Float,
-        integer: Coercible::Integer,
-        string: Coercible::String,
-        time: Time
+        boolean: Bool.meta(mapping: :boolean),
+        date: Date.meta(mapping: :date),
+        datetime: DateTime.meta(mapping: :datetime),
+        decimal: Coercible::Decimal.meta(mapping: :decimal),
+        float: Coercible::Float.meta(mapping: :float),
+        integer: Coercible::Integer.meta(mapping: :integer),
+        string: Coercible::String.meta(mapping: :string),
+        time: Time.meta(mapping: :time)
       }.freeze
 
       def self.type_for(type, additional_types = {})

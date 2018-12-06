@@ -36,7 +36,8 @@ namespace :db do
 
     # Cleanup.
     #
-    migrator.disconnect!
-    migrator.drop!
+    migrator.disconnect! do
+      migrator.drop!
+    end
   end
 end

@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require "erb"
-
 require "sequel"
 
 require "pakyow/support/deep_freeze"
 require "pakyow/support/extension"
+
+require "pakyow/support/core_refinements/string/normalization"
 
 require "pakyow/data/adapters/abstract"
 
@@ -13,15 +13,23 @@ module Pakyow
   module Data
     module Adapters
       class Sql < Abstract
+        require "pakyow/data/adapters/sql/migrator"
+
         TYPES = {
           # overrides for default types
-          boolean: Types::Bool.meta(column_type: TrueClass, db_type: :boolean),
-          datetime: Types::DateTime.meta(db_type: :datetime),
-          decimal: Types::Coercible::Decimal.meta(column_type: BigDecimal, size: [10, 2]),
+          boolean: Data::Types::MAPPING[:boolean].meta(default: false, database_type: :boolean, column_type: :boolean),
+          date: Data::Types::MAPPING[:date].meta(database_type: :date),
+          datetime: Data::Types::MAPPING[:datetime].meta(database_type: DateTime),
+          decimal: Data::Types::MAPPING[:decimal].meta(database_type: BigDecimal, size: [10, 2]),
+          float: Data::Types::MAPPING[:float].meta(database_type: :float),
+          integer: Data::Types::MAPPING[:integer].meta(database_type: Integer),
+          string: Data::Types::MAPPING[:string].meta(database_type: String),
+          time: Data::Types::MAPPING[:time].meta(database_type: Time, column_type: :datetime),
 
           # sql-specific types
-          file: Types.Constructor(Sequel::SQL::Blob).meta(column_type: File),
-          text: Types::String.meta(text: true)
+          file: Types.Constructor(Sequel::SQL::Blob).meta(mapping: :file, database_type: File, column_type: :blob),
+          text: Types::Coercible::String.meta(mapping: :text, database_type: :text, column_type: :text, native_type: "text"),
+          bignum: Types::Coercible::Integer.meta(mapping: :bignum, database_type: :Bignum)
         }.freeze
 
         extend Support::DeepFreeze
@@ -85,7 +93,10 @@ module Pakyow
         end
 
         def disconnect
-          @connection.disconnect if connected?
+          if connected?
+            @connection.disconnect
+            @connection = nil
+          end
         end
 
         def connected?
@@ -96,148 +107,62 @@ module Pakyow
           true
         end
 
-        def needs_migration?(source)
-          Differ.new(connection: @connection, source: source).any?
+        def auto_migratable?
+          true
         end
 
-        def migrate!(migration_path)
-          Pakyow.module_eval do
-            unless singleton_class.instance_methods.include?(:migration)
-              def self.migration(&block)
-                Sequel.migration(&block)
+        def finalized_attribute(attribute)
+          if attribute.meta[:primary_key] || attribute.meta[:foreign_key]
+            begin
+              finalized_attribute = Data::Types.type_for(:"pk_#{attribute.meta[:mapping]}", Sql.types_for_adapter(@connection.opts[:adapter].to_sym)).dup
+
+              if attribute.meta[:primary_key]
+                finalized_attribute = finalized_attribute.meta(primary_key: attribute.meta[:primary_key])
               end
-            end
-          end
 
-          Sequel.extension :migration
-          Sequel::Migrator.run(@connection, migration_path)
-        end
-
-        def auto_migrate!(source)
-          differ = Differ.new(connection: @connection, source: source)
-
-          if differ.exists?
-            if differ.changes?
-              local_self = self
-              @connection.alter_table differ.table_name do
-                differ.attributes_to_add.each do |attribute_name, attribute_type|
-                  local_self.send(:add_column_for_attribute, attribute_name, attribute_type, self)
-                end
-
-                differ.columns_to_remove.keys.each do |column_name|
-                  local_self.send(:remove_column_by_name, column_name, self)
-                end
-
-                differ.column_types_to_change.each do |column_name, column_type|
-                  local_self.send(:change_column_type, column_name, column_type, self)
-                end
+              if attribute.meta[:foreign_key]
+                finalized_attribute = finalized_attribute.meta(foreign_key: attribute.meta[:foreign_key])
               end
+            rescue Pakyow::UnknownType
+              finalized_attribute = attribute.dup
             end
           else
-            local_self = self
-            @connection.create_table differ.table_name do
-              differ.attributes.each do |attribute_name, attribute_type|
-                local_self.send(:define_column_for_attribute, attribute_name, attribute_type, self)
-              end
-            end
+            finalized_attribute = attribute.dup
           end
-        end
 
-        def finalize_migration!(source)
-          differ = Differ.new(connection: @connection, source: source)
+          finalized_meta = finalized_attribute.meta.dup
 
-          if differ.exists?
-            if differ.changes?
-              template = <<~TEMPLATE
-                change do
-                  alter_table <%= differ.table_name.inspect %> do
-                    <%- differ.attributes_to_add.each do |attribute_name, attribute_type| -%>
-                    <%- if attribute_type.meta[:primary_key] -%>
-                    add_primary_key <%= attribute_name.inspect %>
-                    <%- elsif attribute_type.meta[:foreign_key] -%>
-                    add_foreign_key <%= attribute_name.inspect %>, <%= attribute_type.meta[:foreign_key].inspect %>, type: <%= attribute_type.meta[:column_type].inspect %>
-                    <%- else -%>
-                    add_column <%= attribute_name.inspect %>, <%= attribute_type.meta[:column_type].inspect %><%= column_opts_string_for_attribute_type(attribute_type) %>
-                    <%- end -%>
-                    <%- end -%>
-                    <%- differ.columns_to_remove.keys.each do |column_name| -%>
-                    drop_column <%= column_name.inspect %>
-                    <%- end -%>
-                    <%- differ.column_types_to_change.each do |column_name, column_type| -%>
-                    set_column_type <%= column_name.inspect %>, <%= column_type.inspect %>
-                    <%- end -%>
-                  end
-                end
-              TEMPLATE
-
-              return :change, ERB.new(template, nil, "%<>-").result(binding)
-            end
-          else
-            template = <<~TEMPLATE
-              change do
-                create_table <%= differ.table_name.inspect %> do
-                  <%- differ.attributes.each do |attribute_name, attribute_type| -%>
-                  <%- if attribute_type.meta[:primary_key] -%>
-                  primary_key <%= attribute_name.inspect %>
-                  <%- elsif attribute_type.meta[:foreign_key] -%>
-                  foreign_key <%= attribute_name.inspect %>, <%= attribute_type.meta[:foreign_key].inspect %>, type: <%= attribute_type.meta[:column_type].inspect %>
-                  <%- else -%>
-                  column <%= attribute_name.inspect %>, <%= attribute_type.meta[:column_type].inspect %><%= column_opts_string_for_attribute_type(attribute_type) %>
-                  <%- end -%>
-                  <%- end -%>
-                end
-              end
-            TEMPLATE
-
-            return :create, ERB.new(template, nil, "%<>-").result(binding)
+          if finalized_meta.include?(:mapping)
+            finalized_meta[:migration_type] = finalized_meta[:mapping]
           end
+
+          unless finalized_meta.include?(:migration_type)
+            finalized_meta[:migration_type] = migration_type_for_attribute(attribute)
+          end
+
+          unless finalized_meta.include?(:column_type)
+            finalized_meta[:column_type] = column_type_for_attribute(attribute)
+          end
+
+          unless finalized_meta.include?(:database_type)
+            finalized_meta[:database_type] = database_type_for_attribute(attribute)
+          end
+
+          finalized_attribute.meta(**finalized_meta)
         end
 
         private
 
-        def define_column_for_attribute(attribute_name, attribute_type, table)
-          if attribute_type.meta[:primary_key]
-            table.primary_key attribute_name, type: attribute_type.meta[:column_type]
-          elsif attribute_type.meta[:foreign_key]
-            table.foreign_key attribute_name, attribute_type.meta[:foreign_key], type: attribute_type.meta[:column_type]
-          else
-            table.column attribute_name, attribute_type.meta[:column_type], **column_opts_for_attribute_type(attribute_type)
-          end
+        def migration_type_for_attribute(attribute)
+          attribute.meta[:database_type] || attribute.primitive
         end
 
-        def add_column_for_attribute(attribute_name, attribute_type, table)
-          table.add_column attribute_name, attribute_type.meta[:column_type], **column_opts_for_attribute_type(attribute_type)
+        def column_type_for_attribute(attribute)
+          attribute.primitive.to_s.downcase.to_sym
         end
 
-        def remove_column_by_name(column_name, table)
-          table.drop_column column_name
-        end
-
-        def change_column_type(column_name, column_type, table)
-          table.set_column_type column_name, column_type
-        end
-
-        ALLOWED_COLUMN_OPTS = %i(size text)
-        def column_opts_for_attribute_type(attribute_type)
-          {}.tap do |opts|
-            ALLOWED_COLUMN_OPTS.each do |opt|
-              if value = attribute_type.meta[opt]
-                opts[opt] = value
-              end
-            end
-          end
-        end
-
-        def column_opts_string_for_attribute_type(attribute_type)
-          opts = column_opts_for_attribute_type(attribute_type)
-
-          if opts.any?
-            opts.each_with_object(String.new) { |(key, value), opts_string|
-              opts_string << ", #{key}: #{value.inspect}"
-            }
-          else
-            ""
-          end
+        def database_type_for_attribute(attribute)
+          attribute.primitive
         end
 
         class << self
@@ -247,90 +172,21 @@ module Pakyow
             mysql2: "Types::MySQL"
           }.freeze
 
-          def types_for_connection(connection)
-            connection_adapter = connection.adapter.connection.opts[:adapter]
-            TYPES.dup.merge(const_get(CONNECTION_TYPES[connection_adapter.to_sym])::TYPES)
-          end
-        end
-
-        # Diffs a data source with the table behind it.
-        #
-        class Differ
-          def initialize(connection:, source:)
-            @connection, @source = connection, source
+          def types_for_adapter(adapter)
+            TYPES.dup.merge(const_get(CONNECTION_TYPES[adapter.to_sym])::TYPES)
           end
 
-          def any?
-            !exists? || changes?
-          end
+          using Support::Refinements::String::Normalization
 
-          def exists?
-            @connection.table_exists?(table_name)
-          end
+          def build_opts(opts)
+            database = if opts[:adapter] == "sqlite"
+              opts[:path]
+            else
+              String.normalize_path(opts[:path])[1..-1]
+            end
 
-          def changes?
-            attributes_to_add.any? || columns_to_remove.any? || column_types_to_change.any?
-          end
-
-          def table_name
-            @source.dataset_table
-          end
-
-          def attributes
-            Hash[@source.attributes.map { |attribute_name, attribute_type|
-              finalized_type = attribute_type.dup
-              finalized_meta = finalized_type.meta.dup
-              finalized_meta[:column_type] ||= column_type_for_attribute_type(attribute_type)
-              finalized_meta[:db_type] ||= column_db_type_for_attribute_type(attribute_type)
-              [attribute_name, finalized_type.meta(**finalized_meta)]
-            }]
-          end
-
-          def attributes_to_add
-            {}.tap { |attributes|
-              self.attributes.each do |attribute_name, attribute_type|
-                unless schema.find { |column| column[0] == attribute_name }
-                  attributes[attribute_name] = attribute_type
-                end
-              end
-            }
-          end
-
-          def columns_to_remove
-            {}.tap { |columns|
-              schema.each do |column_name, column_info|
-                unless @source.attributes.keys.find { |attribute_name| attribute_name == column_name }
-                  columns[column_name] = column_info
-                end
-              end
-            }
-          end
-
-          def column_types_to_change
-            {}.tap { |attributes|
-              self.attributes.each do |attribute_name, attribute_type|
-                if found_column = schema.find { |column| column[0] == attribute_name }
-                  column_name, column_info = found_column
-                  unless column_info[:type] == attribute_type.meta[:db_type]
-                    attributes[column_name] = attribute_type.meta[:db_type]
-                  end
-                end
-              end
-            }
-          end
-
-          private
-
-          def schema
-            @connection.schema(table_name)
-          end
-
-          def column_type_for_attribute_type(attribute_type)
-            attribute_type.primitive
-          end
-
-          def column_db_type_for_attribute_type(attribute_type)
-            attribute_type.primitive.to_s.downcase.to_sym
+            opts[:path] = database
+            opts
           end
         end
 
@@ -350,7 +206,7 @@ module Pakyow
               end
 
               def primary_key_type
-                Pakyow::Data::Types::Coercible::Integer.meta(column_type: :Bignum)
+                :bignum
               end
             end
           end
@@ -379,18 +235,41 @@ module Pakyow
         module Types
           module Postgres
             TYPES = {
+              bignum: Sql::TYPES[:bignum].meta(native_type: "bigint"),
+              decimal: Sql::TYPES[:decimal].meta(column_type: :decimal),
+              integer: Sql::TYPES[:integer].meta(native_type: "integer"),
+              string: Sql::TYPES[:string].meta(native_type: "text"),
+              text: Sql::TYPES[:text].meta(column_type: :string),
+
               json: Pakyow::Data::Types.Constructor(:json) { |value|
                 Sequel.pg_json(value)
-              }.meta(db_type: :json)
+              }.meta(mapping: :json, database_type: :json)
             }.freeze
           end
 
           module SQLite
-            TYPES = {}.freeze
+            TYPES = {
+              bignum: Sql::TYPES[:bignum].meta(native_type: "bigint"),
+              decimal: Sql::TYPES[:decimal].meta(column_type: :decimal),
+              integer: Sql::TYPES[:integer].meta(native_type: "integer"),
+              string: Sql::TYPES[:string].meta(native_type: "varchar(255)"),
+              text: Sql::TYPES[:text].meta(column_type: :string),
+
+              # Used indirectly for migrations to override the column type (since
+              # sqlite doesn't support bignum as a primary key).
+              #
+              pk_bignum: Sql::TYPES[:bignum].meta(column_type: :integer)
+            }.freeze
           end
 
           module MySQL
-            TYPES = {}.freeze
+            TYPES = {
+              bignum: Sql::TYPES[:bignum].meta(native_type: "bigint(20)"),
+              decimal: Sql::TYPES[:decimal].meta(column_type: :decimal, native_type: "decimal(10,2)"),
+              integer: Sql::TYPES[:integer].meta(native_type: "int(11)"),
+              string: Sql::TYPES[:string].meta(native_type: "varchar(255)"),
+              text: Sql::TYPES[:text].meta(column_type: :string)
+            }.freeze
           end
         end
 

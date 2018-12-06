@@ -647,7 +647,7 @@ RSpec.describe Pakyow do
     end
 
     it "contains mounted app instances after boot" do
-      run
+      setup && run
       expect(Pakyow.apps).to include(app)
     end
   end

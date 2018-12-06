@@ -56,6 +56,7 @@ module Pakyow
       #
       class Relational < Sources::Abstract
         require "pakyow/data/sources/relational/command"
+        require "pakyow/data/sources/relational/migrator"
 
         # @api private
         attr_reader :container, :included

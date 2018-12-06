@@ -10,7 +10,7 @@ RSpec.describe "environment initializers" do
   end
 
   after do
-    run(env: :test)
+    run_app(env: :test)
   end
 
   it "loads each initializer" do

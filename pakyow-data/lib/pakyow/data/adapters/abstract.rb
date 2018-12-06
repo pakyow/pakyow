@@ -29,7 +29,7 @@ module Pakyow
         end
 
         class << self
-          def types_for_connection(_connection)
+          def types_for_adapter(_adapter)
           end
         end
 
