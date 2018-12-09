@@ -354,6 +354,10 @@ RSpec.shared_examples :source_types do
         end
 
         context "type is decimal" do
+          before do
+            require "bigdecimal"
+          end
+
           let :app_definition do
             Proc.new do
               instance_exec(&$data_app_boilerplate)
@@ -366,7 +370,7 @@ RSpec.shared_examples :source_types do
           end
 
           it "defines the attribute" do
-            expect(data.posts.create(attr: BigDecimal.new(1.12, 3)).one[:attr]).to eq(1.12)
+            expect(data.posts.create(attr: BigDecimal(1.12, 3)).one[:attr]).to eq(1.12)
           end
 
           context "size is defined" do
@@ -382,7 +386,7 @@ RSpec.shared_examples :source_types do
             end
 
             it "defines the attribute with the defined size" do
-              expect(data.posts.create(attr: BigDecimal.new(1.16, 2)).one[:attr]).to eq(1.2)
+              expect(data.posts.create(attr: BigDecimal(1.16, 2)).one[:attr]).to eq(1.2)
             end
           end
         end
