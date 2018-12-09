@@ -30,11 +30,8 @@ RSpec.shared_context "migration" do
   end
 
   def run_migrations
-    original_auto_migrate = Pakyow.config.data.auto_migrate
-    Pakyow.config.data.auto_migrate = false
     Rake::Task["db:migrate"].reenable
     Rake::Task["db:migrate"].invoke("sql", "default")
-    Pakyow.config.data.auto_migrate = original_auto_migrate
 
     # Invalidate the schema cache.
     #

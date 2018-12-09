@@ -10,19 +10,15 @@ namespace :db do
   option :adapter, "The adapter to migrate"
   option :connection, "The connection to migrate"
   task :migrate, [:adapter, :connection] do |_, args|
-    if Pakyow.config.data.auto_migrate
-      # FIXME: make this a nice error
-      raise "Can't migrate with auto migrate enabled"
-    else
-      Pakyow.boot
+    Pakyow.config.data.auto_migrate = false
 
-      migrator = Pakyow::Data::Migrator.connect(
-        adapter: args[:adapter],
-        connection: args[:connection]
-      )
+    Pakyow.boot
+    migrator = Pakyow::Data::Migrator.connect(
+      adapter: args[:adapter],
+      connection: args[:connection]
+    )
 
-      migrator.migrate!
-      migrator.disconnect!
-    end
+    migrator.migrate!
+    migrator.disconnect!
   end
 end
