@@ -13,7 +13,10 @@ module Pakyow
   module Data
     module Adapters
       class Sql < Abstract
+        require "pakyow/data/adapters/sql/commands"
+        require "pakyow/data/adapters/sql/dataset_methods"
         require "pakyow/data/adapters/sql/migrator"
+        require "pakyow/data/adapters/sql/source_extension"
 
         TYPES = {
           # overrides for default types
@@ -31,6 +34,8 @@ module Pakyow
           text: Types::Coercible::String.meta(mapping: :text, database_type: :text, column_type: :text, native_type: "text"),
           bignum: Types::Coercible::Integer.meta(mapping: :bignum, database_type: :Bignum)
         }.freeze
+
+        require "pakyow/data/adapters/sql/types"
 
         extend Support::DeepFreeze
         unfreezable :connection
@@ -196,133 +201,6 @@ module Pakyow
 
             opts[:path] = database
             opts
-          end
-        end
-
-        module SourceExtension
-          extend Support::Extension
-
-          apply_extension do
-            def sql
-              __getobj__.sql
-            end
-
-            class_state :dataset_table, default: self.__object_name.name
-
-            class << self
-              def table(table_name)
-                @dataset_table = table_name
-              end
-
-              def primary_key_type
-                :bignum
-              end
-            end
-          end
-        end
-
-        module DatasetMethods
-          def to_a(dataset)
-            dataset.all
-          rescue Sequel::Error => error
-            raise QueryError.build(error)
-          end
-
-          def one(dataset)
-            dataset.first
-          rescue Sequel::Error => error
-            raise QueryError.build(error)
-          end
-
-          def count(dataset)
-            dataset.count
-          rescue Sequel::Error => error
-            raise QueryError.build(error)
-          end
-        end
-
-        module Types
-          module Postgres
-            TYPES = {
-              bignum: Sql::TYPES[:bignum].meta(native_type: "bigint"),
-              decimal: Sql::TYPES[:decimal].meta(column_type: :decimal, native_type: ->(meta) { "numeric(#{meta[:size][0]},#{meta[:size][1]})" }),
-              integer: Sql::TYPES[:integer].meta(native_type: "integer"),
-              string: Sql::TYPES[:string].meta(native_type: "text"),
-              text: Sql::TYPES[:text].meta(column_type: :string),
-
-              json: Pakyow::Data::Types.Constructor(:json) { |value|
-                Sequel.pg_json(value)
-              }.meta(mapping: :json, database_type: :json)
-            }.freeze
-          end
-
-          module SQLite
-            TYPES = {
-              bignum: Sql::TYPES[:bignum].meta(native_type: "bigint"),
-              decimal: Sql::TYPES[:decimal].meta(column_type: :decimal, native_type: ->(meta) { "numeric(#{meta[:size][0]}, #{meta[:size][1]})" }),
-              integer: Sql::TYPES[:integer].meta(native_type: "integer"),
-              string: Sql::TYPES[:string].meta(native_type: "varchar(255)"),
-              text: Sql::TYPES[:text].meta(column_type: :string),
-
-              # Used indirectly for migrations to override the column type (since
-              # sqlite doesn't support bignum as a primary key).
-              #
-              pk_bignum: Sql::TYPES[:bignum].meta(column_type: :integer)
-            }.freeze
-          end
-
-          module MySQL
-            TYPES = {
-              bignum: Sql::TYPES[:bignum].meta(native_type: "bigint(20)"),
-              decimal: Sql::TYPES[:decimal].meta(column_type: :decimal, native_type: ->(meta) { "decimal(#{meta[:size][0]},#{meta[:size][1]})" }),
-              integer: Sql::TYPES[:integer].meta(native_type: "int(11)"),
-              string: Sql::TYPES[:string].meta(native_type: "varchar(255)"),
-              text: Sql::TYPES[:text].meta(column_type: :string)
-            }.freeze
-          end
-        end
-
-        module Commands
-          extend Support::Extension
-
-          apply_extension do
-            command :create, performs_create: true do |values|
-              begin
-                if inserted_primary_key = insert(values)
-                  where(self.class.primary_key_field => inserted_primary_key)
-                else
-                  where(values)
-                end
-              rescue Sequel::UniqueConstraintViolation => error
-                raise UniqueViolation.build(error)
-              rescue Sequel::ForeignKeyConstraintViolation => error
-                raise ConstraintViolation.build(error)
-              end
-            end
-
-            command :update, performs_update: true do |values|
-              __getobj__.select(self.class.primary_key_field).map { |result|
-                result[self.class.primary_key_field]
-              }.tap do
-                begin
-                  unless values.empty?
-                    update(values)
-                  end
-                rescue Sequel::UniqueConstraintViolation => error
-                  raise UniqueViolation.build(error)
-                rescue Sequel::ForeignKeyConstraintViolation => error
-                  raise ConstraintViolation.build(error)
-                end
-              end
-            end
-
-            command :delete, provides_dataset: false, performs_delete: true do
-              begin
-                delete
-              rescue Sequel::ForeignKeyConstraintViolation => error
-                raise ConstraintViolation.build(error)
-              end
-            end
           end
         end
       end
