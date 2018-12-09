@@ -43,11 +43,11 @@ module Pakyow
       end
 
       def finalize!
-        @sources.each do |source|
+        sources_to_finalize.each do |source|
           define_inverse_associations!(source)
         end
 
-        @sources.each do |source|
+        sources_to_finalize.each do |source|
           mixin_commands!(source)
           mixin_dataset_methods!(source)
           define_attributes_for_associations!(source)
@@ -56,7 +56,12 @@ module Pakyow
           define_methods_for_associations!(source)
           define_methods_for_objects!(source)
           finalize_source_types!(source)
+          source.finalized!
         end
+      end
+
+      def sources_to_finalize
+        @sources.reject(&:finalized?)
       end
 
       def mixin_commands!(source)
@@ -105,15 +110,13 @@ module Pakyow
         source.attributes.keys.each do |attribute|
           source.class_eval do
             method_name = :"by_#{attribute}"
-            unless instance_methods(false).include?(method_name)
-              define_method method_name do |value|
-                @container.connection.adapter.result_for_attribute_value(attribute, value, self)
-              end
-
-              # Qualify the query.
-              #
-              subscribe :"by_#{attribute}", attribute => :__arg0__
+            define_method method_name do |value|
+              @container.connection.adapter.result_for_attribute_value(attribute, value, self)
             end
+
+            # Qualify the query.
+            #
+            subscribe :"by_#{attribute}", attribute => :__arg0__
           end
         end
       end
@@ -163,15 +166,13 @@ module Pakyow
 
       def finalize_source_types!(source)
         source.attributes.each do |attribute_name, attribute_info|
-          if attribute_info.is_a?(Hash)
-            type = Types.type_for(attribute_info[:type], connection.types)
+          type = Types.type_for(attribute_info[:type], connection.types)
 
-            if attribute_name == source.primary_key_field
-              type = type.meta(primary_key: true)
-            end
-
-            source.attributes[attribute_name] = type.meta(attribute_info[:options])
+          if attribute_name == source.primary_key_field
+            type = type.meta(primary_key: true)
           end
+
+          source.attributes[attribute_name] = type.meta(attribute_info[:options])
         end
       end
     end
