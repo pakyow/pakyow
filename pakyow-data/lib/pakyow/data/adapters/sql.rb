@@ -148,6 +148,15 @@ module Pakyow
             finalized_meta[:database_type] = database_type_for_attribute(attribute)
           end
 
+          finalized_meta.each do |key, value|
+            finalized_meta[key] = case value
+            when Proc
+              value.call(finalized_meta)
+            else
+              value
+            end
+          end
+
           finalized_attribute.meta(**finalized_meta)
         end
 
@@ -236,7 +245,7 @@ module Pakyow
           module Postgres
             TYPES = {
               bignum: Sql::TYPES[:bignum].meta(native_type: "bigint"),
-              decimal: Sql::TYPES[:decimal].meta(column_type: :decimal),
+              decimal: Sql::TYPES[:decimal].meta(column_type: :decimal, native_type: ->(meta) { "numeric(#{meta[:size][0]},#{meta[:size][1]})" }),
               integer: Sql::TYPES[:integer].meta(native_type: "integer"),
               string: Sql::TYPES[:string].meta(native_type: "text"),
               text: Sql::TYPES[:text].meta(column_type: :string),
@@ -250,7 +259,7 @@ module Pakyow
           module SQLite
             TYPES = {
               bignum: Sql::TYPES[:bignum].meta(native_type: "bigint"),
-              decimal: Sql::TYPES[:decimal].meta(column_type: :decimal),
+              decimal: Sql::TYPES[:decimal].meta(column_type: :decimal, native_type: ->(meta) { "numeric(#{meta[:size][0]}, #{meta[:size][1]})" }),
               integer: Sql::TYPES[:integer].meta(native_type: "integer"),
               string: Sql::TYPES[:string].meta(native_type: "varchar(255)"),
               text: Sql::TYPES[:text].meta(column_type: :string),
@@ -265,7 +274,7 @@ module Pakyow
           module MySQL
             TYPES = {
               bignum: Sql::TYPES[:bignum].meta(native_type: "bigint(20)"),
-              decimal: Sql::TYPES[:decimal].meta(column_type: :decimal, native_type: "decimal(10,2)"),
+              decimal: Sql::TYPES[:decimal].meta(column_type: :decimal, native_type: ->(meta) { "decimal(#{meta[:size][0]},#{meta[:size][1]})" }),
               integer: Sql::TYPES[:integer].meta(native_type: "int(11)"),
               string: Sql::TYPES[:string].meta(native_type: "varchar(255)"),
               text: Sql::TYPES[:text].meta(column_type: :string)
