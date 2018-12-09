@@ -16,7 +16,7 @@ namespace :db do
     else
       Pakyow.boot
 
-      migrator = Pakyow::Data::Migrator.establish(
+      migrator = Pakyow::Data::Migrator.connect(
         adapter: args[:adapter],
         connection: args[:connection]
       )

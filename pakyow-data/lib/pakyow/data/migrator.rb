@@ -115,7 +115,7 @@ module Pakyow
           end
         end
 
-        def establish(adapter:, connection:, connection_overrides: {})
+        def connect(adapter:, connection:, connection_overrides: {})
           adapter = if adapter
             adapter.to_sym
           else

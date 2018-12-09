@@ -12,7 +12,7 @@ namespace :db do
   task :finalize, [:adapter, :connection] do |_, args|
     Pakyow.boot
 
-    migrator = Pakyow::Data::Migrator.establish(
+    migrator = Pakyow::Data::Migrator.connect(
       adapter: args[:adapter],
       connection: args[:connection],
       connection_overrides: {

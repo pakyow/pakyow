@@ -14,7 +14,7 @@ namespace :db do
       connection.disconnect
     end
 
-    migrator = Pakyow::Data::Migrator.establish(
+    migrator = Pakyow::Data::Migrator.connect(
       adapter: args[:adapter],
       connection: args[:connection]
     )
