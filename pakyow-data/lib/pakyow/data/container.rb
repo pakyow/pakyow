@@ -170,7 +170,7 @@ module Pakyow
               type = type.meta(primary_key: true)
             end
 
-            source.attributes[attribute_name] = type.meta(**attribute_info[:options])
+            source.attributes[attribute_name] = type.meta(attribute_info[:options])
           end
         end
       end

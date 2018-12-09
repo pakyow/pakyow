@@ -157,7 +157,7 @@ module Pakyow
             end
           end
 
-          finalized_attribute.meta(**finalized_meta)
+          finalized_attribute.meta(finalized_meta)
         end
 
         private
