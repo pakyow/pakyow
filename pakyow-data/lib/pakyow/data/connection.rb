@@ -48,7 +48,7 @@ module Pakyow
         if @adapter.class.const_defined?("TYPES")
           @adapter.class.types_for_adapter(adapter.connection.opts[:adapter])
         else
-          nil
+          {}
         end
       end
 
