@@ -42,7 +42,7 @@ RSpec.describe "auto migrating on boot" do
         # intentionally empty
       end
 
-      describe "migrating the source for a connection" do
+      describe "auto migrating sources for the connection" do
         let :app_definition do
           Proc.new {
             source :posts do
@@ -52,8 +52,8 @@ RSpec.describe "auto migrating on boot" do
         end
 
         def setup_expectations
-          expect_any_instance_of(Pakyow::Data::Connection).to receive(:auto_migrate!) { |_, source|
-            expect(source).to be(Test::Sources::Posts)
+          expect_any_instance_of(Pakyow::Data::Migrator).to receive(:auto_migrate!) { |migrator|
+            expect(migrator.send(:sources)).to eq([Test::Sources::Posts])
           }
         end
 
@@ -75,10 +75,12 @@ RSpec.describe "auto migrating on boot" do
           end
 
           def setup_expectations
-            expect_any_instance_of(Pakyow::Data::Connection).not_to receive(:auto_migrate!)
+            expect_any_instance_of(Pakyow::Data::Migrator).to receive(:auto_migrate!) { |migrator|
+              expect(migrator.send(:sources)).to eq([])
+            }
           end
 
-          it "does not auto migrate" do
+          it "does not auto migrate that app's sources" do
             # intentionally empty
           end
         end
