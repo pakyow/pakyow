@@ -42,7 +42,7 @@ RSpec.describe "sqlite source" do
   end
 
   after :all do
-    FileUtils.rm(File.expand_path("../test.db", __FILE__))
+    FileUtils.rm_f(File.expand_path("../test.db", __FILE__))
   end
 
   describe "primary id" do
