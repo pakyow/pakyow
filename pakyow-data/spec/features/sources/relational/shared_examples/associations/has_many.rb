@@ -88,7 +88,7 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise|
         end
 
         let :results do
-          target_dataset.update({}).including(association_name)
+          target_dataset.update.including(association_name)
         end
 
         it "includes the associated data in each result" do

@@ -127,20 +127,20 @@ RSpec.shared_examples :source_commands do
       context "updating without values" do
         it "does not fail" do
           expect {
-            data.posts.update({})
+            data.posts.update
           }.not_to raise_error
         end
 
         it "does not change any values" do
           expect {
-            data.posts.update({})
+            data.posts.update
           }.not_to change {
             data.posts.to_a.map(&:values)
           }
         end
 
         it "returns the results" do
-          result = data.posts.update({}).to_a
+          result = data.posts.update.to_a
           expect(result).to be_instance_of(Array)
           expect(result.count).to eq(2)
         end
