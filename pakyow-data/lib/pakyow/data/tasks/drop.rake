@@ -16,8 +16,7 @@ namespace :db do
       connection: args[:connection]
     )
 
-    migrator.disconnect! do
-      migrator.drop!
-    end
+    migrator.drop!
+    migrator.disconnect!
   end
 end
