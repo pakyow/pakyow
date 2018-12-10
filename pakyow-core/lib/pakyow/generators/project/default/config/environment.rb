@@ -3,7 +3,7 @@ Pakyow.configure do
 end
 
 Pakyow.configure :development do
-  config.data.connections.sql[:default] = "sqlite:///database/development.db"
+  config.data.connections.sql[:default] = "sqlite://database/development.db"
 end
 
 Pakyow.configure :production do
