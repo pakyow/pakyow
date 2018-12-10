@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "pakyow/support/core_refinements/string/normalization"
+
 require "pakyow/error"
 
 module Pakyow
@@ -11,14 +13,26 @@ module Pakyow
     end
 
     class UnknownPage < Error
+      using Support::Refinements::String::Normalization
+
       def message
         <<~MESSAGE
-        Pakyow couldn't render a view for `#{@context}`. Try creating a view template for this path:
+        Pakyow couldn't render a view for `#{String.normalize_path(@context)}`. Try creating a view template for this path:
 
-            frontend/pages#{@context}.html
+            frontend/pages#{template_path}.html
 
           * [Learn about view templates &rarr;](https://pakyow.com/docs/frontend/composition/)
         MESSAGE
+      end
+
+      private
+
+      def template_path
+        if @context.to_s.empty? || @context.to_s == "/"
+          "/index"
+        else
+          @context
+        end
       end
     end
 
