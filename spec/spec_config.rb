@@ -52,6 +52,7 @@ RSpec.configure do |config|
         state[class_level_ivar] = Pakyow.instance_variable_get(class_level_ivar).deep_dup
       end
 
+      allow(Pakyow).to receive(:exit)
       allow(Process).to receive(:exit)
     end
   end
