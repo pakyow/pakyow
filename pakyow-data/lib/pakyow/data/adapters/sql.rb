@@ -188,7 +188,11 @@ module Pakyow
 
           def build_opts(opts)
             database = if opts[:adapter] == "sqlite"
-              opts[:path]
+              if opts[:host]
+                File.join(opts[:host], opts[:path])
+              else
+                opts[:path]
+              end
             else
               String.normalize_path(opts[:path])[1..-1]
             end
