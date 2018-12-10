@@ -10,10 +10,6 @@ RSpec.shared_examples :source_types do
 
     include_context "testable app"
 
-    let :data do
-      Pakyow.apps.first.data
-    end
-
     context "defining a primary key" do
       context "primary key attribute is defined" do
         let :app_definition do

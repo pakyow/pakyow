@@ -16,6 +16,7 @@ module Pakyow
         require "pakyow/data/adapters/sql/commands"
         require "pakyow/data/adapters/sql/dataset_methods"
         require "pakyow/data/adapters/sql/migrator"
+        require "pakyow/data/adapters/sql/runner"
         require "pakyow/data/adapters/sql/source_extension"
 
         TYPES = {

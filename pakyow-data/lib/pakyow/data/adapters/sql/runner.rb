@@ -9,7 +9,11 @@ module Pakyow
             @connection, @migration_path = connection, migration_path
           end
 
-          def perform
+          def disconnect!
+            @connection.disconnect
+          end
+
+          def run!
             Pakyow.module_eval do
               unless singleton_class.instance_methods.include?(:migration)
                 def self.migration(&block)

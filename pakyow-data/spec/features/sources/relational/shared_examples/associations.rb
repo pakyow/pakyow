@@ -14,10 +14,6 @@ RSpec.shared_examples :source_associations do
 
     include_context "testable app"
 
-    let :data do
-      Pakyow.apps.first.data
-    end
-
     describe "belongs_to" do
       let :app_definition do
         Proc.new do

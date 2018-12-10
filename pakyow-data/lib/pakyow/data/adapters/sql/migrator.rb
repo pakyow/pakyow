@@ -1,25 +1,50 @@
 # frozen_string_literal: true
 
 require "pakyow/data/adapters/sql/differ"
+require "pakyow/data/sources/relational/migrator"
 
 module Pakyow
   module Data
     module Adapters
       class Sql
-        class Migrator
-          def initialize(connection)
-            @connection = connection
+        class Migrator < Sources::Relational::Migrator
+          require "pakyow/data/adapters/sql/migrator/adapter_methods"
+
+          def initialize(*)
+            super
+
+            @global_connection = nil
+
+            case @connection.opts[:adapter]
+            when "mysql", "mysql2"
+              extend AdapterMethods::Mysql
+            when "postgres"
+              extend AdapterMethods::Postgres
+            when "sqlite"
+              extend AdapterMethods::Sqlite
+            end
           end
 
-          def create?(source)
+          def disconnect!
+            @connection.disconnect
+            if @global_connection
+              @global_connection.disconnect
+            end
+          end
+
+          def global_connection
+            @global_connection ||= create_global_connection
+          end
+
+          def create_source?(source)
             !differ(source).exists?
           end
 
-          def change?(source, attributes = source.attributes)
-            create?(source) || differ(source, attributes).changes?
+          def change_source?(source, attributes = source.attributes)
+            create_source?(source) || differ(source, attributes).changes?
           end
 
-          def create!(source, attributes)
+          def create_source!(source, attributes)
             local_context = self
             differ = differ(source, attributes)
             create_table differ.table_name do
@@ -29,15 +54,15 @@ module Pakyow
             end
           end
 
-          def reassociate!(source, foreign_keys)
+          def reassociate_source!(source, foreign_keys)
             foreign_keys.each do |foreign_key_name, foreign_key|
-              differ = differ(source, { foreign_key_name => foreign_key })
+              differ = differ(source, foreign_key_name => foreign_key)
 
-              if create?(source) || differ.changes?
+              if create_source?(source) || differ.changes?
                 local_context = self
 
                 associate_table differ.table_name, with: foreign_key.meta[:foreign_key] do
-                  attributes_to_add = if local_context.send(:create?, source)
+                  attributes_to_add = if local_context.send(:create_source?, source)
                     differ.attributes
                   else
                     differ.attributes_to_add
@@ -51,7 +76,7 @@ module Pakyow
             end
           end
 
-          def change!(source, attributes)
+          def change_source!(source, attributes)
             differ = differ(source, attributes)
 
             if differ.changes?
@@ -62,7 +87,7 @@ module Pakyow
                   local_context.send(:add_column_for_attribute, attribute_name, attribute, self, method_prefix: "add_")
                 end
 
-                differ.column_types_to_change.each do |column_name, column_type|
+                differ.column_types_to_change.each do |column_name, _column_type|
                   local_context.send(:change_column_type_for_attribute, column_name, differ.attributes[column_name], self)
                 end
 
@@ -76,6 +101,16 @@ module Pakyow
           end
 
           private
+
+          def automator
+            require "pakyow/data/adapters/sql/migrators/automator"
+            Migrators::Automator.new(@connection, sources: @sources)
+          end
+
+          def finalizer
+            require "pakyow/data/adapters/sql/migrators/finalizer"
+            Migrators::Finalizer.new(@connection, sources: @sources)
+          end
 
           def differ(source, attributes = source.attributes)
             Differ.new(connection: @connection, source: source, attributes: attributes)

@@ -36,6 +36,44 @@ RSpec.configure do |config|
 
     Pakyow.data_connections.values.flat_map(&:values).each(&:disconnect)
   end
+
+  def connection_name
+    :default
+  end
+
+  def connection_type
+    :sql
+  end
+
+  def data
+    Pakyow.apps.first.data
+  end
+
+  def connection
+    Pakyow.data_connections[connection_type][connection_name]
+  end
+
+  def raw_connection
+    connection.adapter.connection
+  end
+
+  def schema(table)
+    # For some reason the reload option doesn't discover new tables.
+    #
+    raw_connection.tables
+
+    raw_connection.schema(table, reload: true)
+  end
+
+  def setup(*)
+    # Disconnect any existing data connections. Prevents issues when setup is called more than once.
+    #
+    Pakyow.data_connections.values.flat_map(&:values).each(&:disconnect)
+
+    # Reset the apps list, so we're always working with a predictable set.
+    #
+    Pakyow.instance_variable_set(:@apps, [])
+  end
 end
 
 require_relative "../../spec/context/testable_app_context"

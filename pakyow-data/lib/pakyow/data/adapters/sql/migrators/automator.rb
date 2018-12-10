@@ -7,8 +7,8 @@ module Pakyow
     module Adapters
       class Sql
         module Migrators
-          class Automatic < Migrator
-            def associate_table(name, with:, &block)
+          class Automator < Migrator
+            def associate_table(name, **, &block)
               alter_table(name, &block)
             end
 

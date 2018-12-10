@@ -27,6 +27,8 @@ module Pakyow
           end
 
           after :setup do
+            # Create new connections.
+            #
             @data_connections = Pakyow::Data::Connection.adapter_types.each_with_object({}) { |connection_type, connections|
               connections[connection_type] = Pakyow.config.data.connections.public_send(connection_type).each_with_object({}) { |(connection_name, connection_string), adapter_connections|
                 extra_options = {}
@@ -44,6 +46,8 @@ module Pakyow
               }
             }
 
+            # Register a prelaunch task to migrate every migratable connection.
+            #
             @data_connections.each do |adapter, connections|
               connections.each do |connection_name, connection|
                 if connection.migratable? && connection_name != :memory

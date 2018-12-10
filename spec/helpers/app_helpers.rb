@@ -1,5 +1,6 @@
 module AppHelpers
   def setup(env: :test)
+    super if defined?(super)
     Pakyow.mount app, at: "/", &app_runtime_block
     Pakyow.setup(env: env)
   end

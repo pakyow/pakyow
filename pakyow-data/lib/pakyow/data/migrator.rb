@@ -3,69 +3,85 @@
 require "uri"
 require "sequel"
 
-require "pakyow/support/class_state"
+require "pakyow/support/inflector"
 
 module Pakyow
   module Data
     class Migrator
-      def initialize(adapter_type:, connection_name:, connection_opts: {})
-        @adapter_type, @connection_name, @connection_opts = adapter_type, connection_name, connection_opts
-        @connection, @global_connection = nil
+      def initialize(connection)
+        @connection = connection
       end
 
-      def connection
-        @connection ||= Connection.new(opts: @connection_opts, type: @adapter_type, name: @connection_name)
-      end
-
-      def global_connection
-        @global_connection ||= create_global_connection
-      end
+      IVARS_TO_DISCONNECT = %i(@runner @migrator).freeze
 
       def disconnect!
-        if @connection
-          @connection.disconnect
+        IVARS_TO_DISCONNECT.each do |ivar|
+          if instance_variable_defined?(ivar) && value = instance_variable_get(ivar)
+            value.disconnect!
+          end
         end
 
-        yield if block_given?
+        @connection.disconnect
+      end
 
-        if @global_connection
-          @global_connection.disconnect
-        end
+      def create!
+        migrator.create!
+        disconnect!
+
+        # Recreate the connection, since we just created the database it's supposed to connect to.
+        #
+        @connection = Connection.new(
+          opts: @connection.opts,
+          type: @connection.type,
+          name: @connection.name
+        )
+      end
+
+      def drop!
+        migrator.drop!
       end
 
       def migrate!
-        if migrations_to_run? && sources.any?
-          sources.first.const_get(:Migrator).new(sources, @connection).run!(migration_path)
+        if migrations_to_run?
+          runner.run!
         end
       end
 
       def auto_migrate!
-        if sources.any?
-          sources.first.const_get(:Migrator).new(sources, @connection).auto_migrate!
-        end
+        migrator.auto_migrate!
       end
 
       def finalize!
-        if sources.any?
-          sources.first.const_get(:Migrator).new(sources, @connection).finalize!.each do |filename, content|
-            FileUtils.mkdir_p(migration_path)
+        migrator.finalize!.each do |filename, content|
+          FileUtils.mkdir_p(migration_path)
 
-            File.open(File.join(migration_path, filename), "w+") do |file|
-              file.write <<~CONTENT
-                Pakyow.migration do
-                #{content.to_s.split("\n").map { |line| "  #{line}" }.join("\n")}
-                end
-              CONTENT
-            end
+          File.open(File.join(migration_path, filename), "w+") do |file|
+            file.write <<~CONTENT
+              Pakyow.migration do
+              #{content.to_s.split("\n").map { |line| "  #{line}" }.join("\n")}
+              end
+            CONTENT
           end
         end
       end
 
       private
 
+      def migrator
+        @migrator = Adapters.const_get(Support.inflector.classify(@connection.type)).const_get(:Migrator).new(
+          @connection, sources: sources
+        )
+      end
+
+      def runner
+        @runner = Adapters.const_get(Support.inflector.classify(@connection.type)).const_get(:Runner).new(
+          @connection, migration_path
+        )
+      end
+
       def sources
         Pakyow.apps.reject(&:rescued?).flat_map { |app| app.state(:source) }.select { |source|
-          connection.name == source.connection && connection.type == source.adapter
+          source.connection == @connection.name && source.adapter == @connection.type
         }
       end
 
@@ -78,7 +94,7 @@ module Pakyow
       end
 
       def migration_path
-        File.join(Pakyow.config.data.migration_path, "#{@adapter_type}/#{@connection_name}")
+        File.join(Pakyow.config.data.migration_path, "#{@connection.type}/#{@connection.name}")
       end
 
       def track_exported_migrations
@@ -87,32 +103,9 @@ module Pakyow
         migrations - initial_migrations
       end
 
-      extend Support::ClassState
-      class_state :migrators, default: []
-      class_state :adapters, default: [], inheritable: true
-
       class << self
-        def inherited(subclass)
-          @migrators << subclass
-        end
-
-        def migrates(*adapters)
-          @adapters = adapters
-        end
-
         def migrator_for_adapter(adapter)
-          @migrators.find { |migrator|
-            migrator.adapters.include?(adapter.to_sym)
-          }
-        end
-
-        def with_connection(connection)
-          allocate.tap do |instance|
-            instance.instance_variable_set(:@connection, connection)
-            instance.instance_variable_set(:@adapter_type, connection.type)
-            instance.instance_variable_set(:@connection_name, connection.name)
-            instance.instance_variable_set(:@connection_opts, connection.opts)
-          end
+          Adapters.const_get(Support.inflector.camelize(adapter)).const_get(:Migrator)
         end
 
         def connect(adapter:, connection:, connection_overrides: {})
@@ -139,16 +132,7 @@ module Pakyow
             end
           end
 
-          if migrator_class = Pakyow::Data::Migrator.migrator_for_adapter(connection_opts[:adapter])
-            migrator_class.new(
-              adapter_type: adapter,
-              connection_name: connection,
-              connection_opts: connection_opts
-            )
-          else
-            # FIXME: make this a nice error
-            raise "Unknown migrator for database type `#{connection_opts[:adapter]}'"
-          end
+          new(Connection.new(opts: connection_opts, type: adapter, name: connection))
         end
 
         def parse_connection_string(connection_string)

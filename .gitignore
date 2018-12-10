@@ -13,3 +13,4 @@ Gemfile.lock
 examples.txt
 bin
 node_modules
+*.db

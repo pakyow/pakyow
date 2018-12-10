@@ -10,10 +10,6 @@ RSpec.shared_examples :source_results do
 
     include_context "testable app"
 
-    let :data do
-      Pakyow.apps.first.data
-    end
-
     let :app_definition do
       Proc.new do
         instance_exec(&$data_app_boilerplate)

@@ -5,21 +5,19 @@ module Pakyow
     module Sources
       class Relational
         class Migrator
-          def initialize(sources, connection)
-            @sources, @connection = sources, connection
+          def initialize(connection, sources: [])
+            @connection, @sources = connection, sources
           end
 
           def auto_migrate!
             if @sources.any?
-              require "pakyow/data/adapters/#{@sources.first.adapter}/migrators/automatic"
-              migrate!(@connection.adapter.class.const_get(:Migrators).const_get(:Automatic).new(@connection))
+              migrate!(automator)
             end
           end
 
           def finalize!
             if @sources.any?
-              require "pakyow/data/adapters/#{@sources.first.adapter}/migrators/finalizer"
-              migrator = @connection.adapter.class.const_get(:Migrators).const_get(:Finalizer).new(@connection)
+              migrator = finalizer
               migrate!(migrator)
 
               # Return the migrations that need to be created.
@@ -37,19 +35,22 @@ module Pakyow
             end
           end
 
-          def run!(migration_path)
-            require "pakyow/data/adapters/#{@sources.first.adapter}/runner"
-            @connection.adapter.class.const_get(:Runner).new(@connection, migration_path).perform
+          private
+
+          def automator
+            self
           end
 
-          private
+          def finalizer
+            self
+          end
 
           def migrate!(migrator)
             # Create any new sources, without foreign keys since they could reference a source that does not yet exist.
             #
             @sources.each do |source|
-              if migrator.create?(source)
-                migrator.create!(source, source.attributes.reject { |_name, attribute| attribute.meta[:foreign_key] })
+              if migrator.create_source?(source)
+                migrator.create_source!(source, source.attributes.reject { |_name, attribute| attribute.meta[:foreign_key] })
               end
             end
 
@@ -60,21 +61,21 @@ module Pakyow
                 attribute.meta[:foreign_key]
               }
 
-              if migrator.change?(source, foreign_keys)
-                migrator.reassociate!(source, foreign_keys)
+              if migrator.change_source?(source, foreign_keys)
+                migrator.reassociate_source!(source, foreign_keys)
               end
             end
 
             # Change any existing sources, including adding / removing attributes.
             #
             @sources.each do |source|
-              unless migrator.create?(source)
+              unless migrator.create_source?(source)
                 attributes = source.attributes.reject { |_name, attribute|
                   attribute.meta[:foreign_key]
                 }
 
-                if migrator.change?(source, attributes)
-                  migrator.change!(source, attributes)
+                if migrator.change_source?(source, attributes)
+                  migrator.change_source!(source, attributes)
                 end
               end
             end

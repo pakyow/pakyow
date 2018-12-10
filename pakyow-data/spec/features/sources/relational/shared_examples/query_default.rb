@@ -10,10 +10,6 @@ RSpec.shared_examples :source_query_default do
 
     include_context "testable app"
 
-    let :data do
-      Pakyow.apps.first.data
-    end
-
     context "query is referenced by name" do
       let :app_definition do
         Proc.new do

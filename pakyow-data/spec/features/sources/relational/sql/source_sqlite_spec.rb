@@ -46,10 +46,6 @@ RSpec.describe "sqlite source" do
   end
 
   describe "primary id" do
-    let :data do
-      Pakyow.apps.first.data
-    end
-
     before do
       local_connection_type, local_connection_string = connection_type, connection_string
 
@@ -71,7 +67,7 @@ RSpec.describe "sqlite source" do
     end
 
     let :column do
-      data.posts.source.container.connection.adapter.connection.schema(:posts)[0][1]
+      schema(:posts)[0][1]
     end
 
     it "is a primary key" do
@@ -97,10 +93,6 @@ RSpec.describe "sqlite source" do
   end
 
   describe "foreign key" do
-    let :data do
-      Pakyow.apps.first.data
-    end
-
     before do
       local_connection_type, local_connection_string = connection_type, connection_string
 
@@ -127,7 +119,7 @@ RSpec.describe "sqlite source" do
     end
 
     let :column do
-      data.comments.source.container.connection.adapter.connection.schema(:comments)[1][1]
+      schema(:comments)[1][1]
     end
 
     it "is not a primary key" do
@@ -153,10 +145,6 @@ RSpec.describe "sqlite source" do
   end
 
   describe "column types" do
-    let :data do
-      Pakyow.apps.first.data
-    end
-
     before do
       local_connection_type, local_connection_string = connection_type, connection_string
 
@@ -168,7 +156,7 @@ RSpec.describe "sqlite source" do
     include_context "testable app"
 
     let :column do
-      data.posts.source.container.connection.adapter.connection.schema(:posts)[0][1]
+      schema(:posts)[0][1]
     end
 
     let :app_definition do

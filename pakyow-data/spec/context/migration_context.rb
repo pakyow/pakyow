@@ -32,10 +32,6 @@ RSpec.shared_context "migration" do
   def run_migrations
     Rake::Task["db:migrate"].reenable
     Rake::Task["db:migrate"].invoke("sql", "default")
-
-    # Invalidate the schema cache.
-    #
-    Pakyow.data_connections[:sql][:default].adapter.connection.tables
   end
 
   def finalize_migrations(count_before, count_after)
@@ -44,10 +40,6 @@ RSpec.shared_context "migration" do
       Rake::Task["db:finalize"].invoke("sql", "default")
       verify_migration_count(count_after)
     end
-
-    # Invalidate the schema cache.
-    #
-    Pakyow.data_connections[:sql][:default].adapter.connection.tables
   end
 
   private

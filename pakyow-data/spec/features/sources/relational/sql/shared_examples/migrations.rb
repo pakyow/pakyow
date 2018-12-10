@@ -15,23 +15,7 @@ RSpec.shared_examples :source_sql_migrations do |adapter:|
     type.to_s.start_with?("pk_")
   }
 
-  def schema(table)
-    raw_connection.schema(table)
-  end
-
-  let :data do
-    Pakyow.apps.first.data
-  end
-
-  let :connection do
-    Pakyow.data_connections[:sql][:default]
-  end
-
-  let :raw_connection do
-    connection.adapter.connection
-  end
-
-  let :migrator do
+  def migrator
     Pakyow::Data::Adapters::Sql::Migrator.new(connection)
   end
 

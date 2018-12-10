@@ -48,10 +48,6 @@ RSpec.shared_examples :source_including do
       end
     end
 
-    let :data do
-      Pakyow.apps.first.data
-    end
-
     describe "including multiple associations" do
       before do
         data.posts.create(
