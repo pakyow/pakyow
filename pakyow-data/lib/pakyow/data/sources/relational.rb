@@ -124,7 +124,7 @@ module Pakyow
           @results = self.class.to_a(__getobj__)
           include_results!(@results)
           @results.map! { |result|
-            wrap(result)
+            finalize(result)
           }
         end
 
@@ -134,7 +134,7 @@ module Pakyow
 
           if result = self.class.one(__getobj__)
             include_results!([result])
-            @result = wrap(result)
+            @result = finalize(result)
           else
             nil
           end
@@ -218,6 +218,20 @@ module Pakyow
         end
 
         private
+
+        def finalize(result)
+          wrap(typecast(result))
+        end
+
+        def typecast(result)
+          result.each do |key, value|
+            unless value.nil? || !self.class.attributes.include?(key)
+              result[key] = self.class.attributes[key][value]
+            end
+          end
+
+          result
+        end
 
         def wrap(result)
           wrapped_result = if @wrap_as.is_a?(Class)
