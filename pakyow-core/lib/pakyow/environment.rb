@@ -213,6 +213,11 @@ module Pakyow
       end
 
       self
+    rescue => error
+      Pakyow.logger.error("Pakyow failed to initialize.\n")
+      Pakyow.logger.error(error: error)
+
+      exit
     end
 
     def to_app
