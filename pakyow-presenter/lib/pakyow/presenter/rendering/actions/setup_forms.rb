@@ -41,11 +41,11 @@ module Pakyow
           elsif form.view.labeled?(:binding)
             case renderer.connection.env["pakyow.endpoint.name"]
             when :new
-              form.create({})
+              form.create
             when :edit
               form.update(renderer.connection.params)
             else
-              form.create({})
+              form.create
             end
           end
         end

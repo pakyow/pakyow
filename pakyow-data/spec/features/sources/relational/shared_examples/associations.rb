@@ -252,11 +252,11 @@ RSpec.shared_examples :source_associations do
 
         before do
           data.comments.create(
-            post: data.posts.create({})
+            post: data.posts.create
           )
 
           data.comments.create(
-            post: data.posts.create({})
+            post: data.posts.create
           )
         end
 
@@ -285,7 +285,7 @@ RSpec.shared_examples :source_associations do
           end
 
           it "treats it as singular" do
-            data.comments.create(post: data.posts.create({}))
+            data.comments.create(post: data.posts.create)
             expect(data.comments.one.post_id).to_not be(nil)
           end
         end
@@ -571,11 +571,11 @@ RSpec.shared_examples :source_associations do
 
         before do
           data.posts.create(
-            comment: data.comments.create({})
+            comment: data.comments.create
           )
 
           data.posts.create(
-            comment: data.comments.create({})
+            comment: data.comments.create
           )
         end
 
@@ -604,7 +604,7 @@ RSpec.shared_examples :source_associations do
           end
 
           it "treats it as singular" do
-            data.posts.create(comment: data.comments.create({}))
+            data.posts.create(comment: data.comments.create)
             expect(data.comments.one.post_id).to_not be(nil)
           end
         end
@@ -886,11 +886,11 @@ RSpec.shared_examples :source_associations do
 
         before do
           data.posts.create(
-            comments: data.comments.create({})
+            comments: data.comments.create
           )
 
           data.posts.create(
-            comments: data.comments.create({})
+            comments: data.comments.create
           )
         end
 
@@ -919,7 +919,7 @@ RSpec.shared_examples :source_associations do
           end
 
           it "treats it as plural" do
-            data.posts.create(comments: data.comments.create({}))
+            data.posts.create(comments: data.comments.create)
             expect(data.comments.one.post_id).to_not be(nil)
           end
         end

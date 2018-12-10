@@ -98,7 +98,7 @@ RSpec.shared_examples :source_queries do
       end
 
       it "returns the results" do
-        data.posts.create(comments: data.comments.create({}))
+        data.posts.create(comments: data.comments.create)
         expect(data.posts.including_comments.one.comments.first).to be_instance_of(Pakyow::Data::Object)
       end
     end

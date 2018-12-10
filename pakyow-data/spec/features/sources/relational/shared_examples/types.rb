@@ -70,8 +70,8 @@ RSpec.shared_examples :source_types do
       end
 
       it "defines the primary key" do
-        data.posts.create({})
-        data.posts.create({})
+        data.posts.create
+        data.posts.create
 
         expect(data.posts.count).to eq(2)
 
@@ -102,32 +102,32 @@ RSpec.shared_examples :source_types do
       end
 
       it "defines a created_at field" do
-        expect(data.posts.create({}).one.to_h.keys).to include(:created_at)
+        expect(data.posts.create.one.to_h.keys).to include(:created_at)
       end
 
       it "defines an updated_at field" do
-        expect(data.posts.create({}).one.to_h.keys).to include(:updated_at)
+        expect(data.posts.create.one.to_h.keys).to include(:updated_at)
       end
 
       context "record is created" do
         it "sets the created_at value" do
-          expect(data.posts.create({}).one[:created_at]).to be_instance_of(Time)
+          expect(data.posts.create.one[:created_at]).to be_instance_of(Time)
         end
 
         it "sets the updated_at value" do
-          expect(data.posts.create({}).one[:updated_at]).to be_instance_of(Time)
+          expect(data.posts.create.one[:updated_at]).to be_instance_of(Time)
         end
       end
 
       context "record is updated" do
         it "updates the updated_at value" do
-          post = data.posts.create({}).one; sleep 1
+          post = data.posts.create.one; sleep 1
           data.posts.update(title: "foo")
           expect(data.posts.one[:updated_at]).to be > post[:updated_at]
         end
 
         it "does not update the created_at value" do
-          post = data.posts.create({}).one
+          post = data.posts.create.one
           data.posts.update(title: "foo")
           expect(data.posts.one[:created_at]).to eq(post[:created_at])
         end
@@ -149,7 +149,7 @@ RSpec.shared_examples :source_types do
         end
 
         it "uses the specified fields" do
-          post = data.posts.create({}).one
+          post = data.posts.create.one
           expect(post[:custom_created_at]).to be_instance_of(Time)
           expect(post[:custom_updated_at]).to be_instance_of(Time)
         end
@@ -169,11 +169,11 @@ RSpec.shared_examples :source_types do
       end
 
       it "can be null" do
-        expect(data.posts.create({}).one[:attr]).to be(nil)
+        expect(data.posts.create.one[:attr]).to be(nil)
       end
 
       it "does not have a default value" do
-        expect(data.posts.create({}).one[:attr]).to be(nil)
+        expect(data.posts.create.one[:attr]).to be(nil)
       end
 
       context "with a default value" do

@@ -43,7 +43,7 @@ RSpec.describe "form origin" do
 
         presenter "/form" do
           def perform
-            form(:post).create({})
+            form(:post).create
           end
         end
       }

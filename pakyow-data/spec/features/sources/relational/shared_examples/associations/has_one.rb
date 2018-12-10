@@ -6,7 +6,7 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise|
   describe "querying" do
     before do
       target_dataset.create(
-        association_name => associated_dataset.create({})
+        association_name => associated_dataset.create
       )
     end
 
@@ -43,7 +43,7 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise|
       context "data associated to another object exists" do
         before do
           target_dataset.create(
-            association_name => associated_dataset.create({})
+            association_name => associated_dataset.create
           )
         end
 
@@ -54,7 +54,7 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise|
 
       context "no associated data exists" do
         before do
-          target_dataset.create({})
+          target_dataset.create
         end
 
         it "includes an empty result" do
@@ -65,7 +65,7 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise|
       describe "including an association after creating" do
         let :results do
           target_dataset.create(
-            association_name => associated_dataset.create({})
+            association_name => associated_dataset.create
           ).including(association_name)
         end
 
@@ -79,7 +79,7 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise|
       describe "including an association after updating" do
         before do
           target_dataset.create(
-            association_name => associated_dataset.create({})
+            association_name => associated_dataset.create
           )
         end
 
@@ -117,10 +117,10 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise|
 
       context "other data exists that could be associated" do
         before do
-          associated_dataset.create({})
+          associated_dataset.create
           create
-          associated_dataset.create({})
-          associated_dataset.create({})
+          associated_dataset.create
+          associated_dataset.create
         end
 
         it "associates the specified data" do
@@ -134,12 +134,12 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise|
     end
 
     let :associated_new do
-      associated_dataset.create({})
+      associated_dataset.create
     end
 
     context "without associated data" do
       def create
-        target_dataset.create({})
+        target_dataset.create
       end
 
       it "creates" do
@@ -187,8 +187,8 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise|
 
       context "dataset includes more than one result" do
         it "raises a constraint violation and does not create" do
-          associated_dataset.create({})
-          associated_dataset.create({})
+          associated_dataset.create
+          associated_dataset.create
 
           expect {
             target_dataset.create(
@@ -208,7 +208,7 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise|
         it "raises a type mismatch and does not create" do
           expect {
             target_dataset.create(
-              association_name => data.unassociated.create({})
+              association_name => data.unassociated.create
             )
           }.to raise_error(Pakyow::Data::TypeMismatch) do |error|
             expect(error.message).to eq("Cannot associate unassociated as #{association_name}")
@@ -260,7 +260,7 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise|
 
       context "passed an object that does not exist" do
         it "raises a constraint violation and does not create" do
-          object = associated_dataset.create({}).one
+          object = associated_dataset.create.one
           associated_dataset.delete
 
           expect {
@@ -281,7 +281,7 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise|
         it "raises a type mismatch and does not create" do
           expect {
             target_dataset.create(
-              association_name => data.unassociated.create({}).one
+              association_name => data.unassociated.create.one
             )
           }.to raise_error(Pakyow::Data::TypeMismatch) do |error|
             expect(error.message).to eq("Cannot associate an object from unassociated as #{association_name}")
@@ -389,9 +389,9 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise|
 
       context "other data exists that could be associated" do
         before do
-          associated_dataset.create({})
-          associated_dataset.create({})
-          associated_dataset.create({})
+          associated_dataset.create
+          associated_dataset.create
+          associated_dataset.create
         end
 
         it "associates the specified data" do
@@ -426,11 +426,11 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise|
     end
 
     let :associated_old do
-      associated_dataset.create({})
+      associated_dataset.create
     end
 
     let :associated_new do
-      associated_dataset.create({})
+      associated_dataset.create
     end
 
     context "without associated data" do
@@ -501,8 +501,8 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise|
         end
 
         it "raises a constraint violation and does not update" do
-          associated_dataset.create({})
-          associated_dataset.create({})
+          associated_dataset.create
+          associated_dataset.create
 
           expect {
             update
@@ -526,7 +526,7 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise|
         def update
           target_dataset.by_id(1).update(
             updatable: updated_value,
-            association_name => data.unassociated.create({})
+            association_name => data.unassociated.create
           )
         end
 
@@ -657,7 +657,7 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise|
         def update
           target_dataset.update(
             updatable: updated_value,
-            association_name => data.unassociated.create({}).one
+            association_name => data.unassociated.create.one
           )
         end
 
@@ -814,10 +814,10 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise|
     context "contains dependents" do
       before do
         target_dataset.create(
-          association_name => associated_dataset.create({})
+          association_name => associated_dataset.create
         )
 
-        target_dataset.create({})
+        target_dataset.create
       end
 
       if dependents == :raise
@@ -855,9 +855,9 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise|
         end
 
         it "does not delete non-dependent data" do
-          associated_dataset.create({})
-          associated_dataset.create({})
-          associated_dataset.create({})
+          associated_dataset.create
+          associated_dataset.create
+          associated_dataset.create
 
           expect {
             target_dataset.delete
@@ -918,7 +918,7 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise|
 
         it "does not nullify non-dependent data" do
           unassociated = associated_dataset.create(
-            associated_as => target_dataset.create({})
+            associated_as => target_dataset.create
           )
 
           expect {
@@ -978,7 +978,7 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise|
 
     context "without dependents" do
       before do
-        target_dataset.create({})
+        target_dataset.create
       end
 
       it "does not raise an error" do
@@ -1000,7 +1000,7 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise|
     end
 
     let :associated_old do
-      associated_dataset.create({})
+      associated_dataset.create
     end
 
     let :associated_new do
@@ -1042,11 +1042,11 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise|
     end
 
     let :associated_old do
-      associated_dataset.create({})
+      associated_dataset.create
     end
 
     let :associated_new do
-      associated_dataset.create({})
+      associated_dataset.create
     end
 
     def update

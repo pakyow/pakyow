@@ -23,12 +23,12 @@ RSpec.shared_examples :source_commands do
 
     describe "create" do
       it "creates a record" do
-        data.posts.create({})
+        data.posts.create
         expect(data.posts.count).to eq(1)
       end
 
       it "returns a single result" do
-        expect(data.posts.create({}).one).to be_instance_of(Pakyow::Data::Object)
+        expect(data.posts.create.one).to be_instance_of(Pakyow::Data::Object)
       end
 
       context "value is nil" do

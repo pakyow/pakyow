@@ -120,7 +120,7 @@ RSpec.shared_examples :source_query_default do
       end
 
       it "automatically applies the query" do
-        data.posts.create(title: "2", comments: data.comments.create({}))
+        data.posts.create(title: "2", comments: data.comments.create)
         expect(data.posts.one.comments.first).to be_instance_of(Pakyow::Data::Object)
       end
     end
