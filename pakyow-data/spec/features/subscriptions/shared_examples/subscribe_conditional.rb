@@ -25,9 +25,9 @@ RSpec.shared_examples :subscription_subscribe_conditional do
           attribute :title, :string
           attribute :body, :string
 
-          subscribe :by_title, title: :__arg0__
+          subscribe :by_title_custom, title: :__arg0__
 
-          def by_title(title)
+          def by_title_custom(title)
             where(title: title)
           end
         end
@@ -57,16 +57,16 @@ RSpec.shared_examples :subscription_subscribe_conditional do
               end
             end
 
-            data.posts.by_title(params[:id]).update(params[:post])
+            data.posts.by_title_custom(params[:id]).update(params[:post])
           end
 
           delete do
-            data.posts.by_title(params[:id]).delete
+            data.posts.by_title_custom(params[:id]).delete
           end
 
           collection do
             post "subscribe" do
-              data.posts.by_title("foo").subscribe(:post_subscriber, handler: TestHandler)
+              data.posts.by_title_custom("foo").subscribe(:post_subscriber, handler: TestHandler)
             end
 
             post "unsubscribe" do

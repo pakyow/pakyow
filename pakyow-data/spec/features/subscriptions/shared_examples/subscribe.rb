@@ -25,9 +25,9 @@ RSpec.shared_examples :subscription_subscribe do
           attribute :title, :string
           attribute :body, :string
 
-          subscribe :by_title, title: :__arg0__
+          subscribe :by_title_custom, title: :__arg0__
 
-          def by_title(title)
+          def by_title_custom(title)
             where(title: title)
           end
         end
@@ -37,7 +37,7 @@ RSpec.shared_examples :subscription_subscribe do
 
           attribute :title, :string
 
-          def by_title(title)
+          def by_title_custom(title)
             where(title: title)
           end
         end
@@ -67,11 +67,11 @@ RSpec.shared_examples :subscription_subscribe do
               end
             end
 
-            data.posts.by_title(params[:id]).update(params[:post])
+            data.posts.by_title_custom(params[:id]).update(params[:post])
           end
 
           delete do
-            data.posts.by_title(params[:id]).delete
+            data.posts.by_title_custom(params[:id]).delete
           end
 
           collection do
@@ -106,11 +106,11 @@ RSpec.shared_examples :subscription_subscribe do
               end
             end
 
-            data.comments.by_title(params[:comment_id]).update(params[:comment])
+            data.comments.by_title_custom(params[:comment_id]).update(params[:comment])
           end
 
           delete do
-            data.comments.by_title(params[:comment_id]).delete
+            data.comments.by_title_custom(params[:comment_id]).delete
           end
         end
       end
@@ -221,9 +221,9 @@ RSpec.shared_examples :subscription_subscribe do
           attribute :title, :string
           attribute :body, :string
 
-          subscribe :by_title, title: :__arg0__
+          subscribe :by_title_custom, title: :__arg0__
 
-          def by_title(title)
+          def by_title_custom(title)
             where(title: title)
           end
         end
@@ -233,7 +233,7 @@ RSpec.shared_examples :subscription_subscribe do
 
           attribute :title, :string
 
-          def by_title(title)
+          def by_title_custom(title)
             where(title: title)
           end
         end
