@@ -11,15 +11,15 @@ module Pakyow
   module Data
     class Connection
       extend Forwardable
-      def_delegators :@adapter, :dataset_for_source, :disconnect, :transaction, :migratable?
+      def_delegators :@adapter, :dataset_for_source, :transaction
 
-      attr_reader :type, :name, :opts, :adapter
+      attr_reader :type, :name, :opts, :adapter, :failure
 
       extend Support::DeepFreeze
       unfreezable :logger
 
       def initialize(type:, name:, string: nil, opts: nil, logger: nil)
-        @type, @name, @logger = type, name, logger
+        @type, @name, @logger, @failure = type, name, logger, nil
 
         @opts = if opts.is_a?(Hash)
           opts
@@ -34,14 +34,31 @@ module Pakyow
         puts e
 
         # TODO: raise nice MissingConnectionAdapter error, telling them how to proceed
+      rescue ConnectionError => error
+        error.context = self
+        @failure = error
       end
 
       def connected?
-        !@adapter.nil? && @adapter.connected?
+        !failed? && @adapter.connected?
+      end
+
+      def failed?
+        !@failure.nil?
       end
 
       def auto_migrate?
-        @adapter.migratable? && @adapter.auto_migratable?
+        migratable? && @adapter.auto_migratable?
+      end
+
+      def migratable?
+        connected? && @adapter.migratable?
+      end
+
+      def disconnect
+        if connected?
+          @adapter.disconnect
+        end
       end
 
       def types

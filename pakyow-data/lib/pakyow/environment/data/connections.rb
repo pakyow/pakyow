@@ -37,12 +37,18 @@ module Pakyow
                   extra_options[:logger] = Pakyow.logger
                 end
 
-                adapter_connections[connection_name] = Pakyow::Data::Connection.new(
+                connection = Pakyow::Data::Connection.new(
                   string: connection_string,
                   type: connection_type,
                   name: connection_name,
                   **extra_options
                 )
+
+                if connection.failed?
+                  raise connection.failure
+                else
+                  adapter_connections[connection_name] = connection
+                end
               }
             }
 

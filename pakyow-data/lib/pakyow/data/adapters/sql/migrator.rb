@@ -156,6 +156,12 @@ module Pakyow
               ""
             end
           end
+
+          def handle_error
+            yield
+          rescue Sequel::Error => error
+            Pakyow.logger.warn "#{error}"
+          end
         end
       end
     end

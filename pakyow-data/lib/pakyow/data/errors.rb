@@ -7,6 +7,18 @@ module Pakyow
     class Error < Pakyow::Error
     end
 
+    class ConnectionError < Error
+      def message
+        String.new(
+          <<~MESSAGE
+            Connection failed for #{@context.type} #{@context.name}:
+
+              #{super}
+          MESSAGE
+        )
+      end
+    end
+
     class QueryError < Error
     end
 

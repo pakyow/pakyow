@@ -61,19 +61,12 @@ module Pakyow
           DEFAULT_EXTENSIONS[opts[:adapter].to_sym].to_a.each do |extension|
             @connection.extension extension
           end
-        rescue Sequel::AdapterNotFound => e
-          puts e
-
-          # TODO: handle missing gems
-        rescue Sequel::DatabaseConnectionError => e
-          puts e
-
-          # TODO: handle failed connections
+        rescue Sequel::AdapterNotFound => error
+          # TODO: better handling of missing adapters
           #
-          # maybe by raising a connection error that Pakyow::Data::Connection handles
-          # by printing out a trace or something... it's important to communicate but
-          # could also be handled (e.g. in the case you're running db:create)
-          # there's a balance to strike here I think
+          raise ConnectionError.build(error)
+        rescue Sequel::DatabaseConnectionError => error
+          raise ConnectionError.build(error)
         end
 
         def dataset_for_source(source)

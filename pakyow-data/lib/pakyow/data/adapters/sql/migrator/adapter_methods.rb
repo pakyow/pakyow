@@ -8,13 +8,15 @@ module Pakyow
           module AdapterMethods
             module Mysql
               def create!
-                global_connection.adapter.connection.run("CREATE DATABASE `#{@connection.opts[:path]}`")
+                handle_error do
+                  global_connection.adapter.connection.run("CREATE DATABASE `#{@connection.opts[:path]}`")
+                end
               end
 
               def drop!
-                global_connection.adapter.connection.run("DROP DATABASE `#{@connection.opts[:path]}`")
-              rescue Sequel::DatabaseError => e
-                Pakyow.logger.warn "Failed to drop database `#{@connection.opts[:path]}`: #{e}"
+                handle_error do
+                  global_connection.adapter.connection.run("DROP DATABASE `#{@connection.opts[:path]}`")
+                end
               end
 
               private
@@ -28,25 +30,27 @@ module Pakyow
 
             module Postgres
               def create!
-                global_connection.adapter.connection.run("CREATE DATABASE \"#{@connection.opts[:path]}\"")
+                handle_error do
+                  global_connection.adapter.connection.run("CREATE DATABASE \"#{@connection.opts[:path]}\"")
+                end
               end
 
               def drop!
-                global_connection.adapter.connection.run <<~SQL
-                  SELECT
-                  pg_terminate_backend(pid)
-                  FROM
-                  pg_stat_activity
-                  WHERE
-                  -- don't kill my own connection!
-                  pid <> pg_backend_pid()
-                  -- don't kill the connections to other databases
-                  AND datname = '#{@connection.opts[:path]}';
-                SQL
+                handle_error do
+                  global_connection.adapter.connection.run <<~SQL
+                    SELECT
+                    pg_terminate_backend(pid)
+                    FROM
+                    pg_stat_activity
+                    WHERE
+                    -- don't kill my own connection!
+                    pid <> pg_backend_pid()
+                    -- don't kill the connections to other databases
+                    AND datname = '#{@connection.opts[:path]}';
+                  SQL
 
-                global_connection.adapter.connection.run("DROP DATABASE \"#{@connection.opts[:path]}\"")
-              rescue Sequel::DatabaseError => e
-                Pakyow.logger.warn "Failed to drop database `#{@connection.opts[:path]}`: #{e}"
+                  global_connection.adapter.connection.run("DROP DATABASE \"#{@connection.opts[:path]}\"")
+                end
               end
 
               private
