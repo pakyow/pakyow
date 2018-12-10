@@ -6,7 +6,9 @@ RSpec.describe "using data subscriptions with the redis adapter" do
   end
 
   after do
-    Redis.new.flushdb
+    if defined?(Redis)
+      Redis.new.flushdb
+    end
   end
 
   include_examples "data subscriptions"
