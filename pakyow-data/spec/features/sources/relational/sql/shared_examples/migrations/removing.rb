@@ -6,8 +6,7 @@ RSpec.shared_examples :source_migrations_removing do |types:|
       Proc.new do
         instance_exec(&$data_app_boilerplate)
 
-        source :posts do
-          primary_id
+        source :posts, timestamps: false do
         end
       end
     end
@@ -134,7 +133,7 @@ RSpec.shared_examples :source_migrations_removing do |types:|
       Proc.new do
         instance_exec(&$data_app_boilerplate)
 
-        source :posts do
+        source :posts, primary_id: false, timestamps: false do
           attribute :foo
         end
       end
@@ -222,12 +221,10 @@ RSpec.shared_examples :source_migrations_removing do |types:|
       Proc.new do
         instance_exec(&$data_app_boilerplate)
 
-        source :posts do
-          primary_id
+        source :posts, timestamps: false do
         end
 
-        source :users do
-          primary_id
+        source :users, timestamps: false do
         end
       end
     end

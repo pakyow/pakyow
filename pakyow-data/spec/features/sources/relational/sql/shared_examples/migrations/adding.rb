@@ -6,9 +6,7 @@ RSpec.shared_examples :source_migrations_adding do |types:|
       Proc.new do
         instance_exec(&$data_app_boilerplate)
 
-        source :posts do
-          primary_id
-
+        source :posts, timestamps: false do
           # Define an attribute for every type.
           #
           types.keys.each do |type|
@@ -119,8 +117,7 @@ RSpec.shared_examples :source_migrations_adding do |types:|
       Proc.new do
         instance_exec(&$data_app_boilerplate)
 
-        source :posts do
-          primary_id
+        source :posts, timestamps: false do
           attribute :test_custom_decimal, :decimal, size: [10, 5]
         end
       end
@@ -211,8 +208,7 @@ RSpec.shared_examples :source_migrations_adding do |types:|
       Proc.new do
         instance_exec(&$data_app_boilerplate)
 
-        source :posts do
-          primary_id
+        source :posts, timestamps: false do
           attribute :foo
         end
       end
@@ -300,12 +296,10 @@ RSpec.shared_examples :source_migrations_adding do |types:|
       Proc.new do
         instance_exec(&$data_app_boilerplate)
 
-        source :posts do
-          primary_id
+        source :posts, timestamps: false do
         end
 
-        source :users do
-          primary_id
+        source :users, timestamps: false do
           has_many :posts
         end
       end

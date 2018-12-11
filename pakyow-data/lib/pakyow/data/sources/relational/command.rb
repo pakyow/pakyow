@@ -63,7 +63,9 @@ module Pakyow
                   timestamp_fields.values.each do |timestamp_field|
                     final_values[timestamp_field] = Time.now
                   end
-                elsif timestamp_field = timestamp_fields[@name]
+                # Don't update timestamps if we aren't also updating other values.
+                #
+                elsif values.any? && timestamp_field = timestamp_fields[@name]
                   final_values[timestamp_field] = Time.now
                 end
               end

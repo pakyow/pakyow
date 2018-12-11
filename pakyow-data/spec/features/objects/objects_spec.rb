@@ -19,8 +19,7 @@ RSpec.describe "data objects" do
           object :comment do
           end
 
-          source :posts do
-            primary_id
+          source :posts, timestamps: false do
             has_many :comments
 
             def query
@@ -28,8 +27,7 @@ RSpec.describe "data objects" do
             end
           end
 
-          source :comments do
-            primary_id
+          source :comments, timestamps: false do
           end
         end
       end
@@ -94,8 +92,7 @@ RSpec.describe "data objects" do
           object :foo do
           end
 
-          source :posts do
-            primary_id
+          source :posts, timestamps: false do
             has_many :comments
 
             def query
@@ -103,8 +100,7 @@ RSpec.describe "data objects" do
             end
           end
 
-          source :comments do
-            primary_id
+          source :comments, timestamps: false do
           end
         end
       end
@@ -171,8 +167,7 @@ RSpec.describe "data objects" do
           object :post do
           end
 
-          source :posts do
-            primary_id
+          source :posts, timestamps: false do
           end
         end
       end
@@ -191,8 +186,7 @@ RSpec.describe "data objects" do
           object :foo do
           end
 
-          source :posts do
-            primary_id
+          source :posts, timestamps: false do
           end
         end
       end
@@ -215,8 +209,7 @@ RSpec.describe "data objects" do
           end
         end
 
-        source :posts do
-          primary_id
+        source :posts, timestamps: false do
         end
       end
     end

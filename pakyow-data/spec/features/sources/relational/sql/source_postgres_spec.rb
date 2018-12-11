@@ -1,6 +1,7 @@
 require_relative "../shared_examples/associations"
 require_relative "../shared_examples/commands"
 require_relative "../shared_examples/connection"
+require_relative "../shared_examples/default_fields"
 require_relative "../shared_examples/including"
 require_relative "../shared_examples/logging"
 require_relative "../shared_examples/qualifications"
@@ -19,6 +20,7 @@ RSpec.describe "postgres source" do
   it_behaves_like :source_associations
   it_behaves_like :source_commands
   it_behaves_like :source_connection
+  it_behaves_like :source_default_fields
   it_behaves_like :source_including
   it_behaves_like :source_logging
   it_behaves_like :source_qualifications
@@ -95,7 +97,7 @@ RSpec.describe "postgres source" do
         Proc.new do
           instance_exec(&$data_app_boilerplate)
 
-          source :posts do
+          source :posts, primary_id: false, timestamps: false do
             primary_id
             attribute :attr, :json
           end
@@ -133,7 +135,7 @@ RSpec.describe "postgres source" do
       Proc.new do
         instance_exec(&$data_app_boilerplate)
 
-        source :posts do
+        source :posts, primary_id: false, timestamps: false do
           primary_id
         end
       end
@@ -180,12 +182,12 @@ RSpec.describe "postgres source" do
       Proc.new do
         instance_exec(&$data_app_boilerplate)
 
-        source :posts do
+        source :posts, primary_id: false, timestamps: false do
           primary_id
           has_many :comments
         end
 
-        source :comments do
+        source :comments, primary_id: false, timestamps: false do
           primary_id
         end
       end
@@ -238,7 +240,7 @@ RSpec.describe "postgres source" do
       Proc.new do
         instance_exec(&$data_app_boilerplate)
 
-        source :posts do
+        source :posts, primary_id: false, timestamps: false do
           attribute :test, context.type
         end
       end

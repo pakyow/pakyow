@@ -131,7 +131,7 @@ RSpec.shared_examples :source_migrations_changing do |adapter:, types:|
             Proc.new do
               instance_exec(&$data_app_boilerplate)
 
-              source :posts do
+              source :posts, primary_id: false, timestamps: false do
                 attribute :"test_#{from_type_name}_to_#{to_type_name}", to_type
               end
             end

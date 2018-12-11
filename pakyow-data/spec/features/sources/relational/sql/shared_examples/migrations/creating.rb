@@ -7,9 +7,6 @@ RSpec.shared_examples :source_migrations_creating do |types:|
         instance_exec(&$data_app_boilerplate)
 
         source :posts do
-          primary_id
-          timestamps
-
           # Define an attribute for every type.
           #
           types.keys.each do |type|
@@ -149,12 +146,10 @@ RSpec.shared_examples :source_migrations_creating do |types:|
       Proc.new do
         instance_exec(&$data_app_boilerplate)
 
-        source :children do
-          primary_id
+        source :children, timestamps: false do
         end
 
-        source :parents do
-          primary_id
+        source :parents, timestamps: false do
           has_many :children
         end
       end
