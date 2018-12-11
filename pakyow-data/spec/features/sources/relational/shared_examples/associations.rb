@@ -308,7 +308,53 @@ RSpec.shared_examples :source_associations do
         end
       end
 
-      describe "accociation with a custom foreign key" do
+      describe "association with a custom primary key" do
+        let :app_definition do
+          slugs = 100.times.to_a.map(&:to_s)
+
+          Proc.new do
+            instance_exec(&$data_app_boilerplate)
+
+            source :posts, primary_id: false do
+              primary_key :slug
+              attribute :slug, :string, default: -> {
+                # Ensures the ids are in a predictable sort order.
+                #
+                slugs.shift
+              }
+
+              query do
+                order { slug.asc }
+              end
+            end
+
+            source :comments do
+              primary_id
+              belongs_to :post
+
+              query do
+                order { id.asc }
+              end
+            end
+          end
+        end
+
+        it_behaves_like :source_associations_belongs_to do
+          let :target_source do
+            :comments
+          end
+
+          let :associated_source do
+            :posts
+          end
+
+          let :association_name do
+            :post
+          end
+        end
+      end
+
+      describe "association with a custom foreign key" do
         it "will be supported in the future"
       end
     end

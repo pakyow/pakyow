@@ -48,7 +48,11 @@ RSpec.shared_examples :source_associations_belongs_to do
         end
 
         it "does not include unassociated data" do
-          expect(results.one.send(association_name).id).to eq(1)
+          expect(
+            results.one.send(association_name)[association_primary_key_field]
+          ).to eq(
+            associated_dataset.to_a.first[association_primary_key_field]
+          )
         end
       end
 
@@ -71,8 +75,10 @@ RSpec.shared_examples :source_associations_belongs_to do
 
         it "includes the associated data in the result" do
           expect(
-            results.one.send(association_name).id
-          ).to eq(associated_dataset.count)
+            results.one.send(association_name)[association_primary_key_field]
+          ).to eq(
+            associated_dataset.to_a.last[association_primary_key_field]
+          )
         end
       end
 
@@ -89,8 +95,10 @@ RSpec.shared_examples :source_associations_belongs_to do
 
         it "includes the associated data in the result" do
           expect(
-            results.last.send(association_name).id
-          ).to eq(associated_dataset.count)
+            results.last.send(association_name)[association_primary_key_field]
+          ).to eq(
+            associated_dataset.to_a.last[association_primary_key_field]
+          )
         end
       end
     end
@@ -240,7 +248,7 @@ RSpec.shared_examples :source_associations_belongs_to do
               association_name => object
             )
           }.to raise_error(Pakyow::Data::ConstraintViolation) do |error|
-            expect(error.message).to eq("Cannot find associated #{association_name} with id of #{object.id}")
+            expect(error.message).to eq("Cannot find associated #{association_name} with #{association_primary_key_field} of #{object[association_primary_key_field]}")
           end
 
           expect(
@@ -319,20 +327,20 @@ RSpec.shared_examples :source_associations_belongs_to do
     context "passing an associated id" do
       def create
         target_dataset.create(
-          foreign_key => associated_new.one.id
+          foreign_key => associated_new.one[association_primary_key_field]
         )
       end
 
       include_examples :common
 
-      context "passed an id that does not exist" do
+      context "passed a foreign key that does not exist" do
         it "raises a constraint violation and does not create" do
           expect {
             target_dataset.create(
               foreign_key => 123
             )
           }.to raise_error(Pakyow::Data::ConstraintViolation) do |error|
-            expect(error.message).to eq("Cannot find associated #{association_name} with id of 123")
+            expect(error.message).to eq("Cannot find associated #{association_name} with #{association_primary_key_field} of 123")
           end
 
           expect(
@@ -341,13 +349,20 @@ RSpec.shared_examples :source_associations_belongs_to do
         end
       end
 
-      context "passed an id that is not an id" do
-        it "raises a type error and does not create" do
+      context "passed a foreign key that is not a foreign key" do
+        it "raises an error and does not create" do
+          error_type = case association_primary_key_type
+          when :string
+            Pakyow::Data::ConstraintViolation
+          else
+            Pakyow::Data::TypeMismatch
+          end
+
           expect {
             target_dataset.create(
               foreign_key => true
             )
-          }.to raise_error(TypeError)
+          }.to raise_error(error_type)
 
           expect(
             target_dataset.count
@@ -355,13 +370,13 @@ RSpec.shared_examples :source_associations_belongs_to do
         end
       end
 
-      context "passed an object as an id" do
-        it "raises a type error and does not create" do
+      context "passed an object as a foreign key" do
+        it "raises an error and does not create" do
           expect {
             target_dataset.create(
               foreign_key => associated_dataset.create.one
             )
-          }.to raise_error(TypeError)
+          }.to raise_error(Pakyow::Data::TypeMismatch)
 
           expect(
             target_dataset.count
@@ -369,13 +384,13 @@ RSpec.shared_examples :source_associations_belongs_to do
         end
       end
 
-      context "passed a dataset as an id" do
-        it "raises a type error and does not create" do
+      context "passed a dataset as an foreign key" do
+        it "raises an error and does not create" do
           expect {
             target_dataset.create(
               foreign_key => associated_dataset.create
             )
-          }.to raise_error(TypeError)
+          }.to raise_error(Pakyow::Data::TypeMismatch)
 
           expect(
             target_dataset.count
@@ -399,11 +414,11 @@ RSpec.shared_examples :source_associations_belongs_to do
         expect {
           update
         }.to change {
-          target_dataset.including(association_name).one.send(association_name).id
+          target_dataset.including(association_name).one.send(association_name)[association_primary_key_field]
         }.from(
-          associated_old.one.id
+          associated_old.one[association_primary_key_field]
         ).to(
-          associated_new.one.id
+          associated_new.one[association_primary_key_field]
         )
       end
 
@@ -418,11 +433,11 @@ RSpec.shared_examples :source_associations_belongs_to do
           expect {
             update
           }.to change {
-            target_dataset.including(association_name).one.send(association_name).id
+            target_dataset.including(association_name).one.send(association_name)[association_primary_key_field]
           }.from(
-            associated_old.one.id
+            associated_old.one[association_primary_key_field]
           ).to(
-            associated_new.one.id
+            associated_new.one[association_primary_key_field]
           )
         end
       end
@@ -474,7 +489,7 @@ RSpec.shared_examples :source_associations_belongs_to do
         }.not_to change {
           target_dataset.including(
             association_name
-          ).one.send(association_name).id
+          ).one.send(association_name)[association_primary_key_field]
         }
       end
     end
@@ -503,9 +518,9 @@ RSpec.shared_examples :source_associations_belongs_to do
           }.to change {
             target_dataset.including(
               association_name
-            ).one.send(association_name)&.id
+            ).one.send(association_name)&.send(association_primary_key_field)
           }.from(
-            associated_old.one.id
+            associated_old.one[association_primary_key_field]
           ).to(
             nil
           )
@@ -533,8 +548,8 @@ RSpec.shared_examples :source_associations_belongs_to do
           expect(
             target_dataset.including(
               association_name
-            ).one.send(association_name).id
-          ).to eq(associated_old.one.id)
+            ).one.send(association_name)[association_primary_key_field]
+          ).to eq(associated_old.one[association_primary_key_field])
 
           expect(
             target_dataset.one.updatable
@@ -560,8 +575,8 @@ RSpec.shared_examples :source_associations_belongs_to do
           expect(
             target_dataset.including(
               association_name
-            ).one.send(association_name).id
-          ).to eq(associated_old.one.id)
+            ).one.send(association_name)[association_primary_key_field]
+          ).to eq(associated_old.one[association_primary_key_field])
 
           expect(
             target_dataset.one.updatable
@@ -602,9 +617,9 @@ RSpec.shared_examples :source_associations_belongs_to do
           }.to change {
             target_dataset.including(
               association_name
-            ).one.send(association_name)&.id
+            ).one.send(association_name)&.send(association_primary_key_field)
           }.from(
-            associated_old.one.id
+            associated_old.one[association_primary_key_field]
           ).to(
             nil
           )
@@ -613,7 +628,7 @@ RSpec.shared_examples :source_associations_belongs_to do
 
       context "passed an object that does not exist" do
         def update
-          associated_dataset.by_id(object.id).delete
+          associated_dataset.send(:"by_#{association_primary_key_field}", object[association_primary_key_field]).delete
 
           target_dataset.update(
             updatable: updated_value,
@@ -629,14 +644,14 @@ RSpec.shared_examples :source_associations_belongs_to do
           expect {
             update
           }.to raise_error(Pakyow::Data::ConstraintViolation) do |error|
-            expect(error.message).to eq("Cannot find associated #{association_name} with id of #{object.id}")
+            expect(error.message).to eq("Cannot find associated #{association_name} with #{association_primary_key_field} of #{object[association_primary_key_field]}")
           end
 
           expect(
             target_dataset.including(
               association_name
-            ).one.send(association_name).id
-          ).to eq(associated_old.one.id)
+            ).one.send(association_name)[association_primary_key_field]
+          ).to eq(associated_old.one[association_primary_key_field])
 
           expect(
             target_dataset.one.updatable
@@ -662,8 +677,8 @@ RSpec.shared_examples :source_associations_belongs_to do
           expect(
             target_dataset.including(
               association_name
-            ).one.send(association_name).id
-          ).to eq(associated_old.one.id)
+            ).one.send(association_name)[association_primary_key_field]
+          ).to eq(associated_old.one[association_primary_key_field])
 
           expect(
             target_dataset.one.updatable
@@ -689,8 +704,8 @@ RSpec.shared_examples :source_associations_belongs_to do
           expect(
             target_dataset.including(
               association_name
-            ).one.send(association_name).id
-          ).to eq(associated_old.one.id)
+            ).one.send(association_name)[association_primary_key_field]
+          ).to eq(associated_old.one[association_primary_key_field])
 
           expect(
             target_dataset.one.updatable
@@ -716,8 +731,8 @@ RSpec.shared_examples :source_associations_belongs_to do
           expect(
             target_dataset.including(
               association_name
-            ).one.send(association_name).id
-          ).to eq(associated_old.one.id)
+            ).one.send(association_name)[association_primary_key_field]
+          ).to eq(associated_old.one[association_primary_key_field])
 
           expect(
             target_dataset.one.updatable
@@ -743,8 +758,8 @@ RSpec.shared_examples :source_associations_belongs_to do
           expect(
             target_dataset.including(
               association_name
-            ).one.send(association_name).id
-          ).to eq(associated_old.one.id)
+            ).one.send(association_name)[association_primary_key_field]
+          ).to eq(associated_old.one[association_primary_key_field])
 
           expect(
             target_dataset.one.updatable
@@ -757,7 +772,7 @@ RSpec.shared_examples :source_associations_belongs_to do
       def update
         target_dataset.update(
           updatable: updated_value,
-          foreign_key => associated_new.one.id
+          foreign_key => associated_new.one[association_primary_key_field]
         )
       end
 
@@ -785,16 +800,16 @@ RSpec.shared_examples :source_associations_belongs_to do
           }.to change {
             target_dataset.including(
               association_name
-            ).one.send(association_name)&.id
+            ).one.send(association_name)&.send(association_primary_key_field)
           }.from(
-            associated_old.one.id
+            associated_old.one[association_primary_key_field]
           ).to(
             nil
           )
         end
       end
 
-      context "passed an id that does not exist" do
+      context "passed a foreign key that does not exist" do
         def update
           target_dataset.update(
             updatable: updated_value,
@@ -806,14 +821,14 @@ RSpec.shared_examples :source_associations_belongs_to do
           expect {
             update
           }.to raise_error(Pakyow::Data::ConstraintViolation) do |error|
-            expect(error.message).to eq("Cannot find associated #{association_name} with id of 123")
+            expect(error.message).to eq("Cannot find associated #{association_name} with #{association_primary_key_field} of 123")
           end
 
           expect(
             target_dataset.including(
               association_name
-            ).one.send(association_name).id
-          ).to eq(associated_old.one.id)
+            ).one.send(association_name)[association_primary_key_field]
+          ).to eq(associated_old.one[association_primary_key_field])
 
           expect(
             target_dataset.one.updatable
@@ -821,7 +836,7 @@ RSpec.shared_examples :source_associations_belongs_to do
         end
       end
 
-      context "passed an id that is not of the correct type" do
+      context "passed a foreign key that is not of the correct type" do
         def update
           target_dataset.update(
             updatable: updated_value,
@@ -829,16 +844,23 @@ RSpec.shared_examples :source_associations_belongs_to do
           )
         end
 
-        it "raises a type error and does not update" do
+        it "raises an error and does not update" do
+          error_type = case association_primary_key_type
+          when :string
+            Pakyow::Data::ConstraintViolation
+          else
+            Pakyow::Data::TypeMismatch
+          end
+
           expect {
             update
-          }.to raise_error(TypeError)
+          }.to raise_error(error_type)
 
           expect(
             target_dataset.including(
               association_name
-            ).one.send(association_name).id
-          ).to eq(associated_old.one.id)
+            ).one.send(association_name)[association_primary_key_field]
+          ).to eq(associated_old.one[association_primary_key_field])
 
           expect(
             target_dataset.one.updatable
@@ -846,7 +868,7 @@ RSpec.shared_examples :source_associations_belongs_to do
         end
       end
 
-      context "passed an object as an id" do
+      context "passed an object as a foreign key" do
         def update
           target_dataset.update(
             updatable: updated_value,
@@ -854,16 +876,16 @@ RSpec.shared_examples :source_associations_belongs_to do
           )
         end
 
-        it "raises a type error and does not update" do
+        it "raises an error and does not update" do
           expect {
             update
-          }.to raise_error(TypeError)
+          }.to raise_error(Pakyow::Data::TypeMismatch)
 
           expect(
             target_dataset.including(
               association_name
-            ).one.send(association_name).id
-          ).to eq(associated_old.one.id)
+            ).one.send(association_name)[association_primary_key_field]
+          ).to eq(associated_old.one[association_primary_key_field])
 
           expect(
             target_dataset.one.updatable
@@ -871,7 +893,7 @@ RSpec.shared_examples :source_associations_belongs_to do
         end
       end
 
-      context "passed a dataset as an id" do
+      context "passed a dataset as a foreign key" do
         def update
           target_dataset.update(
             updatable: updated_value,
@@ -879,16 +901,16 @@ RSpec.shared_examples :source_associations_belongs_to do
           )
         end
 
-        it "raises a type error and does not create" do
+        it "raises an error and does not create" do
           expect {
             update
-          }.to raise_error(TypeError)
+          }.to raise_error(Pakyow::Data::TypeMismatch)
 
           expect(
             target_dataset.including(
               association_name
-            ).one.send(association_name).id
-          ).to eq(associated_old.one.id)
+            ).one.send(association_name)[association_primary_key_field]
+          ).to eq(associated_old.one[association_primary_key_field])
 
           expect(
             target_dataset.one.updatable
@@ -958,7 +980,7 @@ RSpec.shared_examples :source_associations_belongs_to do
     it "is named appropriately" do
       expect(
         target_dataset.one.values.keys
-      ).to include(:"#{association_name}_id")
+      ).to include(:"#{association_name}_#{association_primary_key_field}")
     end
   end
 end

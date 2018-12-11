@@ -116,10 +116,10 @@ module Pakyow
             Differ.new(connection: @connection, source: source, attributes: attributes)
           end
 
-          PRIMARY_KEY_TYPES = %i(integer bignum).freeze
+          AUTO_INCREMENTING_TYPES = %i(integer bignum).freeze
           def add_column_for_attribute(attribute_name, attribute, context, method_prefix: "")
             if attribute.meta[:primary_key]
-              if PRIMARY_KEY_TYPES.include?(attribute.meta[:migration_type])
+              if AUTO_INCREMENTING_TYPES.include?(attribute.meta[:migration_type])
                 context.send(:"#{method_prefix}primary_key", attribute_name, type: type_for_attribute(attribute))
               else
                 context.send(:"#{method_prefix}column", attribute_name, type_for_attribute(attribute), primary_key: true, **column_opts_for_attribute(attribute))

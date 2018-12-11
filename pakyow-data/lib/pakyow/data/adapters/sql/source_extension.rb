@@ -19,7 +19,7 @@ module Pakyow
                 @dataset_table = table_name
               end
 
-              def primary_key_type
+              def default_primary_key_type
                 :bignum
               end
             end

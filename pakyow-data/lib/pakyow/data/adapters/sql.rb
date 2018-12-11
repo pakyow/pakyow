@@ -150,7 +150,11 @@ module Pakyow
           finalized_meta.each do |key, value|
             finalized_meta[key] = case value
             when Proc
-              value.call(finalized_meta)
+              if value.arity == 1
+                value.call(finalized_meta)
+              else
+                value.call
+              end
             else
               value
             end

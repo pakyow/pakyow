@@ -1,10 +1,16 @@
 RSpec.shared_context :source_associations_helpers do
   before do
+    local_association_primary_key_field = association_primary_key_field
+    unknown_value = case association_primary_key_type
+    when :integer
+      12321
+    when :string
+      "foo"
+    end
+
     associated_dataset.source.class.send(:define_method, :return_none) do
       source_from_self(
-        where {
-          id < 1
-        }
+        where(local_association_primary_key_field => unknown_value)
       )
     end
   end
@@ -40,7 +46,15 @@ RSpec.shared_context :source_associations_helpers do
   end
 
   let :foreign_key do
-    :"#{association_name}_id"
+    :"#{association_name}_#{association_primary_key_field}"
+  end
+
+  let :association_primary_key_field do
+    associated_dataset.source.class.primary_key_field
+  end
+
+  let :association_primary_key_type do
+    associated_dataset.source.class.primary_key_type
   end
 
   def target_dataset

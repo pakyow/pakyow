@@ -47,11 +47,15 @@ module Pakyow
               final_values = values.each_with_object({}) { |(key, value), values_hash|
                 begin
                   if attribute = @source.class.attributes[key]
+                    if value.is_a?(Proxy) || value.is_a?(Object)
+                      raise TypeMismatch, "can't convert #{value} into #{attribute.meta[:mapping]}"
+                    end
+
                     values_hash[key] = value.nil? ? value : attribute[value]
                   else
                     values_hash[key] = value
                   end
-                rescue Dry::Types::ConstraintError => error
+                rescue TypeError, Dry::Types::ConstraintError => error
                   raise TypeMismatch.build(error)
                 end
               }
@@ -188,12 +192,12 @@ module Pakyow
                   final_values[association[:column_name]] = case association_value
                   when Proxy
                     if association_result = association_value.one
-                      association_result[@source.class.primary_key_field]
+                      association_result[association[:associated_column_name]]
                     else
                       nil
                     end
                   when Object
-                    association_value[@source.class.primary_key_field]
+                    association_value[association[:associated_column_name]]
                   when NilClass
                     nil
                   end

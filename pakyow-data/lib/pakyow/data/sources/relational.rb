@@ -318,7 +318,7 @@ module Pakyow
 
           def primary_id
             primary_key :id
-            attribute :id, primary_key_type
+            attribute :id, default_primary_key_type
           end
 
           def primary_key(field)
@@ -326,6 +326,19 @@ module Pakyow
           end
 
           def primary_key_type
+            case primary_key_attribute
+            when Hash
+              primary_key_attribute[:type]
+            else
+              primary_key_attribute.meta[:mapping]
+            end
+          end
+
+          def primary_key_attribute
+            attributes[@primary_key_field]
+          end
+
+          def default_primary_key_type
             :integer
           end
 
@@ -354,7 +367,7 @@ module Pakyow
               source_name: Support.inflector.pluralize(source).to_sym,
               query_name: query
 
-              # The following values are set in Container#set_association_fields!
+              # The following values are set in Container#define_attributes_for_associations!
               #
               # column_name, column_type, associated_column_name
             }

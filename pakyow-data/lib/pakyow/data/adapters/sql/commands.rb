@@ -10,8 +10,13 @@ module Pakyow
           apply_extension do
             command :create, performs_create: true do |values|
               begin
-                if inserted_primary_key = insert(values)
-                  where(self.class.primary_key_field => inserted_primary_key)
+                inserted_return_value = insert(values)
+                if self.class.primary_key_field
+                  if Migrator::AUTO_INCREMENTING_TYPES.include?(self.class.primary_key_type)
+                    where(self.class.primary_key_field => inserted_return_value)
+                  else
+                    where(self.class.primary_key_field => values[self.class.primary_key_field])
+                  end
                 else
                   where(values)
                 end
