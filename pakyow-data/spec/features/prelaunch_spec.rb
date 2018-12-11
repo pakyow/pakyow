@@ -5,7 +5,7 @@ RSpec.describe "data prelaunch tasks" do
     Proc.new do
       Pakyow.after :configure do
         Pakyow.config.data.connections.sql[:default] = "postgres://localhost/pakyow-test"
-        Pakyow.config.data.connections.sql[:another] = "postgres://localhost/pakyow-test2"
+        Pakyow.config.data.connections.sql[:another] = "mysql2://localhost/pakyow-test"
         Pakyow.config.data.connections.sql[:memory] = "sqlite::memory"
       end
 
@@ -14,8 +14,13 @@ RSpec.describe "data prelaunch tasks" do
   end
 
   before do
-    system "createdb pakyow-test > /dev/null", out: File::NULL, err: File::NULL
-    system "createdb pakyow-test2 > /dev/null", out: File::NULL, err: File::NULL
+    unless system("psql -lqt | cut -d \\| -f 1 | grep -qw pakyow-test")
+      system "createdb pakyow-test > /dev/null", out: File::NULL, err: File::NULL
+    end
+
+    unless system("mysql -e 'use pakyow-test'")
+      system "mysql -e 'CREATE DATABASE `pakyow-test`'", out: File::NULL, err: File::NULL
+    end
   end
 
   it "registers a prelaunch task for each migratable connection" do
