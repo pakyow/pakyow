@@ -116,9 +116,14 @@ module Pakyow
             Differ.new(connection: @connection, source: source, attributes: attributes)
           end
 
+          PRIMARY_KEY_TYPES = %i(integer bignum).freeze
           def add_column_for_attribute(attribute_name, attribute, context, method_prefix: "")
             if attribute.meta[:primary_key]
-              context.send(:"#{method_prefix}primary_key", attribute_name, type: type_for_attribute(attribute))
+              if PRIMARY_KEY_TYPES.include?(attribute.meta[:migration_type])
+                context.send(:"#{method_prefix}primary_key", attribute_name, type: type_for_attribute(attribute))
+              else
+                context.send(:"#{method_prefix}column", attribute_name, type_for_attribute(attribute), primary_key: true, **column_opts_for_attribute(attribute))
+              end
             elsif attribute.meta[:foreign_key]
               context.send(:"#{method_prefix}foreign_key", attribute_name, attribute.meta[:foreign_key], type: type_for_attribute(attribute))
             else

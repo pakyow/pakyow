@@ -16,22 +16,26 @@ RSpec.shared_examples :source_types do
           Proc.new do
             instance_exec(&$data_app_boilerplate)
 
-            source :posts do
+            source :posts, primary_id: false, timestamps: false do
               primary_key :foo
               attribute :foo, :integer
             end
           end
         end
 
-        it "defines the primary key" do
+        it "behaves as a primary key" do
           data.posts.create(foo: 1)
 
           expect {
             data.posts.create(foo: 1)
-            pp data.posts.to_a
           }.to raise_error(Pakyow::Data::UniqueViolation)
 
           expect(data.posts.count).to eq(1)
+        end
+
+        it "auto increments" do
+          expect(data.posts.create.one.foo).to eq(1)
+          expect(data.posts.create.one.foo).to eq(2)
         end
       end
 
@@ -40,20 +44,43 @@ RSpec.shared_examples :source_types do
           Proc.new do
             instance_exec(&$data_app_boilerplate)
 
-            source :posts do
+            source :posts, primary_id: false, timestamps: false do
               attribute :foo, :integer
             end
           end
         end
 
-        it "does not define the primary key" do
+        it "does not behave as a primary key" do
           data.posts.create(foo: 1)
 
           expect {
             data.posts.create(foo: 1)
-          }.to_not raise_error
+          }.to_not raise_error(Pakyow::Data::UniqueViolation)
 
           expect(data.posts.count).to eq(2)
+        end
+      end
+
+      context "primary key is not an integer" do
+        let :app_definition do
+          Proc.new do
+            instance_exec(&$data_app_boilerplate)
+
+            source :posts, primary_id: false, timestamps: false do
+              primary_key :foo
+              attribute :foo, :string
+            end
+          end
+        end
+
+        it "behaves as a primary key" do
+          data.posts.create(foo: "bar")
+
+          expect {
+            data.posts.create(foo: "bar")
+          }.to raise_error(Pakyow::Data::UniqueViolation)
+
+          expect(data.posts.count).to eq(1)
         end
       end
     end
@@ -63,13 +90,13 @@ RSpec.shared_examples :source_types do
         Proc.new do
           instance_exec(&$data_app_boilerplate)
 
-          source :posts do
+          source :posts, primary_id: false, timestamps: false do
             primary_id
           end
         end
       end
 
-      it "defines the primary key" do
+      it "behaves as a primary key" do
         data.posts.create
         data.posts.create
 
@@ -93,7 +120,7 @@ RSpec.shared_examples :source_types do
         Proc.new do
           instance_exec(&$data_app_boilerplate)
 
-          source :posts do
+          source :posts, primary_id: false, timestamps: false do
             primary_id
             timestamps
             attribute :title, :string
@@ -138,7 +165,7 @@ RSpec.shared_examples :source_types do
           Proc.new do
             instance_exec(&$data_app_boilerplate)
 
-            source :posts do
+            source :posts, primary_id: false, timestamps: false do
               primary_id
               timestamps create: :custom_created_at, update: :custom_updated_at
               attribute :title, :string
@@ -161,7 +188,7 @@ RSpec.shared_examples :source_types do
         Proc.new do
           instance_exec(&$data_app_boilerplate)
 
-          source :posts do
+          source :posts, primary_id: false, timestamps: false do
             primary_id
             attribute :attr, :string
           end
@@ -181,7 +208,7 @@ RSpec.shared_examples :source_types do
           Proc.new do
             instance_exec(&$data_app_boilerplate)
 
-            source :posts do
+            source :posts, primary_id: false, timestamps: false do
               primary_id
               attribute :attr1, :string, default: "foo"
               attribute :attr2, :string
@@ -209,7 +236,7 @@ RSpec.shared_examples :source_types do
           Proc.new do
             instance_exec(&$data_app_boilerplate)
 
-            source :posts do
+            source :posts, primary_id: false, timestamps: false do
               primary_id
               attribute :attr, :string, required: true
             end
@@ -233,7 +260,7 @@ RSpec.shared_examples :source_types do
             Proc.new do
               instance_exec(&$data_app_boilerplate)
 
-              source :posts do
+              source :posts, primary_id: false, timestamps: false do
                 primary_id
                 attribute :attr, :string
               end
@@ -250,7 +277,7 @@ RSpec.shared_examples :source_types do
             Proc.new do
               instance_exec(&$data_app_boilerplate)
 
-              source :posts do
+              source :posts, primary_id: false, timestamps: false do
                 primary_id
                 attribute :attr, :boolean
               end
@@ -267,7 +294,7 @@ RSpec.shared_examples :source_types do
             Proc.new do
               instance_exec(&$data_app_boilerplate)
 
-              source :posts do
+              source :posts, primary_id: false, timestamps: false do
                 primary_id
                 attribute :attr, :date
               end
@@ -284,7 +311,7 @@ RSpec.shared_examples :source_types do
             Proc.new do
               instance_exec(&$data_app_boilerplate)
 
-              source :posts do
+              source :posts, primary_id: false, timestamps: false do
                 primary_id
                 attribute :attr, :time
               end
@@ -302,7 +329,7 @@ RSpec.shared_examples :source_types do
             Proc.new do
               instance_exec(&$data_app_boilerplate)
 
-              source :posts do
+              source :posts, primary_id: false, timestamps: false do
                 primary_id
                 attribute :attr, :datetime
               end
@@ -320,7 +347,7 @@ RSpec.shared_examples :source_types do
             Proc.new do
               instance_exec(&$data_app_boilerplate)
 
-              source :posts do
+              source :posts, primary_id: false, timestamps: false do
                 primary_id
                 attribute :attr, :integer
               end
@@ -337,7 +364,7 @@ RSpec.shared_examples :source_types do
             Proc.new do
               instance_exec(&$data_app_boilerplate)
 
-              source :posts do
+              source :posts, primary_id: false, timestamps: false do
                 primary_id
                 attribute :attr, :float
               end
@@ -358,7 +385,7 @@ RSpec.shared_examples :source_types do
             Proc.new do
               instance_exec(&$data_app_boilerplate)
 
-              source :posts do
+              source :posts, primary_id: false, timestamps: false do
                 primary_id
                 attribute :attr, :decimal
               end
@@ -374,7 +401,7 @@ RSpec.shared_examples :source_types do
               Proc.new do
                 instance_exec(&$data_app_boilerplate)
 
-                source :posts do
+                source :posts, primary_id: false, timestamps: false do
                   primary_id
                   attribute :attr, :decimal, size: [10, 1]
                 end
