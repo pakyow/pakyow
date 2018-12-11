@@ -455,6 +455,36 @@ RSpec.shared_examples :source_associations do
             :post
           end
         end
+
+        context "reciprocal association already exists" do
+          let :app_definition do
+            Proc.new do
+              instance_exec(&$data_app_boilerplate)
+
+              source :posts do
+                primary_id
+                has_one :comment, dependent: :nullify
+              end
+
+              source :comments do
+                primary_id
+                belongs_to :post, query: :foo
+
+                def foo
+                  self
+                end
+              end
+            end
+          end
+
+          it "does not create a duplicate association" do
+            expect(data.comments.source.class.associations[:belongs_to].count).to eq(1)
+          end
+
+          it "does not override the existing association" do
+            expect(data.comments.source.class.associations[:belongs_to][0][:query_name]).to eq(:foo)
+          end
+        end
       end
 
       describe "aliased association" do
@@ -537,6 +567,36 @@ RSpec.shared_examples :source_associations do
             let :association_name do
               :owner
             end
+          end
+        end
+
+        context "reciprocal association already exists" do
+          let :app_definition do
+            Proc.new do
+              instance_exec(&$data_app_boilerplate)
+
+              source :posts do
+                primary_id
+                has_one :comment, as: :owner
+              end
+
+              source :comments do
+                primary_id
+                belongs_to :owner, source: :posts, query: :foo
+
+                def foo
+                  self
+                end
+              end
+            end
+          end
+
+          it "does not create a duplicate association" do
+            expect(data.comments.source.class.associations[:belongs_to].count).to eq(1)
+          end
+
+          it "does not override the existing association" do
+            expect(data.comments.source.class.associations[:belongs_to][0][:query_name]).to eq(:foo)
           end
         end
       end
@@ -770,6 +830,36 @@ RSpec.shared_examples :source_associations do
             :post
           end
         end
+
+        context "reciprocal association already exists" do
+          let :app_definition do
+            Proc.new do
+              instance_exec(&$data_app_boilerplate)
+
+              source :posts do
+                primary_id
+                has_many :comments, dependent: :nullify
+              end
+
+              source :comments do
+                primary_id
+                belongs_to :post, query: :foo
+
+                def foo
+                  self
+                end
+              end
+            end
+          end
+
+          it "does not create a duplicate association" do
+            expect(data.comments.source.class.associations[:belongs_to].count).to eq(1)
+          end
+
+          it "does not override the existing association" do
+            expect(data.comments.source.class.associations[:belongs_to][0][:query_name]).to eq(:foo)
+          end
+        end
       end
 
       describe "aliased association" do
@@ -851,6 +941,36 @@ RSpec.shared_examples :source_associations do
 
             let :association_name do
               :owner
+            end
+          end
+
+          context "reciprocal association already exists" do
+            let :app_definition do
+              Proc.new do
+                instance_exec(&$data_app_boilerplate)
+
+                source :posts do
+                  primary_id
+                  has_many :comments, as: :owner
+                end
+
+                source :comments do
+                  primary_id
+                  belongs_to :owner, source: :comments, query: :foo
+
+                  def foo
+                    self
+                  end
+                end
+              end
+            end
+
+            it "does not create a duplicate association" do
+              expect(data.comments.source.class.associations[:belongs_to].count).to eq(1)
+            end
+
+            it "does not override the existing association" do
+              expect(data.comments.source.class.associations[:belongs_to][0][:query_name]).to eq(:foo)
             end
           end
         end
