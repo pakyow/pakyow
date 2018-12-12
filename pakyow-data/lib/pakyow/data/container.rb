@@ -25,12 +25,15 @@ module Pakyow
            }
 
           found_source.new(
-            @connection.dataset_for_source(found_source),
-            object_map: @object_map
+            @connection.dataset_for_source(found_source)
           )
         else
           # TODO: raise UnknownSource
         end
+      end
+
+      def object(object_name)
+        @object_map.fetch(object_name, Object)
       end
 
       def finalize!(other_containers)

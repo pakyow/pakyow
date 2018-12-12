@@ -61,9 +61,8 @@ module Pakyow
         # @api private
         attr_reader :included
 
-        def initialize(dataset, object_map: {})
+        def initialize(dataset)
           __setobj__(dataset)
-          @object_map = object_map
           @wrap_as = self.class.singular_name
           @included = []
 
@@ -237,7 +236,7 @@ module Pakyow
           wrapped_result = if @wrap_as.is_a?(Class)
             @wrap_as.new(result)
           else
-            @object_map.fetch(@wrap_as, Object).new(result)
+            self.class.container.object(@wrap_as).new(result)
           end
 
           if wrapped_result.is_a?(Object)
