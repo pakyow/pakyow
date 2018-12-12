@@ -59,11 +59,11 @@ module Pakyow
         require "pakyow/data/sources/relational/migrator"
 
         # @api private
-        attr_reader :container, :included
+        attr_reader :included
 
-        def initialize(dataset, container:, object_map: {})
+        def initialize(dataset, object_map: {})
           __setobj__(dataset)
-          @container, @object_map = container, object_map
+          @object_map = object_map
           @wrap_as = self.class.singular_name
           @included = []
 
@@ -97,7 +97,7 @@ module Pakyow
               association[:access_name] == association_name
             } || raise(UnknownAssociation.new("Unknown association `#{association_name}`").tap { |error| error.context = self.class })
 
-            included_source = @container.source(association_to_include[:source_name])
+            included_source = self.class.container.source(association_to_include[:source_name])
 
             if association_to_include[:query_name]
               included_source = included_source.send(association_to_include[:query_name])
@@ -141,7 +141,7 @@ module Pakyow
         end
 
         def transaction(&block)
-          @container.connection.transaction(&block)
+          self.class.container.connection.transaction(&block)
         end
 
         def command(command_name)
@@ -250,7 +250,7 @@ module Pakyow
         def include_results!(results)
           @included.each do |association, combined_source|
             combined_source.__setobj__(
-              combined_source.container.connection.adapter.result_for_attribute_value(
+              combined_source.class.container.connection.adapter.result_for_attribute_value(
                 association[:associated_column_name],
                 results.map { |result| result[association[:column_name]] },
                 combined_source

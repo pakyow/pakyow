@@ -28,8 +28,7 @@ module Pakyow
 
           found_source.new(
             @connection.dataset_for_source(found_source),
-            object_map: @object_map,
-            container: self
+            object_map: @object_map
           )
         else
           # TODO: raise UnknownSource
@@ -44,6 +43,7 @@ module Pakyow
 
       def finalize!
         sources_to_finalize.each do |source|
+          set_container_for_source!(source)
           define_inverse_associations!(source)
         end
 
@@ -62,6 +62,10 @@ module Pakyow
 
       def sources_to_finalize
         @sources.reject(&:finalized?)
+      end
+
+      def set_container_for_source!(source)
+        source.container = self
       end
 
       def mixin_commands!(source)
@@ -111,7 +115,7 @@ module Pakyow
           source.class_eval do
             method_name = :"by_#{attribute}"
             define_method method_name do |value|
-              @container.connection.adapter.result_for_attribute_value(attribute, value, self)
+              self.class.container.connection.adapter.result_for_attribute_value(attribute, value, self)
             end
 
             # Qualify the query.

@@ -1,7 +1,7 @@
 RSpec.shared_examples :source_connection do
   describe "connecting a source" do
     let :connection do
-      Pakyow.apps.first.data.posts.source.container.connection
+      Pakyow.apps.first.data.posts.source.class.container.connection
     end
 
     context "single default connection is defined" do

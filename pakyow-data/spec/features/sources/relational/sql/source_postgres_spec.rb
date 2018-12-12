@@ -194,7 +194,7 @@ RSpec.describe "postgres source" do
     end
 
     let :column do
-      data.comments.source.container.connection.adapter.connection.schema(:comments)[1][1]
+      data.comments.source.class.container.connection.adapter.connection.schema(:comments)[1][1]
     end
 
     it "is not a primary key" do

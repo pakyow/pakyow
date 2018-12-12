@@ -27,7 +27,7 @@ RSpec.shared_examples :source_sql_transactions do
 
     describe "using a transaction" do
       it "wraps queries in a transaction" do
-        expect(data.posts.source.container.connection.adapter.connection).to receive(:transaction)
+        expect(data.posts.source.class.container.connection.adapter.connection).to receive(:transaction)
 
         data.posts.transaction do
           data.posts.create(title: "foo")

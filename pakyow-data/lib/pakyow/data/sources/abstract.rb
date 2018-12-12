@@ -38,6 +38,11 @@ module Pakyow
         end
 
         class << self
+          attr_reader :container
+
+          # @api private
+          attr_writer :container
+
           # @api private
           def source_from_source(source, dataset)
             source.dup.tap do |duped_source|

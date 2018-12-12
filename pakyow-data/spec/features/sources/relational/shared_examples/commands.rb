@@ -259,7 +259,7 @@ RSpec.shared_examples :source_commands do
 
           command :create_with_default_comment, performs_create: true do |values|
             command(:create).call(values) do |post|
-              container.source(:comment).command(:create).call(body: "default comment", post: post.one)
+              self.class.container.source(:comment).command(:create).call(body: "default comment", post: post.one)
             end
           end
         end
