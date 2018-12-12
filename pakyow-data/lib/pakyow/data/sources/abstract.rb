@@ -40,8 +40,22 @@ module Pakyow
         class << self
           attr_reader :container
 
+          def instance
+            container.source(plural_name)
+          end
+
           # @api private
           attr_writer :container
+
+          # @api private
+          def plural_name
+            Support.inflector.pluralize(__object_name.name).to_sym
+          end
+
+          # @api private
+          def singular_name
+            Support.inflector.singularize(__object_name.name).to_sym
+          end
 
           # @api private
           def source_from_source(source, dataset)

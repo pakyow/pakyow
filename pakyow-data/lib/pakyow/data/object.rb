@@ -28,7 +28,7 @@ module Pakyow
       end
 
       def [](key)
-        key = key.to_sym
+        key = key.to_s.to_sym
         if value_methods.include?(key)
           public_send(key)
         else

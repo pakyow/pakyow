@@ -49,7 +49,7 @@ module Pakyow
             differ = differ(source, attributes)
             create_table differ.table_name do
               differ.attributes.each do |attribute_name, attribute|
-                local_context.send(:add_column_for_attribute, attribute_name, attribute, self)
+                local_context.send(:add_column_for_attribute, attribute_name, attribute, self, source)
               end
             end
           end
@@ -69,7 +69,7 @@ module Pakyow
                   end
 
                   attributes_to_add.each do |attribute_name, attribute|
-                    local_context.send(:add_column_for_attribute, attribute_name, attribute, self, method_prefix: "add_")
+                    local_context.send(:add_column_for_attribute, attribute_name, attribute, self, source, method_prefix: "add_")
                   end
                 end
               end
@@ -84,7 +84,7 @@ module Pakyow
 
               alter_table differ.table_name do
                 differ.attributes_to_add.each do |attribute_name, attribute|
-                  local_context.send(:add_column_for_attribute, attribute_name, attribute, self, method_prefix: "add_")
+                  local_context.send(:add_column_for_attribute, attribute_name, attribute, self, source, method_prefix: "add_")
                 end
 
                 differ.column_types_to_change.each do |column_name, _column_type|
@@ -117,14 +117,14 @@ module Pakyow
           end
 
           AUTO_INCREMENTING_TYPES = %i(integer bignum).freeze
-          def add_column_for_attribute(attribute_name, attribute, context, method_prefix: "")
+          def add_column_for_attribute(attribute_name, attribute, context, source, method_prefix: "")
             if attribute.meta[:primary_key]
               if AUTO_INCREMENTING_TYPES.include?(attribute.meta[:migration_type])
                 context.send(:"#{method_prefix}primary_key", attribute_name, type: type_for_attribute(attribute))
               else
                 context.send(:"#{method_prefix}column", attribute_name, type_for_attribute(attribute), primary_key: true, **column_opts_for_attribute(attribute))
               end
-            elsif attribute.meta[:foreign_key]
+            elsif attribute.meta[:foreign_key] && source.container.sources.any? { |potential_foreign_source| potential_foreign_source.plural_name == attribute.meta[:foreign_key] }
               context.send(:"#{method_prefix}foreign_key", attribute_name, attribute.meta[:foreign_key], type: type_for_attribute(attribute))
             else
               context.send(:"#{method_prefix}column", attribute_name, type_for_attribute(attribute), **column_opts_for_attribute(attribute))

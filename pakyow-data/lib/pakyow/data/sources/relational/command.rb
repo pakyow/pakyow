@@ -112,13 +112,13 @@ module Pakyow
                         when :belongs_to
                           associated_column_name = association[:associated_column_name]
                           associated_column_value = association_value[association[:associated_column_name]]
-                          associated_object_query = @source.class.container.source(association[:source_name]).send(
+                          associated_object_query = association[:source].instance.send(
                             :"by_#{association[:associated_column_name]}", associated_column_value
                           )
                         when :has_one
                           associated_column_name = association[:column_name]
                           associated_column_value = association_value[association[:column_name]]
-                          associated_object_query = @source.class.container.source(association[:source_name]).send(
+                          associated_object_query = association[:source].instance.send(
                             :"by_#{association[:column_name]}", associated_column_value
                           )
                         end
@@ -147,7 +147,7 @@ module Pakyow
                           raise TypeMismatch, "Cannot associate results as #{association[:access_name]} because at least one value did not originate from #{association[:source_name]}"
                         else
                           associated_column_value = association_value.map { |object| object[association[:column_name]] }
-                          associated_object_query = @source.class.container.source(association[:source_name]).send(
+                          associated_object_query = association[:source].instance.send(
                             :"by_#{association[:column_name]}", associated_column_value
                           )
 
@@ -172,7 +172,7 @@ module Pakyow
                 final_values.key?(association[:column_name]) && !final_values[association[:column_name]].nil?
               }.each do |association|
                 associated_column_value = final_values[association[:column_name]]
-                associated_object_query = @source.class.container.source(association[:source_name]).send(
+                associated_object_query = association[:source].instance.send(
                   :"by_#{association[:associated_column_name]}", associated_column_value
                 )
 
@@ -224,11 +224,21 @@ module Pakyow
                 @source.class.associations.values.flatten.select { |association|
                   association.key?(:dependent)
                 }.each do |association|
-                  dependent_data = @source.class.container.source(association[:source_name]).send(
+                  dependent_values = @source.class.container.connection.adapter.restrict_to_attribute(
+                    @source.class.primary_key_field, @source
+                  )
+
+                  # If objects are located in two different connections, fetch the raw values.
+                  #
+                  unless @source.class.container.connection == association[:source].container.connection
+                    dependent_values = dependent_values.map { |dependent_value|
+                      dependent_value[@source.class.primary_key_field]
+                    }
+                  end
+
+                  dependent_data = association[:source].instance.send(
                     :"by_#{association[:associated_column_name]}",
-                    @source.class.container.connection.adapter.restrict_to_attribute(
-                      @source.class.primary_key_field, @source
-                    )
+                    dependent_values
                   )
 
                   case association[:dependent]
@@ -253,7 +263,7 @@ module Pakyow
 
               if @performs_create || @performs_update
                 @source.class.associations[:belongs_to].flat_map { |belongs_to_association|
-                  @source.class.container.source(belongs_to_association[:source_name]).class.associations[:has_one].select { |has_one_association|
+                  belongs_to_association[:source].associations[:has_one].select { |has_one_association|
                     has_one_association[:associated_column_name] == belongs_to_association[:column_name]
                   }
                 }.each do |association|
@@ -320,7 +330,7 @@ module Pakyow
                       end
                     }
 
-                    @source.class.container.source(association[:source_name]).send(
+                    association[:source].instance.send(
                       :"by_#{association[:column_name]}", updatable
                     )
                   when NilClass
@@ -331,7 +341,7 @@ module Pakyow
 
                   # Disassociate old data.
                   #
-                  @source.class.container.source(association[:source_name]).send(
+                  association[:source].instance.send(
                     :"by_#{association[:associated_column_name]}", associated_column_value
                   ).update(association[:associated_column_name] => nil)
 

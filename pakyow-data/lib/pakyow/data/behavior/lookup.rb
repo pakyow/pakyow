@@ -29,7 +29,11 @@ module Pakyow
                     objects: state(:object)
                   )
                 end
-              },
+              }.tap do |containers|
+                containers.each do |container|
+                  container.finalize!(containers - [container])
+                end
+              end,
               subscribers: Subscribers.new(
                 self,
                 Pakyow.config.data.subscriptions.adapter,

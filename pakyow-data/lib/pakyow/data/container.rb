@@ -15,8 +15,6 @@ module Pakyow
         @object_map = objects.each_with_object({}) { |object, map|
           map[object.__object_name.name] = object
         }
-
-        finalize!
       end
 
       def source(source_name)
@@ -35,22 +33,16 @@ module Pakyow
         end
       end
 
-      private
-
-      def adapter
-        @connection.adapter
-      end
-
-      def finalize!
+      def finalize!(other_containers)
         sources_to_finalize.each do |source|
           set_container_for_source!(source)
-          define_inverse_associations!(source)
+          define_inverse_associations!(source, other_containers)
         end
 
         sources_to_finalize.each do |source|
           mixin_commands!(source)
           mixin_dataset_methods!(source)
-          define_attributes_for_associations!(source)
+          define_attributes_for_associations!(source, other_containers)
           define_queries_for_attributes!(source)
           wrap_defined_queries!(source)
           define_methods_for_associations!(source)
@@ -58,6 +50,12 @@ module Pakyow
           finalize_source_types!(source)
           source.finalized!
         end
+      end
+
+      private
+
+      def adapter
+        @connection.adapter
       end
 
       def sources_to_finalize
@@ -76,29 +74,33 @@ module Pakyow
         source.extend adapter.class.const_get("DatasetMethods")
       end
 
-      def define_attributes_for_associations!(source)
-        source.associations[:belongs_to].each do |belongs_to_association|
-          associated_source = @sources.find { |potentially_associated_source|
-            potentially_associated_source.plural_name == belongs_to_association[:source_name]
+      def define_attributes_for_associations!(source, other_containers)
+        source.associations.values.flatten.each do |association|
+          associated_source = (@sources + other_containers.flat_map(&:sources)).find { |potentially_associated_source|
+            potentially_associated_source.plural_name == association[:source_name]
           }
 
           if associated_source
-            belongs_to_association[:column_name] = :"#{belongs_to_association[:access_name]}_#{associated_source.primary_key_field}"
-            belongs_to_association[:column_type] = associated_source.primary_key_type
-            belongs_to_association[:associated_column_name] = associated_source.primary_key_field
+            association[:source] = associated_source
 
-            source.attribute(
-              belongs_to_association[:column_name],
-              belongs_to_association[:column_type],
-              foreign_key: belongs_to_association[:source_name]
-            )
+            if association[:type] == :belongs_to
+              association[:column_name] = :"#{association[:access_name]}_#{associated_source.primary_key_field}"
+              association[:column_type] = associated_source.primary_key_type
+              association[:associated_column_name] = associated_source.primary_key_field
+
+              source.attribute(
+                association[:column_name],
+                association[:column_type],
+                foreign_key: association[:source_name]
+              )
+            end
           end
         end
       end
 
-      def define_inverse_associations!(source)
+      def define_inverse_associations!(source, other_containers)
         (source.associations[:has_many] + source.associations[:has_one]).each do |association|
-          associated_source = @sources.find { |potentially_associated_source|
+          associated_source = (@sources + other_containers.flat_map(&:sources)).find { |potentially_associated_source|
             potentially_associated_source.plural_name == association[:source_name]
           }
 

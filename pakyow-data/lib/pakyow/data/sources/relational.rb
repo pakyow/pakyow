@@ -97,7 +97,7 @@ module Pakyow
               association[:access_name] == association_name
             } || raise(UnknownAssociation.new("Unknown association `#{association_name}`").tap { |error| error.context = self.class })
 
-            included_source = self.class.container.source(association_to_include[:source_name])
+            included_source = association_to_include[:source].instance
 
             if association_to_include[:query_name]
               included_source = included_source.send(association_to_include[:query_name])
@@ -425,16 +425,6 @@ module Pakyow
               #
               class_eval(&block) if block_given?
             end
-          end
-
-          # @api private
-          def plural_name
-            Support.inflector.pluralize(__object_name.name).to_sym
-          end
-
-          # @api private
-          def singular_name
-            Support.inflector.singularize(__object_name.name).to_sym
           end
 
           # @api private
