@@ -9,6 +9,10 @@ module Pakyow
         extend Support::ClassState
         class_state :__finalized, default: false, inheritable: true
 
+        def initialize(dataset)
+          __setobj__(dataset)
+        end
+
         # @api private
         attr_reader :original_results
 

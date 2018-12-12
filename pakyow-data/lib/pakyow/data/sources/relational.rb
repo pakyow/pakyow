@@ -61,8 +61,9 @@ module Pakyow
         # @api private
         attr_reader :included
 
-        def initialize(dataset)
-          __setobj__(dataset)
+        def initialize(*)
+          super
+
           @wrap_as = self.class.singular_name
           @included = []
 
