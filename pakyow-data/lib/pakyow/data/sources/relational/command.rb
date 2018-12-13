@@ -369,11 +369,21 @@ module Pakyow
                       association[:column_name], final_result
                     )
 
+                    # If objects are located in two different connections, fetch the raw values.
+                    #
+                    if association[:joining_source].container.connection == final_result.class.container.connection
+                      disassociate_column_value = associated_column_value
+                    else
+                      disassociate_column_value = associated_column_value.map { |value|
+                        value[association[:column_name]]
+                      }
+                    end
+
                     # Disassociate old data.
                     #
                     association[:joining_source].instance.send(
                       :"by_#{association[:joining_associated_column_name]}",
-                      associated_column_value
+                      disassociate_column_value
                     ).delete
 
                     if associated_dataset
@@ -387,11 +397,21 @@ module Pakyow
                       # Ensure that has_one through associations only have one associated object.
                       #
                       if association[:access_type] == :one
+                        joined_column_value = association[:source].container.connection.adapter.restrict_to_attribute(
+                          association[:column_name], associated_dataset_source
+                        )
+
+                        # If objects are located in two different connections, fetch the raw values.
+                        #
+                        unless association[:joining_source].container.connection == association[:source].container.connection
+                          joined_column_value = joined_column_value.map { |value|
+                            value[association[:column_name]]
+                          }
+                        end
+
                         association[:joining_source].instance.send(
                           :"by_#{association[:joining_column_name]}",
-                          association[:source].container.connection.adapter.restrict_to_attribute(
-                            association[:column_name], associated_dataset_source
-                          )
+                          joined_column_value
                         ).delete
                       end
 

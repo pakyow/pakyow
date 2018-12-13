@@ -94,7 +94,7 @@ module Pakyow
         end
 
         def restrict_to_attribute(attribute, source)
-          source.select(attribute)
+          source.select(*attribute)
         end
 
         def merge_results(left_column_name, right_column_name, mergeable_source, merge_into_source)

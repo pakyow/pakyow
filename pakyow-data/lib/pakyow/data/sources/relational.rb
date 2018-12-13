@@ -252,7 +252,7 @@ module Pakyow
             group_by_key, assign_by_key, remove_keys = if association[:joining_source]
               joining_source = association[:joining_source].instance
 
-              if combined_source.class.plural_name == association[:joining_source_name]
+              if combined_source.class == association[:joining_source]
                 combined_source.__setobj__(
                   combined_source.class.container.connection.adapter.result_for_attribute_value(
                     combined_source.class.container.connection.adapter.qualify_attribute(
@@ -264,30 +264,62 @@ module Pakyow
                 )
               else
                 aliased = SecureRandom.hex(4).to_sym
-                combined_source.__setobj__(
-                  combined_source.class.container.connection.adapter.restrict_to_source(
-                    combined_source,
-                    combined_source.class.container.connection.adapter.result_for_attribute_value(
-                      combined_source.class.container.connection.adapter.qualify_attribute(
-                        association[:joining_associated_column_name], joining_source
+
+                if joining_source.class.container.connection == combined_source.class.container.connection
+                  # Optimize with joins.
+                  #
+                  combined_source.__setobj__(
+                    combined_source.class.container.connection.adapter.restrict_to_source(
+                      combined_source,
+                      combined_source.class.container.connection.adapter.result_for_attribute_value(
+                        combined_source.class.container.connection.adapter.qualify_attribute(
+                          association[:joining_associated_column_name], joining_source
+                        ),
+                        joining_source.class.container.connection.adapter.restrict_to_attribute(
+                          association[:column_name], source_from_self(__getobj__.dup)
+                        ),
+                        combined_source.class.container.connection.adapter.merge_results(
+                          association[:joining_column_name],
+                          association[:column_name],
+                          joining_source,
+                          combined_source
+                        )
                       ),
-                      joining_source.class.container.connection.adapter.restrict_to_attribute(
-                        association[:column_name], source_from_self(__getobj__.dup)
-                      ),
-                      combined_source.class.container.connection.adapter.merge_results(
-                        association[:joining_column_name],
-                        association[:column_name],
-                        joining_source,
-                        combined_source
+                      combined_source.class.container.connection.adapter.alias_attribute(
+                        combined_source.class.container.connection.adapter.qualify_attribute(
+                          association[:joining_associated_column_name], joining_source
+                        ), aliased
                       )
-                    ),
-                    combined_source.class.container.connection.adapter.alias_attribute(
-                      combined_source.class.container.connection.adapter.qualify_attribute(
-                        association[:joining_associated_column_name], joining_source
-                      ), aliased
                     )
                   )
-                )
+                else
+                  # Manually join.
+                  #
+                  self_ids = self.class.container.connection.adapter.restrict_to_attribute(
+                    self.class.primary_key_field, self
+                  ).map { |result|
+                    result[self.class.primary_key_field]
+                  }
+
+                  joined_results = joining_source.class.container.connection.adapter.restrict_to_attribute(
+                    [association[:joining_associated_column_name], association[:joining_column_name]],
+                    joining_source.class.container.connection.adapter.result_for_attribute_value(
+                      association[:joining_associated_column_name], self_ids, joining_source
+                    )
+                  )
+
+                  combined_results = combined_source.class.container.connection.adapter.result_for_attribute_value(
+                    combined_source.class.primary_key_field, joined_results.map { |result| result[association[:joining_column_name]] }, combined_source
+                  )
+
+                  combined_results = joined_results.map { |joined_result|
+                    combined_results.find { |result|
+                      result[combined_source.class.primary_key_field] == joined_result[association[:joining_column_name]]
+                    }.dup.tap do |combined_result|
+                      combined_result[aliased] = joined_result[association[:joining_associated_column_name]]
+                    end
+                  }
+                end
               end
 
               [aliased, association[:access_name], [aliased]]
@@ -305,7 +337,7 @@ module Pakyow
 
             # Group the raw results by associated column value.
             #
-            combined_results = combined_source.to_a.group_by { |combined_result|
+            combined_results = (combined_results || combined_source).to_a.group_by { |combined_result|
               combined_result[group_by_key]
             }
 
@@ -313,7 +345,9 @@ module Pakyow
             #
             results.map! { |result|
               combined_results_for_result = combined_results[result[association[:column_name]]].to_a.map! { |combined_result|
-                combined_result = combined_result.values.dup
+                if combined_result.is_a?(Pakyow::Data::Object)
+                  combined_result = combined_result.values.dup
+                end
 
                 # Remove any keys, such as temporary values used for grouping.
                 #

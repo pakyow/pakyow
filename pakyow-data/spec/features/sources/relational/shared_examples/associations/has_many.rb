@@ -29,6 +29,64 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise, many
         expect(results.one.send(association_name)).to_not be(nil)
       end
 
+      if many_to_many
+        context "multiple objects are associated" do
+          before do
+            target_dataset.create(
+              association_name => [
+                associated_dataset.create.one,
+                associated_dataset.create.one,
+                associated_dataset.create.one
+              ]
+            )
+          end
+
+          it "includes all the associated data" do
+            expect(
+              results[0][association_name]
+            ).to eq(
+              [associated_dataset[0]]
+            )
+
+            expect(
+              results[1][association_name]
+            ).to eq(
+              [
+                associated_dataset[1],
+                associated_dataset[2],
+                associated_dataset[3]
+              ]
+            )
+          end
+        end
+
+        context "multiple objects are associated, with overlap" do
+          before do
+            associated_dataset.create
+            associated_dataset.create
+            associated_dataset.create
+
+            target_dataset.create(
+              association_name => associated_dataset
+            )
+          end
+
+          it "includes all the associated data" do
+            expect(
+              results[0][association_name]
+            ).to eq(
+              [associated_dataset[0]]
+            )
+
+            expect(
+              results[1][association_name]
+            ).to eq(
+              associated_dataset.to_a
+            )
+          end
+        end
+      end
+
       context "included association does not exist" do
         it "raises an error" do
           expect {
@@ -552,11 +610,11 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise, many
           }.to change {
             target_dataset.including(
               association_name
-            ).one.send(association_name).map(&:id)
+            ).one.send(association_name).map(&:id).sort
           }.from(
-            associated_old.map(&:id)
+            associated_old.map(&:id).sort
           ).to(
-            associated_dataset.to_a.map(&:id)
+            associated_dataset.to_a.map(&:id).sort
           )
         end
       end
