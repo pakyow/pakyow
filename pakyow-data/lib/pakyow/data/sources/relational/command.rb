@@ -37,7 +37,7 @@ module Pakyow
               # Fail if unexpected values were passed.
               #
               values.keys.each do |key|
-                unless @source.class.attributes.include?(key) || @source.class.associations.values.flatten.find { |association| association[:access_name] == key }
+                unless @source.class.attributes.include?(key) || @source.class.association_for_access_name?(key)
                   raise UnknownAttribute.new("Unknown attribute #{key} for #{@source.class.__object_name.name}")
                 end
               end
@@ -236,16 +236,41 @@ module Pakyow
                     }
                   end
 
-                  dependent_data = association[:source].instance.send(
-                    :"by_#{association[:associated_column_name]}",
-                    dependent_values
-                  )
+                  if association[:joining_source]
+                    joining_data = association[:joining_source].instance.send(
+                      :"by_#{association[:joining_associated_column_name]}",
+                      dependent_values
+                    )
+
+                    dependent_data = association[:source].instance.send(
+                      :"by_#{association[:source].primary_key_field}",
+                      association[:source].container.connection.adapter.restrict_to_attribute(
+                        association[:joining_column_name], joining_data
+                      ).map { |result|
+                        result[association[:joining_column_name]]
+                      }
+                    )
+
+                    case association[:dependent]
+                    when :delete
+                      joining_data.delete
+                    when :nullify
+                      joining_data.update(association[:joining_associated_column_name] => nil)
+                    end
+                  else
+                    dependent_data = association[:source].instance.send(
+                      :"by_#{association[:associated_column_name]}",
+                      dependent_values
+                    )
+                  end
 
                   case association[:dependent]
                   when :delete
                     dependent_data.delete
                   when :nullify
-                    dependent_data.update(association[:associated_column_name] => nil)
+                    unless association[:joining_source]
+                      dependent_data.update(association[:associated_column_name] => nil)
+                    end
                   when :raise
                     dependent_count = dependent_data.count
                     if dependent_count > 0
@@ -262,6 +287,8 @@ module Pakyow
               end
 
               if @performs_create || @performs_update
+                # Ensure that has_one associations only have one associated object.
+                #
                 @source.class.associations[:belongs_to].flat_map { |belongs_to_association|
                   belongs_to_association[:source].associations[:has_one].select { |has_one_association|
                     has_one_association[:associated_column_name] == belongs_to_association[:column_name]
@@ -272,7 +299,7 @@ module Pakyow
                   ) || final_values.dig(association[:associated_column_name])
 
                   if value
-                    @source.class.container.source(@source.class.__object_name.name).tap do |impacted_source|
+                    @source.class.instance.tap do |impacted_source|
                       impacted_source.__setobj__(
                         @source.class.container.connection.adapter.result_for_attribute_value(
                           association[:associated_column_name], value, impacted_source
@@ -337,31 +364,77 @@ module Pakyow
                     nil
                   end
 
-                  associated_column_value = final_result.one[association[:column_name]]
-
-                  # Disassociate old data.
-                  #
-                  association[:source].instance.send(
-                    :"by_#{association[:associated_column_name]}", associated_column_value
-                  ).update(association[:associated_column_name] => nil)
-
-                  # Associate the correct data.
-                  #
-                  if associated_dataset
-                    associated_dataset.update(
-                      association[:associated_column_name] => associated_column_value
+                  if association[:joining_source]
+                    associated_column_value = final_result.class.container.connection.adapter.restrict_to_attribute(
+                      association[:column_name], final_result
                     )
 
-                    # Update the column value in passed objects.
+                    # Disassociate old data.
                     #
-                    case association_value
-                    when Proxy
-                      association_value.source.reload
-                    when Object, Array
-                      Array.ensure(association_value).each do |object|
-                        values = object.values.dup
-                        values[association[:associated_column_name]] = associated_column_value
-                        object.instance_variable_set(:@values, values.freeze)
+                    association[:joining_source].instance.send(
+                      :"by_#{association[:joining_associated_column_name]}",
+                      associated_column_value
+                    ).delete
+
+                    if associated_dataset
+                      associated_dataset_source = case associated_dataset
+                      when Proxy
+                        associated_dataset.source
+                      else
+                        associated_dataset
+                      end
+
+                      # Ensure that has_one through associations only have one associated object.
+                      #
+                      if association[:access_type] == :one
+                        association[:joining_source].instance.send(
+                          :"by_#{association[:joining_column_name]}",
+                          association[:source].container.connection.adapter.restrict_to_attribute(
+                            association[:column_name], associated_dataset_source
+                          )
+                        ).delete
+                      end
+
+                      # Associate the correct data.
+                      #
+                      associated_column_value.each do |result|
+                        association[:source].container.connection.adapter.restrict_to_attribute(
+                          association[:column_name], associated_dataset_source
+                        ).each do |associated_result|
+                          association[:joining_source].instance.command(:create).call(
+                            association[:joining_column_name] => associated_result[association[:column_name]],
+                            association[:joining_associated_column_name] => result[association[:associated_column_name]]
+                          )
+                        end
+                      end
+                    end
+                  else
+                    associated_column_value = final_result.one[association[:column_name]]
+
+                    # Disassociate old data.
+                    #
+                    association[:source].instance.send(
+                      :"by_#{association[:associated_column_name]}", associated_column_value
+                    ).update(association[:associated_column_name] => nil)
+
+                    # Associate the correct data.
+                    #
+                    if associated_dataset
+                      associated_dataset.update(
+                        association[:associated_column_name] => associated_column_value
+                      )
+
+                      # Update the column value in passed objects.
+                      #
+                      case association_value
+                      when Proxy
+                        association_value.source.reload
+                      when Object, Array
+                        Array.ensure(association_value).each do |object|
+                          values = object.values.dup
+                          values[association[:associated_column_name]] = associated_column_value
+                          object.instance_variable_set(:@values, values.freeze)
+                        end
                       end
                     end
                   end

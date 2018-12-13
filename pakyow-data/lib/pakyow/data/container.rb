@@ -86,6 +86,12 @@ module Pakyow
           if associated_source
             association[:source] = associated_source
 
+            if association[:joining_source_name]
+              association[:joining_source] = (@sources + other_containers.flat_map(&:sources)).find { |potentially_joining_source|
+                potentially_joining_source.plural_name == association[:joining_source_name]
+              }
+            end
+
             if association[:type] == :belongs_to
               association[:column_name] = :"#{association[:access_name]}_#{associated_source.primary_key_field}"
               association[:column_type] = associated_source.primary_key_type
@@ -108,8 +114,32 @@ module Pakyow
           }
 
           if associated_source
-            unless associated_source.associations[:belongs_to].any? { |current_association| current_association[:access_name] == association[:associated_access_name] }
-              associated_source.belongs_to(association[:associated_access_name], source: source.plural_name)
+            if association[:joining_source_name]
+              joining_source = (@sources + other_containers.flat_map(&:sources)).find { |potential_joining_source|
+                potential_joining_source.plural_name == association[:joining_source_name]
+              }
+
+              if joining_source
+                unless joining_source.associations[:belongs_to].any? { |current_association| current_association[:access_name] == association[:joining_access_name] }
+                  joining_source.belongs_to(association[:joining_access_name], source: associated_source.plural_name)
+                end
+
+                unless joining_source.associations[:belongs_to].any? { |current_association| current_association[:access_name] == association[:joining_associated_access_name] }
+                  joining_source.belongs_to(association[:joining_associated_access_name], source: source.plural_name)
+                end
+
+                unless associated_source.associations[association[:type]].any? { |current_association| current_association[:joining_source_name] == association[:joining_source_name] }
+                  associated_source.send(association[:type], association[:associated_access_name], source: source.plural_name, as: association[:joining_access_name], through: association[:joining_source_name], dependent: association[:dependent])
+                end
+
+                unless source.associations[association[:type]].any? { |current_association| current_association[:source_name] == association[:joining_source_name] }
+                  source.send(association[:type], association[:joining_source_name], source: joining_source.plural_name, as: Support.inflector.singularize(association[:associated_access_name]), dependent: association[:dependent])
+                end
+              end
+            else
+              unless associated_source.associations[:belongs_to].any? { |current_association| current_association[:access_name] == association[:associated_access_name] }
+                associated_source.belongs_to(association[:associated_access_name], source: source.plural_name)
+              end
             end
           end
         end
@@ -117,24 +147,29 @@ module Pakyow
 
       def define_queries_for_attributes!(source)
         source.attributes.keys.each do |attribute|
-          source.class_eval do
-            method_name = :"by_#{attribute}"
-            define_method method_name do |value|
-              self.class.container.connection.adapter.result_for_attribute_value(attribute, value, self)
-            end
+          method_name = :"by_#{attribute}"
+          unless source.instance_methods.include?(method_name)
+            source.class_eval do
+              define_method method_name do |value|
+                self.class.container.connection.adapter.result_for_attribute_value(attribute, value, self)
+              end
 
-            # Qualify the query.
-            #
-            subscribe :"by_#{attribute}", attribute => :__arg0__
+              # Qualify the query.
+              #
+              subscribe :"by_#{attribute}", attribute => :__arg0__
+            end
           end
         end
       end
 
       def define_methods_for_associations!(source)
         source.associations.values.flatten.each do |association|
-          source.class_eval do
-            define_method :"with_#{association[:access_name]}" do
-              including(association[:access_name])
+          method_name = :"with_#{association[:access_name]}"
+          unless source.instance_methods.include?(method_name)
+            source.class_eval do
+              define_method method_name do
+                including(association[:access_name])
+              end
             end
           end
         end
@@ -142,9 +177,12 @@ module Pakyow
 
       def define_methods_for_objects!(source)
         @object_map.keys.each do |object_name|
-          source.class_eval do
-            define_method :"as_#{object_name}" do
-              as(object_name)
+          method_name = :"as_#{object_name}"
+          unless source.instance_methods.include?(method_name)
+            source.class_eval do
+              define_method method_name do
+                as(object_name)
+              end
             end
           end
         end

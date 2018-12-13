@@ -1,6 +1,10 @@
 require_relative "./associations/belongs_to"
 require_relative "./associations/has_many"
+require_relative "./associations/has_many_through"
 require_relative "./associations/has_one"
+require_relative "./associations/has_one_through"
+require_relative "./associations/many_to_many"
+require_relative "./associations/one_to_one"
 
 RSpec.shared_examples :source_associations do
   describe "associating sources" do
@@ -734,6 +738,372 @@ RSpec.shared_examples :source_associations do
       end
     end
 
+    describe "has_one :through" do
+      let :app_definition do
+        Proc.new do
+          instance_exec(&$data_app_boilerplate)
+
+          source :posts do
+            has_one :comment, through: :related
+
+            query do
+              order { id.asc }
+            end
+          end
+
+          source :comments do
+            query do
+              order { id.asc }
+            end
+          end
+
+          source :relateds do
+            query do
+              order { id.asc }
+            end
+          end
+        end
+      end
+
+      it_behaves_like :source_associations_has_one_through do
+        let :target_source do
+          :posts
+        end
+
+        let :associated_source do
+          :comments
+        end
+
+        let :joining_source do
+          :relateds
+        end
+
+        let :association_name do
+          :comment
+        end
+
+        let :associated_as do
+          :post
+        end
+      end
+
+      describe "dependent: delete" do
+        let :app_definition do
+          Proc.new do
+            instance_exec(&$data_app_boilerplate)
+
+            source :posts do
+              has_one :comment, through: :related, dependent: :delete
+
+              query do
+                order { id.asc }
+              end
+            end
+
+            source :comments do
+              query do
+                order { id.asc }
+              end
+            end
+
+            source :relateds do
+              query do
+                order { id.asc }
+              end
+            end
+          end
+        end
+
+        it_behaves_like :source_associations_has_one_through, dependents: :delete do
+          let :target_source do
+            :posts
+          end
+
+          let :associated_source do
+            :comments
+          end
+
+          let :joining_source do
+            :relateds
+          end
+
+          let :association_name do
+            :comment
+          end
+
+          let :associated_as do
+            :post
+          end
+        end
+      end
+
+      describe "dependent: nullify" do
+        let :app_definition do
+          Proc.new do
+            instance_exec(&$data_app_boilerplate)
+
+            source :posts do
+              has_one :comment, through: :related, dependent: :nullify
+
+              query do
+                order { id.asc }
+              end
+            end
+
+            source :comments do
+              query do
+                order { id.asc }
+              end
+            end
+
+            source :relateds do
+              query do
+                order { id.asc }
+              end
+            end
+          end
+        end
+
+        it_behaves_like :source_associations_has_one_through, dependents: :nullify do
+          let :target_source do
+            :posts
+          end
+
+          let :associated_source do
+            :comments
+          end
+
+          let :joining_source do
+            :relateds
+          end
+
+          let :association_name do
+            :comment
+          end
+
+          let :associated_as do
+            :post
+          end
+        end
+      end
+
+      describe "reciprocal association" do
+        it_behaves_like :source_associations_has_one_through do
+          let :target_source do
+            :comments
+          end
+
+          let :associated_source do
+            :posts
+          end
+
+          let :joining_source do
+            :relateds
+          end
+
+          let :association_name do
+            :post
+          end
+
+          let :associated_as do
+            :comment
+          end
+        end
+      end
+
+      describe "aliased association" do
+        let :app_definition do
+          Proc.new do
+            instance_exec(&$data_app_boilerplate)
+
+            source :posts do
+              has_one :unmentionable, through: :relateds, source: :comments
+
+              query do
+                order { id.asc }
+              end
+            end
+
+            source :comments do
+              query do
+                order { id.asc }
+              end
+            end
+
+            source :relateds do
+              query do
+                order { id.asc }
+              end
+            end
+          end
+        end
+
+        it_behaves_like :source_associations_has_one_through do
+          let :target_source do
+            :posts
+          end
+
+          let :associated_source do
+            :comments
+          end
+
+          let :joining_source do
+            :relateds
+          end
+
+          let :association_name do
+            :unmentionable
+          end
+
+          let :associated_as do
+            :post
+          end
+        end
+      end
+
+      describe "aliased name for the reciprocal association" do
+        let :app_definition do
+          Proc.new do
+            instance_exec(&$data_app_boilerplate)
+
+            source :posts do
+              has_one :comment, through: :related, as: :owners
+
+              query do
+                order { id.asc }
+              end
+            end
+
+            source :comments do
+              query do
+                order { id.asc }
+              end
+            end
+
+            source :relateds do
+              query do
+                order { id.asc }
+              end
+            end
+          end
+        end
+
+        describe "reciprocal association" do
+          it_behaves_like :source_associations_has_one_through do
+            let :target_source do
+              :comments
+            end
+
+            let :associated_source do
+              :posts
+            end
+
+            let :joining_source do
+              :relateds
+            end
+
+            let :association_name do
+              :owner
+            end
+
+            let :associated_as do
+              :comment
+            end
+          end
+        end
+      end
+
+      describe "association with a specific query" do
+        let :app_definition do
+          Proc.new do
+            instance_exec(&$data_app_boilerplate)
+
+            source :posts do
+              has_one :comment, through: :related, query: :id_gt_one
+
+              query do
+                order { id.asc }
+              end
+            end
+
+            source :comments do
+              query do
+                order { id.asc }
+              end
+
+              def id_gt_one
+                where { id > 1 }
+              end
+            end
+
+            source :relateds do
+              query do
+                order { id.asc }
+              end
+            end
+          end
+        end
+
+        before do
+          data.posts.create(
+            comment: data.comments.create
+          )
+
+          data.posts.create(
+            comment: data.comments.create
+          )
+        end
+
+        it "applies the query to the included source" do
+          expect(data.posts.including(:comment).one.comment).to be(nil)
+        end
+      end
+
+      describe "edge cases around definition" do
+        context "through association is specified as plural" do
+          let :app_definition do
+            Proc.new do
+              instance_exec(&$data_app_boilerplate)
+
+              source :posts do
+                has_one :comment, through: :relateds
+              end
+
+              source :comments do
+              end
+
+              source :relateds do
+              end
+            end
+          end
+
+          it "treats it as singular" do
+            data.posts.create(comment: data.comments.create)
+            expect(data.posts.including(:comment).one.comment).to_not be(nil)
+          end
+        end
+
+        context "through association source does not exist" do
+          let :app_definition do
+            Proc.new do
+              instance_exec(&$data_app_boilerplate)
+
+              source :posts do
+                has_one :comment, through: :related
+              end
+
+              source :comments do
+              end
+            end
+          end
+
+          it "raises an error that puts the app in rescue mode" do
+            expect(Pakyow.app(:test).call({})[2].join).to include("Unknown source `relateds` for association: posts has_one comment")
+          end
+        end
+      end
+    end
+
     describe "has_many" do
       let :app_definition do
         Proc.new do
@@ -1110,11 +1480,371 @@ RSpec.shared_examples :source_associations do
     end
 
     describe "has_many :through" do
-      it "will be supported in the future"
-    end
+      let :app_definition do
+        Proc.new do
+          instance_exec(&$data_app_boilerplate)
 
-    describe "has_one :through" do
-      it "will be supported in the future"
+          source :posts do
+            has_many :comments, through: :relateds
+
+            query do
+              order { id.asc }
+            end
+          end
+
+          source :comments do
+            query do
+              order { id.asc }
+            end
+          end
+
+          source :relateds do
+            query do
+              order { id.asc }
+            end
+          end
+        end
+      end
+
+      it_behaves_like :source_associations_has_many_through do
+        let :target_source do
+          :posts
+        end
+
+        let :associated_source do
+          :comments
+        end
+
+        let :joining_source do
+          :relateds
+        end
+
+        let :association_name do
+          :comments
+        end
+
+        let :associated_as do
+          :posts
+        end
+      end
+
+      describe "dependent: delete" do
+        let :app_definition do
+          Proc.new do
+            instance_exec(&$data_app_boilerplate)
+
+            source :posts do
+              has_many :comments, through: :relateds, dependent: :delete
+
+              query do
+                order { id.asc }
+              end
+            end
+
+            source :comments do
+              query do
+                order { id.asc }
+              end
+            end
+
+            source :relateds do
+              query do
+                order { id.asc }
+              end
+            end
+          end
+        end
+
+        it_behaves_like :source_associations_has_many_through, dependents: :delete do
+          let :target_source do
+            :posts
+          end
+
+          let :associated_source do
+            :comments
+          end
+
+          let :joining_source do
+            :relateds
+          end
+
+          let :association_name do
+            :comments
+          end
+
+          let :associated_as do
+            :posts
+          end
+        end
+      end
+
+      describe "dependent: nullify" do
+        let :app_definition do
+          Proc.new do
+            instance_exec(&$data_app_boilerplate)
+
+            source :posts do
+              has_many :comments, through: :relateds, dependent: :nullify
+
+              query do
+                order { id.asc }
+              end
+            end
+
+            source :comments do
+              query do
+                order { id.asc }
+              end
+            end
+
+            source :relateds do
+              query do
+                order { id.asc }
+              end
+            end
+          end
+        end
+
+        it_behaves_like :source_associations_has_many_through, dependents: :nullify do
+          let :target_source do
+            :posts
+          end
+
+          let :associated_source do
+            :comments
+          end
+
+          let :joining_source do
+            :relateds
+          end
+
+          let :association_name do
+            :comments
+          end
+
+          let :associated_as do
+            :posts
+          end
+        end
+      end
+
+      describe "reciprocal association" do
+        it_behaves_like :source_associations_has_many_through do
+          let :target_source do
+            :comments
+          end
+
+          let :associated_source do
+            :posts
+          end
+
+          let :joining_source do
+            :relateds
+          end
+
+          let :association_name do
+            :posts
+          end
+
+          let :associated_as do
+            :comments
+          end
+        end
+      end
+
+      describe "aliased association" do
+        let :app_definition do
+          Proc.new do
+            instance_exec(&$data_app_boilerplate)
+
+            source :posts do
+              has_many :unmentionables, through: :relateds, source: :comments
+
+              query do
+                order { id.asc }
+              end
+            end
+
+            source :comments do
+              query do
+                order { id.asc }
+              end
+            end
+
+            source :relateds do
+              query do
+                order { id.asc }
+              end
+            end
+          end
+        end
+
+        it_behaves_like :source_associations_has_many_through do
+          let :target_source do
+            :posts
+          end
+
+          let :associated_source do
+            :comments
+          end
+
+          let :joining_source do
+            :relateds
+          end
+
+          let :association_name do
+            :unmentionables
+          end
+
+          let :associated_as do
+            :posts
+          end
+        end
+      end
+
+      describe "aliased name for the reciprocal association" do
+        let :app_definition do
+          Proc.new do
+            instance_exec(&$data_app_boilerplate)
+
+            source :posts do
+              has_many :comments, through: :relateds, as: :owners
+
+              query do
+                order { id.asc }
+              end
+            end
+
+            source :comments do
+              query do
+                order { id.asc }
+              end
+            end
+
+            source :relateds do
+              query do
+                order { id.asc }
+              end
+            end
+          end
+        end
+
+        describe "reciprocal association" do
+          it_behaves_like :source_associations_has_many_through do
+            let :target_source do
+              :comments
+            end
+
+            let :associated_source do
+              :posts
+            end
+
+            let :joining_source do
+              :relateds
+            end
+
+            let :association_name do
+              :owners
+            end
+
+            let :associated_as do
+              :comments
+            end
+          end
+        end
+      end
+
+      describe "association with a specific query" do
+        let :app_definition do
+          Proc.new do
+            instance_exec(&$data_app_boilerplate)
+
+            source :posts do
+              has_many :comments, through: :relateds, query: :id_gt_one
+
+              query do
+                order { id.asc }
+              end
+            end
+
+            source :comments do
+              query do
+                order { id.asc }
+              end
+
+              def id_gt_one
+                where { id > 1 }
+              end
+            end
+
+            source :relateds do
+              query do
+                order { id.asc }
+              end
+            end
+          end
+        end
+
+        before do
+          data.posts.create(
+            comments: data.comments.create
+          )
+
+          data.posts.create(
+            comments: data.comments.create
+          )
+        end
+
+        it "applies the query to the included source" do
+          posts = data.posts.including(:comments)
+          expect(posts[0].comments.count).to be(0)
+          expect(posts[1].comments.count).to be(1)
+        end
+      end
+
+      describe "edge cases around definition" do
+        context "through association is specified as singular" do
+          let :app_definition do
+            Proc.new do
+              instance_exec(&$data_app_boilerplate)
+
+              source :posts do
+                has_many :comments, through: :related
+              end
+
+              source :comments do
+              end
+
+              source :relateds do
+              end
+            end
+          end
+
+          it "treats it as plural" do
+            data.posts.create(comments: data.comments.create)
+            expect(data.posts.including(:comments).one.comments.first).to_not be(nil)
+          end
+        end
+
+        context "through association source does not exist" do
+          let :app_definition do
+            Proc.new do
+              instance_exec(&$data_app_boilerplate)
+
+              source :posts do
+                has_many :comments, through: :relateds
+              end
+
+              source :comments do
+              end
+            end
+          end
+
+          it "raises an error that puts the app in rescue mode" do
+            expect(Pakyow.app(:test).call({})[2].join).to include("Unknown source `relateds` for association: posts has_many comments")
+          end
+        end
+      end
     end
 
     describe "many_to_many" do

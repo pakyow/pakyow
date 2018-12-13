@@ -69,6 +69,14 @@ module Pakyow
           raise ConnectionError.build(error)
         end
 
+        def qualify_attribute(attribute, source)
+          Sequel.qualify(source.class.dataset_table, attribute)
+        end
+
+        def alias_attribute(attribute, as)
+          Sequel.as(attribute, as)
+        end
+
         def dataset_for_source(source)
           @connection[source.dataset_table]
         end
@@ -77,8 +85,26 @@ module Pakyow
           source.where(attribute => value)
         end
 
+        def restrict_to_source(restrict_to_source, source, *additional_fields)
+          source.select.qualify(
+            restrict_to_source.class.dataset_table
+          ).select_append(
+            *additional_fields
+          )
+        end
+
         def restrict_to_attribute(attribute, source)
           source.select(attribute)
+        end
+
+        def merge_results(left_column_name, right_column_name, mergeable_source, merge_into_source)
+          merge_into_source.tap do
+            merge_into_source.__setobj__(
+              merge_into_source.join(
+                mergeable_source.class.dataset_table, left_column_name => right_column_name
+              )
+            )
+          end
         end
 
         def transaction(&block)

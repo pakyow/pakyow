@@ -6,19 +6,19 @@ module Pakyow
       class Sql
         module DatasetMethods
           def to_a(dataset)
-            dataset.all
+            dataset.qualify.all
           rescue Sequel::Error => error
             raise QueryError.build(error)
           end
 
           def one(dataset)
-            dataset.first
+            dataset.qualify.first
           rescue Sequel::Error => error
             raise QueryError.build(error)
           end
 
           def count(dataset)
-            dataset.count
+            dataset.qualify.count
           rescue Sequel::Error => error
             raise QueryError.build(error)
           end

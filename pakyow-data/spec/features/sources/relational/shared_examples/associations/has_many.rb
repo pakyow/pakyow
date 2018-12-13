@@ -1,6 +1,6 @@
 require_relative "./helpers"
 
-RSpec.shared_examples :source_associations_has_many do |dependents: :raise|
+RSpec.shared_examples :source_associations_has_many do |dependents: :raise, many_to_many: false|
   include_context :source_associations_helpers
 
   describe "querying" do
@@ -285,15 +285,17 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise|
         ).to eq(associated_dataset.to_a)
       end
 
-      it "updates the foreign key on each associated object" do
-        objects = associated_dataset.to_a
-        create(objects)
-        objects.each do |object|
-          expect(
-            object.send(:"#{associated_as}_id")
-          ).to eq(
-            target_dataset.one.id
-          )
+      unless many_to_many
+        it "updates the foreign key on each associated object" do
+          objects = associated_dataset.to_a
+          create(objects)
+          objects.each do |object|
+            expect(
+              object.send(:"#{associated_as}_id")
+            ).to eq(
+              target_dataset.one.id
+            )
+          end
         end
       end
 
@@ -638,22 +640,30 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise|
         }.to(associated_dataset.map(&:id))
       end
 
-      it "updates the foreign key on each associated object" do
-        objects = associated_dataset.to_a
-        update(objects)
-        objects.each do |object|
-          expect(
-            object.send(:"#{associated_as}_id")
-          ).to eq(
-            target_dataset.one.id
-          )
+      unless many_to_many
+        it "updates the foreign key on each associated object" do
+          objects = associated_dataset.to_a
+          update(objects)
+          objects.each do |object|
+            expect(
+              object.send(:"#{associated_as}_id")
+            ).to eq(
+              target_dataset.one.id
+            )
+          end
         end
       end
 
       context "array includes an object that does not exist" do
         it "raises a constraint violation and does not update" do
           objects = associated_dataset.create.to_a
-          associated_dataset.delete
+
+          objects.each do |object|
+            associated_dataset.send(
+              :"by_#{association_primary_key_field}",
+              object[association_primary_key_field]
+            ).delete
+          end
 
           expect {
             target_dataset.update(
@@ -813,7 +823,11 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise|
         )
       end
 
-      it "raises a constraint violation and does not update"
+      if many_to_many
+        it "associates each result"
+      else
+        it "raises a constraint violation and does not update"
+      end
     end
   end
 
@@ -913,39 +927,50 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise|
           }.by(target_dataset.count * -1)
         end
 
-        it "nullifies the related column on the dependent data" do
+        it "does not delete the dependent data" do
           expect {
             target_dataset.delete
           }.not_to change {
             associated_dataset.count
           }
-
-          expect(associated_dataset.last[:"#{associated_as}_id"]).to be(nil)
         end
 
-        it "does not nullify non-dependent data" do
-          unassociated = associated_dataset.create(
-            associated_as => target_dataset.create
-          )
+        if many_to_many
+          it "nullifies the related column on the joining data" do
+            target_dataset.delete
+            expect(joining_dataset.last[left_join_key]).to be(nil)
+          end
 
-          expect {
+          it "does not nullify the other column on the joining data" do
+            target_dataset.delete
+            expect(joining_dataset.last[right_join_key]).to_not be(nil)
+          end
+        else
+          it "nullifies the related column on the dependent data" do
+            target_dataset.delete
+            expect(associated_dataset.last[:"#{associated_as}_id"]).to be(nil)
+          end
+
+          it "does not nullify non-dependent data" do
+            unassociated = associated_dataset.create(
+              associated_as => target_dataset.create
+            )
+
             target_dataset.by_id(1).delete
-          }.not_to change {
-            associated_dataset.count
-          }
 
-          expect(associated_dataset.count > 0).to be(true)
-
-          unassociated.each do |object|
-            expect(object.send(:"#{associated_as}_id")).not_to be(nil)
+            unassociated.each do |object|
+              expect(object.send(:"#{associated_as}_id")).not_to be(nil)
+            end
           end
         end
 
         context "dependent data errors on delete" do
           before do
-            associated_dataset.source.class.class_eval do
-              def update(*)
-                raise RuntimeError
+            data.sources.values.each do |source|
+              source.class_eval do
+                def update(*)
+                  raise RuntimeError
+                end
               end
             end
           end
@@ -959,22 +984,32 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise|
             }.not_to change {
               target_dataset.count
             }
+
+            expect(associated_dataset.count > 0).to be(true)
           end
 
-          it "does not nullify the dependent data" do
-            expect {
+          if many_to_many
+            it "does not nullify the joining data" do
               begin
                 target_dataset.by_id(1).delete
               rescue
               end
-            }.not_to change {
-              associated_dataset.count
-            }
 
-            expect(associated_dataset.count > 0).to be(true)
+              joining_dataset.each do |object|
+                expect(object[left_join_key]).not_to be(nil)
+                expect(object[right_join_key]).not_to be(nil)
+              end
+            end
+          else
+            it "does not nullify the dependent data" do
+              begin
+                target_dataset.by_id(1).delete
+              rescue
+              end
 
-            associated_dataset.each do |object|
-              expect(object.send(:"#{associated_as}_id")).not_to be(nil)
+              associated_dataset.each do |object|
+                expect(object.send(:"#{associated_as}_id")).not_to be(nil)
+              end
             end
           end
         end
@@ -1012,7 +1047,7 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise|
 
     let :associated_new do
       associated_dataset.create(
-        associated_as => target_dataset.one
+        associated_as => target_dataset
       )
     end
 
@@ -1032,7 +1067,7 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise|
       ).to include(associated_new.one)
     end
 
-    it "does not remove the current assciation" do
+    it "does not remove the current association" do
       expect(
         target_dataset.including(association_name).one.send(association_name)
       ).to include(associated_old.one)
@@ -1062,7 +1097,7 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise|
 
     def update
       associated_new.update(
-        associated_as => target_dataset.one
+        associated_as => target_dataset
       )
     end
 
@@ -1078,7 +1113,7 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise|
       ).to include(associated_new.one)
     end
 
-    it "does not remove the current assciation" do
+    it "does not remove the current association" do
       expect(
         target_dataset.including(association_name).one.send(association_name)
       ).to include(associated_old.one)

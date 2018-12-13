@@ -83,7 +83,7 @@ module Pakyow
             MESSAGE
           ).tap do |message|
             sources.keys.each do |source|
-              message << "  * #{source}"
+              message << "  * #{source}\n"
             end
           end
         else

@@ -13,14 +13,15 @@ module Pakyow
       unfreezable :subscribers
 
       # @api private
-      attr_reader :subscribers, :sources
+      attr_reader :subscribers, :sources, :containers
 
       def initialize(containers:, subscribers:)
         @subscribers = subscribers
         @subscribers.lookup = self
 
         @sources = {}
-        containers.each do |container|
+        @containers = containers
+        @containers.each do |container|
           container.sources.each do |source|
             @sources[source.__object_name.name] = source
             define_singleton_method source.__object_name.name do
@@ -66,12 +67,14 @@ module Pakyow
       def validate_associated_sources!
         @sources.values.each do |source|
           source.associations.values.flatten.each do |association|
-            unless @sources.key?(association[:source_name])
-              raise(
-                UnknownSource.new("Unknown source `#{association[:source_name]}` for association: #{source.__object_name.name} #{association[:type]} #{association[:access_name]}").tap do |error|
-                  error.context = self
-                end
-              )
+            [association[:source_name], association[:joining_source_name]].compact.each do |source_name|
+              unless @sources.key?(source_name)
+                raise(
+                  UnknownSource.new("Unknown source `#{source_name}` for association: #{source.__object_name.name} #{association[:type]} #{association[:access_name]}").tap do |error|
+                    error.context = self
+                  end
+                )
+              end
             end
           end
         end

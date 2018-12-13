@@ -80,7 +80,7 @@ module Pakyow
       end
 
       def sources
-        Pakyow.apps.reject(&:rescued?).flat_map { |app| app.state(:source) }.select { |source|
+        Pakyow.apps.reject(&:rescued?).flat_map { |app| app.data.containers.flat_map(&:sources) }.select { |source|
           source.connection == @connection.name && source.adapter == @connection.type
         }
       end

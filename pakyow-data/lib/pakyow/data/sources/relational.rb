@@ -249,21 +249,84 @@ module Pakyow
 
         def include_results!(results)
           @included.each do |association, combined_source|
-            combined_source.__setobj__(
-              combined_source.class.container.connection.adapter.result_for_attribute_value(
-                association[:associated_column_name],
-                results.map { |result| result[association[:column_name]] },
-                combined_source
-              )
-            )
+            group_by_key, assign_by_key, remove_keys = if association[:joining_source]
+              joining_source = association[:joining_source].instance
 
+              if combined_source.class.plural_name == association[:joining_source_name]
+                combined_source.__setobj__(
+                  combined_source.class.container.connection.adapter.result_for_attribute_value(
+                    combined_source.class.container.connection.adapter.qualify_attribute(
+                      association[:joining_associated_column_name], combined_source
+                    ),
+                    results.map { |result| result[association[:associated_column_name]] },
+                    combined_source
+                  )
+                )
+              else
+                aliased = SecureRandom.hex(4).to_sym
+                combined_source.__setobj__(
+                  combined_source.class.container.connection.adapter.restrict_to_source(
+                    combined_source,
+                    combined_source.class.container.connection.adapter.result_for_attribute_value(
+                      combined_source.class.container.connection.adapter.qualify_attribute(
+                        association[:joining_associated_column_name], joining_source
+                      ),
+                      joining_source.class.container.connection.adapter.restrict_to_attribute(
+                        association[:column_name], source_from_self(__getobj__.dup)
+                      ),
+                      combined_source.class.container.connection.adapter.merge_results(
+                        association[:joining_column_name],
+                        association[:column_name],
+                        joining_source,
+                        combined_source
+                      )
+                    ),
+                    combined_source.class.container.connection.adapter.alias_attribute(
+                      combined_source.class.container.connection.adapter.qualify_attribute(
+                        association[:joining_associated_column_name], joining_source
+                      ), aliased
+                    )
+                  )
+                )
+              end
+
+              [aliased, association[:access_name], [aliased]]
+            else
+              combined_source.__setobj__(
+                combined_source.class.container.connection.adapter.result_for_attribute_value(
+                  association[:associated_column_name],
+                  results.map { |result| result[association[:column_name]] },
+                  combined_source
+                )
+              )
+
+              [association[:associated_column_name], association[:access_name], []]
+            end
+
+            # Group the raw results by associated column value.
+            #
             combined_results = combined_source.to_a.group_by { |combined_result|
-              combined_result[association[:associated_column_name]]
+              combined_result[group_by_key]
             }
 
+            # Add each result group to its associated object.
+            #
             results.map! { |result|
-              combined_results_for_result = combined_results[result[association[:column_name]]].to_a
-              result[association[:access_name]] = if association[:access_type] == :one
+              combined_results_for_result = combined_results[result[association[:column_name]]].to_a.map! { |combined_result|
+                combined_result = combined_result.values.dup
+
+                # Remove any keys, such as temporary values used for grouping.
+                #
+                remove_keys.each do |remove_key|
+                  combined_result.delete(remove_key)
+                end
+
+                # Wrap the result into the appropriate data object.
+                #
+                combined_source.send(:wrap, combined_result)
+              }
+
+              result[assign_by_key] = if association[:access_type] == :one
                 combined_results_for_result[0]
               else
                 combined_results_for_result
@@ -374,7 +437,7 @@ module Pakyow
           end
 
           # rubocop:disable Naming/PredicateName
-          def has_many(association_name, query: nil, source: association_name, as: singular_name, dependent: :raise)
+          def has_many(association_name, query: nil, source: association_name, as: singular_name, through: nil, dependent: :raise)
             @associations[:has_many] << {
               type: :has_many,
               access_type: :many,
@@ -384,14 +447,26 @@ module Pakyow
               column_name: primary_key_field,
               column_type: primary_key_type,
               associated_access_name: as.to_sym,
-              associated_column_name: :"#{as}_#{primary_key_field}",
               dependent: dependent
-            }
+            }.tap do |association|
+              if through
+                joining_access_name = Support.inflector.singularize(association_name).to_sym
+                joining_associated_access_name = Support.inflector.singularize(as).to_sym
+                association[:joining_source_name] = Support.inflector.pluralize(through).to_sym
+                association[:joining_access_name] = joining_access_name
+                association[:joining_associated_access_name] = joining_associated_access_name
+                association[:joining_column_name] = :"#{joining_access_name}_#{primary_key_field}"
+                association[:joining_associated_column_name] = :"#{joining_associated_access_name}_#{primary_key_field}"
+                association[:associated_column_name] = primary_key_field
+              else
+                association[:associated_column_name] = :"#{as}_#{primary_key_field}"
+              end
+            end
           end
           # rubocop:enable Naming/PredicateName
 
           # rubocop:disable Naming/PredicateName
-          def has_one(association_name, query: nil, source: association_name, as: singular_name, dependent: :raise)
+          def has_one(association_name, query: nil, source: association_name, as: singular_name, through: nil, dependent: :raise)
             @associations[:has_one] << {
               type: :has_one,
               access_type: :one,
@@ -401,9 +476,21 @@ module Pakyow
               column_name: primary_key_field,
               column_type: primary_key_type,
               associated_access_name: as.to_sym,
-              associated_column_name: :"#{as}_#{primary_key_field}",
               dependent: dependent
-            }
+            }.tap do |association|
+              if through
+                joining_access_name = Support.inflector.singularize(association_name).to_sym
+                joining_associated_access_name = Support.inflector.singularize(as).to_sym
+                association[:joining_source_name] = Support.inflector.pluralize(through).to_sym
+                association[:joining_access_name] = joining_access_name
+                association[:joining_associated_access_name] = joining_associated_access_name
+                association[:joining_column_name] = :"#{joining_access_name}_#{primary_key_field}"
+                association[:joining_associated_column_name] = :"#{joining_associated_access_name}_#{primary_key_field}"
+                association[:associated_column_name] = primary_key_field
+              else
+                association[:associated_column_name] = :"#{as}_#{primary_key_field}"
+              end
+            end
           end
           # rubocop:enable Naming/PredicateName
 
@@ -437,6 +524,13 @@ module Pakyow
             associations.values.flatten.find { |association|
               association[:source_name] == source.class.plural_name ||
                 association[:source_name] == source.class.singular_name
+            }
+          end
+
+          # @api private
+          def association_for_access_name?(name)
+            associations.values.flatten.find { |association|
+              association[:access_name] == name
             }
           end
         end

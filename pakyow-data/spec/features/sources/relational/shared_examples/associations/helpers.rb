@@ -49,6 +49,10 @@ RSpec.shared_context :source_associations_helpers do
     :"#{association_name}_#{association_primary_key_field}"
   end
 
+  let :primary_key_field do
+    target_dataset.source.class.primary_key_field
+  end
+
   let :association_primary_key_field do
     associated_dataset.source.class.primary_key_field
   end
@@ -57,11 +61,23 @@ RSpec.shared_context :source_associations_helpers do
     associated_dataset.source.class.primary_key_type
   end
 
+  let :left_join_key do
+    :"#{Pakyow::Support.inflector.singularize(associated_as)}_#{primary_key_field}"
+  end
+
+  let :right_join_key do
+    :"#{Pakyow::Support.inflector.singularize(association_name)}_#{association_primary_key_field}"
+  end
+
   def target_dataset
     data.send(target_source)
   end
 
   def associated_dataset
     data.send(associated_source)
+  end
+
+  def joining_dataset
+    data.send(joining_source)
   end
 end
