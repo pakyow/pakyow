@@ -46,4 +46,7 @@ group :test do
 
   gem "bootsnap"
   gem "dotenv"
+
+  gem "ruby-prof", require: false
+  gem "memory_profiler", require: false
 end

@@ -32,31 +32,63 @@ RSpec.configure do |config|
     config.filter_run_excluding smoke: true
   end
 
-  config.before do
+  def rss
+   `ps -eo pid,rss | grep #{Process.pid} | awk '{print $2}'`.to_i
+  end
+
+  config.before :suite do
     if Pakyow.respond_to?(:config)
       Pakyow.config.freeze_on_boot = false
     end
 
+    if Pakyow.respond_to?(:config)
+      $original_pakyow_config = Pakyow.config
+    end
+
+    if Pakyow.instance_variable_defined?(:@__class_state)
+      $original_class_state = Pakyow.instance_variable_get(:@__class_state).keys.each_with_object({}) do |class_level_ivar, state|
+        state[class_level_ivar] = Pakyow.instance_variable_get(class_level_ivar)
+      end
+    end
+
+    $original_load_path_count = $LOAD_PATH.count
+
+    if ENV["MEMPROF"]
+      require "memory_profiler"
+      MemoryProfiler.start
+    end
+  end
+
+  config.after :suite do
+    if ENV["MEMPROF"]
+      puts "printing"
+      GC.start
+      MemoryProfiler.stop.pretty_print
+    end
+  end
+
+  config.before do
     allow(Pakyow).to receive(:at_exit)
+    allow(Pakyow).to receive(:exit)
+    allow(Process).to receive(:exit)
 
     if Pakyow.respond_to?(:load)
       allow(Pakyow).to receive(:load)
     end
 
-    if Pakyow.respond_to?(:config)
-      @original_pakyow_config = Pakyow.config.dup
-    end
-
     if Pakyow.instance_variable_defined?(:@__class_state)
-      @original_class_state = Pakyow.instance_variable_get(:@__class_state).keys.each_with_object({}) do |class_level_ivar, state|
-        state[class_level_ivar] = Pakyow.instance_variable_get(class_level_ivar).deep_dup
+      $original_class_state.each do |ivar, original_value|
+        Pakyow.instance_variable_set(ivar, original_value.deep_dup)
       end
 
-      allow(Pakyow).to receive(:exit)
-      allow(Process).to receive(:exit)
+      # Replace the builder, because duping isn't quite enough to prevent contamination.
+      #
+      Pakyow.instance_variable_set(:@builder, Rack::Builder.new)
     end
 
-    @original_load_path_count = $LOAD_PATH.count
+    Pakyow.instance_variable_set(:@config, $original_pakyow_config.dup)
+
+    @defined_constants = Module.constants.dup
   end
 
   config.after do
@@ -64,29 +96,35 @@ RSpec.configure do |config|
       Rake.application.clear
     end
 
-    $LOAD_PATH.shift($LOAD_PATH.count - @original_load_path_count)
+    $LOAD_PATH.shift($LOAD_PATH.count - $original_load_path_count)
 
-    if Pakyow.instance_variable_defined?(:@__class_state)
-      @original_class_state.each do |ivar, original_value|
-        Pakyow.instance_variable_set(ivar, original_value)
+    if Pakyow.respond_to?(:apps)
+      # Cleanup app state.
+      #
+      Pakyow.apps.each do |app|
+        if app.respond_to?(:data)
+          app.data&.subscribers&.shutdown
+        end
       end
-
-      # duping the builder isn't enough to prevent leaky state
-      Pakyow.instance_variable_set(:"@builder", Rack::Builder.new)
     end
 
     [:@port, :@host, :@logger, :@app].each do |ivar|
-      Pakyow.remove_instance_variable(ivar) if Pakyow.instance_variable_defined?(ivar)
-    end
-
-    if instance_variable_defined?(:@original_pakyow_config)
-      Pakyow.instance_variable_set(:@config, @original_pakyow_config)
+      if Pakyow.instance_variable_defined?(ivar)
+        Pakyow.remove_instance_variable(ivar)
+      end
     end
 
     if Kernel.const_defined?(:Test)
       Test.constants(false).each do |const_to_unset|
         Test.__send__(:remove_const, const_to_unset)
       end
+
+      Object.__send__(:remove_const, :Test)
+    end
+
+    if ENV["RSS"]
+      GC.start
+      puts "rss: #{rss} live objects (#{GC.stat[:heap_live_slots]})"
     end
   end
 end
