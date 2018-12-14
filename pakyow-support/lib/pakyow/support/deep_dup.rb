@@ -35,9 +35,7 @@ module Pakyow
         # Returns a deep copy of the array.
         #
         def deep_dup
-          each_with_object([]) do |value, array|
-            array << value.deep_dup
-          end
+          map(&:deep_dup)
         end
       end
 
@@ -45,7 +43,8 @@ module Pakyow
         # Returns a deep copy of the hash.
         #
         def deep_dup
-          each_with_object({}) do |(key, value), hash|
+          each_with_object(dup) do |(key, value), hash|
+            hash.delete(key)
             hash[key.deep_dup] = value.deep_dup
           end
         end
