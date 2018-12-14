@@ -75,6 +75,10 @@ module Pakyow
         @adapter.persist(subscriber)
       end
 
+      def shutdown
+        @executor.shutdown
+      end
+
       protected
 
       def process(subscription, mutated_source)
