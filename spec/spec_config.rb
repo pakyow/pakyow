@@ -55,12 +55,16 @@ RSpec.configure do |config|
       allow(Pakyow).to receive(:exit)
       allow(Process).to receive(:exit)
     end
+
+    @original_load_path_count = $LOAD_PATH.count
   end
 
   config.after do
     if defined?(Rake)
       Rake.application.clear
     end
+
+    $LOAD_PATH.shift($LOAD_PATH.count - @original_load_path_count)
 
     if Pakyow.instance_variable_defined?(:@__class_state)
       @original_class_state.each do |ivar, original_value|
