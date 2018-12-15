@@ -4,7 +4,9 @@ require "fileutils"
 
 RSpec.describe "starting up a newly generated project", smoke: true do
   def install
-    system "bundle exec rake release:install"
+    Bundler.with_clean_env do
+      system "bundle exec rake release:install"
+    end
   end
 
   def create

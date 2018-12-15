@@ -16,6 +16,16 @@ require_relative "../../spec/helpers/mock_handler"
 RSpec.configure do |config|
   config.include AppHelpers
 
+  if ENV.key?("CI")
+    if ENV.key?("CI_DB")
+      config.filter_run ENV["CI_DB"].to_sym => true
+    else
+      config.filter_run_excluding mysql: true
+      config.filter_run_excluding sqlite: true
+      config.filter_run_excluding postgres: true
+    end
+  end
+
   config.after do
     Pakyow.data_connections[:sql].to_h.values.reject { |connection|
       connection.adapter.connection.nil?

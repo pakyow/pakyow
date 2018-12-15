@@ -2,6 +2,10 @@ language: ruby
 sudo: required
 dist: xenial
 
+cache:
+  - bundler
+  - npm
+
 services:
   - redis-server
   - mysql
@@ -10,13 +14,25 @@ addons:
   postgresql: 10
 
 rvm:
-  - 2.4.4
-  - 2.5.1
+  - 2.4.5
+  - 2.5.3
   - ruby-head
 
 env:
   matrix:
-    - CI=true
+    - CI=true GEMS=assets
+    - CI=true GEMS=core
+    - CI=true GEMS=data
+    - CI=true CI_DB=mysql GEMS=data
+    - CI=true CI_DB=postgres GEMS=data
+    - CI=true CI_DB=sqlite GEMS=data
+    - CI=true GEMS=form
+    - CI=true GEMS=mailer
+    - CI=true GEMS=presenter
+    - CI=true GEMS=realtime
+    - CI=true GEMS=routing
+    - CI=true GEMS=support
+    - CI=true GEMS=ui
     - CI_BENCH=true
     - CI_SMOKE=true
 
