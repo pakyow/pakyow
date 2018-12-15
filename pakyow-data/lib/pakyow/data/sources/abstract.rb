@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "delegate"
+
 require "pakyow/support/class_state"
 
 module Pakyow

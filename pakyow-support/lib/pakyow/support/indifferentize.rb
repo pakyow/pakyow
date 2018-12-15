@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "delegate"
+
 module Pakyow
   module Support
     # Creates a Hash-like object can access stored data with symbol or
