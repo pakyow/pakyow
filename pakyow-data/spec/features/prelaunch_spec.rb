@@ -13,7 +13,7 @@ RSpec.describe "data prelaunch tasks" do
     end
   end
 
-  before do
+  before :all do
     unless system("psql -lqt | cut -d \\| -f 1 | grep -qw pakyow-test")
       system "createdb pakyow-test > /dev/null", out: File::NULL, err: File::NULL
     end
