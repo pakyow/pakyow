@@ -158,7 +158,7 @@ at_exit do
   if warnings.any?
     require "pakyow/support/cli/style"
     puts Pakyow::Support::CLI.style.yellow "#{warnings.count} warnings were generated:"
-    warnings.each do |warning|
+    warnings.take(1_000).each do |warning|
       puts Pakyow::Support::CLI.style.yellow("  › ") + warning.strip
     end
     puts
