@@ -2,38 +2,45 @@
 
 require "pakyow/version"
 
+def run_with_log(command)
+  puts
+  puts "Running: #{command}"
+  system command
+end
+
 namespace :release do
   desc "Remove the gems"
   task :clean do
-    GEMS.each do |gem|
-      puts
-      system "cd pakyow-#{gem} && rm -f *.gem && gem uninstall -I -x pakyow-#{gem} -v #{Pakyow::VERSION} && cd .."
-    end
+    Bundler.with_clean_env do
+      GEMS.each do |gem|
+        run_with_log "rm -f *.gem && gem uninstall -I -x pakyow-#{gem} -v #{Pakyow::VERSION}"
+      end
 
-    puts
-    system "gem uninstall -I -x pakyow -v #{Pakyow::VERSION}"
-    system "rm -f *.gem"
+      run_with_log "gem uninstall -I -x pakyow -v #{Pakyow::VERSION}"
+      run_with_log "rm -f *.gem"
+    end
   end
 
   desc "Create the gems"
   task build: [:clean] do
-    system "gem build pakyow.gemspec"
+    Bundler.with_clean_env do
+      run_with_log "gem build pakyow.gemspec"
 
-    GEMS.each do |gem|
-      puts
-      system "cd pakyow-#{gem} && gem build pakyow-#{gem}.gemspec && cd .."
+      GEMS.each do |gem|
+        run_with_log "cd pakyow-#{gem} && gem build pakyow-#{gem}.gemspec && mv pakyow-#{gem}-#{Pakyow::VERSION}.gem .. && cd .."
+      end
     end
   end
 
   desc "Create and install the gems"
   task install: [:build] do
-    GEMS.each do |gem|
-      puts
-      system "cd pakyow-#{gem} && gem install pakyow-#{gem}-#{Pakyow::VERSION}.gem && cd .."
-    end
+    Bundler.with_clean_env do
+      GEMS.each do |gem|
+        run_with_log "gem install pakyow-#{gem}-#{Pakyow::VERSION}.gem"
+      end
 
-    puts
-    system "gem install pakyow-#{Pakyow::VERSION}.gem"
+      run_with_log "gem install pakyow-#{Pakyow::VERSION}.gem"
+    end
   end
 
   desc "Create and publish the gems"
