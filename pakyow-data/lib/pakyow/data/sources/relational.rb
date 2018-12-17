@@ -484,14 +484,7 @@ module Pakyow
               dependent: dependent
             }.tap do |association|
               if through
-                joining_access_name = Support.inflector.singularize(association_name).to_sym
-                joining_associated_access_name = Support.inflector.singularize(as).to_sym
-                association[:joining_source_name] = Support.inflector.pluralize(through).to_sym
-                association[:joining_access_name] = joining_access_name
-                association[:joining_associated_access_name] = joining_associated_access_name
-                association[:joining_column_name] = :"#{joining_access_name}_#{primary_key_field}"
-                association[:joining_associated_column_name] = :"#{joining_associated_access_name}_#{primary_key_field}"
-                association[:associated_column_name] = primary_key_field
+                setup_as_through(association, association_name, as: as, through: through)
               else
                 association[:associated_column_name] = :"#{as}_#{primary_key_field}"
               end
@@ -513,20 +506,26 @@ module Pakyow
               dependent: dependent
             }.tap do |association|
               if through
-                joining_access_name = Support.inflector.singularize(association_name).to_sym
-                joining_associated_access_name = Support.inflector.singularize(as).to_sym
-                association[:joining_source_name] = Support.inflector.pluralize(through).to_sym
-                association[:joining_access_name] = joining_access_name
-                association[:joining_associated_access_name] = joining_associated_access_name
-                association[:joining_column_name] = :"#{joining_access_name}_#{primary_key_field}"
-                association[:joining_associated_column_name] = :"#{joining_associated_access_name}_#{primary_key_field}"
-                association[:associated_column_name] = primary_key_field
+                setup_as_through(association, association_name, as: as, through: through)
               else
                 association[:associated_column_name] = :"#{as}_#{primary_key_field}"
               end
             end
           end
           # rubocop:enable Naming/PredicateName
+
+          # @api private
+          def setup_as_through(association, association_name, as:, through:)
+            joining_access_name = Support.inflector.singularize(association_name).to_sym
+            joining_associated_access_name = Support.inflector.singularize(as).to_sym
+            association[:joining_source_name] = Support.inflector.pluralize(through).to_sym
+            association[:joining_access_name] = joining_access_name
+            association[:joining_associated_access_name] = joining_associated_access_name
+            association[:joining_column_name] = :"#{joining_access_name}_#{primary_key_field}"
+            association[:joining_associated_column_name] = :"#{joining_associated_access_name}_#{primary_key_field}"
+            association[:associated_column_name] = primary_key_field
+            association
+          end
 
           def make(name, adapter: Pakyow.config.data.default_adapter, connection: Pakyow.config.data.default_connection, state: nil, parent: nil, primary_id: true, timestamps: true, **kwargs, &block)
             super(name, state: state, parent: parent, adapter: adapter, connection: connection, attributes: {}, **kwargs) do

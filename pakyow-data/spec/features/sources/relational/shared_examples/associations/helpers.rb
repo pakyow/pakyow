@@ -61,6 +61,14 @@ RSpec.shared_context :source_associations_helpers do
     associated_dataset.source.class.primary_key_type
   end
 
+  let :joining_source do
+    if defined?(super())
+      super()
+    else
+      [target_source, associated_source].sort.join("_").to_sym
+    end
+  end
+
   let :left_join_key do
     :"#{Pakyow::Support.inflector.singularize(associated_as)}_#{primary_key_field}"
   end

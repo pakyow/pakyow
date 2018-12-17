@@ -38,6 +38,10 @@ module Pakyow
 
       def finalize!(other_containers)
         sources_to_finalize.each do |source|
+          discover_has_and_belongs_to!(source, other_containers)
+        end
+
+        sources_to_finalize.each do |source|
           set_container_for_source!(source)
           define_inverse_associations!(source, other_containers)
         end
@@ -63,6 +67,62 @@ module Pakyow
 
       def sources_to_finalize
         @sources.reject(&:finalized?)
+      end
+
+      def discover_has_and_belongs_to!(source, other_containers)
+        source.associations.values.flatten.select { |association|
+          # Only look for has_* associations that aren't already setup through another source.
+          #
+          (association[:type] == :has_one || association[:type] == :has_many) && !association.key?(:joining_source_name)
+        }.each do |association|
+          reciprocal_association = nil
+          reciprocal_source = (@sources + other_containers.flat_map(&:sources)).find { |potentially_reciprocal_source|
+            reciprocal_association = potentially_reciprocal_source.associations.values.flatten.find { |potentially_reciprocal_association|
+              potentially_reciprocal_association[:type] == association[:type] && potentially_reciprocal_association[:source_name] == source.plural_name
+            }
+          }
+
+          if reciprocal_source
+            joining_source_name = [source.plural_name, reciprocal_source.plural_name].sort.join("_")
+            joining_source = (@sources + other_containers.flat_map(&:sources)).find { |potentially_joining_source|
+              potentially_joining_source.plural_name == joining_source_name
+            }
+
+            unless joining_source
+              joining_source = source.ancestors.find { |ancestor|
+                ancestor != source && ancestor.ancestors.include?(Sources::Abstract)
+              }.make(
+                joining_source_name,
+                adapter: source.adapter,
+                connection: source.connection,
+                within: source.__object_name.namespace
+              )
+
+              @sources << joining_source
+            end
+
+            # Modify both sides of the association to be through the joining source.
+            #
+            source.setup_as_through(
+              association,
+              association[:access_name],
+              as: association[:associated_access_name],
+              through: joining_source_name
+            )
+
+            reciprocal_source.setup_as_through(
+              reciprocal_association,
+              reciprocal_association[:access_name],
+              as: reciprocal_association[:associated_access_name],
+              through: joining_source_name
+            )
+
+            # Label both associations as internally defined, so we don't setup other relationships.
+            #
+            association[:defined_internally] = true
+            reciprocal_association[:defined_internally] = true
+          end
+        end
       end
 
       def set_container_for_source!(source)
@@ -128,12 +188,14 @@ module Pakyow
                   joining_source.belongs_to(association[:joining_associated_access_name], source: source.plural_name)
                 end
 
-                unless associated_source.associations[association[:type]].any? { |current_association| current_association[:joining_source_name] == association[:joining_source_name] }
-                  associated_source.send(association[:type], association[:associated_access_name], source: source.plural_name, as: association[:joining_access_name], through: association[:joining_source_name], dependent: association[:dependent])
-                end
+                unless association[:defined_internally]
+                  unless associated_source.associations[association[:type]].any? { |current_association| current_association[:joining_source_name] == association[:joining_source_name] }
+                    associated_source.send(association[:type], association[:associated_access_name], source: source.plural_name, as: association[:joining_access_name], through: association[:joining_source_name], dependent: association[:dependent])
+                  end
 
-                unless source.associations[association[:type]].any? { |current_association| current_association[:source_name] == association[:joining_source_name] }
-                  source.send(association[:type], association[:joining_source_name], source: joining_source.plural_name, as: Support.inflector.singularize(association[:associated_access_name]), dependent: association[:dependent])
+                  unless source.associations[association[:type]].any? { |current_association| current_association[:source_name] == association[:joining_source_name] }
+                    source.send(association[:type], association[:joining_source_name], source: joining_source.plural_name, as: Support.inflector.singularize(association[:associated_access_name]), dependent: association[:dependent])
+                  end
                 end
               end
             else
