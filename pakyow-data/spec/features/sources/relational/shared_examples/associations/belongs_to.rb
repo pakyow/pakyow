@@ -936,7 +936,17 @@ RSpec.shared_examples :source_associations_belongs_to do
         )
       end
 
-      it "raises a constraint violation and does not update"
+      it "raises a constraint violation and does not update" do
+        expect {
+          update
+        }.to raise_error(Pakyow::Data::ConstraintViolation) do |error|
+          expect(error.message).to eq("Cannot associate multiple results as #{association_name}")
+        end
+
+        expect(
+          target_dataset.map(&:updatable)
+        ).to eq([initial_value, initial_value, initial_value])
+      end
     end
   end
 

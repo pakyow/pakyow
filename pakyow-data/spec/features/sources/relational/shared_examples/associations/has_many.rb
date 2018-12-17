@@ -863,30 +863,6 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise, many
         ).to eq(initial_value)
       end
     end
-
-    context "multiple objects are updated with associated data" do
-      before do
-        2.times do
-          target_dataset.create(
-            updatable: initial_value,
-            association_name => associated_old
-          )
-        end
-      end
-
-      def update
-        target_dataset.update(
-          updatable: updated_value,
-          association_name => associated_new
-        )
-      end
-
-      if many_to_many
-        it "associates each result"
-      else
-        it "raises a constraint violation and does not update"
-      end
-    end
   end
 
   describe "deleting" do
