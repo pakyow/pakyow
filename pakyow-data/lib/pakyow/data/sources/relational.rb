@@ -472,6 +472,8 @@ module Pakyow
 
           # rubocop:disable Naming/PredicateName
           def has_many(association_name, query: nil, source: association_name, as: singular_name, through: nil, dependent: :raise)
+            as = Support.inflector.singularize(as).to_sym
+
             @associations[:has_many] << {
               type: :has_many,
               access_type: :many,
@@ -494,6 +496,8 @@ module Pakyow
 
           # rubocop:disable Naming/PredicateName
           def has_one(association_name, query: nil, source: association_name, as: singular_name, through: nil, dependent: :raise)
+            as = Support.inflector.singularize(as).to_sym
+
             @associations[:has_one] << {
               type: :has_one,
               access_type: :one,

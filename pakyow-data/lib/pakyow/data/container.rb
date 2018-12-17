@@ -76,9 +76,14 @@ module Pakyow
           (association[:type] == :has_one || association[:type] == :has_many) && !association.key?(:joining_source_name)
         }.each do |association|
           reciprocal_association = nil
-          reciprocal_source = (@sources + other_containers.flat_map(&:sources)).find { |potentially_reciprocal_source|
+          reciprocal_source = (@sources + other_containers.flat_map(&:sources)).reject { |potentially_reciprocal_source|
+            potentially_reciprocal_source == source
+          }.find { |potentially_reciprocal_source|
             reciprocal_association = potentially_reciprocal_source.associations.values.flatten.find { |potentially_reciprocal_association|
-              potentially_reciprocal_association[:type] == association[:type] && potentially_reciprocal_association[:source_name] == source.plural_name
+              potentially_reciprocal_association[:type] == association[:type] &&
+                potentially_reciprocal_association[:source_name] == source.plural_name &&
+                Support.inflector.pluralize(potentially_reciprocal_association[:access_name]) == Support.inflector.pluralize(association[:associated_access_name]) &&
+                Support.inflector.pluralize(potentially_reciprocal_association[:associated_access_name]) == Support.inflector.pluralize(association[:access_name])
             }
           }
 

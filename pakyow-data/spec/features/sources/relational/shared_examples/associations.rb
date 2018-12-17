@@ -1297,7 +1297,7 @@ RSpec.shared_examples :source_associations do
             instance_exec(&$data_app_boilerplate)
 
             source :posts do
-              has_one :comment, as: :owners
+              has_one :comment, as: :owner
 
               query do
                 order { id.asc }
