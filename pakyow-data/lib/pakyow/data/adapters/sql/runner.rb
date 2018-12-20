@@ -39,7 +39,10 @@ module Pakyow
             end
 
             Sequel.extension :migration
-            Sequel::Migrator.run(@connection.adapter.connection, @migration_path)
+            Sequel::Migrator.run(
+              @connection.adapter.connection, @migration_path,
+              allow_missing_migration_files: true
+            )
           end
         end
       end
