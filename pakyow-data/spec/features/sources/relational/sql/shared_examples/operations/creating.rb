@@ -1,5 +1,11 @@
 RSpec.shared_examples :source_operations_creating do
   describe "creating a database" do
+    after do
+      # Make sure the database is set back up.
+      #
+      create_database
+    end
+
     context "database does not exist" do
       before do
         drop_database
