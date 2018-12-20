@@ -30,14 +30,17 @@ RSpec.shared_context "migration" do
   end
 
   def run_migrations
-    Rake::Task["db:migrate"].reenable
-    Rake::Task["db:migrate"].invoke("sql", "default")
+    Pakyow::CLI.new(
+      %w(db:migrate --adapter=sql --connection=default)
+    )
   end
 
   def finalize_migrations(count_before, count_after)
     verify_migration_count(count_before) do
-      Rake::Task["db:finalize"].reenable
-      Rake::Task["db:finalize"].invoke("sql", "default")
+      Pakyow::CLI.new(
+        %w(db:finalize --adapter=sql --connection=default)
+      )
+
       verify_migration_count(count_after)
     end
   end

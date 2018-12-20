@@ -50,11 +50,17 @@ RSpec.shared_examples :source_sql_migrations do |adapter:|
       config.data.connections.public_send(local_connection_type)[:default] = local_connection_string
     end
 
-    # TODO: move this into the above?
     Pakyow.config.data.auto_migrate = false
+
+    setup
   end
 
-  include_context "task"
+  include_context "cli" do
+    let :project_context do
+      true
+    end
+  end
+
   include_context "migration"
   include_context "testable app"
 
