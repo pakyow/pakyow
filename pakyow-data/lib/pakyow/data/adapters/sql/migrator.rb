@@ -13,27 +13,13 @@ module Pakyow
           def initialize(*)
             super
 
-            @global_connection = nil
-
-            case @connection.opts[:adapter]
-            when "mysql", "mysql2"
-              extend AdapterMethods::Mysql
-            when "postgres"
-              extend AdapterMethods::Postgres
-            when "sqlite"
-              extend AdapterMethods::Sqlite
-            end
+            extend self.class.adapter_methods_for_adapter(
+              @connection.opts[:adapter]
+            )
           end
 
           def disconnect!
             @connection.disconnect
-            if @global_connection
-              @global_connection.disconnect
-            end
-          end
-
-          def global_connection
-            @global_connection ||= create_global_connection
           end
 
           def create_source?(source)
@@ -166,6 +152,27 @@ module Pakyow
             yield
           rescue Sequel::Error => error
             Pakyow.logger.warn "#{error}"
+          end
+
+          class << self
+            def adapter_methods_for_adapter(adapter)
+              case adapter
+              when "mysql", "mysql2"
+                AdapterMethods::Mysql
+              when "postgres"
+                AdapterMethods::Postgres
+              when "sqlite"
+                AdapterMethods::Sqlite
+              end
+            end
+
+            def globalize_connection_opts!(connection_opts)
+              adapter_methods_for_adapter(
+                connection_opts[:adapter]
+              ).globalize_connection_opts!(
+                connection_opts
+              )
+            end
           end
         end
       end

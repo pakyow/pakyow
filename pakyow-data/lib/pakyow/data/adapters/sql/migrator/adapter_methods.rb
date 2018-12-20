@@ -9,35 +9,40 @@ module Pakyow
             module Mysql
               def create!
                 handle_error do
-                  global_connection.adapter.connection.run("CREATE DATABASE `#{@connection.opts[:path]}`")
+                  @connection.adapter.connection.run("CREATE DATABASE `#{database}`")
                 end
               end
 
               def drop!
                 handle_error do
-                  global_connection.adapter.connection.run("DROP DATABASE `#{@connection.opts[:path]}`")
+                  @connection.adapter.connection.run("DROP DATABASE `#{database}`")
                 end
               end
 
-              private
+              def self.globalize_connection_opts!(connection_opts)
+                connection_opts[:initial] = Sql.build_opts(path: connection_opts[:path])
+                connection_opts[:path] = nil
+              end
 
-              def create_global_connection
-                global_connection_opts = @connection.opts.dup
-                global_connection_opts.delete(:path)
-                Connection.new(opts: global_connection_opts, type: :sql, name: :global)
+              private def database
+                if @connection.opts.key?(:initial)
+                  @connection.opts[:initial][:path]
+                else
+                  @connection.opts[:path]
+                end
               end
             end
 
             module Postgres
               def create!
                 handle_error do
-                  global_connection.adapter.connection.run("CREATE DATABASE \"#{@connection.opts[:path]}\"")
+                  @connection.adapter.connection.run("CREATE DATABASE \"#{database}\"")
                 end
               end
 
               def drop!
                 handle_error do
-                  global_connection.adapter.connection.run <<~SQL
+                  @connection.adapter.connection.run <<~SQL
                     SELECT
                     pg_terminate_backend(pid)
                     FROM
@@ -49,16 +54,21 @@ module Pakyow
                     AND datname = '#{@connection.opts[:path]}';
                   SQL
 
-                  global_connection.adapter.connection.run("DROP DATABASE \"#{@connection.opts[:path]}\"")
+                  @connection.adapter.connection.run("DROP DATABASE \"#{database}\"")
                 end
               end
 
-              private
+              def self.globalize_connection_opts!(connection_opts)
+                connection_opts[:initial] = Sql.build_opts(path: connection_opts[:path])
+                connection_opts[:path] = "template1"
+              end
 
-              def create_global_connection
-                global_connection_opts = @connection.opts.dup
-                global_connection_opts[:path] = "template1"
-                Connection.new(opts: global_connection_opts, type: :sql, name: :global)
+              private def database
+                if @connection.opts.key?(:initial)
+                  @connection.opts[:initial][:path]
+                else
+                  @connection.opts[:path]
+                end
               end
             end
 
@@ -71,6 +81,10 @@ module Pakyow
                 if File.exist?(@connection.opts[:path])
                   FileUtils.rm(@connection.opts[:path])
                 end
+              end
+
+              def self.globalize_connection_opts!(connection_opts)
+                # nothing to do here
               end
             end
           end

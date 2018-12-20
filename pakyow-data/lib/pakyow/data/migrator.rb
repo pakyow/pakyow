@@ -68,13 +68,13 @@ module Pakyow
       private
 
       def migrator
-        @migrator = Adapters.const_get(Support.inflector.classify(@connection.type)).const_get(:Migrator).new(
+        @migrator = self.class.migrator_for_adapter(Support.inflector.classify(@connection.type), :Migrator).new(
           @connection, sources: sources
         )
       end
 
       def runner
-        @runner = Adapters.const_get(Support.inflector.classify(@connection.type)).const_get(:Runner).new(
+        @runner = self.class.migrator_for_adapter(Support.inflector.classify(@connection.type), :Runner).new(
           @connection, migration_path
         )
       end
@@ -104,8 +104,8 @@ module Pakyow
       end
 
       class << self
-        def migrator_for_adapter(adapter)
-          Adapters.const_get(Support.inflector.camelize(adapter)).const_get(:Migrator)
+        def migrator_for_adapter(adapter, type = :Migrator)
+          Adapters.const_get(Support.inflector.camelize(adapter)).const_get(type)
         end
 
         def connect(adapter:, connection:, connection_overrides: {})
@@ -121,7 +121,9 @@ module Pakyow
             Pakyow.config.data.default_connection
           end
 
-          connection_opts = Pakyow.connection(adapter, connection).opts.dup
+          connection_opts = Connection.parse_connection_string(
+            Pakyow.config.data.connections.send(adapter)[connection]
+          )
 
           connection_overrides.each do |key, value|
             key = key.to_sym
@@ -135,17 +137,34 @@ module Pakyow
           new(Connection.new(opts: connection_opts, type: adapter, name: connection))
         end
 
-        def parse_connection_string(connection_string)
-          # FIXME: handle bad uri (ArgumentError is raised)
-          uri = URI(connection_string)
+        def connect_global(adapter:, connection:)
+          adapter = if adapter
+            adapter.to_sym
+          else
+            Pakyow.config.data.default_adapter
+          end
 
-          {
-            adapter: uri.scheme,
-            host: uri.host,
-            database: uri.path.gsub("/", ""),
-            user: uri.user,
-            password: uri.password
-          }
+          connection = if connection
+            connection.to_sym
+          else
+            Pakyow.config.data.default_connection
+          end
+
+          connection_opts = Connection.parse_connection_string(
+            Pakyow.config.data.connections.send(adapter)[connection]
+          )
+
+          globalize_connection_opts!(adapter, connection_opts)
+
+          connect(
+            adapter: adapter,
+            connection: connection,
+            connection_overrides: connection_opts
+          )
+        end
+
+        def globalize_connection_opts!(adapter, connection_opts)
+          migrator_for_adapter(adapter).globalize_connection_opts!(connection_opts)
         end
       end
     end

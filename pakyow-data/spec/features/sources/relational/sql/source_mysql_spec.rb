@@ -11,6 +11,7 @@ require_relative "../shared_examples/results"
 require_relative "../shared_examples/types"
 
 require_relative "./shared_examples/migrations"
+require_relative "./shared_examples/operations"
 require_relative "./shared_examples/raw"
 require_relative "./shared_examples/table"
 require_relative "./shared_examples/transactions"
@@ -30,6 +31,7 @@ RSpec.describe "mysql source", mysql: true do
   it_behaves_like :source_types
 
   it_behaves_like :source_sql_migrations, adapter: :mysql2
+  it_behaves_like :source_sql_operations
   it_behaves_like :source_sql_raw
   it_behaves_like :source_sql_table
   it_behaves_like :source_sql_transactions
@@ -44,8 +46,22 @@ RSpec.describe "mysql source", mysql: true do
   end
 
   before :all do
-    unless system("mysql -e 'use pakyow-test'")
+    create_database
+  end
+
+  def database_exists?
+    system "mysql -e 'use pakyow-test'", out: File::NULL, err: File::NULL
+  end
+
+  def create_database
+    unless database_exists?
       system "mysql -e 'CREATE DATABASE `pakyow-test`'", out: File::NULL, err: File::NULL
+    end
+  end
+
+  def drop_database
+    if database_exists?
+      system "mysql -e 'DROP DATABASE `pakyow-test`'", out: File::NULL, err: File::NULL
     end
   end
 

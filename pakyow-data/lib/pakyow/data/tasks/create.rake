@@ -7,7 +7,7 @@ namespace :db do
   option :adapter, "The adapter to migrate"
   option :connection, "The connection to migrate"
   task :create, [:adapter, :connection] do |_, args|
-    migrator = Pakyow::Data::Migrator.connect(
+    migrator = Pakyow::Data::Migrator.connect_global(
       adapter: args[:adapter],
       connection: args[:connection]
     )

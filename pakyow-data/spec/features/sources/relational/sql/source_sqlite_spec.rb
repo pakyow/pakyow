@@ -11,6 +11,7 @@ require_relative "../shared_examples/results"
 require_relative "../shared_examples/types"
 
 require_relative "./shared_examples/migrations"
+require_relative "./shared_examples/operations"
 require_relative "./shared_examples/raw"
 require_relative "./shared_examples/table"
 require_relative "./shared_examples/transactions"
@@ -30,6 +31,7 @@ RSpec.describe "sqlite source", sqlite: true do
   it_behaves_like :source_types
 
   it_behaves_like :source_sql_migrations, adapter: :sqlite
+  it_behaves_like :source_sql_operations
   it_behaves_like :source_sql_raw
   it_behaves_like :source_sql_table
   it_behaves_like :source_sql_transactions
@@ -44,6 +46,18 @@ RSpec.describe "sqlite source", sqlite: true do
   end
 
   after :all do
+    drop_database
+  end
+
+  def database_exists?
+    File.exist?(File.expand_path("../test.db", __FILE__))
+  end
+
+  def create_database
+    FileUtils.touch(File.expand_path("../test.db", __FILE__))
+  end
+
+  def drop_database
     FileUtils.rm_f(File.expand_path("../test.db", __FILE__))
   end
 

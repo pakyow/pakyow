@@ -27,20 +27,24 @@ RSpec.configure do |config|
   end
 
   config.after do
-    Pakyow.data_connections[:sql].to_h.values.reject { |connection|
-      connection.adapter.connection.nil?
+    Pakyow.data_connections[:sql].to_h.values.select { |connection|
+      connection.connected?
     }.each do |connection|
-      connection.adapter.connection.tables.each do |table|
-        case connection.opts[:adapter]
-        when "sqlite"
-          connection.adapter.connection.run "PRAGMA foreign_keys = off"
-          connection.adapter.connection.run "DROP TABLE #{table}"
-        when "mysql2"
-          connection.adapter.connection.run "SET FOREIGN_KEY_CHECKS = 0"
-          connection.adapter.connection.run "DROP TABLE #{table}"
-        else
-          connection.adapter.connection.run "DROP TABLE #{table} CASCADE"
+      begin
+        connection.adapter.connection.tables.each do |table|
+          case connection.opts[:adapter]
+          when "sqlite"
+            connection.adapter.connection.run "PRAGMA foreign_keys = off"
+            connection.adapter.connection.run "DROP TABLE #{table}"
+          when "mysql2"
+            connection.adapter.connection.run "SET FOREIGN_KEY_CHECKS = 0"
+            connection.adapter.connection.run "DROP TABLE #{table}"
+          else
+            connection.adapter.connection.run "DROP TABLE #{table} CASCADE"
+          end
         end
+      rescue Sequel::DatabaseDisconnectError, Sequel::DatabaseError
+        # catch errors caused by closed connections
       end
     end
 
