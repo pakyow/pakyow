@@ -5,6 +5,7 @@ require "forwardable"
 
 require "pakyow/support/class_state"
 require "pakyow/support/deep_freeze"
+require "pakyow/support/indifferentize"
 require "pakyow/support/inflector"
 
 module Pakyow
@@ -72,6 +73,8 @@ module Pakyow
       extend Support::ClassState
       class_state :adapter_types, default: []
 
+      using Support::Indifferentize
+
       class << self
         def parse_connection_string(connection_string)
           uri = URI(connection_string)
@@ -83,7 +86,9 @@ module Pakyow
             port: uri.port,
             user: uri.user,
             password: uri.password
-          }
+          }.merge(
+            CGI::parse(uri.query.to_s).transform_values(&:first).indifferentize
+          )
         end
 
         def register_adapter(type)
