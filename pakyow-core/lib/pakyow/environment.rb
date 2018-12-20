@@ -113,14 +113,15 @@ module Pakyow
   STOP_SIGNALS = %w(INT TERM).freeze
 
   extend Support::ClassState
-  class_state :apps,       default: []
-  class_state :tasks,      default: []
-  class_state :mounts,     default: {}
-  class_state :frameworks, default: {}
-  class_state :builder,    default: Rack::Builder.new
-  class_state :booted,     default: false, getter: false
-  class_state :server,     default: nil, getter: false
-  class_state :env,        default: nil, getter: false
+  class_state :apps,        default: []
+  class_state :tasks,       default: []
+  class_state :mounts,      default: {}
+  class_state :frameworks,  default: {}
+  class_state :builder,     default: Rack::Builder.new
+  class_state :booted,      default: false, getter: false
+  class_state :server,      default: nil, getter: false
+  class_state :env,         default: nil, getter: false
+  class_state :setup_error, default: nil
 
   class << self
     # Name of the environment
@@ -214,10 +215,7 @@ module Pakyow
 
       self
     rescue => error
-      Pakyow.logger.error("Pakyow failed to initialize.\n")
-      Pakyow.logger.error(error: error)
-
-      exit
+      @setup_error = error
     end
 
     def to_app
@@ -239,6 +237,8 @@ module Pakyow
     # Boots the Pakyow Environment without running it.
     #
     def boot
+      ensure_setup_succeeded
+
       mounts.values.each do |mount|
         initialize_app_for_mount(mount)
       end
@@ -253,6 +253,8 @@ module Pakyow
     # This method also accepts arbitrary options, which are passed directly to the handler.
     #
     def run(server: nil, **opts)
+      ensure_setup_succeeded
+
       @server = server || config.server.name
 
       opts = if server_config_file_exists?
@@ -382,12 +384,7 @@ module Pakyow
       call_hooks(:after, :boot)
       @apps.select { |app| app.respond_to?(:booted) }.each(&:booted)
     rescue StandardError => error
-      logger.error "Pakyow failed to boot: #{error}"
-      error.backtrace.each do |line|
-        logger.error(line)
-      end
-
-      exit if config.exit_on_boot_failure
+      handle_boot_failure(error)
     end
 
     def use(middleware, *args)
@@ -432,6 +429,21 @@ module Pakyow
       end
 
       opts
+    end
+
+    def ensure_setup_succeeded
+      if @setup_error
+        handle_boot_failure(@setup_error)
+      end
+    end
+
+    def handle_boot_failure(error)
+      logger.error "Pakyow failed to boot: #{error}\n"
+      logger.error(error: error)
+
+      if config.exit_on_boot_failure
+        exit
+      end
     end
   end
 end

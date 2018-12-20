@@ -46,10 +46,8 @@ RSpec.shared_examples :environment_booted do
     end
 
     it "logs the error and each line of the backtrace" do
-      expect(Pakyow.logger).to receive(:error).with("Pakyow failed to boot: test")
-      backtrace.each do |line|
-        expect(Pakyow.logger).to receive(:error).with(line)
-      end
+      expect(Pakyow.logger).to receive(:error).with("Pakyow failed to boot: test\n")
+      expect(Pakyow.logger).to receive(:error).with(error: error)
     end
 
     it "exits" do
