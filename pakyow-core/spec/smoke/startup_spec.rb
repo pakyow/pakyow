@@ -17,10 +17,10 @@ RSpec.describe "starting up a newly generated project", smoke: true do
     Dir.chdir(@project_path)
   end
 
-  def boot
+  def boot(environment, envars)
     @server = Process.fork {
       Bundler.with_clean_env do
-        exec "RACK_ENV=development pakyow boot"
+        exec "#{envars} pakyow boot -e #{environment}"
       end
     }
 
@@ -47,16 +47,9 @@ RSpec.describe "starting up a newly generated project", smoke: true do
 
     install
     create
-
-    boot do
-      expect(@boot_time).to be < 10
-    end
   end
 
   after :all do
-    Process.kill("TERM", @server)
-    Process.waitpid(@server)
-
     Dir.chdir(@original_path)
     system "bundle exec rake release:clean"
 
@@ -66,11 +59,50 @@ RSpec.describe "starting up a newly generated project", smoke: true do
     end
   end
 
-  it "responds to a request" do
-    response = HTTP.get("http://localhost:3000")
+  before do
+    boot(environment, envars) do
+      expect(@boot_time).to be < 10
+    end
+  end
 
-    # It'll 404 because of the default view missing message. This is fine.
-    #
-    expect(response.status).to eq(404)
+  after do
+    Process.kill("TERM", @server)
+    Process.waitpid(@server)
+  end
+
+  let :envars do
+    ""
+  end
+
+  context "development environment" do
+    let :environment do
+      :development
+    end
+
+    it "responds to a request" do
+      response = HTTP.get("http://localhost:3000")
+
+      # It'll 404 because of the default view missing message. This is fine.
+      #
+      expect(response.status).to eq(404)
+    end
+  end
+
+  context "production environment" do
+    let :environment do
+      :production
+    end
+
+    let :envars do
+      "DATABASE_URL=sqlite://database/production.db"
+    end
+
+    it "responds to a request" do
+      response = HTTP.get("http://localhost:3000")
+
+      # It'll 404 because of the default view missing message. This is fine.
+      #
+      expect(response.status).to eq(404)
+    end
   end
 end
