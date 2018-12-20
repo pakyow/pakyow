@@ -130,7 +130,6 @@ module Pakyow
         def disconnect
           if connected?
             @connection.disconnect
-            @connection = nil
           end
         end
 
