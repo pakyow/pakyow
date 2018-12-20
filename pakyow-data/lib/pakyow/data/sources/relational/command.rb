@@ -37,7 +37,7 @@ module Pakyow
               # Fail if unexpected values were passed.
               #
               values.keys.each do |key|
-                unless @source.class.attributes.include?(key) || @source.class.association_for_access_name?(key)
+                unless @source.class.attributes.include?(key) || @source.class.association_with_name?(key)
                   raise UnknownAttribute.new("Unknown attribute #{key} for #{@source.class.__object_name.name}")
                 end
               end
@@ -91,118 +91,103 @@ module Pakyow
               # Enforce constraints on association values passed by access name.
               #
               @source.class.associations.values.flatten.select { |association|
-                final_values.key?(association[:access_name])
+                final_values.key?(association.name)
               }.each do |association|
-                association_value = final_values[association[:access_name]]
+                association_value = final_values[association.name]
 
                 case association_value
                 when Proxy
-                  if association_value.source.class.__object_name.name == association[:source_name]
-                    if association[:access_type] == :one && (association_value.count > 1 || (@performs_update && @source.count > 1))
-                      raise ConstraintViolation, "Cannot associate multiple results as #{association[:access_name]}"
+                  if association_value.source.class == association.associated_source
+                    if association.result_type == :one && (association_value.count > 1 || (@performs_update && @source.count > 1))
+                      raise ConstraintViolation, "Cannot associate multiple results as #{association.name}"
                     end
                   else
-                    raise TypeMismatch, "Cannot associate #{association_value.source.class.__object_name.name} as #{association[:access_name]}"
+                    raise TypeMismatch, "Cannot associate #{association_value.source.class.__object_name.name} as #{association.name}"
                   end
                 when Object
-                  if association[:access_type] == :one
+                  if association.result_type == :one
                     if association_value.originating_source
-                      if association_value.originating_source.__object_name.name == association[:source_name]
-                        case association[:type]
-                        when :belongs_to
-                          associated_column_name = association[:associated_column_name]
-                          associated_column_value = association_value[association[:associated_column_name]]
-                          associated_object_query = association[:source].instance.send(
-                            :"by_#{association[:associated_column_name]}", associated_column_value
-                          )
-                        when :has_one
-                          associated_column_name = association[:column_name]
-                          associated_column_value = association_value[association[:column_name]]
-                          associated_object_query = association[:source].instance.send(
-                            :"by_#{association[:column_name]}", associated_column_value
-                          )
-                        end
-
-                        if associated_object_query && associated_object_query.count == 0
-                          raise ConstraintViolation, "Cannot find associated #{association[:access_name]} with #{associated_column_name} of #{associated_column_value}"
+                      if association_value.originating_source == association.associated_source
+                        if association.associated_source.instance.send(:"by_#{association.associated_source.primary_key_field}", association_value[association.associated_source.primary_key_field]).count == 0
+                          raise ConstraintViolation, "Cannot find associated #{association.name} with #{association.associated_source.primary_key_field} of #{association_value[association.associated_source.primary_key_field]}"
                         end
                       else
-                        raise TypeMismatch, "Cannot associate an object from #{association_value.originating_source.__object_name.name} as #{association[:access_name]}"
+                        raise TypeMismatch, "Cannot associate an object from #{association_value.originating_source.__object_name.name} as #{association.name}"
                       end
                     else
-                      raise TypeMismatch, "Cannot associate an object with an unknown source as #{association[:access_name]}"
+                      raise TypeMismatch, "Cannot associate an object with an unknown source as #{association.name}"
                     end
                   else
-                    raise TypeMismatch, "Cannot associate #{association_value.class} as #{association[:access_name]}"
+                    raise TypeMismatch, "Cannot associate #{association_value.class} as #{association.name}"
                   end
                 when Array
-                  if association[:access_type] == :many
+                  if association.result_type == :many
                     if association_value.find { |value| !value.is_a?(Object) }
-                      raise TypeMismatch, "Cannot associate results as #{association[:access_name]} because at least one value is not a Pakyow::Data::Object"
+                      raise TypeMismatch, "Cannot associate results as #{association.name} because at least one value is not a Pakyow::Data::Object"
                     else
                       if association_value.any? { |value| value.originating_source.nil? }
-                        raise TypeMismatch, "Cannot associate an object with an unknown source as #{association[:access_name]}"
+                        raise TypeMismatch, "Cannot associate an object with an unknown source as #{association.name}"
                       else
-                        if association_value.find { |value| value.originating_source.__object_name.name != association[:source_name] }
-                          raise TypeMismatch, "Cannot associate results as #{association[:access_name]} because at least one value did not originate from #{association[:source_name]}"
+                        if association_value.find { |value| value.originating_source != association.associated_source }
+                          raise TypeMismatch, "Cannot associate results as #{association.name} because at least one value did not originate from #{association.associated_source_name}"
                         else
-                          associated_column_value = association_value.map { |object| object[association[:column_name]] }
-                          associated_object_query = association[:source].instance.send(
-                            :"by_#{association[:column_name]}", associated_column_value
+                          associated_column_value = association_value.map { |object| object[association.associated_source.primary_key_field] }
+                          associated_object_query = association.associated_source.instance.send(
+                            :"by_#{association.associated_source.primary_key_field}", associated_column_value
                           )
 
                           if associated_object_query.count != association_value.count
-                            raise ConstraintViolation, "Cannot associate results as #{association[:access_name]} because at least one value could not be found"
+                            raise ConstraintViolation, "Cannot associate results as #{association.name} because at least one value could not be found"
                           end
                         end
                       end
                     end
                   else
-                    raise ConstraintViolation, "Cannot associate multiple results as #{association[:access_name]}"
+                    raise ConstraintViolation, "Cannot associate multiple results as #{association.name}"
                   end
                 when NilClass
                 else
-                  raise TypeMismatch, "Cannot associate #{association_value.class} as #{association[:access_name]}"
+                  raise TypeMismatch, "Cannot associate #{association_value.class} as #{association.name}"
                 end
               end
 
-              # Enforce constraints for association values passed by column name.
+              # Enforce constraints for association values passed by foreign key.
               #
               @source.class.associations.values.flatten.select { |association|
-                final_values.key?(association[:column_name]) && !final_values[association[:column_name]].nil?
+                association.type == :belongs && final_values.key?(association.foreign_key_field) && !final_values[association.foreign_key_field].nil?
               }.each do |association|
-                associated_column_value = final_values[association[:column_name]]
-                associated_object_query = association[:source].instance.send(
-                  :"by_#{association[:associated_column_name]}", associated_column_value
+                associated_column_value = final_values[association.foreign_key_field]
+                associated_object_query = association.associated_source.instance.send(
+                  :"by_#{association.associated_query_field}", associated_column_value
                 )
 
                 if associated_object_query.count == 0
-                  raise ConstraintViolation, "Cannot find associated #{association[:access_name]} with #{association[:associated_column_name]} of #{associated_column_value}"
+                  raise ConstraintViolation, "Cannot find associated #{association.name} with #{association.associated_query_field} of #{associated_column_value}"
                 end
               end
 
               # Set values for associations passed by access name.
               #
               @source.class.associations.values.flatten.select { |association|
-                final_values.key?(association[:access_name])
+                final_values.key?(association.name)
               }.each do |association|
-                case association[:type]
+                case association.specific_type
                 when :belongs_to
-                  association_value = final_values.delete(association[:access_name])
-                  final_values[association[:column_name]] = case association_value
+                  association_value = final_values.delete(association.name)
+                  final_values[association.query_field] = case association_value
                   when Proxy
                     if association_result = association_value.one
-                      association_result[association[:associated_column_name]]
+                      association_result[association.associated_source.primary_key_field]
                     else
                       nil
                     end
                   when Object
-                    association_value[association[:associated_column_name]]
+                    association_value[association.associated_source.primary_key_field]
                   when NilClass
                     nil
                   end
-                when :has_many, :has_one
-                  future_associated_changes << [association, final_values.delete(association[:access_name])]
+                when :has_one, :has_many
+                  future_associated_changes << [association, final_values.delete(association.name)]
                 end
               end
             end
@@ -221,63 +206,61 @@ module Pakyow
 
             @source.transaction do
               if @performs_delete
-                @source.class.associations.values.flatten.select { |association|
-                  association.key?(:dependent)
-                }.each do |association|
+                @source.class.associations.values.flatten.select(&:dependents?).each do |association|
                   dependent_values = @source.class.container.connection.adapter.restrict_to_attribute(
                     @source.class.primary_key_field, @source
                   )
 
                   # If objects are located in two different connections, fetch the raw values.
                   #
-                  unless @source.class.container.connection == association[:source].container.connection
+                  unless @source.class.container.connection == association.associated_source.container.connection
                     dependent_values = dependent_values.map { |dependent_value|
                       dependent_value[@source.class.primary_key_field]
                     }
                   end
 
-                  if association[:joining_source]
-                    joining_data = association[:joining_source].instance.send(
-                      :"by_#{association[:joining_associated_column_name]}",
+                  if association.type == :through
+                    joining_data = association.joining_source.instance.send(
+                      :"by_#{association.right_foreign_key_field}",
                       dependent_values
                     )
 
-                    dependent_data = association[:source].instance.send(
-                      :"by_#{association[:source].primary_key_field}",
-                      association[:source].container.connection.adapter.restrict_to_attribute(
-                        association[:joining_column_name], joining_data
+                    dependent_data = association.associated_source.instance.send(
+                      :"by_#{association.associated_source.primary_key_field}",
+                      association.associated_source.container.connection.adapter.restrict_to_attribute(
+                        association.left_foreign_key_field, joining_data
                       ).map { |result|
-                        result[association[:joining_column_name]]
+                        result[association.left_foreign_key_field]
                       }
                     )
 
-                    case association[:dependent]
+                    case association.dependent
                     when :delete
                       joining_data.delete
                     when :nullify
-                      joining_data.update(association[:joining_associated_column_name] => nil)
+                      joining_data.update(association.right_foreign_key_field => nil)
                     end
                   else
-                    dependent_data = association[:source].instance.send(
-                      :"by_#{association[:associated_column_name]}",
+                    dependent_data = association.associated_source.instance.send(
+                      :"by_#{association.associated_query_field}",
                       dependent_values
                     )
                   end
 
-                  case association[:dependent]
+                  case association.dependent
                   when :delete
                     dependent_data.delete
                   when :nullify
-                    unless association[:joining_source]
-                      dependent_data.update(association[:associated_column_name] => nil)
+                    unless association.type == :through
+                      dependent_data.update(association.associated_query_field => nil)
                     end
                   when :raise
                     dependent_count = dependent_data.count
                     if dependent_count > 0
                       dependent_name = if dependent_count > 1
-                        Support.inflector.pluralize(association[:source_name])
+                        Support.inflector.pluralize(association.associated_source_name)
                       else
-                        Support.inflector.singularize(association[:source_name])
+                        Support.inflector.singularize(association.associated_source_name)
                       end
 
                       raise ConstraintViolation, "Cannot delete #{@source.class.__object_name.name} because of #{dependent_count} dependent #{dependent_name}"
@@ -290,23 +273,23 @@ module Pakyow
                 # Ensure that has_one associations only have one associated object.
                 #
                 @source.class.associations[:belongs_to].flat_map { |belongs_to_association|
-                  belongs_to_association[:source].associations[:has_one].select { |has_one_association|
-                    has_one_association[:associated_column_name] == belongs_to_association[:column_name]
+                  belongs_to_association.associated_source.associations[:has_one].select { |has_one_association|
+                    has_one_association.associated_query_field == belongs_to_association.query_field
                   }
                 }.each do |association|
                   value = final_values.dig(
-                    association[:associated_access_name], association[:column_name]
-                  ) || final_values.dig(association[:associated_column_name])
+                    association.associated_name, association.query_field
+                  ) || final_values.dig(association.associated_query_field)
 
                   if value
                     @source.class.instance.tap do |impacted_source|
                       impacted_source.__setobj__(
                         @source.class.container.connection.adapter.result_for_attribute_value(
-                          association[:associated_column_name], value, impacted_source
+                          association.associated_query_field, value, impacted_source
                         )
                       )
 
-                      impacted_source.update(association[:associated_column_name] => nil)
+                      impacted_source.update(association.associated_query_field => nil)
                     end
                   end
                 end
@@ -351,38 +334,38 @@ module Pakyow
                     updatable = Array.ensure(association_value).map { |value|
                       case value
                       when Object
-                        value[association[:column_name]]
+                        value[association.associated_source.primary_key_field]
                       else
                         value
                       end
                     }
 
-                    association[:source].instance.send(
-                      :"by_#{association[:column_name]}", updatable
+                    association.associated_source.instance.send(
+                      :"by_#{association.associated_source.primary_key_field}", updatable
                     )
                   when NilClass
                     nil
                   end
 
-                  if association[:joining_source]
+                  if association.type == :through
                     associated_column_value = final_result.class.container.connection.adapter.restrict_to_attribute(
-                      association[:column_name], final_result
+                      association.query_field, final_result
                     )
 
                     # If objects are located in two different connections, fetch the raw values.
                     #
-                    if association[:joining_source].container.connection == final_result.class.container.connection
+                    if association.joining_source.container.connection == final_result.class.container.connection
                       disassociate_column_value = associated_column_value
                     else
                       disassociate_column_value = associated_column_value.map { |value|
-                        value[association[:column_name]]
+                        value[association.query_field]
                       }
                     end
 
                     # Disassociate old data.
                     #
-                    association[:joining_source].instance.send(
-                      :"by_#{association[:joining_associated_column_name]}",
+                    association.joining_source.instance.send(
+                      :"by_#{association.right_foreign_key_field}",
                       disassociate_column_value
                     ).delete
 
@@ -396,21 +379,21 @@ module Pakyow
 
                       # Ensure that has_one through associations only have one associated object.
                       #
-                      if association[:access_type] == :one
-                        joined_column_value = association[:source].container.connection.adapter.restrict_to_attribute(
-                          association[:column_name], associated_dataset_source
+                      if association.result_type == :one
+                        joined_column_value = association.associated_source.container.connection.adapter.restrict_to_attribute(
+                          association.associated_source.primary_key_field, associated_dataset_source
                         )
 
                         # If objects are located in two different connections, fetch the raw values.
                         #
-                        unless association[:joining_source].container.connection == association[:source].container.connection
+                        unless association.joining_source.container.connection == association.associated_source.container.connection
                           joined_column_value = joined_column_value.map { |value|
-                            value[association[:column_name]]
+                            value[association.associated_source.primary_key_field]
                           }
                         end
 
-                        association[:joining_source].instance.send(
-                          :"by_#{association[:joining_column_name]}",
+                        association.joining_source.instance.send(
+                          :"by_#{association.left_foreign_key_field}",
                           joined_column_value
                         ).delete
                       end
@@ -418,42 +401,44 @@ module Pakyow
                       # Associate the correct data.
                       #
                       associated_column_value.each do |result|
-                        association[:source].container.connection.adapter.restrict_to_attribute(
-                          association[:column_name], associated_dataset_source
+                        association.associated_source.container.connection.adapter.restrict_to_attribute(
+                          association.associated_source.primary_key_field, associated_dataset_source
                         ).each do |associated_result|
-                          association[:joining_source].instance.command(:create).call(
-                            association[:joining_column_name] => associated_result[association[:column_name]],
-                            association[:joining_associated_column_name] => result[association[:associated_column_name]]
+                          association.joining_source.instance.command(:create).call(
+                            association.left_foreign_key_field => associated_result[association.associated_source.primary_key_field],
+                            association.right_foreign_key_field => result[association.source.primary_key_field]
                           )
                         end
                       end
                     end
                   else
-                    associated_column_value = final_result.one[association[:column_name]]
+                    if final_result.one
+                      associated_column_value = final_result.one[association.query_field]
 
-                    # Disassociate old data.
-                    #
-                    association[:source].instance.send(
-                      :"by_#{association[:associated_column_name]}", associated_column_value
-                    ).update(association[:associated_column_name] => nil)
-
-                    # Associate the correct data.
-                    #
-                    if associated_dataset
-                      associated_dataset.update(
-                        association[:associated_column_name] => associated_column_value
-                      )
-
-                      # Update the column value in passed objects.
+                      # Disassociate old data.
                       #
-                      case association_value
-                      when Proxy
-                        association_value.source.reload
-                      when Object, Array
-                        Array.ensure(association_value).each do |object|
-                          values = object.values.dup
-                          values[association[:associated_column_name]] = associated_column_value
-                          object.instance_variable_set(:@values, values.freeze)
+                      association.associated_source.instance.send(
+                        :"by_#{association.associated_query_field}", associated_column_value
+                      ).update(association.associated_query_field => nil)
+
+                      # Associate the correct data.
+                      #
+                      if associated_dataset
+                        associated_dataset.update(
+                          association.associated_query_field => associated_column_value
+                        )
+
+                        # Update the column value in passed objects.
+                        #
+                        case association_value
+                        when Proxy
+                          association_value.source.reload
+                        when Object, Array
+                          Array.ensure(association_value).each do |object|
+                            values = object.values.dup
+                            values[association.associated_query_field] = associated_column_value
+                            object.instance_variable_set(:@values, values.freeze)
+                          end
                         end
                       end
                     end

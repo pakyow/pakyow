@@ -51,7 +51,7 @@ module Pakyow
             MESSAGE
           ).tap do |message|
             associations.each do |association|
-              message << "  * #{association[:access_name]}"
+              message << "  * #{association.name}"
             end
           end
         else

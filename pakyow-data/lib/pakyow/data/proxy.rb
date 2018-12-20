@@ -128,7 +128,7 @@ module Pakyow
               handler: handler,
               payload: payload,
               qualifications: qualifications.merge(
-                association[:associated_column_name] => parent_result[association[:column_name]]
+                association.associated_query_field => parent_result[association.query_field]
               ),
               proxy: serialized_proxy
             }

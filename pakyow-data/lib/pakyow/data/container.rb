@@ -43,7 +43,7 @@ module Pakyow
 
         sources_to_finalize.each do |source|
           set_container_for_source!(source)
-          define_inverse_associations!(source, other_containers)
+          define_reciprocal_associations!(source, other_containers)
         end
 
         sources_to_finalize.each do |source|
@@ -73,17 +73,17 @@ module Pakyow
         source.associations.values.flatten.select { |association|
           # Only look for has_* associations that aren't already setup through another source.
           #
-          (association[:type] == :has_one || association[:type] == :has_many) && !association.key?(:joining_source_name)
+          association.type == :has
         }.each do |association|
           reciprocal_association = nil
           reciprocal_source = (@sources + other_containers.flat_map(&:sources)).reject { |potentially_reciprocal_source|
             potentially_reciprocal_source == source
           }.find { |potentially_reciprocal_source|
             reciprocal_association = potentially_reciprocal_source.associations.values.flatten.find { |potentially_reciprocal_association|
-              potentially_reciprocal_association[:type] == association[:type] &&
-                potentially_reciprocal_association[:source_name] == source.plural_name &&
-                Support.inflector.pluralize(potentially_reciprocal_association[:access_name]) == Support.inflector.pluralize(association[:associated_access_name]) &&
-                Support.inflector.pluralize(potentially_reciprocal_association[:associated_access_name]) == Support.inflector.pluralize(association[:access_name])
+              potentially_reciprocal_association.specific_type == association.specific_type &&
+                potentially_reciprocal_association.associated_source_name == source.plural_name &&
+                Support.inflector.pluralize(potentially_reciprocal_association.name) == Support.inflector.pluralize(association.associated_name) &&
+                Support.inflector.pluralize(potentially_reciprocal_association.associated_name) == Support.inflector.pluralize(association.name)
             }
           }
 
@@ -108,24 +108,8 @@ module Pakyow
 
             # Modify both sides of the association to be through the joining source.
             #
-            source.setup_as_through(
-              association,
-              association[:access_name],
-              as: association[:associated_access_name],
-              through: joining_source_name
-            )
-
-            reciprocal_source.setup_as_through(
-              reciprocal_association,
-              reciprocal_association[:access_name],
-              as: reciprocal_association[:associated_access_name],
-              through: joining_source_name
-            )
-
-            # Label both associations as internally defined, so we don't setup other relationships.
-            #
-            association[:defined_internally] = true
-            reciprocal_association[:defined_internally] = true
+            source.setup_as_through(association, through: joining_source_name).internal!
+            reciprocal_source.setup_as_through(reciprocal_association, through: joining_source_name).internal!
           end
         end
       end
@@ -145,67 +129,65 @@ module Pakyow
       def define_attributes_for_associations!(source, other_containers)
         source.associations.values.flatten.each do |association|
           associated_source = (@sources + other_containers.flat_map(&:sources)).find { |potentially_associated_source|
-            potentially_associated_source.plural_name == association[:source_name]
+            potentially_associated_source.plural_name == association.associated_source_name
           }
 
           if associated_source
-            association[:source] = associated_source
+            association.associated_source = associated_source
 
-            if association[:joining_source_name]
-              association[:joining_source] = (@sources + other_containers.flat_map(&:sources)).find { |potentially_joining_source|
-                potentially_joining_source.plural_name == association[:joining_source_name]
+            if association.type == :through
+              association.joining_source = (@sources + other_containers.flat_map(&:sources)).find { |potentially_joining_source|
+                potentially_joining_source.plural_name == association.joining_source_name
               }
             end
 
-            if association[:type] == :belongs_to
-              association[:column_name] = :"#{association[:access_name]}_#{associated_source.primary_key_field}"
-              association[:column_type] = associated_source.primary_key_type
-              association[:associated_column_name] = associated_source.primary_key_field
-
+            if association.type == :belongs
+              # Define an attribute for the foreign key.
+              #
               source.attribute(
-                association[:column_name],
-                association[:column_type],
-                foreign_key: association[:source_name]
+                association.foreign_key_field,
+                association.foreign_key_type,
+                foreign_key: association.associated_source_name
               )
             end
           end
         end
       end
 
-      def define_inverse_associations!(source, other_containers)
+      def define_reciprocal_associations!(source, other_containers)
         (source.associations[:has_many] + source.associations[:has_one]).each do |association|
           associated_source = (@sources + other_containers.flat_map(&:sources)).find { |potentially_associated_source|
-            potentially_associated_source.plural_name == association[:source_name]
+            potentially_associated_source.plural_name == association.associated_source_name
           }
 
           if associated_source
-            if association[:joining_source_name]
+            if association.type == :through
               joining_source = (@sources + other_containers.flat_map(&:sources)).find { |potential_joining_source|
-                potential_joining_source.plural_name == association[:joining_source_name]
+                potential_joining_source.plural_name == association.joining_source_name
               }
 
               if joining_source
-                unless joining_source.associations[:belongs_to].any? { |current_association| current_association[:access_name] == association[:joining_access_name] }
-                  joining_source.belongs_to(association[:joining_access_name], source: associated_source.plural_name)
+                unless joining_source.associations[:belongs_to].any? { |current_association| current_association.name == association.left_name }
+                  joining_source.belongs_to(association.left_name, source: associated_source.plural_name)
                 end
 
-                unless joining_source.associations[:belongs_to].any? { |current_association| current_association[:access_name] == association[:joining_associated_access_name] }
-                  joining_source.belongs_to(association[:joining_associated_access_name], source: source.plural_name)
+                unless joining_source.associations[:belongs_to].any? { |current_association| current_association.name == association.right_name }
+                  joining_source.belongs_to(association.right_name, source: source.plural_name)
                 end
 
-                unless association[:defined_internally]
-                  unless associated_source.associations[association[:type]].any? { |current_association| current_association[:joining_source_name] == association[:joining_source_name] }
-                    associated_source.send(association[:type], association[:associated_access_name], source: source.plural_name, as: association[:joining_access_name], through: association[:joining_source_name], dependent: association[:dependent])
+                unless association.internal?
+                  unless associated_source.associations[association.specific_type].any? { |current_association| current_association.joining_source_name == association.joining_source_name }
+                    associated_source.send(association.specific_type, association.associated_name, source: source.plural_name, as: association.left_name, through: association.joining_source_name, dependent: association.dependent)
                   end
 
-                  unless source.associations[association[:type]].any? { |current_association| current_association[:source_name] == association[:joining_source_name] }
-                    source.send(association[:type], association[:joining_source_name], source: joining_source.plural_name, as: Support.inflector.singularize(association[:associated_access_name]), dependent: association[:dependent])
+                  unless source.associations[association.specific_type].any? { |current_association| current_association.associated_source_name == association.joining_source_name }
+                    source.send(association.specific_type, association.joining_source_name, source: joining_source.plural_name, as: Support.inflector.singularize(association.associated_name), dependent: association.dependent)
                   end
                 end
               end
             else
-              unless associated_source.associations[:belongs_to].any? { |current_association| current_association[:access_name] == association[:associated_access_name] }
-                associated_source.belongs_to(association[:associated_access_name], source: source.plural_name)
+              unless associated_source.associations[:belongs_to].any? { |current_association| current_association.name == Support.inflector.singularize(association.associated_name).to_sym }
+                associated_source.belongs_to(association.associated_name, source: source.plural_name)
               end
             end
           end
@@ -231,11 +213,11 @@ module Pakyow
 
       def define_methods_for_associations!(source)
         source.associations.values.flatten.each do |association|
-          method_name = :"with_#{association[:access_name]}"
+          method_name = :"with_#{association.name}"
           unless source.instance_methods.include?(method_name)
             source.class_eval do
               define_method method_name do
-                including(association[:access_name])
+                including(association.name)
               end
             end
           end

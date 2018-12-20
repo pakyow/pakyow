@@ -67,10 +67,10 @@ module Pakyow
       def validate_associated_sources!
         @sources.values.each do |source|
           source.associations.values.flatten.each do |association|
-            [association[:source_name], association[:joining_source_name]].compact.each do |source_name|
+            association.dependent_source_names.compact.each do |source_name|
               unless @sources.key?(source_name)
                 raise(
-                  UnknownSource.new("Unknown source `#{source_name}` for association: #{source.__object_name.name} #{association[:type]} #{association[:access_name]}").tap do |error|
+                  UnknownSource.new("Unknown source `#{source_name}` for association: #{source.__object_name.name} #{association.specific_type} #{association.name}").tap do |error|
                     error.context = self
                   end
                 )

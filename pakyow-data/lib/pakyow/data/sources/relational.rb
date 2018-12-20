@@ -55,6 +55,11 @@ module Pakyow
       #   => #<Pakyow::Data::Object @values={:id => 1, :title => "foo", :created_at => "2018-11-30 10:55:05 -0800", :updated_at => "2018-11-30 10:55:05 -0800"}>
       #
       class Relational < Sources::Abstract
+        require "pakyow/data/sources/relational/associations/belongs_to"
+        require "pakyow/data/sources/relational/associations/has_many"
+        require "pakyow/data/sources/relational/associations/has_one"
+        require "pakyow/data/sources/relational/associations/through"
+
         require "pakyow/data/sources/relational/command"
         require "pakyow/data/sources/relational/migrator"
 
@@ -94,13 +99,13 @@ module Pakyow
             association_name = association_name.to_sym
 
             association_to_include = self.class.associations.values.flatten.find { |association|
-              association[:access_name] == association_name
+              association.name == association_name
             } || raise(UnknownAssociation.new("Unknown association `#{association_name}`").tap { |error| error.context = self.class })
 
-            included_source = association_to_include[:source].instance
+            included_source = association_to_include.associated_source.instance
 
-            if association_to_include[:query_name]
-              included_source = included_source.send(association_to_include[:query_name])
+            if association_to_include.query
+              included_source = included_source.send(association_to_include.query)
             end
 
             final_source = if block_given?
@@ -249,16 +254,16 @@ module Pakyow
 
         def include_results!(results)
           @included.each do |association, combined_source|
-            group_by_key, assign_by_key, remove_keys = if association[:joining_source]
-              joining_source = association[:joining_source].instance
+            group_by_key, assign_by_key, remove_keys = if association.type == :through
+              joining_source = association.joining_source.instance
 
-              if combined_source.class == association[:joining_source]
+              if combined_source.class == association.joining_source
                 combined_source.__setobj__(
                   combined_source.class.container.connection.adapter.result_for_attribute_value(
                     combined_source.class.container.connection.adapter.qualify_attribute(
-                      association[:joining_associated_column_name], combined_source
+                      association.right_foreign_key_field, combined_source
                     ),
-                    results.map { |result| result[association[:associated_column_name]] },
+                    results.map { |result| result[association.associated_query_field] },
                     combined_source
                   )
                 )
@@ -273,21 +278,21 @@ module Pakyow
                       combined_source,
                       combined_source.class.container.connection.adapter.result_for_attribute_value(
                         combined_source.class.container.connection.adapter.qualify_attribute(
-                          association[:joining_associated_column_name], joining_source
+                          association.right_foreign_key_field, joining_source
                         ),
                         joining_source.class.container.connection.adapter.restrict_to_attribute(
-                          association[:column_name], source_from_self(__getobj__.dup)
+                          association.query_field, source_from_self(__getobj__.dup)
                         ),
                         combined_source.class.container.connection.adapter.merge_results(
-                          association[:joining_column_name],
-                          association[:column_name],
+                          association.left_foreign_key_field,
+                          association.associated_source.primary_key_field,
                           joining_source,
                           combined_source
                         )
                       ),
                       combined_source.class.container.connection.adapter.alias_attribute(
                         combined_source.class.container.connection.adapter.qualify_attribute(
-                          association[:joining_associated_column_name], joining_source
+                          association.right_foreign_key_field, joining_source
                         ), aliased
                       )
                     )
@@ -302,37 +307,37 @@ module Pakyow
                   }
 
                   joined_results = joining_source.class.container.connection.adapter.restrict_to_attribute(
-                    [association[:joining_associated_column_name], association[:joining_column_name]],
+                    [association.right_foreign_key_field, association.left_foreign_key_field],
                     joining_source.class.container.connection.adapter.result_for_attribute_value(
-                      association[:joining_associated_column_name], self_ids, joining_source
+                      association.right_foreign_key_field, self_ids, joining_source
                     )
                   )
 
                   combined_results = combined_source.class.container.connection.adapter.result_for_attribute_value(
-                    combined_source.class.primary_key_field, joined_results.map { |result| result[association[:joining_column_name]] }, combined_source
+                    combined_source.class.primary_key_field, joined_results.map { |result| result[association.left_foreign_key_field] }, combined_source
                   )
 
                   combined_results = joined_results.map { |joined_result|
                     combined_results.find { |result|
-                      result[combined_source.class.primary_key_field] == joined_result[association[:joining_column_name]]
+                      result[combined_source.class.primary_key_field] == joined_result[association.left_foreign_key_field]
                     }.dup.tap do |combined_result|
-                      combined_result[aliased] = joined_result[association[:joining_associated_column_name]]
+                      combined_result[aliased] = joined_result[association.right_foreign_key_field]
                     end
                   }
                 end
               end
 
-              [aliased, association[:access_name], [aliased]]
+              [aliased, association.name, [aliased]]
             else
               combined_source.__setobj__(
                 combined_source.class.container.connection.adapter.result_for_attribute_value(
-                  association[:associated_column_name],
-                  results.map { |result| result[association[:column_name]] },
+                  association.associated_query_field,
+                  results.map { |result| result[association.query_field] },
                   combined_source
                 )
               )
 
-              [association[:associated_column_name], association[:access_name], []]
+              [association.associated_query_field, association.name, []]
             end
 
             # Group the raw results by associated column value.
@@ -344,7 +349,7 @@ module Pakyow
             # Add each result group to its associated object.
             #
             results.map! { |result|
-              combined_results_for_result = combined_results[result[association[:column_name]]].to_a.map! { |combined_result|
+              combined_results_for_result = combined_results[result[association.query_field]].to_a.map! { |combined_result|
                 if combined_result.is_a?(Pakyow::Data::Object)
                   combined_result = combined_result.values.dup
                 end
@@ -360,7 +365,7 @@ module Pakyow
                 combined_source.send(:wrap, combined_result)
               }
 
-              result[assign_by_key] = if association[:access_type] == :one
+              result[assign_by_key] = if association.result_type == :one
                 combined_results_for_result[0]
               else
                 combined_results_for_result
@@ -455,40 +460,22 @@ module Pakyow
           end
 
           def belongs_to(association_name, query: nil, source: association_name)
-            access_name = Support.inflector.singularize(association_name)
-
-            @associations[:belongs_to] << {
-              type: :belongs_to,
-              access_type: :one,
-              access_name: access_name.to_sym,
-              source_name: Support.inflector.pluralize(source).to_sym,
-              query_name: query
-
-              # The following values are set in Container#define_attributes_for_associations!
-              #
-              # column_name, column_type, associated_column_name
-            }
+            Associations::BelongsTo.new(
+              name: association_name, query: query, source: self, associated_source_name: source
+            ).tap do |association|
+              @associations[:belongs_to] << association
+            end
           end
 
           # rubocop:disable Naming/PredicateName
           def has_many(association_name, query: nil, source: association_name, as: singular_name, through: nil, dependent: :raise)
-            as = Support.inflector.singularize(as).to_sym
+            Associations::HasMany.new(
+              name: association_name, query: query, source: self, associated_source_name: source, as: as, dependent: dependent
+            ).tap do |association|
+              @associations[:has_many] << association
 
-            @associations[:has_many] << {
-              type: :has_many,
-              access_type: :many,
-              access_name: Support.inflector.pluralize(association_name).to_sym,
-              source_name: Support.inflector.pluralize(source).to_sym,
-              query_name: query,
-              column_name: primary_key_field,
-              column_type: primary_key_type,
-              associated_access_name: as.to_sym,
-              dependent: dependent
-            }.tap do |association|
               if through
-                setup_as_through(association, association_name, as: as, through: through)
-              else
-                association[:associated_column_name] = :"#{as}_#{primary_key_field}"
+                setup_as_through(association, through: through)
               end
             end
           end
@@ -496,39 +483,24 @@ module Pakyow
 
           # rubocop:disable Naming/PredicateName
           def has_one(association_name, query: nil, source: association_name, as: singular_name, through: nil, dependent: :raise)
-            as = Support.inflector.singularize(as).to_sym
+            Associations::HasOne.new(
+              name: association_name, query: query, source: self, associated_source_name: source, as: as, dependent: dependent
+            ).tap do |association|
+              @associations[:has_one] << association
 
-            @associations[:has_one] << {
-              type: :has_one,
-              access_type: :one,
-              access_name: Support.inflector.singularize(association_name).to_sym,
-              source_name: Support.inflector.pluralize(source).to_sym,
-              query_name: query,
-              column_name: primary_key_field,
-              column_type: primary_key_type,
-              associated_access_name: as.to_sym,
-              dependent: dependent
-            }.tap do |association|
               if through
-                setup_as_through(association, association_name, as: as, through: through)
-              else
-                association[:associated_column_name] = :"#{as}_#{primary_key_field}"
+                setup_as_through(association, through: through)
               end
             end
           end
           # rubocop:enable Naming/PredicateName
 
-          # @api private
-          def setup_as_through(association, association_name, as:, through:)
-            joining_access_name = Support.inflector.singularize(association_name).to_sym
-            joining_associated_access_name = Support.inflector.singularize(as).to_sym
-            association[:joining_source_name] = Support.inflector.pluralize(through).to_sym
-            association[:joining_access_name] = joining_access_name
-            association[:joining_associated_access_name] = joining_associated_access_name
-            association[:joining_column_name] = :"#{joining_access_name}_#{primary_key_field}"
-            association[:joining_associated_column_name] = :"#{joining_associated_access_name}_#{primary_key_field}"
-            association[:associated_column_name] = primary_key_field
-            association
+          def setup_as_through(association, through:)
+            Associations::Through.new(association, joining_source_name: through).tap do |through_association|
+              associations[association.specific_type][
+                associations[association.specific_type].index(association)
+              ] = through_association
+            end
           end
 
           def make(name, adapter: Pakyow.config.data.default_adapter, connection: Pakyow.config.data.default_connection, state: nil, parent: nil, primary_id: true, timestamps: true, **kwargs, &block)
@@ -559,15 +531,14 @@ module Pakyow
           # @api private
           def find_association_to_source(source)
             associations.values.flatten.find { |association|
-              association[:source_name] == source.class.plural_name ||
-                association[:source_name] == source.class.singular_name
+              association.associated_source == source.class
             }
           end
 
           # @api private
-          def association_for_access_name?(name)
+          def association_with_name?(name)
             associations.values.flatten.find { |association|
-              association[:access_name] == name
+              association.name == name
             }
           end
         end

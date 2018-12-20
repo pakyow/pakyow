@@ -324,7 +324,7 @@ RSpec.shared_examples :source_associations_belongs_to do
       end
     end
 
-    context "passing an associated id" do
+    context "passing an associated primary key value" do
       def create
         target_dataset.create(
           foreign_key => associated_new.one[association_primary_key_field]
@@ -496,7 +496,7 @@ RSpec.shared_examples :source_associations_belongs_to do
 
     context "passing an associated dataset" do
       def update
-        target_dataset.by_id(1).update(
+        target_dataset.send(:"by_#{primary_key_field}", target_dataset.first[primary_key_field]).update(
           updatable: updated_value,
           association_name => associated_new
         )
@@ -529,7 +529,7 @@ RSpec.shared_examples :source_associations_belongs_to do
 
       context "dataset includes more than one result" do
         def update
-          target_dataset.by_id(1).update(
+          target_dataset.send(:"by_#{primary_key_field}", target_dataset.first[primary_key_field]).update(
             updatable: updated_value,
             association_name => associated_dataset
           )
@@ -559,7 +559,7 @@ RSpec.shared_examples :source_associations_belongs_to do
 
       context "dataset is for a different source" do
         def update
-          target_dataset.by_id(1).update(
+          target_dataset.send(:"by_#{primary_key_field}", target_dataset.first[primary_key_field]).update(
             updatable: updated_value,
             association_name => data.unassociated.create
           )
@@ -768,7 +768,7 @@ RSpec.shared_examples :source_associations_belongs_to do
       end
     end
 
-    context "passing an associated id" do
+    context "passing an associated primary key value" do
       def update
         target_dataset.update(
           updatable: updated_value,

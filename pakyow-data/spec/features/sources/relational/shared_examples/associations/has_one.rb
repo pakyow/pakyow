@@ -48,7 +48,9 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
         end
 
         it "does not include unassociated data" do
-          expect(results.one.send(association_name).id).to eq(1)
+          expect(
+            results.one.send(association_name)[association_primary_key_field]
+          ).to eq(associated_dataset.first[association_primary_key_field])
         end
       end
 
@@ -71,8 +73,8 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
 
         it "includes the associated data in the result" do
           expect(
-            results.one.send(association_name).id
-          ).to eq(associated_dataset.count)
+            results.one.send(association_name)[association_primary_key_field]
+          ).to eq(associated_dataset.last[association_primary_key_field])
         end
       end
 
@@ -89,8 +91,8 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
 
         it "includes the associated data in the result" do
           expect(
-            results.last.send(association_name).id
-          ).to eq(associated_dataset.count)
+            results.last.send(association_name)[association_primary_key_field]
+          ).to eq(associated_dataset.last[association_primary_key_field])
         end
       end
     end
@@ -253,9 +255,9 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
           object = associated_new.one
           create
           expect(
-            object.send(:"#{associated_as}_id")
+            object.send(:"#{associated_as}_#{primary_key_field}")
           ).to eq(
-            target_dataset.one.id
+            target_dataset.one[primary_key_field]
           )
         end
       end
@@ -274,7 +276,7 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
               association_name => object
             )
           }.to raise_error(Pakyow::Data::ConstraintViolation) do |error|
-            expect(error.message).to eq("Cannot find associated #{association_name} with id of #{object.id}")
+            expect(error.message).to eq("Cannot find associated #{association_name} with #{association_primary_key_field} of #{object[association_primary_key_field]}")
           end
 
           expect(
@@ -350,10 +352,10 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
       end
     end
 
-    context "passing an associated id" do
+    context "passing an associated primary key value" do
       def create
         target_dataset.create(
-          association_name => associated_new.one.id
+          association_name => associated_new.one[association_primary_key_field]
         )
       end
 
@@ -361,7 +363,7 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
         expect {
           create
         }.to raise_error(Pakyow::Data::TypeMismatch) do |error|
-          expect(error.message).to eq("Cannot associate Integer as #{association_name}")
+          expect(error.message).to eq("Cannot associate #{associated_new.one[association_primary_key_field].class} as #{association_name}")
         end
 
         expect(
@@ -385,11 +387,11 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
         expect {
           update
         }.to change {
-          target_dataset.including(association_name).one.send(association_name).id
+          target_dataset.including(association_name).one.send(association_name)[association_primary_key_field]
         }.from(
-          associated_old.one.id
+          associated_old.one[association_primary_key_field]
         ).to(
-          associated_new.one.id
+          associated_new.one[association_primary_key_field]
         )
       end
 
@@ -404,11 +406,11 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
           expect {
             update
           }.to change {
-            target_dataset.including(association_name).one.send(association_name).id
+            target_dataset.including(association_name).one.send(association_name)[association_primary_key_field]
           }.from(
-            associated_old.one.id
+            associated_old.one[association_primary_key_field]
           ).to(
-            associated_new.one.id
+            associated_new.one[association_primary_key_field]
           )
         end
       end
@@ -441,7 +443,7 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
 
     context "without associated data" do
       def update
-        target_dataset.by_id(1).update(
+        target_dataset.send(:"by_#{primary_key_field}", target_dataset.first[primary_key_field]).update(
           updatable: updated_value
         )
       end
@@ -460,14 +462,14 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
         }.not_to change {
           target_dataset.including(
             association_name
-          ).one.send(association_name).id
+          ).one.send(association_name)[association_primary_key_field]
         }
       end
     end
 
     context "passing an associated dataset" do
       def update
-        target_dataset.by_id(1).update(
+        target_dataset.send(:"by_#{primary_key_field}", target_dataset.first[primary_key_field]).update(
           updatable: updated_value,
           association_name => associated_new
         )
@@ -477,7 +479,7 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
 
       context "dataset includes no results" do
         def update
-          target_dataset.by_id(1).update(
+          target_dataset.send(:"by_#{primary_key_field}", target_dataset.first[primary_key_field]).update(
             updatable: updated_value,
             association_name => associated_new.return_none
           )
@@ -489,9 +491,9 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
           }.to change {
             target_dataset.including(
               association_name
-            ).one.send(association_name)&.id
+            ).one.send(association_name)&.send(association_primary_key_field)
           }.from(
-            associated_old.one.id
+            associated_old.one[association_primary_key_field]
           ).to(
             nil
           )
@@ -500,7 +502,7 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
 
       context "dataset includes more than one result" do
         def update
-          target_dataset.by_id(1).update(
+          target_dataset.send(:"by_#{primary_key_field}", target_dataset.first[primary_key_field]).update(
             updatable: updated_value,
             association_name => associated_dataset
           )
@@ -519,8 +521,8 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
           expect(
             target_dataset.including(
               association_name
-            ).one.send(association_name).id
-          ).to eq(associated_old.one.id)
+            ).one.send(association_name)[association_primary_key_field]
+          ).to eq(associated_old.one[association_primary_key_field])
 
           expect(
             target_dataset.one.updatable
@@ -530,7 +532,7 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
 
       context "dataset is for a different source" do
         def update
-          target_dataset.by_id(1).update(
+          target_dataset.send(:"by_#{primary_key_field}", target_dataset.first[primary_key_field]).update(
             updatable: updated_value,
             association_name => data.unassociated.create
           )
@@ -546,8 +548,8 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
           expect(
             target_dataset.including(
               association_name
-            ).one.send(association_name).id
-          ).to eq(associated_old.one.id)
+            ).one.send(association_name)[association_primary_key_field]
+          ).to eq(associated_old.one[association_primary_key_field])
 
           expect(
             target_dataset.one.updatable
@@ -590,9 +592,9 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
           object = associated_new.one
           update
           expect(
-            object.send(:"#{associated_as}_id")
+            object.send(:"#{associated_as}_#{primary_key_field}")
           ).to eq(
-            target_dataset.one.id
+            target_dataset.one[primary_key_field]
           )
         end
       end
@@ -619,9 +621,9 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
           }.to change {
             target_dataset.including(
               association_name
-            ).one.send(association_name)&.id
+            ).one.send(association_name)&.send(association_primary_key_field)
           }.from(
-            associated_old.one.id
+            associated_old.one[association_primary_key_field]
           ).to(
             nil
           )
@@ -630,7 +632,7 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
 
       context "passed an object that does not exist" do
         def update
-          associated_dataset.by_id(object.id).delete
+          associated_dataset.send(:"by_#{association_primary_key_field}", object[association_primary_key_field]).delete
 
           target_dataset.update(
             updatable: updated_value,
@@ -646,14 +648,14 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
           expect {
             update
           }.to raise_error(Pakyow::Data::ConstraintViolation) do |error|
-            expect(error.message).to eq("Cannot find associated #{association_name} with id of #{object.id}")
+            expect(error.message).to eq("Cannot find associated #{association_name} with #{association_primary_key_field} of #{object[association_primary_key_field]}")
           end
 
           expect(
             target_dataset.including(
               association_name
-            ).one.send(association_name).id
-          ).to eq(associated_old.one.id)
+            ).one.send(association_name)[association_primary_key_field]
+          ).to eq(associated_old.one[association_primary_key_field])
 
           expect(
             target_dataset.one.updatable
@@ -679,8 +681,8 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
           expect(
             target_dataset.including(
               association_name
-            ).one.send(association_name).id
-          ).to eq(associated_old.one.id)
+            ).one.send(association_name)[association_primary_key_field]
+          ).to eq(associated_old.one[association_primary_key_field])
 
           expect(
             target_dataset.one.updatable
@@ -706,8 +708,8 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
           expect(
             target_dataset.including(
               association_name
-            ).one.send(association_name).id
-          ).to eq(associated_old.one.id)
+            ).one.send(association_name)[association_primary_key_field]
+          ).to eq(associated_old.one[association_primary_key_field])
 
           expect(
             target_dataset.one.updatable
@@ -733,8 +735,8 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
           expect(
             target_dataset.including(
               association_name
-            ).one.send(association_name).id
-          ).to eq(associated_old.one.id)
+            ).one.send(association_name)[association_primary_key_field]
+          ).to eq(associated_old.one[association_primary_key_field])
 
           expect(
             target_dataset.one.updatable
@@ -760,8 +762,8 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
           expect(
             target_dataset.including(
               association_name
-            ).one.send(association_name).id
-          ).to eq(associated_old.one.id)
+            ).one.send(association_name)[association_primary_key_field]
+          ).to eq(associated_old.one[association_primary_key_field])
 
           expect(
             target_dataset.one.updatable
@@ -770,11 +772,11 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
       end
     end
 
-    context "passing an associated id" do
+    context "passing an associated primary key value" do
       def update
         target_dataset.update(
           updatable: updated_value,
-          association_name => associated_new.one.id
+          association_name => associated_new.one[association_primary_key_field]
         )
       end
 
@@ -782,7 +784,7 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
         expect {
           update
         }.to raise_error(Pakyow::Data::TypeMismatch) do |error|
-          expect(error.message).to eq("Cannot associate Integer as #{association_name}")
+          expect(error.message).to eq("Cannot associate #{associated_new.one[association_primary_key_field].class} as #{association_name}")
         end
 
         expect(
@@ -935,7 +937,7 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
         else
           it "nullifies the related column on the dependent data" do
             target_dataset.delete
-            expect(associated_dataset.last[:"#{associated_as}_id"]).to be(nil)
+            expect(associated_dataset.last[:"#{associated_as}_#{primary_key_field}"]).to be(nil)
           end
 
           it "does not nullify non-dependent data" do
@@ -943,10 +945,10 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
               associated_as => target_dataset.create
             )
 
-            target_dataset.by_id(1).delete
+            target_dataset.send(:"by_#{primary_key_field}", target_dataset.first[primary_key_field]).delete
 
             unassociated.each do |object|
-              expect(object.send(:"#{associated_as}_id")).not_to be(nil)
+              expect(object.send(:"#{associated_as}_#{primary_key_field}")).not_to be(nil)
             end
           end
         end
@@ -976,7 +978,7 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
           if one_to_one
             it "does not nullify the joining data" do
               begin
-                target_dataset.by_id(1).delete
+                target_dataset.send(:"by_#{primary_key_field}", target_dataset.first[primary_key_field]).delete
               rescue
               end
 
@@ -988,12 +990,12 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
           else
             it "does not nullify the dependent data" do
               begin
-                target_dataset.by_id(1).delete
+                target_dataset.send(:"by_#{primary_key_field}", target_dataset.first[primary_key_field]).delete
               rescue
               end
 
               associated_dataset.each do |object|
-                expect(object.send(:"#{associated_as}_id")).not_to be(nil)
+                expect(object.send(:"#{associated_as}_#{primary_key_field}")).not_to be(nil)
               end
             end
           end
@@ -1056,21 +1058,21 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
       it "removes the current association" do
         expect(
           joining_dataset.map(&right_join_key)
-        ).to eq([associated_old.one.id])
+        ).to eq([associated_old.one[association_primary_key_field]])
 
         create
 
         expect(
           joining_dataset.map(&right_join_key)
-        ).to eq([associated_new.one.id])
+        ).to eq([associated_new.one[association_primary_key_field]])
       end
     else
       it "removes the current association" do
         expect {
           create
         }.to change {
-          associated_dataset.map(&:"#{associated_as}_id")
-        }.from([target_dataset.one.id]).to([nil, target_dataset.one.id])
+          associated_dataset.map(&:"#{associated_as}_#{primary_key_field}")
+        }.from([target_dataset.one[primary_key_field]]).to([nil, target_dataset.one[primary_key_field]])
       end
     end
   end
@@ -1112,21 +1114,21 @@ RSpec.shared_examples :source_associations_has_one do |dependents: :raise, one_t
       it "removes the current association" do
         expect(
           joining_dataset.map(&right_join_key)
-        ).to eq([associated_old.one.id])
+        ).to eq([associated_old.one[association_primary_key_field]])
 
         update
 
         expect(
           joining_dataset.map(&right_join_key)
-        ).to eq([associated_new.one.id])
+        ).to eq([associated_new.one[association_primary_key_field]])
       end
     else
       it "removes the current association" do
         expect {
           update
         }.to change {
-          associated_dataset.map(&:"#{associated_as}_id")
-        }.from([target_dataset.one.id]).to([nil, target_dataset.one.id])
+          associated_dataset.map(&:"#{associated_as}_#{primary_key_field}")
+        }.from([target_dataset.one[primary_key_field]]).to([nil, target_dataset.one[primary_key_field]])
       end
     end
   end

@@ -312,7 +312,7 @@ RSpec.shared_examples :source_associations do
         end
       end
 
-      describe "association with a custom primary key" do
+      describe "association with the source having a custom primary key" do
         let :app_definition do
           slugs = 100.times.to_a.map(&:to_s)
 
@@ -532,7 +532,7 @@ RSpec.shared_examples :source_associations do
           end
 
           it "does not override the existing association" do
-            expect(data.comments.source.class.associations[:belongs_to][0][:query_name]).to eq(:foo)
+            expect(data.comments.source.class.associations[:belongs_to][0].query).to eq(:foo)
           end
         end
       end
@@ -646,7 +646,7 @@ RSpec.shared_examples :source_associations do
           end
 
           it "does not override the existing association" do
-            expect(data.comments.source.class.associations[:belongs_to][0][:query_name]).to eq(:foo)
+            expect(data.comments.source.class.associations[:belongs_to][0].query).to eq(:foo)
           end
         end
       end
@@ -733,6 +733,74 @@ RSpec.shared_examples :source_associations do
 
           it "raises an error that puts the app in rescue mode" do
             expect(Pakyow.app(:test).call({})[2].join).to include("Unknown source `comments` for association: posts has_one comment")
+          end
+        end
+      end
+
+      describe "association with the source having a custom primary key" do
+        let :app_definition do
+          slugs = 100.times.to_a.map(&:to_s)
+
+          Proc.new do
+            instance_exec(&$data_app_boilerplate)
+
+            source :posts, primary_id: false do
+              primary_key :slug
+
+              attribute :slug, :string, default: -> {
+                # Ensures the ids are in a predictable sort order.
+                #
+                slugs.shift
+              }
+
+              has_one :comment
+
+              query do
+                order { slug.asc }
+              end
+            end
+
+            source :comments do
+              primary_id
+
+              query do
+                order { id.asc }
+              end
+            end
+          end
+        end
+
+        it_behaves_like :source_associations_has_one do
+          let :target_source do
+            :posts
+          end
+
+          let :associated_source do
+            :comments
+          end
+
+          let :association_name do
+            :comment
+          end
+
+          let :associated_as do
+            :post
+          end
+        end
+
+        describe "reciprocal association" do
+          it_behaves_like :source_associations_belongs_to do
+            let :target_source do
+              :comments
+            end
+
+            let :associated_source do
+              :posts
+            end
+
+            let :association_name do
+              :post
+            end
           end
         end
       end
@@ -1102,6 +1170,176 @@ RSpec.shared_examples :source_associations do
           end
         end
       end
+
+      describe "association with the source having a custom primary key" do
+        let :app_definition do
+          slugs = 100.times.to_a.map(&:to_s)
+
+          Proc.new do
+            instance_exec(&$data_app_boilerplate)
+
+            source :posts, primary_id: false do
+              primary_key :slug
+
+              attribute :slug, :string, default: -> {
+                # Ensures the ids are in a predictable sort order.
+                #
+                slugs.shift
+              }
+
+              has_one :comment, through: :related
+
+              query do
+                order { slug.asc }
+              end
+            end
+
+            source :comments do
+              primary_id
+
+              query do
+                order { id.asc }
+              end
+            end
+
+            source :relateds do
+              query do
+                order { id.asc }
+              end
+            end
+          end
+        end
+
+        it_behaves_like :source_associations_has_one_through do
+          let :target_source do
+            :posts
+          end
+
+          let :associated_source do
+            :comments
+          end
+
+          let :joining_source do
+            :relateds
+          end
+
+          let :association_name do
+            :comment
+          end
+
+          let :associated_as do
+            :post
+          end
+        end
+
+        describe "reciprocal association" do
+          it_behaves_like :source_associations_has_one_through do
+            let :target_source do
+              :comments
+            end
+
+            let :associated_source do
+              :posts
+            end
+
+            let :joining_source do
+              :relateds
+            end
+
+            let :association_name do
+              :post
+            end
+
+            let :associated_as do
+              :comment
+            end
+          end
+        end
+      end
+
+      describe "association with the joining source having a custom primary key" do
+        let :app_definition do
+          slugs = 100.times.to_a.map(&:to_s)
+
+          Proc.new do
+            instance_exec(&$data_app_boilerplate)
+
+            source :posts do
+              has_one :comment, through: :related
+
+              query do
+                order { id.asc }
+              end
+            end
+
+            source :comments do
+              query do
+                order { id.asc }
+              end
+            end
+
+            source :relateds, primary_id: false do
+              primary_key :slug
+
+              attribute :slug, :string, default: -> {
+                # Ensures the ids are in a predictable sort order.
+                #
+                slugs.shift
+              }
+
+              query do
+                order { slug.asc }
+              end
+            end
+          end
+        end
+
+        it_behaves_like :source_associations_has_one_through do
+          let :target_source do
+            :posts
+          end
+
+          let :associated_source do
+            :comments
+          end
+
+          let :joining_source do
+            :relateds
+          end
+
+          let :association_name do
+            :comment
+          end
+
+          let :associated_as do
+            :post
+          end
+        end
+
+        describe "reciprocal association" do
+          it_behaves_like :source_associations_has_one_through do
+            let :target_source do
+              :comments
+            end
+
+            let :associated_source do
+              :posts
+            end
+
+            let :joining_source do
+              :relateds
+            end
+
+            let :association_name do
+              :post
+            end
+
+            let :associated_as do
+              :comment
+            end
+          end
+        end
+      end
     end
 
     describe "one_to_one" do
@@ -1376,6 +1614,78 @@ RSpec.shared_examples :source_associations do
           expect(data.posts.including(:comment).one.comment).to be(nil)
         end
       end
+
+      describe "association with the source having a custom primary key" do
+        let :app_definition do
+          slugs = 100.times.to_a.map(&:to_s)
+
+          Proc.new do
+            instance_exec(&$data_app_boilerplate)
+
+            source :posts, primary_id: false do
+              primary_key :slug
+
+              attribute :slug, :string, default: -> {
+                # Ensures the ids are in a predictable sort order.
+                #
+                slugs.shift
+              }
+
+              has_one :comment
+
+              query do
+                order { slug.asc }
+              end
+            end
+
+            source :comments do
+              has_one :post
+
+              query do
+                order { id.asc }
+              end
+            end
+          end
+        end
+
+        it_behaves_like :source_associations_one_to_one do
+          let :target_source do
+            :posts
+          end
+
+          let :associated_source do
+            :comments
+          end
+
+          let :association_name do
+            :comment
+          end
+
+          let :associated_as do
+            :post
+          end
+        end
+
+        describe "reciprocal association" do
+          it_behaves_like :source_associations_one_to_one do
+            let :target_source do
+              :comments
+            end
+
+            let :associated_source do
+              :posts
+            end
+
+            let :association_name do
+              :post
+            end
+
+            let :associated_as do
+              :comment
+            end
+          end
+        end
+      end
     end
 
     describe "has_many" do
@@ -1547,7 +1857,7 @@ RSpec.shared_examples :source_associations do
           end
 
           it "does not override the existing association" do
-            expect(data.comments.source.class.associations[:belongs_to][0][:query_name]).to eq(:foo)
+            expect(data.comments.source.class.associations[:belongs_to][0].query).to eq(:foo)
           end
         end
       end
@@ -1660,7 +1970,7 @@ RSpec.shared_examples :source_associations do
             end
 
             it "does not override the existing association" do
-              expect(data.comments.source.class.associations[:belongs_to][0][:query_name]).to eq(:foo)
+              expect(data.comments.source.class.associations[:belongs_to][0].query).to eq(:foo)
             end
           end
         end
@@ -1748,6 +2058,74 @@ RSpec.shared_examples :source_associations do
 
           it "raises an error that puts the app in rescue mode" do
             expect(Pakyow.app(:test).call({})[2].join).to include("Unknown source `comments` for association: posts has_many comments")
+          end
+        end
+      end
+
+      describe "association with the source having a custom primary key" do
+        let :app_definition do
+          slugs = 100.times.to_a.map(&:to_s)
+
+          Proc.new do
+            instance_exec(&$data_app_boilerplate)
+
+            source :posts, primary_id: false do
+              primary_key :slug
+
+              attribute :slug, :string, default: -> {
+                # Ensures the ids are in a predictable sort order.
+                #
+                slugs.shift
+              }
+
+              has_many :comments
+
+              query do
+                order { slug.asc }
+              end
+            end
+
+            source :comments do
+              primary_id
+
+              query do
+                order { id.asc }
+              end
+            end
+          end
+        end
+
+        it_behaves_like :source_associations_has_many do
+          let :target_source do
+            :posts
+          end
+
+          let :associated_source do
+            :comments
+          end
+
+          let :association_name do
+            :comments
+          end
+
+          let :associated_as do
+            :post
+          end
+        end
+
+        describe "reciprocal association" do
+          it_behaves_like :source_associations_belongs_to do
+            let :target_source do
+              :comments
+            end
+
+            let :associated_source do
+              :posts
+            end
+
+            let :association_name do
+              :post
+            end
           end
         end
       end
@@ -2119,6 +2497,174 @@ RSpec.shared_examples :source_associations do
           end
         end
       end
+
+      describe "association with the source having a custom primary key" do
+        let :app_definition do
+          slugs = 100.times.to_a.map(&:to_s)
+
+          Proc.new do
+            instance_exec(&$data_app_boilerplate)
+
+            source :posts, primary_id: false do
+              primary_key :slug
+
+              attribute :slug, :string, default: -> {
+                # Ensures the ids are in a predictable sort order.
+                #
+                slugs.shift
+              }
+
+              has_many :comments, through: :relateds
+
+              query do
+                order { slug.asc }
+              end
+            end
+
+            source :comments do
+              query do
+                order { id.asc }
+              end
+            end
+
+            source :relateds do
+              query do
+                order { id.asc }
+              end
+            end
+          end
+        end
+
+        it_behaves_like :source_associations_has_many_through do
+          let :target_source do
+            :posts
+          end
+
+          let :associated_source do
+            :comments
+          end
+
+          let :joining_source do
+            :relateds
+          end
+
+          let :association_name do
+            :comments
+          end
+
+          let :associated_as do
+            :posts
+          end
+        end
+
+        describe "reciprocal association" do
+          it_behaves_like :source_associations_has_many_through do
+            let :target_source do
+              :comments
+            end
+
+            let :associated_source do
+              :posts
+            end
+
+            let :joining_source do
+              :relateds
+            end
+
+            let :association_name do
+              :posts
+            end
+
+            let :associated_as do
+              :comments
+            end
+          end
+        end
+      end
+
+      describe "association with the joining source having a custom primary key" do
+        let :app_definition do
+          slugs = 100.times.to_a.map(&:to_s)
+
+          Proc.new do
+            instance_exec(&$data_app_boilerplate)
+
+            source :posts do
+              has_many :comments, through: :relateds
+
+              query do
+                order { id.asc }
+              end
+            end
+
+            source :comments do
+              query do
+                order { id.asc }
+              end
+            end
+
+            source :relateds, primary_id: false do
+              primary_key :slug
+
+              attribute :slug, :string, default: -> {
+                # Ensures the ids are in a predictable sort order.
+                #
+                slugs.shift
+              }
+
+              query do
+                order { slug.asc }
+              end
+            end
+          end
+        end
+
+        it_behaves_like :source_associations_has_many_through do
+          let :target_source do
+            :posts
+          end
+
+          let :associated_source do
+            :comments
+          end
+
+          let :joining_source do
+            :relateds
+          end
+
+          let :association_name do
+            :comments
+          end
+
+          let :associated_as do
+            :posts
+          end
+        end
+
+        describe "reciprocal association" do
+          it_behaves_like :source_associations_has_many_through do
+            let :target_source do
+              :comments
+            end
+
+            let :associated_source do
+              :posts
+            end
+
+            let :joining_source do
+              :relateds
+            end
+
+            let :association_name do
+              :posts
+            end
+
+            let :associated_as do
+              :comments
+            end
+          end
+        end
+      end
     end
 
     describe "many_to_many" do
@@ -2393,6 +2939,78 @@ RSpec.shared_examples :source_associations do
           posts = data.posts.including(:comments)
           expect(posts[0].comments.count).to be(0)
           expect(posts[1].comments.count).to be(1)
+        end
+      end
+
+      describe "association with the source having a custom primary key" do
+        let :app_definition do
+          slugs = 100.times.to_a.map(&:to_s)
+
+          Proc.new do
+            instance_exec(&$data_app_boilerplate)
+
+            source :posts, primary_id: false do
+              primary_key :slug
+
+              attribute :slug, :string, default: -> {
+                # Ensures the ids are in a predictable sort order.
+                #
+                slugs.shift
+              }
+
+              has_many :comments
+
+              query do
+                order { slug.asc }
+              end
+            end
+
+            source :comments do
+              has_many :posts
+
+              query do
+                order { id.asc }
+              end
+            end
+          end
+        end
+
+        it_behaves_like :source_associations_many_to_many do
+          let :target_source do
+            :posts
+          end
+
+          let :associated_source do
+            :comments
+          end
+
+          let :association_name do
+            :comments
+          end
+
+          let :associated_as do
+            :posts
+          end
+        end
+
+        describe "reciprocal association" do
+          it_behaves_like :source_associations_many_to_many do
+            let :target_source do
+              :comments
+            end
+
+            let :associated_source do
+              :posts
+            end
+
+            let :association_name do
+              :posts
+            end
+
+            let :associated_as do
+              :comments
+            end
+          end
         end
       end
     end
