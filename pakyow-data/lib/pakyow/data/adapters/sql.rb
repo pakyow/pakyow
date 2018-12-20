@@ -43,8 +43,14 @@ module Pakyow
 
         attr_reader :connection
 
-        DEFAULT_EXTENSIONS = {
-          postgres: %i(pg_json)
+        DEFAULT_EXTENSIONS = %i(
+          connection_validator
+        ).freeze
+
+        DEFAULT_ADAPTER_EXTENSIONS = {
+          postgres: %i(
+            pg_json
+          ).freeze
         }.freeze
 
         def initialize(opts, logger: nil)
@@ -58,8 +64,12 @@ module Pakyow
             logger: logger
           )
 
-          DEFAULT_EXTENSIONS[opts[:adapter].to_sym].to_a.each do |extension|
+          (DEFAULT_EXTENSIONS + DEFAULT_ADAPTER_EXTENSIONS[opts[:adapter].to_s.to_sym].to_a).each do |extension|
             @connection.extension extension
+          end
+
+          if opts.include?(:timeout)
+            @connection.pool.connection_validation_timeout = opts[:timeout].to_i
           end
         rescue Sequel::AdapterNotFound => error
           # TODO: better handling of missing adapters
