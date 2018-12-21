@@ -59,7 +59,7 @@ module Pakyow
           #
           super
 
-          if !@proxy_pid
+          if !@proxy_pid && Pakyow.setup_error.nil?
             start_proxy(@proxy_port)
           end
         end
