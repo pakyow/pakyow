@@ -21,15 +21,11 @@ namespace :db do
 
     # Use a global connection for creating the database.
     #
-    migrator = Pakyow::Data::Migrator.connect_global(opts)
+    global_migrator = Pakyow::Data::Migrator.connect_global(opts)
 
     # Create the migrator database unless it exists.
     #
-    migrator.create!
-
-    # Done with global, disconnect.
-    #
-    migrator.disconnect!
+    global_migrator.create!
 
     # Use a normal migrator for migrating.
     #
@@ -43,12 +39,16 @@ namespace :db do
     #
     migrator.finalize!
 
-    # Drop the migrator database.
-    #
-    migrator.drop!
-
-    # Disconnect everything.
+    # Disconnect.
     #
     migrator.disconnect!
+
+    # Drop the migrator database.
+    #
+    global_migrator.drop!
+
+    # Disconnect the migrator database.
+    #
+    global_migrator.disconnect!
   end
 end
