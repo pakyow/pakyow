@@ -25,7 +25,7 @@ RSpec.describe "presenting data into a previously empty view" do
         end
       end
 
-      source :posts do
+      source :posts, timestamps: false do
         primary_id
         attribute :title
       end
@@ -72,7 +72,7 @@ RSpec.describe "presenting data into a previously empty view that contains an em
         end
       end
 
-      source :posts do
+      source :posts, timestamps: false do
         primary_id
         attribute :title
       end

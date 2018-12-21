@@ -26,7 +26,7 @@ RSpec.describe "presenting mutable data with static values" do
         end
       end
 
-      source :posts do
+      source :posts, timestamps: false do
         primary_id
         attribute :title
       end

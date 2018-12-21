@@ -73,7 +73,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint in a nested bi
         end
       end
 
-      source :posts do
+      source :posts, timestamps: false do
         primary_id
 
         attribute :title
@@ -81,7 +81,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint in a nested bi
         has_many :comments
       end
 
-      source :comments do
+      source :comments, timestamps: false do
         primary_id
 
         attribute :title

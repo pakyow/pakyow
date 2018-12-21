@@ -25,7 +25,7 @@ RSpec.describe "presenting an object with binding parts defined in a binder" do
         end
       end
 
-      source :posts do
+      source :posts, timestamps: false do
         primary_id
         attribute :title
       end

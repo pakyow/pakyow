@@ -36,7 +36,7 @@ RSpec.describe "updating an object in a populated view" do
         end
       end
 
-      source :posts do
+      source :posts, timestamps: false do
         primary_id
         attribute :title
       end
@@ -98,7 +98,7 @@ RSpec.describe "updating an object in a way that presents a new prop" do
         end
       end
 
-      source :posts do
+      source :posts, timestamps: false do
         primary_id
         attribute :title
         attribute :body
@@ -161,7 +161,7 @@ RSpec.describe "updating an object in a way that presents a new prop in a differ
         end
       end
 
-      source :posts do
+      source :posts, timestamps: false do
         primary_id
         attribute :title
         attribute :body

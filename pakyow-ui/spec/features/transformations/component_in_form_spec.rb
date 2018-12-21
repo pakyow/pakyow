@@ -14,7 +14,7 @@ RSpec.describe "presenting data in a form component" do
         end
       end
 
-      source :posts do
+      source :posts, timestamps: false do
         primary_id
         attribute :title
       end

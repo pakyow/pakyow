@@ -48,7 +48,7 @@ RSpec.describe "reordering a populated view" do
         end
       end
 
-      source :posts do
+      source :posts, timestamps: false do
         primary_id
         attribute :title
 

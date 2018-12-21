@@ -20,7 +20,7 @@ RSpec.describe "presenting an object in a component" do
         end
       end
 
-      source :posts do
+      source :posts, timestamps: false do
         primary_id
         attribute :title
       end
@@ -69,7 +69,7 @@ RSpec.describe "presenting the same data in a component and outside of it" do
         end
       end
 
-      source :posts do
+      source :posts, timestamps: false do
         primary_id
         attribute :title
         attribute :body

@@ -40,7 +40,7 @@ RSpec.shared_context "versioned" do
         end
       end
 
-      source :posts do
+      source :posts, timestamps: false do
         primary_id
         attribute :title
         attribute :published, :boolean, default: false

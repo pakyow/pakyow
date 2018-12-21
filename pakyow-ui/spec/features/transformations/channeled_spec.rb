@@ -27,7 +27,7 @@ RSpec.describe "presenting data in a channeled binding" do
         end
       end
 
-      source :posts do
+      source :posts, timestamps: false do
         primary_id
         attribute :title
         attribute :published, :boolean
@@ -88,7 +88,7 @@ RSpec.describe "presenting data across channeled bindings" do
         end
       end
 
-      source :posts do
+      source :posts, timestamps: false do
         primary_id
         attribute :title
         attribute :published, :boolean

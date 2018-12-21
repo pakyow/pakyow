@@ -40,13 +40,13 @@ RSpec.describe "presentating nested data" do
         end
       end
 
-      source :posts do
+      source :posts, timestamps: false do
         primary_id
         has_many :comments
         attribute :title
       end
 
-      source :comments do
+      source :comments, timestamps: false do
         primary_id
         attribute :title
       end

@@ -25,7 +25,7 @@ RSpec.describe "presenting an object with a value overridden in a binder" do
         end
       end
 
-      source :posts do
+      source :posts, timestamps: false do
         primary_id
         attribute :title
       end
@@ -78,7 +78,7 @@ RSpec.describe "presenting an object with a value defined only in a binder" do
         end
       end
 
-      source :posts do
+      source :posts, timestamps: false do
         primary_id
         attribute :title
       end

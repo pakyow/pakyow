@@ -29,7 +29,7 @@ RSpec.describe "clearing data in a populated view" do
         end
       end
 
-      source :posts do
+      source :posts, timestamps: false do
         primary_id
         attribute :title
       end
@@ -81,7 +81,7 @@ RSpec.describe "clearing data in a populated view that contains an empty version
         end
       end
 
-      source :posts do
+      source :posts, timestamps: false do
         primary_id
         attribute :title
       end

@@ -53,7 +53,7 @@ RSpec.describe "presenting a view that defines an endpoints with an action" do
         end
       end
 
-      source :posts do
+      source :posts, timestamps: false do
         primary_id
 
         attribute :title

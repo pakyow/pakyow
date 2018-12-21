@@ -19,7 +19,7 @@ RSpec.describe "presenting an object with a safe html value" do
         end
       end
 
-      source :posts do
+      source :posts, timestamps: false do
         primary_id
         attribute :title
       end

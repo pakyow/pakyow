@@ -20,7 +20,7 @@ RSpec.describe "modifying hash attributes" do
           end
         end
 
-        source :posts do
+        source :posts, timestamps: false do
           primary_id
         end
 
@@ -59,7 +59,7 @@ RSpec.describe "modifying hash attributes" do
           end
         end
 
-        source :posts do
+        source :posts, timestamps: false do
           primary_id
         end
 
@@ -98,7 +98,7 @@ RSpec.describe "modifying hash attributes" do
           end
         end
 
-        source :posts do
+        source :posts, timestamps: false do
           primary_id
         end
 
@@ -137,7 +137,7 @@ RSpec.describe "modifying hash attributes" do
           end
         end
 
-        source :posts do
+        source :posts, timestamps: false do
           primary_id
         end
 

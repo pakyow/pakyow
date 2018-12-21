@@ -20,7 +20,7 @@ RSpec.describe "modifying string attributes during presentation" do
           end
         end
 
-        source :posts do
+        source :posts, timestamps: false do
           primary_id
         end
 
