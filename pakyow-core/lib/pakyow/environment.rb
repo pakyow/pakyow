@@ -280,6 +280,8 @@ module Pakyow
 
         yield if block_given?
       end
+    rescue SignalException
+      exit
     end
 
     # Tells Pakyow that the environment is being forked.
