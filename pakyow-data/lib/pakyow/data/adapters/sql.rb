@@ -134,7 +134,7 @@ module Pakyow
         end
 
         def connected?
-          @connection.test_connection
+          @connection.opts[:adapter] == "sqlite" || @connection.test_connection
         rescue
           false
         end
