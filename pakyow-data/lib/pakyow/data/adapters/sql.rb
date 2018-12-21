@@ -134,7 +134,9 @@ module Pakyow
         end
 
         def connected?
-          !@connection.nil?
+          @connection.test_connection
+        rescue
+          false
         end
 
         def migratable?
