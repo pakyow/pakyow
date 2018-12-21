@@ -49,6 +49,10 @@ RSpec.describe "mysql source", mysql: true do
     create_database
   end
 
+  after :all do
+    drop_database
+  end
+
   def database_exists?
     system "mysql -e 'use pakyow-test'", out: File::NULL, err: File::NULL
   end

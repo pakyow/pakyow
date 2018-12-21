@@ -80,8 +80,12 @@ RSpec.describe "postgres source", postgres: true do
     create_database
   end
 
+  after :all do
+    drop_database
+  end
+
   def database_exists?
-    system "psql -lqt | cut -d \\| -f 1 | grep -qw pakyow-test", out: File::NULL, err: File::NULL
+    `psql -lqt | cut -d \\| -f 1`.split("\n").map(&:strip).include?("pakyow-test")
   end
 
   def create_database
@@ -106,7 +110,7 @@ RSpec.describe "postgres source", postgres: true do
       SQL
 
       system "psql -c \"#{terminate_sql}\"", out: File::NULL, err: File::NULL
-      system "dropdb pakyow-test"#, out: File::NULL, err: File::NULL
+      system "dropdb pakyow-test", out: File::NULL, err: File::NULL
     end
   end
 
