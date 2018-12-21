@@ -81,8 +81,12 @@ module Pakyow
 
       def run_environment_subprocess(port)
         if ::Process.respond_to?(:fork)
+          Pakyow.forking
+
           local_timezone = Time.now.getlocal.zone
           @pid = fork {
+            Pakyow.forked
+
             # workaround for: https://bugs.ruby-lang.org/issues/14435
             ENV["TZ"] = local_timezone
             run_environment(port: port)
