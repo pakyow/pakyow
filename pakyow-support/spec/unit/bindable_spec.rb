@@ -1,20 +1,20 @@
 require "pakyow/support/bindable"
 
-RSpec.describe Pakyow::Bindable do
+RSpec.describe Pakyow::Support::Bindable do
   let :instance do
     object.new
   end
 
   let :object do
     Class.new do
-      include Pakyow::Bindable
+      include Pakyow::Support::Bindable
     end
   end
 
   context "public method exists" do
     let :object do
       Class.new do
-        include Pakyow::Bindable
+        include Pakyow::Support::Bindable
 
         def message
           "hello"
@@ -38,7 +38,7 @@ RSpec.describe Pakyow::Bindable do
   context "private method exists" do
     let :object do
       Class.new do
-        include Pakyow::Bindable
+        include Pakyow::Support::Bindable
 
         private def message
           "hello"

@@ -9,7 +9,7 @@ module Pakyow
     # Wraps values for a data object returned by a source.
     #
     class Object
-      include Bindable
+      include Support::Bindable
 
       attr_reader :values
 
