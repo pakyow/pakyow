@@ -19,6 +19,14 @@ RSpec.shared_examples :source_operations_creating do
 
         expect(database_exists?).to be(true)
       end
+
+      it "clears the setup error", focus: true do
+        Pakyow::CLI.new(
+          %w(db:create --adapter=sql --connection=default)
+        )
+
+        expect(Pakyow.setup_error).to be(nil)
+      end
     end
 
     context "database already exists" do

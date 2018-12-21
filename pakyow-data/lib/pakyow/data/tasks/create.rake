@@ -14,5 +14,9 @@ namespace :db do
 
     migrator.create!
     migrator.disconnect!
+
+    # Clear the setup error that would be raised if the connection could not be established.
+    #
+    Pakyow.instance_variable_set(:@setup_error, nil)
   end
 end
