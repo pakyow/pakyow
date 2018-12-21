@@ -89,8 +89,8 @@ module Pakyow
 
       # Returns +true+ if the a value is present for +key+.
       #
-      def value?(key)
-        !!__value(key) || @object.value?(key)
+      def present?(key)
+        !!__value(key)
       end
 
       # Flips a switch, telling the binder that we now only care about content, not other parts.

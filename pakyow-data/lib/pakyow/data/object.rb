@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "pakyow/support/bindable"
 require "pakyow/support/makeable"
 require "pakyow/support/indifferentize"
 
@@ -8,6 +9,8 @@ module Pakyow
     # Wraps values for a data object returned by a source.
     #
     class Object
+      include Bindable
+
       attr_reader :values
 
       # @api private
@@ -20,17 +23,13 @@ module Pakyow
       end
 
       def include?(key)
-        value_methods.include?(key) || @values.include?(key)
-      end
-
-      def value?(key)
-        value_methods.include?(key) || @values.value?(key)
+        super || @values.include?(key)
       end
 
       def [](key)
         key = key.to_s.to_sym
-        if value_methods.include?(key)
-          public_send(key)
+        if respond_to?(key)
+          super
         else
           @values[key]
         end
@@ -58,12 +57,6 @@ module Pakyow
 
       def ==(other)
         other.class == self.class && other.values == @values
-      end
-
-      private
-
-      def value_methods
-        (public_methods - self.class.superclass.public_instance_methods)
       end
 
       class << self

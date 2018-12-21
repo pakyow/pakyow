@@ -212,7 +212,7 @@ module Pakyow
                 binding.label(:binding)
               end
 
-              unless object.value?(binding_name)
+              unless object.present?(binding_name)
                 binding.remove
               end
             end
