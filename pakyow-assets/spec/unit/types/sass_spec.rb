@@ -1,5 +1,5 @@
 RSpec.describe Pakyow::Assets::Types::Sass do
-  require "sass"
+  require "sassc"
 
   let :config do
     app_class = Class.new(Pakyow::App) do
@@ -26,7 +26,7 @@ RSpec.describe Pakyow::Assets::Types::Sass do
 
   describe "options" do
     it "sets syntax" do
-      expect(::Sass::Engine).to receive(:new) do |_, options|
+      expect(::SassC::Engine).to receive(:new) do |_, options|
         @syntax = options[:syntax]
       end.and_return(double.as_null_object)
       instance.each
@@ -35,7 +35,7 @@ RSpec.describe Pakyow::Assets::Types::Sass do
     end
 
     it "does not cache" do
-      expect(::Sass::Engine).to receive(:new) do |_, options|
+      expect(::SassC::Engine).to receive(:new) do |_, options|
         @cache = options[:cache]
       end.and_return(double.as_null_object)
       instance.each
@@ -45,7 +45,7 @@ RSpec.describe Pakyow::Assets::Types::Sass do
 
     describe "load paths" do
       before do
-        expect(::Sass::Engine).to receive(:new) do |_, options|
+        expect(::SassC::Engine).to receive(:new) do |_, options|
           @load_paths = options[:load_paths]
         end.and_return(double.as_null_object)
         instance.each
@@ -63,7 +63,8 @@ RSpec.describe Pakyow::Assets::Types::Sass do
 
   describe "dependencies" do
     it "returns sass dependency filenames" do
-      for_file_double = double(:for_file,
+      engine_double = double(:engine,
+        render: nil,
         dependencies: [
           double(:dependency, options: { filename: "foo" }),
           double(:dependency, options: { filename: "bar" }),
@@ -71,7 +72,7 @@ RSpec.describe Pakyow::Assets::Types::Sass do
         ]
       )
 
-      expect(::Sass::Engine).to receive(:for_file).and_return(for_file_double)
+      expect(::SassC::Engine).to receive(:new).and_return(engine_double)
       expect(instance.dependencies).to eq(["foo", "bar", "baz"])
     end
   end

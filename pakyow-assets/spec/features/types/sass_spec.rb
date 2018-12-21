@@ -1,5 +1,5 @@
 RSpec.describe "sass support" do
-  require "sass"
+  require "sassc"
 
   include_context "testable app"
 

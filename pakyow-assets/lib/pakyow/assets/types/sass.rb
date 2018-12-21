@@ -26,13 +26,16 @@ module Pakyow
           end
 
           def process(content)
-            ::Sass::Engine.new(content, @options).render
-          rescue ::Sass::SyntaxError => e
+            ::SassC::Engine.new(content, @options).render
+          rescue ::SassC::SyntaxError => e
             Pakyow.logger.error "[#{self.class.const_get("FORMAT")}] syntax error: #{e}"
           end
 
           def dependencies
-            ::Sass::Engine.for_file(@local_path, @options).dependencies.map { |dependency|
+            engine = ::SassC::Engine.new(File.read(@local_path), @options)
+            engine.render
+
+            engine.dependencies.map { |dependency|
               dependency.options[:filename]
             }
           end
@@ -40,13 +43,13 @@ module Pakyow
           class_methods do
             def load
               unless instance_variable_defined?(:@loaded) && @loaded == true
-                require "sass"
+                require "sassc"
               end
             rescue LoadError
               Pakyow.logger.error <<~ERROR
                 Pakyow found a *.#{const_get("FORMAT")} file, but couldn't find sass. Please add this to your Gemfile:
 
-                  gem "sass"
+                  gem "sassc"
               ERROR
             ensure
               @loaded = true

@@ -38,7 +38,7 @@ group :test do
   gem "warning", "~> 0.10"
 
   gem "babel-transpiler"
-  gem "sass"
+  gem "sassc"
 
   gem "mysql2"
   gem "pg"
