@@ -125,19 +125,11 @@ module Pakyow
             Pakyow.config.data.connections.send(adapter)[connection]
           )
 
-          connection_overrides.each do |key, value|
-            key = key.to_sym
-            connection_opts[key] = if value.is_a?(Proc)
-              value.call(connection_opts[key])
-            else
-              value
-            end
-          end
-
+          merge_connection_overrides!(connection_opts, connection_overrides)
           new(Connection.new(opts: connection_opts, type: adapter, name: connection))
         end
 
-        def connect_global(adapter:, connection:)
+        def connect_global(adapter:, connection:, connection_overrides: {})
           adapter = if adapter
             adapter.to_sym
           else
@@ -154,6 +146,7 @@ module Pakyow
             Pakyow.config.data.connections.send(adapter)[connection]
           )
 
+          merge_connection_overrides!(connection_opts, connection_overrides)
           globalize_connection_opts!(adapter, connection_opts)
 
           connect(
@@ -165,6 +158,17 @@ module Pakyow
 
         def globalize_connection_opts!(adapter, connection_opts)
           migrator_for_adapter(adapter).globalize_connection_opts!(connection_opts)
+        end
+
+        def merge_connection_overrides!(connection_opts, connection_overrides)
+          connection_overrides.each do |key, value|
+            key = key.to_sym
+            connection_opts[key] = if value.is_a?(Proc)
+              value.call(connection_opts[key])
+            else
+              value
+            end
+          end
         end
       end
     end

@@ -9,7 +9,7 @@ namespace :db do
   task :finalize, [:adapter, :connection] do |_, args|
     Pakyow.boot
 
-    migrator = Pakyow::Data::Migrator.connect(
+    opts = {
       adapter: args[:adapter],
       connection: args[:connection],
       connection_overrides: {
@@ -17,11 +17,23 @@ namespace :db do
           "#{connection_path}-migrator"
         }
       }
-    )
+    }
+
+    # Use a global connection for creating the database.
+    #
+    migrator = Pakyow::Data::Migrator.connect_global(opts)
 
     # Create the migrator database unless it exists.
     #
     migrator.create!
+
+    # Done with global, disconnect.
+    #
+    migrator.disconnect!
+
+    # Use a normal migrator for migrating.
+    #
+    migrator = Pakyow::Data::Migrator.connect(opts)
 
     # Run the existing migrations on it.
     #
