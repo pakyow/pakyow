@@ -8,7 +8,7 @@ module Pakyow
   module Data
     # @api private
     class Subscribers
-      attr_accessor :lookup
+      attr_accessor :lookup, :adapter
 
       using Support::Refinements::Method::Introspection
 

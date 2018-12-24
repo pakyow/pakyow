@@ -34,6 +34,8 @@ module Pakyow
         end
       end
 
+      attr_reader :adapter
+
       HEARTBEAT_INTERVAL = 3
 
       def initialize(adapter = :memory, adapter_config, timeout_config)

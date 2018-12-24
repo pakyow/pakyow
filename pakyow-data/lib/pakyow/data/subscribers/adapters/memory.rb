@@ -26,7 +26,7 @@ module Pakyow
 
           using Support::DeepDup
 
-          def initialize(_config)
+          def initialize(*)
             @subscriptions_by_id = Concurrent::Hash.new
             @subscription_ids_by_source = Concurrent::Hash.new
             @subscribers_by_subscription_id = Concurrent::Hash.new
@@ -76,6 +76,18 @@ module Pakyow
 
           def subscribers_for_subscription_id(subscription_id)
             @subscribers_by_subscription_id[subscription_id] || []
+          end
+
+          SERIALIZABLE_IVARS = %i(
+            @subscriptions_by_id
+            @subscription_ids_by_source
+            @subscribers_by_subscription_id
+          ).freeze
+
+          def serialize
+            SERIALIZABLE_IVARS.each_with_object({}) do |ivar, hash|
+              hash[ivar] = instance_variable_get(ivar)
+            end
           end
 
           protected

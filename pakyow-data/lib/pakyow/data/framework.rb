@@ -6,6 +6,7 @@ require "pakyow/data/object"
 require "pakyow/data/helpers"
 
 require "pakyow/data/behavior/lookup"
+require "pakyow/data/behavior/serialization"
 
 require "pakyow/data/sources/relational"
 
@@ -31,6 +32,7 @@ module Pakyow
           register_helper :active, Helpers
 
           include Behavior::Lookup
+          include Behavior::Serialization
         end
       end
     end

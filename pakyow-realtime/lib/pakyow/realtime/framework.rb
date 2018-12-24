@@ -8,6 +8,7 @@ require "pakyow/realtime/helpers/socket"
 
 require "pakyow/realtime/behavior/config"
 require "pakyow/realtime/behavior/rendering"
+require "pakyow/realtime/behavior/serialization"
 require "pakyow/realtime/behavior/server"
 require "pakyow/realtime/behavior/silencing"
 
@@ -32,6 +33,7 @@ module Pakyow
           include Behavior::Rendering
           include Behavior::Server
           include Behavior::Silencing
+          include Behavior::Serialization
         end
       end
     end
