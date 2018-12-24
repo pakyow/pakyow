@@ -27,5 +27,9 @@ RSpec.describe Pakyow::App do
     it "includes `rescue`" do
       expect(Pakyow::App.events).to include(:rescue)
     end
+
+    it "includes `shutdown`" do
+      expect(Pakyow::App.events).to include(:shutdown)
+    end
   end
 end

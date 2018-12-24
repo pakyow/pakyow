@@ -19,5 +19,9 @@ RSpec.describe Pakyow do
     it "includes `boot`" do
       expect(Pakyow.events).to include(:boot)
     end
+
+    it "includes `shutdown`" do
+      expect(Pakyow.events).to include(:shutdown)
+    end
   end
 end

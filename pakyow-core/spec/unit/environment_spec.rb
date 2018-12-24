@@ -619,6 +619,46 @@ RSpec.describe Pakyow do
         end
       end
     end
+
+    describe "handling exits" do
+      it "registers an at_exit handler" do
+        expect(Pakyow).to receive(:at_exit)
+        Pakyow.run
+      end
+
+      it "registers a trap for each signal" do
+        expect(Pakyow).to receive(:trap).with("INT")
+        expect(Pakyow).to receive(:trap).with("TERM")
+        Pakyow.run
+      end
+
+      describe "at_exit handler" do
+        it "calls stop with the server" do
+          expect(Pakyow).to receive(:at_exit) do |&block|
+            expect(Pakyow).to receive(:stop).with(server_double)
+            block.call
+          end
+
+          Pakyow.run
+        end
+      end
+
+      describe "signal trap" do
+        it "calls stop with the server" do
+          expect(Pakyow).to receive(:trap).with("INT") do |&block|
+            expect(Pakyow).to receive(:stop).with(server_double)
+            block.call
+          end
+
+          expect(Pakyow).to receive(:trap).with("TERM") do |&block|
+            expect(Pakyow).to receive(:stop).with(server_double)
+            block.call
+          end
+
+          Pakyow.run
+        end
+      end
+    end
   end
 
   describe "::to_app" do
@@ -693,6 +733,70 @@ RSpec.describe Pakyow do
         expect(Pakyow.app(:foo).config.name).to eq(:foo)
         expect(Pakyow.app(:bar).config.name).to eq(:bar)
         expect(Pakyow.app(:baz).config.name).to eq(:baz)
+      end
+    end
+  end
+
+  describe "::stop" do
+    let :server_double do
+      double(:server)
+    end
+
+    let :app_double do
+      double(:app)
+    end
+
+    before do
+      Pakyow.apps << app_double
+    end
+
+    it "calls before shutdown hooks" do
+      expect(Pakyow).to receive(:call_hooks).with(:before, :shutdown)
+      Pakyow.send(:stop, server_double)
+    end
+
+    it "calls shutdown on each registered app" do
+      expect(app_double).to receive(:shutdown)
+      Pakyow.send(:stop, server_double)
+    end
+
+    it "tries to shutdown the server gracefully with stop!" do
+      expect(server_double).to receive(:stop!)
+      Pakyow.send(:stop, server_double)
+    end
+
+    it "tries to shutdown the server gracefully with stop" do
+      expect(server_double).to receive(:stop)
+      Pakyow.send(:stop, server_double)
+    end
+
+    context "registered app does not implement shutdown" do
+      before do
+        Pakyow.apps << app_double
+      end
+
+      it "does not attempt to call shutdown on the app" do
+        expect {
+          Pakyow.send(:stop, server_double)
+        }.not_to raise_error
+      end
+    end
+
+    context "server shuts down gracefully" do
+      before do
+        expect(server_double).to receive(:stop!)
+      end
+
+      it "does not exit the process" do
+        expect(Process).not_to receive(:exit!)
+        Pakyow.send(:stop, server_double)
+      end
+    end
+
+    context "server cannot shutdown gracefully" do
+      it "exits the process" do
+        expect(Process).to receive(:exit!)
+        Pakyow.send(:stop, server_double)
       end
     end
   end

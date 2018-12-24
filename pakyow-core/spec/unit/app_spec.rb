@@ -194,4 +194,25 @@ RSpec.describe Pakyow::App do
       expect($called_after_fork).to be(true)
     end
   end
+
+  describe "#shutdown" do
+    let :app do
+      app_class.new(:test, builder: Rack::Builder.new)
+    end
+
+    before do
+      app_class.before :shutdown do
+        $called_before_shutdown = true
+      end
+    end
+
+    after do
+      $called_before_shutdown = nil
+    end
+
+    it "calls before shutdown hooks" do
+      app.shutdown
+      expect($called_before_shutdown).to be(true)
+    end
+  end
 end

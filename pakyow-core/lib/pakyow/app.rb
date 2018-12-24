@@ -115,7 +115,7 @@ module Pakyow
     inspectable :environment
 
     include Support::Hookable
-    events :initialize, :configure, :load, :finalize, :boot, :fork, :rescue
+    events :initialize, :configure, :load, :finalize, :boot, :fork, :rescue, :shutdown
 
     extend Support::DeepFreeze
     unfreezable :builder
@@ -201,6 +201,10 @@ module Pakyow
         rack_env[Rack::RACK_LOGGER].houston(error)
         error_500
       end
+    end
+
+    def shutdown
+      call_hooks :before, :shutdown
     end
 
     private

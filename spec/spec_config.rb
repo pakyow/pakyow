@@ -71,6 +71,7 @@ RSpec.configure do |config|
     allow(Pakyow).to receive(:at_exit)
     allow(Pakyow).to receive(:exit)
     allow(Process).to receive(:exit)
+    allow(Process).to receive(:exit!)
 
     if Pakyow.respond_to?(:load)
       allow(Pakyow).to receive(:load)

@@ -87,7 +87,7 @@ module Pakyow
   unfreezable :logger, :app
 
   include Support::Hookable
-  events :load, :configure, :setup, :boot, :fork
+  events :load, :configure, :setup, :boot, :fork, :shutdown
 
   include Support::Configurable
 
@@ -273,9 +273,9 @@ module Pakyow
         end
 
         STOP_SIGNALS.each do |signal|
-          trap(signal) {
+          trap signal do
             stop(app_server)
-          }
+          end
         end
 
         yield if block_given?
@@ -405,8 +405,16 @@ module Pakyow
     end
 
     def stop(server)
+      call_hooks :before, :shutdown
+
+      @apps.select { |app|
+        app.respond_to?(:shutdown)
+      }.each(&:shutdown)
+
       STOP_METHODS.each do |method|
-        return server.send(method) if server.respond_to?(method)
+        if server.respond_to?(method)
+          return server.send(method)
+        end
       end
 
       # exit ungracefully
