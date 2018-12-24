@@ -5,6 +5,7 @@ require "fileutils"
 
 require "pakyow/process"
 
+require "pakyow/support/serializer"
 require "pakyow/support/cli/runner"
 require "pakyow/support/cli/style"
 
@@ -51,7 +52,29 @@ module Pakyow
             puts running_text
           end
         else
+          # The port that the subprocess runs on is cached and reused. We do this
+          # mostly so that the websocket can reestablish a connection to the same
+          # endpoint across hard restarts in development environments.
+          #
+          serializer = Support::Serializer.new(
+            self,
+            name: "port",
+            path: File.join(
+              Pakyow.config.root, "tmp", "state"
+            )
+          )
+
+          # Apply the cached port number.
+          #
+          serializer.deserialize
+
+          # Find the port if one hasn't already been cached.
+          #
           @proxy_port ||= find_local_port
+
+          # Serialize the final port that we're using.
+          #
+          serializer.serialize
 
           run_environment_subprocess(@proxy_port)
 
@@ -70,6 +93,16 @@ module Pakyow
 
         if exiting
           stop_proxy
+        end
+      end
+
+      SERIALIZABLE_IVARS = %i(
+        @proxy_port
+      ).freeze
+
+      def serialize
+        SERIALIZABLE_IVARS.each_with_object({}) do |ivar, hash|
+          hash[ivar] = instance_variable_get(ivar)
         end
       end
 
