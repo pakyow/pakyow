@@ -9,6 +9,7 @@ RSpec.describe "auto migrating on boot" do
 
     Pakyow.after :configure do
       Pakyow.config.data.connections.send(local_adapter_type)[:default] = local_adapter_url
+      Pakyow.config.data.connections.send(local_adapter_type).delete(:memory)
     end
 
     setup_expectations
