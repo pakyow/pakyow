@@ -7,7 +7,7 @@ require "concurrent/scheduled_task"
 module Pakyow
   module Realtime
     class Server
-      module Adapter
+      module Adapters
         # Manages websocket channels in memory.
         #
         # Great for development, not for use in production!

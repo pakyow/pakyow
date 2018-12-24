@@ -7,7 +7,7 @@ require "concurrent/timer_task"
 module Pakyow
   module Data
     class Subscribers
-      module Adapter
+      module Adapters
         # Manages data subscriptions in redis.
         #
         # Use this in production.
@@ -34,9 +34,9 @@ module Pakyow
 
             Concurrent::TimerTask.new(execution_interval: 300, timeout_interval: 300) {
               @redis.scan_each(match: key_subscription_ids_by_source("*")) do |key|
-                Pakyow.logger.debug "[Pakyow::Data::Subscribers::Adapter::Redis] Cleaning up expired subscriptions for #{key}"
+                Pakyow.logger.debug "[Pakyow::Data::Subscribers::Adapters::Redis] Cleaning up expired subscriptions for #{key}"
                 removed_count = @redis.zremrangebyscore(key, 0, Time.now.to_i)
-                Pakyow.logger.debug "[Pakyow::Data::Subscribers::Adapter::Redis] Removed #{removed_count} members for #{key}"
+                Pakyow.logger.debug "[Pakyow::Data::Subscribers::Adapters::Redis] Removed #{removed_count} members for #{key}"
               end
             }.execute
           end

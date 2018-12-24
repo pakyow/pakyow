@@ -41,7 +41,7 @@ RSpec.describe "persisting state on shutdown" do
       require "pakyow/realtime/server/adapters/memory"
       serializer = instance_double(Pakyow::Support::Serializer)
       expect(Pakyow::Support::Serializer).to receive(:new).with(
-        instance_of(Pakyow::Realtime::Server::Adapter::Memory),
+        instance_of(Pakyow::Realtime::Server::Adapters::Memory),
         name: "test-realtime", path: cached_state_path
       ).and_return(serializer)
 

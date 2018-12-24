@@ -11,7 +11,7 @@ require "pakyow/support/deep_dup"
 module Pakyow
   module Data
     class Subscribers
-      module Adapter
+      module Adapters
         # Manages data subscriptions in memory.
         #
         # Great for development, not for use in production!

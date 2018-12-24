@@ -1,6 +1,6 @@
 require "pakyow/realtime/server/adapters/memory"
 
-RSpec.describe Pakyow::Realtime::Server::Adapter::Memory do
+RSpec.describe Pakyow::Realtime::Server::Adapters::Memory do
   describe "#serialize" do
     let :instance do
       described_class.new(nil, nil)

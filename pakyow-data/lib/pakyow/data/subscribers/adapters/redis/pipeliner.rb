@@ -3,7 +3,7 @@
 module Pakyow
   module Data
     class Subscribers
-      module Adapter
+      module Adapters
         class Redis
           # @api private
           class Pipeliner

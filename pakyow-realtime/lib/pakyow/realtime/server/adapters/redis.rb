@@ -7,7 +7,7 @@ require "concurrent/timer_task"
 module Pakyow
   module Realtime
     class Server
-      module Adapter
+      module Adapters
         # Manages websocket channels in redis.
         #
         # Use this in production.
@@ -149,7 +149,7 @@ module Pakyow
 
           def cleanup
             Concurrent::TimerTask.new(execution_interval: 300, timeout_interval: 300) {
-              Pakyow.logger.debug "[Pakyow::Realtime::Server::Adapter::Redis] Cleaning up channel keys"
+              Pakyow.logger.debug "[Pakyow::Realtime::Server::Adapters::Redis] Cleaning up channel keys"
 
               removed_count = 0
               @redis.scan_each(match: key_socket_ids_by_channel("*")) do |key|
@@ -163,7 +163,7 @@ module Pakyow
                 end
               end
 
-              Pakyow.logger.debug "[Pakyow::Realtime::Server::Adapter::Redis] Removed #{removed_count} keys"
+              Pakyow.logger.debug "[Pakyow::Realtime::Server::Adapters::Redis] Removed #{removed_count} keys"
             }.execute
           end
 
@@ -229,15 +229,15 @@ module Pakyow
                   begin
                     @callback.call(payload)
                   rescue => error
-                    Pakyow.logger.error "[Pakyow::Realtime::Server::Adapter::Redis] Subscriber callback failed: #{error}"
+                    Pakyow.logger.error "[Pakyow::Realtime::Server::Adapters::Redis] Subscriber callback failed: #{error}"
                   end
                 end
               end
             rescue ::Redis::CannotConnectError
-              Pakyow.logger.error "[Pakyow::Realtime::Server::Adapter::Redis] Subscriber disconnected"
+              Pakyow.logger.error "[Pakyow::Realtime::Server::Adapters::Redis] Subscriber disconnected"
               resubscribe
             rescue => error
-              Pakyow.logger.error "[Pakyow::Realtime::Server::Adapter::Redis] Subscriber crashed: #{error}"
+              Pakyow.logger.error "[Pakyow::Realtime::Server::Adapters::Redis] Subscriber crashed: #{error}"
               resubscribe
             end
 

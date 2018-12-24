@@ -1,6 +1,6 @@
 require "pakyow/data/subscribers/adapters/memory"
 
-RSpec.describe Pakyow::Data::Subscribers::Adapter::Memory do
+RSpec.describe Pakyow::Data::Subscribers::Adapters::Memory do
   describe "#serialize" do
     let :instance do
       described_class.new(nil, nil)

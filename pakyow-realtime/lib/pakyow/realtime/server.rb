@@ -40,7 +40,7 @@ module Pakyow
 
       def initialize(adapter = :memory, adapter_config, timeout_config)
         require "pakyow/realtime/server/adapters/#{adapter}"
-        @adapter = Adapter.const_get(adapter.to_s.capitalize).new(self, adapter_config)
+        @adapter = Adapters.const_get(adapter.to_s.capitalize).new(self, adapter_config)
         @event_loop = EventLoop.new
         @sockets = Concurrent::Array.new
         @timeout_config = timeout_config
