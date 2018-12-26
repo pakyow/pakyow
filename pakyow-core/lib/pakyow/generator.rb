@@ -110,7 +110,13 @@ module Pakyow
             ::File.basename(file.logical_path, ".erb")
           )
 
-          file.content = ERB.new(file.content, nil, "%<>-").result(
+          erb = if RUBY_VERSION.start_with?("2.5")
+            ERB.new(file.content, nil, "%<>-")
+          else
+            ERB.new(file.content, trim_mode: "%-")
+          end
+
+          file.content = erb.result(
             file.context.instance_eval { binding }
           )
         end
