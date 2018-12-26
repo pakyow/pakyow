@@ -40,6 +40,14 @@ RSpec.describe Pakyow::Support::Logging do
     end
 
     context "Pakyow.logger is not defined" do
+      before do
+        if defined?(Pakyow.logger)
+          class << Pakyow
+            remove_method :logger
+          end
+        end
+      end
+
       it "raises the error" do
         expect {
           Pakyow::Support::Logging.yield_or_raise(error) {}
