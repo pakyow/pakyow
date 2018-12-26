@@ -30,5 +30,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "pakyow-support", Pakyow::VERSION
   spec.add_dependency "pakyow-ui", Pakyow::VERSION
 
-  spec.add_dependency "bundler", "~> 1.16"
+  spec.add_dependency "bundler", "~> 1.17"
 end
