@@ -14,8 +14,8 @@ addons:
   postgresql: 10
 
 rvm:
-  - 2.4.5
   - 2.5.3
+  - 2.6.0
   - ruby-head
 
 env:
@@ -53,8 +53,6 @@ matrix:
         - npm test
 
   exclude:
-    - rvm: 2.4.4
-      env: CI_BENCH=true
     - rvm: ruby-head
       env: CI_BENCH=true
     - rvm: ruby-head

@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.email    = "bryan@metabahn.com"
   spec.homepage = "https://pakyow.org"
 
-  spec.required_ruby_version = ">= 2.4.0"
+  spec.required_ruby_version = ">= 2.5.0"
 
   spec.license = "LGPL-3.0"
 
