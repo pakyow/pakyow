@@ -13,6 +13,45 @@ RSpec.describe Pakyow::Error do
     end
   end
 
+  describe "::new_with_message" do
+    it "initializes with an empty message" do
+      expect(described_class.new_with_message.message).to eq("")
+    end
+
+    context "subclass defines its own messages" do
+      let :error do
+        Class.new(described_class) do
+          MESSAGES = {
+            default: "default message",
+            custom: "custom message"
+          }
+        end
+      end
+
+      it "initializes with the default message" do
+        expect(error.new_with_message.message).to eq("default message")
+      end
+
+      it "initializes with a custom message" do
+        expect(error.new_with_message(:custom).message).to eq("custom message")
+      end
+    end
+
+    context "message contains variables" do
+      let :error do
+        Class.new(described_class) do
+          MESSAGES = {
+            default: "hello {name}",
+          }
+        end
+      end
+
+      it "builds the proper string" do
+        expect(error.new_with_message(name: "bob").message).to eq("hello bob")
+      end
+    end
+  end
+
   describe "#cause" do
     it "returns the wrapped error" do
       original_error = StandardError.new("something went wrong")
@@ -194,7 +233,7 @@ RSpec.describe Pakyow::Error do
         Pathname.new(Pakyow.config.root)
       )
 
-      expect(error.condensed_backtrace[1]).to eq("         › #{path}:175:in `bar`")
+      expect(error.condensed_backtrace[1]).to eq("         › #{path}:214:in `bar`")
     end
 
     context "error occurred within the project" do

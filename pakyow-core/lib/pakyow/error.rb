@@ -5,6 +5,7 @@ require "method_source"
 
 require "pakyow/support/cli/style"
 require "pakyow/support/inflector"
+require "pakyow/support/string_builder"
 
 module Pakyow
   # Base error object.
@@ -22,6 +23,32 @@ module Pakyow
             error.set_backtrace(original_error.backtrace)
             error.context = context
           end
+        end
+      end
+
+      # Initialize an error with a particular message.
+      #
+      def new_with_message(type = :default, **values)
+        new(message(type, **values))
+      end
+
+      private
+
+      MESSAGES = {}.freeze
+
+      def message(type = :default, **values)
+        messages = if const_defined?(:MESSAGES)
+          const_get(:MESSAGES)
+        else
+          MESSAGES
+        end
+
+        if messages.include?(type)
+          Support::StringBuilder.new(
+            messages[type]
+          ).build(**values)
+        else
+          ""
         end
       end
     end
