@@ -6,9 +6,10 @@ require "pakyow/support/core_refinements/array/ensurable"
 require "pakyow/support/core_refinements/string/normalization"
 
 require "pakyow/support/class_state"
-require "pakyow/support/safe_string"
 require "pakyow/support/pipelined"
 require "pakyow/support/pipelined/haltable"
+require "pakyow/support/safe_string"
+require "pakyow/support/string_builder"
 
 require "pakyow/presenter/presenter/behavior/endpoints"
 
@@ -394,39 +395,17 @@ module Pakyow
 
       private
 
-      TITLE_VAR_REGEX = /{([^}]*)}/
-
       def set_title
         if title = @view.info(:title)
-          working_title = title.dup
-          working_title.scan(TITLE_VAR_REGEX).each do |match|
-            if match[0].include?(".")
-              object, property = match[0].split(".").map(&:to_sym)
-              if value = get_title_value(object)
-                if defined?(Pakyow::Data::Proxy) && value.is_a?(Pakyow::Data::Proxy)
-                  value = value.one
-                end
-
-                value = value[property]
-              end
+          self.title = Support::StringBuilder.new(title) do |object_value|
+            if respond_to?(object_value)
+              send(object_value, :title) || send(object_value)
+            elsif @presentables.key?(object_value)
+              @presentables[object_value]
             else
-              value = get_title_value(match[0].to_sym)
+              nil
             end
-
-            working_title.gsub!("{#{match[0]}}", value || "")
-          end
-
-          self.title = working_title
-        end
-      end
-
-      def get_title_value(object)
-        if respond_to?(object)
-          send(object, :title) || send(object)
-        elsif @presentables.key?(object)
-          @presentables[object]
-        else
-          nil
+          end.build
         end
       end
 
