@@ -47,7 +47,7 @@ module Pakyow
       else
         puts_help
       end
-    rescue RuntimeError => error
+    rescue StandardError => error
       if $stdout.isatty
         puts_error(error)
 
@@ -124,7 +124,9 @@ module Pakyow
 
     def find_task_for_command
       unless @task = tasks.find { |task| task.name == @command }
-        raise "#{Support::CLI.style.blue(@command)} is not a command"
+        raise UnknownCommand.new_with_message(
+          command: Support::CLI.style.blue(@command)
+        )
       end
     end
 

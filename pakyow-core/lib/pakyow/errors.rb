@@ -31,6 +31,12 @@ module Pakyow
     end
   end
 
+  class UnknownCommand < Error
+    MESSAGES = {
+      default: "{command} is not a command"
+    }.freeze
+  end
+
   class UnknownType < Error
     def message
       known_types = @context[:types].each_with_object(String.new) { |known_type, known_types_message|
