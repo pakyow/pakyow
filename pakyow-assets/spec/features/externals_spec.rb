@@ -22,12 +22,10 @@ RSpec.describe "external scripts" do
   end
 
   context "fetch is enabled" do
-    let :app_definition do
+    let :app_def do
       local_tmp = tmp
 
       Proc.new do
-        instance_exec(&$assets_app_boilerplate)
-
         configure :test do
           config.presenter.path = File.join(local_tmp, "frontend")
 
@@ -53,12 +51,10 @@ RSpec.describe "external scripts" do
     end
 
     context "external exists" do
-      let :app_definition do
+      let :app_def do
         local_tmp = tmp
 
         Proc.new do
-          instance_exec(&$assets_app_boilerplate)
-
           configure :test do
             config.presenter.path = File.join(local_tmp, "frontend")
 
@@ -84,12 +80,10 @@ RSpec.describe "external scripts" do
     end
 
     context "external exists but it's a different version" do
-      let :app_definition do
+      let :app_def do
         local_tmp = tmp
 
         Proc.new do
-          instance_exec(&$assets_app_boilerplate)
-
           configure :test do
             config.presenter.path = File.join(local_tmp, "frontend")
 
@@ -117,12 +111,10 @@ RSpec.describe "external scripts" do
     end
 
     context "pakyow is enabled" do
-      let :app_definition do
+      let :app_def do
         local_tmp = tmp
 
         Proc.new do
-          instance_exec(&$assets_app_boilerplate)
-
           configure :test do
             config.presenter.path = File.join(local_tmp, "frontend")
 
@@ -138,12 +130,10 @@ RSpec.describe "external scripts" do
     end
 
     context "version is unspecified" do
-      let :app_definition do
+      let :app_def do
         local_tmp = tmp
 
         Proc.new do
-          instance_exec(&$assets_app_boilerplate)
-
           configure :test do
             config.presenter.path = File.join(local_tmp, "frontend")
 
@@ -164,12 +154,10 @@ RSpec.describe "external scripts" do
     end
 
     context "files are specified" do
-      let :app_definition do
+      let :app_def do
         local_tmp = tmp
 
         Proc.new do
-          instance_exec(&$assets_app_boilerplate)
-
           configure :test do
             config.presenter.path = File.join(local_tmp, "frontend")
 
@@ -190,12 +178,10 @@ RSpec.describe "external scripts" do
       end
 
       context "specified file is named the same as the external" do
-        let :app_definition do
+        let :app_def do
           local_tmp = tmp
 
           Proc.new do
-            instance_exec(&$assets_app_boilerplate)
-
             configure :test do
               config.presenter.path = File.join(local_tmp, "frontend")
 
@@ -218,12 +204,10 @@ RSpec.describe "external scripts" do
   end
 
   context "fetch is disabled" do
-    let :app_definition do
+    let :app_def do
       local_tmp = tmp
 
       Proc.new do
-        instance_exec(&$assets_app_boilerplate)
-
         configure :test do
           config.presenter.path = File.join(local_tmp, "frontend")
 

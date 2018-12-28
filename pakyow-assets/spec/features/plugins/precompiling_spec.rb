@@ -12,10 +12,8 @@ RSpec.describe "precompiling assets from a plugin" do
 
   include_context "app"
 
-  let :app_definition do
+  let :app_def do
     Proc.new {
-      instance_exec(&$assets_app_boilerplate)
-
       plug :testable
       plug :testable, at: "/foo", as: :foo
     }

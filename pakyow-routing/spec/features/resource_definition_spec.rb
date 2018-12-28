@@ -2,7 +2,7 @@ RSpec.describe "defining resources" do
   include_context "app"
 
   context "when the resource is defined at the top level" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
         resource :posts, "/posts" do
           list do
@@ -20,7 +20,7 @@ RSpec.describe "defining resources" do
   end
 
   context "when the resource is nested within another resource" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
         resource :posts, "/posts" do
           resource :comments, "/comments" do
@@ -40,7 +40,7 @@ RSpec.describe "defining resources" do
   end
 
   context "when the resource is defined with actions" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
         resource :posts, "/posts" do
           action :validate
@@ -63,7 +63,7 @@ RSpec.describe "defining resources" do
     end
 
     context "and the resource route defines its own actions" do
-      let :app_definition do
+      let :app_init do
         Proc.new {
           resource :posts, "/posts" do
             action :validate
@@ -99,7 +99,7 @@ RSpec.describe "defining resources" do
   end
 
   context "when the resource is defined partially" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
         resource :posts, "/posts" do
           list do
@@ -114,7 +114,7 @@ RSpec.describe "defining resources" do
   end
 
   context "when the resource is extended with member routes" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
         resource :posts, "/posts" do
           member do
@@ -130,7 +130,7 @@ RSpec.describe "defining resources" do
   end
 
   context "when the resource is extended with collection routes" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
         resource :posts, "/posts" do
           collection do
@@ -149,7 +149,7 @@ RSpec.describe "defining resources" do
   context "when the resource is defined with a custom matcher"
 
   context "when the resource is defined with a url param" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
         resource :posts, "/posts", param: :slug do
           show do
@@ -167,7 +167,7 @@ RSpec.describe "defining resources" do
   end
 
   context "when a nested resource is defined with a url param" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
         resource :posts, "/posts" do
           resource :comments, "/comments", param: :slug do
@@ -187,7 +187,7 @@ RSpec.describe "defining resources" do
   end
 
   describe "the defined resource" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
         resource :posts, "/posts" do
           disable_protection :csrf
@@ -277,7 +277,7 @@ RSpec.describe "defining resources" do
   end
 
   describe "routing to a path with an extension" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
         resource :posts, "/posts" do
           list do

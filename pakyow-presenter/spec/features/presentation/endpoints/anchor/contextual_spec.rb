@@ -1,16 +1,14 @@
 RSpec.describe "presenting a view that defines an anchor endpoint that needs additional context" do
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
-      instance_exec(&$presenter_app_boilerplate)
-
+  let :app_init do
+    Proc.new do
       resource :posts, "/posts" do
         show do
           render "/presentation/endpoints/anchor/contextual"
         end
       end
-    }
+    end
   end
 
   it "builds the action using request params as context" do
@@ -22,10 +20,8 @@ RSpec.describe "presenting a view that defines an anchor endpoint that needs add
   end
 
   context "endpoint node is within a binding" do
-    let :app_definition do
-      Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-
+    let :app_init do
+      Proc.new do
         resource :posts, "/posts" do
           show do
             render "/presentation/endpoints/anchor/contextual/within_binding"
@@ -37,7 +33,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that needs add
             find(:post).bind(id: 3, title: "foo")
           end
         end
-      }
+      end
     end
 
     it "builds the action using binding as context" do
@@ -54,10 +50,8 @@ RSpec.describe "presenting a view that defines an anchor endpoint that needs add
   end
 
   context "endpoint node is a binding prop" do
-    let :app_definition do
-      Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-
+    let :app_init do
+      Proc.new do
         resource :posts, "/posts" do
           show do
             render "/presentation/endpoints/anchor/contextual/binding_prop"
@@ -69,7 +63,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that needs add
             find(:post).bind(id: 5, title: "foo")
           end
         end
-      }
+      end
     end
 
     it "builds the action using binding as context" do

@@ -6,16 +6,14 @@ RSpec.describe "404 error views in development" do
   end
 
   context "app explicitly triggers a 404" do
-    let :app_definition do
-      Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-
+    let :app_init do
+      Proc.new do
         controller do
           get "/missing" do
             trigger :not_found
           end
         end
-      }
+      end
     end
 
     it "renders the 404 page" do

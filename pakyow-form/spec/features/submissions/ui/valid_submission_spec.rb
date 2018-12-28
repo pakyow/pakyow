@@ -1,10 +1,8 @@
 RSpec.describe "submitting valid form data via ui" do
   include_context "app"
 
-  let :app_definition do
+  let :app_init do
     Proc.new do
-      instance_exec(&$form_app_boilerplate)
-
       resource :post, "/posts" do
         disable_protection :csrf
 

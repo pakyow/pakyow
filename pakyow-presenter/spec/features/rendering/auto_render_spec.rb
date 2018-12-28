@@ -1,14 +1,12 @@
 RSpec.describe "auto rendering" do
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
-      instance_exec(&$presenter_app_boilerplate)
-
+  let :app_init do
+    Proc.new do
       controller :default do
         get "/other" do; end
       end
-    }
+    end
   end
 
   context "view exists" do
@@ -19,10 +17,8 @@ RSpec.describe "auto rendering" do
     end
 
     context "presenter is defined" do
-      let :app_definition do
-        Proc.new {
-          instance_exec(&$presenter_app_boilerplate)
-
+      let :app_init do
+        Proc.new do
           controller :default do
             get "/other" do; end
           end
@@ -32,7 +28,7 @@ RSpec.describe "auto rendering" do
               self.title = "invoked"
             end
           end
-        }
+        end
       end
 
       it "invokes the defined presenter" do
@@ -43,16 +39,14 @@ RSpec.describe "auto rendering" do
     end
 
     context "exposures are defined in the controller" do
-      let :app_definition do
-        Proc.new {
-          instance_exec(&$presenter_app_boilerplate)
-
+      let :app_init do
+        Proc.new do
           controller :default do
             get "/exposure" do
               expose :post, { title: "foo" }
             end
           end
-        }
+        end
       end
 
       it "finds and presents each exposure" do
@@ -60,16 +54,14 @@ RSpec.describe "auto rendering" do
       end
 
       context "exposure is plural" do
-        let :app_definition do
-          Proc.new {
-            instance_exec(&$presenter_app_boilerplate)
-
+        let :app_init do
+          Proc.new do
             controller :default do
               get "/exposure" do
                 expose :posts, [{ title: "foo" }, { title: "bar" }]
               end
             end
-          }
+          end
         end
 
         it "finds and presents to the singular version" do
@@ -78,17 +70,15 @@ RSpec.describe "auto rendering" do
       end
 
       context "exposure is channeled" do
-        let :app_definition do
-          Proc.new {
-            instance_exec(&$presenter_app_boilerplate)
-
+        let :app_init do
+          Proc.new do
             controller :default do
               get "/exposure/channeled" do
                 expose :post, { title: "foo" }, for: :foo
                 expose :post, { title: "bar" }, for: :bar
               end
             end
-          }
+          end
         end
 
         it "finds and presents each channeled version" do
@@ -97,17 +87,15 @@ RSpec.describe "auto rendering" do
       end
 
       context "exposure cannot be found" do
-        let :app_definition do
-          Proc.new {
-            instance_exec(&$presenter_app_boilerplate)
-
+        let :app_init do
+          Proc.new do
             controller :default do
               get "/exposure" do
                 expose :post, { title: "foo" }
                 expose :nonexistent, {}
               end
             end
-          }
+          end
         end
 
         it "does not fail" do
@@ -118,14 +106,12 @@ RSpec.describe "auto rendering" do
   end
 
   context "view does not exist" do
-    let :app_definition do
-      Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-
+    let :app_init do
+      Proc.new do
         controller :default do
           get "/nonexistent" do; end
         end
-      }
+      end
     end
 
     it "renders a missing page error" do
@@ -136,16 +122,14 @@ RSpec.describe "auto rendering" do
   end
 
   context "route halts without rendering" do
-    let :app_definition do
-      Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-
+    let :app_init do
+      Proc.new do
         controller :default do
           get "/other" do
             send "halted"
           end
         end
-      }
+      end
     end
 
     it "does not automatically render the view" do

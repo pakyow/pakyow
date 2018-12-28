@@ -12,10 +12,10 @@ RSpec.describe "building a path to a plugin endpoint" do
 
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
+  let :app_def do
+    Proc.new do
       plug :testable, at: "/foo"
-    }
+    end
   end
 
   it "builds the path to the endpoint using `path`" do
@@ -31,14 +31,18 @@ RSpec.describe "building a path to a plugin endpoint" do
   end
 
   context "endpoint name conflicts between the app and plugin" do
-    let :app_definition do
-      Proc.new {
+    let :app_def do
+      Proc.new do
         plug :testable, at: "/foo"
+      end
+    end
 
+    let :app_init do
+      Proc.new do
         controller :root, "/" do
           default
         end
-      }
+      end
     end
 
     it "builds the path to the app endpoint" do
@@ -55,11 +59,11 @@ RSpec.describe "building a path to a plugin endpoint" do
   end
 
   describe "accessing plugin endpoints through the app" do
-    let :app_definition do
-      Proc.new {
+    let :app_def do
+      Proc.new do
         plug :testable, at: "/foo"
         plug :testable, at: "/bar", as: :bar
-      }
+      end
     end
 
     it "builds the path to an endpoint in the default instance" do
@@ -82,14 +86,18 @@ RSpec.describe "building a path to a plugin endpoint" do
   end
 
   describe "accessing app endpoints from within a plugin controller" do
-    let :app_definition do
-      Proc.new {
+    let :app_def do
+      Proc.new do
         plug :testable, at: "/foo"
+      end
+    end
 
+    let :app_init do
+      Proc.new do
         controller :root, "/" do
           default
         end
-      }
+      end
     end
 
     it "builds the path" do

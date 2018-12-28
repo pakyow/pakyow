@@ -1,10 +1,8 @@
 RSpec.describe "rendering with backend components" do
   include_context "app"
 
-  let :app_definition do
+  let :app_init do
     Proc.new do
-      instance_exec(&$presenter_app_boilerplate)
-
       component :single do
         def perform
           expose :posts, [
@@ -47,10 +45,8 @@ RSpec.describe "rendering with backend components" do
   end
 
   context "component is used multiple times" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$presenter_app_boilerplate)
-
         component :multiple do
           def perform
             expose :posts, [
@@ -111,10 +107,8 @@ RSpec.describe "rendering with backend components" do
   end
 
   context "component is nested within another component" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$presenter_app_boilerplate)
-
         component :parent do
           def perform
             expose :posts, [
@@ -205,10 +199,8 @@ RSpec.describe "rendering with backend components" do
   end
 
   context "main presenter removes the component" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$presenter_app_boilerplate)
-
         presenter "/components" do
           def perform
             components.each(&:remove)
@@ -247,10 +239,8 @@ RSpec.describe "rendering with backend components" do
   end
 
   context "controller exposes a value" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$presenter_app_boilerplate)
-
         controller "/components" do
           default do
             expose :posts, [
@@ -305,10 +295,8 @@ RSpec.describe "rendering with backend components" do
   end
 
   context "controller exposes a system value" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$presenter_app_boilerplate)
-
         controller "/components" do
           default do
             expose :__posts, [
@@ -359,10 +347,8 @@ RSpec.describe "rendering with backend components" do
   end
 
   context "component defines a presenter" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$presenter_app_boilerplate)
-
         component :single do
           presenter do
             def perform

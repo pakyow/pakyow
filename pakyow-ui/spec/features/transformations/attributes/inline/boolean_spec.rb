@@ -3,10 +3,8 @@ RSpec.describe "modifying boolean attributes" do
   include_context "websocket intercept"
 
   context "setting to true" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$ui_app_boilerplate)
-
         resource :posts, "/posts" do
           disable_protection :csrf
 
@@ -45,10 +43,8 @@ RSpec.describe "modifying boolean attributes" do
   end
 
   context "setting to false" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$ui_app_boilerplate)
-
         resource :posts, "/posts" do
           disable_protection :csrf
 

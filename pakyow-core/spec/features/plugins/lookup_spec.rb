@@ -12,11 +12,11 @@ RSpec.describe "looking up plugin instances" do
 
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
+  let :app_def do
+    Proc.new do
       plug :testable, at: "/"
       plug :testable, at: "/foo", as: :foo
-    }
+    end
   end
 
   it "looks up an unnamed plugin" do

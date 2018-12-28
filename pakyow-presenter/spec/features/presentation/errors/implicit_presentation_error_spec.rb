@@ -1,10 +1,8 @@
 RSpec.describe "errors during implicit presentation" do
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
-      instance_exec(&$presenter_app_boilerplate)
-
+  let :app_init do
+    Proc.new do
       controller do
         default do
         end
@@ -15,7 +13,7 @@ RSpec.describe "errors during implicit presentation" do
           fail "failed in presenter"
         end
       end
-    }
+    end
   end
 
   let :mode do

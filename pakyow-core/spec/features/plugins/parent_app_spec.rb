@@ -31,10 +31,10 @@ RSpec.describe "accessing the parent app from a plugin" do
 
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
+  let :app_def do
+    Proc.new do
       plug :testable, at: "/"
-    }
+    end
   end
 
   it "exposes the parent app" do

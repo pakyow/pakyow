@@ -15,10 +15,8 @@ RSpec.shared_examples :source_sql_types do
     include_context "app"
 
     context "type is text" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
-          instance_exec(&$data_app_boilerplate)
-
           source :posts do
             primary_id
             attribute :attr, :text
@@ -33,10 +31,8 @@ RSpec.shared_examples :source_sql_types do
     end
 
     context "type is file" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
-          instance_exec(&$data_app_boilerplate)
-
           source :posts do
             primary_id
             attribute :attr, :file

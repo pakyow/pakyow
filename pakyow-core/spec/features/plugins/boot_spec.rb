@@ -17,10 +17,10 @@ RSpec.describe "booting plugins" do
 
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
+  let :app_def do
+    Proc.new do
       plug :testable, at: "/"
-    }
+    end
   end
 
   let :autorun do

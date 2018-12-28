@@ -13,15 +13,16 @@ require "pakyow/ui"
 
 require_relative "../../spec/helpers/mock_handler"
 
-RSpec.configure do |config|
+RSpec.configure do |spec_config|
+  spec_config.before do
+    @default_app_def = Proc.new do
+      configure do
+        config.presenter.path = File.join(File.expand_path("../", __FILE__), "features/support/views")
+        config.presenter.embed_authenticity_token = false
+      end
+    end
+  end
 end
 
 require_relative "../../spec/context/app_context"
 require_relative "../../spec/context/suppressed_output_context"
-
-$form_app_boilerplate = Proc.new do
-  configure do
-    config.presenter.path = File.join(File.expand_path("../", __FILE__), "features/support/views")
-    config.presenter.embed_authenticity_token = false
-  end
-end

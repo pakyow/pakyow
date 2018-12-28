@@ -1,10 +1,8 @@
 RSpec.describe "rendering backend components alongside other bindings" do
   include_context "app"
 
-  let :app_definition do
+  let :app_init do
     Proc.new do
-      instance_exec(&$presenter_app_boilerplate)
-
       controller "/components/multiple_bindings" do
         default do
           expose :posts, [

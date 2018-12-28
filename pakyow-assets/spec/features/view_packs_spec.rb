@@ -1,12 +1,6 @@
 RSpec.describe "asset packs for views" do
   include_context "app"
 
-  let :app_definition do
-    Proc.new do
-      instance_exec(&$assets_app_boilerplate)
-    end
-  end
-
   it "includes the layout stylesheet" do
     expect(call("/view_packs")[2].body.read).to include("<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"/assets/packs/layouts/view_packs.css\">")
   end

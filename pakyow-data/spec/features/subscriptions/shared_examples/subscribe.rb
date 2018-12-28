@@ -10,7 +10,7 @@ RSpec.shared_examples :subscription_subscribe do
 
     include_context "app"
 
-    let :app_definition do
+    let :app_def do
       Pakyow.config.data.default_adapter = :sql
       Pakyow.config.data.subscriptions.adapter = data_subscription_adapter
 
@@ -18,10 +18,12 @@ RSpec.shared_examples :subscription_subscribe do
         Pakyow.after :configure do
           config.data.connections.sql[:default] = "sqlite::memory"
         end
+      end
+    end
 
+    let :app_init do
+      Proc.new do
         source :posts do
-          primary_id
-
           attribute :title, :string
           attribute :body, :string
 
@@ -33,8 +35,6 @@ RSpec.shared_examples :subscription_subscribe do
         end
 
         source :comments do
-          primary_id
-
           attribute :title, :string
 
           def by_title_custom(title)
@@ -206,7 +206,7 @@ RSpec.shared_examples :subscription_subscribe do
 
     include_context "app"
 
-    let :app_definition do
+    let :app_def do
       Pakyow.config.data.default_adapter = :sql
       Pakyow.config.data.subscriptions.adapter = data_subscription_adapter
 
@@ -214,10 +214,12 @@ RSpec.shared_examples :subscription_subscribe do
         Pakyow.after :configure do
           config.data.connections.sql[:default] = "sqlite::memory"
         end
+      end
+    end
 
+    let :app_init do
+      Proc.new do
         source :posts do
-          primary_id
-
           attribute :title, :string
           attribute :body, :string
 
@@ -229,8 +231,6 @@ RSpec.shared_examples :subscription_subscribe do
         end
 
         source :comments do
-          primary_id
-
           attribute :title, :string
 
           def by_title_custom(title)

@@ -1,7 +1,7 @@
 RSpec.describe "namespaced routes" do
   include_context "app"
 
-  let :app_definition do
+  let :app_init do
     Proc.new {
       controller do
         namespace :ns, "/ns" do
@@ -41,7 +41,7 @@ RSpec.describe "namespaced routes" do
   end
 
   context "when a route is defined in a parameterized namespace" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
         controller do
           namespace :ns, "/ns/:id" do
@@ -63,7 +63,7 @@ RSpec.describe "namespaced routes" do
   end
 
   context "when a namespace is defined without a name" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
         controller do
           namespace "/ns" do
@@ -81,7 +81,7 @@ RSpec.describe "namespaced routes" do
   end
 
   context "when a namespace is defined within a controller with a name and path" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
         controller :top, "/top" do
           namespace :ns, "/ns" do

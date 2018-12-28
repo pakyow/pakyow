@@ -1,12 +1,6 @@
 RSpec.describe "templates embedded by presenter" do
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
-      instance_exec(&$presenter_app_boilerplate)
-    }
-  end
-
   context "top-level scope" do
     it "embeds a template" do
       expect(call("/embeds/top-level")[2].body.read).to eq_sans_whitespace(

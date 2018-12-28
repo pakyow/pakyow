@@ -14,10 +14,8 @@ RSpec.shared_examples :source_sql_transactions do
       Pakyow.apps.first.data
     end
 
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$data_app_boilerplate)
-
         source :posts do
           primary_id
           attribute :title, :string

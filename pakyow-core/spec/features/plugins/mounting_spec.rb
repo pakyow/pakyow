@@ -16,10 +16,10 @@ RSpec.describe "mounting plugins" do
 
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
+  let :app_def do
+    Proc.new do
       plug :testable, at: "/foo"
-    }
+    end
   end
 
   it "exposes plugin-defined endpoints at the mount path" do
@@ -27,11 +27,11 @@ RSpec.describe "mounting plugins" do
   end
 
   context "plugin is mounted twice" do
-    let :app_definition do
-      Proc.new {
+    let :app_def do
+      Proc.new do
         plug :testable, at: "/foo"
         plug :testable, at: "/bar", as: :bar
-      }
+      end
     end
 
     it "exposes each plugin-defined endpoint at the mount path" do

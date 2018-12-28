@@ -2,7 +2,7 @@ RSpec.describe "sending data" do
   include_context "app"
 
   context "when sending a file" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
         controller do
           default do
@@ -33,7 +33,7 @@ RSpec.describe "sending data" do
     end
 
     context "with a type" do
-      let :app_definition do
+      let :app_init do
         Proc.new {
           controller do
             default do
@@ -53,7 +53,7 @@ RSpec.describe "sending data" do
     end
 
     context "with a name" do
-      let :app_definition do
+      let :app_init do
         Proc.new {
           controller do
             default do
@@ -73,7 +73,7 @@ RSpec.describe "sending data" do
     end
 
     context "with a type and a name" do
-      let :app_definition do
+      let :app_init do
         Proc.new {
           controller do
             default do
@@ -94,7 +94,7 @@ RSpec.describe "sending data" do
   end
 
   context "when sending an io object" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
         controller do
           default do
@@ -118,7 +118,7 @@ RSpec.describe "sending data" do
   end
 
   context "when sending a string" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
         controller do
           default do
@@ -141,7 +141,7 @@ RSpec.describe "sending data" do
     end
 
     context "and a type is specified" do
-      let :app_definition do
+      let :app_init do
         Proc.new {
           controller do
             default do
@@ -158,7 +158,7 @@ RSpec.describe "sending data" do
   end
 
   context "when sending an unsupported type" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
         controller do
           handle ArgumentError, as: 500 do

@@ -2,21 +2,23 @@ RSpec.describe "embedding csrf meta tags in a rendered view" do
   include_context "app"
 
   context "presenter is configured to embed authenticity tokens" do
-    let :app_definition do
-      Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-
+    let :app_def do
+      Proc.new do
         configure :test do
           config.presenter.embed_authenticity_token = true
         end
+      end
+    end
 
+    let :app_init do
+      Proc.new do
         controller :default do
           get "/" do
             $authenticity_server_id = authenticity_server_id
             render "/"
           end
         end
-      }
+      end
     end
 
     it "embeds a valid authenticity token" do
@@ -40,20 +42,22 @@ RSpec.describe "embedding csrf meta tags in a rendered view" do
   end
 
   context "presenter is not configured to embed authenticity tokens" do
-    let :app_definition do
-      Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-
+    let :app_def do
+      Proc.new do
         configure :test do
           config.presenter.embed_authenticity_token = false
         end
+      end
+    end
 
+    let :app_init do
+      Proc.new do
         controller :default do
           get "/" do
             render "/"
           end
         end
-      }
+      end
     end
 
     it "does not embed an authenticity token" do

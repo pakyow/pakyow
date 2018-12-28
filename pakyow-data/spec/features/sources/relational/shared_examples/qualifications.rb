@@ -10,10 +10,8 @@ RSpec.shared_examples :source_qualifications do
 
     include_context "app"
 
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$data_app_boilerplate)
-
         source :posts do
           primary_id
           attribute :title, :string
@@ -38,10 +36,8 @@ RSpec.shared_examples :source_qualifications do
 
     include_context "app"
 
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$data_app_boilerplate)
-
         source :posts do
           primary_id
           attribute :title, :string

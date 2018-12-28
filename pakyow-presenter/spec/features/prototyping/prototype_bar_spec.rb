@@ -1,12 +1,6 @@
 RSpec.describe "prototype bar" do
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
-      instance_exec(&$presenter_app_boilerplate)
-    }
-  end
-
   let :mode do
     :prototype
   end

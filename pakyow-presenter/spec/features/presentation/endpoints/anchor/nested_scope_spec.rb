@@ -1,17 +1,9 @@
 RSpec.describe "presenting a view that defines an anchor endpoint in a nested scope" do
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
-      instance_exec(&$presenter_app_boilerplate)
-    }
-  end
-
   context "binding is bound to" do
-    let :app_definition do
-      Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-
+    let :app_init do
+      Proc.new do
         resource :posts, "/posts" do
           resource :comments, "/comments" do
             show do
@@ -25,7 +17,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint in a nested sc
             find(:post).present(id: 1, title: "foo", comments: [{ id: 2, title: "bar" }])
           end
         end
-      }
+      end
     end
 
     it "sets the href" do

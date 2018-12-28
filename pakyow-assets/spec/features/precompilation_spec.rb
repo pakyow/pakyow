@@ -51,9 +51,8 @@ RSpec.describe "precompiling assets" do
   end
 
   context "fingerprinting disabled" do
-    let :app_definition do
+    let :app_def do
       Proc.new do
-        instance_exec(&$assets_app_boilerplate)
         config.assets.fingerprint = false
       end
     end
@@ -96,9 +95,8 @@ RSpec.describe "precompiling assets" do
   end
 
   context "fingerprinting enabled" do
-    let :app_definition do
+    let :app_def do
       Proc.new do
-        instance_exec(&$assets_app_boilerplate)
         config.assets.fingerprint = true
       end
     end

@@ -2,13 +2,11 @@ RSpec.describe "api" do
   include_context "app"
   include_context "websocket intercept"
 
-  let :app_definition do
+  let :app_init do
     $local_presenter = presenter
     local_view_path = view_path
 
     Proc.new do
-      instance_exec(&$ui_app_boilerplate)
-
       resource :posts, "/posts" do
         disable_protection :csrf
 

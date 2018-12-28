@@ -3,10 +3,8 @@ RSpec.describe "modifying hash attributes during presentation" do
   include_context "websocket intercept"
 
   context "setting" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$ui_app_boilerplate)
-
         resource :posts, "/posts" do
           disable_protection :csrf
 
@@ -44,10 +42,8 @@ RSpec.describe "modifying hash attributes during presentation" do
   end
 
   context "changing a value" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$ui_app_boilerplate)
-
         resource :posts, "/posts" do
           disable_protection :csrf
 
@@ -85,10 +81,8 @@ RSpec.describe "modifying hash attributes during presentation" do
   end
 
   context "deleting a value" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$ui_app_boilerplate)
-
         resource :posts, "/posts" do
           disable_protection :csrf
 
@@ -126,10 +120,8 @@ RSpec.describe "modifying hash attributes during presentation" do
   end
 
   context "clearing" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$ui_app_boilerplate)
-
         resource :posts, "/posts" do
           disable_protection :csrf
 

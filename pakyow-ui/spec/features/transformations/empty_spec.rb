@@ -2,10 +2,8 @@ RSpec.describe "presenting data into a previously empty view" do
   include_context "app"
   include_context "websocket intercept"
 
-  let :app_definition do
+  let :app_init do
     Proc.new do
-      instance_exec(&$ui_app_boilerplate)
-
       resource :posts, "/posts" do
         disable_protection :csrf
 
@@ -49,10 +47,8 @@ RSpec.describe "presenting data into a previously empty view that contains an em
   include_context "app"
   include_context "websocket intercept"
 
-  let :app_definition do
+  let :app_init do
     Proc.new do
-      instance_exec(&$ui_app_boilerplate)
-
       resource :posts, "/posts" do
         disable_protection :csrf
 

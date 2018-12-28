@@ -13,8 +13,8 @@ RSpec.describe "configuring a plugin instance" do
 
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
+  let :app_def do
+    Proc.new do
       plug :testable, at: "/" do
         configure do
           config.foo = :baz
@@ -26,7 +26,7 @@ RSpec.describe "configuring a plugin instance" do
           config.foo = :qux
         end
       end
-    }
+    end
   end
 
   it "sets the configuration options for each plug" do
@@ -40,8 +40,8 @@ RSpec.describe "configuring a plugin instance" do
   end
 
   context "configuring for a specific environment" do
-    let :app_definition do
-      Proc.new {
+    let :app_def do
+      Proc.new do
         plug :testable, at: "/" do
           configure :test do
             config.foo = :test_baz
@@ -53,7 +53,7 @@ RSpec.describe "configuring a plugin instance" do
             config.foo = :test_qux
           end
         end
-      }
+      end
     end
 
     it "configures each plug for the environment" do

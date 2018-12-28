@@ -8,18 +8,19 @@ RSpec.shared_examples :source_connection do
       include_context "app"
 
       context "source does not specify connection" do
-        let :app_definition do
+        let :app_def do
           local_connection_type, local_connection_string = connection_type, connection_string
 
           Proc.new do
             Pakyow.after :configure do
               config.data.connections.public_send(local_connection_type)[:default] = local_connection_string
             end
+          end
+        end
 
-            instance_exec(&$data_app_boilerplate)
-
+        let :app_init do
+          Proc.new do
             source :posts do
-              primary_id
             end
           end
         end
@@ -30,18 +31,19 @@ RSpec.shared_examples :source_connection do
       end
 
       context "source specifies the default connection" do
-        let :app_definition do
+        let :app_def do
           local_connection_type, local_connection_string = connection_type, connection_string
 
           Proc.new do
             Pakyow.after :configure do
               config.data.connections.public_send(local_connection_type)[:default] = local_connection_string
             end
+          end
+        end
 
-            instance_exec(&$data_app_boilerplate)
-
+        let :app_init do
+          Proc.new do
             source :posts, connection: :default do
-              primary_id
             end
           end
         end
@@ -56,18 +58,19 @@ RSpec.shared_examples :source_connection do
       include_context "app"
 
       context "source specifies a connection" do
-        let :app_definition do
+        let :app_def do
           local_connection_type, local_connection_string = connection_type, connection_string
 
           Proc.new do
             Pakyow.after :configure do
               config.data.connections.public_send(local_connection_type)[:test] = local_connection_string
             end
+          end
+        end
 
-            instance_exec(&$data_app_boilerplate)
-
+        let :app_init do
+          Proc.new do
             source :posts, connection: :test do
-              primary_id
             end
           end
         end
@@ -82,7 +85,7 @@ RSpec.shared_examples :source_connection do
       include_context "app"
 
       context "source does not specify connection" do
-        let :app_definition do
+        let :app_def do
           local_connection_type, local_connection_string = connection_type, connection_string
 
           Proc.new do
@@ -90,11 +93,12 @@ RSpec.shared_examples :source_connection do
               config.data.connections.public_send(local_connection_type)[:default] = local_connection_string
               config.data.connections.public_send(local_connection_type)[:test] = local_connection_string
             end
+          end
+        end
 
-            instance_exec(&$data_app_boilerplate)
-
+        let :app_init do
+          Proc.new do
             source :posts do
-              primary_id
             end
           end
         end
@@ -105,7 +109,7 @@ RSpec.shared_examples :source_connection do
       end
 
       context "source specifies the default connection" do
-        let :app_definition do
+        let :app_def do
           local_connection_type, local_connection_string = connection_type, connection_string
 
           Proc.new do
@@ -113,11 +117,12 @@ RSpec.shared_examples :source_connection do
               config.data.connections.public_send(local_connection_type)[:default] = local_connection_string
               config.data.connections.public_send(local_connection_type)[:test] = local_connection_string
             end
+          end
+        end
 
-            instance_exec(&$data_app_boilerplate)
-
+        let :app_init do
+          Proc.new do
             source :posts, connection: :default do
-              primary_id
             end
           end
         end
@@ -128,7 +133,7 @@ RSpec.shared_examples :source_connection do
       end
 
       context "source specifies a connection" do
-        let :app_definition do
+        let :app_def do
           local_connection_type, local_connection_string = connection_type, connection_string
 
           Proc.new do
@@ -136,11 +141,12 @@ RSpec.shared_examples :source_connection do
               config.data.connections.public_send(local_connection_type)[:default] = local_connection_string
               config.data.connections.public_send(local_connection_type)[:test] = local_connection_string
             end
+          end
+        end
 
-            instance_exec(&$data_app_boilerplate)
-
+        let :app_init do
+          Proc.new do
             source :posts, connection: :test do
-              primary_id
             end
           end
         end
@@ -155,7 +161,7 @@ RSpec.shared_examples :source_connection do
       include_context "app"
 
       context "source specifies a connection" do
-        let :app_definition do
+        let :app_def do
           local_connection_type, local_connection_string = connection_type, connection_string
 
           Proc.new do
@@ -163,11 +169,12 @@ RSpec.shared_examples :source_connection do
               config.data.connections.public_send(local_connection_type)[:test1] = local_connection_string
               config.data.connections.public_send(local_connection_type)[:test2] = local_connection_string
             end
+          end
+        end
 
-            instance_exec(&$data_app_boilerplate)
-
+        let :app_init do
+          Proc.new do
             source :posts, connection: :test2 do
-              primary_id
             end
           end
         end

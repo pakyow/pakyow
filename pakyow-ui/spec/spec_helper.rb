@@ -14,13 +14,34 @@ require "pakyow/ui"
 
 require_relative "../../spec/helpers/mock_handler"
 
-RSpec.configure do |config|
-  config.before do |example|
+RSpec.configure do |spec_config|
+  spec_config.before do |example|
     allow_any_instance_of(Pakyow::Realtime::Server).to receive(:start_heartbeat)
 
     if $booted
       allow_any_instance_of(Concurrent::ThreadPoolExecutor).to receive(:<<) do |_, block|
         block.call
+      end
+    end
+  end
+
+  spec_config.before do
+    @default_app_def = Proc.new do
+      Pakyow.after :configure do
+        config.data.connections.sql[:default] = "sqlite::memory"
+      end
+
+      configure do
+        config.presenter.path = File.join(File.expand_path("../", __FILE__), "features/support/views")
+        config.presenter.componentize = false
+      end
+
+      isolated :ViewRenderer do
+        after :render do
+          # Persist subscriptions so that they are processed and intercepted.
+          #
+          @connection.app.data.persist(socket_client_id)
+        end
       end
     end
   end
@@ -34,25 +55,6 @@ end
 require_relative "../../spec/context/app_context"
 require_relative "../../spec/context/suppressed_output_context"
 require_relative "../../spec/context/websocket_intercept_context"
-
-$ui_app_boilerplate = Proc.new do
-  Pakyow.after :configure do
-    config.data.connections.sql[:default] = "sqlite::memory"
-  end
-
-  configure do
-    config.presenter.path = File.join(File.expand_path("../", __FILE__), "features/support/views")
-    config.presenter.componentize = false
-  end
-
-  isolated :ViewRenderer do
-    after :render do
-      # Persist subscriptions so that they are processed and intercepted.
-      #
-      @connection.app.data.persist(socket_client_id)
-    end
-  end
-end
 
 TRANSFORMATION_IDS = [
   "e623bfc2-28a2-4929-9407-fd4c37d54b19",

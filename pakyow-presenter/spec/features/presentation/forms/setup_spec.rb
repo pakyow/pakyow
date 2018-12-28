@@ -35,7 +35,7 @@ RSpec.describe "setting up a form via presenter" do
     context "matching route is found for a plural endpoint" do
       include_context "app"
 
-      let :app_definition do
+      let :app_init do
         Proc.new {
           resource :posts, "/posts" do
             create do; end
@@ -62,7 +62,7 @@ RSpec.describe "setting up a form via presenter" do
     context "matching route is found for a singular endpoint" do
       include_context "app"
 
-      let :app_definition do
+      let :app_init do
         Proc.new {
           resource :post, "/post" do
             create do; end
@@ -89,7 +89,7 @@ RSpec.describe "setting up a form via presenter" do
     context "matching route is found for both a singular and plural endpoint" do
       include_context "app"
 
-      let :app_definition do
+      let :app_init do
         Proc.new {
           resource :post, "/post" do
             create do; end
@@ -140,7 +140,7 @@ RSpec.describe "setting up a form via presenter" do
     context "matching route is found" do
       include_context "app"
 
-      let :app_definition do
+      let :app_init do
         Proc.new {
           resource :posts, "/posts" do
             create do; end
@@ -196,7 +196,7 @@ RSpec.describe "setting up a form via presenter" do
     context "matching route is found" do
       include_context "app"
 
-      let :app_definition do
+      let :app_init do
         Proc.new {
           resource :posts, "/posts" do
             update do; end
@@ -252,7 +252,7 @@ RSpec.describe "setting up a form via presenter" do
     context "matching route is found" do
       include_context "app"
 
-      let :app_definition do
+      let :app_init do
         Proc.new {
           resource :posts, "/posts" do
             replace do; end
@@ -308,7 +308,7 @@ RSpec.describe "setting up a form via presenter" do
     context "matching route is found" do
       include_context "app"
 
-      let :app_definition do
+      let :app_init do
         Proc.new {
           resource :posts, "/posts" do
             delete do; end

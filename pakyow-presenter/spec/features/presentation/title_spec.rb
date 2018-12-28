@@ -1,10 +1,8 @@
 RSpec.describe "view titles via presenter" do
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
-      instance_exec(&$presenter_app_boilerplate)
-
+  let :app_init do
+    Proc.new do
       controller do
         get "/titles/dynamic" do
           expose :greeting, "hi"
@@ -26,7 +24,7 @@ RSpec.describe "view titles via presenter" do
           render "/titles/dynamic"
         end
       end
-    }
+    end
   end
 
   context "title contained in front matter" do

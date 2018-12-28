@@ -19,10 +19,8 @@ RSpec.shared_examples :source_associations do
     include_context "app"
 
     describe "belongs_to" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
-          instance_exec(&$data_app_boilerplate)
-
           source :posts do
             primary_id
 
@@ -57,10 +55,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "aliased association" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               primary_id
 
@@ -96,10 +92,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "belonging to multiple different sources" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               primary_id
 
@@ -158,10 +152,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "belonging to the same source multiple times" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               primary_id
 
@@ -227,10 +219,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "association with a specific query" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               primary_id
 
@@ -273,10 +263,8 @@ RSpec.shared_examples :source_associations do
 
       describe "edge cases around definition" do
         context "association is specified as plural" do
-          let :app_definition do
+          let :app_init do
             Proc.new do
-              instance_exec(&$data_app_boilerplate)
-
               source :posts do
                 primary_id
               end
@@ -295,10 +283,8 @@ RSpec.shared_examples :source_associations do
         end
 
         context "association source does not exist" do
-          let :app_definition do
+          let :app_init do
             Proc.new do
-              instance_exec(&$data_app_boilerplate)
-
               source :comments do
                 primary_id
                 belongs_to :posts
@@ -313,12 +299,10 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "association with the source having a custom primary key" do
-        let :app_definition do
+        let :app_init do
           slugs = 100.times.to_a.map(&:to_s)
 
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts, primary_id: false do
               primary_key :slug
               attribute :slug, :string, default: -> {
@@ -364,10 +348,8 @@ RSpec.shared_examples :source_associations do
     end
 
     describe "has_one" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
-          instance_exec(&$data_app_boilerplate)
-
           source :posts do
             primary_id
             has_one :comment
@@ -406,10 +388,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "dependent: delete" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               primary_id
               has_one :comment, dependent: :delete
@@ -449,10 +429,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "dependent: nullify" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               primary_id
               has_one :comment, dependent: :nullify
@@ -507,10 +485,8 @@ RSpec.shared_examples :source_associations do
         end
 
         context "reciprocal association already exists" do
-          let :app_definition do
+          let :app_init do
             Proc.new do
-              instance_exec(&$data_app_boilerplate)
-
               source :posts do
                 primary_id
                 has_one :comment, dependent: :nullify
@@ -538,10 +514,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "aliased association" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               primary_id
               has_one :unmentionable, source: :comments
@@ -581,10 +555,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "aliased name for the reciprocal association" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               primary_id
               has_one :comment, as: :owner
@@ -621,10 +593,8 @@ RSpec.shared_examples :source_associations do
         end
 
         context "reciprocal association already exists" do
-          let :app_definition do
+          let :app_init do
             Proc.new do
-              instance_exec(&$data_app_boilerplate)
-
               source :posts do
                 primary_id
                 has_one :comment, as: :owner
@@ -652,10 +622,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "association with a specific query" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               primary_id
               has_one :comment, query: :id_gt_one
@@ -698,10 +666,8 @@ RSpec.shared_examples :source_associations do
 
       describe "edge cases around definition" do
         context "association is specified as plural" do
-          let :app_definition do
+          let :app_init do
             Proc.new do
-              instance_exec(&$data_app_boilerplate)
-
               source :posts do
                 primary_id
                 has_one :comments
@@ -720,10 +686,8 @@ RSpec.shared_examples :source_associations do
         end
 
         context "association source does not exist" do
-          let :app_definition do
+          let :app_init do
             Proc.new do
-              instance_exec(&$data_app_boilerplate)
-
               source :posts do
                 primary_id
                 has_one :comment
@@ -738,12 +702,10 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "association with the source having a custom primary key" do
-        let :app_definition do
+        let :app_init do
           slugs = 100.times.to_a.map(&:to_s)
 
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts, primary_id: false do
               primary_key :slug
 
@@ -807,10 +769,8 @@ RSpec.shared_examples :source_associations do
     end
 
     describe "has_one :through" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
-          instance_exec(&$data_app_boilerplate)
-
           source :posts do
             has_one :comment, through: :related
 
@@ -856,10 +816,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "dependent: delete" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               has_one :comment, through: :related, dependent: :delete
 
@@ -906,10 +864,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "dependent: nullify" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               has_one :comment, through: :related, dependent: :nullify
 
@@ -980,10 +936,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "aliased association" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               has_one :unmentionable, through: :relateds, source: :comments
 
@@ -1030,10 +984,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "aliased name for the reciprocal association" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               has_one :comment, through: :related, as: :owners
 
@@ -1082,10 +1034,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "association with a specific query" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               has_one :comment, through: :related, query: :id_gt_one
 
@@ -1129,10 +1079,8 @@ RSpec.shared_examples :source_associations do
 
       describe "edge cases around definition" do
         context "through association is specified as plural" do
-          let :app_definition do
+          let :app_init do
             Proc.new do
-              instance_exec(&$data_app_boilerplate)
-
               source :posts do
                 has_one :comment, through: :relateds
               end
@@ -1152,10 +1100,8 @@ RSpec.shared_examples :source_associations do
         end
 
         context "through association source does not exist" do
-          let :app_definition do
+          let :app_init do
             Proc.new do
-              instance_exec(&$data_app_boilerplate)
-
               source :posts do
                 has_one :comment, through: :related
               end
@@ -1172,12 +1118,10 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "association with the source having a custom primary key" do
-        let :app_definition do
+        let :app_init do
           slugs = 100.times.to_a.map(&:to_s)
 
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts, primary_id: false do
               primary_key :slug
 
@@ -1258,12 +1202,10 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "association with the joining source having a custom primary key" do
-        let :app_definition do
+        let :app_init do
           slugs = 100.times.to_a.map(&:to_s)
 
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               has_one :comment, through: :related
 
@@ -1343,10 +1285,8 @@ RSpec.shared_examples :source_associations do
     end
 
     describe "one_to_one" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
-          instance_exec(&$data_app_boilerplate)
-
           source :posts do
             has_one :comment
 
@@ -1384,10 +1324,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "dependent: delete" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               has_one :comment, dependent: :delete
 
@@ -1426,10 +1364,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "dependent: nullify" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               has_one :comment, dependent: :nullify
 
@@ -1488,10 +1424,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "aliased association" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               has_one :unmentionable, source: :comments
 
@@ -1530,10 +1464,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "aliased name for the reciprocal association" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               has_one :comment, as: :owner
 
@@ -1574,10 +1506,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "association with a specific query" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               has_one :comment, query: :id_gt_one
 
@@ -1616,12 +1546,10 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "association with the source having a custom primary key" do
-        let :app_definition do
+        let :app_init do
           slugs = 100.times.to_a.map(&:to_s)
 
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts, primary_id: false do
               primary_key :slug
 
@@ -1689,10 +1617,8 @@ RSpec.shared_examples :source_associations do
     end
 
     describe "has_many" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
-          instance_exec(&$data_app_boilerplate)
-
           source :posts do
             primary_id
             has_many :comments
@@ -1731,10 +1657,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "dependent: delete" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               primary_id
               has_many :comments, dependent: :delete
@@ -1774,10 +1698,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "dependent: nullify" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               primary_id
               has_many :comments, dependent: :nullify
@@ -1832,10 +1754,8 @@ RSpec.shared_examples :source_associations do
         end
 
         context "reciprocal association already exists" do
-          let :app_definition do
+          let :app_init do
             Proc.new do
-              instance_exec(&$data_app_boilerplate)
-
               source :posts do
                 primary_id
                 has_many :comments, dependent: :nullify
@@ -1863,10 +1783,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "aliased association" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               primary_id
               has_many :unmentionables, source: :comments
@@ -1906,10 +1824,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "aliased name for the reciprocal association" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               primary_id
               has_many :comments, as: :owner
@@ -1945,10 +1861,8 @@ RSpec.shared_examples :source_associations do
           end
 
           context "reciprocal association already exists" do
-            let :app_definition do
+            let :app_init do
               Proc.new do
-                instance_exec(&$data_app_boilerplate)
-
                 source :posts do
                   primary_id
                   has_many :comments, as: :owner
@@ -1977,10 +1891,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "association with a specific query" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               primary_id
               has_many :comments, query: :id_gt_one
@@ -2023,10 +1935,8 @@ RSpec.shared_examples :source_associations do
 
       describe "edge cases around definition" do
         context "association is specified as singular" do
-          let :app_definition do
+          let :app_init do
             Proc.new do
-              instance_exec(&$data_app_boilerplate)
-
               source :posts do
                 primary_id
                 has_many :comment
@@ -2045,10 +1955,8 @@ RSpec.shared_examples :source_associations do
         end
 
         context "association source does not exist" do
-          let :app_definition do
+          let :app_init do
             Proc.new do
-              instance_exec(&$data_app_boilerplate)
-
               source :posts do
                 primary_id
                 has_many :comments
@@ -2063,12 +1971,10 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "association with the source having a custom primary key" do
-        let :app_definition do
+        let :app_init do
           slugs = 100.times.to_a.map(&:to_s)
 
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts, primary_id: false do
               primary_key :slug
 
@@ -2132,10 +2038,8 @@ RSpec.shared_examples :source_associations do
     end
 
     describe "has_many :through" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
-          instance_exec(&$data_app_boilerplate)
-
           source :posts do
             has_many :comments, through: :relateds
 
@@ -2181,10 +2085,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "dependent: delete" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               has_many :comments, through: :relateds, dependent: :delete
 
@@ -2231,10 +2133,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "dependent: nullify" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               has_many :comments, through: :relateds, dependent: :nullify
 
@@ -2305,10 +2205,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "aliased association" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               has_many :unmentionables, through: :relateds, source: :comments
 
@@ -2355,10 +2253,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "aliased name for the reciprocal association" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               has_many :comments, through: :relateds, as: :owners
 
@@ -2407,10 +2303,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "association with a specific query" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               has_many :comments, through: :relateds, query: :id_gt_one
 
@@ -2456,10 +2350,8 @@ RSpec.shared_examples :source_associations do
 
       describe "edge cases around definition" do
         context "through association is specified as singular" do
-          let :app_definition do
+          let :app_init do
             Proc.new do
-              instance_exec(&$data_app_boilerplate)
-
               source :posts do
                 has_many :comments, through: :related
               end
@@ -2479,10 +2371,8 @@ RSpec.shared_examples :source_associations do
         end
 
         context "through association source does not exist" do
-          let :app_definition do
+          let :app_init do
             Proc.new do
-              instance_exec(&$data_app_boilerplate)
-
               source :posts do
                 has_many :comments, through: :relateds
               end
@@ -2499,12 +2389,10 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "association with the source having a custom primary key" do
-        let :app_definition do
+        let :app_init do
           slugs = 100.times.to_a.map(&:to_s)
 
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts, primary_id: false do
               primary_key :slug
 
@@ -2583,12 +2471,10 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "association with the joining source having a custom primary key" do
-        let :app_definition do
+        let :app_init do
           slugs = 100.times.to_a.map(&:to_s)
 
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               has_many :comments, through: :relateds
 
@@ -2668,10 +2554,8 @@ RSpec.shared_examples :source_associations do
     end
 
     describe "many_to_many" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
-          instance_exec(&$data_app_boilerplate)
-
           source :posts do
             has_many :comments
 
@@ -2709,10 +2593,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "dependent: delete" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               has_many :comments, dependent: :delete
 
@@ -2751,10 +2633,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "dependent: nullify" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               has_many :comments, dependent: :nullify
 
@@ -2813,10 +2693,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "aliased association" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               has_many :unmentionables, source: :comments
 
@@ -2855,10 +2733,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "aliased name for the reciprocal association" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               has_many :comments, as: :owners
 
@@ -2899,10 +2775,8 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "association with a specific query" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts do
               has_many :comments, query: :id_gt_one
 
@@ -2943,12 +2817,10 @@ RSpec.shared_examples :source_associations do
       end
 
       describe "association with the source having a custom primary key" do
-        let :app_definition do
+        let :app_init do
           slugs = 100.times.to_a.map(&:to_s)
 
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts, primary_id: false do
               primary_key :slug
 

@@ -1,10 +1,8 @@
 RSpec.describe "presenting a view that defines an endpoint for delete" do
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
-      instance_exec(&$presenter_app_boilerplate)
-
+  let :app_init do
+    Proc.new do
       resource :posts, "/posts" do
         show do
           render "/presentation/endpoints/delete"
@@ -12,7 +10,7 @@ RSpec.describe "presenting a view that defines an endpoint for delete" do
 
         delete do; end
       end
-    }
+    end
   end
 
   it "wraps the node in a submittable form" do

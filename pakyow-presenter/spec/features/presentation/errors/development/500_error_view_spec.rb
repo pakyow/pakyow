@@ -6,16 +6,14 @@ RSpec.describe "telling the user about a failure in development" do
   end
 
   context "error is a pakyow error" do
-    let :app_definition do
-      Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-
+    let :app_init do
+      Proc.new do
         controller do
           default do
             fail "something went wrong"
           end
         end
-      }
+      end
     end
 
     it "responds 500" do
@@ -31,30 +29,28 @@ RSpec.describe "telling the user about a failure in development" do
     end
 
     it "includes the backtrace" do
-      expect(call[2].body.read).to include("spec/features/presentation/errors/development/500_error_view_spec.rb:15:in `block (6 levels) in &lt;top (required)&gt;'")
+      expect(call[2].body.read).to include("spec/features/presentation/errors/development/500_error_view_spec.rb:13:in `block (6 levels) in &lt;top (required)&gt;'")
     end
 
     it "includes the details" do
-      expect(call[2].body.read).to include("<p><code>RuntimeError</code> occurred on line <code>15</code>")
+      expect(call[2].body.read).to include("<p><code>RuntimeError</code> occurred on line <code>13</code>")
       expect(call[2].body.read).to include("spec/features/presentation/errors/development/500_error_view_spec.rb")
     end
 
     it "includes the source" do
-      expect(call[2].body.read).to include("15|›             fail \"something went wrong\"")
+      expect(call[2].body.read).to include("13|›             fail \"something went wrong\"")
     end
   end
 
   context "error is not a pakyow error" do
-    let :app_definition do
-      Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-
+    let :app_init do
+      Proc.new do
         controller do
           default do
             fail "failed in some way"
           end
         end
-      }
+      end
     end
 
     it "responds 500" do
@@ -70,7 +66,7 @@ RSpec.describe "telling the user about a failure in development" do
     end
 
     it "includes the backtrace" do
-      expect(call[2].body.read).to include("spec/features/presentation/errors/development/500_error_view_spec.rb:54:in `block (6 levels) in &lt;top (required)&gt;'")
+      expect(call[2].body.read).to include("spec/features/presentation/errors/development/500_error_view_spec.rb:50:in `block (6 levels) in &lt;top (required)&gt;'")
     end
   end
 end

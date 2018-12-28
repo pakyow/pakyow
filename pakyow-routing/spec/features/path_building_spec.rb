@@ -2,7 +2,7 @@ RSpec.describe "path building" do
   include_context "app"
   using Pakyow::Support::DeepDup
 
-  let :app_definition do
+  let :app_init do
     Proc.new {
       controller do
         def other_params

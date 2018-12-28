@@ -2,10 +2,8 @@ RSpec.describe "presenting an object in a component" do
   include_context "app"
   include_context "websocket intercept"
 
-  let :app_definition do
+  let :app_init do
     Proc.new do
-      instance_exec(&$ui_app_boilerplate)
-
       resource :posts, "/posts" do
         disable_protection :csrf
 
@@ -44,10 +42,8 @@ RSpec.describe "presenting the same data in a component and outside of it" do
   include_context "app"
   include_context "websocket intercept"
 
-  let :app_definition do
+  let :app_init do
     Proc.new do
-      instance_exec(&$ui_app_boilerplate)
-
       resource :posts, "/posts" do
         disable_protection :csrf
 

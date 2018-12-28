@@ -44,12 +44,12 @@ RSpec.describe "auto migrating on boot" do
       end
 
       describe "auto migrating sources for the connection" do
-        let :app_definition do
-          Proc.new {
+        let :app_init do
+          Proc.new do
             source :posts do
               primary_id
             end
-          }
+          end
         end
 
         def setup_expectations
@@ -63,16 +63,19 @@ RSpec.describe "auto migrating on boot" do
         end
 
         context "app is rescued" do
-          let :app_definition do
-            Proc.new {
-              source :posts do
-                primary_id
-              end
-
+          let :app_def do
+            Proc.new do
               before :initialize do
                 @rescued = true
               end
-            }
+            end
+          end
+
+          let :app_init do
+            Proc.new do
+              source :posts do
+              end
+            end
           end
 
           def setup_expectations

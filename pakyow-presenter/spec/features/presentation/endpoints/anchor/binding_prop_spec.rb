@@ -1,12 +1,6 @@
 RSpec.describe "presenting a view that defines an anchor endpoint that is a binding prop" do
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
-      instance_exec(&$presenter_app_boilerplate)
-    }
-  end
-
   it "does not set the href automatically" do
     expect(call("/presentation/endpoints/anchor/binding_prop")[2].body.read).to include_sans_whitespace(
       <<~HTML
@@ -18,10 +12,8 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
   end
 
   context "binding is bound to" do
-    let :app_definition do
-      Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-
+    let :app_init do
+      Proc.new do
         resource :posts, "/posts" do
           list do
             render "/presentation/endpoints/anchor/binding_prop"
@@ -33,7 +25,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
             find(:post).present(title: "foo")
           end
         end
-      }
+      end
     end
 
     it "sets the href" do
@@ -59,10 +51,8 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
     end
 
     context "binder exists" do
-      let :app_definition do
-        Proc.new {
-          instance_exec(&$presenter_app_boilerplate)
-
+      let :app_init do
+        Proc.new do
           resource :posts, "/posts" do
             list do
               render "/presentation/endpoints/anchor/binding_prop"
@@ -80,7 +70,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
               object[:title].to_s.reverse
             end
           end
-        }
+        end
       end
 
       it "sets the endpoint href" do
@@ -94,10 +84,8 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
       end
 
       context "binder sets the href" do
-        let :app_definition do
-          Proc.new {
-            instance_exec(&$presenter_app_boilerplate)
-
+        let :app_init do
+          Proc.new do
             resource :posts, "/posts" do
               list do
                 render "/presentation/endpoints/anchor/binding_prop"
@@ -121,7 +109,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
                 end
               end
             end
-          }
+          end
         end
 
         it "overrides the endpoint href" do

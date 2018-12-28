@@ -9,10 +9,8 @@ RSpec.describe "presentable exposures" do
     $presentable = nil
   end
 
-  let :app_definition do
+  let :app_init do
     Proc.new do
-      instance_exec(&$presenter_app_boilerplate)
-
       controller :default do
         get "/" do
           expose :current_user, "current_user"
@@ -36,10 +34,8 @@ RSpec.describe "presentable exposures" do
       $presentables = nil
     end
 
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$presenter_app_boilerplate)
-
         controller :default do
           get "/" do
             expose :current_user, "user1", for: [:foo]

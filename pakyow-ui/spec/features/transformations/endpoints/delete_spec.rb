@@ -2,10 +2,8 @@ RSpec.describe "presenting a view that defines an endpoint for delete" do
   include_context "app"
   include_context "websocket intercept"
 
-  let :app_definition do
+  let :app_init do
     Proc.new {
-      instance_exec(&$ui_app_boilerplate)
-
       resource :posts, "/posts" do
         disable_protection :csrf
 

@@ -1,21 +1,13 @@
 RSpec.describe "presenting a view that defines an anchor endpoint that is a binding scope" do
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
-      instance_exec(&$presenter_app_boilerplate)
-    }
-  end
-
   it "does not set the href automatically, so the unused binding is removed" do
     expect(call("/presentation/endpoints/anchor/binding_scope")[2].body.read.strip).to eq("")
   end
 
   context "binding is bound to" do
-    let :app_definition do
-      Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-
+    let :app_init do
+      Proc.new do
         resource :posts, "/posts" do
           list do
             render "/presentation/endpoints/anchor/binding_scope"
@@ -27,7 +19,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
             find(:post).present(title: "foo")
           end
         end
-      }
+      end
     end
 
     it "sets the href" do

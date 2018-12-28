@@ -29,11 +29,11 @@ RSpec.describe "accessing helpers from the plugin" do
 
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
+  let :app_def do
+    Proc.new do
       plug :testable, at: "/"
       plug :testable, at: "/foo", as: :foo
-    }
+    end
   end
 
   it "calls the helpers in the correct context" do
@@ -62,8 +62,8 @@ RSpec.describe "accessing helpers from the app" do
 
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
+  let :app_def do
+    Proc.new do
       plug :testable, at: "/"
       plug :testable, at: "/foo", as: :foo
 
@@ -98,7 +98,7 @@ RSpec.describe "accessing helpers from the app" do
           connection.halt
         end
       end
-    }
+    end
   end
 
   it "calls the helpers in the correct context" do

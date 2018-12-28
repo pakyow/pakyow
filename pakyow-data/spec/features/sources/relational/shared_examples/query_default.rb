@@ -11,10 +11,8 @@ RSpec.shared_examples :source_query_default do
     include_context "app"
 
     context "query is referenced by name" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
-          instance_exec(&$data_app_boilerplate)
-
           source :posts do
             primary_id
             attribute :title, :string
@@ -38,10 +36,8 @@ RSpec.shared_examples :source_query_default do
     end
 
     context "query is specified as a block that returns a dataset" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
-          instance_exec(&$data_app_boilerplate)
-
           source :posts do
             primary_id
             attribute :title, :string
@@ -64,10 +60,8 @@ RSpec.shared_examples :source_query_default do
     end
 
     context "query is specified as a block that returns a source" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
-          instance_exec(&$data_app_boilerplate)
-
           source :posts do
             primary_id
             attribute :title, :string
@@ -98,10 +92,8 @@ RSpec.shared_examples :source_query_default do
     end
 
     context "query includes data" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
-          instance_exec(&$data_app_boilerplate)
-
           source :posts do
             primary_id
             attribute :title, :string

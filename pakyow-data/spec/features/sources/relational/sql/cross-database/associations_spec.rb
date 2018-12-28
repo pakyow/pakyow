@@ -47,10 +47,8 @@ RSpec.describe "cross connection associations" do
   include_context "app"
 
   describe "belongs_to" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$data_app_boilerplate)
-
         source :posts, connection: :default do
           query do
             order { id.asc }
@@ -83,10 +81,8 @@ RSpec.describe "cross connection associations" do
   end
 
   describe "has_one" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$data_app_boilerplate)
-
         source :posts, connection: :default do
           has_one :comment
 
@@ -123,10 +119,8 @@ RSpec.describe "cross connection associations" do
   end
 
   describe "has_one :through" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$data_app_boilerplate)
-
         source :posts, connection: :default do
           has_one :comment, through: :related
 
@@ -173,10 +167,8 @@ RSpec.describe "cross connection associations" do
   end
 
   describe "has_many" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$data_app_boilerplate)
-
         source :posts, connection: :default do
           has_many :comments
 
@@ -213,10 +205,8 @@ RSpec.describe "cross connection associations" do
   end
 
   describe "has_many :through" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$data_app_boilerplate)
-
         source :posts, connection: :default do
           has_many :comments, through: :relateds
 

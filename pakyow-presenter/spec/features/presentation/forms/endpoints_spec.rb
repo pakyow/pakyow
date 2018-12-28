@@ -3,10 +3,8 @@ RSpec.describe "form endpoints" do
 
   context "form is rendered from resource new" do
     context "resource create endpoint exists" do
-      let :app_definition do
-        Proc.new {
-          instance_exec(&$presenter_app_boilerplate)
-
+      let :app_init do
+        Proc.new do
           resource :posts, "/presentation/forms/endpoints/posts" do
             new do
             end
@@ -14,7 +12,7 @@ RSpec.describe "form endpoints" do
             create do
             end
           end
-        }
+        end
       end
 
       it "sets the endpoint to resource create" do
@@ -25,15 +23,13 @@ RSpec.describe "form endpoints" do
     end
 
     context "resource create endpoint does not exist" do
-      let :app_definition do
-        Proc.new {
-          instance_exec(&$presenter_app_boilerplate)
-
+      let :app_init do
+        Proc.new do
           resource :posts, "/presentation/forms/endpoints/posts" do
             new do
             end
           end
-        }
+        end
       end
 
       it "does not set an endpoint" do
@@ -44,10 +40,8 @@ RSpec.describe "form endpoints" do
     end
 
     context "form explicitly defines an endpoint" do
-      let :app_definition do
-        Proc.new {
-          instance_exec(&$presenter_app_boilerplate)
-
+      let :app_init do
+        Proc.new do
           resource :posts, "/presentation/forms/endpoints/explicit/posts" do
             new do
             end
@@ -60,7 +54,7 @@ RSpec.describe "form endpoints" do
             post :create, "/create" do
             end
           end
-        }
+        end
       end
 
       it "sets the endpoint to the explicitly defined endpoint" do
@@ -73,10 +67,8 @@ RSpec.describe "form endpoints" do
 
   context "form is rendered from resource edit" do
     context "resource update endpoint exists" do
-      let :app_definition do
+      let :app_init do
         Proc.new {
-          instance_exec(&$presenter_app_boilerplate)
-
           resource :posts, "/presentation/forms/endpoints/posts" do
             edit do
             end
@@ -96,10 +88,8 @@ RSpec.describe "form endpoints" do
     end
 
     context "resource update endpoint does not exist" do
-      let :app_definition do
+      let :app_init do
         Proc.new {
-          instance_exec(&$presenter_app_boilerplate)
-
           resource :posts, "/presentation/forms/endpoints/posts" do
             edit do
             end
@@ -115,10 +105,8 @@ RSpec.describe "form endpoints" do
     end
 
     context "form explicitly defines an endpoint" do
-      let :app_definition do
+      let :app_init do
         Proc.new {
-          instance_exec(&$presenter_app_boilerplate)
-
           resource :posts, "/presentation/forms/endpoints/explicit/posts" do
             edit do
             end
@@ -144,12 +132,6 @@ RSpec.describe "form endpoints" do
   end
 
   context "form is rendered from a non-resource endpoint" do
-    let :app_definition do
-      Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-      }
-    end
-
     it "does not set an endpoint by default" do
       call("/presentation/forms/endpoints")[2].body.read.tap do |body|
         expect(body).to include('<form data-b="post" data-c="form">')
@@ -157,10 +139,8 @@ RSpec.describe "form endpoints" do
     end
 
     context "create endpoint is defined for the binding" do
-      let :app_definition do
+      let :app_init do
         Proc.new {
-          instance_exec(&$presenter_app_boilerplate)
-
           resource :posts, "/posts" do
             create do
             end
@@ -178,10 +158,8 @@ RSpec.describe "form endpoints" do
     context "object is exposed for the form" do
       context "object has an id" do
         context "resource update route exists" do
-          let :app_definition do
+          let :app_init do
             Proc.new {
-              instance_exec(&$presenter_app_boilerplate)
-
               resource :posts, "/posts" do
                 update do
                 end
@@ -203,10 +181,8 @@ RSpec.describe "form endpoints" do
           end
 
           context "form explicitly defines an endpoint" do
-            let :app_definition do
+            let :app_init do
               Proc.new {
-                instance_exec(&$presenter_app_boilerplate)
-
                 resource :posts, "/posts" do
                   update do
                   end
@@ -234,10 +210,8 @@ RSpec.describe "form endpoints" do
         end
 
         context "resource update route does not exist" do
-          let :app_definition do
+          let :app_init do
             Proc.new {
-              instance_exec(&$presenter_app_boilerplate)
-
               controller do
                 get "/presentation/forms/endpoints" do
                   expose :post, { id: 1 }, for: :form
@@ -253,10 +227,8 @@ RSpec.describe "form endpoints" do
           end
 
           context "form explicitly defines an endpoint" do
-            let :app_definition do
+            let :app_init do
               Proc.new {
-                instance_exec(&$presenter_app_boilerplate)
-
                 controller do
                   get "/presentation/forms/endpoints" do
                     expose :post, { id: 1 }, for: :form
@@ -281,10 +253,8 @@ RSpec.describe "form endpoints" do
 
       context "object does not have an id" do
         context "resource create route exists" do
-          let :app_definition do
+          let :app_init do
             Proc.new {
-              instance_exec(&$presenter_app_boilerplate)
-
               resource :posts, "/posts" do
                 create do
                 end
@@ -305,10 +275,8 @@ RSpec.describe "form endpoints" do
           end
 
           context "form explicitly defines an endpoint" do
-            let :app_definition do
+            let :app_init do
               Proc.new {
-                instance_exec(&$presenter_app_boilerplate)
-
                 resource :posts, "/posts" do
                   create do
                   end
@@ -336,10 +304,8 @@ RSpec.describe "form endpoints" do
         end
 
         context "resource create route does not exist" do
-          let :app_definition do
+          let :app_init do
             Proc.new {
-              instance_exec(&$presenter_app_boilerplate)
-
               controller do
                 get "/presentation/forms/endpoints" do
                   expose :post, {}, for: :form
@@ -355,10 +321,8 @@ RSpec.describe "form endpoints" do
           end
 
           context "form explicitly defines an endpoint" do
-            let :app_definition do
+            let :app_init do
               Proc.new {
-                instance_exec(&$presenter_app_boilerplate)
-
                 controller do
                   get "/presentation/forms/endpoints" do
                     expose :post, {}, for: :form
@@ -383,10 +347,8 @@ RSpec.describe "form endpoints" do
     end
 
     context "form explicitly defines an endpoint" do
-      let :app_definition do
+      let :app_init do
         Proc.new {
-          instance_exec(&$presenter_app_boilerplate)
-
           controller :explicit do
             delete :endpoint, "/explicit"
           end
@@ -401,10 +363,8 @@ RSpec.describe "form endpoints" do
       end
 
       context "endpoint is contextual" do
-        let :app_definition do
+        let :app_init do
           Proc.new {
-            instance_exec(&$presenter_app_boilerplate)
-
             resource :posts, "/posts" do
               resource :comments, "/comments" do
                 new do

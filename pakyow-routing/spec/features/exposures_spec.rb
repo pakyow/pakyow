@@ -11,7 +11,7 @@ RSpec.describe "exposures" do
 
   context "exposure is defined inline with the route" do
     context "exposure is a method" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
           controller :default do
             def current_user
@@ -32,7 +32,7 @@ RSpec.describe "exposures" do
     end
 
     context "exposure is a value" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
           controller :default do
             get "/" do
@@ -50,7 +50,7 @@ RSpec.describe "exposures" do
 
     context "exposure is a block" do
       context "block has a default value and returns nil" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
             controller :default do
               get "/" do
@@ -70,7 +70,7 @@ RSpec.describe "exposures" do
       end
 
       context "block has a default value and does not return nil" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
             controller :default do
               get "/" do
@@ -92,7 +92,7 @@ RSpec.describe "exposures" do
   end
 
   context "exposure is defined in a route, but not for the called route" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
         controller :default do
           get "/" do
@@ -118,7 +118,7 @@ RSpec.describe "exposures" do
   end
 
   context "exposure is defined with a non-symbol key" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
         controller :default do
           get "/" do
@@ -135,7 +135,7 @@ RSpec.describe "exposures" do
   end
 
   context "exposure is defined multiple times" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
         controller :default do
           get "/" do
@@ -152,7 +152,7 @@ RSpec.describe "exposures" do
     end
 
     context "later exposure force sets a value" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
           controller :default do
             get "/" do

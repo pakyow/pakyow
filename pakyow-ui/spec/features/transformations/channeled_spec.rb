@@ -2,10 +2,8 @@ RSpec.describe "presenting data in a channeled binding" do
   include_context "app"
   include_context "websocket intercept"
 
-  let :app_definition do
+  let :app_init do
     Proc.new do
-      instance_exec(&$ui_app_boilerplate)
-
       resource :posts, "/posts" do
         disable_protection :csrf
 
@@ -64,10 +62,8 @@ RSpec.describe "presenting data across channeled bindings" do
   include_context "app"
   include_context "websocket intercept"
 
-  let :app_definition do
+  let :app_init do
     Proc.new do
-      instance_exec(&$ui_app_boilerplate)
-
       resource :posts, "/posts" do
         disable_protection :csrf
 

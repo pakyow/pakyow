@@ -3,8 +3,8 @@ RSpec.describe "error handling" do
 
   context "when an error is triggered" do
     context "and a handler is defined by name" do
-      let :app_definition do
-        Proc.new {
+      let :app_init do
+        Proc.new do
           controller do
             handle :not_found do
               send "not found"
@@ -14,7 +14,7 @@ RSpec.describe "error handling" do
               trigger 404
             end
           end
-        }
+        end
       end
 
       it "handles the error" do
@@ -27,8 +27,8 @@ RSpec.describe "error handling" do
     end
 
     context "and a handler is defined by code" do
-      let :app_definition do
-        Proc.new {
+      let :app_init do
+        Proc.new do
           controller do
             handle 404 do
               send "not found"
@@ -38,7 +38,7 @@ RSpec.describe "error handling" do
               trigger :not_found
             end
           end
-        }
+        end
       end
 
       it "handles the error" do
@@ -51,8 +51,8 @@ RSpec.describe "error handling" do
     end
 
     context "and a handler is defined on a route as well as the controller" do
-      let :app_definition do
-        Proc.new {
+      let :app_init do
+        Proc.new do
           controller do
             handle 404 do
               send "not found"
@@ -66,7 +66,7 @@ RSpec.describe "error handling" do
               trigger 404
             end
           end
-        }
+        end
       end
 
       it "handles the error" do
@@ -79,8 +79,8 @@ RSpec.describe "error handling" do
     end
 
     context "and a handler is defined in a parent controller" do
-      let :app_definition do
-        Proc.new {
+      let :app_init do
+        Proc.new do
           controller :top do
             handle 404 do
               send "not found from parent"
@@ -92,7 +92,7 @@ RSpec.describe "error handling" do
               end
             end
           end
-        }
+        end
       end
 
       it "handles the error" do
@@ -105,8 +105,8 @@ RSpec.describe "error handling" do
     end
 
     context "and a handler is defined in a nested parent controller" do
-      let :app_definition do
-        Proc.new {
+      let :app_init do
+        Proc.new do
           controller :top do
             group :foo do
               handle 403 do
@@ -120,7 +120,7 @@ RSpec.describe "error handling" do
               end
             end
           end
-        }
+        end
       end
 
       it "handles the error" do
@@ -133,8 +133,8 @@ RSpec.describe "error handling" do
     end
 
     context "and a handler is defined in a sibling controller" do
-      let :app_definition do
-        Proc.new {
+      let :app_init do
+        Proc.new do
           controller do
             handle 404 do
               send "not found from sibling"
@@ -146,7 +146,7 @@ RSpec.describe "error handling" do
               trigger 404
             end
           end
-        }
+        end
       end
 
       it "does not handle the error" do
@@ -159,15 +159,15 @@ RSpec.describe "error handling" do
     end
 
     context "and a handler is not defined" do
-      let :app_definition do
-        Proc.new {
+      let :app_init do
+        Proc.new do
           controller do
             default do
               trigger 404
               res.body = ["foo"]
             end
           end
-        }
+        end
       end
 
       it "halts" do
@@ -182,8 +182,8 @@ RSpec.describe "error handling" do
 
   context "when an exception occurs" do
     context "and a handler is defined for the exception" do
-      let :app_definition do
-        Proc.new {
+      let :app_init do
+        Proc.new do
           controller do
             handle StandardError, as: 401 do
               send "handled exception"
@@ -193,7 +193,7 @@ RSpec.describe "error handling" do
               raise StandardError
             end
           end
-        }
+        end
       end
 
       it "handles the error" do
@@ -205,8 +205,8 @@ RSpec.describe "error handling" do
       end
 
       context "and another error of the same type occurs" do
-        let :app_definition do
-          Proc.new {
+        let :app_init do
+          Proc.new do
             controller do
               handle StandardError, as: 401 do
                 send "handled exception"
@@ -222,7 +222,7 @@ RSpec.describe "error handling" do
                 raise StandardError
               end
             end
-          }
+          end
         end
 
         include_context "suppressed output"
@@ -234,8 +234,8 @@ RSpec.describe "error handling" do
       end
 
       context "and a handler is defined for the exception in a parent controller" do
-        let :app_definition do
-          Proc.new {
+        let :app_init do
+          Proc.new do
             controller :top do
               handle StandardError, as: 401 do
                 send "handled exception from parent"
@@ -247,7 +247,7 @@ RSpec.describe "error handling" do
                 end
               end
             end
-          }
+          end
         end
 
         it "handles the error" do
@@ -260,8 +260,8 @@ RSpec.describe "error handling" do
       end
 
       context "and the handler accepts the error object" do
-        let :app_definition do
-          Proc.new {
+        let :app_init do
+          Proc.new do
             controller do
               handle StandardError, as: 401 do |error|
                 send error.to_s
@@ -271,7 +271,7 @@ RSpec.describe "error handling" do
                 raise StandardError
               end
             end
-          }
+          end
         end
 
         it "is passed the error object" do
@@ -281,8 +281,8 @@ RSpec.describe "error handling" do
     end
 
     context "and a blockless handler is defined for the exception" do
-      let :app_definition do
-        Proc.new {
+      let :app_init do
+        Proc.new do
           controller do
             handle StandardError, as: 401
 
@@ -290,7 +290,7 @@ RSpec.describe "error handling" do
               raise StandardError
             end
           end
-        }
+        end
       end
 
       it "sets the response code" do
@@ -299,14 +299,14 @@ RSpec.describe "error handling" do
     end
 
     context "and a handler is not defined for the exception" do
-      let :app_definition do
-        Proc.new {
+      let :app_init do
+        Proc.new do
           controller do
             default do
               raise StandardError
             end
           end
-        }
+        end
       end
 
       it "sets the response code" do
@@ -321,12 +321,12 @@ RSpec.describe "error handling" do
 
   context "when the framework triggers a 404" do
     context "and a global handler is defined" do
-      let :app_definition do
-        Proc.new {
+      let :app_def do
+        Proc.new do
           handle 404 do
             send "not found"
           end
-        }
+        end
       end
 
       it "handles the error" do
@@ -339,11 +339,6 @@ RSpec.describe "error handling" do
     end
 
     context "and a global handler is not defined" do
-      let :app_definition do
-        Proc.new {
-        }
-      end
-
       it "sets the response code" do
         expect(call[0]).to eq(404)
       end
@@ -356,18 +351,22 @@ RSpec.describe "error handling" do
 
   context "when the framework triggers a 500" do
     context "and a global handler is defined" do
-      let :app_definition do
-        Proc.new {
+      let :app_def do
+        Proc.new do
           handle 500 do
             send "boom"
           end
+        end
+      end
 
+      let :app_init do
+        Proc.new do
           controller do
             default do
               fail
             end
           end
-        }
+        end
       end
 
       include_context "suppressed output"
@@ -383,18 +382,22 @@ RSpec.describe "error handling" do
     end
 
     context "and a global handler is defined for the error class" do
-      let :app_definition do
-        Proc.new {
+      let :app_def do
+        Proc.new do
           handle ArgumentError, as: 406 do
             send "boom"
           end
+        end
+      end
 
+      let :app_init do
+        Proc.new do
           controller do
             default do
               raise ArgumentError
             end
           end
-        }
+        end
       end
 
       include_context "suppressed output"
@@ -409,14 +412,14 @@ RSpec.describe "error handling" do
     end
 
     context "and a global handler is not defined" do
-      let :app_definition do
-        Proc.new {
+      let :app_init do
+        Proc.new do
           controller do
             default do
               fail
             end
           end
-        }
+        end
       end
 
       include_context "suppressed output"
@@ -428,8 +431,8 @@ RSpec.describe "error handling" do
   end
 
   describe "the handling context" do
-    let :app_definition do
-      Proc.new {
+    let :app_init do
+      Proc.new do
         controller do
           handle 500 do
             @state << "handler"
@@ -441,7 +444,7 @@ RSpec.describe "error handling" do
             trigger 500
           end
         end
-      }
+      end
     end
 
     it "has access to route state" do
@@ -450,8 +453,8 @@ RSpec.describe "error handling" do
   end
 
   describe "rejecting from handlers" do
-    let :app_definition do
-      Proc.new {
+    let :app_init do
+      Proc.new do
         controller do
           handle 500 do
             @state << "handler2"
@@ -468,7 +471,7 @@ RSpec.describe "error handling" do
             trigger 500
           end
         end
-      }
+      end
     end
 
     it "passes off to the next handler" do

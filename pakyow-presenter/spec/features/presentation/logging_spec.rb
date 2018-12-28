@@ -1,16 +1,14 @@
 RSpec.describe "logging within a presenter" do
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
-      instance_exec(&$presenter_app_boilerplate)
-
+  let :app_init do
+    Proc.new do
       presenter "/" do
         def perform
           logger.debug "testing"
         end
       end
-    }
+    end
   end
 
   it "writes to the log" do

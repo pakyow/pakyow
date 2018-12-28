@@ -12,10 +12,8 @@ RSpec.shared_examples :source_types do
 
     context "defining a primary key" do
       context "primary key attribute is defined" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts, primary_id: false, timestamps: false do
               primary_key :foo
               attribute :foo, :integer
@@ -40,10 +38,8 @@ RSpec.shared_examples :source_types do
       end
 
       context "primary key attribute is undefined" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts, primary_id: false, timestamps: false do
               attribute :foo, :integer
             end
@@ -62,10 +58,8 @@ RSpec.shared_examples :source_types do
       end
 
       context "primary key is not an integer" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts, primary_id: false, timestamps: false do
               primary_key :foo
               attribute :foo, :string
@@ -86,10 +80,8 @@ RSpec.shared_examples :source_types do
     end
 
     context "defining a primary id key" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
-          instance_exec(&$data_app_boilerplate)
-
           source :posts, primary_id: false, timestamps: false do
             primary_id
           end
@@ -116,10 +108,8 @@ RSpec.shared_examples :source_types do
     end
 
     context "defining timestamp fields" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
-          instance_exec(&$data_app_boilerplate)
-
           source :posts, primary_id: false, timestamps: false do
             primary_id
             timestamps
@@ -161,10 +151,8 @@ RSpec.shared_examples :source_types do
       end
 
       context "timestamp fields are specified" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts, primary_id: false, timestamps: false do
               primary_id
               timestamps create: :custom_created_at, update: :custom_updated_at
@@ -184,10 +172,8 @@ RSpec.shared_examples :source_types do
     end
 
     context "defining an attribute" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
-          instance_exec(&$data_app_boilerplate)
-
           source :posts, primary_id: false, timestamps: false do
             primary_id
             attribute :attr, :string
@@ -204,10 +190,8 @@ RSpec.shared_examples :source_types do
       end
 
       context "with a default value" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts, primary_id: false, timestamps: false do
               primary_id
               attribute :attr1, :string, default: "foo"
@@ -232,10 +216,8 @@ RSpec.shared_examples :source_types do
       end
 
       context "with a not-null restriction" do
-        let :app_definition do
+        let :app_init do
           Proc.new do
-            instance_exec(&$data_app_boilerplate)
-
             source :posts, primary_id: false, timestamps: false do
               primary_id
               attribute :attr, :string, required: true
@@ -256,10 +238,8 @@ RSpec.shared_examples :source_types do
 
       describe "types" do
         context "type is string" do
-          let :app_definition do
+          let :app_init do
             Proc.new do
-              instance_exec(&$data_app_boilerplate)
-
               source :posts, primary_id: false, timestamps: false do
                 primary_id
                 attribute :attr, :string
@@ -273,10 +253,8 @@ RSpec.shared_examples :source_types do
         end
 
         context "type is boolean" do
-          let :app_definition do
+          let :app_init do
             Proc.new do
-              instance_exec(&$data_app_boilerplate)
-
               source :posts, primary_id: false, timestamps: false do
                 primary_id
                 attribute :attr, :boolean
@@ -290,10 +268,8 @@ RSpec.shared_examples :source_types do
         end
 
         context "type is date" do
-          let :app_definition do
+          let :app_init do
             Proc.new do
-              instance_exec(&$data_app_boilerplate)
-
               source :posts, primary_id: false, timestamps: false do
                 primary_id
                 attribute :attr, :date
@@ -307,10 +283,8 @@ RSpec.shared_examples :source_types do
         end
 
         context "type is time" do
-          let :app_definition do
+          let :app_init do
             Proc.new do
-              instance_exec(&$data_app_boilerplate)
-
               source :posts, primary_id: false, timestamps: false do
                 primary_id
                 attribute :attr, :time
@@ -325,10 +299,8 @@ RSpec.shared_examples :source_types do
         end
 
         context "type is datetime" do
-          let :app_definition do
+          let :app_init do
             Proc.new do
-              instance_exec(&$data_app_boilerplate)
-
               source :posts, primary_id: false, timestamps: false do
                 primary_id
                 attribute :attr, :datetime
@@ -343,10 +315,8 @@ RSpec.shared_examples :source_types do
         end
 
         context "type is integer" do
-          let :app_definition do
+          let :app_init do
             Proc.new do
-              instance_exec(&$data_app_boilerplate)
-
               source :posts, primary_id: false, timestamps: false do
                 primary_id
                 attribute :attr, :integer
@@ -360,10 +330,8 @@ RSpec.shared_examples :source_types do
         end
 
         context "type is float" do
-          let :app_definition do
+          let :app_init do
             Proc.new do
-              instance_exec(&$data_app_boilerplate)
-
               source :posts, primary_id: false, timestamps: false do
                 primary_id
                 attribute :attr, :float
@@ -381,10 +349,8 @@ RSpec.shared_examples :source_types do
             require "bigdecimal"
           end
 
-          let :app_definition do
+          let :app_init do
             Proc.new do
-              instance_exec(&$data_app_boilerplate)
-
               source :posts, primary_id: false, timestamps: false do
                 primary_id
                 attribute :attr, :decimal
@@ -397,10 +363,8 @@ RSpec.shared_examples :source_types do
           end
 
           context "size is defined" do
-            let :app_definition do
+            let :app_init do
               Proc.new do
-                instance_exec(&$data_app_boilerplate)
-
                 source :posts, primary_id: false, timestamps: false do
                   primary_id
                   attribute :attr, :decimal, size: [10, 1]

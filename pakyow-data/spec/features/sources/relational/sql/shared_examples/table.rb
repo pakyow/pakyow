@@ -14,10 +14,8 @@ RSpec.shared_examples :source_sql_table do
 
     include_context "app"
 
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$data_app_boilerplate)
-
         source :posts do
           primary_id
           attribute :title
@@ -36,10 +34,8 @@ RSpec.shared_examples :source_sql_table do
     end
 
     context "table is set explicitly" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
-          instance_exec(&$data_app_boilerplate)
-
           source :posts do
             table :foo
 

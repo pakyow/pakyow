@@ -1,16 +1,14 @@
 RSpec.describe "presenting prototypes that define endpoints" do
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
-      instance_exec(&$presenter_app_boilerplate)
-
+  let :app_init do
+    Proc.new do
       resource :posts, "/posts" do
         list do
           render "/prototyping/endpoints"
         end
       end
-    }
+    end
   end
 
   let :mode do

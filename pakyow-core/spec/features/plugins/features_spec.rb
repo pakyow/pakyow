@@ -24,10 +24,10 @@ RSpec.describe "plugin features" do
 
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
+  let :app_def do
+    Proc.new do
       plug :testable, at: "/"
-    }
+    end
   end
 
   it "uses all features by default" do
@@ -38,12 +38,12 @@ RSpec.describe "plugin features" do
   end
 
   context "feature is disabled" do
-    let :app_definition do
-      Proc.new {
+    let :app_def do
+      Proc.new do
         plug :testable, at: "/" do
           disable :feature_one
         end
-      }
+      end
     end
 
     it "does not use the disabled feature" do
@@ -62,12 +62,12 @@ RSpec.describe "plugin features" do
   end
 
   context "feature is enabled" do
-    let :app_definition do
-      Proc.new {
+    let :app_def do
+      Proc.new do
         plug :testable, at: "/" do
           enable :feature_one
         end
-      }
+      end
     end
 
     it "uses the enabled feature" do
@@ -93,12 +93,12 @@ RSpec.describe "plugin features" do
   end
 
   describe "disabling multiple features" do
-    let :app_definition do
-      Proc.new {
+    let :app_def do
+      Proc.new do
         plug :testable, at: "/" do
           disable :feature_one, :feature_two
         end
-      }
+      end
     end
 
     it "disables multiple features" do
@@ -110,12 +110,12 @@ RSpec.describe "plugin features" do
   end
 
   describe "enabling multiple features" do
-    let :app_definition do
-      Proc.new {
+    let :app_def do
+      Proc.new do
         plug :testable, at: "/" do
           enable :feature_one, :feature_two
         end
-      }
+      end
     end
 
     it "enables multiple features" do

@@ -1,12 +1,6 @@
 RSpec.describe "404 error views in production" do
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
-      instance_exec(&$presenter_app_boilerplate)
-    }
-  end
-
   let :mode do
     :production
   end
@@ -17,14 +11,12 @@ RSpec.describe "404 error views in production" do
   end
 
   context "app defines its own 404 page" do
-    let :app_definition do
-      Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-
+    let :app_def do
+      Proc.new do
         configure do
           config.presenter.path = File.expand_path("../../views", __FILE__)
         end
-      }
+      end
     end
 
     it "renders the app's 404 page instead of the default" do
@@ -34,15 +26,13 @@ RSpec.describe "404 error views in production" do
   end
 
   context "app defines its own 404 handler" do
-    let :app_definition do
-      Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-
+    let :app_def do
+      Proc.new do
         handle 404 do
           $handled = true
           res.body << "foo"
         end
-      }
+      end
     end
 
     after do
@@ -55,14 +45,12 @@ RSpec.describe "404 error views in production" do
     end
 
     context "handler renders the default 404 view" do
-      let :app_definition do
-        Proc.new {
-          instance_exec(&$presenter_app_boilerplate)
-
+      let :app_def do
+        Proc.new do
           handle 404 do
             render "/404"
           end
-        }
+        end
       end
 
       it "renders" do
@@ -72,10 +60,8 @@ RSpec.describe "404 error views in production" do
     end
 
     context "handler renders a different view" do
-      let :app_definition do
-        Proc.new {
-          instance_exec(&$presenter_app_boilerplate)
-
+      let :app_def do
+        Proc.new do
           configure do
             config.presenter.path = File.expand_path("../../views", __FILE__)
           end
@@ -83,7 +69,7 @@ RSpec.describe "404 error views in production" do
           handle 404 do
             render "/non_standard_404"
           end
-        }
+        end
       end
 
       it "renders" do

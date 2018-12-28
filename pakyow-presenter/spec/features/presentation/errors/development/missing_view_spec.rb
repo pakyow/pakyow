@@ -6,16 +6,14 @@ RSpec.describe "telling the user about a missing view in development" do
   end
 
   context "view was explicitly rendered" do
-    let :app_definition do
-      Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-
+    let :app_init do
+      Proc.new do
         controller do
           default do
             render "/nonexistent"
           end
         end
-      }
+      end
     end
 
     it "responds 404" do
@@ -33,12 +31,6 @@ RSpec.describe "telling the user about a missing view in development" do
   end
 
   context "view was implicitly rendered" do
-    let :app_definition do
-      Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-      }
-    end
-
     it "responds 404" do
       expect(call("/nonexistent")[0]).to eq(404)
     end

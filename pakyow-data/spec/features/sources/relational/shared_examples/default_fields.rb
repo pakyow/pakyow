@@ -10,10 +10,8 @@ RSpec.shared_examples :source_default_fields do
   include_context "app"
 
   describe "default fields" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$data_app_boilerplate)
-
         source :posts do
         end
       end
@@ -30,10 +28,8 @@ RSpec.shared_examples :source_default_fields do
   end
 
   describe "skipping default primary id" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$data_app_boilerplate)
-
         source :posts, primary_id: false do
         end
       end
@@ -45,10 +41,8 @@ RSpec.shared_examples :source_default_fields do
   end
 
   describe "skipping timestamps" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$data_app_boilerplate)
-
         source :posts, timestamps: false do
         end
       end

@@ -1,10 +1,8 @@
 RSpec.describe "presenting a view that defines one or more ui mode" do
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
-      instance_exec(&$presenter_app_boilerplate)
-
+  let :app_init do
+    Proc.new do
       presenter "/presentation/ui_modes" do
         def perform
           find(:post).bind({})
@@ -34,7 +32,7 @@ RSpec.describe "presenting a view that defines one or more ui mode" do
           find(:post).bind({})
         end
       end
-    }
+    end
   end
 
   it "presents normally" do
@@ -84,10 +82,8 @@ RSpec.describe "presenting a view that defines one or more ui mode" do
   end
 
   context "call to render sets the mode" do
-    let :app_definition do
-      Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-
+    let :app_init do
+      Proc.new do
         controller do
           default do
             render "/presentation/ui_modes", mode: :two
@@ -99,7 +95,7 @@ RSpec.describe "presenting a view that defines one or more ui mode" do
             find(:post).bind({})
           end
         end
-      }
+      end
     end
 
     it "uses the mode" do

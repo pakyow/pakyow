@@ -1,12 +1,6 @@
 RSpec.describe "presenting a view that defines an anchor endpoint within a binding" do
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
-      instance_exec(&$presenter_app_boilerplate)
-    }
-  end
-
   it "does not set the href automatically" do
     expect(call("/presentation/endpoints/anchor/within_binding")[2].body.read).to include_sans_whitespace(
       <<~HTML
@@ -20,10 +14,8 @@ RSpec.describe "presenting a view that defines an anchor endpoint within a bindi
   end
 
   context "binding is bound to" do
-    let :app_definition do
-      Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-
+    let :app_init do
+      Proc.new do
         resource :posts, "/posts" do
           list do
             render "/presentation/endpoints/anchor/within_binding"
@@ -35,7 +27,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint within a bindi
             find(:post).present(title: "foo")
           end
         end
-      }
+      end
     end
 
     it "sets the href" do

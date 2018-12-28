@@ -1,15 +1,15 @@
 RSpec.describe "verifying operation values" do
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
+  let :app_init do
+    Proc.new do
       operation :test do
         verify do
           required :foo
           optional :bar
         end
       end
-    }
+    end
   end
 
   after do

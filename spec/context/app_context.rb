@@ -1,18 +1,37 @@
 RSpec.shared_context "app" do
   let :app do
-    Pakyow.app(:test, &app_definition)
+    local_app_def = app_def
+
+    block = if instance_variable_defined?(:@default_app_def)
+      local_default_app_def = @default_app_def
+
+      Proc.new do
+        instance_exec(&local_default_app_def)
+        instance_exec(&local_app_def)
+      end
+    else
+      Proc.new do
+        instance_exec(&local_app_def)
+      end
+    end
+
+    Pakyow.app(:test, &block)
   end
 
-  let :app_definition do
+  let :app_def do
     Proc.new {}
   end
 
-  let :app_runtime_block do
+  let :app_init do
     Proc.new {}
   end
 
   let :autorun do
     true
+  end
+
+  let :mode do
+    :test
   end
 
   before do
@@ -23,7 +42,7 @@ RSpec.shared_context "app" do
 
   def setup(env: :test)
     super if defined?(super)
-    Pakyow.mount app, at: "/", &app_runtime_block
+    Pakyow.mount app, at: "/", &app_init
     Pakyow.setup(env: env)
   end
 
@@ -31,7 +50,7 @@ RSpec.shared_context "app" do
     @app = Pakyow.run
   end
 
-  def setup_and_run(env: respond_to?(:mode) ? mode : :test)
+  def setup_and_run(env: mode)
     setup(env: env) && run
   end
 

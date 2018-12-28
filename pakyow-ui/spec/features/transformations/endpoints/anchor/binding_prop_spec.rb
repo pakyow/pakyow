@@ -2,11 +2,10 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
   include_context "app"
   include_context "websocket intercept"
 
-  let :app_definition do
+  let :app_init do
     local_extensions = extensions
 
     Proc.new {
-      instance_exec(&$ui_app_boilerplate)
       instance_exec(&local_extensions)
 
       resource :posts, "/posts" do

@@ -2,7 +2,7 @@ RSpec.describe "controller priority" do
   include_context "app"
 
   context "when no priority is set" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
         controller do
           default do
@@ -24,7 +24,7 @@ RSpec.describe "controller priority" do
   end
 
   context "when a controller is defined as high priority" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
         controller do
           default do
@@ -46,7 +46,7 @@ RSpec.describe "controller priority" do
   end
 
   context "when a controller is defined as low priority" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
         controller priority: :low do
           default do
@@ -68,7 +68,7 @@ RSpec.describe "controller priority" do
   end
 
   context "when a controller is defined with a custom priority" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
         controller priority: :high do
           default do

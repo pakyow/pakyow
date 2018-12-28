@@ -10,7 +10,7 @@ RSpec.describe "processing requests with csrf protection" do
       $calls = []
     end
 
-    let :app_definition do
+    let :app_init do
       Proc.new do
         controller do
           post "/" do
@@ -30,7 +30,7 @@ RSpec.describe "processing requests with csrf protection" do
     end
 
     context "403 handler is defined in the controller" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
           controller do
             handle 403 do
@@ -49,12 +49,16 @@ RSpec.describe "processing requests with csrf protection" do
     end
 
     context "403 handler is defined globally" do
-      let :app_definition do
+      let :app_def do
         Proc.new do
           handle 403 do
             send "403"
           end
+        end
+      end
 
+      let :app_init do
+        Proc.new do
           controller do
             post "/" do
             end
@@ -68,7 +72,7 @@ RSpec.describe "processing requests with csrf protection" do
     end
 
     context "error handler is defined in the controller" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
           controller do
             handle Pakyow::Security::InsecureRequest, as: 404 do
@@ -87,12 +91,16 @@ RSpec.describe "processing requests with csrf protection" do
     end
 
     context "error handler is defined globally" do
-      let :app_definition do
+      let :app_def do
         Proc.new do
           handle Pakyow::Security::InsecureRequest, as: 404 do
             send "404"
           end
+        end
+      end
 
+      let :app_init do
+        Proc.new do
           controller do
             post "/" do
             end
@@ -107,7 +115,7 @@ RSpec.describe "processing requests with csrf protection" do
   end
 
   describe "disabling csrf protection in a controller" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
         controller do
           disable_protection :csrf
@@ -124,7 +132,7 @@ RSpec.describe "processing requests with csrf protection" do
   end
 
   describe "disabling csrf protection, except for some routes" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
         controller do
           disable_protection :csrf, except: [:foo]
@@ -145,7 +153,7 @@ RSpec.describe "processing requests with csrf protection" do
   end
 
   describe "disabling csrf protection, only for some routes" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
         controller do
           disable_protection :csrf, only: [:foo]

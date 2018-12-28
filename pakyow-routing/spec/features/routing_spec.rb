@@ -1,7 +1,7 @@
 RSpec.describe "routing requests" do
   include_context "app"
 
-  let :app_definition do
+  let :app_init do
     Proc.new {
       controller do
         disable_protection :csrf
@@ -50,7 +50,7 @@ RSpec.describe "routing requests" do
   end
 
   context "when a default route is specified" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
         controller do
           default do
@@ -66,7 +66,7 @@ RSpec.describe "routing requests" do
   end
 
   describe "the routing context" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
         controller do
           action :foo, only: [:default]
@@ -110,7 +110,7 @@ RSpec.describe "routing requests" do
   end
 
   context "when route is defined without a block" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
         controller do
           default
@@ -124,7 +124,7 @@ RSpec.describe "routing requests" do
   end
 
   context "when more than one route matches in the same controller" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
         controller do
           get "/foo" do
@@ -144,7 +144,7 @@ RSpec.describe "routing requests" do
   end
 
   context "when more than one route matches in different controllers" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
         controller do
           get "/foo" do
@@ -166,7 +166,7 @@ RSpec.describe "routing requests" do
   end
 
   context "when two child controllers match" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
         controller do
           namespace "/foo" do
@@ -190,7 +190,7 @@ RSpec.describe "routing requests" do
   end
 
   context "when a post route is matched in a parent with a child" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
         controller "/posts" do
           skip_action :verify_same_origin
@@ -220,7 +220,7 @@ RSpec.describe "routing requests" do
     end
 
     context "path exists, but does not respond to extension" do
-      let :app_definition do
+      let :app_init do
       Proc.new {
         controller "/posts" do
           default do

@@ -6,10 +6,8 @@ RSpec.describe "inlining styles" do
   end
 
   context "mailing with presenter" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$mailer_app_boilerplate)
-
         controller "/mail" do
           get "/send" do
             $sent = mailer("mail/styled").deliver_to(

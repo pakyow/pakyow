@@ -9,10 +9,8 @@ RSpec.describe "data objects" do
 
   context "querying for data" do
     context "when a data object is defined for the source" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
-          instance_exec(&$data_app_boilerplate)
-
           object :post do
           end
 
@@ -85,10 +83,8 @@ RSpec.describe "data objects" do
     end
 
     context "when no data object is defined for the source" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
-          instance_exec(&$data_app_boilerplate)
-
           object :foo do
           end
 
@@ -160,10 +156,8 @@ RSpec.describe "data objects" do
 
   context "creating data" do
     context "when a data object is defined for the source" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
-          instance_exec(&$data_app_boilerplate)
-
           object :post do
           end
 
@@ -179,10 +173,8 @@ RSpec.describe "data objects" do
     end
 
     context "when no data object is defined for the source" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
-          instance_exec(&$data_app_boilerplate)
-
           object :foo do
           end
 
@@ -199,10 +191,8 @@ RSpec.describe "data objects" do
   end
 
   describe "the data object" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$data_app_boilerplate)
-
         object :post do
           def foo
             "foo_#{values[:id]}"

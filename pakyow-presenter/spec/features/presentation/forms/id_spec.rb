@@ -2,10 +2,8 @@ RSpec.describe "form id" do
   include_context "app"
 
   context "form is not setup explicitly" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-
         controller :default do
           get "/form" do
             render "/form"
@@ -27,10 +25,8 @@ RSpec.describe "form id" do
   end
 
   context "form is setup explicitly" do
-    let :app_definition do
+    let :app_init do
       Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-
         controller :default do
           get "/form" do
             render "/form"

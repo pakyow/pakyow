@@ -12,14 +12,14 @@ RSpec.describe "rendering view templates" do
 
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
+  let :app_def do
+    Proc.new do
       plug :testable, at: "/"
 
-      configure :prototype do
+      configure do
         config.root = File.join(__dir__, "support/app")
       end
-    }
+    end
   end
 
   let :mode do

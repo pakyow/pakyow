@@ -1,20 +1,22 @@
 RSpec.describe "view template composition via presenter" do
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
-      instance_exec(&$presenter_app_boilerplate)
-
+  let :app_init do
+    Proc.new do
       handle 500 do
         res.body = "#{connection.error.class}: #{connection.error.message}"
       end
+    end
+  end
 
+  let :app_init do
+    Proc.new do
       controller :default do
         get(/.*/) do
           render connection.path
         end
       end
-    }
+    end
   end
 
   it "composes a page into its layout" do

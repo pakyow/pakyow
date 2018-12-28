@@ -1,8 +1,8 @@
 RSpec.describe "operation" do
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
+  let :app_init do
+    Proc.new do
       operation :test do
         attr_reader :foo_result, :bar_result
 
@@ -14,7 +14,7 @@ RSpec.describe "operation" do
           @bar_result = @values[:bar].reverse
         end
       end
-    }
+    end
   end
 
   it "can be called with values" do

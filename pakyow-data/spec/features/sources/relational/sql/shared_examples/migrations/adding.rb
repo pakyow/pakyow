@@ -1,11 +1,9 @@
 RSpec.shared_examples :source_migrations_adding do |types:|
   describe "adding a new attribute to an existing relational source" do
-    let :app_definition do
+    let :app_init do
       context = self
 
       Proc.new do
-        instance_exec(&$data_app_boilerplate)
-
         source :posts, timestamps: false do
           # Define an attribute for every type.
           #
@@ -111,12 +109,10 @@ RSpec.shared_examples :source_migrations_adding do |types:|
   end
 
   describe "adding a new attribute with custom options to an existing relational source" do
-    let :app_definition do
+    let :app_init do
       context = self
 
       Proc.new do
-        instance_exec(&$data_app_boilerplate)
-
         source :posts, timestamps: false do
           attribute :test_custom_decimal, :decimal, size: [10, 5]
         end
@@ -202,12 +198,10 @@ RSpec.shared_examples :source_migrations_adding do |types:|
   end
 
   describe "adding a primary key to an existing relational source" do
-    let :app_definition do
+    let :app_init do
       context = self
 
       Proc.new do
-        instance_exec(&$data_app_boilerplate)
-
         source :posts, timestamps: false do
           attribute :foo
         end
@@ -290,12 +284,10 @@ RSpec.shared_examples :source_migrations_adding do |types:|
   end
 
   describe "adding a foreign key to an existing relational source" do
-    let :app_definition do
+    let :app_init do
       context = self
 
       Proc.new do
-        instance_exec(&$data_app_boilerplate)
-
         source :posts, timestamps: false do
         end
 

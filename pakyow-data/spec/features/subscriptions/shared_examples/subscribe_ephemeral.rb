@@ -10,10 +10,8 @@ RSpec.shared_examples :subscription_subscribe_ephemeral do
 
     include_context "app"
 
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$data_app_boilerplate)
-
         resource :posts, "/posts" do
           disable_protection :csrf
 

@@ -10,7 +10,7 @@ RSpec.shared_examples :subscription_subscribe_associated do
 
     include_context "app"
 
-    let :app_definition do
+    let :app_def do
       Pakyow.config.data.default_adapter = :sql
       Pakyow.config.data.subscriptions.adapter = data_subscription_adapter
 
@@ -18,18 +18,18 @@ RSpec.shared_examples :subscription_subscribe_associated do
         Pakyow.after :configure do
           config.data.connections.sql[:default] = "sqlite::memory"
         end
+      end
+    end
 
+    let :app_init do
+      Proc.new do
         source :posts do
-          primary_id
-
           attribute :title, :string
 
           has_many :comments
         end
 
         source :comments do
-          primary_id
-
           attribute :title, :string
         end
 
@@ -230,7 +230,7 @@ RSpec.shared_examples :subscription_subscribe_associated do
 
     include_context "app"
 
-    let :app_definition do
+    let :app_def do
       Pakyow.config.data.default_adapter = :sql
       Pakyow.config.data.subscriptions.adapter = data_subscription_adapter
 
@@ -238,16 +238,16 @@ RSpec.shared_examples :subscription_subscribe_associated do
         Pakyow.after :configure do
           config.data.connections.sql[:default] = "sqlite::memory"
         end
+      end
+    end
 
+    let :app_init do
+      Proc.new do
         source :posts do
-          primary_id
-
           attribute :title, :string
         end
 
         source :users do
-          primary_id
-
           attribute :name, :string
 
           has_many :posts, dependent: :delete

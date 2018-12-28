@@ -4,10 +4,10 @@ RSpec.describe "configuring an app" do
   include_context "app"
 
   context "when configured globally" do
-    let :app_definition do
-      Proc.new {
+    let :app_def do
+      Proc.new do
         config.name = "config-test"
-      }
+      end
     end
 
     it "is configured properly" do
@@ -16,18 +16,22 @@ RSpec.describe "configuring an app" do
   end
 
   context "when configured for an environment" do
-    let :app_definition do
-      Proc.new {
+    let :app_def do
+      Proc.new do
         configure :test do
-          config.name = "config-env-test"
         end
+        config.name = "config-env-test"
+      end
+    end
 
+    let :app_init do
+      Proc.new do
         controller do
           default do
             send config.name
           end
         end
-      }
+      end
     end
 
     it "is configured properly" do
@@ -42,16 +46,20 @@ RSpec.describe "accessing the app's config" do
   include_context "app"
 
   context "when accessed internally" do
-    let :app_definition do
-      Proc.new {
+    let :app_def do
+      Proc.new do
         config.name = "config-test"
+      end
+    end
 
+    let :app_init do
+      Proc.new do
         controller do
           default do
             send config.name
           end
         end
-      }
+      end
     end
 
     it "is accessible" do
@@ -62,10 +70,10 @@ RSpec.describe "accessing the app's config" do
   end
 
   context "when accessed externally" do
-    let :app_definition do
-      Proc.new {
+    let :app_def do
+      Proc.new do
         config.name = "config-test"
-      }
+      end
     end
 
     it "can be accessed externally" do

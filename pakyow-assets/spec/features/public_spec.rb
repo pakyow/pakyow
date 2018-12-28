@@ -2,9 +2,8 @@ RSpec.describe "accessing public files" do
   include_context "app"
 
   context "public handling is enabled" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$assets_app_boilerplate)
         config.assets.public = true
       end
     end
@@ -27,9 +26,8 @@ RSpec.describe "accessing public files" do
   end
 
   context "public handling is disabled" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$assets_app_boilerplate)
         config.assets.public = false
       end
     end

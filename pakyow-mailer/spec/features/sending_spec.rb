@@ -6,10 +6,8 @@ RSpec.describe "sending mail" do
   end
 
   context "mailing with presenter" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$mailer_app_boilerplate)
-
         controller "/mail" do
           get "/send/many/:subject" do
             $sent = mailer("mail/simple").deliver_to(
@@ -76,10 +74,8 @@ RSpec.describe "sending mail" do
     end
 
     context "presenter is defined" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
-          instance_exec(&$mailer_app_boilerplate)
-
           controller "/mail" do
             get "/send/:email/:subject" do
               expose :user, { name: "Bob Dylan" }
@@ -120,10 +116,8 @@ RSpec.describe "sending mail" do
     end
 
     context "presenter is not defined" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
-          instance_exec(&$mailer_app_boilerplate)
-
           controller "/mail" do
             get "/send/:email/:subject" do
               expose :user, { name: "Bob Dylan" }
@@ -158,10 +152,8 @@ RSpec.describe "sending mail" do
     end
 
     context "mailing with a block" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
-          instance_exec(&$mailer_app_boilerplate)
-
           controller "/mail" do
             get "/send" do
               $sent = []
@@ -205,10 +197,8 @@ RSpec.describe "sending mail" do
   end
 
   context "mailing without presenter" do
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$mailer_app_boilerplate)
-
         controller "/mail" do
           get "/send/:email/:subject" do
             $sent = mailer.deliver_to(
@@ -227,10 +217,8 @@ RSpec.describe "sending mail" do
     end
 
     context "content is html" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
-          instance_exec(&$mailer_app_boilerplate)
-
           controller "/mail" do
             get "/send/:email/:subject" do
               $sent = mailer.deliver_to(

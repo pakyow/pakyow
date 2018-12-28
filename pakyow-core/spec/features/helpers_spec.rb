@@ -2,10 +2,10 @@ RSpec.describe "defining helpers for an app" do
   include_context "app"
 
   context "helper type is unspecified" do
-    let :app_definition do
-      Proc.new {
+    let :app_def do
+      Proc.new do
         helper :foo do; end
-      }
+      end
     end
 
     it "defines the helpers in the global context" do
@@ -14,10 +14,10 @@ RSpec.describe "defining helpers for an app" do
   end
 
   context "helper type is specified" do
-    let :app_definition do
-      Proc.new {
+    let :app_def do
+      Proc.new do
         helper :foo, type: :active do; end
-      }
+      end
     end
 
     it "defines the helpers in the specified context" do

@@ -12,13 +12,14 @@ require "pakyow/assets"
 
 require_relative "../../spec/helpers/mock_handler"
 
-RSpec.configure do |config|
+RSpec.configure do |spec_config|
+  spec_config.before do
+    @default_app_def = Proc.new do
+      configure do
+        config.root = File.expand_path("../support/app", __FILE__)
+      end
+    end
+  end
 end
 
 require_relative "../../spec/context/app_context"
-
-$assets_app_boilerplate = Proc.new do
-  configure do
-    config.root = File.expand_path("../support/app", __FILE__)
-  end
-end

@@ -1,16 +1,14 @@
 RSpec.describe "rendering implicitly after a reroute" do
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
-      instance_exec(&$presenter_app_boilerplate)
-
+  let :app_init do
+    Proc.new do
       controller :default do
         default do
           reroute "/other"
         end
       end
-    }
+    end
   end
 
   it "renders the correct view" do

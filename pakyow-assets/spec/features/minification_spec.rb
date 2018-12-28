@@ -7,9 +7,8 @@ RSpec.describe "minifying assets" do
   end
 
   context "app is configured to minify" do
-    let :app_definition do
+    let :app_def do
       Proc.new do
-        instance_exec(&$assets_app_boilerplate)
         config.assets.minify = true
       end
     end
@@ -28,9 +27,8 @@ RSpec.describe "minifying assets" do
   end
 
   context "app is not configured to minify" do
-    let :app_definition do
+    let :app_def do
       Proc.new do
-        instance_exec(&$assets_app_boilerplate)
         config.assets.minify = false
       end
     end

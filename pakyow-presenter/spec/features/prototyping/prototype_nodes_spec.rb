@@ -1,14 +1,12 @@
 RSpec.describe "nodes marked for prototype" do
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
-      instance_exec(&$presenter_app_boilerplate)
-
+  let :app_init do
+    Proc.new do
       controller :default do
         get "/prototype" do; end
       end
-    }
+    end
   end
 
   context "running in prototype mode" do

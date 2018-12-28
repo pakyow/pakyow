@@ -1,7 +1,7 @@
 RSpec.describe "presence validation" do
   include_context "app"
 
-  let :app_definition do
+  let :app_init do
     Proc.new do
       controller do
         verify :test do

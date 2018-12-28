@@ -16,9 +16,8 @@ RSpec.describe "silencing requests" do
 
   context "request is for an asset" do
     context "silent is enabled" do
-      let :app_definition do
+      let :app_def do
         Proc.new do
-          instance_exec(&$assets_app_boilerplate)
           config.assets.silent = true
         end
       end
@@ -35,10 +34,11 @@ RSpec.describe "silencing requests" do
     end
 
     context "silent is disabled" do
-      let :app_definition do
+      let :app_def do
         Proc.new do
-          instance_exec(&$assets_app_boilerplate)
-          config.assets.silent = false
+          configure do
+            config.assets.silent = false
+          end
         end
       end
 
@@ -51,9 +51,8 @@ RSpec.describe "silencing requests" do
 
   context "request is for a public file" do
     context "silent is enabled" do
-      let :app_definition do
+      let :app_def do
         Proc.new do
-          instance_exec(&$assets_app_boilerplate)
           config.assets.silent = true
           config.assets.public_path = File.expand_path("../", __FILE__)
         end
@@ -71,9 +70,8 @@ RSpec.describe "silencing requests" do
     end
 
     context "silent is disabled" do
-      let :app_definition do
+      let :app_def do
         Proc.new do
-          instance_exec(&$assets_app_boilerplate)
           config.assets.silent = false
           config.assets.public_path = File.expand_path("../", __FILE__)
         end

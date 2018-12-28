@@ -14,14 +14,14 @@ RSpec.describe "accessing plugin config" do
 
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
+  let :app_def do
+    Proc.new do
       plug :testable, at: "/"
       plug :testable, at: "/foo", as: :foo
 
       setting :app_setting, :app_value
       setting :baz, :app_qux
-    }
+    end
   end
 
   it "exposes the plugin name" do

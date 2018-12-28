@@ -3,21 +3,23 @@ RSpec.describe "forms csrf" do
 
   context "presenter is configured to embed authenticity tokens" do
     context "form is not setup explicitly" do
-      let :app_definition do
-        Proc.new {
-          instance_exec(&$presenter_app_boilerplate)
-
+      let :app_def do
+        Proc.new do
           configure :test do
             config.presenter.embed_authenticity_token = true
           end
+        end
+      end
 
+      let :app_init do
+        Proc.new do
           controller :default do
             get "/form" do
               $authenticity_server_id = authenticity_server_id
               render "/form"
             end
           end
-        }
+        end
       end
 
       it "embeds a valid authenticity token" do
@@ -35,14 +37,16 @@ RSpec.describe "forms csrf" do
     end
 
     context "form is setup explicitly" do
-      let :app_definition do
-        Proc.new {
-          instance_exec(&$presenter_app_boilerplate)
-
+      let :app_def do
+        Proc.new do
           configure :test do
             config.presenter.embed_authenticity_token = true
           end
+        end
+      end
 
+      let :app_init do
+        Proc.new do
           controller :default do
             get "/form" do
               $authenticity_server_id = authenticity_server_id
@@ -59,7 +63,7 @@ RSpec.describe "forms csrf" do
               form(:post).create
             end
           end
-        }
+        end
       end
 
       it "embeds a valid authenticity token" do
@@ -78,21 +82,23 @@ RSpec.describe "forms csrf" do
   end
 
   context "presenter is not configured to embed authenticity tokens" do
-    let :app_definition do
-      Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-
+    let :app_def do
+      Proc.new do
         configure :test do
           config.presenter.embed_authenticity_token = false
         end
+      end
+    end
 
+    let :app_init do
+      Proc.new do
         controller :default do
           get "/form" do
             $authenticity_server_id = authenticity_server_id
             render "/form"
           end
         end
-      }
+      end
     end
 
     it "needs definition" do

@@ -12,11 +12,11 @@ RSpec.describe "serving assets from a plugin" do
 
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
+  let :app_def do
+    Proc.new do
       plug :testable
       plug :testable, at: "/foo", as: :foo
-    }
+    end
   end
 
   it "serves plugin assets at the default mount path" do

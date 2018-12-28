@@ -125,12 +125,10 @@ RSpec.shared_examples :source_migrations_changing do |adapter:, types:|
         type.to_s.start_with?("pk_")
       }.each do |to_type_name, to_type|
         context "changing from #{from_type_name} to #{to_type_name}" do
-          let :app_definition do
+          let :app_init do
             context = self
 
             Proc.new do
-              instance_exec(&$data_app_boilerplate)
-
               source :posts, primary_id: false, timestamps: false do
                 attribute :"test_#{from_type_name}_to_#{to_type_name}", to_type
               end

@@ -126,10 +126,8 @@ RSpec.describe "postgres source", postgres: true do
     include_context "app"
 
     context "type is json" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
-          instance_exec(&$data_app_boilerplate)
-
           source :posts, primary_id: false, timestamps: false do
             primary_id
             attribute :attr, :json
@@ -164,10 +162,8 @@ RSpec.describe "postgres source", postgres: true do
 
     include_context "app"
 
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$data_app_boilerplate)
-
         source :posts, primary_id: false, timestamps: false do
           primary_id
         end
@@ -211,10 +207,8 @@ RSpec.describe "postgres source", postgres: true do
 
     include_context "app"
 
-    let :app_definition do
+    let :app_init do
       Proc.new do
-        instance_exec(&$data_app_boilerplate)
-
         source :posts, primary_id: false, timestamps: false do
           primary_id
           has_many :comments
@@ -267,12 +261,10 @@ RSpec.describe "postgres source", postgres: true do
       schema(:posts)[0][1]
     end
 
-    let :app_definition do
+    let :app_init do
       context = self
 
       Proc.new do
-        instance_exec(&$data_app_boilerplate)
-
         source :posts, primary_id: false, timestamps: false do
           attribute :test, context.type
         end

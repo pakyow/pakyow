@@ -3,16 +3,20 @@ require "pakyow/routing"
 RSpec.describe "defining an app" do
   include_context "app"
 
-  let :app_definition do
-    Proc.new {
+  let :app_def do
+    Proc.new do
       config.name = "define-test"
+    end
+  end
 
+  let :app_init do
+    Proc.new do
       controller do
         default do
           send config.name
         end
       end
-    }
+    end
   end
 
   it "defines the app" do
@@ -22,10 +26,6 @@ RSpec.describe "defining an app" do
   end
 
   context "when app is a subclass" do
-    let :app_definition do
-      Proc.new {}
-    end
-
     let :base do
       klass = Class.new(Pakyow::App) do
         include_frameworks(:routing)
@@ -45,9 +45,9 @@ RSpec.describe "defining an app" do
     end
 
     let :app do
-      app = Class.new(base)
-      app.define(&app_definition)
-      app
+      Class.new(base).tap do |app|
+        app.define(&app_def)
+      end
     end
 
     before do
@@ -61,10 +61,10 @@ RSpec.describe "defining an app" do
     end
 
     context "and the subclassed app defines new state" do
-      let :app_definition do
-        Proc.new {
+      let :app_def do
+        Proc.new do
           config.name = "child-test"
-        }
+        end
       end
 
       it "uses the child's defined state" do
@@ -80,10 +80,16 @@ RSpec.describe "defining an app" do
   end
 
   context "when app is extended at runtime" do
-    let :app_runtime_block do
-      Proc.new {
+    let :app_init do
+      Proc.new do
         config.name = "runtime-test"
-      }
+
+        controller do
+          default do
+            send config.name
+          end
+        end
+      end
     end
 
     it "is extended with the new state" do

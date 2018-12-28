@@ -1,10 +1,8 @@
 RSpec.describe "detecting requests originating from the ui" do
   include_context "app"
 
-  let :app_definition do
+  let :app_init do
     Proc.new do
-      instance_exec(&$ui_app_boilerplate)
-
       controller do
         get "/ui-test" do
           send ui?.to_s

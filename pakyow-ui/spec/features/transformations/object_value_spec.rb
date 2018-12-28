@@ -2,10 +2,8 @@ RSpec.describe "presenting an object with a value overridden in a data object" d
   include_context "app"
   include_context "websocket intercept"
 
-  let :app_definition do
+  let :app_init do
     Proc.new do
-      instance_exec(&$ui_app_boilerplate)
-
       resource :posts, "/posts" do
         disable_protection :csrf
 
@@ -55,10 +53,8 @@ RSpec.describe "presenting an object with a value defined only in a data object"
   include_context "app"
   include_context "websocket intercept"
 
-  let :app_definition do
+  let :app_init do
     Proc.new do
-      instance_exec(&$ui_app_boilerplate)
-
       resource :posts, "/posts" do
         disable_protection :csrf
 

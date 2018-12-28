@@ -2,14 +2,16 @@ RSpec.describe "logging outgoing mail" do
   include_context "app"
 
   context "logging is enabled" do
-    let :app_definition do
+    let :app_def do
       Proc.new do
-        instance_exec(&$mailer_app_boilerplate)
-
         configure :test do
           config.mailer.silent = false
         end
+      end
+    end
 
+    let :app_init do
+      Proc.new do
         controller "/mail" do
           get "/send/:email/:subject" do
             params[:email].gsub!("__", ".")
@@ -39,14 +41,16 @@ RSpec.describe "logging outgoing mail" do
   end
 
   context "logging is disabled" do
-    let :app_definition do
+    let :app_def do
       Proc.new do
-        instance_exec(&$mailer_app_boilerplate)
-
         configure :test do
           config.mailer.silent = true
         end
+      end
+    end
 
+    let :app_init do
+      Proc.new do
         controller "/mail" do
           get "/send/:email/:subject" do
             params[:email].gsub!("__", ".")

@@ -1,10 +1,8 @@
 RSpec.describe "submitting invalid form data" do
   include_context "app"
 
-  let :app_definition do
+  let :app_init do
     Proc.new do
-      instance_exec(&$form_app_boilerplate)
-
       resource :posts, "/posts" do
         disable_protection :csrf
 
@@ -70,10 +68,8 @@ RSpec.describe "submitting invalid form data" do
     end
 
     context "app handles the invalid submission" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
-          instance_exec(&$form_app_boilerplate)
-
           resource :post, "/posts" do
             disable_protection :csrf
 
@@ -104,10 +100,8 @@ RSpec.describe "submitting invalid form data" do
     end
 
     context "multiple forms are present with channeled bindings" do
-      let :app_definition do
+      let :app_init do
         Proc.new do
-          instance_exec(&$form_app_boilerplate)
-
           resource :post, "/posts" do
             disable_protection :csrf
 

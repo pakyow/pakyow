@@ -2,14 +2,12 @@ RSpec.describe "installed components" do
   include_context "app"
 
   context "presenter is componentized" do
-    let :app_definition do
-      Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-
+    let :app_def do
+      Proc.new do
         configure :test do
           config.presenter.componentize = true
         end
-      }
+      end
     end
 
     it "installs the navigable component on the html tag" do
@@ -22,14 +20,12 @@ RSpec.describe "installed components" do
   end
 
   context "presenter is not componentized" do
-    let :app_definition do
-      Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-
+    let :app_def do
+      Proc.new do
         configure :test do
           config.presenter.componentize = false
         end
-      }
+      end
     end
 
     it "does not install the navigable component" do

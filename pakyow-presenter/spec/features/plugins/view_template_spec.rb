@@ -251,14 +251,14 @@ RSpec.describe "rendering view templates" do
   end
 
   context "mounted at the root path" do
-    let :app_definition do
-      Proc.new {
+    let :app_def do
+      Proc.new do
         plug :testable, at: "/"
 
-        configure :test do
+        configure do
           config.root = File.join(__dir__, "support/app")
         end
-      }
+      end
     end
 
     let :mount_path do
@@ -269,14 +269,14 @@ RSpec.describe "rendering view templates" do
   end
 
   context "mounted at a non-root path" do
-    let :app_definition do
-      Proc.new {
+    let :app_def do
+      Proc.new do
         plug :testable, at: "/foo"
 
-        configure :test do
+        configure do
           config.root = File.join(__dir__, "support/app")
         end
-      }
+      end
     end
 
     let :mount_path do

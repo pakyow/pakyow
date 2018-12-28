@@ -2,16 +2,14 @@ RSpec.describe "explicit rendering" do
   include_context "app"
 
   context "view exists" do
-    let :app_definition do
-      Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-
+    let :app_init do
+      Proc.new do
         controller :default do
           get "/" do
             render "/other"
           end
         end
-      }
+      end
     end
 
     it "renders the view" do
@@ -22,20 +20,22 @@ RSpec.describe "explicit rendering" do
   end
 
   context "view does not exist" do
-    let :app_definition do
-      Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-
+    let :app_def do
+      Proc.new do
         handle 500 do
           res.body = "#{connection.error.class}: #{connection.error.message}"
         end
+      end
+    end
 
+    let :app_init do
+      Proc.new do
         controller :default do
           get "/" do
             render "/nonexistent"
           end
         end
-      }
+      end
     end
 
     it "fails" do
@@ -46,16 +46,14 @@ RSpec.describe "explicit rendering" do
   end
 
   context "overriding the layout" do
-    let :app_definition do
-      Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-
+    let :app_init do
+      Proc.new do
         controller :default do
           get "/" do
             render "/", layout: :other
           end
         end
-      }
+      end
     end
 
     it "uses the override" do
@@ -65,20 +63,22 @@ RSpec.describe "explicit rendering" do
     end
 
     context "layout does not exist" do
-      let :app_definition do
-        Proc.new {
-          instance_exec(&$presenter_app_boilerplate)
-
+      let :app_def do
+        Proc.new do
           handle 500 do
             res.body = "#{connection.error.class}: #{connection.error.message}"
           end
+        end
+      end
 
+      let :app_init do
+        Proc.new do
           controller :default do
             get "/" do
               render "/", layout: :nonexistent
             end
           end
-        }
+        end
       end
 
       it "uses the default layout" do
@@ -90,10 +90,8 @@ RSpec.describe "explicit rendering" do
   end
 
   context "presenter exists" do
-    let :app_definition do
-      Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-
+    let :app_init do
+      Proc.new do
         controller :default do
           get "/" do
             render "/other"
@@ -105,7 +103,7 @@ RSpec.describe "explicit rendering" do
             self.title = "invoked"
           end
         end
-      }
+      end
     end
 
     it "invokes the presenter" do
@@ -116,10 +114,8 @@ RSpec.describe "explicit rendering" do
   end
 
   context "rendering as" do
-    let :app_definition do
-      Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-
+    let :app_init do
+      Proc.new do
         controller :default do
           get "/" do
             render "/other", as: "/something"
@@ -131,7 +127,7 @@ RSpec.describe "explicit rendering" do
             self.title = "invoked"
           end
         end
-      }
+      end
     end
 
     it "renders the view path and invokes the presenter" do
@@ -142,10 +138,8 @@ RSpec.describe "explicit rendering" do
   end
 
   context "passing a non-normalized path" do
-    let :app_definition do
-      Proc.new {
-        instance_exec(&$presenter_app_boilerplate)
-
+    let :app_init do
+      Proc.new do
         controller :default do
           get "/" do
             render "other", as: "something"
@@ -157,7 +151,7 @@ RSpec.describe "explicit rendering" do
             self.title = "invoked"
           end
         end
-      }
+      end
     end
 
     it "renders the view" do
