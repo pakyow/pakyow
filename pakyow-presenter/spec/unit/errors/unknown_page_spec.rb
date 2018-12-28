@@ -11,7 +11,7 @@ RSpec.describe Pakyow::Presenter::UnknownPage do
     end
 
     it "formats the message properly" do
-      expect(error.message).to eq_sans_whitespace(
+      expect(error.contextual_message).to eq_sans_whitespace(
         <<~ERROR
           Pakyow couldn't render a view for `/foo`. Try creating a view template for this path:
 
@@ -29,7 +29,7 @@ RSpec.describe Pakyow::Presenter::UnknownPage do
     end
 
     it "formats the message properly" do
-      expect(error.message).to eq_sans_whitespace(
+      expect(error.contextual_message).to eq_sans_whitespace(
         <<~ERROR
           Pakyow couldn't render a view for `/`. Try creating a view template for this path:
 
@@ -47,7 +47,7 @@ RSpec.describe Pakyow::Presenter::UnknownPage do
     end
 
     it "formats the message properly" do
-      expect(error.message).to eq_sans_whitespace(
+      expect(error.contextual_message).to eq_sans_whitespace(
         <<~ERROR
           Pakyow couldn't render a view for `/`. Try creating a view template for this path:
 
@@ -65,7 +65,7 @@ RSpec.describe Pakyow::Presenter::UnknownPage do
     end
 
     it "formats the message properly" do
-      expect(error.message).to eq_sans_whitespace(
+      expect(error.contextual_message).to eq_sans_whitespace(
         <<~ERROR
           Pakyow couldn't render a view for `/`. Try creating a view template for this path:
 

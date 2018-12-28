@@ -22,10 +22,9 @@ RSpec.describe "failure caused by plugging an unknown plugin" do
         plug :foo, at: "/"
       end
     }.to raise_error(Pakyow::UnknownPlugin) do |error|
-      expect(error.message).to eq(
+      expect(error.message).to eq("`foo' is not a known plugin")
+      expect(error.contextual_message).to eq(
         <<~MESSAGE
-          Pakyow could not find a plugin named `foo`.
-
           Try using one of these available plugins:
 
             - :testable

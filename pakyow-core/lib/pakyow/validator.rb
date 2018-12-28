@@ -21,7 +21,7 @@ module Pakyow
 
       def validation_object_for(validation)
         Validator.validation_objects[validation] ||
-          raise(UnknownValidationError.new("Unknown validation named `#{validation}'"))
+          raise(UnknownValidationError.new("unknown validation named `#{validation}'"))
       end
 
       def validations

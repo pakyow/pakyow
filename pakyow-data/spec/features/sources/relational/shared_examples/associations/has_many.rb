@@ -93,7 +93,7 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise, many
             target_dataset.including(:nonexistent)
           }.to raise_error(Pakyow::Data::UnknownAssociation) do |error|
             expect(error.context.ancestors).to include(Pakyow::Data::Sources::Relational)
-            expect(error.message).to include("Unknown association `nonexistent`")
+            expect(error.message).to include("unknown association `nonexistent'")
           end
         end
       end
@@ -285,7 +285,7 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise, many
               association_name => data.unassociated.create
             )
           }.to raise_error(Pakyow::Data::TypeMismatch) do |error|
-            expect(error.message).to eq("Cannot associate unassociated as #{association_name}")
+            expect(error.message).to eq("can't associate unassociated as `#{association_name}'")
           end
 
           expect(
@@ -367,7 +367,7 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise, many
               association_name => objects
             )
           }.to raise_error(Pakyow::Data::ConstraintViolation) do |error|
-            expect(error.message).to eq("Cannot associate results as #{association_name} because at least one value could not be found")
+            expect(error.message).to eq("can't associate results as `#{association_name}' because at least one value could not be found")
           end
 
           expect(
@@ -383,7 +383,7 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise, many
               association_name => data.unassociated.create.to_a
             )
           }.to raise_error(Pakyow::Data::TypeMismatch) do |error|
-            expect(error.message).to eq("Cannot associate results as #{association_name} because at least one value did not originate from #{associated_source}")
+            expect(error.message).to eq("can't associate results as `#{association_name}' because at least one value did not originate from #{associated_source}")
           end
 
           expect(
@@ -399,7 +399,7 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise, many
               association_name => [Pakyow::Data::Object.new(id: 1)]
             )
           }.to raise_error(Pakyow::Data::TypeMismatch) do |error|
-            expect(error.message).to eq("Cannot associate an object with an unknown source as #{association_name}")
+            expect(error.message).to eq("can't associate an object with an unknown source as `#{association_name}'")
           end
 
           expect(
@@ -415,7 +415,7 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise, many
               association_name => [{}]
             )
           }.to raise_error(Pakyow::Data::TypeMismatch) do |error|
-            expect(error.message).to eq("Cannot associate results as #{association_name} because at least one value is not a Pakyow::Data::Object")
+            expect(error.message).to eq("can't associate results as `#{association_name}' because at least one value is not a Pakyow::Data::Object")
           end
 
           expect(
@@ -436,7 +436,7 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise, many
         expect {
           create
         }.to raise_error(Pakyow::Data::TypeMismatch) do |error|
-          expect(error.message).to eq("Cannot associate Pakyow::Data::Object as #{association_name}")
+          expect(error.message).to eq("can't associate Pakyow::Data::Object as `#{association_name}'")
         end
 
         expect(
@@ -456,7 +456,7 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise, many
         expect {
           create
         }.to raise_error(Pakyow::Data::TypeMismatch) do |error|
-          expect(error.message).to eq("Cannot associate #{associated_new.one[association_primary_key_field].class} as #{association_name}")
+          expect(error.message).to eq("can't associate #{associated_new.one[association_primary_key_field].class} as `#{association_name}'")
         end
 
         expect(
@@ -631,7 +631,7 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise, many
           expect {
             update
           }.to raise_error(Pakyow::Data::TypeMismatch) do |error|
-            expect(error.message).to eq("Cannot associate unassociated as #{association_name}")
+            expect(error.message).to eq("can't associate unassociated as `#{association_name}'")
           end
 
           expect(
@@ -728,7 +728,7 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise, many
               association_name => objects
             )
           }.to raise_error(Pakyow::Data::ConstraintViolation) do |error|
-            expect(error.message).to eq("Cannot associate results as #{association_name} because at least one value could not be found")
+            expect(error.message).to eq("can't associate results as `#{association_name}' because at least one value could not be found")
           end
 
           expect(
@@ -750,7 +750,7 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise, many
               association_name => data.unassociated.create.to_a
             )
           }.to raise_error(Pakyow::Data::TypeMismatch) do |error|
-            expect(error.message).to eq("Cannot associate results as #{association_name} because at least one value did not originate from #{associated_source}")
+            expect(error.message).to eq("can't associate results as `#{association_name}' because at least one value did not originate from #{associated_source}")
           end
 
           expect(
@@ -772,7 +772,7 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise, many
               association_name => [Pakyow::Data::Object.new(id: 1)]
             )
           }.to raise_error(Pakyow::Data::TypeMismatch) do |error|
-            expect(error.message).to eq("Cannot associate an object with an unknown source as #{association_name}")
+            expect(error.message).to eq("can't associate an object with an unknown source as `#{association_name}'")
           end
 
           expect(
@@ -794,7 +794,7 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise, many
               association_name => [{}]
             )
           }.to raise_error(Pakyow::Data::TypeMismatch) do |error|
-            expect(error.message).to eq("Cannot associate results as #{association_name} because at least one value is not a Pakyow::Data::Object")
+            expect(error.message).to eq("can't associate results as `#{association_name}' because at least one value is not a Pakyow::Data::Object")
           end
 
           expect(
@@ -822,7 +822,7 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise, many
         expect {
           update
         }.to raise_error(Pakyow::Data::TypeMismatch) do |error|
-          expect(error.message).to eq("Cannot associate Pakyow::Data::Object as #{association_name}")
+          expect(error.message).to eq("can't associate Pakyow::Data::Object as `#{association_name}'")
         end
 
         expect(
@@ -849,7 +849,7 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise, many
         expect {
           update
         }.to raise_error(Pakyow::Data::TypeMismatch) do |error|
-          expect(error.message).to eq("Cannot associate #{associated_new.one[association_primary_key_field].class} as #{association_name}")
+          expect(error.message).to eq("can't associate #{associated_new.one[association_primary_key_field].class} as `#{association_name}'")
         end
 
         expect(
@@ -1048,7 +1048,7 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise, many
           end
         end
       else
-        raise "Unknown option for `dependents`: #{dependents.inspect}"
+        raise "unknown option for `dependents`: #{dependents.inspect}"
       end
     end
 

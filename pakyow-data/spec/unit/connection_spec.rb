@@ -36,4 +36,13 @@ RSpec.describe Pakyow::Data::Connection do
       expect(parsed[:timeout]).to eq("1")
     end
   end
+
+  describe "::new" do
+    context "adapter cannot be found" do
+      it "raises a MissingAdapter error" do
+        instance = described_class.new(type: :sql, name: :missing, string: "ado://test")
+        expect(instance.failure).to be_instance_of(Pakyow::Data::MissingAdapter)
+      end
+    end
+  end
 end

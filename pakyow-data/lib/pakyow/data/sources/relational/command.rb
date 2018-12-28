@@ -25,11 +25,11 @@ module Pakyow
               @source.class.attributes.each do |attribute_name, attribute|
                 if attribute.meta[:required]
                   if @performs_create && !values.include?(attribute_name)
-                    raise NotNullViolation.new("Expected a value for #{attribute_name}")
+                    raise NotNullViolation.new_with_message(attribute: attribute_name)
                   end
 
                   if values.include?(attribute_name) && values[attribute_name].nil?
-                    raise NotNullViolation.new("Expected a value for #{attribute_name}")
+                    raise NotNullViolation.new_with_message(attribute: attribute_name)
                   end
                 end
               end
@@ -38,7 +38,7 @@ module Pakyow
               #
               values.keys.each do |key|
                 unless @source.class.attributes.include?(key) || @source.class.association_with_name?(key)
-                  raise UnknownAttribute.new("Unknown attribute #{key} for #{@source.class.__object_name.name}")
+                  raise UnknownAttribute.new_with_message(attribute: key, source: @source.class.__object_name.name)
                 end
               end
 
@@ -48,7 +48,7 @@ module Pakyow
                 begin
                   if attribute = @source.class.attributes[key]
                     if value.is_a?(Proxy) || value.is_a?(Object)
-                      raise TypeMismatch, "can't convert #{value} into #{attribute.meta[:mapping]}"
+                      raise TypeMismatch.new_with_message(type: value.class, mapping: attribute.meta[:mapping])
                     end
 
                     values_hash[key] = value.nil? ? value : attribute[value]
@@ -56,7 +56,7 @@ module Pakyow
                     values_hash[key] = value
                   end
                 rescue TypeError, Dry::Types::ConstraintError => error
-                  raise TypeMismatch.build(error)
+                  raise TypeMismatch.build(error, type: value.class, mapping: attribute.meta[:mapping])
                 end
               }
 
@@ -99,37 +99,70 @@ module Pakyow
                 when Proxy
                   if association_value.source.class == association.associated_source
                     if association.result_type == :one && (association_value.count > 1 || (@performs_update && @source.count > 1))
-                      raise ConstraintViolation, "Cannot associate multiple results as #{association.name}"
+                      raise ConstraintViolation.new_with_message(
+                        :associate_multiple,
+                        association: association.name
+                      )
                     end
                   else
-                    raise TypeMismatch, "Cannot associate #{association_value.source.class.__object_name.name} as #{association.name}"
+                    raise TypeMismatch.new_with_message(
+                      :associate_wrong_source,
+                      source: association_value.source.class.__object_name.name,
+                      association: association.name
+                    )
                   end
                 when Object
                   if association.result_type == :one
                     if association_value.originating_source
                       if association_value.originating_source == association.associated_source
                         if association.associated_source.instance.send(:"by_#{association.associated_source.primary_key_field}", association_value[association.associated_source.primary_key_field]).count == 0
-                          raise ConstraintViolation, "Cannot find associated #{association.name} with #{association.associated_source.primary_key_field} of #{association_value[association.associated_source.primary_key_field]}"
+                          raise ConstraintViolation.new_with_message(
+                            :associate_missing,
+                            source: association.name,
+                            field: association.associated_source.primary_key_field,
+                            value: association_value[association.associated_source.primary_key_field]
+                          )
                         end
                       else
-                        raise TypeMismatch, "Cannot associate an object from #{association_value.originating_source.__object_name.name} as #{association.name}"
+                        raise TypeMismatch.new_with_message(
+                          :associate_wrong_object,
+                          source: association_value.originating_source.__object_name.name,
+                          association: association.name
+                        )
                       end
                     else
-                      raise TypeMismatch, "Cannot associate an object with an unknown source as #{association.name}"
+                      raise TypeMismatch.new_with_message(
+                        :associate_unknown_object,
+                        association: association.name
+                      )
                     end
                   else
-                    raise TypeMismatch, "Cannot associate #{association_value.class} as #{association.name}"
+                    raise TypeMismatch.new_with_message(
+                      :associate_wrong_type,
+                      type: association_value.class,
+                      association: association.name
+                    )
                   end
                 when Array
                   if association.result_type == :many
                     if association_value.find { |value| !value.is_a?(Object) }
-                      raise TypeMismatch, "Cannot associate results as #{association.name} because at least one value is not a Pakyow::Data::Object"
+                      raise TypeMismatch.new_with_message(
+                        :associate_many_not_object,
+                        association: association.name
+                      )
                     else
                       if association_value.any? { |value| value.originating_source.nil? }
-                        raise TypeMismatch, "Cannot associate an object with an unknown source as #{association.name}"
+                        raise TypeMismatch.new_with_message(
+                          :associate_unknown_object,
+                          association: association.name
+                        )
                       else
                         if association_value.find { |value| value.originating_source != association.associated_source }
-                          raise TypeMismatch, "Cannot associate results as #{association.name} because at least one value did not originate from #{association.associated_source_name}"
+                          raise TypeMismatch.new_with_message(
+                            :associate_many_wrong_source,
+                            association: association.name,
+                            source: association.associated_source_name
+                          )
                         else
                           associated_column_value = association_value.map { |object| object[association.associated_source.primary_key_field] }
                           associated_object_query = association.associated_source.instance.send(
@@ -137,17 +170,27 @@ module Pakyow
                           )
 
                           if associated_object_query.count != association_value.count
-                            raise ConstraintViolation, "Cannot associate results as #{association.name} because at least one value could not be found"
+                            raise ConstraintViolation.new_with_message(
+                              :associate_many_missing,
+                              association: association.name
+                            )
                           end
                         end
                       end
                     end
                   else
-                    raise ConstraintViolation, "Cannot associate multiple results as #{association.name}"
+                    raise ConstraintViolation.new_with_message(
+                      :associate_multiple,
+                      association: association.name
+                    )
                   end
                 when NilClass
                 else
-                  raise TypeMismatch, "Cannot associate #{association_value.class} as #{association.name}"
+                  raise TypeMismatch.new_with_message(
+                    :associate_wrong_type,
+                    type: association_value.class,
+                    association: association.name
+                  )
                 end
               end
 
@@ -162,7 +205,12 @@ module Pakyow
                 )
 
                 if associated_object_query.count == 0
-                  raise ConstraintViolation, "Cannot find associated #{association.name} with #{association.associated_query_field} of #{associated_column_value}"
+                  raise ConstraintViolation.new_with_message(
+                    :associate_missing,
+                    source: association.name,
+                    field: association.associated_query_field,
+                    value: associated_column_value
+                  )
                 end
               end
 
@@ -263,7 +311,12 @@ module Pakyow
                         Support.inflector.singularize(association.associated_source_name)
                       end
 
-                      raise ConstraintViolation, "Cannot delete #{@source.class.__object_name.name} because of #{dependent_count} dependent #{dependent_name}"
+                      raise ConstraintViolation.new_with_message(
+                        :dependent_delete,
+                        source: @source.class.__object_name.name,
+                        count: dependent_count,
+                        dependent: dependent_name
+                      )
                     end
                   end
                 end

@@ -14,11 +14,13 @@ module Pakyow
     class << self
       # Wraps an error in a pakyow error instance, with additional context.
       #
-      def build(original_error, context: nil)
+      def build(original_error, message_type = :default, context: nil, **message_values)
         if original_error.is_a?(self)
           original_error
         else
-          new(original_error.message).tap do |error|
+          message = message(message_type, **message_values)
+          message = original_error.message if message.empty?
+          new(message).tap do |error|
             error.wrapped_exception = original_error
             error.set_backtrace(original_error.backtrace)
             error.context = context
@@ -76,24 +78,24 @@ module Pakyow
     def details
       if project? && location = project_backtrace_locations[0]
         <<~MESSAGE
-          `#{(cause || self).class}` occurred on line `#{location.lineno}` of `#{path}`:
+          `#{(cause || self).class}' occurred on line `#{location.lineno}' of `#{path}':
 
           #{indent_as_source(MethodSource.source_helper([path, location.lineno], location.label), location.lineno)}
         MESSAGE
       elsif location = (cause || self).backtrace_locations.to_a[0]
         library_name = gem_name(location.absolute_path)
         occurred_in = if library_name.start_with?("pakyow-")
-          "`#{library_name.split("-", 2)[1]}` framework"
+          "`#{library_name.split("-", 2)[1]}' framework"
         else
-          "`#{library_name}` gem"
+          "`#{library_name}' gem"
         end
 
         <<~MESSAGE
-          `#{(cause || self).class}` occurred outside of your project, within the #{occurred_in}.
+          `#{(cause || self).class}' occurred outside of your project, within the #{occurred_in}.
         MESSAGE
       else
         <<~MESSAGE
-          `#{(cause || self).class}` occurred at an unknown location.
+          `#{(cause || self).class}' occurred at an unknown location.
         MESSAGE
       end
     end
@@ -202,18 +204,29 @@ module Pakyow
       end
 
       def to_s
+        message = <<~MESSAGE
+          #{Support::CLI.style.white.on_red.bold(header)}
+
+            #{self.class.indent(Support::CLI.style.red("›") + Support::CLI.style.bright_black(" #{self.class.format(@error.message)}"))}
+        MESSAGE
+
+        if @error.respond_to?(:contextual_message)
+          message = <<~MESSAGE
+            #{message}
+            #{Support::CLI.style.bright_black(self.class.indent(self.class.format(@error.contextual_message)))}
+          MESSAGE
+        end
+
         <<~MESSAGE
-        #{Support::CLI.style.white.on_red.bold(header)}
+          #{message.rstrip}
 
-        #{indent(@error.message)}
+          #{Support::CLI.style.black.on_white.bold(" DETAILS                                                                        ")}
 
-        #{Support::CLI.style.black.on_white.bold(" DETAILS                                                                        ")}
+          #{Support::CLI.style.bright_black(self.class.indent(self.class.format(@error.details)))}
 
-        #{indent(@error.details)}
+          #{Support::CLI.style.black.on_white.bold(" BACKTRACE                                                                      ")}
 
-        #{Support::CLI.style.black.on_white.bold(" BACKTRACE                                                                      ")}
-
-        #{backtrace}
+          #{backtrace}
         MESSAGE
       end
 
@@ -231,14 +244,29 @@ module Pakyow
 
       private
 
-      def indent(message)
-        message.split("\n").map { |line|
-          "  #{line}"
-        }.join("\n")
-      end
-
       def backtrace
         @error.condensed_backtrace.map(&:to_s).join("\n")
+      end
+
+      class << self
+        # @api private
+        def indent(message)
+          message.split("\n").map { |line|
+            "  #{line}"
+          }.join("\n")
+        end
+
+        # @api private
+        HIGHLIGHT_REGEX = /`([^']*)'/
+
+        # @api private
+        def format(message)
+          message.dup.tap do |message_to_format|
+            message.scan(HIGHLIGHT_REGEX).each do |match|
+              message_to_format.gsub!("`#{match[0]}'", Support::CLI.style.italic.blue(match[0]))
+            end
+          end
+        end
       end
     end
   end

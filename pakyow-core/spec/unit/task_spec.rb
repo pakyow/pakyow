@@ -148,7 +148,7 @@ RSpec.describe Pakyow::Task do
         it "raises an error" do
           expect {
             instance.call(foo: "foo_value")
-          }.to raise_error(Pakyow::CLI::InvalidInput).with_message("Missing required option: bar")
+          }.to raise_error(Pakyow::CLI::InvalidInput).with_message("`bar' is a required option")
         end
       end
 
@@ -156,7 +156,7 @@ RSpec.describe Pakyow::Task do
         it "does not raise an error" do
           expect {
             instance.call(bar: "bar_value", baz: "baz_value")
-          }.to raise_error(Pakyow::CLI::InvalidInput).with_message("Unexpected option: baz")
+          }.to raise_error(Pakyow::CLI::InvalidInput).with_message("`baz' is not a supported option")
         end
       end
     end
@@ -204,7 +204,7 @@ RSpec.describe Pakyow::Task do
         it "raises an error" do
           expect {
             instance.call({}, ["--foo=foo_value"])
-          }.to raise_error(Pakyow::CLI::InvalidInput, "Missing required option: bar")
+          }.to raise_error(Pakyow::CLI::InvalidInput, "`bar' is a required option")
         end
       end
 
@@ -212,7 +212,7 @@ RSpec.describe Pakyow::Task do
         it "raises an error" do
           expect {
             instance.call({}, ["--bar=bar_value", "--baz=baz_value"])
-          }.to raise_error(Pakyow::CLI::InvalidInput, "Unexpected option: --baz=baz_value")
+          }.to raise_error(Pakyow::CLI::InvalidInput, "`--baz=baz_value' is not a supported option")
         end
       end
 
@@ -259,7 +259,7 @@ RSpec.describe Pakyow::Task do
             it "raises an error" do
               expect {
                 instance.call({}, [])
-              }.to raise_error(Pakyow::CLI::InvalidInput, "Missing required argument: foo")
+              }.to raise_error(Pakyow::CLI::InvalidInput, "`foo' is a required argument")
             end
           end
 
@@ -267,7 +267,7 @@ RSpec.describe Pakyow::Task do
             it "raises an error" do
               expect {
                 instance.call({}, ["foo_value", "bar_value"])
-              }.to raise_error(Pakyow::CLI::InvalidInput, "Unexpected argument: bar_value")
+              }.to raise_error(Pakyow::CLI::InvalidInput, "`bar_value' is not a supported argument")
             end
           end
         end

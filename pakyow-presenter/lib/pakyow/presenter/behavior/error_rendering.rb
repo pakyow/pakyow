@@ -4,6 +4,7 @@ require "cgi"
 
 require "redcarpet"
 
+require "pakyow/support/bindable"
 require "pakyow/support/extension"
 
 require "pakyow/error"
@@ -23,6 +24,7 @@ module Pakyow
                 error = Pakyow::Error.build(error)
               end
 
+              error.extend Support::Bindable
               context.expose :pw_error, error
               context.render "/development/500"
             end
@@ -57,26 +59,16 @@ module Pakyow
           end
 
           binder :pw_error do
-            def message
-              message = object.message.dup
-
-              # Replace `foo' with `foo` to render as inline code.
-              #
-              message.dup.scan(/`(.*)'/).each do |match|
-                message.gsub!("`#{match[0]}'", "`#{match[0]}`")
+            def contextual_message
+              if object.respond_to?(:contextual_message)
+                safe(markdown.render(format(object.contextual_message.dup)))
+              else
+                nil
               end
-
-              # Format object references as inline code.
-              #
-              message.dup.scan(/#<(.*)>/).each do |match|
-                message.gsub!("#<#{match[0]}>", "`#<#{match[0]}>`")
-              end
-
-              safe(markdown.render(message))
             end
 
             def details
-              safe(markdown.render(object.details))
+              safe(markdown.render(format(object.details.dup)))
             end
 
             def backtrace
@@ -101,6 +93,22 @@ module Pakyow
               @markdown ||= Redcarpet::Markdown.new(
                 Redcarpet::Render::HTML.new({})
               )
+            end
+
+            def format(string)
+              # Replace `foo' with `foo` to render as inline code.
+              #
+              string.dup.scan(/`([^']*)'/).each do |match|
+                string.gsub!("`#{match[0]}'", "`#{match[0]}`")
+              end
+
+              # Format object references as inline code.
+              #
+              string.dup.scan(/#<(.*)>/).each do |match|
+                string.gsub!("#<#{match[0]}>", "`#<#{match[0]}>`")
+              end
+
+              string
             end
           end
         end

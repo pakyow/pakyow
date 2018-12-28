@@ -35,7 +35,7 @@ RSpec.shared_examples :source_associations_belongs_to do
             target_dataset.including(:nonexistent)
           }.to raise_error(Pakyow::Data::UnknownAssociation) do |error|
             expect(error.context.ancestors).to include(Pakyow::Data::Sources::Relational)
-            expect(error.message).to include("Unknown association `nonexistent`")
+            expect(error.message).to include("unknown association `nonexistent'")
           end
         end
       end
@@ -203,7 +203,7 @@ RSpec.shared_examples :source_associations_belongs_to do
               association_name => associated_dataset
             )
           }.to raise_error(Pakyow::Data::ConstraintViolation) do |error|
-            expect(error.message).to eq("Cannot associate multiple results as #{association_name}")
+            expect(error.message).to eq("can't associate multiple results as `#{association_name}'")
           end
 
           expect(
@@ -219,7 +219,7 @@ RSpec.shared_examples :source_associations_belongs_to do
               association_name => data.unassociated.create
             )
           }.to raise_error(Pakyow::Data::TypeMismatch) do |error|
-            expect(error.message).to eq("Cannot associate unassociated as #{association_name}")
+            expect(error.message).to eq("can't associate unassociated as `#{association_name}'")
           end
 
           expect(
@@ -248,7 +248,7 @@ RSpec.shared_examples :source_associations_belongs_to do
               association_name => object
             )
           }.to raise_error(Pakyow::Data::ConstraintViolation) do |error|
-            expect(error.message).to eq("Cannot find associated #{association_name} with #{association_primary_key_field} of #{object[association_primary_key_field]}")
+            expect(error.message).to eq("can't find associated #{association_name} with #{association_primary_key_field} of `#{object[association_primary_key_field]}'")
           end
 
           expect(
@@ -264,7 +264,7 @@ RSpec.shared_examples :source_associations_belongs_to do
               association_name => data.unassociated.create.one
             )
           }.to raise_error(Pakyow::Data::TypeMismatch) do |error|
-            expect(error.message).to eq("Cannot associate an object from unassociated as #{association_name}")
+            expect(error.message).to eq("can't associate an object from unassociated as `#{association_name}'")
           end
 
           expect(
@@ -280,7 +280,7 @@ RSpec.shared_examples :source_associations_belongs_to do
               association_name => Pakyow::Data::Object.new(id: 1)
             )
           }.to raise_error(Pakyow::Data::TypeMismatch) do |error|
-            expect(error.message).to eq("Cannot associate an object with an unknown source as #{association_name}")
+            expect(error.message).to eq("can't associate an object with an unknown source as `#{association_name}'")
           end
 
           expect(
@@ -296,7 +296,7 @@ RSpec.shared_examples :source_associations_belongs_to do
               association_name => []
             )
           }.to raise_error(Pakyow::Data::ConstraintViolation) do |error|
-            expect(error.message).to eq("Cannot associate multiple results as #{association_name}")
+            expect(error.message).to eq("can't associate multiple results as `#{association_name}'")
           end
 
           expect(
@@ -314,7 +314,7 @@ RSpec.shared_examples :source_associations_belongs_to do
               association_name => type.new
             )
           }.to raise_error(Pakyow::Data::TypeMismatch) do |error|
-            expect(error.message).to eq("Cannot associate #{type} as #{association_name}")
+            expect(error.message).to eq("can't associate #{type} as `#{association_name}'")
           end
 
           expect(
@@ -340,7 +340,7 @@ RSpec.shared_examples :source_associations_belongs_to do
               foreign_key => 123
             )
           }.to raise_error(Pakyow::Data::ConstraintViolation) do |error|
-            expect(error.message).to eq("Cannot find associated #{association_name} with #{association_primary_key_field} of 123")
+            expect(error.message).to eq("can't find associated #{association_name} with #{association_primary_key_field} of `123'")
           end
 
           expect(
@@ -542,7 +542,7 @@ RSpec.shared_examples :source_associations_belongs_to do
           expect {
             update
           }.to raise_error(Pakyow::Data::ConstraintViolation) do |error|
-            expect(error.message).to eq("Cannot associate multiple results as #{association_name}")
+            expect(error.message).to eq("can't associate multiple results as `#{association_name}'")
           end
 
           expect(
@@ -569,7 +569,7 @@ RSpec.shared_examples :source_associations_belongs_to do
           expect {
             update
           }.to raise_error(Pakyow::Data::TypeMismatch) do |error|
-            expect(error.message).to eq("Cannot associate unassociated as #{association_name}")
+            expect(error.message).to eq("can't associate unassociated as `#{association_name}'")
           end
 
           expect(
@@ -644,7 +644,7 @@ RSpec.shared_examples :source_associations_belongs_to do
           expect {
             update
           }.to raise_error(Pakyow::Data::ConstraintViolation) do |error|
-            expect(error.message).to eq("Cannot find associated #{association_name} with #{association_primary_key_field} of #{object[association_primary_key_field]}")
+            expect(error.message).to eq("can't find associated #{association_name} with #{association_primary_key_field} of `#{object[association_primary_key_field]}'")
           end
 
           expect(
@@ -671,7 +671,7 @@ RSpec.shared_examples :source_associations_belongs_to do
           expect {
             update
           }.to raise_error(Pakyow::Data::TypeMismatch) do |error|
-            expect(error.message).to eq("Cannot associate an object from unassociated as #{association_name}")
+            expect(error.message).to eq("can't associate an object from unassociated as `#{association_name}'")
           end
 
           expect(
@@ -698,7 +698,7 @@ RSpec.shared_examples :source_associations_belongs_to do
           expect {
             update
           }.to raise_error(Pakyow::Data::TypeMismatch) do |error|
-            expect(error.message).to eq("Cannot associate an object with an unknown source as #{association_name}")
+            expect(error.message).to eq("can't associate an object with an unknown source as `#{association_name}'")
           end
 
           expect(
@@ -725,7 +725,7 @@ RSpec.shared_examples :source_associations_belongs_to do
           expect {
             update
           }.to raise_error(Pakyow::Data::ConstraintViolation) do |error|
-            expect(error.message).to eq("Cannot associate multiple results as #{association_name}")
+            expect(error.message).to eq("can't associate multiple results as `#{association_name}'")
           end
 
           expect(
@@ -752,7 +752,7 @@ RSpec.shared_examples :source_associations_belongs_to do
           expect {
             update
           }.to raise_error(Pakyow::Data::TypeMismatch) do |error|
-            expect(error.message).to eq("Cannot associate Hash as #{association_name}")
+            expect(error.message).to eq("can't associate Hash as `#{association_name}'")
           end
 
           expect(
@@ -821,7 +821,7 @@ RSpec.shared_examples :source_associations_belongs_to do
           expect {
             update
           }.to raise_error(Pakyow::Data::ConstraintViolation) do |error|
-            expect(error.message).to eq("Cannot find associated #{association_name} with #{association_primary_key_field} of 123")
+            expect(error.message).to eq("can't find associated #{association_name} with #{association_primary_key_field} of `123'")
           end
 
           expect(
@@ -940,7 +940,7 @@ RSpec.shared_examples :source_associations_belongs_to do
         expect {
           update
         }.to raise_error(Pakyow::Data::ConstraintViolation) do |error|
-          expect(error.message).to eq("Cannot associate multiple results as #{association_name}")
+          expect(error.message).to eq("can't associate multiple results as `#{association_name}'")
         end
 
         expect(

@@ -139,7 +139,7 @@ module Pakyow
             if @__pipelines.key?(name_or_pipeline)
               @__pipelines[name_or_pipeline]
             else
-              raise ArgumentError, "Could not find a pipeline named `#{name_or_pipeline}'"
+              raise ArgumentError, "could not find a pipeline named `#{name_or_pipeline}'"
             end
           end
         end
@@ -278,7 +278,7 @@ module Pakyow
             if context
               context.method(@target)
             else
-              raise "Finalizing pipeline action #{@target} requires context"
+              raise "finalizing pipeline action #{@target} requires context"
             end
           else
             instance = if @target.is_a?(Class)

@@ -146,7 +146,7 @@ RSpec.describe "command line interface" do
         end
 
         it "prints an error" do
-          expect(output).to include("\e[31m›\e[0m could not find app named \e[34munknown\e[0m\n")
+          expect(output).to include("  \e[31m›\e[0m \e[3;34munknown\e[0m is not a known app\n")
         end
       end
 
@@ -162,7 +162,7 @@ RSpec.describe "command line interface" do
           end
 
           it "prints an error" do
-            expect(output).to include("  \e[31m›\e[0m found multiple apps; please specify one with the --app option\n")
+            expect(output).to include("  \e[31m›\e[0m multiple apps were found; please specify one with the --app option\n")
           end
         end
       end
@@ -178,7 +178,7 @@ RSpec.describe "command line interface" do
           end
 
           it "prints an error" do
-            expect(output).to include("  \e[31m›\e[0m could not find any apps\n")
+            expect(output).to include("  \e[31m›\e[0m couldn't find an app to run this command for\n")
           end
         end
       end
@@ -334,7 +334,7 @@ RSpec.describe "command line interface" do
       end
 
       it "prints an error" do
-        expect(output).to include("  \e[31m›\e[0m Missing required argument: foo\n")
+        expect(output).to include("  \e[31m›\e[0m \e[3;34mfoo\e[0m is a required argument\n")
       end
 
       include_examples :command_help_without_banner
@@ -350,7 +350,7 @@ RSpec.describe "command line interface" do
       end
 
       it "prints an error" do
-        expect(output).to include("  \e[31m›\e[0m Missing required option: baz\n")
+        expect(output).to include("  \e[31m›\e[0m \e[3;34mbaz\e[0m is a required option\n")
       end
 
       include_examples :command_help_without_banner
@@ -366,7 +366,7 @@ RSpec.describe "command line interface" do
       end
 
       it "prints an error" do
-        expect(output).to include("  \e[31m›\e[0m Unexpected argument: unknown\n")
+        expect(output).to include("  \e[31m›\e[0m \e[3;34munknown\e[0m is not a supported argument\n")
       end
 
       include_examples :command_help_without_banner
@@ -382,7 +382,7 @@ RSpec.describe "command line interface" do
       end
 
       it "prints an error" do
-        expect(output).to include("  \e[31m›\e[0m Unexpected option: --unknown=foo\n")
+        expect(output).to include("  \e[31m›\e[0m \e[3;34m--unknown=foo\e[0m is not a supported option\n")
       end
 
       include_examples :command_help_without_banner
@@ -395,7 +395,7 @@ RSpec.describe "command line interface" do
     end
 
     it "prints an error" do
-      expect(output).to include("  \e[31m›\e[0m \e[34mfoo\e[0m is not a command\n")
+      expect(output).to include("  \e[31m›\e[0m \e[3;34mfoo\e[0m is not a known command\n")
     end
 
     include_examples :help_without_banner

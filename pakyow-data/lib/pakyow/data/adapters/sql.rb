@@ -72,9 +72,7 @@ module Pakyow
             @connection.pool.connection_validation_timeout = opts[:timeout].to_i
           end
         rescue Sequel::AdapterNotFound => error
-          # TODO: better handling of missing adapters
-          #
-          raise ConnectionError.build(error)
+          raise MissingAdapter.build(error)
         rescue Sequel::DatabaseConnectionError => error
           raise ConnectionError.build(error)
         end

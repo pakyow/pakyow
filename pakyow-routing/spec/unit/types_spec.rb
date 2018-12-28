@@ -8,7 +8,9 @@ RSpec.describe Pakyow::Types do
 
     context "passed an unknown type" do
       it "raises an UnknownType error" do
-        expect { Pakyow::Types.type_for(:foo) }.to raise_error(Pakyow::UnknownType)
+        expect { Pakyow::Types.type_for(:foo) }.to raise_error(Pakyow::UnknownType) do |error|
+          expect(error.message).to eq("`foo' is not a known type")
+        end
       end
     end
 

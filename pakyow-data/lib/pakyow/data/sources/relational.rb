@@ -100,7 +100,7 @@ module Pakyow
 
             association_to_include = self.class.associations.values.flatten.find { |association|
               association.name == association_name
-            } || raise(UnknownAssociation.new("Unknown association `#{association_name}`").tap { |error| error.context = self.class })
+            } || raise(UnknownAssociation.new("unknown association `#{association_name}'").tap { |error| error.context = self.class })
 
             included_source = association_to_include.associated_source.instance
 
@@ -161,8 +161,11 @@ module Pakyow
               performs_delete: command[:performs_delete]
             )
           else
-            # TODO: raise a nicer error indicating what commands are available
-            raise "unknown command #{command_name}"
+            raise(
+              UnknownCommand.new_with_message(command: command_name).tap do |error|
+                error.context = self.class
+              end
+            )
           end
         end
 

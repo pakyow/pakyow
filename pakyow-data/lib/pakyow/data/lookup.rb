@@ -70,7 +70,12 @@ module Pakyow
             association.dependent_source_names.compact.each do |source_name|
               unless @sources.key?(source_name)
                 raise(
-                  UnknownSource.new("Unknown source `#{source_name}` for association: #{source.__object_name.name} #{association.specific_type} #{association.name}").tap do |error|
+                  UnknownSource.new_with_message(
+                    source: source.__object_name.name,
+                    association_source: source_name,
+                    association_type: association.specific_type,
+                    association_name: association.name
+                  ).tap do |error|
                     error.context = self
                   end
                 )

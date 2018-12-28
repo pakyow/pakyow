@@ -18,6 +18,12 @@ module Pakyow
 
         apply_extension do
           after :initialize do
+            # Validate that each source connection exists.
+            #
+            state(:source).each do |source|
+              Pakyow.connection(source.adapter, source.connection)
+            end
+
             @data = Data::Lookup.new(
               containers: Pakyow.data_connections.values.each_with_object([]) { |connections, containers|
                 connections.values.each do |connection|

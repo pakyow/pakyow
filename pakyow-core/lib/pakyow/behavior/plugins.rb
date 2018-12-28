@@ -84,8 +84,11 @@ module Pakyow
 
         def plug(plugin_name, at: "/", as: :default, &block)
           plugin_name = plugin_name.to_sym
+
           unless plugin = Pakyow.plugins[plugin_name]
-            raise UnknownPlugin, "Pakyow could not find a plugin named `#{plugin_name}`."
+            raise UnknownPlugin.new_with_message(
+              plugin: plugin_name
+            )
           end
 
           plug = plugin.make(

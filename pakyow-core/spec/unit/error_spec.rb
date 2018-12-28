@@ -89,7 +89,7 @@ RSpec.describe Pakyow::Error do
 
         expect(wrapped.details).to eq(
           <<~MESSAGE
-            `RuntimeError` occurred outside of your project, within the `core` framework.
+            `RuntimeError' occurred outside of your project, within the `core' framework.
           MESSAGE
         )
       end
@@ -117,7 +117,7 @@ RSpec.describe Pakyow::Error do
 
         expect(wrapped.details).to eq(
           <<~MESSAGE
-            `RuntimeError` occurred outside of your project, within the `puma` gem.
+            `RuntimeError' occurred outside of your project, within the `puma' gem.
           MESSAGE
         )
       end
@@ -142,7 +142,7 @@ RSpec.describe Pakyow::Error do
 
         expect(wrapped.details).to eq(
           <<~MESSAGE
-            `RuntimeError` occurred on line `#{lineno}` of `#{path}`:
+            `RuntimeError' occurred on line `#{lineno}' of `#{path}':
 
                 #{lineno}|›           fail "something went wrong"
           MESSAGE
@@ -153,7 +153,7 @@ RSpec.describe Pakyow::Error do
         it "says that an error occurred" do
           expect(described_class.new("something went wrong").details).to eq(
             <<~MESSAGE
-              `Pakyow::Error` occurred at an unknown location.
+              `Pakyow::Error' occurred at an unknown location.
             MESSAGE
           )
         end

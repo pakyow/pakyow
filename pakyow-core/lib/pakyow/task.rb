@@ -171,7 +171,7 @@ module Pakyow
 
       argv.concat(unparsed)
     rescue OptionParser::InvalidOption => error
-      raise CLI::InvalidInput, "Unexpected option: #{error.args.first}"
+      raise CLI::InvalidInput, "`#{error.args.first}' is not a supported option"
     end
 
     def parse_arguments(argv, options)
@@ -179,25 +179,25 @@ module Pakyow
         if argv.any?
           options[key] = argv.shift
         elsif argument[:required]
-          raise CLI::InvalidInput, "Missing required argument: #{key}"
+          raise CLI::InvalidInput, "`#{key}' is a required argument"
         end
       end
 
       if argv.any?
-        raise CLI::InvalidInput, "Unexpected argument: #{argv.shift}"
+        raise CLI::InvalidInput, "`#{argv.shift}' is not a supported argument"
       end
     end
 
     def check_options(options)
       @options.each do |key, option|
         if option[:required] && !options.key?(key)
-          raise CLI::InvalidInput, "Missing required option: #{key}"
+          raise CLI::InvalidInput, "`#{key}' is a required option"
         end
       end
 
       options.keys.each do |key|
         unless global_options.key?(key) || args.include?(key)
-          raise CLI::InvalidInput, "Unexpected option: #{key}"
+          raise CLI::InvalidInput, "`#{key}' is not a supported option"
         end
       end
     end

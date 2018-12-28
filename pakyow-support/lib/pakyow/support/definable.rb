@@ -204,7 +204,7 @@ module Pakyow
       def register(instance, priority: :default)
         unless priority.is_a?(Integer)
           priority = PRIORITIES.fetch(priority) {
-            raise ArgumentError, "Unknown priority `#{priority}'"
+            raise ArgumentError, "unknown priority `#{priority}'"
           }
         end
 
@@ -226,7 +226,7 @@ module Pakyow
         end
 
         unless ancestors.include?(@object)
-          raise ArgumentError, "Expected instance of '#{@object}'"
+          raise ArgumentError, "expected instance of '#{@object}'"
         end
       end
 

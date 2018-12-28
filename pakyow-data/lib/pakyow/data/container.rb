@@ -27,8 +27,6 @@ module Pakyow
           found_source.new(
             @connection.dataset_for_source(found_source)
           )
-        else
-          # TODO: raise UnknownSource
         end
       end
 

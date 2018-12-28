@@ -27,11 +27,7 @@ module Pakyow
         )
 
         @adapter = self.class.adapter(type).new(@opts, logger: logger)
-      rescue LoadError => e
-        puts e
-
-        # TODO: raise nice MissingConnectionAdapter error, telling them how to proceed
-      rescue ConnectionError => error
+      rescue ConnectionError, MissingAdapter => error
         error.context = self
         @failure = error
       end
@@ -93,17 +89,10 @@ module Pakyow
 
         def adapter(type)
           if @adapter_types.include?(type.to_sym)
-            begin
-              adapter_path = "pakyow/data/adapters/#{type}"
-              require adapter_path
-              Adapters.const_get(Support.inflector.camelize(type))
-            rescue LoadError
-              # TODO: present a nicer message here that tells the user how to resolve
-              Pakyow.logger.error "Couldn't find a data adapter to load at `#{adapter_path}`"
-            end
+            require "pakyow/data/adapters/#{type}"
+            Adapters.const_get(Support.inflector.camelize(type))
           else
-            # TODO: present a nicer message here that includes a list of known adapters
-            Pakyow.logger.error "`#{type}` is not a known adapter"
+            raise UnknownAdapter.new_with_message(type: type)
           end
         end
       end

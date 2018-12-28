@@ -26,7 +26,7 @@ module Pakyow
                   exclude_pipeline Pipelines::CSRF
                 end
               else
-                raise ArgumentError, "Unknown protection type `#{type}'"
+                raise ArgumentError, "unknown protection type `#{type}'"
               end
             end
           end

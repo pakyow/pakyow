@@ -89,7 +89,9 @@ module Pakyow
           when :active
             config.helpers[:global] + config.helpers[:passive] + config.helpers[:active]
           else
-            raise ArgumentError, "Unknown helper context: #{context}"
+            raise UnknownHelperContext.new_with_message(
+              context: context
+            )
           end
         end
       end

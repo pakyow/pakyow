@@ -382,7 +382,7 @@ module Pakyow
         @connection.set_response_header(Rack::CONTENT_TYPE, type) if type
         data = StringIO.new(file_or_data)
       else
-        raise ArgumentError, "Expected an IO or String object"
+        raise ArgumentError, "expected an IO or String object"
       end
 
       @connection.set_response_header(CONTENT_DISPOSITION, name ? "attachment; filename=#{name}" : "inline")
@@ -728,7 +728,7 @@ module Pakyow
 
       # @api private
       def expand_within(name, **options, &block)
-        raise NameError, "Unknown template `#{name}'" unless template = templates[name]
+        raise NameError, "unknown template `#{name}'" unless template = templates[name]
         Routing::Expansion.new(name, self, options, &template)
         class_eval(&block)
       end

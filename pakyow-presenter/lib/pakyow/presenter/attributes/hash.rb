@@ -40,7 +40,7 @@ module Pakyow
                 attributes[key.strip.to_sym] = value.strip
               })
             else
-              raise ArgumentError.new("Expected value to be a Hash or String")
+              raise ArgumentError.new("expected value to be a Hash or String")
             end
           end
         end

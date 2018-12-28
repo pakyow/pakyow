@@ -15,13 +15,13 @@ module Pakyow
     class UnknownPage < Error
       using Support::Refinements::String::Normalization
 
-      def message
+      def contextual_message
         <<~MESSAGE
-        Pakyow couldn't render a view for `#{String.normalize_path(@context)}`. Try creating a view template for this path:
+          Pakyow couldn't render a view for `#{String.normalize_path(@context)}`. Try creating a view template for this path:
 
-            frontend/pages#{template_path}.html
+              frontend/pages#{template_path}.html
 
-          * [Learn about view templates &rarr;](https://pakyow.com/docs/frontend/composition/)
+            * [Learn about view templates &rarr;](https://pakyow.com/docs/frontend/composition/)
         MESSAGE
       end
 
@@ -41,20 +41,20 @@ module Pakyow
         "Unknown page"
       end
 
-      def message
+      def contextual_message
         if Pakyow.env?(:prototype)
           super
         else
           <<~MESSAGE
-          #{super}
+            #{super}
 
-          If you want to call backend code instead, create a controller endpoint that handles this request:
+            If you want to call backend code instead, create a controller endpoint that handles this request:
 
-              get "#{@context}" do
-                # your code here
-              end
+                get "#{@context}" do
+                  # your code here
+                end
 
-            * [Learn about controllers &rarr;](https://pakyow.com/docs/routing/)
+              * [Learn about controllers &rarr;](https://pakyow.com/docs/routing/)
           MESSAGE
         end
       end

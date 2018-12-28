@@ -125,7 +125,7 @@ module Pakyow
     def find_task_for_command
       unless @task = tasks.find { |task| task.name == @command }
         raise UnknownCommand.new_with_message(
-          command: Support::CLI.style.blue(@command)
+          command: @command
         )
       end
     end
@@ -134,13 +134,13 @@ module Pakyow
       if @task.app?
         Pakyow.boot
         @options[:app] = if @options.key?(:app)
-          Pakyow.app(@options[:app]) || raise("could not find app named #{Support::CLI.style.blue(@options[:app])}")
+          Pakyow.app(@options[:app]) || raise("`#{@options[:app]}' is not a known app")
         elsif Pakyow.apps.count == 1
           Pakyow.apps.first
         elsif Pakyow.apps.count > 0
-          raise "found multiple apps; please specify one with the --app option"
+          raise "multiple apps were found; please specify one with the --app option"
         else
-          raise "could not find any apps"
+          raise "couldn't find an app to run this command for"
         end
       elsif @options.key?(:app)
         puts_warning "app was ignored by command #{Support::CLI.style.blue(@command)}"
@@ -161,7 +161,7 @@ module Pakyow
     end
 
     def puts_error(error)
-      puts "  #{Support::CLI.style.red("›")} #{error}"
+      puts "  #{Support::CLI.style.red("›")} #{Error::CLIFormatter.format(error.to_s)}"
     end
 
     def puts_warning(warning)

@@ -24,7 +24,7 @@ module Pakyow
         MAPPING.fetch(type.to_sym)
       end
     rescue KeyError => error
-      raise UnknownType.build(error, context: {
+      raise UnknownType.build(error, type: type, context: {
         type: type, types: MAPPING.keys
       })
     end

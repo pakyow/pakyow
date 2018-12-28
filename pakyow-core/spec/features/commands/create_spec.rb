@@ -21,7 +21,7 @@ RSpec.describe "cli: create" do
 
   describe "failure" do
     it "is helpful" do
-      expect(run_command(command)).to eq("  \e[31m›\e[0m Missing required argument: path\n\n\e[1mUSAGE\e[0m\n  $ pakyow create [PATH]\n\n\e[1mARGUMENTS\e[0m\n  PATH  \e[33mWhere to create the project\e[0m\e[31m (required)\e[0m\n\n\e[1mOPTIONS\e[0m\n  -e, --env=env  \e[33mWhat environment to use\e[0m\n")
+      expect(run_command(command)).to eq("  \e[31m›\e[0m \e[3;34mpath\e[0m is a required argument\n\n\e[1mUSAGE\e[0m\n  $ pakyow create [PATH]\n\n\e[1mARGUMENTS\e[0m\n  PATH  \e[33mWhere to create the project\e[0m\e[31m (required)\e[0m\n\n\e[1mOPTIONS\e[0m\n  -e, --env=env  \e[33mWhat environment to use\e[0m\n")
     end
   end
 

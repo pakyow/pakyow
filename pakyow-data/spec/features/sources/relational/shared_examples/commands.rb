@@ -46,7 +46,7 @@ RSpec.shared_examples :source_commands do
           expect {
             data.posts.create(foo: "bar")
           }.to raise_error(Pakyow::Data::UnknownAttribute) do |error|
-            expect(error.message).to eq("Unknown attribute foo for posts")
+            expect(error.message).to eq("`foo' is not a known attribute for posts")
           end
         end
       end
@@ -169,7 +169,7 @@ RSpec.shared_examples :source_commands do
           expect {
             data.posts.update(foo: "bar")
           }.to raise_error(Pakyow::Data::UnknownAttribute) do |error|
-            expect(error.message).to eq("Unknown attribute foo for posts")
+            expect(error.message).to eq("`foo' is not a known attribute for posts")
           end
         end
       end
@@ -267,6 +267,30 @@ RSpec.shared_examples :source_commands do
       post = data.posts.create_with_default_comment(title: "foo").including(:comments).one
       expect(post.comments.length).to eq(1)
       expect(post.comments.first.body).to eq("default comment")
+    end
+  end
+
+  describe "calling an unknown command" do
+    before do
+      local_connection_type, local_connection_string = connection_type, connection_string
+
+      Pakyow.after :configure do
+        config.data.connections.public_send(local_connection_type)[:default] = local_connection_string
+      end
+    end
+
+    include_context "app"
+
+    let :app_init do
+      Proc.new do
+        source :posts do; end
+      end
+    end
+
+    it "raises a no method error" do
+      expect {
+        data.posts.foo(bar: "baz")
+      }.to raise_error(NoMethodError)
     end
   end
 end

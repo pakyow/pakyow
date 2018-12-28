@@ -122,7 +122,7 @@ module Pakyow
 
           @view.bind(object)
         else
-          raise ArgumentError.new("Expected action to be one of: #{SUPPORTED_ACTIONS.join(", ")}")
+          raise ArgumentError.new("expected action to be one of: #{SUPPORTED_ACTIONS.join(", ")}")
         end
       end
 
@@ -243,11 +243,11 @@ module Pakyow
 
       def add_options_to_field(options, field)
         unless field_view = @view.find(field)
-          raise ArgumentError.new("Could not find field named `#{field}`")
+          raise ArgumentError.new("could not find field named `#{field}`")
         end
 
         unless field_view.object.tagname == "select"
-          raise ArgumentError.new("Expected `#{field}` to be a select field")
+          raise ArgumentError.new("expected `#{field}` to be a select field")
         end
 
         # remove existing options

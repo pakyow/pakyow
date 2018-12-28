@@ -66,7 +66,7 @@ module Pakyow
           elsif group = find_group(method_name)
             group
           else
-            raise "Unknown config setting `#{method_name}'"
+            raise "unknown config setting `#{method_name}'"
           end
         end
 
