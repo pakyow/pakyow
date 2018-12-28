@@ -157,8 +157,7 @@ module Pakyow
     # @param app the rack endpoint to mount
     # @param at [String] where the endpoint should be mounted
     #
-    def mount(app, at: nil, &block)
-      raise ArgumentError, "Mount path is required" if at.nil?
+    def mount(app, at:, &block)
       mounts[at] = { app: app, block: block }
     end
 
