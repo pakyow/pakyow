@@ -11,6 +11,7 @@ require "pakyow/support/configurable"
 require "pakyow/support/class_state"
 require "pakyow/support/deep_dup"
 require "pakyow/support/deep_freeze"
+require "pakyow/support/logging"
 
 require "pakyow/environment/behavior/config"
 require "pakyow/environment/behavior/initializers"
@@ -448,8 +449,9 @@ module Pakyow
     end
 
     def handle_boot_failure(error)
-      logger.error "Pakyow failed to boot: #{error}\n"
-      logger.error(error: error)
+      Support::Logging.safe(level: ::Logger.const_get(config.logger.level.to_s.upcase), formatter: config.logger.formatter.new) do |logger|
+        logger.error(error: error)
+      end
 
       if config.exit_on_boot_failure
         exit

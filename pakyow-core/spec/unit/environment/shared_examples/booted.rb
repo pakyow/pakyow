@@ -34,7 +34,7 @@ RSpec.shared_examples :environment_booted do
       allow(apps[0]).to receive(:respond_to?).with(:booted).and_return(true)
       allow(apps[0]).to receive(:booted).and_raise(error)
       allow(error).to receive(:backtrace).and_return(backtrace)
-      allow(Pakyow.logger).to receive(:error)
+      allow(Pakyow::Support::Logging).to receive(:safe).and_yield(logger)
     end
 
     let :error do
@@ -45,9 +45,12 @@ RSpec.shared_examples :environment_booted do
       [:foo, :bar, :baz]
     end
 
+    let :logger do
+      double(:logger, error: nil)
+    end
+
     it "logs the error and each line of the backtrace" do
-      expect(Pakyow.logger).to receive(:error).with("Pakyow failed to boot: test\n")
-      expect(Pakyow.logger).to receive(:error).with(error: error)
+      expect(logger).to receive(:error).with(error: error)
     end
 
     it "exits" do

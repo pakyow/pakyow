@@ -13,7 +13,6 @@ RSpec.describe "Handling failures in pakyow environment setup" do
 
   shared_examples :handling do
     it "logs" do
-      expect(Pakyow.logger).to receive(:error).with("Pakyow failed to boot: #{error}\n")
       expect(Pakyow.logger).to receive(:error).with(error: error)
     end
 
