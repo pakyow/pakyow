@@ -10,13 +10,11 @@ end
 
 require "pakyow"
 
-require_relative "../../spec/helpers/app_helpers"
 require_relative "../../spec/helpers/mock_handler"
 require_relative "../../spec/helpers/output_helpers"
 require_relative "../../spec/helpers/command_helpers"
 
 RSpec.configure do |config|
-  config.include AppHelpers
   config.include OutputHelpers
   config.include CommandHelpers
 end

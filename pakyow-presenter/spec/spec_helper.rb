@@ -11,11 +11,9 @@ end
 require "pakyow/routing"
 require "pakyow/presenter"
 
-require_relative "../../spec/helpers/app_helpers"
 require_relative "../../spec/helpers/mock_handler"
 
 RSpec.configure do |config|
-  config.include AppHelpers
 end
 
 require_relative "../../spec/context/testable_app_context"

@@ -10,12 +10,9 @@ end
 
 require "pakyow/data"
 
-require_relative "../../spec/helpers/app_helpers"
 require_relative "../../spec/helpers/mock_handler"
 
 RSpec.configure do |config|
-  config.include AppHelpers
-
   if ENV.key?("CI")
     if ENV.key?("CI_DB")
       config.filter_run ENV["CI_DB"].to_sym => true

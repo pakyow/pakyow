@@ -674,20 +674,13 @@ RSpec.describe Pakyow do
   end
 
   describe "::apps" do
+    include_context "testable app"
+
     let :app do
       Class.new
     end
 
-    let :app_runtime_block do
-      -> {}
-    end
-
-    before do
-      Pakyow.config.server.name = :mock
-    end
-
     it "contains mounted app instances after boot" do
-      setup && run
       expect(Pakyow.apps).to include(app)
     end
   end
