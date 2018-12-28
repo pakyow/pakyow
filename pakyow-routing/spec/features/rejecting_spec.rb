@@ -1,5 +1,5 @@
 RSpec.describe "rejecting requests" do
-  include_context "testable app"
+  include_context "app"
 
   context "when rejecting from a route" do
     let :app_definition do

@@ -1,5 +1,5 @@
 RSpec.describe "persisting state on shutdown" do
-  include_context "testable app"
+  include_context "app"
 
   let :autorun do
     false
@@ -23,7 +23,7 @@ RSpec.describe "persisting state on shutdown" do
     end
 
     it "serializes the server on shutdown" do
-      run_app
+      setup_and_run
 
       expect(Pakyow::Support::Serializer).to receive(:new).with(
         Pakyow.apps.first.websocket_server.adapter,
@@ -47,7 +47,7 @@ RSpec.describe "persisting state on shutdown" do
 
       expect(serializer).to receive(:deserialize)
 
-      run_app
+      setup_and_run
     end
   end
 
@@ -59,7 +59,7 @@ RSpec.describe "persisting state on shutdown" do
     end
 
     it "does not attempt to serialize the server on shutdown" do
-      run_app
+      setup_and_run
 
       Pakyow.apps.first.shutdown
 
@@ -71,7 +71,7 @@ RSpec.describe "persisting state on shutdown" do
     it "does not attempt to deserialize the server on boot" do
       expect_any_instance_of(Pakyow::Support::Serializer).not_to receive(:deserialize)
 
-      run_app
+      setup_and_run
     end
   end
 end

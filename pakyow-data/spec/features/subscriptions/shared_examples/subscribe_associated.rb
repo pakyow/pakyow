@@ -8,7 +8,7 @@ RSpec.shared_examples :subscription_subscribe_associated do
       def call(*); end
     end
 
-    include_context "testable app"
+    include_context "app"
 
     let :app_definition do
       Pakyow.config.data.default_adapter = :sql
@@ -228,7 +228,7 @@ RSpec.shared_examples :subscription_subscribe_associated do
       def call(*); end
     end
 
-    include_context "testable app"
+    include_context "app"
 
     let :app_definition do
       Pakyow.config.data.default_adapter = :sql

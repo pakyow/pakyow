@@ -4,7 +4,7 @@ require "securerandom"
 RSpec.describe "routing performance", benchmark: true do
   include RSpec::Benchmark::Matchers
 
-  include_context "testable app"
+  include_context "app"
 
   context "with a simple route" do
     let :app_definition do

@@ -1,5 +1,5 @@
 RSpec.describe "presenting an object in a component" do
-  include_context "testable app"
+  include_context "app"
   include_context "websocket intercept"
 
   let :app_definition do
@@ -41,7 +41,7 @@ RSpec.describe "presenting an object in a component" do
 end
 
 RSpec.describe "presenting the same data in a component and outside of it" do
-  include_context "testable app"
+  include_context "app"
   include_context "websocket intercept"
 
   let :app_definition do

@@ -1,5 +1,5 @@
 RSpec.describe "verifying that the request is from the same origin" do
-  include_context "testable app"
+  include_context "app"
 
   before do
     allow_any_instance_of(

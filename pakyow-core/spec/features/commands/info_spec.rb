@@ -1,7 +1,7 @@
 require "pakyow/cli"
 
 RSpec.describe "cli: info" do
-  include_context "testable command"
+  include_context "command"
 
   before do
     Pakyow.app :foo

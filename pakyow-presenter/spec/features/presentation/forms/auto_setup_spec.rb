@@ -1,5 +1,5 @@
 RSpec.describe "automatic form setup" do
-  include_context "testable app"
+  include_context "app"
 
   context "rendering a form for creating" do
     context "object is exposed for the form" do

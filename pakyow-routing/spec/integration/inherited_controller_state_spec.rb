@@ -1,5 +1,5 @@
 RSpec.describe "inherited controller state" do
-  include_context "testable app"
+  include_context "app"
 
   describe "routes" do
     let :app_definition do

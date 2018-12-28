@@ -1,5 +1,5 @@
 RSpec.describe "installed components" do
-  include_context "testable app"
+  include_context "app"
 
   context "presenter is componentized" do
     let :app_definition do

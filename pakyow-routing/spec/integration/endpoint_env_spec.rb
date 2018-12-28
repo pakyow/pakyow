@@ -1,5 +1,5 @@
 RSpec.describe "exposing the endpoint in the request env" do
-  include_context "testable app"
+  include_context "app"
 
   describe "routes" do
     let :app_definition do

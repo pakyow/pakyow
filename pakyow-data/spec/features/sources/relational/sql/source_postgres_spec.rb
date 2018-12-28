@@ -123,7 +123,7 @@ RSpec.describe "postgres source", postgres: true do
       end
     end
 
-    include_context "testable app"
+    include_context "app"
 
     context "type is json" do
       let :app_definition do
@@ -162,7 +162,7 @@ RSpec.describe "postgres source", postgres: true do
       end
     end
 
-    include_context "testable app"
+    include_context "app"
 
     let :app_definition do
       Proc.new do
@@ -209,7 +209,7 @@ RSpec.describe "postgres source", postgres: true do
       end
     end
 
-    include_context "testable app"
+    include_context "app"
 
     let :app_definition do
       Proc.new do
@@ -261,7 +261,7 @@ RSpec.describe "postgres source", postgres: true do
       end
     end
 
-    include_context "testable app"
+    include_context "app"
 
     let :column do
       schema(:posts)[0][1]

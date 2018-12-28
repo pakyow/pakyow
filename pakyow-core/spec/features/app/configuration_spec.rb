@@ -1,7 +1,7 @@
 require "pakyow/routing"
 
 RSpec.describe "configuring an app" do
-  include_context "testable app"
+  include_context "app"
 
   context "when configured globally" do
     let :app_definition do
@@ -39,7 +39,7 @@ RSpec.describe "configuring an app" do
 end
 
 RSpec.describe "accessing the app's config" do
-  include_context "testable app"
+  include_context "app"
 
   context "when accessed internally" do
     let :app_definition do

@@ -1,7 +1,7 @@
 RSpec.describe "form sanitization during presentation" do
   include Pakyow::Support::SafeStringHelpers
 
-  include_context "testable app"
+  include_context "app"
 
   let :presenter do
     Pakyow.apps.first.class.const_get(:Presenter).new(view)

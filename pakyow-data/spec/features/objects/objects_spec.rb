@@ -5,7 +5,7 @@ RSpec.describe "data objects" do
     end
   end
 
-  include_context "testable app"
+  include_context "app"
 
   context "querying for data" do
     context "when a data object is defined for the source" do

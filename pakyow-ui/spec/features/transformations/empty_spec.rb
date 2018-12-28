@@ -1,5 +1,5 @@
 RSpec.describe "presenting data into a previously empty view" do
-  include_context "testable app"
+  include_context "app"
   include_context "websocket intercept"
 
   let :app_definition do
@@ -46,7 +46,7 @@ RSpec.describe "presenting data into a previously empty view" do
 end
 
 RSpec.describe "presenting data into a previously empty view that contains an empty version" do
-  include_context "testable app"
+  include_context "app"
   include_context "websocket intercept"
 
   let :app_definition do

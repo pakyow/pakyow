@@ -10,7 +10,7 @@ RSpec.describe "serving assets from a plugin" do
     Object.send(:remove_const, :TestPlugin)
   end
 
-  include_context "testable app"
+  include_context "app"
 
   let :app_definition do
     Proc.new {

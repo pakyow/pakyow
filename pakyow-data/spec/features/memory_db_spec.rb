@@ -1,5 +1,5 @@
 RSpec.describe "in-memory database" do
-  include_context "testable app"
+  include_context "app"
 
   let :autorun do
     false
@@ -8,7 +8,7 @@ RSpec.describe "in-memory database" do
   context "sqlite is available" do
     before do
       require "sqlite3"
-      run_app
+      setup_and_run
     end
 
     it "configures an in-memory database" do
@@ -19,7 +19,7 @@ RSpec.describe "in-memory database" do
   context "sqlite is not available" do
     before do
       hide_const("SQLite3")
-      run_app
+      setup_and_run
     end
 
     it "does not configure an in-memory database" do

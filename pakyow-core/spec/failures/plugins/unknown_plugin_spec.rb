@@ -10,7 +10,7 @@ RSpec.describe "failure caused by plugging an unknown plugin" do
     Object.send(:remove_const, :TestPlugin)
   end
 
-  include_context "testable app"
+  include_context "app"
 
   let :autorun do
     false

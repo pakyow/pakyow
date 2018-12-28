@@ -1,5 +1,5 @@
 RSpec.describe "realtime helpers" do
-  include_examples "testable app"
+  include_context "app"
 
   it "registers Realtime::Helpers::Subscriptions as an active helper" do
     expect(app.helpers(:active)).to include(Pakyow::Realtime::Helpers::Subscriptions)

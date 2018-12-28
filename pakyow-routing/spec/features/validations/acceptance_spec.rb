@@ -1,5 +1,5 @@
 RSpec.describe "acceptance validation" do
-  include_context "testable app"
+  include_context "app"
 
   let :app_definition do
     Proc.new do
@@ -28,7 +28,7 @@ RSpec.describe "acceptance validation" do
   end
 
   context "acceptance value is passed to the validator" do
-    include_context "testable app"
+    include_context "app"
 
     let :app_definition do
       Proc.new do

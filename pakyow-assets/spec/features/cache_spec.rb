@@ -1,5 +1,5 @@
 RSpec.describe "setting cache headers" do
-  include_context "testable app"
+  include_context "app"
 
   context "cache is enabled" do
     let :app_definition do

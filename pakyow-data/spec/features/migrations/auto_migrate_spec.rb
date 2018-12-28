@@ -19,7 +19,7 @@ RSpec.describe "auto migrating on boot" do
     []
   end
 
-  include_context "testable app"
+  include_context "app"
 
   context "auto migration is enabled" do
     let :auto_migrate_enabled do

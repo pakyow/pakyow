@@ -1,5 +1,5 @@
 RSpec.describe "processing requests with csrf protection" do
-  include_context "testable app"
+  include_context "app"
 
   context "csrf protection rejects the request" do
     before do

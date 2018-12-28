@@ -1,5 +1,5 @@
 RSpec.describe "presenting a view that defines a form endpoint" do
-  include_context "testable app"
+  include_context "app"
 
   context "form node defines an endpoint" do
     context "endpoint is get" do

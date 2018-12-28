@@ -33,7 +33,7 @@ RSpec.describe "setting up a form via presenter" do
     end
 
     context "matching route is found for a plural endpoint" do
-      include_context "testable app"
+      include_context "app"
 
       let :app_definition do
         Proc.new {
@@ -60,7 +60,7 @@ RSpec.describe "setting up a form via presenter" do
     end
 
     context "matching route is found for a singular endpoint" do
-      include_context "testable app"
+      include_context "app"
 
       let :app_definition do
         Proc.new {
@@ -87,7 +87,7 @@ RSpec.describe "setting up a form via presenter" do
     end
 
     context "matching route is found for both a singular and plural endpoint" do
-      include_context "testable app"
+      include_context "app"
 
       let :app_definition do
         Proc.new {
@@ -138,7 +138,7 @@ RSpec.describe "setting up a form via presenter" do
     end
 
     context "matching route is found" do
-      include_context "testable app"
+      include_context "app"
 
       let :app_definition do
         Proc.new {
@@ -194,7 +194,7 @@ RSpec.describe "setting up a form via presenter" do
     end
 
     context "matching route is found" do
-      include_context "testable app"
+      include_context "app"
 
       let :app_definition do
         Proc.new {
@@ -250,7 +250,7 @@ RSpec.describe "setting up a form via presenter" do
     end
 
     context "matching route is found" do
-      include_context "testable app"
+      include_context "app"
 
       let :app_definition do
         Proc.new {
@@ -306,7 +306,7 @@ RSpec.describe "setting up a form via presenter" do
     end
 
     context "matching route is found" do
-      include_context "testable app"
+      include_context "app"
 
       let :app_definition do
         Proc.new {

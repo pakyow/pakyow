@@ -1,5 +1,5 @@
 RSpec.describe "explicit rendering" do
-  include_context "testable app"
+  include_context "app"
 
   context "view exists" do
     let :app_definition do

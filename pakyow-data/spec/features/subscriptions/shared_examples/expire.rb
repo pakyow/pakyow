@@ -1,6 +1,6 @@
 RSpec.shared_examples :subscription_expire do
   describe "expiring a subscription" do
-    include_context "testable app"
+    include_context "app"
 
     let :app_definition do
       Pakyow.config.data.default_adapter = :sql

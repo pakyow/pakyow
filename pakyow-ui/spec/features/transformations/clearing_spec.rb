@@ -1,5 +1,5 @@
 RSpec.describe "clearing data in a populated view" do
-  include_context "testable app"
+  include_context "app"
   include_context "websocket intercept"
 
   let :app_definition do
@@ -51,7 +51,7 @@ RSpec.describe "clearing data in a populated view" do
 end
 
 RSpec.describe "clearing data in a populated view that contains an empty version" do
-  include_context "testable app"
+  include_context "app"
   include_context "websocket intercept"
 
   let :app_definition do

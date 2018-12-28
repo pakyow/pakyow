@@ -1,5 +1,5 @@
 RSpec.describe "inlining styles" do
-  include_context "testable app"
+  include_context "app"
 
   after do
     $sent = nil

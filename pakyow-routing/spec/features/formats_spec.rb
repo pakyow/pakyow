@@ -1,5 +1,5 @@
 RSpec.describe "route formats" do
-  include_context "testable app"
+  include_context "app"
 
   context "when a route is defined for a specific format" do
     let :app_definition do

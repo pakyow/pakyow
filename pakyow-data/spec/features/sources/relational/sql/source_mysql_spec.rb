@@ -78,7 +78,7 @@ RSpec.describe "mysql source", mysql: true do
       end
     end
 
-    include_context "testable app"
+    include_context "app"
 
     let :app_definition do
       Proc.new do
@@ -129,7 +129,7 @@ RSpec.describe "mysql source", mysql: true do
       end
     end
 
-    include_context "testable app"
+    include_context "app"
 
     let :app_definition do
       Proc.new do
@@ -185,7 +185,7 @@ RSpec.describe "mysql source", mysql: true do
       end
     end
 
-    include_context "testable app"
+    include_context "app"
 
     let :column do
       schema(:posts)[0][1]

@@ -1,5 +1,5 @@
 RSpec.describe "presenting a view that defines an anchor endpoint that needs additional context" do
-  include_context "testable app"
+  include_context "app"
 
   let :app_definition do
     Proc.new {

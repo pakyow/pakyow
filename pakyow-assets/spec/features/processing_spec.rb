@@ -1,5 +1,5 @@
 RSpec.describe "processing an asset" do
-  include_context "testable app"
+  include_context "app"
 
   context "app is configured to process assets" do
     let :app_definition do

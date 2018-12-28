@@ -10,7 +10,7 @@ RSpec.shared_examples :subscription_unsubscribe do
   #   end
   # end
 
-  # include_context "testable app"
+  # include_context "app"
 
   # let :app_definition do
   #   Pakyow.config.data.connections.memory[:default] = "memory://test"

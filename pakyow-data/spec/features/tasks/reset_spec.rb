@@ -13,7 +13,7 @@ RSpec.describe "resetting a connection" do
     end
   end
 
-  include_context "testable app"
+  include_context "app"
 
   let :task_double do
     double(:task, invoke: nil)

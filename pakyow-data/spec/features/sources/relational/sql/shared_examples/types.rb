@@ -12,7 +12,7 @@ RSpec.shared_examples :source_sql_types do
       end
     end
 
-    include_context "testable app"
+    include_context "app"
 
     context "type is text" do
       let :app_definition do

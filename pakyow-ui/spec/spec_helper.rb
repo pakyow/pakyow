@@ -31,7 +31,7 @@ Pakyow::App.after :boot do
   $booted = true
 end
 
-require_relative "../../spec/context/testable_app_context"
+require_relative "../../spec/context/app_context"
 require_relative "../../spec/context/suppressed_output_context"
 require_relative "../../spec/context/websocket_intercept_context"
 

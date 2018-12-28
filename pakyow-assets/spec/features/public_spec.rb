@@ -1,5 +1,5 @@
 RSpec.describe "accessing public files" do
-  include_context "testable app"
+  include_context "app"
 
   context "public handling is enabled" do
     let :app_definition do

@@ -1,5 +1,5 @@
 RSpec.describe "creating an ephemeral data source" do
-  include_context "testable app"
+  include_context "app"
 
   let :data do
     Pakyow.apps.first.data

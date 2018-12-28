@@ -8,7 +8,7 @@ RSpec.shared_examples :source_query_default do
       end
     end
 
-    include_context "testable app"
+    include_context "app"
 
     context "query is referenced by name" do
       let :app_definition do

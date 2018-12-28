@@ -5,7 +5,7 @@ RSpec.describe "external scripts" do
     allow(FileUtils).to receive(:touch).and_call_original
   end
 
-  include_context "testable app"
+  include_context "app"
 
   let :tmp do
     File.expand_path("../tmp", __FILE__)

@@ -202,7 +202,7 @@ RSpec.shared_examples "nested verification" do
 end
 
 RSpec.describe "verifying all routes in a controller" do
-  include_context "testable app"
+  include_context "app"
 
   let :app_definition do
     Proc.new do
@@ -223,7 +223,7 @@ RSpec.describe "verifying all routes in a controller" do
 end
 
 RSpec.describe "verifying a specific route in a controller" do
-  include_context "testable app"
+  include_context "app"
 
   let :app_definition do
     Proc.new do
@@ -244,7 +244,7 @@ RSpec.describe "verifying a specific route in a controller" do
 end
 
 RSpec.describe "verifying inside of a route" do
-  include_context "testable app"
+  include_context "app"
 
   let :app_definition do
     Proc.new do
@@ -266,7 +266,7 @@ end
 
 RSpec.describe "handling failed verification" do
   context "without a custom handler" do
-    include_context "testable app"
+    include_context "app"
 
     let :app_definition do
       Proc.new do
@@ -286,7 +286,7 @@ RSpec.describe "handling failed verification" do
   end
 
   context "with a custom handler" do
-    include_context "testable app"
+    include_context "app"
 
     let :app_definition do
       Proc.new do
@@ -309,7 +309,7 @@ RSpec.describe "handling failed verification" do
 end
 
 RSpec.describe "setting allowed params" do
-  include_context "testable app"
+  include_context "app"
 
   context "verified in the controller" do
     let :app_definition do
@@ -415,7 +415,7 @@ RSpec.describe "setting allowed params" do
 end
 
 RSpec.describe "allowing resource ids" do
-  include_context "testable app"
+  include_context "app"
 
   let :app_definition do
     Proc.new do

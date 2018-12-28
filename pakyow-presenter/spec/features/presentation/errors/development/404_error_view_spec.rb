@@ -1,5 +1,5 @@
 RSpec.describe "404 error views in development" do
-  include_context "testable app"
+  include_context "app"
 
   let :mode do
     :development

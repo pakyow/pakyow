@@ -1,5 +1,5 @@
 RSpec.describe "form traversal via presenter" do
-  include_context "testable app"
+  include_context "app"
 
   let :presenter do
     Pakyow.apps.first.class.isolated(:Presenter).new(view)

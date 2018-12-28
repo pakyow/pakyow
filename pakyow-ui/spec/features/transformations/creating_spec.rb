@@ -1,5 +1,5 @@
 RSpec.describe "creating an object in a populated view" do
-  include_context "testable app"
+  include_context "app"
   include_context "websocket intercept"
 
   let :app_definition do

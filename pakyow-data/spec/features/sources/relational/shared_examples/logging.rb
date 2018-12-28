@@ -10,7 +10,7 @@ RSpec.shared_examples :source_logging do
       Pakyow.config.data.silent = !logging_enabled
     end
 
-    include_context "testable app"
+    include_context "app"
 
     context "logging is enabled" do
       let :logging_enabled do

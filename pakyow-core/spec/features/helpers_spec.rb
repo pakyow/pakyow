@@ -1,5 +1,5 @@
 RSpec.describe "defining helpers for an app" do
-  include_examples "testable app"
+  include_context "app"
 
   context "helper type is unspecified" do
     let :app_definition do

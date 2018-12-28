@@ -1,5 +1,5 @@
 RSpec.describe "routing with custom matchers" do
-  include_context "testable app"
+  include_context "app"
 
   context "when route is defined with a custom matcher" do
     let :app_definition do

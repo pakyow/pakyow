@@ -1,5 +1,5 @@
 RSpec.describe "logging outgoing mail" do
-  include_context "testable app"
+  include_context "app"
 
   context "logging is enabled" do
     let :app_definition do

@@ -1,5 +1,5 @@
 RSpec.describe "modifying set attributes during presentation" do
-  include_context "testable app"
+  include_context "app"
   include_context "websocket intercept"
 
   context "setting" do

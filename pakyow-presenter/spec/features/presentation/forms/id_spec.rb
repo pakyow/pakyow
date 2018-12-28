@@ -1,5 +1,5 @@
 RSpec.describe "form id" do
-  include_context "testable app"
+  include_context "app"
 
   context "form is not setup explicitly" do
     let :app_definition do

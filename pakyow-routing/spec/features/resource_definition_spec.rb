@@ -1,5 +1,5 @@
 RSpec.describe "defining resources" do
-  include_context "testable app"
+  include_context "app"
 
   context "when the resource is defined at the top level" do
     let :app_definition do

@@ -8,7 +8,7 @@ RSpec.shared_examples :source_queries do
       end
     end
 
-    include_context "testable app"
+    include_context "app"
 
     let :app_definition do
       Proc.new do
@@ -44,7 +44,7 @@ RSpec.shared_examples :source_queries do
       end
     end
 
-    include_context "testable app"
+    include_context "app"
 
     let :app_definition do
       Proc.new do
@@ -113,7 +113,7 @@ RSpec.shared_examples :source_queries do
       end
     end
 
-    include_context "testable app"
+    include_context "app"
 
     let :app_definition do
       Proc.new do
@@ -141,7 +141,7 @@ RSpec.shared_examples :source_queries do
       end
     end
 
-    include_context "testable app"
+    include_context "app"
 
     let :app_definition do
       Proc.new do

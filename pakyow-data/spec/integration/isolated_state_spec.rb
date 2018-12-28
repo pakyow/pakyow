@@ -1,5 +1,5 @@
 RSpec.describe "isolated state" do
-  include_examples "testable app"
+  include_context "app"
 
   it "creates an isolated object class for the app" do
     expect(app.isolated(:Object)).to_not be(nil)

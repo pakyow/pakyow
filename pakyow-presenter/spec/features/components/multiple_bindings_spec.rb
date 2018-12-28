@@ -1,5 +1,5 @@
 RSpec.describe "rendering backend components alongside other bindings" do
-  include_examples "testable app"
+  include_context "app"
 
   let :app_definition do
     Proc.new do

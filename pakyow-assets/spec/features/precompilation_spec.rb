@@ -1,5 +1,5 @@
 RSpec.describe "precompiling assets" do
-  include_context "testable app"
+  include_context "app"
 
   let :running_app do
     Pakyow.apps.first

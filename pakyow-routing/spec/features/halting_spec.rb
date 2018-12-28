@@ -1,5 +1,5 @@
 RSpec.describe "halting a request" do
-  include_context "testable app"
+  include_context "app"
 
   context "when halting from a route" do
     let :app_definition do

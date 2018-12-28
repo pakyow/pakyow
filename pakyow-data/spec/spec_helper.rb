@@ -88,7 +88,7 @@ RSpec.configure do |config|
 end
 
 require_relative "../../spec/context/cli_context"
-require_relative "../../spec/context/testable_app_context"
+require_relative "../../spec/context/app_context"
 require_relative "./context/migration_context"
 
 $data_app_boilerplate = Proc.new do

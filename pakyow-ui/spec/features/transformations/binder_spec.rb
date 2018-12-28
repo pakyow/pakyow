@@ -1,5 +1,5 @@
 RSpec.describe "presenting an object with a value overridden in a binder" do
-  include_context "testable app"
+  include_context "app"
   include_context "websocket intercept"
 
   let :app_definition do
@@ -52,7 +52,7 @@ RSpec.describe "presenting an object with a value overridden in a binder" do
 end
 
 RSpec.describe "presenting an object with a value defined only in a binder" do
-  include_context "testable app"
+  include_context "app"
   include_context "websocket intercept"
 
   let :app_definition do

@@ -1,5 +1,5 @@
 RSpec.describe "presenting data alongside a form" do
-  include_context "testable app"
+  include_context "app"
   include_context "websocket intercept"
 
   let :app_definition do

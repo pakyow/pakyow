@@ -111,7 +111,7 @@ RSpec.shared_examples :source_migrations_removing do |types:|
       before do
         run_migrations
         Pakyow.config.data.auto_migrate = true
-        run_app
+        setup_and_run
       end
 
       it "does not remove the column for each attribute" do
@@ -201,7 +201,7 @@ RSpec.shared_examples :source_migrations_removing do |types:|
       before do
         run_migrations
         Pakyow.config.data.auto_migrate = true
-        run_app
+        setup_and_run
       end
 
       it "does not remove the primary key" do
@@ -310,7 +310,7 @@ RSpec.shared_examples :source_migrations_removing do |types:|
       before do
         run_migrations
         Pakyow.config.data.auto_migrate = true
-        run_app
+        setup_and_run
       end
 
       it "does not remove the foreign key" do

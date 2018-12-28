@@ -674,7 +674,7 @@ RSpec.describe Pakyow do
   end
 
   describe "::apps" do
-    include_context "testable app"
+    include_context "app"
 
     let :app do
       Class.new

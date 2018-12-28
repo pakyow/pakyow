@@ -1,5 +1,5 @@
 RSpec.describe "sending data" do
-  include_context "testable app"
+  include_context "app"
 
   context "when sending a file" do
     let :app_definition do

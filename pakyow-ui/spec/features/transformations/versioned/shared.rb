@@ -1,5 +1,5 @@
 RSpec.shared_context "versioned" do
-  include_context "testable app"
+  include_context "app"
   include_context "websocket intercept"
 
   let :app_definition do

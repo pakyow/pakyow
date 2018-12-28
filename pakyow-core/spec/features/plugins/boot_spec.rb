@@ -15,7 +15,7 @@ RSpec.describe "booting plugins" do
     Object.send(:remove_const, :TestPlugin)
   end
 
-  include_context "testable app"
+  include_context "app"
 
   let :app_definition do
     Proc.new {
@@ -35,7 +35,7 @@ RSpec.describe "booting plugins" do
         end
       end
 
-      run_app
+      setup_and_run
     end
 
     it "calls boot" do
@@ -50,7 +50,7 @@ RSpec.describe "booting plugins" do
         TestPlugin.remove_method(:boot)
       end
 
-      run_app
+      setup_and_run
     end
 
     it "calls boot" do

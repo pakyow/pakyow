@@ -1,5 +1,5 @@
 RSpec.describe "controller priority" do
-  include_context "testable app"
+  include_context "app"
 
   context "when no priority is set" do
     let :app_definition do

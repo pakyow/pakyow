@@ -16,7 +16,7 @@ RSpec.shared_examples :source_associations do
       end
     end
 
-    include_context "testable app"
+    include_context "app"
 
     describe "belongs_to" do
       let :app_definition do

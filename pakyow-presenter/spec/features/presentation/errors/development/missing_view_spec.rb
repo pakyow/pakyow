@@ -1,5 +1,5 @@
 RSpec.describe "telling the user about a missing view in development" do
-  include_context "testable app"
+  include_context "app"
 
   let :mode do
     :development

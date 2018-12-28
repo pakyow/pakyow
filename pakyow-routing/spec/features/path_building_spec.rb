@@ -1,5 +1,5 @@
 RSpec.describe "path building" do
-  include_context "testable app"
+  include_context "app"
   using Pakyow::Support::DeepDup
 
   let :app_definition do

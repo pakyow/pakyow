@@ -27,7 +27,7 @@ RSpec.describe "accessing helpers from the plugin" do
     Object.send(:remove_const, :TestPlugin)
   end
 
-  include_context "testable app"
+  include_context "app"
 
   let :app_definition do
     Proc.new {
@@ -60,7 +60,7 @@ RSpec.describe "accessing helpers from the app" do
     Object.send(:remove_const, :TestPlugin)
   end
 
-  include_context "testable app"
+  include_context "app"
 
   let :app_definition do
     Proc.new {

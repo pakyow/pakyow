@@ -15,7 +15,7 @@ require_relative "../../spec/helpers/mock_handler"
 RSpec.configure do |config|
 end
 
-require_relative "../../spec/context/testable_app_context"
+require_relative "../../spec/context/app_context"
 require_relative "../../spec/context/suppressed_output_context"
 
 $realtime_app_boilerplate = Proc.new do

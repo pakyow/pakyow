@@ -12,7 +12,7 @@ RSpec.describe "silencing requests" do
     allow(Pakyow::Logger::RequestLogger).to receive(:new).with(:http).and_return(logger)
   end
 
-  include_context "testable app"
+  include_context "app"
 
   context "request is for an asset" do
     context "silent is enabled" do

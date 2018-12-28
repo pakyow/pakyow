@@ -3,7 +3,7 @@ require "pakyow/task"
 require "pakyow/server"
 
 RSpec.describe "cli: boot" do
-  include_context "testable command"
+  include_context "command"
 
   before do
     allow_any_instance_of(Pakyow::CLI).to receive(:project_context?).and_return(true)

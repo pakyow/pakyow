@@ -1,10 +1,14 @@
-RSpec.shared_context "testable app" do
+RSpec.shared_context "app" do
   let :app do
     Pakyow.app(:test, &app_definition)
   end
 
+  let :app_definition do
+    Proc.new {}
+  end
+
   let :app_runtime_block do
-    Proc.new { }
+    Proc.new {}
   end
 
   let :autorun do
@@ -14,11 +18,7 @@ RSpec.shared_context "testable app" do
   before do
     Pakyow.config.server.name = :mock
     Pakyow.config.logger.enabled = false
-    run_app if autorun
-  end
-
-  def run_app(env: respond_to?(:mode) ? mode : :test)
-    setup(env: env) && run
+    setup_and_run if autorun
   end
 
   def setup(env: :test)
@@ -31,11 +31,11 @@ RSpec.shared_context "testable app" do
     @app = Pakyow.run
   end
 
-  def call(path = "/", opts = {})
-    @app.call(Rack::MockRequest.env_for(path, opts))
+  def setup_and_run(env: respond_to?(:mode) ? mode : :test)
+    setup(env: env) && run
   end
 
-  def app_definition
-    Proc.new do; end
+  def call(path = "/", opts = {})
+    @app.call(Rack::MockRequest.env_for(path, opts))
   end
 end

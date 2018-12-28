@@ -1,5 +1,5 @@
 RSpec.describe "nodes marked for prototype" do
-  include_context "testable app"
+  include_context "app"
 
   let :app_definition do
     Proc.new {

@@ -1,5 +1,5 @@
 RSpec.describe "defining a controller" do
-  include_context "testable app"
+  include_context "app"
 
   let :app_definition do
     Proc.new {

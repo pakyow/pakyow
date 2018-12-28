@@ -1,5 +1,5 @@
 RSpec.describe "updating an object in a populated view" do
-  include_context "testable app"
+  include_context "app"
   include_context "websocket intercept"
 
   let :app_definition do
@@ -61,7 +61,7 @@ RSpec.describe "updating an object in a populated view" do
 end
 
 RSpec.describe "updating an object in a way that presents a new prop" do
-  include_context "testable app"
+  include_context "app"
   include_context "websocket intercept"
 
   let :app_definition do
@@ -124,7 +124,7 @@ RSpec.describe "updating an object in a way that presents a new prop" do
 end
 
 RSpec.describe "updating an object in a way that presents a new prop in a different version" do
-  include_context "testable app"
+  include_context "app"
   include_context "websocket intercept"
 
   let :app_definition do

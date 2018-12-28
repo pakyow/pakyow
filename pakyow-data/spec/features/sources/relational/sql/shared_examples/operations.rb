@@ -16,7 +16,7 @@ RSpec.shared_examples :source_sql_operations do
     end
   end
 
-  include_context "testable app"
+  include_context "app"
 
   let :autorun do
     false

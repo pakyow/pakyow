@@ -132,7 +132,7 @@ RSpec.shared_examples :source_migrations_creating do |types:|
       before do
         run_migrations
         Pakyow.config.data.auto_migrate = true
-        run_app
+        setup_and_run
       end
 
       include_examples :migrated
@@ -246,7 +246,7 @@ RSpec.shared_examples :source_migrations_creating do |types:|
       before do
         run_migrations
         Pakyow.config.data.auto_migrate = true
-        run_app
+        setup_and_run
       end
 
       include_examples :migrated

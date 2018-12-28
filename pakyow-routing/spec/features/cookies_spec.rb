@@ -1,5 +1,5 @@
 RSpec.describe "using cookies" do
-  include_context "testable app"
+  include_context "app"
 
   describe "creating a cookie" do
     context "using the pakyow helper" do

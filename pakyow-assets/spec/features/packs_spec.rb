@@ -13,7 +13,7 @@ RSpec.shared_context "loaded asset packs" do
 end
 
 RSpec.describe "autoloaded asset packs" do
-  include_context "testable app"
+  include_context "app"
   include_context "loaded asset packs"
 
   let :app_definition do
@@ -29,7 +29,7 @@ RSpec.describe "autoloaded asset packs" do
 end
 
 RSpec.describe "asset packs included in a view" do
-  include_context "testable app"
+  include_context "app"
   include_context "loaded asset packs"
 
   let :app_definition do
@@ -45,7 +45,7 @@ RSpec.describe "asset packs included in a view" do
 end
 
 RSpec.describe "asset packs for components" do
-  include_context "testable app"
+  include_context "app"
   include_context "loaded asset packs"
 
   let :app_definition do
@@ -61,7 +61,7 @@ RSpec.describe "asset packs for components" do
 end
 
 RSpec.describe "missing asset packs" do
-  include_context "testable app"
+  include_context "app"
 
   let :app_definition do
     Proc.new do
@@ -84,7 +84,7 @@ RSpec.describe "missing asset packs" do
 end
 
 RSpec.describe "versioned asset packs" do
-  include_context "testable app"
+  include_context "app"
   include_context "loaded asset packs"
 
   before do
@@ -117,7 +117,7 @@ RSpec.describe "versioned asset packs" do
 end
 
 RSpec.describe "versioned, namespaced asset packs" do
-  include_context "testable app"
+  include_context "app"
   include_context "loaded asset packs"
 
   before do

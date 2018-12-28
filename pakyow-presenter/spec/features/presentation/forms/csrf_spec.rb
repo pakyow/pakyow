@@ -1,5 +1,5 @@
 RSpec.describe "forms csrf" do
-  include_context "testable app"
+  include_context "app"
 
   context "presenter is configured to embed authenticity tokens" do
     context "form is not setup explicitly" do

@@ -1,5 +1,5 @@
 RSpec.describe "embedding csrf meta tags in a rendered view" do
-  include_context "testable app"
+  include_context "app"
 
   context "presenter is configured to embed authenticity tokens" do
     let :app_definition do

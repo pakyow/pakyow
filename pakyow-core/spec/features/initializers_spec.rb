@@ -1,5 +1,5 @@
 RSpec.describe "environment initializers" do
-  include_context "testable app"
+  include_context "app"
 
   let :autorun do
     false
@@ -10,7 +10,7 @@ RSpec.describe "environment initializers" do
   end
 
   after do
-    run_app(env: :test)
+    setup_and_run(env: :test)
   end
 
   it "loads each initializer" do

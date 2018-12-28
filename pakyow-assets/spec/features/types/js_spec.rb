@@ -1,7 +1,7 @@
 RSpec.describe "js support" do
   require "babel-transpiler"
 
-  include_context "testable app"
+  include_context "app"
 
   let :app_definition do
     Proc.new do

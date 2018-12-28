@@ -206,7 +206,7 @@ RSpec.describe "binding data via presenter, with a binder" do
   end
 
   context "binding tries to build a url" do
-    include_context "testable app"
+    include_context "app"
 
     let :app_definition do
       Proc.new {
@@ -247,7 +247,7 @@ RSpec.describe "binding data via presenter, with a binder" do
   end
 
   context "binding tries to make a string safe" do
-    include_context "testable app"
+    include_context "app"
 
     let :app_definition do
       Proc.new {

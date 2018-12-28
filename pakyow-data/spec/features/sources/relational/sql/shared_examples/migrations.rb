@@ -62,7 +62,7 @@ RSpec.shared_examples :source_sql_migrations do |adapter:|
   end
 
   include_context "migration"
-  include_context "testable app"
+  include_context "app"
 
   let :autorun do
     false

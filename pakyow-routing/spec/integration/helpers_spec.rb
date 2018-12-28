@@ -1,5 +1,5 @@
 RSpec.describe "routing helpers" do
-  include_examples "testable app"
+  include_context "app"
 
   it "registers Routing::Helpers::Exposures as an active helper" do
     expect(app.helpers(:active)).to include(Pakyow::Routing::Helpers::Exposures)

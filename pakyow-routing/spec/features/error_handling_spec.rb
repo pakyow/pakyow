@@ -1,5 +1,5 @@
 RSpec.describe "error handling" do
-  include_context "testable app"
+  include_context "app"
 
   context "when an error is triggered" do
     context "and a handler is defined by name" do

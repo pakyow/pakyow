@@ -1,5 +1,5 @@
 RSpec.describe "setting up a form explicitly via presenter" do
-  include_context "testable app"
+  include_context "app"
 
   let :presenter do
     Pakyow.apps.first.class.const_get(:Presenter).new(view)
@@ -39,7 +39,7 @@ RSpec.describe "setting up a form explicitly via presenter" do
     end
 
     context "matching route is found" do
-      include_context "testable app"
+      include_context "app"
 
       let :app_definition do
         Proc.new {
@@ -82,7 +82,7 @@ RSpec.describe "setting up a form explicitly via presenter" do
     end
 
     context "matching route is found" do
-      include_context "testable app"
+      include_context "app"
 
       let :app_definition do
         Proc.new {
@@ -134,7 +134,7 @@ RSpec.describe "setting up a form explicitly via presenter" do
     end
 
     context "matching route is found" do
-      include_context "testable app"
+      include_context "app"
 
       let :app_definition do
         Proc.new {
@@ -186,7 +186,7 @@ RSpec.describe "setting up a form explicitly via presenter" do
     end
 
     context "matching route is found" do
-      include_context "testable app"
+      include_context "app"
 
       let :app_definition do
         Proc.new {
@@ -238,7 +238,7 @@ RSpec.describe "setting up a form explicitly via presenter" do
     end
 
     context "matching route is found" do
-      include_context "testable app"
+      include_context "app"
 
       let :app_definition do
         Proc.new {
@@ -280,7 +280,7 @@ RSpec.describe "setting up a form explicitly via presenter" do
     end
 
     context "matching route is found" do
-      include_context "testable app"
+      include_context "app"
 
       let :app_definition do
         Proc.new {

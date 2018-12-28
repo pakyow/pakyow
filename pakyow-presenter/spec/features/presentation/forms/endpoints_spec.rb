@@ -1,5 +1,5 @@
 RSpec.describe "form endpoints" do
-  include_context "testable app"
+  include_context "app"
 
   context "form is rendered from resource new" do
     context "resource create endpoint exists" do

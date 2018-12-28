@@ -1,5 +1,5 @@
 RSpec.describe "including mixins into a controller" do
-  include_context "testable app"
+  include_context "app"
 
   module RouteMixins
     def foo

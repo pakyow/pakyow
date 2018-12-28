@@ -1,5 +1,5 @@
 RSpec.describe "presenting a view that defines an endpoints with an action" do
-  include_context "testable app"
+  include_context "app"
   include_context "websocket intercept"
 
   let :app_definition do

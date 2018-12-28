@@ -1,7 +1,7 @@
 require "pakyow/cli"
 
 RSpec.describe "cli: help" do
-  include_context "testable command"
+  include_context "command"
 
   before do
     allow_any_instance_of(Pakyow::CLI).to receive(:project_context?).and_return(true)

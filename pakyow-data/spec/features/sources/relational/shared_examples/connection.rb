@@ -5,7 +5,7 @@ RSpec.shared_examples :source_connection do
     end
 
     context "single default connection is defined" do
-      include_context "testable app"
+      include_context "app"
 
       context "source does not specify connection" do
         let :app_definition do
@@ -53,7 +53,7 @@ RSpec.shared_examples :source_connection do
     end
 
     context "single non-default connection is defined" do
-      include_context "testable app"
+      include_context "app"
 
       context "source specifies a connection" do
         let :app_definition do
@@ -79,7 +79,7 @@ RSpec.shared_examples :source_connection do
     end
 
     context "multiple connections are defined, with a default" do
-      include_context "testable app"
+      include_context "app"
 
       context "source does not specify connection" do
         let :app_definition do
@@ -152,7 +152,7 @@ RSpec.shared_examples :source_connection do
     end
 
     context "multiple connections are defined, with no default" do
-      include_context "testable app"
+      include_context "app"
 
       context "source specifies a connection" do
         let :app_definition do

@@ -8,7 +8,7 @@ RSpec.shared_examples :source_sql_transactions do
       end
     end
 
-    include_context "testable app"
+    include_context "app"
 
     let :data do
       Pakyow.apps.first.data

@@ -10,7 +10,7 @@ RSpec.describe "rendering view templates" do
     Object.send(:remove_const, :TestPlugin)
   end
 
-  include_context "testable app"
+  include_context "app"
 
   shared_examples :plugin_rendering do
     context "endpoint is unavailable for the request, but a template matches" do

@@ -10,7 +10,7 @@ RSpec.describe "building a path to a plugin endpoint" do
     Object.send(:remove_const, :TestPlugin)
   end
 
-  include_context "testable app"
+  include_context "app"
 
   let :app_definition do
     Proc.new {

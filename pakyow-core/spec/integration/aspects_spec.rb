@@ -1,5 +1,5 @@
 RSpec.describe "core aspects" do
-  include_examples "testable app"
+  include_context "app"
 
   # Helpers are sort of an unpublished aspect, because we load them outside of
   # the normal aspect flow. We do this so that published aspects inherit

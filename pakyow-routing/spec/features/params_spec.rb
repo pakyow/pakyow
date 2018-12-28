@@ -1,7 +1,7 @@
 require "json"
 
 RSpec.describe "route params" do
-  include_context "testable app"
+  include_context "app"
 
   context "when set on the controller" do
     let :app_definition do

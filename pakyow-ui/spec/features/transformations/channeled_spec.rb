@@ -1,5 +1,5 @@
 RSpec.describe "presenting data in a channeled binding" do
-  include_context "testable app"
+  include_context "app"
   include_context "websocket intercept"
 
   let :app_definition do
@@ -61,7 +61,7 @@ RSpec.describe "presenting data in a channeled binding" do
 end
 
 RSpec.describe "presenting data across channeled bindings" do
-  include_context "testable app"
+  include_context "app"
   include_context "websocket intercept"
 
   let :app_definition do

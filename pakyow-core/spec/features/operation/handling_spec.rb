@@ -1,5 +1,5 @@
 RSpec.describe "handling errors in operations" do
-  include_context "testable app"
+  include_context "app"
 
   describe "handler for any error" do
     let :app_definition do

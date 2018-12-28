@@ -1,5 +1,5 @@
 RSpec.describe "ui state timeout behavior" do
-  include_context "testable app"
+  include_context "app"
 
   let :socket_id do
     Pakyow::Support::MessageVerifier.key

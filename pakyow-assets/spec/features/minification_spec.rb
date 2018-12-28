@@ -1,5 +1,5 @@
 RSpec.describe "minifying assets" do
-  include_context "testable app"
+  include_context "app"
 
   before do
     # Go ahead and require this to prevent intermittent failures.

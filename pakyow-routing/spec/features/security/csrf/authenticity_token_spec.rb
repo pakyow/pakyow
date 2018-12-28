@@ -1,5 +1,5 @@
 RSpec.describe "verifying the request's authenticity token" do
-  include_context "testable app"
+  include_context "app"
 
   before do
     allow_any_instance_of(

@@ -19,6 +19,6 @@ RSpec.configure do |config|
   config.include CommandHelpers
 end
 
-require_relative "../../spec/context/testable_app_context"
-require_relative "../../spec/context/testable_command_context"
+require_relative "../../spec/context/app_context"
+require_relative "../../spec/context/command_context"
 require_relative "../../spec/context/suppressed_output_context"

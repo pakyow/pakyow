@@ -7,7 +7,7 @@ RSpec.shared_examples :source_default_fields do
     end
   end
 
-  include_context "testable app"
+  include_context "app"
 
   describe "default fields" do
     let :app_definition do

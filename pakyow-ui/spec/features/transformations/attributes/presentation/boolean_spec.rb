@@ -1,5 +1,5 @@
 RSpec.describe "modifying boolean attributes during presentation" do
-  include_context "testable app"
+  include_context "app"
   include_context "websocket intercept"
 
   context "setting to true" do

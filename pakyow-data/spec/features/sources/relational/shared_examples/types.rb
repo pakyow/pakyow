@@ -8,7 +8,7 @@ RSpec.shared_examples :source_types do
       end
     end
 
-    include_context "testable app"
+    include_context "app"
 
     context "defining a primary key" do
       context "primary key attribute is defined" do
