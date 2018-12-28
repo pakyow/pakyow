@@ -219,16 +219,6 @@ module Pakyow
       @setup_error = error
     end
 
-    def to_app
-      builder.to_app.tap do
-        # Tasks should only be available before boot.
-        #
-        @tasks = []
-
-        booted
-      end
-    end
-
     # Returns true if the environment has booted.
     #
     def booted?
@@ -348,6 +338,17 @@ module Pakyow
 
     def env?(name)
       env == name.to_sym
+    end
+
+    # @api private
+    def to_app
+      builder.to_app.tap do
+        # Tasks should only be available before boot.
+        #
+        @tasks = []
+
+        booted
+      end
     end
 
     # @api private
