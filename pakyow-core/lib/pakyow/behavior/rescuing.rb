@@ -24,14 +24,14 @@ module Pakyow
         @rescued = true
 
         performing :rescue do
+          Pakyow.logger.error(error: error)
+
           message = <<~ERROR
             #{self.class} failed to initialize.
 
             #{error.message}
             #{error.backtrace.join("\n")}
           ERROR
-
-          Pakyow.logger.error message
 
           # Override call to always return an errored response.
           #
