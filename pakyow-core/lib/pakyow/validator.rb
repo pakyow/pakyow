@@ -20,8 +20,7 @@ module Pakyow
       end
 
       def validation_object_for(validation)
-        Validator.validation_objects[validation] ||
-          raise(UnknownValidationError.new("unknown validation named `#{validation}'"))
+        Validator.validation_objects[validation] || raise(UnknownValidationError.new_with_message(validation: validation))
       end
 
       def validations

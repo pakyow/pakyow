@@ -80,5 +80,8 @@ module Pakyow
   end
 
   class UnknownValidationError < Error
+    MESSAGES = {
+      default: "`{validation}' is not a known validation"
+    }.freeze
   end
 end
