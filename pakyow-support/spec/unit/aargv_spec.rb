@@ -1,6 +1,6 @@
 require 'pakyow/support/aargv'
 
-RSpec.describe Pakyow::Aargv do
+RSpec.describe Pakyow::Support::Aargv do
   it "names args" do
     v1 = 'foo'
     v2 = :bar
