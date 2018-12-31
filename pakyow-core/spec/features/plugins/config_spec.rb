@@ -70,7 +70,7 @@ RSpec.describe "accessing plugin config" do
     it "does not expose plugin config" do
       expect {
         Pakyow.app(:test).config.foo
-      }.to raise_error(RuntimeError)
+      }.to raise_error(NoMethodError)
     end
   end
 end

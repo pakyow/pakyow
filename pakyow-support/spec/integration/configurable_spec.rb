@@ -43,7 +43,7 @@ RSpec.describe "configuring an object" do
 
   it "fails when accessing an unknown setting" do
     object.configure!
-    expect { object.config.foo }.to raise_error(RuntimeError)
+    expect { object.config.foo }.to raise_error(NoMethodError)
   end
 
   it "converts to a hash" do
