@@ -5,6 +5,7 @@ RSpec.shared_examples :subscription_expire do
     let :app_def do
       Pakyow.config.data.default_adapter = :sql
       Pakyow.config.data.subscriptions.adapter = data_subscription_adapter
+      Pakyow.config.data.subscriptions.adapter_settings = data_subscription_adapter_settings
 
       Proc.new do
         Pakyow.after :configure do

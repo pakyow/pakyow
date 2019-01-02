@@ -31,11 +31,11 @@ module Pakyow
           INFINITY = "+inf"
 
           def initialize(config)
-            @redis = ConnectionPool.new(**config[:pool].to_h) {
-              ::Redis.new(config[:connection].to_h)
+            @redis = ConnectionPool.new(**config.pool.to_h) {
+              ::Redis.new(config.connection.to_h)
             }
 
-            @prefix = [config[:key_prefix], KEY_PREFIX].join(KEY_PART_SEPARATOR)
+            @prefix = [config.key_prefix, KEY_PREFIX].join(KEY_PART_SEPARATOR)
 
             Concurrent::TimerTask.new(execution_interval: 300, timeout_interval: 300) {
               @redis.with do |redis|

@@ -43,7 +43,7 @@ module Pakyow
               subscribers: Subscribers.new(
                 self,
                 Pakyow.config.data.subscriptions.adapter,
-                Pakyow.config.data.subscriptions.adapter_settings.to_h
+                Pakyow.config.data.subscriptions.adapter_settings
               )
             )
           end

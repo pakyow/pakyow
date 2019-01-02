@@ -5,5 +5,9 @@ RSpec.describe "using data subscriptions with the memory adapter" do
     :memory
   end
 
+  let :data_subscription_adapter_settings do
+    {}
+  end
+
   include_examples "data subscriptions"
 end
