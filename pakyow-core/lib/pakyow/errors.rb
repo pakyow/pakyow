@@ -37,6 +37,12 @@ module Pakyow
     }.freeze
   end
 
+  class UnknownFramework < Error
+    MESSAGES = {
+      default: "`{framework}' is not a known framework"
+    }.freeze
+  end
+
   class UnknownHelperContext < Error
     MESSAGES = {
       default: "`{context}' is not a known helper context"

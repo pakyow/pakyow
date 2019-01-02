@@ -28,8 +28,10 @@ module Pakyow
         #
         def include_framework(framework_name)
           framework_name = framework_name.to_sym
-          Pakyow.frameworks[framework_name].new(self).boot
+          Pakyow.frameworks.fetch(framework_name).new(self).boot
           (config.loaded_frameworks << framework_name).uniq!
+        rescue KeyError => error
+          raise UnknownFramework.build(error, framework: framework_name)
         end
 
         # Returns true if +framework+ is loaded.
