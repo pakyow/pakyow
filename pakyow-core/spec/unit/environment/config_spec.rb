@@ -218,6 +218,18 @@ RSpec.describe Pakyow do
       end
     end
 
+    describe "redis.pool.size" do
+      it "has a default value" do
+        expect(Pakyow.config.redis.pool.size).to eq(3)
+      end
+    end
+
+    describe "redis.pool.timeout" do
+      it "has a default value" do
+        expect(Pakyow.config.redis.pool.timeout).to eq(1)
+      end
+    end
+
     describe "redis.key_prefix" do
       it "has a default value" do
         expect(Pakyow.config.redis.key_prefix).to eq("pw")

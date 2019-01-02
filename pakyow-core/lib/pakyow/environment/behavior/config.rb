@@ -95,6 +95,11 @@ module Pakyow
               setting :inherit_socket, false
             end
 
+            configurable :pool do
+              setting :size, 3
+              setting :timeout, 1
+            end
+
             setting :key_prefix, "pw"
           end
 

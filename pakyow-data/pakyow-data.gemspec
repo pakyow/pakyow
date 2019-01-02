@@ -23,6 +23,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "pakyow-support", Pakyow::VERSION
 
   spec.add_dependency "concurrent-ruby", "~> 1.1"
+  spec.add_dependency "connection_pool", "~> 2.2"
   spec.add_dependency "dry-types", "~> 0.13"
   spec.add_dependency "sequel", "~> 5.15"
 end

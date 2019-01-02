@@ -3,6 +3,7 @@
 require "redis"
 require "concurrent/array"
 require "concurrent/timer_task"
+require "connection_pool"
 
 module Pakyow
   module Realtime
@@ -29,7 +30,10 @@ module Pakyow
           end
 
           def connect
-            @redis = ::Redis.new(@config[:connection].to_h)
+            @redis = ConnectionPool.new(**@config[:pool].to_h) {
+              ::Redis.new(@config[:connection].to_h)
+            }
+
             @buffer = Buffer.new(@redis, pubsub_channel)
             @subscriber = Subscriber.new(::Redis.new(@config[:connection]), pubsub_channel) do |payload|
               channel, message = Marshal.restore(payload).values_at(:channel, :message)
@@ -42,32 +46,36 @@ module Pakyow
           end
 
           def socket_subscribe(socket_id, *channels)
-            @redis.multi do |transaction|
-              channels.each do |channel|
-                channel = channel.to_s
-                transaction.zadd(key_socket_ids_by_channel(channel), INFINITY, socket_id)
-                transaction.zadd(key_channels_by_socket_id(socket_id), INFINITY, channel)
+            @redis.with do |redis|
+              redis.multi do |transaction|
+                channels.each do |channel|
+                  channel = channel.to_s
+                  transaction.zadd(key_socket_ids_by_channel(channel), INFINITY, socket_id)
+                  transaction.zadd(key_channels_by_socket_id(socket_id), INFINITY, channel)
+                end
               end
             end
           end
 
           def socket_unsubscribe(*channels)
-            channels.each do |channel|
-              channel = channel.to_s
+            @redis.with do |redis|
+              channels.each do |channel|
+                channel = channel.to_s
 
-              # Channel could contain a wildcard, so this takes some work...
-              @redis.scan_each(match: key_socket_ids_by_channel(channel)) do |key|
-                channel = key.split("channel:", 2)[1]
+                # Channel could contain a wildcard, so this takes some work...
+                redis.scan_each(match: key_socket_ids_by_channel(channel)) do |key|
+                  channel = key.split("channel:", 2)[1]
 
-                socket_ids = @redis.zrangebyscore(
-                  key, Time.now.to_i, INFINITY
-                )
+                  socket_ids = redis.zrangebyscore(
+                    key, Time.now.to_i, INFINITY
+                  )
 
-                @redis.multi do |transaction|
-                  transaction.del(key)
+                  redis.multi do |transaction|
+                    transaction.del(key)
 
-                  socket_ids.each do |socket_id|
-                    transaction.zrem(key_channels_by_socket_id(socket_id), channel)
+                    socket_ids.each do |socket_id|
+                      transaction.zrem(key_channels_by_socket_id(socket_id), channel)
+                    end
                   end
                 end
               end
@@ -82,49 +90,61 @@ module Pakyow
             time_expire = Time.now.to_i + seconds
             channels = channels_for_socket_id(socket_id)
 
-            @redis.multi do |transaction|
-              channels.each do |channel|
-                transaction.zadd(key_socket_ids_by_channel(channel), time_expire, socket_id)
-              end
+            @redis.with do |redis|
+              redis.multi do |transaction|
+                channels.each do |channel|
+                  transaction.zadd(key_socket_ids_by_channel(channel), time_expire, socket_id)
+                end
 
-              transaction.expireat(key_channels_by_socket_id(socket_id), time_expire + 1)
-              transaction.expireat(key_socket_instance_id_by_socket_id(socket_id), time_expire + 1)
+                transaction.expireat(key_channels_by_socket_id(socket_id), time_expire + 1)
+                transaction.expireat(key_socket_instance_id_by_socket_id(socket_id), time_expire + 1)
+              end
             end
           end
 
           def persist(socket_id)
             channels = channels_for_socket_id(socket_id)
 
-            @redis.multi do |transaction|
-              channels.each do |channel|
-                transaction.zadd(key_socket_ids_by_channel(channel), INFINITY, socket_id)
-              end
+            @redis.with do |redis|
+              redis.multi do |transaction|
+                channels.each do |channel|
+                  transaction.zadd(key_socket_ids_by_channel(channel), INFINITY, socket_id)
+                end
 
-              transaction.persist(key_channels_by_socket_id(socket_id))
-              transaction.persist(key_socket_instance_id_by_socket_id(socket_id))
+                transaction.persist(key_channels_by_socket_id(socket_id))
+                transaction.persist(key_socket_instance_id_by_socket_id(socket_id))
+              end
             end
           end
 
           def current!(socket_id, socket_instance_id)
-            @redis.set(key_socket_instance_id_by_socket_id(socket_id), socket_instance_id)
+            @redis.with do |redis|
+              redis.set(key_socket_instance_id_by_socket_id(socket_id), socket_instance_id)
+            end
           end
 
           def current?(socket_id, socket_instance_id)
-            @redis.get(key_socket_instance_id_by_socket_id(socket_id)) == socket_instance_id.to_s
+            @redis.with do |redis|
+              redis.get(key_socket_instance_id_by_socket_id(socket_id)) == socket_instance_id.to_s
+            end
           end
 
           protected
 
           def socket_ids_for_channel(channel)
-            @redis.zrangebyscore(
-              key_socket_ids_by_channel(channel), INFINITY, INFINITY
-            )
+            @redis.with do |redis|
+              redis.zrangebyscore(
+                key_socket_ids_by_channel(channel), INFINITY, INFINITY
+              )
+            end
           end
 
           def channels_for_socket_id(socket_id)
-            @redis.zrangebyscore(
-              key_channels_by_socket_id(socket_id), INFINITY, INFINITY
-            )
+            @redis.with do |redis|
+              redis.zrangebyscore(
+                key_channels_by_socket_id(socket_id), INFINITY, INFINITY
+              )
+            end
           end
 
           def build_key(*parts)
@@ -152,14 +172,16 @@ module Pakyow
               Pakyow.logger.debug "[Pakyow::Realtime::Server::Adapters::Redis] Cleaning up channel keys"
 
               removed_count = 0
-              @redis.scan_each(match: key_socket_ids_by_channel("*")) do |key|
-                socket_ids = @redis.zrangebyscore(
-                  key, Time.now.to_i, INFINITY
-                )
+              @redis.with do |redis|
+                redis.scan_each(match: key_socket_ids_by_channel("*")) do |key|
+                  socket_ids = redis.zrangebyscore(
+                    key, Time.now.to_i, INFINITY
+                  )
 
-                if socket_ids.empty?
-                  removed_count += 1
-                  @redis.del(key)
+                  if socket_ids.empty?
+                    removed_count += 1
+                    redis.del(key)
+                  end
                 end
               end
 
@@ -201,9 +223,11 @@ module Pakyow
             end
 
             def flush
-              @redis.pipelined do |pipeline|
-                until @buffer.empty?
-                  pipeline.publish(@channel, @buffer.shift)
+              @redis.with do |redis|
+                redis.pipelined do |pipeline|
+                  until @buffer.empty?
+                    pipeline.publish(@channel, @buffer.shift)
+                  end
                 end
               end
             end

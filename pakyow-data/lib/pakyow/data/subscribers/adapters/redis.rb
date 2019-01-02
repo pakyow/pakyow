@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 require "digest/sha1"
+
 require "redis"
 require "concurrent/timer_task"
+require "connection_pool"
 
 module Pakyow
   module Data
@@ -29,42 +31,49 @@ module Pakyow
           INFINITY = "+inf"
 
           def initialize(config)
-            @redis = ::Redis.new(config[:connection].to_h)
+            @redis = ConnectionPool.new(**config[:pool].to_h) {
+              ::Redis.new(config[:connection].to_h)
+            }
+
             @prefix = [config[:key_prefix], KEY_PREFIX].join(KEY_PART_SEPARATOR)
 
             Concurrent::TimerTask.new(execution_interval: 300, timeout_interval: 300) {
-              @redis.scan_each(match: key_subscription_ids_by_source("*")) do |key|
-                Pakyow.logger.debug "[Pakyow::Data::Subscribers::Adapters::Redis] Cleaning up expired subscriptions for #{key}"
-                removed_count = @redis.zremrangebyscore(key, 0, Time.now.to_i)
-                Pakyow.logger.debug "[Pakyow::Data::Subscribers::Adapters::Redis] Removed #{removed_count} members for #{key}"
+              @redis.with do |redis|
+                redis.scan_each(match: key_subscription_ids_by_source("*")) do |key|
+                  Pakyow.logger.debug "[Pakyow::Data::Subscribers::Adapters::Redis] Cleaning up expired subscriptions for #{key}"
+                  removed_count = redis.zremrangebyscore(key, 0, Time.now.to_i)
+                  Pakyow.logger.debug "[Pakyow::Data::Subscribers::Adapters::Redis] Removed #{removed_count} members for #{key}"
+                end
               end
             }.execute
           end
 
           def register_subscriptions(subscriptions, subscriber: nil)
             [].tap do |subscription_ids|
-              @redis.multi do |transaction|
-                subscriptions.each do |subscription|
-                  subscription_string = self.class.stringify_subscription(subscription)
-                  subscription_id = self.class.generate_subscription_id(subscription_string)
-                  source = subscription[:source]
+              @redis.with do |redis|
+                redis.multi do |transaction|
+                  subscriptions.each do |subscription|
+                    subscription_string = self.class.stringify_subscription(subscription)
+                    subscription_id = self.class.generate_subscription_id(subscription_string)
+                    source = subscription[:source]
 
-                  # store the subscription
-                  transaction.set(key_subscription_id(subscription_id), subscription_string)
+                    # store the subscription
+                    transaction.set(key_subscription_id(subscription_id), subscription_string)
 
-                  # add the subscription to the subscriber's set
-                  transaction.zadd(key_subscription_ids_by_subscriber(subscriber), INFINITY, subscription_id)
+                    # add the subscription to the subscriber's set
+                    transaction.zadd(key_subscription_ids_by_subscriber(subscriber), INFINITY, subscription_id)
 
-                  # add the subscriber to the subscription's set
-                  transaction.zadd(key_subscribers_by_subscription_id(subscription_id), INFINITY, subscriber)
+                    # add the subscriber to the subscription's set
+                    transaction.zadd(key_subscribers_by_subscription_id(subscription_id), INFINITY, subscriber)
 
-                  # add the subscription to the source's set
-                  transaction.zadd(key_subscription_ids_by_source(source), INFINITY, subscription_id)
+                    # add the subscription to the source's set
+                    transaction.zadd(key_subscription_ids_by_source(source), INFINITY, subscription_id)
 
-                  # define what source the subscription is for
-                  transaction.set(key_source_for_subscription_id(subscription_id), source)
+                    # define what source the subscription is for
+                    transaction.set(key_source_for_subscription_id(subscription_id), source)
 
-                  subscription_ids << subscription_id
+                    subscription_ids << subscription_id
+                  end
                 end
               end
             end
@@ -88,36 +97,38 @@ module Pakyow
             }
 
             # expire the subscriber
-            @redis.multi do |transaction|
-              expire_subscriber_on_these_keys.each do |key|
-                transaction.zadd(key, time_expire, subscriber)
+            @redis.with do |redis|
+              redis.multi do |transaction|
+                expire_subscriber_on_these_keys.each do |key|
+                  transaction.zadd(key, time_expire, subscriber)
+                end
+
+                transaction.expireat(key_subscription_ids_by_subscriber(subscriber), time_expire + 1)
               end
 
-              transaction.expireat(key_subscription_ids_by_subscriber(subscriber), time_expire + 1)
-            end
+              # at this point the subscriber has been expired, but we haven't dealt with the subscription
+              # if all subscribers have been removed from a subscription, expire the subscription
+              subscription_ids.each do |subscription_id|
+                key_subscribers_for_subscription_id = key_subscribers_by_subscription_id(subscription_id)
 
-            # at this point the subscriber has been expired, but we haven't dealt with the subscription
-            # if all subscribers have been removed from a subscription, expire the subscription
-            subscription_ids.each do |subscription_id|
-              key_subscribers_for_subscription_id = key_subscribers_by_subscription_id(subscription_id)
+                # this means that if a subscriber is added to the subscription, the following block will not be executed
+                redis.watch(key_subscribers_for_subscription_id) do
+                  non_expire_count = redis.zcount(key_subscribers_for_subscription_id, INFINITY, INFINITY)
 
-              # this means that if a subscriber is added to the subscription, the following block will not be executed
-              @redis.watch(key_subscribers_for_subscription_id) do
-                non_expire_count = @redis.zcount(key_subscribers_for_subscription_id, INFINITY, INFINITY)
+                  if non_expire_count == 0
+                    source = redis.get(key_source_for_subscription_id(subscription_id))
 
-                if non_expire_count == 0
-                  source = @redis.get(key_source_for_subscription_id(subscription_id))
+                    last_time_expire = redis.zrevrangebyscore(
+                      key_subscribers_for_subscription_id, INFINITY, 0, with_scores: true, limit: [0, 1]
+                    )[0][1].to_i
 
-                  last_time_expire = @redis.zrevrangebyscore(
-                    key_subscribers_for_subscription_id, INFINITY, 0, with_scores: true, limit: [0, 1]
-                  )[0][1].to_i
+                    redis.multi do |transaction|
+                      transaction.zadd(key_subscription_ids_by_source(source), last_time_expire, subscription_id)
 
-                  @redis.multi do |transaction|
-                    transaction.zadd(key_subscription_ids_by_source(source), last_time_expire, subscription_id)
-
-                    transaction.expireat(key_source_for_subscription_id(subscription_id), last_time_expire + 1)
-                    transaction.expireat(key_subscribers_by_subscription_id(subscription_id), last_time_expire + 1)
-                    transaction.expireat(key_subscription_id(subscription_id), last_time_expire + 1)
+                      transaction.expireat(key_source_for_subscription_id(subscription_id), last_time_expire + 1)
+                      transaction.expireat(key_subscribers_by_subscription_id(subscription_id), last_time_expire + 1)
+                      transaction.expireat(key_subscription_id(subscription_id), last_time_expire + 1)
+                    end
                   end
                 end
               end
@@ -131,73 +142,85 @@ module Pakyow
               key_subscribers_by_subscription_id(subscription_id)
             }
 
-            @redis.multi do |transaction|
-              persist_subscriber_on_these_keys.each do |key|
-                transaction.zadd(key, INFINITY, subscriber)
+            @redis.with do |redis|
+              redis.multi do |transaction|
+                persist_subscriber_on_these_keys.each do |key|
+                  transaction.zadd(key, INFINITY, subscriber)
+                end
+
+                transaction.persist(key_subscription_ids_by_subscriber(subscriber))
               end
 
-              transaction.persist(key_subscription_ids_by_subscriber(subscriber))
-            end
+              # at this point we've persisted the subscriber, but we haven't dealt with the subscription
+              # since the subscriber has been persisted we need to persist each subscription
+              subscription_ids.each do |subscription_id|
+                # don't setup a watch here, because persist should always win
+                source = redis.get(key_source_for_subscription_id(subscription_id))
 
-            # at this point we've persisted the subscriber, but we haven't dealt with the subscription
-            # since the subscriber has been persisted we need to persist each subscription
-            subscription_ids.each do |subscription_id|
-              # don't setup a watch here, because persist should always win
-              source = @redis.get(key_source_for_subscription_id(subscription_id))
+                redis.multi do |transaction|
+                  transaction.zadd(key_subscription_ids_by_source(source), INFINITY, subscription_id)
 
-              @redis.multi do |transaction|
-                transaction.zadd(key_subscription_ids_by_source(source), INFINITY, subscription_id)
-
-                transaction.persist(key_source_for_subscription_id(subscription_id))
-                transaction.persist(key_subscribers_by_subscription_id(subscription_id))
-                transaction.persist(key_subscription_id(subscription_id))
+                  transaction.persist(key_source_for_subscription_id(subscription_id))
+                  transaction.persist(key_subscribers_by_subscription_id(subscription_id))
+                  transaction.persist(key_subscription_id(subscription_id))
+                end
               end
             end
           end
 
           def expiring?(subscriber)
-            @redis.ttl(key_subscription_ids_by_subscriber(subscriber)) > -1
+            @redis.with do |redis|
+              redis.ttl(key_subscription_ids_by_subscriber(subscriber)) > -1
+            end
           end
 
           def subscribers_for_subscription_id(subscription_id)
-            @redis.zrangebyscore(
-              key_subscribers_by_subscription_id(
-                subscription_id
-              ), INFINITY, INFINITY
-            ).map(&:to_sym)
+            @redis.with do |redis|
+              redis.zrangebyscore(
+                key_subscribers_by_subscription_id(
+                  subscription_id
+                ), INFINITY, INFINITY
+              ).map(&:to_sym)
+            end
           end
 
           protected
 
           def subscription_ids_for_source(source)
-            @redis.zrangebyscore(
-              key_subscription_ids_by_source(
-                source
-              ), INFINITY, INFINITY
-            )
+            @redis.with do |redis|
+              redis.zrangebyscore(
+                key_subscription_ids_by_source(
+                  source
+                ), INFINITY, INFINITY
+              )
+            end
           end
 
           def subscription_ids_for_subscriber(subscriber)
-            @redis.zrangebyscore(
-              key_subscription_ids_by_subscriber(subscriber), INFINITY, INFINITY
-            )
+            @redis.with do |redis|
+              redis.zrangebyscore(
+                key_subscription_ids_by_subscriber(subscriber), INFINITY, INFINITY
+              )
+            end
           end
 
           def subscriptions_for_subscription_ids(subscription_ids)
             return [] if subscription_ids.empty?
 
-            @redis.mget(subscription_ids.map { |subscription_id|
-              key_subscription_id(subscription_id)
-            }).zip(subscription_ids).map { |subscription_string, subscription_id|
-              begin
-                Marshal.restore(subscription_string).tap do |subscription|
-                  subscription[:id] = subscription_id
+            @redis.with do |redis|
+              redis.mget(subscription_ids.map { |subscription_id|
+                key_subscription_id(subscription_id)
+              }).zip(subscription_ids).map { |subscription_string, subscription_id|
+                begin
+                  Marshal.restore(subscription_string).tap do |subscription|
+                    subscription[:id] = subscription_id
+                  end
+                rescue TypeError
+                  Pakyow.logger.error "could not find subscription for #{subscription_id}"
+                  {}
                 end
-              rescue TypeError
-                Pakyow.logger.error "could not find subscription for #{subscription_id}"
-                {}
-              end
-            }
+              }
+            end
           end
 
           def build_key(*parts)
