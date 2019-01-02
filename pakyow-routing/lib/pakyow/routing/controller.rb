@@ -196,7 +196,7 @@ module Pakyow
           request_path = String.normalize_path(request_path.sub(matcher, ""))
         end
 
-        self.class.routes[request_method].each do |route|
+        self.class.routes[request_method].to_a.each do |route|
           catch :reject do
             if route_match = route.match(request_path)
               match_data.merge!(route_match.named_captures)

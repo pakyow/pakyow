@@ -49,6 +49,10 @@ RSpec.describe "routing requests" do
     expect(call("/", method: :delete)[2].body.read).to eq("DELETE /")
   end
 
+  it "gracefully handles unsupported methods" do
+    expect(call("/", method: :foo)[0]).to eq(404)
+  end
+
   context "when a default route is specified" do
     let :app_init do
       Proc.new {
