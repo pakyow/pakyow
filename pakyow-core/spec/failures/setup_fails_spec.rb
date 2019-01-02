@@ -1,5 +1,6 @@
 RSpec.describe "Handling failures in pakyow environment setup" do
   before do
+    Pakyow.app :test
     allow(Pakyow).to receive(:exit)
     allow(Pakyow).to receive(:load).and_raise(error)
     allow(Pakyow).to receive(:logger).and_return(double(:logger, error: nil))

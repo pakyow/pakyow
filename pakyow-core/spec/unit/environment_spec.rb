@@ -1,6 +1,10 @@
 require_relative "environment/shared_examples/booted"
 
 RSpec.describe Pakyow do
+  before do
+    Pakyow.app :test
+  end
+
   describe "::register_framework" do
     it "registers a framework by name and module" do
       class FooFramework

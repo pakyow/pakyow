@@ -255,20 +255,24 @@ module Pakyow
 
       @host, @port = opts.values_at(:host, :port)
 
-      handler(@server).run(to_app, **opts) do |app_server|
-        deep_freeze if config.freeze_on_boot
+      if @mounts.any?
+        handler(@server).run(to_app, **opts) do |app_server|
+          deep_freeze if config.freeze_on_boot
 
-        at_exit do
-          stop(app_server)
-        end
-
-        STOP_SIGNALS.each do |signal|
-          trap signal do
+          at_exit do
             stop(app_server)
           end
-        end
 
-        yield if block_given?
+          STOP_SIGNALS.each do |signal|
+            trap signal do
+              stop(app_server)
+            end
+          end
+
+          yield if block_given?
+        end
+      else
+        fail "can't run because no apps are mounted"
       end
     rescue SignalException
       exit
