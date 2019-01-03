@@ -400,7 +400,7 @@ module Pakyow
 
     def init_global_logger
       logs = config.logger.destinations
-      @logger = Logger.new(logs.count > 1 ? Logger::MultiLog.new(*logs) : logs.first)
+      @logger = Logger.new(Logger::MultiLog.new(*logs))
       @logger.level = Logger.const_get(config.logger.level.to_s.upcase)
       @logger.formatter = config.logger.formatter.new
     end
