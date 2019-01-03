@@ -3,7 +3,7 @@
 require "pakyow/support/cli/style"
 
 module Pakyow
-  module Logger
+  class Logger
     # Helpers for colorizing log messages.
     #
     module Colorizer

@@ -26,7 +26,7 @@ RSpec.describe "logging outgoing mail" do
     end
 
     it "logs" do
-      expect_any_instance_of(Pakyow::Logger::RequestLogger).to receive(:debug).with <<~LOG
+      expect_any_instance_of(Pakyow::RequestLogger).to receive(:debug).with <<~LOG
       ┌──────────────────────────────────────────────────────────────────────────────┐
       │ Subject: logtest                                                             │
       ├──────────────────────────────────────────────────────────────────────────────┤
@@ -65,7 +65,7 @@ RSpec.describe "logging outgoing mail" do
     end
 
     it "does not log" do
-      expect_any_instance_of(Pakyow::Logger::RequestLogger).not_to receive(:debug)
+      expect_any_instance_of(Pakyow::RequestLogger).not_to receive(:debug)
       expect(call("/mail/send/bryan@bryanp__org/logtest")[0]).to eq(200)
     end
   end

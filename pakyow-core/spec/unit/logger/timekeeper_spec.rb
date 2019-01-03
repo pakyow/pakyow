@@ -5,9 +5,9 @@ RSpec.describe Pakyow::Logger::Timekeeper do
     Pakyow::Logger::Timekeeper
   end
 
-  describe ".format" do
+  describe "::format_elapsed_time" do
     after do
-      timekeeper.format(time)
+      timekeeper.format_elapsed_time(time)
     end
 
     context "when time is greater than 60 seconds" do
@@ -16,7 +16,7 @@ RSpec.describe Pakyow::Logger::Timekeeper do
       end
 
       it "formats in minutes" do
-        expect(Pakyow::Logger::Timekeeper).to receive(:format_in_minutes).with(time)
+        expect(Pakyow::Logger::Timekeeper).to receive(:format_elapsed_time_in_minutes).with(time)
       end
     end
 
@@ -26,7 +26,7 @@ RSpec.describe Pakyow::Logger::Timekeeper do
       end
 
       it "formats in minutes" do
-        expect(Pakyow::Logger::Timekeeper).to receive(:format_in_minutes).with(time)
+        expect(Pakyow::Logger::Timekeeper).to receive(:format_elapsed_time_in_minutes).with(time)
       end
     end
 
@@ -36,7 +36,7 @@ RSpec.describe Pakyow::Logger::Timekeeper do
       end
 
       it "formats in seconds" do
-        expect(Pakyow::Logger::Timekeeper).to receive(:format_in_seconds).with(time)
+        expect(Pakyow::Logger::Timekeeper).to receive(:format_elapsed_time_in_seconds).with(time)
       end
     end
 
@@ -46,7 +46,7 @@ RSpec.describe Pakyow::Logger::Timekeeper do
       end
 
       it "formats in seconds" do
-        expect(Pakyow::Logger::Timekeeper).to receive(:format_in_seconds).with(time)
+        expect(Pakyow::Logger::Timekeeper).to receive(:format_elapsed_time_in_seconds).with(time)
       end
     end
 
@@ -56,7 +56,7 @@ RSpec.describe Pakyow::Logger::Timekeeper do
       end
 
       it "formats in milliseconds" do
-        expect(Pakyow::Logger::Timekeeper).to receive(:format_in_milliseconds).with(time)
+        expect(Pakyow::Logger::Timekeeper).to receive(:format_elapsed_time_in_milliseconds).with(time)
       end
     end
 
@@ -66,7 +66,7 @@ RSpec.describe Pakyow::Logger::Timekeeper do
       end
 
       it "formats in milliseconds" do
-        expect(Pakyow::Logger::Timekeeper).to receive(:format_in_milliseconds).with(time)
+        expect(Pakyow::Logger::Timekeeper).to receive(:format_elapsed_time_in_milliseconds).with(time)
       end
     end
 
@@ -76,38 +76,38 @@ RSpec.describe Pakyow::Logger::Timekeeper do
       end
 
       it "formats in microseconds" do
-        expect(Pakyow::Logger::Timekeeper).to receive(:format_in_microseconds).with(time)
+        expect(Pakyow::Logger::Timekeeper).to receive(:format_elapsed_time_in_microseconds).with(time)
       end
     end
   end
 
-  describe ".format_in_minutes" do
+  describe "::format_elapsed_time_in_minutes" do
     it "formats seconds as minutes" do
-      expect(timekeeper.format_in_minutes(60)).to eq ("1.00m ")
+      expect(timekeeper.format_elapsed_time_in_minutes(60)).to eq ("1.00m ")
     end
   end
 
-  describe ".format_in_seconds" do
+  describe "::format_elapsed_time_in_seconds" do
     it "formats seconds as seconds" do
-      expect(timekeeper.format_in_seconds(1)).to eq ("1.00s ")
+      expect(timekeeper.format_elapsed_time_in_seconds(1)).to eq ("1.00s ")
     end
   end
 
-  describe ".format_in_milliseconds" do
+  describe "::format_elapsed_time_in_milliseconds" do
     it "formats seconds as milliseconds" do
-      expect(timekeeper.format_in_milliseconds(0.01)).to eq ("10.00ms")
+      expect(timekeeper.format_elapsed_time_in_milliseconds(0.01)).to eq ("10.00ms")
     end
   end
 
-  describe ".format_in_microseconds" do
+  describe "::format_elapsed_time_in_microseconds" do
     it "formats seconds as microseconds" do
-      expect(timekeeper.format_in_microseconds(0.00001)).to eq ("10.00μs")
+      expect(timekeeper.format_elapsed_time_in_microseconds(0.00001)).to eq ("10.00μs")
     end
   end
 
-  describe ".round" do
+  describe "::round_elapsed_time" do
     it "rounds to two decimals" do
-      expect(timekeeper.round(1)).to eq("1.00")
+      expect(timekeeper.round_elapsed_time(1)).to eq("1.00")
     end
   end
 end

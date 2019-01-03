@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Pakyow
-  module Logger
+  class Logger
     module Formatters
       # @abstract
       # @api private

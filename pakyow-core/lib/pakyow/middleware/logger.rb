@@ -2,7 +2,7 @@
 
 require "pakyow/support/class_state"
 
-require "pakyow/logger/request_logger"
+require "pakyow/request_logger"
 
 module Pakyow
   module Middleware
@@ -17,7 +17,7 @@ module Pakyow
       end
 
       def call(env)
-        env[Rack::RACK_LOGGER] = Pakyow::Logger::RequestLogger.new(:http)
+        env[Rack::RACK_LOGGER] = RequestLogger.new(:http)
 
         if silence?(env)
           env[Rack::RACK_LOGGER].silence do

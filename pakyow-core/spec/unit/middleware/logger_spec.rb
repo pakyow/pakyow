@@ -24,11 +24,11 @@ RSpec.describe Pakyow::Middleware::Logger do
   end
 
   before do
-    allow(Pakyow::Logger::RequestLogger).to receive(:new).with(:http).and_return(logger)
+    allow(Pakyow::RequestLogger).to receive(:new).with(:http).and_return(logger)
   end
 
   it "creates a new http request logger" do
-    expect(Pakyow::Logger::RequestLogger).to receive(:new).with(:http)
+    expect(Pakyow::RequestLogger).to receive(:new).with(:http)
     middleware.call(env)
   end
 
@@ -64,7 +64,7 @@ RSpec.describe Pakyow::Middleware::Logger do
     end
 
     let :logger do
-      Pakyow::Logger::RequestLogger.new(:http, logger: ::Logger.new(io))
+      Pakyow::RequestLogger.new(:http, logger: ::Logger.new(io))
     end
 
     before do

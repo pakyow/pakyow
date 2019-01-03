@@ -3,6 +3,7 @@
 require "securerandom"
 
 require "pakyow/helpers/connection"
+require "pakyow/request_logger"
 
 module Pakyow
   module Realtime
@@ -15,7 +16,7 @@ module Pakyow
         @id, @connection = id, connection
         @open = false
 
-        @logger = Logger::RequestLogger.new(:sock, id: @id[0..7])
+        @logger = RequestLogger.new(:sock, id: @id[0..7])
         @env = @connection.env
 
         secure = @connection.ssl?

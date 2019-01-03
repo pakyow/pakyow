@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "pakyow/logger/request_logger"
+require "pakyow/request_logger"
 
 module Pakyow
   module Presenter
@@ -11,7 +11,7 @@ module Pakyow
 
         def call(connection)
           unless connection.env[Rack::RACK_LOGGER]
-            connection.env[Rack::RACK_LOGGER] = Logger::RequestLogger.new(:http)
+            connection.env[Rack::RACK_LOGGER] = RequestLogger.new(:http)
             connection.logger.prologue(connection.env)
           end
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "pakyow/connection"
-require "pakyow/logger/request_logger"
+require "pakyow/request_logger"
 
 require "pakyow/presenter/rendering/view_renderer"
 
@@ -35,7 +35,7 @@ module Pakyow
         env = args[:env]
         env["pakyow.ui_transform"] = true
         env["rack.input"] = StringIO.new
-        env[Rack::RACK_LOGGER] = Logger::RequestLogger.new(:"  ui")
+        env[Rack::RACK_LOGGER] = RequestLogger.new(:"  ui")
 
         connection = Connection.new(@app, env)
         connection.instance_variable_set(:@values, presentables)

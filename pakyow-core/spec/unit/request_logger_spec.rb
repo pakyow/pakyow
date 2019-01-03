@@ -1,8 +1,8 @@
-require "pakyow/logger/request_logger"
+require "pakyow/request_logger"
 
-RSpec.describe Pakyow::Logger::RequestLogger do
+RSpec.describe Pakyow::RequestLogger do
   let :klass do
-    Pakyow::Logger::RequestLogger
+    Pakyow::RequestLogger
   end
 
   let :type do
@@ -210,12 +210,12 @@ RSpec.describe Pakyow::Logger::RequestLogger do
 
   describe "#silence" do
     it "sets the log level to the temporary level" do
-      expect(logger).to receive(:level=).with(::Logger::ERROR)
+      expect(logger).to receive(:level=).with(Pakyow::Logger::ERROR)
       instance.silence do; end
     end
 
     it "yields while the temporary level is active" do
-      logger = ::Logger.new("/dev/null")
+      logger = Pakyow::Logger.new("/dev/null")
       instance.instance_variable_set(:@logger, logger)
 
       yielded_level = nil
@@ -223,7 +223,7 @@ RSpec.describe Pakyow::Logger::RequestLogger do
         yielded_level = logger.level
       end
 
-      expect(yielded_level).to eq(::Logger::ERROR)
+      expect(yielded_level).to eq(Pakyow::Logger::ERROR)
     end
 
     it "sets the log level back to the original level" do

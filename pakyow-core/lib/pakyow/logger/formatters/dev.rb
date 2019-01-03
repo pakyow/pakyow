@@ -7,9 +7,9 @@ require "pakyow/logger/colorizer"
 require "pakyow/logger/timekeeper"
 
 module Pakyow
-  module Logger
+  class Logger
     module Formatters
-      # Used by {Pakyow::Logger::RequestLogger} to format request / response lifecycle messages for development.
+      # Used by {Pakyow::RequestLogger} to format request / response lifecycle messages for development.
       #
       # @example
       #   19.00μs http.c730cb72 | GET / (for 127.0.0.1 at 2016-06-20 10:00:49 -0500)
@@ -65,7 +65,7 @@ module Pakyow
 
           constructed_message = sprintf(
             "%s %s.%s | %s\n",
-            Timekeeper.format(message[:elapsed]).rjust(8, " "),
+            Timekeeper.format_elapsed_time(message[:elapsed]).rjust(8, " "),
             message[:request][:type],
             message[:request][:id],
             message[:message].lines.first.rstrip

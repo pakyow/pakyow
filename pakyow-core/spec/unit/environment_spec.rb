@@ -445,7 +445,7 @@ RSpec.describe Pakyow do
       expect(Pakyow.logger).to be_nil
       Pakyow.setup
 
-      expect(Pakyow.logger).to be_instance_of(Logger)
+      expect(Pakyow.logger).to be_instance_of(Pakyow::Logger)
     end
 
     it "returns the environment" do

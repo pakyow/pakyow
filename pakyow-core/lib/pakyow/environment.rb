@@ -59,7 +59,7 @@ require "pakyow/app"
 # = Logging
 #
 # The environment contains a global general-purpose logger. It also provides
-# a {Logger::RequestLogger} instance to each app for logging during a request.
+# a {RequestLogger} instance to each app for logging during a request.
 #
 # = Middleware
 #
@@ -400,8 +400,8 @@ module Pakyow
 
     def init_global_logger
       logs = config.logger.destinations
-      @logger = ::Logger.new(logs.count > 1 ? Logger::MultiLog.new(*logs) : logs.first)
-      @logger.level = ::Logger.const_get(config.logger.level.to_s.upcase)
+      @logger = Logger.new(logs.count > 1 ? Logger::MultiLog.new(*logs) : logs.first)
+      @logger.level = Logger.const_get(config.logger.level.to_s.upcase)
       @logger.formatter = config.logger.formatter.new
     end
 
@@ -453,7 +453,7 @@ module Pakyow
     end
 
     def handle_boot_failure(error)
-      Support::Logging.safe(level: ::Logger.const_get(config.logger.level.to_s.upcase), formatter: config.logger.formatter.new) do |logger|
+      Support::Logging.safe(level: Logger.const_get(config.logger.level.to_s.upcase), formatter: config.logger.formatter.new) do |logger|
         logger.error(error: error)
       end
 

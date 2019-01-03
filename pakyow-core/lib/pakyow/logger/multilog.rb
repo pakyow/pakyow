@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 module Pakyow
-  module Logger
-    # @api private
+  class Logger
+    # Log to multiple targets.
+    #
     class MultiLog
       attr_reader :targets
 

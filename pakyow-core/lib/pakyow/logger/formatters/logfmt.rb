@@ -3,9 +3,9 @@
 require "pakyow/logger/formatters/json"
 
 module Pakyow
-  module Logger
+  class Logger
     module Formatters
-      # Used by {Pakyow::Logger::RequestLogger} to format request / response lifecycle messages in logfmt.
+      # Used by {Pakyow::RequestLogger} to format request / response lifecycle messages in logfmt.
       #
       # @example
       #   severity=INFO timestamp="2016-06-20 10:08:29 -0500" id=678cf582 type=http elapsed=0.01ms method=GET uri=/ ip=127.0.0.1

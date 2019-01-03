@@ -6,9 +6,9 @@ require "pakyow/logger/formatters/base"
 require "pakyow/logger/timekeeper"
 
 module Pakyow
-  module Logger
+  class Logger
     module Formatters
-      # Used by {Pakyow::Logger::RequestLogger} to format request / response lifecycle messages as JSON.
+      # Used by {Pakyow::RequestLogger} to format request / response lifecycle messages as JSON.
       #
       # @example
       #   {"severity":"INFO","timestamp":"2016-06-20 10:07:30 -0500","id":"c8af6a8b","type":"http","elapsed":"0.01ms","method":"GET","path":"/","ip":"127.0.0.1"}
@@ -22,7 +22,7 @@ module Pakyow
           message = format_message(message)
 
           if message.key?(:elapsed)
-            message[:elapsed] = Timekeeper.format_in_milliseconds(message[:elapsed])
+            message[:elapsed] = Timekeeper.format_elapsed_time_in_milliseconds(message[:elapsed])
           end
 
           request = message.delete(:request)
