@@ -17,7 +17,7 @@ module Pakyow
       #    3.78ms http.c730cb72 | 200 (OK)
       #
       # @api private
-      class Dev < Formatters::Base
+      class Human < Formatters::Base
         def call(severity, datetime, progname, _message)
           message = format_message(super)
           Colorizer.colorize(format(message), severity)

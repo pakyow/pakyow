@@ -1,12 +1,12 @@
 require_relative "shared"
 
-require "pakyow/logger/formatters/dev"
+require "pakyow/logger/formatters/human"
 
-RSpec.describe Pakyow::Logger::Formatters::Dev do
+RSpec.describe Pakyow::Logger::Formatters::Human do
   include_examples :log_formatter
 
   let :formatter do
-    Pakyow::Logger::Formatters::Dev.new
+    Pakyow::Logger::Formatters::Human.new
   end
 
   it "formats the prologue" do

@@ -96,7 +96,7 @@ RSpec.describe Pakyow do
 
     describe "logger.formatter" do
       it "has a default value" do
-        expect(Pakyow.config.logger.formatter).to eq(Pakyow::Logger::Formatters::Dev)
+        expect(Pakyow.config.logger.formatter).to eq(Pakyow::Logger::Formatters::Human)
       end
 
       context "in production" do

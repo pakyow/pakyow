@@ -47,8 +47,8 @@ module Pakyow
             setting :enabled, true
             setting :level, :debug
             setting :formatter do
-              require "pakyow/logger/formatters/dev"
-              Logger::Formatters::Dev
+              require "pakyow/logger/formatters/human"
+              Logger::Formatters::Human
             end
 
             setting :destinations do
