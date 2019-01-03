@@ -23,7 +23,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "pakyow-support", Pakyow::VERSION
 
-  spec.add_dependency "bundler", "~> 1.17"
+  spec.add_dependency "bundler", ">= 1.17"
   spec.add_dependency "dry-types", "~> 0.13"
   spec.add_dependency "filewatcher", "~> 1.1"
   spec.add_dependency "http", "~> 4.0"
