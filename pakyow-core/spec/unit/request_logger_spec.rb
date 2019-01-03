@@ -10,7 +10,16 @@ RSpec.describe Pakyow::RequestLogger do
   end
 
   let :logger do
-    double.as_null_object
+    instance_double(Pakyow::Logger, formatter: formatter)
+  end
+
+  let :formatter do
+    double(
+      :formatter,
+      format_epilogue: "formatted epilogue",
+      format_request: "formatted request",
+      format_error: "formatted error"
+    )
   end
 
   let :instance do
@@ -109,15 +118,15 @@ RSpec.describe Pakyow::RequestLogger do
     end
 
     it "logs the prologue at the proper level" do
-      expect(logger).to receive(:info) do |message|
-        expect(message[:prologue]).to eq(
-          {
-            time: instance.start,
-            method: env["REQUEST_METHOD"],
-            uri: env["REQUEST_URI"],
-            ip: env["REMOTE_ADDR"],
-          }
-        )
+      expect(logger.formatter).to receive(:format_prologue).with(
+        time: instance.start,
+        method: env["REQUEST_METHOD"],
+        uri: env["REQUEST_URI"],
+        ip: env["REMOTE_ADDR"]
+      ).and_return("formatted prologue")
+
+      expect(instance).to receive(:info) do |message|
+        expect(message).to eq("formatted prologue")
       end
 
       instance.prologue(env)
@@ -130,14 +139,11 @@ RSpec.describe Pakyow::RequestLogger do
     end
 
     it "logs the epilogue at the proper level" do
-      expect(logger).to receive(:info) do |message|
-        expect(message[:epilogue]).to eq(
-          {
-            status: res[0]
-          }
-        )
-      end
+      expect(logger.formatter).to receive(:format_epilogue).with(
+        status: res[0]
+      ).and_return("formatted epilogue")
 
+      expect(instance).to receive(:info).with("formatted epilogue")
       instance.epilogue(res)
     end
   end
@@ -148,15 +154,17 @@ RSpec.describe Pakyow::RequestLogger do
     end
 
     it "logs the error at the proper level" do
-      expect(logger).to receive(:error) do |message|
-        expect(message[:error].wrapped_exception).to eq(err)
-      end
+      expect(logger.formatter).to receive(:format_error) { |error_to_format|
+        expect(error_to_format.wrapped_exception).to be(err)
+        "formatted error"
+      }
 
+      expect(instance).to receive(:error).with("formatted error")
       instance.houston(err)
     end
   end
 
-  describe "decorated message" do
+  describe "decorating the message" do
     let :message do
       ""
     end
@@ -165,50 +173,24 @@ RSpec.describe Pakyow::RequestLogger do
       instance << message
     end
 
-    it "contains elapsed time" do
-      expect(logger).to receive(:<<) do |message|
-        expect(message[:elapsed]).to be_between(0.0, 1.0)
-      end
-    end
+    it "lets the formatter decorate the message" do
+      expect(logger.formatter).to receive(:format_request) { |**kwargs|
+        expect(kwargs[:id]).to be(instance.id)
+        expect(kwargs[:type]).to be(instance.type)
+        expect(kwargs[:elapsed]).to be_between(0.0, 1.0)
+        expect(kwargs[:message]).to be(message)
+        "formatted request"
+      }
 
-    it "contains the request id" do
-      expect(logger).to receive(:<<) do |message|
-        expect(message[:request][:id]).to be(instance.id)
-      end
-    end
-
-    it "contains the request type" do
-      expect(logger).to receive(:<<) do |message|
-        expect(message[:request][:type]).to be(instance.type)
-      end
-    end
-
-    context "when message is a hash" do
-      let :message do
-        { foo: "bar" }
-      end
-
-      it "merges the message" do
-        expect(logger).to receive(:<<) do |message|
-          expect(message[:foo]).to eq("bar")
-        end
-      end
-    end
-
-    context "when message is a string" do
-      let :message do
-        "bar"
-      end
-
-      it "merges the message" do
-        expect(logger).to receive(:<<) do |message|
-          expect(message[:message]).to eq("bar")
-        end
-      end
+      expect(logger).to receive(:<<).with("formatted request")
     end
   end
 
   describe "#silence" do
+    let :logger do
+      double.as_null_object
+    end
+
     it "sets the log level to the temporary level" do
       expect(logger).to receive(:level=).with(Pakyow::Logger::ERROR)
       instance.silence do; end

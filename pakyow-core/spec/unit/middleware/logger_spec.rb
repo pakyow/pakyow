@@ -64,7 +64,7 @@ RSpec.describe Pakyow::Middleware::Logger do
     end
 
     let :logger do
-      Pakyow::RequestLogger.new(:http, logger: ::Logger.new(io))
+      Pakyow::RequestLogger.new(:http, logger: Pakyow::Logger.new(io))
     end
 
     before do
@@ -79,15 +79,23 @@ RSpec.describe Pakyow::Middleware::Logger do
 
     context "silencer is matched" do
       it "silences log output" do
+        expect(logger).to receive(:prologue) do
+          expect(logger.logger.level).to eq(Logger::ERROR)
+        end
+
+        expect(logger).to receive(:epilogue) do
+          expect(logger.logger.level).to eq(Logger::ERROR)
+        end
+
         middleware.call(Rack::PATH_INFO => "/foo")
-        expect(io.string).to be_empty
       end
     end
 
     context "silencer is not matched" do
       it "does not silence log output" do
+        expect(logger).to receive(:prologue)
+        expect(logger).to receive(:epilogue)
         middleware.call(Rack::PATH_INFO => "/bar")
-        expect(io.string).not_to be_empty
       end
     end
   end

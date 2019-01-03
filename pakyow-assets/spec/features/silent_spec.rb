@@ -4,7 +4,8 @@ RSpec.describe "silencing requests" do
   end
 
   let :logger do
-    Pakyow::RequestLogger.new(:http, logger: Pakyow::Logger.new(io))
+    require "pakyow/logger/formatters/human"
+    Pakyow::RequestLogger.new(:http, logger: Pakyow::Logger.new(io).tap { |logger| logger.formatter = Pakyow::Logger::Formatters::Human.new })
   end
 
   before do

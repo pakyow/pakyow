@@ -13,37 +13,22 @@ RSpec.shared_examples :log_formatter do
 
   let :prologue do
     {
-      prologue: {
-        method: "GET",
-        uri: "/",
-        ip: "0.0.0.0",
-        time: datetime,
-      }
-    }.merge(message)
+      method: "GET",
+      uri: "/",
+      ip: "0.0.0.0",
+      time: datetime
+    }
   end
 
   let :epilogue do
     {
-      epilogue: {
-        status: 200
-      }
-    }.merge(message)
+      status: 200
+    }
   end
 
   let :error do
-    error = ArgumentError.new("foo")
-    error.set_backtrace(["one", "two"])
-    { error: error }.merge(message)
-  end
-
-  let :message do
-    {
-      elapsed: 0.01,
-      request: {
-        id: "123",
-        type: "http",
-      },
-      message: "foo",
-    }
+    ArgumentError.new("foo").tap do |error|
+      error.set_backtrace(["one", "two"])
+    end
   end
 end

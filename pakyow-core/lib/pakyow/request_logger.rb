@@ -8,17 +8,17 @@ require "pakyow/logger"
 module Pakyow
   # Logs messages throughout a request / response lifecycle.
   #
-  # Each call to the app is expected to have its own RequestLogger instance,
-  # identified by type (e.g. http, sock) and containing a unique id. Every
-  # log entry will be decorated with additional details about the request.
-  # In addition to logging standard messages, this class provides a way to
-  # log the prologue and epilogue of a request / response lifecycle. These
-  # messages help tell the full story for the request. Finally, this class
-  # provides a way to log errors that occur.
+  # Each request is expected to have its own RequestLogger instance, identified
+  # by type (e.g. http, sock) and containing a unique id. Every log entry is
+  # decorated with additional details about the request, including the request
+  # method, uri, and ip address.
   #
-  # Interact with RequestLogger exactly like a normal log object, keeping
-  # in mind that the actual responsibility of logging is delegated to the
-  # logger object passed to the initializer.
+  # In addition to logging standard messages, this class provides a way to log a
+  # "prologue" and "epilogue" for the request. These special messages help tell
+  # the full story for the request.
+  #
+  # Interact with RequestLogger as you would a normal log object, keeping in
+  # mind that most of the work is delegated to the underlying logger object.
   #
   # @api private
   class RequestLogger
@@ -78,17 +78,19 @@ module Pakyow
     alias log add
 
     # Logs the beginning of a request, including the time, request method,
-    # request uri, and ip address of the requester.
+    # request uri, and originating ip address.
     #
     # @param env [Hash] the rack env for the request
     #
     def prologue(env)
-      info(prologue: {
-             time: start,
-             method: env[Rack::REQUEST_METHOD],
-             uri: env[REQUEST_URI],
-             ip: Rack::Request.new(env).ip
-           })
+      info(
+        @logger.formatter.format_prologue(
+          time: start,
+          method: env[Rack::REQUEST_METHOD],
+          uri: env[REQUEST_URI],
+          ip: Rack::Request.new(env).ip
+        )
+      )
     end
 
     # Logs the conclusion of a request, including the response status.
@@ -96,9 +98,11 @@ module Pakyow
     # @param res [Array] the rack response array
     #
     def epilogue(res)
-      info(epilogue: {
-             status: res.to_a[0]
-           })
+      info(
+        @logger.formatter.format_epilogue(
+          status: res.to_a[0]
+        )
+      )
     end
 
     # Logs an error raised when processing the request.
@@ -110,7 +114,11 @@ module Pakyow
         error = Error.build(error)
       end
 
-      error(error: error)
+      error(
+        @logger.formatter.format_error(
+          error
+        )
+      )
     end
 
     private
@@ -120,13 +128,12 @@ module Pakyow
     end
 
     def decorate(message)
-      {
+      @logger.formatter.format_request(
+        id: id,
+        type: type,
         elapsed: elapsed,
-        request: {
-          id: id,
-          type: type
-        }
-      }.merge(message.is_a?(Hash) ? message : { message: message })
+        message: message
+      )
     end
   end
 end

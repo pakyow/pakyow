@@ -5,7 +5,7 @@ require "pakyow/logger/formatters/json"
 module Pakyow
   class Logger
     module Formatters
-      # Used by {Pakyow::RequestLogger} to format request / response lifecycle messages in logfmt.
+      # Formats log messages as logfmt.
       #
       # @example
       #   severity=INFO timestamp="2016-06-20 10:08:29 -0500" id=678cf582 type=http elapsed=0.01ms method=GET uri=/ ip=127.0.0.1
@@ -19,7 +19,6 @@ module Pakyow
         UNESCAPED_STRING = /\A[\w\.\-\+\%\,\:\;\/]*\z/i
 
         def format(message)
-          message.delete(:time)
           escape(message).map { |key, value|
             "#{key}=#{value}"
           }.join(" ") + "\n"
