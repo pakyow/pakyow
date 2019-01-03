@@ -32,25 +32,25 @@ module Pakyow
   end
 
   class UnknownCommand < Error
-    MESSAGES = {
+    class_state :messages, default: {
       default: "`{command}' is not a known command"
     }.freeze
   end
 
   class UnknownFramework < Error
-    MESSAGES = {
+    class_state :messages, default: {
       default: "`{framework}' is not a known framework"
     }.freeze
   end
 
   class UnknownHelperContext < Error
-    MESSAGES = {
+    class_state :messages, default: {
       default: "`{context}' is not a known helper context"
     }.freeze
   end
 
   class UnknownType < Error
-    MESSAGES = {
+    class_state :messages, default: {
       default: "`{type}' is not a known type"
     }.freeze
 
@@ -68,7 +68,7 @@ module Pakyow
   end
 
   class UnknownPlugin < Error
-    MESSAGES = {
+    class_state :messages, default: {
       default: "`{plugin}' is not a known plugin"
     }.freeze
 
@@ -86,7 +86,7 @@ module Pakyow
   end
 
   class UnknownValidationError < Error
-    MESSAGES = {
+    class_state :messages, default: {
       default: "`{validation}' is not a known validation"
     }.freeze
   end

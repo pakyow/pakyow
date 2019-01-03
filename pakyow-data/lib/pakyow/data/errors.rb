@@ -18,7 +18,7 @@ module Pakyow
     end
 
     class ConstraintViolation < Error
-      MESSAGES = {
+      class_state :messages, default: {
         associate_many_missing: "can't associate results as `{association}' because at least one value could not be found",
         associate_missing: "can't find associated {source} with {field} of `{value}'",
         associate_multiple: "can't associate multiple results as `{association}'",
@@ -30,7 +30,7 @@ module Pakyow
     end
 
     class NotNullViolation < Error
-      MESSAGES = {
+      class_state :messages, default: {
         default: "`{attribute}' is a required attribute"
       }.freeze
     end
@@ -42,7 +42,7 @@ module Pakyow
     end
 
     class TypeMismatch < Error
-      MESSAGES = {
+      class_state :messages, default: {
         default: "can't convert `{type}' into {mapping}",
         associate_many_not_object: "can't associate results as `{association}' because at least one value is not a Pakyow::Data::Object",
         associate_many_wrong_source: "can't associate results as `{association}' because at least one value did not originate from {source}",
@@ -57,13 +57,13 @@ module Pakyow
     end
 
     class UnknownAdapter < Error
-      MESSAGES = {
+      class_state :messages, default: {
         default: "`{type}' is not a known adapter"
       }.freeze
     end
 
     class UnknownAttribute < Error
-      MESSAGES = {
+      class_state :messages, default: {
         default: "`{attribute}' is not a known attribute for {source}"
       }.freeze
     end
@@ -97,7 +97,7 @@ module Pakyow
     end
 
     class UnknownCommand < Error
-      MESSAGES = {
+      class_state :messages, default: {
         default: "`{command}' is not a known command"
       }.freeze
 
@@ -129,7 +129,7 @@ module Pakyow
     end
 
     class UnknownSource < Error
-      MESSAGES = {
+      class_state :messages, default: {
         default: "unknown source `{association_source}' for association: {source} {association_type} {association_name}"
       }.freeze
 

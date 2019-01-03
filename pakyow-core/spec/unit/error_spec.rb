@@ -21,7 +21,7 @@ RSpec.describe Pakyow::Error do
     context "subclass defines its own messages" do
       let :error do
         Class.new(described_class) do
-          MESSAGES = {
+          class_state :messages, default: {
             default: "default message",
             custom: "custom message"
           }
@@ -40,7 +40,7 @@ RSpec.describe Pakyow::Error do
     context "message contains variables" do
       let :error do
         Class.new(described_class) do
-          MESSAGES = {
+          class_state :messages, default: {
             default: "hello {name}",
           }
         end

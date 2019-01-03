@@ -8,7 +8,7 @@ module Pakyow
     end
 
     class UnknownExternalAsset < Error
-      MESSAGES = {
+      class_state :messages, default: {
         default: "`{asset}' is not a known external asset"
       }.freeze
     end

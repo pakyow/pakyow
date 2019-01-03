@@ -3,6 +3,7 @@
 require "pathname"
 require "method_source"
 
+require "pakyow/support/class_state"
 require "pakyow/support/cli/style"
 require "pakyow/support/inflector"
 require "pakyow/support/string_builder"
@@ -36,24 +37,19 @@ module Pakyow
 
       private
 
-      MESSAGES = {}.freeze
-
       def message(type = :default, **values)
-        messages = if const_defined?(:MESSAGES)
-          const_get(:MESSAGES)
-        else
-          MESSAGES
-        end
-
-        if messages.include?(type)
+        if @messages.include?(type)
           Support::StringBuilder.new(
-            messages[type]
+            @messages[type]
           ).build(**values)
         else
           ""
         end
       end
     end
+
+    extend Support::ClassState
+    class_state :messages, default: {}, inheritable: true
 
     attr_accessor :wrapped_exception, :context
 
