@@ -21,7 +21,7 @@ gem "pry-byebug", ">= 3.6"
 gem "rubocop", ">= 0.51"
 
 group :test do
-  gem "simplecov", ">= 0.15", require: false
+  gem "simplecov", ">= 0.16", require: false
   gem "simplecov-console", ">= 0.4"
 
   gem "rack-test", ">= 0.8", require: "rack/test"
@@ -29,24 +29,24 @@ group :test do
   gem "codeclimate-test-reporter", require: false
 
   gem "event_emitter", ">= 0.2"
-  gem "httparty", ">= 0.15"
-  gem "puma", ">= 3.11"
+  gem "httparty", ">= 0.16"
+  gem "puma", ">= 3.12"
 
-  gem "rspec", "~> 3.7"
-  gem "rspec-benchmark", "~> 0.3"
+  gem "rspec", "~> 3.8"
+  gem "rspec-benchmark", "~> 0.4"
 
   gem "warning", "~> 0.10"
 
-  gem "babel-transpiler"
-  gem "sassc"
+  gem "babel-transpiler", "~> 0.7"
+  gem "sassc", "~> 2.0"
 
-  gem "mysql2"
-  gem "pg"
-  gem "sqlite3"
+  gem "mysql2", "~> 0.5"
+  gem "pg", "~> 1.1"
+  gem "sqlite3", "~> 1.3"
 
-  gem "bootsnap"
-  gem "dotenv"
+  gem "bootsnap", "~> 1.3"
+  gem "dotenv", "~> 2.5"
 
-  gem "ruby-prof", require: false
-  gem "memory_profiler", require: false
+  gem "ruby-prof", "~> 0.17", require: false
+  gem "memory_profiler", "~> 0.9", require: false
 end
