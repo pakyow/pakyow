@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "pakyow/support/class_state"
+
 module Pakyow
   module Support
     # Provides pipeline behavior. Pipelined objects can define actions to be called in order on an
@@ -244,16 +246,19 @@ module Pakyow
           super
         end
 
-        def call(object)
+        def call(object, stack = @stack.dup)
           catch :halt do
-            @stack.each do |action|
+            until stack.empty? || (object.respond_to?(:halted?) && object.halted?)
+              action = stack.shift
               if action.arity == 0
-                action.call
+                action.call do
+                  call(object, stack)
+                end
               else
-                action.call(object)
+                action.call(object) do
+                  call(object, stack)
+                end
               end
-
-              break if object.respond_to?(:halted?) && object.halted?
             end
           end
 
