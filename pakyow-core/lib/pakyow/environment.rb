@@ -15,6 +15,7 @@ require "pakyow/support/logging"
 require "pakyow/environment/behavior/config"
 require "pakyow/environment/behavior/initializers"
 require "pakyow/environment/behavior/plugins"
+require "pakyow/environment/behavior/request_parsing"
 require "pakyow/environment/behavior/silencing"
 
 require "pakyow/logger"
@@ -67,7 +68,6 @@ require "pakyow/app"
 #
 # - Rack::Head
 # - Rack::MethodOverride
-# - {Middleware::JSONBody}
 # - {Middleware::Normalizer}
 #
 # Each endpoint can add its own middleware through its builder.
@@ -94,6 +94,7 @@ module Pakyow
   include Environment::Behavior::Config
   include Environment::Behavior::Initializers
   include Environment::Behavior::Plugins
+  include Environment::Behavior::RequestParsing
   include Environment::Behavior::Silencing
 
   # Loads the default middleware stack.
@@ -101,7 +102,6 @@ module Pakyow
   before :setup do
     use Rack::Head
     use Rack::MethodOverride
-    use Middleware::JSONBody
     use Middleware::Normalizer
   end
 

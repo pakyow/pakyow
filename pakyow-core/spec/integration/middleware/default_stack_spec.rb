@@ -29,12 +29,6 @@ RSpec.describe "default middleware stack" do
       )
     end
 
-    it "uses Middleware::JSONBody" do
-      expect(builder).to have_received(:use).with(
-        Pakyow::Middleware::JSONBody
-      )
-    end
-
     it "uses Middleware::Normalizer" do
       expect(builder).to have_received(:use).with(
         Pakyow::Middleware::Normalizer

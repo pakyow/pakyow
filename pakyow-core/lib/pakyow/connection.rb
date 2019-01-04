@@ -57,7 +57,7 @@ module Pakyow
                    :script_name, :url, :session, :env, :logger, :ssl?, :fullpath
     def_delegators :response, :status, :status=, :write, :close, :body=
 
-    attr_reader :app, :request, :response, :values, :timestamp, :id
+    attr_reader :app, :request, :response, :values, :timestamp, :id, :parsed_body
 
     # Contains the error object when the connection is in a failed state.
     #
@@ -67,6 +67,7 @@ module Pakyow
       @timestamp, @id = Time.now, SecureRandom.hex(4)
       @app, @request, @response = app, Rack::Request.new(rack_env), Rack::Response.new
       @initial_cookies = cookies.dup
+      @parsed_body = nil
       @values = {}
     end
 
@@ -151,7 +152,7 @@ module Pakyow
     # Returns an indifferentized params hash.
     #
     def params
-      @params ||= @request.params.deep_indifferentize
+      @params ||= build_params
     end
 
     # Returns an indifferentized cookie hash.
@@ -178,6 +179,11 @@ module Pakyow
     end
     alias type content_type
 
+    def parsed_body=(parsed)
+      @parsed_body = parsed
+      @params = nil
+    end
+
     private
 
     def set_cookies
@@ -198,6 +204,15 @@ module Pakyow
       (@initial_cookies.keys - cookies.keys).each do |name|
         @response.delete_cookie(name)
       end
+    end
+
+    def build_params
+      params = @request.params
+      if @parsed_body.is_a?(Hash)
+        params = params.merge(@parsed_body)
+      end
+
+      params.deep_indifferentize
     end
   end
 end

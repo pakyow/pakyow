@@ -157,7 +157,7 @@ RSpec.describe "route params" do
     before do
       # necessary because you can't set content-type on a mock request
       allow_any_instance_of(Rack::Request).to receive(:media_type).and_return(
-        Pakyow::Middleware::JSONBody::JSON_TYPE
+        "application/json"
       )
     end
 

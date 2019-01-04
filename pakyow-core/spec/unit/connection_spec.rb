@@ -70,6 +70,28 @@ RSpec.describe Pakyow::Connection do
         expect(connection.params[:foo]).to be_instance_of(Pakyow::Support::IndifferentHash)
       end
     end
+
+    context "parsed body is set to a hash" do
+      before do
+        allow_any_instance_of(Rack::Request).to receive(:params).and_return(foo: :bar)
+        connection.parsed_body = { baz: :qux }
+      end
+
+      it "includes the parsed body in the params" do
+        expect(connection.params).to eq(foo: :bar, baz: :qux)
+      end
+    end
+
+    context "parsed body is set to something other than a hash" do
+      before do
+        allow_any_instance_of(Rack::Request).to receive(:params).and_return(foo: :bar)
+        connection.parsed_body = []
+      end
+
+      it "does not include the parsed body in the params" do
+        expect(connection.params).to eq(foo: :bar)
+      end
+    end
   end
 
   describe "#cookies" do
@@ -183,6 +205,19 @@ RSpec.describe Pakyow::Connection do
       id = "1234"
       allow(SecureRandom).to receive(:hex).with(4).and_return(id)
       expect(connection.id).to eq(id)
+    end
+  end
+
+  describe "#parsed_body=" do
+    it "sets the parsed body" do
+      connection.parsed_body = { foo: :bar }
+      expect(connection.parsed_body).to eq(foo: :bar)
+    end
+
+    it "invalidates the connection params" do
+      connection.params
+      connection.parsed_body = { foo: :bar }
+      expect(connection.params).to eq(foo: :bar)
     end
   end
 end
