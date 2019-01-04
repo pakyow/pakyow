@@ -1,5 +1,3 @@
-require "pakyow/routing"
-
 RSpec.describe "configuring an app" do
   include_context "app"
 
@@ -26,10 +24,11 @@ RSpec.describe "configuring an app" do
 
     let :app_init do
       Proc.new do
-        controller do
-          default do
-            send config.name
-          end
+        after :initialize, priority: :low do
+          @__pipeline.action Proc.new { |connection|
+            connection.body = config.name
+            connection.halt
+          }
         end
       end
     end
@@ -37,7 +36,7 @@ RSpec.describe "configuring an app" do
     it "is configured properly" do
       res = call
       expect(res[0]).to eq(200)
-      expect(res[2].body.read).to eq("config-env-test")
+      expect(res[2].body).to eq("config-env-test")
     end
   end
 end
@@ -54,10 +53,11 @@ RSpec.describe "accessing the app's config" do
 
     let :app_init do
       Proc.new do
-        controller do
-          default do
-            send config.name
-          end
+        after :initialize, priority: :low do
+          @__pipeline.action Proc.new { |connection|
+            connection.body = config.name
+            connection.halt
+          }
         end
       end
     end
@@ -65,7 +65,7 @@ RSpec.describe "accessing the app's config" do
     it "is accessible" do
       res = call
       expect(res[0]).to eq(200)
-      expect(res[2].body.read).to eq("config-test")
+      expect(res[2].body).to eq("config-test")
     end
   end
 

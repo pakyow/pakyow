@@ -1,5 +1,3 @@
-require "pakyow/routing"
-
 RSpec.describe "defining an app" do
   include_context "app"
 
@@ -11,10 +9,11 @@ RSpec.describe "defining an app" do
 
   let :app_init do
     Proc.new do
-      controller do
-        default do
-          send config.name
-        end
+      after :initialize, priority: :low do
+        @__pipeline.action Proc.new { |connection|
+          connection.body = config.name
+          connection.halt
+        }
       end
     end
   end
@@ -22,22 +21,21 @@ RSpec.describe "defining an app" do
   it "defines the app" do
     res = call
     expect(res[0]).to eq(200)
-    expect(res[2].body.read).to eq("define-test")
+    expect(res[2].body).to eq("define-test")
   end
 
   context "when app is a subclass" do
     let :base do
-      klass = Class.new(Pakyow::App) do
-        include_frameworks(:routing)
-      end
+      klass = Class.new(Pakyow::App)
 
       klass.define do
         config.name = "define-test"
 
-        controller do
-          default do
-            send config.name
-          end
+        after :initialize, priority: :low do
+          @__pipeline.action Proc.new { |connection|
+            connection.body = config.name
+            connection.halt
+          }
         end
       end
 
@@ -57,7 +55,7 @@ RSpec.describe "defining an app" do
     it "inherits parent state" do
       res = call
       expect(res[0]).to eq(200)
-      expect(res[2].body.read).to eq("define-test")
+      expect(res[2].body).to eq("define-test")
     end
 
     context "and the subclassed app defines new state" do
@@ -70,7 +68,7 @@ RSpec.describe "defining an app" do
       it "uses the child's defined state" do
         res = call
         expect(res[0]).to eq(200)
-        expect(res[2].body.read).to eq("child-test")
+        expect(res[2].body).to eq("child-test")
       end
 
       it "does not modify the parent state" do
@@ -84,10 +82,11 @@ RSpec.describe "defining an app" do
       Proc.new do
         config.name = "runtime-test"
 
-        controller do
-          default do
-            send config.name
-          end
+        after :initialize, priority: :low do
+          @__pipeline.action Proc.new { |connection|
+            connection.body = config.name
+            connection.halt
+          }
         end
       end
     end
@@ -95,7 +94,7 @@ RSpec.describe "defining an app" do
     it "is extended with the new state" do
       res = call
       expect(res[0]).to eq(200)
-      expect(res[2].body.read).to eq("runtime-test")
+      expect(res[2].body).to eq("runtime-test")
     end
 
     it "does not modify the class-level state" do
