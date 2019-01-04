@@ -95,6 +95,31 @@ RSpec.describe Pakyow::Error do
       end
     end
 
+    context "error occurred within ruby" do
+      before do
+        allow_any_instance_of(Pakyow::Error).to receive(:project?).and_return(false)
+      end
+
+      it "says that the error occurred within the gem" do
+        begin
+          require "json"
+          JSON.parse("{;")
+        rescue => error
+          wrapped = described_class.build(error)
+        end
+
+        path = Pathname.new(__FILE__).relative_path_from(
+          Pathname.new(Pakyow.config.root)
+        )
+
+        expect(wrapped.details).to eq(
+          <<~MESSAGE
+            `JSON::ParserError' occurred outside of your project, within the `json' library.
+          MESSAGE
+        )
+      end
+    end
+
     context "error occurred within a gem" do
       before do
         allow_any_instance_of(Pakyow::Error).to receive(:project?).and_return(false)
@@ -233,7 +258,7 @@ RSpec.describe Pakyow::Error do
         Pathname.new(Pakyow.config.root)
       )
 
-      expect(error.condensed_backtrace[1]).to eq("         › #{path}:214:in `bar`")
+      expect(error.condensed_backtrace[1]).to eq("         › #{path}:239:in `bar`")
     end
 
     context "error occurred within the project" do

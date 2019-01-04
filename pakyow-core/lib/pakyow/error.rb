@@ -79,11 +79,15 @@ module Pakyow
           #{indent_as_source(MethodSource.source_helper([path, location.lineno], location.label), location.lineno)}
         MESSAGE
       elsif location = (cause || self).backtrace_locations.to_a[0]
-        library_name = gem_name(location.absolute_path)
-        occurred_in = if library_name.start_with?("pakyow-")
+        library_name = library_name(location.absolute_path)
+        library_type = library_type(location.absolute_path)
+
+        occurred_in = if library_type == :pakyow || library_name.start_with?("pakyow-")
           "`#{library_name.split("-", 2)[1]}' framework"
-        else
+        elsif library_type == :gem
           "`#{library_name}' gem"
+        else
+          "`#{library_name}' library"
         end
 
         <<~MESSAGE
@@ -129,7 +133,7 @@ module Pakyow
         }
       else
         padded_length = backtrace.map { |line|
-          gem_name(line).to_s.gsub(/^pakyow-/, "")
+          library_name(line).to_s.gsub(/^pakyow-/, "")
         }.max_by(&:length).length + 3
 
         backtrace.map { |line|
@@ -137,7 +141,7 @@ module Pakyow
           if line.start_with?(Pakyow.config.root)
             "› ".rjust(padded_length) + modified_line
           else
-            "#{gem_name(line).to_s.gsub(/^pakyow-/, "")} | ".rjust(padded_length) + modified_line.split("/", 2)[1]
+            "#{library_name(line).to_s.gsub(/^pakyow-/, "")} | ".rjust(padded_length) + modified_line.split("/", 2)[1]
           end
         }
       end
@@ -176,6 +180,8 @@ module Pakyow
         line.gsub(/^#{Pakyow.config.root}\//, "")
       elsif line.start_with?(Gem.default_dir)
         line.gsub(/^#{Gem.default_dir}\/gems\//, "")
+      elsif line.start_with?(RbConfig::CONFIG["libdir"])
+        line.gsub(/^#{RbConfig::CONFIG["libdir"]}\//, "")
       elsif line.start_with?(LOCAL_FRAMEWORK_PATH)
         line.gsub(/^#{LOCAL_FRAMEWORK_PATH}\//, "")
       else
@@ -183,11 +189,26 @@ module Pakyow
       end
     end
 
-    def gem_name(line)
-      if line.start_with?(Gem.default_dir)
+    def library_name(line)
+      case library_type(line)
+      when :gem
         strip_path_prefix(line).split("/")[0].split("-")[0..-2].join("-")
-      elsif line.start_with?(LOCAL_FRAMEWORK_PATH)
+      when :ruby
+        strip_path_prefix(line).split("/")[2]
+      when :pakyow
         strip_path_prefix(line).split("/")[0]
+      else
+        nil
+      end
+    end
+
+    def library_type(line)
+      if line.start_with?(Gem.default_dir)
+        :gem
+      elsif line.start_with?(RbConfig::CONFIG["libdir"])
+        :ruby
+      elsif line.start_with?(LOCAL_FRAMEWORK_PATH)
+        :pakyow
       else
         nil
       end
