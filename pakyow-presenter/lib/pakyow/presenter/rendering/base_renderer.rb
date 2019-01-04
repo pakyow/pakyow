@@ -16,7 +16,7 @@ module Pakyow
       events :render
 
       include Support::Pipelined
-      include Support::Pipelined::Haltable
+      include Support::Pipelined::Object
 
       attr_reader :connection, :presenter
 

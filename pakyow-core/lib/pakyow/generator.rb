@@ -7,8 +7,10 @@ require "pathname"
 require "pakyow/support/cli/runner"
 require "pakyow/support/class_state"
 require "pakyow/support/extension"
-require "pakyow/support/pipelined"
 require "pakyow/support/hookable"
+
+require "pakyow/support/pipelined"
+require "pakyow/support/pipelined/object"
 
 module Pakyow
   # Base class for generators.
@@ -55,6 +57,8 @@ module Pakyow
 
     class File
       include Common
+
+      include Support::Pipelined::Object
 
       attr_accessor :path, :logical_path, :content, :context
 

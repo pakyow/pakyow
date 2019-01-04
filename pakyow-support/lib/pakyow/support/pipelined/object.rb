@@ -3,11 +3,21 @@
 module Pakyow
   module Support
     module Pipelined
-      # Makes an object haltable.
+      # Makes an object passable through a pipeline.
       #
-      module Haltable
+      module Object
         def self.included(base)
           base.prepend Initializer
+        end
+
+        def pipelined
+          tap do
+            @pipelined = true
+          end
+        end
+
+        def pipelined?
+          @pipelined == true
         end
 
         def halt
@@ -21,7 +31,7 @@ module Pakyow
 
         module Initializer
           def initialize(*args)
-            @halted = false
+            @pipelined, @halted = false
             super
           end
         end

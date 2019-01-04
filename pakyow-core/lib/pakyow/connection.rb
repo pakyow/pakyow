@@ -7,7 +7,7 @@ require "pakyow/support/hookable"
 require "pakyow/support/indifferentize"
 require "pakyow/support/inspectable"
 
-require "pakyow/support/pipelined/haltable"
+require "pakyow/support/pipelined/object"
 
 module Pakyow
   # Represents the request/response.
@@ -49,7 +49,7 @@ module Pakyow
     include Pakyow::Support::Inspectable
     inspectable :method, :params, :cookies, :status, :body
 
-    include Support::Pipelined::Haltable
+    include Support::Pipelined::Object
 
     extend Forwardable
     def_delegators :request, :host, :port, :ip, :user_agent, :base_url, :path, :path_info,
