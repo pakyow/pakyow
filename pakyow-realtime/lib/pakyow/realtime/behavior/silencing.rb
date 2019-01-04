@@ -13,8 +13,8 @@ module Pakyow
         apply_extension do
           after :configure do
             unless config.realtime.log_initial_request
-              Middleware::Logger.silencers << Proc.new do |path_info|
-                path_info.start_with?(File.join("/", config.realtime.path))
+              Pakyow.silence do |connection|
+                connection.path.start_with?(File.join("/", config.realtime.path))
               end
             end
           end

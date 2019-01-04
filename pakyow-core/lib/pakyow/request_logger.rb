@@ -30,9 +30,9 @@ module Pakyow
     #   @return [String] the unique id of the request being logged
     attr_reader :id
 
-    # @!attribute [r] start
+    # @!attribute [r] started_at
     #   @return [Time] the time when the request started
-    attr_reader :start
+    attr_reader :started_at
 
     # @!attribute [r] type
     #   @return [Symbol] the type of request being logged
@@ -42,13 +42,11 @@ module Pakyow
     REQUEST_URI = "REQUEST_URI"
 
     # @param type [Symbol] the type of request being logged (e.g. :http, :sock)
+    # @param started_at [Time] when the request began
     # @param logger [Object] the object that will perform the logging
     # @param id [String] a unique id used to identify the request
-    def initialize(type, logger: Pakyow.logger.dup, id: SecureRandom.hex(4))
-      @start = Time.now
-      @logger = logger
-      @type = type
-      @id = id
+    def initialize(type, started_at: Time.now, logger: Pakyow.logger.dup, id: SecureRandom.hex(4))
+      @type, @started_at, @logger, @id = type, started_at, logger, id
     end
 
     # Temporarily silences logs, up to +temporary_level+.
@@ -82,27 +80,16 @@ module Pakyow
     #
     # @param env [Hash] the rack env for the request
     #
-    def prologue(env)
-      info(
-        @logger.formatter.format_prologue(
-          time: start,
-          method: env[Rack::REQUEST_METHOD],
-          uri: env[REQUEST_URI],
-          ip: Rack::Request.new(env).ip
-        )
-      )
+    def prologue(connection)
+      info(@logger.formatter.format_prologue(connection))
     end
 
     # Logs the conclusion of a request, including the response status.
     #
     # @param res [Array] the rack response array
     #
-    def epilogue(res)
-      info(
-        @logger.formatter.format_epilogue(
-          status: res.to_a[0]
-        )
-      )
+    def epilogue(connection)
+      info(@logger.formatter.format_epilogue(connection))
     end
 
     # Logs an error raised when processing the request.
@@ -124,15 +111,12 @@ module Pakyow
     private
 
     def elapsed
-      (Time.now - start)
+      (Time.now - @started_at)
     end
 
     def decorate(message)
-      @logger.formatter.format_request(
-        id: id,
-        type: type,
-        elapsed: elapsed,
-        message: message
+      @logger.formatter.format_message(
+        message, id: id, type: type, elapsed: elapsed
       )
     end
   end

@@ -10,20 +10,24 @@ RSpec.describe Pakyow::Logger::Formatters::Logfmt do
   end
 
   it "formats the prologue" do
-    expect(formatter.format_prologue(prologue)).to eq(prologue)
+    expect(formatter.format_prologue(connection)).to eq(
+      method: "GET",
+      uri: "/",
+      ip: "0.0.0.0"
+    )
   end
 
   it "formats the epilogue" do
-    expect(formatter.format_epilogue(epilogue)).to eq(epilogue)
+    expect(formatter.format_epilogue(connection)).to eq(
+      status: 200
+    )
   end
 
   it "formats an error" do
     expect(formatter.format_error(error)).to eq(
-      {
-        exception: error.class,
-        message: error.to_s,
-        backtrace: error.backtrace
-      }
+      exception: error.class,
+      message: error.to_s,
+      backtrace: error.backtrace
     )
   end
 

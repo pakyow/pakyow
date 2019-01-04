@@ -23,27 +23,27 @@ module Pakyow
         end
 
         # @api private
-        def format_prologue(prologue)
+        def format_prologue(connection)
           sprintf(
             "%s %s (for %s at %s)",
-            prologue[:method],
-            prologue[:uri],
-            prologue[:ip],
-            prologue[:time]
+            connection.method.to_s.upcase,
+            connection.path,
+            connection.ip,
+            connection.timestamp
           )
         end
 
         # @api private
-        def format_epilogue(epilogue)
+        def format_epilogue(connection)
           sprintf(
             "%s (%s)",
-            epilogue[:status],
-            Connection.nice_status(epilogue[:status])
+            connection.status,
+            Connection.nice_status(connection.status)
           )
         end
 
         # @api private
-        def format_request(id:, type:, message:, elapsed:)
+        def format_message(message, id:, type:, elapsed:)
           constructed_message = sprintf(
             "%s %s.%s | %s\n",
             Timekeeper.format_elapsed_time(elapsed).rjust(8, " "),

@@ -26,6 +26,18 @@ RSpec.describe Pakyow::RequestLogger do
     klass.new(type)
   end
 
+  let :env do
+    {
+      "REQUEST_METHOD" => "GET",
+      "PATH_INFO" => "/",
+      "REMOTE_ADDR" => "0.0.0.0",
+    }
+  end
+
+  let :connection do
+    Pakyow::Connection.new(instance_double(Pakyow::App), env)
+  end
+
   before do
     allow(logger).to receive(:dup).and_return(logger)
     allow(Pakyow).to receive(:logger).and_return(logger)
@@ -109,42 +121,27 @@ RSpec.describe Pakyow::RequestLogger do
   end
 
   describe "#prologue" do
-    let :env do
-      {
-        "REQUEST_METHOD" => "GET",
-        "REQUEST_PATH" => "/",
-        "REMOTE_ADDR" => "0.0.0.0",
-      }
-    end
-
     it "logs the prologue at the proper level" do
       expect(logger.formatter).to receive(:format_prologue).with(
-        time: instance.start,
-        method: env["REQUEST_METHOD"],
-        uri: env["REQUEST_URI"],
-        ip: env["REMOTE_ADDR"]
+        connection
       ).and_return("formatted prologue")
 
       expect(instance).to receive(:info) do |message|
         expect(message).to eq("formatted prologue")
       end
 
-      instance.prologue(env)
+      instance.prologue(connection)
     end
   end
 
   describe "#epilogue" do
-    let :res do
-      [200, [], {}]
-    end
-
     it "logs the epilogue at the proper level" do
       expect(logger.formatter).to receive(:format_epilogue).with(
-        status: res[0]
+        connection
       ).and_return("formatted epilogue")
 
       expect(instance).to receive(:info).with("formatted epilogue")
-      instance.epilogue(res)
+      instance.epilogue(connection)
     end
   end
 
@@ -174,11 +171,11 @@ RSpec.describe Pakyow::RequestLogger do
     end
 
     it "lets the formatter decorate the message" do
-      expect(logger.formatter).to receive(:format_request) { |**kwargs|
+      expect(logger.formatter).to receive(:format_message) { |received_message, **kwargs|
+        expect(received_message).to be(message)
         expect(kwargs[:id]).to be(instance.id)
         expect(kwargs[:type]).to be(instance.type)
         expect(kwargs[:elapsed]).to be_between(0.0, 1.0)
-        expect(kwargs[:message]).to be(message)
         "formatted request"
       }
 

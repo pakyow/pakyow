@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "forwardable"
+require "securerandom"
 
 require "pakyow/support/deep_dup"
 require "pakyow/support/hookable"
@@ -56,13 +57,14 @@ module Pakyow
                    :script_name, :url, :session, :env, :logger, :ssl?, :fullpath
     def_delegators :response, :status, :status=, :write, :close, :body=
 
-    attr_reader :app, :request, :response, :values
+    attr_reader :app, :request, :response, :values, :timestamp, :id
 
     # Contains the error object when the connection is in a failed state.
     #
     attr_accessor :error
 
     def initialize(app, rack_env)
+      @timestamp, @id = Time.now, SecureRandom.hex(4)
       @app, @request, @response = app, Rack::Request.new(rack_env), Rack::Response.new
       @initial_cookies = cookies.dup
       @values = {}

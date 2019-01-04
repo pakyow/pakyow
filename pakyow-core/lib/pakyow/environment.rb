@@ -2,7 +2,6 @@
 
 require "irb"
 require "rack"
-require "logger"
 
 require "pakyow/support/core_refinements/array/ensurable"
 
@@ -16,6 +15,7 @@ require "pakyow/support/logging"
 require "pakyow/environment/behavior/config"
 require "pakyow/environment/behavior/initializers"
 require "pakyow/environment/behavior/plugins"
+require "pakyow/environment/behavior/silencing"
 
 require "pakyow/logger"
 require "pakyow/middleware"
@@ -69,7 +69,6 @@ require "pakyow/app"
 # - Rack::MethodOverride
 # - {Middleware::JSONBody}
 # - {Middleware::Normalizer}
-# - {Middleware::Logger}
 #
 # Each endpoint can add its own middleware through its builder.
 #
@@ -95,6 +94,7 @@ module Pakyow
   include Environment::Behavior::Config
   include Environment::Behavior::Initializers
   include Environment::Behavior::Plugins
+  include Environment::Behavior::Silencing
 
   # Loads the default middleware stack.
   #
@@ -103,7 +103,6 @@ module Pakyow
     use Rack::MethodOverride
     use Middleware::JSONBody
     use Middleware::Normalizer
-    use Middleware::Logger
   end
 
   # @api private

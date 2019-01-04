@@ -23,15 +23,18 @@ RSpec.describe "using the request logger" do
 
   let :env do
     {
-      Rack::REQUEST_METHOD => "GET",
-      Pakyow::RequestLogger::REQUEST_URI => "/",
+      "REQUEST_METHOD" => "GET",
+      "PATH_INFO" => "/",
       "REMOTE_ADDR" => "0.0.0.0",
-      time: datetime
     }
   end
 
   let :res do
     [200, "", {}]
+  end
+
+  let :connection do
+    Pakyow::Connection.new(instance_double(Pakyow::App), env)
   end
 
   let :error do
@@ -63,12 +66,12 @@ RSpec.describe "using the request logger" do
     end
 
     it "logs the prologue" do
-      request_logger.prologue(env)
+      request_logger.prologue(connection)
       expect(message).to eq("\e[32m  #{elapsed}.00s  http.#{request_logger.id} | GET / (for 0.0.0.0 at #{datetime})\n\e[0m")
     end
 
     it "logs the epilogue" do
-      request_logger.epilogue(res)
+      request_logger.epilogue(connection)
       expect(message).to eq("\e[32m  #{elapsed}.00s  http.#{request_logger.id} | 200 (OK)\n\e[0m")
     end
 
@@ -91,12 +94,12 @@ RSpec.describe "using the request logger" do
     end
 
     it "logs the prologue" do
-      request_logger.prologue(env)
+      request_logger.prologue(connection)
       expect(message).to eq("{\"severity\":\"INFO\",\"timestamp\":\"#{datetime}\",\"id\":\"#{request_logger.id}\",\"type\":\"http\",\"elapsed\":\"#{elapsed * 1000}.00ms\",\"method\":\"GET\",\"uri\":\"/\",\"ip\":\"0.0.0.0\"}\n")
     end
 
     it "logs the epilogue" do
-      request_logger.epilogue(res)
+      request_logger.epilogue(connection)
       expect(message).to eq("{\"severity\":\"INFO\",\"timestamp\":\"#{datetime}\",\"id\":\"#{request_logger.id}\",\"type\":\"http\",\"elapsed\":\"#{elapsed * 1000}.00ms\",\"status\":200}\n")
     end
 
@@ -119,12 +122,12 @@ RSpec.describe "using the request logger" do
     end
 
     it "logs the prologue" do
-      request_logger.prologue(env)
+      request_logger.prologue(connection)
       expect(message).to eq("severity=INFO timestamp=\"#{datetime}\" id=#{request_logger.id} type=http elapsed=#{elapsed * 1000}.00ms method=GET uri=/ ip=0.0.0.0\n")
     end
 
     it "logs the epilogue" do
-      request_logger.epilogue(res)
+      request_logger.epilogue(connection)
       expect(message).to eq("severity=INFO timestamp=\"#{datetime}\" id=#{request_logger.id} type=http elapsed=#{elapsed * 1000}.00ms status=200\n")
     end
 

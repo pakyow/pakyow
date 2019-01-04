@@ -14,15 +14,15 @@ module Pakyow
           after :configure do
             if config.assets.silent
               # silence asset requests
-              Middleware::Logger.silencers << Proc.new do |path_info|
-                path_info.start_with?(config.assets.prefix) || self.class.asset.instances.any? { |asset|
-                  asset.logical_path == path_info
+              Pakyow.silence do |connection|
+                connection.path.start_with?(config.assets.prefix) || self.class.asset.instances.any? { |asset|
+                  asset.logical_path == connection.path
                 }
               end
 
               # silence requests to public files
-              Middleware::Logger.silencers << Proc.new do |path_info|
-                File.file?(File.join(config.assets.public_path, path_info))
+              Pakyow.silence do |connection|
+                File.file?(File.join(config.assets.public_path, connection.path))
               end
             end
           end

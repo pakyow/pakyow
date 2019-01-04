@@ -26,18 +26,23 @@ module Pakyow
         end
 
         # @api private
-        def format_prologue(prologue)
-          prologue.delete(:time)
-          prologue
+        def format_prologue(connection)
+          {
+            method: connection.method.to_s.upcase,
+            uri: connection.path,
+            ip: connection.ip
+          }
         end
 
         # @api private
-        def format_epilogue(epilogue)
-          epilogue
+        def format_epilogue(connection)
+          {
+            status: connection.status
+          }
         end
 
         # @api private
-        def format_request(id:, type:, message:, elapsed:)
+        def format_message(message, id:, type:, elapsed:)
           {
             id: id,
             type: type,

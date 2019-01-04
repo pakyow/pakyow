@@ -169,4 +169,20 @@ RSpec.describe Pakyow::Connection do
       expect(connection.type).to eq("foo")
     end
   end
+
+  describe "#timestamp" do
+    it "returns the connection creation timestamp" do
+      timestamp = Time.now
+      allow(Time).to receive(:now).and_return(timestamp)
+      expect(connection.timestamp).to eq(timestamp)
+    end
+  end
+
+  describe "#id" do
+    it "returns the connection id" do
+      id = "1234"
+      allow(SecureRandom).to receive(:hex).with(4).and_return(id)
+      expect(connection.id).to eq(id)
+    end
+  end
 end

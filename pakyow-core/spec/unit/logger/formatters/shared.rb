@@ -11,19 +11,13 @@ RSpec.shared_examples :log_formatter do
     :rspec
   end
 
-  let :prologue do
-    {
-      method: "GET",
-      uri: "/",
-      ip: "0.0.0.0",
-      time: datetime
-    }
-  end
-
-  let :epilogue do
-    {
-      status: 200
-    }
+  let :connection do
+    Pakyow::Connection.new(
+      instance_double(Pakyow::App),
+      Rack::REQUEST_METHOD => "GET",
+      Rack::PATH_INFO => "/",
+      "REMOTE_ADDR" => "0.0.0.0"
+    )
   end
 
   let :error do

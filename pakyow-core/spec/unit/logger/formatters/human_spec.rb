@@ -10,11 +10,11 @@ RSpec.describe Pakyow::Logger::Formatters::Human do
   end
 
   it "formats the prologue" do
-    expect(formatter.format_prologue(prologue)).to eq("GET / (for 0.0.0.0 at #{datetime})")
+    expect(formatter.format_prologue(connection)).to eq("GET / (for 0.0.0.0 at #{datetime})")
   end
 
   it "formats the epilogue" do
-    expect(formatter.format_epilogue(epilogue)).to eq("200 (OK)")
+    expect(formatter.format_epilogue(connection)).to eq("200 (OK)")
   end
 
   it "formats an error" do
