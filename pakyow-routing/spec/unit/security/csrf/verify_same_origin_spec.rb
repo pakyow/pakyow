@@ -43,7 +43,8 @@ RSpec.describe Pakyow::Security::CSRF::VerifySameOrigin do
           "HTTP_ORIGIN" => "https://pakyow.com",
           "HTTP_HOST" => "pakyow.com",
           Rack::RACK_URL_SCHEME => "https",
-          Rack::SERVER_PORT => 443
+          Rack::SERVER_PORT => 443,
+          "rack.input" => StringIO.new
         }
       end
 
@@ -59,7 +60,8 @@ RSpec.describe Pakyow::Security::CSRF::VerifySameOrigin do
           "HTTP_ORIGIN" => "http://hacked.com",
           "HTTP_HOST" => "pakyow.com",
           Rack::RACK_URL_SCHEME => "https",
-          Rack::SERVER_PORT => 443
+          Rack::SERVER_PORT => 443,
+          "rack.input" => StringIO.new
         }
       end
 
@@ -89,7 +91,8 @@ RSpec.describe Pakyow::Security::CSRF::VerifySameOrigin do
         "REQUEST_METHOD" => "POST",
         "HTTP_HOST" => "pakyow.com",
         Rack::RACK_URL_SCHEME => "https",
-        Rack::SERVER_PORT => 443
+        Rack::SERVER_PORT => 443,
+        "rack.input" => StringIO.new
       }
     end
 
@@ -110,7 +113,8 @@ RSpec.describe Pakyow::Security::CSRF::VerifySameOrigin do
           "HTTP_REFERER" => "https://pakyow.com",
           "HTTP_HOST" => "pakyow.com",
           Rack::RACK_URL_SCHEME => "https",
-          Rack::SERVER_PORT => 443
+          Rack::SERVER_PORT => 443,
+          "rack.input" => StringIO.new
         }
       end
 
@@ -126,7 +130,8 @@ RSpec.describe Pakyow::Security::CSRF::VerifySameOrigin do
           "HTTP_REFERER" => "http://hacked.com",
           "HTTP_HOST" => "pakyow.com",
           Rack::RACK_URL_SCHEME => "https",
-          Rack::SERVER_PORT => 443
+          Rack::SERVER_PORT => 443,
+          "rack.input" => StringIO.new
         }
       end
 
@@ -146,7 +151,8 @@ RSpec.describe Pakyow::Security::CSRF::VerifySameOrigin do
         "REQUEST_METHOD" => "POST",
         "HTTP_HOST" => "pakyow.com",
         Rack::RACK_URL_SCHEME => "https",
-        Rack::SERVER_PORT => 443
+        Rack::SERVER_PORT => 443,
+        "rack.input" => StringIO.new
       }
     end
 
@@ -179,7 +185,8 @@ RSpec.describe Pakyow::Security::CSRF::VerifySameOrigin do
         "HTTP_ORIGIN" => "https://pakyow.com",
         "HTTP_HOST" => "pakyow.com",
         Rack::RACK_URL_SCHEME => "https",
-        Rack::SERVER_PORT => 443
+        Rack::SERVER_PORT => 443,
+        "rack.input" => StringIO.new
       }
     end
 
@@ -196,7 +203,8 @@ RSpec.describe Pakyow::Security::CSRF::VerifySameOrigin do
         "HTTP_ORIGIN" => "http://hacked.com",
         "HTTP_HOST" => "pakyow.com",
         Rack::RACK_URL_SCHEME => "https",
-        Rack::SERVER_PORT => 443
+        Rack::SERVER_PORT => 443,
+        "rack.input" => StringIO.new
       }
     end
 
@@ -213,7 +221,8 @@ RSpec.describe Pakyow::Security::CSRF::VerifySameOrigin do
         "HTTP_ORIGIN" => "https://pakyow.com",
         "HTTP_HOST" => "pakyow.com",
         Rack::RACK_URL_SCHEME => "https",
-        Rack::SERVER_PORT => 443
+        Rack::SERVER_PORT => 443,
+        "rack.input" => StringIO.new
       }
     end
 
@@ -230,7 +239,8 @@ RSpec.describe Pakyow::Security::CSRF::VerifySameOrigin do
         "HTTP_ORIGIN" => "http://hacked.com",
         "HTTP_HOST" => "pakyow.com",
         Rack::RACK_URL_SCHEME => "https",
-        Rack::SERVER_PORT => 443
+        Rack::SERVER_PORT => 443,
+        "rack.input" => StringIO.new
       }
     end
 

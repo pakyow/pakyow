@@ -17,12 +17,6 @@ RSpec.describe "default middleware stack" do
       Pakyow.setup(env: :test).run
     end
 
-    it "uses Rack::MethodOverride" do
-      expect(builder).to have_received(:use).with(
-        Rack::MethodOverride
-      )
-    end
-
     it "uses Middleware::Normalizer" do
       expect(builder).to have_received(:use).with(
         Pakyow::Middleware::Normalizer

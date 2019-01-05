@@ -41,7 +41,7 @@ RSpec.describe Pakyow::Security::Base do
 
   describe "unsafe methods" do
     it "rejects POST" do
-      connection = Pakyow::Connection.new(double("app"), "REQUEST_METHOD" => "POST")
+      connection = Pakyow::Connection.new(double("app"), "REQUEST_METHOD" => "POST", "rack.input" => StringIO.new)
       expect { instance.call(connection) }.to raise_error(Pakyow::Security::InsecureRequest)
     end
   end

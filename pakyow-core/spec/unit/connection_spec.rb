@@ -95,6 +95,28 @@ RSpec.describe Pakyow::Connection do
     it "is proper formatted" do
       expect(connection.method).to eq :get
     end
+
+    context "override is passed as a param" do
+      context "request method is post" do
+        let :env do
+          Rack::MockRequest.env_for("/foo", method: :post, params: { _method: "DELETE" })
+        end
+
+        it "uses the override" do
+          expect(connection.method).to eq :delete
+        end
+      end
+
+      context "request method is not post" do
+        let :env do
+          Rack::MockRequest.env_for("/foo", method: :put, params: { _method: "DELETE" })
+        end
+
+        it "ignores the override" do
+          expect(connection.method).to eq :put
+        end
+      end
+    end
   end
 
   describe "#params" do

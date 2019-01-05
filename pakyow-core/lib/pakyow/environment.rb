@@ -66,7 +66,6 @@ require "pakyow/app"
 #
 # The environment contains a default middleware stack:
 #
-# - Rack::MethodOverride
 # - {Middleware::Normalizer}
 #
 # Each endpoint can add its own middleware through its builder.
@@ -99,7 +98,6 @@ module Pakyow
   # Loads the default middleware stack.
   #
   before :setup do
-    use Rack::MethodOverride
     use Middleware::Normalizer
   end
 

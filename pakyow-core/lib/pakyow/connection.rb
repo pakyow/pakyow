@@ -138,7 +138,11 @@ module Pakyow
     # Returns the request method (e.g. `:get`).
     #
     def method
-      @method ||= @request.request_method.downcase.to_sym
+      @method ||= if @request.post? && params.include?(:_method)
+        params[:_method].downcase.to_sym
+      else
+        @request.request_method.downcase.to_sym
+      end
     end
 
     # Returns the symbolized format of the request.
