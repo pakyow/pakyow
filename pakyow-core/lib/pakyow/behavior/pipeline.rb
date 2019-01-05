@@ -50,7 +50,7 @@ module Pakyow
         end
 
         if self.class.includes_framework?(:routing) && !Pakyow.env?(:prototype) && !is_a?(Plugin)
-          @__pipeline.action(Routing::Actions::RespondMissing, self)
+          @__pipeline.action(Routing::Actions::RespondMissing)
         end
       end
     end

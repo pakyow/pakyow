@@ -46,7 +46,7 @@ module Pakyow
 
           if connection.app.class.includes_framework?(:routing)
             catch :halt do
-              connection.app.isolated(:Controller).new(connection).handle_error(error)
+              connection.app.controller_for_connection(connection).handle_error(error)
             end
           end
         end

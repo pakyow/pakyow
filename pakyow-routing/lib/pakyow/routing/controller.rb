@@ -175,12 +175,15 @@ module Pakyow
 
     require "pakyow/routing/expansion"
 
-    # @api private
-    def initialize(arg)
-      @connection = arg if arg.is_a?(Connection)
-
+    # Controllers must be initialized with an argument, even though the argument
+    # isn't actually used. This is a side-effect of allowing templates to define
+    # a route named "new". In the expansion, we differentiate between expanding
+    # and initializing by whether an argument is present, which works because
+    # arguments aren't passed for expansions.
+    #
+    def initialize(app)
       @children = self.class.children.map { |child|
-        child.new(arg)
+        child.new(app)
       }
 
       @__pipeline.instance_variable_get(:@stack) << Support::Pipelined::PipelineAction.new(:dispatch).finalize(self)

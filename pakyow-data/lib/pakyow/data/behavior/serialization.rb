@@ -19,7 +19,7 @@ module Pakyow
           end
 
           after :initialize do
-            if Pakyow.config.data.subscriptions.adapter == :memory
+            if Pakyow.config.data.subscriptions.adapter == :memory && data
               subscriber_serializer.deserialize
             end
           end

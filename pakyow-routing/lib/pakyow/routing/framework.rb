@@ -53,6 +53,20 @@ module Pakyow
             self.class.include_helpers :active, isolated(:Controller)
           end
 
+          # Create a global controller instance used to handle errors from other
+          # parts of the framework.
+          #
+          after :initialize do
+            @global_controller = isolated(:Controller).new(self)
+          end
+
+          # @api private
+          def controller_for_connection(connection)
+            @global_controller.dup.tap do |controller|
+              controller.instance_variable_set(:@connection, connection)
+            end
+          end
+
           include Security::Behavior::Config
           include Security::Behavior::Disabling
           include Security::Behavior::Helpers
