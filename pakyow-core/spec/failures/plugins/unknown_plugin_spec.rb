@@ -36,5 +36,7 @@ RSpec.describe "failure caused by plugging an unknown plugin" do
     Foo.constants(false).each do |const_to_unset|
       Foo.__send__(:remove_const, const_to_unset)
     end
+
+    Object.__send__(:remove_const, :Foo)
   end
 end
