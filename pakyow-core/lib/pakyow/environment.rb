@@ -18,10 +18,8 @@ require "pakyow/environment/behavior/plugins"
 require "pakyow/environment/behavior/request_parsing"
 require "pakyow/environment/behavior/silencing"
 
-require "pakyow/logger"
-require "pakyow/middleware"
-
 require "pakyow/app"
+require "pakyow/logger"
 
 # Pakyow environment for running one or more rack apps. Multiple apps can be
 # mounted in the environment, each one handling requests at some path.
@@ -62,14 +60,6 @@ require "pakyow/app"
 # The environment contains a global general-purpose logger. It also provides
 # a {RequestLogger} instance to each app for logging during a request.
 #
-# = Middleware
-#
-# The environment contains a default middleware stack:
-#
-# - {Middleware::Normalizer}
-#
-# Each endpoint can add its own middleware through its builder.
-#
 # = Setup & Running
 #
 # The environment can be setup and then run.
@@ -94,12 +84,6 @@ module Pakyow
   include Environment::Behavior::Plugins
   include Environment::Behavior::RequestParsing
   include Environment::Behavior::Silencing
-
-  # Loads the default middleware stack.
-  #
-  before :setup do
-    use Middleware::Normalizer
-  end
 
   # @api private
   SERVERS = %w(puma).freeze

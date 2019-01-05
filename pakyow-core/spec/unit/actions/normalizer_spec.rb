@@ -1,10 +1,14 @@
-RSpec.describe "request path normalization" do
+RSpec.describe Pakyow::Actions::Normalizer do
   let :app do
-    double("app")
+    instance_double(Pakyow::App)
   end
 
-  let :normalizer do
-    Pakyow::Middleware::Normalizer.new(app)
+  let :action do
+    Pakyow::Actions::Normalizer.new(app)
+  end
+
+  let :connection do
+    Pakyow::Connection.new(app, env)
   end
 
   let :env do
@@ -31,9 +35,12 @@ RSpec.describe "request path normalization" do
         end
 
         it "redirects to the normalized path" do
-          res = normalizer.call(env)
-          expect(res[0]).to eq(301)
-          expect(res[1]["Location"]).to eq("/foo")
+          catch :halt do
+            action.call(connection)
+          end
+
+          expect(connection.status).to eq(301)
+          expect(connection.response_header("Location")).to eq("/foo")
         end
       end
 
@@ -43,9 +50,12 @@ RSpec.describe "request path normalization" do
         end
 
         it "redirects to the normalized path" do
-          res = normalizer.call(env)
-          expect(res[0]).to eq(301)
-          expect(res[1]["Location"]).to eq("/foo")
+          catch :halt do
+            action.call(connection)
+          end
+
+          expect(connection.status).to eq(301)
+          expect(connection.response_header("Location")).to eq("/foo")
         end
       end
 
@@ -55,8 +65,12 @@ RSpec.describe "request path normalization" do
         end
 
         it "does not redirect" do
-          expect(app).to receive(:call)
-          normalizer.call(env)
+          catch :halt do
+            action.call(connection)
+          end
+
+          expect(connection.status).to eq(200)
+          expect(connection.response_header?("Location")).to be(false)
         end
       end
     end
@@ -72,8 +86,12 @@ RSpec.describe "request path normalization" do
         end
 
         it "does not redirect" do
-          expect(app).to receive(:call)
-          normalizer.call(env)
+          catch :halt do
+            action.call(connection)
+          end
+
+          expect(connection.status).to eq(200)
+          expect(connection.response_header?("Location")).to be(false)
         end
       end
 
@@ -83,8 +101,12 @@ RSpec.describe "request path normalization" do
         end
 
         it "does not redirect" do
-          expect(app).to receive(:call)
-          normalizer.call(env)
+          catch :halt do
+            action.call(connection)
+          end
+
+          expect(connection.status).to eq(200)
+          expect(connection.response_header?("Location")).to be(false)
         end
       end
     end
@@ -107,9 +129,12 @@ RSpec.describe "request path normalization" do
           end
 
           it "redirects to the normalized path" do
-            res = normalizer.call(env)
-            expect(res[0]).to eq(301)
-            expect(res[1]["Location"]).to eq("www.pakyow.org/")
+            catch :halt do
+              action.call(connection)
+            end
+
+            expect(connection.status).to eq(301)
+            expect(connection.response_header("Location")).to eq("www.pakyow.org/")
           end
         end
 
@@ -119,8 +144,12 @@ RSpec.describe "request path normalization" do
           end
 
           it "does not redirect" do
-            expect(app).to receive(:call)
-            normalizer.call(env)
+            catch :halt do
+              action.call(connection)
+            end
+
+            expect(connection.status).to eq(200)
+            expect(connection.response_header?("Location")).to be(false)
           end
         end
 
@@ -130,8 +159,12 @@ RSpec.describe "request path normalization" do
           end
 
           it "does not redirect" do
-            expect(app).to receive(:call)
-            normalizer.call(env)
+            catch :halt do
+              action.call(connection)
+            end
+
+            expect(connection.status).to eq(200)
+            expect(connection.response_header?("Location")).to be(false)
           end
         end
       end
@@ -147,23 +180,34 @@ RSpec.describe "request path normalization" do
           end
 
           it "redirects to the normalized path" do
-            res = normalizer.call(env)
-            expect(res[0]).to eq(301)
-            expect(res[1]["Location"]).to eq("pakyow.org/")
+            catch :halt do
+              action.call(connection)
+            end
+
+            expect(connection.status).to eq(301)
+            expect(connection.response_header("Location")).to eq("pakyow.org/")
           end
         end
 
         context "request uri does not have www" do
           it "does not redirect" do
-            expect(app).to receive(:call)
-            normalizer.call(env)
+            catch :halt do
+              action.call(connection)
+            end
+
+            expect(connection.status).to eq(200)
+            expect(connection.response_header?("Location")).to be(false)
           end
         end
 
         context "request uri is a subdomain" do
           it "does not redirect" do
-            expect(app).to receive(:call)
-            normalizer.call(env)
+            catch :halt do
+              action.call(connection)
+            end
+
+            expect(connection.status).to eq(200)
+            expect(connection.response_header?("Location")).to be(false)
           end
         end
       end
@@ -185,8 +229,12 @@ RSpec.describe "request path normalization" do
           end
 
           it "does not redirect" do
-            expect(app).to receive(:call)
-            normalizer.call(env)
+            catch :halt do
+              action.call(connection)
+            end
+
+            expect(connection.status).to eq(200)
+            expect(connection.response_header?("Location")).to be(false)
           end
         end
 
@@ -196,8 +244,12 @@ RSpec.describe "request path normalization" do
           end
 
           it "does not redirect" do
-            expect(app).to receive(:call)
-            normalizer.call(env)
+            catch :halt do
+              action.call(connection)
+            end
+
+            expect(connection.status).to eq(200)
+            expect(connection.response_header?("Location")).to be(false)
           end
         end
 
@@ -207,8 +259,12 @@ RSpec.describe "request path normalization" do
           end
 
           it "does not redirect" do
-            expect(app).to receive(:call)
-            normalizer.call(env)
+            catch :halt do
+              action.call(connection)
+            end
+
+            expect(connection.status).to eq(200)
+            expect(connection.response_header?("Location")).to be(false)
           end
         end
       end
@@ -224,22 +280,34 @@ RSpec.describe "request path normalization" do
           end
 
           it "does not redirect" do
-            expect(app).to receive(:call)
-            normalizer.call(env)
+            catch :halt do
+              action.call(connection)
+            end
+
+            expect(connection.status).to eq(200)
+            expect(connection.response_header?("Location")).to be(false)
           end
         end
 
         context "request uri does not have www" do
           it "does not redirect" do
-            expect(app).to receive(:call)
-            normalizer.call(env)
+            catch :halt do
+              action.call(connection)
+            end
+
+            expect(connection.status).to eq(200)
+            expect(connection.response_header?("Location")).to be(false)
           end
         end
 
         context "request uri is a subdomain" do
           it "does not redirect" do
-            expect(app).to receive(:call)
-            normalizer.call(env)
+            catch :halt do
+              action.call(connection)
+            end
+
+            expect(connection.status).to eq(200)
+            expect(connection.response_header?("Location")).to be(false)
           end
         end
       end

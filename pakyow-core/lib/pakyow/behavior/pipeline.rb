@@ -3,6 +3,7 @@
 require "pakyow/support/extension"
 
 require "pakyow/actions/logger"
+require "pakyow/actions/normalizer"
 require "pakyow/actions/request_parser"
 
 module Pakyow
@@ -23,6 +24,7 @@ module Pakyow
       def load_pipeline_defaults
         unless is_a?(Plugin)
           @__pipeline.action(Actions::Logger, self)
+          @__pipeline.action(Actions::Normalizer, self)
           @__pipeline.action(Actions::RequestParser, self)
         end
 
