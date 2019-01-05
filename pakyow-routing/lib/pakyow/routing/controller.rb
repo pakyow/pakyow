@@ -157,12 +157,13 @@ module Pakyow
     end
 
     METHOD_GET    = :get
+    METHOD_HEAD   = :head
     METHOD_POST   = :post
     METHOD_PUT    = :put
     METHOD_PATCH  = :patch
     METHOD_DELETE = :delete
 
-    SUPPORTED_HTTP_METHODS = [
+    DEFINABLE_HTTP_METHODS = [
       METHOD_GET,
       METHOD_POST,
       METHOD_PUT,
@@ -187,6 +188,9 @@ module Pakyow
 
     def call(connection, request_path = connection.request.path)
       request_method = connection.method
+      if request_method == METHOD_HEAD
+        request_method = METHOD_GET
+      end
 
       matcher = self.class.matcher
       if match = matcher.match(request_path)
@@ -407,7 +411,7 @@ module Pakyow
 
     class_state :children, default: [], inheritable: true
     class_state :templates, default: {}, inheritable: true
-    class_state :routes, default: SUPPORTED_HTTP_METHODS.each_with_object({}) { |supported_method, routes_hash|
+    class_state :routes, default: DEFINABLE_HTTP_METHODS.each_with_object({}) { |supported_method, routes_hash|
                                     routes_hash[supported_method] = []
                                   }, inheritable: false
 
@@ -496,7 +500,7 @@ module Pakyow
       #
       #   @see get
       #
-      SUPPORTED_HTTP_METHODS.each do |http_method|
+      DEFINABLE_HTTP_METHODS.each do |http_method|
         define_method http_method.downcase.to_sym do |name_or_matcher = nil, matcher_or_name = nil, &block|
           build_route(http_method, name_or_matcher, matcher_or_name, &block)
         end

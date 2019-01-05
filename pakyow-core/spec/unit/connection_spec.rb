@@ -1,22 +1,67 @@
 RSpec.describe Pakyow::Connection do
   let :connection do
-    Pakyow::Connection.new(nil, Rack::MockRequest.env_for("/foo", headers: { "HTTP_REFERER" => "/bar" }))
+    Pakyow::Connection.new(nil, env)
+  end
+
+  let :env do
+    Rack::MockRequest.env_for("/foo", headers: { "HTTP_REFERER" => "/bar" })
   end
 
   describe "#initialize" do
-    it "initializes with an app, request, and response"
+    it "initializes with an app and rack env"
   end
 
-  describe "#processed?" do
-    it "defaults to false"
+  describe "#finalize" do
+    before do
+      allow(connection).to receive(:set_cookies)
+    end
+
+    shared_examples "common" do
+      it "sets cookies" do
+        expect(connection).to receive(:set_cookies)
+        connection.finalize
+      end
+
+      it "returns the response" do
+        expect(connection.finalize).to be(connection.response)
+      end
+    end
+
+    include_examples "common"
+
+    context "request method is head" do
+      include_examples "common"
+
+      let :env do
+        super().tap do |env|
+          env["REQUEST_METHOD"] = "HEAD"
+        end
+      end
+
+      it "replaces the response body with an empty array" do
+        connection.response.body = ["foo"]
+        expect(connection.finalize.body.length).to eq(0)
+      end
+
+      context "response body can be closed" do
+        it "closes the response body" do
+          output = StringIO.new("foo")
+          connection.response.body = output
+          expect(output).to receive(:close)
+          connection.finalize
+        end
+      end
+    end
   end
 
-  describe "#processed" do
-    it "marks the state as processed"
-  end
+  describe "#set?" do
+    context "value is set for key" do
+      it "returns true"
+    end
 
-  describe "#response=" do
-    it "replaces the response"
+    context "value is not set for key" do
+      it "returns false"
+    end
   end
 
   describe "#set" do

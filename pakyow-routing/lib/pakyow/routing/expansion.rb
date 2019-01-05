@@ -11,7 +11,7 @@ module Pakyow
       attr_reader :expander, :controller, :name
 
       extend Forwardable
-      def_delegators :@expander, *%i(default group namespace template).concat(Controller::SUPPORTED_HTTP_METHODS)
+      def_delegators :@expander, *%i(default group namespace template).concat(Controller::DEFINABLE_HTTP_METHODS)
       def_delegators :@controller, :action
 
       def initialize(_template_name, controller, options, &template_block)

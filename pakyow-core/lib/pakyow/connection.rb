@@ -82,6 +82,14 @@ module Pakyow
 
     def finalize
       performing :finalize do
+        if method == :head
+          if @response.body.respond_to?(:close)
+            @response.body.close
+          end
+
+          @response.body = []
+        end
+
         set_cookies; @response
       end
     end

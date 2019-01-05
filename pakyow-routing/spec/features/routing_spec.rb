@@ -53,6 +53,40 @@ RSpec.describe "routing requests" do
     expect(call("/", method: :foo)[0]).to eq(404)
   end
 
+  context "request method is head" do
+    let :app_init do
+      Proc.new do
+        controller do
+          disable_protection :csrf
+
+          get "/" do
+            app.called = true
+            send "GET /"
+          end
+        end
+      end
+    end
+
+    let :app_def do
+      Proc.new do
+        attr_accessor :called
+      end
+    end
+
+    it "calls the matching get route" do
+      call("/", method: :head)
+      expect(Pakyow.apps.first.called).to be(true)
+    end
+
+    it "responds with an empty body" do
+      expect(call("/", method: :head)[2].length).to eq(0)
+    end
+
+    it "responds with a valid content length header" do
+      expect(call("/", method: :head)[1]).to include("Content-Length" => 5)
+    end
+  end
+
   context "when a default route is specified" do
     let :app_init do
       Proc.new {

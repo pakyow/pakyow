@@ -51,8 +51,10 @@ module Pakyow
           end
         end
 
+        IMPLICIT_HTTP_METHODS = %i(get head).freeze
+
         def implicitly_render?(connection)
-          connection.method == :get && connection.format == :html &&
+          IMPLICIT_HTTP_METHODS.include?(connection.method) && connection.format == :html &&
           (Pakyow.env?(:prototype) || ((!connection.halted? || connection.set?(:__fully_dispatched)) && !connection.rendered?))
         end
 
