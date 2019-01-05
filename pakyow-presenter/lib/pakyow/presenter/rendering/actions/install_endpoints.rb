@@ -5,9 +5,6 @@ module Pakyow
     module Actions
       # @api private
       class InstallEndpoints
-        def initialize(_options)
-        end
-
         def call(renderer)
           renderer.presenter.install_endpoints(
             endpoints_for_environment(renderer),

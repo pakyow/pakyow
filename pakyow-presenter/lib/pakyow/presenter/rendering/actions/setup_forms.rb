@@ -5,9 +5,6 @@ module Pakyow
     module Actions
       # @api private
       class SetupForms
-        def initialize(_options)
-        end
-
         def call(renderer)
           form_ids = []
           renderer.presenter.forms.each do |form|

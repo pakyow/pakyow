@@ -5,9 +5,6 @@ module Pakyow
     module Actions
       # @api private
       class EmbedAuthenticityToken
-        def initialize(_options)
-        end
-
         def call(renderer)
           if renderer.connection.app.config.presenter.embed_authenticity_token
             if head = renderer.presenter.view.object.find_significant_nodes(:head)[0]

@@ -9,8 +9,8 @@ RSpec.describe "defining an app" do
 
   let :app_init do
     Proc.new do
-      after :initialize, priority: :low do
-        @__pipeline.action Proc.new { |connection|
+      def load_pipeline_defaults(pipeline)
+        pipeline.action Proc.new { |connection|
           connection.body = config.name
           connection.halt
         }
@@ -31,8 +31,8 @@ RSpec.describe "defining an app" do
       klass.define do
         config.name = "define-test"
 
-        after :initialize, priority: :low do
-          @__pipeline.action Proc.new { |connection|
+        def load_pipeline_defaults(pipeline)
+          pipeline.action Proc.new { |connection|
             connection.body = config.name
             connection.halt
           }
@@ -82,8 +82,8 @@ RSpec.describe "defining an app" do
       Proc.new do
         config.name = "runtime-test"
 
-        after :initialize, priority: :low do
-          @__pipeline.action Proc.new { |connection|
+        def load_pipeline_defaults(pipeline)
+          pipeline.action Proc.new { |connection|
             connection.body = config.name
             connection.halt
           }

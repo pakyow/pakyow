@@ -5,9 +5,6 @@ module Pakyow
     module Actions
       # @api private
       class InsertPrototypeBar
-        def initialize(_options)
-        end
-
         def call(renderer)
           if renderer.rendering_prototype?
             if body_node = renderer.presenter.view.object.find_significant_nodes(:body)[0]

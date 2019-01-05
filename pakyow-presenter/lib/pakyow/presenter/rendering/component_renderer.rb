@@ -36,11 +36,11 @@ module Pakyow
 
           # Place the presenter in the correct mode, since this could affect which component is returned.
           #
-          Actions::PlaceInMode.new({}).call(self)
+          Actions::PlaceInMode.new.call(self)
 
           # Install components, which impacts the component path.
           #
-          Actions::InstallComponents.new({}).call(self)
+          Actions::InstallComponents.new.call(self)
 
           # Follow the path to find the correct component.
           #

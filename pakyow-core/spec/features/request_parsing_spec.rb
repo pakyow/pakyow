@@ -3,8 +3,10 @@ RSpec.describe "parsing requests" do
 
   let :app_init do
     Proc.new do
-      after :initialize, priority: :low do
-        @__pipeline.action Proc.new { |connection|
+      def load_pipeline_defaults(pipeline)
+        super
+
+        pipeline.action Proc.new { |connection|
           connection.body = connection.params
           connection.halt
         }

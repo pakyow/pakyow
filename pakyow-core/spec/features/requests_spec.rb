@@ -3,8 +3,8 @@ RSpec.describe "sending requests to an app" do
 
   let :app_init do
     Proc.new do
-      after :initialize, priority: :low do
-        @__pipeline.action Proc.new { |connection|
+      def load_pipeline_defaults(pipeline)
+        pipeline.action Proc.new { |connection|
           connection.body = "foo"
         }
       end
@@ -26,8 +26,8 @@ RSpec.describe "sending requests to an app" do
   context "connection is halted" do
     let :app_init do
       Proc.new do
-        after :initialize, priority: :low do
-          @__pipeline.action Proc.new { |connection|
+        def load_pipeline_defaults(pipeline)
+          pipeline.action Proc.new { |connection|
             connection.body = "foo"
             connection.set_response_header("Foo", "Bar")
             connection.halt
@@ -52,8 +52,8 @@ RSpec.describe "sending requests to an app" do
   context "request method is head" do
     let :app_init do
       Proc.new do
-        after :initialize, priority: :low do
-          @__pipeline.action Proc.new { |connection|
+        def load_pipeline_defaults(pipeline)
+          pipeline.action Proc.new { |connection|
             connection.body = "foo"
             connection.set_response_header("Foo", "Bar")
             connection.halt

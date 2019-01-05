@@ -15,42 +15,45 @@ module Pakyow
 
       apply_extension do
         after :initialize, priority: :low do
-          load_pipeline_defaults
+          self.class.__pipeline.dup.tap do |pipeline|
+            load_pipeline_defaults(pipeline)
+            @__pipeline = pipeline.callable(self)
+          end
         end
       end
 
       private
 
-      def load_pipeline_defaults
+      def load_pipeline_defaults(pipeline)
         unless is_a?(Plugin)
-          @__pipeline.action(Actions::Logger, self)
-          @__pipeline.action(Actions::Normalizer, self)
-          @__pipeline.action(Actions::RequestParser, self)
+          pipeline.action(Actions::Logger)
+          pipeline.action(Actions::Normalizer)
+          pipeline.action(Actions::RequestParser)
         end
 
         if self.class.includes_framework?(:assets)
-          @__pipeline.action(Assets::Actions::Public, self)
-          @__pipeline.action(Assets::Actions::Process)
+          pipeline.action(Assets::Actions::Public, self)
+          pipeline.action(Assets::Actions::Process)
         end
 
         if self.class.includes_framework?(:routing) && !Pakyow.env?(:prototype)
           state(:controller).each do |controller|
-            @__pipeline.action(controller)
+            pipeline.action(controller, self)
           end
         end
 
         if instance_variable_defined?(:@__plug_instances)
           @__plug_instances.each do |plug_instance|
-            @__pipeline.action(plug_instance)
+            pipeline.action(plug_instance)
           end
         end
 
         if self.class.includes_framework?(:presenter)
-          @__pipeline.action(Presenter::Actions::AutoRender)
+          pipeline.action(Presenter::Actions::AutoRender)
         end
 
         if self.class.includes_framework?(:routing) && !Pakyow.env?(:prototype) && !is_a?(Plugin)
-          @__pipeline.action(Routing::Actions::RespondMissing)
+          pipeline.action(Routing::Actions::RespondMissing)
         end
       end
     end

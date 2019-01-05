@@ -10,9 +10,6 @@ module Pakyow
   module Realtime
     module Actions
       class Upgrader
-        def initialize(_)
-        end
-
         def call(connection)
           return unless Pakyow.config.realtime.server
           return unless connection.path == "/pw-socket"

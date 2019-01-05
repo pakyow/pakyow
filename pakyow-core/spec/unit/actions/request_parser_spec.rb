@@ -4,7 +4,7 @@ RSpec.describe Pakyow::Actions::RequestParser do
   end
 
   let :action do
-    Pakyow::Actions::RequestParser.new(app)
+    Pakyow::Actions::RequestParser.new
   end
 
   let :connection do

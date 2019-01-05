@@ -7,10 +7,6 @@ module Pakyow
     # Sets up a connection logger and logs the prologue/epilogue.
     #
     class Logger
-      def initialize(app)
-        @app = app
-      end
-
       def call(connection, &block)
         unless connection.pipelined?
           connection.env[Rack::RACK_LOGGER] = RequestLogger.new(

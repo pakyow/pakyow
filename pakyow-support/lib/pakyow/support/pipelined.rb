@@ -82,7 +82,7 @@ module Pakyow
 
       # @api private
       module Initializer
-        def initialize(*args)
+        def initialize(*)
           @__pipeline = self.class.__pipeline.callable(self)
           super
         end
@@ -120,13 +120,13 @@ module Pakyow
 
         # Defines an action on the current pipeline.
         #
-        def action(name, options = {}, &block)
-          if block_given?
-            define_method name, &block
-            private name
+        def action(action = nil, *options, &block)
+          if action.is_a?(Symbol) && block_given?
+            define_method action, &block
+            private action
           end
 
-          @__pipeline.action(name, options, &block)
+          @__pipeline.action(action, *options, &block)
         end
 
         private
@@ -180,8 +180,13 @@ module Pakyow
         # Defines an action.
         # @see Pipelined::ClassMethods#action
         #
-        def action(name, options = {})
-          @__pipeline.action(name, options)
+        def action(action = nil, *options, &block)
+          if action.is_a?(Symbol) && block_given?
+            define_method action, &block
+            private action
+          end
+
+          @__pipeline.action(action, *options, &block)
         end
       end
 
@@ -206,8 +211,8 @@ module Pakyow
           CallablePipeline.new(@actions, context)
         end
 
-        def action(target, options = {})
-          PipelineAction.new(target, options).tap do |action|
+        def action(target, *options, &block)
+          PipelineAction.new(target, *options, &block).tap do |action|
             @actions << action
           end
         end
@@ -264,18 +269,14 @@ module Pakyow
 
           object.pipelined
         end
-
-        def action(target, options = {})
-          @stack << PipelineAction.new(target, options).finalize
-        end
       end
 
       # @api private
       class PipelineAction
         attr_reader :target, :options
 
-        def initialize(target, options = {})
-          @target, @options = target, options
+        def initialize(target, *options, &block)
+          @target, @options, @block = target, options, block
         end
 
         def finalize(context = nil)
@@ -285,9 +286,11 @@ module Pakyow
             else
               raise "finalizing pipeline action #{@target} requires context"
             end
+          elsif @target.nil? && @block
+            @block
           else
             instance = if @target.is_a?(Class)
-              @target.new(@options)
+              @target.new(*@options)
             else
               @target
             end

@@ -9,10 +9,6 @@ module Pakyow
     class Normalizer
       using Support::Refinements::String::Normalization
 
-      def initialize(app)
-        @app = app
-      end
-
       def call(connection)
         path = connection.request_header("PATH_INFO")
         host = connection.request_header("SERVER_NAME")

@@ -5,9 +5,6 @@ module Pakyow
     module Actions
       # @api private
       class InstallComponents
-        def initialize(_options)
-        end
-
         def call(renderer)
           if renderer.connection.app.config.presenter.componentize
             install_forms(renderer)

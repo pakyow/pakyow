@@ -24,8 +24,8 @@ RSpec.describe "configuring an app" do
 
     let :app_init do
       Proc.new do
-        after :initialize, priority: :low do
-          @__pipeline.action Proc.new { |connection|
+        def load_pipeline_defaults(pipeline)
+          pipeline.action Proc.new { |connection|
             connection.body = config.name
             connection.halt
           }
@@ -53,8 +53,8 @@ RSpec.describe "accessing the app's config" do
 
     let :app_init do
       Proc.new do
-        after :initialize, priority: :low do
-          @__pipeline.action Proc.new { |connection|
+        def load_pipeline_defaults(pipeline)
+          pipeline.action Proc.new { |connection|
             connection.body = config.name
             connection.halt
           }

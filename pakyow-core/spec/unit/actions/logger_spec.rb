@@ -4,7 +4,7 @@ RSpec.describe Pakyow::Actions::Logger do
   end
 
   let :action do
-    Pakyow::Actions::Logger.new(app)
+    Pakyow::Actions::Logger.new
   end
 
   let :connection do

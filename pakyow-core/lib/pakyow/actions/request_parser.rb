@@ -5,10 +5,6 @@ module Pakyow
     # Normalizes request uris, issuing a 301 redirect to the normalized uri.
     #
     class RequestParser
-      def initialize(app)
-        @app = app
-      end
-
       def call(connection)
         if (parser = parser(connection)) && (body = connection.request.body.read).length.nonzero?
           connection.parsed_body = parser.call(body)

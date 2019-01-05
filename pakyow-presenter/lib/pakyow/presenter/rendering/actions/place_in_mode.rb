@@ -5,9 +5,6 @@ module Pakyow
     module Actions
       # @api private
       class PlaceInMode
-        def initialize(_options)
-        end
-
         def call(renderer)
           mode = renderer.mode
 

@@ -9,9 +9,6 @@ module Pakyow
       # Instead, precompile assets into the public directory.
       #
       class Process
-        def initialize(_)
-        end
-
         def call(connection)
           asset = find_asset(connection) || find_pack(connection)
 

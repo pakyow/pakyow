@@ -4,7 +4,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
   end
 
   let :action do
-    Pakyow::Actions::Normalizer.new(app)
+    Pakyow::Actions::Normalizer.new
   end
 
   let :connection do

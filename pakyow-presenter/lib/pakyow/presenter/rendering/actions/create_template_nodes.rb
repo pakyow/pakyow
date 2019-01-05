@@ -5,9 +5,6 @@ module Pakyow
     module Actions
       # @api private
       class CreateTemplateNodes
-        def initialize(_options)
-        end
-
         def call(renderer)
           if !renderer.rendering_prototype? && renderer.embed_templates?
             renderer.presenter.view.all_binding_scopes.each do |node_with_binding|
