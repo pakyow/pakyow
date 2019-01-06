@@ -172,6 +172,10 @@ RSpec.describe "sending data" do
       }
     end
 
+    let :allow_request_failures do
+      true
+    end
+
     before do
       call
     end

@@ -84,6 +84,10 @@ RSpec.describe "auto migrating on boot" do
             }
           end
 
+          let :allow_application_rescues do
+            true
+          end
+
           it "does not auto migrate that app's sources" do
             # intentionally empty
           end

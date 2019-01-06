@@ -10,10 +10,14 @@ module Pakyow
     module Rescuing
       extend Support::Extension
 
+      # Error the app was rescued from.
+      #
+      attr_reader :rescued
+
       # Returns true if the app has been rescued.
       #
       def rescued?
-        @rescued == true
+        instance_variable_defined?(:@rescued) && !!@rescued
       end
 
       private
@@ -21,7 +25,7 @@ module Pakyow
       # Enters rescue mode after logging the error.
       #
       def rescue!(error)
-        @rescued = true
+        @rescued = error
 
         performing :rescue do
           Pakyow.logger.error(error)

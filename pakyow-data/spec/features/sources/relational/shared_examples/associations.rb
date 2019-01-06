@@ -292,6 +292,10 @@ RSpec.shared_examples :source_associations do
             end
           end
 
+          let :allow_application_rescues do
+            true
+          end
+
           it "raises an error that puts the app in rescue mode" do
             expect(Pakyow.app(:test).call({})[2].join).to include("unknown source `posts' for association: comments belongs_to post")
           end
@@ -693,6 +697,10 @@ RSpec.shared_examples :source_associations do
                 has_one :comment
               end
             end
+          end
+
+          let :allow_application_rescues do
+            true
           end
 
           it "raises an error that puts the app in rescue mode" do
@@ -1109,6 +1117,10 @@ RSpec.shared_examples :source_associations do
               source :comments do
               end
             end
+          end
+
+          let :allow_application_rescues do
+            true
           end
 
           it "raises an error that puts the app in rescue mode" do
@@ -1964,6 +1976,10 @@ RSpec.shared_examples :source_associations do
             end
           end
 
+          let :allow_application_rescues do
+            true
+          end
+
           it "raises an error that puts the app in rescue mode" do
             expect(Pakyow.app(:test).call({})[2].join).to include("unknown source `comments' for association: posts has_many comments")
           end
@@ -2380,6 +2396,10 @@ RSpec.shared_examples :source_associations do
               source :comments do
               end
             end
+          end
+
+          let :allow_application_rescues do
+            true
           end
 
           it "raises an error that puts the app in rescue mode" do

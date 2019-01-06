@@ -166,6 +166,7 @@ RSpec.shared_examples :subscription_subscribe_associated do
 
     context "when an object not previously covered by the association is updated and now covered" do
       it "calls the handler" do
+        Pakyow.apps.first.data.posts.create(title: "another post")
         call("/comments", method: :post, params: { comment: { title: "foo", post_id: @post.id + 1 } })
 
         subscribe!
@@ -199,6 +200,7 @@ RSpec.shared_examples :subscription_subscribe_associated do
 
     context "when an object not covered by the association is updated and still not covered" do
       it "does not call the handler" do
+        Pakyow.apps.first.data.posts.create(title: "another post")
         call("/comments", method: :post, params: { comment: { title: "foo", post_id: @post.id + 1 } })
 
         subscribe!
@@ -210,6 +212,7 @@ RSpec.shared_examples :subscription_subscribe_associated do
 
     context "when an object not covered by the association is deleted" do
       it "does not call the handler" do
+        Pakyow.apps.first.data.posts.create(title: "another post")
         call("/comments", method: :post, params: { comment: { title: "foo", post_id: @post.id + 1 } })
 
         subscribe!

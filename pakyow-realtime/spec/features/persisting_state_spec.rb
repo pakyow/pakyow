@@ -55,6 +55,7 @@ RSpec.describe "persisting state on shutdown" do
     before do
       Pakyow.after :configure do
         config.realtime.adapter = :redis
+        config.realtime.adapter_settings = Pakyow.config.redis.dup
       end
     end
 

@@ -128,6 +128,10 @@ module Pakyow
     #
     attr_accessor :process
 
+    # Any error encountered during the boot process
+    #
+    attr_reader :error
+
     # Mounts an app at a path.
     #
     # The app can be any rack endpoint, but must implement an
@@ -432,6 +436,8 @@ module Pakyow
     end
 
     def handle_boot_failure(error)
+      @error = error
+
       Support::Logging.safe(level: Logger.const_get(config.logger.level.to_s.upcase), formatter: config.logger.formatter.new) do |logger|
         logger.error(error)
       end

@@ -37,6 +37,7 @@ RSpec.shared_context "app" do
   before do
     Pakyow.config.server.name = :mock
     Pakyow.config.logger.enabled = false
+    Pakyow.instance_variable_set(:@error, nil)
     setup_and_run if autorun
   end
 
@@ -48,6 +49,8 @@ RSpec.shared_context "app" do
 
   def run
     @app = Pakyow.run
+    check_environment
+    check_apps
   end
 
   def setup_and_run(env: mode)
@@ -55,6 +58,64 @@ RSpec.shared_context "app" do
   end
 
   def call(path = "/", opts = {})
-    @app.call(Rack::MockRequest.env_for(path, opts))
+    connection_for_call = nil
+    allow_any_instance_of(Pakyow::Connection).to receive(:finalize).and_wrap_original do |method|
+      connection_for_call = method.receiver
+      method.call
+    end
+
+    @app.call(Rack::MockRequest.env_for(path, opts)).tap do
+      check_response(connection_for_call)
+    end
+  end
+
+  let :allow_environment_errors do
+    false
+  end
+
+  let :allow_application_rescues do
+    false
+  end
+
+  let :allow_request_failures do
+    false
+  end
+
+  def check_environment
+    if Pakyow.error && !allow_environment_errors
+      fail <<~MESSAGE
+        Environment unexpectedly failed to boot:
+
+          #{Pakyow.error.class}: #{Pakyow.error.message}
+
+        #{Pakyow.error.backtrace.to_a.join("\n")}
+      MESSAGE
+    end
+  end
+
+  def check_apps
+    Pakyow.apps.each do |app|
+      if app.respond_to?(:rescued?) && app.rescued? && !allow_application_rescues
+        fail <<~MESSAGE
+          #{app.class} unexpectedly failed to boot:
+
+            #{app.rescued.class}: #{app.rescued.message}
+
+          #{app.rescued.backtrace.to_a.join("\n")}
+        MESSAGE
+      end
+    end
+  end
+
+  def check_response(connection)
+    if connection && connection.status >= 500 && !allow_application_rescues && !allow_request_failures
+      fail <<~MESSAGE
+        Request unexpectedly failed.
+
+          #{connection.error.class}: #{connection.error.message}
+
+        #{connection.error.backtrace.to_a.join("\n")}
+      MESSAGE
+    end
   end
 end

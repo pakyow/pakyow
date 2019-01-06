@@ -225,6 +225,10 @@ RSpec.describe "error handling" do
           end
         end
 
+        let :allow_request_failures do
+          true
+        end
+
         include_context "suppressed output"
 
         it "does not handle that error" do
@@ -309,6 +313,10 @@ RSpec.describe "error handling" do
         end
       end
 
+      let :allow_request_failures do
+        true
+      end
+
       it "sets the response code" do
         expect(call[0]).to eq(500)
       end
@@ -369,6 +377,10 @@ RSpec.describe "error handling" do
         end
       end
 
+      let :allow_request_failures do
+        true
+      end
+
       include_context "suppressed output"
 
       it "handles the error" do
@@ -422,6 +434,10 @@ RSpec.describe "error handling" do
         end
       end
 
+      let :allow_request_failures do
+        true
+      end
+
       include_context "suppressed output"
 
       it "sets the response code" do
@@ -445,6 +461,10 @@ RSpec.describe "error handling" do
           end
         end
       end
+    end
+
+    let :allow_request_failures do
+      true
     end
 
     it "has access to route state" do
@@ -472,6 +492,10 @@ RSpec.describe "error handling" do
           end
         end
       end
+    end
+
+    let :allow_request_failures do
+      true
     end
 
     it "passes off to the next handler" do

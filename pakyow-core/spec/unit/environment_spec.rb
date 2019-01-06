@@ -106,19 +106,21 @@ RSpec.describe Pakyow do
   end
 
   describe "::forked" do
-    after do
+    def perform
       Pakyow.forked
     end
 
     it "calls after fork hooks, then calls booted" do
       expect(Pakyow).to receive(:call_hooks).with(:after, :fork)
       expect(Pakyow).to receive(:booted)
+      perform
     end
 
     it "calls forked on each app" do
       app = double(:app)
       Pakyow.instance_variable_set(:@apps, [app])
       expect(app).to receive(:forked)
+      perform
     end
 
     include_examples :environment_booted
@@ -454,7 +456,7 @@ RSpec.describe Pakyow do
   end
 
   describe "::boot" do
-    after do
+    def perform
       Pakyow.boot
     end
 
@@ -670,7 +672,7 @@ RSpec.describe Pakyow do
       allow(Pakyow.builder).to receive(:to_app).and_return(double(:builder))
     end
 
-    after do
+    def perform
       Pakyow.to_app
     end
 

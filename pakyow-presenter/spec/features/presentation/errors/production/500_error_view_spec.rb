@@ -15,6 +15,10 @@ RSpec.describe "500 error views in production" do
     :production
   end
 
+  let :allow_request_failures do
+    true
+  end
+
   it "renders the built-in 500 page by default" do
     expect(call("/fail")[0]).to eq(500)
     expect(call("/fail")[2].body.read).to include("500 (Server Error)")

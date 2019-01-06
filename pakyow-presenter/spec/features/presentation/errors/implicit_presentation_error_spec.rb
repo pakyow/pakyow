@@ -20,6 +20,10 @@ RSpec.describe "errors during implicit presentation" do
     :development
   end
 
+  let :allow_request_failures do
+    true
+  end
+
   it "handles the error" do
     expect(call("/")[0]).to eq(500)
     expect(call("/")[2].body.read).to include("RuntimeError")
