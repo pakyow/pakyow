@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "pakyow/support/hookable"
-require "pakyow/support/pipelined"
+require "pakyow/support/pipeline"
 
 module Pakyow
   module Presenter
@@ -15,8 +15,8 @@ module Pakyow
       include Support::Hookable
       events :render
 
-      include Support::Pipelined
-      include Support::Pipelined::Object
+      include Support::Pipeline
+      include Support::Pipeline::Object
 
       attr_reader :connection, :presenter
 

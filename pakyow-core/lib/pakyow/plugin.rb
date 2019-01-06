@@ -4,7 +4,7 @@ require "pakyow/support/class_state"
 require "pakyow/support/configurable"
 require "pakyow/support/definable"
 require "pakyow/support/hookable"
-require "pakyow/support/pipelined"
+require "pakyow/support/pipeline"
 
 require "pakyow/behavior/aspects"
 require "pakyow/behavior/endpoints"
@@ -49,7 +49,7 @@ module Pakyow
 
     include Support::Definable
     include Support::Hookable
-    include Support::Pipelined
+    include Support::Pipeline
 
     # Use the same events as app.
     #

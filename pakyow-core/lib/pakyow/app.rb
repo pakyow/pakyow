@@ -9,7 +9,7 @@ require "pakyow/support/class_state"
 require "pakyow/support/inspectable"
 require "pakyow/support/hookable"
 require "pakyow/support/configurable"
-require "pakyow/support/pipelined"
+require "pakyow/support/pipeline"
 
 require "pakyow/behavior/config"
 require "pakyow/behavior/cookies"
@@ -60,7 +60,7 @@ module Pakyow
   # App also catches any unhandled errors that occur in the pipeline by simply
   # logging the error and returning a canned 500 response.
   #
-  # @see Support::Pipelined
+  # @see Support::Pipeline
   #
   # = Configuration
   #
@@ -109,7 +109,7 @@ module Pakyow
 
     include Support::Configurable
     include Support::Definable
-    include Support::Pipelined
+    include Support::Pipeline
 
     include Support::Inspectable
     inspectable :environment

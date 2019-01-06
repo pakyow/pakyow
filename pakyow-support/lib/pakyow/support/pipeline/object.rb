@@ -2,7 +2,7 @@
 
 module Pakyow
   module Support
-    module Pipelined
+    module Pipeline
       # Makes an object passable through a pipeline.
       #
       module Object

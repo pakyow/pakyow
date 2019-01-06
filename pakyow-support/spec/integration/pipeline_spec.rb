@@ -1,10 +1,10 @@
-require "pakyow/support/pipelined"
-require "pakyow/support/pipelined/object"
+require "pakyow/support/pipeline"
+require "pakyow/support/pipeline/object"
 
 RSpec.describe "pipelines" do
   let :result do
     Class.new do
-      include Pakyow::Support::Pipelined::Object
+      include Pakyow::Support::Pipeline::Object
 
       attr_reader :results
 
@@ -21,7 +21,7 @@ RSpec.describe "pipelines" do
   context "action references a method" do
     let :pipelined do
       Class.new do
-        include Pakyow::Support::Pipelined
+        include Pakyow::Support::Pipeline
 
         action :foo
         action :bar
@@ -44,7 +44,7 @@ RSpec.describe "pipelines" do
   context "action is an unnamed block" do
     let :pipelined do
       Class.new do
-        include Pakyow::Support::Pipelined
+        include Pakyow::Support::Pipeline
 
         action do |result|
           result << "foo"
@@ -60,7 +60,7 @@ RSpec.describe "pipelines" do
   context "action is a named block" do
     let :pipelined do
       Class.new do
-        include Pakyow::Support::Pipelined
+        include Pakyow::Support::Pipeline
 
         action :foo do |result|
           result << "foo"
@@ -76,7 +76,7 @@ RSpec.describe "pipelines" do
   context "action is a class" do
     let :pipelined do
       Class.new do
-        include Pakyow::Support::Pipelined
+        include Pakyow::Support::Pipeline
 
         action Class.new {
           def call(result)
@@ -93,7 +93,7 @@ RSpec.describe "pipelines" do
     context "action is defined with options" do
       let :pipelined do
         Class.new do
-          include Pakyow::Support::Pipelined
+          include Pakyow::Support::Pipeline
 
           action Class.new {
             def initialize(option)
@@ -116,7 +116,7 @@ RSpec.describe "pipelines" do
   context "action is a callable instance" do
     let :pipelined do
       Class.new do
-        include Pakyow::Support::Pipelined
+        include Pakyow::Support::Pipeline
 
         action Proc.new { |result|
           result << "foo"
@@ -137,7 +137,7 @@ RSpec.describe "pipelines" do
     context "during pipelining" do
       let :pipelined do
         Class.new do
-          include Pakyow::Support::Pipelined
+          include Pakyow::Support::Pipeline
 
           action :check
 
@@ -155,7 +155,7 @@ RSpec.describe "pipelines" do
     context "after pipelining" do
       let :pipelined do
         Class.new do
-          include Pakyow::Support::Pipelined
+          include Pakyow::Support::Pipeline
         end
       end
 
@@ -170,7 +170,7 @@ RSpec.describe "pipelines" do
   context "action does not accept an argument" do
     let :pipelined do
       Class.new do
-        include Pakyow::Support::Pipelined
+        include Pakyow::Support::Pipeline
 
         attr_reader :results
 
@@ -202,7 +202,7 @@ RSpec.describe "pipelines" do
   context "an action halts" do
     let :pipelined do
       Class.new do
-        include Pakyow::Support::Pipelined
+        include Pakyow::Support::Pipeline
 
         action :foo
         action :bar
@@ -230,7 +230,7 @@ RSpec.describe "pipelines" do
   context "an action yields" do
     let :pipelined do
       Class.new do
-        include Pakyow::Support::Pipelined
+        include Pakyow::Support::Pipeline
 
         action :foo
         action :bar
@@ -259,7 +259,7 @@ RSpec.describe "pipelines" do
     context "action does not accept an argument" do
       let :pipelined do
         Class.new do
-          include Pakyow::Support::Pipelined
+          include Pakyow::Support::Pipeline
 
           attr_reader :results
 
@@ -299,7 +299,7 @@ RSpec.describe "pipelines" do
   describe "using named pipelines" do
     let :pipelined do
       Class.new do
-        include Pakyow::Support::Pipelined
+        include Pakyow::Support::Pipeline
 
         action :foo
 
@@ -328,7 +328,7 @@ RSpec.describe "pipelines" do
   describe "including named pipelines" do
     let :pipelined do
       Class.new do
-        include Pakyow::Support::Pipelined
+        include Pakyow::Support::Pipeline
 
         action :foo
 
@@ -357,7 +357,7 @@ RSpec.describe "pipelines" do
   describe "excluding named pipelines" do
     let :pipelined do
       Class.new do
-        include Pakyow::Support::Pipelined
+        include Pakyow::Support::Pipeline
 
         action :foo
         action :bar
@@ -387,7 +387,7 @@ RSpec.describe "pipelines" do
   describe "pipeline modules" do
     let :pipeline_module do
       Module.new do
-        extend Pakyow::Support::Pipelined::Pipeline
+        extend Pakyow::Support::Pipeline
 
         action :foo
 
@@ -418,7 +418,7 @@ RSpec.describe "pipelines" do
     describe "using pipeline modules" do
       let :pipelined do
         Class.new do
-          include Pakyow::Support::Pipelined
+          include Pakyow::Support::Pipeline
 
           action :current
 
@@ -439,7 +439,7 @@ RSpec.describe "pipelines" do
     describe "including pipeline modules" do
       let :pipelined do
         Class.new do
-          include Pakyow::Support::Pipelined
+          include Pakyow::Support::Pipeline
 
           action :current
 
@@ -460,7 +460,7 @@ RSpec.describe "pipelines" do
     describe "excluding pipeline modules" do
       let :pipelined do
         Class.new do
-          include Pakyow::Support::Pipelined
+          include Pakyow::Support::Pipeline
 
           action :current
 

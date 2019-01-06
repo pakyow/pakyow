@@ -4,7 +4,7 @@ require "pakyow/support/class_state"
 
 module Pakyow
   module Support
-    # Provides pipeline behavior. Pipelined objects can define actions to be called in order on an
+    # Provides pipeline behavior. Pipeline objects can define actions to be called in order on an
     # instance of the pipelined object. Each action can act on the state passed to it. Any action
     # can halt the pipeline, causing the result to be immediately returned without calling other
     # actions. State passed through the pipeline should include {Pipelined::Object}.
@@ -13,7 +13,7 @@ module Pakyow
     #
     # @example
     #   class App
-    #     include Pakyow::Support::Pipelined
+    #     include Pakyow::Support::Pipeline
     #
     #     action :foo
     #     action :bar
@@ -28,7 +28,7 @@ module Pakyow
     #   end
     #
     #   class Result
-    #     include Pakyow::Support::Pipelined::Object
+    #     include Pakyow::Support::Pipeline::Object
     #
     #     attr_reader :results
     #
@@ -44,7 +44,40 @@ module Pakyow
     #   App.new.call(Result.new).results
     #   => ["foo", "bar"]
     #
-    module Pipelined
+    # = Modules
+    #
+    # Pipeline behavior can be added to a module and then used in a pipelined object.
+    #
+    # @example
+    #   module VerifyRequest
+    #     extend Pakyow::Support::Pipeline
+    #
+    #     action :verify_request
+    #
+    #     def verify_request
+    #       ...
+    #     end
+    #   end
+    #
+    #   class App
+    #     include Pakyow::Support::Pipeline
+    #
+    #     use_pipeline VerifyRequest
+    #
+    #     ...
+    #   end
+    #
+    module Pipeline
+      # @api private
+      def self.extended(base)
+        base.extend ClassMethods
+        base.extend ClassState unless base.ancestors.include?(ClassState)
+        base.class_state :__pipelines, default: {}, inheritable: true
+        base.class_state :__pipeline, inheritable: true
+
+        base.instance_variable_set(:@__pipeline, Internal.new)
+      end
+
       # @api private
       def self.included(base)
         base.extend ClassMethods
@@ -92,7 +125,7 @@ module Pakyow
         # Defines a pipeline.
         #
         def pipeline(name, &block)
-          @__pipelines[name.to_sym] = InternalPipeline.new(&block)
+          @__pipelines[name.to_sym] = Internal.new(&block)
         end
 
         # Uses a pipeline.
@@ -134,7 +167,7 @@ module Pakyow
         def find_pipeline(name_or_pipeline)
           if name_or_pipeline.is_a?(Pipeline)
             name_or_pipeline.instance_variable_get(:@__pipeline)
-          elsif name_or_pipeline.is_a?(InternalPipeline)
+          elsif name_or_pipeline.is_a?(Internal)
             name_or_pipeline
           else
             name_or_pipeline = name_or_pipeline.to_sym
@@ -147,51 +180,8 @@ module Pakyow
         end
       end
 
-      # Creates a pipeline that can be used or included in a pipelined object.
-      #
-      # @see Pipelined
-      #
-      # @example
-      #   module VerifyRequest
-      #     extend Pakyow::Support::Pipeline
-      #
-      #     action :verify_request
-      #
-      #     def verify_request
-      #       ...
-      #     end
-      #   end
-      #
-      #   class App
-      #     include Pakyow::Support::Pipelined
-      #
-      #     use_pipeline VerifyRequest
-      #
-      #     ...
-      #   end
-      #
-      module Pipeline
-        def self.extended(base)
-          base.instance_variable_set(:@__pipeline, InternalPipeline.new)
-        end
-
-        attr_reader :__pipeline
-
-        # Defines an action.
-        # @see Pipelined::ClassMethods#action
-        #
-        def action(action = nil, *options, &block)
-          if action.is_a?(Symbol) && block_given?
-            define_method action, &block
-            private action
-          end
-
-          @__pipeline.action(action, *options, &block)
-        end
-      end
-
       # @api private
-      class InternalPipeline
+      class Internal
         attr_reader :actions
 
         def initialize
@@ -208,11 +198,11 @@ module Pakyow
         end
 
         def callable(context)
-          CallablePipeline.new(@actions, context)
+          Callable.new(@actions, context)
         end
 
         def action(target, *options, &block)
-          PipelineAction.new(target, *options, &block).tap do |action|
+          Action.new(target, *options, &block).tap do |action|
             @actions << action
           end
         end
@@ -224,7 +214,7 @@ module Pakyow
         def exclude_actions(actions)
           # Map input into a common denominator, to exclude both names and other action objects.
           targets = actions.map { |action|
-            if action.is_a?(PipelineAction)
+            if action.is_a?(Action)
               action.target
             else
               action
@@ -238,7 +228,7 @@ module Pakyow
       end
 
       # @api private
-      class CallablePipeline
+      class Callable
         def initialize(actions, context)
           @stack = actions.map { |action|
             action.finalize(context)
@@ -272,7 +262,7 @@ module Pakyow
       end
 
       # @api private
-      class PipelineAction
+      class Action
         attr_reader :target, :options
 
         def initialize(target, *options, &block)

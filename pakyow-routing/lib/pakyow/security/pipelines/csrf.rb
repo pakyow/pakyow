@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-require "pakyow/support/pipelined"
+require "pakyow/support/pipeline"
 
 module Pakyow
   module Security
     module Pipelines
       module CSRF
-        extend Support::Pipelined::Pipeline
+        extend Support::Pipeline
 
         action :verify_same_origin
         action :verify_authenticity_token

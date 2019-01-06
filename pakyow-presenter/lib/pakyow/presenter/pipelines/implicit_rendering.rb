@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "pakyow/support/pipelined"
+require "pakyow/support/pipeline"
 
 module Pakyow
   module Presenter
@@ -8,7 +8,7 @@ module Pakyow
       # Performs a render if a controller is called but doesn't explicitly render.
       #
       module ImplicitRendering
-        extend Support::Pipelined::Pipeline
+        extend Support::Pipeline
 
         action :setup_for_implicit_rendering
 

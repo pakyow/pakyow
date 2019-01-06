@@ -2,7 +2,7 @@
 
 require "pakyow/support/aargv"
 require "pakyow/support/makeable"
-require "pakyow/support/pipelined"
+require "pakyow/support/pipeline"
 require "pakyow/support/core_refinements/string/normalization"
 
 require "pakyow/routing/route"
@@ -145,7 +145,7 @@ module Pakyow
     include Routing::Behavior::ErrorHandling
     include Routing::Behavior::ParamVerification
 
-    include Support::Pipelined
+    include Support::Pipeline
 
     using Support::Refinements::String::Normalization
 
@@ -186,7 +186,7 @@ module Pakyow
         child.new(app)
       }
 
-      @__pipeline.instance_variable_get(:@stack) << Support::Pipelined::PipelineAction.new(:dispatch).finalize(self)
+      @__pipeline.instance_variable_get(:@stack) << Support::Pipeline::Action.new(:dispatch).finalize(self)
     end
 
     def call(connection, request_path = connection.request.path)

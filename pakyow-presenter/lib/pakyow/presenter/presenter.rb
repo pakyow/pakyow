@@ -6,8 +6,8 @@ require "pakyow/support/core_refinements/array/ensurable"
 require "pakyow/support/core_refinements/string/normalization"
 
 require "pakyow/support/class_state"
-require "pakyow/support/pipelined"
-require "pakyow/support/pipelined/object"
+require "pakyow/support/pipeline"
+require "pakyow/support/pipeline/object"
 require "pakyow/support/safe_string"
 require "pakyow/support/string_builder"
 
@@ -30,8 +30,8 @@ module Pakyow
 
       include Behavior::Endpoints
 
-      include Support::Pipelined
-      include Support::Pipelined::Object
+      include Support::Pipeline
+      include Support::Pipeline::Object
 
       action :set_title
       action :perform

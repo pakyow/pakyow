@@ -9,8 +9,8 @@ require "pakyow/support/class_state"
 require "pakyow/support/extension"
 require "pakyow/support/hookable"
 
-require "pakyow/support/pipelined"
-require "pakyow/support/pipelined/object"
+require "pakyow/support/pipeline"
+require "pakyow/support/pipeline/object"
 
 module Pakyow
   # Base class for generators.
@@ -58,7 +58,7 @@ module Pakyow
     class File
       include Common
 
-      include Support::Pipelined::Object
+      include Support::Pipeline::Object
 
       attr_accessor :path, :logical_path, :content, :context
 
@@ -102,7 +102,7 @@ module Pakyow
     end
 
     class Processor
-      include Support::Pipelined
+      include Support::Pipeline
 
       action :process_erb
       action :populate_path

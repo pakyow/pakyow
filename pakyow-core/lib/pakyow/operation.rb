@@ -2,8 +2,8 @@
 
 require "pakyow/support/class_state"
 require "pakyow/support/makeable"
-require "pakyow/support/pipelined"
-require "pakyow/support/pipelined/object"
+require "pakyow/support/pipeline"
+require "pakyow/support/pipeline/object"
 
 require "pakyow/verification"
 
@@ -14,8 +14,8 @@ module Pakyow
 
     extend Support::Makeable
 
-    include Support::Pipelined
-    include Support::Pipelined::Object
+    include Support::Pipeline
+    include Support::Pipeline::Object
 
     attr_reader :values
 
