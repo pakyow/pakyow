@@ -17,6 +17,14 @@ RSpec.describe "explicit rendering" do
       expect(response[0]).to eq(200)
       expect(response[2].body.read).to eq("<!DOCTYPE html>\n<html>\n  <head>\n    <title>default</title>\n  </head>\n\n  <body>\n    other\n\n  </body>\n</html>\n")
     end
+
+    context "request format is not html" do
+      it "renders the view" do
+        response = call("/", "ACCEPT" => "application/json")
+        expect(response[0]).to eq(200)
+        expect(response[2].body.read).to eq("<!DOCTYPE html>\n<html>\n  <head>\n    <title>default</title>\n  </head>\n\n  <body>\n    other\n\n  </body>\n</html>\n")
+      end
+    end
   end
 
   context "view does not exist" do
@@ -42,6 +50,12 @@ RSpec.describe "explicit rendering" do
       response = call("/")
       expect(response[0]).to eq(404)
       expect(response[2].body.read).to include("Unknown page")
+    end
+
+    context "request format is not html" do
+      it "returns a 404" do
+        expect(call("/", "ACCEPT" => "application/json")[0]).to eq(404)
+      end
     end
   end
 

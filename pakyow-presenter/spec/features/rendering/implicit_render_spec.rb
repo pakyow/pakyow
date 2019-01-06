@@ -115,6 +115,12 @@ RSpec.describe "implicitly rendering when a controller is called but does not re
         expect(call("/other", method: :head)[1]).to eq("Content-Length" => 108, "Content-Type" => "text/html")
       end
     end
+
+    context "request format is not html" do
+      it "returns a 404" do
+        expect(call("/other.json")[0]).to eq(404)
+      end
+    end
   end
 
   context "view does not exist" do
@@ -130,6 +136,12 @@ RSpec.describe "implicitly rendering when a controller is called but does not re
       response = call("/nonexistent")
       expect(response[0]).to eq(404)
       expect(response[2].body.read).to include("Unknown page")
+    end
+
+    context "request format is not html" do
+      it "returns a 404" do
+        expect(call("/nonexistent.json")[0]).to eq(404)
+      end
     end
   end
 
