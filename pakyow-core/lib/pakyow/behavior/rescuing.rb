@@ -24,7 +24,7 @@ module Pakyow
         @rescued = true
 
         performing :rescue do
-          Pakyow.logger.error(error: error)
+          Pakyow.logger.error(error)
 
           message = <<~ERROR
             #{self.class} failed to initialize.

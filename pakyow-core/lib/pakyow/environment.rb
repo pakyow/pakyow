@@ -433,7 +433,7 @@ module Pakyow
 
     def handle_boot_failure(error)
       Support::Logging.safe(level: Logger.const_get(config.logger.level.to_s.upcase), formatter: config.logger.formatter.new) do |logger|
-        logger.error(error: error)
+        logger.error(error)
       end
 
       if config.exit_on_boot_failure

@@ -151,11 +151,7 @@ RSpec.describe Pakyow::RequestLogger do
     end
 
     it "logs the error at the proper level" do
-      expect(logger.formatter).to receive(:format_error) { |error_to_format|
-        expect(error_to_format.wrapped_exception).to be(err)
-        "formatted error"
-      }
-
+      expect(logger.formatter).to receive(:format_error).with(err).and_return("formatted error")
       expect(instance).to receive(:error).with("formatted error")
       instance.houston(err)
     end

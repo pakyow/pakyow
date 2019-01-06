@@ -106,7 +106,7 @@ RSpec.describe "using the request logger" do
     it "logs an error" do
       allow(error).to receive(:backtrace).and_return(["one"])
       request_logger.houston(error)
-      expect(message).to eq("{\"severity\":\"ERROR\",\"timestamp\":\"#{datetime}\",\"id\":\"#{request_logger.id}\",\"type\":\"http\",\"elapsed\":\"#{elapsed * 1000}.00ms\",\"exception\":\"Pakyow::Error\",\"message\":\"foo\",\"backtrace\":[\"one\"]}\n")
+      expect(message).to eq("{\"severity\":\"ERROR\",\"timestamp\":\"#{datetime}\",\"id\":\"#{request_logger.id}\",\"type\":\"http\",\"elapsed\":\"#{elapsed * 1000}.00ms\",\"exception\":\"RuntimeError\",\"message\":\"foo\",\"backtrace\":[\"one\"]}\n")
     end
   end
 
@@ -134,7 +134,7 @@ RSpec.describe "using the request logger" do
     it "logs an error" do
       allow(error).to receive(:backtrace).and_return(["one"])
       request_logger.houston(error)
-      expect(message).to eq("severity=ERROR timestamp=\"#{datetime}\" id=#{request_logger.id} type=http elapsed=#{elapsed * 1000}.00ms exception=Pakyow::Error message=foo backtrace=one\n")
+      expect(message).to eq("severity=ERROR timestamp=\"#{datetime}\" id=#{request_logger.id} type=http elapsed=#{elapsed * 1000}.00ms exception=RuntimeError message=foo backtrace=one\n")
     end
   end
 end

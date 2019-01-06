@@ -19,6 +19,13 @@ module Pakyow
       # @api private
       class Human
         def call(severity, _datetime, _progname, message)
+          message = case message
+          when Exception
+            format_error(message)
+          else
+            message
+          end
+
           Colorizer.colorize(message, severity)
         end
 
@@ -57,6 +64,10 @@ module Pakyow
 
         # @api private
         def format_error(error)
+          unless error.is_a?(Error)
+            error = Error.build(error)
+          end
+
           Error::CLIFormatter.new(error).to_s
         end
       end

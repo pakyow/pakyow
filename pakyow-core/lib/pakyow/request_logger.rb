@@ -97,10 +97,6 @@ module Pakyow
     # @param error [Object] the error object
     #
     def houston(error)
-      unless error.is_a?(Error)
-        error = Error.build(error)
-      end
-
       error(
         @logger.formatter.format_error(
           error

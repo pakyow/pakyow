@@ -64,6 +64,13 @@ module Pakyow
         private
 
         def format(message)
+          message = case message
+          when Exception
+            format_error(message)
+          else
+            message
+          end
+
           message.to_json + "\n"
         end
 

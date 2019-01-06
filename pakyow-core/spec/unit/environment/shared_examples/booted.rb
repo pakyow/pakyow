@@ -50,7 +50,7 @@ RSpec.shared_examples :environment_booted do
     end
 
     it "logs the error and each line of the backtrace" do
-      expect(logger).to receive(:error).with(error: error)
+      expect(logger).to receive(:error).with(error)
     end
 
     it "exits" do

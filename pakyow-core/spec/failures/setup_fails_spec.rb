@@ -14,7 +14,7 @@ RSpec.describe "Handling failures in pakyow environment setup" do
 
   shared_examples :handling do
     it "logs" do
-      expect(Pakyow.logger).to receive(:error).with(error: error)
+      expect(Pakyow.logger).to receive(:error).with(error)
     end
 
     context "config.exit_on_boot_failure is true" do

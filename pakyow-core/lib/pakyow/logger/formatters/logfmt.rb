@@ -19,6 +19,13 @@ module Pakyow
         UNESCAPED_STRING = /\A[\w\.\-\+\%\,\:\;\/]*\z/i
 
         def format(message)
+          message = case message
+          when Exception
+            format_error(message)
+          else
+            message
+          end
+
           escape(message).map { |key, value|
             "#{key}=#{value}"
           }.join(" ") + "\n"
