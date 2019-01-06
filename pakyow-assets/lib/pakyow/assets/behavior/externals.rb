@@ -39,6 +39,7 @@ module Pakyow
               end
 
               if fetched
+                FileUtils.mkdir_p "./tmp"
                 FileUtils.touch "./tmp/restart.txt"
               end
             end
