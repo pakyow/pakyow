@@ -83,15 +83,15 @@ module Pakyow
         library_type = library_type(location.absolute_path)
 
         occurred_in = if library_type == :pakyow || library_name.start_with?("pakyow-")
-          "`#{library_name.split("-", 2)[1]}' framework"
+          "within the `#{library_name.split("-", 2)[1]}' framework"
         elsif library_type == :gem
-          "`#{library_name}' gem"
+          "within the `#{library_name}' gem"
         else
-          "`#{library_name}' library"
+          "somewhere within ruby itself"
         end
 
         <<~MESSAGE
-          `#{(cause || self).class}' occurred outside of your project, within the #{occurred_in}.
+          `#{(cause || self).class}' occurred outside of your project, #{occurred_in}.
         MESSAGE
       else
         <<~MESSAGE
@@ -140,6 +140,8 @@ module Pakyow
           modified_line = strip_path_prefix(line)
           if line.start_with?(Pakyow.config.root)
             "› ".rjust(padded_length) + modified_line
+          elsif modified_line.start_with?("ruby")
+            "ruby | ".rjust(padded_length) + modified_line.split("/", 3)[2]
           else
             "#{library_name(line).to_s.gsub(/^pakyow-/, "")} | ".rjust(padded_length) + modified_line.split("/", 2)[1]
           end
@@ -194,7 +196,7 @@ module Pakyow
       when :gem
         strip_path_prefix(line).split("/")[0].split("-")[0..-2].join("-")
       when :ruby
-        strip_path_prefix(line).split("/")[2]
+        "ruby"
       when :pakyow
         strip_path_prefix(line).split("/")[0]
       else

@@ -114,7 +114,7 @@ RSpec.describe Pakyow::Error do
 
         expect(wrapped.details).to eq(
           <<~MESSAGE
-            `JSON::ParserError' occurred outside of your project, within the `json' library.
+            `JSON::ParserError' occurred outside of your project, somewhere within ruby itself.
           MESSAGE
         )
       end
@@ -237,12 +237,17 @@ RSpec.describe Pakyow::Error do
           [
             File.join(Gem.default_dir, "gems/pakyow-realtime-1.0.0/foo.rb:114:in `foo`"),
             __FILE__ + ":#{__LINE__}:in `bar`",
-            File.join(Gem.default_dir, "gems/puma-3.12.0/baz.rb:42:in `baz`")
+            File.join(Gem.default_dir, "gems/puma-3.12.0/baz.rb:42:in `baz`"),
+            File.join(RbConfig::CONFIG["libdir"], "ruby/2.6.0/json/common.rb:156:in `parse'")
           ]
         )
 
         described_class.build(error)
       end
+    end
+
+    it "simplifies lines from ruby" do
+      expect(error.condensed_backtrace[3]).to eq("    ruby | json/common.rb:156:in `parse'")
     end
 
     it "simplifies lines from a gem" do
