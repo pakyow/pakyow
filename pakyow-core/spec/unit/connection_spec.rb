@@ -176,7 +176,7 @@ RSpec.describe Pakyow::Connection do
   end
 
   describe "#format" do
-    context "when request format is unspecified" do
+    context "request format is unspecified" do
       before do
         connection.env["PATH_INFO"] = "foo"
       end
@@ -186,23 +186,78 @@ RSpec.describe Pakyow::Connection do
       end
     end
 
-    context "when request format is json" do
-      before do
-        connection.env["PATH_INFO"] = "foo.json"
+    describe "specifying the request format through the path" do
+      context "format is known" do
+        before do
+          connection.env["PATH_INFO"] = "foo.json"
+        end
+
+        it "returns the symbolized format" do
+          expect(connection.format).to eq(:json)
+        end
       end
 
-      it "returns the symbolized format" do
-        expect(connection.format).to eq(:json)
+      context "format is unknown" do
+        before do
+          connection.env["PATH_INFO"] = "foo.foobar"
+        end
+
+        it "returns the symbolized format" do
+          expect(connection.format).to eq(:foobar)
+        end
       end
     end
 
-    context "when content type is unknown" do
-      before do
-        connection.env["PATH_INFO"] = "foo.foobar"
+    describe "specifying the request format through the accept header" do
+      context "format is known" do
+        before do
+          connection.env["ACCEPT"] = "application/json"
+        end
+
+        it "returns the symbolized format" do
+          expect(connection.format).to eq(:json)
+        end
       end
 
-      it "returns the symbolized format" do
-        expect(connection.format).to eq(:foobar)
+      context "format is unknown" do
+        before do
+          connection.env["ACCEPT"] = "application/foobar"
+        end
+
+        it "returns nil" do
+          expect(connection.format).to eq(nil)
+        end
+      end
+
+      context "format is any" do
+        before do
+          connection.env["ACCEPT"] = "*/*"
+        end
+
+        it "returns any" do
+          expect(connection.format).to eq(:any)
+        end
+      end
+
+      context "multiple formats are specified through the header" do
+        before do
+          connection.env["ACCEPT"] = "application/json, text/html"
+        end
+
+        it "uses the first format" do
+          expect(connection.format).to eq(:json)
+        end
+      end
+    end
+
+    context "request format is specified in multiple ways" do
+      before do
+        connection.env["ACCEPT"] = "application/json"
+        connection.env["PATH_INFO"] = "index.html"
+      end
+
+      it "gives precedence to the path" do
+        expect(connection.format).to eq(:html)
       end
     end
   end

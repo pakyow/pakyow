@@ -152,12 +152,18 @@ module Pakyow
     #   => :html
     #
     def format
-      return @format if defined?(@format)
-
-      if @request.path.include?(".")
-        @format = @request.path.split(".").last.to_sym
+      @format ||= if path.include?(".")
+        path.split(".").last.to_sym
+      elsif request_header?("ACCEPT")
+        if request_header("ACCEPT") == "*/*"
+          :any
+        elsif mime_type = Rack::Mime::MIME_TYPES.key(request_header("ACCEPT").split(",", 2)[0].strip)
+          mime_type[1..-1].to_sym
+        else
+          nil
+        end
       else
-        @format = :html
+        :html
       end
     end
 
