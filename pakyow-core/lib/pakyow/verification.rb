@@ -17,14 +17,13 @@ module Pakyow
 
       verifier_instance = verifier.new(object_to_verify, context: self)
       unless verifier_instance.verify?
-        InvalidData.new("Verification failed for #{object_to_verify}").tap do |error|
-          error.context = {
-            object: object_to_verify,
-            verifier: verifier_instance
-          }
+        error = InvalidData.new_with_message(:verification)
+        error.context = {
+          object: object_to_verify,
+          verifier: verifier_instance
+        }
 
-          raise(error)
-        end
+        raise error
       end
     end
 

@@ -6,6 +6,10 @@ require "pakyow/error"
 
 module Pakyow
   class InvalidData < Error
+    class_state :messages, default: {
+      verification: "Provided data didn't pass verification"
+    }.freeze
+
     # Failed verifier instance.
     #
     def verifier
@@ -20,11 +24,11 @@ module Pakyow
 
     def contextual_message
       <<~MESSAGE
-        Verification failed for the following data:
+        Here's the data:
 
         #{indent_as_code(JSON.pretty_generate(object))}
 
-        Here's a list of failures:
+        And here are the failures:
 
         #{indent_as_code(JSON.pretty_generate(verifier.messages))}
       MESSAGE
