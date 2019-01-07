@@ -207,6 +207,54 @@ RSpec.describe "rendering view templates" do
           end
         end
       end
+
+      context "app view template defines a component" do
+        let :app_init do
+          Proc.new do
+            component :test do
+              def perform
+                expose :ancestors, app.class.ancestors
+              end
+
+              presenter do
+                def perform
+                  view.html = "app component render (ancestors: #{ancestors})"
+                end
+              end
+            end
+          end
+        end
+
+        it "renders with the app component, calling the component in context of the app" do
+          call(File.join(mount_path, "test-plugin/render/app-override-with-component")).tap do |result|
+            expect(result[0]).to eq(200)
+            response_body = result[2].body.read
+            expect(response_body).to include_sans_whitespace(
+              <<~HTML
+                <title>app default</title>
+              HTML
+            )
+
+            expect(response_body).to include_sans_whitespace(
+              <<~HTML
+                app render
+              HTML
+            )
+
+            expect(response_body).to include_sans_whitespace(
+              <<~HTML
+                app component render
+              HTML
+            )
+
+            expect(response_body).to include_sans_whitespace(
+              <<~HTML
+                Pakyow::App
+              HTML
+            )
+          end
+        end
+      end
     end
 
     context "plugin renders with a layout missing from the app" do
@@ -242,6 +290,86 @@ RSpec.describe "rendering view templates" do
             expect(response_body).to include_sans_whitespace(
               <<~HTML
                 app render
+              HTML
+            )
+          end
+        end
+      end
+    end
+
+    context "plugin renders with a component" do
+      it "renders properly, calling the component in context of the plugin" do
+        call(File.join(mount_path, "test-plugin/render/component")).tap do |result|
+          expect(result[0]).to eq(200)
+          response_body = result[2].body.read
+          expect(response_body).to include_sans_whitespace(
+            <<~HTML
+              <title>app default</title>
+            HTML
+          )
+
+          expect(response_body).to include_sans_whitespace(
+            <<~HTML
+              plugin render
+            HTML
+          )
+
+          expect(response_body).to include_sans_whitespace(
+            <<~HTML
+              plugin component render
+            HTML
+          )
+
+          expect(response_body).to include_sans_whitespace(
+            <<~HTML
+              Pakyow::Plugin
+            HTML
+          )
+        end
+      end
+
+      context "app overrides the backend component object" do
+        let :app_init do
+          Proc.new do
+            component :test do
+              def perform
+                expose :ancestors, app.class.ancestors
+              end
+
+              presenter do
+                def perform
+                  view.html = "app component render (ancestors: #{ancestors})"
+                end
+              end
+            end
+          end
+        end
+
+        it "renders with the plugin component, calling it in context of the plugin" do
+          call(File.join(mount_path, "test-plugin/render/component")).tap do |result|
+            expect(result[0]).to eq(200)
+            response_body = result[2].body.read
+            expect(response_body).to include_sans_whitespace(
+              <<~HTML
+                <title>app default</title>
+              HTML
+            )
+
+            expect(response_body).to include_sans_whitespace(
+              <<~HTML
+                plugin render
+              HTML
+            )
+
+            expect(response_body).to include_sans_whitespace(
+              <<~HTML
+                plugin component render
+              HTML
+            )
+
+            expect(response_body).to include_sans_whitespace(
+              <<~HTML
+                Pakyow::Plugin
               HTML
             )
           end

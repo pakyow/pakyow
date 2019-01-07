@@ -21,11 +21,21 @@ module Pakyow
           presenter.components.each_with_index do |component_presenter, i|
             component_path = path.dup << i
 
-            found_component = connection.app.state(:component).find { |component|
+            # If we rendered from the app, look for the component on the app.
+            #
+            component_state = if connection.app.is_a?(Plugin) && connection.app.app.view?(templates_path)
+              connection.app.app.state(:component)
+            else
+              connection.app.state(:component)
+            end
+
+            found_component = component_state.find { |component|
               component.__object_name.name == component_presenter.view.object.label(:component)
             }
 
             if found_component
+              # Prevent values from being exposed outside of a component.
+              #
               original_values = connection.values
               connection.instance_variable_set(
                 :@values,
@@ -33,6 +43,14 @@ module Pakyow
                   connection.values.to_h.select { |key| key.to_s.start_with?("__") }
                 )
               )
+
+              # If the component was defined in an app but being called inside a
+              # plugin, set the app to the app instead of the plugin.
+              #
+              if connection.app.is_a?(Plugin) && found_component.ancestors.include?(connection.app.app.isolated(:Component))
+                original_app = connection.app
+                connection.instance_variable_set(:@app, connection.app.app)
+              end
 
               component_instance = found_component.new(
                 connection: connection
@@ -49,6 +67,12 @@ module Pakyow
                 layout: layout,
                 mode: mode
               ).perform
+
+              # Set the connection's app back to the original value.
+              #
+              if original_app
+                connection.instance_variable_set(:@app, original_app)
+              end
 
               # Remove exposed values that aren't internal to the framework.
               #

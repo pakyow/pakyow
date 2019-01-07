@@ -29,6 +29,10 @@ module Pakyow
           end
         end
 
+        def view?(templates_path)
+          !find_info(templates_path).nil?
+        end
+
         private
 
         def find_info(path)
