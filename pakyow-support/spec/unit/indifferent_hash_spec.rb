@@ -83,6 +83,22 @@ module Pakyow::Support
           expect(nested_hash).to be_kind_of(IndifferentHash)
         end
       end
+
+      context "nested value is an array of non-hashes" do
+        let :simple_hash do
+          {
+            "nested" => {
+              "key" => [
+                "one", "two", "three"
+              ]
+            }
+          }
+        end
+
+        it "indifferentizes" do
+          expect(deep[:nested][:key]).to eq(["one", "two", "three"])
+        end
+      end
     end
 
     context "respecting the Hash api" do

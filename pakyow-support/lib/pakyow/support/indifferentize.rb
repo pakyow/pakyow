@@ -30,7 +30,14 @@ module Pakyow
             when Hash
               value = deep(value)
             when Array
-              value = value.map { |value_item| deep(value_item) }
+              value = value.map { |value_item|
+                case value_item
+                when Hash
+                  deep(value_item)
+                else
+                  value_item
+                end
+              }
             end
             [key, value]
           }
