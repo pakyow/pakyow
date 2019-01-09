@@ -29,7 +29,7 @@ RSpec.describe "submitting invalid form data" do
     it "adds an errored class to the form" do
       call("/posts", method: :post, params: { form: { errors_id: 123, origin: "/posts/new", binding: "post:form" }, post: { title: "foo title"} }).tap do |result|
         expect(result[0]).to be(400)
-        expect(result[2].body.read).to include('<form data-b="post" data-ui="form" data-c="form" action="/posts" method="post" class="errored"')
+        expect(result[2].body.read).to include('<form data-b="post" data-ui="form" data-c="form" class="errored"')
       end
     end
 
@@ -43,7 +43,7 @@ RSpec.describe "submitting invalid form data" do
     it "does not add an errored class to a non-errored field" do
       call("/posts", method: :post, params: { form: { errors_id: 123, origin: "/posts/new", binding: "post:form" }, post: { title: "foo title"} }).tap do |result|
         expect(result[0]).to be(400)
-        expect(result[2].body.read).to include('<input type="text" data-b="title" data-c="form" name="post[title]" value="foo title" class="">')
+        expect(result[2].body.read).to include('<input type="text" data-b="title" data-c="form" name="post[title]" class="" value="foo title">')
       end
     end
 
@@ -61,7 +61,7 @@ RSpec.describe "submitting invalid form data" do
         expect(result[0]).to be(400)
         expect(result[2].body.read).to include_sans_whitespace(
           <<~HTML
-            <input type="text" data-b="title" data-c="form" name="post[title]" value="foo title" class="">
+            <input type="text" data-b="title" data-c="form" name="post[title]" class="" value="foo title">
           HTML
         )
       end
@@ -125,8 +125,8 @@ RSpec.describe "submitting invalid form data" do
         call("/posts", method: :post, params: { form: { errors_id: 123, origin: "/posts/new", binding: "post:form:bar" }, post: { title: "bar title"} }).tap do |result|
           expect(result[0]).to be(400)
           result[2].body.read.tap do |body|
-            expect(body).to include('<form data-b="post" data-ui="form" class="foo" data-c="form:foo" action="/posts" method="post"')
-            expect(body).to include('<form data-b="post" data-ui="form" class="bar errored" data-c="form:bar" action="/posts" method="post"')
+            expect(body).to include('<form data-b="post" data-ui="form" class="foo" data-c="form:foo"')
+            expect(body).to include('<form data-b="post" data-ui="form" class="bar errored" data-c="form:bar"')
           end
         end
       end

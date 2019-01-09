@@ -36,9 +36,7 @@ module Pakyow
               end
             end
 
-            after :render do
-              subscribe_to_transformations
-            end
+            action :subscribe_to_transformations
           end
 
           isolated :ViewRenderer do
@@ -59,9 +57,7 @@ module Pakyow
               end
             end
 
-            after :render do
-              subscribe_to_transformations
-            end
+            action :subscribe_to_transformations
           end
         end
 

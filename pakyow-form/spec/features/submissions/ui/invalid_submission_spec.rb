@@ -33,7 +33,7 @@ RSpec.describe "submitting invalid form data via ui" do
     it "sets the form as subscribed" do
       call("/posts/new").tap do |result|
         expect(result[0]).to eq(200)
-        expect(result[2].body.read).to include_sans_whitespace('<form data-b="post" data-ui="form" data-c="form" action="/posts" method="post" class="" data-t="')
+        expect(result[2].body.read).to include_sans_whitespace('<form data-b="post" data-ui="form" data-c="form" class="" data-t="')
       end
     end
   end

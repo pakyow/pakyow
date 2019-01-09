@@ -18,6 +18,8 @@ module Pakyow
       include Support::Pipeline
       include Support::Pipeline::Object
 
+      action :dispatch
+
       attr_reader :connection, :presenter
 
       def initialize(connection, presenter)
@@ -26,10 +28,6 @@ module Pakyow
 
       def perform
         call(self)
-
-        performing :render do
-          @presenter.call
-        end
       end
 
       def serialize
@@ -41,6 +39,12 @@ module Pakyow
       end
 
       private
+
+      def dispatch
+        performing :render do
+          @presenter.call
+        end
+      end
 
       def find_presenter(path = nil)
         unless path.nil? || Pakyow.env?(:prototype)

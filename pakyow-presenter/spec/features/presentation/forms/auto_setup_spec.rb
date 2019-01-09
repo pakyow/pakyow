@@ -104,4 +104,58 @@ RSpec.describe "automatic form setup" do
       end
     end
   end
+
+  context "rendering a form with options exposed in the presenter" do
+    let :app_init do
+      Proc.new do
+        resource :posts, "/posts" do
+          edit do
+            expose :post, { id: params[:id], tag: "bar", colors: ["red", "blue"], enabled: false }, for: :form
+            render "/form/with-options"
+          end
+
+          update do
+          end
+        end
+
+        presenter "/form/with-options" do
+          def perform
+            form(:post).options_for(:tag, [[:foo, "Foo"], [:bar, "Bar"], [:baz, "Baz"]])
+            form(:post).options_for(:colors, [[:red, "Red"], [:green, "Green"], [:blue, "Blue"]])
+            form(:post).options_for(:enabled, [[true, "Yes"], [false, "No"]])
+          end
+        end
+      end
+    end
+
+    it "selects the active option" do
+      response = call("/posts/1/edit")
+      expect(response[0]).to eq(200)
+
+      body = response[2].body.read
+
+      expect(body).to include_sans_whitespace(
+        <<~HTML
+          <option value="foo">Foo</option>
+          <option value="bar" selected="selected">Bar</option>
+          <option value="baz">Baz</option>
+        HTML
+      )
+
+      expect(body).to include_sans_whitespace(
+        <<~HTML
+          <input type="checkbox" data-b="colors" data-c="form" name="post[colors][]" value="red" checked="checked">
+          <input type="checkbox" data-b="colors" data-c="form" name="post[colors][]" value="green">
+          <input type="checkbox" data-b="colors" data-c="form" name="post[colors][]" value="blue" checked="checked">
+        HTML
+      )
+
+      expect(body).to include_sans_whitespace(
+        <<~HTML
+          <input type="radio" data-b="enabled" data-c="form" name="post[enabled]" value="true">
+          <input type="radio" data-b="enabled" data-c="form" name="post[enabled]" value="false" checked="checked">
+        HTML
+      )
+    end
+  end
 end

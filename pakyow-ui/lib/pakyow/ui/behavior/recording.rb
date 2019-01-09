@@ -37,8 +37,9 @@ module Pakyow
               include Wrappable
 
               pipeline :ui do
-                action Presenter::Actions::InstallEndpoints
-                action Presenter::Actions::CleanupPrototypeNodes
+                action :install_endpoints, Presenter::Actions::InstallEndpoints
+                action :cleanup_prototype_nodes, Presenter::Actions::CleanupPrototypeNodes
+                action :dispatch
               end
 
               use_pipeline :ui
@@ -48,9 +49,10 @@ module Pakyow
               include Wrappable
 
               pipeline :ui do
-                action Presenter::Actions::InstallEndpoints
-                action Presenter::Actions::CleanupPrototypeNodes
-                action Presenter::Actions::PlaceInMode
+                action :install_endpoints, Presenter::Actions::InstallEndpoints
+                action :cleanup_prototype_nodes, Presenter::Actions::CleanupPrototypeNodes
+                action :place_in_mode, Presenter::Actions::PlaceInMode
+                action :dispatch
               end
 
               use_pipeline :ui

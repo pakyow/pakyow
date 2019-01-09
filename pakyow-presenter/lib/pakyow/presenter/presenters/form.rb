@@ -59,13 +59,39 @@ module Pakyow
       # Populates a select field with options.
       #
       def options_for(field, options = nil)
-        create_select_options(field, options || yield)
+        unless field_view = @view.find(field)
+          raise ArgumentError.new("could not find field named `#{field}'")
+        end
+
+        unless options_for_allowed?(field_view)
+          raise ArgumentError.new("expected `#{field}' to be a select field")
+        end
+
+        options = options || yield
+        case field_view.object.tagname
+        when "select"
+          create_select_options(options, field_view)
+        when "input"
+          create_input_options(options, field_view)
+        end
       end
 
       # Populates a select field with grouped options.
       #
-      def grouped_options_for(field, grouped_options = nil)
-        create_grouped_select_options(field, grouped_options || yield)
+      def grouped_options_for(field, options = nil)
+        unless field_view = @view.find(field)
+          raise ArgumentError.new("could not find field named `#{field}'")
+        end
+
+        unless grouped_options_for_allowed?(field_view)
+          raise ArgumentError.new("expected `#{field}' to be a select field")
+        end
+
+        options = options || yield
+        case field_view.object.tagname
+        when "select"
+          create_grouped_select_options(options, field_view)
+        end
       end
 
       def setup(object)
@@ -208,17 +234,17 @@ module Pakyow
         safe("<input type=\"hidden\" name=\"form[binding]\" value=\"#{[@view.label(:binding)].concat(@view.label(:channel)).join(":")}\">")
       end
 
-      def create_select_options(field, values)
+      def create_select_options(values, field_view)
         options = Oga::XML::Document.new
 
         values.each do |value|
           options.children << create_select_option(value)
         end
 
-        add_options_to_field(options, field)
+        add_options_to_select(options, field_view)
       end
 
-      def create_grouped_select_options(field, values)
+      def create_grouped_select_options(values, field_view)
         options = Oga::XML::Document.new
 
         values.each do |group_name, grouped_values|
@@ -231,7 +257,7 @@ module Pakyow
           end
         end
 
-        add_options_to_field(options, field)
+        add_options_to_select(options, field_view)
       end
 
       def create_select_option(value)
@@ -241,15 +267,40 @@ module Pakyow
         end
       end
 
-      def add_options_to_field(options, field)
-        unless field_view = @view.find(field)
-          raise ArgumentError.new("could not find field named `#{field}`")
-        end
+      def create_input_options(values, field_view)
+        template = field_view.dup
+        insertable = field_view
+        current = field_view
 
-        unless field_view.object.tagname == "select"
-          raise ArgumentError.new("expected `#{field}` to be a select field")
-        end
+        values.each do |value|
+          if field_view.attributes[:type] == "checkbox"
+            current.attributes[:name] = "#{current.attributes[:name]}[]"
+          end
 
+          current.attributes[:value] = value[0]
+
+          unless current.equal?(field_view)
+            insertable.after(current)
+            insertable = current
+          end
+
+          current = template.dup
+        end
+      end
+
+      def options_for_allowed?(field_view)
+        field_view.object.tagname == "select" || (
+          field_view.object.tagname == "input" && (
+            field_view.object.attributes[:type] == "checkbox" || field_view.object.attributes[:type] == "radio"
+          )
+        )
+      end
+
+      def grouped_options_for_allowed?(field_view)
+        field_view.object.tagname == "select"
+      end
+
+      def add_options_to_select(options, field_view)
         # remove existing options
         field_view.clear
 

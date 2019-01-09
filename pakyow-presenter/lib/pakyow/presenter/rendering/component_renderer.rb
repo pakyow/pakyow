@@ -18,7 +18,7 @@ module Pakyow
         end
       end
 
-      action Actions::InstallEndpoints
+      action :install_endpoints, Actions::InstallEndpoints, before: :dispatch
 
       attr_reader :mode
 

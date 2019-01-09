@@ -29,7 +29,7 @@ RSpec.describe "forms csrf" do
         response_body = response[2].body.read
         expect(response_body).to include("input type=\"hidden\" name=\"authenticity_token\"")
 
-        authenticity_client_id, authenticity_digest = response_body.match(/value=\"([^\"]+)\"/)[1].split(":")
+        authenticity_client_id, authenticity_digest = response_body.match(/name=\"authenticity_token\" value=\"([^\"]+)\"/)[1].split(":")
         computed_digest = Pakyow::Support::MessageVerifier.digest(authenticity_client_id, key: $authenticity_server_id)
 
         expect(authenticity_digest).to eq(computed_digest)

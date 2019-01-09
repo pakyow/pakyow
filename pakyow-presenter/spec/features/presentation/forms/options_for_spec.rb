@@ -1,4 +1,4 @@
-RSpec.describe "presenting select fields in a form" do
+RSpec.describe "presenting options for a form field" do
   let :presenter do
     Pakyow::Presenter::Presenter.new(view)
   end
@@ -9,6 +9,8 @@ RSpec.describe "presenting select fields in a form" do
         <form binding="post">
           <input binding="title" type="text">
           <select binding="tag"><option>existing</option></select>
+          <input type="checkbox" binding="colors">
+          <input type="radio" binding="enabled">
         </form>
       HTML
     )
@@ -104,6 +106,106 @@ RSpec.describe "presenting select fields in a form" do
 
         group2_options = groups[1].find_significant_nodes(:option)
         expect(group2_options[0].text).to eq("2.1")
+      end
+    end
+  end
+
+  describe "populating options for a checkbox" do
+    context "given options" do
+      before do
+        form.options_for(:colors, [[:red, "Red"], [:green, "Green"], [:blue, "Blue"]])
+      end
+
+      it "creates an input for each value" do
+        expect(form.view.to_s).to include_sans_whitespace(
+          <<~HTML
+            <input type="checkbox" data-b="colors" data-c="form" name="post[colors][]" value="red">
+          HTML
+        )
+
+        expect(form.view.to_s).to include_sans_whitespace(
+          <<~HTML
+            <input type="checkbox" data-b="colors" data-c="form" name="post[colors][]" value="green">
+          HTML
+        )
+
+        expect(form.view.to_s).to include_sans_whitespace(
+          <<~HTML
+            <input type="checkbox" data-b="colors" data-c="form" name="post[colors][]" value="blue">
+          HTML
+        )
+      end
+    end
+
+    context "given a block" do
+      before do
+        form.options_for(:colors) do
+          [[:red, "Red"], [:green, "Green"], [:blue, "Blue"]]
+        end
+      end
+
+      it "uses options provided by the block" do
+        expect(form.view.to_s).to include_sans_whitespace(
+          <<~HTML
+            <input type="checkbox" data-b="colors" data-c="form" name="post[colors][]" value="red">
+          HTML
+        )
+
+        expect(form.view.to_s).to include_sans_whitespace(
+          <<~HTML
+            <input type="checkbox" data-b="colors" data-c="form" name="post[colors][]" value="green">
+          HTML
+        )
+
+        expect(form.view.to_s).to include_sans_whitespace(
+          <<~HTML
+            <input type="checkbox" data-b="colors" data-c="form" name="post[colors][]" value="blue">
+          HTML
+        )
+      end
+    end
+  end
+
+  describe "populating options for a radio button" do
+    context "given options" do
+      before do
+        form.options_for(:enabled, [[true, "Yes"], [false, "No"]])
+      end
+
+      it "creates an input for each value" do
+        expect(form.view.to_s).to include_sans_whitespace(
+          <<~HTML
+            <input type="radio" data-b="enabled" data-c="form" name="post[enabled]" value="true">
+          HTML
+        )
+
+        expect(form.view.to_s).to include_sans_whitespace(
+          <<~HTML
+            <input type="radio" data-b="enabled" data-c="form" name="post[enabled]" value="false">
+          HTML
+        )
+      end
+    end
+
+    context "given a block" do
+      before do
+        form.options_for(:enabled) do
+          [[true, "Yes"], [false, "No"]]
+        end
+      end
+
+      it "uses options provided by the block" do
+        expect(form.view.to_s).to include_sans_whitespace(
+          <<~HTML
+            <input type="radio" data-b="enabled" data-c="form" name="post[enabled]" value="true">
+          HTML
+        )
+
+        expect(form.view.to_s).to include_sans_whitespace(
+          <<~HTML
+            <input type="radio" data-b="enabled" data-c="form" name="post[enabled]" value="false">
+          HTML
+        )
       end
     end
   end

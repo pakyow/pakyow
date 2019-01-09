@@ -215,23 +215,23 @@ module Pakyow
           else
             template = @view.dup
             insertable = @view
-            local = @view
+            current = @view
 
             data.each do |object|
               binder = binder_or_data(object)
 
-              local.transform(binder)
+              current.transform(binder)
 
               if block_given?
-                yield presenter_for(local), yield_binder ? binder : object
+                yield presenter_for(current), yield_binder ? binder : object
               end
 
-              unless local.equal?(@view)
-                insertable.after(local)
-                insertable = local
+              unless current.equal?(@view)
+                insertable.after(current)
+                insertable = current
               end
 
-              local = template.dup
+              current = template.dup
             end
           end
         end

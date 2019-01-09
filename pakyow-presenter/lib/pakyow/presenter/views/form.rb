@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
+require "pakyow/support/core_refinements/array/ensurable"
+
 module Pakyow
   module Presenter
     class Form < View
+      using Support::Refinements::Array::Ensurable
+
       SELECT_TAG = "select".freeze
 
       CHECKBOX_TYPE = "checkbox"
@@ -24,7 +28,13 @@ module Pakyow
       end
 
       def check_or_uncheck_value(value, view)
-        view.attributes[:checked] = view.attributes[:value] == value
+        if view.attributes[:type] == "checkbox"
+          # There could be multiple values checked, so check for inclusion.
+          #
+          view.attributes[:checked] = Array.ensure(value).map(&:to_s).include?(view.attributes[:value])
+        else
+          view.attributes[:checked] = view.attributes[:value] == value.to_s
+        end
       end
 
       def select_option_with_value(value, view)

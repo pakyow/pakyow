@@ -14,7 +14,8 @@ require "pakyow/presenter/rendering/actions/install_endpoints"
 require "pakyow/presenter/rendering/actions/place_in_mode"
 require "pakyow/presenter/rendering/actions/install_components"
 require "pakyow/presenter/rendering/actions/render_components"
-require "pakyow/presenter/rendering/actions/setup_forms"
+require "pakyow/presenter/rendering/actions/setup_form_meta"
+require "pakyow/presenter/rendering/actions/setup_form_objects"
 
 module Pakyow
   module Presenter
@@ -63,15 +64,16 @@ module Pakyow
         end
       end
 
-      action Actions::InstallEndpoints
-      action Actions::InsertPrototypeBar
-      action Actions::CleanupPrototypeNodes
-      action Actions::CreateTemplateNodes
-      action Actions::PlaceInMode
-      action Actions::InstallComponents
-      action Actions::EmbedAuthenticityToken
-      action Actions::SetupForms
-      action Actions::RenderComponents
+      action :install_endpoints, Actions::InstallEndpoints, before: :dispatch
+      action :insert_prototype_bar, Actions::InsertPrototypeBar, before: :dispatch
+      action :cleanup_prototype_nodes, Actions::CleanupPrototypeNodes, before: :dispatch
+      action :create_template_nodes, Actions::CreateTemplateNodes, before: :dispatch
+      action :place_in_mode, Actions::PlaceInMode, before: :dispatch
+      action :install_components, Actions::InstallComponents, before: :dispatch
+      action :embed_authenticity_token, Actions::EmbedAuthenticityToken, before: :dispatch
+      action :setup_form_meta, Actions::SetupFormMeta, before: :dispatch
+      action :render_components, Actions::RenderComponents, before: :dispatch
+      action :setup_form_objects, Actions::SetupFormObjects, after: :dispatch
 
       using Support::Refinements::String::Normalization
 

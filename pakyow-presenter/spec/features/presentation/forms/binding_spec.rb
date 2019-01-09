@@ -46,7 +46,7 @@ RSpec.describe "binding values to a form via presenter" do
     describe "binding a value to a checkbox" do
       context "bound value matches checkbox value" do
         before do
-          form.bind(published: "true")
+          form.bind(published: true)
         end
 
         it "checks the checkbox" do
@@ -56,7 +56,7 @@ RSpec.describe "binding values to a form via presenter" do
         context "checkbox is already checked" do
           before do
             form.find(:published).attrs[:checked] = true
-            form.bind(published: "false")
+            form.bind(published: false)
           end
 
           it "unchecks the checkbox" do
@@ -68,7 +68,7 @@ RSpec.describe "binding values to a form via presenter" do
       context "bound value does not match checkbox value" do
         context "checkbox is not already checked" do
           before do
-            form.bind(published: "false")
+            form.bind(published: false)
           end
 
           it "unchecks the checkbox" do
@@ -81,7 +81,7 @@ RSpec.describe "binding values to a form via presenter" do
     describe "binding a value to a radio button" do
       context "bound value matches one radio button value" do
         before do
-          form.bind(public: "true")
+          form.bind(public: true)
         end
 
         it "checks the matching radio button" do
