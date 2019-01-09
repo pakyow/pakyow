@@ -153,13 +153,17 @@ module Pakyow
 
         # Defines an action on the current pipeline.
         #
-        def action(action = nil, *options, &block)
+        def action(action = nil, *options, before: nil, after: nil, &block)
           if action.is_a?(Symbol) && block_given?
             define_method action, &block
             private action
           end
 
-          @__pipeline.action(action, *options, &block)
+          @__pipeline.action(action, *options, before: before, after: after, &block)
+        end
+
+        def skip_action(*actions)
+          @__pipeline.skip(*actions)
         end
 
         private
@@ -201,10 +205,30 @@ module Pakyow
           Callable.new(@actions, context)
         end
 
-        def action(target, *options, &block)
+        def action(target, *options, before: nil, after: nil, &block)
           Action.new(target, *options, &block).tap do |action|
-            @actions << action
+            if before
+              if i = @actions.index { |action| action.name == before }
+                @actions.insert(i, action)
+              else
+                @actions.unshift(action)
+              end
+            elsif after
+              if i = @actions.index { |action| action.name == after }
+                @actions.insert(i + 1, action)
+              else
+                @actions << action
+              end
+            else
+              @actions << action
+            end
           end
+        end
+
+        def skip(*actions)
+          @actions.delete_if { |action|
+            actions.include?(action.name)
+          }
         end
 
         def include_actions(actions)
@@ -263,14 +287,18 @@ module Pakyow
 
       # @api private
       class Action
-        attr_reader :target, :options
+        attr_reader :target, :name, :options
 
         def initialize(target, *options, &block)
           @target, @options, @block = target, options, block
+
+          if target.is_a?(Symbol)
+            @name = target
+          end
         end
 
         def finalize(context = nil)
-          if @target.is_a?(Symbol)
+          if @target.is_a?(Symbol) && context.respond_to?(@target, true)
             if context
               context.method(@target)
             else
@@ -279,10 +307,16 @@ module Pakyow
           elsif @target.nil? && @block
             @block
           else
-            instance = if @target.is_a?(Class)
-              @target.new(*@options)
+            target = if @target.is_a?(Symbol)
+              @options.shift
             else
               @target
+            end
+
+            instance = if target.is_a?(Class)
+              target.new(*@options)
+            else
+              target
             end
 
             instance.method(:call)

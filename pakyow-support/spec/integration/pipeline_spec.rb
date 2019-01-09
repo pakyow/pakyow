@@ -113,12 +113,68 @@ RSpec.describe "pipelines" do
     end
   end
 
+  context "action is a named class" do
+    let :pipelined do
+      Class.new do
+        include Pakyow::Support::Pipeline
+
+        action :foo, Class.new {
+          def call(result)
+            result << "foo"
+          end
+        }
+      end
+    end
+
+    it "calls the pipeline" do
+      expect(pipelined.new.call(result.new).results).to eq(["foo"])
+    end
+
+    context "action is defined with options" do
+      let :pipelined do
+        Class.new do
+          include Pakyow::Support::Pipeline
+
+          action :foo, Class.new {
+            def initialize(option)
+              @option = option
+            end
+
+            def call(result)
+              result << @option
+            end
+          }, "option"
+        end
+      end
+
+      it "passes the options to the instance" do
+        expect(pipelined.new.call(result.new).results).to eq(["option"])
+      end
+    end
+  end
+
   context "action is a callable instance" do
     let :pipelined do
       Class.new do
         include Pakyow::Support::Pipeline
 
         action Proc.new { |result|
+          result << "foo"
+        }
+      end
+    end
+
+    it "calls the pipeline" do
+      expect(pipelined.new.call(result.new).results).to eq(["foo"])
+    end
+  end
+
+  context "action is a named callable instance" do
+    let :pipelined do
+      Class.new do
+        include Pakyow::Support::Pipeline
+
+        action :foo, Proc.new { |result|
           result << "foo"
         }
       end
@@ -477,6 +533,301 @@ RSpec.describe "pipelines" do
         pipelined.exclude_pipeline pipeline_module
         expect(pipelined.new.call(result.new).results).to eq(["current"])
       end
+    end
+  end
+
+  describe "adding an action after another action" do
+    context "action is a named block" do
+      let :pipelined do
+        Class.new do
+          include Pakyow::Support::Pipeline
+
+          action :foo do |result|
+            result << "foo"
+          end
+
+          action :bar do |result|
+            result << "bar"
+          end
+
+          action :baz, after: :foo do |result|
+            result << "baz"
+          end
+        end
+      end
+
+      it "adds the action after" do
+        expect(pipelined.new.call(result.new).results).to eq(["foo", "baz", "bar"])
+      end
+    end
+
+    context "action is a named class" do
+      let :pipelined do
+        Class.new do
+          include Pakyow::Support::Pipeline
+
+          action :foo, Class.new {
+            def call(result)
+              result << "foo"
+            end
+          }
+
+          action :bar, Class.new {
+            def call(result)
+              result << "bar"
+            end
+          }
+
+          action :baz, after: :foo do |result|
+            result << "baz"
+          end
+        end
+      end
+
+      it "adds the action after" do
+        expect(pipelined.new.call(result.new).results).to eq(["foo", "baz", "bar"])
+      end
+    end
+
+    context "action is a named callable instance" do
+      let :pipelined do
+        Class.new do
+          include Pakyow::Support::Pipeline
+
+          action :foo, Proc.new { |result|
+            result << "foo"
+          }
+
+          action :bar, Proc.new { |result|
+            result << "bar"
+          }
+
+          action :baz, after: :foo do |result|
+            result << "baz"
+          end
+        end
+      end
+
+      it "adds the action after" do
+        expect(pipelined.new.call(result.new).results).to eq(["foo", "baz", "bar"])
+      end
+    end
+
+    context "action does not exist" do
+      let :pipelined do
+        Class.new do
+          include Pakyow::Support::Pipeline
+
+          action :foo do |result|
+            result << "foo"
+          end
+
+          action :bar do |result|
+            result << "bar"
+          end
+
+          action :baz, after: :nonexistent do |result|
+            result << "baz"
+          end
+        end
+      end
+
+      it "adds the action at the end" do
+        expect(pipelined.new.call(result.new).results).to eq(["foo", "bar", "baz"])
+      end
+    end
+  end
+
+  describe "adding an action before another action" do
+    context "action is a named block" do
+      let :pipelined do
+        Class.new do
+          include Pakyow::Support::Pipeline
+
+          action :foo do |result|
+            result << "foo"
+          end
+
+          action :bar do |result|
+            result << "bar"
+          end
+
+          action :baz, before: :bar do |result|
+            result << "baz"
+          end
+        end
+      end
+
+      it "adds the action before" do
+        expect(pipelined.new.call(result.new).results).to eq(["foo", "baz", "bar"])
+      end
+    end
+
+    context "action is a named class" do
+      let :pipelined do
+        Class.new do
+          include Pakyow::Support::Pipeline
+
+          action :foo, Class.new {
+            def call(result)
+              result << "foo"
+            end
+          }
+
+          action :bar, Class.new {
+            def call(result)
+              result << "bar"
+            end
+          }
+
+          action :baz, before: :bar do |result|
+            result << "baz"
+          end
+        end
+      end
+
+      it "adds the action before" do
+        expect(pipelined.new.call(result.new).results).to eq(["foo", "baz", "bar"])
+      end
+    end
+
+    context "action is a named callable instance" do
+      let :pipelined do
+        Class.new do
+          include Pakyow::Support::Pipeline
+
+          action :foo, Proc.new { |result|
+            result << "foo"
+          }
+
+          action :bar, Proc.new { |result|
+            result << "bar"
+          }
+
+          action :baz, before: :bar do |result|
+            result << "baz"
+          end
+        end
+      end
+
+      it "adds the action before" do
+        expect(pipelined.new.call(result.new).results).to eq(["foo", "baz", "bar"])
+      end
+    end
+
+    context "action does not exist" do
+      let :pipelined do
+        Class.new do
+          include Pakyow::Support::Pipeline
+
+          action :foo do |result|
+            result << "foo"
+          end
+
+          action :bar do |result|
+            result << "bar"
+          end
+
+          action :baz, before: :nonexistent do |result|
+            result << "baz"
+          end
+        end
+      end
+
+      it "adds the action at the beginning" do
+        expect(pipelined.new.call(result.new).results).to eq(["baz", "foo", "bar"])
+      end
+    end
+  end
+
+  describe "skipping an action" do
+    let :pipelined do
+      Class.new do
+        include Pakyow::Support::Pipeline
+
+        action :foo do |result|
+          result << "foo"
+        end
+
+        action :bar do |result|
+          result << "bar"
+        end
+
+        action :baz do |result|
+          result << "baz"
+        end
+
+        action :qux do |result|
+          result << "qux"
+        end
+
+        skip_action :baz
+      end
+    end
+
+    it "calls the pipeline" do
+      expect(pipelined.new.call(result.new).results).to eq(["foo", "bar", "qux"])
+    end
+  end
+
+  describe "skipping multiple actions" do
+    let :pipelined do
+      Class.new do
+        include Pakyow::Support::Pipeline
+
+        action :foo do |result|
+          result << "foo"
+        end
+
+        action :bar do |result|
+          result << "bar"
+        end
+
+        action :baz do |result|
+          result << "baz"
+        end
+
+        action :qux do |result|
+          result << "qux"
+        end
+
+        skip_action :baz, :foo
+      end
+    end
+
+    it "calls the pipeline" do
+      expect(pipelined.new.call(result.new).results).to eq(["bar", "qux"])
+    end
+  end
+
+  describe "calling the pipeline twice" do
+    let :pipelined do
+      Class.new do
+        include Pakyow::Support::Pipeline
+
+        action :foo do |result|
+          result << "foo"
+        end
+
+        action :bar do |result|
+          result << "bar"
+        end
+
+        action :baz do |result|
+          result << "baz"
+        end
+      end
+    end
+
+    it "can be called twice on the same instance" do
+      pipeline = pipelined.new
+      expect(pipeline.call(result.new).results).to eq(["foo", "bar", "baz"])
+      expect(pipeline.call(result.new).results).to eq(["foo", "bar", "baz"])
+    end
+
+    it "can be called on different instances" do
+      expect(pipelined.new.call(result.new).results).to eq(["foo", "bar", "baz"])
+      expect(pipelined.new.call(result.new).results).to eq(["foo", "bar", "baz"])
     end
   end
 end
