@@ -307,14 +307,14 @@ module Pakyow
           elsif @target.nil? && @block
             @block
           else
-            target = if @target.is_a?(Symbol)
-              @options.shift
+            target, target_options = if @target.is_a?(Symbol)
+              [@options[0], @options[1..-1]]
             else
-              @target
+              [@target, @options]
             end
 
             instance = if target.is_a?(Class)
-              target.new(*@options)
+              target.new(*target_options)
             else
               target
             end
