@@ -24,6 +24,7 @@ module Pakyow
 
         setup_form_binding
         setup_field_names
+        connect_labels
         use_binding_nodes
       end
 
@@ -168,6 +169,21 @@ module Pakyow
         }.each do |binding_node|
           binding_node.attributes[:name] ||= "#{@view.object.label(:binding)}[#{binding_node.label(:binding)}]"
         end
+      end
+
+      def connect_labels
+        @view.object.children.find_significant_nodes_without_descending(:label).reject { |label_node|
+          if label_node.attributes[:for] && input = @view.find(label_node.attributes[:for].to_s)
+            if input.attributes[:id].empty?
+              id = SecureRandom.hex(4)
+              input.attributes[:id] = id
+            else
+              id = input.attributes[:id]
+            end
+
+            label_node.attributes[:for] = id
+          end
+        }
       end
 
       def use_binding_nodes

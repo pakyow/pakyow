@@ -13,6 +13,8 @@ module Pakyow
     # @api private
     INPUT_TAG = "input".freeze
     # @api private
+    LABEL_TAG = "label".freeze
+    # @api private
     TITLE_TAG = "title".freeze
     # @api private
     BODY_TAG = "body".freeze
@@ -184,6 +186,15 @@ module Pakyow
 
       def self.significant?(node)
         node.is_a?(Oga::XML::Element) && node.name == INPUT_TAG && node.attribute(:name).to_s == "_method"
+      end
+    end
+
+    # @api private
+    class LabelNode < SignificantNode
+      StringDoc.significant :label, self
+
+      def self.significant?(node)
+        node.is_a?(Oga::XML::Element) && node.name == LABEL_TAG && node.attribute(:for)
       end
     end
 
