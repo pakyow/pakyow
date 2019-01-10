@@ -715,9 +715,18 @@ RSpec.describe Pakyow do
     end
 
     after do
-      Foo.__send__(:remove_const, :App)
-      Bar.__send__(:remove_const, :App)
-      Baz.__send__(:remove_const, :App)
+      Foo.constants(false).each do |const_to_unset|
+        Foo.__send__(:remove_const, const_to_unset)
+      end
+
+      Bar.constants(false).each do |const_to_unset|
+        Bar.__send__(:remove_const, const_to_unset)
+      end
+
+      Baz.constants(false).each do |const_to_unset|
+        Baz.__send__(:remove_const, const_to_unset)
+      end
+
       Object.__send__(:remove_const, :Foo)
       Object.__send__(:remove_const, :Bar)
       Object.__send__(:remove_const, :Baz)
