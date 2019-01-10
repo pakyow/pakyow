@@ -57,6 +57,26 @@ RSpec.describe "templates embedded by presenter" do
     end
   end
 
+  context "form" do
+    it "does not embed a template" do
+      expect(call("/embeds/form")[2].body.read).not_to include("script")
+    end
+  end
+
+  context "scope within form" do
+    it "embeds a template" do
+      expect(call("/embeds/scope-within-form")[2].body.read).to include_sans_whitespace(
+        <<~HTML
+          <script type="text/template" data-b="tag" data-c="form">
+            <li data-b="tag" data-c="form">
+              <input type="text" data-b="name" data-c="form">
+            </li>
+          </script>
+        HTML
+      )
+    end
+  end
+
   context "running in prototype mode" do
     let :mode do
       :prototype
