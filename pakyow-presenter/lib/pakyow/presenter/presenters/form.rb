@@ -164,9 +164,7 @@ module Pakyow
       end
 
       def setup_field_names
-        @view.object.children.find_significant_nodes_without_descending(:binding).reject { |binding_node|
-          binding_node.significant?(:multipart_binding)
-        }.each do |binding_node|
+        @view.object.children.find_significant_nodes_without_descending(:binding).each do |binding_node|
           binding_node.attributes[:name] ||= "#{@view.object.label(:binding)}[#{binding_node.label(:binding)}]"
           if binding_node.tagname == "select" && binding_node.attributes[:multiple]
             pluralize_field_name(binding_node)
@@ -257,7 +255,7 @@ module Pakyow
         options = Oga::XML::Document.new
 
         values.each do |value|
-          options.children << create_select_option(value)
+          options.children << create_select_option(value, field_view)
         end
 
         add_options_to_select(options, field_view)
@@ -272,17 +270,32 @@ module Pakyow
           options.children << group
 
           grouped_values.each do |value|
-            group.children << create_select_option(value)
+            group.children << create_select_option(value, field_view)
           end
         end
 
         add_options_to_select(options, field_view)
       end
 
-      def create_select_option(value)
+      def create_select_option(value, view)
+        option_binding = if option = view.object.find_significant_nodes(:option)[0]
+          option.label(:binding)
+        else
+          nil
+        end
+
         Oga::XML::Element.new(name: "option").tap do |option|
-          option.set("value", ensure_html_safety(value[0].to_s))
-          option.inner_text = ensure_html_safety(value[1].to_s)
+          option.set("value", ensure_html_safety(option_value(value, view).to_s))
+
+          display_value = if value.is_a?(Array)
+            value[1]
+          elsif option_binding && value.respond_to?(:[])
+            value[option_binding.to_sym]
+          else
+            nil
+          end
+
+          option.inner_text = ensure_html_safety(display_value.to_s)
         end
       end
 
@@ -296,7 +309,7 @@ module Pakyow
             pluralize_field_name(current.object)
           end
 
-          current.attributes[:value] = value[0]
+          current.attributes[:value] = option_value(value, field_view).to_s
 
           unless current.equal?(field_view)
             insertable.after(current)
@@ -304,6 +317,16 @@ module Pakyow
           end
 
           current = template.dup
+        end
+      end
+
+      def option_value(value, view)
+        if value.is_a?(Array)
+          value[0]
+        elsif value.respond_to?(:[])
+          value[view.object.label(:binding_prop) || :id]
+        else
+          nil
         end
       end
 
@@ -333,8 +356,8 @@ module Pakyow
       end
 
       def pluralize_field_name(field)
-        unless field.attributes[:name].end_with?("[]")
-          field.attributes[:name] += "[]"
+        unless field.attributes[:name].to_s.end_with?("[]")
+          field.attributes[:name] = "#{field.attributes[:name]}[]"
         end
       end
     end

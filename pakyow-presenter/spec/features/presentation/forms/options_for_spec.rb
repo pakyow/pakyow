@@ -221,4 +221,145 @@ RSpec.describe "presenting options for a form field" do
       expect { form.options_for(:foo, []) }.to raise_error(ArgumentError)
     end
   end
+
+  describe "populating options with an array of objects" do
+    let :view do
+      Pakyow::Presenter::View.new(
+        <<~HTML
+          <form binding="post">
+            <input type="checkbox" binding="colors">
+          </form>
+        HTML
+      )
+    end
+
+    let :options do
+      [
+        { id: :red, name: "Red" },
+        { id: :green, name: "Green" },
+        { id: :blue, name: "Blue" }
+      ]
+    end
+
+    before do
+      form.options_for(:colors, options)
+    end
+
+    it "sets the value of each option to the object id" do
+      expect(form.view.to_s).to include_sans_whitespace(
+        <<~HTML
+          <input type="checkbox" data-b="colors" data-c="form" name="post[colors][]" value="red">
+        HTML
+      )
+
+      expect(form.view.to_s).to include_sans_whitespace(
+        <<~HTML
+          <input type="checkbox" data-b="colors" data-c="form" name="post[colors][]" value="green">
+        HTML
+      )
+
+      expect(form.view.to_s).to include_sans_whitespace(
+        <<~HTML
+          <input type="checkbox" data-b="colors" data-c="form" name="post[colors][]" value="blue">
+        HTML
+      )
+    end
+
+    context "field defines a prop" do
+      let :options do
+        [
+          { slug: :red, name: "Red" },
+          { slug: :green, name: "Green" },
+          { slug: :blue, name: "Blue" }
+        ]
+      end
+
+      let :view do
+        Pakyow::Presenter::View.new(
+          <<~HTML
+            <form binding="post">
+              <input type="checkbox" binding="colors.slug">
+            </form>
+          HTML
+        )
+      end
+
+      it "sets the value of each option to the prop value" do
+        expect(form.view.to_s).to include_sans_whitespace(
+          <<~HTML
+            <input type="checkbox" data-b="colors.slug" data-c="form" name="post[colors][]" value="red">
+          HTML
+        )
+
+        expect(form.view.to_s).to include_sans_whitespace(
+          <<~HTML
+            <input type="checkbox" data-b="colors.slug" data-c="form" name="post[colors][]" value="green">
+          HTML
+        )
+
+        expect(form.view.to_s).to include_sans_whitespace(
+          <<~HTML
+            <input type="checkbox" data-b="colors.slug" data-c="form" name="post[colors][]" value="blue">
+          HTML
+        )
+      end
+    end
+
+    context "select defines a prop" do
+      let :view do
+        Pakyow::Presenter::View.new(
+          <<~HTML
+            <form binding="post">
+              <select binding="colors.slug">
+                <option binding="name"></option>
+              </select>
+            </form>
+          HTML
+        )
+      end
+
+      let :options do
+        [
+          { slug: :red, name: "Red" },
+          { slug: :green, name: "Green" },
+          { slug: :blue, name: "Blue" }
+        ]
+      end
+
+      it "sets the submitted value for each option" do
+        options = form.find(:colors).view.object.find_significant_nodes(:option)
+        expect(options[0].attributes[:value]).to eq("red")
+        expect(options[1].attributes[:value]).to eq("green")
+        expect(options[2].attributes[:value]).to eq("blue")
+      end
+    end
+
+    context "select defines an option binding" do
+      let :view do
+        Pakyow::Presenter::View.new(
+          <<~HTML
+            <form binding="post">
+              <select binding="colors">
+                <option binding="name"></option>
+              </select>
+            </form>
+          HTML
+        )
+      end
+
+      it "sets the submitted value for each option" do
+        options = form.find(:colors).view.object.find_significant_nodes(:option)
+        expect(options[0].attributes[:value]).to eq("red")
+        expect(options[1].attributes[:value]).to eq("green")
+        expect(options[2].attributes[:value]).to eq("blue")
+      end
+
+      it "sets the presentation value for each option" do
+        options = form.find(:colors).view.object.find_significant_nodes(:option)
+        expect(options[0].text).to eq("Red")
+        expect(options[1].text).to eq("Green")
+        expect(options[2].text).to eq("Blue")
+      end
+    end
+  end
 end
