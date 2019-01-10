@@ -168,6 +168,9 @@ module Pakyow
           binding_node.significant?(:multipart_binding)
         }.each do |binding_node|
           binding_node.attributes[:name] ||= "#{@view.object.label(:binding)}[#{binding_node.label(:binding)}]"
+          if binding_node.tagname == "select" && binding_node.attributes[:multiple]
+            pluralize_field_name(binding_node)
+          end
         end
       end
 
@@ -290,7 +293,7 @@ module Pakyow
 
         values.each do |value|
           if field_view.attributes[:type] == "checkbox"
-            current.attributes[:name] = "#{current.attributes[:name]}[]"
+            pluralize_field_name(current.object)
           end
 
           current.attributes[:value] = value[0]
@@ -327,6 +330,12 @@ module Pakyow
       def setup_form_endpoint(endpoint)
         self.action = endpoint[:path]
         self.method = endpoint[:method]
+      end
+
+      def pluralize_field_name(field)
+        unless field.attributes[:name].end_with?("[]")
+          field.attributes[:name] += "[]"
+        end
       end
     end
   end
