@@ -12,6 +12,7 @@ require "pakyow/support/safe_string"
 require "pakyow/support/string_builder"
 
 require "pakyow/presenter/presenter/behavior/endpoints"
+require "pakyow/presenter/presenter/behavior/options"
 
 module Pakyow
   module Presenter
@@ -28,13 +29,14 @@ module Pakyow
 
       include Support::SafeStringHelpers
 
-      include Behavior::Endpoints
-
       include Support::Pipeline
       include Support::Pipeline::Object
 
       action :set_title
       action :perform
+
+      include Behavior::Endpoints
+      include Behavior::Options
 
       # The view object being presented.
       #
