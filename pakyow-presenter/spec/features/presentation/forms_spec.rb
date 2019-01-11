@@ -15,7 +15,7 @@ RSpec.describe "presenting forms" do
   end
 
   let :form do
-    presenter.form(:post).bind(title: "", foo: "")
+    presenter.form(:post).setup(title: "", foo: "")
   end
 
   describe "finding a form by name" do

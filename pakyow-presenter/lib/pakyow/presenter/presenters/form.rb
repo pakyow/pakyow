@@ -2,6 +2,9 @@
 
 require "securerandom"
 
+require "pakyow/support/core_refinements/array/ensurable"
+require "pakyow/support/inflector"
+
 require "pakyow/presenter/presenter"
 
 module Pakyow
@@ -9,24 +12,13 @@ module Pakyow
     # Presents a form.
     #
     class FormPresenter < Presenter
+      using Support::Refinements::Array::Ensurable
+
       SUPPORTED_ACTIONS = %i(create update replace delete).freeze
       ACTION_METHODS = { create: "post", update: "patch", replace: "put", delete: "delete" }.freeze
 
       # @api private
       ID_LABEL = :__form_id
-
-      def initialize(*)
-        super
-
-        unless @view.labeled?(ID_LABEL)
-          setup_form_id
-        end
-
-        setup_form_binding
-        setup_field_names
-        connect_labels
-        use_binding_nodes
-      end
 
       def id
         @view.label(ID_LABEL)
@@ -60,20 +52,27 @@ module Pakyow
       # Populates a select field with options.
       #
       def options_for(field, options = nil)
-        unless field_view = @view.find(field)
+        unless field_view = @view.find(field) || @view.find(Support.inflector.singularize(field)) || @view.find(Support.inflector.pluralize(field))
           raise ArgumentError.new("could not find field named `#{field}'")
         end
 
         unless options_for_allowed?(field_view)
-          raise ArgumentError.new("expected `#{field}' to be a select field")
+          raise ArgumentError.new("expected `#{field}' to be a select field, checkbox, or radio button")
         end
 
-        options = options || yield
+        options = if block_given?
+          yield
+        else
+          options
+        end
+
         case field_view.object.tagname
         when "select"
           create_select_options(options, field_view)
         when "input"
           create_input_options(options, field_view)
+        else
+          create_options(options, field_view)
         end
       end
 
@@ -95,37 +94,45 @@ module Pakyow
         end
       end
 
-      def setup(object)
-        endpoint = build_endpoints([@view.object], object).first
-        setup_form_endpoint(endpoint)
+      def setup(object = {})
+        if @view.labeled?(:endpoint)
+          setup_form_endpoint(build_endpoints([@view.object], object).first)
+        end
+
+        setup_form_binding
+        setup_field_names
+        connect_labels
+        use_binding_nodes
+
+        self
       end
 
       # Setup the form for creating an object.
       #
       def create(object = {})
         yield self if block_given?
-        setup_form_for_binding :create, object
+        setup_form_for_binding(:create, object)
       end
 
       # Setup the form for updating an object.
       #
       def update(object)
         yield self if block_given?
-        setup_form_for_binding :update, object
+        setup_form_for_binding(:update, object)
       end
 
       # Setup the form for replacing an object.
       #
       def replace(object)
         yield self if block_given?
-        setup_form_for_binding :replace, object
+        setup_form_for_binding(:replace, object)
       end
 
       # Setup the form for removing an object.
       #
       def delete(object)
         yield self if block_given?
-        setup_form_for_binding :delete, object
+        setup_form_for_binding(:delete, object)
       end
 
       # @ api private
@@ -138,13 +145,20 @@ module Pakyow
         @view.prepend(origin_input(origin))
       end
 
+      # @api private
+      def embed_id(id)
+        @view.prepend(id_input(id))
+      end
+
       protected
 
       def setup_form_for_binding(action, object)
-        action = action.to_sym
+        setup(object)
         if SUPPORTED_ACTIONS.include?(action)
-          if self.action = form_action_for_binding(action, object)
-            self.method = method_for_action(action)
+          unless @view.label(:endpoint)
+            if self.action = form_action_for_binding(action, object)
+              self.method = method_for_action(action)
+            end
           end
 
           @view.bind(object)
@@ -153,38 +167,41 @@ module Pakyow
         end
       end
 
-      def setup_form_id
-        id = SecureRandom.hex(24)
-        @view.object.set_label(ID_LABEL, id)
-        embed_id(id)
-      end
-
       def setup_form_binding
         @view.prepend(binding_input)
       end
 
-      def setup_field_names
-        @view.object.children.find_significant_nodes_without_descending(:binding).each do |binding_node|
-          binding_node.attributes[:name] ||= "#{@view.object.label(:binding)}[#{binding_node.label(:binding)}]"
-          if binding_node.tagname == "select" && binding_node.attributes[:multiple]
-            pluralize_field_name(binding_node)
+      def setup_field_names(view = @view)
+        view.object.children.find_significant_nodes_without_descending(:binding).each do |binding_node|
+          if Form::FIELD_TAGS.include?(binding_node.tagname)
+            if binding_node.attributes[:name].to_s.empty?
+              binding_node.attributes[:name] = "#{view.object.label(:binding)}[#{binding_node.label(:binding)}]"
+            end
+
+            if binding_node.tagname == "select" && binding_node.attributes[:multiple]
+              pluralize_field_name(binding_node)
+            end
           end
         end
       end
 
-      def connect_labels
-        @view.object.children.find_significant_nodes_without_descending(:label).reject { |label_node|
-          if label_node.attributes[:for] && input = @view.find(label_node.attributes[:for].to_s)
-            if input.attributes[:id].empty?
-              id = SecureRandom.hex(4)
-              input.attributes[:id] = id
-            else
-              id = input.attributes[:id]
-            end
-
-            label_node.attributes[:for] = id
+      def connect_labels(view = @view)
+        view.object.children.find_significant_nodes_without_descending(:label).each do |label_node|
+          if label_node.attributes[:for] && input = view.find(*label_node.attributes[:for].to_s.split("."))
+            connect_input_to_label(input, label_node)
           end
-        }
+        end
+      end
+
+      def connect_input_to_label(input, label, force = false)
+        if false || input.attributes[:id].to_s.empty?
+          id = SecureRandom.hex(4)
+          input.attributes[:id] = id
+        else
+          id = input.attributes[:id]
+        end
+
+        label.attributes[:for] = id
       end
 
       def use_binding_nodes
@@ -193,24 +210,14 @@ module Pakyow
         end
       end
 
-      def embed_id(id)
-        @view.prepend(id_input(id))
-      end
-
       def form_action_for_binding(action, object)
         if endpoint_state_defined?
           [
             Support.inflector.singularize(@view.label(:binding)).to_sym,
             Support.inflector.pluralize(@view.label(:binding)).to_sym
           ].map { |possible_endpoint_name|
-            @endpoints.path_to(possible_endpoint_name, action, **form_action_params(object))
+            @endpoints.path_to(possible_endpoint_name, action, **object.to_h)
           }.compact.first
-        end
-      end
-
-      def form_action_params(object)
-        {}.tap do |params|
-          params[:id] = object[:id] if object
         end
       end
 
@@ -254,7 +261,7 @@ module Pakyow
       def create_select_options(values, field_view)
         options = Oga::XML::Document.new
 
-        values.each do |value|
+        Array.ensure(values).compact.each do |value|
           options.children << create_select_option(value, field_view)
         end
 
@@ -300,41 +307,161 @@ module Pakyow
       end
 
       def create_input_options(values, field_view)
-        template = field_view.dup
-        insertable = field_view
-        current = field_view
-
-        values.each do |value|
-          if field_view.attributes[:type] == "checkbox"
-            pluralize_field_name(current.object)
-          end
-
-          current.attributes[:value] = option_value(value, field_view).to_s
-
-          unless current.equal?(field_view)
-            insertable.after(current)
-            insertable = current
-          end
-
-          current = template.dup
+        if values.is_a?(Array) && field_view.attributes[:type] != "radio"
+          pluralize_field_name(field_view.object)
         end
+
+        values = Array.ensure(values).compact
+
+        if values.any?
+          field_template = field_view.dup
+          insertable_field = field_view
+          current_field = Form.from_object(field_view.object)
+
+          values.each do |value|
+            current_field.attributes[:value] = option_value(value, field_view).to_s
+
+            unless current_field.object.equal?(field_view.object)
+              insertable_field.after(current_field)
+              insertable_field = current_field
+            end
+
+            current_field = field_template.dup
+          end
+        else
+          field_view.remove
+        end
+      end
+
+      def create_options(original_values, field_view)
+        values = Array.ensure(original_values).compact
+
+        if values.any?
+          template = field_view.dup
+          insertable = field_view
+          current = Form.from_object(field_view.object)
+
+          values.each do |value|
+            if treat_as_nested?(current, value)
+              current.bind(value)
+
+              # Set the field names appropriately.
+              #
+              current.object.find_significant_nodes_without_descending(:field).each do |field|
+                name = "#{@view.object.label(:binding)}[#{current.label(:binding)}]"
+                name = if original_values.is_a?(Array)
+                  "#{name}[][#{field.label(:binding)}]"
+                else
+                  "#{name}[#{field.label(:binding)}]"
+                end
+
+                field.attributes[:name] = name
+              end
+
+              # Insert a hidden field to identify the data on submission.
+              #
+              if key = option_value_keys(current, value).find { |key| value.include?(key) }
+                id_input = Oga::XML::Element.new(name: "input")
+                id_input.set(:type, "hidden")
+                name = "#{@view.object.label(:binding)}[#{current.label(:binding)}]"
+                name = if original_values.is_a?(Array)
+                  "#{name}[][#{key}]"
+                else
+                  "#{name}[#{key}]"
+                end
+                id_input.set(:name, name)
+                id_input.set(:value, ensure_html_safety(value[key].to_s))
+                current.prepend(safe(id_input.to_xml))
+              end
+            else
+              if input = current.object.find_significant_nodes(:field)[0]
+                input.attributes[:name] = "#{@view.object.label(:binding)}[#{current.label(:binding)}]"
+
+                if original_values.is_a?(Array) && input.attributes[:type] != "radio"
+                  pluralize_field_name(input)
+                end
+
+                input.attributes[:value] = ensure_html_safety(option_value(value, current).to_s)
+              end
+
+              if label = current.object.find_significant_nodes(:label)[0]
+                label.html = ensure_html_safety(label_value(value, label).to_s)
+              end
+
+              if input && label
+                connect_input_to_label(input, label, true)
+              end
+            end
+
+            unless current.object.equal?(field_view.object)
+              insertable.after(current)
+              insertable = current
+            end
+
+            current = template.dup
+          end
+        else
+          field_view.remove
+        end
+      end
+
+      def treat_as_nested?(view, value)
+        keys = option_value_keys(view, value, false)
+        !value.is_a?(Array) && view.object.find_significant_nodes(:field).any? { |field|
+          field.labeled?(:binding) && !keys.include?(field.label(:binding))
+        }
       end
 
       def option_value(value, view)
         if value.is_a?(Array)
           value[0]
+        elsif value.is_a?(String)
+          value
         elsif value.respond_to?(:[])
-          value[view.object.label(:binding_prop) || :id]
+          option_value_keys(view, value).each do |key|
+            if value.include?(key)
+              return value[key]
+            end
+          end
+
+          nil
+        else
+          value.to_s
+        end
+      end
+
+      def label_value(value, view)
+        if value.is_a?(Array)
+          value[1]
+        elsif value.is_a?(String)
+          value
+        elsif view.labeled?(:binding) && value.respond_to?(:[])
+          value[view.label(:binding)]
         else
           nil
         end
+      end
+
+      def option_value_keys(view, value, include_binding_prop = true)
+        [].tap do |keys|
+          if include_binding_prop
+            keys << view.object.label(:binding_prop)
+          end
+
+          if value.class.respond_to?(:primary_key_field)
+            keys << value.class.primary_key_field
+          end
+
+          keys << :id
+        end.compact
       end
 
       def options_for_allowed?(field_view)
         field_view.object.tagname == "select" || (
           field_view.object.tagname == "input" && (
             field_view.object.attributes[:type] == "checkbox" || field_view.object.attributes[:type] == "radio"
-          )
+          ) ||
+          field_view.object.significant?(:binding)
         )
       end
 
@@ -356,7 +483,7 @@ module Pakyow
       end
 
       def pluralize_field_name(field)
-        unless field.attributes[:name].to_s.end_with?("[]")
+        unless field.attributes[:name].to_s.end_with?("[]") || field.attributes[:name].to_s.empty?
           field.attributes[:name] = "#{field.attributes[:name]}[]"
         end
       end

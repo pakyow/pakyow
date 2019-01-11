@@ -9,8 +9,6 @@ module Pakyow
           renderer.presenter.forms.each do |form|
             if object = object_for_form(form, renderer)
               setup_form_for_exposed_object(form, object)
-            elsif endpoint = form.view.label(:endpoint)
-              form.action = endpoint
             elsif form.view.labeled?(:binding)
               case renderer.connection.env["pakyow.endpoint.name"]
               when :new

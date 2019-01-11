@@ -144,16 +144,16 @@ RSpec.describe "automatic form setup" do
 
       expect(body).to include_sans_whitespace(
         <<~HTML
-          <input type="checkbox" data-b="colors" data-c="form" name="post[colors][]" value="red" checked="checked">
-          <input type="checkbox" data-b="colors" data-c="form" name="post[colors][]" value="green">
-          <input type="checkbox" data-b="colors" data-c="form" name="post[colors][]" value="blue" checked="checked">
+          <input type="checkbox" data-b="colors" data-c="form" value="red" name="post[colors]" checked="checked">
+          <input type="checkbox" data-b="colors" data-c="form" value="green" name="post[colors]">
+          <input type="checkbox" data-b="colors" data-c="form" value="blue" name="post[colors]" checked="checked">
         HTML
       )
 
       expect(body).to include_sans_whitespace(
         <<~HTML
-          <input type="radio" data-b="enabled" data-c="form" name="post[enabled]" value="true">
-          <input type="radio" data-b="enabled" data-c="form" name="post[enabled]" value="false" checked="checked">
+          <input type="radio" data-b="enabled" data-c="form" value="true" name="post[enabled]">
+          <input type="radio" data-b="enabled" data-c="form" value="false" name="post[enabled]" checked="checked">
         HTML
       )
     end

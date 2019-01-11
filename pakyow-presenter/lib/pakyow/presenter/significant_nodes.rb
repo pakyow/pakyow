@@ -24,6 +24,10 @@ module Pakyow
     HTML_TAG = "html".freeze
     # @api private
     SCRIPT_TAG = "script".freeze
+    # @api private
+    SELECT_TAG = "select".freeze
+    # @api private
+    TEXTAREA_TAG = "textarea".freeze
 
     # @api private
     class SignificantNode
@@ -194,7 +198,7 @@ module Pakyow
       StringDoc.significant :label, self
 
       def self.significant?(node)
-        node.is_a?(Oga::XML::Element) && node.name == LABEL_TAG && node.attribute(:for)
+        node.is_a?(Oga::XML::Element) && node.name == LABEL_TAG
       end
     end
 
@@ -240,6 +244,21 @@ module Pakyow
 
       def self.significant?(node)
         node.is_a?(Oga::XML::Element) && node.name == SCRIPT_TAG && node[:type] == "text/template"
+      end
+    end
+
+    # @api private
+    class FieldNode < SignificantNode
+      StringDoc.significant :field, self
+
+      FIELD_TAGS = [
+        INPUT_TAG,
+        SELECT_TAG,
+        TEXTAREA_TAG
+      ].freeze
+
+      def self.significant?(node)
+        node.is_a?(Oga::XML::Element) && FIELD_TAGS.include?(node.name)
       end
     end
   end

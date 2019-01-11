@@ -124,7 +124,7 @@ RSpec.describe "form endpoints" do
 
       it "sets the endpoint to the explicitly defined endpoint" do
         call("/presentation/forms/endpoints/explicit/posts/1/edit")[2].body.read.tap do |body|
-          expect(body).to include('<form data-b="post" data-e="explicit_update" data-c="form" action="/explicit/update" method="post">')
+          expect(body).to include('<form data-b="post" data-e="explicit_update" data-c="form" action="/explicit/update" method="post"')
           expect(body).to include('<input type="hidden" name="_method" value="put">')
         end
       end

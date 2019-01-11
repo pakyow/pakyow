@@ -7,11 +7,22 @@ module Pakyow
     class Form < View
       using Support::Refinements::Array::Ensurable
 
-      SELECT_TAG = "select".freeze
+      INPUT_TAG = "input"
+      SELECT_TAG = "select"
+      TEXTAREA_TAG = "textarea"
+
+      FIELD_TAGS = [
+        INPUT_TAG,
+        SELECT_TAG,
+        TEXTAREA_TAG
+      ].freeze
 
       CHECKBOX_TYPE = "checkbox"
       RADIO_TYPE = "radio"
-      CHECKED_TYPES = [CHECKBOX_TYPE, RADIO_TYPE]
+
+      CHECKED_TYPES = [
+        CHECKBOX_TYPE, RADIO_TYPE
+      ].freeze
 
       private
 

@@ -36,14 +36,14 @@ RSpec.describe "submitting invalid form data" do
     it "adds an errored class to each errored field" do
       call("/posts", method: :post, params: { form: { errors_id: 123, origin: "/posts/new", binding: "post:form" }, post: { title: "foo title"} }).tap do |result|
         expect(result[0]).to be(400)
-        expect(result[2].body.read).to include('<input type="text" data-b="body" data-c="form" name="post[body]" class="errored">')
+        expect(result[2].body.read).to include('<input type="text" data-b="body" data-c="form" class="errored" name="post[body]">')
       end
     end
 
     it "does not add an errored class to a non-errored field" do
       call("/posts", method: :post, params: { form: { errors_id: 123, origin: "/posts/new", binding: "post:form" }, post: { title: "foo title"} }).tap do |result|
         expect(result[0]).to be(400)
-        expect(result[2].body.read).to include('<input type="text" data-b="title" data-c="form" name="post[title]" class="" value="foo title">')
+        expect(result[2].body.read).to include('<input type="text" data-b="title" data-c="form" class="" name="post[title]" value="foo title">')
       end
     end
 
@@ -61,7 +61,7 @@ RSpec.describe "submitting invalid form data" do
         expect(result[0]).to be(400)
         expect(result[2].body.read).to include_sans_whitespace(
           <<~HTML
-            <input type="text" data-b="title" data-c="form" name="post[title]" class="" value="foo title">
+            <input type="text" data-b="title" data-c="form" class="" name="post[title]" value="foo title">
           HTML
         )
       end

@@ -25,9 +25,9 @@ module Pakyow
         end
 
         def setup_id(form, renderer)
-          if form_id = renderer.connection.params.dig(:form, :id)
-            form.view.object.set_label(FormPresenter::ID_LABEL, form_id)
-          end
+          form_id = renderer.connection.params.dig(:form, :id) || SecureRandom.hex(24)
+          form.view.object.set_label(FormPresenter::ID_LABEL, form_id)
+          form.embed_id(form_id)
         end
 
         def setup_origin(form, renderer)
