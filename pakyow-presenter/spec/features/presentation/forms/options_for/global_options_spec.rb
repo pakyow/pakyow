@@ -19,6 +19,8 @@ RSpec.describe "defining global options in the presenter" do
     let :presenter_class do
       Class.new(Pakyow::Presenter::Presenter) do
         options_for :post, :tag do
+          $context = self
+
           [
             { id: 1, name: "foo" },
             { id: 2, name: "bar" },
@@ -26,6 +28,10 @@ RSpec.describe "defining global options in the presenter" do
           ]
         end
       end
+    end
+
+    after do
+      $context = nil
     end
 
     it "applies the options to the form" do
@@ -40,6 +46,11 @@ RSpec.describe "defining global options in the presenter" do
           </form>
         HTML
       )
+    end
+
+    it "calls the block in context of the presenter instance" do
+      presenter.to_s(clean_bindings: false)
+      expect($context).to be_instance_of(presenter_class)
     end
   end
 
