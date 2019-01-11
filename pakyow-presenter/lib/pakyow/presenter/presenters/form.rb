@@ -61,7 +61,7 @@ module Pakyow
         end
 
         options = if block_given?
-          yield
+          yield(field_view)
         else
           options
         end
