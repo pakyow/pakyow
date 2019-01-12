@@ -69,6 +69,10 @@ RSpec.shared_context "app" do
     end
   end
 
+  def call_fast(path = "/", opts = {})
+    @app.call(Rack::MockRequest.env_for(path, opts))
+  end
+
   let :allow_environment_errors do
     false
   end

@@ -17,7 +17,7 @@ RSpec.describe "routing performance", benchmark: true do
 
     it "performs" do
       expect {
-        call
+        call_fast
       }.to perform_at_least(2000, time: 2.0, warmup: 1.0).ips
     end
   end
@@ -35,7 +35,7 @@ RSpec.describe "routing performance", benchmark: true do
 
     it "performs" do
       expect {
-        call("/api/projects")
+        call_fast("/api/projects")
       }.to perform_at_least(2000, time: 2.0, warmup: 1.0).ips
     end
   end
@@ -51,7 +51,7 @@ RSpec.describe "routing performance", benchmark: true do
 
     it "performs" do
       expect {
-        call("/bar")
+        call_fast("/bar")
       }.to perform_at_least(2000, time: 2.0, warmup: 1.0).ips
     end
   end
@@ -67,7 +67,7 @@ RSpec.describe "routing performance", benchmark: true do
 
     it "performs" do
       expect {
-        call("/foo.json")
+        call_fast("/foo.json")
       }.to perform_at_least(2000, time: 2.0, warmup: 1.0).ips
     end
   end
@@ -83,7 +83,7 @@ RSpec.describe "routing performance", benchmark: true do
 
     it "performs" do
       expect {
-        call("/foo")
+        call_fast("/foo")
       }.to perform_at_least(2000, time: 2.0, warmup: 1.0).ips
     end
   end
@@ -103,7 +103,7 @@ RSpec.describe "routing performance", benchmark: true do
 
     it "performs" do
       expect {
-        call("/foo")
+        call_fast("/foo")
       }.to perform_at_least(2000, time: 2.0, warmup: 1.0).ips
     end
   end
@@ -123,7 +123,7 @@ RSpec.describe "routing performance", benchmark: true do
 
     it "performs" do
       expect {
-        call("/foo/123")
+        call_fast("/foo/123")
       }.to perform_at_least(2000, time: 2.0, warmup: 1.0).ips
     end
   end
@@ -143,7 +143,7 @@ RSpec.describe "routing performance", benchmark: true do
 
     it "performs" do
       expect {
-        call("/foo.json")
+        call_fast("/foo.json")
       }.to perform_at_least(2000, time: 2.0, warmup: 1.0).ips
     end
   end
@@ -163,7 +163,7 @@ RSpec.describe "routing performance", benchmark: true do
 
     it "performs" do
       expect {
-        call("/foo")
+        call_fast("/foo")
       }.to perform_at_least(2000, time: 2.0, warmup: 1.0).ips
     end
   end
