@@ -25,6 +25,10 @@ RSpec.shared_context "options_for" do
   end
 
   before do
+    perform
+  end
+
+  def perform
     if respond_to?(:block)
       form.options_for(binding, &block)
     else
