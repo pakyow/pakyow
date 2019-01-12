@@ -1,4 +1,17 @@
 RSpec.describe Pakyow::Logger::MultiLog do
+  describe "initialization" do
+    context "target is a string" do
+      let :multilog do
+        Pakyow::Logger::MultiLog.new("/dev/null")
+      end
+
+      it "opens a file" do
+        expect(multilog.targets[0]).to be_instance_of(File)
+        expect(multilog.targets[0].path).to eq("/dev/null")
+      end
+    end
+  end
+
   context "with a single target" do
     let :target do
       double

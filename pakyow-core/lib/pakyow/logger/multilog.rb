@@ -8,11 +8,20 @@ module Pakyow
       attr_reader :targets
 
       def initialize(*targets)
-        @targets = targets
+        @targets = targets.map { |target|
+          case target
+          when String
+            File.open(target)
+          else
+            target
+          end
+        }
       end
 
       def write(*args)
-        @targets.each { |t| t.write(*args) }
+        @targets.each do |target|
+          target.write(*args)
+        end
       end
 
       def close
