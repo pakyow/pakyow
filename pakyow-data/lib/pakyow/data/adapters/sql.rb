@@ -2,7 +2,6 @@
 
 require "sequel"
 
-require "pakyow/support/deep_freeze"
 require "pakyow/support/extension"
 
 require "pakyow/support/core_refinements/string/normalization"
@@ -38,9 +37,6 @@ module Pakyow
 
         require "pakyow/data/adapters/sql/types"
 
-        extend Support::DeepFreeze
-        unfreezable :connection
-
         attr_reader :connection
 
         DEFAULT_EXTENSIONS = %i(
@@ -54,27 +50,8 @@ module Pakyow
         }.freeze
 
         def initialize(opts, logger: nil)
-          @connection = Sequel.connect(
-            adapter: opts[:adapter],
-            database: opts[:path],
-            host: opts[:host],
-            port: opts[:port],
-            user: opts[:user],
-            password: opts[:password],
-            logger: logger
-          )
-
-          (DEFAULT_EXTENSIONS + DEFAULT_ADAPTER_EXTENSIONS[opts[:adapter].to_s.to_sym].to_a).each do |extension|
-            @connection.extension extension
-          end
-
-          if opts.include?(:timeout)
-            @connection.pool.connection_validation_timeout = opts[:timeout].to_i
-          end
-        rescue Sequel::AdapterNotFound => error
-          raise MissingAdapter.build(error)
-        rescue Sequel::DatabaseConnectionError => error
-          raise ConnectionError.build(error)
+          @opts, @logger = opts, logger
+          connect
         end
 
         def qualify_attribute(attribute, source)
@@ -123,6 +100,30 @@ module Pakyow
               raise Sequel::Rollback
             end
           end
+        end
+
+        def connect
+          @connection = Sequel.connect(
+            adapter: @opts[:adapter],
+            database: @opts[:path],
+            host: @opts[:host],
+            port: @opts[:port],
+            user: @opts[:user],
+            password: @opts[:password],
+            logger: @logger
+          )
+
+          (DEFAULT_EXTENSIONS + DEFAULT_ADAPTER_EXTENSIONS[@opts[:adapter].to_s.to_sym].to_a).each do |extension|
+            @connection.extension extension
+          end
+
+          if @opts.include?(:timeout)
+            @connection.pool.connection_validation_timeout = @opts[:timeout].to_i
+          end
+        rescue Sequel::AdapterNotFound => error
+          raise MissingAdapter.build(error)
+        rescue Sequel::DatabaseConnectionError => error
+          raise ConnectionError.build(error)
         end
 
         def disconnect

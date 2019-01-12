@@ -17,7 +17,7 @@ module Pakyow
       attr_reader :type, :name, :opts, :adapter, :failure
 
       extend Support::DeepFreeze
-      unfreezable :logger
+      unfreezable :logger, :adapter
 
       def initialize(type:, name:, string: nil, opts: nil, logger: nil)
         @type, @name, @logger, @failure = type, name, logger, nil
@@ -26,7 +26,7 @@ module Pakyow
           opts.is_a?(Hash) ? opts : self.class.parse_connection_string(string)
         )
 
-        @adapter = self.class.adapter(type).new(@opts, logger: logger)
+        @adapter = self.class.adapter(@type).new(@opts, logger: @logger)
       rescue ConnectionError, MissingAdapter => error
         error.context = self
         @failure = error
@@ -48,10 +48,12 @@ module Pakyow
         connected? && @adapter.migratable?
       end
 
+      def connect
+        @adapter.connect
+      end
+
       def disconnect
-        if connected?
-          @adapter.disconnect
-        end
+        @adapter.disconnect
       end
 
       def types

@@ -10,11 +10,19 @@ module Pakyow
 
         apply_extension do
           before :fork do
-            @data_connections.values.flat_map(&:values).each do |connection|
-              unless connection.name == :memory
-                connection.disconnect
-              end
-            end
+            connections_to_reconnect.each(&:disconnect)
+          end
+
+          after :fork do
+            connections_to_reconnect.each(&:connect)
+          end
+        end
+
+        class_methods do
+          def connections_to_reconnect
+            @data_connections.values.flat_map(&:values).reject { |connection|
+              connection.name == :memory
+            }
           end
         end
       end
