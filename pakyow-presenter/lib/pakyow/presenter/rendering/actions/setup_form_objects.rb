@@ -6,7 +6,9 @@ module Pakyow
       # @api private
       class SetupFormObjects
         def call(renderer)
-          renderer.presenter.forms.each do |form|
+          renderer.presenter.forms.reject { |form|
+            form.view.labeled?(:__form_setup)
+          }.each do |form|
             if object = object_for_form(form, renderer)
               setup_form_for_exposed_object(form, object)
             elsif form.view.labeled?(:binding)

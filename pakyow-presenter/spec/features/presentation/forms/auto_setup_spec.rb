@@ -1,7 +1,48 @@
 RSpec.describe "automatic form setup" do
   include_context "app"
 
-  context "rendering a form for creating" do
+  describe "auto rendering a form" do
+    context "form has already been setup" do
+      let :app_init do
+        Proc.new do
+          resource :posts, "/posts" do
+            new do
+              expose :post, { title: "foo" }, for: :form
+              render "/form"
+            end
+
+            create do
+            end
+          end
+
+          presenter "/form" do
+            def perform
+              form(:post).setup do |form|
+                form.bind(title: "bar")
+              end
+            end
+          end
+        end
+      end
+
+      it "does not setup again" do
+        expect_any_instance_of(
+          Pakyow::Presenter::FormPresenter
+        ).not_to receive(:create)
+
+        response = call("/posts/new")
+        expect(response[0]).to eq(200)
+
+        expect(response[2].body.read).to include_sans_whitespace(
+          <<~HTML
+            <input data-b="title" type="text" data-c="form" name="post[title]" value="bar">
+          HTML
+        )
+      end
+    end
+  end
+
+  describe "auto rendering a form for creating" do
     context "object is exposed for the form" do
       let :app_init do
         Proc.new do
@@ -52,7 +93,7 @@ RSpec.describe "automatic form setup" do
     end
   end
 
-  context "rendering a form for updating" do
+  describe "auto rendering a form for updating" do
     context "object is provided" do
       let :app_init do
         Proc.new do
@@ -105,7 +146,8 @@ RSpec.describe "automatic form setup" do
     end
   end
 
-  context "rendering a form with options exposed in the presenter" do
+  # TODO: this'll go down into the next context
+  describe "auto rendering a form with options exposed in the presenter" do
     let :app_init do
       Proc.new do
         resource :posts, "/posts" do
@@ -156,6 +198,44 @@ RSpec.describe "automatic form setup" do
           <input type="radio" data-b="enabled" data-c="form" value="false" name="post[enabled]" checked="checked">
         HTML
       )
+    end
+  end
+
+  describe "auto rendering a form with options" do
+    context "option is for a boolean field" do
+      it "needs tests"
+
+      context "value is set" do
+        it "needs tests"
+      end
+    end
+
+    context "option is for an array of strings" do
+      it "needs tests"
+
+      context "value is set" do
+        it "needs tests"
+      end
+    end
+
+    context "option is for an array of objects" do
+      it "needs tests"
+
+      context "value is set" do
+        it "needs tests"
+      end
+
+      context "options are overridden" do
+        it "needs tests"
+      end
+    end
+  end
+
+  describe "auto rendering a form with nested data" do
+    it "needs tests"
+
+    context "value is set" do
+      it "needs tests"
     end
   end
 end

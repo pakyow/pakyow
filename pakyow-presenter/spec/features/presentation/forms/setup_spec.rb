@@ -17,6 +17,22 @@ RSpec.describe "setting up a form via presenter" do
     presenter.form(:post)
   end
 
+  describe "setting up the form" do
+    it "yields the form before binding, then binds the object" do
+      allow(form.view).to receive(:bind)
+
+      yielded = nil
+      object = { foo: "bar" }
+      form.setup(object) do |value|
+        expect(form.view).not_to have_received(:bind)
+        yielded = value
+      end
+
+      expect(yielded).to be(form)
+      expect(form.view).to have_received(:bind).with(object)
+    end
+  end
+
   describe "setting up the form for creating an object" do
     let :object do
       { title: "foo" }

@@ -104,6 +104,9 @@ module Pakyow
         connect_labels
         use_binding_nodes
 
+        yield self if block_given?
+        @view.bind(object)
+        @view.object.set_label(:__form_setup, true)
         self
       end
 
@@ -153,17 +156,16 @@ module Pakyow
       protected
 
       def setup_form_for_binding(action, object)
-        setup(object)
-        if SUPPORTED_ACTIONS.include?(action)
-          unless @view.label(:endpoint)
-            if self.action = form_action_for_binding(action, object)
-              self.method = method_for_action(action)
+        setup(object) do
+          if SUPPORTED_ACTIONS.include?(action)
+            unless @view.label(:endpoint)
+              if self.action = form_action_for_binding(action, object)
+                self.method = method_for_action(action)
+              end
             end
+          else
+            raise ArgumentError.new("expected action to be one of: #{SUPPORTED_ACTIONS.join(", ")}")
           end
-
-          @view.bind(object)
-        else
-          raise ArgumentError.new("expected action to be one of: #{SUPPORTED_ACTIONS.join(", ")}")
         end
       end
 
