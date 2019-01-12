@@ -146,7 +146,6 @@ RSpec.describe "automatic form setup" do
     end
   end
 
-  # TODO: this'll go down into the next context
   describe "auto rendering a form with options exposed in the presenter" do
     let :app_init do
       Proc.new do
@@ -198,44 +197,6 @@ RSpec.describe "automatic form setup" do
           <input type="radio" data-b="enabled" data-c="form" value="false" name="post[enabled]" checked="checked">
         HTML
       )
-    end
-  end
-
-  describe "auto rendering a form with options" do
-    context "option is for a boolean field" do
-      it "needs tests"
-
-      context "value is set" do
-        it "needs tests"
-      end
-    end
-
-    context "option is for an array of strings" do
-      it "needs tests"
-
-      context "value is set" do
-        it "needs tests"
-      end
-    end
-
-    context "option is for an array of objects" do
-      it "needs tests"
-
-      context "value is set" do
-        it "needs tests"
-      end
-
-      context "options are overridden" do
-        it "needs tests"
-      end
-    end
-  end
-
-  describe "auto rendering a form with nested data" do
-    it "needs tests"
-
-    context "value is set" do
-      it "needs tests"
     end
   end
 end
