@@ -154,11 +154,6 @@ module Pakyow
         # Defines an action on the current pipeline.
         #
         def action(action = nil, *options, before: nil, after: nil, &block)
-          if action.is_a?(Symbol) && block_given?
-            define_method action, &block
-            private action
-          end
-
           @__pipeline.action(action, *options, before: before, after: after, &block)
         end
 
@@ -298,14 +293,26 @@ module Pakyow
         end
 
         def finalize(context = nil)
-          if @target.is_a?(Symbol) && context.respond_to?(@target, true)
+          if @block
+            if context
+              if @block.arity == 0
+                Proc.new do
+                  context.instance_exec(&@block)
+                end
+              else
+                Proc.new do |object|
+                  context.instance_exec(object, &@block)
+                end
+              end
+            else
+              @block
+            end
+          elsif @target.is_a?(Symbol) && context.respond_to?(@target, true)
             if context
               context.method(@target)
             else
               raise "finalizing pipeline action #{@target} requires context"
             end
-          elsif @target.nil? && @block
-            @block
           else
             target, target_options = if @target.is_a?(Symbol)
               [@options[0], @options[1..-1]]

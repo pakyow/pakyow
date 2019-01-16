@@ -39,6 +39,25 @@ RSpec.describe "pipelines" do
     it "calls the pipeline" do
       expect(pipelined.new.call(result.new).results).to eq(["foo", "bar"])
     end
+
+    describe "call context" do
+      let :pipelined do
+        Class.new do
+          include Pakyow::Support::Pipeline
+
+          action :bar
+          def bar(result)
+            result << self
+          end
+        end
+      end
+
+      it "calls the action in context of the pipelined instance" do
+        pipelined.new.call(result.new).results.each do |result|
+          expect(result).to be_instance_of(pipelined)
+        end
+      end
+    end
   end
 
   context "action is an unnamed block" do
@@ -55,6 +74,24 @@ RSpec.describe "pipelines" do
     it "calls the pipeline" do
       expect(pipelined.new.call(result.new).results).to eq(["foo"])
     end
+
+    describe "call context" do
+      let :pipelined do
+        Class.new do
+          include Pakyow::Support::Pipeline
+
+          action do |result|
+            result << self
+          end
+        end
+      end
+
+      it "calls the action in context of the pipelined instance" do
+        pipelined.new.call(result.new).results.each do |result|
+          expect(result).to be_instance_of(pipelined)
+        end
+      end
+    end
   end
 
   context "action is a named block" do
@@ -70,6 +107,24 @@ RSpec.describe "pipelines" do
 
     it "calls the pipeline" do
       expect(pipelined.new.call(result.new).results).to eq(["foo"])
+    end
+
+    describe "call context" do
+      let :pipelined do
+        Class.new do
+          include Pakyow::Support::Pipeline
+
+          action :foo do |result|
+            result << self
+          end
+        end
+      end
+
+      it "calls the action in context of the pipelined instance" do
+        pipelined.new.call(result.new).results.each do |result|
+          expect(result).to be_instance_of(pipelined)
+        end
+      end
     end
   end
 
