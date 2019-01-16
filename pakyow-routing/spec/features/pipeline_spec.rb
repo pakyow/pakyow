@@ -488,4 +488,54 @@ RSpec.describe "controller pipelines" do
   context "excluding an externally defined pipeline" do
     it "needs a test case"
   end
+
+  describe "defining an action with the same name for different routes" do
+    let :app_init do
+      Proc.new do
+        controller do
+          action :test_same_name, only: [:foo_route] do
+            $calls << :foo_action
+          end
+
+          action :test_same_name, only: [:bar_route] do
+            $calls << :bar_action
+          end
+
+          get :foo_route, "/foo" do
+            $calls << :foo_route
+          end
+
+          get :bar_route, "/bar" do
+            $calls << :bar_route
+          end
+        end
+      end
+    end
+
+    it "calls the correct action for the first route" do
+      call("/foo")
+
+      expected_calls = [
+        :foo_action,
+        :foo_route
+      ]
+
+      expected_calls.each_with_index do |call, i|
+        expect($calls[i]).to eq(call)
+      end
+    end
+
+    it "calls the correct action for the second route" do
+      call("/bar")
+
+      expected_calls = [
+        :bar_action,
+        :bar_route
+      ]
+
+      expected_calls.each_with_index do |call, i|
+        expect($calls[i]).to eq(call)
+      end
+    end
+  end
 end

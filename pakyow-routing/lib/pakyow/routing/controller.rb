@@ -186,7 +186,23 @@ module Pakyow
         child.new(app)
       }
 
-      @__pipeline.instance_variable_get(:@stack) << Support::Pipeline::Action.new(:dispatch).finalize(self)
+      self.class.routes.values.flatten.each do |route|
+        route.pipeline = self.class.__pipeline.dup
+
+        self.class.limit_by_route[route.name].to_a.each do |limit|
+          if index = route.pipeline.actions.index(limit[:after])
+            route.pipeline.actions.insert(index + 1, limit[:insert])
+          else
+            route.pipeline.actions << limit[:insert]
+          end
+        end
+
+        route.pipeline.actions.delete_if { |action|
+          self.class.skips_by_route[route.name].to_a.include?(action.name)
+        }
+
+        route.pipeline.actions << Support::Pipeline::Action.new(:dispatch)
+      end
     end
 
     def call(connection, request_path = connection.request.path)
@@ -233,18 +249,8 @@ module Pakyow
     end
 
     def call_route(connection, route)
-      actions_to_remove = self.class.route_skips[route.name].to_a
-
-      self.class.route_actions.each do |action, routes|
-        actions_to_remove << action unless routes.include?(route.name)
-      end
-
-      @__pipeline.instance_variable_get(:@stack).delete_if do |action|
-        actions_to_remove.include?(action.name)
-      end
-
       @connection, @route = connection, route
-      @__pipeline.call(connection); halt
+      @route.pipeline.callable(self).call(connection); halt
     rescue StandardError => error
       @connection.logger.houston(error)
       handle_error(error)
@@ -417,31 +423,45 @@ module Pakyow
     class_state :routes, default: DEFINABLE_HTTP_METHODS.each_with_object({}) { |supported_method, routes_hash|
                                     routes_hash[supported_method] = []
                                   }, inheritable: false
-
-    class_state :route_actions, default: {}, inheritable: true
-    class_state :route_skips, default: {}, inheritable: true
+    class_state :limit_by_route, default: {}, inheritable: true
+    class_state :skips_by_route, default: {}, inheritable: true
 
     class << self
-      def action(name, only: [], skip: [])
-        only.each do |route_name|
-          (@route_actions[name] ||= []) << route_name
+      def action(name, only: [], skip: [], &block)
+        @__pipeline.actions.delete_if { |action|
+          action.name == name
+        }
+
+        if only.any?
+          only.each do |route_name|
+            (@limit_by_route[route_name] ||= []) << {
+              insert: Support::Pipeline::Action.new(name, &block),
+              after: @__pipeline.actions.last
+            }
+          end
+        else
+          super(name, &block)
         end
 
         skip.each do |route_name|
-          (@route_skips[route_name] ||= []) << name
+          (@skips_by_route[route_name] ||= []) << name
         end
-
-        super(name)
       end
 
       def skip_action(name, only: [])
-        only.each do |route_name|
-          (@route_skips[route_name] ||= []) << name
-        end
-
         if only.empty?
-          @__pipeline.exclude_actions([name])
+          super(name)
+        else
+          only.each do |route_name|
+            (@skips_by_route[route_name] ||= []) << name
+          end
         end
+      end
+
+      def use_pipeline(*)
+        super
+
+        @limit_by_route = {}
       end
 
       # Conveniently define defaults when subclassing +Pakyow::Controller+.
