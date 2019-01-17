@@ -529,6 +529,10 @@ RSpec.describe "controller pipelines" do
             $calls << :foo_action
           end
 
+          action :test_same_name_2, only: [:foo_route] do
+            $calls << :foo_action_2
+          end
+
           action :test_same_name, only: [:bar_route] do
             $calls << :bar_action
           end
@@ -549,6 +553,7 @@ RSpec.describe "controller pipelines" do
 
       expected_calls = [
         :foo_action,
+        :foo_action_2,
         :foo_route
       ]
 

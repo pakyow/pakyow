@@ -189,7 +189,7 @@ module Pakyow
       self.class.routes.values.flatten.each do |route|
         route.pipeline = self.class.__pipeline.dup
 
-        self.class.limit_by_route[route.name].to_a.each do |limit|
+        self.class.limit_by_route[route.name].to_a.reverse.each do |limit|
           if index = route.pipeline.actions.index(limit[:after])
             route.pipeline.actions.insert(index + 1, limit[:insert])
           else
