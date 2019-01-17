@@ -198,7 +198,8 @@ module Pakyow
         end
 
         route.pipeline.actions.delete_if { |action|
-          self.class.skips_by_route[route.name].to_a.include?(action.name)
+          self.class.global_skips.to_a.include?(action.name) ||
+            self.class.skips_by_route[route.name].to_a.include?(action.name)
         }
 
         route.pipeline.actions << Support::Pipeline::Action.new(:dispatch)
@@ -425,6 +426,7 @@ module Pakyow
                                   }, inheritable: false
     class_state :limit_by_route, default: {}, inheritable: true
     class_state :skips_by_route, default: {}, inheritable: true
+    class_state :global_skips, default: [], inheritable: true
 
     class << self
       def action(name, only: [], skip: [], &block)
@@ -450,7 +452,7 @@ module Pakyow
 
       def skip_action(name, only: [])
         if only.empty?
-          super(name)
+          @global_skips << name
         else
           only.each do |route_name|
             (@skips_by_route[route_name] ||= []) << name
@@ -758,6 +760,7 @@ module Pakyow
         raise NameError, "unknown template `#{name}'" unless template = templates[name]
         Routing::Expansion.new(name, self, options, &template)
         class_eval(&block)
+        self
       end
 
       protected

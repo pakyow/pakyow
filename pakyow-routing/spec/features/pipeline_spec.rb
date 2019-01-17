@@ -358,6 +358,38 @@ RSpec.describe "controller pipelines" do
     end
   end
 
+  context "skipping an action before the action is defined" do
+    let :app_init do
+      Proc.new {
+        controller do
+          skip_action :bar
+
+          action :foo do
+            $calls << :foo
+          end
+
+          action :bar do
+            $calls << :bar
+          end
+
+          default do
+            $calls << :route
+          end
+        end
+      }
+    end
+
+    it "does not call the action" do
+      expected_calls = [
+        :foo, :route
+      ]
+
+      expected_calls.each_with_index do |call, i|
+        expect($calls[i]).to eq(call)
+      end
+    end
+  end
+
   context "using another pipeline module" do
     let :app_init do
       Proc.new {
