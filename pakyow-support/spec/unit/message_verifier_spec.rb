@@ -29,7 +29,7 @@ RSpec.describe Pakyow::Support::MessageVerifier do
 
     it "signs the message" do
       expect(described_class).to receive(:digest).with(message, key: instance.key).and_return(digest)
-      expect(instance.sign(message)).to eq("#{message}:#{digest}")
+      expect(instance.sign(message)).to eq("#{message}--#{digest}")
     end
   end
 

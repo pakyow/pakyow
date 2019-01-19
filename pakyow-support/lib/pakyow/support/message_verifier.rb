@@ -10,7 +10,7 @@ module Pakyow
     class MessageVerifier
       attr_reader :key
 
-      JOIN_CHARACTER = ":"
+      JOIN_CHARACTER = "--"
 
       def initialize(key = self.class.key)
         @key = key
