@@ -36,6 +36,10 @@ module Pakyow
           pipeline.action(Assets::Actions::Process)
         end
 
+        if self.class.includes_framework?(:realtime) && Pakyow.config.realtime.server
+          pipeline.action(Realtime::Actions::Upgrader)
+        end
+
         if self.class.includes_framework?(:routing) && !Pakyow.env?(:prototype)
           state(:controller).each do |controller|
             pipeline.action(controller, self)

@@ -60,6 +60,9 @@ module Pakyow
             @global_controller = isolated(:Controller).new(self)
           end
 
+          require "pakyow/support/message_verifier"
+          handle Support::MessageVerifier::TamperedMessage, as: :forbidden
+
           # @api private
           def controller_for_connection(connection)
             @global_controller.dup.tap do |controller|

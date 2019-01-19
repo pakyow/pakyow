@@ -35,12 +35,8 @@ module Pakyow
         end
 
         def setup_authenticity_token(form, renderer)
-          digest = Support::MessageVerifier.digest(
-            form.id, key: renderer.authenticity_server_id
-          )
-
           form.embed_authenticity_token(
-            "#{form.id}:#{digest}",
+            Support::MessageVerifier.sign(form.id, key: renderer.authenticity_server_id),
             param: renderer.connection.app.config.security.csrf.param
           )
         end

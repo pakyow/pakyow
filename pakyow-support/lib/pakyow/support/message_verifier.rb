@@ -14,6 +14,12 @@ module Pakyow
         SecureRandom.hex(24)
       end
 
+      # Returns the signed message for the key.
+      #
+      def self.sign(message, key:)
+        "#{message}:#{digest(message, key: key)}"
+      end
+
       # Generates a digest for a message with a key.
       #
       def self.digest(message, key:)
@@ -28,6 +34,16 @@ module Pakyow
       #
       def self.valid?(message, digest:, key:)
         digest == self.digest(message, key: key)
+      end
+
+      # Returns true if the signed value is valid for the key, or raises `TamperedMessage`.
+      #
+      def self.verify(signed, key:)
+        message, digest = signed.to_s.split(":", 2)
+        valid?(message, digest: digest, key: key) || raise(TamperedMessage)
+      end
+
+      class TamperedMessage < StandardError
       end
     end
   end

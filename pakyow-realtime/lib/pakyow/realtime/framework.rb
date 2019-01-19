@@ -19,8 +19,6 @@ module Pakyow
     class Framework < Pakyow::Framework(:realtime)
       def boot
         object.class_eval do
-          action Actions::Upgrader
-
           register_helper :active, Helpers::Broadcasting
           register_helper :active, Helpers::Subscriptions
           register_helper :passive, Helpers::Socket
