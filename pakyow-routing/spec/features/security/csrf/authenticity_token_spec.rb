@@ -11,8 +11,7 @@ RSpec.describe "verifying the request's authenticity token" do
     Proc.new do
       controller do
         get "/" do
-          $authenticity_client_id = authenticity_client_id
-          $authenticity_digest = authenticity_digest(authenticity_client_id)
+          $signed_authenticity = connection.verifier.sign(authenticity_client_id)
         end
 
         post "/" do
@@ -32,7 +31,7 @@ RSpec.describe "verifying the request's authenticity token" do
             method: :post,
             "HTTP_COOKIE" => cookie,
             params: {
-              authenticity_token: "#{$authenticity_client_id}:#{$authenticity_digest}"
+              authenticity_token: $signed_authenticity
             }
           )[0]
         ).to eq(200)

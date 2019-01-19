@@ -15,7 +15,7 @@ RSpec.describe "forms csrf" do
         Proc.new do
           controller :default do
             get "/form" do
-              $authenticity_server_id = authenticity_server_id
+              $connection_verifier_key = connection.verifier.key
               render "/form"
             end
           end
@@ -30,7 +30,7 @@ RSpec.describe "forms csrf" do
         expect(response_body).to include("input type=\"hidden\" name=\"authenticity_token\"")
 
         authenticity_client_id, authenticity_digest = response_body.match(/name=\"authenticity_token\" value=\"([^\"]+)\"/)[1].split(":")
-        computed_digest = Pakyow::Support::MessageVerifier.digest(authenticity_client_id, key: $authenticity_server_id)
+        computed_digest = Pakyow::Support::MessageVerifier.digest(authenticity_client_id, key: $connection_verifier_key)
 
         expect(authenticity_digest).to eq(computed_digest)
       end
@@ -49,7 +49,7 @@ RSpec.describe "forms csrf" do
         Proc.new do
           controller :default do
             get "/form" do
-              $authenticity_server_id = authenticity_server_id
+              $connection_verifier_key = connection.verifier.key
               render "/form"
             end
           end
@@ -74,7 +74,7 @@ RSpec.describe "forms csrf" do
         expect(response_body).to include("input type=\"hidden\" name=\"authenticity_token\"")
 
         authenticity_client_id, authenticity_digest = response_body.match(/name=\"authenticity_token\" value=\"([^\"]+)\"/)[1].split(":")
-        computed_digest = Pakyow::Support::MessageVerifier.digest(authenticity_client_id, key: $authenticity_server_id)
+        computed_digest = Pakyow::Support::MessageVerifier.digest(authenticity_client_id, key: $connection_verifier_key)
 
         expect(authenticity_digest).to eq(computed_digest)
       end
@@ -94,7 +94,7 @@ RSpec.describe "forms csrf" do
       Proc.new do
         controller :default do
           get "/form" do
-            $authenticity_server_id = authenticity_server_id
+            $connection_verifier_key = connection.verifier.key
             render "/form"
           end
         end

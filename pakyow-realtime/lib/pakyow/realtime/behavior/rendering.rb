@@ -29,7 +29,7 @@ module Pakyow
 
               head.append(
                 <<~HTML
-                  <meta name="pw-socket" ui="socket" config="endpoint: #{endpoint}?id=#{CGI::escape("#{socket_client_id}:#{socket_digest(socket_client_id)}")}">
+                  <meta name="pw-socket" ui="socket" config="endpoint: #{endpoint}?id=#{CGI::escape(@connection.verifier.sign(socket_client_id))}">
                 HTML
               )
             end

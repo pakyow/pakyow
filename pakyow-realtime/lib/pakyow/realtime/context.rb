@@ -12,26 +12,6 @@ module Pakyow
         @app = app
       end
 
-      # Subscribe the current session's connection to one or more channels.
-      #
-      # @api public
-      def subscribe(*channels)
-        delegate.subscribe(
-          @app.socket_digest(@app.socket_connection_id),
-          *channels
-        )
-      end
-
-      # Unsubscribe the current session's connection to one or more channels.
-      #
-      # @api public
-      def unsubscribe(*channels)
-        delegate.unsubscribe(
-          @app.socket_digest(@app.socket_connection_id),
-          *channels
-        )
-      end
-
       # Push a message down one or more channels.
       #
       # @api public

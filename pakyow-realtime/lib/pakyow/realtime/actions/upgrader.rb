@@ -12,15 +12,18 @@ module Pakyow
       class Upgrader
         def call(connection)
           if websocket?(connection)
-            WebSocket.new(id, connection)
+            WebSocket.new(connection.verifier.verify(connection.params[:id]), connection)
             connection.halt
           end
+        rescue Support::MessageVerifier::TamperedMessage
+          connection.status = :forbidden
+          connection.halt
         end
 
         private
 
         def websocket?(connection)
-          websocket_path?(connection) && smells_like_a_websocket?(connection) && verified?(connection)
+          websocket_path?(connection) && smells_like_a_websocket?(connection)
         end
 
         def websocket_path?(connection)
@@ -29,12 +32,6 @@ module Pakyow
 
         def smells_like_a_websocket?(connection)
           ::WebSocket::Driver.websocket?(connection.env)
-        end
-
-        def verified?(connection)
-          Support::MessageVerifier.verify(
-            connection.params[:id], key: connection.session[:socket_server_id]
-          )
         end
       end
     end

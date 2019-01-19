@@ -7,6 +7,7 @@ require "pakyow/support/deep_dup"
 require "pakyow/support/hookable"
 require "pakyow/support/indifferentize"
 require "pakyow/support/inspectable"
+require "pakyow/support/message_verifier"
 
 require "pakyow/support/pipeline/object"
 
@@ -200,6 +201,16 @@ module Pakyow
     def parsed_body=(parsed)
       @parsed_body = parsed
       @params = nil
+    end
+
+    def verifier
+      @verifier ||= Support::MessageVerifier.new(
+        verifier_key
+      )
+    end
+
+    def verifier_key
+      session[:verifier_key] ||= Support::MessageVerifier.key
     end
 
     private

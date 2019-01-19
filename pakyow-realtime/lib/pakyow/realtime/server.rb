@@ -14,26 +14,6 @@ require "pakyow/realtime/event_loop"
 module Pakyow
   module Realtime
     class Server
-      class << self
-        # Returns a key.
-        #
-        def socket_server_id
-          Support::MessageVerifier.key
-        end
-
-        # Returns a connection id (used throughout the current request lifecycle).
-        #
-        def socket_client_id
-          Support::MessageVerifier.key
-        end
-
-        # Returns a digest created from the connection id and socket key.
-        #
-        def socket_digest(socket_server_id, socket_client_id)
-          Support::MessageVerifier.digest(socket_client_id, key: socket_server_id)
-        end
-      end
-
       attr_reader :adapter
 
       HEARTBEAT_INTERVAL = 3

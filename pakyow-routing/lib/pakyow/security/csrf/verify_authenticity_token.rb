@@ -18,10 +18,7 @@ module Pakyow
       #
       class VerifyAuthenticityToken < Base
         def allowed?(connection)
-          Support::MessageVerifier.verify(
-            connection.params[connection.app.config.security.csrf.param],
-            key: connection.session[:authenticity_server_id]
-          )
+          connection.verifier.verify(connection.params[connection.app.config.security.csrf.param])
         end
       end
     end
