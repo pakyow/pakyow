@@ -27,9 +27,9 @@ RSpec.describe Pakyow::Support::MessageVerifier do
       "digest"
     end
 
-    it "signs the message" do
+    it "encodes and signs the message" do
       expect(described_class).to receive(:digest).with(message, key: instance.key).and_return(digest)
-      expect(instance.sign(message)).to eq("#{message}--#{digest}")
+      expect(instance.sign(message)).to eq("#{Base64.urlsafe_encode64(message)}--#{digest}")
     end
   end
 
@@ -117,16 +117,11 @@ RSpec.describe Pakyow::Support::MessageVerifier do
       double
     end
 
-    let :final do
-      "final"
-    end
-
     it "returns a base64 encoded hmac digest stripped of whitespace" do
       expect(OpenSSL::Digest).to receive(:new).with("sha256").and_return(digest_double)
       expect(OpenSSL::HMAC).to receive(:digest).with(digest_double, message, key).and_return(digest)
-      expect(Base64).to receive(:encode64).and_return(encoded)
-      expect(encoded).to receive(:strip).and_return(final)
-      expect(described_class.digest(message, key: key)).to be(final)
+      expect(Base64).to receive(:urlsafe_encode64).and_return(encoded)
+      expect(described_class.digest(message, key: key)).to be(encoded)
     end
   end
 

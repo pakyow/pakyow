@@ -20,13 +20,18 @@ module Pakyow
       # Returns a signed message.
       #
       def sign(message)
-        [message, self.class.digest(message, key: @key)].join(JOIN_CHARACTER)
+        [Base64.urlsafe_encode64(message), self.class.digest(message, key: @key)].join(JOIN_CHARACTER)
       end
 
       # Returns the message if the signature is valid for the key, or raises `TamperedMessage`.
       #
       def verify(signed)
         message, digest = signed.to_s.split(JOIN_CHARACTER, 2)
+
+        begin
+          message = Base64.urlsafe_decode64(message.to_s)
+        rescue ArgumentError
+        end
 
         if self.class.valid?(digest, message: message, key: @key)
           message
@@ -45,11 +50,11 @@ module Pakyow
         # Generates a digest for a message with a key.
         #
         def digest(message, key:)
-          Base64.encode64(
+          Base64.urlsafe_encode64(
             OpenSSL::HMAC.digest(
               OpenSSL::Digest.new("sha256"), message.to_s, key.to_s
             )
-          ).strip
+          )
         end
 
         # Returns true if the digest is valid for the message and key.
