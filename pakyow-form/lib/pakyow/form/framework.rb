@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "json"
+
 require "pakyow/framework"
 
 require "pakyow/support/extension"
@@ -7,22 +9,38 @@ require "pakyow/support/inflector"
 
 module Pakyow
   module Form
+    module ConnectionHelpers
+      def form
+        get(:__form)
+      end
+    end
+
     class Framework < Pakyow::Framework(:form)
       def boot
         object.class_eval do
           isolated :Controller do
-            allow_params :form
-
-            action :clear_form_errors
-            private def clear_form_errors
-              if params.include?(:form)
-                data.ephemeral(:errors, form_id: params[:form][:id]).set([])
+            action :clear_form_errors do
+              if connection.form
+                data.ephemeral(:errors, form_id: connection.form[:id]).set([])
               end
             end
           end
 
+          isolated :ViewRenderer do
+            action :set_form_framework_metadata, before: :embed_form_metadata do
+              presenter.forms.each do |form|
+                form.view.label(:metadata)[:binding] = [form.view.label(:binding)].concat(form.view.label(:channel)).join(":")
+                form.view.label(:metadata)[:origin] = @connection.form.to_h[:origin] || @connection.fullpath
+              end
+            end
+          end
+
+          isolated :Connection do
+            include ConnectionHelpers
+          end
+
           handle InvalidData, as: :bad_request do |error|
-            if params.include?(:form)
+            if connection.form
               errors = error.verifier.messages.flat_map { |_type, field_messages|
                 field_messages.flat_map { |field, messages|
                   messages.map { |message|
@@ -32,17 +50,17 @@ module Pakyow
               }
 
               if app.class.includes_framework?(:ui) && ui?
-                data.ephemeral(:errors, form_id: params[:form][:id]).set(errors)
+                data.ephemeral(:errors, form_id: connection.form[:id]).set(errors)
               else
                 connection.set :__form_errors, errors
 
                 # Expose submitted values to be presented in the form.
                 #
                 params.reject { |key| key == :form }.each do |key, value|
-                  expose key, value, for: params[:form][:binding].to_s.split(":", 2)[1]
+                  expose key, value, for: connection.form[:binding].to_s.split(":", 2)[1]
                 end
 
-                reroute params[:form][:origin], method: :get, as: :bad_request
+                reroute connection.form[:origin], method: :get, as: :bad_request
               end
             else
               reject
@@ -57,7 +75,7 @@ module Pakyow
                 []
               end
 
-              expose :form_binding, params.dig(:form, :binding)
+              expose :form_binding, connection.form.to_h[:binding]
               expose :form_errors, data.ephemeral(:errors, form_id: connection.get(:__form_ids).shift).set(errors)
             end
 

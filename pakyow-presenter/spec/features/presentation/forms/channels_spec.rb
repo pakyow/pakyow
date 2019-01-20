@@ -29,13 +29,6 @@ RSpec.describe "forms with channeled bindings" do
     end
   end
 
-  it "embeds a form[binding] field with the channeled binding name" do
-    call("/presentation/forms/channeled/posts/new")[2].body.read.tap do |body|
-      expect(body).to include('<input type="hidden" name="form[binding]" value="post:form:foo">')
-      expect(body).to include('<input type="hidden" name="form[binding]" value="post:form:bar">')
-    end
-  end
-
   context "form endpoint is contextual" do
     let :app_init do
       Proc.new do

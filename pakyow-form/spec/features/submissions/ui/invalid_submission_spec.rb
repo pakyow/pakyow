@@ -21,6 +21,14 @@ RSpec.describe "submitting invalid form data via ui" do
     end
   end
 
+  before do
+    allow(Pakyow::Support::MessageVerifier).to receive(:key).and_return("key")
+  end
+
+  def sign(metadata)
+    Pakyow::Support::MessageVerifier.new.sign(metadata.to_json)
+  end
+
   describe "the initial render" do
     it "presents with an ephemeral source qualified with the form errors id" do
       expect(SecureRandom).to receive(:hex).at_least(:once).and_return("foo123")
@@ -46,12 +54,12 @@ RSpec.describe "submitting invalid form data via ui" do
         expect(type).to eq(:errors)
         expect(qualifications).to eq(form_id: "foo123")
       }.and_return(ephemeral_double)
-      expect(call("/posts", method: :post, params: { form: { id: "foo123" } }, Pakyow::UI::Helpers::UI_REQUEST_HEADER => "true")[0]).to be(400)
+      expect(call("/posts", method: :post, params: { _form: sign(id: "foo123") }, Pakyow::UI::Helpers::UI_REQUEST_HEADER => "true")[0]).to be(400)
     end
 
     it "does not reroute" do
       expect_any_instance_of(Pakyow::Controller).to_not receive(:reroute)
-      expect(call("/posts", method: :post, params: { form: { origin: "/posts/new", binding: "post:form" } }, Pakyow::UI::Helpers::UI_REQUEST_HEADER => "true")[0]).to be(400)
+      expect(call("/posts", method: :post, params: { _form: sign(origin: "/posts/new", binding: "post:form") }, Pakyow::UI::Helpers::UI_REQUEST_HEADER => "true")[0]).to be(400)
     end
 
     context "app handles the invalid submission" do
@@ -117,7 +125,7 @@ RSpec.describe "submitting invalid form data via ui" do
         expect(type).to eq(:errors)
         expect(qualifications).to eq(form_id: "foo123")
       }.and_return(ephemeral_double)
-      expect(call("/posts", method: :post, params: { form: { id: "foo123" } }, Pakyow::UI::Helpers::UI_REQUEST_HEADER => "true")[0]).to be(200)
+      expect(call("/posts", method: :post, params: { _form: sign(id: "foo123") }, Pakyow::UI::Helpers::UI_REQUEST_HEADER => "true")[0]).to be(200)
     end
   end
 end

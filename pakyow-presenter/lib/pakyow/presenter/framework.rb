@@ -4,6 +4,8 @@ require "pakyow/framework"
 
 require "pakyow/routing/helpers/exposures"
 
+require "pakyow/support/indifferentize"
+
 require "pakyow/presenter/behavior/building"
 require "pakyow/presenter/behavior/config"
 require "pakyow/presenter/behavior/error_rendering"
@@ -23,6 +25,8 @@ require "pakyow/presenter/rendering/view_renderer"
 module Pakyow
   module Presenter
     class Framework < Pakyow::Framework(:presenter)
+      using Support::Indifferentize
+
       def boot
         require "pakyow/presenter/presentable_error"
 
@@ -53,6 +57,19 @@ module Pakyow
 
           isolated :Controller do
             include_pipeline Pipelines::ImplicitRendering
+
+            action :verify_form_metadata do
+              if metadata = params[:_form]
+                connection.set(
+                  :__form,
+                  JSON.parse(
+                    connection.verifier.verify(metadata)
+                  ).indifferentize
+                )
+
+                params.delete(:_form)
+              end
+            end
           end
 
           before :load do

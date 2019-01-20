@@ -20,35 +20,43 @@ RSpec.describe "submitting invalid form data" do
     end
   end
 
+  before do
+    allow(Pakyow::Support::MessageVerifier).to receive(:key).and_return("key")
+  end
+
+  def sign(metadata)
+    Pakyow::Support::MessageVerifier.new.sign(metadata.to_json)
+  end
+
   context "form submission is present" do
     it "reroutes to the origin" do
       expect_any_instance_of(Pakyow::Controller).to receive(:reroute).with("/posts/new", as: :bad_request, method: :get)
-      expect(call("/posts", method: :post, params: { form: { errors_id: 123, origin: "/posts/new" } })[0]).to be(400)
+      expect(call("/posts", method: :post, params: { _form: sign(origin: "/posts/new") })[0]).to be(400)
     end
 
     it "adds an errored class to the form" do
-      call("/posts", method: :post, params: { form: { errors_id: 123, origin: "/posts/new", binding: "post:form" }, post: { title: "foo title"} }).tap do |result|
+      call("/posts", method: :post, params: { _form: sign(origin: "/posts/new", binding: "post:form"), post: { title: "foo title"} }).tap do |result|
         expect(result[0]).to be(400)
         expect(result[2].body.read).to include('<form data-b="post" data-ui="form" data-c="form" class="errored"')
       end
     end
 
     it "adds an errored class to each errored field" do
-      call("/posts", method: :post, params: { form: { errors_id: 123, origin: "/posts/new", binding: "post:form" }, post: { title: "foo title"} }).tap do |result|
+      call("/posts", method: :post, params: { _form: sign(origin: "/posts/new", binding: "post:form"), post: { title: "foo title"} }).tap do |result|
         expect(result[0]).to be(400)
         expect(result[2].body.read).to include('<input type="text" data-b="body" data-c="form" class="errored" name="post[body]">')
       end
     end
 
     it "does not add an errored class to a non-errored field" do
-      call("/posts", method: :post, params: { form: { errors_id: 123, origin: "/posts/new", binding: "post:form" }, post: { title: "foo title"} }).tap do |result|
+      call("/posts", method: :post, params: { _form: sign(origin: "/posts/new", binding: "post:form"), post: { title: "foo title"} }).tap do |result|
         expect(result[0]).to be(400)
         expect(result[2].body.read).to include('<input type="text" data-b="title" data-c="form" class="" name="post[title]" value="foo title">')
       end
     end
 
     it "presents errors for the invalid submission" do
-      call("/posts", method: :post, params: { form: { errors_id: 123, origin: "/posts/new", binding: "post:form" }, post: { title: "foo title"} }).tap do |result|
+      call("/posts", method: :post, params: { _form: sign(origin: "/posts/new", binding: "post:form"), post: { title: "foo title"} }).tap do |result|
         expect(result[0]).to be(400)
         body = result[2].body.read
         expect(body).to include_sans_whitespace("Body is required")
@@ -57,7 +65,7 @@ RSpec.describe "submitting invalid form data" do
     end
 
     it "presents the submitted data" do
-      call("/posts", method: :post, params: { form: { errors_id: 123, origin: "/posts/new", binding: "post:form" }, post: { title: "foo title"} }).tap do |result|
+      call("/posts", method: :post, params: { _form: sign(origin: "/posts/new", binding: "post:form"), post: { title: "foo title"} }).tap do |result|
         expect(result[0]).to be(400)
         expect(result[2].body.read).to include_sans_whitespace(
           <<~HTML
@@ -122,7 +130,7 @@ RSpec.describe "submitting invalid form data" do
       end
 
       it "sets up the correct form as errored" do
-        call("/posts", method: :post, params: { form: { errors_id: 123, origin: "/posts/new", binding: "post:form:bar" }, post: { title: "bar title"} }).tap do |result|
+        call("/posts", method: :post, params: { _form: sign(origin: "/posts/new", binding: "post:form:bar"), post: { title: "bar title"} }).tap do |result|
           expect(result[0]).to be(400)
           result[2].body.read.tap do |body|
             expect(body).to include('<form data-b="post" data-ui="form" class="foo" data-c="form:foo"')
@@ -132,7 +140,7 @@ RSpec.describe "submitting invalid form data" do
       end
 
       it "presents the submitted data in the correct form" do
-        call("/posts", method: :post, params: { form: { errors_id: 123, origin: "/posts/new", binding: "post:form:bar" }, post: { title: "bar title"} }).tap do |result|
+        call("/posts", method: :post, params: { _form: sign(origin: "/posts/new", binding: "post:form:bar"), post: { title: "bar title"} }).tap do |result|
           expect(result[0]).to be(400)
           result[2].body.read.tap do |body|
             expect(body).to include('<input type="text" data-b="title" class="foo" data-c="form" name="post[title]">')

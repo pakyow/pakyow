@@ -99,7 +99,6 @@ module Pakyow
           setup_form_endpoint(build_endpoints([@view.object], object).first)
         end
 
-        setup_form_binding
         setup_field_names
         connect_labels
         use_binding_nodes
@@ -144,16 +143,11 @@ module Pakyow
       end
 
       # @ api private
-      def embed_origin(origin)
-        @view.prepend(origin_input(origin))
+      def embed_metadata(metadata)
+        @view.prepend(metadata_input(metadata))
       end
 
-      # @api private
-      def embed_id(id)
-        @view.prepend(id_input(id))
-      end
-
-      protected
+      private
 
       def setup_form_for_binding(action, object)
         setup(object) do
@@ -167,10 +161,6 @@ module Pakyow
             raise ArgumentError.new("expected action to be one of: #{SUPPORTED_ACTIONS.join(", ")}")
           end
         end
-      end
-
-      def setup_form_binding
-        @view.prepend(binding_input)
       end
 
       def setup_field_names(view = @view)
@@ -248,16 +238,8 @@ module Pakyow
         safe("<input type=\"hidden\" name=\"#{param}\" value=\"#{token}\">")
       end
 
-      def origin_input(origin)
-        safe("<input type=\"hidden\" name=\"form[origin]\" value=\"#{origin}\">")
-      end
-
-      def id_input(id)
-        safe("<input type=\"hidden\" name=\"form[id]\" value=\"#{id}\">")
-      end
-
-      def binding_input
-        safe("<input type=\"hidden\" name=\"form[binding]\" value=\"#{[@view.label(:binding)].concat(@view.label(:channel)).join(":")}\">")
+      def metadata_input(metadata)
+        safe("<input type=\"hidden\" name=\"_form\" value=\"#{metadata}\">")
       end
 
       def create_select_options(values, field_view)
