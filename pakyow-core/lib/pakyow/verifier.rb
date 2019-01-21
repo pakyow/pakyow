@@ -2,6 +2,8 @@
 
 require "forwardable"
 
+require "pakyow/support/core_refinements/array/ensurable"
+
 require "pakyow/types"
 require "pakyow/validator"
 
@@ -86,6 +88,8 @@ module Pakyow
       end
     end
 
+    using Support::Refinements::Array::Ensurable
+
     attr_reader :validator, :values, :errors
 
     def initialize(input, context: nil)
@@ -115,12 +119,14 @@ module Pakyow
         end
 
         if verifier_for_key = self.class.verifiers_by_key[allowable_key]
-          verifier_instance_for_key = verifier_for_key.new(@values[allowable_key], context: @context)
-          unless verifier_instance_for_key.verify?
-            if verifier_instance_for_key.validating?
-              (@errors[allowable_key] ||= []).concat(verifier_instance_for_key.validator.errors)
-            else
-              @errors[allowable_key] = verifier_instance_for_key.errors
+          Array.ensure(@values[allowable_key]).each do |value_to_verify|
+            verifier_instance_for_key = verifier_for_key.new(value_to_verify, context: @context)
+            unless verifier_instance_for_key.verify?
+              if verifier_instance_for_key.validating?
+                (@errors[allowable_key] ||= []).concat(verifier_instance_for_key.validator.errors)
+              else
+                @errors[allowable_key] = verifier_instance_for_key.errors
+              end
             end
           end
         end

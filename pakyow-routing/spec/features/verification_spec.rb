@@ -127,6 +127,16 @@ RSpec.shared_examples "nested verification" do
     it "strips values not defined as required or optional" do
       expect(call("/test", params: { value1: { value2: "bar", value3: "baz", value4: "qux" }, value5: "" })[2].body).to eq(value1: { value2: "bar", value3: "baz" })
     end
+
+    context "with a value list" do
+      it "allows required and optional values for each" do
+        expect(call("/test", params: { value1: [{ value2: "bar", value3: "baz" }, { value2: "qux", value3: "quux" }] })[2].body).to eq(value1: [{ value2: "bar", value3: "baz" }, { value2: "qux", value3: "quux" }])
+      end
+
+      it "strips values not defined as required or optional for each" do
+        expect(call("/test", params: { value1: [{ value2: "bar", value3: "baz", value4: "qux" }, { value2: "quux", value3: "corge", value4: "uier" }], value5: "" })[2].body).to eq(value1: [{ value2: "bar", value3: "baz" }, { value2: "quux", value3: "corge" }])
+      end
+    end
   end
 
   describe "required values" do
@@ -143,6 +153,12 @@ RSpec.shared_examples "nested verification" do
       it "responds bad request" do
         expect(call("/test", params: { value1: { } })[0]).to eq(400)
       end
+
+      context "with a value list" do
+        it "responds bad request" do
+          expect(call("/test", params: { value1: [{ }] })[0]).to eq(400)
+        end
+      end
     end
 
     context "all required values are present" do
@@ -150,9 +166,21 @@ RSpec.shared_examples "nested verification" do
         expect(call("/test", params: { value1: { value2: "" } })[0]).to eq(200)
       end
 
+      context "with a value list" do
+        it "responds ok" do
+          expect(call("/test", params: { value1: [{ value2: "" }] })[0]).to eq(200)
+        end
+      end
+
       context "an optional value is present" do
         it "responds ok" do
           expect(call("/test", params: { value1: { value2: "", value3: "" } })[0]).to eq(200)
+        end
+
+        context "with a value list" do
+          it "responds ok" do
+            expect(call("/test", params: { value1: [{ value2: "", value3: "" }] })[0]).to eq(200)
+          end
         end
       end
     end
@@ -177,11 +205,23 @@ RSpec.shared_examples "nested verification" do
       it "responds ok" do
         expect(call("/test", params: { value1: { value2: "foo" } })[0]).to eq(200)
       end
+
+      context "with a value list" do
+        it "responds ok" do
+          expect(call("/test", params: { value1: [{ value2: "foo" }] })[0]).to eq(200)
+        end
+      end
     end
 
     context "required value fails validation" do
       it "responds bad request" do
         expect(call("/test", params: { value1: { value2: "" } })[0]).to eq(400)
+      end
+
+      context "with a value list" do
+        it "responds bad request" do
+          expect(call("/test", params: { value1: [{ value2: "" }] })[0]).to eq(400)
+        end
       end
     end
 
@@ -190,11 +230,23 @@ RSpec.shared_examples "nested verification" do
         it "responds ok" do
           expect(call("/test", params: { value1: { value2: "foo", value3: "bar" } })[0]).to eq(200)
         end
+
+        context "with a value list" do
+          it "responds ok" do
+            expect(call("/test", params: { value1: [{ value2: "foo", value3: "bar" }] })[0]).to eq(200)
+          end
+        end
       end
 
       context "optional value fails validation" do
         it "responds bad request" do
           expect(call("/test", params: { value1: { value2: "foo", value3: "" } })[0]).to eq(400)
+        end
+
+        context "with a value list" do
+          it "responds bad request" do
+            expect(call("/test", params: { value1: [{ value2: "foo", value3: "" }] })[0]).to eq(400)
+          end
         end
       end
     end
