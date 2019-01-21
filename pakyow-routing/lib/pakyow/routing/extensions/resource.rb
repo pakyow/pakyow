@@ -73,7 +73,7 @@ module Pakyow
         apply_extension do
           template :resource do |param: DEFAULT_PARAM|
             resource_id = ":#{param}"
-            nested_param = "#{Support.inflector.singularize(controller.__object_name.name)}_#{param}"
+            nested_param = "#{Support.inflector.singularize(controller.__object_name.name)}_#{param}".to_sym
             nested_resource_id = ":#{nested_param}"
 
             action :update_request_path_for_show, only: [:show] do
@@ -82,6 +82,19 @@ module Pakyow
 
             controller.class_eval do
               allow_params param
+
+              define_singleton_method :param do
+                param
+              end
+
+              define_singleton_method :nested_param do
+                nested_param
+              end
+
+              define_method :update_request_path_for_show do
+                req.env["pakyow.endpoint.path"].gsub!(resource_id, "show")
+              end
+
               NestedResource.define(self, nested_resource_id, nested_param)
             end
 
