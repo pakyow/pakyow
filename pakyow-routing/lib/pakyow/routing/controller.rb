@@ -426,8 +426,13 @@ module Pakyow
     class_state :routes, default: DEFINABLE_HTTP_METHODS.each_with_object({}) { |supported_method, routes_hash|
                                     routes_hash[supported_method] = []
                                   }, inheritable: false
-    class_state :limit_by_route, default: {}, inheritable: true
-    class_state :skips_by_route, default: {}, inheritable: true
+
+    class_state :limit_by_route, default: {}, inheritable: false
+    class_state :skips_by_route, default: {}, inheritable: false
+
+    # Global rules should be inherited by children, but route-specific rules
+    # shouldn't be since they refer to a specific route in the current context.
+    #
     class_state :global_skips, default: [], inheritable: true
 
     class << self

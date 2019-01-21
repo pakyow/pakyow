@@ -286,6 +286,12 @@ RSpec.describe "controller pipelines" do
           get "/other" do
             $calls << :other
           end
+
+          group do
+            get "/nested" do
+              $calls << :route
+            end
+          end
         end
       }
     end
@@ -305,6 +311,18 @@ RSpec.describe "controller pipelines" do
         :other
       ]
 
+      expected_calls.each_with_index do |call, i|
+        expect($calls[i]).to eq(call)
+      end
+    end
+
+    it "does not call the action in child controllers" do
+      expected_calls = [
+        :route
+      ]
+
+      $calls = []
+      call("/nested")
       expected_calls.each_with_index do |call, i|
         expect($calls[i]).to eq(call)
       end
@@ -330,6 +348,12 @@ RSpec.describe "controller pipelines" do
           get "/other" do
             $calls << :other
           end
+
+          namespace "/nested" do
+            default do
+              $calls << :route
+            end
+          end
         end
       }
     end
@@ -352,6 +376,19 @@ RSpec.describe "controller pipelines" do
         :other
       ]
 
+      expected_calls.each_with_index do |call, i|
+        expect($calls[i]).to eq(call)
+      end
+    end
+
+    it "does not skip the action for routes in the child controller" do
+      expected_calls = [
+        :foo,
+        :route
+      ]
+
+      $calls = []
+      call("/nested")
       expected_calls.each_with_index do |call, i|
         expect($calls[i]).to eq(call)
       end
