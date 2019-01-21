@@ -423,6 +423,20 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise, many
           ).to be(0)
         end
       end
+
+      context "array originated from an update command" do
+        it "associates" do
+          target_dataset.create(
+            association_name => associated_dataset.update.to_a
+          )
+
+          expect(
+            target_dataset.including(
+              association_name
+            ).one.send(association_name)
+          ).to eq(associated_dataset.to_a)
+        end
+      end
     end
 
     context "passing an associated object" do

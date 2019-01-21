@@ -364,7 +364,9 @@ module Pakyow
                   )
 
                   updated_source.instance_variable_set(:@results, original_dataset.map { |original_object|
-                    original_object.class.new(original_object.values.merge(final_values))
+                    original_object.class.new(original_object.values.merge(final_values)).tap do |new_object|
+                      new_object.originating_source = original_object.originating_source
+                    end
                   })
 
                   updated_source.instance_variable_set(:@original_results, original_dataset)
