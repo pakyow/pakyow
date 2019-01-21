@@ -391,15 +391,17 @@ module Pakyow
 
       # @api private
       def all_binding_scopes
-        @object.find_significant_nodes(:binding).select { |node|
+        @object.find_significant_nodes(:binding).reject { |node|
+          node.significant?(:form)
+        }.select { |node|
           node.significant?(:binding_within) || node.significant?(:multipart_binding) || node.label(:version) == :empty
         }
       end
 
       # @api private
-      def binding_scopes
+      def binding_scopes(include_forms = false)
         @object.find_significant_nodes_without_descending(:binding).select { |node|
-          node.significant?(:binding_within) || node.significant?(:multipart_binding) || node.label(:version) == :empty
+          (include_forms || !node.significant?(:form)) && (node.significant?(:binding_within) || node.significant?(:multipart_binding) || node.label(:version) == :empty)
         }
       end
 

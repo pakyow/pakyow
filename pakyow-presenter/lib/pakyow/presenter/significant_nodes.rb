@@ -108,7 +108,7 @@ module Pakyow
       StringDoc.significant :binding, self
 
       def self.significant?(node)
-        node.is_a?(Oga::XML::Element) && node.attribute(:binding) && node.name != FORM_TAG
+        node.is_a?(Oga::XML::Element) && node.attribute(:binding)
       end
     end
 
