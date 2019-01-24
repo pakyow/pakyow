@@ -175,7 +175,7 @@ RSpec.describe "form endpoints" do
 
           it "sets the form up for updating" do
             call("/presentation/forms/endpoints")[2].body.read.tap do |body|
-              expect(body).to include('<form data-b="post" data-c="form" action="/posts/1" method="post" data-id="1">')
+              expect(body).to include('<form data-b="post" data-c="form" data-id="1" action="/posts/1" method="post">')
               expect(body).to include('<input type="hidden" name="_method" value="patch">')
             end
           end

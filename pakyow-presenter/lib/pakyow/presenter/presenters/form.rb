@@ -4,6 +4,7 @@ require "securerandom"
 
 require "pakyow/support/core_refinements/array/ensurable"
 require "pakyow/support/inflector"
+require "pakyow/support/message_verifier"
 
 require "pakyow/presenter/presenter"
 
@@ -102,6 +103,8 @@ module Pakyow
         setup_field_names
         connect_labels
         use_binding_nodes
+        embed_metadata
+        embed_authenticity_token
 
         yield self if block_given?
         @view.bind(object)
@@ -137,17 +140,21 @@ module Pakyow
         setup_form_for_binding(:delete, object)
       end
 
-      # @ api private
-      def embed_authenticity_token(token, param:)
-        @view.prepend(authenticity_token_input(token, param: param))
-      end
-
-      # @ api private
-      def embed_metadata(metadata)
-        @view.prepend(metadata_input(metadata))
-      end
-
       private
+
+      def embed_authenticity_token
+        if @view.labeled?(:authenticity_param)
+          @view.prepend(
+            safe("<input type=\"hidden\" name=\"#{@view.label(:authenticity_param)}\" value=\"#{sign(id)}\">")
+          )
+        end
+      end
+
+      def embed_metadata
+        @view.prepend(
+          safe("<input type=\"hidden\" name=\"_form\" value=\"#{sign(@view.label(:metadata).to_json)}\">")
+        )
+      end
 
       def setup_form_for_binding(action, object)
         setup(object) do
@@ -232,14 +239,6 @@ module Pakyow
         end
 
         input
-      end
-
-      def authenticity_token_input(token, param:)
-        safe("<input type=\"hidden\" name=\"#{param}\" value=\"#{token}\">")
-      end
-
-      def metadata_input(metadata)
-        safe("<input type=\"hidden\" name=\"_form\" value=\"#{metadata}\">")
       end
 
       def create_select_options(values, field_view)
@@ -354,7 +353,7 @@ module Pakyow
                   "#{name}[#{key}]"
                 end
                 id_input.set(:name, name)
-                id_input.set(:value, ensure_html_safety(value[key].to_s))
+                id_input.set(:value, sign(value[key]))
                 current.prepend(safe(id_input.to_xml))
               end
             else
@@ -470,6 +469,14 @@ module Pakyow
         unless field.attributes[:name].to_s.end_with?("[]") || field.attributes[:name].to_s.empty?
           field.attributes[:name] = "#{field.attributes[:name]}[]"
         end
+      end
+
+      def sign(value)
+        @verifier ||= Support::MessageVerifier.new(
+          @view.object.label(:authenticity_key)
+        )
+
+        @verifier.sign(value.to_s)
       end
     end
   end

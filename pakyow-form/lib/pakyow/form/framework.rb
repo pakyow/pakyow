@@ -27,7 +27,7 @@ module Pakyow
           end
 
           isolated :ViewRenderer do
-            action :set_form_framework_metadata, before: :embed_form_metadata do
+            action :set_form_framework_metadata, before: :setup_form_objects do
               presenter.forms.each do |form|
                 form.view.label(:metadata)[:binding] = [form.view.label(:binding)].concat(form.view.label(:channel)).join(":")
                 form.view.label(:metadata)[:origin] = @connection.form.to_h[:origin] || @connection.fullpath

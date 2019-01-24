@@ -70,8 +70,8 @@ RSpec.describe "form metadata" do
           presenter "/form" do
             def perform
               form(:post).with do |form|
-                form.create
                 form.view.label(:metadata)[:foo] = "bar"
+                form.create
               end
             end
           end

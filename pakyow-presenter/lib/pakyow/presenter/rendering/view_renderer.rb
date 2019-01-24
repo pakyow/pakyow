@@ -9,7 +9,6 @@ require "pakyow/presenter/rendering/component_renderer"
 require "pakyow/presenter/rendering/actions/cleanup_prototype_nodes"
 require "pakyow/presenter/rendering/actions/create_template_nodes"
 require "pakyow/presenter/rendering/actions/embed_authenticity_token"
-require "pakyow/presenter/rendering/actions/embed_form_metadata"
 require "pakyow/presenter/rendering/actions/insert_prototype_bar"
 require "pakyow/presenter/rendering/actions/install_endpoints"
 require "pakyow/presenter/rendering/actions/place_in_mode"
@@ -75,7 +74,6 @@ module Pakyow
       action :setup_form_metadata, Actions::SetupFormMetadata, before: :dispatch
       action :render_components, Actions::RenderComponents, before: :dispatch
       action :setup_form_objects, Actions::SetupFormObjects, after: :dispatch
-      action :embed_form_metadata, Actions::EmbedFormMetadata, after: :setup_form_objects
 
       using Support::Refinements::String::Normalization
 

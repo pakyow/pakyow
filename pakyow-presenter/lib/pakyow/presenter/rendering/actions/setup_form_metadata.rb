@@ -11,6 +11,12 @@ module Pakyow
             if form.view.object.significant?(:component)
               ids << id
             end
+
+            form.view.object.set_label(:authenticity_key, renderer.connection.verifier.key)
+
+            if renderer.connection.app.config.presenter.embed_authenticity_token
+              form.view.object.set_label(:authenticity_param, renderer.connection.app.config.security.csrf.param)
+            end
           }
 
           renderer.connection.set(:__form_ids, form_ids)
