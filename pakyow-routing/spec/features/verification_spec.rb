@@ -427,6 +427,15 @@ RSpec.describe "allowing resource ids" do
           send params.to_json
         end
 
+        member do
+          get :foo, "/foo" do
+            verify do
+            end
+
+            send params.to_json
+          end
+        end
+
         resource :comments, "/comments" do
           show do
             verify do
@@ -450,6 +459,13 @@ RSpec.describe "allowing resource ids" do
     call("/posts/1/comments/2").tap do |result|
       expect(result[0]).to eq(200)
       expect(result[2].body.read).to eq('{"post_id":"1","id":"2"}')
+    end
+  end
+
+  it "allows nested member ids" do
+    call("/posts/1/foo").tap do |result|
+      expect(result[0]).to eq(200)
+      expect(result[2].body.read).to eq('{"post_id":"1"}')
     end
   end
 end

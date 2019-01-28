@@ -220,29 +220,31 @@ module Pakyow
           request_path = String.normalize_path(request_path.sub(matcher, ""))
         end
 
-        self.class.routes[request_method].to_a.each do |route|
-          catch :reject do
-            if route_match = route.match(request_path)
-              match_data.merge!(route_match.named_captures)
-              connection.params.merge!(match_data)
-              connection.env["rack.request.query_hash"].merge!(match_data)
-
-              connection.env["pakyow.endpoint.path"] = File.join(
-                self.class.path_to_self.to_s, route.path.to_s
-              )
-
-              connection.env["pakyow.endpoint.name"] = route.name
-
-              dup.call_route(connection, route)
-            end
-          end
-
+        @children.each do |child_controller|
+          child_controller.call(connection, request_path)
           break if connection.halted?
         end
 
         unless connection.halted?
-          @children.each do |child_controller|
-            child_controller.call(connection, request_path)
+          self.class.routes[request_method].to_a.each do |route|
+            catch :reject do
+              if route_match = route.match(request_path)
+                match_data.merge!(route_match.named_captures)
+                connection.params.merge!(match_data)
+                connection.env["rack.request.query_hash"].merge!(match_data)
+
+                connection.env["pakyow.endpoint.path"] = String.normalize_path(
+                  File.join(
+                    self.class.path_to_self.to_s, route.path.to_s
+                  )
+                )
+
+                connection.env["pakyow.endpoint.name"] = route.name
+
+                dup.call_route(connection, route)
+              end
+            end
+
             break if connection.halted?
           end
         end

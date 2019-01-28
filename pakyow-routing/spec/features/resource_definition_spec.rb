@@ -117,15 +117,27 @@ RSpec.describe "defining resources" do
     let :app_init do
       Proc.new {
         resource :posts, "/posts" do
+          show do
+            send "show"
+          end
+
           member do
-            get "/member"
+            get :foo, "/foo" do
+              send "foo"
+            end
           end
         end
       }
     end
 
     it "properly defines the member routes" do
-      expect(call("/posts/123/member")[0]).to eq(200)
+      expect(call("/posts/123/foo")[0]).to eq(200)
+      expect(call("/posts/123/foo")[2].body.read).to eq("foo")
+    end
+
+    it "does not conflict with the show route" do
+      expect(call("/posts/123")[0]).to eq(200)
+      expect(call("/posts/123")[2].body.read).to eq("show")
     end
   end
 
@@ -133,15 +145,27 @@ RSpec.describe "defining resources" do
     let :app_init do
       Proc.new {
         resource :posts, "/posts" do
+          show do
+            send "show"
+          end
+
           collection do
-            get "/collection"
+            get "/foo" do
+              send "foo"
+            end
           end
         end
       }
     end
 
     it "properly defines the collection routes" do
-      expect(call("/posts/collection")[0]).to eq(200)
+      expect(call("/posts/foo")[0]).to eq(200)
+      expect(call("/posts/foo")[2].body.read).to eq("foo")
+    end
+
+    it "does not conflict with the show route" do
+      expect(call("/posts/123")[0]).to eq(200)
+      expect(call("/posts/123")[2].body.read).to eq("show")
     end
   end
 
