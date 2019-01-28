@@ -39,7 +39,7 @@ title: "{pw_error.name}"
       font-family: monospace;
       font-size: 13px;
     }
-    code pre {
+    code pre, pre code {
       white-space: pre;
       margin: 0;
     }
@@ -81,6 +81,16 @@ title: "{pw_error.name}"
     ul {
       margin-top: 15px;
       margin-bottom: 30px;
+      padding-left: 45px;
+    }
+    header p {
+      font-size: 15px;
+      font-weight: 500;
+    }
+    header p::before {
+      content: "\203a\a0\a0";
+      display: inline-block;
+      padding-left: 30px;
     }
   </style>
 </head>

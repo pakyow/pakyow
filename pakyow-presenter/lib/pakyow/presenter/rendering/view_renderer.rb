@@ -40,7 +40,7 @@ module Pakyow
                 render(connection)
               end
             rescue UnknownPage => error
-              raise ImplicitRenderingError.build(error, context: connection.path)
+              raise ImplicitRenderingError.build(error, context: connection.env["pakyow.endpoint.path"] || connection.path)
             end
           end
         rescue StandardError => error

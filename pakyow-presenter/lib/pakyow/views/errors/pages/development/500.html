@@ -2,28 +2,32 @@
 layout: development_error
 ---
 
-<div binding="pw_error">
-  <h1 binding="name">
-    Error Class
-  </h1>
+<article binding="pw_error">
+  <header>
+    <h1 binding="name">
+      Error Class
+    </h1>
 
-  <p binding="message">
-    Error message goes here.
-  </p>
-
-  <div binding="contextual_message">
-    <p>
-      Contextual error details go here.
-    </p>
-  </div>
+    <section binding="message">
+      Error message goes here.
+    </section>
+  </header>
 
   <hr>
 
-  <div binding="details">
+  <section binding="contextual_message">
+    <p>
+      Contextual error details go here.
+    </p>
+  </section>
+
+  <hr>
+
+  <section binding="details">
     <p>
       Details go here.
     </p>
-  </div>
+  </section>
 
   <h2>
     Backtrace:
@@ -32,4 +36,4 @@ layout: development_error
   <code>
     <pre binding="backtrace"></pre>
   </code>
-</div>
+</article>

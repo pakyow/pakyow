@@ -59,16 +59,20 @@ module Pakyow
           end
 
           binder :pw_error do
+            def message
+              safe(markdown.render(format(object.message)))
+            end
+
             def contextual_message
               if object.respond_to?(:contextual_message)
-                safe(markdown.render(format(object.contextual_message.dup)))
+                safe(markdown.render(format(object.contextual_message)))
               else
                 nil
               end
             end
 
             def details
-              safe(markdown.render(format(object.details.dup)))
+              safe(markdown.render(format(object.details)))
             end
 
             def backtrace
@@ -96,6 +100,8 @@ module Pakyow
             end
 
             def format(string)
+              string = string.dup
+
               # Replace `foo' with `foo` to render as inline code.
               #
               string.dup.scan(/`([^']*)'/).each do |match|
