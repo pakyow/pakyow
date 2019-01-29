@@ -18,6 +18,10 @@ RSpec.describe "resource endpoint path" do
           list do
             send connection.env["pakyow.endpoint.path"]
           end
+
+          show do
+            send connection.env["pakyow.endpoint.path"]
+          end
         end
       end
     }
@@ -31,7 +35,11 @@ RSpec.describe "resource endpoint path" do
     expect(call("/posts/1/foo")[2].body.read).to eq("/posts/show/foo")
   end
 
-  it "updates the endpoint path for nested resources" do
+  it "updates the endpoint path for nested resource list" do
     expect(call("/posts/1/comments")[2].body.read).to eq("/posts/show/comments")
+  end
+
+  it "updates the endpoint path for nested resource show" do
+    expect(call("/posts/1/comments/2")[2].body.read).to eq("/posts/show/comments/show")
   end
 end

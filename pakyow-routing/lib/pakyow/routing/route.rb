@@ -50,7 +50,7 @@ module Pakyow
       def create_matcher_from_path(path)
         converted_path = String.normalize_path(path.split("/").map { |segment|
           if segment.include?(":")
-            "(?<#{segment[(segment.index(":") + 1)..-1]}>(\\w|[-~:@!$\\'\\(\\)\\*\\+,;])*)"
+            "(?<#{segment[(segment.index(":") + 1)..-1]}>(\\w|[-~:@!$\\'\\(\\)\\*\\+,;])+)"
           else
             segment
           end

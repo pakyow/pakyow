@@ -15,7 +15,12 @@ RSpec.describe "route params" do
     end
 
     it "is available" do
+      expect(call("/foo")[0]).to eq(200)
       expect(call("/foo")[2].body.read).to eq("foo")
+    end
+
+    it "requires the param" do
+      expect(call("/")[0]).to eq(404)
     end
   end
 
@@ -77,7 +82,12 @@ RSpec.describe "route params" do
     end
 
     it "is available" do
+      expect(call("/foo")[0]).to eq(200)
       expect(call("/foo")[2].body.read).to eq("foo")
+    end
+
+    it "requires the param" do
+      expect(call("/")[0]).to eq(404)
     end
   end
 

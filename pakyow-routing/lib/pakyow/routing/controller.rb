@@ -775,7 +775,7 @@ module Pakyow
         if matcher.is_a?(String)
           converted_matcher = String.normalize_path(matcher.split("/").map { |segment|
             if segment.include?(":")
-              "(?<#{segment[1..-1]}>(\\w|[-.~:@!$\\'\\(\\)\\*\\+,;])*)"
+              "(?<#{segment[1..-1]}>(\\w|[-.~:@!$\\'\\(\\)\\*\\+,;])+)"
             else
               segment
             end
