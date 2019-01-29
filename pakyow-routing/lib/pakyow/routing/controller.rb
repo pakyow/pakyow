@@ -423,6 +423,7 @@ module Pakyow
 
     class_state :children, default: [], inheritable: true
     class_state :templates, default: {}, inheritable: true
+    class_state :expansions, default: [], inheritable: false
     class_state :routes, default: DEFINABLE_HTTP_METHODS.each_with_object({}) { |supported_method, routes_hash|
                                     routes_hash[supported_method] = []
                                   }, inheritable: false

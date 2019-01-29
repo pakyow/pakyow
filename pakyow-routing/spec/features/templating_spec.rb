@@ -42,6 +42,10 @@ RSpec.describe "route templating" do
     expect(call("/en/thanks")[2].body.first).to eq("thanks")
   end
 
+  it "tracks the expansion on the controller" do
+    expect(Pakyow.apps.first.state(:controller)[0].children[0].expansions).to eq([:talkback])
+  end
+
   context "when the template defines actions" do
     let :app_init do
       Proc.new {
