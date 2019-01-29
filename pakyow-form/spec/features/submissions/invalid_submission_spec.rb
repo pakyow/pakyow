@@ -149,6 +149,33 @@ RSpec.describe "submitting invalid form data" do
         end
       end
     end
+
+    context "root data does not pass verification" do
+      let :app_init do
+        Proc.new do
+          resource :posts, "/posts" do
+            disable_protection :csrf
+
+            new do; end
+
+            create do
+              verify do
+                required :post
+              end
+            end
+          end
+        end
+      end
+
+      it "presents errors for the invalid submission" do
+        call("/posts", method: :post, params: { _form: sign(origin: "/posts/new", binding: "post:form") }).tap do |result|
+          expect(result[0]).to be(400)
+          body = result[2].body.read
+          expect(body).to include_sans_whitespace("Post is required")
+          expect(body).to include_sans_whitespace('<li data-b="error.message" data-c="form"')
+        end
+      end
+    end
   end
 
   context "form submission is not present" do

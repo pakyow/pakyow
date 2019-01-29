@@ -41,12 +41,19 @@ module Pakyow
 
           handle InvalidData, as: :bad_request do |error|
             if connection.form
-              errors = error.verifier.messages.flat_map { |_type, field_messages|
-                field_messages.flat_map { |field, messages|
-                  messages.map { |message|
-                    { field: field, message: "#{Support.inflector.humanize(field)} #{message}" }
+              errors = error.verifier.messages.flat_map { |type, messages|
+                case messages
+                when Array
+                  messages.map { |type_message|
+                    { field: type, message: "#{Support.inflector.humanize(type)} #{type_message}" }
                   }
-                }
+                when Hash
+                  messages.flat_map { |field, field_messages|
+                    field_messages.map { |field_message|
+                      { field: field, message: "#{Support.inflector.humanize(field)} #{field_message}" }
+                    }
+                  }
+                end
               }
 
               if app.class.includes_framework?(:ui) && ui?
