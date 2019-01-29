@@ -11,7 +11,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          after :initialize do
+          after :initialize, priority: :high do
             if is_a?(Plugin)
               @app.after :initialize, priority: :low, exec: false do
                 load_frontend

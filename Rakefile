@@ -11,6 +11,7 @@ else
     mailer
     presenter
     realtime
+    reflection
     routing
     support
     ui
