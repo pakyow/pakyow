@@ -169,8 +169,13 @@ RSpec.describe "defining resources" do
     end
   end
 
-  context "when the resource is defined with a regexp"
-  context "when the resource is defined with a custom matcher"
+  context "when the resource is defined with a regexp" do
+    it "needs tests"
+  end
+
+  context "when the resource is defined with a custom matcher" do
+    it "needs tests"
+  end
 
   context "when the resource is defined with a url param" do
     let :app_init do
@@ -330,6 +335,33 @@ RSpec.describe "defining resources" do
 
       res = call("/posts.html")
       expect(res[0]).to eq(404)
+    end
+  end
+
+  describe "defining the same nested resource multiple times" do
+    let :app_init do
+      Proc.new {
+        resource :posts, "/posts" do
+          resource :comments, "/comments" do
+            list
+          end
+
+          resource :comments, "/comments" do
+            show
+          end
+        end
+      }
+    end
+
+    let :controllers do
+      Pakyow.apps.first.state(:controller)
+    end
+
+    it "adds routes to the existing resource" do
+      expect(controllers.count).to eq(1)
+      expect(controllers[0].children.count).to eq(1)
+      expect(controllers[0].children[0].routes.values.flatten.count).to eq(2)
+      expect(controllers[0].children[0].routes.values.flatten.map(&:name)).to eq([:list, :show])
     end
   end
 end
