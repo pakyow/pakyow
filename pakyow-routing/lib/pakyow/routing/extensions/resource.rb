@@ -117,10 +117,11 @@ module Pakyow
           #
           def self.define(controller, nested_resource_id, nested_param)
             controller.define_singleton_method :namespace do |*args, &block|
-              namespace = super(*args, &block)
-              namespace.allow_params nested_param
-              namespace.action :update_request_path_for_parent do
-                req.env["pakyow.endpoint.path"].gsub!(nested_resource_id, "show")
+              super(*args, &block).tap do |namespace|
+                namespace.allow_params nested_param
+                namespace.action :update_request_path_for_parent do
+                  req.env["pakyow.endpoint.path"].gsub!(nested_resource_id, "show")
+                end
               end
             end
 
