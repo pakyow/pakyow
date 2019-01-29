@@ -586,7 +586,7 @@ module Pakyow
       #   # => "/baz"
       #
       def group(name = nil, &block)
-        make_child(name, nil, &block)
+        find_or_make_child(name, nil, &block)
       end
 
       # Creates a group of routes and mounts them at a path, with an optional name. A namespace
@@ -610,7 +610,7 @@ module Pakyow
       #
       def namespace(*args, &block)
         name, matcher = parse_name_and_matcher_from_args(*args)
-        make_child(name, matcher, &block)
+        find_or_make_child(name, matcher, &block)
       end
 
       # Creates a route template with a name and block. The block is evaluated within a
@@ -670,7 +670,7 @@ module Pakyow
       # @see template
       #
       def expand(name, *args, **options, &block)
-        make_child(*args).expand_within(name, **options, &block)
+        find_or_make_child(*args).expand_within(name, **options, &block)
       end
 
       # Attempts to find and expand a template, avoiding the need to call {expand} explicitly. For
@@ -753,13 +753,20 @@ module Pakyow
       end
 
       # @api private
-      def make_child(*args, **kwargs, &block)
+      def find_or_make_child(*args, **kwargs, &block)
         name, matcher = parse_name_and_matcher_from_args(*args)
-        name = __object_name.isolated(name) if name && name.is_a?(Symbol) && __object_name
 
-        controller = make(name, matcher, parent: self, **kwargs, &block)
-        children << controller
-        controller
+        if name && name.is_a?(Symbol) && child = children.find { |possible_child| possible_child.__object_name.name == name }
+          child.instance_exec(&block); child
+        else
+          if name && name.is_a?(Symbol) && __object_name
+            name = __object_name.isolated(name)
+          end
+
+          make(name, matcher, parent: self, **kwargs, &block).tap do |controller|
+            children << controller
+          end
+        end
       end
 
       # @api private

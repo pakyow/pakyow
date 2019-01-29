@@ -97,4 +97,31 @@ RSpec.describe "namespaced routes" do
       expect(call("/top/ns")[0]).to eq(200)
     end
   end
+
+  describe "defining routes for the same namespace multiple times" do
+    let :app_init do
+      Proc.new {
+        controller do
+          namespace :n, "/n" do
+            get :foo, "/foo"
+          end
+
+          namespace :n do
+            get :bar, "/bar"
+          end
+        end
+      }
+    end
+
+    let :controllers do
+      Pakyow.apps.first.state(:controller)
+    end
+
+    it "adds routes to the existing group" do
+      expect(controllers.count).to eq(1)
+      expect(controllers[0].children.count).to eq(1)
+      expect(controllers[0].children[0].routes.values.flatten.count).to eq(2)
+      expect(controllers[0].children[0].routes.values.flatten.map(&:name)).to eq([:foo, :bar])
+    end
+  end
 end
