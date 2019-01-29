@@ -5,6 +5,20 @@ RSpec.describe "reflected endpoints" do
     "endpoints/definition"
   end
 
+  let :reflected_app_init do
+    Proc.new do
+      source :posts do
+        attribute :title
+
+        has_many :comments
+      end
+
+      source :comments do
+        attribute :body
+      end
+    end
+  end
+
   def controller(name)
     Pakyow.apps.first.state(:controller).find { |controller|
       controller.__object_name.name == name
@@ -90,16 +104,14 @@ RSpec.describe "reflected endpoints" do
 
     it "defines the endpoint on the resource collection" do
       expect(Pakyow.apps.first.state(:controller).count).to eq(2)
-      expect(controller(:posts).ancestors).to include(Pakyow::Controller)
-      expect(controller(:posts).ancestors).to include(Pakyow::Routing::Extension::Resource)
+      expect(controller(:posts).expansions).to include(:resource)
 
-      expect(controller(:posts).routes[:get].count).to eq(1)
-      expect(controller(:posts).routes[:get].map(&:name)).to eq([:new])
+      expect(controller(:posts).routes[:get].count).to eq(0)
 
-      # TODO: pull in the tests from below
-      #
-      # I think we need to introduce a different code path when we're defining endpoints for resources
-      # the logic is slightly different from that of a normal controller based endpoint
+      expect(controller(:posts).children.count).to eq(1)
+      expect(controller(:posts).children[0]).to be(Test::Controllers::Posts::Collection)
+      expect(controller(:posts).children[0].routes[:get].count).to eq(1)
+      expect(controller(:posts).children[0].routes[:get].map(&:name)).to eq([:foo])
     end
   end
 
@@ -108,18 +120,45 @@ RSpec.describe "reflected endpoints" do
       "endpoints/within_resource_nested"
     end
 
-    it "defines the endpoint on the resource collection" do
+    it "defines the endpoint as a child controller to the resource collection" do
       expect(Pakyow.apps.first.state(:controller).count).to eq(2)
-      expect(controller(:posts).ancestors).to include(Pakyow::Controller)
-      expect(controller(:posts).ancestors).to include(Pakyow::Routing::Extension::Resource)
+      expect(controller(:posts).expansions).to include(:resource)
 
-      expect(controller(:posts).routes[:get].count).to eq(1)
-      expect(controller(:posts).routes[:get].map(&:name)).to eq([:new])
+      expect(controller(:posts).routes[:get].count).to eq(0)
+
+      expect(controller(:posts).children.count).to eq(1)
+      expect(controller(:posts).children[0]).to be(Test::Controllers::Posts::Collection)
+      expect(controller(:posts).children[0].routes.values.flatten.count).to eq(0)
+
+      expect(controller(:posts).children[0].children.count).to eq(1)
+      expect(controller(:posts).children[0].children[0]).to be(Test::Controllers::Posts::Collection::Foo)
+      expect(controller(:posts).children[0].children[0].path).to eq("/foo")
+      expect(controller(:posts).children[0].children[0].routes.values.flatten.count).to eq(1)
+      expect(controller(:posts).children[0].children[0].routes[:get].map(&:name)).to eq([:default])
+    end
+  end
+
+  context "multiple endpoints fall within a resource" do
+    let :frontend_test_case do
+      "endpoints/within_resource_multiple"
+    end
+
+    it "defines each endpoint on the resource collection" do
+      expect(Pakyow.apps.first.state(:controller).count).to eq(2)
+      expect(controller(:posts).expansions).to include(:resource)
+
+      expect(controller(:posts).routes[:get].count).to eq(0)
 
       expect(controller(:posts).children.count).to eq(1)
       expect(controller(:posts).children[0]).to be(Test::Controllers::Posts::Collection)
       expect(controller(:posts).children[0].routes[:get].count).to eq(1)
-      expect(controller(:posts).children[0].routes[:get].map(&:name)).to eq([:foo])
+      expect(controller(:posts).children[0].routes[:get].map(&:name)).to eq([:bar])
+
+      expect(controller(:posts).children[0].children.count).to eq(1)
+      expect(controller(:posts).children[0].children[0]).to be(Test::Controllers::Posts::Collection::Foo)
+      expect(controller(:posts).children[0].children[0].path).to eq("/foo")
+      expect(controller(:posts).children[0].children[0].routes[:get].count).to eq(1)
+      expect(controller(:posts).children[0].children[0].routes[:get].map(&:name)).to eq([:default])
     end
   end
 
@@ -130,17 +169,82 @@ RSpec.describe "reflected endpoints" do
 
     it "defines the endpoint as a resource member" do
       expect(Pakyow.apps.first.state(:controller).count).to eq(2)
-      expect(controller(:posts).ancestors).to include(Pakyow::Controller)
-      expect(controller(:posts).ancestors).to include(Pakyow::Routing::Extension::Resource)
+      expect(controller(:posts).expansions).to include(:resource)
+
+      expect(controller(:posts).routes[:get].count).to eq(0)
+
+      expect(controller(:posts).children.count).to eq(1)
+      expect(controller(:posts).children[0]).to be(Test::Controllers::Posts::Member)
+      expect(controller(:posts).children[0].routes[:get].count).to eq(1)
+      expect(controller(:posts).children[0].routes[:get].map(&:name)).to eq([:foo])
     end
   end
 
-  context "endpoint falls within a nested path for a nested resource" do
-    it "needs tests"
+  context "endpoint is nested within the show path for a resource" do
+    let :frontend_test_case do
+      "endpoints/within_resource_show_nested"
+    end
+
+    it "defines the endpoint as a child controller to the resource member" do
+      expect(Pakyow.apps.first.state(:controller).count).to eq(2)
+      expect(controller(:posts).expansions).to include(:resource)
+
+      expect(controller(:posts).routes[:get].count).to eq(0)
+
+      expect(controller(:posts).children.count).to eq(1)
+      expect(controller(:posts).children[0]).to be(Test::Controllers::Posts::Member)
+      expect(controller(:posts).children[0].routes.values.flatten.count).to eq(0)
+      expect(controller(:posts).children[0].children.count).to eq(1)
+      expect(controller(:posts).children[0].children[0].routes.values.flatten.count).to eq(1)
+      expect(controller(:posts).children[0].children[0].routes[:get].map(&:name)).to eq([:default])
+    end
+  end
+
+  context "endpoint falls within the path for a nested resource" do
+    let :frontend_test_case do
+      "endpoints/within_nested_resource"
+    end
+
+    it "defines the endpoint on a collection in the nested resource located within the parent resource collection" do
+      expect(Pakyow.apps.first.state(:controller).count).to eq(2)
+      expect(controller(:posts).expansions).to include(:resource)
+      expect(controller(:posts).routes.values.flatten.count).to eq(0)
+
+      expect(controller(:posts).children.count).to eq(1)
+      expect(controller(:posts).children[0]).to be(Test::Controllers::Posts::Collection)
+      expect(controller(:posts).children[0].routes.values.flatten.count).to eq(0)
+
+      expect(controller(:posts).children[0].children.count).to eq(1)
+      expect(controller(:posts).children[0].children[0].expansions).to include(:resource)
+      expect(controller(:posts).children[0].children[0].routes.values.flatten.count).to eq(0)
+      expect(controller(:posts).children[0].children[0].children.count).to eq(1)
+      expect(controller(:posts).children[0].children[0].children[0]).to be(Test::Controllers::Posts::Collection::Comments::Collection)
+      expect(controller(:posts).children[0].children[0].children[0].routes.values.flatten.count).to eq(1)
+      expect(controller(:posts).children[0].children[0].children[0].routes[:get].map(&:name)).to eq([:foo])
+      expect(controller(:posts).children[0].children[0].children[0].routes[:get].map(&:path)).to eq(["/foo"])
+    end
   end
 
   context "endpoint falls within the show path for a nested resource" do
-    it "needs tests"
+    let :frontend_test_case do
+      "endpoints/within_nested_resource_show"
+    end
+
+    it "defines the endpoint on the nested resource collection" do
+      expect(Pakyow.apps.first.state(:controller).count).to eq(2)
+      expect(controller(:posts).expansions).to include(:resource)
+      expect(controller(:posts).routes.values.flatten.count).to eq(0)
+
+      expect(controller(:posts).children.count).to eq(1)
+      expect(controller(:posts).children[0].expansions).to include(:resource)
+      expect(controller(:posts).children[0].routes.values.flatten.count).to eq(0)
+
+      expect(controller(:posts).children[0].children.count).to eq(1)
+      expect(controller(:posts).children[0].children[0]).to be(Test::Controllers::Posts::Comments::Collection)
+      expect(controller(:posts).children[0].children[0].routes.values.flatten.count).to eq(1)
+      expect(controller(:posts).children[0].children[0].routes[:get].map(&:name)).to eq([:foo])
+      expect(controller(:posts).children[0].children[0].routes[:get].map(&:path)).to eq(["/foo"])
+    end
   end
 
   context "view defines a binding" do

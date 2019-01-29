@@ -101,11 +101,32 @@ module Pakyow
             [last_endpoint_path_part.to_sym, "/#{last_endpoint_path_part}"]
           end
 
-          # Define the route unless it exists.
-          #
-          route = controller.routes.values.flatten.find { |possible_route|
-            possible_route.path == route_path
-          } || controller.get(route_name, route_path)
+          if controller.expansions.include?(:resource)
+            endpoint_name = String.normalize_path(
+              endpoint.view_path.gsub(controller.path_to_self, "")
+            ).split("/", 2)[1].to_sym
+
+            case endpoint_name
+            when :new, :edit, :list, :show
+              # Find or define the route by resource endpoint name.
+              #
+              route = controller.routes.values.flatten.find { |possible_route|
+                possible_route.name == endpoint_name
+              } || controller.send(endpoint_name)
+            else
+              controller = controller.collection do
+                # intentionally empty
+              end
+            end
+          end
+
+          unless route
+            # Find or define the route by path.
+            #
+            route = controller.routes.values.flatten.find { |possible_route|
+              possible_route.path == route_path
+            } || controller.get(route_name, route_path)
+          end
 
           # Install the reflect action if it hasn't been installed for this route.
           #
@@ -115,8 +136,8 @@ module Pakyow
                 File.join(controller.path_to_self, route.path)
               )
 
-              endpoints = @scopes.flat_map(&:endpoints).select { |endpoint|
-                endpoint.view_path == endpoint_path
+              endpoints = @scopes.flat_map(&:endpoints).select { |possible_endpoint|
+                possible_endpoint.view_path == endpoint_path
               }
 
               controller.action :set_reflected_endpoints, only: [route.name] do
@@ -142,8 +163,8 @@ module Pakyow
           if endpoint_path.nil? || endpoint_path.empty?
             controller_for_endpoint_path("", @app) || define_controller_for_endpoint_path("", @app)
           else
-            endpoint_path.inject(@app) { |context, endpoint_path_part|
-              controller_for_endpoint_path(endpoint_path_part, context) || define_controller_for_endpoint_path(endpoint_path_part, context)
+            endpoint_path.each_with_index.inject(@app) { |context, (endpoint_path_part, i)|
+              controller_for_endpoint_path(endpoint_path_part, context) || define_controller_for_endpoint_path(endpoint_path_part, context, endpoint_path[i + 1])
             }
           end
         end
@@ -162,27 +183,73 @@ module Pakyow
           }
         end
 
-        def define_controller_for_endpoint_path(endpoint_path, context)
-          controller_name = if endpoint_path.empty?
-            :root
-          else
-            endpoint_path.to_sym
-          end
+        def define_controller_for_endpoint_path(endpoint_path, context, next_endpoint_path = nil)
+          if context.is_a?(Class) && context.ancestors.include?(Controller) && context.expansions.include?(:resource)
+            if endpoint_path == "show"
+              if needs_resource?(next_endpoint_path)
+                context.resource next_endpoint_path.to_sym, String.normalize_path(next_endpoint_path) do
+                  # intentionally empty
+                end
+              else
+                context.member do
+                  # intentionally empty
+                end
+              end
+            else
+              if needs_resource?(endpoint_path)
+                if context.__object_name.name == endpoint_path.to_sym
+                  context
+                else
+                  context.collection {}.resource endpoint_path.to_sym, String.normalize_path(endpoint_path) do
+                    # intentionally empty
+                  end
+                end
+              else
+                collection = context.collection do
+                  # intentionally empty
+                end
 
-          definition_method = if context.is_a?(Class) && context.ancestors.include?(Controller)
-            :namespace
+                if endpoint_directory?(File.join(context.path_to_self, endpoint_path))
+                  collection.namespace endpoint_path.to_sym, String.normalize_path(endpoint_path) do
+                    # intentionally empty
+                  end
+                else
+                  collection
+                end
+              end
+            end
           else
-            :controller
-          end
+            controller_name = if endpoint_path.empty?
+              :root
+            else
+              endpoint_path.to_sym
+            end
 
-          context.send(definition_method, controller_name, String.normalize_path(endpoint_path)) do
-            # intentionally empty
+            if needs_resource?(controller_name)
+              context.resource controller_name, String.normalize_path(endpoint_path) do
+                # intentionally empty
+              end
+            else
+              definition_method = if context.is_a?(Class) && context.ancestors.include?(Controller)
+                :namespace
+              else
+                :controller
+              end
+
+              context.send(definition_method, controller_name, String.normalize_path(endpoint_path)) do
+                # intentionally empty
+              end
+            end
           end
         end
 
-        def endpoint_directory?(endpoint)
+        def needs_resource?(endpoint_path)
+          @app.state(:source).any? { |source| source.plural_name == endpoint_path.to_s.to_sym }
+        end
+
+        def endpoint_directory?(endpoint_path)
           @app.state(:templates).any? { |templates|
-            File.directory?(File.join(templates.path, templates.config[:paths][:pages], endpoint))
+            File.directory?(File.join(templates.path, templates.config[:paths][:pages], endpoint_path))
           }
         end
 

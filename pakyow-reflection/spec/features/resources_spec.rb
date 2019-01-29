@@ -13,7 +13,7 @@ RSpec.describe "reflected resources" do
 
   it "defines a resource for each top level discovered type" do
     expect(posts.ancestors).to include(Pakyow::Controller)
-    expect(posts.ancestors).to include(Pakyow::Routing::Extension::Resource)
+    expect(posts.expansions).to include(:resource)
   end
 
   it "includes the reflection extension" do
@@ -27,7 +27,7 @@ RSpec.describe "reflected resources" do
 
     it "defines a child resource for each nested discovered type" do
       expect(comments.ancestors).to include(Pakyow::Controller)
-      expect(comments.ancestors).to include(Pakyow::Routing::Extension::Resource)
+      expect(comments.expansions).to include(:resource)
     end
 
     it "nests the resource for the nested resource within its parent" do
