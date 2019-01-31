@@ -122,6 +122,13 @@ module Pakyow
         end
       end
 
+      # Overriding and freezing after content is set lets us eagerly process the
+      # content rather than incurring that cost on boot.
+      #
+      def freeze
+        super if instance_variable_defined?(:@content)
+      end
+
       def each(&block)
         ensure_content do |content|
           StringIO.new(content).each(&block)
@@ -158,13 +165,20 @@ module Pakyow
       end
 
       def ensure_content
-        @content ||= load_content
+        unless frozen? || instance_variable_defined?(:@content)
+          @content = load_content; freeze
+        end
+
         yield @content if block_given?
       end
 
       def load_content
         content = process(File.read(@local_path))
-        content = minify(content) if minify?
+
+        if minify?
+          content = minify(content)
+        end
+
         content
       end
 
