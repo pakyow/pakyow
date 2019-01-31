@@ -12,7 +12,6 @@ RSpec.describe Pakyow::Assets::Asset do
   end
 
   let :local_path do
-    puts File.expand_path("../../support/app/frontend/assets/types-js.js", __FILE__)
     File.expand_path("../../support/app/frontend/assets/types-js.js", __FILE__)
   end
 
