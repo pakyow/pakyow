@@ -1,11 +1,6 @@
 RSpec.describe "minifying assets" do
   include_context "app"
 
-  before do
-    # Go ahead and require this to prevent intermittent failures.
-    require "babel-transpiler"
-  end
-
   context "app is configured to minify" do
     let :app_def do
       Proc.new do

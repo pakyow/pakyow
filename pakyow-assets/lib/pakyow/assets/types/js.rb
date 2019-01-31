@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "pakyow/assets/asset"
+require "pakyow/assets/babel"
 
 module Pakyow
   module Assets
@@ -9,13 +10,11 @@ module Pakyow
         extension :js
 
         def process(content)
-          if external? || !defined?(Babel)
+          if external?
             content
           else
-            Babel::Transpiler.transform(content)["code"]
+            Babel.transform(content, @config.babel.to_h)["code"]
           end
-        rescue StandardError => e
-          puts e
         end
       end
     end

@@ -83,11 +83,6 @@ RSpec.describe "versioned asset packs" do
   include_context "app"
   include_context "loaded asset packs"
 
-  before do
-    # Go ahead and require this to prevent intermittent failures.
-    require "babel-transpiler"
-  end
-
   let :app_init do
     Proc.new do
       config.assets.packs.autoload = []
@@ -114,11 +109,6 @@ end
 RSpec.describe "versioned, namespaced asset packs" do
   include_context "app"
   include_context "loaded asset packs"
-
-  before do
-    # Go ahead and require this to prevent intermittent failures.
-    require "babel-transpiler"
-  end
 
   let :app_init do
     Proc.new do

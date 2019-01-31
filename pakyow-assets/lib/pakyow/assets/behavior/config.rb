@@ -89,6 +89,10 @@ module Pakyow
                 setting :fetch, false
               end
             end
+
+            configurable :babel do
+              setting :presets, ["es2015"]
+            end
           end
         end
       end
