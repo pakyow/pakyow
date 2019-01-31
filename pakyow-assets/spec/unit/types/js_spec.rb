@@ -1,4 +1,4 @@
-RSpec.describe Pakyow::Assets::Types::ES6 do
+RSpec.describe Pakyow::Assets::Types::JS do
   let :config do
     app_class = Class.new(Pakyow::App) do
       include Pakyow::Assets::Behavior::Config
@@ -16,7 +16,7 @@ RSpec.describe Pakyow::Assets::Types::ES6 do
   end
 
   let :instance do
-    Pakyow::Assets::Types::ES6.new(
+    Pakyow::Assets::Types::JS.new(
       local_path: local_path,
       config: config
     )

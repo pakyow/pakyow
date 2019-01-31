@@ -6,7 +6,7 @@ require "pakyow/assets/babel"
 module Pakyow
   module Assets
     module Types
-      class ES6 < Asset
+      class JS < Asset
         extension :js
 
         def process(content)
