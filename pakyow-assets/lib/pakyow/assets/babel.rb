@@ -14,7 +14,7 @@ module Pakyow
       def self.context
         @context ||= ExecJS.compile(
           File.read(
-            File.expand_path("../../../../src/@babel/standalone@7.3.1/babel.js", __FILE__)
+            File.expand_path("../../../../src/@babel/standalone@7.3.1/babel.min.js", __FILE__)
           )
         )
       end
