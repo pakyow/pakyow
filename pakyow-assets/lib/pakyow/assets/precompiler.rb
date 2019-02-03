@@ -34,55 +34,11 @@ module Pakyow
           asset_content << content
         end
 
-        if @app.config.assets.source_maps
-          source_map = asset.source_map
-        end
-
-        if asset.mime_suffix == "css" || asset.mime_suffix == "javascript"
-          # Update asset references with prefix, fingerprints.
-          #
-          asset_content = asset_content.split("\n").map.with_index { |line, line_index|
-            line_number = line_index + 1
-
-            @app.state(:asset).each do |asset_state|
-              diff = asset_state.public_path.length - asset_state.logical_path.length
-
-              line.to_enum(:scan, asset_state.logical_path).map {
-                Regexp.last_match
-              }.each_with_index do |match, match_i|
-                # Update source mappings to reflect the change in content.
-                #
-                if source_map
-                  col_s, col_e = match.offset(0)
-
-                  incr = match_i * diff
-                  col_s += incr
-                  col_e += incr
-
-                  source_map.mappings.select { |mapping|
-                    mapping[:generated_line] == line_number
-                  }.select { |mapping|
-                    mapping[:generated_col] > col_e
-                  }.each do |mapping|
-                    mapping[:generated_col] += diff
-                  end
-                end
-
-                # Replace the string with the new path.
-                #
-                line[col_s...col_e] = asset_state.public_path
-              end
-            end
-
-            line
-          }.join("\n")
-        end
-
         File.open(compile_path, "w+") do |file|
           file.write(asset_content)
         end
 
-        if source_map
+        if @app.config.assets.source_maps && source_map = asset.source_map
           File.open(compile_path + ".map", "w+") do |file|
             file.write(source_map.read)
           end

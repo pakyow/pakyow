@@ -8,7 +8,7 @@ RSpec.describe "js support" do
   end
 
   it "transpiles files ending with .js" do
-    expect(call("/types-js.js")[2].body.read).to eq_sans_whitespace(
+    expect(call("/assets/types-js.js")[2].body.read).to eq_sans_whitespace(
       <<~JS
         "use strict";
 

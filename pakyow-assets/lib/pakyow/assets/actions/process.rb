@@ -10,14 +10,13 @@ module Pakyow
       #
       class Process
         def call(connection)
-          asset = find_asset(connection) || find_pack(connection) || find_asset_map(connection) || find_pack_map(connection)
-
-          if connection.app.config.assets.process && asset
-            asset = asset#.dup
-            connection.set_response_header(Rack::CONTENT_LENGTH, asset.bytesize)
-            connection.set_response_header(Rack::CONTENT_TYPE, asset.mime_type)
-            connection.body = asset#.dup
-            connection.halt
+          if connection.app.config.assets.process
+            if asset = find_asset(connection) || find_pack(connection) || find_asset_map(connection) || find_pack_map(connection)
+              connection.set_response_header(Rack::CONTENT_LENGTH, asset.bytesize)
+              connection.set_response_header(Rack::CONTENT_TYPE, asset.mime_type)
+              connection.body = asset
+              connection.halt
+            end
           end
         end
 
@@ -25,7 +24,7 @@ module Pakyow
 
         def find_asset(connection, path = connection.path)
           connection.app.state(:asset).find { |asset|
-            asset.logical_path == path
+            asset.public_path == path
           }
         end
 

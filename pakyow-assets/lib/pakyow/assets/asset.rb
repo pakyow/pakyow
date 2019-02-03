@@ -28,7 +28,7 @@ module Pakyow
       class_state :__minifiable, default: false, inheritable: true
 
       class << self
-        def new_from_path(path, config:, source_location: "", prefix: "/")
+        def new_from_path(path, config:, source_location: "", prefix: "/", related: [])
           asset_class = @__types.find { |type|
             type.__extensions.include?(File.extname(path))
           } || self
@@ -37,7 +37,8 @@ module Pakyow
             local_path: path,
             source_location: source_location,
             config: config,
-            prefix: prefix
+            prefix: prefix,
+            related: related
           )
         end
 
@@ -87,8 +88,8 @@ module Pakyow
 
       attr_reader :logical_path, :mime_type, :mime_suffix, :dependencies
 
-      def initialize(local_path:, config:, dependencies: [], source_location: "", prefix: "/")
-        @local_path, @config, @source_location, @dependencies = local_path, config, source_location, dependencies
+      def initialize(local_path:, config:, dependencies: [], source_location: "", prefix: "/", related: [])
+        @local_path, @config, @source_location, @dependencies, @related = local_path, config, source_location, dependencies, related
 
         @logical_path = self.class.update_path_for_emitted_type(
           String.normalize_path(
@@ -117,7 +118,7 @@ module Pakyow
 
       def each(&block)
         ensure_content do |content|
-          StringIO.new(content).each(&block)
+          StringIO.new(post_process(content)).each(&block)
         end
       end
 
@@ -191,8 +192,15 @@ module Pakyow
       def load_content
         content = process(File.read(@local_path)).to_s
 
-        if @source_map_enabled && source_map?
-          content = embed_mapping_url(content)
+        if mime_suffix == "css" || mime_suffix == "javascript"
+          # Update references to related assets with prefixed path, fingerprints.
+          # Do this here rather than in post-processing so that the source maps reflect the changes.
+          #
+          @related.each do |asset|
+            if asset != self && content.include?(asset.logical_path)
+              content.gsub!(asset.logical_path, asset.public_path)
+            end
+          end
         end
 
         content
@@ -202,8 +210,16 @@ module Pakyow
         content
       end
 
+      def post_process(content)
+        if @source_map_enabled && source_map?
+          embed_mapping_url(content)
+        else
+          content
+        end
+      end
+
       def embed_mapping_url(content)
-        content + SourceMap.mapping_url(path: @logical_path, type: @mime_suffix)
+        content + SourceMap.mapping_url(path: public_path, type: @mime_suffix)
       end
 
       def external?

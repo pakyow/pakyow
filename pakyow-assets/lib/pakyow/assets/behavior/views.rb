@@ -24,7 +24,11 @@ module Pakyow
 
             Pathname.glob(File.join(template_store.layouts_path, "#{layout_name}.*")) do |potential_asset_path|
               next if template_store.template?(potential_asset_path)
-              layout_pack << Asset.new_from_path(potential_asset_path, config: config.assets)
+              layout_pack << Asset.new_from_path(
+                potential_asset_path,
+                config: config.assets,
+                related: state(:asset)
+              )
             end
 
             self.pack << layout_pack.finalize
@@ -50,7 +54,11 @@ module Pakyow
               if partial = template_info[:partials][partial_name]
                 Pathname.glob(File.join(config.presenter.path, "#{partial.logical_path}.*")) do |potential_asset_path|
                   next if template_store.template?(potential_asset_path)
-                  page_pack << Asset.new_from_path(potential_asset_path, config: config.assets)
+                  page_pack << Asset.new_from_path(
+                    potential_asset_path,
+                    config: config.assets,
+                    related: state(:asset)
+                  )
                 end
               end
             end
@@ -59,7 +67,11 @@ module Pakyow
             #
             Pathname.glob(File.join(template_info[:page].path.dirname, "#{template_info[:page].path.basename(template_info[:page].path.extname)}.*")) do |potential_asset_path|
               next if template_store.template?(potential_asset_path)
-              page_pack << Asset.new_from_path(potential_asset_path, config: config.assets)
+              page_pack << Asset.new_from_path(
+                potential_asset_path,
+                config: config.assets,
+                related: state(:asset)
+              )
             end
 
             self.pack << page_pack.finalize

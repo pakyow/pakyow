@@ -20,11 +20,11 @@ RSpec.describe "serving assets from a plugin" do
   end
 
   it "serves plugin assets at the default mount path" do
-    expect(call("/plugin.css")[0]).to eq(200)
+    expect(call("/assets/plugin.css")[0]).to eq(200)
   end
 
   it "serves plugin assets at a specific mount path" do
-    expect(call("/foo/plugin.css")[0]).to eq(200)
+    expect(call("/assets/foo/plugin.css")[0]).to eq(200)
   end
 
   it "serves plugin packs at the default mount path" do

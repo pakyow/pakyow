@@ -27,7 +27,13 @@ module Pakyow
                     "/"
                   end
 
-                  self.class.asset << Asset.new_from_path(path, config: config.assets, source_location: assets_path, prefix: prefix)
+                  self.class.asset << Asset.new_from_path(
+                    path,
+                    config: config.assets,
+                    source_location: assets_path,
+                    prefix: prefix,
+                    related: state(:asset)
+                  )
                 end
               end
             end

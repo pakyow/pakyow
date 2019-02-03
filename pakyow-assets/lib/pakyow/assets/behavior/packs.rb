@@ -30,7 +30,11 @@ module Pakyow
 
                 pack_asset_paths.each do |pack_asset_path|
                   if config.assets.extensions.include?(File.extname(pack_asset_path))
-                    asset_pack << Asset.new_from_path(pack_asset_path, config: config.assets)
+                    asset_pack << Asset.new_from_path(
+                      pack_asset_path,
+                      config: config.assets,
+                      related: state(:asset)
+                    )
                   end
                 end
 

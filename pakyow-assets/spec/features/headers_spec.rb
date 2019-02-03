@@ -8,11 +8,11 @@ RSpec.describe "response headers for assets" do
   end
 
   it "sets Content-Length" do
-    expect(call("/default.css")[1]["Content-Length"]).to eq(31)
+    expect(call("/assets/default.css")[1]["Content-Length"]).to eq(31)
   end
 
   it "sets Content-Type" do
-    expect(call("/default.css")[1]["Content-Type"]).to eq("text/css")
+    expect(call("/assets/default.css")[1]["Content-Type"]).to eq("text/css")
   end
 
   context "asset is a pack" do
