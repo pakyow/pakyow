@@ -18,7 +18,7 @@ RSpec.describe "processing an asset" do
       end
 
       it "responds with the asset" do
-        expect(call("/default.css")[2].body.read).to eq("body {\n  background: purple;\n}\n")
+        expect(call("/default.css")[2].body.read).to include("body {\n  background: purple; }\n")
       end
     end
 

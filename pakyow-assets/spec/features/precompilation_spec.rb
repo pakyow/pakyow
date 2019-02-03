@@ -241,7 +241,7 @@ RSpec.describe "precompiling assets" do
         ).to include("//# sourceMappingURL=/assets/default__8fd708cc2c241ed1689b495477125fae.js.map")
       end
 
-      xit "adds the correct source mapping url to css assets" do
+      it "adds the correct source mapping url to css assets" do
         expect(
           File.read(
             File.join(
@@ -250,7 +250,7 @@ RSpec.describe "precompiling assets" do
               "default__7fa5f06760d4acab98e05946e86aad82.css"
             )
           )
-        ).to include("//# sourceMappingURL=/assets/default__7fa5f06760d4acab98e05946e86aad82.css.map")
+        ).to include("/*# sourceMappingURL=/assets/default__7fa5f06760d4acab98e05946e86aad82.css.map */")
       end
 
       it "adds the correct source mapping url to packs" do
@@ -295,7 +295,7 @@ RSpec.describe "precompiling assets" do
         ])
       end
 
-      xit "precompiles the correct source map content for css assets" do
+      it "precompiles the correct source map content for css assets" do
         map = JSON.parse(
           File.read(
             File.join(

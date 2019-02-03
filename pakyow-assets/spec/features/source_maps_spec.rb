@@ -14,7 +14,23 @@ RSpec.describe "embedding source mapping url" do
     true
   end
 
-  describe "requesting a stylesheet with a source map" do
+  describe "requesting a css stylesheet" do
+    it "adds the source mapping url to the asset content" do
+      expect(call("/default.css")[2].body.read).to include("\n/*# sourceMappingURL=/default.css.map */\n")
+    end
+
+    context "source maps are disabled" do
+      let :source_maps do
+        false
+      end
+
+      it "does not add the source mapping url to the asset content" do
+        expect(call("/default.css")[2].body.read).to_not include("/*# sourceMappingURL\n")
+      end
+    end
+  end
+
+  describe "requesting a sass stylesheet" do
     it "adds the source mapping url to the asset content" do
       expect(call("/types-sass.css")[2].body.read).to include("\n/*# sourceMappingURL=/types-sass.css.map */\n")
     end

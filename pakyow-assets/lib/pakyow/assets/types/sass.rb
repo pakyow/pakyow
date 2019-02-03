@@ -2,6 +2,8 @@
 
 require "json"
 
+require "sassc"
+
 require "pakyow/support/extension"
 
 require "pakyow/assets/asset"
@@ -51,22 +53,6 @@ module Pakyow
           def source_map_content
             ensure_content
             @engine.source_map
-          end
-
-          class_methods do
-            def load
-              unless instance_variable_defined?(:@loaded) && @loaded == true
-                require "sassc"
-              end
-            rescue LoadError
-              Pakyow.logger.error <<~ERROR
-                Pakyow found a *.#{const_get("FORMAT")} file, but couldn't find sass. Please add this to your Gemfile:
-
-                  gem "sassc"
-              ERROR
-            ensure
-              @loaded = true
-            end
           end
 
           apply_extension do

@@ -10,6 +10,7 @@ require "pakyow/assets/actions/process"
 require "pakyow/assets/actions/public"
 
 require "pakyow/assets/types/js"
+require "pakyow/assets/types/css"
 require "pakyow/assets/types/sass"
 require "pakyow/assets/types/scss"
 

@@ -103,7 +103,7 @@ RSpec.describe "versioned asset packs" do
   end
 
   it "includes the latest css pack" do
-    expect(call("/assets/packs/versioned.css")[2].body.read).to eq("// 2.0\n")
+    expect(call("/assets/packs/versioned.css")[2].body.read).to eq("body {\n  content: \"2.0\"; }\n")
   end
 end
 
@@ -131,6 +131,6 @@ RSpec.describe "versioned, namespaced asset packs" do
   end
 
   it "includes the latest css pack" do
-    expect(call("/assets/packs/bar.css")[2].body.read).to eq("// 2.0 bar\n")
+    expect(call("/assets/packs/bar.css")[2].body.read).to eq("body {\n  content: \"2.0 bar\"; }\n")
   end
 end
