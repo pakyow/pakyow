@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "json"
+
 require "pakyow/support/extension"
 
 require "pakyow/assets/asset"
@@ -12,32 +14,43 @@ module Pakyow
           extend Support::Extension
 
           def initialize(local_path:, config:, **kwargs)
-            @options = {
-              syntax: self.class.const_get("FORMAT"),
-              cache: false,
-              load_paths: [
-                File.dirname(local_path),
-                config.path
-              ],
-              style: config.minify ? :compressed : :nested
-            }
-
             super
+
+            @options = @config.sass.to_h
+            @options[:load_paths] ||= []
+            @options[:load_paths].unshift(File.dirname(@local_path))
+            @options[:filename] = @local_path.to_s
+
+            # Set the syntax dynamically based on whether we're in Sass or Scss class.
+            #
+            @options[:syntax] = self.class.const_get("FORMAT")
+
+            if @config.source_maps
+              @options[:source_map_file] = File.basename(@local_path.to_s)
+            end
           end
 
           def process(content)
-            ::SassC::Engine.new(content, @options).render
-          rescue ::SassC::SyntaxError => e
-            Pakyow.logger.error "[#{self.class.const_get("FORMAT")}] syntax error: #{e}"
+            @engine = ::SassC::Engine.new(content, @options)
+            @engine.render
+          rescue StandardError => error
+            Pakyow.logger.error "[#{self.class}] #{error}"
+
+            # Be sure to return a string.
+            #
+            content
           end
 
           def dependencies
-            engine = ::SassC::Engine.new(File.read(@local_path), @options)
-            engine.render
-
-            engine.dependencies.map { |dependency|
+            ensure_content
+            @engine.dependencies.map { |dependency|
               dependency.options[:filename]
             }
+          end
+
+          def source_map_content
+            ensure_content
+            @engine.source_map
           end
 
           class_methods do

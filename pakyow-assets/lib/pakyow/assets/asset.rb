@@ -5,6 +5,8 @@ require "digest/md5"
 require "pakyow/support/class_state"
 require "pakyow/support/core_refinements/string/normalization"
 
+require "pakyow/assets/source_map"
+
 module Pakyow
   module Assets
     # Represents an asset.
@@ -83,7 +85,7 @@ module Pakyow
         end
       end
 
-      attr_reader :logical_path, :public_path, :mime_type, :mime_suffix, :dependencies
+      attr_reader :logical_path, :mime_type, :mime_suffix, :dependencies
 
       def initialize(local_path:, config:, dependencies: [], source_location: "", prefix: "/")
         @local_path, @config, @source_location, @dependencies = local_path, config, source_location, dependencies
@@ -98,28 +100,12 @@ module Pakyow
           File.join(config.prefix, @logical_path)
         )
 
-        if config.fingerprint
-          @public_path = File.join(
-            File.dirname(@public_path),
-            fingerprinted_filename
-          )
-        end
-
         @mime_type = Rack::Mime.mime_type(File.extname(@public_path))
         @mime_prefix, @mime_suffix = @mime_type.split("/", 2)
 
-        if config.minify
-          require "uglifier"
+        @source_map_enabled = config.source_maps
 
-          @minifier = case @mime_suffix
-          when "javascript"
-            Uglifier.new
-          else
-            nil
-          end
-        else
-          @minifier = nil
-        end
+        @mutex = Mutex.new
       end
 
       # Overriding and freezing after content is set lets us eagerly process the
@@ -158,25 +144,55 @@ module Pakyow
         File.basename(@public_path, extension) + "__" + fingerprint + extension
       end
 
-      private
-
-      def minify?
-        !@minifier.nil?
+      def public_path
+        if @config.fingerprint
+          File.join(
+            File.dirname(@public_path),
+            fingerprinted_filename
+          )
+        else
+          @public_path
+        end
       end
 
+      def source_map?
+        respond_to?(:source_map_content)
+      end
+
+      def source_map
+        if source_map?
+          SourceMap.new(
+            source_map_content,
+            file: File.basename(public_path)
+          )
+        else
+          nil
+        end
+      end
+
+      def disable_source_map
+        tap do
+          @source_map_enabled = false
+        end
+      end
+
+      private
+
       def ensure_content
-        unless frozen? || instance_variable_defined?(:@content)
-          @content = load_content; freeze
+        @mutex.synchronize do
+          unless frozen? || instance_variable_defined?(:@content)
+            @content = load_content; freeze
+          end
         end
 
         yield @content if block_given?
       end
 
       def load_content
-        content = process(File.read(@local_path))
+        content = process(File.read(@local_path)).to_s
 
-        if minify?
-          content = minify(content)
+        if @source_map_enabled && source_map?
+          content = embed_mapping_url(content)
         end
 
         content
@@ -186,13 +202,8 @@ module Pakyow
         content
       end
 
-      def minify(content)
-        begin
-          @minifier.compress(content)
-        rescue StandardError
-          Pakyow.logger.warn "Unable to minify #{@local_path}; using raw content instead"
-          content
-        end
+      def embed_mapping_url(content)
+        content + SourceMap.mapping_url(path: @logical_path, type: @mime_suffix)
       end
 
       def external?

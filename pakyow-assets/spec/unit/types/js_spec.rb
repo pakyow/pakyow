@@ -8,7 +8,9 @@ RSpec.describe Pakyow::Assets::Types::JS do
       end
     end
 
-    app_class.config.assets
+    app_class.config.assets.tap do |config|
+      config.source_maps = false
+    end
   end
 
   let :local_path do

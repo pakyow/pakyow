@@ -1,6 +1,12 @@
 RSpec.describe "js support" do
   include_context "app"
 
+  let :app_def do
+    Proc.new do
+      config.assets.source_maps = false
+    end
+  end
+
   it "transpiles files ending with .js" do
     expect(call("/types-js.js")[2].body.read).to eq_sans_whitespace(
       <<~JS

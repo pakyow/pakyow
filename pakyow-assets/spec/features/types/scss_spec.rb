@@ -3,6 +3,12 @@ RSpec.describe "sass support" do
 
   include_context "app"
 
+  let :app_def do
+    Proc.new do
+      config.assets.source_maps = false
+    end
+  end
+
   it "transpiles files ending with .scss" do
     expect(call("/types-scss.css")[2].body.read).to eq("body {\n  background: #ff3333; }\n")
   end

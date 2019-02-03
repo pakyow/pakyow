@@ -148,4 +148,20 @@ RSpec.describe "assets config" do
       end
     end
   end
+
+  describe "source_maps" do
+    it "has a default value" do
+      expect(config.source_maps).to eq(true)
+    end
+
+    context "in production" do
+      before do
+        app.configure!(:production)
+      end
+
+      it "is true" do
+        expect(config.source_maps).to be(true)
+      end
+    end
+  end
 end

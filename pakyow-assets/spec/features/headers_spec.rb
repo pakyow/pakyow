@@ -1,6 +1,12 @@
 RSpec.describe "response headers for assets" do
   include_context "app"
 
+  let :app_def do
+    Proc.new do
+      config.assets.source_maps = false
+    end
+  end
+
   it "sets Content-Length" do
     expect(call("/default.css")[1]["Content-Length"]).to eq(31)
   end

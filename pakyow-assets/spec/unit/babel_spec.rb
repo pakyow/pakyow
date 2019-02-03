@@ -27,5 +27,13 @@ RSpec.describe Pakyow::Assets::Babel do
       described_class.transform(content, **options)
       described_class.transform(content, **options)
     end
+
+    it "camelizes option keys" do
+      expect_any_instance_of(ExecJS::ExternalRuntime::Context).to receive(:call).with(
+        "Babel.transform", content, { "fooBar" => "baz" }
+      )
+
+      described_class.transform(content, foo_bar: "baz")
+    end
   end
 end

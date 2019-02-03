@@ -29,6 +29,7 @@ module Pakyow
             setting :fingerprint, false
             setting :prefix, "/assets"
             setting :silent, true
+            setting :source_maps, true
 
             setting :public_path do
               File.join(config.root, "public")
@@ -92,6 +93,36 @@ module Pakyow
 
             configurable :babel do
               setting :presets, ["es2015"]
+
+              setting :source_maps do
+                config.assets.source_maps
+              end
+            end
+
+            configurable :uglifier do
+              configurable :source_map do
+                setting :sources_content, true
+              end
+            end
+
+            configurable :sass do
+              setting :cache, false
+              setting :omit_source_map_url, true
+              setting :source_map_contents, true
+
+              setting :load_paths do
+                @load_paths ||= [
+                  config.assets.path
+                ]
+              end
+
+              setting :style do
+                @style ||= if config.assets.minify
+                  :compressed
+                else
+                  :nested
+                end
+              end
             end
           end
         end

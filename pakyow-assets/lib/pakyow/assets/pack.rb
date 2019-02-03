@@ -6,6 +6,7 @@ require "forwardable"
 require "pakyow/support/core_refinements/string/normalization"
 
 require "pakyow/assets/asset"
+require "pakyow/assets/source_map"
 
 module Pakyow
   module Assets
@@ -38,7 +39,7 @@ module Pakyow
       end
 
       def <<(asset)
-        @assets << asset
+        @assets << asset.disable_source_map
       end
 
       def packed(path)
@@ -84,11 +85,11 @@ module Pakyow
       def pack_assets!
         @packed[:js] = PackedAssets.new(@assets.select { |asset|
           asset.mime_suffix == "javascript"
-        }, public_js_path)
+        }, public_js_path, @config, @name)
 
         @packed[:css] = PackedAssets.new(@assets.select { |asset|
           asset.mime_suffix == "css"
-        }, public_css_path)
+        }, public_css_path, @config, @name)
       end
     end
 
@@ -96,10 +97,10 @@ module Pakyow
       extend Forwardable
       def_delegators :@assets, :any?
 
-      attr_reader :public_path
+      attr_reader :public_path, :assets
 
-      def initialize(assets, public_path)
-        @assets, @public_path = assets, public_path
+      def initialize(assets, public_path, config, name)
+        @assets, @public_path, @config, @name = assets, public_path, config, name
       end
 
       def initialize_copy(_)
@@ -112,9 +113,17 @@ module Pakyow
         @assets.first&.mime_type
       end
 
+      def mime_suffix
+        @assets.first&.mime_suffix
+      end
+
       def each(&block)
         @assets.each do |asset|
           asset.each(&block)
+        end
+
+        if @config.source_maps && source_map?
+          yield source_mapping_url
         end
       end
 
@@ -123,11 +132,39 @@ module Pakyow
           @assets.each do |asset|
             packed_asset << asset.read
           end
+
+          if @config.source_maps && source_map?
+            packed_asset << source_mapping_url
+          end
         end
       end
 
       def bytesize
-        @assets.map(&:bytesize).inject(&:+)
+        bytes = @assets.map(&:bytesize).inject(&:+)
+
+        if @config.source_maps && source_map?
+          bytes += source_mapping_url.bytesize
+        end
+
+        bytes
+      end
+
+      def source_map
+        @assets.select(&:source_map?).inject(
+          SourceMap.new(
+            file: File.basename(@public_path)
+          )
+        ) { |merged, asset|
+          merged.merge(asset.source_map)
+        }
+      end
+
+      def source_map?
+        @assets.any?(&:source_map?)
+      end
+
+      def source_mapping_url
+        SourceMap.mapping_url(path: @public_path, type: @assets.first.mime_suffix)
       end
     end
   end
