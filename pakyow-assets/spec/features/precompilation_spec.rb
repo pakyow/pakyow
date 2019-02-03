@@ -5,10 +5,6 @@ RSpec.describe "precompiling assets" do
     Pakyow.apps.first
   end
 
-  let :relative_path do
-    Pathname.new(File.expand_path("../../", __FILE__)).relative_path_from(Pathname.new(Dir.pwd)).to_s
-  end
-
   before do
     require "pakyow/assets/precompiler"
     Pakyow::Assets::Precompiler.new(running_app).precompile!
@@ -291,7 +287,7 @@ RSpec.describe "precompiling assets" do
         expect(map["file"]).to eq("default__8fd708cc2c241ed1689b495477125fae.js")
 
         expect(map["sources"]).to eq([
-          "/#{relative_path}/support/app/frontend/assets/default.js"
+          "/spec/support/app/frontend/assets/default.js"
         ])
       end
 
@@ -309,7 +305,7 @@ RSpec.describe "precompiling assets" do
         expect(map["file"]).to eq("default__7fa5f06760d4acab98e05946e86aad82.css")
 
         expect(map["sources"]).to eq([
-          "/#{relative_path}/support/app/frontend/assets/default.css"
+          "/spec/support/app/frontend/assets/default.css"
         ])
       end
 
@@ -327,7 +323,7 @@ RSpec.describe "precompiling assets" do
         expect(map["file"]).to eq("test__d4e9c4c20e45126a60a2ef90456223d6.js")
 
         expect(map["sources"]).to eq([
-          "/#{relative_path}/support/app/frontend/assets/packs/test.js"
+          "/spec/support/app/frontend/assets/packs/test.js"
         ])
       end
 
@@ -345,7 +341,7 @@ RSpec.describe "precompiling assets" do
         expect(map["file"]).to eq("view_packs__44717c2fcdb8f554091ee8f4762aca40.js")
 
         expect(map["sources"]).to eq([
-          "/#{relative_path}/support/app/frontend/layouts/view_packs.js"
+          "/spec/support/app/frontend/layouts/view_packs.js"
         ])
       end
     end

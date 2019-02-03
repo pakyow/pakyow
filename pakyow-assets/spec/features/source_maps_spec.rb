@@ -115,10 +115,6 @@ RSpec.describe "serving source maps from the processor" do
     false
   end
 
-  let :relative_path do
-    Pathname.new(File.expand_path("../../", __FILE__)).relative_path_from(Pathname.new(Dir.pwd)).to_s
-  end
-
   context "asset is a javascript" do
     it "responds to the source map request" do
       expect(call("/types-js.js.map")[0]).to eq(200)
@@ -132,7 +128,7 @@ RSpec.describe "serving source maps from the processor" do
       expect(map["sourceRoot"]).to eq("/")
 
       expect(map["sources"]).to eq([
-        "/#{relative_path}/support/app/frontend/assets/types-js.js"
+        "/spec/support/app/frontend/assets/types-js.js"
       ])
 
       expect(map["names"]).to eq(
@@ -161,7 +157,7 @@ RSpec.describe "serving source maps from the processor" do
         expect(map["sourceRoot"]).to eq("/")
 
         expect(map["sources"]).to eq([
-          "/#{relative_path}/support/app/frontend/assets/types-js.js"
+          "/spec/support/app/frontend/assets/types-js.js"
         ])
 
         expect(map["names"]).to eq(
@@ -192,7 +188,7 @@ RSpec.describe "serving source maps from the processor" do
       expect(map["sourceRoot"]).to eq("/")
 
       expect(map["sources"]).to eq([
-        "/#{relative_path}/support/app/frontend/assets/types-sass.sass"
+        "/spec/support/app/frontend/assets/types-sass.sass"
       ])
 
       expect(map["names"]).to eq(
@@ -222,8 +218,8 @@ RSpec.describe "serving source maps from the processor" do
       expect(map["sourceRoot"]).to eq("/")
 
       expect(map["sources"]).to eq([
-        "/#{relative_path}/support/app/frontend/assets/types-sass-with-deps.sass",
-        "/#{relative_path}/support/app/frontend/assets/_deps.sass"
+        "/spec/support/app/frontend/assets/types-sass-with-deps.sass",
+        "/spec/support/app/frontend/assets/_deps.sass"
       ])
 
       expect(map["names"]).to eq(
@@ -254,8 +250,8 @@ RSpec.describe "serving source maps from the processor" do
       expect(map["sourceRoot"]).to eq("/")
 
       expect(map["sources"]).to eq([
-        "/#{relative_path}/support/app/frontend/pages/source_mapped/_partial.js",
-        "/#{relative_path}/support/app/frontend/pages/source_mapped/index.js"
+        "/spec/support/app/frontend/pages/source_mapped/_partial.js",
+        "/spec/support/app/frontend/pages/source_mapped/index.js"
       ])
 
       expect(map["names"]).to eq(
@@ -285,8 +281,8 @@ RSpec.describe "serving source maps from the processor" do
         expect(map["sourceRoot"]).to eq("/")
 
         expect(map["sources"]).to eq([
-          "/#{relative_path}/support/app/frontend/pages/source_mapped/_partial.js",
-          "/#{relative_path}/support/app/frontend/pages/source_mapped/index.js"
+          "/spec/support/app/frontend/pages/source_mapped/_partial.js",
+          "/spec/support/app/frontend/pages/source_mapped/index.js"
         ])
 
         expect(map["names"]).to eq(
@@ -318,8 +314,8 @@ RSpec.describe "serving source maps from the processor" do
       expect(map["sourceRoot"]).to eq("/")
 
       expect(map["sources"]).to eq([
-        "/#{relative_path}/support/app/frontend/pages/source_mapped/_partial.sass",
-        "/#{relative_path}/support/app/frontend/pages/source_mapped/index.sass"
+        "/spec/support/app/frontend/pages/source_mapped/_partial.sass",
+        "/spec/support/app/frontend/pages/source_mapped/index.sass"
       ])
 
       expect(map["names"]).to eq(
@@ -350,7 +346,7 @@ RSpec.describe "serving source maps from the processor" do
       expect(map["sourceRoot"]).to eq("/")
 
       expect(map["sources"]).to eq([
-        "/#{relative_path}/support/app/frontend/assets/packs/vendor/external-transpiled.js"
+        "/spec/support/app/frontend/assets/packs/vendor/external-transpiled.js"
       ])
 
       expect(map["names"]).to eq(
