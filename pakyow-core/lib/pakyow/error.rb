@@ -73,11 +73,21 @@ module Pakyow
 
     def details
       if project? && location = project_backtrace_locations[0]
-        <<~MESSAGE
-          `#{(cause || self).class}' occurred on line `#{location.lineno}' of `#{path}':
+        message = "`#{(cause || self).class}' occurred on line `#{location.lineno}' of `#{path}':"
 
-          #{indent_as_source(MethodSource.source_helper([path, location.lineno], location.label), location.lineno)}
-        MESSAGE
+        begin
+          <<~MESSAGE
+            #{message}
+
+            #{indent_as_source(MethodSource.source_helper([path, location.lineno], location.label), location.lineno)}
+          MESSAGE
+        rescue StandardError
+          <<~MESSAGE
+            #{message}
+
+                Error parsing source.
+          MESSAGE
+        end
       elsif location = (cause || self).backtrace_locations.to_a[0]
         library_name = library_name(location.absolute_path)
         library_type = library_type(location.absolute_path)

@@ -153,18 +153,30 @@ RSpec.describe Pakyow::Error do
         allow_any_instance_of(Pakyow::Error).to receive(:project?).and_return(true)
       end
 
-      it "says that the error occurred within the project, and includes the source" do
+      let :wrapped do
         begin
-          lineno = __LINE__ + 1
+          @lineno = __LINE__ + 1
           fail "something went wrong"
         rescue => error
           wrapped = described_class.build(error)
         end
 
-        path = Pathname.new(__FILE__).relative_path_from(
+        @path = Pathname.new(__FILE__).relative_path_from(
           Pathname.new(Pakyow.config.root)
         )
 
+        wrapped
+      end
+
+      let :lineno do
+        @lineno
+      end
+
+      let :path do
+        @path
+      end
+
+      it "says that the error occurred within the project, and includes the source" do
         expect(wrapped.details).to eq(
           <<~MESSAGE
             `RuntimeError' occurred on line `#{lineno}' of `#{path}':
@@ -181,6 +193,22 @@ RSpec.describe Pakyow::Error do
               `Pakyow::Error' occurred at an unknown location.
             MESSAGE
           )
+        end
+      end
+
+      context "method source fails" do
+        before do
+          allow(MethodSource).to receive(:source_helper).and_raise(StandardError)
+        end
+
+        it "says that the source couldn't be parsed" do
+          expect(wrapped.details).to eq(
+          <<~MESSAGE
+            `RuntimeError' occurred on line `#{lineno}' of `#{path}':
+
+                Error parsing source.
+          MESSAGE
+        )
         end
       end
     end
@@ -263,7 +291,7 @@ RSpec.describe Pakyow::Error do
         Pathname.new(Pakyow.config.root)
       )
 
-      expect(error.condensed_backtrace[1]).to eq("         › #{path}:239:in `bar`")
+      expect(error.condensed_backtrace[1]).to eq("         › #{path}:267:in `bar`")
     end
 
     context "error occurred within the project" do
