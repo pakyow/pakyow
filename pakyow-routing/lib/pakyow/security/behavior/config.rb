@@ -13,7 +13,6 @@ module Pakyow
             configurable :csrf do
               setting :protection, {}
               setting :origin_whitelist, []
-              setting :allow_empty_referrer, true
               setting :param, :authenticity_token
             end
           end
@@ -23,8 +22,7 @@ module Pakyow
 
           config.security.csrf.protection = {
             origin: CSRF::VerifySameOrigin.new(
-              origin_whitelist: config.security.csrf.origin_whitelist,
-              allow_empty_referrer: config.security.csrf.allow_empty_referrer
+              origin_whitelist: config.security.csrf.origin_whitelist
             ),
 
             authenticity: CSRF::VerifyAuthenticityToken.new({}),
