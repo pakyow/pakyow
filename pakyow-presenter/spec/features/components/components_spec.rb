@@ -383,4 +383,24 @@ RSpec.describe "rendering with backend components" do
       )
     end
   end
+
+  context "app is running in prototype mode" do
+    let :mode do
+      :prototype
+    end
+
+    it "does not call the component" do
+      expect(call("/components")[2].body.read).to include_sans_whitespace(
+        <<~HTML
+          <div data-ui="single">
+            <div data-b="post">
+              <h1 data-b="title">
+                title goes here
+              </h1>
+            </div>
+          </div>
+        HTML
+      )
+    end
+  end
 end

@@ -6,13 +6,15 @@ module Pakyow
       # @api private
       class RenderComponents
         def call(renderer)
-          render(
-            renderer.presenter,
-            renderer.connection,
-            renderer.templates_path,
-            renderer.layout,
-            renderer.mode
-          )
+          unless Pakyow.env?(:prototype)
+            render(
+              renderer.presenter,
+              renderer.connection,
+              renderer.templates_path,
+              renderer.layout,
+              renderer.mode
+            )
+          end
         end
 
         private
