@@ -23,13 +23,13 @@ module Pakyow
       end
 
       def include?(key)
-        super || @values.include?(key)
+        respond_to?(key)
       end
 
       def [](key)
         key = key.to_s.to_sym
         if respond_to?(key)
-          super
+          public_send(key)
         else
           @values[key]
         end
@@ -43,8 +43,8 @@ module Pakyow
         end
       end
 
-      def respond_to_missing(name, *)
-        include?(name) || super
+      def respond_to_missing?(name, *)
+        @values.include?(name) || super
       end
 
       def to_h
@@ -56,7 +56,16 @@ module Pakyow
       end
 
       def ==(other)
-        other.class == self.class && other.values == @values
+        comparator = case other
+        when self.class
+          other
+        when Result
+          other.__getobj__
+        else
+          nil
+        end
+
+        comparator && comparator.class == self.class && comparator.values == @values
       end
 
       class << self

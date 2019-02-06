@@ -47,8 +47,10 @@ module Pakyow
       # Let's create a `Viewified` object instead... then check to see if it's already happened.
       #
       def viewify(data)
-        data = if data.is_a?(Data::Sources::Relational)
+        data = if data.is_a?(Data::Proxy)
           data.to_a
+        elsif data.nil?
+          []
         else
           Array.ensure(data)
         end
@@ -180,7 +182,7 @@ module Pakyow
           end
         end
 
-        %i(find transform use bind append prepend after before replace remove clear title= setup_endpoint wrap_endpoint_for_removal).each do |method_name|
+        %i(find transform use bind append prepend after before replace remove clear title= setup_endpoint wrap_endpoint_for_removal html=).each do |method_name|
           define_method method_name do |*args, &block|
             nested = []
 

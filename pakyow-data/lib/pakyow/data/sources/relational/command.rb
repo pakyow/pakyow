@@ -47,7 +47,7 @@ module Pakyow
               final_values = values.each_with_object({}) { |(key, value), values_hash|
                 begin
                   if attribute = @source.class.attributes[key]
-                    if value.is_a?(Proxy) || value.is_a?(Object)
+                    if value.is_a?(Proxy) || value.is_a?(Result) || value.is_a?(Object)
                       raise TypeMismatch.new_with_message(type: value.class, mapping: attribute.meta[:mapping])
                     end
 
@@ -93,7 +93,7 @@ module Pakyow
               @source.class.associations.values.flatten.select { |association|
                 final_values.key?(association.name)
               }.each do |association|
-                association_value = final_values[association.name]
+                association_value = raw_result(final_values[association.name])
 
                 case association_value
                 when Proxy
@@ -145,7 +145,7 @@ module Pakyow
                   end
                 when Array
                   if association.result_type == :many
-                    if association_value.find { |value| !value.is_a?(Object) }
+                    if association_value.any? { |value| !value.is_a?(Object) }
                       raise TypeMismatch.new_with_message(
                         :associate_many_not_object,
                         association: association.name
@@ -221,13 +221,13 @@ module Pakyow
               }.each do |association|
                 case association.specific_type
                 when :belongs_to
-                  association_value = final_values.delete(association.name)
+                  association_value = raw_result(final_values.delete(association.name))
                   final_values[association.query_field] = case association_value
                   when Proxy
-                    if association_result = association_value.one
-                      association_result[association.associated_source.primary_key_field]
-                    else
+                    if association_value.one.nil?
                       nil
+                    else
+                      association_value.one[association.associated_source.primary_key_field]
                     end
                   when Object
                     association_value[association.associated_source.primary_key_field]
@@ -380,6 +380,7 @@ module Pakyow
                 # Update records associated with the data we just changed.
                 #
                 future_associated_changes.each do |association, association_value|
+                  association_value = raw_result(association_value)
                   associated_dataset = case association_value
                   when Proxy
                     association_value
@@ -423,7 +424,7 @@ module Pakyow
                     ).delete
 
                     if associated_dataset
-                      associated_dataset_source = case associated_dataset
+                      associated_dataset_source = case raw_result(associated_dataset)
                       when Proxy
                         associated_dataset.source
                       else
@@ -501,6 +502,20 @@ module Pakyow
 
               yield final_result if block_given?
               final_result
+            end
+          end
+
+          private
+
+          def raw_result(value)
+            if value.is_a?(Result)
+              value.__getobj__
+            elsif value.is_a?(Array)
+              value.map { |each_value|
+                raw_result(each_value)
+              }
+            else
+              value
             end
           end
         end

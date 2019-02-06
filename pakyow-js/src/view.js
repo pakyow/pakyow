@@ -228,6 +228,10 @@ export default class {
     }
   }
 
+  setHtml(value) {
+    this.node.innerHTML = value;
+  }
+
   query(selector) {
     var results = [];
 

@@ -19,10 +19,6 @@ RSpec.shared_examples :source_queries do
       end
     end
 
-    it "responds to `all`" do
-      expect(data.posts.all).to be_instance_of(Pakyow::Data::Proxy)
-    end
-
     describe "by_attribute queries" do
       it "defines a query for each attribute" do
         post = data.posts.create(title: "foo")

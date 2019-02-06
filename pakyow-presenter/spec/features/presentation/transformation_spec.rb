@@ -155,4 +155,24 @@ RSpec.describe "view transformation via presenter" do
       expect(presenter.find(:post, :title)).to be nil
     end
   end
+
+  describe "html=" do
+    before do
+      presenter.find(:post).html = "foo"
+    end
+
+    it "replaces the html" do
+      expect(presenter.find(:post).to_s).to eq('<div data-b="post">foo</div>')
+    end
+
+    context "passed a nil value" do
+      before do
+        presenter.find(:post).html = nil
+      end
+
+      it "replaces the html" do
+        expect(presenter.find(:post).to_s).to eq('<div data-b="post"></div>')
+      end
+    end
+  end
 end

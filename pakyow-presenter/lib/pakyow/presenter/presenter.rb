@@ -206,9 +206,9 @@ module Pakyow
       #
       def transform(data, yield_binder = false)
         tap do
-          data = Array.ensure(data).compact
+          data = Array.ensure(data).reject(&:nil?)
 
-          if ((data.respond_to?(:empty?) && data.empty?) || data.nil?)
+          if data.respond_to?(:empty?) && data.empty?
             if @view.is_a?(VersionedView) && @view.version?(:empty)
               @view.use(:empty)
             else

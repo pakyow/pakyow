@@ -212,6 +212,14 @@ export default class {
     return this;
   }
 
+  setHtml(html) {
+    this.views.forEach((view) => {
+      view.setHtml(html);
+    });
+
+    return this;
+  }
+
   viewWithId(id) {
     return this.views.find(function (view) {
       return view.match("id", id);

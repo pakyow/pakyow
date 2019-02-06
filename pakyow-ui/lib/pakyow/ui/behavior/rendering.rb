@@ -2,6 +2,7 @@
 
 require "securerandom"
 
+require "pakyow/support/deep_dup"
 require "pakyow/support/extension"
 require "pakyow/support/inflector"
 
@@ -15,6 +16,8 @@ module Pakyow
     module Behavior
       module Rendering
         extend Support::Extension
+
+        using Support::DeepDup
 
         # Values we want to serialize from the rack env.
         #
@@ -44,6 +47,10 @@ module Pakyow
             include TransformationHelpers
 
             before :render do
+              # Make sure these values are cached because they could change during presentation.
+              #
+              presentables; subscribables
+
               unless ui_transform? || subscribables.empty?
                 # To keep up with the node(s) that matter for the transformation, a `data-t` attribute
                 # is added to the node that contains the transformation_id. When the transformation is
@@ -69,13 +76,46 @@ module Pakyow
           def presentables
             @presentables ||= @connection.values.reject { |presentable_name, _|
               presentable_name.to_s.start_with?("__")
+            }.map { |presentable_name, presentable|
+              proxy = if presentable.is_a?(Data::Proxy)
+                presentable
+              elsif presentable.instance_variable_defined?(:@__proxy)
+                presentable.instance_variable_get(:@__proxy)
+              else
+                nil
+              end
+
+              if proxy
+                proxy = proxy.deep_dup
+                if proxy.source.is_a?(Data::Sources::Ephemeral)
+                  { name: presentable_name, ephemeral: proxy.source.serialize }
+                else
+                  { name: presentable_name, proxy: proxy.to_h }
+                end
+              else
+                { name: presentable_name, value: presentable.dup }
+              end
             }
           end
 
           def subscribables
-            @subscribables ||= presentables.values.select { |value|
-              value.is_a?(Data::Proxy) && value.subscribable?
-            }
+            @subscribables ||= @connection.values.reject { |value_name, _|
+              value_name.to_s.start_with?("__")
+            }.map { |_, value|
+              proxy = if value.is_a?(Data::Proxy)
+                value
+              elsif value.instance_variable_defined?(:@__proxy)
+                value.instance_variable_get(:@__proxy)
+              else
+                nil
+              end
+
+              if proxy && proxy.subscribable?
+                proxy.deep_dup
+              else
+                nil
+              end
+            }.compact
           end
 
           def subscribe_to_transformations
@@ -85,15 +125,7 @@ module Pakyow
                   class_name: Support.inflector.demodulize(self.class),
                   serialized: serialize
                 },
-                presentables: presentables.map { |presentable_name, presentable|
-                  if presentable.is_a?(Data::Proxy) && presentable.source.is_a?(Data::Sources::Ephemeral)
-                    { name: presentable_name, ephemeral: presentable.source.serialize }
-                  elsif presentable.is_a?(Data::Proxy)
-                    { name: presentable_name, proxy: presentable.to_h }
-                  else
-                    { name: presentable_name, value: presentable }
-                  end
-                },
+                presentables: presentables,
                 env: @connection.env.each_with_object({}) { |(key, value), keep|
                   if ENV_KEYS.include?(key)
                     keep[key] = value
@@ -113,7 +145,11 @@ module Pakyow
               # Find every subscribable presentable, creating a data subscription for each.
               #
               subscribables.each do |subscribable|
-                subscription_ids = subscribable.subscribe(socket_client_id, handler: Handler, payload: metadata)
+                subscription_ids = subscribable.subscribe(
+                  socket_client_id,
+                  handler: Handler,
+                  payload: metadata
+                )
 
                 # Subscribe the subscriptions to the "transformation" channel.
                 #

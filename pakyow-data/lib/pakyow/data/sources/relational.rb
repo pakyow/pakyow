@@ -90,10 +90,6 @@ module Pakyow
           end
         end
 
-        def all
-          self
-        end
-
         def including(association_name, &block)
           tap do
             association_name = association_name.to_sym
@@ -132,6 +128,7 @@ module Pakyow
             finalize(result)
           }
         end
+        alias all to_a
 
         def one
           return @results.first if instance_variable_defined?(:@results)
@@ -212,7 +209,7 @@ module Pakyow
         end
 
         # @api private
-        MODIFIER_METHODS = %i(all as including).freeze
+        MODIFIER_METHODS = %i(as including).freeze
         # @api private
         def modifier?(maybe_modifier_name)
           MODIFIER_METHODS.include?(maybe_modifier_name)

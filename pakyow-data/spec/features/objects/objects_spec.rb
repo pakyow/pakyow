@@ -40,7 +40,8 @@ RSpec.describe "data objects" do
       describe "#one" do
         it "returns specific data object instances" do
           data.posts.create
-          expect(data.posts.one).to be_instance_of(Test::Objects::Post)
+          expect(data.posts.one).to be_instance_of(Pakyow::Data::Result)
+          expect(data.posts.one.__getobj__).to be_instance_of(Test::Objects::Post)
         end
       end
 
@@ -56,7 +57,8 @@ RSpec.describe "data objects" do
       describe "#by_*" do
         it "returns specific data object instances" do
           post = data.posts.create.one
-          expect(data.posts.by_id(post[:id]).one).to be_instance_of(Test::Objects::Post)
+          expect(data.posts.by_id(post[:id]).one).to be_instance_of(Pakyow::Data::Result)
+          expect(data.posts.by_id(post[:id]).one.__getobj__).to be_instance_of(Test::Objects::Post)
         end
       end
 
@@ -64,7 +66,8 @@ RSpec.describe "data objects" do
         it "returns specific data object instances" do
           post = data.posts.create.one
           data.comments.create(post_id: post[:id])
-          expect(data.posts.including(:comments).one).to be_instance_of(Test::Objects::Post)
+          expect(data.posts.including(:comments).one).to be_instance_of(Pakyow::Data::Result)
+          expect(data.posts.including(:comments).one.__getobj__).to be_instance_of(Test::Objects::Post)
         end
 
         it "returns specific data object instances for the associated data" do
@@ -111,7 +114,8 @@ RSpec.describe "data objects" do
       describe "#one" do
         it "returns general data object instances" do
           data.posts.create
-          expect(data.posts.one).to be_instance_of(Pakyow::Data::Object)
+          expect(data.posts.one).to be_instance_of(Pakyow::Data::Result)
+          expect(data.posts.one.__getobj__).to be_instance_of(Pakyow::Data::Object)
         end
       end
 
@@ -127,7 +131,8 @@ RSpec.describe "data objects" do
       describe "#by_*" do
         it "returns general data object instances" do
           post = data.posts.create.one
-          expect(data.posts.by_id(post[:id]).one).to be_instance_of(Pakyow::Data::Object)
+          expect(data.posts.by_id(post[:id]).one).to be_instance_of(Pakyow::Data::Result)
+          expect(data.posts.by_id(post[:id]).one.__getobj__).to be_instance_of(Pakyow::Data::Object)
         end
       end
 
@@ -135,7 +140,8 @@ RSpec.describe "data objects" do
         it "returns general data object instances" do
           post = data.posts.create.one
           data.comments.create(post_id: post[:id])
-          expect(data.posts.including(:comments).one).to be_instance_of(Pakyow::Data::Object)
+          expect(data.posts.including(:comments).one).to be_instance_of(Pakyow::Data::Result)
+          expect(data.posts.including(:comments).one.__getobj__).to be_instance_of(Pakyow::Data::Object)
         end
 
         it "returns general data object instances for the associated data" do
@@ -168,7 +174,8 @@ RSpec.describe "data objects" do
 
       it "returns a general data object instance" do
         post = data.posts.create.one
-        expect(post).to be_instance_of(Test::Objects::Post)
+        expect(post).to be_instance_of(Pakyow::Data::Result)
+        expect(post.__getobj__).to be_instance_of(Test::Objects::Post)
       end
     end
 
@@ -185,7 +192,8 @@ RSpec.describe "data objects" do
 
       it "returns a general data object instance" do
         post = data.posts.create.one
-        expect(post).to be_instance_of(Pakyow::Data::Object)
+        expect(post).to be_instance_of(Pakyow::Data::Result)
+        expect(post.__getobj__).to be_instance_of(Pakyow::Data::Object)
       end
     end
   end

@@ -4,7 +4,11 @@ require "cgi"
 
 module Pakyow
   module Support
-    class SafeString < String; end
+    class SafeString < String
+      def to_s
+        self
+      end
+    end
 
     # Helper methods for ensuring string safety.
     #

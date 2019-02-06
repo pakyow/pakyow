@@ -36,22 +36,33 @@ RSpec.shared_examples :source_results do
       describe "one" do
         context "query contains a single result" do
           it "returns a single result" do
-            expect(data.posts.by_id(1).one).to be_instance_of(Pakyow::Data::Object)
+            expect(data.posts.by_id(1).one).to be_instance_of(Pakyow::Data::Result)
+            expect(data.posts.by_id(1).one.__getobj__).to be_instance_of(Pakyow::Data::Object)
             expect(data.posts.by_id(1).one[:title]).to eq("foo")
           end
         end
 
         context "query contains more than one result" do
           it "returns the first result" do
-            expect(data.posts.ordered.one).to be_instance_of(Pakyow::Data::Object)
+            expect(data.posts.ordered.one).to be_instance_of(Pakyow::Data::Result)
+            expect(data.posts.ordered.one.__getobj__).to be_instance_of(Pakyow::Data::Object)
             expect(data.posts.ordered.one[:title]).to eq("foo")
           end
         end
 
         context "query contains no results" do
-          it "returns nil" do
+          before do
             data.posts.delete
-            expect(data.posts.ordered.one).to be(nil)
+          end
+
+          it "returns nil wrapped in a result object" do
+            expect(data.posts.ordered.one).to be_instance_of(Pakyow::Data::Result)
+          end
+
+          describe "the wrapped result" do
+            it "responds correctly to nil?" do
+              expect(data.posts.ordered.one.nil?).to be(true)
+            end
           end
         end
 
@@ -59,23 +70,25 @@ RSpec.shared_examples :source_results do
           it "returns a data object" do
             posts = data.posts
             (2..10).to_a.sample.times do
-              expect(posts.one).to be_instance_of(Pakyow::Data::Object)
+              expect(posts.one).to be_instance_of(Pakyow::Data::Result)
+              expect(posts.one.__getobj__).to be_instance_of(Pakyow::Data::Object)
             end
           end
         end
 
         context "fetching as an object" do
           it "returns the proper object" do
-            expect(data.posts.by_id(1).as(:special).one).to be_instance_of(Test::Objects::Special)
+            expect(data.posts.by_id(1).as(:special).one).to be_instance_of(Pakyow::Data::Result)
+            expect(data.posts.by_id(1).as(:special).one.__getobj__).to be_instance_of(Test::Objects::Special)
           end
         end
       end
     end
 
     describe "returning multiple results" do
-      describe "to_a" do
+      shared_examples "multiple" do
         it "returns multiple results" do
-          results = data.posts.ordered.to_a
+          results = data.posts.ordered.public_send(method)
           expect(results.count).to eq(3)
 
           results.each do |post|
@@ -85,6 +98,11 @@ RSpec.shared_examples :source_results do
           expect(results[0][:title]).to eq("foo")
           expect(results[1][:title]).to eq("bar")
           expect(results[2][:title]).to eq("baz")
+        end
+
+        it "wraps the array in a result object" do
+          results = data.posts.ordered.public_send(method)
+          expect(results).to be_instance_of(Pakyow::Data::Result)
         end
 
         context "fetched multiple times" do
@@ -109,11 +127,31 @@ RSpec.shared_examples :source_results do
           end
         end
       end
+
+      describe "to_a" do
+        it_behaves_like "multiple" do
+          let :method do
+            :to_a
+          end
+        end
+      end
+
+      describe "all" do
+        it_behaves_like "multiple" do
+          let :method do
+            :all
+          end
+        end
+      end
     end
 
     describe "returning result count" do
       it "returns the count" do
         expect(data.posts.count).to eq(3)
+      end
+
+      it "wraps the value in a result object" do
+        expect(data.posts.count).to be_instance_of(Pakyow::Data::Result)
       end
 
       it "does not fetch the results" do
@@ -130,7 +168,8 @@ RSpec.shared_examples :source_results do
           post[:id] == 1
         }
 
-        expect(found).to be_instance_of(Pakyow::Data::Object)
+        expect(found).to be_instance_of(Pakyow::Data::Result)
+        expect(found.__getobj__).to be_instance_of(Pakyow::Data::Object)
         expect(found).to eq(data.posts.to_a.first)
       end
     end
@@ -138,12 +177,25 @@ RSpec.shared_examples :source_results do
     describe "calling an array method on the result" do
       it "succeeds" do
         found = data.posts.last
-        expect(found).to be_instance_of(Pakyow::Data::Object)
+        expect(found).to be_instance_of(Pakyow::Data::Result)
+        expect(found.__getobj__).to be_instance_of(Pakyow::Data::Object)
         expect(found).to eq(data.posts.to_a.last)
+      end
+
+      it "wraps the value in a result object" do
+        expect(data.posts.last).to be_instance_of(Pakyow::Data::Result)
+      end
+    end
+
+    describe "calling a method that returns a boolean value" do
+      it "returns the raw result" do
+        expect(data.posts.any? { |post| post.title == "42" }).to be(false)
       end
     end
 
     describe "invalidating fetched results" do
+      it "invalidates through reload"
+
       context "results are fetched as a different type after the result has been returned" do
         before do
           data.posts.create(title: "foo")
@@ -160,7 +212,7 @@ RSpec.shared_examples :source_results do
         end
 
         it "invalidates" do
-          expect(posts.one).to be_instance_of(as)
+          expect(posts.one.__getobj__).to be_instance_of(as)
         end
       end
 
@@ -202,7 +254,8 @@ RSpec.shared_examples :source_results do
 
     describe "as_object methods" do
       it "defines a method for each object" do
-        expect(data.posts.by_id(1).as_special.one).to be_instance_of(Test::Objects::Special)
+        expect(data.posts.by_id(1).as_special.one).to be_instance_of(Pakyow::Data::Result)
+        expect(data.posts.by_id(1).as_special.one.__getobj__).to be_instance_of(Test::Objects::Special)
       end
     end
   end

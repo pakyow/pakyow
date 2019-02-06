@@ -15,6 +15,8 @@ module Pakyow
               :add
             when :title=
               :setTitle
+            when :html=
+              :setHtml
             when :setup_endpoint
               :setupEndpoint
             when :wrap_endpoint_for_removal

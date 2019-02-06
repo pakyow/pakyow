@@ -26,18 +26,21 @@ RSpec.shared_examples :source_commands do
       end
 
       it "returns a single result" do
-        expect(data.posts.create.one).to be_instance_of(Pakyow::Data::Object)
+        expect(data.posts.create.one).to be_instance_of(Pakyow::Data::Result)
+        expect(data.posts.create.one.__getobj__).to be_instance_of(Pakyow::Data::Object)
       end
 
       context "value is nil" do
         it "creates with the nil value" do
-          expect(data.posts.create(title: nil).one).to be_instance_of(Pakyow::Data::Object)
+          expect(data.posts.create(title: nil).one).to be_instance_of(Pakyow::Data::Result)
+          expect(data.posts.create(title: nil).one.__getobj__).to be_instance_of(Pakyow::Data::Object)
         end
       end
 
       context "passing no values" do
         it "creates an empty record" do
-          expect(data.posts.create.one).to be_instance_of(Pakyow::Data::Object)
+          expect(data.posts.create.one).to be_instance_of(Pakyow::Data::Result)
+          expect(data.posts.create.one.__getobj__).to be_instance_of(Pakyow::Data::Object)
         end
       end
 
@@ -102,7 +105,8 @@ RSpec.shared_examples :source_commands do
       end
 
       it "returns the updated results" do
-        expect(@result).to be_instance_of(Array)
+        expect(@result).to be_instance_of(Pakyow::Data::Result)
+        expect(@result.__getobj__).to be_instance_of(Array)
         expect(@result.count).to eq(2)
         expect(@result[0][:title]).to eq("baz")
         expect(@result[1][:title]).to eq("baz")
@@ -137,7 +141,8 @@ RSpec.shared_examples :source_commands do
 
         it "returns the results" do
           result = data.posts.update.to_a
-          expect(result).to be_instance_of(Array)
+          expect(result).to be_instance_of(Pakyow::Data::Result)
+          expect(result.__getobj__).to be_instance_of(Array)
           expect(result.count).to eq(2)
         end
       end
@@ -159,7 +164,8 @@ RSpec.shared_examples :source_commands do
 
         it "returns the results" do
           result = data.posts.update.to_a
-          expect(result).to be_instance_of(Array)
+          expect(result).to be_instance_of(Pakyow::Data::Result)
+          expect(result.__getobj__).to be_instance_of(Array)
           expect(result.count).to eq(2)
         end
       end
@@ -223,7 +229,8 @@ RSpec.shared_examples :source_commands do
       end
 
       it "returns multiple results" do
-        expect(@result).to be_instance_of(Array)
+        expect(@result).to be_instance_of(Pakyow::Data::Result)
+        expect(@result.__getobj__).to be_instance_of(Array)
         expect(@result.count).to eq(2)
         expect(@result[0][:title]).to eq("foo")
         expect(@result[1][:title]).to eq("bar")

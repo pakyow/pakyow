@@ -311,7 +311,7 @@ module Pakyow
       # Safely sets the html value of +self+.
       #
       def html=(html)
-        @object.html = ensure_html_safety(html)
+        @object.html = ensure_html_safety(html.to_s)
       end
 
       # Returns true if +self+ is a binding.

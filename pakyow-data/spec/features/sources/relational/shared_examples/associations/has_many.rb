@@ -290,7 +290,7 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise, many
 
           expect(
             target_dataset.count
-          ).to be(0)
+          ).to eq(0)
         end
       end
 
@@ -372,7 +372,7 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise, many
 
           expect(
             target_dataset.count
-          ).to be(0)
+          ).to eq(0)
         end
       end
 
@@ -388,7 +388,7 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise, many
 
           expect(
             target_dataset.count
-          ).to be(0)
+          ).to eq(0)
         end
       end
 
@@ -404,7 +404,7 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise, many
 
           expect(
             target_dataset.count
-          ).to be(0)
+          ).to eq(0)
         end
       end
 
@@ -420,7 +420,7 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise, many
 
           expect(
             target_dataset.count
-          ).to be(0)
+          ).to eq(0)
         end
       end
     end
@@ -441,7 +441,7 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise, many
 
         expect(
           target_dataset.count
-        ).to be(0)
+        ).to eq(0)
       end
     end
 
@@ -461,7 +461,7 @@ RSpec.shared_examples :source_associations_has_many do |dependents: :raise, many
 
         expect(
           target_dataset.count
-        ).to be(0)
+        ).to eq(0)
       end
     end
   end

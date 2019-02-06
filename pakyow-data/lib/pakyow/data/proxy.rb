@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
 require "pakyow/support/core_refinements/array/ensurable"
+require "pakyow/support/deep_dup"
 require "pakyow/support/inspectable"
+
+require "pakyow/data/result"
 
 module Pakyow
   module Data
@@ -12,6 +15,8 @@ module Pakyow
 
       using Support::Refinements::Array::Ensurable
 
+      using Support::DeepDup
+
       attr_reader :source, :proxied_calls, :nested_proxies
 
       def initialize(source, subscribers)
@@ -19,6 +24,15 @@ module Pakyow
         @proxied_calls = []
         @subscribable = true
         @nested_proxies = []
+      end
+
+      IVARS_TO_DUP = %i(@proxied_calls @nested_proxies)
+      def deep_dup
+        super.tap do |duped|
+          IVARS_TO_DUP.each do |ivar|
+            duped.instance_variable_set(ivar, duped.instance_variable_get(ivar).deep_dup)
+          end
+        end
       end
 
       def method_missing(method_name, *args, &block)
@@ -69,9 +83,17 @@ module Pakyow
           }
         else
           if Array.instance_methods.include?(method_name) && !@source.class.instance_methods.include?(method_name)
-            @source.to_a.public_send(method_name, *args, &block)
+            @proxied_calls << [
+              method_name, args, []
+            ]
+
+            build_result(@source.to_a.public_send(method_name, *args, &block), method_name)
           elsif @source.class.instance_methods.include?(method_name)
-            @source.public_send(method_name, *args, &block)
+            @proxied_calls << [
+              method_name, args, []
+            ]
+
+            build_result(@source.public_send(method_name, *args, &block), method_name)
           else
             super
           end
@@ -198,6 +220,16 @@ module Pakyow
 
           qualifications.merge(qualifications_for_proxied_call)
         }
+      end
+
+      private
+
+      def build_result(value, method_name)
+        if method_name.to_s.end_with?("?")
+          value
+        else
+          Result.new(value, self)
+        end
       end
     end
   end
