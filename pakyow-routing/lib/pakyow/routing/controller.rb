@@ -315,6 +315,10 @@ module Pakyow
     #   end
     #
     def reroute(location, method: connection.method, as: nil, **params)
+      # Make sure the endpoint is set.
+      #
+      @connection.endpoint
+
       @connection.env[Rack::REQUEST_METHOD] = method.to_s.upcase
       @connection.instance_variable_set(:@method, nil)
 

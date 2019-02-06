@@ -161,4 +161,27 @@ RSpec.describe "rerouting requests" do
       end
     end
   end
+
+  describe "connection endpoint after rerouting" do
+    let :app_init do
+      Proc.new do
+        controller :reroute do
+          get "/reroute" do
+            reroute "/destination"
+          end
+
+          get "/destination" do
+            send connection.endpoint.path
+          end
+        end
+      end
+    end
+
+    it "reflects the original endpoint" do
+      call("/reroute").tap do |result|
+        expect(result[0]).to eq(200)
+        expect(result[2].body.first).to eq("/reroute")
+      end
+    end
+  end
 end
