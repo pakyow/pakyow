@@ -3,8 +3,6 @@
 module Pakyow
   module Presenter
     class BindingParts
-      attr_reader :parts
-
       def initialize
         @parts = {}
       end

@@ -96,10 +96,6 @@ module Pakyow
             end
 
             if value.is_a?(Presenter::BindingParts)
-              if !value.content?
-                value.parts[:content] = object.content
-              end
-
               values[binding_name] = value.values(@view.find(binding_name))
             elsif !value.nil?
               values[binding_name] = value
