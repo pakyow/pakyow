@@ -64,6 +64,8 @@ module Pakyow
     #
     attr_accessor :error
 
+    Endpoint = Struct.new(:path, :params)
+
     def initialize(app, rack_env)
       @timestamp, @id = Time.now, SecureRandom.hex(4)
       @app, @request, @response = app, Rack::Request.new(rack_env), Rack::Response.new
@@ -131,9 +133,8 @@ module Pakyow
       @response.delete_header(key)
     end
 
-    Endpoint = Struct.new(:path, :params)
     def endpoint
-      Endpoint.new(path, params)
+      @endpoint ||= Endpoint.new(path, params).freeze
     end
 
     # Returns the request method (e.g. `:get`).
