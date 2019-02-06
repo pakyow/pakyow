@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "delegate"
+
 module Pakyow
   module Support
     module DeepFreeze
@@ -20,43 +22,41 @@ module Pakyow
         @unfreezable_variables.uniq!
       end
 
-      refine Object do
-        def deep_freeze
-          return self if frozen? || !respond_to?(:freeze)
+      [Object, Delegator].each do |klass|
+        refine klass do
+          def deep_freeze
+            unless frozen? || !respond_to?(:freeze)
+              self.freeze
+              freezable_variables.each do |name|
+                instance_variable_get(name).deep_freeze
+              end
+            end
 
-          self.freeze
-
-          freezable_variables.each do |name|
-            instance_variable_get(name).deep_freeze
-          end
-
-          self
-        end
-
-        private
-
-        def freezable_variables
-          object = if self.is_a?(Class) || self.is_a?(Module)
             self
-          else
-            self.class
           end
 
-          if object.instance_variable_defined?(:@unfreezable_variables)
-            instance_variables - object.instance_variable_get(:@unfreezable_variables)
-          else
-            instance_variables
+          private def freezable_variables
+            object = if self.is_a?(Class) || self.is_a?(Module)
+              self
+            else
+              self.class
+            end
+
+            if object.instance_variable_defined?(:@unfreezable_variables)
+              instance_variables - object.instance_variable_get(:@unfreezable_variables)
+            else
+              instance_variables
+            end
           end
         end
       end
 
       refine Array do
         def deep_freeze
-          return self if frozen?
-
-          self.freeze
-
-          each(&:deep_freeze)
+          unless frozen?
+            self.freeze
+            each(&:deep_freeze)
+          end
 
           self
         end
@@ -64,17 +64,17 @@ module Pakyow
 
       refine Hash do
         def deep_freeze
-          return self if frozen?
+          unless frozen?
+            frozen_hash = {}
+            each_pair do |key, value|
+              frozen_hash[key.deep_freeze] = value.deep_freeze
+            end
 
-          frozen_hash = {}
-
-          each_pair do |key, value|
-            frozen_hash[key.deep_freeze] = value.deep_freeze
+            self.replace(frozen_hash)
+            self.freeze
           end
 
-          self.replace(frozen_hash)
-
-          self.freeze
+          self
         end
       end
     end

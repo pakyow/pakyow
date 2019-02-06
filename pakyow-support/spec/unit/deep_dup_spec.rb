@@ -4,6 +4,18 @@ RSpec.describe Pakyow::Support::DeepDup do
   describe "deep_dup" do
     using Pakyow::Support::DeepDup
 
+    it "refines Object" do
+      expect {
+        Object.new.deep_dup
+      }.to_not raise_error
+    end
+
+    it "refines Delegator" do
+      expect {
+        SimpleDelegator.new({}).deep_dup
+      }.to_not raise_error
+    end
+
     it "deep dupes a String" do
       str = "foo"
       expect(str.deep_dup).to_not be(str)

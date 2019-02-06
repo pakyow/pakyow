@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "delegate"
+
 module Pakyow
   module Support
     # Refines Object, Array, and Hash with support for deep_dup.
@@ -19,14 +21,16 @@ module Pakyow
       # Objects that can't be copied.
       UNDUPABLE = [Symbol, Integer, NilClass, TrueClass, FalseClass, Class, Module].freeze
 
-      refine Object do
-        # Returns a copy of the object.
-        #
-        def deep_dup
-          if UNDUPABLE.include?(self.class)
-            self
-          else
-            dup
+      [Object, Delegator].each do |klass|
+        refine klass do
+          # Returns a copy of the object.
+          #
+          def deep_dup
+            if UNDUPABLE.include?(self.class)
+              self
+            else
+              dup
+            end
           end
         end
       end

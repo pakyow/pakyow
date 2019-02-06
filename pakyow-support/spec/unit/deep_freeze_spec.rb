@@ -18,6 +18,18 @@ RSpec.describe Pakyow::Support::DeepFreeze do
   end
 
   describe "deep_freeze" do
+    it "refines Object" do
+      expect {
+        Object.new.deep_freeze
+      }.to_not raise_error
+    end
+
+    it "refines Delegator" do
+      expect {
+        SimpleDelegator.new({}).deep_freeze
+      }.to_not raise_error
+    end
+
     it "returns the object" do
       obj = Object.new
 
