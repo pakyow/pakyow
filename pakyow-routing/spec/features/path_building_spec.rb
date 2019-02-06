@@ -13,7 +13,7 @@ RSpec.describe "path building" do
         end
 
         get "/path/:name" do
-          send path(params[:name], **other_params) || ""
+          send path(params[:name], other_params) || ""
         end
       end
 
