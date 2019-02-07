@@ -203,13 +203,13 @@ module Pakyow
         def action(target, *options, before: nil, after: nil, &block)
           Action.new(target, *options, &block).tap do |action|
             if before
-              if i = @actions.index { |action| action.name == before }
+              if i = @actions.index { |a| a.name == before }
                 @actions.insert(i, action)
               else
                 @actions.unshift(action)
               end
             elsif after
-              if i = @actions.index { |action| action.name == after }
+              if i = @actions.index { |a| a.name == after }
                 @actions.insert(i + 1, action)
               else
                 @actions << action

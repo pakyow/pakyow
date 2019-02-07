@@ -275,8 +275,8 @@ module Pakyow
           nil
         end
 
-        Oga::XML::Element.new(name: "option").tap do |option|
-          option.set("value", ensure_html_safety(option_value(value, view).to_s))
+        Oga::XML::Element.new(name: "option").tap do |option_node|
+          option_node.set("value", ensure_html_safety(option_value(value, view).to_s))
 
           display_value = if value.is_a?(Array)
             value[1]
@@ -286,7 +286,7 @@ module Pakyow
             nil
           end
 
-          option.inner_text = ensure_html_safety(display_value.to_s)
+          option_node.inner_text = ensure_html_safety(display_value.to_s)
         end
       end
 
@@ -344,7 +344,7 @@ module Pakyow
 
               # Insert a hidden field to identify the data on submission.
               #
-              if key = option_value_keys(current, value).find { |key| value.include?(key) }
+              if key = option_value_keys(current, value).find { |k| value.include?(k) }
                 id_input = Oga::XML::Element.new(name: "input")
                 id_input.set(:type, "hidden")
                 name = "#{@view.object.label(:binding)}[#{current.label(:binding)}]"

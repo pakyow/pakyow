@@ -18,8 +18,8 @@ module Pakyow
                   options.each do |field_binding, metadata|
                     if field = form.find(field_binding)
                       if metadata[:block]
-                        form.options_for(field_binding) do |field|
-                          instance_exec(field, &metadata[:block])
+                        form.options_for(field_binding) do |context|
+                          instance_exec(context, &metadata[:block])
                         end
                       else
                         form.options_for(field_binding, metadata[:options])
