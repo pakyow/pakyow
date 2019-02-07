@@ -125,31 +125,31 @@ module Pakyow
             setting :worker_timeout, 60
 
             setting :on_restart do
-              @on_restart ||= []
+              []
             end
 
             setting :before_fork do
-              @before_fork ||= []
+              []
             end
 
             setting :before_worker_fork do
-              @before_worker_fork ||= [
+              [
                 lambda { |_| Pakyow.forking }
               ]
             end
 
             setting :after_worker_fork do
-              @after_worker_fork ||= []
+              []
             end
 
             setting :before_worker_boot do
-              @before_worker_boot ||= [
+              [
                 lambda { |_| Pakyow.forked }
               ]
             end
 
             setting :before_worker_shutdown do
-              @before_worker_shutdown ||= []
+              []
             end
 
             setting :silent, true

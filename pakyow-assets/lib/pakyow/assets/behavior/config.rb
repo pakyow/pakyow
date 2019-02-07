@@ -40,7 +40,7 @@ module Pakyow
             end
 
             setting :paths do
-              @paths ||= [
+              [
                 config.assets.path
               ]
             end
@@ -65,7 +65,7 @@ module Pakyow
               end
 
               setting :paths do
-                @packs_paths ||= [
+                [
                   config.assets.packs.path,
                   config.assets.externals.path
                 ]
@@ -111,13 +111,13 @@ module Pakyow
               setting :source_map_contents, true
 
               setting :load_paths do
-                @load_paths ||= [
+                [
                   config.assets.path
                 ]
               end
 
               setting :style do
-                @style ||= if config.assets.minify
+                if config.assets.minify
                   :compressed
                 else
                   :nested

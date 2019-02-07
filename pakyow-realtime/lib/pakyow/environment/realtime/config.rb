@@ -18,7 +18,7 @@ module Pakyow
             defaults :production do
               setting :adapter, :redis
               setting :adapter_settings do
-                @adapter_settings ||= Pakyow.config.redis.dup
+                Pakyow.config.redis.dup
               end
             end
           end

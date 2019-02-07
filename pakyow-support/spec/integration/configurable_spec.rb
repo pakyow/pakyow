@@ -1,4 +1,5 @@
 require "pakyow/support/configurable"
+require "pakyow/support/deep_freeze"
 
 RSpec.describe "configuring an object" do
   let :object do
@@ -65,5 +66,42 @@ RSpec.describe "configuring an object" do
     expect(object.config.respond_to?(:bar)).to be(false)
     expect(object.config.foo.respond_to?(:bar)).to be(true)
     expect(object.config.foo.respond_to?(:baz)).to be(false)
+  end
+
+  describe "memoization" do
+    it "memoizes default values" do
+      object.setting :foo, []
+      object.configure!
+
+      object.config.foo << :bar
+      object.config.foo << :baz
+
+      expect(object.config.foo).to eq([:bar, :baz])
+    end
+
+    it "memoizes values provided by blocks" do
+      object.setting :foo do
+        []
+      end
+
+      object.configure!
+
+      object.config.foo << :bar
+      object.config.foo << :baz
+
+      expect(object.config.foo).to eq([:bar, :baz])
+    end
+  end
+
+  describe "freezing" do
+    using Pakyow::Support::DeepFreeze
+
+    it "builds each value" do
+      object.setting :foo, :bar
+      object.configure!
+      object.deep_freeze
+
+      expect(object.config.foo).to eq(:bar)
+    end
   end
 end

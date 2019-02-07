@@ -22,6 +22,11 @@ module Pakyow
           super
         end
 
+        def freeze
+          value
+          super
+        end
+
         def set(value)
           @value = value
         end
@@ -29,10 +34,12 @@ module Pakyow
         def value
           if instance_variable_defined?(:@value)
             @value
-          elsif @block
-            @configurable.instance_eval(&@block)
           else
-            @default
+            @value = if @block
+              @configurable.instance_eval(&@block)
+            else
+              @default
+            end
           end
         end
 
