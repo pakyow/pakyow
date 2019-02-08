@@ -42,9 +42,7 @@ module Pakyow
         @executor << Proc.new {
           begin
             @adapter.subscriptions_for_source(source_name).select { |subscription|
-              next unless subscription[:handler]
-
-              if subscription[:ephemeral]
+              subscription[:handler] && if subscription[:ephemeral]
                 result_source.qualifications == subscription[:qualifications]
               else
                 qualified?(
