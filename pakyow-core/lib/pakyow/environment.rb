@@ -17,6 +17,7 @@ require "pakyow/environment/behavior/initializers"
 require "pakyow/environment/behavior/plugins"
 require "pakyow/environment/behavior/request_parsing"
 require "pakyow/environment/behavior/silencing"
+require "pakyow/environment/behavior/timezone"
 
 require "pakyow/app"
 require "pakyow/logger"
@@ -84,6 +85,7 @@ module Pakyow
   include Environment::Behavior::Plugins
   include Environment::Behavior::RequestParsing
   include Environment::Behavior::Silencing
+  include Environment::Behavior::Timezone
 
   # @api private
   SERVERS = %w(puma).freeze

@@ -12,6 +12,7 @@ module Pakyow
           setting :default_env, :development
           setting :freeze_on_boot, true
           setting :exit_on_boot_failure, true
+          setting :timezone, :utc
 
           setting :root do
             File.expand_path(".")

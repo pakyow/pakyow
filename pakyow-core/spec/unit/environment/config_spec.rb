@@ -28,6 +28,12 @@ RSpec.describe Pakyow do
       end
     end
 
+    describe "timezone" do
+      it "has a default value" do
+        expect(Pakyow.config.timezone).to eq(:utc)
+      end
+    end
+
     describe "server.name" do
       it "has a default value" do
         expect(Pakyow.config.server.name).to eq(:puma)
