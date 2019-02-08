@@ -22,8 +22,12 @@ RSpec.describe Pakyow::Connection do
         connection.finalize
       end
 
-      it "returns the response" do
-        expect(connection.finalize).to be(connection.response)
+      it "returns the status, headers, and body" do
+        result = connection.finalize
+        expect(result[0]).to eq(connection.response.status)
+        expect(result[1]).to eq(connection.response.headers)
+        expect(result[2]).to be_instance_of(Rack::BodyProxy)
+        expect(result[2].instance_variable_get(:@body)).to eq(connection.response.body)
       end
     end
 
@@ -40,7 +44,7 @@ RSpec.describe Pakyow::Connection do
 
       it "replaces the response body with an empty array" do
         connection.response.body = ["foo"]
-        expect(connection.finalize.body.length).to eq(0)
+        expect(connection.finalize[2].length).to eq(0)
       end
 
       context "response body can be closed" do

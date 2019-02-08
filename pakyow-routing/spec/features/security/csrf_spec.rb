@@ -44,7 +44,7 @@ RSpec.describe "processing requests with csrf protection" do
       end
 
       it "calls the handler" do
-        expect(call("/", method: :post)[2].body.read).to eq("403")
+        expect(call("/", method: :post)[2].read).to eq("403")
       end
     end
 
@@ -67,7 +67,7 @@ RSpec.describe "processing requests with csrf protection" do
       end
 
       it "calls the handler" do
-        expect(call("/", method: :post)[2].body.read).to eq("403")
+        expect(call("/", method: :post)[2].read).to eq("403")
       end
     end
 
@@ -86,7 +86,7 @@ RSpec.describe "processing requests with csrf protection" do
       end
 
       it "calls the handler" do
-        expect(call("/", method: :post)[2].body.read).to eq("404")
+        expect(call("/", method: :post)[2].read).to eq("404")
       end
     end
 
@@ -109,7 +109,7 @@ RSpec.describe "processing requests with csrf protection" do
       end
 
       it "calls the handler" do
-        expect(call("/", method: :post)[2].body.read).to eq("404")
+        expect(call("/", method: :post)[2].read).to eq("404")
       end
     end
   end

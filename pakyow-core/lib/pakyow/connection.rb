@@ -93,7 +93,11 @@ module Pakyow
           @response.body = []
         end
 
-        set_cookies; @response
+        set_cookies; [
+          @response.status.to_i,
+          @response.headers.to_h,
+          Rack::BodyProxy.new(@response.body) {}
+        ]
       end
     end
 

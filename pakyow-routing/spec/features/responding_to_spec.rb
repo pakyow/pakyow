@@ -16,8 +16,8 @@ RSpec.describe "responding to request format" do
   end
 
   it "responds properly" do
-    expect(call("/foo.txt")[2].body).to eq("foo")
-    expect(call("/foo.html")[2].body).to eq("<foo>")
+    expect(call("/foo.txt")[2]).to eq("foo")
+    expect(call("/foo.html")[2]).to eq("<foo>")
   end
 
   it "responds 404 to unsupported extensions" do

@@ -24,7 +24,7 @@ RSpec.describe "routing with custom matchers" do
 
     it "is matched" do
       expect(call("/custom")[0]).to eq(200)
-      expect(call("/custom")[2].body.first).to eq("custom")
+      expect(call("/custom")[2].first).to eq("custom")
     end
 
     it "is not matched" do
@@ -53,7 +53,7 @@ RSpec.describe "routing with custom matchers" do
       end
 
       it "makes the match's named captures available as params" do
-        expect(call("/anything")[2].body.first).to eq("bar")
+        expect(call("/anything")[2].first).to eq("bar")
       end
     end
   end
@@ -80,7 +80,7 @@ RSpec.describe "routing with custom matchers" do
     end
 
     it "is matched" do
-      expect(call("/ns/custom")[2].body.first).to eq("custom")
+      expect(call("/ns/custom")[2].first).to eq("custom")
     end
 
     it "is not matched" do
@@ -111,7 +111,7 @@ RSpec.describe "routing with custom matchers" do
 
     it "is matched" do
       expect(call("/123")[0]).to eq(200)
-      expect(call("/123")[2].body.first).to eq("123")
+      expect(call("/123")[2].first).to eq("123")
     end
 
     it "is not matched" do
@@ -142,7 +142,7 @@ RSpec.describe "routing with custom matchers" do
 
     it "is matched" do
       expect(call("/foo")[0]).to eq(200)
-      expect(call("/foo")[2].body.first).to eq("foo")
+      expect(call("/foo")[2].first).to eq("foo")
     end
   end
 
@@ -171,7 +171,7 @@ RSpec.describe "routing with custom matchers" do
 
     it "is matched" do
       expect(call("/foo")[0]).to eq(200)
-      expect(call("/foo")[2].body.first).to eq("foo")
+      expect(call("/foo")[2].first).to eq("foo")
     end
   end
 end

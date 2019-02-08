@@ -29,31 +29,31 @@ RSpec.describe "view titles via presenter" do
 
   context "title contained in front matter" do
     it "sets the value" do
-      expect(call("/titles")[2].body.read).to include("<title>hi</title>")
+      expect(call("/titles")[2].read).to include("<title>hi</title>")
     end
 
     context "title contains dynamic values" do
       context "presentables exist" do
         it "sets the value" do
-          expect(call("/titles/dynamic")[2].body.read).to include("<title>My Site | hi bob</title>")
+          expect(call("/titles/dynamic")[2].read).to include("<title>My Site | hi bob</title>")
         end
       end
 
       context "presentables are exposed for the title" do
         it "sets the value" do
-          expect(call("/titles/dynamic/channel")[2].body.read).to include("<title>My Site | hi bob</title>")
+          expect(call("/titles/dynamic/channel")[2].read).to include("<title>My Site | hi bob</title>")
         end
       end
 
       context "some presentables exist" do
         it "sets a partial value" do
-          expect(call("/titles/dynamic/some")[2].body.read).to include("<title>My Site | hi </title>")
+          expect(call("/titles/dynamic/some")[2].read).to include("<title>My Site | hi </title>")
         end
       end
 
       context "no presentables exist" do
         it "sets a partial value" do
-          expect(call("/titles/dynamic/none")[2].body.read).to include("<title>My Site |  </title>")
+          expect(call("/titles/dynamic/none")[2].read).to include("<title>My Site |  </title>")
         end
       end
     end

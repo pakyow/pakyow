@@ -16,7 +16,7 @@ module Pakyow
             connection.halt
           end
         rescue Support::MessageVerifier::TamperedMessage
-          connection.status = :forbidden
+          connection.status = 403
           connection.halt
         end
 

@@ -18,7 +18,7 @@ RSpec.describe "404 error views in development" do
 
     it "renders the 404 page" do
       expect(call("/missing")[0]).to eq(404)
-      expect(call("/missing")[2].body.read).to include("404 (Not Found)")
+      expect(call("/missing")[2].read).to include("404 (Not Found)")
     end
   end
 end

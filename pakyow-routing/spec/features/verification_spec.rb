@@ -18,15 +18,15 @@ RSpec.shared_examples "verification" do
     end
 
     it "allows required and optional values" do
-      expect(call("/test", params: { value1: "foo", value2: "bar" })[2].body).to eq(value1: "foo", value2: "bar")
+      expect(call("/test", params: { value1: "foo", value2: "bar" })[2]).to eq(value1: "foo", value2: "bar")
     end
 
     it "does not include values for unpassed optional values" do
-      expect(call("/test", params: { value1: "foo" })[2].body).to eq(value1: "foo")
+      expect(call("/test", params: { value1: "foo" })[2]).to eq(value1: "foo")
     end
 
     it "strips values not defined as required or optional" do
-      expect(call("/test", params: { value1: "foo", value2: "bar", value3: "baz" })[2].body).to eq(value1: "foo", value2: "bar")
+      expect(call("/test", params: { value1: "foo", value2: "bar", value3: "baz" })[2]).to eq(value1: "foo", value2: "bar")
     end
   end
 
@@ -121,11 +121,11 @@ RSpec.shared_examples "nested verification" do
     end
 
     it "allows required and optional values" do
-      expect(call("/test", params: { value1: { value2: "bar", value3: "baz" } })[2].body).to eq(value1: { value2: "bar", value3: "baz" })
+      expect(call("/test", params: { value1: { value2: "bar", value3: "baz" } })[2]).to eq(value1: { value2: "bar", value3: "baz" })
     end
 
     it "strips values not defined as required or optional" do
-      expect(call("/test", params: { value1: { value2: "bar", value3: "baz", value4: "qux" }, value5: "" })[2].body).to eq(value1: { value2: "bar", value3: "baz" })
+      expect(call("/test", params: { value1: { value2: "bar", value3: "baz", value4: "qux" }, value5: "" })[2]).to eq(value1: { value2: "bar", value3: "baz" })
     end
   end
 
@@ -331,7 +331,7 @@ RSpec.describe "setting allowed params" do
     it "allows allowed params" do
       call("/test", params: { value1: "one", value2: "two" }).tap do |result|
         expect(result[0]).to eq(200)
-        expect(result[2].body.read).to eq('{"value1":"one","value2":"two"}')
+        expect(result[2].read).to eq('{"value1":"one","value2":"two"}')
       end
     end
   end
@@ -356,7 +356,7 @@ RSpec.describe "setting allowed params" do
     it "allows allowed params" do
       call("/test", params: { value1: "one", value2: "two" }).tap do |result|
         expect(result[0]).to eq(200)
-        expect(result[2].body.read).to eq('{"value1":"one","value2":"two"}')
+        expect(result[2].read).to eq('{"value1":"one","value2":"two"}')
       end
     end
   end
@@ -381,7 +381,7 @@ RSpec.describe "setting allowed params" do
     it "allows all allowed params" do
       call("/test", params: { value1: "one", value2: "two" }).tap do |result|
         expect(result[0]).to eq(200)
-        expect(result[2].body.read).to eq('{"value1":"one","value2":"two"}')
+        expect(result[2].read).to eq('{"value1":"one","value2":"two"}')
       end
     end
   end
@@ -408,7 +408,7 @@ RSpec.describe "setting allowed params" do
     it "inherits allowed params from a parent controller" do
       call("/test", params: { value1: "one", value2: "two" }).tap do |result|
         expect(result[0]).to eq(200)
-        expect(result[2].body.read).to eq('{"value1":"one","value2":"two"}')
+        expect(result[2].read).to eq('{"value1":"one","value2":"two"}')
       end
     end
   end
@@ -451,21 +451,21 @@ RSpec.describe "allowing resource ids" do
   it "allows top level resource ids" do
     call("/posts/1").tap do |result|
       expect(result[0]).to eq(200)
-      expect(result[2].body.read).to eq('{"id":"1"}')
+      expect(result[2].read).to eq('{"id":"1"}')
     end
   end
 
   it "allows nested resource ids" do
     call("/posts/1/comments/2").tap do |result|
       expect(result[0]).to eq(200)
-      expect(result[2].body.read).to eq('{"post_id":"1","id":"2"}')
+      expect(result[2].read).to eq('{"post_id":"1","id":"2"}')
     end
   end
 
   it "allows nested member ids" do
     call("/posts/1/foo").tap do |result|
       expect(result[0]).to eq(200)
-      expect(result[2].body.read).to eq('{"post_id":"1"}')
+      expect(result[2].read).to eq('{"post_id":"1"}')
     end
   end
 end

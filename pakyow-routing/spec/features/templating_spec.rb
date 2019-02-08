@@ -33,13 +33,13 @@ RSpec.describe "route templating" do
   end
 
   it "creates routes from the template" do
-    expect(call("/en/hello")[2].body.first).to eq("hello")
-    expect(call("/en/goodbye")[2].body.first).to eq("goodbye")
-    expect(call("/fr/hello")[2].body.first).to eq("bonjour")
+    expect(call("/en/hello")[2].first).to eq("hello")
+    expect(call("/en/goodbye")[2].first).to eq("goodbye")
+    expect(call("/fr/hello")[2].first).to eq("bonjour")
   end
 
   it "extends the template with routes" do
-    expect(call("/en/thanks")[2].body.first).to eq("thanks")
+    expect(call("/en/thanks")[2].first).to eq("thanks")
   end
 
   context "when the template defines actions" do

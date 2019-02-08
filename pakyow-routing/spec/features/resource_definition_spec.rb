@@ -15,7 +15,7 @@ RSpec.describe "defining resources" do
     it "defines the resource" do
       res = call("/posts")
       expect(res[0]).to eq(200)
-      expect(res[2].body.read).to eq("post list")
+      expect(res[2].read).to eq("post list")
     end
   end
 
@@ -35,7 +35,7 @@ RSpec.describe "defining resources" do
     it "defines the resource" do
       res = call("/posts/1/comments")
       expect(res[0]).to eq(200)
-      expect(res[2].body.read).to eq("post 1 comment list")
+      expect(res[2].read).to eq("post 1 comment list")
     end
   end
 
@@ -59,7 +59,7 @@ RSpec.describe "defining resources" do
     it "calls the resource's actions" do
       res = call("/posts")
       expect(res[0]).to eq(200)
-      expect(res[2].body.read).to eq("validate")
+      expect(res[2].read).to eq("validate")
     end
 
     context "and the resource route defines its own actions" do
@@ -91,7 +91,7 @@ RSpec.describe "defining resources" do
       it "calls all the actions" do
         res = call("/posts")
         expect(res[0]).to eq(200)
-        expect(res[2].body.read).to eq("list")
+        expect(res[2].read).to eq("list")
         expect($calls[0]).to eq(:validate)
         expect($calls[1]).to eq(:foo)
       end
@@ -132,12 +132,12 @@ RSpec.describe "defining resources" do
 
     it "properly defines the member routes" do
       expect(call("/posts/123/foo")[0]).to eq(200)
-      expect(call("/posts/123/foo")[2].body.read).to eq("foo")
+      expect(call("/posts/123/foo")[2].read).to eq("foo")
     end
 
     it "does not conflict with the show route" do
       expect(call("/posts/123")[0]).to eq(200)
-      expect(call("/posts/123")[2].body.read).to eq("show")
+      expect(call("/posts/123")[2].read).to eq("show")
     end
   end
 
@@ -160,12 +160,12 @@ RSpec.describe "defining resources" do
 
     it "properly defines the collection routes" do
       expect(call("/posts/foo")[0]).to eq(200)
-      expect(call("/posts/foo")[2].body.read).to eq("foo")
+      expect(call("/posts/foo")[2].read).to eq("foo")
     end
 
     it "does not conflict with the show route" do
       expect(call("/posts/123")[0]).to eq(200)
-      expect(call("/posts/123")[2].body.read).to eq("show")
+      expect(call("/posts/123")[2].read).to eq("show")
     end
   end
 
@@ -186,7 +186,7 @@ RSpec.describe "defining resources" do
     it "properly paramaterizes the url" do
       res = call("/posts/foo")
       expect(res[0]).to eq(200)
-      expect(res[2].body.read).to eq("post foo show")
+      expect(res[2].read).to eq("post foo show")
     end
   end
 
@@ -206,7 +206,7 @@ RSpec.describe "defining resources" do
     it "properly paramaterizes the url" do
       res = call("/posts/foo/comments/bar")
       expect(res[0]).to eq(200)
-      expect(res[2].body.read).to eq("comment bar show")
+      expect(res[2].read).to eq("comment bar show")
     end
   end
 
@@ -254,49 +254,49 @@ RSpec.describe "defining resources" do
     it "can have a list action" do
       res = call("/posts")
       expect(res[0]).to eq(200)
-      expect(res[2].body.read).to eq("post list")
+      expect(res[2].read).to eq("post list")
     end
 
     it "can have a new action" do
       res = call("/posts/new")
       expect(res[0]).to eq(200)
-      expect(res[2].body.read).to eq("post new")
+      expect(res[2].read).to eq("post new")
     end
 
     it "can have a create action" do
       res = call("/posts", method: :post)
       expect(res[0]).to eq(200)
-      expect(res[2].body.read).to eq("post create")
+      expect(res[2].read).to eq("post create")
     end
 
     it "can have a edit action" do
       res = call("/posts/1/edit")
       expect(res[0]).to eq(200)
-      expect(res[2].body.read).to eq("post 1 edit")
+      expect(res[2].read).to eq("post 1 edit")
     end
 
     it "can have a update action" do
       res = call("/posts/1", method: :patch)
       expect(res[0]).to eq(200)
-      expect(res[2].body.read).to eq("post 1 update")
+      expect(res[2].read).to eq("post 1 update")
     end
 
     it "can have a replace action" do
       res = call("/posts/1", method: :put)
       expect(res[0]).to eq(200)
-      expect(res[2].body.read).to eq("post 1 replace")
+      expect(res[2].read).to eq("post 1 replace")
     end
 
     it "can have a delete action" do
       res = call("/posts/1", method: :delete)
       expect(res[0]).to eq(200)
-      expect(res[2].body.read).to eq("post 1 delete")
+      expect(res[2].read).to eq("post 1 delete")
     end
 
     it "can have a show action" do
       res = call("/posts/1")
       expect(res[0]).to eq(200)
-      expect(res[2].body.read).to eq("post 1 show")
+      expect(res[2].read).to eq("post 1 show")
     end
   end
 
@@ -318,7 +318,7 @@ RSpec.describe "defining resources" do
     it "calls the appropriate route" do
       res = call("/posts")
       expect(res[0]).to eq(200)
-      expect(res[2].body.read).to eq("post list")
+      expect(res[2].read).to eq("post list")
 
       res = call("/posts.html")
       expect(res[0]).to eq(404)

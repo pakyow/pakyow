@@ -18,7 +18,7 @@ RSpec.describe "parsing requests" do
     it "parses the json request body" do
       result = call("/", input: { foo: "bar" }.to_json, "CONTENT_TYPE" => "application/json")
       expect(result[0]).to eq(200)
-      expect(result[2].body).to eq(foo: "bar")
+      expect(result[2]).to eq(foo: "bar")
     end
 
     context "parsing fails" do

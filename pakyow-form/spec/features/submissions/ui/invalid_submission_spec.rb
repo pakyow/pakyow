@@ -41,7 +41,7 @@ RSpec.describe "submitting invalid form data via ui" do
     it "sets the form as subscribed" do
       call("/posts/new").tap do |result|
         expect(result[0]).to eq(200)
-        expect(result[2].body.read).to include_sans_whitespace('<form data-b="post" data-ui="form" data-c="form" class="" data-t="')
+        expect(result[2].read).to include_sans_whitespace('<form data-b="post" data-ui="form" data-c="form" class="" data-t="')
       end
     end
   end
@@ -89,7 +89,7 @@ RSpec.describe "submitting invalid form data via ui" do
       it "does not call the form submission handler" do
         call("/posts", method: :post, Pakyow::UI::Helpers::UI_REQUEST_HEADER => "true").tap do |result|
           expect(result[0]).to be(401)
-          expect(result[2].body.join).to eq("handled")
+          expect(result[2].join).to eq("handled")
         end
       end
     end

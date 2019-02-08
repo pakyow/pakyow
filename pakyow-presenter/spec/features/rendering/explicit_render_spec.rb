@@ -15,14 +15,14 @@ RSpec.describe "explicit rendering" do
     it "renders the view" do
       response = call("/")
       expect(response[0]).to eq(200)
-      expect(response[2].body.read).to eq("<!DOCTYPE html>\n<html>\n  <head>\n    <title>default</title>\n  </head>\n\n  <body>\n    other\n\n  </body>\n</html>\n")
+      expect(response[2].read).to eq("<!DOCTYPE html>\n<html>\n  <head>\n    <title>default</title>\n  </head>\n\n  <body>\n    other\n\n  </body>\n</html>\n")
     end
 
     context "request format is not html" do
       it "renders the view" do
         response = call("/", "ACCEPT" => "application/json")
         expect(response[0]).to eq(200)
-        expect(response[2].body.read).to eq("<!DOCTYPE html>\n<html>\n  <head>\n    <title>default</title>\n  </head>\n\n  <body>\n    other\n\n  </body>\n</html>\n")
+        expect(response[2].read).to eq("<!DOCTYPE html>\n<html>\n  <head>\n    <title>default</title>\n  </head>\n\n  <body>\n    other\n\n  </body>\n</html>\n")
       end
     end
   end
@@ -49,7 +49,7 @@ RSpec.describe "explicit rendering" do
     it "fails" do
       response = call("/")
       expect(response[0]).to eq(404)
-      expect(response[2].body.read).to include("Unknown page")
+      expect(response[2].read).to include("Unknown page")
     end
 
     context "request format is not html" do
@@ -73,7 +73,7 @@ RSpec.describe "explicit rendering" do
     it "uses the override" do
       response = call("/")
       expect(response[0]).to eq(200)
-      expect(response[2].body.read).to eq("<!DOCTYPE html>\n<html>\n  <head>\n    <title>other</title>\n  </head>\n\n  <body>\n    index\n\n  </body>\n</html>\n")
+      expect(response[2].read).to eq("<!DOCTYPE html>\n<html>\n  <head>\n    <title>other</title>\n  </head>\n\n  <body>\n    index\n\n  </body>\n</html>\n")
     end
 
     context "layout does not exist" do
@@ -98,7 +98,7 @@ RSpec.describe "explicit rendering" do
       it "uses the default layout" do
         response = call("/")
         expect(response[0]).to eq(200)
-        expect(response[2].body.read).to include_sans_whitespace("<title>default</title>")
+        expect(response[2].read).to include_sans_whitespace("<title>default</title>")
       end
     end
   end
@@ -123,7 +123,7 @@ RSpec.describe "explicit rendering" do
     it "invokes the presenter" do
       response = call("/")
       expect(response[0]).to eq(200)
-      expect(response[2].body.read).to eq("<!DOCTYPE html>\n<html>\n  <head>\n    <title>invoked</title>\n  </head>\n\n  <body>\n    other\n\n  </body>\n</html>\n")
+      expect(response[2].read).to eq("<!DOCTYPE html>\n<html>\n  <head>\n    <title>invoked</title>\n  </head>\n\n  <body>\n    other\n\n  </body>\n</html>\n")
     end
   end
 
@@ -147,7 +147,7 @@ RSpec.describe "explicit rendering" do
     it "renders the view path and invokes the presenter" do
       response = call("/")
       expect(response[0]).to eq(200)
-      expect(response[2].body.read).to eq("<!DOCTYPE html>\n<html>\n  <head>\n    <title>invoked</title>\n  </head>\n\n  <body>\n    other\n\n  </body>\n</html>\n")
+      expect(response[2].read).to eq("<!DOCTYPE html>\n<html>\n  <head>\n    <title>invoked</title>\n  </head>\n\n  <body>\n    other\n\n  </body>\n</html>\n")
     end
   end
 
@@ -171,7 +171,7 @@ RSpec.describe "explicit rendering" do
     it "renders the view" do
       response = call("/")
       expect(response[0]).to eq(200)
-      expect(response[2].body.read).to eq("<!DOCTYPE html>\n<html>\n  <head>\n    <title>invoked</title>\n  </head>\n\n  <body>\n    other\n\n  </body>\n</html>\n")
+      expect(response[2].read).to eq("<!DOCTYPE html>\n<html>\n  <head>\n    <title>invoked</title>\n  </head>\n\n  <body>\n    other\n\n  </body>\n</html>\n")
     end
   end
 end

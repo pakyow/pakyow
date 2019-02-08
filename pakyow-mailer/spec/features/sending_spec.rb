@@ -35,13 +35,13 @@ RSpec.describe "sending mail" do
       ).to receive(:deliver_to).with("bryan@bryanp.org", subject: "test123")
       response = call("/mail/send/bryan@bryanp__org/test123")
       expect(response[0]).to eq(200)
-      expect(response[2].body.read).to eq("sent")
+      expect(response[2].read).to eq("sent")
     end
 
     it "delivers to many recipients" do
       response = call("/mail/send/many/test123")
       expect(response[0]).to eq(200)
-      expect(response[2].body.read).to eq("sent")
+      expect(response[2].read).to eq("sent")
 
       expect($sent.count).to eq(2)
       expect($sent[0].to.first).to eq("foo@bar.com")

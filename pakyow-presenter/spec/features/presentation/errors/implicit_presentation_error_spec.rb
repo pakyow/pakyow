@@ -26,7 +26,7 @@ RSpec.describe "errors during implicit presentation" do
 
   it "handles the error" do
     expect(call("/")[0]).to eq(500)
-    expect(call("/")[2].body.read).to include("RuntimeError")
-    expect(call("/")[2].body.read).to include("failed in presenter")
+    expect(call("/")[2].read).to include("RuntimeError")
+    expect(call("/")[2].read).to include("failed in presenter")
   end
 end

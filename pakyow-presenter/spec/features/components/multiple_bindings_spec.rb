@@ -24,7 +24,7 @@ RSpec.describe "rendering backend components alongside other bindings" do
   end
 
   it "renders all the bindings properly" do
-    expect(call("/components/multiple_bindings")[2].body.read).to eq_sans_whitespace(
+    expect(call("/components/multiple_bindings")[2].read).to eq_sans_whitespace(
       <<~HTML
         <!DOCTYPE html>
         <html>

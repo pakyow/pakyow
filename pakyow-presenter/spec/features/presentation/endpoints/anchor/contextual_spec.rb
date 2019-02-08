@@ -12,7 +12,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that needs add
   end
 
   it "builds the action using request params as context" do
-    expect(call("/posts/1")[2].body.read).to include_sans_whitespace(
+    expect(call("/posts/1")[2].read).to include_sans_whitespace(
       <<~HTML
         <a href="/posts/1" data-e="posts_show" class="current"></a>
       HTML
@@ -37,7 +37,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that needs add
     end
 
     it "builds the action using binding as context" do
-      expect(call("/posts/1")[2].body.read).to include_sans_whitespace(
+      expect(call("/posts/1")[2].read).to include_sans_whitespace(
         <<~HTML
           <div data-b="post" data-id="3">
             <h1 data-b="title">foo</h1>
@@ -67,7 +67,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that needs add
     end
 
     it "builds the action using binding as context" do
-      expect(call("/posts/1")[2].body.read).to include_sans_whitespace(
+      expect(call("/posts/1")[2].read).to include_sans_whitespace(
         <<~HTML
           <div data-b="post" data-id="5">
             <a data-b="title" data-e="posts_show" href="/posts/5">foo</a>

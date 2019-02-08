@@ -18,7 +18,7 @@ RSpec.describe "error handling" do
       end
 
       it "handles the error" do
-        expect(call[2].body.read).to eq("not found")
+        expect(call[2].read).to eq("not found")
       end
 
       it "sets the response code" do
@@ -42,7 +42,7 @@ RSpec.describe "error handling" do
       end
 
       it "handles the error" do
-        expect(call[2].body.read).to eq("not found")
+        expect(call[2].read).to eq("not found")
       end
 
       it "sets the response code" do
@@ -70,7 +70,7 @@ RSpec.describe "error handling" do
       end
 
       it "handles the error" do
-        expect(call[2].body.read).to eq("not found from route")
+        expect(call[2].read).to eq("not found from route")
       end
 
       it "sets the response code" do
@@ -96,7 +96,7 @@ RSpec.describe "error handling" do
       end
 
       it "handles the error" do
-        expect(call[2].body.read).to eq("not found from parent")
+        expect(call[2].read).to eq("not found from parent")
       end
 
       it "sets the response code" do
@@ -124,7 +124,7 @@ RSpec.describe "error handling" do
       end
 
       it "handles the error" do
-        expect(call[2].body.read).to eq("forbidden from parent")
+        expect(call[2].read).to eq("forbidden from parent")
       end
 
       it "sets the response code" do
@@ -150,7 +150,7 @@ RSpec.describe "error handling" do
       end
 
       it "does not handle the error" do
-        expect(call[2].body.first).not_to eq("not found from sibling")
+        expect(call[2].first).not_to eq("not found from sibling")
       end
 
       it "still sets the response code" do
@@ -171,7 +171,7 @@ RSpec.describe "error handling" do
       end
 
       it "halts" do
-        expect(call[2].body).not_to eq(["foo"])
+        expect(call[2]).not_to eq(["foo"])
       end
 
       it "sets the response code" do
@@ -197,7 +197,7 @@ RSpec.describe "error handling" do
       end
 
       it "handles the error" do
-        expect(call[2].body.first).to eq("handled exception")
+        expect(call[2].first).to eq("handled exception")
       end
 
       it "sets the response code" do
@@ -255,7 +255,7 @@ RSpec.describe "error handling" do
         end
 
         it "handles the error" do
-          expect(call[2].body.read).to eq("handled exception from parent")
+          expect(call[2].read).to eq("handled exception from parent")
         end
 
         it "sets the response code" do
@@ -279,7 +279,7 @@ RSpec.describe "error handling" do
         end
 
         it "is passed the error object" do
-          expect(call[2].body.read).to eq("StandardError")
+          expect(call[2].read).to eq("StandardError")
         end
       end
     end
@@ -322,7 +322,7 @@ RSpec.describe "error handling" do
       end
 
       it "returns the default response" do
-        expect(call[2].body).to eq([])
+        expect(call[2]).to eq([])
       end
     end
   end
@@ -338,7 +338,7 @@ RSpec.describe "error handling" do
       end
 
       it "handles the error" do
-        expect(call[2].body.first).to eq("not found")
+        expect(call[2].first).to eq("not found")
       end
 
       it "sets the response code" do
@@ -352,7 +352,7 @@ RSpec.describe "error handling" do
       end
 
       it "returns the default response" do
-        expect(call[2].body).to eq([])
+        expect(call[2]).to eq([])
       end
     end
   end
@@ -385,7 +385,7 @@ RSpec.describe "error handling" do
 
       it "handles the error" do
         expect(call[0]).to eq(500)
-        expect(call[2].body.read).to eq("boom")
+        expect(call[2].read).to eq("boom")
       end
 
       it "sets the response code" do
@@ -415,7 +415,7 @@ RSpec.describe "error handling" do
       include_context "suppressed output"
 
       it "handles the error" do
-        expect(call[2].body.read).to eq("boom")
+        expect(call[2].read).to eq("boom")
       end
 
       it "sets the response code" do
@@ -468,7 +468,7 @@ RSpec.describe "error handling" do
     end
 
     it "has access to route state" do
-      expect(call[2].body.read).to eq("routehandler")
+      expect(call[2].read).to eq("routehandler")
     end
   end
 
@@ -499,7 +499,7 @@ RSpec.describe "error handling" do
     end
 
     it "passes off to the next handler" do
-      expect(call[2].body.read).to eq("routehandler1handler2")
+      expect(call[2].read).to eq("routehandler1handler2")
     end
   end
 end

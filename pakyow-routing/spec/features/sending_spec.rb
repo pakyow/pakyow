@@ -21,7 +21,7 @@ RSpec.describe "sending data" do
     end
 
     it "sends the file" do
-      expect(call[2].body).to be_instance_of(File)
+      expect(call[2]).to be_instance_of(File)
     end
 
     it "automatically sets the type" do
@@ -105,7 +105,7 @@ RSpec.describe "sending data" do
     end
 
     it "sends the data" do
-      expect(call[2].body.read).to eq("foo")
+      expect(call[2].read).to eq("foo")
     end
 
     it "sends with a default type" do
@@ -129,7 +129,7 @@ RSpec.describe "sending data" do
     end
 
     it "sends the string" do
-      expect(call[2].body.read).to eq("foo")
+      expect(call[2].read).to eq("foo")
     end
 
     it "does not set a content type" do

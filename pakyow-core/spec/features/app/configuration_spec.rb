@@ -36,7 +36,7 @@ RSpec.describe "configuring an app" do
     it "is configured properly" do
       res = call
       expect(res[0]).to eq(200)
-      expect(res[2].body).to eq("config-env-test")
+      expect(res[2]).to eq("config-env-test")
     end
   end
 end
@@ -65,7 +65,7 @@ RSpec.describe "accessing the app's config" do
     it "is accessible" do
       res = call
       expect(res[0]).to eq(200)
-      expect(res[2].body).to eq("config-test")
+      expect(res[2]).to eq("config-test")
     end
   end
 

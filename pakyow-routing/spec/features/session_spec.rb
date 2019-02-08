@@ -18,7 +18,7 @@ RSpec.describe "using sessions" do
   describe "setting a session value" do
     it "sets the value" do
       cookie = call("/set/bar")[1]["Set-Cookie"]
-      expect(call("/get", "HTTP_COOKIE" => cookie)[2].body.read).to eq("bar")
+      expect(call("/get", "HTTP_COOKIE" => cookie)[2].read).to eq("bar")
     end
   end
 end

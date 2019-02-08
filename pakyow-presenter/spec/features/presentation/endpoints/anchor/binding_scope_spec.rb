@@ -2,7 +2,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
   include_context "app"
 
   it "does not set the href automatically, so the unused binding is removed" do
-    expect(call("/presentation/endpoints/anchor/binding_scope")[2].body.read.strip).to eq("")
+    expect(call("/presentation/endpoints/anchor/binding_scope")[2].read.strip).to eq("")
   end
 
   context "binding is bound to" do
@@ -23,7 +23,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
     end
 
     it "sets the href" do
-      expect(call("/presentation/endpoints/anchor/binding_scope")[2].body.read).to include_sans_whitespace(
+      expect(call("/presentation/endpoints/anchor/binding_scope")[2].read).to include_sans_whitespace(
         <<~HTML
           <a data-b="post" data-e="posts_list" href="/posts">Link</a>
         HTML
@@ -32,7 +32,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
 
     context "endpoint is current" do
       it "receives a current class" do
-        expect(call("/posts")[2].body.read).to include_sans_whitespace(
+        expect(call("/posts")[2].read).to include_sans_whitespace(
           <<~HTML
             <a data-b="post" data-e="posts_list" href="/posts" class="current">Link</a>
           HTML

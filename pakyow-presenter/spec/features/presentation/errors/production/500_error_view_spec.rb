@@ -21,7 +21,7 @@ RSpec.describe "500 error views in production" do
 
   it "renders the built-in 500 page by default" do
     expect(call("/fail")[0]).to eq(500)
-    expect(call("/fail")[2].body.read).to include("500 (Server Error)")
+    expect(call("/fail")[2].read).to include("500 (Server Error)")
   end
 
   context "app defines its own 500 page" do
@@ -45,7 +45,7 @@ RSpec.describe "500 error views in production" do
 
     it "renders the app's 500 page instead of the default" do
       expect(call("/fail")[0]).to eq(500)
-      expect(call("/fail")[2].body.read).to include("app 500")
+      expect(call("/fail")[2].read).to include("app 500")
     end
   end
 
@@ -74,7 +74,7 @@ RSpec.describe "500 error views in production" do
     end
 
     it "handles instead of presenter" do
-      expect(call("/fail")[2].body).to eq(["foo"])
+      expect(call("/fail")[2]).to eq(["foo"])
       expect($handled).to eq(true)
     end
 
@@ -99,7 +99,7 @@ RSpec.describe "500 error views in production" do
 
       it "renders" do
         expect(call("/fail")[0]).to eq(500)
-        expect(call("/fail")[2].body.read).to include("500 (Server Error)")
+        expect(call("/fail")[2].read).to include("500 (Server Error)")
       end
     end
 
@@ -128,7 +128,7 @@ RSpec.describe "500 error views in production" do
 
       it "renders" do
         expect(call("/fail")[0]).to eq(500)
-        expect(call("/fail")[2].body.read).to include("non standard 500")
+        expect(call("/fail")[2].read).to include("non standard 500")
       end
     end
   end

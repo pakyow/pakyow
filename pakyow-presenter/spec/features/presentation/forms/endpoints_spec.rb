@@ -16,7 +16,7 @@ RSpec.describe "form endpoints" do
       end
 
       it "sets the endpoint to resource create" do
-        call("/presentation/forms/endpoints/posts/new")[2].body.read.tap do |body|
+        call("/presentation/forms/endpoints/posts/new")[2].read.tap do |body|
           expect(body).to include('<form data-b="post" data-c="form" action="/presentation/forms/endpoints/posts" method="post">')
         end
       end
@@ -33,7 +33,7 @@ RSpec.describe "form endpoints" do
       end
 
       it "does not set an endpoint" do
-        call("/presentation/forms/endpoints/posts/new")[2].body.read.tap do |body|
+        call("/presentation/forms/endpoints/posts/new")[2].read.tap do |body|
           expect(body).to include('<form data-b="post" data-c="form">')
         end
       end
@@ -58,7 +58,7 @@ RSpec.describe "form endpoints" do
       end
 
       it "sets the endpoint to the explicitly defined endpoint" do
-        call("/presentation/forms/endpoints/explicit/posts/new")[2].body.read.tap do |body|
+        call("/presentation/forms/endpoints/explicit/posts/new")[2].read.tap do |body|
           expect(body).to include('<form data-b="post" data-e="explicit_create" data-c="form" action="/explicit/create" method="post">')
         end
       end
@@ -80,7 +80,7 @@ RSpec.describe "form endpoints" do
       end
 
       it "sets the endpoint to resource update" do
-        call("/presentation/forms/endpoints/posts/1/edit")[2].body.read.tap do |body|
+        call("/presentation/forms/endpoints/posts/1/edit")[2].read.tap do |body|
           expect(body).to include('<form data-b="post" data-c="form" action="/presentation/forms/endpoints/posts/1" method="post" data-id="1">')
           expect(body).to include('<input type="hidden" name="_method" value="patch">')
         end
@@ -98,7 +98,7 @@ RSpec.describe "form endpoints" do
       end
 
       it "does not set an endpoint" do
-        call("/presentation/forms/endpoints/posts/1/edit")[2].body.read.tap do |body|
+        call("/presentation/forms/endpoints/posts/1/edit")[2].read.tap do |body|
           expect(body).to include('<form data-b="post" data-c="form" data-id="1">')
         end
       end
@@ -123,7 +123,7 @@ RSpec.describe "form endpoints" do
       end
 
       it "sets the endpoint to the explicitly defined endpoint" do
-        call("/presentation/forms/endpoints/explicit/posts/1/edit")[2].body.read.tap do |body|
+        call("/presentation/forms/endpoints/explicit/posts/1/edit")[2].read.tap do |body|
           expect(body).to include('<form data-b="post" data-e="explicit_update" data-c="form" action="/explicit/update" method="post"')
           expect(body).to include('<input type="hidden" name="_method" value="put">')
         end
@@ -133,7 +133,7 @@ RSpec.describe "form endpoints" do
 
   context "form is rendered from a non-resource endpoint" do
     it "does not set an endpoint by default" do
-      call("/presentation/forms/endpoints")[2].body.read.tap do |body|
+      call("/presentation/forms/endpoints")[2].read.tap do |body|
         expect(body).to include('<form data-b="post" data-c="form">')
       end
     end
@@ -149,7 +149,7 @@ RSpec.describe "form endpoints" do
       end
 
       it "sets up the form for creating" do
-        call("/presentation/forms/endpoints")[2].body.read.tap do |body|
+        call("/presentation/forms/endpoints")[2].read.tap do |body|
           expect(body).to include('<form data-b="post" data-c="form" action="/posts" method="post">')
         end
       end
@@ -174,7 +174,7 @@ RSpec.describe "form endpoints" do
           end
 
           it "sets the form up for updating" do
-            call("/presentation/forms/endpoints")[2].body.read.tap do |body|
+            call("/presentation/forms/endpoints")[2].read.tap do |body|
               expect(body).to include('<form data-b="post" data-c="form" action="/posts/1" method="post" data-id="1">')
               expect(body).to include('<input type="hidden" name="_method" value="patch">')
             end
@@ -201,7 +201,7 @@ RSpec.describe "form endpoints" do
             end
 
             it "sets the endpoint to the explicitly defined endpoint" do
-              call("/presentation/forms/endpoints/explicit")[2].body.read.tap do |body|
+              call("/presentation/forms/endpoints/explicit")[2].read.tap do |body|
                 expect(body).to include('<form data-b="post" data-e="explicit_endpoint" data-c="form" action="/explicit" method="post">')
                 expect(body).to include('<input type="hidden" name="_method" value="delete">')
               end
@@ -221,7 +221,7 @@ RSpec.describe "form endpoints" do
           end
 
           it "does not set an endpoint" do
-            call("/presentation/forms/endpoints")[2].body.read.tap do |body|
+            call("/presentation/forms/endpoints")[2].read.tap do |body|
               expect(body).to include('<form data-b="post" data-c="form" data-id="1">')
             end
           end
@@ -242,7 +242,7 @@ RSpec.describe "form endpoints" do
             end
 
             it "sets the endpoint to the explicitly defined endpoint" do
-              call("/presentation/forms/endpoints/explicit")[2].body.read.tap do |body|
+              call("/presentation/forms/endpoints/explicit")[2].read.tap do |body|
                 expect(body).to include('<form data-b="post" data-e="explicit_endpoint" data-c="form" action="/explicit" method="post">')
                 expect(body).to include('<input type="hidden" name="_method" value="delete">')
               end
@@ -269,7 +269,7 @@ RSpec.describe "form endpoints" do
           end
 
           it "sets the form up for creating" do
-            call("/presentation/forms/endpoints")[2].body.read.tap do |body|
+            call("/presentation/forms/endpoints")[2].read.tap do |body|
               expect(body).to include('<form data-b="post" data-c="form" action="/posts" method="post">')
             end
           end
@@ -295,7 +295,7 @@ RSpec.describe "form endpoints" do
             end
 
             it "sets the endpoint to the explicitly defined endpoint" do
-              call("/presentation/forms/endpoints/explicit")[2].body.read.tap do |body|
+              call("/presentation/forms/endpoints/explicit")[2].read.tap do |body|
                 expect(body).to include('<form data-b="post" data-e="explicit_endpoint" data-c="form" action="/explicit" method="post">')
                 expect(body).to include('<input type="hidden" name="_method" value="delete">')
               end
@@ -315,7 +315,7 @@ RSpec.describe "form endpoints" do
           end
 
           it "does not set an endpoint" do
-            call("/presentation/forms/endpoints")[2].body.read.tap do |body|
+            call("/presentation/forms/endpoints")[2].read.tap do |body|
               expect(body).to include('<form data-b="post" data-c="form">')
             end
           end
@@ -336,7 +336,7 @@ RSpec.describe "form endpoints" do
             end
 
             it "sets the endpoint to the explicitly defined endpoint" do
-              call("/presentation/forms/endpoints/explicit")[2].body.read.tap do |body|
+              call("/presentation/forms/endpoints/explicit")[2].read.tap do |body|
                 expect(body).to include('<form data-b="post" data-e="explicit_endpoint" data-c="form" action="/explicit" method="post">')
                 expect(body).to include('<input type="hidden" name="_method" value="delete">')
               end
@@ -356,7 +356,7 @@ RSpec.describe "form endpoints" do
       end
 
       it "sets the endpoint to the explicitly defined endpoint" do
-        call("/presentation/forms/endpoints/explicit")[2].body.read.tap do |body|
+        call("/presentation/forms/endpoints/explicit")[2].read.tap do |body|
           expect(body).to include('<form data-b="post" data-e="explicit_endpoint" data-c="form" action="/explicit" method="post">')
           expect(body).to include('<input type="hidden" name="_method" value="delete">')
         end
@@ -385,13 +385,13 @@ RSpec.describe "form endpoints" do
         end
 
         it "sets the endpoint when the required values are exposed through params" do
-          call("/posts/1/comments/new")[2].body.read.tap do |body|
+          call("/posts/1/comments/new")[2].read.tap do |body|
             expect(body).to include('<form data-b="comment" data-e="posts_comments_create" data-c="form" action="/posts/1/comments" method="post">')
           end
         end
 
         it "sets the endpoint when the object exposes the required values" do
-          call("/presentation/forms/endpoints/explicit/contextual")[2].body.read.tap do |body|
+          call("/presentation/forms/endpoints/explicit/contextual")[2].read.tap do |body|
             expect(body).to include('<form data-b="comment" data-e="posts_comments_create" data-c="form" action="/posts/123/comments" method="post">')
           end
         end

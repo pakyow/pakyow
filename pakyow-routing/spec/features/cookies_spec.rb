@@ -81,7 +81,7 @@ RSpec.describe "using cookies" do
       end
 
       it "is accessible" do
-        expect(call("/", "HTTP_COOKIE" => cookie)[2].body.read).to eq("bar")
+        expect(call("/", "HTTP_COOKIE" => cookie)[2].read).to eq("bar")
       end
     end
 
@@ -97,7 +97,7 @@ RSpec.describe "using cookies" do
       end
 
       it "is accessible" do
-        expect(call("/", "HTTP_COOKIE" => cookie)[2].body.read).to eq("bar")
+        expect(call("/", "HTTP_COOKIE" => cookie)[2].read).to eq("bar")
       end
     end
   end

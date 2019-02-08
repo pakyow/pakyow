@@ -40,7 +40,7 @@ RSpec.describe "booting plugins" do
 
     it "calls boot" do
       expect(call("/")[0]).to eq(200)
-      expect(call("/")[2].body).to eq(:booted)
+      expect(call("/")[2]).to eq(:booted)
     end
   end
 
@@ -55,7 +55,7 @@ RSpec.describe "booting plugins" do
 
     it "calls boot" do
       expect(call("/")[0]).to eq(200)
-      expect(call("/")[2].body).to eq(:did_not_boot)
+      expect(call("/")[2]).to eq(:did_not_boot)
     end
   end
 end

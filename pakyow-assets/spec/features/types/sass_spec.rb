@@ -10,7 +10,7 @@ RSpec.describe "sass support" do
   end
 
   it "transpiles files ending with .sass" do
-    expect(call("/assets/types-sass.css")[2].body.read).to eq("body {\n  background: #ff3333; }\n")
+    expect(call("/assets/types-sass.css")[2].read).to eq("body {\n  background: #ff3333; }\n")
   end
 
   it "does not expose the sass file" do

@@ -14,7 +14,7 @@ RSpec.describe "logging within a presenter" do
   it "writes to the log" do
     expect_any_instance_of(Pakyow::RequestLogger).to receive(:debug).with("testing")
 
-    expect(call("/")[2].body.read).to include_sans_whitespace(
+    expect(call("/")[2].read).to include_sans_whitespace(
       <<~HTML
         index
       HTML

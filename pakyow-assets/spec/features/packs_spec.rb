@@ -4,11 +4,11 @@ RSpec.shared_context "loaded asset packs" do
   end
 
   it "includes the stylesheet" do
-    expect(call(request_path)[2].body.read).to include("<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"/assets/packs/#{included_pack_name}.css\">")
+    expect(call(request_path)[2].read).to include("<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"/assets/packs/#{included_pack_name}.css\">")
   end
 
   it "includes the javascript" do
-    expect(call(request_path)[2].body.read).to include("<script src=\"/assets/packs/#{included_pack_name}.js\"></script>")
+    expect(call(request_path)[2].read).to include("<script src=\"/assets/packs/#{included_pack_name}.js\"></script>")
   end
 end
 
@@ -67,15 +67,15 @@ RSpec.describe "missing asset packs" do
   end
 
   it "renders the view" do
-    expect(call("/packs/autoload")[2].body.read).to include("autoload")
+    expect(call("/packs/autoload")[2].read).to include("autoload")
   end
 
   it "does not include the stylesheet" do
-    expect(call("/packs/autoload")[2].body.read).not_to include("link")
+    expect(call("/packs/autoload")[2].read).not_to include("link")
   end
 
   it "does not include the javascript" do
-    expect(call("/packs/autoload")[2].body.read).not_to include("script")
+    expect(call("/packs/autoload")[2].read).not_to include("script")
   end
 end
 
@@ -99,11 +99,11 @@ RSpec.describe "versioned asset packs" do
   end
 
   it "includes the latest js pack" do
-    expect(call("/assets/packs/versioned.js")[2].body.read).to eq("\"use strict\";\n\nconsole.log(\"2.0\");")
+    expect(call("/assets/packs/versioned.js")[2].read).to eq("\"use strict\";\n\nconsole.log(\"2.0\");")
   end
 
   it "includes the latest css pack" do
-    expect(call("/assets/packs/versioned.css")[2].body.read).to eq("body {\n  content: \"2.0\"; }\n")
+    expect(call("/assets/packs/versioned.css")[2].read).to eq("body {\n  content: \"2.0\"; }\n")
   end
 end
 
@@ -127,10 +127,10 @@ RSpec.describe "versioned, namespaced asset packs" do
   end
 
   it "includes the latest js pack" do
-    expect(call("/assets/packs/bar.js")[2].body.read).to eq("\"use strict\";\n\nconsole.log(\"2.0 bar\");")
+    expect(call("/assets/packs/bar.js")[2].read).to eq("\"use strict\";\n\nconsole.log(\"2.0 bar\");")
   end
 
   it "includes the latest css pack" do
-    expect(call("/assets/packs/bar.css")[2].body.read).to eq("body {\n  content: \"2.0 bar\"; }\n")
+    expect(call("/assets/packs/bar.css")[2].read).to eq("body {\n  content: \"2.0 bar\"; }\n")
   end
 end

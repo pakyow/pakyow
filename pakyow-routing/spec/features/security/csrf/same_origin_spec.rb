@@ -39,7 +39,7 @@ RSpec.describe "verifying that the request is from the same origin" do
     end
 
     it "overrides" do
-      expect(call("/", method: :post)[2].body.read).to eq("overridden")
+      expect(call("/", method: :post)[2].read).to eq("overridden")
     end
   end
 end

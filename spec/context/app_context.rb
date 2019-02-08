@@ -64,9 +64,13 @@ RSpec.shared_context "app" do
       method.call
     end
 
-    @app.call(Rack::MockRequest.env_for(path, opts)).tap do
+    result = @app.call(Rack::MockRequest.env_for(path, opts)).tap do
       check_response(connection_for_call)
     end
+
+    # Unwrap the response body so it's easier to test values.
+    #
+    [result[0], result[1], result[2].is_a?(Rack::BodyProxy) ? result[2].instance_variable_get(:@body) : result[2]]
   end
 
   def call_fast(path = "/", opts = {})

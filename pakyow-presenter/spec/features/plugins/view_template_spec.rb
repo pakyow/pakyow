@@ -17,7 +17,7 @@ RSpec.describe "rendering view templates" do
       it "renders the view template" do
         call(File.join(mount_path, "test-plugin/render")).tap do |result|
           expect(result[0]).to eq(200)
-          response_body = result[2].body.read
+          response_body = result[2].read
           expect(response_body).to include_sans_whitespace(
             <<~HTML
               <title>app default</title>
@@ -37,7 +37,7 @@ RSpec.describe "rendering view templates" do
       it "renders the view template" do
         call(File.join(mount_path, "test-plugin/render/explicit")).tap do |result|
           expect(result[0]).to eq(200)
-          response_body = result[2].body.read
+          response_body = result[2].read
           expect(response_body).to include_sans_whitespace(
             <<~HTML
               <title>app default</title>
@@ -65,7 +65,7 @@ RSpec.describe "rendering view templates" do
       it "renders the app view template" do
         call(File.join(mount_path, "test-plugin/render/app-override")).tap do |result|
           expect(result[0]).to eq(200)
-          response_body = result[2].body.read
+          response_body = result[2].read
           expect(response_body).to include_sans_whitespace(
             <<~HTML
               <title>app default</title>
@@ -84,7 +84,7 @@ RSpec.describe "rendering view templates" do
         it "renders properly" do
           call(File.join(mount_path, "test-plugin/render/app-override-with-partials")).tap do |result|
             expect(result[0]).to eq(200)
-            response_body = result[2].body.read
+            response_body = result[2].read
             expect(response_body).to include_sans_whitespace(
               <<~HTML
                 <title>app default</title>
@@ -110,7 +110,7 @@ RSpec.describe "rendering view templates" do
         it "renders properly" do
           call(File.join(mount_path, "test-plugin/render/app-override-with-global-partials")).tap do |result|
             expect(result[0]).to eq(200)
-            response_body = result[2].body.read
+            response_body = result[2].read
             expect(response_body).to include_sans_whitespace(
               <<~HTML
                 <title>app default</title>
@@ -136,7 +136,7 @@ RSpec.describe "rendering view templates" do
         it "renders properly" do
           call(File.join(mount_path, "test-plugin/render/app-include-plugin-view")).tap do |result|
             expect(result[0]).to eq(200)
-            response_body = result[2].body.read
+            response_body = result[2].read
             expect(response_body).to include_sans_whitespace(
               <<~HTML
                 <title>app default</title>
@@ -161,7 +161,7 @@ RSpec.describe "rendering view templates" do
           it "renders properly" do
             call(File.join(mount_path, "test-plugin/render/app-include-plugin-view-with-partials")).tap do |result|
               expect(result[0]).to eq(200)
-              response_body = result[2].body.read
+              response_body = result[2].read
               expect(response_body).to include_sans_whitespace(
                 <<~HTML
                   <title>app default</title>
@@ -228,7 +228,7 @@ RSpec.describe "rendering view templates" do
         it "renders with the app component, calling the component in context of the app" do
           call(File.join(mount_path, "test-plugin/render/app-override-with-component")).tap do |result|
             expect(result[0]).to eq(200)
-            response_body = result[2].body.read
+            response_body = result[2].read
             expect(response_body).to include_sans_whitespace(
               <<~HTML
                 <title>app default</title>
@@ -261,7 +261,7 @@ RSpec.describe "rendering view templates" do
       it "renders with the plugin layout" do
         call(File.join(mount_path, "test-plugin/render/plugin-layout")).tap do |result|
           expect(result[0]).to eq(200)
-          response_body = result[2].body.read
+          response_body = result[2].read
           expect(response_body).to include_sans_whitespace(
             <<~HTML
               <title>plugin special</title>
@@ -280,7 +280,7 @@ RSpec.describe "rendering view templates" do
         it "renders the app view template in the plugin layout" do
           call(File.join(mount_path, "test-plugin/render/app-override-plugin-layout")).tap do |result|
             expect(result[0]).to eq(200)
-            response_body = result[2].body.read
+            response_body = result[2].read
             expect(response_body).to include_sans_whitespace(
               <<~HTML
                 <title>plugin special</title>
@@ -301,7 +301,7 @@ RSpec.describe "rendering view templates" do
       it "renders properly, calling the component in context of the plugin" do
         call(File.join(mount_path, "test-plugin/render/component")).tap do |result|
           expect(result[0]).to eq(200)
-          response_body = result[2].body.read
+          response_body = result[2].read
           expect(response_body).to include_sans_whitespace(
             <<~HTML
               <title>app default</title>
@@ -348,7 +348,7 @@ RSpec.describe "rendering view templates" do
         it "renders with the plugin component, calling it in context of the plugin" do
           call(File.join(mount_path, "test-plugin/render/component")).tap do |result|
             expect(result[0]).to eq(200)
-            response_body = result[2].body.read
+            response_body = result[2].read
             expect(response_body).to include_sans_whitespace(
               <<~HTML
                 <title>app default</title>

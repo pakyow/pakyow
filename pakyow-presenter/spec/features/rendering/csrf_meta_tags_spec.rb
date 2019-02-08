@@ -25,7 +25,7 @@ RSpec.describe "embedding csrf meta tags in a rendered view" do
       response = call("/")
       expect(response[0]).to eq(200)
 
-      response_body = response[2].body.read
+      response_body = response[2].read
       expect(response_body).to include("meta name=\"pw-authenticity-token\"")
 
       authenticity_client_id, authenticity_digest = response_body.match(/name=\"pw-authenticity-token\" content=\"([^\"]+)\"/)[1].split("--")
@@ -37,7 +37,7 @@ RSpec.describe "embedding csrf meta tags in a rendered view" do
     it "embeds the authenticity param" do
       response = call("/")
       expect(response[0]).to eq(200)
-      expect(response[2].body.read).to include("meta name=\"pw-authenticity-param\" content=\"authenticity_token\"")
+      expect(response[2].read).to include("meta name=\"pw-authenticity-param\" content=\"authenticity_token\"")
     end
   end
 
@@ -63,13 +63,13 @@ RSpec.describe "embedding csrf meta tags in a rendered view" do
     it "does not embed an authenticity token" do
       response = call("/")
       expect(response[0]).to eq(200)
-      expect(response[2].body.read).not_to include("meta name=\"pw-authenticity-token\"")
+      expect(response[2].read).not_to include("meta name=\"pw-authenticity-token\"")
     end
 
     it "does not embed the authenticity param" do
       response = call("/")
       expect(response[0]).to eq(200)
-      expect(response[2].body.read).not_to include("meta name=\"pw-authenticity-param\" content=\"authenticity_token\"")
+      expect(response[2].read).not_to include("meta name=\"pw-authenticity-param\" content=\"authenticity_token\"")
     end
   end
 end

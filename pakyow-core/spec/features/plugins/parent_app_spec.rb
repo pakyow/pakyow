@@ -40,7 +40,7 @@ RSpec.describe "accessing the parent app from a plugin" do
   it "exposes the parent app" do
     call("/test-plugin/parent-app").tap do |result|
       expect(result[0]).to eq(200)
-      expect(result[2].body).to eq("parent app: Test::App")
+      expect(result[2]).to eq("parent app: Test::App")
     end
   end
 end

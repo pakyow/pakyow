@@ -33,7 +33,7 @@ RSpec.describe "plugin features" do
   it "uses all features by default" do
     call("/test-plugin/features").tap do |result|
       expect(result[0]).to eq(200)
-      expect(result[2].body.sort).to eq([:default, :feature_one, :feature_two])
+      expect(result[2].sort).to eq([:default, :feature_one, :feature_two])
     end
   end
 
@@ -49,14 +49,14 @@ RSpec.describe "plugin features" do
     it "does not use the disabled feature" do
       call("/test-plugin/features").tap do |result|
         expect(result[0]).to eq(200)
-        expect(result[2].body).to_not include(:feature_one)
+        expect(result[2]).to_not include(:feature_one)
       end
     end
 
     it "uses the non-disabled features" do
       call("/test-plugin/features").tap do |result|
         expect(result[0]).to eq(200)
-        expect(result[2].body.sort).to eq([:default, :feature_two])
+        expect(result[2].sort).to eq([:default, :feature_two])
       end
     end
   end
@@ -73,21 +73,21 @@ RSpec.describe "plugin features" do
     it "uses the enabled feature" do
       call("/test-plugin/features").tap do |result|
         expect(result[0]).to eq(200)
-        expect(result[2].body).to include(:feature_one)
+        expect(result[2]).to include(:feature_one)
       end
     end
 
     it "uses the default feature" do
       call("/test-plugin/features").tap do |result|
         expect(result[0]).to eq(200)
-        expect(result[2].body).to include(:default)
+        expect(result[2]).to include(:default)
       end
     end
 
     it "does not use any non-enabled feature" do
       call("/test-plugin/features").tap do |result|
         expect(result[0]).to eq(200)
-        expect(result[2].body).to_not include(:feature_two)
+        expect(result[2]).to_not include(:feature_two)
       end
     end
   end
@@ -104,7 +104,7 @@ RSpec.describe "plugin features" do
     it "disables multiple features" do
       call("/test-plugin/features").tap do |result|
         expect(result[0]).to eq(200)
-        expect(result[2].body.sort).to eq([:default])
+        expect(result[2].sort).to eq([:default])
       end
     end
   end
@@ -121,7 +121,7 @@ RSpec.describe "plugin features" do
     it "enables multiple features" do
       call("/test-plugin/features").tap do |result|
         expect(result[0]).to eq(200)
-        expect(result[2].body.sort).to eq([:default, :feature_one, :feature_two])
+        expect(result[2].sort).to eq([:default, :feature_one, :feature_two])
       end
     end
   end

@@ -5,7 +5,7 @@ RSpec.describe "automatically rendering when no controller is called" do
     it "automatically renders the view" do
       response = call("/other")
       expect(response[0]).to eq(200)
-      expect(response[2].body.read).to eq("<!DOCTYPE html>\n<html>\n  <head>\n    <title>default</title>\n  </head>\n\n  <body>\n    other\n\n  </body>\n</html>\n")
+      expect(response[2].read).to eq("<!DOCTYPE html>\n<html>\n  <head>\n    <title>default</title>\n  </head>\n\n  <body>\n    other\n\n  </body>\n</html>\n")
     end
 
     context "presenter is defined" do
@@ -22,7 +22,7 @@ RSpec.describe "automatically rendering when no controller is called" do
       it "invokes the defined presenter" do
         response = call("/other")
         expect(response[0]).to eq(200)
-        expect(response[2].body.read).to eq("<!DOCTYPE html>\n<html>\n  <head>\n    <title>invoked</title>\n  </head>\n\n  <body>\n    other\n\n  </body>\n</html>\n")
+        expect(response[2].read).to eq("<!DOCTYPE html>\n<html>\n  <head>\n    <title>invoked</title>\n  </head>\n\n  <body>\n    other\n\n  </body>\n</html>\n")
       end
     end
 
@@ -49,7 +49,7 @@ RSpec.describe "automatically rendering when no controller is called" do
     it "renders a missing page error" do
       response = call("/nonexistent")
       expect(response[0]).to eq(404)
-      expect(response[2].body.read).to include("Unknown page")
+      expect(response[2].read).to include("Unknown page")
     end
 
     context "request format is not html" do

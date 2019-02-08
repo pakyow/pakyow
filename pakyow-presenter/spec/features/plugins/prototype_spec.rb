@@ -29,7 +29,7 @@ RSpec.describe "rendering view templates" do
   it "serves the plugin view prototype" do
     call("test-plugin/render/prototype").tap do |result|
       expect(result[0]).to eq(200)
-      response_body = result[2].body.read
+      response_body = result[2].read
       expect(response_body).to include_sans_whitespace(
         <<~HTML
           <title>app default</title>

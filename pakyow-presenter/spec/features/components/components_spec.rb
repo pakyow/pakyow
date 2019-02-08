@@ -16,7 +16,7 @@ RSpec.describe "rendering with backend components" do
   end
 
   it "renders once for each instance of the component" do
-    expect(call("/components")[2].body.read).to eq_sans_whitespace(
+    expect(call("/components")[2].read).to eq_sans_whitespace(
       <<~HTML
         <!DOCTYPE html>
         <html>
@@ -61,7 +61,7 @@ RSpec.describe "rendering with backend components" do
 
     it "renders each instance of the component" do
       $post_counter = 0
-      expect(call("/components/multiple")[2].body.read).to eq_sans_whitespace(
+      expect(call("/components/multiple")[2].read).to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
           <html>
@@ -130,7 +130,7 @@ RSpec.describe "rendering with backend components" do
     end
 
     it "renders each component" do
-      expect(call("/components/nested")[2].body.read).to eq_sans_whitespace(
+      expect(call("/components/nested")[2].read).to eq_sans_whitespace(
         <<~HTML
         <!DOCTYPE html>
         <html>
@@ -220,7 +220,7 @@ RSpec.describe "rendering with backend components" do
     end
 
     it "does not render the component" do
-      expect(call("/components")[2].body.read).to eq_sans_whitespace(
+      expect(call("/components")[2].read).to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
           <html>
@@ -264,7 +264,7 @@ RSpec.describe "rendering with backend components" do
     end
 
     it "does not expose the value to the component" do
-      expect(call("/components")[2].body.read).to eq_sans_whitespace(
+      expect(call("/components")[2].read).to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
           <html>
@@ -316,7 +316,7 @@ RSpec.describe "rendering with backend components" do
     end
 
     it "does expose the value to the component" do
-      expect(call("/components")[2].body.read).to eq_sans_whitespace(
+      expect(call("/components")[2].read).to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
           <html>
@@ -360,7 +360,7 @@ RSpec.describe "rendering with backend components" do
     end
 
     it "uses the defined presenter" do
-      expect(call("/components")[2].body.read).to eq_sans_whitespace(
+      expect(call("/components")[2].read).to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
           <html>
@@ -390,7 +390,7 @@ RSpec.describe "rendering with backend components" do
     end
 
     it "does not call the component" do
-      expect(call("/components")[2].body.read).to include_sans_whitespace(
+      expect(call("/components")[2].read).to include_sans_whitespace(
         <<~HTML
           <div data-ui="single">
             <div data-b="post">

@@ -16,14 +16,14 @@ RSpec.describe "forms with channeled bindings" do
   end
 
   it "sets up the endpoint for each form" do
-    call("/presentation/forms/channeled/posts/new")[2].body.read.tap do |body|
+    call("/presentation/forms/channeled/posts/new")[2].read.tap do |body|
       expect(body).to include('<form data-b="post" data-c="form:foo" action="/presentation/forms/channeled/posts" method="post">')
       expect(body).to include('<form data-b="post" data-c="form:bar" action="/presentation/forms/channeled/posts" method="post">')
     end
   end
 
   it "exposes values to the correct form" do
-    call("/presentation/forms/channeled/posts/new")[2].body.read.tap do |body|
+    call("/presentation/forms/channeled/posts/new")[2].read.tap do |body|
       expect(body).to include('<input type="text" data-b="title" class="foo" data-c="form" name="post[title]" value="foo">')
       expect(body).to include('<input type="text" data-b="title" class="bar" data-c="form" name="post[title]" value="bar">')
     end
@@ -53,14 +53,14 @@ RSpec.describe "forms with channeled bindings" do
     end
 
     it "sets the endpoint for each form when the required values are exposed through params" do
-      call("/posts/1/comments/new")[2].body.read.tap do |body|
+      call("/posts/1/comments/new")[2].read.tap do |body|
         expect(body).to include('<form data-b="comment" data-e="posts_comments_create" data-c="form:foo" action="/posts/1/comments" method="post">')
         expect(body).to include('<form data-b="comment" data-e="posts_comments_create" data-c="form:bar" action="/posts/1/comments" method="post">')
       end
     end
 
     it "sets the endpoint for each form when the object exposes the required values" do
-      call("/presentation/forms/channeled/contextual")[2].body.read.tap do |body|
+      call("/presentation/forms/channeled/contextual")[2].read.tap do |body|
         expect(body).to include('<form data-b="comment" data-e="posts_comments_create" data-c="form:foo" action="/posts/123/comments" method="post">')
         expect(body).to include('<form data-b="comment" data-e="posts_comments_create" data-c="form:bar" action="/posts/321/comments" method="post">')
       end

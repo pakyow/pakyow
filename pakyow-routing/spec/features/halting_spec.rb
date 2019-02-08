@@ -68,7 +68,7 @@ RSpec.describe "halting a request" do
     end
 
     it "sets the response body, halts, and returns the response" do
-      expect(call[2].body).to eq("foo")
+      expect(call[2]).to eq("foo")
     end
   end
 

@@ -13,7 +13,7 @@ RSpec.describe "routing with regex matchers" do
     end
 
     it "still matches the route" do
-      expect(call("/foo")[2].body.read).to eq("regex")
+      expect(call("/foo")[2].read).to eq("regex")
     end
 
     context "when regex contains named captures" do
@@ -28,7 +28,7 @@ RSpec.describe "routing with regex matchers" do
       end
 
       it "makes the captures available as params" do
-        expect(call("/foo")[2].body.read).to eq("foo")
+        expect(call("/foo")[2].read).to eq("foo")
       end
     end
   end
@@ -47,7 +47,7 @@ RSpec.describe "routing with regex matchers" do
     end
 
     it "is matched" do
-      expect(call("/foo")[2].body.first).to eq("foo")
+      expect(call("/foo")[2].first).to eq("foo")
     end
   end
 
@@ -63,7 +63,7 @@ RSpec.describe "routing with regex matchers" do
     end
 
     it "is matched" do
-      expect(call("/foo")[2].body.first).to eq("foo")
+      expect(call("/foo")[2].first).to eq("foo")
     end
   end
 end

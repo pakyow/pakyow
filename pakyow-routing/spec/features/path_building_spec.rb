@@ -51,46 +51,46 @@ RSpec.describe "path building" do
   end
 
   it "returns nil when no path found" do
-    expect(call("/path/missing")[2].body.read).to eq("")
+    expect(call("/path/missing")[2].read).to eq("")
   end
 
   it "builds path to a default route" do
-    expect(call("/path/main_default")[2].body.read).to eq("/")
+    expect(call("/path/main_default")[2].read).to eq("/")
   end
 
   it "builds path to a named route" do
-    expect(call("/path/main_foo")[2].body.read).to eq("/foo")
+    expect(call("/path/main_foo")[2].read).to eq("/foo")
   end
 
   it "builds path to a named route with params" do
-    expect(call("/path/main_bar", params: { id: "123" })[2].body.read).to eq("/bar/123")
+    expect(call("/path/main_bar", params: { id: "123" })[2].read).to eq("/bar/123")
   end
 
   it "builds path to a grouped route" do
-    expect(call("/path/main_grouped_default")[2].body.read).to eq("/")
+    expect(call("/path/main_grouped_default")[2].read).to eq("/")
   end
 
   it "builds path to a namespaced route" do
-    expect(call("/path/main_namespaced_default")[2].body.read).to eq("/ns")
+    expect(call("/path/main_namespaced_default")[2].read).to eq("/ns")
   end
 
   it "builds path to a deeply nested route" do
-    expect(call("/path/main_namespaced_deep_default")[2].body.read).to eq("/ns/deep")
+    expect(call("/path/main_namespaced_deep_default")[2].read).to eq("/ns/deep")
   end
 
   it "builds path to a resource route" do
-    expect(call("/path/posts_list")[2].body.read).to eq("/posts")
+    expect(call("/path/posts_list")[2].read).to eq("/posts")
   end
 
   it "builds path to a nested resource route" do
-    expect(call("/path/posts_comments_list", params: { post_id: "123" })[2].body.read).to eq("/posts/123/comments")
+    expect(call("/path/posts_comments_list", params: { post_id: "123" })[2].read).to eq("/posts/123/comments")
   end
 
   it "builds path to a named internal route" do
-    expect(call("/path/main_internal_static")[2].body.read).to eq("/internal#foo")
+    expect(call("/path/main_internal_static")[2].read).to eq("/internal#foo")
   end
 
   it "builds path to a named internal route with params" do
-    expect(call("/path/main_internal_params", params: { id: "123" })[2].body.read).to eq("/internal#123")
+    expect(call("/path/main_internal_params", params: { id: "123" })[2].read).to eq("/internal#123")
   end
 end

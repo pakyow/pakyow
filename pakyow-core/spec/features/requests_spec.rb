@@ -41,7 +41,7 @@ RSpec.describe "sending requests to an app" do
     end
 
     it "responds with the connection body" do
-      expect(call("/" + SecureRandom.hex(8))[2].body).to eq("foo")
+      expect(call("/" + SecureRandom.hex(8))[2]).to eq("foo")
     end
 
     it "responds with the connection headers" do

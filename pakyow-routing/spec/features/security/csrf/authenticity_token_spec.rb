@@ -83,7 +83,7 @@ RSpec.describe "verifying the request's authenticity token" do
     end
 
     it "overrides" do
-      expect(call("/", method: :post)[2].body.read).to eq("overridden")
+      expect(call("/", method: :post)[2].read).to eq("overridden")
     end
   end
 end

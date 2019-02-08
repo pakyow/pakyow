@@ -15,7 +15,7 @@ RSpec.describe "nodes marked for prototype" do
     end
 
     it "does not remove the prototype nodes" do
-      expect(call("/prototype")[2].body.read).to eq_sans_whitespace(
+      expect(call("/prototype")[2].read).to eq_sans_whitespace(
         <<~HTML
           <div>
             foo
@@ -27,7 +27,7 @@ RSpec.describe "nodes marked for prototype" do
 
   context "not running in prototype mode" do
     it "removes the prototype nodes" do
-      expect(call("/prototype")[2].body.read).to_not include_sans_whitespace(
+      expect(call("/prototype")[2].read).to_not include_sans_whitespace(
         <<~HTML
           <div>
             foo

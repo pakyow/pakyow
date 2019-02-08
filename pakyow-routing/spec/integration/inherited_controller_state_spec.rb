@@ -19,7 +19,7 @@ RSpec.describe "inherited controller state" do
     end
 
     it "does not inherit" do
-      expect(call("/foo")[2].body).to eq(["two"])
+      expect(call("/foo")[2]).to eq(["two"])
     end
   end
 end

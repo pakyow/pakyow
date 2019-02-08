@@ -16,7 +16,7 @@ RSpec.describe "embedding source mapping url" do
 
   describe "requesting a css stylesheet" do
     it "adds the source mapping url to the asset content" do
-      expect(call("/assets/default.css")[2].body.read).to include("\n/*# sourceMappingURL=/assets/default.css.map */\n")
+      expect(call("/assets/default.css")[2].read).to include("\n/*# sourceMappingURL=/assets/default.css.map */\n")
     end
 
     context "source maps are disabled" do
@@ -25,14 +25,14 @@ RSpec.describe "embedding source mapping url" do
       end
 
       it "does not add the source mapping url to the asset content" do
-        expect(call("/assets/default.css")[2].body.read).to_not include("/*# sourceMappingURL\n")
+        expect(call("/assets/default.css")[2].read).to_not include("/*# sourceMappingURL\n")
       end
     end
   end
 
   describe "requesting a sass stylesheet" do
     it "adds the source mapping url to the asset content" do
-      expect(call("/assets/types-sass.css")[2].body.read).to include("\n/*# sourceMappingURL=/assets/types-sass.css.map */\n")
+      expect(call("/assets/types-sass.css")[2].read).to include("\n/*# sourceMappingURL=/assets/types-sass.css.map */\n")
     end
 
     context "source maps are disabled" do
@@ -41,14 +41,14 @@ RSpec.describe "embedding source mapping url" do
       end
 
       it "does not add the source mapping url to the asset content" do
-        expect(call("/assets/types-sass.css")[2].body.read).to_not include("/*# sourceMappingURL\n")
+        expect(call("/assets/types-sass.css")[2].read).to_not include("/*# sourceMappingURL\n")
       end
     end
   end
 
   describe "requesting a javascript" do
     it "adds the source mapping url to the asset content" do
-      expect(call("/assets/types-js.js")[2].body.read).to include("\n//# sourceMappingURL=/assets/types-js.js.map\n")
+      expect(call("/assets/types-js.js")[2].read).to include("\n//# sourceMappingURL=/assets/types-js.js.map\n")
     end
 
     context "source maps are disabled" do
@@ -57,14 +57,14 @@ RSpec.describe "embedding source mapping url" do
       end
 
       it "does not add the source mapping url to the asset content" do
-        expect(call("/assets/types-js.js")[2].body.read).to_not include("\n/*# sourceMappingURL\n")
+        expect(call("/assets/types-js.js")[2].read).to_not include("\n/*# sourceMappingURL\n")
       end
     end
   end
 
   describe "requesting a javascript pack" do
     it "adds the source mapping url to the asset content" do
-      expect(call("/assets/packs/pages/source_mapped.js")[2].body.read).to include("\n//# sourceMappingURL=/assets/packs/pages/source_mapped.js.map\n")
+      expect(call("/assets/packs/pages/source_mapped.js")[2].read).to include("\n//# sourceMappingURL=/assets/packs/pages/source_mapped.js.map\n")
     end
 
     context "source maps are disabled" do
@@ -73,7 +73,7 @@ RSpec.describe "embedding source mapping url" do
       end
 
       it "does not add the source mapping url to the asset content" do
-        expect(call("/assets/packs/pages/source_mapped.js")[2].body.read).not_to include("/*# sourceMappingURL=")
+        expect(call("/assets/packs/pages/source_mapped.js")[2].read).not_to include("/*# sourceMappingURL=")
       end
     end
   end
@@ -84,7 +84,7 @@ RSpec.describe "embedding source mapping url" do
     end
 
     it "adds the source mapping url to the asset content" do
-      expect(call("/assets/packs/pages/source_mapped.css")[2].body.read).to include("/*# sourceMappingURL=/assets/packs/pages/source_mapped.css.map */\n")
+      expect(call("/assets/packs/pages/source_mapped.css")[2].read).to include("/*# sourceMappingURL=/assets/packs/pages/source_mapped.css.map */\n")
     end
 
     context "source maps are disabled" do
@@ -93,7 +93,7 @@ RSpec.describe "embedding source mapping url" do
       end
 
       it "does not add the source mapping url to the asset content" do
-        expect(call("/assets/packs/pages/source_mapped.css")[2].body.read).not_to include("/*# sourceMappingURL=")
+        expect(call("/assets/packs/pages/source_mapped.css")[2].read).not_to include("/*# sourceMappingURL=")
       end
     end
   end
@@ -121,7 +121,7 @@ RSpec.describe "serving source maps from the processor" do
     end
 
     it "responds with the expected source map" do
-      map = JSON.parse(call("/assets/types-js.js.map")[2].body.read)
+      map = JSON.parse(call("/assets/types-js.js.map")[2].read)
 
       expect(map["version"]).to eq(3)
       expect(map["file"]).to eq("types-js.js")
@@ -150,7 +150,7 @@ RSpec.describe "serving source maps from the processor" do
       end
 
       it "responds with the expected source map" do
-        map = JSON.parse(call("/assets/types-js.js.map")[2].body.read)
+        map = JSON.parse(call("/assets/types-js.js.map")[2].read)
 
         expect(map["version"]).to eq(3)
         expect(map["file"]).to eq("types-js.js")
@@ -181,7 +181,7 @@ RSpec.describe "serving source maps from the processor" do
     end
 
     it "responds with the expected source map" do
-      map = JSON.parse(call("/assets/types-sass.css.map")[2].body.read)
+      map = JSON.parse(call("/assets/types-sass.css.map")[2].read)
 
       expect(map["version"]).to eq(3)
       expect(map["file"]).to eq("types-sass.css")
@@ -211,7 +211,7 @@ RSpec.describe "serving source maps from the processor" do
     end
 
     it "responds with the expected source map" do
-      map = JSON.parse(call("/assets/types-sass-with-deps.css.map")[2].body.read)
+      map = JSON.parse(call("/assets/types-sass-with-deps.css.map")[2].read)
 
       expect(map["version"]).to eq(3)
       expect(map["file"]).to eq("types-sass-with-deps.css")
@@ -243,7 +243,7 @@ RSpec.describe "serving source maps from the processor" do
     end
 
     it "responds with the expected source map" do
-      map = JSON.parse(call("/assets/packs/pages/source_mapped.js.map")[2].body.read)
+      map = JSON.parse(call("/assets/packs/pages/source_mapped.js.map")[2].read)
 
       expect(map["version"]).to eq(3)
       expect(map["file"]).to eq("source_mapped.js")
@@ -274,7 +274,7 @@ RSpec.describe "serving source maps from the processor" do
       end
 
       it "responds with the expected source map" do
-        map = JSON.parse(call("/assets/packs/pages/source_mapped.js.map")[2].body.read)
+        map = JSON.parse(call("/assets/packs/pages/source_mapped.js.map")[2].read)
 
         expect(map["version"]).to eq(3)
         expect(map["file"]).to eq("source_mapped.js")
@@ -430,7 +430,7 @@ RSpec.describe "serving source maps from the processor" do
     end
 
     it "responds with the expected source map" do
-      map = JSON.parse(call("/assets/packs/pages/source_mapped.css.map")[2].body.read)
+      map = JSON.parse(call("/assets/packs/pages/source_mapped.css.map")[2].read)
 
       expect(map["version"]).to eq(3)
       expect(map["file"]).to eq("source_mapped.css")
@@ -557,7 +557,7 @@ RSpec.describe "serving source maps from the processor" do
     end
 
     it "responds with the expected source map" do
-      map = JSON.parse(call("/assets/packs/external-transpiled.js.map")[2].body.read)
+      map = JSON.parse(call("/assets/packs/external-transpiled.js.map")[2].read)
 
       expect(map["version"]).to eq(3)
       expect(map["file"]).to eq("external-transpiled.js")

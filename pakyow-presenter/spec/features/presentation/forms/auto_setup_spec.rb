@@ -33,7 +33,7 @@ RSpec.describe "automatic form setup" do
         response = call("/posts/new")
         expect(response[0]).to eq(200)
 
-        expect(response[2].body.read).to include_sans_whitespace(
+        expect(response[2].read).to include_sans_whitespace(
           <<~HTML
             <input data-b="title" type="text" data-c="form" name="post[title]" value="bar">
           HTML
@@ -137,7 +137,7 @@ RSpec.describe "automatic form setup" do
         call("/posts/1/edit").tap do |response|
           expect(response[0]).to eq(200)
 
-          response[2].body.read.tap do |body|
+          response[2].read.tap do |body|
             expect(body).to include('<form data-b="post" data-c="form" action="/posts/1" method="post" data-id="1">')
             expect(body).to include('<input type="hidden" name="_method" value="patch">')
           end
@@ -173,7 +173,7 @@ RSpec.describe "automatic form setup" do
       response = call("/posts/1/edit")
       expect(response[0]).to eq(200)
 
-      body = response[2].body.read
+      body = response[2].read
 
       expect(body).to include_sans_whitespace(
         <<~HTML

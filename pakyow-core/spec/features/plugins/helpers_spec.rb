@@ -39,12 +39,12 @@ RSpec.describe "accessing helpers from the plugin" do
   it "calls the helpers in the correct context" do
     call("/test-plugin/helpers").tap do |result|
       expect(result[0]).to eq(200)
-      expect(result[2].body).to eq("test_helper: Test::Testable::Default")
+      expect(result[2]).to eq("test_helper: Test::Testable::Default")
     end
 
     call("/foo/test-plugin/helpers").tap do |result|
       expect(result[0]).to eq(200)
-      expect(result[2].body).to eq("test_helper: Test::Testable::Foo")
+      expect(result[2]).to eq("test_helper: Test::Testable::Foo")
     end
   end
 end
@@ -104,19 +104,19 @@ RSpec.describe "accessing helpers from the app" do
   it "calls the helpers in the correct context" do
     call("/helpers/default").tap do |result|
       expect(result[0]).to eq(200)
-      expect(result[2].body).to eq("test_helper: Test::Testable::Default")
+      expect(result[2]).to eq("test_helper: Test::Testable::Default")
     end
 
     call("/helpers?plug=foo").tap do |result|
       expect(result[0]).to eq(200)
-      expect(result[2].body).to eq("test_helper: Test::Testable::Foo")
+      expect(result[2]).to eq("test_helper: Test::Testable::Foo")
     end
   end
 
   it "has access to methods in the original context" do
     call("/helpers/default?helper=test_context").tap do |result|
       expect(result[0]).to eq(200)
-      expect(result[2].body).to eq("test_context: some_action")
+      expect(result[2]).to eq("test_context: some_action")
     end
   end
 end

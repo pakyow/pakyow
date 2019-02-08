@@ -18,7 +18,7 @@ RSpec.describe "processing an asset" do
       end
 
       it "responds with the asset" do
-        expect(call("/assets/default.css")[2].body.read).to include("body {\n  background: purple; }\n")
+        expect(call("/assets/default.css")[2].read).to include("body {\n  background: purple; }\n")
       end
     end
 
@@ -32,7 +32,7 @@ RSpec.describe "processing an asset" do
       end
 
       it "responds with an empty body" do
-        expect(call("/assets/nonexistent.css")[2].body).to be_empty
+        expect(call("/assets/nonexistent.css")[2]).to be_empty
       end
     end
   end
@@ -54,7 +54,7 @@ RSpec.describe "processing an asset" do
       end
 
       it "responds with an empty body" do
-        expect(call("/assets/default.css")[2].body).to be_empty
+        expect(call("/assets/default.css")[2]).to be_empty
       end
     end
 
@@ -68,7 +68,7 @@ RSpec.describe "processing an asset" do
       end
 
       it "responds with an empty body" do
-        expect(call("/assets/nonexistent.css")[2].body).to be_empty
+        expect(call("/assets/nonexistent.css")[2]).to be_empty
       end
     end
   end
