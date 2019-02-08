@@ -1,4 +1,4 @@
-RSpec.describe "data config" do
+RSpec.describe "environment data config" do
   let :config do
     Pakyow.config.data
   end
@@ -69,26 +69,10 @@ RSpec.describe "data config" do
 
       describe "changing the adapter settings" do
         it "does not affect the global settings" do
-          config.subscriptions.adapter_settings.connection.tcp_keepalive = 15
+          config.subscriptions.adapter_settings[:connection][:tcp_keepalive] = 15
           expect(Pakyow.config.redis.connection.tcp_keepalive).to eq(5)
         end
       end
-    end
-  end
-end
-
-RSpec.describe "connections config" do
-  before do
-    Pakyow.setup
-  end
-
-  let :config do
-    Pakyow.config.data.connections
-  end
-
-  it "has a setting for each type" do
-    Pakyow::Data::Connection.adapter_types.each do |type|
-      expect(config.public_send(type)).to be_instance_of(Hash)
     end
   end
 end

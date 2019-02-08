@@ -17,7 +17,9 @@ module Pakyow
           after :initialize do
             @websocket_server = Realtime::Server.new(
               Pakyow.config.realtime.adapter,
-              Pakyow.config.realtime.adapter_settings,
+              Pakyow.config.realtime.adapter_settings.to_h.merge(
+                config.realtime.adapter_settings.to_h
+              ),
               config.realtime.timeouts
             )
           end

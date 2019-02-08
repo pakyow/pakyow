@@ -23,19 +23,19 @@ module Pakyow
 
           def initialize(server, config)
             @server, @config = server, config
-            @prefix = [@config.key_prefix, KEY_PREFIX].join(KEY_PART_SEPARATOR)
+            @prefix = [@config[:key_prefix], KEY_PREFIX].join(KEY_PART_SEPARATOR)
 
             connect
             cleanup
           end
 
           def connect
-            @redis = ConnectionPool.new(**@config.pool.to_h) {
-              ::Redis.new(@config.connection.to_h)
+            @redis = ConnectionPool.new(**@config[:pool]) {
+              ::Redis.new(@config[:connection])
             }
 
             @buffer = Buffer.new(@redis, pubsub_channel)
-            @subscriber = Subscriber.new(::Redis.new(@config.connection.to_h), pubsub_channel) do |payload|
+            @subscriber = Subscriber.new(::Redis.new(@config[:connection]), pubsub_channel) do |payload|
               channel, message = Marshal.restore(payload).values_at(:channel, :message)
               @server.transmit_message_to_connection_ids(message, socket_ids_for_channel(channel), raw: true)
             end

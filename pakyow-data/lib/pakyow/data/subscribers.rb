@@ -14,8 +14,16 @@ module Pakyow
 
       def initialize(app, adapter = :memory, adapter_config = {})
         @app = app
+
         require "pakyow/data/subscribers/adapters/#{adapter}"
-        @adapter = Pakyow::Data::Subscribers::Adapters.const_get(adapter.to_s.capitalize).new(adapter_config)
+        @adapter = Pakyow::Data::Subscribers::Adapters.const_get(
+          adapter.to_s.capitalize
+        ).new(
+          adapter_config.to_h.merge(
+            app.config.data.subscriptions.adapter_settings.to_h
+          )
+        )
+
         @executor = Concurrent::ThreadPoolExecutor.new(
           min_threads: 1,
           max_threads: 10,

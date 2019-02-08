@@ -17,7 +17,7 @@ module Pakyow
 
             defaults :production do
               setting :adapter_settings do
-                { key_prefix: ["pw", config.name].join("/") }
+                { key_prefix: [Pakyow.config.redis.key_prefix, config.name].join("/") }
               end
 
               setting :log_initial_request, true
