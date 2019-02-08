@@ -15,6 +15,12 @@ module Pakyow
           __setobj__(dataset)
         end
 
+        # Fixes an issue using pp inside a delegator.
+        #
+        def pp(*args)
+          Kernel.pp(*args)
+        end
+
         # @api private
         attr_reader :original_results
 

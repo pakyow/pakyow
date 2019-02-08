@@ -123,6 +123,12 @@ module Pakyow
       end
       alias to_hash to_h
 
+      # Fixes an issue using pp inside a delegator.
+      #
+      def pp(*args)
+        Kernel.pp(*args)
+      end
+
       private
 
       def internal_hash=(other)
