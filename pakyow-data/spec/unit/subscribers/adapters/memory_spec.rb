@@ -7,7 +7,7 @@ RSpec.describe Pakyow::Data::Subscribers::Adapters::Memory do
     end
 
     it "serializes the correct number of ivars" do
-      expect(instance.serialize.keys.count).to eq(3)
+      expect(instance.serialize.keys.count).to eq(4)
     end
 
     it "serializes @subscriptions_by_id" do

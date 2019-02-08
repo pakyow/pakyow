@@ -4,7 +4,7 @@ require "digest/sha1"
 
 require "concurrent/array"
 require "concurrent/hash"
-require "concurrent/scheduled_task"
+require "concurrent/timer_task"
 
 require "pakyow/support/deep_dup"
 
@@ -32,6 +32,14 @@ module Pakyow
             @subscribers_by_subscription_id = Concurrent::Hash.new
             @subscription_ids_by_subscriber = Concurrent::Hash.new
             @expirations_for_subscriber = Concurrent::Hash.new
+
+            Concurrent::TimerTask.new(execution_interval: 10, timeout_interval: 10) {
+              @expirations_for_subscriber.each do |subscriber, timeout|
+                if timeout < Time.now
+                  unsubscribe(subscriber)
+                end
+              end
+            }.execute
           end
 
           def register_subscriptions(subscriptions, subscriber: nil)
@@ -57,21 +65,15 @@ module Pakyow
           end
 
           def expire(subscriber, seconds)
-            task = Concurrent::ScheduledTask.execute(seconds) {
-              unsubscribe(subscriber)
-            }
-
-            @expirations_for_subscriber[subscriber] ||= []
-            @expirations_for_subscriber[subscriber] << task
+            @expirations_for_subscriber[subscriber] = Time.now
           end
 
           def persist(subscriber)
-            (@expirations_for_subscriber[subscriber] || []).each(&:cancel)
             @expirations_for_subscriber.delete(subscriber)
           end
 
           def expiring?(subscriber)
-            @expirations_for_subscriber[subscriber]&.any?
+            @expirations_for_subscriber.key?(subscriber)
           end
 
           def subscribers_for_subscription_id(subscription_id)
@@ -82,6 +84,7 @@ module Pakyow
             @subscriptions_by_id
             @subscription_ids_by_source
             @subscribers_by_subscription_id
+            @expirations_for_subscriber
           ).freeze
 
           def serialize
