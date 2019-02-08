@@ -15,7 +15,7 @@ RSpec.describe "setting the default timezone" do
   include_context "app"
 
   it "sets the timezone to the default timezone" do
-    expect(Time.now.zone).to eq("UTC")
+    expect(Time.now.zone.upcase).to eq("UTC")
   end
 
   context "timezone is changed" do
@@ -24,7 +24,7 @@ RSpec.describe "setting the default timezone" do
     end
 
     it "sets the timezone to the configured timezone" do
-      expect(Time.now.zone).to eq("EST")
+      expect(Time.now.zone.upcase).to eq("EST")
     end
   end
 end
