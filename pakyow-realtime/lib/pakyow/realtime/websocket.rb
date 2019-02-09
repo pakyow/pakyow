@@ -4,34 +4,34 @@ require "securerandom"
 
 require "pakyow/helpers/connection"
 
+require "async/websocket"
+
 module Pakyow
   module Realtime
     class WebSocket
       include Pakyow::Helpers::Connection
 
-      attr_reader :id, :io, :env, :url
+      attr_reader :id
 
       def initialize(id, connection)
-        @id, @connection = id, connection
-        @open = false
+        @id, @connection, @open = id, connection, false
+        @logger = Logger.new(:sock, id: @id[0..7])
+        @server = @connection.app.websocket_server
 
-        @logger = RequestLogger.new(:sock, id: @id[0..7])
-        @env = @connection.env
-
-        secure = @connection.ssl?
-        scheme = secure ? "wss:" : "ws:"
-        @url = scheme + "//" + @connection.env["HTTP_HOST"] + @connection.env["REQUEST_URI"]
-
-        @connection.env["rack.hijack"].call
-        @io = @connection.env["rack.hijack_io"]
-        @connection.app.websocket_server.socket_connect(self, @io)
-
-        @driver = ::WebSocket::Driver.rack(self)
-        @driver.on(:open)    do |_e| handle_open end
-        @driver.on(:message) do |e| handle_message(e.data) end
-        @driver.on(:close)   do |e| handle_close(e.reason, e.code) end
-        @driver.on(:error)   do |e| handle_error(e.message) end
-        @driver.start
+        if @socket = Async::WebSocket::Incoming.new(@connection.request)
+          while event = @socket.next_event
+            case event
+            when ::WebSocket::Driver::OpenEvent
+              handle_open
+            when ::WebSocket::Driver::MessageEvent
+              handle_message(event.data)
+            end
+          end
+        end
+      rescue Async::WebSocket::Incoming::Invalid
+        connection.halt
+      ensure
+        @socket&.close; shutdown
       end
 
       def open?
@@ -40,7 +40,11 @@ module Pakyow
 
       def transmit(message, raw: false)
         if open?
-          @driver.text(raw ? message : { payload: message }.to_json)
+          if raw
+            @socket.send_text(message)
+          else
+            @socket.send_message(payload: message)
+          end
         end
       end
 
@@ -48,35 +52,23 @@ module Pakyow
         transmit("beat")
       end
 
-      def shutdown
-        return unless open?
-
-        @connection.app.websocket_server.socket_disconnect(self, @io)
-        @io = nil
-        @open = false
-        @logger.info "shutdown"
-      end
-
-      def write(string)
-        @logger.verbose("> " + string)
-        @io.write(string)
-      rescue
-        shutdown
-      end
-
-      def receive(data)
-        @driver.parse(data)
-      rescue
-        shutdown
-      end
-
+      # @api private
       def leave
         trigger_presence(:leave)
       end
 
-      protected
+      private
+
+      def shutdown
+        if open?
+          @server.socket_disconnect(self)
+          @open = false
+          @logger.info "shutdown"
+        end
+      end
 
       def handle_open
+        @server.socket_connect(self)
         @open = true
         trigger_presence(:join)
         @logger.info "opened"
@@ -86,18 +78,74 @@ module Pakyow
         @logger.verbose("< " + message)
       end
 
-      def handle_close(_code, _reason)
-        shutdown
-      end
-
-      def handle_error(_message)
-        shutdown
-      end
-
       def trigger_presence(event)
         @connection.app.hooks(:before, event).each do |hook, _|
           instance_exec(&hook)
         end
+      end
+    end
+  end
+end
+
+require "async/io"
+require "async/websocket/connection"
+
+module Async
+  module WebSocket
+    class Incoming < Connection
+      class Invalid < StandardError; end
+
+      def initialize(request)
+        @env = build_env(request)
+        @url = build_url(request)
+
+        if request.hijack? && websocket?(@env)
+          @io = hijacked_io(request)
+          super(@io, ::WebSocket::Driver.rack(self))
+        else
+          raise Invalid
+        end
+      end
+
+      attr :env
+      attr :url
+
+      def close
+        super; @io.close
+      end
+
+      protected
+
+      def websocket?(env)
+        ::WebSocket::Driver.websocket?(env)
+      end
+
+      def build_env(request)
+        {
+          "HTTP_CONNECTION" => request.headers["connection"].to_s,
+          "HTTP_HOST" => request.headers["host"].to_s,
+          "HTTP_ORIGIN" => request.headers["origin"].to_s,
+          "HTTP_SEC_WEBSOCKET_EXTENSIONS" => request.headers["sec-websocket-extensions"].to_s,
+          "HTTP_SEC_WEBSOCKET_KEY" => request.headers["sec-websocket-key"].to_s,
+          "HTTP_SEC_WEBSOCKET_KEY1" => request.headers["sec-websocket-key1"].to_s,
+          "HTTP_SEC_WEBSOCKET_KEY2" => request.headers["sec-websocket-key2"].to_s,
+          "HTTP_SEC_WEBSOCKET_PROTOCOL" => request.headers["sec-websocket-protocol"].to_s,
+          "HTTP_SEC_WEBSOCKET_VERSION" => request.headers["sec-websocket-version"].to_s,
+          "HTTP_UPGRADE" => request.headers["upgrade"].to_s,
+          "REQUEST_METHOD" => request.method,
+          "rack.input" => request.body
+        }
+      end
+
+      def build_url(request)
+        "#{request.scheme}://#{request.authority}#{request.path}"
+      end
+
+      def hijacked_io(request)
+        wrapper = request.hijack
+        io = Async::IO.try_convert(wrapper.io.dup)
+        wrapper.close
+        io
       end
     end
   end

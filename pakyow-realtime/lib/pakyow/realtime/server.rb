@@ -9,7 +9,6 @@ require "websocket/driver"
 require "pakyow/support/message_verifier"
 
 require "pakyow/realtime/websocket"
-require "pakyow/realtime/event_loop"
 
 module Pakyow
   module Realtime
@@ -21,7 +20,6 @@ module Pakyow
       def initialize(adapter = :memory, adapter_config, timeout_config)
         require "pakyow/realtime/server/adapters/#{adapter}"
         @adapter = Adapters.const_get(adapter.to_s.capitalize).new(self, adapter_config)
-        @event_loop = EventLoop.new
         @sockets = Concurrent::Array.new
         @timeout_config = timeout_config
         @executor = Concurrent::ThreadPoolExecutor.new(
@@ -55,10 +53,9 @@ module Pakyow
         }
       end
 
-      def socket_connect(id_or_socket, io)
+      def socket_connect(id_or_socket)
         @executor << -> {
           find_socket(id_or_socket) do |socket|
-            @event_loop.add(io, socket)
             @sockets << socket
             @adapter.persist(socket.id)
             @adapter.current!(socket.id, socket.object_id)
@@ -66,10 +63,9 @@ module Pakyow
         }
       end
 
-      def socket_disconnect(id_or_socket, io)
+      def socket_disconnect(id_or_socket)
         @executor << -> {
           find_socket(id_or_socket) do |socket|
-            @event_loop.rm(io)
             @sockets.delete(socket)
 
             # If this isn't the current instance for the socket id, it means that a
