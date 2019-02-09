@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
+require "log4r"
+
 require "pakyow/support/extension"
+
+require "pakyow/logger/formatters/human"
+require "pakyow/logger/formatters/logfmt"
 
 module Pakyow
   module Environment
@@ -13,6 +18,10 @@ module Pakyow
           setting :freeze_on_boot, true
           setting :exit_on_boot_failure, true
           setting :timezone, :utc
+          setting :connection_class do
+            require "pakyow/connection"
+            Connection
+          end
 
           setting :root do
             File.expand_path(".")
@@ -35,28 +44,53 @@ module Pakyow
           end
 
           configurable :server do
-            setting :name, :puma
             setting :host, "localhost"
             setting :port, 3000
+            setting :count, 1
+            setting :proxy, true
+
+            defaults :production do
+              setting :proxy, false
+
+              setting :host do
+                ENV["HOST"] || "localhost"
+              end
+
+              setting :port do
+                ENV["PORT"] || 3000
+              end
+
+              setting :count do
+                ENV["WORKERS"] || 5
+              end
+            end
           end
 
           configurable :cli do
-            setting :repl, IRB
+            setting :repl do
+              require "irb"; IRB
+            end
           end
 
           configurable :logger do
             setting :enabled, true
-            setting :level, :debug
+            setting :level do
+              if config.logger.enabled
+                :debug
+              else
+                :off
+              end
+            end
+
             setting :formatter do
-              require "pakyow/logger/formatters/human"
               Logger::Formatters::Human
             end
 
             setting :destinations do
               if config.logger.enabled
-                [$stdout]
+                { stdout: $stdout }
               else
-                []
+                {}
               end
             end
 
@@ -65,9 +99,15 @@ module Pakyow
             end
 
             defaults :production do
-              setting :level, :info
+              setting :level do
+                if config.logger.enabled
+                  :info
+                else
+                  :off
+                end
+              end
+
               setting :formatter do
-                require "pakyow/logger/formatters/logfmt"
                 Logger::Formatters::Logfmt
               end
             end
@@ -110,86 +150,14 @@ module Pakyow
             setting :key_prefix, "pw"
           end
 
-          configurable :puma do
-            setting :host do
-              config.server.host
-            end
-
-            setting :port do
-              config.server.port
-            end
-
-            setting :binds, []
-            setting :min_threads, 5
-            setting :max_threads, 5
-            setting :workers, 0
-            setting :worker_timeout, 60
-
-            setting :on_restart do
-              []
-            end
-
-            setting :before_fork do
-              []
-            end
-
-            setting :before_worker_fork do
-              [
-                lambda { |_| Pakyow.forking }
-              ]
-            end
-
-            setting :after_worker_fork do
-              []
-            end
-
-            setting :before_worker_boot do
-              [
-                lambda { |_| Pakyow.forked }
-              ]
-            end
-
-            setting :before_worker_shutdown do
-              []
-            end
-
-            setting :silent, true
-
-            defaults :production do
-              setting :silent, false
-
-              setting :host do
-                if config.puma.binds.to_a.any?
-                  nil
-                else
-                  ENV["HOST"] || config.server.host
-                end
-              end
-
-              setting :port do
-                if config.puma.binds.to_a.any?
-                  nil
-                else
-                  ENV["PORT"] || config.server.port
-                end
-              end
-
-              setting :binds do
-                [ENV["BIND"]].compact
-              end
-
-              setting :min_threads do
-                ENV["THREADS"] || 5
-              end
-
-              setting :max_threads do
-                ENV["THREADS"] || 5
-              end
-
-              setting :workers do
-                ENV["WORKERS"] || 5
-              end
-            end
+          configurable :cookies do
+            setting :domain
+            setting :path
+            setting :max_age
+            setting :expires
+            setting :secure
+            setting :http_only
+            setting :same_site
           end
         end
       end

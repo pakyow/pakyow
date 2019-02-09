@@ -11,9 +11,10 @@ module Pakyow
       class Process
         def call(connection)
           if connection.app.config.assets.process
+            # TODO: can we short circuit if the request path doesn't match the connection?
             if asset = find_asset(connection) || find_pack(connection) || find_asset_map(connection) || find_pack_map(connection)
-              connection.set_response_header(Rack::CONTENT_LENGTH, asset.bytesize)
-              connection.set_response_header(Rack::CONTENT_TYPE, asset.mime_type)
+              connection.set_header("Content-Length", asset.bytesize)
+              connection.set_header("Content-Type", asset.mime_type)
               connection.body = asset
               connection.halt
             end

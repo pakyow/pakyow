@@ -5,7 +5,7 @@ RSpec.describe "booting plugins" do
     class TestPlugin < Pakyow::Plugin(:testable, File.join(__dir__, "support/plugin"))
       action :test
       def test(connection)
-        connection.body = @value || :did_not_boot
+        connection.body = StringIO.new((@value || :did_not_boot).to_s)
         connection.halt
       end
     end
@@ -40,7 +40,7 @@ RSpec.describe "booting plugins" do
 
     it "calls boot" do
       expect(call("/")[0]).to eq(200)
-      expect(call("/")[2]).to eq(:booted)
+      expect(call("/")[2]).to eq("booted")
     end
   end
 
@@ -55,7 +55,7 @@ RSpec.describe "booting plugins" do
 
     it "calls boot" do
       expect(call("/")[0]).to eq(200)
-      expect(call("/")[2]).to eq(:did_not_boot)
+      expect(call("/")[2]).to eq("did_not_boot")
     end
   end
 end

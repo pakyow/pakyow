@@ -1,375 +1,289 @@
-RSpec.describe Pakyow::Connection do
-  let :connection do
-    Pakyow::Connection.new(nil, env)
+require_relative "./connection/shared_examples/authority"
+require_relative "./connection/shared_examples/body"
+require_relative "./connection/shared_examples/close"
+require_relative "./connection/shared_examples/cookies"
+require_relative "./connection/shared_examples/endpoint"
+require_relative "./connection/shared_examples/format"
+require_relative "./connection/shared_examples/fullpath"
+require_relative "./connection/shared_examples/headers"
+require_relative "./connection/shared_examples/host"
+require_relative "./connection/shared_examples/input"
+require_relative "./connection/shared_examples/ip"
+require_relative "./connection/shared_examples/method"
+require_relative "./connection/shared_examples/params"
+require_relative "./connection/shared_examples/path"
+require_relative "./connection/shared_examples/port"
+require_relative "./connection/shared_examples/query"
+require_relative "./connection/shared_examples/request"
+require_relative "./connection/shared_examples/scheme"
+require_relative "./connection/shared_examples/secure"
+require_relative "./connection/shared_examples/sleep"
+require_relative "./connection/shared_examples/status"
+require_relative "./connection/shared_examples/stream"
+require_relative "./connection/shared_examples/subdomain"
+require_relative "./connection/shared_examples/type"
+require_relative "./connection/shared_examples/write"
+
+RSpec.shared_examples :connection do
+  let :scheme do
+    "http"
   end
 
-  let :env do
-    Rack::MockRequest.env_for("/foo", headers: { "HTTP_REFERER" => "/bar" })
+  let :subdomain do
+    "www"
+  end
+
+  let :host do
+    "localhost"
+  end
+
+  let :port do
+    "4242"
+  end
+
+  let :method do
+    "GET"
+  end
+
+  let :path do
+    "/"
+  end
+
+  let :params do
+    {}
+  end
+
+  let :query do
+    "?foo=bar"
+  end
+
+  let :headers do
+    {}
+  end
+
+  before do
+    allow(Pakyow).to receive(:global_logger).and_return(double(:global_logger, level: 2))
+  end
+
+  describe "known events" do
+    it "include finalize"
   end
 
   describe "#initialize" do
-    it "initializes with an app and rack env"
-    it "calles the initialize hooks"
-  end
-
-  describe "#finalize" do
-    before do
-      allow(connection).to receive(:set_cookies)
+    it "initializes" do
+      expect(connection).to be_instance_of(described_class)
     end
 
-    shared_examples "common" do
-      it "sets cookies" do
-        expect(connection).to receive(:set_cookies)
-        connection.finalize
-      end
-
-      it "returns the status, headers, and body" do
-        result = connection.finalize
-        expect(result[0]).to eq(connection.response.status)
-        expect(result[1]).to eq(connection.response.headers)
-        expect(result[2]).to be_instance_of(Rack::BodyProxy)
-        expect(result[2].instance_variable_get(:@body)).to eq(connection.response.body)
-      end
+    it "sets the connection id" do
+      id = "1234"
+      allow(SecureRandom).to receive(:hex).and_call_original
+      allow(SecureRandom).to receive(:hex).at_least(:once).with(4).and_return(id)
+      expect(connection.id).to eq(id)
     end
 
-    include_examples "common"
-
-    context "request method is head" do
-      include_examples "common"
-
-      let :env do
-        super().tap do |env|
-          env["REQUEST_METHOD"] = "HEAD"
-        end
-      end
-
-      it "replaces the response body with an empty array" do
-        connection.response.body = ["foo"]
-        expect(connection.finalize[2].length).to eq(0)
-      end
-
-      context "response body can be closed" do
-        it "closes the response body" do
-          output = StringIO.new("foo")
-          connection.response.body = output
-          expect(output).to receive(:close)
-          connection.finalize
-        end
-      end
-    end
-  end
-
-  describe "#set?" do
-    context "value is set for key" do
-      it "returns true"
-    end
-
-    context "value is not set for key" do
-      it "returns false"
-    end
-  end
-
-  describe "#set" do
-    it "sets a value by key"
-  end
-
-  describe "#get" do
-    it "gets a value by key"
-  end
-
-  describe "#set_cookies" do
-    it "ignores cookies that already exist with the value"
-    it "sets cookies that already exist, but not with the given value"
-    it "sets cookies that do not already exist"
-    it "deletes cookies with nil values"
-    it "deletes cookies deleted from the request"
-
-    describe "the cookie" do
-      it "includes the configured cookie path"
-      it "includes the configured cookie expiration"
-    end
-  end
-
-  describe "#path" do
-    it "returns path info" do
-      expect(connection.path).to eq connection.path_info
-    end
-  end
-
-  describe "#method" do
-    it "is proper formatted" do
-      expect(connection.method).to eq :get
-    end
-
-    context "override is passed as a param" do
-      context "request method is post" do
-        let :env do
-          Rack::MockRequest.env_for("/foo", method: :post, params: { _method: "DELETE" })
-        end
-
-        it "uses the override" do
-          expect(connection.method).to eq :delete
-        end
-      end
-
-      context "request method is not post" do
-        let :env do
-          Rack::MockRequest.env_for("/foo", method: :put, params: { _method: "DELETE" })
-        end
-
-        it "ignores the override" do
-          expect(connection.method).to eq :put
-        end
-      end
-    end
-  end
-
-  describe "#params" do
-    it "returns indifferentized hash" do
-      expect(connection.params).to be_instance_of(Pakyow::Support::IndifferentHash)
-    end
-
-    describe "the indifferent hash" do
-      it "is created with params from Rack::Request" do
-        params = { foo: :bar }
-        allow_any_instance_of(Rack::Request).to receive(:params).and_return(params)
-        expect(connection.params).to be_instance_of(Pakyow::Support::IndifferentHash)
-      end
-
-      it "is deeply indifferentized" do
-        params = { foo: { deep: :bar } }
-        allow_any_instance_of(Rack::Request).to receive(:params).and_return(params)
-        expect(connection.params[:foo]).to be_instance_of(Pakyow::Support::IndifferentHash)
-      end
-    end
-
-    context "parsed body is set to a hash" do
-      before do
-        allow_any_instance_of(Rack::Request).to receive(:params).and_return(foo: :bar)
-        connection.parsed_body = { baz: :qux }
-      end
-
-      it "includes the parsed body in the params" do
-        expect(connection.params).to eq(foo: :bar, baz: :qux)
-      end
-    end
-
-    context "parsed body is set to something other than a hash" do
-      before do
-        allow_any_instance_of(Rack::Request).to receive(:params).and_return(foo: :bar)
-        connection.parsed_body = []
-      end
-
-      it "does not include the parsed body in the params" do
-        expect(connection.params).to eq(foo: :bar)
-      end
-    end
-  end
-
-  describe "#cookies" do
-    it "returns indifferentized hash" do
-      expect(connection.cookies).to be_instance_of(Pakyow::Support::IndifferentHash)
-    end
-
-    describe "the indifferent hash" do
-      it "is created with cookies from Rack::Request" do
-        cookies = { foo: :bar }
-        allow_any_instance_of(Rack::Request).to receive(:cookies).and_return(cookies)
-        expect(connection.cookies).to be_instance_of(Pakyow::Support::IndifferentHash)
-      end
-    end
-  end
-
-  describe "#format" do
-    context "request format is unspecified" do
-      before do
-        connection.env["PATH_INFO"] = "foo"
-      end
-
-      it "returns the symbolized format" do
-        expect(connection.format).to eq(:html)
-      end
-    end
-
-    describe "specifying the request format through the path" do
-      context "format is known" do
-        before do
-          connection.env["PATH_INFO"] = "foo.json"
-        end
-
-        it "returns the symbolized format" do
-          expect(connection.format).to eq(:json)
-        end
-      end
-
-      context "format is unknown" do
-        before do
-          connection.env["PATH_INFO"] = "foo.foobar"
-        end
-
-        it "returns the symbolized format" do
-          expect(connection.format).to eq(:foobar)
-        end
-      end
-    end
-
-    describe "specifying the request format through the accept header" do
-      context "format is known" do
-        before do
-          connection.env["ACCEPT"] = "application/json"
-        end
-
-        it "returns the symbolized format" do
-          expect(connection.format).to eq(:json)
-        end
-      end
-
-      context "format is unknown" do
-        before do
-          connection.env["ACCEPT"] = "application/foobar"
-        end
-
-        it "returns nil" do
-          expect(connection.format).to eq(nil)
-        end
-      end
-
-      context "format is any" do
-        before do
-          connection.env["ACCEPT"] = "*/*"
-        end
-
-        it "returns any" do
-          expect(connection.format).to eq(:any)
-        end
-      end
-
-      context "multiple formats are specified through the header" do
-        before do
-          connection.env["ACCEPT"] = "application/json, text/html"
-        end
-
-        it "uses the first format" do
-          expect(connection.format).to eq(:json)
-        end
-      end
-    end
-
-    context "request format is specified in multiple ways" do
-      before do
-        connection.env["ACCEPT"] = "application/json"
-        connection.env["PATH_INFO"] = "index.html"
-      end
-
-      it "gives precedence to the path" do
-        expect(connection.format).to eq(:html)
-      end
-    end
-  end
-
-  describe "::nice_status" do
-    context "when the status is known" do
-      it "returns the nice status code name" do
-        expect(Pakyow::Connection.nice_status(200)).to eq("OK")
-      end
-    end
-
-    context "when the status is not known" do
-      it "returns ?" do
-        expect(Pakyow::Connection.nice_status(-1)).to eq("?")
-      end
-    end
-  end
-
-  describe "::status_code" do
-    context "given status is a symbolized nice name" do
-      it "returns the status code for the nice name" do
-        expect(Pakyow::Connection.status_code(:ok)).to eq(200)
-      end
-    end
-
-    context "given status is not a symbol" do
-      it "returns the status code" do
-        expect(Pakyow::Connection.status_code(200)).to eq(200)
-      end
-    end
-  end
-
-  describe "#format=" do
-    before do
-      connection.format = :json
-    end
-
-    it "sets the Content-Type header" do
-      expect(connection.response_header("Content-Type")).to eq("application/json")
-    end
-  end
-
-  describe "#content_type" do
-    before do
-      connection.set_response_header("Content-Type", "foo")
-    end
-
-    it "returns the Content-Type header" do
-      expect(connection.content_type).to eq("foo")
-    end
-
-    it "is aliased as #type" do
-      expect(connection.type).to eq("foo")
-    end
-  end
-
-  describe "#timestamp" do
-    it "returns the connection creation timestamp" do
+    it "sets the connection timestamp" do
       timestamp = Time.now
       allow(Time).to receive(:now).and_return(timestamp)
       expect(connection.timestamp).to eq(timestamp)
     end
-  end
 
-  describe "#id" do
-    it "returns the connection id" do
-      id = "1234"
-      allow(SecureRandom).to receive(:hex).with(4).and_return(id)
-      expect(connection.id).to eq(id)
+    it "creates a new http request logger" do
+      expect(connection.logger).to be_instance_of(Pakyow::Logger)
+      expect(connection.logger.type).to be(:http)
+      expect(connection.logger.id).to be(connection.id)
+      expect(connection.logger.started_at).to be(connection.timestamp)
     end
   end
 
-  describe "#parsed_body=" do
-    it "sets the parsed body" do
-      connection.parsed_body = { foo: :bar }
-      expect(connection.parsed_body).to eq(foo: :bar)
+  describe "#finalize" do
+    it "sets cookies"
+    it "returns a response"
+
+    describe "response" do
+      it "contains the connection status"
+      it "contains the connection headers"
+      it "contains the connection body"
     end
 
-    it "invalidates the connection params" do
-      connection.params
-      connection.parsed_body = { foo: :bar }
-      expect(connection.params).to eq(foo: :bar)
+    context "streaming" do
+      it "waits for each stream in an async task" do
+        Async::Reactor.run {
+          streams = connection.stream do
+            connection.sleep(0.5)
+          end
+
+          streams.each do |stream|
+            expect(stream).to receive(:wait)
+          end
+
+          connection.finalize
+        }.wait
+      end
+
+      it "closes the body once the streams stop" do
+        Async::Reactor.run {
+          connection.stream do
+            connection.sleep(0.5)
+          end
+
+          expect(connection.body).to receive(:close) do
+            expect(connection.streaming?).to be(false)
+          end
+
+          expect(connection.streaming?).to be(true)
+          connection.finalize
+        }.wait
+      end
+    end
+
+    context "HEAD request" do
+      before do
+        expect(connection).to receive(:request_method).and_return("HEAD")
+      end
+
+      it "closes the body"
+      it "replaces the body with an empty body"
+
+      context "streaming" do
+        it "stops the streaming tasks before closing" do
+          Async::Reactor.run {
+            streams = connection.stream do
+              connection.sleep(0.5)
+            end
+
+            streams.each do |stream|
+              expect(stream).to receive(:stop)
+            end
+
+            expect(connection.body).to receive(:close) do
+              expect(connection.streaming?).to be(false)
+            end
+
+            expect(connection.streaming?).to be(true)
+            connection.finalize
+          }.wait
+        end
+      end
     end
   end
 
-  describe "#endpoint" do
-    it "returns an endpoint" do
-      expect(connection.endpoint).to be_instance_of(Pakyow::Connection::Endpoint)
+  it_behaves_like :connection_authority
+  it_behaves_like :connection_body
+  it_behaves_like :connection_close
+  it_behaves_like :connection_cookies
+  it_behaves_like :connection_endpoint
+  it_behaves_like :connection_format
+  it_behaves_like :connection_fullpath
+  it_behaves_like :connection_headers
+  it_behaves_like :connection_host
+  it_behaves_like :connection_input
+  it_behaves_like :connection_ip
+  it_behaves_like :connection_method
+  it_behaves_like :connection_params
+  it_behaves_like :connection_path
+  it_behaves_like :connection_port
+  it_behaves_like :connection_query
+  it_behaves_like :connection_request
+  it_behaves_like :connection_scheme
+  it_behaves_like :connection_secure
+  it_behaves_like :connection_sleep
+  it_behaves_like :connection_status
+  it_behaves_like :connection_stream
+  it_behaves_like :connection_subdomain
+  it_behaves_like :connection_type
+  it_behaves_like :connection_write
+end
+
+RSpec.describe Pakyow::Connection do
+  it_behaves_like :connection do
+    let :connection do
+      described_class.new(request)
     end
 
-    describe "the default endpoint" do
-      it "has the expected path" do
-        expect(connection.endpoint.path).to eq(connection.path)
-      end
-
-      it "has the expected params" do
-        expect(connection.endpoint.params).to eq(connection.params)
-      end
-
-      it "is frozen" do
-        expect(connection.endpoint.frozen?).to be(true)
+    let :request do
+      Async::HTTP::Protocol::Request.new(
+        scheme, "#{subdomain}.#{host}:#{port}", method, "#{path}#{query}", "HTTP/1.1", HTTP::Protocol::Headers.new(headers.to_a)
+      ).tap do |request|
+        request.remote_address = Addrinfo.tcp("127.0.0.1", scheme)
       end
     end
 
-    context "called multiple times" do
-      it "returns the same endpoint object" do
-        expect(connection.endpoint).to be(connection.endpoint)
+    describe "#hijack?" do
+      it "returns the value from the request" do
+        expect(connection.request).to receive(:hijack?).and_return(true)
+        expect(connection.hijack?).to be(true)
+      end
+    end
+
+    describe "#hijack" do
+      it "calls hijack on the request" do
+        connection.instance_variable_set(:@request, double(hijack: :io))
+        expect(connection.hijack).to eq(:io)
+      end
+    end
+  end
+end
+
+require "pakyow/rack/compatibility"
+RSpec.describe Pakyow::Rack::Connection do
+  it_behaves_like :connection do
+    let :connection do
+      described_class.new(rack_env)
+    end
+
+    let :rack_env do
+      normalized_headers = Hash[headers.to_h.map { |key, value|
+        [key.to_s.upcase.gsub("-", "_"), value]
+      }]
+
+      normalized_headers["REMOTE_ADDR"] = "127.0.0.1"
+
+      if normalized_headers.key?("X_FORWARDED_FOR")
+        normalized_headers["HTTP_X_FORWARDED_FOR"] = normalized_headers.delete("X_FORWARDED_FOR")
+      end
+
+      Rack::MockRequest.env_for(
+        "#{scheme}://#{subdomain}.#{host}:#{port}#{path}#{query}",
+        { method: method, params: params }.merge(normalized_headers)
+      )
+    end
+
+    it "sets rack.logger to request logger" do
+      skip
+
+      # action.call(connection) {}
+      # expect(env["rack.logger"]).to be(logger)
+    end
+
+    describe "#hijack?" do
+      context "request is hijackable" do
+        before do
+          rack_env["rack.hijack?"] = true
+        end
+
+        it "returns true" do
+          expect(connection.hijack?).to be(true)
+        end
+      end
+
+      context "request is not hijackable" do
+        before do
+          rack_env["rack.hijack?"] = false
+        end
+
+        it "returns false" do
+          expect(connection.hijack?).to be(false)
+        end
+      end
+    end
+
+    describe "#hijack" do
+      before do
+        rack_env["rack.hijack"] = Proc.new { :hijacked }
+      end
+
+      it "calls the hijack block" do
+        expect(connection.hijack).to eq(:hijacked)
       end
     end
   end

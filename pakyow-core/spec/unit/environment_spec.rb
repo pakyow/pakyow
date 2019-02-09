@@ -1,10 +1,4 @@
-require_relative "environment/shared_examples/booted"
-
 RSpec.describe Pakyow do
-  before do
-    Pakyow.app :test
-  end
-
   describe "::register_framework" do
     it "registers a framework by name and module" do
       class FooFramework
@@ -34,11 +28,12 @@ RSpec.describe Pakyow do
         Pakyow.mount app, at: path
       end
 
-      it "registers the app" do
-        expect(Pakyow.instance_variable_get(:@mounts)[path][:app]).to be(app)
+      it "registers the app at the path" do
+        expect(Pakyow.mounts.last[:app]).to be(app)
+        expect(Pakyow.mounts.last[:path]).to be(path)
       end
 
-      context "and passed a block" do
+      context "passed a block" do
         let :block do
           -> {}
         end
@@ -48,7 +43,7 @@ RSpec.describe Pakyow do
         end
 
         it "registers the block" do
-          expect(Pakyow.instance_variable_get(:@mounts)[path][:block]).to be(block)
+          expect(Pakyow.mounts.last[:block]).to be(block)
         end
       end
     end
@@ -68,62 +63,6 @@ RSpec.describe Pakyow do
         }.to raise_error(ArgumentError)
       end
     end
-  end
-
-  describe "::fork" do
-    it "calls `forking`" do
-      expect(Pakyow).to receive(:forking)
-      Pakyow.fork {}
-    end
-
-    it "calls `forked`" do
-      expect(Pakyow).to receive(:forked)
-      Pakyow.fork {}
-    end
-
-    it "yields" do
-      @called = false
-      Pakyow.fork {
-        @called = true
-      }
-
-      expect(@called).to be(true)
-    end
-  end
-
-  describe "::forking" do
-    it "calls before fork hooks" do
-      expect(Pakyow).to receive(:call_hooks).with(:before, :fork)
-      Pakyow.forking
-    end
-
-    it "calls forking on each app" do
-      app = double(:app)
-      Pakyow.instance_variable_set(:@apps, [app])
-      expect(app).to receive(:forking)
-      Pakyow.forking
-    end
-  end
-
-  describe "::forked" do
-    def perform
-      Pakyow.forked
-    end
-
-    it "calls after fork hooks, then calls booted" do
-      expect(Pakyow).to receive(:call_hooks).with(:after, :fork)
-      expect(Pakyow).to receive(:booted)
-      perform
-    end
-
-    it "calls forked on each app" do
-      app = double(:app)
-      Pakyow.instance_variable_set(:@apps, [app])
-      expect(app).to receive(:forked)
-      perform
-    end
-
-    include_examples :environment_booted
   end
 
   describe "::load" do
@@ -443,11 +382,18 @@ RSpec.describe Pakyow do
       Pakyow.setup(env: env)
     end
 
-    it "initializes the logger" do
-      expect(Pakyow.logger).to be_nil
+    it "initializes the global logger" do
+      Pakyow.instance_variable_set(:@global_logger, nil)
       Pakyow.setup
 
-      expect(Pakyow.logger).to be_instance_of(Pakyow::Logger)
+      expect(Pakyow.global_logger).to be_instance_of(Log4r::Logger)
+    end
+
+    it "initializes the logger" do
+      Pakyow.instance_variable_set(:@logger, nil)
+      Pakyow.setup
+
+      expect(Pakyow.logger).to be_instance_of(Pakyow::Logger::ThreadLocal)
     end
 
     it "returns the environment" do
@@ -460,223 +406,92 @@ RSpec.describe Pakyow do
       Pakyow.boot
     end
 
-    include_examples :environment_booted
-  end
-
-  describe "::run" do
     before do
-      allow(handler_double).to receive(:run).and_yield(server_double)
-      allow(builder_double).to receive(:to_app)
-      allow(Pakyow).to receive(:handler).and_return(handler_double)
-      Pakyow.instance_variable_set(:@builder, builder_double)
+      allow(Pakyow).to receive(:call_hooks)
+      allow(Pakyow).to receive(:exit)
+
+      Pakyow.mount app, at: "/"
+      allow(app).to receive(:new).and_return(app_instance)
     end
 
-    let :handler_double do
-      double(:handler)
+    let :app do
+      Class.new(Pakyow::App)
     end
 
-    let :builder_double do
-      double(:builder)
+    let :app_instance do
+      instance_double(Pakyow::App)
     end
 
-    let :server_double do
-      double(:server)
+    it "calls after boot hooks" do
+      expect(Pakyow).to receive(:call_hooks).with(:after, :boot)
+      perform
     end
 
-    context "called with a server" do
-      it "exposes the server" do
-        Pakyow.run(server: :foo)
-        expect(Pakyow.server).to eq(:foo)
+    it "calls booted on each app that responds to booted" do
+      expect(app_instance).to receive(:booted)
+      perform
+    end
+
+    it "does not call booted on an app that does not respond to booted" do
+      allow(app_instance).to receive(:respond_to?)
+      allow(app_instance).to receive(:respond_to?).with(:booted).and_return(false)
+      expect(app_instance).to_not receive(:booted)
+      perform
+    end
+
+    context "something goes wrong" do
+      before do
+        allow(app_instance).to receive(:booted).and_raise(error)
+        allow(error).to receive(:backtrace).and_return(backtrace)
+        allow(Pakyow::Support::Logging).to receive(:safe).and_yield(logger)
       end
 
-      it "runs the passed server" do
-        expect(Pakyow).to receive(:handler).with(:foo).and_return(handler_double)
-        expect(Pakyow).to receive(:to_app).and_return(:app)
-        expect(handler_double).to receive(:run) { |app, _| expect(app).to eq(:app) }
-        Pakyow.run(server: :foo)
-      end
-    end
-
-    context "called without a server" do
-      it "exposes the default server" do
-        Pakyow.run
-        expect(Pakyow.server).to eq(Pakyow.config.server.name)
+      let :error do
+        RuntimeError.new("test")
       end
 
-      it "runs the default server" do
-        expect(Pakyow).to receive(:handler).with(:puma).and_return(handler_double)
-        expect(Pakyow).to receive(:to_app).and_return(:app)
-        expect(handler_double).to receive(:run) { |app, _| expect(app).to eq(:app) }
-        Pakyow.run
+      let :backtrace do
+        [:foo, :bar, :baz]
       end
-    end
 
-    context "called with a host" do
-      it "sets the host" do
-        Pakyow.run(host: "somehost")
-        expect(Pakyow.host).to eq("somehost")
+      let :logger do
+        double(:logger, error: nil)
       end
-    end
 
-    context "called with a port" do
-      it "sets the port" do
-        Pakyow.run(port: 4242)
-        expect(Pakyow.port).to eq(4242)
+      it "exposes the error" do
+        perform
+        expect(Pakyow.error).to be(error)
       end
-    end
 
-    context "called with a block" do
-      it "yields" do
-        Pakyow.run do
-          @called = true
-        end
+      it "logs the error and each line of the backtrace" do
+        expect(logger).to receive(:error).with(error: error)
+        perform
+      end
 
-        expect(@called).to be(true)
+      it "exits" do
+        expect(Pakyow).to receive(:exit)
+        perform
       end
     end
 
-    describe "determining server options" do
-      context "server config is defined" do
-        it "passes the server options" do
-          expect(handler_double).to receive(:run) { |_, options|
-            expect(options[:workers]).to eq(Pakyow.config.puma.to_h[:workers])
-          }
-
-          Pakyow.run
-        end
-
-        it "remaps options for puma" do
-          expect(handler_double).to receive(:run) { |_, options|
-            expect(options[:Host]).to eq(Pakyow.config.puma.to_h[:host])
-            expect(options[:Port]).to eq(Pakyow.config.puma.to_h[:port])
-            expect(options[:Silent]).to eq(Pakyow.config.puma.to_h[:silent])
-          }
-
-          Pakyow.run
-        end
-
-        context "additional options are passed" do
-          it "uses merged server config + passed options" do
-            expect(handler_double).to receive(:run) { |_, options|
-              expect(options[:workers]).to eq(Pakyow.config.puma.to_h[:workers])
-              expect(options[:foo]).to eq(:bar)
-            }
-
-            Pakyow.run(foo: :bar)
-          end
-
-          it "gives precedence to passed options" do
-            expect(handler_double).to receive(:run) { |_, options|
-              expect(options[:workers]).to eq(42)
-            }
-
-            Pakyow.run(workers: 42)
-          end
-        end
+    context "environment has already booted" do
+      before do
+        allow(Pakyow).to receive(:booted?).and_return(true)
       end
 
-      context "server config is not defined" do
-        it "does not pass any options" do
-          expect(handler_double).to receive(:run) { |_, options|
-            expect(options).to eq({})
-          }
-
-          Pakyow.run(server: :mock)
-        end
-
-        context "additional options are passed" do
-          it "uses the passed options" do
-            expect(handler_double).to receive(:run) { |_, options|
-              expect(options).to eq(foo: :bar)
-            }
-
-            Pakyow.run(server: :mock, foo: :bar)
-          end
-        end
+      it "calls booted on each app that responds to booted" do
+        expect(app_instance).to receive(:booted)
+        perform
       end
 
-      context "server config file exists" do
-        before do
-          expect(File).to receive(:exist?).with("./config/puma.rb").and_return(true)
-        end
+      it "does not call booted on an app that does not respond to booted" do
+        allow(app_instance).to receive(:respond_to?)
+        allow(app_instance).to receive(:respond_to?).with(:booted).and_return(false)
+        expect(app_instance).to_not receive(:booted)
 
-        it "passes no options" do
-          expect(handler_double).to receive(:run) { |_, options|
-            expect(options).to be_empty
-          }
-
-          Pakyow.run(foo: :bar)
-        end
-      end
-
-      context "server config file exists for environment" do
-        before do
-          expect(File).to receive(:exist?).with("./config/puma.rb").and_return(false)
-          expect(File).to receive(:exist?).with("./config/puma/fooenv.rb").and_return(true)
-          Pakyow.instance_variable_set(:@env, "fooenv")
-        end
-
-        it "passes no options" do
-          expect(handler_double).to receive(:run) { |_, options|
-            expect(options).to be_empty
-          }
-
-          Pakyow.run(foo: :bar)
-        end
+        perform
       end
     end
-
-    describe "handling exits" do
-      it "registers an at_exit handler" do
-        expect(Pakyow).to receive(:at_exit)
-        Pakyow.run
-      end
-
-      it "registers a trap for each signal" do
-        expect(Pakyow).to receive(:trap).with("INT")
-        expect(Pakyow).to receive(:trap).with("TERM")
-        Pakyow.run
-      end
-
-      describe "at_exit handler" do
-        it "calls stop with the server" do
-          expect(Pakyow).to receive(:at_exit) do |&block|
-            expect(Pakyow).to receive(:stop).with(server_double)
-            block.call
-          end
-
-          Pakyow.run
-        end
-      end
-
-      describe "signal trap" do
-        it "calls stop with the server" do
-          expect(Pakyow).to receive(:trap).with("INT") do |&block|
-            expect(Pakyow).to receive(:stop).with(server_double)
-            block.call
-          end
-
-          expect(Pakyow).to receive(:trap).with("TERM") do |&block|
-            expect(Pakyow).to receive(:stop).with(server_double)
-            block.call
-          end
-
-          Pakyow.run
-        end
-      end
-    end
-  end
-
-  describe "::to_app" do
-    before do
-      allow(Pakyow.builder).to receive(:to_app).and_return(double(:builder))
-    end
-
-    def perform
-      Pakyow.to_app
-    end
-
-    include_examples :environment_booted
   end
 
   describe "::apps" do
@@ -741,70 +556,6 @@ RSpec.describe Pakyow do
         expect(Pakyow.app(:foo).config.name).to eq(:foo)
         expect(Pakyow.app(:bar).config.name).to eq(:bar)
         expect(Pakyow.app(:baz).config.name).to eq(:baz)
-      end
-    end
-  end
-
-  describe "::stop" do
-    let :server_double do
-      double(:server)
-    end
-
-    let :app_double do
-      double(:app)
-    end
-
-    before do
-      Pakyow.apps << app_double
-    end
-
-    it "calls before shutdown hooks" do
-      expect(Pakyow).to receive(:call_hooks).with(:before, :shutdown)
-      Pakyow.send(:stop, server_double)
-    end
-
-    it "calls shutdown on each registered app" do
-      expect(app_double).to receive(:shutdown)
-      Pakyow.send(:stop, server_double)
-    end
-
-    it "tries to shutdown the server gracefully with stop!" do
-      expect(server_double).to receive(:stop!)
-      Pakyow.send(:stop, server_double)
-    end
-
-    it "tries to shutdown the server gracefully with stop" do
-      expect(server_double).to receive(:stop)
-      Pakyow.send(:stop, server_double)
-    end
-
-    context "registered app does not implement shutdown" do
-      before do
-        Pakyow.apps << app_double
-      end
-
-      it "does not attempt to call shutdown on the app" do
-        expect {
-          Pakyow.send(:stop, server_double)
-        }.not_to raise_error
-      end
-    end
-
-    context "server shuts down gracefully" do
-      before do
-        expect(server_double).to receive(:stop!)
-      end
-
-      it "does not exit the process" do
-        expect(Process).not_to receive(:exit!)
-        Pakyow.send(:stop, server_double)
-      end
-    end
-
-    context "server cannot shutdown gracefully" do
-      it "exits the process" do
-        expect(Process).to receive(:exit!)
-        Pakyow.send(:stop, server_double)
       end
     end
   end

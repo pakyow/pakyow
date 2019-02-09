@@ -2,7 +2,6 @@
 
 # Configures bootsnap.
 #
-# rubocop:disable Lint/HandleExceptions
 begin
   require "bootsnap"
 
@@ -17,4 +16,3 @@ begin
   )
 rescue LoadError
 end
-# rubocop:enable Lint/HandleExceptions

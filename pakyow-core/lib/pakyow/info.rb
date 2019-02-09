@@ -9,25 +9,17 @@ module Pakyow
     {
       versions: {
         ruby: "v#{RUBY_VERSION}-p#{RUBY_PATCHLEVEL} (#{RUBY_PLATFORM})",
-        pakyow: "v#{VERSION}",
-        rack: "v#{Rack.release}"
+        pakyow: "v#{VERSION}"
       },
 
-      apps: Pakyow.mounts.map { |path, info|
-        common_info = {
-          mount_path: path,
-          class: info[:app].to_s,
+      apps: Pakyow.mounts.map { |mount|
+        {
+          mount_path: mount[:path],
+          class: mount[:app].to_s,
+          reference: mount[:app].config.name.inspect,
+          frameworks: mount[:app].config.loaded_frameworks,
+          app_root: File.expand_path(mount[:app].config.root)
         }
-
-        if info[:app].ancestors.include?(Pakyow::App)
-          common_info.merge(
-            reference: info[:app].config.name.inspect,
-            frameworks: info[:app].config.loaded_frameworks,
-            app_root: File.expand_path(info[:app].config.root)
-          )
-        else
-          common_info
-        end
       }
     }
   end

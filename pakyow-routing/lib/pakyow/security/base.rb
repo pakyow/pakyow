@@ -29,7 +29,7 @@ module Pakyow
           logger(connection)&.warn "Request rejected by #{self.class}; env: #{loggable_env(connection.request.env).inspect}"
 
           connection.status = 403
-          connection.set_response_header("Content-Type", "text/plain")
+          connection.set_header("Content-Type", "text/plain")
           connection.body = ["Forbidden"]
 
           raise InsecureRequest

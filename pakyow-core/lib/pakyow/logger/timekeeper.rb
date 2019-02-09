@@ -41,19 +41,19 @@ module Pakyow
       end
 
       def self.format_elapsed_time_in_minutes(time)
-        round_elapsed_time(time / 60).to_s + "m "
+        round_elapsed_time(time / 60).to_s << "m "
       end
 
       def self.format_elapsed_time_in_seconds(time)
-        round_elapsed_time(time).to_s + "s "
+        round_elapsed_time(time).to_s << "s "
       end
 
       def self.format_elapsed_time_in_milliseconds(time)
-        round_elapsed_time(time * 1_000).to_s + "ms"
+        round_elapsed_time(time * 1_000).to_s << "ms"
       end
 
       def self.format_elapsed_time_in_microseconds(time)
-        round_elapsed_time(time * 1_000_000).to_s + "μs"
+        round_elapsed_time(time * 1_000_000).to_s << "μs"
       end
 
       def self.round_elapsed_time(time)

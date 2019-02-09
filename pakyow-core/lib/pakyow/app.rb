@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require "forwardable"
-require "rack"
-
 require "pakyow/support/definable"
 require "pakyow/support/deep_freeze"
 require "pakyow/support/class_state"
@@ -12,7 +9,6 @@ require "pakyow/support/configurable"
 require "pakyow/support/pipeline"
 
 require "pakyow/behavior/config"
-require "pakyow/behavior/cookies"
 require "pakyow/behavior/sessions"
 require "pakyow/behavior/endpoints"
 require "pakyow/behavior/pipeline"
@@ -86,8 +82,17 @@ module Pakyow
   #
   # = Hooks
   #
-  # Hooks can be defined for the following events: initialize, configure, load,
-  # finalize, boot, and fork. Here's how to log a message after initialize:
+  # Hooks can be defined for the following events:
+  #
+  #   - initialize
+  #   - configure
+  #   - load
+  #   - finalize
+  #   - boot
+  #   - rescue
+  #   - shutdown
+  #
+  # Here's how to log a message after initialize:
   #
   #   Pakyow::App.after :initialize do
   #     logger.info "initialized #{self}"
@@ -96,16 +101,25 @@ module Pakyow
   # @see Support::Hookable
   #
   class App
+    require "pakyow/app/connection"
+
+    class << self
+      def inherited(subclass)
+        super
+
+        # Creates a connection subclass that other frameworks can safely extend.
+        #
+        subclass.isolate Connection
+      end
+    end
+
     # Environment the app is booted in, e.g. +:development+.
     #
     attr_reader :environment
 
-    # Rack builder.
+    # App mount path.
     #
-    attr_reader :builder
-
-    extend Forwardable
-    def_delegators :builder, :use
+    attr_reader :mount_path
 
     include Support::Configurable
     include Support::Definable
@@ -115,13 +129,9 @@ module Pakyow
     inspectable :@environment
 
     include Support::Hookable
-    events :initialize, :configure, :load, :finalize, :boot, :fork, :rescue, :shutdown
-
-    extend Support::DeepFreeze
-    unfreezable :builder
+    events :initialize, :configure, :load, :finalize, :boot, :rescue, :shutdown
 
     include Behavior::Config
-    include Behavior::Cookies
     include Behavior::Sessions
     include Behavior::Endpoints
     include Behavior::Pipeline
@@ -135,14 +145,10 @@ module Pakyow
     include Behavior::Plugins
     include Behavior::Operations
 
-    # Creates a connection subclass that other frameworks can safely extend.
-    #
-    isolate Connection
-
-    def initialize(environment, builder: nil, &block)
+    def initialize(environment, mount_path: "/", &block)
       super()
 
-      @environment, @builder, @rescued = environment, builder, false
+      @environment, @mount_path, @rescued = environment, mount_path, false
 
       performing :initialize do
         performing :configure do
@@ -174,51 +180,19 @@ module Pakyow
       rescue!(error)
     end
 
-    # Called by the environment right before the process is forked.
-    #
-    def forking
-      call_hooks :before, :fork
-    end
-
-    # Called by the environment right after the process is forked.
-    #
-    def forked
-      call_hooks :after, :fork
-    end
-
     # Calls the app pipeline with a connection created from the rack env.
     #
-    def call(rack_env)
-      begin
-        connection = super(rack_env["pakyow.connection"] || isolated(:Connection).new(self, rack_env))
-
-        if connection.halted?
-          connection.finalize
-        else
-          error_404
-        end
-      rescue StandardError => error
-        rack_env[Rack::RACK_LOGGER].houston(error)
-        error_500
-      end
+    def call(connection)
+      super(isolated(:Connection).new(self, connection))
     end
 
     def shutdown
-      call_hooks :before, :shutdown
+      performing :shutdown do; end
     end
 
-    private
-
-    ERROR_HEADERS = {
-      Rack::CONTENT_TYPE => "text/plain"
-    }.freeze
-
-    def error_404(message = "404 Not Found")
-      [404, ERROR_HEADERS, [message]]
-    end
-
-    def error_500(message = "500 Internal Server Error")
-      [500, ERROR_HEADERS, [message]]
+    # @api private
+    def perform(app_connection)
+      @__pipeline.call(app_connection)
     end
   end
 end

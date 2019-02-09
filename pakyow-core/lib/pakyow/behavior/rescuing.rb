@@ -39,8 +39,10 @@ module Pakyow
 
           # Override call to always return an errored response.
           #
-          define_singleton_method :call do |_|
-            error_500(message)
+          define_singleton_method :call do |connection|
+            connection.status = 500
+            connection.body = StringIO.new(message)
+            connection.halt
           end
         end
       end

@@ -96,7 +96,7 @@ module Pakyow
         end
       end
 
-      def initialize(hash)
+      def initialize(hash = {})
         self.internal_hash = hash
       end
 

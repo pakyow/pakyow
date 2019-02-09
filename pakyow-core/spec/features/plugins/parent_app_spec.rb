@@ -19,7 +19,7 @@ RSpec.describe "accessing the parent app from a plugin" do
 
       action :test
       def test(connection)
-        connection.body = @object.new(connection).test
+        connection.body = StringIO.new(@object.new(connection).test)
         connection.halt
       end
     end

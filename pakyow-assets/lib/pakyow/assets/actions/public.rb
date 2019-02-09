@@ -28,8 +28,8 @@ module Pakyow
 
             if public?(public_path)
               file = File.open(public_path)
-              connection.set_response_header(Rack::CONTENT_LENGTH, file.size)
-              connection.set_response_header(Rack::CONTENT_TYPE, Rack::Mime.mime_type(File.extname(public_path)))
+              connection.set_header(Rack::CONTENT_LENGTH, file.size)
+              connection.set_header(Rack::CONTENT_TYPE, Rack::Mime.mime_type(File.extname(public_path)))
 
               if connection.app.config.assets.cache && asset?(connection)
                 set_cache_headers(connection, public_path)
@@ -62,10 +62,10 @@ module Pakyow
 
         def set_cache_headers(connection, public_path)
           mtime = File.mtime(public_path)
-          connection.set_response_header("Age", (Time.now - mtime).to_i)
-          connection.set_response_header("Cache-Control", "public, max-age=31536000")
-          connection.set_response_header("Vary", "Accept-Encoding")
-          connection.set_response_header("Last-Modified", mtime.httpdate)
+          connection.set_header("Age", (Time.now - mtime).to_i)
+          connection.set_header("Cache-Control", "public, max-age=31536000")
+          connection.set_header("Vary", "Accept-Encoding")
+          connection.set_header("Last-Modified", mtime.httpdate)
         end
       end
     end

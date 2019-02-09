@@ -15,17 +15,6 @@ module Pakyow
       #   Returns the current app.
       #
       #   @see App
-      #
-      # @!method request
-      #   Returns the current request.
-      #
-      #   @see Request
-      #
-      # @!method response
-      #   Returns the current response.
-      #
-      #   @see Response
-      #
       # @!method logger
       #   Returns the logger.
       #
@@ -45,10 +34,7 @@ module Pakyow
       #   Returns cookies.
       #
       #   @see Request#:cookies
-      def_delegators :connection, :app, :request, :response, :logger, :params, :session, :cookies
-
-      alias req request
-      alias res response
+      def_delegators :connection, :app, :logger, :params, :session, :cookies
 
       # @!method config
       #   Delegates to {app}.

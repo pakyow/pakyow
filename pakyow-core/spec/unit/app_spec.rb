@@ -3,9 +3,21 @@ RSpec.describe Pakyow::App do
     Class.new(Pakyow::App)
   end
 
+  let :connection do
+    Pakyow::Connection.new(request)
+  end
+
+  let :request do
+    instance_double(Async::HTTP::Protocol::Request)
+  end
+
+  before do
+    allow(Pakyow).to receive(:global_logger).and_return(double(:global_logger, level: 2))
+  end
+
   describe "#initialize" do
     let :app do
-      app_class.new(:test, builder: Rack::Builder.new)
+      app_class.new(:test)
     end
 
     it "sets the environment" do
@@ -14,20 +26,6 @@ RSpec.describe Pakyow::App do
 
     it "causes the app to load source" do
       skip "not a straight-forward thing to test"
-    end
-
-    context "when a builder is passed" do
-      let :app do
-        app_class.new(:test, builder: builder)
-      end
-
-      let :builder do
-        Rack::Builder.new
-      end
-
-      it "sets the builder" do
-        expect(app.builder).to eq(builder)
-      end
     end
 
     context "when initialization fails because of a runtime error" do
@@ -39,13 +37,27 @@ RSpec.describe Pakyow::App do
         Pakyow.instance_variable_set(:@logger, Logger.new(File::NULL))
       end
 
+      it "halts" do
+        expect {
+          app.call(connection)
+        }.to throw_symbol(:halt)
+      end
+
       it "enters rescue mode" do
-        response = app.call({})
-        expect(response[0]).to eq(500)
-        expect(response[1]["Content-Type"]).to eq("text/plain")
-        expect(response[2][0]).to include("failed to initialize")
-        expect(response[2][0]).to include("testing rescue mode")
-        expect(response[2][0]).to include("pakyow-core/spec/unit/app_spec.rb")
+        catch :halt do
+          app.call(connection)
+        end
+
+        expect(connection.status).to eq(500)
+
+        response_body = String.new
+        while content = connection.body.read
+          response_body << content
+        end
+
+        expect(response_body).to include("failed to initialize")
+        expect(response_body).to include("testing rescue mode")
+        expect(response_body).to include("pakyow-core/spec/unit/app_spec.rb")
       end
     end
 
@@ -60,12 +72,21 @@ RSpec.describe Pakyow::App do
 
       it "enters rescue mode" do
         app.booted
-        response = app.call({})
-        expect(response[0]).to eq(500)
-        expect(response[1]["Content-Type"]).to eq("text/plain")
-        expect(response[2][0]).to include("failed to initialize")
-        expect(response[2][0]).to include("syntax error, unexpected end-of-input")
-        expect(response[2][0]).to include("pakyow-core/spec/unit/app_spec.rb")
+
+        catch :halt do
+          app.call(connection)
+        end
+
+        expect(connection.status).to eq(500)
+
+        response_body = String.new
+        while content = connection.body.read
+          response_body << content
+        end
+
+        expect(response_body).to include("failed to initialize")
+        expect(response_body).to include("syntax error, unexpected end-of-input")
+        expect(response_body).to include("pakyow-core/spec/unit/app_spec.rb")
       end
     end
   end
@@ -76,7 +97,7 @@ RSpec.describe Pakyow::App do
     end
 
     let :app do
-      app_class.new(:test, builder: Rack::Builder.new)
+      app_class.new(:test)
     end
 
     it "calls each registered endpoint"
@@ -94,7 +115,7 @@ RSpec.describe Pakyow::App do
 
   describe "#boot" do
     let :app do
-      app_class.new(:test, builder: Rack::Builder.new)
+      app_class.new(:test)
     end
 
     before do
@@ -123,12 +144,21 @@ RSpec.describe Pakyow::App do
 
       it "enters rescue mode" do
         app.booted
-        response = app.call({})
-        expect(response[0]).to eq(500)
-        expect(response[1]["Content-Type"]).to eq("text/plain")
-        expect(response[2][0]).to include("failed to initialize")
-        expect(response[2][0]).to include("testing rescue mode")
-        expect(response[2][0]).to include("pakyow-core/spec/unit/app_spec.rb")
+
+        catch :halt do
+          app.call(connection)
+        end
+
+        expect(connection.status).to eq(500)
+
+        response_body = String.new
+        while content = connection.body.read
+          response_body << content
+        end
+
+        expect(response_body).to include("failed to initialize")
+        expect(response_body).to include("testing rescue mode")
+        expect(response_body).to include("pakyow-core/spec/unit/app_spec.rb")
       end
     end
 
@@ -143,61 +173,28 @@ RSpec.describe Pakyow::App do
 
       it "enters rescue mode" do
         app.booted
-        response = app.call({})
-        expect(response[0]).to eq(500)
-        expect(response[1]["Content-Type"]).to eq("text/plain")
-        expect(response[2][0]).to include("failed to initialize")
-        expect(response[2][0]).to include("syntax error, unexpected end-of-input")
-        expect(response[2][0]).to include("pakyow-core/spec/unit/app_spec.rb")
+
+        catch :halt do
+          app.call(connection)
+        end
+
+        expect(connection.status).to eq(500)
+
+        response_body = String.new
+        while content = connection.body.read
+          response_body << content
+        end
+
+        expect(response_body).to include("failed to initialize")
+        expect(response_body).to include("syntax error, unexpected end-of-input")
+        expect(response_body).to include("pakyow-core/spec/unit/app_spec.rb")
       end
-    end
-  end
-
-  describe "#forking" do
-    let :app do
-      app_class.new(:test, builder: Rack::Builder.new)
-    end
-
-    before do
-      app_class.before :fork do
-        $called_before_fork = true
-      end
-    end
-
-    after do
-      $called_before_fork = nil
-    end
-
-    it "calls before fork hooks" do
-      app.forking
-      expect($called_before_fork).to be(true)
-    end
-  end
-
-  describe "#forked" do
-    let :app do
-      app_class.new(:test, builder: Rack::Builder.new)
-    end
-
-    before do
-      app_class.after :fork do
-        $called_after_fork = true
-      end
-    end
-
-    after do
-      $called_after_fork = nil
-    end
-
-    it "calls after fork hooks" do
-      app.forked
-      expect($called_after_fork).to be(true)
     end
   end
 
   describe "#shutdown" do
     let :app do
-      app_class.new(:test, builder: Rack::Builder.new)
+      app_class.new(:test)
     end
 
     before do

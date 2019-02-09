@@ -15,6 +15,7 @@ module Pakyow
             if config.assets.silent
               # silence asset requests
               Pakyow.silence do |connection|
+                # TODO: do we need the second check?
                 connection.path.start_with?(config.assets.prefix) || self.class.asset.instances.any? { |asset|
                   asset.logical_path == connection.path
                 }
@@ -22,6 +23,7 @@ module Pakyow
 
               # silence requests to public files
               Pakyow.silence do |connection|
+                # TODO: really need an in-memory directory for these files
                 File.file?(File.join(config.assets.public_path, connection.path))
               end
             end

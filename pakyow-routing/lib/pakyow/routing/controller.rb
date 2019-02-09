@@ -5,6 +5,8 @@ require "pakyow/support/makeable"
 require "pakyow/support/pipeline"
 require "pakyow/support/core_refinements/string/normalization"
 
+require "pakyow/connection/statuses"
+
 require "pakyow/routing/route"
 
 require "pakyow/routing/controller/behavior/error_handling"
@@ -231,15 +233,16 @@ module Pakyow
               if route_match = route.match(request_path)
                 match_data.merge!(route_match.named_captures)
                 connection.params.merge!(match_data)
-                connection.env["rack.request.query_hash"].merge!(match_data)
 
-                connection.env["pakyow.endpoint.path"] = String.normalize_path(
-                  File.join(
-                    self.class.path_to_self.to_s, route.path.to_s
-                  )
-                )
+                # TODO: handle this
+                # connection.env["pakyow.endpoint.path"] = String.normalize_path(
+                #   File.join(
+                #     self.class.path_to_self.to_s, route.path.to_s
+                #   )
+                # )
 
-                connection.env["pakyow.endpoint.name"] = route.name
+                # TODO: handle this
+                # connection.env["pakyow.endpoint.name"] = route.name
 
                 dup.call_route(connection, route)
               end
@@ -287,8 +290,8 @@ module Pakyow
     #   end
     #
     def redirect(location, as: 302, **params)
-      @connection.status = Connection.status_code(as)
-      @connection.set_response_header("Location", location.is_a?(Symbol) ? app.endpoints.path(location, **params) : location)
+      @connection.status = Connection::Statuses.code(as)
+      @connection.set_header("Location", location.is_a?(Symbol) ? app.endpoints.path(location, **params) : location)
       halt
     end
 
@@ -328,7 +331,7 @@ module Pakyow
 
       # Change the response status, if set.
       #
-      @connection.status = Connection.status_code(as) if as
+      @connection.status = Connection::Statuses.code(as) if as
 
       # Share the connection.
       #
@@ -392,20 +395,20 @@ module Pakyow
         data = file_or_data
 
         if file_or_data.is_a?(File)
-          @connection.set_response_header(Rack::CONTENT_LENGTH, file_or_data.size)
+          @connection.set_header(Rack::CONTENT_LENGTH, file_or_data.size)
           type ||= Rack::Mime.mime_type(File.extname(file_or_data.path))
         end
 
-        @connection.set_response_header(Rack::CONTENT_TYPE, type || DEFAULT_SEND_TYPE)
+        @connection.set_header(Rack::CONTENT_TYPE, type || DEFAULT_SEND_TYPE)
       elsif file_or_data.is_a?(String)
-        @connection.set_response_header(Rack::CONTENT_LENGTH, file_or_data.bytesize)
-        @connection.set_response_header(Rack::CONTENT_TYPE, type) if type
+        @connection.set_header(Rack::CONTENT_LENGTH, file_or_data.bytesize)
+        @connection.set_header(Rack::CONTENT_TYPE, type) if type
         data = StringIO.new(file_or_data)
       else
         raise ArgumentError, "expected an IO or String object"
       end
 
-      @connection.set_response_header(CONTENT_DISPOSITION, name ? "attachment; filename=#{name}" : "inline")
+      @connection.set_header(CONTENT_DISPOSITION, name ? "attachment; filename=#{name}" : "inline")
       halt(data)
     end
 
@@ -415,7 +418,7 @@ module Pakyow
     #
     def halt(body = nil, status: nil)
       @connection.body = body if body
-      @connection.status = Connection.status_code(status) if status
+      @connection.status = Connection::Statuses.code(status) if status
       @connection.halt
     end
 

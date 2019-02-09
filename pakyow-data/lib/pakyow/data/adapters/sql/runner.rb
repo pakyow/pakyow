@@ -29,10 +29,8 @@ module Pakyow
               if column[:type].is_a?(Symbol)
                 begin
                   column[:type] = Data::Types.type_for(column[:type], local_types).meta[:database_type]
-                # rubocop:disable Lint/HandleExceptions
                 rescue Pakyow::UnknownType
                 end
-                # rubocop:enable Lint/HandleExceptions
               end
 
               super(column)

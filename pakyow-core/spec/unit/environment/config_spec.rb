@@ -34,12 +34,6 @@ RSpec.describe Pakyow do
       end
     end
 
-    describe "server.name" do
-      it "has a default value" do
-        expect(Pakyow.config.server.name).to eq(:puma)
-      end
-    end
-
     describe "server.port" do
       it "has a default value" do
         expect(Pakyow.config.server.port).to eq(3000)
@@ -123,7 +117,8 @@ RSpec.describe Pakyow do
         end
 
         it "defaults to stdout" do
-          expect(Pakyow.config.logger.destinations).to eq([$stdout])
+          expect(Pakyow.config.logger.destinations.count).to eq(1)
+          expect(Pakyow.config.logger.destinations[:stdout]).to eq($stdout)
         end
       end
 
@@ -133,7 +128,7 @@ RSpec.describe Pakyow do
         end
 
         it "defaults to empty" do
-          expect(Pakyow.config.logger.destinations).to eq([])
+          expect(Pakyow.config.logger.destinations).to eq({})
         end
       end
     end
@@ -242,267 +237,45 @@ RSpec.describe Pakyow do
       end
     end
 
-    describe "puma.host" do
+    describe "cookies.domain" do
       it "has a default value" do
-        expect(Pakyow.config.puma.host).to eq(
-          Pakyow.config.server.host
-        )
-      end
-
-      context "in production" do
-        before do
-          Pakyow.configure!(:production)
-        end
-
-        context "binds is not empty" do
-          before do
-            Pakyow.config.puma.binds = ["foo"]
-          end
-
-          it "has a default value" do
-            expect(Pakyow.config.puma.host).to be(nil)
-          end
-        end
-
-        context "HOST is set" do
-          before do
-            ENV["HOST"] = "foo"
-          end
-
-          after do
-            ENV.delete("HOST")
-          end
-
-          it "defaults to HOST" do
-            expect(Pakyow.config.puma.host).to eq("foo")
-          end
-
-          context "binds is not empty" do
-            before do
-              Pakyow.config.puma.binds = ["foo"]
-            end
-
-            it "has a default value" do
-              expect(Pakyow.config.puma.host).to be(nil)
-            end
-          end
-        end
+        expect(Pakyow.config.cookies.domain).to be(nil)
       end
     end
 
-    describe "puma.port" do
+    describe "cookies.path" do
       it "has a default value" do
-        expect(Pakyow.config.puma.port).to eq(
-          Pakyow.config.server.port
-        )
-      end
-
-      context "in production" do
-        before do
-          Pakyow.configure!(:production)
-        end
-
-        context "binds is not empty" do
-          before do
-            Pakyow.config.puma.binds = ["foo"]
-          end
-
-          it "has a default value" do
-            expect(Pakyow.config.puma.port).to be(nil)
-          end
-        end
-
-        context "PORT is set" do
-          before do
-            ENV["PORT"] = "4242"
-          end
-
-          after do
-            ENV.delete("PORT")
-          end
-
-          it "defaults to PORT" do
-            expect(Pakyow.config.puma.port).to eq("4242")
-          end
-
-          context "binds is not empty" do
-            before do
-              Pakyow.config.puma.binds = ["foo"]
-            end
-
-            it "has a default value" do
-              expect(Pakyow.config.puma.port).to be(nil)
-            end
-          end
-        end
+        expect(Pakyow.config.cookies.path).to be(nil)
       end
     end
 
-    describe "puma.binds" do
+    describe "cookies.max_age" do
       it "has a default value" do
-        expect(Pakyow.config.puma.binds).to eq([])
-      end
-
-      context "in production" do
-        before do
-          Pakyow.configure!(:production)
-        end
-
-        context "BIND is set" do
-          before do
-            ENV["BIND"] = "unix://"
-          end
-
-          after do
-            ENV.delete("BIND")
-          end
-
-          it "includes BIND" do
-            expect(Pakyow.config.puma.binds).to eq(["unix://"])
-          end
-        end
+        expect(Pakyow.config.cookies.max_age).to be(nil)
       end
     end
 
-    describe "puma.min_threads" do
+    describe "cookies.expires" do
       it "has a default value" do
-        expect(Pakyow.config.puma.min_threads).to eq(5)
-      end
-
-      context "in production" do
-        before do
-          Pakyow.configure!(:production)
-        end
-
-        context "THREADS is set" do
-          before do
-            ENV["THREADS"] = "10"
-          end
-
-          after do
-            ENV.delete("THREADS")
-          end
-
-          it "defaults to THREADS" do
-            expect(Pakyow.config.puma.min_threads).to eq("10")
-          end
-        end
+        expect(Pakyow.config.cookies.expires).to be(nil)
       end
     end
 
-    describe "puma.max_threads" do
+    describe "cookies.secure" do
       it "has a default value" do
-        expect(Pakyow.config.puma.max_threads).to eq(5)
-      end
-
-      context "in production" do
-        before do
-          Pakyow.configure!(:production)
-        end
-
-        context "THREADS is set" do
-          before do
-            ENV["THREADS"] = "15"
-          end
-
-          after do
-            ENV.delete("THREADS")
-          end
-
-          it "defaults to THREADS" do
-            expect(Pakyow.config.puma.min_threads).to eq("15")
-          end
-        end
+        expect(Pakyow.config.cookies.secure).to be(nil)
       end
     end
 
-    describe "puma.workers" do
+    describe "cookies.http_only" do
       it "has a default value" do
-        expect(Pakyow.config.puma.workers).to eq(0)
-      end
-
-      context "in production" do
-        before do
-          Pakyow.configure!(:production)
-        end
-
-        context "WORKERS is set" do
-          before do
-            ENV["WORKERS"] = "42"
-          end
-
-          after do
-            ENV.delete("WORKERS")
-          end
-
-          it "defaults to WORKERS" do
-            expect(Pakyow.config.puma.workers).to eq("42")
-          end
-        end
+        expect(Pakyow.config.cookies.http_only).to be(nil)
       end
     end
 
-    describe "puma.worker_timeout" do
+    describe "cookies.same_site" do
       it "has a default value" do
-        expect(Pakyow.config.puma.worker_timeout).to eq(60)
-      end
-    end
-
-    describe "puma.on_restart" do
-      it "has a default value" do
-        expect(Pakyow.config.puma.on_restart).to eq([])
-      end
-    end
-
-    describe "puma.before_fork" do
-      it "has a default value" do
-        expect(Pakyow.config.puma.before_fork).to eq([])
-      end
-    end
-
-    describe "puma.before_worker_boot" do
-      it "has a default value" do
-        expect(Pakyow.config.puma.before_worker_fork.count).to be(1)
-
-        expect(Pakyow).to receive(:forking)
-        Pakyow.config.puma.before_worker_fork[0].call(nil)
-      end
-    end
-
-    describe "puma.after_worker_fork" do
-      it "has a default value" do
-        expect(Pakyow.config.puma.after_worker_fork).to eq([])
-      end
-    end
-
-    describe "puma.before_worker_boot" do
-      it "has a default value" do
-        expect(Pakyow.config.puma.before_worker_boot.count).to be(1)
-
-        expect(Pakyow).to receive(:forked)
-        Pakyow.config.puma.before_worker_boot[0].call(nil)
-      end
-    end
-
-    describe "puma.before_worker_shutdown" do
-      it "has a default value" do
-        expect(Pakyow.config.puma.before_worker_shutdown).to eq([])
-      end
-    end
-
-    describe "puma.silent" do
-      it "has a default value" do
-        expect(Pakyow.config.puma.silent).to be(true)
-      end
-
-      context "in production" do
-        before do
-          Pakyow.configure!(:production)
-        end
-
-        it "has a default value" do
-          expect(Pakyow.config.puma.silent).to be(false)
-        end
+        expect(Pakyow.config.cookies.same_site).to be(nil)
       end
     end
   end

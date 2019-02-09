@@ -14,7 +14,9 @@ module Pakyow
       end
 
       def ui_transform?
-        @connection.env.key?("pakyow.ui_transform")
+        # TODO: we'll want to set this on the connection
+        # @connection.env.key?("pakyow.ui_transform")
+        false
       end
     end
   end

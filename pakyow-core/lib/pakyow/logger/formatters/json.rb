@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 require "json"
+require "log4r"
 
+require "pakyow/logger"
 require "pakyow/logger/timekeeper"
 
 module Pakyow
@@ -10,77 +12,88 @@ module Pakyow
       # Formats log messages as json.
       #
       # @example
-      #   {"severity":"INFO","timestamp":"2016-06-20 10:07:30 -0500","id":"c8af6a8b","type":"http","elapsed":"0.01ms","method":"GET","path":"/","ip":"127.0.0.1"}
-      #   {"severity":"INFO","timestamp":"2016-06-20 10:07:30 -0500","id":"c8af6a8b","type":"http","elapsed":"1.24ms","message":"hello 2016-06-20 10:07:30 -0500"}
-      #   {"severity":"INFO","timestamp":"2016-06-20 10:07:30 -0500","id":"c8af6a8b","type":"http","elapsed":"3.08ms","status":200}
+      #   {"severity":"info","timestamp":"2016-06-20 10:07:30 -0500","id":"c8af6a8b","type":"http","elapsed":"0.01ms","method":"GET","path":"/","ip":"127.0.0.1"}
+      #   {"severity":"info","timestamp":"2016-06-20 10:07:30 -0500","id":"c8af6a8b","type":"http","elapsed":"1.24ms","message":"hello 2016-06-20 10:07:30 -0500"}
+      #   {"severity":"info","timestamp":"2016-06-20 10:07:30 -0500","id":"c8af6a8b","type":"http","elapsed":"3.08ms","status":200}
       #
       # @api private
-      class JSON
-        def call(severity, datetime, _progname, message)
-          format(
-            {
-              severity: severity,
-              timestamp: datetime
-            }.merge(ensure_hash(message))
-          )
-        end
-
-        # @api private
-        def format_prologue(connection)
-          {
-            method: connection.method.to_s.upcase,
-            uri: connection.path,
-            ip: connection.ip
+      class JSON < Log4r::Formatter
+        def format(event)
+          entry = {
+            severity: Logger::NICE_LEVELS[event.level],
+            timestamp: Time.now
           }
-        end
 
-        # @api private
-        def format_epilogue(connection)
-          {
-            status: connection.status
-          }
-        end
+          case event.data
+          when Hash
+            if event.data.key?(:logger) && event.data.key?(:message)
+              format_logger_message(event.data, entry)
+            else
+              entry.merge!(event.data)
+            end
+          else
+            entry[:message] = event.data.to_s
+          end
 
-        # @api private
-        def format_message(message, id:, type:, elapsed:)
-          {
-            id: id,
-            type: type,
-            elapsed: Timekeeper.format_elapsed_time_in_milliseconds(
-              elapsed
-            ),
-          }.merge(ensure_hash(message))
-        end
-
-        # @api private
-        def format_error(error)
-          {
-            exception: error.class,
-            message: error.to_s,
-            backtrace: error.backtrace
-          }
+          serialize(entry)
         end
 
         private
 
-        def format(message)
-          message = case message
-          when Exception
-            format_error(message)
-          else
-            message
-          end
+        def format_logger_message(logger_message, entry)
+          logger, message = logger_message.values_at(:logger, :message)
 
-          message.to_json << "\n"
-        end
+          format_entry(
+            entry, id: logger.id, type: logger.type, elapsed: logger.elapsed
+          )
 
-        def ensure_hash(message)
           case message
           when Hash
-            message
+            if connection = message.delete(:prologue)
+              format_prologue(connection, entry)
+            elsif connection = message.delete(:epilogue)
+              format_epilogue(connection, entry)
+            elsif error = message.delete(:error)
+              format_error(error, entry)
+            else
+              entry.update(message)
+            end
+          when Exception
+            format_error(message, entry)
           else
-            { message: message.to_s }
+            entry[:message] = message.to_s
           end
+
+          serialize(
+            entry
+          )
+        end
+
+        def format_prologue(connection, entry)
+          entry[:method] = connection.request_method
+          entry[:uri] = connection.path
+          entry[:ip] = connection.ip
+        end
+
+        def format_epilogue(connection, entry)
+          entry[:status] = connection.status
+        end
+
+        def format_error(error, entry)
+          entry[:exception] = error.class
+          entry[:message] = error.to_s
+          entry[:backtrace] = error.backtrace
+        end
+
+        def format_entry(entry, id:, type:, elapsed:)
+          entry[:id] = id
+          entry[:type] = type
+          entry[:elapsed] = Timekeeper.format_elapsed_time_in_milliseconds(elapsed)
+          entry
+        end
+
+        def serialize(entry)
+          entry.to_json << "\n"
         end
       end
     end

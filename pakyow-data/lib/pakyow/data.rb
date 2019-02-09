@@ -13,7 +13,6 @@ require "pakyow/data/framework"
 require "pakyow/environment/data/auto_migrate"
 require "pakyow/environment/data/config"
 require "pakyow/environment/data/connections"
-require "pakyow/environment/data/forking"
 require "pakyow/environment/data/memory_db"
 
 module Pakyow
@@ -22,6 +21,5 @@ module Pakyow
   include Environment::Data::AutoMigrate
   include Environment::Data::Config
   include Environment::Data::Connections
-  include Environment::Data::Forking
   include Environment::Data::MemoryDB
 end

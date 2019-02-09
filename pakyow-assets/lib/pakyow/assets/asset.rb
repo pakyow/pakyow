@@ -101,7 +101,7 @@ module Pakyow
           File.join(config.prefix, @logical_path)
         )
 
-        @mime_type = Rack::Mime.mime_type(File.extname(@public_path))
+        @mime_type = MiniMime.lookup_by_filename(@public_path).type
         @mime_prefix, @mime_suffix = @mime_type.split("/", 2)
 
         @source_map_enabled = config.source_maps

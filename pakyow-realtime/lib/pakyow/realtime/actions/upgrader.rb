@@ -31,7 +31,11 @@ module Pakyow
         end
 
         def smells_like_a_websocket?(connection)
-          ::WebSocket::Driver.websocket?(connection.env)
+          ::WebSocket::Driver.websocket?(
+            "HTTP_CONNECTION" => connection.request.headers["connection"].to_s,
+            "HTTP_UPGRADE" => connection.request.headers["upgrade"].to_s,
+            "REQUEST_METHOD" => connection.request.method
+          )
         end
       end
     end

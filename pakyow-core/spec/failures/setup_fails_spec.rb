@@ -1,11 +1,11 @@
 RSpec.describe "Handling failures in pakyow environment setup" do
+  include_context "app"
+
   before do
-    Pakyow.app :test
     allow(Pakyow).to receive(:exit)
     allow(Pakyow).to receive(:load).and_raise(error)
     allow(Pakyow).to receive(:logger).and_return(double(:logger, error: nil))
-    allow(Pakyow).to receive(:to_app)
-    allow(Pakyow).to receive(:handler).and_return(double(:handler, run: nil))
+    Pakyow.config.logger.enabled = true
   end
 
   let :error do
@@ -14,7 +14,7 @@ RSpec.describe "Handling failures in pakyow environment setup" do
 
   shared_examples :handling do
     it "logs" do
-      expect(Pakyow.logger).to receive(:error).with(error)
+      expect(Pakyow.logger).to receive(:error).with(error: error)
     end
 
     context "config.exit_on_boot_failure is true" do
@@ -23,7 +23,7 @@ RSpec.describe "Handling failures in pakyow environment setup" do
       end
 
       it "exits" do
-        expect(Pakyow).to receive(:exit)
+        expect(Pakyow).to receive(:exit).with(false)
       end
     end
 
@@ -45,14 +45,6 @@ RSpec.describe "Handling failures in pakyow environment setup" do
   context "environment boots after a setup failure" do
     after do
       Pakyow.boot
-    end
-
-    include_examples :handling
-  end
-
-  context "environment runs after a setup failure" do
-    after do
-      Pakyow.run
     end
 
     include_examples :handling

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "pakyow/connection"
-require "pakyow/request_logger"
 
 require "pakyow/presenter/rendering/view_renderer"
 

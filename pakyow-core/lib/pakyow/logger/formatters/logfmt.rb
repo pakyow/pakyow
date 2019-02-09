@@ -18,23 +18,16 @@ module Pakyow
 
         UNESCAPED_STRING = /\A[\w\.\-\+\%\,\:\;\/]*\z/i
 
-        def format(message)
-          message = case message
-          when Exception
-            format_error(message)
-          else
-            message
-          end
-
-          escape(message).map { |key, value|
-            "#{key}=#{value}"
-          }.join(" ") + "\n"
+        def serialize(message)
+          escape(message).each_with_object(String.new) { |(key, value), buffer|
+            buffer << "#{key}=#{value} "
+          }.rstrip << "\n"
         end
 
         # From polyfox/moon-logfmt.
         #
         def escape(message)
-          return to_enum :escape, message unless block_given?
+          return enum_for(:escape, message) unless block_given?
 
           message.each_pair do |key, value|
             value = case value
@@ -44,7 +37,10 @@ module Pakyow
               value.to_s
             end
 
-            value = value.dump unless value =~ UNESCAPED_STRING
+            unless value =~ UNESCAPED_STRING
+              value = value.dump
+            end
+
             yield key.to_s, value
           end
         end

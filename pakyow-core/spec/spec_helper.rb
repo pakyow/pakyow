@@ -8,7 +8,7 @@ start_simplecov do
   track_files File.join(lib_path, "**/*.rb")
 end
 
-require "pakyow"
+require "pakyow/environment"
 
 require_relative "../../spec/helpers/mock_handler"
 require_relative "../../spec/helpers/output_helpers"

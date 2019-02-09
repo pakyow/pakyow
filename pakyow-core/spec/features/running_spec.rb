@@ -1,32 +1,17 @@
 RSpec.describe "running the environment" do
-  before do
-    Pakyow.config.server.name = :mock
+  context "proxy is enabled" do
+    it "starts the proxy on the host and port"
+    it "starts the server on the host and discovered port"
+    it "does not print the running text"
   end
 
-  context "with no mounted endpoints" do
-    it "raises a runtime error" do
-      expect {
-        Pakyow.setup(env: :test).run
-      }.to raise_error(RuntimeError)
-    end
-  end
+  context "proxy is disabled" do
+    it "starts the server on the host and port"
+    it "does not start the proxy"
+    it "prints the running text"
 
-  context "with a mounted rack endpoint" do
-    before do
-      klass = Class.new do
-        def call(env)
-          [200, {}, "foo"]
-        end
-      end
-
-      Pakyow.mount klass, at: "/"
-      Pakyow.setup(env: :test).run
-    end
-
-    it "runs the endpoint" do
-      res = Pakyow.builder.call(Rack::MockRequest.env_for("/"))
-      expect(res[0]).to eq(200)
-      expect(res[2]).to eq("foo")
+    context "environment is respawning" do
+      it "does not print the running text"
     end
   end
 end

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "pakyow/request_logger"
-
 module Pakyow
   module Presenter
     module Actions

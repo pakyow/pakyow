@@ -2,10 +2,6 @@
 
 require "pakyow/support/extension"
 
-require "pakyow/actions/logger"
-require "pakyow/actions/normalizer"
-require "pakyow/actions/request_parser"
-
 module Pakyow
   module Behavior
     # Loads default pipeline actions based on included frameworks.
@@ -25,12 +21,6 @@ module Pakyow
       private
 
       def load_pipeline_defaults(pipeline)
-        unless is_a?(Plugin)
-          pipeline.action(Actions::Logger)
-          pipeline.action(Actions::Normalizer)
-          pipeline.action(Actions::RequestParser)
-        end
-
         if self.class.includes_framework?(:assets)
           pipeline.action(Assets::Actions::Public, self)
           pipeline.action(Assets::Actions::Process)

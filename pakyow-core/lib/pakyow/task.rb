@@ -4,6 +4,7 @@ require "rake"
 require "forwardable"
 require "optparse"
 
+require "pakyow/support/deep_freeze"
 require "pakyow/support/cli/style"
 
 require "pakyow/cli"
@@ -16,6 +17,9 @@ module Pakyow
 
     extend Forwardable
     def_delegators :@rake, :name
+
+    extend Support::DeepFreeze
+    unfreezable :rake
 
     attr_reader :description
 

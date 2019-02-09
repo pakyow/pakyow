@@ -24,7 +24,7 @@ RSpec.describe "setting the default timezone" do
     end
 
     it "sets the timezone to the configured timezone" do
-      expect(Time.now.zone.upcase).to eq("EST")
+      expect(Time.now.zone.upcase).to eq(Time.now.dst? ? "EDT" : "EST")
     end
   end
 end

@@ -17,19 +17,11 @@ module Pakyow
 
       # Yields Pakyow.logger if defined, or a default logger.
       #
-      def self.safe(level: nil, formatter: nil)
+      def self.safe
         logger = if defined?(Pakyow.logger) && Pakyow.logger
           Pakyow.logger
         else
-          ::Logger.new($stdout).tap do |stdout_logger|
-            unless level.nil?
-              stdout_logger.level = level
-            end
-
-            unless formatter.nil?
-              stdout_logger.formatter = formatter
-            end
-          end
+          ::Logger.new($stdout)
         end
 
         yield logger

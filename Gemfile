@@ -31,6 +31,7 @@ group :test do
   gem "event_emitter", ">= 0.2"
   gem "httparty", ">= 0.16"
   gem "puma", ">= 3.12"
+  gem "rack", ">= 2.0.6"
 
   gem "rspec", "~> 3.8"
   gem "rspec-benchmark", "~> 0.4"
@@ -48,4 +49,6 @@ group :test do
 
   gem "memory_profiler", "~> 0.9", require: false
   gem "ruby-prof", "~> 0.17", require: false
+
+  gem "benchmark-ips", "~> 2.7", require: false
 end

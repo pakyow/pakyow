@@ -134,11 +134,14 @@ module Pakyow
                   serialized: serialize
                 },
                 presentables: presentables,
-                env: @connection.env.each_with_object({}) { |(key, value), keep|
-                  if ENV_KEYS.include?(key)
-                    keep[key] = value
-                  end
-                }
+                # TODO: determine how we want to do this
+                #
+                env: {}
+                # env: @connection.env.each_with_object({}) { |(key, value), keep|
+                #   if ENV_KEYS.include?(key)
+                #     keep[key] = value
+                #   end
+                # }
               }
 
               payload = {

@@ -1,0 +1,15 @@
+--AaB:03x
+Content-Disposition: form-data; name="foo"
+
+foo
+--AaB:03x
+Content-Disposition: form-data; name="bar"
+Content-Type: text/plain
+
+bar
+--AaB:03x
+Content-Disposition: form-data; name="baz"; filename="file1.txt"
+Content-Type: text/plain
+
+baz
+--AaB:03x--

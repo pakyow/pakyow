@@ -1,0 +1,10 @@
+--AaB03x
+Content-Disposition: form-data; name="foo"
+
+bar
+--AaB03x
+Content-Type: image/png
+Content-Disposition: form-data; name="bar"; filename=bar.png
+
+contents
+--AaB03x--

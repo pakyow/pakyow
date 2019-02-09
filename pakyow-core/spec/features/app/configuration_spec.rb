@@ -26,7 +26,7 @@ RSpec.describe "configuring an app" do
       Proc.new do
         def load_pipeline_defaults(pipeline)
           pipeline.action Proc.new { |connection|
-            connection.body = config.name
+            connection.body = StringIO.new(config.name)
             connection.halt
           }
         end
@@ -55,7 +55,7 @@ RSpec.describe "accessing the app's config" do
       Proc.new do
         def load_pipeline_defaults(pipeline)
           pipeline.action Proc.new { |connection|
-            connection.body = config.name
+            connection.body = StringIO.new(config.name)
             connection.halt
           }
         end

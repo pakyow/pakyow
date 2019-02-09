@@ -5,6 +5,7 @@ AllCops:
     - 'bin/**/*'
     - '**vendor/**/*'
     - '**/spec/**/*'
+    - '**/benchmark/**/*'
     - '**/node_modules/**/*'
     - 'pakyow-core/lib/pakyow/generators/**/*'
   DisplayCopNames: true
@@ -132,9 +133,6 @@ Lint/EmptyInterpolation:
   Enabled: true
 
 Lint/EnsureReturn:
-  Enabled: true
-
-Lint/HandleExceptions:
   Enabled: true
 
 Lint/InheritException:

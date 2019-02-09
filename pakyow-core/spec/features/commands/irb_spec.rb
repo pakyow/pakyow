@@ -24,6 +24,12 @@ RSpec.describe "cli: irb" do
       run_command(command)
     end
 
+    it "clears ARGV" do
+      expect(IRB).to receive(:start)
+      expect(ARGV).to receive(:clear).exactly(3).times.and_call_original
+      run_command(command)
+    end
+
     context "configured with pry" do
       before do
         Pakyow.config.cli.repl = Pry

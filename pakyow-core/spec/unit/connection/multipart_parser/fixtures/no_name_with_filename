@@ -1,0 +1,6 @@
+--AaB03x
+Content-Type: image/png
+Content-Disposition: form-data; filename=foo.png
+
+contents
+--AaB03x--

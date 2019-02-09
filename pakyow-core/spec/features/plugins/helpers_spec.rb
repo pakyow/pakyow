@@ -16,7 +16,7 @@ RSpec.describe "accessing helpers from the plugin" do
       action :test
       def test(connection)
         if connection.path == File.join(self.class.mount_path, "test-plugin/helpers")
-          connection.body = @object.new(connection).test_helper
+          connection.body = StringIO.new(@object.new(connection).test_helper)
           connection.halt
         end
       end
@@ -94,7 +94,7 @@ RSpec.describe "accessing helpers from the app" do
             @object.new(connection).testable
           end
 
-          connection.body = helper_context.send(helper)
+          connection.body = StringIO.new(helper_context.send(helper))
           connection.halt
         end
       end

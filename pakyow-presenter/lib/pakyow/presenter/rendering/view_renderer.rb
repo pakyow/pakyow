@@ -23,10 +23,9 @@ module Pakyow
           renderer.perform
 
           html = renderer.to_html(clean_bindings: !Pakyow.env?(:prototype))
-          connection.set_response_header(Rack::CONTENT_LENGTH, html.bytesize)
-          connection.set_response_header(Rack::CONTENT_TYPE, "text/html")
+          connection.set_header("Content-Type", "text/html")
           connection.body = StringIO.new(html)
-          connection.rendered
+          connection.set(:__rendered, true)
         end
 
         def perform_for_connection(connection)
@@ -36,7 +35,8 @@ module Pakyow
                 render(connection)
               end
             rescue UnknownPage => error
-              raise ImplicitRenderingError.build(error, context: connection.env["pakyow.endpoint.path"] || connection.path)
+              # TODO: yet another endpoint
+              raise ImplicitRenderingError.build(error, context: connection.get("pakyow.endpoint.path") || connection.path)
             end
           end
         rescue StandardError => error
@@ -53,7 +53,7 @@ module Pakyow
 
         def implicitly_render?(connection)
           IMPLICIT_HTTP_METHODS.include?(connection.method) && connection.format == :html &&
-          (Pakyow.env?(:prototype) || ((!connection.halted? || connection.set?(:__fully_dispatched)) && !connection.rendered?))
+          (Pakyow.env?(:prototype) || ((!connection.halted? || connection.set?(:__fully_dispatched)) && !connection.set?(:__rendered)))
         end
 
         def restore(connection, serialized)
@@ -76,7 +76,8 @@ module Pakyow
       def initialize(connection, templates_path: nil, presenter_path: nil, mode: :default, embed_templates: true)
         @connection, @embed_templates, @renders = connection, embed_templates, []
 
-        @templates_path = String.normalize_path(templates_path || @connection.env["pakyow.endpoint.path"] || @connection.path)
+        # TODO: let's just set the entire endpoint on the connection?
+        @templates_path = String.normalize_path(templates_path || @connection.get("pakyow.endpoint.path") || @connection.path)
         @presenter_path = presenter_path ? String.normalize_path(presenter_path) : nil
 
         @mode = if rendering_prototype?

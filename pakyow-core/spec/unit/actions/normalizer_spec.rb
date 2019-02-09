@@ -1,18 +1,19 @@
 RSpec.describe Pakyow::Actions::Normalizer do
-  let :app do
-    instance_double(Pakyow::App)
-  end
-
   let :action do
     Pakyow::Actions::Normalizer.new
   end
 
   let :connection do
-    Pakyow::Connection.new(app, env)
+    Pakyow::Connection.new(request).tap do |connection|
+      allow(connection).to receive(:path).and_return(path)
+      allow(connection).to receive(:host).and_return(host)
+      allow(connection).to receive(:port).and_return(port)
+      allow(connection).to receive(:authority).and_return("#{host}:#{port}")
+    end
   end
 
-  let :env do
-    { Rack::PATH_INFO => path, Rack::SERVER_NAME => host }
+  let :request do
+    instance_double(Async::HTTP::Protocol::Request)
   end
 
   let :path do
@@ -21,6 +22,14 @@ RSpec.describe Pakyow::Actions::Normalizer do
 
   let :host do
     ""
+  end
+
+  let :port do
+    "80"
+  end
+
+  before do
+    allow(Pakyow).to receive(:global_logger).and_return(double(:global_logger, level: 2))
   end
 
   describe "normalizing the trailing slash" do
@@ -40,7 +49,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
           end
 
           expect(connection.status).to eq(301)
-          expect(connection.response_header("Location")).to eq("/foo")
+          expect(connection.header("Location")).to eq("/foo")
         end
       end
 
@@ -55,7 +64,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
           end
 
           expect(connection.status).to eq(301)
-          expect(connection.response_header("Location")).to eq("/foo")
+          expect(connection.header("Location")).to eq("/foo")
         end
       end
 
@@ -70,7 +79,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
           end
 
           expect(connection.status).to eq(200)
-          expect(connection.response_header?("Location")).to be(false)
+          expect(connection.header?("Location")).to be(false)
         end
       end
     end
@@ -91,7 +100,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
           end
 
           expect(connection.status).to eq(200)
-          expect(connection.response_header?("Location")).to be(false)
+          expect(connection.header?("Location")).to be(false)
         end
       end
 
@@ -106,7 +115,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
           end
 
           expect(connection.status).to eq(200)
-          expect(connection.response_header?("Location")).to be(false)
+          expect(connection.header?("Location")).to be(false)
         end
       end
     end
@@ -134,7 +143,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
             end
 
             expect(connection.status).to eq(301)
-            expect(connection.response_header("Location")).to eq("www.pakyow.org/")
+            expect(connection.header("Location")).to eq("www.pakyow.org:80/")
           end
         end
 
@@ -149,7 +158,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
             end
 
             expect(connection.status).to eq(200)
-            expect(connection.response_header?("Location")).to be(false)
+            expect(connection.header?("Location")).to be(false)
           end
         end
 
@@ -164,7 +173,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
             end
 
             expect(connection.status).to eq(200)
-            expect(connection.response_header?("Location")).to be(false)
+            expect(connection.header?("Location")).to be(false)
           end
         end
       end
@@ -185,7 +194,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
             end
 
             expect(connection.status).to eq(301)
-            expect(connection.response_header("Location")).to eq("pakyow.org/")
+            expect(connection.header("Location")).to eq("pakyow.org:80/")
           end
         end
 
@@ -196,7 +205,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
             end
 
             expect(connection.status).to eq(200)
-            expect(connection.response_header?("Location")).to be(false)
+            expect(connection.header?("Location")).to be(false)
           end
         end
 
@@ -207,7 +216,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
             end
 
             expect(connection.status).to eq(200)
-            expect(connection.response_header?("Location")).to be(false)
+            expect(connection.header?("Location")).to be(false)
           end
         end
       end
@@ -234,7 +243,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
             end
 
             expect(connection.status).to eq(200)
-            expect(connection.response_header?("Location")).to be(false)
+            expect(connection.header?("Location")).to be(false)
           end
         end
 
@@ -249,7 +258,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
             end
 
             expect(connection.status).to eq(200)
-            expect(connection.response_header?("Location")).to be(false)
+            expect(connection.header?("Location")).to be(false)
           end
         end
 
@@ -264,7 +273,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
             end
 
             expect(connection.status).to eq(200)
-            expect(connection.response_header?("Location")).to be(false)
+            expect(connection.header?("Location")).to be(false)
           end
         end
       end
@@ -285,7 +294,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
             end
 
             expect(connection.status).to eq(200)
-            expect(connection.response_header?("Location")).to be(false)
+            expect(connection.header?("Location")).to be(false)
           end
         end
 
@@ -296,7 +305,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
             end
 
             expect(connection.status).to eq(200)
-            expect(connection.response_header?("Location")).to be(false)
+            expect(connection.header?("Location")).to be(false)
           end
         end
 
@@ -307,7 +316,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
             end
 
             expect(connection.status).to eq(200)
-            expect(connection.response_header?("Location")).to be(false)
+            expect(connection.header?("Location")).to be(false)
           end
         end
       end

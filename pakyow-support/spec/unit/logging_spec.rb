@@ -113,28 +113,6 @@ RSpec.describe Pakyow::Support::Logging do
           Pakyow::Support::Logging.safe(&block)
         }.to yield_with_args(logger)
       end
-
-      context "level is passed" do
-        it "sets the level" do
-          expect(::Logger).to receive(:new).with($stdout).and_return(logger)
-          expect(logger).to receive(:level=).with(1)
-
-          expect { |block|
-            Pakyow::Support::Logging.safe(level: 1, &block)
-          }.to yield_with_args(logger)
-        end
-      end
-
-      context "formatter is passed" do
-        it "sets the formatter" do
-          expect(::Logger).to receive(:new).with($stdout).and_return(logger)
-          expect(logger).to receive(:formatter=).with(:foo)
-
-          expect { |block|
-            Pakyow::Support::Logging.safe(formatter: :foo, &block)
-          }.to yield_with_args(logger)
-        end
-      end
     end
   end
 end

@@ -4,6 +4,8 @@ require "pakyow/support/class_state"
 require "pakyow/support/deep_dup"
 require "pakyow/support/extension"
 
+require "pakyow/connection/statuses"
+
 module Pakyow
   module Routing
     module Behavior
@@ -32,7 +34,7 @@ module Pakyow
         # Calls the handler for a particular http status code.
         #
         def trigger(name_or_code)
-          code = Connection.status_code(name_or_code)
+          code = Connection::Statuses.code(name_or_code)
           connection.status = code
           trigger_for_code(code)
         end
@@ -134,9 +136,9 @@ module Pakyow
           def handle(name_exception_or_code, as: nil, &block)
             if name_exception_or_code.is_a?(Class) && name_exception_or_code.ancestors.include?(Exception)
               raise ArgumentError, "status code is required" if as.nil?
-              (@exceptions[name_exception_or_code] ||= []) << [Connection.status_code(as), block]
+              (@exceptions[name_exception_or_code] ||= []) << [Connection::Statuses.code(as), block]
             else
-              status_code = Connection.status_code(name_exception_or_code)
+              status_code = Connection::Statuses.code(name_exception_or_code)
               (@handlers[status_code] ||= []) << [as || status_code, block]
             end
           end

@@ -3,7 +3,6 @@
 require "securerandom"
 
 require "pakyow/helpers/connection"
-require "pakyow/request_logger"
 
 module Pakyow
   module Realtime

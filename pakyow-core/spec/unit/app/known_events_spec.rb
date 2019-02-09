@@ -20,10 +20,6 @@ RSpec.describe Pakyow::App do
       expect(Pakyow::App.events).to include(:boot)
     end
 
-    it "includes `fork`" do
-      expect(Pakyow::App.events).to include(:fork)
-    end
-
     it "includes `rescue`" do
       expect(Pakyow::App.events).to include(:rescue)
     end

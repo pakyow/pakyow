@@ -1,16 +1,20 @@
 # frozen_string_literal: true
 
+require "log4r"
+
 require "pakyow/support/cli/style"
+
+require "pakyow/logger"
 
 module Pakyow
   class Logger
     # Helpers for colorizing log messages.
     #
     module Colorizer
-      # Colorizes message based on severity.
+      # Colorizes message based on level.
       #
-      def self.colorize(message, severity)
-        if color = color(severity)
+      def self.colorize(message, level)
+        if color = color(level)
           Support::CLI.style.public_send(color, message)
         else
           message
@@ -18,28 +22,18 @@ module Pakyow
       end
 
       LEVEL_COLORS = {
-        "DEBUG" => :cyan,
-        "INFO" => :green,
-        "WARN" => :yellow,
-        "ERROR" => :red,
-        "FATAL" => :red
+        Logger::NICE_LEVELS.key(:verbose) => :magenta,
+        Logger::NICE_LEVELS.key(:debug) => :cyan,
+        Logger::NICE_LEVELS.key(:info) => :green,
+        Logger::NICE_LEVELS.key(:warn) => :yellow,
+        Logger::NICE_LEVELS.key(:error) => :red,
+        Logger::NICE_LEVELS.key(:fatal) => :red
       }.freeze
 
-      COLOR_TABLE = %i[
-        black
-        red
-        green
-        yellow
-        blue
-        magenta
-        cyan
-        white
-      ].freeze
-
-      # Returns a color for a level of severity.
+      # Returns a color for a level.
       #
       def self.color(level)
-        LEVEL_COLORS[level.to_s.upcase]
+        LEVEL_COLORS[level]
       end
     end
   end

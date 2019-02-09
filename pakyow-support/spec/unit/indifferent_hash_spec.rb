@@ -46,6 +46,10 @@ module Pakyow::Support
     end
 
     context "when initializing with new" do
+      it "initializes with a default value" do
+        expect(IndifferentHash.new).to eq({})
+      end
+
       it "converts string keys to symbols" do
         expect(indifferent.keys).to include(:two)
         expect(indifferent.keys).not_to include("two")

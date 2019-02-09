@@ -168,10 +168,10 @@ module Pakyow
       DEFAULT_ERROR_MESSAGES[error_key] || DEFAULT_ERROR_MESSAGES[:default]
     end
 
-    protected
+    private
 
     def should_sanitize?(input)
-      input.is_a?(Pakyow::Support::IndifferentHash) || input.is_a?(Hash)
+      input.is_a?(Pakyow::Support::IndifferentHash) || input.is_a?(Hash) || input.is_a?(Connection::Params)
     end
 
     def should_validate?(input)

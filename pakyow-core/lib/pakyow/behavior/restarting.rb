@@ -18,16 +18,16 @@ module Pakyow
 
       apply_extension do
         configurable :process do
-          setting :trigger_restarts
           setting :watched_paths, []
           setting :excluded_paths, []
+          setting :restartable, false
 
           defaults :development do
-            setting :trigger_restarts, true
+            setting :restartable, true
           end
 
           defaults :prototype do
-            setting :trigger_restarts, true
+            setting :restartable, true
           end
         end
 
@@ -44,7 +44,7 @@ module Pakyow
       end
 
       def setup_for_restarting
-        if config.process.trigger_restarts
+        if config.process.restartable
           config.process.watched_paths << File.join(config.src, "**/*.rb")
           config.process.watched_paths << File.join(config.lib, "**/*.rb")
 

@@ -1,12 +1,6 @@
-RSpec.describe "using the request logger" do
-  let :request_logger do
-    Pakyow::RequestLogger.new(:http, logger: logger)
-  end
-
+RSpec.describe "request logging" do
   let :logger do
-    Pakyow::Logger.new(io).tap do |logger|
-      logger.formatter = formatter
-    end
+    Pakyow::Logger.new(:http)
   end
 
   let :io do
@@ -21,20 +15,16 @@ RSpec.describe "using the request logger" do
     Time.now
   end
 
-  let :env do
-    {
-      "REQUEST_METHOD" => "GET",
-      "PATH_INFO" => "/",
-      "REMOTE_ADDR" => "0.0.0.0",
-    }
-  end
-
-  let :res do
-    [200, "", {}]
-  end
-
   let :connection do
-    Pakyow::Connection.new(instance_double(Pakyow::App), env)
+    Pakyow::Connection.new(request)
+  end
+
+  let :request do
+    Async::HTTP::Protocol::Request.new(
+      "http", "localhost", "GET", "/", nil, HTTP::Protocol::Headers.new([["content-type", "text/html"]])
+    ).tap do |request|
+      request.remote_address = Addrinfo.tcp("0.0.0.0", "http")
+    end
   end
 
   let :error do
@@ -51,7 +41,10 @@ RSpec.describe "using the request logger" do
   end
 
   before do
-    allow(request_logger).to receive(:elapsed).and_return(elapsed)
+    Pakyow.config.logger.destinations = []
+    Pakyow.send(:init_global_logger)
+    Pakyow.global_logger.add(Log4r::IOOutputter.new(:out, io, formatter: formatter))
+    allow(logger).to receive(:elapsed).and_return(elapsed)
   end
 
   context "formatter is human" do
@@ -61,24 +54,24 @@ RSpec.describe "using the request logger" do
     end
 
     it "logs a message" do
-      request_logger.debug "foo"
-      expect(message).to eq("\e[36m  #{elapsed}.00s  http.#{request_logger.id} | foo\e[0m\n")
+      logger.debug "foo"
+      expect(message).to eq("\e[36m  #{elapsed}.00s  http.#{logger.id} | foo\e[0m\n")
     end
 
     it "logs the prologue" do
-      request_logger.prologue(connection)
-      expect(message).to eq("\e[32m  #{elapsed}.00s  http.#{request_logger.id} | GET / (for 0.0.0.0 at #{datetime})\e[0m\n")
+      logger.prologue(connection)
+      expect(message).to eq("\e[32m  #{elapsed}.00s  http.#{logger.id} | GET / (for 0.0.0.0 at #{datetime})\e[0m\n")
     end
 
     it "logs the epilogue" do
-      request_logger.epilogue(connection)
-      expect(message).to eq("\e[32m  #{elapsed}.00s  http.#{request_logger.id} | 200 (OK)\e[0m\n")
+      logger.epilogue(connection)
+      expect(message).to eq("\e[32m  #{elapsed}.00s  http.#{logger.id} | 200 (OK)\e[0m\n")
     end
 
     it "logs an error" do
       allow_any_instance_of(Pakyow::Error::CLIFormatter).to receive(:to_s).and_return("error")
-      request_logger.houston(error)
-      expect(message).to eq("\e[31m  #{elapsed}.00s  http.#{request_logger.id} | error\e[0m\n")
+      logger.houston(error)
+      expect(message).to eq("\e[31m  #{elapsed}.00s  http.#{logger.id} | error\e[0m\n")
     end
   end
 
@@ -89,24 +82,24 @@ RSpec.describe "using the request logger" do
     end
 
     it "logs a message" do
-      request_logger.debug "foo"
-      expect(message).to eq("{\"severity\":\"DEBUG\",\"timestamp\":\"#{datetime}\",\"id\":\"#{request_logger.id}\",\"type\":\"http\",\"elapsed\":\"#{elapsed * 1000}.00ms\",\"message\":\"foo\"}\n")
+      logger.debug "foo"
+      expect(message).to eq("{\"severity\":\"debug\",\"timestamp\":\"#{datetime}\",\"id\":\"#{logger.id}\",\"type\":\"http\",\"elapsed\":\"#{elapsed * 1000}.00ms\",\"message\":\"foo\"}\n")
     end
 
     it "logs the prologue" do
-      request_logger.prologue(connection)
-      expect(message).to eq("{\"severity\":\"INFO\",\"timestamp\":\"#{datetime}\",\"id\":\"#{request_logger.id}\",\"type\":\"http\",\"elapsed\":\"#{elapsed * 1000}.00ms\",\"method\":\"GET\",\"uri\":\"/\",\"ip\":\"0.0.0.0\"}\n")
+      logger.prologue(connection)
+      expect(message).to eq("{\"severity\":\"info\",\"timestamp\":\"#{datetime}\",\"id\":\"#{logger.id}\",\"type\":\"http\",\"elapsed\":\"#{elapsed * 1000}.00ms\",\"method\":\"GET\",\"uri\":\"/\",\"ip\":\"0.0.0.0\"}\n")
     end
 
     it "logs the epilogue" do
-      request_logger.epilogue(connection)
-      expect(message).to eq("{\"severity\":\"INFO\",\"timestamp\":\"#{datetime}\",\"id\":\"#{request_logger.id}\",\"type\":\"http\",\"elapsed\":\"#{elapsed * 1000}.00ms\",\"status\":200}\n")
+      logger.epilogue(connection)
+      expect(message).to eq("{\"severity\":\"info\",\"timestamp\":\"#{datetime}\",\"id\":\"#{logger.id}\",\"type\":\"http\",\"elapsed\":\"#{elapsed * 1000}.00ms\",\"status\":200}\n")
     end
 
     it "logs an error" do
       allow(error).to receive(:backtrace).and_return(["one"])
-      request_logger.houston(error)
-      expect(message).to eq("{\"severity\":\"ERROR\",\"timestamp\":\"#{datetime}\",\"id\":\"#{request_logger.id}\",\"type\":\"http\",\"elapsed\":\"#{elapsed * 1000}.00ms\",\"exception\":\"RuntimeError\",\"message\":\"foo\",\"backtrace\":[\"one\"]}\n")
+      logger.houston(error)
+      expect(message).to eq("{\"severity\":\"error\",\"timestamp\":\"#{datetime}\",\"id\":\"#{logger.id}\",\"type\":\"http\",\"elapsed\":\"#{elapsed * 1000}.00ms\",\"exception\":\"RuntimeError\",\"message\":\"foo\",\"backtrace\":[\"one\"]}\n")
     end
   end
 
@@ -117,24 +110,24 @@ RSpec.describe "using the request logger" do
     end
 
     it "logs a message" do
-      request_logger.debug "foo"
-      expect(message).to eq("severity=DEBUG timestamp=\"#{datetime}\" id=#{request_logger.id} type=http elapsed=#{elapsed * 1000}.00ms message=foo\n")
+      logger.debug "foo"
+      expect(message).to eq("severity=debug timestamp=\"#{datetime}\" id=#{logger.id} type=http elapsed=#{elapsed * 1000}.00ms message=foo\n")
     end
 
     it "logs the prologue" do
-      request_logger.prologue(connection)
-      expect(message).to eq("severity=INFO timestamp=\"#{datetime}\" id=#{request_logger.id} type=http elapsed=#{elapsed * 1000}.00ms method=GET uri=/ ip=0.0.0.0\n")
+      logger.prologue(connection)
+      expect(message).to eq("severity=info timestamp=\"#{datetime}\" id=#{logger.id} type=http elapsed=#{elapsed * 1000}.00ms method=GET uri=/ ip=0.0.0.0\n")
     end
 
     it "logs the epilogue" do
-      request_logger.epilogue(connection)
-      expect(message).to eq("severity=INFO timestamp=\"#{datetime}\" id=#{request_logger.id} type=http elapsed=#{elapsed * 1000}.00ms status=200\n")
+      logger.epilogue(connection)
+      expect(message).to eq("severity=info timestamp=\"#{datetime}\" id=#{logger.id} type=http elapsed=#{elapsed * 1000}.00ms status=200\n")
     end
 
     it "logs an error" do
       allow(error).to receive(:backtrace).and_return(["one"])
-      request_logger.houston(error)
-      expect(message).to eq("severity=ERROR timestamp=\"#{datetime}\" id=#{request_logger.id} type=http elapsed=#{elapsed * 1000}.00ms exception=RuntimeError message=foo backtrace=one\n")
+      logger.houston(error)
+      expect(message).to eq("severity=error timestamp=\"#{datetime}\" id=#{logger.id} type=http elapsed=#{elapsed * 1000}.00ms exception=RuntimeError message=foo backtrace=one\n")
     end
   end
 end

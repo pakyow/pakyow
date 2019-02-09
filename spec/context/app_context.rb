@@ -15,7 +15,7 @@ RSpec.shared_context "app" do
       end
     end
 
-    Pakyow.app(:test, &block)
+    Pakyow.app(:test, mount: false, &block)
   end
 
   let :app_def do
@@ -34,8 +34,11 @@ RSpec.shared_context "app" do
     :test
   end
 
+  let :mount_path do
+    "/"
+  end
+
   before do
-    Pakyow.config.server.name = :mock
     Pakyow.config.logger.enabled = false
     Pakyow.instance_variable_set(:@error, nil)
     setup_and_run if autorun
@@ -43,12 +46,12 @@ RSpec.shared_context "app" do
 
   def setup(env: :test)
     super if defined?(super)
-    Pakyow.mount app, at: "/", &app_init
+    Pakyow.mount app, at: mount_path, &app_init
     Pakyow.setup(env: env)
   end
 
   def run
-    @app = Pakyow.run
+    Pakyow.boot
     check_environment
     check_apps
   end
@@ -57,23 +60,46 @@ RSpec.shared_context "app" do
     setup(env: env) && run
   end
 
-  def call(path = "/", opts = {})
+  DEFAULT_HEADERS = { "content-type" => "text/html" }.freeze
+  def call(path = "/", headers: {}, method: :get, tuple: true, input: nil, params: nil)
     connection_for_call = nil
     allow_any_instance_of(Pakyow::Connection).to receive(:finalize).and_wrap_original do |method|
       connection_for_call = method.receiver
       method.call
     end
 
-    result = @app.call(Rack::MockRequest.env_for(path, opts)).tap do
-      check_response(connection_for_call)
+    if params
+      input = StringIO.new(params.to_json)
+      headers["content-type"] = "application/json"
     end
 
-    # Unwrap the response body so it's easier to test values.
-    #
-    [result[0], result[1], result[2].is_a?(Rack::BodyProxy) ? result[2].instance_variable_get(:@body) : result[2]]
+    body = Async::HTTP::Body::Buffered.wrap(input)
+    request = Async::HTTP::Protocol::Request.new(
+      "http", "localhost", method.to_s.upcase, path, nil, HTTP::Protocol::Headers.new(DEFAULT_HEADERS.merge(headers).to_a), body
+    ).tap do |request|
+      request.remote_address = Addrinfo.tcp("localhost", "http")
+    end
+
+    Async::Reactor.run {
+      result = Pakyow.call(request).tap do
+        check_response(connection_for_call)
+      end
+
+      if tuple
+        response_body = String.new
+        while content = result.body.read
+          response_body << content
+        end
+
+        [result.status, HTTP::Protocol::Headers.new(result.headers).to_h, response_body]
+      else
+        result
+      end
+    }.wait
   end
 
   def call_fast(path = "/", opts = {})
+    # TODO: this'll need to be updated
     @app.call(Rack::MockRequest.env_for(path, opts))
   end
 
@@ -116,7 +142,7 @@ RSpec.shared_context "app" do
   end
 
   def check_response(connection)
-    if connection && connection.status >= 500 && !allow_application_rescues && !allow_request_failures
+    if connection && connection.status.to_i >= 500 && !allow_application_rescues && !allow_request_failures
       fail <<~MESSAGE
         Request unexpectedly failed.
 

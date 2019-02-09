@@ -26,7 +26,7 @@ module Pakyow
       }
     }
 
-    def initialize(argv = ARGV)
+    def initialize(argv = ARGV.dup)
       @argv = argv
       @options = {}
       @task = nil

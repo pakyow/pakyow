@@ -11,7 +11,7 @@ RSpec.describe "defining an app" do
     Proc.new do
       def load_pipeline_defaults(pipeline)
         pipeline.action Proc.new { |connection|
-          connection.body = config.name
+          connection.body = StringIO.new(config.name)
           connection.halt
         }
       end
@@ -33,7 +33,7 @@ RSpec.describe "defining an app" do
 
         def load_pipeline_defaults(pipeline)
           pipeline.action Proc.new { |connection|
-            connection.body = config.name
+            connection.body = StringIO.new(config.name)
             connection.halt
           }
         end
@@ -46,10 +46,6 @@ RSpec.describe "defining an app" do
       Class.new(base).tap do |app|
         app.define(&app_def)
       end
-    end
-
-    before do
-      run
     end
 
     it "inherits parent state" do
@@ -84,7 +80,7 @@ RSpec.describe "defining an app" do
 
         def load_pipeline_defaults(pipeline)
           pipeline.action Proc.new { |connection|
-            connection.body = config.name
+            connection.body = StringIO.new(config.name)
             connection.halt
           }
         end
