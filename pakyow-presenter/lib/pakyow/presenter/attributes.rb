@@ -2,6 +2,8 @@
 
 require "forwardable"
 
+require "pakyow/support/safe_string"
+
 require "pakyow/presenter/attributes/boolean"
 require "pakyow/presenter/attributes/hash"
 require "pakyow/presenter/attributes/set"
@@ -61,6 +63,8 @@ module Pakyow
 
       extend Forwardable
 
+      include Support::SafeStringHelpers
+
       # @!method keys
       #   Returns keys from {@attributes}.
       #
@@ -99,7 +103,7 @@ module Pakyow
       end
 
       def []=(attribute, value)
-        attribute = attribute.to_sym
+        attribute = ensure_html_safety(attribute.to_s).to_sym
 
         if value.nil?
           @attributes.delete(attribute)

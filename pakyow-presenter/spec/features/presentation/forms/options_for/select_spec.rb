@@ -19,23 +19,29 @@ RSpec.describe "populating options for a select field" do
     [[1, "one"], [2, "two"], [3, "three"]]
   end
 
+  let :tag_view do
+    Pakyow::Presenter::View.new(
+      form.find(:tag).view.to_s
+    )
+  end
+
   it "clears existing options" do
     expect(form.find(:tag).to_s).not_to include("<option>existing</option>")
   end
 
   it "creates an option for each value" do
-    expect(form.find(:tag).view.object.find_significant_nodes(:option).count).to eq(3)
+    expect(tag_view.object.find_significant_nodes(:option).count).to eq(3)
   end
 
   it "sets the submitted value for each option" do
-    options = form.find(:tag).view.object.find_significant_nodes(:option)
+    options = tag_view.object.find_significant_nodes(:option)
     expect(options[0].attributes[:value]).to eq("1")
     expect(options[1].attributes[:value]).to eq("2")
     expect(options[2].attributes[:value]).to eq("3")
   end
 
   it "sets the presentation value for each option" do
-    options = form.find(:tag).view.object.find_significant_nodes(:option)
+    options = tag_view.object.find_significant_nodes(:option)
     expect(options[0].text).to eq("one")
     expect(options[1].text).to eq("two")
     expect(options[2].text).to eq("three")
@@ -49,7 +55,7 @@ RSpec.describe "populating options for a select field" do
     end
 
     it "uses options provided by the block" do
-      expect(form.find(:tag).view.object.find_significant_nodes(:option).count).to eq(3)
+      expect(tag_view.object.find_significant_nodes(:option).count).to eq(3)
     end
   end
 
@@ -64,14 +70,14 @@ RSpec.describe "populating options for a select field" do
       end
 
       it "sets the submitted value for each option" do
-        options = form.find(:tag).view.object.find_significant_nodes(:option)
+        options = tag_view.object.find_significant_nodes(:option)
         expect(options[0].attributes[:value]).to eq("1")
         expect(options[1].attributes[:value]).to eq("2")
         expect(options[2].attributes[:value]).to eq("3")
       end
 
       it "sets the presentation value for each option" do
-        options = form.find(:tag).view.object.find_significant_nodes(:option)
+        options = tag_view.object.find_significant_nodes(:option)
         expect(options[0].text).to eq("one")
         expect(options[1].text).to eq("two")
         expect(options[2].text).to eq("three")
@@ -116,14 +122,14 @@ RSpec.describe "populating options for a select field" do
       end
 
       it "sets the submitted value for each option" do
-        options = form.find(:tag).view.object.find_significant_nodes(:option)
+        options = tag_view.object.find_significant_nodes(:option)
         expect(options[0].attributes[:value]).to eq("one")
         expect(options[1].attributes[:value]).to eq("two")
         expect(options[2].attributes[:value]).to eq("three")
       end
 
       it "sets the presentation value for each option" do
-        options = form.find(:tag).view.object.find_significant_nodes(:option)
+        options = tag_view.object.find_significant_nodes(:option)
         expect(options[0].text).to eq("One")
         expect(options[1].text).to eq("Two")
         expect(options[2].text).to eq("Three")
@@ -140,14 +146,14 @@ RSpec.describe "populating options for a select field" do
       end
 
       it "does not set the submitted value for each option" do
-        options = form.find(:tag).view.object.find_significant_nodes(:option)
+        options = tag_view.object.find_significant_nodes(:option)
         expect(options[0].attributes[:value]).to eq("")
         expect(options[1].attributes[:value]).to eq("")
         expect(options[2].attributes[:value]).to eq("")
       end
 
       it "sets the presentation value for each option" do
-        options = form.find(:tag).view.object.find_significant_nodes(:option)
+        options = tag_view.object.find_significant_nodes(:option)
         expect(options[0].text).to eq("One")
         expect(options[1].text).to eq("Two")
         expect(options[2].text).to eq("Three")
@@ -180,14 +186,14 @@ RSpec.describe "populating options for a select field" do
       end
 
       it "sets the submitted value for each option" do
-        options = form.find(:tag).view.object.find_significant_nodes(:option)
+        options = tag_view.object.find_significant_nodes(:option)
         expect(options[0].attributes[:value]).to eq("one")
         expect(options[1].attributes[:value]).to eq("two")
         expect(options[2].attributes[:value]).to eq("three")
       end
 
       it "sets the presentation value for each option" do
-        options = form.find(:tag).view.object.find_significant_nodes(:option)
+        options = tag_view.object.find_significant_nodes(:option)
         expect(options[0].text).to eq("One")
         expect(options[1].text).to eq("Two")
         expect(options[2].text).to eq("Three")
@@ -216,14 +222,14 @@ RSpec.describe "populating options for a select field" do
       end
 
       it "sets the submitted value for each option" do
-        options = form.find(:tag).view.object.find_significant_nodes(:option)
+        options = tag_view.object.find_significant_nodes(:option)
         expect(options[0].attributes[:value]).to eq("one")
         expect(options[1].attributes[:value]).to eq("two")
         expect(options[2].attributes[:value]).to eq("three")
       end
 
       it "does not set the presentation value for each option" do
-        options = form.find(:tag).view.object.find_significant_nodes(:option)
+        options = tag_view.object.find_significant_nodes(:option)
         expect(options[0].text).to eq("")
         expect(options[1].text).to eq("")
         expect(options[2].text).to eq("")
@@ -237,16 +243,16 @@ RSpec.describe "populating options for a select field" do
     end
 
     it "creates a single option for the object" do
-      expect(form.find(:tag).view.object.find_significant_nodes(:option).count).to eq(1)
+      expect(tag_view.object.find_significant_nodes(:option).count).to eq(1)
     end
 
     it "sets the submitted value for each option" do
-      options = form.find(:tag).view.object.find_significant_nodes(:option)
+      options = tag_view.object.find_significant_nodes(:option)
       expect(options[0].attributes[:value]).to eq("1")
     end
 
     it "sets the presentation value for each option" do
-      options = form.find(:tag).view.object.find_significant_nodes(:option)
+      options = tag_view.object.find_significant_nodes(:option)
       expect(options[0].text).to eq("one")
     end
   end
@@ -257,7 +263,7 @@ RSpec.describe "populating options for a select field" do
     end
 
     it "clears the options" do
-      expect(form.find(:tag).view.object.find_significant_nodes(:option).count).to eq(0)
+      expect(tag_view.object.find_significant_nodes(:option).count).to eq(0)
     end
   end
 
@@ -267,7 +273,7 @@ RSpec.describe "populating options for a select field" do
     end
 
     it "clears the options" do
-      expect(form.find(:tag).view.object.find_significant_nodes(:option).count).to eq(0)
+      expect(tag_view.object.find_significant_nodes(:option).count).to eq(0)
     end
   end
 end

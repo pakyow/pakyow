@@ -58,7 +58,7 @@ module Pakyow
                 #
                 # Note that when we're presenting an entire view, `data-t` is set on the `html` node.
                 #
-                if node = @presenter.view.object.find_significant_nodes(:html)[0]
+                if node = @presenter.view.object.find_first_significant_node(:html)
                   @transformation_target = node
                 end
               end

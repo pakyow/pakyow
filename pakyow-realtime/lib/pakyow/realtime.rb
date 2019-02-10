@@ -2,6 +2,7 @@
 
 require "pakyow/support"
 require "pakyow/routing"
+require "pakyow/presenter"
 
 require "pakyow/realtime/framework"
 

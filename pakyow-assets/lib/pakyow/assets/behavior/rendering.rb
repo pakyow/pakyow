@@ -10,15 +10,15 @@ module Pakyow
 
         apply_extension do
           before :render do
-            next unless head = @presenter.view.object.find_significant_nodes(:head)[0]
+            if head = @presenter.view.head
+              packs.each do |pack|
+                if pack.javascripts?
+                  head.object.append_html("<script src=\"#{pack.public_path}.js\"></script>\n")
+                end
 
-            packs.each do |pack|
-              if pack.javascripts?
-                head.append("<script src=\"#{pack.public_path}.js\"></script>\n")
-              end
-
-              if pack.stylesheets?
-                head.append("<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"#{pack.public_path}.css\">\n")
+                if pack.stylesheets?
+                  head.object.append_html("<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"#{pack.public_path}.css\">\n")
+                end
               end
             end
           end
@@ -45,7 +45,7 @@ module Pakyow
 
         # @api private
         def component_packs
-          @presenter.view.object.find_significant_nodes(:component).map { |node|
+          @presenter.view.object.each_significant_node(:component).map { |node|
             node.label(:component)
           }
         end

@@ -314,7 +314,7 @@ RSpec.describe StringDoc do
       end
 
       let :node do
-        StringDoc::Node.new([])
+        StringDoc::Node.new
       end
 
       it "does not insert" do
@@ -398,7 +398,7 @@ RSpec.describe StringDoc do
       end
 
       let :node do
-        StringDoc::Node.new([])
+        StringDoc::Node.new
       end
 
       it "does not insert" do
@@ -435,7 +435,7 @@ RSpec.describe StringDoc do
 
     context "the node does not exist" do
       it "returns self" do
-        expect(doc.remove_node(StringDoc::Node.new([]))).to be(doc)
+        expect(doc.remove_node(StringDoc::Node.new)).to be(doc)
         expect(doc.nodes.count).to eq(3)
       end
     end
@@ -513,7 +513,7 @@ RSpec.describe StringDoc do
       end
 
       it "returns self" do
-        expect(doc.replace_node(StringDoc::Node.new([]), replacement)).to be(doc)
+        expect(doc.replace_node(StringDoc::Node.new, replacement)).to be(doc)
         expect(doc.nodes.count).to eq(3)
       end
     end

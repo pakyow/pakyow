@@ -7,6 +7,7 @@ require "pakyow/realtime/helpers/subscriptions"
 require "pakyow/realtime/helpers/socket"
 
 require "pakyow/realtime/behavior/config"
+require "pakyow/realtime/behavior/building"
 require "pakyow/realtime/behavior/rendering"
 require "pakyow/realtime/behavior/serialization"
 require "pakyow/realtime/behavior/server"
@@ -28,10 +29,12 @@ module Pakyow
           events :join, :leave
 
           include Behavior::Config
-          include Behavior::Rendering
+          include Behavior::Building
           include Behavior::Server
           include Behavior::Silencing
           include Behavior::Serialization
+
+          isolated(:ViewRenderer).prepend(Behavior::Rendering)
         end
       end
     end

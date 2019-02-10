@@ -107,7 +107,7 @@ module Pakyow
       end
 
       def ensure_explicit_use(presenter)
-        presenter.view.binding_props.each do |binding_prop|
+        presenter.view.each_binding_prop(descend: false) do |binding_prop|
           binding_name = if binding_prop.significant?(:multipart_binding)
             binding_prop.label(:binding_prop)
           else

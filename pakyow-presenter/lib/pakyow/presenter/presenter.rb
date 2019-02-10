@@ -276,7 +276,7 @@ module Pakyow
 
             presenter.bind(binder)
 
-            presenter.view.binding_scopes.uniq { |binding_scope|
+            presenter.view.binding_scopes(descend: false).uniq { |binding_scope|
               binding_scope.label(:binding)
             }.each do |binding_node|
               plural_binding_node_name = Support.inflector.pluralize(binding_node.label(:binding)).to_sym
@@ -448,7 +448,7 @@ module Pakyow
       end
 
       def bind_binder_to_view(binder, view)
-        view.binding_props.each do |binding|
+        view.each_binding_prop do |binding|
           value = binder.__value(binding.label(:binding))
           if value.is_a?(BindingParts) && binding_view = view.find(binding.label(:binding))
             value.accept(*binding_view.label(:include).to_s.split(" "))

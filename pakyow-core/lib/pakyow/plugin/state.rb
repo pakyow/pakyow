@@ -31,7 +31,7 @@ module Pakyow
         ).tap do |plugin_templates|
           if app_templates = @plugin.app.state(:templates).find { |templates| templates.name == :default }
             plugin_templates.paths.each do |path|
-              plugin_info = plugin_templates.info(path, false)
+              plugin_info = plugin_templates.info(path)
 
               # Use the app's layout, if available.
               #

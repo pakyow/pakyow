@@ -6,7 +6,9 @@ require "pakyow/routing/helpers/exposures"
 
 require "pakyow/support/indifferentize"
 
+require "pakyow/presenter/behavior/authenticity_rendering"
 require "pakyow/presenter/behavior/building"
+require "pakyow/presenter/behavior/componentize"
 require "pakyow/presenter/behavior/config"
 require "pakyow/presenter/behavior/error_rendering"
 require "pakyow/presenter/behavior/initializing"
@@ -35,7 +37,9 @@ module Pakyow
           isolate Component
           isolate Presenter
           isolate ComponentRenderer
-          isolate ViewRenderer
+          isolate ViewRenderer do
+            prepend(Behavior::AuthenticityRendering)
+          end
 
           stateful :binder,    isolated(:Binder)
           stateful :component, isolated(:Component)
@@ -81,6 +85,7 @@ module Pakyow
           end
 
           include Behavior::Building
+          include Behavior::Componentize
           include Behavior::Config
           include Behavior::ErrorRendering
           include Behavior::Initializing

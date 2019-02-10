@@ -34,7 +34,7 @@ RSpec.describe "automatically rendering when no controller is called" do
       end
 
       it "sets the content length and content type headers to the expected value" do
-        expect(call("/other", method: :head)[1]).to eq("Content-Length" => 108, "Content-Type" => "text/html")
+        expect(call("/other", method: :head)[1]).to include("Content-Length" => 108, "Content-Type" => "text/html")
       end
     end
 

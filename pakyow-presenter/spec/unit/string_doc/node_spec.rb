@@ -151,10 +151,25 @@ RSpec.describe StringDoc::Node do
         expect(node.to_s).to eq("<div data-b=\"post\"><div>foo</div></div>")
       end
     end
+  end
 
-    context "new html has significant nodes" do
+  describe "#replace_children" do
+    it "sets the html value of the current node" do
+      node = doc.find_significant_nodes_with_name(:binding, :title)[0]
+      node.replace_children("<div>foo</div>")
+      expect(node.to_s).to eq("<h1 data-b=\"title\"><div>foo</div></h1>")
+    end
+
+    context "node has children" do
+      it "replaces the childen" do
+        node.replace_children("<div>foo</div>")
+        expect(node.to_s).to eq("<div data-b=\"post\"><div>foo</div></div>")
+      end
+    end
+
+    context "new children have significant nodes" do
       it "finds the significant nodes" do
-        node.html = "<div binding=\"foo\">foo</div>"
+        node.replace_children("<div binding=\"foo\">foo</div>")
         expect(doc.find_significant_nodes_with_name(:binding, :foo).count).to eq(1)
       end
     end

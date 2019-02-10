@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "forwardable"
-
 require "pakyow/support/inspectable"
 
 class StringDoc
@@ -32,37 +30,27 @@ class StringDoc
       end
     end
 
-    attr_reader :node, :parent, :children, :attributes
+    attr_reader :node, :parent, :children, :attributes, :tag_open_start, :tag_open_end, :tag_close
 
     # @api private
     attr_writer :parent
 
-    extend Forwardable
-    def_delegators :children, :find_significant_nodes, :find_significant_nodes_with_name, :find_significant_nodes_without_descending
-
     include Pakyow::Support::Inspectable
     inspectable :attributes, :children, :significance, :labels
 
-    def initialize(node, parent: nil, significance: [], labels: {})
-      @node, @parent, @labels = node, parent, labels
-      @significance = significance
-      @attributes = @node[1]
-      @children = StringDoc.empty
+    def initialize(tag_open_start = "", attributes = Attributes.new, tag_open_end = "", children = StringDoc.empty, tag_close = "", parent: nil, significance: [], labels: {})
+      @tag_open_start, @attributes, @tag_open_end, @children, @tag_close = tag_open_start, attributes, tag_open_end, children, tag_close
+      @parent, @labels, @significance = parent, labels, significance
     end
 
     # @api private
     def initialize_copy(_)
       super
 
+      @labels = @labels.dup
       @significance = @significance.dup
       @attributes = @attributes.dup
       @children = @children.dup
-
-      @node = @node.dup
-      @node[1] = @attributes
-      @node[3] = @children
-
-      @labels = @labels.dup
     end
 
     def significant?(type = nil)
@@ -78,10 +66,8 @@ class StringDoc
     def close(tag, child)
       tap do
         @children = StringDoc.from_nodes(child)
-
-        @node << (tag ? ">" : "")
-        @node << @children
-        @node << ((tag && !self.class.self_closing?(tag)) ? "</#{tag}>" : "")
+        @tag_open_end = tag ? ">" : ""
+        @tag_close = (tag && !self.class.self_closing?(tag)) ? "</#{tag}>" : ""
       end
     end
 
@@ -121,16 +107,22 @@ class StringDoc
       children.to_s
     end
 
-    # Replaces self's inner html.
+    # Replaces self's inner html, without making it available for further manipulation.
     #
     def html=(html)
-      children.replace(html)
+      @children = html.to_s
+    end
+
+    # Replaces self's children.
+    #
+    def replace_children(children)
+      @children.replace(children)
     end
 
     # Returns the node's tagname.
     #
     def tagname
-      @node[0].gsub(/[^a-zA-Z]/, "")
+      @tag_open_start.gsub(/[^a-zA-Z]/, "")
     end
 
     # Removes all children.
@@ -155,6 +147,12 @@ class StringDoc
     #
     def append(node)
       children.append(node)
+    end
+
+    # Appends +html+ as a child.
+    #
+    def append_html(html)
+      children.append_html(html)
     end
 
     # Prepends +node+ as a child.
@@ -190,27 +188,110 @@ class StringDoc
     # Converts the node to an xml string.
     #
     def to_xml
-      @node.flatten.map(&:to_s).join
+      string_nodes.flatten.map(&:to_s).join
     end
     alias :to_html :to_xml
     alias :to_s :to_xml
 
     def ==(other)
-      return false unless other.is_a?(Node)
+      other.is_a?(Node) &&
+        @tag_open_start == other.tag_open_start &&
+        @attributes == other.attributes &&
+        @tag_open_end == other.tag_open_end &&
+        @children == other.children &&
+        @tag_close == other.tag_close
+    end
 
-      @node.each_with_index do |part, index|
-        return false unless other.node[index] == part
+    def each
+      return enum_for(:each) unless block_given?
+      yield self
+    end
+
+    def each_significant_node(type, &block)
+      return enum_for(:each_significant_node, type) unless block_given?
+
+      if @children.is_a?(StringDoc)
+        @children.each_significant_node(type, &block)
       end
-
-      true
     end
 
-    # @api private
+    def each_significant_node_without_descending(type, &block)
+      return enum_for(:each_significant_node_without_descending, type) unless block_given?
+
+      if @children.is_a?(StringDoc)
+        @children.each_significant_node_without_descending(type, &block)
+      end
+    end
+
+    def each_significant_node_with_name(type, name, &block)
+      return enum_for(:each_significant_node_with_name, type, name) unless block_given?
+
+      if @children.is_a?(StringDoc)
+        @children.each_significant_node_with_name(type, name, &block)
+      end
+    end
+
+    def each_significant_node_with_name_without_descending(type, name, &block)
+      return enum_for(:each_significant_node_with_name_without_descending, type, name) unless block_given?
+
+      if @children.is_a?(StringDoc)
+        @children.each_significant_node_with_name_without_descending(type, name, &block)
+      end
+    end
+
+    def find_first_significant_node(type)
+      if @children.is_a?(StringDoc)
+        @children.find_first_significant_node(type)
+      else
+        nil
+      end
+    end
+
+    def find_first_significant_node_without_descending(type)
+      if @children.is_a?(StringDoc)
+        @children.find_first_significant_node_without_descending(type)
+      else
+        nil
+      end
+    end
+
+    def find_significant_nodes(type)
+      if @children.is_a?(StringDoc)
+        @children.find_significant_nodes(type)
+      else
+        []
+      end
+    end
+
+    def find_significant_nodes_without_descending(type)
+      if @children.is_a?(StringDoc)
+        @children.find_significant_nodes_without_descending(type)
+      else
+        []
+      end
+    end
+
+    def find_significant_nodes_with_name(type, name)
+      if @children.is_a?(StringDoc)
+        @children.find_significant_nodes_with_name(type, name)
+      else
+        []
+      end
+    end
+
+    def find_significant_nodes_with_name_without_descending(type, name)
+      if @children.is_a?(StringDoc)
+        @children.find_significant_nodes_with_name_without_descending(type, name)
+      else
+        []
+      end
+    end
+
+    private
+
     def string_nodes
-      [@node[0], @node[1], @node[2], @node[3]&.string_nodes, @node[4]]
+      [@tag_open_start, @attributes, @tag_open_end, @children, @tag_close]
     end
-
-    protected
 
     def child_nodes
       children.nodes.map(&:with_children).to_a.flatten

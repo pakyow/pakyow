@@ -33,7 +33,7 @@ RSpec.describe "telling the user about a failure in development" do
     end
 
     it "includes the backtrace" do
-      expect(call[2].read).to include("spec/features/presentation/errors/development/500_error_view_spec.rb:17:in `block (6 levels) in &lt;top (required)&gt;'")
+      expect(call[2].read).to include("spec/features/presentation/errors/development/500_error_view_spec.rb:17:in `block (6 levels) in &lt;top (required)&gt;&#39;")
     end
 
     it "includes the details" do
@@ -42,7 +42,7 @@ RSpec.describe "telling the user about a failure in development" do
     end
 
     it "includes the source" do
-      expect(call[2].read).to include("17|›             fail \"something went wrong\"")
+      expect(call[2].read).to include("17|›             fail &quot;something went wrong&quot;")
     end
   end
 
@@ -70,7 +70,7 @@ RSpec.describe "telling the user about a failure in development" do
     end
 
     it "includes the backtrace" do
-      expect(call[2].read).to include("spec/features/presentation/errors/development/500_error_view_spec.rb:54:in `block (6 levels) in &lt;top (required)&gt;'")
+      expect(call[2].read).to include("spec/features/presentation/errors/development/500_error_view_spec.rb:54:in `block (6 levels) in &lt;top (required)&gt;&#39;")
     end
   end
 end

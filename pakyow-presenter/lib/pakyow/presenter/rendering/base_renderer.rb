@@ -38,6 +38,11 @@ module Pakyow
         Pakyow.env?(:prototype)
       end
 
+      def to_html(clean_bindings: true, clean_versions: true)
+        @presenter.to_html(clean_bindings: clean_bindings, clean_versions: clean_versions)
+      end
+      alias to_s to_html
+
       private
 
       def dispatch

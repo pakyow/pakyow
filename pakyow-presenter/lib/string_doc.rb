@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require "cgi"
+
+require "oga"
+
 require "pakyow/support/silenceable"
 
 # String-based XML document optimized for fast manipulation and rendering.
@@ -111,9 +115,10 @@ class StringDoc
 
     # @api private
     def nodes_from_doc_or_string(doc_node_or_string)
-      if doc_node_or_string.is_a?(StringDoc)
+      case doc_node_or_string
+      when StringDoc
         doc_node_or_string.nodes
-      elsif doc_node_or_string.is_a?(Node)
+      when Node
         [doc_node_or_string]
       else
         StringDoc.new(doc_node_or_string.to_s).nodes
@@ -144,29 +149,108 @@ class StringDoc
     }
   end
 
-  # Returns nodes matching the significant type.
-  #
-  def find_significant_nodes(type)
-    @nodes.each_with_object([]) { |node, matches|
-      if node.significant?(type)
-        matches << node
-      end
+  include Enumerable
 
-      matches.concat(node.children.find_significant_nodes(type))
+  def each(&block)
+    return enum_for(:each) unless block_given?
+
+    @nodes.each do |node|
+      yield node
+
+      if node.children.is_a?(StringDoc)
+        node.children.each(&block)
+      else
+        yield node.children
+      end
+    end
+  end
+
+  # Yields each node matching the significant type.
+  #
+  def each_significant_node(type)
+    return enum_for(:each_significant_node, type) unless block_given?
+
+    each do |node|
+      yield node if node.is_a?(Node) && node.significant?(type)
+    end
+  end
+
+  # Yields each node matching the significant type, without descending into nodes that are of that type.
+  #
+  def each_significant_node_without_descending(type, &block)
+    return enum_for(:each_significant_node_without_descending, type) unless block_given?
+
+    @nodes.each do |node|
+      if node.is_a?(Node)
+        if node.significant?(type)
+          yield node
+        elsif node.children.is_a?(StringDoc)
+          node.children.each_significant_node_without_descending(type, &block)
+        end
+      end
+    end
+  end
+
+  # Yields each node matching the significant type and name.
+  #
+  # @see find_significant_nodes
+  #
+  def each_significant_node_with_name(type, name)
+    return enum_for(:each_significant_node_with_name, type, name) unless block_given?
+
+    each_significant_node(type) do |node|
+      yield node if node.label(type) == name
+    end
+  end
+
+  # Yields each node matching the significant type and name, without descending into nodes that are of that type.
+  #
+  # @see find_significant_nodes
+  #
+  def each_significant_node_with_name_without_descending(type, name)
+    return enum_for(:each_significant_node_with_name_without_descending, type, name) unless block_given?
+
+    each_significant_node_without_descending(type) do |node|
+      yield node if node.label(type) == name
+    end
+  end
+
+  # Returns the first node matching the significant type.
+  #
+  def find_first_significant_node(type)
+    find { |node|
+      node.significant?(type)
     }
   end
 
-  # Returns nodes matching the significant type, without descending into
-  # nodes that are of that type.
+  # Returns the first node matching the significant type, without descending into nodes that are of that type.
+  #
+  def find_first_significant_node_without_descending(type)
+    each_significant_node_without_descending(type) do |node|
+      return node if node.significant?(type)
+    end
+
+    nil
+  end
+
+  # Returns nodes matching the significant type.
+  #
+  def find_significant_nodes(type)
+    [].tap do |nodes|
+      each_significant_node(type) do |node|
+        nodes << node
+      end
+    end
+  end
+
+  # Returns nodes matching the significant type, without descending into nodes that are of that type.
   #
   def find_significant_nodes_without_descending(type)
-    @nodes.flat_map { |node|
-      if node.significant?(type)
-        node
-      else
-        node.children.find_significant_nodes_without_descending(type)
+    [].tap do |nodes|
+      each_significant_node_without_descending(type) do |node|
+        nodes << node
       end
-    }
+    end
   end
 
   # Returns nodes matching the significant type and name.
@@ -174,20 +258,23 @@ class StringDoc
   # @see find_significant_nodes
   #
   def find_significant_nodes_with_name(type, name)
-    find_significant_nodes(type).select { |node|
-      node.label(type) == name
-    }
+    [].tap do |nodes|
+      each_significant_node_with_name(type, name) do |node|
+        nodes << node
+      end
+    end
   end
 
-  # Returns nodes matching the significant type and name, without descending
-  # into nodes that are of that type.
+  # Returns nodes matching the significant type and name, without descending into nodes that are of that type.
   #
   # @see find_significant_nodes
   #
   def find_significant_nodes_with_name_without_descending(type, name)
-    find_significant_nodes_without_descending(type).select { |node|
-      node.label(type) == name
-    }
+    [].tap do |nodes|
+      each_significant_node_with_name_without_descending(type, name) do |node|
+        nodes << node
+      end
+    end
   end
 
   # Clears all nodes.
@@ -216,6 +303,14 @@ class StringDoc
   def append(doc_or_string)
     tap do
       @nodes.concat(self.class.nodes_from_doc_or_string(doc_or_string))
+    end
+  end
+
+  # Appends raw html to this document, without parsing.
+  #
+  def append_html(html)
+    tap do
+      @nodes << Node.new(html.to_s)
     end
   end
 
@@ -285,23 +380,29 @@ class StringDoc
     other.is_a?(StringDoc) && @nodes == other.nodes
   end
 
-  # @api private
-  def string_nodes
-    @nodes.map(&:string_nodes)
-  end
-
   private
 
-  def render
-    # @nodes.flatten.reject(&:empty?).map(&:to_s).join
+  def render(doc = self, string = String.new)
+    doc.nodes.each do |node|
+      if node.is_a?(Node)
+        string << node.tag_open_start
+        node.attributes.each_string do |attribute_string|
+          string << attribute_string
+        end
+        string << node.tag_open_end
+        case node.children
+        when StringDoc
+          render(node.children, string)
+        else
+          string << node.children
+        end
+        string << node.tag_close
+      else
+        string << node.to_s
+      end
+    end
 
-    # we save several (hundreds) of calls to `flatten` by pulling in each node and dealing with
-    # them together instead of calling `to_s` on each
-    arr = string_nodes
-    arr.flatten!
-    arr.compact!
-    arr.map!(&:to_s)
-    arr.join
+    string
   end
 
   # Parses an Oga document into an array of +Node+ objects.
@@ -310,7 +411,7 @@ class StringDoc
     nodes = []
 
     unless doc.is_a?(Oga::XML::Element) || !doc.respond_to?(:doctype) || doc.doctype.nil?
-      nodes << Node.new(["<!DOCTYPE html>", Attributes.new, []])
+      nodes << Node.new("<!DOCTYPE html>")
     end
 
     self.class.breadth_first(doc) do |element|
@@ -318,15 +419,15 @@ class StringDoc
 
       unless significance.any? || self.class.contains_significant_child?(element)
         # Nothing inside of the node is significant, so collapse it to a single node.
-        nodes << Node.new([element.to_xml, Attributes.new, []]); next
+        nodes << Node.new(element.to_xml); next
       end
 
       node = if significance.any?
         build_significant_node(element, significance)
       elsif element.is_a?(Oga::XML::Text) || element.is_a?(Oga::XML::Comment)
-        Node.new([element.to_xml, Attributes.new, []])
+        Node.new(element.to_xml)
       else
-        Node.new(["<#{element.name}#{self.class.attributes_string(element)}", ""])
+        Node.new("<#{element.name}#{self.class.attributes_string(element)}")
       end
 
       if element.is_a?(Oga::XML::Element)
@@ -364,7 +465,7 @@ class StringDoc
 
   def attributes_hash(element)
     StringDoc.attributes(element).each_with_object({}) { |attribute, elements|
-      elements[attribute.name.to_sym] = attribute.value
+      elements[attribute.name.to_sym] = CGI.escape_html(attribute.value.to_s)
     }
   end
 
@@ -398,7 +499,7 @@ class StringDoc
         find_channel_for_binding!(element, attributes, labels)
       end
 
-      Node.new(["<#{element.name}", Attributes.new(attributes)], significance: significance, labels: labels, parent: self)
+      Node.new("<#{element.name}", Attributes.new(attributes), significance: significance, labels: labels, parent: self)
     else
       name = element.text.strip.match(/@[^\s]*\s*([a-zA-Z0-9\-_]*)/)[1]
       labels = significance.each_with_object({}) { |significant_type, labels_hash|
@@ -410,7 +511,7 @@ class StringDoc
         end
       }
 
-      Node.new([element.to_xml, ""], significance: significance, parent: self, labels: labels)
+      Node.new(element.to_xml, significance: significance, parent: self, labels: labels)
     end
   end
 

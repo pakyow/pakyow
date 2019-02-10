@@ -164,6 +164,12 @@ RSpec.describe "sanitization during presentation" do
       Pakyow::Presenter::View.new("<div binding=\"post\"></div>")
     end
 
+    it "escapes each attribute name" do
+      post_view = presenter.find(:post)
+      post_view.attrs["class=\">haha"] = :foo
+      expect(presenter.to_s(clean_bindings: false)).to include("class=&quot;&gt;haha=\"foo\"")
+    end
+
     it "escapes each attribute value" do
       post_view = presenter.find(:post)
       post_view.attrs[:class] = ["\"one"]

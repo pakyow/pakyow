@@ -22,28 +22,34 @@ RSpec.describe "populating groups of options" do
     ]
   end
 
+  let :tag_view do
+    Pakyow::Presenter::View.new(
+      form.find(:tag).view.to_s
+    )
+  end
+
   def perform
     form.grouped_options_for(binding, options)
   end
 
   it "creates a group for each group" do
-    expect(form.find(:tag).view.object.find_significant_nodes(:optgroup).count).to eq(2)
+    expect(tag_view.object.find_significant_nodes(:optgroup).count).to eq(2)
   end
 
   it "sets the label for each optgroup" do
-    groups = form.find(:tag).view.object.find_significant_nodes(:optgroup)
+    groups = tag_view.object.find_significant_nodes(:optgroup)
     expect(groups[0].attributes[:label]).to eq("group1")
     expect(groups[1].attributes[:label]).to eq("group2")
   end
 
   it "creates an option for each value" do
-    groups = form.find(:tag).view.object.find_significant_nodes(:optgroup)
+    groups = tag_view.object.find_significant_nodes(:optgroup)
     expect(groups[0].find_significant_nodes(:option).count).to eq(3)
     expect(groups[1].find_significant_nodes(:option).count).to eq(1)
   end
 
   it "sets the submitted value for each option" do
-    groups = form.find(:tag).view.object.find_significant_nodes(:optgroup)
+    groups = tag_view.object.find_significant_nodes(:optgroup)
 
     group1_options = groups[0].find_significant_nodes(:option)
     expect(group1_options[0].attributes[:value]).to eq("1")
@@ -55,7 +61,7 @@ RSpec.describe "populating groups of options" do
   end
 
   it "sets the presentation value for each option" do
-    groups = form.find(:tag).view.object.find_significant_nodes(:optgroup)
+    groups = tag_view.object.find_significant_nodes(:optgroup)
 
     group1_options = groups[0].find_significant_nodes(:option)
     expect(group1_options[0].text).to eq("1.1")

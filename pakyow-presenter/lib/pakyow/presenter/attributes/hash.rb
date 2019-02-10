@@ -2,6 +2,8 @@
 
 require "forwardable"
 
+require "pakyow/support/safe_string"
+
 require "pakyow/presenter/attributes/attribute"
 
 module Pakyow
@@ -21,9 +23,11 @@ module Pakyow
         extend Forwardable
         def_delegators :@value, :any?, :empty?, :include?, :key?, :value?, :[], :[]=, :delete, :clear
 
+        include Support::SafeStringHelpers
+
         def to_s
-          string_value = @value.to_a.map { |value|
-            value.join(WRITE_VALUE_SEPARATOR)
+          string_value = @value.to_a.map { |key, value|
+            "#{ensure_html_safety(key.to_s)}#{WRITE_VALUE_SEPARATOR}#{ensure_html_safety(value.to_s)}"
           }.join(WRITE_PAIR_SEPARATOR)
 
           string_value.empty? ? string_value : string_value + PAIR_SEPARATOR

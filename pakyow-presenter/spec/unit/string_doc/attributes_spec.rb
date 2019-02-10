@@ -18,28 +18,28 @@ RSpec.describe StringDoc::Attributes do
 
   describe "#key?" do
     it "delegates to the internal hash" do
-      expect(attributes.attributes_hash).to receive(:key?).with(:name)
+      expect(attributes.attributes_hash).to receive(:key?).with("name")
       attributes.key?(:name)
     end
   end
 
   describe "#[]" do
     it "delegates to the internal hash" do
-      expect(attributes.attributes_hash).to receive(:[]).with(:name)
+      expect(attributes.attributes_hash).to receive(:[]).with("name")
       attributes[:name]
     end
   end
 
   describe "#[]=" do
     it "delegates to the internal hash" do
-      expect(attributes.attributes_hash).to receive(:[]=).with(:name, "baz")
+      expect(attributes.attributes_hash).to receive(:[]=).with("name", "baz")
       attributes[:name] = "baz"
     end
   end
 
   describe "#delete" do
     it "delegates to the internal hash" do
-      expect(attributes.attributes_hash).to receive(:delete).with(:name)
+      expect(attributes.attributes_hash).to receive(:delete).with("name")
       attributes.delete(:name)
     end
   end

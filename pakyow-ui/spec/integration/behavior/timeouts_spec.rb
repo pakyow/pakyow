@@ -59,7 +59,7 @@ RSpec.describe "ui state timeout behavior" do
     end
 
     it "expires the socket id data subscription, using the initial timeout" do
-      allow(Pakyow.app(:test)).to receive(:build_view).and_return(view)
+      allow(Pakyow.app(:test)).to receive(:view).and_return(view)
 
       expect(
         Pakyow.app(:test).data

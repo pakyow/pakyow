@@ -2,6 +2,8 @@
 
 require "forwardable"
 
+require "pakyow/support/safe_string"
+
 require "pakyow/presenter/attributes/attribute"
 
 module Pakyow
@@ -15,12 +17,14 @@ module Pakyow
         extend Forwardable
         def_delegators :@value, :empty?, :include?
 
+        include Support::SafeStringHelpers
+
         def to_s
-          @value
+          ensure_html_safety(@value.to_s)
         end
 
         def to_str
-          @value
+          to_s
         end
 
         class << self

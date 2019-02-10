@@ -8,12 +8,10 @@ require "pakyow/presenter/rendering/base_renderer"
 require "pakyow/presenter/rendering/component_renderer"
 require "pakyow/presenter/rendering/actions/cleanup_prototype_nodes"
 require "pakyow/presenter/rendering/actions/create_template_nodes"
-require "pakyow/presenter/rendering/actions/embed_authenticity_token"
 require "pakyow/presenter/rendering/actions/embed_form_metadata"
 require "pakyow/presenter/rendering/actions/insert_prototype_bar"
 require "pakyow/presenter/rendering/actions/install_endpoints"
 require "pakyow/presenter/rendering/actions/place_in_mode"
-require "pakyow/presenter/rendering/actions/install_components"
 require "pakyow/presenter/rendering/actions/render_components"
 require "pakyow/presenter/rendering/actions/setup_form_metadata"
 require "pakyow/presenter/rendering/actions/setup_form_objects"
@@ -26,7 +24,7 @@ module Pakyow
           renderer = new(connection, **args)
           renderer.perform
 
-          html = renderer.presenter.to_html(clean_bindings: !Pakyow.env?(:prototype))
+          html = renderer.to_html(clean_bindings: !Pakyow.env?(:prototype))
           connection.set_response_header(Rack::CONTENT_LENGTH, html.bytesize)
           connection.set_response_header(Rack::CONTENT_TYPE, "text/html")
           connection.body = StringIO.new(html)
@@ -70,8 +68,6 @@ module Pakyow
       action :cleanup_prototype_nodes, Actions::CleanupPrototypeNodes, before: :dispatch
       action :create_template_nodes, Actions::CreateTemplateNodes, before: :dispatch
       action :place_in_mode, Actions::PlaceInMode, before: :dispatch
-      action :install_components, Actions::InstallComponents, before: :dispatch
-      action :embed_authenticity_token, Actions::EmbedAuthenticityToken, before: :dispatch
       action :setup_form_metadata, Actions::SetupFormMetadata, before: :dispatch
       action :render_components, Actions::RenderComponents, before: :dispatch
       action :setup_form_objects, Actions::SetupFormObjects, after: :dispatch
@@ -79,14 +75,13 @@ module Pakyow
 
       using Support::Refinements::String::Normalization
 
-      attr_reader :templates_path, :layout, :mode
+      attr_reader :templates_path, :mode
 
-      def initialize(connection, templates_path: nil, presenter_path: nil, layout: nil, mode: :default, embed_templates: true)
+      def initialize(connection, templates_path: nil, presenter_path: nil, mode: :default, embed_templates: true)
         @connection, @embed_templates = connection, embed_templates
 
         @templates_path = String.normalize_path(templates_path || @connection.env["pakyow.endpoint.path"] || @connection.path)
         @presenter_path = presenter_path ? String.normalize_path(presenter_path) : nil
-        @layout = layout
 
         @mode = if rendering_prototype?
           @connection.params[:mode] || :default
@@ -95,7 +90,7 @@ module Pakyow
         end
 
         @presenter = (find_presenter(@presenter_path || @templates_path)).new(
-          @connection.app.build_view(@templates_path, layout: @layout),
+          @connection.app.view(@templates_path),
           binders: @connection.app.state(:binder),
           presentables: @connection.values,
           logger: @connection.logger
@@ -108,7 +103,6 @@ module Pakyow
         {
           templates_path: @templates_path,
           presenter_path: @presenter_path,
-          layout: @layout,
           mode: @mode
         }
       end

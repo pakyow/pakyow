@@ -7,8 +7,8 @@ module Pakyow
       class InsertPrototypeBar
         def call(renderer)
           if renderer.rendering_prototype?
-            if body_node = renderer.presenter.view.object.find_significant_nodes(:body)[0]
-              body_node.append <<~HTML
+            if body_node = renderer.presenter.view.object.find_first_significant_node(:body)
+              body_node.append_html <<~HTML
                 <div class="pw-prototype" style="display:flex; align-items: center; position: fixed; z-index: 1000; right: 0; bottom: 0; background: #156eed; color: #fff; font-size: 11px; line-height: 11px; font-weight: 500; border-top-left-radius: 1px; padding-left: 5px;">
                   #{ui_modes_html(renderer)}
 
@@ -24,7 +24,7 @@ module Pakyow
         private
 
         def ui_modes_html(renderer)
-          modes = renderer.presenter.view.object.find_significant_nodes(:mode).map { |node|
+          modes = renderer.presenter.view.object.each_significant_node(:mode).map { |node|
             node.label(:mode)
           }
 

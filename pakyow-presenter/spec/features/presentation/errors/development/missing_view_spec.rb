@@ -42,7 +42,7 @@ RSpec.describe "telling the user about a missing view in development" do
 
     it "includes instructions for defining a route" do
       expect(call("/nonexistent")[2].read).to include("If you want to call backend code instead")
-      expect(call("/nonexistent")[2].read).to include("get \"/nonexistent\" do")
+      expect(call("/nonexistent")[2].read).to include("get &quot;/nonexistent&quot; do")
     end
   end
 end

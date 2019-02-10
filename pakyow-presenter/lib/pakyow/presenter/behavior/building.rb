@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "pakyow/support/deep_dup"
+require "pakyow/support/deep_freeze"
 require "pakyow/support/extension"
 
 require "pakyow/presenter/errors"
@@ -11,22 +13,34 @@ module Pakyow
       module Building
         extend Support::Extension
 
-        def build_view(templates_path, layout: nil)
-          unless info = find_info(templates_path)
-            error = UnknownPage.new("No view at path `#{templates_path}'")
-            error.context = templates_path
-            raise error
-          end
+        apply_extension do
+          extend Support::DeepFreeze
+          unfreezable :built_views
 
-          # Finds a matching layout across template stores.
-          #
-          if layout && layout_object = layout_with_name(layout)
-            info[:layout] = layout_object.dup
+          after :initialize do
+            @built_views = {}
           end
+        end
 
-          info[:layout].build(info[:page]).tap do |view|
-            view.mixin(info[:partials])
+        prepend_methods do
+          def build_view(templates_path)
+            super.tap do |view|
+              if config.presenter.embed_authenticity_token && head = view.object.find_first_significant_node(:head)
+                # embed the authenticity token
+                head.append_html("<meta name=\"pw-authenticity-token\" content=\"{{pw-authenticity-token}}\">\n")
+
+                # embed the parameter name the token should be submitted as
+                head.append_html("<meta name=\"pw-authenticity-param\" content=\"{{pw-authenticity-param}}\">\n")
+              end
+            end
           end
+        end
+
+        using Support::DeepDup
+        using Support::DeepFreeze
+
+        def view(templates_path)
+          (@built_views[templates_path] || build_and_cache_view(templates_path)).dup
         end
 
         def view?(templates_path)
@@ -53,6 +67,27 @@ module Pakyow
           state(:templates).lazy.map { |store|
             store.layout(name)
           }.find(&:itself)
+        end
+
+        def build_and_cache_view(templates_path)
+          cache_view(build_view(templates_path), templates_path)
+        end
+
+        def build_view(templates_path)
+          unless info = find_info(templates_path)
+            error = UnknownPage.new("No view at path `#{templates_path}'")
+            error.context = templates_path
+            raise error
+          end
+
+          info = info.deep_dup
+          info[:layout].build(info[:page]).tap do |view|
+            view.mixin(info[:partials])
+          end
+        end
+
+        def cache_view(view, templates_path)
+          @built_views[templates_path] = view.deep_freeze
         end
       end
     end

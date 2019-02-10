@@ -6,6 +6,8 @@ require "pakyow/support/core_refinements/array/ensurable"
 require "pakyow/support/indifferentize"
 require "pakyow/support/safe_string"
 
+require "string_doc"
+
 module Pakyow
   module Presenter
     # Provides an interface for manipulating view templates.
@@ -23,6 +25,7 @@ module Pakyow
         def from_object(object)
           allocate.tap do |instance|
             instance.instance_variable_set(:@object, object)
+
             instance.instance_variable_set(:@info, {})
             instance.instance_variable_set(:@logical_path, nil)
             if object.respond_to?(:attributes)
@@ -82,71 +85,65 @@ module Pakyow
       # be traversed through each name. Returns a {VersionedView}.
       #
       def find(*names, channel: nil)
-        named = names.shift.to_sym
-        found = bindings_with_name(named)
-
-        unless channel.nil?
+        if names.any?
+          named = names.shift.to_sym
           combined_channel = Array.ensure(channel).join(":")
 
-          found.select! do |node|
-            if channel.nil?
-              true
-            else
-              node.label(:combined_channel) == combined_channel || node.label(:combined_channel).end_with?(":" + combined_channel)
+          found = each_binding(named).each_with_object([]) do |node, acc|
+            if !channel || node.label(:combined_channel) == combined_channel || node.label(:combined_channel).end_with?(":" + combined_channel)
+              acc << View.from_object(node)
             end
           end
-        end
 
-        found.map! do |node|
-          View.from_object(node)
-        end
+          result = if names.empty? && !found.empty? # found everything; wrap it up
+            VersionedView.new(found)
+          elsif names.count > 0 # descend further
+            found.first.find(*names, channel: channel)
+          else
+            nil
+          end
 
-        result = if names.empty? && !found.empty? # found everything; wrap it up
-          VersionedView.new(found)
-        elsif found.count > 0 # descend further
-          found.first.find(*names)
+          if result && block_given?
+            yield result
+          end
+
+          result
         else
           nil
         end
-
-        if result && block_given?
-          yield result
-        end
-
-        result
       end
 
       # Finds all view bindings by name, returning an array of {View} objects.
       #
       def find_all(named)
-        bindings_with_name(named).each_with_object([]) { |node, arr|
-          arr << View.from_object(node)
+        each_binding(named).map { |node|
+          View.from_object(node)
         }
       end
 
       # Finds a form with a binding matching +name+.
       #
       def form(name)
-        if form_node = @object.find_significant_nodes(:form).find { |form| form.label(:binding) == name }
-          Form.from_object(form_node)
-        else
-          nil
+        @object.each_significant_node(:form) do |form_node|
+          return Form.from_object(form_node) if form_node.label(:binding) == name
         end
+
+        nil
       end
 
       # Returns all forms.
       #
       def forms
-        @object.find_significant_nodes(:form).map { |form_node|
-          Form.from_object(form_node)
+        @object.each_significant_node(:form).map { |node|
+          Form.from_object(node)
         }
       end
 
       # Returns all components.
       #
       def components
-        @object.find_significant_nodes_without_descending(:component).map { |component_node|
-          View.from_object(component_node)
+        @object.each_significant_node_without_descending(:component).map { |node|
+          View.from_object(node)
         }
       end
 
@@ -163,7 +160,7 @@ module Pakyow
       # Returns a view for the +<head>+ node.
       #
       def head
-        if head_node = @object.find_significant_nodes(:head)[0]
+        if head_node = @object.find_first_significant_node(:head)
           View.from_object(head_node)
         else
           nil
@@ -173,7 +170,7 @@ module Pakyow
       # Returns a view for the +<body>+ node.
       #
       def body
-        if body_node = @object.find_significant_nodes(:body)[0]
+        if body_node = @object.find_first_significant_node(:body)
           View.from_object(body_node)
         else
           nil
@@ -183,7 +180,7 @@ module Pakyow
       # Returns a view for the +<title>+ node.
       #
       def title
-        if title_node = @object.find_significant_nodes(:title)[0]
+        if title_node = @object.find_first_significant_node(:title)
           View.from_object(title_node)
         else
           nil
@@ -205,7 +202,8 @@ module Pakyow
           if object.nil? || (object.respond_to?(:empty?) && object.empty?)
             remove
           else
-            binding_props.each do |binding|
+            removals = []
+            each_binding_prop(descend: false) do |binding|
               binding_name = if binding.significant?(:multipart_binding)
                 binding.label(:binding_prop)
               else
@@ -213,9 +211,11 @@ module Pakyow
               end
 
               unless object.present?(binding_name)
-                binding.remove
+                removals << binding
               end
             end
+
+            removals.each(&:remove)
           end
 
           yield self, object if block_given?
@@ -227,7 +227,7 @@ module Pakyow
       def bind(object)
         tap do
           unless object.nil?
-            binding_props.each do |binding|
+            each_binding_prop do |binding|
               binding_name = if binding.significant?(:multipart_binding)
                 binding.label(:binding_prop)
               else
@@ -390,55 +390,92 @@ module Pakyow
       end
 
       # @api private
-      def all_binding_scopes
-        @object.find_significant_nodes(:binding).select { |node|
-          node.significant?(:binding_within) || node.significant?(:multipart_binding) || node.label(:version) == :empty
-        }
-      end
+      def each_binding_scope(descend: true)
+        return enum_for(:each_binding_scope, descend: descend) unless block_given?
 
-      # @api private
-      def binding_scopes
-        @object.find_significant_nodes_without_descending(:binding).select { |node|
-          node.significant?(:binding_within) || node.significant?(:multipart_binding) || node.label(:version) == :empty
-        }
-      end
-
-      # @api private
-      def all_binding_props
-        if @object.is_a?(StringDoc::Node) && @object.significant?(:multipart_binding)
-          [@object]
+        method = if descend
+          :each_significant_node
         else
-          @object.find_significant_nodes(:binding).select { |node|
-            !node.significant?(:binding_within) || node.significant?(:multipart_binding)
-          }
+          :each_significant_node_without_descending
         end
-      end
 
-      # @api private
-      def binding_props
-        if @object.is_a?(StringDoc::Node) && @object.significant?(:multipart_binding)
-          [@object]
-        else
-          @object.find_significant_nodes_without_descending(:binding).select { |node|
-            !node.significant?(:binding_within) || node.significant?(:multipart_binding)
-          }
-        end
-      end
-
-      # @api private
-      def find_partials(partials)
-        @object.find_significant_nodes(:partial).each_with_object([]) { |partial_node, found_partials|
-          if replacement = partials[partial_node.label(:partial)]
-            found_partials << partial_node.label(:partial)
-            found_partials.concat(replacement.find_partials(partials))
+        @object.send(method, :binding) do |node|
+          if binding_scope?(node)
+            yield node
           end
-        }
+        end
+      end
+
+      # @api private
+      def each_binding_prop(descend: true)
+        return enum_for(:each_binding_prop, descend: descend) unless block_given?
+
+        if @object.is_a?(StringDoc::Node) && @object.significant?(:multipart_binding)
+          yield @object
+        else
+          method = if descend
+            :each_significant_node
+          else
+            :each_significant_node_without_descending
+          end
+
+          @object.send(method, :binding) do |node|
+            if binding_prop?(node)
+              yield node
+            end
+          end
+        end
+      end
+
+      # @api private
+      def each_binding(name)
+        return enum_for(:each_binding, name) unless block_given?
+
+        each_binding_scope do |node|
+          yield node if node.label(:binding) == name
+        end
+
+        each_binding_prop do |node|
+          yield node if node.label(:binding) == name
+        end
+      end
+
+      # @api private
+      def binding_scopes(descend: true)
+        each_binding_scope(descend: descend).map(&:itself)
+      end
+
+      # @api private
+      def binding_props(descend: true)
+        each_binding_prop(descend: descend).map(&:itself)
+      end
+
+      # @api private
+      def binding_scope?(node)
+        node.significant?(:binding) && (node.significant?(:binding_within) || node.significant?(:multipart_binding) || node.label(:version) == :empty)
+      end
+
+      # @api private
+      def binding_prop?(node)
+        node.significant?(:binding) && (!node.significant?(:binding_within) || node.significant?(:multipart_binding))
+      end
+
+      # @api private
+      def find_partials(partials, found = [])
+        found.tap do
+          @object.each_significant_node(:partial) do |node|
+            if replacement = partials[node.label(:partial)]
+              found << node.label(:partial)
+              replacement.find_partials(partials, found)
+            end
+          end
+        end
       end
 
       # @api private
       def mixin(partials)
         tap do
-          @object.find_significant_nodes(:partial).each do |partial_node|
+          @object.each_significant_node(:partial) do |partial_node|
             if replacement = partials[partial_node.label(:partial)]
               partial_node.replace(replacement.mixin(partials).object)
             end
@@ -463,56 +500,30 @@ module Pakyow
 
       def bind_value_to_node(value, node)
         tag = node.tagname
-        return if StringDoc::Node.without_value?(tag)
+        unless StringDoc::Node.without_value?(tag)
+          value = String(value)
 
-        value = String(value)
-
-        if StringDoc::Node.self_closing?(tag)
-          node.attributes[:value] = ensure_html_safety(value) if node.attributes[:value].nil?
-        else
-          node.html = ensure_html_safety(value)
+          if StringDoc::Node.self_closing?(tag)
+            node.attributes[:value] = ensure_html_safety(value) if node.attributes[:value].nil?
+          else
+            node.html = ensure_html_safety(value)
+          end
         end
-      end
-
-      def bindings_with_name(name)
-        (binding_scopes + binding_props).select { |node|
-          node.label(:binding) == name
-        }
       end
 
       def remove_unused_bindings
-        @object.find_significant_nodes(:binding).reject { |node|
-          node.labeled?(:used)
-        }.each(&:remove)
+        @object.each_significant_node(:binding) do |node|
+          unless node.labeled?(:used)
+            node.remove
+          end
+        end
       end
 
       def remove_unused_versions
-        versioned_nodes.each do |node_set|
-          node_set.reject { |node|
-            node.label(:version) == VersionedView::DEFAULT_VERSION
-          }.each(&:remove)
-        end
-      end
-
-      def versioned_nodes(nodes = object_nodes, versions = [])
-        versions << nodes.select { |node|
-          node.significant? && node.attributes.is_a?(StringDoc::Attributes) && node.labeled?(:version)
-        }
-
-        nodes.each do |node|
-          if children = node.children
-            versioned_nodes(children.nodes, versions)
+        @object.each do |node|
+          if (node.is_a?(StringDoc::Node) && node.significant? && node.labeled?(:version)) && node.label(:version) != VersionedView::DEFAULT_VERSION
+            node.remove
           end
-        end
-
-        versions.reject(&:empty?)
-      end
-
-      def object_nodes
-        if @object.is_a?(StringDoc)
-          @object.nodes
-        else
-          [@object]
         end
       end
 

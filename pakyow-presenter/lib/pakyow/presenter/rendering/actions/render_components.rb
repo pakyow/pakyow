@@ -11,7 +11,6 @@ module Pakyow
               renderer.presenter,
               renderer.connection,
               renderer.templates_path,
-              renderer.layout,
               renderer.mode
             )
           end
@@ -19,7 +18,7 @@ module Pakyow
 
         private
 
-        def render(presenter, connection, templates_path, layout, mode, path: [])
+        def render(presenter, connection, templates_path, mode, path: [])
           presenter.components.each_with_index do |component_presenter, i|
             component_path = path.dup << i
 
@@ -66,7 +65,6 @@ module Pakyow
                 name: found_component.__object_name.name,
                 templates_path: templates_path,
                 component_path: component_path,
-                layout: layout,
                 mode: mode
               ).perform
 
@@ -90,7 +88,6 @@ module Pakyow
               component_presenter,
               connection,
               templates_path,
-              layout,
               mode,
               path: component_path
             )

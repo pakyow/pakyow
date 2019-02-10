@@ -59,50 +59,6 @@ RSpec.describe "explicit rendering" do
     end
   end
 
-  context "overriding the layout" do
-    let :app_init do
-      Proc.new do
-        controller :default do
-          get "/" do
-            render "/", layout: :other
-          end
-        end
-      end
-    end
-
-    it "uses the override" do
-      response = call("/")
-      expect(response[0]).to eq(200)
-      expect(response[2].read).to eq("<!DOCTYPE html>\n<html>\n  <head>\n    <title>other</title>\n  </head>\n\n  <body>\n    index\n\n  </body>\n</html>\n")
-    end
-
-    context "layout does not exist" do
-      let :app_def do
-        Proc.new do
-          handle 500 do
-            res.body = "#{connection.error.class}: #{connection.error.message}"
-          end
-        end
-      end
-
-      let :app_init do
-        Proc.new do
-          controller :default do
-            get "/" do
-              render "/", layout: :nonexistent
-            end
-          end
-        end
-      end
-
-      it "uses the default layout" do
-        response = call("/")
-        expect(response[0]).to eq(200)
-        expect(response[2].read).to include_sans_whitespace("<title>default</title>")
-      end
-    end
-  end
-
   context "presenter exists" do
     let :app_init do
       Proc.new do

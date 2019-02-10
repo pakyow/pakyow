@@ -82,15 +82,11 @@ module Pakyow
 
           # @api private
           def binding_endpoints(object)
-            nodes = if @view.object.is_a?(StringDoc::Node) && @view.object.significant?(:endpoint) && @view.object.significant?(:binding)
-              [@view.object]
+            if @view.object.is_a?(StringDoc::Node) && @view.object.significant?(:endpoint) && @view.object.significant?(:binding)
+              build_endpoints(object, nodes: [@view.object])
             else
-              @view.object.find_significant_nodes(:endpoint).select { |node|
-                node.significant?(:within_binding)
-              }
+              build_endpoints(object, within_binding: true)
             end
-
-            build_endpoints(nodes, object)
           end
 
           private
@@ -99,7 +95,7 @@ module Pakyow
             instance_variable_defined?(:@endpoints)
           end
 
-          def build_endpoints(nodes, passed_params = {})
+          def build_endpoints(passed_params = {}, nodes: nil, within_binding: nil)
             if endpoint_state_defined?
               # Build up all the endpoint state we have into a single value hash.
               #
@@ -113,24 +109,36 @@ module Pakyow
               }.merge(passed_params.respond_to?(:to_h) ? passed_params.to_h : {})
             end
 
-            nodes.each_with_object([]) { |node, endpoints|
-              name = node.label(:endpoint)
+            [].tap do |endpoints|
+              if nodes
+                nodes.each do |node|
+                  build_endpoint_for_node(node, endpoints, params)
+                end
+              else
+                @view.object.each_significant_node(:endpoint) do |node|
+                  if (within_binding && node.significant?(:within_binding)) || (!within_binding && !node.significant?(:within_binding))
+                    build_endpoint_for_node(node, endpoints, params)
+                  end
+                end
+              end
+            end
+          end
 
-              endpoints << {
-                node: node,
-                name: name,
-                path: @endpoints.path(*name, **params.to_h),
-                method: @endpoints.method(name)
-              }
+          def build_endpoint_for_node(node, endpoints, params)
+            name = node.label(:endpoint)
+
+            endpoints << {
+              node: node,
+              name: name,
+              path: @endpoints.path(*name, **params.to_h),
+              method: @endpoints.method(name)
             }
           end
 
           def setup_non_contextual_endpoints
             setup_endpoints(
               build_endpoints(
-                @view.object.find_significant_nodes(:endpoint).reject { |node|
-                  node.significant?(:within_binding)
-                }
+                within_binding: false
               )
             )
           end
@@ -186,11 +194,9 @@ module Pakyow
           end
 
           def find_endpoint_action_node(endpoint_node)
-            if action_node = endpoint_node.find_significant_nodes_without_descending(:endpoint_action)[0]
-              action_node
-            else
-              endpoint_node
-            end
+            endpoint_node.find_first_significant_node_without_descending(
+              :endpoint_action
+            ) || endpoint_node
           end
         end
       end

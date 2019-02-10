@@ -9,6 +9,7 @@ require "pakyow/assets/behavior/config"
 require "pakyow/assets/behavior/assets"
 require "pakyow/assets/behavior/packs"
 require "pakyow/assets/behavior/rendering"
+require "pakyow/assets/behavior/building"
 require "pakyow/assets/behavior/views"
 require "pakyow/assets/behavior/silencing"
 require "pakyow/assets/behavior/externals"
@@ -39,8 +40,8 @@ module Pakyow
           include Behavior::Prelaunching
           include Behavior::Processing
 
-          isolated :ViewRenderer do
-            include Behavior::Rendering
+          after :load, priority: :low do
+            singleton_class.include Behavior::Building
           end
         end
       end

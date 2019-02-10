@@ -29,7 +29,7 @@ module Pakyow
       def action=(action)
         if action.is_a?(Symbol)
           @view.object.set_label(:endpoint, action)
-          setup_form_endpoint(build_endpoints([@view.object]).first)
+          setup_form_endpoint(build_endpoints(nodes: [@view.object]).first)
         else
           @view.attrs[:action] = action
         end
@@ -96,7 +96,7 @@ module Pakyow
 
       def setup(object = {})
         if @view.labeled?(:endpoint)
-          setup_form_endpoint(build_endpoints([@view.object], object).first)
+          setup_form_endpoint(build_endpoints(object, nodes: [@view.object]).first)
         end
 
         setup_field_names
@@ -164,7 +164,7 @@ module Pakyow
       end
 
       def setup_field_names(view = @view)
-        view.object.children.find_significant_nodes_without_descending(:binding).each do |binding_node|
+        view.object.children.each_significant_node_without_descending(:binding) do |binding_node|
           if Form::FIELD_TAGS.include?(binding_node.tagname)
             if binding_node.attributes[:name].to_s.empty?
               binding_node.attributes[:name] = "#{view.object.label(:binding)}[#{binding_node.label(:binding)}]"
@@ -178,7 +178,7 @@ module Pakyow
       end
 
       def connect_labels(view = @view)
-        view.object.children.find_significant_nodes_without_descending(:label).each do |label_node|
+        view.object.children.each_significant_node_without_descending(:label) do |label_node|
           if label_node.attributes[:for] && input = view.find(*label_node.attributes[:for].to_s.split("."))
             connect_input_to_label(input, label_node)
           end
@@ -197,7 +197,8 @@ module Pakyow
       end
 
       def use_binding_nodes
-        [@view.object].concat(@view.object.children.find_significant_nodes(:binding)).each do |object|
+        @view.object.set_label(:used, true)
+        @view.object.children.each_significant_node(:binding) do |object|
           object.set_label(:used, true)
         end
       end
@@ -226,9 +227,9 @@ module Pakyow
       end
 
       def find_or_create_method_override_input
-        unless input = @view.object.find_significant_nodes_without_descending(:method_override).first
+        unless input = @view.object.find_first_significant_node_without_descending(:method_override)
           @view.prepend(method_override_input)
-          input = @view.object.find_significant_nodes_without_descending(:method_override).first
+          input = @view.object.find_first_significant_node_without_descending(:method_override)
         end
 
         input
@@ -269,7 +270,7 @@ module Pakyow
       end
 
       def create_select_option(value, view)
-        option_binding = if option = view.object.find_significant_nodes(:option)[0]
+        option_binding = if option = view.object.find_first_significant_node(:option)
           option.label(:binding)
         else
           nil
@@ -331,7 +332,7 @@ module Pakyow
 
               # Set the field names appropriately.
               #
-              current.object.find_significant_nodes_without_descending(:field).each do |field|
+              current.object.each_significant_node_without_descending(:field) do |field|
                 name = "#{@view.object.label(:binding)}[#{current.label(:binding)}]"
                 name = if original_values.is_a?(Array)
                   "#{name}[][#{field.label(:binding)}]"
@@ -358,7 +359,7 @@ module Pakyow
                 current.prepend(safe(id_input.to_xml))
               end
             else
-              if input = current.object.find_significant_nodes(:field)[0]
+              if input = current.object.find_first_significant_node(:field)
                 input.attributes[:name] = "#{@view.object.label(:binding)}[#{current.label(:binding)}]"
 
                 if original_values.is_a?(Array) && input.attributes[:type] != "radio"
@@ -368,7 +369,7 @@ module Pakyow
                 input.attributes[:value] = ensure_html_safety(option_value(value, current).to_s)
               end
 
-              if label = current.object.find_significant_nodes(:label)[0]
+              if label = current.object.find_first_significant_node(:label)
                 label.html = ensure_html_safety(label_value(value, label).to_s)
               end
 
@@ -390,10 +391,16 @@ module Pakyow
       end
 
       def treat_as_nested?(view, value)
-        keys = option_value_keys(view, value, false)
-        !value.is_a?(Array) && view.object.find_significant_nodes(:field).any? { |field|
-          field.labeled?(:binding) && !keys.include?(field.label(:binding))
-        }
+        if value.is_a?(Array)
+          false
+        else
+          keys = option_value_keys(view, value, false)
+          view.object.each_significant_node(:field) do |field|
+            return true if field.labeled?(:binding) && !keys.include?(field.label(:binding))
+          end
+
+          false
+        end
       end
 
       def option_value(value, view)

@@ -49,7 +49,7 @@ module Pakyow
       end
 
       def select_option_with_value(value, view)
-        view.object.find_significant_nodes(:option).each do |option|
+        view.object.each_significant_node(:option) do |option|
           View.from_object(option).attributes[:selected] = option.attributes[:value] == value
         end
       end

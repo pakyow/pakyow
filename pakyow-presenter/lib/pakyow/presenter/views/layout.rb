@@ -21,7 +21,7 @@ module Pakyow
       end
 
       def build(page)
-        @object.find_significant_nodes(:container).each do |container_node|
+        @object.each_significant_node(:container) do |container_node|
           container_node.replace(page.content(container_node.label(:container)))
         end
 

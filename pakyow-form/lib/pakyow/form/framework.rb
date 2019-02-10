@@ -103,9 +103,8 @@ module Pakyow
                   error[:field]
                 }
 
-                view.binding_props.map { |prop|
-                  prop.label(:binding)
-                }.each do |binding_name|
+                view.each_binding_prop do |node|
+                  binding_name = node.label(:binding)
                   if errored_fields.include?(binding_name)
                     find(binding_name).attrs[:class] << :errored
                   else
