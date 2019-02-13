@@ -31,7 +31,8 @@ class StringDoc
     #
     def empty
       allocate.tap do |doc|
-        doc.instance_variable_set(:@nodes, [])
+        doc.instance_variable_set(:@nodes, EMPTY)
+        doc.instance_variable_set(:@collapsed, nil)
       end
     end
 
@@ -46,6 +47,7 @@ class StringDoc
     def from_nodes(nodes)
       allocate.tap do |instance|
         instance.instance_variable_set(:@nodes, nodes)
+        instance.instance_variable_set(:@collapsed, nil)
 
         nodes.each do |node|
           node.parent = instance
@@ -136,17 +138,20 @@ class StringDoc
   #
   def initialize(html)
     @nodes = parse(Oga.parse_html(html))
+    @collapsed = nil
   end
 
   # @api private
   def initialize_copy(_)
     super
 
-    @nodes = @nodes.map { |node|
-      node.dup.tap do |duped_node|
-        duped_node.parent = self
-      end
-    }
+    unless @nodes.equal?(EMPTY)
+      @nodes = @nodes.map { |node|
+        node.dup.tap do |duped_node|
+          duped_node.parent = self
+        end
+      }
+    end
   end
 
   include Enumerable
@@ -380,29 +385,56 @@ class StringDoc
     other.is_a?(StringDoc) && @nodes == other.nodes
   end
 
+  EMPTY = [].freeze
+
+  def collapse(*significance)
+    if significance?(*significance)
+      @nodes.each do |node|
+        node.children.collapse(*significance)
+      end
+    else
+      @collapsed = to_xml
+      @nodes = EMPTY
+    end
+  end
+
+  def significance?(*significance)
+    @nodes.any? { |node|
+      node.significance?(*significance) || node.children.significance?(*significance)
+    }
+  end
+
   private
 
   def render(doc = self, string = String.new)
-    doc.nodes.each do |node|
-      if node.is_a?(Node)
-        string << node.tag_open_start
-        node.attributes.each_string do |attribute_string|
-          string << attribute_string
-        end
-        string << node.tag_open_end
-        case node.children
-        when StringDoc
-          render(node.children, string)
-        else
-          string << node.children
-        end
-        string << node.tag_close
-      else
-        string << node.to_s
-      end
-    end
+    if @collapsed
+      string << @collapsed
+    else
+      doc.nodes.each do |node|
+        if node.is_a?(Node)
+          string << node.tag_open_start
 
-    string
+          node.attributes.each_string do |attribute_string|
+            string << attribute_string
+          end
+
+          string << node.tag_open_end
+
+          case node.children
+          when StringDoc
+            render(node.children, string)
+          else
+            string << node.children
+          end
+
+          string << node.tag_close
+        else
+          string << node.to_s
+        end
+      end
+
+      string
+    end
   end
 
   # Parses an Oga document into an array of +Node+ objects.

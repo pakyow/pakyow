@@ -61,6 +61,10 @@ class StringDoc
       end
     end
 
+    def significance?(*types)
+      (@significance & types).any?
+    end
+
     # Close self with +tag+ and a child.
     #
     def close(tag, child)
