@@ -512,19 +512,15 @@ module Pakyow
       end
 
       def remove_unused_bindings
-        @object.each_significant_node(:binding) do |node|
-          unless node.labeled?(:used)
-            node.remove
-          end
-        end
+        @object.each_significant_node(:binding).select { |node|
+          !node.labeled?(:used)
+        }.each(&:remove)
       end
 
       def remove_unused_versions
-        @object.each do |node|
-          if (node.is_a?(StringDoc::Node) && node.significant? && node.labeled?(:version)) && node.label(:version) != VersionedView::DEFAULT_VERSION
-            node.remove
-          end
-        end
+        @object.each.select { |node|
+          (node.is_a?(StringDoc::Node) && node.significant? && node.labeled?(:version)) && node.label(:version) != VersionedView::DEFAULT_VERSION
+        }.each(&:remove)
       end
 
       def view_from_view_or_string(view_or_string)
