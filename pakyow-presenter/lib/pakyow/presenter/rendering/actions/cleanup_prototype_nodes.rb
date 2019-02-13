@@ -7,9 +7,7 @@ module Pakyow
       class CleanupPrototypeNodes
         def call(renderer)
           unless renderer.rendering_prototype?
-            renderer.presenter.view.object.each_significant_node(:prototype) do |node|
-              node.remove
-            end
+            renderer.presenter.view.object.each_significant_node(:prototype, &:remove)
           end
         end
       end

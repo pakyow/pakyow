@@ -65,7 +65,7 @@ module Pakyow
           end
 
           def expire(subscriber, seconds)
-            @expirations_for_subscriber[subscriber] = Time.now
+            @expirations_for_subscriber[subscriber] = Time.now + seconds
           end
 
           def persist(subscriber)

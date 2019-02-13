@@ -185,7 +185,7 @@ module Pakyow
         end
       end
 
-      def connect_input_to_label(input, label, force = false)
+      def connect_input_to_label(input, label)
         if false || input.attributes[:id].to_s.empty?
           id = SecureRandom.hex(4)
           input.attributes[:id] = id
@@ -374,7 +374,7 @@ module Pakyow
               end
 
               if input && label
-                connect_input_to_label(input, label, true)
+                connect_input_to_label(input, label)
               end
             end
 

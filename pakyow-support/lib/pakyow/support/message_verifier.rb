@@ -28,10 +28,12 @@ module Pakyow
       def verify(signed)
         message, digest = signed.to_s.split(JOIN_CHARACTER, 2)
 
+        # rubocop:disable Lint/HandleExceptions
         begin
           message = Base64.urlsafe_decode64(message.to_s)
         rescue ArgumentError
         end
+        # rubocop:enable Lint/HandleExceptions
 
         if self.class.valid?(digest, message: message, key: @key)
           message

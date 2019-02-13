@@ -46,6 +46,6 @@ group :test do
   gem "bootsnap", "~> 1.3"
   gem "dotenv", "~> 2.5"
 
-  gem "ruby-prof", "~> 0.17", require: false
   gem "memory_profiler", "~> 0.9", require: false
+  gem "ruby-prof", "~> 0.17", require: false
 end

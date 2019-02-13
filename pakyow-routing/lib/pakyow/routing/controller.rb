@@ -197,10 +197,10 @@ module Pakyow
           end
         end
 
-        route.pipeline.actions.delete_if { |action|
+        route.pipeline.actions.delete_if do |action|
           self.class.global_skips.to_a.include?(action.name) ||
             self.class.skips_by_route[route.name].to_a.include?(action.name)
-        }
+        end
 
         route.pipeline.actions << Support::Pipeline::Action.new(:dispatch)
       end
@@ -436,9 +436,9 @@ module Pakyow
 
     class << self
       def action(name, only: [], skip: [], &block)
-        @__pipeline.actions.delete_if { |action|
+        @__pipeline.actions.delete_if do |action|
           action.name == name
-        }
+        end
 
         if only.any?
           only.each do |route_name|

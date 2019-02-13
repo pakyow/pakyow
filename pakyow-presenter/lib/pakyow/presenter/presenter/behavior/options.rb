@@ -16,14 +16,12 @@ module Pakyow
               self.class.global_options.each do |form_binding, options|
                 if form = form(form_binding)
                   options.each do |field_binding, metadata|
-                    if field = form.find(field_binding)
-                      if metadata[:block]
-                        form.options_for(field_binding) do |context|
-                          instance_exec(context, &metadata[:block])
-                        end
-                      else
-                        form.options_for(field_binding, metadata[:options])
+                    if metadata[:block]
+                      form.options_for(field_binding) do |context|
+                        instance_exec(context, &metadata[:block])
                       end
+                    else
+                      form.options_for(field_binding, metadata[:options])
                     end
                   end
                 end

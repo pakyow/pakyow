@@ -22,7 +22,7 @@ module Pakyow
         associate_many_missing: "can't associate results as `{association}' because at least one value could not be found",
         associate_missing: "can't find associated {source} with {field} of `{value}'",
         associate_multiple: "can't associate multiple results as `{association}'",
-        dependent_delete:  "can't delete {source} because of {count} dependent {dependent}"
+        dependent_delete: "can't delete {source} because of {count} dependent {dependent}"
       }.freeze
     end
 
