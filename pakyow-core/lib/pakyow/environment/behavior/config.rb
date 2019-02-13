@@ -56,7 +56,7 @@ module Pakyow
               if config.logger.enabled
                 [$stdout]
               else
-                ["/dev/null"]
+                []
               end
             end
 

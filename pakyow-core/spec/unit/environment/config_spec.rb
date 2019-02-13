@@ -132,8 +132,8 @@ RSpec.describe Pakyow do
           Pakyow.config.logger.enabled = false
         end
 
-        it "defaults to /dev/null" do
-          expect(Pakyow.config.logger.destinations).to eq(["/dev/null"])
+        it "defaults to empty" do
+          expect(Pakyow.config.logger.destinations).to eq([])
         end
       end
     end
