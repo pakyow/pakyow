@@ -2,8 +2,6 @@
 
 require "forwardable"
 
-require "pakyow/support/deep_dup"
-
 class StringDoc
   # String-based XML attributes.
   #
@@ -13,8 +11,6 @@ class StringDoc
     SPACING = " "
 
     include Pakyow::Support::SafeStringHelpers
-
-    using Pakyow::Support::DeepDup
 
     extend Forwardable
 
@@ -95,7 +91,9 @@ class StringDoc
 
     # @api private
     def initialize_copy(_)
-      @attributes_hash = @attributes_hash.deep_dup
+      @attributes_hash = @attributes_hash.each_with_object({}) { |(key, value), h|
+        h[key] = value.dup
+      }
     end
   end
 end
