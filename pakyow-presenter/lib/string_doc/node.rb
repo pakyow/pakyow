@@ -53,6 +53,10 @@ class StringDoc
       @children = @children.dup
     end
 
+    def empty?
+      to_s.strip.empty?
+    end
+
     def significant?(type = nil)
       if type
         @significance.include?(type.to_sym)

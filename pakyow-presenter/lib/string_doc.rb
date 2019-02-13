@@ -145,7 +145,7 @@ class StringDoc
   def initialize_copy(_)
     super
 
-    unless @nodes.equal?(EMPTY)
+    unless empty?
       @nodes = @nodes.map { |node|
         node.dup.tap do |duped_node|
           duped_node.parent = self
@@ -402,6 +402,22 @@ class StringDoc
     @nodes.any? { |node|
       node.significance?(*significance) || node.children.significance?(*significance)
     }
+  end
+
+  def remove_empty_nodes
+    @nodes.each do |node|
+      node.children.remove_empty_nodes
+    end
+
+    unless empty?
+      @nodes.delete_if { |node|
+        node.empty?
+      }
+    end
+  end
+
+  def empty?
+    @nodes.equal?(EMPTY)
   end
 
   private
