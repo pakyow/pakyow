@@ -65,7 +65,7 @@ TRANSFORMATION_IDS = [
 ]
 
 def process_ui_case_html(html)
-  @transformation_ids = html.scan(/data-t="(.*)"/).map { |match|
+  @transformation_ids = html.scan(/data-t="([^"]*)"/).map { |match|
     match[0]
   }.uniq
 
@@ -73,9 +73,10 @@ def process_ui_case_html(html)
     html.gsub!(id_to_replace, TRANSFORMATION_IDS[i])
   end
 
-  html.gsub!(/<meta name="pw-authenticity-token" content=".*">/, "<meta name=\"pw-authenticity-token\" content=\"046d2692c570018f1ea143655a284d6b0dcc4c6c292b6f13:pJtz6AYWD+8G5EDcSUgEtbtIK8loL184T2v/8//5dYw=\">")
-  html.gsub!(/<meta name="pw-socket" data-ui="socket" data-config="endpoint: .*">/, "<meta name=\"pw-socket\" data-ui=\"socket\" data-config=\"endpoint: ws://example.org:80/pw-socket?id=ece651540c6d53f8ce12833330211991702dfce3b11c50d2:CRaA6BaBQZdUKNHgOgaACEhQbQKOywdaYchDI7O6/jw=\">")
-  html.gsub!(/<input type="hidden" name="authenticity_token" value=".*">/, "<input type=\"hidden\" name=\"authenticity_token\" value=\"046d2692c570018f1ea143655a284d6b0dcc4c6c292b6f13:pJtz6AYWD+8G5EDcSUgEtbtIK8loL184T2v/8//5dYw=\">")
+  html.gsub!(/name="pw-authenticity-token" content="[^"]*"/, "name=\"pw-authenticity-token\" content=\"046d2692c570018f1ea143655a284d6b0dcc4c6c292b6f13:pJtz6AYWD+8G5EDcSUgEtbtIK8loL184T2v/8//5dYw=\"")
+  html.gsub!(/name="pw-socket" data-ui="socket" data-config="endpoint: [^"]*"/, "name=\"pw-socket\" data-ui=\"socket\" data-config=\"endpoint: ws://example.org:80/pw-socket?id=ece651540c6d53f8ce12833330211991702dfce3b11c50d2:CRaA6BaBQZdUKNHgOgaACEhQbQKOywdaYchDI7O6/jw=\"")
+  html.gsub!(/name="authenticity_token" value="[^"]*"/, "name=\"authenticity_token\" value=\"046d2692c570018f1ea143655a284d6b0dcc4c6c292b6f13:pJtz6AYWD+8G5EDcSUgEtbtIK8loL184T2v/8//5dYw=\"")
+  html.gsub!(/name="_form" value="[^"]*"/, "name=\"form\" value=\"eyJpZCI6ImQwOGQ2NDRiNzVkODUwZDU4OGMxMjhiNzIzMjM2MjY1ZWU3MTYwYjhiZGNmNWMwZSJ9--6Gf_0qrNKTx6s2hdB_JWbRWejwWqRjiaKrbcvf2DPco=\"")
   HtmlBeautifier.beautify(html)
 end
 

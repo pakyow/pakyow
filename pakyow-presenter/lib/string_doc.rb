@@ -31,7 +31,7 @@ class StringDoc
     #
     def empty
       allocate.tap do |doc|
-        doc.instance_variable_set(:@nodes, EMPTY)
+        doc.instance_variable_set(:@nodes, [])
         doc.instance_variable_set(:@collapsed, nil)
       end
     end
@@ -132,7 +132,7 @@ class StringDoc
 
   # Array of +Node+ objects.
   #
-  attr_reader :nodes
+  attr_reader :nodes, :collapsed
 
   # Creates a +StringDoc+ from an html string.
   #
@@ -145,13 +145,11 @@ class StringDoc
   def initialize_copy(_)
     super
 
-    unless empty?
-      @nodes = @nodes.map { |node|
-        node.dup.tap do |duped_node|
-          duped_node.parent = self
-        end
-      }
-    end
+    @nodes = @nodes.map { |node|
+      node.dup.tap do |duped_node|
+        duped_node.parent = self
+      end
+    }
   end
 
   include Enumerable
@@ -385,8 +383,6 @@ class StringDoc
     other.is_a?(StringDoc) && @nodes == other.nodes
   end
 
-  EMPTY = [].freeze
-
   def collapse(*significance)
     if significance?(*significance)
       @nodes.each do |node|
@@ -394,7 +390,7 @@ class StringDoc
       end
     else
       @collapsed = to_xml
-      @nodes = EMPTY
+      @nodes = []
     end
   end
 
@@ -410,21 +406,19 @@ class StringDoc
     end
 
     unless empty?
-      @nodes.delete_if { |node|
-        node.empty?
-      }
+      @nodes.delete_if(&:empty?)
     end
   end
 
   def empty?
-    @nodes.equal?(EMPTY)
+    @nodes.empty?
   end
 
   private
 
   def render(doc = self, string = String.new)
-    if @collapsed
-      string << @collapsed
+    if doc.collapsed && doc.empty?
+      string << doc.collapsed
     else
       doc.nodes.each do |node|
         if node.is_a?(Node)
