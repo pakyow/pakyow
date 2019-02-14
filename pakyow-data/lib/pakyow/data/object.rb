@@ -22,6 +22,10 @@ module Pakyow
         @values = Support::IndifferentHash.new(values).freeze
       end
 
+      def source
+        @originating_source.__object_name.name
+      end
+
       def include?(key)
         respond_to?(key)
       end

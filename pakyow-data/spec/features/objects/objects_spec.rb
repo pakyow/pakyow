@@ -219,6 +219,13 @@ RSpec.describe "data objects" do
       end
     end
 
+    describe "#source" do
+      it "returns the name of the source" do
+        post = data.posts.create.one
+        expect(post.source).to eq(:posts)
+      end
+    end
+
     describe "#values" do
       it "returns the values" do
         post = data.posts.create.one
