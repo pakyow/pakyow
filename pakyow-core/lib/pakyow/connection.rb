@@ -49,7 +49,7 @@ module Pakyow
     events :finalize
 
     include Pakyow::Support::Inspectable
-    inspectable :method, :params, :cookies, :status, :body
+    inspectable :@method, :@params, :@cookies, :@status, :@body
 
     include Support::Pipeline::Object
 

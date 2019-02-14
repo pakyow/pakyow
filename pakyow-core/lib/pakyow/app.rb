@@ -112,7 +112,7 @@ module Pakyow
     include Support::Pipeline
 
     include Support::Inspectable
-    inspectable :environment
+    inspectable :@environment
 
     include Support::Hookable
     events :initialize, :configure, :load, :finalize, :boot, :fork, :rescue, :shutdown

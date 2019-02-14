@@ -36,7 +36,7 @@ class StringDoc
     attr_writer :parent
 
     include Pakyow::Support::Inspectable
-    inspectable :attributes, :children, :significance, :labels
+    inspectable :@attributes, :@children, :@significance, :@labels
 
     def initialize(tag_open_start = "", attributes = Attributes.new, tag_open_end = "", children = StringDoc.empty, tag_close = "", parent: nil, significance: [], labels: {})
       @tag_open_start, @attributes, @tag_open_end, @children, @tag_close = tag_open_start, attributes, tag_open_end, children, tag_close

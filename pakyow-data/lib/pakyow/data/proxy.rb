@@ -11,7 +11,7 @@ module Pakyow
     # @api private
     class Proxy
       include Support::Inspectable
-      inspectable :source
+      inspectable :@source
 
       using Support::Refinements::Array::Ensurable
 
