@@ -76,7 +76,7 @@ module Pakyow
           end
         end
 
-        Presenter
+        @connection.app.isolated(:Presenter)
       end
 
       private

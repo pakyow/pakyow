@@ -39,8 +39,10 @@ module Pakyow
         using Support::DeepDup
         using Support::DeepFreeze
 
-        def view(templates_path)
-          (@built_views[templates_path] || build_and_cache_view(templates_path)).dup
+        def view(templates_path, copy: true)
+          view = @built_views[templates_path] || build_and_cache_view(templates_path)
+          view = view.dup if copy
+          view
         end
 
         def view?(templates_path)

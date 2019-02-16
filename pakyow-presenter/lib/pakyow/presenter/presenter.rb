@@ -11,6 +11,7 @@ require "pakyow/support/pipeline/object"
 require "pakyow/support/safe_string"
 require "pakyow/support/string_builder"
 
+require "pakyow/presenter/presentable"
 require "pakyow/presenter/presenter/behavior/endpoints"
 require "pakyow/presenter/presenter/behavior/options"
 
@@ -37,6 +38,8 @@ module Pakyow
 
       include Behavior::Endpoints
       include Behavior::Options
+
+      include Presentable
 
       # The view object being presented.
       #
@@ -371,18 +374,6 @@ module Pakyow
       end
       alias to_s to_html
 
-      def method_missing(method_name, *args, &block)
-        if @presentables.keys.any? { |key| key.to_s.start_with?(method_name.to_s) }
-          @presentables[[method_name].concat(args).join(":").to_sym]
-        else
-          super
-        end
-      end
-
-      def respond_to_missing?(method_name, include_private = false)
-        @presentables.keys.any? { |key| key.to_s.start_with?(method_name.to_s) } || super
-      end
-
       # @api private
       def call
         super(self).tap do
@@ -437,7 +428,7 @@ module Pakyow
         if view.nil?
           nil
         else
-          type.new(view, binders: @binders)
+          type.new(view, binders: @binders, presentables: @presentables, logger: @logger)
         end
       end
 

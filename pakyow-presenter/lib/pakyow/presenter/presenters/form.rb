@@ -152,7 +152,7 @@ module Pakyow
       def setup_form_for_binding(action, object)
         setup(object) do
           if SUPPORTED_ACTIONS.include?(action)
-            unless @view.label(:endpoint)
+            unless @view.labeled?(:endpoint)
               if self.action = form_action_for_binding(action, object)
                 self.method = method_for_action(action)
               end

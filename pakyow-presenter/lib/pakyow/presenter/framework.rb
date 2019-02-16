@@ -34,9 +34,17 @@ module Pakyow
 
         object.class_eval do
           isolate Binder
-          isolate Component
           isolate Presenter
+
+          # Make sure component presenters inherit from this app's presenter.
+          #
+          isolated_presenter = isolated(:Presenter)
+          isolate Component do
+            @__presenter_class = isolated_presenter
+          end
+
           isolate ComponentRenderer
+
           isolate ViewRenderer do
             include Behavior::AuthenticityRendering
           end

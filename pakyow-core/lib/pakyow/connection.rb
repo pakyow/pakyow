@@ -46,7 +46,7 @@ module Pakyow
     using Support::Indifferentize
 
     include Support::Hookable
-    events :finalize
+    events :initialize, :finalize
 
     include Pakyow::Support::Inspectable
     inspectable :@method, :@params, :@cookies, :@status, :@body
@@ -67,11 +67,13 @@ module Pakyow
     Endpoint = Struct.new(:path, :params)
 
     def initialize(app, rack_env)
-      @timestamp, @id = Time.now, SecureRandom.hex(4)
-      @app, @request, @response = app, Rack::Request.new(rack_env), Rack::Response.new
-      @initial_cookies = cookies.dup
-      @parsed_body = nil
-      @values = {}
+      performing :initialize do
+        @timestamp, @id = Time.now, SecureRandom.hex(4)
+        @app, @request, @response = app, Rack::Request.new(rack_env), Rack::Response.new
+        @initial_cookies = cookies.dup
+        @parsed_body = nil
+        @values = {}
+      end
     end
 
     # @api private

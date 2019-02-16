@@ -9,6 +9,7 @@ RSpec.describe Pakyow::Connection do
 
   describe "#initialize" do
     it "initializes with an app and rack env"
+    it "calles the initialize hooks"
   end
 
   describe "#finalize" do

@@ -8,13 +8,11 @@ require "pakyow/presenter/rendering/base_renderer"
 require "pakyow/presenter/rendering/component_renderer"
 require "pakyow/presenter/rendering/actions/cleanup_prototype_nodes"
 require "pakyow/presenter/rendering/actions/create_template_nodes"
-require "pakyow/presenter/rendering/actions/embed_form_metadata"
 require "pakyow/presenter/rendering/actions/insert_prototype_bar"
 require "pakyow/presenter/rendering/actions/install_endpoints"
 require "pakyow/presenter/rendering/actions/place_in_mode"
 require "pakyow/presenter/rendering/actions/render_components"
-require "pakyow/presenter/rendering/actions/setup_form_metadata"
-require "pakyow/presenter/rendering/actions/setup_form_objects"
+require "pakyow/presenter/rendering/actions/setup_forms"
 
 module Pakyow
   module Presenter
@@ -68,17 +66,15 @@ module Pakyow
       action :cleanup_prototype_nodes, Actions::CleanupPrototypeNodes, before: :dispatch
       action :create_template_nodes, Actions::CreateTemplateNodes, before: :dispatch
       action :place_in_mode, Actions::PlaceInMode, before: :dispatch
-      action :setup_form_metadata, Actions::SetupFormMetadata, before: :dispatch
       action :render_components, Actions::RenderComponents, before: :dispatch
-      action :setup_form_objects, Actions::SetupFormObjects, after: :dispatch
-      action :embed_form_metadata, Actions::EmbedFormMetadata, after: :setup_form_objects
+      action :setup_form, Actions::SetupForms, before: :dispatch
 
       using Support::Refinements::String::Normalization
 
-      attr_reader :templates_path, :mode
+      attr_reader :templates_path, :mode, :renders
 
       def initialize(connection, templates_path: nil, presenter_path: nil, mode: :default, embed_templates: true)
-        @connection, @embed_templates = connection, embed_templates
+        @connection, @embed_templates, @renders = connection, embed_templates, []
 
         @templates_path = String.normalize_path(templates_path || @connection.env["pakyow.endpoint.path"] || @connection.path)
         @presenter_path = presenter_path ? String.normalize_path(presenter_path) : nil
@@ -89,14 +85,18 @@ module Pakyow
           mode
         end
 
-        @presenter = (find_presenter(@presenter_path || @templates_path)).new(
+        super(@connection, nil)
+      end
+
+      def perform
+        @presenter = find_presenter.new(
           @connection.app.view(@templates_path),
           binders: @connection.app.state(:binder),
           presentables: @connection.values,
           logger: @connection.logger
         )
 
-        super(@connection, @presenter)
+        super
       end
 
       def serialize
@@ -109,6 +109,10 @@ module Pakyow
 
       def embed_templates?
         @embed_templates == true
+      end
+
+      def find_presenter
+        super(@presenter_path || @templates_path)
       end
     end
   end

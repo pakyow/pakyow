@@ -39,6 +39,7 @@ module Pakyow
               end
             end
 
+            action :cache_presentables, before: @__pipeline.actions.first
             action :subscribe_to_transformations
           end
 
@@ -47,10 +48,6 @@ module Pakyow
             include TransformationHelpers
 
             before :render do
-              # Make sure these values are cached because they could change during presentation.
-              #
-              presentables; subscribables
-
               unless ui_transform? || subscribables.empty?
                 # To keep up with the node(s) that matter for the transformation, a `data-t` attribute
                 # is added to the node that contains the transformation_id. When the transformation is
@@ -64,6 +61,7 @@ module Pakyow
               end
             end
 
+            action :cache_presentables, before: @__pipeline.actions.first
             action :subscribe_to_transformations
           end
         end
@@ -71,6 +69,12 @@ module Pakyow
         module TransformationHelpers
           def transformation_target?
             instance_variable_defined?(:@transformation_target)
+          end
+
+          # Make sure these values are cached first because they could change during presentation.
+          #
+          def cache_presentables
+            presentables; subscribables
           end
 
           def presentables
@@ -118,8 +122,12 @@ module Pakyow
             }.compact
           end
 
-          def subscribe_to_transformations
-            unless ui_transform? || !transformation_target?
+          def subscribe_to_transformations(transformation_id = nil)
+            unless transformation_id.is_a?(String)
+              transformation_id = nil
+            end
+
+            if !ui_transform? && (transformation_target? || transformation_id)
               metadata = {
                 renderer: {
                   class_name: Support.inflector.demodulize(self.class),
@@ -133,28 +141,38 @@ module Pakyow
                 }
               }
 
-              # Generate a unique id based on the value of the metadata.
+              payload = {
+                metadata: Marshal.dump(metadata)
+              }
+
+              # Generate a unique id based on the value of the metadata. This guarantees that the
+              # transformation id will be consistent across subscriptions.
               #
-              transformation_id = Digest::SHA1.hexdigest(Marshal.dump(metadata))
-              metadata[:transformation_id] = transformation_id
+              transformation_id ||= Digest::SHA1.hexdigest(payload[:metadata])
+              payload[:transformation_id] = transformation_id
+              @transformation_id = transformation_id
 
               # Set the transformation_id on the target node so that transformations can be applied to the right place.
               #
-              @transformation_target.attributes[:"data-t"] = transformation_id
+              if transformation_target?
+                @transformation_target.attributes[:"data-t"] = transformation_id
+              end
 
               # Find every subscribable presentable, creating a data subscription for each.
               #
-              subscribables.each do |subscribable|
-                subscription_ids = subscribable.subscribe(
-                  socket_client_id,
-                  handler: Handler,
-                  payload: metadata
+              subscription_ids = subscribables.each_with_object([]) { |subscribable, ids|
+                ids.concat(
+                  subscribable.subscribe(
+                    socket_client_id,
+                    handler: Handler,
+                    payload: payload
+                  )
                 )
+              }
 
-                # Subscribe the subscriptions to the "transformation" channel.
-                #
-                subscribe(:transformation, *subscription_ids)
-              end
+              # Subscribe the subscriptions to the "transformation" channel.
+              #
+              subscribe(:transformation, *subscription_ids)
             end
           end
         end

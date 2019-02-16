@@ -17,7 +17,7 @@ module Pakyow
           # of the original presenter, but they'll behave identically!
           #
           after :initialize do
-            @ui_presenters = [Presenter::Presenter].concat(
+            @ui_presenters = [isolated(:Presenter)].concat(
               state(:presenter)
             ).concat(
               state(:component).map(&:__presenter_class)
@@ -35,27 +35,10 @@ module Pakyow
 
             @ui_renderers << Class.new(isolated(:ComponentRenderer)) do
               include Wrappable
-
-              pipeline :ui do
-                action :install_endpoints, Presenter::Actions::InstallEndpoints
-                action :cleanup_prototype_nodes, Presenter::Actions::CleanupPrototypeNodes
-                action :dispatch
-              end
-
-              use_pipeline :ui
             end
 
             @ui_renderers << Class.new(isolated(:ViewRenderer)) do
               include Wrappable
-
-              pipeline :ui do
-                action :install_endpoints, Presenter::Actions::InstallEndpoints
-                action :cleanup_prototype_nodes, Presenter::Actions::CleanupPrototypeNodes
-                action :place_in_mode, Presenter::Actions::PlaceInMode
-                action :dispatch
-              end
-
-              use_pipeline :ui
             end
           end
 

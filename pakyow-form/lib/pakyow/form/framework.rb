@@ -26,15 +26,6 @@ module Pakyow
             end
           end
 
-          isolated :ViewRenderer do
-            action :set_form_framework_metadata, before: :embed_form_metadata do
-              presenter.forms.each do |form|
-                form.view.label(:metadata)[:binding] = [form.view.label(:binding)].concat(form.view.label(:channel)).join(":")
-                form.view.label(:metadata)[:origin] = @connection.form.to_h[:origin] || @connection.fullpath
-              end
-            end
-          end
-
           isolated :Connection do
             include ConnectionHelpers
           end
@@ -52,14 +43,8 @@ module Pakyow
               if app.class.includes_framework?(:ui) && ui?
                 data.ephemeral(:errors, form_id: connection.form[:id]).set(errors)
               else
-                connection.set :__form_errors, errors
-
-                # Expose submitted values to be presented in the form.
-                #
-                params.reject { |key| key == :form }.each do |key, value|
-                  expose key, value, for: connection.form[:binding].to_s.split(":", 2)[1]
-                end
-
+                connection.set(:__form_errors, errors)
+                connection.set(:__form_values, params.reject { |key| key == :form })
                 reroute connection.form[:origin], method: :get, as: :bad_request
               end
             else
@@ -75,12 +60,28 @@ module Pakyow
                 []
               end
 
+              form_id = connection.get(:__form).to_h[:id] || SecureRandom.hex(24)
+
+              expose :form_id, form_id
               expose :form_binding, connection.form.to_h[:binding]
-              expose :form_errors, data.ephemeral(:errors, form_id: connection.get(:__form_ids).shift).set(errors)
+              expose :form_origin, connection.form.to_h[:origin] || connection.fullpath
+              expose :form_errors, data.ephemeral(:errors, form_id: form_id).set(errors)
+
+              # Expose submitted values to be presented in the form.
+              #
+              connection.get(:__form_values).to_h.each do |key, value|
+                expose key, value, for: connection.form[:binding].to_s.split(":", 2)[1]
+              end
             end
 
             presenter do
               def perform
+                view.label(:metadata)[:id] = form_id
+                view.label(:metadata)[:binding] = form_binding || [
+                  view.label(:binding)
+                ].concat(view.label(:channel)).join(":")
+                view.label(:metadata)[:origin] = form_origin
+
                 if form_binding.nil? || form_binding == view.channeled_binding_name
                   classify_form
                   classify_fields
