@@ -9,10 +9,40 @@ module Pakyow
           if renderer.rendering_prototype?
             if body_node = renderer.presenter.view.object.find_first_significant_node(:body)
               body_node.append_html <<~HTML
-                <div class="pw-prototype" style="display:flex; align-items: center; position: fixed; z-index: 1000; right: 0; bottom: 0; background: #156eed; color: #fff; font-size: 11px; line-height: 11px; font-weight: 500; border-top-left-radius: 1px; padding-left: 5px;">
+                <style>
+                  .pw-prototype {
+                    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+                    display:flex;
+                    align-items: center;
+                    position: fixed;
+                    z-index: 1000;
+                    right: 0;
+                    bottom: 0;
+                    background: #156eed;
+                    color: #fff;
+                    font-size: 11px;
+                    line-height: 11px;
+                    font-weight: 500;
+                    border-top-left-radius: 1px;
+                    padding-left: 5px;
+                  }
+
+                  .pw-prototype-tag {
+                    background: #ff8b6c;
+                    color: #fff;
+                    text-transform: uppercase;
+                    font-size: 10px;
+                    line-height: 12px;
+                    font-weight: 600;
+                    padding: 5px 5px 4px 5px;
+                    margin-left: 10px;
+                  }
+                </style>
+
+                <div class="pw-prototype">
                   #{ui_modes_html(renderer)}
 
-                  <div style="background: #ff8b6c; color: #fff; text-transform: uppercase; font-size: 10px; line-height: 12px; font-weight: 600; padding: 5px 5px 4px 5px; margin-left: 10px;">
+                  <div class="pw-prototype-tag">
                     Prototype
                   </div>
                 </div>
