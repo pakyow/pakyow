@@ -34,7 +34,9 @@ module Pakyow
           include Behavior::Silencing
           include Behavior::Serialization
 
-          isolated(:ViewRenderer).prepend(Behavior::Rendering)
+          isolated :ViewRenderer do
+            include Behavior::Rendering
+          end
         end
       end
     end

@@ -38,7 +38,7 @@ module Pakyow
           isolate Presenter
           isolate ComponentRenderer
           isolate ViewRenderer do
-            prepend(Behavior::AuthenticityRendering)
+            include Behavior::AuthenticityRendering
           end
 
           stateful :binder,    isolated(:Binder)

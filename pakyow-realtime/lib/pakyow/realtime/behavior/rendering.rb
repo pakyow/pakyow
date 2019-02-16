@@ -1,11 +1,15 @@
 # frozen_string_literal: true
 
+require "pakyow/support/extension"
+
 module Pakyow
   module Realtime
     module Behavior
       module Rendering
-        def to_html(*)
-          super.tap do |html|
+        extend Support::Extension
+
+        apply_extension do
+          post_process do |html|
             endpoint = config.realtime.endpoint
 
             unless endpoint
@@ -19,6 +23,8 @@ module Pakyow
             end
 
             html.sub!("{{pw-socket-config}}", "endpoint: #{endpoint}?id=#{@connection.verifier.sign(socket_client_id)}")
+
+            html
           end
         end
       end
