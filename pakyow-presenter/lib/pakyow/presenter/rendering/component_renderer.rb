@@ -19,7 +19,7 @@ module Pakyow
 
       action :install_endpoints, Actions::InstallEndpoints, before: :dispatch
 
-      attr_reader :mode
+      attr_reader :mode, :name, :component_path, :templates_path
 
       def initialize(connection, presenter = nil, name:, templates_path:, component_path:, mode:)
         @connection, @name, @templates_path, @component_path, @mode = connection, name, templates_path, component_path, mode
