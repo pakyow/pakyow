@@ -164,4 +164,14 @@ RSpec.describe "assets config" do
       end
     end
   end
+
+  describe "version" do
+    before do
+      expect(Pakyow::Support::PathVersion).to receive(:build).with(config.path, config.public_path).and_return("digest")
+    end
+
+    it "has a default value" do
+      expect(config.version).to eq("digest")
+    end
+  end
 end

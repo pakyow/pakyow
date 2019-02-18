@@ -34,6 +34,16 @@ RSpec.describe Pakyow::App do
       end
     end
 
+    describe "app.version" do
+      before do
+        expect(Pakyow::Support::PathVersion).to receive(:build).with(app.config.src).and_return("digest")
+      end
+
+      it "has a default value" do
+        expect(app.config.version).to eq("digest")
+      end
+    end
+
     describe "cookies.path" do
       it "has a default value" do
         expect(app.config.cookies.path).to eq("/")

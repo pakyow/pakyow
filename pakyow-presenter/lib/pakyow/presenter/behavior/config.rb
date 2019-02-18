@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "pakyow/support/extension"
+require "pakyow/support/path_version"
 
 module Pakyow
   module Presenter
@@ -16,6 +17,10 @@ module Pakyow
 
             setting :embed_authenticity_token, true
             setting :componentize, true
+
+            setting :version do
+              Support::PathVersion.build(config.presenter.path)
+            end
           end
         end
       end

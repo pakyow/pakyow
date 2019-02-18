@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "pakyow/support/extension"
+require "pakyow/support/path_version"
 
 module Pakyow
   module Behavior
@@ -20,6 +21,10 @@ module Pakyow
 
         setting :lib do
           File.join(config.src, "lib")
+        end
+
+        setting :version do
+          Support::PathVersion.build(config.src)
         end
 
         configurable :tasks do

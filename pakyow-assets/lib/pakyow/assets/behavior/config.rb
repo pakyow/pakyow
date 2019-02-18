@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "pakyow/support/extension"
+require "pakyow/support/path_version"
 
 module Pakyow
   module Assets
@@ -47,6 +48,10 @@ module Pakyow
 
             setting :compile_path do
               config.assets.public_path
+            end
+
+            setting :version do
+              Support::PathVersion.build(config.assets.path, config.assets.public_path)
             end
 
             defaults :production do
