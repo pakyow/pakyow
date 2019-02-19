@@ -33,9 +33,8 @@ module Pakyow
           max_threads: 10,
           max_queue: 0
         )
-      rescue LoadError => e
-        Pakyow.logger.error "Failed to load data subscriber store adapter named `#{adapter}'"
-        Pakyow.logger.error e.message
+      rescue LoadError, NameError => error
+        raise UnknownSubscriberAdapter.build(error, adapter: adapter)
       end
 
       # {
