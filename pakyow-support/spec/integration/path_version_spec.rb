@@ -8,7 +8,7 @@ RSpec.describe Pakyow::Support::PathVersion do
           File.expand_path("../path_version", __FILE__),
           File.expand_path("../path_version/support", __FILE__)
         )
-      ).to eq("a6ad61c82ced604b89cfd32e681abe0d1d94f3cf")
+      ).to eq("9a8ba4c55539ae6739df90c0b5e58c7feff0dde2")
     end
   end
 end

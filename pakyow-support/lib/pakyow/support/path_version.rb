@@ -9,7 +9,7 @@ module Pakyow
       #
       def self.build(*paths)
         paths.each_with_object(Digest::SHA1.new) { |path, digest|
-          Dir.glob(File.join(path, "/**/*")) do |fullpath|
+          Dir.glob(File.join(path, "/**/*")).sort.each do |fullpath|
             if File.file?(fullpath)
               digest.update(Digest::SHA1.file(fullpath).to_s)
             end
