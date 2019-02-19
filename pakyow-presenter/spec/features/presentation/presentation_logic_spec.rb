@@ -1,4 +1,4 @@
-RSpec.describe "versioning via defined logic" do
+RSpec.describe "presenting via defined logic" do
   let :presenter_class do
     Class.new(Pakyow::Presenter::Presenter)
   end
@@ -27,7 +27,7 @@ RSpec.describe "versioning via defined logic" do
     end
 
     before do
-      presenter_class.version :post do |view, post|
+      presenter_class.present :post do |view, post|
         view.use(post[:version])
       end
     end
@@ -69,7 +69,7 @@ RSpec.describe "versioning via defined logic" do
     end
 
     before do
-      presenter_class.version :comment do |view, comment|
+      presenter_class.present :comment do |view, comment|
         view.use(comment[:version])
       end
     end
@@ -114,7 +114,7 @@ RSpec.describe "versioning via defined logic" do
     end
 
     before do
-      presenter_class.version :post, channel: :foo do |view, post|
+      presenter_class.present :post, channel: :foo do |view, post|
         view.use(post[:version])
       end
     end

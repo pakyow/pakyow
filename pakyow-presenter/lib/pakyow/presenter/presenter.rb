@@ -495,10 +495,10 @@ module Pakyow
           )
         end
 
-        # Defines a versioning block called when +binding_name+ is presented. If
+        # Defines a presentation block called when +binding_name+ is presented. If
         # +channel+ is provided, the block will only be called for that channel.
         #
-        def version(binding_name, channel: nil, &block)
+        def present(binding_name, channel: nil, &block)
           if channel
             channel = Array.ensure(channel).join(":")
           end
