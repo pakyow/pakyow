@@ -7,6 +7,7 @@ require "concurrent/hash"
 require "concurrent/timer_task"
 
 require "pakyow/support/deep_dup"
+require "pakyow/support/deep_freeze"
 
 module Pakyow
   module Data
@@ -25,6 +26,9 @@ module Pakyow
           end
 
           using Support::DeepDup
+
+          extend Support::DeepFreeze
+          unfreezable :subscriptions_by_id, :subscription_ids_by_source, :subscribers_by_subscription_id, :subscription_ids_by_subscriber, :expirations_for_subscriber
 
           def initialize(*)
             @subscriptions_by_id = Concurrent::Hash.new

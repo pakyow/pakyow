@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "pakyow/support/deep_freeze"
-
 require "pakyow/data/errors"
 require "pakyow/data/proxy"
 require "pakyow/data/sources/ephemeral"
@@ -9,9 +7,6 @@ require "pakyow/data/sources/ephemeral"
 module Pakyow
   module Data
     class Lookup
-      extend Support::DeepFreeze
-      unfreezable :subscribers
-
       # @api private
       attr_reader :subscribers, :sources, :containers
 

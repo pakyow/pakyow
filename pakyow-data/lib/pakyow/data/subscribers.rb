@@ -3,12 +3,16 @@
 require "concurrent/executor/thread_pool_executor"
 
 require "pakyow/support/core_refinements/method/introspection"
+require "pakyow/support/deep_freeze"
 
 module Pakyow
   module Data
     # @api private
     class Subscribers
       attr_accessor :lookup, :adapter
+
+      extend Support::DeepFreeze
+      unfreezable :executor
 
       using Support::Refinements::Method::Introspection
 
