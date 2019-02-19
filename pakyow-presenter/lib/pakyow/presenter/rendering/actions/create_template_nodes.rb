@@ -6,7 +6,7 @@ module Pakyow
       # @api private
       class CreateTemplateNodes
         def call(renderer)
-          if !renderer.rendering_prototype? && renderer.embed_templates?
+          if !renderer.rendering_prototype?
             renderer.presenter.view.each_binding_scope do |node_with_binding|
               attributes = node_with_binding.attributes.attributes_hash.each_with_object({}) do |(attribute, value), acc|
                 next unless attribute.to_s.start_with?("data")

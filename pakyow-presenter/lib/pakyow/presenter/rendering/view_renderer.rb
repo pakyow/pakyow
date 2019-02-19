@@ -107,10 +107,6 @@ module Pakyow
         }
       end
 
-      def embed_templates?
-        @embed_templates == true
-      end
-
       def find_presenter
         super(@presenter_path || @templates_path)
       end

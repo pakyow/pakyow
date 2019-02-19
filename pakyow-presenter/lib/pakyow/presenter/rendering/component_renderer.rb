@@ -2,6 +2,7 @@
 
 require "pakyow/presenter/rendering/base_renderer"
 
+require "pakyow/presenter/rendering/actions/create_template_nodes"
 require "pakyow/presenter/rendering/actions/place_in_mode"
 require "pakyow/presenter/rendering/actions/install_endpoints"
 require "pakyow/presenter/rendering/actions/setup_forms"
@@ -104,6 +105,7 @@ module Pakyow
 
         unless presenter
           @presenter = build_presenter
+          Actions::CreateTemplateNodes.new.call(self)
           Actions::PlaceInMode.new.call(self)
         end
 
