@@ -26,7 +26,7 @@ module Pakyow
             message
           end
 
-          Colorizer.colorize(message, severity)
+          Colorizer.colorize(message, severity) << "\n"
         end
 
         # @api private
@@ -52,7 +52,7 @@ module Pakyow
         # @api private
         def format_message(message, id:, type:, elapsed:)
           constructed_message = sprintf(
-            "%s %s.%s | %s\n",
+            "%s %s.%s | %s",
             Timekeeper.format_elapsed_time(elapsed).rjust(8, " "),
             type, id, message.lines.first.rstrip
           )

@@ -71,7 +71,7 @@ module Pakyow
             message
           end
 
-          message.to_json + "\n"
+          message.to_json << "\n"
         end
 
         def ensure_hash(message)

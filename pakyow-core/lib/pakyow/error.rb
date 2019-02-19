@@ -236,6 +236,7 @@ module Pakyow
         message = <<~MESSAGE
           #{Support::CLI.style.white.on_red.bold(header)}
 
+
             #{self.class.indent(Support::CLI.style.red("›") + Support::CLI.style.bright_black(" #{self.class.format(@error.message)}"))}
         MESSAGE
 

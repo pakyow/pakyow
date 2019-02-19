@@ -25,12 +25,12 @@ RSpec.describe Pakyow::Logger::Formatters::Human do
   it "formats a string message" do
     expect(
       formatter.call(severity, datetime, progname, "foo")
-    ).to eq("\e[36mfoo\e[0m")
+    ).to eq("\e[36mfoo\e[0m\n")
   end
 
   it "formats a hash message" do
     expect(
       formatter.call(severity, datetime, progname, foo: "bar")
-    ).to eq("\e[36m{:foo=>\"bar\"}\e[0m")
+    ).to eq("\e[36m{:foo=>\"bar\"}\e[0m\n")
   end
 end

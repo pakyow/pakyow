@@ -62,23 +62,23 @@ RSpec.describe "using the request logger" do
 
     it "logs a message" do
       request_logger.debug "foo"
-      expect(message).to eq("\e[36m  #{elapsed}.00s  http.#{request_logger.id} | foo\n\e[0m")
+      expect(message).to eq("\e[36m  #{elapsed}.00s  http.#{request_logger.id} | foo\e[0m\n")
     end
 
     it "logs the prologue" do
       request_logger.prologue(connection)
-      expect(message).to eq("\e[32m  #{elapsed}.00s  http.#{request_logger.id} | GET / (for 0.0.0.0 at #{datetime})\n\e[0m")
+      expect(message).to eq("\e[32m  #{elapsed}.00s  http.#{request_logger.id} | GET / (for 0.0.0.0 at #{datetime})\e[0m\n")
     end
 
     it "logs the epilogue" do
       request_logger.epilogue(connection)
-      expect(message).to eq("\e[32m  #{elapsed}.00s  http.#{request_logger.id} | 200 (OK)\n\e[0m")
+      expect(message).to eq("\e[32m  #{elapsed}.00s  http.#{request_logger.id} | 200 (OK)\e[0m\n")
     end
 
     it "logs an error" do
       allow_any_instance_of(Pakyow::Error::CLIFormatter).to receive(:to_s).and_return("error")
       request_logger.houston(error)
-      expect(message).to eq("\e[31m  #{elapsed}.00s  http.#{request_logger.id} | error\n\e[0m")
+      expect(message).to eq("\e[31m  #{elapsed}.00s  http.#{request_logger.id} | error\e[0m\n")
     end
   end
 
