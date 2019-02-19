@@ -9,7 +9,7 @@ module Pakyow
           mode = renderer.mode
 
           if mode == :default
-            mode = renderer.presenter.view.info(:mode)
+            mode = renderer.presenter.view.info(:mode) || mode
           end
 
           if mode

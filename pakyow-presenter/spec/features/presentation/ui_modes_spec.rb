@@ -120,4 +120,62 @@ RSpec.describe "presenting a view that defines one or more ui mode" do
       )
     end
   end
+
+  context "view defines modes not on bindings" do
+    it "presents only the default nodes by default" do
+      result = call("/presentation/ui_modes/non-binding")[2].read
+
+      expect(result).to include_sans_whitespace(
+        <<~HTML
+          <h1>default</h1>
+        HTML
+      )
+
+      expect(result).not_to include_sans_whitespace(
+        <<~HTML
+          <h1>one</h1>
+        HTML
+      )
+
+      expect(result).not_to include_sans_whitespace(
+        <<~HTML
+          <h1>two</h1>
+        HTML
+      )
+    end
+
+    context "mode is specified" do
+      let :app_init do
+        Proc.new do
+          controller do
+            default do
+              render "/presentation/ui_modes/non-binding", mode: :one
+            end
+          end
+        end
+      end
+
+      it "presents only nodes for the specified mode" do
+        result = call("/")[2].read
+
+        expect(result).not_to include_sans_whitespace(
+          <<~HTML
+            <h1>default</h1>
+          HTML
+        )
+
+        expect(result).to include_sans_whitespace(
+          <<~HTML
+            <h1>one</h1>
+          HTML
+        )
+
+        expect(result).not_to include_sans_whitespace(
+          <<~HTML
+            <h1>two</h1>
+          HTML
+        )
+      end
+    end
+  end
 end
