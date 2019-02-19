@@ -3,6 +3,7 @@
 require "pakyow/support/class_state"
 require "pakyow/support/hookable"
 require "pakyow/support/makeable"
+require "pakyow/support/makeable/object_maker"
 
 module Pakyow
   module Presenter
@@ -35,6 +36,10 @@ module Pakyow
           @__presenter_class = Class.new(@__presenter_class) do
             class_eval(&block)
           end
+
+          Support::ObjectMaker.define_object_on_target_with_constant_name(
+            @__presenter_class, self, :Presenter
+          )
         end
       end
     end
