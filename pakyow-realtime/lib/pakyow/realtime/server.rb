@@ -24,6 +24,11 @@ module Pakyow
         @event_loop = EventLoop.new
         @sockets = Concurrent::Array.new
         @timeout_config = timeout_config
+        @executor = Concurrent::ThreadPoolExecutor.new(
+          min_threads: 1,
+          max_threads: 10,
+          max_queue: 0
+        )
 
         connect
       rescue LoadError => e
@@ -32,52 +37,66 @@ module Pakyow
       end
 
       def connect
-        start_heartbeat; @adapter.connect
+        @executor << -> {
+          start_heartbeat; @adapter.connect
+        }
       end
 
       def disconnect
-        stop_heartbeat; @adapter.disconnect
+        @executor << -> {
+          stop_heartbeat; @adapter.disconnect
+        }
       end
 
       def socket_connect(id_or_socket, io)
-        find_socket(id_or_socket) do |socket|
-          @event_loop.add(io, socket)
-          @sockets << socket
-          @adapter.persist(socket.id)
-          @adapter.current!(socket.id, socket.object_id)
-        end
+        @executor << -> {
+          find_socket(id_or_socket) do |socket|
+            @event_loop.add(io, socket)
+            @sockets << socket
+            @adapter.persist(socket.id)
+            @adapter.current!(socket.id, socket.object_id)
+          end
+        }
       end
 
       def socket_disconnect(id_or_socket, io)
-        find_socket(id_or_socket) do |socket|
-          @event_loop.rm(io)
-          @sockets.delete(socket)
+        @executor << -> {
+          find_socket(id_or_socket) do |socket|
+            @event_loop.rm(io)
+            @sockets.delete(socket)
 
-          # If this isn't the current instance for the socket id, it means that a
-          # reconnect probably happened and the new socket connected before we
-          # knew that the old one disconnected. Since there's a newer socket,
-          # don't trigger leave events or expirations for the old one.
-          #
-          if @adapter.current?(socket.id, socket.object_id)
-            socket.leave
-            @adapter.expire(socket.id, @timeout_config.disconnect)
+            # If this isn't the current instance for the socket id, it means that a
+            # reconnect probably happened and the new socket connected before we
+            # knew that the old one disconnected. Since there's a newer socket,
+            # don't trigger leave events or expirations for the old one.
+            #
+            if @adapter.current?(socket.id, socket.object_id)
+              socket.leave
+              @adapter.expire(socket.id, @timeout_config.disconnect)
+            end
           end
-        end
+        }
       end
 
       def socket_subscribe(id_or_socket, *channels)
-        find_socket_id(id_or_socket) do |socket_id|
-          @adapter.socket_subscribe(socket_id, *channels)
-          @adapter.expire(socket_id, @timeout_config.initial)
-        end
+        @executor << -> {
+          find_socket_id(id_or_socket) do |socket_id|
+            @adapter.socket_subscribe(socket_id, *channels)
+            @adapter.expire(socket_id, @timeout_config.initial)
+          end
+        }
       end
 
       def socket_unsubscribe(*channels)
-        @adapter.socket_unsubscribe(*channels)
+        @executor << -> {
+          @adapter.socket_unsubscribe(*channels)
+        }
       end
 
       def subscription_broadcast(channel, message)
-        @adapter.subscription_broadcast(channel.to_s, channel: channel.name, message: message)
+        @executor << -> {
+          @adapter.subscription_broadcast(channel.to_s, channel: channel.name, message: message)
+        }
       end
 
       # Called by the adapter, which guarantees that this server has connections for these ids.
@@ -112,11 +131,9 @@ module Pakyow
         yield socket_id if socket_id
       end
 
-      protected
+      private
 
       def start_heartbeat
-        @executor = Concurrent::ThreadPoolExecutor.new
-
         @heartbeat = Concurrent::TimerTask.new(execution_interval: HEARTBEAT_INTERVAL) do
           @executor << -> {
             @sockets.each(&:beat)

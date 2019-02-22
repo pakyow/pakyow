@@ -160,19 +160,13 @@ module Pakyow
 
               # Find every subscribable presentable, creating a data subscription for each.
               #
-              subscription_ids = subscribables.each_with_object([]) { |subscribable, ids|
-                ids.concat(
-                  subscribable.subscribe(
-                    socket_client_id,
-                    handler: Handler,
-                    payload: payload
-                  )
-                )
-              }
-
-              # Subscribe the subscriptions to the "transformation" channel.
-              #
-              subscribe(:transformation, *subscription_ids)
+              subscribables.each do |subscribable|
+                subscribable.subscribe(socket_client_id, handler: Handler, payload: payload) do |ids|
+                  # Subscribe the subscriptions to the "transformation" channel.
+                  #
+                  subscribe(:transformation, *ids)
+                end
+              end
             end
           end
         end

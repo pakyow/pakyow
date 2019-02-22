@@ -12,7 +12,12 @@ require "pakyow/realtime"
 
 require_relative "../../spec/helpers/mock_handler"
 
-RSpec.configure do |config|
+RSpec.configure do |spec_config|
+  spec_config.before do |example|
+    allow_any_instance_of(Concurrent::ThreadPoolExecutor).to receive(:<<) do |_, block|
+      block.call
+    end
+  end
 end
 
 require_relative "../../spec/context/app_context"

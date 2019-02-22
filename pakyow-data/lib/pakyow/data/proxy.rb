@@ -112,7 +112,7 @@ module Pakyow
         @source.to_json
       end
 
-      def subscribe(subscriber, handler:, payload: nil)
+      def subscribe(subscriber, handler:, payload: nil, &block)
         subscriptions = []
 
         if subscribable?
@@ -137,7 +137,7 @@ module Pakyow
           end
         end
 
-        @subscribers.register_subscriptions(subscriptions, subscriber: subscriber)
+        @subscribers.register_subscriptions(subscriptions, subscriber: subscriber, &block)
       end
 
       def subscribe_related(parent_source:, serialized_proxy:, handler:, payload: nil)

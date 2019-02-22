@@ -37,16 +37,13 @@ module Pakyow
         raise UnknownSubscriberAdapter.build(error, adapter: adapter)
       end
 
-      # {
-      #   source
-      #   qualifications
-      #   handler
-      #   proxy => source
-      #   payload
-      # }
-      def register_subscriptions(subscriptions, subscriber: nil)
-        @adapter.persist(subscriber) if @adapter.expiring?(subscriber)
-        @adapter.register_subscriptions(subscriptions, subscriber: subscriber)
+      def register_subscriptions(subscriptions, subscriber: nil, &block)
+        @executor << Proc.new {
+          @adapter.persist(subscriber) if @adapter.expiring?(subscriber)
+          @adapter.register_subscriptions(subscriptions, subscriber: subscriber).tap do |ids|
+            yield ids if block_given?
+          end
+        }
       end
 
       def did_mutate(source_name, changed_values, result_source)

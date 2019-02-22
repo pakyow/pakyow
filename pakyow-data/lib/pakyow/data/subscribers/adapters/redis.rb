@@ -189,8 +189,6 @@ module Pakyow
             end
           end
 
-          protected
-
           def subscription_ids_for_source(source)
             @redis.with do |redis|
               redis.zrangebyscore(
@@ -200,6 +198,8 @@ module Pakyow
               )
             end
           end
+
+          private
 
           def subscription_ids_for_subscriber(subscriber)
             @redis.with do |redis|
