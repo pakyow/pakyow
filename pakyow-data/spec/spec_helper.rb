@@ -23,6 +23,12 @@ RSpec.configure do |config|
     end
   end
 
+  config.before do
+    allow_any_instance_of(Concurrent::ThreadPoolExecutor).to receive(:<<) do |_, block|
+      block.call
+    end
+  end
+
   config.after do
     Pakyow.data_connections[:sql].to_h.values.select { |connection|
       connection.connected?

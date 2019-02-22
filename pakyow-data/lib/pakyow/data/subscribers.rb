@@ -29,12 +29,18 @@ module Pakyow
         )
 
         @executor = Concurrent::ThreadPoolExecutor.new(
+          auto_terminate: false,
           min_threads: 1,
           max_threads: 10,
           max_queue: 0
         )
       rescue LoadError, NameError => error
         raise UnknownSubscriberAdapter.build(error, adapter: adapter)
+      end
+
+      def shutdown
+        @executor.shutdown
+        @executor.wait_for_termination(30)
       end
 
       def register_subscriptions(subscriptions, subscriber: nil, &block)
@@ -81,11 +87,7 @@ module Pakyow
         @adapter.persist(subscriber)
       end
 
-      def shutdown
-        @executor.shutdown
-      end
-
-      protected
+      private
 
       def process(subscription, mutated_source)
         callback = subscription[:handler].new(@app)

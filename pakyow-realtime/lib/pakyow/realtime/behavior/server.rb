@@ -24,6 +24,10 @@ module Pakyow
             )
           end
 
+          before :shutdown do
+            @websocket_server.shutdown
+          end
+
           before :fork do
             @websocket_server.disconnect
           end

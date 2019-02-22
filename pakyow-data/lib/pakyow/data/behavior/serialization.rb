@@ -12,7 +12,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          before :shutdown do
+          before :shutdown, priority: :high do
             if Pakyow.config.data.subscriptions.adapter == :memory && data
               subscriber_serializer.serialize
             end

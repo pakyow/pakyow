@@ -25,6 +25,7 @@ module Pakyow
         @sockets = Concurrent::Array.new
         @timeout_config = timeout_config
         @executor = Concurrent::ThreadPoolExecutor.new(
+          auto_terminate: false,
           min_threads: 1,
           max_threads: 10,
           max_queue: 0
@@ -34,6 +35,12 @@ module Pakyow
       rescue LoadError => e
         Pakyow.logger.error "Failed to load data subscriber store adapter named `#{adapter}'"
         Pakyow.logger.error e.message
+      end
+
+      def shutdown
+        disconnect
+        @executor.shutdown
+        @executor.wait_for_termination(30)
       end
 
       def connect

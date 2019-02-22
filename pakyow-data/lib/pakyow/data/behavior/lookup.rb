@@ -47,6 +47,10 @@ module Pakyow
               )
             )
           end
+
+          before :shutdown do
+            @data.subscribers.shutdown
+          end
         end
       end
     end
