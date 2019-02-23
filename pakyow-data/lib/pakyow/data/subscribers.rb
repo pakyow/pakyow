@@ -45,7 +45,6 @@ module Pakyow
 
       def register_subscriptions(subscriptions, subscriber: nil, &block)
         @executor << Proc.new {
-          @adapter.persist(subscriber) if @adapter.expiring?(subscriber)
           @adapter.register_subscriptions(subscriptions, subscriber: subscriber).tap do |ids|
             yield ids if block_given?
           end

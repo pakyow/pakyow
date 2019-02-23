@@ -43,13 +43,7 @@ module Pakyow
             @prefix = [config[:key_prefix], KEY_PREFIX].join(KEY_PART_SEPARATOR)
 
             Concurrent::TimerTask.new(execution_interval: 300, timeout_interval: 300) {
-              @redis.with do |redis|
-                redis.scan_each(match: key_subscription_ids_by_source("*")) do |key|
-                  Pakyow.logger.debug "[Pakyow::Data::Subscribers::Adapters::Redis] Cleaning up expired subscriptions for #{key}"
-                  removed_count = redis.zremrangebyscore(key, 0, Time.now.to_i)
-                  Pakyow.logger.debug "[Pakyow::Data::Subscribers::Adapters::Redis] Removed #{removed_count} members for #{key}"
-                end
-              end
+              cleanup
             }.execute
           end
 
@@ -78,6 +72,14 @@ module Pakyow
                     transaction.set(key_source_for_subscription_id(subscription_id), source)
 
                     subscription_ids << subscription_id
+                  end
+                end
+
+                # Set the new subscriptions to expire at the same time as an expiring subscriber.
+                #
+                if subscriber && (subscriber_ttl = redis.ttl(key_subscription_ids_by_subscriber(subscriber))) > -1
+                  subscription_ids.each do |subscription_id|
+                    expire_subscription(subscription_id, subscriber_ttl)
                   end
                 end
               end
@@ -118,22 +120,8 @@ module Pakyow
 
                 # this means that if a subscriber is added to the subscription, the following block will not be executed
                 redis.watch(key_subscribers_for_subscription_id) do
-                  non_expire_count = redis.zcount(key_subscribers_for_subscription_id, INFINITY, INFINITY)
-
-                  if non_expire_count == 0
-                    source = redis.get(key_source_for_subscription_id(subscription_id))
-
-                    last_time_expire = redis.zrevrangebyscore(
-                      key_subscribers_for_subscription_id, INFINITY, 0, with_scores: true, limit: [0, 1]
-                    )[0][1].to_i
-
-                    redis.multi do |transaction|
-                      transaction.zadd(key_subscription_ids_by_source(source), last_time_expire, subscription_id)
-
-                      transaction.expireat(key_source_for_subscription_id(subscription_id), last_time_expire + 1)
-                      transaction.expireat(key_subscribers_by_subscription_id(subscription_id), last_time_expire + 1)
-                      transaction.expireat(key_subscription_id(subscription_id), last_time_expire + 1)
-                    end
+                  if redis.zcount(key_subscribers_for_subscription_id, INFINITY, INFINITY) == 0
+                    expire_subscription(subscription_id)
                   end
                 end
               end
@@ -199,7 +187,37 @@ module Pakyow
             end
           end
 
+          def cleanup
+            @redis.with do |redis|
+              redis.scan_each(match: key_subscription_ids_by_source("*")) do |key|
+                Pakyow.logger.debug "[Pakyow::Data::Subscribers::Adapters::Redis] Cleaning up expired subscriptions for #{key}"
+                removed_count = redis.zremrangebyscore(key, 0, Time.now.to_i)
+                Pakyow.logger.debug "[Pakyow::Data::Subscribers::Adapters::Redis] Removed #{removed_count} members for #{key}"
+              end
+            end
+          end
+
           private
+
+          def expire_subscription(subscription_id, last_time_expire = nil)
+            @redis.with do |redis|
+              source = redis.get(key_source_for_subscription_id(subscription_id))
+
+              last_time_expire ||= redis.zrevrangebyscore(
+                key_subscribers_by_subscription_id(subscription_id), INFINITY, 0, with_scores: true, limit: [0, 1]
+              )[0][1].to_i
+
+              unless last_time_expire.infinite?
+                redis.multi do |transaction|
+                  transaction.zadd(key_subscription_ids_by_source(source), last_time_expire, subscription_id)
+
+                  transaction.expireat(key_source_for_subscription_id(subscription_id), last_time_expire + 1)
+                  transaction.expireat(key_subscribers_by_subscription_id(subscription_id), last_time_expire + 1)
+                  transaction.expireat(key_subscription_id(subscription_id), last_time_expire + 1)
+                end
+              end
+            end
+          end
 
           def subscription_ids_for_subscriber(subscriber)
             @redis.with do |redis|
