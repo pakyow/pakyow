@@ -38,9 +38,9 @@ RSpec.describe "using data subscriptions with the redis adapter" do
       keys_initial = keys
       subscribers.register_subscriptions([{ foo: "bar", source: "tests" }], subscriber: :baz)
       expect((keys - keys_initial).count).to eq(5)
-      subscribers.expire(:baz, 1)
+      subscribers.expire(:baz, 3)
 
-      sleep 2
+      sleep 5
 
       subscribers.adapter.cleanup
       expect(keys.length).to eq(0)
@@ -50,11 +50,11 @@ RSpec.describe "using data subscriptions with the redis adapter" do
       it "cleans up the subscription when the subscriber expires" do
         keys_initial = keys
         subscribers.register_subscriptions([{ foo: "bar", source: "tests" }], subscriber: :baz)
-        subscribers.expire(:baz, 1)
+        subscribers.expire(:baz, 3)
         subscribers.register_subscriptions([{ baz: "baz", source: "tests" }], subscriber: :baz)
-        expect((keys - keys_initial).count).to eq(5)
+        expect((keys - keys_initial).count).to eq(8)
 
-        sleep 2
+        sleep 5
 
         subscribers.adapter.cleanup
         expect(keys.length).to eq(0)

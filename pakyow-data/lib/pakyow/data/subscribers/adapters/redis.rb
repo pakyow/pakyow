@@ -28,6 +28,7 @@ module Pakyow
             end
           end
 
+          SCRIPTS = %i(register expire persist).freeze
           KEY_PART_SEPARATOR = "/"
           KEY_PREFIX = "data"
           INFINITY = "+inf"
@@ -42,46 +43,34 @@ module Pakyow
 
             @prefix = [config[:key_prefix], KEY_PREFIX].join(KEY_PART_SEPARATOR)
 
+            @scripts = {}
+            load_scripts
+
             Concurrent::TimerTask.new(execution_interval: 300, timeout_interval: 300) {
               cleanup
             }.execute
           end
 
-          def register_subscriptions(subscriptions, subscriber: nil)
+          def register_subscriptions(subscriptions, subscriber:)
             [].tap do |subscription_ids|
-              @redis.with do |redis|
-                redis.multi do |transaction|
-                  subscriptions.each do |subscription|
-                    subscription_string = self.class.stringify_subscription(subscription)
-                    subscription_id = self.class.generate_subscription_id(subscription_string)
-                    source = subscription[:source]
+              subscriptions.each do |subscription|
+                subscription_string = self.class.stringify_subscription(subscription)
+                subscription_id = self.class.generate_subscription_id(subscription_string)
+                source = subscription[:source]
 
-                    # store the subscription
-                    transaction.set(key_subscription_id(subscription_id), subscription_string)
-
-                    # add the subscription to the subscriber's set
-                    transaction.zadd(key_subscription_ids_by_subscriber(subscriber), INFINITY, subscription_id)
-
-                    # add the subscriber to the subscription's set
-                    transaction.zadd(key_subscribers_by_subscription_id(subscription_id), INFINITY, subscriber)
-
-                    # add the subscription to the source's set
-                    transaction.zadd(key_subscription_ids_by_source(source), INFINITY, subscription_id)
-
-                    # define what source the subscription is for
-                    transaction.set(key_source_for_subscription_id(subscription_id), source)
-
-                    subscription_ids << subscription_id
-                  end
+                @redis.with do |redis|
+                  redis.evalsha(@scripts[:register], argv: [
+                    @prefix,
+                    KEY_PART_SEPARATOR,
+                    subscriber.to_s,
+                    subscription_id,
+                    subscription_string,
+                    source.to_s,
+                    Time.now.to_i
+                  ])
                 end
 
-                # Set the new subscriptions to expire at the same time as an expiring subscriber.
-                #
-                if subscriber && (subscriber_ttl = redis.ttl(key_subscription_ids_by_subscriber(subscriber))) > -1
-                  subscription_ids.each do |subscription_id|
-                    expire_subscription(subscription_id, subscriber_ttl)
-                  end
-                end
+                subscription_ids << subscription_id
               end
             end
           end
@@ -95,69 +84,23 @@ module Pakyow
           end
 
           def expire(subscriber, seconds)
-            time_expire = Time.now.to_i + seconds
-
-            subscription_ids = subscription_ids_for_subscriber(subscriber)
-
-            expire_subscriber_on_these_keys = subscription_ids.map { |subscription_id|
-              key_subscribers_by_subscription_id(subscription_id)
-            }
-
-            # expire the subscriber
             @redis.with do |redis|
-              redis.multi do |transaction|
-                expire_subscriber_on_these_keys.each do |key|
-                  transaction.zadd(key, time_expire, subscriber)
-                end
-
-                transaction.expireat(key_subscription_ids_by_subscriber(subscriber), time_expire + 1)
-              end
-
-              # at this point the subscriber has been expired, but we haven't dealt with the subscription
-              # if all subscribers have been removed from a subscription, expire the subscription
-              subscription_ids.each do |subscription_id|
-                key_subscribers_for_subscription_id = key_subscribers_by_subscription_id(subscription_id)
-
-                # this means that if a subscriber is added to the subscription, the following block will not be executed
-                redis.watch(key_subscribers_for_subscription_id) do
-                  if redis.zcount(key_subscribers_for_subscription_id, INFINITY, INFINITY) == 0
-                    expire_subscription(subscription_id)
-                  end
-                end
-              end
+              redis.evalsha(@scripts[:expire], argv: [
+                @prefix,
+                KEY_PART_SEPARATOR,
+                subscriber.to_s,
+                Time.now.to_i + seconds
+              ])
             end
           end
 
           def persist(subscriber)
-            subscription_ids = subscription_ids_for_subscriber(subscriber)
-
-            persist_subscriber_on_these_keys = subscription_ids.map { |subscription_id|
-              key_subscribers_by_subscription_id(subscription_id)
-            }
-
             @redis.with do |redis|
-              redis.multi do |transaction|
-                persist_subscriber_on_these_keys.each do |key|
-                  transaction.zadd(key, INFINITY, subscriber)
-                end
-
-                transaction.persist(key_subscription_ids_by_subscriber(subscriber))
-              end
-
-              # at this point we've persisted the subscriber, but we haven't dealt with the subscription
-              # since the subscriber has been persisted we need to persist each subscription
-              subscription_ids.each do |subscription_id|
-                # don't setup a watch here, because persist should always win
-                source = redis.get(key_source_for_subscription_id(subscription_id))
-
-                redis.multi do |transaction|
-                  transaction.zadd(key_subscription_ids_by_source(source), INFINITY, subscription_id)
-
-                  transaction.persist(key_source_for_subscription_id(subscription_id))
-                  transaction.persist(key_subscribers_by_subscription_id(subscription_id))
-                  transaction.persist(key_subscription_id(subscription_id))
-                end
-              end
+              redis.evalsha(@scripts[:persist], argv: [
+                @prefix,
+                KEY_PART_SEPARATOR,
+                subscriber.to_s
+              ])
             end
           end
 
@@ -198,34 +141,6 @@ module Pakyow
           end
 
           private
-
-          def expire_subscription(subscription_id, last_time_expire = nil)
-            @redis.with do |redis|
-              source = redis.get(key_source_for_subscription_id(subscription_id))
-
-              last_time_expire ||= redis.zrevrangebyscore(
-                key_subscribers_by_subscription_id(subscription_id), INFINITY, 0, with_scores: true, limit: [0, 1]
-              )[0][1].to_i
-
-              unless last_time_expire.infinite?
-                redis.multi do |transaction|
-                  transaction.zadd(key_subscription_ids_by_source(source), last_time_expire, subscription_id)
-
-                  transaction.expireat(key_source_for_subscription_id(subscription_id), last_time_expire + 1)
-                  transaction.expireat(key_subscribers_by_subscription_id(subscription_id), last_time_expire + 1)
-                  transaction.expireat(key_subscription_id(subscription_id), last_time_expire + 1)
-                end
-              end
-            end
-          end
-
-          def subscription_ids_for_subscriber(subscriber)
-            @redis.with do |redis|
-              redis.zrangebyscore(
-                key_subscription_ids_by_subscriber(subscriber), INFINITY, INFINITY
-              )
-            end
-          end
 
           def subscriptions_for_subscription_ids(subscription_ids)
             return [] if subscription_ids.empty?
@@ -268,6 +183,20 @@ module Pakyow
 
           def key_source_for_subscription_id(subscription_id)
             build_key("subscription:#{subscription_id}", "source")
+          end
+
+          def load_scripts
+            @redis.with do |redis|
+              SCRIPTS.each do |script|
+                script_content = File.read(
+                  File.expand_path("../redis/scripts/_shared.lua", __FILE__)
+                ) + File.read(
+                  File.expand_path("../redis/scripts/#{script}.lua", __FILE__)
+                )
+
+                @scripts[script] = redis.script(:load, script_content)
+              end
+            end
           end
         end
       end

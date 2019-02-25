@@ -12,16 +12,16 @@ require_relative "shared_examples/subscribe_many"
 require_relative "shared_examples/unsubscribe"
 
 RSpec.shared_examples "data subscriptions" do
-  include_examples :subscription_expire
-  include_examples :subscription_handler
-  include_examples :subscription_persist
-  include_examples :subscription_subscribe
-  include_examples :subscription_subscribe_associated
-  include_examples :subscription_subscribe_associated_conditional
-  include_examples :subscription_subscribe_command
-  include_examples :subscription_subscribe_conditional
-  include_examples :subscription_subscribe_deeply_associated
-  include_examples :subscription_subscribe_ephemeral
-  include_examples :subscription_subscribe_many
-  include_examples :subscription_unsubscribe
+  it_behaves_like :subscription_expire
+  it_behaves_like :subscription_handler
+  it_behaves_like :subscription_persist
+  it_behaves_like :subscription_subscribe
+  it_behaves_like :subscription_subscribe_associated
+  it_behaves_like :subscription_subscribe_associated_conditional
+  it_behaves_like :subscription_subscribe_command
+  it_behaves_like :subscription_subscribe_conditional
+  it_behaves_like :subscription_subscribe_deeply_associated
+  it_behaves_like :subscription_subscribe_ephemeral
+  it_behaves_like :subscription_subscribe_many
+  it_behaves_like :subscription_unsubscribe
 end

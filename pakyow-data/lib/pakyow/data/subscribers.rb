@@ -51,18 +51,24 @@ module Pakyow
         }
       end
 
-      def did_mutate(source_name, changed_values, result_source)
+      def did_mutate(source_name, changed_values = nil, result_source = nil)
         @executor << Proc.new {
           begin
             @adapter.subscriptions_for_source(source_name).select { |subscription|
               subscription[:handler] && if subscription[:ephemeral]
                                           result_source.qualifications == subscription[:qualifications]
                                         else
+                                          original_results = if result_source
+                                            result_source.original_results
+                                          else
+                                            []
+                                          end
+
                                           qualified?(
                                             subscription.delete(:qualifications).to_a,
                                             changed_values,
                                             result_source.to_a,
-                                            result_source.original_results || []
+                                            original_results.to_a
                                           )
                                         end
             }.uniq.each do |subscription|
