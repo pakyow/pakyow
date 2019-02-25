@@ -130,6 +130,10 @@ module Pakyow
             end
           end
 
+          # FIXME: Refactor this into a lua script. We'll want to stop using SCAN and instead store
+          # known sources in a set. Cleanup should then be based off the set of known sources and
+          # return the number of values that were removed.
+          #
           def cleanup
             @redis.with do |redis|
               redis.scan_each(match: key_subscription_ids_by_source("*")) do |key|
