@@ -83,10 +83,6 @@ RSpec.describe Pakyow::Error do
           wrapped = described_class.build(error)
         end
 
-        path = Pathname.new(__FILE__).relative_path_from(
-          Pathname.new(Pakyow.config.root)
-        )
-
         expect(wrapped.details).to eq(
           <<~MESSAGE
             `RuntimeError' occurred outside of your project, within the `core' framework.
@@ -100,21 +96,17 @@ RSpec.describe Pakyow::Error do
         allow_any_instance_of(Pakyow::Error).to receive(:project?).and_return(false)
       end
 
-      it "says that the error occurred within the gem" do
+      it "says that the error occurred within ruby" do
         begin
-          require "json"
-          JSON.parse("{;")
+          require "cgi"
+          CGI.parse(nil)
         rescue => error
           wrapped = described_class.build(error)
         end
 
-        path = Pathname.new(__FILE__).relative_path_from(
-          Pathname.new(Pakyow.config.root)
-        )
-
         expect(wrapped.details).to eq(
           <<~MESSAGE
-            `JSON::ParserError' occurred outside of your project, somewhere within ruby itself.
+            `NoMethodError' occurred outside of your project, somewhere within ruby itself.
           MESSAGE
         )
       end
@@ -136,9 +128,29 @@ RSpec.describe Pakyow::Error do
           wrapped = described_class.build(error)
         end
 
-        path = Pathname.new(__FILE__).relative_path_from(
-          Pathname.new(Pakyow.config.root)
+        expect(wrapped.details).to eq(
+          <<~MESSAGE
+            `RuntimeError' occurred outside of your project, within the `puma' gem.
+          MESSAGE
         )
+      end
+    end
+
+    context "error occurred within a bundled gem" do
+      before do
+        allow_any_instance_of(Pakyow::Error).to receive(:project?).and_return(false)
+      end
+
+      it "says that the error occurred within the gem" do
+        begin
+          fail "something went wrong"
+        rescue => error
+          expect(error).to receive(:backtrace_locations).and_return(
+            [double(:backtrace_location, absolute_path: File.join(Bundler.bundle_path, "gems/puma-3.12.0"))]
+          )
+
+          wrapped = described_class.build(error)
+        end
 
         expect(wrapped.details).to eq(
           <<~MESSAGE
@@ -291,7 +303,7 @@ RSpec.describe Pakyow::Error do
         Pathname.new(Pakyow.config.root)
       )
 
-      expect(error.condensed_backtrace[1]).to eq("         › #{path}:267:in `bar`")
+      expect(error.condensed_backtrace[1]).to eq("         › #{path}:279:in `bar`")
     end
 
     context "error occurred within the project" do
