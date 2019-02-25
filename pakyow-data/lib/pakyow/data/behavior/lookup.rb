@@ -49,7 +49,9 @@ module Pakyow
           end
 
           before :shutdown do
-            @data.subscribers.shutdown
+            if instance_variable_defined?(:@data)
+              @data.subscribers.shutdown
+            end
           end
         end
       end

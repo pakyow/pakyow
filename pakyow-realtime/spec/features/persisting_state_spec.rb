@@ -75,4 +75,23 @@ RSpec.describe "persisting state on shutdown" do
       setup_and_run
     end
   end
+
+  context "app failed to boot, so websocket server is nil" do
+    before do
+      setup_and_run
+
+      allow(Pakyow::Support::Serializer).to receive(:new).with(
+        Pakyow.apps.first.websocket_server.adapter,
+        name: "test-realtime", path: cached_state_path
+      ).and_call_original
+
+      Pakyow.apps[0].remove_instance_variable(:@websocket_server)
+    end
+
+    it "does not try to shut down" do
+      expect {
+        Pakyow.apps[0].shutdown
+      }.not_to raise_error
+    end
+  end
 end

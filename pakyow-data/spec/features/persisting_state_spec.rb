@@ -75,4 +75,17 @@ RSpec.describe "persisting state on shutdown" do
       setup_and_run
     end
   end
+
+  context "app failed to boot, so data lookup is nil" do
+    before do
+      setup_and_run
+      Pakyow.apps[0].remove_instance_variable(:@data)
+    end
+
+    it "does not try to shut down" do
+      expect {
+        Pakyow.apps[0].shutdown
+      }.not_to raise_error
+    end
+  end
 end

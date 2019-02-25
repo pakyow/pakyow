@@ -25,7 +25,9 @@ module Pakyow
           end
 
           before :shutdown do
-            @websocket_server.shutdown
+            if instance_variable_defined?(:@websocket_server)
+              @websocket_server.shutdown
+            end
           end
 
           before :fork do
