@@ -151,9 +151,9 @@ module Pakyow
           if line.start_with?(Pakyow.config.root)
             "› ".rjust(padded_length) + modified_line
           elsif modified_line.start_with?("ruby")
-            "ruby | ".rjust(padded_length) + modified_line.split("/", 3)[2]
+            "ruby | ".rjust(padded_length) + modified_line.split("/", 3)[2].to_s
           else
-            "#{library_name(line).to_s.gsub(/^pakyow-/, "")} | ".rjust(padded_length) + modified_line.split("/", 2)[1]
+            "#{library_name(line).to_s.gsub(/^pakyow-/, "")} | ".rjust(padded_length) + modified_line.split("/", 2)[1].to_s
           end
         }
       end
@@ -237,26 +237,12 @@ module Pakyow
       end
 
       def to_s
-        message = <<~MESSAGE
-          #{Support::CLI.style.white.on_red.bold(header)}
-
-
-            #{self.class.indent(Support::CLI.style.red("›") + Support::CLI.style.bright_black(" #{self.class.format(@error.message)}"))}
-        MESSAGE
-
-        if @error.respond_to?(:contextual_message)
-          message = <<~MESSAGE
-            #{message}
-            #{Support::CLI.style.bright_black(self.class.indent(self.class.format(@error.contextual_message)))}
-          MESSAGE
-        end
-
         <<~MESSAGE
-          #{message.rstrip}
+          #{message}
 
           #{Support::CLI.style.black.on_white.bold(" DETAILS                                                                        ")}
 
-          #{Support::CLI.style.bright_black(self.class.indent(self.class.format(@error.details)))}
+          #{details}
 
           #{Support::CLI.style.black.on_white.bold(" BACKTRACE                                                                      ")}
 
@@ -276,11 +262,35 @@ module Pakyow
         "#{start}#{" " * (80 - (start.length + finish.length + 2))} #{finish} "
       end
 
-      private
+      def message
+        message = Support::CLI.style.white.on_red.bold(header)
+        message_lines = @error.message.split("\n")
+        if message_lines.any?
+          message << "\n\n#{self.class.indent(Support::CLI.style.red("›") + Support::CLI.style.bright_black(" #{self.class.format(message_lines.shift)}"))}\n"
+          message_lines.each do |line|
+            message << Support::CLI.style.bright_black("\n#{line}")
+          end
+        end
+
+        if @error.respond_to?(:contextual_message)
+          message = <<~MESSAGE
+            #{message}
+            #{Support::CLI.style.bright_black(self.class.indent(self.class.format(@error.contextual_message)))}
+          MESSAGE
+        end
+
+        message.rstrip
+      end
+
+      def details
+        Support::CLI.style.bright_black(self.class.indent(self.class.format(@error.details)))
+      end
 
       def backtrace
         @error.condensed_backtrace.map(&:to_s).join("\n")
       end
+
+      private
 
       class << self
         # @api private
