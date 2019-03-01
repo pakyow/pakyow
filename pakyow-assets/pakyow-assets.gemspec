@@ -26,6 +26,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "execjs", "~> 2.7"
   spec.add_dependency "http", "~> 4.0"
+  spec.add_dependency "mini_racer", "~> 0.2.4"
   spec.add_dependency "sassc", "~> 2.0"
   spec.add_dependency "source_map", "~> 3.0"
   spec.add_dependency "uglifier", "~> 4.1"
