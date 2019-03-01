@@ -8,8 +8,12 @@ RSpec.describe Pakyow::Assets::Babel do
       {}
     end
 
+    before do
+      described_class.send(:context)
+    end
+
     it "calls Babel.transform with content and options" do
-      expect_any_instance_of(ExecJS::ExternalRuntime::Context).to receive(:call).with(
+      expect(described_class.context).to receive(:call).with(
         "Babel.transform", content, options
       )
 
@@ -17,7 +21,7 @@ RSpec.describe Pakyow::Assets::Babel do
     end
 
     it "returns the transformed content" do
-      allow_any_instance_of(ExecJS::ExternalRuntime::Context).to receive(:call).and_return("transpiled")
+      allow(described_class.context).to receive(:call).and_return("transpiled")
       expect(described_class.transform(content, **options)).to eq("transpiled")
     end
 
@@ -29,7 +33,7 @@ RSpec.describe Pakyow::Assets::Babel do
     end
 
     it "camelizes option keys" do
-      expect_any_instance_of(ExecJS::ExternalRuntime::Context).to receive(:call).with(
+      expect(described_class.context).to receive(:call).with(
         "Babel.transform", content, { "fooBar" => "baz" }
       )
 
