@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require "uglifier"
-
 require "pakyow/assets/asset"
 require "pakyow/assets/babel"
+
+require "uglifier"
 
 module Pakyow
   module Assets
