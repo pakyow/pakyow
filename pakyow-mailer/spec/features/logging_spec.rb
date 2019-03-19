@@ -25,16 +25,26 @@ RSpec.describe "logging outgoing mail" do
       end
     end
 
+    let :logger_io do
+      StringIO.new
+    end
+
     it "logs" do
-      expect_any_instance_of(Pakyow::RequestLogger).to receive(:debug).with <<~LOG
-      ┌──────────────────────────────────────────────────────────────────────────────┐
-      │ Subject: logtest                                                             │
-      ├──────────────────────────────────────────────────────────────────────────────┤
-      │ test mail                                                                    │
-      ├──────────────────────────────────────────────────────────────────────────────┤
-      │ → bryan@bryanp.org                                                           │
-      └──────────────────────────────────────────────────────────────────────────────┘
-      LOG
+      allow_any_instance_of(Pakyow::Logger).to receive(:debug) do |logger, message|
+        if logger.type == :http
+          expect(message).to eq(
+            <<~LOG
+              ┌──────────────────────────────────────────────────────────────────────────────┐
+              │ Subject: logtest                                                             │
+              ├──────────────────────────────────────────────────────────────────────────────┤
+              │ test mail                                                                    │
+              ├──────────────────────────────────────────────────────────────────────────────┤
+              │ → bryan@bryanp.org                                                           │
+              └──────────────────────────────────────────────────────────────────────────────┘
+            LOG
+          )
+        end
+      end
 
       expect(call("/mail/send/bryan@bryanp__org/logtest")[0]).to eq(200)
     end
@@ -65,7 +75,12 @@ RSpec.describe "logging outgoing mail" do
     end
 
     it "does not log" do
-      expect_any_instance_of(Pakyow::RequestLogger).not_to receive(:debug)
+      allow_any_instance_of(Pakyow::Logger).to receive(:debug) do |logger, message|
+        if logger.type == :http
+          fail "did not expect to log"
+        end
+      end
+
       expect(call("/mail/send/bryan@bryanp__org/logtest")[0]).to eq(200)
     end
   end
