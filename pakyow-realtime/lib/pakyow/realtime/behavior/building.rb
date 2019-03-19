@@ -10,15 +10,11 @@ module Pakyow
       module Building
         extend Support::Extension
 
-        prepend_methods do
-          def build_view(templates_path)
-            super.tap do |view|
-              if head = view.object.find_first_significant_node(:head)
-                head.append(
-                  <<~HTML
-                    <meta name="pw-socket" ui="socket" config="{{pw-socket-config}}">
-                  HTML
-                )
+        apply_extension do
+          before :initialize do
+            isolated(:ViewBuilder).action :embed_websocket, after: :embed_authenticity do |state|
+              if head = state.view.object.find_first_significant_node(:head)
+                head.append("<meta name=\"pw-socket\" ui=\"socket\">")
               end
             end
           end

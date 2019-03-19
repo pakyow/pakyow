@@ -2,7 +2,6 @@
 
 require "pakyow/presenter/rendering/base_renderer"
 
-require "pakyow/presenter/rendering/actions/create_template_nodes"
 require "pakyow/presenter/rendering/actions/place_in_mode"
 require "pakyow/presenter/rendering/actions/install_endpoints"
 require "pakyow/presenter/rendering/actions/setup_forms"
@@ -95,7 +94,7 @@ module Pakyow
       end
 
       action :install_endpoints, Actions::InstallEndpoints, before: :dispatch
-      action :setup_form_objects, Actions::SetupForms, before: :dispatch
+      action :setup_form_objects, Actions::SetupForms, after: :dispatch
 
       attr_reader :mode, :name, :component_path, :templates_path, :renders
 

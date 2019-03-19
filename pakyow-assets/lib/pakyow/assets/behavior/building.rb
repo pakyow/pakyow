@@ -8,11 +8,11 @@ module Pakyow
       module Building
         extend Support::Extension
 
-        prepend_methods do
-          def build_view(templates_path)
-            super.tap do |view|
-              if head = view.head
-                packs(view).each do |pack|
+        apply_extension do
+          before :initialize do
+            isolated(:ViewBuilder).action :embed_assets do |state|
+              if head = state.view.head
+                state.app.packs(state.view).each do |pack|
                   if pack.javascripts?
                     head.object.append_html("<script src=\"#{pack.public_path}.js\"></script>\n")
                   end

@@ -8,12 +8,13 @@ require "pakyow/realtime/helpers/socket"
 
 require "pakyow/realtime/behavior/config"
 require "pakyow/realtime/behavior/building"
-require "pakyow/realtime/behavior/rendering"
 require "pakyow/realtime/behavior/serialization"
 require "pakyow/realtime/behavior/server"
 require "pakyow/realtime/behavior/silencing"
 
 require "pakyow/realtime/actions/upgrader"
+
+require "pakyow/realtime/rendering/actions/install_websocket"
 
 module Pakyow
   module Realtime
@@ -35,7 +36,7 @@ module Pakyow
           include Behavior::Serialization
 
           isolated :ViewRenderer do
-            include Behavior::Rendering
+            action Rendering::Actions::InstallWebsocket
           end
 
           isolated :Connection do

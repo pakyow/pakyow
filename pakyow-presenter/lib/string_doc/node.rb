@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "pakyow/support/deep_dup"
 require "pakyow/support/inspectable"
 
 class StringDoc
@@ -38,6 +39,8 @@ class StringDoc
     include Pakyow::Support::Inspectable
     inspectable :@attributes, :@children, :@significance, :@labels
 
+    using Pakyow::Support::DeepDup
+
     def initialize(tag_open_start = "", attributes = Attributes.new, tag_open_end = "", children = StringDoc.empty, tag_close = "", parent: nil, significance: [], labels: {})
       @tag_open_start, @attributes, @tag_open_end, @children, @tag_close = tag_open_start, attributes, tag_open_end, children, tag_close
       @parent, @labels, @significance = parent, labels, significance
@@ -47,7 +50,7 @@ class StringDoc
     def initialize_copy(_)
       super
 
-      @labels = @labels.dup
+      @labels = @labels.deep_dup
       @significance = @significance.dup
       @attributes = @attributes.dup
       @children = @children.dup

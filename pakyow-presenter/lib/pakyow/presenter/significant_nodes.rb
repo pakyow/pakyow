@@ -21,6 +21,8 @@ module Pakyow
     # @api private
     HEAD_TAG = "head".freeze
     # @api private
+    META_TAG = "meta".freeze
+    # @api private
     HTML_TAG = "html".freeze
     # @api private
     SCRIPT_TAG = "script".freeze
@@ -226,6 +228,15 @@ module Pakyow
 
       def self.significant?(node)
         node.is_a?(Oga::XML::Element) && node.name == HEAD_TAG
+      end
+    end
+
+    # @api private
+    class MetaNode < SignificantNode
+      StringDoc.significant :meta, self
+
+      def self.significant?(node)
+        node.is_a?(Oga::XML::Element) && node.name == META_TAG
       end
     end
 

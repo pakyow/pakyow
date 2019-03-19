@@ -39,10 +39,7 @@ module Pakyow
           include Behavior::Watching
           include Behavior::Prelaunching
           include Behavior::Processing
-
-          after :load, priority: :low do
-            singleton_class.include Behavior::Building
-          end
+          include Behavior::Building
         end
       end
     end

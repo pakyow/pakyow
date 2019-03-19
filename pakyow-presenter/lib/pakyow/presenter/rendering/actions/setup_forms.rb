@@ -6,15 +6,7 @@ module Pakyow
       # @api private
       class SetupForms
         def call(renderer)
-          forms = forms(renderer)
-
-          forms.each do |form|
-            init_form_metadata(form)
-          end
-
-          yield
-
-          forms.each do |form|
+          forms(renderer).each do |form|
             unless form.view.labeled?(:__form_setup)
               if object = object_for_form(form, renderer)
                 setup_form_for_exposed_object(form, object)
@@ -55,12 +47,6 @@ module Pakyow
             end
 
             forms.concat(renderer.presenter.forms)
-          end
-        end
-
-        def init_form_metadata(form)
-          unless form.view.labeled?(:metadata)
-            form.view.object.set_label(:metadata, {})
           end
         end
 

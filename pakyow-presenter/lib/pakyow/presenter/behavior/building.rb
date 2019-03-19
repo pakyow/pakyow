@@ -6,6 +6,7 @@ require "pakyow/support/extension"
 
 require "pakyow/presenter/errors"
 require "pakyow/presenter/templates"
+require "pakyow/presenter/view_builder/state"
 
 module Pakyow
   module Presenter
@@ -19,20 +20,7 @@ module Pakyow
 
           after :initialize do
             @built_views = {}
-          end
-        end
-
-        prepend_methods do
-          def build_view(templates_path)
-            super.tap do |view|
-              if config.presenter.embed_authenticity_token && head = view.object.find_first_significant_node(:head)
-                # embed the authenticity token
-                head.append_html("<meta name=\"pw-authenticity-token\" content=\"{{pw-authenticity-token}}\">\n")
-
-                # embed the parameter name the token should be submitted as
-                head.append_html("<meta name=\"pw-authenticity-param\" content=\"{{pw-authenticity-param}}\">\n")
-              end
-            end
+            @view_builder = isolated(:ViewBuilder).new
           end
         end
 
@@ -83,9 +71,17 @@ module Pakyow
           end
 
           info = info.deep_dup
-          info[:layout].build(info[:page]).tap do |view|
-            view.mixin(info[:partials])
-          end
+
+          state = ViewBuilder::State.new(
+            app: self,
+            view: info[:layout].build(info[:page]).tap { |view|
+              view.mixin(info[:partials])
+            }
+          )
+
+          @view_builder.call(state)
+
+          state.view
         end
 
         UNRETAINED_SIGNIFICANCE = %i(container partial template).freeze

@@ -8,15 +8,10 @@ module Pakyow
   module Presenter
     class BaseRenderer
       extend Support::ClassState
-      class_state :__post_processors, default: []
 
       class << self
         def restore(connection, serialized)
           new(connection, **serialized)
-        end
-
-        def post_process(&block)
-          @__post_processors << block
         end
       end
 
@@ -47,19 +42,11 @@ module Pakyow
       end
 
       def to_html(clean_bindings: true, clean_versions: true)
-        post_process(@presenter.to_html(clean_bindings: clean_bindings, clean_versions: clean_versions))
+        @presenter.to_html(clean_bindings: clean_bindings, clean_versions: clean_versions)
       end
       alias to_s to_html
 
       private
-
-      def post_process(html)
-        self.class.__post_processors.each do |post_processor|
-          html = instance_exec(html, &post_processor)
-        end
-
-        html
-      end
 
       def dispatch
         performing :render do
