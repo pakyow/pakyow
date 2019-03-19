@@ -14,7 +14,7 @@ RSpec.describe "accessing public files" do
       end
 
       it "responds with the file" do
-        expect(call("/robots.txt")[2].read).to eq("User-agent: *\nAllow: /\n")
+        expect(call("/robots.txt")[2]).to eq("User-agent: *\nAllow: /\n")
       end
     end
 

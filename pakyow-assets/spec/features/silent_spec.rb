@@ -3,17 +3,19 @@ RSpec.describe "silencing requests" do
     StringIO.new
   end
 
-  let :logger do
-    require "pakyow/logger/formatters/human"
-    Pakyow::RequestLogger.new(:http, logger: Pakyow::Logger.new(io).tap { |logger| logger.formatter = Pakyow::Logger::Formatters::Human.new })
-  end
-
   before do
     Pakyow.silencers.clear
-    allow(Pakyow::RequestLogger).to receive(:new).and_return(logger)
   end
 
   include_context "app"
+
+  before do
+    allow(Pakyow).to receive(:global_logger).and_return(global_logger)
+  end
+
+  let :global_logger do
+    double(:global_logger, level: 2)
+  end
 
   context "request is for an asset" do
     context "silent is enabled" do
@@ -25,12 +27,11 @@ RSpec.describe "silencing requests" do
 
       it "does not log the asset request" do
         call("/assets/foo.bar")
-        expect(io.string).to be_empty
       end
 
       it "does log a non-asset request" do
+        expect(global_logger).to receive(:info).at_least(:once)
         call("/foo.bar")
-        expect(io.string).not_to be_empty
       end
     end
 
@@ -44,8 +45,8 @@ RSpec.describe "silencing requests" do
       end
 
       it "logs the asset request" do
+        expect(global_logger).to receive(:info).at_least(:once)
         call("/assets/foo.bar")
-        expect(io.string).not_to be_empty
       end
     end
   end
@@ -61,12 +62,11 @@ RSpec.describe "silencing requests" do
 
       it "does not log the public request" do
         call("/silent_spec.rb")
-        expect(io.string).to be_empty
       end
 
       it "does log a non-public request" do
+        expect(global_logger).to receive(:info).at_least(:once)
         call("/foo.bar")
-        expect(io.string).not_to be_empty
       end
     end
 
@@ -79,8 +79,8 @@ RSpec.describe "silencing requests" do
       end
 
       it "logs the public request" do
+        expect(global_logger).to receive(:info).at_least(:once)
         call("/silent_spec.rb")
-        expect(io.string).not_to be_empty
       end
     end
   end

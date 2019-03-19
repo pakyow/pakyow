@@ -14,7 +14,7 @@ RSpec.describe "setting cache headers" do
       end
 
       it "does not respond with cache headers" do
-        expect(call("/robots.txt")[1]).to eq("Content-Length" => 23, "Content-Type" => "text/plain")
+        expect(call("/robots.txt")[1]).to include("content-type" => "text/plain")
       end
     end
 
@@ -25,10 +25,10 @@ RSpec.describe "setting cache headers" do
 
       it "responds with cache headers" do
         headers = call("/assets/cache/default.css")[1]
-        expect(headers["Cache-Control"]).to eq("public, max-age=31536000")
-        expect(headers["Vary"]).to eq("Accept-Encoding")
-        expect(headers["Last-Modified"]).to_not be_nil
-        expect(headers["Age"]).to_not be_nil
+        expect(headers["cache-control"]).to eq(["public", "max-age=31536000"])
+        expect(headers["vary"]).to eq(["accept-encoding"])
+        expect(headers["last-modified"]).to_not be_nil
+        expect(headers["age"]).to_not be_nil
       end
     end
 
@@ -39,10 +39,10 @@ RSpec.describe "setting cache headers" do
 
       it "responds with cache headers" do
         headers = call("/assets/packs/test.css")[1]
-        expect(headers["Cache-Control"]).to eq("public, max-age=31536000")
-        expect(headers["Vary"]).to eq("Accept-Encoding")
-        expect(headers["Last-Modified"]).to_not be_nil
-        expect(headers["Age"]).to_not be_nil
+        expect(headers["cache-control"]).to eq(["public", "max-age=31536000"])
+        expect(headers["vary"]).to eq(["accept-encoding"])
+        expect(headers["last-modified"]).to_not be_nil
+        expect(headers["age"]).to_not be_nil
       end
     end
   end
@@ -60,7 +60,7 @@ RSpec.describe "setting cache headers" do
       end
 
       it "does not respond with cache headers" do
-        expect(call("/robots.txt")[1]).to eq("Content-Length" => 23, "Content-Type" => "text/plain")
+        expect(call("/robots.txt")[1]).to include("content-type" => "text/plain")
       end
     end
 
@@ -71,10 +71,10 @@ RSpec.describe "setting cache headers" do
 
       it "does not respond with cache headers" do
         headers = call("/assets/cache/default.css")[1]
-        expect(headers["Cache-Control"]).to be_nil
-        expect(headers["Vary"]).to be_nil
-        expect(headers["Last-Modified"]).to be_nil
-        expect(headers["Age"]).to be_nil
+        expect(headers["cache-control"]).to be_nil
+        expect(headers["vary"]).to be_nil
+        expect(headers["last-modified"]).to be_nil
+        expect(headers["age"]).to be_nil
       end
     end
 
@@ -85,10 +85,10 @@ RSpec.describe "setting cache headers" do
 
       it "does not respond with cache headers" do
         headers = call("/assets/packs/test.css")[1]
-        expect(headers["Cache-Control"]).to be_nil
-        expect(headers["Vary"]).to be_nil
-        expect(headers["Last-Modified"]).to be_nil
-        expect(headers["Age"]).to be_nil
+        expect(headers["cache-control"]).to be_nil
+        expect(headers["vary"]).to be_nil
+        expect(headers["last-modified"]).to be_nil
+        expect(headers["age"]).to be_nil
       end
     end
   end

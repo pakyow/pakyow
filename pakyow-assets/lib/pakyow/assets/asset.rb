@@ -101,7 +101,15 @@ module Pakyow
           File.join(config.prefix, @logical_path)
         )
 
-        @mime_type = MiniMime.lookup_by_filename(@public_path).type
+        @mime_type = case File.extname(@public_path)
+        when ".js"
+          # Resolves an issue with mini_mime returning `application/ecmascript`
+          #
+          "application/javascript"
+        else
+          MiniMime.lookup_by_filename(@public_path).content_type
+        end
+
         @mime_prefix, @mime_suffix = @mime_type.split("/", 2)
 
         @source_map_enabled = config.source_maps

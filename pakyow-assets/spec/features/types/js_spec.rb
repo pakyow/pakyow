@@ -8,7 +8,7 @@ RSpec.describe "js support" do
   end
 
   it "transpiles files ending with .js" do
-    expect(call("/assets/types-js.js")[2].read).to eq_sans_whitespace(
+    expect(call("/assets/types-js.js")[2]).to eq_sans_whitespace(
       <<~JS
         "use strict";
 
@@ -26,7 +26,7 @@ RSpec.describe "js support" do
   end
 
   it "does not transpile external packs" do
-    expect(call("/assets/packs/external.js")[2].read).to eq_sans_whitespace(
+    expect(call("/assets/packs/external.js")[2]).to eq_sans_whitespace(
       <<~JS
         class Rectangle {
           constructor(foo) {

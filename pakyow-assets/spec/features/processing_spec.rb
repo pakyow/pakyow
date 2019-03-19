@@ -14,11 +14,11 @@ RSpec.describe "processing an asset" do
       end
 
       it "responds with the content type" do
-        expect(call("/assets/default.css")[1]["Content-Type"]).to eq("text/css")
+        expect(call("/assets/default.css")[1]["content-type"]).to eq("text/css")
       end
 
       it "responds with the asset" do
-        expect(call("/assets/default.css")[2].read).to include("body {\n  background: purple; }\n")
+        expect(call("/assets/default.css")[2]).to include("body {\n  background: purple; }\n")
       end
     end
 
@@ -28,7 +28,7 @@ RSpec.describe "processing an asset" do
       end
 
       it "does not set the content type" do
-        expect(call("/assets/nonexistent.css")[1]["Content-Type"]).to eq(nil)
+        expect(call("/assets/nonexistent.css")[1]["content-type"]).to eq(nil)
       end
 
       it "responds with an empty body" do
@@ -50,7 +50,7 @@ RSpec.describe "processing an asset" do
       end
 
       it "does not set the content type" do
-        expect(call("/assets/default.css")[1]["Content-Type"]).to eq(nil)
+        expect(call("/assets/default.css")[1]["content-type"]).to eq(nil)
       end
 
       it "responds with an empty body" do
@@ -64,7 +64,7 @@ RSpec.describe "processing an asset" do
       end
 
       it "does not set the content type" do
-        expect(call("/assets/nonexistent.css")[1]["Content-Type"]).to eq(nil)
+        expect(call("/assets/nonexistent.css")[1]["content-type"]).to eq(nil)
       end
 
       it "responds with an empty body" do

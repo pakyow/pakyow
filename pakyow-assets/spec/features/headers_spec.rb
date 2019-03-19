@@ -7,31 +7,19 @@ RSpec.describe "response headers for assets" do
     end
   end
 
-  it "sets Content-Length" do
-    expect(call("/assets/default.css")[1]["Content-Length"]).to eq(31)
-  end
-
-  it "sets Content-Type" do
-    expect(call("/assets/default.css")[1]["Content-Type"]).to eq("text/css")
+  it "sets content-type" do
+    expect(call("/assets/default.css")[1]["content-type"]).to eq("text/css")
   end
 
   context "asset is a pack" do
-    it "sets Content-Length" do
-      expect(call("/assets/packs/versioned.js")[1]["Content-Length"]).to eq(34)
-    end
-
-    it "sets Content-Type" do
-      expect(call("/assets/packs/versioned.js")[1]["Content-Type"]).to eq("application/javascript")
+    it "sets content-type" do
+      expect(call("/assets/packs/versioned.js")[1]["content-type"]).to eq("application/javascript")
     end
   end
 
   context "asset is a public file" do
-    it "sets Content-Length" do
-      expect(call("/robots.txt")[1]["Content-Length"]).to eq(23)
-    end
-
-    it "sets Content-Type" do
-      expect(call("/robots.txt")[1]["Content-Type"]).to eq("text/plain")
+    it "sets content-type" do
+      expect(call("/robots.txt")[1]["content-type"]).to eq("text/plain")
     end
   end
 end

@@ -2,58 +2,58 @@ RSpec.describe "asset packs for views" do
   include_context "app"
 
   it "includes the layout stylesheet" do
-    expect(call("/view_packs")[2].read).to include("<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"/assets/packs/layouts/view_packs.css\">")
+    expect(call("/view_packs")[2]).to include("<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"/assets/packs/layouts/view_packs.css\">")
   end
 
   it "includes the layout javascript" do
-    expect(call("/view_packs")[2].read).to include("<script src=\"/assets/packs/layouts/view_packs.js\"></script>")
+    expect(call("/view_packs")[2]).to include("<script src=\"/assets/packs/layouts/view_packs.js\"></script>")
   end
 
   it "includes the page stylesheet" do
-    expect(call("/view_packs")[2].read).to include("<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"/assets/packs/layouts/view_packs.css\">")
+    expect(call("/view_packs")[2]).to include("<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"/assets/packs/layouts/view_packs.css\">")
   end
 
   it "includes the page javascript" do
-    expect(call("/view_packs")[2].read).to include("<script src=\"/assets/packs/pages/view_packs.js\"></script>")
+    expect(call("/view_packs")[2]).to include("<script src=\"/assets/packs/pages/view_packs.js\"></script>")
   end
 
   describe "layout stylesheet" do
     it "includes layout styles" do
-      expect(call("/assets/packs/layouts/view_packs.css")[2].read).to include("view_packs.css")
+      expect(call("/assets/packs/layouts/view_packs.css")[2]).to include("view_packs.css")
     end
   end
 
   describe "layout javascript" do
     it "includes layout javascript" do
-      expect(call("/assets/packs/layouts/view_packs.js")[2].read).to include("view_packs.js")
+      expect(call("/assets/packs/layouts/view_packs.js")[2]).to include("view_packs.js")
     end
   end
 
   describe "page stylesheet" do
     it "includes page styles" do
-      expect(call("/assets/packs/pages/view_packs.css")[2].read).to include("index.css")
+      expect(call("/assets/packs/pages/view_packs.css")[2]).to include("index.css")
     end
 
     it "includes styles for partials included by the page" do
-      expect(call("/assets/packs/pages/view_packs.css")[2].read).to include("partial.css")
+      expect(call("/assets/packs/pages/view_packs.css")[2]).to include("partial.css")
     end
 
     it "includes styles for partials included by the layout" do
-      expect(call("/assets/packs/pages/view_packs.css")[2].read).to include("foo.css")
+      expect(call("/assets/packs/pages/view_packs.css")[2]).to include("foo.css")
     end
   end
 
   describe "page javascript" do
     it "includes page javascript" do
-      expect(call("/assets/packs/pages/view_packs.js")[2].read).to include("index.js")
+      expect(call("/assets/packs/pages/view_packs.js")[2]).to include("index.js")
     end
 
     it "includes javascript for partials included by the page" do
-      expect(call("/assets/packs/pages/view_packs.js")[2].read).to include("partial.js")
+      expect(call("/assets/packs/pages/view_packs.js")[2]).to include("partial.js")
     end
 
     it "includes javascript for partials included by the layout" do
-      expect(call("/assets/packs/pages/view_packs.js")[2].read).to include("foo.js")
+      expect(call("/assets/packs/pages/view_packs.js")[2]).to include("foo.js")
     end
   end
 end
