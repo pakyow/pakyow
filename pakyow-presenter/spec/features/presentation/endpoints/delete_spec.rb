@@ -14,7 +14,7 @@ RSpec.describe "presenting a view that defines an endpoint for delete" do
   end
 
   it "wraps the node in a submittable form" do
-    expect(call("/posts/1")[2].read).to eq_sans_whitespace(
+    expect(call("/posts/1")[2]).to eq_sans_whitespace(
       <<~HTML
         <form action="/posts/1" method="post" data-ui="confirmable">
           <input type="hidden" name="_method" value="delete">

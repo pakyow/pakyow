@@ -2,7 +2,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint within a bindi
   include_context "app"
 
   it "does not set the href automatically" do
-    expect(call("/presentation/endpoints/anchor/within_binding")[2].read).to include_sans_whitespace(
+    expect(call("/presentation/endpoints/anchor/within_binding")[2]).to include_sans_whitespace(
       <<~HTML
         <div data-b="post">
           <h1 data-b="title">title</h1>
@@ -31,7 +31,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint within a bindi
     end
 
     it "sets the href" do
-      expect(call("/presentation/endpoints/anchor/within_binding")[2].read).to include_sans_whitespace(
+      expect(call("/presentation/endpoints/anchor/within_binding")[2]).to include_sans_whitespace(
         <<~HTML
           <div data-b="post">
             <h1 data-b="title">foo</h1>
@@ -44,7 +44,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint within a bindi
 
     context "endpoint is current" do
       it "receives a current class" do
-        expect(call("/posts")[2].read).to include_sans_whitespace(
+        expect(call("/posts")[2]).to include_sans_whitespace(
           <<~HTML
             <div data-b="post">
               <h1 data-b="title">foo</h1>

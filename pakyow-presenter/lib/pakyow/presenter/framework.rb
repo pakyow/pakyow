@@ -11,6 +11,7 @@ require "pakyow/presenter/behavior/building"
 require "pakyow/presenter/behavior/componentize"
 require "pakyow/presenter/behavior/config"
 require "pakyow/presenter/behavior/error_rendering"
+require "pakyow/presenter/behavior/implicit_rendering"
 require "pakyow/presenter/behavior/initializing"
 require "pakyow/presenter/behavior/watching"
 
@@ -18,8 +19,6 @@ require "pakyow/presenter/helpers/exposures"
 require "pakyow/presenter/helpers/rendering"
 
 require "pakyow/presenter/renderable"
-
-require "pakyow/presenter/pipelines/implicit_rendering"
 
 require "pakyow/presenter/rendering/component_renderer"
 require "pakyow/presenter/rendering/view_renderer"
@@ -68,7 +67,7 @@ module Pakyow
           end
 
           isolated :Controller do
-            include_pipeline Pipelines::ImplicitRendering
+            include Behavior::ImplicitRendering
 
             action :verify_form_metadata do
               if metadata = params[:_form]

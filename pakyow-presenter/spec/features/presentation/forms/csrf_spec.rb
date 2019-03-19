@@ -26,7 +26,7 @@ RSpec.describe "forms csrf" do
         response = call("/form")
         expect(response[0]).to eq(200)
 
-        response_body = response[2].read
+        response_body = response[2]
         expect(response_body).to include("input type=\"hidden\" name=\"authenticity_token\"")
 
         authenticity_client_id, authenticity_digest = response_body.match(/name=\"authenticity_token\" value=\"([^\"]+)\"/)[1].split("--")
@@ -70,7 +70,7 @@ RSpec.describe "forms csrf" do
         response = call("/form")
         expect(response[0]).to eq(200)
 
-        response_body = response[2].read
+        response_body = response[2]
         expect(response_body).to include("input type=\"hidden\" name=\"authenticity_token\"")
 
         authenticity_client_id, authenticity_digest = response_body.match(/name=\"authenticity_token\" value=\"([^\"]+)\"/)[1].split("--")
@@ -105,7 +105,7 @@ RSpec.describe "forms csrf" do
       response = call("/form")
       expect(response[0]).to eq(200)
 
-      response_body = response[2].read
+      response_body = response[2]
       expect(response_body).not_to include("input type=\"hidden\" name=\"authenticity_token\"")
     end
   end

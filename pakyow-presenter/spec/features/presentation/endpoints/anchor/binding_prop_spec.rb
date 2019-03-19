@@ -2,7 +2,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
   include_context "app"
 
   it "does not set the href automatically" do
-    expect(call("/presentation/endpoints/anchor/binding_prop")[2].read).to include_sans_whitespace(
+    expect(call("/presentation/endpoints/anchor/binding_prop")[2]).to include_sans_whitespace(
       <<~HTML
         <div data-b="post">
           <a data-b="title" data-e="posts_list">title</a>
@@ -29,7 +29,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
     end
 
     it "sets the href" do
-      expect(call("/presentation/endpoints/anchor/binding_prop")[2].read).to include_sans_whitespace(
+      expect(call("/presentation/endpoints/anchor/binding_prop")[2]).to include_sans_whitespace(
         <<~HTML
           <div data-b="post">
             <a data-b="title" data-e="posts_list" href="/posts">foo</a>
@@ -40,7 +40,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
 
     context "endpoint is current" do
       it "receives a current class" do
-        expect(call("/posts")[2].read).to include_sans_whitespace(
+        expect(call("/posts")[2]).to include_sans_whitespace(
           <<~HTML
             <div data-b="post">
               <a data-b="title" data-e="posts_list" href="/posts" class="current">foo</a>
@@ -74,7 +74,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
       end
 
       it "sets the endpoint href" do
-        expect(call("/presentation/endpoints/anchor/binding_prop")[2].read).to include_sans_whitespace(
+        expect(call("/presentation/endpoints/anchor/binding_prop")[2]).to include_sans_whitespace(
           <<~HTML
             <div data-b="post">
               <a data-b="title" data-e="posts_list" href="/posts">oof</a>
@@ -113,7 +113,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
         end
 
         it "overrides the endpoint href" do
-          expect(call("/presentation/endpoints/anchor/binding_prop")[2].read).to include_sans_whitespace(
+          expect(call("/presentation/endpoints/anchor/binding_prop")[2]).to include_sans_whitespace(
           <<~HTML
             <div data-b="post">
               <a data-b="title" data-e="posts_list" href="overridden">oof</a>

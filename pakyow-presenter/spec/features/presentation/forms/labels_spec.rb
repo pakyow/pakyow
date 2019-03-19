@@ -4,7 +4,7 @@ RSpec.describe "connecting labels to fields" do
   before do
     response = call(request_path)
     expect(response[0]).to eq(200)
-    @body = response[2].read
+    @body = response[2]
   end
 
   let :request_path do

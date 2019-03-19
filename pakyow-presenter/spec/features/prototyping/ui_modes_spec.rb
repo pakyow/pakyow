@@ -6,13 +6,13 @@ RSpec.describe "prototype ui modes" do
   end
 
   it "uses the mode passed as a param" do
-    expect(call("/prototyping/ui_modes?mode=one")[2].read).to include_sans_whitespace(
+    expect(call("/prototyping/ui_modes?mode=one")[2]).to include_sans_whitespace(
       <<~HTML
         <h1>one</h1>
       HTML
     )
 
-    expect(call("/prototyping/ui_modes?mode=two")[2].read).to include_sans_whitespace(
+    expect(call("/prototyping/ui_modes?mode=two")[2]).to include_sans_whitespace(
       <<~HTML
         <h1>two</h1>
       HTML
@@ -20,7 +20,7 @@ RSpec.describe "prototype ui modes" do
   end
 
   it "adds defined modes to the prototype bar" do
-    result = call("/prototyping/ui_modes")[2].read
+    result = call("/prototyping/ui_modes")[2]
 
     expect(result).to include_sans_whitespace(
       <<~HTML
@@ -43,7 +43,7 @@ RSpec.describe "prototype ui modes" do
     end
 
     it "does not use the mode passed as a param" do
-      result = call("/prototyping/ui_modes?mode=two")[2].read
+      result = call("/prototyping/ui_modes?mode=two")[2]
 
       expect(result).not_to include_sans_whitespace(
         <<~HTML

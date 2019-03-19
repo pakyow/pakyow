@@ -6,7 +6,7 @@ RSpec.describe "prototype bar" do
   end
 
   it "renders the bar" do
-    expect(call("/prototyping/prototype_bar")[2].read).to include_sans_whitespace(
+    expect(call("/prototyping/prototype_bar")[2]).to include_sans_whitespace(
       <<~HTML
         div class="pw-prototype"
       HTML
@@ -19,7 +19,7 @@ RSpec.describe "prototype bar" do
     end
 
     it "does not render the bar" do
-      expect(call("/prototyping/prototype_bar")[2].read).not_to include_sans_whitespace(
+      expect(call("/prototyping/prototype_bar")[2]).not_to include_sans_whitespace(
         <<~HTML
           div class="pw-prototype"
         HTML
@@ -29,7 +29,7 @@ RSpec.describe "prototype bar" do
 
   context "view does not contain a body" do
     it "does not render the bar" do
-      expect(call("/prototyping/prototype_bar/no_body")[2].read).not_to include_sans_whitespace(
+      expect(call("/prototyping/prototype_bar/no_body")[2]).not_to include_sans_whitespace(
         <<~HTML
           div class="pw-prototype"
         HTML

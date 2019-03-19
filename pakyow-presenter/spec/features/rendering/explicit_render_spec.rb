@@ -15,14 +15,14 @@ RSpec.describe "explicit rendering" do
     it "renders the view" do
       response = call("/")
       expect(response[0]).to eq(200)
-      expect(response[2].read).to eq_sans_whitespace("<!DOCTYPE html>\n<html>\n  <head>\n    <title>default</title>\n  </head>\n\n  <body>\n    other\n\n  </body>\n</html>\n")
+      expect(response[2]).to eq_sans_whitespace("<!DOCTYPE html>\n<html>\n  <head>\n    <title>default</title>\n  </head>\n\n  <body>\n    other\n\n  </body>\n</html>\n")
     end
 
     context "request format is not html" do
       it "renders the view" do
-        response = call("/", "ACCEPT" => "application/json")
+        response = call("/", headers: { "accept" => "application/json" })
         expect(response[0]).to eq(200)
-        expect(response[2].read).to eq_sans_whitespace("<!DOCTYPE html>\n<html>\n  <head>\n    <title>default</title>\n  </head>\n\n  <body>\n    other\n\n  </body>\n</html>\n")
+        expect(response[2]).to eq_sans_whitespace("<!DOCTYPE html>\n<html>\n  <head>\n    <title>default</title>\n  </head>\n\n  <body>\n    other\n\n  </body>\n</html>\n")
       end
     end
   end
@@ -49,12 +49,12 @@ RSpec.describe "explicit rendering" do
     it "fails" do
       response = call("/")
       expect(response[0]).to eq(404)
-      expect(response[2].read).to include("Unknown page")
+      expect(response[2]).to include("Unknown page")
     end
 
     context "request format is not html" do
       it "returns a 404" do
-        expect(call("/", "ACCEPT" => "application/json")[0]).to eq(404)
+        expect(call("/", headers: { "accept" => "application/json" })[0]).to eq(404)
       end
     end
   end
@@ -79,7 +79,7 @@ RSpec.describe "explicit rendering" do
     it "invokes the presenter" do
       response = call("/")
       expect(response[0]).to eq(200)
-      expect(response[2].read).to eq_sans_whitespace("<!DOCTYPE html>\n<html>\n  <head>\n    <title>invoked</title>\n  </head>\n\n  <body>\n    other\n\n  </body>\n</html>\n")
+      expect(response[2]).to eq_sans_whitespace("<!DOCTYPE html>\n<html>\n  <head>\n    <title>invoked</title>\n  </head>\n\n  <body>\n    other\n\n  </body>\n</html>\n")
     end
   end
 
@@ -103,7 +103,7 @@ RSpec.describe "explicit rendering" do
     it "renders the view path and invokes the presenter" do
       response = call("/")
       expect(response[0]).to eq(200)
-      expect(response[2].read).to eq_sans_whitespace("<!DOCTYPE html>\n<html>\n  <head>\n    <title>invoked</title>\n  </head>\n\n  <body>\n    other\n\n  </body>\n</html>\n")
+      expect(response[2]).to eq_sans_whitespace("<!DOCTYPE html>\n<html>\n  <head>\n    <title>invoked</title>\n  </head>\n\n  <body>\n    other\n\n  </body>\n</html>\n")
     end
   end
 
@@ -127,7 +127,7 @@ RSpec.describe "explicit rendering" do
     it "renders the view" do
       response = call("/")
       expect(response[0]).to eq(200)
-      expect(response[2].read).to eq_sans_whitespace("<!DOCTYPE html>\n<html>\n  <head>\n    <title>invoked</title>\n  </head>\n\n  <body>\n    other\n\n  </body>\n</html>\n")
+      expect(response[2]).to eq_sans_whitespace("<!DOCTYPE html>\n<html>\n  <head>\n    <title>invoked</title>\n  </head>\n\n  <body>\n    other\n\n  </body>\n</html>\n")
     end
   end
 end

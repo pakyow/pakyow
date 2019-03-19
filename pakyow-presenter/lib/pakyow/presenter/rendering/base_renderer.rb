@@ -67,8 +67,6 @@ module Pakyow
         end
       end
 
-      # TODO: we should build this after booting and build a lookup on the app
-      #
       def find_presenter(path = nil)
         unless path.nil? || Pakyow.env?(:prototype)
           Templates.collapse_path(path) do |collapsed_path|

@@ -36,7 +36,7 @@ RSpec.describe "presenting a view that defines one or more ui mode" do
   end
 
   it "presents normally" do
-    result = call("/presentation/ui_modes")[2].read
+    result = call("/presentation/ui_modes")[2]
 
     expect(result).to include_sans_whitespace(
       <<~HTML
@@ -59,7 +59,7 @@ RSpec.describe "presenting a view that defines one or more ui mode" do
 
   context "view defines a default mode" do
     it "uses the default" do
-      result = call("/presentation/ui_modes/default")[2].read
+      result = call("/presentation/ui_modes/default")[2]
 
       expect(result).not_to include_sans_whitespace(
         <<~HTML
@@ -99,7 +99,7 @@ RSpec.describe "presenting a view that defines one or more ui mode" do
     end
 
     it "uses the mode" do
-      result = call("/")[2].read
+      result = call("/")[2]
 
       expect(result).not_to include_sans_whitespace(
         <<~HTML
@@ -123,7 +123,7 @@ RSpec.describe "presenting a view that defines one or more ui mode" do
 
   context "view defines modes not on bindings" do
     it "presents only the default nodes by default" do
-      result = call("/presentation/ui_modes/non-binding")[2].read
+      result = call("/presentation/ui_modes/non-binding")[2]
 
       expect(result).to include_sans_whitespace(
         <<~HTML
@@ -156,7 +156,7 @@ RSpec.describe "presenting a view that defines one or more ui mode" do
       end
 
       it "presents only nodes for the specified mode" do
-        result = call("/")[2].read
+        result = call("/")[2]
 
         expect(result).not_to include_sans_whitespace(
           <<~HTML

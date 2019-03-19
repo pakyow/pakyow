@@ -9,7 +9,7 @@ RSpec.describe "form metadata" do
     response = call("/form")
     expect(response[0]).to eq(200)
 
-    response_body = response[2].read
+    response_body = response[2]
     expect(response_body).to include("input type=\"hidden\" name=\"_form\"")
 
     JSON.parse(

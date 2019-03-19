@@ -21,12 +21,12 @@ RSpec.describe "telling the user about a missing view in development" do
     end
 
     it "includes instructions for creating a page" do
-      expect(call[2].read).to include("Try creating a view template for this path:")
-      expect(call[2].read).to include("frontend/pages/nonexistent.html")
+      expect(call[2]).to include("Try creating a view template for this path:")
+      expect(call[2]).to include("frontend/pages/nonexistent.html")
     end
 
     it "does not include instructions for defining an endpoint" do
-      expect(call[2].read).to_not include("If you want to call backend code instead")
+      expect(call[2]).to_not include("If you want to call backend code instead")
     end
   end
 
@@ -36,13 +36,13 @@ RSpec.describe "telling the user about a missing view in development" do
     end
 
     it "includes instructions for creating a page" do
-      expect(call("/nonexistent")[2].read).to include("Try creating a view template for this path:")
-      expect(call("/nonexistent")[2].read).to include("frontend/pages/nonexistent.html")
+      expect(call("/nonexistent")[2]).to include("Try creating a view template for this path:")
+      expect(call("/nonexistent")[2]).to include("frontend/pages/nonexistent.html")
     end
 
     it "includes instructions for defining a route" do
-      expect(call("/nonexistent")[2].read).to include("If you want to call backend code instead")
-      expect(call("/nonexistent")[2].read).to include("get &quot;/nonexistent&quot; do")
+      expect(call("/nonexistent")[2]).to include("If you want to call backend code instead")
+      expect(call("/nonexistent")[2]).to include("get &quot;/nonexistent&quot; do")
     end
   end
 end

@@ -3,7 +3,7 @@ RSpec.describe "templates embedded by presenter" do
 
   context "top-level scope" do
     it "embeds a template" do
-      expect(call("/embeds/top-level")[2].read).to eq_sans_whitespace(
+      expect(call("/embeds/top-level")[2]).to eq_sans_whitespace(
         <<~HTML
           <script type="text/template" data-b="post">
             <div data-b="post">
@@ -17,7 +17,7 @@ RSpec.describe "templates embedded by presenter" do
 
   context "nested scope" do
     it "embeds a template" do
-      expect(call("/embeds/nested")[2].read).to eq_sans_whitespace(
+      expect(call("/embeds/nested")[2]).to eq_sans_whitespace(
         <<~HTML
           <script type="text/template" data-b="post">
             <div data-b="post">
@@ -33,7 +33,7 @@ RSpec.describe "templates embedded by presenter" do
 
   context "versioned bindings" do
     it "embeds a template" do
-      expect(call("/embeds/versioned")[2].read).to eq_sans_whitespace(
+      expect(call("/embeds/versioned")[2]).to eq_sans_whitespace(
         <<~HTML
           <script type="text/template" data-b="post" data-v="default">
             <div data-b="post" data-v="default">
@@ -59,13 +59,13 @@ RSpec.describe "templates embedded by presenter" do
 
   context "form" do
     it "does not embed a template" do
-      expect(call("/embeds/form")[2].read).not_to include("script")
+      expect(call("/embeds/form")[2]).not_to include("script")
     end
   end
 
   context "scope within form" do
     it "embeds a template" do
-      expect(call("/embeds/scope-within-form")[2].read).to include_sans_whitespace(
+      expect(call("/embeds/scope-within-form")[2]).to include_sans_whitespace(
         <<~HTML
           <script type="text/template" data-b="tag" data-c="form">
             <li data-b="tag" data-c="form">
@@ -83,7 +83,7 @@ RSpec.describe "templates embedded by presenter" do
     end
 
     it "does not create embedded templates" do
-      expect(call("/embeds/top-level")[2].read).to eq_sans_whitespace(
+      expect(call("/embeds/top-level")[2]).to eq_sans_whitespace(
         <<~HTML
           <div data-b="post">
             <h1 data-b="title">title</h1>

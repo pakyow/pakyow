@@ -14,6 +14,6 @@ RSpec.describe "naming presenters in backend components" do
   end
 
   it "names the component presenter predictibly" do
-    expect(call("/components")[2].read).to include("Test::Components::Single::Presenter")
+    expect(call("/components")[2]).to include("Test::Components::Single::Presenter")
   end
 end

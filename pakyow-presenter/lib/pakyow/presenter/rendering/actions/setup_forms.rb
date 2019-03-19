@@ -19,7 +19,7 @@ module Pakyow
               if object = object_for_form(form, renderer)
                 setup_form_for_exposed_object(form, object)
               elsif form.view.labeled?(:binding)
-                case renderer.connection.env["pakyow.endpoint.name"]
+                case renderer.connection.get(:__endpoint_name)
                 when :new
                   form.create
                 when :edit

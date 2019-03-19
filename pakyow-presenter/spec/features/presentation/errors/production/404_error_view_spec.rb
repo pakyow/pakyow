@@ -7,7 +7,7 @@ RSpec.describe "404 error views in production" do
 
   it "renders the built-in 404 page by default" do
     expect(call("/missing")[0]).to eq(404)
-    expect(call("/missing")[2].read).to include("404 (Not Found)")
+    expect(call("/missing")[2]).to include("404 (Not Found)")
   end
 
   context "app defines its own 404 page" do
@@ -21,7 +21,7 @@ RSpec.describe "404 error views in production" do
 
     it "renders the app's 404 page instead of the default" do
       expect(call("/missing")[0]).to eq(404)
-      expect(call("/missing")[2].read).to include("app 404")
+      expect(call("/missing")[2]).to include("app 404")
     end
   end
 
@@ -30,7 +30,7 @@ RSpec.describe "404 error views in production" do
       Proc.new do
         handle 404 do
           $handled = true
-          res.body << "foo"
+          connection.body = StringIO.new("foo")
         end
       end
     end
@@ -40,7 +40,7 @@ RSpec.describe "404 error views in production" do
     end
 
     it "handles instead of presenter" do
-      expect(call("/missing")[2]).to eq(["foo"])
+      expect(call("/missing")[2]).to eq("foo")
       expect($handled).to eq(true)
     end
 
@@ -55,7 +55,7 @@ RSpec.describe "404 error views in production" do
 
       it "renders" do
         expect(call("/missing")[0]).to eq(404)
-        expect(call("/missing")[2].read).to include("404 (Not Found)")
+        expect(call("/missing")[2]).to include("404 (Not Found)")
       end
     end
 
@@ -74,7 +74,7 @@ RSpec.describe "404 error views in production" do
 
       it "renders" do
         expect(call("/missing")[0]).to eq(404)
-        expect(call("/missing")[2].read).to include("non standard 404")
+        expect(call("/missing")[2]).to include("non standard 404")
       end
     end
   end

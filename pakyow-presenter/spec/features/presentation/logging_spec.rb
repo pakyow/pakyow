@@ -5,19 +5,24 @@ RSpec.describe "logging within a presenter" do
     Proc.new do
       presenter "/" do
         def perform
-          logger.debug "testing"
+          $logger = logger
         end
       end
     end
   end
 
-  it "writes to the log" do
-    expect_any_instance_of(Pakyow::RequestLogger).to receive(:debug).with("testing")
+  after do
+    $logger = nil
+  end
 
-    expect(call("/")[2].read).to include_sans_whitespace(
+  it "exposes the connection logger" do
+    expect(call("/")[2]).to include_sans_whitespace(
       <<~HTML
         index
       HTML
     )
+
+    expect($logger).to be_instance_of(Pakyow::Logger)
+    expect($logger.type).to eq(:http)
   end
 end
