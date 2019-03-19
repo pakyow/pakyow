@@ -21,15 +21,15 @@ RSpec.describe "sending data" do
     end
 
     it "sends the file" do
-      expect(call[2]).to be_instance_of(File)
+      expect(call[2]).to eq("foo")
     end
 
     it "automatically sets the type" do
-      expect(call[1]["Content-Type"]).to eq("text/plain")
+      expect(call[1]["content-type"]).to eq("text/plain")
     end
 
     it "sends inline" do
-      expect(call[1]["Content-Disposition"]).to eq("inline")
+      expect(call[1]["content-disposition"]).to eq("inline")
     end
 
     context "with a type" do
@@ -44,11 +44,11 @@ RSpec.describe "sending data" do
       end
 
       it "sends with the passed type" do
-        expect(call[1]["Content-Type"]).to eq("application/force-download")
+        expect(call[1]["content-type"]).to eq("application/force-download")
       end
 
       it "sends inline" do
-        expect(call[1]["Content-Disposition"]).to eq("inline")
+        expect(call[1]["content-disposition"]).to eq("inline")
       end
     end
 
@@ -64,11 +64,11 @@ RSpec.describe "sending data" do
       end
 
       it "sends as an attachment, with the file's name" do
-        expect(call[1]["Content-Disposition"]).to eq("attachment; filename=bar.txt")
+        expect(call[1]["content-disposition"]).to eq("attachment; filename=bar.txt")
       end
 
       it "still sets the type" do
-        expect(call[1]["Content-Type"]).to eq("text/plain")
+        expect(call[1]["content-type"]).to eq("text/plain")
       end
     end
 
@@ -84,11 +84,11 @@ RSpec.describe "sending data" do
       end
 
       it "sends with the passed type" do
-        expect(call[1]["Content-Type"]).to eq("application/force-download")
+        expect(call[1]["content-type"]).to eq("application/force-download")
       end
 
       it "sends as an attachment, with the passed name" do
-        expect(call[1]["Content-Disposition"]).to eq("attachment; filename=bar.txt")
+        expect(call[1]["content-disposition"]).to eq("attachment; filename=bar.txt")
       end
     end
   end
@@ -105,15 +105,15 @@ RSpec.describe "sending data" do
     end
 
     it "sends the data" do
-      expect(call[2].read).to eq("foo")
+      expect(call[2]).to eq("foo")
     end
 
     it "sends with a default type" do
-      expect(call[1]["Content-Type"]).to eq("application/octet-stream")
+      expect(call[1]["content-type"]).to eq("application/octet-stream")
     end
 
     it "sends inline" do
-      expect(call[1]["Content-Disposition"]).to eq("inline")
+      expect(call[1]["content-disposition"]).to eq("inline")
     end
   end
 
@@ -129,15 +129,15 @@ RSpec.describe "sending data" do
     end
 
     it "sends the string" do
-      expect(call[2].read).to eq("foo")
+      expect(call[2]).to eq("foo")
     end
 
     it "does not set a content type" do
-      expect(call[1]["Content-Type"]).to eq(nil)
+      expect(call[1]["content-type"]).to eq(nil)
     end
 
     it "sends inline" do
-      expect(call[1]["Content-Disposition"]).to eq("inline")
+      expect(call[1]["content-disposition"]).to eq("inline")
     end
 
     context "and a type is specified" do
@@ -152,7 +152,7 @@ RSpec.describe "sending data" do
       end
 
       it "sends with the specified type" do
-        expect(call[1]["Content-Type"]).to eq("application/json")
+        expect(call[1]["content-type"]).to eq("application/json")
       end
     end
   end

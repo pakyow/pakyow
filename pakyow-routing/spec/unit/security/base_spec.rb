@@ -5,44 +5,83 @@ RSpec.describe Pakyow::Security::Base do
     Pakyow::Security::Base.new({})
   end
 
+  let :connection do
+    Pakyow::Connection.new(request)
+  end
+
+  let :request do
+    Async::HTTP::Protocol::Request.new(
+      "http", "localhost", request_method, "/", nil, HTTP::Protocol::Headers.new(
+        [["content-type", "text/html"]]
+      )
+    ).tap do |request|
+      request.remote_address = Addrinfo.tcp("0.0.0.0", "http")
+    end
+  end
+
+  let :request_method do
+    "GET"
+  end
+
+  before do
+    allow(Pakyow).to receive(:global_logger).and_return(double(:global_logger, level: 2, warn: nil))
+  end
+
   describe "safe methods" do
-    it "allows GET" do
-      connection = Pakyow::Connection.new(double("app"), "REQUEST_METHOD" => "GET")
-
-      instance.call(connection)
-      expect(connection.response.status).to be(200)
-      expect(connection.halted?).to be(false)
+    context "method is GET" do
+      it "allows" do
+        instance.call(connection)
+        expect(connection.status).to be(200)
+        expect(connection.halted?).to be(false)
+      end
     end
 
-    it "allows HEAD" do
-      connection = Pakyow::Connection.new(double("app"), "REQUEST_METHOD" => "HEAD")
+    context "method is HEAD" do
+      let :request_method do
+        "HEAD"
+      end
 
-      instance.call(connection)
-      expect(connection.response.status).to be(200)
-      expect(connection.halted?).to be(false)
+      it "allows" do
+        instance.call(connection)
+        expect(connection.status).to be(200)
+        expect(connection.halted?).to be(false)
+      end
     end
 
-    it "allows OPTIONS" do
-      connection = Pakyow::Connection.new(double("app"), "REQUEST_METHOD" => "OPTIONS")
+    context "method is OPTIONS" do
+      let :request_method do
+        "OPTIONS"
+      end
 
-      instance.call(connection)
-      expect(connection.response.status).to be(200)
-      expect(connection.halted?).to be(false)
+      it "allows" do
+        instance.call(connection)
+        expect(connection.status).to be(200)
+        expect(connection.halted?).to be(false)
+      end
     end
 
-    it "allows TRACE" do
-      connection = Pakyow::Connection.new(double("app"), "REQUEST_METHOD" => "TRACE")
+    context "method is TRACE" do
+      let :request_method do
+        "TRACE"
+      end
 
-      instance.call(connection)
-      expect(connection.response.status).to be(200)
-      expect(connection.halted?).to be(false)
+      it "allows" do
+        instance.call(connection)
+        expect(connection.status).to be(200)
+        expect(connection.halted?).to be(false)
+      end
     end
   end
 
   describe "unsafe methods" do
-    it "rejects POST" do
-      connection = Pakyow::Connection.new(double("app"), "REQUEST_METHOD" => "POST", "rack.input" => StringIO.new)
-      expect { instance.call(connection) }.to raise_error(Pakyow::Security::InsecureRequest)
+    context "method is POST" do
+      let :request_method do
+        "POST"
+      end
+
+      it "rejects" do
+        expect { instance.call(connection) }.to raise_error(Pakyow::Security::InsecureRequest)
+      end
     end
   end
 
@@ -53,9 +92,7 @@ RSpec.describe Pakyow::Security::Base do
     end
 
     it "logs the rejection" do
-      logger = double(:logger)
-      connection = Pakyow::Connection.new(double("app"), foo: "bar", Rack::RACK_LOGGER => logger)
-      expect(logger).to receive(:warn).with("Request rejected by Pakyow::Security::Base; env: {:foo=>\"bar\", \"rack.logger\"=>#<Double :logger>, \"rack.request.cookie_hash\"=>{}}")
+      expect(connection.logger).to receive(:warn).with("Request rejected by Pakyow::Security::Base; connection: #{connection.inspect}")
 
       begin
         instance.call(connection)
@@ -64,36 +101,21 @@ RSpec.describe Pakyow::Security::Base do
     end
 
     it "sets response status" do
-      connection = Pakyow::Connection.new(double("app"), {})
-
       begin
         instance.call(connection)
       rescue Pakyow::Security::InsecureRequest
       end
 
-      expect(connection.response.status).to be(403)
-    end
-
-    it "sets content-type header" do
-      connection = Pakyow::Connection.new(double("app"), {})
-
-      begin
-        instance.call(connection)
-      rescue Pakyow::Security::InsecureRequest
-      end
-
-      expect(connection.response["Content-Type"]).to eq("text/plain")
+      expect(connection.status).to be(403)
     end
 
     it "sets response body" do
-      connection = Pakyow::Connection.new(double("app"), {})
-
       begin
         instance.call(connection)
       rescue Pakyow::Security::InsecureRequest
       end
 
-      expect(connection.response.body).to eq(["Forbidden"])
+      expect(connection.body.read).to eq("Forbidden")
     end
   end
 

@@ -1,4 +1,9 @@
 RSpec.describe "using cookies" do
+  before do
+    Pakyow.config.cookies.path = "/"
+    Pakyow.config.cookies.expires = 7
+  end
+
   include_context "app"
 
   describe "creating a cookie" do
@@ -14,52 +19,19 @@ RSpec.describe "using cookies" do
       end
 
       it "creates the cookie" do
-        cookie = call("/set/foo")[1].fetch("Set-Cookie").split("\n")[0]
+        cookie = call("/set/foo")[1].fetch("set-cookie")[1]
         expect(cookie).to include("foo=foo;")
       end
 
       it "uses the configured path" do
-        cookie = call("/set/foo")[1].fetch("Set-Cookie").split("\n")[0]
-        expect(cookie).to include("path=#{Pakyow::App.config.cookies.path};")
+        cookie = call("/set/foo")[1].fetch("set-cookie")[1]
+        expect(cookie).to include("path=#{Pakyow.config.cookies.path};")
       end
 
-      it "uses the configured expiry" do
-        cookie = call("/set/foo")[1].fetch("Set-Cookie").split("\n")[0]
-        expiry = Time.now + Pakyow::App.config.cookies.expiry
-        expect(cookie).to include("expires=#{expiry.utc.rfc2822}")
-      end
-    end
-
-    context "using response.set_cookie" do
-      let :app_init do
-        Proc.new {
-          controller do
-            get "/set/:value" do
-              connection.response.set_cookie(
-                :foo,
-                path: "/path",
-                value: params[:value],
-                expires: Time.now + 1
-              )
-            end
-          end
-        }
-      end
-
-      it "creates the cookie with the provided value" do
-        cookie = call("/set/foo")[1].fetch("Set-Cookie").split("\n")[0]
-        expect(cookie).to include("foo=foo;")
-      end
-
-      it "uses the provided path" do
-        cookie = call("/set/foo")[1].fetch("Set-Cookie").split("\n")[0]
-        expect(cookie).to include("path=/path;")
-      end
-
-      it "uses the provided expiry" do
-        cookie = call("/set/foo")[1].fetch("Set-Cookie").split("\n")[0]
-        expiry = Time.now + 1
-        expect(cookie).to include("expires=#{expiry.utc.rfc2822}")
+      it "uses the configured expires" do
+        cookie = call("/set/foo")[1].fetch("set-cookie")[1]
+        expires = Time.now + Pakyow.config.cookies.expires
+        expect(cookie).to include("expires=#{expires.utc.httpdate}")
       end
     end
   end
@@ -81,7 +53,7 @@ RSpec.describe "using cookies" do
       end
 
       it "is accessible" do
-        expect(call("/", "HTTP_COOKIE" => cookie)[2].read).to eq("bar")
+        expect(call("/", headers: { "cookie" => cookie })[2]).to eq("bar")
       end
     end
 
@@ -97,7 +69,7 @@ RSpec.describe "using cookies" do
       end
 
       it "is accessible" do
-        expect(call("/", "HTTP_COOKIE" => cookie)[2].read).to eq("bar")
+        expect(call("/", headers: { "cookie" => cookie })[2]).to eq("bar")
       end
     end
   end
@@ -119,7 +91,7 @@ RSpec.describe "using cookies" do
       end
 
       it "deletes the cookie" do
-        res_cookie = call("/", "HTTP_COOKIE" => cookie)[1].fetch("Set-Cookie").split("\n")[0]
+        res_cookie = call("/", headers: { "cookie" => cookie })[1].fetch("set-cookie")[0]
         expect(cookie).not_to include(res_cookie)
       end
     end
@@ -129,14 +101,14 @@ RSpec.describe "using cookies" do
         Proc.new {
           controller do
             get "/" do
-              response.delete_cookie(:foo)
+              connection.cookies.delete(:foo)
             end
           end
         }
       end
 
       it "deletes the cookie" do
-        res_cookie = call("/", "HTTP_COOKIE" => cookie)[1].fetch("Set-Cookie").split("\n")[0]
+        res_cookie = call("/", headers: { "cookie" => cookie })[1].fetch("set-cookie")[0]
         expect(cookie).not_to include(res_cookie)
       end
     end
@@ -158,7 +130,7 @@ RSpec.describe "using cookies" do
     end
 
     it "deletes the cookie" do
-      res_cookie = call("/", "HTTP_COOKIE" => cookie)[1].fetch("Set-Cookie").split("\n")[0]
+      res_cookie = call("/", headers: { "cookie" => cookie })[1].fetch("set-cookie")[0]
       expect(cookie).not_to include(res_cookie)
     end
   end

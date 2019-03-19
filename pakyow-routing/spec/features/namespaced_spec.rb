@@ -58,7 +58,7 @@ RSpec.describe "namespaced routes" do
     end
 
     it "makes the parameters available to the route" do
-      expect(call("/ns/123")[2].first).to eq("123")
+      expect(call("/ns/123")[2]).to eq("123")
     end
   end
 

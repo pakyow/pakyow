@@ -35,11 +35,17 @@ module Pakyow
         private
 
         def origin_uris(connection)
-          [
-            connection.request.env["HTTP_ORIGIN"].to_s, connection.request.env["HTTP_REFERER"].to_s
-          ].reject(&:empty?).map! { |value|
-            parse_uri(value)
-          }
+          origins = []
+
+          if connection.request_header?("origin")
+            origins.concat(connection.request_header("origin"))
+          end
+
+          if connection.request_header?("referer")
+            origins << connection.request_header("referer")
+          end
+
+          origins.map! { |value| parse_uri(value) }
         end
 
         def parse_uri(value)
@@ -59,7 +65,7 @@ module Pakyow
         end
 
         def matching_origin?(origin, connection)
-          uris_match?(origin, parse_uri(connection.request.base_url))
+          uris_match?(origin, parse_uri("#{connection.scheme}://#{connection.authority}"))
         end
       end
     end

@@ -20,6 +20,6 @@ RSpec.describe "including mixins into a controller" do
   end
 
   it "makes the methods available" do
-    expect(call[2].read).to eq("mixin")
+    expect(call[2]).to eq("mixin")
   end
 end

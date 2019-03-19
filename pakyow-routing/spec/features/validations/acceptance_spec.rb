@@ -28,8 +28,6 @@ RSpec.describe "acceptance validation" do
   end
 
   context "acceptance value is passed to the validator" do
-    include_context "app"
-
     let :app_init do
       Proc.new do
         controller do

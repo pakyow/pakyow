@@ -12,7 +12,7 @@ RSpec.describe "redirecting requests" do
           redirect :redirect_destination
         end
 
-        get "/redirect_to_route_with_params" do
+        get "/redirect_to_route_with_params/:id" do
           redirect :redirect_destination_with_params, id: params[:id]
         end
 
@@ -27,15 +27,15 @@ RSpec.describe "redirecting requests" do
   end
 
   it "redirects to a path" do
-    expect(call("/redirect")[1]["Location"]).to eq("/destination")
+    expect(call("/redirect")[1]["location"]).to eq("/destination")
   end
 
   it "redirects to a route" do
-    expect(call("/redirect_to_route")[1]["Location"]).to eq("/destination")
+    expect(call("/redirect_to_route")[1]["location"]).to eq("/destination")
   end
 
   it "redirects to a route with params" do
-    expect(call("/redirect_to_route_with_params", params: { id: "123" })[1]["Location"]).to eq("/destination/123")
+    expect(call("/redirect_to_route_with_params/123")[1]["location"]).to eq("/destination/123")
   end
 
   describe "response status code" do

@@ -61,7 +61,7 @@ RSpec.describe "halting a request" do
       Proc.new {
         controller do
           default do
-            halt "foo"
+            halt StringIO.new("foo")
           end
         end
       }
@@ -77,14 +77,14 @@ RSpec.describe "halting a request" do
       Proc.new {
         controller do
           default do
-            halt status: 418
+            halt status: 417
           end
         end
       }
     end
 
     it "sets the status code on the response, halts, and returns the response" do
-      expect(call[0]).to eq(418)
+      expect(call[0]).to eq(417)
     end
   end
 

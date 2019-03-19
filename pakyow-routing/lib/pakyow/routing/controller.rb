@@ -208,7 +208,7 @@ module Pakyow
       end
     end
 
-    def call(connection, request_path = connection.request.path)
+    def call(connection, request_path = connection.path)
       request_method = connection.method
       if request_method == METHOD_HEAD
         request_method = METHOD_GET
@@ -234,15 +234,16 @@ module Pakyow
                 match_data.merge!(route_match.named_captures)
                 connection.params.merge!(match_data)
 
-                # TODO: handle this
-                # connection.env["pakyow.endpoint.path"] = String.normalize_path(
-                #   File.join(
-                #     self.class.path_to_self.to_s, route.path.to_s
-                #   )
-                # )
+                connection.set(
+                  :__endpoint_path,
+                  String.normalize_path(
+                    File.join(
+                      self.class.path_to_self.to_s, route.path.to_s
+                    )
+                  )
+                )
 
-                # TODO: handle this
-                # connection.env["pakyow.endpoint.name"] = route.name
+                connection.set(:__endpoint_name, route.name)
 
                 dup.call_route(connection, route)
               end
@@ -264,10 +265,6 @@ module Pakyow
 
     def dispatch
       @route.call(self)
-
-      # Tell Pakyow that a route was called and didn't halt itself.
-      # If it did, we wouldn't make it to this point.
-      @connection.set(:__fully_dispatched, true)
     end
 
     # Redirects to +location+ and immediately halts request processing.
@@ -318,26 +315,23 @@ module Pakyow
     #   end
     #
     def reroute(location, method: connection.method, as: nil, **params)
+      connection = @connection.__getobj__
+
       # Make sure the endpoint is set.
       #
-      @connection.endpoint
+      connection.endpoint
 
-      @connection.env[Rack::REQUEST_METHOD] = method.to_s.upcase
-      @connection.instance_variable_set(:@method, nil)
-
-      @connection.env[Rack::PATH_INFO] = location.is_a?(Symbol) ? app.endpoints.path(location, **params) : location
-      @connection.env.delete("pakyow.endpoint.path")
-      @connection.env.delete("pakyow.endpoint.name")
+      connection.instance_variable_set(:@method, method)
+      connection.instance_variable_set(:@path, location.is_a?(Symbol) ? app.endpoints.path(location, **params) : location)
 
       # Change the response status, if set.
       #
-      @connection.status = Connection::Statuses.code(as) if as
+      connection.status = Connection::Statuses.code(as) if as
 
-      # Share the connection.
-      #
-      @connection.env["pakyow.connection"] = @connection
+      @connection.set(:__endpoint_path, nil)
+      @connection.set(:__endpoint_name, nil)
 
-      app.call(@connection.env); halt
+      app.perform(@connection); halt
     end
 
     # Responds to a specific request format.

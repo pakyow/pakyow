@@ -16,7 +16,7 @@ RSpec.describe "route params" do
 
     it "is available" do
       expect(call("/foo")[0]).to eq(200)
-      expect(call("/foo")[2].read).to eq("foo")
+      expect(call("/foo")[2]).to eq("foo")
     end
 
     it "requires the param" do
@@ -36,7 +36,7 @@ RSpec.describe "route params" do
     end
 
     it "is available" do
-      expect(call("/foo")[2].read).to eq("foo")
+      expect(call("/foo")[2]).to eq("foo")
     end
   end
 
@@ -66,7 +66,7 @@ RSpec.describe "route params" do
     end
 
     it "is available" do
-      expect(call("/foo")[2].first).to eq("bar")
+      expect(call("/foo")[2]).to eq("bar")
     end
   end
 
@@ -83,7 +83,7 @@ RSpec.describe "route params" do
 
     it "is available" do
       expect(call("/foo")[0]).to eq(200)
-      expect(call("/foo")[2].read).to eq("foo")
+      expect(call("/foo")[2]).to eq("foo")
     end
 
     it "requires the param" do
@@ -103,7 +103,7 @@ RSpec.describe "route params" do
     end
 
     it "is available" do
-      expect(call("/foo")[2].read).to eq("foo")
+      expect(call("/foo")[2]).to eq("foo")
     end
   end
 
@@ -133,7 +133,7 @@ RSpec.describe "route params" do
     end
 
     it "is available" do
-      expect(call("/foo")[2].first).to eq("bar")
+      expect(call("/foo")[2]).to eq("bar")
     end
   end
 
@@ -149,7 +149,7 @@ RSpec.describe "route params" do
     end
 
     it "is available" do
-      expect(call("/?input=foo")[2].read).to eq("foo")
+      expect(call("/?input=foo")[2]).to eq("foo")
     end
   end
 
@@ -164,15 +164,8 @@ RSpec.describe "route params" do
       }
     end
 
-    before do
-      # necessary because you can't set content-type on a mock request
-      allow_any_instance_of(Rack::Request).to receive(:media_type).and_return(
-        "application/json"
-      )
-    end
-
     it "makes the json body available" do
-      expect(call("/", input: { foo: "bar" }.to_json)[2].read).to eq("bar")
+      expect(call("/", input: StringIO.new({ foo: "bar" }.to_json), headers: { "content-type" => "application/json" })[2]).to eq("bar")
     end
   end
 end

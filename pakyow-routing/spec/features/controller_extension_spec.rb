@@ -21,6 +21,6 @@ RSpec.describe "extending a controller with an extension" do
 
   it "makes the extensions available to the controller" do
     expect(call[0]).to eq(200)
-    expect(call[2].read).to eq("extension")
+    expect(call[2]).to eq("extension")
   end
 end

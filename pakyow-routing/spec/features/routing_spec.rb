@@ -30,23 +30,23 @@ RSpec.describe "routing requests" do
   end
 
   it "routes GET requests" do
-    expect(call("/", method: :get)[2].read).to eq("GET /")
+    expect(call("/", method: :get)[2]).to eq("GET /")
   end
 
   it "routes PUT requests" do
-    expect(call("/", method: :put)[2].read).to eq("PUT /")
+    expect(call("/", method: :put)[2]).to eq("PUT /")
   end
 
   it "routes POST requests" do
-    expect(call("/", method: :post)[2].read).to eq("POST /")
+    expect(call("/", method: :post)[2]).to eq("POST /")
   end
 
   it "routes PATCH requests" do
-    expect(call("/", method: :patch)[2].read).to eq("PATCH /")
+    expect(call("/", method: :patch)[2]).to eq("PATCH /")
   end
 
   it "routes DELETE requests" do
-    expect(call("/", method: :delete)[2].read).to eq("DELETE /")
+    expect(call("/", method: :delete)[2]).to eq("DELETE /")
   end
 
   it "gracefully handles unsupported methods" do
@@ -83,7 +83,7 @@ RSpec.describe "routing requests" do
     end
 
     it "responds with a valid content length header" do
-      expect(call("/", method: :head)[1]).to include("Content-Length" => 5)
+      expect(call("/", method: :head)[1]).to include("content-length" => 5)
     end
   end
 
@@ -99,7 +99,7 @@ RSpec.describe "routing requests" do
     end
 
     it "is called for GET /" do
-      expect(call("/")[2].read).to eq("default")
+      expect(call("/")[2]).to eq("default")
     end
   end
 
@@ -132,18 +132,18 @@ RSpec.describe "routing requests" do
     end
 
     it "shares state across actions and routes" do
-      expect(call[2].read).to eq("foobar")
+      expect(call[2]).to eq("foobar")
     end
 
     xit "shares state across reroutes" do
-      expect(call("/rr")[2].read).to eq("onetwo")
+      expect(call("/rr")[2]).to eq("onetwo")
     end
 
     it "does not share state across requests" do
       call
 
       # if the ivar is kept around we'd see "foobarbar"
-      expect(call[2].read).to eq("foobar")
+      expect(call[2]).to eq("foobar")
     end
   end
 
@@ -177,7 +177,7 @@ RSpec.describe "routing requests" do
     end
 
     it "only calls the first one" do
-      expect(call("/foo")[2].read).to eq("one")
+      expect(call("/foo")[2]).to eq("one")
     end
   end
 
@@ -199,7 +199,7 @@ RSpec.describe "routing requests" do
     end
 
     it "only calls the first one" do
-      expect(call("/foo")[2].read).to eq("one")
+      expect(call("/foo")[2]).to eq("one")
     end
   end
 
@@ -223,7 +223,7 @@ RSpec.describe "routing requests" do
     end
 
     it "only calls the first one" do
-      expect(call("/foo")[2].read).to eq("one")
+      expect(call("/foo")[2]).to eq("one")
     end
   end
 
@@ -235,7 +235,7 @@ RSpec.describe "routing requests" do
           skip_action :verify_authenticity_token
 
           post "/" do
-            res.body << "one"
+            connection.body = StringIO.new("one")
           end
 
           group do
@@ -245,7 +245,7 @@ RSpec.describe "routing requests" do
     end
 
     it "only dispatches once" do
-      expect(call("/posts", method: :post)[2]).to eq(["one"])
+      expect(call("/posts", method: :post)[2]).to eq("one")
     end
   end
 
@@ -262,7 +262,7 @@ RSpec.describe "routing requests" do
       Proc.new {
         controller "/posts" do
           default do
-            res.body << "one"
+            connection.body = StringIO.new("one")
           end
         end
       }

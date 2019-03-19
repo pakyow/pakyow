@@ -81,7 +81,7 @@ RSpec.describe "building a path to a plugin endpoint" do
 
   describe "accessing plugin endpoints from within a plugin controller" do
     it "builds the path" do
-      expect(call("/foo/test-plugin/endpoint/root")[2].read).to eq("/foo/test-plugin")
+      expect(call("/foo/test-plugin/endpoint/root")[2]).to eq("/foo/test-plugin")
     end
   end
 
@@ -101,7 +101,7 @@ RSpec.describe "building a path to a plugin endpoint" do
     end
 
     it "builds the path" do
-      expect(call("/foo/test-plugin/app_endpoint/root")[2].read).to eq("/")
+      expect(call("/foo/test-plugin/app_endpoint/root")[2]).to eq("/")
     end
   end
 end

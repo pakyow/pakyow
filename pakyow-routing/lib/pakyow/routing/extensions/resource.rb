@@ -77,7 +77,7 @@ module Pakyow
             nested_resource_id = ":#{nested_param}"
 
             action :update_request_path_for_show, only: [:show] do
-              req.env["pakyow.endpoint.path"].gsub!(resource_id, "show")
+              connection.get(:__endpoint_path).gsub!(resource_id, "show")
             end
 
             controller.class_eval do
@@ -107,7 +107,7 @@ module Pakyow
               namespace = super(*args, &block)
               namespace.allow_params nested_param
               namespace.action :update_request_path_for_parent do
-                req.env["pakyow.endpoint.path"].gsub!(nested_resource_id, "show")
+                connection.get(:__endpoint_path).gsub!(nested_resource_id, "show")
               end
             end
 
@@ -115,7 +115,7 @@ module Pakyow
               expand(:resource, name, File.join(nested_resource_id, matcher), param: param) do
                 allow_params nested_param
                 action :update_request_path_for_parent do
-                  req.env["pakyow.endpoint.path"].gsub!(nested_resource_id, "show")
+                  connection.get(:__endpoint_path).gsub!(nested_resource_id, "show")
                 end
                 instance_exec(&block)
               end

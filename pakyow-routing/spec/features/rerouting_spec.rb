@@ -45,19 +45,19 @@ RSpec.describe "rerouting requests" do
   it "reroutes to a path" do
     res = call("/reroute")
     expect(res[0]).to eq(200)
-    expect(res[2].first).to eq("destination")
+    expect(res[2]).to eq("destination")
   end
 
   it "reroutes to a route" do
     res = call("/reroute_to_route")
     expect(res[0]).to eq(200)
-    expect(res[2].first).to eq("destination")
+    expect(res[2]).to eq("destination")
   end
 
   it "reroutes to a route with params" do
     res = call("/reroute_to_route_with_params", params: { id: "123" })
     expect(res[0]).to eq(200)
-    expect(res[2].first).to eq("destination/123")
+    expect(res[2]).to eq("destination/123")
   end
 
   it "halts after rerouting" do
@@ -86,7 +86,7 @@ RSpec.describe "rerouting requests" do
     it "reroutes" do
       call("/reroute").tap do |result|
         expect(result[0]).to eq(200)
-        expect(result[2].first).to eq("destination")
+        expect(result[2]).to eq("destination")
       end
     end
   end
@@ -109,7 +109,7 @@ RSpec.describe "rerouting requests" do
     it "reflects the status" do
       call("/reroute").tap do |result|
         expect(result[0]).to eq(400)
-        expect(result[2].first).to eq("destination")
+        expect(result[2]).to eq("destination")
       end
     end
 
@@ -122,7 +122,7 @@ RSpec.describe "rerouting requests" do
             end
 
             get "/destination" do
-              res.status = 403
+              connection.status = 403
               send "destination"
             end
           end
@@ -132,7 +132,7 @@ RSpec.describe "rerouting requests" do
       it "gives precedence to the later route" do
         call("/reroute").tap do |result|
           expect(result[0]).to eq(403)
-          expect(result[2].first).to eq("destination")
+          expect(result[2]).to eq("destination")
         end
       end
     end
@@ -148,7 +148,7 @@ RSpec.describe "rerouting requests" do
           end
 
           get "/destination" do
-            send connection.get(:value)
+            send connection.get(:value).to_s
           end
         end
       }
@@ -157,7 +157,7 @@ RSpec.describe "rerouting requests" do
     it "shares the values" do
       call("/reroute").tap do |result|
         expect(result[0]).to eq(200)
-        expect(result[2].first).to eq("foo")
+        expect(result[2]).to eq("foo")
       end
     end
   end
@@ -180,7 +180,7 @@ RSpec.describe "rerouting requests" do
     it "reflects the original endpoint" do
       call("/reroute").tap do |result|
         expect(result[0]).to eq(200)
-        expect(result[2].first).to eq("/reroute")
+        expect(result[2]).to eq("/reroute")
       end
     end
   end

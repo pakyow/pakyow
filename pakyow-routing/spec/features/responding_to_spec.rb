@@ -6,10 +6,10 @@ RSpec.describe "responding to request format" do
       controller do
         get "foo.txt|html" do
           respond_to :txt do
-            res.body = "foo"
+            connection.body = StringIO.new("foo")
           end
 
-          res.body = "<foo>"
+          connection.body = StringIO.new("<foo>")
         end
       end
     }

@@ -19,7 +19,7 @@ RSpec.describe "controller priority" do
     end
 
     it "prioritizes controllers as first in, first out" do
-      expect(call[2].first).to eq("one")
+      expect(call[2]).to eq("one")
     end
   end
 
@@ -41,7 +41,7 @@ RSpec.describe "controller priority" do
     end
 
     it "is prioritized above the others" do
-      expect(call[2].first).to eq("two")
+      expect(call[2]).to eq("two")
     end
   end
 
@@ -63,7 +63,7 @@ RSpec.describe "controller priority" do
     end
 
     it "is prioritized below the others" do
-      expect(call[2].first).to eq("two")
+      expect(call[2]).to eq("two")
     end
   end
 
@@ -85,7 +85,7 @@ RSpec.describe "controller priority" do
     end
 
     it "is prioritized related to the others" do
-      expect(call[2].first).to eq("two")
+      expect(call[2]).to eq("two")
     end
   end
 end

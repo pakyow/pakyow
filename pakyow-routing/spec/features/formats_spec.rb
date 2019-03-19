@@ -13,7 +13,7 @@ RSpec.describe "route formats" do
     end
 
     it "calls the route" do
-      expect(call("/foo.txt")[2].first).to eq("foo")
+      expect(call("/foo.txt")[2]).to eq("foo")
     end
 
     context "and a request is received for an undefined format" do
@@ -39,8 +39,8 @@ RSpec.describe "route formats" do
     end
 
     it "calls each route" do
-      expect(call("/foo.txt")[2].first).to eq("foo")
-      expect(call("/foo.html")[2].first).to eq("<foo>")
+      expect(call("/foo.txt")[2]).to eq("foo")
+      expect(call("/foo.html")[2]).to eq("<foo>")
     end
   end
 
@@ -57,7 +57,7 @@ RSpec.describe "route formats" do
 
     context "and the request path includes the format" do
       it "is called" do
-        expect(call("/foo.html")[2].first).to eq("<foo>")
+        expect(call("/foo.html")[2]).to eq("<foo>")
       end
     end
 
@@ -105,13 +105,13 @@ RSpec.describe "route formats" do
       end
 
       it "receives the expected response" do
-        expect(call("/foo.txt")[2].first).to eq("foo")
-        expect(call("/foo.html")[2].first).to eq("<foo>")
+        expect(call("/foo.txt")[2]).to eq("foo")
+        expect(call("/foo.html")[2]).to eq("<foo>")
       end
 
       it "sets the appropriate content type" do
-        expect(call("/foo.txt")[1]['Content-Type']).to eq(nil)
-        expect(call("/foo.html")[1]['Content-Type']).to eq("text/html")
+        expect(call("/foo.txt")[1]["content-type"]).to eq(nil)
+        expect(call("/foo.html")[1]["content-type"]).to eq("text/html")
       end
     end
 
@@ -133,13 +133,13 @@ RSpec.describe "route formats" do
       end
 
       it "receives the expected response" do
-        expect(call("/foo.txt")[2].first).to eq("foo")
-        expect(call("/foo.html")[2].first).to eq("<foo>")
+        expect(call("/foo.txt")[2]).to eq("foo")
+        expect(call("/foo.html")[2]).to eq("<foo>")
       end
 
       it "sets the appropriate content type" do
-        expect(call("/foo.txt")[1]['Content-Type']).to eq("text/plain")
-        expect(call("/foo.html")[1]['Content-Type']).to eq("text/html")
+        expect(call("/foo.txt")[1]["content-type"]).to eq("text/plain")
+        expect(call("/foo.html")[1]["content-type"]).to eq("text/html")
       end
     end
   end

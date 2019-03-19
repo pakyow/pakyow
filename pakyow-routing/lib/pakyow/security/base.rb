@@ -26,18 +26,13 @@ module Pakyow
 
       def reject(connection)
         performing :reject do
-          logger(connection)&.warn "Request rejected by #{self.class}; env: #{loggable_env(connection.request.env).inspect}"
+          connection.logger.warn "Request rejected by #{self.class}; connection: #{connection.inspect}"
 
           connection.status = 403
-          connection.set_header("Content-Type", "text/plain")
-          connection.body = ["Forbidden"]
+          connection.body = StringIO.new("Forbidden")
 
           raise InsecureRequest
         end
-      end
-
-      def logger(connection)
-        connection.env["rack.logger"]
       end
 
       def safe?(connection)
@@ -46,12 +41,6 @@ module Pakyow
 
       def allowed?(_)
         false
-      end
-
-      protected
-
-      def loggable_env(env)
-        env.delete("puma.config"); env
       end
     end
   end

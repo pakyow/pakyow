@@ -6,12 +6,12 @@ RSpec.describe "inherited controller state" do
       Proc.new {
         controller do
           default do
-            res.body << "one"
+            connection.body = StringIO.new("one")
           end
 
           namespace "/foo" do
             default do
-              res.body << "two"
+              connection.body = StringIO.new("two")
             end
           end
         end
@@ -19,7 +19,7 @@ RSpec.describe "inherited controller state" do
     end
 
     it "does not inherit" do
-      expect(call("/foo")[2]).to eq(["two"])
+      expect(call("/foo")[2]).to eq("two")
     end
   end
 end

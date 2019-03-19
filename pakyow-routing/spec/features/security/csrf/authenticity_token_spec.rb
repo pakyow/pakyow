@@ -23,15 +23,17 @@ RSpec.describe "verifying the request's authenticity token" do
   context "authenticity token is passed" do
     context "authenticity token is valid" do
       it "accepts the request" do
-        cookie = call("/")[1]["Set-Cookie"]
+        cookie = call("/")[1]["set-cookie"][0].to_s
 
         expect(
           call(
             "/",
             method: :post,
-            "HTTP_COOKIE" => cookie,
             params: {
               authenticity_token: $signed_authenticity
+            },
+            headers: {
+              "cookie" => cookie
             }
           )[0]
         ).to eq(200)
@@ -83,7 +85,7 @@ RSpec.describe "verifying the request's authenticity token" do
     end
 
     it "overrides" do
-      expect(call("/", method: :post)[2].read).to eq("overridden")
+      expect(call("/", method: :post)[2]).to eq("overridden")
     end
   end
 end
