@@ -15,7 +15,7 @@ RSpec.describe "submitting valid form data" do
             end
           end
 
-          res.body << "created #{params[:post][:title]}"
+          connection.body = StringIO.new("created #{params[:post][:title]}")
         end
       end
     end
@@ -24,7 +24,7 @@ RSpec.describe "submitting valid form data" do
   it "calls the route in a normal way" do
     call("/posts", method: :post, params: { post: { title: "foo" } }).tap do |result|
       expect(result[0]).to be(200)
-      expect(result[2].join).to eq("created foo")
+      expect(result[2]).to eq("created foo")
     end
   end
 end

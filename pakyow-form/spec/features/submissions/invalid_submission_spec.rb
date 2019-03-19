@@ -37,28 +37,28 @@ RSpec.describe "submitting invalid form data" do
     it "adds an errored class to the form" do
       call("/posts", method: :post, params: { _form: sign(origin: "/posts/new", binding: "post:form"), post: { title: "foo title"} }).tap do |result|
         expect(result[0]).to be(400)
-        expect(result[2].read).to include('<form data-b="post" data-ui="form" data-c="form" class="errored"')
+        expect(result[2]).to include('<form data-b="post" data-ui="form" data-c="form" class="errored"')
       end
     end
 
     it "adds an errored class to each errored field" do
       call("/posts", method: :post, params: { _form: sign(origin: "/posts/new", binding: "post:form"), post: { title: "foo title"} }).tap do |result|
         expect(result[0]).to be(400)
-        expect(result[2].read).to include('<input type="text" data-b="body" data-c="form" class="errored" name="post[body]">')
+        expect(result[2]).to include('<input type="text" data-b="body" data-c="form" class="errored" name="post[body]">')
       end
     end
 
     it "does not add an errored class to a non-errored field" do
       call("/posts", method: :post, params: { _form: sign(origin: "/posts/new", binding: "post:form"), post: { title: "foo title"} }).tap do |result|
         expect(result[0]).to be(400)
-        expect(result[2].read).to include('<input type="text" data-b="title" data-c="form" class="" name="post[title]" value="foo title">')
+        expect(result[2]).to include('<input type="text" data-b="title" data-c="form" class="" name="post[title]" value="foo title">')
       end
     end
 
     it "presents errors for the invalid submission" do
       call("/posts", method: :post, params: { _form: sign(origin: "/posts/new", binding: "post:form"), post: { title: "foo title"} }).tap do |result|
         expect(result[0]).to be(400)
-        body = result[2].read
+        body = result[2]
         expect(body).to include_sans_whitespace("Body is required")
         expect(body).to include_sans_whitespace('<li data-b="error.message" data-c="form"')
       end
@@ -67,7 +67,7 @@ RSpec.describe "submitting invalid form data" do
     it "presents the submitted data" do
       call("/posts", method: :post, params: { _form: sign(origin: "/posts/new", binding: "post:form"), post: { title: "foo title"} }).tap do |result|
         expect(result[0]).to be(400)
-        expect(result[2].read).to include_sans_whitespace(
+        expect(result[2]).to include_sans_whitespace(
           <<~HTML
             <input type="text" data-b="title" data-c="form" class="" name="post[title]" value="foo title">
           HTML
@@ -82,7 +82,7 @@ RSpec.describe "submitting invalid form data" do
             disable_protection :csrf
 
             handle Pakyow::InvalidData, as: :unauthorized do
-              res.body << "handled"
+              connection.body = StringIO.new("handled")
             end
 
             new do; end
@@ -102,7 +102,7 @@ RSpec.describe "submitting invalid form data" do
       it "does not call the form submission handler" do
         call("/posts", method: :post).tap do |result|
           expect(result[0]).to be(401)
-          expect(result[2].join).to eq("handled")
+          expect(result[2]).to eq("handled")
         end
       end
     end
@@ -132,7 +132,7 @@ RSpec.describe "submitting invalid form data" do
       it "sets up the correct form as errored" do
         call("/posts", method: :post, params: { _form: sign(origin: "/posts/new", binding: "post:form:bar"), post: { title: "bar title"} }).tap do |result|
           expect(result[0]).to be(400)
-          result[2].read.tap do |body|
+          result[2].tap do |body|
             expect(body).to include('<form data-b="post" data-ui="form" class="foo" data-c="form:foo"')
             expect(body).to include('<form data-b="post" data-ui="form" class="bar errored" data-c="form:bar"')
           end
@@ -142,7 +142,7 @@ RSpec.describe "submitting invalid form data" do
       it "presents the submitted data in the correct form" do
         call("/posts", method: :post, params: { _form: sign(origin: "/posts/new", binding: "post:form:bar"), post: { title: "bar title"} }).tap do |result|
           expect(result[0]).to be(400)
-          result[2].read.tap do |body|
+          result[2].tap do |body|
             expect(body).to include('<input type="text" data-b="title" class="foo" data-c="form" name="post[title]">')
             expect(body).to include('<input type="text" data-b="title" class="bar" data-c="form" name="post[title]" value="bar title">')
           end
