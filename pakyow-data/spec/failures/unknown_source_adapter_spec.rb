@@ -14,6 +14,6 @@ RSpec.describe "defining a source for an unknown adapter" do
   it "boots the app in rescue mode" do
     expect(Pakyow.apps.first.rescued?).to be(true)
     expect(call("/")[0]).to eq(500)
-    expect(call("/")[2].join).to include("`foo' is not a known adapter")
+    expect(call("/")[2]).to include("`foo' is not a known adapter")
   end
 end

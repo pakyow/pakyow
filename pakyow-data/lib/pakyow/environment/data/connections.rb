@@ -29,7 +29,7 @@ module Pakyow
             end
           end
 
-          after :setup do
+          before :boot do
             # Create new connections.
             #
             @data_connections = Pakyow::Data::Connection.adapter_types.each_with_object({}) { |connection_type, connections|

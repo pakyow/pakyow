@@ -187,6 +187,7 @@ module Pakyow
         @subscribable == true
       end
 
+      # TODO: use marshal_dump/load here and possibly in sources (refer back to ui)
       def to_h
         {
           source: @source.source_name,

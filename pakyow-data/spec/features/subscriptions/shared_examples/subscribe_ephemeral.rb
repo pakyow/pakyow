@@ -16,11 +16,11 @@ RSpec.shared_examples :subscription_subscribe_ephemeral do
           disable_protection :csrf
 
           show do
-            data.ephemeral(:errors, id: params[:id]).set([]).subscribe(:errors_subscriber, handler: TestHandler)
+            data.ephemeral(:errors, id: params[:id].to_i).set([]).subscribe(:errors_subscriber, handler: TestHandler)
           end
 
           create do
-            data.ephemeral(:errors, id: params[:id]).set([
+            data.ephemeral(:errors, id: params[:id].to_i).set([
               { message: "error1" },
               { message: "error2" },
               { message: "error3" }
