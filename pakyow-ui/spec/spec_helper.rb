@@ -103,7 +103,7 @@ end
 def save_ui_case(example, path:)
   initial_response = call(path)
   expect(initial_response[0]).to eq(200)
-  initial = initial_response[2].read
+  initial = initial_response[2]
 
   transformations = ws_intercept do
     yield
@@ -111,7 +111,7 @@ def save_ui_case(example, path:)
 
   result_response = call(path)
   expect(result_response[0]).to eq(200)
-  result = result_response[2].read
+  result = result_response[2]
 
   sleep 0.1
 

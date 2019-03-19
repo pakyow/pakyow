@@ -3,20 +3,16 @@
 module Pakyow
   module UI
     module Helpers
-      UI_REQUEST_HEADER = "HTTP_PW_UI"
-
       def ui?
-        @connection.env.key?(UI_REQUEST_HEADER)
+        @connection.request_header?("pw-ui")
       end
 
       def ui
-        @connection.env[UI_REQUEST_HEADER]
+        @connection.request_header["pw-ui"]
       end
 
       def ui_transform?
-        # TODO: we'll want to set this on the connection
-        # @connection.env.key?("pakyow.ui_transform")
-        false
+        @connection.set?(:__ui_transform)
       end
     end
   end

@@ -39,8 +39,8 @@ module Pakyow
               end
             end
 
-            action :cache_presentables, before: @__pipeline.actions.first
-            action :subscribe_to_transformations
+            # action :cache_presentables, before: @__pipeline.actions.first
+            action :subscribe_to_transformations, before: @__pipeline.actions.first
           end
 
           isolated :ViewRenderer do
@@ -61,8 +61,8 @@ module Pakyow
               end
             end
 
-            action :cache_presentables, before: @__pipeline.actions.first
-            action :subscribe_to_transformations
+            # action :cache_presentables, before: @__pipeline.actions.first
+            action :subscribe_to_transformations, before: @__pipeline.actions.first
           end
         end
 
@@ -73,34 +73,34 @@ module Pakyow
 
           # Make sure these values are cached first because they could change during presentation.
           #
-          def cache_presentables
-            presentables; subscribables
-          end
+          # def cache_presentables
+          #   presentables; subscribables
+          # end
 
-          def presentables
-            @presentables ||= @connection.values.reject { |presentable_name, _|
-              presentable_name.to_s.start_with?("__")
-            }.map { |presentable_name, presentable|
-              proxy = if presentable.is_a?(Data::Proxy)
-                presentable
-              elsif presentable.instance_variable_defined?(:@__proxy)
-                presentable.instance_variable_get(:@__proxy)
-              else
-                nil
-              end
+          # def presentables
+          #   @presentables ||= @connection.values.reject { |presentable_name, _|
+          #     presentable_name.to_s.start_with?("__")
+          #   }.map { |presentable_name, presentable|
+          #     proxy = if presentable.is_a?(Data::Proxy)
+          #       presentable
+          #     elsif presentable.instance_variable_defined?(:@__proxy)
+          #       presentable.instance_variable_get(:@__proxy)
+          #     else
+          #       nil
+          #     end
 
-              if proxy
-                proxy = proxy.deep_dup
-                if proxy.source.is_a?(Data::Sources::Ephemeral)
-                  { name: presentable_name, ephemeral: proxy.source.serialize }
-                else
-                  { name: presentable_name, proxy: proxy.to_h }
-                end
-              else
-                { name: presentable_name, value: presentable.dup }
-              end
-            }
-          end
+          #     if proxy
+          #       proxy = proxy.deep_dup
+          #       if proxy.source.is_a?(Data::Sources::Ephemeral)
+          #         { name: presentable_name, ephemeral: proxy.source.serialize }
+          #       else
+          #         { name: presentable_name, proxy: proxy.to_h }
+          #       end
+          #     else
+          #       { name: presentable_name, value: presentable.dup }
+          #     end
+          #   }
+          # end
 
           def subscribables
             @subscribables ||= @connection.values.reject { |value_name, _|
@@ -131,17 +131,16 @@ module Pakyow
               metadata = {
                 renderer: {
                   class_name: Support.inflector.demodulize(self.class),
+                  # TODO: use marshal instead of a custom serialization strategy
                   serialized: serialize
                 },
-                presentables: presentables,
-                # TODO: determine how we want to do this
-                #
-                env: {}
-                # env: @connection.env.each_with_object({}) { |(key, value), keep|
-                #   if ENV_KEYS.include?(key)
-                #     keep[key] = value
-                #   end
-                # }
+                # presentables: presentables,
+                # TODO: can we just serialize all connection values?
+                #   how can we do this cleanly without special logic around data proxies?
+                #   values should respond to serialize, or used raw? (then deserialize)
+                # TODO: instead of caching presentables, why not subscribe first?
+                #   if rendering fails, do we really want subscribables? yeah that'll work
+                connection: Marshal.dump(@connection)
               }
 
               payload = {

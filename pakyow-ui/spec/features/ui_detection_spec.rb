@@ -16,14 +16,14 @@ RSpec.describe "detecting requests originating from the ui" do
   end
 
   it "detects ui requests" do
-    expect(call("/ui-test", "HTTP_PW_UI" => "version")[2].read).to eq("true")
+    expect(call("/ui-test", headers: { "pw-ui" => "version" })[2]).to eq("true")
   end
 
   it "detects non-ui requests" do
-    expect(call("/ui-test")[2].read).to eq("false")
+    expect(call("/ui-test")[2]).to eq("false")
   end
 
   it "exposes the client version" do
-    expect(call("/ui-version", "HTTP_PW_UI" => "version")[2].read).to eq("version")
+    expect(call("/ui-version", headers: { "pw-ui" => "version" })[2]).to eq("version")
   end
 end

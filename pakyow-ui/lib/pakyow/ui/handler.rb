@@ -32,13 +32,18 @@ module Pakyow
           end
         }
 
-        env = metadata[:env]
-        env["pakyow.ui_transform"] = true
-        env["rack.input"] = StringIO.new
-        env[Rack::RACK_LOGGER] = RequestLogger.new(:"  ui")
+        # env = metadata[:env]
 
-        connection = Connection.new(@app, env)
+        # TODO: set this as an app connection value
+        # env["pakyow.ui_transform"] = true
+        # env["rack.input"] = StringIO.new
+        # env[Rack::RACK_LOGGER] = RequestLogger.new(:pwui)
+
+        # connection = Connection.new(@app, env)
+        connection = @app.class.isolated(:Connection).deserialize(metadata[:connection])
+        # TODO: if we can serialize presentables properly, we won't have to worry about doing this
         connection.instance_variable_set(:@values, presentables)
+        connection.set(:__ui_transform, true)
 
         base_renderer_class = if @app.class.const_defined?(metadata[:renderer][:class_name])
           @app.class.const_get(metadata[:renderer][:class_name])
