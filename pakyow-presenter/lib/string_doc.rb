@@ -38,8 +38,8 @@ class StringDoc
 
     # Registers a significant node with a name and an object to handle parsing.
     #
-    def significant(name, object)
-      significant_types[name] = object
+    def significant(name, object, descend: true)
+      significant_types[name] = { object: object, descend: descend }
     end
 
     # Creates a +StringDoc+ from an array of +Node+ objects.
@@ -92,8 +92,8 @@ class StringDoc
     # Determines the significance of +element+.
     #
     def find_significance(element)
-      significant_types.each_with_object([]) do |(key, object), significance|
-        if object.significant?(element)
+      significant_types.each_with_object([]) do |(key, info), significance|
+        if info[:object].significant?(element)
           significance << key
         end
       end
@@ -160,10 +160,12 @@ class StringDoc
     @nodes.each do |node|
       yield node
 
-      if node.children.is_a?(StringDoc)
-        node.children.each(&block)
-      else
-        yield node.children
+      unless node.label(:descend) == false
+        if node.children.is_a?(StringDoc)
+          node.children.each(&block)
+        else
+          yield node.children
+        end
       end
     end
   end
@@ -188,7 +190,9 @@ class StringDoc
         if node.significant?(type)
           yield node
         elsif node.children.is_a?(StringDoc)
-          node.children.each_significant_node_without_descending(type, &block)
+          unless node.label(:descend) == false
+            node.children.each_significant_node_without_descending(type, &block)
+          end
         end
       end
     end
@@ -540,6 +544,12 @@ class StringDoc
       if labels.include?(:binding)
         find_channel_for_binding!(element, attributes, labels)
       end
+
+      significance_options = significance.map { |significant_type|
+        self.class.significant_types[significant_type]
+      }
+
+      labels[:descend] = significance_options.all? { |options| options[:descend] == true }
 
       Node.new("<#{element.name}", Attributes.new(attributes), significance: significance, labels: labels, parent: self)
     else

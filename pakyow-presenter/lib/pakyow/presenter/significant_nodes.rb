@@ -143,7 +143,7 @@ module Pakyow
 
     # @api private
     class ComponentNode < SignificantNode
-      StringDoc.significant :component, self
+      StringDoc.significant :component, self, descend: false
 
       def self.significant?(node)
         node.is_a?(Oga::XML::Element) && node.attribute(:ui)
