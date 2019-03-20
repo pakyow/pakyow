@@ -60,6 +60,31 @@ module Pakyow
           form.object.set_label(:metadata, {})
         end
       end
+
+      action :initialize_renderable_components
+
+      private def initialize_renderable_components(state, view = state.view)
+        view.components.each do |component_view|
+          # If view will be rendered from the app, look for the component on the app.
+          #
+          component_state = if state.app.is_a?(Plugin) && state.app.app.view?(state.path)
+            state.app.app.state(:component)
+          else
+            state.app.state(:component)
+          end
+
+          component_class = component_state.find { |component|
+            component.__object_name.name == component_view.object.label(:component)
+          }
+
+          if component_class
+            component_view.object.instance_variable_get(:@significance) << :renderable_component
+            component_view.object.set_label(:component_class, component_class)
+          end
+
+          initialize_renderable_components(state, component_view)
+        end
+      end
     end
   end
 end

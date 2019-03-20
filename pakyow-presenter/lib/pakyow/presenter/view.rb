@@ -141,8 +141,8 @@ module Pakyow
 
       # Returns all components.
       #
-      def components
-        @object.each_significant_node_without_descending(:component).map { |node|
+      def components(renderable: false)
+        @object.each_significant_node_without_descending(renderable ? :renderable_component : :component).map { |node|
           View.from_object(node)
         }
       end

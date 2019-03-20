@@ -1,91 +1,47 @@
 # frozen_string_literal: true
 
 require "pakyow/presenter/rendering/base_renderer"
-
-require "pakyow/presenter/rendering/actions/place_in_mode"
-require "pakyow/presenter/rendering/actions/install_endpoints"
-require "pakyow/presenter/rendering/actions/setup_forms"
+require "pakyow/presenter/rendering/pipeline"
 
 module Pakyow
   module Presenter
     class ComponentRenderer < BaseRenderer
       class << self
-        def build_recursively(mode:, templates_path:, connection:, presenter:, path: [], renders: [])
-          renders.tap do
-            presenter.components.each.with_index do |component_presenter, i|
-              component_path = path.dup << i
-
-              renderer = ComponentRenderer.build(
-                name: component_presenter.view.object.label(:component),
-                path: component_path, mode: mode, presenter: component_presenter,
-                connection: connection, templates_path: templates_path
-              )
-
-              if renderer
-                renders << renderer
-              else
-                build_recursively(
-                  mode: mode,
-                  templates_path: templates_path,
-                  connection: connection,
-                  presenter: component_presenter,
-                  path: component_path,
-                  renders: renders
-                )
-              end
-            end
-          end
-        end
-
         def build(name:, path:, mode:, connection:, templates_path:, presenter:)
-          # If we rendered from the app, look for the component on the app.
+          component_class = presenter.view.object.label(:component_class)
+
+          # Prevent state from leaking from the component to the rest of the app.
           #
-          component_state = if connection.app.is_a?(Plugin) && connection.app.app.view?(templates_path)
-            connection.app.app.state(:component)
-          else
-            connection.app.state(:component)
+          component_connection = connection.dup
+
+          # Don't share exposures from the app with the component.
+          #
+          component_connection.values.delete_if do |key, _|
+            !key.to_s.start_with?("__")
           end
 
-          found_component = component_state.find { |component|
-            component.__object_name.name == name
-          }
-
-          if found_component
-            # Prevent state from leaking from the component to the rest of the app.
-            #
-            component_connection = connection.dup
-
-            # Don't share exposures from the app with the component.
-            #
-            component_connection.values.delete_if do |key, _|
-              !key.to_s.start_with?("__")
-            end
-
-            # If the component was defined in an app but being called inside a plugin, set the app to the app instead of the plugin.
-            #
-            if component_connection.app.is_a?(Plugin) && found_component.ancestors.include?(component_connection.app.app.isolated(:Component))
-              component_connection.instance_variable_set(:@app, component_connection.app.app)
-            end
-
-            component_instance = found_component.new(
-              connection: component_connection
-            )
-
-            # Call the component.
-            #
-            component_instance.perform
-
-            component_connection.app.isolated(:ComponentRenderer).new(
-              component_connection, presenter,
-              name: name,
-              mode: mode,
-              component_path: path,
-              component_class: found_component,
-              templates_path: templates_path
-            )
-          else
-            nil
+          # If the component was defined in an app but being called inside a plugin, set the app to the app instead of the plugin.
+          #
+          if component_connection.app.is_a?(Plugin) && component_class.ancestors.include?(component_connection.app.app.isolated(:Component))
+            component_connection.instance_variable_set(:@app, component_connection.app.app)
           end
+
+          component_instance = component_class.new(
+            connection: component_connection
+          )
+
+          # Call the component.
+          #
+          component_instance.perform
+
+          component_connection.app.isolated(:ComponentRenderer).new(
+            component_connection, presenter,
+            name: name,
+            mode: mode,
+            component_path: path,
+            component_class: component_class,
+            templates_path: templates_path
+          )
         end
 
         def restore(connection, serialized, **options)
@@ -93,39 +49,16 @@ module Pakyow
         end
       end
 
-      action :install_endpoints, Actions::InstallEndpoints, before: :dispatch
-      action :setup_form_objects, Actions::SetupForms, after: :dispatch
+      include_pipeline Rendering::Pipeline
 
-      attr_reader :mode, :name, :component_path, :templates_path, :renders
+      attr_reader :mode, :name, :component_path, :templates_path
 
-      def initialize(connection, presenter = nil, name:, templates_path:, component_path:, component_class:, mode:, descend: true)
-        @connection, @name, @templates_path, @component_path, @component_class, @mode, @descend = connection, name, templates_path, component_path, component_class, mode, descend
-        super(connection, presenter)
-
-        unless presenter
-          @presenter = build_presenter
-          Actions::CreateTemplateNodes.new.call(self)
-          Actions::PlaceInMode.new.call(self)
-        end
-
-        @renders = if @descend
-          self.class.build_recursively(
-            mode: @mode,
-            templates_path: @templates_path,
-            connection: @connection,
-            presenter: @presenter,
-            path: @component_path
-          )
-        else
-          []
-        end
+      def initialize(connection, presenter = nil, name:, templates_path:, component_path:, component_class:, mode:)
+        @connection, @name, @templates_path, @component_path, @component_class, @mode = connection, name, templates_path, component_path, component_class, mode
+        super(connection, presenter || build_presenter)
       end
 
       def perform
-        if @descend
-          @renders.each(&:perform)
-        end
-
         # When this isn't a custom component object, there's nothing to perform.
         #
         unless @component_class == @connection.app.isolated(:Component)

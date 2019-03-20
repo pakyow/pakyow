@@ -8,10 +8,10 @@ module Pakyow
       class State
         include Pakyow::Support::Pipeline::Object
 
-        attr_reader :app, :view
+        attr_reader :app, :view, :path
 
-        def initialize(app:, view:)
-          @app, @view = app, view
+        def initialize(app:, view:, path:)
+          @app, @view, @path = app, view, path
         end
       end
     end

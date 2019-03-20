@@ -76,7 +76,8 @@ module Pakyow
             app: self,
             view: info[:layout].build(info[:page]).tap { |view|
               view.mixin(info[:partials])
-            }
+            },
+            path: templates_path
           )
 
           @view_builder.call(state)

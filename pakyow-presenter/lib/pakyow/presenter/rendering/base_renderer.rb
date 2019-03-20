@@ -21,8 +21,6 @@ module Pakyow
       include Support::Pipeline
       include Support::Pipeline::Object
 
-      action :dispatch
-
       attr_reader :connection, :presenter
 
       def initialize(connection, presenter)

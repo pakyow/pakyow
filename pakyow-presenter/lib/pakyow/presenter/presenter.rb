@@ -158,8 +158,8 @@ module Pakyow
 
       # Returns all components.
       #
-      def components
-        @view.components.map { |component|
+      def components(renderable: false)
+        @view.components(renderable: renderable).map { |component|
           presenter_for(component, type: Presenter)
         }
       end

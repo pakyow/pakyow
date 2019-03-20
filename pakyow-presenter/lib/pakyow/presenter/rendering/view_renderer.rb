@@ -5,13 +5,7 @@ require "pakyow/support/core_refinements/string/normalization"
 require "pakyow/security/helpers/csrf"
 
 require "pakyow/presenter/rendering/base_renderer"
-require "pakyow/presenter/rendering/component_renderer"
-require "pakyow/presenter/rendering/actions/insert_prototype_bar"
-require "pakyow/presenter/rendering/actions/install_authenticity"
-require "pakyow/presenter/rendering/actions/install_endpoints"
-require "pakyow/presenter/rendering/actions/place_in_mode"
-require "pakyow/presenter/rendering/actions/render_components"
-require "pakyow/presenter/rendering/actions/setup_forms"
+require "pakyow/presenter/rendering/pipeline"
 
 module Pakyow
   module Presenter
@@ -59,19 +53,14 @@ module Pakyow
         end
       end
 
-      action :install_authenticity, Actions::InstallAuthenticity, before: :dispatch
-      action :install_endpoints, Actions::InstallEndpoints, before: :dispatch
-      action :insert_prototype_bar, Actions::InsertPrototypeBar, before: :dispatch
-      action :place_in_mode, Actions::PlaceInMode, before: :dispatch
-      action :render_components, Actions::RenderComponents, before: :dispatch
-      action :setup_form, Actions::SetupForms, after: :dispatch
+      include_pipeline Rendering::Pipeline
 
       using Support::Refinements::String::Normalization
 
-      attr_reader :templates_path, :mode, :renders
+      attr_reader :templates_path, :mode
 
       def initialize(connection, templates_path: nil, presenter_path: nil, mode: :default, embed_templates: true)
-        @connection, @embed_templates, @renders = connection, embed_templates, []
+        @connection, @embed_templates = connection, embed_templates
 
         @templates_path = String.normalize_path(templates_path || @connection.get(:__endpoint_path) || @connection.path)
         @presenter_path = presenter_path ? String.normalize_path(presenter_path) : nil

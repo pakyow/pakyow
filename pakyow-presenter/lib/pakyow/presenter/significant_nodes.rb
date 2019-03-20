@@ -143,10 +143,21 @@ module Pakyow
 
     # @api private
     class ComponentNode < SignificantNode
-      StringDoc.significant :component, self, descend: false
+      StringDoc.significant :component, self
 
       def self.significant?(node)
         node.is_a?(Oga::XML::Element) && node.attribute(:ui)
+      end
+    end
+
+    # @api private
+    class RenderableComponentNode < SignificantNode
+      StringDoc.significant :renderable_component, self, descend: false
+
+      # Significance is set after parsing during view building.
+      #
+      def self.significant?(_)
+        false
       end
     end
 
