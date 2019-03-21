@@ -15,6 +15,12 @@ require "pakyow/presenter/presentable"
 require "pakyow/presenter/presenter/behavior/endpoints"
 require "pakyow/presenter/presenter/behavior/options"
 
+require "pakyow/presenter/rendering/actions/install_authenticity"
+require "pakyow/presenter/rendering/actions/install_endpoints"
+require "pakyow/presenter/rendering/actions/insert_prototype_bar"
+require "pakyow/presenter/rendering/actions/place_in_mode"
+require "pakyow/presenter/rendering/actions/setup_forms"
+
 module Pakyow
   module Presenter
     # Presents a view object. Performs queries for view data. Understands binders / formatters.
@@ -33,8 +39,15 @@ module Pakyow
       include Support::Pipeline
       include Support::Pipeline::Object
 
+      action :install_authenticity, Actions::InstallAuthenticity
+      action :install_endpoints, Actions::InstallEndpoints
+      action :insert_prototype_bar, Actions::InsertPrototypeBar
+      action :place_in_mode, Actions::PlaceInMode
+
       action :set_title
       action :perform
+
+      action :setup_forms, Actions::SetupForms
 
       include Behavior::Endpoints
       include Behavior::Options

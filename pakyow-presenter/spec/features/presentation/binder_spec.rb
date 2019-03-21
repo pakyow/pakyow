@@ -227,9 +227,12 @@ RSpec.describe "binding data via presenter, with a binder" do
     end
 
     let :presenter do
-      Pakyow::Presenter::Presenter.new(view, binders: [post_binder, comment_binder]).tap do |presenter|
-        presenter.install_endpoints(Pakyow.apps[0].endpoints, current_endpoint: endpoint)
-      end
+      Pakyow::Presenter::Presenter.new(
+        view,
+        binders: [post_binder, comment_binder],
+        endpoints: Pakyow.apps[0].endpoints,
+        presentables: { __endpoint: endpoint }
+      )
     end
 
     let :endpoint do

@@ -204,14 +204,12 @@ module Pakyow
       end
 
       def form_action_for_binding(action, object)
-        if endpoint_state_defined?
-          [
-            Support.inflector.singularize(@view.label(:binding)).to_sym,
-            Support.inflector.pluralize(@view.label(:binding)).to_sym
-          ].map { |possible_endpoint_name|
-            @endpoints.path_to(possible_endpoint_name, action, **object.to_h)
-          }.compact.first
-        end
+        [
+          Support.inflector.singularize(@view.label(:binding)).to_sym,
+          Support.inflector.pluralize(@view.label(:binding)).to_sym
+        ].map { |possible_endpoint_name|
+          @endpoints.path_to(possible_endpoint_name, action, **object.to_h)
+        }.compact.first
       end
 
       def method_for_action(action)

@@ -5,11 +5,11 @@ module Pakyow
     module Actions
       # @api private
       class InstallAuthenticity
-        def call(renderer)
-          renderer.presenter.view.object.each_significant_node(:meta) do |node|
+        def call(presenter)
+          presenter.view.object.each_significant_node(:meta) do |node|
             case node.attributes[:name]
             when "pw-authenticity-token"
-              node.attributes[:content] = renderer.connection.verifier.sign(renderer.authenticity_client_id)
+              node.attributes[:content] = presenter.__verifier.sign(presenter.__authenticity_client_id)
             end
           end
         end

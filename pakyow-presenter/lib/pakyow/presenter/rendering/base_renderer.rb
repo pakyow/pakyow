@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "pakyow/support/class_state"
+require "pakyow/support/deep_dup"
 require "pakyow/support/hookable"
 require "pakyow/support/pipeline"
 
@@ -21,6 +22,8 @@ module Pakyow
       include Support::Pipeline
       include Support::Pipeline::Object
 
+      using Support::DeepDup
+
       attr_reader :connection, :presenter
 
       def initialize(connection, presenter)
@@ -28,6 +31,14 @@ module Pakyow
       end
 
       def perform
+        @presenter.presentables[:__verifier] = @connection.verifier
+        @presenter.presentables[:__authenticity_client_id] = authenticity_client_id
+        @presenter.presentables[:__endpoint] = @connection.endpoint.deep_dup
+        # TODO: should this be defined here since the base renderer knows nothing about modes?
+        @presenter.presentables[:__mode] = @mode
+        @presenter.presentables[:__params] = @connection.params
+        @presenter.presentables[:__embed_authenticity_token] = @connection.app.config.presenter.embed_authenticity_token
+        @presenter.presentables[:__csrf_param] = @connection.app.config.security.csrf.param
         call(self)
       end
 
@@ -70,6 +81,18 @@ module Pakyow
         @connection.app.state(:presenter).find { |presenter|
           presenter.path == path
         }
+      end
+
+      # We still mark endpoints as active when running in the prototype environment, but we don't
+      # want to replace anchor hrefs, form actions, etc with backend routes. This gives the designer
+      # control over how the prototype behaves.
+      #
+      def endpoints_for_environment
+        if rendering_prototype?
+          Endpoints.new
+        else
+          @connection.app.endpoints
+        end
       end
     end
   end

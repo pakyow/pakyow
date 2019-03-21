@@ -1,32 +1,22 @@
 # frozen_string_literal: true
 
-require "pakyow/support/deep_dup"
 require "pakyow/support/extension"
+
+require "pakyow/endpoints"
 
 module Pakyow
   module Presenter
     class Presenter
       module Behavior
         module Endpoints
-          using Support::DeepDup
-
           extend Support::Extension
 
-          def install_endpoints(endpoints, current_endpoint:, setup_for_bindings: false)
-            @endpoints = endpoints
-
-            @current_endpoint = current_endpoint.dup.tap do |duped_endpoint|
-              duped_endpoint.params = duped_endpoint.params.to_h.deep_dup
-            end
-
-            setup_non_contextual_endpoints
-
-            if setup_for_bindings
-              setup_binding_endpoints({})
-            end
-          end
-
           prepend_methods do
+            def initialize(view, endpoints: Pakyow::Endpoints.new, **kwargs)
+              @endpoints = endpoints
+              super(view, **kwargs)
+            end
+
             def bind(data)
               object = if data.is_a?(Binder)
                 data.object
@@ -43,19 +33,14 @@ module Pakyow
                   # Keep track of parent bindings / bound objects. We'll use these
                   # later when setting up endpoints that rely on parent state.
                   #
-                  (@current_endpoint.params[:__parent_bindings] ||= {})[view.binding_name] = object
+                  (__endpoint.params[:__parent_bindings] ||= {})[view.binding_name] = object
                 end
               end
             end
 
             def presenter_for(*)
               super.tap do |presenter|
-                if endpoint_state_defined?
-                  presenter.install_endpoints(
-                    @endpoints,
-                    current_endpoint: @current_endpoint
-                  )
-                end
+                presenter&.instance_variable_set(:@endpoints, @endpoints)
               end
             end
 
@@ -81,18 +66,23 @@ module Pakyow
           end
 
           # @api private
-          def binding_endpoints(object)
-            if @view.object.is_a?(StringDoc::Node) && @view.object.significant?(:endpoint) && @view.object.significant?(:binding)
-              build_endpoints(object, nodes: [@view.object])
-            else
-              build_endpoints(object, within_binding: true)
-            end
+          def setup_non_contextual_endpoints
+            setup_endpoints(
+              build_endpoints(
+                within_binding: false
+              )
+            )
+          end
+
+          # @api private
+          def setup_binding_endpoints(object)
+            setup_endpoints(binding_endpoints(object))
           end
 
           private
 
           def endpoint_state_defined?
-            instance_variable_defined?(:@endpoints)
+            respond_to?(:__endpoint)
           end
 
           def build_endpoints(passed_params = {}, nodes: nil, within_binding: nil)
@@ -102,7 +92,7 @@ module Pakyow
               # FIXME: we could be smarter about this by asking @endpoints what
               # values it expects, then building up only what we need; endpoints
               # don't currently provide this knowledge
-              params = @current_endpoint.params[:__parent_bindings].to_h.each_with_object(@current_endpoint.params.dup) { |(parent_binding, parent_object), merged_params|
+              params = __endpoint.params[:__parent_bindings].to_h.each_with_object(__endpoint.params.dup) { |(parent_binding, parent_object), merged_params|
                 merged_params.merge!(Hash[parent_object.to_h.map { |key, value|
                   [:"#{parent_binding}_#{key}", value]
                 }])
@@ -124,6 +114,14 @@ module Pakyow
             end
           end
 
+          def binding_endpoints(object)
+            if @view.object.is_a?(StringDoc::Node) && @view.object.significant?(:endpoint) && @view.object.significant?(:binding)
+              build_endpoints(object, nodes: [@view.object])
+            else
+              build_endpoints(object, within_binding: true)
+            end
+          end
+
           def build_endpoint_for_node(node, endpoints, params)
             name = node.label(:endpoint)
 
@@ -133,18 +131,6 @@ module Pakyow
               path: @endpoints.path(*name, **params.to_h),
               method: @endpoints.method(name)
             }
-          end
-
-          def setup_non_contextual_endpoints
-            setup_endpoints(
-              build_endpoints(
-                within_binding: false
-              )
-            )
-          end
-
-          def setup_binding_endpoints(object)
-            setup_endpoints(binding_endpoints(object))
           end
 
           def setup_endpoints(endpoints)
@@ -183,7 +169,7 @@ module Pakyow
               end
 
               if endpoint_action_view.attributes.has?(:href)
-                endpoint_path = @current_endpoint[:path].to_s
+                endpoint_path = __endpoint[:path].to_s
                 if endpoint_path == endpoint_action_view.attributes[:href]
                   endpoint_view.attributes[:class].add(:current)
                 elsif endpoint_path.start_with?(endpoint_action_view.attributes[:href])

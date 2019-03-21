@@ -5,9 +5,9 @@ module Pakyow
     module Actions
       # @api private
       class InsertPrototypeBar
-        def call(renderer)
-          if renderer.rendering_prototype?
-            if body_node = renderer.presenter.view.object.find_first_significant_node(:body)
+        def call(presenter)
+          if Pakyow.env?(:prototype) && presenter.respond_to?(:__mode)
+            if body_node = presenter.view.object.find_first_significant_node(:body)
               body_node.append_html <<~HTML
                 <style>
                   .pw-prototype {
@@ -40,7 +40,7 @@ module Pakyow
                 </style>
 
                 <div class="pw-prototype">
-                  #{ui_modes_html(renderer)}
+                  #{ui_modes_html(presenter)}
 
                   <div class="pw-prototype-tag">
                     Prototype
@@ -53,17 +53,17 @@ module Pakyow
 
         private
 
-        def ui_modes_html(renderer)
-          modes = renderer.presenter.view.object.each_significant_node(:mode).map { |node|
+        def ui_modes_html(presenter)
+          modes = presenter.view.object.each_significant_node(:mode).map { |node|
             node.label(:mode)
           }
 
           modes.unshift(
-            (renderer.presenter.view.info(:mode) || :default).to_sym
+            (presenter.view.info(:mode) || :default).to_sym
           ).uniq!
 
           options = modes.map { |mode|
-            selected = if mode == renderer.mode.to_sym
+            selected = if mode == presenter.__mode.to_sym
               " selected=\"selected\""
             else
               ""

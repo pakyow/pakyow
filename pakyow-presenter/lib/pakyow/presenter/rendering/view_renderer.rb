@@ -79,7 +79,8 @@ module Pakyow
           @connection.app.view(@templates_path),
           binders: @connection.app.state(:binder),
           presentables: @connection.values,
-          logger: @connection.logger
+          logger: @connection.logger,
+          endpoints: endpoints_for_environment
         )
 
         super
