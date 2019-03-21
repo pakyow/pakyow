@@ -1,4 +1,8 @@
 RSpec.describe "defining global options in the presenter" do
+  before do
+    allow(Pakyow).to receive(:env?).with(:prototype).and_return(true)
+  end
+
   let :presenter do
     presenter_class.new(view)
   end
@@ -35,7 +39,7 @@ RSpec.describe "defining global options in the presenter" do
     end
 
     it "applies the options to the form" do
-      expect(presenter.to_s(clean_bindings: false)).to eq_sans_whitespace(
+      expect(presenter.to_s).to eq_sans_whitespace(
         <<~HTML
           <form data-b="post" data-c="form">
             <select data-b="tag" data-c="form">
@@ -49,7 +53,7 @@ RSpec.describe "defining global options in the presenter" do
     end
 
     it "calls the block in context of the presenter instance" do
-      presenter.to_s(clean_bindings: false)
+      presenter.to_s
       expect($context).to be_instance_of(presenter_class)
     end
   end
@@ -66,7 +70,7 @@ RSpec.describe "defining global options in the presenter" do
     end
 
     it "applies the options to the form" do
-      expect(presenter.to_s(clean_bindings: false)).to eq_sans_whitespace(
+      expect(presenter.to_s).to eq_sans_whitespace(
         <<~HTML
           <form data-b="post" data-c="form">
             <select data-b="tag" data-c="form">

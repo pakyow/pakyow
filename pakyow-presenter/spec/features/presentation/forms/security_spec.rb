@@ -17,7 +17,7 @@ RSpec.describe "form sanitization during presentation" do
     end
 
     it "escapes the submitted and presented values" do
-      expect(presenter.to_s(clean_bindings: false)).to include("<option value=\"&gt;haha\">&gt;lol</option>")
+      expect(presenter.view.to_s).to include("<option value=\"&gt;haha\">&gt;lol</option>")
     end
   end
 
@@ -31,11 +31,11 @@ RSpec.describe "form sanitization during presentation" do
     end
 
     it "escapes the group label" do
-      expect(presenter.to_s(clean_bindings: false)).to include("<optgroup label=\"&quot;&gt;&lt;script&gt;&lt;/script&gt;\">")
+      expect(presenter.view.to_s).to include("<optgroup label=\"&quot;&gt;&lt;script&gt;&lt;/script&gt;\">")
     end
 
     it "escapes the submitted and presented values" do
-      expect(presenter.to_s(clean_bindings: false)).to include("<option value=\"&gt;haha\">&gt;lol</option>")
+      expect(presenter.view.to_s).to include("<option value=\"&gt;haha\">&gt;lol</option>")
     end
   end
 end

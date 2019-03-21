@@ -15,7 +15,7 @@ module Pakyow
           renderer = new(connection, **args)
           renderer.perform
 
-          html = renderer.to_html(clean_bindings: !Pakyow.env?(:prototype))
+          html = renderer.to_html
           connection.set_header("content-type", "text/html")
           connection.body = StringIO.new(html)
           connection.rendered

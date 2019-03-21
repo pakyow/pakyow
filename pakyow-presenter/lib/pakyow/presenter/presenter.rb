@@ -48,6 +48,17 @@ module Pakyow
       action :perform
 
       action :setup_forms, Actions::SetupForms
+      action :cleanup_unused_nodes do
+        unless Pakyow.env?(:prototype)
+          @view.object.each_significant_node(:binding).select { |node|
+            !node.labeled?(:used)
+          }.each(&:remove)
+        end
+
+        @view.object.each.select { |node|
+          (node.is_a?(StringDoc::Node) && node.significant? && node.labeled?(:version)) && node.label(:version) != VersionedView::DEFAULT_VERSION
+        }.each(&:remove)
+      end
 
       include Behavior::Endpoints
       include Behavior::Options
@@ -381,9 +392,9 @@ module Pakyow
         end
       end
 
-      def to_html(clean_bindings: true, clean_versions: true)
+      def to_html
         call unless called?
-        @view.to_html(clean_bindings: clean_bindings, clean_versions: clean_versions)
+        @view.to_html
       end
       alias to_s to_html
 

@@ -144,9 +144,7 @@ RSpec.describe "rendering with backend components" do
             <h1 data-b="title">post 1</h1>
 
             <div data-ui="child" style="color: red;">
-              <div data-b="comment">
-                <p data-b="body">post 1, comment 1</p>
-              </div><script type="text/template" data-b="comment"><div data-b="comment">
+              <script type="text/template" data-b="comment"><div data-b="comment">
                 <p data-b="body">
                   comment body here
                 </p>
@@ -166,11 +164,7 @@ RSpec.describe "rendering with backend components" do
             <h1 data-b="title">post 3</h1>
 
             <div data-ui="child" style="color: red;">
-              <div data-b="comment">
-                <p data-b="body">post 3, comment 1</p>
-              </div><div data-b="comment">
-                <p data-b="body">post 3, comment 2</p>
-              </div><script type="text/template" data-b="comment"><div data-b="comment">
+              <script type="text/template" data-b="comment"><div data-b="comment">
                 <p data-b="body">
                   comment body here
                 </p>
