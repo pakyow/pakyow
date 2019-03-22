@@ -1,0 +1,390 @@
+require "pakyow/support/deep_freeze"
+
+RSpec.describe "StringDoc transforms" do
+  using Pakyow::Support::DeepFreeze
+
+  let :doc do
+    StringDoc.new(
+      <<~HTML
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="utf-8">
+        </head>
+
+        <body>
+          <article binding="post">
+            <h1 binding="title">title goes here</h1>
+          </article>
+        </body>
+        </html>
+      HTML
+    )
+  end
+
+  context "transforms the passed node" do
+    before do
+      doc.find_significant_nodes_with_name(:binding, :title)[0].transform do |node|
+        node.html = "hello"; node
+      end
+
+      @renderable = doc.deep_freeze
+    end
+
+    it "transforms on render" do
+      expect(@renderable.to_s).to eq_sans_whitespace(
+        <<~HTML
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+          </head>
+
+          <body>
+            <article data-b="post" data-c="article">
+              <h1 data-b="title" data-c="article">hello</h1>
+            </article>
+          </body>
+          </html>
+        HTML
+      )
+    end
+  end
+
+  context "no transforms" do
+    before do
+      @renderable = doc.deep_freeze
+    end
+
+    it "renders" do
+      expect(@renderable.to_s).to eq_sans_whitespace(
+        <<~HTML
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+          </head>
+
+          <body>
+            <article data-b="post" data-c="article">
+              <h1 data-b="title" data-c="article">title goes here</h1>
+            </article>
+          </body>
+          </html>
+        HTML
+      )
+    end
+  end
+
+  context "transform returns nil" do
+    before do
+      doc.find_significant_nodes_with_name(:binding, :title)[0].transform do
+        nil
+      end
+
+      @renderable = doc.deep_freeze
+    end
+
+    it "removes the node" do
+      expect(@renderable.to_s).to eq_sans_whitespace(
+        <<~HTML
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+          </head>
+
+          <body>
+            <article data-b="post" data-c="article"></article>
+          </body>
+          </html>
+        HTML
+      )
+    end
+  end
+
+  context "transform returns string" do
+    before do
+      doc.find_significant_nodes_with_name(:binding, :title)[0].transform do
+        "hello"
+      end
+
+      @renderable = doc.deep_freeze
+    end
+
+    it "renders the string in place of the node" do
+      expect(@renderable.to_s).to eq_sans_whitespace(
+        <<~HTML
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+          </head>
+
+          <body>
+            <article data-b="post" data-c="article">
+              hello
+            </article>
+          </body>
+          </html>
+        HTML
+      )
+    end
+  end
+
+  context "transform returns node" do
+    before do
+      doc.find_significant_nodes_with_name(:binding, :title)[0].transform do
+        StringDoc::Node.new("hello")
+      end
+
+      @renderable = doc.deep_freeze
+    end
+
+    it "renders the node" do
+      expect(@renderable.to_s).to eq_sans_whitespace(
+        <<~HTML
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+          </head>
+
+          <body>
+            <article data-b="post" data-c="article">
+              hello
+            </article>
+          </body>
+          </html>
+        HTML
+      )
+    end
+  end
+
+  context "transform returns doc" do
+    before do
+      doc.find_significant_nodes_with_name(:binding, :title)[0].transform do
+        StringDoc.new("hello")
+      end
+
+      @renderable = doc.deep_freeze
+    end
+
+    it "renders the doc" do
+      expect(@renderable.to_s).to eq_sans_whitespace(
+        <<~HTML
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+          </head>
+
+          <body>
+            <article data-b="post" data-c="article">
+              hello
+            </article>
+          </body>
+          </html>
+        HTML
+      )
+    end
+  end
+
+  context "multiple transforms for different nodes" do
+    before do
+      doc.find_significant_nodes_with_name(:binding, :title)[0].transform do
+        "hello"
+      end
+
+      doc.find_significant_nodes(:meta)[0].transform do |node|
+        node.attributes[:content] = "test"; node
+      end
+
+      @renderable = doc.deep_freeze
+    end
+
+    it "transforms on render" do
+      expect(@renderable.to_s).to eq_sans_whitespace(
+        <<~HTML
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8" content="test">
+          </head>
+
+          <body>
+            <article data-b="post" data-c="article">
+              hello
+            </article>
+          </body>
+          </html>
+        HTML
+      )
+    end
+  end
+
+  context "multiple transforms on the same node" do
+    context "transforms all return nodes" do
+      before do
+        doc.find_significant_nodes_with_name(:binding, :title)[0].transform do |node|
+          node.html = "hello"; node
+        end
+
+        doc.find_significant_nodes_with_name(:binding, :title)[0].transform do |node|
+          node.attributes[:class] = "foo"; node
+        end
+
+        @renderable = doc.deep_freeze
+      end
+
+      it "transforms on render" do
+        expect(@renderable.to_s).to eq_sans_whitespace(
+          <<~HTML
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+              <meta charset="utf-8">
+            </head>
+
+            <body>
+              <article data-b="post" data-c="article">
+                <h1 data-b="title" data-c="article" class="foo">hello</h1>
+              </article>
+            </body>
+            </html>
+          HTML
+        )
+      end
+    end
+
+    context "transformation returns nil" do
+      before do
+        doc.find_significant_nodes_with_name(:binding, :title)[0].transform do
+          nil
+        end
+
+        doc.find_significant_nodes_with_name(:binding, :title)[0].transform do |node|
+          node.html = "hello"; node
+        end
+
+        @renderable = doc.deep_freeze
+      end
+
+      it "removes the node without applying future transforms" do
+        expect(@renderable.to_s).to eq_sans_whitespace(
+          <<~HTML
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+              <meta charset="utf-8">
+            </head>
+
+            <body>
+              <article data-b="post" data-c="article">
+              </article>
+            </body>
+            </html>
+          HTML
+        )
+      end
+    end
+
+    context "transformation returns string" do
+      before do
+        doc.find_significant_nodes_with_name(:binding, :title)[0].transform do
+          "hello"
+        end
+
+        doc.find_significant_nodes_with_name(:binding, :title)[0].transform do |node|
+          node.html = "hello"; node
+        end
+
+        @renderable = doc.deep_freeze
+      end
+
+      it "replaces the node without applying future transforms" do
+        expect(@renderable.to_s).to eq_sans_whitespace(
+          <<~HTML
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+              <meta charset="utf-8">
+            </head>
+
+            <body>
+              <article data-b="post" data-c="article">
+                hello
+              </article>
+            </body>
+            </html>
+          HTML
+        )
+      end
+    end
+
+    describe "transform priority" do
+      before do
+        doc.find_significant_nodes_with_name(:binding, :title)[0].transform do
+          "hello"
+        end
+
+        doc.find_significant_nodes_with_name(:binding, :title)[0].transform priority: :high do
+          nil
+        end
+
+        @renderable = doc.deep_freeze
+      end
+
+      it "applies transforms in order of priority" do
+        expect(@renderable.to_s).to eq_sans_whitespace(
+          <<~HTML
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+              <meta charset="utf-8">
+            </head>
+
+            <body>
+              <article data-b="post" data-c="article">
+              </article>
+            </body>
+            </html>
+          HTML
+        )
+      end
+    end
+  end
+
+  context "transformed node's parent was transformed" do
+    before do
+      doc.find_significant_nodes_with_name(:binding, :post)[0].transform do |node|
+        node.attributes[:class] = "foo"; node
+      end
+
+      doc.find_significant_nodes_with_name(:binding, :title)[0].transform do |node|
+        node.html = "hello"; node
+      end
+
+      @renderable = doc.deep_freeze
+    end
+
+    it "transforms on render" do
+      expect(@renderable.to_s).to eq_sans_whitespace(
+        <<~HTML
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+          </head>
+
+          <body>
+            <article data-b="post" data-c="article" class="foo">
+              <h1 data-b="title" data-c="article">hello</h1>
+            </article>
+          </body>
+          </html>
+        HTML
+      )
+    end
+  end
+end

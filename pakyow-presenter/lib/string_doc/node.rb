@@ -32,6 +32,7 @@ class StringDoc
     end
 
     attr_reader :node, :parent, :children, :attributes, :tag_open_start, :tag_open_end, :tag_close
+    attr_reader :transforms
 
     # @api private
     attr_writer :parent
@@ -44,6 +45,7 @@ class StringDoc
     def initialize(tag_open_start = "", attributes = Attributes.new, tag_open_end = "", children = StringDoc.empty, tag_close = "", parent: nil, significance: [], labels: {})
       @tag_open_start, @attributes, @tag_open_end, @children, @tag_close = tag_open_start, attributes, tag_open_end, children, tag_close
       @parent, @labels, @significance = parent, labels, significance
+      @transforms = { high: [], default: [], low: [] }
     end
 
     # @api private
@@ -51,9 +53,25 @@ class StringDoc
       super
 
       @labels = @labels.deep_dup
-      @significance = @significance.dup
       @attributes = @attributes.dup
       @children = @children.dup
+      @transforms = Hash[@transforms.map { |k, v| [k, v.dup] }]
+    end
+
+    def call_next_transform
+      (@transforms[:high].shift || @transforms[:default].shift || @transforms[:low].shift).call(self)
+    end
+
+    def transform(priority: :default, &block)
+      @transforms[priority] << block
+    end
+
+    def transforms?
+      transforms_itself? || @children.transforms?
+    end
+
+    def transforms_itself?
+      @transforms[:high].any? || @transforms[:default].any? || @transforms[:low].any?
     end
 
     def empty?

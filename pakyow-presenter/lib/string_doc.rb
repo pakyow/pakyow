@@ -396,6 +396,8 @@ class StringDoc
       @collapsed = to_xml
       @nodes = []
     end
+
+    @collapsed
   end
 
   def significance?(*significance)
@@ -418,6 +420,10 @@ class StringDoc
     @nodes.empty?
   end
 
+  def transforms?
+    @nodes.any?(&:transforms?)
+  end
+
   private
 
   def render(doc = self, string = String.new)
@@ -425,29 +431,52 @@ class StringDoc
       string << doc.collapsed
     else
       doc.nodes.each do |node|
-        if node.is_a?(Node)
-          string << node.tag_open_start
-
-          node.attributes.each_string do |attribute_string|
-            string << attribute_string
-          end
-
-          string << node.tag_open_end
-
-          case node.children
-          when StringDoc
-            render(node.children, string)
-          else
-            string << node.children
-          end
-
-          string << node.tag_close
-        else
-          string << node.to_s
-        end
+        render_node(node, string)
       end
 
       string
+    end
+  end
+
+  def render_node(node, string)
+    if node.is_a?(Node)
+      if node.transforms_itself?
+        if node.frozen?
+          node = node.dup
+        end
+
+        return_value = node.call_next_transform
+
+        case return_value
+        when NilClass
+          # nothing to do
+        when Node
+          render_node(return_value, string)
+        when StringDoc
+          render(return_value, string)
+        else
+          string << return_value.to_s
+        end
+      else
+        string << node.tag_open_start
+
+        node.attributes.each_string do |attribute_string|
+          string << attribute_string
+        end
+
+        string << node.tag_open_end
+
+        case node.children
+        when StringDoc
+          render(node.children, string)
+        else
+          string << node.children
+        end
+
+        string << node.tag_close
+      end
+    else
+      string << node.to_s
     end
   end
 
