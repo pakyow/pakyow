@@ -394,8 +394,8 @@ class StringDoc
 
   # Converts the document to an xml string.
   #
-  def to_xml
-    render
+  def to_xml(context: nil)
+    render(context: context)
   end
   alias :to_html :to_xml
   alias :to_s :to_xml
@@ -443,24 +443,24 @@ class StringDoc
 
   private
 
-  def render(doc = self, string = String.new)
+  def render(doc = self, string = String.new, context: nil)
     if doc.collapsed && doc.empty?
       string << doc.collapsed
     else
       doc.nodes.each do |node|
-        render_node(node, string)
+        render_node(node, string, context: context)
       end
 
       string
     end
   end
 
-  def render_node(node, string, force = false)
+  def render_node(node, string, force = false, context: nil)
     case node
     when Node
       if force || !node.ignored?
         if node.transforms_itself?
-          transform_node(node, string)
+          transform_node(node, string, context: context)
         else
           string << node.tag_open_start
 
@@ -472,7 +472,7 @@ class StringDoc
 
           case node.children
           when StringDoc
-            render(node.children, string)
+            render(node.children, string, context: context)
           else
             string << node.children
           end
@@ -482,10 +482,10 @@ class StringDoc
       end
     when MetaNode
       if node.transforms_itself?
-        transform_node(node, string)
+        transform_node(node, string, context: context)
       else
         node.nodes.each do |each_node|
-          render_node(each_node, string, true)
+          render_node(each_node, string, true, context: context)
         end
       end
     else
@@ -493,20 +493,20 @@ class StringDoc
     end
   end
 
-  def transform_node(node, string)
+  def transform_node(node, string, context: nil)
     if node.frozen?
       node = node.dup
     end
 
-    return_value = node.call_next_transform
+    return_value = node.call_next_transform(context)
 
     case return_value
     when NilClass
       # nothing to do
     when Node, MetaNode
-      render_node(return_value, string)
+      render_node(return_value, string, context: context)
     when StringDoc
-      render(return_value, string)
+      render(return_value, string, context: context)
     else
       string << return_value.to_s
     end

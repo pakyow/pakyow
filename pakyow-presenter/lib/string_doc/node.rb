@@ -59,8 +59,8 @@ class StringDoc
       @transforms = Hash[@transforms.map { |k, v| [k, v.dup] }]
     end
 
-    def call_next_transform
-      (@transforms[:high].shift || @transforms[:default].shift || @transforms[:low].shift).call(self)
+    def call_next_transform(context = nil)
+      (@transforms[:high].shift || @transforms[:default].shift || @transforms[:low].shift).call(self, context)
     end
 
     def transform(priority: :default, &block)
@@ -225,7 +225,7 @@ class StringDoc
 
     # Converts the node to an xml string.
     #
-    def to_xml
+    def to_xml(context: nil)
       string_nodes.flatten.map(&:to_s).join
     end
     alias :to_html :to_xml

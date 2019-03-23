@@ -65,8 +65,8 @@ class StringDoc
       end
     end
 
-    def call_next_transform
-      (@transforms[:high].shift || @transforms[:default].shift || @transforms[:low].shift).call(self)
+    def call_next_transform(context = nil)
+      (@transforms[:high].shift || @transforms[:default].shift || @transforms[:low].shift).call(self, context)
     end
 
     def transform(priority: :default, &block)
