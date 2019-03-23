@@ -25,6 +25,7 @@ require "pakyow/support/silenceable"
 class StringDoc
   require "string_doc/attributes"
   require "string_doc/node"
+  require "string_doc/meta_node"
 
   class << self
     # Creates an empty doc.
@@ -120,7 +121,7 @@ class StringDoc
       case doc_node_or_string
       when StringDoc
         doc_node_or_string.nodes
-      when Node
+      when Node, MetaNode
         [doc_node_or_string]
       else
         StringDoc.new(doc_node_or_string.to_s).nodes
@@ -158,13 +159,28 @@ class StringDoc
     return enum_for(:each) unless block_given?
 
     @nodes.each do |node|
-      yield node
+      case node
+      when MetaNode
+        node.nodes.each do |meta_node|
+          yield meta_node
 
-      unless node.label(:descend) == false
-        if node.children.is_a?(StringDoc)
-          node.children.each(&block)
-        else
-          yield node.children
+          unless meta_node.label(:descend) == false
+            if meta_node.children.is_a?(StringDoc)
+              meta_node.children.each(&block)
+            else
+              yield meta_node.children
+            end
+          end
+        end
+      when Node
+        yield node
+
+        unless node.label(:descend) == false
+          if node.children.is_a?(StringDoc)
+            node.children.each(&block)
+          else
+            yield node.children
+          end
         end
       end
     end
@@ -367,8 +383,9 @@ class StringDoc
     tap do
       if replace_node_index = @nodes.index(node_to_replace)
         nodes_to_insert = self.class.nodes_from_doc_or_string(replacement_node).map { |node|
-          node.instance_variable_set(:@parent, self); node
+          node.parent = self; node
         }
+
         @nodes.insert(replace_node_index + 1, *nodes_to_insert)
         @nodes.delete_at(replace_node_index)
       end
@@ -438,45 +455,60 @@ class StringDoc
     end
   end
 
-  def render_node(node, string)
-    if node.is_a?(Node)
+  def render_node(node, string, force = false)
+    case node
+    when Node
+      if force || !node.ignored?
+        if node.transforms_itself?
+          transform_node(node, string)
+        else
+          string << node.tag_open_start
+
+          node.attributes.each_string do |attribute_string|
+            string << attribute_string
+          end
+
+          string << node.tag_open_end
+
+          case node.children
+          when StringDoc
+            render(node.children, string)
+          else
+            string << node.children
+          end
+
+          string << node.tag_close
+        end
+      end
+    when MetaNode
       if node.transforms_itself?
-        if node.frozen?
-          node = node.dup
-        end
-
-        return_value = node.call_next_transform
-
-        case return_value
-        when NilClass
-          # nothing to do
-        when Node
-          render_node(return_value, string)
-        when StringDoc
-          render(return_value, string)
-        else
-          string << return_value.to_s
-        end
+        transform_node(node, string)
       else
-        string << node.tag_open_start
-
-        node.attributes.each_string do |attribute_string|
-          string << attribute_string
+        node.nodes.each do |each_node|
+          render_node(each_node, string, true)
         end
-
-        string << node.tag_open_end
-
-        case node.children
-        when StringDoc
-          render(node.children, string)
-        else
-          string << node.children
-        end
-
-        string << node.tag_close
       end
     else
       string << node.to_s
+    end
+  end
+
+  def transform_node(node, string)
+    if node.frozen?
+      node = node.dup
+    end
+
+    return_value = node.call_next_transform
+
+    case return_value
+    when NilClass
+      # nothing to do
+    when Node, MetaNode
+      render_node(return_value, string)
+    when StringDoc
+      render(return_value, string)
+    else
+      string << return_value.to_s
     end
   end
 

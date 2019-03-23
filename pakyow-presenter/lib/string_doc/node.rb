@@ -46,6 +46,7 @@ class StringDoc
       @tag_open_start, @attributes, @tag_open_end, @children, @tag_close = tag_open_start, attributes, tag_open_end, children, tag_close
       @parent, @labels, @significance = parent, labels, significance
       @transforms = { high: [], default: [], low: [] }
+      @ignored = false
     end
 
     # @api private
@@ -63,7 +64,7 @@ class StringDoc
     end
 
     def transform(priority: :default, &block)
-      @transforms[priority] << block
+      @transforms[priority] << block; block.object_id
     end
 
     def transforms?
@@ -212,6 +213,14 @@ class StringDoc
     #
     def delete_label(name)
       @labels.delete(name.to_sym)
+    end
+
+    def ignore
+      @ignored = true
+    end
+
+    def ignored?
+      @ignored == true
     end
 
     # Converts the node to an xml string.

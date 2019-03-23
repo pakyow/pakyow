@@ -4,22 +4,24 @@ RSpec.describe "StringDoc transforms" do
   using Pakyow::Support::DeepFreeze
 
   let :doc do
-    StringDoc.new(
-      <<~HTML
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="utf-8">
-        </head>
+    StringDoc.new(html)
+  end
 
-        <body>
-          <article binding="post">
-            <h1 binding="title">title goes here</h1>
-          </article>
-        </body>
-        </html>
-      HTML
-    )
+  let :html do
+    <<~HTML
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="utf-8">
+      </head>
+
+      <body>
+        <article binding="post">
+          <h1 binding="title">title goes here</h1>
+        </article>
+      </body>
+      </html>
+    HTML
   end
 
   context "transforms the passed node" do
@@ -385,6 +387,252 @@ RSpec.describe "StringDoc transforms" do
           </html>
         HTML
       )
+    end
+  end
+
+  describe "transforming multiple nodes as one" do
+    let :html do
+      <<~HTML
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="utf-8">
+        </head>
+
+        <body>
+          <article binding="post">
+            <h1 binding="title">1 title goes here</h1>
+          </article>
+
+          <article binding="post">
+            <h1 binding="title">2 title goes here</h1>
+          </article>
+        </body>
+        </html>
+      HTML
+    end
+
+    context "all nodes are transformed" do
+      before do
+        nodes = doc.find_significant_nodes_with_name(:binding, :post)
+        meta_node = StringDoc::MetaNode.new(nodes)
+
+        counter = 0
+        meta_node.transform do |meta_node|
+          counter += 1
+
+          meta_node.nodes.each do |node|
+            node.html = counter.to_s
+          end
+
+          meta_node
+        end
+
+        meta_node.parent.replace_node(nodes.first, meta_node)
+        nodes[1..-1].each(&:ignore)
+
+        @renderable = doc.deep_freeze
+      end
+
+      it "transforms on render" do
+        expect(@renderable.to_s).to eq_sans_whitespace(
+          <<~HTML
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+              <meta charset="utf-8">
+            </head>
+
+            <body>
+              <article data-b="post" data-c="article">
+                1
+              </article>
+
+              <article data-b="post" data-c="article">
+                1
+              </article>
+            </body>
+            </html>
+          HTML
+        )
+      end
+    end
+
+    context "node is removed" do
+      before do
+        nodes = doc.find_significant_nodes_with_name(:binding, :post)
+        meta_node = StringDoc::MetaNode.new(nodes)
+
+        meta_node.transform do |meta_node|
+          meta_node.nodes[1].remove; meta_node
+        end
+
+        meta_node.parent.replace_node(nodes.first, meta_node)
+        nodes[1..-1].each(&:ignore)
+
+        @renderable = doc.deep_freeze
+      end
+
+      it "transforms on render" do
+        expect(@renderable.to_s).to eq_sans_whitespace(
+          <<~HTML
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+              <meta charset="utf-8">
+            </head>
+
+            <body>
+              <article data-b="post" data-c="article">
+                <h1 data-b="title" data-c="article">1 title goes here</h1>
+              </article>
+            </body>
+            </html>
+          HTML
+        )
+      end
+    end
+
+    context "node is replaced" do
+      before do
+        nodes = doc.find_significant_nodes_with_name(:binding, :post)
+        meta_node = StringDoc::MetaNode.new(nodes)
+
+        meta_node.transform do |meta_node|
+          meta_node.nodes[1].replace(StringDoc::Node.new("replaced")); meta_node
+        end
+
+        meta_node.parent.replace_node(nodes.first, meta_node)
+        nodes[1..-1].each(&:ignore)
+
+        @renderable = doc.deep_freeze
+      end
+
+      it "transforms on render" do
+        expect(@renderable.to_s).to eq_sans_whitespace(
+          <<~HTML
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+              <meta charset="utf-8">
+            </head>
+
+            <body>
+              <article data-b="post" data-c="article">
+                <h1 data-b="title" data-c="article">1 title goes here</h1>
+              </article>
+
+              replaced
+            </body>
+            </html>
+          HTML
+        )
+      end
+    end
+
+    context "node is inserted after" do
+      before do
+        nodes = doc.find_significant_nodes_with_name(:binding, :post)
+        meta_node = StringDoc::MetaNode.new(nodes)
+
+        meta_node.transform do |meta_node|
+          meta_node.nodes[0].after(StringDoc::Node.new("insert")); meta_node
+        end
+
+        meta_node.parent.replace_node(nodes.first, meta_node)
+        nodes[1..-1].each(&:ignore)
+
+        @renderable = doc.deep_freeze
+      end
+
+      it "transforms on render" do
+        expect(@renderable.to_s).to eq_sans_whitespace(
+          <<~HTML
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+              <meta charset="utf-8">
+            </head>
+
+            <body>
+              <article data-b="post" data-c="article">
+                <h1 data-b="title" data-c="article">1 title goes here</h1>
+              </article>
+
+              insert
+
+              <article data-b="post" data-c="article">
+                <h1 data-b="title" data-c="article">2 title goes here</h1>
+              </article>
+            </body>
+            </html>
+          HTML
+        )
+      end
+    end
+
+    context "node is inserted before" do
+      before do
+        nodes = doc.find_significant_nodes_with_name(:binding, :post)
+        meta_node = StringDoc::MetaNode.new(nodes)
+
+        meta_node.transform do |meta_node|
+          meta_node.nodes[0].before(StringDoc::Node.new("insert")); meta_node
+        end
+
+        meta_node.parent.replace_node(nodes.first, meta_node)
+        nodes[1..-1].each(&:ignore)
+
+        @renderable = doc.deep_freeze
+      end
+
+      it "transforms on render" do
+        expect(@renderable.to_s).to eq_sans_whitespace(
+          <<~HTML
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+              <meta charset="utf-8">
+            </head>
+
+            <body>
+              insert
+
+              <article data-b="post" data-c="article">
+                <h1 data-b="title" data-c="article">1 title goes here</h1>
+              </article>
+
+              <article data-b="post" data-c="article">
+                <h1 data-b="title" data-c="article">2 title goes here</h1>
+              </article>
+            </body>
+            </html>
+          HTML
+        )
+      end
+    end
+  end
+
+  describe "passing runtime context to a render" do
+    before do
+      local = self
+      doc.find_significant_nodes_with_name(:binding, :title)[0].transform do |node, context|
+        local.instance_variable_set(:@context, context)
+      end
+
+      @renderable = doc.deep_freeze
+    end
+
+    before do
+      @context = nil
+    end
+
+    it "passes" do
+      expect {
+        @renderable.to_s(context: :test)
+      }.to change {
+        @context
+      }.from(nil).to(:test)
     end
   end
 end
