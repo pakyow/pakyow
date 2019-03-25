@@ -56,6 +56,7 @@ class StringDoc
       @labels = @labels.deep_dup
       @attributes = @attributes.dup
       @children = @children.dup
+      @significance = @significance.dup
       @transforms = Hash[@transforms.map { |k, v| [k, v.dup] }]
     end
 
