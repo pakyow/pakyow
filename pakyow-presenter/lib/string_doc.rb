@@ -394,8 +394,8 @@ class StringDoc
 
   # Converts the document to an xml string.
   #
-  def to_xml(context: nil)
-    render(context: context)
+  def to_xml(output = String.new, context: nil)
+    render(self, output, context: context)
   end
   alias :to_html :to_xml
   alias :to_s :to_xml

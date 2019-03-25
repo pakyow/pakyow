@@ -225,8 +225,8 @@ class StringDoc
 
     # Converts the node to an xml string.
     #
-    def to_xml(context: nil)
-      string_nodes.flatten.map(&:to_s).join
+    def to_xml(output = String.new, context: nil)
+      output << string_nodes.flatten.map(&:to_s).join
     end
     alias :to_html :to_xml
     alias :to_s :to_xml
