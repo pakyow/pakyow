@@ -14,6 +14,9 @@ module Pakyow
       #
       attr_reader :working
 
+      # @api private
+      attr_reader :versions
+
       def initialize(versions)
         @versions = versions
         determine_working_version

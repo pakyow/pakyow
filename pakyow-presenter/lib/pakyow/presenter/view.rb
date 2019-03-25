@@ -4,6 +4,7 @@ require "forwardable"
 
 require "pakyow/support/core_refinements/array/ensurable"
 require "pakyow/support/indifferentize"
+require "pakyow/support/inflector"
 require "pakyow/support/safe_string"
 
 require "string_doc"
@@ -379,6 +380,16 @@ module Pakyow
       # @api private
       def channeled_binding_name
         [label(:binding)].concat(label(:channel)).join(":")
+      end
+
+      # @api private
+      def plural_channeled_binding_name
+        [Support.inflector.pluralize(label(:binding))].concat(label(:channel)).join(":").to_sym
+      end
+
+      # @api private
+      def singular_channeled_binding_name
+        [Support.inflector.singularize(label(:binding))].concat(label(:channel)).join(":").to_sym
       end
 
       # @api private

@@ -2,24 +2,18 @@
 
 require "forwardable"
 
+require "string_doc/meta_node"
+
 require "pakyow/support/core_refinements/array/ensurable"
 require "pakyow/support/core_refinements/string/normalization"
 
 require "pakyow/support/class_state"
-require "pakyow/support/pipeline"
-require "pakyow/support/pipeline/object"
 require "pakyow/support/safe_string"
 require "pakyow/support/string_builder"
 
 require "pakyow/presenter/presentable"
 require "pakyow/presenter/presenter/behavior/endpoints"
 require "pakyow/presenter/presenter/behavior/options"
-
-require "pakyow/presenter/rendering/actions/install_authenticity"
-require "pakyow/presenter/rendering/actions/install_endpoints"
-require "pakyow/presenter/rendering/actions/insert_prototype_bar"
-require "pakyow/presenter/rendering/actions/place_in_mode"
-require "pakyow/presenter/rendering/actions/setup_forms"
 
 module Pakyow
   module Presenter
@@ -30,35 +24,17 @@ module Pakyow
     # In normal usage you will be interacting with presenters rather than the {View} directly.
     #
     class Presenter
-      extend Forwardable
+      extend Support::Makeable
+      extend Support::ClassState
+      class_state :__version_logic, default: {}, inheritable: true
+      class_state :__attached_renders, default: [], inheritable: true
 
       using Support::Refinements::Array::Ensurable
 
       include Support::SafeStringHelpers
 
-      include Support::Pipeline
-      include Support::Pipeline::Object
-
-      action :install_authenticity, Actions::InstallAuthenticity
-      action :install_endpoints, Actions::InstallEndpoints
-      action :insert_prototype_bar, Actions::InsertPrototypeBar
-      action :place_in_mode, Actions::PlaceInMode
-
-      action :set_title
-      action :perform
-
-      action :setup_forms, Actions::SetupForms
-      action :cleanup_unused_nodes do
-        unless Pakyow.env?(:prototype)
-          @view.object.each_significant_node(:binding).select { |node|
-            !node.labeled?(:used)
-          }.each(&:remove)
-        end
-
-        @view.object.each.select { |node|
-          (node.is_a?(StringDoc::Node) && node.significant? && node.labeled?(:version)) && node.label(:version) != VersionedView::DEFAULT_VERSION
-        }.each(&:remove)
-      end
+      # action :install_endpoints, Actions::InstallEndpoints
+      # action :insert_prototype_bar, Actions::InsertPrototypeBar
 
       include Behavior::Endpoints
       include Behavior::Options
@@ -128,11 +104,12 @@ module Pakyow
       # @!method info
       #   Delegates to {view}.
       #   @see View#info
+      extend Forwardable
       def_delegators :@view, :attributes, :attrs, :html=, :html, :text, :binding?, :container?, :partial?, :component?, :form?, :version, :info
 
-      def initialize(view, binders: [], presentables: {}, logger: nil)
+      def initialize(view, binders: [], presentables: {})
         @view, @binders, @presentables = view, binders, presentables
-        @logger = logger || Pakyow.logger
+        @logger = Pakyow.logger
         @called = false
       end
 
@@ -242,25 +219,43 @@ module Pakyow
               remove
             end
           else
-            template = @view.dup
-            insertable = @view
-            current = @view
+            if top_level?
+              transformed = StringDoc.empty
 
-            data.each do |object|
-              binder = binder_or_data(object)
+              data.each do |object|
+                current = @view.dup
+                binder = binder_or_data(object)
+                current.transform(binder)
 
-              current.transform(binder)
+                if block_given?
+                  yield presenter_for(current), yield_binder ? binder : object
+                end
 
-              if block_given?
-                yield presenter_for(current), yield_binder ? binder : object
+                transformed.append(current.object)
               end
 
-              unless current.equal?(@view)
-                insertable.after(current)
-                insertable = current
-              end
+              @view.instance_variable_set(:@object, transformed)
+            else
+              template = @view.dup
+              insertable = @view
+              current = @view
 
-              current = template.dup
+              data.each do |object|
+                binder = binder_or_data(object)
+
+                current.transform(binder)
+
+                if block_given?
+                  yield presenter_for(current), yield_binder ? binder : object
+                end
+
+                unless current.equal?(@view)
+                  insertable.after(current)
+                  insertable = current
+                end
+
+                current = template.dup
+              end
             end
           end
         end
@@ -289,16 +284,6 @@ module Pakyow
           transform(data, true) do |presenter, binder|
             if block_given?
               yield presenter, binder.object
-            end
-
-            unless presenter.view.used? || self.class.__version_logic.empty?
-              version_logic = self.class.__version_logic[presenter.view.binding_name].to_a.find { |logic|
-                logic[:channel].nil? || presenter.view.label(:combined_channel) == logic[:channel] || presenter.view.label(:combined_channel).end_with?(":" + logic[:channel])
-              }
-
-              if version_logic
-                version_logic[:block].call(presenter, binder.object)
-              end
             end
 
             presenter.bind(binder)
@@ -365,7 +350,11 @@ module Pakyow
       #
       def remove
         tap do
-          @view.remove
+          if top_level?
+            @view.instance_variable_set(:@object, nil)
+          else
+            @view.remove
+          end
         end
       end
 
@@ -392,67 +381,22 @@ module Pakyow
         end
       end
 
-      def to_html
-        call unless called?
-        @view.to_html
+      def to_html(output = String.new)
+        @view.object.to_html(output, context: self)
       end
       alias to_s to_html
 
-      # @api private
-      def call
-        super(self).tap do
-          @called = true
-        end
-      end
-
-      # @api private
-      def called?
-        @called == true
-      end
-
       private
 
-      def set_title
-        if title = @view.info(:title)
-          self.title = Support::StringBuilder.new(title) do |object_value|
-            if respond_to?(object_value)
-              send(object_value, :title) || send(object_value)
-            elsif @presentables.key?(object_value)
-              @presentables[object_value]
-            else
-              nil
-            end
-          end.build
-        end
-      end
-
-      def perform
-        @presentables.each do |name, value|
-          name = name.to_s
-          next if name.start_with?("__")
-
-          name_parts = name.split(":")
-
-          channel = if name_parts.count > 1
-            name_parts[1..-1]
-          else
-            nil
-          end
-
-          [name_parts[0], Support.inflector.singularize(name_parts[0])].each do |name_varient|
-            found = find(name_varient, channel: channel)
-            unless found.nil? || found.view.labeled?(:used)
-              found.present(value); break
-            end
-          end
-        end
+      def top_level?
+        @view.object.parent.frozen?
       end
 
       def presenter_for(view, type: self.class)
         if view.nil?
           nil
         else
-          type.new(view, binders: @binders, presentables: @presentables, logger: @logger)
+          type.new(view, binders: @binders, presentables: @presentables)
         end
       end
 
@@ -489,11 +433,6 @@ module Pakyow
         end
       end
 
-      extend Support::ClassState
-      class_state :__version_logic, default: {}, inheritable: true
-
-      extend Support::Makeable
-
       class << self
         using Support::Refinements::String::Normalization
 
@@ -522,6 +461,8 @@ module Pakyow
         # Defines a presentation block called when +binding_name+ is presented. If
         # +channel+ is provided, the block will only be called for that channel.
         #
+        # TODO: this will be removed in favor of `render`
+        #
         def present(binding_name, channel: nil, &block)
           if channel
             channel = Array.ensure(channel).join(":")
@@ -530,6 +471,105 @@ module Pakyow
           (@__version_logic[binding_name] ||= []) << {
             block: block, channel: channel
           }
+        end
+
+        # Defines a render to attach to a node.
+        #
+        def render(binding_name = nil, channel: nil, node: nil, priority: :default, &block)
+          if node && !node.is_a?(Proc)
+            raise ArgumentError, "Expected `#{node.class}' to be a proc"
+          end
+
+          @__attached_renders << {
+            binding_name: binding_name, channel: channel, node: node, priority: priority, block: block
+          }
+        end
+
+        # Attaches renders to a view's doc.
+        #
+        def attach(view)
+          views_with_renders = {}
+
+          @__attached_renders.each do |render|
+            return_value = if node = render[:node]
+              view.instance_exec(&node)
+            else
+              view.find(render[:binding_name], channel: render[:channel])
+            end
+
+            case return_value
+            when Array
+              return_value.each do |each_value|
+                relate_value_to_render(each_value, render, views_with_renders)
+              end
+            when View, VersionedView
+              relate_value_to_render(return_value, render, views_with_renders)
+            end
+          end
+
+          views_with_renders.values.each do |view_with_renders, renders|
+            attach_to_node = case view_with_renders
+            when VersionedView
+              meta_node = StringDoc::MetaNode.new(view_with_renders.versions.map(&:object))
+              meta_node.parent.replace_node(meta_node.nodes.first, meta_node)
+              meta_node.nodes[1..-1].each(&:ignore)
+              meta_node
+            when View
+              view_with_renders.object
+            end
+
+            renders.each do |render|
+              attach_to_node.transform priority: render[:priority], &render_proc(render, view_with_renders)
+            end
+          end
+        end
+
+        private
+
+        def render_proc(render, view)
+          Proc.new do |node, context|
+            return_original = false
+            presenter = case node
+            when StringDoc::MetaNode
+              return_original = true
+              if node.nodes.any?
+                context.presenter_for(
+                  VersionedView.new(node.nodes.map { |n| View.from_object(n) })
+                )
+              else
+                next node
+              end
+            when StringDoc::Node
+              context.presenter_for(
+                View.from_object(node)
+              )
+            end
+
+            presenter.instance_exec(&render[:block])
+
+            if return_original
+              node
+            else
+              presenter.view.object
+            end
+          rescue => error
+            presenter.clear
+            presenter.attributes[:class] << :"render-failed"
+            presenter.view.object.set_label(:failed, true)
+            Pakyow.logger.houston(error)
+          end
+        end
+
+        def relate_value_to_render(value, render, state)
+          final_value = case value
+          when View, VersionedView
+            value
+          else
+            View.new(value.to_s)
+          end
+
+          state_for_final_value = state[final_value.object.object_id] ||= [final_value, []]
+          state_for_final_value[1] << render
         end
       end
     end

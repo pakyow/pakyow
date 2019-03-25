@@ -18,10 +18,18 @@ require "pakyow/presenter/helpers/rendering"
 
 require "pakyow/presenter/renderable"
 
-require "pakyow/presenter/rendering/component_renderer"
-require "pakyow/presenter/rendering/view_renderer"
-
+require "pakyow/presenter/renderer"
 require "pakyow/presenter/view_builder"
+
+require "pakyow/presenter/rendering/actions/cleanup_prototype_nodes"
+require "pakyow/presenter/rendering/actions/cleanup_unused_nodes"
+require "pakyow/presenter/rendering/actions/create_template_nodes"
+require "pakyow/presenter/rendering/actions/insert_prototype_bar"
+require "pakyow/presenter/rendering/actions/install_authenticity"
+require "pakyow/presenter/rendering/actions/place_in_mode"
+require "pakyow/presenter/rendering/actions/present_presentables"
+require "pakyow/presenter/rendering/actions/set_page_title"
+require "pakyow/presenter/rendering/actions/setup_forms"
 
 module Pakyow
   module Presenter
@@ -42,8 +50,18 @@ module Pakyow
             @__presenter_class = isolated_presenter
           end
 
-          isolate ComponentRenderer
-          isolate ViewRenderer
+          isolate Renderer do
+            include Actions::CleanupPrototypeNodes
+            include Actions::CleanupUnusedNodes
+            include Actions::CreateTemplateNodes
+            include Actions::InsertPrototypeBar
+            include Actions::InstallAuthenticity
+            include Actions::PlaceInMode
+            include Actions::PresentPresentables
+            include Actions::SetPageTitle
+            include Actions::SetupForms
+          end
+
           isolate ViewBuilder
 
           stateful :binder,    isolated(:Binder)
@@ -85,8 +103,15 @@ module Pakyow
             self.class.include_helpers :global, isolated(:Binder)
             self.class.include_helpers :global, isolated(:Presenter)
             self.class.include_helpers :active, isolated(:Component)
-            self.class.include_helpers :passive, isolated(:ComponentRenderer)
-            self.class.include_helpers :passive, isolated(:ViewRenderer)
+            self.class.include_helpers :passive, isolated(:Renderer)
+          end
+
+          # Let each renderer action attach renders to the app's presenter.
+          #
+          after :initialize do
+            [isolated(:Presenter)].concat(state(:presenter)).each do |presenter|
+              isolated(:Renderer).attach!(presenter)
+            end
           end
 
           include Behavior::Building

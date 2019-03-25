@@ -24,8 +24,10 @@ RSpec.describe "implicitly rendering when a controller is called but does not re
           end
 
           presenter "/other" do
-            def perform
-              self.title = "invoked"
+            render node: -> {
+              title
+            } do
+              self.html = "invoked"
             end
           end
         end

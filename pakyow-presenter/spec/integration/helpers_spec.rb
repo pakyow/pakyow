@@ -26,16 +26,4 @@ RSpec.describe "presenter helpers" do
       expect(app.isolated(:Component).ancestors).to include(helper)
     end
   end
-
-  it "includes passive helpers into ComponentRenderer" do
-    app.helpers(:passive).reject { |helper| helper.name.nil? }.each do |helper|
-      expect(app.isolated(:ComponentRenderer).ancestors).to include(helper)
-    end
-  end
-
-  it "includes passive helpers into ViewRenderer" do
-    app.helpers(:passive).reject { |helper| helper.name.nil? }.each do |helper|
-      expect(app.isolated(:ViewRenderer).ancestors).to include(helper)
-    end
-  end
 end

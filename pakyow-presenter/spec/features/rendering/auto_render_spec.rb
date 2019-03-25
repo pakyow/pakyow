@@ -15,6 +15,12 @@ RSpec.describe "automatically rendering when no controller is called" do
             def perform
               self.title = "invoked"
             end
+
+            render node: -> {
+              title
+            } do
+              self.html = "invoked"
+            end
           end
         end
       end

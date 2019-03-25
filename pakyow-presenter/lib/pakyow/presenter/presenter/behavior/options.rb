@@ -12,21 +12,21 @@ module Pakyow
           apply_extension do
             class_state :global_options, default: {}, inheritable: true
 
-            action :use_global_options do
-              self.class.global_options.each do |form_binding, options|
-                if form = form(form_binding)
-                  options.each do |field_binding, metadata|
-                    if metadata[:block]
-                      form.options_for(field_binding) do |context|
-                        instance_exec(context, &metadata[:block])
-                      end
-                    else
-                      form.options_for(field_binding, metadata[:options])
-                    end
-                  end
-                end
-              end
-            end
+            # action :use_global_options do
+            #   self.class.global_options.each do |form_binding, options|
+            #     if form = form(form_binding)
+            #       options.each do |field_binding, metadata|
+            #         if metadata[:block]
+            #           form.options_for(field_binding) do |context|
+            #             instance_exec(context, &metadata[:block])
+            #           end
+            #         else
+            #           form.options_for(field_binding, metadata[:options])
+            #         end
+            #       end
+            #     end
+            #   end
+            # end
           end
 
           class_methods do

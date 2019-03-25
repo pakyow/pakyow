@@ -17,26 +17,26 @@ module Pakyow
               super(view, **kwargs)
             end
 
-            def bind(data)
-              object = if data.is_a?(Binder)
-                data.object
-              else
-                data
-              end
+            # def bind(data)
+            #   object = if data.is_a?(Binder)
+            #     data.object
+            #   else
+            #     data
+            #   end
 
-              if object
-                setup_binding_endpoints(object)
-              end
+            #   if object
+            #     setup_binding_endpoints(object)
+            #   end
 
-              super.tap do
-                if object && endpoint_state_defined?
-                  # Keep track of parent bindings / bound objects. We'll use these
-                  # later when setting up endpoints that rely on parent state.
-                  #
-                  (__endpoint.params[:__parent_bindings] ||= {})[view.binding_name] = object
-                end
-              end
-            end
+            #   super.tap do
+            #     if object && endpoint_state_defined?
+            #       # Keep track of parent bindings / bound objects. We'll use these
+            #       # later when setting up endpoints that rely on parent state.
+            #       #
+            #       (__endpoint.params[:__parent_bindings] ||= {})[view.binding_name] = object
+            #     end
+            #   end
+            # end
 
             def presenter_for(*)
               super.tap do |presenter|
@@ -44,25 +44,25 @@ module Pakyow
               end
             end
 
-            def wrap_data_in_binder(*)
-              super.tap do |binder|
-                if endpoint_state_defined?
-                  if binder_local_endpoints = @endpoints
-                    unless binder.respond_to?(:path)
-                      binder.define_singleton_method :path do |*args|
-                        binder_local_endpoints.path(*args)
-                      end
-                    end
+            # def wrap_data_in_binder(*)
+            #   super.tap do |binder|
+            #     if endpoint_state_defined?
+            #       if binder_local_endpoints = @endpoints
+            #         unless binder.respond_to?(:path)
+            #           binder.define_singleton_method :path do |*args|
+            #             binder_local_endpoints.path(*args)
+            #           end
+            #         end
 
-                    unless binder.respond_to?(:path_to)
-                      binder.define_singleton_method :path_to do |*args|
-                        binder_local_endpoints.path_to(*args)
-                      end
-                    end
-                  end
-                end
-              end
-            end
+            #         unless binder.respond_to?(:path_to)
+            #           binder.define_singleton_method :path_to do |*args|
+            #             binder_local_endpoints.path_to(*args)
+            #           end
+            #         end
+            #       end
+            #     end
+            #   end
+            # end
           end
 
           # @api private

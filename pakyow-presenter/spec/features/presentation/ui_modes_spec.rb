@@ -4,32 +4,32 @@ RSpec.describe "presenting a view that defines one or more ui mode" do
   let :app_init do
     Proc.new do
       presenter "/presentation/ui_modes" do
-        def perform
-          find(:post).bind({})
+        render :post do
+          bind({})
         end
       end
 
       presenter "/presentation/ui_modes/default" do
-        def perform
-          find(:post).bind({})
+        render :post do
+          bind({})
         end
       end
 
       presenter "/presentation/ui_modes/conceal_by_type_and_name" do
-        def perform
-          find(:post).bind({})
+        render :post do
+          bind({})
         end
       end
 
       presenter "/presentation/ui_modes/conceal_by_type_name_and_version" do
-        def perform
-          find(:post).bind({})
+        render :post do
+          bind({})
         end
       end
 
       presenter "/presentation/ui_modes/display_by_type_name_and_version" do
-        def perform
-          find(:post).bind({})
+        render :post do
+          bind({})
         end
       end
     end
@@ -91,8 +91,8 @@ RSpec.describe "presenting a view that defines one or more ui mode" do
         end
 
         presenter "/presentation/ui_modes" do
-          def perform
-            find(:post).bind({})
+          render :post do
+            bind({})
           end
         end
       end

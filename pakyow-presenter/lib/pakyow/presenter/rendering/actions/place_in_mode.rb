@@ -1,21 +1,22 @@
 # frozen_string_literal: true
 
+require "pakyow/support/extension"
+
 module Pakyow
   module Presenter
     module Actions
-      # @api private
-      class PlaceInMode
-        def call(presenter)
-          if presenter.respond_to?(:__mode)
-            mode = presenter.__mode
+      module PlaceInMode
+        extend Support::Extension
 
+        apply_extension do
+          build do |app, view, mode|
             if mode == :default
-              mode = presenter.view.info(:mode) || mode
+              mode = view.info(:mode) || mode
             end
 
             if mode
               mode = mode.to_sym
-              presenter.view.object.each_significant_node(:mode).select { |node|
+              view.object.each_significant_node(:mode).select { |node|
                 node.label(:mode) != mode
               }.each(&:remove)
             end
