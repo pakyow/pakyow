@@ -220,9 +220,9 @@ module Pakyow
     # Boots the environment without running it.
     #
     def boot
-      performing :boot do
-        ensure_setup_succeeded
+      ensure_setup_succeeded
 
+      performing :boot do
         # Tasks should only be available before boot.
         #
         @tasks = []
