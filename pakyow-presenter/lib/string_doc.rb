@@ -498,18 +498,23 @@ class StringDoc
       node = node.dup
     end
 
-    return_value = node.call_next_transform(context)
+    current = node
+    while transform = node.next_transform
+      return_value = transform.call(node, context)
 
-    case return_value
-    when NilClass
-      # nothing to do
-    when Node, MetaNode
-      render_node(return_value, string, context: context)
-    when StringDoc
-      render(return_value, string, context: context)
-    else
-      string << return_value.to_s
+      case return_value
+      when NilClass
+        return
+      when StringDoc
+        render(return_value, string, context: context); return
+      when Node, MetaNode
+        current = return_value
+      else
+        string << return_value.to_s; return
+      end
     end
+
+    render_node(current, string, true, context: context)
   end
 
   # Parses an Oga document into an array of +Node+ objects.

@@ -31,8 +31,10 @@ class StringDoc
       end
     end
 
-    attr_reader :node, :parent, :children, :attributes, :tag_open_start, :tag_open_end, :tag_close
-    attr_reader :transforms
+    attr_reader :attributes
+
+    # @api private
+    attr_reader :node, :parent, :children, :tag_open_start, :tag_open_end, :tag_close, :transforms
 
     # @api private
     attr_writer :parent
@@ -60,8 +62,8 @@ class StringDoc
       @transforms = Hash[@transforms.map { |k, v| [k, v.dup] }]
     end
 
-    def call_next_transform(context = nil)
-      (@transforms[:high].shift || @transforms[:default].shift || @transforms[:low].shift).call(self, context)
+    def next_transform
+      @transforms[:high].shift || @transforms[:default].shift || @transforms[:low].shift
     end
 
     def transform(priority: :default, &block)

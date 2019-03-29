@@ -2,7 +2,8 @@
 
 class StringDoc
   class MetaNode
-    attr_reader :nodes, :parent
+    # @api private
+    attr_reader :nodes, :parent, :transforms
 
     # @api private
     attr_writer :parent
@@ -65,8 +66,8 @@ class StringDoc
       end
     end
 
-    def call_next_transform(context = nil)
-      (@transforms[:high].shift || @transforms[:default].shift || @transforms[:low].shift).call(self, context)
+    def next_transform
+      @transforms[:high].shift || @transforms[:default].shift || @transforms[:low].shift
     end
 
     def transform(priority: :default, &block)
