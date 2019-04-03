@@ -460,7 +460,7 @@ module Pakyow
 
       # @api private
       def binding_prop?(node)
-        node.significant?(:binding) && (!node.significant?(:binding_within) || node.significant?(:multipart_binding))
+        node.significant?(:binding) && node.label(:version) != :empty && (!node.significant?(:binding_within) || node.significant?(:multipart_binding))
       end
 
       # @api private
@@ -515,10 +515,9 @@ module Pakyow
       end
 
       def view_from_view_or_string(view_or_string)
-        if view_or_string.is_a?(View)
+        case view_or_string
+        when View, VersionedView
           view_or_string
-        elsif view_or_string.is_a?(String)
-          View.new(ensure_html_safety(view_or_string))
         else
           View.new(ensure_html_safety(view_or_string.to_s))
         end

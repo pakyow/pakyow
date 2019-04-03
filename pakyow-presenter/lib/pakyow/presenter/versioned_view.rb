@@ -1,18 +1,14 @@
 # frozen_string_literal: true
 
-require "forwardable"
+require "delegate"
 
 module Pakyow
   module Presenter
     # Wraps one or more versioned view objects. Provides an interface for manipulating multiple
     # view versions as if they were a single object, picking one to use for presentation.
     #
-    class VersionedView < View
+    class VersionedView < SimpleDelegator
       DEFAULT_VERSION = :default
-
-      # View that will be presented.
-      #
-      attr_reader :working
 
       # @api private
       attr_reader :versions
@@ -23,7 +19,7 @@ module Pakyow
         @used = false
       end
 
-      def initialize_copy(_)
+      def initialize_dup(_)
         super
 
         @versions = @versions.map(&:dup)
@@ -78,24 +74,27 @@ module Pakyow
         yield self, object if block_given?
       end
 
-      def versioned?
-        @versions.length > 1
-      end
-
       def used?
         @used == true
       end
 
-      protected
+      # Fixes an issue using pp inside a delegator.
+      #
+      def pp(*args)
+        Kernel.pp(*args)
+      end
+
+      private
 
       def cleanup(mode = nil)
         if mode == :all
           @versions.each(&:remove)
           @versions = []
         else
-          @working.object.delete_label(:version)
+          __getobj__.object.delete_label(:version)
+
           @versions.dup.each do |view_to_remove|
-            unless view_to_remove == @working
+            unless view_to_remove == __getobj__
               view_to_remove.remove
               @versions.delete(view_to_remove)
             end
@@ -108,11 +107,7 @@ module Pakyow
       end
 
       def versioned_view=(view)
-        @working = view
-        @object = view.object
-        @version = view.version
-        @attributes = view.attributes
-        @info = view.info
+        __setobj__(view)
       end
 
       def default_version
