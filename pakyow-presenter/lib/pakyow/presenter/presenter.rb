@@ -510,10 +510,7 @@ module Pakyow
           views_with_renders.values.each do |view_with_renders, renders|
             attach_to_node = case view_with_renders
             when VersionedView
-              meta_node = StringDoc::MetaNode.new(view_with_renders.versions.map(&:object))
-              meta_node.parent.replace_node(meta_node.nodes.first, meta_node)
-              meta_node.nodes[1..-1].each(&:ignore)
-              meta_node
+              StringDoc::MetaNode.new(view_with_renders.versions.map(&:object))
             when View
               view_with_renders.object
             end

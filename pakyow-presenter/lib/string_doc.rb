@@ -455,37 +455,35 @@ class StringDoc
     end
   end
 
-  def render_node(node, string, force = false, context: nil)
+  def render_node(node, string, context: nil)
     case node
     when Node
-      if force || !node.ignored?
-        if node.transforms_itself?
-          transform_node(node, string, context: context)
-        else
-          string << node.tag_open_start
+      if node.transforms_itself?
+        transform_node(node, string, context: context)
+      else
+        string << node.tag_open_start
 
-          node.attributes.each_string do |attribute_string|
-            string << attribute_string
-          end
-
-          string << node.tag_open_end
-
-          case node.children
-          when StringDoc
-            render(node.children, string, context: context)
-          else
-            string << node.children
-          end
-
-          string << node.tag_close
+        node.attributes.each_string do |attribute_string|
+          string << attribute_string
         end
+
+        string << node.tag_open_end
+
+        case node.children
+        when StringDoc
+          render(node.children, string, context: context)
+        else
+          string << node.children
+        end
+
+        string << node.tag_close
       end
     when MetaNode
       if node.transforms_itself?
         transform_node(node, string, context: context)
       else
         node.nodes.each do |each_node|
-          render_node(each_node, string, true, context: context)
+          render_node(each_node, string, context: context)
         end
       end
     else
@@ -514,7 +512,7 @@ class StringDoc
       end
     end
 
-    render_node(current, string, true, context: context)
+    render_node(current, string, context: context)
   end
 
   # Parses an Oga document into an array of +Node+ objects.

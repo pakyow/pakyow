@@ -414,11 +414,10 @@ RSpec.describe "StringDoc transforms" do
 
     context "all nodes are transformed" do
       before do
-        nodes = doc.find_significant_nodes_with_name(:binding, :post)
-        meta_node = StringDoc::MetaNode.new(nodes)
-
         counter = 0
-        meta_node.transform do |meta_node|
+        StringDoc::MetaNode.new(
+          doc.find_significant_nodes_with_name(:binding, :post)
+        ).transform do |meta_node|
           counter += 1
 
           meta_node.nodes.each do |node|
@@ -427,9 +426,6 @@ RSpec.describe "StringDoc transforms" do
 
           meta_node
         end
-
-        meta_node.parent.replace_node(nodes.first, meta_node)
-        nodes[1..-1].each(&:ignore)
 
         @renderable = doc.deep_freeze
       end
@@ -460,15 +456,11 @@ RSpec.describe "StringDoc transforms" do
 
     context "node is removed" do
       before do
-        nodes = doc.find_significant_nodes_with_name(:binding, :post)
-        meta_node = StringDoc::MetaNode.new(nodes)
-
-        meta_node.transform do |meta_node|
+        StringDoc::MetaNode.new(
+          doc.find_significant_nodes_with_name(:binding, :post)
+        ).transform do |meta_node|
           meta_node.nodes[1].remove; meta_node
         end
-
-        meta_node.parent.replace_node(nodes.first, meta_node)
-        nodes[1..-1].each(&:ignore)
 
         @renderable = doc.deep_freeze
       end
@@ -495,15 +487,11 @@ RSpec.describe "StringDoc transforms" do
 
     context "node is replaced" do
       before do
-        nodes = doc.find_significant_nodes_with_name(:binding, :post)
-        meta_node = StringDoc::MetaNode.new(nodes)
-
-        meta_node.transform do |meta_node|
+        StringDoc::MetaNode.new(
+          doc.find_significant_nodes_with_name(:binding, :post)
+        ).transform do |meta_node|
           meta_node.nodes[1].replace(StringDoc::Node.new("replaced")); meta_node
         end
-
-        meta_node.parent.replace_node(nodes.first, meta_node)
-        nodes[1..-1].each(&:ignore)
 
         @renderable = doc.deep_freeze
       end
@@ -532,15 +520,11 @@ RSpec.describe "StringDoc transforms" do
 
     context "node is inserted after" do
       before do
-        nodes = doc.find_significant_nodes_with_name(:binding, :post)
-        meta_node = StringDoc::MetaNode.new(nodes)
-
-        meta_node.transform do |meta_node|
+        StringDoc::MetaNode.new(
+          doc.find_significant_nodes_with_name(:binding, :post)
+        ).transform do |meta_node|
           meta_node.nodes[0].after(StringDoc::Node.new("insert")); meta_node
         end
-
-        meta_node.parent.replace_node(nodes.first, meta_node)
-        nodes[1..-1].each(&:ignore)
 
         @renderable = doc.deep_freeze
       end
@@ -573,15 +557,11 @@ RSpec.describe "StringDoc transforms" do
 
     context "node is inserted before" do
       before do
-        nodes = doc.find_significant_nodes_with_name(:binding, :post)
-        meta_node = StringDoc::MetaNode.new(nodes)
-
-        meta_node.transform do |meta_node|
+        StringDoc::MetaNode.new(
+          doc.find_significant_nodes_with_name(:binding, :post)
+        ).transform do |meta_node|
           meta_node.nodes[0].before(StringDoc::Node.new("insert")); meta_node
         end
-
-        meta_node.parent.replace_node(nodes.first, meta_node)
-        nodes[1..-1].each(&:ignore)
 
         @renderable = doc.deep_freeze
       end
