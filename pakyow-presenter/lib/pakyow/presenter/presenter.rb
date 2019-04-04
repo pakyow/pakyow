@@ -33,9 +33,6 @@ module Pakyow
 
       include Support::SafeStringHelpers
 
-      # action :install_endpoints, Actions::InstallEndpoints
-      # action :insert_prototype_bar, Actions::InsertPrototypeBar
-
       include Behavior::Endpoints
       include Behavior::Options
 
@@ -219,23 +216,7 @@ module Pakyow
               remove
             end
           else
-            if top_level?
-              transformed = StringDoc.empty
-
-              data.each do |object|
-                current = @view.dup
-                binder = binder_or_data(object)
-                current.transform(binder)
-
-                if block_given?
-                  yield presenter_for(current), yield_binder ? binder : object
-                end
-
-                transformed.append(current.object)
-              end
-
-              @view.instance_variable_set(:@object, transformed)
-            else
+            if mutate_parent?
               template = @view.dup
               insertable = @view
               current = @view
@@ -256,6 +237,22 @@ module Pakyow
 
                 current = template.dup
               end
+            else
+              transformed = StringDoc.empty
+
+              data.each do |object|
+                current = @view.dup
+                binder = binder_or_data(object)
+                current.transform(binder)
+
+                if block_given?
+                  yield presenter_for(current), yield_binder ? binder : object
+                end
+
+                transformed.append(current.object)
+              end
+
+              @view.instance_variable_set(:@object, transformed)
             end
           end
         end
@@ -350,10 +347,10 @@ module Pakyow
       #
       def remove
         tap do
-          if top_level?
-            @view.instance_variable_set(:@object, nil)
-          else
+          if mutate_parent?
             @view.remove
+          else
+            @view.instance_variable_set(:@object, nil)
           end
         end
       end
@@ -388,8 +385,8 @@ module Pakyow
 
       private
 
-      def top_level?
-        @view.object.parent.frozen?
+      def mutate_parent?
+        !@view.object.parent.frozen?
       end
 
       def presenter_for(view, type: self.class)
@@ -456,21 +453,6 @@ module Pakyow
               *(namespace.parts + path_parts)
             ), classname
           )
-        end
-
-        # Defines a presentation block called when +binding_name+ is presented. If
-        # +channel+ is provided, the block will only be called for that channel.
-        #
-        # TODO: this will be removed in favor of `render`
-        #
-        def present(binding_name, channel: nil, &block)
-          if channel
-            channel = Array.ensure(channel).join(":")
-          end
-
-          (@__version_logic[binding_name] ||= []) << {
-            block: block, channel: channel
-          }
         end
 
         # Defines a render to attach to a node.
@@ -550,10 +532,12 @@ module Pakyow
               presenter.view.object
             end
           rescue => error
+            Pakyow.logger.houston(error)
+
             presenter.clear
             presenter.attributes[:class] << :"render-failed"
             presenter.view.object.set_label(:failed, true)
-            Pakyow.logger.houston(error)
+            presenter
           end
         end
 

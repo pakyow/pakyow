@@ -94,7 +94,7 @@ RSpec.describe "view versioning via presenter" do
       Proc.new do
         presenter "/presentation/versioning/multiple-without-default" do
           render :post do
-            use(:two)
+            use(:two).bind(title: "used two")
           end
         end
       end
@@ -111,7 +111,7 @@ RSpec.describe "view versioning via presenter" do
 
             <body>
               <div data-b="post" data-v="two">
-                <h1 data-b="title">two</h1>
+                <h1 data-b="title">used two</h1>
               </div>
 
               <script type="text/template" data-b="post" data-v="one">
@@ -362,8 +362,6 @@ RSpec.describe "view versioning via presenter" do
         Proc.new do
           presenter "/presentation/versioning/presented" do
             render :post do
-              # present([{ title: "default" }, { title: "three" }, { title: "two" }])
-
               present([{ title: "default" }, { title: "three" }, { title: "two" }]) do |view, object|
                 view.use(object[:title])
               end
@@ -463,7 +461,36 @@ RSpec.describe "view versioning via presenter" do
       end
 
       context "empty version does not exist" do
-        it "renders nothing"
+        let :app_init do
+          Proc.new do
+            presenter "/presentation/versioning/sans-empty" do
+              render :post do
+                present([])
+              end
+            end
+          end
+        end
+
+        it "renders nothing" do
+          expect(call("/presentation/versioning/sans-empty")[2]).to eq_sans_whitespace(
+            <<~HTML
+              <!DOCTYPE html>
+              <html>
+                <head>
+                  <title>default</title>
+                </head>
+
+                <body>
+                  <script type="text/template" data-b="post">
+                    <div data-b="post">
+                      <h1 data-b="title">post title</h1>
+                    </div>
+                  </script>
+                </body>
+              </html>
+            HTML
+          )
+        end
       end
     end
   end

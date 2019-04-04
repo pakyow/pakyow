@@ -7,7 +7,12 @@ class StringDoc
 
     def initialize(nodes)
       nodes.first.parent.replace_node(nodes.first, self)
-      nodes[1..-1].each(&:remove)
+      nodes[1..-1].each do |node|
+        # Remove the node, but don't make it appear to have been removed for transforms.
+        #
+        node.remove; node.delete_label(:removed)
+      end
+
       @doc = StringDoc.from_nodes(nodes)
       @transforms = { high: [], default: [], low: [] }
     end

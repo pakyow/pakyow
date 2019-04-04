@@ -122,6 +122,7 @@ class StringDoc
     # Removes the node.
     #
     def remove
+      set_label(:removed, true)
       @parent.remove_node(self)
     end
 

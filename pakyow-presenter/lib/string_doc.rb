@@ -512,7 +512,11 @@ class StringDoc
       end
     end
 
-    render_node(current, string, context: context)
+    # Don't render if the node was removed during the transform.
+    #
+    if !current.is_a?(Node) || !current.labeled?(:removed)
+      render_node(current, string, context: context)
+    end
   end
 
   # Parses an Oga document into an array of +Node+ objects.
