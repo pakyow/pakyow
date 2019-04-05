@@ -3,7 +3,7 @@
 class StringDoc
   class MetaNode
     # @api private
-    attr_reader :transforms
+    attr_reader :doc, :transforms
 
     def initialize(nodes)
       nodes.first.parent.replace_node(nodes.first, self)
