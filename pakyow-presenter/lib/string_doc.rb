@@ -492,9 +492,7 @@ class StringDoc
   end
 
   def transform_node(node, string, context: nil)
-    if node.frozen?
-      node = node.dup
-    end
+    node = node.dup
 
     current = node
     while transform = node.next_transform
