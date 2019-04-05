@@ -11,11 +11,11 @@ RSpec.describe "presentable exposures" do
       controller :default do
         get "/" do
           expose :current_user, "current_user"
-          render "/presentation/attached_renders"
+          render "/presentation/transforms"
         end
       end
 
-      presenter "/presentation/attached_renders" do
+      presenter "/presentation/transforms" do
         render :post do
           local.instance_variable_set(:@presentable, current_user)
         end
@@ -35,11 +35,11 @@ RSpec.describe "presentable exposures" do
           get "/" do
             expose :current_user, "user1", for: [:foo]
             expose :current_user, "user2", for: [:foo, :bar]
-            render "/presentation/attached_renders"
+            render "/presentation/transforms"
           end
         end
 
-        presenter "/presentation/attached_renders" do
+        presenter "/presentation/transforms" do
           render :post do
             local.instance_variable_set(:@presentables, {
               default: current_user,

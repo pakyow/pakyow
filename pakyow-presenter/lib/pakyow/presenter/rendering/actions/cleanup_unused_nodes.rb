@@ -19,7 +19,10 @@ module Pakyow
                   View.from_object(node)
                 }
               }, priority: :low do
-                unless view.object.labeled?(:used) || view.object.labeled?(:failed)
+                # We check that the node is still labeled as a binding in case the node was replaced
+                # during a previous transformation with a node that isn't a binding.
+                #
+                unless !view.object.labeled?(:binding) || view.object.labeled?(:used) || view.object.labeled?(:failed)
                   remove
                 end
               end

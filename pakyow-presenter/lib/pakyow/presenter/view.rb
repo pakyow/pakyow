@@ -36,6 +36,15 @@ module Pakyow
             end
           end
         end
+
+        def from_view_or_string(view_or_string)
+          case view_or_string
+          when View, VersionedView
+            view_or_string
+          else
+            View.new(Support::SafeStringHelpers.ensure_html_safety(view_or_string.to_s))
+          end
+        end
       end
 
       include Support::SafeStringHelpers
@@ -55,6 +64,9 @@ module Pakyow
       # The logical path to the view template.
       #
       attr_reader :logical_path
+
+      # @api private
+      attr_writer :object
 
       # Creates a view with +html+.
       #
@@ -257,7 +269,7 @@ module Pakyow
       #
       def append(view_or_string)
         tap do
-          @object.append(view_from_view_or_string(view_or_string).object)
+          @object.append(self.class.from_view_or_string(view_or_string).object)
         end
       end
 
@@ -265,7 +277,7 @@ module Pakyow
       #
       def prepend(view_or_string)
         tap do
-          @object.prepend(view_from_view_or_string(view_or_string).object)
+          @object.prepend(self.class.from_view_or_string(view_or_string).object)
         end
       end
 
@@ -273,7 +285,7 @@ module Pakyow
       #
       def after(view_or_string)
         tap do
-          @object.after(view_from_view_or_string(view_or_string).object)
+          @object.after(self.class.from_view_or_string(view_or_string).object)
         end
       end
 
@@ -281,7 +293,7 @@ module Pakyow
       #
       def before(view_or_string)
         tap do
-          @object.before(view_from_view_or_string(view_or_string).object)
+          @object.before(self.class.from_view_or_string(view_or_string).object)
         end
       end
 
@@ -289,7 +301,7 @@ module Pakyow
       #
       def replace(view_or_string)
         tap do
-          @object.replace(view_from_view_or_string(view_or_string).object)
+          @object.replace(self.class.from_view_or_string(view_or_string).object)
         end
       end
 
@@ -384,12 +396,12 @@ module Pakyow
 
       # @api private
       def plural_channeled_binding_name
-        [Support.inflector.pluralize(label(:binding))].concat(label(:channel)).join(":").to_sym
+        [Support.inflector.pluralize(label(:binding))].concat(label(:channel).to_a).join(":").to_sym
       end
 
       # @api private
       def singular_channeled_binding_name
-        [Support.inflector.singularize(label(:binding))].concat(label(:channel)).join(":").to_sym
+        [Support.inflector.singularize(label(:binding))].concat(label(:channel).to_a).join(":").to_sym
       end
 
       # @api private
@@ -511,15 +523,6 @@ module Pakyow
           else
             node.html = ensure_html_safety(value)
           end
-        end
-      end
-
-      def view_from_view_or_string(view_or_string)
-        case view_or_string
-        when View, VersionedView
-          view_or_string
-        else
-          View.new(ensure_html_safety(view_or_string.to_s))
         end
       end
     end

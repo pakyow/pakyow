@@ -1,11 +1,11 @@
-RSpec.describe "attaching renders to a presenter" do
+RSpec.describe "attaching transforms to a presenter" do
   include_context "app"
 
   context "render is attached to node block that returns a versioned view" do
     let :app_init do
       local = self
       Proc.new do
-        presenter "/presentation/attached_renders" do
+        presenter "/presentation/transforms" do
           render node: -> { find(:post) } do
             local.instance_variable_set(:@called, true)
             local.instance_variable_set(:@context, self)
@@ -20,14 +20,14 @@ RSpec.describe "attaching renders to a presenter" do
 
     it "calls during rendering" do
       expect {
-        call("/presentation/attached_renders")
+        call("/presentation/transforms")
       }.to change {
         @called
       }.from(false).to(true)
     end
 
     it "calls in context of the presenter" do
-      call("/presentation/attached_renders")
+      call("/presentation/transforms")
       expect(@context.class.ancestors).to include(Test::App::Presenter)
     end
   end
@@ -35,7 +35,7 @@ RSpec.describe "attaching renders to a presenter" do
   context "render is attached to a node block that returns a view" do
     let :app_init do
       Proc.new do
-        presenter "/presentation/attached_renders" do
+        presenter "/presentation/transforms" do
           render node: -> { find(:post).versions[0] } do
             bind(title: "test")
           end
@@ -44,7 +44,7 @@ RSpec.describe "attaching renders to a presenter" do
     end
 
     it "renders correctly" do
-      expect(call("/presentation/attached_renders")[2]).to include_sans_whitespace(
+      expect(call("/presentation/transforms")[2]).to include_sans_whitespace(
         <<~HTML
           <div data-b="post"><h1 data-b="title">test</h1></div>
         HTML
@@ -55,7 +55,7 @@ RSpec.describe "attaching renders to a presenter" do
   context "render is attached to a node block that returns another object" do
     let :app_init do
       Proc.new do
-        presenter "/presentation/attached_renders" do
+        presenter "/presentation/transforms" do
           render node: -> { :foo } do
             bind(title: "test")
           end
@@ -64,7 +64,7 @@ RSpec.describe "attaching renders to a presenter" do
     end
 
     it "ignores the render" do
-      expect(call("/presentation/attached_renders")[2]).to eq_sans_whitespace(
+      expect(call("/presentation/transforms")[2]).to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
           <html>
@@ -91,7 +91,7 @@ RSpec.describe "attaching renders to a presenter" do
     let :app_init do
       local = self
       Proc.new do
-        presenter "/presentation/attached_renders" do
+        presenter "/presentation/transforms" do
           render :post do
             local.instance_variable_set(:@calls, local.instance_variable_get(:@calls) + 1)
           end
@@ -105,7 +105,7 @@ RSpec.describe "attaching renders to a presenter" do
 
     it "attaches to the correct binding" do
       expect {
-        call("/presentation/attached_renders")
+        call("/presentation/transforms")
       }.to change { @calls }.from(0).to(1)
     end
   end
@@ -114,7 +114,7 @@ RSpec.describe "attaching renders to a presenter" do
     let :app_init do
       local = self
       Proc.new do
-        presenter "/presentation/attached_renders/channeled" do
+        presenter "/presentation/transforms/channeled" do
           render :post, channel: :bar do
             local.instance_variable_set(:@calls, local.instance_variable_get(:@calls) + 1)
           end
@@ -128,7 +128,7 @@ RSpec.describe "attaching renders to a presenter" do
 
     it "attaches to the correct binding" do
       expect {
-        call("/presentation/attached_renders/channeled")
+        call("/presentation/transforms/channeled")
       }.to change { @calls }.from(0).to(1)
     end
   end
@@ -136,7 +136,7 @@ RSpec.describe "attaching renders to a presenter" do
   context "render fails" do
     let :app_init do
       Proc.new do
-        presenter "/presentation/attached_renders/channeled" do
+        presenter "/presentation/transforms/channeled" do
           render :post, channel: :foo do
             fail
           end
@@ -149,7 +149,7 @@ RSpec.describe "attaching renders to a presenter" do
     end
 
     it "removes the node content, adds an error class, and continues rendering" do
-      expect(call("/presentation/attached_renders/channeled")[2]). to eq_sans_whitespace(
+      expect(call("/presentation/transforms/channeled")[2]). to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
           <html>
@@ -189,7 +189,7 @@ RSpec.describe "attaching renders to a presenter" do
   context "multiple renders attached to the same node" do
     let :app_init do
       Proc.new do
-        presenter "/presentation/attached_renders" do
+        presenter "/presentation/transforms" do
           render node: -> { find(:post) } do
             bind(title: "test")
           end
@@ -202,7 +202,7 @@ RSpec.describe "attaching renders to a presenter" do
     end
 
     it "renders correctly" do
-      expect(call("/presentation/attached_renders")[2]).to include_sans_whitespace(
+      expect(call("/presentation/transforms")[2]).to include_sans_whitespace(
         <<~HTML
           <div data-b="post" class="test"><h1 data-b="title">test</h1></div>
         HTML

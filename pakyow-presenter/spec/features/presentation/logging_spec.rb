@@ -4,7 +4,7 @@ RSpec.describe "logging within a presenter" do
   let :app_init do
     local = self
     Proc.new do
-      presenter "/presentation/attached_renders" do
+      presenter "/presentation/transforms" do
         render :post do
           local.instance_variable_set(:@logger, logger)
         end
@@ -13,7 +13,7 @@ RSpec.describe "logging within a presenter" do
   end
 
   it "exposes the connection logger" do
-    expect(call("/presentation/attached_renders")[0]).to eq(200)
+    expect(call("/presentation/transforms")[0]).to eq(200)
     expect(@logger).to be_instance_of(Pakyow::Logger::ThreadLocal)
   end
 end

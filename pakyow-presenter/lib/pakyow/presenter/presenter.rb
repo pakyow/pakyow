@@ -252,7 +252,7 @@ module Pakyow
                 transformed.append(current.object)
               end
 
-              @view.instance_variable_set(:@object, transformed)
+              @view.object = transformed
             end
           end
         end
@@ -323,7 +323,14 @@ module Pakyow
       #
       def after(view)
         tap do
-          @view.after(view)
+          if mutate_parent?
+            @view.after(view)
+          else
+            transformed = StringDoc.empty
+            transformed.append(@view.object)
+            transformed.append(View.from_view_or_string(view).object)
+            @view.object = transformed
+          end
         end
       end
 
@@ -331,7 +338,14 @@ module Pakyow
       #
       def before(view)
         tap do
-          @view.before(view)
+          if mutate_parent?
+            @view.before(view)
+          else
+            transformed = StringDoc.empty
+            transformed.append(View.from_view_or_string(view).object)
+            transformed.append(@view.object)
+            @view.object = transformed
+          end
         end
       end
 
@@ -339,7 +353,11 @@ module Pakyow
       #
       def replace(view)
         tap do
-          @view.replace(view)
+          if mutate_parent?
+            @view.replace(view)
+          else
+            @view = View.from_view_or_string(view)
+          end
         end
       end
 
@@ -350,7 +368,7 @@ module Pakyow
           if mutate_parent?
             @view.remove
           else
-            @view.instance_variable_set(:@object, nil)
+            @view.object = nil
           end
         end
       end

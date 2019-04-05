@@ -72,4 +72,40 @@ RSpec.describe "unbound bindings" do
       )
     end
   end
+
+  context "binding is replaced with a node that is not a binding" do
+    let :app_init do
+      Proc.new do
+        presenter "/unbound" do
+          render :post do
+            replace("foo")
+          end
+        end
+      end
+    end
+
+    it "does not remove the replacement" do
+      expect(call("/unbound")[2]).to eq_sans_whitespace(
+        <<~HTML
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>default</title>
+            </head>
+
+            <body>
+              foo
+
+              <script type="text/template" data-b="post" data-c="article">
+                <article data-b="post" data-c="article">
+                  <h1 data-b="title" data-c="article"></h1>
+                  <p data-b="body" data-c="article"></p>
+                </article>
+              </script>
+            </body>
+          </html>
+        HTML
+      )
+    end
+  end
 end
