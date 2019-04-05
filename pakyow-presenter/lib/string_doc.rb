@@ -315,7 +315,9 @@ class StringDoc
   #
   def replace(doc_or_string)
     tap do
-      @nodes = self.class.nodes_from_doc_or_string(doc_or_string)
+      nodes = self.class.nodes_from_doc_or_string(doc_or_string)
+      nodes.each { |node| node.parent = self }
+      @nodes = nodes
     end
   end
 
@@ -325,7 +327,9 @@ class StringDoc
   #
   def append(doc_or_string)
     tap do
-      @nodes.concat(self.class.nodes_from_doc_or_string(doc_or_string))
+      nodes = self.class.nodes_from_doc_or_string(doc_or_string)
+      nodes.each { |node| node.parent = self }
+      @nodes.concat(nodes)
     end
   end
 
@@ -333,7 +337,9 @@ class StringDoc
   #
   def append_html(html)
     tap do
-      @nodes << Node.new(html.to_s)
+      node = Node.new(html.to_s)
+      node.parent = self
+      @nodes << node
     end
   end
 
@@ -343,7 +349,9 @@ class StringDoc
   #
   def prepend(doc_or_string)
     tap do
-      @nodes.unshift(*self.class.nodes_from_doc_or_string(doc_or_string))
+      nodes = self.class.nodes_from_doc_or_string(doc_or_string)
+      nodes.each { |node| node.parent = self }
+      @nodes.unshift(*nodes)
     end
   end
 
@@ -352,7 +360,9 @@ class StringDoc
   def insert_after(node_to_insert, after_node)
     tap do
       if after_node_index = @nodes.index(after_node)
-        @nodes.insert(after_node_index + 1, *self.class.nodes_from_doc_or_string(node_to_insert))
+        nodes = self.class.nodes_from_doc_or_string(node_to_insert)
+        nodes.each { |node| node.parent = self }
+        @nodes.insert(after_node_index + 1, *nodes)
       end
     end
   end
@@ -362,7 +372,9 @@ class StringDoc
   def insert_before(node_to_insert, before_node)
     tap do
       if before_node_index = @nodes.index(before_node)
-        @nodes.insert(before_node_index, *self.class.nodes_from_doc_or_string(node_to_insert))
+        nodes = self.class.nodes_from_doc_or_string(node_to_insert)
+        nodes.each { |node| node.parent = self }
+        @nodes.insert(before_node_index, *nodes)
       end
     end
   end
@@ -382,10 +394,8 @@ class StringDoc
   def replace_node(node_to_replace, replacement_node)
     tap do
       if replace_node_index = @nodes.index(node_to_replace)
-        nodes_to_insert = self.class.nodes_from_doc_or_string(replacement_node).map { |node|
-          node.parent = self; node
-        }
-
+        nodes_to_insert = self.class.nodes_from_doc_or_string(replacement_node)
+        nodes_to_insert.each { |node| node.parent = self }
         @nodes.insert(replace_node_index + 1, *nodes_to_insert)
         @nodes.delete_at(replace_node_index)
       end
