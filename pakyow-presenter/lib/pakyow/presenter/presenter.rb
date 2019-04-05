@@ -216,43 +216,25 @@ module Pakyow
               remove
             end
           else
-            if mutate_parent?
-              template = @view.dup
-              insertable = @view
-              current = @view
+            template = @view.dup
+            insertable = @view
+            current = @view
 
-              data.each do |object|
-                binder = binder_or_data(object)
+            data.each do |object|
+              binder = binder_or_data(object)
 
-                current.transform(binder)
+              current.transform(binder)
 
-                if block_given?
-                  yield presenter_for(current), yield_binder ? binder : object
-                end
-
-                unless current.equal?(@view)
-                  insertable.after(current)
-                  insertable = current
-                end
-
-                current = template.dup
-              end
-            else
-              transformed = StringDoc.empty
-
-              data.each do |object|
-                current = @view.dup
-                binder = binder_or_data(object)
-                current.transform(binder)
-
-                if block_given?
-                  yield presenter_for(current), yield_binder ? binder : object
-                end
-
-                transformed.append(current.object)
+              if block_given?
+                yield presenter_for(current), yield_binder ? binder : object
               end
 
-              @view.object = transformed
+              unless current.equal?(@view)
+                insertable.after(current)
+                insertable = current
+              end
+
+              current = template.dup
             end
           end
         end
@@ -323,14 +305,7 @@ module Pakyow
       #
       def after(view)
         tap do
-          if mutate_parent?
-            @view.after(view)
-          else
-            transformed = StringDoc.empty
-            transformed.append(@view.object)
-            transformed.append(View.from_view_or_string(view).object)
-            @view.object = transformed
-          end
+          @view.after(view)
         end
       end
 
@@ -338,14 +313,7 @@ module Pakyow
       #
       def before(view)
         tap do
-          if mutate_parent?
-            @view.before(view)
-          else
-            transformed = StringDoc.empty
-            transformed.append(View.from_view_or_string(view).object)
-            transformed.append(@view.object)
-            @view.object = transformed
-          end
+          @view.before(view)
         end
       end
 
@@ -353,11 +321,7 @@ module Pakyow
       #
       def replace(view)
         tap do
-          if mutate_parent?
-            @view.replace(view)
-          else
-            @view = View.from_view_or_string(view)
-          end
+          @view.replace(view)
         end
       end
 
@@ -365,11 +329,7 @@ module Pakyow
       #
       def remove
         tap do
-          if mutate_parent?
-            @view.remove
-          else
-            @view.object = nil
-          end
+          @view.remove
         end
       end
 
@@ -402,10 +362,6 @@ module Pakyow
       alias to_s to_html
 
       private
-
-      def mutate_parent?
-        !@view.object.parent.frozen?
-      end
 
       def presenter_for(view, type: self.class)
         if view.nil?
@@ -525,30 +481,25 @@ module Pakyow
 
         def render_proc(render, view)
           Proc.new do |node, context|
-            return_original = false
-            presenter = case node
+            case node
             when StringDoc::MetaNode
-              return_original = true
               if node.nodes.any?
-                context.presenter_for(
+                returning = node
+                presenter = context.presenter_for(
                   VersionedView.new(node.nodes.map { |n| View.from_object(n) })
                 )
               else
                 next node
               end
             when StringDoc::Node
-              context.presenter_for(
+              returning = StringDoc.empty
+              returning.append(node)
+              presenter = context.presenter_for(
                 View.from_object(node)
               )
             end
 
-            presenter.instance_exec(&render[:block])
-
-            if return_original
-              node
-            else
-              presenter.view.object
-            end
+            presenter.instance_exec(&render[:block]); returning
           rescue => error
             Pakyow.logger.houston(error)
 
