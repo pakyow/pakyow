@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "forwardable"
+
 require "pakyow/support/aargv"
 require "pakyow/support/makeable"
 require "pakyow/support/pipeline"
@@ -714,18 +716,18 @@ module Pakyow
               endpoints << Endpoint.new(
                 name: self_name,
                 method: route.method,
-                builder: Proc.new { |**params|
-                  route.populated_path(path_to_self, **params)
-                }
+                builder: Routing::Route::EndpointBuilder.new(
+                  route: route, path: path_to_self
+                )
               )
             end
 
             endpoints << Endpoint.new(
               name: [self_name, route.name.to_s].join("_"),
               method: route.method,
-              builder: Proc.new { |**params|
-                route.populated_path(path_to_self, **params)
-              }
+              builder: Routing::Route::EndpointBuilder.new(
+                route: route, path: path_to_self
+              )
             )
           end
 
