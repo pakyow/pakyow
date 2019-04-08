@@ -1,6 +1,8 @@
 RSpec.describe "finding a significant view via presenter" do
+  include_context "app"
+
   let :presenter do
-    Pakyow::Presenter::Presenter.new(view)
+    Pakyow::Presenter::Presenter.new(view, app: Pakyow.apps[0])
   end
 
   describe "finding a top-level binding" do
@@ -272,8 +274,10 @@ RSpec.describe "finding a significant view via presenter" do
 end
 
 RSpec.describe "finding all significant views via presenter" do
+  include_context "app"
+
   let :presenter do
-    Pakyow::Presenter::Presenter.new(view)
+    Pakyow::Presenter::Presenter.new(view, app: Pakyow.apps[0])
   end
 
   describe "finding a top-level binding" do

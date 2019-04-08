@@ -1,6 +1,8 @@
 RSpec.shared_context "options_for" do
+  include_context "app"
+
   let :presenter do
-    Pakyow::Presenter::Presenter.new(view)
+    Pakyow::Presenter::Presenter.new(view, app: Pakyow.apps[0])
   end
 
   let :view do

@@ -118,13 +118,8 @@ module Pakyow
       def build_presenter(app, presentables, view_path, presenter_class, component_path, mode)
         presenter_class.new(
           find_or_build_presenter_view(app, view_path, presenter_class, component_path, mode),
-          binders: app.state(:binder),
           presentables: presentables,
-          # We still mark endpoints as active when running in the prototype environment, but we don't
-          # want to replace anchor hrefs, form actions, etc with backend routes. This gives the designer
-          # control over how the prototype behaves.
-          #
-          endpoints: Pakyow.env?(:prototype) ? Endpoints.new : app.endpoints
+          app: app
         )
       end
 

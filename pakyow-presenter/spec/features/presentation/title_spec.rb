@@ -60,7 +60,7 @@ RSpec.describe "view titles via presenter" do
   end
 
   let :presenter do
-    Pakyow::Presenter::Presenter.new(view)
+    Pakyow::Presenter::Presenter.new(view, app: Pakyow.apps[0])
   end
 
   describe "setting" do

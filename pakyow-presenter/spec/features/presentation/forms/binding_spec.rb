@@ -1,6 +1,8 @@
 RSpec.describe "binding values to a form via presenter" do
+  include_context "app"
+
   let :presenter do
-    Pakyow::Presenter::Presenter.new(view)
+    Pakyow::Presenter::Presenter.new(view, app: Pakyow.apps[0])
   end
 
   let :view do

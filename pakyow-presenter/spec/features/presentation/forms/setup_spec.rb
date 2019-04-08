@@ -1,6 +1,8 @@
 RSpec.describe "setting up a form via presenter" do
+  include_context "app"
+
   let :presenter do
-    Pakyow::Presenter::Presenter.new(view)
+    Pakyow::Presenter::Presenter.new(view, app: Pakyow.apps[0])
   end
 
   let :view do
@@ -62,7 +64,7 @@ RSpec.describe "setting up a form via presenter" do
       let :presenter do
         Pakyow::Presenter::Presenter.new(
           view,
-          endpoints: Pakyow.apps[0].endpoints,
+          app: Pakyow.apps[0],
           presentables: { __endpoint:  endpoint}
         )
       end
@@ -91,7 +93,7 @@ RSpec.describe "setting up a form via presenter" do
       let :presenter do
         Pakyow::Presenter::Presenter.new(
           view,
-          endpoints: Pakyow.apps[0].endpoints,
+          app: Pakyow.apps[0],
           presentables: { __endpoint: endpoint }
         )
       end
@@ -124,7 +126,7 @@ RSpec.describe "setting up a form via presenter" do
       let :presenter do
         Pakyow::Presenter::Presenter.new(
           view,
-          endpoints: Pakyow.apps[0].endpoints,
+          app: Pakyow.apps[0],
           presentables: { __endpoint: endpoint }
         )
       end
@@ -173,7 +175,7 @@ RSpec.describe "setting up a form via presenter" do
       let :presenter do
         Pakyow::Presenter::Presenter.new(
           view,
-          endpoints: Pakyow.apps[0].endpoints,
+          app: Pakyow.apps[0],
           presentables: { __endpoint: endpoint }
         )
       end
@@ -231,7 +233,7 @@ RSpec.describe "setting up a form via presenter" do
       let :presenter do
         Pakyow::Presenter::Presenter.new(
           view,
-          endpoints: Pakyow.apps[0].endpoints,
+          app: Pakyow.apps[0],
           presentables: { __endpoint: endpoint }
         )
       end
@@ -289,7 +291,7 @@ RSpec.describe "setting up a form via presenter" do
       let :presenter do
         Pakyow::Presenter::Presenter.new(
           view,
-          endpoints: Pakyow.apps[0].endpoints,
+          app: Pakyow.apps[0],
           presentables: { __endpoint: endpoint }
         )
       end
@@ -347,7 +349,7 @@ RSpec.describe "setting up a form via presenter" do
       let :presenter do
         Pakyow::Presenter::Presenter.new(
           view,
-          endpoints: Pakyow.apps[0].endpoints,
+          app: Pakyow.apps[0],
           presentables: { __endpoint: endpoint }
         )
       end

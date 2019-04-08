@@ -4,7 +4,7 @@ RSpec.describe "form sanitization during presentation" do
   include_context "app"
 
   let :presenter do
-    Pakyow.apps.first.class.const_get(:Presenter).new(view)
+    Pakyow.apps.first.class.const_get(:Presenter).new(view, app: Pakyow.apps[0])
   end
 
   context "creating select options" do

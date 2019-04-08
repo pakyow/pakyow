@@ -21,8 +21,8 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
         end
 
         presenter "/presentation/endpoints/anchor/binding_prop" do
-          def perform
-            find(:post).present(title: "foo")
+          render :post do
+            present(title: "foo")
           end
         end
       end
@@ -60,8 +60,8 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
           end
 
           presenter "/presentation/endpoints/anchor/binding_prop" do
-            def perform
-              find(:post).present(title: "foo")
+            render :post do
+              present(title: "foo")
             end
           end
 
@@ -93,8 +93,8 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
             end
 
             presenter "/presentation/endpoints/anchor/binding_prop" do
-              def perform
-                find(:post).present(title: "foo")
+              render :post do
+                present(title: "foo")
               end
             end
 
@@ -112,14 +112,14 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
           end
         end
 
-        it "overrides the endpoint href" do
+        it "gives precedence to the endpoint" do
           expect(call("/presentation/endpoints/anchor/binding_prop")[2]).to include_sans_whitespace(
-          <<~HTML
-            <div data-b="post">
-              <a data-b="title" data-e="posts_list" href="overridden">oof</a>
-            </div>
-          HTML
-        )
+            <<~HTML
+              <div data-b="post">
+                <a data-b="title" data-e="posts_list" href="/posts">oof</a>
+              </div>
+            HTML
+          )
         end
       end
     end

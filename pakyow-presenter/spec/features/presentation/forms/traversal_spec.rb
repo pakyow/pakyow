@@ -2,7 +2,7 @@ RSpec.describe "form traversal via presenter" do
   include_context "app"
 
   let :presenter do
-    Pakyow.apps.first.class.isolated(:Presenter).new(view)
+    Pakyow.apps.first.class.isolated(:Presenter).new(view, app: Pakyow.apps[0])
   end
 
   describe "form" do

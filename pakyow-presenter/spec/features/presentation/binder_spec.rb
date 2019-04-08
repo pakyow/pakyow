@@ -1,28 +1,30 @@
 # FIXME: these tests should be written from an end-user perspective so that helpers and such are loaded properly
 #
 RSpec.describe "binding data via presenter, with a binder" do
+  include_context "app"
+
   class Pakyow::Presenter::Binder
     include Pakyow::Support::SafeStringHelpers
   end
 
-  let :post_binder do
-    Pakyow::Presenter::Binder.make :post do
-      def title
-        object[:title].to_s.reverse
+  let :app_init do
+    Proc.new do
+      binder :post do
+        def title
+          object[:title].to_s.reverse
+        end
       end
-    end
-  end
 
-  let :comment_binder do
-    Pakyow::Presenter::Binder.make :comment do
-      def body
-        "comment: #{object[:body]}"
+      binder :comment do
+        def body
+          "comment: #{object[:body]}"
+        end
       end
     end
   end
 
   let :presenter do
-    Pakyow::Presenter::Presenter.new(view, binders: [post_binder, comment_binder])
+    Pakyow::Presenter::Presenter.new(view, app: Pakyow.apps[0])
   end
 
   let :view do
@@ -39,15 +41,17 @@ RSpec.describe "binding data via presenter, with a binder" do
   end
 
   context "binder defines parts" do
-    let :post_binder do
-      Pakyow::Presenter::Binder.make :post do
-        def title
-          part :content do
-            object[:title].to_s.reverse
-          end
+    let :app_init do
+      Proc.new do
+        binder :post do
+          def title
+            part :content do
+              object[:title].to_s.reverse
+            end
 
-          part :style do
-            { color: "red" }
+            part :style do
+              { color: "red" }
+            end
           end
         end
       end
@@ -63,15 +67,17 @@ RSpec.describe "binding data via presenter, with a binder" do
         Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\" style=\"background: blue; color: green\">title goes here</h1><p binding=\"body\">body goes here</p></div>")
       end
 
-      let :post_binder do
-        Pakyow::Presenter::Binder.make :post do
-          def title
-            part :content do
-              object[:title].to_s.reverse
-            end
+      let :app_init do
+        Proc.new do
+          binder :post do
+            def title
+              part :content do
+                object[:title].to_s.reverse
+              end
 
-            part :style do |style|
-              style[:color] = "red"
+              part :style do |style|
+                style[:color] = "red"
+              end
             end
           end
         end
@@ -84,11 +90,13 @@ RSpec.describe "binding data via presenter, with a binder" do
     end
 
     context "part modifies the current value of the content" do
-      let :post_binder do
-        Pakyow::Presenter::Binder.make :post do
-          def title
-            part :content do |content|
-              content + " " + object[:title].to_s.reverse
+      let :app_init do
+        Proc.new do
+          binder :post do
+            def title
+              part :content do |content|
+                content + " " + object[:title].to_s.reverse
+              end
             end
           end
         end
@@ -101,19 +109,21 @@ RSpec.describe "binding data via presenter, with a binder" do
     end
 
     context "view includes parts" do
-      let :post_binder do
-        Pakyow::Presenter::Binder.make :post do
-          def title
-            part :content do
-              object[:title].to_s.reverse
-            end
+      let :app_init do
+        Proc.new do
+          binder :post do
+            def title
+              part :content do
+                object[:title].to_s.reverse
+              end
 
-            part :style do
-              { color: "red" }
-            end
+              part :style do
+                { color: "red" }
+              end
 
-            part :title do
-              "title is: #{object[:title]}"
+              part :title do
+                "title is: #{object[:title]}"
+              end
             end
           end
         end
@@ -130,19 +140,21 @@ RSpec.describe "binding data via presenter, with a binder" do
     end
 
     context "view excludes parts" do
-      let :post_binder do
-        Pakyow::Presenter::Binder.make :post do
-          def title
-            part :content do
-              object[:title].to_s.reverse
-            end
+      let :app_init do
+        Proc.new do
+          binder :post do
+            def title
+              part :content do
+                object[:title].to_s.reverse
+              end
 
-            part :style do
-              { color: "red" }
-            end
+              part :style do
+                { color: "red" }
+              end
 
-            part :title do
-              "title is: #{object[:title]}"
+              part :title do
+                "title is: #{object[:title]}"
+              end
             end
           end
         end
@@ -159,11 +171,13 @@ RSpec.describe "binding data via presenter, with a binder" do
     end
 
     context "binder defines parts, but not content" do
-      let :post_binder do
-        Pakyow::Presenter::Binder.make :post do
-          def title
-            part :style do
-              { color: "red" }
+      let :app_init do
+        Proc.new do
+          binder :post do
+            def title
+              part :style do
+                { color: "red" }
+              end
             end
           end
         end
@@ -213,25 +227,22 @@ RSpec.describe "binding data via presenter, with a binder" do
         resource :posts, "/posts" do
           show do; end
         end
-      }
-    end
 
-    let :post_binder do
-      Pakyow::Presenter::Binder.make :post do
-        def permalink
-          part :href do
-            path(:posts_show, id: object[:id])
+        binder :post do
+          def permalink
+            part :href do
+              path(:posts_show, id: object[:id])
+            end
           end
         end
-      end
+      }
     end
 
     let :presenter do
       Pakyow::Presenter::Presenter.new(
         view,
-        binders: [post_binder, comment_binder],
-        endpoints: Pakyow.apps[0].endpoints,
-        presentables: { __endpoint: endpoint }
+        presentables: { __endpoint: endpoint },
+        app: Pakyow.apps[0]
       )
     end
 
@@ -257,15 +268,13 @@ RSpec.describe "binding data via presenter, with a binder" do
         resource :posts, "/posts" do
           show do; end
         end
-      }
-    end
 
-    let :post_binder do
-      Pakyow::Presenter::Binder.make :post do
-        def title
-          safe("<strong>#{object[:title]}</strong>")
+        binder :post do
+          def title
+            safe("<strong>#{object[:title]}</strong>")
+          end
         end
-      end
+      }
     end
 
     it "makes it safe" do

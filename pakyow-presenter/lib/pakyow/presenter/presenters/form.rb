@@ -208,7 +208,7 @@ module Pakyow
           Support.inflector.singularize(@view.label(:binding)).to_sym,
           Support.inflector.pluralize(@view.label(:binding)).to_sym
         ].map { |possible_endpoint_name|
-          @endpoints.path_to(possible_endpoint_name, action, **object.to_h)
+          @app.endpoints.path_to(possible_endpoint_name, action, **object.to_h)
         }.compact.first
       end
 

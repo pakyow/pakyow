@@ -29,6 +29,7 @@ require "pakyow/presenter/rendering/actions/install_authenticity"
 require "pakyow/presenter/rendering/actions/place_in_mode"
 require "pakyow/presenter/rendering/actions/present_presentables"
 require "pakyow/presenter/rendering/actions/set_page_title"
+require "pakyow/presenter/rendering/actions/setup_endpoints"
 require "pakyow/presenter/rendering/actions/setup_forms"
 
 module Pakyow
@@ -41,7 +42,9 @@ module Pakyow
 
         object.class_eval do
           isolate Binder
-          isolate Presenter
+          isolate Presenter do
+            include Actions::SetupEndpoints::PresenterHelpers
+          end
 
           # Make sure component presenters inherit from this app's presenter.
           #
@@ -58,6 +61,7 @@ module Pakyow
             include Actions::InstallAuthenticity
             include Actions::PlaceInMode
             include Actions::PresentPresentables
+            include Actions::SetupEndpoints
             include Actions::SetPageTitle
             include Actions::SetupForms
           end

@@ -1,6 +1,8 @@
 RSpec.describe "yielding to the options_for block" do
+  include_context "app"
+
   let :presenter do
-    Pakyow::Presenter::Presenter.new(view)
+    Pakyow::Presenter::Presenter.new(view, app: Pakyow.apps[0])
   end
 
   let :view do

@@ -2,7 +2,7 @@ RSpec.describe "setting up a form explicitly via presenter" do
   include_context "app"
 
   let :presenter do
-    Pakyow.apps.first.class.const_get(:Presenter).new(view)
+    Pakyow.apps.first.class.const_get(:Presenter).new(view, app: Pakyow.apps[0])
   end
 
   let :view do
@@ -52,7 +52,7 @@ RSpec.describe "setting up a form explicitly via presenter" do
       let :presenter do
         Pakyow::Presenter::Presenter.new(
           view,
-          endpoints: Pakyow.apps[0].endpoints,
+          app: Pakyow.apps[0],
           presentables: { __endpoint: endpoint }
         )
       end
@@ -97,7 +97,7 @@ RSpec.describe "setting up a form explicitly via presenter" do
       let :presenter do
         Pakyow::Presenter::Presenter.new(
           view,
-          endpoints: Pakyow.apps[0].endpoints,
+          app: Pakyow.apps[0],
           presentables: { __endpoint: endpoint }
         )
       end
@@ -151,7 +151,7 @@ RSpec.describe "setting up a form explicitly via presenter" do
       let :presenter do
         Pakyow::Presenter::Presenter.new(
           view,
-          endpoints: Pakyow.apps[0].endpoints,
+          app: Pakyow.apps[0],
           presentables: { __endpoint: endpoint }
         )
       end
@@ -205,7 +205,7 @@ RSpec.describe "setting up a form explicitly via presenter" do
       let :presenter do
         Pakyow::Presenter::Presenter.new(
           view,
-          endpoints: Pakyow.apps[0].endpoints,
+          app: Pakyow.apps[0],
           presentables: { __endpoint: endpoint }
         )
       end
@@ -259,7 +259,7 @@ RSpec.describe "setting up a form explicitly via presenter" do
       let :presenter do
         Pakyow::Presenter::Presenter.new(
           view,
-          endpoints: Pakyow.apps[0].endpoints,
+          app: Pakyow.apps[0],
           presentables: { __endpoint: endpoint }
         )
       end
@@ -305,7 +305,7 @@ RSpec.describe "setting up a form explicitly via presenter" do
       let :presenter do
         Pakyow::Presenter::Presenter.new(
           view,
-          endpoints: Pakyow.apps[0].endpoints,
+          app: Pakyow.apps[0],
           presentables: { __endpoint: endpoint }
         )
       end

@@ -1,8 +1,10 @@
 RSpec.describe "sanitization during presentation" do
   include Pakyow::Support::SafeStringHelpers
 
+  include_context "app"
+
   let :presenter do
-    Pakyow::Presenter::Presenter.new(view)
+    Pakyow::Presenter::Presenter.new(view, app: Pakyow.apps[0])
   end
 
   context "binding a value" do
@@ -26,26 +28,28 @@ RSpec.describe "sanitization during presentation" do
   end
 
   context "binding with a binder" do
-    let :post_binder do
-      Pakyow::Presenter::Binder.make :post do
-        def title
-          part :content do
-            "<blink>#{object[:title]}</blink>"
+    let :app_init do
+      Proc.new do
+        binder :post do
+          def title
+            part :content do
+              "<blink>#{object[:title]}</blink>"
+            end
+
+            part :title do
+              "\"><script></script>"
+            end
           end
 
-          part :title do
-            "\"><script></script>"
+          def body
+            "<blink>#{object[:body]}</blink>"
           end
-        end
-
-        def body
-          "<blink>#{object[:body]}</blink>"
         end
       end
     end
 
     let :presenter do
-      Pakyow::Presenter::Presenter.new(view, binders: [post_binder])
+      Pakyow::Presenter::Presenter.new(view, app: Pakyow.apps[0])
     end
 
     let :view do

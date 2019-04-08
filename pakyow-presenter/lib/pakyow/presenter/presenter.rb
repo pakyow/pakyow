@@ -12,16 +12,12 @@ require "pakyow/support/safe_string"
 require "pakyow/support/string_builder"
 
 require "pakyow/presenter/presentable"
-require "pakyow/presenter/presenter/behavior/endpoints"
 require "pakyow/presenter/presenter/behavior/options"
 
 module Pakyow
   module Presenter
-    # Presents a view object. Performs queries for view data. Understands binders / formatters.
-    # Does not have access to the session, request, etc; only what is exposed to it from the route.
-    # State is passed explicitly to the presenter, exposed by calling the `presentable` helper.
-    #
-    # In normal usage you will be interacting with presenters rather than the {View} directly.
+    # Presents a view object with dynamic state in context of an app instance. In normal usage you
+    # will be interacting with presenters rather than the {View} directly.
     #
     class Presenter
       extend Support::Makeable
@@ -33,7 +29,6 @@ module Pakyow
 
       include Support::SafeStringHelpers
 
-      include Behavior::Endpoints
       include Behavior::Options
 
       include Presentable
@@ -41,7 +36,6 @@ module Pakyow
       # The view object being presented.
       #
       attr_reader :view
-      attr_reader :binders
 
       # The logger object.
       #
@@ -104,8 +98,8 @@ module Pakyow
       extend Forwardable
       def_delegators :@view, :attributes, :attrs, :html=, :html, :text, :binding?, :container?, :partial?, :component?, :form?, :version, :info
 
-      def initialize(view, binders: [], presentables: {})
-        @view, @binders, @presentables = view, binders, presentables
+      def initialize(view, app:, presentables: {})
+        @app, @view, @presentables = app, view, presentables
         @logger = Pakyow.logger
         @called = false
       end
@@ -251,6 +245,8 @@ module Pakyow
           else
             @view.bind(data)
           end
+
+          set_endpoint_params(data)
         end
       end
 
@@ -352,7 +348,7 @@ module Pakyow
         if data.is_a?(Binder)
           data
         else
-          (binder_for_current_scope || Binder).new(data)
+          (binder_for_current_scope || Binder).new(data, app: @app)
         end
       end
 
@@ -361,18 +357,18 @@ module Pakyow
       end
       alias to_s to_html
 
-      private
-
       def presenter_for(view, type: self.class)
         if view.nil?
           nil
         else
-          type.new(view, binders: @binders, presentables: @presentables)
+          type.new(view, app: @app, presentables: @presentables)
         end
       end
 
+      private
+
       def binder_for_current_scope
-        binders.find { |binder|
+        @app.state(:binder).find { |binder|
           binder.__object_name.name == @view.label(:binding)
         }
       end
@@ -401,6 +397,35 @@ module Pakyow
           data
         else
           wrap_data_in_binder(data)
+        end
+      end
+
+      def set_endpoint_params(data)
+        object = if data.is_a?(Binder)
+          data.object
+        else
+          data
+        end
+
+        @view.object.each_significant_node(:endpoint) do |endpoint_node|
+          endpoint_object = endpoint_node.label(:endpoint_object)
+          endpoint_params = endpoint_node.label(:endpoint_params)
+
+          if endpoint_object && endpoint_params
+            endpoint_object.params.each do |param|
+              if param.to_s.end_with?("_id")
+                type = param.to_s.split("_id")[0].to_sym
+                if type == @view.label(:binding) && object.key?(:id)
+                  endpoint_params[param] = object[:id]
+                  next
+                end
+              end
+
+              if object.key?(param)
+                endpoint_params[param] = object[param]
+              end
+            end
+          end
         end
       end
 

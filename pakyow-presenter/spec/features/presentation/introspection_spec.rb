@@ -1,6 +1,8 @@
 RSpec.describe "view introspection via presenter" do
+  include_context "app"
+
   let :presenter do
-    Pakyow::Presenter::Presenter.new(view)
+    Pakyow::Presenter::Presenter.new(view, app: Pakyow.apps[0])
   end
 
   describe "text" do
@@ -107,12 +109,18 @@ RSpec.describe "view introspection via presenter" do
     end
 
     it "returns true when presenters are presenting equal views" do
-      comparison = Pakyow::Presenter::Presenter.new(Pakyow::Presenter::View.new("<div></div>"))
+      comparison = Pakyow::Presenter::Presenter.new(
+        Pakyow::Presenter::View.new("<div></div>"),
+        app: Pakyow.apps[0]
+      )
       expect(presenter == comparison).to be true
     end
 
     it "returns false when presenters are presenting views that are not equal" do
-      comparison = Pakyow::Presenter::Presenter.new(Pakyow::Presenter::View.new("<div>foo</div>"))
+      comparison = Pakyow::Presenter::Presenter.new(
+        Pakyow::Presenter::View.new("<div>foo</div>"),
+        app: Pakyow.apps[0]
+      )
       expect(presenter == comparison).to be false
     end
   end
