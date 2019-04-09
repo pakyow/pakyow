@@ -9,10 +9,14 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          build do |app, view, mode|
+          attach do |presenter|
             if Pakyow.env?(:prototype)
-              if body_node = view.object.find_first_significant_node(:body)
-                body_node.append_html <<~HTML
+              presenter.render node: -> {
+                if body = object.find_first_significant_node(:body)
+                  View.from_object(body)
+                end
+              } do
+                view.object.append_html <<~HTML
                   <style>
                     .pw-prototype {
                       font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
@@ -44,7 +48,7 @@ module Pakyow
                   </style>
 
                   <div class="pw-prototype">
-                    #{ui_modes_html(view, mode)}
+                    #{ui_modes_html(view, __mode || :default)}
 
                     <div class="pw-prototype-tag">
                       Prototype
@@ -54,9 +58,15 @@ module Pakyow
               end
             end
           end
+
+          expose do |connection|
+            if Pakyow.env?(:prototype)
+              connection.set(:__mode, connection.params[:mode])
+            end
+          end
         end
 
-        class_methods do
+        module PresenterHelpers
           private def ui_modes_html(view, mode)
             modes = view.object.each_significant_node(:mode).map { |node|
               node.label(:mode)
@@ -73,8 +83,8 @@ module Pakyow
                 ""
               end
 
-              nice_mode = Support.inflector.humanize(Support.inflector.underscore(mode))
-              "<option value=\"#{mode}\"#{selected}>#{nice_mode}</option>"
+              nice_mode = Support.inflector.humanize(Support.inflector.underscore(each_mode))
+              "<option value=\"#{each_mode}\"#{selected}>#{nice_mode}</option>"
             }.join
 
             <<~HTML

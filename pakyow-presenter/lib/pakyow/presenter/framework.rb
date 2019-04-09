@@ -43,6 +43,7 @@ module Pakyow
         object.class_eval do
           isolate Binder
           isolate Presenter do
+            include Actions::InsertPrototypeBar::PresenterHelpers
             include Actions::SetupEndpoints::PresenterHelpers
           end
 
