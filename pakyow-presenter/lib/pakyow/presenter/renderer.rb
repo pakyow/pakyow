@@ -240,9 +240,9 @@ module Pakyow
           end
         end
 
-        def attach!(presenter)
+        def attach!(presenter, app)
           @__attach_fns.each do |fn|
-            fn.call(presenter)
+            fn.call(presenter, app)
           end
         end
 

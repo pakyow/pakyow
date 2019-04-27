@@ -3,16 +3,8 @@ require_relative "./shared"
 RSpec.describe "populating groups of options" do
   include_context "options_for"
 
-  let :view do
-    Pakyow::Presenter::View.new(
-      <<~HTML
-        <form binding="post">
-          <select binding="tag">
-            <option binding="name">existing</option>
-          </select>
-        </form>
-      HTML
-    )
+  let :view_path do
+    "/presentation/forms/options_for/grouped_select"
   end
 
   let :options do
@@ -22,53 +14,36 @@ RSpec.describe "populating groups of options" do
     ]
   end
 
-  let :tag_view do
-    Pakyow::Presenter::View.new(
-      form.find(:tag).view.to_s
+  let :perform do
+    local = self
+    Proc.new do |form|
+      form.grouped_options_for(local.binding, local.options)
+    end
+  end
+
+  it "renders in an expected way" do
+    expect(rendered).to include_sans_whitespace(
+      <<~HTML
+        <form data-b="post" data-c="form">
+          <select data-b="tag" data-c="form" name="post[tag]">
+            <optgroup label="group1">
+              <option value="1">1.1</option>
+              <option value="2">1.2</option>
+              <option value="3">1.3</option>
+            </optgroup>
+
+            <optgroup label="group2">
+              <option value="4">2.1</option>
+            </optgroup>
+          </select>
+
+          <script type="text/template" data-b="tag" data-c="form">
+            <select data-b="tag" data-c="form">
+              <option data-b="name" data-c="form">existing</option>
+            </select>
+          </script>
+        </form>
+      HTML
     )
-  end
-
-  def perform
-    form.grouped_options_for(binding, options)
-  end
-
-  it "creates a group for each group" do
-    expect(tag_view.object.find_significant_nodes(:optgroup).count).to eq(2)
-  end
-
-  it "sets the label for each optgroup" do
-    groups = tag_view.object.find_significant_nodes(:optgroup)
-    expect(groups[0].attributes[:label]).to eq("group1")
-    expect(groups[1].attributes[:label]).to eq("group2")
-  end
-
-  it "creates an option for each value" do
-    groups = tag_view.object.find_significant_nodes(:optgroup)
-    expect(groups[0].find_significant_nodes(:option).count).to eq(3)
-    expect(groups[1].find_significant_nodes(:option).count).to eq(1)
-  end
-
-  it "sets the submitted value for each option" do
-    groups = tag_view.object.find_significant_nodes(:optgroup)
-
-    group1_options = groups[0].find_significant_nodes(:option)
-    expect(group1_options[0].attributes[:value]).to eq("1")
-    expect(group1_options[1].attributes[:value]).to eq("2")
-    expect(group1_options[2].attributes[:value]).to eq("3")
-
-    group2_options = groups[1].find_significant_nodes(:option)
-    expect(group2_options[0].attributes[:value]).to eq("4")
-  end
-
-  it "sets the presentation value for each option" do
-    groups = tag_view.object.find_significant_nodes(:optgroup)
-
-    group1_options = groups[0].find_significant_nodes(:option)
-    expect(group1_options[0].text).to eq("1.1")
-    expect(group1_options[1].text).to eq("1.2")
-    expect(group1_options[2].text).to eq("1.3")
-
-    group2_options = groups[1].find_significant_nodes(:option)
-    expect(group2_options[0].text).to eq("2.1")
   end
 end

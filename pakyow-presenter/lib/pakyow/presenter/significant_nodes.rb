@@ -2,6 +2,9 @@
 
 require "string_doc"
 
+require "pakyow/presenter/presenters/endpoint"
+require "pakyow/presenter/presenters/form"
+
 module Pakyow
   module Presenter
     # @api private
@@ -71,6 +74,10 @@ module Pakyow
 
       def self.significant?(node)
         node.is_a?(Oga::XML::Element) && node.attribute(:endpoint)
+      end
+
+      def self.decorate(node)
+        node.set_label(:presenter_type, Presenters::Endpoint)
       end
     end
 
@@ -176,6 +183,11 @@ module Pakyow
 
       def self.significant?(node)
         node.is_a?(Oga::XML::Element) && node.attribute(:binding) && node.name == FORM_TAG
+      end
+
+      def self.decorate(node)
+        node.set_label(:presenter_type, Presenters::Form)
+        node.set_label(:view_type, Form)
       end
     end
 

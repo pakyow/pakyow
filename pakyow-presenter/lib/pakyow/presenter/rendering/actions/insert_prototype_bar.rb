@@ -8,6 +8,33 @@ module Pakyow
       module InsertPrototypeBar
         extend Support::Extension
 
+        def self.ui_modes_html(view, mode)
+          modes = view.object.each_significant_node(:mode).map { |node|
+            node.label(:mode)
+          }
+
+          modes.unshift(
+            (view.info(:mode) || :default).to_sym
+          ).uniq!
+
+          options = modes.map { |each_mode|
+            selected = if each_mode == mode.to_sym
+              " selected=\"selected\""
+            else
+              ""
+            end
+
+            nice_mode = Support.inflector.humanize(Support.inflector.underscore(each_mode))
+            "<option value=\"#{each_mode}\"#{selected}>#{nice_mode}</option>"
+          }.join
+
+          <<~HTML
+            UI Mode: <select onchange="document.location = window.location.pathname + '?mode=' + this.value " style="-webkit-appearance: none; -moz-appearance: none; -ms-appearance: none; -o-appearance: none; appearance: none; font-size: 11px; font-weight: 500; line-height: 20px; background: none; border: none; color: #fff; outline: none; margin: 0; margin-left: 5px;">
+              #{options}
+            </select>
+          HTML
+        end
+
         apply_extension do
           attach do |presenter|
             if Pakyow.env?(:prototype)
@@ -48,7 +75,7 @@ module Pakyow
                   </style>
 
                   <div class="pw-prototype">
-                    #{ui_modes_html(view, __mode || :default)}
+                    #{InsertPrototypeBar.ui_modes_html(view, __mode || :default)}
 
                     <div class="pw-prototype-tag">
                       Prototype
@@ -63,35 +90,6 @@ module Pakyow
             if Pakyow.env?(:prototype)
               connection.set(:__mode, connection.params[:mode])
             end
-          end
-        end
-
-        module PresenterHelpers
-          private def ui_modes_html(view, mode)
-            modes = view.object.each_significant_node(:mode).map { |node|
-              node.label(:mode)
-            }
-
-            modes.unshift(
-              (view.info(:mode) || :default).to_sym
-            ).uniq!
-
-            options = modes.map { |each_mode|
-              selected = if each_mode == mode.to_sym
-                " selected=\"selected\""
-              else
-                ""
-              end
-
-              nice_mode = Support.inflector.humanize(Support.inflector.underscore(each_mode))
-              "<option value=\"#{each_mode}\"#{selected}>#{nice_mode}</option>"
-            }.join
-
-            <<~HTML
-              UI Mode: <select onchange="document.location = window.location.pathname + '?mode=' + this.value " style="-webkit-appearance: none; -moz-appearance: none; -ms-appearance: none; -o-appearance: none; appearance: none; font-size: 11px; font-weight: 500; line-height: 20px; background: none; border: none; color: #fff; outline: none; margin: 0; margin-left: 5px;">
-                #{options}
-              </select>
-            HTML
           end
         end
       end

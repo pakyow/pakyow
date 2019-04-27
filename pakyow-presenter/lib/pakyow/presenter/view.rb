@@ -24,17 +24,23 @@ module Pakyow
         # Creates a view wrapping an object.
         #
         def from_object(object)
-          allocate.tap do |instance|
-            instance.instance_variable_set(:@object, object)
-
-            instance.instance_variable_set(:@info, {})
-            instance.instance_variable_set(:@logical_path, nil)
-            if object.respond_to?(:attributes)
-              instance.attributes = object.attributes
-            else
-              instance.instance_variable_set(:@attributes, nil)
-            end
+          instance = if object.is_a?(StringDoc::Node) && object.labeled?(:view_type)
+            object.label(:view_type).allocate
+          else
+            allocate
           end
+
+          instance.instance_variable_set(:@object, object)
+          instance.instance_variable_set(:@info, {})
+          instance.instance_variable_set(:@logical_path, nil)
+
+          if object.respond_to?(:attributes)
+            instance.attributes = object.attributes
+          else
+            instance.instance_variable_set(:@attributes, nil)
+          end
+
+          instance
         end
 
         def from_view_or_string(view_or_string)
@@ -391,7 +397,7 @@ module Pakyow
 
       # @api private
       def channeled_binding_name
-        [label(:binding)].concat(label(:channel)).join(":")
+        [label(:binding)].concat(label(:channel)).join(":").to_sym
       end
 
       # @api private

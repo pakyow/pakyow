@@ -3,21 +3,8 @@ require_relative "./shared"
 RSpec.describe "populating options in a binding group" do
   include_context "options_for"
 
-  let :view do
-    Pakyow::Presenter::View.new(
-      <<~HTML
-        <form binding="post">
-          <ul>
-            <li binding="tags">
-              <input type="checkbox">
-              <label binding="name">
-                Tag Name
-              </label>
-            </li>
-          </ul>
-        </form>
-      HTML
-    )
+  let :view_path do
+    "/presentation/forms/options_for/binding_group"
   end
 
   let :options do
@@ -25,39 +12,40 @@ RSpec.describe "populating options in a binding group" do
   end
 
   it "creates a group for each value, populating the input and label" do
-    html = form.view.to_s.gsub(/id=\"([^\"]*)\"/, "").gsub(/for=\"([^\"]*)\"/, "")
-
-    expect(html).to include_sans_whitespace(
+    expect(rendered.gsub(/id=\"([^\"]*)\"/, "").gsub(/for=\"([^\"]*)\"/, "")).to include_sans_whitespace(
       <<~HTML
-        <li data-b="tags" data-c="form">
-          <input type="checkbox" name="post[tags][]" value="1">
-          <label data-b="name" data-c="form">one</label>
-        </li>
-      HTML
-    )
+        <form data-b="post" data-c="form">
+          <ul>
+            <li data-b="tags" data-c="form">
+              <input type="checkbox" name="post[tags][]" value="1">
+              <label data-b="name" data-c="form">one</label>
+            </li>
 
-    expect(html).to include_sans_whitespace(
-      <<~HTML
-        <li data-b="tags" data-c="form">
-          <input type="checkbox" name="post[tags][]" value="2">
-          <label data-b="name" data-c="form">two</label>
-        </li>
-      HTML
-    )
+            <li data-b="tags" data-c="form">
+              <input type="checkbox" name="post[tags][]" value="2">
+              <label data-b="name" data-c="form">two</label>
+            </li>
 
-    expect(html).to include_sans_whitespace(
-      <<~HTML
-        <li data-b="tags" data-c="form">
-          <input type="checkbox" name="post[tags][]" value="3">
-          <label data-b="name" data-c="form">three</label>
-        </li>
+            <li data-b="tags" data-c="form">
+              <input type="checkbox" name="post[tags][]" value="3">
+              <label data-b="name" data-c="form">three</label>
+            </li>
+
+            <script type="text/template" data-b="tags" data-c="form">
+              <li data-b="tags" data-c="form">
+                <input type="checkbox">
+                <label data-b="name" data-c="form">Tag Name</label>
+              </li>
+            </script>
+          </ul>
+        </form>
       HTML
     )
   end
 
   it "connects the labels to the inputs" do
-    ids = form.view.to_s.scan(/id=\"([^\"]*)\"/).flatten
-    fors = form.view.to_s.scan(/for=\"([^\"]*)\"/).flatten
+    ids = rendered.scan(/id=\"([^\"]*)\"/).flatten
+    fors = rendered.scan(/for=\"([^\"]*)\"/).flatten
     expect(ids).to eq(fors)
   end
 
@@ -71,39 +59,40 @@ RSpec.describe "populating options in a binding group" do
     end
 
     it "creates a group for each value, populating the input and label" do
-      html = form.view.to_s.gsub(/ id=\"([^\"]*)\"/, "").gsub(/ for=\"([^\"]*)\"/, "")
-
-      expect(html).to include_sans_whitespace(
+      expect(rendered.gsub(/ id=\"([^\"]*)\"/, "").gsub(/ for=\"([^\"]*)\"/, "")).to include_sans_whitespace(
         <<~HTML
-          <li data-b="tags" data-c="form">
-            <input type="checkbox" name="post[tags][]" value="1">
-            <label data-b="name" data-c="form">one</label>
-          </li>
-        HTML
-      )
+          <form data-b="post" data-c="form">
+            <ul>
+              <li data-b="tags" data-c="form">
+                <input type="checkbox" name="post[tags][]" value="1">
+                <label data-b="name" data-c="form">one</label>
+              </li>
 
-      expect(html).to include_sans_whitespace(
-        <<~HTML
-          <li data-b="tags" data-c="form">
-            <input type="checkbox" name="post[tags][]" value="2">
-            <label data-b="name" data-c="form">two</label>
-          </li>
-        HTML
-      )
+              <li data-b="tags" data-c="form">
+                <input type="checkbox" name="post[tags][]" value="2">
+                <label data-b="name" data-c="form">two</label>
+              </li>
 
-      expect(html).to include_sans_whitespace(
-        <<~HTML
-          <li data-b="tags" data-c="form">
-            <input type="checkbox" name="post[tags][]" value="3">
-            <label data-b="name" data-c="form">three</label>
-          </li>
+              <li data-b="tags" data-c="form">
+                <input type="checkbox" name="post[tags][]" value="3">
+                <label data-b="name" data-c="form">three</label>
+              </li>
+
+              <script type="text/template" data-b="tags" data-c="form">
+                <li data-b="tags" data-c="form">
+                  <input type="checkbox">
+                  <label data-b="name" data-c="form">Tag Name</label>
+                </li>
+              </script>
+            </ul>
+          </form>
         HTML
       )
     end
 
     it "connects the labels to the inputs" do
-      ids = form.view.to_s.scan(/id=\"([^\"]*)\"/).flatten
-      fors = form.view.to_s.scan(/for=\"([^\"]*)\"/).flatten
+      ids = rendered.scan(/id=\"([^\"]*)\"/).flatten
+      fors = rendered.scan(/for=\"([^\"]*)\"/).flatten
       expect(ids).to eq(fors)
     end
   end
@@ -146,39 +135,40 @@ RSpec.describe "populating options in a binding group" do
     end
 
     it "creates a group for each value, populating the input and label" do
-      html = form.view.to_s.gsub(/ id=\"([^\"]*)\"/, "").gsub(/ for=\"([^\"]*)\"/, "")
-
-      expect(html).to include_sans_whitespace(
+      expect(rendered.gsub(/ id=\"([^\"]*)\"/, "").gsub(/ for=\"([^\"]*)\"/, "")).to include_sans_whitespace(
         <<~HTML
-          <li data-b="tags" data-c="form">
-            <input type="checkbox" name="post[tags][]" value="one">
-            <label data-b="name" data-c="form">One</label>
-          </li>
-        HTML
-      )
+          <form data-b="post" data-c="form">
+            <ul>
+              <li data-b="tags" data-c="form">
+                <input type="checkbox" name="post[tags][]" value="one">
+                <label data-b="name" data-c="form">One</label>
+              </li>
 
-      expect(html).to include_sans_whitespace(
-        <<~HTML
-          <li data-b="tags" data-c="form">
-            <input type="checkbox" name="post[tags][]" value="two">
-            <label data-b="name" data-c="form">Two</label>
-          </li>
-        HTML
-      )
+              <li data-b="tags" data-c="form">
+                <input type="checkbox" name="post[tags][]" value="two">
+                <label data-b="name" data-c="form">Two</label>
+              </li>
 
-      expect(html).to include_sans_whitespace(
-        <<~HTML
-          <li data-b="tags" data-c="form">
-            <input type="checkbox" name="post[tags][]" value="three">
-            <label data-b="name" data-c="form">Three</label>
-          </li>
+              <li data-b="tags" data-c="form">
+                <input type="checkbox" name="post[tags][]" value="three">
+                <label data-b="name" data-c="form">Three</label>
+              </li>
+
+              <script type="text/template" data-b="tags" data-c="form">
+                <li data-b="tags" data-c="form">
+                  <input type="checkbox">
+                  <label data-b="name" data-c="form">Tag Name</label>
+                </li>
+              </script>
+            </ul>
+          </form>
         HTML
       )
     end
 
     it "connects the labels to the inputs" do
-      ids = form.view.to_s.scan(/id=\"([^\"]*)\"/).flatten
-      fors = form.view.to_s.scan(/for=\"([^\"]*)\"/).flatten
+      ids = rendered.scan(/id=\"([^\"]*)\"/).flatten
+      fors = rendered.scan(/for=\"([^\"]*)\"/).flatten
       expect(ids).to eq(fors)
     end
   end
@@ -193,60 +183,48 @@ RSpec.describe "populating options in a binding group" do
     end
 
     it "creates a group for each value, populating the label and setting an empty value" do
-      html = form.view.to_s.gsub(/ id=\"([^\"]*)\"/, "").gsub(/ for=\"([^\"]*)\"/, "")
-
-      expect(html).to include_sans_whitespace(
+      expect(rendered.gsub(/ id=\"([^\"]*)\"/, "").gsub(/ for=\"([^\"]*)\"/, "")).to include_sans_whitespace(
         <<~HTML
-          <li data-b="tags" data-c="form">
-            <input type="checkbox" name="post[tags][]" value="">
-            <label data-b="name" data-c="form">One</label>
-          </li>
-        HTML
-      )
+          <form data-b="post" data-c="form">
+            <ul>
+              <li data-b="tags" data-c="form">
+                <input type="checkbox" name="post[tags][]" value="">
+                <label data-b="name" data-c="form">One</label>
+              </li>
 
-      expect(html).to include_sans_whitespace(
-        <<~HTML
-          <li data-b="tags" data-c="form">
-            <input type="checkbox" name="post[tags][]" value="">
-            <label data-b="name" data-c="form">Two</label>
-          </li>
-        HTML
-      )
+              <li data-b="tags" data-c="form">
+                <input type="checkbox" name="post[tags][]" value="">
+                <label data-b="name" data-c="form">Two</label>
+              </li>
 
-      expect(html).to include_sans_whitespace(
-        <<~HTML
-          <li data-b="tags" data-c="form">
-            <input type="checkbox" name="post[tags][]" value="">
-            <label data-b="name" data-c="form">Three</label>
-          </li>
+              <li data-b="tags" data-c="form">
+                <input type="checkbox" name="post[tags][]" value="">
+                <label data-b="name" data-c="form">Three</label>
+              </li>
+
+              <script type="text/template" data-b="tags" data-c="form">
+                <li data-b="tags" data-c="form">
+                  <input type="checkbox">
+                  <label data-b="name" data-c="form">Tag Name</label>
+                </li>
+              </script>
+            </ul>
+          </form>
         HTML
       )
     end
 
     it "connects the labels to the inputs" do
-      ids = form.view.to_s.scan(/id=\"([^\"]*)\"/).flatten
-      fors = form.view.to_s.scan(/for=\"([^\"]*)\"/).flatten
+      ids = rendered.scan(/id=\"([^\"]*)\"/).flatten
+      fors = rendered.scan(/for=\"([^\"]*)\"/).flatten
       expect(ids).to eq(fors)
     end
   end
 
   context "field specifies the submitted value" do
     context "specified value is id" do
-      let :view do
-        Pakyow::Presenter::View.new(
-          <<~HTML
-            <form binding="post">
-              <ul>
-                <li binding="tags">
-                  <input type="checkbox" binding="id">
-                  <label binding="name">
-                    Tag Name
-                  </label>
-                </li>
-              </ul>
-            </form>
-          HTML
-        )
+      let :view_path do
+        "/presentation/forms/options_for/binding_group/with_binding_id"
       end
 
       let :options do
@@ -258,53 +236,41 @@ RSpec.describe "populating options in a binding group" do
       end
 
       it "creates a group for each value, populating the input and label" do
-        html = form.view.to_s.gsub(/ id=\"([^\"]*)\"/, "").gsub(/ for=\"([^\"]*)\"/, "")
-
-        expect(html).to include_sans_whitespace(
+        expect(rendered.gsub(/ id=\"([^\"]*)\"/, "").gsub(/ for=\"([^\"]*)\"/, "")).to include_sans_whitespace(
           <<~HTML
-            <li data-b="tags" data-c="form">
-              <input type="checkbox" data-b="id" data-c="form" name="post[tags][]" value="1">
-              <label data-b="name" data-c="form">one</label>
-            </li>
-          HTML
-        )
+            <form data-b="post" data-c="form">
+              <ul>
+                <li data-b="tags" data-c="form">
+                  <input type="checkbox" data-b="id" data-c="form" name="post[tags][]" value="1">
+                  <label data-b="name" data-c="form">one</label>
+                </li>
 
-        expect(html).to include_sans_whitespace(
-          <<~HTML
-            <li data-b="tags" data-c="form">
-              <input type="checkbox" data-b="id" data-c="form" name="post[tags][]" value="2">
-              <label data-b="name" data-c="form">two</label>
-            </li>
-          HTML
-        )
+                <li data-b="tags" data-c="form">
+                  <input type="checkbox" data-b="id" data-c="form" name="post[tags][]" value="2">
+                  <label data-b="name" data-c="form">two</label>
+                </li>
 
-        expect(html).to include_sans_whitespace(
-          <<~HTML
-            <li data-b="tags" data-c="form">
-              <input type="checkbox" data-b="id" data-c="form" name="post[tags][]" value="3">
-              <label data-b="name" data-c="form">three</label>
-            </li>
+                <li data-b="tags" data-c="form">
+                  <input type="checkbox" data-b="id" data-c="form" name="post[tags][]" value="3">
+                  <label data-b="name" data-c="form">three</label>
+                </li>
+
+                <script type="text/template" data-b="tags" data-c="form">
+                  <li data-b="tags" data-c="form">
+                    <input type="checkbox" data-b="id" data-c="form">
+                    <label data-b="name" data-c="form">Tag Name</label>
+                  </li>
+                </script>
+              </ul>
+            </form>
           HTML
         )
       end
     end
 
     context "specified value is the primary key" do
-      let :view do
-        Pakyow::Presenter::View.new(
-          <<~HTML
-            <form binding="post">
-              <ul>
-                <li binding="tags">
-                  <input type="checkbox" binding="slug">
-                  <label binding="name">
-                    Tag Name
-                  </label>
-                </li>
-              </ul>
-            </form>
-          HTML
-        )
+      let :view_path do
+        "/presentation/forms/options_for/binding_group/with_binding_pk"
       end
 
       let :object do
@@ -344,53 +310,41 @@ RSpec.describe "populating options in a binding group" do
       end
 
       it "creates a group for each value, populating the input and label" do
-        html = form.view.to_s.gsub(/ id=\"([^\"]*)\"/, "").gsub(/ for=\"([^\"]*)\"/, "")
-
-        expect(html).to include_sans_whitespace(
+        expect(rendered.gsub(/ id=\"([^\"]*)\"/, "").gsub(/ for=\"([^\"]*)\"/, "")).to include_sans_whitespace(
           <<~HTML
-            <li data-b="tags" data-c="form">
-              <input type="checkbox" data-b="slug" data-c="form" name="post[tags][]" value="one">
-              <label data-b="name" data-c="form">One</label>
-            </li>
-          HTML
-        )
+            <form data-b="post" data-c="form">
+              <ul>
+                <li data-b="tags" data-c="form">
+                  <input type="checkbox" data-b="slug" data-c="form" name="post[tags][]" value="one">
+                  <label data-b="name" data-c="form">One</label>
+                </li>
 
-        expect(html).to include_sans_whitespace(
-          <<~HTML
-            <li data-b="tags" data-c="form">
-              <input type="checkbox" data-b="slug" data-c="form" name="post[tags][]" value="two">
-              <label data-b="name" data-c="form">Two</label>
-            </li>
-          HTML
-        )
+                <li data-b="tags" data-c="form">
+                  <input type="checkbox" data-b="slug" data-c="form" name="post[tags][]" value="two">
+                  <label data-b="name" data-c="form">Two</label>
+                </li>
 
-        expect(html).to include_sans_whitespace(
-          <<~HTML
-            <li data-b="tags" data-c="form">
-              <input type="checkbox" data-b="slug" data-c="form" name="post[tags][]" value="three">
-              <label data-b="name" data-c="form">Three</label>
-            </li>
+                <li data-b="tags" data-c="form">
+                  <input type="checkbox" data-b="slug" data-c="form" name="post[tags][]" value="three">
+                  <label data-b="name" data-c="form">Three</label>
+                </li>
+
+                <script type="text/template" data-b="tags" data-c="form">
+                  <li data-b="tags" data-c="form">
+                    <input type="checkbox" data-b="slug" data-c="form">
+                    <label data-b="name" data-c="form">Tag Name</label>
+                  </li>
+                </script>
+              </ul>
+            </form>
           HTML
         )
       end
     end
 
     context "specified value is not the id or primary key" do
-      let :view do
-        Pakyow::Presenter::View.new(
-          <<~HTML
-            <form binding="post">
-              <ul>
-                <li binding="tags">
-                  <input type="checkbox" binding="foo">
-                  <label binding="name">
-                    Tag Name
-                  </label>
-                </li>
-              </ul>
-            </form>
-          HTML
-        )
+      let :view_path do
+        "/presentation/forms/options_for/binding_group/with_binding_other"
       end
 
       let :options do
@@ -402,20 +356,33 @@ RSpec.describe "populating options in a binding group" do
       end
 
       it "treats the groups as nested" do
-        expect(form.view.to_s).to include_sans_whitespace(
+        expect(rendered).to include_sans_whitespace(
           <<~HTML
-            <li data-b="tags" data-c="form">
-              <input type="checkbox" data-b="foo" data-c="form" value="1" checked="checked" name="post[tags][][foo]">
-              <label data-b="name" data-c="form">one</label>
-            </li>
-            <li data-b="tags" data-c="form">
-              <input type="checkbox" data-b="foo" data-c="form" value="2" name="post[tags][][foo]">
-              <label data-b="name" data-c="form">two</label>
-            </li>
-            <li data-b="tags" data-c="form">
-              <input type="checkbox" data-b="foo" data-c="form" value="3" name="post[tags][][foo]">
-              <label data-b="name" data-c="form">three</label>
-            </li>
+            <form data-b="post" data-c="form">
+              <ul>
+                <li data-b="tags" data-c="form">
+                  <input type="checkbox" data-b="foo" data-c="form" value="1" name="post[tags][][foo]">
+                  <label data-b="name" data-c="form">one</label>
+                </li>
+
+                <li data-b="tags" data-c="form">
+                  <input type="checkbox" data-b="foo" data-c="form" value="2" name="post[tags][][foo]">
+                  <label data-b="name" data-c="form">two</label>
+                </li>
+
+                <li data-b="tags" data-c="form">
+                  <input type="checkbox" data-b="foo" data-c="form" value="3" name="post[tags][][foo]">
+                  <label data-b="name" data-c="form">three</label>
+                </li>
+
+                <script type="text/template" data-b="tags" data-c="form">
+                  <li data-b="tags" data-c="form">
+                    <input type="checkbox" data-b="foo" data-c="form">
+                    <label data-b="name" data-c="form">Tag Name</label>
+                  </li>
+                </script>
+              </ul>
+            </form>
           HTML
         )
       end
@@ -428,7 +395,20 @@ RSpec.describe "populating options in a binding group" do
     end
 
     it "clears the nested data" do
-      expect(form.view.find(binding)).to be(nil)
+      expect(rendered).to include_sans_whitespace(
+        <<~HTML
+          <form data-b="post" data-c="form">
+            <ul>
+              <script type="text/template" data-b="tags" data-c="form">
+                <li data-b="tags" data-c="form">
+                  <input type="checkbox">
+                  <label data-b="name" data-c="form">Tag Name</label>
+                </li>
+              </script>
+            </ul>
+          </form>
+        HTML
+      )
     end
   end
 
@@ -438,7 +418,20 @@ RSpec.describe "populating options in a binding group" do
     end
 
     it "clears the nested data" do
-      expect(form.view.find(binding)).to be(nil)
+      expect(rendered).to include_sans_whitespace(
+        <<~HTML
+          <form data-b="post" data-c="form">
+            <ul>
+              <script type="text/template" data-b="tags" data-c="form">
+                <li data-b="tags" data-c="form">
+                  <input type="checkbox">
+                  <label data-b="name" data-c="form">Tag Name</label>
+                </li>
+              </script>
+            </ul>
+          </form>
+        HTML
+      )
     end
   end
 end

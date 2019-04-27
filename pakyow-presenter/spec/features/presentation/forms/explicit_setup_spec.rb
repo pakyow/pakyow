@@ -286,7 +286,7 @@ RSpec.describe "setting up a form explicitly via presenter" do
 
   describe "setting up the form multiple times" do
     let :object do
-      { title: "foo" }
+      { id: "1", title: "foo" }
     end
 
     context "matching route is found" do
@@ -317,7 +317,7 @@ RSpec.describe "setting up a form explicitly via presenter" do
       end
 
       it "sets the form action" do
-        expect(form.attrs[:action]).to eq("/posts")
+        expect(form.attrs[:action]).to eq("/posts/1")
       end
 
       it "reuses the method override" do

@@ -42,10 +42,7 @@ module Pakyow
 
         object.class_eval do
           isolate Binder
-          isolate Presenter do
-            include Actions::InsertPrototypeBar::PresenterHelpers
-            include Actions::SetupEndpoints::PresenterHelpers
-          end
+          isolate Presenter
 
           # Make sure component presenters inherit from this app's presenter.
           #
@@ -63,8 +60,8 @@ module Pakyow
             include Actions::PlaceInMode
             include Actions::PresentPresentables
             include Actions::SetupEndpoints
-            include Actions::SetPageTitle
             include Actions::SetupForms
+            include Actions::SetPageTitle
           end
 
           isolate ViewBuilder
@@ -115,7 +112,7 @@ module Pakyow
           #
           after :initialize do
             [isolated(:Presenter)].concat(state(:presenter)).each do |presenter|
-              isolated(:Renderer).attach!(presenter)
+              isolated(:Renderer).attach!(presenter, self)
             end
           end
 

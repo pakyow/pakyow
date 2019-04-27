@@ -3,48 +3,32 @@ require_relative "./shared"
 RSpec.describe "populating options for a select field" do
   include_context "options_for"
 
-  let :view do
-    Pakyow::Presenter::View.new(
-      <<~HTML
-        <form binding="post">
-          <select binding="tag">
-            <option binding="name">existing</option>
-          </select>
-        </form>
-      HTML
-    )
+  let :view_path do
+    "/presentation/forms/options_for/select"
   end
 
   let :options do
     [[1, "one"], [2, "two"], [3, "three"]]
   end
 
-  let :tag_view do
-    Pakyow::Presenter::View.new(
-      form.find(:tag).view.to_s
+  it "renders in an expected way" do
+    expect(rendered).to include_sans_whitespace(
+      <<~HTML
+        <form data-b="post" data-c="form">
+          <select data-b="tag" data-c="form" name="post[tag]">
+            <option value="1">one</option>
+            <option value="2">two</option>
+            <option value="3">three</option>
+          </select>
+
+          <script type="text/template" data-b="tag" data-c="form">
+            <select data-b="tag" data-c="form">
+              <option data-b="name" data-c="form">existing</option>
+            </select>
+          </script>
+        </form>
+      HTML
     )
-  end
-
-  it "clears existing options" do
-    expect(form.find(:tag).to_s).not_to include("<option>existing</option>")
-  end
-
-  it "creates an option for each value" do
-    expect(tag_view.object.find_significant_nodes(:option).count).to eq(3)
-  end
-
-  it "sets the submitted value for each option" do
-    options = tag_view.object.find_significant_nodes(:option)
-    expect(options[0].attributes[:value]).to eq("1")
-    expect(options[1].attributes[:value]).to eq("2")
-    expect(options[2].attributes[:value]).to eq("3")
-  end
-
-  it "sets the presentation value for each option" do
-    options = tag_view.object.find_significant_nodes(:option)
-    expect(options[0].text).to eq("one")
-    expect(options[1].text).to eq("two")
-    expect(options[2].text).to eq("three")
   end
 
   context "given a block" do
@@ -55,7 +39,23 @@ RSpec.describe "populating options for a select field" do
     end
 
     it "uses options provided by the block" do
-      expect(tag_view.object.find_significant_nodes(:option).count).to eq(3)
+      expect(rendered).to include_sans_whitespace(
+        <<~HTML
+          <form data-b="post" data-c="form">
+            <select data-b="tag" data-c="form" name="post[tag]">
+              <option value="1">one</option>
+              <option value="2">two</option>
+              <option value="3">three</option>
+            </select>
+
+            <script type="text/template" data-b="tag" data-c="form">
+              <select data-b="tag" data-c="form">
+                <option data-b="name" data-c="form">existing</option>
+              </select>
+            </script>
+          </form>
+        HTML
+      )
     end
   end
 
@@ -69,18 +69,24 @@ RSpec.describe "populating options for a select field" do
         ]
       end
 
-      it "sets the submitted value for each option" do
-        options = tag_view.object.find_significant_nodes(:option)
-        expect(options[0].attributes[:value]).to eq("1")
-        expect(options[1].attributes[:value]).to eq("2")
-        expect(options[2].attributes[:value]).to eq("3")
-      end
+      it "renders in an expected way" do
+        expect(rendered).to include_sans_whitespace(
+          <<~HTML
+            <form data-b="post" data-c="form">
+              <select data-b="tag" data-c="form" name="post[tag]">
+                <option value="1">one</option>
+                <option value="2">two</option>
+                <option value="3">three</option>
+              </select>
 
-      it "sets the presentation value for each option" do
-        options = tag_view.object.find_significant_nodes(:option)
-        expect(options[0].text).to eq("one")
-        expect(options[1].text).to eq("two")
-        expect(options[2].text).to eq("three")
+              <script type="text/template" data-b="tag" data-c="form">
+                <select data-b="tag" data-c="form">
+                  <option data-b="name" data-c="form">existing</option>
+                </select>
+              </script>
+            </form>
+          HTML
+        )
       end
     end
 
@@ -121,18 +127,24 @@ RSpec.describe "populating options for a select field" do
         ]
       end
 
-      it "sets the submitted value for each option" do
-        options = tag_view.object.find_significant_nodes(:option)
-        expect(options[0].attributes[:value]).to eq("one")
-        expect(options[1].attributes[:value]).to eq("two")
-        expect(options[2].attributes[:value]).to eq("three")
-      end
+      it "renders in an expected way" do
+        expect(rendered).to include_sans_whitespace(
+          <<~HTML
+            <form data-b="post" data-c="form">
+              <select data-b="tag" data-c="form" name="post[tag]">
+                <option value="one">One</option>
+                <option value="two">Two</option>
+                <option value="three">Three</option>
+              </select>
 
-      it "sets the presentation value for each option" do
-        options = tag_view.object.find_significant_nodes(:option)
-        expect(options[0].text).to eq("One")
-        expect(options[1].text).to eq("Two")
-        expect(options[2].text).to eq("Three")
+              <script type="text/template" data-b="tag" data-c="form">
+                <select data-b="tag" data-c="form">
+                  <option data-b="name" data-c="form">existing</option>
+                </select>
+              </script>
+            </form>
+          HTML
+        )
       end
     end
 
@@ -145,32 +157,30 @@ RSpec.describe "populating options for a select field" do
         ]
       end
 
-      it "does not set the submitted value for each option" do
-        options = tag_view.object.find_significant_nodes(:option)
-        expect(options[0].attributes[:value]).to eq("")
-        expect(options[1].attributes[:value]).to eq("")
-        expect(options[2].attributes[:value]).to eq("")
-      end
+      it "renders in an expected way" do
+        expect(rendered).to include_sans_whitespace(
+          <<~HTML
+            <form data-b="post" data-c="form">
+              <select data-b="tag" data-c="form" name="post[tag]">
+                <option value="">One</option>
+                <option value="">Two</option>
+                <option value="">Three</option>
+              </select>
 
-      it "sets the presentation value for each option" do
-        options = tag_view.object.find_significant_nodes(:option)
-        expect(options[0].text).to eq("One")
-        expect(options[1].text).to eq("Two")
-        expect(options[2].text).to eq("Three")
+              <script type="text/template" data-b="tag" data-c="form">
+                <select data-b="tag" data-c="form">
+                  <option data-b="name" data-c="form">existing</option>
+                </select>
+              </script>
+            </form>
+          HTML
+        )
       end
     end
 
     context "field specifies the submitted value" do
-      let :view do
-        Pakyow::Presenter::View.new(
-          <<~HTML
-            <form binding="post">
-              <select binding="tag.slug">
-                <option binding="name">existing</option>
-              </select>
-            </form>
-          HTML
-        )
+      let :view_path do
+        "/presentation/forms/options_for/select/with_binding"
       end
 
       let :options do
@@ -181,36 +191,30 @@ RSpec.describe "populating options for a select field" do
         ]
       end
 
-      it "sets the name properly" do
-        expect(form.find(:tag).view.object.attributes[:name]).to eq("post[tag]")
-      end
+      it "renders in an expected way" do
+        expect(rendered).to include_sans_whitespace(
+          <<~HTML
+            <form data-b="post" data-c="form">
+              <select data-b="tag.slug" data-c="form" name="post[tag]">
+                <option value="one">One</option>
+                <option value="two">Two</option>
+                <option value="three">Three</option>
+              </select>
 
-      it "sets the submitted value for each option" do
-        options = tag_view.object.find_significant_nodes(:option)
-        expect(options[0].attributes[:value]).to eq("one")
-        expect(options[1].attributes[:value]).to eq("two")
-        expect(options[2].attributes[:value]).to eq("three")
-      end
-
-      it "sets the presentation value for each option" do
-        options = tag_view.object.find_significant_nodes(:option)
-        expect(options[0].text).to eq("One")
-        expect(options[1].text).to eq("Two")
-        expect(options[2].text).to eq("Three")
+              <script type="text/template" data-b="tag.slug" data-c="form">
+                <select data-b="tag.slug" data-c="form">
+                  <option data-b="name" data-c="form">existing</option>
+                </select>
+              </script>
+            </form>
+          HTML
+        )
       end
     end
 
     context "field does not specify a presentation value" do
-      let :view do
-        Pakyow::Presenter::View.new(
-          <<~HTML
-            <form binding="post">
-              <select binding="tag.slug">
-                <option>existing</option>
-              </select>
-            </form>
-          HTML
-        )
+      let :view_path do
+        "/presentation/forms/options_for/select/without_presentation"
       end
 
       let :options do
@@ -221,18 +225,24 @@ RSpec.describe "populating options for a select field" do
         ]
       end
 
-      it "sets the submitted value for each option" do
-        options = tag_view.object.find_significant_nodes(:option)
-        expect(options[0].attributes[:value]).to eq("one")
-        expect(options[1].attributes[:value]).to eq("two")
-        expect(options[2].attributes[:value]).to eq("three")
-      end
+      it "renders in an expected way" do
+        expect(rendered).to include_sans_whitespace(
+          <<~HTML
+            <form data-b="post" data-c="form">
+              <select data-b="tag.slug" data-c="form" name="post[tag]">
+                <option value="one"></option>
+                <option value="two"></option>
+                <option value="three"></option>
+              </select>
 
-      it "does not set the presentation value for each option" do
-        options = tag_view.object.find_significant_nodes(:option)
-        expect(options[0].text).to eq("")
-        expect(options[1].text).to eq("")
-        expect(options[2].text).to eq("")
+              <script type="text/template" data-b="tag.slug" data-c="form">
+                <select data-b="tag.slug" data-c="form">
+                  <option>existing</option>
+                </select>
+              </script>
+            </form>
+          HTML
+        )
       end
     end
   end
@@ -242,18 +252,22 @@ RSpec.describe "populating options for a select field" do
       { id: 1, name: "one" }
     end
 
-    it "creates a single option for the object" do
-      expect(tag_view.object.find_significant_nodes(:option).count).to eq(1)
-    end
+    it "renders in an expected way" do
+      expect(rendered).to include_sans_whitespace(
+        <<~HTML
+          <form data-b="post" data-c="form">
+            <select data-b="tag" data-c="form" name="post[tag]">
+              <option value="1">one</option>
+            </select>
 
-    it "sets the submitted value for each option" do
-      options = tag_view.object.find_significant_nodes(:option)
-      expect(options[0].attributes[:value]).to eq("1")
-    end
-
-    it "sets the presentation value for each option" do
-      options = tag_view.object.find_significant_nodes(:option)
-      expect(options[0].text).to eq("one")
+            <script type="text/template" data-b="tag" data-c="form">
+              <select data-b="tag" data-c="form">
+                <option data-b="name" data-c="form">existing</option>
+              </select>
+            </script>
+          </form>
+        HTML
+      )
     end
   end
 
@@ -262,8 +276,21 @@ RSpec.describe "populating options for a select field" do
       []
     end
 
-    it "clears the options" do
-      expect(tag_view.object.find_significant_nodes(:option).count).to eq(0)
+    it "renders in an expected way" do
+      expect(rendered).to include_sans_whitespace(
+        <<~HTML
+          <form data-b="post" data-c="form">
+            <select data-b="tag" data-c="form" name="post[tag]">
+            </select>
+
+            <script type="text/template" data-b="tag" data-c="form">
+              <select data-b="tag" data-c="form">
+                <option data-b="name" data-c="form">existing</option>
+              </select>
+            </script>
+          </form>
+        HTML
+      )
     end
   end
 
@@ -272,8 +299,21 @@ RSpec.describe "populating options for a select field" do
       nil
     end
 
-    it "clears the options" do
-      expect(tag_view.object.find_significant_nodes(:option).count).to eq(0)
+    it "renders in an expected way" do
+      expect(rendered).to include_sans_whitespace(
+        <<~HTML
+          <form data-b="post" data-c="form">
+            <select data-b="tag" data-c="form" name="post[tag]">
+            </select>
+
+            <script type="text/template" data-b="tag" data-c="form">
+              <select data-b="tag" data-c="form">
+                <option data-b="name" data-c="form">existing</option>
+              </select>
+            </script>
+          </form>
+        HTML
+      )
     end
   end
 end

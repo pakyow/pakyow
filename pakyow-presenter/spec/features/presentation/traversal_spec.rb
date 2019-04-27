@@ -11,7 +11,7 @@ RSpec.describe "view traversal via presenter" do
     end
 
     it "returns the form" do
-      expect(presenter.form(:post)).to be_instance_of(Pakyow::Presenter::FormPresenter)
+      expect(presenter.form(:post)).to be_instance_of(Pakyow::Presenter::Presenters::Form)
       expect(presenter.form(:post).view).to be_instance_of(Pakyow::Presenter::Form)
     end
 

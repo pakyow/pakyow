@@ -2,7 +2,7 @@ RSpec.describe "automatic form setup" do
   include_context "app"
 
   describe "auto rendering a form" do
-    context "form has ay been setup" do
+    context "form has been setup" do
       let :app_init do
         Proc.new do
           resource :posts, "/posts" do
@@ -16,8 +16,8 @@ RSpec.describe "automatic form setup" do
           end
 
           presenter "/form" do
-            def perform
-              form(:post).setup do |form|
+            render node: -> { form(:post) } do
+              setup do |form|
                 form.bind(title: "bar")
               end
             end
@@ -26,18 +26,17 @@ RSpec.describe "automatic form setup" do
       end
 
       it "does not setup again" do
-        expect_any_instance_of(
-          Pakyow::Presenter::FormPresenter
-        ).not_to receive(:create)
+        call("/posts/new").tap do |response|
+          expect(response[0]).to eq(200)
 
-        response = call("/posts/new")
-        expect(response[0]).to eq(200)
-
-        expect(response[2]).to include_sans_whitespace(
-          <<~HTML
-            <input data-b="title" type="text" data-c="form" name="post[title]" value="bar">
-          HTML
-        )
+          response[2].tap do |body|
+            expect(body).to include_sans_whitespace(
+              <<~HTML
+                <input data-b="title" type="text" data-c="form" name="post[title]" value="bar">
+              HTML
+            )
+          end
+        end
       end
     end
   end
@@ -59,12 +58,23 @@ RSpec.describe "automatic form setup" do
       end
 
       it "sets up the form" do
-        expect_any_instance_of(
-          Pakyow::Presenter::FormPresenter
-        ).to receive(:create).with(title: "foo")
+        call("/posts/new").tap do |response|
+          expect(response[0]).to eq(200)
 
-        response = call("/posts/new")
-        expect(response[0]).to eq(200)
+          response[2].tap do |body|
+            expect(body).to include_sans_whitespace(
+              <<~HTML
+                <form data-b="post" data-c="form" action="/posts" method="post">
+              HTML
+            )
+
+            expect(body).not_to include_sans_whitespace(
+              <<~HTML
+                name="_method"
+              HTML
+            )
+          end
+        end
       end
     end
 
@@ -83,12 +93,23 @@ RSpec.describe "automatic form setup" do
       end
 
       it "sets up the form" do
-        expect_any_instance_of(
-          Pakyow::Presenter::FormPresenter
-        ).to receive(:create)
+        call("/posts/new").tap do |response|
+          expect(response[0]).to eq(200)
 
-        response = call("/posts/new")
-        expect(response[0]).to eq(200)
+          response[2].tap do |body|
+            expect(body).to include_sans_whitespace(
+              <<~HTML
+                <form data-b="post" data-c="form" action="/posts" method="post">
+              HTML
+            )
+
+            expect(body).not_to include_sans_whitespace(
+              <<~HTML
+                name="_method"
+              HTML
+            )
+          end
+        end
       end
     end
   end
@@ -110,12 +131,23 @@ RSpec.describe "automatic form setup" do
       end
 
       it "sets up the form" do
-        expect_any_instance_of(
-          Pakyow::Presenter::FormPresenter
-        ).to receive(:update).with(id: "1", title: "foo")
+        call("/posts/1/edit").tap do |response|
+          expect(response[0]).to eq(200)
 
-        response = call("/posts/1/edit")
-        expect(response[0]).to eq(200)
+          response[2].tap do |body|
+            expect(body).to include_sans_whitespace(
+              <<~HTML
+                <form data-b="post" data-c="form" action="/posts/1" method="post" data-id="1">
+              HTML
+            )
+
+            expect(body).to include_sans_whitespace(
+              <<~HTML
+                <input type="hidden" name="_method" value="patch">
+              HTML
+            )
+          end
+        end
       end
     end
 
@@ -138,8 +170,17 @@ RSpec.describe "automatic form setup" do
           expect(response[0]).to eq(200)
 
           response[2].tap do |body|
-            expect(body).to include('<form data-b="post" data-c="form" action="/posts/1" method="post" data-id="1">')
-            expect(body).to include('<input type="hidden" name="_method" value="patch">')
+            expect(body).to include_sans_whitespace(
+              <<~HTML
+                <form data-b="post" data-c="form" action="/posts/1" method="post" data-id="1">
+              HTML
+            )
+
+            expect(body).to include_sans_whitespace(
+              <<~HTML
+                <input type="hidden" name="_method" value="patch">
+              HTML
+            )
           end
         end
       end
@@ -151,7 +192,10 @@ RSpec.describe "automatic form setup" do
       Proc.new do
         resource :posts, "/posts" do
           edit do
-            expose :post, { id: params[:id], tag: "bar", colors: ["red", "blue"], enabled: false }, for: :form
+            expose :post, {
+              id: params[:id], tag: "bar", colors: ["red", "blue"], enabled: false
+            }, for: :form
+
             render "/form/with-options"
           end
 
@@ -160,10 +204,10 @@ RSpec.describe "automatic form setup" do
         end
 
         presenter "/form/with-options" do
-          def perform
-            form(:post).options_for(:tag, [[:foo, "Foo"], [:bar, "Bar"], [:baz, "Baz"]])
-            form(:post).options_for(:colors, [[:red, "Red"], [:green, "Green"], [:blue, "Blue"]])
-            form(:post).options_for(:enabled, [[true, "Yes"], [false, "No"]])
+          render node: -> { form(:post) } do
+            options_for(:tag, [[:foo, "Foo"], [:bar, "Bar"], [:baz, "Baz"]])
+            options_for(:colors, [[:red, "Red"], [:green, "Green"], [:blue, "Blue"]])
+            options_for(:enabled, [[true, "Yes"], [false, "No"]])
           end
         end
       end

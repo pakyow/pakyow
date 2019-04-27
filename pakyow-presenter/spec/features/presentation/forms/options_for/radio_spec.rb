@@ -3,14 +3,8 @@ require_relative "./shared"
 RSpec.describe "populating options for a radio button" do
   include_context "options_for"
 
-  let :view do
-    Pakyow::Presenter::View.new(
-      <<~HTML
-        <form binding="post">
-          <input type="radio" binding="tag">
-        </form>
-      HTML
-    )
+  let :view_path do
+    "/presentation/forms/options_for/radio"
   end
 
   let :options do
@@ -18,21 +12,13 @@ RSpec.describe "populating options for a radio button" do
   end
 
   it "creates an input for each value" do
-    expect(form.view.to_s).to include_sans_whitespace(
+    expect(rendered).to include_sans_whitespace(
       <<~HTML
-        <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="1">
-      HTML
-    )
-
-    expect(form.view.to_s).to include_sans_whitespace(
-      <<~HTML
-        <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="2">
-      HTML
-    )
-
-    expect(form.view.to_s).to include_sans_whitespace(
-      <<~HTML
-        <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="3">
+        <form data-b="post" data-c="form">
+          <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="1">
+          <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="2">
+          <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="3">
+        </form>
       HTML
     )
   end
@@ -45,21 +31,13 @@ RSpec.describe "populating options for a radio button" do
     end
 
     it "uses options provided by the block" do
-      expect(form.view.to_s).to include_sans_whitespace(
+      expect(rendered).to include_sans_whitespace(
         <<~HTML
-          <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="1">
-        HTML
-      )
-
-      expect(form.view.to_s).to include_sans_whitespace(
-        <<~HTML
-          <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="2">
-        HTML
-      )
-
-      expect(form.view.to_s).to include_sans_whitespace(
-        <<~HTML
-          <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="3">
+          <form data-b="post" data-c="form">
+            <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="1">
+            <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="2">
+            <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="3">
+          </form>
         HTML
       )
     end
@@ -76,21 +54,13 @@ RSpec.describe "populating options for a radio button" do
       end
 
       it "creates an input for each value" do
-        expect(form.view.to_s).to include_sans_whitespace(
+        expect(rendered).to include_sans_whitespace(
           <<~HTML
-            <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="1">
-          HTML
-        )
-
-        expect(form.view.to_s).to include_sans_whitespace(
-          <<~HTML
-            <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="2">
-          HTML
-        )
-
-        expect(form.view.to_s).to include_sans_whitespace(
-          <<~HTML
-            <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="3">
+            <form data-b="post" data-c="form">
+              <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="1">
+              <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="2">
+              <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="3">
+            </form>
           HTML
         )
       end
@@ -134,21 +104,13 @@ RSpec.describe "populating options for a radio button" do
       end
 
       it "creates an input for each value" do
-        expect(form.view.to_s).to include_sans_whitespace(
+        expect(rendered).to include_sans_whitespace(
           <<~HTML
-            <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="one">
-          HTML
-        )
-
-        expect(form.view.to_s).to include_sans_whitespace(
-          <<~HTML
-            <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="two">
-          HTML
-        )
-
-        expect(form.view.to_s).to include_sans_whitespace(
-          <<~HTML
-            <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="three">
+            <form data-b="post" data-c="form">
+              <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="one">
+              <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="two">
+              <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="three">
+            </form>
           HTML
         )
       end
@@ -164,35 +126,21 @@ RSpec.describe "populating options for a radio button" do
       end
 
       it "creates a valueless input for each value" do
-        expect(form.view.to_s).to include_sans_whitespace(
+        expect(rendered).to include_sans_whitespace(
           <<~HTML
-            <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="">
-          HTML
-        )
-
-        expect(form.view.to_s).to include_sans_whitespace(
-          <<~HTML
-            <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="">
-          HTML
-        )
-
-        expect(form.view.to_s).to include_sans_whitespace(
-          <<~HTML
-            <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="">
+            <form data-b="post" data-c="form">
+              <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="">
+              <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="">
+              <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="">
+            </form>
           HTML
         )
       end
     end
 
     context "field specifies the submitted value" do
-      let :view do
-        Pakyow::Presenter::View.new(
-          <<~HTML
-            <form binding="post">
-              <input type="radio" binding="tag.slug">
-            </form>
-          HTML
-        )
+      let :view_path do
+        "/presentation/forms/options_for/radio/with_binding"
       end
 
       let :options do
@@ -204,21 +152,17 @@ RSpec.describe "populating options for a radio button" do
       end
 
       it "creates an input for each value" do
-        expect(form.view.to_s).to include_sans_whitespace(
+        expect(rendered).to include_sans_whitespace(
           <<~HTML
-            <input type="radio" data-b="tag.slug" data-c="form" name="post[tag]" value="one">
-          HTML
-        )
+            <form data-b="post" data-c="form">
+              <input type="radio" data-b="tag.slug" data-c="form" name="post[tag]" value="one">
+              <input type="radio" data-b="tag.slug" data-c="form" name="post[tag]" value="two">
+              <input type="radio" data-b="tag.slug" data-c="form" name="post[tag]" value="three">
 
-        expect(form.view.to_s).to include_sans_whitespace(
-          <<~HTML
-            <input type="radio" data-b="tag.slug" data-c="form" name="post[tag]" value="two">
-          HTML
-        )
-
-        expect(form.view.to_s).to include_sans_whitespace(
-          <<~HTML
-            <input type="radio" data-b="tag.slug" data-c="form" name="post[tag]" value="three">
+              <script type="text/template" data-b="tag.slug" data-c="form">
+                <input type="radio" data-b="tag.slug" data-c="form">
+              </script>
+            </form>
           HTML
         )
       end
@@ -231,9 +175,11 @@ RSpec.describe "populating options for a radio button" do
     end
 
     it "creates an input for the object" do
-      expect(form.view.to_s).to include_sans_whitespace(
+      expect(rendered).to include_sans_whitespace(
         <<~HTML
-          <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="1">
+          <form data-b="post" data-c="form">
+            <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="1">
+          </form>
         HTML
       )
     end
@@ -245,7 +191,11 @@ RSpec.describe "populating options for a radio button" do
     end
 
     it "clears the options" do
-      expect(form.find(binding)).to be(nil)
+      expect(rendered).to include_sans_whitespace(
+        <<~HTML
+          <form data-b="post" data-c="form"></form>
+        HTML
+      )
     end
   end
 
@@ -255,7 +205,11 @@ RSpec.describe "populating options for a radio button" do
     end
 
     it "clears the options" do
-      expect(form.find(binding)).to be(nil)
+      expect(rendered).to include_sans_whitespace(
+        <<~HTML
+          <form data-b="post" data-c="form"></form>
+        HTML
+      )
     end
   end
 end

@@ -124,7 +124,7 @@ RSpec.describe "form endpoints" do
 
       it "sets the endpoint to the explicitly defined endpoint" do
         call("/presentation/forms/endpoints/explicit/posts/1/edit")[2].tap do |body|
-          expect(body).to include('<form data-b="post" data-e="explicit_update" data-c="form" action="/explicit/update" method="post"')
+          expect(body).to include('<form data-b="post" data-e="explicit_update" data-c="form" data-id="1" action="/explicit/update" method="post">')
           expect(body).to include('<input type="hidden" name="_method" value="put">')
         end
       end
@@ -195,7 +195,7 @@ RSpec.describe "form endpoints" do
                 end
 
                 controller :explicit do
-                  delete :endpoint, "/explicit"
+                  post :endpoint, "/explicit"
                 end
               }
             end
@@ -203,7 +203,6 @@ RSpec.describe "form endpoints" do
             it "sets the endpoint to the explicitly defined endpoint" do
               call("/presentation/forms/endpoints/explicit")[2].tap do |body|
                 expect(body).to include('<form data-b="post" data-e="explicit_endpoint" data-c="form" action="/explicit" method="post">')
-                expect(body).to include('<input type="hidden" name="_method" value="delete">')
               end
             end
           end
@@ -236,7 +235,7 @@ RSpec.describe "form endpoints" do
                 end
 
                 controller :explicit do
-                  delete :endpoint, "/explicit"
+                  post :endpoint, "/explicit"
                 end
               }
             end
@@ -244,7 +243,6 @@ RSpec.describe "form endpoints" do
             it "sets the endpoint to the explicitly defined endpoint" do
               call("/presentation/forms/endpoints/explicit")[2].tap do |body|
                 expect(body).to include('<form data-b="post" data-e="explicit_endpoint" data-c="form" action="/explicit" method="post">')
-                expect(body).to include('<input type="hidden" name="_method" value="delete">')
               end
             end
           end
@@ -289,7 +287,7 @@ RSpec.describe "form endpoints" do
                 end
 
                 controller :explicit do
-                  delete :endpoint, "/explicit"
+                  post :endpoint, "/explicit"
                 end
               }
             end
@@ -297,7 +295,6 @@ RSpec.describe "form endpoints" do
             it "sets the endpoint to the explicitly defined endpoint" do
               call("/presentation/forms/endpoints/explicit")[2].tap do |body|
                 expect(body).to include('<form data-b="post" data-e="explicit_endpoint" data-c="form" action="/explicit" method="post">')
-                expect(body).to include('<input type="hidden" name="_method" value="delete">')
               end
             end
           end
@@ -330,7 +327,7 @@ RSpec.describe "form endpoints" do
                 end
 
                 controller :explicit do
-                  delete :endpoint, "/explicit"
+                  post :endpoint, "/explicit"
                 end
               }
             end
@@ -338,7 +335,6 @@ RSpec.describe "form endpoints" do
             it "sets the endpoint to the explicitly defined endpoint" do
               call("/presentation/forms/endpoints/explicit")[2].tap do |body|
                 expect(body).to include('<form data-b="post" data-e="explicit_endpoint" data-c="form" action="/explicit" method="post">')
-                expect(body).to include('<input type="hidden" name="_method" value="delete">')
               end
             end
           end
@@ -350,7 +346,7 @@ RSpec.describe "form endpoints" do
       let :app_init do
         Proc.new {
           controller :explicit do
-            delete :endpoint, "/explicit"
+            post :endpoint, "/explicit"
           end
         }
       end
@@ -358,7 +354,6 @@ RSpec.describe "form endpoints" do
       it "sets the endpoint to the explicitly defined endpoint" do
         call("/presentation/forms/endpoints/explicit")[2].tap do |body|
           expect(body).to include('<form data-b="post" data-e="explicit_endpoint" data-c="form" action="/explicit" method="post">')
-          expect(body).to include('<input type="hidden" name="_method" value="delete">')
         end
       end
 
@@ -393,6 +388,36 @@ RSpec.describe "form endpoints" do
         it "sets the endpoint when the object exposes the required values" do
           call("/presentation/forms/endpoints/explicit/contextual")[2].tap do |body|
             expect(body).to include('<form data-b="comment" data-e="posts_comments_create" data-c="form" action="/posts/123/comments" method="post">')
+          end
+        end
+      end
+
+      context "endpoint is a delete endpoint" do
+        let :app_init do
+          Proc.new {
+            controller :explicit do
+              delete :endpoint, "/explicit"
+            end
+          }
+        end
+
+        it "sets the endpoint to the explicitly defined endpoint" do
+          call("/presentation/forms/endpoints/explicit")[2].tap do |body|
+            expect(body).to include('<form data-b="post" data-e="explicit_endpoint" data-c="form" action="/explicit" method="post" data-ui="confirmable">')
+            expect(body).to include('<input type="hidden" name="_method" value="delete">')
+          end
+        end
+      end
+
+      context "endpoint cannot be found" do
+        let :app_init do
+          Proc.new {
+          }
+        end
+
+        it "does not set an endpoint" do
+          call("/presentation/forms/endpoints/explicit")[2].tap do |body|
+            expect(body).to include('<form data-b="post" data-e="explicit_endpoint" data-c="form" method="get">')
           end
         end
       end

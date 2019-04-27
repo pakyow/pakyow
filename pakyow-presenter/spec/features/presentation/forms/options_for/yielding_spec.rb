@@ -24,6 +24,7 @@ RSpec.describe "yielding to the options_for block" do
       []
     end
 
-    expect(yielded_field).to be_instance_of(Pakyow::Presenter::VersionedView)
+    expect(yielded_field).to be_instance_of(Pakyow::Presenter::Presenter)
+    expect(yielded_field.view).to be_instance_of(Pakyow::Presenter::VersionedView)
   end
 end

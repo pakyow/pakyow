@@ -12,7 +12,6 @@ require "pakyow/support/safe_string"
 require "pakyow/support/string_builder"
 
 require "pakyow/presenter/presentable"
-require "pakyow/presenter/presenter/behavior/options"
 
 module Pakyow
   module Presenter
@@ -24,12 +23,11 @@ module Pakyow
       extend Support::ClassState
       class_state :__version_logic, default: {}, inheritable: true
       class_state :__attached_renders, default: [], inheritable: true
+      class_state :__global_options, default: {}, inheritable: true
 
       using Support::Refinements::Array::Ensurable
 
       include Support::SafeStringHelpers
-
-      include Behavior::Options
 
       include Presentable
 
@@ -41,62 +39,13 @@ module Pakyow
       #
       attr_reader :logger
 
-      # @api private
+      # Values to be presented.
+      #
       attr_reader :presentables
 
-      # @!method attributes
-      #   Delegates to {view}.
-      #   @see View#attributes
+      # The app object.
       #
-      # @!method attrs
-      #   Delegates to {view}.
-      #   @see View#attrs
-      #
-      # @!method html=
-      #   Delegates to {view}.
-      #   @see View#html=
-      #
-      # @!method html
-      #   Delegates to {view}.
-      #   @see View#html
-      #
-      # @!method text
-      #   Delegates to {view}.
-      #   @see View#text
-      #
-      # @!method binding?
-      #   Delegates to {view}.
-      #   @see View#binding?
-      #
-      # @!method container?
-      #   Delegates to {view}.
-      #   @see View#container?
-      #
-      # @!method partial?
-      #   Delegates to {view}.
-      #   @see View#partial?
-      #
-      # @!method component?
-      #   Delegates to {view}.
-      #   @see View#component?
-      #
-      # @!method form?
-      #   Delegates to {view}.
-      #   @see View#form?
-      #
-      # @!method to_s
-      #   Delegates to {view}.
-      #   @see View#to_s
-      #
-      # @!method version
-      #   Delegates to {view}.
-      #   @see View#version
-      #
-      # @!method info
-      #   Delegates to {view}.
-      #   @see View#info
-      extend Forwardable
-      def_delegators :@view, :attributes, :attrs, :html=, :html, :text, :binding?, :container?, :partial?, :component?, :form?, :version, :info
+      attr_reader :app
 
       def initialize(view, app:, presentables: {})
         @app, @view, @presentables = app, view, presentables
@@ -134,7 +83,7 @@ module Pakyow
       #
       def form(name)
         if found_form = @view.form(name)
-          presenter_for(found_form, type: FormPresenter)
+          presenter_for(found_form)
         else
           nil
         end
@@ -144,7 +93,7 @@ module Pakyow
       #
       def forms
         @view.forms.map { |form|
-          presenter_for(form, type: FormPresenter)
+          presenter_for(form)
         }
       end
 
@@ -152,7 +101,7 @@ module Pakyow
       #
       def components(renderable: false)
         @view.components(renderable: renderable).map { |component|
-          presenter_for(component, type: Presenter)
+          presenter_for(component)
         }
       end
 
@@ -343,12 +292,30 @@ module Pakyow
         other.is_a?(self.class) && @view == other.view
       end
 
+      def method_missing(name, *args, &block)
+        if @view.respond_to?(name)
+          value = @view.public_send(name, *args, &block)
+
+          if value.equal?(@view)
+            self
+          else
+            value
+          end
+        else
+          super
+        end
+      end
+
+      def respond_to_missing?(name, include_private = false)
+        @view.respond_to?(name, include_private) || super
+      end
+
       # @api private
       def wrap_data_in_binder(data)
         if data.is_a?(Binder)
           data
         else
-          (binder_for_current_scope || Binder).new(data, app: @app)
+          (binder_for_current_scope || @app.isolated(:Binder)).new(data, app: @app)
         end
       end
 
@@ -357,11 +324,17 @@ module Pakyow
       end
       alias to_s to_html
 
-      def presenter_for(view, type: self.class)
+      def presenter_for(view, type: view&.label(:presenter_type))
         if view.nil?
           nil
         else
-          type.new(view, app: @app, presentables: @presentables)
+          instance = self.class.new(
+            view,
+            app: @app,
+            presentables: @presentables
+          )
+
+          type ? type.new(instance) : instance
         end
       end
 
@@ -407,23 +380,31 @@ module Pakyow
           data
         end
 
+        if @view.object.labeled?(:endpoint)
+          set_endpoint_params_for_node(@view.object, object)
+        end
+
         @view.object.each_significant_node(:endpoint) do |endpoint_node|
-          endpoint_object = endpoint_node.label(:endpoint_object)
-          endpoint_params = endpoint_node.label(:endpoint_params)
+          set_endpoint_params_for_node(endpoint_node, object)
+        end
+      end
 
-          if endpoint_object && endpoint_params
-            endpoint_object.params.each do |param|
-              if param.to_s.end_with?("_id")
-                type = param.to_s.split("_id")[0].to_sym
-                if type == @view.label(:binding) && object.key?(:id)
-                  endpoint_params[param] = object[:id]
-                  next
-                end
-              end
+      def set_endpoint_params_for_node(node, object)
+        endpoint_object = node.label(:endpoint_object)
+        endpoint_params = node.label(:endpoint_params)
 
-              if object.key?(param)
-                endpoint_params[param] = object[param]
+        if endpoint_object && endpoint_params
+          endpoint_object.params.each do |param|
+            if param.to_s.end_with?("_id")
+              type = param.to_s.split("_id")[0].to_sym
+              if type == @view.label(:binding) && object.key?(:id)
+                endpoint_params[param] = object[:id]
+                next
               end
+            end
+
+            if object.key?(param)
+              endpoint_params[param] = object[param]
             end
           end
         end
@@ -462,7 +443,11 @@ module Pakyow
           end
 
           @__attached_renders << {
-            binding_name: binding_name, channel: channel, node: node, priority: priority, block: block
+            binding_name: binding_name,
+            channel: channel,
+            node: node,
+            priority: priority,
+            block: block
           }
         end
 
@@ -502,6 +487,19 @@ module Pakyow
           end
         end
 
+        # Defines options attached to a form binding.
+        #
+        def options_for(form_binding, field_binding, options = nil, &block)
+          form_binding = form_binding.to_sym
+          field_binding = field_binding.to_sym
+
+          @__global_options[form_binding] ||= {}
+          @__global_options[form_binding][field_binding] = {
+            options: options,
+            block: block
+          }
+        end
+
         private
 
         def render_proc(render, view)
@@ -526,6 +524,9 @@ module Pakyow
 
             presenter.instance_exec(&render[:block]); returning
           rescue => error
+            puts error
+            puts error.backtrace
+
             Pakyow.logger.houston(error)
 
             presenter.clear

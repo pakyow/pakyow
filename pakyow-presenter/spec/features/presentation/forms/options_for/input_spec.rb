@@ -3,14 +3,8 @@ require_relative "./shared"
 RSpec.describe "populating options for an input" do
   include_context "options_for"
 
-  let :view do
-    Pakyow::Presenter::View.new(
-      <<~HTML
-        <form binding="post">
-          <input type="text" binding="tags">
-        </form>
-      HTML
-    )
+  let :view_path do
+    "/presentation/forms/options_for/input"
   end
 
   let :options do
@@ -18,21 +12,13 @@ RSpec.describe "populating options for an input" do
   end
 
   it "creates an input for each value" do
-    expect(form.view.to_s).to include_sans_whitespace(
+    expect(rendered).to include_sans_whitespace(
       <<~HTML
-        <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="1">
-      HTML
-    )
-
-    expect(form.view.to_s).to include_sans_whitespace(
-      <<~HTML
-        <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="2">
-      HTML
-    )
-
-    expect(form.view.to_s).to include_sans_whitespace(
-      <<~HTML
-        <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="3">
+        <form data-b="post" data-c="form">
+          <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="1">
+          <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="2">
+          <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="3">
+        </form>
       HTML
     )
   end
@@ -45,21 +31,13 @@ RSpec.describe "populating options for an input" do
     end
 
     it "uses options provided by the block" do
-      expect(form.view.to_s).to include_sans_whitespace(
+      expect(rendered).to include_sans_whitespace(
         <<~HTML
-          <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="1">
-        HTML
-      )
-
-      expect(form.view.to_s).to include_sans_whitespace(
-        <<~HTML
-          <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="2">
-        HTML
-      )
-
-      expect(form.view.to_s).to include_sans_whitespace(
-        <<~HTML
-          <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="3">
+          <form data-b="post" data-c="form">
+            <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="1">
+            <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="2">
+            <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="3">
+          </form>
         HTML
       )
     end
@@ -71,21 +49,13 @@ RSpec.describe "populating options for an input" do
     end
 
     it "creates an input for each value" do
-      expect(form.view.to_s).to include_sans_whitespace(
+      expect(rendered).to include_sans_whitespace(
         <<~HTML
-          <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="one">
-        HTML
-      )
-
-      expect(form.view.to_s).to include_sans_whitespace(
-        <<~HTML
-          <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="two">
-        HTML
-      )
-
-      expect(form.view.to_s).to include_sans_whitespace(
-        <<~HTML
-          <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="three">
+          <form data-b="post" data-c="form">
+            <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="one">
+            <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="two">
+            <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="three">
+          </form>
         HTML
       )
     end
@@ -102,21 +72,13 @@ RSpec.describe "populating options for an input" do
       end
 
       it "creates an input for each value" do
-        expect(form.view.to_s).to include_sans_whitespace(
+        expect(rendered).to include_sans_whitespace(
           <<~HTML
-            <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="1">
-          HTML
-        )
-
-        expect(form.view.to_s).to include_sans_whitespace(
-          <<~HTML
-            <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="2">
-          HTML
-        )
-
-        expect(form.view.to_s).to include_sans_whitespace(
-          <<~HTML
-            <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="3">
+            <form data-b="post" data-c="form">
+              <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="1">
+              <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="2">
+              <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="3">
+            </form>
           HTML
         )
       end
@@ -160,21 +122,13 @@ RSpec.describe "populating options for an input" do
       end
 
       it "creates an input for each value" do
-        expect(form.view.to_s).to include_sans_whitespace(
+        expect(rendered).to include_sans_whitespace(
           <<~HTML
-            <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="one">
-          HTML
-        )
-
-        expect(form.view.to_s).to include_sans_whitespace(
-          <<~HTML
-            <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="two">
-          HTML
-        )
-
-        expect(form.view.to_s).to include_sans_whitespace(
-          <<~HTML
-            <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="three">
+            <form data-b="post" data-c="form">
+              <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="one">
+              <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="two">
+              <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="three">
+            </form>
           HTML
         )
       end
@@ -190,35 +144,21 @@ RSpec.describe "populating options for an input" do
       end
 
       it "creates a valueless input for each value" do
-        expect(form.view.to_s).to include_sans_whitespace(
+        expect(rendered).to include_sans_whitespace(
           <<~HTML
-            <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="">
-          HTML
-        )
-
-        expect(form.view.to_s).to include_sans_whitespace(
-          <<~HTML
-            <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="">
-          HTML
-        )
-
-        expect(form.view.to_s).to include_sans_whitespace(
-          <<~HTML
-            <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="">
+            <form data-b="post" data-c="form">
+              <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="">
+              <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="">
+              <input type="text" data-b="tags" data-c="form" name="post[tags][]" value="">
+            </form>
           HTML
         )
       end
     end
 
     context "field specifies the submitted value" do
-      let :view do
-        Pakyow::Presenter::View.new(
-          <<~HTML
-            <form binding="post">
-              <input type="text" binding="tags.slug">
-            </form>
-          HTML
-        )
+      let :view_path do
+        "/presentation/forms/options_for/input/with_binding"
       end
 
       let :options do
@@ -230,21 +170,17 @@ RSpec.describe "populating options for an input" do
       end
 
       it "creates an input for each value" do
-        expect(form.view.to_s).to include_sans_whitespace(
+        expect(rendered).to include_sans_whitespace(
           <<~HTML
-            <input type="text" data-b="tags.slug" data-c="form" name="post[tags][]" value="one">
-          HTML
-        )
+            <form data-b="post" data-c="form">
+              <input type="text" data-b="tags.slug" data-c="form" name="post[tags][]" value="one">
+              <input type="text" data-b="tags.slug" data-c="form" name="post[tags][]" value="two">
+              <input type="text" data-b="tags.slug" data-c="form" name="post[tags][]" value="three">
 
-        expect(form.view.to_s).to include_sans_whitespace(
-          <<~HTML
-            <input type="text" data-b="tags.slug" data-c="form" name="post[tags][]" value="two">
-          HTML
-        )
-
-        expect(form.view.to_s).to include_sans_whitespace(
-          <<~HTML
-            <input type="text" data-b="tags.slug" data-c="form" name="post[tags][]" value="three">
+              <script type="text/template" data-b="tags.slug" data-c="form">
+                <input type="text" data-b="tags.slug" data-c="form">
+              </script>
+            </form>
           HTML
         )
       end
@@ -257,9 +193,11 @@ RSpec.describe "populating options for an input" do
     end
 
     it "creates an input for the object" do
-      expect(form.view.to_s).to include_sans_whitespace(
+      expect(rendered).to include_sans_whitespace(
         <<~HTML
-          <input type="text" data-b="tags" data-c="form" name="post[tags]" value="1">
+          <form data-b="post" data-c="form">
+            <input type="text" data-b="tags" data-c="form" name="post[tags]" value="1">
+          </form>
         HTML
       )
     end
@@ -271,7 +209,11 @@ RSpec.describe "populating options for an input" do
     end
 
     it "clears the options" do
-      expect(form.find(binding)).to be(nil)
+      expect(rendered).to include_sans_whitespace(
+        <<~HTML
+          <form data-b="post" data-c="form"></form>
+        HTML
+      )
     end
   end
 
@@ -281,7 +223,11 @@ RSpec.describe "populating options for an input" do
     end
 
     it "clears the options" do
-      expect(form.find(binding)).to be(nil)
+      expect(rendered).to include_sans_whitespace(
+        <<~HTML
+          <form data-b="post" data-c="form"></form>
+        HTML
+      )
     end
   end
 end

@@ -101,7 +101,7 @@ RSpec.describe "forms csrf" do
       end
     end
 
-    it "needs definition" do
+    it "does not embed an authenticity token" do
       response = call("/form")
       expect(response[0]).to eq(200)
 

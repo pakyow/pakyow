@@ -602,7 +602,7 @@ class StringDoc
   end
 
   def build_significant_node(element, significance)
-    if element.is_a?(Oga::XML::Element)
+    node = if element.is_a?(Oga::XML::Element)
       attributes = attributes_hash(element).each_with_object({}) { |(key, value), remapped_attributes|
         unless DELETED_ATTRS.include?(key)
           remapped_key = ATTR_MAPPING.fetch(key, key)
@@ -641,6 +641,15 @@ class StringDoc
 
       Node.new(element.to_xml, significance: significance, parent: self, labels: labels)
     end
+
+    significance.each do |significant_type|
+      object = StringDoc.significant_types.dig(significant_type, :object)
+      if object && object.respond_to?(:decorate)
+        object.decorate(node)
+      end
+    end
+
+    node
   end
 
   def find_channel_for_binding!(element, attributes, labels)
