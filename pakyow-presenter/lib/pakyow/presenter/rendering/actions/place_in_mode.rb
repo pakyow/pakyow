@@ -6,19 +6,6 @@ module Pakyow
   module Presenter
     module Actions
       module PlaceInMode
-        def self.perform(view, mode)
-          return unless mode
-
-          if mode == :default
-            mode = view.info(:mode) || mode
-          end
-
-          mode = mode.to_sym
-          view.object.each_significant_node(:mode).select { |node|
-            node.label(:mode) != mode
-          }.each(&:remove)
-        end
-
         extend Support::Extension
 
         apply_extension do
@@ -45,6 +32,20 @@ module Pakyow
               connection.set(:__mode, connection.params[:mode])
             end
           end
+        end
+
+        # @api private
+        def self.perform(view, mode)
+          return unless mode
+
+          if mode == :default
+            mode = view.info(:mode) || mode
+          end
+
+          mode = mode.to_sym
+          view.object.each_significant_node(:mode).select { |node|
+            node.label(:mode) != mode
+          }.each(&:remove)
         end
       end
     end
