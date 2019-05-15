@@ -19,6 +19,34 @@ module Pakyow
               #
               form.object.set_label(:metadata, {})
 
+              # Set the form id.
+              #
+              form_id = SecureRandom.hex(24)
+              form.object.label(:metadata)[:id] = form_id
+              form.object.set_label(Presenters::Form::ID_LABEL, form_id)
+
+              # Setup field names.
+              #
+              form.object.children.each_significant_node_without_descending(:binding) do |binding_node|
+                if Pakyow::Presenter::Form::FIELD_TAGS.include?(binding_node.tagname)
+                  if binding_node.attributes[:name].to_s.empty?
+                    binding_node.attributes[:name] = "#{form.object.label(:binding)}[#{binding_node.label(:binding)}]"
+                  end
+
+                  if binding_node.tagname == "select" && binding_node.attributes[:multiple]
+                    Presenters::Form.pluralize_field_name(binding_node)
+                  end
+                end
+              end
+
+              # Connect labels.
+              #
+              form.object.children.each_significant_node_without_descending(:label) do |label_node|
+                if label_node.attributes[:for] && input = form.find(*label_node.attributes[:for].to_s.split("."))
+                  Presenters::Form.connect_input_to_label(input, label_node)
+                end
+              end
+
               form.prepend(
                 Support::SafeStringHelpers.safe(
                   "<input type=\"hidden\" name=\"_method\">"

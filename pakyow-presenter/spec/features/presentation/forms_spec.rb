@@ -37,16 +37,6 @@ RSpec.describe "presenting forms" do
     end
   end
 
-  describe "field names" do
-    it "creates field names based on bindings" do
-      expect(form.to_s).to include("name=\"post[title]\"")
-    end
-
-    it "does not override names in the template" do
-      expect(form.to_s).to include("name=\"foo\"")
-    end
-  end
-
   describe "setting the form action" do
     context "passed a string" do
       before do

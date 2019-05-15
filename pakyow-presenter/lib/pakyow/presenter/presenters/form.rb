@@ -13,6 +13,27 @@ module Pakyow
   module Presenter
     module Presenters
       class Form < DelegateClass(Presenter)
+        class << self
+          # @api private
+          def pluralize_field_name(field)
+            unless field.attributes[:name].to_s.end_with?("[]") || field.attributes[:name].to_s.empty?
+              field.attributes[:name] = "#{field.attributes[:name]}[]"
+            end
+          end
+
+          # @api private
+          def connect_input_to_label(input, label)
+            if false || input.attributes[:id].to_s.empty?
+              id = SecureRandom.hex(4)
+              input.attributes[:id] = id
+            else
+              id = input.attributes[:id]
+            end
+
+            label.attributes[:for] = id
+          end
+        end
+
         using Support::Refinements::Array::Ensurable
 
         include Support::SafeStringHelpers
@@ -107,13 +128,6 @@ module Pakyow
         end
 
         def setup(object = {})
-          unless view.object.labeled?(:metadata)
-            view.object.set_label(:metadata, {})
-          end
-
-          setup_form_id
-          setup_field_names
-          connect_labels
           use_binding_nodes
           use_global_options
 
@@ -187,44 +201,6 @@ module Pakyow
               raise ArgumentError.new("expected action to be one of: #{SUPPORTED_ACTIONS.join(", ")}")
             end
           end
-        end
-
-        def setup_form_id
-          label(:metadata)[:id] ||= SecureRandom.hex(24)
-          view.object.set_label(ID_LABEL, label(:metadata)[:id])
-        end
-
-        def setup_field_names(view = self)
-          view.object.children.each_significant_node_without_descending(:binding) do |binding_node|
-            if Pakyow::Presenter::Form::FIELD_TAGS.include?(binding_node.tagname)
-              if binding_node.attributes[:name].to_s.empty?
-                binding_node.attributes[:name] = "#{view.object.label(:binding)}[#{binding_node.label(:binding)}]"
-              end
-
-              if binding_node.tagname == "select" && binding_node.attributes[:multiple]
-                pluralize_field_name(binding_node)
-              end
-            end
-          end
-        end
-
-        def connect_labels(view = self)
-          view.object.children.each_significant_node_without_descending(:label) do |label_node|
-            if label_node.attributes[:for] && input = view.find(*label_node.attributes[:for].to_s.split("."))
-              connect_input_to_label(input, label_node)
-            end
-          end
-        end
-
-        def connect_input_to_label(input, label)
-          if false || input.attributes[:id].to_s.empty?
-            id = SecureRandom.hex(4)
-            input.attributes[:id] = id
-          else
-            id = input.attributes[:id]
-          end
-
-          label.attributes[:for] = id
         end
 
         def use_binding_nodes
@@ -336,7 +312,7 @@ module Pakyow
 
         def create_input_options(values, field_presenter)
           if values.is_a?(Array) && field_presenter.attributes[:type] != "radio"
-            pluralize_field_name(field_presenter.object)
+            self.class.pluralize_field_name(field_presenter.object)
           end
 
           values = Array.ensure(values).compact
@@ -410,7 +386,7 @@ module Pakyow
                   input.attributes[:name] = "#{view.object.label(:binding)}[#{current.label(:binding)}]"
 
                   if original_values.is_a?(Array) && input.attributes[:type] != "radio"
-                    pluralize_field_name(input)
+                    self.class.pluralize_field_name(input)
                   end
 
                   input.attributes[:value] = ensure_html_safety(option_value(value, current).to_s)
@@ -421,7 +397,7 @@ module Pakyow
                 end
 
                 if input && label
-                  connect_input_to_label(input, label)
+                  self.class.connect_input_to_label(input, label)
                 end
               end
 
@@ -513,12 +489,6 @@ module Pakyow
 
           # add generated options
           field_presenter.append(safe(options.to_xml))
-        end
-
-        def pluralize_field_name(field)
-          unless field.attributes[:name].to_s.end_with?("[]") || field.attributes[:name].to_s.empty?
-            field.attributes[:name] = "#{field.attributes[:name]}[]"
-          end
         end
       end
     end
