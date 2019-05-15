@@ -70,5 +70,20 @@ RSpec.describe Pakyow::Support::Refinements::Method::Introspection do
         expect(method(:foo).keyword_argument?(:qux)).to be(false)
       end
     end
+
+    context "method requires a keyword argument" do
+      before do
+        def foo(bar:)
+        end
+      end
+
+      it "returns true when the name matches" do
+        expect(method(:foo).keyword_argument?(:bar)).to be(true)
+      end
+
+      it "returns false when the name does not match" do
+        expect(method(:foo).keyword_argument?(:baz)).to be(false)
+      end
+    end
   end
 end
