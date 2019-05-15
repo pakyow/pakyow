@@ -8,6 +8,7 @@ require "pakyow/support/deep_freeze"
 require "pakyow/support/hookable"
 require "pakyow/support/pipeline"
 
+require "pakyow/support/core_refinements/proc/introspection"
 require "pakyow/support/core_refinements/string/normalization"
 
 require "pakyow/presenter/rendering/actions/render_components"
@@ -140,7 +141,7 @@ module Pakyow
             view.mixin(info[:partials])
           }
 
-          self.class.build!(app, presenter_view, mode)
+          self.class.build!(presenter_view, app: app, mode: mode, view_path: view_path)
 
           # We collapse built views down to significance that is considered "renderable". This is
           # mostly an optimization, since it lets us collapse some nodes into single strings and
@@ -164,6 +165,7 @@ module Pakyow
       end
 
       class << self
+        using Support::Refinements::Proc::Introspection
         using Support::Refinements::String::Normalization
 
         def render(connection, view_path: nil, presenter_path: nil, mode: :default)
@@ -220,15 +222,35 @@ module Pakyow
           end
         end
 
-        def build!(app, view, mode)
+        def build!(view, app:, mode:, view_path:)
           @__build_fns.each do |fn|
-            fn.call(app, view, mode)
+            options = {}
+
+            if fn.keyword_argument?(:app)
+              options[:app] = app
+            end
+
+            if fn.keyword_argument?(:mode)
+              options[:mode] = mode
+            end
+
+            if fn.keyword_argument?(:view_path)
+              options[:view_path] = view_path
+            end
+
+            fn.call(view, **options)
           end
         end
 
-        def attach!(presenter, app)
+        def attach!(presenter, app:)
           @__attach_fns.each do |fn|
-            fn.call(presenter, app)
+            options = {}
+
+            if fn.keyword_argument?(:app)
+              options[:app] = app
+            end
+
+            fn.call(presenter, **options)
           end
         end
 

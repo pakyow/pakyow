@@ -112,7 +112,7 @@ module Pakyow
           #
           after :initialize do
             [isolated(:Presenter)].concat(state(:presenter)).each do |presenter|
-              isolated(:Renderer).attach!(presenter, self)
+              isolated(:Renderer).attach!(presenter, app: self)
             end
           end
 

@@ -9,7 +9,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          build do |app, view|
+          build do |view, app:|
             unless Pakyow.env?(:prototype)
               view.object.each_significant_node(:prototype).map(&:itself).each(&:remove)
             end

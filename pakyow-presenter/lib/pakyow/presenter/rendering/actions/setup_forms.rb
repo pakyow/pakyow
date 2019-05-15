@@ -13,7 +13,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          build do |app, view|
+          build do |view, app:|
             view.forms.each do |form|
               # Allows app renders to set metadata values on forms.
               #
@@ -69,7 +69,7 @@ module Pakyow
             end
           end
 
-          attach do |presenter, app|
+          attach do |presenter, app:|
             presenter.render node: -> { forms } do
               unless setup?
                 if object = object_for_form

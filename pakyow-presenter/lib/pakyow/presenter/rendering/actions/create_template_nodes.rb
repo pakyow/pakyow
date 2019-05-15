@@ -9,7 +9,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          build do |app, view|
+          build do |view, app:|
             unless Pakyow.env?(:prototype)
               view.each_binding_scope do |node_with_binding|
                 attributes = node_with_binding.attributes.attributes_hash.each_with_object({}) do |(attribute, value), acc|

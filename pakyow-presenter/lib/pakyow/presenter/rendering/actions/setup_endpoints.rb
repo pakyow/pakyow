@@ -11,7 +11,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          build do |app, view|
+          build do |view, app:|
             view.object.find_significant_nodes(:endpoint).each do |node|
               if endpoint = app.endpoints.find(name: node.label(:endpoint))
                 node.set_label(:endpoint_object, endpoint)

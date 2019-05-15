@@ -11,7 +11,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          build do |app, view|
+          build do |view, app:|
             if app.config.presenter.embed_authenticity_token && head = view.head
               head.append(Support::SafeStringHelpers.safe("<meta name=\"pw-authenticity-token\">"))
               head.append(Support::SafeStringHelpers.safe("<meta name=\"pw-authenticity-param\" content=\"#{app.config.security.csrf.param}\">"))
