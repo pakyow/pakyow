@@ -129,7 +129,7 @@ module Pakyow
         presenter_view_key = [view_path, presenter_class, component_path, mode]
 
         unless presenter_view = self.class.__presenter_views[presenter_view_key]
-          unless info = find_view_info(app, view_path)
+          unless info = app.find_view_info(view_path)
             error = UnknownPage.new("No view at path `#{view_path}'")
             error.context = view_path
             raise error
@@ -161,20 +161,6 @@ module Pakyow
         end
 
         presenter_view
-      end
-
-      def find_view_info(app, path)
-        Templates.collapse_path(path) do |collapsed_path|
-          if info = view_info_for_path(app, collapsed_path)
-            return info
-          end
-        end
-      end
-
-      def view_info_for_path(app, path)
-        app.state(:templates).lazy.map { |store|
-          store.info(path)
-        }.find(&:itself)
       end
 
       class << self

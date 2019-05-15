@@ -121,6 +121,24 @@ module Pakyow
           include Behavior::ErrorRendering
           include Behavior::Initializing
           include Behavior::Watching
+
+          def find_view_info(path)
+            Templates.collapse_path(path) do |collapsed_path|
+              if info = view_info_for_path(collapsed_path)
+                return info
+              end
+            end
+          end
+
+          def view_info_for_path(path)
+            state(:templates).lazy.map { |store|
+              store.info(path)
+            }.find(&:itself)
+          end
+
+          def view?(path)
+            !find_view_info(path).nil?
+          end
         end
       end
     end
