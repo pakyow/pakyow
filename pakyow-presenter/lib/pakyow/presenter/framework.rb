@@ -6,7 +6,6 @@ require "pakyow/routing/helpers/exposures"
 
 require "pakyow/support/indifferentize"
 
-require "pakyow/presenter/behavior/building"
 require "pakyow/presenter/behavior/config"
 require "pakyow/presenter/behavior/error_rendering"
 require "pakyow/presenter/behavior/implicit_rendering"
@@ -19,7 +18,6 @@ require "pakyow/presenter/helpers/rendering"
 require "pakyow/presenter/renderable"
 
 require "pakyow/presenter/renderer"
-require "pakyow/presenter/view_builder"
 
 require "pakyow/presenter/rendering/actions/cleanup_prototype_nodes"
 require "pakyow/presenter/rendering/actions/cleanup_unused_nodes"
@@ -28,6 +26,7 @@ require "pakyow/presenter/rendering/actions/insert_prototype_bar"
 require "pakyow/presenter/rendering/actions/install_authenticity"
 require "pakyow/presenter/rendering/actions/place_in_mode"
 require "pakyow/presenter/rendering/actions/present_presentables"
+require "pakyow/presenter/rendering/actions/render_components"
 require "pakyow/presenter/rendering/actions/set_page_title"
 require "pakyow/presenter/rendering/actions/setup_endpoints"
 require "pakyow/presenter/rendering/actions/setup_forms"
@@ -62,9 +61,12 @@ module Pakyow
             include Actions::SetupEndpoints
             include Actions::SetupForms
             include Actions::SetPageTitle
-          end
 
-          isolate ViewBuilder
+            # Must occur last, since making a component renderable will prevent it from being
+            # traversed by the builders for other actions.
+            #
+            include Actions::RenderComponents
+          end
 
           stateful :binder,    isolated(:Binder)
           stateful :component, isolated(:Component)
@@ -111,12 +113,19 @@ module Pakyow
           # Let each renderer action attach renders to the app's presenter.
           #
           after :initialize do
-            [isolated(:Presenter)].concat(state(:presenter)).each do |presenter|
+            [isolated(:Presenter)].concat(
+              state(:presenter)
+            ).concat(
+              state(:component).map { |component|
+                component.__presenter_class
+              }.reject { |presenter|
+                presenter == isolated(:Presenter)
+              }
+            ).each do |presenter|
               isolated(:Renderer).attach!(presenter, app: self)
             end
           end
 
-          include Behavior::Building
           include Behavior::Config
           include Behavior::ErrorRendering
           include Behavior::Initializing

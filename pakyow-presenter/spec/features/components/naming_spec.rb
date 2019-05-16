@@ -5,8 +5,8 @@ RSpec.describe "naming presenters in backend components" do
     Proc.new do
       component :single do
         presenter do
-          def perform
-            find(:post).replace(self.class.name)
+          render :post do
+            replace(self.class.name)
           end
         end
       end

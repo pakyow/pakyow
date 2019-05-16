@@ -229,8 +229,8 @@ RSpec.describe "rendering view templates" do
               end
 
               presenter do
-                def perform
-                  view.html = "app component render (ancestors: #{ancestors})"
+                render node: -> { self } do
+                  self.html = "app component render (ancestors: #{ancestors})"
                 end
               end
             end
@@ -349,8 +349,8 @@ RSpec.describe "rendering view templates" do
               end
 
               presenter do
-                def perform
-                  view.html = "app component render (ancestors: #{ancestors})"
+                render node: -> { self } do
+                  self.html = "app component render (ancestors: #{ancestors})"
                 end
               end
             end

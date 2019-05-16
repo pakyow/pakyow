@@ -506,7 +506,7 @@ class StringDoc
 
     current = node
     while transform = node.next_transform
-      return_value = transform.call(node, context)
+      return_value = transform.call(node, context, string)
 
       case return_value
       when NilClass

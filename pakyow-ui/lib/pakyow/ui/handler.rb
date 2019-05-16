@@ -2,8 +2,6 @@
 
 require "pakyow/connection"
 
-require "pakyow/presenter/rendering/view_renderer"
-
 require "pakyow/realtime/channel"
 
 module Pakyow

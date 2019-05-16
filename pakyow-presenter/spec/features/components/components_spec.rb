@@ -121,7 +121,7 @@ RSpec.describe "rendering with backend components" do
 
         component :child do
           presenter do
-            def perform
+            render node: -> { self } do
               attrs[:style][:color] = "red"
             end
           end
@@ -140,51 +140,50 @@ RSpec.describe "rendering with backend components" do
 
           <body>
             <div data-ui="parent">
-          <div data-b="post">
-            <h1 data-b="title">post 1</h1>
+              <div data-b="post">
+                <h1 data-b="title">post 1</h1>
 
-            <div data-ui="child" style="color: red;">
-              <script type="text/template" data-b="comment"><div data-b="comment">
-                <p data-b="body">
-                  comment body here
-                </p>
+                <div data-ui="child" style="color: red;">
+                  <script type="text/template" data-b="comment"><div data-b="comment">
+                    <p data-b="body">
+                      comment body here
+                    </p>
+                  </div></script>
+                </div>
+              </div><div data-b="post">
+                <h1 data-b="title">post 2</h1>
+
+                <div data-ui="child" style="color: red;">
+                  <script type="text/template" data-b="comment"><div data-b="comment">
+                    <p data-b="body">
+                      comment body here
+                    </p>
+                  </div></script>
+                </div>
+              </div><div data-b="post">
+                <h1 data-b="title">post 3</h1>
+
+                <div data-ui="child" style="color: red;">
+                  <script type="text/template" data-b="comment"><div data-b="comment">
+                    <p data-b="body">
+                      comment body here
+                    </p>
+                  </div></script>
+                </div>
+              </div><script type="text/template" data-b="post"><div data-b="post">
+                <h1 data-b="title">
+                  title goes here
+                </h1>
+
+                <div data-ui="child">
+                  <div data-b="comment">
+                    <p data-b="body">
+                      comment body here
+                    </p>
+                  </div>
+                </div>
               </div></script>
             </div>
-          </div><div data-b="post">
-            <h1 data-b="title">post 2</h1>
-
-            <div data-ui="child" style="color: red;">
-              <script type="text/template" data-b="comment"><div data-b="comment">
-                <p data-b="body">
-                  comment body here
-                </p>
-              </div></script>
-            </div>
-          </div><div data-b="post">
-            <h1 data-b="title">post 3</h1>
-
-            <div data-ui="child" style="color: red;">
-              <script type="text/template" data-b="comment"><div data-b="comment">
-                <p data-b="body">
-                  comment body here
-                </p>
-              </div></script>
-            </div>
-          </div><script type="text/template" data-b="post"><div data-b="post">
-            <h1 data-b="title">
-              title goes here
-            </h1>
-
-            <div data-ui="child">
-              <div data-b="comment">
-                <p data-b="body">
-                  comment body here
-                </p>
-              </div>
-            </div>
-          </div></script>
-        </div>
-
           </body>
         </html>
         HTML
@@ -196,8 +195,8 @@ RSpec.describe "rendering with backend components" do
     let :app_init do
       Proc.new do
         presenter "/components" do
-          def perform
-            components.each(&:remove)
+          render node: -> { components }, priority: :high do
+            remove
           end
         end
 
@@ -345,7 +344,7 @@ RSpec.describe "rendering with backend components" do
       Proc.new do
         component :single do
           presenter do
-            def perform
+            render node: -> { self } do
               attrs[:style][:background] = "blue"
             end
           end
@@ -364,13 +363,12 @@ RSpec.describe "rendering with backend components" do
 
             <body>
               <div data-ui="single" style="background: blue;">
-            <script type="text/template" data-b="post"><div data-b="post">
-              <h1 data-b="title">
-                title goes here
-              </h1>
-            </div></script>
-          </div>
-
+                <script type="text/template" data-b="post"><div data-b="post">
+                  <h1 data-b="title">
+                    title goes here
+                  </h1>
+                </div></script>
+              </div>
             </body>
           </html>
         HTML
@@ -393,6 +391,37 @@ RSpec.describe "rendering with backend components" do
               </h1>
             </div>
           </div>
+        HTML
+      )
+    end
+  end
+
+  context "component fails to render" do
+    let :app_init do
+      Proc.new do
+        component :single do
+          presenter do
+            render node: -> { self } do
+              fail
+            end
+          end
+        end
+      end
+    end
+
+    it "marks the component as having failed to render" do
+      expect(call("/components")[2]).to eq_sans_whitespace(
+        <<~HTML
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>default</title>
+            </head>
+
+            <body>
+              <div data-ui="single" class="render-failed"></div>
+            </body>
+          </html>
         HTML
       )
     end

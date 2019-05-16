@@ -13,24 +13,6 @@ require "pakyow/support/core_refinements/string/normalization"
 
 require "pakyow/presenter/rendering/actions/render_components"
 
-# view:
-# def initialize(connection, templates_path: nil, presenter_path: nil, mode: :default, embed_templates: true)
-#
-# * templates_path
-# * presenter_path
-
-# component:
-# def initialize(connection, presenter = nil, name:, templates_path:, component_path:, component_class:, mode:)
-#
-# * templates_path
-# * component_path
-# * component_class
-
-# presenter_path, component_class can both go away in favor of passing the presenter class itself
-#   as long as the internal class references don't change... which they shouldn't
-#
-# component_path instructs how to find the view
-
 module Pakyow
   module Presenter
     class Renderer
@@ -56,44 +38,15 @@ module Pakyow
       include Support::Pipeline
       include Support::Pipeline::Object
 
-      # TODO: we want to move actions back here; each action's `call` method will deal with an instance
-      # of the renderer for connection-time behavior; it can also define class methods for the following:
+      # TODO: refactor presenter_path, component_class out?
       #
-      #   * attach: attaches renders to the passed presenter class
-      #     (this will be the app's presenter, and will happen once at boot)
-      #
-      #   * build: makes changes to the view during the view building process
-      #     (happens from the renderer when view is built)
-      #
-      # the renderer will cache raw views, and view with attached renders for a specific presenter
-      # alternatively we can change presenter to be initialized with a view, where renders are attached
-      # and then passed a connection and any other per-request state to `call` (which dups, sets state and renders)
-
-      # TODO: where should components be rendered? we need the top-level connection object, so perhaps
-      # we don't render them from the parent renderer... as that would require the connection (as well
-      # as dealing with not rendering components when performing things like ui renders)
-      #
-      # related issue is regarding rendering the view as one, across multiple presenters
-      #
-      # since we need connection state to call the component this would happen from Renderer::render
-      # at this point we have the presentables as well as the presenter class for each component
-      #
-      # next we need a mechanism to evaluate multiple presenters in the context of a single render
-      # this is a challenge because we are rendering from multiple contexts (e.g. the main presenter
-      # and the presenter for each component that contains its presentable state)
-      #
-      # almost like we need a concept of context for a node in stringdoc; so both the main presenter
-      # and the component presenters refer to the same underlying node objects, and we describe context
-      # from the main presenter as being the nested presenters setup during Render::render
-      #
-      # action :render_components, Actions::RenderComponents
-      # action :dispatch
-
       def initialize(app:, presentables:, view_path:, presenter_class:, component_path: nil, mode: :default)
         @app, @presentables, @view_path, @presenter_class, @component_path, @mode = app, presentables, view_path, presenter_class, component_path, mode
         @presenter = build_presenter(app, presentables, view_path, presenter_class, component_path, mode)
       end
 
+      # TODO: refactor presenter_path, component_class out?
+      #
       def marshal_dump
         {
           app: @app.config.name,
@@ -116,6 +69,8 @@ module Pakyow
         end
       end
 
+      # TODO: refactor presenter_path, component_class out? even need this method?
+      #
       def build_presenter(app, presentables, view_path, presenter_class, component_path, mode)
         presenter_class.new(
           find_or_build_presenter_view(app, view_path, presenter_class, component_path, mode),
@@ -141,8 +96,6 @@ module Pakyow
             view.mixin(info[:partials])
           }
 
-          self.class.build!(presenter_view, app: app, mode: mode, view_path: view_path)
-
           # We collapse built views down to significance that is considered "renderable". This is
           # mostly an optimization, since it lets us collapse some nodes into single strings and
           # reduce the number of operations needed for a render.
@@ -154,6 +107,8 @@ module Pakyow
           # Empty nodes are removed as another render-time optimization leading to fewer operations.
           #
           presenter_view.object.remove_empty_nodes
+
+          self.class.build!(presenter_view, app: app, mode: mode, view_path: view_path)
 
           presenter_class.attach(presenter_view)
           presenter_view.deep_freeze

@@ -17,6 +17,7 @@ module Pakyow
             view.forms.each do |form|
               # Allows app renders to set metadata values on forms.
               #
+              # TODO: name this `form_metadata`, or make `metadata` a global label value and namespace under `form`
               form.object.set_label(:metadata, {})
 
               # Set the form id.

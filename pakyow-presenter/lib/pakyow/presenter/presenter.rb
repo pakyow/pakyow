@@ -482,7 +482,7 @@ module Pakyow
             end
 
             renders.each do |render|
-              attach_to_node.transform priority: render[:priority], &render_proc(render, view_with_renders)
+              attach_to_node.transform priority: render[:priority], &render_proc(view_with_renders, &render[:block])
             end
           end
         end
@@ -502,8 +502,8 @@ module Pakyow
 
         private
 
-        def render_proc(render, view)
-          Proc.new do |node, context|
+        def render_proc(view, &block)
+          Proc.new do |node, context, string|
             case node
             when StringDoc::MetaNode
               if node.nodes.any?
@@ -522,11 +522,8 @@ module Pakyow
               )
             end
 
-            presenter.instance_exec(&render[:block]); returning
+            presenter.instance_exec(string, &block); returning
           rescue => error
-            puts error
-            puts error.backtrace
-
             Pakyow.logger.houston(error)
 
             presenter.clear
