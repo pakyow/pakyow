@@ -17,13 +17,12 @@ module Pakyow
             view.forms.each do |form|
               # Allows app renders to set metadata values on forms.
               #
-              # TODO: name this `form_metadata`, or make `metadata` a global label value and namespace under `form`
-              form.object.set_label(:metadata, {})
+              form.object.set_label(:form, {})
 
               # Set the form id.
               #
               form_id = SecureRandom.hex(24)
-              form.object.label(:metadata)[:id] = form_id
+              form.object.label(:form)[:id] = form_id
               form.object.set_label(Presenters::Form::ID_LABEL, form_id)
 
               # Setup field names.
@@ -103,7 +102,7 @@ module Pakyow
 
               unless node.nil?
                 node.attributes[:value] = presentables[:__verifier].sign(
-                  label(:metadata).to_json
+                  label(:form).to_json
                 )
               end
             end

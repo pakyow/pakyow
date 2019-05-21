@@ -29,7 +29,7 @@ RSpec.describe "form metadata" do
         Proc.new do
           presenter "/form" do
             render node: -> { forms[0] } do
-              view.label(:metadata)[:foo] = "bar"
+              view.label(:form)[:foo] = "bar"
             end
           end
         end
@@ -70,7 +70,7 @@ RSpec.describe "form metadata" do
           presenter "/form" do
             render node: -> { form(:post) } do
               create
-              view.label(:metadata)[:foo] = "bar"
+              view.label(:form)[:foo] = "bar"
             end
           end
         }

@@ -76,11 +76,11 @@ module Pakyow
 
             presenter do
               def perform
-                view.label(:metadata)[:id] = form_id
-                view.label(:metadata)[:binding] = form_binding || [
+                view.label(:form)[:id] = form_id
+                view.label(:form)[:binding] = form_binding || [
                   view.label(:binding)
                 ].concat(view.label(:channel)).join(":")
-                view.label(:metadata)[:origin] = form_origin
+                view.label(:form)[:origin] = form_origin
 
                 if form_binding.nil? || form_binding == view.channeled_binding_name
                   classify_form
