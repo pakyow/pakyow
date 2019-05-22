@@ -11,12 +11,8 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          after :initialize do
-            if is_a?(Plugin)
-              @app.after :initialize, priority: :low, exec: false do
-                load_frontend
-              end
-            else
+          unless ancestors.include?(Plugin)
+            after :initialize do
               state(:templates) << Templates.new(
                 :default,
                 config.presenter.path,
@@ -24,9 +20,15 @@ module Pakyow
                   state(:processor)
                 )
               )
-            end
 
-            state(:templates) << Templates.new(:errors, File.join(File.expand_path("../../../", __FILE__), "views", "errors"))
+              state(:templates) << Templates.new(:errors, File.join(File.expand_path("../../../", __FILE__), "views", "errors"))
+
+              # Load plugin frontend after the app so that app has priority.
+              #
+              @plugs.each do |plug|
+                plug.load_frontend
+              end
+            end
           end
         end
       end

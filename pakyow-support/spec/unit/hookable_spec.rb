@@ -13,43 +13,6 @@ RSpec.describe Pakyow::Support::Hookable do
   end
 
   shared_examples :hookable do
-    context "when defining hooks" do
-      context "and the event is known" do
-        let :event do
-          events.first
-        end
-
-        it "defines a before hook" do
-          object.before event do; end
-          expect(object.hooks(:before, event)).to_not be_empty
-        end
-
-        it "defines a before hook using `on`" do
-          object.on event do; end
-          expect(object.hooks(:before, event)).to_not be_empty
-        end
-
-        it "defines a after hook" do
-          object.after event do; end
-          expect(object.hooks(:after, event)).to_not be_empty
-        end
-
-        it "defines an around hook" do
-          object.around event do; end
-          expect(object.hooks(:before, event)).to_not be_empty
-          expect(object.hooks(:after, event)).to_not be_empty
-        end
-      end
-
-      context "and the event is unknown" do
-        it "fails to define the hook" do
-          expect {
-            object.before :unknown do; end
-          }.to raise_error(ArgumentError)
-        end
-      end
-    end
-
     context "when calling hooks" do
       it "passes arguments" do
         event = events.first
@@ -57,7 +20,7 @@ RSpec.describe Pakyow::Support::Hookable do
 
         hook_1 = -> (arg1, arg2) { calls << [arg1, arg2] }
 
-        object.before event, &hook_1
+        hookable.before event, &hook_1
 
         object.call_hooks(:before, event, :foo, :bar)
 
@@ -73,9 +36,9 @@ RSpec.describe Pakyow::Support::Hookable do
         hook_2 = -> { calls << 2 }
         hook_3 = -> { calls << 3 }
 
-        object.before event, &hook_2
-        object.before event, &hook_3
-        object.before event, &hook_1
+        hookable.before event, &hook_2
+        hookable.before event, &hook_3
+        hookable.before event, &hook_1
 
         object.call_hooks(:before, event)
 
@@ -100,8 +63,8 @@ RSpec.describe Pakyow::Support::Hookable do
         hook_1 = -> { local_calls << 1 }
         hook_2 = -> { local_calls << 2 }
 
-        object.before event, &hook_2
-        object.after event, &hook_1
+        hookable.before event, &hook_2
+        hookable.after event, &hook_1
 
         object.performing event do
           local_calls << :yielded
@@ -127,7 +90,7 @@ RSpec.describe Pakyow::Support::Hookable do
       end
 
       it "execs by default" do
-        object.before event do
+        hookable.before event do
           $context = self
         end
 
@@ -137,7 +100,7 @@ RSpec.describe Pakyow::Support::Hookable do
       end
 
       it "execs when exec: true" do
-        object.before event, exec: true do
+        hookable.before event, exec: true do
           $context = self
         end
 
@@ -147,7 +110,7 @@ RSpec.describe Pakyow::Support::Hookable do
       end
 
       it "calls when exec: false" do
-        object.before event, exec: false do
+        hookable.before event, exec: false do
           $context = self
         end
 
@@ -164,6 +127,43 @@ RSpec.describe Pakyow::Support::Hookable do
     end
 
     include_examples :hookable
+
+    context "when defining hooks" do
+      context "and the event is known" do
+        let :event do
+          events.first
+        end
+
+        it "defines a before hook" do
+          hookable.before event do; end
+          expect(object.hooks(:before, event)).to_not be_empty
+        end
+
+        it "defines a before hook using `on`" do
+          hookable.on event do; end
+          expect(object.hooks(:before, event)).to_not be_empty
+        end
+
+        it "defines a after hook" do
+          hookable.after event do; end
+          expect(object.hooks(:after, event)).to_not be_empty
+        end
+
+        it "defines an around hook" do
+          object.around event do; end
+          expect(object.hooks(:before, event)).to_not be_empty
+          expect(object.hooks(:after, event)).to_not be_empty
+        end
+      end
+
+      context "and the event is unknown" do
+        it "fails to define the hook" do
+          expect {
+            hookable.before :unknown do; end
+          }.to raise_error(ArgumentError)
+        end
+      end
+    end
   end
 
   describe "hookable instance" do
@@ -210,7 +210,7 @@ RSpec.describe Pakyow::Support::Hookable do
     end
 
     context "when prioritized class hooks are defined" do
-      it "calls hooks by order of priority, regardless of class or instance definition" do
+      it "calls hooks by order of priority" do
         calls = []
 
         hook_1 = -> { calls << 1 }
@@ -221,13 +221,10 @@ RSpec.describe Pakyow::Support::Hookable do
         hookable.before event, priority: :high, &hook_2
 
         instance = hookable.new
-        instance.before event, &hook_3
-
         instance.call_hooks(:before, event)
 
         expect(calls[0]).to eq 2
-        expect(calls[1]).to eq 3
-        expect(calls[2]).to eq 1
+        expect(calls[1]).to eq 1
       end
     end
   end

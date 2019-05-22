@@ -15,7 +15,7 @@ RSpec.shared_context :source_associations_helpers do
     end
   end
 
-  let :app_init do
+  let :app_def do
     super_app_definition = super()
     spec_context = self
 

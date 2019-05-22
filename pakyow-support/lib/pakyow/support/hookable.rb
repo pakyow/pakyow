@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "pakyow/support/deep_dup"
 require "pakyow/support/class_state"
 
 module Pakyow
@@ -45,14 +44,13 @@ module Pakyow
     module Hookable
       # Known hook priorities.
       #
-      PRIORITIES = { default: 0, high: 1, low: -1 }
-
-      using DeepDup
+      PRIORITIES = { default: 0, high: 1, low: -1 }.freeze
 
       def self.included(base)
-        base.include API
+        base.include CommonMethods
+        base.include InstanceMethods
+
         base.extend ClassMethods
-        base.prepend Initializer
 
         base.extend ClassState
         base.class_state :__events, default: [], inheritable: true, getter: false
@@ -65,20 +63,13 @@ module Pakyow
         self.class.known_event?(event.to_sym)
       end
 
-      module Initializer
-        def initialize(*)
-          @__hook_hash = self.class.__hook_hash.deep_dup
-          @__hook_pipeline = self.class.__hook_pipeline.deep_dup
-
-          super
-        end
-      end
-
       # Class-level api methods.
       #
       module ClassMethods
+        attr_reader :__hook_pipeline
+
         def self.extended(base)
-          base.extend(API)
+          base.extend(CommonMethods)
         end
 
         # Sets the known events for the hookable object. Hooks registered for
@@ -89,17 +80,6 @@ module Pakyow
         def events(*events)
           @__events.concat(events.map(&:to_sym)).uniq!; @__events
         end
-
-        # @api private
-        def known_event?(event)
-          @__events.include?(event.to_sym)
-        end
-      end
-
-      # Methods included at the class and instance level.
-      #
-      module API
-        attr_reader :__hook_hash, :__hook_pipeline
 
         # Defines a hook to call before event occurs.
         #
@@ -131,6 +111,17 @@ module Pakyow
           add_hook(@__hook_hash, :after, event, priority, exec, block)
         end
 
+        # @api private
+        def known_event?(event)
+          @__events.include?(event.to_sym)
+        end
+      end
+
+      # Methods included at the class and instance level.
+      #
+      module CommonMethods
+        # attr_reader :__hook_hash, :__hook_pipeline
+
         # Calls all registered hooks for `event`, yielding between them.
         #
         # @param event [Symbol] The name of the event.
@@ -159,7 +150,7 @@ module Pakyow
 
         # @api private
         def hooks(type, event)
-          @__hook_pipeline[type][event] || []
+          __hook_pipeline[type][event] || []
         end
 
         # @api private
@@ -179,7 +170,13 @@ module Pakyow
 
         # @api private
         def pipeline!(hash_of_hooks, type, event)
-          @__hook_pipeline[type.to_sym][event.to_sym] = hash_of_hooks[type.to_sym][event.to_sym].map { |t| t[1..2] }
+          __hook_pipeline[type.to_sym][event.to_sym] = hash_of_hooks[type.to_sym][event.to_sym].map { |t| t[1..2] }
+        end
+      end
+
+      module InstanceMethods
+        def __hook_pipeline
+          self.class.__hook_pipeline
         end
       end
     end
