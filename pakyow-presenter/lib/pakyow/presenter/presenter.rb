@@ -415,24 +415,9 @@ module Pakyow
 
         attr_reader :path
 
-        def make(path, namespace: nil, **kwargs, &block)
+        def make(path, **kwargs, &block)
           path = String.normalize_path(path)
-          super(name_from_path(path, namespace), path: path, **kwargs, &block)
-        end
-
-        def name_from_path(path, namespace)
-          return unless path && namespace
-
-          path_parts = path.split("/").reject(&:empty?).map(&:to_sym)
-
-          # last one is the actual name, everything else is a namespace
-          classname = path_parts.pop
-
-          Support::ObjectName.new(
-            Support::ObjectNamespace.new(
-              *(namespace.parts + path_parts)
-            ), classname
-          )
+          super(path, path: path, **kwargs, &block)
         end
 
         # Defines a render to attach to a node.
