@@ -27,6 +27,12 @@ RSpec.describe Pakyow::Support::Makeable do
     end
 
     describe "the defined class" do
+      context "given name is nil" do
+        it "is anonymous" do
+          expect(object.make(nil).name).to be(nil)
+        end
+      end
+
       context "given name is a symbol" do
         after do
           Object.send(:remove_const, :FooBar)
@@ -109,6 +115,48 @@ RSpec.describe Pakyow::Support::Makeable do
           it "creates a namespaced class name" do
             expect(object.make(class_name)).to eq(Foo::Bar::Baz)
           end
+        end
+      end
+
+      context "given name is a root path" do
+        after do
+          Object.send(:remove_const, :Index)
+        end
+
+        it "creates a camelized class name" do
+          expect(object.make("/")).to eq(Index)
+        end
+      end
+
+      context "given name is a path with a simple part" do
+        after do
+          Object.send(:remove_const, :Foo)
+        end
+
+        it "creates a camelized class name" do
+          expect(object.make("/foo")).to eq(Foo)
+        end
+      end
+
+      context "given name is a path with multiple parts" do
+        after do
+          Foo.send(:remove_const, :Bar)
+          Object.send(:remove_const, :Foo)
+        end
+
+        it "creates a camelized class name" do
+          expect(object.make("/foo/bar")).to eq(Foo::Bar)
+        end
+      end
+
+      context "given name is oddly constructed" do
+        after do
+          Foo.send(:remove_const, :BarBaz)
+          Object.send(:remove_const, :Foo)
+        end
+
+        it "creates a camelized class name" do
+          expect(object.make("/foo/bar-baz")).to eq(Foo::BarBaz)
         end
       end
     end
