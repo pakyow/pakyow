@@ -475,7 +475,7 @@ module Pakyow
             end
 
             renders.each do |render|
-              attach_to_node.transform priority: render[:priority], &render_proc(view_with_renders, &render[:block])
+              attach_to_node.transform priority: render[:priority], &render_proc(view_with_renders, render, &render[:block])
             end
           end
         end
@@ -495,7 +495,7 @@ module Pakyow
 
         private
 
-        def render_proc(view, &block)
+        def render_proc(view, render = nil, &block)
           Proc.new do |node, context, string|
             case node
             when StringDoc::MetaNode
@@ -534,8 +534,17 @@ module Pakyow
             View.new(value.to_s)
           end
 
-          state_for_final_value = state[final_value.object.object_id] ||= [final_value, []]
-          state_for_final_value[1] << render
+          (state["#{final_value.object.object_id}::#{final_value.class}"] ||= [final_value, []])[1] << render
+        end
+      end
+
+      render node: -> {
+        binding_scopes.map { |node|
+          View.from_object(node)
+        }
+      }, priority: :low do
+        if presentable = presentables[view.plural_channeled_binding_name] || presentables[view.singular_channeled_binding_name] || presentables[view.binding_name]
+          present(presentable)
         end
       end
     end

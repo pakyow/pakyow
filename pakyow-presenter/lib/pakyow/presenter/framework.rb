@@ -25,7 +25,6 @@ require "pakyow/presenter/rendering/actions/create_template_nodes"
 require "pakyow/presenter/rendering/actions/insert_prototype_bar"
 require "pakyow/presenter/rendering/actions/install_authenticity"
 require "pakyow/presenter/rendering/actions/place_in_mode"
-require "pakyow/presenter/rendering/actions/present_presentables"
 require "pakyow/presenter/rendering/actions/render_components"
 require "pakyow/presenter/rendering/actions/set_page_title"
 require "pakyow/presenter/rendering/actions/setup_endpoints"
@@ -57,7 +56,6 @@ module Pakyow
             include Actions::InsertPrototypeBar
             include Actions::InstallAuthenticity
             include Actions::PlaceInMode
-            include Actions::PresentPresentables
             include Actions::SetupEndpoints
             include Actions::SetupForms
             include Actions::SetPageTitle
