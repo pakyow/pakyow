@@ -190,6 +190,18 @@ module Pakyow
       performing :shutdown do; end
     end
 
+    def _dump(_)
+      Marshal.dump(
+        {
+          name: config.name
+        }
+      )
+    end
+
+    def self._load(state)
+      Pakyow.app(Marshal.load(state)[:name])
+    end
+
     # @api private
     def perform(app_connection)
       @__pipeline.call(app_connection)

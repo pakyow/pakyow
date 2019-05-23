@@ -10,9 +10,10 @@ module Pakyow
       # @api private
       attr_reader :subscribers, :sources, :containers
 
-      def initialize(containers:, subscribers:)
+      def initialize(containers:, subscribers:, app:)
         @subscribers = subscribers
         @subscribers.lookup = self
+        @app = app
 
         @sources = {}
         @containers = containers
@@ -25,7 +26,7 @@ module Pakyow
                   source.__object_name.name
                 ),
 
-                @subscribers
+                @subscribers, @app
               )
             end
           end
@@ -37,7 +38,7 @@ module Pakyow
       def ephemeral(type, **qualifications)
         Proxy.new(
           Sources::Ephemeral.new(type, **qualifications),
-          @subscribers
+          @subscribers, @app
         )
       end
 

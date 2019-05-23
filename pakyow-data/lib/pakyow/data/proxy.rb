@@ -19,14 +19,16 @@ module Pakyow
 
       attr_reader :source, :proxied_calls, :nested_proxies
 
-      def initialize(source, subscribers)
-        @source, @subscribers = source, subscribers
+      def initialize(source, subscribers, app)
+        @source, @subscribers, @app = source, subscribers, app
+
         @proxied_calls = []
         @subscribable = true
         @nested_proxies = []
       end
 
-      IVARS_TO_DUP = %i(@proxied_calls @nested_proxies)
+      IVARS_TO_DUP = %i(@proxied_calls @nested_proxies).freeze
+
       def deep_dup
         super.tap do |duped|
           IVARS_TO_DUP.each do |ivar|
@@ -57,9 +59,9 @@ module Pakyow
               # it would provide full access to the underlying dataset. Instead the
               # exposed object should simply be another proxy.
 
-              local_subscribers = @subscribers
+              local_subscribers, local_app = @subscribers, @app
               @source.source_from_self.public_send(method_name, *args) {
-                nested_proxy = Proxy.new(self, local_subscribers)
+                nested_proxy = Proxy.new(self, local_subscribers, local_app)
                 nested_proxy.instance_variable_set(:@proxied_calls, nested_calls)
                 nested_proxy.instance_exec(&block).source.tap do |nested_proxy_source|
                   duped_proxy.nested_proxies << nested_proxy.dup.tap do |finalized_nested_proxy|
@@ -70,7 +72,7 @@ module Pakyow
             else
               @source.source_from_self.public_send(method_name, *args).tap do |working_source|
                 working_source.included.each do |_, included_source|
-                  nested_proxy = Proxy.new(included_source, @subscribers)
+                  nested_proxy = Proxy.new(included_source, @subscribers, @app)
                   duped_proxy.nested_proxies << nested_proxy
                 end
               end
@@ -101,6 +103,7 @@ module Pakyow
       end
 
       def respond_to_missing?(method_name, include_private = false)
+        return false if method_name == :marshal_dump || method_name == :marshal_load
         @source.command?(method_name) || @source.query?(method_name) || @source.modifier?(method_name) || @source.respond_to?(method_name, include_private)
       end
 
@@ -122,14 +125,14 @@ module Pakyow
             handler: handler,
             payload: payload,
             qualifications: qualifications,
-            proxy: to_h
+            proxy: self
           }
 
           @nested_proxies.each do |related_proxy|
             subscriptions.concat(
               related_proxy.subscribe_related(
                 parent_source: @source,
-                serialized_proxy: to_h,
+                serialized_proxy: self,
                 handler: handler,
                 payload: payload
               )
@@ -187,24 +190,19 @@ module Pakyow
         @subscribable == true
       end
 
-      # TODO: use marshal_dump/load here and possibly in sources (refer back to ui)
-      def to_h
-        {
-          source: @source.source_name,
-          proxied_calls: @proxied_calls
-        }
+      def _dump(_)
+        Marshal.dump(
+          {
+            app: @app,
+            source: @source.source_name,
+            proxied_calls: @proxied_calls
+          }
+        )
       end
 
-      def apply(proxied_calls)
-        proxied_calls.inject(self) { |proxy, proxied_call|
-          if proxied_call[2].any?
-            proxy.public_send(proxied_call[0], *proxied_call[1]) do
-              apply(proxied_call[2])
-            end
-          else
-            proxy.public_send(proxied_call[0], *proxied_call[1])
-          end
-        }
+      def self._load(state)
+        state = Marshal.load(state)
+        state[:app].data.public_send(state[:source]).apply(state[:proxied_calls])
       end
 
       def qualifications
@@ -220,6 +218,19 @@ module Pakyow
           end
 
           qualifications.merge(qualifications_for_proxied_call)
+        }
+      end
+
+      # @api private
+      def apply(proxied_calls)
+        proxied_calls.inject(self) { |proxy, proxied_call|
+          if proxied_call[2].any?
+            proxy.public_send(proxied_call[0], *proxied_call[1]) do
+              apply(proxied_call[2])
+            end
+          else
+            proxy.public_send(proxied_call[0], *proxied_call[1])
+          end
         }
       end
 
