@@ -110,7 +110,7 @@ module Pakyow
 
           # Let each renderer action attach renders to the app's presenter.
           #
-          after :initialize do
+          after :initialize, priority: :low do
             [isolated(:Presenter)].concat(
               state(:presenter)
             ).concat(
