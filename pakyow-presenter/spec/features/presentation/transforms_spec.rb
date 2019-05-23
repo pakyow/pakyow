@@ -1,6 +1,26 @@
 RSpec.describe "attaching transforms to a presenter" do
   include_context "app"
 
+  context "render is attached to the view as a whole" do
+    let :app_init do
+      Proc.new do
+        presenter "/presentation/transforms" do
+          render do
+            find(:post).bind(title: "test")
+          end
+        end
+      end
+    end
+
+    it "renders correctly" do
+      expect(call("/presentation/transforms")[2]).to include_sans_whitespace(
+        <<~HTML
+          <div data-b="post"><h1 data-b="title">test</h1></div>
+        HTML
+      )
+    end
+  end
+
   context "render is attached to node block that returns a versioned view" do
     let :app_init do
       local = self

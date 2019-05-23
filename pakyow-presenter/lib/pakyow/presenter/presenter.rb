@@ -427,6 +427,10 @@ module Pakyow
             raise ArgumentError, "Expected `#{node.class}' to be a proc"
           end
 
+          if binding_name.nil? && node.nil?
+            node = -> { self }
+          end
+
           @__attached_renders << {
             binding_name: binding_name,
             channel: channel,
@@ -464,6 +468,10 @@ module Pakyow
               StringDoc::MetaNode.new(view_with_renders.versions.map(&:object))
             when View
               view_with_renders.object
+            end
+
+            if attach_to_node.is_a?(StringDoc)
+              attach_to_node = attach_to_node.find_first_significant_node(:html)
             end
 
             renders.each do |render|
