@@ -75,14 +75,14 @@ module Pakyow
             end
 
             presenter do
-              def perform
+              render do
                 view.label(:form)[:id] = form_id
                 view.label(:form)[:binding] = form_binding || [
                   view.label(:binding)
                 ].concat(view.label(:channel)).join(":")
                 view.label(:form)[:origin] = form_origin
 
-                if form_binding.nil? || form_binding == view.channeled_binding_name
+                if form_binding.nil? || form_binding.to_sym == view.channeled_binding_name
                   classify_form
                   classify_fields
                   present_errors(form_errors)
