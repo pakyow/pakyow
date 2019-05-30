@@ -84,8 +84,8 @@ module Pakyow
       # @param attributes [Hash]
       #
       def initialize(attributes)
-        attributes.each do |name, value|
-          attributes[name] = Attributes.typed_value_for_attribute_with_name(value, name)
+        attributes.wrap do |value, name|
+          Attributes.typed_value_for_attribute_with_name(value, name)
         end
 
         @attributes = attributes

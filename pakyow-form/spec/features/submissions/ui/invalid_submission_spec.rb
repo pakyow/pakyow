@@ -41,7 +41,7 @@ RSpec.describe "submitting invalid form data via ui" do
     it "sets the form as subscribed" do
       call("/posts/new").tap do |result|
         expect(result[0]).to eq(200)
-        expect(result[2]).to include_sans_whitespace('<form data-b="post" data-ui="form" data-c="form" class="" data-t="')
+        expect(result[2]).to include_sans_whitespace('<form data-b="post" data-ui="form" data-c="form" class="" action="/posts" method="post" data-t="')
       end
     end
   end
@@ -54,12 +54,12 @@ RSpec.describe "submitting invalid form data via ui" do
         expect(type).to eq(:errors)
         expect(qualifications).to eq(form_id: "foo123")
       }.and_return(ephemeral_double)
-      expect(call("/posts", method: :post, params: { _form: sign(id: "foo123") }, Pakyow::UI::Helpers::UI_REQUEST_HEADER => "true")[0]).to be(400)
+      expect(call("/posts", method: :post, params: { _form: sign(id: "foo123") }, headers: { "Pw-Ui" => "true" })[0]).to be(400)
     end
 
     it "does not reroute" do
       expect_any_instance_of(Pakyow::Controller).to_not receive(:reroute)
-      expect(call("/posts", method: :post, params: { _form: sign(origin: "/posts/new", binding: "post:form") }, Pakyow::UI::Helpers::UI_REQUEST_HEADER => "true")[0]).to be(400)
+      expect(call("/posts", method: :post, params: { _form: sign(origin: "/posts/new", binding: "post:form") }, headers: { "Pw-Ui" => "true" })[0]).to be(400)
     end
 
     context "app handles the invalid submission" do
@@ -69,7 +69,7 @@ RSpec.describe "submitting invalid form data via ui" do
             disable_protection :csrf
 
             handle Pakyow::InvalidData, as: :unauthorized do
-              res.body << "handled"
+              send "handled"
             end
 
             new do; end
@@ -87,9 +87,9 @@ RSpec.describe "submitting invalid form data via ui" do
       end
 
       it "does not call the form submission handler" do
-        call("/posts", method: :post, Pakyow::UI::Helpers::UI_REQUEST_HEADER => "true").tap do |result|
+        call("/posts", method: :post, headers: { "Pw-Ui" => "true" }).tap do |result|
           expect(result[0]).to be(401)
-          expect(result[2].join).to eq("handled")
+          expect(result[2]).to eq("handled")
         end
       end
     end
@@ -98,7 +98,7 @@ RSpec.describe "submitting invalid form data via ui" do
   context "form submission is not present" do
     it "rejects the handling" do
       expect_any_instance_of(Pakyow::Controller).to receive(:reject)
-      call("/posts", method: :post, Pakyow::UI::Helpers::UI_REQUEST_HEADER => "true").tap do |result|
+      call("/posts", method: :post, headers: { "Pw-Ui" => "true" }).tap do |result|
         expect(result[0]).to be(400)
       end
     end
@@ -125,7 +125,7 @@ RSpec.describe "submitting invalid form data via ui" do
         expect(type).to eq(:errors)
         expect(qualifications).to eq(form_id: "foo123")
       }.and_return(ephemeral_double)
-      expect(call("/posts", method: :post, params: { _form: sign(id: "foo123") }, Pakyow::UI::Helpers::UI_REQUEST_HEADER => "true")[0]).to be(200)
+      expect(call("/posts", method: :post, params: { _form: sign(id: "foo123") }, headers: { "Pw-Ui" => "true" })[0]).to be(200)
     end
   end
 end

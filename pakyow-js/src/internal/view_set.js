@@ -6,7 +6,7 @@ export default class {
     this.templates = templates;
   }
 
-  find(names) {
+  find(names, options) {
     if (!Array.isArray(names)) {
       names = [names];
     }
@@ -14,7 +14,7 @@ export default class {
     var views = [], templates = [];
 
     for (let view of this.views) {
-      let found = view.find(names);
+      let found = view.find(names, options);
       views = views.concat(found.views);
 
       if (!templates) {
@@ -35,6 +35,30 @@ export default class {
     }
 
     return new this.constructor(views, templates);
+  }
+
+  // @api private
+  endpoint(name) {
+    var views = [];
+
+    for (let view of this.views) {
+      let found = view.endpoint(name);
+      views.push(found);
+    }
+
+    return new this.constructor(views, this.templates);
+  }
+
+  // @api private
+  endpointAction() {
+    var views = [];
+
+    for (let view of this.views) {
+      let found = view.endpointAction();
+      views.push(found);
+    }
+
+    return new this.constructor(views, this.templates);
   }
 
   bind(objects) {

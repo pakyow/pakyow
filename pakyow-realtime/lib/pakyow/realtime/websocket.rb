@@ -3,6 +3,7 @@
 require "json"
 require "securerandom"
 
+require "pakyow/helpers/app"
 require "pakyow/helpers/connection"
 
 require "async/websocket"
@@ -34,6 +35,7 @@ module Pakyow
         end
       end
 
+      include Pakyow::Helpers::App
       include Pakyow::Helpers::Connection
 
       attr_reader :id

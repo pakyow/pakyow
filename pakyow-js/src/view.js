@@ -29,13 +29,19 @@ export default class {
 
   match(property, value) {
     let propertyValue = this[property]() || "";
-    value = String(value)
 
     if (property === "channel") {
+      if (!Array.isArray(value)) {
+        value = [value];
+      }
+
+      value = value.join(":");
       return propertyValue === value || propertyValue.endsWith(":" + value);
     } else if(property === "binding") {
+      value = String(value)
       return propertyValue === value || propertyValue.startsWith(value + ".");
     } else {
+      value = String(value)
       return propertyValue === value;
     }
 
@@ -68,10 +74,18 @@ export default class {
       return view.match("binding", currentName);
     });
 
-    if (options && options.channel) {
-      found = found.filter((view) => {
-        return view.match("channel", options.channel);
-      });
+    if (options) {
+      if (options.channel) {
+        found = found.filter((view) => {
+          return view.match("channel", options.channel);
+        });
+      }
+
+      if (options.id) {
+        found = found.filter((view) => {
+          return view.match("id", options.id);
+        });
+      }
     }
 
     if (found.length > 0 || templates.length > 0) {
@@ -82,6 +96,25 @@ export default class {
         return set.find(names);
       }
     }
+  }
+
+  // @api private
+  endpoint(name) {
+    if (this.node.hasAttribute("data-e")) {
+      return this;
+    } else {
+      if (name) {
+        return this.query(`[data-e='${name}']`)[0];
+      } else {
+        return this.query(`[data-e]`)[0];
+      }
+    }
+  }
+
+  // @api private
+  endpointAction() {
+    let endpointView = this.endpoint();
+    return endpointView.query("[data-e-a]")[0] || endpointView;
   }
 
   bind(object) {
@@ -387,55 +420,6 @@ export default class {
       let container = document.createElement("div");
       container.innerHTML = arg.trim();
       return container.firstChild;
-    }
-  }
-
-  setupEndpoint(endpoint) {
-    var endpointView = this.findEndpoint(endpoint);
-
-    if (endpointView) {
-      let endpointActionView = this.query("[data-e-a]")[0];
-
-      if (!endpointActionView) {
-        endpointActionView = endpointView;
-      }
-
-      if (endpointActionView.node.tagName === "A") {
-        endpointActionView.node.setAttribute("href", endpoint.path);
-
-        if (window.location.href === endpointActionView.node.href) {
-          endpointView.node.classList.add("current");
-        } else if (window.location.href.startsWith(endpointActionView.node.href)) {
-          endpointView.node.classList.remove("current");
-          endpointView.node.classList.add("active");
-        } else {
-          endpointView.node.classList.remove("current");
-          endpointView.node.classList.remove("active");
-        }
-      } else {
-        // unsupported
-      }
-    }
-  }
-
-  wrapEndpointForRemoval(endpoint) {
-    var endpointView = this.findEndpoint(endpoint);
-
-    if (endpointView) {
-      let removal = document.createElement("form");
-      removal.setAttribute("action", endpoint.path);
-      removal.setAttribute("method", "post");
-      removal.setAttribute("data-ui", "confirmable");
-      removal.innerHTML = '<input type="hidden" name="_method" value="delete">' + endpointView.node.outerHTML;
-      endpointView.node.parentNode.replaceChild(removal, endpointView.node);
-    }
-  }
-
-  findEndpoint(endpoint) {
-    if (this.node.getAttribute("data-e") === endpoint.name) {
-      return this;
-    } else {
-      return this.query(`[data-e='${endpoint.name}']`)[0];
     }
   }
 

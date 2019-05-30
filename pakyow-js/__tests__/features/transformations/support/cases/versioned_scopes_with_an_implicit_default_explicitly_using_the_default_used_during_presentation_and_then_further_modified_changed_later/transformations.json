@@ -5,9 +5,12 @@
       [
         "find",
         [
-          [
-            "post"
-          ]
+          "post",
+          {
+            "channel": [
+              "article"
+            ]
+          }
         ],
         [
 
@@ -25,6 +28,18 @@
             ],
             [
               [
+                [
+                  "use",
+                  [
+                    "default"
+                  ],
+                  [
+
+                  ],
+                  [
+
+                  ]
+                ],
                 [
                   "find",
                   [
@@ -51,33 +66,20 @@
                   ]
                 ],
                 [
-                  "use",
+                  "find",
                   [
-                    "default"
-                  ],
-                  [
-
-                  ],
-                  [
-
-                  ]
-                ],
-                [
-                  "attributes",
-                  [
-
+                    [
+                      "title"
+                    ]
                   ],
                   [
 
                   ],
                   [
                     [
-                      "set",
+                      "use",
                       [
-                        "style",
-                        {
-                          "color": "red"
-                        }
+                        "default"
                       ],
                       [
 

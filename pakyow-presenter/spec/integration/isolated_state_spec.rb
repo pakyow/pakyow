@@ -13,11 +13,7 @@ RSpec.describe "isolated state" do
     expect(app.isolated(:Presenter)).to_not be(nil)
   end
 
-  it "creates an isolated component renderer class for the app" do
-    expect(app.isolated(:ComponentRenderer)).to_not be(nil)
-  end
-
-  it "creates an isolated view renderer class for the app" do
-    expect(app.isolated(:ViewRenderer)).to_not be(nil)
+  it "creates an isolated renderer class for the app" do
+    expect(app.isolated(:Renderer)).to_not be(nil)
   end
 end

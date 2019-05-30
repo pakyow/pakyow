@@ -1,8 +1,12 @@
 RSpec.describe "rendering backend components alongside other bindings" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
+      configure :test do
+        config.presenter.componentize = true
+      end
+
       controller "/components/multiple_bindings" do
         default do
           expose :posts, [
@@ -27,7 +31,7 @@ RSpec.describe "rendering backend components alongside other bindings" do
     expect(call("/components/multiple_bindings")[2]).to eq_sans_whitespace(
       <<~HTML
         <!DOCTYPE html>
-        <html>
+        <html data-ui="navigable">
           <head>
             <title>default</title>
           </head>

@@ -19,7 +19,7 @@ module Pakyow
         @name, @method, @block = name, method, block
 
         if path_or_matcher.is_a?(String)
-          @path    = path_or_matcher
+          @path    = path_or_matcher.to_s
           @matcher = create_matcher_from_path(@path)
         else
           @path    = ""
@@ -35,17 +35,18 @@ module Pakyow
         context.instance_exec(&@block) if @block
       end
 
-      def populated_path(path_to_self, **params)
-        String.normalize_path(File.join(path_to_self.to_s, @path.to_s).split("/").map { |path_segment|
-          if path_segment.include?(":")
-            path_segment.sub(path_segment[(path_segment.index(":"))..-1], params[path_segment[(path_segment.index(":") + 1)..-1].to_sym].to_s)
-          else
-            path_segment
-          end
-        }.join("/")).gsub("/#", "#")
+      def build_path(path_to_self, **params)
+        working_path = String.normalize_path(File.join(path_to_self.to_s, @path))
+
+        params.each do |key, value|
+          working_path.sub!(":#{key}", value.to_s)
+        end
+
+        working_path.sub!("/#", "#")
+        working_path
       end
 
-      protected
+      private
 
       def create_matcher_from_path(path)
         converted_path = String.normalize_path(path.split("/").map { |segment|
@@ -57,6 +58,23 @@ module Pakyow
         }.join("/"))
 
         Regexp.new("^#{converted_path}$")
+      end
+
+      class EndpointBuilder
+        attr_reader :params
+
+        def initialize(route:, path:)
+          @route, @path = route, path
+          @params = String.normalize_path(File.join(@path.to_s, @route.path)).split("/").select { |segment|
+            segment.start_with?(":")
+          }.map { |segment|
+            segment[1..-1].to_sym
+          }
+        end
+
+        def call(params)
+          @route.build_path(@path, params)
+        end
       end
     end
   end

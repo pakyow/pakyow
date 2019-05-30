@@ -66,38 +66,6 @@
                   ]
                 ],
                 [
-                  "setupEndpoint",
-                  [
-                    {
-                      "name": "posts_show",
-                      "path": "/posts/1",
-                      "method": "get"
-                    }
-                  ],
-                  [
-
-                  ],
-                  [
-
-                  ]
-                ],
-                [
-                  "setupEndpoint",
-                  [
-                    {
-                      "name": "posts_comments_show",
-                      "path": "/posts/comments/1",
-                      "method": "get"
-                    }
-                  ],
-                  [
-
-                  ],
-                  [
-
-                  ]
-                ],
-                [
                   "bind",
                   [
                     {
@@ -158,6 +126,136 @@
             ],
             [
 
+            ]
+          ]
+        ]
+      ],
+      [
+        "find",
+        [
+          "post",
+          {
+            "channel": null,
+            "id": 1
+          }
+        ],
+        [
+
+        ],
+        [
+          [
+            "endpoint",
+            [
+              "posts_show"
+            ],
+            [
+
+            ],
+            [
+              [
+                "endpointAction",
+                [
+
+                ],
+                [
+
+                ],
+                [
+                  [
+                    "attributes",
+                    [
+
+                    ],
+                    [
+
+                    ],
+                    [
+                      [
+                        "set",
+                        [
+                          "href",
+                          "/posts/1"
+                        ],
+                        [
+
+                        ],
+                        [
+
+                        ]
+                      ]
+                    ]
+                  ],
+                  [
+                    "attributes",
+                    [
+
+                    ],
+                    [
+
+                    ],
+                    [
+
+                    ]
+                  ],
+                  [
+                    "attributes",
+                    [
+
+                    ],
+                    [
+
+                    ],
+                    [
+                      [
+                        "get",
+                        [
+                          "href"
+                        ],
+                        [
+
+                        ],
+                        [
+
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "attributes",
+                [
+
+                ],
+                [
+
+                ],
+                [
+                  [
+                    "get",
+                    [
+                      "class"
+                    ],
+                    [
+
+                    ],
+                    [
+                      [
+                        "add",
+                        [
+                          "current"
+                        ],
+                        [
+
+                        ],
+                        [
+
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ]
             ]
           ]
         ]

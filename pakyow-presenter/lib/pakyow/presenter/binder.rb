@@ -13,8 +13,8 @@ module Pakyow
       #
       attr_reader :object
 
-      def initialize(object)
-        @object = object
+      def initialize(object, app:)
+        @object, @app = object, app
         @parts = {}
         @binding = false
         @memoized = {}

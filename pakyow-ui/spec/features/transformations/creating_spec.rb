@@ -27,20 +27,15 @@ RSpec.describe "creating an object in a populated view" do
         primary_id
         attribute :title
       end
-
-      presenter "/simple/posts" do
-        def perform
-          find(:post).present(posts)
-        end
-      end
     end
   end
 
   it "transforms" do |x|
     call("/posts", method: :post, params: { post: { title: "foo" } })
+    call("/posts", method: :post, params: { post: { title: "bar" } })
 
     save_ui_case(x, path: "/posts") do
-      call("/posts", method: :post, params: { post: { title: "bar" } })
+      call("/posts", method: :post, params: { post: { title: "baz" } })
     end
   end
 end

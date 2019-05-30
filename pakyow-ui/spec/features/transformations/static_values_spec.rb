@@ -30,7 +30,7 @@ RSpec.describe "presenting mutable data with static values" do
       end
 
       presenter "/simple/posts" do
-        def perform
+        render do
           Pakyow.logger.info foo
           find(:post).present(posts)
         end

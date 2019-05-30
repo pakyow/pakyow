@@ -4,6 +4,7 @@ require "forwardable"
 
 require "pakyow/support/core_refinements/array/ensurable"
 require "pakyow/support/indifferentize"
+require "pakyow/support/inflector"
 require "pakyow/support/safe_string"
 
 require "string_doc"
@@ -23,16 +24,31 @@ module Pakyow
         # Creates a view wrapping an object.
         #
         def from_object(object)
-          allocate.tap do |instance|
-            instance.instance_variable_set(:@object, object)
+          instance = if object.is_a?(StringDoc::Node) && object.labeled?(:view_type)
+            object.label(:view_type).allocate
+          else
+            allocate
+          end
 
-            instance.instance_variable_set(:@info, {})
-            instance.instance_variable_set(:@logical_path, nil)
-            if object.respond_to?(:attributes)
-              instance.attributes = object.attributes
-            else
-              instance.instance_variable_set(:@attributes, nil)
-            end
+          instance.instance_variable_set(:@object, object)
+          instance.instance_variable_set(:@info, {})
+          instance.instance_variable_set(:@logical_path, nil)
+
+          if object.respond_to?(:attributes)
+            instance.attributes = object.attributes
+          else
+            instance.instance_variable_set(:@attributes, nil)
+          end
+
+          instance
+        end
+
+        def from_view_or_string(view_or_string)
+          case view_or_string
+          when View, VersionedView
+            view_or_string
+          else
+            View.new(Support::SafeStringHelpers.ensure_html_safety(view_or_string.to_s))
           end
         end
       end
@@ -54,6 +70,9 @@ module Pakyow
       # The logical path to the view template.
       #
       attr_reader :logical_path
+
+      # @api private
+      attr_writer :object
 
       # Creates a view with +html+.
       #
@@ -97,7 +116,7 @@ module Pakyow
 
           result = if names.empty? && !found.empty? # found everything; wrap it up
             VersionedView.new(found)
-          elsif names.count > 0 # descend further
+          elsif !found.empty? && names.count > 0 # descend further
             found.first.find(*names, channel: channel)
           else
             nil
@@ -141,8 +160,11 @@ module Pakyow
 
       # Returns all components.
       #
-      def components
-        @object.each_significant_node_without_descending(:component).map { |node|
+      def components(renderable: false)
+        @object.each_significant_node_without_descending_into_type(
+          renderable ? :renderable_component : :component,
+          descend: true
+        ).map { |node|
           View.from_object(node)
         }
       end
@@ -256,7 +278,7 @@ module Pakyow
       #
       def append(view_or_string)
         tap do
-          @object.append(view_from_view_or_string(view_or_string).object)
+          @object.append(self.class.from_view_or_string(view_or_string).object)
         end
       end
 
@@ -264,7 +286,7 @@ module Pakyow
       #
       def prepend(view_or_string)
         tap do
-          @object.prepend(view_from_view_or_string(view_or_string).object)
+          @object.prepend(self.class.from_view_or_string(view_or_string).object)
         end
       end
 
@@ -272,7 +294,7 @@ module Pakyow
       #
       def after(view_or_string)
         tap do
-          @object.after(view_from_view_or_string(view_or_string).object)
+          @object.after(self.class.from_view_or_string(view_or_string).object)
         end
       end
 
@@ -280,7 +302,7 @@ module Pakyow
       #
       def before(view_or_string)
         tap do
-          @object.before(view_from_view_or_string(view_or_string).object)
+          @object.before(self.class.from_view_or_string(view_or_string).object)
         end
       end
 
@@ -288,7 +310,7 @@ module Pakyow
       #
       def replace(view_or_string)
         tap do
-          @object.replace(view_from_view_or_string(view_or_string).object)
+          @object.replace(self.class.from_view_or_string(view_or_string).object)
         end
       end
 
@@ -366,15 +388,7 @@ module Pakyow
 
       # Converts +self+ to html, rendering the view.
       #
-      def to_html(clean_bindings: true, clean_versions: true)
-        if clean_bindings
-          remove_unused_bindings
-        end
-
-        if clean_versions
-          remove_unused_versions
-        end
-
+      def to_html
         @object.to_html
       end
       alias :to_s :to_html
@@ -385,21 +399,40 @@ module Pakyow
       end
 
       # @api private
+      def binding_channel
+        label(:channel)
+      end
+
+      # @api private
+      def singular_binding_name
+        Support.inflector.singularize(binding_name).to_sym
+      end
+
+      # @api private
+      def plural_binding_name
+        Support.inflector.pluralize(binding_name).to_sym
+      end
+
+      # @api private
       def channeled_binding_name
-        [label(:binding)].concat(label(:channel)).join(":")
+        [binding_name].concat(binding_channel).join(":").to_sym
+      end
+
+      # @api private
+      def plural_channeled_binding_name
+        [plural_binding_name].concat(binding_channel.to_a).join(":").to_sym
+      end
+
+      # @api private
+      def singular_channeled_binding_name
+        [Support.inflector.singularize(binding_name)].concat(binding_channel.to_a).join(":").to_sym
       end
 
       # @api private
       def each_binding_scope(descend: true)
         return enum_for(:each_binding_scope, descend: descend) unless block_given?
 
-        method = if descend
-          :each_significant_node
-        else
-          :each_significant_node_without_descending
-        end
-
-        @object.send(method, :binding) do |node|
+        @object.each_significant_node(:binding, descend: descend) do |node|
           if binding_scope?(node)
             yield node
           end
@@ -410,16 +443,10 @@ module Pakyow
       def each_binding_prop(descend: true)
         return enum_for(:each_binding_prop, descend: descend) unless block_given?
 
-        if @object.is_a?(StringDoc::Node) && @object.significant?(:multipart_binding)
+        if (@object.is_a?(StringDoc::Node) || @object.is_a?(StringDoc::MetaNode)) && @object.significant?(:multipart_binding)
           yield @object
         else
-          method = if descend
-            :each_significant_node
-          else
-            :each_significant_node_without_descending
-          end
-
-          @object.send(method, :binding) do |node|
+          @object.each_significant_node(:binding, descend: descend) do |node|
             if binding_prop?(node)
               yield node
             end
@@ -432,11 +459,15 @@ module Pakyow
         return enum_for(:each_binding, name) unless block_given?
 
         each_binding_scope do |node|
-          yield node if node.label(:binding) == name
+          if node.label(:binding) == name
+            yield node
+          end
         end
 
         each_binding_prop do |node|
-          yield node if node.label(:binding) == name
+          if (node.significant?(:multipart_binding) && node.label(:binding_prop) == name) || (!node.significant?(:multipart_binding) && node.label(:binding) == name)
+            yield node
+          end
         end
       end
 
@@ -457,7 +488,7 @@ module Pakyow
 
       # @api private
       def binding_prop?(node)
-        node.significant?(:binding) && (!node.significant?(:binding_within) || node.significant?(:multipart_binding))
+        node.significant?(:binding) && node.label(:version) != :empty && (!node.significant?(:binding_within) || node.significant?(:multipart_binding))
       end
 
       # @api private
@@ -508,28 +539,6 @@ module Pakyow
           else
             node.html = ensure_html_safety(value)
           end
-        end
-      end
-
-      def remove_unused_bindings
-        @object.each_significant_node(:binding).select { |node|
-          !node.labeled?(:used)
-        }.each(&:remove)
-      end
-
-      def remove_unused_versions
-        @object.each.select { |node|
-          (node.is_a?(StringDoc::Node) && node.significant? && node.labeled?(:version)) && node.label(:version) != VersionedView::DEFAULT_VERSION
-        }.each(&:remove)
-      end
-
-      def view_from_view_or_string(view_or_string)
-        if view_or_string.is_a?(View)
-          view_or_string
-        elsif view_or_string.is_a?(String)
-          View.new(ensure_html_safety(view_or_string))
-        else
-          View.new(ensure_html_safety(view_or_string.to_s))
         end
       end
     end

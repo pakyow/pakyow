@@ -29,7 +29,7 @@ RSpec.describe "presenting data in a view that previously presented a nil value"
       end
 
       presenter "/simple/posts" do
-        def perform
+        render do
           find(:post).present(posts)
         end
       end
@@ -78,7 +78,7 @@ RSpec.describe "presenting a nil value in a view that previously presented data"
       end
 
       presenter "/simple/posts" do
-        def perform
+        render do
           find(:post).present(posts)
         end
       end

@@ -1,13 +1,18 @@
 # frozen_string_literal: true
 
+require "pakyow/support/extension"
+
 module Pakyow
   module Presenter
     module Actions
-      # @api private
-      class CleanupPrototypeNodes
-        def call(renderer)
-          unless renderer.rendering_prototype?
-            renderer.presenter.view.object.each_significant_node(:prototype).map(&:itself).each(&:remove)
+      module CleanupPrototypeNodes
+        extend Support::Extension
+
+        apply_extension do
+          build do |view|
+            unless Pakyow.env?(:prototype)
+              view.object.each_significant_node(:prototype).map(&:itself).each(&:remove)
+            end
           end
         end
       end

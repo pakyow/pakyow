@@ -106,7 +106,7 @@ module Pakyow
           arguments[:result] = if subscription[:ephemeral]
             mutated_source
           else
-            @app.data.public_send(subscription[:proxy][:source]).apply(subscription[:proxy][:proxied_calls])
+            subscription[:proxy]
           end
         end
 

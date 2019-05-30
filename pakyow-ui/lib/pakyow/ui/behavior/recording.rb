@@ -3,7 +3,6 @@
 require "pakyow/support/extension"
 
 require "pakyow/ui/recordable"
-require "pakyow/ui/wrappable"
 
 module Pakyow
   module UI
@@ -28,23 +27,8 @@ module Pakyow
             }
           end
 
-          # Subclass each renderer to use the recordable presenters.
-          #
-          after :initialize do
-            @ui_renderers = []
-
-            @ui_renderers << Class.new(isolated(:ComponentRenderer)) do
-              include Wrappable
-            end
-
-            @ui_renderers << Class.new(isolated(:ViewRenderer)) do
-              include Wrappable
-            end
-          end
-
           class_eval do
             attr_reader :ui_presenters
-            attr_reader :ui_renderers
           end
         end
       end

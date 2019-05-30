@@ -25,6 +25,7 @@ module Pakyow
             end
 
             @data = Data::Lookup.new(
+              app: self,
               containers: Pakyow.data_connections.values.each_with_object([]) { |connections, containers|
                 connections.values.each do |connection|
                   containers << Container.new(

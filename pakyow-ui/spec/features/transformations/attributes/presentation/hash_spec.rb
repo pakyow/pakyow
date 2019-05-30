@@ -23,7 +23,7 @@ RSpec.describe "modifying hash attributes during presentation" do
         end
 
         presenter "/attributes/posts" do
-          def perform
+          render do
             if posts.count > 0
               find(:post).present(posts) do |post_view, post|
                 post_view.attrs[:style] = { color: "red" }
@@ -62,7 +62,7 @@ RSpec.describe "modifying hash attributes during presentation" do
         end
 
         presenter "/attributes/posts" do
-          def perform
+          render do
             if posts.count > 0
               find(:post).present(posts) do |post_view, post|
                 post_view.attrs[:style][:color] = "red"
@@ -101,7 +101,7 @@ RSpec.describe "modifying hash attributes during presentation" do
         end
 
         presenter "/attributes/posts" do
-          def perform
+          render do
             if posts.count > 0
               find(:post).present(posts) do |post_view, post|
                 post_view.attrs[:style].delete(:background)
@@ -140,7 +140,7 @@ RSpec.describe "modifying hash attributes during presentation" do
         end
 
         presenter "/attributes/posts" do
-          def perform
+          render do
             if posts.count > 0
               find(:post).present(posts) do |post_view, post|
                 post_view.attrs[:style].clear

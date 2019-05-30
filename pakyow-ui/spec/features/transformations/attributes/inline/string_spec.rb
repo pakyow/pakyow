@@ -1,4 +1,4 @@
-RSpec.describe "modifying string attributes" do
+RSpec.xdescribe "modifying string attributes" do
   include_context "app"
   include_context "websocket intercept"
 
@@ -23,7 +23,7 @@ RSpec.describe "modifying string attributes" do
         end
 
         presenter "/attributes/posts" do
-          def perform
+          render do
             if posts.count > 0
               find(:post).attrs[:title] = "foo"
 

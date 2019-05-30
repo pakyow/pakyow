@@ -2,113 +2,56 @@
 
 require "forwardable"
 
+require "string_doc/meta_node"
+
 require "pakyow/support/core_refinements/array/ensurable"
 require "pakyow/support/core_refinements/string/normalization"
 
 require "pakyow/support/class_state"
-require "pakyow/support/pipeline"
-require "pakyow/support/pipeline/object"
 require "pakyow/support/safe_string"
 require "pakyow/support/string_builder"
 
 require "pakyow/presenter/presentable"
-require "pakyow/presenter/presenter/behavior/endpoints"
-require "pakyow/presenter/presenter/behavior/options"
+
+require "pakyow/presenter/presenters/endpoint"
 
 module Pakyow
   module Presenter
-    # Presents a view object. Performs queries for view data. Understands binders / formatters.
-    # Does not have access to the session, request, etc; only what is exposed to it from the route.
-    # State is passed explicitly to the presenter, exposed by calling the `presentable` helper.
-    #
-    # In normal usage you will be interacting with presenters rather than the {View} directly.
+    # Presents a view object with dynamic state in context of an app instance. In normal usage you
+    # will be interacting with presenters rather than the {View} directly.
     #
     class Presenter
-      extend Forwardable
+      extend Support::Makeable
+      extend Support::ClassState
+      class_state :__version_logic, default: {}, inheritable: true
+      class_state :__attached_renders, default: [], inheritable: true
+      class_state :__global_options, default: {}, inheritable: true
 
       using Support::Refinements::Array::Ensurable
 
       include Support::SafeStringHelpers
-
-      include Support::Pipeline
-      include Support::Pipeline::Object
-
-      action :set_title
-      action :perform
-
-      include Behavior::Endpoints
-      include Behavior::Options
 
       include Presentable
 
       # The view object being presented.
       #
       attr_reader :view
-      attr_reader :binders
 
       # The logger object.
       #
       attr_reader :logger
 
-      # @api private
+      # Values to be presented.
+      #
       attr_reader :presentables
 
-      # @!method attributes
-      #   Delegates to {view}.
-      #   @see View#attributes
+      # The app object.
       #
-      # @!method attrs
-      #   Delegates to {view}.
-      #   @see View#attrs
-      #
-      # @!method html=
-      #   Delegates to {view}.
-      #   @see View#html=
-      #
-      # @!method html
-      #   Delegates to {view}.
-      #   @see View#html
-      #
-      # @!method text
-      #   Delegates to {view}.
-      #   @see View#text
-      #
-      # @!method binding?
-      #   Delegates to {view}.
-      #   @see View#binding?
-      #
-      # @!method container?
-      #   Delegates to {view}.
-      #   @see View#container?
-      #
-      # @!method partial?
-      #   Delegates to {view}.
-      #   @see View#partial?
-      #
-      # @!method component?
-      #   Delegates to {view}.
-      #   @see View#component?
-      #
-      # @!method form?
-      #   Delegates to {view}.
-      #   @see View#form?
-      #
-      # @!method to_s
-      #   Delegates to {view}.
-      #   @see View#to_s
-      #
-      # @!method version
-      #   Delegates to {view}.
-      #   @see View#version
-      #
-      # @!method info
-      #   Delegates to {view}.
-      #   @see View#info
-      def_delegators :@view, :attributes, :attrs, :html=, :html, :text, :binding?, :container?, :partial?, :component?, :form?, :version, :info
+      attr_reader :app
 
-      def initialize(view, binders: [], presentables: {}, logger: nil)
-        @view, @binders, @presentables = view, binders, presentables
-        @logger = logger || Pakyow.logger
+      def initialize(view, app:, presentables: {})
+        @app, @view, @presentables = app, view, presentables
+        @logger = Pakyow.logger
         @called = false
       end
 
@@ -142,7 +85,7 @@ module Pakyow
       #
       def form(name)
         if found_form = @view.form(name)
-          presenter_for(found_form, type: FormPresenter)
+          presenter_for(found_form)
         else
           nil
         end
@@ -152,15 +95,15 @@ module Pakyow
       #
       def forms
         @view.forms.map { |form|
-          presenter_for(form, type: FormPresenter)
+          presenter_for(form)
         }
       end
 
       # Returns all components.
       #
-      def components
-        @view.components.map { |component|
-          presenter_for(component, type: Presenter)
+      def components(renderable: false)
+        @view.components(renderable: renderable).map { |component|
+          presenter_for(component)
         }
       end
 
@@ -253,6 +196,9 @@ module Pakyow
           else
             @view.bind(data)
           end
+
+          set_binding_info(data)
+          set_endpoint_params(data)
         end
       end
 
@@ -267,16 +213,6 @@ module Pakyow
               yield presenter, binder.object
             end
 
-            unless presenter.view.used? || self.class.__version_logic.empty?
-              version_logic = self.class.__version_logic[presenter.view.binding_name].to_a.find { |logic|
-                logic[:channel].nil? || presenter.view.label(:combined_channel) == logic[:channel] || presenter.view.label(:combined_channel).end_with?(":" + logic[:channel])
-              }
-
-              if version_logic
-                version_logic[:block].call(presenter, binder.object)
-              end
-            end
-
             presenter.bind(binder)
 
             presenter.view.binding_scopes(descend: false).uniq { |binding_scope|
@@ -285,6 +221,7 @@ module Pakyow
               plural_binding_node_name = Support.inflector.pluralize(binding_node.label(:binding)).to_sym
 
               nested_view = presenter.find(binding_node.label(:binding))
+
               if binder.object.include?(binding_node.label(:binding))
                 nested_view.present(binder.object[binding_node.label(:binding)])
               elsif binder.object.include?(plural_binding_node_name)
@@ -359,81 +296,76 @@ module Pakyow
         other.is_a?(self.class) && @view == other.view
       end
 
+      def method_missing(name, *args, &block)
+        if @view.respond_to?(name)
+          value = @view.public_send(name, *args, &block)
+
+          if value.equal?(@view)
+            self
+          else
+            value
+          end
+        else
+          super
+        end
+      end
+
+      def respond_to_missing?(name, include_private = false)
+        @view.respond_to?(name, include_private) || super
+      end
+
       # @api private
       def wrap_data_in_binder(data)
         if data.is_a?(Binder)
           data
         else
-          (binder_for_current_scope || Binder).new(data)
+          (binder_for_current_scope || @app.isolated(:Binder)).new(data, app: @app)
         end
       end
 
-      def to_html(clean_bindings: true, clean_versions: true)
-        call unless called?
-        @view.to_html(clean_bindings: clean_bindings, clean_versions: clean_versions)
+      def to_html(output = String.new)
+        @view.object.to_html(output, context: self)
       end
       alias to_s to_html
 
-      # @api private
-      def call
-        super(self).tap do
-          @called = true
+      def presenter_for(view, type: view&.label(:presenter_type))
+        if view.nil?
+          nil
+        else
+          instance = self.class.new(
+            view,
+            app: @app,
+            presentables: @presentables
+          )
+
+          type ? type.new(instance) : instance
         end
       end
 
       # @api private
-      def called?
-        @called == true
+      def endpoint(name)
+        object.each_significant_node(:endpoint) do |endpoint_node|
+          if endpoint_node.label(:endpoint) == name.to_sym
+            return presenter_for(View.from_object(endpoint_node))
+          end
+        end
+
+        nil
+      end
+
+      # @api private
+      def endpoint_action
+        endpoint_action_node = object.find_first_significant_node(
+          :endpoint_action
+        ) || object
+
+        presenter_for(View.from_object(endpoint_action_node))
       end
 
       private
 
-      def set_title
-        if title = @view.info(:title)
-          self.title = Support::StringBuilder.new(title) do |object_value|
-            if respond_to?(object_value)
-              send(object_value, :title) || send(object_value)
-            elsif @presentables.key?(object_value)
-              @presentables[object_value]
-            else
-              nil
-            end
-          end.build
-        end
-      end
-
-      def perform
-        @presentables.each do |name, value|
-          name = name.to_s
-          next if name.start_with?("__")
-
-          name_parts = name.split(":")
-
-          channel = if name_parts.count > 1
-            name_parts[1..-1]
-          else
-            nil
-          end
-
-          [name_parts[0], Support.inflector.singularize(name_parts[0])].each do |name_varient|
-            found = find(name_varient, channel: channel)
-            unless found.nil? || found.view.labeled?(:used)
-              found.present(value); break
-            end
-          end
-        end
-      end
-
-      def presenter_for(view, type: self.class)
-        if view.nil?
-          nil
-        else
-          type.new(view, binders: @binders, presentables: @presentables, logger: @logger)
-        end
-      end
-
       def binder_for_current_scope
-        binders.find { |binder|
+        @app.state(:binder).find { |binder|
           binder.__object_name.name == @view.label(:binding)
         }
       end
@@ -465,47 +397,232 @@ module Pakyow
         end
       end
 
-      extend Support::ClassState
-      class_state :__version_logic, default: {}, inheritable: true
+      def set_binding_info(data)
+        object = if data.is_a?(Binder)
+          data.object
+        else
+          data
+        end
 
-      extend Support::Makeable
+        if object && @view.object.labeled?(:binding)
+          binding_info = {
+            @view.object.label(:binding) => object[:id]
+          }
+
+          set_binding_info_for_node(@view.object, binding_info)
+
+          @view.object.each_significant_node(:binding, descend: true) do |binding_node|
+            set_binding_info_for_node(binding_node, binding_info)
+          end
+        end
+      end
+
+      def set_binding_info_for_node(node, info)
+        unless node.labeled?(:binding_info)
+          node.set_label(:binding_info, {})
+        end
+
+        node.label(:binding_info).merge!(info)
+      end
+
+      def set_endpoint_params(data)
+        object = if data.is_a?(Binder)
+          data.object
+        else
+          data
+        end
+
+        if @view.object.labeled?(:endpoint)
+          set_endpoint_params_for_node(@view.object, object)
+        end
+
+        @view.object.each_significant_node(:endpoint, descend: true) do |endpoint_node|
+          set_endpoint_params_for_node(endpoint_node, object)
+        end
+      end
+
+      def set_endpoint_params_for_node(node, object)
+        endpoint_object = node.label(:endpoint_object)
+        endpoint_params = node.label(:endpoint_params)
+
+        if endpoint_object && endpoint_params
+          endpoint_object.params.each do |param|
+            if param.to_s.end_with?("_id")
+              type = param.to_s.split("_id")[0].to_sym
+              if type == @view.label(:binding) && object.include?(:id)
+                endpoint_params[param] = object[:id]
+                next
+              end
+            end
+
+            if object.include?(param)
+              endpoint_params[param] = object[param]
+            end
+          end
+        end
+      end
 
       class << self
         using Support::Refinements::String::Normalization
 
         attr_reader :path
 
-        def make(path, namespace: nil, **kwargs, &block)
+        def make(path, **kwargs, &block)
           path = String.normalize_path(path)
-          super(name_from_path(path, namespace), path: path, **kwargs, &block)
+          super(path, path: path, **kwargs, &block)
         end
 
-        def name_from_path(path, namespace)
-          return unless path && namespace
-
-          path_parts = path.split("/").reject(&:empty?).map(&:to_sym)
-
-          # last one is the actual name, everything else is a namespace
-          classname = path_parts.pop
-
-          Support::ObjectName.new(
-            Support::ObjectNamespace.new(
-              *(namespace.parts + path_parts)
-            ), classname
-          )
-        end
-
-        # Defines a presentation block called when +binding_name+ is presented. If
-        # +channel+ is provided, the block will only be called for that channel.
+        # Defines a render to attach to a node.
         #
-        def present(binding_name, channel: nil, &block)
-          if channel
-            channel = Array.ensure(channel).join(":")
+        def render(*binding_path, channel: nil, node: nil, priority: :default, &block)
+          if node && !node.is_a?(Proc)
+            raise ArgumentError, "Expected `#{node.class}' to be a proc"
           end
 
-          (@__version_logic[binding_name] ||= []) << {
-            block: block, channel: channel
+          if binding_path.empty? && node.nil?
+            node = -> { self }
+          end
+
+          @__attached_renders << {
+            binding_path: binding_path,
+            channel: channel,
+            node: node,
+            priority: priority,
+            block: block
           }
+        end
+
+        # Attaches renders to a view's doc.
+        #
+        def attach(view)
+          views_with_renders = {}
+
+          renders = @__attached_renders.dup
+
+          # Automatically present exposed values for this view. Doing this dynamically lets us
+          # optimize. The alternative is to attach a render to the entire view, which is less
+          # performant because the entire structure must be duped.
+          #
+          view.binding_scopes(descend: false).each do |binding_node|
+            renders << {
+              binding_path: [binding_node.label(:binding)],
+              channel: binding_node.label(:channel),
+              priority: :low,
+              block: Proc.new {
+                if object.labeled?(:binding) && !object.labeled?(:used)
+                  presentables.each do |key, value|
+                    key = key.to_s
+                    # FIXME: Find a more performant way to do this.
+                    #
+                    if !key.start_with?("__") && (key.start_with?(plural_binding_name.to_s) || key.start_with?(singular_binding_name.to_s))
+                      if (key.split(":")[1..-1].map(&:to_sym) - object.label(:channel).to_a).empty?
+                        present(value); break
+                      end
+                    end
+                  end
+                end
+              }
+            }
+          end
+
+          # Setup binding endpoints in a similar way to automatic presentation above.
+          #
+          Presenters::Endpoint.attach_to_node(view.object, renders)
+
+          renders.each do |render|
+            return_value = if node = render[:node]
+              view.instance_exec(&node)
+            else
+              view.find(*render[:binding_path], channel: render[:channel])
+            end
+
+            case return_value
+            when Array
+              return_value.each do |each_value|
+                relate_value_to_render(each_value, render, views_with_renders)
+              end
+            when View, VersionedView
+              relate_value_to_render(return_value, render, views_with_renders)
+            end
+          end
+
+          views_with_renders.values.each do |view_with_renders, renders_for_view|
+            attach_to_node = case view_with_renders
+            when VersionedView
+              StringDoc::MetaNode.new(view_with_renders.versions.map(&:object))
+            when View
+              view_with_renders.object
+            end
+
+            if attach_to_node.is_a?(StringDoc)
+              attach_to_node = attach_to_node.find_first_significant_node(:html)
+            end
+
+            if attach_to_node
+              renders_for_view.each do |render|
+                attach_to_node.transform priority: render[:priority], &render_proc(view_with_renders, render, &render[:block])
+              end
+            end
+          end
+        end
+
+        # Defines options attached to a form binding.
+        #
+        def options_for(form_binding, field_binding, options = nil, &block)
+          form_binding = form_binding.to_sym
+          field_binding = field_binding.to_sym
+
+          @__global_options[form_binding] ||= {}
+          @__global_options[form_binding][field_binding] = {
+            options: options,
+            block: block
+          }
+        end
+
+        private
+
+        def render_proc(_view, _render = nil, &block)
+          Proc.new do |node, context, string|
+            case node
+            when StringDoc::MetaNode
+              if node.nodes.any?
+                returning = node
+                presenter = context.presenter_for(
+                  VersionedView.new([View.from_object(node)])
+                )
+              else
+                next node
+              end
+            when StringDoc::Node
+              returning = StringDoc.empty
+              returning.append(node)
+              presenter = context.presenter_for(
+                View.from_object(node)
+              )
+            end
+
+            presenter.instance_exec(node, context, string, &block); returning
+          rescue => error
+            Pakyow.logger.houston(error)
+
+            presenter.clear
+            presenter.attributes[:class] << :"render-failed"
+            presenter.view.object.set_label(:failed, true)
+            presenter.object
+          end
+        end
+
+        def relate_value_to_render(value, render, state)
+          final_value = case value
+          when View, VersionedView
+            value
+          else
+            View.new(value.to_s)
+          end
+
+          # Group the renders by node and view type.
+          #
+          (state["#{final_value.object.object_id}::#{final_value.class}"] ||= [final_value, []])[1] << render
         end
       end
     end

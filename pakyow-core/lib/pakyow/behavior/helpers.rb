@@ -4,6 +4,7 @@ require "pakyow/support/extension"
 require "pakyow/support/makeable"
 require "pakyow/support/safe_string"
 
+require "pakyow/helpers/app"
 require "pakyow/helpers/connection"
 
 module Pakyow
@@ -12,11 +13,11 @@ module Pakyow
   end
 
   module Behavior
-    # Maintains a list of helper modules. Helpers are either global, passive,
-    # or active. Global helpers are the equivalent of utilities in that they
-    # don't rely on any outside state. Passive helpers can access state on the
-    # connection but aren't responsible for changing it, which active helpers
-    # are solely responsible for.
+    # Maintains a list of helper modules, with code for including helpers of a type into an object.
+    #
+    # Helpers are either global, passive, or active. Global helpers contain utility methods or
+    # methods that need application-level state. Passive helpers can access state on the connection
+    # but never change connection state, which active helpers are solely responsible for doing.
     #
     module Helpers
       extend Support::Extension
@@ -28,6 +29,7 @@ module Pakyow
 
         setting :helpers,
                 global: [
+                  Pakyow::Helpers::App,
                   Support::SafeStringHelpers
                 ],
 

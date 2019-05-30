@@ -19,7 +19,14 @@ module Pakyow
             ObjectNamespace.new
           end
 
-          object_name = ObjectName.new(namespace, object_name)
+          object_name_parts = object_name.to_s.gsub("-", "_").split("/").reject(&:empty?)
+          class_name = object_name_parts.pop || :index
+
+          object_name = Support::ObjectName.new(
+            Support::ObjectNamespace.new(
+              *(namespace.parts + object_name_parts)
+            ), class_name
+          )
         end
 
         if self.is_a?(Class)

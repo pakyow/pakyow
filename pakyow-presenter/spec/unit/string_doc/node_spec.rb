@@ -23,29 +23,7 @@ RSpec.describe StringDoc::Node do
     end
 
     it "actually contains children" do
-      expect(node.children.to_s).to eq("<h1 data-b=\"title\">hello</h1>")
-    end
-  end
-
-  describe "#with_children" do
-    context "node has children" do
-      it "returns an array containing self, and child nodes" do
-        expect(node.with_children.count).to eq(3)
-        expect(node.with_children[0]).to be(node)
-        expect(node.with_children[1]).to eq(node.children.nodes[0])
-        expect(node.with_children[2]).to eq(node.children.nodes[0].children.nodes[0])
-      end
-    end
-
-    context "node does not have children" do
-      before do
-        node.clear
-      end
-
-      it "returns an array containing self" do
-        expect(node.with_children.count).to eq(1)
-        expect(node.with_children[0]).to be(node)
-      end
+      expect(node.children.render).to eq("<h1 data-b=\"title\">hello</h1>")
     end
   end
 
@@ -53,36 +31,36 @@ RSpec.describe StringDoc::Node do
     context "replacement is a StringDoc" do
       it "replaces" do
         replacement = StringDoc.new("foo")
-        doc.find_significant_nodes_with_name(:binding, :title)[0].replace(replacement)
-        expect(doc.to_s).to eq("<div data-b=\"post\">foo</div>")
+        node.find_significant_nodes_with_name(:binding, :title)[0].replace(replacement)
+        expect(doc.render).to eq("<div data-b=\"post\">foo</div>")
       end
 
       it "maintains internal state" do
-        node = doc.find_significant_nodes_with_name(:binding, :title)[0]
-        node.instance_variable_set(:@labels, { foo: "bar" })
-        node.replace(StringDoc.new("foo"))
-        expect(node.label(:foo)).to eq("bar")
+        title = node.find_significant_nodes_with_name(:binding, :title)[0]
+        title.instance_variable_set(:@labels, { foo: "bar" })
+        title.replace(StringDoc.new("foo"))
+        expect(title.label(:foo)).to eq("bar")
       end
     end
 
     context "replacement is a StringDoc::Node" do
       it "replaces" do
         replacement = node.dup
-        doc.find_significant_nodes_with_name(:binding, :title)[0].replace(replacement)
-        expect(doc.to_s).to eq("<div data-b=\"post\"><div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div></div>")
+        node.find_significant_nodes_with_name(:binding, :title)[0].replace(replacement)
+        expect(doc.render).to eq("<div data-b=\"post\"><div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div></div>")
       end
 
       it "maintains internal state" do
-        node = doc.find_significant_nodes_with_name(:binding, :title)[0]
-        node.instance_variable_set(:@labels, { foo: "bar" })
-        node.replace(node.dup)
-        expect(node.label(:foo)).to eq("bar")
+        title = node.find_significant_nodes_with_name(:binding, :title)[0]
+        title.instance_variable_set(:@labels, { foo: "bar" })
+        title.replace(title.dup)
+        expect(title.label(:foo)).to eq("bar")
       end
 
       context "removing a node that has been used as a replacement" do
         it "properly removes the replacement node" do
           replacement = node.dup
-          doc.find_significant_nodes_with_name(:binding, :title)[0].replace(replacement)
+          node.find_significant_nodes_with_name(:binding, :title)[0].replace(replacement)
           replacement.remove
           expect(doc.to_html).to eq("<div data-b=\"post\"></div>")
         end
@@ -92,8 +70,8 @@ RSpec.describe StringDoc::Node do
     context "replacement is another object" do
       it "replaces" do
         replacement = "foo"
-        doc.find_significant_nodes_with_name(:binding, :title)[0].replace(replacement)
-        expect(doc.to_s).to eq("<div data-b=\"post\">foo</div>")
+        node.find_significant_nodes_with_name(:binding, :title)[0].replace(replacement)
+        expect(doc.render).to eq("<div data-b=\"post\">foo</div>")
       end
     end
   end
@@ -102,21 +80,21 @@ RSpec.describe StringDoc::Node do
     context "node is primary" do
       it "removes the node" do
         node.remove
-        expect(doc.to_s).to eq("")
+        expect(doc.render).to eq("")
       end
     end
 
     context "node is a child" do
       it "removes the node" do
-        doc.find_significant_nodes_with_name(:binding, :title)[0].remove
-        expect(doc.to_s).to eq("<div data-b=\"post\"></div>")
+        node.find_significant_nodes_with_name(:binding, :title)[0].remove
+        expect(doc.render).to eq("<div data-b=\"post\"></div>")
       end
     end
   end
 
   describe "#text" do
     it "returns the text value of the current node" do
-      expect(doc.find_significant_nodes_with_name(:binding, :title)[0].text).to eq("hello")
+      expect(node.find_significant_nodes_with_name(:binding, :title)[0].text).to eq("hello")
     end
 
     context "node has children" do
@@ -128,7 +106,7 @@ RSpec.describe StringDoc::Node do
 
   describe "#html" do
     it "returns the html value of the current node's children" do
-      expect(doc.find_significant_nodes_with_name(:binding, :title)[0].html).to eq("hello")
+      expect(node.find_significant_nodes_with_name(:binding, :title)[0].html).to eq("hello")
     end
 
     context "node has children" do
@@ -140,37 +118,37 @@ RSpec.describe StringDoc::Node do
 
   describe "#html=" do
     it "sets the html value of the current node" do
-      node = doc.find_significant_nodes_with_name(:binding, :title)[0]
-      node.html = "<div>foo</div>"
-      expect(node.to_s).to eq("<h1 data-b=\"title\"><div>foo</div></h1>")
+      title = node.find_significant_nodes_with_name(:binding, :title)[0]
+      title.html = "<div>foo</div>"
+      expect(title.render).to eq("<h1 data-b=\"title\"><div>foo</div></h1>")
     end
 
     context "node has children" do
       it "replaces the childen" do
         node.html = "<div>foo</div>"
-        expect(node.to_s).to eq("<div data-b=\"post\"><div>foo</div></div>")
+        expect(node.render).to eq("<div data-b=\"post\"><div>foo</div></div>")
       end
     end
   end
 
   describe "#replace_children" do
     it "sets the html value of the current node" do
-      node = doc.find_significant_nodes_with_name(:binding, :title)[0]
-      node.replace_children("<div>foo</div>")
-      expect(node.to_s).to eq("<h1 data-b=\"title\"><div>foo</div></h1>")
+      title = node.find_significant_nodes_with_name(:binding, :title)[0]
+      title.replace_children("<div>foo</div>")
+      expect(title.render).to eq("<h1 data-b=\"title\"><div>foo</div></h1>")
     end
 
     context "node has children" do
       it "replaces the childen" do
         node.replace_children("<div>foo</div>")
-        expect(node.to_s).to eq("<div data-b=\"post\"><div>foo</div></div>")
+        expect(node.render).to eq("<div data-b=\"post\"><div>foo</div></div>")
       end
     end
 
     context "new children have significant nodes" do
       it "finds the significant nodes" do
         node.replace_children("<div binding=\"foo\">foo</div>")
-        expect(doc.find_significant_nodes_with_name(:binding, :foo).count).to eq(1)
+        expect(node.find_significant_nodes_with_name(:binding, :foo).count).to eq(1)
       end
     end
   end
@@ -184,7 +162,7 @@ RSpec.describe StringDoc::Node do
   describe "#clear" do
     it "removes children" do
       node.clear
-      expect(node.to_s).to eq("<div data-b=\"post\"></div>")
+      expect(node.render).to eq("<div data-b=\"post\"></div>")
     end
   end
 
@@ -196,7 +174,7 @@ RSpec.describe StringDoc::Node do
 
       it "inserts after self" do
         node.after(insertable)
-        expect(doc.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div><div>insertable</div>")
+        expect(doc.render).to eq("<div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div><div>insertable</div>")
       end
     end
 
@@ -207,7 +185,7 @@ RSpec.describe StringDoc::Node do
 
       it "inserts after self" do
         node.after(insertable)
-        expect(doc.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div><div>insertable</div>")
+        expect(doc.render).to eq("<div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div><div>insertable</div>")
       end
     end
 
@@ -218,7 +196,7 @@ RSpec.describe StringDoc::Node do
 
       it "inserts after self" do
         node.after(insertable)
-        expect(doc.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div><div>insertable</div>")
+        expect(doc.render).to eq("<div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div><div>insertable</div>")
       end
     end
   end
@@ -231,7 +209,7 @@ RSpec.describe StringDoc::Node do
 
       it "inserts before self" do
         node.before(insertable)
-        expect(doc.to_s).to eq("<div>insertable</div><div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div>")
+        expect(doc.render).to eq("<div>insertable</div><div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div>")
       end
     end
 
@@ -242,7 +220,7 @@ RSpec.describe StringDoc::Node do
 
       it "inserts before self" do
         node.before(insertable)
-        expect(doc.to_s).to eq("<div>insertable</div><div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div>")
+        expect(doc.render).to eq("<div>insertable</div><div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div>")
       end
     end
 
@@ -253,7 +231,7 @@ RSpec.describe StringDoc::Node do
 
       it "inserts before self" do
         node.before(insertable)
-        expect(doc.to_s).to eq("<div>insertable</div><div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div>")
+        expect(doc.render).to eq("<div>insertable</div><div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div>")
       end
     end
   end
@@ -266,7 +244,7 @@ RSpec.describe StringDoc::Node do
 
       it "appends to self" do
         node.append(insertable)
-        expect(doc.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">hello</h1><div>insertable</div></div>")
+        expect(doc.render).to eq("<div data-b=\"post\"><h1 data-b=\"title\">hello</h1><div>insertable</div></div>")
       end
     end
 
@@ -277,7 +255,7 @@ RSpec.describe StringDoc::Node do
 
       it "appends to self" do
         node.append(insertable)
-        expect(doc.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">hello</h1><div>insertable</div></div>")
+        expect(doc.render).to eq("<div data-b=\"post\"><h1 data-b=\"title\">hello</h1><div>insertable</div></div>")
       end
     end
 
@@ -288,7 +266,7 @@ RSpec.describe StringDoc::Node do
 
       it "appends to self" do
         node.append(insertable)
-        expect(doc.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">hello</h1><div>insertable</div></div>")
+        expect(doc.render).to eq("<div data-b=\"post\"><h1 data-b=\"title\">hello</h1><div>insertable</div></div>")
       end
     end
   end
@@ -301,7 +279,7 @@ RSpec.describe StringDoc::Node do
 
       it "prepends to self" do
         node.prepend(insertable)
-        expect(doc.to_s).to eq("<div data-b=\"post\"><div>insertable</div><h1 data-b=\"title\">hello</h1></div>")
+        expect(doc.render).to eq("<div data-b=\"post\"><div>insertable</div><h1 data-b=\"title\">hello</h1></div>")
       end
     end
 
@@ -312,7 +290,7 @@ RSpec.describe StringDoc::Node do
 
       it "prepends to self" do
         node.prepend(insertable)
-        expect(doc.to_s).to eq("<div data-b=\"post\"><div>insertable</div><h1 data-b=\"title\">hello</h1></div>")
+        expect(doc.render).to eq("<div data-b=\"post\"><div>insertable</div><h1 data-b=\"title\">hello</h1></div>")
       end
     end
 
@@ -323,7 +301,7 @@ RSpec.describe StringDoc::Node do
 
       it "prepends to self" do
         node.prepend(insertable)
-        expect(doc.to_s).to eq("<div data-b=\"post\"><div>insertable</div><h1 data-b=\"title\">hello</h1></div>")
+        expect(doc.render).to eq("<div data-b=\"post\"><div>insertable</div><h1 data-b=\"title\">hello</h1></div>")
       end
     end
   end
@@ -392,19 +370,19 @@ RSpec.describe StringDoc::Node do
 
   describe "#to_xml" do
     it "converts the document to an xml string" do
-      expect(node.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div>")
+      expect(node.render).to eq("<div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div>")
     end
   end
 
   describe "#to_html" do
     it "converts the document to an xml string" do
-      expect(node.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div>")
+      expect(node.render).to eq("<div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div>")
     end
   end
 
   describe "#to_s" do
     it "converts the document to an xml string" do
-      expect(node.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div>")
+      expect(node.render).to eq("<div data-b=\"post\"><h1 data-b=\"title\">hello</h1></div>")
     end
   end
 
@@ -414,7 +392,7 @@ RSpec.describe StringDoc::Node do
     end
 
     it "includes labels" do
-      expect(node.inspect).to include("@labels={:binding=>:title, :channel=>[], :combined_channel=>\"\"}")
+      expect(node.inspect).to include("@labels={:binding=>:title, :channel=>[], :combined_channel=>\"\", :descend=>false}")
     end
 
     it "includes attributes" do

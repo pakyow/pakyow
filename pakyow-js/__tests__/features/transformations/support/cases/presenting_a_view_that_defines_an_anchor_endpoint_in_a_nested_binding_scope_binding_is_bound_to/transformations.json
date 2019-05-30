@@ -75,38 +75,6 @@
                   ]
                 ],
                 [
-                  "setupEndpoint",
-                  [
-                    {
-                      "name": "posts_show",
-                      "path": "/posts/1",
-                      "method": "get"
-                    }
-                  ],
-                  [
-
-                  ],
-                  [
-
-                  ]
-                ],
-                [
-                  "setupEndpoint",
-                  [
-                    {
-                      "name": "posts_comments_show",
-                      "path": "/posts/comments/1",
-                      "method": "get"
-                    }
-                  ],
-                  [
-
-                  ],
-                  [
-
-                  ]
-                ],
-                [
                   "bind",
                   [
                     {
@@ -198,22 +166,6 @@
                             ]
                           ],
                           [
-                            "setupEndpoint",
-                            [
-                              {
-                                "name": "posts_comments_show",
-                                "path": "/posts/1/comments/1",
-                                "method": "get"
-                              }
-                            ],
-                            [
-
-                            ],
-                            [
-
-                            ]
-                          ],
-                          [
                             "bind",
                             [
                               {
@@ -268,22 +220,6 @@
                             ]
                           ],
                           [
-                            "setupEndpoint",
-                            [
-                              {
-                                "name": "posts_comments_show",
-                                "path": "/posts/1/comments/2",
-                                "method": "get"
-                              }
-                            ],
-                            [
-
-                            ],
-                            [
-
-                            ]
-                          ],
-                          [
                             "bind",
                             [
                               {
@@ -310,6 +246,393 @@
             ],
             [
 
+            ]
+          ]
+        ]
+      ],
+      [
+        "find",
+        [
+          "post",
+          {
+            "channel": null,
+            "id": 1
+          }
+        ],
+        [
+
+        ],
+        [
+          [
+            "endpoint",
+            [
+              "posts_show"
+            ],
+            [
+
+            ],
+            [
+              [
+                "endpointAction",
+                [
+
+                ],
+                [
+
+                ],
+                [
+                  [
+                    "attributes",
+                    [
+
+                    ],
+                    [
+
+                    ],
+                    [
+                      [
+                        "set",
+                        [
+                          "href",
+                          "/posts/1"
+                        ],
+                        [
+
+                        ],
+                        [
+
+                        ]
+                      ]
+                    ]
+                  ],
+                  [
+                    "attributes",
+                    [
+
+                    ],
+                    [
+
+                    ],
+                    [
+
+                    ]
+                  ],
+                  [
+                    "attributes",
+                    [
+
+                    ],
+                    [
+
+                    ],
+                    [
+                      [
+                        "get",
+                        [
+                          "href"
+                        ],
+                        [
+
+                        ],
+                        [
+
+                        ]
+                      ]
+                    ]
+                  ],
+                  [
+                    "attributes",
+                    [
+
+                    ],
+                    [
+
+                    ],
+                    [
+                      [
+                        "get",
+                        [
+                          "href"
+                        ],
+                        [
+
+                        ],
+                        [
+
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      [
+        "find",
+        [
+          "post",
+          {
+            "channel": null,
+            "id": 1
+          }
+        ],
+        [
+
+        ],
+        [
+          [
+            "find",
+            [
+              "comment",
+              {
+                "channel": null,
+                "id": 1
+              }
+            ],
+            [
+
+            ],
+            [
+              [
+                "endpoint",
+                [
+                  "posts_comments_show"
+                ],
+                [
+
+                ],
+                [
+                  [
+                    "endpointAction",
+                    [
+
+                    ],
+                    [
+
+                    ],
+                    [
+                      [
+                        "attributes",
+                        [
+
+                        ],
+                        [
+
+                        ],
+                        [
+                          [
+                            "set",
+                            [
+                              "href",
+                              "/posts/1/comments/1"
+                            ],
+                            [
+
+                            ],
+                            [
+
+                            ]
+                          ]
+                        ]
+                      ],
+                      [
+                        "attributes",
+                        [
+
+                        ],
+                        [
+
+                        ],
+                        [
+
+                        ]
+                      ],
+                      [
+                        "attributes",
+                        [
+
+                        ],
+                        [
+
+                        ],
+                        [
+                          [
+                            "get",
+                            [
+                              "href"
+                            ],
+                            [
+
+                            ],
+                            [
+
+                            ]
+                          ]
+                        ]
+                      ],
+                      [
+                        "attributes",
+                        [
+
+                        ],
+                        [
+
+                        ],
+                        [
+                          [
+                            "get",
+                            [
+                              "href"
+                            ],
+                            [
+
+                            ],
+                            [
+
+                            ]
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      [
+        "find",
+        [
+          "post",
+          {
+            "channel": null,
+            "id": 1
+          }
+        ],
+        [
+
+        ],
+        [
+          [
+            "find",
+            [
+              "comment",
+              {
+                "channel": null,
+                "id": 2
+              }
+            ],
+            [
+
+            ],
+            [
+              [
+                "endpoint",
+                [
+                  "posts_comments_show"
+                ],
+                [
+
+                ],
+                [
+                  [
+                    "endpointAction",
+                    [
+
+                    ],
+                    [
+
+                    ],
+                    [
+                      [
+                        "attributes",
+                        [
+
+                        ],
+                        [
+
+                        ],
+                        [
+                          [
+                            "set",
+                            [
+                              "href",
+                              "/posts/1/comments/2"
+                            ],
+                            [
+
+                            ],
+                            [
+
+                            ]
+                          ]
+                        ]
+                      ],
+                      [
+                        "attributes",
+                        [
+
+                        ],
+                        [
+
+                        ],
+                        [
+
+                        ]
+                      ],
+                      [
+                        "attributes",
+                        [
+
+                        ],
+                        [
+
+                        ],
+                        [
+                          [
+                            "get",
+                            [
+                              "href"
+                            ],
+                            [
+
+                            ],
+                            [
+
+                            ]
+                          ]
+                        ]
+                      ],
+                      [
+                        "attributes",
+                        [
+
+                        ],
+                        [
+
+                        ],
+                        [
+                          [
+                            "get",
+                            [
+                              "href"
+                            ],
+                            [
+
+                            ],
+                            [
+
+                            ]
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ]
             ]
           ]
         ]

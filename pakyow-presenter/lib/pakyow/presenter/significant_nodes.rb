@@ -2,6 +2,9 @@
 
 require "string_doc"
 
+require "pakyow/presenter/presenters/endpoint"
+require "pakyow/presenter/presenters/form"
+
 module Pakyow
   module Presenter
     # @api private
@@ -20,6 +23,8 @@ module Pakyow
     BODY_TAG = "body".freeze
     # @api private
     HEAD_TAG = "head".freeze
+    # @api private
+    META_TAG = "meta".freeze
     # @api private
     HTML_TAG = "html".freeze
     # @api private
@@ -42,15 +47,9 @@ module Pakyow
       end
 
       def self.binding_within?(node)
-        node.children.each do |child|
-          if BindingNode.significant?(child)
-            return true
-          else
-            binding_within?(child)
-          end
-        end
-
-        false
+        node.children.any? { |child|
+          BindingNode.significant?(child) || binding_within?(child)
+        }
       end
     end
 
@@ -69,6 +68,10 @@ module Pakyow
 
       def self.significant?(node)
         node.is_a?(Oga::XML::Element) && node.attribute(:endpoint)
+      end
+
+      def self.decorate(node)
+        node.set_label(:presenter_type, Presenters::Endpoint)
       end
     end
 
@@ -105,7 +108,7 @@ module Pakyow
 
     # @api private
     class BindingNode < SignificantNode
-      StringDoc.significant :binding, self
+      StringDoc.significant :binding, self, descend: false
 
       def self.significant?(node)
         node.is_a?(Oga::XML::Element) && node.attribute(:binding) && node.name != FORM_TAG
@@ -149,6 +152,17 @@ module Pakyow
     end
 
     # @api private
+    class RenderableComponentNode < SignificantNode
+      StringDoc.significant :renderable_component, self, descend: false
+
+      # Significance is set after parsing during view building.
+      #
+      def self.significant?(_)
+        false
+      end
+    end
+
+    # @api private
     class ModeNode < SignificantNode
       StringDoc.significant :mode, self
 
@@ -163,6 +177,11 @@ module Pakyow
 
       def self.significant?(node)
         node.is_a?(Oga::XML::Element) && node.attribute(:binding) && node.name == FORM_TAG
+      end
+
+      def self.decorate(node)
+        node.set_label(:presenter_type, Presenters::Form)
+        node.set_label(:view_type, Form)
       end
     end
 
@@ -226,6 +245,15 @@ module Pakyow
 
       def self.significant?(node)
         node.is_a?(Oga::XML::Element) && node.name == HEAD_TAG
+      end
+    end
+
+    # @api private
+    class MetaNode < SignificantNode
+      StringDoc.significant :meta, self
+
+      def self.significant?(node)
+        node.is_a?(Oga::XML::Element) && node.name == META_TAG
       end
     end
 

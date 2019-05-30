@@ -8,7 +8,9 @@ RSpec.describe "presenting data in a form component" do
         disable_protection :csrf
 
         create do
-          data.ephemeral(:error, form_id: "form_1").set([{ id: 1, message: "error 1" }, { id: 2, message: "error 2" }]); halt
+          data.ephemeral(:error, form_id: "form_1").set([
+            { id: 1, message: "error 1" }, { id: 2, message: "error 2" }
+          ]); halt
         end
       end
 
@@ -23,7 +25,7 @@ RSpec.describe "presenting data in a form component" do
         end
 
         presenter do
-          def perform
+          render do
             # This is weird, but done so the ephemeral data shows up in the result.
             #
             presenting = if $call_count == 0

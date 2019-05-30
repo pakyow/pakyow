@@ -16,11 +16,7 @@ module Pakyow
         processed_content = if content
           process(content, type || "text/plain")
         elsif @renderer
-          catch :halt do
-            @renderer.perform
-          end
-
-          process(@renderer.presenter.to_html, @config.default_content_type)
+          process(@renderer.perform, @config.default_content_type)
         else
           {}
         end
@@ -77,7 +73,7 @@ module Pakyow
             )
 
             stylesheets = if @renderer
-              @renderer.connection.app.packs(@renderer.presenter.view).select(&:stylesheets?).map(&:stylesheets)
+              @renderer.app.packs(@renderer.presenter.view).select(&:stylesheets?).map(&:stylesheets)
             else
               []
             end

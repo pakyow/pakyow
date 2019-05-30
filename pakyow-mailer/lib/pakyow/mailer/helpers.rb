@@ -7,16 +7,17 @@ module Pakyow
         if path
           connection = @connection.dup
 
-          renderer = @connection.app.isolated(:ViewRenderer).new(
-            connection,
-            templates_path: path,
-            embed_templates: false
+          renderer = connection.app.isolated(:MailRenderer).new(
+            app: connection.app,
+            presentables: connection.values,
+            presenter_class: connection.app.isolated(:MailRenderer).find_presenter(connection.app, path),
+            composer: Presenter::Composers::View.new(path)
           )
 
           Mailer.new(
             renderer: renderer,
             config: app.config.mailer,
-            logger: @connection.logger
+            logger: connection.logger
           ).tap do |mailer|
             if block_given?
               context = dup

@@ -8,7 +8,7 @@ module Pakyow
       end
 
       def ui
-        @connection.request_header["pw-ui"]
+        @connection.request_header("pw-ui")
       end
 
       def ui_transform?

@@ -3,8 +3,10 @@
 require "json"
 
 require "pakyow/support/core_refinements/array/ensurable"
+
 require "pakyow/support/extension"
 require "pakyow/support/inflector"
+require "pakyow/support/safe_string"
 
 require "pakyow/data/sources/relational"
 
@@ -20,8 +22,11 @@ module Pakyow
     module Recordable
       extend Support::Extension
 
+      include Support::SafeStringHelpers
+
       using Support::Refinements::Array::Ensurable
 
+      # @api private
       attr_reader :calls
 
       def to_json(*)
@@ -30,10 +35,10 @@ module Pakyow
 
       # @api private
       def cache_bindings!
-        binding_nodes = if @view.object.is_a?(StringDoc::Node) && @view.object.significant?(:multipart_binding)
-          [@view.object]
+        binding_nodes = if (view.object.is_a?(StringDoc::Node) || view.object.is_a?(StringDoc::MetaNode)) && view.object.significant?(:multipart_binding)
+          [view.object]
         else
-          @view.object.find_significant_nodes(:binding)
+          view.object.find_significant_nodes(:binding)
         end
 
         @bindings = binding_nodes.flat_map { |node|
@@ -119,9 +124,9 @@ module Pakyow
           if binding_prop_view.is_a?(Presenter::VersionedView)
             unless binding_prop_view.used?
               if binding_prop_view.version?(:default)
-                presenter.instance_variable_get(:@calls).unshift([:find, [[binding_name]], [], [[:use, [:default], [], []]]])
+                presenter.calls.unshift([:find, [[binding_name]], [], [[:use, [:default], [], []]]])
               else
-                presenter.instance_variable_get(:@calls).unshift([:find, [[binding_name]], [], [[:clean, [], [], []]]])
+                presenter.calls.unshift([:find, [[binding_name]], [], [[:clean, [], [], []]]])
               end
             end
           end
@@ -130,9 +135,9 @@ module Pakyow
         if presenter.view.is_a?(Presenter::VersionedView)
           unless presenter.view.used?
             if presenter.view.version?(:default)
-              presenter.instance_variable_get(:@calls).unshift([:use, [:default], [], []])
+              presenter.calls.unshift([:use, [:default], [], []])
             else
-              presenter.instance_variable_get(:@calls).unshift([:clean, [], [], []])
+              presenter.calls.unshift([:clean, [], [], []])
             end
           end
         end
@@ -142,19 +147,69 @@ module Pakyow
         include Helpers::ClientRemapping
       end
 
+      def self.find_through(binding_path, binding_info, options, context, calls)
+        if binding_path.any?
+          binding_path_part = binding_path.shift
+          current_options = options.dup
+
+          if id = binding_info[binding_path_part]
+            # Tie the transformations to a node of a specific id, unless we're transforming the entire set.
+            #
+            unless calls.any? { |call| call[0] == :transform }
+              current_options["id"] = id
+            end
+          end
+
+          subsequent = []
+
+          context << [
+            "find",
+            [
+              binding_path_part, current_options
+            ], [], subsequent
+          ]
+
+          find_through(binding_path, binding_info, options, subsequent, calls)
+        else
+          context.concat(calls)
+        end
+      end
+
       class_methods do
+        def render_proc(view, render, &block)
+          super(view, render) do |_, context|
+            if render[:node]
+              instance_exec(&block)
+
+              # The super proc creates a new presenter instance per render, but we want each to use the
+              # same starting point for calls since they all apply to the same node.
+              #
+              context.calls.concat(calls)
+            else
+              instance_exec(&block)
+
+              if calls.any?
+                # Explicitly find the node to apply the transformation to the correct node. While
+                # we're at it, append any transformations caused by the `instance_exec` above.
+                #
+                options = {
+                  "channel" => render[:channel]
+                }
+
+                Recordable.find_through(
+                  render[:binding_path].dup, object.label(:binding_info).to_h, options, context.calls, calls
+                )
+              end
+            end
+          end
+        end
+
         def from_presenter(presenter)
           allocate.tap { |instance|
-            instance.instance_variable_set(:@calls, [])
-
             # Copy state from the presenter we're tracking.
             #
             presenter.instance_variables.each do |ivar|
-              if ivar == :@__pipeline
-                instance.instance_variable_set(ivar, presenter.class.__pipeline.callable(instance))
-              else
-                instance.instance_variable_set(ivar, presenter.instance_variable_get(ivar))
-              end
+              instance.instance_variable_set(ivar, presenter.instance_variable_get(ivar))
             end
 
             instance.cache_bindings!
@@ -170,15 +225,22 @@ module Pakyow
           cache_bindings!
         end
 
-        def presenter_for(view, type: Presenter::Presenter)
-          if type == Presenter::Presenter
-            self.class.from_presenter(super)
+        def presenter_for(view, type: view&.label(:presenter_type))
+          presenter = super
+
+          if presenter.is_a?(Delegator)
+            presenter.__setobj__(self.class.from_presenter(presenter.__getobj__))
           else
-            super
+            presenter = self.class.from_presenter(presenter)
           end
+
+          presenter
         end
 
-        %i(find transform use bind append prepend after before replace remove clear title= setup_endpoint wrap_endpoint_for_removal html=).each do |method_name|
+        %i(
+          find transform use bind append prepend after before replace remove clear title= html=
+          endpoint endpoint_action
+        ).each do |method_name|
           define_method method_name do |*args, &block|
             nested = []
 
@@ -204,18 +266,6 @@ module Pakyow
                 else
                   [args]
                 end
-              when :setup_endpoint
-                # We don't want to send `node` down to the client.
-                #
-                args.tap do
-                  args[0].delete(:node)
-                end
-              when :wrap_endpoint_for_removal
-                # We don't want to send `node` down to the client.
-                #
-                args.tap do
-                  args[0].delete(:node)
-                end
               when :transform
                 # Ignore the potential `yield_block` argument that's used internally.
                 #
@@ -228,20 +278,20 @@ module Pakyow
                 args
               end
 
-              subsequent = if (result.is_a?(Presenter::Presenter) && !result.equal?(self)) || result.is_a?(Attributes)
+              subsequent = if (result.is_a?(Presenter::Presenter) && !result.equal?(self)) || (result.is_a?(Delegator) && !result.__getobj__.equal?(self)) || result.is_a?(Attributes)
                 result
               else
                 []
               end
 
-              @calls << [remap_for_client(method_name), call_args, nested, subsequent]
+              calls << [remap_for_client(method_name), call_args, nested, subsequent]
             end
           end
         end
 
         def attributes
           Attributes.from_attributes(super).tap do |subsequent|
-            @calls << [:attributes, [], [], subsequent]
+            calls << [:attributes, [], [], subsequent]
           end
         end
         alias attrs attributes

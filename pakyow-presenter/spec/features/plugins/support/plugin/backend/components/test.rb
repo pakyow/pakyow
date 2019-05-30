@@ -4,8 +4,8 @@ component :test do
   end
 
   presenter do
-    def perform
-      view.html = "plugin component render (ancestors: #{ancestors})"
+    render node: -> { self } do
+      self.html = "plugin component render (ancestors: #{ancestors})"
     end
   end
 end

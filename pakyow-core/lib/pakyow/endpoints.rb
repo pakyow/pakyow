@@ -15,6 +15,12 @@ module Pakyow
       @endpoints = []
     end
 
+    def find(name:)
+      @endpoints.find { |endpoint|
+        endpoint.name == name
+      }
+    end
+
     # Adds an endpoint.
     #
     def <<(endpoint)
@@ -72,6 +78,9 @@ module Pakyow
   end
 
   class Endpoint
+    extend Forwardable
+    def_delegators :@builder, :params
+
     attr_reader :name, :method, :builder
 
     def initialize(name:, method:, builder:)
