@@ -44,6 +44,8 @@ module Pakyow
             else
               Support::IndifferentHash.new
             end
+          rescue StandardError
+            Support::IndifferentHash.new
           end
         end
       end

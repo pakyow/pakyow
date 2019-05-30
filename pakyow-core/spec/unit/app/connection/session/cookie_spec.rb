@@ -22,6 +22,10 @@ RSpec.describe Pakyow::App::Connection::Session::Cookie do
       it "initializes"
       it "does not change the cookie"
     end
+
+    context "cookie cannot be deserialized" do
+      it "resets the session"
+    end
   end
 
   describe "#to_s" do
