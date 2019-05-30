@@ -61,6 +61,22 @@ class StringDoc
       @transforms = Hash[@transforms.map { |k, v| [k, v.dup] }]
     end
 
+    # @api private
+    def empty?
+      to_s.strip.empty?
+    end
+
+    # Close self with +tag+ and a child.
+    #
+    # @api private
+    def close(tag, child)
+      tap do
+        @children = StringDoc.from_nodes(child)
+        @tag_open_end = tag ? ">" : ""
+        @tag_close = (tag && !self.class.self_closing?(tag)) ? "</#{tag}>" : ""
+      end
+    end
+
     def next_transform
       @transforms[:high].shift || @transforms[:default].shift || @transforms[:low].shift
     end
@@ -77,10 +93,6 @@ class StringDoc
       @transforms[:high].any? || @transforms[:default].any? || @transforms[:low].any?
     end
 
-    def empty?
-      to_s.strip.empty?
-    end
-
     def significant?(type = nil)
       if type
         @significance.include?(type.to_sym)
@@ -91,26 +103,6 @@ class StringDoc
 
     def significance?(*types)
       (@significance & types).any?
-    end
-
-    # Close self with +tag+ and a child.
-    #
-    def close(tag, child)
-      tap do
-        @children = StringDoc.from_nodes(child)
-        @tag_open_end = tag ? ">" : ""
-        @tag_close = (tag && !self.class.self_closing?(tag)) ? "</#{tag}>" : ""
-      end
-    end
-
-    # Returns an array containing +self+ and any child nodes.
-    #
-    def with_children
-      [self].tap do |self_with_children|
-        if children
-          self_with_children.concat(child_nodes)
-        end
-      end
     end
 
     # Replaces the current node.
@@ -155,7 +147,7 @@ class StringDoc
     # Returns the node's tagname.
     #
     def tagname
-      @tag_open_start.gsub(/[^a-zA-Z]/, "")
+      @tag_open_start.gsub(/[^a-zA-Z0-9]/, "")
     end
 
     # Removes all children.
@@ -218,13 +210,36 @@ class StringDoc
       @labels.delete(name.to_sym)
     end
 
-    # Converts the node to an xml string.
-    #
-    def to_xml(output = String.new, context: nil)
-      output << string_nodes.flatten.map(&:to_s).join
+    def render(output = String.new, context: nil)
+      if transforms_itself?
+        __transform(output, context: context)
+      else
+        output << tag_open_start
+
+        attributes.each_string do |attribute_string|
+          output << attribute_string
+        end
+
+        output << tag_open_end
+
+        case children
+        when StringDoc
+          children.render(output, context: context)
+        else
+          output << children
+        end
+
+        output << tag_close
+      end
     end
-    alias :to_html :to_xml
-    alias :to_s :to_xml
+    alias :to_html :render
+    alias :to_xml :render
+
+    # Returns the node as an xml string, without transforming.
+    #
+    def to_s
+      string_nodes.flatten.map(&:to_s).join
+    end
 
     def ==(other)
       other.is_a?(Node) &&
@@ -235,86 +250,54 @@ class StringDoc
         @tag_close == other.tag_close
     end
 
-    def each
-      return enum_for(:each) unless block_given?
+    def each(descend: false)
+      return enum_for(:each, descend: descend) unless block_given?
       yield self
     end
 
-    def each_significant_node(type, &block)
-      return enum_for(:each_significant_node, type) unless block_given?
+    def each_significant_node(type, descend: false, &block)
+      return enum_for(:each_significant_node, type, descend: descend) unless block_given?
 
       if @children.is_a?(StringDoc)
-        @children.each_significant_node(type, &block)
+        @children.each_significant_node(type, descend: descend, &block)
       end
     end
 
-    def each_significant_node_without_descending(type, &block)
-      return enum_for(:each_significant_node_without_descending, type) unless block_given?
+    def each_significant_node_without_descending_into_type(type, descend: false, &block)
+      return enum_for(:each_significant_node_without_descending_into_type, type, descend: descend) unless block_given?
 
       if @children.is_a?(StringDoc)
-        @children.each_significant_node_without_descending(type, &block)
+        @children.each_significant_node_without_descending_into_type(type, descend: descend, &block)
       end
     end
 
-    def each_significant_node_with_name(type, name, &block)
-      return enum_for(:each_significant_node_with_name, type, name) unless block_given?
+    def each_significant_node_with_name(type, name, descend: false, &block)
+      return enum_for(:each_significant_node_with_name, type, name, descend: descend) unless block_given?
 
       if @children.is_a?(StringDoc)
-        @children.each_significant_node_with_name(type, name, &block)
+        @children.each_significant_node_with_name(type, name, descend: descend, &block)
       end
     end
 
-    def each_significant_node_with_name_without_descending(type, name, &block)
-      return enum_for(:each_significant_node_with_name_without_descending, type, name) unless block_given?
-
+    def find_first_significant_node(type, descend: false)
       if @children.is_a?(StringDoc)
-        @children.each_significant_node_with_name_without_descending(type, name, &block)
-      end
-    end
-
-    def find_first_significant_node(type)
-      if @children.is_a?(StringDoc)
-        @children.find_first_significant_node(type)
+        @children.find_first_significant_node(type, descend: descend)
       else
         nil
       end
     end
 
-    def find_first_significant_node_without_descending(type)
+    def find_significant_nodes(type, descend: false)
       if @children.is_a?(StringDoc)
-        @children.find_first_significant_node_without_descending(type)
-      else
-        nil
-      end
-    end
-
-    def find_significant_nodes(type)
-      if @children.is_a?(StringDoc)
-        @children.find_significant_nodes(type)
+        @children.find_significant_nodes(type, descend: descend)
       else
         []
       end
     end
 
-    def find_significant_nodes_without_descending(type)
+    def find_significant_nodes_with_name(type, name, descend: false)
       if @children.is_a?(StringDoc)
-        @children.find_significant_nodes_without_descending(type)
-      else
-        []
-      end
-    end
-
-    def find_significant_nodes_with_name(type, name)
-      if @children.is_a?(StringDoc)
-        @children.find_significant_nodes_with_name(type, name)
-      else
-        []
-      end
-    end
-
-    def find_significant_nodes_with_name_without_descending(type, name)
-      if @children.is_a?(StringDoc)
-        @children.find_significant_nodes_with_name_without_descending(type, name)
+        @children.find_significant_nodes_with_name(type, name, descend: descend)
       else
         []
       end
@@ -322,12 +305,34 @@ class StringDoc
 
     private
 
-    def string_nodes
-      [@tag_open_start, @attributes, @tag_open_end, @children, @tag_close]
+    def __transform(string, context:)
+      node = dup
+
+      current = node
+      while transform = node.next_transform
+        return_value = transform.call(node, context, string)
+
+        case return_value
+        when NilClass
+          return
+        when StringDoc
+          return_value.render(string, context: context); return
+        when Node, MetaNode
+          current = return_value
+        else
+          string << return_value.to_s; return
+        end
+      end
+
+      # Don't render if the node was removed during the transform.
+      #
+      if !current.is_a?(Node) || !current.labeled?(:removed)
+        current.render(string, context: context)
+      end
     end
 
-    def child_nodes
-      children.nodes.map(&:with_children).to_a.flatten
+    def string_nodes
+      [@tag_open_start, @attributes, @tag_open_end, @children, @tag_close]
     end
   end
 end

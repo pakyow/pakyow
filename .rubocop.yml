@@ -29,7 +29,7 @@ Layout/EmptyLinesAroundMethodBody:
 Layout/EmptyLinesAroundModuleBody:
   Enabled: true
 
-Layout/FirstParameterIndentation:
+Layout/IndentFirstArgument:
   Enabled: true
 
 Layout/IndentationConsistency:
@@ -220,4 +220,7 @@ Naming/AccessorMethodName:
   Enabled: false
 
 Naming/UncommunicativeMethodParamName:
+  Enabled: false
+
+Naming/RescuedExceptionsVariableName:
   Enabled: false

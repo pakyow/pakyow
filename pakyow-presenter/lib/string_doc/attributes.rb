@@ -95,5 +95,12 @@ class StringDoc
         h[key] = value.dup
       }
     end
+
+    # @api private
+    def wrap
+      @attributes_hash.each do |key, value|
+        @attributes_hash[key] = yield(value, key)
+      end
+    end
   end
 end

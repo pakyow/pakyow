@@ -7,7 +7,7 @@ module Pakyow
       #
       class AutoRender
         def call(connection)
-          connection.app.isolated(:Renderer).perform(connection)
+          connection.app.isolated(:Renderer).render_implicitly(connection)
         end
       end
     end

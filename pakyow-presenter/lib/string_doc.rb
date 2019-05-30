@@ -155,32 +155,17 @@ class StringDoc
 
   include Enumerable
 
-  def each(&block)
-    return enum_for(:each) unless block_given?
+  def each(descend: false, &block)
+    return enum_for(:each, descend: descend) unless block_given?
 
     @nodes.each do |node|
-      case node
-      when MetaNode
-        node.nodes.each do |meta_node|
-          yield meta_node
+      yield node
 
-          unless meta_node.label(:descend) == false
-            if meta_node.children.is_a?(StringDoc)
-              meta_node.children.each(&block)
-            else
-              yield meta_node.children
-            end
-          end
-        end
-      when Node
-        yield node
-
-        unless node.label(:descend) == false
-          if node.children.is_a?(StringDoc)
-            node.children.each(&block)
-          else
-            yield node.children
-          end
+      if descend || node.label(:descend) != false
+        if node.children.is_a?(StringDoc)
+          node.children.each(descend: descend, &block)
+        else
+          yield node.children
         end
       end
     end
@@ -188,26 +173,30 @@ class StringDoc
 
   # Yields each node matching the significant type.
   #
-  def each_significant_node(type)
-    return enum_for(:each_significant_node, type) unless block_given?
+  def each_significant_node(type, descend: false)
+    return enum_for(:each_significant_node, type, descend: descend) unless block_given?
 
-    each do |node|
-      yield node if node.is_a?(Node) && node.significant?(type)
+    each(descend: descend) do |node|
+      yield node if (node.is_a?(Node) || node.is_a?(MetaNode)) && node.significant?(type)
     end
   end
 
   # Yields each node matching the significant type, without descending into nodes that are of that type.
   #
-  def each_significant_node_without_descending(type, &block)
-    return enum_for(:each_significant_node_without_descending, type) unless block_given?
+  def each_significant_node_without_descending_into_type(type, descend: false, &block)
+    return enum_for(:each_significant_node_without_descending_into_type, type, descend: descend) unless block_given?
 
     @nodes.each do |node|
-      if node.is_a?(Node)
+      if node.is_a?(Node) || node.is_a?(MetaNode)
         if node.significant?(type)
           yield node
-        elsif node.children.is_a?(StringDoc)
-          unless node.label(:descend) == false
-            node.children.each_significant_node_without_descending(type, &block)
+        else
+          if descend || node.label(:descend) != false
+            if node.children.is_a?(StringDoc)
+              node.children.each_significant_node_without_descending_into_type(type, descend: descend, &block)
+            else
+              yield node.children
+            end
           end
         end
       end
@@ -218,59 +207,27 @@ class StringDoc
   #
   # @see find_significant_nodes
   #
-  def each_significant_node_with_name(type, name)
-    return enum_for(:each_significant_node_with_name, type, name) unless block_given?
+  def each_significant_node_with_name(type, name, descend: false)
+    return enum_for(:each_significant_node_with_name, type, name, descend: descend) unless block_given?
 
-    each_significant_node(type) do |node|
-      yield node if node.label(type) == name
-    end
-  end
-
-  # Yields each node matching the significant type and name, without descending into nodes that are of that type.
-  #
-  # @see find_significant_nodes
-  #
-  def each_significant_node_with_name_without_descending(type, name)
-    return enum_for(:each_significant_node_with_name_without_descending, type, name) unless block_given?
-
-    each_significant_node_without_descending(type) do |node|
+    each_significant_node(type, descend: descend) do |node|
       yield node if node.label(type) == name
     end
   end
 
   # Returns the first node matching the significant type.
   #
-  def find_first_significant_node(type)
-    find { |node|
+  def find_first_significant_node(type, descend: false)
+    each(descend: descend).find { |node|
       node.significant?(type)
     }
   end
 
-  # Returns the first node matching the significant type, without descending into nodes that are of that type.
-  #
-  def find_first_significant_node_without_descending(type)
-    each_significant_node_without_descending(type) do |node|
-      return node if node.significant?(type)
-    end
-
-    nil
-  end
-
   # Returns nodes matching the significant type.
   #
-  def find_significant_nodes(type)
+  def find_significant_nodes(type, descend: false)
     [].tap do |nodes|
-      each_significant_node(type) do |node|
-        nodes << node
-      end
-    end
-  end
-
-  # Returns nodes matching the significant type, without descending into nodes that are of that type.
-  #
-  def find_significant_nodes_without_descending(type)
-    [].tap do |nodes|
-      each_significant_node_without_descending(type) do |node|
+      each_significant_node(type, descend: descend) do |node|
         nodes << node
       end
     end
@@ -280,21 +237,9 @@ class StringDoc
   #
   # @see find_significant_nodes
   #
-  def find_significant_nodes_with_name(type, name)
+  def find_significant_nodes_with_name(type, name, descend: false)
     [].tap do |nodes|
-      each_significant_node_with_name(type, name) do |node|
-        nodes << node
-      end
-    end
-  end
-
-  # Returns nodes matching the significant type and name, without descending into nodes that are of that type.
-  #
-  # @see find_significant_nodes
-  #
-  def find_significant_nodes_with_name_without_descending(type, name)
-    [].tap do |nodes|
-      each_significant_node_with_name_without_descending(type, name) do |node|
+      each_significant_node_with_name(type, name, descend: descend) do |node|
         nodes << node
       end
     end
@@ -316,7 +261,11 @@ class StringDoc
   def replace(doc_or_string)
     tap do
       nodes = self.class.nodes_from_doc_or_string(doc_or_string)
-      nodes.each { |node| node.parent = self }
+
+      nodes.each do |node|
+        node.parent = self
+      end
+
       @nodes = nodes
     end
   end
@@ -328,7 +277,11 @@ class StringDoc
   def append(doc_or_string)
     tap do
       nodes = self.class.nodes_from_doc_or_string(doc_or_string)
-      nodes.each { |node| node.parent = self }
+
+      nodes.each do |node|
+        node.parent = self
+      end
+
       @nodes.concat(nodes)
     end
   end
@@ -350,7 +303,11 @@ class StringDoc
   def prepend(doc_or_string)
     tap do
       nodes = self.class.nodes_from_doc_or_string(doc_or_string)
-      nodes.each { |node| node.parent = self }
+
+      nodes.each do |node|
+        node.parent = self
+      end
+
       @nodes.unshift(*nodes)
     end
   end
@@ -361,7 +318,11 @@ class StringDoc
     tap do
       if after_node_index = @nodes.index(after_node)
         nodes = self.class.nodes_from_doc_or_string(node_to_insert)
-        nodes.each { |node| node.parent = self }
+
+        nodes.each do |node|
+          node.parent = self
+        end
+
         @nodes.insert(after_node_index + 1, *nodes)
       end
     end
@@ -373,7 +334,11 @@ class StringDoc
     tap do
       if before_node_index = @nodes.index(before_node)
         nodes = self.class.nodes_from_doc_or_string(node_to_insert)
-        nodes.each { |node| node.parent = self }
+
+        nodes.each do |node|
+          node.parent = self
+        end
+
         @nodes.insert(before_node_index, *nodes)
       end
     end
@@ -395,20 +360,30 @@ class StringDoc
     tap do
       if replace_node_index = @nodes.index(node_to_replace)
         nodes_to_insert = self.class.nodes_from_doc_or_string(replacement_node)
-        nodes_to_insert.each { |node| node.parent = self }
+
+        nodes_to_insert.each do |node|
+          node.parent = self
+        end
+
         @nodes.insert(replace_node_index + 1, *nodes_to_insert)
         @nodes.delete_at(replace_node_index)
       end
     end
   end
 
-  # Converts the document to an xml string.
-  #
-  def to_xml(output = String.new, context: nil)
-    render(self, output, context: context)
+  def render(output = String.new, context: nil)
+    __render(self, output, context: context)
   end
-  alias :to_html :to_xml
-  alias :to_s :to_xml
+  alias :to_html :render
+  alias :to_xml :render
+
+  # Returns the node as an xml string, without transforming.
+  #
+  def to_s
+    @nodes.each_with_object(String.new) do |node, string|
+      string << node.to_s
+    end
+  end
 
   def ==(other)
     other.is_a?(StringDoc) && @nodes == other.nodes
@@ -453,77 +428,20 @@ class StringDoc
 
   private
 
-  def render(doc = self, string = String.new, context: nil)
+  def __render(doc = self, string, context:)
     if doc.collapsed && doc.empty?
       string << doc.collapsed
     else
       doc.nodes.each do |node|
-        render_node(node, string, context: context)
+        case node
+        when Node, MetaNode
+          node.render(string, context: context)
+        else
+          string << node.to_s
+        end
       end
 
       string
-    end
-  end
-
-  def render_node(node, string, context: nil)
-    case node
-    when Node
-      if node.transforms_itself?
-        transform_node(node, string, context: context)
-      else
-        string << node.tag_open_start
-
-        node.attributes.each_string do |attribute_string|
-          string << attribute_string
-        end
-
-        string << node.tag_open_end
-
-        case node.children
-        when StringDoc
-          render(node.children, string, context: context)
-        else
-          string << node.children
-        end
-
-        string << node.tag_close
-      end
-    when MetaNode
-      if node.transforms_itself?
-        transform_node(node, string, context: context)
-      else
-        node.nodes.each do |each_node|
-          render_node(each_node, string, context: context)
-        end
-      end
-    else
-      string << node.to_s
-    end
-  end
-
-  def transform_node(node, string, context: nil)
-    node = node.dup
-
-    current = node
-    while transform = node.next_transform
-      return_value = transform.call(node, context, string)
-
-      case return_value
-      when NilClass
-        return
-      when StringDoc
-        render(return_value, string, context: context); return
-      when Node, MetaNode
-        current = return_value
-      else
-        string << return_value.to_s; return
-      end
-    end
-
-    # Don't render if the node was removed during the transform.
-    #
-    if !current.is_a?(Node) || !current.labeled?(:removed)
-      render_node(current, string, context: context)
     end
   end
 

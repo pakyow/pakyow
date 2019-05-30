@@ -1,25 +1,19 @@
 # frozen_string_literal: true
 
-require "forwardable"
-
 require "pakyow/support/class_state"
-require "pakyow/support/deep_dup"
 require "pakyow/support/deep_freeze"
 require "pakyow/support/hookable"
-require "pakyow/support/pipeline"
 
 require "pakyow/support/core_refinements/proc/introspection"
 require "pakyow/support/core_refinements/string/normalization"
 
 require "pakyow/presenter/rendering/actions/render_components"
 
+require "pakyow/presenter/composers/view"
+
 module Pakyow
   module Presenter
     class Renderer
-      extend Forwardable
-      def_delegators :@presenter, :to_html
-
-      using Support::DeepDup
       using Support::DeepFreeze
 
       extend Support::ClassState
@@ -35,82 +29,62 @@ module Pakyow
       include Support::Hookable
       events :render
 
-      include Support::Pipeline
-      include Support::Pipeline::Object
+      # @api private
+      attr_reader :app, :presentables, :presenter
 
-      # TODO: refactor presenter_path, component_class out?
-      #
-      def initialize(app:, presentables:, view_path:, presenter_class:, component_path: nil, mode: :default)
-        @app, @presentables, @view_path, @presenter_class, @component_path, @mode = app, presentables, view_path, presenter_class, component_path, mode
-        @presenter = build_presenter(app, presentables, view_path, presenter_class, component_path, mode)
+      def initialize(app:, presentables:, presenter_class:, composer:, mode: :default)
+        @app, @presentables, @presenter_class, @composer, @mode = app, presentables, presenter_class, composer, mode
+        initialize_presenter
       end
 
-      # TODO: refactor presenter_path, component_class out?
-      #
+      def perform(output = String.new)
+        performing :render do
+          @presenter.to_html(output)
+        end
+      end
+
       def marshal_dump
         {
-          app: @app.config.name,
-          view_path: @view_path,
+          app: @app,
+          presentables: @presentables.reject { |_, value|
+            # Filter out the component connection that we expose for component rendering.
+            #
+            value.is_a?(@app.isolated(:Connection))
+          },
           presenter_class: @presenter_class,
-          component_path: @component_path,
+          composer: @composer,
           mode: @mode
         }
       end
 
       def marshal_load(state)
-        # TODO
+        deserialize(state)
+        initialize_presenter
       end
 
       private
 
-      def dispatch
-        performing :render do
-          @presenter.call
+      def deserialize(state)
+        state.each do |key, value|
+          instance_variable_set(:"@#{key}", value)
         end
       end
 
-      # TODO: refactor presenter_path, component_class out? even need this method?
-      #
-      def build_presenter(app, presentables, view_path, presenter_class, component_path, mode)
-        presenter_class.new(
-          find_or_build_presenter_view(app, view_path, presenter_class, component_path, mode),
-          presentables: presentables,
-          app: app
+      def initialize_presenter
+        @presenter = @presenter_class.new(
+          find_or_build_presenter_view(@app, @composer, @presenter_class, @mode),
+          presentables: @presentables, app: @app
         )
       end
 
-      UNRETAINED_SIGNIFICANCE = %i(container partial template).freeze
-
-      def find_or_build_presenter_view(app, view_path, presenter_class, component_path, mode)
-        presenter_view_key = [view_path, presenter_class, component_path, mode]
+      def find_or_build_presenter_view(app, composer, presenter, mode)
+        presenter_view_key = [composer.key, presenter, mode]
 
         unless presenter_view = self.class.__presenter_views[presenter_view_key]
-          unless info = app.find_view_info(view_path)
-            error = UnknownPage.new("No view at path `#{view_path}'")
-            error.context = view_path
-            raise error
-          end
+          presenter_view = composer.view(app: app)
 
-          info = info.deep_dup
-          presenter_view = info[:layout].build(info[:page]).tap { |view|
-            view.mixin(info[:partials])
-          }
-
-          # We collapse built views down to significance that is considered "renderable". This is
-          # mostly an optimization, since it lets us collapse some nodes into single strings and
-          # reduce the number of operations needed for a render.
-          #
-          presenter_view.object.collapse(
-            *(StringDoc.significant_types.keys - UNRETAINED_SIGNIFICANCE)
-          )
-
-          # Empty nodes are removed as another render-time optimization leading to fewer operations.
-          #
-          presenter_view.object.remove_empty_nodes
-
-          self.class.build!(presenter_view, app: app, mode: mode, view_path: view_path)
-
-          presenter_class.attach(presenter_view)
+          self.class.build!(presenter_view, app: app, mode: mode, composer: composer)
+          presenter.attach(presenter_view)
           presenter_view.deep_freeze
 
           self.class.__presenter_views[presenter_view_key] = presenter_view
@@ -136,29 +110,31 @@ module Pakyow
             view_path
           end
 
-          presenter_class = find_presenter(connection.app, presenter_path)
+          presenter = find_presenter(connection.app, presenter_path)
 
           expose!(connection)
 
           renderer = new(
             app: connection.app,
             presentables: connection.values,
-            view_path: view_path,
-            presenter_class: presenter_class,
+            presenter_class: presenter,
+            composer: Composers::View.new(view_path),
             mode: mode
           )
 
           connection.set_header("content-type", "text/html")
-          connection.stream { renderer.to_html(connection.body) }
+
+          connection.stream do
+            renderer.perform(connection.body)
+          end
+
           connection.rendered
         end
 
-        # TODO: rename to `render_implicitly`
-        #
-        def perform(connection)
+        def render_implicitly(connection)
           view_path = connection.get(:__endpoint_path) || connection.path
 
-          if implicitly_render?(connection)
+          if render_implicitly?(connection)
             begin
               catch :halt do
                 render(connection, view_path: view_path)
@@ -177,7 +153,7 @@ module Pakyow
           end
         end
 
-        def build!(view, app:, mode:, view_path:)
+        def build!(view, app:, mode:, composer:)
           @__build_fns.each do |fn|
             options = {}
 
@@ -189,8 +165,8 @@ module Pakyow
               options[:mode] = mode
             end
 
-            if fn.keyword_argument?(:view_path)
-              options[:view_path] = view_path
+            if fn.keyword_argument?(:composer)
+              options[:composer] = composer
             end
 
             fn.call(view, **options)
@@ -215,6 +191,21 @@ module Pakyow
           end
         end
 
+        def find_presenter(app, path)
+          path = String.normalize_path(path)
+          unless presenter = @__presenters_by_path[path]
+            presenter = if path.nil? || Pakyow.env?(:prototype)
+              app.isolated(:Presenter)
+            else
+              find_presenter_for_path(app, path)
+            end
+
+            @__presenters_by_path[path] = presenter
+          end
+
+          presenter
+        end
+
         private
 
         def build(&block)
@@ -231,25 +222,9 @@ module Pakyow
 
         IMPLICIT_HTTP_METHODS = %i(get head).freeze
 
-        # TODO: rename to `render_implicitly?`
-        #
-        def implicitly_render?(connection)
+        def render_implicitly?(connection)
           IMPLICIT_HTTP_METHODS.include?(connection.method) && connection.format == :html &&
             (Pakyow.env?(:prototype) || ((!connection.halted?) && !connection.rendered?))
-        end
-
-        def find_presenter(app, path)
-          unless presenter = @__presenters_by_path[path]
-            presenter = if path.nil? || Pakyow.env?(:prototype)
-              app.isolated(:Presenter)
-            else
-              find_presenter_for_path(app, path)
-            end
-
-            @__presenters_by_path[path] = presenter
-          end
-
-          presenter
         end
 
         def find_presenter_for_path(app, path)

@@ -10,14 +10,12 @@ module Pakyow
         def setup
           if endpoint_method == :delete
             setup_endpoint_for_removal(
-              name: view.object.label(:endpoint),
               path: endpoint_path
             )
           else
             setup_endpoint(
-              name: view.object.label(:endpoint),
-              method: endpoint_method,
-              path: endpoint_path
+              path: endpoint_path,
+              method: endpoint_method
             )
           end
         end
@@ -26,6 +24,16 @@ module Pakyow
         #
         def pp(*args)
           Kernel.pp(*args)
+        end
+
+        # Delegate private methods.
+        #
+        def method_missing(method_name, *args, &block)
+          __getobj__.send(method_name, *args, &block)
+        end
+
+        def respond_to_missing?(method_name, include_private = false)
+          super || __getobj__.respond_to?(method_name, true)
         end
 
         private
@@ -57,27 +65,20 @@ module Pakyow
           end
         end
 
-        def find_endpoint_action_node(endpoint_node)
-          endpoint_node.find_first_significant_node_without_descending(
-            :endpoint_action
-          ) || endpoint_node
-        end
-
-        def setup_endpoint(name:, method:, path:)
-          endpoint_action_view = View.from_object(find_endpoint_action_node(view.object))
-
-          case endpoint_action_view.object.tagname
+        def setup_endpoint(path:, method:)
+          endpoint_action_presenter = endpoint_action
+          case endpoint_action_presenter.object.tagname
           when "a"
             if path && !Pakyow.env?(:prototype)
-              endpoint_action_view.attributes[:href] = path
+              endpoint_action_presenter.attributes[:href] = path
             end
 
-            if endpoint_action_view.attributes.has?(:href)
+            if endpoint_action_presenter.attributes.has?(:href)
               endpoint_path = __endpoint[:path].to_s
-              if endpoint_path == endpoint_action_view.attributes[:href]
-                view.attributes[:class].add(:current)
-              elsif endpoint_path.start_with?(endpoint_action_view.attributes[:href])
-                view.attributes[:class].add(:active)
+              if endpoint_path == endpoint_action_presenter.attributes[:href]
+                attributes[:class].add(:current)
+              elsif endpoint_path.start_with?(endpoint_action_presenter.attributes[:href])
+                attributes[:class].add(:active)
               end
             end
           when "form"
@@ -87,23 +88,64 @@ module Pakyow
           end
         end
 
-        def setup_endpoint_for_removal(name:, path:)
-          if view.object.tagname == "form"
-            form_presenter = Form.new(__getobj__)
+        def setup_endpoint_for_removal(path:)
+          if object.tagname == "form"
+            form_presenter = presenter_for(__getobj__, type: Form)
             form_presenter.action = path
             form_presenter.method = :delete
-            view.object.attributes[:"data-ui"] = "confirmable"
+            attributes[:"data-ui"] = "confirmable"
           else
-            view.replace(
+            replace(
               View.new(
                 <<~HTML
                   <form action="#{path}" method="post" data-ui="confirmable">
                     <input type="hidden" name="_method" value="delete">
-                    #{view.object}
+                    #{view.object.render}
                   </form>
                 HTML
               )
             )
+          end
+        end
+
+        class << self
+          # Recursively attach to binding endpoints.
+          #
+          # @api private
+          def attach_to_node(node, renders, binding_path: [], channel: nil)
+            node.each_significant_node(:binding) do |binding_node|
+              next_binding_path = binding_path.dup
+              if binding_node.significant?(:binding_within)
+                next_binding_path << binding_node.label(:binding)
+              end
+
+              current_binding_path = binding_path.dup
+              current_binding_path << binding_node.label(:binding)
+
+              if binding_node.significant?(:endpoint)
+                renders << {
+                  binding_path: current_binding_path,
+                  channel: channel,
+                  priority: :low,
+                  block: Proc.new {
+                    setup
+                  }
+                }
+              else
+                binding_node.find_significant_nodes(:endpoint).each do |endpoint_node|
+                  renders << {
+                    binding_path: current_binding_path,
+                    channel: channel,
+                    priority: :low,
+                    block: Proc.new {
+                      endpoint(endpoint_node.label(:endpoint))&.setup
+                    }
+                  }
+                end
+              end
+
+              attach_to_node(binding_node, renders, binding_path: next_binding_path, channel: channel)
+            end
           end
         end
       end

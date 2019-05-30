@@ -47,15 +47,9 @@ module Pakyow
       end
 
       def self.binding_within?(node)
-        node.children.each do |child|
-          if BindingNode.significant?(child)
-            return true
-          else
-            binding_within?(child)
-          end
-        end
-
-        false
+        node.children.any? { |child|
+          BindingNode.significant?(child) || binding_within?(child)
+        }
       end
     end
 
@@ -114,7 +108,7 @@ module Pakyow
 
     # @api private
     class BindingNode < SignificantNode
-      StringDoc.significant :binding, self
+      StringDoc.significant :binding, self, descend: false
 
       def self.significant?(node)
         node.is_a?(Oga::XML::Element) && node.attribute(:binding) && node.name != FORM_TAG

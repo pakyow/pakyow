@@ -26,7 +26,7 @@ RSpec.describe "StringDoc transforms" do
 
   context "transforms the passed node" do
     before do
-      doc.find_significant_nodes_with_name(:binding, :title)[0].transform do |node|
+      doc.find_significant_nodes_with_name(:binding, :post)[0].find_significant_nodes_with_name(:binding, :title)[0].transform do |node|
         node.html = "hello"; node
       end
 
@@ -34,7 +34,7 @@ RSpec.describe "StringDoc transforms" do
     end
 
     it "transforms on render" do
-      expect(@renderable.to_s).to eq_sans_whitespace(
+      expect(@renderable.render).to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
           <html lang="en">
@@ -59,7 +59,7 @@ RSpec.describe "StringDoc transforms" do
     end
 
     it "renders" do
-      expect(@renderable.to_s).to eq_sans_whitespace(
+      expect(@renderable.render).to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
           <html lang="en">
@@ -80,7 +80,7 @@ RSpec.describe "StringDoc transforms" do
 
   context "transform returns nil" do
     before do
-      doc.find_significant_nodes_with_name(:binding, :title)[0].transform do
+      doc.find_significant_nodes_with_name(:binding, :post)[0].find_significant_nodes_with_name(:binding, :title)[0].transform do
         nil
       end
 
@@ -88,7 +88,7 @@ RSpec.describe "StringDoc transforms" do
     end
 
     it "removes the node" do
-      expect(@renderable.to_s).to eq_sans_whitespace(
+      expect(@renderable.render).to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
           <html lang="en">
@@ -107,7 +107,7 @@ RSpec.describe "StringDoc transforms" do
 
   context "transform returns string" do
     before do
-      doc.find_significant_nodes_with_name(:binding, :title)[0].transform do
+      doc.find_significant_nodes_with_name(:binding, :post)[0].find_significant_nodes_with_name(:binding, :title)[0].transform do
         "hello"
       end
 
@@ -115,7 +115,7 @@ RSpec.describe "StringDoc transforms" do
     end
 
     it "renders the string in place of the node" do
-      expect(@renderable.to_s).to eq_sans_whitespace(
+      expect(@renderable.render).to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
           <html lang="en">
@@ -136,7 +136,7 @@ RSpec.describe "StringDoc transforms" do
 
   context "transform returns node" do
     before do
-      doc.find_significant_nodes_with_name(:binding, :title)[0].transform do
+      doc.find_significant_nodes_with_name(:binding, :post)[0].find_significant_nodes_with_name(:binding, :title)[0].transform do
         StringDoc::Node.new("hello")
       end
 
@@ -144,7 +144,7 @@ RSpec.describe "StringDoc transforms" do
     end
 
     it "renders the node" do
-      expect(@renderable.to_s).to eq_sans_whitespace(
+      expect(@renderable.render).to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
           <html lang="en">
@@ -165,7 +165,7 @@ RSpec.describe "StringDoc transforms" do
 
   context "transform returns doc" do
     before do
-      doc.find_significant_nodes_with_name(:binding, :title)[0].transform do
+      doc.find_significant_nodes_with_name(:binding, :post)[0].find_significant_nodes_with_name(:binding, :title)[0].transform do
         StringDoc.new("hello")
       end
 
@@ -173,7 +173,7 @@ RSpec.describe "StringDoc transforms" do
     end
 
     it "renders the doc" do
-      expect(@renderable.to_s).to eq_sans_whitespace(
+      expect(@renderable.render).to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
           <html lang="en">
@@ -194,7 +194,7 @@ RSpec.describe "StringDoc transforms" do
 
   context "multiple transforms for different nodes" do
     before do
-      doc.find_significant_nodes_with_name(:binding, :title)[0].transform do
+      doc.find_significant_nodes_with_name(:binding, :post)[0].find_significant_nodes_with_name(:binding, :title)[0].transform do
         "hello"
       end
 
@@ -206,7 +206,7 @@ RSpec.describe "StringDoc transforms" do
     end
 
     it "transforms on render" do
-      expect(@renderable.to_s).to eq_sans_whitespace(
+      expect(@renderable.render).to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
           <html lang="en">
@@ -228,11 +228,11 @@ RSpec.describe "StringDoc transforms" do
   context "multiple transforms on the same node" do
     context "transforms all return nodes" do
       before do
-        doc.find_significant_nodes_with_name(:binding, :title)[0].transform do |node|
+        doc.find_significant_nodes_with_name(:binding, :post)[0].find_significant_nodes_with_name(:binding, :title)[0].transform do |node|
           node.html = "hello"; node
         end
 
-        doc.find_significant_nodes_with_name(:binding, :title)[0].transform do |node|
+        doc.find_significant_nodes_with_name(:binding, :post)[0].find_significant_nodes_with_name(:binding, :title)[0].transform do |node|
           node.attributes[:class] = "foo"; node
         end
 
@@ -240,7 +240,7 @@ RSpec.describe "StringDoc transforms" do
       end
 
       it "transforms on render" do
-        expect(@renderable.to_s).to eq_sans_whitespace(
+        expect(@renderable.render).to eq_sans_whitespace(
           <<~HTML
             <!DOCTYPE html>
             <html lang="en">
@@ -261,11 +261,11 @@ RSpec.describe "StringDoc transforms" do
 
     context "transformation returns nil" do
       before do
-        doc.find_significant_nodes_with_name(:binding, :title)[0].transform do
+        doc.find_significant_nodes_with_name(:binding, :post)[0].find_significant_nodes_with_name(:binding, :title)[0].transform do
           nil
         end
 
-        doc.find_significant_nodes_with_name(:binding, :title)[0].transform do |node|
+        doc.find_significant_nodes_with_name(:binding, :post)[0].find_significant_nodes_with_name(:binding, :title)[0].transform do |node|
           node.html = "hello"; node
         end
 
@@ -273,7 +273,7 @@ RSpec.describe "StringDoc transforms" do
       end
 
       it "removes the node without applying future transforms" do
-        expect(@renderable.to_s).to eq_sans_whitespace(
+        expect(@renderable.render).to eq_sans_whitespace(
           <<~HTML
             <!DOCTYPE html>
             <html lang="en">
@@ -293,11 +293,11 @@ RSpec.describe "StringDoc transforms" do
 
     context "transformation returns string" do
       before do
-        doc.find_significant_nodes_with_name(:binding, :title)[0].transform do
+        doc.find_significant_nodes_with_name(:binding, :post)[0].find_significant_nodes_with_name(:binding, :title)[0].transform do
           "hello"
         end
 
-        doc.find_significant_nodes_with_name(:binding, :title)[0].transform do |node|
+        doc.find_significant_nodes_with_name(:binding, :post)[0].find_significant_nodes_with_name(:binding, :title)[0].transform do |node|
           node.html = "hello"; node
         end
 
@@ -305,7 +305,7 @@ RSpec.describe "StringDoc transforms" do
       end
 
       it "replaces the node without applying future transforms" do
-        expect(@renderable.to_s).to eq_sans_whitespace(
+        expect(@renderable.render).to eq_sans_whitespace(
           <<~HTML
             <!DOCTYPE html>
             <html lang="en">
@@ -326,11 +326,11 @@ RSpec.describe "StringDoc transforms" do
 
     describe "transform priority" do
       before do
-        doc.find_significant_nodes_with_name(:binding, :title)[0].transform do
+        doc.find_significant_nodes_with_name(:binding, :post)[0].find_significant_nodes_with_name(:binding, :title)[0].transform do
           "hello"
         end
 
-        doc.find_significant_nodes_with_name(:binding, :title)[0].transform priority: :high do
+        doc.find_significant_nodes_with_name(:binding, :post)[0].find_significant_nodes_with_name(:binding, :title)[0].transform priority: :high do
           nil
         end
 
@@ -338,7 +338,7 @@ RSpec.describe "StringDoc transforms" do
       end
 
       it "applies transforms in order of priority" do
-        expect(@renderable.to_s).to eq_sans_whitespace(
+        expect(@renderable.render).to eq_sans_whitespace(
           <<~HTML
             <!DOCTYPE html>
             <html lang="en">
@@ -363,7 +363,7 @@ RSpec.describe "StringDoc transforms" do
         node.attributes[:class] = "foo"; node
       end
 
-      doc.find_significant_nodes_with_name(:binding, :title)[0].transform do |node|
+      doc.find_significant_nodes_with_name(:binding, :post)[0].find_significant_nodes_with_name(:binding, :title)[0].transform do |node|
         node.html = "hello"; node
       end
 
@@ -371,7 +371,7 @@ RSpec.describe "StringDoc transforms" do
     end
 
     it "transforms on render" do
-      expect(@renderable.to_s).to eq_sans_whitespace(
+      expect(@renderable.render).to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
           <html lang="en">
@@ -431,7 +431,7 @@ RSpec.describe "StringDoc transforms" do
       end
 
       it "transforms on render" do
-        expect(@renderable.to_s).to eq_sans_whitespace(
+        expect(@renderable.render).to eq_sans_whitespace(
           <<~HTML
             <!DOCTYPE html>
             <html lang="en">
@@ -466,7 +466,7 @@ RSpec.describe "StringDoc transforms" do
       end
 
       it "transforms on render" do
-        expect(@renderable.to_s).to eq_sans_whitespace(
+        expect(@renderable.render).to eq_sans_whitespace(
           <<~HTML
             <!DOCTYPE html>
             <html lang="en">
@@ -497,7 +497,7 @@ RSpec.describe "StringDoc transforms" do
       end
 
       it "transforms on render" do
-        expect(@renderable.to_s).to eq_sans_whitespace(
+        expect(@renderable.render).to eq_sans_whitespace(
           <<~HTML
             <!DOCTYPE html>
             <html lang="en">
@@ -530,7 +530,7 @@ RSpec.describe "StringDoc transforms" do
       end
 
       it "transforms on render" do
-        expect(@renderable.to_s).to eq_sans_whitespace(
+        expect(@renderable.render).to eq_sans_whitespace(
           <<~HTML
             <!DOCTYPE html>
             <html lang="en">
@@ -567,7 +567,7 @@ RSpec.describe "StringDoc transforms" do
       end
 
       it "transforms on render" do
-        expect(@renderable.to_s).to eq_sans_whitespace(
+        expect(@renderable.render).to eq_sans_whitespace(
           <<~HTML
             <!DOCTYPE html>
             <html lang="en">
@@ -596,7 +596,7 @@ RSpec.describe "StringDoc transforms" do
   describe "passing runtime context to a render" do
     before do
       local = self
-      doc.find_significant_nodes_with_name(:binding, :title)[0].transform do |node, context|
+      doc.find_significant_nodes_with_name(:binding, :post)[0].find_significant_nodes_with_name(:binding, :title)[0].transform do |node, context|
         local.instance_variable_set(:@context, context)
       end
 
@@ -609,7 +609,7 @@ RSpec.describe "StringDoc transforms" do
 
     it "passes" do
       expect {
-        @renderable.to_s(context: :test)
+        @renderable.render(context: :test)
       }.to change {
         @context
       }.from(nil).to(:test)

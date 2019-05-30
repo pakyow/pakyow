@@ -105,7 +105,6 @@ module Pakyow
             self.class.include_helpers :global, isolated(:Binder)
             self.class.include_helpers :global, isolated(:Presenter)
             self.class.include_helpers :active, isolated(:Component)
-            self.class.include_helpers :passive, isolated(:Renderer)
           end
 
           # Let each renderer action attach renders to the app's presenter.
@@ -114,12 +113,8 @@ module Pakyow
             [isolated(:Presenter)].concat(
               state(:presenter)
             ).concat(
-              state(:component).map { |component|
-                component.__presenter_class
-              }.reject { |presenter|
-                presenter == isolated(:Presenter)
-              }
-            ).each do |presenter|
+              state(:component).map(&:__presenter_class)
+            ).uniq.each do |presenter|
               isolated(:Renderer).attach!(presenter, app: self)
             end
           end

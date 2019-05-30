@@ -15,7 +15,7 @@ module Pakyow
               # for the prototype to be complete, showing everything to the designer.
               #
               presenter.render node: -> {
-                object.find_significant_nodes(:binding).map { |node|
+                object.find_significant_nodes(:binding, descend: true).map { |node|
                   View.from_object(node)
                 }
               }, priority: :low do
@@ -31,13 +31,15 @@ module Pakyow
             # Remove unused versions.
             #
             presenter.render node: -> {
-              object.each.select { |node|
+              object.each(descend: true).select { |node|
                 (node.is_a?(StringDoc::Node) && node.significant? && node.labeled?(:version)) && node.label(:version) != VersionedView::DEFAULT_VERSION
               }.map { |node|
                 View.from_object(node)
               }
             }, priority: :low do
-              unless view.object.labeled?(:used) || view.object.labeled?(:failed)
+              # Check for a version again, since it may have been removed during presentation.
+              #
+              if view.object.labeled?(:version) && view.object.label(:version) != VersionedView::DEFAULT_VERSION
                 remove
               end
             end

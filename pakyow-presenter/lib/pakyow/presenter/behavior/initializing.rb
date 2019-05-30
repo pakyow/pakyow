@@ -25,9 +25,7 @@ module Pakyow
 
               # Load plugin frontend after the app so that app has priority.
               #
-              @plugs.each do |plug|
-                plug.load_frontend
-              end
+              @plugs.each(&:load_frontend)
             end
           end
         end

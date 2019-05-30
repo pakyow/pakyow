@@ -2,6 +2,8 @@
 
 require "pakyow/support/extension"
 
+require "pakyow/presenter/composers/component"
+
 module Pakyow
   module Presenter
     module Actions
@@ -9,7 +11,20 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          build do |view, app:, view_path:, mode:|
+          build do |view, app:, composer:, mode:|
+            unless Pakyow.env?(:prototype)
+              initial_path = case composer
+              when Composers::Component
+                composer.component_path
+              else
+                []
+              end
+
+              RenderComponents.initialize_renderable_components(
+                view, app: app, composer: composer, mode: mode, path: initial_path
+              )
+            end
+
             if app.config.presenter.componentize
               view.object.each_significant_node(:form) do |form|
                 form.instance_variable_get(:@significance) << :component
@@ -22,12 +37,6 @@ module Pakyow
                 html.attributes[:"data-ui"] = :navigable
                 html.set_label(:component, :navigable)
               end
-            end
-
-            unless Pakyow.env?(:prototype)
-              RenderComponents.initialize_renderable_components(
-                view, app: app, view_path: view_path, mode: mode
-              )
             end
           end
 
@@ -47,15 +56,14 @@ module Pakyow
         end
 
         # @api private
-        def self.initialize_renderable_components(view, app:, view_path:, mode:)
-          view.components.each do |component_view|
-            initialize_renderable_components(
-              component_view, app: app, view_path: view_path, mode: mode
-            )
+        def self.initialize_renderable_components(view, app:, composer:, mode:, path: [])
+          view.components.each_with_index do |component_view, i|
+            current_path = path.dup
+            current_path << i
 
             # If view will be rendered from the app, look for the component on the app.
             #
-            component_state = if app.is_a?(Plugin) && app.app.view?(view_path)
+            component_state = if app.is_a?(Plugin) && app.app.view?(composer.view_path)
               app.app.state(:component)
             else
               app.state(:component)
@@ -66,21 +74,20 @@ module Pakyow
             }
 
             if component_class
+              # Turn the component into a renderable component. Once an instance is attached on the
+              # backend, the component will not be traversed by renders from its parent instead being
+              # rendered by its own renderer instance.
+              #
+              # We don't want the same restriction for non-renderable components because a change to
+              # the view should not affect how things work on the backend.
+              #
               component_view.object.instance_variable_get(:@significance) << :renderable_component
               component_view.object.set_label(:descend, false)
 
-              # component_view.object.set_label(:component_metadata, {
-              #   # view_path: view_path,
-              #   # # TODO: build up the component path (in context of all components not just renderable)
-              #   # path: []
-              # })
-
-              working_component_view = component_view.dup
-              component_class.__presenter_class.attach(working_component_view)
-              component_doc = StringDoc.from_nodes([working_component_view.object])
-
-              component_render = component_class.__presenter_class.send(:render_proc, component_view) do |string|
-                presentable_component_connection = @presentables[:__component_connection]
+              # Define the render function that calls the component and renders it at render time.
+              #
+              component_render = component_class.__presenter_class.send(:render_proc, component_view) { |_node, _context, string|
+                presentable_component_connection = presentables[:__component_connection]
                 component_connection = presentable_component_connection.dup
                 component_connection.set(:__component_connection, presentable_component_connection)
 
@@ -98,24 +105,34 @@ module Pakyow
                 #
                 component_instance.perform
 
-                # Create a component presenter with the component connection.
+                # Setup the renderer for the component.
                 #
-                component_presenter = component_instance.class.__presenter_class.new(
-                  working_component_view, app: @app, presentables: component_connection.values
+                renderer = app.isolated(:Renderer).new(
+                  app: app,
+                  presentables: component_connection.values,
+                  presenter_class: component_instance.class.__presenter_class,
+                  composer: Composers::Component.new(composer.view_path, current_path),
+                  mode: mode
                 )
 
                 # Render to the main buffer.
                 #
-                component_doc.to_html(string, context: component_presenter)
+                renderer.perform(string)
 
                 # Return nil so nothing else gets written.
                 #
                 nil
-              end
+              }
 
+              # Attach the above render function to the render node.
+              #
               component_view.object.transform do |node, context, string|
                 component_render.call(node, context, string); nil
               end
+            else
+              initialize_renderable_components(
+                component_view, app: app, composer: composer, mode: mode, path: current_path
+              )
             end
           end
         end

@@ -83,6 +83,46 @@ RSpec.describe "view versioning via presenter" do
         expect(call("/presentation/versioning/multiple-without-default")[2]).to_not include("data-v")
       end
     end
+
+    context "when there are multiple versioned props, including a default" do
+      it "renders only the default" do
+        expect(call("/presentation/versioning/props/multiple-with-default")[2]).to include_sans_whitespace(
+          <<~HTML
+            <div data-b="post">
+              <h1 data-b="title" data-v="default">default</h1>
+            </div>
+          HTML
+        )
+
+        expect(call("/presentation/versioning/props/multiple-with-default")[2]).to_not include("data-v=\"one\"")
+      end
+
+      context "view is presented" do
+        let :mode do
+          :development
+        end
+
+        let :app_def do
+          Proc.new do
+            presenter "/presentation/versioning/props/multiple-with-default" do
+              render do
+                find(:post).present([{ title: "one" }])
+              end
+            end
+          end
+        end
+
+        it "renders only the default" do
+          expect(call("/presentation/versioning/props/multiple-with-default")[2]).to include_sans_whitespace(
+            <<~HTML
+              <div data-b="post">
+                <h1 data-b="title" data-v="default">one</h1>
+              </div>
+            HTML
+          )
+        end
+      end
+    end
   end
 
   context "when a version is used" do

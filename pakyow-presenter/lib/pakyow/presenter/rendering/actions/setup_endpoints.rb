@@ -12,7 +12,7 @@ module Pakyow
 
         apply_extension do
           build do |view, app:|
-            view.object.find_significant_nodes(:endpoint).each do |node|
+            view.object.find_significant_nodes(:endpoint, descend: true).each do |node|
               if endpoint = app.endpoints.find(name: node.label(:endpoint))
                 node.set_label(:endpoint_object, endpoint)
                 node.set_label(:endpoint_params, {})
@@ -23,13 +23,15 @@ module Pakyow
           attach do |presenter|
             if Pakyow.env?(:prototype)
               presenter.render node: -> {
-                object.find_significant_nodes(:endpoint).map { |node|
+                object.find_significant_nodes(:endpoint, descend: true).map { |node|
                   View.from_object(node)
                 }
               }, priority: :low do
                 setup
               end
             else
+              # Setup non-binding endpoints (binding endpoints are setup dynamically in presenter).
+              #
               presenter.render node: -> {
                 object.find_significant_nodes(:endpoint).select { |node|
                   node.labeled?(:endpoint_object) && node.tagname != "form"

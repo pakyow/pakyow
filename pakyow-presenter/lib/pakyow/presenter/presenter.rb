@@ -13,6 +13,8 @@ require "pakyow/support/string_builder"
 
 require "pakyow/presenter/presentable"
 
+require "pakyow/presenter/presenters/endpoint"
+
 module Pakyow
   module Presenter
     # Presents a view object with dynamic state in context of an app instance. In normal usage you
@@ -195,6 +197,7 @@ module Pakyow
             @view.bind(data)
           end
 
+          set_binding_info(data)
           set_endpoint_params(data)
         end
       end
@@ -218,6 +221,7 @@ module Pakyow
               plural_binding_node_name = Support.inflector.pluralize(binding_node.label(:binding)).to_sym
 
               nested_view = presenter.find(binding_node.label(:binding))
+
               if binder.object.include?(binding_node.label(:binding))
                 nested_view.present(binder.object[binding_node.label(:binding)])
               elsif binder.object.include?(plural_binding_node_name)
@@ -338,6 +342,26 @@ module Pakyow
         end
       end
 
+      # @api private
+      def endpoint(name)
+        object.each_significant_node(:endpoint) do |endpoint_node|
+          if endpoint_node.label(:endpoint) == name.to_sym
+            return presenter_for(View.from_object(endpoint_node))
+          end
+        end
+
+        nil
+      end
+
+      # @api private
+      def endpoint_action
+        endpoint_action_node = object.find_first_significant_node(
+          :endpoint_action
+        ) || object
+
+        presenter_for(View.from_object(endpoint_action_node))
+      end
+
       private
 
       def binder_for_current_scope
@@ -373,6 +397,34 @@ module Pakyow
         end
       end
 
+      def set_binding_info(data)
+        object = if data.is_a?(Binder)
+          data.object
+        else
+          data
+        end
+
+        if object && @view.object.labeled?(:binding)
+          binding_info = {
+            @view.object.label(:binding) => object[:id]
+          }
+
+          set_binding_info_for_node(@view.object, binding_info)
+
+          @view.object.each_significant_node(:binding, descend: true) do |binding_node|
+            set_binding_info_for_node(binding_node, binding_info)
+          end
+        end
+      end
+
+      def set_binding_info_for_node(node, info)
+        unless node.labeled?(:binding_info)
+          node.set_label(:binding_info, {})
+        end
+
+        node.label(:binding_info).merge!(info)
+      end
+
       def set_endpoint_params(data)
         object = if data.is_a?(Binder)
           data.object
@@ -384,7 +436,7 @@ module Pakyow
           set_endpoint_params_for_node(@view.object, object)
         end
 
-        @view.object.each_significant_node(:endpoint) do |endpoint_node|
+        @view.object.each_significant_node(:endpoint, descend: true) do |endpoint_node|
           set_endpoint_params_for_node(endpoint_node, object)
         end
       end
@@ -397,13 +449,13 @@ module Pakyow
           endpoint_object.params.each do |param|
             if param.to_s.end_with?("_id")
               type = param.to_s.split("_id")[0].to_sym
-              if type == @view.label(:binding) && object.key?(:id)
+              if type == @view.label(:binding) && object.include?(:id)
                 endpoint_params[param] = object[:id]
                 next
               end
             end
 
-            if object.key?(param)
+            if object.include?(param)
               endpoint_params[param] = object[param]
             end
           end
@@ -422,17 +474,17 @@ module Pakyow
 
         # Defines a render to attach to a node.
         #
-        def render(binding_name = nil, channel: nil, node: nil, priority: :default, &block)
+        def render(*binding_path, channel: nil, node: nil, priority: :default, &block)
           if node && !node.is_a?(Proc)
             raise ArgumentError, "Expected `#{node.class}' to be a proc"
           end
 
-          if binding_name.nil? && node.nil?
+          if binding_path.empty? && node.nil?
             node = -> { self }
           end
 
           @__attached_renders << {
-            binding_name: binding_name,
+            binding_path: binding_path,
             channel: channel,
             node: node,
             priority: priority,
@@ -445,11 +497,43 @@ module Pakyow
         def attach(view)
           views_with_renders = {}
 
-          @__attached_renders.each do |render|
+          renders = @__attached_renders.dup
+
+          # Automatically present exposed values for this view. Doing this dynamically lets us
+          # optimize. The alternative is to attach a render to the entire view, which is less
+          # performant because the entire structure must be duped.
+          #
+          view.binding_scopes(descend: false).each do |binding_node|
+            renders << {
+              binding_path: [binding_node.label(:binding)],
+              channel: binding_node.label(:channel),
+              priority: :low,
+              block: Proc.new {
+                if object.labeled?(:binding) && !object.labeled?(:used)
+                  presentables.each do |key, value|
+                    key = key.to_s
+                    # FIXME: Find a more performant way to do this.
+                    #
+                    if !key.start_with?("__") && (key.start_with?(plural_binding_name.to_s) || key.start_with?(singular_binding_name.to_s))
+                      if (key.split(":")[1..-1].map(&:to_sym) - object.label(:channel).to_a).empty?
+                        present(value); break
+                      end
+                    end
+                  end
+                end
+              }
+            }
+          end
+
+          # Setup binding endpoints in a similar way to automatic presentation above.
+          #
+          Presenters::Endpoint.attach_to_node(view.object, renders)
+
+          renders.each do |render|
             return_value = if node = render[:node]
               view.instance_exec(&node)
             else
-              view.find(render[:binding_name], channel: render[:channel])
+              view.find(*render[:binding_path], channel: render[:channel])
             end
 
             case return_value
@@ -462,7 +546,7 @@ module Pakyow
             end
           end
 
-          views_with_renders.values.each do |view_with_renders, renders|
+          views_with_renders.values.each do |view_with_renders, renders_for_view|
             attach_to_node = case view_with_renders
             when VersionedView
               StringDoc::MetaNode.new(view_with_renders.versions.map(&:object))
@@ -474,8 +558,10 @@ module Pakyow
               attach_to_node = attach_to_node.find_first_significant_node(:html)
             end
 
-            renders.each do |render|
-              attach_to_node.transform priority: render[:priority], &render_proc(view_with_renders, render, &render[:block])
+            if attach_to_node
+              renders_for_view.each do |render|
+                attach_to_node.transform priority: render[:priority], &render_proc(view_with_renders, render, &render[:block])
+              end
             end
           end
         end
@@ -495,14 +581,14 @@ module Pakyow
 
         private
 
-        def render_proc(view, render = nil, &block)
+        def render_proc(_view, _render = nil, &block)
           Proc.new do |node, context, string|
             case node
             when StringDoc::MetaNode
               if node.nodes.any?
                 returning = node
                 presenter = context.presenter_for(
-                  VersionedView.new(node.nodes.map { |n| View.from_object(n) })
+                  VersionedView.new([View.from_object(node)])
                 )
               else
                 next node
@@ -515,14 +601,14 @@ module Pakyow
               )
             end
 
-            presenter.instance_exec(string, &block); returning
+            presenter.instance_exec(node, context, string, &block); returning
           rescue => error
             Pakyow.logger.houston(error)
 
             presenter.clear
             presenter.attributes[:class] << :"render-failed"
             presenter.view.object.set_label(:failed, true)
-            presenter
+            presenter.object
           end
         end
 
@@ -534,17 +620,9 @@ module Pakyow
             View.new(value.to_s)
           end
 
+          # Group the renders by node and view type.
+          #
           (state["#{final_value.object.object_id}::#{final_value.class}"] ||= [final_value, []])[1] << render
-        end
-      end
-
-      render node: -> {
-        binding_scopes.map { |node|
-          View.from_object(node)
-        }
-      }, priority: :low do
-        if presentable = presentables[view.plural_channeled_binding_name] || presentables[view.singular_channeled_binding_name] || presentables[view.binding_name]
-          present(presentable)
         end
       end
     end

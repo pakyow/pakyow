@@ -187,6 +187,16 @@ module Pakyow
           Kernel.pp(*args)
         end
 
+        # Delegate private methods.
+        #
+        def method_missing(method_name, *args, &block)
+          __getobj__.send(method_name, *args, &block)
+        end
+
+        def respond_to_missing?(method_name, include_private = false)
+          super || __getobj__.respond_to?(method_name, true)
+        end
+
         private
 
         def setup_form_for_binding(action, object)
@@ -205,7 +215,7 @@ module Pakyow
 
         def use_binding_nodes
           view.object.set_label(:used, true)
-          view.object.children.each_significant_node(:binding) do |object|
+          view.object.children.each_significant_node(:binding, descend: true) do |object|
             object.set_label(:used, true)
           end
         end
@@ -254,9 +264,9 @@ module Pakyow
         end
 
         def find_or_create_method_override_input
-          unless input = view.object.find_first_significant_node_without_descending(:method_override)
+          unless input = view.object.find_first_significant_node(:method_override)
             prepend(method_override_input)
-            input = view.object.find_first_significant_node_without_descending(:method_override)
+            input = view.object.find_first_significant_node(:method_override)
           end
 
           input
@@ -355,7 +365,7 @@ module Pakyow
 
                 # Set the field names appropriately.
                 #
-                current.object.each_significant_node_without_descending(:field) do |field|
+                current.object.each_significant_node(:field) do |field|
                   name = "#{view.object.label(:binding)}[#{current.label(:binding)}]"
                   name = if original_values.is_a?(Array)
                     "#{name}[][#{field.label(:binding)}]"

@@ -14,7 +14,7 @@ module Pakyow
           def dispatch
             super
 
-            connection.app.isolated(:Renderer).perform(connection)
+            connection.app.isolated(:Renderer).render_implicitly(connection)
           end
         end
       end

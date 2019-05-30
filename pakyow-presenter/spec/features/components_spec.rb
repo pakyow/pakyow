@@ -1,8 +1,12 @@
 RSpec.describe "rendering with backend components" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
+      configure :test do
+        config.presenter.componentize = true
+      end
+
       component :single do
         def perform
           expose :posts, [
@@ -19,7 +23,7 @@ RSpec.describe "rendering with backend components" do
     expect(call("/components")[2]).to eq_sans_whitespace(
       <<~HTML
         <!DOCTYPE html>
-        <html>
+        <html data-ui="navigable">
           <head>
             <title>default</title>
           </head>
@@ -45,8 +49,12 @@ RSpec.describe "rendering with backend components" do
   end
 
   context "component is used multiple times" do
-    let :app_init do
+    let :app_def do
       Proc.new do
+        configure :test do
+          config.presenter.componentize = true
+        end
+
         component :multiple do
           def perform
             expose :posts, [
@@ -64,41 +72,57 @@ RSpec.describe "rendering with backend components" do
       expect(call("/components/multiple")[2]).to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
-          <html>
+          <html data-ui="navigable">
             <head>
               <title>default</title>
             </head>
 
             <body>
               <div data-ui="multiple">
-            <div data-b="post">
-              <h1 data-b="title">post 1</h1>
-            </div><div data-b="post">
-              <h1 data-b="title">post 2</h1>
-            </div><div data-b="post">
-              <h1 data-b="title">post 3</h1>
-            </div><script type="text/template" data-b="post"><div data-b="post">
-              <h1 data-b="title">
-                title goes here
-              </h1>
-            </div></script>
-          </div>
+                <div data-b="post">
+                  <h1 data-b="title">post 1</h1>
+                </div>
 
-          <div data-ui="multiple">
-            more posts:
-            <div data-b="post">
-              <h1 data-b="title">post 4</h1>
-            </div><div data-b="post">
-              <h1 data-b="title">post 5</h1>
-            </div><div data-b="post">
-              <h1 data-b="title">post 6</h1>
-            </div><script type="text/template" data-b="post"><div data-b="post">
-              <h1 data-b="title">
-                title goes here
-              </h1>
-            </div></script>
-          </div>
+                <div data-b="post">
+                  <h1 data-b="title">post 2</h1>
+                </div>
 
+                <div data-b="post">
+                  <h1 data-b="title">post 3</h1>
+                </div>
+
+                <script type="text/template" data-b="post">
+                  <div data-b="post">
+                    <h1 data-b="title">
+                      title goes here
+                    </h1>
+                  </div>
+                </script>
+              </div>
+
+              <div data-ui="multiple">
+                more posts:
+
+                <div data-b="post">
+                  <h1 data-b="title">post 4</h1>
+                </div>
+
+                <div data-b="post">
+                  <h1 data-b="title">post 5</h1>
+                </div>
+
+                <div data-b="post">
+                  <h1 data-b="title">post 6</h1>
+                </div>
+
+                <script type="text/template" data-b="post">
+                  <div data-b="post">
+                    <h1 data-b="title">
+                      title goes here
+                    </h1>
+                  </div>
+                </script>
+              </div>
             </body>
           </html>
         HTML
@@ -107,8 +131,12 @@ RSpec.describe "rendering with backend components" do
   end
 
   context "component is nested within another component" do
-    let :app_init do
+    let :app_def do
       Proc.new do
+        configure :test do
+          config.presenter.componentize = true
+        end
+
         component :parent do
           def perform
             expose :posts, [
@@ -132,67 +160,67 @@ RSpec.describe "rendering with backend components" do
     it "renders each component" do
       expect(call("/components/nested")[2]).to eq_sans_whitespace(
         <<~HTML
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <title>default</title>
-          </head>
+          <!DOCTYPE html>
+          <html data-ui="navigable">
+            <head>
+              <title>default</title>
+            </head>
 
-          <body>
-            <div data-ui="parent">
-              <div data-b="post">
-                <h1 data-b="title">post 1</h1>
+            <body>
+              <div data-ui="parent">
+                <div data-b="post">
+                  <h1 data-b="title">post 1</h1>
 
-                <div data-ui="child" style="color: red;">
-                  <script type="text/template" data-b="comment"><div data-b="comment">
-                    <p data-b="body">
-                      comment body here
-                    </p>
-                  </div></script>
-                </div>
-              </div><div data-b="post">
-                <h1 data-b="title">post 2</h1>
-
-                <div data-ui="child" style="color: red;">
-                  <script type="text/template" data-b="comment"><div data-b="comment">
-                    <p data-b="body">
-                      comment body here
-                    </p>
-                  </div></script>
-                </div>
-              </div><div data-b="post">
-                <h1 data-b="title">post 3</h1>
-
-                <div data-ui="child" style="color: red;">
-                  <script type="text/template" data-b="comment"><div data-b="comment">
-                    <p data-b="body">
-                      comment body here
-                    </p>
-                  </div></script>
-                </div>
-              </div><script type="text/template" data-b="post"><div data-b="post">
-                <h1 data-b="title">
-                  title goes here
-                </h1>
-
-                <div data-ui="child">
-                  <div data-b="comment">
-                    <p data-b="body">
-                      comment body here
-                    </p>
+                  <div data-ui="child" style="color: red;">
+                    <script type="text/template" data-b="comment"><div data-b="comment">
+                      <p data-b="body">
+                        comment body here
+                      </p>
+                    </div></script>
                   </div>
-                </div>
-              </div></script>
-            </div>
-          </body>
-        </html>
+                </div><div data-b="post">
+                  <h1 data-b="title">post 2</h1>
+
+                  <div data-ui="child" style="color: red;">
+                    <script type="text/template" data-b="comment"><div data-b="comment">
+                      <p data-b="body">
+                        comment body here
+                      </p>
+                    </div></script>
+                  </div>
+                </div><div data-b="post">
+                  <h1 data-b="title">post 3</h1>
+
+                  <div data-ui="child" style="color: red;">
+                    <script type="text/template" data-b="comment"><div data-b="comment">
+                      <p data-b="body">
+                        comment body here
+                      </p>
+                    </div></script>
+                  </div>
+                </div><script type="text/template" data-b="post"><div data-b="post">
+                  <h1 data-b="title">
+                    title goes here
+                  </h1>
+
+                  <div data-ui="child">
+                    <div data-b="comment">
+                      <p data-b="body">
+                        comment body here
+                      </p>
+                    </div>
+                  </div>
+                </div></script>
+              </div>
+            </body>
+          </html>
         HTML
       )
     end
   end
 
   context "main presenter removes the component" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         presenter "/components" do
           render node: -> { components }, priority: :high do
@@ -232,8 +260,12 @@ RSpec.describe "rendering with backend components" do
   end
 
   context "controller exposes a value" do
-    let :app_init do
+    let :app_def do
       Proc.new do
+        configure :test do
+          config.presenter.componentize = true
+        end
+
         controller "/components" do
           default do
             expose :posts, [
@@ -260,7 +292,7 @@ RSpec.describe "rendering with backend components" do
       expect(call("/components")[2]).to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
-          <html>
+          <html data-ui="navigable">
             <head>
               <title>default</title>
             </head>
@@ -288,8 +320,12 @@ RSpec.describe "rendering with backend components" do
   end
 
   context "controller exposes a system value" do
-    let :app_init do
+    let :app_def do
       Proc.new do
+        configure :test do
+          config.presenter.componentize = true
+        end
+
         controller "/components" do
           default do
             expose :__posts, [
@@ -312,7 +348,7 @@ RSpec.describe "rendering with backend components" do
       expect(call("/components")[2]).to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
-          <html>
+          <html data-ui="navigable">
             <head>
               <title>default</title>
             </head>
@@ -340,8 +376,12 @@ RSpec.describe "rendering with backend components" do
   end
 
   context "component defines a presenter" do
-    let :app_init do
+    let :app_def do
       Proc.new do
+        configure :test do
+          config.presenter.componentize = true
+        end
+
         component :single do
           presenter do
             render node: -> { self } do
@@ -356,7 +396,7 @@ RSpec.describe "rendering with backend components" do
       expect(call("/components")[2]).to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
-          <html>
+          <html data-ui="navigable">
             <head>
               <title>default</title>
             </head>
@@ -397,8 +437,12 @@ RSpec.describe "rendering with backend components" do
   end
 
   context "component fails to render" do
-    let :app_init do
+    let :app_def do
       Proc.new do
+        configure :test do
+          config.presenter.componentize = true
+        end
+
         component :single do
           presenter do
             render node: -> { self } do
@@ -413,7 +457,7 @@ RSpec.describe "rendering with backend components" do
       expect(call("/components")[2]).to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
-          <html>
+          <html data-ui="navigable">
             <head>
               <title>default</title>
             </head>

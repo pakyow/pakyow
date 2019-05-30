@@ -116,7 +116,7 @@ module Pakyow
 
           result = if names.empty? && !found.empty? # found everything; wrap it up
             VersionedView.new(found)
-          elsif names.count > 0 # descend further
+          elsif !found.empty? && names.count > 0 # descend further
             found.first.find(*names, channel: channel)
           else
             nil
@@ -161,7 +161,10 @@ module Pakyow
       # Returns all components.
       #
       def components(renderable: false)
-        @object.each_significant_node_without_descending(renderable ? :renderable_component : :component).map { |node|
+        @object.each_significant_node_without_descending_into_type(
+          renderable ? :renderable_component : :component,
+          descend: true
+        ).map { |node|
           View.from_object(node)
         }
       end
@@ -396,31 +399,40 @@ module Pakyow
       end
 
       # @api private
+      def binding_channel
+        label(:channel)
+      end
+
+      # @api private
+      def singular_binding_name
+        Support.inflector.singularize(binding_name).to_sym
+      end
+
+      # @api private
+      def plural_binding_name
+        Support.inflector.pluralize(binding_name).to_sym
+      end
+
+      # @api private
       def channeled_binding_name
-        [label(:binding)].concat(label(:channel)).join(":").to_sym
+        [binding_name].concat(binding_channel).join(":").to_sym
       end
 
       # @api private
       def plural_channeled_binding_name
-        [Support.inflector.pluralize(label(:binding))].concat(label(:channel).to_a).join(":").to_sym
+        [plural_binding_name].concat(binding_channel.to_a).join(":").to_sym
       end
 
       # @api private
       def singular_channeled_binding_name
-        [Support.inflector.singularize(label(:binding))].concat(label(:channel).to_a).join(":").to_sym
+        [Support.inflector.singularize(binding_name)].concat(binding_channel.to_a).join(":").to_sym
       end
 
       # @api private
       def each_binding_scope(descend: true)
         return enum_for(:each_binding_scope, descend: descend) unless block_given?
 
-        method = if descend
-          :each_significant_node
-        else
-          :each_significant_node_without_descending
-        end
-
-        @object.send(method, :binding) do |node|
+        @object.each_significant_node(:binding, descend: descend) do |node|
           if binding_scope?(node)
             yield node
           end
@@ -431,16 +443,10 @@ module Pakyow
       def each_binding_prop(descend: true)
         return enum_for(:each_binding_prop, descend: descend) unless block_given?
 
-        if @object.is_a?(StringDoc::Node) && @object.significant?(:multipart_binding)
+        if (@object.is_a?(StringDoc::Node) || @object.is_a?(StringDoc::MetaNode)) && @object.significant?(:multipart_binding)
           yield @object
         else
-          method = if descend
-            :each_significant_node
-          else
-            :each_significant_node_without_descending
-          end
-
-          @object.send(method, :binding) do |node|
+          @object.each_significant_node(:binding, descend: descend) do |node|
             if binding_prop?(node)
               yield node
             end
@@ -453,11 +459,15 @@ module Pakyow
         return enum_for(:each_binding, name) unless block_given?
 
         each_binding_scope do |node|
-          yield node if node.label(:binding) == name
+          if node.label(:binding) == name
+            yield node
+          end
         end
 
         each_binding_prop do |node|
-          yield node if node.label(:binding) == name
+          if (node.significant?(:multipart_binding) && node.label(:binding_prop) == name) || (!node.significant?(:multipart_binding) && node.label(:binding) == name)
+            yield node
+          end
         end
       end
 

@@ -14,7 +14,12 @@ module Pakyow
 
         apply_extension do
           build do |view, app:|
-            view.forms.each do |form|
+            forms = view.forms
+            if !view.object.is_a?(StringDoc) && view.object.significant?(:form)
+              forms << view
+            end
+
+            forms.each do |form|
               # Allows app renders to set metadata values on forms.
               #
               form.object.set_label(:form, {})
@@ -27,7 +32,7 @@ module Pakyow
 
               # Setup field names.
               #
-              form.object.children.each_significant_node_without_descending(:binding) do |binding_node|
+              form.object.children.each_significant_node(:binding) do |binding_node|
                 if Pakyow::Presenter::Form::FIELD_TAGS.include?(binding_node.tagname)
                   if binding_node.attributes[:name].to_s.empty?
                     binding_node.attributes[:name] = "#{form.object.label(:binding)}[#{binding_node.label(:binding)}]"
@@ -41,7 +46,7 @@ module Pakyow
 
               # Connect labels.
               #
-              form.object.children.each_significant_node_without_descending(:label) do |label_node|
+              form.object.children.each_significant_node(:label) do |label_node|
                 if label_node.attributes[:for] && input = form.find(*label_node.attributes[:for].to_s.split("."))
                   Presenters::Form.connect_input_to_label(input, label_node)
                 end
@@ -70,7 +75,14 @@ module Pakyow
           end
 
           attach do |presenter, app:|
-            presenter.render node: -> { forms } do
+            presenter.render node: -> {
+              forms = self.forms
+              if !object.is_a?(StringDoc) && object.significant?(:form)
+                forms << self
+              end
+
+              forms
+            } do
               unless setup?
                 if object = object_for_form
                   if labeled?(:endpoint)

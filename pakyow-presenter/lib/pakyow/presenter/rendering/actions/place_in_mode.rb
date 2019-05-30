@@ -9,7 +9,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          build do |view, app:, mode:|
+          build do |view, mode:|
             unless Pakyow.env?(:prototype)
               PlaceInMode.perform(view, mode)
             end
