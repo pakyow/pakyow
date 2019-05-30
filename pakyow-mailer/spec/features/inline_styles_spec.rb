@@ -24,22 +24,18 @@ RSpec.describe "inlining styles" do
       response = call("/mail/send")
       expect(response[0]).to eq(200)
 
-      doc = Oga.parse_html($sent.first.body.parts.find { |part|
+      expect($sent.first.body.parts.find { |part|
         part.content_type.to_s.include?("text/html")
-      }.body.to_s)
-
-      expect(doc.children.first[:style]).to include("color: red; font-weight: bold")
+      }.body.to_s).to include("color: red; font-weight: bold;")
     end
 
     it "does not overwrite existing style value" do
       response = call("/mail/send")
       expect(response[0]).to eq(200)
 
-      doc = Oga.parse_html($sent.first.body.parts.find { |part|
+      expect($sent.first.body.parts.find { |part|
         part.content_type.to_s.include?("text/html")
-      }.body.to_s)
-
-      expect(doc.children.first[:style]).to include("font-style: italic")
+      }.body.to_s).to include("font-style: italic")
     end
   end
 end
