@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "pakyow/support/deep_freeze"
 require "pakyow/support/extension"
 
 require "pakyow/realtime/server"
@@ -11,6 +12,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
+          extend Support::DeepFreeze
           unfreezable :websocket_server
           attr_reader :websocket_server
 

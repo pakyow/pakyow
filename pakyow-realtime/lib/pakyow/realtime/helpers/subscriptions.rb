@@ -15,7 +15,7 @@ module Pakyow
             }
           end
 
-          @connection.app.websocket_server.socket_subscribe(socket_client_id, *channels)
+          app.websocket_server.socket_subscribe(socket_client_id, *channels)
         end
 
         def unsubscribe(channel, *qualifiers)
@@ -27,7 +27,7 @@ module Pakyow
             }
           end
 
-          @connection.app.websocket_server.socket_unsubscribe(*channels)
+          app.websocket_server.socket_unsubscribe(*channels)
         end
       end
     end

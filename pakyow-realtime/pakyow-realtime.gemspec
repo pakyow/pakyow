@@ -20,6 +20,7 @@ Gem::Specification.new do |spec|
   spec.require_path = "lib"
 
   spec.add_dependency "pakyow-core", Pakyow::VERSION
+  spec.add_dependency "pakyow-presenter", Pakyow::VERSION
   spec.add_dependency "pakyow-routing", Pakyow::VERSION
   spec.add_dependency "pakyow-support", Pakyow::VERSION
 

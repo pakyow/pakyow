@@ -2,6 +2,7 @@
 
 require "securerandom"
 
+require "pakyow/helpers/app"
 require "pakyow/helpers/connection"
 
 require "async/websocket"
@@ -9,6 +10,7 @@ require "async/websocket"
 module Pakyow
   module Realtime
     class WebSocket
+      include Pakyow::Helpers::App
       include Pakyow::Helpers::Connection
 
       attr_reader :id
