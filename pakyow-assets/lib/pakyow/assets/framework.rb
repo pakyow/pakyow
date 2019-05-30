@@ -9,13 +9,14 @@ require "pakyow/assets/behavior/config"
 require "pakyow/assets/behavior/assets"
 require "pakyow/assets/behavior/packs"
 require "pakyow/assets/behavior/rendering"
-require "pakyow/assets/behavior/building"
 require "pakyow/assets/behavior/views"
 require "pakyow/assets/behavior/silencing"
 require "pakyow/assets/behavior/externals"
 require "pakyow/assets/behavior/watching"
 require "pakyow/assets/behavior/prelaunching"
 require "pakyow/assets/behavior/processing"
+
+require "pakyow/assets/behavior/rendering/install_assets"
 
 module Pakyow
   module Assets
@@ -39,7 +40,10 @@ module Pakyow
           include Behavior::Watching
           include Behavior::Prelaunching
           include Behavior::Processing
-          include Behavior::Building
+
+          isolated :Renderer do
+            include Assets::Behavior::Rendering::InstallAssets
+          end
         end
       end
     end
