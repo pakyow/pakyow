@@ -45,11 +45,11 @@ RSpec.describe "presenting a view that defines an anchor endpoint within a bindi
         end
       end
 
-      presenter "/endpoints/anchor/within_binding" do
-        def perform
-          find(:post).present(posts)
-        end
-      end
+      # presenter "/endpoints/anchor/within_binding" do
+      #   def perform
+      #     find(:post).present(posts)
+      #   end
+      # end
 
       source :posts, timestamps: false do
         primary_id

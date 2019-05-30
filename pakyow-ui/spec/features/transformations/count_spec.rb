@@ -29,7 +29,7 @@ RSpec.describe "presenting a count in a view" do
       end
 
       presenter "/count/posts" do
-        def perform
+        render do
           find(:count).with do |view|
             view.html = count
             view.view.object.set_label(:used, true)

@@ -36,11 +36,11 @@ RSpec.configure do |spec_config|
         config.presenter.componentize = false
       end
 
-      isolated :ViewRenderer do
+      isolated :Renderer do
         after :render do
           # Persist subscriptions so that they are processed and intercepted.
           #
-          @connection.app.data.persist(socket_client_id)
+          @app.data.persist(presentables[:__socket_client_id])
         end
       end
     end

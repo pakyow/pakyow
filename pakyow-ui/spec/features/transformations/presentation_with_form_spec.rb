@@ -29,7 +29,7 @@ RSpec.describe "presenting data alongside a form" do
       end
 
       presenter "/form/posts" do
-        def perform
+        render do
           form(:post).create(title: "")
           find(:post).present(posts)
         end

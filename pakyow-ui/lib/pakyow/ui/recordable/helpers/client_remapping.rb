@@ -17,10 +17,8 @@ module Pakyow
               :setTitle
             when :html=
               :setHtml
-            when :setup_endpoint
-              :setupEndpoint
-            when :wrap_endpoint_for_removal
-              :wrapEndpointForRemoval
+            when :endpoint_action
+              :endpointAction
             else
               method_name
             end

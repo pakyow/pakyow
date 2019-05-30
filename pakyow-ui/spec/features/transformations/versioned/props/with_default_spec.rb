@@ -9,7 +9,7 @@ RSpec.shared_context "versioned props with defaults" do
 
       Proc.new do
         presenter local_view_path do
-          def perform
+          render do
             find(:post).present(posts)
           end
         end
@@ -30,14 +30,14 @@ RSpec.shared_context "versioned props with defaults" do
 
         Proc.new do
           presenter local_view_path do
-            def perform
+            render do
               find(:post, :title).attrs[:style][:background] = "blue"
             end
           end
         end
       end
 
-      it "transforms" do |x|
+      xit "transforms" do |x|
         save_ui_case(x, path: "/posts") do
           call("/posts", method: :post, params: { post: { title: "foo" } })
         end
@@ -50,7 +50,7 @@ RSpec.shared_context "versioned props with defaults" do
 
         Proc.new do
           presenter local_view_path do
-            def perform
+            render do
               find(:post).present(posts) do |post_view, post|
                 if post.title.include?("red")
                   post_view.find(:title).use(:red)
@@ -85,7 +85,7 @@ RSpec.shared_context "versioned props with defaults" do
 
         Proc.new do
           presenter local_view_path do
-            def perform
+            render do
               find(:post).present(posts) do |post_view, post|
                 if post.title.include?("red")
                   post_view.find(:title).use(:red)
@@ -123,7 +123,7 @@ RSpec.shared_context "versioned props with defaults" do
 
         Proc.new do
           presenter local_view_path do
-            def perform
+            render do
               find(:post, :title).use(:default)
             end
           end
@@ -143,14 +143,14 @@ RSpec.shared_context "versioned props with defaults" do
 
         Proc.new do
           presenter local_view_path do
-            def perform
+            render do
               find(:post, :title).use(:default).attrs[:style][:background] = "blue"
             end
           end
         end
       end
 
-      it "transforms" do |x|
+      xit "transforms" do |x|
         save_ui_case(x, path: "/posts") do
           call("/posts", method: :post, params: { post: { title: "foo" } })
         end
@@ -163,7 +163,7 @@ RSpec.shared_context "versioned props with defaults" do
 
         Proc.new do
           presenter local_view_path do
-            def perform
+            render do
               find(:post).present(posts) do |post_view, post|
                 if post.title.include?("red")
                   post_view.find(:title).use(:red)
@@ -199,7 +199,7 @@ RSpec.shared_context "versioned props with defaults" do
 
         Proc.new do
           presenter local_view_path do
-            def perform
+            render do
               find(:post).present(posts) do |post_view, post|
                 if post.title.include?("red")
                   post_view.find(:title).use(:red)

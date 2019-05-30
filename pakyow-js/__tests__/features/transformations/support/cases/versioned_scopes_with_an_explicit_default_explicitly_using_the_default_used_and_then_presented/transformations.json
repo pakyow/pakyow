@@ -5,67 +5,56 @@
       [
         "find",
         [
-          [
-            "post"
-          ]
+          "post",
+          {
+            "channel": [
+              "article"
+            ]
+          }
         ],
         [
 
         ],
         [
           [
-            "use",
+            "transform",
             [
-              "default"
-            ],
-            [
-
+              [
+                {
+                  "id": 1,
+                  "title": "foo"
+                }
+              ]
             ],
             [
               [
-                "transform",
                 [
+                  "use",
                   [
-                    {
-                      "id": 1,
-                      "title": "foo"
-                    }
+                    "default"
+                  ],
+                  [
+
+                  ],
+                  [
+
                   ]
                 ],
                 [
+                  "find",
                   [
                     [
-                      "find",
-                      [
-                        [
-                          "title"
-                        ]
-                      ],
-                      [
+                      "title"
+                    ]
+                  ],
+                  [
 
-                      ],
-                      [
-                        [
-                          "use",
-                          [
-                            "default"
-                          ],
-                          [
-
-                          ],
-                          [
-
-                          ]
-                        ]
-                      ]
-                    ],
+                  ],
+                  [
                     [
-                      "bind",
+                      "use",
                       [
-                        {
-                          "id": 1,
-                          "title": "foo"
-                        }
+                        "default"
                       ],
                       [
 
@@ -77,9 +66,49 @@
                   ]
                 ],
                 [
+                  "find",
+                  [
+                    [
+                      "title"
+                    ]
+                  ],
+                  [
 
+                  ],
+                  [
+                    [
+                      "use",
+                      [
+                        "default"
+                      ],
+                      [
+
+                      ],
+                      [
+
+                      ]
+                    ]
+                  ]
+                ],
+                [
+                  "bind",
+                  [
+                    {
+                      "id": 1,
+                      "title": "foo"
+                    }
+                  ],
+                  [
+
+                  ],
+                  [
+
+                  ]
                 ]
               ]
+            ],
+            [
+
             ]
           ]
         ]

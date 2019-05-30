@@ -11,7 +11,7 @@ RSpec.describe "api" do
         disable_protection :csrf
 
         list do
-          expose :posts, data.posts
+          expose :data, data.posts
           render local_view_path
         end
 
@@ -32,9 +32,7 @@ RSpec.describe "api" do
       end
 
       presenter local_view_path do
-        def perform
-          instance_exec(&$local_presenter)
-        end
+        instance_exec(&$local_presenter)
       end
     end
   end
@@ -46,8 +44,10 @@ RSpec.describe "api" do
   describe "title=" do
     let :presenter do
       Proc.new do
-        if posts.to_a.any?
-          self.title = posts.one.title
+        render do
+          if data.to_a.any?
+            self.title = data.one.title
+          end
         end
       end
     end
@@ -62,8 +62,10 @@ RSpec.describe "api" do
   describe "transform" do
     let :presenter do
       Proc.new do
-        find(:post).transform(posts) do |post_view, post|
-          post_view.bind(post)
+        render do
+          find(:post).transform(data) do |post_view, post|
+            post_view.bind(post)
+          end
         end
       end
     end
@@ -78,8 +80,10 @@ RSpec.describe "api" do
   describe "bind" do
     let :presenter do
       Proc.new do
-        if posts.to_a.any?
-          find(:post).bind(posts.one)
+        render do
+          if data.to_a.any?
+            find(:post).bind(data.one)
+          end
         end
       end
     end
@@ -94,10 +98,12 @@ RSpec.describe "api" do
   describe "with" do
     let :presenter do
       Proc.new do
-        if posts.to_a.any?
-          find(:post).with do |post_view|
-            post_view.bind(posts.one)
-            post_view.attrs[:style][:background] = "purple"
+        render do
+          if data.to_a.any?
+            find(:post).with do |post_view|
+              post_view.bind(data.one)
+              post_view.attrs[:style][:background] = "purple"
+            end
           end
         end
       end
@@ -113,8 +119,10 @@ RSpec.describe "api" do
   describe "append" do
     let :presenter do
       Proc.new do
-        if posts.to_a.any?
-          find(:post).bind(posts.one).append("foo")
+        render do
+          if data.to_a.any?
+            find(:post).bind(data.one).append("foo")
+          end
         end
       end
     end
@@ -129,8 +137,10 @@ RSpec.describe "api" do
   describe "prepend" do
     let :presenter do
       Proc.new do
-        if posts.to_a.any?
-          find(:post).bind(posts.one).prepend("foo")
+        render do
+          if data.to_a.any?
+            find(:post).bind(data.one).prepend("foo")
+          end
         end
       end
     end
@@ -145,8 +155,10 @@ RSpec.describe "api" do
   describe "after" do
     let :presenter do
       Proc.new do
-        if posts.to_a.any?
-          find(:post).bind(posts.one).after("foo")
+        render do
+          if data.to_a.any?
+            find(:post).bind(data.one).after("foo")
+          end
         end
       end
     end
@@ -161,8 +173,10 @@ RSpec.describe "api" do
   describe "before" do
     let :presenter do
       Proc.new do
-        if posts.to_a.any?
-          find(:post).bind(posts.one).before("foo")
+        render do
+          if data.to_a.any?
+            find(:post).bind(data.one).before("foo")
+          end
         end
       end
     end
@@ -177,8 +191,10 @@ RSpec.describe "api" do
   describe "replace" do
     let :presenter do
       Proc.new do
-        if posts.to_a.any?
-          find(:post).bind(posts.one).replace("foo")
+        render do
+          if data.to_a.any?
+            find(:post).bind(data.one).replace("foo")
+          end
         end
       end
     end
@@ -193,8 +209,10 @@ RSpec.describe "api" do
   describe "remove" do
     let :presenter do
       Proc.new do
-        if posts.to_a.any?
-          find(:post).bind(posts.one).remove
+        render do
+          if data.to_a.any?
+            find(:post).bind(data.one).remove
+          end
         end
       end
     end
@@ -209,8 +227,10 @@ RSpec.describe "api" do
   describe "clear" do
     let :presenter do
       Proc.new do
-        if posts.to_a.any?
-          find(:post).bind(posts.one).clear
+        render do
+          if data.to_a.any?
+            find(:post).bind(data.one).clear
+          end
         end
       end
     end

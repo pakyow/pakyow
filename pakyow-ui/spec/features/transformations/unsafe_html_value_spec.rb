@@ -23,7 +23,7 @@ RSpec.describe "presenting an object with an unsafe html value" do
       end
 
       presenter "/simple/posts" do
-        def perform
+        render do
           find(:post).present(posts)
         end
       end

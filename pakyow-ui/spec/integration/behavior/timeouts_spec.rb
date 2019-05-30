@@ -6,16 +6,24 @@ RSpec.describe "ui state timeout behavior" do
   end
 
   let :connection do
-    env = Rack::MockRequest.env_for("/")
-    env["HTTP_HOST"] = "localhost"
-    env["REQUEST_URI"] = "/"
-    io = Tempfile.new("hijack")
-    env["rack.hijack"] = Proc.new { io }
-    env["rack.hijack_io"] = io
-    Pakyow::Connection.new(Pakyow.app(:test), env)
+    Pakyow.app(:test).isolated(:Connection).new(
+      Pakyow.app(:test),
+      Pakyow::Connection.new(
+        request
+      )
+    )
+  end
+
+  let :request do
+    Async::HTTP::Protocol::Request.new(
+      "http", "localhost", "GET", "/", nil, HTTP::Protocol::Headers.new([["content-type", "text/html"]])
+    ).tap do |request|
+      request.remote_address = Addrinfo.tcp("0.0.0.0", "http")
+    end
   end
 
   let :socket do
+    allow(Async::WebSocket::Incoming).to receive(:new)
     Pakyow::Realtime::WebSocket.new(socket_id, connection)
   end
 
@@ -47,20 +55,27 @@ RSpec.describe "ui state timeout behavior" do
 
   context "view renders" do
     let :view_renderer do
-      Pakyow.app(:test).isolated(:ViewRenderer).new(
-        connection,
-        templates_path: "/",
-        presenter_path: "/"
+      Pakyow.app(:test).isolated(:Renderer).new(
+        app: Pakyow.app(:test),
+        presentables: connection.values,
+        presenter_class: Pakyow.app(:test).isolated(:Presenter),
+        composer: composer.new
       )
     end
 
-    let :view do
-      Pakyow::Presenter::View.new("")
+    let :composer do
+      Class.new do
+        def key
+          ""
+        end
+
+        def view(app:)
+          Pakyow::Presenter::View.new("")
+        end
+      end
     end
 
     it "expires the socket id data subscription, using the initial timeout" do
-      allow(Pakyow.app(:test)).to receive(:view).and_return(view)
-
       expect(
         Pakyow.app(:test).data
       ).to receive(:expire).with(socket_id, Pakyow.app(:test).config.realtime.timeouts.initial)
