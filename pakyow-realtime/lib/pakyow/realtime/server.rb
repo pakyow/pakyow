@@ -4,8 +4,6 @@ require "concurrent/array"
 require "concurrent/timer_task"
 require "concurrent/executor/thread_pool_executor"
 
-require "websocket/driver"
-
 require "pakyow/support/message_verifier"
 
 require "pakyow/realtime/websocket"

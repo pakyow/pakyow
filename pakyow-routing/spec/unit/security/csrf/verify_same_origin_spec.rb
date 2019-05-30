@@ -19,7 +19,7 @@ RSpec.describe Pakyow::Security::CSRF::VerifySameOrigin do
 
   let :request do
     Async::HTTP::Protocol::Request.new(
-      request_scheme, request_host, request_method, "/", nil, HTTP::Protocol::Headers.new(
+      request_scheme, request_host, request_method, "/", nil, Protocol::HTTP::Headers.new(
         [["content-type", "text/html"]].tap do |headers|
           headers << ["origin", origin] if origin
           headers << ["referer", referrer] if referrer

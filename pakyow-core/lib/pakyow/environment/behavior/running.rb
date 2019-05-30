@@ -2,7 +2,7 @@
 
 require "async/reactor"
 require "async/io/shared_endpoint"
-require "async/http/url_endpoint"
+require "async/http/endpoint"
 
 require "pakyow/support/extension"
 
@@ -39,7 +39,7 @@ module Pakyow
               port = config.server.port
             end
 
-            endpoint = Async::HTTP::URLEndpoint.parse(
+            endpoint = Async::HTTP::Endpoint.parse(
               "http://#{config.server.host}:#{port}"
             )
 

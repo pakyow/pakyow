@@ -10,7 +10,7 @@ RSpec.describe Pakyow::Actions::InputParser do
   let :request do
     instance_double(
       Async::HTTP::Protocol::Request,
-      body: Async::HTTP::Body::Fixed.new(
+      body: Protocol::HTTP1::Body::Fixed.new(
         Async::IO::Stream.new(
           StringIO.new(body)
         ), body.bytesize

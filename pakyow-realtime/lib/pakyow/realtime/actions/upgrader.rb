@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "websocket/driver"
-
 require "pakyow/support/message_verifier"
 
 require "pakyow/realtime/websocket"

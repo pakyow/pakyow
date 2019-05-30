@@ -17,7 +17,7 @@ module Pakyow
       end
 
       def run
-        endpoint = Async::HTTP::URLEndpoint.parse(
+        endpoint = Async::HTTP::Endpoint.parse(
           "http://#{@host}:#{@port}"
         )
 
@@ -41,7 +41,7 @@ module Pakyow
           @port, @host, @forwarded = port, host, forwarded
           @destination = "#{@host}:#{@port}"
           @client = Async::HTTP::Client.new(
-            Async::HTTP::URLEndpoint.parse(
+            Async::HTTP::Endpoint.parse(
               File.join("http://#{@destination}")
             )
           )
@@ -51,7 +51,7 @@ module Pakyow
           @client.call(request)
         rescue
           if total_waits == 30
-            Async::HTTP::Response.new(
+            Async::HTTP::Protocol::Response.new(
               nil, 404, nil, [],
               Async::HTTP::Body::Buffered.wrap(
                 StringIO.new("app did not respond")

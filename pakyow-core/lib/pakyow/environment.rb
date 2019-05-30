@@ -283,7 +283,7 @@ module Pakyow
     rescue StandardError => error
       Pakyow.logger.houston(error)
 
-      Async::HTTP::Response.new(
+      Async::HTTP::Protocol::Response.new(
         nil, 500, nil, {},
         Async::HTTP::Body::Buffered.wrap(
           StringIO.new("500 Low-Level Server Error")

@@ -4,7 +4,7 @@ require "dry-types"
 
 module Pakyow
   module Types
-    include Dry::Types.module
+    include Dry.Types(default: :nominal)
 
     MAPPING = {
       string: Coercible::String,

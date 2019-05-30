@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "async/http/headers"
+require "protocol/http/headers"
 require "rack/request"
 
 require "pakyow/environment"
@@ -57,7 +57,7 @@ module Pakyow
       end
 
       def normalize_header_value(key, value)
-        if value && policy = Async::HTTP::Headers::MERGE_POLICY[key.to_s.downcase.gsub("_", "-")]
+        if value && policy = Protocol::HTTP::Headers::MERGE_POLICY[key.to_s.downcase.gsub("_", "-")]
           policy.new(value.to_s)
         else
           value

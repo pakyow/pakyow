@@ -105,6 +105,10 @@ RSpec.shared_examples :connection do
       it "contains the connection body"
     end
 
+    context "response is set on the connection" do
+      it "returns the correct response"
+    end
+
     context "streaming" do
       it "waits for each stream in an async task" do
         Async::Reactor.run {
@@ -202,7 +206,7 @@ RSpec.describe Pakyow::Connection do
 
     let :request do
       Async::HTTP::Protocol::Request.new(
-        scheme, "#{subdomain}.#{host}:#{port}", method, "#{path}#{query}", "HTTP/1.1", HTTP::Protocol::Headers.new(headers.to_a)
+        scheme, "#{subdomain}.#{host}:#{port}", method, "#{path}#{query}", "HTTP/1.1", Protocol::HTTP::Headers.new(headers.to_a)
       ).tap do |request|
         request.remote_address = Addrinfo.tcp("127.0.0.1", scheme)
       end

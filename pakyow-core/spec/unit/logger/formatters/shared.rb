@@ -17,7 +17,7 @@ RSpec.shared_examples :log_formatter do
 
   let :request do
     Async::HTTP::Protocol::Request.new(
-      "http", "localhost", "GET", "/", nil, HTTP::Protocol::Headers.new([])
+      "http", "localhost", "GET", "/", nil, Protocol::HTTP::Headers.new([])
     ).tap do |request|
       request.remote_address = Addrinfo.tcp("0.0.0.0", "http")
     end

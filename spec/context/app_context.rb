@@ -75,7 +75,7 @@ RSpec.shared_context "app" do
 
     body = Async::HTTP::Body::Buffered.wrap(input)
     request = Async::HTTP::Protocol::Request.new(
-      "http", "localhost", method.to_s.upcase, path, nil, HTTP::Protocol::Headers.new(DEFAULT_HEADERS.merge(headers).to_a), body
+      "http", "localhost", method.to_s.upcase, path, nil, Protocol::HTTP::Headers.new(DEFAULT_HEADERS.merge(headers).to_a), body
     ).tap do |request|
       request.remote_address = Addrinfo.tcp("localhost", "http")
     end
@@ -91,7 +91,7 @@ RSpec.shared_context "app" do
           response_body << content
         end
 
-        [result.status, HTTP::Protocol::Headers.new(result.headers).to_h, response_body]
+        [result.status, Protocol::HTTP::Headers.new(result.headers).to_h, response_body]
       else
         result
       end

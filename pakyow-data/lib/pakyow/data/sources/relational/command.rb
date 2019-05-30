@@ -55,7 +55,7 @@ module Pakyow
                   else
                     values_hash[key] = value
                   end
-                rescue TypeError, Dry::Types::ConstraintError => error
+                rescue TypeError, Dry::Types::CoercionError => error
                   raise TypeMismatch.build(error, type: value.class, mapping: attribute.meta[:mapping])
                 end
               }

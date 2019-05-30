@@ -27,7 +27,7 @@ RSpec.describe Pakyow::App::Connection do
 
   let :request do
     Async::HTTP::Protocol::Request.new(
-      "http", "localhost", "GET", "/", nil, HTTP::Protocol::Headers.new([])
+      "http", "localhost", "GET", "/", nil, Protocol::HTTP::Headers.new([])
     )
   end
 

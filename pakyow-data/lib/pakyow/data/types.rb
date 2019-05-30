@@ -5,7 +5,7 @@ require "dry-types"
 module Pakyow
   module Data
     module Types
-      include Dry::Types.module
+      include Dry.Types(default: :nominal)
 
       MAPPING = {
         boolean: Bool.meta(mapping: :boolean),

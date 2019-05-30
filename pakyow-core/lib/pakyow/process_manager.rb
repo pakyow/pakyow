@@ -40,7 +40,7 @@ module Pakyow
         until @stopped
           status = @group.fork(process) {
             begin
-              Async::Reactor.run(process, &process[:block])
+              Async::Reactor.run(&process[:block])
             rescue Interrupt
             end
           }

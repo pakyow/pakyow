@@ -4,6 +4,8 @@ require "cgi"
 require "securerandom"
 
 require "async/http"
+require "async/http/protocol/response"
+
 require "mini_mime"
 
 require "pakyow/support/deep_dup"
@@ -335,7 +337,11 @@ module Pakyow
           end
         end
 
-        Async::HTTP::Response.new(nil, @status, nil, finalize_headers, @body)
+        if instance_variable_defined?(:@response)
+          @response
+        else
+          Async::HTTP::Protocol::Response.new(nil, @status, nil, finalize_headers, @body)
+        end
       end
     end
 

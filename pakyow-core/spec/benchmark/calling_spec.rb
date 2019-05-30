@@ -1,6 +1,6 @@
 require "rspec-benchmark"
-require "async/http/request"
-require "http/protocol/headers"
+require "async/http/protocol/request"
+require "protocol/http/headers"
 
 # cases to benchmark:
 #
@@ -21,7 +21,7 @@ RSpec.describe "environment call performance", benchmark: true do
 
   let :request do
     Async::HTTP::Protocol::Request.new(
-      "http", "localhost", "GET", "/", nil, HTTP::Protocol::Headers.new([["content-type", "text/html"]])
+      "http", "localhost", "GET", "/", nil, Protocol::HTTP::Headers.new([["content-type", "text/html"]])
     ).tap do |request|
       request.remote_address = Addrinfo.tcp("localhost", "http")
     end

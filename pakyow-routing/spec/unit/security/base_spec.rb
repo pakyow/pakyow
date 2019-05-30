@@ -11,7 +11,7 @@ RSpec.describe Pakyow::Security::Base do
 
   let :request do
     Async::HTTP::Protocol::Request.new(
-      "http", "localhost", request_method, "/", nil, HTTP::Protocol::Headers.new(
+      "http", "localhost", request_method, "/", nil, Protocol::HTTP::Headers.new(
         [["content-type", "text/html"]]
       )
     ).tap do |request|

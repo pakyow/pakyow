@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "multipart_parser/reader"
-require "async/http/headers"
+require "protocol/http/headers"
 
 require "pakyow/error"
 
@@ -65,7 +65,7 @@ module Pakyow
       end
 
       def on_part(part)
-        headers = Async::HTTP::Headers.new(part.headers).to_h
+        headers = Protocol::HTTP::Headers.new(part.headers).to_h
         disposition = QueryParser.new.tap { |parser|
           parser.parse(headers["content-disposition"].to_s)
         }.params

@@ -1,14 +1,39 @@
 # frozen_string_literal: true
 
+require "json"
 require "securerandom"
 
 require "pakyow/helpers/connection"
 
 require "async/websocket"
 
+require "protocol/websocket/connection"
+require "protocol/websocket/headers"
+
 module Pakyow
   module Realtime
     class WebSocket
+      Frame = ::Protocol::WebSocket::Frame
+
+      class Connection < ::Protocol::WebSocket::Connection
+        include ::Protocol::WebSocket::Headers
+
+        def self.call(framer, protocol = [], **options)
+          return self.new(framer, Array(protocol).first, **options)
+        end
+
+        def initialize(framer, protocol = nil, **options)
+          super(framer, **options)
+          @protocol = protocol
+        end
+
+        attr :protocol
+
+        def call
+          self.close
+        end
+      end
+
       include Pakyow::Helpers::Connection
 
       attr_reader :id
@@ -18,20 +43,19 @@ module Pakyow
         @logger = Logger.new(:sock, id: @id[0..7])
         @server = @connection.app.websocket_server
 
-        if @socket = Async::WebSocket::Incoming.new(@connection.request)
-          while event = @socket.next_event
-            case event
-            when ::WebSocket::Driver::OpenEvent
-              handle_open
-            when ::WebSocket::Driver::MessageEvent
-              handle_message(event.data)
-            end
+        response = Async::WebSocket::Adapters::Native.open(@connection.request, handler: Connection) do |socket|
+          @socket = socket
+
+          handle_open
+          while message = socket.read
+            handle_message(message)
           end
+        rescue EOFError
+        ensure
+          @socket&.close; shutdown
         end
-      rescue Async::WebSocket::Incoming::Invalid
-        connection.halt
-      ensure
-        @socket&.close; shutdown
+
+        @connection.__getobj__.instance_variable_set(:@response, response)
       end
 
       def open?
@@ -41,10 +65,12 @@ module Pakyow
       def transmit(message, raw: false)
         if open?
           if raw
-            @socket.send_text(message)
+            @socket.write(message)
           else
-            @socket.send_message(payload: message)
+            @socket.write(JSON.dump(payload: message))
           end
+
+          @socket.flush
         end
       end
 
@@ -87,65 +113,32 @@ module Pakyow
   end
 end
 
-require "async/io"
-require "async/websocket/connection"
-
 module Async
   module WebSocket
-    class Incoming < Connection
-      class Invalid < StandardError; end
+    module Adapters
+      module Native
+        include ::Protocol::WebSocket::Headers
 
-      def initialize(request)
-        @env = build_env(request)
-        @url = build_url(request)
-
-        if request.hijack? && websocket?(@env)
-          @io = hijacked_io(request)
-          super(@io, ::WebSocket::Driver.rack(self))
-        else
-          raise Invalid
+        def self.websocket?(request)
+          request.headers.include?("upgrade")
         end
-      end
 
-      attr :env
-      attr :url
+        def self.open(request, headers: [], protocols: [], handler: Connection, **options)
+          if websocket?(request) && Array(request.protocol).include?(PROTOCOL)
+            # Select websocket sub-protocol:
+            if requested_protocol = request.headers[SEC_WEBSOCKET_PROTOCOL]
+              protocol = (requested_protocol & protocols).first
+            end
 
-      def close
-        super; @io.close
-      end
+            Response.for(request, headers, protocol: protocol, **options) do |stream|
+              framer = Protocol::WebSocket::Framer.new(stream)
 
-      protected
-
-      def websocket?(env)
-        ::WebSocket::Driver.websocket?(env)
-      end
-
-      def build_env(request)
-        {
-          "HTTP_CONNECTION" => request.headers["connection"].to_s,
-          "HTTP_HOST" => request.headers["host"].to_s,
-          "HTTP_ORIGIN" => request.headers["origin"].to_s,
-          "HTTP_SEC_WEBSOCKET_EXTENSIONS" => request.headers["sec-websocket-extensions"].to_s,
-          "HTTP_SEC_WEBSOCKET_KEY" => request.headers["sec-websocket-key"].to_s,
-          "HTTP_SEC_WEBSOCKET_KEY1" => request.headers["sec-websocket-key1"].to_s,
-          "HTTP_SEC_WEBSOCKET_KEY2" => request.headers["sec-websocket-key2"].to_s,
-          "HTTP_SEC_WEBSOCKET_PROTOCOL" => request.headers["sec-websocket-protocol"].to_s,
-          "HTTP_SEC_WEBSOCKET_VERSION" => request.headers["sec-websocket-version"].to_s,
-          "HTTP_UPGRADE" => request.headers["upgrade"].to_s,
-          "REQUEST_METHOD" => request.method,
-          "rack.input" => request.body
-        }
-      end
-
-      def build_url(request)
-        "#{request.scheme}://#{request.authority}#{request.path}"
-      end
-
-      def hijacked_io(request)
-        wrapper = request.hijack
-        io = Async::IO.try_convert(wrapper.io.dup)
-        wrapper.close
-        io
+              yield handler.call(framer, protocol)
+            end
+          else
+            nil
+          end
+        end
       end
     end
   end
