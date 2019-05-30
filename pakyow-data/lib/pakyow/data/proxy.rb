@@ -17,7 +17,7 @@ module Pakyow
 
       using Support::DeepDup
 
-      attr_reader :source, :proxied_calls, :nested_proxies
+      attr_reader :source, :proxied_calls, :nested_proxies, :app
 
       def initialize(source, subscribers, app)
         @source, @subscribers, @app = source, subscribers, app
@@ -194,7 +194,7 @@ module Pakyow
         Marshal.dump(
           {
             app: @app,
-            source: @source.source_name,
+            source: @source.is_a?(Sources::Ephemeral) ? @source : @source.source_name,
             proxied_calls: @proxied_calls
           }
         )
@@ -202,7 +202,15 @@ module Pakyow
 
       def self._load(state)
         state = Marshal.load(state)
-        state[:app].data.public_send(state[:source]).apply(state[:proxied_calls])
+
+        case state[:source]
+        when Sources::Ephemeral
+          ephemeral = state[:app].data.ephemeral(state[:source].source_name)
+          ephemeral.instance_variable_set(:@source, state[:source])
+          ephemeral
+        else
+          state[:app].data.public_send(state[:source]).apply(state[:proxied_calls])
+        end
       end
 
       def qualifications

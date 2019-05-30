@@ -11,12 +11,6 @@ module Pakyow
   module Data
     module Sources
       class Ephemeral < Abstract
-        class << self
-          def restore(serialized)
-            new(serialized[:type], **serialized[:qualifications]).set(serialized[:results])
-          end
-        end
-
         using Support::Refinements::Array::Ensurable
         attr_reader :type, :qualifications
 
@@ -45,10 +39,6 @@ module Pakyow
 
             yield self if block_given?
           end
-        end
-
-        def serialize
-          { type: @type, qualifications: @qualifications, results: __getobj__ }
         end
 
         def to_ary
