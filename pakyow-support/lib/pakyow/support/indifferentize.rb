@@ -24,25 +24,29 @@ module Pakyow
     #
     class IndifferentHash < SimpleDelegator
       class << self
-        def deep(hash)
-          pairs = hash.to_h.each_pair.map { |key, value|
-            case value
-            when Hash
-              value = deep(value)
-            when Array
-              value = value.map { |value_item|
-                case value_item
-                when Hash
-                  deep(value_item)
-                else
-                  value_item
-                end
-              }
-            end
-            [key, value]
-          }
+        def deep(object)
+          hash = object.to_h
+          unless hash.empty?
+            hash = hash.each_with_object({}) { |(key, value), new_hash|
+              new_hash[key] = case value
+              when Hash
+                deep(value)
+              when Array
+                value.map { |value_item|
+                  case value_item
+                  when Hash
+                    deep(value_item)
+                  else
+                    value_item
+                  end
+                }
+              else
+                value
+              end
+            }
+          end
 
-          self.new(Hash[pairs])
+          self.new(hash)
         end
 
         private
@@ -111,7 +115,7 @@ module Pakyow
       end
 
       def to_h
-        Hash[internal_hash.map { |key, value|
+        internal_hash.each_with_object({}) { |(key, value), new_hash|
           key = case key
           when String
             key.to_sym
@@ -126,8 +130,8 @@ module Pakyow
             value
           end
 
-          [key, value]
-        }]
+          new_hash[key] = value
+        }
       end
       alias to_hash to_h
 
@@ -143,13 +147,11 @@ module Pakyow
         __setobj__(stringify_keys(other))
       end
 
-      def stringify_keys(hash)
-        return hash unless hash.respond_to?(:to_h)
-
-        hash.to_h.each_with_object({}) do |(key, value), converted|
-          key = convert_key(key)
-          converted[key] = value
-        end
+      def stringify_keys(object)
+        return object unless object.respond_to?(:to_h)
+        object.to_h.each_with_object({}) { |(key, value), converted|
+          converted[convert_key(key)] = value
+        }
       end
 
       def convert_key(key)
