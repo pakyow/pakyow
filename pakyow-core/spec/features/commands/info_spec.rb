@@ -39,7 +39,7 @@ RSpec.describe "cli: info" do
 
   describe "running" do
     it "shows project info" do
-      expect(run_command(command)).to eq("\e[1mLIBRARY VERSIONS\e[0m\n  Ruby          v#{RUBY_VERSION}-p#{RUBY_PATCHLEVEL} (#{RUBY_PLATFORM})\n  Pakyow        v1.0.0.alpha1\n\n\e[1mFoo::App [:foo]\e[0m\n  Mount path    /\n  Frameworks    #{frameworks}\n  App root      #{command_dir}\n\n\e[1mBar::App [:bar]\e[0m\n  Mount path    /bar\n  Frameworks    #{frameworks}\n  App root      #{command_dir}\n")
+      expect(run_command(command)).to eq("\e[1mLIBRARY VERSIONS\e[0m\n  Ruby          v#{RUBY_VERSION}-p#{RUBY_PATCHLEVEL} (#{RUBY_PLATFORM})\n  Pakyow        v1.0.0.alpha1\n\n\e[1mFoo::App [:foo]\e[0m\n  Mount path    /\n  Frameworks    #{frameworks}\n  App root      #{File.expand_path("../../", command_dir) + "/pakyow-core"}\n\n\e[1mBar::App [:bar]\e[0m\n  Mount path    /bar\n  Frameworks    #{frameworks}\n  App root      #{File.expand_path("../../", command_dir) + "/pakyow-core"}\n")
     end
 
     it "needs more specific tests"

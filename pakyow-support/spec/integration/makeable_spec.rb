@@ -170,6 +170,32 @@ RSpec.describe Pakyow::Support::Makeable do
     end
 
     include_examples :making
+
+    describe "the make hook" do
+      context "object is hookable" do
+        let :object do
+          Class.new do
+            include Pakyow::Support::Hookable
+            extend Pakyow::Support::Makeable
+          end
+        end
+
+        before do
+          local = self
+          object.after :make do
+            local.instance_variable_set(:@called, self.name)
+          end
+        end
+
+        it "calls the after make hook" do
+          expect {
+            object.make(:foo)
+          }.to change {
+            @called
+          }.from(nil).to("Foo")
+        end
+      end
+    end
   end
 
   describe "making a module" do

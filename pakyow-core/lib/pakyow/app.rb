@@ -121,15 +121,15 @@ module Pakyow
     #
     attr_reader :mount_path
 
-    include Support::Configurable
-    include Support::Definable
-    include Support::Pipeline
-
     include Support::Inspectable
     inspectable :@environment
 
     include Support::Hookable
     events :initialize, :configure, :load, :finalize, :boot, :rescue, :shutdown
+
+    include Support::Configurable
+    include Support::Definable
+    include Support::Pipeline
 
     include Behavior::Config
     include Behavior::Sessions

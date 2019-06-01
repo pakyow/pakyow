@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "pakyow/support/hookable"
+
 require "pakyow/support/makeable/object_maker"
 require "pakyow/support/makeable/object_name"
 
@@ -7,6 +9,14 @@ module Pakyow
   module Support
     # @api private
     module Makeable
+      def self.extended(base)
+        # Mixin the `make` event for objects that are hookable.
+        #
+        if base.ancestors.include?(Hookable)
+          base.events :make
+        end
+      end
+
       attr_reader :__object_name
 
       def make(object_name, within: nil, **kwargs, &block)
@@ -52,6 +62,10 @@ module Pakyow
           end
 
           class_eval(&block) if block_given?
+        end
+
+        if new_class.ancestors.include?(Hookable)
+          new_class.call_hooks(:after, :make)
         end
 
         new_class
