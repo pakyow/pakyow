@@ -31,20 +31,31 @@ module Pakyow
         end
 
         def initialize_copy(_)
-          @settings = @settings.deep_dup
           @defaults = @defaults.deep_dup
+          @settings = @settings.deep_dup
           @groups   = @groups.deep_dup
+
+          @settings.each do |key, _|
+            define_setting_methods(key)
+          end
+
+          @groups.each do |key, _|
+            define_group_methods(key)
+          end
+
           super
         end
 
         def setting(name, default = default_omitted = true, &block)
           tap do
+            name = name.to_sym
             default = nil if default_omitted
-            @settings[name.to_sym] = Setting.new(
-              default: default,
-              configurable: @configurable,
-              &block
-            )
+
+            unless @settings.include?(name)
+              define_setting_methods(name)
+            end
+
+            @settings[name] = Setting.new(default: default, configurable: @configurable, &block)
           end
         end
 
@@ -53,28 +64,15 @@ module Pakyow
         end
 
         def configurable(group, &block)
+          group = group.to_sym
           config = Config.new(@configurable)
           config.instance_eval(&block)
-          @groups[group.to_sym] = config
-        end
 
-        def method_missing(method_name, value = nil)
-          if setter?(method_name) && setting = find_setting(method_name[0..-2])
-            setting.set(value)
-          elsif setting = find_setting(method_name)
-            setting.value
-          elsif group = find_group(method_name)
-            group
-          else
-            super
+          unless @groups.include?(group)
+            define_group_methods(group)
           end
-        end
 
-        def respond_to_missing?(method_name, include_private = false)
-          (setter?(method_name) && find_setting(method_name[0..-2])) ||
-            find_setting(method_name) ||
-            find_group(method_name) ||
-            super(method_name, include_private)
+          @groups[group] = config
         end
 
         def configure_defaults!(configured_environment)
@@ -100,20 +98,20 @@ module Pakyow
         end
 
         def to_h
-          Hash[@settings.map { |name, setting|
-            [name, setting.value]
-          }].merge(
-            Hash[@groups.map { |name, group|
-              [name, group.to_h]
-            }]
-          )
+          hash = {}
+
+          @settings.each_with_object(hash) { |(name, setting), h|
+            h[name] = setting.value
+          }
+
+          @groups.each_with_object(hash) { |(name, group), h|
+            h[name] = group.to_h
+          }
+
+          hash
         end
 
         private
-
-        def setter?(method_name)
-          method_name[-1] == "="
-        end
 
         def find_setting(name)
           @settings[name.to_sym]
@@ -121,6 +119,22 @@ module Pakyow
 
         def find_group(name)
           @groups[name.to_sym]
+        end
+
+        def define_setting_methods(name)
+          singleton_class.define_method name do
+            find_setting(name).value
+          end
+
+          singleton_class.define_method :"#{name}=" do |value|
+            find_setting(name).set(value)
+          end
+        end
+
+        def define_group_methods(name)
+          singleton_class.define_method name do
+            find_group(name)
+          end
         end
       end
     end
