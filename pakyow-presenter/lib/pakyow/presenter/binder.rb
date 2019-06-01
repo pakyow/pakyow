@@ -90,7 +90,7 @@ module Pakyow
       # Returns +true+ if the a value is present for +key+.
       #
       def present?(key)
-        !!__value(key)
+        !__value(key).nil?
       end
 
       # Flips a switch, telling the binder that we now only care about content, not other parts.

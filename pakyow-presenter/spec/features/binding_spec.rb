@@ -57,6 +57,13 @@ RSpec.describe "binding data via presenter" do
     end
   end
 
+  context "binding false" do
+    it "binds as false" do
+      post_presenter.bind(title: false)
+      expect(presenter.to_s).to eq('<div data-b="post"><h1 data-b="title">false</h1><p data-b="body">body goes here</p></div>')
+    end
+  end
+
   context "scope/prop is defined on a single node" do
     let :view do
       Pakyow::Presenter::View.new("<h1 binding=\"post.title\">title goes here</h1>")

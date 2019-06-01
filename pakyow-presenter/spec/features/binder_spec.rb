@@ -282,4 +282,22 @@ RSpec.describe "binding data via presenter, with a binder" do
       expect(presenter.to_s).to eq("<div data-b=\"post\" data-id=\"1\"><h1 data-b=\"title\"><strong></strong></h1></div>")
     end
   end
+
+  context "binding wraps a falsey value" do
+    let :app_init do
+      Proc.new {
+        resource :posts, "/posts" do
+          show do; end
+        end
+
+        binder :post do
+        end
+      }
+    end
+
+    it "binds the value" do
+      post_presenter.present(title: false)
+      expect(presenter.to_s).to eq('<div data-b="post"><h1 data-b="title">false</h1></div>')
+    end
+  end
 end
