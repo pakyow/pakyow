@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "mini_mime"
+
 require "pakyow/support/core_refinements/string/normalization"
 
 module Pakyow
@@ -27,14 +29,13 @@ module Pakyow
             public_path = public_path(connection)
 
             if public?(public_path)
-              file = File.open(public_path)
-              connection.set_header(Rack::CONTENT_TYPE, Rack::Mime.mime_type(File.extname(public_path)))
+              connection.set_header("content-type", MiniMime.lookup_by_filename(public_path).content_type)
 
               if connection.app.config.assets.cache && asset?(connection)
                 set_cache_headers(connection, public_path)
               end
 
-              connection.body = file
+              connection.body = File.open(public_path)
               connection.halt
             end
           end
