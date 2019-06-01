@@ -67,10 +67,12 @@ module Pakyow
 
       def sanitize(input)
         input.select! do |key, _|
+          key = key.to_sym
           allowable_keys.include?(key)
         end
 
         allowable_keys.each do |key|
+          key = key.to_sym
           next unless input.key?(key)
 
           value = input[key]

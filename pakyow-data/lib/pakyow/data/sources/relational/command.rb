@@ -37,6 +37,7 @@ module Pakyow
               # Fail if unexpected values were passed.
               #
               values.keys.each do |key|
+                key = key.to_sym
                 unless @source.class.attributes.include?(key) || @source.class.association_with_name?(key)
                   raise UnknownAttribute.new_with_message(attribute: key, source: @source.class.__object_name.name)
                 end
@@ -45,6 +46,8 @@ module Pakyow
               # Coerce values into the appropriate type.
               #
               final_values = values.each_with_object({}) { |(key, value), values_hash|
+                key = key.to_sym
+
                 begin
                   if attribute = @source.class.attributes[key]
                     if value.is_a?(Proxy) || value.is_a?(Result) || value.is_a?(Object)

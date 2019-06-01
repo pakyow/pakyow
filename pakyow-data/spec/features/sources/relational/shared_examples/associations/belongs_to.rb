@@ -990,7 +990,7 @@ RSpec.shared_examples :source_associations_belongs_to do
     it "is named appropriately" do
       expect(
         target_dataset.one.values.keys
-      ).to include(:"#{association_name}_#{association_primary_key_field}")
+      ).to include("#{association_name}_#{association_primary_key_field}")
     end
   end
 end

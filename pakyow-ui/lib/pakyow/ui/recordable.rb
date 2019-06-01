@@ -67,6 +67,7 @@ module Pakyow
           # Map object keys to the binding name.
           #
           keys_and_binding_names = object.to_h.keys.map { |key|
+            key = key.to_sym
             if key == :id || @bindings.include?(key)
               binding_name = key
             else

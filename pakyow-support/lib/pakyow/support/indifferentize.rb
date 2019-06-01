@@ -112,7 +112,15 @@ module Pakyow
 
       def to_h
         Hash[internal_hash.map { |key, value|
-          value = if value.is_a?(IndifferentHash)
+          key = case key
+          when String
+            key.to_sym
+          else
+            key
+          end
+
+          value = case value
+          when IndifferentHash
             value.to_h
           else
             value
@@ -146,8 +154,8 @@ module Pakyow
 
       def convert_key(key)
         case key
-        when Symbol, String
-          key.to_sym
+        when Symbol
+          key.to_s
         else
           key
         end

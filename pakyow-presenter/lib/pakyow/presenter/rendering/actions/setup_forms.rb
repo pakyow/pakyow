@@ -99,6 +99,7 @@ module Pakyow
                   when :edit
                     update(
                       __endpoint.params.each_with_object({}) { |(key, _), passed_params|
+                        key = key.to_sym
                         passed_params[key] = __params[key]
                       }
                     )

@@ -35,7 +35,7 @@ module Pakyow
               errors = error.verifier.messages.flat_map { |_type, field_messages|
                 field_messages.flat_map { |field, messages|
                   messages.map { |message|
-                    { field: field, message: "#{Support.inflector.humanize(field)} #{message}" }
+                    { field: field.to_sym, message: "#{Support.inflector.humanize(field)} #{message}" }
                   }
                 }
               }

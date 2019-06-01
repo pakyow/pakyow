@@ -47,7 +47,7 @@ RSpec.describe Pakyow::Connection::MultipartParser do
     end
 
     it "parses" do
-      expect(parsed.keys).to eq([:foo])
+      expect(parsed.keys).to eq(["foo"])
       expect(parsed["foo"]).to be_instance_of(Pakyow::Connection::MultipartInput)
     end
 
@@ -83,7 +83,7 @@ RSpec.describe Pakyow::Connection::MultipartParser do
     end
 
     it "parses" do
-      expect(parsed.keys).to eq([:foo, :bar])
+      expect(parsed.keys).to eq(["foo", "bar"])
       expect(parsed[:foo]).to be_instance_of(Pakyow::Connection::MultipartInput)
       expect(parsed[:bar][:baz]).to be_instance_of(Pakyow::Connection::MultipartInput)
     end
@@ -274,7 +274,7 @@ RSpec.describe Pakyow::Connection::MultipartParser do
       end
 
       it "uses the filename" do
-        expect(parsed.keys).to eq([:"foo.png"])
+        expect(parsed.keys).to eq(["foo.png"])
       end
     end
 

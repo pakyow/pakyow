@@ -32,7 +32,7 @@ RSpec.describe "parsing requests" do
         Marshal.load(call(
           "/", method: :post, input: input, headers: { "content-type" => "multipart/form-data; boundary=#{boundary}" }
         )[2])
-      ).to eq(input: [:foo], params: [:foo])
+      ).to eq(input: ["foo"], params: ["foo"])
     end
   end
 end
