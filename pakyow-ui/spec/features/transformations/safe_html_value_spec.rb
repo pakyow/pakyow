@@ -24,7 +24,7 @@ RSpec.describe "presenting an object with a safe html value" do
 
       binder :post do
         def title
-          safe(@object[:title])
+          html_safe(@object[:title])
         end
       end
 

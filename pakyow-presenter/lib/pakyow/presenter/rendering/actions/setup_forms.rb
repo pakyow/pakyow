@@ -53,20 +53,20 @@ module Pakyow
               end
 
               form.prepend(
-                Support::SafeStringHelpers.safe(
+                Support::SafeStringHelpers.html_safe(
                   "<input type=\"hidden\" name=\"_method\">"
                 )
               )
 
               form.prepend(
-                Support::SafeStringHelpers.safe(
+                Support::SafeStringHelpers.html_safe(
                   "<input type=\"hidden\" name=\"_form\">"
                 )
               )
 
               if app.config.presenter.embed_authenticity_token
                 form.prepend(
-                  Support::SafeStringHelpers.safe(
+                  Support::SafeStringHelpers.html_safe(
                     "<input type=\"hidden\" name=\"#{app.config.security.csrf.param}\">"
                   )
                 )

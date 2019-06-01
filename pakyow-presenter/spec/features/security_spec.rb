@@ -21,7 +21,7 @@ RSpec.describe "sanitization during presentation" do
     context "value is marked as safe" do
       it "does not escape the value" do
         post_view = presenter.find(:post)
-        post_view.bind(title: safe("<blink>annoying</blink>"))
+        post_view.bind(title: html_safe("<blink>annoying</blink>"))
         expect(presenter.view.to_s).to eq("<div data-b=\"post\"><h1 data-b=\"title\"><blink>annoying</blink></h1></div>")
       end
     end
@@ -77,7 +77,7 @@ RSpec.describe "sanitization during presentation" do
     context "value is marked as safe" do
       it "does not escape the value" do
         post_view = presenter.find(:post)
-        post_view.append(safe("<span></span>"))
+        post_view.append(html_safe("<span></span>"))
         expect(presenter.view.to_s).to include("<div data-b=\"post\"><span></span></div>")
       end
     end
@@ -97,7 +97,7 @@ RSpec.describe "sanitization during presentation" do
     context "value is marked as safe" do
       it "does not escape the value" do
         post_view = presenter.find(:post)
-        post_view.prepend(safe("<span></span>"))
+        post_view.prepend(html_safe("<span></span>"))
         expect(presenter.view.to_s).to include("<div data-b=\"post\"><span></span></div>")
       end
     end
@@ -117,7 +117,7 @@ RSpec.describe "sanitization during presentation" do
     context "value is marked as safe" do
       it "does not escape the value" do
         post_view = presenter.find(:post)
-        post_view.after(safe("<span></span>"))
+        post_view.after(html_safe("<span></span>"))
         expect(presenter.view.to_s).to include("<div data-b=\"post\"></div><span></span>")
       end
     end
@@ -137,7 +137,7 @@ RSpec.describe "sanitization during presentation" do
     context "value is marked as safe" do
       it "does not escape the value" do
         post_view = presenter.find(:post)
-        post_view.before(safe("<span></span>"))
+        post_view.before(html_safe("<span></span>"))
         expect(presenter.view.to_s).to include("<span></span><div data-b=\"post\"></div>")
       end
     end
@@ -157,7 +157,7 @@ RSpec.describe "sanitization during presentation" do
     context "value is marked as safe" do
       it "does not escape the value" do
         post_view = presenter.find(:post)
-        post_view.replace(safe("<span></span>"))
+        post_view.replace(html_safe("<span></span>"))
         expect(presenter.view.to_s).to include("<span></span>")
       end
     end
@@ -208,7 +208,7 @@ RSpec.describe "sanitization during presentation" do
     context "value is marked as safe" do
       it "does not escape the value" do
         post_view = presenter.find(:post)
-        post_view.html = safe("<span></span>")
+        post_view.html = html_safe("<span></span>")
         expect(presenter.view.to_s).to include("<div data-b=\"post\"><span></span></div>")
       end
     end

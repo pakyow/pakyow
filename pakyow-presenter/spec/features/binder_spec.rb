@@ -271,7 +271,7 @@ RSpec.describe "binding data via presenter, with a binder" do
 
         binder :post do
           def title
-            safe("<strong>#{object[:title]}</strong>")
+            html_safe("<strong>#{object[:title]}</strong>")
           end
         end
       }

@@ -60,23 +60,23 @@ module Pakyow
 
           binder :pw_error do
             def message
-              safe(markdown.render(format(object.message)))
+              html_safe(markdown.render(format(object.message)))
             end
 
             def contextual_message
               if object.respond_to?(:contextual_message)
-                safe(markdown.render(format(object.contextual_message)))
+                html_safe(markdown.render(format(object.contextual_message)))
               else
                 nil
               end
             end
 
             def details
-              safe(markdown.render(format(object.details)))
+              html_safe(markdown.render(format(object.details)))
             end
 
             def backtrace
-              safe(object.condensed_backtrace.to_a.map { |line|
+              html_safe(object.condensed_backtrace.to_a.map { |line|
                 CGI.escape_html(line)
               }.join("<br>"))
             end

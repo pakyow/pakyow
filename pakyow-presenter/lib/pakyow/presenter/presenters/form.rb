@@ -260,7 +260,7 @@ module Pakyow
         end
 
         def method_override_input
-          safe("<input type=\"hidden\" name=\"_method\">")
+          html_safe("<input type=\"hidden\" name=\"_method\">")
         end
 
         def find_or_create_method_override_input
@@ -389,7 +389,7 @@ module Pakyow
                   end
                   id_input.set(:name, name)
                   id_input.set(:value, ensure_html_safety(value[key].to_s))
-                  current.prepend(safe(id_input.to_xml))
+                  current.prepend(html_safe(id_input.to_xml))
                 end
               else
                 if input = current.object.find_first_significant_node(:field)
@@ -498,7 +498,7 @@ module Pakyow
           field_presenter.clear
 
           # add generated options
-          field_presenter.append(safe(options.to_xml))
+          field_presenter.append(html_safe(options.to_xml))
         end
       end
     end

@@ -14,7 +14,7 @@ module Pakyow
           apply_extension do
             build do |view|
               if head = view.head
-                head.append(Support::SafeStringHelpers.safe("<meta name=\"pw-socket\" ui=\"socket\">"))
+                head.append(Support::SafeStringHelpers.html_safe("<meta name=\"pw-socket\" ui=\"socket\">"))
               end
             end
 
