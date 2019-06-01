@@ -54,17 +54,15 @@ module Pakyow
             self.class.register_helper(context, helper)
           end
         end
+
+        # Define helpers as stateful after an app is made.
+        #
+        after :make, priority: :high do
+          stateful :helper, Helper
+        end
       end
 
       class_methods do
-        # Define helpers as stateful when an app is defined.
-        #
-        def make(*)
-          super.tap do |new_class|
-            new_class.stateful :helper, Helper
-          end
-        end
-
         # Registers a helper module to be loaded on defined endpoints.
         #
         def register_helper(context, helper_module)
