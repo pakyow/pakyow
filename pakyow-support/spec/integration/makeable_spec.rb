@@ -172,6 +172,10 @@ RSpec.describe Pakyow::Support::Makeable do
     include_examples :making
 
     describe "the make hook" do
+      after do
+        Object.send(:remove_const, :Foo)
+      end
+
       context "object is hookable" do
         let :object do
           Class.new do
