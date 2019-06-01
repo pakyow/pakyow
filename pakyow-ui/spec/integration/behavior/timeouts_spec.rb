@@ -16,14 +16,14 @@ RSpec.describe "ui state timeout behavior" do
 
   let :request do
     Async::HTTP::Protocol::Request.new(
-      "http", "localhost", "GET", "/", nil, HTTP::Protocol::Headers.new([["content-type", "text/html"]])
+      "http", "localhost", "GET", "/", nil, Protocol::HTTP::Headers.new([["content-type", "text/html"]])
     ).tap do |request|
       request.remote_address = Addrinfo.tcp("0.0.0.0", "http")
     end
   end
 
   let :socket do
-    allow(Async::WebSocket::Incoming).to receive(:new)
+    allow(Async::WebSocket::Adapters::Native).to receive(:open)
     Pakyow::Realtime::WebSocket.new(socket_id, connection)
   end
 
