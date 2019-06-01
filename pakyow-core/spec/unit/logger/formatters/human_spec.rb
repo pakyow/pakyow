@@ -10,7 +10,7 @@ RSpec.describe Pakyow::Logger::Formatters::Human do
   end
 
   it "formats the prologue" do
-    expect(formatter.format(event(prologue: connection))).to eq(
+    expect(formatter.format(event("prologue" => connection))).to eq(
       <<~STRING
         \e[32m420.00μs test.123 | GET / (for 0.0.0.0 at #{Time.now})\e[0m
       STRING
@@ -18,7 +18,7 @@ RSpec.describe Pakyow::Logger::Formatters::Human do
   end
 
   it "formats the epilogue" do
-    expect(formatter.format(event(epilogue: connection))).to eq(
+    expect(formatter.format(event("epilogue" => connection))).to eq(
       <<~STRING
         \e[32m420.00μs test.123 | 200 (OK)\e[0m
       STRING
@@ -27,7 +27,7 @@ RSpec.describe Pakyow::Logger::Formatters::Human do
 
   it "formats an error event" do
     allow_any_instance_of(Pakyow::Error::CLIFormatter).to receive(:to_s).and_return(error.to_s)
-    expect(formatter.format(event(error: error))).to eq(
+    expect(formatter.format(event("error" => error))).to eq(
       <<~STRING
         \e[32m420.00μs test.123 | foo\e[0m
       STRING

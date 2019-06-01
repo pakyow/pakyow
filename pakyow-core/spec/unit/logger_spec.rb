@@ -150,7 +150,7 @@ RSpec.describe Pakyow::Logger do
   describe "#prologue" do
     it "logs the prologue at the proper level" do
       expect(global_logger).to receive(:info) do |&block|
-        expect(block.call[:message]).to include(prologue: connection)
+        expect(block.call["message"]).to include("prologue" => connection)
       end
 
       instance.prologue(connection)
@@ -160,7 +160,7 @@ RSpec.describe Pakyow::Logger do
   describe "#epilogue" do
     it "logs the epilogue at the proper level" do
       expect(global_logger).to receive(:info) do |&block|
-        expect(block.call[:message]).to include(epilogue: connection)
+        expect(block.call["message"]).to include("epilogue" => connection)
       end
 
       instance.epilogue(connection)
@@ -174,7 +174,7 @@ RSpec.describe Pakyow::Logger do
 
     it "logs the error at the proper level" do
       expect(global_logger).to receive(:error) do |&block|
-        expect(block.call[:message]).to include(error: err)
+        expect(block.call["message"]).to include("error" => err)
       end
 
       instance.houston(err)
@@ -192,15 +192,15 @@ RSpec.describe Pakyow::Logger do
 
     it "logs messages at error or above by default" do
       expect(global_logger).to receive(:error) do |&block|
-        expect(block.call).to include(message: "test_error")
+        expect(block.call).to include("message" => "test_error")
       end
 
       expect(global_logger).to receive(:fatal) do |&block|
-        expect(block.call).to include(message: "test_fatal")
+        expect(block.call).to include("message" => "test_fatal")
       end
 
       expect(global_logger).to receive(:unknown) do |&block|
-        expect(block.call).to include(message: "test_unknown")
+        expect(block.call).to include("message" => "test_unknown")
       end
 
       instance.silence do
@@ -221,11 +221,11 @@ RSpec.describe Pakyow::Logger do
 
       it "logs messages at or above the passed level" do
         expect(global_logger).to receive(:warn) do |&block|
-          expect(block.call).to include(message: "test_warn")
+          expect(block.call).to include("message" => "test_warn")
         end
 
         expect(global_logger).to receive(:error) do |&block|
-          expect(block.call).to include(message: "test_error")
+          expect(block.call).to include("message" => "test_error")
         end
 
         instance.silence :warn do

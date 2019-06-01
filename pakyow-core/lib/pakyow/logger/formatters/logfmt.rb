@@ -19,17 +19,7 @@ module Pakyow
         UNESCAPED_STRING = /\A[\w\.\-\+\%\,\:\;\/]*\z/i
 
         def serialize(message)
-          escape(message).each_with_object(String.new) { |(key, value), buffer|
-            buffer << "#{key}=#{value} "
-          }.rstrip << "\n"
-        end
-
-        # From polyfox/moon-logfmt.
-        #
-        def escape(message)
-          return enum_for(:escape, message) unless block_given?
-
-          message.each_pair do |key, value|
+          message.each_pair.each_with_object(String.new) { |(key, value), buffer|
             value = case value
             when Array
               value.join(",")
@@ -41,8 +31,8 @@ module Pakyow
               value = value.dump
             end
 
-            yield key.to_s, value
-          end
+            buffer << "#{key}=#{value} "
+          }.rstrip << "\n"
         end
       end
     end

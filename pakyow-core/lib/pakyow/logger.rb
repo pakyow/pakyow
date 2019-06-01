@@ -139,19 +139,19 @@ module Pakyow
 
     def decorate(message = nil)
       message = yield if block_given?
-      { logger: self, message: message }
+      { "logger" => self, "message" => message }
     end
 
     def formatted_prologue(connection)
-      { prologue: connection }
+      { "prologue" => connection }
     end
 
     def formatted_epilogue(connection)
-      { epilogue: connection }
+      { "epilogue" => connection }
     end
 
     def formatted_error(error)
-      { error: error }
+      { "error" => error }
     end
   end
 end

@@ -27,7 +27,7 @@ module Pakyow
 
           case event.data
           when Hash
-            if event.data.key?(:logger) && event.data.key?(:message)
+            if event.data.key?("logger") && event.data.key?("message")
               format_logger_message(event.data, entry)
             else
               entry << event.data.to_s
@@ -42,17 +42,18 @@ module Pakyow
         private
 
         def format_logger_message(logger_message, entry)
-          logger, message = logger_message.values_at(:logger, :message)
+          logger = logger_message["logger"]
+          message = logger_message["message"]
 
           format_info(entry, id: logger.id, type: logger.type, elapsed: logger.elapsed)
 
           case message
           when Hash
-            if connection = message[:prologue]
+            if connection = message["prologue"]
               format_prologue(connection, entry)
-            elsif connection = message[:epilogue]
+            elsif connection = message["epilogue"]
               format_epilogue(connection, entry)
-            elsif error = message[:error]
+            elsif error = message["error"]
               format_error(error, entry)
             else
               format_message(message, entry)

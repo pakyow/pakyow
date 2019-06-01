@@ -20,19 +20,19 @@ module Pakyow
       class JSON < Log4r::Formatter
         def format(event)
           entry = {
-            severity: Logger::NICE_LEVELS[event.level],
-            timestamp: Time.now
+            "severity" => Logger::NICE_LEVELS[event.level],
+            "timestamp" => Time.now
           }
 
           case event.data
           when Hash
-            if event.data.key?(:logger) && event.data.key?(:message)
+            if event.data.key?("logger") && event.data.key?("message")
               format_logger_message(event.data, entry)
             else
               entry.merge!(event.data)
             end
           else
-            entry[:message] = event.data.to_s
+            entry["message"] = event.data.to_s
           end
 
           serialize(entry)
@@ -41,7 +41,8 @@ module Pakyow
         private
 
         def format_logger_message(logger_message, entry)
-          logger, message = logger_message.values_at(:logger, :message)
+          logger = logger_message["logger"]
+          message = logger_message["message"]
 
           format_entry(
             entry, id: logger.id, type: logger.type, elapsed: logger.elapsed
@@ -49,11 +50,11 @@ module Pakyow
 
           case message
           when Hash
-            if connection = message.delete(:prologue)
+            if connection = message.delete("prologue")
               format_prologue(connection, entry)
-            elsif connection = message.delete(:epilogue)
+            elsif connection = message.delete("epilogue")
               format_epilogue(connection, entry)
-            elsif error = message.delete(:error)
+            elsif error = message.delete("error")
               format_error(error, entry)
             else
               entry.update(message)
@@ -61,7 +62,7 @@ module Pakyow
           when Exception
             format_error(message, entry)
           else
-            entry[:message] = message.to_s
+            entry["message"] = message.to_s
           end
 
           serialize(
@@ -70,25 +71,25 @@ module Pakyow
         end
 
         def format_prologue(connection, entry)
-          entry[:method] = connection.request_method
-          entry[:uri] = connection.path
-          entry[:ip] = connection.ip
+          entry["method"] = connection.request_method
+          entry["uri"] = connection.path
+          entry["ip"] = connection.ip
         end
 
         def format_epilogue(connection, entry)
-          entry[:status] = connection.status
+          entry["status"] = connection.status
         end
 
         def format_error(error, entry)
-          entry[:exception] = error.class
-          entry[:message] = error.to_s
-          entry[:backtrace] = error.backtrace
+          entry["exception"] = error.class
+          entry["message"] = error.to_s
+          entry["backtrace"] = error.backtrace
         end
 
         def format_entry(entry, id:, type:, elapsed:)
-          entry[:id] = id
-          entry[:type] = type
-          entry[:elapsed] = Timekeeper.format_elapsed_time_in_milliseconds(elapsed)
+          entry["id"] = id
+          entry["type"] = type
+          entry["elapsed"] = Timekeeper.format_elapsed_time_in_milliseconds(elapsed)
           entry
         end
 
