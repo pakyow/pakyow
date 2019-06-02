@@ -9,7 +9,7 @@ module Pakyow
       extend Support::Extension
 
       apply_extension do
-        setting :name, "pakyow"
+        setting :name, :pakyow
 
         setting :root do
           Pakyow.config.root

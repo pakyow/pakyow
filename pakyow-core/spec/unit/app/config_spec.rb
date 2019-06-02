@@ -13,7 +13,7 @@ RSpec.describe Pakyow::App do
 
     describe "app.name" do
       it "has a default value" do
-        expect(app.config.name).to eq("pakyow")
+        expect(app.config.name).to eq(:pakyow)
       end
     end
 
