@@ -41,7 +41,7 @@ module Pakyow
 
         if self.is_a?(Class)
           new_class = Class.new(self)
-          eval_method = :class_eval
+          eval_method = :class_exec
         elsif self.is_a?(Module)
           new_class = Module.new do
             def self.__object_name
@@ -49,7 +49,7 @@ module Pakyow
             end
           end
 
-          eval_method = :module_eval
+          eval_method = :module_exec
         end
 
         ObjectMaker.define_const_for_object_with_name(new_class, object_name)
@@ -61,7 +61,7 @@ module Pakyow
             instance_variable_set(:"@#{arg}", value)
           end
 
-          class_eval(&block) if block_given?
+          send(eval_method, &block) if block_given?
         end
 
         if new_class.ancestors.include?(Hookable)
