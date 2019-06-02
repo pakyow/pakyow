@@ -386,7 +386,9 @@ RSpec.describe Pakyow do
       Pakyow.instance_variable_set(:@global_logger, nil)
       Pakyow.setup
 
-      expect(Pakyow.global_logger).to be_instance_of(Log4r::Logger)
+      expect(Pakyow.global_logger).to be_instance_of(Pakyow::Logger::Formatters::Human)
+      expect(Pakyow.global_logger.output).to be_instance_of(Console::Split)
+      expect(Pakyow.global_logger.output.instance_variable_get(:@outputs).count).to eq(1)
     end
 
     it "initializes the logger" do

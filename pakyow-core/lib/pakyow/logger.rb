@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
-require "log4r"
 require "securerandom"
+
+require "console/filter"
 
 module Pakyow
   # Logs messages throughout the lifetime of an environment, connection, etc.
@@ -9,28 +10,7 @@ module Pakyow
   # In addition to logging standard messages, this class provides a way to log a `prologue` and
   # `epilogue` for a connection, as well as a `houston` method for logging errors.
   #
-  class Logger
-    LEVELS = %i(
-      all
-      verbose
-      debug
-      info
-      warn
-      error
-      fatal
-      unknown
-      off
-    ).freeze
-
-    LOGGED_LEVELS = LEVELS.dup
-    LOGGED_LEVELS.delete(:all)
-    LOGGED_LEVELS.delete(:off)
-    LOGGED_LEVELS.freeze
-
-    NICE_LEVELS = Hash[LEVELS.map.with_index { |level, i|
-      [i + 1, level]
-    }].freeze
-
+  class Logger < Console::Filter[verbose: 0, debug: 1, info: 2, warn: 3, error: 4, fatal: 5, unknown: 6]
     require "pakyow/logger/colorizer"
     require "pakyow/logger/timekeeper"
 
@@ -46,59 +26,51 @@ module Pakyow
     #   @return [Symbol] the type of logger
     attr_reader :type
 
-    # @!attribute [r] level
-    #   @return [Integer] the current log level
-    attr_reader :level
-
-    # @!attribute [r] output
-    #   @return [Symbol] where log entries are written
-    attr_reader :output
-
     # @param type [Symbol] the type of logging being done (e.g. :http, :sock)
     # @param started_at [Time] when the logging began
     # @param output [Object] the object that will perform the logging
     # @param id [String] a unique id used to identify the request
-    def initialize(type, started_at: Time.now, output: Pakyow.global_logger, id: SecureRandom.hex(4), level: output.level)
-      @type, @started_at, @output, @id, @level = type, started_at, output, id
+    def initialize(type, started_at: Time.now, id: SecureRandom.hex(4), output:, level:)
+      @type, @started_at, @id = type, started_at, id
 
-      @level = case level
-      when Integer
-        level
+      level = case level
+      when :all
+        0
+      when :off
+        7
+      when Symbol
+        self.class.const_get(:LEVELS)[level]
       else
-        NICE_LEVELS.key(level)
+        level
       end
+
+      super(output, level: level)
     end
 
     # Temporarily silences logs, up to +temporary_level+.
     #
     def silence(temporary_level = :error)
       original_level = @level
-      @level = NICE_LEVELS.key(temporary_level)
+      self.level = self.class.const_get(:LEVELS)[temporary_level]
       yield
     ensure
-      @level = original_level
+      self.level = original_level
     end
 
-    LOGGED_LEVELS.each do |method|
+    LEVELS.keys.each do |method|
       class_eval <<~CODE, __FILE__, __LINE__ + 1
         def #{method}(message = nil, &block)
-          if log?(#{NICE_LEVELS.key(method)})
-            @output.#{method} { decorate(message, &block) }
-          end
+          super(message) { decorate(message, &block) }
         end
       CODE
     end
 
     def <<(message)
-      if log?(8)
-        add(:unknown, message)
-      end
+      add(:unknown, message)
     end
 
     def add(level, message = nil, &block)
-      if log?(NICE_LEVELS.key(level))
-        @output.public_send(level) { decorate(message, &block) }
-      end
+      public_send(level, message, &block)
     end
     alias log add
 
@@ -132,10 +104,6 @@ module Pakyow
     end
 
     private
-
-    def log?(level)
-      level >= @level
-    end
 
     def decorate(message = nil)
       message = yield if block_given?

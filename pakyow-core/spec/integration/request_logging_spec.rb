@@ -1,6 +1,6 @@
 RSpec.describe "request logging" do
   let :logger do
-    Pakyow::Logger.new(:http)
+    Pakyow::Logger.new(:http, output: Pakyow.global_logger, level: Pakyow.config.logger.level)
   end
 
   let :io do
@@ -41,16 +41,17 @@ RSpec.describe "request logging" do
   end
 
   before do
-    Pakyow.config.logger.destinations = []
+    Pakyow.config.logger.destinations = { io: io }
+    Pakyow.config.logger.formatter = formatter
+
     Pakyow.send(:init_global_logger)
-    Pakyow.global_logger.add(Log4r::IOOutputter.new(:out, io, formatter: formatter))
     allow(logger).to receive(:elapsed).and_return(elapsed)
   end
 
   context "formatter is human" do
     let :formatter do
       require "pakyow/logger/formatters/human"
-      Pakyow::Logger::Formatters::Human.new
+      Pakyow::Logger::Formatters::Human
     end
 
     it "logs a message" do
@@ -78,7 +79,7 @@ RSpec.describe "request logging" do
   context "formatter is json" do
     let :formatter do
       require "pakyow/logger/formatters/json"
-      Pakyow::Logger::Formatters::JSON.new
+      Pakyow::Logger::Formatters::JSON
     end
 
     it "logs a message" do
@@ -106,7 +107,7 @@ RSpec.describe "request logging" do
   context "formatter is logfmt" do
     let :formatter do
       require "pakyow/logger/formatters/logfmt"
-      Pakyow::Logger::Formatters::Logfmt.new
+      Pakyow::Logger::Formatters::Logfmt
     end
 
     it "logs a message" do

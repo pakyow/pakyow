@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "log4r"
-
 require "pakyow/support/extension"
 
 require "pakyow/logger/formatters/human"

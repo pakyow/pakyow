@@ -6,11 +6,13 @@ RSpec.describe Pakyow::Logger::Formatters::JSON do
   include_examples :log_formatter
 
   let :formatter do
-    Pakyow::Logger::Formatters::JSON.new
+    Pakyow::Logger::Formatters::JSON.new(output)
   end
 
   it "formats the prologue" do
-    expect(formatter.format(event("prologue" => connection))).to eq(
+    formatter.call(event("prologue" => connection), severity: level)
+
+    expect(entry).to eq(
       <<~JSON
         {"severity":"info","timestamp":"#{Time.now}","id":"123","type":"test","elapsed":"0.42ms","method":"GET","uri":"/","ip":"0.0.0.0"}
       JSON
@@ -18,7 +20,9 @@ RSpec.describe Pakyow::Logger::Formatters::JSON do
   end
 
   it "formats the epilogue" do
-    expect(formatter.format(event("epilogue" => connection))).to eq(
+    formatter.call(event("epilogue" => connection), severity: level)
+
+    expect(entry).to eq(
       <<~JSON
         {"severity":"info","timestamp":"#{Time.now}","id":"123","type":"test","elapsed":"0.42ms","status":200}
       JSON
@@ -26,7 +30,9 @@ RSpec.describe Pakyow::Logger::Formatters::JSON do
   end
 
   it "formats an error event" do
-    expect(formatter.format(event("error" => error))).to eq(
+    formatter.call(event("error" => error), severity: level)
+
+    expect(entry).to eq(
       <<~JSON
         {"severity":"info","timestamp":"#{Time.now}","id":"123","type":"test","elapsed":"0.42ms","exception":"ArgumentError","message":"foo","backtrace":#{JSON.dump(error.backtrace)}}
       JSON
@@ -34,7 +40,9 @@ RSpec.describe Pakyow::Logger::Formatters::JSON do
   end
 
   it "formats an error object" do
-    expect(formatter.format(event(error))).to eq(
+    formatter.call(event(error), severity: level)
+
+    expect(entry).to eq(
       <<~JSON
         {"severity":"info","timestamp":"#{Time.now}","id":"123","type":"test","elapsed":"0.42ms","exception":"ArgumentError","message":"foo","backtrace":#{JSON.dump(error.backtrace)}}
       JSON
@@ -42,7 +50,9 @@ RSpec.describe Pakyow::Logger::Formatters::JSON do
   end
 
   it "formats a string message" do
-    expect(formatter.format(event("test"))).to eq(
+    formatter.call(event("test"), severity: level)
+
+    expect(entry).to eq(
       <<~JSON
         {"severity":"info","timestamp":"#{Time.now}","id":"123","type":"test","elapsed":"0.42ms","message":"test"}
       JSON
@@ -50,7 +60,9 @@ RSpec.describe Pakyow::Logger::Formatters::JSON do
   end
 
   it "formats a hash message" do
-    expect(formatter.format(event(foo: "bar"))).to eq(
+    formatter.call(event(foo: "bar"), severity: level)
+
+    expect(entry).to eq(
       <<~JSON
         {"severity":"info","timestamp":"#{Time.now}","id":"123","type":"test","elapsed":"0.42ms","foo":"bar"}
       JSON
@@ -58,7 +70,9 @@ RSpec.describe Pakyow::Logger::Formatters::JSON do
   end
 
   it "formats a string message that did not originate from Pakyow::Logger" do
-    expect(formatter.format(double(:event, level: level, data: "test"))).to eq(
+    formatter.call("test", severity: level)
+
+    expect(entry).to eq(
       <<~JSON
         {"severity":"info","timestamp":"#{Time.now}","message":"test"}
       JSON
@@ -66,7 +80,9 @@ RSpec.describe Pakyow::Logger::Formatters::JSON do
   end
 
   it "formats a hash message that did not originate from Pakyow::Logger" do
-    expect(formatter.format(double(:event, level: level, data: { foo: "bar" }))).to eq(
+    formatter.call({ foo: "bar" }, severity: level)
+
+    expect(entry).to eq(
       <<~JSON
         {"severity":"info","timestamp":"#{Time.now}","foo":"bar"}
       JSON

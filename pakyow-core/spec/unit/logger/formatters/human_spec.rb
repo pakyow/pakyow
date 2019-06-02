@@ -6,11 +6,13 @@ RSpec.describe Pakyow::Logger::Formatters::Human do
   include_examples :log_formatter
 
   let :formatter do
-    Pakyow::Logger::Formatters::Human.new
+    Pakyow::Logger::Formatters::Human.new(output)
   end
 
   it "formats the prologue" do
-    expect(formatter.format(event("prologue" => connection))).to eq(
+    formatter.call(event("prologue" => connection), severity: level)
+
+    expect(entry).to eq(
       <<~STRING
         \e[32m420.00μs test.123 | GET / (for 0.0.0.0 at #{Time.now})\e[0m
       STRING
@@ -18,7 +20,9 @@ RSpec.describe Pakyow::Logger::Formatters::Human do
   end
 
   it "formats the epilogue" do
-    expect(formatter.format(event("epilogue" => connection))).to eq(
+    formatter.call(event("epilogue" => connection), severity: level)
+
+    expect(entry).to eq(
       <<~STRING
         \e[32m420.00μs test.123 | 200 (OK)\e[0m
       STRING
@@ -27,7 +31,9 @@ RSpec.describe Pakyow::Logger::Formatters::Human do
 
   it "formats an error event" do
     allow_any_instance_of(Pakyow::Error::CLIFormatter).to receive(:to_s).and_return(error.to_s)
-    expect(formatter.format(event("error" => error))).to eq(
+    formatter.call(event("error" => error), severity: level)
+
+    expect(entry).to eq(
       <<~STRING
         \e[32m420.00μs test.123 | foo\e[0m
       STRING
@@ -36,7 +42,9 @@ RSpec.describe Pakyow::Logger::Formatters::Human do
 
   it "formats an error object" do
     allow_any_instance_of(Pakyow::Error::CLIFormatter).to receive(:to_s).and_return(error.to_s)
-    expect(formatter.format(event(error))).to eq(
+    formatter.call(event(error), severity: level)
+
+    expect(entry).to eq(
       <<~STRING
         \e[32m420.00μs test.123 | foo\e[0m
       STRING
@@ -44,7 +52,9 @@ RSpec.describe Pakyow::Logger::Formatters::Human do
   end
 
   it "formats a string message" do
-    expect(formatter.format(event("test"))).to eq(
+    formatter.call(event("test"), severity: level)
+
+    expect(entry).to eq(
       <<~STRING
         \e[32m420.00μs test.123 | test\e[0m
       STRING
@@ -52,7 +62,9 @@ RSpec.describe Pakyow::Logger::Formatters::Human do
   end
 
   it "formats a hash message" do
-    expect(formatter.format(event(foo: "bar"))).to eq(
+    formatter.call(event(foo: "bar"), severity: level)
+
+    expect(entry).to eq(
       <<~STRING
         \e[32m420.00μs test.123 | {:foo=>\"bar\"}\e[0m
       STRING
@@ -60,7 +72,9 @@ RSpec.describe Pakyow::Logger::Formatters::Human do
   end
 
   it "formats a string message that did not originate from Pakyow::Logger" do
-    expect(formatter.format(double(:event, level: level, data: "test"))).to eq(
+    formatter.call("test", severity: level)
+
+    expect(entry).to eq(
       <<~STRING
         \e[32mtest\e[0m
       STRING
@@ -68,7 +82,9 @@ RSpec.describe Pakyow::Logger::Formatters::Human do
   end
 
   it "formats a hash message that did not originate from Pakyow::Logger" do
-    expect(formatter.format(double(:event, level: level, data: { foo: "bar" }))).to eq(
+    formatter.call({ foo: "bar" }, severity: level)
+
+    expect(entry).to eq(
       <<~STRING
         \e[32m{:foo=>\"bar\"}\e[0m
       STRING

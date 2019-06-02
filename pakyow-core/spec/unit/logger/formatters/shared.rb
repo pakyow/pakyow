@@ -33,7 +33,7 @@ RSpec.shared_examples :log_formatter do
   end
 
   let :level do
-    4
+    :info
   end
 
   let :logger_id do
@@ -48,13 +48,22 @@ RSpec.shared_examples :log_formatter do
     0.00042
   end
 
-  before do
-    allow(Pakyow).to receive(:global_logger).and_return(double(:global_logger, level: level))
+  let :output do
+    Proc.new do |string|
+      io.write(string)
+    end
+  end
+
+  let :io do
+    StringIO.new
+  end
+
+  let :entry do
+    io.rewind
+    io.read
   end
 
   def event(message)
-    event = double(:event, level: level, data: {
-      "logger" => double(:logger, id: logger_id, type: logger_type, elapsed: logger_elapsed), "message" => message
-    })
+    { "logger" => double(:logger, id: logger_id, type: logger_type, elapsed: logger_elapsed), "message" => message }
   end
 end

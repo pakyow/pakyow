@@ -42,7 +42,7 @@ module Pakyow
 
       def initialize(id, connection)
         @id, @connection, @open = id, connection, false
-        @logger = Logger.new(:sock, id: @id[0..7])
+        @logger = Logger.new(:sock, id: @id[0..7], output: Pakyow.global_logger, level: Pakyow.config.logger.level)
         @server = @connection.app.websocket_server
 
         response = Async::WebSocket::Adapters::Native.open(@connection.request, handler: Connection) do |socket|

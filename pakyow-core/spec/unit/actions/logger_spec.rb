@@ -46,11 +46,11 @@ RSpec.describe Pakyow::Actions::Logger do
 
   context "silencer exists" do
     let :output do
-      double(:output, level: 2)
+      double(:output)
     end
 
     let :logger do
-      Pakyow::Logger.new(:http, output: output)
+      Pakyow::Logger.new(:http, output: output, level: :info)
     end
 
     before do
@@ -70,11 +70,11 @@ RSpec.describe Pakyow::Actions::Logger do
 
       it "silences log output" do
         expect(logger).to receive(:prologue) do
-          expect(logger.level).to eq(Pakyow::Logger::NICE_LEVELS.key(:error))
+          expect(logger.level).to eq(4)
         end
 
         expect(logger).to receive(:epilogue) do
-          expect(logger.level).to eq(Pakyow::Logger::NICE_LEVELS.key(:error))
+          expect(logger.level).to eq(4)
         end
 
         action.call(connection) {}

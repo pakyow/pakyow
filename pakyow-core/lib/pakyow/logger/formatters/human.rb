@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
-require "log4r"
-
 require "pakyow/connection"
 require "pakyow/error"
 
 require "pakyow/logger/colorizer"
+require "pakyow/logger/formatter"
 require "pakyow/logger/timekeeper"
 
 require "pakyow/connection/statuses"
@@ -21,25 +20,25 @@ module Pakyow
       #    3.78ms http.c730cb72 | 200 (OK)
       #
       # @api private
-      class Human < Log4r::Formatter
-        def format(event)
+      class Human < Formatter
+        private
+
+        def format(event, options)
           entry = String.new
 
-          case event.data
+          case event
           when Hash
-            if event.data.key?("logger") && event.data.key?("message")
-              format_logger_message(event.data, entry)
+            if event.key?("logger") && event.key?("message")
+              format_logger_message(event, entry)
             else
-              entry << event.data.to_s
+              entry << event.to_s
             end
           else
-            entry << event.data.to_s
+            entry << event.to_s
           end
 
-          Colorizer.colorize(entry, event.level) << "\n"
+          Colorizer.colorize(entry, options[:severity]) << "\n"
         end
-
-        private
 
         def format_logger_message(logger_message, entry)
           logger = logger_message["logger"]

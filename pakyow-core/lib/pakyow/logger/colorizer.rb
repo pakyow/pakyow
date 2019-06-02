@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "log4r"
-
 require "pakyow/support/cli/style"
 
 require "pakyow/logger"
@@ -22,12 +20,12 @@ module Pakyow
       end
 
       LEVEL_COLORS = {
-        Logger::NICE_LEVELS.key(:verbose) => :magenta,
-        Logger::NICE_LEVELS.key(:debug) => :cyan,
-        Logger::NICE_LEVELS.key(:info) => :green,
-        Logger::NICE_LEVELS.key(:warn) => :yellow,
-        Logger::NICE_LEVELS.key(:error) => :red,
-        Logger::NICE_LEVELS.key(:fatal) => :red
+        verbose: :magenta,
+        debug: :cyan,
+        info: :green,
+        warn: :yellow,
+        error: :red,
+        fatal: :red
       }.freeze
 
       # Returns a color for a level.

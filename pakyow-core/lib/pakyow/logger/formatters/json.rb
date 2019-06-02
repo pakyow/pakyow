@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "json"
-require "log4r"
 
 require "pakyow/logger"
 require "pakyow/logger/timekeeper"
@@ -17,22 +16,24 @@ module Pakyow
       #   {"severity":"info","timestamp":"2016-06-20 10:07:30 -0500","id":"c8af6a8b","type":"http","elapsed":"3.08ms","status":200}
       #
       # @api private
-      class JSON < Log4r::Formatter
-        def format(event)
+      class JSON < Formatter
+        private
+
+        def format(event, options)
           entry = {
-            "severity" => Logger::NICE_LEVELS[event.level],
+            "severity" => options[:severity],
             "timestamp" => Time.now
           }
 
-          case event.data
+          case event
           when Hash
-            if event.data.key?("logger") && event.data.key?("message")
-              format_logger_message(event.data, entry)
+            if event.key?("logger") && event.key?("message")
+              format_logger_message(event, entry)
             else
-              entry.merge!(event.data)
+              entry.merge!(event)
             end
           else
-            entry["message"] = event.data.to_s
+            entry["message"] = event.to_s
           end
 
           serialize(entry)

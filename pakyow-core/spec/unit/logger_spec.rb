@@ -5,8 +5,12 @@ RSpec.describe Pakyow::Logger do
     :http
   end
 
-  let :global_logger do
-    double(:global_logger, level: 2)
+  let :output do
+    double(:output, call: nil)
+  end
+
+  let :level do
+    :info
   end
 
   let :formatter do
@@ -19,7 +23,7 @@ RSpec.describe Pakyow::Logger do
   end
 
   let :instance do
-    described_class.new(type)
+    described_class.new(type, output: output, level: level)
   end
 
   let :env do
@@ -42,14 +46,10 @@ RSpec.describe Pakyow::Logger do
     end
   end
 
-  before do
-    allow(Pakyow).to receive(:global_logger).and_return(global_logger)
-  end
-
   describe "#initialize" do
     describe "argument: type" do
       it "is required" do
-        expect { described_class.new }.to raise_error(ArgumentError)
+        expect { described_class.new(output: output, level: level) }.to raise_error(ArgumentError)
       end
 
       it "is set on the instance" do
@@ -58,13 +58,11 @@ RSpec.describe Pakyow::Logger do
     end
 
     describe "argument: output" do
-      it "defaults to Pakyow.global_logger" do
-        expect(instance.output).to be(global_logger)
+      it "is required" do
+        expect { described_class.new(type, level: level) }.to raise_error(ArgumentError)
       end
 
-      it "can be passed" do
-        output = double(level: 1)
-        instance = described_class.new(type, output: output)
+      it "is set on the instance" do
         expect(instance.output).to be(output)
       end
     end
@@ -78,24 +76,20 @@ RSpec.describe Pakyow::Logger do
 
       it "can be passed" do
         id = double
-        instance = described_class.new(type, id: id)
+        instance = described_class.new(type, id: id, output: output, level: level)
         expect(instance.id).to be(id)
       end
     end
 
     describe "level" do
-      it "defaults to the level from the output" do
-        expect(instance.level).to eq(global_logger.level)
-      end
-
       it "can be passed as an integer" do
-        instance = described_class.new(type, level: 4)
+        instance = described_class.new(type, output: output, level: 4)
         expect(instance.level).to eq(4)
       end
 
       it "can be passed as a symbol" do
-        instance = described_class.new(type, level: :verbose)
-        expect(instance.level).to eq(2)
+        instance = described_class.new(type, output: output, level: :verbose)
+        expect(instance.level).to eq(0)
       end
     end
   end
@@ -110,9 +104,14 @@ RSpec.describe Pakyow::Logger do
     end
 
     %i(verbose debug info warn error fatal unknown).each do |method|
+      let :level do
+        :verbose
+      end
+
       describe "##{method}" do
         it "calls #{method} on the output with a block that returns a decorated message" do
-          expect(global_logger).to receive(method).with(no_args) do |&block|
+          expect(output).to receive(:call) do |_, options, &block|
+            expect(options[:severity]).to eq(method)
             expect(instance).to receive(:decorate).with(message).and_return(decorated)
             expect(block.call).to be(decorated)
           end
@@ -125,7 +124,8 @@ RSpec.describe Pakyow::Logger do
     describe "#<<" do
       it "calls unknown on the output with the decorated message" do
         expect(instance).to receive(:decorate).with(message).and_return(decorated)
-        expect(global_logger).to receive(:unknown) do |&block|
+        expect(output).to receive(:call) do |_, options, &block|
+          expect(options[:severity]).to eq(:unknown)
           expect(block.call).to be(decorated)
         end
 
@@ -136,7 +136,8 @@ RSpec.describe Pakyow::Logger do
     %i(add log).each do |method|
       describe "##{method}" do
         it "calls add on the output with the given severity and a block that returns a decorated message" do
-          expect(global_logger).to receive(:info) do |&block|
+          expect(output).to receive(:call) do |_, options, &block|
+            expect(options[:severity]).to eq(:info)
             expect(instance).to receive(:decorate).with(message).and_return(decorated)
             expect(block.call).to be(decorated)
           end
@@ -149,7 +150,8 @@ RSpec.describe Pakyow::Logger do
 
   describe "#prologue" do
     it "logs the prologue at the proper level" do
-      expect(global_logger).to receive(:info) do |&block|
+      expect(output).to receive(:call) do |_, options, &block|
+        expect(options[:severity]).to eq(:info)
         expect(block.call["message"]).to include("prologue" => connection)
       end
 
@@ -159,7 +161,8 @@ RSpec.describe Pakyow::Logger do
 
   describe "#epilogue" do
     it "logs the epilogue at the proper level" do
-      expect(global_logger).to receive(:info) do |&block|
+      expect(output).to receive(:call) do |_, options, &block|
+        expect(options[:severity]).to eq(:info)
         expect(block.call["message"]).to include("epilogue" => connection)
       end
 
@@ -173,7 +176,8 @@ RSpec.describe Pakyow::Logger do
     end
 
     it "logs the error at the proper level" do
-      expect(global_logger).to receive(:error) do |&block|
+      expect(output).to receive(:call) do |_, options, &block|
+        expect(options[:severity]).to eq(:error)
         expect(block.call["message"]).to include("error" => err)
       end
 
@@ -183,7 +187,7 @@ RSpec.describe Pakyow::Logger do
 
   describe "#silence" do
     it "does not log messages below error by default" do
-      expect(global_logger).not_to receive(:warn)
+      expect(output).not_to receive(:warn)
 
       instance.silence do
         instance.warn "test_warn"
@@ -191,15 +195,18 @@ RSpec.describe Pakyow::Logger do
     end
 
     it "logs messages at error or above by default" do
-      expect(global_logger).to receive(:error) do |&block|
+      expect(output).to receive(:call) do |_, options, &block|
+        expect(options[:severity]).to eq(:error)
         expect(block.call).to include("message" => "test_error")
       end
 
-      expect(global_logger).to receive(:fatal) do |&block|
+      expect(output).to receive(:call) do |_, options, &block|
+        expect(options[:severity]).to eq(:fatal)
         expect(block.call).to include("message" => "test_fatal")
       end
 
-      expect(global_logger).to receive(:unknown) do |&block|
+      expect(output).to receive(:call) do |_, options, &block|
+        expect(options[:severity]).to eq(:unknown)
         expect(block.call).to include("message" => "test_unknown")
       end
 
@@ -212,7 +219,7 @@ RSpec.describe Pakyow::Logger do
 
     context "temporary level is passed" do
       it "does not log messages below the passed level" do
-        expect(global_logger).not_to receive(:info)
+        expect(output).not_to receive(:call)
 
         instance.silence :warn do
           instance.info "test_info"
@@ -220,11 +227,13 @@ RSpec.describe Pakyow::Logger do
       end
 
       it "logs messages at or above the passed level" do
-        expect(global_logger).to receive(:warn) do |&block|
+        expect(output).to receive(:call) do |_, options, &block|
+          expect(options[:severity]).to eq(:warn)
           expect(block.call).to include("message" => "test_warn")
         end
 
-        expect(global_logger).to receive(:error) do |&block|
+        expect(output).to receive(:call) do |_, options, &block|
+          expect(options[:severity]).to eq(:error)
           expect(block.call).to include("message" => "test_error")
         end
 
@@ -239,6 +248,26 @@ RSpec.describe Pakyow::Logger do
       original_level = instance.level
       instance.silence do; end
       expect(instance.level).to eq(original_level)
+    end
+  end
+
+  describe "setting the log level to all" do
+    let :level do
+      :all
+    end
+
+    it "sets the appropriate level" do
+      expect(instance.level).to eq(0)
+    end
+  end
+
+  describe "setting the log level to off" do
+    let :level do
+      :off
+    end
+
+    it "sets the appropriate level" do
+      expect(instance.level).to eq(7)
     end
   end
 end

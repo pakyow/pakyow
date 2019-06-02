@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
-require "log4r"
-require "log4r/configurator"
+require "async"
+
+require "console"
+require "console/split"
 
 require "pakyow/support/core_refinements/array/ensurable"
 
@@ -30,6 +32,8 @@ require "pakyow/environment/actions/logger"
 require "pakyow/environment/actions/normalizer"
 
 require "pakyow/app"
+
+require "pakyow/logger/destination"
 require "pakyow/logger/thread_local"
 
 # Pakyow environment for running one or more rack apps. Multiple apps can be
@@ -276,9 +280,11 @@ module Pakyow
 
     def call(input)
       config.connection_class.new(input).yield_self { |connection|
-        catch :halt do
-          @pipeline.call(connection)
-        end
+        Async(logger: connection.logger) {
+          catch :halt do
+            @pipeline.call(connection)
+          end
+        }.wait
       }.finalize
     rescue StandardError => error
       Pakyow.logger.houston(error)
@@ -315,20 +321,19 @@ module Pakyow
     private
 
     def init_global_logger
-      Log4r::Configurator.custom_levels(*Logger::LEVELS.map { |level|
-        Support.inflector.classify(level)
-      })
+      destinations = Console::Split[
+        *config.logger.destinations.map { |destination, io|
+          Logger::Destination.new(destination, io)
+        }
+      ]
 
-      Log4r::Logger.root.level = Logger::NICE_LEVELS.key(config.logger.level)
+      @global_logger = config.logger.formatter.new(destinations)
 
-      @global_logger = Log4r::Logger.new("pakyow")
-      config.logger.destinations.each do |name, destination|
-        @global_logger.add(Log4r::IOOutputter.new(name, destination, formatter: config.logger.formatter))
-      end
+      @logger = Logger::ThreadLocal.new(
+        Logger.new("pkyw", output: @global_logger, level: config.logger.level)
+      )
 
-      @logger = Logger::ThreadLocal.new(Logger.new("pkyw"))
-
-      Async.instance_variable_set(:@logger, Logger.new("asnc", output: @global_logger, level: :warn))
+      Console.logger = Logger.new("asnc", output: @global_logger, level: :warn)
     end
 
     def ensure_setup_succeeded
