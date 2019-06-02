@@ -93,6 +93,7 @@ RSpec.describe "attaching a transform that inserts a node before" do
         Proc.new do
           presenter "/presentation/transforms" do
             render node: -> { find(:post).versions[0] } do
+              puts "!!!!!!!!!!!!!"
               bind(title: "foo")
               before("before")
             end

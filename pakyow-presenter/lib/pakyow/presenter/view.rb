@@ -100,6 +100,23 @@ module Pakyow
         end
       end
 
+      def soft_copy
+        instance = self.class.allocate
+
+        instance.instance_variable_set(:@info, @info.dup)
+
+        new_object = @object.soft_copy
+        instance.instance_variable_set(:@object, new_object)
+
+        if new_object.respond_to?(:attributes)
+          instance.attributes = new_object.attributes
+        else
+          instance.instance_variable_set(:@attributes, nil)
+        end
+
+        instance
+      end
+
       # Finds a view binding by name. When passed more than one value, the view will
       # be traversed through each name. Returns a {VersionedView}.
       #

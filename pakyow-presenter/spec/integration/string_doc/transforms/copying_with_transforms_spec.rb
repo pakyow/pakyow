@@ -32,7 +32,7 @@ RSpec.describe "copying a node that has future transforms" do
     node.transform do |meta_node|
       data = ["foo", "bar", "baz"]
 
-      template = meta_node.dup
+      template = meta_node.soft_copy
       insertable = meta_node
       current = meta_node
 
@@ -44,7 +44,7 @@ RSpec.describe "copying a node that has future transforms" do
           insertable = current
         end
 
-        current = template.dup
+        current = template.soft_copy
       end
 
       meta_node
@@ -117,7 +117,7 @@ RSpec.describe "copying a node that has future transforms" do
       node.transform do |meta_node|
         data = ["foo", "bar", "baz"]
 
-        template = meta_node.dup
+        template = meta_node.soft_copy
         insertable = meta_node
         current = meta_node
 
@@ -129,7 +129,7 @@ RSpec.describe "copying a node that has future transforms" do
             insertable = current
           end
 
-          current = template.dup
+          current = template.soft_copy
         end
 
         meta_node

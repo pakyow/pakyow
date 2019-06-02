@@ -28,6 +28,8 @@ class StringDoc
       @internal_nodes = nodes.select { |node|
         !node.is_a?(MetaNode) && node.labeled?(:__meta_node)
       }
+
+      @pipeline = nil
     end
 
     # @api private
@@ -36,13 +38,37 @@ class StringDoc
 
       @doc = @doc.dup
 
-      @transforms = Hash[@transforms.map { |key, value|
-        [key, value.dup]
-      }]
+      @transforms = @transforms.each_with_object({}) { |(key, value), hash|
+        hash[key] = value.dup
+      }
 
       @internal_nodes = nodes.select { |node|
         !node.is_a?(MetaNode) && node.labeled?(:__meta_node)
       }
+
+      @pipeline = nil
+    end
+
+    # @api private
+    def soft_copy
+      instance = self.class.allocate
+
+      new_doc = @doc.soft_copy
+      instance.instance_variable_set(:@doc, new_doc)
+      instance.instance_variable_set(:@transforms, @transforms)
+
+      instance.instance_variable_set(:@internal_nodes, new_doc.nodes.select { |node|
+        !node.is_a?(MetaNode) && node.labeled?(:__meta_node)
+      })
+
+      instance.instance_variable_set(:@pipeline, @pipeline.dup)
+
+      instance
+    end
+
+    def freeze(*)
+      pipeline
+      super
     end
 
     # @api private
@@ -69,11 +95,12 @@ class StringDoc
     end
 
     def next_transform
-      @transforms[:high].shift || @transforms[:default].shift || @transforms[:low].shift
+      pipeline.shift
     end
 
     def transform(priority: :default, &block)
-      @transforms[priority] << block; block.object_id
+      @transforms[priority] << block
+      @pipeline = nil
     end
 
     def transforms?
@@ -81,7 +108,7 @@ class StringDoc
     end
 
     def transforms_itself?
-      @transforms[:high].any? || @transforms[:default].any? || @transforms[:low].any?
+      pipeline.any?
     end
 
     def significant?(type = nil)
@@ -264,8 +291,16 @@ class StringDoc
 
     private
 
+    def pipeline
+      @pipeline ||= @transforms.values.flatten
+    end
+
     def __transform(string, context:)
-      node = dup
+      node = if frozen?
+        soft_copy
+      else
+        self
+      end
 
       current = node
       while transform = node.next_transform

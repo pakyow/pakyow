@@ -26,6 +26,19 @@ module Pakyow
         determine_working_version
       end
 
+      def soft_copy
+        instance = self.class.allocate
+
+        instance.instance_variable_set(:@versions, @versions.map { |version|
+          version.soft_copy
+        })
+
+        instance.instance_variable_set(:@used, @used)
+        instance.send(:determine_working_version)
+
+        instance
+      end
+
       # Returns true if +version+ exists.
       #
       def version?(version)

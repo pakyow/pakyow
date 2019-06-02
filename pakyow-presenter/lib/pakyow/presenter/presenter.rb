@@ -161,7 +161,7 @@ module Pakyow
               remove
             end
           else
-            template = @view.dup
+            template = @view.soft_copy
             insertable = @view
             current = @view
 
@@ -179,7 +179,7 @@ module Pakyow
                 insertable = current
               end
 
-              current = template.dup
+              current = template.soft_copy
             end
           end
         end

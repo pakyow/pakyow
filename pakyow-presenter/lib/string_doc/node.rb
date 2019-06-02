@@ -48,6 +48,7 @@ class StringDoc
       @tag_open_start, @attributes, @tag_open_end, @children, @tag_close = tag_open_start, attributes, tag_open_end, children, tag_close
       @parent, @labels, @significance = parent, labels, significance
       @transforms = { high: [], default: [], low: [] }
+      @pipeline = nil
     end
 
     # @api private
@@ -58,7 +59,36 @@ class StringDoc
       @attributes = @attributes.dup
       @children = @children.dup
       @significance = @significance.dup
-      @transforms = Hash[@transforms.map { |k, v| [k, v.dup] }]
+
+      @transforms = @transforms.each_with_object({}) { |(key, value), hash|
+        hash[key] = value.dup
+      }
+
+      @pipeline = nil
+    end
+
+    # @api private
+    def soft_copy
+      instance = self.class.allocate
+
+      instance.instance_variable_set(:@tag_open_start, @tag_open_start)
+      instance.instance_variable_set(:@tag_open_end, @tag_open_end)
+      instance.instance_variable_set(:@tag_close, @tag_close)
+      instance.instance_variable_set(:@parent, @parent)
+      instance.instance_variable_set(:@significance, @significance)
+      instance.instance_variable_set(:@transforms, @transforms)
+
+      instance.instance_variable_set(:@attributes, @attributes.dup)
+      instance.instance_variable_set(:@children, @children.is_a?(StringDoc) ? @children.soft_copy : @children.dup)
+      instance.instance_variable_set(:@labels, @labels.deep_dup)
+      instance.instance_variable_set(:@pipeline, @pipeline.dup)
+
+      instance
+    end
+
+    def freeze(*)
+      pipeline
+      super
     end
 
     # @api private
@@ -78,11 +108,12 @@ class StringDoc
     end
 
     def next_transform
-      @transforms[:high].shift || @transforms[:default].shift || @transforms[:low].shift
+      pipeline.shift
     end
 
     def transform(priority: :default, &block)
-      @transforms[priority] << block; block.object_id
+      @transforms[priority] << block
+      @pipeline = nil
     end
 
     def transforms?
@@ -90,7 +121,7 @@ class StringDoc
     end
 
     def transforms_itself?
-      @transforms[:high].any? || @transforms[:default].any? || @transforms[:low].any?
+      pipeline.any?
     end
 
     def significant?(type = nil)
@@ -226,7 +257,7 @@ class StringDoc
         when StringDoc
           children.render(output, context: context)
         else
-          output << children
+          output << children.to_s
         end
 
         output << tag_close
@@ -305,8 +336,16 @@ class StringDoc
 
     private
 
+    def pipeline
+      @pipeline ||= @transforms.values.flatten
+    end
+
     def __transform(string, context:)
-      node = dup
+      node = if frozen?
+        soft_copy
+      else
+        self
+      end
 
       current = node
       while transform = node.next_transform

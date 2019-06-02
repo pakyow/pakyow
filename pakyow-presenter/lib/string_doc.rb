@@ -153,6 +153,21 @@ class StringDoc
     }
   end
 
+    # @api private
+  def soft_copy
+    instance = self.class.allocate
+
+    instance.instance_variable_set(:@nodes, @nodes.map { |node|
+      duped_node = node.soft_copy
+      duped_node.parent = instance
+      duped_node
+    })
+
+    instance.instance_variable_set(:@collapsed, @collapsed)
+
+    instance
+  end
+
   include Enumerable
 
   def each(descend: false, &block)
@@ -372,7 +387,22 @@ class StringDoc
   end
 
   def render(output = String.new, context: nil)
-    __render(self, output, context: context)
+    if collapsed && empty?
+      output << collapsed
+    else
+      nodes.each do |node|
+        case node
+        when MetaNode
+          node.render(output, context: context)
+        when Node
+          node.render(output, context: context)
+        else
+          output << node.to_s
+        end
+      end
+
+      output
+    end
   end
   alias :to_html :render
   alias :to_xml :render
@@ -427,23 +457,6 @@ class StringDoc
   end
 
   private
-
-  def __render(doc = self, string, context:)
-    if doc.collapsed && doc.empty?
-      string << doc.collapsed
-    else
-      doc.nodes.each do |node|
-        case node
-        when Node, MetaNode
-          node.render(string, context: context)
-        else
-          string << node.to_s
-        end
-      end
-
-      string
-    end
-  end
 
   # Parses an Oga document into an array of +Node+ objects.
   #
