@@ -24,7 +24,7 @@ RSpec.describe Pakyow::Security::Base do
   end
 
   before do
-    allow(Pakyow).to receive(:global_logger).and_return(double(:global_logger, level: 2, warn: nil))
+    allow(Pakyow).to receive(:global_logger).and_return(double(:global_logger, level: 2, call: nil))
   end
 
   describe "safe methods" do
