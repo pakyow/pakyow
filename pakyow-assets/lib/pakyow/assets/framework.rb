@@ -41,8 +41,12 @@ module Pakyow
           include Behavior::Prelaunching
           include Behavior::Processing
 
-          isolated :Renderer do
-            include Assets::Behavior::Rendering::InstallAssets
+          after :initialize, priority: :low do
+            isolated(:Renderer) do
+              # Load this one later, in case other actions define components that will load assets.
+              #
+              include Assets::Behavior::Rendering::InstallAssets
+            end
           end
         end
       end
