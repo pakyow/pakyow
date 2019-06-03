@@ -5,7 +5,7 @@ RSpec.describe Pakyow::App::Connection::Session::Cookie do
     it "initializes with a connection and options"
     it "invokes super with connection, options, and the deserialized session"
     it "sets the session cookie with the configured name"
-    it "sets the request cookie value to the session object"
+    it "sets the request cookie value to the duped session object"
 
     describe "session cookie" do
       it "sets the configured domain value"

@@ -28,7 +28,7 @@ module Pakyow
 
               # Update the original cookie value so we can compare for changes.
               #
-              connection.update_request_cookie(options.name, self)
+              connection.update_request_cookie(options.name, self.dup)
             end
           end
 
