@@ -12,7 +12,21 @@ module Pakyow
             #   # => "/foo/bar"
             #
             def normalize_path(path)
-              File.join("/", path.to_s.gsub("//", "/").chomp("/"))
+              path = path.to_s
+
+              unless path.start_with?("/")
+                path = "/#{path}"
+              end
+
+              if path.include?("//")
+                path = path.to_s.gsub("//", "/")
+              end
+
+              unless path == "/"
+                path = path.chomp("/")
+              end
+
+              path
             end
           end
         end
