@@ -19,7 +19,7 @@ module Pakyow
         apply_extension do
           after :initialize do
             if config.assets.externals.pakyow
-              external_script :pakyow, "^1.0.0-alpha.1", package: "@pakyow/js", files: [
+              external_script :pakyow, "^1.0.0-alpha.14", package: "@pakyow/js", files: [
                 "dist/pakyow.js",
                 "dist/components/confirmable.js",
                 "dist/components/form.js",
