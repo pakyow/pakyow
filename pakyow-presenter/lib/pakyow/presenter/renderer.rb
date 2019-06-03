@@ -221,9 +221,10 @@ module Pakyow
         end
 
         IMPLICIT_HTTP_METHODS = %i(get head).freeze
+        IMPLICIT_HTTP_FORMATS = %i(any html).freeze
 
         def render_implicitly?(connection)
-          IMPLICIT_HTTP_METHODS.include?(connection.method) && connection.format == :html &&
+          IMPLICIT_HTTP_METHODS.include?(connection.method) && IMPLICIT_HTTP_FORMATS.include?(connection.format) &&
             (Pakyow.env?(:prototype) || ((!connection.halted?) && !connection.rendered?))
         end
 

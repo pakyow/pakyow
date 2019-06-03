@@ -57,6 +57,14 @@ RSpec.describe "implicitly rendering when a controller is called but does not re
         expect(call("/other.json")[0]).to eq(404)
       end
     end
+
+    context "request format is any" do
+      it "automatically renders the view" do
+        response = call("/other", headers: { "accept" => "*/*" })
+        expect(response[0]).to eq(200)
+        expect(response[2]).to eq_sans_whitespace("<!DOCTYPE html>\n<html>\n  <head>\n    <title>default</title>\n  </head>\n\n  <body>\n    other\n\n  </body>\n</html>\n")
+      end
+    end
   end
 
   context "view does not exist" do
