@@ -117,12 +117,12 @@ module Pakyow
     def path
       @path ||= if project?
         Pathname.new(
-          File.expand_path(project_backtrace_locations[0].absolute_path)
+          File.expand_path(project_backtrace_locations[0].absolute_path.to_s)
         ).relative_path_from(
           Pathname.new(Pakyow.config.root)
         ).to_s
       else
-        File.expand_path(project_backtrace_locations[0].absolute_path)
+        File.expand_path(project_backtrace_locations[0].absolute_path.to_s)
       end
     end
 
@@ -163,7 +163,7 @@ module Pakyow
 
     def project_backtrace_locations
       (cause || self).backtrace_locations.to_a.select { |line|
-        File.expand_path(line.absolute_path).start_with?(Pakyow.config.root)
+        File.expand_path(line.absolute_path.to_s).start_with?(Pakyow.config.root)
       }
     end
 
