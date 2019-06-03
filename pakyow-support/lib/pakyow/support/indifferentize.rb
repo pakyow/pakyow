@@ -149,9 +149,13 @@ module Pakyow
 
       def stringify_keys(object)
         return object unless object.respond_to?(:to_h)
-        object.to_h.each_with_object({}) { |(key, value), converted|
+
+        converted = {}
+        object.to_h.each do |key, value|
           converted[convert_key(key)] = value
-        }
+        end
+
+        converted
       end
 
       def convert_key(key)

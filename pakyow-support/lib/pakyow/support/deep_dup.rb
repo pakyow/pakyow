@@ -47,10 +47,13 @@ module Pakyow
         # Returns a deep copy of the hash.
         #
         def deep_dup
-          each_with_object(dup) do |(key, value), hash|
+          hash = dup
+          each_pair do |key, value|
             hash.delete(key)
             hash[key.deep_dup] = value.deep_dup
           end
+
+          hash
         end
       end
     end
