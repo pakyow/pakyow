@@ -89,7 +89,12 @@ module Pakyow
               component_render = component_class.__presenter_class.send(:render_proc, component_view) { |_node, _context, string|
                 presentable_component_connection = presentables[:__component_connection]
                 component_connection = presentable_component_connection.dup
-                component_connection.set(:__component_connection, presentable_component_connection)
+
+                presentables.each do |key, value|
+                  if key.to_s.start_with?("__")
+                    component_connection.set(key, value)
+                  end
+                end
 
                 # If the component was defined in an app but being called inside a plugin, set the app to the app instead of the plugin.
                 #
