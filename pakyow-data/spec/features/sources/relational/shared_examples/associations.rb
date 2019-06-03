@@ -297,7 +297,7 @@ RSpec.shared_examples :source_associations do
           end
 
           it "raises an error that puts the app in rescue mode" do
-            expect(Pakyow.app(:test).call({})[2].join).to include("unknown source `posts' for association: comments belongs_to post")
+            expect(call("/")[2]).to include("unknown source `posts' for association: comments belongs_to post")
           end
         end
       end
@@ -704,7 +704,7 @@ RSpec.shared_examples :source_associations do
           end
 
           it "raises an error that puts the app in rescue mode" do
-            expect(Pakyow.app(:test).call({})[2].join).to include("unknown source `comments' for association: posts has_one comment")
+            expect(call("/")[2]).to include("unknown source `comments' for association: posts has_one comment")
           end
         end
       end
@@ -1124,7 +1124,7 @@ RSpec.shared_examples :source_associations do
           end
 
           it "raises an error that puts the app in rescue mode" do
-            expect(Pakyow.app(:test).call({})[2].join).to include("unknown source `relateds' for association: posts has_one comment")
+            expect(call("/")[2]).to include("unknown source `relateds' for association: posts has_one comment")
           end
         end
       end
@@ -1981,7 +1981,7 @@ RSpec.shared_examples :source_associations do
           end
 
           it "raises an error that puts the app in rescue mode" do
-            expect(Pakyow.app(:test).call({})[2].join).to include("unknown source `comments' for association: posts has_many comments")
+            expect(call("/")[2]).to include("unknown source `comments' for association: posts has_many comments")
           end
         end
       end
@@ -2403,7 +2403,7 @@ RSpec.shared_examples :source_associations do
           end
 
           it "raises an error that puts the app in rescue mode" do
-            expect(Pakyow.app(:test).call({})[2].join).to include("unknown source `relateds' for association: posts has_many comments")
+            expect(call("/")[2]).to include("unknown source `relateds' for association: posts has_many comments")
           end
         end
       end

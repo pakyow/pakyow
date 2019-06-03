@@ -119,11 +119,11 @@ RSpec.shared_examples :source_types do
       end
 
       it "defines a created_at field" do
-        expect(data.posts.create.one.to_h.keys).to include(:created_at)
+        expect(data.posts.create.one.to_h.keys).to include("created_at")
       end
 
       it "defines an updated_at field" do
-        expect(data.posts.create.one.to_h.keys).to include(:updated_at)
+        expect(data.posts.create.one.to_h.keys).to include("updated_at")
       end
 
       context "record is created" do

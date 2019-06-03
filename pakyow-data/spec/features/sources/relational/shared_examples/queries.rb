@@ -65,7 +65,7 @@ RSpec.shared_examples :source_queries do
 
     it "has access to dataset methods that conflict with enumerable methods" do
       data.posts.create(title: "foo")
-      expect(data.posts.only_id.one.values.keys).to eq([:id])
+      expect(data.posts.only_id.one.values.keys).to eq(["id"])
     end
 
     describe "queries that include associated data" do
