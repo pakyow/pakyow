@@ -2,7 +2,6 @@
 [travis]: https://travis-ci.org/pakyow/pakyow
 
 # Pakyow Web Framework [![Gitter chat](https://badges.gitter.im/pakyow/chat.svg)](https://gitter.im/pakyow/chat)
-
 *Build modern web applications that don't break the web.*
 
 Pakyow is a Ruby web framework that lets you create fantastic experiences for your users
@@ -28,6 +27,7 @@ simplicity, making it easier to start and leading to long-term productivity.
 
 [![Gem Version](https://badge.fury.io/rb/pakyow.svg)][gem]
 [![Build Status](https://travis-ci.org/pakyow/pakyow.svg?branch=master)][travis]
+[![Open Source Helpers](https://www.codetriage.com/pakyow/pakyow/badges/users.svg)](https://www.codetriage.com/pakyow/pakyow)
 
 ---
 
