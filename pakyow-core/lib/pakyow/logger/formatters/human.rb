@@ -23,7 +23,7 @@ module Pakyow
       class Human < Formatter
         private
 
-        def format(event, options)
+        def format(event, **options)
           entry = String.new
 
           case event
@@ -37,7 +37,7 @@ module Pakyow
             entry << event.to_s
           end
 
-          Colorizer.colorize(entry, options[:severity]) << "\n"
+          @output.call(Colorizer.colorize(entry, options[:severity]) << "\n")
         end
 
         def format_logger_message(logger_message, entry)

@@ -19,7 +19,7 @@ module Pakyow
       class JSON < Formatter
         private
 
-        def format(event, options)
+        def format(event, **options)
           entry = {
             "severity" => options[:severity],
             "timestamp" => Time.now
@@ -65,10 +65,6 @@ module Pakyow
           else
             entry["message"] = message.to_s
           end
-
-          serialize(
-            entry
-          )
         end
 
         def format_prologue(connection, entry)
@@ -95,7 +91,7 @@ module Pakyow
         end
 
         def serialize(entry)
-          entry.to_json << "\n"
+          @output.call(entry.to_json << "\n")
         end
       end
     end

@@ -11,7 +11,7 @@ module Pakyow
 
       def call(event, **options)
         event = yield if block_given?
-        @output.call(format(event, options))
+        format(event, **options)
       end
     end
   end

@@ -34,6 +34,7 @@ require "pakyow/environment/actions/normalizer"
 require "pakyow/app"
 
 require "pakyow/logger/destination"
+require "pakyow/logger/multiplexed"
 require "pakyow/logger/thread_local"
 
 # Pakyow environment for running one or more rack apps. Multiple apps can be
@@ -321,11 +322,11 @@ module Pakyow
     private
 
     def init_global_logger
-      destinations = Console::Split[
+      destinations = Logger::Multiplexed.new(
         *config.logger.destinations.map { |destination, io|
           Logger::Destination.new(destination, io)
         }
-      ]
+      )
 
       @global_logger = config.logger.formatter.new(destinations)
 

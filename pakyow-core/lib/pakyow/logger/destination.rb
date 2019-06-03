@@ -9,7 +9,7 @@ module Pakyow
         @name, @io = name, io
       end
 
-      def call(entry, _)
+      def call(entry)
         @io.write(entry)
       end
     end

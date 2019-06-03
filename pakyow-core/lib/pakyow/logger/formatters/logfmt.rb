@@ -19,7 +19,8 @@ module Pakyow
         UNESCAPED_STRING = /\A[\w\.\-\+\%\,\:\;\/]*\z/i
 
         def serialize(message)
-          message.each_pair.each_with_object(String.new) { |(key, value), buffer|
+          first = true
+          message.each_pair do |key, value|
             value = case value
             when Array
               value.join(",")
@@ -27,12 +28,21 @@ module Pakyow
               value.to_s
             end
 
-            unless value =~ UNESCAPED_STRING
+            unless value.match?(UNESCAPED_STRING)
               value = value.dump
             end
 
-            buffer << "#{key}=#{value} "
-          }.rstrip << "\n"
+            unless first
+              @output.call(" ")
+            end
+
+            @output.call(key)
+            @output.call("=")
+            @output.call(value)
+            first = false
+          end
+
+          @output.call("\n")
         end
       end
     end
