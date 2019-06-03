@@ -18,32 +18,41 @@ module Pakyow
         VALUE_SEPARATOR = " ".freeze
 
         extend Forwardable
-        def_delegators :@value, :to_a, :any?, :empty?, :include?, :<<, :add, :delete, :clear
+        def_delegators :@value, :to_a, :any?, :empty?, :clear
 
         include Support::SafeStringHelpers
 
+        def include?(value)
+          @value.include?(value.to_s)
+        end
+
+        def <<(value)
+          @value << ensure_html_safety(value)
+        end
+
+        def add(value)
+          @value.add(ensure_html_safety(value))
+        end
+
+        def delete(value)
+          @value.delete(value.to_s)
+        end
+
         def to_s
-          @value.map { |value|
-            ensure_html_safety(value.to_s)
-          }.join(VALUE_SEPARATOR)
+          @value.to_a.join(VALUE_SEPARATOR)
         end
 
         class << self
+          include Support::SafeStringHelpers
+
           def parse(value)
-            if value.is_a?(::Set)
-              new(symbolize(value))
-            elsif value.is_a?(Array)
-              new(::Set.new(symbolize(value)))
+            if value.is_a?(Array) || value.is_a?(::Set)
+              new(::Set.new(value.map { |v| ensure_html_safety(v) }))
             elsif value.respond_to?(:to_s)
-              new(::Set.new(symbolize(value.to_s.split(VALUE_SEPARATOR))))
+              new(::Set.new(value.to_s.split(VALUE_SEPARATOR).map { |v| ensure_html_safety(v) }))
             else
               raise ArgumentError.new("expected value to be an Array, Set, or String")
             end
-          end
-
-          # @api private
-          def symbolize(arr)
-            arr.map(&:to_sym)
           end
         end
       end

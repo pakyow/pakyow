@@ -17,10 +17,8 @@ module Pakyow
         extend Forwardable
         def_delegators :@value, :empty?, :include?
 
-        include Support::SafeStringHelpers
-
         def to_s
-          ensure_html_safety(@value.to_s)
+          @value
         end
 
         def to_str
@@ -28,8 +26,10 @@ module Pakyow
         end
 
         class << self
+          include Support::SafeStringHelpers
+
           def parse(value)
-            new(value.to_s)
+            new(ensure_html_safety(value.to_s))
           end
         end
       end

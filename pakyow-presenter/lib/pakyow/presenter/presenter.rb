@@ -328,7 +328,7 @@ module Pakyow
       end
       alias to_s to_html
 
-      def presenter_for(view, type: view&.label(:presenter_type))
+      def presenter_for(view, type: nil)
         if view.nil?
           nil
         else
@@ -338,6 +338,7 @@ module Pakyow
             presentables: @presentables
           )
 
+          type ||= view.object.label(:presenter_type)
           type ? type.new(instance) : instance
         end
       end

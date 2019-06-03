@@ -91,9 +91,12 @@ class StringDoc
 
     # @api private
     def initialize_copy(_)
-      @attributes_hash = @attributes_hash.each_with_object({}) { |(key, value), h|
-        h[key] = value.dup
-      }
+      hash = {}
+      @attributes_hash.each do |key, value|
+        hash[key] = value.dup
+      end
+
+      @attributes_hash = hash
     end
 
     # @api private

@@ -21,27 +21,62 @@ module Pakyow
         WRITE_PAIR_SEPARATOR  = "; ".freeze
 
         extend Forwardable
-        def_delegators :@value, :any?, :empty?, :include?, :key?, :value?, :[], :[]=, :delete, :clear
+        def_delegators :@value, :any?, :empty?, :clear
 
         include Support::SafeStringHelpers
 
-        def to_s
-          string_value = @value.to_a.map { |key, value|
-            "#{ensure_html_safety(key.to_s)}#{WRITE_VALUE_SEPARATOR}#{ensure_html_safety(value.to_s)}"
-          }.join(WRITE_PAIR_SEPARATOR)
+        def include?(key)
+          @value.include?(key.to_s)
+        end
 
-          string_value.empty? ? string_value : string_value + PAIR_SEPARATOR
+        def value?(value)
+          @value.value?(value.to_s)
+        end
+
+        def [](key)
+          @value[key.to_s]
+        end
+
+        def []=(key, value)
+          @value[ensure_html_safety(key)] = ensure_html_safety(value)
+        end
+
+        def delete(key)
+          @value.delete(key.to_s)
+        end
+
+        def to_s
+          string = ::String.new
+          first = true
+          @value.each do |key, value|
+            unless first
+              string << WRITE_PAIR_SEPARATOR
+            end
+
+            string << key
+            string << WRITE_VALUE_SEPARATOR
+            string << value
+            first = false
+          end
+
+          unless string.empty?
+            string = string + PAIR_SEPARATOR
+          end
+
+          string
         end
 
         class << self
+          include Support::SafeStringHelpers
+
           def parse(value)
             if value.is_a?(::Hash)
-              new(value)
+              new(::Hash[value.map { |k, v| [ensure_html_safety(k), ensure_html_safety(v.to_s)]}])
             elsif value.respond_to?(:to_s)
               new(value.to_s.split(PAIR_SEPARATOR).each_with_object({}) { |style, attributes|
                 key, value = style.split(VALUE_SEPARATOR)
                 next unless key && value
-                attributes[key.strip.to_sym] = value.strip
+                attributes[ensure_html_safety(key.strip)] = ensure_html_safety(value.strip)
               })
             else
               raise ArgumentError.new("expected value to be a Hash or String")

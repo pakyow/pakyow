@@ -42,7 +42,7 @@ RSpec.describe "reading attributes via presenter" do
       end
 
       it "can be read" do
-        expect(presenter.attributes[:style]).to eq(color: "red")
+        expect(presenter.attributes[:style]).to eq("color" => "red")
       end
     end
 
@@ -64,7 +64,7 @@ RSpec.describe "reading attributes via presenter" do
       end
 
       it "can be read" do
-        expect(presenter.attributes[:class]).to eq(Set.new([:foo, :bar]))
+        expect(presenter.attributes[:class]).to eq(Set.new(["foo", "bar"]))
       end
     end
 

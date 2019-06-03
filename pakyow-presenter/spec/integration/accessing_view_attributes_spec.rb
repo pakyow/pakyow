@@ -25,7 +25,7 @@ RSpec.describe "accessing view attributes" do
     end
 
     it "contains the values from the view" do
-      expect(value).to eq({ color: "blue" })
+      expect(value).to eq({ "color" => "blue" })
     end
   end
 
@@ -40,7 +40,7 @@ RSpec.describe "accessing view attributes" do
 
     it "contains the values from the view" do
       expect(value).to be_instance_of(Pakyow::Presenter::Attributes::Set)
-      expect(value.to_a).to eq([:foo, :bar])
+      expect(value.to_a).to eq(["foo", "bar"])
     end
   end
 

@@ -22,7 +22,7 @@ RSpec.shared_examples :setting_view_attributes do
 
     describe "replacing the entire value with a hash" do
       before do
-        attributes[:style] = { color: "red" }
+        attributes[:style] = { "color" => "red" }
       end
 
       it "typecasts the value" do
@@ -30,7 +30,7 @@ RSpec.shared_examples :setting_view_attributes do
       end
 
       it "sets the entire value" do
-        expect(value).to eq({ color: "red" })
+        expect(value).to eq({ "color" => "red" })
       end
 
       it "includes the value in the rendered html" do
@@ -48,7 +48,7 @@ RSpec.shared_examples :setting_view_attributes do
       end
 
       it "sets the entire value" do
-        expect(value).to eq({ color: "red" })
+        expect(value).to eq({ "color" => "red" })
       end
 
       it "includes the value in the rendered html" do
@@ -86,7 +86,7 @@ RSpec.shared_examples :setting_view_attributes do
       end
 
       it "sets the entire value" do
-        expect(value.to_a).to eq([:baz])
+        expect(value.to_a).to eq(["baz"])
       end
 
       it "includes the value in the rendered html" do
@@ -104,7 +104,7 @@ RSpec.shared_examples :setting_view_attributes do
       end
 
       it "sets the entire value" do
-        expect(value).to eq([:baz].to_set)
+        expect(value).to eq(["baz"].to_set)
       end
 
       it "includes the value in the rendered html" do
@@ -122,7 +122,7 @@ RSpec.shared_examples :setting_view_attributes do
       end
 
       it "sets the entire value" do
-        expect(value).to eq([:baz, :zab].to_set)
+        expect(value).to eq(["baz", "zab"].to_set)
       end
 
       it "includes the value in the rendered html" do
@@ -136,7 +136,7 @@ RSpec.shared_examples :setting_view_attributes do
       end
 
       it "sets the value" do
-        expect(value.to_a).to eq([:foo, :bar, :additional])
+        expect(value.to_a).to eq(["foo", "bar", "additional"])
       end
 
       it "includes the value in the rendered html" do
