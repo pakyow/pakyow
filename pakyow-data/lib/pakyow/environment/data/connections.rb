@@ -30,6 +30,10 @@ module Pakyow
           end
 
           before :boot do
+            # Disconnect any existing connections (e.g. booted twice for some reason).
+            #
+            @data_connections.values.flat_map(&:values).each(&:disconnect)
+
             # Create new connections.
             #
             @data_connections = Pakyow::Data::Connection.adapter_types.each_with_object({}) { |connection_type, connections|
