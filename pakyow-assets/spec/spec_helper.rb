@@ -20,6 +20,10 @@ RSpec.configure do |spec_config|
       end
     end
   end
+
+  spec_config.after do
+    Pakyow::Assets::Babel.instance_variable_set(:@context, nil)
+  end
 end
 
 require_relative "../../spec/context/app_context"
