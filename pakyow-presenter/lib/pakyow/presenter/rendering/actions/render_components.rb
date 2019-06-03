@@ -20,23 +20,16 @@ module Pakyow
                 []
               end
 
+              component_view = case composer
+              when Composers::Component
+                composer.class.follow_path(composer.component_path, view)
+              else
+                view
+              end
+
               RenderComponents.initialize_renderable_components(
-                view, app: app, composer: composer, mode: mode, path: initial_path
+                component_view, app: app, composer: composer, mode: mode, path: initial_path
               )
-            end
-
-            if app.config.presenter.componentize
-              view.object.each_significant_node(:form) do |form|
-                form.instance_variable_get(:@significance) << :component
-                form.attributes[:"data-ui"] = :form
-                form.set_label(:component, :form)
-              end
-
-              if html = view.object.find_first_significant_node(:html)
-                html.instance_variable_get(:@significance) << :component
-                html.attributes[:"data-ui"] = :navigable
-                html.set_label(:component, :navigable)
-              end
             end
           end
 

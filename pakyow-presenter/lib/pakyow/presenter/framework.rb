@@ -19,6 +19,7 @@ require "pakyow/presenter/renderable"
 
 require "pakyow/presenter/renderer"
 
+require "pakyow/presenter/rendering/actions/componentize"
 require "pakyow/presenter/rendering/actions/cleanup_prototype_nodes"
 require "pakyow/presenter/rendering/actions/cleanup_unused_nodes"
 require "pakyow/presenter/rendering/actions/create_template_nodes"
@@ -50,6 +51,7 @@ module Pakyow
           end
 
           isolate Renderer do
+            include Actions::Componentize
             include Actions::CleanupPrototypeNodes
             include Actions::CleanupUnusedNodes
             include Actions::CreateTemplateNodes
@@ -63,7 +65,13 @@ module Pakyow
             # Must occur last, since making a component renderable will prevent it from being
             # traversed by the builders for other actions.
             #
-            include Actions::RenderComponents
+            # include Actions::RenderComponents
+          end
+
+          after :initialize, priority: :low do
+            isolated(:Renderer) do
+              include Actions::RenderComponents
+            end
           end
 
           stateful :binder,    isolated(:Binder)

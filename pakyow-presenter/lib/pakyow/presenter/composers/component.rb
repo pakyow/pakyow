@@ -49,15 +49,24 @@ module Pakyow
           #
           view.object.remove_empty_nodes
 
+          view
+        end
+
+        def post_process(view)
+          self.class.follow_path(@component_path, view)
+        end
+
+        class << self
           # Follow the path to find the correct component.
           #
-          component_node = view.object
-          component_path = @component_path.dup
-          while step = component_path.shift
-            component_node = component_node.find_significant_nodes(:component, descend: true)[step]
-          end
+          def follow_path(path, view)
+            path = path.dup
+            while step = path.shift
+              view = view.components[step]
+            end
 
-          Pakyow::Presenter::View.from_object(component_node)
+            view
+          end
         end
       end
     end

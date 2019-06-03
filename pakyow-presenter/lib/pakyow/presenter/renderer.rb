@@ -84,6 +84,11 @@ module Pakyow
           presenter_view = composer.view(app: app)
 
           self.class.build!(presenter_view, app: app, mode: mode, composer: composer)
+
+          if composer.respond_to?(:post_process)
+            presenter_view = composer.post_process(presenter_view)
+          end
+
           presenter.attach(presenter_view)
           presenter_view.deep_freeze
 
