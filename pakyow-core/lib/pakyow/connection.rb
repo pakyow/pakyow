@@ -311,8 +311,8 @@ module Pakyow
       @request.hijack?
     end
 
-    def hijack
-      @request.hijack
+    def hijack!
+      @request.hijack!
     end
 
     def finalize

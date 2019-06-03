@@ -36,7 +36,7 @@ module Pakyow
         @request.env["rack.hijack?"]
       end
 
-      def hijack
+      def hijack!
         @request.env["rack.hijack"].call
       end
 

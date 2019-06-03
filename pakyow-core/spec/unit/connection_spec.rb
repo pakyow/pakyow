@@ -219,10 +219,10 @@ RSpec.describe Pakyow::Connection do
       end
     end
 
-    describe "#hijack" do
+    describe "#hijack!" do
       it "calls hijack on the request" do
-        connection.instance_variable_set(:@request, double(hijack: :io))
-        expect(connection.hijack).to eq(:io)
+        connection.instance_variable_set(:@request, double(hijack!: :io))
+        expect(connection.hijack!).to eq(:io)
       end
     end
   end
@@ -281,13 +281,13 @@ RSpec.describe Pakyow::Rack::Connection do
       end
     end
 
-    describe "#hijack" do
+    describe "#hijack!" do
       before do
         rack_env["rack.hijack"] = Proc.new { :hijacked }
       end
 
       it "calls the hijack block" do
-        expect(connection.hijack).to eq(:hijacked)
+        expect(connection.hijack!).to eq(:hijacked)
       end
     end
   end
