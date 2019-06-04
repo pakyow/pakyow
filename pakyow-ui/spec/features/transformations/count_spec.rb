@@ -32,7 +32,7 @@ RSpec.describe "presenting a count in a view" do
         render do
           find(:count).with do |view|
             view.html = count
-            view.view.object.set_label(:used, true)
+            view.view.object.set_label(:bound, true)
           end
         end
       end

@@ -425,7 +425,7 @@ module Pakyow
               binding_view.attrs[key] = value_part
             end
 
-            binding_view.object.set_label(:used, true)
+            binding_view.object.set_label(:bound, true)
           end
         end
 
@@ -558,7 +558,7 @@ module Pakyow
               channel: binding_render[:channel],
               priority: :low,
               block: Proc.new {
-                if object.labeled?(:binding) && !object.labeled?(:used)
+                if object.labeled?(:binding) && !object.labeled?(:bound)
                   presentables.each do |key, value|
                     key = key.to_s
                     # FIXME: Find a more performant way to do this.

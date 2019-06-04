@@ -221,8 +221,8 @@ RSpec.describe "view versioning via presenter" do
       Proc.new do
         presenter "/presentation/versioning/versioned-props-unversioned-scope" do
           render :post do
-            find(:title).use(:two).object.set_label(:used, true)
-            view.object.set_label(:used, true)
+            find(:title).use(:two).object.set_label(:bound, true)
+            view.object.set_label(:bound, true)
           end
         end
       end
@@ -264,8 +264,8 @@ RSpec.describe "view versioning via presenter" do
       Proc.new do
         presenter "/presentation/versioning/versioned-props-versioned-scope" do
           render :post do
-            use(:two).find(:title).use(:two).object.set_label(:used, true)
-            view.object.set_label(:used, true)
+            use(:two).find(:title).use(:two).object.set_label(:bound, true)
+            view.object.set_label(:bound, true)
           end
         end
       end

@@ -22,7 +22,7 @@ module Pakyow
                 # We check that the node is still labeled as a binding in case the node was replaced
                 # during a previous transformation with a node that isn't a binding.
                 #
-                unless !view.object.labeled?(:binding) || view.object.labeled?(:used) || view.object.labeled?(:failed) || view.object.label(:version) == :empty
+                unless !view.object.labeled?(:binding) || view.object.labeled?(:bound) || view.object.labeled?(:failed) || view.object.label(:version) == :empty
                   remove
                 end
               end

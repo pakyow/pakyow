@@ -281,12 +281,12 @@ module Pakyow
                 end
 
                 bind_value_to_node(value, binding)
-                binding.set_label(:used, true)
+                binding.set_label(:bound, true)
               end
             end
 
             attributes[:"data-id"] = object[:id]
-            self.object.set_label(:used, true)
+            self.object.set_label(:bound, true)
           end
         end
       end

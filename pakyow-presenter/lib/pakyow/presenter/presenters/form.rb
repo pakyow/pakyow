@@ -214,10 +214,10 @@ module Pakyow
         end
 
         def use_binding_nodes
-          view.object.set_label(:used, true)
+          view.object.set_label(:bound, true)
           view.object.children.each_significant_node(:binding, descend: true) do |object|
             if Pakyow::Presenter::Form::FIELD_TAGS.include?(object.tagname)
-              object.set_label(:used, true)
+              object.set_label(:bound, true)
             end
           end
         end
@@ -406,7 +406,7 @@ module Pakyow
 
                 if label = current.object.find_first_significant_node(:label)
                   label.html = ensure_html_safety(label_value(value, label).to_s)
-                  label.set_label(:used, true)
+                  label.set_label(:bound, true)
                 end
 
                 if input && label
@@ -419,7 +419,7 @@ module Pakyow
                 insertable = current
               end
 
-              current.object.set_label(:used, true)
+              current.object.set_label(:bound, true)
               current = template.dup
             end
           else
