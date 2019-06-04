@@ -61,11 +61,6 @@ module Pakyow
             include Actions::SetupEndpoints
             include Actions::SetupForms
             include Actions::SetPageTitle
-
-            # Must occur last, since making a component renderable will prevent it from being
-            # traversed by the builders for other actions.
-            #
-            # include Actions::RenderComponents
           end
 
           after :initialize, priority: :low do
