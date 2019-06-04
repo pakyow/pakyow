@@ -112,38 +112,6 @@ module Pakyow
         }
       end
 
-      def ensure_explicit_use(presenter)
-        presenter.view.each_binding_prop(descend: false) do |binding_prop|
-          binding_name = if binding_prop.significant?(:multipart_binding)
-            binding_prop.label(:binding_prop)
-          else
-            binding_prop.label(:binding)
-          end
-
-          binding_prop_view = presenter.view.find(binding_name)
-
-          if binding_prop_view.is_a?(Presenter::VersionedView)
-            unless binding_prop_view.used?
-              if binding_prop_view.version?(:default)
-                presenter.calls.unshift([:find, [[binding_name]], [], [[:use, [:default], [], []]]])
-              else
-                presenter.calls.unshift([:find, [[binding_name]], [], [[:clean, [], [], []]]])
-              end
-            end
-          end
-        end
-
-        if presenter.view.is_a?(Presenter::VersionedView)
-          unless presenter.view.used?
-            if presenter.view.version?(:default)
-              presenter.calls.unshift([:use, [:default], [], []])
-            else
-              presenter.calls.unshift([:clean, [], [], []])
-            end
-          end
-        end
-      end
-
       apply_extension do
         include Helpers::ClientRemapping
       end
@@ -248,11 +216,7 @@ module Pakyow
             super(*args) { |nested_presenter, *nested_args|
               if block
                 nested << nested_presenter
-                block.call(nested_presenter, *nested_args).tap do
-                  if method_name == :transform
-                    ensure_explicit_use(nested_presenter)
-                  end
-                end
+                block.call(nested_presenter, *nested_args)
               end
             }.tap do |result|
               call_args = case method_name
@@ -285,7 +249,16 @@ module Pakyow
                 []
               end
 
-              calls << [remap_for_client(method_name), call_args, nested, subsequent]
+              call = [remap_for_client(method_name), call_args, nested, subsequent]
+
+              if method_name == :use
+                # FIXME: Once transformations are applied to templates on the client, we will no
+                # longer need to insert the `use` calls at the top of the stack.
+                #
+                calls.unshift(call)
+              else
+                calls << call
+              end
             end
           end
         end

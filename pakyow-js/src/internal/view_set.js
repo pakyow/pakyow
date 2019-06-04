@@ -129,14 +129,6 @@ export default class {
     return this;
   }
 
-  clean() {
-    this.views.forEach((view) => {
-      view.clean();
-    });
-
-    return this;
-  }
-
   attributes() {
     return new ViewSetAttributes(this);
   }

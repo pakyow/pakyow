@@ -21,7 +21,7 @@ require "pakyow/presenter/renderer"
 
 require "pakyow/presenter/rendering/actions/componentize"
 require "pakyow/presenter/rendering/actions/cleanup_prototype_nodes"
-require "pakyow/presenter/rendering/actions/cleanup_unused_nodes"
+require "pakyow/presenter/rendering/actions/cleanup_unbound_bindings"
 require "pakyow/presenter/rendering/actions/create_template_nodes"
 require "pakyow/presenter/rendering/actions/insert_prototype_bar"
 require "pakyow/presenter/rendering/actions/install_authenticity"
@@ -30,6 +30,7 @@ require "pakyow/presenter/rendering/actions/render_components"
 require "pakyow/presenter/rendering/actions/set_page_title"
 require "pakyow/presenter/rendering/actions/setup_endpoints"
 require "pakyow/presenter/rendering/actions/setup_forms"
+require "pakyow/presenter/rendering/actions/use_versions"
 
 module Pakyow
   module Presenter
@@ -53,7 +54,7 @@ module Pakyow
           isolate Renderer do
             include Actions::Componentize
             include Actions::CleanupPrototypeNodes
-            include Actions::CleanupUnusedNodes
+            include Actions::CleanupUnboundBindings
             include Actions::CreateTemplateNodes
             include Actions::InsertPrototypeBar
             include Actions::InstallAuthenticity
@@ -61,6 +62,7 @@ module Pakyow
             include Actions::SetupEndpoints
             include Actions::SetupForms
             include Actions::SetPageTitle
+            include Actions::UseVersions
           end
 
           after :initialize, priority: :low do

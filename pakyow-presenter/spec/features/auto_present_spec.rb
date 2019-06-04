@@ -163,4 +163,196 @@ RSpec.describe "automatically presenting exposures made from a controller" do
       )
     end
   end
+
+  context "view contains an empty version" do
+    context "data is empty" do
+      let :app_init do
+        Proc.new do
+          controller :default do
+            get "/exposure/empty" do
+              expose :posts, []
+            end
+          end
+        end
+      end
+
+      it "presents the empty version" do
+        expect(call("/exposure/empty")[2]).to eq_sans_whitespace(
+          <<~HTML
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <title>default</title>
+              </head>
+
+              <body>
+                <p data-b="post" data-v="empty">
+                  nothing here
+                </p>
+
+                <script type="text/template" data-b="post" data-v="empty">
+                  <p data-b="post" data-v="empty">
+                    nothing here
+                  </p>
+                </script>
+
+                <script type="text/template" data-b="post">
+                  <div data-b="post">
+                    <h1 data-b="title">title goes here</h1>
+                  </div>
+                </script>
+              </body>
+            </html>
+          HTML
+        )
+      end
+    end
+
+    context "data is not empty" do
+      let :app_init do
+        Proc.new do
+          controller :default do
+            get "/exposure/empty" do
+              expose :posts, [{ title: "foo" }, { title: "bar" }, { title: "baz" }]
+            end
+          end
+        end
+      end
+
+      it "presents the data" do
+        expect(call("/exposure/empty")[2]).to eq_sans_whitespace(
+          <<~HTML
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <title>default</title>
+              </head>
+
+              <body>
+                <div data-b="post">
+                  <h1 data-b="title">foo</h1>
+                </div>
+
+                <div data-b="post">
+                  <h1 data-b="title">bar</h1>
+                </div>
+
+                <div data-b="post">
+                  <h1 data-b="title">baz</h1>
+                </div>
+
+                <script type="text/template" data-b="post" data-v="empty">
+                  <p data-b="post" data-v="empty">
+                    nothing here
+                  </p>
+                </script>
+
+                <script type="text/template" data-b="post">
+                  <div data-b="post">
+                    <h1 data-b="title">title goes here</h1>
+                  </div>
+                </script>
+              </body>
+            </html>
+          HTML
+        )
+      end
+    end
+  end
+
+  context "view contains an empty version after the binding" do
+    context "data is empty" do
+      let :app_init do
+        Proc.new do
+          controller :default do
+            get "/exposure/empty-last" do
+              expose :posts, []
+            end
+          end
+        end
+      end
+
+      it "presents the empty version" do
+        expect(call("/exposure/empty-last")[2]).to eq_sans_whitespace(
+          <<~HTML
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <title>default</title>
+              </head>
+
+              <body>
+                <p data-b="post" data-v="empty">
+                  nothing here
+                </p>
+
+                <script type="text/template" data-b="post">
+                  <div data-b="post">
+                    <h1 data-b="title">title goes here</h1>
+                  </div>
+                </script>
+
+                <script type="text/template" data-b="post" data-v="empty">
+                  <p data-b="post" data-v="empty">
+                    nothing here
+                  </p>
+                </script>
+              </body>
+            </html>
+          HTML
+        )
+      end
+    end
+
+    context "data is not empty" do
+      let :app_init do
+        Proc.new do
+          controller :default do
+            get "/exposure/empty-last" do
+              expose :posts, [{ title: "foo" }, { title: "bar" }, { title: "baz" }]
+            end
+          end
+        end
+      end
+
+      it "presents the data" do
+        expect(call("/exposure/empty-last")[2]).to eq_sans_whitespace(
+          <<~HTML
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <title>default</title>
+              </head>
+
+              <body>
+                <div data-b="post">
+                  <h1 data-b="title">foo</h1>
+                </div>
+
+                <div data-b="post">
+                  <h1 data-b="title">bar</h1>
+                </div>
+
+                <div data-b="post">
+                  <h1 data-b="title">baz</h1>
+                </div>
+
+                <script type="text/template" data-b="post">
+                  <div data-b="post">
+                    <h1 data-b="title">title goes here</h1>
+                  </div>
+                </script>
+
+                <script type="text/template" data-b="post" data-v="empty">
+                  <p data-b="post" data-v="empty">
+                    nothing here
+                  </p>
+                </script>
+              </body>
+            </html>
+          HTML
+        )
+      end
+    end
+  end
 end

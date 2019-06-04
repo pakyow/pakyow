@@ -446,10 +446,17 @@ module Pakyow
       end
 
       # @api private
-      def each_binding_scope(descend: true)
-        return enum_for(:each_binding_scope, descend: descend) unless block_given?
+      def each_binding_scope(descend: false)
+        return enum_for(:each_binding_scope, descend: false) unless block_given?
 
-        @object.each_significant_node(:binding, descend: descend) do |node|
+        method = if descend
+          :each_significant_node
+        else
+          :each_significant_node_without_descending_into_type
+        end
+
+        # @object.each_significant_node_without_descending_into_type(:binding, descend: false) do |node|
+        @object.send(method, :binding, descend: true) do |node|
           if binding_scope?(node)
             yield node
           end
@@ -457,13 +464,20 @@ module Pakyow
       end
 
       # @api private
-      def each_binding_prop(descend: true)
-        return enum_for(:each_binding_prop, descend: descend) unless block_given?
+      def each_binding_prop(descend: false)
+        return enum_for(:each_binding_prop, descend: false) unless block_given?
 
         if (@object.is_a?(StringDoc::Node) || @object.is_a?(StringDoc::MetaNode)) && @object.significant?(:multipart_binding)
           yield @object
         else
-          @object.each_significant_node(:binding, descend: descend) do |node|
+          method = if descend
+            :each_significant_node
+          else
+            :each_significant_node_without_descending_into_type
+          end
+
+          # @object.each_significant_node_without_descending_into_type(:binding, descend: false) do |node|
+          @object.send(method, :binding, descend: true) do |node|
             if binding_prop?(node)
               yield node
             end
@@ -489,12 +503,12 @@ module Pakyow
       end
 
       # @api private
-      def binding_scopes(descend: true)
+      def binding_scopes(descend: false)
         each_binding_scope(descend: descend).map(&:itself)
       end
 
       # @api private
-      def binding_props(descend: true)
+      def binding_props(descend: false)
         each_binding_prop(descend: descend).map(&:itself)
       end
 

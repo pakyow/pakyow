@@ -192,21 +192,6 @@ export default class {
     return this;
   }
 
-  clean() {
-    if (this.node.parentNode) {
-      // Remove templates for this view so it's gone for good.
-      new pw.View(this.node.parentNode).templates().forEach((template) => {
-        if (template.match("binding", this.binding())) {
-          template.insertionPoint.parentNode.removeChild(template.insertionPoint);
-        }
-      });
-    }
-
-    this.remove();
-
-    return this;
-  }
-
   append(arg) {
     this.node.appendChild(this.ensureElement(arg));
 

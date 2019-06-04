@@ -590,6 +590,8 @@ class StringDoc
     binding_name_parts = binding_parts[0].to_s.split(".", 2)
     labels[:binding] = binding_name_parts[0].to_sym
     labels[:binding_prop] = binding_name_parts[1].to_sym if binding_name_parts.length > 1
+    labels[:explicit_channel] = binding_parts[1..-1]
+    labels[:semantic_channel] = channel.dup
     attributes[:"data-b"] = binding_parts[0]
 
     channel.concat(binding_parts[1..-1])

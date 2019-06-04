@@ -61,14 +61,12 @@ RSpec.describe "populating options for nested data" do
           <<~HTML
             <li data-b="tags" data-c="form" data-id="1">
               <input type="hidden" name="post[tags][][id]" value="1">
-              <label data-b="name" data-c="form">Tag Name</label>
               <input type="text" data-b="description" data-c="form" name="post[tags][][description]">
               <input type="checkbox" data-b="enabled" value="true" data-c="form" name="post[tags][][enabled]">
             </li>
 
             <li data-b="tags" data-c="form" data-id="2">
               <input type="hidden" name="post[tags][][id]" value="2">
-              <label data-b="name" data-c="form">Tag Name</label>
               <input type="text" data-b="description" data-c="form" name="post[tags][][description]">
               <input type="checkbox" data-b="enabled" value="true" data-c="form" name="post[tags][][enabled]">
             </li>
@@ -120,14 +118,12 @@ RSpec.describe "populating options for nested data" do
               <ul>
                 <li data-b="tags" data-c="form">
                   <input type="hidden" name="post[tags][][slug]" value="one">
-                  <label data-b="name" data-c="form">Tag Name</label>
                   <input type="text" data-b="description" data-c="form" name="post[tags][][description]">
                   <input type="checkbox" data-b="enabled" value="true" data-c="form" name="post[tags][][enabled]">
                 </li>
 
                 <li data-b="tags" data-c="form">
                   <input type="hidden" name="post[tags][][slug]" value="two">
-                  <label data-b="name" data-c="form">Tag Name</label>
                   <input type="text" data-b="description" data-c="form" name="post[tags][][description]">
                   <input type="checkbox" data-b="enabled" value="true" data-c="form" name="post[tags][][enabled]">
                 </li>
@@ -160,13 +156,11 @@ RSpec.describe "populating options for nested data" do
             <form data-b="post" data-c="form">
               <ul>
                 <li data-b="tags" data-c="form">
-                  <label data-b="name" data-c="form">Tag Name</label>
                   <input type="text" data-b="description" data-c="form" name="post[tags][][description]">
                   <input type="checkbox" data-b="enabled" value="true" data-c="form" name="post[tags][][enabled]">
                 </li>
 
                 <li data-b="tags" data-c="form">
-                  <label data-b="name" data-c="form">Tag Name</label>
                   <input type="text" data-b="description" data-c="form" name="post[tags][][description]">
                   <input type="checkbox" data-b="enabled" value="true" data-c="form" name="post[tags][][enabled]">
                 </li>

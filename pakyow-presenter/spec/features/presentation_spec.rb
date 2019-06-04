@@ -86,46 +86,6 @@ RSpec.describe "presenting data via presenter" do
     end
   end
 
-  context "presenting a value multiple times" do
-    let :view do
-      Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\">title goes here</h1><h1 binding=\"title\">title goes here</h1></div>")
-    end
-
-    let :post do
-      Class.new do
-        def initialize
-          @accessed = false
-        end
-
-        def title
-          rand.to_s
-        end
-
-        def [](key)
-          if respond_to?(key)
-            public_send(key)
-          else
-            nil
-          end
-        end
-
-        def include?(key)
-          instance_variable_defined?(:"@#{key}") || respond_to?(key)
-        end
-
-        def value?(key)
-          include?(key) && !!self[key]
-        end
-      end
-    end
-
-    it "presents the same value each time" do
-      post_presenter.present(post.new)
-      titles = post_presenter.find_all(:title).map(&:text)
-      expect(titles[0]).to eq(titles[1])
-    end
-  end
-
   context "scope/prop is defined on a single node" do
     let :view do
       Pakyow::Presenter::View.new("<h1 binding=\"post.title\">title goes here</h1>")

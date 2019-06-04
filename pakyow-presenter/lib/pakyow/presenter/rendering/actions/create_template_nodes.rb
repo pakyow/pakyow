@@ -11,7 +11,7 @@ module Pakyow
         apply_extension do
           build do |view|
             unless Pakyow.env?(:prototype)
-              view.each_binding_scope do |node_with_binding|
+              view.each_binding_scope(descend: true) do |node_with_binding|
                 attributes = node_with_binding.attributes.attributes_hash.each_with_object({}) do |(attribute, value), acc|
                   acc[attribute] = value if attribute.to_s.start_with?("data")
                 end

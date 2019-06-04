@@ -68,28 +68,25 @@ module Pakyow
       #
       def use(version)
         version = version.to_sym
-        @used = true
 
         tap do
           if view = version_named(version)
             case view.object
             when StringDoc::MetaNode
-              versioned_node = view.object.nodes.find { |node|
+              versioned_node = view.object.internal_nodes.find { |node|
                 version == (node.label(:version) || DEFAULT_VERSION).to_sym
               }
 
-              versioned_node.delete_label(:version)
-              versioned_node.set_label(:used, true)
+              versioned_node.set_label(:versioned, true)
             else
-              view.object.delete_label(:version)
-              view.object.set_label(:used, true)
+              view.object.set_label(:versioned, true)
             end
 
             self.versioned_view = view
 
             cleanup
           else
-            cleanup(:all)
+            cleanup(all: true)
           end
         end
       end
@@ -103,8 +100,6 @@ module Pakyow
       end
 
       def bind(object)
-        cleanup
-
         @versions.each do |version|
           version.bind(object)
         end
@@ -113,7 +108,16 @@ module Pakyow
       end
 
       def used?
-        @used == true
+        @versions.any? { |versioned_view|
+          case versioned_view.object
+          when StringDoc::MetaNode
+            versioned_view.object.nodes.any? { |node|
+              node.labeled?(:versioned)
+            }
+          else
+            versioned_view.object.labeled?(:versioned)
+          end
+        }
       end
 
       # Fixes an issue using pp inside a delegator.
@@ -124,36 +128,36 @@ module Pakyow
 
       private
 
-      def cleanup(mode = nil)
-        if mode == :all
-          @versions.each(&:remove)
-          @versions = []
+      def cleanup(all: false)
+        if all
+          while version = @versions.shift
+            version.remove
+          end
         else
-          @versions.dup.each do |view_to_remove|
-            case view_to_remove.object
+          versions_to_remove = []
+
+          @versions.each do |versioned_view|
+            case versioned_view.object
             when StringDoc::MetaNode
-              if @used
-                view_to_remove.object.nodes.each do |node|
-                  node.remove unless node.labeled?(:used)
-                end
-              else
-                if default = view_to_remove.object.nodes.find { |node| node.label(:version) == DEFAULT_VERSION }
-                  view_to_remove.object.nodes.each do |node|
-                    node.remove unless node.equal?(default)
-                  end
-                else
-                  view_to_remove.object.nodes[1..-1].each(&:remove)
+              nodes_to_remove = []
+
+              versioned_view.object.internal_nodes.each do |node|
+                if !node.is_a?(StringDoc::MetaNode) && !node.labeled?(:versioned)
+                  nodes_to_remove << node
                 end
               end
+
+              nodes_to_remove.each(&:remove)
             else
-              unless view_to_remove == __getobj__
-                view_to_remove.remove
-                @versions.delete(view_to_remove)
+              unless versioned_view.object.labeled?(:versioned)
+                versions_to_remove << versioned_view
               end
             end
           end
 
-          __getobj__.object.delete_label(:version)
+          versions_to_remove.each do |versioned_view|
+            versioned_view.remove; @versions.delete(versioned_view)
+          end
         end
       end
 
@@ -173,7 +177,7 @@ module Pakyow
         @versions.find { |view|
           case view.object
           when StringDoc::MetaNode
-            view.object.nodes.any? { |node|
+            view.object.internal_nodes.any? { |node|
               version == (node.label(:version) || DEFAULT_VERSION).to_sym
             }
           else

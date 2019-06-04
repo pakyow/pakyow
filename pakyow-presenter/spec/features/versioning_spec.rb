@@ -19,7 +19,7 @@ RSpec.describe "view versioning via presenter" do
     end
 
     context "when there are multiple views, none of them versioned" do
-      it "renders both of them" do
+      it "renders the first one" do
         expect(call("/presentation/versioning/multiple-non-versioned")[2]).to include_sans_whitespace(
           <<~HTML
             <div data-b="post">
@@ -28,7 +28,7 @@ RSpec.describe "view versioning via presenter" do
           HTML
         )
 
-        expect(call("/presentation/versioning/multiple-non-versioned")[2]).to include_sans_whitespace(
+        expect(call("/presentation/versioning/multiple-non-versioned")[2]).to_not include_sans_whitespace(
           <<~HTML
             <div data-b="post">
               <h1 data-b="title">two</h1>
@@ -79,8 +79,9 @@ RSpec.describe "view versioning via presenter" do
     end
 
     context "when there are multiple versions, without a default" do
-      it "renders neither" do
-        expect(call("/presentation/versioning/multiple-without-default")[2]).to_not include("data-v")
+      it "renders the first one" do
+        expect(call("/presentation/versioning/multiple-without-default")[2]).to include("data-v=\"one\"")
+        expect(call("/presentation/versioning/multiple-without-default")[2]).to_not include("data-v=\"two\"")
       end
     end
 
@@ -220,7 +221,7 @@ RSpec.describe "view versioning via presenter" do
       Proc.new do
         presenter "/presentation/versioning/versioned-props-unversioned-scope" do
           render :post do
-            find(:title).use(:two)
+            find(:title).use(:two).object.set_label(:used, true)
             view.object.set_label(:used, true)
           end
         end
@@ -263,7 +264,8 @@ RSpec.describe "view versioning via presenter" do
       Proc.new do
         presenter "/presentation/versioning/versioned-props-versioned-scope" do
           render :post do
-            use(:two).find(:title).use(:two)
+            use(:two).find(:title).use(:two).object.set_label(:used, true)
+            view.object.set_label(:used, true)
           end
         end
       end
@@ -491,6 +493,49 @@ RSpec.describe "view versioning via presenter" do
                   <script type="text/template" data-b="post">
                     <div data-b="post">
                       <h1 data-b="title">post title</h1>
+                    </div>
+                  </script>
+                </body>
+              </html>
+            HTML
+          )
+        end
+      end
+
+      context "empty version exists after the binding" do
+        let :app_init do
+          Proc.new do
+            presenter "/presentation/versioning/empty-last" do
+              render :post do
+                present([])
+              end
+            end
+          end
+        end
+
+        it "renders the empty version" do
+          expect(call("/presentation/versioning/empty-last")[2]).to eq_sans_whitespace(
+            <<~HTML
+              <!DOCTYPE html>
+              <html>
+                <head>
+                  <title>default</title>
+                </head>
+
+                <body>
+                  <div data-b="post" data-v="empty">
+                    no posts here
+                  </div>
+
+                  <script type="text/template" data-b="post">
+                    <div data-b="post">
+                      <h1 data-b="title">post title</h1>
+                    </div>
+                  </script>
+
+                  <script type="text/template" data-b="post" data-v="empty">
+                    <div data-b="post" data-v="empty">
+                      no posts here
                     </div>
                   </script>
                 </body>

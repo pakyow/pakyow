@@ -213,6 +213,31 @@ module Pakyow
               yield presenter, binder.object
             end
 
+            if presenter.view.is_a?(VersionedView)
+              presenter.use_implicit_version unless presenter.view.used?
+
+              used_view = case presenter.view.object
+              when StringDoc::MetaNode
+                View.from_object(
+                  presenter.view.object.nodes.find { |node|
+                    node.labeled?(:versioned)
+                  }
+                )
+              else
+                presenter.view.versions.find { |version|
+                  version.object.labeled?(:versioned)
+                }
+              end
+
+              used_view.binding_props.map { |binding_prop|
+                binding_prop.label(:binding)
+              }.uniq.each do |binding_prop_name|
+                if found = used_view.find(binding_prop_name)
+                  presenter_for(found).use_implicit_version unless found.used?
+                end
+              end
+            end
+
             presenter.bind(binder)
 
             presenter.view.binding_scopes(descend: false).uniq { |binding_scope|
@@ -363,6 +388,24 @@ module Pakyow
         presenter_for(View.from_object(endpoint_action_node))
       end
 
+      # @api private
+      def use_implicit_version
+        case object
+        when StringDoc::MetaNode
+          if object.internal_nodes.all? { |node| node.labeled?(:version) && node.label(:version) != VersionedView::DEFAULT_VERSION }
+            use(object.internal_nodes.first.label(:version))
+          else
+            use(:default)
+          end
+        else
+          if versions.all? { |view| view.object.labeled?(:version) && view.object.label(:version) != VersionedView::DEFAULT_VERSION }
+            use(versions.first.object.label(:version))
+          else
+            use(:default)
+          end
+        end
+      end
+
       private
 
       def binder_for_current_scope
@@ -504,10 +547,15 @@ module Pakyow
           # optimize. The alternative is to attach a render to the entire view, which is less
           # performant because the entire structure must be duped.
           #
-          view.binding_scopes(descend: false).each do |binding_node|
+          view.binding_scopes(descend: false).map { |binding_node|
+            channel = binding_node.label(:explicit_channel)
+            channel = nil if channel.empty?
+
+            { binding_path: [binding_node.label(:binding)], channel: channel }
+          }.uniq.each do |binding_render|
             renders << {
-              binding_path: [binding_node.label(:binding)],
-              channel: binding_node.label(:channel),
+              binding_path: binding_render[:binding_path],
+              channel: binding_render[:channel],
               priority: :low,
               block: Proc.new {
                 if object.labeled?(:binding) && !object.labeled?(:used)
@@ -529,6 +577,10 @@ module Pakyow
           # Setup binding endpoints in a similar way to automatic presentation above.
           #
           Presenters::Endpoint.attach_to_node(view.object, renders)
+
+          # Make sure all versions are used.
+          #
+          Actions::UseVersions.attach_to_view(view, renders)
 
           renders.each do |render|
             return_value = if node = render[:node]
