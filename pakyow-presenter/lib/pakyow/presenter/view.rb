@@ -558,6 +558,15 @@ module Pakyow
         end
       end
 
+      # @api private
+      def channeled_binding_scope?(scope)
+        binding_scopes.select { |node|
+          node.label(:binding) == scope
+        }.any? { |node|
+          node.label(:explicit_channel).any?
+        }
+      end
+
       protected
 
       def bind_value_to_node(value, node)

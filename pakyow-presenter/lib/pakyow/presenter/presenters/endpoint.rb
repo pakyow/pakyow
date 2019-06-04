@@ -112,7 +112,7 @@ module Pakyow
           # Recursively attach to binding endpoints.
           #
           # @api private
-          def attach_to_node(node, renders, binding_path: [], channel: nil)
+          def attach_to_node(node, renders, binding_path: [], channel: [])
             node.each_significant_node(:binding) do |binding_node|
               next_binding_path = binding_path.dup
               if binding_node.significant?(:binding_within)
@@ -122,10 +122,14 @@ module Pakyow
               current_binding_path = binding_path.dup
               current_binding_path << binding_node.label(:binding)
 
+              current_channel = channel.dup
+              current_channel.concat(binding_node.label(:explicit_channel))
+              current_channel = nil if current_channel.empty?
+
               if binding_node.significant?(:endpoint)
                 renders << {
                   binding_path: current_binding_path,
-                  channel: channel,
+                  channel: current_channel,
                   priority: :low,
                   block: Proc.new {
                     setup
@@ -135,7 +139,7 @@ module Pakyow
                 binding_node.find_significant_nodes(:endpoint).each do |endpoint_node|
                   renders << {
                     binding_path: current_binding_path,
-                    channel: channel,
+                    channel: current_channel,
                     priority: :low,
                     block: Proc.new {
                       endpoint(endpoint_node.label(:endpoint))&.setup

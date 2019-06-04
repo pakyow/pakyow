@@ -548,9 +548,15 @@ module Pakyow
           # optimize. The alternative is to attach a render to the entire view, which is less
           # performant because the entire structure must be duped.
           #
-          view.binding_scopes(descend: false).map { |binding_node|
+          view.binding_scopes.map { |binding_node|
             channel = binding_node.label(:explicit_channel)
-            channel = nil if channel.empty?
+
+            # Set the channel to nil and apply to all versions matching this scope, unless one of
+            # the scopes is for a channel. In this case, we don't want to attach broadly.
+            #
+            if channel.empty? && !view.channeled_binding_scope?(binding_node.label(:binding))
+              channel = nil
+            end
 
             { binding_path: [binding_node.label(:binding)], channel: channel }
           }.uniq.each do |binding_render|
