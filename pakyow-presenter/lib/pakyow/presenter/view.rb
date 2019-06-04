@@ -125,11 +125,11 @@ module Pakyow
           named = names.shift.to_sym
           combined_channel = Array.ensure(channel).join(":")
 
-          found = each_binding(named).each_with_object([]) do |node, acc|
-            if !channel || node.label(:combined_channel) == combined_channel || node.label(:combined_channel).end_with?(":" + combined_channel)
+          found = each_binding(named).each_with_object([]) { |node, acc|
+            if channel.nil? || (combined_channel.empty? && node.label(:explicit_channel).empty?) || (!combined_channel.empty? && (node.label(:combined_channel) == combined_channel || node.label(:combined_channel).end_with?(":" + combined_channel)))
               acc << View.from_object(node)
             end
-          end
+          }
 
           result = if names.empty? && !found.empty? # found everything; wrap it up
             VersionedView.new(found)
