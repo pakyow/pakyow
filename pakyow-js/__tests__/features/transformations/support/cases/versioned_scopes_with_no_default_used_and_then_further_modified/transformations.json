@@ -22,37 +22,71 @@
 
             ],
             [
-              [
-                "attributes",
-                [
 
+            ]
+          ],
+          [
+            "transform",
+            [
+              [
+                {
+                  "id": 1,
+                  "title": "foo"
+                }
+              ]
+            ],
+            [
+              [
+                [
+                  "bind",
+                  [
+                    {
+                      "id": 1,
+                      "title": "foo"
+                    }
+                  ],
+                  [
+
+                  ],
+                  [
+
+                  ]
+                ]
+              ]
+            ],
+            [
+
+            ]
+          ],
+          [
+            "attributes",
+            [
+
+            ],
+            [
+
+            ],
+            [
+              [
+                "get",
+                [
+                  "style"
                 ],
                 [
 
                 ],
                 [
                   [
-                    "get",
+                    "set",
                     [
-                      "style"
+                      "background",
+                      "blue"
                     ],
                     [
 
                     ],
                     [
-                      [
-                        "set",
-                        [
-                          "background",
-                          "blue"
-                        ],
-                        [
 
-                        ],
-                        [
-
-                        ]
-                      ]
                     ]
                   ]
                 ]

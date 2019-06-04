@@ -37,7 +37,7 @@ RSpec.shared_context "versioned scopes with defaults" do
         end
       end
 
-      xit "transforms" do |x|
+      it "transforms" do |x|
         save_ui_case(x, path: "/posts") do
           call("/posts", method: :post, params: { post: { title: "foo" } })
         end
@@ -169,7 +169,7 @@ RSpec.shared_context "versioned scopes with defaults" do
         end
       end
 
-      xit "transforms" do |x|
+      it "transforms" do |x|
         save_ui_case(x, path: "/posts") do
           call("/posts", method: :post, params: { post: { title: "foo" } })
         end

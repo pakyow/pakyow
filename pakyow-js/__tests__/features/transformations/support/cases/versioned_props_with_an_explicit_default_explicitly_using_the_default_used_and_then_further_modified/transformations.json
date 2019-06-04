@@ -6,6 +6,64 @@
         "find",
         [
           [
+            "post"
+          ]
+        ],
+        [
+
+        ],
+        [
+          [
+            "transform",
+            [
+              [
+                {
+                  "id": 1,
+                  "title": "foo"
+                }
+              ]
+            ],
+            [
+              [
+                [
+                  "use",
+                  [
+                    "default"
+                  ],
+                  [
+
+                  ],
+                  [
+
+                  ]
+                ],
+                [
+                  "bind",
+                  [
+                    {
+                      "id": 1,
+                      "title": "foo"
+                    }
+                  ],
+                  [
+
+                  ],
+                  [
+
+                  ]
+                ]
+              ]
+            ],
+            [
+
+            ]
+          ]
+        ]
+      ],
+      [
+        "find",
+        [
+          [
             "post",
             "title"
           ]
@@ -23,37 +81,38 @@
 
             ],
             [
-              [
-                "attributes",
-                [
 
+            ]
+          ],
+          [
+            "attributes",
+            [
+
+            ],
+            [
+
+            ],
+            [
+              [
+                "get",
+                [
+                  "style"
                 ],
                 [
 
                 ],
                 [
                   [
-                    "get",
+                    "set",
                     [
-                      "style"
+                      "background",
+                      "blue"
                     ],
                     [
 
                     ],
                     [
-                      [
-                        "set",
-                        [
-                          "background",
-                          "blue"
-                        ],
-                        [
 
-                        ],
-                        [
-
-                        ]
-                      ]
                     ]
                   ]
                 ]

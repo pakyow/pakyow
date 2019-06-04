@@ -24,21 +24,7 @@
             [
 
             ]
-          ]
-        ]
-      ],
-      [
-        "find",
-        [
-          "post",
-          {
-            "channel": null
-          }
-        ],
-        [
-
-        ],
-        [
+          ],
           [
             "transform",
             [

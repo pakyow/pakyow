@@ -50,33 +50,6 @@
                   ]
                 ],
                 [
-                  "bind",
-                  [
-                    {
-                      "id": 1,
-                      "title": "foo",
-                      "comment": [
-                        {
-                          "id": 1,
-                          "title": "foo",
-                          "post_id": 1
-                        },
-                        {
-                          "id": 2,
-                          "title": "bar",
-                          "post_id": 1
-                        }
-                      ]
-                    }
-                  ],
-                  [
-
-                  ],
-                  [
-
-                  ]
-                ],
-                [
                   "find",
                   [
                     [
@@ -166,6 +139,33 @@
                       ]
                     ]
                   ]
+                ],
+                [
+                  "bind",
+                  [
+                    {
+                      "id": 1,
+                      "title": "foo",
+                      "comment": [
+                        {
+                          "id": 1,
+                          "title": "foo",
+                          "post_id": 1
+                        },
+                        {
+                          "id": 2,
+                          "title": "bar",
+                          "post_id": 1
+                        }
+                      ]
+                    }
+                  ],
+                  [
+
+                  ],
+                  [
+
+                  ]
                 ]
               ]
             ],
@@ -178,9 +178,10 @@
       [
         "find",
         [
-          "post",
+          [
+            "post"
+          ],
           {
-            "channel": null,
             "id": 1
           }
         ],
@@ -291,28 +292,14 @@
                 ]
               ]
             ]
-          ]
-        ]
-      ],
-      [
-        "find",
-        [
-          "post",
-          {
-            "channel": null,
-            "id": 1
-          }
-        ],
-        [
-
-        ],
-        [
+          ],
           [
             "find",
             [
-              "comment",
+              [
+                "comment"
+              ],
               {
-                "channel": null,
                 "id": 1
               }
             ],
@@ -425,28 +412,14 @@
                 ]
               ]
             ]
-          ]
-        ]
-      ],
-      [
-        "find",
-        [
-          "post",
-          {
-            "channel": null,
-            "id": 1
-          }
-        ],
-        [
-
-        ],
-        [
+          ],
           [
             "find",
             [
-              "comment",
+              [
+                "comment"
+              ],
               {
-                "channel": null,
                 "id": 2
               }
             ],

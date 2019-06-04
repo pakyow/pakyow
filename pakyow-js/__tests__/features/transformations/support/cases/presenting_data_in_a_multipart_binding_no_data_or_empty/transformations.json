@@ -5,10 +5,9 @@
       [
         "find",
         [
-          "post",
-          {
-            "channel": null
-          }
+          [
+            "post"
+          ]
         ],
         [
 

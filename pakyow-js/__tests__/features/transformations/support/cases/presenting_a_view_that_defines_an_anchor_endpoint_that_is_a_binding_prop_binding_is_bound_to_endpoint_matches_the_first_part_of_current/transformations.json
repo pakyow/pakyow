@@ -5,10 +5,9 @@
       [
         "find",
         [
-          "post",
-          {
-            "channel": null
-          }
+          [
+            "post"
+          ]
         ],
         [
 
@@ -97,9 +96,10 @@
       [
         "find",
         [
-          "post",
+          [
+            "post"
+          ],
           {
-            "channel": null,
             "id": 1
           }
         ],
@@ -244,29 +244,13 @@
                 ]
               ]
             ]
-          ]
-        ]
-      ],
-      [
-        "find",
-        [
-          "post",
-          {
-            "channel": null,
-            "id": 1
-          }
-        ],
-        [
-
-        ],
-        [
+          ],
           [
             "find",
             [
-              "title",
-              {
-                "channel": null
-              }
+              [
+                "title"
+              ]
             ],
             [
 
@@ -406,9 +390,10 @@
       [
         "find",
         [
-          "post",
+          [
+            "post"
+          ],
           {
-            "channel": null,
             "id": 2
           }
         ],
@@ -519,29 +504,13 @@
                 ]
               ]
             ]
-          ]
-        ]
-      ],
-      [
-        "find",
-        [
-          "post",
-          {
-            "channel": null,
-            "id": 2
-          }
-        ],
-        [
-
-        ],
-        [
+          ],
           [
             "find",
             [
-              "title",
-              {
-                "channel": null
-              }
+              [
+                "title"
+              ]
             ],
             [
 

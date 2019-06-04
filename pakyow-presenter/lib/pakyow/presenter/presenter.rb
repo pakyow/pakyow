@@ -129,7 +129,8 @@ module Pakyow
       # Uses the view matching +version+, removing all other versions.
       #
       def use(version)
-        presenter_for(@view.use(version))
+        @view.use(version)
+        self
       end
 
       # Returns a presenter for the view matching +version+.
@@ -156,7 +157,7 @@ module Pakyow
 
           if data.respond_to?(:empty?) && data.empty?
             if @view.is_a?(VersionedView) && @view.version?(:empty)
-              @view.use(:empty)
+              @view.use(:empty); @view.object.set_label(:bound, true)
             else
               remove
             end

@@ -19,7 +19,7 @@
               [
                 {
                   "title": "foo",
-                  "id": "ff2d81e0-f37b-4e1a-b885-ee4d178f37bf"
+                  "id": "0adceb3d-7df3-4637-bfc5-2aeccf43c550"
                 }
               ]
             ],
@@ -42,7 +42,7 @@
                   [
                     {
                       "title": "foo",
-                      "id": "ff2d81e0-f37b-4e1a-b885-ee4d178f37bf"
+                      "id": "0adceb3d-7df3-4637-bfc5-2aeccf43c550"
                     }
                   ],
                   [
@@ -77,9 +77,11 @@
         ],
         [
           [
-            "remove",
+            "transform",
             [
+              [
 
+              ]
             ],
             [
 
@@ -89,11 +91,9 @@
             ]
           ],
           [
-            "transform",
+            "remove",
             [
-              [
 
-              ]
             ],
             [
 

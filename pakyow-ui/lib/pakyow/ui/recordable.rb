@@ -30,7 +30,11 @@ module Pakyow
       attr_reader :calls
 
       def to_json(*)
-        @calls.to_json
+        optimized.to_json
+      end
+
+      def to_a
+        @calls
       end
 
       # @api private
@@ -47,6 +51,46 @@ module Pakyow
       end
 
       private
+
+      def optimized
+        calls = []
+
+        # Combine finds when looking for the same nodes.
+        #
+        @calls.each do |call|
+          if call[0] == :find && matching_call = calls.find { |c| c[0] == :find && c[1] == call[1] && c[2] == call[2] }
+            matching_call[3].to_a.concat(call[3].to_a)
+          else
+            calls << call
+          end
+        end
+
+        # Prioritize the calls so they are applied correctly on the client.
+        #
+        calls.sort! { |a, b|
+          call_priority(a, calls) <=> call_priority(b, calls)
+        }
+
+        calls
+      end
+
+      PRIORITY_CALLS = %i(transform use).freeze
+
+      def call_priority(call, calls)
+        if PRIORITY_CALLS.include?(call[0])
+          # Set priority calls to a priority of -1000, which is highest priority.
+          #
+          -1000
+        elsif call[0] == :find
+          # Make priority of finds an inverse of specificity (e.g. [:post] > [:post, :title]).
+          #
+          -1000 + call[1][0].count
+        else
+          # Or just keep the same order we have now.
+          #
+          calls.index(call)
+        end
+      end
 
       # FIXME: We currently viewify twice for present; once for transform, another for bind.
       # Let's create a `Viewified` object instead... then check to see if it's already happened.
@@ -117,6 +161,10 @@ module Pakyow
       end
 
       def self.find_through(binding_path, binding_info, options, context, calls)
+        if options["channel"].nil?
+          options.delete("channel")
+        end
+
         if binding_path.any?
           binding_path_part = binding_path.shift
           current_options = options.dup
@@ -131,11 +179,14 @@ module Pakyow
 
           subsequent = []
 
+          args = [[binding_path_part]]
+          unless current_options.empty?
+            args << current_options
+          end
+
           context << [
-            "find",
-            [
-              binding_path_part, current_options
-            ], [], subsequent
+            :find,
+            args, [], subsequent
           ]
 
           find_through(binding_path, binding_info, options, subsequent, calls)
@@ -249,16 +300,7 @@ module Pakyow
                 []
               end
 
-              call = [remap_for_client(method_name), call_args, nested, subsequent]
-
-              if method_name == :use
-                # FIXME: Once transformations are applied to templates on the client, we will no
-                # longer need to insert the `use` calls at the top of the stack.
-                #
-                calls.unshift(call)
-              else
-                calls << call
-              end
+              calls << [remap_for_client(method_name), call_args, nested, subsequent]
             end
           end
         end

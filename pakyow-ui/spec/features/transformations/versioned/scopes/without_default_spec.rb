@@ -44,7 +44,7 @@ RSpec.describe "versioned scopes with no default" do
       end
     end
 
-    xit "transforms" do |x|
+    it "transforms" do |x|
       save_ui_case(x, path: "/posts") do
         call("/posts", method: :post, params: { post: { title: "foo" } })
       end
@@ -68,7 +68,7 @@ RSpec.describe "versioned scopes with no default" do
       end
     end
 
-    xit "transforms" do |x|
+    it "transforms" do |x|
       save_ui_case(x, path: "/posts") do
         call("/posts", method: :post, params: { post: { title: "foo" } })
       end

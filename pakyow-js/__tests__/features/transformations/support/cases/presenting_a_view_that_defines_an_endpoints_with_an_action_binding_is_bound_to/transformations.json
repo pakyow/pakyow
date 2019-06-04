@@ -63,9 +63,10 @@
       [
         "find",
         [
-          "post",
+          [
+            "post"
+          ],
           {
-            "channel": null,
             "id": 1
           }
         ],

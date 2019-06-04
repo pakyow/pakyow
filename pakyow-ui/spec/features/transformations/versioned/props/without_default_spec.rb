@@ -37,13 +37,15 @@ RSpec.describe "versioned props with no default" do
 
       Proc.new do
         presenter local_view_path do
-          render do
-            find(:post, :title).use(:red)
+          render :post, :title do
+            use(:red)
           end
         end
       end
     end
 
+    # FIXME: this is a bug that can only be solved by transforming templates on the client
+    #
     xit "transforms" do |x|
       save_ui_case(x, path: "/posts") do
         call("/posts", method: :post, params: { post: { title: "foo" } })
@@ -61,13 +63,15 @@ RSpec.describe "versioned props with no default" do
 
       Proc.new do
         presenter local_view_path do
-          render do
-            find(:post, :title).use(:red).attrs[:style][:background] = "blue"
+          render :post, :title do
+            use(:red).attrs[:style][:background] = "blue"
           end
         end
       end
     end
 
+    # FIXME: this is a bug that can only be solved by transforming templates on the client
+    #
     xit "transforms" do |x|
       save_ui_case(x, path: "/posts") do
         call("/posts", method: :post, params: { post: { title: "foo" } })
@@ -85,17 +89,18 @@ RSpec.describe "versioned props with no default" do
 
       Proc.new do
         presenter local_view_path do
-          render do
-            find(:post, :title).use(:red)
-            find(:post).present(posts)
+          render :post do
+            present(posts)
+          end
+
+          render :post, :title do
+            use(:red)
           end
         end
       end
     end
 
-    # This is unsupported, and may always be. In order to support it on the client,
-    # we'd need to apply transformations to templates as well as rendered views.
-    # If this comes back to bite us in other ways, we'll revisit.
+    # FIXME: this is a bug that can only be solved by transforming templates on the client
     #
     xit "transforms" do |x|
       save_ui_case(x, path: "/posts") do

@@ -5,7 +5,9 @@
       [
         "find",
         [
-          "post",
+          [
+            "post"
+          ],
           {
             "channel": [
               "all"
@@ -137,10 +139,9 @@
       [
         "find",
         [
-          "post",
-          {
-            "channel": null
-          }
+          [
+            "post"
+          ]
         ],
         [
 

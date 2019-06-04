@@ -45,28 +45,6 @@
                   ]
                 ],
                 [
-                  "bind",
-                  [
-                    {
-                      "id": 1,
-                      "title": "foo",
-                      "comment": [
-                        {
-                          "id": 1,
-                          "title": "foo comment",
-                          "post_id": 1
-                        }
-                      ]
-                    }
-                  ],
-                  [
-
-                  ],
-                  [
-
-                  ]
-                ],
-                [
                   "find",
                   [
                     [
@@ -122,6 +100,28 @@
 
                       ]
                     ]
+                  ]
+                ],
+                [
+                  "bind",
+                  [
+                    {
+                      "id": 1,
+                      "title": "foo",
+                      "comment": [
+                        {
+                          "id": 1,
+                          "title": "foo comment",
+                          "post_id": 1
+                        }
+                      ]
+                    }
+                  ],
+                  [
+
+                  ],
+                  [
+
                   ]
                 ]
               ]

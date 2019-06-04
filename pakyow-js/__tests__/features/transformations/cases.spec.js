@@ -75,7 +75,17 @@ describe("transformations", () => {
       }
 
       // finally, make the assertion
-      expect(comparable(document)).toEqual(comparable(resultDOM.window.document));
+      var HtmlDiffer = require('html-differ').HtmlDiffer;
+      var htmlDiffer = new HtmlDiffer({});
+      var htmlLogger = require('html-differ/lib/logger');
+
+      var diff = htmlDiffer.diffHtml(
+        comparable(document), comparable(resultDOM.window.document)
+       );
+
+      expect(
+        htmlLogger.getDiffText(diff)
+       ).toEqual("");
     });
   }
 });
