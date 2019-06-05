@@ -30,17 +30,15 @@ module Pakyow
             end
 
             Pakyow.parse_input "application/json" do |input, connection|
-              JSON.parse(input.read).tap do |values|
-                if values.is_a?(Hash)
-                  values.each do |key, value|
-                    if value.is_a?(Hash)
-                      value = value.indifferentize
-                    end
+              values = JSON.parse(input.read)
 
-                    connection.params.add(key, value)
-                  end
+              if values.is_a?(Hash)
+                values.deep_indifferentize.each do |key, value|
+                  connection.params.add(key, value)
                 end
               end
+
+              values
             end
           end
         end
