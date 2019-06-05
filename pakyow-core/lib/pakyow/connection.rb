@@ -61,19 +61,6 @@ module Pakyow
       @params = Pakyow::Connection::Params.new
       @logger = Logger.new(:http, started_at: @timestamp, id: @id, output: Pakyow.global_logger, level: Pakyow.config.logger.level)
       @streams = []
-
-      # Set the request logger as a thread-local variable for when there's no other way to access
-      # it. This originated when looking for a way to log queries with the request logger. By
-      # setting the request logger for the current connection as thread-local we can create a
-      # connection pointing to `Pakyow.logger`, an instance of `Pakyow::Logger::ThreadLocal`. The
-      # thread local logger decides at the time of logging which logger to use based on an
-      # available context, falling back to `Pakyow.global_logger`. This gets us around needing to
-      # configure a connection per request, altering Sequel's internals, and other oddities.
-      #
-      # Pakyow is designed so that the connection object and its logger should always be available
-      # anywhere you need it. If it isn't, reconsider the design before using the thread local.
-      #
-      Thread.current[:pakyow_logger] = @logger
     end
 
     def request_header?(key)
@@ -300,6 +287,8 @@ module Pakyow
       end
 
       @streams << Async::Task.current.async { |task|
+        Thread.current[:pakyow_logger] = @logger
+
         begin
           yield self
         rescue => error
