@@ -133,7 +133,15 @@ module Pakyow
     end
 
     def scheme
-      @request.scheme
+      if request_header("https").to_s == "on" || request_header("x-forwarded-ssl").to_s == "on"
+        "https"
+      elsif value = request_header("x-forwarded-scheme")
+        value[0]
+      elsif value = request_header("x-forwarded-proto")
+        value[0]
+      else
+        @request.scheme
+      end
     end
 
     def authority
