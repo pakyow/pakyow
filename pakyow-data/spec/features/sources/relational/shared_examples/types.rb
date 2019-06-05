@@ -213,6 +213,21 @@ RSpec.shared_examples :source_types do
           expect(post[:attr1]).to eq("bar")
           expect(data.posts.by_id(post.id).update(attr2: "baz").one[:attr1]).to eq("bar")
         end
+
+        context "default value is falsey" do
+          let :app_init do
+            Proc.new do
+              source :posts, primary_id: false, timestamps: false do
+                primary_id
+                attribute :attr1, :boolean, default: false
+              end
+            end
+          end
+
+          it "uses the default value" do
+            expect(data.posts.create.one[:attr1]).to eq(false)
+          end
+        end
       end
 
       context "with a not-null restriction" do

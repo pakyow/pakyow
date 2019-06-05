@@ -81,7 +81,8 @@ module Pakyow
                 # Set default values.
                 #
                 @source.class.attributes.each do |attribute_name, attribute|
-                  if !final_values.include?(attribute_name) && default = attribute.meta[:default]
+                  if !final_values.include?(attribute_name) && attribute.meta.include?(:default)
+                    default = attribute.meta[:default]
                     final_values[attribute_name] = if default.is_a?(Proc)
                       default.call
                     else
