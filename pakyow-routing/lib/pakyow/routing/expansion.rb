@@ -14,7 +14,7 @@ module Pakyow
       def_delegators :@expander, *%i(default group namespace template).concat(Controller::DEFINABLE_HTTP_METHODS)
       def_delegators :@controller, :action
 
-      def initialize(_template_name, controller, options, &template_block)
+      def initialize(template_name, controller, options, &template_block)
         @controller = controller
 
         # Create the controller that stores available routes, groups, and namespaces
@@ -60,6 +60,10 @@ module Pakyow
             end
           end
         end
+
+        # Set the expansion on the controller.
+        #
+        @controller.expansions << template_name
       end
     end
   end
