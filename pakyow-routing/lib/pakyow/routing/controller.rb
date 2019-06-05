@@ -754,11 +754,18 @@ module Pakyow
       # @api private
       def make_child(*args, **kwargs, &block)
         name, matcher = parse_name_and_matcher_from_args(*args)
-        name = __object_name.isolated(name) if name && name.is_a?(Symbol) && __object_name
 
-        controller = make(name, matcher, parent: self, **kwargs, &block)
-        children << controller
-        controller
+        if name && name.is_a?(Symbol) && child = children.find { |possible_child| possible_child.__object_name.name == name }
+          child.instance_exec(&block); child
+        else
+          if name && name.is_a?(Symbol) && __object_name
+            name = __object_name.isolated(name)
+          end
+
+          make(name, matcher, parent: self, **kwargs, &block).tap do |controller|
+            children << controller
+          end
+        end
       end
 
       # @api private
