@@ -467,7 +467,7 @@ RSpec.describe Pakyow do
       end
 
       let :logger do
-        double(:logger, error: nil)
+        double(:logger, houston: nil)
       end
 
       it "exposes the error" do
@@ -476,7 +476,7 @@ RSpec.describe Pakyow do
       end
 
       it "logs the error and each line of the backtrace" do
-        expect(logger).to receive(:error).with(error: error)
+        expect(logger).to receive(:houston).with(error)
         perform
       end
 

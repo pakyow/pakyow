@@ -4,7 +4,7 @@ RSpec.describe "Handling failures in pakyow environment setup" do
   before do
     allow(Pakyow).to receive(:exit)
     allow(Pakyow).to receive(:load).and_raise(error)
-    allow(Pakyow).to receive(:logger).and_return(double(:logger, error: nil))
+    allow(Pakyow).to receive(:logger).and_return(double(:logger, houston: nil))
     Pakyow.config.logger.enabled = true
   end
 
@@ -14,7 +14,7 @@ RSpec.describe "Handling failures in pakyow environment setup" do
 
   shared_examples :handling do
     it "logs" do
-      expect(Pakyow.logger).to receive(:error).with(error: error)
+      expect(Pakyow.logger).to receive(:houston).with(error)
     end
 
     context "config.exit_on_boot_failure is true" do

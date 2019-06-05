@@ -347,7 +347,7 @@ module Pakyow
       @error = error
 
       Support::Logging.safe do |logger|
-        logger.error(error: error)
+        logger.houston(error)
       end
 
       if config.exit_on_boot_failure
