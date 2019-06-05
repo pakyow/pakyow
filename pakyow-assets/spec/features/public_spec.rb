@@ -30,15 +30,15 @@ RSpec.describe "accessing public files" do
 
     context "requested file is of an unknown type" do
       it "responds 200" do
-        expect(call("/assets/foo.bar")[0]).to eq(200)
+        expect(call("/foo.bar")[0]).to eq(200)
       end
 
       it "responds with the file" do
-        expect(call("/assets/foo.bar")[2]).to eq("foo bar\n")
+        expect(call("/foo.bar")[2]).to eq("foo bar\n")
       end
 
       it "does not set the content type" do
-        expect(call("/assets/foo.bar")[1]["content-type"]).to be(nil)
+        expect(call("/foo.bar")[1]["content-type"]).to be(nil)
       end
     end
   end

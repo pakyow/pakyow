@@ -28,7 +28,7 @@ RSpec.describe "silencing requests" do
 
       it "does log a non-asset request" do
         expect(Pakyow.global_logger).to receive(:call).at_least(:once)
-        call("/foo.bar")
+        call("/foo.bar.baz")
       end
     end
 
