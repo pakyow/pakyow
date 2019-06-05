@@ -266,7 +266,10 @@ module Pakyow
     #   => "application/json"
     #
     def format=(format)
-      set_header("content-type", MiniMime.lookup_by_extension(format.to_s).content_type)
+      if mime = MiniMime.lookup_by_extension(format.to_s)
+        set_header("content-type", mime.content_type)
+      end
+
       @format = format
     end
 

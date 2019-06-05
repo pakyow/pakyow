@@ -42,4 +42,22 @@ RSpec.describe Pakyow::Assets::Asset do
       }.from(false).to(true)
     end
   end
+
+  describe "setting the mime type" do
+    context "known type" do
+      it "sets the mime type" do
+        expect(instance.mime_type).to eq("application/javascript")
+      end
+    end
+
+    context "unknown type" do
+      let :local_path do
+        File.expand_path("../../support/app/frontend/assets/foo.bar", __FILE__)
+      end
+
+      it "does not set the mime type" do
+        expect(instance.mime_type).to eq("")
+      end
+    end
+  end
 end

@@ -96,12 +96,28 @@ RSpec.shared_examples :connection_format do
   end
 
   describe "#format=" do
-    before do
-      connection.format = :json
+    context "mime type is known" do
+      before do
+        connection.format = :json
+      end
+
+      it "sets the content-type header" do
+        expect(connection.header("content-type")).to eq("application/json")
+      end
     end
 
-    it "sets the Content-Type header" do
-      expect(connection.header("content-type")).to eq("application/json")
+    context "mime type is unknown" do
+      before do
+        connection.format = :"???"
+      end
+
+      it "sets the format" do
+        expect(connection.format).to eq(:"???")
+      end
+
+      it "does not set the content-type header" do
+        expect(connection.header("content-type")).to be(nil)
+      end
     end
   end
 end

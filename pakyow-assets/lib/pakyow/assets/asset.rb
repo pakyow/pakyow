@@ -107,7 +107,7 @@ module Pakyow
           #
           "application/javascript"
         else
-          MiniMime.lookup_by_filename(@public_path).content_type
+          MiniMime.lookup_by_filename(@public_path)&.content_type.to_s
         end
 
         @mime_prefix, @mime_suffix = @mime_type.split("/", 2)
