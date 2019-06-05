@@ -9,7 +9,9 @@ namespace :db do
   task :migrate, [:adapter, :connection] do |_, args|
     Pakyow.config.data.auto_migrate = false
 
-    Pakyow.boot(unsafe: true)
+    unless Pakyow.booted?
+      Pakyow.boot(unsafe: true)
+    end
 
     migrator = Pakyow::Data::Migrator.connect(
       adapter: args[:adapter],

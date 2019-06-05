@@ -7,6 +7,10 @@ namespace :db do
   option :adapter, "The adapter to migrate"
   option :connection, "The connection to migrate"
   task :create, [:adapter, :connection] do |_, args|
+    unless Pakyow.booted?
+      Pakyow.boot(unsafe: true)
+    end
+
     migrator = Pakyow::Data::Migrator.connect_global(
       adapter: args[:adapter],
       connection: args[:connection]
@@ -14,9 +18,5 @@ namespace :db do
 
     migrator.create!
     migrator.disconnect!
-
-    # Clear the setup error that would be raised if the connection could not be established.
-    #
-    Pakyow.instance_variable_set(:@setup_error, nil)
   end
 end

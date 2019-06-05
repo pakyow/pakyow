@@ -7,6 +7,10 @@ namespace :db do
   option :adapter, "The adapter to migrate"
   option :connection, "The connection to migrate"
   task :drop, [:adapter, :connection] do |_, args|
+    unless Pakyow.booted?
+      Pakyow.boot(unsafe: true)
+    end
+
     begin
       if connection = Pakyow.connection(args[:adapter], args[:connection])
         connection.disconnect
