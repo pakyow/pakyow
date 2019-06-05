@@ -51,7 +51,7 @@ module Pakyow
               setting :proxy, false
 
               setting :host do
-                ENV["HOST"] || "localhost"
+                ENV["HOST"] || "0.0.0.0"
               end
 
               setting :port do
