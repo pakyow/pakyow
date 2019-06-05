@@ -256,6 +256,14 @@ RSpec.describe "defining resources" do
       }
     end
 
+    it "exposes its param" do
+      expect(Test::Controllers::Posts.param).to eq(:id)
+    end
+
+    it "exposes its nested param" do
+      expect(Test::Controllers::Posts.nested_param).to eq(:post_id)
+    end
+
     it "can have a list action" do
       res = call("/posts")
       expect(res[0]).to eq(200)
