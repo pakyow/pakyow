@@ -14,6 +14,14 @@ RSpec.describe "populating options for nested data" do
     ]
   end
 
+  before do
+    allow(Pakyow::Support::MessageVerifier).to receive(:key).and_return("key")
+  end
+
+  def sign(value)
+    Pakyow::Support::MessageVerifier.new.sign(value.to_s)
+  end
+
   it "sets up the fields and labels" do
     expect(rendered).to include_sans_whitespace(
       <<~HTML
@@ -49,27 +57,35 @@ RSpec.describe "populating options for nested data" do
 
   describe "embedding the unique identifier" do
     context "nested data has an id" do
-      let :options do
-        [
-          { id: 1 },
-          { id: 2 }
-        ]
+      include_context "app"
+
+      let :app_init do
+        Proc.new do
+          presenter "/form/nested_data_id" do
+            options_for :post, :tags do
+              [
+                { id: 1 },
+                { id: 2 }
+              ]
+            end
+          end
+        end
       end
 
-      it "embeds the id" do
-        expect(rendered).to include_sans_whitespace(
+      it "embeds the signed id" do
+        html = call("/form/nested_data_id")[2]
+
+        expect(html).to include_sans_whitespace(
           <<~HTML
             <li data-b="tags" data-c="form" data-id="1">
-              <input type="hidden" name="post[tags][][id]" value="1">
-              <input type="text" data-b="description" data-c="form" name="post[tags][][description]">
-              <input type="checkbox" data-b="enabled" value="true" data-c="form" name="post[tags][][enabled]">
-            </li>
+              <input type="hidden" name="post[tags][][id]" value="#{sign(1)}">
+          HTML
+        )
 
+        expect(html).to include_sans_whitespace(
+          <<~HTML
             <li data-b="tags" data-c="form" data-id="2">
-              <input type="hidden" name="post[tags][][id]" value="2">
-              <input type="text" data-b="description" data-c="form" name="post[tags][][description]">
-              <input type="checkbox" data-b="enabled" value="true" data-c="form" name="post[tags][][enabled]">
-            </li>
+              <input type="hidden" name="post[tags][][id]" value="#{sign(2)}">
           HTML
         )
       end
@@ -104,39 +120,37 @@ RSpec.describe "populating options for nested data" do
         end
       end
 
-      let :options do
-        [
-          object.new(slug: :one),
-          object.new(slug: :two)
-        ]
+      include_context "app"
+
+      let :app_init do
+        local = self
+
+        Proc.new do
+          presenter "/form/nested_data_id" do
+            options_for :post, :tags do
+              [
+                local.object.new(slug: :one),
+                local.object.new(slug: :two)
+              ]
+            end
+          end
+        end
       end
 
-      it "embeds the primary key" do
-        expect(rendered).to include_sans_whitespace(
+      it "embeds the signed primary key" do
+        html = call("/form/nested_data_id")[2]
+
+        expect(html).to include_sans_whitespace(
           <<~HTML
-            <form data-b="post" data-c="form">
-              <ul>
-                <li data-b="tags" data-c="form">
-                  <input type="hidden" name="post[tags][][slug]" value="one">
-                  <input type="text" data-b="description" data-c="form" name="post[tags][][description]">
-                  <input type="checkbox" data-b="enabled" value="true" data-c="form" name="post[tags][][enabled]">
-                </li>
+            <li data-b="tags" data-c="form">
+              <input type="hidden" name="post[tags][][slug]" value="#{sign('one')}">
+          HTML
+        )
 
-                <li data-b="tags" data-c="form">
-                  <input type="hidden" name="post[tags][][slug]" value="two">
-                  <input type="text" data-b="description" data-c="form" name="post[tags][][description]">
-                  <input type="checkbox" data-b="enabled" value="true" data-c="form" name="post[tags][][enabled]">
-                </li>
-
-                <script type="text/template" data-b="tags" data-c="form">
-                  <li data-b="tags" data-c="form">
-                    <label data-b="name" data-c="form">Tag Name</label>
-                    <input type="text" data-b="description" data-c="form">
-                    <input type="checkbox" data-b="enabled" value="true" data-c="form">
-                  </li>
-                </script>
-              </ul>
-            </form>
+        expect(html).to include_sans_whitespace(
+          <<~HTML
+            <li data-b="tags" data-c="form">
+              <input type="hidden" name="post[tags][][slug]" value="#{sign('two')}">
           HTML
         )
       end
@@ -181,30 +195,31 @@ RSpec.describe "populating options for nested data" do
   end
 
   describe "populating options for a single nested object" do
-    let :options do
-      { id: 1, description: "foo", enabled: true, name: "Foo" }
-    end
+    include_context "app"
+
+      let :app_init do
+        local = self
+
+        Proc.new do
+          presenter "/form/nested_data_id" do
+            options_for :post, :tags do
+              { id: 1, description: "foo", enabled: true, name: "Foo" }
+            end
+          end
+        end
+      end
 
     it "sets up the field and label for the object" do
-      expect(rendered).to include_sans_whitespace(
+      html = call("/form/nested_data_id")[2]
+      expect(html.scan(/\<li data-b=\"tags\" data-c=\"form\" data-id=\"/).count).to eq(1)
+      expect(html).to include_sans_whitespace(
         <<~HTML
-          <form data-b="post" data-c="form">
-            <ul>
-              <li data-b="tags" data-c="form" data-id="1">
-                <input type="hidden" name="post[tags][id]" value="1">
-                <label data-b="name" data-c="form">Foo</label>
-                <input type="text" data-b="description" data-c="form" value="foo" name="post[tags][description]">
-                <input type="checkbox" data-b="enabled" value="true" data-c="form" name="post[tags][enabled]">
-              </li>
-
-              <script type="text/template" data-b="tags" data-c="form"><li data-b="tags" data-c="form">
-                <label data-b="name" data-c="form">Tag Name</label>
-                <input type="text" data-b="description" data-c="form">
-                <input type="checkbox" data-b="enabled" value="true" data-c="form">
-              </li>
-            </script>
-          </ul>
-        </form>
+          <li data-b="tags" data-c="form" data-id="1">
+            <input type="hidden" name="post[tags][id]" value="#{sign(1)}">
+            <label data-b="name" data-c="form">Foo</label>
+            <input type="text" data-b="description" data-c="form" value="foo" name="post[tags][description]">
+            <input type="checkbox" data-b="enabled" value="true" data-c="form" name="post[tags][enabled]">
+          </li>
         HTML
       )
     end

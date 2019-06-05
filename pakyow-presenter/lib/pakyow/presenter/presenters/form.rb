@@ -394,14 +394,19 @@ module Pakyow
                 if key = option_value_keys(current, value).find { |k| value.include?(k) }
                   id_input = Oga::XML::Element.new(name: "input")
                   id_input.set(:type, "hidden")
+
                   name = "#{view.object.label(:binding)}[#{current.label(:binding)}]"
                   name = if original_values.is_a?(Array)
                     "#{name}[][#{key}]"
                   else
                     "#{name}[#{key}]"
                   end
+
                   id_input.set(:name, name)
-                  id_input.set(:value, ensure_html_safety(value[key].to_s))
+                  id_input.set(:value, presentables[:__verifier].sign(
+                    ensure_html_safety(value[key].to_s)
+                  ))
+
                   current.prepend(html_safe(id_input.to_xml))
                 end
               else
