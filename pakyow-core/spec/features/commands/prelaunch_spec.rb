@@ -25,6 +25,8 @@ RSpec.describe "cli: prelaunch" do
   end
 
   describe "running" do
+    it "boots into unsafe mode"
+
     context "prelaunch tasks are defined for the environment" do
       it "runs each task with the defined options"
       it "adds the current env as an option"
@@ -47,5 +49,4 @@ RSpec.describe "cli: prelaunch" do
       it "does not run other tasks"
     end
   end
-
 end

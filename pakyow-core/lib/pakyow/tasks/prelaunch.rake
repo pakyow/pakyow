@@ -16,7 +16,7 @@ task :prelaunch do
     task.call(task_options)
   end
 
-  Pakyow.boot
+  Pakyow.boot(unsafe: true)
 
   # Run prelaunch tasks registered with the environment.
   #

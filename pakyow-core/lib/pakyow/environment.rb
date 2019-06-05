@@ -224,13 +224,13 @@ module Pakyow
 
     # Boots the environment without running it.
     #
-    def boot
+    def boot(unsafe: false)
       ensure_setup_succeeded
 
       performing :boot do
         # Tasks should only be available before boot.
         #
-        @tasks = []
+        @tasks = [] unless unsafe
 
         @apps = mounts.map { |mount|
           initialize_app_for_mount(mount)
@@ -243,7 +243,7 @@ module Pakyow
       @pipeline = Pakyow.__pipeline.callable(self)
 
       if config.freeze_on_boot
-        deep_freeze
+        deep_freeze unless unsafe
       end
 
       self

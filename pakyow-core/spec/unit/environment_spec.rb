@@ -441,6 +441,16 @@ RSpec.describe Pakyow do
       perform
     end
 
+    it "sets the environment as booted"
+    it "creates a callable pipeline"
+    it "clears the loaded tasks"
+    it "deep freezes"
+
+    context "booting in unsafe mode" do
+      it "does not clear the loaded tasks"
+      it "does not deep freeze"
+    end
+
     context "something goes wrong" do
       before do
         allow(app_instance).to receive(:booted).and_raise(error)
