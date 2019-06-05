@@ -72,6 +72,8 @@ module Pakyow
 
           configurable :logger do
             setting :enabled, true
+            setting :sync, true
+
             setting :level do
               if config.logger.enabled
                 :debug

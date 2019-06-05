@@ -52,6 +52,12 @@ RSpec.describe Pakyow do
       end
     end
 
+    describe "logger.sync" do
+      it "has a default value" do
+        expect(Pakyow.config.logger.sync).to eq(true)
+      end
+    end
+
     describe "logger.enabled" do
       it "has a default value" do
         expect(Pakyow.config.logger.enabled).to eq(true)

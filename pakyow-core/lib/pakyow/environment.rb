@@ -324,6 +324,7 @@ module Pakyow
     def init_global_logger
       destinations = Logger::Multiplexed.new(
         *config.logger.destinations.map { |destination, io|
+          io.sync = config.logger.sync
           Logger::Destination.new(destination, io)
         }
       )
