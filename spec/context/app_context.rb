@@ -15,7 +15,15 @@ RSpec.shared_context "app" do
       end
     end
 
-    Pakyow.app(:test, mount: false, &block)
+    Pakyow.app(:test, mount: false, without: excluded_frameworks, &block)
+  end
+
+  let :excluded_frameworks do
+    if instance_variable_defined?(:@excluded_frameworks)
+      @excluded_frameworks
+    else
+      []
+    end
   end
 
   let :app_def do
