@@ -77,7 +77,7 @@ module Pakyow
         end
 
         def component_packs(view)
-          view.object.each_significant_node(:component).map { |node|
+          view.object.each_significant_node(:component, descend: true).map { |node|
             node.label(:component)
           }
         end

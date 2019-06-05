@@ -55,6 +55,20 @@ RSpec.describe "asset packs for components" do
   let :request_path do
     "/packs/component"
   end
+
+  context "component is nested" do
+    let :request_path do
+      "/packs/component/nested"
+    end
+
+    it "includes the stylesheet" do
+      expect(call(request_path)[2]).to include("<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"/assets/packs/#{included_pack_name}.css\">")
+    end
+
+    it "includes the javascript" do
+      expect(call(request_path)[2]).to include("<script src=\"/assets/packs/#{included_pack_name}.js\"></script>")
+    end
+  end
 end
 
 RSpec.describe "missing asset packs" do
