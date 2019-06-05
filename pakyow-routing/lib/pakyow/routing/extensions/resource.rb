@@ -113,12 +113,18 @@ module Pakyow
             end
 
             controller.define_singleton_method :resource do |name, matcher, param: DEFAULT_PARAM, &block|
-              expand(:resource, name, File.join(nested_resource_id, matcher), param: param) do
-                allow_params nested_param
-                action :update_request_path_for_parent do
-                  connection.get(:__endpoint_path).gsub!(nested_resource_id, "show")
+              if existing_resource = children.find { |child| child.expansions.include?(:resource) && child.__object_name.name == name }
+                existing_resource.instance_exec(&block); existing_resource
+              else
+                expand(:resource, name, File.join(nested_resource_id, matcher), param: param) do
+                  allow_params nested_param
+
+                  action :update_request_path_for_parent do
+                    connection.get(:__endpoint_path).gsub!(nested_resource_id, "show")
+                  end
+
+                  instance_exec(&block)
                 end
-                instance_exec(&block)
               end
             end
           end
