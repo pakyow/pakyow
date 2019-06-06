@@ -52,8 +52,7 @@ module Pakyow
         rescue
           if total_waits == 30
             Async::HTTP::Protocol::Response.new(
-              nil, 404, nil, [],
-              Async::HTTP::Body::Buffered.wrap(
+              nil, 404, [], Async::HTTP::Body::Buffered.wrap(
                 StringIO.new("app did not respond")
               )
             )

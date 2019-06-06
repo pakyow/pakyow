@@ -340,7 +340,7 @@ module Pakyow
         if instance_variable_defined?(:@response)
           @response
         else
-          Async::HTTP::Protocol::Response.new(nil, @status, nil, finalize_headers, @body)
+          Async::HTTP::Protocol::Response.new(nil, @status, finalize_headers, @body)
         end
       end
     end

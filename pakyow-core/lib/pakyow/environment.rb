@@ -304,8 +304,7 @@ module Pakyow
       Pakyow.logger.houston(error)
 
       Async::HTTP::Protocol::Response.new(
-        nil, 500, nil, {},
-        Async::HTTP::Body::Buffered.wrap(
+        nil, 500, {}, Async::HTTP::Body::Buffered.wrap(
           StringIO.new("500 Low-Level Server Error")
         )
       )
