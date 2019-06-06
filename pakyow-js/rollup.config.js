@@ -5,12 +5,7 @@ export default [
   {
     input: "index",
     plugins: [
-      node(),
-      babel({
-        plugins: [
-          "external-helpers"
-        ]
-      })
+      node(), babel()
     ],
     output: {
       extend: true,
@@ -22,12 +17,7 @@ export default [
   {
     input: "src/components/confirmable",
     plugins: [
-      node(),
-      babel({
-        plugins: [
-          "external-helpers"
-        ]
-      })
+      node(), babel()
     ],
     output: {
       extend: true,
@@ -38,12 +28,7 @@ export default [
   {
     input: "src/components/form",
     plugins: [
-      node(),
-      babel({
-        plugins: [
-          "external-helpers"
-        ]
-      })
+      node(), babel()
     ],
     output: {
       extend: true,
@@ -54,12 +39,7 @@ export default [
   {
     input: "src/components/navigable",
     plugins: [
-      node(),
-      babel({
-        plugins: [
-          "external-helpers"
-        ]
-      })
+      node(), babel()
     ],
     output: {
       extend: true,
@@ -70,12 +50,7 @@ export default [
   {
     input: "src/components/socket",
     plugins: [
-      node(),
-      babel({
-        plugins: [
-          "external-helpers"
-        ]
-      })
+      node(), babel()
     ],
     output: {
       extend: true,
