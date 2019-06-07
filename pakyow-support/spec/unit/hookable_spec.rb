@@ -159,7 +159,7 @@ RSpec.describe Pakyow::Support::Hookable do
       context "and the event is unknown" do
         it "fails to define the hook" do
           expect {
-            hookable.before :unknown do; end
+            hookable.before "unknown" do; end
           }.to raise_error(ArgumentError)
         end
       end
@@ -174,7 +174,7 @@ RSpec.describe Pakyow::Support::Hookable do
     include_examples :hookable
   end
 
-  context "with hooks defined on the class and instance" do
+  describe "defining hooks on both the class and instance" do
     let :event do
       events.first
     end
@@ -186,7 +186,7 @@ RSpec.describe Pakyow::Support::Hookable do
     end
   end
 
-  context "when calling hooks with various priorities" do
+  describe "calling hooks with various priorities" do
     let :event do
       events.first
     end
@@ -208,24 +208,38 @@ RSpec.describe Pakyow::Support::Hookable do
       expect(calls[1]).to eq 3
       expect(calls[2]).to eq 1
     end
+  end
 
-    context "when prioritized class hooks are defined" do
-      it "calls hooks by order of priority" do
-        calls = []
+  describe "using named hooks as dynamic events" do
+    let :event do
+      events.first
+    end
 
-        hook_1 = -> { calls << 1 }
-        hook_2 = -> { calls << 2 }
-        hook_3 = -> { calls << 3 }
+    it "calls hooks in order" do
+      calls = []
 
-        hookable.before event, priority: :low, &hook_1
-        hookable.before event, priority: :high, &hook_2
+      hook_1 = -> { calls << 1 }
+      hook_2 = -> { calls << 2 }
+      hook_3 = -> { calls << 3 }
+      hook_4 = -> { calls << 4 }
+      hook_5 = -> { calls << 5 }
+      hook_6 = -> { calls << 6 }
 
-        instance = hookable.new
-        instance.call_hooks(:before, event)
+      hookable.before event, "foo.bar", &hook_1
+      hookable.before "foo.bar", "bar.baz", &hook_2
+      hookable.before event, &hook_3
+      hookable.after "foo.bar", &hook_4
+      hookable.after "bar.baz", "baz.qux", &hook_5
+      hookable.before "baz.qux", &hook_6
 
-        expect(calls[0]).to eq 2
-        expect(calls[1]).to eq 1
-      end
+      hookable.call_hooks(:before, event)
+
+      expect(calls[0]).to eq 2
+      expect(calls[1]).to eq 6
+      expect(calls[2]).to eq 5
+      expect(calls[3]).to eq 1
+      expect(calls[4]).to eq 4
+      expect(calls[5]).to eq 3
     end
   end
 end

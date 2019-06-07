@@ -20,19 +20,19 @@ module Pakyow
     #     events :swim
     #
     #     def swim
-    #       performing :swim do
+    #       performing "swim" do
     #         puts "swimming"
     #       end
     #     end
     #   end
     #
-    #   Fish.before :swim do
+    #   Fish.before "swim" do
     #     puts "prepping"
     #   end
     #
     #   fish = Fish.new
     #
-    #   fish.after :swim do
+    #   fish.after "swim" do
     #     puts "resting"
     #   end
     #
@@ -54,6 +54,7 @@ module Pakyow
 
         base.extend ClassState
         base.class_state :__events, default: [], inheritable: true, getter: false
+        base.class_state :__hooks, default: [], inheritable: true, getter: false
         base.class_state :__hook_hash, default: { after: {}, before: {} }, inheritable: true
         base.class_state :__hook_pipeline, default: { after: {}, before: {} }, inheritable: true
       end
@@ -89,8 +90,8 @@ module Pakyow
         #     high (1)
         #     low (-1)
         #
-        def before(event, priority: PRIORITIES[:default], exec: true, &block)
-          add_hook(@__hook_hash, :before, event, priority, exec, block)
+        def before(event, name = nil, priority: PRIORITIES[:default], exec: true, &block)
+          add_hook(:before, event, name, priority, exec, block)
         end
         alias on before
 
@@ -98,30 +99,34 @@ module Pakyow
         #
         # @see #before
         #
-        def after(event, priority: PRIORITIES[:default], exec: true, &block)
-          add_hook(@__hook_hash, :after, event, priority, exec, block)
+        def after(event, name = nil, priority: PRIORITIES[:default], exec: true, &block)
+          add_hook(:after, event, name, priority, exec, block)
         end
 
         # Defines a hook to call before and after event occurs.
         #
         # @see #before
         #
-        def around(event, priority: PRIORITIES[:default], exec: true, &block)
-          add_hook(@__hook_hash, :before, event, priority, exec, block)
-          add_hook(@__hook_hash, :after, event, priority, exec, block)
+        def around(event, name = nil, priority: PRIORITIES[:default], exec: true, &block)
+          add_hook(:before, event, name, priority, exec, block)
+          add_hook(:after, event, name, priority, exec, block)
         end
 
         # @api private
         def known_event?(event)
           @__events.include?(event.to_sym)
         end
+
+        def known_hook?(event)
+          @__hooks.any? { |hook|
+            hook[:name] == event.to_sym
+          }
+        end
       end
 
       # Methods included at the class and instance level.
       #
       module CommonMethods
-        # attr_reader :__hook_hash, :__hook_pipeline
-
         # Calls all registered hooks for `event`, yielding between them.
         #
         # @param event [Symbol] The name of the event.
@@ -139,11 +144,11 @@ module Pakyow
         # @param event [Symbol] The name of the event.
         #
         def call_hooks(type, event, *args)
-          hooks(type, event).each do |hook, should_exec|
-            if should_exec
-              instance_exec(*args, &hook)
+          hooks(type, event).each do |hook|
+            if hook[:exec]
+              instance_exec(*args, &hook[:block])
             else
-              hook.call(*args)
+              hook[:block].call(*args)
             end
           end
         end
@@ -154,23 +159,61 @@ module Pakyow
         end
 
         # @api private
-        def add_hook(hash_of_hooks, type, event, priority, exec, hook)
-          raise ArgumentError, "#{event} is not a known hook event" unless known_event?(event)
-          priority = PRIORITIES[priority] if priority.is_a?(Symbol)
-          (hash_of_hooks[type.to_sym][event.to_sym] ||= []) << [priority, hook, exec]
+        def add_hook(type, event, name, priority, exec, hook)
+          if priority.is_a?(Symbol)
+            priority = PRIORITIES[priority]
+          end
 
-          reprioritize!(hash_of_hooks, type, event)
-          pipeline!(hash_of_hooks, type, event)
+          if known_event?(event) || known_hook?(event)
+            hook = {
+              type: type,
+              event: event.to_sym,
+              name: name ? name.to_sym : nil,
+              priority: priority,
+              block: hook,
+              exec: exec
+            }
+
+            (@__hook_hash[type.to_sym][event.to_sym] ||= []) << hook
+            @__hooks << hook
+          else
+            raise ArgumentError, "#{event} is not a known hook event"
+          end
+
+          reprioritize!(type, event)
+          pipeline!(type, event)
+
+          if known_hook?(event)
+            traverse_events_for_hook(event) do |hook_event|
+              pipeline!(:before, hook_event); pipeline!(:after, hook_event)
+            end
+          end
         end
 
         # @api private
-        def reprioritize!(hash_of_hooks, type, event)
-          hash_of_hooks[type.to_sym][event.to_sym].sort! { |a, b| b[0] <=> a[0] }
+        def traverse_events_for_hook(name, &block)
+          if hook = @__hooks.find { |h| h[:name] == name.to_sym }
+            yield hook[:event]
+            traverse_events_for_hook(hook[:event], &block)
+          end
         end
 
         # @api private
-        def pipeline!(hash_of_hooks, type, event)
-          __hook_pipeline[type.to_sym][event.to_sym] = hash_of_hooks[type.to_sym][event.to_sym].map { |t| t[1..2] }
+        def reprioritize!(type, event)
+          @__hook_hash[type.to_sym][event.to_sym] = @__hook_hash[type.to_sym][event.to_sym].group_by { |hook|
+            hook[:priority]
+          }.sort { |a, b|
+            b[0] <=> a[0]
+          }.flat_map { |group|
+            group[1]
+          }
+        end
+
+        # @api private
+        def pipeline!(type, event)
+          __hook_pipeline[type.to_sym][event.to_sym] = @__hook_hash.dig(type.to_sym, event.to_sym).to_a.flat_map { |hook|
+            [@__hook_pipeline[:before][hook[:name]].to_a, hook, @__hook_pipeline[:after][hook[:name]].to_a].flatten
+          }
         end
       end
 
