@@ -51,6 +51,16 @@ module Pakyow
           BindingNode.significant?(child) || binding_within?(child)
         }
       end
+
+      def self.within_form?(node)
+        if FormNode.significant?(node)
+          true
+        elsif !node.is_a?(Oga::XML::Document)
+          within_form?(node.parent)
+        else
+          false
+        end
+      end
     end
 
     # @api private
@@ -182,6 +192,15 @@ module Pakyow
       def self.decorate(node)
         node.set_label(:presenter_type, Presenters::Form)
         node.set_label(:view_type, Form)
+      end
+    end
+
+    # @api private
+    class WithinFormNode < SignificantNode
+      StringDoc.significant :within_form, self
+
+      def self.significant?(node)
+        node.is_a?(Oga::XML::Element) && within_form?(node)
       end
     end
 
