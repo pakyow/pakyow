@@ -455,7 +455,6 @@ module Pakyow
           :each_significant_node_without_descending_into_type
         end
 
-        # @object.each_significant_node_without_descending_into_type(:binding, descend: false) do |node|
         @object.send(method, :binding, descend: true) do |node|
           if binding_scope?(node)
             yield node
@@ -476,7 +475,6 @@ module Pakyow
             :each_significant_node_without_descending_into_type
           end
 
-          # @object.each_significant_node_without_descending_into_type(:binding, descend: false) do |node|
           @object.send(method, :binding, descend: true) do |node|
             if binding_prop?(node)
               yield node
@@ -525,7 +523,7 @@ module Pakyow
       # @api private
       def find_partials(partials, found = [])
         found.tap do
-          @object.each_significant_node(:partial) do |node|
+          @object.each_significant_node(:partial, descend: true) do |node|
             if replacement = partials[node.label(:partial)]
               found << node.label(:partial)
               replacement.find_partials(partials, found)
@@ -537,7 +535,7 @@ module Pakyow
       # @api private
       def mixin(partials)
         tap do
-          @object.each_significant_node(:partial) do |partial_node|
+          @object.each_significant_node(:partial, descend: true) do |partial_node|
             if replacement = partials[partial_node.label(:partial)]
               partial_node.replace(replacement.mixin(partials).object)
             end
