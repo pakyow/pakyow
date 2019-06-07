@@ -8,7 +8,7 @@ module Pakyow
       extend Support::Extension
 
       apply_extension do
-        after :make do
+        after "make" do
           Dir.glob(File.join(config.root, "config/initializers/application/**/*.rb")).each do |initializer|
             class_eval(File.read(initializer), initializer)
           end

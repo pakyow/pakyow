@@ -27,7 +27,7 @@ RSpec.configure do |spec_config|
 
   spec_config.before do
     @default_app_def = Proc.new do
-      Pakyow.after :configure do
+      Pakyow.after "configure" do
         config.data.connections.sql[:default] = "sqlite::memory"
       end
 
@@ -37,7 +37,7 @@ RSpec.configure do |spec_config|
       end
 
       isolated :Renderer do
-        after :render do
+        after "render" do
           # Persist subscriptions so that they are processed and intercepted.
           #
           @app.data.persist(presentables[:__socket_client_id])
@@ -48,7 +48,7 @@ RSpec.configure do |spec_config|
 end
 
 $booted = false
-Pakyow::App.after :boot do
+Pakyow::App.after "boot" do
   $booted = true
 end
 

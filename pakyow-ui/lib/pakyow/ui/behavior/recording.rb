@@ -15,7 +15,7 @@ module Pakyow
           # These subclasses will be used when performing a ui presentation instead
           # of the original presenter, but they'll behave identically!
           #
-          after :initialize do
+          after "initialize" do
             @ui_presenters = [isolated(:Presenter)].concat(
               state(:presenter)
             ).concat(

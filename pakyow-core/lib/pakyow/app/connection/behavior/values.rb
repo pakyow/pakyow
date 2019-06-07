@@ -15,11 +15,11 @@ module Pakyow
           attr_reader :values
 
           apply_extension do
-            after :initialize do
+            after "initialize" do
               @values = {}
             end
 
-            after :dup do
+            after "dup" do
               @values = @values.deep_dup
             end
           end

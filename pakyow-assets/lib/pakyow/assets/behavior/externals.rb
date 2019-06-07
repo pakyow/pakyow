@@ -17,7 +17,7 @@ module Pakyow
         end
 
         apply_extension do
-          after :initialize do
+          after "initialize", "initialize.assets.externals" do
             if config.assets.externals.pakyow
               external_script :pakyow, "^1.0.0-alpha.15", package: "@pakyow/js", files: [
                 "dist/pakyow.js",

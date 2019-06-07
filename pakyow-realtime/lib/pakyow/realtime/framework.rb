@@ -38,7 +38,7 @@ module Pakyow
           end
 
           isolated :Connection do
-            after :initialize do
+            after "initialize" do
               set(:__socket_client_id, params[:socket_client_id] || Support::MessageVerifier.key)
             end
           end

@@ -9,7 +9,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          before :configure do
+          on "configure" do
             Dir.glob(File.join(Pakyow.config.root, "config/initializers/environment/**/*.rb")).each do |initializer|
               require initializer
             end

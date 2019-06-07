@@ -24,7 +24,7 @@ module Pakyow
               presentables[:__socket_client_id]
             end
 
-            before :render do
+            on "render" do
               unless presentables.include?(:__ui_transform) || subscribables.empty?
                 # To keep up with the node(s) that matter for the transformation, a `data-t` attribute
                 # is added to the node that contains the transformation_id. When the transformation is

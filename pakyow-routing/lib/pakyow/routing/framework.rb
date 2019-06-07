@@ -49,14 +49,14 @@ module Pakyow
 
           # Include helpers into the controller class.
           #
-          before :load do
+          on "load" do
             self.class.include_helpers :active, isolated(:Controller)
           end
 
           # Create a global controller instance used to handle errors from other
           # parts of the framework.
           #
-          after :initialize do
+          after "initialize" do
             @global_controller = isolated(:Controller).new(self)
           end
 

@@ -34,7 +34,7 @@ RSpec.describe "external scripts" do
           config.assets.externals.scripts = []
         end
 
-        after :configure do
+        after "configure" do
           external_script :pakyow, "1.0.0-alpha.4", package: "@pakyow/js"
           external_script :jquery, "3.3.1"
         end
@@ -63,7 +63,7 @@ RSpec.describe "external scripts" do
             config.assets.externals.scripts = []
           end
 
-          after :configure do
+          after "configure" do
             FileUtils.mkdir_p(config.assets.externals.path)
             FileUtils.touch(File.join(config.assets.externals.path, "pakyow@1.0.0-alpha.4.js"))
             FileUtils.touch(File.join(config.assets.externals.path, "jquery@3.3.1.js"))
@@ -92,7 +92,7 @@ RSpec.describe "external scripts" do
             config.assets.externals.scripts = []
           end
 
-          after :configure do
+          after "configure" do
             FileUtils.mkdir_p(config.assets.externals.path)
             FileUtils.touch(File.join(config.assets.externals.path, "pakyow@1.0.0-alpha.3.js"))
             FileUtils.touch(File.join(config.assets.externals.path, "jquery@3.2.1.js"))
@@ -142,7 +142,7 @@ RSpec.describe "external scripts" do
             config.assets.externals.scripts = []
           end
 
-          after :configure do
+          after "configure" do
             external_script :pakyow, package: "@pakyow/js"
           end
         end
@@ -166,7 +166,7 @@ RSpec.describe "external scripts" do
             config.assets.externals.scripts = []
           end
 
-          after :configure do
+          after "configure" do
             external_script :vue, "2.5.17", files: ["dist/vue.common.js", "dist/vue.runtime.js"]
           end
         end
@@ -190,7 +190,7 @@ RSpec.describe "external scripts" do
               config.assets.externals.scripts = []
             end
 
-            after :configure do
+            after "configure" do
               external_script :jquery, "3.3.1", files: ["dist/jquery.js"]
             end
           end

@@ -32,7 +32,7 @@ RSpec.describe Pakyow::App do
 
     context "when initialization fails because of a runtime error" do
       before do
-        app_class.before :load do
+        app_class.before "load" do
           fail "testing rescue mode"
         end
 
@@ -65,7 +65,7 @@ RSpec.describe Pakyow::App do
 
     context "when initialization fails because of a syntax error" do
       before do
-        app_class.before :load do
+        app_class.before "load" do
           eval("if")
         end
 
@@ -121,7 +121,7 @@ RSpec.describe Pakyow::App do
     end
 
     before do
-      app_class.after :boot do
+      app_class.after "boot" do
         $called_after_boot = true
       end
     end
@@ -137,7 +137,7 @@ RSpec.describe Pakyow::App do
 
     context "when booting fails because of a runtime error" do
       before do
-        app_class.after :boot do
+        app_class.after "boot" do
           fail "testing rescue mode"
         end
 
@@ -166,7 +166,7 @@ RSpec.describe Pakyow::App do
 
     context "when booting fails because of a syntax error" do
       before do
-        app_class.after :boot do
+        app_class.after "boot" do
           eval("if")
         end
 
@@ -200,7 +200,7 @@ RSpec.describe Pakyow::App do
     end
 
     before do
-      app_class.before :shutdown do
+      app_class.before "shutdown" do
         $called_before_shutdown = true
       end
     end

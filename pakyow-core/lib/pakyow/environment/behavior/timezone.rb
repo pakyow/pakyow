@@ -11,7 +11,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          after :configure do
+          after "configure" do
             ENV["TZ"] = config.timezone.to_s
           end
         end

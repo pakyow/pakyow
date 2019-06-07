@@ -7,7 +7,7 @@ RSpec.describe "auto migrating on boot" do
 
     local_adapter_type, local_adapter_url = adapter_type, adapter_url
 
-    Pakyow.after :configure do
+    Pakyow.after "configure" do
       Pakyow.config.data.connections.send(local_adapter_type)[:default] = local_adapter_url
       Pakyow.config.data.connections.send(local_adapter_type).delete(:memory)
     end
@@ -65,7 +65,7 @@ RSpec.describe "auto migrating on boot" do
         context "app is rescued" do
           let :app_def do
             Proc.new do
-              before :initialize do
+              before "initialize" do
                 @rescued = true
               end
             end

@@ -9,7 +9,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          before :configure do
+          on "configure" do
             # We have to define these in a before configure hook since new types could be added.
             #
             Pakyow.config.data.connections.instance_eval do

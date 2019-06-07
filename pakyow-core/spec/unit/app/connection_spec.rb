@@ -41,11 +41,11 @@ RSpec.describe Pakyow::App::Connection do
     it "calls the initialize hooks" do
       before, after = nil
 
-      described_class.before :initialize do
+      described_class.before "initialize" do
         before = true
       end
 
-      described_class.after :initialize do
+      described_class.after "initialize" do
         after = true
       end
 

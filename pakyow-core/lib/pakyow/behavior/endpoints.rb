@@ -10,7 +10,7 @@ module Pakyow
       extend Support::Extension
 
       apply_extension do
-        after :initialize do
+        after "initialize" do
           load_endpoints
         end
       end
@@ -30,11 +30,11 @@ module Pakyow
       private
 
       def load_endpoints
-        state.each_with_object(@endpoints) { |(_, state_object), endpoints|
+        state.values.each do |state_object|
           state_object.instances.each do |state_instance|
-            endpoints.load(state_instance)
+            @endpoints.load(state_instance)
           end
-        }
+        end
       end
     end
   end

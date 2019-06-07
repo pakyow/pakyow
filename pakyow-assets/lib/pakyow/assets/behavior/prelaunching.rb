@@ -9,7 +9,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          after :load do
+          on "configure" do
             config.tasks.prelaunch << "assets:precompile"
           end
         end

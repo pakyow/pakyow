@@ -12,7 +12,7 @@ RSpec.shared_examples :source_connection do
           local_connection_type, local_connection_string = connection_type, connection_string
 
           Proc.new do
-            Pakyow.after :configure do
+            Pakyow.after "configure" do
               config.data.connections.public_send(local_connection_type)[:default] = local_connection_string
             end
           end
@@ -35,7 +35,7 @@ RSpec.shared_examples :source_connection do
           local_connection_type, local_connection_string = connection_type, connection_string
 
           Proc.new do
-            Pakyow.after :configure do
+            Pakyow.after "configure" do
               config.data.connections.public_send(local_connection_type)[:default] = local_connection_string
             end
           end
@@ -62,7 +62,7 @@ RSpec.shared_examples :source_connection do
           local_connection_type, local_connection_string = connection_type, connection_string
 
           Proc.new do
-            Pakyow.after :configure do
+            Pakyow.after "configure" do
               config.data.connections.public_send(local_connection_type)[:test] = local_connection_string
             end
           end
@@ -89,7 +89,7 @@ RSpec.shared_examples :source_connection do
           local_connection_type, local_connection_string = connection_type, connection_string
 
           Proc.new do
-            Pakyow.after :configure do
+            Pakyow.after "configure" do
               config.data.connections.public_send(local_connection_type)[:default] = local_connection_string
               config.data.connections.public_send(local_connection_type)[:test] = local_connection_string
             end
@@ -113,7 +113,7 @@ RSpec.shared_examples :source_connection do
           local_connection_type, local_connection_string = connection_type, connection_string
 
           Proc.new do
-            Pakyow.after :configure do
+            Pakyow.after "configure" do
               config.data.connections.public_send(local_connection_type)[:default] = local_connection_string
               config.data.connections.public_send(local_connection_type)[:test] = local_connection_string
             end
@@ -137,7 +137,7 @@ RSpec.shared_examples :source_connection do
           local_connection_type, local_connection_string = connection_type, connection_string
 
           Proc.new do
-            Pakyow.after :configure do
+            Pakyow.after "configure" do
               config.data.connections.public_send(local_connection_type)[:default] = local_connection_string
               config.data.connections.public_send(local_connection_type)[:test] = local_connection_string
             end
@@ -165,7 +165,7 @@ RSpec.shared_examples :source_connection do
           local_connection_type, local_connection_string = connection_type, connection_string
 
           Proc.new do
-            Pakyow.after :configure do
+            Pakyow.after "configure" do
               config.data.connections.public_send(local_connection_type)[:test1] = local_connection_string
               config.data.connections.public_send(local_connection_type)[:test2] = local_connection_string
             end

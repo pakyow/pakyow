@@ -2,7 +2,7 @@ require "rake"
 
 RSpec.describe "bootstrapping a connection" do
   before do
-    Pakyow.after :configure do
+    Pakyow.after "configure" do
       config.data.connections.sql[:default] = "sqlite::memory"
     end
   end

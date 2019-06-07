@@ -18,7 +18,7 @@ module Pakyow
         apply_extension do
           class_state :input_parsers, default: {}
 
-          before :configure do
+          on "configure" do
             Pakyow.parse_input "application/x-www-form-urlencoded" do |input, connection|
               connection.params.parse(input.read)
             end

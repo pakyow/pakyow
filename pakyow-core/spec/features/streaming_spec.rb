@@ -38,7 +38,7 @@ RSpec.describe "streaming responses" do
     end
 
     before do
-      Pakyow::Connection.before :finalize do
+      Pakyow::Connection.before "finalize" do
         write "finalize"
       end
     end
@@ -75,7 +75,7 @@ RSpec.describe "streaming responses" do
     end
 
     before do
-      Pakyow::Connection.before :finalize do
+      Pakyow::Connection.before "finalize" do
         write "finalize"
       end
     end

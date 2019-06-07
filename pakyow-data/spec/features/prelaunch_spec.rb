@@ -3,7 +3,7 @@ RSpec.describe "data prelaunch tasks" do
 
   let :app_def do
     Proc.new do
-      Pakyow.after :configure do
+      Pakyow.after "configure" do
         Pakyow.config.data.connections.sql[:default] = "postgres://localhost/pakyow-test"
         Pakyow.config.data.connections.sql[:another] = "mysql2://localhost/pakyow-test"
         Pakyow.config.data.connections.sql[:memory] = "sqlite::memory"

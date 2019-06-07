@@ -11,7 +11,7 @@ module Pakyow
           extend Support::Extension
 
           apply_extension do
-            after :initialize do
+            after "initialize" do
               session[:verifier_key] ||= Support::MessageVerifier.key
             end
           end

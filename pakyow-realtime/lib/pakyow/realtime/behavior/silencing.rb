@@ -11,7 +11,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          after :configure do
+          on "load" do
             unless config.realtime.log_initial_request
               Pakyow.silence do |connection|
                 connection.path.start_with?(File.join("/", config.realtime.path))

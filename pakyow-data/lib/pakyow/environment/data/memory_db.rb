@@ -11,7 +11,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          after :configure do
+          after "configure" do
             if defined?(SQLite3)
               config.data.connections.sql[:memory] = "sqlite::memory"
             end

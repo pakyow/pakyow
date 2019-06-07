@@ -69,7 +69,7 @@ RSpec.describe "accessing helpers from the app" do
 
       action :test
 
-      after :initialize do
+      after "initialize" do
         @object = Class.new do
           def initialize(connection)
             @connection = connection

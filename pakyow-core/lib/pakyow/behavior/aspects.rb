@@ -14,7 +14,7 @@ module Pakyow
       apply_extension do
         setting :aspects, []
 
-        after :load do
+        after "load" do
           config.aspects.each do |aspect|
             load_aspect(aspect)
           end

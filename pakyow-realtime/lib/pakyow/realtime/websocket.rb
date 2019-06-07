@@ -108,7 +108,7 @@ module Pakyow
 
       def trigger_presence(event)
         @connection.app.hooks(:before, event).each do |hook, _|
-          instance_exec(&hook)
+          instance_exec(&hook[:block])
         end
       end
     end

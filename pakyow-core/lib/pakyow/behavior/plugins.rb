@@ -23,7 +23,7 @@ module Pakyow
         # Setting priority to low gives the app a chance to do any pre-loading
         # that might affect how plugins are setup.
         #
-        before :load, priority: :low do
+        on "load", "load.plugins", priority: :low do
           # Create a dynamic helper that allows plugin helpers to be called in context of a specific plug.
           #
           dynamic_helper = Module.new {

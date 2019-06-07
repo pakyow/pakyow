@@ -9,7 +9,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          after :load do
+          after "configure" do
             config.assets.extensions.each do |extension|
               config.process.watched_paths << File.join(config.presenter.path, "**/*#{extension}")
 

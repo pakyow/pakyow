@@ -31,14 +31,14 @@ module Pakyow
           end
         end
 
-        after :initialize do
+        after "initialize" do
           setup_for_restarting
         end
 
         # Setting up for restarting even after the app fails to initialize lets
         # the developer fix the problem and let the server restart on its own.
         #
-        after :rescue do
+        after "rescue" do
           setup_for_restarting
         end
       end

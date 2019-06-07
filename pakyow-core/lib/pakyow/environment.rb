@@ -73,7 +73,7 @@ require "pakyow/logger/thread_local"
 #
 # Here's how to log a message after boot:
 #
-#   Pakyow.after :boot do
+#   Pakyow.after "boot" do
 #     logger.info "booted"
 #   end
 #

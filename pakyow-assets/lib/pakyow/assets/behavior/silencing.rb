@@ -11,7 +11,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          after :configure do
+          on "load" do
             if config.assets.silent
               # silence asset requests
               Pakyow.silence do |connection|

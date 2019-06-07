@@ -16,7 +16,7 @@ module Pakyow
 
           unfreezable :filewatcher, :filewatcher_thread
 
-          after :run do
+          after "run" do
             @filewatcher = Filewatcher.new(
               @watched_paths.map { |path|
                 File.expand_path(path)
@@ -28,7 +28,7 @@ module Pakyow
             end
           end
 
-          before :shutdown do
+          on "shutdown" do
             @filewatcher.stop
             @filewatcher_thread.join
           end

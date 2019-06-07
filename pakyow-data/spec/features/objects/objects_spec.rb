@@ -1,6 +1,6 @@
 RSpec.describe "data objects" do
   before do
-    Pakyow.after :configure do
+    Pakyow.after "configure" do
       config.data.connections.sql[:default] = "sqlite::memory"
     end
   end

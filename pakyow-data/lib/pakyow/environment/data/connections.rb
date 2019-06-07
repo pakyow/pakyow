@@ -29,7 +29,7 @@ module Pakyow
             end
           end
 
-          before :boot do
+          on "boot", "boot.data.connections" do
             # Disconnect any existing connections (e.g. booted twice for some reason).
             #
             @data_connections.values.flat_map(&:values).each(&:disconnect)

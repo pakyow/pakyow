@@ -8,8 +8,6 @@ require "pakyow/assets/pack"
 require "pakyow/assets/behavior/config"
 require "pakyow/assets/behavior/assets"
 require "pakyow/assets/behavior/packs"
-require "pakyow/assets/behavior/rendering"
-require "pakyow/assets/behavior/views"
 require "pakyow/assets/behavior/silencing"
 require "pakyow/assets/behavior/externals"
 require "pakyow/assets/behavior/watching"
@@ -34,14 +32,13 @@ module Pakyow
           include Behavior::Config
           include Behavior::Assets
           include Behavior::Packs
-          include Behavior::Views
           include Behavior::Silencing
           include Behavior::Externals
           include Behavior::Watching
           include Behavior::Prelaunching
           include Behavior::Processing
 
-          after :initialize, priority: :low do
+          after "load" do
             isolated(:Renderer) do
               # Load this one later, in case other actions define components that will load assets.
               #

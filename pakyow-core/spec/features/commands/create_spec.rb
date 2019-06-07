@@ -58,7 +58,7 @@ RSpec.describe "cli: create" do
       end
     end
 
-    after :all do
+    after "all" do
       cleanup_after_command
     end
 

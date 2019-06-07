@@ -6,7 +6,7 @@ RSpec.describe "silencing requests" do
   before do
     Pakyow.silencers.clear
 
-    Pakyow.after :configure do
+    Pakyow.after "configure" do
       config.logger.enabled = true
     end
   end

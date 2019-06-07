@@ -94,7 +94,7 @@ module Pakyow
   #
   # Here's how to log a message after initialize:
   #
-  #   Pakyow::App.after :initialize do
+  #   Pakyow::App.after "initialize" do
   #     logger.info "initialized #{self}"
   #   end
   #

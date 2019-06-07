@@ -13,7 +13,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          after :load do
+          after "load", "load.assets" do
             config.assets.paths.each do |assets_path|
               Dir.glob(File.join(assets_path, "**/*")) do |path|
                 next if config.assets.packs.paths.any? { |packs_path|

@@ -9,7 +9,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          after :boot do
+          after "boot" do
             if Pakyow.config.data.auto_migrate || Pakyow.config.data.auto_migrate_always.any?
               require "pakyow/data/migrator"
 

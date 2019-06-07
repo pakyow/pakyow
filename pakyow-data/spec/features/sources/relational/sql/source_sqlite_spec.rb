@@ -65,7 +65,7 @@ RSpec.describe "sqlite source", sqlite: true do
     before do
       local_connection_type, local_connection_string = connection_type, connection_string
 
-      Pakyow.after :configure do
+      Pakyow.after "configure" do
         config.data.connections.public_send(local_connection_type)[:default] = local_connection_string
       end
     end
@@ -110,7 +110,7 @@ RSpec.describe "sqlite source", sqlite: true do
     before do
       local_connection_type, local_connection_string = connection_type, connection_string
 
-      Pakyow.after :configure do
+      Pakyow.after "configure" do
         config.data.connections.public_send(local_connection_type)[:default] = local_connection_string
       end
     end
@@ -160,7 +160,7 @@ RSpec.describe "sqlite source", sqlite: true do
     before do
       local_connection_type, local_connection_string = connection_type, connection_string
 
-      Pakyow.after :configure do
+      Pakyow.after "configure" do
         config.data.connections.public_send(local_connection_type)[:default] = local_connection_string
       end
     end

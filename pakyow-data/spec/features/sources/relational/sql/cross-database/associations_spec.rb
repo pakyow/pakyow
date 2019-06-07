@@ -37,7 +37,7 @@ RSpec.describe "cross connection associations" do
   before do
     context = self
 
-    Pakyow.after :configure do
+    Pakyow.after "configure" do
       config.data.connections.public_send(context.connection_type)[:default] = context.connection_string_default
       config.data.connections.public_send(context.connection_type)[:two] = context.connection_string_two
       config.data.connections.public_send(context.connection_type)[:three] = context.connection_string_three

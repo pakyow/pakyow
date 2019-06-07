@@ -14,13 +14,13 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          before :shutdown, priority: :high do
+          on "shutdown", priority: :high do
             if Pakyow.config.realtime.adapter == :memory && instance_variable_defined?(:@websocket_server)
               realtime_server_serializer.serialize
             end
           end
 
-          after :initialize do
+          after "initialize" do
             if Pakyow.config.realtime.adapter == :memory
               realtime_server_serializer.deserialize
             end

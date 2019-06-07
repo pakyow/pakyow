@@ -33,7 +33,7 @@ RSpec.shared_context :source_associations_helpers do
       object :special do
       end
 
-      after :initialize, priority: :high do
+      after "initialize", priority: :high do
         # Define an updatable attribute on the source.
         #
         state(:source).find { |instance|

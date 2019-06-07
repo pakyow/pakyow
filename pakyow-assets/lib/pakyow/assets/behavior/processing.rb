@@ -9,7 +9,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          after :configure do
+          on "load" do
             if self.class.includes_framework?(:presenter)
               self.class.processor :html do |content|
                 state(:asset).each do |asset|

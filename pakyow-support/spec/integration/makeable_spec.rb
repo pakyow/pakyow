@@ -186,7 +186,7 @@ RSpec.describe Pakyow::Support::Makeable do
 
         before do
           local = self
-          object.after :make do
+          object.after "make" do
             local.instance_variable_set(:@called, self.name)
           end
         end

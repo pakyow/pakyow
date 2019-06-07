@@ -21,7 +21,7 @@ module Pakyow
 
           class_state :processes, default: []
 
-          before :run do
+          on "run" do
             if config.server.proxy
               # Find a port to run the environment on, start the proxy on the configured port.
               #

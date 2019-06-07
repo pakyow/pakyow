@@ -10,7 +10,7 @@ module Pakyow
   # @api private
   module Generators
     class Project < Generator
-      after :generate do
+      after "generate" do
         Bundler.with_clean_env do
           run "bundle install --binstubs", message: "Bundling dependencies"
         end

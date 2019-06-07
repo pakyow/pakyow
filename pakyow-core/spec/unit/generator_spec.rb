@@ -44,11 +44,11 @@ RSpec.describe Pakyow::Generator do
       before do
         $generate_hook_calls = []
 
-        described_class.before :generate do
+        described_class.before "generate" do
           $generate_hook_calls << :before
         end
 
-        described_class.after :generate do
+        described_class.after "generate" do
           $generate_hook_calls << :after
         end
 

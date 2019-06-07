@@ -10,7 +10,10 @@ module Pakyow
       extend Support::Extension
 
       apply_extension do
-        after :initialize, priority: :low do
+        # We set the priority very low here in case initialize hooks in other frameworks define
+        # state that should be loaded into the pipeline (e.g. controllers).
+        #
+        after "initialize", "initialize.pipeline", priority: -10 do
           self.class.__pipeline.dup.tap do |pipeline|
             load_pipeline_defaults(pipeline)
             @__pipeline = pipeline.callable(self)

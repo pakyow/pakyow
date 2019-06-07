@@ -11,7 +11,7 @@ RSpec.describe "persisting state on shutdown" do
 
   context "using the memory adapter" do
     before do
-      Pakyow.after :configure do
+      Pakyow.after "configure" do
         config.data.subscriptions.adapter = :memory
       end
     end
@@ -53,7 +53,7 @@ RSpec.describe "persisting state on shutdown" do
 
   context "using a non-memory adapter" do
     before do
-      Pakyow.after :configure do
+      Pakyow.after "configure" do
         config.data.subscriptions.adapter = :redis
         config.data.subscriptions.adapter_settings = Pakyow.config.redis.dup
       end

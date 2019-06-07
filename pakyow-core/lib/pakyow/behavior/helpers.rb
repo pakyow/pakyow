@@ -39,7 +39,7 @@ module Pakyow
 
                 active: []
 
-        before :load do
+        on "load" do
           # Helpers are loaded first so that other aspects inherit them.
           #
           load_aspect(:helpers)
@@ -57,7 +57,7 @@ module Pakyow
 
         # Define helpers as stateful after an app is made.
         #
-        after :make, priority: :high do
+        after "make", priority: :high do
           stateful :helper, Helper
         end
       end

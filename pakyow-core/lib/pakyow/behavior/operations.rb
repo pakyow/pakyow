@@ -22,12 +22,12 @@ module Pakyow
       extend Support::Extension
 
       apply_extension do
-        before :load do
+        on "load" do
           load_aspect(:operations)
         end
 
         attr_reader :operations
-        after :initialize do
+        after "initialize" do
           @operations = Lookup.new(state(:operation))
         end
       end

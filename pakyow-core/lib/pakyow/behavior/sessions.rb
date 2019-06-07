@@ -11,7 +11,7 @@ module Pakyow
       apply_extension do
         attr_reader :session_object, :session_options
 
-        after :configure do
+        after "configure" do
           if config.session.enabled
             require "pakyow/app/connection/session/#{config.session.object}"
 

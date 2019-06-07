@@ -12,7 +12,7 @@ module Pakyow
 
         apply_extension do
           unless ancestors.include?(Plugin)
-            after :initialize do
+            after "load", "load.presenter" do
               state(:templates) << Templates.new(
                 :default,
                 config.presenter.path,

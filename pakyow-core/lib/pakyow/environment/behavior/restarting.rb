@@ -9,7 +9,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          before :run do
+          on "run" do
             @respawn = false
 
             # Other processes (e.g. apps) can touch this file to restart the server.

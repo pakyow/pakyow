@@ -16,7 +16,7 @@ RSpec.shared_examples :subscription_subscribe_deeply_associated do
       Pakyow.config.data.subscriptions.adapter_settings = data_subscription_adapter_settings
 
       Proc.new do
-        Pakyow.after :configure do
+        Pakyow.after "configure" do
           config.data.connections.sql[:default] = "sqlite::memory"
         end
       end

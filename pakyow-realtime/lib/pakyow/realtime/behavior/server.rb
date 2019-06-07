@@ -16,7 +16,7 @@ module Pakyow
           unfreezable :websocket_server
           attr_reader :websocket_server
 
-          after :initialize, priority: :high do
+          after "initialize", priority: :high do
             @websocket_server = Realtime::Server.new(
               Pakyow.config.realtime.adapter,
               Pakyow.config.realtime.adapter_settings.to_h.merge(
@@ -26,7 +26,7 @@ module Pakyow
             )
           end
 
-          before :shutdown do
+          on "shutdown" do
             if instance_variable_defined?(:@websocket_server)
               @websocket_server.shutdown
             end

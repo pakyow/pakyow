@@ -67,7 +67,7 @@ module Pakyow
             include Actions::UseVersions
           end
 
-          after :initialize, priority: :low do
+          after "load" do
             isolated(:Renderer) do
               include Actions::RenderComponents
             end
@@ -108,7 +108,7 @@ module Pakyow
             end
           end
 
-          before :load do
+          on "load" do
             self.class.include_helpers :global, isolated(:Binder)
             self.class.include_helpers :global, isolated(:Presenter)
             self.class.include_helpers :active, isolated(:Component)
@@ -116,7 +116,7 @@ module Pakyow
 
           # Let each renderer action attach renders to the app's presenter.
           #
-          after :initialize, priority: :low do
+          after "initialize", priority: :low do
             [isolated(:Presenter)].concat(
               state(:presenter)
             ).concat(
