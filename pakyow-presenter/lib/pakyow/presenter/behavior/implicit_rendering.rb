@@ -10,10 +10,8 @@ module Pakyow
       module ImplicitRendering
         extend Support::Extension
 
-        prepend_methods do
-          def dispatch
-            super
-
+        apply_extension do
+          after :dispatch, :implicit_render do
             connection.app.isolated(:Renderer).render_implicitly(connection)
           end
         end

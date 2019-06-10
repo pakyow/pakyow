@@ -3,6 +3,7 @@
 require "forwardable"
 
 require "pakyow/support/aargv"
+require "pakyow/support/hookable"
 require "pakyow/support/makeable"
 require "pakyow/support/pipeline"
 require "pakyow/support/core_refinements/string/normalization"
@@ -146,6 +147,9 @@ module Pakyow
     extend Support::Makeable
     extend Support::ClassState
 
+    include Support::Hookable
+    events :dispatch
+
     include Routing::Behavior::ErrorHandling
     include Routing::Behavior::ParamVerification
 
@@ -266,7 +270,9 @@ module Pakyow
     end
 
     def dispatch
-      @route.call(self)
+      performing :dispatch do
+        @route.call(self)
+      end
     end
 
     # Redirects to +location+ and immediately halts request processing.
