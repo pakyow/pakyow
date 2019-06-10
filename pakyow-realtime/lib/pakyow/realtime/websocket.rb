@@ -52,7 +52,7 @@ module Pakyow
           while message = socket.read
             handle_message(message)
           end
-        rescue EOFError
+        rescue EOFError, Protocol::WebSocket::ClosedError
         ensure
           @socket&.close; shutdown
         end
