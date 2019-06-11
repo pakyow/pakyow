@@ -106,7 +106,7 @@ module Pakyow
           view_path = if view_path
             String.normalize_path(view_path)
           else
-            connection.get(:__endpoint_path) || connection.path
+            connection.get(:__endpoint_path_collapsed) || connection.path
           end
 
           presenter_path = if presenter_path
@@ -137,7 +137,7 @@ module Pakyow
         end
 
         def render_implicitly(connection)
-          view_path = connection.get(:__endpoint_path) || connection.path
+          view_path = connection.get(:__endpoint_path_collapsed) || connection.path
 
           if render_implicitly?(connection)
             begin
@@ -234,11 +234,11 @@ module Pakyow
         end
 
         def find_presenter_for_path(app, path)
-          Templates.collapse_path(path) do |collapsed_path|
-            if presenter = presenter_for_path(app, collapsed_path)
+          # Templates.collapse_path(path) do |collapsed_path|
+            if presenter = presenter_for_path(app, path)
               return presenter
             end
-          end
+          # end
 
           app.isolated(:Presenter)
         end

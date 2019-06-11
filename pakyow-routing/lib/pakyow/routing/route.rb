@@ -10,7 +10,7 @@ module Pakyow
     class Route
       using Support::Refinements::String::Normalization
 
-      attr_reader :path, :method, :name
+      attr_reader :path, :method, :name, :collapsed_path
 
       # @api private
       attr_accessor :pipeline
@@ -19,10 +19,11 @@ module Pakyow
         @name, @method, @block = name, method, block
 
         if path_or_matcher.is_a?(String)
-          @path    = path_or_matcher.to_s
+          @path = String.normalize_path(path_or_matcher.to_s)
+          @collapsed_path = String.normalize_path(collapse_path(@path))
           @matcher = create_matcher_from_path(@path)
         else
-          @path    = ""
+          @path, @collapsed_path = ""
           @matcher = path_or_matcher
         end
       end
@@ -47,6 +48,12 @@ module Pakyow
       end
 
       private
+
+      def collapse_path(path)
+        path.split("/").keep_if { |part|
+          part[0] != ":"
+        }.join("/")
+      end
 
       def create_matcher_from_path(path)
         converted_path = String.normalize_path(path.split("/").map { |segment|
