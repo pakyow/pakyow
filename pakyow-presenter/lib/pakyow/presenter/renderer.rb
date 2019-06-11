@@ -234,13 +234,7 @@ module Pakyow
         end
 
         def find_presenter_for_path(app, path)
-          Templates.collapse_path(path) do |collapsed_path|
-            if presenter = presenter_for_path(app, collapsed_path)
-              return presenter
-            end
-          end
-
-          app.isolated(:Presenter)
+          presenter_for_path(app, String.collapse_path(path)) || app.isolated(:Presenter)
         end
 
         def presenter_for_path(app, path)

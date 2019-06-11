@@ -5,6 +5,7 @@ require "pakyow/framework"
 require "pakyow/routing/helpers/exposures"
 
 require "pakyow/support/indifferentize"
+require "pakyow/support/core_refinements/string/normalization"
 
 require "pakyow/presenter/behavior/config"
 require "pakyow/presenter/behavior/error_rendering"
@@ -36,6 +37,7 @@ module Pakyow
   module Presenter
     class Framework < Pakyow::Framework(:presenter)
       using Support::Indifferentize
+      using Support::Refinements::String::Normalization
 
       def boot
         require "pakyow/presenter/presentable_error"
@@ -129,22 +131,16 @@ module Pakyow
           include Behavior::Initializing
           include Behavior::Watching
 
-          def find_view_info(path)
-            Templates.collapse_path(path) do |collapsed_path|
-              if info = view_info_for_path(collapsed_path)
-                return info
-              end
-            end
-          end
-
           def view_info_for_path(path)
+            path = String.collapse_path(path)
+
             state(:templates).lazy.map { |store|
               store.info(path)
             }.find(&:itself)
           end
 
           def view?(path)
-            !find_view_info(path).nil?
+            !view_info_for_path(path).nil?
           end
         end
       end

@@ -28,6 +28,20 @@ module Pakyow
 
               path
             end
+
+            # Collapses a string into a version without tokens.
+            #
+            #   String.collapse_path("/foo/:bar/baz")
+            #   # => "/foo/baz"
+            def collapse_path(path)
+              if path == "/"
+                return path
+              end
+
+              path.to_s.split("/").keep_if { |part|
+                part[0] != ":"
+              }.join("/")
+            end
           end
         end
       end

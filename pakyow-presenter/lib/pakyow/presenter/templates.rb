@@ -6,18 +6,6 @@ require "pakyow/support/core_refinements/string/normalization"
 module Pakyow
   module Presenter
     class Templates
-      class << self
-        def collapse_path(path)
-          yield path; return if path == "/"
-
-          yield path.split("/").keep_if { |part|
-            part[0] != ":"
-          }.join("/")
-
-          nil
-        end
-      end
-
       using Support::DeepDup
       using Support::Refinements::String::Normalization
 
