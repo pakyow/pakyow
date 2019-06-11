@@ -20,7 +20,7 @@ module Pakyow
       end
 
       LEVEL_COLORS = {
-        verbose: :magenta,
+        internal: :magenta,
         debug: :cyan,
         info: :green,
         warn: :yellow,

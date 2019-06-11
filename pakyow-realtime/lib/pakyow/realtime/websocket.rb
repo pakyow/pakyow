@@ -103,7 +103,7 @@ module Pakyow
       end
 
       def handle_message(message)
-        @logger.verbose("< " + message)
+        @logger.internal("< " + message)
       end
 
       def trigger_presence(event)

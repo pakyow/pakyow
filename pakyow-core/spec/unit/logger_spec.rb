@@ -88,7 +88,7 @@ RSpec.describe Pakyow::Logger do
       end
 
       it "can be passed as a symbol" do
-        instance = described_class.new(type, output: output, level: :verbose)
+        instance = described_class.new(type, output: output, level: :internal)
         expect(instance.level).to eq(0)
       end
     end
@@ -103,9 +103,9 @@ RSpec.describe Pakyow::Logger do
       double
     end
 
-    %i(verbose debug info warn error fatal unknown).each do |method|
+    %i(internal debug info warn error fatal unknown).each do |method|
       let :level do
-        :verbose
+        :internal
       end
 
       describe "##{method}" do

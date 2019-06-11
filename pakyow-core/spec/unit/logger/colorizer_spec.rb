@@ -24,8 +24,8 @@ RSpec.describe Pakyow::Logger::Colorizer do
   end
 
   describe ".color" do
-    it "returns the color for verbose log level" do
-      expect(colorizer.color(:verbose)).to eq(:magenta)
+    it "returns the color for internal log level" do
+      expect(colorizer.color(:internal)).to eq(:magenta)
     end
 
     it "returns the color for debug log level" do
