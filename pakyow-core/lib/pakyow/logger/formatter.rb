@@ -13,6 +13,10 @@ module Pakyow
         event = yield if block_given?
         format(event, **options)
       end
+
+      def verbose!(value)
+        @verbose = value
+      end
     end
   end
 end
