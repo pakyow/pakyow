@@ -238,12 +238,11 @@ module Pakyow
 
                 connection.set(
                   :__endpoint_path,
-                  File.join(self.class.path_to_self.to_s, route.path.to_s)
-                )
-
-                connection.set(
-                  :__endpoint_path_collapsed,
-                  File.join(self.class.path_to_self.to_s, route.collapsed_path.to_s)
+                  String.normalize_path(
+                    File.join(
+                      self.class.path_to_self.to_s, route.path.to_s
+                    )
+                  )
                 )
 
                 connection.set(:__endpoint_name, route.name)
@@ -332,7 +331,6 @@ module Pakyow
       connection.status = Connection::Statuses.code(as) if as
 
       @connection.set(:__endpoint_path, nil)
-      @connection.set(:__endpoint_path_collapsed, nil)
       @connection.set(:__endpoint_name, nil)
 
       app.perform(@connection); halt

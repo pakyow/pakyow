@@ -26,7 +26,7 @@ module Pakyow
         end
 
         def view(app:)
-          unless info = app.view_info_for_path(@view_path)
+          unless info = app.find_view_info(@view_path)
             error = UnknownPage.new("No view at path `#{@view_path}'")
             error.context = @view_path
             raise error
