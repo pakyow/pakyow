@@ -288,7 +288,7 @@ RSpec.describe "rendering with backend components" do
       end
     end
 
-    it "does not expose the value to the component" do
+    it "exposes the value to the component" do
       expect(call("/components")[2]).to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
@@ -300,11 +300,11 @@ RSpec.describe "rendering with backend components" do
             <body>
               <div data-ui="single">
             <div data-b="post">
-              <h1 data-b="title">component post 1</h1>
+              <h1 data-b="title">controller post 1</h1>
             </div><div data-b="post">
-              <h1 data-b="title">component post 2</h1>
+              <h1 data-b="title">controller post 2</h1>
             </div><div data-b="post">
-              <h1 data-b="title">component post 3</h1>
+              <h1 data-b="title">controller post 3</h1>
             </div><script type="text/template" data-b="post"><div data-b="post">
               <h1 data-b="title">
                 title goes here

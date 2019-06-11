@@ -232,5 +232,105 @@
         ]
       ]
     ]
+  },
+  {
+    "id": "d9d22891-3e1c-4eae-8725-170082f00785",
+    "calls": [
+      [
+        "find",
+        [
+          [
+            "post"
+          ]
+        ],
+        [
+
+        ],
+        [
+          [
+            "transform",
+            [
+              [
+                {
+                  "id": 2,
+                  "title": "bar",
+                  "body": "bar body"
+                },
+                {
+                  "id": 3,
+                  "title": "baz",
+                  "body": "baz body"
+                }
+              ]
+            ],
+            [
+              [
+                [
+                  "use",
+                  [
+                    "default"
+                  ],
+                  [
+
+                  ],
+                  [
+
+                  ]
+                ],
+                [
+                  "bind",
+                  [
+                    {
+                      "id": 2,
+                      "title": "bar",
+                      "body": "bar body"
+                    }
+                  ],
+                  [
+
+                  ],
+                  [
+
+                  ]
+                ]
+              ],
+              [
+                [
+                  "use",
+                  [
+                    "default"
+                  ],
+                  [
+
+                  ],
+                  [
+
+                  ]
+                ],
+                [
+                  "bind",
+                  [
+                    {
+                      "id": 3,
+                      "title": "baz",
+                      "body": "baz body"
+                    }
+                  ],
+                  [
+
+                  ],
+                  [
+
+                  ]
+                ]
+              ]
+            ],
+            [
+
+            ]
+          ]
+        ]
+      ]
+    ]
   }
 ]

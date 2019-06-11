@@ -40,9 +40,9 @@ module Pakyow
 
             # Don't share exposures from the app with the component.
             #
-            component_connection.values.delete_if do |key, _|
-              !key.to_s.start_with?("__")
-            end
+            # component_connection.values.delete_if do |key, _|
+            #   !key.to_s.start_with?("__")
+            # end
 
             connection.set(:__component_connection, component_connection)
           end
