@@ -147,26 +147,8 @@ RSpec.describe "exposures" do
       end
     end
 
-    it "only sets the value once" do
-      expect($connection.get(:current_user)).to eq("foo")
-    end
-
-    context "later exposure force sets a value" do
-      let :app_init do
-        Proc.new do
-          controller :default do
-            get "/" do
-              expose :current_user, "foo"
-              expose! :current_user, "bar"
-              $connection = connection
-            end
-          end
-        end
-      end
-
-      it "uses the forced value" do
-        expect($connection.get(:current_user)).to eq("bar")
-      end
+    it "overrides the initial value" do
+      expect($connection.get(:current_user)).to eq("bar")
     end
   end
 end

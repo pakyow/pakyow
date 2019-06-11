@@ -8,23 +8,9 @@ module Pakyow
       module Exposures
         using Support::Refinements::Array::Ensurable
 
-        # Expose a value by name, if the value is not already set.
+        # Expose a value by name.
         #
         def expose(name, default_value = default_omitted = true, options = {}, &block)
-          if channel = options[:for]
-            name = [name].concat(Array.ensure(channel)).join(":").to_sym
-          end
-
-          if default_omitted
-            super(name, &block)
-          else
-            super(name, default_value, &block)
-          end
-        end
-
-        # Force expose a value by name, overriding any existing value.
-        #
-        def expose!(name, default_value = default_omitted = true, options = {}, &block)
           if channel = options[:for]
             name = [name].concat(Array.ensure(channel)).join(":").to_sym
           end

@@ -278,11 +278,7 @@ RSpec.describe "rendering with backend components" do
 
         component :single do
           def perform
-            expose :posts, [
-              { title: "component post 1" },
-              { title: "component post 2" },
-              { title: "component post 3" }
-            ]
+            # intentionally empty
           end
         end
       end
@@ -305,6 +301,66 @@ RSpec.describe "rendering with backend components" do
               <h1 data-b="title">controller post 2</h1>
             </div><div data-b="post">
               <h1 data-b="title">controller post 3</h1>
+            </div><script type="text/template" data-b="post"><div data-b="post">
+              <h1 data-b="title">
+                title goes here
+              </h1>
+            </div></script>
+          </div>
+
+            </body>
+          </html>
+        HTML
+      )
+    end
+  end
+
+  context "controller and component expose a value for the same binding" do
+    let :app_def do
+      Proc.new do
+        configure :test do
+          config.presenter.componentize = true
+        end
+
+        controller "/components" do
+          default do
+            expose :posts, [
+              { title: "controller post 1" },
+              { title: "controller post 2" },
+              { title: "controller post 3" }
+            ]
+          end
+        end
+
+        component :single do
+          def perform
+            expose :posts, [
+              { title: "component post 1" },
+              { title: "component post 2" },
+              { title: "component post 3" }
+            ]
+          end
+        end
+      end
+    end
+
+    it "uses the component value" do
+      expect(call("/components")[2]).to eq_sans_whitespace(
+        <<~HTML
+          <!DOCTYPE html>
+          <html data-ui="navigable">
+            <head>
+              <title>default</title>
+            </head>
+
+            <body>
+              <div data-ui="single">
+            <div data-b="post">
+              <h1 data-b="title">component post 1</h1>
+            </div><div data-b="post">
+              <h1 data-b="title">component post 2</h1>
+            </div><div data-b="post">
+              <h1 data-b="title">component post 3</h1>
             </div><script type="text/template" data-b="post"><div data-b="post">
               <h1 data-b="title">
                 title goes here
@@ -344,7 +400,7 @@ RSpec.describe "rendering with backend components" do
       end
     end
 
-    it "does expose the value to the component" do
+    it "exposes the value to the component" do
       expect(call("/components")[2]).to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
