@@ -170,7 +170,7 @@ module Pakyow
       # Returns all forms.
       #
       def forms
-        @object.each_significant_node(:form).map { |node|
+        @object.each_significant_node(:form, descend: true).map { |node|
           Form.from_object(node)
         }
       end

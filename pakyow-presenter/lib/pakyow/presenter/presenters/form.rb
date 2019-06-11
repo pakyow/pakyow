@@ -249,7 +249,18 @@ module Pakyow
             Support.inflector.singularize(label(:binding)).to_sym,
             Support.inflector.pluralize(label(:binding)).to_sym
           ].map { |possible_endpoint_name|
-            app.endpoints.path_to(possible_endpoint_name, action, object.to_h)
+            params = Hash[label(:binding_info).to_h.map { |key, value|
+              [:"#{key}_id", value]
+            }].merge(object.to_h)
+
+            endpoint_path = label(:binding_info).to_h.keys.map { |key|
+              Support.inflector.pluralize(key).to_sym
+            }
+
+            endpoint_path << possible_endpoint_name
+            endpoint_path.uniq!
+
+            app.endpoints.path_to(*endpoint_path, action, params)
           }.compact.first
         end
 

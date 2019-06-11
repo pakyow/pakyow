@@ -243,4 +243,39 @@ RSpec.describe "automatic form setup" do
       )
     end
   end
+
+  describe "auto rendering a form within a binding" do
+    let :app_init do
+      Proc.new do
+        resource :posts, "/posts" do
+          show do
+            expose :post, { id: params[:id], title: "foo" }
+            render "/form/within_binding"
+          end
+
+          resource :comments, "/comments" do
+            create do
+            end
+          end
+        end
+      end
+    end
+
+    it "sets up the form" do
+      call("/posts/1").tap do |response|
+        expect(response[0]).to eq(200)
+
+        response[2].tap do |body|
+          expect(body).to include_sans_whitespace(
+            <<~HTML
+              <article data-b="post" data-c="article" data-id="1">
+                <h1 data-b="title" data-c="article">foo</h1>
+
+                <form data-b="comment" data-c="article:form" action="/posts/1/comments" method="post">
+            HTML
+          )
+        end
+      end
+    end
+  end
 end

@@ -471,6 +471,10 @@ module Pakyow
           @view.object.each_significant_node(:binding, descend: true) do |binding_node|
             set_binding_info_for_node(binding_node, binding_info)
           end
+
+          @view.object.each_significant_node(:form, descend: true) do |form_node|
+            set_binding_info_for_node(form_node, binding_info)
+          end
         end
       end
 
