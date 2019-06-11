@@ -29,6 +29,7 @@ module Pakyow
       def include?(key)
         respond_to?(key)
       end
+      alias key? include?
 
       def [](key)
         key = key.to_s.to_sym
