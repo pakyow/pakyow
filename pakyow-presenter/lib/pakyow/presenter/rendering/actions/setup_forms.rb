@@ -85,6 +85,12 @@ module Pakyow
             } do
               unless setup?
                 if object = object_for_form
+                  if app.class.includes_framework?(:data) && object.is_a?(Data::Proxy)
+                    object = object.one
+                  end
+                end
+
+                if !object.nil?
                   if labeled?(:endpoint)
                     setup(object)
                   else
