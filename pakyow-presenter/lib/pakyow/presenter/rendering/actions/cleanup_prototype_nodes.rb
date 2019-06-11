@@ -11,7 +11,7 @@ module Pakyow
         apply_extension do
           build do |view|
             unless Pakyow.env?(:prototype)
-              view.object.each_significant_node(:prototype).map(&:itself).each(&:remove)
+              view.object.each_significant_node(:prototype, descend: true).map(&:itself).each(&:remove)
             end
           end
         end
