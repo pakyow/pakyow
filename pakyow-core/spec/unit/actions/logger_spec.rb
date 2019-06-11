@@ -46,7 +46,7 @@ RSpec.describe Pakyow::Actions::Logger do
 
   context "silencer exists" do
     let :output do
-      double(:output)
+      double(:output, verbose!: nil)
     end
 
     let :logger do

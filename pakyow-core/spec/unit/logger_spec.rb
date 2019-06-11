@@ -6,7 +6,7 @@ RSpec.describe Pakyow::Logger do
   end
 
   let :output do
-    double(:output, call: nil)
+    double(:output, call: nil, verbose!: nil)
   end
 
   let :level do

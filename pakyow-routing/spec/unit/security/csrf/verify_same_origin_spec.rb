@@ -55,7 +55,9 @@ RSpec.describe Pakyow::Security::CSRF::VerifySameOrigin do
       connection.status = 403
     }
 
-    allow(Pakyow).to receive(:global_logger).and_return(double(:global_logger, level: 2))
+    allow(Pakyow).to receive(:global_logger).and_return(
+      double(:global_logger, level: 2, verbose!: nil)
+    )
   end
 
   context "origin header is present" do
