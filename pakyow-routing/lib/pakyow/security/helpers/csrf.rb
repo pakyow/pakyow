@@ -7,7 +7,6 @@ module Pakyow
     module Helpers
       module CSRF
         def authenticity_client_id
-          return @connection.params[:authenticity_client_id] if @connection.params[:authenticity_client_id]
           @authenticity_client_id ||= Support::MessageVerifier.key
         end
       end
