@@ -23,6 +23,17 @@ RSpec.describe "view titles via presenter" do
         get "/titles/dynamic/none" do
           render "/titles/dynamic"
         end
+
+        get "/titles/dynamic/unsafe" do
+          expose :greeting, "hi <script>alert('hacked')</script>"
+          expose :user, { name: "bob" }
+          render "/titles/dynamic"
+        end
+
+        get "/titles/entities" do
+          expose :greeting, "hi"
+          expose :user, { name: "bob" }
+        end
       end
     end
   end
@@ -55,6 +66,18 @@ RSpec.describe "view titles via presenter" do
         it "sets a partial value" do
           expect(call("/titles/dynamic/none")[2]).to include("<title>My Site |  </title>")
         end
+      end
+
+      context "value is unsafe" do
+        it "escapes the value" do
+          expect(call("/titles/dynamic/unsafe")[2]).to include("<title>My Site | hi &lt;script&gt;alert(&#39;hacked&#39;)&lt;/script&gt; bob</title>")
+        end
+      end
+    end
+
+    context "title contains html entities" do
+      it "does not escape the entities" do
+        expect(call("/titles/entities")[2]).to include("<title>hi &amp; bye</title>")
       end
     end
   end

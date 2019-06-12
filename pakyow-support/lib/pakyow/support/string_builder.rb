@@ -1,10 +1,14 @@
 # frozen_string_literal: true
 
+require "pakyow/support/safe_string"
+
 module Pakyow
   module Support
     # Builds a string from a template.
     #
     class StringBuilder
+      include SafeStringHelpers
+
       PATTERN = /{([^}]*)}/
 
       def initialize(template, &block)
@@ -23,7 +27,7 @@ module Pakyow
               get_value(match[0].to_sym, values)
             end
 
-            working_template.gsub!("{#{match[0]}}", value.to_s)
+            working_template.gsub!("{#{match[0]}}", ensure_html_safety(value))
           end
         end
       end

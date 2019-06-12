@@ -16,15 +16,17 @@ module Pakyow
                 title
               end
             } do
-              self.html = Support::StringBuilder.new(title_value) { |object_value|
-                if respond_to?(object_value)
-                  send(object_value, :title) || send(object_value)
-                elsif @presentables.key?(object_value)
-                  @presentables[object_value]
-                else
-                  nil
-                end
-              }.build
+              self.html = html_safe(
+                Support::StringBuilder.new(title_value) { |object_value|
+                  if respond_to?(object_value)
+                    send(object_value, :title) || send(object_value)
+                  elsif @presentables.key?(object_value)
+                    @presentables[object_value]
+                  else
+                    nil
+                  end
+                }.build
+              )
             end
           end
         end
