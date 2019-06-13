@@ -145,7 +145,9 @@ module Pakyow
                 render(connection, view_path: view_path)
               end
             rescue UnknownPage => error
-              raise ImplicitRenderingError.build(error, context: view_path)
+              unless connection.app.is_a?(Plugin)
+                raise ImplicitRenderingError.build(error, context: view_path)
+              end
             end
           end
         rescue StandardError => error
