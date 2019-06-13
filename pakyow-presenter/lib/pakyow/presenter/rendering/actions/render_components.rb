@@ -56,8 +56,8 @@ module Pakyow
 
             # If view will be rendered from the app, look for the component on the app.
             #
-            component_state = if app.is_a?(Plugin) && app.app.view?(composer.view_path)
-              app.app.state(:component)
+            component_state = if app.is_a?(Plugin) && app.parent.view?(composer.view_path)
+              app.parent.state(:component)
             else
               app.state(:component)
             end
@@ -91,8 +91,8 @@ module Pakyow
 
                 # If the component was defined in an app but being called inside a plugin, set the app to the app instead of the plugin.
                 #
-                if component_connection.app.is_a?(Plugin) && component_class.ancestors.include?(component_connection.app.app.isolated(:Component))
-                  component_connection.instance_variable_set(:@app, component_connection.app.app)
+                if component_connection.app.is_a?(Plugin) && component_class.ancestors.include?(component_connection.app.parent.isolated(:Component))
+                  component_connection.instance_variable_set(:@app, component_connection.app.parent)
                 end
 
                 component_instance = component_class.new(

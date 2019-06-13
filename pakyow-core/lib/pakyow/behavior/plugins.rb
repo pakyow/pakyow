@@ -6,7 +6,6 @@ require "pakyow/support/deep_dup"
 require "pakyow/support/extension"
 
 require "pakyow/plugin/lookup"
-require "pakyow/plugin/helpers/parent_app"
 
 module Pakyow
   module Behavior
@@ -41,10 +40,6 @@ module Pakyow
           self.class.register_helper :passive, dynamic_helper
 
           @__plug_instances = self.class.__plugs.map { |plug|
-            # Register helpers.
-            #
-            plug.register_helper :passive, Plugin::Helpers::ParentApp
-
             if self.class.includes_framework?(:presenter)
               require "pakyow/plugin/helpers/rendering"
               plug.register_helper :passive, Plugin::Helpers::Rendering

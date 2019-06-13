@@ -26,10 +26,10 @@ module Pakyow
             prefix: @plugin.class.mount_path
           },
           processor: Presenter::ProcessorCaller.new(
-            @plugin.app.state(:processor)
+            @plugin.parent.state(:processor)
           )
         ).tap do |plugin_templates|
-          if app_templates = @plugin.app.state(:templates).find { |templates| templates.name == :default }
+          if app_templates = @plugin.parent.state(:templates).find { |templates| templates.name == :default }
             plugin_templates.paths.each do |path|
               plugin_info = plugin_templates.info(path)
 
@@ -63,7 +63,7 @@ module Pakyow
           end
         end
 
-        if error_templates = @plugin.app.state(:templates).find { |templates| templates.name == :errors }
+        if error_templates = @plugin.parent.state(:templates).find { |templates| templates.name == :errors }
           @plugin.state(:templates) << error_templates
         end
       end

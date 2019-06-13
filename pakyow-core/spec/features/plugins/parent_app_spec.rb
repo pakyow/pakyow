@@ -10,7 +10,7 @@ RSpec.describe "accessing the parent app from a plugin" do
           end
 
           def test
-            "parent app: #{parent_app.class}"
+            "parent app: #{app.parent.class}"
           end
         end
 

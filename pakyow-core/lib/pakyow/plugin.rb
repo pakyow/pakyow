@@ -71,17 +71,17 @@ module Pakyow
     include Behavior::Rescuing
     include Behavior::Restarting
 
-    attr_reader :app
+    attr_reader :parent
 
-    def initialize(app, &block)
+    def initialize(parent, &block)
       super()
 
-      @app = app
+      @parent = parent
       @state = []
       @endpoints = Endpoints.new
 
       performing :configure do
-        configure!(@app.environment)
+        configure!(@parent.environment)
       end
 
       performing :initialize do
@@ -121,15 +121,15 @@ module Pakyow
     end
 
     def method_missing(method_name, *args, &block)
-      if @app.respond_to?(method_name)
-        @app.public_send(method_name, *args, &block)
+      if @parent.respond_to?(method_name)
+        @parent.public_send(method_name, *args, &block)
       else
         super
       end
     end
 
     def respond_to_missing?(method_name, include_private = false)
-      @app.respond_to?(method_name) || super
+      @parent.respond_to?(method_name) || super
     end
 
     def helpers(connection)
@@ -191,7 +191,7 @@ module Pakyow
 
     def define_app_endpoints
       @endpoints.each do |endpoint|
-        @app.endpoints << Endpoint.new(
+        @parent.endpoints << Endpoint.new(
           name: [config.name.to_s, endpoint.name].join("_"),
           method: :get,
           builder: endpoint.builder

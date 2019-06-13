@@ -11,7 +11,7 @@ module Pakyow
       def method_missing(method_name, *args, &block)
         @connection.instance_variable_set(:@app, @plugin)
         @helpers.public_send(method_name, *args, &block).tap do
-          @connection.instance_variable_set(:@app, @plugin.app)
+          @connection.instance_variable_set(:@app, @plugin.parent)
         end
       end
 

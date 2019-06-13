@@ -6,7 +6,7 @@ controller :root, "/test-plugin" do
   end
 
   get "/app_endpoint/:name" do
-    send parent_app.endpoints.path(params[:name])
+    send app.parent.endpoints.path(params[:name])
   end
 
   get "/render/explicit" do
@@ -17,7 +17,7 @@ controller :root, "/test-plugin" do
   end
 
   get "/parent-app" do
-    send parent_app.class.name
+    send app.parent.class.name
   end
 
   get "/helpers" do
