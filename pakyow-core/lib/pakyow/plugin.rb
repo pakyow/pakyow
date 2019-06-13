@@ -33,7 +33,10 @@ module Pakyow
     include Support::Configurable
 
     setting :name
-    setting :root
+
+    setting :root do
+      plugin_path
+    end
 
     setting :src do
       File.join(config.root, "backend")
@@ -127,6 +130,10 @@ module Pakyow
 
     def __object_name
       self.class.__object_name
+    end
+
+    def plugin_path
+      self.class.plugin_path
     end
 
     def helper_caller(helper_context, connection, call_context)

@@ -82,7 +82,6 @@ module Pakyow
             end
 
             plug.config.name = full_name.join("_").to_sym
-            plug.config.root = plug.plugin_path
 
             # Finally, create the plugin instance.
             #
