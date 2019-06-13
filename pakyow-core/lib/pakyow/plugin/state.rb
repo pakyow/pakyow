@@ -36,7 +36,8 @@ module Pakyow
               # Use the app's layout, if available.
               #
               if app_templates.layouts.include?(plugin_info[:page].info(:layout))
-                plugin_info[:layout] = app_templates.layouts[plugin_info[:page].info(:layout)]
+                plugin_info[:layout] = app_templates.layout(plugin_info[:page].info(:layout).to_sym)
+                plugin_info[:partials].merge!(app_templates.includes)
               end
 
               if app_info = app_templates.info(path)
@@ -45,6 +46,10 @@ module Pakyow
                 plugin_info[:partials][:plug] = Presenter::Partial.from_object(
                   :plug, plugin_info[:page].object
                 )
+
+                # Set the layout for the page.
+                #
+                plugin_info[:layout] = app_templates.layout(app_info[:page].info(:layout).to_sym)
 
                 # Include the app partials, since we're using a page from the app that might include them.
                 #

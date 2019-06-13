@@ -9,7 +9,7 @@ module Pakyow
       using Support::DeepDup
       using Support::Refinements::String::Normalization
 
-      attr_reader :name, :path, :layouts, :pages, :config
+      attr_reader :name, :path, :layouts, :pages, :includes, :config
 
       DEFAULT_LAYOUTS_PATH = "layouts"
       DEFAULT_PARTIALS_PATH = "includes"
@@ -106,7 +106,7 @@ module Pakyow
       end
 
       def load_partials
-        @partials = if File.exist?(partials_path)
+        @includes = if File.exist?(partials_path)
           partials_path.children.each_with_object({}) { |file, partials|
             next unless template?(file)
             partial = load_view_of_type_at_path(Partial, file, normalize_path(file))
@@ -131,7 +131,7 @@ module Pakyow
               @info[File.join(@config[:prefix], normalize_path(path, pages_path))] = {
                 page: page,
                 layout: layout_with_name(page.info(:layout)),
-                partials: @partials.merge(partials_at_path(path))
+                partials: @includes.merge(partials_at_path(path))
               }
             end
           rescue FrontMatterParsingError => e

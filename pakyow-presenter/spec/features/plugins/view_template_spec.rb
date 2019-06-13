@@ -289,13 +289,13 @@ RSpec.describe "rendering view templates" do
       end
 
       context "app overrides the view template" do
-        it "renders the app view template in the plugin layout" do
+        it "renders the app view template in the app layout" do
           call(File.join(mount_path, "test-plugin/render/app-override-plugin-layout")).tap do |result|
             expect(result[0]).to eq(200)
             response_body = result[2]
             expect(response_body).to include_sans_whitespace(
               <<~HTML
-                <title>plugin special</title>
+                <title>app default</title>
               HTML
             )
 
