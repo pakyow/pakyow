@@ -11,8 +11,8 @@ module Pakyow
 
       PATTERN = /{([^}]*)}/
 
-      def initialize(template, &block)
-        @template, @block = template, block
+      def initialize(template, html_safe: false, &block)
+        @template, @html_safe, @block = template, html_safe, block
       end
 
       def build(**values)
@@ -27,7 +27,13 @@ module Pakyow
               get_value(match[0].to_sym, values)
             end
 
-            working_template.gsub!("{#{match[0]}}", ensure_html_safety(value))
+            value = if @html_safe
+              ensure_html_safety(value)
+            else
+              value.to_s
+            end
+
+            working_template.gsub!("{#{match[0]}}", value)
           end
         end
       end

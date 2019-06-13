@@ -60,4 +60,24 @@ RSpec.describe Pakyow::Support::StringBuilder do
       ).to eq("hello bob")
     end
   end
+
+  describe "html safety" do
+    it "does not make strings html safe by default" do
+      expect(
+        builder.build(foo: "bob", bar: "<strong>tom</strong>")
+      ).to eq("hello bob, it's <strong>tom</strong>")
+    end
+
+    context "builder has html safety enabled" do
+      let :builder do
+        described_class.new(template, html_safe: true)
+      end
+
+      it "makes strings html safe" do
+        expect(
+          builder.build(foo: "bob", bar: "<strong>tom</strong>")
+        ).to eq("hello bob, it's &lt;strong&gt;tom&lt;/strong&gt;")
+      end
+    end
+  end
 end
