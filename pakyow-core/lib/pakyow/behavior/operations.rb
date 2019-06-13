@@ -12,8 +12,8 @@ module Pakyow
       class Lookup
         def initialize(operations)
           operations.each do |operation|
-            define_singleton_method operation.__object_name.name do |values = {}|
-              operation.new(values).perform
+            define_singleton_method operation.__object_name.name do |values = {}, &block|
+              (block ? Class.new(operation, &block) : operation).new(values).perform
             end
           end
         end

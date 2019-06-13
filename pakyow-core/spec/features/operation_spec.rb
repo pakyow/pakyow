@@ -1,10 +1,28 @@
 RSpec.describe "operation" do
   include_context "app"
 
-  let :app_init do
+  let :action do
+    local = self
+    Class.new do
+      include Pakyow::Helpers::Connection
+      instance_variable_set(:@local, local)
+      def call(connection)
+        @connection = connection
+
+        self.class.instance_variable_get(:@local).instance_variable_set(
+          :@result, operations.test(foo: "foo", bar: "bar")
+        )
+
+        connection.halt
+      end
+    end
+  end
+
+  let :app_def do
+    local = self
     Proc.new do
       operation :test do
-        attr_reader :foo_result, :bar_result
+        attr_reader :foo_result, :bar_result, :baz_result
 
         action :foo do
           @foo_result = @values[:foo].reverse
@@ -14,13 +32,57 @@ RSpec.describe "operation" do
           @bar_result = @values[:bar].reverse
         end
       end
+
+      action local.action
     end
   end
 
   it "can be called with values" do
-    Pakyow.app(:test).operations.test(foo: "foo", bar: "bar").tap do |result|
-      expect(result.foo_result).to eq("oof")
-      expect(result.bar_result).to eq("rab")
+    expect(call("/")[0]).to eq(200)
+    expect(@result.foo_result).to eq("oof")
+    expect(@result.bar_result).to eq("rab")
+  end
+
+  describe "modifying the operation at runtime" do
+    let :action do
+      local = self
+      Class.new do
+        include Pakyow::Helpers::Connection
+        instance_variable_set(:@local, local)
+        def call(connection)
+          @connection = connection
+
+          result = if connection.params[:modified]
+            operations.test(foo: "foo", bar: "bar", baz: "baz") do
+              action :baz do
+                @baz_result = @values[:baz].reverse
+              end
+            end
+          else
+            operations.test(foo: "foo", bar: "bar", baz: "baz")
+          end
+
+          self.class.instance_variable_get(:@local).instance_variable_set(
+            :@result, result
+          )
+
+          connection.halt
+        end
+      end
+    end
+
+    it "modifies the operation" do
+      expect(call("/?modified=true")[0]).to eq(200)
+      expect(@result.foo_result).to eq("oof")
+      expect(@result.bar_result).to eq("rab")
+      expect(@result.baz_result).to eq("zab")
+    end
+
+    it "does not modify future calls" do
+      expect(call("/")[0]).to eq(200)
+      expect(@result.foo_result).to eq("oof")
+      expect(@result.bar_result).to eq("rab")
+      expect(@result.baz_result).to eq(nil)
     end
   end
 end

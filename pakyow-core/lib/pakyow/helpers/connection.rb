@@ -35,6 +35,11 @@ module Pakyow
       #
       #   @see Request#:cookies
       def_delegators :connection, :app, :logger, :params, :session, :cookies
+
+      # @!method operations
+      #   Returns the operations lookup.
+      #
+      def_delegators :app, :operations
     end
   end
 end
