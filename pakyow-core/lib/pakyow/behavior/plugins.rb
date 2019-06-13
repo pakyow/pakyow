@@ -58,7 +58,7 @@ module Pakyow
 
             # Copy config from the app.
             #
-            plug.config.instance_variable_set(:@settings, config.settings.deep_dup.merge(plug.config.settings))
+            plug.config.instance_variable_set(:@__settings, config.__settings.deep_dup.merge(plug.config.__settings))
 
             # Override config values that require a specific value.
             #

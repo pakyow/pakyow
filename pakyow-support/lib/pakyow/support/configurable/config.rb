@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "forwardable"
-
 require "concurrent/hash"
 
 require "pakyow/support/deep_dup"
@@ -20,26 +18,26 @@ module Pakyow
         unfreezable :configurable
 
         # @api private
-        attr_reader :settings
+        attr_reader :__settings, :__defaults, :__groups
 
         def initialize(configurable)
           @configurable = configurable
 
-          @settings = Concurrent::Hash.new
-          @defaults = Concurrent::Hash.new
-          @groups   = Concurrent::Hash.new
+          @__settings = Concurrent::Hash.new
+          @__defaults = Concurrent::Hash.new
+          @__groups   = Concurrent::Hash.new
         end
 
         def initialize_copy(_)
-          @defaults = @defaults.deep_dup
-          @settings = @settings.deep_dup
-          @groups   = @groups.deep_dup
+          @__defaults = @__defaults.deep_dup
+          @__settings = @__settings.deep_dup
+          @__groups   = @__groups.deep_dup
 
-          @settings.each do |key, _|
+          @__settings.each do |key, _|
             define_setting_methods(key)
           end
 
-          @groups.each do |key, _|
+          @__groups.each do |key, _|
             define_group_methods(key)
           end
 
@@ -51,16 +49,16 @@ module Pakyow
             name = name.to_sym
             default = nil if default_omitted
 
-            unless @settings.include?(name)
+            unless @__settings.include?(name)
               define_setting_methods(name)
             end
 
-            @settings[name] = Setting.new(default: default, configurable: @configurable, &block)
+            @__settings[name] = Setting.new(default: default, configurable: @configurable, &block)
           end
         end
 
         def defaults(environment, &block)
-          @defaults[environment] = block
+          @__defaults[environment] = block
         end
 
         def configurable(group, &block)
@@ -68,19 +66,19 @@ module Pakyow
           config = Config.new(@configurable)
           config.instance_eval(&block)
 
-          unless @groups.include?(group)
+          unless @__groups.include?(group)
             define_group_methods(group)
           end
 
-          @groups[group] = config
+          @__groups[group] = config
         end
 
         def configure_defaults!(configured_environment)
-          if defaults = @defaults[configured_environment.to_s.to_sym]
+          if defaults = @__defaults[configured_environment.to_s.to_sym]
             instance_eval(&defaults)
           end
 
-          @groups.values.each do |group|
+          @__groups.values.each do |group|
             group.configure_defaults!(configured_environment)
           end
         end
@@ -88,11 +86,11 @@ module Pakyow
         def update_configurable(configurable)
           @configurable = configurable
 
-          @settings.values.each do |setting|
+          @__settings.values.each do |setting|
             setting.update_configurable(configurable)
           end
 
-          @groups.values.each do |group|
+          @__groups.values.each do |group|
             group.update_configurable(configurable)
           end
         end
@@ -100,11 +98,11 @@ module Pakyow
         def to_h
           hash = {}
 
-          @settings.each_with_object(hash) { |(name, setting), h|
+          @__settings.each_with_object(hash) { |(name, setting), h|
             h[name] = setting.value
           }
 
-          @groups.each_with_object(hash) { |(name, group), h|
+          @__groups.each_with_object(hash) { |(name, group), h|
             h[name] = group.to_h
           }
 
@@ -114,11 +112,11 @@ module Pakyow
         private
 
         def find_setting(name)
-          @settings[name.to_sym]
+          @__settings[name.to_sym]
         end
 
         def find_group(name)
-          @groups[name.to_sym]
+          @__groups[name.to_sym]
         end
 
         def define_setting_methods(name)
