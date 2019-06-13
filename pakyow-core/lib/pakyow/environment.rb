@@ -232,15 +232,25 @@ module Pakyow
         #
         @tasks = [] unless unsafe
 
+        # Mount each app.
+        #
         @apps = mounts.map { |mount|
           initialize_app_for_mount(mount)
         }
 
+        # Create the callable pipeline.
+        #
+        @pipeline = Pakyow.__pipeline.callable(self)
+
+        # Set the environment as booted ahead of telling each app that it is booted. This allows an
+        # app's after boot hook to access the booted app through `Pakyow.app`.
+        #
+        @booted = true
+
+        # Now tell each app that it has been booted.
+        #
         @apps.select { |app| app.respond_to?(:booted) }.each(&:booted)
       end
-
-      @booted = true
-      @pipeline = Pakyow.__pipeline.callable(self)
 
       if config.freeze_on_boot
         deep_freeze unless unsafe

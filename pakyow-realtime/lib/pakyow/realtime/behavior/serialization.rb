@@ -20,7 +20,7 @@ module Pakyow
             end
           end
 
-          after "initialize" do
+          after "boot" do
             if Pakyow.config.realtime.adapter == :memory
               realtime_server_serializer.deserialize
             end
