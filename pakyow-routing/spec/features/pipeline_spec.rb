@@ -277,7 +277,7 @@ RSpec.describe "controller pipelines" do
             $calls << :foo
           end
 
-          skip_action :foo
+          skip :foo
 
           default do
             $calls << :route
@@ -339,7 +339,7 @@ RSpec.describe "controller pipelines" do
             $calls << :foo
           end
 
-          skip_action :foo, only: [:default]
+          skip :foo, only: [:default]
 
           default do
             $calls << :route
@@ -399,7 +399,7 @@ RSpec.describe "controller pipelines" do
     let :app_init do
       Proc.new {
         controller do
-          skip_action :bar
+          skip :bar
 
           action :foo do
             $calls << :foo

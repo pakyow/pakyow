@@ -35,8 +35,8 @@ RSpec.shared_examples :subscription_subscribe_associated do
         end
 
         resource :posts, "/posts" do
-          skip_action :verify_same_origin
-          skip_action :verify_authenticity_token
+          skip :verify_same_origin
+          skip :verify_authenticity_token
 
           collection do
             post "subscribe" do
@@ -50,8 +50,8 @@ RSpec.shared_examples :subscription_subscribe_associated do
         end
 
         resource :comments, "/comments" do
-          skip_action :verify_same_origin
-          skip_action :verify_authenticity_token
+          skip :verify_same_origin
+          skip :verify_authenticity_token
 
           create do
             verify do
@@ -259,8 +259,8 @@ RSpec.shared_examples :subscription_subscribe_associated do
         end
 
         resource :posts, "/posts" do
-          skip_action :verify_same_origin
-          skip_action :verify_authenticity_token
+          skip :verify_same_origin
+          skip :verify_authenticity_token
 
           collection do
             post "subscribe" do
@@ -274,8 +274,8 @@ RSpec.shared_examples :subscription_subscribe_associated do
         end
 
         resource :users, "/users" do
-          skip_action :verify_same_origin
-          skip_action :verify_authenticity_token
+          skip :verify_same_origin
+          skip :verify_authenticity_token
 
           create do
             verify do

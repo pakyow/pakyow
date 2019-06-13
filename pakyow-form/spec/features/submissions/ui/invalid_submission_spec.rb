@@ -4,7 +4,7 @@ RSpec.describe "submitting invalid form data via ui" do
   let :app_init do
     Proc.new do
       resource :posts, "/posts" do
-        skip_action :clear_form_errors
+        skip :clear_form_errors
         disable_protection :csrf
 
         new do; end

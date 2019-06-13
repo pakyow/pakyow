@@ -467,7 +467,7 @@ module Pakyow
         end
       end
 
-      def skip_action(name, only: [])
+      def skip(name, only: [])
         if only.empty?
           @global_skips << name
         else

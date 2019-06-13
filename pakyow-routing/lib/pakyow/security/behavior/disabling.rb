@@ -15,7 +15,7 @@ module Pakyow
                 if only.any? || except.any?
                   Pipelines::CSRF.__pipeline.actions.each do |action|
                     if only.any?
-                      skip_action action.target, only: only
+                      skip action.target, only: only
                     end
 
                     if except.any?

@@ -816,7 +816,7 @@ RSpec.describe "pipelines" do
           result << "qux"
         end
 
-        skip_action :baz
+        skip :baz
       end
     end
 
@@ -846,7 +846,7 @@ RSpec.describe "pipelines" do
           result << "qux"
         end
 
-        skip_action :baz, :foo
+        skip :baz, :foo
       end
     end
 

@@ -231,8 +231,8 @@ RSpec.describe "routing requests" do
     let :app_init do
       Proc.new {
         controller "/posts" do
-          skip_action :verify_same_origin
-          skip_action :verify_authenticity_token
+          skip :verify_same_origin
+          skip :verify_authenticity_token
 
           post "/" do
             connection.body = StringIO.new("one")

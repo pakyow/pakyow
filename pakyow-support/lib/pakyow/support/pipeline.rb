@@ -157,7 +157,7 @@ module Pakyow
           @__pipeline.action(action, *options, before: before, after: after, &block)
         end
 
-        def skip_action(*actions)
+        def skip(*actions)
           @__pipeline.skip(*actions)
         end
 

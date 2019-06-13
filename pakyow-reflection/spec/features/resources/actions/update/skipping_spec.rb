@@ -28,7 +28,7 @@ RSpec.describe "reflected resource update action" do
     let :reflected_app_def do
       Proc.new do
         resource :posts, "/posts" do
-          skip_action :reflect
+          skip :reflect
 
           update do
             send "hello"

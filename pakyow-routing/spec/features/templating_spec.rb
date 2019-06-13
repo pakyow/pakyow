@@ -70,7 +70,7 @@ RSpec.describe "route templating" do
             end
 
             action :baz
-            skip_action :foo
+            skip :foo
 
             perform do
               $calls << :perform

@@ -57,7 +57,7 @@ RSpec.describe "verifying the request's authenticity token" do
     let :app_init do
       Proc.new do
         controller do
-          skip_action :verify_authenticity_token
+          skip :verify_authenticity_token
 
           post "/" do
           end

@@ -11,7 +11,7 @@ RSpec.describe "verifying that the request is from the same origin" do
     let :app_init do
       Proc.new do
         controller do
-          skip_action :verify_same_origin
+          skip :verify_same_origin
 
           post "/" do
           end
