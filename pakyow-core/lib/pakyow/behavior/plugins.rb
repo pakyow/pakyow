@@ -56,9 +56,23 @@ module Pakyow
               *self.class.config.loaded_frameworks
             )
 
-            # Copy config from the app.
+            # Copy settings from the app config.
             #
-            plug.config.instance_variable_set(:@__settings, config.__settings.deep_dup.merge(plug.config.__settings))
+            plug.config.instance_variable_set(
+              :@__settings, config.__settings.deep_dup.merge(plug.config.__settings)
+            )
+
+            # Copy defaults from the app config.
+            #
+            plug.config.instance_variable_set(
+              :@__defaults, config.__defaults.deep_dup.merge(plug.config.__defaults)
+            )
+
+            # Copy groups from the app config.
+            #
+            plug.config.instance_variable_set(
+              :@__groups, config.__groups.deep_dup.merge(plug.config.__groups)
+            )
 
             # Override config values that require a specific value.
             #
