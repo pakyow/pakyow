@@ -11,6 +11,7 @@ require "pakyow/behavior/endpoints"
 require "pakyow/behavior/frameworks"
 require "pakyow/behavior/helpers"
 require "pakyow/behavior/isolating"
+require "pakyow/behavior/operations"
 require "pakyow/behavior/pipeline"
 require "pakyow/behavior/rescuing"
 require "pakyow/behavior/restarting"
@@ -65,6 +66,7 @@ module Pakyow
     include Behavior::Frameworks
     include Behavior::Helpers
     include Behavior::Isolating
+    include Behavior::Operations
     include Behavior::Pipeline
     include Behavior::Rescuing
     include Behavior::Restarting
