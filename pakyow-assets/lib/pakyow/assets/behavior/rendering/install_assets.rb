@@ -12,7 +12,15 @@ module Pakyow
           apply_extension do
             build do |view, app:|
               if head = view.head
-                app.packs(view).each do |pack|
+                packs = app.packs(view)
+
+                if app.is_a?(Plugin)
+                  packs.concat(app.app.packs(view))
+                end
+
+                packs.uniq { |pack|
+                  pack.public_path
+                }.each do |pack|
                   if pack.javascripts?
                     head.object.append_html("<script src=\"#{pack.public_path}.js\"></script>\n")
                   end
