@@ -107,9 +107,15 @@ module Pakyow
     end
 
     def call(connection)
-      connection.instance_variable_set(:@app, self)
-      super(connection)
-      connection.instance_variable_set(:@app, @app)
+      instance = isolated(:Connection).allocate
+
+      connection.instance_variables.each do |ivar|
+        instance.instance_variable_set(ivar, connection.instance_variable_get(ivar))
+      end
+
+      instance.instance_variable_set(:@app, self)
+
+      super(instance)
     end
 
     def method_missing(method_name, *args, &block)
