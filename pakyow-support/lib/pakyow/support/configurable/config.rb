@@ -109,6 +109,15 @@ module Pakyow
           hash
         end
 
+        def eval(setting, context)
+          value = public_send(setting)
+          if value.is_a?(Proc)
+            context.instance_eval(&value)
+          else
+            value
+          end
+        end
+
         private
 
         def find_setting(name)
@@ -120,8 +129,12 @@ module Pakyow
         end
 
         def define_setting_methods(name)
-          singleton_class.define_method name do
-            find_setting(name).value
+          singleton_class.define_method name do |&block|
+            if block
+              find_setting(name).set(block)
+            else
+              find_setting(name).value
+            end
           end
 
           singleton_class.define_method :"#{name}=" do |value|
