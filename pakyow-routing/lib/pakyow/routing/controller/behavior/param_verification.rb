@@ -3,7 +3,8 @@
 require "pakyow/support/extension"
 
 require "pakyow/errors"
-require "pakyow/verification"
+
+require "pakyow/behavior/verification"
 
 module Pakyow
   module Routing
@@ -14,7 +15,7 @@ module Pakyow
         apply_extension do
           class_state :__allowed_params, default: [], inheritable: true
 
-          include Verification
+          include Pakyow::Behavior::Verification
 
           # Define the data we wish to verify.
           #
@@ -57,7 +58,7 @@ module Pakyow
         end
 
         prepend_methods do
-          def verify(&block)
+          def verify(values = nil, &block)
             local_allowed_params = self.class.__allowed_params
 
             super do

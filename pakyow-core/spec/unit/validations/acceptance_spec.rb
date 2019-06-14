@@ -9,6 +9,10 @@ RSpec.describe Pakyow::Validations::Acceptance do
     expect(validation.name).to eq(:acceptance)
   end
 
+  it "has a message" do
+    expect(validation.message(**{})).to eq("must be accepted")
+  end
+
   context "value is true" do
     it "is valid" do
       expect(validation.valid?(true)).to be true

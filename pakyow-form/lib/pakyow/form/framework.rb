@@ -32,7 +32,7 @@ module Pakyow
 
           handle InvalidData, as: :bad_request do |error|
             if connection.form
-              errors = error.verifier.messages.flat_map { |type, messages|
+              errors = error.result.messages.flat_map { |type, messages|
                 case messages
                 when Array
                   messages.map { |type_message|

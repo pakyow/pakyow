@@ -9,181 +9,168 @@ require "pakyow/validator"
 
 module Pakyow
   class Verifier
-    class << self
-      extend Forwardable
-      def_delegators :validator, :validate
-
-      def validator
-        @validator ||= Class.new(Validator)
+    class Result
+      def initialize
+        @errors = {}
+        @nested = {}
+        @validation = nil
       end
 
-      def required(key, type = nil)
-        key = key.to_sym
-        required_keys.push(key).uniq!
-
-        if type
-          types[key] = Types.type_for(type)
-        end
-
-        if block_given?
-          verifier = Class.new(Verifier)
-          verifier.instance_exec(&Proc.new)
-          verifiers_by_key[key] = verifier
-        end
+      def error(key, message)
+        (@errors[key] ||= []) << message
       end
 
-      def optional(key, type = nil)
-        key = key.to_sym
-        optional_keys.push(key).uniq!
-
-        if type
-          types[key] = Types.type_for(type)
-        end
-
-        if block_given?
-          verifier = Class.new(Verifier)
-          verifier.instance_exec(&Proc.new)
-          verifiers_by_key[key] = verifier
-        end
+      def nested(key, result)
+        @nested[key] = result
       end
 
-      def types
-        @types ||= {}
+      def validation(result)
+        @validation = result
       end
 
-      def allowable_keys
-        required_keys + optional_keys
+      def verified?
+        @errors.empty? && (!validating? || @validation.valid?) && @nested.all? { |_, result|
+          result.verified?
+        }
       end
 
-      def required_keys
-        @required_keys ||= []
+      def validating?
+        !@validation.nil?
       end
 
-      def optional_keys
-        @optional_keys ||= []
-      end
+      def messages
+        if validating?
+          messages = @validation.messages
+        else
+          messages = {}
 
-      def verifiers_by_key
-        @verifiers_by_key ||= {}
-      end
-
-      def sanitize(input)
-        input.select! do |key, _|
-          key = key.to_sym
-          allowable_keys.include?(key)
-        end
-
-        allowable_keys.each do |key|
-          key = key.to_sym
-          next unless input.key?(key)
-
-          value = input[key]
-
-          if type = types[key]
-            value = type[value]
+          @errors.each_pair do |key, value|
+            messages[key] = value
           end
 
-          input[key] = value
+          @nested.each_pair do |key, verifier|
+            nested_messages = verifier.messages
+
+            unless nested_messages.empty?
+              messages[key] = nested_messages
+            end
+          end
         end
 
-        input
+        messages
       end
     end
 
     using Support::Refinements::Array::Ensurable
 
-    attr_reader :validator, :values, :errors
+    extend Forwardable
+    def_delegators :@validator, :validate
 
-    def initialize(input, context: nil)
-      input ||= {}
+    def initialize(&block)
+      @types = {}
+      @messages = {}
+      @required_keys = []
+      @optional_keys = []
+      @allowable_keys = []
+      @verifiers_by_key = {}
+      @validator = Validator.new
 
-      @context = context
-
-      if should_sanitize?(input)
-        @values = self.class.sanitize(input)
+      if block
+        instance_eval(&block)
       end
-
-      if should_validate?(input)
-        @validator = self.class.validator.new(input, context: @context)
-      end
-
-      @errors = {}
     end
 
-    def verify?
-      self.class.allowable_keys.each do |allowable_key|
-        if @values[allowable_key].nil?
-          if self.class.required_keys.include?(allowable_key)
-            (@errors[allowable_key] ||= []) << :required
+    def required(key, type = nil, message: "is required", &block)
+      key = key.to_sym
+      @required_keys.push(key).uniq!
+      @allowable_keys.push(key).uniq!
+      @messages[key] = message
+
+      if type
+        @types[key] = Types.type_for(type)
+      end
+
+      if block
+        @verifiers_by_key[key] = self.class.new(&block)
+      end
+    end
+
+    def optional(key, type = nil, &block)
+      key = key.to_sym
+      @optional_keys.push(key).uniq!
+      @allowable_keys.push(key).uniq!
+
+      if type
+        @types[key] = Types.type_for(type)
+      end
+
+      if block
+        @verifiers_by_key[key] = self.class.new(&block)
+      end
+    end
+
+    def call(values, context: nil)
+      values ||= {}
+
+      if should_sanitize?(values)
+        values = sanitize(values)
+      end
+
+      result = Result.new
+
+      if should_validate?(values)
+        result.validation(@validator.call(values, context: context))
+      end
+
+      @allowable_keys.each do |allowable_key|
+        if values[allowable_key].nil?
+          if @required_keys.include?(allowable_key)
+            result.error(allowable_key, @messages[allowable_key])
           else
             next
           end
         end
 
-        if verifier_for_key = self.class.verifiers_by_key[allowable_key]
-          Array.ensure(@values[allowable_key]).each do |value_to_verify|
-            verifier_instance_for_key = verifier_for_key.new(value_to_verify, context: @context)
-            unless verifier_instance_for_key.verify?
-              if verifier_instance_for_key.validating?
-                (@errors[allowable_key] ||= []).concat(verifier_instance_for_key.validator.errors)
-              else
-                @errors[allowable_key] = verifier_instance_for_key.errors
-              end
-            end
+        if verifier_for_key = @verifiers_by_key[allowable_key]
+          Array.ensure(values[allowable_key]).each do |values_for_key|
+            result.nested(allowable_key, verifier_for_key.call(values_for_key, context: context))
           end
         end
       end
 
-      @errors.empty? && (!validating? || (validating? && @validator.valid?))
-    end
-
-    def invalid_keys
-      self.class.required_keys.each_with_object([]) { |required_key, invalid_keys|
-        value = @values[required_key]
-        if value.nil? || value.empty?
-          invalid_keys << required_key
-        end
-      }
-    end
-
-    def >>(other)
-      other.new(@values)
-    end
-
-    def validating?
-      !@validator.nil? && !@validator.class.validations.empty?
-    end
-
-    def messages(errors = @errors)
-      errors.each_with_object({}) { |(key, error_keys), error_messages|
-        error_messages[key] = if error_keys.is_a?(Hash)
-          messages(error_keys)
-        else
-          error_keys.map { |error_key|
-            message_for(error_key)
-          }
-        end
-      }
-    end
-
-    DEFAULT_ERROR_MESSAGES = {
-      default: "is invalid",
-      required: "is required",
-      presence: "is not present"
-    }.freeze
-
-    def message_for(error_key)
-      DEFAULT_ERROR_MESSAGES[error_key] || DEFAULT_ERROR_MESSAGES[:default]
+      result
     end
 
     private
 
-    def should_sanitize?(input)
-      input.is_a?(Pakyow::Support::IndifferentHash) || input.is_a?(Hash) || input.is_a?(Connection::Params)
+    def sanitize(values)
+      values.select! do |key, _|
+        @allowable_keys.include?(key.to_sym)
+      end
+
+      @allowable_keys.each do |key|
+        key = key.to_sym
+
+        if values.key?(key)
+          value = values[key]
+
+          if type = @types[key]
+            value = type[value]
+          end
+
+          values[key] = value
+        end
+      end
+
+      values
     end
 
-    def should_validate?(input)
-      !input.nil?
+    def should_sanitize?(values)
+      values.is_a?(Pakyow::Support::IndifferentHash) || values.is_a?(Hash) || values.is_a?(Connection::Params)
+    end
+
+    def should_validate?(values)
+      @validator.any? && !values.nil?
     end
   end
 end

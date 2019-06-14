@@ -1,52 +1,78 @@
 # frozen_string_literal: true
 
+require "pakyow/support/class_state"
+
 require "pakyow/errors"
 
 module Pakyow
   class Validator
-    class << self
-      def validate(validation_name = nil, **options)
-        validation_object = if block_given?
-          Validations::Inline.new(validation_name, Proc.new)
-        else
-          validation_object_for(validation_name)
-        end
-
-        validations << [validation_object, options]
+    class Result
+      def initialize
+        @errors = []
       end
 
+      def error(validation, options)
+        @errors << [validation, options]
+      end
+
+      def valid?
+        @errors.empty?
+      end
+
+      def messages
+        @errors.map { |validation, options|
+          options[:message] || validation.message(**options)
+        }
+      end
+    end
+
+    extend Support::ClassState
+    class_state :validation_objects, default: {}
+
+    class << self
       def register_validation(validation_object)
-        Validator.validation_objects[validation_object.name] = validation_object
+        @validation_objects[validation_object.name] = validation_object
       end
 
       def validation_object_for(validation)
-        Validator.validation_objects[validation] || raise(UnknownValidationError.new_with_message(validation: validation))
-      end
-
-      def validations
-        @validations ||= []
-      end
-
-      def validation_objects
-        @validation_objects ||= {}
+        @validation_objects[validation] || raise(UnknownValidationError.new_with_message(validation: validation))
       end
     end
 
-    attr_reader :errors
+    require "pakyow/validations"
 
-    def initialize(value, context: nil)
-      @value, @context = value, context
-      @errors = []
+    def initialize(&block)
+      @validations = []
+
+      if block
+        instance_eval(&block)
+      end
     end
 
-    def valid?
-      self.class.validations.each do |validation, options|
-        unless validation.valid?(@value, context: @context, **options)
-          @errors << validation.name
+    def any?
+      @validations.any?
+    end
+
+    def validate(validation_name = nil, **options)
+      validation_object = if block_given?
+        Validations::Inline.new(validation_name, Proc.new)
+      else
+        self.class.validation_object_for(validation_name)
+      end
+
+      @validations << [validation_object, options]
+    end
+
+    def call(values, context: nil)
+      result = Result.new
+
+      @validations.each do |validation, options|
+        unless validation.valid?(values, context: context, **options)
+          result.error(validation, options)
         end
       end
 
-      @errors.empty?
+      result
     end
   end
 end

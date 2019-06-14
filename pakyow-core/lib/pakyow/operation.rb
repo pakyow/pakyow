@@ -5,7 +5,7 @@ require "pakyow/support/makeable"
 require "pakyow/support/pipeline"
 require "pakyow/support/pipeline/object"
 
-require "pakyow/verification"
+require "pakyow/behavior/verification"
 
 module Pakyow
   class Operation
@@ -19,7 +19,7 @@ module Pakyow
 
     attr_reader :values
 
-    include Verification
+    include Behavior::Verification
     verifies :values
 
     def initialize(values = {})

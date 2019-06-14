@@ -16,6 +16,10 @@ module Pakyow
         @name, @block = name, block
       end
 
+      def message(**)
+        "is invalid"
+      end
+
       def valid?(value, context: nil)
         if context
           context.instance_exec(value, &@block)

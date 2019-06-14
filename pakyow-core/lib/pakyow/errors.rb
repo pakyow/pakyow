@@ -10,10 +10,10 @@ module Pakyow
       verification: "Provided data didn't pass verification"
     }.freeze
 
-    # Failed verifier instance.
+    # Failed verifier result.
     #
-    def verifier
-      @context[:verifier]
+    def result
+      @context[:result]
     end
 
     # Object that failed verification.
@@ -30,7 +30,7 @@ module Pakyow
 
         And here are the failures:
 
-        #{indent_as_code(JSON.pretty_generate(verifier.messages))}
+        #{indent_as_code(JSON.pretty_generate(result.messages))}
       MESSAGE
     end
   end

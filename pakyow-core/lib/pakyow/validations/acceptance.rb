@@ -23,6 +23,10 @@ module Pakyow
         :acceptance
       end
 
+      def self.message(**)
+        "must be accepted"
+      end
+
       def self.valid?(value, accepts: true, **)
         Array.ensure(accepts).include?(value)
       end

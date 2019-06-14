@@ -9,6 +9,10 @@ RSpec.describe Pakyow::Validations::Presence do
     expect(validation.name).to eq(:presence)
   end
 
+  it "has a message" do
+    expect(validation.message(**{})).to eq("cannot be blank")
+  end
+
   context "value is a non-empty string" do
     it "is valid" do
       expect(validation.valid?("foo")).to be true

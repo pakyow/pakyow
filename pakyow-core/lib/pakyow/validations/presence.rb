@@ -21,6 +21,10 @@ module Pakyow
         :presence
       end
 
+      def self.message(**)
+        "cannot be blank"
+      end
+
       def self.valid?(value, **)
         if value.is_a?(String)
           !value.match?(WHITESPACE_ONLY)
