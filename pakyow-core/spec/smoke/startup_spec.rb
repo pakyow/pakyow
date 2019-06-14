@@ -49,7 +49,7 @@ RSpec.describe "starting up a newly generated project", smoke: true do
     create
   end
 
-  after "all" do
+  after :all do
     Dir.chdir(@original_path)
     system "bundle exec rake release:clean"
 
