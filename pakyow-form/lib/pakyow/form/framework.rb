@@ -107,16 +107,18 @@ module Pakyow
               end
 
               def classify_fields
-                errored_fields = form_errors.map { |error|
-                  error[:field]
-                }
-
                 view.each_binding_prop do |node|
                   binding_name = node.label(:binding)
-                  if errored_fields.include?(binding_name)
-                    find(binding_name).attrs[:class] << :errored
-                  else
-                    find(binding_name).attrs[:class].delete(:errored)
+                  error = form_errors.find { |e| e[:field] == binding_name }
+
+                  find(binding_name).with do |field|
+                    if error.nil?
+                      field.attrs[:class].delete(:errored)
+                      field.attrs[:title] = ""
+                    else
+                      field.attrs[:class] << :errored
+                      field.attrs[:title] = error[:message]
+                    end
                   end
                 end
               end
