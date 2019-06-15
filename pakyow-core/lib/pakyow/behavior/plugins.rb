@@ -19,26 +19,26 @@ module Pakyow
       apply_extension do
         class_state :__plugs, default: [], inheritable: true
 
-        # Setting priority to low gives the app a chance to do any pre-loading
-        # that might affect how plugins are setup.
+        # Create a dynamic helper that allows plugin helpers to be called in context of a specific plug.
         #
-        on "load", "load.plugins", priority: :low do
-          # Create a dynamic helper that allows plugin helpers to be called in context of a specific plug.
-          #
-          dynamic_helper = Module.new {
+        on "initialize" do
+          self.class.register_helper :passive, Module.new {
             Pakyow.plugins.keys.map.each do |plugin_name|
               define_method plugin_name do |plug = :default|
                 app.plugs.send(plugin_name, plug).helper_caller(
-                  app.class.__included_helpers[self.class],
+                  app.class.included_helper_context(self),
                   @connection,
                   self
                 )
               end
             end
           }
+        end
 
-          self.class.register_helper :passive, dynamic_helper
-
+        # Setting priority to low gives the app a chance to do any pre-loading
+        # that might affect how plugins are setup.
+        #
+        on "load", "load.plugins", priority: :low do
           @__plug_instances = self.class.__plugs.map { |plug|
             if self.class.includes_framework?(:presenter)
               require "pakyow/plugin/helpers/rendering"

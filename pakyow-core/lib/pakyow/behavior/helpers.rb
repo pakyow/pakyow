@@ -23,9 +23,7 @@ module Pakyow
       extend Support::Extension
 
       apply_extension do
-        class_state :__included_helpers, default: {
-           global: [], passive: [], active: []
-         }, inheritable: true
+        class_state :__included_helpers, default: {}, inheritable: true
 
         setting :helpers,
                 global: [
@@ -75,9 +73,18 @@ module Pakyow
         #
         def include_helpers(context, object)
           @__included_helpers[object] = context
+
           helpers(context.to_sym).each do |helper|
             object.include helper
           end
+        end
+
+        def included_helper_context(object)
+          @__included_helpers.each_pair do |object_with_helpers, context|
+            return context if object.is_a?(object_with_helpers)
+          end
+
+          nil
         end
 
         def helpers(context)
