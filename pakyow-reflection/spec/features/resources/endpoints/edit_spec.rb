@@ -48,7 +48,7 @@ RSpec.describe "reflected resource edit endpoint" do
 
       expect(response[2]).to include_sans_whitespace(
         <<~HTML
-          <input type="text" data-b="title" data-c="form" name="post[title]" class="" value="bar">
+          <input type="text" data-b="title" data-c="form" name="post[title]" class="" title="" value="bar">
         HTML
       )
     end
