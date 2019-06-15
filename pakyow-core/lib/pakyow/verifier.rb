@@ -66,14 +66,15 @@ module Pakyow
     extend Forwardable
     def_delegators :@validator, :validate
 
-    def initialize(&block)
+    def initialize(key = nil, &block)
+      @key = key
       @types = {}
       @messages = {}
       @required_keys = []
       @optional_keys = []
       @allowable_keys = []
       @verifiers_by_key = {}
-      @validator = Validator.new
+      @validator = Validator.new(key)
 
       if block
         instance_eval(&block)
@@ -91,7 +92,7 @@ module Pakyow
       end
 
       if block
-        @verifiers_by_key[key] = self.class.new(&block)
+        @verifiers_by_key[key] = self.class.new(key, &block)
       end
     end
 
@@ -105,7 +106,7 @@ module Pakyow
       end
 
       if block
-        @verifiers_by_key[key] = self.class.new(&block)
+        @verifiers_by_key[key] = self.class.new(key, &block)
       end
     end
 

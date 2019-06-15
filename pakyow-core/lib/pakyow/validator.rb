@@ -35,13 +35,16 @@ module Pakyow
       end
 
       def validation_object_for(validation)
-        @validation_objects[validation] || raise(UnknownValidationError.new_with_message(validation: validation))
+        @validation_objects[validation] || raise(
+          UnknownValidationError.new_with_message(validation: validation)
+        )
       end
     end
 
     require "pakyow/validations"
 
-    def initialize(&block)
+    def initialize(key = nil, &block)
+      @key = key
       @validations = []
 
       if block
@@ -67,7 +70,7 @@ module Pakyow
       result = Result.new
 
       @validations.each do |validation, options|
-        unless validation.valid?(values, context: context, **options)
+        unless validation.valid?(values, key: @key, context: context, **options)
           result.error(validation, options)
         end
       end

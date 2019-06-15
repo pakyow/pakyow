@@ -15,6 +15,8 @@ require "pakyow/environment/data/config"
 require "pakyow/environment/data/connections"
 require "pakyow/environment/data/memory_db"
 
+require "pakyow/validations/unique"
+
 module Pakyow
   config.tasks.paths << File.expand_path("../data/tasks", __FILE__)
 

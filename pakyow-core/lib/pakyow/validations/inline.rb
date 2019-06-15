@@ -20,7 +20,7 @@ module Pakyow
         "is invalid"
       end
 
-      def valid?(value, context: nil)
+      def valid?(value, context: nil, **)
         if context
           context.instance_exec(value, &@block)
         else
