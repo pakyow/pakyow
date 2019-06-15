@@ -124,8 +124,16 @@ module Pakyow
               end
 
               def present_errors(errors)
-                find(:error) do |view|
-                  view.present(errors)
+                if form_errors_presenter = component(:"form-errors")
+                  if error_presenter = form_errors_presenter.find(:error)
+                    error_presenter.present(errors)
+                  end
+
+                  if errors.empty?
+                    form_errors_presenter.attrs[:class] << :"ui-hidden"
+                  else
+                    form_errors_presenter.attrs[:class].delete(:"ui-hidden")
+                  end
                 end
               end
             end

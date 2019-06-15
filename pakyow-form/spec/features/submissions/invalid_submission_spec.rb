@@ -172,6 +172,42 @@ RSpec.describe "submitting invalid form data" do
           expect(result[0]).to be(400)
           expect(result[2]).to include_sans_whitespace("Post is required")
           expect(result[2]).to include_sans_whitespace('<li data-b="error.message" data-c="form"')
+          expect(result[2]).to include_sans_whitespace('<ul data-ui="form-errors" class="">')
+        end
+      end
+
+      context "form errors component does not have a scope" do
+        let :app_init do
+          Proc.new do
+            resource :posts, "/posts" do
+              disable_protection :csrf
+
+              new do
+                render "/posts/standalone"
+              end
+
+              create do
+                verify do
+                  required :post
+                end
+              end
+            end
+          end
+        end
+
+        it "presents the error component without specific errors" do
+          call("/posts", method: :post, params: { _form: sign(origin: "/posts/new", binding: "post:form") }).tap do |result|
+            expect(result[0]).to be(400)
+            expect(result[2]).to include_sans_whitespace(
+              <<~HTML
+                <ul data-ui="form-errors" class="">
+                  <li>
+                    Error message goes here.
+                  </li>
+                </ul>
+              HTML
+            )
+          end
         end
       end
     end
