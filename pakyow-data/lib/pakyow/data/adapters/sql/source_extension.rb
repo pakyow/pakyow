@@ -7,11 +7,11 @@ module Pakyow
         module SourceExtension
           extend Support::Extension
 
-          apply_extension do
-            def sql
-              __getobj__.sql
-            end
+          private def build(string, *args)
+            Sequel.lit(string, *args)
+          end
 
+          apply_extension do
             class_state :dataset_table, default: self.__object_name.name
 
             class << self

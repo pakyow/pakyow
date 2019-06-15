@@ -16,6 +16,7 @@ require_relative "./shared_examples/raw"
 require_relative "./shared_examples/table"
 require_relative "./shared_examples/transactions"
 require_relative "./shared_examples/types"
+require_relative "./shared_examples/literal"
 
 RSpec.describe "sqlite source", sqlite: true do
   it_behaves_like :source_associations
@@ -36,6 +37,7 @@ RSpec.describe "sqlite source", sqlite: true do
   it_behaves_like :source_sql_table
   it_behaves_like :source_sql_transactions
   it_behaves_like :source_sql_types
+  it_behaves_like :source_sql_literal
 
   let :connection_type do
     :sql
