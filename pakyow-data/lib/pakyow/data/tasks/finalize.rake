@@ -7,7 +7,7 @@ namespace :db do
   option :adapter, "The adapter to migrate"
   option :connection, "The connection to migrate"
   task :finalize, [:adapter, :connection] do |_, args|
-    Pakyow.boot
+    Pakyow.boot(unsafe: true)
 
     opts = {
       adapter: args[:adapter],
