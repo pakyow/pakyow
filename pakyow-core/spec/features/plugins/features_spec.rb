@@ -37,6 +37,11 @@ RSpec.describe "plugin features" do
     end
   end
 
+  it "makes all features appear enabled" do
+    expect(Pakyow.apps.first.plugs.first.feature?(:feature_one)).to be(true)
+    expect(Pakyow.apps.first.plugs.first.feature?(:feature_two)).to be(true)
+  end
+
   context "feature is disabled" do
     let :app_def do
       Proc.new do
@@ -58,6 +63,10 @@ RSpec.describe "plugin features" do
         expect(result[0]).to eq(200)
         expect(Marshal.load(result[2]).sort).to eq([:default, :feature_two])
       end
+    end
+
+    it "appears disabled" do
+      expect(Pakyow.apps.first.plugs.first.feature?(:feature_one)).to be(false)
     end
   end
 
@@ -89,6 +98,10 @@ RSpec.describe "plugin features" do
         expect(result[0]).to eq(200)
         expect(Marshal.load(result[2])).to_not include(:feature_two)
       end
+    end
+
+    it "appears enabled" do
+      expect(Pakyow.apps.first.plugs.first.feature?(:feature_one)).to be(true)
     end
   end
 

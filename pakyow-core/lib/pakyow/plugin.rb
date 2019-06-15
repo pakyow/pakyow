@@ -79,6 +79,7 @@ module Pakyow
       @parent = parent
       @state = []
       @endpoints = Endpoints.new
+      @features = self.class.features
 
       performing :configure do
         configure!(@parent.environment)
@@ -106,6 +107,13 @@ module Pakyow
       if respond_to?(:boot)
         boot
       end
+    end
+
+    def feature?(name)
+      name = name.to_sym
+      @features.any? { |feature|
+        feature[:name] == name
+      }
     end
 
     def call(connection)
@@ -197,7 +205,7 @@ module Pakyow
     end
 
     def load_feature_state
-      self.class.features.each do |feature|
+      @features.each do |feature|
         @state << State.new(self, path: feature[:path])
       end
     end
