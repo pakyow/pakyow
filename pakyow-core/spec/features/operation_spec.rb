@@ -43,6 +43,16 @@ RSpec.describe "operation" do
     expect(@result.bar_result).to eq("rab")
   end
 
+  it "has access to the app" do
+    expect(call("/")[0]).to eq(200)
+    expect(@result.app).to be_instance_of(Test::App)
+  end
+
+  it "has access to values" do
+    expect(call("/")[0]).to eq(200)
+    expect(@result.values).to eq(foo: "foo", bar: "bar")
+  end
+
   describe "modifying the operation at runtime" do
     let :action do
       local = self

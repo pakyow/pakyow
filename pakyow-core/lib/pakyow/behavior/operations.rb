@@ -10,10 +10,10 @@ module Pakyow
     #
     module Operations
       class Lookup
-        def initialize(operations)
+        def initialize(operations:, app:)
           operations.each do |operation|
             define_singleton_method operation.__object_name.name do |values = {}, &block|
-              (block ? Class.new(operation, &block) : operation).new(values).perform
+              (block ? Class.new(operation, &block) : operation).new(app: app, **values).perform
             end
           end
         end
@@ -28,7 +28,7 @@ module Pakyow
 
         attr_reader :operations
         after "initialize" do
-          @operations = Lookup.new(state(:operation))
+          @operations = Lookup.new(operations: state(:operation), app: self)
         end
       end
 

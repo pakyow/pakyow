@@ -17,13 +17,13 @@ module Pakyow
     include Support::Pipeline
     include Support::Pipeline::Object
 
-    attr_reader :values
+    attr_reader :app, :values
 
     include Behavior::Verification
     verifies :values
 
-    def initialize(values = {})
-      @values = values
+    def initialize(app:, **values)
+      @app, @values = app, values
     end
 
     def perform
