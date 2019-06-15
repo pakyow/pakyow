@@ -24,6 +24,18 @@ module Pakyow
               Pakyow.connection(source.adapter, source.connection)
             end
 
+            subscribers = if is_a?(Plugin)
+              # Plugins should use the same subscribers object as their parent app.
+              #
+              parent.data.subscribers
+            else
+              Subscribers.new(
+                self,
+                Pakyow.config.data.subscriptions.adapter,
+                Pakyow.config.data.subscriptions.adapter_settings
+              )
+            end
+
             @data = Data::Lookup.new(
               app: self,
               containers: Pakyow.data_connections.values.each_with_object([]) { |connections, containers|
@@ -41,11 +53,7 @@ module Pakyow
                   container.finalize!(containers - [container])
                 end
               end,
-              subscribers: Subscribers.new(
-                self,
-                Pakyow.config.data.subscriptions.adapter,
-                Pakyow.config.data.subscriptions.adapter_settings
-              )
+              subscribers: subscribers
             )
           end
 

@@ -156,6 +156,29 @@ module Pakyow
       @state.each(&:load_frontend)
     end
 
+    def _dump(_)
+      Marshal.dump(
+        {
+          parent: {
+            name: @parent.config.name
+          },
+
+          plugin_name: self.class.plugin_name,
+          plugin_path: self.class.plugin_path,
+          mount_path: self.class.mount_path
+        }
+      )
+    end
+
+    def self._load(state)
+      state = Marshal.load(state)
+      Pakyow.app(state[:parent][:name]).plugs.find { |plug|
+        plug.class.plugin_name == state[:plugin_name] &&
+          plug.class.plugin_path == state[:plugin_path] &&
+          plug.class.mount_path == state[:mount_path]
+      }
+    end
+
     private
 
     def load_aspect(aspect)

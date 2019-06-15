@@ -45,6 +45,18 @@ RSpec.configure do |spec_config|
           @app.data.persist(presentables[:__socket_client_id])
         end
       end
+
+      after "boot" do
+        plugs.each do |plug|
+          plug.isolated :Renderer do
+            after "render" do
+              # Persist subscriptions so that they are processed and intercepted.
+              #
+              @app.data.persist(presentables[:__socket_client_id])
+            end
+          end
+        end
+      end
     end
   end
 end

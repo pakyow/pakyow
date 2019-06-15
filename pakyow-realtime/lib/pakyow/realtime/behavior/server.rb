@@ -17,13 +17,17 @@ module Pakyow
           attr_reader :websocket_server
 
           after "initialize", priority: :high do
-            @websocket_server = Realtime::Server.new(
-              Pakyow.config.realtime.adapter,
-              Pakyow.config.realtime.adapter_settings.to_h.merge(
-                config.realtime.adapter_settings.to_h
-              ),
-              config.realtime.timeouts
-            )
+            @websocket_server = if is_a?(Plugin)
+              parent.websocket_server
+            else
+              Realtime::Server.new(
+                Pakyow.config.realtime.adapter,
+                Pakyow.config.realtime.adapter_settings.to_h.merge(
+                  config.realtime.adapter_settings.to_h
+                ),
+                config.realtime.timeouts
+              )
+            end
           end
 
           on "shutdown" do

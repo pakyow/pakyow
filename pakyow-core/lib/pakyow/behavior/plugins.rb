@@ -38,7 +38,7 @@ module Pakyow
         # Setting priority to low gives the app a chance to do any pre-loading
         # that might affect how plugins are setup.
         #
-        on "load", "load.plugins", priority: :low do
+        after "initialize", "load.plugins", priority: :low do
           @__plug_instances = self.class.__plugs.map { |plug|
             if self.class.includes_framework?(:presenter)
               require "pakyow/plugin/helpers/rendering"

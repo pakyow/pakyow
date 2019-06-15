@@ -29,7 +29,15 @@ module Pakyow
             def marshal_load(state)
               deserialize(state)
 
-              @presenter_class = @app.ui_presenters.find { |klass|
+              if @app.is_a?(Plugin)
+                # Look for the presenter in the plugin first, falling back to the app.
+                #
+                presenter_class = @app.parent.ui_presenters.find { |klass|
+                  klass.ancestors.include?(@presenter_class)
+                }
+              end
+
+              @presenter_class = presenter_class || @app.ui_presenters.find { |klass|
                 klass.ancestors.include?(@presenter_class)
               }
 

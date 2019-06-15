@@ -18,9 +18,19 @@ end
 
 RSpec.shared_context "websocket intercept" do
   def ws_intercept
+    app = Pakyow.apps.first
     interceptor = WebSocketIntercept.new
-    expect(Pakyow.apps.first).to receive(:websocket_server).at_least(:once).and_return(interceptor)
+
+    # allow(app).to receive(:websocket_server).at_least(:once).and_return(interceptor)
+    app.instance_variable_set(:@websocket_server, interceptor)
+
+    app.plugs.each do |plug|
+      # allow(plug).to receive(:websocket_server).at_least(:once).and_return(interceptor)
+      plug.instance_variable_set(:@websocket_server, interceptor)
+    end
+
     yield
+
     interceptor.broadcasts
   end
 end

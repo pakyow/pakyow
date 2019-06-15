@@ -22,7 +22,9 @@ module Pakyow
               )
 
               state(:templates) << Templates.new(:errors, File.join(File.expand_path("../../../", __FILE__), "views", "errors"))
+            end
 
+            after "load.plugins" do
               # Load plugin frontend after the app so that app has priority.
               #
               @plugs.each(&:load_frontend)
