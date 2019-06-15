@@ -175,6 +175,15 @@ module Pakyow
         }
       end
 
+      # Finds a component matching +name+.
+      #
+      def component(name, renderable: false)
+        name = name.to_sym
+        components(renderable: renderable).find { |component|
+          component.object.label(:component) == name
+        }
+      end
+
       # Returns all components.
       #
       def components(renderable: false)

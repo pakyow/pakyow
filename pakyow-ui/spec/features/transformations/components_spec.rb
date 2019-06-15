@@ -38,7 +38,7 @@ RSpec.describe "presenting an object in a component" do
   end
 end
 
-RSpec.describe "presenting the same data in a component and outside of it" do
+RSpec.describe "presenting the same data in a renderable and outside of it" do
   include_context "app"
   include_context "websocket intercept"
 
@@ -90,6 +90,55 @@ RSpec.describe "presenting the same data in a component and outside of it" do
 
     save_ui_case(x, path: "/posts") do
       call("/posts", method: :post, params: { post: { title: "baz", body: "baz body", type: "recent" } })
+    end
+  end
+end
+
+RSpec.describe "interacting with a non-renderable component" do
+  include_context "app"
+  include_context "websocket intercept"
+
+  let :app_init do
+    Proc.new do
+      resource :posts, "/posts" do
+        disable_protection :csrf
+
+        list do
+          expose :posts, data.posts.all
+          render "/components/non-renderable"
+        end
+
+        create do
+          verify do
+            required :post do
+              required :title
+            end
+          end
+
+          data.posts.create(params[:post]); halt
+        end
+      end
+
+      source :posts, timestamps: false do
+        primary_id
+        attribute :title
+      end
+
+      presenter "/components/non-renderable" do
+        render do
+          if posts.any?
+            component(:foo).attrs[:class].add(:"ui-has-posts")
+          else
+            component(:foo).attrs[:class].delete(:"ui-has-posts")
+          end
+        end
+      end
+    end
+  end
+
+  it "transforms" do |x|
+    save_ui_case(x, path: "/posts") do
+      call("/posts", method: :post, params: { post: { title: "foo" } })
     end
   end
 end

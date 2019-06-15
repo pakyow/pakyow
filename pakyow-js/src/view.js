@@ -98,7 +98,6 @@ export default class {
     }
   }
 
-  // @api private
   endpoint(name) {
     if (this.node.hasAttribute("data-e")) {
       return this;
@@ -111,10 +110,21 @@ export default class {
     }
   }
 
-  // @api private
   endpointAction() {
     let endpointView = this.endpoint();
     return endpointView.query("[data-e-a]")[0] || endpointView;
+  }
+
+  component(name) {
+    if (this.node.dataset.ui === name) {
+      return this;
+    } else {
+      if (name) {
+        return this.query(`[data-ui='${name}']`)[0];
+      } else {
+        return this.query(`[data-ui]`)[0];
+      }
+    }
   }
 
   bind(object) {

@@ -37,7 +37,6 @@ export default class {
     return new this.constructor(views, templates);
   }
 
-  // @api private
   endpoint(name) {
     var views = [];
 
@@ -49,12 +48,22 @@ export default class {
     return new this.constructor(views, this.templates);
   }
 
-  // @api private
   endpointAction() {
     var views = [];
 
     for (let view of this.views) {
       let found = view.endpointAction();
+      views.push(found);
+    }
+
+    return new this.constructor(views, this.templates);
+  }
+
+  component(name) {
+    var views = [];
+
+    for (let view of this.views) {
+      let found = view.component(name);
       views.push(found);
     }
 

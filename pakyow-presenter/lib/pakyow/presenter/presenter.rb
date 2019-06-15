@@ -100,6 +100,16 @@ module Pakyow
         }
       end
 
+      # Returns the component matching +name+.
+      #
+      def component(name)
+        if found_component = @view.component(name)
+          presenter_for(found_component)
+        else
+          nil
+        end
+      end
+
       # Returns all components.
       #
       def components(renderable: false)

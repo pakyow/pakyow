@@ -259,7 +259,7 @@ module Pakyow
 
         %i(
           find transform use bind append prepend after before replace remove clear title= html=
-          endpoint endpoint_action
+          endpoint endpoint_action component
         ).each do |method_name|
           define_method method_name do |*args, &block|
             nested = []
