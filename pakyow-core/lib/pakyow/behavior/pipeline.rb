@@ -29,7 +29,7 @@ module Pakyow
           pipeline.action(Assets::Actions::Process)
         end
 
-        if self.class.includes_framework?(:realtime) && Pakyow.config.realtime.server
+        if self.class.includes_framework?(:realtime) && Pakyow.config.realtime.server && !is_a?(Plugin)
           pipeline.action(Realtime::Actions::Upgrader)
         end
 
