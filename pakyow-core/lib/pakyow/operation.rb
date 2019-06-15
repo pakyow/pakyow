@@ -36,6 +36,19 @@ module Pakyow
       end
     end
 
+    def method_missing(name, *args, &block)
+      name = name.to_sym
+      if @values.key?(name)
+        @values[name.to_sym]
+      else
+        super
+      end
+    end
+
+    def respond_to_missing?(name, include_private = false)
+      @values.key?(name.to_sym) || super
+    end
+
     class << self
       # Perform input verification before performing the operation
       #

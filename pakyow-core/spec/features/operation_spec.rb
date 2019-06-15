@@ -53,6 +53,11 @@ RSpec.describe "operation" do
     expect(@result.values).to eq(foo: "foo", bar: "bar")
   end
 
+  it "responds to value names" do
+    expect(call("/")[0]).to eq(200)
+    expect(@result.foo).to eq("foo")
+  end
+
   describe "modifying the operation at runtime" do
     let :action do
       local = self
