@@ -11,13 +11,19 @@ module Pakyow
         extend Support::Extension
 
         def external_script(name, version = nil, package: nil, files: nil)
-          config.assets.externals.scripts << External.new(
-            name, version: version, package: package, files: files, config: config.assets
+          assets_config = if is_a?(Plugin)
+            parent.config.assets
+          else
+            config.assets
+          end
+
+          assets_config.externals.scripts << External.new(
+            name, version: version, package: package, files: files, config: assets_config
           )
         end
 
         apply_extension do
-          after "initialize", "initialize.assets.externals" do
+          after "boot", "fetch.assets.externals" do
             if config.assets.externals.pakyow
               external_script :pakyow, "^1.0.0-alpha.15", package: "@pakyow/js", files: [
                 "dist/pakyow.js",
