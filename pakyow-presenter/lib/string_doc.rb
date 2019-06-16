@@ -507,7 +507,7 @@ class StringDoc
 
   # Attributes that should be deleted from the view
   #
-  DELETED_ATTRS = %i(include exclude prototype).freeze
+  DELETED_ATTRS = %i(include exclude prototype mode).freeze
 
   ATTR_MAPPING = {
     binding: :b,

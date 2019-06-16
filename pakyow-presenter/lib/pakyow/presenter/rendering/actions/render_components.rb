@@ -11,7 +11,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          build do |view, app:, composer:, mode:|
+          build do |view, app:, composer:, modes:|
             unless Pakyow.env?(:prototype)
               initial_path = case composer
               when Composers::Component
@@ -28,7 +28,7 @@ module Pakyow
               end
 
               RenderComponents.initialize_renderable_components(
-                component_view, app: app, composer: composer, mode: mode, path: initial_path
+                component_view, app: app, composer: composer, modes: modes, path: initial_path
               )
             end
           end
@@ -49,7 +49,7 @@ module Pakyow
         end
 
         # @api private
-        def self.initialize_renderable_components(view, app:, composer:, mode:, path: [])
+        def self.initialize_renderable_components(view, app:, composer:, modes:, path: [])
           view.components.each_with_index do |component_view, i|
             current_path = path.dup
             current_path << i
@@ -92,7 +92,7 @@ module Pakyow
                 # If the component was defined in an app but being called inside a plugin, set the app to the app instead of the plugin.
                 #
                 if component_connection.app.is_a?(Plugin) && component_class.ancestors.include?(component_connection.app.parent.isolated(:Component))
-                  component_connection.instance_variable_set(:@app, component_connection.app.parent)
+                  component_connection = component_connection.class.from_connection(component_connection, :@app => component_connection.app.parent)
                 end
 
                 component_instance = component_class.new(
@@ -110,7 +110,7 @@ module Pakyow
                   presentables: component_connection.values,
                   presenter_class: component_instance.class.__presenter_class,
                   composer: Composers::Component.new(composer.view_path, current_path),
-                  mode: mode
+                  modes: modes
                 )
 
                 # Render to the main buffer.
@@ -129,7 +129,7 @@ module Pakyow
               end
             else
               initialize_renderable_components(
-                component_view, app: app, composer: composer, mode: mode, path: current_path
+                component_view, app: app, composer: composer, modes: modes, path: current_path
               )
             end
           end

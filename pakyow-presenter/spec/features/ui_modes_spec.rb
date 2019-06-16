@@ -86,7 +86,7 @@ RSpec.describe "presenting a view that defines one or more ui mode" do
       Proc.new do
         controller do
           default do
-            render "/presentation/ui_modes", mode: :two
+            render "/presentation/ui_modes", modes: [:two]
           end
         end
 
@@ -149,7 +149,7 @@ RSpec.describe "presenting a view that defines one or more ui mode" do
         Proc.new do
           controller do
             default do
-              render "/presentation/ui_modes/non-binding", mode: :one
+              render "/presentation/ui_modes/non-binding", modes: [:one]
             end
           end
         end
@@ -173,6 +173,60 @@ RSpec.describe "presenting a view that defines one or more ui mode" do
         expect(result).not_to include_sans_whitespace(
           <<~HTML
             <h1>two</h1>
+          HTML
+        )
+      end
+    end
+  end
+
+  context "global mode is defined" do
+    let :app_def do
+      Proc.new do
+        mode :"signed-in" do |connection|
+          connection.params.include?(:user)
+        end
+
+        mode :"signed-out" do |connection|
+          !connection.params.include?(:user)
+        end
+      end
+    end
+
+    context "global mode is applicable" do
+      it "places the view in the mode" do
+        expect(call("/modes/global")[2]).to include_sans_whitespace(
+          <<~HTML
+            <div>
+              not signed in
+            </div>
+          HTML
+        )
+
+        expect(call("/modes/global")[2]).not_to include_sans_whitespace(
+          <<~HTML
+            <div>
+              signed in!
+            </div>
+          HTML
+        )
+      end
+    end
+
+    context "global mode is not applicable" do
+      it "does not place the view in the mode" do
+        expect(call("/modes/global?user=true")[2]).to include_sans_whitespace(
+          <<~HTML
+            <div>
+              signed in!
+            </div>
+          HTML
+        )
+
+        expect(call("/modes/global?user=true")[2]).not_to include_sans_whitespace(
+          <<~HTML
+            <div>
+              not signed in
+            </div>
           HTML
         )
       end

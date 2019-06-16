@@ -9,9 +9,9 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          build do |view, mode:|
+          build do |view, modes:|
             unless Pakyow.env?(:prototype)
-              PlaceInMode.perform(view, mode)
+              PlaceInMode.perform(view, modes)
             end
           end
 
@@ -35,16 +35,14 @@ module Pakyow
         end
 
         # @api private
-        def self.perform(view, mode)
-          return unless mode
-
-          if mode == :default
-            mode = view.info(:mode) || mode
+        def self.perform(view, modes)
+          if modes.length == 1 && modes.first == :default
+            modes = view.info(:modes) || modes
           end
 
-          mode = mode.to_sym
+          modes.map!(&:to_sym)
           view.object.each_significant_node(:mode).select { |node|
-            node.label(:mode) != mode
+            !modes.include?(node.label(:mode))
           }.each(&:remove)
         end
       end

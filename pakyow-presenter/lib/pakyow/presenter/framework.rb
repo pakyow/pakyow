@@ -11,6 +11,7 @@ require "pakyow/presenter/behavior/config"
 require "pakyow/presenter/behavior/error_rendering"
 require "pakyow/presenter/behavior/implicit_rendering"
 require "pakyow/presenter/behavior/initializing"
+require "pakyow/presenter/behavior/modes"
 require "pakyow/presenter/behavior/watching"
 
 require "pakyow/presenter/helpers/exposures"
@@ -129,6 +130,7 @@ module Pakyow
           include Behavior::Config
           include Behavior::ErrorRendering
           include Behavior::Initializing
+          include Behavior::Modes
           include Behavior::Watching
 
           def view_info_for_path(path)

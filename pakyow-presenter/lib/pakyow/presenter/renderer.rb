@@ -32,8 +32,8 @@ module Pakyow
       # @api private
       attr_reader :app, :presentables, :presenter
 
-      def initialize(app:, presentables:, presenter_class:, composer:, mode: :default)
-        @app, @presentables, @presenter_class, @composer, @mode = app, presentables, presenter_class, composer, mode
+      def initialize(app:, presentables:, presenter_class:, composer:, modes: [:default])
+        @app, @presentables, @presenter_class, @composer, @modes = app, presentables, presenter_class, composer, modes
         initialize_presenter
       end
 
@@ -53,7 +53,7 @@ module Pakyow
           },
           presenter_class: @presenter_class,
           composer: @composer,
-          mode: @mode
+          modes: @modes
         }
       end
 
@@ -72,18 +72,18 @@ module Pakyow
 
       def initialize_presenter
         @presenter = @presenter_class.new(
-          find_or_build_presenter_view(@app, @composer, @presenter_class, @mode),
+          find_or_build_presenter_view(@app, @composer, @presenter_class, @modes),
           presentables: @presentables, app: @app
         )
       end
 
-      def find_or_build_presenter_view(app, composer, presenter, mode)
-        presenter_view_key = [composer.key, presenter, mode]
+      def find_or_build_presenter_view(app, composer, presenter, modes)
+        presenter_view_key = [composer.key, presenter, modes]
 
         unless presenter_view = self.class.__presenter_views[presenter_view_key]
           presenter_view = composer.view(app: app)
 
-          self.class.build!(presenter_view, app: app, mode: mode, composer: composer)
+          self.class.build!(presenter_view, app: app, modes: modes, composer: composer)
 
           if composer.respond_to?(:post_process)
             presenter_view = composer.post_process(presenter_view)
@@ -102,7 +102,13 @@ module Pakyow
         using Support::Refinements::Proc::Introspection
         using Support::Refinements::String::Normalization
 
-        def render(connection, view_path: nil, presenter_path: nil, mode: :default)
+        def render(connection, view_path: nil, presenter_path: nil, modes: [:default])
+          connection.app.__ui_modes.each do |mode, block|
+            if block.call(connection)
+              modes << mode
+            end
+          end
+
           view_path = if view_path
             String.normalize_path(view_path)
           else
@@ -124,7 +130,7 @@ module Pakyow
             presentables: connection.values,
             presenter_class: presenter,
             composer: Composers::View.new(view_path),
-            mode: mode
+            modes: modes
           )
 
           connection.set_header("content-type", "text/html")
@@ -160,7 +166,7 @@ module Pakyow
           end
         end
 
-        def build!(view, app:, mode:, composer:)
+        def build!(view, app:, modes:, composer:)
           @__build_fns.each do |fn|
             options = {}
 
@@ -168,8 +174,8 @@ module Pakyow
               options[:app] = app
             end
 
-            if fn.keyword_argument?(:mode)
-              options[:mode] = mode
+            if fn.keyword_argument?(:modes)
+              options[:modes] = modes
             end
 
             if fn.keyword_argument?(:composer)

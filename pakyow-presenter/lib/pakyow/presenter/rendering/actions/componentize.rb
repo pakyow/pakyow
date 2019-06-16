@@ -11,7 +11,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          build do |view, app:, composer:, mode:|
+          build do |view, app:, composer:|
             if app.config.presenter.componentize
               view.object.each_significant_node(:form) do |form|
                 form.instance_variable_get(:@significance) << :component

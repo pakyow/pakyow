@@ -117,15 +117,7 @@ module Pakyow
     end
 
     def call(connection)
-      instance = isolated(:Connection).allocate
-
-      connection.instance_variables.each do |ivar|
-        instance.instance_variable_set(ivar, connection.instance_variable_get(ivar))
-      end
-
-      instance.instance_variable_set(:@app, self)
-
-      super(instance)
+      super(isolated(:Connection).from_connection(connection, :@app => self))
     end
 
     def method_missing(method_name, *args, &block)
@@ -153,6 +145,8 @@ module Pakyow
     end
 
     def helper_caller(helper_context, connection, call_context)
+      connection = connection.class.from_connection(connection, :@app => self)
+
       HelperCaller.new(
         plugin: self,
         connection: connection,

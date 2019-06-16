@@ -41,6 +41,17 @@ module Pakyow
       def pp(*args)
         Kernel.pp(*args)
       end
+
+      # @api private
+      def self.from_connection(connection, **overrides)
+        instance = allocate
+
+        connection.instance_variables.each do |ivar|
+          instance.instance_variable_set(ivar, overrides[ivar] || connection.instance_variable_get(ivar))
+        end
+
+        instance
+      end
     end
   end
 end
