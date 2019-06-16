@@ -232,7 +232,7 @@ module Pakyow
               }
 
               if presentation_logic
-                presentation_logic[:block].call(presenter, binder.object)
+                presenter.instance_exec(binder.object, &presentation_logic[:block])
               end
             end
 
