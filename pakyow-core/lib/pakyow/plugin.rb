@@ -158,6 +158,16 @@ module Pakyow
       @state.each(&:load_frontend)
     end
 
+    def exposed_value_name(name)
+      prefix = if self.class.__object_name.name == :default
+        self.class.plugin_name
+      else
+        "#{self.class.plugin_name}(#{self.class.__object_name.name})"
+      end
+
+      :"__#{prefix}.#{name}"
+    end
+
     def _dump(_)
       Marshal.dump(
         {

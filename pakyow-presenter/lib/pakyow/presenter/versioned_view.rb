@@ -10,11 +10,11 @@ module Pakyow
     class VersionedView < SimpleDelegator
       DEFAULT_VERSION = :default
 
-      # @api private
-      attr_reader :versions
+      attr_reader :names
 
       def initialize(versions)
         @versions = versions
+        @names = self.versions.map { |versioned_view| versioned_view.label(:version) }
         determine_working_version
         @used = false
       end
@@ -23,6 +23,7 @@ module Pakyow
         super
 
         @versions = @versions.map(&:dup)
+        @names = @names.map(&:dup)
         determine_working_version
       end
 
@@ -33,6 +34,7 @@ module Pakyow
           version.soft_copy
         })
 
+        instance.instance_variable_set(:@names, @names)
         instance.instance_variable_set(:@used, @used)
         instance.send(:determine_working_version)
 
@@ -116,6 +118,19 @@ module Pakyow
             }
           else
             versioned_view.object.labeled?(:versioned)
+          end
+        }
+      end
+
+      def versions
+        @versions.each_with_object([]) { |versioned_view, versions|
+          case versioned_view.object
+          when StringDoc::MetaNode
+            versioned_view.object.nodes.each do |node|
+              versions << View.from_object(node)
+            end
+          else
+            versions << versioned_view
           end
         }
       end

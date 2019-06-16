@@ -23,10 +23,10 @@ module Pakyow
     class Presenter
       extend Support::Makeable
       extend Support::ClassState
-      class_state :__version_logic, default: {}, inheritable: true
       class_state :__attached_renders, default: [], inheritable: true
       class_state :__global_options, default: {}, inheritable: true
       class_state :__presentation_logic, default: {}, inheritable: true
+      class_state :__versioning_logic, default: {}, inheritable: true
 
       using Support::Refinements::Array::Ensurable
 
@@ -237,7 +237,23 @@ module Pakyow
             end
 
             if presenter.view.is_a?(VersionedView)
-              presenter.use_implicit_version unless presenter.view.used?
+              unless presenter.view.used? || self.class.__versioning_logic.empty?
+                # Use global versions.
+                #
+                presenter.view.names.each do |version|
+                  self.class.__versioning_logic[version]&.each do |logic|
+                    if presenter.instance_exec(binder.object, &logic[:block])
+                      presenter.use(version); break
+                    end
+                  end
+                end
+              end
+
+              # If we still haven't used a version, use one implicitly.
+              #
+              unless presenter.view.used?
+                presenter.use_implicit_version
+              end
 
               used_view = case presenter.view.object
               when StringDoc::MetaNode
@@ -573,6 +589,14 @@ module Pakyow
 
           (@__presentation_logic[binding_name] ||= []) << {
             block: block, channel: channel
+          }
+        end
+
+        # Defines a versioning block called when +version_name+ is presented.
+        #
+        def version(version_name, &block)
+          (@__versioning_logic[version_name] ||= []) << {
+            block: block
           }
         end
 

@@ -118,7 +118,11 @@ module Pakyow
           presenter_path = if presenter_path
             String.normalize_path(presenter_path)
           else
-            view_path
+            view_path.dup
+          end
+
+          if connection.app.is_a?(Plugin) && connection.app.class.mount_path != "/"
+            presenter_path.gsub!(/^#{connection.app.class.mount_path}/, "")
           end
 
           presenter = find_presenter(connection.app, presenter_path)
