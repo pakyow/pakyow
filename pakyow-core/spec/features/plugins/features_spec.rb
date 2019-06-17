@@ -42,6 +42,10 @@ RSpec.describe "plugin features" do
     expect(Pakyow.apps.first.plugs.first.feature?(:feature_two)).to be(true)
   end
 
+  it "loads the feature initializers that exist" do
+    expect(Pakyow.apps.first.plugs.first.config.feature1.foo).to eq(:bar)
+  end
+
   context "feature is disabled" do
     let :app_def do
       Proc.new do

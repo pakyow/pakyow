@@ -211,6 +211,11 @@ module Pakyow
     def load_feature_state
       @features.each do |feature|
         @state << State.new(self, path: feature[:path])
+
+        initializer = File.join(feature[:path], "initializer.rb")
+        if File.exist?(initializer)
+          instance_eval(File.read(initializer), initializer)
+        end
       end
     end
 
