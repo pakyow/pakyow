@@ -3,10 +3,6 @@ RSpec.describe "rending components whose path is affected by the build step" do
 
   let :app_def do
     Proc.new do
-      configure :test do
-        config.presenter.componentize = true
-      end
-
       component :bar do
       end
 
@@ -34,7 +30,7 @@ RSpec.describe "rending components whose path is affected by the build step" do
     expect(call("/components/modes")[2]).to eq_sans_whitespace(
       <<~HTML
         <!DOCTYPE html>
-        <html data-ui="navigable">
+        <html>
           <head>
             <title>default</title>
           </head>

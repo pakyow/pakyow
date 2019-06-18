@@ -19,7 +19,6 @@ RSpec.configure do |spec_config|
       configure do
         config.presenter.path = File.join(File.expand_path("../", __FILE__), "features/support/views")
         config.presenter.embed_authenticity_token = false
-        config.presenter.componentize = false
       end
     end
   end

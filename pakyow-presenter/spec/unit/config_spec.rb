@@ -24,12 +24,6 @@ RSpec.describe "presenter config" do
     end
   end
 
-  describe "componentized" do
-    it "has a default value" do
-      expect(config.componentize).to eq(true)
-    end
-  end
-
   describe "app.version" do
     before do
       expect(Pakyow::Support::PathVersion).to receive(:build).with(config.path).and_return("digest")

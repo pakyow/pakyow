@@ -23,7 +23,6 @@ require "pakyow/presenter/renderable"
 
 require "pakyow/presenter/renderer"
 
-require "pakyow/presenter/rendering/actions/componentize"
 require "pakyow/presenter/rendering/actions/cleanup_prototype_nodes"
 require "pakyow/presenter/rendering/actions/cleanup_unbound_bindings"
 require "pakyow/presenter/rendering/actions/create_template_nodes"
@@ -57,7 +56,6 @@ module Pakyow
           end
 
           isolate Renderer do
-            include Actions::Componentize
             include Actions::CleanupPrototypeNodes
             include Actions::CleanupUnboundBindings
             include Actions::CreateTemplateNodes

@@ -3,10 +3,6 @@ RSpec.describe "rendering with backend components" do
 
   let :app_def do
     Proc.new do
-      configure :test do
-        config.presenter.componentize = true
-      end
-
       component :single do
         def perform
           expose :posts, [
@@ -23,7 +19,7 @@ RSpec.describe "rendering with backend components" do
     expect(call("/components")[2]).to eq_sans_whitespace(
       <<~HTML
         <!DOCTYPE html>
-        <html data-ui="navigable">
+        <html>
           <head>
             <title>default</title>
           </head>
@@ -51,10 +47,6 @@ RSpec.describe "rendering with backend components" do
   context "component is used multiple times" do
     let :app_def do
       Proc.new do
-        configure :test do
-          config.presenter.componentize = true
-        end
-
         component :multiple do
           def perform
             expose :posts, [
@@ -72,7 +64,7 @@ RSpec.describe "rendering with backend components" do
       expect(call("/components/multiple")[2]).to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
-          <html data-ui="navigable">
+          <html>
             <head>
               <title>default</title>
             </head>
@@ -133,10 +125,6 @@ RSpec.describe "rendering with backend components" do
   context "component is nested within another component" do
     let :app_def do
       Proc.new do
-        configure :test do
-          config.presenter.componentize = true
-        end
-
         component :parent do
           def perform
             expose :posts, [
@@ -161,7 +149,7 @@ RSpec.describe "rendering with backend components" do
       expect(call("/components/nested")[2]).to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
-          <html data-ui="navigable">
+          <html>
             <head>
               <title>default</title>
             </head>
@@ -262,10 +250,6 @@ RSpec.describe "rendering with backend components" do
   context "controller exposes a value" do
     let :app_def do
       Proc.new do
-        configure :test do
-          config.presenter.componentize = true
-        end
-
         controller "/components" do
           default do
             expose :posts, [
@@ -288,7 +272,7 @@ RSpec.describe "rendering with backend components" do
       expect(call("/components")[2]).to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
-          <html data-ui="navigable">
+          <html>
             <head>
               <title>default</title>
             </head>
@@ -318,10 +302,6 @@ RSpec.describe "rendering with backend components" do
   context "controller and component expose a value for the same binding" do
     let :app_def do
       Proc.new do
-        configure :test do
-          config.presenter.componentize = true
-        end
-
         controller "/components" do
           default do
             expose :posts, [
@@ -348,7 +328,7 @@ RSpec.describe "rendering with backend components" do
       expect(call("/components")[2]).to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
-          <html data-ui="navigable">
+          <html>
             <head>
               <title>default</title>
             </head>
@@ -378,10 +358,6 @@ RSpec.describe "rendering with backend components" do
   context "controller exposes a system value" do
     let :app_def do
       Proc.new do
-        configure :test do
-          config.presenter.componentize = true
-        end
-
         controller "/components" do
           default do
             expose :__posts, [
@@ -404,7 +380,7 @@ RSpec.describe "rendering with backend components" do
       expect(call("/components")[2]).to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
-          <html data-ui="navigable">
+          <html>
             <head>
               <title>default</title>
             </head>
@@ -434,10 +410,6 @@ RSpec.describe "rendering with backend components" do
   context "component defines a presenter" do
     let :app_def do
       Proc.new do
-        configure :test do
-          config.presenter.componentize = true
-        end
-
         component :single do
           presenter do
             render node: -> { self } do
@@ -452,7 +424,7 @@ RSpec.describe "rendering with backend components" do
       expect(call("/components")[2]).to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
-          <html data-ui="navigable">
+          <html>
             <head>
               <title>default</title>
             </head>
@@ -495,10 +467,6 @@ RSpec.describe "rendering with backend components" do
   context "component fails to render" do
     let :app_def do
       Proc.new do
-        configure :test do
-          config.presenter.componentize = true
-        end
-
         component :single do
           presenter do
             render node: -> { self } do
@@ -513,7 +481,7 @@ RSpec.describe "rendering with backend components" do
       expect(call("/components")[2]).to eq_sans_whitespace(
         <<~HTML
           <!DOCTYPE html>
-          <html data-ui="navigable">
+          <html>
             <head>
               <title>default</title>
             </head>

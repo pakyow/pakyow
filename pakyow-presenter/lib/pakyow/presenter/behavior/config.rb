@@ -16,7 +16,6 @@ module Pakyow
             end
 
             setting :embed_authenticity_token, true
-            setting :componentize, true
 
             setting :version do
               Support::PathVersion.build(config.presenter.path)

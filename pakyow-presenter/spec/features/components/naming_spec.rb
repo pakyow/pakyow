@@ -3,10 +3,6 @@ RSpec.describe "naming presenters in backend components" do
 
   let :app_def do
     Proc.new do
-      configure :test do
-        config.presenter.componentize = true
-      end
-
       component :single do
         presenter do
           render :post do
