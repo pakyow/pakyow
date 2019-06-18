@@ -27,8 +27,8 @@ describe("initializing components in a node", () => {
       </head>
       <body>
         <div data-ui="foo"></div>
-        <div data-ui="bar" data-config="key1: val1"></div>
-        <div data-ui="baz" data-config="key1: val1; key2: val2"></div>
+        <div data-ui="bar(key1: val1)"></div>
+        <div data-ui="baz(val1, key2: val2)"></div>
       </body>
     `;
 
@@ -41,20 +41,20 @@ describe("initializing components in a node", () => {
 
   test("initializes each component with a view", () => {
     expect(pw.Component.instances[0].view.node.dataset.ui).toEqual("foo")
-    expect(pw.Component.instances[1].view.node.dataset.ui).toEqual("bar")
-    expect(pw.Component.instances[2].view.node.dataset.ui).toEqual("baz")
+    expect(pw.Component.instances[1].view.node.dataset.ui).toEqual("bar(key1: val1)")
+    expect(pw.Component.instances[2].view.node.dataset.ui).toEqual("baz(val1, key2: val2)")
   });
 
   test("initializes each component with a node", () => {
     expect(pw.Component.instances[0].node.dataset.ui).toEqual("foo")
-    expect(pw.Component.instances[1].node.dataset.ui).toEqual("bar")
-    expect(pw.Component.instances[2].node.dataset.ui).toEqual("baz")
+    expect(pw.Component.instances[1].node.dataset.ui).toEqual("bar(key1: val1)")
+    expect(pw.Component.instances[2].node.dataset.ui).toEqual("baz(val1, key2: val2)")
   });
 
   test("initializes each component with its config", () => {
     expect(pw.Component.instances[0].config).toEqual({})
     expect(pw.Component.instances[1].config).toEqual({ key1: "val1" })
-    expect(pw.Component.instances[2].config).toEqual({ key1: "val1", key2: "val2" })
+    expect(pw.Component.instances[2].config).toEqual({ "val1": true, key2: "val2" })
   });
 
   test("does not reinitialize a component that exists", () => {
@@ -69,7 +69,7 @@ describe("parsing component config with values that contain colons", () => {
       <head>
       </head>
       <body>
-        <div data-ui="foo" data-config="key1: val:1; key2: val2"></div>
+        <div data-ui="foo(key1: val:1, key2: val2)"></div>
       </body>
     `;
 
@@ -78,6 +78,47 @@ describe("parsing component config with values that contain colons", () => {
 
   test("parses correctly", () => {
     expect(pw.Component.instances[0].config).toEqual({ key1: "val:1", key2: "val2" })
+  });
+});
+
+describe("initializing multiple components for a node", () => {
+  beforeEach(() => {
+    document.querySelector("html").innerHTML = `
+      <head>
+      </head>
+      <body>
+        <div data-ui="foo; bar(key1: val1); baz(val1, key2: val2)"></div>
+      </body>
+    `;
+
+    pw.Component.init(document.querySelector("html"));
+  });
+
+  test("initializes each component", () => {
+    expect(pw.Component.instances.length).toBe(3);
+  });
+
+  test("initializes each component with a view", () => {
+    expect(pw.Component.instances[0].view.node.dataset.ui).toEqual("foo; bar(key1: val1); baz(val1, key2: val2)")
+    expect(pw.Component.instances[1].view.node.dataset.ui).toEqual("foo; bar(key1: val1); baz(val1, key2: val2)")
+    expect(pw.Component.instances[2].view.node.dataset.ui).toEqual("foo; bar(key1: val1); baz(val1, key2: val2)")
+  });
+
+  test("initializes each component with a node", () => {
+    expect(pw.Component.instances[0].node.dataset.ui).toEqual("foo; bar(key1: val1); baz(val1, key2: val2)")
+    expect(pw.Component.instances[1].node.dataset.ui).toEqual("foo; bar(key1: val1); baz(val1, key2: val2)")
+    expect(pw.Component.instances[2].node.dataset.ui).toEqual("foo; bar(key1: val1); baz(val1, key2: val2)")
+  });
+
+  test("initializes each component with its config", () => {
+    expect(pw.Component.instances[0].config).toEqual({})
+    expect(pw.Component.instances[1].config).toEqual({ key1: "val1" })
+    expect(pw.Component.instances[2].config).toEqual({ "val1": true, key2: "val2" })
+  });
+
+  test("does not reinitialize a component that exists", () => {
+    pw.Component.init(document.querySelector("html"));
+    expect(pw.Component.instances.length).toBe(3);
   });
 });
 

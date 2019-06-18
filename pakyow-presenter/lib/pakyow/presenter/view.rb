@@ -180,17 +180,18 @@ module Pakyow
       def component(name, renderable: false)
         name = name.to_sym
         components(renderable: renderable).find { |component|
-          component.object.label(:component) == name
+          component.object.label(:components).any? { |possible_component|
+            possible_component[:name] == name
+          }
         }
       end
 
       # Returns all components.
       #
       def components(renderable: false)
-        @object.each_significant_node_without_descending_into_type(
-          renderable ? :renderable_component : :component,
-          descend: true
-        ).map { |node|
+        @object.each_significant_node_without_descending_into_type(:component).select { |node|
+          !renderable || node.label(:components).any? { |component| component[:renderable] }
+        }.map { |node|
           View.from_object(node)
         }
       end

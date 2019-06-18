@@ -93,7 +93,9 @@ module Pakyow
                 else
                   nil
                 end
-              }.compact
+              }.compact.uniq { |subscribable|
+                subscribable.source.__getobj__
+              }
             end
           end
         end

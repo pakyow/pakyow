@@ -34,7 +34,7 @@ RSpec.describe "reflected resource new endpoint" do
     it "defines an endpoint" do
       expect(call("/posts/new")[2]).to include_sans_whitespace(
         <<~HTML
-          <form data-b="post" data-c="form" data-ui="form" class="" action="/posts" method="post">
+          <form data-b="post" data-ui="form" data-c="form" class="" action="/posts" method="post">
         HTML
       )
     end

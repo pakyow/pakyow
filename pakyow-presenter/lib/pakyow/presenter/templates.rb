@@ -74,6 +74,18 @@ module Pakyow
         true
       end
 
+      # Yields each template.
+      #
+      def each
+        @info.each do |_path, info|
+          yield info[:layout]
+          yield info[:page]
+          info[:partials].each do |_name, partial|
+            yield partial
+          end
+        end
+      end
+
       private
 
       def build_config(config)

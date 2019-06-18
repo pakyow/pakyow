@@ -24,8 +24,10 @@ module Pakyow
                   nodes << Pakyow::Presenter::View.from_object(object)
                 end
 
-                object.each_significant_node_without_descending_into_type(:renderable_component, descend: true) do |node|
-                  nodes << Pakyow::Presenter::View.from_object(node)
+                object.each_significant_node_without_descending_into_type(:component, descend: true) do |node|
+                  if node.label(:components).any? { |c| c[:renderable ] }
+                    nodes << Pakyow::Presenter::View.from_object(node)
+                  end
                 end
 
                 nodes

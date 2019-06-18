@@ -13,6 +13,22 @@ require "pakyow/ui/behavior/rendering/install_transforms"
 module Pakyow
   module UI
     class Framework < Pakyow::Framework(:ui)
+      # @api private
+      module PresenterForContext
+        def presenter_for_context(presenter_class, context)
+          if context.presentables.include?(:__ui_transform)
+            instance = find_ui_presenter_for(presenter_class).new(
+              context.view, app: context.app, presentables: context.presentables
+            )
+
+            instance.instance_variable_set(:@calls, context.calls)
+            instance
+          else
+            super
+          end
+        end
+      end
+
       def boot
         object.class_eval do
           register_helper :passive, Helpers
@@ -25,22 +41,12 @@ module Pakyow
             include Behavior::Rendering::InstallTransforms
           end
 
+          prepend PresenterForContext
+
           ui_renderer = Class.new(isolated(:Renderer)) do
             def marshal_load(state)
               deserialize(state)
-
-              if @app.is_a?(Plugin)
-                # Look for the presenter in the plugin first, falling back to the app.
-                #
-                presenter_class = @app.parent.ui_presenters.find { |klass|
-                  klass.ancestors.include?(@presenter_class)
-                }
-              end
-
-              @presenter_class = presenter_class || @app.ui_presenters.find { |klass|
-                klass.ancestors.include?(@presenter_class)
-              }
-
+              @presenter_class = @app.find_ui_presenter_for(@presenter_class)
               initialize_presenter
             end
 

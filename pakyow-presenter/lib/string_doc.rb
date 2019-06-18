@@ -495,15 +495,13 @@ class StringDoc
 
   # Attributes that should be prefixed with +data-+
   #
-  DATA_ATTRS = %i(ui config binding endpoint endpoint-action version).freeze
+  DATA_ATTRS = %i(ui binding endpoint endpoint-action version).freeze
 
   # Attributes that will be turned into +StringDoc+ labels
   #
-  LABEL_ATTRS = %i(ui config mode version include exclude endpoint endpoint-action prototype binding).freeze
+  LABEL_ATTRS = %i(ui mode version include exclude endpoint endpoint-action prototype binding).freeze
 
-  LABEL_MAPPING = {
-    ui: :component
-  }
+  LABEL_MAPPING = {}.freeze
 
   # Attributes that should be deleted from the view
   #
@@ -514,7 +512,7 @@ class StringDoc
     endpoint: :e,
     "endpoint-action": :"e-a",
     version: :v
-  }
+  }.freeze
 
   def attributes_hash(element)
     StringDoc.attributes(element).each_with_object({}) { |attribute, elements|

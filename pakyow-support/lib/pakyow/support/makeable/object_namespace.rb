@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "pakyow/support/inflector"
+
 module Pakyow
   module Support
     # @api private
@@ -14,6 +16,12 @@ module Pakyow
 
       def to_s
         @namespaces.join("/")
+      end
+
+      def constant
+        @namespaces.map { |namespace|
+          Support.inflector.camelize(namespace)
+        }.join("::")
       end
     end
   end

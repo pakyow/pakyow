@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "pakyow/support/inflector"
 require "pakyow/support/makeable/object_namespace"
 
 module Pakyow
@@ -34,6 +35,10 @@ module Pakyow
 
       def to_s
         [@namespace, @name].join("/")
+      end
+
+      def constant
+        [@namespace.constant, Support.inflector.camelize(@name)].join("::")
       end
     end
   end

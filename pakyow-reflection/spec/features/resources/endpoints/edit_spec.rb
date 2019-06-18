@@ -36,7 +36,7 @@ RSpec.describe "reflected resource edit endpoint" do
 
       expect(response[2]).to include_sans_whitespace(
         <<~HTML
-          <form data-b="post" data-c="form" data-ui="form" class="" action="/posts/2" method="post" data-id="2">
+          <form data-b="post" data-ui="form" data-c="form" class="" action="/posts/2" method="post" data-id="2">
         HTML
       )
 

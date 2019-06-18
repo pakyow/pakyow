@@ -40,7 +40,7 @@ module Pakyow
                   end
                 end
 
-                attributes["data-config"] = "endpoint: #{endpoint}?id=#{presentables[:__verifier].sign(presentables[:__socket_client_id])}"
+                attributes["data-ui"] = "socket(endpoint: #{endpoint}?id=#{presentables[:__verifier].sign(presentables[:__socket_client_id])})"
               end
             end
 

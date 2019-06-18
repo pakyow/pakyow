@@ -10,6 +10,20 @@ module Pakyow
       module Recording
         extend Support::Extension
 
+        def find_ui_presenter_for(presenter_class)
+          if is_a?(Plugin)
+            # Look for the presenter in the plugin first, falling back to the app.
+            #
+            ui_presenter_class = parent.ui_presenters.find { |klass|
+              klass.ancestors.include?(presenter_class)
+            }
+          end
+
+          ui_presenter_class ||= @ui_presenters.find { |klass|
+            klass.ancestors.include?(presenter_class)
+          }
+        end
+
         apply_extension do
           # Create subclasses of each presenter, then make the subclasses recordable.
           # These subclasses will be used when performing a ui presentation instead
@@ -20,6 +34,8 @@ module Pakyow
               state(:presenter)
             ).concat(
               state(:component).map(&:__presenter_class)
+            ).concat(
+              @compound_presenters
             ).map { |presenter_class|
               Class.new(presenter_class) do
                 include Recordable

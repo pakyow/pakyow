@@ -81,7 +81,7 @@ describe("transformations", () => {
 
       var diff = htmlDiffer.diffHtml(
         comparable(document), comparable(resultDOM.window.document)
-       );
+      );
 
       expect(
         htmlLogger.getDiffText(diff)

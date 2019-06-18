@@ -142,3 +142,58 @@ RSpec.describe "interacting with a non-renderable component" do
     end
   end
 end
+
+RSpec.describe "presenting two components on one node" do
+  include_context "app"
+  include_context "websocket intercept"
+
+  let :app_init do
+    Proc.new do
+      resource :posts, "/posts" do
+        disable_protection :csrf
+
+        create do
+          verify do
+            required :post do
+              required :title
+            end
+          end
+
+          data.posts.create(params[:post]); halt
+        end
+      end
+
+      source :posts, timestamps: false do
+        primary_id
+        attribute :title
+      end
+
+      component :posts do
+        def perform
+          expose :posts, data.posts
+        end
+      end
+
+      component :count do
+        def perform
+          expose :count, data.posts.count
+        end
+
+        presenter do
+          render do
+            find(:count).with do |view|
+              view.html = count
+              view.object.set_label(:bound, true)
+            end
+          end
+        end
+      end
+    end
+  end
+
+  it "transforms" do |x|
+    save_ui_case(x, path: "/components/multi-components") do
+      call("/posts", method: :post, params: { post: { title: "foo" } })
+    end
+  end
+end

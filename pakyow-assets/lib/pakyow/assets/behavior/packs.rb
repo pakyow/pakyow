@@ -81,8 +81,10 @@ module Pakyow
         end
 
         def component_packs(view)
-          view.object.each_significant_node(:component, descend: true).map { |node|
-            node.label(:component)
+          view.object.each_significant_node(:component, descend: true).flat_map { |node|
+            node.label(:components).map { |component|
+              component[:name]
+            }
           }
         end
 

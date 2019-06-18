@@ -74,6 +74,42 @@ module Pakyow
             end
           end
 
+          # Build presenter classes for compound components.
+          #
+          after :initialize, priority: :high do
+            @compound_presenters = []
+
+            state(:templates).each do |templates|
+              templates.each do |template|
+                template.object.each_significant_node(:component, descend: true) do |node|
+                  if node.label(:components).count > 1
+                    component_classes = node.label(:components).each_with_object([]) { |component_label, arr|
+                      component_class = state(:component).find { |component|
+                        component.__object_name.name == component_label[:name]
+                      }
+
+                      if component_class
+                        arr << component_class
+                      end
+                    }
+
+                    if component_classes.count > 1
+                      @compound_presenters << Actions::RenderComponents.find_or_build_compound_presenter(
+                        self, component_classes
+                      )
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          def presenter_for_context(presenter_class, context)
+            presenter_class.new(
+              context.view, app: context.app, presentables: context.presentables
+            )
+          end
+
           stateful :binder,    isolated(:Binder)
           stateful :component, isolated(:Component)
           stateful :presenter, isolated(:Presenter)
@@ -113,6 +149,17 @@ module Pakyow
             self.class.include_helpers :global, isolated(:Binder)
             self.class.include_helpers :global, isolated(:Presenter)
             self.class.include_helpers :active, isolated(:Component)
+
+            # Override the app helper so that config returns the component config.
+            # FIXME: Find a clearer way to do this.
+            #
+            isolated(:Component) do
+              if instance_methods(false).include?(:config)
+                remove_method :config
+              end
+
+              attr_reader :config
+            end
           end
 
           # Let each renderer action attach renders to the app's presenter.
@@ -122,6 +169,8 @@ module Pakyow
               state(:presenter)
             ).concat(
               state(:component).map(&:__presenter_class)
+            ).concat(
+              @compound_presenters
             ).uniq.each do |presenter|
               isolated(:Renderer).attach!(presenter, app: self)
             end

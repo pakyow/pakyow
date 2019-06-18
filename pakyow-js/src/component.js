@@ -78,10 +78,14 @@ export default class {
 
   static componentFromView(view) {
     if (!instances.find((component) => { return component.view.node === view.node })) {
-      let object = components[view.node.dataset.ui] || this.create();
-      let instance = new object(view, this.parseConfig(view.node.dataset.config));
-      instances.push(instance);
-      instance.appear();
+      var uiComponents = this.parseUI(view.node.dataset.ui);
+
+      for (let uiComponent of uiComponents) {
+        let object = components[uiComponent.name] || this.create();
+        let instance = new object(view, uiComponent.config);
+        instances.push(instance);
+        instance.appear();
+      }
     }
   }
 
@@ -91,14 +95,41 @@ export default class {
     }
   }
 
+  static parseUI(uiString) {
+    return uiString.split(";").reduce((config, ui) => {
+      let splitUi = ui.split("(");
+      let uiName = splitUi[0].trim();
+      let uiConfig = {};
+
+      if (splitUi[1]) {
+        let configString = splitUi[1].trim();
+        configString = configString.substring(0, configString.length - 1);
+        uiConfig = this.parseConfig(configString);
+      }
+
+      config.push({ name: uiName, config: uiConfig });
+      return config;
+    }, []);
+  }
+
   static parseConfig(configString) {
     if (typeof configString === "undefined") {
       return {};
     }
 
-    return configString.split(";").reduce((config, option) => {
+    return configString.split(",").reduce((config, option) => {
       let splitOption = option.trim().split(":");
-      config[splitOption.shift().trim()] = splitOption.join(":").trim();
+
+      let key = splitOption.shift().trim();
+      let value;
+
+      if (splitOption.length === 0) {
+        value = true;
+      } else {
+        value = splitOption.join(":").trim();
+      }
+
+      config[key] = value;
       return config;
     }, {});
   }

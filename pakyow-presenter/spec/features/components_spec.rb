@@ -159,46 +159,72 @@ RSpec.describe "rendering with backend components" do
                 <div data-b="post">
                   <h1 data-b="title">post 1</h1>
 
-                  <div data-ui="child" style="color: red;">
-                    <script type="text/template" data-b="comment"><div data-b="comment">
-                      <p data-b="body">
-                        comment body here
-                      </p>
-                    </div></script>
+                  <div data-ui="child">
+                    <div data-b="comment">
+                      <p data-b="body">post 1, comment 1</p>
+                    </div>
+
+                    <script type="text/template" data-b="comment">
+                      <div data-b="comment">
+                        <p data-b="body">
+                          comment body here
+                        </p>
+                      </div>
+                    </script>
                   </div>
-                </div><div data-b="post">
+                </div>
+
+                <div data-b="post">
                   <h1 data-b="title">post 2</h1>
 
-                  <div data-ui="child" style="color: red;">
-                    <script type="text/template" data-b="comment"><div data-b="comment">
-                      <p data-b="body">
-                        comment body here
-                      </p>
-                    </div></script>
+                  <div data-ui="child">
+                    <script type="text/template" data-b="comment">
+                      <div data-b="comment">
+                        <p data-b="body">
+                          comment body here
+                        </p>
+                      </div>
+                    </script>
                   </div>
-                </div><div data-b="post">
-                  <h1 data-b="title">post 3</h1>
+                </div>
 
-                  <div data-ui="child" style="color: red;">
-                    <script type="text/template" data-b="comment"><div data-b="comment">
-                      <p data-b="body">
-                        comment body here
-                      </p>
-                    </div></script>
-                  </div>
-                </div><script type="text/template" data-b="post"><div data-b="post">
-                  <h1 data-b="title">
-                    title goes here
-                  </h1>
+                <div data-b="post">
+                  <h1 data-b="title">post 3</h1>
 
                   <div data-ui="child">
                     <div data-b="comment">
-                      <p data-b="body">
-                        comment body here
-                      </p>
+                      <p data-b="body">post 3, comment 1</p>
+                    </div>
+
+                    <div data-b="comment">
+                      <p data-b="body">post 3, comment 2</p>
+                    </div>
+
+                    <script type="text/template" data-b="comment">
+                      <div data-b="comment">
+                        <p data-b="body">
+                          comment body here
+                        </p>
+                      </div>
+                    </script>
+                  </div>
+                </div>
+
+                <script type="text/template" data-b="post">
+                  <div data-b="post">
+                    <h1 data-b="title">
+                      title goes here
+                    </h1>
+
+                    <div data-ui="child">
+                      <div data-b="comment">
+                        <p data-b="body">
+                          comment body here
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div></script>
+                </script>
               </div>
             </body>
           </html>
