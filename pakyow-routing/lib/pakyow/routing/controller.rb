@@ -595,8 +595,8 @@ module Pakyow
       #   path :baz
       #   # => "/baz"
       #
-      def group(name = nil, &block)
-        make_child(name, nil, &block)
+      def group(name = nil, **kwargs, &block)
+        make_child(name, nil, **kwargs, &block)
       end
 
       # Creates a group of routes and mounts them at a path, with an optional name. A namespace
@@ -618,9 +618,9 @@ module Pakyow
       #     end
       #   end
       #
-      def namespace(*args, &block)
+      def namespace(*args, **kwargs, &block)
         name, matcher = parse_name_and_matcher_from_args(*args)
-        make_child(name, matcher, &block)
+        make_child(name, matcher, **kwargs, &block)
       end
 
       # Creates a route template with a name and block. The block is evaluated within a

@@ -19,9 +19,9 @@ module Pakyow
 
       attr_reader :__object_name
 
-      def make(object_name, within: nil, **kwargs, &block)
+      def make(object_name, within: nil, set_const: true, **kwargs, &block)
         object_name = build_object_name(object_name, within: within)
-        object = find_or_define_object(object_name, kwargs)
+        object = find_or_define_object(object_name, kwargs, set_const)
 
         local_eval_method = eval_method
         object.send(eval_method) do
@@ -61,7 +61,7 @@ module Pakyow
         object_name
       end
 
-      def find_or_define_object(object_name, kwargs)
+      def find_or_define_object(object_name, kwargs, set_const)
         if object_name && ::Object.const_defined?(object_name.constant)
           existing_object = ::Object.const_get(object_name.constant)
 
@@ -72,7 +72,9 @@ module Pakyow
           end
         else
           define_object(kwargs).tap do |defined_object|
-            ObjectMaker.define_const_for_object_with_name(defined_object, object_name)
+            if set_const
+              ObjectMaker.define_const_for_object_with_name(defined_object, object_name)
+            end
           end
         end
       end

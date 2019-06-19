@@ -11,7 +11,7 @@ module Pakyow
       attr_reader :expander, :controller, :name
 
       extend Forwardable
-      def_delegators :@expander, *%i(default group namespace template).concat(Controller::DEFINABLE_HTTP_METHODS)
+      def_delegators :@expander, *%i(default template).concat(Controller::DEFINABLE_HTTP_METHODS)
       def_delegators :@controller, :action
 
       def initialize(template_name, controller, options, &template_block)
@@ -19,7 +19,7 @@ module Pakyow
 
         # Create the controller that stores available routes, groups, and namespaces.
         #
-        @expander = Controller.make
+        @expander = Controller.make(set_const: false)
 
         # Evaluate the template to define available routes, groups, and namespaces.
         #
@@ -68,6 +68,14 @@ module Pakyow
         # Set the expansion on the controller.
         #
         @controller.expansions << template_name
+      end
+
+      def group(*args, **kwargs, &block)
+        @expander.send(:group, *args, set_const: false, **kwargs, &block)
+      end
+
+      def namespace(*args, **kwargs, &block)
+        @expander.send(:namespace, *args, set_const: false, **kwargs, &block)
       end
     end
   end
