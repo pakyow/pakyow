@@ -7,10 +7,6 @@ RSpec.describe "configuring a plugin instance" do
     end
   end
 
-  after do
-    Object.send(:remove_const, :TestPlugin)
-  end
-
   include_context "app"
 
   let :app_def do

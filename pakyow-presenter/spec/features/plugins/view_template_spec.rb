@@ -6,10 +6,6 @@ RSpec.describe "rendering view templates" do
     end
   end
 
-  after do
-    Object.send(:remove_const, :TestPlugin)
-  end
-
   include_context "app"
 
   shared_examples :plugin_rendering do

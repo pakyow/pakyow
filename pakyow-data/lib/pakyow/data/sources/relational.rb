@@ -506,10 +506,14 @@ module Pakyow
           def make(name, adapter: Pakyow.config.data.default_adapter, connection: Pakyow.config.data.default_connection, state: nil, parent: nil, primary_id: true, timestamps: true, **kwargs, &block)
             super(name, state: state, parent: parent, adapter: adapter, connection: connection, attributes: {}, **kwargs) do
               adapter_class = Connection.adapter(adapter)
+
               if adapter_class.const_defined?("SourceExtension")
                 # Extend the source with any adapter-specific behavior.
                 #
-                include(adapter_class.const_get("SourceExtension"))
+                extension_module = adapter_class.const_get("SourceExtension")
+                unless ancestors.include?(extension_module)
+                  include(extension_module)
+                end
 
                 # Define default fields
                 #

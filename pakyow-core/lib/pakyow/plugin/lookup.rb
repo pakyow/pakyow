@@ -21,7 +21,7 @@ module Pakyow
             plugin_instance_name = plugin_instance_name.to_sym
 
             @plugs.find { |plug|
-              plug.class.plugin_name == plugin_name && plug.__object_name.name == plugin_instance_name
+              plug.class.plugin_name == plugin_name && plug.__object_name.namespace.parts.last == plugin_instance_name
             }
           end
         end

@@ -301,3 +301,31 @@ RSpec.describe "binding data via presenter, with a binder" do
     end
   end
 end
+
+RSpec.describe "defining the same binder twice" do
+  include_context "app"
+
+  let :app_def do
+    Proc.new do
+      binder :post do
+        def foo
+        end
+      end
+
+      binder :post do
+        def bar
+        end
+      end
+    end
+  end
+
+  it "does not create a second object" do
+    expect(Pakyow.apps.first.state(:binder).count).to eq(2)
+  end
+
+  it "extends the first object" do
+    expect(Pakyow.apps.first.state(:binder)[1].instance_methods(false).count).to eq(2)
+    expect(Pakyow.apps.first.state(:binder)[1].instance_methods(false)).to include(:foo)
+    expect(Pakyow.apps.first.state(:binder)[1].instance_methods(false)).to include(:bar)
+  end
+end

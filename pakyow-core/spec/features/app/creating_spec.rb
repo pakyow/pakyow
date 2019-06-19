@@ -15,10 +15,6 @@ RSpec.describe "creating an app" do
     Pakyow.app :test, &block
   end
 
-  after do
-    Test.send(:remove_const, :App)
-  end
-
   it "creates the app in a namespaced class" do
     create_app
     expect(defined?(Test::App)).to eq("constant")
@@ -47,8 +43,6 @@ RSpec.describe "creating an app" do
 
     expect($calls[0]).to eq(:initialize)
     expect($calls[1]).to eq(:boot)
-
-    Object.send(:remove_const, :FooFramework)
   end
 
   it "mounts the app" do
@@ -81,14 +75,10 @@ RSpec.describe "creating an app" do
       end
 
       Pakyow.register_framework :foo, FooFramework
-      create_app_without([:foo])
-    end
-
-    after do
-      Object.send(:remove_const, :FooFramework)
     end
 
     it "does not load the excluded framework" do
+      create_app_without([:foo])
       expect(Test::App.ancestors).not_to include(FooFramework)
     end
 

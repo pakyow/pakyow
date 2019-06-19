@@ -6,10 +6,6 @@ RSpec.describe "looking up plugin instances" do
     end
   end
 
-  after do
-    Object.send(:remove_const, :TestPlugin)
-  end
-
   include_context "app"
 
   let :app_def do
@@ -20,15 +16,15 @@ RSpec.describe "looking up plugin instances" do
   end
 
   it "looks up an unnamed plugin" do
-    expect(Pakyow.app(:test).plugs.testable.class.name).to eq("Test::Testable::Default")
+    expect(Pakyow.app(:test).plugs.testable.class.name).to eq("Test::Testable::Default::Plug")
   end
 
   it "looks up an unnamed plugin as default" do
-    expect(Pakyow.app(:test).plugs.testable(:default).class.name).to eq("Test::Testable::Default")
+    expect(Pakyow.app(:test).plugs.testable(:default).class.name).to eq("Test::Testable::Default::Plug")
   end
 
   it "looks up a named plugin" do
-    expect(Pakyow.app(:test).plugs.testable(:foo).class.name).to eq("Test::Testable::Foo")
+    expect(Pakyow.app(:test).plugs.testable(:foo).class.name).to eq("Test::Testable::Foo::Plug")
   end
 
   context "plugin is unknown" do

@@ -6,16 +6,6 @@ RSpec.describe "failure caused by plugging an unknown plugin" do
     end
   end
 
-  after do
-    Object.send(:remove_const, :TestPlugin)
-
-    Foo.constants(false).each do |const_to_unset|
-      Foo.__send__(:remove_const, const_to_unset)
-    end
-
-    Object.__send__(:remove_const, :Foo)
-  end
-
   include_context "app"
 
   let :autorun do
@@ -24,7 +14,7 @@ RSpec.describe "failure caused by plugging an unknown plugin" do
 
   it "reports the failure" do
     expect {
-      Pakyow.app :foo do
+      Pakyow.app :test_foo do
         plug :foo, at: "/"
       end
     }.to raise_error(Pakyow::UnknownPlugin) do |error|

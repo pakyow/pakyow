@@ -20,6 +20,25 @@ module Pakyow
       attr_reader :__object_name
 
       def make(object_name, within: nil, **kwargs, &block)
+        object_name = build_object_name(object_name, within: within)
+        object = find_or_define_object(object_name, kwargs)
+
+        local_eval_method = eval_method
+        object.send(eval_method) do
+          @__object_name = object_name
+          send(local_eval_method, &block) if block_given?
+        end
+
+        if object.ancestors.include?(Hookable)
+          object.call_hooks(:after, :make)
+        end
+
+        object
+      end
+
+      private
+
+      def build_object_name(object_name, within:)
         unless object_name.is_a?(ObjectName) || object_name.nil?
           namespace = if within && within.respond_to?(:__object_name)
             within.__object_name.namespace
@@ -39,36 +58,57 @@ module Pakyow
           )
         end
 
-        if self.is_a?(Class)
-          new_class = Class.new(self)
-          eval_method = :class_exec
-        elsif self.is_a?(Module)
-          new_class = Module.new do
+        object_name
+      end
+
+      def find_or_define_object(object_name, kwargs)
+        if object_name && ::Object.const_defined?(object_name.constant)
+          existing_object = ::Object.const_get(object_name.constant)
+
+          if type_of_self?(existing_object)
+            existing_object
+          else
+            define_object(kwargs)
+          end
+        else
+          define_object(kwargs).tap do |defined_object|
+            ObjectMaker.define_const_for_object_with_name(defined_object, object_name)
+          end
+        end
+      end
+
+      def type_of_self?(object)
+        object.ancestors.include?(ancestors[1])
+      end
+
+      def define_object(kwargs)
+        object = case self
+        when Class
+          Class.new(self)
+        when Module
+          Module.new do
             def self.__object_name
               @__object_name
             end
           end
-
-          eval_method = :module_exec
         end
 
-        ObjectMaker.define_const_for_object_with_name(new_class, object_name)
-
-        new_class.send(eval_method) do
-          @__object_name = object_name
-
+        object.send(eval_method) do
           kwargs.each do |arg, value|
             instance_variable_set(:"@#{arg}", value)
           end
-
-          send(eval_method, &block) if block_given?
         end
 
-        if new_class.ancestors.include?(Hookable)
-          new_class.call_hooks(:after, :make)
-        end
+        object
+      end
 
-        new_class
+      def eval_method
+        case self
+        when Class
+          :class_exec
+        when Module
+          :module_exec
+        end
       end
     end
   end

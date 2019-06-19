@@ -364,4 +364,28 @@ RSpec.describe "defining resources" do
       expect(controllers[0].children[0].routes.values.flatten.map(&:name)).to eq([:list, :show])
     end
   end
+
+  describe "defining the same top level resource multiple times" do
+    let :app_init do
+      Proc.new {
+        resource :posts, "/posts" do
+          list
+        end
+
+        resource :posts, "/posts" do
+          show
+        end
+      }
+    end
+
+    let :controllers do
+      Pakyow.apps.first.state(:controller)
+    end
+
+    it "adds routes to the existing resource" do
+      expect(controllers.count).to eq(1)
+      expect(controllers[0].routes.values.flatten.count).to eq(2)
+      expect(controllers[0].routes.values.flatten.map(&:name)).to eq([:list, :show])
+    end
+  end
 end

@@ -4,23 +4,10 @@ RSpec.describe "cli: info" do
   include_context "command"
 
   before do
-    Pakyow.app :foo
-    Pakyow.app :bar, path: "/bar"
+    Pakyow.app :test_foo
+    Pakyow.app :test_bar, path: "/bar"
 
     allow_any_instance_of(Pakyow::CLI).to receive(:project_context?).and_return(true)
-  end
-
-  after do
-    Foo.constants(false).each do |const_to_unset|
-      Foo.__send__(:remove_const, const_to_unset)
-    end
-
-    Bar.constants(false).each do |const_to_unset|
-      Bar.__send__(:remove_const, const_to_unset)
-    end
-
-    Object.__send__(:remove_const, :Foo)
-    Object.__send__(:remove_const, :Bar)
   end
 
   let :command do
@@ -39,7 +26,7 @@ RSpec.describe "cli: info" do
 
   describe "running" do
     it "shows project info" do
-      expect(run_command(command)).to eq("\e[1mLIBRARY VERSIONS\e[0m\n  Ruby          v#{RUBY_VERSION}-p#{RUBY_PATCHLEVEL} (#{RUBY_PLATFORM})\n  Pakyow        v1.0.0.alpha1\n\n\e[1mFoo::App [:foo]\e[0m\n  Mount path    /\n  Frameworks    #{frameworks}\n  App root      #{File.expand_path("../../", command_dir) + "/pakyow-core"}\n\n\e[1mBar::App [:bar]\e[0m\n  Mount path    /bar\n  Frameworks    #{frameworks}\n  App root      #{File.expand_path("../../", command_dir) + "/pakyow-core"}\n")
+      expect(run_command(command)).to eq("\e[1mLIBRARY VERSIONS\e[0m\n  Ruby          v#{RUBY_VERSION}-p#{RUBY_PATCHLEVEL} (#{RUBY_PLATFORM})\n  Pakyow        v1.0.0.alpha1\n\n\e[1mTestFoo::App [:test_foo]\e[0m\n  Mount path    /\n  Frameworks    #{frameworks}\n  App root      #{File.expand_path("../../", command_dir) + "/pakyow-core"}\n\n\e[1mTestBar::App [:test_bar]\e[0m\n  Mount path    /bar\n  Frameworks    #{frameworks}\n  App root      #{File.expand_path("../../", command_dir) + "/pakyow-core"}\n")
     end
 
     it "needs more specific tests"

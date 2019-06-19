@@ -51,6 +51,45 @@ RSpec.describe "defining a controller" do
     end
   end
 
+  context "controller is defined with a name" do
+    let :app_init do
+      Proc.new {
+        controller :foo do
+          default do
+            send(self.class.name); halt
+          end
+        end
+      }
+    end
+
+    it "defines the controller" do
+      expect(call("/")[2]).to eq("Test::Controllers::Foo")
+    end
+
+    context "controller was defined previously" do
+      let :app_init do
+        Proc.new {
+          controller :foo do
+            get "/foo" do
+              send(self.class.name); halt
+            end
+          end
+
+          controller :foo do
+            get "/bar" do
+              send(self.class.name); halt
+            end
+          end
+        }
+      end
+
+      it "extends the original controller" do
+        expect(call("/foo")[2]).to eq("Test::Controllers::Foo")
+        expect(call("/bar")[2]).to eq("Test::Controllers::Foo")
+      end
+    end
+  end
+
   xcontext "when the controller is a subclass" do
     class ChildController < Pakyow::Controller
       default

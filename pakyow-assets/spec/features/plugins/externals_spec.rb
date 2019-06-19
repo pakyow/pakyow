@@ -15,10 +15,6 @@ RSpec.describe "fetching externals defined in a plugin" do
     end
   end
 
-  after do
-    Object.send(:remove_const, :TestPlugin)
-  end
-
   include_context "app"
 
   let :tmp do

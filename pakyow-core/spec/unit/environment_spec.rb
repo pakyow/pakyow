@@ -534,29 +534,11 @@ RSpec.describe Pakyow do
 
   describe "::app" do
     before do
-      Pakyow.app :foo, path: "/foo"
-      Pakyow.app :bar, path: "/bar"
-      Pakyow.app :baz, path: "/baz"
+      Pakyow.app :test_foo, path: "/foo"
+      Pakyow.app :test_bar, path: "/bar"
+      Pakyow.app :test_baz, path: "/baz"
 
       Pakyow.boot
-    end
-
-    after do
-      Foo.constants(false).each do |const_to_unset|
-        Foo.__send__(:remove_const, const_to_unset)
-      end
-
-      Bar.constants(false).each do |const_to_unset|
-        Bar.__send__(:remove_const, const_to_unset)
-      end
-
-      Baz.constants(false).each do |const_to_unset|
-        Baz.__send__(:remove_const, const_to_unset)
-      end
-
-      Object.__send__(:remove_const, :Foo)
-      Object.__send__(:remove_const, :Bar)
-      Object.__send__(:remove_const, :Baz)
     end
 
     context "environment has booted" do
@@ -565,9 +547,9 @@ RSpec.describe Pakyow do
       end
 
       it "returns an app instance" do
-        expect(Pakyow.app(:foo).config.name).to eq(:foo)
-        expect(Pakyow.app(:bar).config.name).to eq(:bar)
-        expect(Pakyow.app(:baz).config.name).to eq(:baz)
+        expect(Pakyow.app(:test_foo).config.name).to eq(:test_foo)
+        expect(Pakyow.app(:test_bar).config.name).to eq(:test_bar)
+        expect(Pakyow.app(:test_baz).config.name).to eq(:test_baz)
       end
     end
   end

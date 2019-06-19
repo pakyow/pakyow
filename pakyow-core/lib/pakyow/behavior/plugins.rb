@@ -72,8 +72,8 @@ module Pakyow
             # Override config values that require a specific value.
             #
             full_name = [plug.plugin_name]
-            unless plug.__object_name.name == :default
-              full_name << plug.__object_name.name
+            unless plug.__object_name.namespace.parts.last == :default
+              full_name << plug.__object_name.namespace.parts.last
             end
 
             plug.config.name = full_name.join("_").to_sym
@@ -101,9 +101,9 @@ module Pakyow
 
           app = self
           plug = plugin.make(
-            as,
+            "plug",
             within: Support::ObjectNamespace.new(
-              *__object_name.namespace.parts + [plugin_name]
+              *__object_name.namespace.parts + [plugin_name, as]
             ),
             mount_path: at,
           ) do

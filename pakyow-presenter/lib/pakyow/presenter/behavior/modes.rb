@@ -70,10 +70,12 @@ module Pakyow
               plugs.each do |plug|
                 plug.__ui_modes.each do |mode, block|
                   unless @__ui_modes.key?(mode)
-                    full_mode = if plug.class.__object_name.name == :default
+                    plug_namespace = plug.class.__object_name.namespace.parts.last
+
+                    full_mode = if plug_namespace == :default
                       :"#{plug.class.plugin_name}.#{mode}"
                     else
-                      :"#{plug.class.plugin_name}(#{plug.class.__object_name.name}).#{mode}"
+                      :"#{plug.class.plugin_name}(#{plug_namespace}).#{mode}"
                     end
 
                     @__ui_modes[full_mode] = block

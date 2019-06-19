@@ -212,7 +212,9 @@ module Pakyow
           enforce_registration!(instance)
         end
 
-        instances << instance
+        unless instances.include?(instance)
+          instances << instance
+        end
 
         priorities[instance] = priority
         reprioritize!

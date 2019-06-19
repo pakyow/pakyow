@@ -23,10 +23,6 @@ RSpec.describe "accessing helpers from the plugin" do
     end
   end
 
-  after do
-    Object.send(:remove_const, :TestPlugin)
-  end
-
   include_context "app"
 
   let :app_def do
@@ -39,12 +35,12 @@ RSpec.describe "accessing helpers from the plugin" do
   it "calls the helpers in the correct context" do
     call("/test-plugin/helpers").tap do |result|
       expect(result[0]).to eq(200)
-      expect(result[2]).to eq("test_helper: Test::Testable::Default")
+      expect(result[2]).to eq("test_helper: Test::Testable::Default::Plug")
     end
 
     call("/foo/test-plugin/helpers").tap do |result|
       expect(result[0]).to eq(200)
-      expect(result[2]).to eq("test_helper: Test::Testable::Foo")
+      expect(result[2]).to eq("test_helper: Test::Testable::Foo::Plug")
     end
   end
 end
@@ -54,10 +50,6 @@ RSpec.describe "accessing helpers from the app" do
     class TestPlugin < Pakyow::Plugin(:testable, File.join(__dir__, "support/plugin"))
       # intentionally empty
     end
-  end
-
-  after do
-    Object.send(:remove_const, :TestPlugin)
   end
 
   include_context "app"
@@ -104,12 +96,12 @@ RSpec.describe "accessing helpers from the app" do
   it "calls the helpers in the correct context" do
     call("/helpers/default").tap do |result|
       expect(result[0]).to eq(200)
-      expect(result[2]).to eq("test_helper: Test::Testable::Default")
+      expect(result[2]).to eq("test_helper: Test::Testable::Default::Plug")
     end
 
     call("/helpers?plug=foo").tap do |result|
       expect(result[0]).to eq(200)
-      expect(result[2]).to eq("test_helper: Test::Testable::Foo")
+      expect(result[2]).to eq("test_helper: Test::Testable::Foo::Plug")
     end
   end
 

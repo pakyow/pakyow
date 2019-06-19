@@ -68,6 +68,8 @@ RSpec.configure do |config|
   end
 
   config.before do
+    $original_constants = Object.constants
+
     allow(Pakyow).to receive(:at_exit)
     allow(Pakyow).to receive(:exit)
     allow(Process).to receive(:exit)
@@ -92,7 +94,7 @@ RSpec.configure do |config|
       Pakyow.instance_variable_set(:@builder, Rack::Builder.new)
     end
 
-    Pakyow.instance_variable_set(:@config, $original_pakyow_config.dup)
+    Pakyow.instance_variable_set(:@config, $original_pakyow_config.deep_dup)
 
     @defined_constants = Module.constants.dup
   end
@@ -120,17 +122,25 @@ RSpec.configure do |config|
       end
     end
 
-    if Kernel.const_defined?(:Test)
-      Test.constants(false).each do |const_to_unset|
-        Test.__send__(:remove_const, const_to_unset)
-      end
-
-      Object.__send__(:remove_const, :Test)
-    end
+    remove_constants(
+      (Object.constants - $original_constants).select { |constant_name|
+        constant_name.to_s.start_with?("Test")
+      }.map(&:to_sym)
+    )
 
     if ENV["RSS"]
       GC.start
       puts "rss: #{rss} live objects (#{GC.stat[:heap_live_slots]})"
+    end
+  end
+
+  def remove_constants(constant_names, within = Object)
+    constant_names.each do |constant_name|
+      if within.const_defined?(constant_name)
+        constant = within.const_get(constant_name)
+        remove_constants(constant.constants(false), constant.respond_to?(:remove_const) ? constant : within)
+        within.__send__(:remove_const, constant_name)
+      end
     end
   end
 end

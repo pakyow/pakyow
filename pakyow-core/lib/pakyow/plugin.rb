@@ -283,7 +283,9 @@ module Pakyow
           plugin_class.instance_variable_set(:@plugin_name, instance_variable_get(:@plugin_name))
           plugin_class.instance_variable_set(:@plugin_path, instance_variable_get(:@plugin_path))
 
-          Pakyow.register_plugin(@plugin_name, plugin_class)
+          unless Pakyow.plugins.include?(@plugin_name)
+            Pakyow.register_plugin(@plugin_name, plugin_class)
+          end
         end
       end
 

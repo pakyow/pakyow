@@ -18,10 +18,6 @@ RSpec.describe "plugin connection" do
     end
   end
 
-  after do
-    Object.send(:remove_const, :TestPlugin)
-  end
-
   include_context "app"
 
   let :app_def do
@@ -35,7 +31,7 @@ RSpec.describe "plugin connection" do
   end
 
   it "is a plugin connection" do
-    expect(result[:connection_class]).to eq(Test::Testable::Default::Connection)
+    expect(result[:connection_class]).to eq(Test::Testable::Default::Plug::Connection)
   end
 
   describe "connection verifier" do

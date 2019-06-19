@@ -6,10 +6,6 @@ RSpec.describe "calling plugin helpers from a controller" do
     end
   end
 
-  after do
-    Object.send(:remove_const, :TestPlugin)
-  end
-
   include_context "app"
 
   let :app_def do

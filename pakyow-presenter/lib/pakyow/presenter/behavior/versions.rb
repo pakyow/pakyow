@@ -19,10 +19,12 @@ module Pakyow
                 plug.isolated(:Presenter).__versioning_logic.each_pair do |version, logic_arr|
                   logic_arr.each do |logic|
                     presenters.each do |presenter|
-                      prefix = if plug.class.__object_name.name == :default
+                      plug_namespace = plug.class.__object_name.namespace.parts.last
+
+                      prefix = if plug_namespace == :default
                         plug.class.plugin_name
                       else
-                        "#{plug.class.plugin_name}(#{plug.class.__object_name.name})"
+                        "#{plug.class.plugin_name}(#{plug_namespace})"
                       end
 
                       presenter.version :"#{prefix}.#{version}" do |object|

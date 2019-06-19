@@ -83,16 +83,22 @@ module Pakyow
             controller.class_eval do
               allow_params param
 
-              define_singleton_method :param do
-                param
+              unless singleton_class.instance_methods(false).include?(:param)
+                define_singleton_method :param do
+                  param
+                end
               end
 
-              define_singleton_method :nested_param do
-                nested_param
+              unless singleton_class.instance_methods(false).include?(:nested_param)
+                define_singleton_method :nested_param do
+                  nested_param
+                end
               end
 
-              define_method :update_request_path_for_show do
-                connection.get(:__endpoint_path).gsub!(resource_id, "show")
+              unless instance_methods(false).include?(:update_request_path_for_show)
+                define_method :update_request_path_for_show do
+                  connection.get(:__endpoint_path).gsub!(resource_id, "show")
+                end
               end
 
               NestedResource.define(self, nested_resource_id, nested_param)
@@ -116,27 +122,31 @@ module Pakyow
           # Nest resources as members of the current resource.
           #
           def self.define(controller, nested_resource_id, nested_param)
-            controller.define_singleton_method :namespace do |*args, &block|
-              super(*args, &block).tap do |namespace|
-                namespace.allow_params nested_param
-                namespace.action :update_request_path_for_parent do
-                  connection.get(:__endpoint_path).gsub!(nested_resource_id, "show")
+            unless controller.singleton_class.instance_methods(false).include?(:namespace)
+              controller.define_singleton_method :namespace do |*args, &block|
+                super(*args, &block).tap do |namespace|
+                  namespace.allow_params nested_param
+                  namespace.action :update_request_path_for_parent do
+                    connection.get(:__endpoint_path).gsub!(nested_resource_id, "show")
+                  end
                 end
               end
             end
 
-            controller.define_singleton_method :resource do |name, matcher, param: DEFAULT_PARAM, &block|
-              if existing_resource = children.find { |child| child.expansions.include?(:resource) && child.__object_name.name == name }
-                existing_resource.instance_exec(&block); existing_resource
-              else
-                expand(:resource, name, File.join(nested_resource_id, matcher), param: param) do
-                  allow_params nested_param
+            unless controller.singleton_class.instance_methods(false).include?(:resource)
+              controller.define_singleton_method :resource do |name, matcher, param: DEFAULT_PARAM, &block|
+                if existing_resource = children.find { |child| child.expansions.include?(:resource) && child.__object_name.name == name }
+                  existing_resource.instance_exec(&block); existing_resource
+                else
+                  expand(:resource, name, File.join(nested_resource_id, matcher), param: param) do
+                    allow_params nested_param
 
-                  action :update_request_path_for_parent do
-                    connection.get(:__endpoint_path).gsub!(nested_resource_id, "show")
+                    action :update_request_path_for_parent do
+                      connection.get(:__endpoint_path).gsub!(nested_resource_id, "show")
+                    end
+
+                    instance_exec(&block)
                   end
-
-                  instance_exec(&block)
                 end
               end
             end
