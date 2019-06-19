@@ -72,7 +72,7 @@ module Pakyow
           }
         end
 
-        def call(params)
+        def call(**params)
           @route.build_path(@path, params)
         end
       end

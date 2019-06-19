@@ -45,8 +45,8 @@ module Pakyow
     #   path(:post_edit, post_id: 1)
     #   # => "/posts/1/edit"
     #
-    def path(name, params = {})
-      endpoint_with_name(name)&.path(**params.to_h)
+    def path(name, hashlike_object = nil, **params)
+      endpoint_with_name(name)&.path(hashlike_object, **params)
     end
 
     def method(name)
@@ -64,7 +64,7 @@ module Pakyow
     #   # => "/posts/1/edit"
     #
     def path_to(*names, **params)
-      path(names.join("_").to_sym, params)
+      path(names.join("_").to_sym, **params)
     end
 
     private
@@ -87,8 +87,8 @@ module Pakyow
       @name, @method, @builder = name.to_sym, method.to_sym, builder
     end
 
-    def path(**params)
-      @builder.call(**params)
+    def path(hashlike_object = nil, **params)
+      @builder.call(**(hashlike_object || params).to_h)
     end
   end
 end
