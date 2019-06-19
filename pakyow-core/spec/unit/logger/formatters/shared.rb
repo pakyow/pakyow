@@ -66,4 +66,10 @@ RSpec.shared_examples :log_formatter do
   def event(message)
     { "logger" => double(:logger, id: logger_id, type: logger_type, elapsed: logger_elapsed), "message" => message }
   end
+
+  before do
+    allow(Pakyow).to receive(:global_logger).and_return(
+      double(:global_logger, level: 2, verbose!: nil)
+    )
+  end
 end
