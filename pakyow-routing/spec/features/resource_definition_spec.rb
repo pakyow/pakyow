@@ -388,4 +388,46 @@ RSpec.describe "defining resources" do
       expect(controllers[0].routes.values.flatten.map(&:name)).to eq([:list, :show])
     end
   end
+
+  describe "defining instance methods on a resource" do
+    let :app_init do
+      Proc.new {
+        resource :posts, "/posts" do
+          list do
+            send(foo); halt
+          end
+
+          def foo
+            "foo"
+          end
+        end
+      }
+    end
+
+    it "makes the instance methods callable" do
+      expect(call("/posts")[2]).to eq("foo")
+    end
+  end
+
+  describe "defining instance methods on a nested resource" do
+    let :app_init do
+      Proc.new {
+        resource :posts, "/posts" do
+          resource :comments, "/comments" do
+            list do
+              send(foo); halt
+            end
+
+            def foo
+              "foo"
+            end
+          end
+        end
+      }
+    end
+
+    it "makes the instance methods callable" do
+      expect(call("/posts/1/comments")[2]).to eq("foo")
+    end
+  end
 end

@@ -145,7 +145,7 @@ module Pakyow
                       connection.get(:__endpoint_path).gsub!(nested_resource_id, "show")
                     end
 
-                    instance_exec(&block)
+                    class_eval(&block)
                   end
                 end
               end
