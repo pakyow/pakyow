@@ -62,7 +62,7 @@ module Pakyow
       end
 
       def find_or_define_object(object_name, kwargs, set_const)
-        if object_name && ::Object.const_defined?(object_name.constant)
+        if object_name && ::Object.const_defined?(object_name.constant, false)
           existing_object = ::Object.const_get(object_name.constant)
 
           if type_of_self?(existing_object)
