@@ -34,8 +34,6 @@ module Pakyow
               state(:presenter)
             ).concat(
               state(:component).map(&:__presenter_class)
-            ).concat(
-              @compound_presenters
             ).map { |presenter_class|
               Class.new(presenter_class) do
                 include Recordable

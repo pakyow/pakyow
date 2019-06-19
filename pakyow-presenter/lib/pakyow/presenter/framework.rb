@@ -77,8 +77,6 @@ module Pakyow
           # Build presenter classes for compound components.
           #
           after :initialize, priority: :high do
-            @compound_presenters = []
-
             state(:templates).each do |templates|
               templates.each do |template|
                 template.object.each_significant_node(:component, descend: true) do |node|
@@ -94,7 +92,7 @@ module Pakyow
                     }
 
                     if component_classes.count > 1
-                      @compound_presenters << Actions::RenderComponents.find_or_build_compound_presenter(
+                      state(:presenter) << Actions::RenderComponents.find_or_build_compound_presenter(
                         self, component_classes
                       )
                     end
@@ -169,8 +167,6 @@ module Pakyow
               state(:presenter)
             ).concat(
               state(:component).map(&:__presenter_class)
-            ).concat(
-              @compound_presenters
             ).uniq.each do |presenter|
               isolated(:Renderer).attach!(presenter, app: self)
             end
