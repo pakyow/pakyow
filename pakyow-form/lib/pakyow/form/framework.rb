@@ -31,7 +31,7 @@ module Pakyow
           end
 
           handle InvalidData, as: :bad_request do |error|
-            if connection.form
+            if connection.form && connection.form.include?(:origin)
               errors = error.result.messages.flat_map { |type, messages|
                 case messages
                 when Array

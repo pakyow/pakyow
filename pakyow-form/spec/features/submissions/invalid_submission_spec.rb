@@ -28,7 +28,7 @@ RSpec.describe "submitting invalid form data" do
     Pakyow::Support::MessageVerifier.new.sign(metadata.to_json)
   end
 
-  context "form submission is present" do
+  context "form submission and origin are both present" do
     it "reroutes to the origin" do
       expect_any_instance_of(Pakyow::Controller).to receive(:reroute).with("/posts/new", as: :bad_request, method: :get)
       expect(call("/posts", method: :post, params: { _form: sign(origin: "/posts/new") })[0]).to be(400)
@@ -209,6 +209,15 @@ RSpec.describe "submitting invalid form data" do
             )
           end
         end
+      end
+    end
+  end
+
+  context "form submission is present but not the origin" do
+    it "rejects the handling" do
+      expect_any_instance_of(Pakyow::Controller).to receive(:reject)
+      call("/posts", method: :post, params: { _form: sign(id: 123) }).tap do |result|
+        expect(result[0]).to be(400)
       end
     end
   end
