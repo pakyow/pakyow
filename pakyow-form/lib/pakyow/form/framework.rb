@@ -100,9 +100,9 @@ module Pakyow
 
               def classify_form
                 if form_errors.any?
-                  attrs[:class] << :errored
+                  attrs[:class] << :"ui-errored"
                 else
-                  attrs[:class].delete(:errored)
+                  attrs[:class].delete(:"ui-errored")
                 end
               end
 
@@ -113,10 +113,10 @@ module Pakyow
 
                   find(binding_name).with do |field|
                     if error.nil?
-                      field.attrs[:class].delete(:errored)
+                      field.attrs[:class].delete(:"ui-errored")
                       field.attrs[:title] = ""
                     else
-                      field.attrs[:class] << :errored
+                      field.attrs[:class] << :"ui-errored"
                       field.attrs[:title] = error[:message]
                     end
                   end

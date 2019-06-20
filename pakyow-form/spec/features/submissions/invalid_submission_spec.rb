@@ -37,14 +37,14 @@ RSpec.describe "submitting invalid form data" do
     it "adds an errored class to the form" do
       call("/posts", method: :post, params: { _form: sign(origin: "/posts/new", binding: "post:form"), post: { title: "foo title"} }).tap do |result|
         expect(result[0]).to be(400)
-        expect(result[2]).to include('<form data-b="post" data-ui="form" data-c="form" class="errored"')
+        expect(result[2]).to include('<form data-b="post" data-ui="form" data-c="form" class="ui-errored"')
       end
     end
 
     it "adds an errored class and error message title to each errored field" do
       call("/posts", method: :post, params: { _form: sign(origin: "/posts/new", binding: "post:form"), post: { title: "foo title"} }).tap do |result|
         expect(result[0]).to be(400)
-        expect(result[2]).to include('<input type="text" data-b="body" data-c="form" name="post[body]" class="errored" title="Body is required">')
+        expect(result[2]).to include('<input type="text" data-b="body" data-c="form" name="post[body]" class="ui-errored" title="Body is required">')
       end
     end
 
@@ -134,7 +134,7 @@ RSpec.describe "submitting invalid form data" do
           expect(result[0]).to be(400)
           result[2].tap do |body|
             expect(body).to include('<form data-b="post" data-ui="form" class="foo" data-c="form:foo"')
-            expect(body).to include('<form data-b="post" data-ui="form" class="bar errored" data-c="form:bar"')
+            expect(body).to include('<form data-b="post" data-ui="form" class="bar ui-errored" data-c="form:bar"')
           end
         end
       end
