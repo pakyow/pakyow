@@ -152,7 +152,7 @@ module Pakyow
 
           configurable :cookies do
             setting :domain
-            setting :path
+            setting :path, "/"
             setting :max_age
             setting :expires
             setting :secure

@@ -251,7 +251,7 @@ RSpec.describe Pakyow do
 
     describe "cookies.path" do
       it "has a default value" do
-        expect(Pakyow.config.cookies.path).to be(nil)
+        expect(Pakyow.config.cookies.path).to eq("/")
       end
     end
 
