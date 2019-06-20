@@ -28,7 +28,9 @@ module Pakyow
             fn.source_location[0].end_with?("create_template_nodes.rb")
           }
 
-          const_set(:MailRenderer, mail_renderer)
+          unless const_defined?(:MailRenderer, false)
+            const_set(:MailRenderer, mail_renderer)
+          end
         end
       end
     end

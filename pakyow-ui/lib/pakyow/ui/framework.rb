@@ -61,7 +61,9 @@ module Pakyow
             fn.source_location[0].end_with?("render_components.rb")
           }
 
-          const_set(:UIRenderer, ui_renderer)
+          unless const_defined?(:UIRenderer, false)
+            const_set(:UIRenderer, ui_renderer)
+          end
         end
       end
     end

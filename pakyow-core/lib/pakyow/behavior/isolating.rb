@@ -30,7 +30,10 @@ module Pakyow
         #
         def isolate(class_to_isolate, &block)
           isolated_class_name = Support.inflector.demodulize(class_to_isolate.to_s).to_sym
-          const_set(isolated_class_name, Class.new(class_to_isolate))
+
+          unless const_defined?(isolated_class_name, false)
+            const_set(isolated_class_name, Class.new(class_to_isolate))
+          end
 
           isolated(isolated_class_name).tap do |defined_subclass|
             defined_subclass.class_eval(&block) if block_given?
