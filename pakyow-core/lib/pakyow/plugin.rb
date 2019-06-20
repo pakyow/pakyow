@@ -235,8 +235,26 @@ module Pakyow
 
     def define_app_endpoints
       @endpoints.each do |endpoint|
+        # Register endpoints accessible for backend path building.
+        #
         @parent.endpoints << Endpoint.new(
           name: [config.name.to_s, endpoint.name].join("_"),
+          method: :get,
+          builder: endpoint.builder
+        )
+
+        # Register endpoints accessible for frontend path building.
+        #
+        namespace = self.class.__object_name.namespace.parts.last
+
+        endpoint_name = if namespace == :default
+          :"#{self.class.plugin_name}.#{endpoint.name}"
+        else
+          :"#{self.class.plugin_name}(#{namespace}).#{endpoint.name}"
+        end
+
+        @parent.endpoints << Endpoint.new(
+          name: endpoint_name,
           method: :get,
           builder: endpoint.builder
         )
