@@ -14,13 +14,23 @@ RSpec.describe "booting plugins" do
   include_context "app"
 
   let :app_def do
+    local = self
     Proc.new do
-      plug :testable, at: "/"
+      plug :testable, at: "/" do
+        after :boot do
+          local.instance_variable_set(:@booted, true)
+        end
+      end
     end
   end
 
   let :autorun do
     false
+  end
+
+  it "calls boot hooks" do
+    setup_and_run
+    expect(@booted).to eq(true)
   end
 
   context "plugin implements boot" do

@@ -38,4 +38,14 @@ RSpec.describe "looking up plugin instances" do
       expect(Pakyow.app(:test).plugs.testable(:bar)).to be(nil)
     end
   end
+
+  context "looking up a plugin through the helper" do
+    it "looks up an unnamed plugin" do
+      expect(Pakyow.app(:test).plug(:testable).class.name).to eq("Test::Testable::Default::Plug")
+    end
+
+    it "looks up a named plugin" do
+      expect(Pakyow.app(:test).plug(:testable, :foo).class.name).to eq("Test::Testable::Foo::Plug")
+    end
+  end
 end

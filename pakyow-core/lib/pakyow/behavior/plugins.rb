@@ -16,6 +16,12 @@ module Pakyow
 
       attr_reader :plugs
 
+      def plug(name, instance = :default)
+        @plugs.find { |plug|
+          plug.class.plugin_name == name && plug.class.__object_name.namespace.parts.last == instance
+        }
+      end
+
       apply_extension do
         class_state :__plugs, default: [], inheritable: true
 
@@ -39,7 +45,9 @@ module Pakyow
         # that might affect how plugins are setup.
         #
         after "initialize", "load.plugins", priority: :low do
-          @__plug_instances = self.class.__plugs.map { |plug|
+          @plugs = Plugin::Lookup.new([])
+
+          self.class.__plugs.each do |plug|
             if self.class.includes_framework?(:presenter)
               require "pakyow/plugin/helpers/rendering"
               plug.register_helper :passive, Plugin::Helpers::Rendering
@@ -78,12 +86,30 @@ module Pakyow
 
             plug.config.name = full_name.join("_").to_sym
 
+            # Create a dynamic helper that allows plugin helpers to be called in context of a specific plug.
+            #
+            plug.register_helper :passive, Module.new {
+              Pakyow.plugins.keys.map.each do |plugin_name|
+                define_method plugin_name do |instance_name = :default|
+                  app.parent.plugs.send(plugin_name, instance_name).helper_caller(
+                    app.class.included_helper_context(self),
+                    @connection,
+                    self
+                  )
+                end
+              end
+            }
+
             # Finally, create the plugin instance.
             #
-            plug.new(self)
-          }
+            @plugs << plug.new(self)
+          end
 
-          @plugs = Plugin::Lookup.new(@__plug_instances)
+          @plugs.finalize
+        end
+
+        after "boot" do
+          @plugs.each(&:booted)
         end
       end
 

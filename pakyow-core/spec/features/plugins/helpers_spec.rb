@@ -1,6 +1,6 @@
 require "pakyow/plugin"
 
-RSpec.describe "accessing helpers from the plugin" do
+RSpec.describe "accessing helpers within the plugin" do
   before do
     class TestPlugin < Pakyow::Plugin(:testable, File.join(__dir__, "support/plugin"))
       def boot
@@ -41,6 +41,73 @@ RSpec.describe "accessing helpers from the plugin" do
     call("/foo/test-plugin/helpers").tap do |result|
       expect(result[0]).to eq(200)
       expect(result[2]).to eq("test_helper: Test::Testable::Foo::Plug")
+    end
+  end
+end
+
+RSpec.describe "accessing helpers from another plugin" do
+  before do
+    class TestPluginFoo < Pakyow::Plugin(:testable_foo, File.join(__dir__, "support/plugin"))
+      # intentionally empty
+    end
+
+    class TestPluginBar < Pakyow::Plugin(:testable_bar, File.join(__dir__, "support/plugin-bar"))
+      # intentionally empty
+    end
+  end
+
+  include_context "app"
+
+  let :app_def do
+    Proc.new do
+      plug :testable_foo, at: "/"
+      plug :testable_bar, at: "/bar"
+
+      action :test
+
+      after "initialize" do
+        @object = Class.new do
+          def initialize(connection)
+            @connection = connection
+          end
+
+          def some_action
+            :some_action
+          end
+        end
+
+        self.class.include_helpers :passive, @object
+      end
+
+      class_eval do
+        def test(connection)
+          plug = connection.params[:plug]
+          helper = connection.params[:helper] || :test_helper
+
+          helper_context = if plug
+            @object.new(connection).testable_bar(plug).testable_foo
+          else
+            @object.new(connection).testable_bar.testable_foo
+          end
+
+          connection.body = StringIO.new(helper_context.send(helper))
+          connection.halt
+        end
+      end
+    end
+  end
+
+  it "calls the helpers in the correct context" do
+    call("/helpers/default").tap do |result|
+      expect(result[0]).to eq(200)
+      expect(result[2]).to eq("test_helper: Test::TestableFoo::Default::Plug")
+    end
+  end
+
+  it "has access to methods in the original context" do
+    call("/helpers/default?helper=test_context").tap do |result|
+      expect(result[0]).to eq(200)
+      expect(result[2]).to eq("test_context: some_action")
     end
   end
 end

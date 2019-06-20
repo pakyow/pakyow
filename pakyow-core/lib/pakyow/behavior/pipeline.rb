@@ -39,8 +39,8 @@ module Pakyow
           end
         end
 
-        if instance_variable_defined?(:@__plug_instances)
-          @__plug_instances.each do |plug_instance|
+        if instance_variable_defined?(:@plugs)
+          @plugs.each do |plug_instance|
             pipeline.action(plug_instance)
           end
         end

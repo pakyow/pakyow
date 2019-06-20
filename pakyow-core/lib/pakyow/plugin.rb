@@ -109,6 +109,10 @@ module Pakyow
       end
     end
 
+    def booted
+      call_hooks :after, :boot
+    end
+
     def feature?(name)
       name = name.to_sym
       @features.any? { |feature|

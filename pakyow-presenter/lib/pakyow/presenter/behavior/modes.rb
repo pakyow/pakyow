@@ -32,7 +32,7 @@ module Pakyow
 
         private def wrap_mode_block_for_plug(plug, block)
           Proc.new do |connection|
-            plug.helper_caller(:passive, connection, plug.parent).instance_eval(&block)
+            plug.helper_caller(:passive, connection, plug).instance_eval(&block)
           end
         end
 
@@ -57,14 +57,34 @@ module Pakyow
             end
           end
 
-          unless ancestors.include?(Plugin)
-            isolate ModeCallContext
+          isolate ModeCallContext
 
-            on "load" do
-              self.class.include_helpers :passive, isolated(:ModeCallContext)
+          on "load" do
+            self.class.include_helpers :passive, isolated(:ModeCallContext)
+          end
+
+          if ancestors.include?(Plugin)
+            # Copy ui modes from other plugins to this plugin.
+            #
+            after "load" do
+              parent.plugs.each do |plug|
+                plug.__ui_modes.each do |mode, block|
+                  unless @__ui_modes.key?(mode)
+                    plug_namespace = plug.class.__object_name.namespace.parts.last
+
+                    full_mode = if plug_namespace == :default
+                      :"#{plug.class.plugin_name}.#{mode}"
+                    else
+                      :"#{plug.class.plugin_name}(#{plug_namespace}).#{mode}"
+                    end
+
+                    @__ui_modes[full_mode] = block
+                  end
+                end
+              end
             end
-
-            # Copy ui modes from plugins.
+          else
+            # Copy ui modes from plugins to the app.
             #
             after "load.plugins" do
               plugs.each do |plug|
