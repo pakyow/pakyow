@@ -15,7 +15,7 @@ module Pakyow
                 packs = app.packs(view)
 
                 if app.is_a?(Plugin)
-                  packs.concat(app.parent.packs(view))
+                  packs = app.parent.packs(view).concat(packs)
                 end
 
                 packs.uniq { |pack|
