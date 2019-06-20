@@ -1,11 +1,15 @@
 RSpec.describe Pakyow::Data::Connection do
   describe "::parse_connection_string" do
-    let :connection_string do
+    let :connect do
+      false
+    end
+
+    let :test_connection_string do
       "postgres://test:testpw@localhost:5432/pakyow-test?timeout=1"
     end
 
     let :parsed do
-      described_class.parse_connection_string(connection_string)
+      described_class.parse_connection_string(test_connection_string)
     end
 
     it "parses the adapter" do

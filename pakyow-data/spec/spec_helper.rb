@@ -34,7 +34,7 @@ RSpec.configure do |config|
       connection.connected?
     }
 
-    if connections.empty?
+    if connections.empty? && respond_to?(:connection_string)
       connections << connection
     end
 
