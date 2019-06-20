@@ -42,13 +42,9 @@ RSpec.shared_context "migration" do
     #   %w(db:migrate --adapter=sql --connection=default)
     # )
 
-    pid = fork {
-      setup
-      Rake::Task["db:migrate"].reenable
-      Rake::Task["db:migrate"].invoke("sql", "default")
-    }
-
-    Process.wait(pid)
+    setup
+    Rake::Task["db:migrate"].reenable
+    Rake::Task["db:migrate"].invoke("sql", "default")
   end
 
   def finalize_migrations(count_before, count_after)
@@ -57,14 +53,9 @@ RSpec.shared_context "migration" do
       #   %w(db:finalize --adapter=sql --connection=default)
       # )
 
-      pid = fork {
-        setup
-        Rake::Task["db:finalize"].reenable
-        Rake::Task["db:finalize"].invoke("sql", "default")
-      }
-
-      Process.wait(pid)
-
+      setup
+      Rake::Task["db:finalize"].reenable
+      Rake::Task["db:finalize"].invoke("sql", "default")
       verify_migration_count(count_after)
     end
   end
