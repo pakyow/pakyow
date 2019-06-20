@@ -75,16 +75,6 @@ module Pakyow
               duped_source.__setobj__(dataset)
             end
           end
-
-          # @api private
-          def finalized!
-            @__finalized = true
-          end
-
-          # @api private
-          def finalized?
-            @__finalized == true
-          end
         end
       end
     end

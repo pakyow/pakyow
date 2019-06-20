@@ -30,9 +30,15 @@ RSpec.configure do |config|
   end
 
   config.after do
-    Pakyow.data_connections[:sql].to_h.values.select { |connection|
+    connections = Pakyow.data_connections[:sql].to_h.values.select { |connection|
       connection.connected?
-    }.each do |connection|
+    }
+
+    if connections.empty?
+      connections << connection
+    end
+
+    connections.each do |connection|
       begin
         connection.adapter.connection.tables.each do |table|
           case connection.opts[:adapter]
@@ -67,7 +73,9 @@ RSpec.configure do |config|
   end
 
   def connection
-    Pakyow.data_connections[connection_type][connection_name]
+    Pakyow.data_connections.dig(connection_type, connection_name) || Pakyow::Data::Connection.new(
+      type: connection_type, name: :migrator, string: connection_string
+    )
   end
 
   def raw_connection

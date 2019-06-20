@@ -199,6 +199,7 @@ RSpec.shared_examples :source_migrations_changing do |adapter:, types:|
                 context "after applying the change" do
                   before do
                     run_migrations
+                    setup_and_run
                   end
 
                   it "does not detect the change again" do

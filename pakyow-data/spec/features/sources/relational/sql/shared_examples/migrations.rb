@@ -51,8 +51,6 @@ RSpec.shared_examples :source_sql_migrations do |adapter:|
     end
 
     Pakyow.config.data.auto_migrate = false
-
-    setup; Pakyow.boot
   end
 
   include_context "cli" do

@@ -35,16 +35,16 @@ module Pakyow
       end
 
       def finalize!(other_containers)
-        sources_to_finalize.each do |source|
+        @sources.each do |source|
           discover_has_and_belongs_to!(source, other_containers)
         end
 
-        sources_to_finalize.each do |source|
+        @sources.each do |source|
           set_container_for_source!(source)
           define_reciprocal_associations!(source, other_containers)
         end
 
-        sources_to_finalize.each do |source|
+        @sources.each do |source|
           mixin_commands!(source)
           mixin_dataset_methods!(source)
           define_attributes_for_associations!(source, other_containers)
@@ -53,7 +53,6 @@ module Pakyow
           define_methods_for_associations!(source)
           define_methods_for_objects!(source)
           finalize_source_types!(source)
-          source.finalized!
         end
       end
 
@@ -61,10 +60,6 @@ module Pakyow
 
       def adapter
         @connection.adapter
-      end
-
-      def sources_to_finalize
-        @sources.reject(&:finalized?)
       end
 
       def discover_has_and_belongs_to!(source, other_containers)

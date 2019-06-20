@@ -116,6 +116,7 @@ RSpec.shared_examples :source_migrations_creating do |types:|
       context "after applying the migrations" do
         before do
           run_migrations
+          setup_and_run
         end
 
         it "does not detect any more changes" do
@@ -228,6 +229,7 @@ RSpec.shared_examples :source_migrations_creating do |types:|
       context "after applying the migrations" do
         before do
           run_migrations
+          setup_and_run
         end
 
         it "does not detect any more changes" do
