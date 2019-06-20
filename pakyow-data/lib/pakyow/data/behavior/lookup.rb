@@ -17,7 +17,7 @@ module Pakyow
         attr_reader :data
 
         apply_extension do
-          after "initialize", "initialize.data" do
+          after "boot", "initialize.data", priority: :high do
             # Validate that each source connection exists.
             #
             state(:source).each do |source|
