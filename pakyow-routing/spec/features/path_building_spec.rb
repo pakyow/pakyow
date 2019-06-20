@@ -46,6 +46,14 @@ RSpec.describe "path building" do
         resource :comments, "/comments" do
           list
         end
+
+        collection do
+          get :meta, "/meta"
+        end
+      end
+
+      controller do
+        get :unnamed, "/unnamed"
       end
     }
   end
@@ -92,5 +100,13 @@ RSpec.describe "path building" do
 
   it "builds path to a named internal route with params" do
     expect(call("/path/main_internal_params", params: { id: "123" })[2]).to eq("/internal#123")
+  end
+
+  it "builds path to a collection route within a resource" do
+    expect(call("/path/posts_collection_meta", params: { id: "123" })[2]).to eq("/posts/meta")
+  end
+
+  it "builds path to a route within an unnamed controller" do
+    expect(call("/path/unnamed")[2]).to eq("/unnamed")
   end
 end

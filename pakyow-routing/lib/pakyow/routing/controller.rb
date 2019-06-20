@@ -718,11 +718,11 @@ module Pakyow
       end
 
       def endpoints
-        self_name = __object_name&.name.to_s
+        self_name = __object_name&.name
 
         [].tap do |endpoints|
           @routes.values.flatten.each do |route|
-            if route.name == :default
+            if route.name == :default && self_name
               # Register the endpoint without the default name for easier lookup.
               #
               endpoints << Endpoint.new(
@@ -735,7 +735,7 @@ module Pakyow
             end
 
             endpoints << Endpoint.new(
-              name: [self_name, route.name.to_s].join("_"),
+              name: [self_name, route.name.to_s].compact.join("_"),
               method: route.method,
               builder: Routing::Route::EndpointBuilder.new(
                 route: route, path: path_to_self
@@ -745,7 +745,7 @@ module Pakyow
 
           children.flat_map(&:endpoints).each do |child_endpoint|
             endpoints << Endpoint.new(
-              name: [self_name, child_endpoint.name].join("_"),
+              name: [self_name, child_endpoint.name].compact.join("_"),
               method: child_endpoint.method,
               builder: child_endpoint.builder
             )
