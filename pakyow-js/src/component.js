@@ -275,7 +275,11 @@ export default class {
 
       this.trickle(`${this.config.name}:leave:${this.state}`, payload);
 
+      this.node.classList.remove(`ui-state-${this.state}`);
+
       this.state = state;
+
+      this.node.classList.add(`ui-state-${this.state}`);
 
       let referenceName = this.config.name;
       if (this.config.id) {

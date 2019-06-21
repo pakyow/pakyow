@@ -214,6 +214,15 @@ describe("transitioning a component to a new state", () => {
     expect(calls[1][1]).toEqual({ foo: "bar" });
   });
 
+  test("adds a ui class for the current state", () => {
+    expect(pw.Component.instances[0].node.classList.contains("ui-state-state1")).toBe(true);
+  });
+
+  test("removes the ui class for the old state", () => {
+    pw.Component.instances[0].transition("state2");
+    expect(pw.Component.instances[0].node.classList.contains("ui-state-state1")).toBe(false);
+  });
+
   test("does not update the state of other components", () => {
     expect(pw.Component.instances[1].state).toEqual("initial");
     expect(pw.Component.instances[2].state).toEqual("initial");
