@@ -52,7 +52,11 @@ pw.define("form", {
             this.transition("succeeded", xhr);
 
             if (typeof this.config.handle_success === "undefined" || this.config.handle_success === "true") {
-              pw.ui.visit(xhr.responseURL, xhr);
+              let link = document.createElement("a");
+              link.href = xhr.responseURL;
+              link.hash = window.location.hash;
+              xhr.responseURL = link.href;
+              pw.ui.visit(link.href, xhr);
             }
           },
           error: (xhr) => {
