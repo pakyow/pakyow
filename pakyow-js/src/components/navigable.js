@@ -1,14 +1,18 @@
 pw.define("navigable", {
   appear() {
     this.headDetails = this.buildHeadDetails(document.head);
-    this.initialState = { url: document.location.pathname, scrollX: 0, scrollY: 0 };
+    this.initialState = { url: document.location.href, scrollX: 0, scrollY: 0 };
 
     if ("scrollRestoration" in window.history) {
       history.scrollRestoration = "manual";
     }
 
+    window.history.replaceState(this.initialState, "", window.location.href);
+
     window.onpopstate = (event) => {
-      this.load(event.state || this.initialState);
+      if (event.state) {
+        this.load(event.state);
+      }
     };
 
     document.documentElement.addEventListener("click", (event) => {
@@ -28,14 +32,19 @@ pw.define("navigable", {
   },
 
   visit(url, xhr) {
-    if (this.isCurrent(url)) {
-      return;
-    }
-
     if (window.history && this.isInternal(url)) {
       this.saveScrollPosition();
 
       var state = { url: url, scrollX: 0, scrollY: 0 };
+
+      if (this.isCurrent(url)) {
+        if (this.isHashChange(url)) {
+          return window.history.replaceState(state, "", url);
+        } else {
+          return;
+        }
+      }
+
       window.history.pushState(state, "", url);
 
       if (xhr) {
@@ -49,10 +58,6 @@ pw.define("navigable", {
   },
 
   load(state) {
-    if (this.isCurrent(state.url)) {
-      return;
-    }
-
     var xhr = pw.send(state.url, {
       complete: (xhr) => {
         this.handleXHR(xhr, state);
@@ -153,6 +158,13 @@ pw.define("navigable", {
     link.href = url;
 
     return this.isInternal(url) && link.pathname === window.location.pathname;
+  },
+
+  isHashChange(url) {
+    var link = document.createElement("a");
+    link.href = url;
+
+    return this.isInternal(url) && link.hash !== window.location.hash;
   },
 
   buildHeadDetails(head) {
