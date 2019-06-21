@@ -214,10 +214,6 @@ describe("transitioning a component to a new state", () => {
     expect(calls[1][1]).toEqual({ foo: "bar" });
   });
 
-  test("updates the document hash to reflect the new state", () => {
-    expect(atob(document.location.hash.substr(1))).toEqual("foo.3:state2;baz:state3;foo:state1")
-  });
-
   test("does not update the state of other components", () => {
     expect(pw.Component.instances[1].state).toEqual("initial");
     expect(pw.Component.instances[2].state).toEqual("initial");
@@ -225,6 +221,68 @@ describe("transitioning a component to a new state", () => {
 
   test("does not call leave or enter callbacks defined for other transitions", () => {
     expect(calls.length).toEqual(2);
+  });
+});
+
+describe("stickyness after transitioning a component to a new state", () => {
+  let calls = [];
+
+  describe("component is sticky", () => {
+    beforeEach(() => {
+      calls = [];
+
+      document.location.hash = btoa("foo.3:state2;baz:state3");
+
+      document.querySelector("html").innerHTML = `
+        <head>
+        </head>
+        <body>
+          <div data-ui="foo(sticky: true)"></div>
+          <div data-ui="foo(id: 2)"></div>
+          <div data-ui="bar"></div>
+        </body>
+      `;
+
+      pw.Component.init(document.querySelector("html"));
+      pw.Component.instances[0].transition("state1", { foo: "bar" });
+    });
+
+    afterEach(() => {
+      document.location.hash = "";
+    });
+
+    test("updates the document hash to reflect the new state", () => {
+      expect(atob(document.location.hash.substr(1))).toEqual("foo.3:state2;baz:state3;foo:state1")
+    });
+  });
+
+  describe("component is not sticky", () => {
+    beforeEach(() => {
+      calls = [];
+
+      document.location.hash = btoa("foo.3:state2;baz:state3");
+
+      document.querySelector("html").innerHTML = `
+        <head>
+        </head>
+        <body>
+          <div data-ui="foo"></div>
+          <div data-ui="foo(id: 2)"></div>
+          <div data-ui="bar"></div>
+        </body>
+      `;
+
+      pw.Component.init(document.querySelector("html"));
+      pw.Component.instances[0].transition("state1", { foo: "bar" });
+    });
+
+    afterEach(() => {
+      document.location.hash = "";
+    });
+
+    test("does not update the document hash", () => {
+      expect(atob(document.location.hash.substr(1))).toEqual("foo.3:state2;baz:state3")
+    });
   });
 });
 

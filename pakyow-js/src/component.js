@@ -78,14 +78,14 @@ export default class {
   }
 
   static componentFromView(view) {
+    states = this.parseState(atob(document.location.hash.substr(1)));
+
     if (!instances.find((component) => { return component.view.node === view.node })) {
       var uiComponents = this.parseUI(view.node.dataset.ui);
 
       for (let uiComponent of uiComponents) {
         let object = components[uiComponent.name] || this.create();
         let instance = new object(view, Object.assign({ name: uiComponent.name }, uiComponent.config));
-        states = this.parseState(atob(document.location.hash.substr(1)));
-
         instances.push(instance);
 
         let matcher = uiComponent.name;
@@ -291,7 +291,12 @@ export default class {
         values.push(`${key}:${states[key]}`);
       }
 
-      document.location.hash = btoa(values.join(";"));
+      if (this.config.sticky) {
+        let link = document.createElement("a");
+        link.href = document.location.href;
+        link.hash = btoa(values.join(";"));
+        pw.ui.visit(link.href);
+      }
 
       for (let transition of enterTransitions) {
         transition.callback(payload);
