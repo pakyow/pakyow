@@ -235,13 +235,15 @@ export default class {
     component.prototype.trickle = function (channel, payload) {
       this.trigger(channel, payload);
 
-      for (let view of this.view.query("*[data-ui]")) {
-        let tuple = broadcasts[channel].find((tuple) => {
-          return tuple[0].view.node === view.node;
-        });
+      if (broadcasts[channel]) {
+        for (let view of this.view.query("*[data-ui]")) {
+          let tuple = broadcasts[channel].find((tuple) => {
+            return tuple[0].view.node === view.node;
+          });
 
-        if (tuple) {
-          tuple[0].trigger(channel, payload);
+          if (tuple) {
+            tuple[0].trigger(channel, payload);
+          }
         }
       }
     };
@@ -271,6 +273,8 @@ export default class {
         transition.callback(this.state, payload);
       }
 
+      this.trickle(`${this.config.name}:leave:${this.state}`, payload);
+
       this.state = state;
 
       let referenceName = this.config.name;
@@ -296,6 +300,8 @@ export default class {
       for (let transition of generalEnterTransitions) {
         transition.callback(this.state, payload);
       }
+
+      this.trickle(`${this.config.name}:enter:${this.state}`, payload);
     };
 
     component.prototype.enter = function (state, callback) {
