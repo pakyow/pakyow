@@ -49,6 +49,10 @@ pw.define("navigable", {
   },
 
   load(state) {
+    if (this.isCurrent(state.url)) {
+      return;
+    }
+
     var xhr = pw.send(state.url, {
       complete: (xhr) => {
         this.handleXHR(xhr, state);
