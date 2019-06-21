@@ -52,9 +52,9 @@ describe("initializing components in a node", () => {
   });
 
   test("initializes each component with its config", () => {
-    expect(pw.Component.instances[0].config).toEqual({})
-    expect(pw.Component.instances[1].config).toEqual({ key1: "val1" })
-    expect(pw.Component.instances[2].config).toEqual({ "val1": true, key2: "val2" })
+    expect(pw.Component.instances[0].config).toEqual({ name: "foo" })
+    expect(pw.Component.instances[1].config).toEqual({ name: "bar", key1: "val1" })
+    expect(pw.Component.instances[2].config).toEqual({ name: "baz", "val1": true, key2: "val2" })
   });
 
   test("does not reinitialize a component that exists", () => {
@@ -77,7 +77,7 @@ describe("parsing component config with values that contain colons", () => {
   });
 
   test("parses correctly", () => {
-    expect(pw.Component.instances[0].config).toEqual({ key1: "val:1", key2: "val2" })
+    expect(pw.Component.instances[0].config).toEqual({ name: "foo", key1: "val:1", key2: "val2" })
   });
 });
 
@@ -111,9 +111,9 @@ describe("initializing multiple components for a node", () => {
   });
 
   test("initializes each component with its config", () => {
-    expect(pw.Component.instances[0].config).toEqual({})
-    expect(pw.Component.instances[1].config).toEqual({ key1: "val1" })
-    expect(pw.Component.instances[2].config).toEqual({ "val1": true, key2: "val2" })
+    expect(pw.Component.instances[0].config).toEqual({ name: "foo" })
+    expect(pw.Component.instances[1].config).toEqual({ name: "bar", key1: "val1" })
+    expect(pw.Component.instances[2].config).toEqual({ name: "baz", "val1": true, key2: "val2" })
   });
 
   test("does not reinitialize a component that exists", () => {

@@ -1,6 +1,7 @@
 var broadcasts = {};
 var components = {};
 var instances = [];
+var states = {};
 var observer;
 
 export default class {
@@ -82,8 +83,27 @@ export default class {
 
       for (let uiComponent of uiComponents) {
         let object = components[uiComponent.name] || this.create();
-        let instance = new object(view, uiComponent.config);
+        let instance = new object(view, Object.assign({ name: uiComponent.name }, uiComponent.config));
+        states = this.parseState(atob(document.location.hash.substr(1)));
+
         instances.push(instance);
+
+        let matcher = uiComponent.name;
+
+        if (instance.config.id) {
+          matcher = `${matcher}.${instance.config.id}`;
+        }
+
+        if (states[matcher]) {
+          instance.state = states[matcher];
+        } else {
+          instance.state = instance.config.state || "initial";
+        }
+
+        if (instance.state !== "initial") {
+          instance.transition(instance.state);
+        }
+
         instance.appear();
       }
     }
@@ -134,6 +154,18 @@ export default class {
     }, {});
   }
 
+  static parseState(stateString) {
+    if (typeof stateString === "undefined" || stateString === "") {
+      return {};
+    }
+
+    return stateString.trim().split(";").reduce((state, componentState) => {
+      let componentStateArr = componentState.trim().split(":");
+      state[componentStateArr[0].trim()] = componentStateArr[1].trim();
+      return state;
+    }, {});
+  }
+
   static clearObserver() {
     if (observer) {
       observer.disconnect();
@@ -142,12 +174,19 @@ export default class {
   }
 
   static create() {
-    var component = function(view, config = {}) {
+    var defaultConstructor = function(view, config = {}) {
       this.view = view;
       this.node = view.node;
       this.config = config;
       this.channels = [];
+      this.transitions = { enter: [], leave: [] };
+
+      if (this.constructor && this.constructor !== defaultConstructor) {
+        this.constructor();
+      }
     };
+
+    var component = defaultConstructor;
 
     component.prototype.appear = function () {
       // intentionally empty
@@ -158,7 +197,7 @@ export default class {
     };
 
     component.prototype.listen = function (channel, callback) {
-      this.view.node.addEventListener(channel, (evt) => {
+      this.node.addEventListener(channel, (evt) => {
         callback.call(this, evt.detail);
       });
 
@@ -205,7 +244,91 @@ export default class {
           tuple[0].trigger(channel, payload);
         }
       }
-    }
+    };
+
+    component.prototype.transition = function (state, payload) {
+      let enterTransitions = this.transitions.enter.filter((transition) => {
+        return transition.state === state;
+      });
+
+      let leaveTransitions = this.transitions.leave.filter((transition) => {
+        return transition.state === this.state;
+      });
+
+      let generalEnterTransitions = this.transitions.enter.filter((transition) => {
+        return typeof transition.state === "undefined";
+      });
+
+      let generalLeaveTransitions = this.transitions.leave.filter((transition) => {
+        return typeof transition.state === "undefined";
+      });
+
+      for (let transition of leaveTransitions) {
+        transition.callback(payload);
+      }
+
+      for (let transition of generalLeaveTransitions) {
+        transition.callback(this.state, payload);
+      }
+
+      this.state = state;
+
+      let referenceName = this.config.name;
+      if (this.config.id) {
+        referenceName = `${referenceName}.${this.config.id}`;
+      }
+
+      let update = {};
+      update[referenceName] = this.state;
+      Object.assign(states, update);
+
+      let values = [];
+      for (let key in states) {
+        values.push(`${key}:${states[key]}`);
+      }
+
+      document.location.hash = btoa(values.join(";"));
+
+      for (let transition of enterTransitions) {
+        transition.callback(payload);
+      }
+
+      for (let transition of generalEnterTransitions) {
+        transition.callback(this.state, payload);
+      }
+    };
+
+    component.prototype.enter = function (state, callback) {
+      let object;
+
+      if (typeof callback === "undefined") {
+        object = {
+          callback: state
+        }
+      } else {
+        object = {
+          state: state, callback: callback
+        }
+      }
+
+      this.transitions.enter.push(object);
+    };
+
+    component.prototype.leave = function (state, callback) {
+      let object;
+
+      if (typeof callback === "undefined") {
+        object = {
+          callback: state
+        }
+      } else {
+        object = {
+          state: state, callback: callback
+        }
+      }
+
+      this.transitions.leave.push(object);
+    };
 
     return component;
   }
