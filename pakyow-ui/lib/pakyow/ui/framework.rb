@@ -64,6 +64,10 @@ module Pakyow
           unless const_defined?(:UIRenderer, false)
             const_set(:UIRenderer, ui_renderer)
           end
+
+          after :initialize do
+            config.data.subscriptions.version = config.version
+          end
         end
       end
     end

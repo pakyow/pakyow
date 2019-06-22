@@ -45,6 +45,10 @@ module Pakyow
 
       def register_subscriptions(subscriptions, subscriber: nil, &block)
         @executor << Proc.new {
+          subscriptions.each do |subscription|
+            subscription[:version] = @app.config.data.subscriptions.version
+          end
+
           @adapter.register_subscriptions(subscriptions, subscriber: subscriber).tap do |ids|
             yield ids if block_given?
           end
@@ -55,24 +59,11 @@ module Pakyow
         @executor << Proc.new {
           begin
             @adapter.subscriptions_for_source(source_name).select { |subscription|
-              subscription[:handler] && if subscription[:ephemeral]
-                                          result_source.qualifications == subscription[:qualifications]
-                                        else
-                                          original_results = if result_source
-                                            result_source.original_results
-                                          else
-                                            []
-                                          end
-
-                                          qualified?(
-                                            subscription.delete(:qualifications).to_a,
-                                            changed_values,
-                                            result_source.to_a,
-                                            original_results.to_a
-                                          )
-                                        end
+              process?(subscription, changed_values, result_source)
             }.uniq.each do |subscription|
-              process(subscription, result_source)
+              if subscription[:version] == @app.config.data.subscriptions.version
+                process(subscription, result_source)
+              end
             end
           rescue => error
             Pakyow.logger.error "[Pakyow::Data::Subscribers] did_mutate failed: #{error}"
@@ -93,6 +84,10 @@ module Pakyow
       end
 
       private
+
+      def process?(subscription, changed_values, result_source)
+        subscription[:handler] && qualified_subscription?(subscription, changed_values, result_source)
+      end
 
       def process(subscription, mutated_source)
         callback = subscription[:handler].new(@app)
@@ -115,6 +110,25 @@ module Pakyow
         end
 
         callback.call(subscription[:payload], **arguments)
+      end
+
+      def qualified_subscription?(subscription, changed_values, result_source)
+        if subscription[:ephemeral]
+          result_source.qualifications == subscription[:qualifications]
+        else
+          original_results = if result_source
+            result_source.original_results
+          else
+            []
+          end
+
+          qualified?(
+            subscription.delete(:qualifications).to_a,
+            changed_values,
+            result_source.to_a,
+            original_results.to_a
+          )
+        end
       end
 
       QUALIFIABLE_TYPES = [Hash, Support::IndifferentHash]

@@ -10,6 +10,7 @@ require_relative "shared_examples/subscribe_deeply_associated"
 require_relative "shared_examples/subscribe_ephemeral"
 require_relative "shared_examples/subscribe_many"
 require_relative "shared_examples/unsubscribe"
+require_relative "shared_examples/version"
 
 RSpec.shared_examples "data subscriptions" do
   it_behaves_like :subscription_expire
@@ -24,4 +25,5 @@ RSpec.shared_examples "data subscriptions" do
   it_behaves_like :subscription_subscribe_ephemeral
   it_behaves_like :subscription_subscribe_many
   it_behaves_like :subscription_unsubscribe
+  it_behaves_like :subscription_version
 end

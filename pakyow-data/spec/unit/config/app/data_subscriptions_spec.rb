@@ -22,4 +22,10 @@ RSpec.describe "subscriptions config" do
       end
     end
   end
+
+  describe "version" do
+    it "has a default value" do
+      expect(config.version).to eq(nil)
+    end
+  end
 end

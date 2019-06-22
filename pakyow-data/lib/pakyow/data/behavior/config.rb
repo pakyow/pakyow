@@ -12,6 +12,7 @@ module Pakyow
           configurable :data do
             configurable :subscriptions do
               setting :adapter_settings, {}
+              setting :version
 
               defaults :production do
                 setting :adapter_settings do
