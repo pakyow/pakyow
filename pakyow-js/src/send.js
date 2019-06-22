@@ -10,7 +10,8 @@ export default function (url, options = {}) {
   var xhr = new XMLHttpRequest();
   xhr.id = id;
   xhr.open(method, url);
-  xhr.setRequestHeader("Pw-Ui", pw.version);
+  xhr.setRequestHeader("pw-ui", pw.version);
+  xhr.setRequestHeader("accept", "text/html");
 
   for (let header in (options.headers || {})){
     xhr.setRequestHeader(header, options.headers[header]);
