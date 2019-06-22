@@ -248,9 +248,9 @@ module Pakyow
         namespace = self.class.__object_name.namespace.parts.last
 
         endpoint_name = if namespace == :default
-          :"#{self.class.plugin_name}.#{endpoint.name}"
+          :"@#{self.class.plugin_name}.#{endpoint.name}"
         else
-          :"#{self.class.plugin_name}(#{namespace}).#{endpoint.name}"
+          :"@#{self.class.plugin_name}(#{namespace}).#{endpoint.name}"
         end
 
         @parent.endpoints << Endpoint.new(

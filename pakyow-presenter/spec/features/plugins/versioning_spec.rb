@@ -147,7 +147,7 @@ RSpec.describe "global view versioning from a plugin" do
 
       expect(response_body).to include_sans_whitespace(
         <<~HTML
-          <div data-b="post" data-v="testable.for-current-user">
+          <div data-b="post" data-v="@testable.for-current-user">
             <h1 data-b="title">bar</h1>
 
             for current user
@@ -184,7 +184,7 @@ RSpec.describe "global view versioning from a plugin" do
 
       expect(response_body).to include_sans_whitespace(
         <<~HTML
-          <div data-b="post" data-v="testable(foo).for-current-user">
+          <div data-b="post" data-v="@testable(foo).for-current-user">
             <h1 data-b="title">bar</h1>
 
             for current user
@@ -244,7 +244,7 @@ RSpec.describe "global view versioning from a plugin" do
 
         expect(response_body).to include_sans_whitespace(
           <<~HTML
-            <div data-b="post" data-v="testable.for-current-user">
+            <div data-b="post" data-v="@testable.for-current-user">
               <h1 data-b="title">bar</h1>
 
               for current user
@@ -323,7 +323,7 @@ RSpec.describe "using global versions defined in a plugin from another plugin" d
 
       expect(response_body).to include_sans_whitespace(
         <<~HTML
-          <div data-b="post" data-v="testable_foo.for-current-user">
+          <div data-b="post" data-v="@testable_foo.for-current-user">
             <h1 data-b="title">bar</h1>
 
             for current user

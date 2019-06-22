@@ -73,9 +73,9 @@ module Pakyow
                     plug_namespace = plug.class.__object_name.namespace.parts.last
 
                     full_mode = if plug_namespace == :default
-                      :"#{plug.class.plugin_name}.#{mode}"
+                      :"@#{plug.class.plugin_name}.#{mode}"
                     else
-                      :"#{plug.class.plugin_name}(#{plug_namespace}).#{mode}"
+                      :"@#{plug.class.plugin_name}(#{plug_namespace}).#{mode}"
                     end
 
                     @__ui_modes[full_mode] = block
@@ -93,9 +93,9 @@ module Pakyow
                     plug_namespace = plug.class.__object_name.namespace.parts.last
 
                     full_mode = if plug_namespace == :default
-                      :"#{plug.class.plugin_name}.#{mode}"
+                      :"@#{plug.class.plugin_name}.#{mode}"
                     else
-                      :"#{plug.class.plugin_name}(#{plug_namespace}).#{mode}"
+                      :"@#{plug.class.plugin_name}(#{plug_namespace}).#{mode}"
                     end
 
                     @__ui_modes[full_mode] = block

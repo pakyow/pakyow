@@ -28,7 +28,7 @@ module Pakyow
                           "#{plug.class.plugin_name}(#{plug_namespace})"
                         end
 
-                        presenter.version :"#{prefix}.#{version}" do |object|
+                        presenter.version :"@#{prefix}.#{version}" do |object|
                           instance_exec(object, plug, &logic[:block])
                         end
                       end
@@ -55,7 +55,7 @@ module Pakyow
                         "#{plug.class.plugin_name}(#{plug_namespace})"
                       end
 
-                      presenter.version :"#{prefix}.#{version}" do |object|
+                      presenter.version :"@#{prefix}.#{version}" do |object|
                         instance_exec(object, plug, &logic[:block])
                       end
                     end
