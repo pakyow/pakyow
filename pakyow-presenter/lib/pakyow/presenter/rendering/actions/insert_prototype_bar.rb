@@ -48,7 +48,7 @@ module Pakyow
                   </style>
 
                   <div class="pw-prototype">
-                    #{InsertPrototypeBar.ui_modes_html(view, __mode || :default)}
+                    #{InsertPrototypeBar.ui_modes_html(view, __modes || [:default])}
 
                     <div class="pw-prototype-tag">
                       Prototype
@@ -61,13 +61,15 @@ module Pakyow
 
           expose do |connection|
             if Pakyow.env?(:prototype)
-              connection.set(:__mode, connection.params[:mode])
+              connection.set(:__modes, connection.params[:modes])
             end
           end
         end
 
         # @api private
-        def self.ui_modes_html(view, mode)
+        def self.ui_modes_html(view, current_modes)
+          current_modes = current_modes.map(&:to_sym)
+
           modes = view.object.each_significant_node(:mode).map { |node|
             node.label(:mode)
           }
@@ -77,7 +79,7 @@ module Pakyow
           ).uniq!
 
           options = modes.map { |each_mode|
-            selected = if each_mode == mode.to_sym
+            selected = if current_modes.include?(each_mode)
               " selected=\"selected\""
             else
               ""
@@ -88,7 +90,7 @@ module Pakyow
           }.join
 
           <<~HTML
-            UI Mode: <select onchange="document.location = window.location.pathname + '?mode=' + this.value " style="-webkit-appearance: none; -moz-appearance: none; -ms-appearance: none; -o-appearance: none; appearance: none; font-size: 11px; font-weight: 500; line-height: 20px; background: none; border: none; color: #fff; outline: none; margin: 0; margin-left: 5px;">
+            UI Mode: <select onchange="document.location = window.location.pathname + '?modes[]=' + this.value " style="-webkit-appearance: none; -moz-appearance: none; -ms-appearance: none; -o-appearance: none; appearance: none; font-size: 11px; font-weight: 500; line-height: 20px; background: none; border: none; color: #fff; outline: none; margin: 0; margin-left: 5px;">
               #{options}
             </select>
           HTML

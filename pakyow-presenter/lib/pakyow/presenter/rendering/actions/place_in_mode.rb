@@ -22,14 +22,14 @@ module Pakyow
                   View.from_object(node)
                 }
               } do
-                PlaceInMode.perform(view, __mode)
+                PlaceInMode.perform(view, __modes)
               end
             end
           end
 
           expose do |connection|
             if Pakyow.env?(:prototype)
-              connection.set(:__mode, connection.params[:mode])
+              connection.set(:__modes, connection.params[:modes] || [:default])
             end
           end
         end
