@@ -383,7 +383,7 @@ module Pakyow
         if data.is_a?(Binder)
           data
         else
-          (binder_for_current_scope || @app.isolated(:Binder)).new(data, app: @app)
+          binder_for_current_scope(data)
         end
       end
 
@@ -447,10 +447,23 @@ module Pakyow
 
       private
 
-      def binder_for_current_scope
-        @app.state(:binder).find { |binder|
+      def binder_for_current_scope(data)
+        context = if plug = @view.label(:plug)
+          @app.plug(plug[:name], plug[:instance])
+        else
+          @app
+        end
+
+        binder = context.state(:binder).find { |binder|
           binder.__object_name.name == @view.label(:binding)
         }
+
+        unless binder
+           binder = @app.isolated(:Binder)
+           context = @app
+        end
+
+        binder.new(data, app: context)
       end
 
       def bind_binder_to_view(binder, view)

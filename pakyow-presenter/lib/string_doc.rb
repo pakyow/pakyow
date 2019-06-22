@@ -547,7 +547,7 @@ class StringDoc
       labels = labels_hash(element)
 
       if labels.include?(:binding)
-        find_channel_for_binding!(element, attributes, labels)
+        post_process_binding!(element, attributes, labels)
       end
 
       significance_options = significance.map { |significant_type|
@@ -581,10 +581,26 @@ class StringDoc
     node
   end
 
-  def find_channel_for_binding!(element, attributes, labels)
+  def post_process_binding!(element, attributes, labels)
     channel = semantic_channel_for_element(element)
+    binding = labels[:binding].to_s
 
-    binding_parts = labels[:binding].to_s.split(":").map(&:to_sym)
+    if binding.start_with?("@")
+      plug, binding = binding.split(".", 2)
+      plug_name, plug_instance = plug.split("(", 2)
+
+      if plug_instance
+        plug_instance = plug_instance[0..-2]
+      else
+        plug_instance = :default
+      end
+
+      labels[:plug] = {
+        name: plug_name[1..-1].to_sym, instance: plug_instance.to_sym
+      }
+    end
+
+    binding_parts = binding.split(":").map(&:to_sym)
     binding_name_parts = binding_parts[0].to_s.split(".", 2)
     labels[:binding] = binding_name_parts[0].to_sym
     labels[:binding_prop] = binding_name_parts[1].to_sym if binding_name_parts.length > 1

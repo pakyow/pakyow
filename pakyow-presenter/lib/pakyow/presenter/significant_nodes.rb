@@ -148,7 +148,9 @@ module Pakyow
       StringDoc.significant :multipart_binding, self
 
       def self.significant?(node)
-        BindingNode.significant?(node) && node.attribute(:binding).value.include?(".")
+        BindingNode.significant?(node) &&
+          node.attribute(:binding).value.include?(".") &&
+          !node.attribute(:binding).value.start_with?("@")
       end
     end
 
