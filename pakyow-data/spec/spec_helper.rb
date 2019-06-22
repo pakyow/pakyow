@@ -34,8 +34,8 @@ RSpec.configure do |config|
       connection.connected?
     }
 
-    if connections.empty? && @connection
-      connections << @connection
+    if connections.empty? && @data_connection
+      connections << @data_connection
     end
 
     connections.each do |connection|
@@ -58,7 +58,7 @@ RSpec.configure do |config|
     end
 
     Pakyow.data_connections.values.flat_map(&:values).each(&:disconnect)
-    @connection.disconnect if @connection
+    @data_connection.disconnect if @data_connection
   end
 
   def connection_name
@@ -75,9 +75,9 @@ RSpec.configure do |config|
 
   def connection
     unless connection = Pakyow.data_connections.dig(connection_type, connection_name)
-      @connection&.disconnect
+      @data_connection&.disconnect
       connection = Pakyow::Data::Connection.new(type: connection_type, name: :migrator, string: connection_string)
-      @connection = connection
+      @data_connection = connection
     end
 
     connection
