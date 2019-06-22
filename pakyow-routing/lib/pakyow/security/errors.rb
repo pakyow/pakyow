@@ -9,5 +9,11 @@ module Pakyow
 
     class InsecureRequest < Error
     end
+
+    class InsecureRedirect < Error
+      class_state :messages, default: {
+        default: "Cannot redirect to remote, untrusted location `{location}'"
+      }.freeze
+    end
   end
 end

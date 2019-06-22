@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "forwardable"
+require "uri"
 
 require "pakyow/support/aargv"
 require "pakyow/support/hookable"
@@ -9,6 +10,8 @@ require "pakyow/support/pipeline"
 require "pakyow/support/core_refinements/string/normalization"
 
 require "pakyow/connection/statuses"
+
+require "pakyow/security/errors"
 
 require "pakyow/routing/route"
 
@@ -279,6 +282,7 @@ module Pakyow
     #
     # @param location [String] what url the request should be redirected to
     # @param as [Integer, Symbol] the status to redirect with
+    # @param trusted [Boolean] whether or not the location is trusted
     #
     # @example Redirecting:
     #   Pakyow::App.controller do
@@ -294,10 +298,30 @@ module Pakyow
     #     end
     #   end
     #
-    def redirect(location, as: 302, **params)
-      @connection.status = Connection::Statuses.code(as)
-      @connection.set_header("Location", location.is_a?(Symbol) ? app.endpoints.path(location, **params) : location)
-      halt
+    # @example Redirecting to a remote location:
+    #   Pakyow::App.controller do
+    #     default do
+    #       redirect "http://foo.com/bar", trusted: true
+    #     end
+    #   end
+    #
+    def redirect(location, as: 302, trusted: false, **params)
+      location = case location
+      when Symbol
+        app.endpoints.path(location, **params)
+      else
+        location
+      end
+
+      if trusted || URI(location).host.nil?
+        @connection.status = Connection::Statuses.code(as)
+        @connection.set_header("location", location)
+        halt
+      else
+        raise Security::InsecureRedirect.new_with_message(
+          location: location
+        )
+      end
     end
 
     # Reroutes the request to a different location. Instead of an http redirect, the request will

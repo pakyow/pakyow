@@ -46,6 +46,10 @@ RSpec.shared_context "app" do
     "/"
   end
 
+  let :connection do
+    @connection
+  end
+
   before do
     Pakyow.config.logger.enabled = false
     Pakyow.instance_variable_set(:@error, nil)
@@ -90,6 +94,7 @@ RSpec.shared_context "app" do
 
     Async::Reactor.run {
       result = Pakyow.call(request).tap do
+        @connection = connection_for_call
         check_response(connection_for_call)
       end
 
