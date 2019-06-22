@@ -1,6 +1,6 @@
 RSpec.shared_examples :source_connection do
   describe "connecting a source" do
-    let :connection do
+    let :data_connection do
       Pakyow.apps.first.data.posts.source.class.container.connection
     end
 
@@ -26,7 +26,7 @@ RSpec.shared_examples :source_connection do
         end
 
         it "connects to the default connection" do
-          expect(connection.name).to eq(:default)
+          expect(data_connection.name).to eq(:default)
         end
       end
 
@@ -49,7 +49,7 @@ RSpec.shared_examples :source_connection do
         end
 
         it "connects to the default connection" do
-          expect(connection.name).to eq(:default)
+          expect(data_connection.name).to eq(:default)
         end
       end
     end
@@ -76,7 +76,7 @@ RSpec.shared_examples :source_connection do
         end
 
         it "connects to the specified connection" do
-          expect(connection.name).to eq(:test)
+          expect(data_connection.name).to eq(:test)
         end
       end
     end
@@ -104,7 +104,7 @@ RSpec.shared_examples :source_connection do
         end
 
         it "connects to the default connection" do
-          expect(connection.name).to eq(:default)
+          expect(data_connection.name).to eq(:default)
         end
       end
 
@@ -128,7 +128,7 @@ RSpec.shared_examples :source_connection do
         end
 
         it "connects to the default connection" do
-          expect(connection.name).to eq(:default)
+          expect(data_connection.name).to eq(:default)
         end
       end
 
@@ -152,7 +152,7 @@ RSpec.shared_examples :source_connection do
         end
 
         it "connects to the specified connection" do
-          expect(connection.name).to eq(:test)
+          expect(data_connection.name).to eq(:test)
         end
       end
     end
@@ -180,7 +180,7 @@ RSpec.shared_examples :source_connection do
         end
 
         it "connects to the specified connection" do
-          expect(connection.name).to eq(:test2)
+          expect(data_connection.name).to eq(:test2)
         end
       end
     end

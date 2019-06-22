@@ -37,7 +37,7 @@ RSpec.shared_examples :source_migrations_adding do |types:|
 
           expect(column).to_not be(nil)
           expect(column[1][:type]).to eq(
-            connection.adapter.finalized_attribute(type).meta[:column_type]
+            data_connection.adapter.finalized_attribute(type).meta[:column_type]
           )
         end
       end
@@ -142,10 +142,10 @@ RSpec.shared_examples :source_migrations_adding do |types:|
 
         expect(column).to_not be(nil)
         expect(column[1][:type]).to eq(
-          connection.adapter.finalized_attribute(types[:decimal]).meta[:column_type]
+          data_connection.adapter.finalized_attribute(types[:decimal]).meta[:column_type]
         )
         expect(column[1][:db_type]).to eq(
-          connection.adapter.finalized_attribute(data.posts.source.class.attributes[:test_custom_decimal]).meta[:native_type]
+          data_connection.adapter.finalized_attribute(data.posts.source.class.attributes[:test_custom_decimal]).meta[:native_type]
         )
       end
     end
@@ -232,7 +232,7 @@ RSpec.shared_examples :source_migrations_adding do |types:|
 
         expect(column).to_not be(nil)
         expect(column[1][:type]).to eq(
-          connection.adapter.finalized_attribute(types[:bignum]).meta[:column_type]
+          data_connection.adapter.finalized_attribute(types[:bignum]).meta[:column_type]
         )
       end
     end
@@ -332,7 +332,7 @@ RSpec.shared_examples :source_migrations_adding do |types:|
 
         expect(column).to_not be(nil)
         expect(column[1][:type]).to eq(
-          connection.adapter.finalized_attribute(types[:bignum]).meta[:column_type]
+          data_connection.adapter.finalized_attribute(types[:bignum]).meta[:column_type]
         )
       end
     end

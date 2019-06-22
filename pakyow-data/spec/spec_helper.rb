@@ -73,18 +73,18 @@ RSpec.configure do |config|
     Pakyow.apps.first.data
   end
 
-  def connection
-    unless connection = Pakyow.data_connections.dig(connection_type, connection_name)
+  def data_connection
+    unless data_connection = Pakyow.data_connections.dig(connection_type, connection_name)
       @data_connection&.disconnect
-      connection = Pakyow::Data::Connection.new(type: connection_type, name: :migrator, string: connection_string)
-      @data_connection = connection
+      data_connection = Pakyow::Data::Connection.new(type: connection_type, name: :migrator, string: connection_string)
+      @data_connection = data_connection
     end
 
-    connection
+    data_connection
   end
 
   def raw_connection
-    connection.adapter.connection
+    data_connection.adapter.connection
   end
 
   def schema(table)

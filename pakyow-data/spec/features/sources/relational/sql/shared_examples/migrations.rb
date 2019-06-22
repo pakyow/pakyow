@@ -16,7 +16,7 @@ RSpec.shared_examples :source_sql_migrations do |adapter:|
   }
 
   def migrator
-    Pakyow::Data::Adapters::Sql::Migrator.new(connection)
+    Pakyow::Data::Adapters::Sql::Migrator.new(data_connection)
   end
 
   let :additional_finalized_columns do

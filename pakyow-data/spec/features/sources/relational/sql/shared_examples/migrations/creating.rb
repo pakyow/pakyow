@@ -27,7 +27,7 @@ RSpec.shared_examples :source_migrations_creating do |types:|
 
         expect(column).to_not be(nil)
         expect(column[1][:type]).to eq(
-          connection.adapter.finalized_attribute(types[:bignum]).meta[:column_type]
+          data_connection.adapter.finalized_attribute(types[:bignum]).meta[:column_type]
         )
       end
 
@@ -38,7 +38,7 @@ RSpec.shared_examples :source_migrations_creating do |types:|
 
         expect(column).to_not be(nil)
         expect(column[1][:type]).to eq(
-          connection.adapter.finalized_attribute(types[:datetime]).meta[:column_type]
+          data_connection.adapter.finalized_attribute(types[:datetime]).meta[:column_type]
         )
 
         column = schema(:posts).find { |column_name, options|
@@ -47,7 +47,7 @@ RSpec.shared_examples :source_migrations_creating do |types:|
 
         expect(column).to_not be(nil)
         expect(column[1][:type]).to eq(
-          connection.adapter.finalized_attribute(types[:datetime]).meta[:column_type]
+          data_connection.adapter.finalized_attribute(types[:datetime]).meta[:column_type]
         )
       end
 
@@ -59,7 +59,7 @@ RSpec.shared_examples :source_migrations_creating do |types:|
 
           expect(column).to_not be(nil)
           expect(column[1][:type]).to eq(
-            connection.adapter.finalized_attribute(type).meta[:column_type]
+            data_connection.adapter.finalized_attribute(type).meta[:column_type]
           )
         end
       end
@@ -168,7 +168,7 @@ RSpec.shared_examples :source_migrations_creating do |types:|
 
         expect(column).to_not be(nil)
         expect(column[1][:type]).to eq(
-          connection.adapter.finalized_attribute(types[:bignum]).meta[:column_type]
+          data_connection.adapter.finalized_attribute(types[:bignum]).meta[:column_type]
         )
       end
     end

@@ -143,7 +143,7 @@ RSpec.shared_examples :source_migrations_changing do |adapter:, types:|
 
               expect(column).to_not be(nil)
               expect(column[1][:type]).to eq(
-                connection.adapter.finalized_attribute(to_type).meta[:column_type]
+                data_connection.adapter.finalized_attribute(to_type).meta[:column_type]
               )
             end
           end
