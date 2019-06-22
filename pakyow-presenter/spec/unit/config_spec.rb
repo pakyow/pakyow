@@ -24,13 +24,19 @@ RSpec.describe "presenter config" do
     end
   end
 
-  describe "app.version" do
+  describe "version" do
     before do
       expect(Pakyow::Support::PathVersion).to receive(:build).with(config.path).and_return("digest")
     end
 
     it "has a default value" do
       expect(config.version).to eq("digest")
+    end
+  end
+
+  describe "features.streaming" do
+    it "has a default value" do
+      expect(config.features.streaming).to be(false)
     end
   end
 end

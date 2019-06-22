@@ -503,21 +503,48 @@ RSpec.describe "rendering with backend components" do
       end
     end
 
-    it "marks the component as having failed to render" do
-      expect(call("/components")[2]).to eq_sans_whitespace(
-        <<~HTML
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <title>default</title>
-            </head>
+    let :allow_request_failures do
+      true
+    end
 
-            <body>
-              <div data-ui="single" class="render-failed"></div>
-            </body>
-          </html>
-        HTML
-      )
+    it "causes the request to fail" do
+      call("/components")
+      expect(connection.error).to be_instance_of(RuntimeError)
+    end
+
+    context "streaming renders are enabled" do
+      let :app_def do
+        Proc.new do
+          configure :test do
+            config.presenter.features.streaming = true
+          end
+
+          component :single do
+            presenter do
+              render node: -> { self } do
+                fail
+              end
+            end
+          end
+        end
+      end
+
+      it "marks the component as having failed to render" do
+        expect(call("/components")[2]).to eq_sans_whitespace(
+          <<~HTML
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <title>default</title>
+              </head>
+
+              <body>
+                <div data-ui="single" class="render-failed"></div>
+              </body>
+            </html>
+          HTML
+        )
+      end
     end
   end
 end

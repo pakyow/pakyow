@@ -139,8 +139,13 @@ module Pakyow
 
           connection.set_header("content-type", "text/html")
 
-          connection.stream do
-            renderer.perform(connection.body)
+          if connection.app.config.presenter.features.streaming
+            connection.stream do
+              renderer.perform(connection.body)
+            end
+          else
+            output = renderer.perform(StringIO.new); output.rewind
+            connection.body = output
           end
 
           connection.rendered

@@ -20,6 +20,10 @@ module Pakyow
             setting :version do
               Support::PathVersion.build(config.presenter.path)
             end
+
+            configurable :features do
+              setting :streaming, false
+            end
           end
         end
       end

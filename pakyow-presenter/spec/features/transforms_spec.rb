@@ -154,55 +154,80 @@ RSpec.describe "attaching transforms to a presenter" do
   end
 
   context "render fails" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         presenter "/presentation/transforms/channeled" do
           render :post, channel: :foo do
             fail
           end
-
-          render :post, channel: :bar do
-            bind(title: "test")
-          end
         end
       end
     end
 
-    it "removes the node content, adds an error class, and continues rendering" do
-      expect(call("/presentation/transforms/channeled")[2]). to eq_sans_whitespace(
-        <<~HTML
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <title>default</title>
-            </head>
+    let :allow_request_failures do
+      true
+    end
 
-            <body>
-              <div data-b="post" data-c="foo" class="render-failed"></div>
+    it "causes the request to fail" do
+      call("/presentation/transforms/channeled")
+      expect(connection.error).to be_instance_of(RuntimeError)
+    end
 
-              <script type="text/template" data-b="post" data-c="foo">
-                <div data-b="post" data-c="foo">
-                  <h1 data-b="title">
-                    title goes here
-                  </h1>
-                </div>
-              </script>
+    context "streaming renders are enabled" do
+      let :app_def do
+        Proc.new do
+          configure :test do
+            config.presenter.features.streaming = true
+          end
 
-              <div data-b="post" data-c="bar">
-                <h1 data-b="title">test</h1>
-              </div>
+          presenter "/presentation/transforms/channeled" do
+            render :post, channel: :foo do
+              fail
+            end
 
-              <script type="text/template" data-b="post" data-c="bar">
+            render :post, channel: :bar do
+              bind(title: "test")
+            end
+          end
+        end
+      end
+
+      it "removes the node content, adds an error class, and continues rendering" do
+        expect(call("/presentation/transforms/channeled")[2]). to eq_sans_whitespace(
+          <<~HTML
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <title>default</title>
+              </head>
+
+              <body>
+                <div data-b="post" data-c="foo" class="render-failed"></div>
+
+                <script type="text/template" data-b="post" data-c="foo">
+                  <div data-b="post" data-c="foo">
+                    <h1 data-b="title">
+                      title goes here
+                    </h1>
+                  </div>
+                </script>
+
                 <div data-b="post" data-c="bar">
-                  <h1 data-b="title">
-                    title goes here
-                  </h1>
+                  <h1 data-b="title">test</h1>
                 </div>
-              </script>
-            </body>
-          </html>
-        HTML
-      )
+
+                <script type="text/template" data-b="post" data-c="bar">
+                  <div data-b="post" data-c="bar">
+                    <h1 data-b="title">
+                      title goes here
+                    </h1>
+                  </div>
+                </script>
+              </body>
+            </html>
+          HTML
+        )
+      end
     end
   end
 
