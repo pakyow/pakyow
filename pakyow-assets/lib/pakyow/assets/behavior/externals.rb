@@ -25,7 +25,7 @@ module Pakyow
         apply_extension do
           after "boot", "fetch.assets.externals" do
             if config.assets.externals.pakyow
-              external_script :pakyow, "^1.0.0-alpha.15", package: "@pakyow/js", files: [
+              external_script :pakyow, "^1.0.0-alpha.16", package: "@pakyow/js", files: [
                 "dist/pakyow.js",
                 "dist/components/confirmable.js",
                 "dist/components/form.js",

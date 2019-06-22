@@ -1,6 +1,6 @@
 {
   "name": "@pakyow/js",
-  "version": "1.0.0-alpha.15",
+  "version": "1.0.0-alpha.16",
   "description": "Client-Side Pakyow",
   "main": "dist/pakyow.js",
   "files": [
@@ -42,6 +42,8 @@
     "testURL": "http://localhost",
     "testRegex": "__tests__/.+\\.spec\\.(js)$",
     "testEnvironment": "jest-environment-jsdom-global",
-    "setupFiles": ["jest-localstorage-mock"]
+    "setupFiles": [
+      "jest-localstorage-mock"
+    ]
   }
 }
