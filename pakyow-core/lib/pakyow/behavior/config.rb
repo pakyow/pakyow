@@ -10,6 +10,7 @@ module Pakyow
 
       apply_extension do
         setting :name, :pakyow
+        setting :version
 
         setting :root do
           Pakyow.config.root
@@ -21,10 +22,6 @@ module Pakyow
 
         setting :lib do
           File.join(config.src, "lib")
-        end
-
-        setting :version do
-          Support::PathVersion.build(config.src)
         end
 
         configurable :tasks do

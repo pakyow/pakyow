@@ -159,6 +159,8 @@ module Pakyow
           $LOAD_PATH.unshift(config.lib)
         end
 
+        config.version = Support::PathVersion.build(config.src)
+
         # Call the Pakyow::Definable initializer.
         #
         # This ensures that any state registered in the passed block

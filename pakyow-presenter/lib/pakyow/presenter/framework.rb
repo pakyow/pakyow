@@ -172,6 +172,17 @@ module Pakyow
             end
           end
 
+          # Update the presenter version and rebuild the app version.
+          #
+          after "initialize" do
+            config.presenter.version = Support::PathVersion.build(config.presenter.path)
+
+            app_version = Digest::SHA1.new
+            app_version.update(config.version)
+            app_version.update(config.presenter.version)
+            config.version = app_version.to_s
+          end
+
           include Behavior::Config
           include Behavior::ErrorRendering
           include Behavior::Exposures

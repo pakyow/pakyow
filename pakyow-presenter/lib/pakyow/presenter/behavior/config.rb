@@ -16,10 +16,7 @@ module Pakyow
             end
 
             setting :embed_authenticity_token, true
-
-            setting :version do
-              Support::PathVersion.build(config.presenter.path)
-            end
+            setting :version
 
             configurable :features do
               setting :streaming, false

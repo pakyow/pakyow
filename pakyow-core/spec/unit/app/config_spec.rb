@@ -35,12 +35,8 @@ RSpec.describe Pakyow::App do
     end
 
     describe "app.version" do
-      before do
-        expect(Pakyow::Support::PathVersion).to receive(:build).with(app.config.src).and_return("digest")
-      end
-
       it "has a default value" do
-        expect(app.config.version).to eq("digest")
+        expect(app.config.version).to eq(nil)
       end
     end
 
