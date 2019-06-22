@@ -53,22 +53,22 @@ module Pakyow
             self.class.include_helpers :active, isolated(:Controller)
           end
 
-          # Create a global controller instance used to handle errors from other
-          # parts of the framework.
+          # Create the global controller instance.
           #
           after "initialize" do
             @global_controller = isolated(:Controller).new(self)
           end
 
-          require "pakyow/support/message_verifier"
-          handle Support::MessageVerifier::TamperedMessage, as: :forbidden
-
-          # @api private
+          # Expose the global controller for handling errors from other frameworks.
+          #
           def controller_for_connection(connection)
             @global_controller.dup.tap do |controller|
               controller.instance_variable_set(:@connection, connection)
             end
           end
+
+          require "pakyow/support/message_verifier"
+          handle Support::MessageVerifier::TamperedMessage, as: :forbidden
 
           include Security::Behavior::Config
           include Security::Behavior::Disabling

@@ -61,5 +61,42 @@ RSpec.describe "handling errors when calling the environment" do
     it "responds with the expected body" do
       expect(call("/")[2]).to eq("500 Server Error")
     end
+
+    context "app implements `controller_for_connection`" do
+      let :app_def do
+        Proc.new do
+          action do |connection|
+            fail "something went wrong"
+          end
+        end
+      end
+
+      let :app_init do
+        local = self
+        Proc.new do
+          @local = local
+          def controller_for_connection(connection)
+            @local.controller.new(connection)
+          end
+        end
+      end
+
+      let :controller do
+        Class.new do
+          def initialize(connection)
+            @connection = connection
+          end
+
+          def handle_error(error)
+            @connection.body = StringIO.new("handled: #{error}")
+            @connection.halt
+          end
+        end
+      end
+
+      it "lets the controller handle the error" do
+        expect(call("/")[2]).to eq("handled: something went wrong")
+      end
+    end
   end
 end

@@ -183,7 +183,18 @@ module Pakyow
     # Calls the app pipeline with a connection created from the rack env.
     #
     def call(connection)
-      super(isolated(:Connection).new(self, connection))
+      app_connection = isolated(:Connection).new(self, connection)
+      super(app_connection)
+    rescue => error
+      if respond_to?(:controller_for_connection)
+        begin
+          controller_for_connection(app_connection).handle_error(error)
+        rescue => e
+          pp e
+        end
+      else
+        raise error
+      end
     end
 
     def shutdown
