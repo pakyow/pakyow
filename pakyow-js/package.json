@@ -31,6 +31,7 @@
     "jest": "^24.8.0",
     "jest-environment-jsdom": "^24.8.0",
     "jest-environment-jsdom-global": "^1.2.0",
+    "jest-localstorage-mock": "^2.4.0",
     "jsdom": "^15.1.1",
     "mutationobserver-shim": "^0.3.3",
     "rollup": "^1.14.2",
@@ -40,6 +41,7 @@
   "jest": {
     "testURL": "http://localhost",
     "testRegex": "__tests__/.+\\.spec\\.(js)$",
-    "testEnvironment": "jest-environment-jsdom-global"
+    "testEnvironment": "jest-environment-jsdom-global",
+    "setupFiles": ["jest-localstorage-mock"]
   }
 }

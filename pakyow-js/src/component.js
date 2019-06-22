@@ -78,7 +78,15 @@ export default class {
   }
 
   static componentFromView(view) {
-    states = this.parseState(atob(document.location.hash.substr(1)));
+    let serializedState = window.localStorage.getItem(
+      `pw:component-state:${window.location.pathname}`
+     );
+
+    if (serializedState) {
+      states = this.parseState(serializedState);
+    } else {
+      states = {};
+    }
 
     if (!instances.find((component) => { return component.view.node === view.node })) {
       var uiComponents = this.parseUI(view.node.dataset.ui);
@@ -296,10 +304,7 @@ export default class {
       }
 
       if (this.config.sticky) {
-        let link = document.createElement("a");
-        link.href = document.location.href;
-        link.hash = btoa(values.join(";"));
-        pw.ui.visit(link.href);
+        window.localStorage.setItem(`pw:component-state:${window.location.pathname}`, values.join(";"))
       }
 
       for (let transition of enterTransitions) {

@@ -58,7 +58,7 @@ describe("setting initial state on a component from config", () => {
 
 describe("setting initial state on a component from the hash", () => {
   beforeEach(() => {
-    document.location.hash = btoa("foo:state1");
+    window.localStorage.setItem("pw:component-state:/", "foo:state1");
 
     document.querySelector("html").innerHTML = `
       <head>
@@ -78,7 +78,7 @@ describe("setting initial state on a component from the hash", () => {
 
 describe("setting initial state on multiple components from the hash", () => {
   beforeEach(() => {
-    document.location.hash = btoa("foo:state1;bar:state2");
+    window.localStorage.setItem("pw:component-state:/", "foo:state1;bar:state2");
 
     document.querySelector("html").innerHTML = `
       <head>
@@ -93,7 +93,7 @@ describe("setting initial state on multiple components from the hash", () => {
   });
 
   afterEach(() => {
-    document.location.hash = "";
+    window.localStorage.clear();
   });
 
   test("initializes each component", () => {
@@ -104,7 +104,7 @@ describe("setting initial state on multiple components from the hash", () => {
 
 describe("setting initial state on multiple instances of one component from the hash", () => {
   beforeEach(() => {
-    document.location.hash = btoa("foo.1:state1;foo.2:state2");
+    window.localStorage.setItem("pw:component-state:/", "foo.1:state1;foo.2:state2");
 
     document.querySelector("html").innerHTML = `
       <head>
@@ -160,7 +160,7 @@ describe("transitioning a component to a new state", () => {
   beforeEach(() => {
     calls = [];
 
-    document.location.hash = btoa("foo.3:state2;baz:state3");
+    window.localStorage.setItem("pw:component-state:/", "foo.3:state2;baz:state3");
 
     document.querySelector("html").innerHTML = `
       <head>
@@ -197,7 +197,7 @@ describe("transitioning a component to a new state", () => {
   });
 
   afterEach(() => {
-    document.location.hash = "";
+    window.localStorage.clear();
   });
 
   test("updates the state of the component", () => {
@@ -240,7 +240,7 @@ describe("stickyness after transitioning a component to a new state", () => {
     beforeEach(() => {
       calls = [];
 
-      document.location.hash = btoa("foo.3:state2;baz:state3");
+      window.localStorage.setItem("pw:component-state:/", "foo.3:state2;baz:state3");
 
       document.querySelector("html").innerHTML = `
         <head>
@@ -257,11 +257,11 @@ describe("stickyness after transitioning a component to a new state", () => {
     });
 
     afterEach(() => {
-      document.location.hash = "";
+      window.localStorage.clear();
     });
 
     test("updates the document hash to reflect the new state", () => {
-      expect(atob(document.location.hash.substr(1))).toEqual("foo.3:state2;baz:state3;foo:state1")
+      expect(window.localStorage.getItem("pw:component-state:/")).toEqual("foo.3:state2;baz:state3;foo:state1")
     });
   });
 
@@ -286,7 +286,7 @@ describe("stickyness after transitioning a component to a new state", () => {
     });
 
     afterEach(() => {
-      document.location.hash = "";
+      window.localStorage.clear();
     });
 
     test("does not update the document hash", () => {
