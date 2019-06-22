@@ -37,6 +37,17 @@ export default [
     }
   },
   {
+    input: "src/components/freshener",
+    plugins: [
+      node(), babel()
+    ],
+    output: {
+      extend: true,
+      file: "dist/components/freshener.js",
+      format: "esm"
+    }
+  },
+  {
     input: "src/components/navigable",
     plugins: [
       node(), babel()

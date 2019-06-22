@@ -100,6 +100,7 @@ module Pakyow
         @open = true
         trigger_presence(:join)
         @logger.info "opened"
+        transmit_system_info
       end
 
       def handle_message(message)
@@ -110,6 +111,15 @@ module Pakyow
         @connection.app.hooks(:before, event).each do |hook, _|
           instance_exec(&hook[:block])
         end
+      end
+
+      def transmit_system_info
+        transmit(
+          channel: "system",
+          message: {
+            version: @connection.app.config.version
+          }
+        )
       end
     end
   end

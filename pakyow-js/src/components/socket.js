@@ -42,7 +42,12 @@ pw.define("socket", {
 
     this.connection.onmessage = (event) => {
       var payload = JSON.parse(event.data).payload;
-      pw.broadcast("pw:socket:message:" + payload.channel, payload.message);
+
+      if (payload.channel === "system") {
+        pw.ui.info = payload.message;
+      } else {
+        pw.broadcast("pw:socket:message:" + payload.channel, payload.message);
+      }
     }
 
     if (!this.reconnecting) {

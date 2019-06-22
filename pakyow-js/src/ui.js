@@ -29,4 +29,16 @@ export default class {
       document.location = url;
     }
   }
+
+  static set info(values) {
+    if (this.__system_info && this.__system_info.version !== values.version) {
+      pw.broadcast("pw:ui:stale", values);
+    }
+
+    this.__system_info = values;
+  }
+
+  static get info() {
+    return this.__system;
+  }
 }
