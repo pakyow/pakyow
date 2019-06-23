@@ -189,11 +189,7 @@ module Pakyow
       super(app_connection)
     rescue => error
       if respond_to?(:controller_for_connection)
-        begin
-          controller_for_connection(app_connection).handle_error(error)
-        rescue => e
-          pp e
-        end
+        controller_for_connection(app_connection).handle_error(error)
       else
         raise error
       end
