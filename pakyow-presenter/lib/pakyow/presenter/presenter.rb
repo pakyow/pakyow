@@ -454,8 +454,8 @@ module Pakyow
           @app
         end
 
-        binder = context.state(:binder).find { |binder|
-          binder.__object_name.name == @view.label(:binding)
+        binder = context.state(:binder).find { |possible_binder|
+          possible_binder.__object_name.name == @view.label(:binding)
         }
 
         unless binder
@@ -562,6 +562,30 @@ module Pakyow
         end
       end
 
+      def present?(key, object)
+        key = key.to_s
+        !internal_presentable?(key) && (object_presents?(object, key) || plug_presents?(object, key))
+      end
+
+      def internal_presentable?(key)
+        key.start_with?("__")
+      end
+
+      def object_presents?(object, key)
+        (key.start_with?(plural_binding_name.to_s) || key.start_with?(singular_binding_name.to_s)) &&
+          # FIXME: Find a more performant way to do this
+          #
+          (key.split(":")[1..-1].map(&:to_sym) - object.label(:channel).to_a).empty?
+      end
+
+      def plug_presents?(object, key)
+        object.labeled?(:plug) &&
+          key.start_with?(object.label(:plug)[:key]) &&
+          # FIXME: Find a more performant way to do this
+          #
+          object_presents?(object, key.split("#{object.label(:plug)[:key]}.", 2)[1])
+      end
+
       class << self
         using Support::Refinements::String::Normalization
 
@@ -643,13 +667,8 @@ module Pakyow
               block: Proc.new {
                 if object.labeled?(:binding) && !object.labeled?(:bound)
                   presentables.each do |key, value|
-                    key = key.to_s
-                    # FIXME: Find a more performant way to do this.
-                    #
-                    if !key.start_with?("__") && (key.start_with?(plural_binding_name.to_s) || key.start_with?(singular_binding_name.to_s))
-                      if (key.split(":")[1..-1].map(&:to_sym) - object.label(:channel).to_a).empty?
-                        present(value); break
-                      end
+                    if present?(key, object)
+                      present(value); break
                     end
                   end
                 end

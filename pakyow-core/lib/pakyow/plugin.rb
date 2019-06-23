@@ -80,6 +80,7 @@ module Pakyow
       @state = []
       @endpoints = Endpoints.new
       @features = self.class.features
+      @key = build_key
 
       performing :configure do
         configure!(@parent.environment)
@@ -195,7 +196,25 @@ module Pakyow
       }
     end
 
+    def frontend_key(name = nil)
+      if name
+        :"@#{@key}.#{name}"
+      else
+        @key
+      end
+    end
+
     private
+
+    def build_key
+      namespace = self.class.__object_name.namespace.parts.last
+      @key = case namespace
+      when :default
+        :"#{self.class.plugin_name}"
+      else
+        :"#{self.class.plugin_name}.#{namespace}"
+      end
+    end
 
     def load_aspect(aspect)
       @state.each do |state|

@@ -596,8 +596,15 @@ class StringDoc
       end
 
       labels[:plug] = {
-        name: plug_name[1..-1].to_sym, instance: plug_instance.to_sym
+        name: plug_name[1..-1].to_sym,
+        instance: plug_instance.to_sym,
       }
+
+      labels[:plug][:key] = if labels[:plug][:instance] == :default
+        "@#{labels[:plug][:name]}"
+      else
+        "@#{labels[:plug][:name]}.#{labels[:plug][:instance]}"
+      end
     end
 
     binding_parts = binding.split(":").map(&:to_sym)
