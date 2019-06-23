@@ -11,7 +11,6 @@ export default function (url, options = {}) {
   xhr.id = id;
   xhr.open(method, url);
   xhr.setRequestHeader("pw-ui", pw.version);
-  xhr.setRequestHeader("accept", "text/html");
 
   for (let header in (options.headers || {})){
     xhr.setRequestHeader(header, options.headers[header]);
@@ -61,8 +60,10 @@ export default function (url, options = {}) {
     }
 
     if (data) {
-      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.setRequestHeader("content-type", "application/json");
       data = JSON.stringify(data);
+    } else {
+      xhr.setRequestHeader("accept", "text/html");
     }
   }
 

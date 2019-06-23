@@ -42,7 +42,15 @@ describe("sending to the server", () => {
     pw.send("/");
 
     expect(XMLHttpRequest.mock.instances[0].setRequestHeader.mock.calls[0]).toEqual(
-      ["Pw-Ui", pw.version]
+      ["pw-ui", pw.version]
+    );
+  });
+
+  test("sets the accept header", () => {
+    pw.send("/");
+
+    expect(XMLHttpRequest.mock.instances[0].setRequestHeader.mock.calls[1]).toEqual(
+      ["accept", "text/html"]
     );
   });
 
@@ -129,7 +137,7 @@ describe("sending to the server", () => {
       pw.send("/", { data: { foo: "bar" } });
 
       expect(XMLHttpRequest.mock.instances[0].setRequestHeader.mock.calls[1]).toEqual(
-        ["Content-Type", "application/json"]
+        ["content-type", "application/json"]
       );
     });
 
@@ -146,17 +154,17 @@ describe("sending to the server", () => {
     test("sets each header", () => {
       pw.send("/", {
         headers: {
-          "Content-Length": 0,
-          "Content-Type": "text/xml"
+          "content-length": 0,
+          "content-type": "text/xml"
         }
       });
 
       expect(XMLHttpRequest.mock.instances[0].setRequestHeader.mock.calls[1]).toEqual(
-        ["Content-Length", 0]
+        ["content-length", 0]
       );
 
       expect(XMLHttpRequest.mock.instances[0].setRequestHeader.mock.calls[2]).toEqual(
-        ["Content-Type", "text/xml"]
+        ["content-type", "text/xml"]
       );
     });
   });
