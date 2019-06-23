@@ -108,10 +108,6 @@ module Pakyow
               } || controller.send(endpoint_name) do
                 operations.reflect(controller: self)
               end
-            else
-              controller = controller.collection do
-                # intentionally empty
-              end
             end
           end
 
@@ -184,36 +180,18 @@ module Pakyow
 
         def define_controller_for_endpoint_path(endpoint_path, context, next_endpoint_path = nil)
           if context.is_a?(Class) && context.ancestors.include?(Controller) && context.expansions.include?(:resource)
-            if endpoint_path == "show"
-              if needs_resource?(next_endpoint_path)
-                context.resource next_endpoint_path.to_sym, String.normalize_path(next_endpoint_path) do
-                  # intentionally empty
-                end
+            if needs_resource?(endpoint_path)
+              if context.__object_name.name == endpoint_path.to_sym
+                context
               else
-                context.member do
+                context.resource endpoint_path.to_sym, String.normalize_path(endpoint_path) do
                   # intentionally empty
                 end
               end
             else
-              if needs_resource?(endpoint_path)
-                if context.__object_name.name == endpoint_path.to_sym
-                  context
-                else
-                  context.collection {}.resource endpoint_path.to_sym, String.normalize_path(endpoint_path) do
-                    # intentionally empty
-                  end
-                end
-              else
-                collection = context.collection do
+              if endpoint_directory?(File.join(context.path_to_self, endpoint_path))
+                context.namespace endpoint_path.to_sym, String.normalize_path(endpoint_path) do
                   # intentionally empty
-                end
-
-                if endpoint_directory?(File.join(context.path_to_self, endpoint_path))
-                  collection.namespace endpoint_path.to_sym, String.normalize_path(endpoint_path) do
-                    # intentionally empty
-                  end
-                else
-                  collection
                 end
               end
             end
