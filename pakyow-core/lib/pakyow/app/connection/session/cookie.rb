@@ -40,7 +40,7 @@ module Pakyow
 
           def deserialize(connection, options)
             if value = connection.cookies[options.name]
-              Support::IndifferentHash.new(Marshal.load(value))
+              Support::IndifferentHash.deep(Marshal.load(value))
             else
               Support::IndifferentHash.new
             end
