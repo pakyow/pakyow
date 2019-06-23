@@ -41,14 +41,14 @@ module Pakyow
           #
           route = resource.routes.values.flatten.find { |possible_route|
             possible_route.name == action.name
-          } || resource.send(action.name)
+          } || resource.send(action.name) do
+            operations.reflect(controller: self)
+          end
 
           # Install the reflect action if it hasn't been installed for this route.
           #
           unless @reflected_routes.include?(route)
             if route.name
-              # TODO: this may become reflected_action_scope, since actions act on one scope but endpoints act on (potentially) many
-              #
               resource.action :set_reflected_scope, only: [route.name] do
                 connection.set(:__reflected_scope, scope)
               end
@@ -62,21 +62,6 @@ module Pakyow
                     possible_action.view_path == form_view_path && possible_action.channel == form_channel
                   })
                 end
-              end
-
-              action_block = case route.name
-              when :create
-                call_reflective_create_action
-              when :update
-                call_reflective_update_action
-              when :delete
-                call_reflective_delete_action
-              else
-                # TODO: raise an error about an unknown action
-              end
-
-              resource.action :reflect, only: [route.name] do
-                @reflect_fn = action_block
               end
             else
               # TODO: warn the user that a reflection couldn't be installed for an unnamed route
@@ -120,7 +105,9 @@ module Pakyow
               #
               route = controller.routes.values.flatten.find { |possible_route|
                 possible_route.name == endpoint_name
-              } || controller.send(endpoint_name)
+              } || controller.send(endpoint_name) do
+                operations.reflect(controller: self)
+              end
             else
               controller = controller.collection do
                 # intentionally empty
@@ -133,7 +120,9 @@ module Pakyow
             #
             route = controller.routes.values.flatten.find { |possible_route|
               possible_route.path == route_path
-            } || controller.get(route_name, route_path)
+            } || controller.get(route_name, route_path) do
+              operations.reflect(controller: self)
+            end
           end
 
           # Install the reflect action if it hasn't been installed for this route.
@@ -154,11 +143,6 @@ module Pakyow
 
               controller.action :set_reflected_endpoints, only: [route.name] do
                 connection.set(:__reflected_endpoints, endpoints)
-              end
-
-              local_call_reflective_expose = call_reflective_expose
-              controller.action :reflect, only: [route.name] do
-                @reflect_fn = local_call_reflective_expose
               end
             else
               # TODO: warn the user that a reflection couldn't be installed for an unnamed route
@@ -300,30 +284,6 @@ module Pakyow
 
         def resource_path_for_scope(scope)
           String.normalize_path(scope.plural_name)
-        end
-
-        def call_reflective_expose
-          Proc.new do
-            reflective_expose
-          end
-        end
-
-        def call_reflective_create_action
-          Proc.new do
-            reflective_create
-          end
-        end
-
-        def call_reflective_update_action
-          Proc.new do
-            reflective_update
-          end
-        end
-
-        def call_reflective_delete_action
-          Proc.new do
-            reflective_delete
-          end
         end
       end
     end

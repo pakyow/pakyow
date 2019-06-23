@@ -10,28 +10,8 @@ module Pakyow
       module Controller
         extend Support::Extension
         restrict_extension Controller
-
-        apply_extension do
-          before :implicit_render do
-            call_reflect_fn
-          end
-        end
-
-        prepend_methods do
-          def render(*)
-            # Perform the reflected behavior here too, since `implicit_render` will not be invoked.
-            #
-            call_reflect_fn
-
-            super
-          end
-        end
-
         using Support::Refinements::Array::Ensurable
 
-        private
-
-        # @api public
         def with_reflected_scope
           if reflected_scope
             yield reflected_scope
@@ -40,7 +20,6 @@ module Pakyow
           end
         end
 
-        # @api public
         def with_reflected_action
           if reflected_action
             yield reflected_action
@@ -49,7 +28,6 @@ module Pakyow
           end
         end
 
-        # @api public
         def with_reflected_endpoints
           if reflected_endpoints
             yield reflected_endpoints
@@ -58,27 +36,22 @@ module Pakyow
           end
         end
 
-        # @api public
         def reflected_scope
           connection.get(:__reflected_scope)
         end
 
-        # @api public
         def reflected_action
           connection.get(:__reflected_action)
         end
 
-        # @api public
         def reflected_endpoints
           connection.get(:__reflected_endpoints)
         end
 
-        # @api public
         def reflects_specific_object?
           connection.get(:__endpoint_name) == :show || connection.get(:__endpoint_name) == :edit
         end
 
-        # @api public
         def reflective_expose
           logger.debug "[reflection] expose"
 
@@ -120,42 +93,21 @@ module Pakyow
           end
         end
 
-        # @api public
         def reflective_create
           logger.debug "[reflection] create"
-
-          verify_submitted_form
           handle_submitted_data
-
-          unless @connection.halted?
-            redirect_to_reflected_destination
-          end
         end
 
-        # @api public
         def reflective_update
           logger.debug "[reflection] update"
-
-          verify_submitted_form
           handle_submitted_data
-
-          unless @connection.halted?
-            redirect_to_reflected_destination
-          end
         end
 
-        # @api public
         def reflective_delete
           logger.debug "[reflection] delete"
-
           handle_submitted_data
-
-          unless @connection.halted?
-            redirect_to_reflected_destination
-          end
         end
 
-        # @api public
         def verify_submitted_form
           with_reflected_scope do |reflected_scope|
             with_reflected_action do |reflected_action|
@@ -178,7 +130,6 @@ module Pakyow
           end
         end
 
-        # @api public
         def handle_submitted_data
           with_reflected_scope do |reflected_scope|
             proxy = data.public_send(reflected_scope.plural_name)
@@ -214,14 +165,12 @@ module Pakyow
           trigger 404
         end
 
-        # @api public
         def redirect_to_reflected_destination
           if destination = reflected_destination
             redirect destination
           end
         end
 
-        # @api public
         def reflected_destination
           with_reflected_scope do |reflected_scope|
             if connection.form && origin = connection.form[:origin]
@@ -241,6 +190,8 @@ module Pakyow
             end
           end
         end
+
+        private
 
         def call_reflect_fn
           # This variable will be defined by the `reflect` hook, unless it's skipped.

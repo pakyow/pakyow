@@ -123,7 +123,7 @@ RSpec.describe "reflected resource list endpoint" do
       end
     end
 
-    context "existing endpoint does not expose data" do
+    context "existing endpoint does not expose data but calls the operation" do
       let :reflected_app_def do
         local = self
         Proc.new do
@@ -141,6 +141,7 @@ RSpec.describe "reflected resource list endpoint" do
           resource :posts, "/posts" do
             list do
               local.instance_variable_set(:@called, true)
+              operations.reflect(controller: self)
             end
           end
         end
@@ -152,51 +153,6 @@ RSpec.describe "reflected resource list endpoint" do
         }.to change {
           @called
         }.to(true)
-      end
-
-      it "presents the data exposed by the reflection" do
-        expect(call("/posts")[2]).to include_sans_whitespace(
-          <<~HTML
-            <article data-b="post" data-c="article" data-id="1">
-              <h1 data-b="title" data-c="article">foo</h1>
-              <p data-b="body" data-c="article">foo body</p>
-            </article>
-
-            <article data-b="post" data-c="article" data-id="2">
-              <h1 data-b="title" data-c="article">bar</h1>
-              <p data-b="body" data-c="article">bar body</p>
-            </article>
-
-            <article data-b="post" data-c="article" data-id="3">
-              <h1 data-b="title" data-c="article">baz</h1>
-              <p data-b="body" data-c="article">baz body</p>
-            </article>
-          HTML
-        )
-      end
-    end
-
-    context "existing endpoint explicitly renders without exposing data" do
-      let :reflected_app_def do
-        local = self
-        Proc.new do
-          source :posts do
-            attribute :title
-            attribute :body
-
-            def reversed
-              order {
-                id.desc
-              }
-            end
-          end
-
-          resource :posts, "/posts" do
-            list do
-              render "/posts"
-            end
-          end
-        end
       end
 
       it "presents the data exposed by the reflection" do

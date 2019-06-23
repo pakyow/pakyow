@@ -67,70 +67,36 @@ RSpec.describe "reflected resource update action" do
     end
 
     context "action is defined in the existing resource that matches the reflected action" do
-      context "existing action halts" do
-        let :reflected_app_def do
-          local = self
-          Proc.new do
-            resource :posts, "/posts" do
-              update do
-                local.instance_variable_set(:@reflected_scope, reflected_scope)
-                local.instance_variable_set(:@reflected_action, reflected_action)
-                send "app"
-              end
+      let :reflected_app_def do
+        local = self
+        Proc.new do
+          resource :posts, "/posts" do
+            update do
+              local.instance_variable_set(:@reflected_scope, reflected_scope)
+              local.instance_variable_set(:@reflected_action, reflected_action)
+              send "app"
             end
           end
-        end
-
-        it "does not perform the reflective update" do
-          expect {
-            response
-          }.not_to change {
-            updatable.reload.one.title
-          }
-        end
-
-        it "does not try to redirect" do
-          expect(response[0]).to eq(200)
-          expect(response[2]).to eq("app")
-        end
-
-        it "exposes reflected state" do
-          response
-          expect(@reflected_scope).to be_instance_of(Pakyow::Reflection::Scope)
-          expect(@reflected_action).to be_instance_of(Pakyow::Reflection::Action)
         end
       end
 
-      context "existing action does not halt" do
-        let :reflected_app_def do
-          local = self
-          Proc.new do
-            resource :posts, "/posts" do
-              update do
-                local.instance_variable_set(:@reflected_scope, reflected_scope)
-                local.instance_variable_set(:@reflected_action, reflected_action)
-              end
-            end
-          end
-        end
-
-        it "performs the reflective update" do
-          expect {
-            response
-          }.to change {
-            updatable.reload.one.title
-          }
-        end
-
-        it "handles the redirect" do
-          expect(response[0]).to eq(302)
-        end
-
-        it "exposes reflected state" do
+      it "does not perform the reflective update" do
+        expect {
           response
-          expect(@reflected_scope).to be_instance_of(Pakyow::Reflection::Scope)
-          expect(@reflected_action).to be_instance_of(Pakyow::Reflection::Action)
-        end
+        }.not_to change {
+          updatable.reload.one.title
+        }
+      end
+
+      it "does not try to redirect" do
+        expect(response[0]).to eq(200)
+        expect(response[2]).to eq("app")
+      end
+
+      it "exposes reflected state" do
+        response
+        expect(@reflected_scope).to be_instance_of(Pakyow::Reflection::Scope)
+        expect(@reflected_action).to be_instance_of(Pakyow::Reflection::Action)
       end
     end
   end
