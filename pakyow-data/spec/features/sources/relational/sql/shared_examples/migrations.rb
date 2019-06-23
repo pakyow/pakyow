@@ -95,4 +95,8 @@ RSpec.shared_examples :source_sql_migrations do |adapter:|
   #     additional_finalized_columns_for_removing
   #   end
   # end
+
+  context "multiple sources defined for a single table" do
+    it "combines migrations for creating, changing, and associating"
+  end
 end
