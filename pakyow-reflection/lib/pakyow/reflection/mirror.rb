@@ -49,7 +49,7 @@ module Pakyow
         # Descend to find the most specific scope first.
         #
         view.each_binding_scope do |binding_scope_node|
-          unless binding_scope_node.significant?(:within_form)
+          unless binding_scope_node.significant?(:within_form) || binding_scope_node.labeled?(:plug)
             binding_scope_view = Presenter::View.from_object(binding_scope_node)
             scope = scope_for_binding(binding_scope_view.binding_name, parent_scope)
 
