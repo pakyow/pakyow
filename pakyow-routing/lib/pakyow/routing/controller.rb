@@ -226,6 +226,7 @@ module Pakyow
       matcher = self.class.matcher
       if match = matcher.match(request_path)
         match_data = match.named_captures
+        connection.params.merge!(match_data)
 
         if matcher.is_a?(Regexp)
           request_path = String.normalize_path(request_path.sub(matcher, ""))
@@ -240,8 +241,7 @@ module Pakyow
           self.class.routes[request_method].to_a.each do |route|
             catch :reject do
               if route_match = route.match(request_path)
-                match_data.merge!(route_match.named_captures)
-                connection.params.merge!(match_data)
+                connection.params.merge!(route_match.named_captures)
 
                 connection.set(
                   :__endpoint_path,
@@ -454,7 +454,7 @@ module Pakyow
       throw :reject
     end
 
-    class_state :children, default: [], inheritable: true
+    class_state :children, default: [], inheritable: false
     class_state :templates, default: {}, inheritable: true
     class_state :expansions, default: [], inheritable: false
     class_state :routes, default: DEFINABLE_HTTP_METHODS.each_with_object({}) { |supported_method, routes_hash|

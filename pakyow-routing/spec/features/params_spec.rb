@@ -168,4 +168,24 @@ RSpec.describe "route params" do
       expect(call("/", input: StringIO.new({ foo: "bar" }.to_json), headers: { "content-type" => "application/json" })[2]).to eq("bar")
     end
   end
+
+  describe "inheriting params through multiple controller" do
+    let :app_init do
+      Proc.new do
+        controller do
+          namespace "/foo/:foo" do
+            namespace "/bar" do
+              default do
+                send params[:foo] || ""
+              end
+            end
+          end
+        end
+      end
+    end
+
+    it "inherits" do
+      expect(call("/foo/test/bar")[2]).to eq("test")
+    end
+  end
 end
