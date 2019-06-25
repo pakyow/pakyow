@@ -50,7 +50,7 @@ RSpec.describe "reflected endpoints" do
     end
 
     it "discovers the channel" do
-      expect(endpoint(:post, "/").channel).to eq([:article, :foo])
+      expect(endpoint(:post, "/").channel).to eq([:foo])
     end
   end
 end

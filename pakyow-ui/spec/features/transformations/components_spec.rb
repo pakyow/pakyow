@@ -48,7 +48,7 @@ RSpec.describe "presenting the same data in a renderable and outside of it" do
         disable_protection :csrf
 
         list do
-          expose :posts, data.posts, for: :all
+          expose "posts:all", data.posts
           render "/components/multi-posts"
         end
 

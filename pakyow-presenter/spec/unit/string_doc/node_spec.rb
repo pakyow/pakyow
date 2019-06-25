@@ -392,7 +392,7 @@ RSpec.describe StringDoc::Node do
     end
 
     it "includes labels" do
-      expect(node.inspect).to include('@labels={:binding=>:post, :explicit_channel=>[], :semantic_channel=>[], :channel=>[], :combined_channel=>"", :descend=>false}')
+      expect(node.inspect).to include('@labels={:binding=>:title, :plural_binding=>:titles, :singular_binding=>:title, :channeled_binding=>:title, :plural_channeled_binding=>:titles, :singular_channeled_binding=>:title, :descend=>false}')
     end
 
     it "includes attributes" do

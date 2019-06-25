@@ -34,8 +34,8 @@ RSpec.describe "binding values through a plugin" do
   it "binds values to the default instance" do
     expect(call("/binding")[2]).to include_sans_whitespace(
       <<~HTML
-        <article data-b="post" data-c="article">
-          <h1 data-b="plugged_title" data-c="article">testable: post 1</h1>
+        <article data-b="post">
+          <h1 data-b="plugged_title">testable: post 1</h1>
         </article>
       HTML
     )
@@ -44,8 +44,8 @@ RSpec.describe "binding values through a plugin" do
   it "binds values to the named instance" do
     expect(call("/binding/named")[2]).to include_sans_whitespace(
       <<~HTML
-        <article data-b="post" data-c="article">
-          <h1 data-b="plugged_title" data-c="article">testable_foo: post 1</h1>
+        <article data-b="post">
+          <h1 data-b="plugged_title">testable_foo: post 1</h1>
         </article>
       HTML
     )
@@ -82,8 +82,8 @@ RSpec.describe "binding values exposed by the plugin" do
   it "binds values to the default instance" do
     expect(call("/binding")[2]).to include_sans_whitespace(
       <<~HTML
-        <article data-b="post" data-c="article">
-          <h1 data-b="plugged_title" data-c="article">testable: plugin title</h1>
+        <article data-b="post">
+          <h1 data-b="plugged_title">testable: plugin title</h1>
         </article>
       HTML
     )
@@ -92,8 +92,8 @@ RSpec.describe "binding values exposed by the plugin" do
   it "binds values to the named instance" do
     expect(call("/binding/named")[2]).to include_sans_whitespace(
       <<~HTML
-        <article data-b="post" data-c="article">
-          <h1 data-b="plugged_title" data-c="article">testable_foo: plugin title</h1>
+        <article data-b="post">
+          <h1 data-b="plugged_title">testable_foo: plugin title</h1>
         </article>
       HTML
     )
@@ -120,8 +120,8 @@ RSpec.describe "binding values exposed by the plugin" do
     it "gives precedence to the app values" do
       expect(call("/binding")[2]).to include_sans_whitespace(
         <<~HTML
-          <article data-b="post" data-c="article">
-            <h1 data-b="plugged_title" data-c="article">testable: app title</h1>
+          <article data-b="post">
+            <h1 data-b="plugged_title">testable: app title</h1>
           </article>
         HTML
       )

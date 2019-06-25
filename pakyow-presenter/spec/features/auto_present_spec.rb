@@ -36,15 +36,15 @@ RSpec.describe "automatically presenting exposures made from a controller" do
       Proc.new do
         controller :default do
           get "/exposure/channeled" do
-            expose :post, { title: "foo" }, for: :foo
-            expose :post, { title: "bar" }, for: :bar
+            expose "post:foo", { title: "foo" }
+            expose "post:bar", { title: "bar" }
           end
         end
       end
     end
 
     it "finds and presents each channeled version" do
-      expect(call("/exposure/channeled")[2]).to eq_sans_whitespace("<!DOCTYPE html>\n<html>\n  <head>\n    <title>default</title>\n  </head>\n\n  <body>\n    <div data-b=\"post\" data-c=\"foo\">\n  foo\n  <h1 data-b=\"title\">foo</h1>\n</div><script type=\"text/template\" data-b=\"post\" data-c=\"foo\"><div data-b=\"post\" data-c=\"foo\">\n  foo\n  <h1 data-b=\"title\">title goes here</h1>\n</div></script>\n\n<div data-b=\"post\" data-c=\"bar\">\n  bar\n  <h1 data-b=\"title\">bar</h1>\n</div><script type=\"text/template\" data-b=\"post\" data-c=\"bar\"><div data-b=\"post\" data-c=\"bar\">\n  bar\n  <h1 data-b=\"title\">title goes here</h1>\n</div></script>\n\n  </body>\n</html>\n")
+      expect(call("/exposure/channeled")[2]).to eq_sans_whitespace("<!DOCTYPE html>\n<html>\n  <head>\n    <title>default</title>\n  </head>\n\n  <body>\n    <div data-b=\"post:foo\">\n  foo\n  <h1 data-b=\"title\">foo</h1>\n</div><script type=\"text/template\" data-b=\"post:foo\"><div data-b=\"post:foo\">\n  foo\n  <h1 data-b=\"title\">title goes here</h1>\n</div></script>\n\n<div data-b=\"post:bar\">\n  bar\n  <h1 data-b=\"title\">bar</h1>\n</div><script type=\"text/template\" data-b=\"post:bar\"><div data-b=\"post:bar\">\n  bar\n  <h1 data-b=\"title\">title goes here</h1>\n</div></script>\n\n  </body>\n</html>\n")
     end
 
     context "exposure matches part of the channel in the view" do
@@ -52,8 +52,8 @@ RSpec.describe "automatically presenting exposures made from a controller" do
         Proc.new do
           controller :default do
             get "/exposure/channeled/partial" do
-              expose :post, { title: "foo" }, for: :foo
-              expose :post, { title: "bar" }, for: :bar
+              expose "post:foo", { title: "foo" }
+              expose "post:bar", { title: "bar" }
             end
           end
         end
@@ -69,31 +69,31 @@ RSpec.describe "automatically presenting exposures made from a controller" do
               </head>
 
               <body>
-                <article data-b="post" data-c="article:foo">
+                <article data-b="post:foo">
                   foo
 
-                  <h1 data-b="title" data-c="article">foo</h1>
+                  <h1 data-b="title">foo</h1>
                 </article>
 
-                <script type="text/template" data-b="post" data-c="article:foo">
-                  <article data-b="post" data-c="article:foo">
+                <script type="text/template" data-b="post:foo">
+                  <article data-b="post:foo">
                     foo
 
-                    <h1 data-b="title" data-c="article">title goes here</h1>
+                    <h1 data-b="title">title goes here</h1>
                   </article>
                 </script>
 
-                <article data-b="post" data-c="article:bar">
+                <article data-b="post:bar">
                   bar
 
-                  <h1 data-b="title" data-c="article">bar</h1>
+                  <h1 data-b="title">bar</h1>
                 </article>
 
-                <script type="text/template" data-b="post" data-c="article:bar">
-                  <article data-b="post" data-c="article:bar">
+                <script type="text/template" data-b="post:bar">
+                  <article data-b="post:bar">
                     bar
 
-                    <h1 data-b="title" data-c="article">title goes here</h1>
+                    <h1 data-b="title">title goes here</h1>
                   </article>
                 </script>
               </body>

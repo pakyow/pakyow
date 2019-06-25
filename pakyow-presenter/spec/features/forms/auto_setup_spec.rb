@@ -7,7 +7,7 @@ RSpec.describe "automatic form setup" do
         Proc.new do
           resource :posts, "/posts" do
             new do
-              expose :post, { title: "foo" }, for: :form
+              expose "post:form", { title: "foo" }
               render "/form"
             end
 
@@ -32,7 +32,7 @@ RSpec.describe "automatic form setup" do
           response[2].tap do |body|
             expect(body).to include_sans_whitespace(
               <<~HTML
-                <input data-b="title" type="text" data-c="form" name="post[title]" value="bar">
+                <input data-b="title" type="text" name="post[title]" value="bar">
               HTML
             )
           end
@@ -47,7 +47,7 @@ RSpec.describe "automatic form setup" do
         Proc.new do
           resource :posts, "/posts" do
             new do
-              expose :post, { title: "foo" }, for: :form
+              expose "post:form", { title: "foo" }
               render "/form"
             end
 
@@ -64,7 +64,7 @@ RSpec.describe "automatic form setup" do
           response[2].tap do |body|
             expect(body).to include_sans_whitespace(
               <<~HTML
-                <form data-b="post" data-c="form" action="/posts" method="post">
+                <form data-b="post:form" action="/posts" method="post">
               HTML
             )
 
@@ -99,7 +99,7 @@ RSpec.describe "automatic form setup" do
           response[2].tap do |body|
             expect(body).to include_sans_whitespace(
               <<~HTML
-                <form data-b="post" data-c="form" action="/posts" method="post">
+                <form data-b="post:form" action="/posts" method="post">
               HTML
             )
 
@@ -120,7 +120,7 @@ RSpec.describe "automatic form setup" do
         Proc.new do
           resource :posts, "/posts" do
             edit do
-              expose :post, { id: params[:id], title: "foo" }, for: :form
+              expose "post:form", { id: params[:id], title: "foo" }
               render "/form"
             end
 
@@ -137,7 +137,7 @@ RSpec.describe "automatic form setup" do
           response[2].tap do |body|
             expect(body).to include_sans_whitespace(
               <<~HTML
-                <form data-b="post" data-c="form" action="/posts/1" method="post" data-id="1">
+                <form data-b="post:form" action="/posts/1" method="post" data-id="1">
               HTML
             )
 
@@ -172,7 +172,7 @@ RSpec.describe "automatic form setup" do
           response[2].tap do |body|
             expect(body).to include_sans_whitespace(
               <<~HTML
-                <form data-b="post" data-c="form" action="/posts/1" method="post" data-id="1">
+                <form data-b="post:form" action="/posts/1" method="post" data-id="1">
               HTML
             )
 
@@ -192,9 +192,9 @@ RSpec.describe "automatic form setup" do
       Proc.new do
         resource :posts, "/posts" do
           edit do
-            expose :post, {
+            expose "post:form", {
               id: params[:id], tag: "bar", colors: ["red", "blue"], enabled: false
-            }, for: :form
+            }
 
             render "/form/with-options"
           end
@@ -229,16 +229,16 @@ RSpec.describe "automatic form setup" do
 
       expect(body).to include_sans_whitespace(
         <<~HTML
-          <input type="checkbox" data-b="colors" data-c="form" name="post[colors][]" value="red" checked="checked">
-          <input type="checkbox" data-b="colors" data-c="form" name="post[colors][]" value="green">
-          <input type="checkbox" data-b="colors" data-c="form" name="post[colors][]" value="blue" checked="checked">
+          <input type="checkbox" data-b="colors" name="post[colors][]" value="red" checked="checked">
+          <input type="checkbox" data-b="colors" name="post[colors][]" value="green">
+          <input type="checkbox" data-b="colors" name="post[colors][]" value="blue" checked="checked">
         HTML
       )
 
       expect(body).to include_sans_whitespace(
         <<~HTML
-          <input type="radio" data-b="enabled" data-c="form" name="post[enabled]" value="true">
-          <input type="radio" data-b="enabled" data-c="form" name="post[enabled]" value="false" checked="checked">
+          <input type="radio" data-b="enabled" name="post[enabled]" value="true">
+          <input type="radio" data-b="enabled" name="post[enabled]" value="false" checked="checked">
         HTML
       )
     end
@@ -268,10 +268,10 @@ RSpec.describe "automatic form setup" do
         response[2].tap do |body|
           expect(body).to include_sans_whitespace(
             <<~HTML
-              <article data-b="post" data-c="article" data-id="1">
-                <h1 data-b="title" data-c="article">foo</h1>
+              <article data-b="post" data-id="1">
+                <h1 data-b="title">foo</h1>
 
-                <form data-b="comment" data-c="article:form" action="/posts/1/comments" method="post">
+                <form data-b="comment:form" action="/posts/1/comments" method="post">
             HTML
           )
         end

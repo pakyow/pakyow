@@ -67,9 +67,9 @@ RSpec.describe "templates embedded by presenter" do
     it "embeds a template" do
       expect(call("/embeds/scope-within-form")[2]).to include_sans_whitespace(
         <<~HTML
-          <script type="text/template" data-b="tag" data-c="form">
-            <li data-b="tag" data-c="form">
-              <input type="text" data-b="name" data-c="form">
+          <script type="text/template" data-b="tag">
+            <li data-b="tag">
+              <input type="text" data-b="name">
             </li>
           </script>
         HTML

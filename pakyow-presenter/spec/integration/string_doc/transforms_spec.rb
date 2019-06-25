@@ -43,8 +43,8 @@ RSpec.describe "StringDoc transforms" do
           </head>
 
           <body>
-            <article data-b="post" data-c="article">
-              <h1 data-b="title" data-c="article">hello</h1>
+            <article data-b="post">
+              <h1 data-b="title">hello</h1>
             </article>
           </body>
           </html>
@@ -68,8 +68,8 @@ RSpec.describe "StringDoc transforms" do
           </head>
 
           <body>
-            <article data-b="post" data-c="article">
-              <h1 data-b="title" data-c="article">title goes here</h1>
+            <article data-b="post">
+              <h1 data-b="title">title goes here</h1>
             </article>
           </body>
           </html>
@@ -97,7 +97,7 @@ RSpec.describe "StringDoc transforms" do
           </head>
 
           <body>
-            <article data-b="post" data-c="article"></article>
+            <article data-b="post"></article>
           </body>
           </html>
         HTML
@@ -124,7 +124,7 @@ RSpec.describe "StringDoc transforms" do
           </head>
 
           <body>
-            <article data-b="post" data-c="article">
+            <article data-b="post">
               hello
             </article>
           </body>
@@ -153,7 +153,7 @@ RSpec.describe "StringDoc transforms" do
           </head>
 
           <body>
-            <article data-b="post" data-c="article">
+            <article data-b="post">
               hello
             </article>
           </body>
@@ -182,7 +182,7 @@ RSpec.describe "StringDoc transforms" do
           </head>
 
           <body>
-            <article data-b="post" data-c="article">
+            <article data-b="post">
               hello
             </article>
           </body>
@@ -215,7 +215,7 @@ RSpec.describe "StringDoc transforms" do
           </head>
 
           <body>
-            <article data-b="post" data-c="article">
+            <article data-b="post">
               hello
             </article>
           </body>
@@ -249,8 +249,8 @@ RSpec.describe "StringDoc transforms" do
             </head>
 
             <body>
-              <article data-b="post" data-c="article">
-                <h1 data-b="title" data-c="article" class="foo">hello</h1>
+              <article data-b="post">
+                <h1 data-b="title" class="foo">hello</h1>
               </article>
             </body>
             </html>
@@ -282,7 +282,7 @@ RSpec.describe "StringDoc transforms" do
             </head>
 
             <body>
-              <article data-b="post" data-c="article">
+              <article data-b="post">
               </article>
             </body>
             </html>
@@ -314,7 +314,7 @@ RSpec.describe "StringDoc transforms" do
             </head>
 
             <body>
-              <article data-b="post" data-c="article">
+              <article data-b="post">
                 hello
               </article>
             </body>
@@ -347,7 +347,7 @@ RSpec.describe "StringDoc transforms" do
             </head>
 
             <body>
-              <article data-b="post" data-c="article">
+              <article data-b="post">
               </article>
             </body>
             </html>
@@ -380,8 +380,8 @@ RSpec.describe "StringDoc transforms" do
           </head>
 
           <body>
-            <article data-b="post" data-c="article" class="foo">
-              <h1 data-b="title" data-c="article">hello</h1>
+            <article data-b="post" class="foo">
+              <h1 data-b="title">hello</h1>
             </article>
           </body>
           </html>
@@ -440,11 +440,11 @@ RSpec.describe "StringDoc transforms" do
             </head>
 
             <body>
-              <article data-b="post" data-c="article">
+              <article data-b="post">
                 1
               </article>
 
-              <article data-b="post" data-c="article">
+              <article data-b="post">
                 1
               </article>
             </body>
@@ -475,8 +475,8 @@ RSpec.describe "StringDoc transforms" do
             </head>
 
             <body>
-              <article data-b="post" data-c="article">
-                <h1 data-b="title" data-c="article">1 title goes here</h1>
+              <article data-b="post">
+                <h1 data-b="title">1 title goes here</h1>
               </article>
             </body>
             </html>
@@ -506,8 +506,8 @@ RSpec.describe "StringDoc transforms" do
             </head>
 
             <body>
-              <article data-b="post" data-c="article">
-                <h1 data-b="title" data-c="article">1 title goes here</h1>
+              <article data-b="post">
+                <h1 data-b="title">1 title goes here</h1>
               </article>
 
               replaced
@@ -539,14 +539,14 @@ RSpec.describe "StringDoc transforms" do
             </head>
 
             <body>
-              <article data-b="post" data-c="article">
-                <h1 data-b="title" data-c="article">1 title goes here</h1>
+              <article data-b="post">
+                <h1 data-b="title">1 title goes here</h1>
               </article>
 
               insert
 
-              <article data-b="post" data-c="article">
-                <h1 data-b="title" data-c="article">2 title goes here</h1>
+              <article data-b="post">
+                <h1 data-b="title">2 title goes here</h1>
               </article>
             </body>
             </html>
@@ -578,12 +578,12 @@ RSpec.describe "StringDoc transforms" do
             <body>
               insert
 
-              <article data-b="post" data-c="article">
-                <h1 data-b="title" data-c="article">1 title goes here</h1>
+              <article data-b="post">
+                <h1 data-b="title">1 title goes here</h1>
               </article>
 
-              <article data-b="post" data-c="article">
-                <h1 data-b="title" data-c="article">2 title goes here</h1>
+              <article data-b="post">
+                <h1 data-b="title">2 title goes here</h1>
               </article>
             </body>
             </html>

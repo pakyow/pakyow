@@ -197,19 +197,19 @@ RSpec.describe "reflected endpoints" do
     it "presents data for the binding" do
       expect(call("/")[2]).to include_sans_whitespace(
         <<~HTML
-          <article data-b="post" data-c="article" data-id="1">
-            <h1 data-b="title" data-c="article">foo</h1>
-            <p data-b="body" data-c="article">foo body</p>
+          <article data-b="post" data-id="1">
+            <h1 data-b="title">foo</h1>
+            <p data-b="body">foo body</p>
           </article>
 
-          <article data-b="post" data-c="article" data-id="2">
-            <h1 data-b="title" data-c="article">bar</h1>
-            <p data-b="body" data-c="article">bar body</p>
+          <article data-b="post" data-id="2">
+            <h1 data-b="title">bar</h1>
+            <p data-b="body">bar body</p>
           </article>
 
-          <article data-b="post" data-c="article" data-id="3">
-            <h1 data-b="title" data-c="article">baz</h1>
-            <p data-b="body" data-c="article">baz body</p>
+          <article data-b="post" data-id="3">
+            <h1 data-b="title">baz</h1>
+            <p data-b="body">baz body</p>
           </article>
         HTML
       )
@@ -257,56 +257,56 @@ RSpec.describe "reflected endpoints" do
     it "presents data in both the top-level binding and nested binding" do
       expect(call("/")[2]).to include_sans_whitespace(
         <<~HTML
-          <article data-b="post" data-c="article" data-id="1">
-            <h1 data-b="title" data-c="article">foo</h1>
-            <p data-b="body" data-c="article">foo body</p>
+          <article data-b="post" data-id="1">
+            <h1 data-b="title">foo</h1>
+            <p data-b="body">foo body</p>
 
             <ul>
-              <script type="text/template" data-b="comment" data-c="article">
-                <li data-b="comment" data-c="article">
-                  <p data-b="body" data-c="article">comment goes here</p>
+              <script type="text/template" data-b="comment">
+                <li data-b="comment">
+                  <p data-b="body">comment goes here</p>
                 </li>
               </script>
             </ul>
           </article>
 
-          <article data-b="post" data-c="article" data-id="2">
-            <h1 data-b="title" data-c="article">bar</h1>
-            <p data-b="body" data-c="article">bar body</p>
+          <article data-b="post" data-id="2">
+            <h1 data-b="title">bar</h1>
+            <p data-b="body">bar body</p>
 
             <ul>
-              <li data-b="comment" data-c="article" data-id="1">
-                <p data-b="body" data-c="article">bar comment 1</p>
+              <li data-b="comment" data-id="1">
+                <p data-b="body">bar comment 1</p>
               </li>
 
-              <li data-b="comment" data-c="article" data-id="2">
-                <p data-b="body" data-c="article">bar comment 2</p>
+              <li data-b="comment" data-id="2">
+                <p data-b="body">bar comment 2</p>
               </li>
 
-              <li data-b="comment" data-c="article" data-id="3">
-                <p data-b="body" data-c="article">bar comment 3</p>
+              <li data-b="comment" data-id="3">
+                <p data-b="body">bar comment 3</p>
               </li>
 
-              <script type="text/template" data-b="comment" data-c="article">
-                <li data-b="comment" data-c="article">
-                  <p data-b="body" data-c="article">comment goes here</p>
+              <script type="text/template" data-b="comment">
+                <li data-b="comment">
+                  <p data-b="body">comment goes here</p>
                 </li>
               </script>
             </ul>
           </article>
 
-          <article data-b="post" data-c="article" data-id="3">
-            <h1 data-b="title" data-c="article">baz</h1>
-            <p data-b="body" data-c="article">baz body</p>
+          <article data-b="post" data-id="3">
+            <h1 data-b="title">baz</h1>
+            <p data-b="body">baz body</p>
 
             <ul>
-              <li data-b="comment" data-c="article" data-id="4">
-                <p data-b="body" data-c="article">baz comment 1</p>
+              <li data-b="comment" data-id="4">
+                <p data-b="body">baz comment 1</p>
               </li>
 
-              <script type="text/template" data-b="comment" data-c="article">
-                <li data-b="comment" data-c="article">
-                  <p data-b="body" data-c="article">comment goes here</p>
+              <script type="text/template" data-b="comment">
+                <li data-b="comment">
+                  <p data-b="body">comment goes here</p>
                 </li>
               </script>
             </ul>
@@ -342,10 +342,10 @@ RSpec.describe "reflected endpoints" do
     it "sets up the form for creating the nested data" do
       expect(call("/")[2]).to include_sans_whitespace(
         <<~HTML
-          <article data-b="post" data-c="article" data-id="1">
-            <h1 data-b="title" data-c="article">foo</h1>
+          <article data-b="post" data-id="1">
+            <h1 data-b="title">foo</h1>
 
-            <form data-b="comment" data-c="article:form" action="/posts/1/comments" method="post">
+            <form data-b="comment" data-c="form" action="/posts/1/comments" method="post">
         HTML
       )
     end

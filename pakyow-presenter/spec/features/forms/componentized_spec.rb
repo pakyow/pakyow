@@ -5,7 +5,7 @@ RSpec.describe "forms that are componentized" do
     Proc.new do
       component :form do
         def perform
-          expose :post, { id: 1, title: "foo" }, for: :form
+          expose "post:form", { id: 1, title: "foo" }
         end
 
         presenter do

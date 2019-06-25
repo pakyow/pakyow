@@ -6,13 +6,8 @@
         "find",
         [
           [
-            "post"
-          ],
-          {
-            "channel": [
-              "all"
-            ]
-          }
+            "post:all"
+          ]
         ],
         [
 

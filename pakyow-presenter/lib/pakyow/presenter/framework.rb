@@ -2,8 +2,6 @@
 
 require "pakyow/framework"
 
-require "pakyow/routing/helpers/exposures"
-
 require "pakyow/support/indifferentize"
 require "pakyow/support/core_refinements/string/normalization"
 
@@ -16,7 +14,6 @@ require "pakyow/presenter/behavior/modes"
 require "pakyow/presenter/behavior/versions"
 require "pakyow/presenter/behavior/watching"
 
-require "pakyow/presenter/helpers/exposures"
 require "pakyow/presenter/helpers/rendering"
 
 require "pakyow/presenter/renderable"
@@ -119,7 +116,6 @@ module Pakyow
           aspect :components
           aspect :presenters
 
-          register_helper :active, Helpers::Exposures
           register_helper :active, Helpers::Rendering
 
           isolated :Connection do

@@ -120,21 +120,18 @@ module Pakyow
       # Finds a view binding by name. When passed more than one value, the view will
       # be traversed through each name. Returns a {VersionedView}.
       #
-      def find(*names, channel: nil)
+      def find(*names)
         if names.any?
           named = names.shift.to_sym
-          combined_channel = Array.ensure(channel).join(":")
 
-          found = each_binding(named).each_with_object([]) { |node, acc|
-            if channel.nil? || (combined_channel.empty? && node.label(:explicit_channel).empty?) || (!combined_channel.empty? && (node.label(:combined_channel) == combined_channel || node.label(:combined_channel).end_with?(":" + combined_channel)))
-              acc << View.from_object(node)
-            end
+          found = each_binding(named).map { |node|
+            View.from_object(node)
           }
 
           result = if names.empty? && !found.empty? # found everything; wrap it up
             VersionedView.new(found)
           elsif !found.empty? && names.count > 0 # descend further
-            found.first.find(*names, channel: channel)
+            found.first.find(*names)
           else
             nil
           end
@@ -426,33 +423,28 @@ module Pakyow
       end
 
       # @api private
-      def binding_channel
-        label(:channel)
-      end
-
-      # @api private
       def singular_binding_name
-        Support.inflector.singularize(binding_name).to_sym
+        label(:singular_binding)
       end
 
       # @api private
       def plural_binding_name
-        Support.inflector.pluralize(binding_name).to_sym
+        label(:plural_binding)
       end
 
       # @api private
       def channeled_binding_name
-        [binding_name].concat(binding_channel).join(":").to_sym
+        label(:channeled_binding)
       end
 
       # @api private
       def plural_channeled_binding_name
-        [plural_binding_name].concat(binding_channel.to_a).join(":").to_sym
+        label(:plural_channeled_binding)
       end
 
       # @api private
       def singular_channeled_binding_name
-        [Support.inflector.singularize(binding_name)].concat(binding_channel.to_a).join(":").to_sym
+        label(:singular_channeled_binding)
       end
 
       # @api private
@@ -498,7 +490,7 @@ module Pakyow
         return enum_for(:each_binding, name) unless block_given?
 
         each_binding_scope do |node|
-          if node.label(:binding) == name
+          if node.label(:channeled_binding) == name
             yield node
           end
         end
@@ -571,7 +563,7 @@ module Pakyow
         binding_scopes.select { |node|
           node.label(:binding) == scope
         }.any? { |node|
-          node.label(:explicit_channel).any?
+          node.label(:channel).any?
         }
       end
 

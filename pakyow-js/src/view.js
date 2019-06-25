@@ -30,14 +30,7 @@ export default class {
   match(property, value) {
     let propertyValue = this[property]() || "";
 
-    if (property === "channel") {
-      if (!Array.isArray(value)) {
-        value = [value];
-      }
-
-      value = value.join(":");
-      return propertyValue === value || propertyValue.endsWith(":" + value);
-    } else if(property === "binding") {
+    if(property === "binding") {
       value = String(value)
       return propertyValue === value || propertyValue.startsWith(value + ".");
     } else {
@@ -75,12 +68,6 @@ export default class {
     });
 
     if (options) {
-      if (options.channel) {
-        found = found.filter((view) => {
-          return view.match("channel", options.channel);
-        });
-      }
-
       if (options.id) {
         found = found.filter((view) => {
           return view.match("id", options.id);

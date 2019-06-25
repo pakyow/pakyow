@@ -14,16 +14,16 @@ RSpec.describe "populating options for a select field" do
   it "renders in an expected way" do
     expect(rendered).to include_sans_whitespace(
       <<~HTML
-        <form data-b="post" data-c="form">
-          <select data-b="tag" data-c="form" name="post[tag]">
+        <form data-b="post:form">
+          <select data-b="tag" name="post[tag]">
             <option value="1">one</option>
             <option value="2">two</option>
             <option value="3">three</option>
           </select>
 
-          <script type="text/template" data-b="tag" data-c="form">
-            <select data-b="tag" data-c="form">
-              <option data-b="name" data-c="form">existing</option>
+          <script type="text/template" data-b="tag">
+            <select data-b="tag">
+              <option data-b="name">existing</option>
             </select>
           </script>
         </form>
@@ -41,16 +41,16 @@ RSpec.describe "populating options for a select field" do
     it "uses options provided by the block" do
       expect(rendered).to include_sans_whitespace(
         <<~HTML
-          <form data-b="post" data-c="form">
-            <select data-b="tag" data-c="form" name="post[tag]">
+          <form data-b="post:form">
+            <select data-b="tag" name="post[tag]">
               <option value="1">one</option>
               <option value="2">two</option>
               <option value="3">three</option>
             </select>
 
-            <script type="text/template" data-b="tag" data-c="form">
-              <select data-b="tag" data-c="form">
-                <option data-b="name" data-c="form">existing</option>
+            <script type="text/template" data-b="tag">
+              <select data-b="tag">
+                <option data-b="name">existing</option>
               </select>
             </script>
           </form>
@@ -72,16 +72,16 @@ RSpec.describe "populating options for a select field" do
       it "renders in an expected way" do
         expect(rendered).to include_sans_whitespace(
           <<~HTML
-            <form data-b="post" data-c="form">
-              <select data-b="tag" data-c="form" name="post[tag]">
+            <form data-b="post:form">
+              <select data-b="tag" name="post[tag]">
                 <option value="1">one</option>
                 <option value="2">two</option>
                 <option value="3">three</option>
               </select>
 
-              <script type="text/template" data-b="tag" data-c="form">
-                <select data-b="tag" data-c="form">
-                  <option data-b="name" data-c="form">existing</option>
+              <script type="text/template" data-b="tag">
+                <select data-b="tag">
+                  <option data-b="name">existing</option>
                 </select>
               </script>
             </form>
@@ -130,16 +130,16 @@ RSpec.describe "populating options for a select field" do
       it "renders in an expected way" do
         expect(rendered).to include_sans_whitespace(
           <<~HTML
-            <form data-b="post" data-c="form">
-              <select data-b="tag" data-c="form" name="post[tag]">
+            <form data-b="post:form">
+              <select data-b="tag" name="post[tag]">
                 <option value="one">One</option>
                 <option value="two">Two</option>
                 <option value="three">Three</option>
               </select>
 
-              <script type="text/template" data-b="tag" data-c="form">
-                <select data-b="tag" data-c="form">
-                  <option data-b="name" data-c="form">existing</option>
+              <script type="text/template" data-b="tag">
+                <select data-b="tag">
+                  <option data-b="name">existing</option>
                 </select>
               </script>
             </form>
@@ -160,16 +160,16 @@ RSpec.describe "populating options for a select field" do
       it "renders in an expected way" do
         expect(rendered).to include_sans_whitespace(
           <<~HTML
-            <form data-b="post" data-c="form">
-              <select data-b="tag" data-c="form" name="post[tag]">
+            <form data-b="post:form">
+              <select data-b="tag" name="post[tag]">
                 <option value="">One</option>
                 <option value="">Two</option>
                 <option value="">Three</option>
               </select>
 
-              <script type="text/template" data-b="tag" data-c="form">
-                <select data-b="tag" data-c="form">
-                  <option data-b="name" data-c="form">existing</option>
+              <script type="text/template" data-b="tag">
+                <select data-b="tag">
+                  <option data-b="name">existing</option>
                 </select>
               </script>
             </form>
@@ -194,16 +194,16 @@ RSpec.describe "populating options for a select field" do
       it "renders in an expected way" do
         expect(rendered).to include_sans_whitespace(
           <<~HTML
-            <form data-b="post" data-c="form">
-              <select data-b="tag.slug" data-c="form" name="post[tag]">
+            <form data-b="post:form">
+              <select data-b="tag.slug" name="post[tag]">
                 <option value="one">One</option>
                 <option value="two">Two</option>
                 <option value="three">Three</option>
               </select>
 
-              <script type="text/template" data-b="tag.slug" data-c="form">
-                <select data-b="tag.slug" data-c="form">
-                  <option data-b="name" data-c="form">existing</option>
+              <script type="text/template" data-b="tag.slug">
+                <select data-b="tag.slug">
+                  <option data-b="name">existing</option>
                 </select>
               </script>
             </form>
@@ -228,15 +228,15 @@ RSpec.describe "populating options for a select field" do
       it "renders in an expected way" do
         expect(rendered).to include_sans_whitespace(
           <<~HTML
-            <form data-b="post" data-c="form">
-              <select data-b="tag.slug" data-c="form" name="post[tag]">
+            <form data-b="post:form">
+              <select data-b="tag.slug" name="post[tag]">
                 <option value="one"></option>
                 <option value="two"></option>
                 <option value="three"></option>
               </select>
 
-              <script type="text/template" data-b="tag.slug" data-c="form">
-                <select data-b="tag.slug" data-c="form">
+              <script type="text/template" data-b="tag.slug">
+                <select data-b="tag.slug">
                   <option>existing</option>
                 </select>
               </script>
@@ -255,14 +255,14 @@ RSpec.describe "populating options for a select field" do
     it "renders in an expected way" do
       expect(rendered).to include_sans_whitespace(
         <<~HTML
-          <form data-b="post" data-c="form">
-            <select data-b="tag" data-c="form" name="post[tag]">
+          <form data-b="post:form">
+            <select data-b="tag" name="post[tag]">
               <option value="1">one</option>
             </select>
 
-            <script type="text/template" data-b="tag" data-c="form">
-              <select data-b="tag" data-c="form">
-                <option data-b="name" data-c="form">existing</option>
+            <script type="text/template" data-b="tag">
+              <select data-b="tag">
+                <option data-b="name">existing</option>
               </select>
             </script>
           </form>
@@ -279,13 +279,13 @@ RSpec.describe "populating options for a select field" do
     it "renders in an expected way" do
       expect(rendered).to include_sans_whitespace(
         <<~HTML
-          <form data-b="post" data-c="form">
-            <select data-b="tag" data-c="form" name="post[tag]">
+          <form data-b="post:form">
+            <select data-b="tag" name="post[tag]">
             </select>
 
-            <script type="text/template" data-b="tag" data-c="form">
-              <select data-b="tag" data-c="form">
-                <option data-b="name" data-c="form">existing</option>
+            <script type="text/template" data-b="tag">
+              <select data-b="tag">
+                <option data-b="name">existing</option>
               </select>
             </script>
           </form>
@@ -302,13 +302,13 @@ RSpec.describe "populating options for a select field" do
     it "renders in an expected way" do
       expect(rendered).to include_sans_whitespace(
         <<~HTML
-          <form data-b="post" data-c="form">
-            <select data-b="tag" data-c="form" name="post[tag]">
+          <form data-b="post:form">
+            <select data-b="tag" name="post[tag]">
             </select>
 
-            <script type="text/template" data-b="tag" data-c="form">
-              <select data-b="tag" data-c="form">
-                <option data-b="name" data-c="form">existing</option>
+            <script type="text/template" data-b="tag">
+              <select data-b="tag">
+                <option data-b="name">existing</option>
               </select>
             </script>
           </form>

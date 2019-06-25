@@ -14,10 +14,10 @@ RSpec.describe "populating options for a checkbox" do
   it "creates an input for each value" do
     expect(rendered).to include_sans_whitespace(
       <<~HTML
-        <form data-b="post" data-c="form">
-          <input type="checkbox" data-b="tags" data-c="form" name="post[tags][]" value="1">
-          <input type="checkbox" data-b="tags" data-c="form" name="post[tags][]" value="2">
-          <input type="checkbox" data-b="tags" data-c="form" name="post[tags][]" value="3">
+        <form data-b="post:form">
+          <input type="checkbox" data-b="tags" name="post[tags][]" value="1">
+          <input type="checkbox" data-b="tags" name="post[tags][]" value="2">
+          <input type="checkbox" data-b="tags" name="post[tags][]" value="3">
         </form>
       HTML
     )
@@ -33,10 +33,10 @@ RSpec.describe "populating options for a checkbox" do
     it "uses options provided by the block" do
       expect(rendered).to include_sans_whitespace(
         <<~HTML
-          <form data-b="post" data-c="form">
-            <input type="checkbox" data-b="tags" data-c="form" name="post[tags][]" value="1">
-            <input type="checkbox" data-b="tags" data-c="form" name="post[tags][]" value="2">
-            <input type="checkbox" data-b="tags" data-c="form" name="post[tags][]" value="3">
+          <form data-b="post:form">
+            <input type="checkbox" data-b="tags" name="post[tags][]" value="1">
+            <input type="checkbox" data-b="tags" name="post[tags][]" value="2">
+            <input type="checkbox" data-b="tags" name="post[tags][]" value="3">
           </form>
         HTML
       )
@@ -59,8 +59,8 @@ RSpec.describe "populating options for a checkbox" do
     it "creates an input for the value" do
       expect(rendered).to include_sans_whitespace(
         <<~HTML
-          <form data-b="post" data-c="form">
-            <input type="checkbox" data-b="enabled" data-c="form" name="post[enabled]" value="true">
+          <form data-b="post:form">
+            <input type="checkbox" data-b="enabled" name="post[enabled]" value="true">
           </form>
         HTML
       )
@@ -80,10 +80,10 @@ RSpec.describe "populating options for a checkbox" do
       it "creates an input for each value" do
         expect(rendered).to include_sans_whitespace(
           <<~HTML
-            <form data-b="post" data-c="form">
-              <input type="checkbox" data-b="tags" data-c="form" name="post[tags][]" value="1">
-              <input type="checkbox" data-b="tags" data-c="form" name="post[tags][]" value="2">
-              <input type="checkbox" data-b="tags" data-c="form" name="post[tags][]" value="3">
+            <form data-b="post:form">
+              <input type="checkbox" data-b="tags" name="post[tags][]" value="1">
+              <input type="checkbox" data-b="tags" name="post[tags][]" value="2">
+              <input type="checkbox" data-b="tags" name="post[tags][]" value="3">
             </form>
           HTML
         )
@@ -130,10 +130,10 @@ RSpec.describe "populating options for a checkbox" do
       it "creates an input for each value" do
         expect(rendered).to include_sans_whitespace(
           <<~HTML
-            <form data-b="post" data-c="form">
-              <input type="checkbox" data-b="tags" data-c="form" name="post[tags][]" value="one">
-              <input type="checkbox" data-b="tags" data-c="form" name="post[tags][]" value="two">
-              <input type="checkbox" data-b="tags" data-c="form" name="post[tags][]" value="three">
+            <form data-b="post:form">
+              <input type="checkbox" data-b="tags" name="post[tags][]" value="one">
+              <input type="checkbox" data-b="tags" name="post[tags][]" value="two">
+              <input type="checkbox" data-b="tags" name="post[tags][]" value="three">
             </form>
           HTML
         )
@@ -152,10 +152,10 @@ RSpec.describe "populating options for a checkbox" do
       it "creates a valueless input for each value" do
         expect(rendered).to include_sans_whitespace(
           <<~HTML
-            <form data-b="post" data-c="form">
-              <input type="checkbox" data-b="tags" data-c="form" name="post[tags][]" value="">
-              <input type="checkbox" data-b="tags" data-c="form" name="post[tags][]" value="">
-              <input type="checkbox" data-b="tags" data-c="form" name="post[tags][]" value="">
+            <form data-b="post:form">
+              <input type="checkbox" data-b="tags" name="post[tags][]" value="">
+              <input type="checkbox" data-b="tags" name="post[tags][]" value="">
+              <input type="checkbox" data-b="tags" name="post[tags][]" value="">
             </form>
           HTML
         )
@@ -178,13 +178,13 @@ RSpec.describe "populating options for a checkbox" do
       it "creates an input for each value" do
         expect(rendered).to include_sans_whitespace(
           <<~HTML
-            <form data-b="post" data-c="form">
-              <input type="checkbox" data-b="tags.slug" data-c="form" name="post[tags][]" value="one">
-              <input type="checkbox" data-b="tags.slug" data-c="form" name="post[tags][]" value="two">
-              <input type="checkbox" data-b="tags.slug" data-c="form" name="post[tags][]" value="three">
+            <form data-b="post:form">
+              <input type="checkbox" data-b="tags.slug" name="post[tags][]" value="one">
+              <input type="checkbox" data-b="tags.slug" name="post[tags][]" value="two">
+              <input type="checkbox" data-b="tags.slug" name="post[tags][]" value="three">
 
-              <script type="text/template" data-b="tags.slug" data-c="form">
-                <input type="checkbox" data-b="tags.slug" data-c="form">
+              <script type="text/template" data-b="tags.slug">
+                <input type="checkbox" data-b="tags.slug">
               </script>
             </form>
           HTML
@@ -201,8 +201,8 @@ RSpec.describe "populating options for a checkbox" do
     it "creates an input for the object" do
       expect(rendered).to include_sans_whitespace(
         <<~HTML
-          <form data-b="post" data-c="form">
-            <input type="checkbox" data-b="tags" data-c="form" name="post[tags]" value="1">
+          <form data-b="post:form">
+            <input type="checkbox" data-b="tags" name="post[tags]" value="1">
           </form>
         HTML
       )
@@ -217,7 +217,7 @@ RSpec.describe "populating options for a checkbox" do
     it "clears the options" do
       expect(rendered).to include_sans_whitespace(
         <<~HTML
-          <form data-b="post" data-c="form"></form>
+          <form data-b="post:form"></form>
         HTML
       )
     end
@@ -231,7 +231,7 @@ RSpec.describe "populating options for a checkbox" do
     it "clears the options" do
       expect(rendered).to include_sans_whitespace(
         <<~HTML
-          <form data-b="post" data-c="form"></form>
+          <form data-b="post:form"></form>
         HTML
       )
     end

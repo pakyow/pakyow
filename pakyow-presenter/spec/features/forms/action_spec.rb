@@ -37,7 +37,7 @@ RSpec.describe "setting a form action" do
     it "sets the action" do
       expect(call("/presentation/forms/action")[2]).to include_sans_whitespace(
         <<~HTML
-          <form data-b="post" data-c="form" action="/foo">
+          <form data-b="post:form" action="/foo">
         HTML
       )
     end
@@ -54,7 +54,7 @@ RSpec.describe "setting a form action" do
       it "sets the action" do
         expect(call("/presentation/forms/action")[2]).to include_sans_whitespace(
           <<~HTML
-            <form data-b="post" data-c="form" action="/foo/bar" method="post">
+            <form data-b="post:form" action="/foo/bar" method="post">
           HTML
         )
       end
@@ -70,7 +70,7 @@ RSpec.describe "setting a form action" do
       it "does not set the action" do
         expect(call("/presentation/forms/action")[2]).to include_sans_whitespace(
           <<~HTML
-            <form data-b="post" data-c="form">
+            <form data-b="post:form">
           HTML
         )
       end

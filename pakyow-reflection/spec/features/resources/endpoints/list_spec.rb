@@ -28,19 +28,19 @@ RSpec.describe "reflected resource list endpoint" do
     it "presents the data" do
       expect(call("/posts")[2]).to include_sans_whitespace(
         <<~HTML
-          <article data-b="post" data-c="article" data-id="1">
-            <h1 data-b="title" data-c="article">foo</h1>
-            <p data-b="body" data-c="article">foo body</p>
+          <article data-b="post" data-id="1">
+            <h1 data-b="title">foo</h1>
+            <p data-b="body">foo body</p>
           </article>
 
-          <article data-b="post" data-c="article" data-id="2">
-            <h1 data-b="title" data-c="article">bar</h1>
-            <p data-b="body" data-c="article">bar body</p>
+          <article data-b="post" data-id="2">
+            <h1 data-b="title">bar</h1>
+            <p data-b="body">bar body</p>
           </article>
 
-          <article data-b="post" data-c="article" data-id="3">
-            <h1 data-b="title" data-c="article">baz</h1>
-            <p data-b="body" data-c="article">baz body</p>
+          <article data-b="post" data-id="3">
+            <h1 data-b="title">baz</h1>
+            <p data-b="body">baz body</p>
           </article>
         HTML
       )

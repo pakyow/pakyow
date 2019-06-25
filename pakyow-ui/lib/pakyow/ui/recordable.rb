@@ -161,15 +161,11 @@ module Pakyow
       end
 
       def self.find_through(binding_path, binding_info, options, context, calls)
-        if options["channel"].nil?
-          options.delete("channel")
-        end
-
         if binding_path.any?
           binding_path_part = binding_path.shift
           current_options = options.dup
 
-          if id = binding_info[binding_path_part]
+          if id = binding_info[binding_path_part.to_s.split(":", 2)[0].to_sym]
             # Tie the transformations to a node of a specific id, unless we're transforming the entire set.
             #
             unless calls.any? { |call| call[0] == :transform }
@@ -212,12 +208,8 @@ module Pakyow
                 # Explicitly find the node to apply the transformation to the correct node. While
                 # we're at it, append any transformations caused by the `instance_exec` above.
                 #
-                options = {
-                  "channel" => render[:channel]
-                }
-
                 Recordable.find_through(
-                  render[:binding_path].dup, object.label(:binding_info).to_h, options, context.calls, calls
+                  render[:binding_path].dup, object.label(:binding_info).to_h, {}, context.calls, calls
                 )
               end
             end
@@ -275,13 +267,7 @@ module Pakyow
                 # Because multiple bindings can be passed, we want to wrap them in
                 # an array so that the client sees them as a single argument.
                 #
-                # We also want to send the channels.
-                #
-                if args.last.is_a?(Hash)
-                  [args, args.pop]
-                else
-                  [args]
-                end
+                [args]
               when :transform
                 # Ignore the potential `yield_block` argument that's used internally.
                 #

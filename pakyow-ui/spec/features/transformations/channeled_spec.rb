@@ -8,8 +8,8 @@ RSpec.describe "presenting data in a channeled binding" do
         disable_protection :csrf
 
         list do
-          expose :posts, data.posts.published, for: :published
-          expose :posts, data.posts.unpublished, for: :unpublished
+          expose "posts:published", data.posts.published
+          expose "posts:unpublished", data.posts.unpublished
           render "/channeled/posts"
         end
 
@@ -41,58 +41,8 @@ RSpec.describe "presenting data in a channeled binding" do
 
       presenter "/channeled/posts" do
         render do
-          find(:post, channel: :published).present(posts(:published))
-          find(:post, channel: :unpublished).present(posts(:unpublished))
-        end
-      end
-    end
-  end
-
-  it "transforms" do |x|
-    call("/posts", method: :post, params: { post: { title: "foo", published: true } })
-    call("/posts", method: :post, params: { post: { title: "bar", published: false } })
-
-    save_ui_case(x, path: "/posts") do
-      call("/posts", method: :post, params: { post: { title: "baz", published: true } })
-    end
-  end
-end
-
-RSpec.describe "presenting data across channeled bindings" do
-  include_context "app"
-  include_context "websocket intercept"
-
-  let :app_init do
-    Proc.new do
-      resource :posts, "/posts" do
-        disable_protection :csrf
-
-        list do
-          expose :posts, data.posts
-          render "/channeled/posts"
-        end
-
-        create do
-          verify do
-            required :post do
-              required :title
-              required :published, :boolean
-            end
-          end
-
-          data.posts.create(params[:post]); halt
-        end
-      end
-
-      source :posts, timestamps: false do
-        primary_id
-        attribute :title
-        attribute :published, :boolean
-      end
-
-      presenter "/channeled/posts" do
-        render do
-          find(:post).present(posts)
+          find("post:published").present(posts(:published))
+          find("post:unpublished").present(posts(:unpublished))
         end
       end
     end

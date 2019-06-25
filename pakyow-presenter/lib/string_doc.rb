@@ -4,6 +4,7 @@ require "cgi"
 
 require "oga"
 
+require "pakyow/support/inflector"
 require "pakyow/support/silenceable"
 
 # String-based XML document optimized for fast manipulation and rendering.
@@ -608,42 +609,30 @@ class StringDoc
     end
 
     binding_parts = binding.split(":").map(&:to_sym)
-    binding_name_parts = binding_parts[0].to_s.split(".", 2)
-    labels[:binding] = binding_name_parts[0].to_sym
-    labels[:binding_prop] = binding_name_parts[1].to_sym if binding_name_parts.length > 1
-    labels[:explicit_channel] = binding_parts[1..-1]
-    labels[:semantic_channel] = channel.dup
-    attributes[:"data-b"] = binding_parts[0]
+    binding_name, binding_prop = binding_parts[0].to_s.split(".", 2).map(&:to_sym)
+    plural_binding_name = Pakyow::Support.inflector.pluralize(binding_name).to_sym
+    singular_binding_name = Pakyow::Support.inflector.singularize(binding_name).to_sym
+
+    labels[:binding] = binding_name
+    labels[:plural_binding] = plural_binding_name
+    labels[:singular_binding] = singular_binding_name
+
+    if binding_prop
+      labels[:binding_prop] = binding_prop
+    end
 
     channel.concat(binding_parts[1..-1])
-    labels[:channel] = channel
-
-    combined_channel = channel.join(":")
-    labels[:combined_channel] = combined_channel
-
-    unless channel.empty?
-      attributes[:"data-c"] = combined_channel
-    end
+    labels[:channeled_binding] = [binding_name].concat(channel).join(":").to_sym
+    labels[:plural_channeled_binding] = [plural_binding_name].concat(channel).join(":").to_sym
+    labels[:singular_channeled_binding] = [singular_binding_name].concat(channel).join(":").to_sym
+    attributes[:"data-b"] = [binding_parts[0]].concat(channel).join(":")
   end
 
   SEMANTIC_TAGS = %w(
-    article
-    aside
-    details
-    footer
     form
-    header
-    main
-    nav
-    section
-    summary
   ).freeze
 
   def semantic_channel_for_element(element, channel = [])
-    if element.parent.is_a?(Oga::XML::Element)
-      semantic_channel_for_element(element.parent, channel)
-    end
-
     if SEMANTIC_TAGS.include?(element.name)
       channel << element.name.to_sym
     end

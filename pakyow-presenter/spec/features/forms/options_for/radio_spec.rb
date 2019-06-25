@@ -14,10 +14,10 @@ RSpec.describe "populating options for a radio button" do
   it "creates an input for each value" do
     expect(rendered).to include_sans_whitespace(
       <<~HTML
-        <form data-b="post" data-c="form">
-          <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="1">
-          <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="2">
-          <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="3">
+        <form data-b="post:form">
+          <input type="radio" data-b="tag" name="post[tag]" value="1">
+          <input type="radio" data-b="tag" name="post[tag]" value="2">
+          <input type="radio" data-b="tag" name="post[tag]" value="3">
         </form>
       HTML
     )
@@ -33,10 +33,10 @@ RSpec.describe "populating options for a radio button" do
     it "uses options provided by the block" do
       expect(rendered).to include_sans_whitespace(
         <<~HTML
-          <form data-b="post" data-c="form">
-            <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="1">
-            <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="2">
-            <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="3">
+          <form data-b="post:form">
+            <input type="radio" data-b="tag" name="post[tag]" value="1">
+            <input type="radio" data-b="tag" name="post[tag]" value="2">
+            <input type="radio" data-b="tag" name="post[tag]" value="3">
           </form>
         HTML
       )
@@ -56,10 +56,10 @@ RSpec.describe "populating options for a radio button" do
       it "creates an input for each value" do
         expect(rendered).to include_sans_whitespace(
           <<~HTML
-            <form data-b="post" data-c="form">
-              <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="1">
-              <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="2">
-              <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="3">
+            <form data-b="post:form">
+              <input type="radio" data-b="tag" name="post[tag]" value="1">
+              <input type="radio" data-b="tag" name="post[tag]" value="2">
+              <input type="radio" data-b="tag" name="post[tag]" value="3">
             </form>
           HTML
         )
@@ -106,10 +106,10 @@ RSpec.describe "populating options for a radio button" do
       it "creates an input for each value" do
         expect(rendered).to include_sans_whitespace(
           <<~HTML
-            <form data-b="post" data-c="form">
-              <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="one">
-              <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="two">
-              <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="three">
+            <form data-b="post:form">
+              <input type="radio" data-b="tag" name="post[tag]" value="one">
+              <input type="radio" data-b="tag" name="post[tag]" value="two">
+              <input type="radio" data-b="tag" name="post[tag]" value="three">
             </form>
           HTML
         )
@@ -128,10 +128,10 @@ RSpec.describe "populating options for a radio button" do
       it "creates a valueless input for each value" do
         expect(rendered).to include_sans_whitespace(
           <<~HTML
-            <form data-b="post" data-c="form">
-              <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="">
-              <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="">
-              <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="">
+            <form data-b="post:form">
+              <input type="radio" data-b="tag" name="post[tag]" value="">
+              <input type="radio" data-b="tag" name="post[tag]" value="">
+              <input type="radio" data-b="tag" name="post[tag]" value="">
             </form>
           HTML
         )
@@ -154,13 +154,13 @@ RSpec.describe "populating options for a radio button" do
       it "creates an input for each value" do
         expect(rendered).to include_sans_whitespace(
           <<~HTML
-            <form data-b="post" data-c="form">
-              <input type="radio" data-b="tag.slug" data-c="form" name="post[tag]" value="one">
-              <input type="radio" data-b="tag.slug" data-c="form" name="post[tag]" value="two">
-              <input type="radio" data-b="tag.slug" data-c="form" name="post[tag]" value="three">
+            <form data-b="post:form">
+              <input type="radio" data-b="tag.slug" name="post[tag]" value="one">
+              <input type="radio" data-b="tag.slug" name="post[tag]" value="two">
+              <input type="radio" data-b="tag.slug" name="post[tag]" value="three">
 
-              <script type="text/template" data-b="tag.slug" data-c="form">
-                <input type="radio" data-b="tag.slug" data-c="form">
+              <script type="text/template" data-b="tag.slug">
+                <input type="radio" data-b="tag.slug">
               </script>
             </form>
           HTML
@@ -177,8 +177,8 @@ RSpec.describe "populating options for a radio button" do
     it "creates an input for the object" do
       expect(rendered).to include_sans_whitespace(
         <<~HTML
-          <form data-b="post" data-c="form">
-            <input type="radio" data-b="tag" data-c="form" name="post[tag]" value="1">
+          <form data-b="post:form">
+            <input type="radio" data-b="tag" name="post[tag]" value="1">
           </form>
         HTML
       )
@@ -193,7 +193,7 @@ RSpec.describe "populating options for a radio button" do
     it "clears the options" do
       expect(rendered).to include_sans_whitespace(
         <<~HTML
-          <form data-b="post" data-c="form"></form>
+          <form data-b="post:form"></form>
         HTML
       )
     end
@@ -207,7 +207,7 @@ RSpec.describe "populating options for a radio button" do
     it "clears the options" do
       expect(rendered).to include_sans_whitespace(
         <<~HTML
-          <form data-b="post" data-c="form"></form>
+          <form data-b="post:form"></form>
         HTML
       )
     end

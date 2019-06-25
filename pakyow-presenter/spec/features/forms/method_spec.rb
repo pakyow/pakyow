@@ -31,7 +31,7 @@ RSpec.describe "setting a form method" do
   it "sets the method" do
     expect(call("/presentation/forms/method")[2]).to include_sans_whitespace(
       <<~HTML
-        <form data-b="post" data-c="form" method="post">
+        <form data-b="post:form" method="post">
       HTML
     )
   end
@@ -46,7 +46,7 @@ RSpec.describe "setting a form method" do
     it "sets the method" do
       expect(call("/presentation/forms/method")[2]).to include_sans_whitespace(
         <<~HTML
-          <form data-b="post" data-c="form" method="post">
+          <form data-b="post:form" method="post">
         HTML
       )
     end

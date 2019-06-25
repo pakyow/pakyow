@@ -22,13 +22,13 @@ RSpec.describe "defining global options in the presenter" do
     it "applies the options to the form" do
       expect(call("/presentation/forms/options_for/global_options")[2]).to include_sans_whitespace(
         <<~HTML
-          <form data-b="post" data-c="form">
+          <form data-b="post:form">
         HTML
       )
 
       expect(call("/presentation/forms/options_for/global_options")[2]).to include_sans_whitespace(
         <<~HTML
-          <select data-b="tag" data-c="form" name="post[tag]">
+          <select data-b="tag" name="post[tag]">
             <option value="1">foo</option>
             <option value="2">bar</option>
             <option value="3">baz</option>
@@ -70,13 +70,13 @@ RSpec.describe "defining global options in the presenter" do
     it "applies the options to the form" do
       expect(call("/presentation/forms/options_for/global_options")[2]).to include_sans_whitespace(
         <<~HTML
-          <form data-b="post" data-c="form">
+          <form data-b="post:form">
         HTML
       )
 
       expect(call("/presentation/forms/options_for/global_options")[2]).to include_sans_whitespace(
         <<~HTML
-          <select data-b="tag" data-c="form" name="post[tag]">
+          <select data-b="tag" name="post[tag]">
             <option value="1">foo</option>
             <option value="2">bar</option>
             <option value="3">baz</option>

@@ -1,10 +1,6 @@
 RSpec.describe "presenter helpers" do
   include_context "app"
 
-  it "registers Presenter::Helpers::Exposures as an active helper" do
-    expect(app.helpers(:active)).to include(Pakyow::Presenter::Helpers::Exposures)
-  end
-
   it "registers Presenter::Helpers::Rendering as an active helper" do
     expect(app.helpers(:active)).to include(Pakyow::Presenter::Helpers::Rendering)
   end

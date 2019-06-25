@@ -14,27 +14,27 @@ RSpec.describe "populating options in a binding group" do
   it "creates a group for each value, populating the input and label" do
     expect(rendered.gsub(/id=\"([^\"]*)\"/, "").gsub(/for=\"([^\"]*)\"/, "")).to include_sans_whitespace(
       <<~HTML
-        <form data-b="post" data-c="form">
+        <form data-b="post:form">
           <ul>
-            <li data-b="tags" data-c="form">
+            <li data-b="tags">
               <input type="checkbox" name="post[tags][]" value="1">
-              <label data-b="name" data-c="form">one</label>
+              <label data-b="name">one</label>
             </li>
 
-            <li data-b="tags" data-c="form">
+            <li data-b="tags">
               <input type="checkbox" name="post[tags][]" value="2">
-              <label data-b="name" data-c="form">two</label>
+              <label data-b="name">two</label>
             </li>
 
-            <li data-b="tags" data-c="form">
+            <li data-b="tags">
               <input type="checkbox" name="post[tags][]" value="3">
-              <label data-b="name" data-c="form">three</label>
+              <label data-b="name">three</label>
             </li>
 
-            <script type="text/template" data-b="tags" data-c="form">
-              <li data-b="tags" data-c="form">
+            <script type="text/template" data-b="tags">
+              <li data-b="tags">
                 <input type="checkbox">
-                <label data-b="name" data-c="form">Tag Name</label>
+                <label data-b="name">Tag Name</label>
               </li>
             </script>
           </ul>
@@ -61,27 +61,27 @@ RSpec.describe "populating options in a binding group" do
     it "creates a group for each value, populating the input and label" do
       expect(rendered.gsub(/ id=\"([^\"]*)\"/, "").gsub(/ for=\"([^\"]*)\"/, "")).to include_sans_whitespace(
         <<~HTML
-          <form data-b="post" data-c="form">
+          <form data-b="post:form">
             <ul>
-              <li data-b="tags" data-c="form">
+              <li data-b="tags">
                 <input type="checkbox" name="post[tags][]" value="1">
-                <label data-b="name" data-c="form">one</label>
+                <label data-b="name">one</label>
               </li>
 
-              <li data-b="tags" data-c="form">
+              <li data-b="tags">
                 <input type="checkbox" name="post[tags][]" value="2">
-                <label data-b="name" data-c="form">two</label>
+                <label data-b="name">two</label>
               </li>
 
-              <li data-b="tags" data-c="form">
+              <li data-b="tags">
                 <input type="checkbox" name="post[tags][]" value="3">
-                <label data-b="name" data-c="form">three</label>
+                <label data-b="name">three</label>
               </li>
 
-              <script type="text/template" data-b="tags" data-c="form">
-                <li data-b="tags" data-c="form">
+              <script type="text/template" data-b="tags">
+                <li data-b="tags">
                   <input type="checkbox">
-                  <label data-b="name" data-c="form">Tag Name</label>
+                  <label data-b="name">Tag Name</label>
                 </li>
               </script>
             </ul>
@@ -137,27 +137,27 @@ RSpec.describe "populating options in a binding group" do
     it "creates a group for each value, populating the input and label" do
       expect(rendered.gsub(/ id=\"([^\"]*)\"/, "").gsub(/ for=\"([^\"]*)\"/, "")).to include_sans_whitespace(
         <<~HTML
-          <form data-b="post" data-c="form">
+          <form data-b="post:form">
             <ul>
-              <li data-b="tags" data-c="form">
+              <li data-b="tags">
                 <input type="checkbox" name="post[tags][]" value="one">
-                <label data-b="name" data-c="form">One</label>
+                <label data-b="name">One</label>
               </li>
 
-              <li data-b="tags" data-c="form">
+              <li data-b="tags">
                 <input type="checkbox" name="post[tags][]" value="two">
-                <label data-b="name" data-c="form">Two</label>
+                <label data-b="name">Two</label>
               </li>
 
-              <li data-b="tags" data-c="form">
+              <li data-b="tags">
                 <input type="checkbox" name="post[tags][]" value="three">
-                <label data-b="name" data-c="form">Three</label>
+                <label data-b="name">Three</label>
               </li>
 
-              <script type="text/template" data-b="tags" data-c="form">
-                <li data-b="tags" data-c="form">
+              <script type="text/template" data-b="tags">
+                <li data-b="tags">
                   <input type="checkbox">
-                  <label data-b="name" data-c="form">Tag Name</label>
+                  <label data-b="name">Tag Name</label>
                 </li>
               </script>
             </ul>
@@ -185,27 +185,27 @@ RSpec.describe "populating options in a binding group" do
     it "creates a group for each value, populating the label and setting an empty value" do
       expect(rendered.gsub(/ id=\"([^\"]*)\"/, "").gsub(/ for=\"([^\"]*)\"/, "")).to include_sans_whitespace(
         <<~HTML
-          <form data-b="post" data-c="form">
+          <form data-b="post:form">
             <ul>
-              <li data-b="tags" data-c="form">
+              <li data-b="tags">
                 <input type="checkbox" name="post[tags][]" value="">
-                <label data-b="name" data-c="form">One</label>
+                <label data-b="name">One</label>
               </li>
 
-              <li data-b="tags" data-c="form">
+              <li data-b="tags">
                 <input type="checkbox" name="post[tags][]" value="">
-                <label data-b="name" data-c="form">Two</label>
+                <label data-b="name">Two</label>
               </li>
 
-              <li data-b="tags" data-c="form">
+              <li data-b="tags">
                 <input type="checkbox" name="post[tags][]" value="">
-                <label data-b="name" data-c="form">Three</label>
+                <label data-b="name">Three</label>
               </li>
 
-              <script type="text/template" data-b="tags" data-c="form">
-                <li data-b="tags" data-c="form">
+              <script type="text/template" data-b="tags">
+                <li data-b="tags">
                   <input type="checkbox">
-                  <label data-b="name" data-c="form">Tag Name</label>
+                  <label data-b="name">Tag Name</label>
                 </li>
               </script>
             </ul>
@@ -238,27 +238,27 @@ RSpec.describe "populating options in a binding group" do
       it "creates a group for each value, populating the input and label" do
         expect(rendered.gsub(/ id=\"([^\"]*)\"/, "").gsub(/ for=\"([^\"]*)\"/, "")).to include_sans_whitespace(
           <<~HTML
-            <form data-b="post" data-c="form">
+            <form data-b="post:form">
               <ul>
-                <li data-b="tags" data-c="form">
-                  <input type="checkbox" data-b="id" data-c="form" name="post[tags][]" value="1">
-                  <label data-b="name" data-c="form">one</label>
+                <li data-b="tags">
+                  <input type="checkbox" data-b="id" name="post[tags][]" value="1">
+                  <label data-b="name">one</label>
                 </li>
 
-                <li data-b="tags" data-c="form">
-                  <input type="checkbox" data-b="id" data-c="form" name="post[tags][]" value="2">
-                  <label data-b="name" data-c="form">two</label>
+                <li data-b="tags">
+                  <input type="checkbox" data-b="id" name="post[tags][]" value="2">
+                  <label data-b="name">two</label>
                 </li>
 
-                <li data-b="tags" data-c="form">
-                  <input type="checkbox" data-b="id" data-c="form" name="post[tags][]" value="3">
-                  <label data-b="name" data-c="form">three</label>
+                <li data-b="tags">
+                  <input type="checkbox" data-b="id" name="post[tags][]" value="3">
+                  <label data-b="name">three</label>
                 </li>
 
-                <script type="text/template" data-b="tags" data-c="form">
-                  <li data-b="tags" data-c="form">
-                    <input type="checkbox" data-b="id" data-c="form">
-                    <label data-b="name" data-c="form">Tag Name</label>
+                <script type="text/template" data-b="tags">
+                  <li data-b="tags">
+                    <input type="checkbox" data-b="id">
+                    <label data-b="name">Tag Name</label>
                   </li>
                 </script>
               </ul>
@@ -312,27 +312,27 @@ RSpec.describe "populating options in a binding group" do
       it "creates a group for each value, populating the input and label" do
         expect(rendered.gsub(/ id=\"([^\"]*)\"/, "").gsub(/ for=\"([^\"]*)\"/, "")).to include_sans_whitespace(
           <<~HTML
-            <form data-b="post" data-c="form">
+            <form data-b="post:form">
               <ul>
-                <li data-b="tags" data-c="form">
-                  <input type="checkbox" data-b="slug" data-c="form" name="post[tags][]" value="one">
-                  <label data-b="name" data-c="form">One</label>
+                <li data-b="tags">
+                  <input type="checkbox" data-b="slug" name="post[tags][]" value="one">
+                  <label data-b="name">One</label>
                 </li>
 
-                <li data-b="tags" data-c="form">
-                  <input type="checkbox" data-b="slug" data-c="form" name="post[tags][]" value="two">
-                  <label data-b="name" data-c="form">Two</label>
+                <li data-b="tags">
+                  <input type="checkbox" data-b="slug" name="post[tags][]" value="two">
+                  <label data-b="name">Two</label>
                 </li>
 
-                <li data-b="tags" data-c="form">
-                  <input type="checkbox" data-b="slug" data-c="form" name="post[tags][]" value="three">
-                  <label data-b="name" data-c="form">Three</label>
+                <li data-b="tags">
+                  <input type="checkbox" data-b="slug" name="post[tags][]" value="three">
+                  <label data-b="name">Three</label>
                 </li>
 
-                <script type="text/template" data-b="tags" data-c="form">
-                  <li data-b="tags" data-c="form">
-                    <input type="checkbox" data-b="slug" data-c="form">
-                    <label data-b="name" data-c="form">Tag Name</label>
+                <script type="text/template" data-b="tags">
+                  <li data-b="tags">
+                    <input type="checkbox" data-b="slug">
+                    <label data-b="name">Tag Name</label>
                   </li>
                 </script>
               </ul>
@@ -358,27 +358,27 @@ RSpec.describe "populating options in a binding group" do
       it "treats the groups as nested" do
         expect(rendered).to include_sans_whitespace(
           <<~HTML
-            <form data-b="post" data-c="form">
+            <form data-b="post:form">
               <ul>
-                <li data-b="tags" data-c="form">
-                  <input type="checkbox" data-b="foo" data-c="form" value="1" name="post[tags][][foo]">
-                  <label data-b="name" data-c="form">one</label>
+                <li data-b="tags">
+                  <input type="checkbox" data-b="foo" value="1" name="post[tags][][foo]">
+                  <label data-b="name">one</label>
                 </li>
 
-                <li data-b="tags" data-c="form">
-                  <input type="checkbox" data-b="foo" data-c="form" value="2" name="post[tags][][foo]">
-                  <label data-b="name" data-c="form">two</label>
+                <li data-b="tags">
+                  <input type="checkbox" data-b="foo" value="2" name="post[tags][][foo]">
+                  <label data-b="name">two</label>
                 </li>
 
-                <li data-b="tags" data-c="form">
-                  <input type="checkbox" data-b="foo" data-c="form" value="3" name="post[tags][][foo]">
-                  <label data-b="name" data-c="form">three</label>
+                <li data-b="tags">
+                  <input type="checkbox" data-b="foo" value="3" name="post[tags][][foo]">
+                  <label data-b="name">three</label>
                 </li>
 
-                <script type="text/template" data-b="tags" data-c="form">
-                  <li data-b="tags" data-c="form">
-                    <input type="checkbox" data-b="foo" data-c="form">
-                    <label data-b="name" data-c="form">Tag Name</label>
+                <script type="text/template" data-b="tags">
+                  <li data-b="tags">
+                    <input type="checkbox" data-b="foo">
+                    <label data-b="name">Tag Name</label>
                   </li>
                 </script>
               </ul>
@@ -397,12 +397,12 @@ RSpec.describe "populating options in a binding group" do
     it "clears the nested data" do
       expect(rendered).to include_sans_whitespace(
         <<~HTML
-          <form data-b="post" data-c="form">
+          <form data-b="post:form">
             <ul>
-              <script type="text/template" data-b="tags" data-c="form">
-                <li data-b="tags" data-c="form">
+              <script type="text/template" data-b="tags">
+                <li data-b="tags">
                   <input type="checkbox">
-                  <label data-b="name" data-c="form">Tag Name</label>
+                  <label data-b="name">Tag Name</label>
                 </li>
               </script>
             </ul>
@@ -420,12 +420,12 @@ RSpec.describe "populating options in a binding group" do
     it "clears the nested data" do
       expect(rendered).to include_sans_whitespace(
         <<~HTML
-          <form data-b="post" data-c="form">
+          <form data-b="post:form">
             <ul>
-              <script type="text/template" data-b="tags" data-c="form">
-                <li data-b="tags" data-c="form">
+              <script type="text/template" data-b="tags">
+                <li data-b="tags">
                   <input type="checkbox">
-                  <label data-b="name" data-c="form">Tag Name</label>
+                  <label data-b="name">Tag Name</label>
                 </li>
               </script>
             </ul>

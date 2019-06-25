@@ -22,14 +22,14 @@ RSpec.describe "unbound bindings" do
             </head>
 
             <body>
-              <article data-b="post" data-c="article">
-                <h1 data-b="title" data-c="article">foo</h1>
+              <article data-b="post">
+                <h1 data-b="title">foo</h1>
               </article>
 
-              <script type="text/template" data-b="post" data-c="article">
-                <article data-b="post" data-c="article">
-                  <h1 data-b="title" data-c="article"></h1>
-                  <p data-b="body" data-c="article"></p>
+              <script type="text/template" data-b="post">
+                <article data-b="post">
+                  <h1 data-b="title"></h1>
+                  <p data-b="body"></p>
                 </article>
               </script>
             </body>
@@ -60,10 +60,10 @@ RSpec.describe "unbound bindings" do
             </head>
 
             <body>
-              <script type="text/template" data-b="post" data-c="article">
-                <article data-b="post" data-c="article">
-                  <h1 data-b="title" data-c="article"></h1>
-                  <p data-b="body" data-c="article"></p>
+              <script type="text/template" data-b="post">
+                <article data-b="post">
+                  <h1 data-b="title"></h1>
+                  <p data-b="body"></p>
                 </article>
               </script>
             </body>
@@ -96,10 +96,10 @@ RSpec.describe "unbound bindings" do
             <body>
               foo
 
-              <script type="text/template" data-b="post" data-c="article">
-                <article data-b="post" data-c="article">
-                  <h1 data-b="title" data-c="article"></h1>
-                  <p data-b="body" data-c="article"></p>
+              <script type="text/template" data-b="post">
+                <article data-b="post">
+                  <h1 data-b="title"></h1>
+                  <p data-b="body"></p>
                 </article>
               </script>
             </body>

@@ -77,16 +77,14 @@ module Pakyow
               # Expose submitted values to be presented in the form.
               #
               connection.get(:__form_values).to_h.each do |key, value|
-                expose key, value, for: connection.form[:binding].to_s.split(":", 2)[1]
+                expose connection.form[:binding], value
               end
             end
 
             presenter do
               render do
                 view.label(:form)[:id] = form_id
-                view.label(:form)[:binding] = form_binding || [
-                  view.label(:binding)
-                ].concat(view.label(:channel)).join(":")
+                view.label(:form)[:binding] = view.label(:channeled_binding)
                 view.label(:form)[:origin] = form_origin
 
                 if form_binding.nil? || form_binding.to_sym == view.channeled_binding_name

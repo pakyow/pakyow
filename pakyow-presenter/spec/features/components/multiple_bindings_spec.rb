@@ -5,11 +5,11 @@ RSpec.describe "rendering backend components alongside other bindings" do
     Proc.new do
       controller "/components/multiple_bindings" do
         default do
-          expose :posts, [
+          expose "posts:all", [
             { title: "post 1" },
             { title: "post 2" },
             { title: "post 3" }
-          ], for: :all
+          ]
         end
       end
 
@@ -33,19 +33,19 @@ RSpec.describe "rendering backend components alongside other bindings" do
           </head>
 
           <body>
-            <div data-b="post" data-c="all">
+            <div data-b="post:all">
           <h1 data-b="title">post 1</h1>
 
 
-        </div><div data-b="post" data-c="all">
+        </div><div data-b="post:all">
           <h1 data-b="title">post 2</h1>
 
 
-        </div><div data-b="post" data-c="all">
+        </div><div data-b="post:all">
           <h1 data-b="title">post 3</h1>
 
 
-        </div><script type="text/template" data-b="post" data-c="all"><div data-b="post" data-c="all">
+        </div><script type="text/template" data-b="post:all"><div data-b="post:all">
           <h1 data-b="title">
             title goes here
           </h1>

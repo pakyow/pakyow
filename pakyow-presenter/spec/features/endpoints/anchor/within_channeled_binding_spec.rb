@@ -9,7 +9,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint within a chann
       end
 
       presenter "/presentation/endpoints/anchor/within_channeled_binding" do
-        render :post, channel: [:foo] do
+        render "post:foo" do
           present(title: "foo")
         end
       end
@@ -19,7 +19,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint within a chann
   it "sets the href" do
     expect(call("/presentation/endpoints/anchor/within_channeled_binding")[2]).to include_sans_whitespace(
       <<~HTML
-        <div data-b="post" data-c="foo">
+        <div data-b="post:foo">
           <h1 data-b="title">foo</h1>
 
           <a href="/posts" data-e="posts_list">Back</a>
@@ -33,7 +33,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint within a chann
       Proc.new do
         resource :posts, "/posts" do
           list do
-            expose :post, { title: "foo" }, for: :foo
+            expose "post:foo", { title: "foo" }
             render "/presentation/endpoints/anchor/within_channeled_binding"
           end
         end
@@ -43,7 +43,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint within a chann
     it "receives a current class" do
       expect(call("/posts")[2]).to include_sans_whitespace(
         <<~HTML
-          <div data-b="post" data-c="foo">
+          <div data-b="post:foo">
             <h1 data-b="title">foo</h1>
 
             <a href="/posts" data-e="posts_list" class="current">Back</a>

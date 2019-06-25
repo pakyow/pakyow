@@ -96,12 +96,12 @@ RSpec.describe "presenting with presentation logic for a binding" do
       Proc.new do
         controller do
           get "/presentation/logic/channeled" do
-            expose :posts, [{ title: "foo", version: :two }, { title: "bar", version: :default }], for: :foo
+            expose "posts:foo", [{ title: "foo", version: :two }, { title: "bar", version: :default }]
           end
         end
 
         presenter "/presentation/logic/channeled" do
-          present :post, channel: :foo do |post|
+          present "post:foo" do |post|
             use(post[:version])
           end
         end
@@ -111,13 +111,13 @@ RSpec.describe "presenting with presentation logic for a binding" do
     it "presents" do
       expect(call("/presentation/logic/channeled")[2]).to include_sans_whitespace(
         <<~HTML
-          <div data-b="post" data-v="two" data-c="foo">
+          <div data-b="post:foo" data-v="two">
             channeled two
 
             <h1 data-b="title">foo</h1>
           </div>
 
-          <div data-b="post" data-v="default" data-c="foo">
+          <div data-b="post:foo" data-v="default">
             channeled default
 
             <h1 data-b="title">bar</h1>

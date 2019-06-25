@@ -8,7 +8,7 @@ RSpec.describe "setting up a form for a data proxy" do
     Proc.new do
       resource :posts, "/posts" do
         new do
-          expose :post, data.posts, for: :form
+          expose "post:form", data.posts
           render "/form"
         end
 
@@ -35,7 +35,7 @@ RSpec.describe "setting up a form for a data proxy" do
     it "sets up the form for the first one" do
       expect(call("/posts/new")[2]).to include_sans_whitespace(
         <<~HTML
-          <input data-b="title" type="text" data-c="form" name="post[title]" value="foo">
+          <input data-b="title" type="text" name="post[title]" value="foo">
         HTML
       )
     end

@@ -72,16 +72,16 @@ RSpec.describe "transforming a presenter that has future transforms" do
         </head>
 
         <body>
-          <article data-b="post" data-c="article" class="red">
-            <h1 data-b="title" data-c="article">foo</h1>
+          <article data-b="post" class="red">
+            <h1 data-b="title">foo</h1>
           </article>
 
-          <article data-b="post" data-c="article" class="red">
-            <h1 data-b="title" data-c="article">bar</h1>
+          <article data-b="post" class="red">
+            <h1 data-b="title">bar</h1>
           </article>
 
-          <article data-b="post" data-c="article" class="red">
-            <h1 data-b="title" data-c="article">baz</h1>
+          <article data-b="post" class="red">
+            <h1 data-b="title">baz</h1>
           </article>
         </body>
         </html>
@@ -120,16 +120,16 @@ RSpec.describe "transforming a presenter that has future transforms" do
           </head>
 
           <body>
-            <article data-b="post" data-c="article">
-              <h1 data-b="title" data-c="article">foo</h1>
+            <article data-b="post">
+              <h1 data-b="title">foo</h1>
             </article>
 
-            <article data-b="post" data-c="article" class="red">
-              <h1 data-b="title" data-c="article">bar</h1>
+            <article data-b="post" class="red">
+              <h1 data-b="title">bar</h1>
             </article>
 
-            <article data-b="post" data-c="article">
-              <h1 data-b="title" data-c="article">baz</h1>
+            <article data-b="post">
+              <h1 data-b="title">baz</h1>
             </article>
           </body>
           </html>

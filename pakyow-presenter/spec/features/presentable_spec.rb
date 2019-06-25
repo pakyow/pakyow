@@ -33,8 +33,8 @@ RSpec.describe "presentable exposures" do
       Proc.new do
         controller :default do
           get "/" do
-            expose :current_user, "user1", for: [:foo]
-            expose :current_user, "user2", for: [:foo, :bar]
+            expose "current_user:foo", "user1"
+            expose "current_user:foo:bar", "user2"
             render "/presentation/transforms"
           end
         end

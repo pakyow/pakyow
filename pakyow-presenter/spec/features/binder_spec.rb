@@ -32,7 +32,11 @@ RSpec.describe "binding data via presenter, with a binder" do
   end
 
   let :post_presenter do
-    presenter.find(:post)
+    presenter.find(["post"].concat(channel).join(":").to_sym)
+  end
+
+  let :channel do
+    []
   end
 
   it "uses the binder, falling back to the object when binder does not support a value" do
@@ -213,9 +217,13 @@ RSpec.describe "binding data via presenter, with a binder" do
       Pakyow::Presenter::View.new("<body><div binding=\"post:foo\"><h1 binding=\"title\">title goes here</h1></div></body>")
     end
 
+    let :channel do
+      [:foo]
+    end
+
     it "uses the binder" do
       post_presenter.present(title: "post")
-      expect(presenter.to_s).to eq("<body><div data-b=\"post\" data-c=\"foo\"><h1 data-b=\"title\">tsop</h1></div></body>")
+      expect(presenter.to_s).to eq("<body><div data-b=\"post:foo\"><h1 data-b=\"title\">tsop</h1></div></body>")
     end
   end
 

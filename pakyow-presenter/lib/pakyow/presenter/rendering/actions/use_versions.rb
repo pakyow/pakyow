@@ -8,15 +8,14 @@ module Pakyow
       module UseVersions
         extend Support::Extension
 
-        def self.attach_to_view(view, renders, binding_path: [], channel: nil)
+        def self.attach_to_view(view, renders, binding_path: [], channel: [])
           if Pakyow.env?(:prototype)
             versioned_nodes = []
 
             view.binding_scopes(descend: false).each do |binding_scope_node|
               binding_scope_view = View.from_object(binding_scope_node)
 
-              channel = binding_scope_node.label(:explicit_channel)
-              channel = nil if channel.empty?
+              channel = binding_scope_node.label(:channel)
 
               current_binding_path = binding_path.dup.concat([binding_scope_node.label(:binding)])
 
@@ -26,8 +25,7 @@ module Pakyow
               }
 
               binding_scope_view.binding_props(descend: false).each do |binding_prop_node|
-                channel = binding_prop_node.label(:explicit_channel)
-                channel = nil if channel.empty?
+                channel = binding_prop_node.label(:channel)
 
                 versioned_nodes << {
                   binding_path: current_binding_path.dup.concat([binding_prop_node.label(:binding)]),

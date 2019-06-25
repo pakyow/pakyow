@@ -2,10 +2,10 @@ RSpec.describe "presenter version" do
   include_context "app"
 
   it "builds the presenter version" do
-    expect(Pakyow.apps.first.config.presenter.version).to eq("8431efad1d4cd50a637ac8a5c0f46887ede156e2")
+    expect(Pakyow.apps.first.config.presenter.version).to eq("6a2b697c53e166a35babd9a7ac49e26088c95989")
   end
 
   it "rebuilds the app version to include the presenter version" do
-    expect(Pakyow.apps.first.config.version).to eq("8936f8bfd6ca503460532e639ec0adcd820e046e")
+    expect(Pakyow.apps.first.config.version).to eq("3554b668c5ce6941493baf506e4ff7a0e9a795e8")
   end
 end

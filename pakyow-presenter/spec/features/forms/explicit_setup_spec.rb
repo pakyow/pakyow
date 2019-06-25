@@ -30,7 +30,7 @@ RSpec.describe "setting up a form explicitly via presenter" do
 
     it "does not setup the endpoint" do
       form.create(object)
-      expect(presenter.to_s).to include('<form data-b="post" data-c="form">')
+      expect(presenter.to_s).to include('<form data-b="post:form">')
     end
 
     it "binds the values" do
@@ -80,7 +80,7 @@ RSpec.describe "setting up a form explicitly via presenter" do
   describe "setting up the form for creating, without an object" do
     it "does not setup the endpoint" do
       form.create
-      expect(presenter.to_s).to include('<form data-b="post" data-c="form">')
+      expect(presenter.to_s).to include('<form data-b="post:form">')
     end
 
     context "matching route is found" do
@@ -129,7 +129,7 @@ RSpec.describe "setting up a form explicitly via presenter" do
 
     it "does not setup the endpoint" do
       form.update(object)
-      expect(presenter.to_s).to include('<form data-b="post" data-c="form" data-id="1">')
+      expect(presenter.to_s).to include('<form data-b="post:form" data-id="1">')
     end
 
     it "binds the values" do
@@ -183,7 +183,7 @@ RSpec.describe "setting up a form explicitly via presenter" do
 
     it "does not setup the endpoint" do
       form.replace(object)
-      expect(presenter.to_s).to include('<form data-b="post" data-c="form" data-id="1">')
+      expect(presenter.to_s).to include('<form data-b="post:form" data-id="1">')
     end
 
     it "binds the values" do
@@ -237,7 +237,7 @@ RSpec.describe "setting up a form explicitly via presenter" do
 
     it "does not setup the endpoint" do
       form.delete(object)
-      expect(presenter.to_s).to include('<form data-b="post" data-c="form" data-id="1">')
+      expect(presenter.to_s).to include('<form data-b="post:form" data-id="1">')
     end
 
     it "binds the values" do

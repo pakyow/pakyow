@@ -59,8 +59,8 @@ module Pakyow
       # Returns a presenter for a view binding.
       #
       # @see View#find
-      def find(*names, channel: nil)
-        result = if found_view = @view.find(*names, channel: channel)
+      def find(*names)
+        result = if found_view = @view.find(*names)
           presenter_for(found_view)
         else
           nil
@@ -226,12 +226,7 @@ module Pakyow
             end
 
             unless presenter.view.object.labeled?(:bound) || self.class.__presentation_logic.empty?
-              presented_view_channel = presenter.view.label(:channel).join(":")
-              presentation_logic = self.class.__presentation_logic[presenter.view.binding_name].to_a.find { |logic|
-                logic[:channel].nil? || logic[:channel] == presented_view_channel || logic[:channel].end_with?(":" + presented_view_channel)
-              }
-
-              if presentation_logic
+              self.class.__presentation_logic[presenter.view.channeled_binding_name].to_a.each do |presentation_logic|
                 presenter.instance_exec(binder.object, &presentation_logic[:block])
               end
             end
@@ -563,27 +558,24 @@ module Pakyow
       end
 
       def present?(key, object)
-        key = key.to_s
         !internal_presentable?(key) && (object_presents?(object, key) || plug_presents?(object, key))
       end
 
       def internal_presentable?(key)
-        key.start_with?("__")
+        key.to_s.start_with?("__")
       end
 
       def object_presents?(object, key)
-        (key.start_with?(plural_binding_name.to_s) || key.start_with?(singular_binding_name.to_s)) &&
-          # FIXME: Find a more performant way to do this
-          #
-          (key.split(":")[1..-1].map(&:to_sym) - object.label(:channel).to_a).empty?
+        key == plural_channeled_binding_name || key == singular_channeled_binding_name
       end
 
       def plug_presents?(object, key)
+        key = key.to_s
         object.labeled?(:plug) &&
           key.start_with?(object.label(:plug)[:key]) &&
           # FIXME: Find a more performant way to do this
           #
-          object_presents?(object, key.split("#{object.label(:plug)[:key]}.", 2)[1])
+          object_presents?(object, key.split("#{object.label(:plug)[:key]}.", 2)[1].to_sym)
       end
 
       class << self
@@ -598,7 +590,7 @@ module Pakyow
 
         # Defines a render to attach to a node.
         #
-        def render(*binding_path, channel: nil, node: nil, priority: :default, &block)
+        def render(*binding_path, node: nil, priority: :default, &block)
           if node && !node.is_a?(Proc)
             raise ArgumentError, "Expected `#{node.class}' to be a proc"
           end
@@ -609,7 +601,6 @@ module Pakyow
 
           @__attached_renders << {
             binding_path: binding_path,
-            channel: channel,
             node: node,
             priority: priority,
             block: block
@@ -619,13 +610,9 @@ module Pakyow
         # Defines a presentation block called when +binding_name+ is presented. If +channel+ is
         # provided, the block will only be called for that channel.
         #
-        def present(binding_name, channel: nil, &block)
-          if channel
-            channel = Array.ensure(channel).join(":")
-          end
-
-          (@__presentation_logic[binding_name] ||= []) << {
-            block: block, channel: channel
+        def present(binding_name, &block)
+          (@__presentation_logic[binding_name.to_sym] ||= []) << {
+            block: block
           }
         end
 
@@ -649,20 +636,14 @@ module Pakyow
           # performant because the entire structure must be duped.
           #
           view.binding_scopes.map { |binding_node|
-            channel = binding_node.label(:explicit_channel)
-
-            # Set the channel to nil and apply to all versions matching this scope, unless one of
-            # the scopes is for a channel. In this case, we don't want to attach broadly.
-            #
-            if channel.empty? && !view.channeled_binding_scope?(binding_node.label(:binding))
-              channel = nil
-            end
-
-            { binding_path: [binding_node.label(:binding)], channel: channel }
+            {
+              binding_path: [
+                binding_node.label(:channeled_binding)
+              ]
+            }
           }.uniq.each do |binding_render|
             renders << {
               binding_path: binding_render[:binding_path],
-              channel: binding_render[:channel],
               priority: :low,
               block: Proc.new {
                 if object.labeled?(:binding) && !object.labeled?(:bound)
@@ -688,7 +669,7 @@ module Pakyow
             return_value = if node = render[:node]
               view.instance_exec(&node)
             else
-              view.find(*render[:binding_path], channel: render[:channel])
+              view.find(*render[:binding_path])
             end
 
             case return_value

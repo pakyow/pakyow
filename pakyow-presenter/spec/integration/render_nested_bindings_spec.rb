@@ -74,11 +74,11 @@ RSpec.describe "rendering nested bindings from a presenter" do
         </head>
 
         <body>
-          <article data-b="post" data-c="article">
-            <h1 data-b="title" data-c="article">foo</h1>
+          <article data-b="post">
+            <h1 data-b="title">foo</h1>
 
-            <div data-b="comment" data-c="article" class="red">
-              <p data-b="body" data-c="article">foo comment</p>
+            <div data-b="comment" class="red">
+              <p data-b="body">foo comment</p>
             </div>
           </article>
         </body>

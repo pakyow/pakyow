@@ -10,8 +10,8 @@ RSpec.describe "view titles via presenter" do
         end
 
         get "/titles/dynamic/channel" do
-          expose :greeting, "hi", for: :title
-          expose :user, { name: "bob" }, for: :title
+          expose "greeting:title", "hi"
+          expose "user:title", { name: "bob" }
           render "/titles/dynamic"
         end
 

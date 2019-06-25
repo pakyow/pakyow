@@ -135,7 +135,7 @@ RSpec.describe "attaching transforms to a presenter" do
       local = self
       Proc.new do
         presenter "/presentation/transforms/channeled" do
-          render :post, channel: :bar do
+          render "post:bar" do
             local.instance_variable_set(:@calls, local.instance_variable_get(:@calls) + 1)
           end
         end
@@ -157,7 +157,7 @@ RSpec.describe "attaching transforms to a presenter" do
     let :app_def do
       Proc.new do
         presenter "/presentation/transforms/channeled" do
-          render :post, channel: :foo do
+          render "post:foo" do
             fail
           end
         end
@@ -181,11 +181,11 @@ RSpec.describe "attaching transforms to a presenter" do
           end
 
           presenter "/presentation/transforms/channeled" do
-            render :post, channel: :foo do
+            render "post:foo" do
               fail
             end
 
-            render :post, channel: :bar do
+            render "post:bar" do
               bind(title: "test")
             end
           end
@@ -202,22 +202,22 @@ RSpec.describe "attaching transforms to a presenter" do
               </head>
 
               <body>
-                <div data-b="post" data-c="foo" class="render-failed"></div>
+                <div data-b="post:foo" class="render-failed"></div>
 
-                <script type="text/template" data-b="post" data-c="foo">
-                  <div data-b="post" data-c="foo">
+                <script type="text/template" data-b="post:foo">
+                  <div data-b="post:foo">
                     <h1 data-b="title">
                       title goes here
                     </h1>
                   </div>
                 </script>
 
-                <div data-b="post" data-c="bar">
+                <div data-b="post:bar">
                   <h1 data-b="title">test</h1>
                 </div>
 
-                <script type="text/template" data-b="post" data-c="bar">
-                  <div data-b="post" data-c="bar">
+                <script type="text/template" data-b="post:bar">
+                  <div data-b="post:bar">
                     <h1 data-b="title">
                       title goes here
                     </h1>
@@ -266,6 +266,30 @@ RSpec.describe "attaching transforms to a presenter" do
           expect(error.message).to eq("Expected `Symbol' to be a proc")
         end
       end
+    end
+  end
+
+  context "render attached to a node within a channeled binding" do
+    let :app_init do
+      Proc.new do
+        presenter "/presentation/transforms/nested-within-channeled" do
+          render "post:foo" do
+            object.set_label(:bound, true)
+          end
+
+          render "post:foo", "comment" do
+            bind(title: "test")
+          end
+        end
+      end
+    end
+
+    it "renders correctly" do
+      expect(call("/presentation/transforms/nested-within-channeled")[2]).to include_sans_whitespace(
+        <<~HTML
+          <div data-b="post:foo"><div data-b="comment"><h1 data-b="title">test</h1></div>
+        HTML
+      )
     end
   end
 end

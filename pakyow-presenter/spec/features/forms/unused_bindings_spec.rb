@@ -4,13 +4,13 @@ RSpec.describe "forms with unused bindings" do
   it "renders with the unused bindings" do
     expect(call("/form")[2]).to include_sans_whitespace(
       <<~HTML
-        <form data-b="post" data-c="form">
+        <form data-b="post:form">
       HTML
     )
 
     expect(call("/form")[2]).to include_sans_whitespace(
       <<~HTML
-        <input data-b="title" type="text" data-c="form" name="post[title]">
+        <input data-b="title" type="text" name="post[title]">
       HTML
     )
   end
