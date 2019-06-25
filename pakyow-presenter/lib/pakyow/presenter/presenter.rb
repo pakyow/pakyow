@@ -547,11 +547,11 @@ module Pakyow
 
         if endpoint_object && endpoint_params
           endpoint_object.params.each do |param|
-            if param.to_s.end_with?("_id")
-              type = param.to_s.split("_id")[0].to_sym
-              if type == @view.label(:binding) && object.include?(:id)
-                endpoint_params[param] = object[:id]
-                next
+            if param.to_s.start_with?("#{@view.label(:binding)}_")
+              key = param.to_s.split("_", 2)[1].to_sym
+
+              if object.include?(key)
+                endpoint_params[param] = object[key]; next
               end
             end
 
