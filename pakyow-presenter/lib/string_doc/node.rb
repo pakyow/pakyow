@@ -34,7 +34,7 @@ class StringDoc
     attr_reader :attributes
 
     # @api private
-    attr_reader :node, :parent, :children, :tag_open_start, :tag_open_end, :tag_close, :transforms
+    attr_reader :node, :parent, :children, :tag_open_start, :tag_open_end, :tag_close, :transforms, :significance
 
     # @api private
     attr_writer :parent
