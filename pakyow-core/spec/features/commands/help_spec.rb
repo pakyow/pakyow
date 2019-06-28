@@ -24,7 +24,7 @@ RSpec.describe "cli: help" do
 
   describe "running" do
     it "displays help for the cli" do
-      expect(run_command(command)).to eq("\e[34;1mPakyow Command Line Interface\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow [COMMAND]\n\n\e[1mCOMMANDS\e[0m\n  boot       \e[33mBoot the environment\e[0m\n  help       \e[33mGet help for the command line interface\e[0m\n  info       \e[33mShow details about the current project\e[0m\n  irb        \e[33mStart an interactive session\e[0m\n  prelaunch  \e[33mRun the prelaunch tasks\e[0m\n")
+      expect(run_command(command)).to eq("\e[34;1mPakyow Command Line Interface\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow [COMMAND]\n\n\e[1mCOMMANDS\e[0m\n  boot            \e[33mBoot the environment\e[0m\n  help            \e[33mGet help for the command line interface\e[0m\n  info            \e[33mShow details about the current project\e[0m\n  info:endpoints  \e[33mShow defined endpoints for an app\e[0m\n  irb             \e[33mStart an interactive session\e[0m\n  prelaunch       \e[33mRun the prelaunch tasks\e[0m\n")
     end
 
     it "displays help for a command" do

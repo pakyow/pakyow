@@ -10,7 +10,7 @@ module Pakyow
     class Route
       using Support::Refinements::String::Normalization
 
-      attr_reader :path, :method, :name
+      attr_reader :path, :method, :name, :block
 
       # @api private
       attr_accessor :pipeline
@@ -74,6 +74,10 @@ module Pakyow
 
         def call(**params)
           @route.build_path(@path, params)
+        end
+
+        def source_location
+          @route.block&.source_location || []
         end
       end
     end

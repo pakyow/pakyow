@@ -79,7 +79,7 @@ module Pakyow
 
   class Endpoint
     extend Forwardable
-    def_delegators :@builder, :params
+    def_delegators :@builder, :params, :source_location
 
     attr_reader :name, :method, :builder
 
