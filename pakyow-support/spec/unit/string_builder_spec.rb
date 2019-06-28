@@ -80,4 +80,14 @@ RSpec.describe Pakyow::Support::StringBuilder do
       end
     end
   end
+
+  context "passing a non-string template" do
+    let :template do
+      :foo
+    end
+
+    it "typecasts to a string" do
+      expect(builder.build).to eq("foo")
+    end
+  end
 end

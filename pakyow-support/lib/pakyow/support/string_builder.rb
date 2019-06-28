@@ -12,7 +12,7 @@ module Pakyow
       PATTERN = /{([^}]*)}/
 
       def initialize(template, html_safe: false, &block)
-        @template, @html_safe, @block = template, html_safe, block
+        @template, @html_safe, @block = template.to_s, html_safe, block
       end
 
       def build(**values)
