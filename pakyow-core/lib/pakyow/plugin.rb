@@ -102,7 +102,6 @@ module Pakyow
         defined!
       end
 
-      load_endpoints
       create_helper_contexts
 
       if respond_to?(:boot)
