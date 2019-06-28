@@ -93,17 +93,15 @@ module Pakyow
           }
         else
           if Array.instance_methods.include?(method_name) && !@source.class.instance_methods.include?(method_name)
-            @proxied_calls << [
-              method_name, args, []
-            ]
-
-            build_result(@source.to_a.public_send(method_name, *args, &block), method_name)
+            build_result(
+              @source.to_a.public_send(method_name, *args, &block),
+              method_name, args
+            )
           elsif @source.class.instance_methods.include?(method_name)
-            @proxied_calls << [
-              method_name, args, []
-            ]
-
-            build_result(@source.public_send(method_name, *args, &block), method_name)
+            build_result(
+              @source.public_send(method_name, *args, &block),
+              method_name, args
+            )
           else
             super
           end
@@ -252,11 +250,11 @@ module Pakyow
 
       private
 
-      def build_result(value, method_name)
+      def build_result(value, method_name, args)
         if method_name.to_s.end_with?("?")
           value
         else
-          Result.new(value, self)
+          Result.new(value, self, originating_method: method_name, originating_args: args)
         end
       end
     end

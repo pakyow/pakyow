@@ -5,8 +5,10 @@ require "delegate"
 module Pakyow
   module Data
     class Result < SimpleDelegator
-      def initialize(result, proxy)
+      def initialize(result, proxy, originating_method: nil, originating_args: [])
         @__proxy = proxy
+        @originating_method = originating_method
+        @originating_args = originating_args
         __setobj__(result)
       end
 
@@ -20,16 +22,25 @@ module Pakyow
             app: @__proxy.app,
             source: @__proxy.source.source_name,
             proxied_calls: @__proxy.proxied_calls
-          }
+          },
+
+          originating_method: @originating_method,
+          originating_args: @originating_args
         }
       end
 
       def marshal_load(state)
-        __setobj__(
-          state[:proxy][:app].data.public_send(
-            state[:proxy][:source]
-          ).apply(state[:proxy][:proxied_calls])
+        result = state[:proxy][:app].data.public_send(
+          state[:proxy][:source]
+        ).apply(
+          state[:proxy][:proxied_calls]
         )
+
+        if state[:originating_method]
+          result = result.public_send(state[:originating_method], *state[:originating_args])
+        end
+
+        __setobj__(result)
       end
 
       # Fixes an issue using pp inside a delegator.
