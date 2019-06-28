@@ -9,7 +9,7 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          after "initialize", "initialize.assets.packs" do
+          after "load", "load.assets.packs" do
             config.assets.packs.paths.each do |packs_path|
               Pathname.glob(File.join(packs_path, "*.*")).group_by { |path|
                 File.join(File.dirname(path), File.basename(path, File.extname(path)))

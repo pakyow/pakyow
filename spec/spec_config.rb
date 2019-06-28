@@ -122,6 +122,10 @@ RSpec.configure do |config|
       end
     end
 
+    if Object.const_defined?("Pakyow::Presenter::Composers::View")
+      Pakyow::Presenter::Composers::View.__cache.clear
+    end
+
     remove_constants(
       (Object.constants - $original_constants).select { |constant_name|
         constant_name.to_s.start_with?("Test")
