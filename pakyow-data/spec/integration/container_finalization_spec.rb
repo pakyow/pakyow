@@ -33,12 +33,14 @@ RSpec.describe "finalizing a container" do
 
   context "container has already been finalized" do
     before do
-      container.finalize!([])
+      container.finalize_associations!([])
+      container.finalize_sources!([])
     end
 
     it "does not fail" do
       expect {
-        container.finalize!([])
+        container.finalize_associations!([])
+        container.finalize_sources!([])
       }.not_to raise_error
     end
   end

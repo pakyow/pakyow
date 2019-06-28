@@ -34,7 +34,7 @@ module Pakyow
         @object_map.fetch(object_name, Object)
       end
 
-      def finalize!(other_containers)
+      def finalize_associations!(other_containers)
         @sources.each do |source|
           discover_has_and_belongs_to!(source, other_containers)
         end
@@ -43,7 +43,9 @@ module Pakyow
           set_container_for_source!(source)
           define_reciprocal_associations!(source, other_containers)
         end
+      end
 
+      def finalize_sources!(other_containers)
         @sources.each do |source|
           mixin_commands!(source)
           mixin_dataset_methods!(source)

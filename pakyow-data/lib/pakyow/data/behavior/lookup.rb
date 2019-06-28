@@ -36,23 +36,29 @@ module Pakyow
               )
             end
 
+            containers = Pakyow.data_connections.values.each_with_object([]) { |connections, arr|
+              connections.values.each do |connection|
+                arr << Container.new(
+                  connection: connection,
+                  sources: state(:source).select { |source|
+                    connection.name == source.connection && connection.type == source.adapter
+                  },
+                  objects: state(:object)
+                )
+              end
+            }
+
+            containers.each do |container|
+              container.finalize_associations!(containers - [container])
+            end
+
+            containers.each do |container|
+              container.finalize_sources!(containers - [container])
+            end
+
             @data = Data::Lookup.new(
               app: self,
-              containers: Pakyow.data_connections.values.each_with_object([]) { |connections, containers|
-                connections.values.each do |connection|
-                  containers << Container.new(
-                    connection: connection,
-                    sources: state(:source).select { |source|
-                      connection.name == source.connection && connection.type == source.adapter
-                    },
-                    objects: state(:object)
-                  )
-                end
-              }.tap do |containers|
-                containers.each do |container|
-                  container.finalize!(containers - [container])
-                end
-              end,
+              containers: containers,
               subscribers: subscribers
             )
           end
