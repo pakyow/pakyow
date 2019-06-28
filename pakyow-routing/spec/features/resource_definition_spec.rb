@@ -430,4 +430,24 @@ RSpec.describe "defining resources" do
       expect(call("/posts/1/comments")[2]).to eq("foo")
     end
   end
+
+  describe "defining show before new" do
+    let :app_init do
+      Proc.new {
+        resource :posts, "/posts" do
+          show do
+            send "show"
+          end
+
+          new do
+            send "new"
+          end
+        end
+      }
+    end
+
+    it "does not call show for new" do
+      expect(call("/posts/new")[2]).to eq("new")
+    end
+  end
 end

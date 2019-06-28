@@ -27,6 +27,7 @@ module Pakyow
 
         # Define helper methods for routes
         #
+        local_expander = @expander
         @expander.routes.each do |method, routes|
           routes.each do |route|
             unless @controller.singleton_class.instance_methods(false).include?(route.name)
@@ -39,12 +40,33 @@ module Pakyow
                 if args.any?
                   super(*args)
                 else
-                  build_route(
-                    method,
-                    route.name,
-                    route.path || route.matcher,
-                    &block
-                  )
+                  build_route(method, route.name, route.path || route.matcher, &block).tap do
+                    # Make sure the route was inserted in the same order as found in the template.
+                    #
+                    index_of_last_insert = local_expander.routes[method].index { |expander_route|
+                      expander_route.name == @routes[method].last.name
+                    }
+
+                    insert_before_this_index = @routes[method].select { |route|
+                      local_expander.routes[method].any? { |expander_route|
+                        route.name == expander_route.name
+                      }
+                    }.map { |route|
+                      local_expander.routes[method].index { |expander_route|
+                        expander_route.name == route.name
+                      }
+                    }.select { |index|
+                      index > index_of_last_insert
+                    }.first
+
+                    if insert_before_this_index
+                      @routes[method].insert(
+                        @routes[method].index { |route|
+                          route.name == local_expander.routes[method][insert_before_this_index].name
+                        }, @routes[method].delete_at(index_of_last_insert)
+                      )
+                    end
+                  end
                 end
               end
             end
