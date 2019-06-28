@@ -47,13 +47,13 @@ module Pakyow
                       expander_route.name == @routes[method].last.name
                     }
 
-                    insert_before_this_index = @routes[method].select { |route|
+                    insert_before_this_index = @routes[method].select { |each_route|
                       local_expander.routes[method].any? { |expander_route|
-                        route.name == expander_route.name
+                        each_route.name == expander_route.name
                       }
-                    }.map { |route|
+                    }.map { |each_route|
                       local_expander.routes[method].index { |expander_route|
-                        expander_route.name == route.name
+                        expander_route.name == each_route.name
                       }
                     }.select { |index|
                       index > index_of_last_insert
@@ -61,8 +61,8 @@ module Pakyow
 
                     if insert_before_this_index
                       @routes[method].insert(
-                        @routes[method].index { |route|
-                          route.name == local_expander.routes[method][insert_before_this_index].name
+                        @routes[method].index { |each_route|
+                          each_route.name == local_expander.routes[method][insert_before_this_index].name
                         }, @routes[method].delete_at(index_of_last_insert)
                       )
                     end
