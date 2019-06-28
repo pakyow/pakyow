@@ -42,8 +42,8 @@ module Pakyow
 
       def discover_view_scopes(view_path:, view: nil, parent_scope: nil, parent_endpoint: nil)
         unless view
-          composer = Presenter::Composers::View.new(view_path)
-          view = composer.view(app: @app)
+          composer = Presenter::Composers::View.new(view_path, app: @app)
+          view = composer.view
         end
 
         # Descend to find the most specific scope first.

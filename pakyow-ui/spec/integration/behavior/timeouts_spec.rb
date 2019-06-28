@@ -69,7 +69,7 @@ RSpec.describe "ui state timeout behavior" do
           ""
         end
 
-        def view(app:)
+        def view
           Pakyow::Presenter::View.new("")
         end
       end

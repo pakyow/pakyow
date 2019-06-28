@@ -130,7 +130,7 @@ module Pakyow
                   app: app,
                   presentables: component_connection.values,
                   presenter_class: component_presenter,
-                  composer: Composers::Component.new(composer.view_path, current_path),
+                  composer: Composers::Component.new(composer.view_path, current_path, app: app),
                   modes: modes
                 )
 

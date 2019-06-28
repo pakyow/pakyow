@@ -81,7 +81,7 @@ module Pakyow
         presenter_view_key = [composer.key, presenter, modes]
 
         unless presenter_view = self.class.__presenter_views[presenter_view_key]
-          presenter_view = composer.view(app: app)
+          presenter_view = composer.view
 
           self.class.build!(presenter_view, app: app, modes: modes, composer: composer)
 
@@ -133,7 +133,7 @@ module Pakyow
             app: connection.app,
             presentables: connection.values,
             presenter_class: presenter,
-            composer: Composers::View.new(view_path),
+            composer: Composers::View.new(view_path, app: connection.app),
             modes: modes
           )
 

@@ -4,7 +4,7 @@ RSpec.describe "serializing a renderer" do
       ""
     end
 
-    def view(app:)
+    def view
       Pakyow::Presenter::View.new("")
     end
   end

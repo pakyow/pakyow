@@ -22,19 +22,20 @@ module Pakyow
 
         UNRETAINED_SIGNIFICANCE = %i(container partial template).freeze
 
-        def initialize(view_path)
+        def initialize(view_path, app:)
           @view_path = String.normalize_path(view_path)
+          @app = app
         end
 
         def key
           @view_path
         end
 
-        def view(app:, return_cached: false)
-          cache_key = :"#{app.config.name}__#{@view_path}"
+        def view(return_cached: false)
+          cache_key = :"#{@app.config.name}__#{@view_path}"
 
           unless view = View.__cache[cache_key]
-            unless info = app.view_info_for_path(@view_path)
+            unless info = @app.view_info_for_path(@view_path)
               error = UnknownPage.new("No view at path `#{@view_path}'")
               error.context = @view_path
               raise error

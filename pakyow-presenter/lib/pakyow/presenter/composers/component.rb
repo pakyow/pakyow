@@ -17,8 +17,8 @@ module Pakyow
 
         attr_reader :component_path
 
-        def initialize(view_path, component_path)
-          super(view_path)
+        def initialize(view_path, component_path, app:)
+          super(view_path, app: app)
           @component_path = component_path
         end
 

@@ -11,7 +11,7 @@ module Pakyow
             app: connection.app,
             presentables: connection.values,
             presenter_class: connection.app.isolated(:MailRenderer).find_presenter(connection.app, path),
-            composer: Presenter::Composers::View.new(path)
+            composer: Presenter::Composers::View.new(path, app: @connection.app)
           )
 
           Mailer.new(
