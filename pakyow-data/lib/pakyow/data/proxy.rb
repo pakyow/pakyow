@@ -45,9 +45,17 @@ module Pakyow
               yield duped_proxy if block_given?
             }
 
-            @subscribers.did_mutate(
-              @source.source_name, args[0], result
-            )
+            if @source.respond_to?(:transaction) && @source.transaction?
+              @source.on_commit do
+                @subscribers.did_mutate(
+                  @source.source_name, args[0], result
+                )
+              end
+            else
+              @subscribers.did_mutate(
+                @source.source_name, args[0], result
+              )
+            end
           }
         elsif @source.query?(method_name) || @source.modifier?(method_name)
           dup.tap { |duped_proxy|

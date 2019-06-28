@@ -97,5 +97,74 @@ RSpec.shared_examples :source_sql_transactions do
         end
       end
     end
+
+    describe "checking if a transaction is in progress" do
+      context "in a transaction" do
+        it "returns true when in a transaction" do
+          check = false
+          data.posts.transaction do
+            check = data.posts.transaction?
+          end
+
+          expect(check).to be(true)
+        end
+      end
+
+      it "returns false when not in a transaction" do
+        expect(data.posts.transaction?).to be(false)
+      end
+    end
+
+    describe "calling code after a transaction is committed" do
+      it "calls on commit" do
+        called = false
+        data.posts.transaction do
+          data.posts.on_commit do
+            called = true
+          end
+        end
+
+        expect(called).to be(true)
+      end
+
+      it "does not call on rollback" do
+        called = false
+        data.posts.transaction do
+          data.posts.on_commit do
+            called = true
+          end
+
+          raise Pakyow::Data::Rollback
+        end
+
+        expect(called).to be(false)
+      end
+    end
+
+    describe "calling code after a transaction is rolled back" do
+      it "calls on rollback" do
+        called = false
+        data.posts.transaction do
+          data.posts.on_rollback do
+            called = true
+          end
+
+          raise Pakyow::Data::Rollback
+        end
+
+        expect(called).to be(true)
+      end
+
+      it "does not call on commit" do
+        called = false
+        data.posts.transaction do
+          data.posts.on_rollback do
+            called = true
+          end
+        end
+
+        expect(called).to be(false)
+      end
+    end
   end
 end

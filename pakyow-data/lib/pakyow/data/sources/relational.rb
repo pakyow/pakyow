@@ -146,6 +146,18 @@ module Pakyow
           self.class.container.connection.transaction(&block)
         end
 
+        def transaction?
+          self.class.container.connection.adapter.connection.in_transaction?
+        end
+
+        def on_commit(&block)
+          self.class.container.connection.adapter.connection.after_commit(&block)
+        end
+
+        def on_rollback(&block)
+          self.class.container.connection.adapter.connection.after_rollback(&block)
+        end
+
         def command(command_name)
           if command = self.class.commands[command_name]
             Command.new(
