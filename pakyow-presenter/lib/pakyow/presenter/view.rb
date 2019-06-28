@@ -78,7 +78,7 @@ module Pakyow
       #
       def initialize(html, info: {}, logical_path: nil)
         @object = StringDoc.new(html)
-        @info, @logical_path = info, logical_path
+        @info, @logical_path = Support::IndifferentHash.deep(info), logical_path
 
         if @object.respond_to?(:attributes)
           self.attributes = @object.attributes
@@ -199,7 +199,7 @@ module Pakyow
         if key.nil?
           @info
         else
-          @info.fetch(key.to_s, nil)
+          @info.fetch(key, nil)
         end
       end
 
@@ -547,13 +547,13 @@ module Pakyow
 
       # Thanks Dan! https://stackoverflow.com/a/30225093
       # @api private
-      INFO_MERGER = proc { |_, v1, v2| Hash === v1 && Hash === v2 ? v1.merge(v2, &merger) : Array === v1 && Array === v2 ? v1 | v2 : [:undefined, nil, :nil].include?(v2) ? v1 : v2 }
+      INFO_MERGER = proc { |_, v1, v2| Support::IndifferentHash === v1 && Support::IndifferentHash === v2 ? v1.merge(v2, &merger) : Array === v1 && Array === v2 ? v1 | v2 : [:undefined, nil, :nil].include?(v2) ? v1 : v2 }
 
       # @api private
       def add_info(*infos)
         tap do
           infos.each do |info|
-            @info.merge!(info, &INFO_MERGER)
+            @info.merge!(Support::IndifferentHash.deep(info), &INFO_MERGER)
           end
         end
       end

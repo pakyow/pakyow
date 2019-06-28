@@ -19,7 +19,7 @@ module Pakyow
         @containers = {}
         parse_content(html)
         @name, @path = name, path
-        info["layout"] ||= :default
+        info[:layout] ||= :default
         super(html, info: info, **args)
       end
 

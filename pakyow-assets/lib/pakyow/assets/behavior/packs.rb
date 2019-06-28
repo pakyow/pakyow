@@ -151,7 +151,7 @@ module Pakyow
 
         def register_pack_with_view(pack, view)
           unless view.info(:packs)
-            view.add_info("packs" => [])
+            view.add_info(packs: [])
           end
 
           view.info(:packs) << pack.name
