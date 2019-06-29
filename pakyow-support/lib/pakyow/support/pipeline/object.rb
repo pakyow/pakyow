@@ -22,7 +22,7 @@ module Pakyow
 
         def halt
           @halted = true
-          throw :halt
+          throw :halt, true
         end
 
         def halted?

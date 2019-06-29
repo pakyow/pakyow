@@ -19,8 +19,10 @@ module Pakyow
       def boot
         object.class_eval do
           isolated :Controller do
-            action :clear_form_errors do
-              if connection.form
+            # Clear form errors after a successful submission.
+            #
+            after "dispatch" do
+              if connection.form && connection.status < 400
                 data.ephemeral(:errors, form_id: connection.form[:id]).set([])
               end
             end
