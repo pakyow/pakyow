@@ -273,9 +273,16 @@ module Pakyow
     end
 
     def dispatch
+      halted = false
       performing :dispatch do
-        @route.call(self)
+        halted = catch :halt do
+          @route.call(self)
+        end
       end
+
+      # Catching the halt then re-halting lets us call after dispatch hooks in non-error cases.
+      #
+      halt if halted
     end
 
     # Redirects to +location+ and immediately halts request processing.
