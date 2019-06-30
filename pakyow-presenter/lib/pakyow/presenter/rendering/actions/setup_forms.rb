@@ -30,6 +30,10 @@ module Pakyow
               form.object.label(:form)[:id] = form_id
               form.object.set_label(Presenters::Form::ID_LABEL, form_id)
 
+              # Set the form binding.
+              #
+              form.object.label(:form)[:binding] = form.object.label(:channeled_binding)
+
               # Setup field names.
               #
               form.object.children.each_significant_node(:binding) do |binding_node|
@@ -84,6 +88,8 @@ module Pakyow
               forms
             } do
               unless setup?
+                view.object.label(:form)[:origin] = presentables[:__origin]
+
                 if object = object_for_form
                   if app.class.includes_framework?(:data) && object.is_a?(Data::Proxy)
                     object = object.one
@@ -152,6 +158,14 @@ module Pakyow
             connection.set(:__params, connection.params)
             connection.set(:__endpoint, connection.endpoint)
             connection.set(:__verifier, connection.verifier)
+
+            origin = if connection.set?(:__form)
+              connection.get(:__form)[:origin]
+            else
+              connection.fullpath
+            end
+
+            connection.set(:__origin, origin)
           end
         end
       end

@@ -69,11 +69,19 @@ module Pakyow
                 []
               end
 
-              form_id = connection.get(:__form).to_h[:id] || SecureRandom.hex(24)
+              # We have to take over the management of form ids from presenter for error handling.
+              # If we're re-rendering a submitted form we reuse the id, otherwise create a new one.
+              #
+              form_id = if connection.form
+                connection.form[:id]
+              else
+                SecureRandom.hex(24)
+              end
 
               expose :form_id, form_id
-              expose :form_binding, connection.form.to_h[:binding]
-              expose :form_origin, connection.form.to_h[:origin] || connection.fullpath
+
+              # Relate ephemeral errors to the form id.
+              #
               expose :form_errors, data.ephemeral(:errors, form_id: form_id).set(errors)
 
               # Expose submitted values to be presented in the form.
@@ -86,12 +94,9 @@ module Pakyow
             presenter do
               render do
                 view.label(:form)[:id] = form_id
-                view.label(:form)[:binding] = view.label(:channeled_binding)
-                view.label(:form)[:origin] = form_origin
-
-                if form_binding.nil? || form_binding.to_sym == view.channeled_binding_name
-                  classify_form
-                  classify_fields
+                presented_form_binding = presentables.dig(:__form, :binding)
+                if presented_form_binding.nil? || presented_form_binding.to_sym == view.channeled_binding_name
+                  classify_form; classify_fields
                   present_errors(form_errors)
                 end
               end

@@ -5,10 +5,11 @@ RSpec.describe "form metadata" do
     allow(Pakyow::Support::MessageVerifier).to receive(:key).and_return("key")
   end
 
-  let :metadata do
-    response = call("/form")
-    expect(response[0]).to eq(200)
+  let :response do
+    call("/form")
+  end
 
+  let :metadata do
     response_body = response[2]
     expect(response_body).to include("input type=\"hidden\" name=\"_form\"")
 
@@ -20,8 +21,39 @@ RSpec.describe "form metadata" do
   end
 
   context "form is not setup explicitly" do
-    it "securely embeds form metadata" do
+    it "securely embeds the form id" do
       expect(metadata["id"].length).to eq(48)
+    end
+
+    it "securely embeds the form binding" do
+      expect(metadata["binding"]).to eq("post:form")
+    end
+
+    it "securely embeds the form origin" do
+      expect(metadata["origin"]).to eq("/form")
+    end
+
+    context "form is being re-rendered" do
+      let :response do
+        verifier = Pakyow::Support::MessageVerifier.new("key")
+        call("/", method: :post, params: { _form: verifier.sign({ origin: "/foo" }.to_json) })
+      end
+
+      let :app_def do
+        Proc.new do
+          controller do
+            disable_protection :csrf
+
+            post "/" do
+              render "/form"
+            end
+          end
+        end
+      end
+
+      it "embeds the origin from the original submission" do
+        expect(metadata["origin"]).to eq("/foo")
+      end
     end
 
     context "metadata set during presenter perform" do
