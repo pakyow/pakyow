@@ -67,7 +67,7 @@ module Pakyow
                     subscribable.subscribe(socket_client_id, handler: Handler, payload: payload) do |ids|
                       # Subscribe the subscriptions to the "transformation" channel.
                       #
-                      subscribe(:transformation, *ids)
+                      subscribe(:transformation, *ids.uniq)
                     end
                   end
                 end
