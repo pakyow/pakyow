@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "pakyow/support/bindable"
+require "pakyow/support/class_state"
 require "pakyow/support/makeable"
 require "pakyow/support/indifferentize"
 
@@ -15,6 +16,9 @@ module Pakyow
 
       # @api private
       attr_accessor :originating_source
+
+      extend Support::ClassState
+      class_state :__serialized_methods, default: [], inheritable: true
 
       extend Support::Makeable
 
@@ -53,7 +57,12 @@ module Pakyow
       end
 
       def to_h
-        @values
+        hash = @values.dup
+        self.class.__serialized_methods.each do |method|
+          hash[method] = public_send(method)
+        end
+
+        hash
       end
 
       def to_json(*)
@@ -78,6 +87,10 @@ module Pakyow
 
         def make(name, state: nil, parent: nil, **kwargs, &block)
           super(name, state: state, parent: parent, **kwargs, &block)
+        end
+
+        def serialize(*methods)
+          @__serialized_methods.concat(methods.map(&:to_sym)).uniq!
         end
       end
     end
