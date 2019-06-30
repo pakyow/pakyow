@@ -115,7 +115,7 @@ RSpec.shared_examples :source_queries do
 
     it "does not allow them to be called" do
       expect {
-        data.posts.order
+        data.posts.avg
       }.to raise_error
     end
   end

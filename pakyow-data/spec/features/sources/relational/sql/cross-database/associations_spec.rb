@@ -19,7 +19,7 @@ RSpec.describe "cross connection associations" do
         Proc.new do
           source :posts, connection: :default do
             query do
-              order { id.asc }
+              order(id: :asc)
             end
           end
 
@@ -27,7 +27,7 @@ RSpec.describe "cross connection associations" do
             belongs_to :post
 
             query do
-              order { id.asc }
+              order(id: :asc)
             end
           end
         end
@@ -55,13 +55,13 @@ RSpec.describe "cross connection associations" do
             has_one :comment
 
             query do
-              order { id.asc }
+              order(id: :asc)
             end
           end
 
           source :comments, connection: :two do
             query do
-              order { id.asc }
+              order(id: :asc)
             end
           end
         end
@@ -93,19 +93,19 @@ RSpec.describe "cross connection associations" do
             has_one :comment, through: :related
 
             query do
-              order { id.asc }
+              order(id: :asc)
             end
           end
 
           source :comments, connection: :two do
             query do
-              order { id.asc }
+              order(id: :asc)
             end
           end
 
           source :relateds, connection: :three do
             query do
-              order { id.asc }
+              order(id: :asc)
             end
           end
         end
@@ -141,13 +141,13 @@ RSpec.describe "cross connection associations" do
             has_many :comments
 
             query do
-              order { id.asc }
+              order(id: :asc)
             end
           end
 
           source :comments, connection: :two do
             query do
-              order { id.asc }
+              order(id: :asc)
             end
           end
         end
@@ -179,13 +179,13 @@ RSpec.describe "cross connection associations" do
             has_many :comments, through: :relateds
 
             query do
-              order { id.asc }
+              order(id: :asc)
             end
           end
 
           source :comments, connection: :two do
             query do
-              order { id.asc }
+              order(id: :asc)
             end
           end
 

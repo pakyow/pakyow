@@ -25,7 +25,7 @@ RSpec.shared_examples :source_associations do
             primary_id
 
             query do
-              order { id.asc }
+              order(id: :asc)
             end
           end
 
@@ -34,7 +34,7 @@ RSpec.shared_examples :source_associations do
             belongs_to :post
 
             query do
-              order { id.asc }
+              order(id: :asc)
             end
           end
         end
@@ -61,7 +61,7 @@ RSpec.shared_examples :source_associations do
               primary_id
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
@@ -70,7 +70,7 @@ RSpec.shared_examples :source_associations do
               belongs_to :owner, source: :posts
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -98,7 +98,7 @@ RSpec.shared_examples :source_associations do
               primary_id
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
@@ -106,7 +106,7 @@ RSpec.shared_examples :source_associations do
               primary_id
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
@@ -116,7 +116,7 @@ RSpec.shared_examples :source_associations do
               belongs_to :message
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -158,7 +158,7 @@ RSpec.shared_examples :source_associations do
               primary_id
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
@@ -169,7 +169,7 @@ RSpec.shared_examples :source_associations do
               belongs_to :yolo, source: :posts
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -225,7 +225,7 @@ RSpec.shared_examples :source_associations do
               primary_id
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
 
               def id_gt_one
@@ -238,7 +238,7 @@ RSpec.shared_examples :source_associations do
               belongs_to :post, query: :id_gt_one
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -316,7 +316,7 @@ RSpec.shared_examples :source_associations do
               }
 
               query do
-                order { slug.asc }
+                order(slug: :asc)
               end
             end
 
@@ -325,7 +325,7 @@ RSpec.shared_examples :source_associations do
               belongs_to :post
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -359,7 +359,7 @@ RSpec.shared_examples :source_associations do
             has_one :comment
 
             query do
-              order { id.asc }
+              order(id: :asc)
             end
           end
 
@@ -367,7 +367,7 @@ RSpec.shared_examples :source_associations do
             primary_id
 
             query do
-              order { id.asc }
+              order(id: :asc)
             end
           end
         end
@@ -399,7 +399,7 @@ RSpec.shared_examples :source_associations do
               has_one :comment, dependent: :delete
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
@@ -407,7 +407,7 @@ RSpec.shared_examples :source_associations do
               primary_id
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -440,7 +440,7 @@ RSpec.shared_examples :source_associations do
               has_one :comment, dependent: :nullify
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
@@ -448,7 +448,7 @@ RSpec.shared_examples :source_associations do
               primary_id
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -525,7 +525,7 @@ RSpec.shared_examples :source_associations do
               has_one :unmentionable, source: :comments
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
@@ -533,7 +533,7 @@ RSpec.shared_examples :source_associations do
               primary_id
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -566,7 +566,7 @@ RSpec.shared_examples :source_associations do
               has_one :comment, as: :owner
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
@@ -574,7 +574,7 @@ RSpec.shared_examples :source_associations do
               primary_id
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -633,7 +633,7 @@ RSpec.shared_examples :source_associations do
               has_one :comment, query: :id_gt_one
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
@@ -641,7 +641,7 @@ RSpec.shared_examples :source_associations do
               primary_id
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
 
               def id_gt_one
@@ -726,7 +726,7 @@ RSpec.shared_examples :source_associations do
               has_one :comment
 
               query do
-                order { slug.asc }
+                order(slug: :asc)
               end
             end
 
@@ -734,7 +734,7 @@ RSpec.shared_examples :source_associations do
               primary_id
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -783,19 +783,19 @@ RSpec.shared_examples :source_associations do
             has_one :comment, through: :related
 
             query do
-              order { id.asc }
+              order(id: :asc)
             end
           end
 
           source :comments do
             query do
-              order { id.asc }
+              order(id: :asc)
             end
           end
 
           source :relateds do
             query do
-              order { id.asc }
+              order(id: :asc)
             end
           end
         end
@@ -830,19 +830,19 @@ RSpec.shared_examples :source_associations do
               has_one :comment, through: :related, dependent: :delete
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
             source :comments do
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
             source :relateds do
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -878,19 +878,19 @@ RSpec.shared_examples :source_associations do
               has_one :comment, through: :related, dependent: :nullify
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
             source :comments do
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
             source :relateds do
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -950,19 +950,19 @@ RSpec.shared_examples :source_associations do
               has_one :unmentionable, through: :relateds, source: :comments
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
             source :comments do
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
             source :relateds do
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -998,19 +998,19 @@ RSpec.shared_examples :source_associations do
               has_one :comment, through: :related, as: :owners
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
             source :comments do
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
             source :relateds do
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -1048,13 +1048,13 @@ RSpec.shared_examples :source_associations do
               has_one :comment, through: :related, query: :id_gt_one
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
             source :comments do
               query do
-                order { id.asc }
+                order(id: :asc)
               end
 
               def id_gt_one
@@ -1064,7 +1064,7 @@ RSpec.shared_examples :source_associations do
 
             source :relateds do
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -1146,7 +1146,7 @@ RSpec.shared_examples :source_associations do
               has_one :comment, through: :related
 
               query do
-                order { slug.asc }
+                order(slug: :asc)
               end
             end
 
@@ -1154,13 +1154,13 @@ RSpec.shared_examples :source_associations do
               primary_id
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
             source :relateds do
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -1222,13 +1222,13 @@ RSpec.shared_examples :source_associations do
               has_one :comment, through: :related
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
             source :comments do
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
@@ -1242,7 +1242,7 @@ RSpec.shared_examples :source_associations do
               }
 
               query do
-                order { slug.asc }
+                order(slug: :asc)
               end
             end
           end
@@ -1303,7 +1303,7 @@ RSpec.shared_examples :source_associations do
             has_one :comment
 
             query do
-              order { id.asc }
+              order(id: :asc)
             end
           end
 
@@ -1311,7 +1311,7 @@ RSpec.shared_examples :source_associations do
             has_one :post
 
             query do
-              order { id.asc }
+              order(id: :asc)
             end
           end
         end
@@ -1342,7 +1342,7 @@ RSpec.shared_examples :source_associations do
               has_one :comment, dependent: :delete
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
@@ -1350,7 +1350,7 @@ RSpec.shared_examples :source_associations do
               has_one :post, dependent: :delete
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -1382,7 +1382,7 @@ RSpec.shared_examples :source_associations do
               has_one :comment, dependent: :nullify
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
@@ -1390,7 +1390,7 @@ RSpec.shared_examples :source_associations do
               has_one :post, dependent: :nullify
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -1442,7 +1442,7 @@ RSpec.shared_examples :source_associations do
               has_one :unmentionable, source: :comments
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
@@ -1450,7 +1450,7 @@ RSpec.shared_examples :source_associations do
               has_one :post, as: :unmentionable
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -1482,7 +1482,7 @@ RSpec.shared_examples :source_associations do
               has_one :comment, as: :owner
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
@@ -1490,7 +1490,7 @@ RSpec.shared_examples :source_associations do
               has_one :owner, source: :posts
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -1524,7 +1524,7 @@ RSpec.shared_examples :source_associations do
               has_one :comment, query: :id_gt_one
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
@@ -1532,7 +1532,7 @@ RSpec.shared_examples :source_associations do
               has_one :post
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
 
               def id_gt_one
@@ -1574,7 +1574,7 @@ RSpec.shared_examples :source_associations do
               has_one :comment
 
               query do
-                order { slug.asc }
+                order(slug: :asc)
               end
             end
 
@@ -1582,7 +1582,7 @@ RSpec.shared_examples :source_associations do
               has_one :post
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -1636,7 +1636,7 @@ RSpec.shared_examples :source_associations do
             has_many :comments
 
             query do
-              order { id.asc }
+              order(id: :asc)
             end
           end
 
@@ -1644,7 +1644,7 @@ RSpec.shared_examples :source_associations do
             primary_id
 
             query do
-              order { id.asc }
+              order(id: :asc)
             end
           end
         end
@@ -1676,7 +1676,7 @@ RSpec.shared_examples :source_associations do
               has_many :comments, dependent: :delete
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
@@ -1684,7 +1684,7 @@ RSpec.shared_examples :source_associations do
               primary_id
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -1717,7 +1717,7 @@ RSpec.shared_examples :source_associations do
               has_many :comments, dependent: :nullify
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
@@ -1725,7 +1725,7 @@ RSpec.shared_examples :source_associations do
               primary_id
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -1802,7 +1802,7 @@ RSpec.shared_examples :source_associations do
               has_many :unmentionables, source: :comments
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
@@ -1810,7 +1810,7 @@ RSpec.shared_examples :source_associations do
               primary_id
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -1843,7 +1843,7 @@ RSpec.shared_examples :source_associations do
               has_many :comments, as: :owner
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
@@ -1851,7 +1851,7 @@ RSpec.shared_examples :source_associations do
               primary_id
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -1910,7 +1910,7 @@ RSpec.shared_examples :source_associations do
               has_many :comments, query: :id_gt_one
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
@@ -1918,7 +1918,7 @@ RSpec.shared_examples :source_associations do
               primary_id
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
 
               def id_gt_one
@@ -2003,7 +2003,7 @@ RSpec.shared_examples :source_associations do
               has_many :comments
 
               query do
-                order { slug.asc }
+                order(slug: :asc)
               end
             end
 
@@ -2011,7 +2011,7 @@ RSpec.shared_examples :source_associations do
               primary_id
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -2060,19 +2060,19 @@ RSpec.shared_examples :source_associations do
             has_many :comments, through: :relateds
 
             query do
-              order { id.asc }
+              order(id: :asc)
             end
           end
 
           source :comments do
             query do
-              order { id.asc }
+              order(id: :asc)
             end
           end
 
           source :relateds do
             query do
-              order { id.asc }
+              order(id: :asc)
             end
           end
         end
@@ -2107,19 +2107,19 @@ RSpec.shared_examples :source_associations do
               has_many :comments, through: :relateds, dependent: :delete
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
             source :comments do
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
             source :relateds do
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -2155,19 +2155,19 @@ RSpec.shared_examples :source_associations do
               has_many :comments, through: :relateds, dependent: :nullify
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
             source :comments do
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
             source :relateds do
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -2227,19 +2227,19 @@ RSpec.shared_examples :source_associations do
               has_many :unmentionables, through: :relateds, source: :comments
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
             source :comments do
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
             source :relateds do
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -2275,19 +2275,19 @@ RSpec.shared_examples :source_associations do
               has_many :comments, through: :relateds, as: :owners
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
             source :comments do
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
             source :relateds do
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -2325,13 +2325,13 @@ RSpec.shared_examples :source_associations do
               has_many :comments, through: :relateds, query: :id_gt_one
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
             source :comments do
               query do
-                order { id.asc }
+                order(id: :asc)
               end
 
               def id_gt_one
@@ -2341,7 +2341,7 @@ RSpec.shared_examples :source_associations do
 
             source :relateds do
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -2425,19 +2425,19 @@ RSpec.shared_examples :source_associations do
               has_many :comments, through: :relateds
 
               query do
-                order { slug.asc }
+                order(slug: :asc)
               end
             end
 
             source :comments do
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
             source :relateds do
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -2499,13 +2499,13 @@ RSpec.shared_examples :source_associations do
               has_many :comments, through: :relateds
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
             source :comments do
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
@@ -2519,7 +2519,7 @@ RSpec.shared_examples :source_associations do
               }
 
               query do
-                order { slug.asc }
+                order(slug: :asc)
               end
             end
           end
@@ -2580,7 +2580,7 @@ RSpec.shared_examples :source_associations do
             has_many :comments
 
             query do
-              order { id.asc }
+              order(id: :asc)
             end
           end
 
@@ -2588,7 +2588,7 @@ RSpec.shared_examples :source_associations do
             has_many :posts
 
             query do
-              order { id.asc }
+              order(id: :asc)
             end
           end
         end
@@ -2619,7 +2619,7 @@ RSpec.shared_examples :source_associations do
               has_many :comments, dependent: :delete
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
@@ -2627,7 +2627,7 @@ RSpec.shared_examples :source_associations do
               has_many :posts, dependent: :delete
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -2659,7 +2659,7 @@ RSpec.shared_examples :source_associations do
               has_many :comments, dependent: :nullify
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
@@ -2667,7 +2667,7 @@ RSpec.shared_examples :source_associations do
               has_many :posts, dependent: :nullify
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -2719,7 +2719,7 @@ RSpec.shared_examples :source_associations do
               has_many :unmentionables, source: :comments
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
@@ -2727,7 +2727,7 @@ RSpec.shared_examples :source_associations do
               has_many :posts, as: :unmentionables
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -2759,7 +2759,7 @@ RSpec.shared_examples :source_associations do
               has_many :comments, as: :owners
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
@@ -2767,7 +2767,7 @@ RSpec.shared_examples :source_associations do
               has_many :owners, source: :posts
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end
@@ -2801,7 +2801,7 @@ RSpec.shared_examples :source_associations do
               has_many :comments, query: :id_gt_one
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
 
@@ -2809,7 +2809,7 @@ RSpec.shared_examples :source_associations do
               has_many :posts
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
 
               def id_gt_one
@@ -2853,7 +2853,7 @@ RSpec.shared_examples :source_associations do
               has_many :comments
 
               query do
-                order { slug.asc }
+                order(slug: :asc)
               end
             end
 
@@ -2861,7 +2861,7 @@ RSpec.shared_examples :source_associations do
               has_many :posts
 
               query do
-                order { id.asc }
+                order(id: :asc)
               end
             end
           end

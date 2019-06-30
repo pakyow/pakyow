@@ -20,7 +20,7 @@ RSpec.shared_examples :source_query_default do
             query :ordered
 
             def ordered
-              order { title.asc }
+              order(title: :asc)
             end
           end
         end
@@ -43,7 +43,7 @@ RSpec.shared_examples :source_query_default do
             attribute :title, :string
 
             query do
-              order { title.asc }.exclude(title: "foo")
+              order(title: :asc).exclude(title: "foo")
             end
           end
         end
@@ -71,7 +71,7 @@ RSpec.shared_examples :source_query_default do
             end
 
             def ordered
-              order { title.asc }
+              order(title: :asc)
             end
 
             def without_foo

@@ -20,7 +20,7 @@ RSpec.shared_examples :source_including do
           has_one :author, source: :users
 
           query do
-            order { id.asc }
+            order(id: :asc)
           end
         end
 
@@ -31,7 +31,7 @@ RSpec.shared_examples :source_including do
           has_one :author, source: :users
 
           query do
-            order { id.asc }
+            order(id: :asc)
           end
         end
 

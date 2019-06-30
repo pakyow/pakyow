@@ -52,7 +52,7 @@ Pakyow.app :single_feed_benchmark, only: %i[core data] do
     query :ordered_and_limited
 
     def ordered_and_limited
-      order { created_at.desc }.limit(10)
+      order(created_at: :desc).limit(10)
     end
   end
 end

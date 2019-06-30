@@ -51,7 +51,7 @@ RSpec.describe "reordering a populated view" do
         attribute :title
 
         def ordered
-          order { title.asc }
+          order(title: :asc)
         end
       end
 

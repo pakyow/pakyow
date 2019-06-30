@@ -26,7 +26,7 @@ RSpec.shared_context :source_associations_helpers do
         primary_id
 
         query do
-          order { id.asc }
+          order(id: :asc)
         end
       end
 
