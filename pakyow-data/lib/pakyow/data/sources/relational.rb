@@ -120,6 +120,29 @@ module Pakyow
           end
         end
 
+        def limit(count)
+          __setobj__(__getobj__.limit(count)); self
+        end
+
+        def order(*ordering)
+          __setobj__(
+            __getobj__.order(
+              *ordering.flat_map { |order|
+                case order
+                when Array
+                  Sequel.public_send(order[1].to_sym, order[0].to_sym)
+                when Hash
+                  order.each_pair.map { |key, value|
+                    Sequel.public_send(value.to_sym, key.to_sym)
+                  }
+                else
+                  Sequel.asc(order.to_s.to_sym)
+                end
+              }
+            )
+          ); self
+        end
+
         def to_a
           return @results if instance_variable_defined?(:@results)
           @results = self.class.to_a(__getobj__)
@@ -221,7 +244,7 @@ module Pakyow
         end
 
         # @api private
-        MODIFIER_METHODS = %i(as including).freeze
+        MODIFIER_METHODS = %i(as including limit order).freeze
         # @api private
         def modifier?(maybe_modifier_name)
           MODIFIER_METHODS.include?(maybe_modifier_name)

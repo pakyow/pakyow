@@ -3,7 +3,9 @@ require_relative "../shared_examples/commands"
 require_relative "../shared_examples/connection"
 require_relative "../shared_examples/default_fields"
 require_relative "../shared_examples/including"
+require_relative "../shared_examples/limiting"
 require_relative "../shared_examples/logging"
+require_relative "../shared_examples/ordering"
 require_relative "../shared_examples/qualifications"
 require_relative "../shared_examples/queries"
 require_relative "../shared_examples/query_default"
@@ -23,7 +25,9 @@ RSpec.describe "mysql source", mysql: true do
   it_behaves_like :source_connection
   it_behaves_like :source_default_fields
   it_behaves_like :source_including
+  it_behaves_like :source_limiting
   it_behaves_like :source_logging
+  it_behaves_like :source_ordering
   it_behaves_like :source_qualifications
   it_behaves_like :source_queries
   it_behaves_like :source_query_default
