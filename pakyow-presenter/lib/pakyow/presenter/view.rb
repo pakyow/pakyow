@@ -449,7 +449,7 @@ module Pakyow
 
       # @api private
       def each_binding_scope(descend: false)
-        return enum_for(:each_binding_scope, descend: false) unless block_given?
+        return enum_for(:each_binding_scope, descend: descend) unless block_given?
 
         method = if descend
           :each_significant_node
@@ -457,7 +457,7 @@ module Pakyow
           :each_significant_node_without_descending_into_type
         end
 
-        @object.send(method, :binding, descend: true) do |node|
+        @object.send(method, :binding, descend: descend) do |node|
           if binding_scope?(node)
             yield node
           end
@@ -466,7 +466,7 @@ module Pakyow
 
       # @api private
       def each_binding_prop(descend: false)
-        return enum_for(:each_binding_prop, descend: false) unless block_given?
+        return enum_for(:each_binding_prop, descend: descend) unless block_given?
 
         if (@object.is_a?(StringDoc::Node) || @object.is_a?(StringDoc::MetaNode)) && @object.significant?(:multipart_binding)
           yield @object
@@ -477,7 +477,7 @@ module Pakyow
             :each_significant_node_without_descending_into_type
           end
 
-          @object.send(method, :binding, descend: true) do |node|
+          @object.send(method, :binding, descend: descend) do |node|
             if binding_prop?(node)
               yield node
             end

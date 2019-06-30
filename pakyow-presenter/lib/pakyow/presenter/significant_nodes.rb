@@ -180,7 +180,7 @@ module Pakyow
 
     # @api private
     class FormNode < SignificantNode
-      StringDoc.significant :form, self
+      StringDoc.significant :form, self, descend: false
 
       def self.significant?(node)
         node.is_a?(Oga::XML::Element) && node.attribute(:binding) && node.name == FORM_TAG

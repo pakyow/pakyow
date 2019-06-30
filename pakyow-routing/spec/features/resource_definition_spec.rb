@@ -39,6 +39,28 @@ RSpec.describe "defining resources" do
     end
   end
 
+  context "when the resource is deeply nested within another resource" do
+    let :app_init do
+      Proc.new {
+        resource :channels, "/channels" do
+          resource :posts, "/posts" do
+            resource :comments, "/comments" do
+              list do
+                send "channel #{params[:channel_id]} post #{params[:post_id]} comment list"
+              end
+            end
+          end
+        end
+      }
+    end
+
+    it "defines the resource" do
+      res = call("/channels/1/posts/2/comments")
+      expect(res[0]).to eq(200)
+      expect(res[2]).to eq("channel 1 post 2 comment list")
+    end
+  end
+
   context "when the resource is defined with actions" do
     let :app_init do
       Proc.new {

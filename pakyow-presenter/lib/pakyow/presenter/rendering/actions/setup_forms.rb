@@ -134,7 +134,7 @@ module Pakyow
 
             presenter.render node: -> {
               stringified_param = app.config.security.csrf.param.to_s
-              node = object.each_significant_node(:field).find { |field_node|
+              node = object.each_significant_node(:field, descend: true).find { |field_node|
                 field_node.attributes[:name] == stringified_param
               }
 
@@ -146,7 +146,7 @@ module Pakyow
             end
 
             presenter.render node: -> {
-              object.each_significant_node(:method_override).map { |node|
+              object.each_significant_node(:method_override, descend: true).map { |node|
                 View.from_object(node)
               }
             } do
