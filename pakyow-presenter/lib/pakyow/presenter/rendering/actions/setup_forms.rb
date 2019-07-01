@@ -88,8 +88,6 @@ module Pakyow
               forms
             } do
               unless setup?
-                view.object.label(:form)[:origin] = presentables[:__origin]
-
                 if object = object_for_form
                   if app.class.includes_framework?(:data) && object.is_a?(Data::Proxy)
                     object = object.one
@@ -120,6 +118,8 @@ module Pakyow
                   end
                 end
               end
+
+              view.object.label(:form)[:origin] = presentables[:__origin]
 
               node = view.object.each_significant_node(:field).find { |field_node|
                 field_node.attributes[:name] == "_form"
