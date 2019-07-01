@@ -95,6 +95,10 @@ module Pakyow
           self.class.__presenter_views[presenter_view_key] = presenter_view
         end
 
+        if composer.respond_to?(:finalize)
+          presenter_view = composer.finalize(presenter_view)
+        end
+
         presenter_view
       end
 

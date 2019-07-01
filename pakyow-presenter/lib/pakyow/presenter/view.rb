@@ -186,7 +186,7 @@ module Pakyow
       # Returns all components.
       #
       def components(renderable: false)
-        @object.each_significant_node_without_descending_into_type(:component).select { |node|
+        @object.each_significant_node_without_descending_into_type(:component, descend: true).select { |node|
           !renderable || node.label(:components).any? { |component| component[:renderable] }
         }.map { |node|
           View.from_object(node)

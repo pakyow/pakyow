@@ -417,7 +417,7 @@ RSpec.describe "form endpoints" do
 
         it "does not set an endpoint" do
           call("/presentation/forms/endpoints/explicit")[2].tap do |body|
-            expect(body).to include('<form data-b="post:form" data-e="explicit_endpoint" method="get">')
+            expect(body).to include('<form data-b="post:form" data-e="explicit_endpoint">')
           end
         end
       end

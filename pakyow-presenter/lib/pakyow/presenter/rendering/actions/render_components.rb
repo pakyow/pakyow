@@ -87,7 +87,7 @@ module Pakyow
 
               # Define the render function that calls the component and renders it at render time.
               #
-              component_render = app.isolated(:Presenter).send(:render_proc, component_view) { |_node, _context, string|
+              component_render = app.isolated(:Presenter).send(:render_proc, component_view) { |node, _context, string|
                 presentable_component_connection = presentables[:__component_connection]
                 component_connection = presentable_component_connection.dup
 
@@ -130,7 +130,9 @@ module Pakyow
                   app: app,
                   presentables: component_connection.values,
                   presenter_class: component_presenter,
-                  composer: Composers::Component.new(composer.view_path, current_path, app: app),
+                  composer: Composers::Component.new(
+                    composer.view_path, current_path, app: app, labels: node.labels
+                  ),
                   modes: modes
                 )
 

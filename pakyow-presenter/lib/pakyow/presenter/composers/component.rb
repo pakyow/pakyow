@@ -17,9 +17,10 @@ module Pakyow
 
         attr_reader :component_path
 
-        def initialize(view_path, component_path, app:)
+        def initialize(view_path, component_path, app:, labels: {})
           super(view_path, app: app)
           @component_path = component_path
+          @labels = labels
         end
 
         def key
@@ -28,6 +29,35 @@ module Pakyow
 
         def post_process(view)
           self.class.follow_path(@component_path, view)
+        end
+
+        def finalize(view)
+          if @labels.any?
+            if view.frozen?
+              view = view.soft_copy
+            end
+
+            @labels.each_pair do |key, value|
+              view.object.set_label(key, value)
+            end
+          end
+
+          view
+        end
+
+        def marshal_dump
+          {
+            app: @app,
+            view_path: @view_path,
+            component_path: @component_path
+          }
+        end
+
+        def marshal_load(state)
+          @labels = {}
+          state.each do |key, value|
+            instance_variable_set(:"@#{key}", value)
+          end
         end
 
         class << self

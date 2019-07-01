@@ -62,6 +62,7 @@ module Pakyow
               view.object.set_label(:endpoint, action)
               view.object.set_label(:endpoint_object, endpoint)
               view.object.set_label(:endpoint_params, {})
+              Endpoint.new(__getobj__).setup
             end
           else
             attrs[:action] = action
@@ -136,11 +137,6 @@ module Pakyow
           end
 
           bind(object)
-
-          if labeled?(:endpoint)
-            Endpoint.new(__getobj__).setup
-          end
-
           setup!
           self
         end

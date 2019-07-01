@@ -33,13 +33,21 @@ module Pakyow
               # Setup non-binding endpoints (binding endpoints are setup dynamically in presenter).
               #
               presenter.render node: -> {
-                object.find_significant_nodes(:endpoint).select { |node|
-                  node.labeled?(:endpoint_object) && node.tagname != "form"
+                nodes = []
+                nodes << object if object.is_a?(StringDoc::Node) && object.significant?(:endpoint)
+                nodes.concat(object.find_significant_nodes(:endpoint))
+                nodes.select { |node|
+                  node.labeled?(:endpoint_object)
                 }.map { |node|
                   View.from_object(node)
                 }
               }, priority: :low do
-                setup
+                case self
+                when Presenters::Form
+                  Presenters::Endpoint.new(__getobj__).setup
+                when Presenters::Endpoint
+                  setup
+                end
               end
             end
           end

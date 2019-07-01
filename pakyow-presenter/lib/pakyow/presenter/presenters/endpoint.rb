@@ -136,7 +136,13 @@ module Pakyow
                     binding_path: current_binding_path,
                     priority: :low,
                     block: Proc.new {
-                      endpoint(endpoint_node.label(:endpoint))&.setup
+                      endpoint_view = endpoint(endpoint_node.label(:endpoint))
+                      case endpoint_view
+                      when Presenters::Form
+                        Presenters::Endpoint.new(endpoint_view.__getobj__).setup
+                      when Presenters::Endpoint
+                        endpoint_view.setup
+                      end
                     }
                   }
                 end
