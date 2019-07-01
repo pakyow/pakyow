@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "base64"
+
 require "pakyow/support/indifferentize"
 
 require "pakyow/app/connection/session/abstract"
@@ -33,14 +35,14 @@ module Pakyow
           end
 
           def to_s
-            Marshal.dump(to_h)
+            Base64.urlsafe_encode64(Marshal.dump(to_h))
           end
 
           private
 
           def deserialize(connection, options)
             if value = connection.cookies[options.name]
-              Support::IndifferentHash.deep(Marshal.load(value))
+              Support::IndifferentHash.deep(Marshal.load(Base64.urlsafe_decode64(value)))
             else
               Support::IndifferentHash.new
             end
