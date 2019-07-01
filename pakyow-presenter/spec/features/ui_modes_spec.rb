@@ -232,4 +232,38 @@ RSpec.describe "presenting a view that defines one or more ui mode" do
       end
     end
   end
+
+  context "mode is nested in a binding" do
+    let :app_def do
+      Proc.new do
+        presenter "/presentation/ui_modes/nested" do
+          render :post do
+            bind({})
+          end
+        end
+      end
+    end
+
+    it "still gets picked up as a mode" do
+      expect(call("/presentation/ui_modes/nested")[2]).to include_sans_whitespace(
+        <<~HTML
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>default</title>
+            </head>
+
+            <body>
+              <div data-b="post">
+                <h1>default</h1>
+              </div>
+
+              <div data-b="post"></div>
+              <div data-b="post"></div>
+            </body>
+          </html>
+        HTML
+      )
+    end
+  end
 end

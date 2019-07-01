@@ -18,7 +18,7 @@ module Pakyow
           attach do |presenter|
             if Pakyow.env?(:prototype)
               presenter.render node: -> {
-                object.find_significant_nodes(:mode).map { |node|
+                object.find_significant_nodes(:mode, descend: true).map { |node|
                   View.from_object(node)
                 }
               } do
@@ -41,7 +41,7 @@ module Pakyow
           end
 
           modes.map!(&:to_sym)
-          view.object.each_significant_node(:mode).select { |node|
+          view.object.each_significant_node(:mode, descend: true).select { |node|
             !modes.include?(node.label(:mode))
           }.each(&:remove)
         end
