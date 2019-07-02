@@ -11,7 +11,7 @@ RSpec.describe "environment data config" do
 
   describe "silent" do
     it "has a default value" do
-      expect(config.silent).to eq(false)
+      expect(config.silent).to eq(true)
     end
   end
 

@@ -23,7 +23,7 @@ module Pakyow
             setting :default_adapter, :sql
             setting :default_connection, :default
 
-            setting :silent, false
+            setting :silent, true
             setting :auto_migrate, true
             setting :auto_migrate_always, [:memory]
             setting :migration_path, "./database/migrations"
