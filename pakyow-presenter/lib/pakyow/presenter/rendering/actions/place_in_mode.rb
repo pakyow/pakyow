@@ -29,7 +29,7 @@ module Pakyow
 
           expose do |connection|
             if Pakyow.env?(:prototype)
-              connection.set(:__modes, connection.params[:modes] || [:default])
+              connection.set(:__modes, (connection.params[:modes] || [:default]).map!(&:to_sym))
             end
           end
         end
@@ -40,10 +40,13 @@ module Pakyow
             modes = view.info(:modes) || modes
           end
 
-          modes.map!(&:to_sym)
-          view.object.each_significant_node(:mode, descend: true).select { |node|
-            !modes.include?(node.label(:mode))
-          }.each(&:remove)
+          if view.object.is_a?(StringDoc::Node) && view.object.significant?(:mode) && !modes.include?(view.object.label(:mode))
+            view.remove
+          else
+            view.object.each_significant_node(:mode, descend: true).select { |node|
+              !modes.include?(node.label(:mode))
+            }.each(&:remove)
+          end
         end
       end
     end
