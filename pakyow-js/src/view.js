@@ -298,12 +298,12 @@ export default class {
     var bindings = [];
 
     this.breadthFirst(this.node, function(childNode, halt) {
-      if (childNode == this.node && !String(childNode.dataset.b).includes(".")) {
+      if (childNode === this.node && !String(childNode.dataset.b).includes(".")) {
         return; // we only care about the children
       }
 
       if (childNode.dataset.b) {
-        if (childNode.dataset.b.includes(".") || (new pw.View(childNode).bindingProps().length == 0 && !new pw.View(childNode).match("version", "empty"))) {
+        if (childNode.dataset.b.includes(".") || (new pw.View(childNode).bindingProps().length === 0 && !new pw.View(childNode).match("version", "empty"))) {
           bindings.push(new pw.View(childNode));
         } else {
           halt(); // we're done here
@@ -371,20 +371,23 @@ export default class {
 
   breadthFirst(node, cb) {
     var queue = [node];
-    var halted = false;
-    var halt = function () { halted = true; }
-    while (!halted && queue.length > 0) {
+
+    while (queue.length > 0) {
+      var halted = false;
+      var halt = function () { halted = true; }
       var subNode = queue.shift();
       if (!subNode) continue;
       if(typeof subNode == "object" && "nodeType" in subNode && subNode.nodeType === 1 && subNode.cloneNode) {
         cb.call(this, subNode, halt);
       }
 
-      var children = subNode.childNodes;
-      if (children) {
-        for(var i = 0; i < children.length; i++) {
-          if (children[i].tagName) {
-            queue.push(children[i]);
+      if (!halted) {
+        var children = subNode.childNodes;
+        if (children) {
+          for(var i = 0; i < children.length; i++) {
+            if (children[i].tagName) {
+              queue.push(children[i]);
+            }
           }
         }
       }
