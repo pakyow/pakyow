@@ -266,4 +266,18 @@ RSpec.describe "presenting a view that defines one or more ui mode" do
       )
     end
   end
+
+  context "mode is nested in a binding scope" do
+    it "is removed from the template" do
+      expect(call("/presentation/ui_modes/nested-scope")[2]).to include_sans_whitespace(
+        <<~HTML
+          <script type="text/template" data-b="post">
+            <div data-b="post">
+              <h1 data-b="title">default</h1>
+            </div>
+          </script>
+        HTML
+      )
+    end
+  end
 end

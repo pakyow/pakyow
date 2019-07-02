@@ -55,10 +55,10 @@ module Pakyow
           isolate Renderer do
             include Actions::CleanupPrototypeNodes
             include Actions::CleanupUnboundBindings
-            include Actions::CreateTemplateNodes
             include Actions::InsertPrototypeBar
             include Actions::InstallAuthenticity
             include Actions::PlaceInMode
+            include Actions::CreateTemplateNodes
             include Actions::SetupEndpoints
             include Actions::SetupForms
             include Actions::SetPageTitle
