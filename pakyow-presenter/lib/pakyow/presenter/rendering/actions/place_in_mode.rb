@@ -36,7 +36,7 @@ module Pakyow
 
         # @api private
         def self.perform(view, modes)
-          if modes.length == 1 && modes.first == :default
+          if modes.length == 1 && modes.first.to_sym == :default
             modes = view.info(:modes) || modes
           end
 
