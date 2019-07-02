@@ -1,7 +1,7 @@
 RSpec.shared_context "mirror" do
-  def scope(name, parent: nil)
+  def scope(name)
     mirror.scopes.find { |scope|
-      scope.named?(name) && scope.parent == parent
+      scope.named?(name)
     }
   end
 
@@ -15,8 +15,25 @@ RSpec.shared_context "mirror" do
     }
   end
 
+  def controller(*names, state: controllers)
+    name = names.shift.to_sym
+    result = state.find { |c|
+      c.__object_name.name == name
+    }
+
+    if names.empty?
+      result
+    else
+      controller(*names, state: result.children)
+    end
+  end
+
+  let :data do
+    Pakyow.app(:test).data
+  end
+
   let :mirror do
-    Pakyow::Reflection::Mirror.new(Pakyow.apps.first)
+    Pakyow.app(:test).mirror
   end
 
   let :scopes do

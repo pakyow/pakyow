@@ -35,7 +35,13 @@ module Pakyow
         end
 
         def define_source_for_scope(scope)
-          @app.source scope.plural_name, adapter: :sql, connection: @app.config.reflection.data.connection do
+          connection = if scope.actions.any?
+            @app.config.reflection.data.connection
+          else
+            :memory
+          end
+
+          @app.source scope.plural_name, adapter: :sql, connection: connection do
             # intentionally empty
           end
         end

@@ -12,14 +12,6 @@ module Pakyow
         restrict_extension Controller
         using Support::Refinements::Array::Ensurable
 
-        def with_reflected_scope
-          if reflected_scope
-            yield reflected_scope
-          else
-            trigger 404
-          end
-        end
-
         def with_reflected_action
           if reflected_action
             yield reflected_action
@@ -28,9 +20,9 @@ module Pakyow
           end
         end
 
-        def with_reflected_endpoints
-          if reflected_endpoints
-            yield reflected_endpoints
+        def with_reflected_endpoint
+          if reflected_endpoint
+            yield reflected_endpoint
           else
             trigger 404
           end
@@ -44,33 +36,74 @@ module Pakyow
           connection.get(:__reflected_action)
         end
 
-        def reflected_endpoints
-          connection.get(:__reflected_endpoints)
+        def reflected_endpoint
+          connection.get(:__reflected_endpoint)
         end
 
-        def reflects_specific_object?
-          connection.get(:__endpoint_name) == :show || connection.get(:__endpoint_name) == :edit
+        def reflects_specific_object?(object_name)
+          (
+            self.class.__object_name.name == object_name && (
+              connection.get(:__endpoint_name) == :show || connection.get(:__endpoint_name) == :edit
+            )
+          ) || parent_resource_named?(object_name)
         end
 
         def reflective_expose
-          logger.debug "[reflection] expose"
+          reflected_endpoint.exposures.each do |reflected_exposure|
+            if reflected_exposure.parent.nil? || reflected_exposure.binding.to_s.include?("form")
+              if dataset = reflected_exposure.dataset
+                query = data.send(reflected_exposure.scope.plural_name)
 
-          reflected_endpoints.each do |reflected_endpoint|
-            if reflected_endpoint.parent.nil?
-              query = data.send(reflected_endpoint.scope.plural_name)
+                if dataset.include?(:limit)
+                  query = query.limit(dataset[:limit].to_i)
+                end
 
-              if reflects_specific_object?
-                query = query.by_id(params[:id])
+                if dataset.include?(:order)
+                  query = query.order(*dataset[:order].to_a)
+                end
+
+                if dataset.include?(:query) && dataset[:query] != "all"
+                  case dataset[:query]
+                  when Array
+                    dataset[:query].each do |key, value|
+                      value = if respond_to?(value)
+                        public_send(value)
+                      else
+                        value
+                      end
+
+                      query = query.public_send(key, value)
+                    end
+                  else
+                    query = query.public_send(dataset[:query].to_s)
+                  end
+                end
+              else
+                query = data.send(reflected_exposure.scope.plural_name)
+
+                if reflects_specific_object?(reflected_exposure.scope.plural_name)
+                  if resource = resource_with_name(reflected_exposure.scope.plural_name)
+                    if resource == self.class
+                      query_param = resource.param
+                      params_param = resource.param
+                    else
+                      query_param = resource.param
+                      params_param = resource.nested_param
+                    end
+
+                    query = query.send(:"by_#{query_param}", params[params_param])
+                  end
+                end
               end
 
-              if reflected_endpoint.children.any?
+              if reflected_exposure.children.any?
                 associations = data.send(
-                  reflected_endpoint.scope.plural_name
+                  reflected_exposure.scope.plural_name
                 ).source.class.associations.values.flatten
 
-                reflected_endpoint.children.each do |nested_reflected_endpoint|
+                reflected_exposure.children.each do |nested_reflected_exposure|
                   association = associations.find { |possible_association|
-                    possible_association.associated_source_name == nested_reflected_endpoint.scope.plural_name
+                    possible_association.associated_source_name == nested_reflected_exposure.scope.plural_name
                   }
 
                   if association
@@ -79,14 +112,11 @@ module Pakyow
                 end
               end
 
-              if reflects_specific_object? && query.count == 0
+              if reflects_specific_object?(reflected_exposure.scope.plural_name) && query.dup.count == 0
                 trigger 404
               else
-                if !reflected_endpoint.channel.include?(:form) || reflected_endpoint.view_path.end_with?("/edit")
-                  expose(
-                    reflected_endpoint.binding, query,
-                    for: reflected_endpoint.channel
-                  )
+                if !reflected_exposure.binding.to_s.include?("form") || reflected_endpoint.view_path.end_with?("/edit")
+                  expose reflected_exposure.binding, query
                 end
               end
             end
@@ -109,38 +139,41 @@ module Pakyow
         end
 
         def verify_submitted_form
-          with_reflected_scope do |reflected_scope|
-            with_reflected_action do |reflected_action|
-              local = self
+          with_reflected_action do |reflected_action|
+            local = self
 
-              verify do
-                required reflected_scope.name do
-                  reflected_action.attributes.each do |attribute|
-                    if attribute.required?
-                      required attribute.name
-                    else
-                      optional attribute.name
+            verify do
+              required reflected_action.scope.name do
+                reflected_action.attributes.each do |attribute|
+                  if attribute.required?
+                    required attribute.name do
+                      validate :presence
                     end
+                  else
+                    optional attribute.name
                   end
-
-                  local.__send__(:verify_nested_data, reflected_action.nested, self)
                 end
+
+                local.__send__(:verify_nested_data, reflected_action.nested, self)
               end
             end
           end
         end
 
         def handle_submitted_data
-          with_reflected_scope do |reflected_scope|
-            proxy = data.public_send(reflected_scope.plural_name)
+          with_reflected_action do |reflected_action|
+            proxy = data.public_send(reflected_action.scope.plural_name)
 
             # Pull initial values from the params.
             #
-            values = params[reflected_scope.name]
+            values = params[reflected_action.scope.name]
 
             # Associate the object with its parent when creating.
             #
             if self.class.parent && connection.get(:__endpoint_name) == :create
+              # TODO: Handle cases where objects are associated by id but routed by another field.
+              # Implement when we allow foreign keys to be specified in associations.
+              #
               values[self.class.parent.nested_param] = params[self.class.parent.nested_param]
             end
 
@@ -172,13 +205,13 @@ module Pakyow
         end
 
         def reflected_destination
-          with_reflected_scope do |reflected_scope|
+          with_reflected_action do |reflected_action|
             if connection.form && origin = connection.form[:origin]
-              if instance_variable_defined?(:@object) && origin == "/#{reflected_scope.plural_name}/new"
+              if instance_variable_defined?(:@object) && origin == "/#{reflected_action.scope.plural_name}/new"
                 if self.class.routes[:get].any? { |route| route.name == :show }
-                  path(:"#{reflected_scope.plural_name}_show", @object.one.to_h)
+                  path(:"#{reflected_action.scope.plural_name}_show", @object.one.to_h)
                 elsif self.class.routes[:get].any? { |route| route.name == :list }
-                  path(:"#{reflected_scope.plural_name}_list")
+                  path(:"#{reflected_action.scope.plural_name}_list")
                 else
                   origin
                 end
@@ -193,19 +226,19 @@ module Pakyow
 
         private
 
-        def call_reflect_fn
-          # This variable will be defined by the `reflect` hook, unless it's skipped.
-          #
-          if instance_variable_defined?(:@reflect_fn)
-            reflect_fn = @reflect_fn
+        def parent_resource_named?(object_name, context = self.class)
+          if context && context.parent
+            context.parent.__object_name&.name == object_name || parent_resource_named?(object_name, context.parent)
+          else
+            false
+          end
+        end
 
-            # Remove this so that if there's another dispatch the logic is not called twice.
-            #
-            remove_instance_variable(:@reflect_fn)
-
-            # Perform the reflected behavior last, so that anything the app does takes precedence.
-            #
-            instance_exec(&reflect_fn)
+        def resource_with_name(object_name, context = self.class)
+          if context.__object_name&.name == object_name
+            context
+          elsif context.parent
+            resource_with_name(object_name, context.parent)
           end
         end
 

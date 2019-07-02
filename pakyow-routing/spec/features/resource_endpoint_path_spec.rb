@@ -32,14 +32,14 @@ RSpec.describe "resource endpoint path" do
   end
 
   it "updates the endpoint path for members" do
-    expect(call("/posts/1/foo")[2]).to eq("/posts/show/foo")
+    expect(call("/posts/1/foo")[2]).to eq("/posts/foo")
   end
 
   it "updates the endpoint path for nested resource list" do
-    expect(call("/posts/1/comments")[2]).to eq("/posts/show/comments")
+    expect(call("/posts/1/comments")[2]).to eq("/posts/comments")
   end
 
   it "updates the endpoint path for nested resource show" do
-    expect(call("/posts/1/comments/2")[2]).to eq("/posts/show/comments/show")
+    expect(call("/posts/1/comments/2")[2]).to eq("/posts/comments/show")
   end
 end

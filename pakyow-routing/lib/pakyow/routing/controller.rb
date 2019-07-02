@@ -748,8 +748,17 @@ module Pakyow
         File.join(parent.path_to_self.to_s, path.to_s)
       end
 
+      def name_of_self
+        return __object_name.name unless parent
+        [parent.name_of_self.to_s, __object_name.name.to_s].join("_").to_sym
+      end
+
       def endpoints
         self_name = __object_name&.name
+
+        # Ignore member and collection namespaces for endpoint building.
+        #
+        self_name = nil if self_name == :member || self_name == :collection
 
         [].tap do |endpoints|
           @routes.values.flatten.each do |route|
@@ -798,7 +807,11 @@ module Pakyow
         name, matcher = parse_name_and_matcher_from_args(*args)
 
         if name && name.is_a?(Symbol) && child = children.find { |possible_child| possible_child.__object_name.name == name }
-          child.instance_exec(&block); child
+          if block_given?
+            child.instance_exec(&block)
+          end
+
+          child
         else
           if name && name.is_a?(Symbol) && __object_name
             name = __object_name.isolated(name)

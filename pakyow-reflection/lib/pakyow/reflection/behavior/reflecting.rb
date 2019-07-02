@@ -11,18 +11,32 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
+          attr_reader :mirror
+
           after "initialize", priority: :high do
-            mirror = Mirror.new(self)
+            @mirror = Mirror.new(self)
 
-            builders = config.reflection.builders.values.map { |builder|
-              builder.new(self, mirror.scopes)
-            }
+            builders = Hash[
+              config.reflection.builders.map { |type, builder|
+                [type, builder.new(self, @mirror.scopes)]
+              }
+            ]
 
-            mirror.scopes.each do |scope|
-              builders.each do |builder|
-                builder.build(scope)
-              end
+            # Build the scopes.
+            #
+            @mirror.scopes.each do |scope|
+              builders[:source].build(scope)
             end
+
+            # Build the actions.
+            #
+            @mirror.scopes.each do |scope|
+              builders[:actions].build(scope.actions)
+            end
+
+            # Build the endpoints.
+            #
+            builders[:endpoints].build(@mirror.endpoints)
           end
         end
       end

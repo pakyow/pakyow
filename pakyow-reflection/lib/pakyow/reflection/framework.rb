@@ -19,6 +19,12 @@ module Pakyow
           include Behavior::Rendering::InstallFormMetadata
         end
 
+        object.isolated :Controller do
+          def reflect(&block)
+            operations.reflect(controller: self, &block)
+          end
+        end
+
         object.after "load" do
           operation :reflect do
             action :verify do
@@ -44,7 +50,7 @@ module Pakyow
             end
 
             action :expose do
-              if controller.connection.set?(:__reflected_endpoints)
+              if controller.connection.set?(:__reflected_endpoint)
                 controller.reflective_expose
               end
             end

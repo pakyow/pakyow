@@ -103,7 +103,7 @@ RSpec.describe "path building" do
   end
 
   it "builds path to a collection route within a resource" do
-    expect(call("/path/posts_collection_meta", params: { id: "123" })[2]).to eq("/posts/meta")
+    expect(call("/path/posts_meta", params: { id: "123" })[2]).to eq("/posts/meta")
   end
 
   it "builds path to a route within an unnamed controller" do

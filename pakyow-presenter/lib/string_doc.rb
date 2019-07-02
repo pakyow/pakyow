@@ -500,13 +500,13 @@ class StringDoc
 
   # Attributes that will be turned into +StringDoc+ labels
   #
-  LABEL_ATTRS = %i(ui mode version include exclude endpoint endpoint-action prototype binding).freeze
+  LABEL_ATTRS = %i(ui mode version include exclude endpoint endpoint-action prototype binding dataset).freeze
 
   LABEL_MAPPING = {}.freeze
 
   # Attributes that should be deleted from the view
   #
-  DELETED_ATTRS = %i(include exclude prototype mode).freeze
+  DELETED_ATTRS = %i(include exclude prototype mode dataset).freeze
 
   ATTR_MAPPING = {
     binding: :b,

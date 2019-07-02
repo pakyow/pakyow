@@ -4,6 +4,7 @@ require "pakyow/support/class_state"
 
 require "pakyow/reflection/builders/source"
 require "pakyow/reflection/builders/endpoints"
+require "pakyow/reflection/builders/actions"
 
 module Pakyow
   module Reflection
@@ -13,9 +14,11 @@ module Pakyow
 
         apply_extension do
           configurable :reflection do
-            setting :builders,
-                    source: Builders::Source,
-                    endpoints: Builders::Endpoints
+            setting :builders, {
+              source: Builders::Source,
+              endpoints: Builders::Endpoints,
+              actions: Builders::Actions
+            }
 
             setting :ignored_template_stores, [:errors]
 

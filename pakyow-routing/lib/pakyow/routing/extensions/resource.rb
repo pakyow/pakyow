@@ -127,7 +127,7 @@ module Pakyow
                 super(*args, &block).tap do |namespace|
                   namespace.allow_params nested_param
                   namespace.action :update_request_path_for_parent do
-                    connection.get(:__endpoint_path).gsub!(nested_resource_id, "show")
+                    connection.get(:__endpoint_path).gsub!("/#{nested_resource_id}", "")
                   end
                 end
               end
@@ -142,7 +142,7 @@ module Pakyow
                     allow_params nested_param
 
                     action :update_request_path_for_parent do
-                      connection.get(:__endpoint_path).gsub!(nested_resource_id, "show")
+                      connection.get(:__endpoint_path).gsub!("/#{nested_resource_id}", "")
                     end
 
                     class_eval(&block)

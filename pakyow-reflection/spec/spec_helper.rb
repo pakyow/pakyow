@@ -16,13 +16,14 @@ RSpec.configure do |spec_config|
   spec_config.before do
     Pakyow.after "configure" do
       Pakyow.config.data.connections.sql[:default]  = "sqlite://"
+      Pakyow.config.data.connections.sql[:memory]  = "sqlite::memory"
     end
 
     @default_app_def = Proc.new do
       configure do
         config.presenter.path = File.join(
           File.expand_path("../", __FILE__),
-          "features/support/views"
+          "support/app/frontend"
         )
       end
     end
@@ -36,7 +37,6 @@ RSpec.shared_context "reflectable app" do
   include_context "app"
 
   let :app_def do |example|
-    example_type = File.expand_path(example.file_path).gsub(File.expand_path("../", __FILE__), "").split("/")[1]
     local_frontend_test_case = frontend_test_case
     local_reflected_app_def = reflected_app_def
     local_default_app_def = @default_app_def
@@ -49,7 +49,7 @@ RSpec.shared_context "reflectable app" do
         before "load.presenter" do
           @case_templates = Pakyow::Presenter::Templates.new(
             :case, File.join(
-              File.expand_path("../", __FILE__), example_type,
+              File.expand_path("../", __FILE__),
               "support/cases/#{local_frontend_test_case}"
             ),
           )
@@ -86,5 +86,11 @@ RSpec.shared_context "reflectable app" do
 
   let :reflected_app_def do
     Proc.new {}
+  end
+
+  let :controllers do
+    Pakyow.apps.first.state(:controller).reject { |controller|
+      controller == Test::Controllers::Authenticity
+    }
   end
 end
