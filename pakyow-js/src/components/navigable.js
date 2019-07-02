@@ -80,11 +80,9 @@ pw.define("navigable", {
   },
 
   handleXHR(xhr, state) {
-    let doc = document.documentElement.cloneNode();
-    doc.innerHTML = xhr.responseText;
-
+    let parser = new DOMParser();
+    let doc = parser.parseFromString(xhr.responseText, "text/html");
     let newHeadDetails = this.buildHeadDetails(doc.querySelector("head"));
-
     let loadables = [];
 
     // Add new scripts to be loaded.
@@ -141,6 +139,12 @@ pw.define("navigable", {
 
       // Scroll to the correct position.
       window.scrollTo(state.scrollX, state.scrollY);
+
+      // Copy html attributes.
+      let $html = document.querySelector("html");
+      Array.prototype.slice.call(doc.querySelector("html").attributes).forEach(function(item) {
+        $html.setAttribute(item.name, item.value);
+      });
 
       pw.broadcast("navigator:changed", { id: xhr.id });
     });
