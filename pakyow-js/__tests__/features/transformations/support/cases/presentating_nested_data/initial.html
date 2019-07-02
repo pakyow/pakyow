@@ -4,16 +4,17 @@
       </h1>
       <article data-b="post" data-id="1">
         <h1 data-b="title">foo</h1>
-        <ul><script type="text/template" data-b="comment">
-            <li data-b="comment"><h2 data-b="title">
-                    comment title goes here
-                  </h2></li>
-          </script></ul>
+        <script type="text/template" data-b="comment">
+          <div data-b="comment"><h2 data-b="title">
+                comment title goes here
+              </h2></div>
+        </script>
+        <form data-b="comment:form"><input type="hidden" name="authenticity_token" value="046d2692c570018f1ea143655a284d6b0dcc4c6c292b6f13:pJtz6AYWD+8G5EDcSUgEtbtIK8loL184T2v/8//5dYw="><input type="hidden" name="form" value="eyJpZCI6ImQwOGQ2NDRiNzVkODUwZDU4OGMxMjhiNzIzMjM2MjY1ZWU3MTYwYjhiZGNmNWMwZSJ9--6Gf_0qrNKTx6s2hdB_JWbRWejwWqRjiaKrbcvf2DPco="><input type="text" data-b="title" name="comment[title]"></form>
       </article>
       <script type="text/template" data-b="post">
         <article data-b="post"><h1 data-b="title">
             title goes here
-          </h1><ul><li data-b="comment"><h2 data-b="title">
-                comment title goes here
-              </h2></li></ul></article>
+          </h1><div data-b="comment"><h2 data-b="title">
+              comment title goes here
+            </h2></div><form data-b="comment:form"><input type="text" data-b="title"></form></article>
       </script></main></body></html>

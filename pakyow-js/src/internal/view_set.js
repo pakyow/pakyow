@@ -313,6 +313,20 @@ export default class {
       var freshView = template.clone();
       freshView.node.dataset.id = object.id;
       freshView.versions = this.templates;
+
+      // Copy forms from current view into the new one.
+      // FIXME: There may be a better way to go about this, but right now forms aren't setup for
+      // ui transformations, only initial renders. This code ensures the form sticks around.
+      for (let binding of view.bindingScopes()) {
+        if (binding.node.tagName === "FORM") {
+          for (let bindingTemplate of freshView.bindingScopes(true)) {
+            if (bindingTemplate.node.dataset.b === binding.node.dataset.b) {
+              bindingTemplate.node.parentNode.replaceChild(binding.node, bindingTemplate.node);
+            }
+          }
+        }
+      }
+
       this.views[this.views.indexOf(view)] = freshView;
       view.node.parentNode.replaceChild(freshView.node, view.node);
       view = freshView;

@@ -7,11 +7,13 @@
     title goes here
   </h1>
 
-  <ul>
-    <li binding="comment">
-      <h2 binding="title">
-        comment title goes here
-      </h2>
-    </li>
-  </ul>
+  <div binding="comment">
+    <h2 binding="title">
+      comment title goes here
+    </h2>
+  </div>
+
+  <form binding="comment">
+    <input type="text" binding="title">
+  </form>
 </article>
