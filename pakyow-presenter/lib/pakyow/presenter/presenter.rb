@@ -661,10 +661,6 @@ module Pakyow
           #
           Presenters::Endpoint.attach_to_node(view.object, renders)
 
-          # Make sure all versions are used.
-          #
-          Actions::UseVersions.attach_to_view(view, renders)
-
           renders.each do |render|
             return_value = if node = render[:node]
               view.instance_exec(&node)

@@ -1,37 +1,23 @@
 RSpec.describe "view versioning via presenter" do
   include_context "app"
 
-  let :mode do
-    :prototype
-  end
-
   context "when a version is unspecified" do
     context "when there is one unversioned view" do
+      let :app_def do
+        Proc.new do
+          presenter "/presentation/versioning/single" do
+            render :post do
+              present(title: "foo")
+            end
+          end
+        end
+      end
+
       it "renders it" do
         expect(call("/presentation/versioning/single")[2]).to include_sans_whitespace(
           <<~HTML
             <div data-b="post">
-              <h1 data-b="title"></h1>
-            </div>
-          HTML
-        )
-      end
-    end
-
-    context "when there are multiple views, none of them versioned" do
-      it "renders the first one" do
-        expect(call("/presentation/versioning/multiple-non-versioned")[2]).to include_sans_whitespace(
-          <<~HTML
-            <div data-b="post">
-              <h1 data-b="title">one</h1>
-            </div>
-          HTML
-        )
-
-        expect(call("/presentation/versioning/multiple-non-versioned")[2]).to_not include_sans_whitespace(
-          <<~HTML
-            <div data-b="post">
-              <h1 data-b="title">two</h1>
+              <h1 data-b="title">foo</h1>
             </div>
           HTML
         )
@@ -39,25 +25,43 @@ RSpec.describe "view versioning via presenter" do
     end
 
     context "when there are multiple views, one of them being versioned" do
-      it "renders only the first one" do
+      let :app_def do
+        Proc.new do
+          presenter "/presentation/versioning/multiple-one-versioned" do
+            render :post do
+              present(title: "foo")
+            end
+          end
+        end
+      end
+
+      it "renders the first one" do
         expect(call("/presentation/versioning/multiple-one-versioned")[2]).to include_sans_whitespace(
           <<~HTML
             <div data-b="post">
-              <h1 data-b="title">one</h1>
+              <h1 data-b="title">foo</h1>
             </div>
           HTML
         )
-
-        expect(call("/presentation/versioning/multiple-one-versioned")[2]).to_not include("two")
       end
     end
 
     context "when there is only a default version" do
+      let :app_def do
+        Proc.new do
+          presenter "/presentation/versioning/default" do
+            render :post do
+              present(title: "foo")
+            end
+          end
+        end
+      end
+
       it "renders the default" do
         expect(call("/presentation/versioning/default")[2]).to include_sans_whitespace(
           <<~HTML
             <div data-b="post" data-v="default">
-              <h1 data-b="title">default</h1>
+              <h1 data-b="title">foo</h1>
             </div>
           HTML
         )
@@ -65,37 +69,68 @@ RSpec.describe "view versioning via presenter" do
     end
 
     context "when there are multiple versions, including a default" do
-      it "renders only the default" do
+      let :app_def do
+        Proc.new do
+          presenter "/presentation/versioning/multiple-with-default" do
+            render :post do
+              present(title: "foo")
+            end
+          end
+        end
+      end
+
+      it "renders the default" do
         expect(call("/presentation/versioning/multiple-with-default")[2]).to include_sans_whitespace(
           <<~HTML
             <div data-b="post" data-v="default">
-              <h1 data-b="title">default</h1>
+              <h1 data-b="title">foo</h1>
             </div>
           HTML
         )
-
-        expect(call("/presentation/versioning/multiple-with-default")[2]).to_not include("data-v=\"one\"")
       end
     end
 
     context "when there are multiple versions, without a default" do
+      let :app_def do
+        Proc.new do
+          presenter "/presentation/versioning/multiple-without-default" do
+            render :post do
+              present(title: "foo")
+            end
+          end
+        end
+      end
+
       it "renders the first one" do
-        expect(call("/presentation/versioning/multiple-without-default")[2]).to include("data-v=\"one\"")
-        expect(call("/presentation/versioning/multiple-without-default")[2]).to_not include("data-v=\"two\"")
+        expect(call("/presentation/versioning/multiple-without-default")[2]).to include_sans_whitespace(
+          <<~HTML
+            <div data-b="post" data-v="one">
+              <h1 data-b="title">foo</h1>
+            </div>
+          HTML
+        )
       end
     end
 
     context "when there are multiple versioned props, including a default" do
-      it "renders only the default" do
+      let :app_def do
+        Proc.new do
+          presenter "/presentation/versioning/props/multiple-with-default" do
+            render :post do
+              present(title: "foo")
+            end
+          end
+        end
+      end
+
+      it "renders the default" do
         expect(call("/presentation/versioning/props/multiple-with-default")[2]).to include_sans_whitespace(
           <<~HTML
             <div data-b="post">
-              <h1 data-b="title" data-v="default">default</h1>
+              <h1 data-b="title" data-v="default">foo</h1>
             </div>
           HTML
         )
-
-        expect(call("/presentation/versioning/props/multiple-with-default")[2]).to_not include("data-v=\"one\"")
       end
 
       context "view is presented" do

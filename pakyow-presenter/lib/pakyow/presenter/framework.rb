@@ -30,7 +30,6 @@ require "pakyow/presenter/rendering/actions/render_components"
 require "pakyow/presenter/rendering/actions/set_page_title"
 require "pakyow/presenter/rendering/actions/setup_endpoints"
 require "pakyow/presenter/rendering/actions/setup_forms"
-require "pakyow/presenter/rendering/actions/use_versions"
 
 module Pakyow
   module Presenter
@@ -62,7 +61,6 @@ module Pakyow
             include Actions::SetupEndpoints
             include Actions::SetupForms
             include Actions::SetPageTitle
-            include Actions::UseVersions
           end
 
           after "load" do
