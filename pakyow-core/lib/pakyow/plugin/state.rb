@@ -62,10 +62,6 @@ module Pakyow
             end
           end
         end
-
-        if error_templates = @plugin.parent.state(:templates).find { |templates| templates.name == :errors }
-          @plugin.state(:templates) << error_templates
-        end
       end
     end
   end
