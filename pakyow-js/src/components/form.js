@@ -41,6 +41,7 @@ pw.define("form", {
 
       if (pw.server.reachable) {
         event.preventDefault();
+        event.stopImmediatePropagation();
 
         // Submit the form in the background.
         //
