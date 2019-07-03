@@ -9,15 +9,11 @@ gem "pakyow", github: "pakyow/pakyow", require: "pakyow/all"
 gem "pakyow", "~> <%= Pakyow::VERSION %>", require: "pakyow/all"
 <%- end -%>
 
-# Use the puma application server.
-#
-gem "puma"
-
 # Easily manage environment variables.
 #
 gem "dotenv"
 
-group :development do
+group :development, :prototype do
   # Speed up project boot time.
   #
   gem "bootsnap", require: false
