@@ -69,34 +69,6 @@ module Pakyow
             end
           end
 
-          # Build presenter classes for compound components.
-          #
-          after :initialize, priority: :high do
-            state(:templates).each do |templates|
-              templates.each do |template|
-                template.object.each_significant_node(:component, descend: true) do |node|
-                  if node.label(:components).count > 1
-                    component_classes = node.label(:components).each_with_object([]) { |component_label, arr|
-                      component_class = state(:component).find { |component|
-                        component.__object_name.name == component_label[:name]
-                      }
-
-                      if component_class
-                        arr << component_class
-                      end
-                    }
-
-                    if component_classes.count > 1
-                      state(:presenter) << Actions::RenderComponents.find_or_build_compound_presenter(
-                        self, component_classes
-                      )
-                    end
-                  end
-                end
-              end
-            end
-          end
-
           def presenter_for_context(presenter_class, context)
             presenter_class.new(
               context.view, app: context.app, presentables: context.presentables

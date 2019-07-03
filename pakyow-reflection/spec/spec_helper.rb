@@ -46,7 +46,7 @@ RSpec.shared_context "reflectable app" do
       instance_exec(&local_reflected_app_def)
 
       if local_frontend_test_case
-        before "load.presenter" do
+        before "initialize.presenter" do
           @case_templates = Pakyow::Presenter::Templates.new(
             :case, File.join(
               File.expand_path("../", __FILE__),
@@ -57,7 +57,7 @@ RSpec.shared_context "reflectable app" do
           state(:templates) << @case_templates
         end
 
-        after "load.presenter", priority: :high do
+        after "initialize.presenter", priority: :high do
           if app_templates = state(:templates).find { |templates| templates.name == :default }
             @case_templates.paths.each do |path|
               case_info = @case_templates.info(path)
