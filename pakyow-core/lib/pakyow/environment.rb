@@ -25,6 +25,7 @@ require "pakyow/environment/behavior/timezone"
 require "pakyow/environment/behavior/running"
 require "pakyow/environment/behavior/watching"
 require "pakyow/environment/behavior/restarting"
+require "pakyow/environment/behavior/verifier"
 
 require "pakyow/environment/actions/dispatch"
 require "pakyow/environment/actions/input_parser"
@@ -112,6 +113,7 @@ module Pakyow
   include Environment::Behavior::Running
   include Environment::Behavior::Watching
   include Environment::Behavior::Restarting
+  include Environment::Behavior::Verifier
 
   include Support::Pipeline
   action Actions::Logger

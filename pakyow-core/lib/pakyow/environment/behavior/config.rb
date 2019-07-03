@@ -16,6 +16,8 @@ module Pakyow
           setting :freeze_on_boot, true
           setting :exit_on_boot_failure, true
           setting :timezone, :utc
+          setting :secrets, ["pakyow"]
+
           setting :connection_class do
             require "pakyow/connection"
             Connection
@@ -39,6 +41,10 @@ module Pakyow
 
           defaults :test do
             setting :exit_on_boot_failure, false
+          end
+
+          defaults :production do
+            setting :secrets, [ENV["SECRET"].to_s.strip]
           end
 
           configurable :server do

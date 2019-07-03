@@ -34,6 +34,51 @@ RSpec.describe Pakyow do
       end
     end
 
+    describe "secrets" do
+      it "has a default value" do
+        expect(Pakyow.config.secrets).to eq(["pakyow"])
+      end
+
+      context "in production" do
+        before do
+          ENV["SECRET"] = secret
+          Pakyow.configure!(:production)
+        end
+
+        after do
+          ENV.delete("SECRET")
+        end
+
+        let :secret do
+          "sekret"
+        end
+
+        it "defaults to SECRET" do
+          expect(Pakyow.config.secrets).to eq([secret])
+        end
+
+        context "SECRET is not set" do
+          let :secret do
+            nil
+          end
+
+          it "defaults to an empty string" do
+            expect(Pakyow.config.secrets).to eq([""])
+          end
+        end
+
+        context "SECRET has extra whitespace" do
+          let :secret do
+            "sekret  "
+          end
+
+          it "strips the whitespace" do
+            expect(Pakyow.config.secrets).to eq(["sekret"])
+          end
+        end
+      end
+    end
+
     describe "server.port" do
       it "has a default value" do
         expect(Pakyow.config.server.port).to eq(3000)
