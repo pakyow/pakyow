@@ -25,8 +25,10 @@ module Pakyow
               {}
             end
           end
-        rescue LoadError #=> error
-          # TODO: raise an unknown session object error...
+        rescue LoadError => error
+          # TODO: Improve this with a specific "session object missing" error.
+          #
+          raise error
         end
       end
     end

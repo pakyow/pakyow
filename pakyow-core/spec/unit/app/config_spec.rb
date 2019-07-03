@@ -63,10 +63,31 @@ RSpec.describe Pakyow::App do
       end
     end
 
-    %i(domain path max_age expires secure http_only same_site).each do |option|
+    describe "session.http_only" do
+      it "has a default value" do
+        expect(app.config.session.cookie.http_only).to be(true)
+      end
+    end
+
+    %i(domain path max_age expires secure same_site).each do |option|
       describe "session.cookie.#{option}" do
-        it "has a default value"
-        it "is dependent on Pakyow.config.cookie.#{option}"
+        it "has a default value" do
+          expect(
+            app.config.session.cookie.public_send(option)
+          ).to eq(
+            Pakyow.config.cookies.public_send(option)
+          )
+        end
+
+        it "is dependent on Pakyow.config.cookies.#{option}" do
+          Pakyow.config.cookies.public_send(:"#{option}=", "foo")
+
+          expect(
+            app.config.session.cookie.public_send(option)
+          ).to eq(
+            "foo"
+          )
+        end
       end
     end
 

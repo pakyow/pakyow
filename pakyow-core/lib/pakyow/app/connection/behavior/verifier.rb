@@ -12,20 +12,28 @@ module Pakyow
 
           apply_extension do
             after "initialize" do
-              session[:verifier_key] ||= Support::MessageVerifier.key
+              if app.config.session.enabled
+                session[:verifier_key] ||= Support::MessageVerifier.key
+              end
             end
           end
 
           def verifier
-            unless instance_variable_defined?(:@verifier)
-              @verifier = Support::MessageVerifier.new(verifier_key)
-            end
+            if app.config.session.enabled
+              unless instance_variable_defined?(:@verifier)
+                @verifier = Support::MessageVerifier.new(verifier_key)
+              end
 
-            @verifier
+              @verifier
+            else
+              nil
+            end
           end
 
           def verifier_key
-            session[:verifier_key]
+            if app.config.session.enabled
+              session[:verifier_key]
+            end
           end
         end
       end

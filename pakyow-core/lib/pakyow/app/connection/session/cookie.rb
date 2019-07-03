@@ -3,6 +3,7 @@
 require "base64"
 
 require "pakyow/support/indifferentize"
+require "pakyow/support/message_verifier"
 
 require "pakyow/app/connection/session/abstract"
 
@@ -12,7 +13,7 @@ module Pakyow
       module Session
         class Cookie < Abstract
           def initialize(connection, options)
-            if (cookie = connection.cookies[options.name]) && !cookie.is_a?(String)
+            if (cookie = connection.cookies[options.name]) && cookie.is_a?(Support::IndifferentHash)
               super(connection, options, Support::IndifferentHash.new(cookie[:value].to_h))
               connection.cookies[options.name][:value] = self
             else
@@ -35,14 +36,24 @@ module Pakyow
           end
 
           def to_s
-            Base64.urlsafe_encode64(Marshal.dump(to_h))
+            Base64.urlsafe_encode64(
+              Pakyow.verifier.sign(
+                Marshal.dump(to_h)
+              )
+            )
           end
 
           private
 
           def deserialize(connection, options)
             if value = connection.cookies[options.name]
-              Support::IndifferentHash.deep(Marshal.load(Base64.urlsafe_decode64(value)))
+              Support::IndifferentHash.deep(
+                Marshal.load(
+                  Pakyow.verifier.verify(
+                    Base64.urlsafe_decode64(value)
+                  )
+                )
+              )
             else
               Support::IndifferentHash.new
             end

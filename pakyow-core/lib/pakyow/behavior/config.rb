@@ -58,7 +58,7 @@ module Pakyow
             end
 
             setting :http_only do
-              Pakyow.config.cookies.http_only
+              true
             end
 
             setting :same_site do
