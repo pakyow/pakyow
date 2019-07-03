@@ -27,7 +27,7 @@ RSpec.shared_examples :source_ordering do
     end
 
     it "orders by a field" do
-      expect(data.posts.order(:title).one.id).to eq(3)
+      expect(data.posts.order(:title).one.title).to eq("a")
     end
 
     it "orders by multiple fields" do
