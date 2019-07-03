@@ -53,7 +53,7 @@ namespace :release do
     puts
 
     if input == Pakyow::VERSION
-      gems = GEMS.map { |gem| "pakyow-#{gem}/pakyow-#{gem}-#{Pakyow::VERSION}.gem" }
+      gems = GEMS.map { |gem| "pakyow-#{gem}-#{Pakyow::VERSION}.gem" }
 
       # add pakyow last
       gems << "pakyow-#{Pakyow::VERSION}.gem"
