@@ -77,7 +77,7 @@ RSpec.describe "cli: create" do
 
       describe ".env" do
         it "sets the session secret" do
-          expect(File.read(File.join(generated_path, ".env"))).to match(/^SESSION_SECRET=[a-zA-Z0-9]{128}$/)
+          expect(File.read(File.join(generated_path, ".env"))).to match(/^SECRET=[a-zA-Z0-9]{128}$/)
         end
       end
 
