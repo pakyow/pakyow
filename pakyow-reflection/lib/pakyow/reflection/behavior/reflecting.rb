@@ -14,29 +14,31 @@ module Pakyow
           attr_reader :mirror
 
           after "initialize", priority: :high do
-            @mirror = Mirror.new(self)
+            unless Pakyow.env?(:prototype)
+              @mirror = Mirror.new(self)
 
-            builders = Hash[
-              config.reflection.builders.map { |type, builder|
-                [type, builder.new(self, @mirror.scopes)]
-              }
-            ]
+              builders = Hash[
+                config.reflection.builders.map { |type, builder|
+                  [type, builder.new(self, @mirror.scopes)]
+                }
+              ]
 
-            # Build the scopes.
-            #
-            @mirror.scopes.each do |scope|
-              builders[:source].build(scope)
+              # Build the scopes.
+              #
+              @mirror.scopes.each do |scope|
+                builders[:source].build(scope)
+              end
+
+              # Build the actions.
+              #
+              @mirror.scopes.each do |scope|
+                builders[:actions].build(scope.actions)
+              end
+
+              # Build the endpoints.
+              #
+              builders[:endpoints].build(@mirror.endpoints)
             end
-
-            # Build the actions.
-            #
-            @mirror.scopes.each do |scope|
-              builders[:actions].build(scope.actions)
-            end
-
-            # Build the endpoints.
-            #
-            builders[:endpoints].build(@mirror.endpoints)
           end
         end
       end
