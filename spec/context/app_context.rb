@@ -51,6 +51,7 @@ RSpec.shared_context "app" do
   end
 
   before do
+    ENV["SECRET"] = "test"
     Pakyow.config.logger.enabled = false
     Pakyow.instance_variable_set(:@error, nil)
     setup_and_run if autorun
