@@ -26,7 +26,9 @@ module Pakyow
             prefix: @plugin.class.mount_path
           },
           processor: Presenter::ProcessorCaller.new(
-            @plugin.parent.state(:processor)
+            @plugin.parent.state(:processor).map { |processor|
+              processor.new(@plugin.parent)
+            }
           )
         ).tap do |plugin_templates|
           if app_templates = @plugin.parent.state(:templates).find { |templates| templates.name == :default }

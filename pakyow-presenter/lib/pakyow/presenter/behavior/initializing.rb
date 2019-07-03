@@ -17,7 +17,9 @@ module Pakyow
                 :default,
                 config.presenter.path,
                 processor: ProcessorCaller.new(
-                  state(:processor)
+                  state(:processor).map { |processor|
+                    processor.new(self)
+                  }
                 )
               )
 
