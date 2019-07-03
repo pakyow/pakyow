@@ -21,7 +21,7 @@ module Pakyow
         !local_pakyow || local_pakyow.last.last.version < Gem::Version.new(Pakyow::VERSION)
       end
 
-      def generate_session_secret
+      def generate_secret
         SecureRandom.hex(64)
       end
     end

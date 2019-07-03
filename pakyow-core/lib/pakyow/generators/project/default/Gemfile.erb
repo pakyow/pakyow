@@ -13,10 +13,6 @@ gem "pakyow", "~> <%= Pakyow::VERSION %>", require: "pakyow/all"
 #
 gem "puma"
 
-# Use SQLite3 as the default data source.
-#
-gem "sqlite3"
-
 # Easily manage environment variables.
 #
 gem "dotenv"
@@ -25,4 +21,8 @@ group :development do
   # Speed up project boot time.
   #
   gem "bootsnap", require: false
+
+  # Use SQLite3 as the default data source in development.
+  #
+  gem "sqlite3"
 end

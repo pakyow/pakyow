@@ -2,9 +2,9 @@
 #
 .bundle
 
-# Ignore environment files.
+# Ignore specific environment files.
 #
-.env*
+.env.*
 
 # Ignore local databases.
 #
