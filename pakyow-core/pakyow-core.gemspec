@@ -23,12 +23,12 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "pakyow-support", Pakyow::VERSION
 
-  spec.add_dependency "async", "~> 1.17"
-  spec.add_dependency "async-http", "~> 0.43.1"
+  spec.add_dependency "async", "~> 1.19"
+  spec.add_dependency "async-http", "~> 0.46.3"
   spec.add_dependency "async-io", "~> 1.23"
   spec.add_dependency "bundler", ">= 1.17"
-  spec.add_dependency "console", "~> 1.3"
-  spec.add_dependency "dry-types", "~> 1.0"
+  spec.add_dependency "console", "~> 1.4"
+  spec.add_dependency "dry-types", "~> 1.1"
   spec.add_dependency "filewatcher", "~> 1.1"
   spec.add_dependency "method_source", "~> 0.9"
   spec.add_dependency "mini_mime", "~> 1.0"
