@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-desc "Boot the environment"
+desc "Boot the project"
 option :host, "The host the server runs on (default: #{Pakyow.config.server.host})"
 option :port, "The port the server runs on (default: #{Pakyow.config.server.port})"
 flag :standalone, "Disable automatic reloading of changes"

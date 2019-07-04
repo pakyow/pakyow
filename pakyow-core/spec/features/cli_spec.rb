@@ -21,7 +21,7 @@ RSpec.describe "command line interface" do
 
     it "prints known commands" do
       expect(output).to include("\e[1mCOMMANDS\e[0m\n")
-      expect(output).to include("  boot                   \e[33mBoot the environment\e[0m\n")
+      expect(output).to include("  boot                   \e[33mBoot the project\e[0m\n")
       expect(output).to include("  help                   \e[33mGet help for the command line interface\e[0m\n")
       expect(output).to include("  prelaunch              \e[33mRun the prelaunch tasks\e[0m\n")
       expect(output).to include("  info                   \e[33mShow details about the current project\e[0m\n")
