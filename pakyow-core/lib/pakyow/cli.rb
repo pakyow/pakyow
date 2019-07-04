@@ -92,7 +92,13 @@ module Pakyow
         end
       end
 
-      @options[:env] ||= ENV["APP_ENV"] || ENV["RACK_ENV"] || "development"
+      case @command
+      when "prototype"
+        @options.delete(:env)
+      else
+        @options[:env] ||= ENV["APP_ENV"] || ENV["RACK_ENV"] || "development"
+      end
+
       ENV["APP_ENV"] = ENV["RACK_ENV"] = @options[:env]
     end
 
@@ -115,7 +121,16 @@ module Pakyow
     end
 
     def setup_environment
-      Pakyow.setup(env: @options[:env])
+      Pakyow.setup(env: environment_to_setup)
+    end
+
+    def environment_to_setup
+      case @command
+      when "prototype"
+        :prototype
+      else
+        @options[:env]
+      end
     end
 
     def load_tasks

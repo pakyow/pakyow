@@ -293,6 +293,8 @@ module Pakyow
           arguments: @__arguments,
           options: CLI::GLOBAL_OPTIONS.select { |key, _|
             key == :env || args[1].to_a.include?(key)
+          }.reject { |key, _|
+            key == :env && args[0] == :prototype
           }.merge(@__options),
           flags: @__flags,
           task_args: args,
