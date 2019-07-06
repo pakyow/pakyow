@@ -9,6 +9,6 @@ You can access your project at [`localhost:3000`](http://localhost:3000) from yo
 ## Learn more
 
   * Website: https://pakyow.com
-  * Community: https://pakyow.com/talk
+  * Community: https://pakyow.com/community
   * Documentation: https://pakyow.com/docs/hello
   * View Source: https://github.com/pakyow/pakyow

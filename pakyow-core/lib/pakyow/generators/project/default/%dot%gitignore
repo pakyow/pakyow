@@ -9,3 +9,7 @@
 # Ignore local databases.
 #
 database/*.db*
+
+# Ignore tmp files.
+#
+tmp
