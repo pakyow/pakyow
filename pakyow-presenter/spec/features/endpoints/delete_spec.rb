@@ -17,7 +17,7 @@ RSpec.describe "presenting a view that defines an endpoint for delete" do
     expect(call("/posts/1")[2]).to eq_sans_whitespace(
       <<~HTML
         <form action="/posts/1" method="post" data-ui="confirmable">
-          <input type="hidden" name="_method" value="delete">
+          <input type="hidden" name="pw-http-method" value="delete">
 
           <button data-e="posts_delete">delete</button>
         </form>

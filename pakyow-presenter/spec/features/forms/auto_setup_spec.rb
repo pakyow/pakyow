@@ -70,7 +70,7 @@ RSpec.describe "automatic form setup" do
 
             expect(body).not_to include_sans_whitespace(
               <<~HTML
-                name="_method"
+                name="pw-http-method"
               HTML
             )
           end
@@ -105,7 +105,7 @@ RSpec.describe "automatic form setup" do
 
             expect(body).not_to include_sans_whitespace(
               <<~HTML
-                name="_method"
+                name="pw-http-method"
               HTML
             )
           end
@@ -143,7 +143,7 @@ RSpec.describe "automatic form setup" do
 
             expect(body).to include_sans_whitespace(
               <<~HTML
-                <input type="hidden" name="_method" value="patch">
+                <input type="hidden" name="pw-http-method" value="patch">
               HTML
             )
           end
@@ -178,7 +178,7 @@ RSpec.describe "automatic form setup" do
 
             expect(body).to include_sans_whitespace(
               <<~HTML
-                <input type="hidden" name="_method" value="patch">
+                <input type="hidden" name="pw-http-method" value="patch">
               HTML
             )
           end

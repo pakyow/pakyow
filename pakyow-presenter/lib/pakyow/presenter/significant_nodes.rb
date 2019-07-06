@@ -224,7 +224,7 @@ module Pakyow
       StringDoc.significant :method_override, self
 
       def self.significant?(node)
-        node.is_a?(Oga::XML::Element) && node.name == INPUT_TAG && node.attribute(:name).to_s == "_method"
+        node.is_a?(Oga::XML::Element) && node.name == INPUT_TAG && node.attribute(:name).to_s == "pw-http-method"
       end
     end
 

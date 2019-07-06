@@ -80,7 +80,7 @@ RSpec.describe "presenting forms" do
       end
 
       it "inserts the method override input" do
-        expect(presenter.to_s).to include("<input type=\"hidden\" name=\"_method\" value=\"delete\">")
+        expect(presenter.to_s).to include("<input type=\"hidden\" name=\"pw-http-method\" value=\"delete\">")
       end
     end
   end

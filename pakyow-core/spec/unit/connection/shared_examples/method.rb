@@ -6,7 +6,7 @@ RSpec.shared_examples :connection_method do
 
     context "override is passed as a param" do
       before do
-        connection.params.add(:_method, "DELETE")
+        connection.params.add(:"pw-http-method", "DELETE")
       end
 
       context "request method is post" do

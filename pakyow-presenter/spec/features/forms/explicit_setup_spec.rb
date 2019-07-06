@@ -321,8 +321,8 @@ RSpec.describe "setting up a form explicitly via presenter" do
       end
 
       it "reuses the method override" do
-        expect(presenter.to_s).to include('<input type="hidden" name="_method" value="delete">')
-        expect(presenter.to_s).to_not include('<input type="hidden" name="_method" value="patch">')
+        expect(presenter.to_s).to include('<input type="hidden" name="pw-http-method" value="delete">')
+        expect(presenter.to_s).to_not include('<input type="hidden" name="pw-http-method" value="patch">')
       end
     end
   end

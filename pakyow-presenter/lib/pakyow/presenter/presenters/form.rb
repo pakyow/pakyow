@@ -70,7 +70,7 @@ module Pakyow
         end
 
         # Sets the form method. Automatically handles method overrides by prepending a hidden field
-        # named `_method` when +method+ is not get or post, setting the form method to +post+.
+        # named `pw-http-method` when +method+ is not get or post, setting the form method to +post+.
         #
         def method=(method)
           method = method.to_s.downcase
@@ -269,7 +269,7 @@ module Pakyow
         end
 
         def method_override_input
-          html_safe("<input type=\"hidden\" name=\"_method\">")
+          html_safe("<input type=\"hidden\" name=\"pw-http-method\">")
         end
 
         def find_or_create_method_override_input

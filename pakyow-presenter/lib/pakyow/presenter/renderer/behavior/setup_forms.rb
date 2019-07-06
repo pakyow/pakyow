@@ -59,7 +59,7 @@ module Pakyow
 
                 form.prepend(
                   Support::SafeStringHelpers.html_safe(
-                    "<input type=\"hidden\" name=\"_method\">"
+                    "<input type=\"hidden\" name=\"pw-http-method\">"
                   )
                 )
 

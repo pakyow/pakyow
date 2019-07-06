@@ -86,7 +86,7 @@
               [
                 "replace",
                 [
-                  "<form action=\"/posts/1\" method=\"post\" data-ui=\"confirmable\">\n  <input type=\"hidden\" name=\"_method\" value=\"delete\">\n  <button data-e=\"posts_delete\">delete</button>\n</form>\n"
+                  "<form action=\"/posts/1\" method=\"post\" data-ui=\"confirmable\">\n  <input type=\"hidden\" name=\"pw-http-method\" value=\"delete\">\n  <button data-e=\"posts_delete\">delete</button>\n</form>\n"
                 ],
                 [
 

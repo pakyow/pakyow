@@ -54,7 +54,7 @@ RSpec.describe "setting a form method" do
     it "sets the override" do
       expect(call("/presentation/forms/method")[2]).to include_sans_whitespace(
         <<~HTML
-          <input type="hidden" name="_method" value="patch">
+          <input type="hidden" name="pw-http-method" value="patch">
         HTML
       )
     end

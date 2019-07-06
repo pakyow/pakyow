@@ -82,7 +82,7 @@ RSpec.describe "form endpoints" do
       it "sets the endpoint to resource update" do
         call("/presentation/forms/endpoints/posts/1/edit")[2].tap do |body|
           expect(body).to include('<form data-b="post:form" action="/presentation/forms/endpoints/posts/1" method="post" data-id="1">')
-          expect(body).to include('<input type="hidden" name="_method" value="patch">')
+          expect(body).to include('<input type="hidden" name="pw-http-method" value="patch">')
         end
       end
     end
@@ -125,7 +125,7 @@ RSpec.describe "form endpoints" do
       it "sets the endpoint to the explicitly defined endpoint" do
         call("/presentation/forms/endpoints/explicit/posts/1/edit")[2].tap do |body|
           expect(body).to include('<form data-b="post:form" data-e="explicit_update" data-id="1" action="/explicit/update" method="post">')
-          expect(body).to include('<input type="hidden" name="_method" value="put">')
+          expect(body).to include('<input type="hidden" name="pw-http-method" value="put">')
         end
       end
     end
@@ -176,7 +176,7 @@ RSpec.describe "form endpoints" do
           it "sets the form up for updating" do
             call("/presentation/forms/endpoints")[2].tap do |body|
               expect(body).to include('<form data-b="post:form" action="/posts/1" method="post" data-id="1">')
-              expect(body).to include('<input type="hidden" name="_method" value="patch">')
+              expect(body).to include('<input type="hidden" name="pw-http-method" value="patch">')
             end
           end
 
@@ -404,7 +404,7 @@ RSpec.describe "form endpoints" do
         it "sets the endpoint to the explicitly defined endpoint" do
           call("/presentation/forms/endpoints/explicit")[2].tap do |body|
             expect(body).to include('<form data-b="post:form" data-e="explicit_endpoint" action="/explicit" method="post" data-ui="confirmable">')
-            expect(body).to include('<input type="hidden" name="_method" value="delete">')
+            expect(body).to include('<input type="hidden" name="pw-http-method" value="delete">')
           end
         end
       end

@@ -30,7 +30,7 @@ RSpec.describe "setting up a form with method override" do
   it "does not set the override by default" do
     expect(call("/presentation/forms/method_override")[2]).not_to include_sans_whitespace(
       <<~HTML
-        _method
+        pw-http-method
       HTML
     )
   end
@@ -46,7 +46,7 @@ RSpec.describe "setting up a form with method override" do
       it "does not set the override" do
         expect(call("/presentation/forms/method_override")[2]).not_to include_sans_whitespace(
           <<~HTML
-            _method
+            pw-http-method
           HTML
         )
       end
@@ -62,7 +62,7 @@ RSpec.describe "setting up a form with method override" do
       it "sets the override" do
         expect(call("/presentation/forms/method_override")[2]).to include_sans_whitespace(
           <<~HTML
-            <input type="hidden" name="_method" value="patch">
+            <input type="hidden" name="pw-http-method" value="patch">
           HTML
         )
       end

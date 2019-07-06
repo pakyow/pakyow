@@ -109,8 +109,8 @@ module Pakyow
     #
     def method
       unless instance_variable_defined?(:@method)
-        @method = if request_method == "POST" && params.include?(:_method)
-          params[:_method].downcase.to_sym
+        @method = if request_method == "POST" && params.include?(:"pw-http-method")
+          params[:"pw-http-method"].downcase.to_sym
         else
           request_method.downcase.to_sym
         end

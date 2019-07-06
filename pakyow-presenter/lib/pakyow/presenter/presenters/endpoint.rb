@@ -99,7 +99,7 @@ module Pakyow
               View.new(
                 <<~HTML
                   <form action="#{path}" method="post" data-ui="confirmable">
-                    <input type="hidden" name="_method" value="delete">
+                    <input type="hidden" name="pw-http-method" value="delete">
                     #{view.object.render}
                   </form>
                 HTML
