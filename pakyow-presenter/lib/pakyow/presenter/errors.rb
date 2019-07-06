@@ -19,7 +19,7 @@ module Pakyow
         <<~MESSAGE
           Pakyow couldn't render a view for `#{String.normalize_path(@context)}`. Try creating a view template for this path:
 
-              frontend/pages#{template_path}.html
+              frontend/pages#{view_path}.html
 
             * [Learn about view templates &rarr;](https://pakyow.com/docs/frontend/composition/)
         MESSAGE
@@ -27,7 +27,7 @@ module Pakyow
 
       private
 
-      def template_path
+      def view_path
         if @context.to_s.empty? || @context.to_s == "/"
           "/index"
         else

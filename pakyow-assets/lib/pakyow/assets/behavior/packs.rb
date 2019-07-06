@@ -107,8 +107,8 @@ module Pakyow
         end
 
         def build_page_packs(template_store)
-          template_store.paths.each do |template_path|
-            template_info = template_store.info(template_path)
+          template_store.paths.each do |view_path|
+            template_info = template_store.info(view_path)
 
             page_pack = Pack.new(:"#{template_info[:page].logical_path[1..-1]}", config.assets)
             register_pack_with_view(page_pack, template_info[:page])
