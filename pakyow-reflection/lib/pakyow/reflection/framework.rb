@@ -31,7 +31,7 @@ module Pakyow
               if (reflected_action = controller.connection.get(:__reflected_action)) && reflected_action.name == controller.connection.get(:__endpoint_name)
                 case reflected_action.name
                 when :create, :update
-                  controller.verify_submitted_form
+                  controller.verify_reflected_form
                 end
               end
             end
@@ -39,12 +39,8 @@ module Pakyow
             action :perform do
               if (reflected_action = controller.connection.get(:__reflected_action)) && reflected_action.name == controller.connection.get(:__endpoint_name)
                 case reflected_action.name
-                when :create
-                  controller.reflective_create
-                when :update
-                  controller.reflective_update
-                when :delete
-                  controller.reflective_delete
+                when :create, :update, :delete
+                  controller.perform_reflected_action
                 end
               end
             end

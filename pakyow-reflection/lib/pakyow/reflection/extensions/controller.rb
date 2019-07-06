@@ -28,26 +28,6 @@ module Pakyow
           end
         end
 
-        def reflected_scope
-          connection.get(:__reflected_scope)
-        end
-
-        def reflected_action
-          connection.get(:__reflected_action)
-        end
-
-        def reflected_endpoint
-          connection.get(:__reflected_endpoint)
-        end
-
-        def reflects_specific_object?(object_name)
-          (
-            self.class.__object_name.name == object_name && (
-              connection.get(:__endpoint_name) == :show || connection.get(:__endpoint_name) == :edit
-            )
-          ) || parent_resource_named?(object_name)
-        end
-
         def reflective_expose
           reflected_endpoint.exposures.each do |reflected_exposure|
             if reflected_exposure.parent.nil? || reflected_exposure.binding.to_s.include?("form")
@@ -123,22 +103,7 @@ module Pakyow
           end
         end
 
-        def reflective_create
-          logger.debug "[reflection] create"
-          handle_submitted_data
-        end
-
-        def reflective_update
-          logger.debug "[reflection] update"
-          handle_submitted_data
-        end
-
-        def reflective_delete
-          logger.debug "[reflection] delete"
-          handle_submitted_data
-        end
-
-        def verify_submitted_form
+        def verify_reflected_form
           with_reflected_action do |reflected_action|
             local = self
 
@@ -160,7 +125,7 @@ module Pakyow
           end
         end
 
-        def handle_submitted_data
+        def perform_reflected_action
           with_reflected_action do |reflected_action|
             proxy = data.public_send(reflected_action.scope.plural_name)
 
@@ -225,6 +190,22 @@ module Pakyow
         end
 
         private
+
+        def reflected_action
+          connection.get(:__reflected_action)
+        end
+
+        def reflected_endpoint
+          connection.get(:__reflected_endpoint)
+        end
+
+        def reflects_specific_object?(object_name)
+          (
+            self.class.__object_name.name == object_name && (
+              connection.get(:__endpoint_name) == :show || connection.get(:__endpoint_name) == :edit
+            )
+          ) || parent_resource_named?(object_name)
+        end
 
         def parent_resource_named?(object_name, context = self.class)
           if context && context.parent

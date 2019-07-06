@@ -1,14 +1,4 @@
 RSpec.describe "the public reflection api available to controllers" do
-  describe "#with_reflected_scope" do
-    context "reflected scope is available" do
-      it "yields the reflected scope"
-    end
-
-    context "reflected scope is missing" do
-      it "404s"
-    end
-  end
-
   describe "#with_reflected_action" do
     context "reflected action is available" do
       it "yields the reflected action"
@@ -29,89 +19,11 @@ RSpec.describe "the public reflection api available to controllers" do
     end
   end
 
-  describe "#reflected_scope" do
-    it "returns the expected reflected scope"
-  end
-
-  describe "#reflected_action" do
-    it "returns the expected reflected action"
-  end
-
-  describe "#reflected_endpoints" do
-    it "returns the expected reflected endpoints"
-  end
-
-  describe "#reflects_specific_object?" do
-    context "show route in a resource" do
-      it "returns true"
-    end
-
-    context "edit route in a resource" do
-      it "returns true"
-    end
-
-    context "some other route" do
-      it "returns false"
-    end
-  end
-
   describe "#reflective_expose" do
     it "exposes data for the reflected endpoints"
   end
 
-  describe "#reflective_create" do
-    it "verifies the submitted data"
-
-    context "verification fails" do
-      it "does not create"
-    end
-
-    context "verification succeeds" do
-      it "creates"
-    end
-
-    describe "after creating" do
-      it "redirects"
-
-      context "connection has halted" do
-        it "does not redirect"
-      end
-    end
-  end
-
-  describe "#reflective_update" do
-    it "verifies the submitted data"
-
-    context "verification fails" do
-      it "does not update"
-    end
-
-    context "verification succeeds" do
-      it "updates"
-    end
-
-    describe "after creating" do
-      it "redirects"
-
-      context "connection has halted" do
-        it "does not redirect"
-      end
-    end
-  end
-
-  describe "#reflective_delete" do
-    it "deletes"
-
-    describe "after deleting" do
-      it "redirects"
-
-      context "connection has halted" do
-        it "does not redirect"
-      end
-    end
-  end
-
-  describe "#verify_submitted_form" do
+  describe "#verify_reflected_form" do
     context "data is submitted outside of a form" do
       it "fails"
     end
@@ -139,7 +51,7 @@ RSpec.describe "the public reflection api available to controllers" do
     end
   end
 
-  describe "#handle_submitted_data" do
+  describe "#perform_reflected_action" do
     describe "create endpoint" do
       it "creates"
     end
