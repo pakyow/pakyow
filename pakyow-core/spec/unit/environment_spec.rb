@@ -217,6 +217,18 @@ RSpec.describe Pakyow do
             }.not_to raise_error
           end
         end
+
+        context "in prototype mode" do
+          before do
+            allow(Pakyow).to receive(:env?).with(:prototype).and_return(true)
+            allow(Pakyow).to receive(:env).and_return(:prototype)
+          end
+
+          it "requires the default and development bundles" do
+            expect(Bundler).to receive(:require).with(:default, :development)
+            Pakyow.load
+          end
+        end
       end
 
       describe "dotenv setup" do
