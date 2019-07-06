@@ -74,4 +74,29 @@ RSpec.describe "binding data via presenter" do
       expect(presenter.to_s).to eq("<h1 data-b=\"post.title\">foo</h1>")
     end
   end
+
+  context "prop is defined multiple times" do
+    let :view do
+      Pakyow::Presenter::View.new(
+        <<~HTML
+          <article binding="post">
+            <h1 binding="title">title goes here</h1>
+            <h1 binding="title">title goes here</h1>
+          </article>
+        HTML
+      )
+    end
+
+    it "binds the value to both props" do
+      post_presenter.bind(title: "foo")
+      expect(presenter.to_s).to eq_sans_whitespace(
+        <<~HTML
+          <article data-b="post">
+            <h1 data-b="title">foo</h1>
+            <h1 data-b="title">foo</h1>
+          </article>
+        HTML
+      )
+    end
+  end
 end

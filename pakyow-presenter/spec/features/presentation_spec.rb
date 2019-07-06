@@ -96,4 +96,19 @@ RSpec.describe "presenting data via presenter" do
       expect(presenter.to_s).to eq("<h1 data-b=\"post.title\">foo</h1>")
     end
   end
+
+  context "prop is defined multiple times" do
+    let :view do
+      Pakyow::Presenter::View.new(
+        <<~HTML
+          <article binding="post">
+            <h1 binding="title">title goes here</h1>
+            <h1 binding="title">title goes here</h1>
+          </article>
+        HTML
+      )
+    end
+
+    it "will be supported in the future"
+  end
 end
