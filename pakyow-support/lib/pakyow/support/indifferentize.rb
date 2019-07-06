@@ -110,6 +110,7 @@ module Pakyow
       indifferentize_update_method :merge!, :update, :replace, :clear, :keep_if, :delete_if, :compact!, :reject!, :select!
       indifferentize_argument_method :>, :>=, :<=>, :<, :<=, :==
 
+      # @api private
       def internal_hash
         __getobj__
       end

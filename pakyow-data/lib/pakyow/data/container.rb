@@ -6,6 +6,7 @@ require "pakyow/data/types"
 
 module Pakyow
   module Data
+    # @api private
     class Container
       attr_reader :connection, :sources
 

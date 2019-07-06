@@ -85,6 +85,7 @@ module Pakyow
       class << self
         attr_reader :name
 
+        # @api private
         def make(name, state: nil, parent: nil, **kwargs, &block)
           super(name, state: state, parent: parent, **kwargs, &block)
         end

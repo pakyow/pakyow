@@ -7,7 +7,6 @@ require "pakyow/support/makeable/object_name"
 
 module Pakyow
   module Support
-    # @api private
     module Makeable
       def self.extended(base)
         # Mixin the `make` event for objects that are hookable.

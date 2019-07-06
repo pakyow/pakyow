@@ -48,6 +48,7 @@ module Pakyow
 
       # The app object.
       #
+      # @api private
       attr_reader :app
 
       def initialize(view, app:, presentables: {})
@@ -76,6 +77,7 @@ module Pakyow
       # Returns an array of presenters, one for each view binding.
       #
       # @see View#find_all
+      # @api private
       def find_all(*names)
         @view.find_all(*names).map { |view|
           presenter_for(view)
@@ -94,6 +96,7 @@ module Pakyow
 
       # Returns all forms.
       #
+      # @api private
       def forms
         @view.forms.map { |form|
           presenter_for(form)
@@ -112,6 +115,7 @@ module Pakyow
 
       # Returns all components.
       #
+      # @api private
       def components(renderable: false)
         @view.components(renderable: renderable).map { |component|
           presenter_for(component)
@@ -583,6 +587,7 @@ module Pakyow
 
         attr_reader :path
 
+        # @api private
         def make(path, **kwargs, &block)
           path = String.normalize_path(path)
           super(path, path: path, **kwargs, &block)

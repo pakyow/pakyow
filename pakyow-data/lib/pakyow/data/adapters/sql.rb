@@ -11,6 +11,7 @@ require "pakyow/data/adapters/abstract"
 module Pakyow
   module Data
     module Adapters
+      # @api private
       class Sql < Abstract
         require "pakyow/data/adapters/sql/commands"
         require "pakyow/data/adapters/sql/dataset_methods"

@@ -4,6 +4,7 @@ require "pakyow/support/inflector"
 
 module Pakyow
   module Reflection
+    # @api private
     class Nested
       attr_reader :name, :attributes, :nested
 

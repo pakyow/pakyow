@@ -4,6 +4,7 @@ module Pakyow
   module UI
     module Recordable
       module Helpers
+        # @api private
         module ClientRemapping
           def remap_for_client(method_name)
             case method_name

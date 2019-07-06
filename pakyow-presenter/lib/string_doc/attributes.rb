@@ -5,6 +5,7 @@ require "forwardable"
 class StringDoc
   # String-based XML attributes.
   #
+  # @api private
   class Attributes
     OPENING = '="'
     CLOSING = '"'

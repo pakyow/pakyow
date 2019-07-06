@@ -6,7 +6,6 @@ module Pakyow
   module Validations
     # Validates that the value is unique within its data source.
     #
-    # @api public
     module Unique
       def self.name
         :unique

@@ -8,6 +8,7 @@ require "pakyow/ui/recordable/helpers/client_remapping"
 module Pakyow
   module UI
     module Recordable
+      # @api private
       class Attributes < Pakyow::Presenter::Attributes
         include Helpers::ClientRemapping
 

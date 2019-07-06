@@ -4,6 +4,7 @@ module Pakyow
   module Data
     module Adapters
       class Sql
+        # @api private
         class Differ
           def initialize(connection:, source:, attributes: source.attributes)
             @connection, @source, @attributes = connection, source, attributes

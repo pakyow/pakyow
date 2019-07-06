@@ -6,6 +6,7 @@ require "pakyow/support/inspectable"
 class StringDoc
   # String-based XML node.
   #
+  # @api private
   class Node
     class << self
       SELF_CLOSING = %w[area base basefont br hr input img link meta].freeze

@@ -3,7 +3,6 @@
 module Pakyow
   module Presenter
     class Attributes
-      # @api private
       class Attribute
         def initialize(value)
           @value = value

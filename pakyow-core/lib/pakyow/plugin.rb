@@ -140,6 +140,7 @@ module Pakyow
       @helper_class.new(self, connection)
     end
 
+    # @api private
     def __object_name
       self.class.__object_name
     end
@@ -172,6 +173,7 @@ module Pakyow
       :"__#{prefix}.#{name}"
     end
 
+    # @api private
     def _dump(_)
       Marshal.dump(
         {
@@ -186,6 +188,7 @@ module Pakyow
       )
     end
 
+    # @api private
     def self._load(state)
       state = Marshal.load(state)
       Pakyow.app(state[:parent][:name]).plugs.find { |plug|

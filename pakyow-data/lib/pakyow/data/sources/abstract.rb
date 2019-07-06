@@ -52,6 +52,7 @@ module Pakyow
         class << self
           attr_reader :container
 
+          # @api private
           def instance
             container.source(plural_name)
           end

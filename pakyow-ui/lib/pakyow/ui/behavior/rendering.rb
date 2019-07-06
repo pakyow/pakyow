@@ -20,6 +20,7 @@ module Pakyow
           isolated :Renderer do
             include Realtime::Helpers::Subscriptions
 
+            # @api private
             def socket_client_id
               presentables[:__socket_client_id]
             end

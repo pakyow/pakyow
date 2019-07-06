@@ -131,7 +131,7 @@ module Pakyow
         end
       end
 
-      QUALIFIABLE_TYPES = [Hash, Support::IndifferentHash]
+      QUALIFIABLE_TYPES = [Hash, Support::IndifferentHash].freeze
       def qualified?(qualifications, changed_values, changed_results, original_results)
         qualifications.all? do |key, value|
           (QUALIFIABLE_TYPES.include?(changed_values.class) && changed_values.to_h[key] == value) || qualified_result?(key, value, changed_results, original_results)

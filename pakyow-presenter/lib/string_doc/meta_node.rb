@@ -5,6 +5,7 @@ require "string_doc/meta_attributes"
 class StringDoc
   # Lets two or more nodes to be represented as a single node in a doc, then manipulated together.
   #
+  # @api private
   class MetaNode
     # @api private
     attr_reader :doc, :transforms, :internal_nodes

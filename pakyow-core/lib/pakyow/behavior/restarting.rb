@@ -43,6 +43,8 @@ module Pakyow
         end
       end
 
+      private
+
       def setup_for_restarting
         if config.process.restartable
           config.process.watched_paths << File.join(config.src, "**/*.rb")

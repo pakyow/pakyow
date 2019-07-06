@@ -51,7 +51,7 @@ module Pakyow
                     }
 
                     if component_classes.count > 1
-                      state(:presenter) << Actions::RenderComponents.find_or_build_compound_presenter(
+                      state(:presenter) << Renderer::Behavior::RenderComponents.find_or_build_compound_presenter(
                         self, component_classes
                       )
                     end

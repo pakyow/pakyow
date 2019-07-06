@@ -11,6 +11,7 @@ module Pakyow
         @connection.request_header("pw-ui")
       end
 
+      # @api private
       def ui_transform?
         @connection.set?(:__ui_transform)
       end

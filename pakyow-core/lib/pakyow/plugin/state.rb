@@ -45,7 +45,7 @@ module Pakyow
               if app_info = app_templates.info(path)
                 # Define the plugin view as the `plug` partial so that it can be included.
                 #
-                plugin_info[:partials][:plug] = Presenter::Partial.from_object(
+                plugin_info[:partials][:plug] = Presenter::Views::Partial.from_object(
                   :plug, plugin_info[:page].object
                 )
 

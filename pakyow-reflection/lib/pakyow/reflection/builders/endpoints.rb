@@ -9,6 +9,7 @@ require "pakyow/reflection/extensions/controller"
 module Pakyow
   module Reflection
     module Builders
+      # @api private
       class Endpoints < Abstract
         include Helpers::Controller
 

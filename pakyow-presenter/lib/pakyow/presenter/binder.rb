@@ -41,6 +41,7 @@ module Pakyow
 
       # Returns the value for a key (including parts).
       #
+      # @api private
       def __value(key)
         if @memoized.include?(key)
           @memoized[key]
@@ -67,6 +68,7 @@ module Pakyow
 
       # Returns only the content value for a key.
       #
+      # @api private
       def __content(key, view)
         return_value = __value(key)
         if return_value.is_a?(BindingParts)

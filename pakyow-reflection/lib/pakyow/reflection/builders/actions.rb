@@ -6,6 +6,7 @@ require "pakyow/reflection/builders/helpers/controller"
 module Pakyow
   module Reflection
     module Builders
+      # @api private
       class Actions < Abstract
         include Helpers::Controller
 

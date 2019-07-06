@@ -4,6 +4,7 @@ module Pakyow
   module Data
     module Adapters
       class Sql
+        # @api private
         class Runner
           def initialize(connection, migration_path)
             @connection, @migration_path = connection, migration_path

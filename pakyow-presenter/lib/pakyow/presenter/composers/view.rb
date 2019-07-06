@@ -11,6 +11,7 @@ require "pakyow/presenter/errors"
 module Pakyow
   module Presenter
     module Composers
+      # @api private
       class View
         extend Support::ClassState
         class_state :__cache, default: {}

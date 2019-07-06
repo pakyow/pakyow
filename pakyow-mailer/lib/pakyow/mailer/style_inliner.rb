@@ -7,6 +7,7 @@ module Pakyow
   module Mailer
     # Inlines styles into html content.
     #
+    # @api private
     class StyleInliner
       def initialize(doc_or_html, stylesheets: [])
         @css_parser = CssParser::Parser.new.tap do |parser|

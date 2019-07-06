@@ -2,6 +2,7 @@
 
 module Pakyow
   module Reflection
+    # @api private
     class Exposure
       attr_reader :scope, :node, :binding, :dataset, :parent, :children
 
@@ -53,6 +54,7 @@ module Pakyow
       end
     end
 
+    # @api private
     class Endpoint
       attr_reader :view_path, :options, :exposures
 

@@ -4,6 +4,48 @@ require "pakyow/support/class_state"
 
 module Pakyow
   module Presenter
+    class Processor
+      extend Support::ClassState
+      class_state :name
+      class_state :block
+      class_state :extensions, default: [], getter: false
+
+      extend Support::Makeable
+
+      def initialize(app)
+        @app = app
+      end
+
+      def call(content)
+        self.class.process(content)
+      end
+
+      class << self
+        # @api private
+        def make(name, *extensions, **kwargs, &block)
+          # Name is expected to also be an extension.
+          #
+          extensions.unshift(name).map!(&:to_sym)
+
+          super(name, extensions: extensions, block: block, **kwargs) {}
+        end
+
+        def process(content)
+          block.call(content)
+        end
+
+        def extensions(*extensions)
+          if extensions.any?
+            @extensions ||= []
+            @extensions.concat(extensions.map(&:to_sym)).uniq
+          else
+            @extensions
+          end
+        end
+      end
+    end
+
+    # @api private
     class ProcessorCaller
       def initialize(instances)
         @processors = normalize(instances)
@@ -27,7 +69,7 @@ module Pakyow
         @processors.key?(extension.tr(".", "").to_sym)
       end
 
-      protected
+      private
 
       def processors_for_extension(extension)
         @processors[extension] || []
@@ -39,46 +81,6 @@ module Pakyow
             (processors[extension] ||= []) << instance
           end
         }
-      end
-    end
-
-    class Processor
-      extend Support::ClassState
-      class_state :name
-      class_state :block
-      class_state :extensions, default: [], getter: false
-
-      extend Support::Makeable
-
-      def initialize(app)
-        @app = app
-      end
-
-      def call(content)
-        self.class.process(content)
-      end
-
-      class << self
-        def make(name, *extensions, **kwargs, &block)
-          # Name is expected to also be an extension.
-          #
-          extensions.unshift(name).map!(&:to_sym)
-
-          super(name, extensions: extensions, block: block, **kwargs) {}
-        end
-
-        def process(content)
-          block.call(content)
-        end
-
-        def extensions(*extensions)
-          if extensions.any?
-            @extensions ||= []
-            @extensions.concat(extensions.map(&:to_sym)).uniq
-          else
-            @extensions
-          end
-        end
       end
     end
   end

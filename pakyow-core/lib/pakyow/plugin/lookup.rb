@@ -4,7 +4,6 @@ require "forwardable"
 
 module Pakyow
   class Plugin
-    # @api private
     class Lookup
       include Enumerable
 

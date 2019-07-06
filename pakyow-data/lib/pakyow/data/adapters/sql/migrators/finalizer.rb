@@ -7,6 +7,7 @@ module Pakyow
     module Adapters
       class Sql
         module Migrators
+          # @api private
           class Finalizer < Migrator
             attr_reader :migrations
 

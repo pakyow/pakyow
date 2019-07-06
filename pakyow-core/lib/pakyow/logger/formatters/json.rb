@@ -39,8 +39,6 @@ module Pakyow
           serialize(entry)
         end
 
-        private
-
         def format_logger_message(logger_message, entry)
           logger = logger_message["logger"]
           message = logger_message["message"]

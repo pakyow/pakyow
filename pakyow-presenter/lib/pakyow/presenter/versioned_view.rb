@@ -27,6 +27,7 @@ module Pakyow
         determine_working_version
       end
 
+      # @api private
       def soft_copy
         instance = self.class.allocate
 

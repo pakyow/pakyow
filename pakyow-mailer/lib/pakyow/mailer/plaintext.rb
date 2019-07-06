@@ -4,6 +4,7 @@ require "htmlentities"
 
 module Pakyow
   module Mailer
+    # @api private
     module Plaintext
       # Pulled from premailer (https://github.com/premailer/premailer/)
       # Copyright (c) 2007-2017, Alex Dunae

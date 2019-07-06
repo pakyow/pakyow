@@ -5,6 +5,7 @@ require "pakyow/reflection/builders/abstract"
 module Pakyow
   module Reflection
     module Builders
+      # @api private
       class Source < Abstract
         def build(scope)
           (source_for_scope(scope) || define_source_for_scope(scope)).class_eval do

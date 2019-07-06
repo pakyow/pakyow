@@ -2,6 +2,7 @@
 
 module Pakyow
   module Presenter
+    # @api private
     class BindingParts
       def initialize
         @parts = {}

@@ -79,14 +79,6 @@ module Pakyow
           end
         end
 
-        def included_helper_context(object)
-          @__included_helpers.each_pair do |object_with_helpers, context|
-            return context if object.is_a?(object_with_helpers)
-          end
-
-          nil
-        end
-
         def helpers(context)
           case context.to_sym
           when :global
@@ -100,6 +92,15 @@ module Pakyow
               context: context
             )
           end
+        end
+
+        # @api private
+        def included_helper_context(object)
+          @__included_helpers.each_pair do |object_with_helpers, context|
+            return context if object.is_a?(object_with_helpers)
+          end
+
+          nil
         end
       end
     end

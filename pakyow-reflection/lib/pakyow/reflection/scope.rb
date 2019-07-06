@@ -4,6 +4,7 @@ require "pakyow/support/inflector"
 
 module Pakyow
   module Reflection
+    # @api private
     class Scope
       attr_reader :name, :parents, :actions, :children
       attr_writer :parent

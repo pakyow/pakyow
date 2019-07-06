@@ -16,7 +16,6 @@ module Pakyow
       # To support this, +Attributes+ manages setting / removing the value on the
       # underlying object; all we do is behave like a String.
       #
-      # @api private
       class Boolean < String
       end
     end

@@ -25,6 +25,8 @@ module Pakyow
         end
       end
 
+      private
+
       def precompile_asset!(asset)
         compile_path = File.join(@app.config.assets.compile_path, asset.public_path)
         FileUtils.mkdir_p(File.dirname(compile_path))
@@ -45,7 +47,6 @@ module Pakyow
         end
       end
 
-      private
 
       def assets
         @app.state(:asset) + @app.plugs.flat_map { |plug|

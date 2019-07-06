@@ -3,6 +3,7 @@
 class StringDoc
   # Lets two or more node's attributes to be manipulated together. Used by {StringDoc::MetaNode}.
   #
+  # @api private
   class MetaAttributes
     def initialize(attributes)
       @attributes = attributes

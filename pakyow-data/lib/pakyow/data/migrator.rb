@@ -162,6 +162,8 @@ module Pakyow
           )
         end
 
+        private
+
         def globalize_connection_opts!(adapter, connection_opts)
           migrator_for_adapter(adapter).globalize_connection_opts!(connection_opts)
         end

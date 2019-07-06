@@ -6,6 +6,7 @@ module Pakyow
   module Presenter
     module Behavior
       module Modes
+        # @api private
         class ModeCallContext
           def initialize(connection)
             @connection = connection

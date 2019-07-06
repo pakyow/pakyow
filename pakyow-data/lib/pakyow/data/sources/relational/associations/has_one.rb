@@ -9,6 +9,7 @@ module Pakyow
     module Sources
       class Relational
         module Associations
+          # @api private
           class HasOne < Association
             attr_reader :associated_name, :dependent
 

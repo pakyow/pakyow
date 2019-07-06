@@ -7,6 +7,7 @@ module Pakyow
   module Data
     module Adapters
       class Sql
+        # @api private
         class Migrator < Sources::Relational::Migrator
           require "pakyow/data/adapters/sql/migrator/adapter_methods"
 

@@ -14,6 +14,7 @@ module Pakyow
   module Reflection
     # Reflects state from an application's view templates.
     #
+    # @api private
     class Mirror
       using Support::DeepDup
 
@@ -235,7 +236,7 @@ module Pakyow
         view.binding_props.reject { |binding_prop_node|
           binding_prop_node.significant?(:multipart_binding) && binding_prop_node.label(:binding) != view.binding_name
         }.select { |binding_prop_node|
-          !fields || Presenter::Form::FIELD_TAGS.include?(binding_prop_node.tagname)
+          !fields || Presenter::Views::Form::FIELD_TAGS.include?(binding_prop_node.tagname)
         }.each_with_object([]) do |binding_prop_node, attributes|
           binding_prop_view = Presenter::View.from_object(binding_prop_node)
           binding_prop_name = if binding_prop_node.significant?(:multipart_binding)

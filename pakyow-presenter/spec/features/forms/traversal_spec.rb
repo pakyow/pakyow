@@ -12,7 +12,7 @@ RSpec.describe "form traversal via presenter" do
 
     it "returns the form" do
       expect(presenter.form(:post)).to be_instance_of(Pakyow::Presenter::Presenters::Form)
-      expect(presenter.form(:post).view).to be_instance_of(Pakyow::Presenter::Form)
+      expect(presenter.form(:post).view).to be_instance_of(Pakyow::Presenter::Views::Form)
     end
 
     context "form does not exist" do

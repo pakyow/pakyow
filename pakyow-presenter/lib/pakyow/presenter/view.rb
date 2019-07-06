@@ -43,6 +43,7 @@ module Pakyow
           instance
         end
 
+        # @api private
         def from_view_or_string(view_or_string)
           case view_or_string
           when View, VersionedView
@@ -62,17 +63,14 @@ module Pakyow
 
       def_delegators :@object, :type, :text, :html, :label, :labeled?
 
-      # The object responsible for parsing, manipulating, and rendering
-      # the underlying HTML document for the view.
+      # The object responsible for transforming and rendering the underlying document or node.
       #
-      attr_reader :object
+      # @api private
+      attr_accessor :object
 
       # The logical path to the view template.
       #
       attr_reader :logical_path
-
-      # @api private
-      attr_writer :object
 
       # Creates a view with +html+.
       #
@@ -100,6 +98,7 @@ module Pakyow
         end
       end
 
+      # @api private
       def soft_copy
         instance = self.class.allocate
 
@@ -148,6 +147,7 @@ module Pakyow
 
       # Finds all view bindings by name, returning an array of {View} objects.
       #
+      # @api private
       def find_all(named)
         each_binding(named).map { |node|
           View.from_object(node)
@@ -158,7 +158,7 @@ module Pakyow
       #
       def form(name)
         @object.each_significant_node(:form) do |form_node|
-          return Form.from_object(form_node) if form_node.label(:binding) == name
+          return Views::Form.from_object(form_node) if form_node.label(:binding) == name
         end
 
         nil
@@ -166,9 +166,10 @@ module Pakyow
 
       # Returns all forms.
       #
+      # @api private
       def forms
         @object.each_significant_node(:form, descend: true).map { |node|
-          Form.from_object(node)
+          Views::Form.from_object(node)
         }
       end
 
@@ -185,6 +186,7 @@ module Pakyow
 
       # Returns all components.
       #
+      # @api private
       def components(renderable: false)
         @object.each_significant_node_without_descending_into_type(:component, descend: true).select { |node|
           !renderable || node.label(:components).any? { |component| component[:renderable] }
@@ -567,7 +569,7 @@ module Pakyow
         }
       end
 
-      protected
+      private
 
       def bind_value_to_node(value, node)
         tag = node.tagname

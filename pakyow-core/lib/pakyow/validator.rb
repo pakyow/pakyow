@@ -34,6 +34,7 @@ module Pakyow
         @validation_objects[validation_object.name] = validation_object
       end
 
+      # @api private
       def validation_object_for(validation)
         @validation_objects[validation] || raise(
           UnknownValidationError.new_with_message(validation: validation)

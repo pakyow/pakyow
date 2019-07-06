@@ -5,6 +5,7 @@ module Pakyow
     module Adapters
       class Sql
         class Migrator
+          # @api private
           module AdapterMethods
             module Mysql
               def create!

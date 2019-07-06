@@ -19,17 +19,16 @@ require "pakyow/presenter/helpers/rendering"
 require "pakyow/presenter/renderable"
 
 require "pakyow/presenter/renderer"
-
-require "pakyow/presenter/rendering/actions/cleanup_prototype_nodes"
-require "pakyow/presenter/rendering/actions/cleanup_unbound_bindings"
-require "pakyow/presenter/rendering/actions/create_template_nodes"
-require "pakyow/presenter/rendering/actions/insert_prototype_bar"
-require "pakyow/presenter/rendering/actions/install_authenticity"
-require "pakyow/presenter/rendering/actions/place_in_mode"
-require "pakyow/presenter/rendering/actions/render_components"
-require "pakyow/presenter/rendering/actions/set_page_title"
-require "pakyow/presenter/rendering/actions/setup_endpoints"
-require "pakyow/presenter/rendering/actions/setup_forms"
+require "pakyow/presenter/renderer/behavior/cleanup_prototype_nodes"
+require "pakyow/presenter/renderer/behavior/cleanup_unbound_bindings"
+require "pakyow/presenter/renderer/behavior/create_template_nodes"
+require "pakyow/presenter/renderer/behavior/insert_prototype_bar"
+require "pakyow/presenter/renderer/behavior/install_authenticity"
+require "pakyow/presenter/renderer/behavior/place_in_mode"
+require "pakyow/presenter/renderer/behavior/render_components"
+require "pakyow/presenter/renderer/behavior/set_page_title"
+require "pakyow/presenter/renderer/behavior/setup_endpoints"
+require "pakyow/presenter/renderer/behavior/setup_forms"
 
 module Pakyow
   module Presenter
@@ -38,8 +37,6 @@ module Pakyow
       using Support::Refinements::String::Normalization
 
       def boot
-        require "pakyow/presenter/presentable_error"
-
         object.class_eval do
           isolate Binder
           isolate Presenter
@@ -52,20 +49,20 @@ module Pakyow
           end
 
           isolate Renderer do
-            include Actions::CleanupPrototypeNodes
-            include Actions::CleanupUnboundBindings
-            include Actions::InsertPrototypeBar
-            include Actions::InstallAuthenticity
-            include Actions::PlaceInMode
-            include Actions::CreateTemplateNodes
-            include Actions::SetupEndpoints
-            include Actions::SetupForms
-            include Actions::SetPageTitle
+            include Renderer::Behavior::CleanupPrototypeNodes
+            include Renderer::Behavior::CleanupUnboundBindings
+            include Renderer::Behavior::InsertPrototypeBar
+            include Renderer::Behavior::InstallAuthenticity
+            include Renderer::Behavior::PlaceInMode
+            include Renderer::Behavior::CreateTemplateNodes
+            include Renderer::Behavior::SetupEndpoints
+            include Renderer::Behavior::SetupForms
+            include Renderer::Behavior::SetPageTitle
           end
 
           after "load" do
             isolated(:Renderer) do
-              include Actions::RenderComponents
+              include Renderer::Behavior::RenderComponents
             end
           end
 

@@ -212,7 +212,7 @@ module Pakyow
         def use_binding_nodes
           view.object.set_label(:bound, true)
           view.object.children.each_significant_node(:binding, descend: true) do |object|
-            if Pakyow::Presenter::Form::FIELD_TAGS.include?(object.tagname)
+            if Pakyow::Presenter::Views::Form::FIELD_TAGS.include?(object.tagname)
               object.set_label(:bound, true)
             end
           end
@@ -337,7 +337,7 @@ module Pakyow
           values = Array.ensure(values).compact
 
           if values.any?
-            field_view = Pakyow::Presenter::Form.from_object(field_presenter.view.object)
+            field_view = Pakyow::Presenter::Views::Form.from_object(field_presenter.view.object)
             field_template = field_view.dup
             insertable_field = field_view
             current_field = field_view
@@ -361,7 +361,7 @@ module Pakyow
           values = Array.ensure(original_values).compact
 
           if values.any?
-            field_view = Pakyow::Presenter::Form.from_object(field_presenter.view.object)
+            field_view = Pakyow::Presenter::Views::Form.from_object(field_presenter.view.object)
             template = field_view.dup
             insertable = field_view
             current = field_view

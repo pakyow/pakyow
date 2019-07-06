@@ -23,7 +23,7 @@ RSpec.describe "presenting forms" do
   describe "finding a form by name" do
     it "returns a form presenter, wrapping a form object" do
       expect(form).to be_instance_of(Pakyow::Presenter::Presenters::Form)
-      expect(form.view).to be_instance_of(Pakyow::Presenter::Form)
+      expect(form.view).to be_instance_of(Pakyow::Presenter::Views::Form)
     end
 
     it "does not find forms using the find method" do

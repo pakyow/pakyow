@@ -4,6 +4,7 @@ require "pakyow/support/inflector"
 
 module Pakyow
   module Reflection
+    # @api private
     class Attribute
       attr_reader :name, :type
 

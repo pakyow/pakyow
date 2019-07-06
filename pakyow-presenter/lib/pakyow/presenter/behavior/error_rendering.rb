@@ -15,6 +15,7 @@ module Pakyow
       module ErrorRendering
         extend Support::Extension
 
+        # @api private
         def self.render_error(error, context)
           context.respond_to :html do
             if Pakyow.env?(:production)

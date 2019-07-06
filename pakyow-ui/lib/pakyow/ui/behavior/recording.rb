@@ -10,6 +10,7 @@ module Pakyow
       module Recording
         extend Support::Extension
 
+        # @api private
         def find_ui_presenter_for(presenter_class)
           if is_a?(Plugin)
             # Look for the presenter in the plugin first, falling back to the app.

@@ -19,12 +19,12 @@ module Pakyow
       app: {
         description: "The app to run the command on",
         global: true
-      },
+      }.freeze,
       env: {
         description: "What environment to use",
         global: true
-      }
-    }
+      }.freeze
+    }.freeze
 
     def initialize(argv = ARGV.dup)
       @argv = argv

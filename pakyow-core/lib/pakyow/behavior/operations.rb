@@ -35,6 +35,7 @@ module Pakyow
       class_methods do
         # Define operations as stateful when an app is defined.
         #
+        # @api private
         def make(*)
           super.tap do |new_class|
             new_class.stateful :operation, Operation

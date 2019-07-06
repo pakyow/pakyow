@@ -11,6 +11,7 @@ require "pakyow/ui/recordable"
 
 module Pakyow
   module UI
+    # @api private
     class Handler
       def initialize(app)
         @app = app

@@ -2,55 +2,59 @@
 
 require "pakyow/support/core_refinements/array/ensurable"
 
+require "pakyow/presenter/view"
+
 module Pakyow
   module Presenter
-    class Form < View
-      using Support::Refinements::Array::Ensurable
+    module Views
+      class Form < View
+        using Support::Refinements::Array::Ensurable
 
-      INPUT_TAG = "input"
-      SELECT_TAG = "select"
-      TEXTAREA_TAG = "textarea"
+        INPUT_TAG = "input"
+        SELECT_TAG = "select"
+        TEXTAREA_TAG = "textarea"
 
-      FIELD_TAGS = [
-        INPUT_TAG,
-        SELECT_TAG,
-        TEXTAREA_TAG
-      ].freeze
+        FIELD_TAGS = [
+          INPUT_TAG,
+          SELECT_TAG,
+          TEXTAREA_TAG
+        ].freeze
 
-      CHECKBOX_TYPE = "checkbox"
-      RADIO_TYPE = "radio"
+        CHECKBOX_TYPE = "checkbox"
+        RADIO_TYPE = "radio"
 
-      CHECKED_TYPES = [
-        CHECKBOX_TYPE, RADIO_TYPE
-      ].freeze
+        CHECKED_TYPES = [
+          CHECKBOX_TYPE, RADIO_TYPE
+        ].freeze
 
-      private
+        private
 
-      def bind_value_to_node(value, node)
-        super
+        def bind_value_to_node(value, node)
+          super
 
-        if node.tagname == SELECT_TAG
-          select_option_with_value(value, View.from_object(node))
+          if node.tagname == SELECT_TAG
+            select_option_with_value(value, View.from_object(node))
+          end
+
+          if CHECKED_TYPES.include?(node.attributes[:type])
+            check_or_uncheck_value(value, View.from_object(node))
+          end
         end
 
-        if CHECKED_TYPES.include?(node.attributes[:type])
-          check_or_uncheck_value(value, View.from_object(node))
+        def check_or_uncheck_value(value, view)
+          if view.attributes[:type] == "checkbox"
+            # There could be multiple values checked, so check for inclusion.
+            #
+            view.attributes[:checked] = Array.ensure(value).map(&:to_s).include?(view.attributes[:value])
+          else
+            view.attributes[:checked] = view.attributes[:value] == value.to_s
+          end
         end
-      end
 
-      def check_or_uncheck_value(value, view)
-        if view.attributes[:type] == "checkbox"
-          # There could be multiple values checked, so check for inclusion.
-          #
-          view.attributes[:checked] = Array.ensure(value).map(&:to_s).include?(view.attributes[:value])
-        else
-          view.attributes[:checked] = view.attributes[:value] == value.to_s
-        end
-      end
-
-      def select_option_with_value(value, view)
-        view.object.each_significant_node(:option) do |option|
-          View.from_object(option).attributes[:selected] = option.attributes[:value] == value
+        def select_option_with_value(value, view)
+          view.object.each_significant_node(:option) do |option|
+            View.from_object(option).attributes[:selected] = option.attributes[:value] == value
+          end
         end
       end
     end

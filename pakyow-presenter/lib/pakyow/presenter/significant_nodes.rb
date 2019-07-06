@@ -188,7 +188,7 @@ module Pakyow
 
       def self.decorate(node)
         node.set_label(:presenter_type, Presenters::Form)
-        node.set_label(:view_type, Form)
+        node.set_label(:view_type, Views::Form)
       end
     end
 

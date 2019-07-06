@@ -11,6 +11,7 @@ module Pakyow
     module Sources
       class Relational
         module Associations
+          # @api private
           class Through
             attr_reader :joining_source_name, :joining_source
 

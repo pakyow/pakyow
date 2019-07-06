@@ -42,15 +42,23 @@ module Pakyow
       end
 
       # Object for hash attributes
+      #
       ATTRIBUTE_TYPE_HASH = Attributes::Hash
+
       # Object for set attributes
+      #
       ATTRIBUTE_TYPE_SET = Attributes::Set
+
       # Object for boolean attributes
+      #
       ATTRIBUTE_TYPE_BOOLEAN = Attributes::Boolean
+
       # Default attribute object
+      #
       ATTRIBUTE_TYPE_DEFAULT = Attributes::String
 
       # Maps non-default attributes to their type
+      #
       ATTRIBUTE_TYPES = {
         class: ATTRIBUTE_TYPE_SET,
         style: ATTRIBUTE_TYPE_HASH,

@@ -12,6 +12,7 @@ require "pakyow/presenter/composers/view"
 module Pakyow
   module Presenter
     module Composers
+      # @api private
       class Component < View
         using Support::DeepDup
 

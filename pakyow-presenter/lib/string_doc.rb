@@ -23,6 +23,8 @@ require "pakyow/support/silenceable"
 # only when a longer parse time is acceptable and you only care about a handful of identifiable
 # nodes in a document.
 #
+# @api private
+#
 class StringDoc
   require "string_doc/attributes"
   require "string_doc/node"
@@ -563,7 +565,7 @@ class StringDoc
       labels = significance.each_with_object({}) { |significant_type, labels_hash|
         # FIXME: remove this special case logic
         labels_hash[significant_type] = if name.empty? && significant_type == :container
-          Pakyow::Presenter::Page::DEFAULT_CONTAINER
+          Pakyow::Presenter::Views::Page::DEFAULT_CONTAINER
         else
           name.to_sym
         end

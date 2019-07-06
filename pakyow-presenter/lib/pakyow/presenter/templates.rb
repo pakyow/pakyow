@@ -109,7 +109,7 @@ module Pakyow
         @layouts = if File.exist?(layouts_path)
           layouts_path.children.each_with_object({}) { |file, layouts|
             next unless template?(file)
-            layout = load_view_of_type_at_path(Layout, file)
+            layout = load_view_of_type_at_path(Views::Layout, file)
             layouts[layout.name] = layout
           }
         else
@@ -121,7 +121,7 @@ module Pakyow
         @includes = if File.exist?(partials_path)
           partials_path.children.each_with_object({}) { |file, partials|
             next unless template?(file)
-            partial = load_view_of_type_at_path(Partial, file, normalize_path(file))
+            partial = load_view_of_type_at_path(Views::Partial, file, normalize_path(file))
             partials[partial.name] = partial
           }
         else
@@ -168,7 +168,7 @@ module Pakyow
             index_page_at_path(path)
           end
         else
-          load_view_of_type_at_path(Page, path, normalize_path(path))
+          load_view_of_type_at_path(Views::Page, path, normalize_path(path))
         end
       end
 
@@ -208,7 +208,7 @@ module Pakyow
           parent_path.children.select { |child|
             child.basename.to_s.start_with?("_")
           }.each_with_object(partials) { |child, child_partials|
-            partial = load_view_of_type_at_path(Partial, child, normalize_path(child))
+            partial = load_view_of_type_at_path(Views::Partial, child, normalize_path(child))
             child_partials[partial.name] ||= partial
           }
         }

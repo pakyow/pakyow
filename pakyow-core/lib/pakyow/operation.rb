@@ -54,7 +54,6 @@ module Pakyow
       #
       # @see Pakyow::Verifier
       #
-      # @api public
       def verify(&block)
         define_method :__verify do
           verify(&block)

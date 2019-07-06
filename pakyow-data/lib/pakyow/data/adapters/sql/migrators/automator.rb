@@ -7,6 +7,7 @@ module Pakyow
     module Adapters
       class Sql
         module Migrators
+          # @api private
           class Automator < Migrator
             def associate_table(name, **, &block)
               alter_table(name, &block)

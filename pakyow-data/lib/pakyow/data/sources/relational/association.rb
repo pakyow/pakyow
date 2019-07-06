@@ -6,6 +6,7 @@ module Pakyow
   module Data
     module Sources
       class Relational
+        # @api private
         class Association
           attr_reader :name, :query, :source, :associated_source_name, :associated_source
 
@@ -25,14 +26,17 @@ module Pakyow
             @internal = false
           end
 
+          # @api private
           def dependent_source_names
             [@associated_source_name]
           end
 
+          # @api private
           def internal?
             @internal == true
           end
 
+          # @api private
           def internal!
             @internal = true
           end

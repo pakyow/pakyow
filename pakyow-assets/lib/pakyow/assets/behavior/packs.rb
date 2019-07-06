@@ -49,6 +49,16 @@ module Pakyow
           end
         end
 
+        def packs(view)
+          (autoloaded_packs + view_packs(view) + component_packs(view)).uniq.each_with_object([]) { |pack_name, packs|
+            if found_pack = state(:pack).find { |pack| pack.name == pack_name.to_sym }
+              packs << found_pack
+            end
+          }
+        end
+
+        private
+
         def accessible_pack_path(pack_path)
           pack_path_parts = pack_path.split("/")
           pack_path_parts[-1] = if pack_path_parts[-1].include?("__")
@@ -61,16 +71,6 @@ module Pakyow
 
           pack_path_parts.join("/")
         end
-
-        def packs(view)
-          (autoloaded_packs + view_packs(view) + component_packs(view)).uniq.each_with_object([]) { |pack_name, packs|
-            if found_pack = state(:pack).find { |pack| pack.name == pack_name.to_sym }
-              packs << found_pack
-            end
-          }
-        end
-
-        private
 
         def autoloaded_packs
           config.assets.packs.autoload

@@ -19,6 +19,7 @@ require "pakyow/ui/recordable/attributes"
 
 module Pakyow
   module UI
+    # @api private
     module Recordable
       extend Support::Extension
 

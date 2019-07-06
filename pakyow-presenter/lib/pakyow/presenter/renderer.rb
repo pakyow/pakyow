@@ -7,7 +7,7 @@ require "pakyow/support/hookable"
 require "pakyow/support/core_refinements/proc/introspection"
 require "pakyow/support/core_refinements/string/normalization"
 
-require "pakyow/presenter/rendering/actions/render_components"
+require "pakyow/presenter/renderer/behavior/render_components"
 
 require "pakyow/presenter/composers/view"
 
@@ -155,6 +155,7 @@ module Pakyow
           connection.rendered
         end
 
+        # @api private
         def render_implicitly(connection)
           view_path = connection.get(:__endpoint_path) || connection.path
 
@@ -179,6 +180,7 @@ module Pakyow
           end
         end
 
+        # @api private
         def build!(view, app:, modes:, composer:)
           @__build_fns.each do |fn|
             options = {}
@@ -199,6 +201,7 @@ module Pakyow
           end
         end
 
+        # @api private
         def attach!(presenter, app:)
           @__attach_fns.each do |fn|
             options = {}
@@ -211,12 +214,14 @@ module Pakyow
           end
         end
 
+        # @api private
         def expose!(connection)
           @__expose_fns.each do |fn|
             fn.call(connection)
           end
         end
 
+        # @api private
         def find_presenter(app, path)
           path = String.normalize_path(path)
           unless presenter = @__presenters_by_path[path]

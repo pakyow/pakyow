@@ -218,6 +218,7 @@ module Pakyow
       end
 
       module InstanceMethods
+        # @api private
         def __hook_pipeline
           self.class.__hook_pipeline
         end

@@ -264,6 +264,7 @@ module Pakyow
       end
     end
 
+    # @api private
     def call_route(connection, route)
       @connection, @route = connection, route
       @route.pipeline.callable(self).call(connection); halt
@@ -272,6 +273,7 @@ module Pakyow
       handle_error(error)
     end
 
+    # @api private
     def dispatch
       halted = false
       performing :dispatch do
@@ -793,6 +795,7 @@ module Pakyow
         end
       end
 
+      # @api private
       def make(*args, **kwargs, &block)
         name, matcher = parse_name_and_matcher_from_args(*args)
 
@@ -831,7 +834,7 @@ module Pakyow
         self
       end
 
-      protected
+      private
 
       def parse_name_and_matcher_from_args(name_or_matcher = nil, matcher_or_name = nil)
         Support::Aargv.normalize([name_or_matcher, matcher_or_name].compact, name: [Symbol, Support::ObjectName], matcher: Object).values_at(:name, :matcher)

@@ -7,7 +7,7 @@ require "pakyow/support/makeable/object_maker"
 
 module Pakyow
   module Presenter
-    # Reusable functionality for a component of your presentation.
+    # Reusable functionality for a view component.
     #
     class Component
       extend Support::Makeable
@@ -18,7 +18,6 @@ module Pakyow
       include Support::Hookable
       events :render
 
-      # @api private
       attr_reader :connection
 
       def initialize(connection:, config: {})
@@ -28,8 +27,6 @@ module Pakyow
       def perform
         # intentionally empty
       end
-
-      private
 
       class << self
         def presenter(&block)
