@@ -93,7 +93,7 @@ module Pakyow
             include Behavior::ImplicitRendering
 
             action :verify_form_metadata do
-              if metadata = params[:_form]
+              if metadata = params[:"pw-form"]
                 connection.set(
                   :__form,
                   JSON.parse(
@@ -101,7 +101,7 @@ module Pakyow
                   ).indifferentize
                 )
 
-                params.delete(:_form)
+                params.delete(:"pw-form")
               end
             end
           end

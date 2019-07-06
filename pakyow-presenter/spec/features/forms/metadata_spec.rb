@@ -11,11 +11,11 @@ RSpec.describe "form metadata" do
 
   let :metadata do
     response_body = response[2]
-    expect(response_body).to include("input type=\"hidden\" name=\"_form\"")
+    expect(response_body).to include("input type=\"hidden\" name=\"pw-form\"")
 
     JSON.parse(
       Pakyow::Support::MessageVerifier.new("key").verify(
-        response_body.match(/name=\"_form\" value=\"([^\"]+)\"/)[1]
+        response_body.match(/name=\"pw-form\" value=\"([^\"]+)\"/)[1]
       )
     )
   end
@@ -36,7 +36,7 @@ RSpec.describe "form metadata" do
     context "form is being re-rendered" do
       let :response do
         verifier = Pakyow::Support::MessageVerifier.new("key")
-        call("/", method: :post, params: { _form: verifier.sign({ origin: "/foo" }.to_json) })
+        call("/", method: :post, params: { :"pw-form" => verifier.sign({ origin: "/foo" }.to_json) })
       end
 
       let :app_def do

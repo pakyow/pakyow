@@ -54,12 +54,12 @@ RSpec.describe "submitting invalid form data via ui" do
         expect(type).to eq(:errors)
         expect(qualifications).to eq(form_id: "foo123")
       }.and_return(ephemeral_double)
-      expect(call("/posts", method: :post, params: { _form: sign(id: "foo123", origin: "/") }, headers: { "Pw-Ui" => "true" })[0]).to be(400)
+      expect(call("/posts", method: :post, params: { :"pw-form" => sign(id: "foo123", origin: "/") }, headers: { "Pw-Ui" => "true" })[0]).to be(400)
     end
 
     it "does not reroute" do
       expect_any_instance_of(Pakyow::Controller).to_not receive(:reroute)
-      expect(call("/posts", method: :post, params: { _form: sign(origin: "/posts/new", binding: "post:form") }, headers: { "Pw-Ui" => "true" })[0]).to be(400)
+      expect(call("/posts", method: :post, params: { :"pw-form" => sign(origin: "/posts/new", binding: "post:form") }, headers: { "Pw-Ui" => "true" })[0]).to be(400)
     end
 
     context "app handles the invalid submission" do
@@ -125,7 +125,7 @@ RSpec.describe "submitting invalid form data via ui" do
         expect(type).to eq(:errors)
         expect(qualifications).to eq(form_id: "foo123")
       }.and_return(ephemeral_double)
-      expect(call("/posts", method: :post, params: { _form: sign(id: "foo123") }, headers: { "Pw-Ui" => "true" })[0]).to be(200)
+      expect(call("/posts", method: :post, params: { :"pw-form" => sign(id: "foo123") }, headers: { "Pw-Ui" => "true" })[0]).to be(200)
     end
   end
 end

@@ -24,7 +24,7 @@ RSpec.describe "form connection helper" do
   end
 
   it "exposes the submitted form" do
-    expect(call("/posts", method: :post, params: { _form: sign(origin: "/posts/new") })[0]).to be(200)
+    expect(call("/posts", method: :post, params: { :"pw-form" => sign(origin: "/posts/new") })[0]).to be(200)
     expect($form).to eq(origin: "/posts/new")
   end
 end

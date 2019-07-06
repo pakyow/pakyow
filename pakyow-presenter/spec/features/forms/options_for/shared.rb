@@ -35,7 +35,7 @@ RSpec.shared_context "options_for" do
 
   let :rendered do
     call(view_path)[2].tap do |rendered|
-      rendered.gsub!(/<input type="hidden" name="_form" value="[^>]*">/, "")
+      rendered.gsub!(/<input type="hidden" name="pw-form" value="[^>]*">/, "")
     end
   end
 end

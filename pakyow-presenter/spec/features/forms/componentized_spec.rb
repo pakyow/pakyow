@@ -17,6 +17,6 @@ RSpec.describe "forms that are componentized" do
   end
 
   it "is setup" do
-    expect(call("/form/componentized")[2]).to include_sans_whitespace('<input type="hidden" name="_form"')
+    expect(call("/form/componentized")[2]).to include_sans_whitespace('<input type="hidden" name="pw-form"')
   end
 end
