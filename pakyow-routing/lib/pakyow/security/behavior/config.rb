@@ -13,7 +13,7 @@ module Pakyow
             configurable :csrf do
               setting :protection, {}
               setting :origin_whitelist, []
-              setting :param, :authenticity_token
+              setting :param, :"pw-authenticity-token"
             end
           end
 

@@ -19,7 +19,7 @@ RSpec.shared_context "resource action" do
 
   let :params do
     values.merge(
-      authenticity_token: authenticity_token,
+      :"pw-authenticity-token" => authenticity_token,
       _form: sign(form)
     )
   end

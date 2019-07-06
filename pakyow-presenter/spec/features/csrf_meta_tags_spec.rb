@@ -37,7 +37,7 @@ RSpec.describe "embedding csrf meta tags in a rendered view" do
     it "embeds the authenticity param" do
       response = call("/")
       expect(response[0]).to eq(200)
-      expect(response[2]).to include("meta name=\"pw-authenticity-param\" content=\"authenticity_token\"")
+      expect(response[2]).to include("meta name=\"pw-authenticity-param\" content=\"pw-authenticity-token\"")
     end
   end
 

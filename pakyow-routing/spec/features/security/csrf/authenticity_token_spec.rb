@@ -30,7 +30,7 @@ RSpec.describe "verifying the request's authenticity token" do
             "/",
             method: :post,
             params: {
-              authenticity_token: $signed_authenticity
+              :"pw-authenticity-token" => $signed_authenticity
             },
             headers: {
               "cookie" => cookie
@@ -42,7 +42,7 @@ RSpec.describe "verifying the request's authenticity token" do
 
     context "authenticity token is invalid" do
       it "rejects the request" do
-        expect(call("/", method: :post, params: { authenticity_token: "123:321" })[0]).to eq(403)
+        expect(call("/", method: :post, params: { :"pw-authenticity-token" => "123:321" })[0]).to eq(403)
       end
     end
   end
