@@ -41,6 +41,7 @@ module Pakyow
                 case reflected_action.name
                 when :create, :update, :delete
                   controller.perform_reflected_action
+                  @object = controller.instance_variable_get(:@object)
                 end
               end
             end
