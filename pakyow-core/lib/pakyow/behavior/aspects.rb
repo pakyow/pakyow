@@ -32,12 +32,16 @@ module Pakyow
       private
 
       def load_aspect(aspect, path: File.join(config.src, aspect.to_s), target: self.class)
+        __load_aspect(aspect, path: path, target: target)
+      end
+
+      def __load_aspect(aspect, path: File.join(config.src, aspect.to_s), target: self.class)
         Dir.glob(File.join(path, "*.rb")) do |file_path|
           Loader.new(file_path).call(target)
         end
 
         Dir.glob(File.join(path, "*")).select { |sub_path| File.directory?(sub_path) }.each do |directory|
-          load_aspect(aspect, path: directory, target: target)
+          __load_aspect(aspect, path: directory, target: target)
         end
       end
     end

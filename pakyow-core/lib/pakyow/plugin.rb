@@ -218,7 +218,7 @@ module Pakyow
       end
     end
 
-    def load_aspect(aspect)
+    def load_aspect(aspect, **)
       @state.each do |state|
         super(aspect, path: state.backend_path(aspect), target: self)
       end
