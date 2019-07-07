@@ -9,7 +9,7 @@ module Pakyow
       using Support::DeepDup
       using Support::Refinements::String::Normalization
 
-      attr_reader :name, :path, :layouts, :pages, :includes, :config
+      attr_reader :name, :path, :processor, :layouts, :pages, :includes, :config
 
       DEFAULT_LAYOUTS_PATH = "layouts"
       DEFAULT_PARTIALS_PATH = "includes"
