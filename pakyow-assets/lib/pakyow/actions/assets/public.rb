@@ -5,8 +5,8 @@ require "mini_mime"
 require "pakyow/support/core_refinements/string/normalization"
 
 module Pakyow
-  module Assets
-    module Actions
+  module Actions
+    module Assets
       class Public
         using Support::Refinements::String::Normalization
 

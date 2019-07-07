@@ -25,12 +25,12 @@ module Pakyow
 
       def load_pipeline_defaults(pipeline)
         if self.class.includes_framework?(:assets)
-          pipeline.action(Assets::Actions::Public, self)
-          pipeline.action(Assets::Actions::Process)
+          pipeline.action(Actions::Assets::Public, self)
+          pipeline.action(Actions::Assets::Process)
         end
 
         if self.class.includes_framework?(:realtime) && Pakyow.config.realtime.server && !is_a?(Plugin)
-          pipeline.action(Realtime::Actions::Upgrader)
+          pipeline.action(Actions::Realtime::Upgrader)
         end
 
         if self.class.includes_framework?(:routing) && !Pakyow.env?(:prototype)
@@ -46,11 +46,11 @@ module Pakyow
         end
 
         if self.class.includes_framework?(:presenter)
-          pipeline.action(Presenter::Actions::AutoRender)
+          pipeline.action(Actions::Presenter::AutoRender)
         end
 
         if self.class.includes_framework?(:routing) && !Pakyow.env?(:prototype) && !is_a?(Plugin)
-          pipeline.action(Routing::Actions::RespondMissing)
+          pipeline.action(Actions::Routing::RespondMissing)
         end
       end
     end

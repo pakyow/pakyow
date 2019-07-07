@@ -7,4 +7,4 @@ require "pakyow/validations"
 
 require "pakyow/routing/framework"
 
-require "pakyow/routing/actions/respond_missing"
+require "pakyow/actions/routing/respond_missing"

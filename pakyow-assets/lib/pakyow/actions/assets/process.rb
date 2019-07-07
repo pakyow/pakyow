@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module Pakyow
-  module Assets
-    module Actions
+  module Actions
+    module Assets
       # Pipeline Action that processes assets at request time.
       #
       # This is intended for development use, please don't use it in production.

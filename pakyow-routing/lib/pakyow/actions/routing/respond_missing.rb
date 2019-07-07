@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module Pakyow
-  module Routing
-    module Actions
+  module Actions
+    module Routing
       class RespondMissing
         def call(connection)
           connection.app.controller_for_connection(connection).trigger(404)

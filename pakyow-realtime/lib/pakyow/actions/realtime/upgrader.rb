@@ -5,8 +5,8 @@ require "pakyow/support/message_verifier"
 require "pakyow/realtime/websocket"
 
 module Pakyow
-  module Realtime
-    module Actions
+  module Actions
+    module Realtime
       class Upgrader
         def call(connection)
           if websocket?(connection)

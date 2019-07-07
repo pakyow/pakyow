@@ -11,8 +11,6 @@ require "pakyow/realtime/behavior/serialization"
 require "pakyow/realtime/behavior/server"
 require "pakyow/realtime/behavior/silencing"
 
-require "pakyow/realtime/actions/upgrader"
-
 require "pakyow/realtime/behavior/rendering/install_websocket"
 
 module Pakyow
