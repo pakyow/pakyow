@@ -68,5 +68,16 @@ export default [
       file: "dist/components/socket.js",
       format: "esm"
     }
+  },
+  {
+    input: "src/components/submitable",
+    plugins: [
+      node(), babel()
+    ],
+    output: {
+      extend: true,
+      file: "dist/components/submitable.js",
+      format: "esm"
+    }
   }
 ];
