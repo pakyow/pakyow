@@ -21,6 +21,7 @@ RSpec.describe "path building" do
         default
         get :foo, "/foo"
         get :bar, "/bar/:id"
+        get :slug, "/#:slug"
 
         namespace :internal, "/internal" do
           get :static, "#foo"
@@ -108,5 +109,9 @@ RSpec.describe "path building" do
 
   it "builds path to a route within an unnamed controller" do
     expect(call("/path/unnamed")[2]).to eq("/unnamed")
+  end
+
+  it "builds path to a route to a route with a hash" do
+    expect(call("/path/main_slug", params: { slug: "foo" })[2]).to eq("#foo")
   end
 end

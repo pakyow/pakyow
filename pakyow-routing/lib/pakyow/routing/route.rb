@@ -66,9 +66,9 @@ module Pakyow
         def initialize(route:, path:)
           @route, @path = route, path
           @params = String.normalize_path(File.join(@path.to_s, @route.path)).split("/").select { |segment|
-            segment.start_with?(":")
+            segment.include?(":")
           }.map { |segment|
-            segment[1..-1].to_sym
+            segment[(segment.index(":") + 1)..-1].to_sym
           }
         end
 
