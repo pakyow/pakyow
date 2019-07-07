@@ -57,7 +57,7 @@ module Pakyow
               String.normalize_path(path)[1..-1].gsub("/", "_").to_sym
             end
 
-            method = if context.is_a?(Class) && context.ancestors.include?(Pakyow::Controller)
+            method = if context.is_a?(Class) && context.ancestors.include?(Pakyow::Routing::Controller)
               :namespace
             else
               :controller

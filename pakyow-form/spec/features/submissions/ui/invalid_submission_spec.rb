@@ -58,7 +58,7 @@ RSpec.describe "submitting invalid form data via ui" do
     end
 
     it "does not reroute" do
-      expect_any_instance_of(Pakyow::Controller).to_not receive(:reroute)
+      expect_any_instance_of(Pakyow::Routing::Controller).to_not receive(:reroute)
       expect(call("/posts", method: :post, params: { :"pw-form" => sign(origin: "/posts/new", binding: "post:form") }, headers: { "Pw-Ui" => "true" })[0]).to be(400)
     end
 
@@ -97,7 +97,7 @@ RSpec.describe "submitting invalid form data via ui" do
 
   context "form submission is not present" do
     it "rejects the handling" do
-      expect_any_instance_of(Pakyow::Controller).to receive(:reject)
+      expect_any_instance_of(Pakyow::Routing::Controller).to receive(:reject)
       call("/posts", method: :post, headers: { "Pw-Ui" => "true" }).tap do |result|
         expect(result[0]).to be(400)
       end

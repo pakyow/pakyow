@@ -1,4 +1,4 @@
-RSpec.describe Pakyow::Controller do
+RSpec.describe Pakyow::Routing::Controller do
   let :env do
     {}
   end
@@ -18,7 +18,7 @@ RSpec.describe Pakyow::Controller do
   end
 
   let :controller do
-    Pakyow::Controller.new(call_state)
+    Pakyow::Routing::Controller.new(call_state)
   end
 
   before do
@@ -38,18 +38,18 @@ RSpec.describe Pakyow::Controller do
   describe ".method_missing" do
     context "when a template is available" do
       before do
-        Pakyow::Controller.template(:foo) do; end
+        Pakyow::Routing::Controller.template(:foo) do; end
       end
 
       it "expands the template" do
-        expect(Pakyow::Controller).to receive(:expand).with(:foo)
-        Pakyow::Controller.foo
+        expect(Pakyow::Routing::Controller).to receive(:expand).with(:foo)
+        Pakyow::Routing::Controller.foo
       end
     end
 
     context "when a template is unavailable" do
       it "fails" do
-        expect { Pakyow::Controller.bar }.to raise_error(NoMethodError)
+        expect { Pakyow::Routing::Controller.bar }.to raise_error(NoMethodError)
       end
     end
   end
@@ -57,17 +57,17 @@ RSpec.describe Pakyow::Controller do
   describe ".respond_to_missing?" do
     context "when a template is available" do
       before do
-        Pakyow::Controller.template(:foo) do; end
+        Pakyow::Routing::Controller.template(:foo) do; end
       end
 
       it "returns true" do
-        expect(Pakyow::Controller.respond_to_missing?(:foo)).to eq(true)
+        expect(Pakyow::Routing::Controller.respond_to_missing?(:foo)).to eq(true)
       end
     end
 
     context "when a template is unavailable" do
       it "returns false" do
-        expect(Pakyow::Controller.respond_to_missing?(:bar)).to eq(false)
+        expect(Pakyow::Routing::Controller.respond_to_missing?(:bar)).to eq(false)
       end
     end
   end

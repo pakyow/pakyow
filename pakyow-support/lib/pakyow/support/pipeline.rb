@@ -9,7 +9,7 @@ module Pakyow
     # can halt the pipeline, causing the result to be immediately returned without calling other
     # actions. State passed through the pipeline should include {Pipelined::Object}.
     #
-    # See {Pakyow::App} and {Pakyow::Controller} for examples of more complex pipelines.
+    # See {Pakyow::App} and {Pakyow::Routing::Controller} for examples of more complex pipelines.
     #
     # @example
     #   class App
