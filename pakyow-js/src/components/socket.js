@@ -1,5 +1,5 @@
 pw.define("socket", {
-  appear() {
+  constructor() {
     this.reconnectTimeout = this.currentReconnectTimeout = 500;
     this.reconnectDecay = 1.25;
 

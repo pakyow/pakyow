@@ -1,5 +1,5 @@
 pw.define("form", {
-  appear() {
+  constructor() {
     let $fields = this.view.query("input, textarea, button, select");
     let $focused;
 

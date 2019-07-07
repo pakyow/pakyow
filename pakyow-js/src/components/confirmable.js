@@ -1,5 +1,5 @@
 pw.define("confirmable", {
-  appear() {
+  constructor() {
     this.message = this.config.message || "Are you sure?";
 
     if (this.node.tagName === "FORM") {

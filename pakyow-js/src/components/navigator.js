@@ -1,5 +1,5 @@
 pw.define("navigator", {
-  appear() {
+  constructor() {
     this.headDetails = this.buildHeadDetails(document.head);
 
     if (window.location.hash) {
