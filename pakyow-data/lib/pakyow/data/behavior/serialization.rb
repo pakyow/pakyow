@@ -31,7 +31,8 @@ module Pakyow
             name: "#{config.name}-subscribers",
             path: File.join(
               Pakyow.config.root, "tmp", "state"
-            )
+            ),
+            logger: Pakyow.logger
           )
         end
       end

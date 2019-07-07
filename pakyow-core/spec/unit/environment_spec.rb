@@ -467,7 +467,7 @@ RSpec.describe Pakyow do
       before do
         allow(app_instance).to receive(:booted).and_raise(error)
         allow(error).to receive(:backtrace).and_return(backtrace)
-        allow(Pakyow::Support::Logging).to receive(:safe).and_yield(logger)
+        allow(Pakyow).to receive(:logger).and_return(logger)
       end
 
       let :error do

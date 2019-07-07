@@ -12,7 +12,6 @@ require "pakyow/support/configurable"
 require "pakyow/support/class_state"
 require "pakyow/support/deep_dup"
 require "pakyow/support/deep_freeze"
-require "pakyow/support/logging"
 require "pakyow/support/pipeline"
 require "pakyow/support/inflector"
 
@@ -371,13 +370,23 @@ module Pakyow
     def handle_boot_failure(error)
       @error = error
 
-      Support::Logging.safe do |logger|
-        logger.houston(error)
+      safe_logger do |logger|
+        if logger.respond_to?(:houston)
+          logger.houston(error)
+        else
+          logger.error(error)
+        end
       end
 
       if config.exit_on_boot_failure
         exit(false)
       end
+    end
+
+    require "logger"
+
+    def safe_logger
+      yield logger || ::Logger.new($stdout)
     end
   end
 end

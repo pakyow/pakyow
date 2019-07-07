@@ -21,13 +21,13 @@ RSpec.describe Pakyow::Support::Serializer do
 
   let :serializer do
     described_class.new(
-      serializable.new("foo"), name: "test", path: cache_path
+      serializable.new("foo"), name: "test", path: cache_path, logger: logger
     )
   end
 
   let :deserializer do
     described_class.new(
-      deserializable.new, name: "test", path: cache_path
+      deserializable.new, name: "test", path: cache_path, logger: logger
     )
   end
 
@@ -76,14 +76,8 @@ RSpec.describe Pakyow::Support::Serializer do
         RuntimeError.new
       end
 
-      it "safely logs the error" do
-        expect(Pakyow::Support::Logging).to receive(:yield_or_raise) do |error, &block|
-          expect(error).to be(error)
-
-          expect(logger).to receive(:error).with("[Serializer] failed to serialize `test': RuntimeError")
-          block.call(logger)
-        end
-
+      it "logs the error" do
+        expect(logger).to receive(:error).with("[Serializer] failed to serialize `test': RuntimeError")
         serializer.serialize
       end
     end
@@ -103,20 +97,15 @@ RSpec.describe Pakyow::Support::Serializer do
       context "deserialization fails" do
         before do
           expect(Marshal).to receive(:load).and_raise(error)
+          allow(logger).to receive(:error)
         end
 
         let :error do
           RuntimeError.new
         end
 
-        it "safely logs the error" do
-          expect(Pakyow::Support::Logging).to receive(:yield_or_raise) do |error, &block|
-            expect(error).to be(error)
-
-            expect(logger).to receive(:error).with("[Serializer] failed to deserialize `test': RuntimeError")
-            block.call(logger)
-          end
-
+        it "logs the error" do
+          expect(logger).to receive(:error).with("[Serializer] failed to deserialize `test': RuntimeError")
           serializer.deserialize
         end
 

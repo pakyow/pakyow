@@ -33,7 +33,8 @@ module Pakyow
             name: "#{config.name}-realtime",
             path: File.join(
               Pakyow.config.root, "tmp", "state"
-            )
+            ),
+            logger: Pakyow.logger
           )
         end
       end

@@ -27,7 +27,7 @@ RSpec.describe "persisting state on shutdown" do
 
       expect(Pakyow::Support::Serializer).to receive(:new).with(
         Pakyow.apps.first.data.subscribers.adapter,
-        name: "test-subscribers", path: cached_state_path
+        name: "test-subscribers", path: cached_state_path, logger: Pakyow.logger
       ).and_call_original
 
       Pakyow.apps.first.shutdown
@@ -42,7 +42,7 @@ RSpec.describe "persisting state on shutdown" do
       serializer = instance_double(Pakyow::Support::Serializer)
       expect(Pakyow::Support::Serializer).to receive(:new).with(
         instance_of(Pakyow::Data::Subscribers::Adapters::Memory),
-        name: "test-subscribers", path: cached_state_path
+        name: "test-subscribers", path: cached_state_path, logger: instance_of(Pakyow::Logger::ThreadLocal)
       ).and_return(serializer)
 
       expect(serializer).to receive(:deserialize)

@@ -2,17 +2,15 @@
 
 require "fileutils"
 
-require "pakyow/support/logging"
-
 module Pakyow
   module Support
     # Persists state for an object.
     #
     class Serializer
-      attr_reader :object, :name, :path
+      attr_reader :object, :name, :path, :logger
 
-      def initialize(object, name:, path:)
-        @object, @name, @path = object, name, path
+      def initialize(object, name:, path:, logger:)
+        @object, @name, @path, @logger = object, name, path, logger
       end
 
       def serialize
@@ -21,9 +19,7 @@ module Pakyow
           file.write(Marshal.dump(@object.serialize))
         end
       rescue => error
-        Logging.yield_or_raise(error) do |logger|
-          logger.error "[Serializer] failed to serialize `#{@name}': #{error}"
-        end
+        @logger.error "[Serializer] failed to serialize `#{@name}': #{error}"
       end
 
       def deserialize
@@ -34,9 +30,7 @@ module Pakyow
         end
       rescue => error
         FileUtils.rm(serialized_state_path)
-        Logging.yield_or_raise(error) do |logger|
-          logger.error "[Serializer] failed to deserialize `#{@name}': #{error}"
-        end
+        @logger.error "[Serializer] failed to deserialize `#{@name}': #{error}"
       end
 
       private
