@@ -10,7 +10,7 @@ module Pakyow
       class Upgrader
         def call(connection)
           if websocket?(connection)
-            WebSocket.new(connection.verifier.verify(connection.params[:id]), connection)
+            Pakyow::Realtime::WebSocket.new(connection.verifier.verify(connection.params[:id]), connection)
             connection.halt
           end
         rescue Support::MessageVerifier::TamperedMessage
