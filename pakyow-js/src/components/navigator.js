@@ -1,7 +1,16 @@
 pw.define("navigator", {
   appear() {
     this.headDetails = this.buildHeadDetails(document.head);
-    this.initialState = { url: document.location.href, scrollX: 0, scrollY: 0 };
+
+    if (window.location.hash) {
+      this.scrollToHash(window.location.hash);
+    }
+
+    this.initialState = {
+      url: document.location.href,
+      scrollX: window.pageXOffset,
+      scrollY: window.pageYOffset
+    };
 
     if ("scrollRestoration" in window.history) {
       history.scrollRestoration = "manual";
@@ -35,11 +44,17 @@ pw.define("navigator", {
     if (window.history && this.isInternal(url)) {
       this.saveScrollPosition();
 
-      var state = { url: url, scrollX: 0, scrollY: 0 };
+      var state = {
+        url: url,
+        scrollX: window.pageXOffset,
+        scrollY: window.pageYOffset
+      };
 
       if (this.isCurrent(url)) {
         if (this.isHashChange(url)) {
-          return window.history.replaceState(state, "", url);
+          window.history.replaceState(state, "", url);
+          this.scrollToHash(window.location.hash);
+          return;
         } else {
           return;
         }
@@ -223,6 +238,19 @@ pw.define("navigator", {
     } else {
       this.initialState.scrollX = window.pageXOffset;
       this.initialState.scrollY = window.pageYOffset;
+    }
+  },
+
+  scrollToHash(hash) {
+    let $element = document.querySelector(hash);
+
+    if ($element) {
+      let bounding = $element.getBoundingClientRect()
+
+      window.scrollTo(
+        0 + window.scrollX + parseInt(this.config.offsetX),
+        bounding.top + window.scrollY + parseInt(this.config.offsetY)
+      );
     }
   }
 });
