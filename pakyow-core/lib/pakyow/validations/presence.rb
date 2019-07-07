@@ -15,8 +15,6 @@ module Pakyow
     #
     # @api public
     module Presence
-      WHITESPACE_ONLY = /^\s*$/
-
       def self.name
         :presence
       end
@@ -27,7 +25,7 @@ module Pakyow
 
       def self.valid?(value, **)
         if value.is_a?(String)
-          !value.match?(WHITESPACE_ONLY)
+          !value.strip.empty?
         elsif value.respond_to?(:empty?)
           !value.empty?
         else

@@ -39,6 +39,12 @@ RSpec.describe Pakyow::Validations::Presence do
     end
   end
 
+  context "value is a string containing line breaks" do
+    it "is invalid" do
+      expect(described_class.valid?("foo\r\nbar")).to be true
+    end
+  end
+
   context "value is nil" do
     it "is invalid" do
       expect(described_class.valid?(nil)).to be false
