@@ -48,13 +48,13 @@ export default [
     }
   },
   {
-    input: "src/components/navigable",
+    input: "src/components/navigator",
     plugins: [
       node(), babel()
     ],
     output: {
       extend: true,
-      file: "dist/components/navigable.js",
+      file: "dist/components/navigator.js",
       format: "esm"
     }
   },

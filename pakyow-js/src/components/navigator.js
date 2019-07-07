@@ -1,4 +1,4 @@
-pw.define("navigable", {
+pw.define("navigator", {
   appear() {
     this.headDetails = this.buildHeadDetails(document.head);
     this.initialState = { url: document.location.href, scrollX: 0, scrollY: 0 };
