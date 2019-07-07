@@ -31,7 +31,7 @@ RSpec.describe "using endpoints defined in plugins" do
 
       expect(response_body).to include_sans_whitespace(
         <<~HTML
-          <a data-e="@testable.root" href="/" class="active">
+          <a data-e="@testable.root" href="/" class="ui-active">
             test endpoint
           </a>
         HTML

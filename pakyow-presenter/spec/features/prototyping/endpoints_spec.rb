@@ -27,7 +27,7 @@ RSpec.describe "presenting prototypes that define endpoints" do
     it "sets a current class" do
       expect(call("/prototyping/endpoints/current")[2]).to eq_sans_whitespace(
         <<~HTML
-          <a href="/prototyping/endpoints/current" data-e="posts_list" class="current"></a>
+          <a href="/prototyping/endpoints/current" data-e="posts_list" class="ui-current"></a>
         HTML
       )
     end
@@ -37,7 +37,7 @@ RSpec.describe "presenting prototypes that define endpoints" do
     it "sets an active class" do
       expect(call("/prototyping/endpoints/current_within_binding")[2]).to include_sans_whitespace(
         <<~HTML
-          <a href="/prototyping/endpoints/current" data-e="posts_list" class="active"></a>
+          <a href="/prototyping/endpoints/current" data-e="posts_list" class="ui-active"></a>
         HTML
       )
     end
@@ -47,7 +47,7 @@ RSpec.describe "presenting prototypes that define endpoints" do
     it "sets an active class" do
       expect(call("/prototyping/endpoints/current_binding_prop")[2]).to include_sans_whitespace(
         <<~HTML
-          <a data-b="title" href="/prototyping/endpoints/current" data-e="posts_list" class="active"></a>
+          <a data-b="title" href="/prototyping/endpoints/current" data-e="posts_list" class="ui-active"></a>
         HTML
       )
     end

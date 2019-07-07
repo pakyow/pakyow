@@ -43,7 +43,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
         expect(call("/posts")[2]).to include_sans_whitespace(
           <<~HTML
             <div data-b="post">
-              <a data-b="title" data-e="posts_list" href="/posts" class="current">foo</a>
+              <a data-b="title" data-e="posts_list" href="/posts" class="ui-current">foo</a>
             </div>
           HTML
         )

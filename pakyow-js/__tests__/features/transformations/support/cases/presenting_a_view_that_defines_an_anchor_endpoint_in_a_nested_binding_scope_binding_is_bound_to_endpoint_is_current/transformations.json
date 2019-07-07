@@ -219,7 +219,7 @@
                       [
                         "add",
                         [
-                          "current"
+                          "ui-current"
                         ],
                         [
 

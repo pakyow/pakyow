@@ -230,7 +230,7 @@
                       [
                         "add",
                         [
-                          "active"
+                          "ui-active"
                         ],
                         [
 

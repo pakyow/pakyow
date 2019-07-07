@@ -76,9 +76,9 @@ module Pakyow
             if endpoint_action_presenter.attributes.has?(:href)
               endpoint_path = __endpoint[:path].to_s
               if endpoint_path == endpoint_action_presenter.attributes[:href]
-                attributes[:class].add(:current)
+                attributes[:class].add(:"ui-current")
               elsif endpoint_path.start_with?(endpoint_action_presenter.attributes[:href])
-                attributes[:class].add(:active)
+                attributes[:class].add(:"ui-active")
               end
             end
           when "form"

@@ -174,7 +174,7 @@
                       [
                         "add",
                         [
-                          "current"
+                          "ui-current"
                         ],
                         [
 
@@ -291,7 +291,7 @@
                       [
                         "add",
                         [
-                          "current"
+                          "ui-current"
                         ],
                         [
 

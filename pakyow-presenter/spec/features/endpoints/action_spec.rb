@@ -55,7 +55,7 @@ RSpec.describe "presenting a view that defines an endpoints with an action" do
             <a href="/posts/1" data-e-a="">view post</a>
           </div>
 
-          <div data-b="post" data-e="posts_show" data-id="2" class="current">
+          <div data-b="post" data-e="posts_show" data-id="2" class="ui-current">
             <h1 data-b="title">bar</h1>
             <a href="/posts/2" data-e-a="">view post</a>
           </div>

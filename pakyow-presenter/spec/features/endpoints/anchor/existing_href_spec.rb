@@ -28,7 +28,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint with an existi
       it "receives a current class" do
         expect(call("/presentation/endpoints/anchor/existing_href/prototype")[2]).to include_sans_whitespace(
           <<~HTML
-            <a href="/presentation/endpoints/anchor/existing_href/prototype" data-e="posts_nonexistent" class="current"></a>
+            <a href="/presentation/endpoints/anchor/existing_href/prototype" data-e="posts_nonexistent" class="ui-current"></a>
           HTML
         )
       end

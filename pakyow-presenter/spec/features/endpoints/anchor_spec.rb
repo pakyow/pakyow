@@ -27,7 +27,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint" do
     it "receives a current class" do
       expect(call("/posts")[2]).to eq_sans_whitespace(
         <<~HTML
-          <a href="/posts" data-e="posts_list" class="current"></a>
+          <a href="/posts" data-e="posts_list" class="ui-current"></a>
         HTML
       )
     end
@@ -37,7 +37,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint" do
     it "receives an active class" do
       expect(call("/posts/1")[2]).to eq_sans_whitespace(
         <<~HTML
-          <a href="/posts" data-e="posts_list" class="active"></a>
+          <a href="/posts" data-e="posts_list" class="ui-active"></a>
         HTML
       )
     end
