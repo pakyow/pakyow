@@ -118,7 +118,7 @@ module Pakyow
                 when Object
                   if association.result_type == :one
                     if association_value.originating_source
-                      if association_value.originating_source == association.associated_source
+                      if association_value.originating_source.__object_name.name == association.associated_source.__object_name.name
                         if association.associated_source.instance.send(:"by_#{association.associated_source.primary_key_field}", association_value[association.associated_source.primary_key_field]).count == 0
                           raise ConstraintViolation.new_with_message(
                             :associate_missing,
