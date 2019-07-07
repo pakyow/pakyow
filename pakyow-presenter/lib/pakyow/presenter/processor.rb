@@ -52,6 +52,8 @@ module Pakyow
       end
 
       def process(content, extension)
+        content = content.to_s
+
         processors_for_extension(extension).each do |processor|
           content = processor.call(content)
         end
