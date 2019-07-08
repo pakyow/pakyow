@@ -61,5 +61,39 @@ RSpec.describe "reflected resource create action" do
         }
       end
     end
+
+    context "list is defined" do
+      let :reflected_app_def do
+        Proc.new do
+          resource :posts, "/posts" do
+            resource :comments, "/comments" do
+              list
+            end
+          end
+        end
+      end
+
+      it "redirects to list" do
+        expect(response[0]).to eq(302)
+        expect(response[1]["location"].to_s).to eq("/posts/1/comments")
+      end
+    end
+
+    context "show is defined" do
+      let :reflected_app_def do
+        Proc.new do
+          resource :posts, "/posts" do
+            resource :comments, "/comments" do
+              show
+            end
+          end
+        end
+      end
+
+      it "redirects to show" do
+        expect(response[0]).to eq(302)
+        expect(response[1]["location"].to_s).to eq("/posts/1/comments/1")
+      end
+    end
   end
 end

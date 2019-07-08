@@ -172,11 +172,11 @@ module Pakyow
         def reflected_destination
           with_reflected_action do |reflected_action|
             if connection.form && origin = connection.form[:origin]
-              if instance_variable_defined?(:@object) && origin == "/#{reflected_action.scope.plural_name}/new"
-                if self.class.routes[:get].any? { |route| route.name == :show }
-                  path(:"#{reflected_action.scope.plural_name}_show", @object.one.to_h)
-                elsif self.class.routes[:get].any? { |route| route.name == :list }
-                  path(:"#{reflected_action.scope.plural_name}_list")
+              if instance_variable_defined?(:@object)
+                if route = self.class.routes[:get].find { |route| route.name == :show }
+                  route.build_path(self.class.path_to_self, params.merge(@object.one.to_h))
+                elsif route = self.class.routes[:get].find { |route| route.name == :list }
+                  route.build_path(self.class.path_to_self, params)
                 else
                   origin
                 end
