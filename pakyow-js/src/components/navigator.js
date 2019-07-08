@@ -288,10 +288,10 @@ pw.define("navigator:progress", {
   },
 
   show() {
-    this.node.style.opacity = 1.0;
+    this.node.classList.remove("ui-invisible");
   },
 
   hide() {
-    this.node.style.opacity = 0.0;
+    this.node.classList.add("ui-invisible");
   }
 });
