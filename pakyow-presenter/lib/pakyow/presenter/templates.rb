@@ -140,7 +140,7 @@ module Pakyow
 
           begin
             if page = page_at_path(path)
-              @info[File.join(@config[:prefix], normalize_path(path, pages_path))] = {
+              @info[String.normalize_path(File.join(@config[:prefix], normalize_path(path, pages_path)))] = {
                 page: page,
                 layout: layout_with_name(page.info(:layout)),
                 partials: @includes.merge(partials_at_path(path))
