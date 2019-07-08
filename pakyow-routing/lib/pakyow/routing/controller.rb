@@ -431,14 +431,14 @@ module Pakyow
           data = file_or_data
 
           if file_or_data.is_a?(File)
-            @connection.set_header(Rack::CONTENT_LENGTH, file_or_data.size)
-            type ||= Rack::Mime.mime_type(File.extname(file_or_data.path))
+            @connection.set_header("content-length", file_or_data.size)
+            type ||= MiniMime.lookup_by_filename(file_or_data.path)&.content_type.to_s
           end
 
-          @connection.set_header(Rack::CONTENT_TYPE, type || DEFAULT_SEND_TYPE)
+          @connection.set_header("content-type", type || DEFAULT_SEND_TYPE)
         elsif file_or_data.is_a?(String)
-          @connection.set_header(Rack::CONTENT_LENGTH, file_or_data.bytesize)
-          @connection.set_header(Rack::CONTENT_TYPE, type) if type
+          @connection.set_header("content-length", file_or_data.bytesize)
+          @connection.set_header("content-type", type) if type
           data = StringIO.new(file_or_data)
         else
           raise ArgumentError, "expected an IO or String object"
