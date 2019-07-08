@@ -30,8 +30,9 @@ module Pakyow
                 "dist/components/confirmable.js",
                 "dist/components/form.js",
                 "dist/components/freshener.js",
-                "dist/components/navigable.js",
-                "dist/components/socket.js"
+                "dist/components/navigator.js",
+                "dist/components/socket.js",
+                "dist/components/submitable.js"
               ]
             end
 
