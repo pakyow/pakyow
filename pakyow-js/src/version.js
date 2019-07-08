@@ -1,1 +1,1 @@
-export default "1.0.0-alpha.17";
+export default "1.0.0-rc.1";
