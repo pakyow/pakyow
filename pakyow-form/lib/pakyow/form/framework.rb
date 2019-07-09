@@ -34,20 +34,27 @@ module Pakyow
 
           handle InvalidData, as: :bad_request do |error|
             if connection.form && connection.form.include?(:origin)
-              errors = error.result.messages.flat_map { |type, messages|
-                case messages
-                when Array
-                  messages.map { |type_message|
-                    { field: type, message: "#{Support.inflector.humanize(type)} #{type_message}" }
-                  }
-                when Hash
-                  messages.flat_map { |field, field_messages|
-                    field_messages.map { |field_message|
-                      { field: field, message: "#{Support.inflector.humanize(field)} #{field_message}" }
+              errors = case error.result.messages
+              when Array
+                error.result.messages.map { |message|
+                  { message: message }
+                }
+              when Hash
+                error.result.messages.flat_map { |type, messages|
+                  case messages
+                  when Array
+                    messages.map { |type_message|
+                      { field: type, message: "#{Support.inflector.humanize(type)} #{type_message}" }
                     }
-                  }
-                end
-              }
+                  when Hash
+                    messages.flat_map { |field, field_messages|
+                      field_messages.map { |field_message|
+                        { field: field, message: "#{Support.inflector.humanize(field)} #{field_message}" }
+                      }
+                    }
+                  end
+                }
+              end
 
               if app.class.includes_framework?(:ui) && ui?
                 data.ephemeral(:errors, form_id: connection.form[:id]).set(errors)
