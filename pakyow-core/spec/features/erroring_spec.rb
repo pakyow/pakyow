@@ -97,6 +97,20 @@ RSpec.describe "handling errors when calling the environment" do
       it "lets the controller handle the error" do
         expect(call("/")[2]).to eq("handled: something went wrong")
       end
+
+      context "connection does not get created" do
+        before do
+          expect(Test::App::Connection).to receive(:new) do
+            fail
+          end
+
+          expect(Pakyow.app(:test)).not_to receive(:controller_for_connection)
+        end
+
+        it "lets the app handle the error" do
+          expect(call("/")[2]).to eq("500 Server Error")
+        end
+      end
     end
   end
 end
