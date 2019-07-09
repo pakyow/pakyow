@@ -220,7 +220,7 @@ module Pakyow
       def load_view_of_type_at_path(type, path, logical_path = nil)
         extension = File.extname(path)
 
-        if extension.end_with?(".html") || @processor.process?(extension)
+        if extension.end_with?(".html") || @processor&.process?(extension)
           content = File.read(path)
           info, content = FrontMatterParser.parse_and_scrub(content)
 
