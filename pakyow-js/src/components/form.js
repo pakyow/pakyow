@@ -1,7 +1,7 @@
 pw.define("form", {
   constructor() {
-    let $fields = this.view.query("input, textarea, button, select");
-    let $focused;
+    this.$fields = this.view.query("input, textarea, button, select");
+    this.$focused;
 
     // Set the element currently in focus to be refocused later.
     //
@@ -12,25 +12,21 @@ pw.define("form", {
     // Set all fields as disabled.
     //
     this.enter("submitting", () => {
-      $fields.forEach((view) => {
-        view.node.disabled = true;
-      });
+      this.disable();
     });
 
-    // Reenable all fields.
+    // Reenable all fields when the form errors.
     //
-    this.leave("submitting", () => {
-      $fields.forEach((view) => {
-        view.node.disabled = false;
-      });
+    this.enter("failed", () => {
+      this.reenable();
     });
 
-    // Refocus on the element in focus ahead of submitting.
+    // Refocus on the element that was in focus before form was submitted.
     //
-    this.leave("submitting", () => {
-      if ($focused) {
-        $focused.focus();
-        $focused = null;
+    this.enter("failed", () => {
+      if (this.$focused) {
+        this.$focused.focus();
+        this.$focused = null;
       }
     });
 
@@ -43,17 +39,24 @@ pw.define("form", {
         event.preventDefault();
         event.stopImmediatePropagation();
 
+        let formData = new FormData(this.node);
+        this.transition("submitting");
+
         // Submit the form in the background.
         //
         pw.send(this.node.action, {
           method: this.node.method,
-          data: new FormData(this.node),
+          data: formData,
           success: (xhr) => {
-            this.node.reset();
             this.transition("succeeded", xhr);
 
             if (typeof this.config.handle_success === "undefined" || this.config.handle_success === "true") {
-              pw.ui.visit(xhr.responseURL, xhr);
+              if (xhr.responseURL === window.location.href) {
+                this.node.reset();
+                this.reenable();
+              } else {
+                pw.ui.visit(xhr.responseURL, xhr);
+              }
             }
           },
           error: (xhr) => {
@@ -65,6 +68,18 @@ pw.define("form", {
       } else {
         // submit normally
       }
+    });
+  },
+
+  disable() {
+    this.$fields.forEach((view) => {
+      view.node.disabled = true;
+    });
+  },
+
+  reenable() {
+    this.$fields.forEach((view) => {
+      view.node.disabled = false;
     });
   }
 });
