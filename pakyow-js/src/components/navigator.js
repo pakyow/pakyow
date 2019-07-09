@@ -31,7 +31,7 @@ pw.define("navigator", {
 
       let link = event.target.closest("a");
 
-      if (link) {
+      if (link && link.target !== "_blank") {
         event.preventDefault();
         this.visit(link.href);
       }
