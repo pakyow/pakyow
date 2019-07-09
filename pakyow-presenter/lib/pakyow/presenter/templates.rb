@@ -109,8 +109,9 @@ module Pakyow
         @layouts = if File.exist?(layouts_path)
           layouts_path.children.each_with_object({}) { |file, layouts|
             next unless template?(file)
-            layout = load_view_of_type_at_path(Views::Layout, file)
-            layouts[layout.name] = layout
+            if layout = load_view_of_type_at_path(Views::Layout, file)
+              layouts[layout.name] = layout
+            end
           }
         else
           {}
@@ -121,8 +122,9 @@ module Pakyow
         @includes = if File.exist?(partials_path)
           partials_path.children.each_with_object({}) { |file, partials|
             next unless template?(file)
-            partial = load_view_of_type_at_path(Views::Partial, file, normalize_path(file))
-            partials[partial.name] = partial
+            if partial = load_view_of_type_at_path(Views::Partial, file, normalize_path(file))
+              partials[partial.name] = partial
+            end
           }
         else
           {}
@@ -208,21 +210,28 @@ module Pakyow
           parent_path.children.select { |child|
             child.basename.to_s.start_with?("_")
           }.each_with_object(partials) { |child, child_partials|
-            partial = load_view_of_type_at_path(Views::Partial, child, normalize_path(child))
-            child_partials[partial.name] ||= partial
+            if partial = load_view_of_type_at_path(Views::Partial, child, normalize_path(child))
+              child_partials[partial.name] ||= partial
+            end
           }
         }
       end
 
       def load_view_of_type_at_path(type, path, logical_path = nil)
-        content = File.read(path)
-        info, content = FrontMatterParser.parse_and_scrub(content)
+        extension = File.extname(path)
 
-        if @processor
-          content = @processor.process(content, File.extname(path).delete(".").to_sym)
+        if extension.end_with?(".html") || @processor.process?(extension)
+          content = File.read(path)
+          info, content = FrontMatterParser.parse_and_scrub(content)
+
+          if @processor
+            content = @processor.process(content, extension.delete(".").to_sym)
+          end
+
+          type.load(path, info: info, content: content, logical_path: logical_path)
+        else
+          nil
         end
-
-        type.load(path, info: info, content: content, logical_path: logical_path)
       end
     end
   end

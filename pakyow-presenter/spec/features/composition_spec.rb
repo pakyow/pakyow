@@ -72,6 +72,35 @@ RSpec.describe "view template composition via presenter" do
       expect(response[2]).to eq_sans_whitespace("<!DOCTYPE html>\n<html>\n  <head>\n    <title>default</title>\n  </head>\n\n  <body>\n    foo partial\n\n\n  </body>\n</html>\n")
     end
 
+    context "partial file is defined for a non-processable type" do
+      let :app_init do
+        Proc.new do
+          processor :md do |content|
+            "md: #{content}"
+          end
+        end
+      end
+
+      it "composes the processable type" do
+        response = call("/partials/processable")
+        expect(response[0]).to eq(200)
+        expect(response[2]).to eq_sans_whitespace(
+          <<~HTML
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <title>default</title>
+              </head>
+
+              <body>
+                md: markdown
+              </body>
+            </html>
+          HTML
+        )
+      end
+    end
+
     context "partial includes a partial" do
       it "composes the partial into the partial" do
         response = call("/partials/deep")
