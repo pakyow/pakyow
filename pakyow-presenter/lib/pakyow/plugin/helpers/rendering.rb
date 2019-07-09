@@ -9,8 +9,21 @@ module Pakyow
         extend Support::Extension
 
         prepend_methods do
-          def render(path = @connection.get(:__endpoint_path) || @connection.path, *args)
-            super(File.join(@connection.app.class.mount_path, path), *args)
+          def render(view_path = nil, as: nil, modes: [:default])
+            super(File.join(@connection.app.class.mount_path, view_path), as: as, modes: modes)
+          rescue Presenter::UnknownPage
+            # Try rendering the view from the app.
+            #
+            connection = @connection.app.parent.isolated(:Connection).from_connection(
+              @connection, :@app => @connection.app.parent
+            )
+
+            connection.app.isolated(:Renderer).render(
+              connection,
+              view_path: view_path,
+              presenter_path: as,
+              modes: modes
+            )
           end
         end
       end

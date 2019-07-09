@@ -5,4 +5,8 @@ controller :root, "/test-plugin" do
 
   get "/render/implicit" do
   end
+
+  get "/render/app" do
+    render "/app-only"
+  end
 end
