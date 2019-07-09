@@ -12,9 +12,11 @@ RSpec.shared_examples :connection_params do
           body
         )
 
-        connection.input_parser = Proc.new do |input, connection|
-          connection.params.add("baz", "qux")
-        end
+        connection.input_parser = {
+          block: Proc.new { |input, connection|
+            connection.params.add("baz", "qux")
+          }
+        }
       end
 
       let :body do
@@ -27,9 +29,11 @@ RSpec.shared_examples :connection_params do
 
       context "input params conflict with query params" do
         before do
-          connection.input_parser = Proc.new do |input, connection|
-            connection.params.add("foo", "input_bar")
-          end
+          connection.input_parser = {
+            block: Proc.new { |input, connection|
+              connection.params.add("foo", "input_bar")
+            }
+          }
         end
 
         it "prioritizes the input param" do

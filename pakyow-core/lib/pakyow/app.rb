@@ -188,8 +188,8 @@ module Pakyow
       app_connection = isolated(:Connection).new(self, connection)
       super(app_connection)
     rescue => error
-      if respond_to?(:controller_for_connection)
-        controller_for_connection(app_connection).handle_error(error)
+      if respond_to?(:controller_for_connection) && controller = controller_for_connection(app_connection)
+        controller.handle_error(error)
       else
         raise error
       end

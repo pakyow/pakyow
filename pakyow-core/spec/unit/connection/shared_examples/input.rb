@@ -18,11 +18,13 @@ RSpec.shared_examples :connection_input do
   describe "#parsed_input" do
     context "input parser is defined" do
       before do
-        connection.input_parser = Proc.new do |*args|
-          args[0].read
-          @input_parser_args = args
-          "foo"
-        end
+        connection.input_parser = {
+          block: Proc.new { |*args|
+            args[0].read
+            @input_parser_args = args
+            "foo"
+          }
+        }
       end
 
       it "calls the input parser" do
@@ -51,10 +53,12 @@ RSpec.shared_examples :connection_input do
       before do
         @calls = []
 
-        connection.input_parser = Proc.new do |*args|
-          @calls << :called
-          "foo"
-        end
+        connection.input_parser = {
+          block: Proc.new { |*args|
+            @calls << :called
+            "foo"
+          }
+        }
 
         connection.parsed_input
         connection.parsed_input

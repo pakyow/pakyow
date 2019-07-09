@@ -29,7 +29,7 @@ module Pakyow
               ).parse(input)
             end
 
-            Pakyow.parse_input "application/json" do |input, connection|
+            Pakyow.parse_input "application/json", rewindable: true do |input, connection|
               values = JSON.parse(input.read)
 
               if values.is_a?(Hash)
@@ -44,8 +44,11 @@ module Pakyow
         end
 
         class_methods do
-          def parse_input(type, &block)
-            @input_parsers[type] = block
+          def parse_input(type, rewindable: true, &block)
+            @input_parsers[type] = {
+              block: block,
+              rewindable: rewindable
+            }
           end
         end
       end

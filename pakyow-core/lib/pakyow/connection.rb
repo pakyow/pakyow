@@ -6,6 +6,8 @@ require "securerandom"
 require "async/http"
 require "async/http/protocol/response"
 
+require "protocol/http/body/rewindable"
+
 require "mini_mime"
 
 require "pakyow/support/deep_dup"
@@ -494,8 +496,14 @@ module Pakyow
 
     def parse_input
       if instance_variable_defined?(:@input_parser) && input
-        @input_parser.call(input, self).tap do
-          input.rewind if input.respond_to?(:rewind)
+        if @input_parser[:rewindable]
+          request.body = Async::HTTP::Body::Rewindable.new(request.body)
+        end
+
+        @input_parser[:block].call(input, self).tap do
+          if input.respond_to?(:rewind)
+            input.rewind
+          end
         end
       else
         nil

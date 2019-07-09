@@ -7,14 +7,31 @@ RSpec.describe "parsing requests" do
 
   let :action do
     Proc.new do |connection|
-      connection.body = StringIO.new(Marshal.dump(input: connection.parsed_input, params: connection.params))
+      connection.body = StringIO.new(
+        Marshal.dump(
+          input: connection.parsed_input,
+          params: connection.params,
+          rewindable: connection.request.body.respond_to?(:rewind)
+        )
+      )
     end
   end
 
   context "content type is application/json" do
+    let :result do
+      Marshal.load(call("/", method: :post, input: StringIO.new(["foo", "bar"].to_json), headers: { "content-type" => "application/json" })[2])
+    end
+
     it "parses the input" do
-      result = call("/", method: :post, input: StringIO.new(["foo", "bar"].to_json), headers: { "content-type" => "application/json" })
-      expect(Marshal.load(result[2])).to eq(input: ["foo", "bar"], params: {})
+      expect(result[:input]).to eq(["foo", "bar"])
+    end
+
+    it "sets the params" do
+      expect(result[:params]).to eq({})
+    end
+
+    it "it makes the request body rewindable" do
+      expect(result[:rewindable]).to eq(true)
     end
 
     context "json is a hash" do

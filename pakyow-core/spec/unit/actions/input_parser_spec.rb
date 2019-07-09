@@ -15,7 +15,8 @@ RSpec.describe Pakyow::Actions::InputParser do
           StringIO.new(body)
         ), body.bytesize
       ),
-      headers: { "content-type" => "text/foo" }
+      headers: { "content-type" => "text/foo" },
+      :body= => nil
     )
   end
 
