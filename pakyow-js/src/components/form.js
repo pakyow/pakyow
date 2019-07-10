@@ -51,11 +51,9 @@ pw.define("form", {
             this.transition("succeeded", xhr);
 
             if (typeof this.config.handle_success === "undefined" || this.config.handle_success === "true") {
-              if (xhr.responseURL === window.location.href) {
+              if (!pw.ui.visit(xhr.responseURL, xhr)) {
                 this.node.reset();
                 this.reenable();
-              } else {
-                pw.ui.visit(xhr.responseURL, xhr);
               }
             }
           },

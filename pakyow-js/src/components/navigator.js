@@ -67,6 +67,8 @@ pw.define("navigator", {
       } else {
         this.load(state);
       }
+
+      return true;
     } else {
       document.location = url;
     }
