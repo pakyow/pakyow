@@ -56,7 +56,7 @@ RSpec.describe "attaching transforms to a presenter" do
     let :app_init do
       Proc.new do
         presenter "/presentation/transforms" do
-          render node: -> { find(:post).versions[0] } do
+          render node: -> { find(:post) } do
             bind(title: "test")
           end
         end

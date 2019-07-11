@@ -177,7 +177,14 @@ class StringDoc
     return enum_for(:each, descend: descend) unless block_given?
 
     @nodes.each do |node|
-      yield node
+      case node
+      when MetaNode
+        node.each do |each_meta_node|
+          yield each_meta_node
+        end
+      else
+        yield node
+      end
 
       if descend || node.label(:descend) != false
         if node.children.is_a?(StringDoc)
@@ -195,7 +202,18 @@ class StringDoc
     return enum_for(:each_significant_node, type, descend: descend) unless block_given?
 
     each(descend: descend) do |node|
-      yield node if (node.is_a?(Node) || node.is_a?(MetaNode)) && node.significant?(type)
+      case node
+      when MetaNode
+        if node.significant?(type)
+          node.each do |each_meta_node|
+            yield each_meta_node
+          end
+        end
+      when Node
+        if node.significant?(type)
+          yield node
+        end
+      end
     end
   end
 
@@ -207,7 +225,14 @@ class StringDoc
     @nodes.each do |node|
       if node.is_a?(Node) || node.is_a?(MetaNode)
         if node.significant?(type)
-          yield node
+          case node
+          when MetaNode
+            node.each do |each_meta_node|
+              yield each_meta_node
+            end
+          when Node
+            yield node
+          end
         else
           if descend || node.label(:descend) != false
             if node.children.is_a?(StringDoc)
@@ -367,7 +392,7 @@ class StringDoc
   def remove_node(node_to_delete)
     tap do
       @nodes.delete_if { |node|
-        node.object_id == node_to_delete.object_id
+        node.equal?(node_to_delete)
       }
     end
   end

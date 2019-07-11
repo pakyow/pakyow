@@ -12,10 +12,9 @@ module Pakyow
 
       attr_reader :names
 
-      def initialize(versions)
-        @versions = versions
-        @names = self.versions.map { |versioned_view| versioned_view.label(:version) }
-        determine_working_version
+      def initialize(view)
+        __setobj__(view)
+        @names = view.object.nodes.map { |node| node.label(:version) }
         @used = false
       end
 
@@ -24,21 +23,14 @@ module Pakyow
 
         @versions = @versions.map(&:dup)
         @names = @names.map(&:dup)
-        determine_working_version
       end
 
       # @api private
       def soft_copy
         instance = self.class.allocate
-
-        instance.instance_variable_set(:@versions, @versions.map { |version|
-          version.soft_copy
-        })
-
+        instance.__setobj__(__getobj__.soft_copy)
         instance.instance_variable_set(:@names, @names)
         instance.instance_variable_set(:@used, @used)
-        instance.send(:determine_working_version)
-
         instance
       end
 
@@ -51,17 +43,8 @@ module Pakyow
       # Returns the view matching +version+.
       #
       def versioned(version)
-        if versioned = version_named(version.to_sym)
-          case versioned.object
-          when StringDoc::MetaNode
-            node = versioned.object.nodes.find { |n|
-              version == (n.label(:version) || DEFAULT_VERSION).to_sym
-            }
-
-            View.from_object(node)
-          else
-            versioned
-          end
+        if node = version_named(version.to_sym)
+          View.from_object(node)
         else
           nil
         end
@@ -72,67 +55,25 @@ module Pakyow
       def use(version)
         version = version.to_sym
 
-        tap do
-          if view = version_named(version)
-            case view.object
-            when StringDoc::MetaNode
-              versioned_node = view.object.internal_nodes.find { |node|
-                version == (node.label(:version) || DEFAULT_VERSION).to_sym
-              }
-
-              versioned_node.set_label(:versioned, true)
-            else
-              view.object.set_label(:versioned, true)
-            end
-
-            self.versioned_view = view
-
-            cleanup
-          else
-            cleanup(all: true)
-          end
-        end
-      end
-
-      def transform(object)
-        @versions.each do |version|
-          version.transform(object)
+        if node = version_named(version)
+          node.set_label(:versioned, true)
+          cleanup
+        else
+          cleanup(all: true)
         end
 
-        yield self, object if block_given?
-      end
-
-      def bind(object)
-        @versions.each do |version|
-          version.bind(object)
-        end
-
-        yield self, object if block_given?
+        self
       end
 
       def used?
-        @versions.any? { |versioned_view|
-          case versioned_view.object
-          when StringDoc::MetaNode
-            versioned_view.object.nodes.any? { |node|
-              node.labeled?(:versioned)
-            }
-          else
-            versioned_view.object.labeled?(:versioned)
-          end
+        __getobj__.object.internal_nodes.any? { |node|
+          node.labeled?(:versioned)
         }
       end
 
       def versions
-        @versions.each_with_object([]) { |versioned_view, versions|
-          case versioned_view.object
-          when StringDoc::MetaNode
-            versioned_view.object.nodes.each do |node|
-              versions << View.from_object(node)
-            end
-          else
-            versions << versioned_view
-          end
+        __getobj__.object.nodes.map { |node|
+          View.from_object(node)
         }
       end
 
@@ -146,64 +87,24 @@ module Pakyow
 
       def cleanup(all: false)
         if all
-          while version = @versions.shift
-            version.remove
-          end
+          remove
         else
-          versions_to_remove = []
+          nodes_to_remove = []
 
-          @versions.each do |versioned_view|
-            case versioned_view.object
-            when StringDoc::MetaNode
-              nodes_to_remove = []
-
-              versioned_view.object.internal_nodes.each do |node|
-                if !node.is_a?(StringDoc::MetaNode) && !node.labeled?(:versioned)
-                  nodes_to_remove << node
-                end
-              end
-
-              nodes_to_remove.each(&:remove)
-            else
-              unless versioned_view.object.labeled?(:versioned)
-                versions_to_remove << versioned_view
-              end
+          __getobj__.object.internal_nodes.each do |node|
+            unless node.is_a?(StringDoc::MetaNode) || node.labeled?(:versioned)
+              nodes_to_remove << node
             end
           end
 
-          versions_to_remove.each do |versioned_view|
-            versioned_view.remove; @versions.delete(versioned_view)
-          end
+          nodes_to_remove.each(&:remove)
         end
       end
 
-      def determine_working_version
-        self.versioned_view = default_version
-      end
-
-      def versioned_view=(view)
-        __setobj__(view)
-      end
-
-      def default_version
-        version_named(DEFAULT_VERSION) || first_version
-      end
-
       def version_named(version)
-        @versions.find { |view|
-          case view.object
-          when StringDoc::MetaNode
-            view.object.internal_nodes.any? { |node|
-              version == (node.label(:version) || DEFAULT_VERSION).to_sym
-            }
-          else
-            view.version == version
-          end
+        __getobj__.object.internal_nodes.find { |node|
+          version == (node.label(:version) || DEFAULT_VERSION).to_sym
         }
-      end
-
-      def first_version
-        @versions[0]
       end
     end
   end

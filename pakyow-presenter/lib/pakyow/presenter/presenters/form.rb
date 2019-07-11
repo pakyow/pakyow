@@ -86,7 +86,7 @@ module Pakyow
         # Populates a select field with options.
         #
         def options_for(field, options = nil)
-          unless field_presenter = find(field) || find(Support.inflector.singularize(field)) || find(Support.inflector.pluralize(field))
+          unless field_presenter = find(Support.inflector.singularize(field)) || find(Support.inflector.pluralize(field))
             raise ArgumentError.new("could not find field named `#{field}'")
           end
 
@@ -211,7 +211,8 @@ module Pakyow
 
         def use_binding_nodes
           view.object.set_label(:bound, true)
-          view.object.children.each_significant_node(:binding, descend: true) do |object|
+
+          view.object.each_significant_node(:binding, descend: true) do |object|
             if Pakyow::Presenter::Views::Form::FIELD_TAGS.include?(object.tagname)
               object.set_label(:bound, true)
             end
@@ -337,8 +338,8 @@ module Pakyow
           values = Array.ensure(values).compact
 
           if values.any?
-            field_view = Pakyow::Presenter::Views::Form.from_object(field_presenter.view.object)
-            field_template = field_view.dup
+            field_view = field_presenter.view
+            field_template = field_view.soft_copy
             insertable_field = field_view
             current_field = field_view
 
@@ -350,7 +351,7 @@ module Pakyow
                 insertable_field = current_field
               end
 
-              current_field = field_template.dup
+              current_field = field_template.soft_copy
             end
           else
             field_presenter.remove
@@ -361,8 +362,8 @@ module Pakyow
           values = Array.ensure(original_values).compact
 
           if values.any?
-            field_view = Pakyow::Presenter::Views::Form.from_object(field_presenter.view.object)
-            template = field_view.dup
+            field_view = field_presenter.view
+            template = field_view.soft_copy
             insertable = field_view
             current = field_view
 
@@ -432,7 +433,7 @@ module Pakyow
               end
 
               current.object.set_label(:bound, true)
-              current = template.dup
+              current = template.soft_copy
             end
           else
             field_presenter.remove

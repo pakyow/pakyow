@@ -122,15 +122,16 @@ module Pakyow
       def find(*names)
         if names.any?
           named = names.shift.to_sym
-
-          found = each_binding(named).map { |node|
-            View.from_object(node)
-          }
+          found = each_binding(named).map(&:itself)
 
           result = if names.empty? && !found.empty? # found everything; wrap it up
-            VersionedView.new(found)
+            if found[0].is_a?(StringDoc::MetaNode)
+              VersionedView.new(View.from_object(found[0]))
+            else
+              VersionedView.new(View.from_object(StringDoc::MetaNode.new(found)))
+            end
           elsif !found.empty? && names.count > 0 # descend further
-            found.first.find(*names)
+            View.from_object(found[0]).find(*names)
           else
             nil
           end
@@ -417,7 +418,10 @@ module Pakyow
       def to_html
         @object.to_html
       end
-      alias :to_s :to_html
+
+      def to_s
+        @object.to_s
+      end
 
       # @api private
       def binding_name

@@ -11,12 +11,20 @@ class StringDoc
     attr_reader :doc, :transforms, :internal_nodes
 
     def initialize(nodes)
-      nodes.first.parent.replace_node(nodes.first, self)
-
-      nodes[1..-1].each do |node|
-        # Remove the node, but don't make it appear to have been removed for transforms.
+      # Reparent nodes that belong to the same parent.
+      #
+      nodes.group_by { |node| node.parent }.each_pair do |parent, children|
+        # If the children already belong to a meta node doc, don't reparent them again.
         #
-        node.remove; node.delete_label(:removed)
+        unless children.first.labeled?(:__meta_node)
+          parent.replace_node(children.first, self)
+        end
+
+        children[1..-1].each do |node|
+          # Remove the node, but don't make it appear to have been removed for transforms.
+          #
+          node.remove; node.delete_label(:removed)
+        end
       end
 
       nodes.each do |node|
@@ -26,9 +34,7 @@ class StringDoc
       @doc = StringDoc.from_nodes(nodes)
       @transforms = { high: [], default: [], low: [] }
 
-      @internal_nodes = nodes.select { |node|
-        !node.is_a?(MetaNode) && node.labeled?(:__meta_node)
-      }
+      @internal_nodes = nodes.dup
 
       @pipeline = nil
     end
@@ -37,15 +43,23 @@ class StringDoc
     def initialize_copy(_)
       super
 
-      @doc = @doc.dup
+      nodes, internal_nodes = [], []
+      @doc.nodes.each do |current_node|
+        duped_node = current_node.dup
+        nodes << duped_node
+
+        if @internal_nodes.any? { |current_internal_node| current_internal_node.equal?(current_node) }
+          internal_nodes << duped_node
+        end
+      end
+
+      @doc = StringDoc.from_nodes(nodes)
 
       @transforms = @transforms.each_with_object({}) { |(key, value), hash|
         hash[key] = value.dup
       }
 
-      @internal_nodes = nodes.select { |node|
-        !node.is_a?(MetaNode) && node.labeled?(:__meta_node)
-      }
+      @internal_nodes = internal_nodes
 
       @pipeline = nil
     end
@@ -54,13 +68,20 @@ class StringDoc
     def soft_copy
       instance = self.class.allocate
 
-      new_doc = @doc.soft_copy
-      instance.instance_variable_set(:@doc, new_doc)
+      nodes, internal_nodes = [], []
+      @doc.nodes.each do |current_node|
+        duped_node = current_node.soft_copy
+        nodes << duped_node
+
+        if @internal_nodes.any? { |current_internal_node| current_internal_node.equal?(current_node) }
+          internal_nodes << duped_node
+        end
+      end
+
+      instance.instance_variable_set(:@doc, StringDoc.from_nodes(nodes))
       instance.instance_variable_set(:@transforms, @transforms)
 
-      instance.instance_variable_set(:@internal_nodes, new_doc.nodes.select { |node|
-        !node.is_a?(MetaNode) && node.labeled?(:__meta_node)
-      })
+      instance.instance_variable_set(:@internal_nodes, internal_nodes)
 
       instance.instance_variable_set(:@pipeline, @pipeline.dup)
 
@@ -128,10 +149,13 @@ class StringDoc
       internal_nodes.each do |each_node|
         each_node.replace(replacement)
       end
+
+      @internal_nodes = StringDoc.nodes_from_doc_or_string(replacement)
     end
 
     def remove
       internal_nodes.each(&:remove)
+      @internal_nodes = []
     end
 
     def text
@@ -217,15 +241,30 @@ class StringDoc
     end
 
     def each(descend: false, &block)
-      internal_nodes.each do |node|
-        node.each(descend: descend, &block)
+      return enum_for(:each, descend: descend) unless block_given?
+
+      yield self
+
+      nodes.each do |node|
+        # Yield each node that isn't an internal node (e.g. added before/after).
+        #
+        unless @internal_nodes.any? { |internal_node| internal_node.equal?(node) }
+          case node
+          when MetaNode
+            node.each do |each_meta_node|
+              yield each_meta_node
+            end
+          else
+            yield node
+          end
+        end
       end
     end
 
     def each_significant_node(type, descend: false, &block)
       return enum_for(:each_significant_node, type, descend: descend) unless block_given?
 
-      internal_nodes.each do |node|
+      nodes.each do |node|
         node.each_significant_node(type, descend: descend, &block)
       end
     end
@@ -233,7 +272,7 @@ class StringDoc
     def each_significant_node_without_descending_into_type(type, descend: false, &block)
       return enum_for(:each_significant_node_without_descending_into_type, type, descend: descend) unless block_given?
 
-      internal_nodes.each do |node|
+      nodes.each do |node|
         node.each_significant_node_without_descending_into_type(type, descend: descend, &block)
       end
     end
@@ -241,13 +280,13 @@ class StringDoc
     def each_significant_node_with_name(type, name, descend: false, &block)
       return enum_for(:each_significant_node_with_name, type, name, descend: descend) unless block_given?
 
-      internal_nodes.each do |node|
+      nodes.each do |node|
         node.each_significant_node_with_name(type, name, descend: descend, &block)
       end
     end
 
     def find_first_significant_node(type, descend: false)
-      internal_nodes.each do |node|
+      nodes.each do |node|
         if found = node.find_first_significant_node(type, descend: descend)
           return found
         end
@@ -257,13 +296,13 @@ class StringDoc
     end
 
     def find_significant_nodes(type, descend: false)
-      internal_nodes.each_with_object([]) { |node, collected|
+      nodes.each_with_object([]) { |node, collected|
         collected.concat(node.find_significant_nodes(type, descend: descend))
       }
     end
 
     def find_significant_nodes_with_name(type, name, descend: false)
-      internal_nodes.each_with_object([]) { |node, collected|
+      nodes.each_with_object([]) { |node, collected|
         collected.concat(node.find_significant_nodes_with_name(type, name, descend: descend))
       }
     end
@@ -278,6 +317,8 @@ class StringDoc
           each_node.render(output, context: context)
         end
       end
+
+      output
     end
     alias :to_html :render
     alias :to_xml :render

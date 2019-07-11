@@ -92,7 +92,7 @@ RSpec.describe "attaching a transform that inserts a node after" do
       let :app_init do
         Proc.new do
           presenter "/presentation/transforms" do
-            render node: -> { find(:post).versions[0] } do
+            render node: -> { find(:post) } do
               bind(title: "foo")
               after("after")
             end
@@ -134,7 +134,7 @@ RSpec.describe "attaching a transform that inserts a node after" do
       let :app_init do
         Proc.new do
           presenter "/presentation/transforms" do
-            render node: -> { find(:post).versions[0] } do
+            render node: -> { find(:post) } do
               bind(title: "foo")
               find(:title).after("after")
             end

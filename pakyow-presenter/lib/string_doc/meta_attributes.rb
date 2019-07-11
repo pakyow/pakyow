@@ -38,11 +38,9 @@ class StringDoc
     end
 
     # @api private
-    def wrap
+    def wrap(&block)
       @attributes.each do |attributes|
-        attributes.each do |key, value|
-          yield value, key
-        end
+        attributes.wrap(&block)
       end
     end
   end

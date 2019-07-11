@@ -254,23 +254,12 @@ module Pakyow
                 presenter.use_implicit_version
               end
 
-              used_view = case presenter.view.object
-              when StringDoc::MetaNode
-                View.from_object(
-                  presenter.view.object.nodes.find { |node|
-                    node.labeled?(:versioned)
-                  }
-                )
-              else
-                presenter.view.versions.find { |version|
-                  version.object.labeled?(:versioned)
-                }
-              end
-
-              used_view.binding_props.map { |binding_prop|
+              # Implicitly use binding props.
+              #
+              presenter.view.binding_props.map { |binding_prop|
                 binding_prop.label(:binding)
               }.uniq.each do |binding_prop_name|
-                if found = used_view.find(binding_prop_name)
+                if found = presenter.view.find(binding_prop_name)
                   presenter_for(found).use_implicit_version unless found.used?
                 end
               end
@@ -389,7 +378,10 @@ module Pakyow
       def to_html(output = String.new)
         @view.object.to_html(output, context: self)
       end
-      alias to_s to_html
+
+      def to_s
+        @view.to_s
+      end
 
       def presenter_for(view, type: nil)
         if view.nil?
@@ -684,12 +676,7 @@ module Pakyow
           end
 
           views_with_renders.values.each do |view_with_renders, renders_for_view|
-            attach_to_node = case view_with_renders
-            when VersionedView
-              StringDoc::MetaNode.new(view_with_renders.versions.map(&:object))
-            when View
-              view_with_renders.object
-            end
+            attach_to_node = view_with_renders.object
 
             if attach_to_node.is_a?(StringDoc)
               attach_to_node = attach_to_node.find_first_significant_node(:html)
@@ -725,7 +712,7 @@ module Pakyow
               if node.nodes.any?
                 returning = node
                 presenter = context.presenter_for(
-                  VersionedView.new([View.from_object(node)])
+                  VersionedView.new(View.from_object(node))
                 )
               else
                 next node

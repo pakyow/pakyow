@@ -83,7 +83,7 @@ RSpec.describe "attaching a transform that replaces a node" do
       let :app_init do
         Proc.new do
           presenter "/presentation/transforms" do
-            render node: -> { find(:post).versions[0] } do
+            render node: -> { find(:post) } do
               replace("replaced")
             end
           end
@@ -120,7 +120,7 @@ RSpec.describe "attaching a transform that replaces a node" do
       let :app_init do
         Proc.new do
           presenter "/presentation/transforms" do
-            render node: -> { find(:post).versions[0] } do
+            render node: -> { find(:post) } do
               bind(title: "foo")
               find(:title).replace("replaced")
             end

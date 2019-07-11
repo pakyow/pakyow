@@ -58,14 +58,6 @@ RSpec.describe "presenting with presentation logic for a binding" do
       expect(call("/presentation/logic/nested")[2]).to include_sans_whitespace(
         <<~HTML
           <div data-b="post">
-            <script type="text/template" data-b="comment" data-v="default">
-              <div data-b="comment" data-v="default">
-                default
-
-                <h1 data-b="title"></h1>
-              </div>
-            </script>
-
             <div data-b="comment" data-v="two">
               two
 
@@ -78,6 +70,14 @@ RSpec.describe "presenting with presentation logic for a binding" do
               <h1 data-b="title">baz</h1>
             </div>
 
+            <script type="text/template" data-b="comment" data-v="default">
+              <div data-b="comment" data-v="default">
+                default
+
+                <h1 data-b="title"></h1>
+              </div>
+            </script>
+
             <script type="text/template" data-b="comment" data-v="two">
               <div data-b="comment" data-v="two">
                 two
@@ -86,6 +86,22 @@ RSpec.describe "presenting with presentation logic for a binding" do
               </div>
             </script>
           </div>
+
+          <script type="text/template" data-b="post">
+            <div data-b="post">
+              <div data-b="comment" data-v="default">
+                default
+
+                <h1 data-b="title"></h1>
+              </div>
+
+              <div data-b="comment" data-v="two">
+                two
+
+                <h1 data-b="title"></h1>
+              </div>
+            </div>
+          </script>
         HTML
       )
     end
@@ -122,6 +138,81 @@ RSpec.describe "presenting with presentation logic for a binding" do
 
             <h1 data-b="title">bar</h1>
           </div>
+        HTML
+      )
+    end
+  end
+
+  context "logic defined for a top-level and nested binding" do
+    let :app_def do
+      Proc.new do
+        presenter "/presentation/logic/nested" do
+          render :post do
+            find(:comment).attrs[:style][:background] = "blue"
+
+            present(
+              comments: [
+                { title: "cone" },
+                { title: "ctwo"}
+              ]
+            )
+          end
+
+          render :post, :comment do
+            attrs[:style][:color] = "red"
+          end
+        end
+      end
+    end
+
+    it "presents" do
+      expect(call("/presentation/logic/nested")[2]).to include_sans_whitespace(
+        <<~HTML
+          <div data-b="post">
+            <div data-b="comment" data-v="default" style="background: blue; color: red;">
+              default
+
+              <h1 data-b="title">cone</h1>
+            </div>
+
+            <div data-b="comment" data-v="default" style="background: blue; color: red;">
+              default
+
+              <h1 data-b="title">ctwo</h1>
+            </div>
+
+            <script type="text/template" data-b="comment" data-v="default">
+              <div data-b="comment" data-v="default">
+                default
+
+                <h1 data-b="title"></h1>
+              </div>
+            </script>
+
+            <script type="text/template" data-b="comment" data-v="two">
+              <div data-b="comment" data-v="two">
+                two
+
+                <h1 data-b="title"></h1>
+              </div>
+            </script>
+          </div>
+
+          <script type="text/template" data-b="post">
+            <div data-b="post">
+              <div data-b="comment" data-v="default">
+                default
+
+                <h1 data-b="title"></h1>
+              </div>
+
+              <div data-b="comment" data-v="two">
+                two
+
+                <h1 data-b="title"></h1>
+              </div>
+            </div>
+          </script>
         HTML
       )
     end

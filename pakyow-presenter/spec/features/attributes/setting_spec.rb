@@ -13,7 +13,7 @@ RSpec.describe "setting attributes via presenter" do
 
       it "can be overridden" do
         presenter.attributes[:title] = "bar"
-        expect(presenter.to_html).to include("title=\"bar\"")
+        expect(presenter.view.object.to_html).to include("title=\"bar\"")
       end
     end
 
