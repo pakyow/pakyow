@@ -18,7 +18,7 @@ pw.define("confirmable", {
       // move along
     } else {
       event.preventDefault();
-      event.stopPropagation();
+      event.stopImmediatePropagation();
       return false;
     }
   }
