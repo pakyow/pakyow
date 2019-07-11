@@ -26,6 +26,18 @@ RSpec.describe "building a path to a plugin endpoint" do
     ).to eq("/foo/test-plugin")
   end
 
+  context "endpoint is not a GET endpoint" do
+    it "builds the path to the plugin endpoint" do
+      expect(
+        Pakyow.app(:test).plugs.testable.endpoints.path(:root_non_get)
+      ).to eq("/foo/test-plugin/non_get")
+    end
+
+    it "recognizes the correct method" do
+      expect(Pakyow.app(:test).plugs.testable.endpoints.find(name: :root_non_get).method).to eq(:post)
+    end
+  end
+
   context "endpoint name conflicts between the app and plugin" do
     let :app_def do
       Proc.new do

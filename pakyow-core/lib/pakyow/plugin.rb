@@ -260,7 +260,7 @@ module Pakyow
         #
         @parent.endpoints << Endpoint.new(
           name: [config.name.to_s, endpoint.name].join("_"),
-          method: :get,
+          method: endpoint.method,
           builder: endpoint.builder
         )
 
@@ -276,7 +276,7 @@ module Pakyow
 
         @parent.endpoints << Endpoint.new(
           name: endpoint_name,
-          method: :get,
+          method: endpoint.method,
           builder: endpoint.builder
         )
       end

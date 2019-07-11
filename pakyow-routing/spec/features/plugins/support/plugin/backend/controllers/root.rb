@@ -23,4 +23,6 @@ controller :root, "/test-plugin" do
   get "/helpers" do
     send test_helper
   end
+
+  post :non_get, "/non_get"
 end
