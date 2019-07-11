@@ -8,15 +8,10 @@ module Pakyow
     module Presenters
       class Endpoint < DelegateClass(Presenter)
         def setup
-          if endpoint_method == :delete
-            setup_endpoint_for_removal(
-              path: endpoint_path
-            )
+          if endpoint_method == :get
+            setup_endpoint(path: endpoint_path, method: endpoint_method)
           else
-            setup_endpoint(
-              path: endpoint_path,
-              method: endpoint_method
-            )
+            setup_non_get_endpoint(path: endpoint_path, method: endpoint_method)
           end
         end
 
@@ -88,23 +83,36 @@ module Pakyow
           end
         end
 
-        def setup_endpoint_for_removal(path:)
-          if object.tagname == "form"
-            form_presenter = presenter_for(__getobj__, type: Form)
-            form_presenter.action = path
-            form_presenter.method = :delete
-            attributes[:"data-ui"] = "confirmable"
-          else
-            replace(
-              View.new(
-                <<~HTML
-                  <form action="#{path}" method="post" data-ui="confirmable">
-                    <input type="hidden" name="pw-http-method" value="delete">
-                    #{view.object.render}
-                  </form>
-                HTML
-              )
-            )
+        def setup_non_get_endpoint(path:, method:)
+          unless object.tagname == "form"
+            object.attributes.delete(:"data-e")
+
+            if ui = object.attributes.delete(:"data-ui")
+              object.attributes[:ui] = ui
+            end
+
+            if object.tagname == "a"
+              object.attributes[:href] = "javascript:void(0)"
+            end
+
+            form_node = StringDoc.new(
+              <<~HTML
+                <form action="#{path}" method="post">
+                  <input type="hidden" name="pw-http-method" value="#{method}">
+                  #{object.render}
+                </form>
+              HTML
+            ).nodes[0]
+
+            form_view = View.from_object(form_node)
+            Renderer::Behavior::SetupForms.build(form_view, __getobj__.app)
+
+            presenter_class = Class.new(Presenter)
+            Renderer::Behavior::SetupForms.attach(presenter_class, __getobj__.app)
+
+            presenter_class.attach(form_view)
+            form_presenter = presenter_class.new(form_view, app: __getobj__.app, presentables: __getobj__.presentables)
+            replace(html_safe(form_presenter.to_html))
           end
         end
 
