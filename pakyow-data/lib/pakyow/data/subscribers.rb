@@ -134,13 +134,19 @@ module Pakyow
       QUALIFIABLE_TYPES = [Hash, Support::IndifferentHash].freeze
       def qualified?(qualifications, changed_values, changed_results, original_results)
         qualifications.all? do |key, value|
-          (QUALIFIABLE_TYPES.include?(changed_values.class) && changed_values.to_h[key] == value) || qualified_result?(key, value, changed_results, original_results)
+          (
+            QUALIFIABLE_TYPES.include?(changed_values.class) && (
+              (
+                value.is_a?(Array) && value.include?(changed_values.to_h[key])
+              ) || changed_values.to_h[key] == value
+            )
+          ) || qualified_result?(key, value, changed_results, original_results)
         end
       end
 
       def qualified_result?(key, value, changed_results, original_results)
         original_results.concat(changed_results).any? do |result|
-          result[key] == value
+          (value.is_a?(Array) && value.include?(result[key])) || result[key] == value
         end
       end
     end

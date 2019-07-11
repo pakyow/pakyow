@@ -226,9 +226,21 @@ module Pakyow
           # Populate argument qualifications with argument values.
           #
           qualifications_for_proxied_call.each do |qualification_key, qualification_value|
-            next unless qualification_value.to_s.start_with?("__arg")
-            arg_number = qualification_value.to_s.gsub(/[^0-9]/, "").to_i
-            qualifications_for_proxied_call[qualification_key] = @source.class.attributes[qualification_key][proxied_call[1][arg_number]]
+            if qualification_value.to_s.start_with?("__arg")
+              arg_number = qualification_value.to_s.gsub(/[^0-9]/, "").to_i
+
+              arg_value = proxied_call[1][arg_number]
+              arg_value = case arg_value
+              when Array
+                arg_value.map { |each_value|
+                  @source.class.attributes[qualification_key][each_value]
+                }
+              else
+                @source.class.attributes[qualification_key][arg_value]
+              end
+
+              qualifications_for_proxied_call[qualification_key] = arg_value
+            end
           end
 
           qualifications.merge(qualifications_for_proxied_call)

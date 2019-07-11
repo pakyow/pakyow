@@ -5,6 +5,7 @@ require_relative "shared_examples/subscribe"
 require_relative "shared_examples/subscribe_associated"
 require_relative "shared_examples/subscribe_associated_conditional"
 require_relative "shared_examples/subscribe_command"
+require_relative "shared_examples/subscribe_compound"
 require_relative "shared_examples/subscribe_conditional"
 require_relative "shared_examples/subscribe_deeply_associated"
 require_relative "shared_examples/subscribe_ephemeral"
@@ -20,6 +21,7 @@ RSpec.shared_examples "data subscriptions" do
   it_behaves_like :subscription_subscribe_associated
   it_behaves_like :subscription_subscribe_associated_conditional
   it_behaves_like :subscription_subscribe_command
+  it_behaves_like :subscription_subscribe_compound
   it_behaves_like :subscription_subscribe_conditional
   it_behaves_like :subscription_subscribe_deeply_associated
   it_behaves_like :subscription_subscribe_ephemeral
