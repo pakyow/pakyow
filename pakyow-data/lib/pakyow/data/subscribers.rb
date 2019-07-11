@@ -57,16 +57,17 @@ module Pakyow
 
       def did_mutate(source_name, changed_values = nil, result_source = nil)
         @executor << Proc.new {
-          begin
-            @adapter.subscriptions_for_source(source_name).select { |subscription|
-              process?(subscription, changed_values, result_source)
-            }.uniq.each do |subscription|
-              if subscription[:version] == @app.config.data.subscriptions.version
+          @adapter.subscriptions_for_source(source_name).select { |subscription|
+            process?(subscription, changed_values, result_source)
+          }.uniq.each do |subscription|
+            if subscription[:version] == @app.config.data.subscriptions.version
+              begin
                 process(subscription, result_source)
+              rescue => error
+                Pakyow.logger.error "[Pakyow::Data::Subscribers] did_mutate failed: #{error}"
+                puts error.backtrace
               end
             end
-          rescue => error
-            Pakyow.logger.error "[Pakyow::Data::Subscribers] did_mutate failed: #{error}"
           end
         }
       end
