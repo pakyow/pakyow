@@ -1294,6 +1294,50 @@ RSpec.shared_examples :source_associations do
           end
         end
       end
+
+      describe "disassociating data from other sources", focus: true do
+        let :app_init do
+          Proc.new do
+            source :users do
+            end
+
+            source :teams do
+            end
+
+            source :team_members do
+              belongs_to :user
+              belongs_to :team
+            end
+
+            source :subscriptions do
+              has_one :team, through: :team_subscriptions
+              has_one :user, through: :user_subscriptions
+            end
+
+            source :team_subscriptions do
+            end
+
+            source :user_subscriptions do
+            end
+          end
+        end
+
+        before do
+          @user1 = data.users.create
+          @user2 = data.users.create
+          @team = data.teams.create
+          subscription = data.subscriptions.create(team: @team)
+          data.team_members.create(user: @user1, team: @team)
+          data.team_members.create(user: @user2, team: @team)
+        end
+
+        it "only clears associations for the current association" do
+          expect(data.team_members.all[0].team_id).to eq(@team.one.id)
+          expect(data.team_members.all[0].user_id).to eq(@user1.one.id)
+          expect(data.team_members.all[1].team_id).to eq(@team.one.id)
+          expect(data.team_members.all[1].user_id).to eq(@user2.one.id)
+        end
+      end
     end
 
     describe "one_to_one" do

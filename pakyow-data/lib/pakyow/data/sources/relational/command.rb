@@ -331,7 +331,8 @@ module Pakyow
                 #
                 @source.class.associations[:belongs_to].flat_map { |belongs_to_association|
                   belongs_to_association.associated_source.associations[:has_one].select { |has_one_association|
-                    has_one_association.associated_query_field == belongs_to_association.query_field
+                    has_one_association.associated_source == @source.class &&
+                      has_one_association.associated_query_field == belongs_to_association.query_field
                   }
                 }.each do |association|
                   value = final_values.dig(
