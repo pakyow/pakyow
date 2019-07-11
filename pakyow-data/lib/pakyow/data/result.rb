@@ -5,6 +5,9 @@ require "delegate"
 module Pakyow
   module Data
     class Result < SimpleDelegator
+      # @api private
+      attr_reader :__proxy
+
       def initialize(result, proxy, originating_method: nil, originating_args: [])
         @__proxy = proxy
         @originating_method = originating_method
