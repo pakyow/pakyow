@@ -51,11 +51,44 @@ RSpec.describe "reflected state" do
 
     context "scope for a plugin" do
       let :frontend_test_case do
-        "state/for_plugin"
+        "state/scope_for_plugin"
       end
 
       it "does not discover any scopes" do
         expect(scopes).to be_empty
+      end
+
+      it "does not discover any endpoints" do
+        expect(endpoints).to be_empty
+      end
+    end
+
+    context "form for a plugin" do
+      let :frontend_test_case do
+        "state/form_for_plugin"
+      end
+
+      it "does not discover any scopes" do
+        expect(scopes).to be_empty
+      end
+
+      it "does not discover any endpoints" do
+        expect(endpoints).to be_empty
+      end
+    end
+
+    context "endpoint for a plugin" do
+      let :frontend_test_case do
+        "state/endpoint_for_plugin"
+      end
+
+      it "discovers the correct scopes" do
+        expect(scopes.count).to eq(1)
+        expect(scopes[0].name).to eq(:post)
+      end
+
+      it "discovers the correct endpoints" do
+        expect(endpoints.count).to eq(1)
       end
     end
   end

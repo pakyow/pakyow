@@ -55,7 +55,7 @@ module Pakyow
         # Descend to find the most specific scope first.
         #
         view.each_binding_scope do |binding_scope_node|
-          unless binding_scope_node.significant?(:within_form) || binding_scope_node.labeled?(:plug)
+          unless binding_scope_node.significant?(:within_form) || binding_scope_node.labeled?(:plug) || binding_scope_node.labeled?(:plug)
             binding_scope_view = Presenter::View.from_object(binding_scope_node)
             scope = scope_for_binding(binding_scope_view.binding_name, parent_scope)
 
@@ -100,7 +100,7 @@ module Pakyow
         # Discover forms.
         #
         view.object.each_significant_node(:form) do |form_node|
-          if form_node.labeled?(:binding)
+          if form_node.labeled?(:binding) && !form_node.labeled?(:plug)
             form_view = Presenter::View.from_object(form_node)
             scope = scope_for_binding(form_view.binding_name, parent_scope)
 
@@ -172,6 +172,8 @@ module Pakyow
         #
         view.object.find_significant_nodes(:endpoint).select { |endpoint_node|
           endpoint_node.label(:endpoint).to_s.end_with?("_delete")
+        }.reject { |endpoint_node|
+          endpoint_node.label(:endpoint).to_s.start_with?("@")
         }.each do |endpoint_node|
           scope = scope_for_binding(
             endpoint_node.label(:endpoint).to_s.split("_", 2)[0],

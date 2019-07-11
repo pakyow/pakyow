@@ -39,4 +39,8 @@ RSpec.shared_context "mirror" do
   let :scopes do
     mirror.scopes
   end
+
+  let :endpoints do
+    mirror.endpoints
+  end
 end
