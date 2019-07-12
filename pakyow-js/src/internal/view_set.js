@@ -42,7 +42,10 @@ export default class {
 
     for (let view of this.views) {
       let found = view.endpoint(name);
-      views.push(found);
+
+      if (found) {
+        views.push(found);
+      }
     }
 
     return new this.constructor(views, this.templates);
@@ -53,7 +56,10 @@ export default class {
 
     for (let view of this.views) {
       let found = view.endpointAction();
-      views.push(found);
+
+      if (found) {
+        views.push(found);
+      }
     }
 
     return new this.constructor(views, this.templates);
@@ -64,7 +70,10 @@ export default class {
 
     for (let view of this.views) {
       let found = view.component(name);
-      views.push(found);
+
+      if (found) {
+        views.push(found);
+      }
     }
 
     return new this.constructor(views, this.templates);
