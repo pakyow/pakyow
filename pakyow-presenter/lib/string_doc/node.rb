@@ -263,6 +263,8 @@ class StringDoc
 
         output << tag_close
       end
+
+      output
     end
     alias :to_html :render
     alias :to_xml :render

@@ -159,7 +159,7 @@ end
 
 RSpec::Matchers.define :include_sans_whitespace do |expected|
   match do |actual|
-    actual.gsub(/\s+/, "").include?(expected.gsub(/\s+/, ""))
+    actual.to_s.gsub(/\s+/, "").include?(expected.to_s.gsub(/\s+/, ""))
   end
 
   diffable

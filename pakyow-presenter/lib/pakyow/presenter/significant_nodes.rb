@@ -183,7 +183,7 @@ module Pakyow
       StringDoc.significant :form, self, descend: false
 
       def self.significant?(node)
-        node.is_a?(Oga::XML::Element) && node.attribute(:binding) && node.name == FORM_TAG
+        node.is_a?(Oga::XML::Element) && node.name == FORM_TAG
       end
 
       def self.decorate(node)

@@ -8,9 +8,9 @@ module Pakyow
     module Presenters
       class Endpoint < DelegateClass(Presenter)
         def setup
-          if endpoint_method == :get
-            setup_endpoint(path: endpoint_path, method: endpoint_method)
-          else
+          setup_endpoint(path: endpoint_path, method: endpoint_method)
+
+          unless endpoint_method == :get
             setup_non_get_endpoint(path: endpoint_path, method: endpoint_method)
           end
         end
@@ -95,6 +95,12 @@ module Pakyow
               object.attributes[:href] = "javascript:void(0)"
             end
 
+            # FIXME: Everything below could probably be streamlined and improved. Some ideas:
+            #
+            #   * Build the form once, then attach a render that fills in the dynamic parts.
+            #   * Define the presenter class once, attached to the view in step one.
+            #   * Continue replacing with a string but all we'd be doing is building the string.
+            #
             form_node = StringDoc.new(
               <<~HTML
                 <form action="#{path}" method="post">

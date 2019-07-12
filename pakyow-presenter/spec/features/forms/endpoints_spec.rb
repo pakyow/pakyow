@@ -403,7 +403,7 @@ RSpec.describe "form endpoints" do
 
         it "sets the endpoint to the explicitly defined endpoint" do
           call("/presentation/forms/endpoints/explicit")[2].tap do |body|
-            expect(body).to include('<form data-b="post:form" data-e="explicit_endpoint" action="/explicit" method="post" data-ui="confirmable">')
+            expect(body).to include('<form data-b="post:form" data-e="explicit_endpoint" action="/explicit" method="post">')
             expect(body).to include('<input type="hidden" name="pw-http-method" value="delete">')
           end
         end
