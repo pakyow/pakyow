@@ -7,7 +7,7 @@ module Pakyow
     module ClassState
       using DeepDup
 
-      def class_state(name, default: nil, inheritable: false, getter: true)
+      def class_state(name, default: nil, inheritable: false, reader: true)
         ivar = :"@#{name}"
         @__class_state[ivar] = {
           default: default,
@@ -16,7 +16,7 @@ module Pakyow
 
         instance_variable_set(ivar, default.deep_dup)
 
-        if getter
+        if reader
           define_singleton_method name do
             instance_variable_get(ivar)
           end

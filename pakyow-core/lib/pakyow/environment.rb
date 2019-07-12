@@ -125,9 +125,9 @@ module Pakyow
   class_state :tasks,       default: []
   class_state :mounts,      default: []
   class_state :frameworks,  default: {}
-  class_state :booted,      default: false, getter: false
-  class_state :server,      default: nil, getter: false
-  class_state :env,         default: nil, getter: false
+  class_state :booted,      default: false, reader: false
+  class_state :server,      default: nil, reader: false
+  class_state :env,         default: nil, reader: false
   class_state :setup_error, default: nil
 
   class << self

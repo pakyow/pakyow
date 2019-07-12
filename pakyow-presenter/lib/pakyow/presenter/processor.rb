@@ -8,7 +8,7 @@ module Pakyow
       extend Support::ClassState
       class_state :name
       class_state :block
-      class_state :extensions, default: [], getter: false
+      class_state :extensions, default: [], reader: false
 
       extend Support::Makeable
 

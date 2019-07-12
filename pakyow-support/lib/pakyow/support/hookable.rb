@@ -53,8 +53,8 @@ module Pakyow
         base.extend ClassMethods
 
         base.extend ClassState
-        base.class_state :__events, default: [], inheritable: true, getter: false
-        base.class_state :__hooks, default: [], inheritable: true, getter: false
+        base.class_state :__events, default: [], inheritable: true, reader: false
+        base.class_state :__hooks, default: [], inheritable: true, reader: false
         base.class_state :__hook_hash, default: { after: {}, before: {} }, inheritable: true
         base.class_state :__hook_pipeline, default: { after: {}, before: {} }, inheritable: true
       end

@@ -418,7 +418,7 @@ module Pakyow
         class_state :timestamp_fields
         class_state :primary_key_field
         class_state :attributes, default: {}
-        class_state :qualifications, default: {}, getter: false
+        class_state :qualifications, default: {}, reader: false
         class_state :associations, default: { belongs_to: [], has_many: [], has_one: [] }
         class_state :commands, default: {}
 
