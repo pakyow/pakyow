@@ -65,7 +65,6 @@ module Pakyow
                 process(subscription, result_source)
               rescue => error
                 Pakyow.logger.error "[Pakyow::Data::Subscribers] did_mutate failed: #{error}"
-                puts error.backtrace
               end
             end
           end
