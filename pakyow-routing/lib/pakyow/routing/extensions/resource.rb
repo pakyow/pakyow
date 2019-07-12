@@ -76,6 +76,12 @@ module Pakyow
             nested_param = "#{Support.inflector.singularize(controller.__object_name.name)}_#{param}".to_sym
             nested_resource_id = ":#{nested_param}"
 
+            action :set_common_param do
+              if params.include?(param)
+                params[nested_param] ||= params[param]
+              end
+            end
+
             action :update_request_path_for_show, only: [:show] do
               connection.get(:__endpoint_path).gsub!(resource_id, "show")
             end
