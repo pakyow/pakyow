@@ -410,6 +410,19 @@ module Pakyow
       end
 
       # @api private
+      def endpoints(name)
+        endpoints = []
+
+        object.each_significant_node(:endpoint) do |endpoint_node|
+          if endpoint_node.label(:endpoint) == name.to_sym
+            endpoints << presenter_for(View.from_object(endpoint_node))
+          end
+        end
+
+        endpoints
+      end
+
+      # @api private
       def endpoint_action
         endpoint_action_node = object.find_first_significant_node(
           :endpoint_action
