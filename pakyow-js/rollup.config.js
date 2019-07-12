@@ -70,13 +70,13 @@ export default [
     }
   },
   {
-    input: "src/components/submitable",
+    input: "src/components/submittable",
     plugins: [
       node(), babel()
     ],
     output: {
       extend: true,
-      file: "dist/components/submitable.js",
+      file: "dist/components/submittable.js",
       format: "esm"
     }
   }

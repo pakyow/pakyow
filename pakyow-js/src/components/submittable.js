@@ -1,4 +1,4 @@
-pw.define("submitable", {
+pw.define("submittable", {
   constructor() {
     this.node.addEventListener("click", (event) => {
       event.preventDefault();

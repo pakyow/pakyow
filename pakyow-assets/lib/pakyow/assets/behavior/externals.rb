@@ -32,7 +32,7 @@ module Pakyow
                 "dist/components/freshener.js",
                 "dist/components/navigator.js",
                 "dist/components/socket.js",
-                "dist/components/submitable.js"
+                "dist/components/submittable.js"
               ]
             end
 
