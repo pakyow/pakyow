@@ -180,7 +180,7 @@ module Pakyow
             parent_scope
           )
 
-          unless scope.action(:delete)
+          if scope && endpoint_node.label(:endpoint).to_s == "#{scope.plural_name}_delete" && !scope.action(:delete)
             scope.actions << Action.new(
               name: :delete,
               scope: scope,
