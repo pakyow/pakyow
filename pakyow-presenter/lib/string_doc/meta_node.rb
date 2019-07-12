@@ -264,7 +264,7 @@ class StringDoc
     def each_significant_node(type, descend: false, &block)
       return enum_for(:each_significant_node, type, descend: descend) unless block_given?
 
-      nodes.each do |node|
+      internal_nodes.each do |node|
         node.each_significant_node(type, descend: descend, &block)
       end
     end
@@ -272,7 +272,7 @@ class StringDoc
     def each_significant_node_without_descending_into_type(type, descend: false, &block)
       return enum_for(:each_significant_node_without_descending_into_type, type, descend: descend) unless block_given?
 
-      nodes.each do |node|
+      internal_nodes.each do |node|
         node.each_significant_node_without_descending_into_type(type, descend: descend, &block)
       end
     end
@@ -280,13 +280,13 @@ class StringDoc
     def each_significant_node_with_name(type, name, descend: false, &block)
       return enum_for(:each_significant_node_with_name, type, name, descend: descend) unless block_given?
 
-      nodes.each do |node|
+      internal_nodes.each do |node|
         node.each_significant_node_with_name(type, name, descend: descend, &block)
       end
     end
 
     def find_first_significant_node(type, descend: false)
-      nodes.each do |node|
+      internal_nodes.each do |node|
         if found = node.find_first_significant_node(type, descend: descend)
           return found
         end
@@ -296,13 +296,13 @@ class StringDoc
     end
 
     def find_significant_nodes(type, descend: false)
-      nodes.each_with_object([]) { |node, collected|
+      internal_nodes.each_with_object([]) { |node, collected|
         collected.concat(node.find_significant_nodes(type, descend: descend))
       }
     end
 
     def find_significant_nodes_with_name(type, name, descend: false)
-      nodes.each_with_object([]) { |node, collected|
+      internal_nodes.each_with_object([]) { |node, collected|
         collected.concat(node.find_significant_nodes_with_name(type, name, descend: descend))
       }
     end
