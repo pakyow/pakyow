@@ -6,7 +6,7 @@ pw.define("navigator", {
       this.scrollToHash(window.location.hash);
     }
 
-    this.initialState = {
+    this.initialState = window.history.state || {
       url: document.location.href,
       scrollX: window.pageXOffset,
       scrollY: window.pageYOffset
@@ -17,6 +17,14 @@ pw.define("navigator", {
     }
 
     window.history.replaceState(this.initialState, "", window.location.href);
+    window.scrollTo(this.initialState.scrollX, this.initialState.scrollY);
+
+    window.onbeforeunload = (event) => {
+      let unloadState = window.history.state;
+      unloadState.scrollX = window.pageXOffset;
+      unloadState.scrollY = window.pageYOffset;
+      window.history.replaceState(unloadState, "", window.location.href);
+    };
 
     window.onpopstate = (event) => {
       if (event.state) {
@@ -46,8 +54,8 @@ pw.define("navigator", {
 
       var state = {
         url: url,
-        scrollX: window.pageXOffset,
-        scrollY: window.pageYOffset
+        scrollX: 0,
+        scrollY: 0
       };
 
       if (this.isCurrent(url)) {
