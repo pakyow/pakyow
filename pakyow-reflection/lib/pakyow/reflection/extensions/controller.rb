@@ -139,7 +139,9 @@ module Pakyow
               # TODO: Handle cases where objects are associated by id but routed by another field.
               # Implement when we allow foreign keys to be specified in associations.
               #
-              values[self.class.parent.nested_param] = params[self.class.parent.nested_param]
+              if proxy.source.class.attributes.key?(self.class.parent.nested_param)
+                values[self.class.parent.nested_param] = params[self.class.parent.nested_param]
+              end
             end
 
             # Limit the action for update, delete.
