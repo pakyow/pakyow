@@ -16,29 +16,33 @@ export default class {
     }
 
     for (let transformation of calls) {
-      let methodName = transformation[0];
-      let method = transformable[methodName];
+      try {
+        let methodName = transformation[0];
+        let method = transformable[methodName];
 
-      if (method) {
-        let args = transformation[1];
+        if (method) {
+          let args = transformation[1];
 
-        if (transformation[2].length > 0) {
-          let i = 0;
-          args.push((view, object) => {
-            this.transform(transformation[2][i], view);
-            i++;
-          });
+          if (transformation[2].length > 0) {
+            let i = 0;
+            args.push((view, object) => {
+              this.transform(transformation[2][i], view);
+              i++;
+            });
+          }
+
+          this.transform(
+            transformation[3],
+            method.apply(
+              transformable,
+              args
+            )
+          );
+        } else {
+          console.log(`unknown view method: ${methodName}`, transformable);
         }
-
-        this.transform(
-          transformation[3],
-          method.apply(
-            transformable,
-            args
-          )
-        );
-      } else {
-        console.log(`unknown view method: ${methodName}`, transformable);
+      } catch(error) {
+        console.log("error transforming", error, transformable, transformation, calls);
       }
     }
   }
