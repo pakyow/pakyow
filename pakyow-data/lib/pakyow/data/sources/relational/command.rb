@@ -12,8 +12,8 @@ module Pakyow
           using Support::DeepDup
           using Support::Refinements::Array::Ensurable
 
-          def initialize(name, block:, source:, provides_dataset:, performs_create:, performs_update:, performs_delete:)
-            @name, @block, @source, @provides_dataset, @performs_create, @performs_update, @performs_delete = name, block, source, provides_dataset, performs_create, performs_update, performs_delete
+          def initialize(name, block:, source:, provides_dataset:, creates:, updates:, deletes:)
+            @name, @block, @source, @provides_dataset, @creates, @updates, @deletes = name, block, source, provides_dataset, creates, updates, deletes
           end
 
           def call(values = {})
@@ -24,7 +24,7 @@ module Pakyow
               #
               @source.class.attributes.each do |attribute_name, attribute|
                 if attribute.meta[:required]
-                  if @performs_create && !values.include?(attribute_name)
+                  if @creates && !values.include?(attribute_name)
                     raise NotNullViolation.new_with_message(attribute: attribute_name)
                   end
 
@@ -66,7 +66,7 @@ module Pakyow
               # Update timestamp fields.
               #
               if timestamp_fields = @source.class.timestamp_fields
-                if @performs_create
+                if @creates
                   timestamp_fields.values.each do |timestamp_field|
                     final_values[timestamp_field] = Time.now
                   end
@@ -77,7 +77,7 @@ module Pakyow
                 end
               end
 
-              if @performs_create
+              if @creates
                 # Set default values.
                 #
                 @source.class.attributes.each do |attribute_name, attribute|
@@ -102,7 +102,7 @@ module Pakyow
                 case association_value
                 when Proxy
                   if association_value.source.class == association.associated_source
-                    if association.result_type == :one && (association_value.count > 1 || (@performs_update && @source.count > 1))
+                    if association.result_type == :one && (association_value.count > 1 || (@updates && @source.count > 1))
                       raise ConstraintViolation.new_with_message(
                         :associate_multiple,
                         association: association.name
@@ -244,20 +244,20 @@ module Pakyow
               end
             end
 
-            original_dataset = if @performs_update
+            original_dataset = if @updates
               # Hold on to the original values so we can update them locally.
               @source.dup.to_a
             else
               nil
             end
 
-            unless @provides_dataset || @performs_update
+            unless @provides_dataset || @updates
               # Cache the result prior to running the command.
               @source.to_a
             end
 
             @source.transaction do
-              if @performs_delete
+              if @deletes
                 @source.class.associations.values.flatten.select(&:dependents?).each do |association|
                   dependent_values = @source.class.container.connection.adapter.restrict_to_attribute(
                     @source.class.primary_key_field, @source
@@ -326,7 +326,7 @@ module Pakyow
                 end
               end
 
-              if @performs_create || @performs_update
+              if @creates || @updates
                 # Ensure that has_one associations only have one associated object.
                 #
                 @source.class.associations[:belongs_to].flat_map { |belongs_to_association|
@@ -355,7 +355,7 @@ module Pakyow
 
               command_result = @source.instance_exec(final_values, &@block)
 
-              final_result = if @performs_update
+              final_result = if @updates
                 # For updates, we fetch the values prior to performing the update and
                 # return a source containing locally updated values. This lets us see
                 # the original values but prevents us from fetching twice.
@@ -383,7 +383,7 @@ module Pakyow
                 @source
               end
 
-              if @performs_create || @performs_update
+              if @creates || @updates
                 # Update records associated with the data we just changed.
                 #
                 future_associated_changes.each do |association, association_value|

@@ -8,7 +8,7 @@ module Pakyow
           extend Support::Extension
 
           apply_extension do
-            command :create, performs_create: true do |values|
+            command :create, creates: true do |values|
               begin
                 inserted_return_value = insert(values)
                 if self.class.primary_key_field
@@ -27,7 +27,7 @@ module Pakyow
               end
             end
 
-            command :update, performs_update: true do |values|
+            command :update, updates: true do |values|
               __getobj__.select(self.class.primary_key_field).map { |result|
                 result[self.class.primary_key_field]
               }.tap do
@@ -43,7 +43,7 @@ module Pakyow
               end
             end
 
-            command :delete, provides_dataset: false, performs_delete: true do
+            command :delete, provides_dataset: false, deletes: true do
               begin
                 delete
               rescue Sequel::ForeignKeyConstraintViolation => error

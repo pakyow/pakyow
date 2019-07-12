@@ -256,7 +256,7 @@ RSpec.shared_examples :source_commands do
           attribute :title
           has_many :comments
 
-          command :create_with_default_comment, performs_create: true do |values|
+          command :create_with_default_comment, creates: true do |values|
             command(:create).call(values) do |post|
               self.class.container.source(:comment).command(:create).call(body: "default comment", post: post.one)
             end
