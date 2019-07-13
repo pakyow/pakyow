@@ -35,7 +35,7 @@ class StringDoc
     attr_reader :attributes
 
     # @api private
-    attr_reader :node, :parent, :children, :tag_open_start, :tag_open_end, :tag_close, :transforms, :significance, :labels
+    attr_reader :node, :parent, :children, :tag_open_start, :tag_open_end, :tag_close, :transforms, :significance
 
     # @api private
     attr_writer :parent
@@ -50,6 +50,7 @@ class StringDoc
       @parent, @labels, @significance = parent, labels, significance
       @transforms = { high: [], default: [], low: [] }
       @pipeline = nil
+      @finalized_labels = {}
     end
 
     # @api private
@@ -57,6 +58,7 @@ class StringDoc
       super
 
       @labels = @labels.deep_dup
+      @finalized_labels = @finalized_labels.deep_dup
       @attributes = @attributes.dup
       @children = @children.dup
       @significance = @significance.dup
@@ -78,6 +80,7 @@ class StringDoc
       instance.instance_variable_set(:@parent, @parent)
       instance.instance_variable_set(:@significance, @significance)
       instance.instance_variable_set(:@transforms, @transforms)
+      instance.instance_variable_set(:@finalized_labels, @finalized_labels)
 
       instance.instance_variable_set(:@attributes, @attributes.dup)
       instance.instance_variable_set(:@children, @children.is_a?(StringDoc) ? @children.soft_copy : @children.dup)
@@ -85,6 +88,21 @@ class StringDoc
       instance.instance_variable_set(:@pipeline, @pipeline.dup)
 
       instance
+    end
+
+    def finalize_labels(keep: [])
+      @finalized_labels = @labels
+      @labels = keep.each_with_object({}) { |key, hash|
+        hash[key] = @finalized_labels.delete(key).deep_dup
+      }
+
+      if children.is_a?(StringDoc)
+        children.finalize_labels(keep: keep)
+      end
+    end
+
+    def labels
+      @labels.merge(@finalized_labels)
     end
 
     def freeze(*)
@@ -221,13 +239,18 @@ class StringDoc
     # Returns the value for label with +name+.
     #
     def label(name)
-      @labels[name.to_sym]
+      name = name.to_sym
+      if @labels.key?(name)
+        @labels[name.to_sym]
+      else
+        @finalized_labels[name.to_sym]
+      end
     end
 
     # Returns true if label exists with +name+.
     #
     def labeled?(name)
-      @labels.key?(name.to_sym)
+      @labels.key?(name.to_sym) || @finalized_labels.key?(name.to_sym)
     end
 
     # Sets the label with +name+ and +value+.

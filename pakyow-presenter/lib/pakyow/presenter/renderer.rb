@@ -90,6 +90,7 @@ module Pakyow
           end
 
           presenter.attach(presenter_view)
+          presenter_view.object.finalize_labels(keep: [:form, :endpoint_params])
           presenter_view.deep_freeze
 
           self.class.__presenter_views[presenter_view_key] = presenter_view

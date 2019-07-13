@@ -171,6 +171,12 @@ class StringDoc
     instance
   end
 
+  def finalize_labels(keep: [])
+    @nodes.each do |node|
+      node.finalize_labels(keep: keep)
+    end
+  end
+
   include Enumerable
 
   def each(descend: false, &block)
