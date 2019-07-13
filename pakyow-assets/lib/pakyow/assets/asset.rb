@@ -97,7 +97,9 @@ module Pakyow
           )
         )
 
-        @public_path = File.join(config.prefix, @logical_path)
+        @public_path = String.normalize_path(
+          File.join(config.prefix, @logical_path)
+        )
 
         @mime_type = case File.extname(@public_path)
         when ".js"
@@ -204,7 +206,7 @@ module Pakyow
           #
           @related.each do |asset|
             if asset != self && content.include?(asset.logical_path)
-              content.gsub!(asset.logical_path, asset.public_path)
+              content.gsub!(asset.logical_path, File.join(@config.cdn_prefix, asset.public_path))
             end
           end
         end

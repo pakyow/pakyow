@@ -22,11 +22,11 @@ module Pakyow
                   pack.public_path
                 }.each do |pack|
                   if pack.javascripts?
-                    head.object.append_html("<script src=\"#{pack.public_path}.js\"></script>\n")
+                    head.object.append_html("<script src=\"#{File.join(app.config.assets.cdn_prefix, pack.public_path)}.js\"></script>\n")
                   end
 
                   if pack.stylesheets?
-                    head.object.append_html("<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"#{pack.public_path}.css\">\n")
+                    head.object.append_html("<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"#{File.join(app.config.assets.cdn_prefix, pack.public_path)}.css\">\n")
                   end
                 end
               end
