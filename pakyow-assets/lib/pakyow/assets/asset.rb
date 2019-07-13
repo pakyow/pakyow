@@ -97,9 +97,7 @@ module Pakyow
           )
         )
 
-        @public_path = String.normalize_path(
-          File.join(config.prefix, @logical_path)
-        )
+        @public_path = File.join(config.prefix, @logical_path)
 
         @mime_type = case File.extname(@public_path)
         when ".js"
