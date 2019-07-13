@@ -92,27 +92,31 @@ export default class {
       var uiComponents = this.parseUI(view.node.dataset.ui);
 
       for (let uiComponent of uiComponents) {
-        let object = components[uiComponent.name] || this.create();
-        let instance = new object(view, Object.assign({ name: uiComponent.name }, uiComponent.config));
-        instances.push(instance);
+        try {
+          let object = components[uiComponent.name] || this.create();
+          let instance = new object(view, Object.assign({ name: uiComponent.name }, uiComponent.config));
+          instances.push(instance);
 
-        let matcher = uiComponent.name;
+          let matcher = uiComponent.name;
 
-        if (instance.config.id) {
-          matcher = `${matcher}.${instance.config.id}`;
+          if (instance.config.id) {
+            matcher = `${matcher}.${instance.config.id}`;
+          }
+
+          if (states[matcher]) {
+            instance.state = states[matcher];
+          } else {
+            instance.state = instance.config.state || "initial";
+          }
+
+          if (instance.state !== "initial") {
+            instance.transition(instance.state);
+          }
+
+          instance.appear();
+        } catch (error) {
+          console.log(`failed to initialize component \`${uiComponent.name}': ${error}`);
         }
-
-        if (states[matcher]) {
-          instance.state = states[matcher];
-        } else {
-          instance.state = instance.config.state || "initial";
-        }
-
-        if (instance.state !== "initial") {
-          instance.transition(instance.state);
-        }
-
-        instance.appear();
       }
     }
   }
