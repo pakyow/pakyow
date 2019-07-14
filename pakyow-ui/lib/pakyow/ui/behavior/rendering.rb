@@ -51,27 +51,33 @@ module Pakyow
                     renderer: ui_renderer_instance
                   }
 
-                  payload = {
+                  @payload = {
                     metadata: Marshal.dump(metadata)
                   }
 
                   # Generate a unique id based on the value of the metadata. This guarantees that the
                   # transformation id will be consistent across subscriptions.
                   #
-                  transformation_id = Digest::SHA1.hexdigest(payload[:metadata])
+                  transformation_id = Digest::SHA1.hexdigest(@payload[:metadata])
                   presentables[:__transformation_id] = transformation_id
-                  payload[:transformation_id] = transformation_id
-                  payload[:id] = transformation_id
+                  @payload[:transformation_id] = transformation_id
+                  @payload[:id] = transformation_id
+                end
+              end
+            end
 
-                  @app.ui_executor.post(self, subscribables, payload) do |context, subscribables, payload|
-                    # Find every subscribable presentable, creating a data subscription for each.
-                    #
-                    subscribables.each do |subscribable|
-                      subscribable.subscribe(context.socket_client_id, handler: Handler, payload: payload) do |ids|
-                        # Subscribe the subscriptions to the "transformation" channel.
-                        #
-                        context.subscribe(:transformation, *ids.uniq)
-                      end
+            after "render" do
+              if instance_variable_defined?(:@payload)
+                @app.ui_executor.post(self, subscribables, @payload, Pakyow.logger.target) do |context, subscribables, payload, logger|
+                  logger.debug "[ui] subscribing #{@payload[:id]}"
+
+                  # Find every subscribable presentable, creating a data subscription for each.
+                  #
+                  subscribables.each do |subscribable|
+                    subscribable.subscribe(context.socket_client_id, handler: Handler, payload: payload) do |ids|
+                      # Subscribe the subscriptions to the "transformation" channel.
+                      #
+                      context.subscribe(:transformation, *ids.uniq)
                     end
                   end
                 end
