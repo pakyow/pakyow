@@ -57,9 +57,11 @@ module Pakyow
 
       def did_mutate(source_name, changed_values = nil, result_source = nil)
         @executor << Proc.new {
-          @adapter.subscriptions_for_source(source_name).select { |subscription|
+          @adapter.subscriptions_for_source(source_name).uniq { |subscription|
+            subscription.dig(:payload, :id) || subscription
+          }.select { |subscription|
             process?(subscription, changed_values, result_source)
-          }.uniq.each do |subscription|
+          }.each do |subscription|
             if subscription[:version] == @app.config.data.subscriptions.version
               begin
                 process(subscription, result_source)

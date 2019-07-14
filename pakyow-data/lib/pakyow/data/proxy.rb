@@ -125,7 +125,7 @@ module Pakyow
         subscriptions = []
 
         if subscribable?
-          subscriptions << {
+          subscription = {
             source: @source.source_name,
             ephemeral: @source.is_a?(Sources::Ephemeral),
             handler: handler,
@@ -133,6 +133,10 @@ module Pakyow
             qualifications: qualifications,
             proxy: self
           }
+
+          unless subscriptions.include?(subscription)
+            subscriptions << subscription
+          end
 
           @nested_proxies.each do |related_proxy|
             subscriptions.concat(
@@ -154,7 +158,7 @@ module Pakyow
 
         if association = parent_source.class.find_association_to_source(@source)
           parent_source.each do |parent_result|
-            subscriptions << {
+            subscription = {
               source: @source.source_name,
               handler: handler,
               payload: payload,
@@ -163,6 +167,10 @@ module Pakyow
               ),
               proxy: serialized_proxy
             }
+
+            unless subscriptions.include?(subscription)
+              subscriptions << subscription
+            end
           end
         else
           Pakyow.logger.error "tried to subscribe a related source, but we don't know how it's related"

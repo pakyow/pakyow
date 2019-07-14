@@ -61,6 +61,7 @@ module Pakyow
                   transformation_id = Digest::SHA1.hexdigest(payload[:metadata])
                   presentables[:__transformation_id] = transformation_id
                   payload[:transformation_id] = transformation_id
+                  payload[:id] = transformation_id
 
                   # Find every subscribable presentable, creating a data subscription for each.
                   #
