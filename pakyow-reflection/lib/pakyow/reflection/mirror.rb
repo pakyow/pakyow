@@ -55,7 +55,7 @@ module Pakyow
         # Descend to find the most specific scope first.
         #
         view.each_binding_scope do |binding_scope_node|
-          unless binding_scope_node.significant?(:within_form) || binding_scope_node.labeled?(:plug) || binding_scope_node.labeled?(:plug)
+          unless binding_scope_node.significant?(:within_form) || binding_scope_node.labeled?(:plug)
             binding_scope_view = Presenter::View.from_object(binding_scope_node)
             scope = scope_for_binding(binding_scope_view.binding_name, parent_scope)
 
@@ -73,27 +73,25 @@ module Pakyow
               view_path, view.info.dig(:reflection, :endpoint)
             )
 
-            unless endpoint.exposures.any? { |e| e.binding == binding_scope_view.channeled_binding_name}
-              exposure = Exposure.new(
-                scope: scope,
-                node: binding_scope_node,
-                parent: parent_exposure,
-                binding: binding_scope_view.channeled_binding_name,
-                dataset: binding_scope_view.label(:dataset)
-              )
+            exposure = Exposure.new(
+              scope: scope,
+              node: binding_scope_node,
+              parent: parent_exposure,
+              binding: binding_scope_view.channeled_binding_name,
+              dataset: binding_scope_view.label(:dataset)
+            )
 
-              endpoint.add_exposure(exposure)
+            endpoint.add_exposure(exposure)
 
-              # Discover nested view scopes.
-              #
-              discover_view_scopes(
-                view_path: view_path,
-                view: binding_scope_view,
-                parent_scope: scope,
-                parent_exposure: exposure,
-                binding_path: binding_path.dup << binding_scope_node.label(:binding)
-              )
-            end
+            # Discover nested view scopes.
+            #
+            discover_view_scopes(
+              view_path: view_path,
+              view: binding_scope_view,
+              parent_scope: scope,
+              parent_exposure: exposure,
+              binding_path: binding_path.dup << binding_scope_node.label(:binding)
+            )
           end
         end
 

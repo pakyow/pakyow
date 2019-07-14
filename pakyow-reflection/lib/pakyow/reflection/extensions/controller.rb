@@ -76,23 +76,9 @@ module Pakyow
                 end
               end
 
-              if reflected_exposure.children.any?
-                associations = data.send(
-                  reflected_exposure.scope.plural_name
-                ).source.class.associations.values.flatten
+              query = apply_includes_to_query(query, reflected_exposure.scope.plural_name, reflected_exposure.children)
 
-                reflected_exposure.children.each do |nested_reflected_exposure|
-                  association = associations.find { |possible_association|
-                    possible_association.associated_source_name == nested_reflected_exposure.scope.plural_name
-                  }
-
-                  if association
-                    query = query.including(association.name)
-                  end
-                end
-              end
-
-              if reflects_specific_object?(reflected_exposure.scope.plural_name) && query.dup.count == 0
+              if reflects_specific_object?(reflected_exposure.scope.plural_name) && query.count == 0
                 trigger 404
               else
                 if !reflected_exposure.binding.to_s.include?("form") || reflected_endpoint.view_path.end_with?("/edit")
@@ -278,6 +264,29 @@ module Pakyow
               end
             end
           end
+        end
+
+        def apply_includes_to_query(query, plural_name, children)
+          associations = data.send(
+            plural_name
+          ).source.class.associations.values.flatten
+
+          children.group_by { |child|
+            child.scope.plural_name
+          }.each do |nested_plural_name, child_exposures|
+            association = associations.find { |possible_association|
+              possible_association.associated_source_name == nested_plural_name
+            }
+
+            if association
+              context = self
+              query = query.including(association.name) {
+                context.__send__(:apply_includes_to_query, self, nested_plural_name, child_exposures.flat_map(&:children))
+              }
+            end
+          end
+
+          query
         end
       end
     end
