@@ -272,14 +272,14 @@ module Pakyow
             }.each do |binding_node|
               plural_binding_node_name = Support.inflector.pluralize(binding_node.label(:binding)).to_sym
 
-              nested_view = presenter.find(binding_node.label(:binding))
-
-              if binder.object.include?(binding_node.label(:binding))
-                nested_view.present(binder.object[binding_node.label(:binding)])
-              elsif binder.object.include?(plural_binding_node_name)
-                nested_view.present(binder.object[plural_binding_node_name])
-              else
-                nested_view.remove
+              if nested_view = presenter.find(binding_node.label(:binding))
+                if binder.object.include?(binding_node.label(:binding))
+                  nested_view.present(binder.object[binding_node.label(:binding)])
+                elsif binder.object.include?(plural_binding_node_name)
+                  nested_view.present(binder.object[plural_binding_node_name])
+                else
+                  nested_view.remove
+                end
               end
             end
           end
