@@ -63,13 +63,15 @@ module Pakyow
                   payload[:transformation_id] = transformation_id
                   payload[:id] = transformation_id
 
-                  # Find every subscribable presentable, creating a data subscription for each.
-                  #
-                  subscribables.each do |subscribable|
-                    subscribable.subscribe(socket_client_id, handler: Handler, payload: payload) do |ids|
-                      # Subscribe the subscriptions to the "transformation" channel.
-                      #
-                      subscribe(:transformation, *ids.uniq)
+                  @app.ui_executor.post(self, subscribables, payload) do |context, subscribables, payload|
+                    # Find every subscribable presentable, creating a data subscription for each.
+                    #
+                    subscribables.each do |subscribable|
+                      subscribable.subscribe(context.socket_client_id, handler: Handler, payload: payload) do |ids|
+                        # Subscribe the subscriptions to the "transformation" channel.
+                        #
+                        context.subscribe(:transformation, *ids.uniq)
+                      end
                     end
                   end
                 end

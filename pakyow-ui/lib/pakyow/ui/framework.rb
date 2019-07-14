@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "concurrent/executor/thread_pool_executor"
+
 require "pakyow/framework"
 
 require "pakyow/ui/helpers"
@@ -65,8 +67,21 @@ module Pakyow
             const_set(:UIRenderer, ui_renderer)
           end
 
-          after :initialize do
+          after "initialize" do
             config.data.subscriptions.version = config.version
+          end
+
+          # @api private
+          attr_reader :ui_executor
+          unfreezable :ui_executor
+
+          after "initialize" do
+            @ui_executor = Concurrent::ThreadPoolExecutor.new(
+              auto_terminate: false,
+              min_threads: 1,
+              max_threads: 10,
+              max_queue: 0
+            )
           end
         end
       end
