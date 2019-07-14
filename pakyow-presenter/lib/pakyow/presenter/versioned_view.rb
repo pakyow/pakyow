@@ -21,7 +21,6 @@ module Pakyow
       def initialize_dup(_)
         super
 
-        @versions = @versions.map(&:dup)
         @names = @names.map(&:dup)
       end
 
