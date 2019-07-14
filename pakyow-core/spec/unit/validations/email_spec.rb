@@ -2,7 +2,7 @@ require "pakyow/validations/email"
 
 RSpec.describe Pakyow::Validations::Email do
   it "is named" do
-    expect(described_class.name).to eq(:email)
+    expect(Pakyow::Validator.validation_objects[:email]).to be(described_class)
   end
 
   it "has a message" do

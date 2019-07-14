@@ -2,7 +2,7 @@ require "pakyow/validations/presence"
 
 RSpec.describe Pakyow::Validations::Presence do
   it "is named" do
-    expect(described_class.name).to eq(:presence)
+    expect(Pakyow::Validator.validation_objects[:presence]).to be(described_class)
   end
 
   it "has a message" do

@@ -2,7 +2,7 @@ require "pakyow/validations/acceptance"
 
 RSpec.describe Pakyow::Validations::Acceptance do
   it "is named" do
-    expect(described_class.name).to eq(:acceptance)
+    expect(Pakyow::Validator.validation_objects[:acceptance]).to be(described_class)
   end
 
   it "has a message" do

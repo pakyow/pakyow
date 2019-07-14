@@ -7,10 +7,6 @@ module Pakyow
     # Validates that the value is unique within its data source.
     #
     module Unique
-      def self.name
-        :unique
-      end
-
       def self.message(**)
         "must be unique"
       end
@@ -32,6 +28,6 @@ module Pakyow
       end
     end
 
-    Validator.register_validation(Unique)
+    Validator.register_validation(Unique, :unique)
   end
 end

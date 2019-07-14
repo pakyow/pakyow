@@ -2,7 +2,7 @@ require "pakyow/validations/length"
 
 RSpec.describe Pakyow::Validations::Length do
   it "is named" do
-    expect(described_class.name).to eq(:length)
+    expect(Pakyow::Validator.validation_objects[:length]).to be(described_class)
   end
 
   describe "message" do

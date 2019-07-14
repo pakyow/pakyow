@@ -295,4 +295,42 @@ RSpec.describe Pakyow::Verifier do
       end
     end
   end
+
+  describe "full messages" do
+    let :verifier do
+      described_class.new do
+        required :foo
+        required :bar
+      end
+    end
+
+    let :values do
+      {
+        foo: "foo"
+      }
+    end
+
+    it "includes a verification message for the failed key" do
+      expect(result.messages(type: :full)[:bar]).to eq(["bar is required"])
+    end
+  end
+
+  describe "presentable messages" do
+    let :verifier do
+      described_class.new do
+        required :foo
+        required :bar
+      end
+    end
+
+    let :values do
+      {
+        foo: "foo"
+      }
+    end
+
+    it "includes a verification message for the failed key" do
+      expect(result.messages(type: :presentable)[:bar]).to eq(["Bar is required"])
+    end
+  end
 end

@@ -34,22 +34,29 @@ module Pakyow
 
           handle InvalidData, as: :bad_request do |error|
             if connection.form && connection.form.include?(:origin)
-              errors = case error.result.messages
+              raw_messages = case error.result
+              when Verifier::Result
+                error.result.messages(type: :presentable)
+              else
+                error.result.messages
+              end
+
+              errors = case raw_messages
               when Array
-                error.result.messages.map { |message|
+                raw_messages.map { |message|
                   { message: message }
                 }
               when Hash
-                error.result.messages.flat_map { |type, messages|
+                raw_messages.flat_map { |type, messages|
                   case messages
                   when Array
                     messages.map { |type_message|
-                      { field: type, message: "#{Support.inflector.humanize(type)} #{type_message}" }
+                      { field: type, message: type_message }
                     }
                   when Hash
                     messages.flat_map { |field, field_messages|
                       field_messages.map { |field_message|
-                        { field: field, message: "#{Support.inflector.humanize(field)} #{field_message}" }
+                        { field: field, message: field_message }
                       }
                     }
                   end

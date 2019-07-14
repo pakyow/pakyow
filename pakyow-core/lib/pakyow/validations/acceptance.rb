@@ -19,10 +19,6 @@ module Pakyow
     module Acceptance
       using Support::Refinements::Array::Ensurable
 
-      def self.name
-        :acceptance
-      end
-
       def self.message(**)
         "must be accepted"
       end
@@ -32,6 +28,6 @@ module Pakyow
       end
     end
 
-    Validator.register_validation(Acceptance)
+    Validator.register_validation(Acceptance, :acceptance)
   end
 end

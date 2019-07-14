@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 
 require "pakyow/support/class_state"
+require "pakyow/support/extension"
 
 require "pakyow/errors"
 
 module Pakyow
   class Validator
     class Result
-      def initialize
+      def initialize(key)
+        @key = key
         @errors = []
       end
 
@@ -19,9 +21,12 @@ module Pakyow
         @errors.empty?
       end
 
-      def messages
+      def messages(type: :default)
         @errors.map { |validation, options|
-          options[:message] || validation.message(**options)
+          Verifier.formatted_message(
+            (options[:message] || validation.message(**options)),
+            type: type, key: @key
+          )
         }
       end
     end
@@ -30,8 +35,8 @@ module Pakyow
     class_state :validation_objects, default: {}
 
     class << self
-      def register_validation(validation_object)
-        @validation_objects[validation_object.name] = validation_object
+      def register_validation(validation_object, validation_name)
+        @validation_objects[validation_name] = validation_object
       end
 
       # @api private
@@ -68,7 +73,7 @@ module Pakyow
     end
 
     def call(values, context: nil)
-      result = Result.new
+      result = Result.new(@key)
 
       @validations.each do |validation, options|
         unless validation.valid?(values, key: @key, context: context, **options)

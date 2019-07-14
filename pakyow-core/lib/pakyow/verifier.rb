@@ -38,18 +38,20 @@ module Pakyow
         !@validation.nil?
       end
 
-      def messages
+      def messages(type: :default)
         if validating?
-          messages = @validation.messages
+          messages = @validation.messages(type: type)
         else
           messages = {}
 
           @errors.each_pair do |key, value|
-            messages[key] = value
+            messages[key] = value.map { |each_value|
+              Verifier.formatted_message(each_value, type: type, key: key)
+            }
           end
 
           @nested.each_pair do |key, verifier|
-            nested_messages = verifier.messages
+            nested_messages = verifier.messages(type: type)
 
             unless nested_messages.empty?
               messages[key] = nested_messages
@@ -58,6 +60,19 @@ module Pakyow
         end
 
         messages
+      end
+    end
+
+    class << self
+      def formatted_message(message, type:, key:)
+        case type
+        when :full
+          "#{key} #{message}"
+        when :presentable
+          "#{Support.inflector.humanize(key)} #{message}"
+        else
+          message
+        end
       end
     end
 

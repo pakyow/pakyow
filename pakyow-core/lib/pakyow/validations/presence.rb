@@ -15,10 +15,6 @@ module Pakyow
     #
     # @api public
     module Presence
-      def self.name
-        :presence
-      end
-
       def self.message(**)
         "cannot be blank"
       end
@@ -34,6 +30,6 @@ module Pakyow
       end
     end
 
-    Validator.register_validation(Presence)
+    Validator.register_validation(Presence, :presence)
   end
 end

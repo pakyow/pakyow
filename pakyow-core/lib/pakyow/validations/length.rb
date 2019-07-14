@@ -8,10 +8,6 @@ module Pakyow
     #
     # @api public
     module Length
-      def self.name
-        :length
-      end
-
       def self.message(minimum: nil, maximum: nil, **)
         if minimum && maximum
           "must have between #{minimum} and #{maximum} characters"
@@ -39,6 +35,6 @@ module Pakyow
       end
     end
 
-    Validator.register_validation(Length)
+    Validator.register_validation(Length, :length)
   end
 end
