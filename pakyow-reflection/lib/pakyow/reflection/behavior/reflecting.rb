@@ -37,6 +37,13 @@ module Pakyow
             # Build the endpoints.
             #
             builders[:endpoints].build(@mirror.endpoints)
+
+            # Cleanup.
+            #
+            unless Pakyow.env?(:test)
+              @mirror.scopes.each(&:cleanup)
+              @mirror.endpoints.each(&:cleanup)
+            end
           end
         end
       end

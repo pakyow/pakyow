@@ -19,6 +19,10 @@ module Pakyow
         end
       end
 
+      def cleanup
+        @node = nil
+      end
+
       private
 
       def parse_dataset(dataset)
@@ -70,6 +74,10 @@ module Pakyow
 
       def add_exposure(exposure)
         @exposures << exposure
+      end
+
+      def cleanup
+        @exposures.each(&:cleanup)
       end
     end
   end

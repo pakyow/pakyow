@@ -53,6 +53,10 @@ module Pakyow
         Support.inflector.pluralize(@name).to_sym
       end
 
+      def cleanup
+        @actions.each(&:cleanup)
+      end
+
       private
 
       def normalize(name)

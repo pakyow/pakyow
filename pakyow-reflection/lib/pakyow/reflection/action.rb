@@ -16,6 +16,10 @@ module Pakyow
         @name == normalize(name)
       end
 
+      def cleanup
+        @node = nil
+      end
+
       private
 
       def normalize(name)
