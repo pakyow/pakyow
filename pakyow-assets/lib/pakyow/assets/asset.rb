@@ -206,7 +206,7 @@ module Pakyow
           #
           @related.each do |asset|
             if asset != self && content.include?(asset.logical_path)
-              content.gsub!(asset.logical_path, File.join(@config.cdn_prefix, asset.public_path))
+              content.gsub!(asset.logical_path, File.join(@config.host, asset.public_path))
             end
           end
         end

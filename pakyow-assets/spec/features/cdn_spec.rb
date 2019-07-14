@@ -3,7 +3,7 @@ RSpec.describe "configuring assets to serve content from a cdn" do
 
   let :app_def do
     Proc.new do
-      config.assets.cdn_prefix = "//s.pakyow.com"
+      config.assets.host = "//s.pakyow.com"
     end
   end
 

@@ -29,7 +29,7 @@ module Pakyow
             setting :minify, false
             setting :fingerprint, false
             setting :prefix, "/assets"
-            setting :cdn_prefix, ""
+            setting :host, ""
             setting :silent, true
             setting :source_maps, true
 
