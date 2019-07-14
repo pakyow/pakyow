@@ -7,7 +7,7 @@ require "pakyow/support/class_state"
 module Pakyow
   module Data
     module Sources
-      class Abstract < SimpleDelegator
+      class Base < SimpleDelegator
         extend Support::ClassState
         class_state :__finalized, default: false, inheritable: true
 

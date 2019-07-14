@@ -2,7 +2,7 @@
 
 require "pakyow/support/core_refinements/string/normalization"
 
-require "pakyow/reflection/builders/abstract"
+require "pakyow/reflection/builders/base"
 require "pakyow/reflection/builders/helpers/controller"
 require "pakyow/reflection/extensions/controller"
 
@@ -10,7 +10,7 @@ module Pakyow
   module Reflection
     module Builders
       # @api private
-      class Endpoints < Abstract
+      class Endpoints < Base
         include Helpers::Controller
 
         using Support::Refinements::String::Normalization

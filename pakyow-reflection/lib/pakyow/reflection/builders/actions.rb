@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require "pakyow/reflection/builders/abstract"
+require "pakyow/reflection/builders/base"
 require "pakyow/reflection/builders/helpers/controller"
 
 module Pakyow
   module Reflection
     module Builders
       # @api private
-      class Actions < Abstract
+      class Actions < Base
         include Helpers::Controller
 
         def build(actions)

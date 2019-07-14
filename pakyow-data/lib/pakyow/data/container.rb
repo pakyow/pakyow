@@ -91,7 +91,7 @@ module Pakyow
 
             unless joining_source
               joining_source = source.ancestors.find { |ancestor|
-                ancestor != source && ancestor.ancestors.include?(Sources::Abstract)
+                ancestor != source && ancestor.ancestors.include?(Sources::Base)
               }.make(
                 joining_source_name,
                 adapter: source.adapter,

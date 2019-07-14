@@ -6,7 +6,7 @@ module Pakyow
   class App
     class Connection
       module Session
-        class Abstract < DelegateClass(Support::IndifferentHash)
+        class Base < DelegateClass(Support::IndifferentHash)
           def initialize(connection, options, values = Support::IndifferentHash.new)
             @connection, @options = connection, options
             super(values)

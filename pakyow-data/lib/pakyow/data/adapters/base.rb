@@ -3,7 +3,7 @@
 module Pakyow
   module Data
     module Adapters
-      class Abstract
+      class Base
         def initialize(opts, logger: nil)
           @opts, @logger = opts, logger
         end

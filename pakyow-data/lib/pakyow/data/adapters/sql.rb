@@ -6,13 +6,13 @@ require "pakyow/support/extension"
 
 require "pakyow/support/core_refinements/string/normalization"
 
-require "pakyow/data/adapters/abstract"
+require "pakyow/data/adapters/base"
 
 module Pakyow
   module Data
     module Adapters
       # @api private
-      class Sql < Abstract
+      class Sql < Base
         require "pakyow/data/adapters/sql/commands"
         require "pakyow/data/adapters/sql/dataset_methods"
         require "pakyow/data/adapters/sql/migrator"

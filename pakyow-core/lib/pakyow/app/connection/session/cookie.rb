@@ -5,13 +5,13 @@ require "base64"
 require "pakyow/support/indifferentize"
 require "pakyow/support/message_verifier"
 
-require "pakyow/app/connection/session/abstract"
+require "pakyow/app/connection/session/base"
 
 module Pakyow
   class App
     class Connection
       module Session
-        class Cookie < Abstract
+        class Cookie < Base
           def initialize(connection, options)
             if (cookie = connection.cookies[options.name]) && cookie.is_a?(Support::IndifferentHash)
               super(connection, options, Support::IndifferentHash.new(cookie[:value].to_h))

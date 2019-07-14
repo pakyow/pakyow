@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-require "pakyow/reflection/builders/abstract"
+require "pakyow/reflection/builders/base"
 
 module Pakyow
   module Reflection
     module Builders
       # @api private
-      class Source < Abstract
+      class Source < Base
         def build(scope)
           (source_for_scope(scope) || define_source_for_scope(scope)).class_eval do
             scope.attributes.each do |attribute|

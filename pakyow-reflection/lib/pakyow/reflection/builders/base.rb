@@ -3,7 +3,7 @@
 module Pakyow
   module Reflection
     module Builders
-      class Abstract
+      class Base
         def initialize(app, scopes)
           @app, @scopes = app, scopes
         end

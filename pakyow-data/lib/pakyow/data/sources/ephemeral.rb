@@ -5,12 +5,12 @@ require "securerandom"
 
 require "pakyow/support/core_refinements/array/ensurable"
 
-require "pakyow/data/sources/abstract"
+require "pakyow/data/sources/base"
 
 module Pakyow
   module Data
     module Sources
-      class Ephemeral < Abstract
+      class Ephemeral < Base
         using Support::Refinements::Array::Ensurable
         attr_reader :type, :qualifications
 

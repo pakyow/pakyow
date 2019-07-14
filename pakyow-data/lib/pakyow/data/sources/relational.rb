@@ -4,7 +4,7 @@ require "pakyow/support/makeable"
 require "pakyow/support/class_state"
 require "pakyow/support/inflector"
 
-require "pakyow/data/sources/abstract"
+require "pakyow/data/sources/base"
 
 module Pakyow
   module Data
@@ -54,7 +54,7 @@ module Pakyow
       #   data.posts.by_id(1).first
       #   => #<Pakyow::Data::Object @values={:id => 1, :title => "foo", :created_at => "2018-11-30 10:55:05 -0800", :updated_at => "2018-11-30 10:55:05 -0800"}>
       #
-      class Relational < Sources::Abstract
+      class Relational < Sources::Base
         require "pakyow/data/sources/relational/associations/belongs_to"
         require "pakyow/data/sources/relational/associations/has_many"
         require "pakyow/data/sources/relational/associations/has_one"
