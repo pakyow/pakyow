@@ -14,6 +14,7 @@ module Pakyow
 
       extend Support::ClassState
       class_state :__presenter_class, default: Presenter, inheritable: true
+      class_state :inherit_values, default: false
 
       include Support::Hookable
       events :render

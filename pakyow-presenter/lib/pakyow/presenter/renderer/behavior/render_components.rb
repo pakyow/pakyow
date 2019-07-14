@@ -105,6 +105,14 @@ module Pakyow
                       component_connection = component_connection.class.from_connection(component_connection, :@app => component_connection.app.parent)
                     end
 
+                    unless component[:class].inherit_values == true
+                      component_connection.values.each_key do |key|
+                        unless key.to_s.start_with?("__") || (component[:class].inherit_values && component[:class].inherit_values.include?(key))
+                          component_connection.values.delete(key)
+                        end
+                      end
+                    end
+
                     component_instance = component[:class].new(
                       connection: component_connection,
                       config: component[:config]

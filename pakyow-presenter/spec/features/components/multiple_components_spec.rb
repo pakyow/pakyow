@@ -13,7 +13,7 @@ RSpec.describe "attaching multiple components to the same node" do
         end
       end
 
-      component :bar do
+      component :bar, inherit_values: true do
         presenter do
           render do
             perform_render(self)

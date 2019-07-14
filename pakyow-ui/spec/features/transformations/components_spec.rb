@@ -76,7 +76,7 @@ RSpec.describe "presenting the same data in a renderable and outside of it" do
         end
       end
 
-      component :posts do
+      component :posts, inherit_values: true do
         def perform
           expose :posts, data.posts.recent
         end
@@ -168,13 +168,13 @@ RSpec.describe "presenting two components on one node" do
         attribute :title
       end
 
-      component :posts do
+      component :posts, inherit_values: true do
         def perform
           expose :posts, data.posts
         end
       end
 
-      component :count do
+      component :count, inherit_values: true do
         def perform
           expose :count, data.posts.count
         end

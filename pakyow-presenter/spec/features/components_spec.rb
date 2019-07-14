@@ -282,6 +282,104 @@ RSpec.describe "rendering with backend components" do
       end
     end
 
+    it "does not expose the value to the component" do
+      expect(call("/components")[2]).to eq_sans_whitespace(
+        <<~HTML
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>default</title>
+            </head>
+
+            <body>
+              <div data-ui="single">
+            <script type="text/template" data-b="post"><div data-b="post">
+              <h1 data-b="title">
+                title goes here
+              </h1>
+            </div></script>
+          </div>
+
+            </body>
+          </html>
+        HTML
+      )
+    end
+  end
+
+  context "controller exposes a value and the component inherits values" do
+    let :app_def do
+      Proc.new do
+        controller "/components" do
+          default do
+            expose :posts, [
+              { title: "controller post 1" },
+              { title: "controller post 2" },
+              { title: "controller post 3" }
+            ]
+          end
+        end
+
+        component :single, inherit_values: true do
+          def perform
+            # intentionally empty
+          end
+        end
+      end
+    end
+
+    it "exposes the value to the component" do
+      expect(call("/components")[2]).to eq_sans_whitespace(
+        <<~HTML
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>default</title>
+            </head>
+
+            <body>
+              <div data-ui="single">
+            <div data-b="post">
+              <h1 data-b="title">controller post 1</h1>
+            </div><div data-b="post">
+              <h1 data-b="title">controller post 2</h1>
+            </div><div data-b="post">
+              <h1 data-b="title">controller post 3</h1>
+            </div><script type="text/template" data-b="post"><div data-b="post">
+              <h1 data-b="title">
+                title goes here
+              </h1>
+            </div></script>
+          </div>
+
+            </body>
+          </html>
+        HTML
+      )
+    end
+  end
+
+  context "controller exposes a value and the component inherit the specific value" do
+    let :app_def do
+      Proc.new do
+        controller "/components" do
+          default do
+            expose :posts, [
+              { title: "controller post 1" },
+              { title: "controller post 2" },
+              { title: "controller post 3" }
+            ]
+          end
+        end
+
+        component :single, inherit_values: [:posts] do
+          def perform
+            # intentionally empty
+          end
+        end
+      end
+    end
+
     it "exposes the value to the component" do
       expect(call("/components")[2]).to eq_sans_whitespace(
         <<~HTML
