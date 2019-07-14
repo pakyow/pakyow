@@ -96,7 +96,7 @@ module Pakyow
                 trigger 404
               else
                 if !reflected_exposure.binding.to_s.include?("form") || reflected_endpoint.view_path.end_with?("/edit")
-                  expose reflected_exposure.binding, query
+                  expose reflected_exposure.binding.to_s, query
                 end
               end
             end
