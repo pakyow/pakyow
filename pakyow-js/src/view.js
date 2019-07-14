@@ -99,7 +99,11 @@ export default class {
 
   endpointAction() {
     let endpointView = this.endpoint();
-    return endpointView.query("[data-e-a]")[0] || endpointView;
+    if (endpointView) {
+      return endpointView.query("[data-e-a]")[0] || endpointView;
+    } else {
+      return endpointView;
+    }
   }
 
   component(name) {

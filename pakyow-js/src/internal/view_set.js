@@ -293,6 +293,8 @@ export default class {
       }
 
       let createdView = template.clone();
+      createdView.node.dataset.id = String(object.id);
+      createdView.versions = this.templates;
 
       if (this.views.length == 0) {
         template.insertionPoint.parentNode.insertBefore(
@@ -320,7 +322,7 @@ export default class {
       }
 
       var freshView = template.clone();
-      freshView.node.dataset.id = object.id;
+      freshView.node.dataset.id = String(object.id);
       freshView.versions = this.templates;
 
       // Copy forms from current view into the new one.
