@@ -87,10 +87,6 @@ module Pakyow
           unless object.tagname == "form"
             object.attributes.delete(:"data-e")
 
-            if ui = object.attributes.delete(:"data-ui")
-              object.attributes[:ui] = ui
-            end
-
             if object.tagname == "a"
               object.attributes[:href] = "javascript:void(0)"
             end
@@ -150,13 +146,12 @@ module Pakyow
                     binding_path: current_binding_path,
                     priority: :low,
                     block: Proc.new {
-                      endpoints(endpoint_node.label(:endpoint)).each do |endpoint_view|
-                        case endpoint_view
-                        when Presenters::Form
-                          Presenters::Endpoint.new(endpoint_view.__getobj__).setup
-                        when Presenters::Endpoint
-                          endpoint_view.setup
-                        end
+                      endpoint_view = endpoint(endpoint_node.label(:endpoint))
+                      case endpoint_view
+                      when Presenters::Form
+                        Presenters::Endpoint.new(endpoint_view.__getobj__).setup
+                      when Presenters::Endpoint
+                        endpoint_view.setup
                       end
                     }
                   }

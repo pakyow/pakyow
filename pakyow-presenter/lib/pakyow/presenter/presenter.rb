@@ -400,26 +400,23 @@ module Pakyow
 
       # @api private
       def endpoint(name)
-        object.each_significant_node(:endpoint) do |endpoint_node|
-          if endpoint_node.label(:endpoint) == name.to_sym
-            return presenter_for(View.from_object(endpoint_node))
-          end
-        end
-
-        nil
-      end
-
-      # @api private
-      def endpoints(name)
-        endpoints = []
+        found = []
 
         object.each_significant_node(:endpoint) do |endpoint_node|
           if endpoint_node.label(:endpoint) == name.to_sym
-            endpoints << presenter_for(View.from_object(endpoint_node))
+            found << endpoint_node
           end
         end
 
-        endpoints
+        if found.any?
+          if found[0].is_a?(StringDoc::MetaNode)
+            presenter_for(View.from_object(found[0]))
+          else
+            presenter_for(View.from_object(StringDoc::MetaNode.new(found)))
+          end
+        else
+          nil
+        end
       end
 
       # @api private
