@@ -23,7 +23,7 @@ class StringDoc
         children[1..-1].each do |node|
           # Remove the node, but don't make it appear to have been removed for transforms.
           #
-          node.remove; node.delete_label(:removed)
+          node.remove(false, false)
         end
       end
 
@@ -159,8 +159,11 @@ class StringDoc
       @internal_nodes = StringDoc.nodes_from_doc_or_string(replacement)
     end
 
-    def remove
-      internal_nodes.each(&:remove)
+    def remove(label = true, descend = true)
+      internal_nodes.each do |node|
+        node.remove(label, descend)
+      end
+
       @internal_nodes = []
     end
 
@@ -313,6 +316,10 @@ class StringDoc
       }
     end
 
+    def removed?
+      internal_nodes.all?(&:removed?)
+    end
+
     # Converts the node to an xml string.
     #
     def render(output = String.new, context: nil)
@@ -360,17 +367,17 @@ class StringDoc
         when StringDoc
           return_value.render(string, context: context); return
         when Node, MetaNode
-          current = return_value
+          if return_value.removed?
+            return
+          else
+            current = return_value
+          end
         else
           string << return_value.to_s; return
         end
       end
 
-      # Don't render if the node was removed during the transform.
-      #
-      if !current.is_a?(Node) || !current.labeled?(:removed)
-        current.render(string, context: context)
-      end
+      current.render(string, context: context)
     end
   end
 end

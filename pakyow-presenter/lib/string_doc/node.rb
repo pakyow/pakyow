@@ -163,9 +163,18 @@ class StringDoc
 
     # Removes the node.
     #
-    def remove
-      set_label(:removed, true)
+    def remove(label = true, descend = true)
+      if label
+        set_label(:removed, true)
+      end
+
       @parent.remove_node(self)
+
+      if descend && children.is_a?(StringDoc)
+        children.each do |child|
+          child.remove(label, descend)
+        end
+      end
     end
 
     REGEX_TAGS = /<[^>]*>/
@@ -257,6 +266,10 @@ class StringDoc
     #
     def set_label(name, value)
       @labels[name.to_sym] = value
+    end
+
+    def removed?
+      labeled?(:removed)
     end
 
     # Delete the label with +name+.
@@ -383,17 +396,17 @@ class StringDoc
         when StringDoc
           return_value.render(string, context: context); return
         when Node, MetaNode
-          current = return_value
+          if return_value.removed?
+            return
+          else
+            current = return_value
+          end
         else
           string << return_value.to_s; return
         end
       end
 
-      # Don't render if the node was removed during the transform.
-      #
-      if !current.is_a?(Node) || !current.labeled?(:removed)
-        current.render(string, context: context)
-      end
+      current.render(string, context: context)
     end
 
     def string_nodes
