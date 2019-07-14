@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "digest/sha1"
+require "zlib"
 
 require "redis"
 require "concurrent/timer_task"
@@ -20,7 +21,7 @@ module Pakyow
         class Redis
           class << self
             def stringify_subscription(subscription)
-              Marshal.dump(subscription)
+              Zlib::Deflate.deflate(Marshal.dump(subscription))
             end
 
             def generate_subscription_id(subscription_string)
@@ -154,7 +155,7 @@ module Pakyow
                 key_subscription_id(subscription_id)
               }).zip(subscription_ids).map { |subscription_string, subscription_id|
                 begin
-                  Marshal.restore(subscription_string).tap do |subscription|
+                  Marshal.restore(Zlib::Inflate.inflate(subscription_string)).tap do |subscription|
                     subscription[:id] = subscription_id
                   end
                 rescue TypeError
