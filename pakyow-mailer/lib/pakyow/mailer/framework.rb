@@ -31,6 +31,28 @@ module Pakyow
           unless const_defined?(:MailRenderer, false)
             const_set(:MailRenderer, mail_renderer)
           end
+
+          def mailer(path = nil, presentables)
+            if path
+              renderer = isolated(:MailRenderer).new(
+                app: self,
+                presentables: presentables,
+                presenter_class: isolated(:MailRenderer).find_presenter(self, path),
+                composer: Presenter::Composers::View.new(path, app: self)
+              )
+
+              Mailer.new(
+                renderer: renderer,
+                config: config.mailer,
+                logger: Pakyow.logger
+              )
+            else
+              Mailer.new(
+                config: config.mailer,
+                logger: Pakyow.logger
+              )
+            end
+          end
         end
       end
     end

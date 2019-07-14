@@ -260,4 +260,32 @@ RSpec.describe "sending mail" do
       end
     end
   end
+
+  context "mailing through the app" do
+    let :app_init do
+      Proc.new do
+        presenter "/mail/with_bindings" do
+          render do
+            find(:user).present(user)
+          end
+        end
+      end
+    end
+
+    it "sends correctly" do
+      expect_any_instance_of(
+        Pakyow::Mailer::Mailer
+      ).to receive(:deliver_to).with("bryan@bryanp.org", subject: "test123").and_call_original
+
+      sent = Pakyow.app(:test).mailer("mail/with_bindings", user: { name: "Bob Dylan" }).deliver_to(
+        "bryan@bryanp.org", subject: "test123"
+      )
+
+      expect(
+        sent.first.body.parts.find { |part|
+          part.content_type.to_s.include?("text/html")
+        }.to_s
+      ).to include("Bob Dylan")
+    end
+  end
 end

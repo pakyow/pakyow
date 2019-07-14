@@ -113,6 +113,7 @@ module Pakyow
 
       # @api private
       def rpad(message, offset = 0)
+        message = message.to_s
         message + " " * (76 + offset - message.length)
       end
     end
