@@ -61,7 +61,13 @@ module Pakyow
             "[Pakyow::Data::Subscribers] did mutate #{source_name}"
           }
 
-          @adapter.subscriptions_for_source(source_name).uniq { |subscription|
+          subscriptions = @adapter.subscriptions_for_source(source_name)
+
+          logger.internal {
+            "[Pakyow::Data::Subscribers] fetched #{subscriptions.count} subscriptions"
+          }
+
+          subscriptions.uniq { |subscription|
             subscription.dig(:payload, :id) || subscription
           }.select { |subscription|
             process?(subscription, changed_values, result_source)
