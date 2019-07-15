@@ -155,7 +155,7 @@ module Pakyow
 
       def public_path
         if @config.fingerprint
-          File.join(
+          @fingerprinted_public_path ||= File.join(
             File.dirname(@public_path),
             fingerprinted_filename
           )
