@@ -24,8 +24,8 @@ RSpec.configure do |config|
   end
 
   config.before do
-    allow_any_instance_of(Concurrent::ThreadPoolExecutor).to receive(:<<) do |_, block|
-      block.call
+    allow_any_instance_of(Concurrent::ThreadPoolExecutor).to receive(:post) do |_, *args, &block|
+      block.call(*args)
     end
   end
 
