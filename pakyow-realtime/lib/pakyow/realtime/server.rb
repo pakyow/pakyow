@@ -35,6 +35,7 @@ module Pakyow
 
       def shutdown
         disconnect
+        @sockets.each(&:shutdown)
         @executor.shutdown
         @executor.wait_for_termination(30)
       end

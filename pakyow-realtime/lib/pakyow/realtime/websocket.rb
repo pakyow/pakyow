@@ -80,13 +80,6 @@ module Pakyow
         transmit("beat")
       end
 
-      # @api private
-      def leave
-        trigger_presence(:leave)
-      end
-
-      private
-
       def shutdown
         if open?
           @server.socket_disconnect(self)
@@ -94,6 +87,13 @@ module Pakyow
           @logger.info "shutdown"
         end
       end
+
+      # @api private
+      def leave
+        trigger_presence(:leave)
+      end
+
+      private
 
       def handle_open
         @server.socket_connect(self)
