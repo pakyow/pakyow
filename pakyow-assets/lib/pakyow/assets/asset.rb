@@ -121,7 +121,14 @@ module Pakyow
       # content rather than incurring that cost on boot.
       #
       def freeze
-        super if instance_variable_defined?(:@content)
+        @freezing = true
+        unless @freezing
+          public_path
+        end
+
+        if instance_variable_defined?(:@content) && (!@config.fingerprint || instance_variable_defined?(:@fingerprinted_public_path))
+          super
+        end
       end
 
       def each(&block)
@@ -155,10 +162,16 @@ module Pakyow
 
       def public_path
         if @config.fingerprint
-          @fingerprinted_public_path ||= File.join(
-            File.dirname(@public_path),
-            fingerprinted_filename
-          )
+          unless instance_variable_defined?(:@fingerprinted_public_path)
+            @fingerprinted_public_path = File.join(
+              File.dirname(@public_path),
+              fingerprinted_filename
+            )
+
+            freeze
+          end
+
+          @fingerprinted_public_path
         else
           @public_path
         end
