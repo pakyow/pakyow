@@ -73,15 +73,21 @@ module Pakyow
               view_path, view.info.dig(:reflection, :endpoint)
             )
 
-            exposure = Exposure.new(
-              scope: scope,
-              node: binding_scope_node,
-              parent: parent_exposure,
-              binding: binding_scope_view.channeled_binding_name,
-              dataset: binding_scope_view.label(:dataset)
-            )
+            exposure = endpoint.exposures.find { |e|
+              e.binding == binding_scope_view.channeled_binding_name && e.parent.equal?(parent_exposure)
+            }
 
-            endpoint.add_exposure(exposure)
+            unless exposure
+              exposure = Exposure.new(
+                scope: scope,
+                node: binding_scope_node,
+                parent: parent_exposure,
+                binding: binding_scope_view.channeled_binding_name,
+                dataset: binding_scope_view.label(:dataset)
+              )
+
+              endpoint.add_exposure(exposure)
+            end
 
             # Discover nested view scopes.
             #
