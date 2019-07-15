@@ -57,7 +57,9 @@ module Pakyow
 
       def did_mutate(source_name, changed_values = nil, result_source = nil)
         @executor.post(source_name, changed_values, result_source, Pakyow.logger.target) do |source_name, changed_values, result_source, logger|
-          logger.internal "[Pakyow::Data::Subscribers] did mutate #{source_name}"
+          logger.internal {
+            "[Pakyow::Data::Subscribers] did mutate #{source_name}"
+          }
 
           @adapter.subscriptions_for_source(source_name).uniq { |subscription|
             subscription.dig(:payload, :id) || subscription
@@ -66,16 +68,26 @@ module Pakyow
           }.each do |subscription|
             if subscription[:version] == @app.config.data.subscriptions.version
               begin
-                logger.internal "[Pakyow::Data::Subscribers] processing subscription #{subscription[:id]}"
+                logger.internal {
+                  "[Pakyow::Data::Subscribers] processing subscription #{subscription[:id]}"
+                }
+
                 process(subscription, result_source)
-                logger.internal "[Pakyow::Data::Subscribers] finished processing subscription #{subscription[:id]}"
+
+                logger.internal {
+                  "[Pakyow::Data::Subscribers] finished processing subscription #{subscription[:id]}"
+                }
               rescue => error
-                logger.error "[Pakyow::Data::Subscribers] did_mutate failed: #{error}"
+                logger.error {
+                  "[Pakyow::Data::Subscribers] did_mutate failed: #{error}"
+                }
               end
             end
           end
 
-          logger.internal "[Pakyow::Data::Subscribers] finished mutate for #{source_name}"
+          logger.internal {
+            "[Pakyow::Data::Subscribers] finished mutate for #{source_name}"
+          }
         end
       end
 
