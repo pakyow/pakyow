@@ -69,7 +69,7 @@ module Pakyow
             after "render" do
               if instance_variable_defined?(:@payload)
                 @app.ui_executor.post(self, subscribables, @payload, Pakyow.logger.target) do |context, subscribables, payload, logger|
-                  logger.debug "[ui] subscribing #{@payload[:id]}"
+                  logger.internal "[ui] subscribing #{@payload[:id]}"
 
                   # Find every subscribable presentable, creating a data subscription for each.
                   #
