@@ -5,11 +5,11 @@ require "pakyow/support/class_state"
 module Pakyow
   module Support
     # Provides pipeline behavior. Pipeline objects can define actions to be called in order on an
-    # instance of the pipelined object. Each action can act on the state passed to it. Any action
+    # instance of the pipelined object. Each action can act on the object passed to it. Any action
     # can halt the pipeline, causing the result to be immediately returned without calling other
-    # actions. State passed through the pipeline should include {Pipelined::Object}.
+    # actions. Objects passed through the pipeline should include {Pipeline::Object}.
     #
-    # See {Pakyow::App} and {Pakyow::Routing::Controller} for examples of more complex pipelines.
+    # See {Pakyow::App} and {Pakyow::Routing::Controller} for more examples.
     #
     # @example
     #   class App
@@ -46,7 +46,7 @@ module Pakyow
     #
     # = Modules
     #
-    # Pipeline behavior can be added to a module and then used in a pipelined object.
+    # Pipeline actions can be defined in a module and included in a pipelined object.
     #
     # @example
     #   module VerifyRequest
