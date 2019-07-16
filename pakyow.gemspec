@@ -6,7 +6,7 @@ Gem::Specification.new do |spec|
   spec.name        = "pakyow"
   spec.version     = Pakyow::VERSION
   spec.summary     = "Pakyow"
-  spec.description = "Modern web framework for Ruby"
+  spec.description = "Design-First Web Framework"
 
   spec.author  = "Bryan Powell"
   spec.email    = "bryan@bryanp.org"
