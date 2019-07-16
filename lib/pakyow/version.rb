@@ -3,5 +3,5 @@
 module Pakyow
   # Pakyow's current version.
   #
-  VERSION = "1.0.0.rc5"
+  VERSION = "1.0.0"
 end
