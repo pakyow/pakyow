@@ -5,7 +5,7 @@ require "pakyow/framework"
 require "pakyow/support/indifferentize"
 require "pakyow/support/core_refinements/string/normalization"
 
-require "pakyow/presenter/behavior/config"
+require "pakyow/presenter/config"
 require "pakyow/presenter/behavior/error_rendering"
 require "pakyow/presenter/behavior/exposures"
 require "pakyow/presenter/behavior/implicit_rendering"
@@ -146,7 +146,7 @@ module Pakyow
             config.version = app_version.to_s
           end
 
-          include Behavior::Config
+          include Config
           include Behavior::ErrorRendering
           include Behavior::Exposures
           include Behavior::Initializing

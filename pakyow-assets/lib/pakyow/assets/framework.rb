@@ -5,7 +5,7 @@ require "pakyow/framework"
 require "pakyow/assets/asset"
 require "pakyow/assets/pack"
 
-require "pakyow/assets/behavior/config"
+require "pakyow/assets/config"
 require "pakyow/assets/behavior/assets"
 require "pakyow/assets/behavior/packs"
 require "pakyow/assets/behavior/silencing"
@@ -29,7 +29,7 @@ module Pakyow
           #
           stateful :pack, Pack
 
-          include Behavior::Config
+          include Config
           include Behavior::Assets
           include Behavior::Packs
           include Behavior::Silencing

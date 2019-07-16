@@ -8,7 +8,7 @@ require "pakyow/support/hookable"
 require "pakyow/support/configurable"
 require "pakyow/support/pipeline"
 
-require "pakyow/behavior/config"
+require "pakyow/app/config"
 require "pakyow/behavior/sessions"
 require "pakyow/behavior/endpoints"
 require "pakyow/behavior/pipeline"
@@ -131,7 +131,7 @@ module Pakyow
     include Support::Definable
     include Support::Pipeline
 
-    include Behavior::Config
+    include Config
     include Behavior::Sessions
     include Behavior::Endpoints
     include Behavior::Pipeline

@@ -15,7 +15,7 @@ require "pakyow/support/deep_freeze"
 require "pakyow/support/pipeline"
 require "pakyow/support/inflector"
 
-require "pakyow/environment/behavior/config"
+require "pakyow/environment/config"
 require "pakyow/environment/behavior/initializers"
 require "pakyow/environment/behavior/input_parsing"
 require "pakyow/environment/behavior/plugins"
@@ -103,7 +103,7 @@ module Pakyow
 
   include Support::Configurable
 
-  include Environment::Behavior::Config
+  include Environment::Config
   include Environment::Behavior::Initializers
   include Environment::Behavior::InputParsing
   include Environment::Behavior::Plugins

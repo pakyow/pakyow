@@ -4,7 +4,7 @@ require "pakyow/support/extension"
 require "pakyow/support/path_version"
 
 module Pakyow
-  module Behavior
+  class App
     module Config
       extend Support::Extension
 

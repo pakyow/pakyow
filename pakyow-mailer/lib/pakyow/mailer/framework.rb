@@ -2,7 +2,7 @@
 
 require "pakyow/framework"
 
-require "pakyow/mailer/behavior/config"
+require "pakyow/mailer/config"
 require "pakyow/mailer/helpers"
 
 module Pakyow
@@ -10,7 +10,7 @@ module Pakyow
     class Framework < Pakyow::Framework(:mailer)
       def boot
         object.class_eval do
-          include Behavior::Config
+          include Config
 
           register_helper :active, Helpers
 

@@ -8,7 +8,7 @@ require "pakyow/routing/helpers/exposures"
 
 require "pakyow/behavior/definition"
 
-require "pakyow/security/behavior/config"
+require "pakyow/security/config"
 require "pakyow/security/behavior/disabling"
 require "pakyow/security/behavior/helpers"
 require "pakyow/security/behavior/insecure"
@@ -70,7 +70,7 @@ module Pakyow
           require "pakyow/support/message_verifier"
           handle Support::MessageVerifier::TamperedMessage, as: :forbidden
 
-          include Security::Behavior::Config
+          include Security::Config
           include Security::Behavior::Disabling
           include Security::Behavior::Helpers
           include Security::Behavior::Insecure
