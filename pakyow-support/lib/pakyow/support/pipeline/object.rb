@@ -12,26 +12,27 @@ module Pakyow
 
         def pipelined
           tap do
-            @pipelined = true
+            @__pipelined = true
           end
         end
 
         def pipelined?
-          @pipelined == true
+          @__pipelined == true
         end
 
         def halt
-          @halted = true
+          @__halted = true
           throw :halt, true
         end
 
         def halted?
-          @halted == true
+          @__halted == true
         end
 
         module Initializer
           def initialize(*args)
-            @pipelined, @halted = false
+            @__halted = false
+            @__pipelined = false
             super
           end
         end
