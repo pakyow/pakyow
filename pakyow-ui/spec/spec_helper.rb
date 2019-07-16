@@ -19,10 +19,15 @@ RSpec.configure do |spec_config|
     @excluded_frameworks = [:reflection]
 
     allow_any_instance_of(Pakyow::Realtime::Server).to receive(:start_heartbeat)
+    allow_any_instance_of(Pakyow::Data::Subscribers).to receive(:expire)
 
     if $booted
       allow_any_instance_of(Concurrent::ThreadPoolExecutor).to receive(:<<) do |_, block|
         block.call
+      end
+
+      allow_any_instance_of(Concurrent::ThreadPoolExecutor).to receive(:post) do |_, *args, &block|
+        block.call(*args)
       end
     end
   end

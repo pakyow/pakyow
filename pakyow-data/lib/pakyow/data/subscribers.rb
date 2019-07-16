@@ -44,15 +44,13 @@ module Pakyow
       end
 
       def register_subscriptions(subscriptions, subscriber: nil, &block)
-        @executor << Proc.new {
-          subscriptions.each do |subscription|
-            subscription[:version] = @app.config.data.subscriptions.version
-          end
+        subscriptions.each do |subscription|
+          subscription[:version] = @app.config.data.subscriptions.version
+        end
 
-          @adapter.register_subscriptions(subscriptions, subscriber: subscriber).tap do |ids|
-            yield ids if block_given?
-          end
-        }
+        @adapter.register_subscriptions(subscriptions, subscriber: subscriber).tap do |ids|
+          yield ids if block_given?
+        end
       end
 
       def did_mutate(source_name, changed_values = nil, result_source = nil)

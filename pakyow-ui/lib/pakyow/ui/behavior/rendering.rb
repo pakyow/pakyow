@@ -82,6 +82,10 @@ module Pakyow
                       context.subscribe(:transformation, *ids.uniq)
                     end
                   end
+
+                  # Expire subscriptions if the connection is never established.
+                  #
+                  context.app.data.expire(context.socket_client_id, context.app.config.realtime.timeouts.initial)
                 end
               end
             end

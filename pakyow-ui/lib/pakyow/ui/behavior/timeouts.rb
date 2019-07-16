@@ -16,14 +16,6 @@ module Pakyow
           on :leave do
             @connection.app.data.expire(@id, config.realtime.timeouts.disconnect)
           end
-
-          isolated :Renderer do
-            after "render" do
-              # Expire subscriptions if the connection is never established.
-              #
-              @app.data.expire(presentables[:__socket_client_id], @app.config.realtime.timeouts.initial)
-            end
-          end
         end
       end
     end
