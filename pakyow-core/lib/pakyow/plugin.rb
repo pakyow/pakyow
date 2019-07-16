@@ -24,6 +24,7 @@ require "pakyow/plugin/helper_caller"
 module Pakyow
   # Base plugin class.
   #
+  # @api private
   class Plugin
     require "pakyow/plugin/state"
 

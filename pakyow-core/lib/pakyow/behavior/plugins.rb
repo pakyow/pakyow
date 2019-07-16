@@ -9,6 +9,7 @@ require "pakyow/plugin/lookup"
 
 module Pakyow
   module Behavior
+    # @api private
     module Plugins
       extend Support::Extension
 
