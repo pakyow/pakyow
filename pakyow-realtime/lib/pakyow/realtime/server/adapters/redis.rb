@@ -169,7 +169,9 @@ module Pakyow
 
           def cleanup
             Concurrent::TimerTask.new(execution_interval: 300, timeout_interval: 300) {
-              Pakyow.logger.debug "[Pakyow::Realtime::Server::Adapters::Redis] Cleaning up channel keys"
+              Pakyow.logger.internal {
+                "[Pakyow::Realtime::Server::Adapters::Redis] Cleaning up channel keys"
+              }
 
               removed_count = 0
               @redis.with do |redis|
@@ -185,7 +187,9 @@ module Pakyow
                 end
               end
 
-              Pakyow.logger.debug "[Pakyow::Realtime::Server::Adapters::Redis] Removed #{removed_count} keys"
+              Pakyow.logger.internal {
+                "[Pakyow::Realtime::Server::Adapters::Redis] Removed #{removed_count} keys"
+              }
             }.execute
           end
 

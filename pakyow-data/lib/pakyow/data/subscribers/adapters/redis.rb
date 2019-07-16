@@ -138,9 +138,15 @@ module Pakyow
           def cleanup
             @redis.with do |redis|
               redis.scan_each(match: key_subscription_ids_by_source("*")) do |key|
-                Pakyow.logger.debug "[Pakyow::Data::Subscribers::Adapters::Redis] Cleaning up expired subscriptions for #{key}"
+                Pakyow.logger.internal {
+                  "[Pakyow::Data::Subscribers::Adapters::Redis] Cleaning up expired subscriptions for #{key}"
+                }
+
                 removed_count = redis.zremrangebyscore(key, 0, Time.now.to_i)
-                Pakyow.logger.debug "[Pakyow::Data::Subscribers::Adapters::Redis] Removed #{removed_count} members for #{key}"
+
+                Pakyow.logger.internal {
+                  "[Pakyow::Data::Subscribers::Adapters::Redis] Removed #{removed_count} members for #{key}"
+                }
               end
             end
           end
