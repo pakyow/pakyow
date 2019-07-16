@@ -8,9 +8,9 @@ Gem::Specification.new do |spec|
   spec.summary     = "Pakyow Routing"
   spec.description = "Routing functionality for Pakyow"
 
-  spec.authors  = ["Bryan Powell", "Bret Young"]
-  spec.email    = "bryan@metabahn.com"
-  spec.homepage = "https://pakyow.org"
+  spec.author   = "Bryan Powell"
+  spec.email    = "bryan@bryanp.org"
+  spec.homepage = "https://pakyow.com"
 
   spec.required_ruby_version = ">= 2.5.0"
 

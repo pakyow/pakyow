@@ -9,8 +9,8 @@ Gem::Specification.new do |spec|
   spec.description = "WebSockets and realtime channels for Pakyow"
 
   spec.author   = "Bryan Powell"
-  spec.email    = "bryan@metabahn.com"
-  spec.homepage = "https://pakyow.org"
+  spec.email    = "bryan@bryanp.org"
+  spec.homepage = "https://pakyow.com"
 
   spec.required_ruby_version = ">= 2.5.0"
 
