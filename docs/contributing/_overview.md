@@ -1,3 +1,0 @@
----
-name: Contributing to Pakyow
----
