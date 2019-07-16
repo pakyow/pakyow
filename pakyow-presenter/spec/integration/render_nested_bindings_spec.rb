@@ -55,7 +55,7 @@ RSpec.describe "rendering nested bindings from a presenter" do
   end
 
   let :app do
-    Class.new(Pakyow::App) {
+    Class.new(Pakyow::Application) {
       isolate(Pakyow::Presenter::Binder)
     }.new(:test)
   end

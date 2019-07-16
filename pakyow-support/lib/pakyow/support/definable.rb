@@ -98,16 +98,16 @@ module Pakyow
         #       end
         #     end
         #
-        #     class App
+        #     class Application
         #       include Pakyow::Support::Definable
         #
         #       stateful :person, Person
         #     end
         #
-        #     john = App.person 'John', Date.new(1988, 8, 13) do
+        #     john = Application.person 'John', Date.new(1988, 8, 13) do
         #     end
         #
-        #     App.person 'Sofie', Date.new(2015, 9, 6) do
+        #     Application.person 'Sofie', Date.new(2015, 9, 6) do
         #       befriend(john)
         #     end
         #

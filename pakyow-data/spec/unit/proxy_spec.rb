@@ -19,7 +19,7 @@ RSpec.describe Pakyow::Data::Proxy do
 
   describe "#unsubscribe" do
     let :instance do
-      Pakyow::Data::Proxy.new(double(Pakyow::Data::Sources::Relational), double(Pakyow::Data::Subscribers), double(Pakyow::App))
+      Pakyow::Data::Proxy.new(double(Pakyow::Data::Sources::Relational), double(Pakyow::Data::Subscribers), double(Pakyow::Application))
     end
 
     it "makes the proxy unsubscribable" do

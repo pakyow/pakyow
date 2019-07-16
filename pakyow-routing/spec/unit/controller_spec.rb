@@ -4,7 +4,7 @@ RSpec.describe Pakyow::Routing::Controller do
   end
 
   let :app do
-    klass = Class.new(Pakyow::App) do
+    klass = Class.new(Pakyow::Application) do
       # don't freeze for these tests, because if we do
       # we won't be able to attach method spies
       def freeze; end

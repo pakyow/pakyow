@@ -53,7 +53,7 @@ RSpec.describe "transforming a presenter that has future transforms" do
   end
 
   let :app do
-    Class.new(Pakyow::App) {
+    Class.new(Pakyow::Application) {
       isolate(Pakyow::Presenter::Binder)
     }.new(:test)
   end

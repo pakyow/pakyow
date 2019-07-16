@@ -1,7 +1,7 @@
-RSpec.describe Pakyow::App do
+RSpec.describe Pakyow::Application do
   describe "configuration options" do
     let :app do
-      Class.new(Pakyow::App)
+      Class.new(Pakyow::Application)
     end
 
     describe "app" do

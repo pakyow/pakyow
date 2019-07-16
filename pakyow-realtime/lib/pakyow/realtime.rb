@@ -8,7 +8,7 @@ require "pakyow/realtime/framework"
 
 require "pakyow/config/realtime"
 
-require "pakyow/app/actions/realtime/upgrader"
+require "pakyow/application/actions/realtime/upgrader"
 
 module Pakyow
   include Config::Realtime

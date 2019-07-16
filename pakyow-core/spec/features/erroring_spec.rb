@@ -100,7 +100,7 @@ RSpec.describe "handling errors when calling the environment" do
 
       context "connection does not get created" do
         before do
-          expect(Test::App::Connection).to receive(:new) do
+          expect(Test::Application::Connection).to receive(:new) do
             fail
           end
 

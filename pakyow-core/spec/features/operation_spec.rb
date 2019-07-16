@@ -4,7 +4,7 @@ RSpec.describe "operation" do
   let :action do
     local = self
     Class.new do
-      include Pakyow::App::Helpers::Connection
+      include Pakyow::Application::Helpers::Connection
       instance_variable_set(:@local, local)
       def call(connection)
         @connection = connection
@@ -45,7 +45,7 @@ RSpec.describe "operation" do
 
   it "has access to the app" do
     expect(call("/")[0]).to eq(200)
-    expect(@result.app).to be_instance_of(Test::App)
+    expect(@result.app).to be_instance_of(Test::Application)
   end
 
   it "has access to values" do
@@ -62,7 +62,7 @@ RSpec.describe "operation" do
     let :action do
       local = self
       Class.new do
-        include Pakyow::App::Helpers::Connection
+        include Pakyow::Application::Helpers::Connection
         instance_variable_set(:@local, local)
         def call(connection)
           @connection = connection

@@ -7,8 +7,8 @@
 # it can also be isolated, because we'll have the option of pulling from the app object
 #
 # what do we call it?
-# AppConnection, RoutedConnection, WrappedConnection, App::Connection (ding ding ding)
-# just create it in App#call, where the original connection is passed
+# ApplicationConnection, RoutedConnection, WrappedConnection, Application::Connection (ding ding ding)
+# just create it in Application#call, where the original connection is passed
 #
 RSpec.shared_examples :connection_verifier do
   it "needs specs (waiting on session)"

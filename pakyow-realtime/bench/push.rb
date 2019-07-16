@@ -23,7 +23,7 @@
 # begin
 #   N_APPS.times do |n_app|
 #     processes << Process.fork {
-#       Pakyow::App.define do
+#       Pakyow::Application.define do
 #         configure do
 #           server.port = PORT_START + n_app
 #           logger.enabled = false
@@ -53,7 +53,7 @@
 #         end
 #       end
 
-#       Pakyow::App.run(:production)
+#       Pakyow::Application.run(:production)
 #     }
 #   end
 

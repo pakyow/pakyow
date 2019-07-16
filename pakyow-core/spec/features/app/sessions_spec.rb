@@ -58,7 +58,7 @@ RSpec.describe "app sessions" do
     end
 
     it "raises an error" do
-      expect(call("/")[2]).to include("cannot load such file -- pakyow/app/connection/session/missing")
+      expect(call("/")[2]).to include("cannot load such file -- pakyow/application/connection/session/missing")
     end
   end
 

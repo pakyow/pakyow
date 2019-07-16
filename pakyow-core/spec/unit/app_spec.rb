@@ -1,6 +1,6 @@
-RSpec.describe Pakyow::App do
+RSpec.describe Pakyow::Application do
   let :app_class do
-    Class.new(Pakyow::App)
+    Class.new(Pakyow::Application)
   end
 
   let :connection do

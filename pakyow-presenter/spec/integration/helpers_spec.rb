@@ -2,7 +2,7 @@ RSpec.describe "presenter helpers" do
   include_context "app"
 
   it "registers Presenter::Helpers::Rendering as an active helper" do
-    expect(app.helpers(:active)).to include(Pakyow::App::Helpers::Presenter::Rendering)
+    expect(app.helpers(:active)).to include(Pakyow::Application::Helpers::Presenter::Rendering)
   end
 
   it "includes global helpers into Binder" do

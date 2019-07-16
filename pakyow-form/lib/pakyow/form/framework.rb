@@ -7,7 +7,7 @@ require "pakyow/framework"
 require "pakyow/support/extension"
 require "pakyow/support/inflector"
 
-require "pakyow/app/connection/helpers/form"
+require "pakyow/application/connection/helpers/form"
 
 module Pakyow
   module Form
@@ -25,7 +25,7 @@ module Pakyow
           end
 
           isolated :Connection do
-            include Pakyow::App::Connection::Helpers::Form
+            include Pakyow::Application::Connection::Helpers::Form
           end
 
           handle InvalidData, as: :bad_request do |error|

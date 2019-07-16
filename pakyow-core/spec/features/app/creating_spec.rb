@@ -17,12 +17,12 @@ RSpec.describe "creating an app" do
 
   it "creates the app in a namespaced class" do
     create_app
-    expect(defined?(Test::App)).to eq("constant")
+    expect(defined?(Test::Application)).to eq("constant")
   end
 
   it "sets the name of the app" do
     create_app
-    expect(Test::App.config.name).to eq(:test)
+    expect(Test::Application.config.name).to eq(:test)
   end
 
   it "loads all registered frameworks" do
@@ -49,11 +49,11 @@ RSpec.describe "creating an app" do
     allow(Pakyow).to receive(:mount)
     create_app
 
-    expect(Pakyow).to have_received(:mount).with(Test::App, at: "/")
+    expect(Pakyow).to have_received(:mount).with(Test::Application, at: "/")
   end
 
   it "returns the app" do
-    expect(create_app). to eq(Test::App)
+    expect(create_app). to eq(Test::Application)
   end
 
   context "when a mount path is provided" do
@@ -63,7 +63,7 @@ RSpec.describe "creating an app" do
     end
 
     it "respects the given path" do
-      expect(Pakyow).to have_received(:mount).with(Test::App, at: "/foo")
+      expect(Pakyow).to have_received(:mount).with(Test::Application, at: "/foo")
     end
   end
 
@@ -79,7 +79,7 @@ RSpec.describe "creating an app" do
 
     it "does not load the excluded framework" do
       create_app_without([:foo])
-      expect(Test::App.ancestors).not_to include(FooFramework)
+      expect(Test::Application.ancestors).not_to include(FooFramework)
     end
 
     context "when exclusions are not passed as an array" do
@@ -89,7 +89,7 @@ RSpec.describe "creating an app" do
       end
 
       it "still does not load the excluded framework" do
-        expect(Test::App.ancestors).not_to include(FooFramework)
+        expect(Test::Application.ancestors).not_to include(FooFramework)
       end
     end
   end
@@ -102,7 +102,7 @@ RSpec.describe "creating an app" do
     end
 
     it "evals the given block" do
-      expect(Test::App.config.name).to eq(:foo)
+      expect(Test::Application.config.name).to eq(:foo)
     end
   end
 end

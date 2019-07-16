@@ -1,6 +1,6 @@
-require "pakyow/app/connection/session/cookie"
+require "pakyow/application/connection/session/cookie"
 
-RSpec.describe Pakyow::App::Connection::Session::Cookie do
+RSpec.describe Pakyow::Application::Connection::Session::Cookie do
   before do
     allow(Pakyow).to receive(:verifier).and_return(
       verifier
@@ -13,7 +13,7 @@ RSpec.describe Pakyow::App::Connection::Session::Cookie do
 
   let :connection do
     double(
-      Pakyow::App::Connection,
+      Pakyow::Application::Connection,
       cookies: {},
       update_request_cookie: nil
     )

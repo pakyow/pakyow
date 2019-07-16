@@ -2,14 +2,14 @@
 
 require "pakyow/framework"
 
-require "pakyow/app/behavior/assets"
-require "pakyow/app/behavior/assets/packs"
-require "pakyow/app/behavior/assets/silencing"
-require "pakyow/app/behavior/assets/externals"
-require "pakyow/app/behavior/assets/watching"
-require "pakyow/app/behavior/assets/prelaunching"
-require "pakyow/app/behavior/assets/processing"
-require "pakyow/app/config/assets"
+require "pakyow/application/behavior/assets"
+require "pakyow/application/behavior/assets/packs"
+require "pakyow/application/behavior/assets/silencing"
+require "pakyow/application/behavior/assets/externals"
+require "pakyow/application/behavior/assets/watching"
+require "pakyow/application/behavior/assets/prelaunching"
+require "pakyow/application/behavior/assets/processing"
+require "pakyow/application/config/assets"
 
 require "pakyow/presenter/renderer/behavior/assets/install_assets"
 
@@ -29,14 +29,14 @@ module Pakyow
           #
           stateful :pack, Pack
 
-          include App::Config::Assets
-          include App::Behavior::Assets
-          include App::Behavior::Assets::Packs
-          include App::Behavior::Assets::Silencing
-          include App::Behavior::Assets::Externals
-          include App::Behavior::Assets::Watching
-          include App::Behavior::Assets::Prelaunching
-          include App::Behavior::Assets::Processing
+          include Application::Config::Assets
+          include Application::Behavior::Assets
+          include Application::Behavior::Assets::Packs
+          include Application::Behavior::Assets::Silencing
+          include Application::Behavior::Assets::Externals
+          include Application::Behavior::Assets::Watching
+          include Application::Behavior::Assets::Prelaunching
+          include Application::Behavior::Assets::Processing
 
           after "load" do
             isolated(:Renderer) do

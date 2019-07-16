@@ -2,14 +2,14 @@
 
 require "pakyow/framework"
 
-require "pakyow/app/helpers/realtime/broadcasting"
-require "pakyow/app/helpers/realtime/subscriptions"
-require "pakyow/app/helpers/realtime/socket"
+require "pakyow/application/helpers/realtime/broadcasting"
+require "pakyow/application/helpers/realtime/subscriptions"
+require "pakyow/application/helpers/realtime/socket"
 
-require "pakyow/app/config/realtime"
-require "pakyow/app/behavior/realtime/serialization"
-require "pakyow/app/behavior/realtime/server"
-require "pakyow/app/behavior/realtime/silencing"
+require "pakyow/application/config/realtime"
+require "pakyow/application/behavior/realtime/serialization"
+require "pakyow/application/behavior/realtime/server"
+require "pakyow/application/behavior/realtime/silencing"
 
 require "pakyow/presenter/renderer/behavior/realtime/install_websocket"
 
@@ -18,18 +18,18 @@ module Pakyow
     class Framework < Pakyow::Framework(:realtime)
       def boot
         object.class_eval do
-          register_helper :active, App::Helpers::Realtime::Broadcasting
-          register_helper :active, App::Helpers::Realtime::Subscriptions
-          register_helper :passive, App::Helpers::Realtime::Socket
+          register_helper :active, Application::Helpers::Realtime::Broadcasting
+          register_helper :active, Application::Helpers::Realtime::Subscriptions
+          register_helper :passive, Application::Helpers::Realtime::Socket
 
           # Socket events are triggered on the app.
           #
           events :join, :leave
 
-          include App::Config::Realtime
-          include App::Behavior::Realtime::Server
-          include App::Behavior::Realtime::Silencing
-          include App::Behavior::Realtime::Serialization
+          include Application::Config::Realtime
+          include Application::Behavior::Realtime::Server
+          include Application::Behavior::Realtime::Silencing
+          include Application::Behavior::Realtime::Serialization
 
           isolated :Renderer do
             include Presenter::Renderer::Behavior::Realtime::InstallWebsocket

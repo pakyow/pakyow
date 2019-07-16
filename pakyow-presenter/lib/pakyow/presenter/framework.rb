@@ -5,16 +5,16 @@ require "pakyow/framework"
 require "pakyow/support/indifferentize"
 require "pakyow/support/core_refinements/string/normalization"
 
-require "pakyow/app/config/presenter"
-require "pakyow/app/behavior/presenter/error_rendering"
-require "pakyow/app/behavior/presenter/exposures"
-require "pakyow/app/behavior/presenter/implicit_rendering"
-require "pakyow/app/behavior/presenter/initializing"
-require "pakyow/app/behavior/presenter/modes"
-require "pakyow/app/behavior/presenter/versions"
-require "pakyow/app/behavior/presenter/watching"
+require "pakyow/application/config/presenter"
+require "pakyow/application/behavior/presenter/error_rendering"
+require "pakyow/application/behavior/presenter/exposures"
+require "pakyow/application/behavior/presenter/implicit_rendering"
+require "pakyow/application/behavior/presenter/initializing"
+require "pakyow/application/behavior/presenter/modes"
+require "pakyow/application/behavior/presenter/versions"
+require "pakyow/application/behavior/presenter/watching"
 
-require "pakyow/app/helpers/presenter/rendering"
+require "pakyow/application/helpers/presenter/rendering"
 
 require "pakyow/presenter/renderable"
 
@@ -83,14 +83,14 @@ module Pakyow
           aspect :components
           aspect :presenters
 
-          register_helper :active, App::Helpers::Presenter::Rendering
+          register_helper :active, Application::Helpers::Presenter::Rendering
 
           isolated :Connection do
             include Renderable
           end
 
           isolated :Controller do
-            include App::Behavior::Presenter::ImplicitRendering
+            include Application::Behavior::Presenter::ImplicitRendering
 
             action :verify_form_metadata do
               if metadata = params[:"pw-form"]
@@ -146,13 +146,13 @@ module Pakyow
             config.version = app_version.to_s
           end
 
-          include App::Config::Presenter
-          include App::Behavior::Presenter::ErrorRendering
-          include App::Behavior::Presenter::Exposures
-          include App::Behavior::Presenter::Initializing
-          include App::Behavior::Presenter::Modes
-          include App::Behavior::Presenter::Versions
-          include App::Behavior::Presenter::Watching
+          include Application::Config::Presenter
+          include Application::Behavior::Presenter::ErrorRendering
+          include Application::Behavior::Presenter::Exposures
+          include Application::Behavior::Presenter::Initializing
+          include Application::Behavior::Presenter::Modes
+          include Application::Behavior::Presenter::Versions
+          include Application::Behavior::Presenter::Watching
 
           def view_info_for_path(path)
             path = String.collapse_path(path)

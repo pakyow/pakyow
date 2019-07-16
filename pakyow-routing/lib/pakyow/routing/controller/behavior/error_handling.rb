@@ -85,7 +85,7 @@ module Pakyow
           # Registers an error handler used within a controller or request lifecycle.
           #
           # @example Defining for a controller:
-          #   Pakyow::App.controller do
+          #   Pakyow::Application.controller do
           #     handle 500 do
           #       # build and send a response for `request.error`
           #     end
@@ -96,7 +96,7 @@ module Pakyow
           #   end
           #
           # @example Defining for a request lifecycle:
-          #   Pakyow::App.controller do
+          #   Pakyow::Application.controller do
           #     default do
           #       handle 500 do
           #         # build and send a response for `request.error`

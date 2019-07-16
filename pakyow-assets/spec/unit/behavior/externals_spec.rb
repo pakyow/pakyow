@@ -1,9 +1,9 @@
-require "pakyow/app/behavior/assets/externals"
+require "pakyow/application/behavior/assets/externals"
 
-RSpec.describe Pakyow::App::Behavior::Assets::Externals do
+RSpec.describe Pakyow::Application::Behavior::Assets::Externals do
   let :extended_class do
-    Class.new(Pakyow::App) do
-      include Pakyow::App::Behavior::Assets::Externals
+    Class.new(Pakyow::Application) do
+      include Pakyow::Application::Behavior::Assets::Externals
 
       attr_accessor :scripts
 

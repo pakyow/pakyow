@@ -66,7 +66,7 @@ RSpec.configure do |spec_config|
 end
 
 $booted = false
-Pakyow::App.after "boot" do
+Pakyow::Application.after "boot" do
   $booted = true
 end
 

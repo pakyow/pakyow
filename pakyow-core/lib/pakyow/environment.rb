@@ -31,7 +31,7 @@ require "pakyow/actions/input_parser"
 require "pakyow/actions/logger"
 require "pakyow/actions/normalizer"
 
-require "pakyow/app"
+require "pakyow/application"
 
 require "pakyow/logger/destination"
 require "pakyow/logger/multiplexed"
@@ -41,7 +41,7 @@ require "pakyow/logger/thread_local"
 # mounted in the environment, each one handling requests at some path.
 #
 #   Pakyow.configure do
-#     mount Pakyow::App, at: "/"
+#     mount Pakyow::Application, at: "/"
 #   end
 #
 # = Configuration
@@ -150,7 +150,7 @@ module Pakyow
     # Mounts an app at a path.
     #
     # The app can be any rack endpoint, but must implement an
-    # initializer like {App#initialize}.
+    # initializer like {Application#initialize}.
     #
     # @param app the rack endpoint to mount
     # @param at [String] where the endpoint should be mounted
@@ -276,7 +276,7 @@ module Pakyow
       else
         local_frameworks = (only || frameworks.keys) - Array.ensure(without)
 
-        Pakyow::App.make(Support::ObjectName.namespace(app_name, "app")) {
+        Pakyow::Application.make(Support::ObjectName.namespace(app_name, "application")) {
           config.name = app_name
           include_frameworks(*local_frameworks)
         }.tap do |app|
@@ -335,7 +335,7 @@ module Pakyow
 
     # @api private
     def initialize_app_for_mount(mount)
-      if mount[:app].ancestors.include?(Pakyow::App)
+      if mount[:app].ancestors.include?(Pakyow::Application)
         mount[:app].new(env, mount_path: mount[:path], &mount[:block])
       else
         mount[:app].new

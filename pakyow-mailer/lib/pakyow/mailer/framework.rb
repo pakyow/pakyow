@@ -2,17 +2,17 @@
 
 require "pakyow/framework"
 
-require "pakyow/app/config/mailer"
-require "pakyow/app/helpers/mailer"
+require "pakyow/application/config/mailer"
+require "pakyow/application/helpers/mailer"
 
 module Pakyow
   module Mailer
     class Framework < Pakyow::Framework(:mailer)
       def boot
         object.class_eval do
-          include Pakyow::App::Config::Mailer
+          include Pakyow::Application::Config::Mailer
 
-          register_helper :active, Pakyow::App::Helpers::Mailer
+          register_helper :active, Pakyow::Application::Helpers::Mailer
 
           mail_renderer = Class.new(isolated(:Renderer)) do
             # Override so we don't trigger any hooks.

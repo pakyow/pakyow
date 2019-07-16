@@ -9,10 +9,10 @@ module Pakyow
     # can halt the pipeline, causing the result to be immediately returned without calling other
     # actions. Objects passed through the pipeline should include {Pipeline::Object}.
     #
-    # See {Pakyow::App} and {Pakyow::Routing::Controller} for more examples.
+    # See {Pakyow::Application} and {Pakyow::Routing::Controller} for more examples.
     #
     # @example
-    #   class App
+    #   class Application
     #     include Pakyow::Support::Pipeline
     #
     #     action :foo
@@ -41,7 +41,7 @@ module Pakyow
     #     end
     #   end
     #
-    #   App.new.call(Result.new).results
+    #   Application.new.call(Result.new).results
     #   => ["foo", "bar"]
     #
     # = Modules
@@ -59,7 +59,7 @@ module Pakyow
     #     end
     #   end
     #
-    #   class App
+    #   class Application
     #     include Pakyow::Support::Pipeline
     #
     #     use_pipeline VerifyRequest

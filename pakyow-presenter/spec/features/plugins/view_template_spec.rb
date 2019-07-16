@@ -257,7 +257,7 @@ RSpec.describe "rendering view templates" do
 
             expect(response_body).to include_sans_whitespace(
               <<~HTML
-                Pakyow::App
+                Pakyow::Application
               HTML
             )
           end

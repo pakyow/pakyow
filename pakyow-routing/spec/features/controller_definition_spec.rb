@@ -100,7 +100,7 @@ RSpec.describe "defining a controller" do
     end
 
     before do
-      Pakyow::App.controller << ChildController
+      Pakyow::Application.controller << ChildController
       run
     end
 
@@ -115,7 +115,7 @@ RSpec.describe "defining a controller" do
     end
 
     before do
-      Pakyow::App.controller << ChildControllerWithOptions
+      Pakyow::Application.controller << ChildControllerWithOptions
       run
     end
 

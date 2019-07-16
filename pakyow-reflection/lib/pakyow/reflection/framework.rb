@@ -3,8 +3,8 @@
 require "pakyow/framework"
 require "pakyow/support/inflector"
 
-require "pakyow/app/config/reflection"
-require "pakyow/app/behavior/reflection/reflecting"
+require "pakyow/application/config/reflection"
+require "pakyow/application/behavior/reflection/reflecting"
 require "pakyow/presenter/renderer/behavior/reflection/install_form_metadata"
 require "pakyow/reflection/mirror"
 
@@ -12,8 +12,8 @@ module Pakyow
   module Reflection
     class Framework < Pakyow::Framework(:reflection)
       def boot
-        object.include App::Config::Reflection
-        object.include App::Behavior::Reflection::Reflecting
+        object.include Application::Config::Reflection
+        object.include Application::Behavior::Reflection::Reflecting
 
         object.isolated :Renderer do
           include Presenter::Renderer::Behavior::Reflection::InstallFormMetadata

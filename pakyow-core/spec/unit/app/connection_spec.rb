@@ -1,11 +1,11 @@
 require_relative "./connection/shared_examples/values"
 require_relative "./connection/shared_examples/verifier"
 
-require "pakyow/app/connection/session/cookie"
+require "pakyow/application/connection/session/cookie"
 
 require "pakyow/support/deep_dup"
 
-RSpec.describe Pakyow::App::Connection do
+RSpec.describe Pakyow::Application::Connection do
   using Pakyow::Support::DeepDup
 
   let :connection do
@@ -14,10 +14,10 @@ RSpec.describe Pakyow::App::Connection do
 
   let :app do
     instance_double(
-      Pakyow::App,
-      config: Pakyow::App.config.deep_dup,
-      session_object: Pakyow::App::Connection::Session::Cookie,
-      session_options: Pakyow::App.config.session.cookie.deep_dup
+      Pakyow::Application,
+      config: Pakyow::Application.config.deep_dup,
+      session_object: Pakyow::Application::Connection::Session::Cookie,
+      session_options: Pakyow::Application.config.session.cookie.deep_dup
     )
   end
 

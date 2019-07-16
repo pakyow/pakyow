@@ -1,31 +1,31 @@
-RSpec.describe Pakyow::App do
+RSpec.describe Pakyow::Application do
   describe "known events" do
     it "includes `initialize`" do
-      expect(Pakyow::App.events).to include(:initialize)
+      expect(Pakyow::Application.events).to include(:initialize)
     end
 
     it "includes `configure`" do
-      expect(Pakyow::App.events).to include(:configure)
+      expect(Pakyow::Application.events).to include(:configure)
     end
 
     it "includes `load`" do
-      expect(Pakyow::App.events).to include(:load)
+      expect(Pakyow::Application.events).to include(:load)
     end
 
     it "includes `finalize`" do
-      expect(Pakyow::App.events).to include(:finalize)
+      expect(Pakyow::Application.events).to include(:finalize)
     end
 
     it "includes `boot`" do
-      expect(Pakyow::App.events).to include(:boot)
+      expect(Pakyow::Application.events).to include(:boot)
     end
 
     it "includes `rescue`" do
-      expect(Pakyow::App.events).to include(:rescue)
+      expect(Pakyow::Application.events).to include(:rescue)
     end
 
     it "includes `shutdown`" do
-      expect(Pakyow::App.events).to include(:shutdown)
+      expect(Pakyow::Application.events).to include(:shutdown)
     end
   end
 end

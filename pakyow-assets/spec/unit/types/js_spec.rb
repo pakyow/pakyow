@@ -1,7 +1,7 @@
 RSpec.describe Pakyow::Assets::Types::JS do
   let :config do
-    app_class = Class.new(Pakyow::App) do
-      include Pakyow::App::Config::Assets
+    app_class = Class.new(Pakyow::Application) do
+      include Pakyow::Application::Config::Assets
 
       configurable :presenter do
         setting :path, ""

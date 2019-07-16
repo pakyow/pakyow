@@ -6,17 +6,17 @@ require "pakyow/support/definable"
 require "pakyow/support/hookable"
 require "pakyow/support/pipeline"
 
-require "pakyow/app/behavior/aspects"
-require "pakyow/app/behavior/endpoints"
-require "pakyow/app/behavior/frameworks"
-require "pakyow/app/behavior/helpers"
-require "pakyow/app/behavior/isolating"
-require "pakyow/app/behavior/operations"
-require "pakyow/app/behavior/pipeline"
-require "pakyow/app/behavior/rescuing"
-require "pakyow/app/behavior/restarting"
+require "pakyow/application/behavior/aspects"
+require "pakyow/application/behavior/endpoints"
+require "pakyow/application/behavior/frameworks"
+require "pakyow/application/behavior/helpers"
+require "pakyow/application/behavior/isolating"
+require "pakyow/application/behavior/operations"
+require "pakyow/application/behavior/pipeline"
+require "pakyow/application/behavior/rescuing"
+require "pakyow/application/behavior/restarting"
 
-require "pakyow/app"
+require "pakyow/application"
 require "pakyow/endpoints"
 
 require "pakyow/plugin/helper_caller"
@@ -58,19 +58,19 @@ module Pakyow
 
     # Use the same events as app.
     #
-    events(*App.events)
+    events(*Application.events)
 
     # Include behavior so that plugin behaves like an app.
     #
-    include App::Behavior::Aspects
-    include App::Behavior::Endpoints
-    include App::Behavior::Frameworks
-    include App::Behavior::Helpers
-    include App::Behavior::Isolating
-    include App::Behavior::Operations
-    include App::Behavior::Pipeline
-    include App::Behavior::Rescuing
-    include App::Behavior::Restarting
+    include Application::Behavior::Aspects
+    include Application::Behavior::Endpoints
+    include Application::Behavior::Frameworks
+    include Application::Behavior::Helpers
+    include Application::Behavior::Isolating
+    include Application::Behavior::Operations
+    include Application::Behavior::Pipeline
+    include Application::Behavior::Rescuing
+    include Application::Behavior::Restarting
 
     attr_reader :parent
 

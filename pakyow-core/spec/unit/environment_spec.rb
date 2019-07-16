@@ -429,11 +429,11 @@ RSpec.describe Pakyow do
     end
 
     let :app do
-      Class.new(Pakyow::App)
+      Class.new(Pakyow::Application)
     end
 
     let :app_instance do
-      instance_double(Pakyow::App)
+      instance_double(Pakyow::Application)
     end
 
     it "calls after boot hooks" do

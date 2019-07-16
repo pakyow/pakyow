@@ -22,7 +22,7 @@ module Pakyow
   module Routing
     # Executes code for particular requests. For example:
     #
-    #   Pakyow::App.controller do
+    #   Pakyow::Application.controller do
     #     get "/" do
     #       # called for GET / requests
     #     end
@@ -32,7 +32,7 @@ module Pakyow
     # context of its controller. This means that any method defined in a controller is available to be
     # called from within a route. For example:
     #
-    #   Pakyow::App.controller do
+    #   Pakyow::Application.controller do
     #     def foo
     #     end
     #
@@ -48,7 +48,7 @@ module Pakyow
     #     end
     #   end
     #
-    #   Pakyow::App.controller do
+    #   Pakyow::Application.controller do
     #     include AuthHelpers
     #
     #     get :foo, "/foo" do
@@ -56,7 +56,7 @@ module Pakyow
     #     end
     #   end
     #
-    # See {App.controller} for more details on defining controllers.
+    # See {Application.controller} for more details on defining controllers.
     #
     # = Supported HTTP methods
     #
@@ -78,7 +78,7 @@ module Pakyow
     #
     # Methods can be defined as additional actions for a route. For example:
     #
-    #   Pakyow::App.controller do
+    #   Pakyow::Application.controller do
     #     action :called_before
     #
     #     def called_before
@@ -110,7 +110,7 @@ module Pakyow
     #     end
     #   end
     #
-    #   Pakyow::App.controller << FooController
+    #   Pakyow::Application.controller << FooController
     #
     # = Custom matchers
     #
@@ -123,7 +123,7 @@ module Pakyow
     #     end
     #   end
     #
-    #   Pakyow::App.controller CustomMatcher.new do
+    #   Pakyow::Application.controller CustomMatcher.new do
     #   end
     #
     # Custom matchers can also make data available in +params+ by implementing +match+ and returning
@@ -143,7 +143,7 @@ module Pakyow
     #     end
     #   end
     #
-    #   Pakyow::App.controller CustomMatcher.new do
+    #   Pakyow::Application.controller CustomMatcher.new do
     #   end
     #
     class Controller
@@ -295,21 +295,21 @@ module Pakyow
       # @param trusted [Boolean] whether or not the location is trusted
       #
       # @example Redirecting:
-      #   Pakyow::App.controller do
+      #   Pakyow::Application.controller do
       #     default do
       #       redirect "/foo"
       #     end
       #   end
       #
       # @example Redirecting with a status code:
-      #   Pakyow::App.controller do
+      #   Pakyow::Application.controller do
       #     default do
       #       redirect "/foo", as: 301
       #     end
       #   end
       #
       # @example Redirecting to a remote location:
-      #   Pakyow::App.controller do
+      #   Pakyow::Application.controller do
       #     default do
       #       redirect "http://foo.com/bar", trusted: true
       #     end
@@ -341,7 +341,7 @@ module Pakyow
       # @param method [Symbol] the http method to reroute as
       #
       # @example
-      #   Pakyow::App.resource :posts, "/posts" do
+      #   Pakyow::Application.resource :posts, "/posts" do
       #     edit do
       #       @post ||= find_post_by_id(params[:post_id])
       #
@@ -384,7 +384,7 @@ module Pakyow
       # After yielding, request processing will be halted.
       #
       # @example
-      #   Pakyow::App.controller do
+      #   Pakyow::Application.controller do
       #     get "/foo.txt|html" do
       #       respond_to :txt do
       #         send "foo"
@@ -412,14 +412,14 @@ module Pakyow
       # disposition will be set to "inline".
       #
       # @example Sending data:
-      #   Pakyow::App.controller do
+      #   Pakyow::Application.controller do
       #     default do
       #       send "foo", type: "text/plain"
       #     end
       #   end
       #
       # @example Sending a file:
-      #   Pakyow::App.controller do
+      #   Pakyow::Application.controller do
       #     default do
       #       filename = "foo.txt"
       #       send File.open(filename), name: filename
@@ -541,7 +541,7 @@ module Pakyow
         # @!method get
         #   Create a route that matches +GET+ requests at +path+. For example:
         #
-        #     Pakyow::App.controller do
+        #     Pakyow::Application.controller do
         #       get "/foo" do
         #         # do something
         #       end
@@ -550,7 +550,7 @@ module Pakyow
         #   Routes can be named, making them available for path building via {Controller#path}. For
         #   example:
         #
-        #     Pakyow::App.controller do
+        #     Pakyow::Application.controller do
         #       get :foo, "/foo" do
         #         # do something
         #       end
@@ -588,7 +588,7 @@ module Pakyow
         # groups are referenced by the most direct parent group that is named.
         #
         # @example Defining a group:
-        #   Pakyow::App.controller do
+        #   Pakyow::Application.controller do
         #
         #     def foo
         #       logger.info "foo"
@@ -637,7 +637,7 @@ module Pakyow
         # behaves just like a group with regard to path lookup and action inheritance.
         #
         # @example Defining a namespace:
-        #   Pakyow::App.controller do
+        #   Pakyow::Application.controller do
         #     namespace :api, "/api" do
         #       def auth
         #         handle 401 unless authed?
@@ -669,7 +669,7 @@ module Pakyow
         # Pakyow itself to define the resource template ({Routing::Extension::Resource}).
         #
         # @example Defining a template:
-        #   Pakyow::App.controller do
+        #   Pakyow::Application.controller do
         #     template :talkback do
         #       get :hello, "/hello"
         #       get :goodbye, "/goodbye"
@@ -678,7 +678,7 @@ module Pakyow
         #
         # @example Expanding a template:
         #
-        #   Pakyow::App.controller do
+        #   Pakyow::Application.controller do
         #     talkback :en, "/en" do
         #       hello do
         #         send "hello"
@@ -720,7 +720,7 @@ module Pakyow
         # Attempts to find and expand a template, avoiding the need to call {expand} explicitly. For
         # example, these calls are identical:
         #
-        #   Pakyow::App.controller do
+        #   Pakyow::Application.controller do
         #     resource :posts, "/posts" do
         #     end
         #
