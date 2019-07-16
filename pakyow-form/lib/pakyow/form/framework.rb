@@ -7,14 +7,10 @@ require "pakyow/framework"
 require "pakyow/support/extension"
 require "pakyow/support/inflector"
 
+require "pakyow/app/connection/helpers/form"
+
 module Pakyow
   module Form
-    module ConnectionHelpers
-      def form
-        get(:__form)
-      end
-    end
-
     class Framework < Pakyow::Framework(:form)
       def boot
         object.class_eval do
@@ -29,7 +25,7 @@ module Pakyow
           end
 
           isolated :Connection do
-            include ConnectionHelpers
+            include Pakyow::App::Connection::Helpers::Form
           end
 
           handle InvalidData, as: :bad_request do |error|

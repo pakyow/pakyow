@@ -6,10 +6,10 @@ require "pakyow/presenter"
 
 require "pakyow/realtime/framework"
 
-require "pakyow/environment/realtime/config"
+require "pakyow/config/realtime"
 
-require "pakyow/actions/realtime/upgrader"
+require "pakyow/app/actions/realtime/upgrader"
 
 module Pakyow
-  include Environment::Realtime::Config
+  include Config::Realtime
 end

@@ -2,37 +2,37 @@
 
 require "pakyow/framework"
 
-require "pakyow/realtime/helpers/broadcasting"
-require "pakyow/realtime/helpers/subscriptions"
-require "pakyow/realtime/helpers/socket"
+require "pakyow/app/helpers/realtime/broadcasting"
+require "pakyow/app/helpers/realtime/subscriptions"
+require "pakyow/app/helpers/realtime/socket"
 
-require "pakyow/realtime/config"
-require "pakyow/realtime/behavior/serialization"
-require "pakyow/realtime/behavior/server"
-require "pakyow/realtime/behavior/silencing"
+require "pakyow/app/config/realtime"
+require "pakyow/app/behavior/realtime/serialization"
+require "pakyow/app/behavior/realtime/server"
+require "pakyow/app/behavior/realtime/silencing"
 
-require "pakyow/realtime/behavior/rendering/install_websocket"
+require "pakyow/presenter/renderer/behavior/realtime/install_websocket"
 
 module Pakyow
   module Realtime
     class Framework < Pakyow::Framework(:realtime)
       def boot
         object.class_eval do
-          register_helper :active, Helpers::Broadcasting
-          register_helper :active, Helpers::Subscriptions
-          register_helper :passive, Helpers::Socket
+          register_helper :active, App::Helpers::Realtime::Broadcasting
+          register_helper :active, App::Helpers::Realtime::Subscriptions
+          register_helper :passive, App::Helpers::Realtime::Socket
 
           # Socket events are triggered on the app.
           #
           events :join, :leave
 
-          include Config
-          include Behavior::Server
-          include Behavior::Silencing
-          include Behavior::Serialization
+          include App::Config::Realtime
+          include App::Behavior::Realtime::Server
+          include App::Behavior::Realtime::Silencing
+          include App::Behavior::Realtime::Serialization
 
           isolated :Renderer do
-            include Behavior::Rendering::InstallWebsocket
+            include Presenter::Renderer::Behavior::Realtime::InstallWebsocket
           end
 
           isolated :Connection do

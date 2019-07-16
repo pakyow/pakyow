@@ -2,12 +2,12 @@
 
 require "pakyow/framework"
 
-require "pakyow/data/object"
-require "pakyow/data/helpers"
+require "pakyow/app/config/data"
+require "pakyow/app/behavior/data/lookup"
+require "pakyow/app/behavior/data/serialization"
+require "pakyow/app/helpers/data"
 
-require "pakyow/data/config"
-require "pakyow/data/behavior/lookup"
-require "pakyow/data/behavior/serialization"
+require "pakyow/data/object"
 
 require "pakyow/data/sources/relational"
 
@@ -30,11 +30,11 @@ module Pakyow
           #
           aspect :objects
 
-          register_helper :active, Helpers
+          register_helper :active, Pakyow::App::Helpers::Data
 
-          include Config
-          include Behavior::Lookup
-          include Behavior::Serialization
+          include App::Config::Data
+          include App::Behavior::Data::Lookup
+          include App::Behavior::Data::Serialization
         end
       end
     end

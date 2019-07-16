@@ -5,8 +5,8 @@ require "pakyow/support/safe_string"
 
 require "pakyow/helper"
 
-require "pakyow/helpers/app"
-require "pakyow/helpers/connection"
+require "pakyow/app/helpers/app"
+require "pakyow/app/helpers/connection"
 
 module Pakyow
   class App
@@ -25,12 +25,12 @@ module Pakyow
 
           setting :helpers,
                   global: [
-                    Pakyow::Helpers::App,
+                    Pakyow::App::Helpers::App,
                     Support::SafeStringHelpers
                   ],
 
                   passive: [
-                    Pakyow::Helpers::Connection
+                    Pakyow::App::Helpers::Connection
                   ],
 
                   active: []

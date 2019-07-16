@@ -2,19 +2,19 @@
 
 require "pakyow/framework"
 
+require "pakyow/app/behavior/assets"
+require "pakyow/app/behavior/assets/packs"
+require "pakyow/app/behavior/assets/silencing"
+require "pakyow/app/behavior/assets/externals"
+require "pakyow/app/behavior/assets/watching"
+require "pakyow/app/behavior/assets/prelaunching"
+require "pakyow/app/behavior/assets/processing"
+require "pakyow/app/config/assets"
+
+require "pakyow/presenter/renderer/behavior/assets/install_assets"
+
 require "pakyow/assets/asset"
 require "pakyow/assets/pack"
-
-require "pakyow/assets/config"
-require "pakyow/assets/behavior/assets"
-require "pakyow/assets/behavior/packs"
-require "pakyow/assets/behavior/silencing"
-require "pakyow/assets/behavior/externals"
-require "pakyow/assets/behavior/watching"
-require "pakyow/assets/behavior/prelaunching"
-require "pakyow/assets/behavior/processing"
-
-require "pakyow/assets/behavior/rendering/install_assets"
 
 module Pakyow
   module Assets
@@ -29,20 +29,20 @@ module Pakyow
           #
           stateful :pack, Pack
 
-          include Config
-          include Behavior::Assets
-          include Behavior::Packs
-          include Behavior::Silencing
-          include Behavior::Externals
-          include Behavior::Watching
-          include Behavior::Prelaunching
-          include Behavior::Processing
+          include App::Config::Assets
+          include App::Behavior::Assets
+          include App::Behavior::Assets::Packs
+          include App::Behavior::Assets::Silencing
+          include App::Behavior::Assets::Externals
+          include App::Behavior::Assets::Watching
+          include App::Behavior::Assets::Prelaunching
+          include App::Behavior::Assets::Processing
 
           after "load" do
             isolated(:Renderer) do
               # Load this one later, in case other actions define components that will load assets.
               #
-              include Assets::Behavior::Rendering::InstallAssets
+              include Presenter::Renderer::Behavior::Assets::InstallAssets
             end
           end
         end

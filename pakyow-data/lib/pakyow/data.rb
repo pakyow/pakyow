@@ -10,18 +10,18 @@ Pakyow::Data::Connection.register_adapter :sql
 require "pakyow/data/errors"
 require "pakyow/data/framework"
 
-require "pakyow/environment/data/auto_migrate"
-require "pakyow/environment/data/config"
-require "pakyow/environment/data/connections"
-require "pakyow/environment/data/memory_db"
+require "pakyow/behavior/data/auto_migrate"
+require "pakyow/behavior/data/connections"
+require "pakyow/behavior/data/memory_db"
+require "pakyow/config/data"
 
-require "pakyow/validations/unique"
+require "pakyow/validations/data/unique"
 
 module Pakyow
-  config.tasks.paths << File.expand_path("../data/tasks", __FILE__)
+  config.tasks.paths << File.expand_path("../tasks", __FILE__)
 
-  include Environment::Data::AutoMigrate
-  include Environment::Data::Config
-  include Environment::Data::Connections
-  include Environment::Data::MemoryDB
+  include Behavior::Data::AutoMigrate
+  include Behavior::Data::Connections
+  include Behavior::Data::MemoryDB
+  include Config::Data
 end

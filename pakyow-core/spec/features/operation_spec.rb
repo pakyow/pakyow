@@ -4,7 +4,7 @@ RSpec.describe "operation" do
   let :action do
     local = self
     Class.new do
-      include Pakyow::Helpers::Connection
+      include Pakyow::App::Helpers::Connection
       instance_variable_set(:@local, local)
       def call(connection)
         @connection = connection
@@ -62,7 +62,7 @@ RSpec.describe "operation" do
     let :action do
       local = self
       Class.new do
-        include Pakyow::Helpers::Connection
+        include Pakyow::App::Helpers::Connection
         instance_variable_set(:@local, local)
         def call(connection)
           @connection = connection

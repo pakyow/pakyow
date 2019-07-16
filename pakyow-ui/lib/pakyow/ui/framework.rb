@@ -4,13 +4,13 @@ require "concurrent/executor/thread_pool_executor"
 
 require "pakyow/framework"
 
-require "pakyow/ui/helpers"
+require "pakyow/app/helpers/ui"
 
-require "pakyow/ui/behavior/recording"
-require "pakyow/ui/behavior/rendering"
-require "pakyow/ui/behavior/timeouts"
+require "pakyow/app/behavior/ui/recording"
+require "pakyow/app/behavior/ui/rendering"
+require "pakyow/app/behavior/ui/timeouts"
 
-require "pakyow/ui/behavior/rendering/install_transforms"
+require "pakyow/presenter/renderer/behavior/ui/install_transforms"
 
 module Pakyow
   module UI
@@ -33,14 +33,14 @@ module Pakyow
 
       def boot
         object.class_eval do
-          register_helper :passive, Helpers
+          register_helper :passive, App::Helpers::UI
 
-          include Behavior::Recording
-          include Behavior::Rendering
-          include Behavior::Timeouts
+          include App::Behavior::UI::Recording
+          include App::Behavior::UI::Rendering
+          include App::Behavior::UI::Timeouts
 
           isolated :Renderer do
-            include Behavior::Rendering::InstallTransforms
+            include Presenter::Renderer::Behavior::UI::InstallTransforms
           end
 
           prepend PresenterForContext

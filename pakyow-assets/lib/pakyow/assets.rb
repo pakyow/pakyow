@@ -11,9 +11,9 @@ require "pakyow/assets/types/css"
 require "pakyow/assets/types/sass"
 require "pakyow/assets/types/scss"
 
-require "pakyow/actions/assets/process"
-require "pakyow/actions/assets/public"
+require "pakyow/app/actions/assets/process"
+require "pakyow/app/actions/assets/public"
 
 module Pakyow
-  config.tasks.paths << File.expand_path("../assets/tasks", __FILE__)
+  config.tasks.paths << File.expand_path("../tasks", __FILE__)
 end

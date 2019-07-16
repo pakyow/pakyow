@@ -11,7 +11,7 @@ RSpec.describe "assets:precompile" do
 
   before do
     require "pakyow/task"
-    @loader = Pakyow::Task::Loader.new(File.expand_path("../../../../lib/pakyow/assets/tasks/precompile.rake", __FILE__))
+    @loader = Pakyow::Task::Loader.new(File.expand_path("../../../../lib/pakyow/tasks/assets/precompile.rake", __FILE__))
     allow(Pakyow::Assets::Precompiler).to receive(:new).and_return(precompiler_instance)
   end
 

@@ -51,8 +51,8 @@ module Pakyow
 
             self.class.__plugs.each do |plug|
               if self.class.includes_framework?(:presenter)
-                require "pakyow/plugin/helpers/rendering"
-                plug.register_helper :passive, Plugin::Helpers::Rendering
+                require "pakyow/plugin/helpers/presenter/rendering"
+                plug.register_helper :passive, Plugin::Helpers::Presenter::Rendering
               end
 
               # Include frameworks from app.

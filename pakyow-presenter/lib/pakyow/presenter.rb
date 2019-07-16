@@ -30,4 +30,4 @@ require "pakyow/presenter/presenters/form"
 
 require "pakyow/presenter/errors"
 
-require "pakyow/actions/presenter/auto_render"
+require "pakyow/app/actions/presenter/auto_render"
