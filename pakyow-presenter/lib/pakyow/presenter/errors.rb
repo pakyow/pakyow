@@ -48,13 +48,11 @@ module Pakyow
           <<~MESSAGE
             #{super}
 
-            If you want to call backend code instead, create a controller endpoint that handles this request:
+            If you want to call backend code instead, create a controller route that handles this request:
 
                 get "#{@context}" do
                   # your code here
                 end
-
-              * [Learn about controllers &rarr;](https://pakyow.com/docs/routing/)
           MESSAGE
         end
       end
