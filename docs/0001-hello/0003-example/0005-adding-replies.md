@@ -2,7 +2,7 @@
 title: Adding the replies feature
 ---
 
-Users need a way to reply to messages that have already been created. We'll add this new feature to by following the same design-first process as before. Start by hitting `Ctrl-C` and booting back into the prototype:
+Users need a way to reply to messages that have already been created. We'll add this new feature using following the same design-first process as before. Start by hitting `Ctrl-C` and booting back into the prototype:
 
 ```
 pakyow prototype
