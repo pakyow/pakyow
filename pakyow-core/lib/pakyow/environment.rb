@@ -15,21 +15,21 @@ require "pakyow/support/deep_freeze"
 require "pakyow/support/pipeline"
 require "pakyow/support/inflector"
 
-require "pakyow/environment/config"
-require "pakyow/environment/behavior/initializers"
-require "pakyow/environment/behavior/input_parsing"
-require "pakyow/environment/behavior/plugins"
-require "pakyow/environment/behavior/silencing"
-require "pakyow/environment/behavior/timezone"
-require "pakyow/environment/behavior/running"
-require "pakyow/environment/behavior/watching"
-require "pakyow/environment/behavior/restarting"
-require "pakyow/environment/behavior/verifier"
+require "pakyow/config"
+require "pakyow/behavior/initializers"
+require "pakyow/behavior/input_parsing"
+require "pakyow/behavior/plugins"
+require "pakyow/behavior/silencing"
+require "pakyow/behavior/timezone"
+require "pakyow/behavior/running"
+require "pakyow/behavior/watching"
+require "pakyow/behavior/restarting"
+require "pakyow/behavior/verifier"
 
-require "pakyow/environment/actions/dispatch"
-require "pakyow/environment/actions/input_parser"
-require "pakyow/environment/actions/logger"
-require "pakyow/environment/actions/normalizer"
+require "pakyow/actions/dispatch"
+require "pakyow/actions/input_parser"
+require "pakyow/actions/logger"
+require "pakyow/actions/normalizer"
 
 require "pakyow/app"
 
@@ -103,16 +103,16 @@ module Pakyow
 
   include Support::Configurable
 
-  include Environment::Config
-  include Environment::Behavior::Initializers
-  include Environment::Behavior::InputParsing
-  include Environment::Behavior::Plugins
-  include Environment::Behavior::Silencing
-  include Environment::Behavior::Timezone
-  include Environment::Behavior::Running
-  include Environment::Behavior::Watching
-  include Environment::Behavior::Restarting
-  include Environment::Behavior::Verifier
+  include Config
+  include Behavior::Initializers
+  include Behavior::InputParsing
+  include Behavior::Plugins
+  include Behavior::Silencing
+  include Behavior::Timezone
+  include Behavior::Running
+  include Behavior::Watching
+  include Behavior::Restarting
+  include Behavior::Verifier
 
   include Support::Pipeline
   action Actions::Logger

@@ -23,7 +23,7 @@ module Pakyow
         end
 
         original_values = values.deep_dup
-        result = Verifier.new(&block).call(values, context: self)
+        result = Pakyow::Verifier.new(&block).call(values, context: self)
 
         unless result.verified?
           error = InvalidData.new_with_message(:verification)
