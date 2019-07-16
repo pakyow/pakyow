@@ -82,6 +82,10 @@ module Pakyow
                 trigger 404
               else
                 if !reflected_exposure.binding.to_s.include?("form") || reflected_endpoint.view_path.end_with?("/edit")
+                  logger.debug {
+                    "[reflection] exposing dataset for `#{reflected_exposure.binding}': #{query.inspect}"
+                  }
+
                   expose reflected_exposure.binding.to_s, query
                 end
               end
@@ -108,11 +112,19 @@ module Pakyow
                 local.__send__(:verify_nested_data, reflected_action.nested, self)
               end
             end
+
+            logger.debug {
+              "[reflection] verified and validated submitted values for `#{reflected_action.scope.name}'"
+            }
           end
         end
 
         def perform_reflected_action
           with_reflected_action do |reflected_action|
+            logger.debug {
+              "[reflection] performing `#{[self.class.name_of_self, connection.values[:__endpoint_name]].join("_")}' for `#{reflected_action.view_path}'"
+            }
+
             proxy = data.public_send(reflected_action.scope.plural_name)
 
             # Pull initial values from the params.
@@ -146,6 +158,10 @@ module Pakyow
                 connection.get(:__endpoint_name), values
               )
             end
+
+            logger.debug {
+              "[reflection] changes have been saved to the `#{proxy.source.class.plural_name}' data source"
+            }
           end
         rescue Data::ConstraintViolation
           trigger 404
@@ -153,6 +169,10 @@ module Pakyow
 
         def redirect_to_reflected_destination
           if destination = reflected_destination
+            logger.debug {
+              "[reflection] redirecting to `#{destination}'"
+            }
+
             redirect destination
           end
         end
