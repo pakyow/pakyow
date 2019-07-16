@@ -262,7 +262,7 @@ module Pakyow
 
         def call(object, stack = @stack.dup)
           catch :halt do
-            until stack.empty? || (object.respond_to?(:halted?) && object.halted?)
+            until stack.empty? || object.halted?
               action = stack.shift
               if action.arity == 0
                 action.call do
