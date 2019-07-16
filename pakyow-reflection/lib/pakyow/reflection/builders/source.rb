@@ -8,7 +8,7 @@ module Pakyow
       # @api private
       class Source < Base
         def build(scope)
-          (source_for_scope(scope) || define_source_for_scope(scope)).class_eval do
+          block = Proc.new do
             scope.attributes.each do |attribute|
               unless attributes.key?(attribute.name)
                 attribute attribute.name, attribute.type
@@ -24,6 +24,14 @@ module Pakyow
                 has_many child_scope.plural_name, dependent: :delete
               end
             end
+          end
+
+          (source_for_scope(scope) || define_source_for_scope(scope)).tap do |source|
+            unless source.__source_location
+              source.__source_location = block.source_location
+            end
+
+            source.class_eval(&block)
           end
         end
 

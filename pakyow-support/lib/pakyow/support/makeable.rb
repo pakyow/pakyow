@@ -17,8 +17,10 @@ module Pakyow
       end
 
       attr_reader :__object_name
+      attr_accessor :__source_location
 
       def make(object_name, within: nil, set_const: true, **kwargs, &block)
+        @__source_location = block&.source_location
         object_name = build_object_name(object_name, within: within)
         object = find_or_define_object(object_name, kwargs, set_const)
 
