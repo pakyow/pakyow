@@ -2,7 +2,7 @@
 
 require "concurrent/array"
 require "concurrent/timer_task"
-require "concurrent/executor/thread_pool_executor"
+require "concurrent/executor/single_thread_executor"
 
 require "pakyow/support/message_verifier"
 
@@ -20,11 +20,8 @@ module Pakyow
         @adapter = Adapters.const_get(adapter.to_s.capitalize).new(self, adapter_config)
         @sockets = Concurrent::Array.new
         @timeout_config = timeout_config
-        @executor = Concurrent::ThreadPoolExecutor.new(
-          auto_terminate: false,
-          min_threads: 1,
-          max_threads: 10,
-          max_queue: 0
+        @executor = Concurrent::SingleThreadExecutor.new(
+          auto_terminate: false
         )
 
         connect
