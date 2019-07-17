@@ -123,8 +123,16 @@ module Pakyow
 
       configurable :normalizer do
         setting :strict_path, true
+
         setting :strict_www, false
         setting :require_www, true
+
+        setting :strict_https, false
+        setting :require_https, true
+
+        defaults :production do
+          setting :strict_https, true
+        end
       end
 
       configurable :tasks do

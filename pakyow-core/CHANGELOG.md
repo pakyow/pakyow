@@ -14,6 +14,10 @@
   * [fixed] App connection path is relative to to the app mount path
   * [fixed] Methods defined an an app block are now correctly defined
   * [fixed] Issue with `Pakyow::Error` not detecting gems in rvm
+  * [added] Enforce https rules in the normalizer controlled through two new config options:
+    * `normalizer.strict_https`: Enforces the https requirement if true
+    * `normalizer.require_https`: Requires https scheme if true, otherwise http
+  * [added] Require https by default when running in production
 
 # 1.0.1
 

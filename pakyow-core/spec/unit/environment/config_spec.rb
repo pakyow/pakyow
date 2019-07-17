@@ -202,6 +202,28 @@ RSpec.describe Pakyow do
       end
     end
 
+    describe "normalizer.strict_https" do
+      it "has a default value" do
+        expect(Pakyow.config.normalizer.strict_https).to eq(false)
+      end
+
+      context "in production" do
+        before do
+          Pakyow.configure!(:production)
+        end
+
+        it "defaults to true" do
+          expect(Pakyow.config.normalizer.strict_https).to eq(true)
+        end
+      end
+    end
+
+    describe "normalizer.require_https" do
+      it "has a default value" do
+        expect(Pakyow.config.normalizer.require_https).to eq(true)
+      end
+    end
+
     describe "tasks.paths" do
       it "has a default value" do
         expect(Pakyow.config.tasks.paths).to eq(["./tasks", File.expand_path("../../../../lib/pakyow/tasks", __FILE__)])
