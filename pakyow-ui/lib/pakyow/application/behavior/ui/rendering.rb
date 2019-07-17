@@ -86,7 +86,12 @@ module Pakyow
 
                     # Expire subscriptions if the connection is never established.
                     #
-                    context.app.data.expire(context.socket_client_id, context.app.config.realtime.timeouts.initial)
+                    # We only do this at the top level render and not in sub renders (e.g.) components
+                    # because the same socket client id applies for every render.
+                    #
+                    if @composer.class == Pakyow::Presenter::Composers::View
+                      context.app.data.expire(context.socket_client_id, context.app.config.realtime.timeouts.initial)
+                    end
                   end
                 end
               end
