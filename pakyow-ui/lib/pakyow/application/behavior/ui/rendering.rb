@@ -87,6 +87,10 @@ module Pakyow
                     # Expire subscriptions if the connection is never established.
                     #
                     context.app.data.expire(context.socket_client_id, context.app.config.realtime.timeouts.initial)
+                  rescue => error
+                    logger.error {
+                      "[ui] after render failed: #{error}"
+                    }
                   end
                 end
               end
