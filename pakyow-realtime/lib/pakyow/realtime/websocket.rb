@@ -82,6 +82,7 @@ module Pakyow
 
       def shutdown
         if open?
+          stop_heartbeat
           @server.socket_disconnect(self)
           @open = false
           @logger.info "shutdown"
@@ -101,6 +102,7 @@ module Pakyow
         trigger_presence(:join)
         @logger.info "opened"
         transmit_system_info
+        start_heartbeat
       end
 
       def handle_message(message)
@@ -122,6 +124,20 @@ module Pakyow
             version: @connection.app.config.version
           }
         )
+      end
+
+      HEARTBEAT_INTERVAL = 1.freeze
+
+      def start_heartbeat
+        @heartbeat = Async { |task|
+          loop do
+            task.sleep(HEARTBEAT_INTERVAL); beat
+          end
+        }
+      end
+
+      def stop_heartbeat
+        @heartbeat&.stop
       end
     end
   end
