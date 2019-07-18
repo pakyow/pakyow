@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "concurrent/executor/thread_pool_executor"
+require "concurrent/executor/single_thread_executor"
 
 require "pakyow/framework"
 
@@ -76,11 +76,8 @@ module Pakyow
           unfreezable :ui_executor
 
           after "initialize" do
-            @ui_executor = Concurrent::ThreadPoolExecutor.new(
+            @ui_executor = Concurrent::SingleThreadExecutor.new(
               auto_terminate: false,
-              min_threads: 1,
-              max_threads: 10,
-              max_queue: 0
             )
           end
         end
