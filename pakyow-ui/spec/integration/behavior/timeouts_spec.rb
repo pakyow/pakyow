@@ -62,11 +62,13 @@ RSpec.describe "ui state timeout behavior" do
     end
 
     let :view_renderer do
+      composer_instance = composer.new
+      allow(composer_instance).to receive(:class).and_return(Pakyow::Presenter::Composers::View)
       Pakyow.app(:test).isolated(:Renderer).new(
         app: Pakyow.app(:test),
         presentables: connection.values.merge(post: Pakyow.app(:test).data.posts.all),
         presenter_class: Pakyow.app(:test).isolated(:Presenter),
-        composer: composer.new
+        composer: composer_instance
       )
     end
 
@@ -85,7 +87,7 @@ RSpec.describe "ui state timeout behavior" do
     before do
       allow(Marshal).to receive(:dump).and_return("dumped")
 
-      allow_any_instance_of(Concurrent::ThreadPoolExecutor).to receive(:post) do |_, *args, &block|
+      allow_any_instance_of(Concurrent::SingleThreadExecutor).to receive(:post) do |_, *args, &block|
         block.call(*args)
       end
     end
