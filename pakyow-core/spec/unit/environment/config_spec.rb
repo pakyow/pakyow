@@ -224,6 +224,12 @@ RSpec.describe Pakyow do
       end
     end
 
+    describe "normalizer.allowed_http_hosts" do
+      it "has a default value" do
+        expect(Pakyow.config.normalizer.allowed_http_hosts).to eq(["localhost"])
+      end
+    end
+
     describe "tasks.paths" do
       it "has a default value" do
         expect(Pakyow.config.tasks.paths).to eq(["./tasks", File.expand_path("../../../../lib/pakyow/tasks", __FILE__)])

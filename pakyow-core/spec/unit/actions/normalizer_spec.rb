@@ -380,6 +380,21 @@ RSpec.describe Pakyow::Actions::Normalizer do
               expect(connection.header("Location")).to eq("https://pakyow.com:80/?foo=bar")
             end
           end
+
+          context "request host is allowed as http" do
+            let :host do
+              "localhost"
+            end
+
+            it "does not redirect" do
+              catch :halt do
+                action.call(connection)
+              end
+
+              expect(connection.status).to eq(200)
+              expect(connection.header?("Location")).to be(false)
+            end
+          end
         end
 
         context "request uri is https" do

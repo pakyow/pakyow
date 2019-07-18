@@ -15,8 +15,10 @@
   * [fixed] Methods defined an an app block are now correctly defined
   * [fixed] Issue with `Pakyow::Error` not detecting gems in rvm
   * [added] Enforce https rules in the normalizer controlled through two new config options:
+  * [added] Enforce https rules in the normalizer controlled through three new config options:
     * `normalizer.strict_https`: Enforces the https requirement if true
     * `normalizer.require_https`: Requires https scheme if true, otherwise http
+    * `normalizer.allowed_http_hosts`: Array of hosts that are allowed as http (e.g. localhost)
   * [added] Require https by default when running in production
 
 # 1.0.1

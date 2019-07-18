@@ -11,7 +11,9 @@ module Pakyow
 
       def call(connection)
         if strict_https? && require_https? && !https?(connection)
-          redirect!(connection, "https://#{File.join(connection.authority, connection.fullpath)}")
+          unless http_allowed?(connection)
+            redirect!(connection, "https://#{File.join(connection.authority, connection.fullpath)}")
+          end
         elsif strict_https? && !require_https? && https?(connection)
           redirect!(connection, "http://#{File.join(connection.authority, connection.fullpath)}")
         elsif strict_www? && require_www? && !www?(connection) && !subdomain?(connection)
@@ -83,6 +85,10 @@ module Pakyow
 
       def require_https?
         Pakyow.config.normalizer.require_https == true
+      end
+
+      def http_allowed?(connection)
+        Pakyow.config.normalizer.allowed_http_hosts.include?(connection.host)
       end
     end
   end

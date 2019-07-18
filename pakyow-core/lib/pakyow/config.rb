@@ -129,6 +129,7 @@ module Pakyow
 
         setting :strict_https, false
         setting :require_https, true
+        setting :allowed_http_hosts, ["localhost"]
 
         defaults :production do
           setting :strict_https, true
