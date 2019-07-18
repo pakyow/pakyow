@@ -8,6 +8,7 @@ module Pakyow
   module Presenter
     class Renderer
       module Behavior
+        # @api private
         module InstallAuthenticity
           extend Support::Extension
 

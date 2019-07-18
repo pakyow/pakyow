@@ -8,6 +8,7 @@ module Pakyow
   module Presenter
     class Renderer
       module Behavior
+        # @api private
         module SetupEndpoints
           extend Support::Extension
 
