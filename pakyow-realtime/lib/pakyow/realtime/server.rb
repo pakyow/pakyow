@@ -13,8 +13,6 @@ module Pakyow
     class Server
       attr_reader :adapter
 
-      HEARTBEAT_INTERVAL = 3
-
       def initialize(adapter = :memory, adapter_config, timeout_config)
         require "pakyow/realtime/server/adapters/#{adapter}"
         @adapter = Adapters.const_get(adapter.to_s.capitalize).new(self, adapter_config)
@@ -39,13 +37,13 @@ module Pakyow
 
       def connect
         @executor << -> {
-          start_heartbeat; @adapter.connect
+          @adapter.connect
         }
       end
 
       def disconnect
         @executor << -> {
-          stop_heartbeat; @adapter.disconnect
+          @adapter.disconnect
         }
       end
 
@@ -128,22 +126,6 @@ module Pakyow
         end
 
         yield socket_id if socket_id
-      end
-
-      private
-
-      def start_heartbeat
-        @heartbeat = Concurrent::TimerTask.new(execution_interval: HEARTBEAT_INTERVAL) do
-          @executor << -> {
-            @sockets.each(&:beat)
-          }
-        end
-
-        @heartbeat.execute
-      end
-
-      def stop_heartbeat
-        @heartbeat.shutdown
       end
     end
   end

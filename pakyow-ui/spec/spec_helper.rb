@@ -18,7 +18,6 @@ RSpec.configure do |spec_config|
   spec_config.before do |example|
     @excluded_frameworks = [:reflection]
 
-    allow_any_instance_of(Pakyow::Realtime::Server).to receive(:start_heartbeat)
     allow_any_instance_of(Pakyow::Data::Subscribers).to receive(:expire)
 
     if $booted
