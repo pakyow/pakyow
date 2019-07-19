@@ -83,6 +83,7 @@ RSpec.describe "configuring a configurable class" do
       object.setting :foo
       object.setting :bar
       object.setting :baz
+      object.setting :qux
 
       object.defaults :development do
         setting :foo, :foo_development_default
@@ -91,6 +92,10 @@ RSpec.describe "configuring a configurable class" do
 
       object.defaults :production do
         setting :baz, :baz_production_default
+      end
+
+      object.defaults :development, :production do
+        setting :qux, :qux_multiple
       end
 
       object.configure :development do
@@ -110,6 +115,10 @@ RSpec.describe "configuring a configurable class" do
 
     it "does not use default values for other environments" do
       expect(object.config.baz).to eq(nil)
+    end
+
+    it "configures defaults for multiple environments" do
+      expect(object.config.qux).to eq(:qux_multiple)
     end
   end
 
