@@ -206,6 +206,27 @@ RSpec.describe "pipelines" do
         expect(pipelined.new.call(result.new).results).to eq(["option"])
       end
     end
+
+    context "method exists on the pipelined object matching the action name" do
+      let :pipelined do
+        Class.new do
+          include Pakyow::Support::Pipeline
+
+          action :foo, Class.new {
+            def call(result)
+              result << "foo"
+            end
+          }
+
+          def foo
+          end
+        end
+      end
+
+      it "calls the pipeline" do
+        expect(pipelined.new.call(result.new).results).to eq(["foo"])
+      end
+    end
   end
 
   context "action is a callable instance" do
