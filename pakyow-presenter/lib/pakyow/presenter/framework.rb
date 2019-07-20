@@ -22,7 +22,7 @@ require "pakyow/presenter/renderer"
 require "pakyow/presenter/renderer/behavior/cleanup_prototype_nodes"
 require "pakyow/presenter/renderer/behavior/cleanup_unbound_bindings"
 require "pakyow/presenter/renderer/behavior/create_template_nodes"
-require "pakyow/presenter/renderer/behavior/insert_prototype_bar"
+require "pakyow/presenter/renderer/behavior/install_development_tools"
 require "pakyow/presenter/renderer/behavior/install_authenticity"
 require "pakyow/presenter/renderer/behavior/place_in_mode"
 require "pakyow/presenter/renderer/behavior/render_components"
@@ -51,7 +51,7 @@ module Pakyow
           isolate Renderer do
             include Renderer::Behavior::CleanupPrototypeNodes
             include Renderer::Behavior::CleanupUnboundBindings
-            include Renderer::Behavior::InsertPrototypeBar
+            include Renderer::Behavior::InstallDevelopmentTools
             include Renderer::Behavior::InstallAuthenticity
             include Renderer::Behavior::PlaceInMode
             include Renderer::Behavior::CreateTemplateNodes

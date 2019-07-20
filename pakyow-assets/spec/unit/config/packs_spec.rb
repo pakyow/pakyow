@@ -11,6 +11,26 @@ RSpec.describe "assets config", "packs" do
     it "has a default value" do
       expect(config.autoload).to eq([:pakyow])
     end
+
+    context "in development" do
+      before do
+        app.configure!(:development)
+      end
+
+      it "has a default value" do
+        expect(config.autoload).to eq([:pakyow, :devtools])
+      end
+    end
+
+    context "in prototype" do
+      before do
+        app.configure!(:prototype)
+      end
+
+      it "has a default value" do
+        expect(config.autoload).to eq([:pakyow, :devtools])
+      end
+    end
   end
 
   describe "path" do
