@@ -4,6 +4,10 @@ RSpec.describe "restarting the environment" do
 
   context "./tmp/restart.txt changes" do
     it "restarts"
+
+    context "./tmp/restart.txt contains an environment" do
+      it "restarts in the specified environment"
+    end
   end
 
   context "process stops without the environment being stopped" do

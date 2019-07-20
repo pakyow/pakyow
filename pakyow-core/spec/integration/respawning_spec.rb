@@ -9,4 +9,12 @@ RSpec.describe "respawning the environment" do
   context "environment config changes" do
     it "respawns"
   end
+
+  context "./tmp/respawn.txt changes" do
+    it "respawns"
+
+    context "./tmp/respawn.txt contains an environment" do
+      it "respawns in the specified environment"
+    end
+  end
 end

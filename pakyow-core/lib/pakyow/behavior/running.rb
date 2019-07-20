@@ -24,7 +24,12 @@ module Pakyow
           if config.server.proxy
             # Find a port to run the environment on, start the proxy on the configured port.
             #
-            port = Processes::Proxy.find_local_port
+            @proxy_port = port = if ENV.key?("PW_PROXY_PORT")
+              ENV["PW_PROXY_PORT"].to_i
+            else
+              Processes::Proxy.find_local_port
+            end
+
             process :proxy, restartable: false do
               Processes::Proxy.new(
                 host: config.server.host,
@@ -38,15 +43,15 @@ module Pakyow
             port = config.server.port
           end
 
-          endpoint = Async::HTTP::Endpoint.parse(
-            "http://#{config.server.host}:#{port}"
-          )
-
-          bound_endpoint = Async::Reactor.run {
-            Async::IO::SharedEndpoint.bound(endpoint)
-          }.wait
-
           process :server, count: config.server.count do
+            endpoint = Async::HTTP::Endpoint.parse(
+              "http://#{config.server.host}:#{port}"
+            )
+
+            bound_endpoint = Async::Reactor.run {
+              Async::IO::SharedEndpoint.bound(endpoint)
+            }.wait
+
             Pakyow.config.server.port = port
 
             Processes::Server.new(
@@ -58,7 +63,7 @@ module Pakyow
 
           unless config.server.proxy || ENV.key?("PW_RESPAWN")
             Pakyow.logger << Processes::Server.running_text(
-              scheme: endpoint.scheme, host: config.server.host, port: port
+              scheme: "http", host: config.server.host, port: port
             )
           end
         end
@@ -96,9 +101,15 @@ module Pakyow
           @process_manager.wait
 
           if @respawn
+            respawn_command = "PW_RESPAWN=true PW_PROXY_PORT=#{@proxy_port} #{$0} #{ARGV.join(" ")}"
+
+            if @respawn_environment
+              respawn_command = respawn_command + " -e #{@respawn_environment}"
+            end
+
             # Replace the master process with a copy of itself.
             #
-            exec "PW_RESPAWN=true #{$0} #{ARGV.join(" ")}"
+            exec respawn_command
           end
         rescue SignalException
           exit
@@ -118,7 +129,14 @@ module Pakyow
           end
         end
 
-        def restart
+        def restart(environment = nil)
+          unless environment.nil? || environment.empty?
+            environment = environment.strip.to_sym
+            unless environment == Pakyow.env
+              Pakyow.setup(env: environment)
+            end
+          end
+
           @process_manager.restart
         end
       end

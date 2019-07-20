@@ -565,4 +565,82 @@ RSpec.describe Pakyow do
       end
     end
   end
+
+  describe "default actions" do
+    it "includes log" do
+      expect(Pakyow.__pipeline.actions.find { |action| action.name == :log }).to_not be_nil
+    end
+
+    it "includes normalize" do
+      expect(Pakyow.__pipeline.actions.find { |action| action.name == :normalize }).to_not be_nil
+    end
+
+    it "includes parse" do
+      expect(Pakyow.__pipeline.actions.find { |action| action.name == :parse }).to_not be_nil
+    end
+
+    it "includes dispatch" do
+      expect(Pakyow.__pipeline.actions.find { |action| action.name == :dispatch }).to_not be_nil
+    end
+  end
+
+  describe "restart action" do
+    let :pipeline do
+      Pakyow.instance_variable_get(:@pipeline)
+    end
+
+    context "development mode" do
+      before do
+        Pakyow.setup(env: :development).boot
+      end
+
+      it "includes restart" do
+        expect(Pakyow.__pipeline.actions.find { |action| action.name == :restart }).to_not be_nil
+      end
+
+      it "restarts before dispatch" do
+        expect(pipeline.instance_variable_get(:@stack).map(&:to_s)).to eq(
+          [
+            "#<Method: Pakyow::Actions::Logger#call>",
+            "#<Method: Pakyow::Actions::Normalizer#call>",
+            "#<Method: Pakyow::Actions::InputParser#call>",
+            "#<Method: Pakyow::Actions::Restart#call>",
+            "#<Method: Pakyow::Actions::Dispatch#call>"
+          ]
+        )
+      end
+    end
+
+    context "prototype mode" do
+      before do
+        Pakyow.setup(env: :prototype).boot
+      end
+
+      it "includes restart" do
+        expect(Pakyow.__pipeline.actions.find { |action| action.name == :restart }).to_not be_nil
+      end
+
+      it "restarts before dispatch" do
+        expect(pipeline.instance_variable_get(:@stack).map(&:to_s)).to eq(
+          [
+            "#<Method: Pakyow::Actions::Logger#call>",
+            "#<Method: Pakyow::Actions::Normalizer#call>",
+            "#<Method: Pakyow::Actions::InputParser#call>",
+            "#<Method: Pakyow::Actions::Restart#call>",
+            "#<Method: Pakyow::Actions::Dispatch#call>"
+          ]
+        )
+      end
+    end
+
+    context "production mode" do
+      before do
+        Pakyow.setup(env: :production)
+      end
+
+      it "does not include restart" do
+        expect(Pakyow.__pipeline.actions.find { |action| action.name == :restart }).to be_nil
+      end
+    end
+  end
 end

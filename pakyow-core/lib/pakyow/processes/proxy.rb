@@ -25,14 +25,12 @@ module Pakyow
           host: @host, port: @proxy_port, forwarded: "#{@host}:#{@port}"
         )
 
-        Async::Reactor.run do
-          Async::HTTP::Server.new(server, endpoint).run
+        Async::HTTP::Server.new(server, endpoint).run
 
-          if !ENV.key?("PW_RESPAWN")
-            Pakyow.logger << Pakyow::Processes::Server.running_text(
-              scheme: "http", host: @host, port: @port
-            )
-          end
+        if !ENV.key?("PW_RESPAWN")
+          Pakyow.logger << Pakyow::Processes::Server.running_text(
+            scheme: "http", host: @host, port: @port
+          )
         end
       end
 
