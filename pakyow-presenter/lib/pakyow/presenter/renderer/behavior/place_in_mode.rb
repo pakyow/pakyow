@@ -6,6 +6,7 @@ module Pakyow
   module Presenter
     class Renderer
       module Behavior
+        # @api private
         module PlaceInMode
           extend Support::Extension
 

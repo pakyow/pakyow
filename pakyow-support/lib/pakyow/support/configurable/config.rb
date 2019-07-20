@@ -57,8 +57,10 @@ module Pakyow
           end
         end
 
-        def defaults(environment, &block)
-          @__defaults[environment] = block
+        def defaults(*environments, &block)
+          environments.each do |environment|
+            (@__defaults[environment] ||= []) << block
+          end
         end
 
         def configurable(group, &block)
@@ -74,7 +76,7 @@ module Pakyow
         end
 
         def configure_defaults!(configured_environment)
-          if defaults = @__defaults[configured_environment.to_s.to_sym]
+          @__defaults[configured_environment.to_s.to_sym].to_a.each do |defaults|
             instance_eval(&defaults)
           end
 

@@ -142,6 +142,7 @@ module Pakyow
             modes: modes
           )
 
+          connection.set(:__view_path, view_path)
           connection.set_header("content-type", "text/html")
 
           if connection.app.config.presenter.features.streaming

@@ -1,24 +1,7 @@
-const fs = require("fs");
-const path = require("path");
+require("./support/helpers/setup.js");
+require("./support/helpers/components.js");
 
-global.pw = require("../../src/index");
-
-require('mutationobserver-shim');
-global.MutationObserver = window.MutationObserver;
-
-function sleep(ms){
-  return new Promise(resolve=>{
-    setTimeout(resolve, ms)
-  });
-}
-
-afterEach(() => {
-  while(pw.Component.instances.length > 0) {
-    pw.Component.instances.pop();
-  }
-
-  pw.Component.clearObserver();
-});
+import {default as sleep} from "./support/helpers/sleep.js";
 
 describe("initializing components in a node", () => {
   beforeEach(() => {

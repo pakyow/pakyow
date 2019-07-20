@@ -26,6 +26,17 @@ export default [
     }
   },
   {
+    input: "src/components/devtools",
+    plugins: [
+      node(), babel()
+    ],
+    output: {
+      extend: true,
+      file: "dist/components/devtools.js",
+      format: "esm"
+    }
+  },
+  {
     input: "src/components/form",
     plugins: [
       node(), babel()

@@ -76,6 +76,10 @@ module Pakyow
                   config.assets.externals.path
                 ]
               end
+
+              defaults :development, :prototype do
+                setting :autoload, %i[pakyow devtools]
+              end
             end
 
             configurable :externals do

@@ -30,6 +30,7 @@ require "pakyow/actions/dispatch"
 require "pakyow/actions/input_parser"
 require "pakyow/actions/logger"
 require "pakyow/actions/normalizer"
+require "pakyow/actions/restart"
 
 require "pakyow/application"
 
@@ -115,10 +116,16 @@ module Pakyow
   include Behavior::Verifier
 
   include Support::Pipeline
-  action Actions::Logger
-  action Actions::Normalizer
-  action Actions::InputParser
-  action Actions::Dispatch
+  action :log, Actions::Logger
+  action :normalize, Actions::Normalizer
+  action :parse, Actions::InputParser
+  action :dispatch, Actions::Dispatch
+
+  before :configure do
+    if env?(:development) || env?(:prototype)
+      action :restart, Actions::Restart, before: :dispatch
+    end
+  end
 
   extend Support::ClassState
   class_state :apps,        default: []

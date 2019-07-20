@@ -307,7 +307,7 @@ module Pakyow
             else
               @block
             end
-          elsif @target.is_a?(Symbol) && context.respond_to?(@target, true)
+          elsif @target.is_a?(Symbol) && context.respond_to?(@target, true) && (options[0].nil? || !options[0].instance_methods(false).include?(:call))
             if context
               context.method(@target)
             else
