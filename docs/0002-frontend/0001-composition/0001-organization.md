@@ -49,7 +49,7 @@ Each layout defines one or more containers, each one defining where content from
 </html>
 ```
 
-This layout defines a single, unnamed container. During composition, the `<!— @container —>` comment, or directive is replaced with content from the matching page. Let's step through a complete example to be more clear about how.
+This layout defines a single, unnamed container. During composition, the `<!-- @container -->` comment, or directive is replaced with content from the matching page. Let's step through a complete example to be more clear about how.
 
 Pakyow receives a request at `http://your-site.com/` and chooses the `frontend/pages/index.html` page based on the presentation path. Here's the page content:
 
@@ -80,4 +80,4 @@ The fully composed view would look like this:
 </html>
 ```
 
-The  `<!— @container —>`  directive in the layout was replaced with the page content just as we expected. Pakyow sends the fully composed view in the response, which is presented in the user's web browser.
+The  `<!-- @container -->`  directive in the layout was replaced with the page content just as we expected. Pakyow sends the fully composed view in the response, which is presented in the user's web browser.
