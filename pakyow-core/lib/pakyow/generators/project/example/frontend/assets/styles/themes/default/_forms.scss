@@ -1,0 +1,35 @@
+.form-errors {
+  padding: 8px;
+  background: lighten($color-melon, 32%);
+  box-shadow: 2px 2px lighten($color-melon, 15%);
+  margin-bottom: 15px;
+  font-size: 13px;
+  color: darken($color-melon, 40%);
+}
+
+.form-field {
+  display: flex;
+  justify-content: space-between;
+
+  input {
+    &[type="text"], &[type="password"], &[type="email"] {
+      flex-grow: 1;
+    }
+  }
+}
+
+input {
+  outline: none;
+  -webkit-appearance:none;
+  font-size: 15px;
+
+  &:focus {
+    border-color: $color-bsol;
+  }
+
+  &[type="text"], &[type="password"], &[type="email"] {
+    padding: 8px;
+    border: 1px solid $color-border;
+    color: $color-black;
+  }
+}

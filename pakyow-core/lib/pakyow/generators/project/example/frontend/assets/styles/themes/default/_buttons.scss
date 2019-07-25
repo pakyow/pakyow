@@ -1,0 +1,26 @@
+.button {
+  padding: 8px;
+  border: 1px solid $color-bsol;
+  background: $color-bsol;
+  text-decoration: none;
+  font-weight: 500;
+  color: $color-white;
+  cursor: pointer;
+  display: inline-block;
+
+  &.current {
+    color: darken($color-white, 10%);
+    background: grayscale($color-bsol);
+  }
+
+  &--secondary {
+    font-size: 1.3rem;
+    padding: 2px 5px;
+    background: $color-gray;
+  }
+
+  &--small {
+    font-size: 1.3rem;
+    padding: 2px 5px;
+  }
+}

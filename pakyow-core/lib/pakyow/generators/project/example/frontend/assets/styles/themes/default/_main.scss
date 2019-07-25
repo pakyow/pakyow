@@ -1,0 +1,16 @@
+body {
+  background: #EEF1F2;
+}
+
+main {
+  width: 400px;
+  margin: 100px auto;
+}
+
+form, article {
+  background: $color-white;
+  box-shadow: 2px 2px darken($color-light-gray, 10%);
+  border-radius: 2px;
+  padding: 15px;
+  margin-top: 30px;
+}

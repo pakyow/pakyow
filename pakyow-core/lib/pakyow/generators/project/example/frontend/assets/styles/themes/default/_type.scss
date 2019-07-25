@@ -1,0 +1,19 @@
+body {
+  color: $color-black;
+  font-family: $font-main;
+  font-size: 15px;
+}
+
+p {
+  line-height: 18px;
+  margin-bottom: 15px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+a {
+  color: $color-bsol;
+  font-weight: 500;
+}
