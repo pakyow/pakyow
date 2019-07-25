@@ -1,0 +1,13 @@
+@import "styles/base/reset";
+@import "styles/base/states";
+
+@import "styles/themes/default/variables";
+@import "styles/themes/default/buttons";
+@import "styles/themes/default/dividers";
+@import "styles/themes/default/forms";
+@import "styles/themes/default/main";
+@import "styles/themes/default/type";
+
+* {
+  box-sizing: border-box;
+}
