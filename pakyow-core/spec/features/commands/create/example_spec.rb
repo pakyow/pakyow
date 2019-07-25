@@ -40,9 +40,9 @@ RSpec.describe "cli: creating the example project" do
       describe "assets" do
         describe "styles" do
           it "contains base and themes" do
-            expect(Dir.glob(File.join(generated_path, "frontend/assets/styles/*"))).to eq([
-              File.join(generated_path, "frontend/assets/styles/themes"),
-              File.join(generated_path, "frontend/assets/styles/base")
+            expect(Dir.glob(File.join(generated_path, "frontend/assets/styles/*")).sort).to eq([
+              File.join(generated_path, "frontend/assets/styles/base"),
+              File.join(generated_path, "frontend/assets/styles/themes")
             ])
           end
         end
