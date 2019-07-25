@@ -103,7 +103,7 @@ module Pakyow
     end
 
     def parse_with_unknown_args
-      parser, unknown, original, unparsed = yield, Array.new, @argv.dup, Array.new
+      parser, original, unparsed = yield, @argv.dup, Array.new
 
       begin
         parser.order!(@argv) do |arg|
@@ -114,10 +114,10 @@ module Pakyow
           end
         end
       rescue OptionParser::InvalidOption => error
-        unknown.concat(error.args); retry
+        unparsed.concat(error.args); retry
       end
 
-      @argv = (original & (@argv | unknown)) + unparsed
+      @argv = (original & @argv) + unparsed
     end
 
     def setup_environment
