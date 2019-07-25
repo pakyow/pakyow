@@ -1,5 +1,6 @@
 require "pakyow/cli"
 require "pakyow/generator"
+require "pakyow/generators/project"
 
 require_relative "./create/shared/default_structure"
 
@@ -32,12 +33,43 @@ RSpec.describe "cli: create" do
       "test/app"
     end
 
+    before do
+      allow(Bundler).to receive(:with_clean_env)
+      allow_any_instance_of(Pakyow::Generators::Project).to receive(:run)
+    end
+
     it "creates a project at the given path" do
       expect(File.exist?(File.join(command_dir, path))).to be(false)
 
       run_command(command, path) do
         expect(File.exist?(File.join(command_dir, path))).to be(true)
       end
+    end
+
+    it "runs bundle install" do
+      expect_any_instance_of(Pakyow::Generators::Project).to receive(:run).at_least(:once).with(
+        "bundle install --binstubs",
+        message: "Bundling dependencies"
+      )
+
+      allow(Bundler).to receive(:with_clean_env) do |&block|
+        block.call
+      end
+
+      run_command(command, path)
+    end
+
+    it "updates external assets" do
+      expect_any_instance_of(Pakyow::Generators::Project).to receive(:run).at_least(:once).with(
+        "bundle exec pakyow assets:update",
+        message: "Updating external assets"
+      )
+
+      allow(Bundler).to receive(:with_clean_env) do |&block|
+        block.call
+      end
+
+      run_command(command, path)
     end
 
     it "tells the user what to do next" do
