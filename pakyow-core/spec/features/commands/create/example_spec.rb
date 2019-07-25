@@ -41,8 +41,8 @@ RSpec.describe "cli: creating the example project" do
         describe "styles" do
           it "contains base and themes" do
             expect(Dir.glob(File.join(generated_path, "frontend/assets/styles/*"))).to eq([
-              "/Users/bryanp/src/pakyow/pakyow/spec/tmp/test/app-test/frontend/assets/styles/themes",
-              "/Users/bryanp/src/pakyow/pakyow/spec/tmp/test/app-test/frontend/assets/styles/base"
+              File.join(generated_path, "frontend/assets/styles/themes"),
+              File.join(generated_path, "frontend/assets/styles/base")
             ])
           end
         end
@@ -51,7 +51,7 @@ RSpec.describe "cli: creating the example project" do
       describe "layouts" do
         it "contains default styles" do
           expect(Dir.glob(File.join(generated_path, "frontend/layouts/*"))).to include(
-            "/Users/bryanp/src/pakyow/pakyow/spec/tmp/test/app-test/frontend/layouts/default.scss"
+            File.join(generated_path, "frontend/layouts/default.scss")
           )
         end
       end
