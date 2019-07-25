@@ -136,4 +136,49 @@ RSpec.describe Pakyow::CLI do
       end
     end
   end
+
+  describe "calling the task" do
+    before do
+      allow_any_instance_of(Pakyow::CLI).to receive(:puts_help)
+      allow_any_instance_of(Pakyow::CLI).to receive(:puts_error)
+      allow_any_instance_of(Pakyow::CLI).to receive(:load_tasks)
+
+      allow(Pakyow).to receive(:tasks) do
+        [].tap do |tasks|
+          tasks << task.new
+        end
+      end
+    end
+
+    let :task do
+      Class.new do
+        def name
+          "test"
+        end
+
+        def global?
+          true
+        end
+
+        def app?
+          false
+        end
+
+        def call(*args)
+        end
+      end
+    end
+
+    let :tasks do
+      Pakyow::CLI.new.send(:tasks)
+    end
+
+    it "retains the argument order" do
+      expect_any_instance_of(task).to receive(:call) do |_, _, args|
+        expect(args).to eq(["foo_value", "-b", "bar_value", "--qux", "qux_value"])
+      end
+
+      Pakyow::CLI.new(["test", "foo_value", "-b", "bar_value", "--qux", "qux_value"])
+    end
+  end
 end

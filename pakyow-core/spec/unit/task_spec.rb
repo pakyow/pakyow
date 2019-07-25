@@ -308,6 +308,29 @@ RSpec.describe Pakyow::Task do
           end
         end
       end
+
+      context "passed an argument and a short code value" do
+        let :arguments do
+          {
+            foo: {
+              description: "foo arg"
+            }
+          }
+        end
+
+        let :options do
+          {
+            bar: {
+              description: "bar opt"
+            }
+          }
+        end
+
+        it "differentiates between the argument and short code value" do
+          expect(rake_task_double).to receive(:invoke).with("foo_value", "bar_value")
+          instance.call({}, ["foo_value", "-b", "bar_value"])
+        end
+      end
     end
 
     context "with global options and argument values" do
