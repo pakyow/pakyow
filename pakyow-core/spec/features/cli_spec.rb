@@ -206,7 +206,7 @@ RSpec.describe "command line interface" do
   before do
     define_apps
 
-    allow_any_instance_of(Pakyow::CLI).to receive(:project_context?).and_return(true)
+    allow_any_instance_of(Pakyow::CLI).to receive(:project_context?).and_return(project_context)
 
     # Set the working directory to the supporting app.
     #
@@ -249,6 +249,10 @@ RSpec.describe "command line interface" do
 
   let :argv do
     []
+  end
+
+  let :project_context do
+    true
   end
 
   def define_apps
@@ -399,5 +403,31 @@ RSpec.describe "command line interface" do
     end
 
     include_examples :help_without_banner
+  end
+
+  context "running a global command within a project context" do
+    let :command do
+      "create"
+    end
+
+    it "prints an error" do
+      expect(output).to include("  \e[31m›\e[0m Cannot run command \e[3;34mcreate\e[0m within a pakyow project")
+    end
+
+    include_examples :help_without_banner
+  end
+
+  context "running a project command within a global context" do
+    let :project_context do
+      false
+    end
+
+    let :command do
+      "info"
+    end
+
+    it "prints an error" do
+      expect(output).to include("  \e[31m›\e[0m Cannot run command \e[3;34minfo\e[0m outside of a pakyow project")
+    end
   end
 end
