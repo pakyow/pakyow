@@ -37,7 +37,9 @@ module Pakyow
 
   class UnknownCommand < Error
     class_state :messages, default: {
-      default: "`{command}' is not a known command"
+      default: "`{command}' is not a known command",
+      not_in_project_context: "Cannot run command `{command}' outside of a pakyow project",
+      not_in_global_context: "Cannot run command `{command}' within a pakyow project"
     }.freeze
   end
 

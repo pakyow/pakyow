@@ -65,9 +65,9 @@ module Pakyow
 
     private
 
-    def tasks
+    def tasks(filter_by_context = true)
       Pakyow.tasks.select { |task|
-        (task.global? && !project_context?) || (!task.global? && project_context?)
+        !filter_by_context || (task.global? && !project_context?) || (!task.global? && project_context?)
       }
     end
 
@@ -139,9 +139,23 @@ module Pakyow
 
     def find_task_for_command
       unless @task = tasks.find { |task| task.name == @command }
-        raise UnknownCommand.new_with_message(
-          command: @command
-        )
+        if task = tasks(false).find { |task| task.name == @command }
+          if task.global?
+            raise UnknownCommand.new_with_message(
+              :not_in_global_context,
+              command: @command
+            )
+          else
+            raise UnknownCommand.new_with_message(
+              :not_in_project_context,
+              command: @command
+            )
+          end
+        else
+          raise UnknownCommand.new_with_message(
+            command: @command
+          )
+        end
       end
     end
 
