@@ -444,8 +444,12 @@ class StringDoc
   # Returns the node as an xml string, without transforming.
   #
   def to_s
-    @nodes.each_with_object(String.new) do |node, string|
-      string << node.to_s
+    if collapsed && empty?
+      collapsed
+    else
+      @nodes.each_with_object(String.new) do |node, string|
+        string << node.to_s
+      end
     end
   end
 
@@ -459,7 +463,7 @@ class StringDoc
         node.children.collapse(*significance)
       end
     else
-      @collapsed = to_xml
+      @collapsed = render
       @nodes = []
     end
 

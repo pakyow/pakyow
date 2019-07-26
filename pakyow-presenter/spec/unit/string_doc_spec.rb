@@ -523,4 +523,164 @@ RSpec.describe StringDoc do
       expect(doc == "").to be false
     end
   end
+
+  describe "#collapse" do
+    context "document has no significant nodes" do
+      let :html do
+        "<div>foo</div>"
+      end
+
+      before do
+        doc.collapse
+      end
+
+      it "converts to a string correctly" do
+        expect(doc.to_s).to eq("<div>foo</div>")
+      end
+
+      it "renders correctly" do
+        expect(doc.render).to eq("<div>foo</div>")
+      end
+    end
+
+    context "document has nodes of many significant types" do
+      let :html do
+        <<~HTML
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>test</title>
+            </head>
+            <body>
+              <header>
+                <h1>
+                  test
+                </h1>
+              </header>
+
+              <main>
+                <form binding="message">
+                  <input type="text" binding="content">
+                </form>
+
+                <div binding="message">
+                  <h1 binding="content">
+                    content goes here
+                  </h1>
+
+                  <div binding="comment">
+                    <p binding="body">
+                      body goes here
+                    </p>
+                  </div>
+                </div>
+              </main>
+
+              <footer>
+                <a href="mailto:hello@pakyow.com">hello@pakyow.com</a>
+              </footer>
+            </body>
+          </html>
+        HTML
+      end
+
+      before do
+        doc.collapse(:form)
+      end
+
+      it "converts to a string correctly" do
+        expect(doc.to_s).to eq(
+          <<~HTML
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <title>test</title>
+              </head>
+              <body>
+                <header>
+                  <h1>
+                    test
+                  </h1>
+                </header>
+
+                <main>
+                  <form data-b="message:form">
+                    <input type="text" data-b="content">
+                  </form>
+
+                  <div data-b="message">
+                    <h1 data-b="content">
+                      content goes here
+                    </h1>
+
+                    <div data-b="comment">
+                      <p data-b="body">
+                        body goes here
+                      </p>
+                    </div>
+                  </div>
+                </main>
+
+                <footer>
+                  <a href="mailto:hello@pakyow.com">hello@pakyow.com</a>
+                </footer>
+              </body>
+            </html>
+          HTML
+        )
+      end
+
+      it "renders correctly" do
+        expect(doc.to_s).to eq(
+          <<~HTML
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <title>test</title>
+              </head>
+              <body>
+                <header>
+                  <h1>
+                    test
+                  </h1>
+                </header>
+
+                <main>
+                  <form data-b="message:form">
+                    <input type="text" data-b="content">
+                  </form>
+
+                  <div data-b="message">
+                    <h1 data-b="content">
+                      content goes here
+                    </h1>
+
+                    <div data-b="comment">
+                      <p data-b="body">
+                        body goes here
+                      </p>
+                    </div>
+                  </div>
+                </main>
+
+                <footer>
+                  <a href="mailto:hello@pakyow.com">hello@pakyow.com</a>
+                </footer>
+              </body>
+            </html>
+          HTML
+        )
+      end
+
+      it "collapses the correct nodes" do
+        expect(doc.each.map(&:itself).count).to eq(21)
+      end
+    end
+  end
+
+  describe "transforming a collapsed doc" do
+    # FIXME: This is currently broken and needs to be fixed at some point.
+    #
+    it "renders correctly"
+  end
 end
