@@ -51,9 +51,12 @@ module Pakyow
             # mostly an optimization, since it lets us collapse some nodes into single strings and
             # reduce the number of operations needed for a render.
             #
-            view.object.collapse(
-              *(StringDoc.significant_types.keys - UNRETAINED_SIGNIFICANCE)
-            )
+            # FIXME: This breaks when a collapsed string doc is transformed. Once that's fixed, we
+            # can enable this code again. It's pretty low-priority and not worth fixing right now.
+            #
+            # view.object.collapse(
+            #   *(StringDoc.significant_types.keys - UNRETAINED_SIGNIFICANCE)
+            # )
 
             # Empty nodes are removed as another render-time optimization leading to fewer operations.
             #
