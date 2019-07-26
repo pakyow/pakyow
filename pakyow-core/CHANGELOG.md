@@ -5,6 +5,10 @@
   * [added] Ability to restart or respawn into a particular environment by writing to the tmp file
   * [added] Explicit names to environment actions for attaching new behavior before/after
   * [changed] Reuse the same port for respawns, just like we do restarts
+  * [added] Ability to generate a project from a template with the `--template` option
+  * [added] New "example" template with styles for the 5-minute app example
+  * [added] Fetch external assets when creating a new project
+  * [added] Better error messages when running commands in the wrong context
 
 # 1.0.1
 
