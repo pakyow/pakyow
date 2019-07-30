@@ -14,13 +14,29 @@ module Pakyow
           # Other processes (e.g. apps) can touch this file to respawn the process.
           #
           watch "./tmp/respawn.txt" do
-            respawn(File.read("./tmp/respawn.txt"))
+            environment = File.read("./tmp/respawn.txt")
+
+            ignore_changes do
+              File.open("./tmp/respawn.txt", "w") do |file|
+                file.truncate(0)
+              end
+            end
+
+            respawn(environment)
           end
 
           # Other processes (e.g. apps) can touch this file to restart the server.
           #
           watch "./tmp/restart.txt" do
-            restart(File.read("./tmp/restart.txt"))
+            environment = File.read("./tmp/restart.txt")
+
+            ignore_changes do
+              File.open("./tmp/restart.txt", "w") do |file|
+                file.truncate(0)
+              end
+            end
+
+            restart(environment)
           end
 
           # Automatically bundle.

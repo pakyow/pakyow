@@ -15,6 +15,7 @@ RSpec.describe "respawning the environment" do
 
     context "./tmp/respawn.txt contains an environment" do
       it "respawns in the specified environment"
+      it "clears the environment from ./tmp/respawn.txt"
     end
   end
 end

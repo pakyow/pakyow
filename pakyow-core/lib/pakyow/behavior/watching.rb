@@ -6,6 +6,8 @@ require "pakyow/support/extension"
 
 module Pakyow
   module Behavior
+    # Environment behavior for reacting to changes in the filesystem.
+    #
     module Watching
       extend Support::Extension
 
@@ -50,6 +52,14 @@ module Pakyow
               on_change(File.expand_path(path), &block)
             end
           end
+        end
+
+        # Yields while ignoring changes to watched files.
+        #
+        def ignore_changes
+          @filewatcher.pause; yield
+        ensure
+          @filewatcher.resume
         end
 
         # @api private
