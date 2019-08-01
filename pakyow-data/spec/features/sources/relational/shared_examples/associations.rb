@@ -2615,6 +2615,41 @@ RSpec.shared_examples :source_associations do
           end
         end
       end
+
+      context "associated source has a has_many association to another source" do
+        let :app_init do
+          Proc.new do
+            source :posts do
+              has_many :comments, through: :relateds
+
+              query do
+                order(id: :asc)
+              end
+            end
+
+            source :comments do
+              has_many :tags
+
+              query do
+                order(id: :asc)
+              end
+            end
+
+            source :relateds do
+              query do
+                order(id: :asc)
+              end
+            end
+
+            source :tags do
+            end
+          end
+        end
+
+        it "does not fail" do
+          # test will automatically fail if setup fails
+        end
+      end
     end
 
     describe "many_to_many" do
