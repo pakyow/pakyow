@@ -145,6 +145,84 @@ RSpec.shared_examples :source_results do
       end
     end
 
+    describe "returning multiple results after fetching a single result" do
+      let :results do
+        results = query
+        results.one
+        results.all
+      end
+
+      let :query do
+        data.posts
+      end
+
+      it "returns multiple results" do
+        expect(results.count).to eq(3)
+      end
+
+      context "has_many association is included" do
+        let :app_init do
+          Proc.new do
+            source :posts do
+              has_many :comments
+
+              attribute :title, :string
+            end
+
+            source :comments do
+            end
+          end
+        end
+
+        let :query do
+          data.posts.including(:comments)
+        end
+
+        before do
+          data.comments.create(post: data.posts.first)
+        end
+
+        it "includes the associated data" do
+          expect(results[0].comments.count).to eq(1)
+        end
+      end
+
+      context "has_many :through association is included" do
+        let :app_init do
+          Proc.new do
+            source :posts do
+              has_many :comments, through: :post_comments
+
+              attribute :title, :string
+            end
+
+            source :post_comments do
+              belongs_to :post
+              belongs_to :comment
+            end
+
+            source :comments do
+            end
+          end
+        end
+
+        let :query do
+          data.posts.including(:comments)
+        end
+
+        before do
+          data.post_comments.create(
+            post: data.posts.one,
+            comment: data.comments.create
+          )
+        end
+
+        it "includes the associated data" do
+          expect(results[0].comments.count).to eq(1)
+        end
+      end
+    end
+
     describe "returning result count" do
       it "returns the count" do
         expect(data.posts.count).to eq(3)

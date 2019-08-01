@@ -289,6 +289,10 @@ module Pakyow
 
         def include_results!(results)
           @included.each do |association, combined_source|
+            combined_source = combined_source.source_from_self(
+              combined_source.__getobj__.dup
+            )
+
             group_by_key, assign_by_key, remove_keys = if association.type == :through
               joining_source = association.joining_source.instance
 
