@@ -172,11 +172,11 @@ module Pakyow
                 end
 
                 unless association.internal?
-                  unless associated_source.associations[association.specific_type].any? { |current_association| current_association.joining_source_name == association.joining_source_name }
+                  unless associated_source.associations[association.specific_type].any? { |current_association| current_association.type == :through && current_association.joining_source_name == association.joining_source_name }
                     associated_source.send(association.specific_type, association.associated_name, source: source.plural_name, as: association.left_name, through: association.joining_source_name, dependent: association.dependent)
                   end
 
-                  unless source.associations[association.specific_type].any? { |current_association| current_association.associated_source_name == association.joining_source_name }
+                  unless source.associations[association.specific_type].any? { |current_association| current_association.type == :through && current_association.associated_source_name == association.joining_source_name }
                     source.send(association.specific_type, association.joining_source_name, source: joining_source.plural_name, as: Support.inflector.singularize(association.associated_name), dependent: association.dependent)
                   end
                 end
