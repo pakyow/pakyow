@@ -1295,7 +1295,7 @@ RSpec.shared_examples :source_associations do
         end
       end
 
-      describe "disassociating data from other sources", focus: true do
+      describe "disassociating data from other sources" do
         let :app_init do
           Proc.new do
             source :users do
