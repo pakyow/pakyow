@@ -37,11 +37,11 @@ module Pakyow
         end
 
         def __load_aspect(aspect, path: File.join(config.src, aspect.to_s), target: self.class)
-          Dir.glob(File.join(path, "*.rb")) do |file_path|
+          Dir.glob(File.join(path, "*.rb")).sort.each do |file_path|
             Loader.new(file_path).call(target)
           end
 
-          Dir.glob(File.join(path, "*")).select { |sub_path| File.directory?(sub_path) }.each do |directory|
+          Dir.glob(File.join(path, "*")).select { |sub_path| File.directory?(sub_path) }.sort.each do |directory|
             __load_aspect(aspect, path: directory, target: target)
           end
         end
