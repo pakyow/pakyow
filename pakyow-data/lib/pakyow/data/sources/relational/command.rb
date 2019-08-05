@@ -101,7 +101,7 @@ module Pakyow
 
                 case association_value
                 when Proxy
-                  if association_value.source.class == association.associated_source
+                  if association_value.source.class.__object_name.name == association.associated_source.__object_name.name
                     if association.result_type == :one && (association_value.count > 1 || (@updates && @source.count > 1))
                       raise ConstraintViolation.new_with_message(
                         :associate_multiple,
