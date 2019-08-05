@@ -15,7 +15,8 @@ RSpec.describe "single form endpoint: namespaced file" do
   it "defines an exposure for the form" do
     expect(mirror.endpoints[0].exposures.count).to eq(1)
     expect(mirror.endpoints[0].exposures[0].scope).to be(scope(:post))
-    expect(mirror.endpoints[0].exposures[0].node).to be_instance_of(StringDoc::Node)
+    expect(mirror.endpoints[0].exposures[0].nodes.count).to eq(1)
+    expect(mirror.endpoints[0].exposures[0].nodes[0]).to be_instance_of(StringDoc::Node)
     expect(mirror.endpoints[0].exposures[0].binding).to eq(:"post:form")
     expect(mirror.endpoints[0].exposures[0].parent).to be(nil)
   end

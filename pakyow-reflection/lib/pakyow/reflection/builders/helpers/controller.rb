@@ -224,9 +224,6 @@ module Pakyow
               )
             )
           end
-
-
-
         end
       end
     end

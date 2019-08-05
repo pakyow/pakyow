@@ -54,46 +54,51 @@ module Pakyow
 
         # Descend to find the most specific scope first.
         #
-        view.each_binding_scope do |binding_scope_node|
-          unless binding_scope_node.significant?(:within_form) || binding_scope_node.labeled?(:plug)
-            binding_scope_view = Presenter::View.from_object(binding_scope_node)
-            scope = scope_for_binding(binding_scope_view.binding_name, parent_scope)
+        view.each_binding_scope.reject { |binding_scope_node|
+          binding_scope_node.significant?(:within_form) || binding_scope_node.labeled?(:plug)
+        }.group_by { |binding_scope_node|
+          binding_scope_node.label(:channeled_binding)
+        }.each do |channeled_binding_name, binding_scope_nodes|
+          scope = scope_for_binding(binding_scope_nodes[0].label(:binding), parent_scope)
 
-            # Discover attributes from scopes nested within views.
-            #
-            discover_attributes(binding_scope_view, fields: false).each do |attribute|
+          # Discover attributes from scopes nested within views.
+          #
+          binding_scope_nodes.each do |binding_scope_node|
+            discover_attributes(Presenter::View.from_object(binding_scope_node), fields: false).each do |attribute|
               unless scope.attribute(attribute.name, type: :view)
                 scope.add_attribute(attribute, type: :view)
               end
             end
+          end
 
-            # Define an endpoint for this scope.
-            #
-            endpoint = ensure_endpoint(
-              view_path, view.info.dig(:reflection, :endpoint)
+          # Define an endpoint for this scope.
+          #
+          endpoint = ensure_endpoint(
+            view_path, view.info.dig(:reflection, :endpoint)
+          )
+
+          exposure = endpoint.exposures.find { |e|
+            e.binding == channeled_binding_name && e.parent.equal?(parent_exposure)
+          }
+
+          unless exposure
+            exposure = Exposure.new(
+              scope: scope,
+              nodes: binding_scope_nodes,
+              parent: parent_exposure,
+              binding: channeled_binding_name,
+              dataset: binding_scope_nodes[0].label(:dataset)
             )
 
-            exposure = endpoint.exposures.find { |e|
-              e.binding == binding_scope_view.channeled_binding_name && e.parent.equal?(parent_exposure)
-            }
+            endpoint.add_exposure(exposure)
+          end
 
-            unless exposure
-              exposure = Exposure.new(
-                scope: scope,
-                node: binding_scope_node,
-                parent: parent_exposure,
-                binding: binding_scope_view.channeled_binding_name,
-                dataset: binding_scope_view.label(:dataset)
-              )
-
-              endpoint.add_exposure(exposure)
-            end
-
-            # Discover nested view scopes.
-            #
+          # Discover nested view scopes.
+          #
+          binding_scope_nodes.each do |binding_scope_node|
             discover_view_scopes(
               view_path: view_path,
-              view: binding_scope_view,
+              view: Presenter::View.from_object(binding_scope_node),
               parent_scope: scope,
               parent_exposure: exposure,
               binding_path: binding_path.dup << binding_scope_node.label(:binding)
@@ -103,72 +108,72 @@ module Pakyow
 
         # Discover forms.
         #
-        view.object.each_significant_node(:form) do |form_node|
-          if form_node.labeled?(:binding) && !form_node.labeled?(:plug)
-            form_view = Presenter::View.from_object(form_node)
-            scope = scope_for_binding(form_view.binding_name, parent_scope)
+        view.object.each_significant_node(:form).select { |form_node|
+          form_node.labeled?(:binding) && !form_node.labeled?(:plug)
+        }.each do |form_node|
+          form_view = Presenter::View.from_object(form_node)
+          scope = scope_for_binding(form_view.binding_name, parent_scope)
 
-            # Discover attributes from scopes nested within forms.
-            #
-            attributes = discover_attributes(form_view)
-            attributes.each do |attribute|
-              unless scope.attribute(attribute.name, type: :form)
-                scope.add_attribute(attribute, type: :form)
-              end
+          # Discover attributes from scopes nested within forms.
+          #
+          attributes = discover_attributes(form_view)
+          attributes.each do |attribute|
+            unless scope.attribute(attribute.name, type: :form)
+              scope.add_attribute(attribute, type: :form)
             end
+          end
 
-            # Define an endpoint for this form.
-            #
-            endpoint = ensure_endpoint(
-              view_path, view.info.dig(:reflection, :endpoint)
+          # Define an endpoint for this form.
+          #
+          endpoint = ensure_endpoint(
+            view_path, view.info.dig(:reflection, :endpoint)
+          )
+
+          unless endpoint.exposures.any? { |e| e.binding == form_view.channeled_binding_name }
+            exposure = Exposure.new(
+              scope: scope,
+              nodes: [form_node],
+              parent: parent_exposure,
+              binding: form_view.channeled_binding_name
             )
 
-            unless endpoint.exposures.any? { |e| e.binding == form_view.channeled_binding_name }
-              exposure = Exposure.new(
+            endpoint.add_exposure(exposure)
+
+            # Define the reflected action, if there is one.
+            #
+            if action = action_for_form(form_view, view_path)
+              # Define an action to handle this form submission.
+              #
+              scope.actions << Action.new(
+                name: action,
                 scope: scope,
                 node: form_node,
-                parent: parent_exposure,
-                binding: form_view.channeled_binding_name
-              )
 
-              endpoint.add_exposure(exposure)
-
-              # Define the reflected action, if there is one.
-              #
-              if action = action_for_form(form_view, view_path)
-                # Define an action to handle this form submission.
+                # We need the view path to to identify the correct action to pull
+                # expected attributes from on submission.
                 #
-                scope.actions << Action.new(
-                  name: action,
-                  scope: scope,
-                  node: form_node,
-
-                  # We need the view path to to identify the correct action to pull
-                  # expected attributes from on submission.
-                  #
-                  view_path: view_path,
-
-                  # We need the channeled binding name to differentiate between submissions of two
-                  # forms with the same scope from the same view path.
-                  #
-                  binding: form_view.label(:channeled_binding),
-
-                  attributes: attributes,
-                  nested: discover_nested(form_view),
-                  parents: binding_path.map { |binding_path_part|
-                    scope(binding_path_part)
-                  }
-                )
-              end
-
-              # Discover nested form scopes.
-              discover_form_scopes(
                 view_path: view_path,
-                view: form_view,
-                parent_scope: scope,
-                parent_exposure: exposure
+
+                # We need the channeled binding name to differentiate between submissions of two
+                # forms with the same scope from the same view path.
+                #
+                binding: form_view.label(:channeled_binding),
+
+                attributes: attributes,
+                nested: discover_nested(form_view),
+                parents: binding_path.map { |binding_path_part|
+                  scope(binding_path_part)
+                }
               )
             end
+
+            # Discover nested form scopes.
+            discover_form_scopes(
+              view_path: view_path,
+              view: form_view,
+              parent_scope: scope,
+              parent_exposure: exposure
+            )
           end
         end
 

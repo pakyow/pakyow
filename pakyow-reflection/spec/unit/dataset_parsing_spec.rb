@@ -1,7 +1,7 @@
 RSpec.describe "dataset parsing" do
   let :dataset do
     Pakyow::Reflection::Exposure.new(
-      scope: nil, node: nil, binding: nil, dataset: string
+      scope: nil, nodes: [], binding: nil, dataset: string
     ).dataset
   end
 

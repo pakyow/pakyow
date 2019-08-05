@@ -4,11 +4,11 @@ module Pakyow
   module Reflection
     # @api private
     class Exposure
-      attr_reader :scope, :node, :binding, :dataset, :parent, :children
+      attr_reader :scope, :nodes, :binding, :dataset, :parent, :children
 
-      def initialize(scope:, node:, binding:, dataset: nil, parent: nil)
+      def initialize(scope:, nodes:, binding:, dataset: nil, parent: nil)
         @scope = scope
-        @node = node
+        @nodes = nodes
         @binding = binding
         @dataset = parse_dataset(dataset) if dataset
         @parent = parent
@@ -20,7 +20,7 @@ module Pakyow
       end
 
       def cleanup
-        @node = nil
+        @nodes = []
       end
 
       private

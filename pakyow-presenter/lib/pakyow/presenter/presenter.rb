@@ -543,14 +543,29 @@ module Pakyow
       end
 
       def set_endpoint_params_for_node(node, object)
+        object = object.to_h
+
         endpoint_object = node.label(:endpoint_object)
         endpoint_params = node.label(:endpoint_params)
 
         if endpoint_object && endpoint_params
           endpoint_object.params.each do |param|
-            if param.to_s.start_with?("#{@view.label(:binding)}_")
-              key = param.to_s.split("_", 2)[1].to_sym
+            param_string = param.to_s
 
+            object.keys.each do |object_key|
+              object_key_prefix = "#{object_key}_"
+              if param_string.start_with?(object_key_prefix)
+                set_endpoint_params_for_node(node, object[object_key])
+                key = param_string.split(object_key_prefix, 2)[1].to_sym
+                if object[object_key]&.include?(key)
+                  endpoint_params[param] = object[object_key][key]; next
+                end
+              end
+            end
+
+            param_key_prefix = "#{@view.label(:binding)}_"
+            if param_string.start_with?(param_key_prefix)
+              key = param_string.split(param_key_prefix, 2)[1].to_sym
               if object.include?(key)
                 endpoint_params[param] = object[key]; next
               end

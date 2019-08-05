@@ -14,14 +14,16 @@ RSpec.describe "nested form endpoint: namespaced folder" do
 
   it "defines an exposure for the parent scope" do
     expect(mirror.endpoints[0].exposures[0].scope).to be(scope(:post))
-    expect(mirror.endpoints[0].exposures[0].node).to be_instance_of(StringDoc::Node)
+    expect(mirror.endpoints[0].exposures[0].nodes.count).to eq(1)
+    expect(mirror.endpoints[0].exposures[0].nodes[0]).to be_instance_of(StringDoc::Node)
     expect(mirror.endpoints[0].exposures[0].binding).to eq(:post)
     expect(mirror.endpoints[0].exposures[0].parent).to be(nil)
   end
 
   it "defines an exposure for the form" do
     expect(mirror.endpoints[0].exposures[1].scope).to be(scope(:comment))
-    expect(mirror.endpoints[0].exposures[1].node).to be_instance_of(StringDoc::Node)
+    expect(mirror.endpoints[0].exposures[1].nodes.count).to eq(1)
+    expect(mirror.endpoints[0].exposures[1].nodes[0]).to be_instance_of(StringDoc::Node)
     expect(mirror.endpoints[0].exposures[1].binding).to eq(:"comment:form")
     expect(mirror.endpoints[0].exposures[1].parent).to be(mirror.endpoints[0].exposures[0])
   end
