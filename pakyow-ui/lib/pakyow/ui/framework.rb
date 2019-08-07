@@ -6,6 +6,7 @@ require "pakyow/framework"
 
 require "pakyow/application/helpers/ui"
 
+require "pakyow/application/behavior/ui/logging"
 require "pakyow/application/behavior/ui/recording"
 require "pakyow/application/behavior/ui/rendering"
 require "pakyow/application/behavior/ui/timeouts"
@@ -35,6 +36,7 @@ module Pakyow
         object.class_eval do
           register_helper :passive, Application::Helpers::UI
 
+          include Application::Behavior::UI::Logging
           include Application::Behavior::UI::Recording
           include Application::Behavior::UI::Rendering
           include Application::Behavior::UI::Timeouts
