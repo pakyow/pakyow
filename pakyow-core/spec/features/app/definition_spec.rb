@@ -97,4 +97,23 @@ RSpec.describe "defining an app" do
       expect(app.config.name).to eq("define-test")
     end
   end
+
+  context "app block defines a method" do
+    let :app_def do
+      Proc.new do; end
+    end
+
+    let :app_init do
+      Proc.new do
+        def call(connection)
+          connection.body = StringIO.new("called")
+          connection.halt
+        end
+      end
+    end
+
+    it "defines the method" do
+      expect(call("/")[2]).to eq("called")
+    end
+  end
 end
