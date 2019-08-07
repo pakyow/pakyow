@@ -20,6 +20,7 @@ RSpec.configure do |spec_config|
   end
 end
 
+require_relative "context/websocket_context"
 require_relative "../../spec/context/app_context"
 require_relative "../../spec/context/suppressed_output_context"
 

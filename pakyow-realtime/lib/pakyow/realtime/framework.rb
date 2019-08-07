@@ -7,6 +7,7 @@ require "pakyow/application/helpers/realtime/subscriptions"
 require "pakyow/application/helpers/realtime/socket"
 
 require "pakyow/application/config/realtime"
+require "pakyow/application/behavior/realtime/handling"
 require "pakyow/application/behavior/realtime/serialization"
 require "pakyow/application/behavior/realtime/server"
 require "pakyow/application/behavior/realtime/silencing"
@@ -28,6 +29,7 @@ module Pakyow
 
           include Application::Config::Realtime
           include Application::Behavior::Realtime::Server
+          include Application::Behavior::Realtime::Handling
           include Application::Behavior::Realtime::Silencing
           include Application::Behavior::Realtime::Serialization
 

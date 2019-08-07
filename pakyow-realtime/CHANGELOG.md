@@ -4,6 +4,7 @@
   * [changed] Let websocket instances manage their own heartbeats, rather than the websocket server
   * [changed] Send heartbeats every second from websocket instances
     * This and the change prior seem to resolve intermittent timeouts on production
+  * [added] WebSocket message handlers
 
 # 1.0
 
