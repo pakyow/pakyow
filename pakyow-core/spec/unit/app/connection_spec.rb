@@ -27,8 +27,12 @@ RSpec.describe Pakyow::Application::Connection do
 
   let :request do
     Async::HTTP::Protocol::Request.new(
-      "http", "localhost", "GET", "/", nil, Protocol::HTTP::Headers.new([])
+      "http", "localhost", "GET", path, nil, Protocol::HTTP::Headers.new([])
     )
+  end
+
+  let :path do
+    "/"
   end
 
   before do
@@ -71,6 +75,20 @@ RSpec.describe Pakyow::Application::Connection do
   describe "#method" do
     it "returns the expected value" do
       expect(connection.method).to eq(:get)
+    end
+  end
+
+  describe "#path" do
+    before do
+      allow(app).to receive(:mount_path).and_return("/foo")
+    end
+
+    let :path do
+      "/foo/bar"
+    end
+
+    it "returns the request path relative to the app" do
+      expect(connection.path).to eq("/bar")
     end
   end
 
