@@ -11,6 +11,7 @@
   * [added] Better error messages when running commands in the wrong context
   * [fixed] Unpredictable load order of backend aspects
     * Now loaded alphabetically on every os
+  * [fixed] App connection path is relative to to the app mount path
 
 # 1.0.1
 

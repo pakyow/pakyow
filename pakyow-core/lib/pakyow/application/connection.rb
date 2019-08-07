@@ -2,6 +2,7 @@
 
 require "delegate"
 
+require "pakyow/support/core_refinements/string/normalization"
 require "pakyow/support/hookable"
 
 module Pakyow
@@ -20,6 +21,8 @@ module Pakyow
       include Behavior::Verifier
       include Behavior::Values
 
+      using Support::Refinements::String::Normalization
+
       def initialize(app, connection)
         performing :initialize do
           @app = app; __setobj__(connection)
@@ -30,6 +33,16 @@ module Pakyow
         performing :dup do
           super
         end
+      end
+
+      def path
+        unless instance_variable_defined?(:@path)
+          @path = String.normalize_path(
+            __getobj__.path.split(@app.mount_path, 2)[1]
+          )
+        end
+
+        @path
       end
 
       def method
