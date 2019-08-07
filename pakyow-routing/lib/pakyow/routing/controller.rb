@@ -372,6 +372,7 @@ module Pakyow
 
         @connection.set(:__endpoint_path, nil)
         @connection.set(:__endpoint_name, nil)
+        @connection.remove_instance_variable(:@path)
 
         app.perform(@connection); halt
       end
