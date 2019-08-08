@@ -5,6 +5,7 @@
   * [changed] Send heartbeats every second from websocket instances
     * This and the change prior seem to resolve intermittent timeouts on production
   * [added] WebSocket message handlers
+  * [changed] Installed WebSocket is now configured to be a global socket
 
 # 1.0
 
