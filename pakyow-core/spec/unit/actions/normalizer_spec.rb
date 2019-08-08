@@ -551,4 +551,66 @@ RSpec.describe Pakyow::Actions::Normalizer do
       end
     end
   end
+
+  describe "normalizing with a canonical uri" do
+    before do
+      Pakyow.config.normalizer.canonical_uri = "https://localhost"
+    end
+
+    let :scheme do
+      "https"
+    end
+
+    context "scheme is https" do
+      before do
+        Pakyow.config.normalizer.canonical_uri = "https://localhost"
+        action
+      end
+
+      it "sets require_https to true" do
+        expect(Pakyow.config.normalizer.require_https).to eq(true)
+      end
+    end
+
+    context "scheme is http" do
+      before do
+        Pakyow.config.normalizer.canonical_uri = "http://localhost"
+        action
+      end
+
+      it "sets require_https to false" do
+        expect(Pakyow.config.normalizer.require_https).to eq(false)
+      end
+    end
+
+    context "request uri does not match the canonical host" do
+      let :host do
+        "pakyow.com"
+      end
+
+      it "redirects" do
+        catch :halt do
+          action.call(connection)
+        end
+
+        expect(connection.status).to eq(301)
+        expect(connection.header("Location")).to eq("https://localhost/")
+      end
+    end
+
+    context "request uri matches the canonical host" do
+      let :host do
+        "localhost"
+      end
+
+      it "does not redirect" do
+        catch :halt do
+          action.call(connection)
+        end
+
+        expect(connection.status).to eq(200)
+        expect(connection.header?("Location")).to be(false)
+      end
+    end
+  end
 end
