@@ -46,6 +46,12 @@ RSpec.describe Pakyow::Logger do
     end
   end
 
+  before do
+    allow(Pakyow).to receive(:global_logger).and_return(
+      double(:global_output, call: nil, verbose!: nil)
+    )
+  end
+
   describe "#initialize" do
     describe "argument: type" do
       it "is required" do
