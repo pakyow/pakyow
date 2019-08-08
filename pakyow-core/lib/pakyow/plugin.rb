@@ -207,6 +207,10 @@ module Pakyow
       end
     end
 
+    def top
+      parent.top
+    end
+
     private
 
     def build_key

@@ -212,6 +212,11 @@ module Pakyow
     end
 
     # @api private
+    def top
+      self
+    end
+
+    # @api private
     def perform(app_connection)
       @__pipeline.call(app_connection)
     end
