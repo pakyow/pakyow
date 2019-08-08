@@ -214,4 +214,14 @@ RSpec.describe Pakyow::Application do
       expect($called_before_shutdown).to be(true)
     end
   end
+
+  describe "#top" do
+    let :app do
+      app_class.new(:test)
+    end
+
+    it "returns self" do
+      expect(app.top).to be(app)
+    end
+  end
 end
