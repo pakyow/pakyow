@@ -1,5 +1,6 @@
 export {default as broadcast} from "./broadcast";
 export {default as define} from "./define";
+export {default as logger} from "./logger";
 export {default as ready} from "./ready";
 export {default as send} from "./send";
 export {default as server} from "./server";

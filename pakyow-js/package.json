@@ -44,6 +44,7 @@
     "testEnvironment": "jest-environment-jsdom-global",
     "setupFiles": [
       "jest-localstorage-mock"
-    ]
+    ],
+    "clearMocks": true
   }
 }

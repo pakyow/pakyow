@@ -39,10 +39,10 @@ export default class {
             )
           );
         } else {
-          console.log(`unknown view method: ${methodName}`, transformable);
+          console.warn(`unknown view method: ${methodName}`, transformable);
         }
       } catch(error) {
-        console.log("error transforming", error, transformable, transformation, calls);
+        console.error("error transforming", error, transformable, transformation, calls);
       }
     }
   }

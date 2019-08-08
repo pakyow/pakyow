@@ -12,12 +12,20 @@ function sleep(ms){
   });
 }
 
+let originalConsole = console;
+
+beforeEach(() => {
+  console.error = jest.fn();
+});
+
 afterEach(() => {
   while(pw.Component.instances.length > 0) {
     pw.Component.instances.pop();
   }
 
   pw.Component.clearObserver();
+
+  console.error = originalConsole.error;
 });
 
 describe("component errors on initialization", () => {
