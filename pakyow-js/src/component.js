@@ -94,7 +94,7 @@ export default class {
       for (let uiComponent of uiComponents) {
         try {
           if (uiComponent.config.debug) {
-            console.debug(`[component] \`${uiComponent.name}': initializing`);
+            console.debug(`[component] ${uiComponent.name} initializing`);
           }
 
           let object = components[uiComponent.name] || this.create();
@@ -120,7 +120,7 @@ export default class {
           instance.appear();
 
           if (instance.config.debug) {
-            console.debug(`[component] \`${uiComponent.name}': initialized`);
+            console.debug(`[component] ${uiComponent.name} initialized`);
           }
         } catch (error) {
           console.error(`failed to initialize component \`${uiComponent.name}': ${error}`);

@@ -24,10 +24,10 @@ describe("debugging a component", () => {
   test("logs initialization", () => {
     init();
     expect(spy.mock.calls).toEqual([
-      ["[component] `foo': initializing"],
-      ["[component] `foo': initialized"],
-      ["[component] `bar': initializing"],
-      ["[component] `bar': initialized"]
+      ["[component] foo initializing"],
+      ["[component] foo initialized"],
+      ["[component] bar initializing"],
+      ["[component] bar initialized"]
     ]);
   });
 
