@@ -138,7 +138,7 @@ module Pakyow
         # Define state for the object.
         #
         def define(&block)
-          class_eval(&block)
+          class_exec(&block)
         end
       end
 
