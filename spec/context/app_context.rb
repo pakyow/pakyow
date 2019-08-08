@@ -74,7 +74,7 @@ RSpec.shared_context "app" do
   end
 
   DEFAULT_HEADERS = { "content-type" => "text/html" }.freeze
-  def call(path = "/", headers: {}, method: :get, tuple: true, input: nil, params: nil)
+  def call(path = "/", headers: {}, method: :get, tuple: true, input: nil, params: nil, scheme: "http")
     connection_for_call = nil
     allow_any_instance_of(Pakyow::Connection).to receive(:finalize).and_wrap_original do |method|
       connection_for_call = method.receiver
@@ -88,7 +88,7 @@ RSpec.shared_context "app" do
 
     body = Async::HTTP::Body::Buffered.wrap(input)
     request = Async::HTTP::Protocol::Request.new(
-      "http", "localhost", method.to_s.upcase, path, nil, Protocol::HTTP::Headers.new(DEFAULT_HEADERS.merge(headers).to_a), body
+      scheme, "localhost", method.to_s.upcase, path, nil, Protocol::HTTP::Headers.new(DEFAULT_HEADERS.merge(headers).to_a), body
     ).tap do |request|
       request.remote_address = Addrinfo.tcp("localhost", "http")
     end

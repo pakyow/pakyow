@@ -71,6 +71,17 @@ pw.define("socket", {
   },
 
   beat() {
-    this.connection.send("beat");
+    this.send("beat");
+  },
+
+  send(payload, type = "unknown") {
+    this.connection.send(
+      JSON.stringify(
+        {
+          type: type,
+          payload: payload
+        }
+      )
+    );
   }
 });

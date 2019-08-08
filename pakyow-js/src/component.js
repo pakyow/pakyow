@@ -93,6 +93,10 @@ export default class {
 
       for (let uiComponent of uiComponents) {
         try {
+          if (uiComponent.config.debug) {
+            console.debug(`[component] \`${uiComponent.name}': initializing`);
+          }
+
           let object = components[uiComponent.name] || this.create();
           let instance = new object(view, Object.assign({ name: uiComponent.name }, uiComponent.config));
           instances.push(instance);
@@ -114,8 +118,12 @@ export default class {
           }
 
           instance.appear();
+
+          if (instance.config.debug) {
+            console.debug(`[component] \`${uiComponent.name}': initialized`);
+          }
         } catch (error) {
-          console.log(`failed to initialize component \`${uiComponent.name}': ${error}`);
+          console.error(`failed to initialize component \`${uiComponent.name}': ${error}`);
         }
       }
     }
@@ -209,6 +217,10 @@ export default class {
     };
 
     component.prototype.listen = function (channel, callback) {
+      if (this.config.debug) {
+        console.debug(`[component] ${this.config.name} listening for events on \`${channel}'`);
+      }
+
       this.node.addEventListener(channel, (evt) => {
         callback.call(this, evt.detail);
       });
@@ -222,6 +234,10 @@ export default class {
     };
 
     component.prototype.ignore = function (channel) {
+      if (this.config.debug) {
+        console.debug(`[component] ${this.config.name} ignoring events on \`${channel}'`);
+      }
+
       broadcasts[channel].filter((tuple) => {
         return tuple[0].view.node === this.view.node;
       }).forEach((tuple) => {
@@ -233,12 +249,20 @@ export default class {
     };
 
     component.prototype.trigger = function (channel, payload) {
+      if (this.config.debug) {
+        console.debug(`[component] ${this.config.name} triggering \`${channel}': ${JSON.stringify(payload)}`);
+      }
+
       this.view.node.dispatchEvent(
         new CustomEvent(channel, { detail: payload })
       );
     };
 
     component.prototype.bubble = function (channel, payload) {
+      if (this.config.debug) {
+        console.debug(`[component] ${this.config.name} bubbling \`${channel}': ${JSON.stringify(payload)}`);
+      }
+
       this.view.node.dispatchEvent(
         new CustomEvent(channel, { bubbles: true, detail: payload })
       );

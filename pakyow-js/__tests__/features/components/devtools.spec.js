@@ -186,7 +186,7 @@ describe("devtools", () => {
 
         test("sets the document location to the view path", () => {
           document.location.assign = jest.fn();
-          pw.broadcast("pw:socket:connected");
+          pw.broadcast("pw:socket:connected", { config: {} });
           expect(document.location.assign).toHaveBeenCalledWith("/foo");
         });
       });
@@ -211,7 +211,7 @@ describe("devtools", () => {
 
         test("sets the document location to the mapping for the view path", () => {
           document.location.assign = jest.fn();
-          pw.broadcast("pw:socket:connected");
+          pw.broadcast("pw:socket:connected", { config: {} });
           expect(document.location.assign).toHaveBeenCalledWith("/foo/bar");
         });
       });
