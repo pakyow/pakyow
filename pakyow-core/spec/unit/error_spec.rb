@@ -91,6 +91,30 @@ RSpec.describe Pakyow::Error do
       end
     end
 
+    context "error occurred within a bundled framework" do
+      before do
+        allow_any_instance_of(Pakyow::Error).to receive(:project?).and_return(false)
+      end
+
+      it "says that the error occurred within a framework" do
+        begin
+          fail "something went wrong"
+        rescue => error
+          expect(error).to receive(:backtrace_locations).and_return(
+            [double(:backtrace_location, absolute_path: File.join(Bundler.bundle_path, "bundler/gems/pakyow-e85540544296/pakyow-core/lib/pakyow/environment.rb:316"))]
+          )
+
+          wrapped = described_class.build(error)
+        end
+
+        expect(wrapped.details).to eq(
+          <<~MESSAGE
+            `RuntimeError' occurred outside of your project, within the `core' framework.
+          MESSAGE
+        )
+      end
+    end
+
     context "error occurred within ruby" do
       before do
         allow_any_instance_of(Pakyow::Error).to receive(:project?).and_return(false)
@@ -303,7 +327,7 @@ RSpec.describe Pakyow::Error do
         Pathname.new(Pakyow.config.root)
       )
 
-      expect(error.condensed_backtrace[1]).to eq("         › #{path}:279:in `bar`")
+      expect(error.condensed_backtrace[1]).to eq("         › #{path}:303:in `bar`")
     end
 
     context "error occurred within the project" do
