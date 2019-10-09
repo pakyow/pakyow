@@ -15,7 +15,7 @@ module Pakyow
       end
 
       def self.ruby_gem_path
-        @ruby_gem_path ||= Gem.default_dir + "/gems"
+        @ruby_gem_path ||= File.join(Gem.dir, "/gems")
       end
 
       def self.regex_bundler
