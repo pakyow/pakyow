@@ -196,7 +196,7 @@ RSpec.describe "serving source maps from the processor" do
       )
 
       expect(map["mappings"]).to eq(
-        "AAAA,AAAA,IAAI,CAAC;EACH,UAAU,EAAE,OAAiB,GAAG"
+        "AAAA,AAAA,IAAI,CAAC;EACH,UAAU,EAAU,OAAG,GAAS"
       )
 
       expect(map["sourcesContent"]).to eq([
@@ -227,7 +227,7 @@ RSpec.describe "serving source maps from the processor" do
       )
 
       expect(map["mappings"]).to eq(
-        "AAEA,AAAA,IAAI,CAAC;EACH,UAAU,ECHN,OAAiB,GDGF"
+        "AAEA,AAAA,IAAI,CAAC;EACH,UAAU,ECHE,OAAG,GDGI"
       )
 
       expect(map["sourcesContent"]).to eq([
@@ -509,22 +509,22 @@ RSpec.describe "serving source maps from the processor" do
                             :generated_col=>14,
                             :source=>"/spec/support/app/frontend/pages/source_mapped/_partial.sass",
                             :source_line=>2,
-                            :source_col=>14},
+                            :source_col=>22},
                            {:generated_line=>2,
                             :generated_col=>14,
                             :source=>"/spec/support/app/frontend/pages/source_mapped/index.sass",
                             :source_line=>2,
-                            :source_col=>14},
+                            :source_col=>22},
                            {:generated_line=>2,
                             :generated_col=>21,
                             :source=>"/spec/support/app/frontend/pages/source_mapped/index.sass",
                             :source_line=>2,
-                            :source_col=>32},
+                            :source_col=>26},
                            {:generated_line=>2,
                             :generated_col=>21,
                             :source=>"/spec/support/app/frontend/pages/source_mapped/_partial.sass",
                             :source_line=>2,
-                            :source_col=>31},
+                            :source_col=>25},
                            {:generated_line=>2,
                             :generated_col=>24,
                             :source=>"/spec/support/app/frontend/pages/source_mapped/_partial.sass",
