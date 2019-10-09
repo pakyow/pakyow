@@ -31,9 +31,9 @@ module Pakyow
           time: Data::Types::MAPPING[:time].meta(database_type: Time, column_type: :datetime),
 
           # sql-specific types
-          file: Types.Constructor(Sequel::SQL::Blob).meta(mapping: :file, database_type: File, column_type: :blob),
-          text: Types::Coercible::String.meta(mapping: :text, database_type: :text, column_type: :text, native_type: "text"),
-          bignum: Types::Coercible::Integer.meta(mapping: :bignum, database_type: :Bignum)
+          file: Data::Types.Constructor(Sequel::SQL::Blob).meta(mapping: :file, database_type: File, column_type: :blob),
+          text: Data::Types::Coercible::String.meta(mapping: :text, database_type: :text, column_type: :text, native_type: "text"),
+          bignum: Data::Types::Coercible::Integer.meta(mapping: :bignum, database_type: :Bignum)
         }.freeze
 
         require "pakyow/data/adapters/sql/types"
