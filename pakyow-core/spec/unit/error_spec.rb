@@ -77,7 +77,7 @@ RSpec.describe Pakyow::Error do
           fail "something went wrong"
         rescue => error
           expect(error).to receive(:backtrace_locations).and_return(
-            [double(:backtrace_location, absolute_path: File.join(Gem.default_dir, "gems/pakyow-core-1.0.0"))]
+            [double(:backtrace_location, absolute_path: File.join(Gem.dir, "gems/pakyow-core-1.0.0"))]
           )
 
           wrapped = described_class.build(error)
@@ -146,7 +146,7 @@ RSpec.describe Pakyow::Error do
           fail "something went wrong"
         rescue => error
           expect(error).to receive(:backtrace_locations).and_return(
-            [double(:backtrace_location, absolute_path: File.join(Gem.default_dir, "gems/puma-3.12.0"))]
+            [double(:backtrace_location, absolute_path: File.join(Gem.dir, "gems/puma-3.12.0"))]
           )
 
           wrapped = described_class.build(error)
@@ -299,9 +299,9 @@ RSpec.describe Pakyow::Error do
       rescue => error
         expect(error).to receive(:backtrace).and_return(
           [
-            File.join(Gem.default_dir, "gems/pakyow-realtime-1.0.0/foo.rb:114:in `foo`"),
+            File.join(Gem.dir, "gems/pakyow-realtime-1.0.0/foo.rb:114:in `foo`"),
             __FILE__ + ":#{__LINE__}:in `bar`",
-            File.join(Gem.default_dir, "gems/puma-3.12.0/baz.rb:42:in `baz`"),
+            File.join(Gem.dir, "gems/puma-3.12.0/baz.rb:42:in `baz`"),
             File.join(RbConfig::CONFIG["libdir"], "ruby/2.6.0/json/common.rb:156:in `parse'")
           ]
         )
@@ -341,9 +341,9 @@ RSpec.describe Pakyow::Error do
         rescue => error
           expect(error).to receive(:backtrace_locations).and_return(
             [
-              double(:backtrace_location, absolute_path: File.join(Gem.default_dir, "gems/pakyow-realtime-1.0.0/foo.rb:114:in `foo`")),
+              double(:backtrace_location, absolute_path: File.join(Gem.dir, "gems/pakyow-realtime-1.0.0/foo.rb:114:in `foo`")),
               double(:backtrace_location, absolute_path: __FILE__ + "#{__LINE__}:in `bar`"),
-              double(:backtrace_location, absolute_path: File.join(Gem.default_dir, "gems/puma-3.12.0/baz.rb:42:in `baz`"))
+              double(:backtrace_location, absolute_path: File.join(Gem.dir, "gems/puma-3.12.0/baz.rb:42:in `baz`"))
             ]
           )
 
