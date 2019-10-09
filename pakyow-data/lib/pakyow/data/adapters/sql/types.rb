@@ -13,9 +13,9 @@ module Pakyow
               string: Sql::TYPES[:string].meta(native_type: "text"),
               text: Sql::TYPES[:text].meta(column_type: :string),
 
-              json: Pakyow::Data::Types.Constructor(:json) { |value|
+              json: Pakyow::Data::Types.Constructor(::Object) { |value|
                 Sequel.pg_json(value)
-              }.meta(mapping: :json, database_type: :json)
+              }.meta(mapping: :json, database_type: :json, column_type: :json)
             }.freeze
           end
 
