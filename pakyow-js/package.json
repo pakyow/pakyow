@@ -45,6 +45,7 @@
     "setupFiles": [
       "jest-localstorage-mock"
     ],
-    "clearMocks": true
+    "clearMocks": true,
+    "cacheDirectory": "./node_modules/.cache/jest"
   }
 }
