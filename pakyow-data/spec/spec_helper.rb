@@ -27,6 +27,28 @@ RSpec.configure do |config|
   require "pakyow/data/migrator"
   require "pakyow/data/adapters/sql"
 
+  def wait_for_sql_database!(options)
+    options = sql_options(options)
+
+    iterations = 0
+    until iterations > 30
+      connection = Pakyow::Data::Connection.new(opts: options, type: :sql, name: :test)
+
+      if connection.connected?
+        break
+      else
+        iterations += 1
+        sleep 1
+      end
+    end
+
+    if connection.connected?
+      connection.disconnect
+    else
+      raise RuntimeError, "Could not connect to database: #{options}"
+    end
+  end
+
   # FIXME: We do this because we setup a migrator (which might use the logger) ahead of the logger
   # being initialized. The correct fix would be to always have a default logger, then replace it
   # when booting the environment.
@@ -113,6 +135,8 @@ RSpec.configure do |config|
 
   config.before :suite do
     database_urls.each do |database_url|
+      wait_for_sql_database!(database_url)
+
       # This can hang indefinitely from time to time, so wrap in a timeout.
       #
       Timeout::timeout(15) do
@@ -121,6 +145,8 @@ RSpec.configure do |config|
 
       create_sql_database(database_url)
     end
+
+    wait_for_redis!
   end
 
   config.before do

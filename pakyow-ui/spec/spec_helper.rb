@@ -15,6 +15,10 @@ require "pakyow/ui"
 require_relative "../../spec/helpers/mock_handler"
 
 RSpec.configure do |spec_config|
+  spec_config.before :suite do
+    wait_for_redis!
+  end
+
   spec_config.before do |example|
     @excluded_frameworks = [:reflection]
 
