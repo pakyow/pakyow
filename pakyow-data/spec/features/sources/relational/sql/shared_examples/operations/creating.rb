@@ -3,13 +3,13 @@ RSpec.shared_examples :source_operations_creating do
     after do
       # Make sure the database is set back up.
       #
-      create_database
+      create_sql_database(connection_string)
     end
 
     context "database does not exist" do
       before do
-        drop_database
-        expect(database_exists?).to be(false)
+        drop_sql_database(connection_string)
+        expect(sql_database_exists?(connection_string)).to be(false)
       end
 
       it "creates" do
@@ -17,7 +17,7 @@ RSpec.shared_examples :source_operations_creating do
           %w(db:create --adapter=sql --connection=default)
         )
 
-        expect(database_exists?).to be(true)
+        expect(sql_database_exists?(connection_string)).to be(true)
       end
 
       it "clears the setup error" do
@@ -31,8 +31,8 @@ RSpec.shared_examples :source_operations_creating do
 
     context "database already exists" do
       before do
-        create_database
-        expect(database_exists?).to be(true)
+        create_sql_database(connection_string)
+        expect(sql_database_exists?(connection_string)).to be(true)
       end
 
       it "silently completes" do
@@ -40,7 +40,7 @@ RSpec.shared_examples :source_operations_creating do
           %w(db:create --adapter=sql --connection=default)
         )
 
-        expect(database_exists?).to be(true)
+        expect(sql_database_exists?(connection_string)).to be(true)
       end
     end
   end

@@ -47,22 +47,6 @@ RSpec.describe "sqlite source", sqlite: true do
     "sqlite://#{File.expand_path("../test.db", __FILE__)}"
   end
 
-  after :all do
-    drop_database
-  end
-
-  def database_exists?
-    File.exist?(File.expand_path("../test.db", __FILE__))
-  end
-
-  def create_database
-    FileUtils.touch(File.expand_path("../test.db", __FILE__))
-  end
-
-  def drop_database
-    FileUtils.rm_f(File.expand_path("../test.db", __FILE__))
-  end
-
   describe "primary id" do
     before do
       local_connection_type, local_connection_string = connection_type, connection_string

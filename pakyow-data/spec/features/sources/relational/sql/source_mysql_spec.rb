@@ -46,31 +46,7 @@ RSpec.describe "mysql source", mysql: true do
   end
 
   let :connection_string do
-    "mysql2://localhost/pakyow-test"
-  end
-
-  before :all do
-    create_database
-  end
-
-  after :all do
-    drop_database
-  end
-
-  def database_exists?
-    system "mysql -e 'use pakyow-test'", out: File::NULL, err: File::NULL
-  end
-
-  def create_database
-    unless database_exists?
-      system "mysql -e 'CREATE DATABASE `pakyow-test`'", out: File::NULL, err: File::NULL
-    end
-  end
-
-  def drop_database
-    if database_exists?
-      system "mysql -e 'DROP DATABASE `pakyow-test`'", out: File::NULL, err: File::NULL
-    end
+    ENV["DATABASE_URL__MYSQL"]
   end
 
   describe "default primary id" do

@@ -73,45 +73,7 @@ RSpec.describe "postgres source", postgres: true do
   end
 
   let :connection_string do
-    "postgres://localhost/pakyow-test"
-  end
-
-  before :all do
-    create_database
-  end
-
-  after :all do
-    drop_database
-  end
-
-  def database_exists?
-    `psql -lqt | cut -d \\| -f 1`.split("\n").map(&:strip).include?("pakyow-test")
-  end
-
-  def create_database
-    unless database_exists?
-      system "createdb pakyow-test", out: File::NULL, err: File::NULL
-      system "psql pakyow-test -c 'CREATE SCHEMA public'", out: File::NULL, err: File::NULL
-    end
-  end
-
-  def drop_database
-    if database_exists?
-      terminate_sql = <<~SQL
-        SELECT
-        pg_terminate_backend(pid)
-        FROM
-        pg_stat_activity
-        WHERE
-        -- don't kill my own connection!
-        pid <> pg_backend_pid()
-        -- don't kill the connections to other databases
-        AND datname = 'pakyow-test';
-      SQL
-
-      system "psql -c \"#{terminate_sql}\"", out: File::NULL, err: File::NULL
-      system "dropdb pakyow-test", out: File::NULL, err: File::NULL
-    end
+    ENV["DATABASE_URL__POSTGRES"]
   end
 
   describe "postgres-specific types" do
