@@ -37,6 +37,9 @@ RSpec.configure do |config|
   end
 
   config.before :suite do
+    require "pakyow/support/cli/style"
+    Pakyow::Support::CLI.instance_variable_set(:@style, Pastel.new(enabled: true))
+
     if Pakyow.respond_to?(:config)
       Pakyow.config.freeze_on_boot = false
     end
@@ -68,6 +71,8 @@ RSpec.configure do |config|
   end
 
   config.before do
+    allow($stdout).to receive(:isatty).and_return(true)
+
     $original_constants = Object.constants
 
     allow(Pakyow).to receive(:at_exit)
