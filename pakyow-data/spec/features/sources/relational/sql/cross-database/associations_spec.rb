@@ -224,32 +224,15 @@ RSpec.describe "cross connection associations" do
     end
 
     let :connection_string_default do
-      "postgres://localhost/pakyow-test"
+      ENV["DATABASE_URL__POSTGRES"]
     end
 
     let :connection_string_two do
-      "postgres://localhost/pakyow-two"
+      ENV["DATABASE_URL__POSTGRES_2"]
     end
 
     let :connection_string_three do
-      "postgres://localhost/pakyow-three"
-    end
-
-    before :all do
-      unless system("psql -lqt | cut -d \\| -f 1 | grep -qw pakyow-test")
-        system "createdb pakyow-test > /dev/null", out: File::NULL, err: File::NULL
-        system "psql pakyow-test -c 'CREATE SCHEMA public' > /dev/null", out: File::NULL, err: File::NULL
-      end
-
-      unless system("psql -lqt | cut -d \\| -f 1 | grep -qw pakyow-two")
-        system "createdb pakyow-two > /dev/null", out: File::NULL, err: File::NULL
-        system "psql pakyow-two -c 'CREATE SCHEMA public' > /dev/null", out: File::NULL, err: File::NULL
-      end
-
-      unless system("psql -lqt | cut -d \\| -f 1 | grep -qw pakyow-three")
-        system "createdb pakyow-three > /dev/null", out: File::NULL, err: File::NULL
-        system "psql pakyow-three -c 'CREATE SCHEMA public' > /dev/null", out: File::NULL, err: File::NULL
-      end
+      ENV["DATABASE_URL__POSTGRES_3"]
     end
 
     include_examples "cross database associations"
@@ -261,55 +244,15 @@ RSpec.describe "cross connection associations" do
     end
 
     let :connection_string_default do
-      "postgres://localhost/pakyow-test"
+      ENV["DATABASE_URL__POSTGRES"]
     end
 
     let :connection_string_two do
-      "mysql2://localhost/pakyow-test"
+      ENV["DATABASE_URL__MYSQL"]
     end
 
     let :connection_string_three do
       "sqlite://#{File.expand_path("../test.db", __FILE__)}"
-    end
-
-    before :all do
-      unless system("psql -lqt | cut -d \\| -f 1 | grep -qw pakyow-test")
-        system "createdb pakyow-test > /dev/null", out: File::NULL, err: File::NULL
-        system "psql pakyow-test -c 'CREATE SCHEMA public' > /dev/null", out: File::NULL, err: File::NULL
-      end
-
-      unless system("mysql -e 'use pakyow-test'", out: File::NULL, err: File::NULL)
-        system "mysql -e 'CREATE DATABASE `pakyow-test`'", out: File::NULL, err: File::NULL
-      end
-
-      unless File.exist?(File.expand_path("../test.db", __FILE__))
-        FileUtils.touch(File.expand_path("../test.db", __FILE__))
-      end
-    end
-
-    after :all do
-      if system("psql -lqt | cut -d \\| -f 1 | grep -qw pakyow-test")
-        terminate_sql = <<~SQL
-          SELECT
-          pg_terminate_backend(pid)
-          FROM
-          pg_stat_activity
-          WHERE
-          -- don't kill my own connection!
-          pid <> pg_backend_pid()
-          -- don't kill the connections to other databases
-          AND datname = 'pakyow-test';
-        SQL
-
-        system "psql -c \"#{terminate_sql}\"", out: File::NULL, err: File::NULL
-        system "dropdb pakyow-test", out: File::NULL, err: File::NULL
-      end
-
-      if system("mysql -e 'use pakyow-test'", out: File::NULL, err: File::NULL)
-        system "mysql -e 'DROP DATABASE `pakyow-test`'", out: File::NULL, err: File::NULL
-      end
-
-      FileUtils.rm_f(File.expand_path("../test.db", __FILE__))
     end
 
     include_examples "cross database associations"

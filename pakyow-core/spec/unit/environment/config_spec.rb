@@ -215,6 +215,15 @@ RSpec.describe Pakyow do
     end
 
     describe "redis.connection.url" do
+      before do
+        @original_redis_url = ENV["REDIS_URL"]
+        ENV.delete("REDIS_URL")
+      end
+
+      after do
+        ENV["REDIS_URL"] = @original_redis_url
+      end
+
       it "has a default value" do
         expect(Pakyow.config.redis.connection.url).to eq("redis://127.0.0.1:6379")
       end
@@ -222,10 +231,6 @@ RSpec.describe Pakyow do
       context "REDIS_URL is set" do
         before do
           ENV["REDIS_URL"] = "worked"
-        end
-
-        after do
-          ENV.delete("REDIS_URL")
         end
 
         it "uses REDIS_URL" do

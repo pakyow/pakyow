@@ -37,6 +37,9 @@ RSpec.configure do |config|
   end
 
   config.before :suite do
+    require "pakyow/support/cli/style"
+    Pakyow::Support::CLI.instance_variable_set(:@style, Pastel.new(enabled: true))
+
     if Pakyow.respond_to?(:config)
       Pakyow.config.freeze_on_boot = false
     end
@@ -68,6 +71,8 @@ RSpec.configure do |config|
   end
 
   config.before do
+    allow($stdout).to receive(:isatty).and_return(true)
+
     $original_constants = Object.constants
 
     allow(Pakyow).to receive(:at_exit)
@@ -203,3 +208,26 @@ end
 require "pry"
 
 ENV["SESSION_SECRET"] = "sekret"
+
+def wait_for_redis!(redis_url = ENV["REDIS_URL"] || "redis://127.0.0.1:6379")
+  require "redis"
+
+  connected = false
+  iterations = 0
+  until iterations > 30
+    connection = Redis.new(url: redis_url)
+
+    begin
+      connection.info
+      connected = true
+      break
+    rescue
+      iterations += 1
+      sleep 1
+    end
+  end
+
+  unless connected
+    raise RuntimeError, "Could not connect to redis: #{redis_url}"
+  end
+end

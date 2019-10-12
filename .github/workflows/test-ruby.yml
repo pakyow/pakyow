@@ -1,0 +1,138 @@
+name: Test Ruby
+
+on: [push]
+
+jobs:
+  test-ruby:
+    runs-on: ubuntu-latest
+
+    name: ${{ matrix.ruby }} ${{ matrix.gem }}
+
+    container:
+      image: pakyow/ci-ruby-${{ matrix.ruby }}
+
+    services:
+      mysql:
+        image: mysql:latest
+        ports:
+          - 3307:3306
+        env:
+          MYSQL_ROOT_PASSWORD: pakyow
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+      postgres:
+        image: postgres:latest
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: pakyow
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379
+
+    strategy:
+      matrix:
+        ruby:
+          - 2.5.7
+          - 2.6.5
+
+        gem:
+          - assets
+          - core
+          - data
+          - form
+          - mailer
+          - presenter
+          - realtime
+          - routing
+          - support
+          - ui
+
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Setup
+        shell: bash -l -e -o pipefail {0}
+        run: |
+          rm -f Gemfile.lock
+          bundle install --jobs=3 && bundle update --jobs=3
+
+      - name: Test
+        shell: bash -l -e -o pipefail {0}
+        run: |
+          CI=true bundle exec rake test:${{ matrix.gem }}
+        env:
+          MYSQL_URL: mysql2://root:pakyow@mysql:${{ job.services.mysql.ports[3307] }}
+          POSTGRES_URL: postgres://postgres:pakyow@postgres:${{ job.services.postgres.ports[5432] }}
+          REDIS_URL: redis://redis:${{ job.services.redis.ports[6379] }}
+
+  test-ruby-db:
+    runs-on: ubuntu-latest
+
+    name: ${{ matrix.ruby }} ${{ matrix.gem }} ${{ matrix.db }}
+
+    container:
+      image: pakyow/ci-ruby-${{ matrix.ruby }}
+
+    services:
+      mysql:
+        image: mysql:latest
+        ports:
+          - 3307:3306
+        env:
+          MYSQL_ROOT_PASSWORD: pakyow
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+      postgres:
+        image: postgres:latest
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: pakyow
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379
+
+    strategy:
+      matrix:
+        ruby:
+          - 2.5.7
+          - 2.6.5
+
+        gem:
+          - data
+
+        db:
+          - mysql
+          - postgres
+          - sqlite
+
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Setup
+        shell: bash -l -e -o pipefail {0}
+        run: |
+          rm -f Gemfile.lock
+          bundle install --jobs=3 && bundle update --jobs=3
+
+      - name: Test
+        shell: bash -l -e -o pipefail {0}
+        run: |
+          CI=true CI_DB=${{ matrix.db }} bundle exec rake test:${{ matrix.gem }}
+        env:
+          MYSQL_URL: mysql2://root:pakyow@mysql:${{ job.services.mysql.ports[3307] }}
+          POSTGRES_URL: postgres://postgres:pakyow@postgres:${{ job.services.postgres.ports[5432] }}
+          REDIS_URL: redis://redis:${{ job.services.redis.ports[6379] }}

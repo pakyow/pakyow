@@ -4,20 +4,10 @@ RSpec.describe "data prelaunch tasks" do
   let :app_def do
     Proc.new do
       Pakyow.after "configure" do
-        Pakyow.config.data.connections.sql[:default] = "postgres://localhost/pakyow-test"
-        Pakyow.config.data.connections.sql[:another] = "mysql2://localhost/pakyow-test"
+        Pakyow.config.data.connections.sql[:default] = ENV["DATABASE_URL__POSTGRES"]
+        Pakyow.config.data.connections.sql[:another] = ENV["DATABASE_URL__MYSQL"]
         Pakyow.config.data.connections.sql[:memory] = "sqlite::memory"
       end
-    end
-  end
-
-  before :all do
-    unless system("psql -lqt | cut -d \\| -f 1 | grep -qw pakyow-test")
-      system "createdb pakyow-test > /dev/null", out: File::NULL, err: File::NULL
-    end
-
-    unless system("mysql -e 'use pakyow-test'")
-      system "mysql -e 'CREATE DATABASE `pakyow-test`'", out: File::NULL, err: File::NULL
     end
   end
 

@@ -1,0 +1,28 @@
+name: Test Node
+
+on: [push]
+
+jobs:
+  test-ruby:
+    runs-on: ubuntu-latest
+
+    name: Pakyow.js
+
+    container:
+      image: pakyow/ci-ruby-2.6.5
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Setup
+        shell: bash -l -e -o pipefail {0}
+        run: |
+          cd pakyow-js
+          rm -f package-json.lock
+          npm install
+
+      - name: Test
+        shell: bash -l -e -o pipefail {0}
+        run: |
+          cd pakyow-js
+          npm test
