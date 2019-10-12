@@ -132,7 +132,7 @@ module Pakyow
           )
 
           merge_connection_overrides!(connection_opts, connection_overrides)
-          new(Connection.new(opts: connection_opts, type: adapter, name: connection))
+          connect_raw(opts: connection_opts, type: adapter, name: connection)
         end
 
         def connect_global(adapter:, connection:, connection_overrides: {})
@@ -154,12 +154,12 @@ module Pakyow
 
           merge_connection_overrides!(connection_opts, connection_overrides)
           globalize_connection_opts!(adapter, connection_opts)
+          connect_raw(opts: connection_opts, type: adapter, name: connection)
+        end
 
-          connect(
-            adapter: adapter,
-            connection: connection,
-            connection_overrides: connection_opts
-          )
+        # @api private
+        def connect_raw(opts:, type:, name:)
+          new(Connection.new(opts: opts, type: type, name: name))
         end
 
         private
