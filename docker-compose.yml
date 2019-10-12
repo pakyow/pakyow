@@ -1,0 +1,37 @@
+version: "3"
+
+services:
+  mysql:
+    image: mysql:latest
+
+    environment:
+      - MYSQL_ROOT_PASSWORD=pakyow
+
+  postgres:
+    image: postgres:latest
+
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=pakyow
+
+  redis:
+    image: redis:latest
+
+  pakyow-ci:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    depends_on:
+      - mysql
+      - postgres
+      - redis
+
+    environment:
+      - MYSQL_URL=mysql2://root:pakyow@mysql/
+      - POSTGRES_URL=postgres://postgres:pakyow@postgres/
+      - REDIS_URL=redis://redis:6379/
+
+    volumes:
+      - ./:/pakyow:delegated
+      - /pakyow/pakyow-js/node_modules/
