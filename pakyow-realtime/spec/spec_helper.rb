@@ -13,6 +13,10 @@ require "pakyow/realtime"
 require_relative "../../spec/helpers/mock_handler"
 
 RSpec.configure do |spec_config|
+  spec_config.before :suite do
+    wait_for_redis!
+  end
+
   spec_config.before do |example|
     allow_any_instance_of(Concurrent::SingleThreadExecutor).to receive(:<<) do |_, block|
       block.call
