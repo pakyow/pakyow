@@ -15,41 +15,36 @@ gemspec path: "pakyow-support"
 gemspec path: "pakyow-ui"
 
 gem "htmlbeautifier", ">= 1.3"
-gem "pronto", ">= 0.9"
-gem "pronto-rubocop", ">= 0.9", require: false
-gem "pry", ">= 0.11"
-gem "pry-byebug", ">= 3.6"
-gem "rubocop", ">= 0.51"
+gem "pronto", ">= 0.10"
+gem "pronto-rubocop", ">= 0.10", require: false
+gem "pry", ">= 0.12"
+gem "pry-byebug", ">= 3.7"
+gem "rubocop", ">= 0.75"
 
 group :test do
-  gem "simplecov", ">= 0.16", require: false
-  gem "simplecov-console", ">= 0.4"
-
-  gem "rack-test", ">= 0.8", require: "rack/test"
-
-  gem "codeclimate-test-reporter", require: false
+  gem "simplecov", ">= 0.17", require: false
+  gem "simplecov-console", ">= 0.5"
 
   gem "event_emitter", ">= 0.2"
-  gem "httparty", ">= 0.16"
-  gem "puma", ">= 3.12"
+  gem "httparty", ">= 0.17"
   gem "rack", ">= 2.0.6"
 
-  gem "rspec", "~> 3.8"
-  gem "rspec-benchmark", "~> 0.4"
+  gem "rspec", "~> 3.9"
+  gem "rspec-benchmark", "~> 0.5"
 
   gem "warning", "~> 0.10"
 
-  gem "sassc", "~> 2.0"
+  gem "sassc", "~> 2.2"
 
   gem "mysql2", "~> 0.5"
   gem "pg", "~> 1.1"
-  gem "sqlite3", "~> 1.3"
+  gem "sqlite3", "~> 1.4"
 
-  gem "bootsnap", "~> 1.3"
-  gem "dotenv", "~> 2.5"
+  gem "bootsnap", "~> 1.4"
+  gem "dotenv", "~> 2.7"
 
   gem "memory_profiler", "~> 0.9", require: false
-  gem "ruby-prof", "~> 0.17", require: false
+  gem "ruby-prof", "~> 1.0", require: false
 
   gem "benchmark-ips", "~> 2.7", require: false
 end
