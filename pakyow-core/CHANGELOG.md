@@ -20,6 +20,7 @@
     * `normalizer.require_https`: Requires https scheme if true, otherwise http
     * `normalizer.allowed_http_hosts`: Array of hosts that are allowed as http (e.g. localhost)
   * [added] Require https by default when running in production
+  * [fixed] Query string missing from normalized uris
 
 # 1.0.1
 
