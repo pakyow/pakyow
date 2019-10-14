@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "forwardable"
+
 require "concurrent/hash"
 
 require "pakyow/support/class_state"
@@ -46,7 +48,10 @@ module Pakyow
         base.class_state :__config, default: Config.new(base), inheritable: true
         base.class_state :__config_environments, default: Concurrent::Hash.new, inheritable: true
 
-        base.prepend Initializer
+        unless base.instance_of?(Module)
+          base.prepend Initializer
+        end
+
         base.include CommonMethods
         base.extend  ClassMethods, CommonMethods
       end
