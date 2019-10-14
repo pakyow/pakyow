@@ -15,6 +15,12 @@ RSpec.describe "namespacing keys in the production subscription adapter" do
     }
   end
 
+  after do
+    if defined?(Redis)
+      Redis.new.flushdb
+    end
+  end
+
   it "namespaces correctly" do
     Pakyow.apps[0].data.subscribers.register_subscriptions(
       [{}]
