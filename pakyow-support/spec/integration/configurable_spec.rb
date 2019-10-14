@@ -1,17 +1,7 @@
 require "pakyow/support/configurable"
 require "pakyow/support/deep_freeze"
 
-RSpec.describe "configuring an object" do
-  let :object do
-    Class.new do
-      include Pakyow::Support::Configurable
-
-      def self.name
-        :configurable
-      end
-    end
-  end
-
+RSpec.shared_examples "configurable" do
   it "provides access to a setting defined without a default value" do
     object.setting :foo
     object.configure!
@@ -103,5 +93,37 @@ RSpec.describe "configuring an object" do
 
       expect(object.config.foo).to eq(:bar)
     end
+  end
+end
+
+RSpec.describe "configuring a class" do
+  let :object do
+    Class.new do
+      include Pakyow::Support::Configurable
+
+      def self.name
+        :configurable
+      end
+    end
+  end
+
+  include_examples "configurable"
+end
+
+RSpec.describe "configuring a module" do
+  let :object do
+    Module.new do
+      include Pakyow::Support::Configurable
+
+      def self.name
+        :configurable
+      end
+    end
+  end
+
+  include_examples "configurable"
+
+  it "does not include the initializer" do
+    expect(object.ancestors).to_not include(Pakyow::Support::Configurable::Initializer)
   end
 end
