@@ -182,7 +182,7 @@ module Pakyow
     # Loads apps located in the current project.
     #
     def load_apps
-      require "./config/application"
+      require File.join(config.root, "config/application")
     end
 
     # Prepares the environment for booting.
