@@ -348,7 +348,7 @@ RSpec.describe Pakyow do
     end
 
     it "requires the application" do
-      expect(Pakyow).to receive(:require).with("./config/application")
+      expect(Pakyow).to receive(:require).with(File.join(Pakyow.config.root, "config/application"))
     end
   end
 
