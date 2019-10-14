@@ -11,7 +11,7 @@ module Pakyow
     class MessageVerifier
       attr_reader :key
 
-      JOIN_CHARACTER = "--"
+      JOIN_CHARACTER = "~"
 
       # TODO: support configuring the digest
       # TODO: support rotations by calling `rotate` with options
