@@ -2,8 +2,6 @@
 
 require "pakyow/support/cli/style"
 
-require "pakyow/logger"
-
 module Pakyow
   class Logger
     # Helpers for colorizing log messages.
