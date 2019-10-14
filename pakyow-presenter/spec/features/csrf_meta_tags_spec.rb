@@ -28,7 +28,7 @@ RSpec.describe "embedding csrf meta tags in a rendered view" do
       response_body = response[2]
       expect(response_body).to include("meta name=\"pw-authenticity-token\"")
 
-      authenticity_client_id, authenticity_digest = response_body.match(/name=\"pw-authenticity-token\" content=\"([^\"]+)\"/)[1].split("--")
+      authenticity_client_id, authenticity_digest = response_body.match(/name=\"pw-authenticity-token\" content=\"([^\"]+)\"/)[1].split(Pakyow::Support::MessageVerifier::JOIN_CHARACTER)
       computed_digest = Pakyow::Support::MessageVerifier.digest(Base64.decode64(authenticity_client_id), key: $connection_verifier_key)
 
       expect(authenticity_digest).to eq(computed_digest)

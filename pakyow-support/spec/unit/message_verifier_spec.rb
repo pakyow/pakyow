@@ -29,7 +29,7 @@ RSpec.describe Pakyow::Support::MessageVerifier do
 
     it "encodes and signs the message" do
       expect(described_class).to receive(:digest).with(message, key: instance.key).and_return(digest)
-      expect(instance.sign(message)).to eq("#{Base64.urlsafe_encode64(message)}--#{digest}")
+      expect(instance.sign(message)).to eq("#{Base64.urlsafe_encode64(message)}~#{digest}")
     end
   end
 

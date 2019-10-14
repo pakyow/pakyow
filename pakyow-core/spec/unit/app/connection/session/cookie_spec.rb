@@ -76,7 +76,7 @@ RSpec.describe Pakyow::Application::Connection::Session::Cookie do
       context "session has been tampered with" do
         before do
           string = connection.cookies["test.session"]
-          signed, signature = Base64.urlsafe_decode64(string).split("--")
+          signed, signature = Base64.urlsafe_decode64(string).split(Pakyow::Support::MessageVerifier::JOIN_CHARACTER)
           object = Marshal.load(Base64.urlsafe_decode64(signed))
           object[:foo] = "baz"
 

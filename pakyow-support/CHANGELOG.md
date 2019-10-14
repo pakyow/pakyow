@@ -1,6 +1,7 @@
 # UNRELEASED
 
   * [fixed] Bug that occurs if a named action shares a name with a method on the pipelined object
+  * [fixed] Message verification no longer fails when the digest contains `--`
 
 # 1.0
 
