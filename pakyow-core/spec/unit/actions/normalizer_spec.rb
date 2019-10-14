@@ -13,10 +13,17 @@ RSpec.describe Pakyow::Actions::Normalizer do
   end
 
   let :request do
-    instance_double(Async::HTTP::Protocol::Request)
+    instance_double(
+      Async::HTTP::Protocol::Request,
+      path: "#{path}#{query}"
+    )
   end
 
   let :path do
+    ""
+  end
+
+  let :query do
     ""
   end
 
@@ -53,6 +60,21 @@ RSpec.describe Pakyow::Actions::Normalizer do
           expect(connection.status).to eq(301)
           expect(connection.header("Location")).to eq("/foo")
         end
+
+        context "request uri has a query string" do
+          let :query do
+            "?foo=bar"
+          end
+
+          it "includes the query string in the normalized path" do
+            catch :halt do
+              action.call(connection)
+            end
+
+            expect(connection.status).to eq(301)
+            expect(connection.header("Location")).to eq("/foo/?foo=bar")
+          end
+        end
       end
 
       context "path has a double trailing slash" do
@@ -67,6 +89,21 @@ RSpec.describe Pakyow::Actions::Normalizer do
 
           expect(connection.status).to eq(301)
           expect(connection.header("Location")).to eq("/foo")
+        end
+
+        context "request uri has a query string" do
+          let :query do
+            "?foo=bar"
+          end
+
+          it "includes the query string in the normalized path" do
+            catch :halt do
+              action.call(connection)
+            end
+
+            expect(connection.status).to eq(301)
+            expect(connection.header("Location")).to eq("/foo/?foo=bar")
+          end
         end
       end
 
@@ -147,6 +184,21 @@ RSpec.describe Pakyow::Actions::Normalizer do
             expect(connection.status).to eq(301)
             expect(connection.header("Location")).to eq("www.pakyow.org:80/")
           end
+
+          context "request uri has a query string" do
+            let :query do
+              "?foo=bar"
+            end
+
+            it "includes the query string in the normalized path" do
+              catch :halt do
+                action.call(connection)
+              end
+
+              expect(connection.status).to eq(301)
+              expect(connection.header("Location")).to eq("www.pakyow.org:80/?foo=bar")
+            end
+          end
         end
 
         context "request uri has www" do
@@ -197,6 +249,21 @@ RSpec.describe Pakyow::Actions::Normalizer do
 
             expect(connection.status).to eq(301)
             expect(connection.header("Location")).to eq("pakyow.org:80/")
+          end
+
+          context "request uri has a query string" do
+            let :query do
+              "?foo=bar"
+            end
+
+            it "includes the query string in the normalized path" do
+              catch :halt do
+                action.call(connection)
+              end
+
+              expect(connection.status).to eq(301)
+              expect(connection.header("Location")).to eq("pakyow.org:80/?foo=bar")
+            end
           end
         end
 

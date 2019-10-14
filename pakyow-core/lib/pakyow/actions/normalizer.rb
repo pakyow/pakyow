@@ -11,11 +11,11 @@ module Pakyow
 
       def call(connection)
         if strict_www? && require_www? && !www?(connection) && !subdomain?(connection)
-          redirect!(connection, File.join(add_www(connection), connection.path))
+          redirect!(connection, File.join(add_www(connection), connection.fullpath))
         elsif strict_www? && !require_www? && www?(connection)
-          redirect!(connection, File.join(remove_www(connection), connection.path))
+          redirect!(connection, File.join(remove_www(connection), connection.fullpath))
         elsif strict_path? && slash?(connection)
-          redirect!(connection, String.normalize_path(connection.path))
+          redirect!(connection, String.normalize_path(connection.fullpath))
         end
       end
 
