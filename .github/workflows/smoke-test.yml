@@ -11,6 +11,29 @@ jobs:
     container:
       image: pakyow/ci-ruby-${{ matrix.ruby }}
 
+    services:
+      mysql:
+        image: mysql:latest
+        ports:
+          - 3307:3306
+        env:
+          MYSQL_ROOT_PASSWORD: pakyow
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+      postgres:
+        image: postgres:latest
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: pakyow
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379
+
     strategy:
       matrix:
         ruby:
@@ -32,3 +55,7 @@ jobs:
         shell: bash -l -e -o pipefail {0}
         run: |
           CI=true CI_SMOKE=true bundle exec rake
+        env:
+          MYSQL_URL: mysql2://root:pakyow@mysql:${{ job.services.mysql.ports[3307] }}
+          POSTGRES_URL: postgres://postgres:pakyow@postgres:${{ job.services.postgres.ports[5432] }}
+          REDIS_URL: redis://redis:${{ job.services.redis.ports[6379] }}
