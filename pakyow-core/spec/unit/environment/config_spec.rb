@@ -184,6 +184,12 @@ RSpec.describe Pakyow do
       end
     end
 
+    describe "normalizer.canonical_uri" do
+      it "has a default value" do
+        expect(Pakyow.config.normalizer.canonical_uri).to eq(nil)
+      end
+    end
+
     describe "normalizer.strict_path" do
       it "has a default value" do
         expect(Pakyow.config.normalizer.strict_path).to eq(true)
