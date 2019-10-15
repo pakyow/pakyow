@@ -2,6 +2,8 @@ require "bundler"
 require "http"
 require "fileutils"
 
+require "pakyow/processes/proxy"
+
 RSpec.describe "starting up a newly generated project", smoke: true do
   def install
     Bundler.with_clean_env do
@@ -17,10 +19,10 @@ RSpec.describe "starting up a newly generated project", smoke: true do
     Dir.chdir(@project_path)
   end
 
-  def boot(environment, envars)
+  def boot(environment, envars, port)
     @server = Process.fork {
       Bundler.with_clean_env do
-        exec "#{envars} pakyow boot -e #{environment}"
+        exec "#{envars} pakyow boot -e #{environment} -p #{port}"
       end
     }
 
@@ -30,7 +32,7 @@ RSpec.describe "starting up a newly generated project", smoke: true do
   end
 
   def wait_for_boot(start = Time.now, timeout = 10)
-    HTTP.get("http://localhost:3000")
+    HTTP.get("http://localhost:#{port}")
     @boot_time = Time.now - start
     yield
   rescue HTTP::ConnectionError
@@ -60,7 +62,7 @@ RSpec.describe "starting up a newly generated project", smoke: true do
   end
 
   before do
-    boot(environment, envars) do
+    boot(environment, envars, port) do
       expect(@boot_time).to be < 10
     end
   end
@@ -74,13 +76,17 @@ RSpec.describe "starting up a newly generated project", smoke: true do
     ""
   end
 
+  let :port do
+    Pakyow::Processes::Proxy.find_local_port
+  end
+
   context "development environment" do
     let :environment do
       :development
     end
 
     it "responds to a request" do
-      response = HTTP.get("http://localhost:3000")
+      response = HTTP.get("http://localhost:#{port}")
 
       # It'll 404 because of the default view missing message. This is fine.
       #
@@ -98,7 +104,7 @@ RSpec.describe "starting up a newly generated project", smoke: true do
     end
 
     it "responds to a request" do
-      response = HTTP.get("http://localhost:3000")
+      response = HTTP.get("http://localhost:#{port}")
 
       # It'll 404 because of the default view missing message. This is fine.
       #
