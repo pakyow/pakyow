@@ -19,10 +19,10 @@ RSpec.describe "starting up a newly generated project", smoke: true do
     Dir.chdir(@project_path)
   end
 
-  def boot(environment, envars, port)
+  def boot(environment, envars, port, host)
     @server = Process.fork {
       Bundler.with_clean_env do
-        exec "#{envars} pakyow boot -e #{environment} -p #{port}"
+        exec "#{envars} pakyow boot -e #{environment} -p #{port} --host #{host}"
       end
     }
 
@@ -62,7 +62,7 @@ RSpec.describe "starting up a newly generated project", smoke: true do
   end
 
   before do
-    boot(environment, envars, port) do
+    boot(environment, envars, port, "0.0.0.0") do
       expect(@boot_time).to be < 10
     end
   end
