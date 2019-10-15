@@ -1,0 +1,34 @@
+name: Smoke Test
+
+on: [push]
+
+jobs:
+  test-linux:
+    runs-on: ubuntu-latest
+
+    name: ${{ matrix.ruby }}
+
+    container:
+      image: pakyow/ci-ruby-${{ matrix.ruby }}
+
+    strategy:
+      matrix:
+        ruby:
+          - 2.5.7
+          - 2.6.5
+
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Setup
+        shell: bash -l -e -o pipefail {0}
+        run: |
+          rm -f Gemfile.lock
+          bundle install --jobs=3 && bundle update --jobs=3
+
+      - name: Test
+        shell: bash -l -e -o pipefail {0}
+        run: |
+          CI=true CI_SMOKE=true bundle exec rake
