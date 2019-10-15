@@ -54,7 +54,7 @@ jobs:
       - name: Test
         shell: bash -l -e -o pipefail {0}
         run: |
-          CI=true CI_SMOKE=true bundle exec rake
+          CI=true CI_SMOKE=true bundle exec rspec spec/smoke
         env:
           MYSQL_URL: mysql2://root:pakyow@mysql:${{ job.services.mysql.ports[3307] }}
           POSTGRES_URL: postgres://postgres:pakyow@postgres:${{ job.services.postgres.ports[5432] }}
