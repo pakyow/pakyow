@@ -29,7 +29,7 @@ RSpec.describe "forms csrf" do
         response_body = response[2]
         expect(response_body).to include("input type=\"hidden\" name=\"pw-authenticity-token\"")
 
-        authenticity_client_id, authenticity_digest = response_body.match(/name=\"pw-authenticity-token\" value=\"([^\"]+)\"/)[1].split("--")
+        authenticity_client_id, authenticity_digest = response_body.match(/name=\"pw-authenticity-token\" value=\"([^\"]+)\"/)[1].split(Pakyow::Support::MessageVerifier::JOIN_CHARACTER)
         computed_digest = Pakyow::Support::MessageVerifier.digest(Base64.decode64(authenticity_client_id), key: $connection_verifier_key)
 
         expect(authenticity_digest).to eq(computed_digest)
@@ -73,7 +73,8 @@ RSpec.describe "forms csrf" do
         response_body = response[2]
         expect(response_body).to include("input type=\"hidden\" name=\"pw-authenticity-token\"")
 
-        authenticity_client_id, authenticity_digest = response_body.match(/name=\"pw-authenticity-token\" value=\"([^\"]+)\"/)[1].split("--")
+        pp response_body.match(/name=\"pw-authenticity-token\" value=\"([^\"]+)\"/)[1]
+        authenticity_client_id, authenticity_digest = response_body.match(/name=\"pw-authenticity-token\" value=\"([^\"]+)\"/)[1].split("~")
         computed_digest = Pakyow::Support::MessageVerifier.digest(Base64.decode64(authenticity_client_id), key: $connection_verifier_key)
 
         expect(authenticity_digest).to eq(computed_digest)
