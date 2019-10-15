@@ -122,6 +122,8 @@ module Pakyow
       end
 
       configurable :normalizer do
+        setting :canonical_uri
+
         setting :strict_path, true
 
         setting :strict_www, false
