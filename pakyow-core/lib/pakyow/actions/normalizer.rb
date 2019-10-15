@@ -10,7 +10,13 @@ module Pakyow
       using Support::Refinements::String::Normalization
 
       def call(connection)
-        if strict_www? && require_www? && !www?(connection) && !subdomain?(connection)
+        if strict_https? && require_https? && !https?(connection)
+          unless http_allowed?(connection)
+            redirect!(connection, "https://#{File.join(connection.authority, connection.fullpath)}")
+          end
+        elsif strict_https? && !require_https? && https?(connection)
+          redirect!(connection, "http://#{File.join(connection.authority, connection.fullpath)}")
+        elsif strict_www? && require_www? && !www?(connection) && !subdomain?(connection)
           redirect!(connection, File.join(add_www(connection), connection.path))
         elsif strict_www? && !require_www? && www?(connection)
           redirect!(connection, File.join(remove_www(connection), connection.path))
@@ -57,6 +63,10 @@ module Pakyow
         connection.subdomain == "www"
       end
 
+      def https?(connection)
+        connection.secure?
+      end
+
       def strict_path?
         Pakyow.config.normalizer.strict_path == true
       end
@@ -67,6 +77,18 @@ module Pakyow
 
       def require_www?
         Pakyow.config.normalizer.require_www == true
+      end
+
+      def strict_https?
+        Pakyow.config.normalizer.strict_https == true
+      end
+
+      def require_https?
+        Pakyow.config.normalizer.require_https == true
+      end
+
+      def http_allowed?(connection)
+        Pakyow.config.normalizer.allowed_http_hosts.include?(connection.host)
       end
     end
   end
