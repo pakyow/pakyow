@@ -20,11 +20,7 @@ RSpec.describe "starting up a newly generated project", smoke: true do
   end
 
   def boot(environment, envars, port, host)
-    @server = Process.fork {
-      Bundler.with_clean_env do
-        exec "#{envars} pakyow boot -e #{environment} -p #{port} --host #{host}"
-      end
-    }
+    @server = Process.spawn(envars, "pakyow boot -e #{environment} -p #{port} --host #{host}")
 
     wait_for_boot do
       yield
@@ -69,7 +65,7 @@ RSpec.describe "starting up a newly generated project", smoke: true do
   end
 
   let :envars do
-    ""
+    {}
   end
 
   let :port do
@@ -96,7 +92,10 @@ RSpec.describe "starting up a newly generated project", smoke: true do
     end
 
     let :envars do
-      "DATABASE_URL=sqlite://database/production.db"
+      {
+        "SECRET" => "sekret",
+        "DATABASE_URL" => "sqlite://database/production.db"
+      }
     end
 
     it "responds to a request" do
