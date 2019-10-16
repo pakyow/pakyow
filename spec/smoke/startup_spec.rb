@@ -2,6 +2,8 @@ require "bundler"
 require "http"
 require "fileutils"
 
+require "pakyow/processes/proxy"
+
 RSpec.describe "starting up a newly generated project", smoke: true do
   def install
     Bundler.with_clean_env do
@@ -10,19 +12,15 @@ RSpec.describe "starting up a newly generated project", smoke: true do
   end
 
   def create
+    @original_path = Dir.pwd
     FileUtils.mkdir_p(@working_path)
     Dir.chdir(@working_path)
     system "pakyow create #{@project_name}"
-    @original_path = Dir.pwd
     Dir.chdir(@project_path)
   end
 
-  def boot(environment, envars)
-    @server = Process.fork {
-      Bundler.with_clean_env do
-        exec "#{envars} pakyow boot -e #{environment}"
-      end
-    }
+  def boot(environment, envars, port, host)
+    @server = Process.spawn(envars, "pakyow boot -e #{environment} -p #{port} --host #{host}")
 
     wait_for_boot do
       yield
@@ -30,7 +28,7 @@ RSpec.describe "starting up a newly generated project", smoke: true do
   end
 
   def wait_for_boot(start = Time.now, timeout = 10)
-    HTTP.get("http://localhost:3000")
+    HTTP.get("http://localhost:#{port}")
     @boot_time = Time.now - start
     yield
   rescue HTTP::ConnectionError
@@ -52,15 +50,11 @@ RSpec.describe "starting up a newly generated project", smoke: true do
   after :all do
     Dir.chdir(@original_path)
     system "bundle exec rake release:clean"
-
-    at_exit do
-      sleep 5 # let things calm down
-      FileUtils.rm_r(@working_path)
-    end
+    FileUtils.rm_r(@working_path)
   end
 
   before do
-    boot(environment, envars) do
+    boot(environment, envars, port, "0.0.0.0") do
       expect(@boot_time).to be < 10
     end
   end
@@ -71,7 +65,11 @@ RSpec.describe "starting up a newly generated project", smoke: true do
   end
 
   let :envars do
-    ""
+    {}
+  end
+
+  let :port do
+    Pakyow::Processes::Proxy.find_local_port
   end
 
   context "development environment" do
@@ -80,7 +78,7 @@ RSpec.describe "starting up a newly generated project", smoke: true do
     end
 
     it "responds to a request" do
-      response = HTTP.get("http://localhost:3000")
+      response = HTTP.get("http://localhost:#{port}")
 
       # It'll 404 because of the default view missing message. This is fine.
       #
@@ -94,11 +92,14 @@ RSpec.describe "starting up a newly generated project", smoke: true do
     end
 
     let :envars do
-      "DATABASE_URL=sqlite://database/production.db"
+      {
+        "SECRET" => "sekret",
+        "DATABASE_URL" => "sqlite://database/production.db"
+      }
     end
 
     it "responds to a request" do
-      response = HTTP.get("http://localhost:3000")
+      response = HTTP.get("http://localhost:#{port}")
 
       # It'll 404 because of the default view missing message. This is fine.
       #
