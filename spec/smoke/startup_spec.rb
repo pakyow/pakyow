@@ -12,10 +12,10 @@ RSpec.describe "starting up a newly generated project", smoke: true do
   end
 
   def create
+    @original_path = Dir.pwd
     FileUtils.mkdir_p(@working_path)
     Dir.chdir(@working_path)
     system "pakyow create #{@project_name}"
-    @original_path = Dir.pwd
     Dir.chdir(@project_path)
   end
 
@@ -54,11 +54,7 @@ RSpec.describe "starting up a newly generated project", smoke: true do
   after :all do
     Dir.chdir(@original_path)
     system "bundle exec rake release:clean"
-
-    at_exit do
-      sleep 5 # let things calm down
-      FileUtils.rm_r(@working_path)
-    end
+    FileUtils.rm_r(@working_path)
   end
 
   before do
