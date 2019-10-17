@@ -57,6 +57,7 @@ module Pakyow
         base.class_state :__hooks, default: [], inheritable: true, reader: false
         base.class_state :__hook_hash, default: { after: {}, before: {} }, inheritable: true
         base.class_state :__hook_pipeline, default: { after: {}, before: {} }, inheritable: true
+        base.class_state :__observers, default: [], inheritable: true
       end
 
       # @api private
@@ -112,6 +113,10 @@ module Pakyow
           add_hook(:after, event, name, priority, exec, block)
         end
 
+        def observe(&block)
+          @__observers << block
+        end
+
         # @api private
         def known_event?(event)
           @__events.include?(event.to_sym)
@@ -127,29 +132,56 @@ module Pakyow
       # Methods included at the class and instance level.
       #
       module CommonMethods
-        # Calls all registered hooks for `event`, yielding between them.
+        # Calls all registered hooks for `event`, yielding between them. Triggers observers.
         #
         # @param event [Symbol] The name of the event.
         #
-        def performing(event, *args)
-          call_hooks(:before, event, *args)
-          value = yield
-          call_hooks(:after, event, *args)
+        def performing(event_name, *args)
+          event = Event.new(
+            event_name,
+            object: self,
+            depth: current_hookable_depth
+          )
+
+          call_observers(:before, event)
+          event.start!
+
+          call_hooks(:before, event_name, *args)
+
+          value = increase_hookable_depth do
+            yield
+          end
+
+          call_hooks(:after, event_name, *args)
+
+          event.finish!
+          call_observers(:after, event)
           value
         end
 
-        # Calls all registered hooks of type, for event.
+        # Calls all registered hooks of type, for event. Does not trigger observers.
         #
         # @param type [Symbol] The type of event (e.g. before / after).
         # @param event [Symbol] The name of the event.
         #
         def call_hooks(type, event, *args)
           hooks(type, event).each do |hook|
-            if hook[:exec]
-              instance_exec(*args, &hook[:block])
+            if hook[:name]
+              increase_hookable_depth do
+                performing hook[:name] do
+                  call_hook(hook, args)
+                end
+              end
             else
-              hook[:block].call(*args)
+              call_hook(hook, args)
             end
+          end
+        end
+
+        # @api private
+        def call_observers(type, event)
+          __observers.each do |observer|
+            observer.call(type, event)
           end
         end
 
@@ -211,9 +243,31 @@ module Pakyow
 
         # @api private
         def pipeline!(type, event)
-          __hook_pipeline[type.to_sym][event.to_sym] = @__hook_hash.dig(type.to_sym, event.to_sym).to_a.flat_map { |hook|
-            [@__hook_pipeline[:before][hook[:name]].to_a, hook, @__hook_pipeline[:after][hook[:name]].to_a].flatten
+          __hook_pipeline[type.to_sym][event.to_sym] = @__hook_hash.dig(type.to_sym, event.to_sym).to_a.map { |hook|
+            hook
           }
+        end
+
+        private
+
+        def call_hook(hook, args)
+          if hook[:exec]
+            instance_exec(*args, &hook[:block])
+          else
+            hook[:block].call(*args)
+          end
+        end
+
+        def current_hookable_depth
+          Thread.current[:pakyow_current_hookable_depth] || 0
+        end
+
+        def increase_hookable_depth
+          Thread.current[:pakyow_current_hookable_depth] ||= 0
+          Thread.current[:pakyow_current_hookable_depth] += 1
+          yield
+        ensure
+          Thread.current[:pakyow_current_hookable_depth] -= 1
         end
       end
 
@@ -221,6 +275,78 @@ module Pakyow
         # @api private
         def __hook_pipeline
           self.class.__hook_pipeline
+        end
+
+        # @api private
+        def __observers
+          self.class.__observers
+        end
+      end
+
+      class Event
+        attr_reader :name, :object, :timestamp, :depth
+
+        def initialize(name, object:, depth: 0)
+          @name, @object, @depth = name, object, depth
+          @timestamp = Time.now
+          @started_at = nil
+          @finished_at = nil
+          @duration = nil
+          @initial_allocations = nil
+          @total_allocations = nil
+        end
+
+        def duration
+          return @duration unless @duration.nil?
+
+          if started?
+            compute_duration
+          else
+            nil
+          end
+        end
+
+        def allocations
+          return @total_allocations unless @total_allocations.nil?
+
+          if started?
+            compute_allocations
+          else
+            nil
+          end
+        end
+
+        def start!
+          @started_at = Time.now
+          @initial_allocations = current_allocations
+        end
+
+        def finish!
+          @total_allocations = compute_allocations
+          @finished_at = Time.now
+          @duration = compute_duration
+        end
+
+        def started?
+          !@started_at.nil?
+        end
+
+        def finished?
+          !@finished_at.nil?
+        end
+
+        private
+
+        def compute_duration
+          Time.now - @started_at
+        end
+
+        def current_allocations
+          GC.stat(:total_allocated_objects)
+        end
+
+        def compute_allocations
+          current_allocations - @initial_allocations
         end
       end
     end
