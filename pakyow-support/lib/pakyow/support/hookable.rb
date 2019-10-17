@@ -149,7 +149,7 @@ module Pakyow
           call_hooks(:before, event_name, *args)
 
           value = increase_hookable_depth do
-            yield
+            yield if block_given?
           end
 
           call_hooks(:after, event_name, *args)

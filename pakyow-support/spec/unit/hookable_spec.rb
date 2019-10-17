@@ -94,7 +94,7 @@ RSpec.describe Pakyow::Support::Hookable do
           $context = self
         end
 
-        object.performing event do; end
+        object.performing event
 
         expect($context).to be(object)
       end
@@ -104,7 +104,7 @@ RSpec.describe Pakyow::Support::Hookable do
           $context = self
         end
 
-        object.performing event do; end
+        object.performing event
 
         expect($context).to be(object)
       end
@@ -114,7 +114,7 @@ RSpec.describe Pakyow::Support::Hookable do
           $context = self
         end
 
-        object.performing event do; end
+        object.performing event
 
         expect($context).to be(self)
       end
@@ -133,13 +133,13 @@ RSpec.describe Pakyow::Support::Hookable do
       end
 
       it "calls the observer before the event" do
-        object.performing events.first do; end
+        object.performing events.first
         expect(calls[0][0]).to eq(:before)
         expect(calls[0][1].name).to eq(events.first)
       end
 
       it "calls the observer after the event" do
-        object.performing events.first do; end
+        object.performing events.first
         expect(calls[1][0]).to eq(:after)
         expect(calls[1][1].name).to eq(events.first)
       end
@@ -277,18 +277,18 @@ RSpec.describe Pakyow::Support::Hookable do
         end
 
         it "observes the named hook" do
-          hookable.performing events.first do; end
+          hookable.performing events.first
           expect(calls[1][0]).to eq(:before)
           expect(calls[1][1].name).to eq(:"foo.bar")
         end
 
         it "correctly sets the event depth" do
-          hookable.performing events.first do; end
+          hookable.performing events.first
           expect(calls[1][1].depth).to eq(1)
         end
 
         it "observes in the correct order" do
-          hookable.performing events.first do; end
+          hookable.performing events.first
           expect(calls.map { |c| c[1].name }).to eq([:event_one, :"foo.bar", :"foo.bar", :event_one])
         end
       end
@@ -296,7 +296,7 @@ RSpec.describe Pakyow::Support::Hookable do
       context "nested event occurs" do
         before do
           hookable.performing events[0] do
-            hookable.performing events[1] do; end
+            hookable.performing events[1]
           end
         end
 
@@ -314,7 +314,7 @@ RSpec.describe Pakyow::Support::Hookable do
         before do
           hookable.performing events[0] do
             hookable.performing events[1] do
-              hookable.performing events[2] do; end
+              hookable.performing events[2]
             end
           end
         end
@@ -449,6 +449,14 @@ RSpec.describe Pakyow::Support::Hookable do
       expect(calls[3]).to eq 1
       expect(calls[4]).to eq 4
       expect(calls[5]).to eq 3
+    end
+  end
+
+  describe "performing without passing a block" do
+    it "performs" do
+      expect {
+        hookable.performing events.first
+      }.to_not raise_error
     end
   end
 end
