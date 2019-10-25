@@ -111,8 +111,10 @@ def process_ui_case_transformations(transformations)
   transformations = JSON.parse(transformations)
 
   replaced_transformation_ids = {}
-  transformations.sort { |a, b|
-    @transformation_ids.index(a["id"]) <=> @transformation_ids.index(b["id"])
+  transformations.select { |transformation|
+    @transformation_ids.include?(transformation["id"])
+  }.sort_by { |transformation|
+    @transformation_ids.index(transformation["id"])
   }.each_with_index do |transformation, i|
     if replaced_transformation_ids.key?(transformation["id"])
       transformation_id = replaced_transformation_ids[transformation["id"]]
