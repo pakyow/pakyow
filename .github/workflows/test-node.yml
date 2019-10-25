@@ -1,9 +1,11 @@
 name: Test Node
 
-on: [push]
+on:
+  push:
+  repository_dispatch:
 
 jobs:
-  test-ruby:
+  test-node:
     runs-on: ubuntu-latest
 
     name: Pakyow.js
