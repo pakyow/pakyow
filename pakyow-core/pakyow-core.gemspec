@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require File.expand_path("../../lib/pakyow/version", __FILE__)
+require File.expand_path("../../pakyow-core/lib/pakyow/version", __FILE__)
 
 Gem::Specification.new do |spec|
   spec.name        = "pakyow-core"
