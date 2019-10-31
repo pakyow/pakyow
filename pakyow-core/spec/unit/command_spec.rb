@@ -24,11 +24,11 @@ RSpec.describe "pakyow command" do
   context "without bundler" do
     before do
       hide_const("Bundler")
+      allow(Pakyow::CLI).to receive(:new)
     end
 
     context "gemfile exists" do
       before do
-        allow(Pakyow::CLI).to receive(:new)
         allow(self).to receive(:require).with("pakyow/support/system")
         allow(self).to receive(:require).with("pakyow/cli")
         allow(self).to receive(:require).with("bundler/setup")
