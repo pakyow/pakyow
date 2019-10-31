@@ -8,16 +8,16 @@ module Pakyow
     module System
       module_function
 
-      def pwd
-        @__pwd ||= Pathname.new(File.expand_path("."))
+      def current_path
+        @__current_path ||= Pathname.new(File.expand_path("."))
       end
 
-      def gemfile
-        @__gemfile ||= pwd.join("Gemfile")
+      def gemfile_path
+        @__gemfile_path ||= current_path.join("Gemfile")
       end
 
       def gemfile?
-        gemfile.exist?
+        gemfile_path.exist?
       end
     end
   end
