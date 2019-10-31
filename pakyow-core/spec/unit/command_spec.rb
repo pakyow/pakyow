@@ -1,4 +1,5 @@
 require "pakyow/cli"
+require "pakyow/support/system"
 
 RSpec.describe "pakyow command" do
   def run_command
@@ -22,40 +23,56 @@ RSpec.describe "pakyow command" do
 
   context "without bundler" do
     before do
-      @bundler = Object.const_get(:Bundler)
-      Object.send(:remove_const, :Bundler)
+      hide_const("Bundler")
     end
 
-    after do
-      Object.const_set(:Bundler, @bundler)
-    end
-
-    context "pakyow binstub exists" do
+    context "gemfile exists" do
       before do
-        expect(File).to receive(:exist?).with(
-          File.join(Dir.pwd, "bin/pakyow")
-        ).and_return(true)
+        allow(Pakyow::CLI).to receive(:new)
+        allow(self).to receive(:require).with("pakyow/support/system")
+        allow(self).to receive(:require).with("pakyow/cli")
+        allow(self).to receive(:require).with("bundler/setup")
+
+        allow(Pakyow::Support::System).to receive(:gemfile?).and_return(true)
       end
 
-      it "runs the binstub with the same arguments" do
-        expect_any_instance_of(Object).to receive(:exec).with(
-          "#{File.join(Dir.pwd, "bin/pakyow")} #{ARGV.join(" ")}"
-        )
-
+      it "sets up bundler" do
+        expect(self).to receive(:require).with("bundler/setup")
         run_command
       end
 
-      it "does not start the cli" do
-        expect(Pakyow::CLI).to_not receive(:new)
+      it "starts the cli" do
+        expect(Pakyow::CLI).to receive(:new)
         run_command
+      end
+
+      context "bundler isn't available" do
+        before do
+          allow(self).to receive(:require).with("bundler/setup").and_raise(LoadError)
+        end
+
+        it "does not error" do
+          expect {
+            run_command
+          }.not_to raise_error
+          run_command
+        end
+
+        it "starts the cli" do
+          expect(Pakyow::CLI).to receive(:new)
+          run_command
+        end
       end
     end
 
-    context "pakyow binstub does not exist" do
+    context "gemfile does not exist" do
       before do
-        expect(File).to receive(:exist?).with(
-          File.join(Dir.pwd, "bin/pakyow")
-        ).and_return(false)
+        allow(Pakyow::Support::System).to receive(:gemfile?).and_return(false)
+      end
+
+      it "does not setup bundler" do
+        expect(self).not_to receive(:require).with("bundler/setup")
+        run_command
       end
 
       it "starts the cli" do

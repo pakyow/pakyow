@@ -1,13 +1,17 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# Automatically run with bundler.
+require "pakyow/support/system"
+
+# Setup Bundler automatically if it isn't available and we're within a project that supports it.
 #
-current_path = File.expand_path(".")
-binstub_path = File.join(current_path, "bin/pakyow")
-if !defined?(Bundler) && File.exist?(binstub_path)
-  exec "#{binstub_path} #{ARGV.join(" ")}"
-else
-  require "pakyow/cli"
-  Pakyow::CLI.new
+if !defined?(Bundler) && Pakyow::Support::System.gemfile?
+  begin
+    require "bundler/setup"
+  rescue LoadError
+    # Bundler isn't installed.
+  end
 end
+
+require "pakyow/cli"
+Pakyow::CLI.new
