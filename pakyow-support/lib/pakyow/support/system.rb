@@ -9,11 +9,11 @@ module Pakyow
       module_function
 
       def pwd
-        @pwd ||= Pathname.new(File.expand_path("."))
+        @__pwd ||= Pathname.new(File.expand_path("."))
       end
 
       def gemfile
-        @gemfile ||= pwd.join("Gemfile")
+        @__gemfile ||= pwd.join("Gemfile")
       end
 
       def gemfile?
