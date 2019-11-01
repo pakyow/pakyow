@@ -17,6 +17,7 @@ module Pakyow
 
       def initialize(name, path, processor: nil, config: {})
         @name, @path, @processor = name, Pathname(path), processor
+        @layouts, @includes, @info = {}, {}, {}
         build_config(config)
         load_templates
       end
@@ -99,6 +100,10 @@ module Pakyow
         }
       end
 
+      def layout_with_name(name)
+        @layouts[name.to_sym]
+      end
+
       def load_templates
         load_layouts
         load_partials
@@ -106,62 +111,63 @@ module Pakyow
       end
 
       def load_layouts
-        @layouts = if File.exist?(layouts_path)
-          layouts_path.children.each_with_object({}) { |file, layouts|
-            next unless template?(file)
-            if layout = load_view_of_type_at_path(Views::Layout, file)
-              layouts[layout.name] = layout
-            end
-          }
-        else
-          {}
-        end
+        return unless layouts_path.exist?
+
+        layouts_path.children.each_with_object(@layouts) { |file, layouts|
+          next unless template?(file)
+
+          if layout = load_view_of_type_at_path(Views::Layout, file)
+            layouts[layout.name] = layout
+          end
+        }
       end
 
       def load_partials
-        @includes = if File.exist?(partials_path)
-          partials_path.children.each_with_object({}) { |file, partials|
-            next unless template?(file)
-            if partial = load_view_of_type_at_path(Views::Partial, file, normalize_path(file))
-              partials[partial.name] = partial
-            end
-          }
-        else
-          {}
-        end
+        return unless partials_path.exist?
+
+        partials_path.children.each_with_object(@includes) { |file, partials|
+          next unless template?(file)
+
+          if partial = load_view_of_type_at_path(Views::Partial, file, normalize_path(file))
+            partials[partial.name] = partial
+          end
+        }
       end
 
       def load_path_info
-        @info = {}
+        pages_path.glob("**/*").select { |path|
+          template?(path)
+        }.reject { |path|
+          path.basename.to_s.start_with?("_")
+        }.each do |path|
+          if page = page_at_path(path)
+            path_to_page = String.normalize_path(
+              File.join(
+                @config[:prefix], normalize_path(path, pages_path)
+              )
+            )
 
-        Pathname.glob(File.join(pages_path, "**/*")) do |path|
-          # TODO: better way to skip partials?
-          next if path.basename.to_s.start_with?("_")
+            @info[path_to_page] = {
+              page: page,
 
-          next unless template?(path)
+              layout: layout_with_name(
+                page.info(:layout)
+              ),
 
-          begin
-            if page = page_at_path(path)
-              @info[String.normalize_path(File.join(@config[:prefix], normalize_path(path, pages_path)))] = {
-                page: page,
-                layout: layout_with_name(page.info(:layout)),
-                partials: @includes.merge(partials_at_path(path))
-              }
-            end
-          rescue FrontMatterParsingError => e
-            message = "Could not parse front matter for #{path}:\n\n#{e.context}"
-
-            if e.wrapped_exception
-              message << "\n#{e.wrapped_exception.problem} at line #{e.wrapped_exception.line} column #{e.wrapped_exception.column}"
-            end
-
-            raise FrontMatterParsingError.new(message)
+              partials: @includes.merge(
+                partials_at_path(path)
+              )
+            }
           end
-        end
-      end
+        rescue FrontMatterParsingError => e
+          message = "Could not parse front matter for #{path}:\n\n#{e.context}"
 
-      def layout_with_name(name)
-        @layouts[name.to_sym]
+          if e.wrapped_exception
+            message << "\n#{e.wrapped_exception.problem} at line #{e.wrapped_exception.line} column #{e.wrapped_exception.column}"
+          end
+
+          raise FrontMatterParsingError.new(message)
+        end
       end
 
       def page_at_path(path)
@@ -175,38 +181,15 @@ module Pakyow
       end
 
       def index_page_at_path(path)
-        # TODO: don't ascend above store path
-        path.ascend do |parent_path|
+        ascend(path) do |parent_path|
           next unless info = info(normalize_path(parent_path))
           next unless page = info[:page]
           return page
         end
       end
 
-      # TODO: do we always need to make it relative, etc here?
-      # maybe break up these responsibilities to the bare minimum required
-      def normalize_path(path, relative_from = @path)
-        path = path.expand_path
-        relative_from = relative_from.expand_path
-
-        # make it relative
-        path = path.relative_path_from(relative_from)
-        # we can short-circuit here
-        return "/" if path.to_s == "."
-
-        # remove the extension
-        path = path.sub_ext("")
-
-        # remove index from the end
-        path = path.sub("index", "")
-
-        # actually normalize it
-        String.normalize_path(path.to_s)
-      end
-
       def partials_at_path(path)
-        # FIXME: don't ascend above store path
-        path.ascend.select(&:directory?).each_with_object({}) { |parent_path, partials|
+        ascend(path).select(&:directory?).each_with_object({}) { |parent_path, partials|
           parent_path.children.select { |child|
             child.basename.to_s.start_with?("_")
           }.each_with_object(partials) { |child, child_partials|
@@ -232,6 +215,35 @@ module Pakyow
         else
           nil
         end
+      end
+
+      def ascend(path)
+        return enum_for(:ascend, path) unless block_given?
+
+        path.ascend.each do |path|
+          yield path
+
+          if path == @path
+            break
+          end
+        end
+      end
+
+      def normalize_path(path, relative_from = @path)
+        # make it relative
+        path = path.expand_path.relative_path_from(relative_from.expand_path)
+
+        # we can short-circuit here
+        return "/" if path.to_s == "."
+
+        # remove the extension
+        path = path.sub_ext("")
+
+        # remove index from the end
+        path = path.sub("index", "")
+
+        # actually normalize it
+        String.normalize_path(path.to_s)
       end
     end
   end
