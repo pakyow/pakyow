@@ -32,9 +32,9 @@
     "jest-environment-jsdom": "^24.9.0",
     "jest-environment-jsdom-global": "^1.2.0",
     "jest-localstorage-mock": "^2.4.0",
-    "jsdom": "^15.1.1",
+    "jsdom": "^15.2.0",
     "mutationobserver-shim": "^0.3.3",
-    "rollup": "^1.23.1",
+    "rollup": "^1.26.2",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-node-resolve": "^5.2.0"
   },
