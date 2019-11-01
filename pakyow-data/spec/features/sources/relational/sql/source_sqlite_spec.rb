@@ -3,20 +3,22 @@ require_relative "../shared_examples/commands"
 require_relative "../shared_examples/connection"
 require_relative "../shared_examples/default_fields"
 require_relative "../shared_examples/including"
+require_relative "../shared_examples/limiting"
 require_relative "../shared_examples/logging"
+require_relative "../shared_examples/ordering"
 require_relative "../shared_examples/qualifications"
 require_relative "../shared_examples/queries"
 require_relative "../shared_examples/query_default"
 require_relative "../shared_examples/results"
 require_relative "../shared_examples/types"
 
+require_relative "./shared_examples/literal"
 require_relative "./shared_examples/migrations"
 require_relative "./shared_examples/operations"
 require_relative "./shared_examples/raw"
 require_relative "./shared_examples/table"
 require_relative "./shared_examples/transactions"
 require_relative "./shared_examples/types"
-require_relative "./shared_examples/literal"
 
 RSpec.describe "sqlite source", sqlite: true do
   it_behaves_like :source_associations
@@ -24,20 +26,22 @@ RSpec.describe "sqlite source", sqlite: true do
   it_behaves_like :source_connection
   it_behaves_like :source_default_fields
   it_behaves_like :source_including
+  it_behaves_like :source_limiting
   it_behaves_like :source_logging
+  it_behaves_like :source_ordering
   it_behaves_like :source_qualifications
   it_behaves_like :source_queries
   it_behaves_like :source_query_default
   it_behaves_like :source_results
   it_behaves_like :source_types
 
+  it_behaves_like :source_sql_literal
   it_behaves_like :source_sql_migrations, adapter: :sqlite
   it_behaves_like :source_sql_operations
   it_behaves_like :source_sql_raw
   it_behaves_like :source_sql_table
   it_behaves_like :source_sql_transactions
   it_behaves_like :source_sql_types
-  it_behaves_like :source_sql_literal
 
   let :connection_type do
     :sql
