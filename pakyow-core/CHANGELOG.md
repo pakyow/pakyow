@@ -22,6 +22,7 @@
   * [added] Require https by default when running in production
   * [fixed] Query string missing from normalized uris
   * [added] Configure normalization through a canonical uri
+  * [changed] Improved bundle bootstrapping to be ~200ms faster
 
 # 1.0.1
 
