@@ -30,7 +30,7 @@ RSpec.describe "streaming responses" do
       Proc.new do |connection|
         connection.stream do |task|
           3.times do |i|
-            connection.sleep(1)
+            connection.sleep(0.01)
             connection << Time.now.to_s
           end
         end
@@ -58,9 +58,9 @@ RSpec.describe "streaming responses" do
 
       expect(times.count).to eq(4)
       expect(times[0]).to eq("finalize")
-      expect(times[1]).to eq((Time.now - 2).to_s)
-      expect(times[2]).to eq((Time.now - 1).to_s)
-      expect(times[3]).to eq((Time.now - 0).to_s)
+      expect(times[1]).to eq((Time.now - 0.02).to_s)
+      expect(times[2]).to eq((Time.now - 0.01).to_s)
+      expect(times[3]).to eq((Time.now - 0.0).to_s)
     end
   end
 
@@ -68,7 +68,7 @@ RSpec.describe "streaming responses" do
     let :action do
       Proc.new do |connection|
         connection.stream do |task|
-          sleep(1)
+          sleep(0.01)
           connection << "foo"
         end
       end
@@ -98,7 +98,7 @@ RSpec.describe "streaming responses" do
     let :action do
       Proc.new do |connection|
         connection.stream do |task|
-          connection.sleep(1)
+          connection.sleep(0.01)
           connection << "foo"
         end
 
