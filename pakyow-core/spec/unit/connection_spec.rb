@@ -115,7 +115,7 @@ RSpec.shared_examples :connection do
       it "waits for each stream in an async task" do
         Async::Reactor.run {
           streams = connection.stream do
-            connection.sleep(0.5)
+            connection.sleep(0.01)
           end
 
           streams.each do |stream|
@@ -129,7 +129,7 @@ RSpec.shared_examples :connection do
       it "closes the body once the streams stop" do
         Async::Reactor.run {
           connection.stream do
-            connection.sleep(0.5)
+            connection.sleep(0.01)
           end
 
           expect(connection.body).to receive(:close) do
@@ -154,7 +154,7 @@ RSpec.shared_examples :connection do
         it "stops the streaming tasks before closing" do
           Async::Reactor.run {
             streams = connection.stream do
-              connection.sleep(0.5)
+              connection.sleep(0.01)
             end
 
             streams.each do |stream|

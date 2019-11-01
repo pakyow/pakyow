@@ -67,10 +67,10 @@ RSpec.shared_examples :connection_stream do
           connection.stream do; end
 
           connection.stream do
-            connection.sleep 0.2
+            connection.sleep 0.02
           end
 
-          task.sleep 0.1
+          task.sleep 0.01
 
           expect(connection.streaming?).to be(true)
         }.wait
@@ -81,10 +81,10 @@ RSpec.shared_examples :connection_stream do
       it "returns false" do
         Async::Reactor.run { |task|
           connection.stream do
-            connection.sleep 0.1
+            connection.sleep 0.01
           end
 
-          task.sleep 0.2
+          task.sleep 0.02
 
           expect(connection.streaming?).to be(false)
         }.wait
