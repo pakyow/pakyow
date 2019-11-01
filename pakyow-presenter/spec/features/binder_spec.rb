@@ -228,8 +228,6 @@ RSpec.describe "binding data via presenter, with a binder" do
   end
 
   context "binding tries to build a url" do
-    include_context "app"
-
     let :app_init do
       Proc.new {
         resource :posts, "/posts" do
@@ -269,8 +267,6 @@ RSpec.describe "binding data via presenter, with a binder" do
   end
 
   context "binding tries to make a string safe" do
-    include_context "app"
-
     let :app_init do
       Proc.new {
         resource :posts, "/posts" do
