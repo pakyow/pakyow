@@ -56,17 +56,28 @@ RSpec.configure do |config|
 
     $original_load_path_count = $LOAD_PATH.count
 
-    if ENV["MEMPROF"]
+    if ENV["SPEC_PROFILE"] == "memory"
       require "memory_profiler"
       MemoryProfiler.start
+    end
+
+    if ENV["SPEC_PROFILE"] && ENV["SPEC_PROFILE"] != "memory"
+      require "ruby-prof"
+      RubyProf.start
     end
   end
 
   config.after :suite do
-    if ENV["MEMPROF"]
+    if ENV["SPEC_PROFILE"] == "memory"
       puts "printing"
       GC.start
       MemoryProfiler.stop.pretty_print
+    end
+
+    if ENV["SPEC_PROFILE"] && ENV["SPEC_PROFILE"] != "memory"
+      result = RubyProf.stop
+      printer = RubyProf::FlatPrinter.new(result)
+      printer.print(STDOUT)
     end
   end
 
