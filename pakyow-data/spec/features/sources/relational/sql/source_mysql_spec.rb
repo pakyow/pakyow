@@ -12,6 +12,7 @@ require_relative "../shared_examples/query_default"
 require_relative "../shared_examples/results"
 require_relative "../shared_examples/types"
 
+require_relative "./shared_examples/literal"
 require_relative "./shared_examples/migrations"
 require_relative "./shared_examples/operations"
 require_relative "./shared_examples/raw"
@@ -34,6 +35,7 @@ RSpec.describe "mysql source", mysql: true do
   it_behaves_like :source_results
   it_behaves_like :source_types
 
+  it_behaves_like :source_sql_literal
   it_behaves_like :source_sql_migrations, adapter: :mysql2
   it_behaves_like :source_sql_operations
   it_behaves_like :source_sql_raw
