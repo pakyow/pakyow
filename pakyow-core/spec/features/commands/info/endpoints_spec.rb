@@ -30,7 +30,7 @@ RSpec.describe "cli: info:endpoints" do
           path: "/pakyow",
           source_location: [
             File.join(
-              Pakyow::Support::Dependencies.local_framework_path,
+              Pakyow::Support::System.local_framework_path_string,
               "pakyow-framework/endpoint.rb"
             ), 1
           ]

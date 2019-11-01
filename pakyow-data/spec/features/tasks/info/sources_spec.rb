@@ -26,7 +26,7 @@ RSpec.describe "cli: info:sources" do
       source :comments do
         self.__source_location = [
           File.join(
-            Pakyow::Support::Dependencies.local_framework_path,
+            Pakyow::Support::System.local_framework_path_string,
             "pakyow-framework/comments.rb"
           ), 1
         ]

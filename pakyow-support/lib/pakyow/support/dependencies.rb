@@ -1,60 +1,27 @@
 # frozen_string_literal: true
 
+require "pakyow/support/system"
+
 module Pakyow
   module Support
+    # TODO: Refactor this into a Pakyow::Backtrace object that's responsible for providing a clean
+    # backtrace and understands things like where the backtrace originated from.
+    #
     # @api private
     module Dependencies
-      extend self
-
-      def self.bundler_gem_path
-        @bundler_gem_path ||= Bundler.bundle_path.to_s + "/bundler/gems"
-      end
-
-      def self.local_framework_path
-        @local_framework_path ||= File.expand_path("../../../../../", __FILE__)
-      end
-
-      def self.ruby_gem_path
-        @ruby_gem_path ||= File.join(Gem.dir, "/gems")
-      end
-
-      def self.regex_bundler
-        @regex_bundler ||= /^#{Dependencies.bundler_gem_path}\//
-      end
-
-      def self.regex_local_framework
-        @regex_local_framework ||= /^#{Dependencies.local_framework_path}\//
-      end
-
-      def self.regex_pakyow_lib
-        @regex_pakyow_lib ||= /^#{Pakyow.config.lib}\//
-      end
-
-      def self.regex_pakyow_root
-        @regex_pakyow_root ||= /^#{Pakyow.config.root}\//
-      end
-
-      def self.regex_ruby_gem
-        @regex_ruby_gem ||= /^#{Dependencies.ruby_gem_path}\//
-      end
-
-      def self.regex_ruby
-        @regex_ruby ||= /^#{RbConfig::CONFIG["libdir"]}\//
-      end
-
       def strip_path_prefix(line)
         if line.start_with?(Pakyow.config.root)
-          line.gsub(Dependencies.regex_pakyow_root, "")
+          line.gsub(__regex_pakyow_root, "")
         elsif line.start_with?(Pakyow.config.lib)
-          line.gsub(Dependencies.regex_pakyow_lib, "")
-        elsif line.start_with?(Dependencies.ruby_gem_path)
-          line.gsub(Dependencies.regex_ruby_gem, "")
-        elsif line.start_with?(Dependencies.bundler_gem_path)
-          line.gsub(Dependencies.regex_bundler, "")
+          line.gsub(__regex_pakyow_lib, "")
+        elsif line.start_with?(System.ruby_gem_path_string)
+          line.gsub(__regex_ruby_gem, "")
+        elsif line.start_with?(System.bundler_gem_path_string)
+          line.gsub(__regex_bundler, "")
         elsif line.start_with?(RbConfig::CONFIG["libdir"])
-          line.gsub(Dependencies.regex_ruby, "")
-        elsif line.start_with?(Dependencies.local_framework_path)
-          line.gsub(Dependencies.regex_local_framework, "")
+          line.gsub(__regex_ruby, "")
+        elsif line.start_with?(System.local_framework_path_string)
+          line.gsub(__regex_local_framework, "")
         else
           line
         end
@@ -78,19 +45,53 @@ module Pakyow
       end
 
       def library_type(line)
-        if line.start_with?(Dependencies.ruby_gem_path)
+        if line.start_with?(System.ruby_gem_path_string)
           :gem
-        elsif line.start_with?(Dependencies.bundler_gem_path)
+        elsif line.start_with?(System.bundler_gem_path_string)
           :bundler
         elsif line.start_with?(RbConfig::CONFIG["libdir"])
           :ruby
-        elsif line.start_with?(Dependencies.local_framework_path)
+        elsif line.start_with?(System.local_framework_path_string)
           :pakyow
         elsif line.start_with?(Pakyow.config.lib)
           :lib
         else
           nil
         end
+      end
+
+      module_function :strip_path_prefix, :library_name, :library_type
+
+      # These regexes are built eagerly because they depend on state that may not be available at runtime.
+
+      # @api private
+      def self.__regex_bundler
+        @__regex_bundler ||= /^#{System.bundler_gem_path}\//
+      end
+
+      # @api private
+      def self.__regex_local_framework
+        @__regex_local_framework ||= /^#{System.local_framework_path}\//
+      end
+
+      # @api private
+      def self.__regex_pakyow_lib
+        @__regex_pakyow_lib ||= /^#{Pakyow.config.lib}\//
+      end
+
+      # @api private
+      def self.__regex_pakyow_root
+        @__regex_pakyow_root ||= /^#{Pakyow.config.root}\//
+      end
+
+      # @api private
+      def self.__regex_ruby_gem
+        @__regex_ruby_gem ||= /^#{System.ruby_gem_path}\//
+      end
+
+      # @api private
+      def self.__regex_ruby
+        @__regex_ruby ||= /^#{RbConfig::CONFIG["libdir"]}\//
       end
     end
   end
