@@ -27,7 +27,13 @@ RSpec.shared_examples :source_sql_literal do
     end
 
     it "builds the query correctly" do
-      expect(data.posts.source.query.sql).to eq("SELECT * FROM `posts` WHERE (foo = 'bar')")
+      query = if connection_string.start_with?("postgres")
+        "SELECT * FROM \"posts\" WHERE (foo = 'bar')"
+      else
+        "SELECT * FROM `posts` WHERE (foo = 'bar')"
+      end
+
+      expect(data.posts.source.query.sql).to eq(query)
     end
   end
 end
