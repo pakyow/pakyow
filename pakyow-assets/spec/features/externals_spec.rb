@@ -11,10 +11,6 @@ RSpec.describe "external scripts" do
     File.expand_path("../tmp", __FILE__)
   end
 
-  let :latest do
-    File.read(File.join(File.expand_path("../../../../", __FILE__), "pakyow-js/src/version.js")).split('"', 2)[1].split('";', 2)[0]
-  end
-
   after do
     if File.exist?(tmp)
       FileUtils.rm_r(tmp)
@@ -112,11 +108,11 @@ RSpec.describe "external scripts" do
 
     context "pakyow is enabled" do
       let :app_def do
-        local_tmp = tmp
+        local = self
 
         Proc.new do
           configure :test do
-            config.presenter.path = File.join(local_tmp, "frontend")
+            config.presenter.path = File.join(local.tmp, "frontend")
 
             config.assets.externals.fetch = true
             config.assets.externals.pakyow = true
@@ -125,17 +121,17 @@ RSpec.describe "external scripts" do
       end
 
       it "downloads the latest pakyow" do
-        expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@#{latest}.js"))).to be(true)
+        expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@#{latest_pakyow_js}.js"))).to be(true)
       end
     end
 
     context "version is unspecified" do
       let :app_def do
-        local_tmp = tmp
+        local = self
 
         Proc.new do
           configure :test do
-            config.presenter.path = File.join(local_tmp, "frontend")
+            config.presenter.path = File.join(local.tmp, "frontend")
 
             config.assets.externals.fetch = true
             config.assets.externals.pakyow = false
@@ -149,7 +145,7 @@ RSpec.describe "external scripts" do
       end
 
       it "downloads the latest version" do
-        expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@#{latest}.js"))).to be(true)
+        expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@#{latest_pakyow_js}.js"))).to be(true)
       end
     end
 
@@ -218,7 +214,7 @@ RSpec.describe "external scripts" do
     end
 
     it "does not download" do
-      expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@#{latest}.js"))).to be(false)
+      expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@#{latest_pakyow_js}.js"))).to be(false)
     end
   end
 end

@@ -23,10 +23,14 @@ module Pakyow
             )
           end
 
+          private def pakyow_js_version
+            "^1.1.0"
+          end
+
           apply_extension do
             after "boot", "fetch.assets.externals" do
               if config.assets.externals.pakyow
-                external_script :pakyow, "^1.0.0", package: "@pakyow/js", files: [
+                external_script :pakyow, pakyow_js_version, package: "@pakyow/js", files: [
                   "dist/pakyow.js",
                   "dist/components/confirmable.js",
                   "dist/components/devtools.js",
