@@ -6,12 +6,12 @@ RSpec.shared_context "app" do
       local_default_app_def = @default_app_def
 
       Proc.new do
-        instance_exec(&local_default_app_def)
-        instance_exec(&local_app_def)
+        class_exec(&local_default_app_def)
+        class_exec(&local_app_def)
       end
     else
       Proc.new do
-        instance_exec(&local_app_def)
+        class_exec(&local_app_def)
       end
     end
 
