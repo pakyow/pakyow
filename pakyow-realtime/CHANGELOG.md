@@ -7,6 +7,6 @@
 
 [pr-295]: https://github.com/pakyow/pakyow/pull/295
 
-# 1.0
+# v1.0.0
 
   * Hello, Web
