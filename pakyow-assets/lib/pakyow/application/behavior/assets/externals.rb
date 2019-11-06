@@ -24,7 +24,7 @@ module Pakyow
           end
 
           private def pakyow_js_version
-            "^1.1.0"
+            "^1.0.0"
           end
 
           apply_extension do
