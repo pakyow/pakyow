@@ -69,7 +69,7 @@ module Pakyow
           @processes << {
             name: name,
             block: block,
-            count: count,
+            count: count.to_i,
             restartable: restartable
           }
         end
