@@ -38,12 +38,15 @@ module Pakyow
     def run_process(process)
       Fiber.new {
         until @stopped
-          status = @group.fork(process) {
-            begin
-              Async::Reactor.run(&process[:block])
-            rescue Interrupt
+          status = @group.fork(process) do
+            Async do
+              process[:block].call
+            rescue => error
+              Pakyow.logger.houston(error)
+              exit 1
             end
-          }
+          rescue Interrupt
+          end
 
           break unless status.success?
         end

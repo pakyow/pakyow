@@ -1,3 +1,12 @@
+# v1.0.3 (unreleased)
+
+  * `fix` **Prevent failed processes from restarting indefinitely.**
+
+    *Related links:*
+    - [Pull Request #328][pr-328]
+
+[pr-328]: https://github.com/pakyow/pakyow/pull/328
+
 # v1.0.2
 
   * `fix` **Relocate `version.rb` from the meta gem into `pakyow/core`.**
