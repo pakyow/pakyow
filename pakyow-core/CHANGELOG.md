@@ -63,6 +63,15 @@
 [d55e932]: https://github.com/pakyow/pakyow/commit/d55e9320dcca51ac7d12d8eef4f7f8aaf8faaa4f
 [26f586d]: https://github.com/pakyow/pakyow/commit/26f586d35c5fa0611cac6914fb2f249e3798ec79
 
+# v1.0.3 (unreleased)
+
+  * `fix` **Prevent failed processes from restarting indefinitely.**
+
+    *Related links:*
+    - [Pull Request #328][pr-328]
+
+[pr-328]: https://github.com/pakyow/pakyow/pull/328
+
 # v1.0.2
 
   * `fix` **Relocate `version.rb` from the meta gem into `pakyow/core`.**
