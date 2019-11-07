@@ -24,7 +24,7 @@
 [c4b0271]: https://github.com/pakyow/pakyow/commit/c4b02716363a098a2367a255b04edf0dfe1fb6f5
 [637566f]: https://github.com/pakyow/pakyow/commit/637566f207e6ddda1689412ef29303ffe2767f9f
 
-# v1.0.2 (unreleased)
+# v1.0.2
 
   * `fix` **Issue causing data subscriptions to never be expired for a web socket connection.**
 

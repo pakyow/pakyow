@@ -9,7 +9,7 @@
 
 [787681d]: https://github.com/pakyow/pakyow/commit/787681dacbbd3ce79f6e38a5672749635903a85b
 
-# v1.0.2 (unreleased)
+# v1.0.2
 
   * `fix` **Message verification no longer fails when the digest contains `--`.**
 

@@ -15,7 +15,7 @@
 [ce9a018]: https://github.com/pakyow/pakyow/commit/ce9a0186b70f99aadb173fc37e1d9541ce9834da
 [802295c]: https://github.com/pakyow/pakyow/commit/802295c0396383b96fadafd121192d41bb63457e
 
-# v1.0.2 (unreleased)
+# v1.0.2
 
   * `fix` **Template store is more efficient for faster loading.**
 

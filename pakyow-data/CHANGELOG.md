@@ -1,4 +1,4 @@
-# v1.0.2 (unreleased)
+# v1.0.2
 
   * `fix` **Data types are now compatible with `dry-types` v1.2.0.**
 

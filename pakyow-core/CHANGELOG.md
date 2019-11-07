@@ -63,7 +63,7 @@
 [d55e932]: https://github.com/pakyow/pakyow/commit/d55e9320dcca51ac7d12d8eef4f7f8aaf8faaa4f
 [26f586d]: https://github.com/pakyow/pakyow/commit/26f586d35c5fa0611cac6914fb2f249e3798ec79
 
-# v1.0.2 (unreleased)
+# v1.0.2
 
   * `fix` **Relocate `version.rb` from the meta gem into `pakyow/core`.**
     - Makes it possible to use `pakyow/core` and other gems without needing the meta gem.

@@ -9,7 +9,7 @@
 [pr-297]: https://github.com/pakyow/pakyow/pull/297/commits
 [802295c]: https://github.com/pakyow/pakyow/commit/802295c0396383b96fadafd121192d41bb63457e
 
-# v1.0.2 (unreleased)
+# v1.0.2
 
   * `fix` **CDN prefix is now correctly added to assets in plugin views.**
 
