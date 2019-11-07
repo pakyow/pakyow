@@ -1,4 +1,4 @@
-# v1.0.2 (unreleased)
+# v1.0.2
 
   * `fix` **Relocate `version.rb` from the meta gem into `pakyow/core`.**
     - Makes it possible to use `pakyow/core` and other gems without needing the meta gem.

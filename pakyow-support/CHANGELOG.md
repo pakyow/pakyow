@@ -1,4 +1,4 @@
-# v1.0.2 (unreleased)
+# v1.0.2
 
   * `fix` **Message verification no longer fails when the digest contains `--`.**
 

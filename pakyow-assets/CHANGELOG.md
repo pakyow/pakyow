@@ -1,4 +1,4 @@
-# v1.0.2 (unreleased)
+# v1.0.2
 
   * `fix` **CDN prefix is now correctly added to assets in plugin views.**
 

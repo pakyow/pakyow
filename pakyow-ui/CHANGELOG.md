@@ -1,4 +1,4 @@
-# v1.0.2 (unreleased)
+# v1.0.2
 
   * `fix` **Issue causing data subscriptions to never be expired for a web socket connection.**
 
