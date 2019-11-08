@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Introduce `Pakyow::Support::Deprecator`**
+
+    *Related links:*
+    - [Pull Request #330][pr-330]
+
   * `chg` **Configure defaults for multiple environments at one time.**
     - `Config` now supports multiple default config blocks per environnment.
     - `Config#defaults` now supports passing multiple environments.
@@ -7,6 +12,7 @@
     *Related links:*
     - [Commit 787681d][787681d]
 
+[pr-330]: https://github.com/pakyow/pakyow/pull/330
 [787681d]: https://github.com/pakyow/pakyow/commit/787681dacbbd3ce79f6e38a5672749635903a85b
 
 # v1.0.2
