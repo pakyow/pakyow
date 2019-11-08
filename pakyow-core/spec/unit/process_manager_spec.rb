@@ -34,7 +34,7 @@ RSpec.describe Pakyow::ProcessManager do
   }
 
   let(:process_block) {
-    -> { sleep }
+    -> {}
   }
 
   let(:process_count) {
@@ -46,6 +46,26 @@ RSpec.describe Pakyow::ProcessManager do
   }
 
   describe "#add" do
+    it "starts the expected number of processes" do
+      expect(process_group).to receive(:fork).once.and_call_original
+      instance.add(process)
+      instance.stop
+      instance.wait
+    end
+
+    context "running multiple process instances" do
+      let(:process_count) {
+        3
+      }
+
+      it "starts the expected number of processes" do
+        expect(process_group).to receive(:fork).thrice.and_call_original
+        instance.add(process)
+        instance.stop
+        instance.wait
+      end
+    end
+
     context "process fails to start" do
       let(:process_block) {
         -> { fail }

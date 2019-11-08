@@ -43,15 +43,15 @@ module Pakyow
             port = config.server.port
           end
 
+          endpoint = Async::HTTP::Endpoint.parse(
+            "http://#{config.server.host}:#{port}"
+          )
+
+          bound_endpoint = Async::Reactor.run {
+            Async::IO::SharedEndpoint.bound(endpoint)
+          }.wait
+
           process :server, count: config.server.count do
-            endpoint = Async::HTTP::Endpoint.parse(
-              "http://#{config.server.host}:#{port}"
-            )
-
-            bound_endpoint = Async::Reactor.run {
-              Async::IO::SharedEndpoint.bound(endpoint)
-            }.wait
-
             Pakyow.config.server.port = port
 
             Processes::Server.new(
@@ -74,7 +74,7 @@ module Pakyow
           @processes << {
             name: name,
             block: block,
-            count: count,
+            count: count.to_i,
             restartable: restartable
           }
         end

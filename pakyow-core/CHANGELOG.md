@@ -65,6 +65,11 @@
 
 # v1.0.3 (unreleased)
 
+  * `fix` **Start multiple processes when the process count specifies more than one.**
+
+    *Related links:*
+    - [Pull Request #329][pr-329]
+
   * `fix` **Prevent failed processes from restarting indefinitely.**
 
     *Related links:*
