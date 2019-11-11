@@ -20,8 +20,6 @@ RSpec.describe Pakyow::Actions::Restart do
   end
 
   before do
-    Pakyow.send(:init_global_logger)
-
     allow(FileUtils).to receive(:mkdir_p)
     allow(File).to receive(:open)
     allow(connection).to receive(:halt)

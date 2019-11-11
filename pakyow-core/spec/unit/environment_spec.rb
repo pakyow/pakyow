@@ -643,4 +643,16 @@ RSpec.describe Pakyow do
       end
     end
   end
+
+  describe "::global_logger" do
+    it "is memoized" do
+      expect(Pakyow.global_logger).to be(Pakyow.global_logger)
+    end
+  end
+
+  describe "::logger" do
+    it "is memoized" do
+      expect(Pakyow.logger).to be(Pakyow.logger)
+    end
+  end
 end

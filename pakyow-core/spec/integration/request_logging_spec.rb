@@ -41,10 +41,10 @@ RSpec.describe "request logging" do
   end
 
   before do
-    Pakyow.config.logger.destinations = { io: io }
-    Pakyow.config.logger.formatter = formatter
+    allow(Pakyow).to receive(:global_logger).and_return(
+      formatter.new(Pakyow::Logger::Destination.new(:io, io))
+    )
 
-    Pakyow.send(:init_global_logger)
     allow(logger).to receive(:elapsed).and_return(elapsed)
   end
 
