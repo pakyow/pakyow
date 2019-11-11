@@ -58,10 +58,6 @@ RSpec.describe "transforming a presenter that has future transforms" do
     }.new(:test)
   end
 
-  before do
-    Pakyow.send(:init_global_logger)
-  end
-
   it "applies the future transforms to each node" do
     expect(presenter.to_html).to eq_sans_whitespace(
       <<~HTML

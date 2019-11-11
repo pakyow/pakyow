@@ -33,6 +33,7 @@ require "pakyow/actions/normalizer"
 
 require "pakyow/application"
 
+require "pakyow/logger"
 require "pakyow/logger/destination"
 require "pakyow/logger/multiplexed"
 require "pakyow/logger/thread_local"
@@ -135,17 +136,32 @@ module Pakyow
     #
     attr_reader :env
 
-    # Logger instance for the environment
-    #
-    attr_reader :logger
-
-    # Global logger instance
-    #
-    attr_reader :global_logger
-
     # Any error encountered during the boot process
     #
     attr_reader :error
+
+    # Global log output.
+    #
+    # Builds and returns a default global output that's replaced in `setup`.
+    #
+    def global_logger
+      unless defined?(@global_logger)
+        require "pakyow/logger/formatters/human"
+        @global_logger = Logger::Formatters::Human.new(
+          Logger::Destination.new(:stdout, $stdout)
+        )
+      end
+
+      @global_logger
+    end
+
+    # Logger instance for the environment.
+    #
+    # Builds and returns a default logger that's replaced in `setup`.
+    #
+    def logger
+      @logger ||= Logger.new("dflt", output: global_logger, level: :all)
+    end
 
     # Mounts an app at a path.
     #
@@ -200,20 +216,24 @@ module Pakyow
       end
 
       performing :setup do
-        init_global_logger
+        destinations = Logger::Multiplexed.new(
+          *config.logger.destinations.map { |destination, io|
+            io.sync = config.logger.sync
+            Logger::Destination.new(destination, io)
+          }
+        )
+
+        @global_logger = config.logger.formatter.new(destinations)
+
+        @logger = Logger::ThreadLocal.new(
+          Logger.new("pkyw", output: @global_logger, level: config.logger.level)
+        )
+
+        Console.logger = Logger.new("asnc", output: @global_logger, level: :warn)
       end
 
       self
     rescue => error
-      begin
-        # Try again to initialize the logger, since we may have failed before that point.
-        #
-        unless Pakyow.logger
-          init_global_logger
-        end
-      rescue
-      end
-
       @setup_error = error; self
     end
 
@@ -344,23 +364,6 @@ module Pakyow
 
     private
 
-    def init_global_logger
-      destinations = Logger::Multiplexed.new(
-        *config.logger.destinations.map { |destination, io|
-          io.sync = config.logger.sync
-          Logger::Destination.new(destination, io)
-        }
-      )
-
-      @global_logger = config.logger.formatter.new(destinations)
-
-      @logger = Logger::ThreadLocal.new(
-        Logger.new("pkyw", output: @global_logger, level: config.logger.level)
-      )
-
-      Console.logger = Logger.new("asnc", output: @global_logger, level: :warn)
-    end
-
     def ensure_setup_succeeded
       if @setup_error
         handle_boot_failure(@setup_error)
@@ -370,23 +373,11 @@ module Pakyow
     def handle_boot_failure(error)
       @error = error
 
-      safe_logger do |logger|
-        if logger.respond_to?(:houston)
-          logger.houston(error)
-        else
-          logger.error(error)
-        end
-      end
+      logger.houston(error)
 
       if config.exit_on_boot_failure
         exit(false)
       end
-    end
-
-    require "logger"
-
-    def safe_logger
-      yield logger || ::Logger.new($stdout)
     end
   end
 end

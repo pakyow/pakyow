@@ -1,5 +1,10 @@
 # v1.0.3 (unreleased)
 
+  * `fix` **Ensure a logger and output is always available in the environment.**
+
+    *Related links:*
+    - [Pull Request #331][pr-331]
+
   * `fix` **Start multiple processes when the process count specifies more than one.**
 
     *Related links:*
