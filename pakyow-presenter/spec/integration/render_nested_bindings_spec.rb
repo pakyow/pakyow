@@ -60,10 +60,6 @@ RSpec.describe "rendering nested bindings from a presenter" do
     }.new(:test)
   end
 
-  before do
-    Pakyow.send(:init_global_logger)
-  end
-
   it "renders the nested binding correctly" do
     expect(presenter.to_html).to eq_sans_whitespace(
       <<~HTML

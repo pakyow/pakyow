@@ -132,7 +132,7 @@ RSpec.configure do |config|
       end
     end
 
-    [:@port, :@host, :@logger, :@app].each do |ivar|
+    [:@port, :@host, :@logger, :@app, :@global_logger].each do |ivar|
       if Pakyow.instance_variable_defined?(ivar)
         Pakyow.remove_instance_variable(ivar)
       end
