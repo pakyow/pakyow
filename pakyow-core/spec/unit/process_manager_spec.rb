@@ -13,7 +13,7 @@ RSpec.describe Pakyow::ProcessManager do
   }
 
   let(:process_group) {
-    Process::Group.new
+    Process::Group.new(terminal: nil)
   }
 
   let(:instance) {

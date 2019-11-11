@@ -7,7 +7,7 @@ require "pakyow/support/inflector"
 module Pakyow
   class ProcessManager
     def initialize
-      @group, @processes, @stopped = Process::Group.new, [], false
+      @group, @processes, @stopped = Process::Group.new(terminal: nil), [], false
     end
 
     def add(process)
