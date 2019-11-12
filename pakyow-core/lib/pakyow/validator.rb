@@ -47,8 +47,6 @@ module Pakyow
       end
     end
 
-    require "pakyow/validations"
-
     def initialize(key = nil, &block)
       @key = key
       @validations = []
