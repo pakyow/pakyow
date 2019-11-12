@@ -16,6 +16,7 @@ require "pakyow/support/pipeline"
 require "pakyow/support/inflector"
 
 require "pakyow/config"
+require "pakyow/behavior/deprecations"
 require "pakyow/behavior/initializers"
 require "pakyow/behavior/input_parsing"
 require "pakyow/behavior/plugins"
@@ -387,4 +388,6 @@ module Pakyow
       end
     end
   end
+
+  include Behavior::Deprecations
 end

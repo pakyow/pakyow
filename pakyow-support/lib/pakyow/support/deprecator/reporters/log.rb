@@ -17,6 +17,14 @@ module Pakyow
         #   => [deprecation] `foo' is deprecated; solution: use `bar'
         #
         class Log
+          class << self
+            # Builds a default instance using the environment logger.
+            #
+            def default
+              new(logger: Pakyow.logger)
+            end
+          end
+
           def initialize(logger:, level: :warn)
             @logger, @level = logger, level
           end

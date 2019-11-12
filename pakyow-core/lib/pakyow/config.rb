@@ -174,6 +174,18 @@ module Pakyow
         setting :http_only
         setting :same_site
       end
+
+      configurable :deprecator do
+        setting :reporter, :log
+
+        defaults :test do
+          setting :reporter, :warn
+        end
+
+        defaults :production do
+          setting :reporter, :null
+        end
+      end
     end
   end
 end

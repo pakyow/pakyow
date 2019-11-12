@@ -368,5 +368,31 @@ RSpec.describe Pakyow do
         expect(Pakyow.config.cookies.same_site).to be(nil)
       end
     end
+
+    describe "deprecator.reporter" do
+      it "defaults to :log" do
+        expect(Pakyow.config.deprecator.reporter).to eq(:log)
+      end
+
+      context "in test" do
+        before do
+          Pakyow.configure!(:test)
+        end
+
+        it "defaults to :warn" do
+          expect(Pakyow.config.deprecator.reporter).to eq(:warn)
+        end
+      end
+
+      context "in production" do
+        before do
+          Pakyow.configure!(:production)
+        end
+
+        it "defaults to :null" do
+          expect(Pakyow.config.deprecator.reporter).to eq(:null)
+        end
+      end
+    end
   end
 end
