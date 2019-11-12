@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Provide an environment-level deprecator.**
+
+    *Related links:*
+    - [Pull Request #335][pr-335]
+
   * `chg` **Improve bundle bootstrapping to be ~200ms faster.**
 
     *Related links:*
@@ -52,6 +57,7 @@
     - [Pull Request #297][pr-297]
     - [Commit 26f586d][26f586d]
 
+[pr-335]: https://github.com/pakyow/pakyow/pull/335
 [pr-321]: https://github.com/pakyow/pakyow/pull/321
 [pr-314]: https://github.com/pakyow/pakyow/pull/314
 [pr-313]: https://github.com/pakyow/pakyow/pull/313

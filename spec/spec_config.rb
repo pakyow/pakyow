@@ -132,7 +132,7 @@ RSpec.configure do |config|
       end
     end
 
-    [:@port, :@host, :@logger, :@app, :@global_logger].each do |ivar|
+    [:@port, :@host, :@logger, :@app, :@global_logger, :@deprecator].each do |ivar|
       if Pakyow.instance_variable_defined?(ivar)
         Pakyow.remove_instance_variable(ivar)
       end
@@ -140,6 +140,10 @@ RSpec.configure do |config|
 
     if Object.const_defined?("Pakyow::Presenter::Composers::View")
       Pakyow::Presenter::Composers::View.__cache.clear
+    end
+
+    if defined?(Pakyow::Support::Deprecator) && Pakyow::Support::Deprecator.instance_variable_defined?(:@global)
+      Pakyow::Support::Deprecator.remove_instance_variable(:@global)
     end
 
     remove_constants(
