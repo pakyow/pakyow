@@ -38,4 +38,19 @@ RSpec.describe "the environment logger" do
       expect(Pakyow.logger.target.level).to eq(7)
     end
   end
+
+  describe "holding a reference to the thread local before setup" do
+    before do
+      @logger = Pakyow.logger
+    end
+
+    include_context "app"
+
+    context "after setup" do
+      it "uses the configured logger" do
+        expect(@logger.target).to receive(:warn).with("foo")
+        Pakyow.logger.warn "foo"
+      end
+    end
+  end
 end

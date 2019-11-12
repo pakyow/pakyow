@@ -168,7 +168,7 @@ module Pakyow
     # Builds and returns a default logger that's replaced in `setup`.
     #
     def logger
-      @logger ||= Logger.new("dflt", output: global_logger, level: :all)
+      @logger ||= Logger::ThreadLocal.new(Logger.new("dflt", output: global_logger, level: :all))
     end
 
     # Mounts an app at a path.
@@ -233,9 +233,11 @@ module Pakyow
 
         @global_logger = config.logger.formatter.new(destinations)
 
-        @logger = Logger::ThreadLocal.new(
-          Logger.new("pkyw", output: @global_logger, level: config.logger.level)
-        )
+        # Replace the default logger with a configured logger. We don't overwrite `@logger` here so
+        # that objects that hold a reference to the thread local logger before setup still point to
+        # the right object and log to the appropriate logger after setup.
+        #
+        logger.replace(Logger.new("pkyw", output: @global_logger, level: config.logger.level))
 
         Console.logger = Logger.new("asnc", output: @global_logger, level: :warn)
       end

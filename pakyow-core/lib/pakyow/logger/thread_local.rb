@@ -24,6 +24,10 @@ module Pakyow
       def target
         Thread.current[:pakyow_logger] || @default
       end
+
+      def replace(logger)
+        @default = logger
+      end
     end
   end
 end
