@@ -6,6 +6,7 @@ require "pakyow/support/core_refinements/array/ensurable"
 
 require "pakyow/types"
 require "pakyow/validator"
+require "pakyow/validations"
 
 module Pakyow
   class Verifier
