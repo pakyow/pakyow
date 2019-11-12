@@ -12,7 +12,7 @@ RSpec.describe "app verifier" do
         end
 
         connection.halt
-      rescue => Pakyow::Support::MessageVerifier::TamperedMessage
+      rescue Pakyow::Support::MessageVerifier::TamperedMessage
         connection.body = "tampered"
         connection.halt
       end
