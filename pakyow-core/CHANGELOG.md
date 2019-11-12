@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Rename `Pakyow::global_logger` to `Pakyow::output`.**
+
+    *Related links:*
+    - [Pull Request #338][pr-338]
+
   * `add` **Provide an environment-level deprecator.**
 
     *Related links:*
@@ -57,6 +62,14 @@
     - [Pull Request #297][pr-297]
     - [Commit 26f586d][26f586d]
 
+## Deprecations
+
+  * `Pakyow::global_logger` has been deprecated in favor of `Pakyow::output`.
+
+    *Related links:*
+    - [Pull Request #338][pr-338]
+
+[pr-338]: https://github.com/pakyow/pakyow/pull/338
 [pr-335]: https://github.com/pakyow/pakyow/pull/335
 [pr-321]: https://github.com/pakyow/pakyow/pull/321
 [pr-314]: https://github.com/pakyow/pakyow/pull/314

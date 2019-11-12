@@ -48,7 +48,7 @@ RSpec.describe "resetting a connection" do
       task_double
     )
 
-    logger = double(:logger)
+    logger = double(:logger, replace: nil)
     allow(Pakyow).to receive(:logger).and_return(logger)
     expect(logger).to receive(:info).with("[db:reset] running: db:drop")
     expect(logger).to receive(:info).with("[db:reset] running: db:bootstrap")

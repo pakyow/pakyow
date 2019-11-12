@@ -4,8 +4,8 @@ RSpec.describe "the environment logger" do
       expect(Pakyow.logger.type).to eq("dflt")
     end
 
-    it "outputs to the global logger" do
-      expect(Pakyow.logger.output).to be(Pakyow.global_logger)
+    it "outputs to the environment output" do
+      expect(Pakyow.logger.output).to be(Pakyow.output)
     end
 
     it "logs all messages" do
@@ -30,8 +30,8 @@ RSpec.describe "the environment logger" do
       expect(Pakyow.logger.target.type).to eq("pkyw")
     end
 
-    it "outputs to the new global logger" do
-      expect(Pakyow.logger.target.output).to be(Pakyow.global_logger)
+    it "outputs to the new environment output" do
+      expect(Pakyow.logger.target.output).to be(Pakyow.output)
     end
 
     it "logs messages of the configured level" do

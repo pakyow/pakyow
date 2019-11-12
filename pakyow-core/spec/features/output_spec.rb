@@ -1,11 +1,11 @@
-RSpec.describe "the global logger" do
+RSpec.describe "the environment output" do
   context "before setup" do
     it "builds a human formatter" do
-      expect(Pakyow.global_logger).to be_instance_of(Pakyow::Logger::Formatters::Human)
+      expect(Pakyow.output).to be_instance_of(Pakyow::Logger::Formatters::Human)
     end
 
     it "includes stdout as a destination" do
-      destination = Pakyow.global_logger.output
+      destination = Pakyow.output.output
       expect(destination.name).to eq(:stdout)
       expect(destination.io).to be($stdout)
     end
@@ -18,7 +18,7 @@ RSpec.describe "the global logger" do
 
       # Build the default logger.
       #
-      Pakyow.global_logger
+      Pakyow.output
     end
 
     include_context "app"
@@ -36,11 +36,11 @@ RSpec.describe "the global logger" do
     }
 
     it "builds a formatter of the configured type" do
-      expect(Pakyow.global_logger).to be_instance_of(Pakyow::Logger::Formatters::Logfmt)
+      expect(Pakyow.output).to be_instance_of(Pakyow::Logger::Formatters::Logfmt)
     end
 
     it "includes all configured destinations" do
-      destinations = Pakyow.global_logger.output.destinations
+      destinations = Pakyow.output.output.destinations
       expect(destinations[0].name).to eq(:io1)
       expect(destinations[0].io).to be(io1)
       expect(destinations[1].name).to eq(:io2)

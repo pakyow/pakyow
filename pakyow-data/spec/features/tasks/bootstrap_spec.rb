@@ -48,7 +48,7 @@ RSpec.describe "bootstrapping a connection" do
       task_double
     )
 
-    logger = double(:logger)
+    logger = double(:logger, replace: nil)
     allow(Pakyow).to receive(:logger).and_return(logger)
     expect(logger).to receive(:info).with("[db:bootstrap] running: db:create")
     expect(logger).to receive(:info).with("[db:bootstrap] running: db:migrate")

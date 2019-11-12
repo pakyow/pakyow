@@ -22,12 +22,12 @@ RSpec.describe "silencing requests" do
       end
 
       it "does not log the asset request" do
-        expect(Pakyow.global_logger).not_to receive(:call)
+        expect(Pakyow.output).not_to receive(:call)
         call("/assets/foo.bar")
       end
 
       it "does log a non-asset request" do
-        expect(Pakyow.global_logger).to receive(:call).at_least(:once)
+        expect(Pakyow.output).to receive(:call).at_least(:once)
         call("/foo.bar.baz")
       end
     end
@@ -42,7 +42,7 @@ RSpec.describe "silencing requests" do
       end
 
       it "logs the asset request" do
-        expect(Pakyow.global_logger).to receive(:call).at_least(:once)
+        expect(Pakyow.output).to receive(:call).at_least(:once)
         call("/assets/foo.bar")
       end
     end
@@ -58,12 +58,12 @@ RSpec.describe "silencing requests" do
       end
 
       it "does not log the public request" do
-        expect(Pakyow.global_logger).not_to receive(:call)
+        expect(Pakyow.output).not_to receive(:call)
         call("/silent_spec.rb")
       end
 
       it "does log a non-public request" do
-        expect(Pakyow.global_logger).to receive(:call).at_least(:once)
+        expect(Pakyow.output).to receive(:call).at_least(:once)
         call("/foo.bar")
       end
     end
@@ -77,7 +77,7 @@ RSpec.describe "silencing requests" do
       end
 
       it "logs the public request" do
-        expect(Pakyow.global_logger).to receive(:call).at_least(:once)
+        expect(Pakyow.output).to receive(:call).at_least(:once)
         call("/silent_spec.rb")
       end
     end

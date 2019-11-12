@@ -61,7 +61,7 @@ module Pakyow
       @request = request
       @body = Async::HTTP::Body::Buffered.wrap(StringIO.new)
       @params = Pakyow::Connection::Params.new
-      @logger = Logger.new(:http, started_at: @timestamp, id: @id, output: Pakyow.global_logger, level: Pakyow.config.logger.level)
+      @logger = Logger.new(:http, started_at: @timestamp, id: @id, output: Pakyow.output, level: Pakyow.config.logger.level)
       @streams = []
     end
 
