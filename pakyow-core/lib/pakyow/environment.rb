@@ -99,7 +99,7 @@ module Pakyow
   using Support::Refinements::Array::Ensurable
 
   extend Support::DeepFreeze
-  unfreezable :global_logger, :app
+  unfreezable :output, :app
 
   include Support::Hookable
   events :load, :configure, :setup, :boot, :shutdown, :run
@@ -152,15 +152,23 @@ module Pakyow
     #
     # Builds and returns a default global output that's replaced in `setup`.
     #
-    def global_logger
-      unless defined?(@global_logger)
+    def output
+      unless defined?(@output)
         require "pakyow/logger/formatters/human"
-        @global_logger = Logger::Formatters::Human.new(
+        @output = Logger::Formatters::Human.new(
           Logger::Destination.new(:stdout, $stdout)
         )
       end
 
-      @global_logger
+      @output
+    end
+
+    # @deprecated Use {output} instead.
+    #
+    def global_logger
+      deprecated :global_logger, "use `output'"
+
+      output
     end
 
     # Logger instance for the environment.
@@ -168,7 +176,7 @@ module Pakyow
     # Builds and returns a default logger that's replaced in `setup`.
     #
     def logger
-      @logger ||= Logger::ThreadLocal.new(Logger.new("dflt", output: global_logger, level: :all))
+      @logger ||= Logger::ThreadLocal.new(Logger.new("dflt", output: output, level: :all))
     end
 
     # Mounts an app at a path.
@@ -231,15 +239,15 @@ module Pakyow
           }
         )
 
-        @global_logger = config.logger.formatter.new(destinations)
+        @output = config.logger.formatter.new(destinations)
 
         # Replace the default logger with a configured logger. We don't overwrite `@logger` here so
         # that objects that hold a reference to the thread local logger before setup still point to
         # the right object and log to the appropriate logger after setup.
         #
-        logger.replace(Logger.new("pkyw", output: @global_logger, level: config.logger.level))
+        logger.replace(Logger.new("pkyw", output: @output, level: config.logger.level))
 
-        Console.logger = Logger.new("asnc", output: @global_logger, level: :warn)
+        Console.logger = Logger.new("asnc", output: @output, level: :warn)
       end
 
       self
@@ -328,7 +336,7 @@ module Pakyow
           # setting the request logger for the current connection as thread-local we can create a
           # connection pointing to `Pakyow.logger`, an instance of `Pakyow::Logger::ThreadLocal`. The
           # thread local logger decides at the time of logging which logger to use based on an
-          # available context, falling back to `Pakyow.global_logger`. This gets us around needing to
+          # available context, falling back to `Pakyow.output`. This gets us around needing to
           # configure a connection per request, altering Sequel's internals, and other oddities.
           #
           # Pakyow is designed so that the connection object and its logger should always be available

@@ -41,8 +41,8 @@ RSpec.describe Pakyow::Actions::Normalizer do
   end
 
   before do
-    allow(Pakyow).to receive(:global_logger).and_return(
-      double(:global_logger, level: 2, verbose!: nil)
+    allow(Pakyow).to receive(:output).and_return(
+      double(:output, level: 2, verbose!: nil)
     )
   end
 

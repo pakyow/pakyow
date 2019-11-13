@@ -1,6 +1,6 @@
 RSpec.describe "request logging" do
   let :logger do
-    Pakyow::Logger.new(:http, output: Pakyow.global_logger, level: Pakyow.config.logger.level)
+    Pakyow::Logger.new(:http, output: Pakyow.output, level: Pakyow.config.logger.level)
   end
 
   let :io do
@@ -41,7 +41,7 @@ RSpec.describe "request logging" do
   end
 
   before do
-    allow(Pakyow).to receive(:global_logger).and_return(
+    allow(Pakyow).to receive(:output).and_return(
       formatter.new(Pakyow::Logger::Destination.new(:io, io))
     )
 

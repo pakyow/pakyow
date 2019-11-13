@@ -5,8 +5,8 @@ RSpec.describe "the async logger" do
     expect(Console.logger.type).to eq("asnc")
   end
 
-  it "outputs to the global logger" do
-    expect(Console.logger.output).to be(Pakyow.global_logger)
+  it "outputs to the environment output" do
+    expect(Console.logger.output).to be(Pakyow.output)
   end
 
   it "logs messages at the warn level" do

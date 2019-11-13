@@ -47,7 +47,7 @@ RSpec.describe Pakyow::Logger do
   end
 
   before do
-    allow(Pakyow).to receive(:global_logger).and_return(
+    allow(Pakyow).to receive(:output).and_return(
       double(:global_output, call: nil, verbose!: nil)
     )
   end

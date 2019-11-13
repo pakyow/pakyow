@@ -394,13 +394,13 @@ RSpec.describe Pakyow do
       Pakyow.setup(env: env)
     end
 
-    it "initializes the global logger" do
-      Pakyow.instance_variable_set(:@global_logger, nil)
+    it "initializes the environment output" do
+      Pakyow.instance_variable_set(:@output, nil)
       Pakyow.setup
 
-      expect(Pakyow.global_logger).to be_instance_of(Pakyow::Logger::Formatters::Human)
-      expect(Pakyow.global_logger.output).to be_instance_of(Pakyow::Logger::Multiplexed)
-      expect(Pakyow.global_logger.output.destinations.count).to eq(1)
+      expect(Pakyow.output).to be_instance_of(Pakyow::Logger::Formatters::Human)
+      expect(Pakyow.output.output).to be_instance_of(Pakyow::Logger::Multiplexed)
+      expect(Pakyow.output.output.destinations.count).to eq(1)
     end
 
     it "initializes the logger" do
@@ -644,15 +644,30 @@ RSpec.describe Pakyow do
     end
   end
 
-  describe "::global_logger" do
+  describe "::output" do
     it "is memoized" do
-      expect(Pakyow.global_logger).to be(Pakyow.global_logger)
+      expect(Pakyow.output).to be(Pakyow.output)
     end
   end
 
   describe "::logger" do
     it "is memoized" do
       expect(Pakyow.logger).to be(Pakyow.logger)
+    end
+  end
+
+  describe "::global_logger" do
+    it "is deprecated" do
+      expect(Pakyow).to receive(:deprecated).with(:global_logger, "use `output'")
+
+      Pakyow.global_logger
+    end
+
+    it "calls ::output" do
+      allow(Pakyow).to receive(:deprecated)
+      expect(Pakyow).to receive(:output).at_least(:once).and_call_original
+
+      Pakyow.global_logger
     end
   end
 end
