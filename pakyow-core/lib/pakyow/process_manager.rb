@@ -7,11 +7,15 @@ require "pakyow/process"
 require "pakyow/support/inflector"
 
 module Pakyow
+  # Manages one or more processes.
+  #
   class ProcessManager
     def initialize
       @group, @stopped = ::Process::Group.new, false
     end
 
+    # Adds a {Process} instance, where it is immediately run within this manager.
+    #
     def add(process)
       if process.is_a?(Hash)
         Pakyow.deprecated "passing a `Hash' to `Pakyow::ProcessManager#add'", "pass a `Pakyow::Process' instance"
@@ -22,15 +26,21 @@ module Pakyow
       run(process)
     end
 
+    # Waits for all processes to exit.
+    #
     def wait
       @group.wait
     end
 
+    # Stops all processes.
+    #
     def stop(signal = :INT)
       @stopped = true
       @group.kill(signal)
     end
 
+    # Restarts all restartable processes.
+    #
     def restart
       @group.running.each do |pid, process|
         if process.options[:object].restartable?
