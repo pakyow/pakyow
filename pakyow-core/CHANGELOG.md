@@ -1,5 +1,11 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Improve `Pakyow::ProcessManager` api with the addition of a `Pakyow::Process` value object.**
+
+    *Related links:*
+    - [Pull Request #339][pr-339]
+    - [Commit be9b292][be9b292]
+
   * `chg` **Rename `Pakyow::global_logger` to `Pakyow::output`.**
 
     *Related links:*
@@ -64,11 +70,18 @@
 
 ## Deprecations
 
+  * `Pakyow::ProcessManager#add` no longer accepts a `Hash`.
+
+    *Related links:*
+    - [Pull Request #339][pr-339]
+    - [Commit be9b292][be9b292]
+
   * `Pakyow::global_logger` has been deprecated in favor of `Pakyow::output`.
 
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-339]: https://github.com/pakyow/pakyow/pull/339
 [pr-338]: https://github.com/pakyow/pakyow/pull/338
 [pr-335]: https://github.com/pakyow/pakyow/pull/335
 [pr-321]: https://github.com/pakyow/pakyow/pull/321
@@ -79,6 +92,7 @@
 [pr-301]: https://github.com/pakyow/pakyow/pull/301
 [is-298]: https://github.com/pakyow/pakyow/issues/298
 [pr-297]: https://github.com/pakyow/pakyow/pull/297
+[be9b292]: https://github.com/pakyow/pakyow/commit/be9b292ba090976667b3c7a1ee6314cda7995591
 [d55e932]: https://github.com/pakyow/pakyow/commit/d55e9320dcca51ac7d12d8eef4f7f8aaf8faaa4f
 [26f586d]: https://github.com/pakyow/pakyow/commit/26f586d35c5fa0611cac6914fb2f249e3798ec79
 

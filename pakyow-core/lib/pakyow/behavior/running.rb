@@ -6,6 +6,7 @@ require "async/http/endpoint"
 
 require "pakyow/support/extension"
 
+require "pakyow/process"
 require "pakyow/process_manager"
 require "pakyow/processes/proxy"
 require "pakyow/processes/server"
@@ -71,12 +72,12 @@ module Pakyow
 
       class_methods do
         def process(name, count: 1, restartable: true, &block)
-          @processes << {
+          @processes << Process.new(
             name: name,
-            block: block,
-            count: count.to_i,
-            restartable: restartable
-          }
+            count: count,
+            restartable: restartable,
+            &block
+          )
         end
 
         def run
@@ -85,10 +86,10 @@ module Pakyow
               manager.add(process)
             }
 
-            root_pid = Process.pid
+            root_pid = ::Process.pid
 
             at_exit do
-              if Process.pid == root_pid
+              if ::Process.pid == root_pid
                 shutdown
               else
                 @apps.select { |app|

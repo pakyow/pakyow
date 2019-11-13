@@ -2,46 +2,62 @@
 
 require "process/group"
 
+require "pakyow/process"
+
 require "pakyow/support/inflector"
 
 module Pakyow
+  # Manages one or more processes.
+  #
   class ProcessManager
     def initialize
-      @group, @processes, @stopped = Process::Group.new, [], false
+      @group, @stopped = ::Process::Group.new, false
     end
 
+    # Adds a {Process} instance, where it is immediately run within this manager.
+    #
     def add(process)
-      process = process.dup
-      run_process(process)
-      @processes << process
+      if process.is_a?(Hash)
+        Pakyow.deprecated "passing a `Hash' to `Pakyow::ProcessManager#add'", "pass a `Pakyow::Process' instance"
+
+        process = build_process(process)
+      end
+
+      run(process)
     end
 
+    # Waits for all processes to exit.
+    #
     def wait
       @group.wait
     end
 
+    # Stops all processes.
+    #
     def stop(signal = :INT)
       @stopped = true
       @group.kill(signal)
     end
 
+    # Restarts all restartable processes.
+    #
     def restart
-      @group.running.each do |pid, forked|
-        if forked.instance_variable_get(:@options)[:restartable]
-          Process.kill(:INT, pid)
+      @group.running.each do |pid, process|
+        if process.options[:object].restartable?
+          ::Process.kill(:INT, pid)
         end
       end
     end
 
     private
 
-    def run_process(process)
-      process[:count].times do
+    def run(process)
+      process.count.times do
         Fiber.new {
           until @stopped
-            status = @group.fork(process) do
+            status = @group.fork object: process do
               Async do
-                process[:block].call
+                process.call
               rescue => error
                 Pakyow.logger.houston(error)
                 exit 1
@@ -53,6 +69,15 @@ module Pakyow
           end
         }.resume
       end
+    end
+
+    def build_process(process)
+      Process.new(
+        name: process[:name],
+        count: process[:count],
+        restartable: process[:restartable],
+        &process[:block]
+      )
     end
   end
 end
