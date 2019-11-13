@@ -7,13 +7,11 @@ require "pakyow/support/inflector"
 module Pakyow
   class ProcessManager
     def initialize
-      @group, @processes, @stopped = Process::Group.new, [], false
+      @group, @stopped = Process::Group.new, false
     end
 
     def add(process)
-      process = process.dup
       run_process(process)
-      @processes << process
     end
 
     def wait
@@ -27,7 +25,7 @@ module Pakyow
 
     def restart
       @group.running.each do |pid, forked|
-        if forked.instance_variable_get(:@options)[:restartable]
+        if restartable?(forked)
           Process.kill(:INT, pid)
         end
       end
@@ -53,6 +51,10 @@ module Pakyow
           end
         }.resume
       end
+    end
+
+    def restartable?(process)
+      process.options[:restartable]
     end
   end
 end
