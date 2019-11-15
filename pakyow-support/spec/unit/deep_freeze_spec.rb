@@ -1,22 +1,25 @@
 require "pakyow/support/deep_freeze"
-using Pakyow::Support::DeepFreeze
-
-class MyObject
-  extend Pakyow::Support::DeepFreeze
-  insulate :fire
-
-  attr_reader :fire, :water
-
-  def initialize
-    @fire = 'fire'
-    @water = 'water'
-  end
-end
 
 RSpec.describe Pakyow::Support::DeepFreeze do
-  let :obj_with_unfreezable do
-    MyObject.new
-  end
+  using Pakyow::Support::DeepFreeze
+
+  let(:unfreezable_object) {
+    unfreezable_class.new
+  }
+
+  let(:unfreezable_class) {
+    Class.new do
+      extend Pakyow::Support::DeepFreeze
+      insulate :fire
+
+      attr_reader :fire, :water
+
+      def initialize
+        @fire = 'fire'
+        @water = 'water'
+      end
+    end
+  }
 
   describe "deep_freeze" do
     it "refines Object" do
@@ -107,11 +110,11 @@ RSpec.describe Pakyow::Support::DeepFreeze do
     end
 
     it "doesn't freeze unfreezeable" do
-      obj_with_unfreezable.deep_freeze
+      unfreezable_object.deep_freeze
 
-      expect(obj_with_unfreezable).to be_frozen
-      expect(obj_with_unfreezable.water).to be_frozen
-      expect(obj_with_unfreezable.fire).not_to be_frozen
+      expect(unfreezable_object).to be_frozen
+      expect(unfreezable_object.water).to be_frozen
+      expect(unfreezable_object.fire).not_to be_frozen
     end
 
     it "doesn't freeze objects that can't be frozen" do
@@ -163,13 +166,13 @@ RSpec.describe Pakyow::Support::DeepFreeze do
         Pakyow::Support::Deprecator.global
       ).to receive(:deprecated).with(:unfreezable, "use `insulate'")
 
-      MyObject.unfreezable :foo
+      unfreezable_class.unfreezable :foo
     end
 
     it "calls ::insulate" do
-      expect(MyObject).to receive(:insulate).with(:foo)
+      expect(unfreezable_class).to receive(:insulate).with(:foo)
 
-      MyObject.unfreezable :foo
+      unfreezable_class.unfreezable :foo
     end
   end
 end
