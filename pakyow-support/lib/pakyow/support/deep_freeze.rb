@@ -24,7 +24,9 @@ module Pakyow
         refine klass do
           def deep_freeze
             if !frozen? && respond_to?(:freeze)
-              freeze
+              if !respond_to?(:insulated?) || !insulated?
+                freeze
+              end
 
               freezable_variables.each do |name|
                 instance_variable_get(name).deep_freeze

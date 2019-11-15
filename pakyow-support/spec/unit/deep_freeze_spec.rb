@@ -118,5 +118,37 @@ RSpec.describe Pakyow::Support::DeepFreeze do
       object.instance_eval("undef :freeze")
       expect { object.deep_freeze }.not_to raise_error
     end
+
+    context "object defines itself as insulated" do
+      let(:insulated_class) {
+        Class.new do
+          attr_reader :internal
+
+          def initialize
+            @internal = []
+          end
+
+          def insulated?
+            true
+          end
+        end
+      }
+
+      let(:insulated_object) {
+        insulated_class.new
+      }
+
+      before do
+        insulated_object.deep_freeze
+      end
+
+      it "does not freeze the object" do
+        expect(insulated_object.frozen?).to be(false)
+      end
+
+      it "freezes contained state" do
+        expect(insulated_object.internal.frozen?).to be(true)
+      end
+    end
   end
 end
