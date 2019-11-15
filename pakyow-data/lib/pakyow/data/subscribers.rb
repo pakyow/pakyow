@@ -12,7 +12,7 @@ module Pakyow
       attr_accessor :lookup, :adapter
 
       extend Support::DeepFreeze
-      unfreezable :executor
+      insulate :executor
 
       using Support::Refinements::Method::Introspection
 

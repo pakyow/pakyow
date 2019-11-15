@@ -14,7 +14,7 @@ module Pakyow
 
           apply_extension do
             extend Support::DeepFreeze
-            unfreezable :websocket_server
+            insulate :websocket_server
             attr_reader :websocket_server
 
             after "initialize", priority: :high do

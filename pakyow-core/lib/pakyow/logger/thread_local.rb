@@ -12,7 +12,7 @@ module Pakyow
     #
     class ThreadLocal
       extend Support::DeepFreeze
-      unfreezable :default
+      insulate :default
 
       extend Forwardable
       def_delegators :target, *(Logger.instance_methods - Object.instance_methods)

@@ -19,7 +19,7 @@ module Pakyow
     def_delegators :@rake, :name
 
     extend Support::DeepFreeze
-    unfreezable :rake
+    insulate :rake
 
     attr_reader :description
 

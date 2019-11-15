@@ -99,7 +99,7 @@ module Pakyow
   using Support::Refinements::Array::Ensurable
 
   extend Support::DeepFreeze
-  unfreezable :output, :app
+  insulate :output, :app
 
   include Support::Hookable
   events :load, :configure, :setup, :boot, :shutdown, :run

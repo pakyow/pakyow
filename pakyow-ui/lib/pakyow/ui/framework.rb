@@ -75,7 +75,7 @@ module Pakyow
 
           # @api private
           attr_reader :ui_executor
-          unfreezable :ui_executor
+          insulate :ui_executor
 
           after "initialize" do
             @ui_executor = Concurrent::SingleThreadExecutor.new(

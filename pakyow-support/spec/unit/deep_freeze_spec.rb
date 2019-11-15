@@ -1,21 +1,25 @@
 require "pakyow/support/deep_freeze"
-using Pakyow::Support::DeepFreeze
-class MyObject
-  extend Pakyow::Support::DeepFreeze
-  unfreezable :fire
-
-  attr_reader :fire, :water
-
-  def initialize
-    @fire = 'fire'
-    @water = 'water'
-  end
-end
 
 RSpec.describe Pakyow::Support::DeepFreeze do
-  let :obj_with_unfreezable do
-    MyObject.new
-  end
+  using Pakyow::Support::DeepFreeze
+
+  let(:unfreezable_object) {
+    unfreezable_class.new
+  }
+
+  let(:unfreezable_class) {
+    Class.new do
+      extend Pakyow::Support::DeepFreeze
+      insulate :fire
+
+      attr_reader :fire, :water
+
+      def initialize
+        @fire = 'fire'
+        @water = 'water'
+      end
+    end
+  }
 
   describe "deep_freeze" do
     it "refines Object" do
@@ -106,17 +110,69 @@ RSpec.describe Pakyow::Support::DeepFreeze do
     end
 
     it "doesn't freeze unfreezeable" do
-      obj_with_unfreezable.deep_freeze
+      unfreezable_object.deep_freeze
 
-      expect(obj_with_unfreezable).to be_frozen
-      expect(obj_with_unfreezable.water).to be_frozen
-      expect(obj_with_unfreezable.fire).not_to be_frozen
+      expect(unfreezable_object).to be_frozen
+      expect(unfreezable_object.water).to be_frozen
+      expect(unfreezable_object.fire).not_to be_frozen
     end
 
     it "doesn't freeze objects that can't be frozen" do
       object = "foo"
       object.instance_eval("undef :freeze")
       expect { object.deep_freeze }.not_to raise_error
+    end
+
+    context "object defines itself as insulated" do
+      let(:insulated_class) {
+        Class.new do
+          attr_reader :internal
+
+          def initialize
+            @internal = []
+          end
+
+          def insulated?
+            true
+          end
+        end
+      }
+
+      let(:insulated_object) {
+        insulated_class.new
+      }
+
+      before do
+        insulated_object.deep_freeze
+      end
+
+      it "does not freeze the object" do
+        expect(insulated_object.frozen?).to be(false)
+      end
+
+      it "freezes contained state" do
+        expect(insulated_object.internal.frozen?).to be(true)
+      end
+    end
+  end
+
+  describe "::unfreezeable" do
+    before do
+      allow(Pakyow::Support::Deprecator.global).to receive(:deprecated)
+    end
+
+    it "is deprecated" do
+      expect(
+        Pakyow::Support::Deprecator.global
+      ).to receive(:deprecated).with(:unfreezable, "use `insulate'")
+
+      unfreezable_class.unfreezable :foo
+    end
+
+    it "calls ::insulate" do
+      expect(unfreezable_class).to receive(:insulate).with(:foo)
+
+      unfreezable_class.unfreezable :foo
     end
   end
 end

@@ -35,7 +35,7 @@ module Pakyow
           INFINITY = "+inf"
 
           extend Support::DeepFreeze
-          unfreezable :redis
+          insulate :redis
 
           def initialize(config)
             @redis = ConnectionPool.new(**config[:pool]) {
