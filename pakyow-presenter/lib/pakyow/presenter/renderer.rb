@@ -24,7 +24,7 @@ module Pakyow
       class_state :__expose_fns, default: [], inheritable: true
 
       extend Support::DeepFreeze
-      unfreezable :__presenters_by_path, :__presenter_views
+      insulate :__presenters_by_path, :__presenter_views
 
       include Support::Hookable
       events :render

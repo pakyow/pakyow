@@ -16,7 +16,7 @@ module Pakyow
       extend Support::Extension
 
       apply_extension do
-        unfreezable :process_manager
+        insulate :process_manager
 
         class_state :processes, default: []
 

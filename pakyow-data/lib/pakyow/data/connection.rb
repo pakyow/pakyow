@@ -17,7 +17,7 @@ module Pakyow
       attr_reader :type, :name, :opts, :adapter, :failure
 
       extend Support::DeepFreeze
-      unfreezable :logger, :adapter
+      insulate :logger, :adapter
 
       def initialize(type:, name:, string: nil, opts: nil, logger: nil)
         @type, @name, @logger, @failure = type, name, logger, nil

@@ -3,6 +3,7 @@
 require "delegate"
 
 require "pakyow/support/class_state"
+require "pakyow/support/deprecator"
 
 module Pakyow
   module Support
@@ -12,12 +13,18 @@ module Pakyow
         base.class_state :__insulated_variables, inheritable: true, default: []
       end
 
-      def unfreezable(*instance_variables)
+      def insulate(*instance_variables)
         @__insulated_variables.concat(
           instance_variables.map { |instance_variable|
             :"@#{instance_variable}"
           }
         ).uniq!
+      end
+
+      def unfreezable(*instance_variables)
+        Deprecator.global.deprecated :unfreezable, "use `insulate'"
+
+        insulate(*instance_variables)
       end
 
       [Object, Delegator].each do |klass|

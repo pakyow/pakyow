@@ -15,7 +15,7 @@ module Pakyow
         using DeepDup
 
         extend DeepFreeze
-        unfreezable :configurable
+        insulate :configurable
 
         # @api private
         attr_reader :__settings, :__defaults, :__groups

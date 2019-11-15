@@ -11,7 +11,7 @@ module Pakyow
         using DeepDup
 
         extend DeepFreeze
-        unfreezable :configurable, :value
+        insulate :configurable, :value
 
         def initialize(default:, configurable:, &block)
           @default, @block, @configurable = default, block, configurable

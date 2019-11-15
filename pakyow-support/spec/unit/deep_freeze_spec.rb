@@ -1,8 +1,9 @@
 require "pakyow/support/deep_freeze"
 using Pakyow::Support::DeepFreeze
+
 class MyObject
   extend Pakyow::Support::DeepFreeze
-  unfreezable :fire
+  insulate :fire
 
   attr_reader :fire, :water
 
@@ -149,6 +150,26 @@ RSpec.describe Pakyow::Support::DeepFreeze do
       it "freezes contained state" do
         expect(insulated_object.internal.frozen?).to be(true)
       end
+    end
+  end
+
+  describe "::unfreezeable" do
+    before do
+      allow(Pakyow::Support::Deprecator.global).to receive(:deprecated)
+    end
+
+    it "is deprecated" do
+      expect(
+        Pakyow::Support::Deprecator.global
+      ).to receive(:deprecated).with(:unfreezable, "use `insulate'")
+
+      MyObject.unfreezable :foo
+    end
+
+    it "calls ::insulate" do
+      expect(MyObject).to receive(:insulate).with(:foo)
+
+      MyObject.unfreezable :foo
     end
   end
 end

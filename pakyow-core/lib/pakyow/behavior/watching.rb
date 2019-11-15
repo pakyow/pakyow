@@ -15,7 +15,7 @@ module Pakyow
         class_state :on_change_matchers, default: {}
         class_state :watched_paths, default: []
 
-        unfreezable :filewatcher, :filewatcher_thread
+        insulate :filewatcher, :filewatcher_thread
 
         after "run" do
           @filewatcher = Filewatcher.new(
