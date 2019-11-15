@@ -2,31 +2,30 @@
 
 require "delegate"
 
+require "pakyow/support/class_state"
+
 module Pakyow
   module Support
     module DeepFreeze
-      def self.extended(subclass)
-        subclass.instance_variable_set(:@unfreezable_variables, [])
-
-        super
+      def self.extended(base)
+        base.extend ClassState
+        base.class_state :__insulated_variables, inheritable: true, default: []
       end
 
-      def inherited(subclass)
-        subclass.instance_variable_set(:@unfreezable_variables, @unfreezable_variables)
-
-        super
-      end
-
-      def unfreezable(*ivars)
-        @unfreezable_variables.concat(ivars.map { |ivar| :"@#{ivar}" })
-        @unfreezable_variables.uniq!
+      def unfreezable(*instance_variables)
+        @__insulated_variables.concat(
+          instance_variables.map { |instance_variable|
+            :"@#{instance_variable}"
+          }
+        ).uniq!
       end
 
       [Object, Delegator].each do |klass|
         refine klass do
           def deep_freeze
-            unless frozen? || !respond_to?(:freeze)
-              self.freeze
+            if !frozen? && respond_to?(:freeze)
+              freeze
+
               freezable_variables.each do |name|
                 instance_variable_get(name).deep_freeze
               end
@@ -42,8 +41,8 @@ module Pakyow
               self.class
             end
 
-            if object.instance_variable_defined?(:@unfreezable_variables)
-              instance_variables - object.instance_variable_get(:@unfreezable_variables)
+            if object.respond_to?(:__insulated_variables)
+              instance_variables - object.__insulated_variables
             else
               instance_variables
             end
@@ -54,8 +53,7 @@ module Pakyow
       refine Array do
         def deep_freeze
           unless frozen?
-            self.freeze
-            each(&:deep_freeze)
+            self.freeze; each(&:deep_freeze)
           end
 
           self
@@ -65,13 +63,13 @@ module Pakyow
       refine Hash do
         def deep_freeze
           unless frozen?
-            frozen_hash = {}
+            replacement_hash = {}
+
             each_pair do |key, value|
-              frozen_hash[key.deep_freeze] = value.deep_freeze
+              replacement_hash[key.deep_freeze] = value.deep_freeze
             end
 
-            self.replace(frozen_hash)
-            self.freeze
+            replace(replacement_hash); freeze
           end
 
           self
