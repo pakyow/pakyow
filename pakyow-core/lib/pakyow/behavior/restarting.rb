@@ -13,13 +13,13 @@ module Pakyow
 
           # Other processes (e.g. apps) can touch this file to restart the server.
           #
-          watch "./tmp/restart.txt" do
+          watch File.join(config.root, "tmp/restart.txt") do
             restart
           end
 
           # Automatically bundle.
           #
-          watch "./Gemfile" do
+          watch File.join(config.root, "Gemfile") do
             Bundler.with_clean_env do
               Support::CLI::Runner.new(message: "Bundling").run("bundle install")
             end
@@ -27,7 +27,7 @@ module Pakyow
 
           # Respawn when the bundle changes.
           #
-          watch "./Gemfile.lock" do
+          watch File.join(config.root, "Gemfile.lock") do
             respawn
           end
 
@@ -44,7 +44,9 @@ module Pakyow
           # Set the respawn flag and stop the process manager.
           # Pakyow will check the flag and respawn from the main thread.
           #
-          @respawn = true; @process_manager.stop
+          @respawn = true
+          @bound_endpoint.close
+          @process_manager.stop
         end
       end
     end
