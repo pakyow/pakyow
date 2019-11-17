@@ -22,17 +22,23 @@ module SmokeContext
   let(:environment) {
     :development
   }
+
+  let(:project_path) {
+    Pathname(@project_path)
+  }
 end
 
 RSpec.configure do |config|
   config.include SmokeContext
 
+  config.before :suite do
+    install
+  end
+
   config.before :all do
     @project_name = "smoke-test"
     @working_path = File.expand_path("../tmp", __FILE__)
     @project_path = File.join(@working_path, @project_name)
-
-    install
   end
 
   config.before do
@@ -45,7 +51,7 @@ RSpec.configure do |config|
     FileUtils.rm_r(@working_path)
   end
 
-  config.after :all do
+  config.after :suite do
     clean
   end
 
@@ -56,19 +62,27 @@ RSpec.configure do |config|
   end
 
   def clean
-    system "bundle exec rake release:clean"
+    Bundler.with_clean_env do
+      system "bundle exec rake release:clean"
+    end
   end
 
   def create
     @original_path = Dir.pwd
     FileUtils.mkdir_p(@working_path)
     Dir.chdir(@working_path)
-    system "pakyow create #{@project_name}"
+
+    Bundler.with_clean_env do
+      system "pakyow create #{@project_name}"
+    end
+
     Dir.chdir(@project_path)
   end
 
   def boot(environment: self.environment, envars: self.envars, port: self.port, host: self.host)
-    @server = Process.spawn(envars, "pakyow boot -e #{environment} -p #{port} --host #{host}")
+    Bundler.with_clean_env do
+      @server = Process.spawn(envars, "pakyow boot -e #{environment} -p #{port} --host #{host}")
+    end
 
     wait_for_boot do
       yield if block_given?

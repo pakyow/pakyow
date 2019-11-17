@@ -17,7 +17,7 @@ module Pakyow
       extend Support::Extension
 
       apply_extension do
-        insulate :process_manager
+        insulate :process_manager, :bound_endpoint
 
         class_state :processes, default: []
 
@@ -48,7 +48,7 @@ module Pakyow
             "http://#{config.server.host}:#{port}"
           )
 
-          bound_endpoint = Async::Reactor.run {
+          @bound_endpoint = Async::Reactor.run {
             Async::IO::SharedEndpoint.bound(endpoint)
           }.wait
 
@@ -58,7 +58,7 @@ module Pakyow
             Processes::Server.new(
               protocol: endpoint.protocol,
               scheme: endpoint.scheme,
-              endpoint: bound_endpoint
+              endpoint: @bound_endpoint
             ).run
           end
 
@@ -112,7 +112,7 @@ module Pakyow
             #
             exec respawn_command
           end
-        rescue SignalException
+        rescue SignalException, Interrupt
           exit
         end
 
@@ -126,6 +126,7 @@ module Pakyow
           Pakyow.logger << "Goodbye"
 
           performing :shutdown do
+            @bound_endpoint.close
             @process_manager.stop
           end
         end

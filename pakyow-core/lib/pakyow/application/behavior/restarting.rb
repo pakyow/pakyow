@@ -44,6 +44,11 @@ module Pakyow
           end
         end
 
+        def touch_restart
+          FileUtils.mkdir_p(File.join(config.root, "tmp"))
+          FileUtils.touch(File.join(config.root, "tmp/restart.txt"))
+        end
+
         private
 
         def setup_for_restarting
@@ -53,15 +58,14 @@ module Pakyow
 
             # FIXME: this doesn't need to be hardcoded, but instead determined
             # from the source location when registered with the environment
-            config.process.watched_paths << "./config/application.rb"
+            config.process.watched_paths << File.join(config.root, "config/application.rb")
 
             Thread.new do
               Filewatcher.new(
                 config.process.watched_paths,
                 exclude: config.process.excluded_paths
               ).watch do |_path, _event|
-                FileUtils.mkdir_p "./tmp"
-                FileUtils.touch "./tmp/restart.txt"
+                touch_restart
               end
             end
           end
