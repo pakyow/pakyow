@@ -113,6 +113,8 @@
     *Related links:*
     - [Pull Request #328][pr-328]
 
+[pr-331]: https://github.com/pakyow/pakyow/pull/331
+[pr-329]: https://github.com/pakyow/pakyow/pull/329
 [pr-328]: https://github.com/pakyow/pakyow/pull/328
 
 # v1.0.2
