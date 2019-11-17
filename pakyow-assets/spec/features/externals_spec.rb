@@ -43,7 +43,7 @@ RSpec.describe "external scripts" do
     end
 
     it "touches .tmp/restart.txt" do
-      expect(FileUtils).to have_received(:touch).with("./tmp/restart.txt")
+      expect(FileUtils).to have_received(:touch).with(File.expand_path("../../support/app/tmp/restart.txt", __FILE__))
     end
 
     context "external exists" do
