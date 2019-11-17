@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "pathname"
+
 module Pakyow
   module Support
     # Information about the local system.

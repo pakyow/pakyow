@@ -98,6 +98,11 @@
 
 # v1.0.3 (unreleased)
 
+  * `fix` **Resolve several issues with respawns, restarts.**
+
+    *Related links:*
+    - [Pull Request #342][pr-342]
+
   * `fix` **Ensure a logger and output is always available in the environment.**
 
     *Related links:*
@@ -113,6 +118,7 @@
     *Related links:*
     - [Pull Request #328][pr-328]
 
+[pr-342]: https://github.com/pakyow/pakyow/pull/342
 [pr-331]: https://github.com/pakyow/pakyow/pull/331
 [pr-329]: https://github.com/pakyow/pakyow/pull/329
 [pr-328]: https://github.com/pakyow/pakyow/pull/328

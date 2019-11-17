@@ -13,11 +13,12 @@ module Pakyow
 
           # Other processes (e.g. apps) can touch this file to respawn the process.
           #
-          watch "./tmp/respawn.txt" do
-            environment = File.read("./tmp/respawn.txt")
+          respawn_path = File.join(config.root, "tmp/respawn.txt")
+          watch respawn_path do
+            environment = File.read(respawn_path)
 
             ignore_changes do
-              File.open("./tmp/respawn.txt", "w") do |file|
+              File.open(respawn_path, "w") do |file|
                 file.truncate(0)
               end
             end
@@ -27,11 +28,12 @@ module Pakyow
 
           # Other processes (e.g. apps) can touch this file to restart the server.
           #
-          watch "./tmp/restart.txt" do
-            environment = File.read("./tmp/restart.txt")
+          restart_path = File.join(config.root, "tmp/restart.txt")
+          watch restart_path do
+            environment = File.read(restart_path)
 
             ignore_changes do
-              File.open("./tmp/restart.txt", "w") do |file|
+              File.open(restart_path, "w") do |file|
                 file.truncate(0)
               end
             end
@@ -41,7 +43,7 @@ module Pakyow
 
           # Automatically bundle.
           #
-          watch "./Gemfile" do
+          watch File.join(config.root, "Gemfile") do
             Bundler.with_clean_env do
               Support::CLI::Runner.new(message: "Bundling").run("bundle install")
             end
@@ -49,7 +51,7 @@ module Pakyow
 
           # Respawn when the bundle changes.
           #
-          watch "./Gemfile.lock" do
+          watch File.join(config.root, "Gemfile.lock") do
             respawn
           end
 
@@ -73,6 +75,10 @@ module Pakyow
           unless environment.nil? || environment.empty?
             @respawn_environment = environment.strip.to_sym
           end
+
+          # Close the bound endpoint so we can respawn on the same port.
+          #
+          @bound_endpoint.close
 
           # Finally, stop the process manager to invoke the respawn.
           #

@@ -2,6 +2,19 @@ require "smoke_helper"
 
 RSpec.describe "starting up a newly generated project", smoke: true do
   before do
+    # Disable external asset fetching.
+    # TODO: Remove this once we no longer restart when externals are fetched.
+    #
+    File.open(project_path.join("config/application.rb"), "w+") do |file|
+      file.write <<~SOURCE
+        Pakyow.app :smoke_test do
+          configure do
+            config.assets.externals.fetch = false
+          end
+        end
+      SOURCE
+    end
+
     boot do
       # TODO: Enable this once externals are fetched in the background.
       #
