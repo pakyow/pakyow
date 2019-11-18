@@ -175,4 +175,16 @@ RSpec.describe Pakyow::Support::DeepFreeze do
       unfreezable_class.unfreezable :foo
     end
   end
+
+  describe Socket do
+    it "is insulated" do
+      expect(Socket.new(:INET, :STREAM).insulated?).to be(true)
+    end
+  end
+
+  describe IO do
+    it "is insulated" do
+      expect(IO.new(IO.sysopen("/dev/tty", "w"), "w").insulated?).to be(true)
+    end
+  end
 end

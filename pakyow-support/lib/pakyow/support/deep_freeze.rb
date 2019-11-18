@@ -84,6 +84,18 @@ module Pakyow
           self
         end
       end
+
+      refine Socket do
+        def insulated?
+          true
+        end
+      end
+
+      refine IO do
+        def insulated?
+          true
+        end
+      end
     end
   end
 end

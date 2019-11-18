@@ -1,6 +1,11 @@
 # v1.1.0 (unreleased)
 
-  * `add` **Let objects to insulate themselves from a deep freeze.`**
+  * `add` **Insulate `Socket`/`IO` from deep freezing.**
+
+    *Related links:*
+    - [Pull Request #343][pr-343]
+
+  * `add` **Let objects to insulate themselves from a deep freeze.**
 
     *Related links:*
     - [Pull Request #340][pr-340]
@@ -17,6 +22,7 @@
     *Related links:*
     - [Commit 787681d][787681d]
 
+[pr-343]: https://github.com/pakyow/pakyow/pull/343
 [pr-340]: https://github.com/pakyow/pakyow/pull/340
 [pr-330]: https://github.com/pakyow/pakyow/pull/330
 [787681d]: https://github.com/pakyow/pakyow/commit/787681dacbbd3ce79f6e38a5672749635903a85b
