@@ -49,7 +49,11 @@ module Pakyow
 
     # Temporarily silences logs, up to +temporary_level+.
     #
+    # @deprecated Use {Pakyow::Logger::ThreadLocal#silence} instead.
+    #
     def silence(temporary_level = :error)
+      Pakyow.deprecated self, :silence, "use `Pakyow::Logger::ThreadLocal#silence'"
+
       original_level = @level
       self.level = self.class.const_get(:LEVELS)[temporary_level]
       yield

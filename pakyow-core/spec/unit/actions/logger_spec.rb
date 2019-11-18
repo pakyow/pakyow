@@ -70,11 +70,11 @@ RSpec.describe Pakyow::Actions::Logger do
 
       it "silences log output" do
         expect(logger).to receive(:prologue) do
-          expect(logger.level).to eq(4)
+          expect(Pakyow.logger.level).to eq(4)
         end
 
         expect(logger).to receive(:epilogue) do
-          expect(logger.level).to eq(4)
+          expect(Pakyow.logger.level).to eq(4)
         end
 
         action.call(connection) {}

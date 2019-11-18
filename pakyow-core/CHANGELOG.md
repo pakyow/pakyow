@@ -72,6 +72,8 @@
 
 ## Deprecations
 
+  * `Pakyow::Logger#silence` is deprecated in favor of `Pakyow::Logger::ThreadLocal#silence`.
+
   * `Pakyow::ProcessManager#add` no longer accepts a `Hash`.
 
     *Related links:*
