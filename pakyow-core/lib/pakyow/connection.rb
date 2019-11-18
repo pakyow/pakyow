@@ -47,7 +47,7 @@ module Pakyow
     attr_reader :error
 
     # @api private
-    attr_writer :error, :input_parser
+    attr_writer :error, :input_parser, :logger
     # @api private
     attr_reader :request
 

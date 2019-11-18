@@ -85,6 +85,10 @@ module Pakyow
 
       def open
         response = Async::WebSocket::Adapters::Native.open(@connection.request, handler: Connection) do |socket|
+          original_logger = @logger
+          Pakyow.logger.set(@logger)
+          @logger = Pakyow.logger
+
           @socket = socket
 
           handle_open
@@ -94,6 +98,7 @@ module Pakyow
         rescue EOFError, Protocol::WebSocket::ClosedError
         ensure
           @socket&.close; shutdown
+          @logger = original_logger
         end
 
         @connection.__getobj__.instance_variable_set(:@response, response)

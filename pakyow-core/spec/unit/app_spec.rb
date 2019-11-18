@@ -36,7 +36,7 @@ RSpec.describe Pakyow::Application do
           fail "testing rescue mode"
         end
 
-        Pakyow.instance_variable_set(:@logger, Logger.new(File::NULL))
+        Pakyow.logger.set(Logger.new(File::NULL))
       end
 
       it "halts" do
@@ -69,7 +69,7 @@ RSpec.describe Pakyow::Application do
           eval("if")
         end
 
-        Pakyow.instance_variable_set(:@logger, Logger.new(File::NULL))
+        Pakyow.logger.set(Logger.new(File::NULL))
       end
 
       it "enters rescue mode" do
@@ -141,7 +141,7 @@ RSpec.describe Pakyow::Application do
           fail "testing rescue mode"
         end
 
-        Pakyow.instance_variable_set(:@logger, Logger.new(File::NULL))
+        Pakyow.logger.set(Logger.new(File::NULL))
       end
 
       it "enters rescue mode" do
@@ -170,7 +170,7 @@ RSpec.describe Pakyow::Application do
           eval("if")
         end
 
-        Pakyow.instance_variable_set(:@logger, Logger.new(File::NULL))
+        Pakyow.logger.set(Logger.new(File::NULL))
       end
 
       it "enters rescue mode" do
