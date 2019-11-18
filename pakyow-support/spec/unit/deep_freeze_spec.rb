@@ -184,7 +184,7 @@ RSpec.describe Pakyow::Support::DeepFreeze do
 
   describe IO do
     it "is insulated" do
-      expect(IO.new(IO.sysopen("/dev/tty", "w"), "w").insulated?).to be(true)
+      expect(IO.new(IO.sysopen("/dev/null", "w"), "w").insulated?).to be(true)
     end
   end
 end
