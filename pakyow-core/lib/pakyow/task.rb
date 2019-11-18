@@ -18,9 +18,6 @@ module Pakyow
     extend Forwardable
     def_delegators :@rake, :name
 
-    extend Support::DeepFreeze
-    insulate :rake
-
     attr_reader :description
 
     def initialize(namespace: [], description: nil, arguments: {}, options: {}, flags: {}, task_args: [], global: false, &block)

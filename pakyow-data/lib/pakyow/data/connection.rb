@@ -4,7 +4,6 @@ require "uri"
 require "forwardable"
 
 require "pakyow/support/class_state"
-require "pakyow/support/deep_freeze"
 require "pakyow/support/indifferentize"
 require "pakyow/support/inflector"
 
@@ -15,9 +14,6 @@ module Pakyow
       def_delegators :@adapter, :dataset_for_source, :transaction
 
       attr_reader :type, :name, :opts, :adapter, :failure
-
-      extend Support::DeepFreeze
-      insulate :logger, :adapter
 
       def initialize(type:, name:, string: nil, opts: nil, logger: nil)
         @type, @name, @logger, @failure = type, name, logger, nil

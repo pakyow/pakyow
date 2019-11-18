@@ -17,8 +17,6 @@ module Pakyow
       extend Support::Extension
 
       apply_extension do
-        insulate :process_manager, :bound_endpoint
-
         class_state :processes, default: []
 
         on "run" do

@@ -7,8 +7,6 @@ require "redis"
 require "concurrent/timer_task"
 require "connection_pool"
 
-require "pakyow/support/deep_freeze"
-
 module Pakyow
   module Data
     class Subscribers
@@ -33,9 +31,6 @@ module Pakyow
           KEY_PART_SEPARATOR = "/"
           KEY_PREFIX = "data"
           INFINITY = "+inf"
-
-          extend Support::DeepFreeze
-          insulate :redis
 
           def initialize(config)
             @redis = ConnectionPool.new(**config[:pool]) {

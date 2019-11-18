@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "pakyow/support/class_state"
-require "pakyow/support/deep_freeze"
 require "pakyow/support/hookable"
 
 require "pakyow/support/core_refinements/proc/introspection"
@@ -22,9 +21,6 @@ module Pakyow
       class_state :__build_fns, default: [], inheritable: true
       class_state :__attach_fns, default: [], inheritable: true
       class_state :__expose_fns, default: [], inheritable: true
-
-      extend Support::DeepFreeze
-      insulate :__presenters_by_path, :__presenter_views
 
       include Support::Hookable
       events :render

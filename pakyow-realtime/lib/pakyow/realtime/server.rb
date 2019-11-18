@@ -4,6 +4,7 @@ require "concurrent/array"
 require "concurrent/timer_task"
 require "concurrent/executor/single_thread_executor"
 
+require "pakyow/support/deep_freeze"
 require "pakyow/support/message_verifier"
 
 require "pakyow/realtime/websocket"
@@ -11,6 +12,9 @@ require "pakyow/realtime/websocket"
 module Pakyow
   module Realtime
     class Server
+      extend Support::DeepFreeze
+      insulate :executor, :sockets
+
       attr_reader :adapter
 
       def initialize(adapter = :memory, adapter_config, timeout_config)
