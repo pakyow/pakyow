@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Initialize thread local logger with key, support setting the thread local logger.**
+
   * `chg` **Improve `Pakyow::ProcessManager` api with the addition of a `Pakyow::Process` value object.**
 
     *Related links:*

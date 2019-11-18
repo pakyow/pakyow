@@ -1,4 +1,8 @@
 RSpec.describe Pakyow::Logger::ThreadLocal do
+  before do
+    allow(Pakyow).to receive(:deprecated)
+  end
+
   let(:instance) {
     described_class.new(default)
   }
@@ -7,9 +11,28 @@ RSpec.describe Pakyow::Logger::ThreadLocal do
     instance_double(Pakyow::Logger)
   }
 
+  describe "#initialize" do
+    context "without passing a value for key" do
+      it "is deprecated" do
+        expect(Pakyow).to receive(:deprecated).with(
+          "default value for `Pakyow::Logger::ThreadLocal' argument `key'",
+          "pass value for `key'"
+        )
+
+        instance
+      end
+
+      it "defaults to :pakyow_logger" do
+        instance.set :foo
+
+        expect(Thread.current[:pakyow_logger]).to be(:foo)
+      end
+    end
+  end
+
   describe "#silence" do
     before do
-      Thread.current[:pakyow_logger] = local
+      instance.set(local)
       allow(local).to receive(:dup).and_return(duped)
       allow(duped).to receive(:level=)
     end
@@ -51,7 +74,7 @@ RSpec.describe Pakyow::Logger::ThreadLocal do
 
     context "no thread local logger" do
       before do
-        Thread.current[:pakyow_logger] = nil
+        instance.set(nil)
         allow(default).to receive(:dup).and_return(duped)
       end
 

@@ -289,7 +289,7 @@ module Pakyow
       end
 
       @streams << Async::Task.current.async { |task|
-        Thread.current[:pakyow_logger] = @logger
+        Pakyow.logger.set(@logger)
 
         begin
           yield self

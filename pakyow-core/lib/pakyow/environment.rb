@@ -173,7 +173,7 @@ module Pakyow
     # Builds and returns a default logger that's replaced in `setup`.
     #
     def logger
-      @logger ||= Logger::ThreadLocal.new(Logger.new("dflt", output: output, level: :all))
+      @logger ||= Logger::ThreadLocal.new(Logger.new("dflt", output: output, level: :all), key: :pakyow_logger)
     end
 
     # Mounts an app at a path.
@@ -339,7 +339,7 @@ module Pakyow
           # Pakyow is designed so that the connection object and its logger should always be available
           # anywhere you need it. If it isn't, reconsider the design before using the thread local.
           #
-          Thread.current[:pakyow_logger] = connection.logger
+          Pakyow.logger.set(connection.logger)
 
           catch :halt do
             @pipeline.call(connection)

@@ -9,12 +9,21 @@ module Pakyow
     # Determines at log time what logger to use, based on a thread-local context.
     #
     class ThreadLocal
-      def initialize(default_logger)
-        @default = default_logger
+      def initialize(default_logger, key: nil)
+        if key.nil?
+          Pakyow.deprecated "default value for `#{self.class}' argument `key'", "pass value for `key'"
+          key = :pakyow_logger
+        end
+
+        @default, @key = default_logger, key
       end
 
       def target
-        Thread.current[:pakyow_logger] || @default
+        Thread.current[@key] || @default
+      end
+
+      def set(logger)
+        Thread.current[@key] = logger
       end
 
       def replace(logger)
@@ -22,15 +31,15 @@ module Pakyow
       end
 
       def silence(temporary_level = :error)
-        current = Thread.current[:pakyow_logger]
+        current = Thread.current[@key]
 
         logger = target.dup
         logger.level = temporary_level
-        Thread.current[:pakyow_logger] = logger
+        Thread.current[@key] = logger
 
         yield
 
-        Thread.current[:pakyow_logger] = current
+        Thread.current[@key] = current
       end
 
       extend Forwardable
