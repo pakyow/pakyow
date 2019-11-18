@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "delegate"
+require "socket"
 
 require "pakyow/support/class_state"
 require "pakyow/support/deprecator"
@@ -82,6 +83,21 @@ module Pakyow
           end
 
           self
+        end
+      end
+
+      [IO, Socket].each do |insulated_class|
+        refine insulated_class do
+          def insulated?
+            true
+          end
+
+          # Workaround for (only appears to cause issues in Ruby 2.5):
+          # https://ruby-doc.org/core-2.2.2/doc/syntax/refinements_rdoc.html#label-Indirect+Method+Calls
+          #
+          def respond_to?(name, *)
+            super || name == :insulated?
+          end
         end
       end
     end

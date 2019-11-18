@@ -2,6 +2,7 @@
 
 require "sequel"
 
+require "pakyow/support/deep_freeze"
 require "pakyow/support/extension"
 
 require "pakyow/support/core_refinements/string/normalization"
@@ -49,6 +50,9 @@ module Pakyow
             pg_json
           ).freeze
         }.freeze
+
+        extend Support::DeepFreeze
+        insulate :connection
 
         def initialize(opts, logger: nil)
           @opts, @logger = opts, logger

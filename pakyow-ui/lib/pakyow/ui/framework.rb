@@ -13,6 +13,8 @@ require "pakyow/application/behavior/ui/timeouts"
 
 require "pakyow/presenter/renderer/behavior/ui/install_transforms"
 
+require "pakyow/support/deep_freeze"
+
 module Pakyow
   module UI
     class Framework < Pakyow::Framework(:ui)
@@ -75,6 +77,8 @@ module Pakyow
 
           # @api private
           attr_reader :ui_executor
+
+          extend Support::DeepFreeze
           insulate :ui_executor
 
           after "initialize" do

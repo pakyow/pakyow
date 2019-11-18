@@ -15,6 +15,7 @@ module Pakyow
         class_state :on_change_matchers, default: {}
         class_state :watched_paths, default: []
 
+        extend Support::DeepFreeze
         insulate :filewatcher, :filewatcher_thread
 
         after "run" do

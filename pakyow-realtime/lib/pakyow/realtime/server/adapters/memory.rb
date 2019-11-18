@@ -4,6 +4,8 @@ require "concurrent/array"
 require "concurrent/hash"
 require "concurrent/scheduled_task"
 
+require "pakyow/support/deep_freeze"
+
 module Pakyow
   module Realtime
     class Server
@@ -14,6 +16,9 @@ module Pakyow
         #
         # @api private
         class Memory
+          extend Support::DeepFreeze
+          insulate :socket_ids_by_channel, :channels_by_socket_id, :expirations_for_socket_id, :socket_instances_by_socket_id
+
           def initialize(server, _config)
             @server = server
 

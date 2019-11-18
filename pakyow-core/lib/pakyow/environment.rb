@@ -98,9 +98,6 @@ module Pakyow
   using Support::DeepFreeze
   using Support::Refinements::Array::Ensurable
 
-  extend Support::DeepFreeze
-  insulate :output, :app
-
   include Support::Hookable
   events :load, :configure, :setup, :boot, :shutdown, :run
 

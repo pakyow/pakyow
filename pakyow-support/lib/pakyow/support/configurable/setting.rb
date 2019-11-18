@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "pakyow/support/deep_dup"
-require "pakyow/support/deep_freeze"
 
 module Pakyow
   module Support
@@ -9,9 +8,6 @@ module Pakyow
       # @api private
       class Setting
         using DeepDup
-
-        extend DeepFreeze
-        insulate :configurable, :value
 
         def initialize(default:, configurable:, &block)
           @default, @block, @configurable = default, block, configurable
