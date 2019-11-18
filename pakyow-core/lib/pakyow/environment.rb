@@ -327,14 +327,7 @@ module Pakyow
 
     def call(input)
       config.connection_class.new(input).yield_self { |connection|
-        Async(logger: logger) {
-          Pakyow.logger.set(connection.logger)
-
-          # Always log through the thread-local logger. The thread local gives us a thread-safe way to
-          # do things like silencing, so it's preferred over using the connection logger directly.
-          #
-          connection.logger = Pakyow.logger
-
+        connection.async {
           catch :halt do
             @pipeline.call(connection)
           end

@@ -8,40 +8,50 @@ RSpec.describe Pakyow::Actions::Logger do
   end
 
   let :request do
-    instance_double(Async::HTTP::Protocol::Request)
+    instance_double(Async::HTTP::Protocol::Request, method: "GET", path: "/", headers: {}, remote_address: remote_address)
   end
 
-  let :logger do
-    double.as_null_object
-  end
+  let(:remote_address) {
+    double(:remote_address, ip_address: "1.2.3.4")
+  }
 
   before do
-    allow(Pakyow::Logger).to receive(:new).and_return(logger)
+    allow(Pakyow.logger).to receive(:prologue)
+    allow(Pakyow.logger).to receive(:epilogue)
+    allow(Pakyow.logger).to receive(:debug)
   end
 
   it "logs the prologue" do
-    expect(logger).to receive(:prologue).with(connection)
-    action.call(connection) {}
+    expect(Pakyow.logger).to receive(:prologue).with(connection)
+
+    connection.async do
+      action.call(connection) {}
+    end
   end
 
   it "logs the epilogue" do
-    expect(logger).to receive(:epilogue).with(connection)
-    action.call(connection) {}
+    expect(Pakyow.logger).to receive(:epilogue).with(connection)
+
+    connection.async do
+      action.call(connection) {}
+    end
   end
 
   it "yields between prologue and epilogue" do
-    allow(logger).to receive(:prologue)
-    allow(logger).to receive(:epilogue)
+    allow(Pakyow.logger).to receive(:prologue)
+    allow(Pakyow.logger).to receive(:epilogue)
 
     yielded = false
-    action.call(connection) do
-      yielded = true
-      expect(logger).to have_received(:prologue).with(connection)
-      expect(logger).not_to have_received(:epilogue)
+    connection.async do
+      action.call(connection) do
+        yielded = true
+        expect(Pakyow.logger).to have_received(:prologue).with(connection)
+        expect(Pakyow.logger).not_to have_received(:epilogue)
+      end
     end
 
     expect(yielded).to be(true)
-    expect(logger).to have_received(:epilogue).with(connection)
+    expect(Pakyow.logger).to have_received(:epilogue).with(connection)
   end
 
   context "silencer exists" do
@@ -65,31 +75,36 @@ RSpec.describe Pakyow::Actions::Logger do
 
     context "silencer is matched" do
       let :request do
-        instance_double(Async::HTTP::Protocol::Request, path: "/foo")
+        instance_double(Async::HTTP::Protocol::Request, method: "GET", path: "/foo", headers: {}, remote_address: remote_address)
       end
 
       it "silences log output" do
-        expect(logger).to receive(:prologue) do
+        expect(Pakyow.logger).to receive(:prologue) do
           expect(Pakyow.logger.level).to eq(4)
         end
 
-        expect(logger).to receive(:epilogue) do
+        expect(Pakyow.logger).to receive(:epilogue) do
           expect(Pakyow.logger.level).to eq(4)
         end
 
-        action.call(connection) {}
+        connection.async do
+          action.call(connection) {}
+        end
       end
     end
 
     context "silencer is not matched" do
       let :request do
-        instance_double(Async::HTTP::Protocol::Request, path: "/bar")
+        instance_double(Async::HTTP::Protocol::Request, method: "GET", path: "/bar", headers: {}, remote_address: remote_address)
       end
 
       it "does not silence log output" do
-        expect(logger).to receive(:prologue)
-        expect(logger).to receive(:epilogue)
-        action.call(connection) {}
+        expect(Pakyow.logger).to receive(:prologue)
+        expect(Pakyow.logger).to receive(:epilogue)
+
+        connection.async do
+          action.call(connection) {}
+        end
       end
     end
   end

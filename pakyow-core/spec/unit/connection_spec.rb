@@ -97,6 +97,63 @@ RSpec.shared_examples :connection do
     end
   end
 
+  describe "#async" do
+    before do
+      allow(Pakyow.output).to receive(:call)
+    end
+
+    it "replaces the connection logger with the environment's thread local logger" do
+      connection.async {
+        expect(connection.logger).to be(Pakyow.logger)
+      }.wait
+    end
+
+    it "creates a task with the environment's thread local logger" do
+      expect(connection).to receive(:Async).with(logger: Pakyow.logger).and_call_original
+
+      connection.async.wait
+    end
+
+    it "sets the connection logger to be the current thread local target" do
+      initial_logger = connection.logger
+
+      expect(initial_logger).to be_instance_of(Pakyow::Logger)
+
+      connection.async {
+        expect(Pakyow.logger.target).to be(initial_logger)
+      }.wait
+    end
+
+    it "sets the connection logger back after completing the task" do
+      initial_logger = connection.logger
+
+      expect(initial_logger).to be_instance_of(Pakyow::Logger)
+
+      connection.async.wait
+
+      expect(connection.logger).to be(initial_logger)
+    end
+
+    it "does not alter the thread local logger target for the main thread" do
+      original_target = Pakyow.logger.target
+      connection.async.wait
+
+      expect(Pakyow.logger.target).to be(original_target)
+    end
+
+    it "returns the created async task" do
+      expect(connection.async).to be_instance_of(Async::Task)
+    end
+
+    context "block given" do
+      it "yields the task" do
+        expect { |block|
+          connection.async(&block)
+        }.to yield_control
+      end
+    end
+  end
+
   describe "#finalize" do
     it "sets cookies"
     it "returns a response"
