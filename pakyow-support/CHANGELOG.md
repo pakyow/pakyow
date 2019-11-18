@@ -4,6 +4,7 @@
 
     *Related links:*
     - [Pull Request #343][pr-343]
+    - [Commit 59e6efe][59e6efe]
 
   * `add` **Let objects to insulate themselves from a deep freeze.**
 
@@ -25,6 +26,7 @@
 [pr-343]: https://github.com/pakyow/pakyow/pull/343
 [pr-340]: https://github.com/pakyow/pakyow/pull/340
 [pr-330]: https://github.com/pakyow/pakyow/pull/330
+[59e6efe]: https://github.com/pakyow/pakyow/commit/59e6efe42f1d6f5d48d15359d2e1a63bea9a0600
 [787681d]: https://github.com/pakyow/pakyow/commit/787681dacbbd3ce79f6e38a5672749635903a85b
 
 # v1.0.2
