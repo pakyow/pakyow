@@ -2,6 +2,16 @@
 
   * `chg` **Initialize thread local logger with key, support setting the thread local logger.**
 
+    *Related links:*
+    - [Pull Request #344][pr-344]
+    - [Commit ac9c7a9][ac9c7a9]
+
+  * `chg` **Support silencing in the thread local logger.**
+
+    *Related links:*
+    - [Pull Request #344][pr-344]
+    - [Commit 04e82ff][04e82ff]
+
   * `chg` **Improve `Pakyow::ProcessManager` api with the addition of a `Pakyow::Process` value object.**
 
     *Related links:*
@@ -74,6 +84,10 @@
 
   * `Pakyow::Logger#silence` is deprecated in favor of `Pakyow::Logger::ThreadLocal#silence`.
 
+    *Related links:*
+    - [Pull Request #344][pr-344]
+    - [Commit c75ca74][c75ca74]
+
   * `Pakyow::ProcessManager#add` no longer accepts a `Hash`.
 
     *Related links:*
@@ -85,6 +99,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-344]: https://github.com/pakyow/pakyow/pull/344
 [pr-339]: https://github.com/pakyow/pakyow/pull/339
 [pr-338]: https://github.com/pakyow/pakyow/pull/338
 [pr-335]: https://github.com/pakyow/pakyow/pull/335
@@ -96,6 +111,9 @@
 [pr-301]: https://github.com/pakyow/pakyow/pull/301
 [is-298]: https://github.com/pakyow/pakyow/issues/298
 [pr-297]: https://github.com/pakyow/pakyow/pull/297
+[c75ca74]: https://github.com/pakyow/pakyow/commit/c75ca749595e8e6f6e5950fc19f528e7c02230d7
+[ac9c7a9]: https://github.com/pakyow/pakyow/commit/ac9c7a95afef1b86ba5946d34269480e1d5f9081
+[04e82ff]: https://github.com/pakyow/pakyow/commit/04e82fffb77b3c72b3fbb4783744c9d4bdec1a25
 [be9b292]: https://github.com/pakyow/pakyow/commit/be9b292ba090976667b3c7a1ee6314cda7995591
 [d55e932]: https://github.com/pakyow/pakyow/commit/d55e9320dcca51ac7d12d8eef4f7f8aaf8faaa4f
 [26f586d]: https://github.com/pakyow/pakyow/commit/26f586d35c5fa0611cac6914fb2f249e3798ec79
