@@ -177,14 +177,30 @@ RSpec.describe Pakyow::Support::DeepFreeze do
   end
 
   describe Socket do
+    let(:subject) {
+      Socket.new(:INET, :STREAM)
+    }
+
     it "is insulated" do
-      expect(Socket.new(:INET, :STREAM).insulated?).to be(true)
+      expect(subject.insulated?).to be(true)
+    end
+
+    it "appears insulated" do
+      expect(subject.respond_to?(:insulated?)).to be(true)
     end
   end
 
   describe IO do
+    let(:subject) {
+      IO.new(IO.sysopen("/dev/null", "w"), "w")
+    }
+
     it "is insulated" do
-      expect(IO.new(IO.sysopen("/dev/null", "w"), "w").insulated?).to be(true)
+      expect(subject.insulated?).to be(true)
+    end
+
+    it "appears insulated" do
+      expect(subject.respond_to?(:insulated?)).to be(true)
     end
   end
 end
