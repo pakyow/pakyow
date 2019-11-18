@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Support silencing in the thread local logger.**
+
   * `add` **Insulate `Socket`/`IO` from deep freezing.**
 
     *Related links:*
