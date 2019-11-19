@@ -152,6 +152,8 @@ RSpec.configure do |config|
       }.map(&:to_sym)
     )
 
+    Thread.current[:pakyow_logger] = nil
+
     if ENV["RSS"]
       GC.start
       puts "rss: #{rss} live objects (#{GC.stat[:heap_live_slots]})"

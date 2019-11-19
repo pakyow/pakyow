@@ -2,8 +2,6 @@
 
 require "forwardable"
 
-require "pakyow/support/deep_freeze"
-
 require "pakyow/logger"
 
 module Pakyow
@@ -11,23 +9,41 @@ module Pakyow
     # Determines at log time what logger to use, based on a thread-local context.
     #
     class ThreadLocal
-      extend Support::DeepFreeze
-      insulate :default
+      def initialize(default_logger, key: nil)
+        if key.nil?
+          Pakyow.deprecated "default value for `#{self.class}' argument `key'", "pass value for `key'"
+          key = :pakyow_logger
+        end
 
-      extend Forwardable
-      def_delegators :target, *(Logger.instance_methods - Object.instance_methods)
-
-      def initialize(default_logger)
-        @default = default_logger
+        @default, @key = default_logger, key
       end
 
       def target
-        Thread.current[:pakyow_logger] || @default
+        Thread.current[@key] || @default
+      end
+
+      def set(logger)
+        Thread.current[@key] = logger
       end
 
       def replace(logger)
         @default = logger
       end
+
+      def silence(temporary_level = :error)
+        current = Thread.current[@key]
+
+        logger = target.dup
+        logger.level = temporary_level
+        Thread.current[@key] = logger
+
+        yield
+
+        Thread.current[@key] = current
+      end
+
+      extend Forwardable
+      def_delegators :target, *(Logger.instance_methods - instance_methods)
     end
   end
 end

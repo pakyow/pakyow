@@ -20,7 +20,7 @@ RSpec.shared_examples :connection_stream do
 
     it "registers an async task that yields the connection" do
       Async::Reactor.run { |task|
-        expect(task).to receive(:async) do |&block|
+        expect(connection).to receive(:async) do |&block|
           block.call
         end
 

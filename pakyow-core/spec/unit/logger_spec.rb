@@ -192,6 +192,16 @@ RSpec.describe Pakyow::Logger do
   end
 
   describe "#silence" do
+    before do
+      allow(Pakyow).to receive(:deprecated)
+    end
+
+    it "is deprecated" do
+      expect(Pakyow).to receive(:deprecated).with(instance, :silence, "use `Pakyow::Logger::ThreadLocal#silence'")
+
+      instance.silence do; end
+    end
+
     it "does not log messages below error by default" do
       expect(output).not_to receive(:warn)
 

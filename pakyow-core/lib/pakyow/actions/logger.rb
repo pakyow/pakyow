@@ -7,7 +7,7 @@ module Pakyow
     class Logger
       def call(connection, &block)
         if silence?(connection)
-          connection.logger.silence do
+          Pakyow.logger.silence do
             call_with_logging(connection, &block)
           end
         else

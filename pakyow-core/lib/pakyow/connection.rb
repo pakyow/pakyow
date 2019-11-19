@@ -3,6 +3,7 @@
 require "cgi"
 require "securerandom"
 
+require "async"
 require "async/http"
 require "async/http/protocol/response"
 
@@ -61,8 +62,15 @@ module Pakyow
       @request = request
       @body = Async::HTTP::Body::Buffered.wrap(StringIO.new)
       @params = Pakyow::Connection::Params.new
-      @logger = Logger.new(:http, started_at: @timestamp, id: @id, output: Pakyow.output, level: Pakyow.config.logger.level)
       @streams = []
+
+      @logger = Logger.new(
+        :http,
+        started_at: @timestamp,
+        id: @id,
+        output: Pakyow.output,
+        level: Pakyow.config.logger.level
+      )
     end
 
     def request_header?(key)
@@ -288,9 +296,7 @@ module Pakyow
         @body = Async::HTTP::Body::Writable.new(length)
       end
 
-      @streams << Async::Task.current.async { |task|
-        Thread.current[:pakyow_logger] = @logger
-
+      @streams << async { |task|
         begin
           yield self
         rescue => error
@@ -303,6 +309,27 @@ module Pakyow
 
     def streaming?
       @streams.any?
+    end
+
+    def async
+      unless defined?(@initial_logger)
+        @initial_logger = @logger
+      end
+
+      Async(logger: Pakyow.logger) do |task|
+        original_logger = @logger
+
+        # Always log through the thread-local logger. The thread local gives us a thread-safe way to
+        # do things like silencing, so it's preferred over using the connection logger directly.
+        #
+        @logger = Pakyow.logger
+
+        Pakyow.logger.set(@initial_logger)
+
+        yield task if block_given?
+      ensure
+        @logger = original_logger
+      end
     end
 
     def sleep(seconds)
