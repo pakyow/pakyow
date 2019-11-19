@@ -5,6 +5,8 @@ require "concurrent/array"
 require "concurrent/timer_task"
 require "connection_pool"
 
+require "pakyow/support/deep_freeze"
+
 module Pakyow
   module Realtime
     class Server
@@ -20,6 +22,9 @@ module Pakyow
           INFINITY = "+inf"
 
           PUBSUB_PREFIX = "pubsub"
+
+          extend Support::DeepFreeze
+          insulate :redis
 
           def initialize(server, config)
             @server, @config = server, config
