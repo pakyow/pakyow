@@ -79,10 +79,12 @@ module Pakyow
         end
 
         def run
+          @process_manager = ProcessManager.new
+
           performing :run do
-            @process_manager = @processes.each_with_object(ProcessManager.new) { |process, manager|
-              manager.add(process)
-            }
+            @processes.each do |process|
+              @process_manager.add(process)
+            end
 
             root_pid = ::Process.pid
 
