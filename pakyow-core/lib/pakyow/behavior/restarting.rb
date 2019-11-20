@@ -65,17 +65,6 @@ module Pakyow
 
       class_methods do
         def respawn(environment = nil)
-          # Set the respawn flag and stop the process manager.
-          # Pakyow will check the flag and respawn from the main thread.
-          #
-          @respawn = true
-
-          # Set the environment to respawn into, if it was passed.
-          #
-          unless environment.nil? || environment.empty?
-            @respawn_environment = environment.strip.to_sym
-          end
-
           # Close the bound endpoint so we can respawn on the same port.
           #
           @bound_endpoint.close
@@ -83,6 +72,20 @@ module Pakyow
           # Finally, stop the process manager to invoke the respawn.
           #
           @process_manager.stop
+
+          # Replace the master process with a copy of itself.
+          #
+          exec respawn_command(environment)
+        end
+
+        private def respawn_command(environment)
+          command = "PW_RESPAWN=true PW_PROXY_PORT=#{@proxy_port} #{$0} #{ARGV.join(" ")}"
+
+          unless environment.nil? || environment.empty?
+            command = command + " -e #{environment.strip.to_sym}"
+          end
+
+          command
         end
       end
     end

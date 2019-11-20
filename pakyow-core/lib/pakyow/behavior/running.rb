@@ -97,20 +97,8 @@ module Pakyow
                 }.each(&:shutdown)
               end
             end
-          end
 
-          @process_manager.wait
-
-          if @respawn
-            respawn_command = "PW_RESPAWN=true PW_PROXY_PORT=#{@proxy_port} #{$0} #{ARGV.join(" ")}"
-
-            if @respawn_environment
-              respawn_command = respawn_command + " -e #{@respawn_environment}"
-            end
-
-            # Replace the master process with a copy of itself.
-            #
-            exec respawn_command
+            @process_manager.wait
           end
         rescue SignalException, Interrupt
           exit
