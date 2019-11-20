@@ -207,6 +207,9 @@ module Pakyow
             #
             PUBLISH_BUFFER_FLUSH_MS = 150
 
+            extend Support::DeepFreeze
+            insulate :redis, :buffer
+
             def initialize(redis, channel)
               @redis, @channel = redis, channel
               @buffer = Concurrent::Array.new
@@ -243,6 +246,9 @@ module Pakyow
           end
 
           class Subscriber
+            extend Support::DeepFreeze
+            insulate :redis
+
             def initialize(redis, channel, &callback)
               @redis, @channel, @callback = redis, channel, callback
 
