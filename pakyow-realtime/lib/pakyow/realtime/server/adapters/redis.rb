@@ -243,6 +243,9 @@ module Pakyow
           end
 
           class Subscriber
+            extend Support::DeepFreeze
+            insulate :redis
+
             def initialize(redis, channel, &callback)
               @redis, @channel, @callback = redis, channel, callback
 
