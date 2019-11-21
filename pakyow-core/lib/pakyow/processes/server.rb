@@ -23,9 +23,9 @@ module Pakyow
       end
 
       def run
-        Async::HTTP::Server.new(
-          Pakyow.boot, @endpoint, @protocol, @scheme
-        ).run
+        Async::Reactor.run do
+          Async::HTTP::Server.new(Pakyow.boot, @endpoint, @protocol, @scheme).run
+        end
       end
     end
   end
