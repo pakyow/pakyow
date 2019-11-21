@@ -90,6 +90,14 @@ module Pakyow
 
             at_exit do
               if ::Process.pid == root_pid
+                if $stdout.isatty
+                  # Don't let ^C mess up our output.
+                  #
+                  puts
+                end
+
+                Pakyow.logger << "Goodbye"
+
                 shutdown
               else
                 @apps.select { |app|
@@ -105,16 +113,13 @@ module Pakyow
         end
 
         def shutdown
-          if $stdout.isatty
-            # Don't let ^C mess up our output.
-            #
-            puts
-          end
-
-          Pakyow.logger << "Goodbye"
-
           performing :shutdown do
+            # Close the bound endpoint so we can respawn on the same port.
+            #
             @bound_endpoint.close
+
+            # Finally, stop the process manager to invoke the respawn.
+            #
             @process_manager.stop
           end
         end

@@ -32,7 +32,6 @@ module Pakyow
 
         on "shutdown" do
           @filewatcher.stop
-          @filewatcher_thread.join
         end
       end
 

@@ -65,13 +65,7 @@ module Pakyow
 
       class_methods do
         def respawn(environment = nil)
-          # Close the bound endpoint so we can respawn on the same port.
-          #
-          @bound_endpoint.close
-
-          # Finally, stop the process manager to invoke the respawn.
-          #
-          @process_manager.stop
+          shutdown
 
           # Replace the master process with a copy of itself.
           #
