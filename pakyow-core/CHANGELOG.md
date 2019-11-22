@@ -1,5 +1,11 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Run the environment in context of an async reactor.**
+
+    *Related links:*
+    - [Pull Request #347][pr-347]
+    - [Commit 991f3dd][991f3dd]
+
   * `chg` **Initialize thread local logger with key, support setting the thread local logger.**
 
     *Related links:*
@@ -99,6 +105,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-347]: https://github.com/pakyow/pakyow/pull/347
 [pr-344]: https://github.com/pakyow/pakyow/pull/344
 [pr-339]: https://github.com/pakyow/pakyow/pull/339
 [pr-338]: https://github.com/pakyow/pakyow/pull/338
@@ -111,6 +118,7 @@
 [pr-301]: https://github.com/pakyow/pakyow/pull/301
 [is-298]: https://github.com/pakyow/pakyow/issues/298
 [pr-297]: https://github.com/pakyow/pakyow/pull/297
+[991f3dd]: https://github.com/pakyow/pakyow/commit/991f3ddd589edc9d08370c4f020e2ef0297433c7
 [c75ca74]: https://github.com/pakyow/pakyow/commit/c75ca749595e8e6f6e5950fc19f528e7c02230d7
 [ac9c7a9]: https://github.com/pakyow/pakyow/commit/ac9c7a95afef1b86ba5946d34269480e1d5f9081
 [04e82ff]: https://github.com/pakyow/pakyow/commit/04e82fffb77b3c72b3fbb4783744c9d4bdec1a25
