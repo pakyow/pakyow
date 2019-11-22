@@ -1,5 +1,6 @@
 RSpec.describe "running an async task within the environment" do
   before do
+    Pakyow.config.server.host = "0.0.0.0"
     allow(Pakyow).to receive(:start_processes).and_return(thread)
 
     local = self
