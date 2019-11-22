@@ -79,48 +79,40 @@ module Pakyow
         end
 
         def run
-          @process_manager = ProcessManager.new
+          Async::Reactor.run do |reactor|
+            @__reactor = reactor
 
-          performing :run do
-            @processes.each do |process|
-              @process_manager.add(process)
-            end
-
-            root_pid = ::Process.pid
-
-            at_exit do
-              if ::Process.pid == root_pid
-                if $stdout.isatty
-                  # Don't let ^C mess up our output.
-                  #
-                  puts
-                end
-
-                Pakyow.logger << "Goodbye"
-
-                shutdown
-              else
-                @apps.select { |app|
-                  app.respond_to?(:shutdown)
-                }.each(&:shutdown)
-              end
-            end
-
-            @process_manager.wait
+            handle_at_exit
+            call_hooks :before, :run
+            @__process_thread = start_processes
           end
+
+          if defined?(@__process_thread)
+            @__process_thread.join
+          end
+
+          call_hooks :after, :run
         rescue SignalException, Interrupt
           exit
         end
 
         def shutdown
           performing :shutdown do
+            # Stop the async reactor.
+            #
+            @__reactor.stop
+
             # Close the bound endpoint so we can respawn on the same port.
             #
-            @bound_endpoint.close
+            if defined?(@bound_endpoint)
+              @bound_endpoint.close
+            end
 
             # Finally, stop the process manager to invoke the respawn.
             #
-            @process_manager.stop
+            if defined?(@process_manager)
+              @process_manager.stop
+            end
           end
         end
 
@@ -133,6 +125,44 @@ module Pakyow
           end
 
           @process_manager.restart
+        end
+
+        def async(&block)
+          @__reactor.async(&block)
+        end
+
+        private def start_processes
+          @process_manager = ProcessManager.new
+
+          Thread.new do
+            @processes.each do |process|
+              @process_manager.add(process)
+            end
+
+            @process_manager.wait
+          end
+        end
+
+        private def handle_at_exit
+          root_pid = ::Process.pid
+
+          at_exit do
+            if ::Process.pid == root_pid
+              if $stdout.isatty
+                # Don't let ^C mess up our output.
+                #
+                puts
+              end
+
+              Pakyow.logger << "Goodbye"
+
+              shutdown
+            else
+              @apps.select { |app|
+                app.respond_to?(:shutdown)
+              }.each(&:shutdown)
+            end
+          end
         end
       end
     end
