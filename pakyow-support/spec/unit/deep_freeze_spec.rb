@@ -203,4 +203,18 @@ RSpec.describe Pakyow::Support::DeepFreeze do
       expect(subject.respond_to?(:insulated?)).to be(true)
     end
   end
+
+  describe Thread do
+    let(:subject) {
+      Thread.new { sleep }
+    }
+
+    it "is insulated" do
+      expect(subject.insulated?).to be(true)
+    end
+
+    it "appears insulated" do
+      expect(subject.respond_to?(:insulated?)).to be(true)
+    end
+  end
 end

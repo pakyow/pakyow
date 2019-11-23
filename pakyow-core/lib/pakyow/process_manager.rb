@@ -56,13 +56,10 @@ module Pakyow
         Fiber.new {
           until @stopped
             status = @group.fork object: process do
-              Async do
-                process.call
-              rescue => error
-                Pakyow.logger.houston(error)
-                exit 1
-              end
+              process.call
             rescue Interrupt
+            rescue => error
+              Pakyow.logger.houston(error); exit 1
             end
 
             break unless status.success?

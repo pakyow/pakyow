@@ -18,7 +18,7 @@ module Pakyow
         extend Support::DeepFreeze
         insulate :filewatcher, :filewatcher_thread
 
-        after "run" do
+        on "run", priority: :low do
           @filewatcher = Filewatcher.new(
             @watched_paths.map { |path|
               File.expand_path(path)
@@ -32,7 +32,6 @@ module Pakyow
 
         on "shutdown" do
           @filewatcher.stop
-          @filewatcher_thread.join
         end
       end
 

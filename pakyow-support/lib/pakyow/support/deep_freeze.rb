@@ -86,7 +86,7 @@ module Pakyow
         end
       end
 
-      [IO, Socket].each do |insulated_class|
+      [IO, Socket, Thread].each do |insulated_class|
         refine insulated_class do
           def insulated?
             true
