@@ -90,6 +90,8 @@
 
 ## Deprecations
 
+  * The environment's `freeze_on_boot` config option is deprecated and will be removed.
+
   * `Pakyow::Logger#silence` is deprecated in favor of `Pakyow::Logger::ThreadLocal#silence`.
 
     *Related links:*
