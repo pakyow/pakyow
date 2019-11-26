@@ -288,10 +288,6 @@ module Pakyow
         @apps.select { |app| app.respond_to?(:booted) }.each(&:booted)
       end
 
-      if config.freeze_on_boot
-        deep_freeze unless unsafe
-      end
-
       self
     rescue StandardError => error
       handle_boot_failure(error)

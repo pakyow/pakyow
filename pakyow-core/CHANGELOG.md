@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Boot the environment once, prior to forking child processes.**
+
   * `chg` **Run the environment in context of an async reactor.**
 
     *Related links:*

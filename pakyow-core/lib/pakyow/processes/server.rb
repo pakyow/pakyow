@@ -2,11 +2,14 @@
 
 require "async/http/server"
 
+require "pakyow/support/deep_freeze"
 require "pakyow/support/extension"
 
 module Pakyow
   module Processes
     class Server
+      using Support::DeepFreeze
+
       class << self
         def running_text(scheme:, host:, port:)
           text = String.new("Pakyow › #{Pakyow.env.capitalize}")
@@ -24,7 +27,11 @@ module Pakyow
 
       def run
         Async::Reactor.run do
-          Async::HTTP::Server.new(Pakyow.boot, @endpoint, @protocol, @scheme).run
+          Async::HTTP::Server.new(Pakyow, @endpoint, @protocol, @scheme).run
+
+          if Pakyow.config.freeze_on_boot
+            Pakyow.deep_freeze
+          end
         end
       end
     end

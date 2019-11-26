@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
+require "pakyow/support/deep_freeze"
+
 module Pakyow
   module Processes
     class Proxy
+      using Support::DeepFreeze
+
       class << self
         def find_local_port
           server = TCPServer.new("127.0.0.1", 0)
@@ -32,6 +36,10 @@ module Pakyow
             Pakyow.logger << Pakyow::Processes::Server.running_text(
               scheme: "http", host: @host, port: @port
             )
+          end
+
+          if Pakyow.config.freeze_on_boot
+            Pakyow.deep_freeze
           end
         end
       end

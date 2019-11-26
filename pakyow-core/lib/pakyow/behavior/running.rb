@@ -79,6 +79,8 @@ module Pakyow
         end
 
         def run
+          boot
+
           Async::Reactor.run do |reactor|
             @__reactor = reactor
 

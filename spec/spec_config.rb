@@ -41,10 +41,6 @@ RSpec.configure do |config|
     Pakyow::Support::CLI.instance_variable_set(:@style, Pastel.new(enabled: true))
 
     if Pakyow.respond_to?(:config)
-      Pakyow.config.freeze_on_boot = false
-    end
-
-    if Pakyow.respond_to?(:config)
       $original_pakyow_config = Pakyow.config
     end
 
