@@ -79,6 +79,8 @@ module Pakyow
         end
 
         def run
+          boot
+
           Async::Reactor.run do |reactor|
             @__reactor = reactor
 
@@ -124,7 +126,7 @@ module Pakyow
             end
           end
 
-          @process_manager.restart
+          boot; @process_manager.restart
         end
 
         def async(&block)

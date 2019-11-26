@@ -1,5 +1,11 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Boot the environment once, prior to forking child processes.**
+
+    *Related links:*
+    - [Pull Request #348][pr-348]
+    - [Commit 641fd12][641fd12]
+
   * `chg` **Run the environment in context of an async reactor.**
 
     *Related links:*
@@ -88,6 +94,12 @@
 
 ## Deprecations
 
+  * The environment's `freeze_on_boot` config option is deprecated and will be removed.
+
+    *Related links:*
+    - [Pull Request #348][pr-348]
+    - [Commit c75ca74][c75ca74]
+
   * `Pakyow::Logger#silence` is deprecated in favor of `Pakyow::Logger::ThreadLocal#silence`.
 
     *Related links:*
@@ -105,6 +117,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-348]: https://github.com/pakyow/pakyow/pull/348
 [pr-347]: https://github.com/pakyow/pakyow/pull/347
 [pr-344]: https://github.com/pakyow/pakyow/pull/344
 [pr-339]: https://github.com/pakyow/pakyow/pull/339
@@ -118,6 +131,8 @@
 [pr-301]: https://github.com/pakyow/pakyow/pull/301
 [is-298]: https://github.com/pakyow/pakyow/issues/298
 [pr-297]: https://github.com/pakyow/pakyow/pull/297
+[641fd12]: https://github.com/pakyow/pakyow/commit/641fd12b5abee8558621caf857cec47d38814c8a
+[12de611]: https://github.com/pakyow/pakyow/commit/12de611e480fb9224f1e0bdaf9bd902448dd69e3
 [991f3dd]: https://github.com/pakyow/pakyow/commit/991f3ddd589edc9d08370c4f020e2ef0297433c7
 [c75ca74]: https://github.com/pakyow/pakyow/commit/c75ca749595e8e6f6e5950fc19f528e7c02230d7
 [ac9c7a9]: https://github.com/pakyow/pakyow/commit/ac9c7a95afef1b86ba5946d34269480e1d5f9081
