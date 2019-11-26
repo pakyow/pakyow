@@ -126,7 +126,7 @@ module Pakyow
             end
           end
 
-          @process_manager.restart
+          boot; @process_manager.restart
         end
 
         def async(&block)
