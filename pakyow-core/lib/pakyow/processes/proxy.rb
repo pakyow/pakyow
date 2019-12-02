@@ -38,10 +38,10 @@ module Pakyow
             )
           end
 
-          if Pakyow.config.freeze_on_boot
-            Pakyow.deep_freeze
-          else
-            Pakyow.deprecated "config.freeze_on_boot", "do not change this setting"
+          Pakyow.deprecator.ignore do
+            if Pakyow.config.freeze_on_boot
+              Pakyow.deep_freeze
+            end
           end
         end
       end

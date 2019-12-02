@@ -10,8 +10,9 @@ module Pakyow
     extend Support::Extension
 
     apply_extension do
+      deprecated_setting :freeze_on_boot, true
+
       setting :default_env, :development
-      setting :freeze_on_boot, true
       setting :exit_on_boot_failure, true
       setting :timezone, :utc
       setting :secrets, ["pakyow"]
