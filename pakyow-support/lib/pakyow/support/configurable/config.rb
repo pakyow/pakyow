@@ -18,10 +18,10 @@ module Pakyow
         insulate :configurable
 
         # @api private
-        attr_reader :__settings, :__defaults, :__groups
+        attr_reader :__settings, :__defaults, :__groups, :__name
 
-        def initialize(configurable)
-          @configurable = configurable
+        def initialize(configurable, name: nil, path: [], deprecated: false)
+          @configurable, @__name, @__path, @__deprecated = configurable, name, path, deprecated
 
           @__settings = Concurrent::Hash.new
           @__defaults = Concurrent::Hash.new
@@ -46,14 +46,17 @@ module Pakyow
 
         def setting(name, default = default_omitted = true, &block)
           tap do
-            name = name.to_sym
-            default = nil if default_omitted
-
-            unless @__settings.include?(name)
-              define_setting_methods(name)
+            if @__deprecated
+              deprecated_setting(name, default, &block)
+            else
+              build_setting(name, default, default_omitted, block)
             end
+          end
+        end
 
-            @__settings[name] = Setting.new(default: default, configurable: @configurable, &block)
+        def deprecated_setting(name, default = default_omitted = true, &block)
+          tap do
+            build_setting(name, default, default_omitted, block, deprecated: true)
           end
         end
 
@@ -64,15 +67,11 @@ module Pakyow
         end
 
         def configurable(group, &block)
-          group = group.to_sym
-          config = Config.new(@configurable)
-          config.instance_eval(&block)
+          build_configurable(group, block)
+        end
 
-          unless @__groups.include?(group)
-            define_group_methods(group)
-          end
-
-          @__groups[group] = config
+        def deprecated_configurable(group, &block)
+          build_configurable(group, block, deprecated: true)
         end
 
         def configure_defaults!(configured_environment)
@@ -122,6 +121,10 @@ module Pakyow
 
         private
 
+        def path_to_self
+          (@__path.dup << @__name).compact
+        end
+
         def find_setting(name)
           @__settings[name.to_sym]
         end
@@ -148,6 +151,46 @@ module Pakyow
           singleton_class.define_method name do
             find_group(name)
           end
+        end
+
+        def build_setting(name, default, default_omitted, block, **options)
+          name = name.to_sym
+
+          if default_omitted
+            default = nil
+          end
+
+          unless @__settings.include?(name)
+            define_setting_methods(name)
+          end
+
+          @__settings[name] = Setting.new(
+            name: name,
+            path: path_to_self,
+            default: default,
+            configurable: @configurable,
+            **options,
+            &block
+          )
+        end
+
+        def build_configurable(group, block, **options)
+          group = group.to_sym
+
+          config = Config.new(
+            @configurable,
+            name: group,
+            path: path_to_self,
+            **options
+          )
+
+          config.instance_eval(&block)
+
+          unless @__groups.include?(group)
+            define_group_methods(group)
+          end
+
+          @__groups[group] = config
         end
       end
     end

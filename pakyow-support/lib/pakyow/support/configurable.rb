@@ -85,7 +85,7 @@ module Pakyow
 
       module CommonMethods
         extend Forwardable
-        def_delegators :@__config, :setting, :defaults, :configurable
+        def_delegators :@__config, :setting, :deprecated_setting, :defaults, :configurable, :deprecated_configurable
 
         def config
           @__config

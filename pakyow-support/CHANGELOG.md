@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Introduce config deprecations.**
+
   * `add` **Add `Deprecator#ignore`.**
     - Allows deprecations to be ignored during the execution of a block.
 
