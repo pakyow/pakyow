@@ -1,5 +1,11 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Add `Deprecator#ignore`.**
+    - Allows deprecations to be ignored during the execution of a block.
+
+    *Related links:*
+    - [Pull Request #349][pr-349]
+
   * `add` **Insulate `Socket`/`IO` from deep freezing.**
 
     *Related links:*
@@ -23,6 +29,7 @@
     *Related links:*
     - [Commit 787681d][787681d]
 
+[pr-349]: https://github.com/pakyow/pakyow/pull/349
 [pr-343]: https://github.com/pakyow/pakyow/pull/343
 [pr-340]: https://github.com/pakyow/pakyow/pull/340
 [pr-330]: https://github.com/pakyow/pakyow/pull/330
