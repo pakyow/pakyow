@@ -49,7 +49,7 @@ module Pakyow
       #
       # @example
       #   deprecator = Pakyow::Support::Deprecator.new(
-      #     Pakyow::Support::Deprecator::Reporters::Null(logger: Pakyow.logger)
+      #     Pakyow::Support::Deprecator::Reporters::Log(logger: Pakyow.logger)
       #   )
       #
       #   deprecator.deprecated Foo, :bar, "use `baz'"
@@ -71,7 +71,7 @@ module Pakyow
       #
       # @example
       #   deprecator = Pakyow::Support::Deprecator.new(
-      #     Pakyow::Support::Deprecator::Reporters::Null(logger: Pakyow.logger)
+      #     Pakyow::Support::Deprecator::Reporters::Log(logger: Pakyow.logger)
       #   )
       #
       #   deprecator.ignore do
