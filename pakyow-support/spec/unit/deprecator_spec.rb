@@ -109,4 +109,66 @@ RSpec.describe Pakyow::Support::Deprecator do
       end
     end
   end
+
+  describe "#ignore" do
+    let(:instance) {
+      described_class.new(reporter: reporter)
+    }
+
+    let(:reporter) {
+      double("reporter", report: nil)
+    }
+
+    it "ignores deprecations reported within the block" do
+      expect(reporter).not_to receive(:report)
+
+      instance.ignore do
+        instance.deprecated :foo, "use `bar'"
+      end
+    end
+
+    it "does not ignore deprecations reported after the block" do
+      expect(reporter).to receive(:report).once
+
+      instance.ignore do
+        instance.deprecated :foo, "use `bar'"
+      end
+
+      instance.deprecated :foo, "use `bar'"
+    end
+
+    context "block fails" do
+      it "does not ignore deprecations reported after the block" do
+        expect(reporter).to receive(:report).once
+
+        begin
+          instance.ignore do
+            fail
+          end
+        rescue
+        end
+
+        instance.deprecated :foo, "use `bar'"
+      end
+    end
+
+    describe "thread safety" do
+      it "is threadsafe" do
+        expect(reporter).to receive(:report).once
+
+        thread1 = Thread.new do
+          instance.ignore do
+            sleep 0.1
+          end
+        end
+
+        thread2 = Thread.new do
+          instance.deprecated :foo, "use `bar'"
+        end
+
+        thread2.join
+        thread1.join
+      end
+    end
+  end
 end
