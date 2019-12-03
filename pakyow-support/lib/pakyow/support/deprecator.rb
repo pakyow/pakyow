@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require "pakyow/support/deprecation"
+require "pakyow/support/deprecator/reporters/null"
+
 
 module Pakyow
   module Support
@@ -47,7 +49,7 @@ module Pakyow
       #
       # @example
       #   deprecator = Pakyow::Support::Deprecator.new(
-      #     Pakyow::Support::Deprecator::Reporters::Null(logger: Pakyow.logger)
+      #     Pakyow::Support::Deprecator::Reporters::Log(logger: Pakyow.logger)
       #   )
       #
       #   deprecator.deprecated Foo, :bar, "use `baz'"
@@ -60,9 +62,38 @@ module Pakyow
       #   => [deprecation] `foo.rb' is deprecated; solution: rename to `baz.rb'
       #
       def deprecated(*targets, solution)
-        @reporter.report do
+        reporter.report do
           Deprecation.new(*targets, solution: solution)
         end
+      end
+
+      # Ignores deprecations reported for the given block.
+      #
+      # @example
+      #   deprecator = Pakyow::Support::Deprecator.new(
+      #     Pakyow::Support::Deprecator::Reporters::Log(logger: Pakyow.logger)
+      #   )
+      #
+      #   deprecator.ignore do
+      #     deprecator.deprecated Foo.new, :bar, "use `baz'"
+      #   end
+      #
+      def ignore
+        replace(Reporters::Null); yield
+      ensure
+        replace(nil)
+      end
+
+      private def reporter
+        Thread.current[thread_local_key] || @reporter
+      end
+
+      private def replace(reporter)
+        Thread.current[thread_local_key] = reporter
+      end
+
+      private def thread_local_key
+        @thread_local_key ||= :"pakyow_deprecator_#{object_id}_reporter"
       end
 
       class << self
